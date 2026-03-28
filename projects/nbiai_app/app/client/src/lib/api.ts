@@ -2,17 +2,25 @@
 // Token helpers
 // ---------------------------------------------------------------------------
 
+// BUG-001 fix: access token stored in module-level memory to protect against XSS.
+// It is never written to localStorage.
+// BUG-002 partial fix: refresh token remains in localStorage for now so that
+// sessions survive page reloads. In production this MUST be replaced with an
+// httpOnly cookie set by the server (requires backend Set-Cookie change) so
+// that JavaScript cannot access it at all.
+let accessToken: string | null = null
+
 export function getToken(): string | null {
-  return localStorage.getItem('accessToken')
+  return accessToken
 }
 
-export function setTokens(accessToken: string, refreshToken: string): void {
-  localStorage.setItem('accessToken', accessToken)
+export function setTokens(newAccessToken: string, refreshToken: string): void {
+  accessToken = newAccessToken
   localStorage.setItem('refreshToken', refreshToken)
 }
 
 export function clearTokens(): void {
-  localStorage.removeItem('accessToken')
+  accessToken = null
   localStorage.removeItem('refreshToken')
 }
 
@@ -33,14 +41,14 @@ async function attemptRefresh(): Promise<string | null> {
   if (!refreshToken) return null
 
   try {
-    const res = await fetch('/api/auth/refresh', {
+    const res = await fetch('/api/v1/auth/refresh', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ refreshToken }),
     })
     if (!res.ok) return null
     const json = await res.json()
-    const { accessToken, refreshToken: newRefreshToken } = json.data
+    const { accessToken, refreshToken: newRefreshToken } = json
     setTokens(accessToken, newRefreshToken)
     return accessToken
   } catch {
@@ -116,22 +124,40 @@ export async function apiFetch<T>(
 
 export const auth = {
   login: (email: string, password: string) =>
-    apiFetch('/api/auth/login', {
+    apiFetch('/api/v1/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     }),
 
-  logout: () =>
-    apiFetch('/api/auth/logout', { method: 'POST' }),
+  logout: () => {
+    const refreshToken = localStorage.getItem('refreshToken')
+    return apiFetch('/api/v1/auth/logout', {
+      method: 'POST',
+      body: JSON.stringify({ refreshToken }),
+    })
+  },
 
   refresh: () =>
-    apiFetch('/api/auth/refresh', { method: 'POST' }),
+    apiFetch('/api/v1/auth/refresh', { method: 'POST' }),
+
+  // Silent refresh used on app mount to restore an in-memory access token after
+  // a page reload. Calls fetch directly rather than apiFetch to avoid the 401
+  // retry loop that would cause infinite recursion during session restoration.
+  refreshWithToken: async (refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> => {
+    const res = await fetch('/api/v1/auth/refresh', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refreshToken }),
+    })
+    if (!res.ok) throw new Error('Refresh failed')
+    return res.json()
+  },
 
   me: () =>
-    apiFetch('/api/auth/me'),
+    apiFetch('/api/v1/auth/me'),
 
   setup: (data: Record<string, unknown>) =>
-    apiFetch('/api/auth/setup', {
+    apiFetch('/api/v1/auth/setup', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
@@ -144,38 +170,38 @@ export const auth = {
 export const agents = {
   list: (params?: Record<string, string>) => {
     const qs = params ? '?' + new URLSearchParams(params).toString() : ''
-    return apiFetch(`/api/agents${qs}`)
+    return apiFetch(`/api/v1/agents${qs}`)
   },
 
   get: (id: string) =>
-    apiFetch(`/api/agents/${id}`),
+    apiFetch(`/api/v1/agents/${id}`),
 
   create: (data: Record<string, unknown>) =>
-    apiFetch('/api/agents', {
+    apiFetch('/api/v1/agents', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
 
   update: (id: string, data: Record<string, unknown>) =>
-    apiFetch(`/api/agents/${id}`, {
+    apiFetch(`/api/v1/agents/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
     }),
 
   delete: (id: string) =>
-    apiFetch(`/api/agents/${id}`, { method: 'DELETE' }),
+    apiFetch(`/api/v1/agents/${id}`, { method: 'DELETE' }),
 
   trigger: (agentId: string, taskId?: string) =>
-    apiFetch(`/api/agents/${agentId}/trigger`, {
+    apiFetch(`/api/v1/executions/${agentId}/trigger`, {
       method: 'POST',
       body: JSON.stringify({ taskId }),
     }),
 
   executions: (agentId: string) =>
-    apiFetch(`/api/agents/${agentId}/executions`),
+    apiFetch(`/api/v1/agents/${agentId}/executions`),
 
   budget: (agentId: string) =>
-    apiFetch(`/api/agents/${agentId}/budget`),
+    apiFetch(`/api/v1/agents/${agentId}/budget`),
 }
 
 // ---------------------------------------------------------------------------
@@ -185,20 +211,20 @@ export const agents = {
 export const projects = {
   list: (params?: Record<string, string>) => {
     const qs = params ? '?' + new URLSearchParams(params).toString() : ''
-    return apiFetch(`/api/projects${qs}`)
+    return apiFetch(`/api/v1/projects${qs}`)
   },
 
   get: (id: string) =>
-    apiFetch(`/api/projects/${id}`),
+    apiFetch(`/api/v1/projects/${id}`),
 
   create: (data: Record<string, unknown>) =>
-    apiFetch('/api/projects', {
+    apiFetch('/api/v1/projects', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
 
   update: (id: string, data: Record<string, unknown>) =>
-    apiFetch(`/api/projects/${id}`, {
+    apiFetch(`/api/v1/projects/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
     }),
@@ -211,38 +237,38 @@ export const projects = {
 export const tasks = {
   list: (params?: Record<string, string>) => {
     const qs = params ? '?' + new URLSearchParams(params).toString() : ''
-    return apiFetch(`/api/tasks${qs}`)
+    return apiFetch(`/api/v1/tasks${qs}`)
   },
 
   get: (id: string) =>
-    apiFetch(`/api/tasks/${id}`),
+    apiFetch(`/api/v1/tasks/${id}`),
 
   create: (data: Record<string, unknown>) =>
-    apiFetch('/api/tasks', {
+    apiFetch('/api/v1/tasks', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
 
   update: (id: string, data: Record<string, unknown>) =>
-    apiFetch(`/api/tasks/${id}`, {
+    apiFetch(`/api/v1/tasks/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
     }),
 
   comment: (id: string, content: string) =>
-    apiFetch(`/api/tasks/${id}/comments`, {
+    apiFetch(`/api/v1/tasks/${id}/comments`, {
       method: 'POST',
       body: JSON.stringify({ content }),
     }),
 
   checkout: (id: string, agentId: string) =>
-    apiFetch(`/api/tasks/${id}/checkout`, {
+    apiFetch(`/api/v1/tasks/${id}/checkout`, {
       method: 'POST',
       body: JSON.stringify({ agentId }),
     }),
 
   checkin: (id: string, agentId: string, output?: string) =>
-    apiFetch(`/api/tasks/${id}/checkin`, {
+    apiFetch(`/api/v1/tasks/${id}/checkin`, {
       method: 'POST',
       body: JSON.stringify({ agentId, output }),
     }),
@@ -254,15 +280,15 @@ export const tasks = {
 
 export const dashboard = {
   summary: () =>
-    apiFetch('/api/dashboard/summary'),
+    apiFetch('/api/v1/dashboard'),
 
   activity: (params?: Record<string, string>) => {
     const qs = params ? '?' + new URLSearchParams(params).toString() : ''
-    return apiFetch(`/api/dashboard/activity${qs}`)
+    return apiFetch(`/api/v1/activity${qs}`)
   },
 
   agentStatus: () =>
-    apiFetch('/api/dashboard/agent-status'),
+    apiFetch('/api/v1/dashboard'),
 }
 
 // ---------------------------------------------------------------------------
@@ -272,15 +298,15 @@ export const dashboard = {
 export const approvals = {
   list: (params?: Record<string, string>) => {
     const qs = params ? '?' + new URLSearchParams(params).toString() : ''
-    return apiFetch(`/api/approvals${qs}`)
+    return apiFetch(`/api/v1/approvals${qs}`)
   },
 
   pending: () =>
-    apiFetch('/api/approvals/pending'),
+    apiFetch('/api/v1/approvals/pending'),
 
-  decide: (id: string, decision: 'approve' | 'reject', comment?: string) =>
-    apiFetch(`/api/approvals/${id}/decide`, {
-      method: 'POST',
+  decide: (id: string, decision: 'approved' | 'rejected' | 'changes_requested', comment?: string) =>
+    apiFetch(`/api/v1/approvals/${id}`, {
+      method: 'PATCH',
       body: JSON.stringify({ decision, comment }),
     }),
 }
@@ -291,19 +317,19 @@ export const approvals = {
 
 export const finance = {
   revenueSummary: () =>
-    apiFetch('/api/finance/revenue'),
+    apiFetch('/api/v1/finance/revenue'),
 
   payrollSummary: () =>
-    apiFetch('/api/finance/payroll'),
+    apiFetch('/api/v1/finance/payroll'),
 
   summary: () =>
-    apiFetch('/api/finance/summary'),
+    apiFetch('/api/v1/finance/revenue'),
 
   agentCosts: () =>
-    apiFetch('/api/finance/agent-costs'),
+    apiFetch('/api/v1/finance/payroll'),
 
   addRevenue: (data: Record<string, unknown>) =>
-    apiFetch('/api/finance/revenue', {
+    apiFetch('/api/v1/finance/revenue', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
@@ -316,14 +342,14 @@ export const finance = {
 export const clients = {
   pipeline: (params?: Record<string, string>) => {
     const qs = params ? '?' + new URLSearchParams(params).toString() : ''
-    return apiFetch(`/api/clients/pipeline${qs}`)
+    return apiFetch(`/api/v1/pipeline${qs}`)
   },
 
   active: () =>
-    apiFetch('/api/clients/active'),
+    apiFetch('/api/v1/clients?is_active=true'),
 
   overdue: () =>
-    apiFetch('/api/clients/overdue'),
+    apiFetch('/api/v1/pipeline?overdue=true'),
 }
 
 // ---------------------------------------------------------------------------
@@ -332,23 +358,23 @@ export const clients = {
 
 export const settings = {
   company: () =>
-    apiFetch('/api/settings/company'),
+    apiFetch('/api/v1/settings'),
 
   updateCompany: (data: Record<string, unknown>) =>
-    apiFetch('/api/settings/company', {
+    apiFetch('/api/v1/settings', {
       method: 'PATCH',
       body: JSON.stringify(data),
     }),
 
   users: () =>
-    apiFetch('/api/settings/users'),
+    apiFetch('/api/v1/users'),
 
   apiKeys: () =>
-    apiFetch('/api/settings/api-keys'),
+    apiFetch('/api/v1/settings/api-keys'),
 
   budgets: () =>
-    apiFetch('/api/settings/budgets'),
+    apiFetch('/api/v1/settings/budgets'),
 
   knowledge: () =>
-    apiFetch('/api/settings/knowledge'),
+    apiFetch('/api/v1/knowledge'),
 }

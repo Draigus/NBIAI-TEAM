@@ -7,7 +7,7 @@ import {
   type ReactNode,
   createElement,
 } from 'react'
-import { auth, setTokens, clearTokens } from '@/lib/api'
+import { auth, setTokens, clearTokens, getToken } from '@/lib/api'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -46,34 +46,56 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  // On mount, if a token exists, hydrate the user
+  // On mount, attempt to restore the session.
+  // BUG-001 fix: the access token is now stored in memory (not localStorage), so
+  // it is always absent after a page reload. If a refresh token is in localStorage
+  // we attempt a silent refresh to obtain a new access token before calling /me.
   useEffect(() => {
-    const token = localStorage.getItem('accessToken')
-    if (!token) {
+    const inMemoryToken = getToken()
+    const storedRefreshToken = localStorage.getItem('refreshToken')
+
+    if (!inMemoryToken && !storedRefreshToken) {
+      // No session at all — nothing to restore.
       setIsLoading(false)
       return
     }
 
-    auth
-      .me()
-      .then((res) => {
-        const data = (res as { data: User }).data
+    const restoreSession = async () => {
+      try {
+        // If there is no in-memory access token (e.g. after a page reload) but
+        // a refresh token exists, silently obtain a new access token first.
+        if (!inMemoryToken && storedRefreshToken) {
+          const refreshRes = (await auth.refreshWithToken(storedRefreshToken)) as {
+            accessToken: string
+            refreshToken: string
+          }
+          setTokens(refreshRes.accessToken, refreshRes.refreshToken)
+        }
+
+        // The /me endpoint returns the user object directly (no data wrapper).
+        const res = await auth.me()
+        const data = res as User
         setUser(data)
-      })
-      .catch(() => {
+      } catch {
         clearTokens()
-      })
-      .finally(() => {
+      } finally {
         setIsLoading(false)
-      })
+      }
+    }
+
+    restoreSession()
   }, [])
 
   const login = useCallback(async (email: string, password: string) => {
+    // The login endpoint returns { accessToken, refreshToken, user } directly
+    // (no data wrapper). See auth.ts issueTokens().
     const res = (await auth.login(email, password)) as {
-      data: { accessToken: string; refreshToken: string; user: User }
+      accessToken: string
+      refreshToken: string
+      user: User
     }
-    setTokens(res.data.accessToken, res.data.refreshToken)
-    setUser(res.data.user)
+    setTokens(res.accessToken, res.refreshToken)
+    setUser(res.user)
   }, [])
 
   const logout = useCallback(async () => {

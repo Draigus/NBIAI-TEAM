@@ -34,6 +34,7 @@ import { clientRoutes } from './routes/clients.js'
 import { settingsRoutes } from './routes/settings.js'
 import { dashboardRoutes } from './routes/dashboard.js'
 import { executionRoutes } from './routes/executions.js'
+import { userRoutes } from './routes/users.js'
 import { setupWebSocket } from './realtime/websocket.js'
 import { startHeartbeat, stopHeartbeat } from './execution/heartbeat.js'
 
@@ -174,6 +175,7 @@ await fastify.register(clientRoutes, { prefix: '/api/v1' })
 await fastify.register(settingsRoutes, { prefix: '/api/v1' })
 await fastify.register(dashboardRoutes, { prefix: '/api/v1' })
 await fastify.register(executionRoutes, { prefix: '/api/v1' })
+await fastify.register(userRoutes, { prefix: '/api/v1' })
 
 // ---------------------------------------------------------------------------
 // Real-time WebSocket endpoint (/ws)

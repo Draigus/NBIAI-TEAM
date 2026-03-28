@@ -53,6 +53,9 @@ const updateCompanySchema = z.object({
   logoUrl: z.string().url().nullable().optional(),
 })
 
+// BUG-016 fix: board role cannot be assigned via user creation per spec Section 11.2.
+// "Board role cannot be assigned -- it is set during setup."
+// Role is restricted to admin or viewer at the schema level.
 const createUserSchema = z.object({
   email: z.string().email(),
   displayName: z.string().min(2).max(255),
@@ -62,11 +65,12 @@ const createUserSchema = z.object({
     .regex(/[A-Z]/, 'Password must contain at least one uppercase letter.')
     .regex(/[a-z]/, 'Password must contain at least one lowercase letter.')
     .regex(/[0-9]/, 'Password must contain at least one number.'),
-  role: z.enum(['board', 'admin', 'viewer']),
+  role: z.enum(['admin', 'viewer']),
 })
 
+// Board role cannot be assigned via PATCH either — prevents role escalation.
 const updateUserSchema = z.object({
-  role: z.enum(['board', 'admin', 'viewer']).optional(),
+  role: z.enum(['admin', 'viewer']).optional(),
   displayName: z.string().min(2).max(255).optional(),
 })
 
@@ -220,7 +224,7 @@ export async function settingsRoutes(fastify: FastifyInstance): Promise<void> {
           email,
           displayName,
           passwordHash,
-          role: role as 'board' | 'admin' | 'viewer',
+          role: role as 'admin' | 'viewer',
           isActive: true,
         })
         .returning({
@@ -330,9 +334,23 @@ export async function settingsRoutes(fastify: FastifyInstance): Promise<void> {
         })
       }
 
-      await db.delete(users).where(eq(users.id, id))
+      // BUG-019 fix: deactivate rather than hard-delete so that foreign key
+      // references (activity logs, task comments, etc.) are preserved.
+      // Per spec Section 11.2: "Remove User -- sets is_active to false."
+      const [deactivated] = await db
+        .update(users)
+        .set({ isActive: false, updatedAt: new Date() })
+        .where(eq(users.id, id))
+        .returning({
+          id: users.id,
+          email: users.email,
+          displayName: users.displayName,
+          role: users.role,
+          isActive: users.isActive,
+          updatedAt: users.updatedAt,
+        })
 
-      return reply.status(204).send()
+      return reply.status(200).send({ data: deactivated })
     },
   )
 

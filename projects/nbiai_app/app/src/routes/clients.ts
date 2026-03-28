@@ -25,7 +25,8 @@ import {
   agents,
   activityLog,
 } from '../db/schema.js'
-import { requireAuth } from '../middleware/auth.js'
+import { requireAuth, requireRole } from '../middleware/auth.js'
+import { BOARD_AND_ADMIN } from '../middleware/rbac.js'
 import { validateBody, paginationSchema } from '../lib/validate.js'
 
 // ---------------------------------------------------------------------------
@@ -272,7 +273,7 @@ export async function clientRoutes(fastify: FastifyInstance): Promise<void> {
   // -------------------------------------------------------------------------
   fastify.post(
     '/clients/pipeline',
-    { preHandler: requireAuth },
+    { preHandler: requireRole(BOARD_AND_ADMIN) },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const companyId = request.user.companyId
 
@@ -321,7 +322,7 @@ export async function clientRoutes(fastify: FastifyInstance): Promise<void> {
   // -------------------------------------------------------------------------
   fastify.patch(
     '/clients/pipeline/:id',
-    { preHandler: requireAuth },
+    { preHandler: requireRole(BOARD_AND_ADMIN) },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { id } = request.params as { id: string }
       const companyId = request.user.companyId
@@ -388,7 +389,7 @@ export async function clientRoutes(fastify: FastifyInstance): Promise<void> {
   // -------------------------------------------------------------------------
   fastify.delete(
     '/clients/pipeline/:id',
-    { preHandler: requireAuth },
+    { preHandler: requireRole(BOARD_AND_ADMIN) },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { id } = request.params as { id: string }
       const companyId = request.user.companyId
@@ -490,7 +491,7 @@ export async function clientRoutes(fastify: FastifyInstance): Promise<void> {
   // -------------------------------------------------------------------------
   fastify.post(
     '/clients',
-    { preHandler: requireAuth },
+    { preHandler: requireRole(BOARD_AND_ADMIN) },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const companyId = request.user.companyId
 
@@ -530,7 +531,7 @@ export async function clientRoutes(fastify: FastifyInstance): Promise<void> {
   // -------------------------------------------------------------------------
   fastify.patch(
     '/clients/:id',
-    { preHandler: requireAuth },
+    { preHandler: requireRole(BOARD_AND_ADMIN) },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { id } = request.params as { id: string }
       const companyId = request.user.companyId
