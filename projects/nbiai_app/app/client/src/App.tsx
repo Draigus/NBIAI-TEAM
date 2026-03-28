@@ -63,6 +63,7 @@ export default function App() {
           <Route path="projects/:projectId" element={<ProjectDetailPage />} />
           <Route path="tasks/:taskId" element={<TaskDetailPage />} />
           <Route path="finance" element={<FinancePage />} />
+          <Route path="finance/:tab" element={<FinancePage />} />
           <Route path="clients" element={<ClientsPage />} />
           <Route path="approvals" element={<ApprovalsPage />} />
           <Route path="settings" element={<SettingsPage />} />
