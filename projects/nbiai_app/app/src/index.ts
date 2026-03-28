@@ -33,6 +33,9 @@ import { financeRoutes } from './routes/finance.js'
 import { clientRoutes } from './routes/clients.js'
 import { settingsRoutes } from './routes/settings.js'
 import { dashboardRoutes } from './routes/dashboard.js'
+import { executionRoutes } from './routes/executions.js'
+import { setupWebSocket } from './realtime/websocket.js'
+import { startHeartbeat, stopHeartbeat } from './execution/heartbeat.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -42,6 +45,12 @@ const NODE_ENV = process.env.NODE_ENV ?? 'development'
 const FRONTEND_URL = process.env.FRONTEND_URL ?? 'http://localhost:5173'
 const JWT_SECRET = process.env.JWT_SECRET
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET
+
+// NBIAI_REPO_PATH: path to the NBIAI_TEAM repository on disk, used by the
+// context loader to read knowledge files. Defaults to the dev machine location.
+// Set in environment for production (Railway) deployments.
+const _NBIAI_REPO_PATH = process.env.NBIAI_REPO_PATH ?? 'D:/OneDrive/Claude_code/NBIAI_TEAM'
+void _NBIAI_REPO_PATH // consumed by context-loader.ts via process.env
 
 if (!JWT_SECRET || !JWT_REFRESH_SECRET) {
   console.error(
@@ -164,6 +173,13 @@ await fastify.register(financeRoutes, { prefix: '/api/v1' })
 await fastify.register(clientRoutes, { prefix: '/api/v1' })
 await fastify.register(settingsRoutes, { prefix: '/api/v1' })
 await fastify.register(dashboardRoutes, { prefix: '/api/v1' })
+await fastify.register(executionRoutes, { prefix: '/api/v1' })
+
+// ---------------------------------------------------------------------------
+// Real-time WebSocket endpoint (/ws)
+// ---------------------------------------------------------------------------
+
+setupWebSocket(fastify)
 
 // ---------------------------------------------------------------------------
 // 404 handler
@@ -236,6 +252,24 @@ fastify.setErrorHandler((error, _request, reply) => {
 try {
   await fastify.listen({ port: PORT, host: '0.0.0.0' })
   fastify.log.info(`[server] NBIAI Team App listening on port ${PORT}`)
+
+  // Start the agent heartbeat scheduler after the server is listening.
+  // Skipped in test environments to prevent open handles from keeping the
+  // test runner alive.
+  if (NODE_ENV !== 'test') {
+    const heartbeatTimer = startHeartbeat()
+
+    // Graceful shutdown: stop the heartbeat scheduler and close the server
+    const shutdown = async (signal: string) => {
+      fastify.log.info(`[server] Received ${signal} — shutting down gracefully`)
+      stopHeartbeat(heartbeatTimer)
+      await fastify.close()
+      process.exit(0)
+    }
+
+    process.once('SIGTERM', () => void shutdown('SIGTERM'))
+    process.once('SIGINT', () => void shutdown('SIGINT'))
+  }
 } catch (err) {
   fastify.log.error(err)
   process.exit(1)
