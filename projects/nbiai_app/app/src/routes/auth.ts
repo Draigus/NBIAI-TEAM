@@ -148,9 +148,11 @@ export async function authRoutes(fastify: FastifyInstance): Promise<void> {
     }
 
     // Always run the password verify to prevent timing attacks that reveal
-    // whether an email address exists in the system
+    // whether an email address exists in the system.
+    // The dummy hash is a valid bcrypt hash so compare() runs its full cost
+    // path and does not short-circuit on format errors.
     const dummyHash =
-      '$argon2id$v=19$m=65536,t=3,p=4$AAAAAAAAAAAAAAAAAAAAAA$AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+      '$2a$12$aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
     const passwordValid = user
       ? await verifyPassword(user.passwordHash, body.password)
       : await verifyPassword(dummyHash, body.password).catch(() => false)

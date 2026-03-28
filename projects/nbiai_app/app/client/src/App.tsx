@@ -36,10 +36,7 @@ function ProtectedLayout() {
 
   if (isLoading) return <PageLoader />
 
-  if (!user) {
-    const token = localStorage.getItem('accessToken')
-    if (!token) return <Navigate to="/login" replace />
-  }
+  if (!user) return <Navigate to="/login" replace />
 
   return (
     <Suspense fallback={<PageLoader />}>

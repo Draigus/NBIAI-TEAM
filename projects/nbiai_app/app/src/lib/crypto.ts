@@ -3,42 +3,36 @@
  *
  * Centralises all crypto operations so algorithm choices are enforced in one
  * place and are easy to audit or rotate:
- *   - Password hashing: Argon2id (CEO binding decision)
+ *   - Password hashing: bcryptjs (pure JS, no native build required on Windows)
  *   - Refresh token generation: crypto.randomBytes(64) hex
  *   - Refresh token storage: SHA-256 hash only, raw token never persisted
  *   - API key encryption: AES-256-GCM with IV + auth tag prepended
  */
 
 import crypto from 'crypto'
-import * as argon2 from 'argon2'
+import bcrypt from 'bcryptjs'
 
 // ---------------------------------------------------------------------------
 // Password hashing
 // ---------------------------------------------------------------------------
 
 /**
- * Hash a plaintext password with Argon2id.
+ * Hash a plaintext password with bcrypt (cost factor 12).
  *
- * Parameters chosen for a server-side context (not embedded/IoT):
- *   memoryCost: 64 MiB — balances security vs. server RAM under load
- *   timeCost: 3 iterations
- *   parallelism: 4 threads
+ * bcryptjs is used instead of argon2 to avoid native compilation issues on
+ * Windows. Cost factor 12 provides a good security/performance balance on
+ * server hardware.
  */
 export async function hashPassword(password: string): Promise<string> {
-  return argon2.hash(password, {
-    type: argon2.argon2id,
-    memoryCost: 65536, // 64 MiB
-    timeCost: 3,
-    parallelism: 4,
-  })
+  return bcrypt.hash(password, 12)
 }
 
 /**
- * Verify a plaintext password against an Argon2id hash.
+ * Verify a plaintext password against a bcrypt hash.
  * Returns true if the password matches, false otherwise.
  */
 export async function verifyPassword(hash: string, password: string): Promise<boolean> {
-  return argon2.verify(hash, password)
+  return bcrypt.compare(password, hash)
 }
 
 // ---------------------------------------------------------------------------

@@ -635,7 +635,12 @@ function ReassignModal({ open, onClose, taskId, onReassigned }: ReassignModalPro
 
   const mutation = useMutation({
     mutationFn: () =>
-      tasks.update(taskId, { assignedAgentId: selectedAgentId || null }),
+      tasks.update(taskId, {
+        assignedAgentId:
+          selectedAgentId === '' || selectedAgentId === 'unassigned'
+            ? null
+            : selectedAgentId,
+      }),
     onSuccess: () => {
       onReassigned()
       onClose()
@@ -755,10 +760,7 @@ export default function TaskDetailPage() {
   const queryClient = useQueryClient()
   const { user } = useAuth()
 
-  const isBoardOrAdmin =
-    user &&
-    ((user as { role?: string }).role === 'board' ||
-      (user as { role?: string }).role === 'admin')
+  const isBoardOrAdmin = user?.role === 'board' || user?.role === 'admin'
 
   // UI state
   const [editOpen, setEditOpen] = useState(false)

@@ -757,8 +757,7 @@ function KnowledgeBaseTab() {
 
   const { data: res, isLoading } = useQuery({
     queryKey: ['settings', 'knowledge'],
-    queryFn: () =>
-      apiFetch('/api/settings/knowledge') as Promise<{ data: KnowledgeTier }>,
+    queryFn: () => settings.knowledge() as Promise<{ data: KnowledgeTier }>,
   })
 
   const kb = res?.data

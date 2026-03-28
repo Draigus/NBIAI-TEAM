@@ -125,17 +125,15 @@ async function tick(): Promise<HeartbeatTick> {
   if (agentIds.length > 0) {
     try {
       // Bulk upsert heartbeat timestamps using raw SQL for efficiency
-      const placeholders = agentIds.map((_, i) => `($${i + 1})`).join(', ')
       await pool.query(
         `INSERT INTO agent_heartbeats (id, agent_id, last_seen_at, updated_at)
-         VALUES ${agentIds.map((id, i) => `(gen_random_uuid(), $${i + 1}, now(), now())`).join(', ')}
+         VALUES ${agentIds.map((_, i) => `(gen_random_uuid(), $${i + 1}, now(), now())`).join(', ')}
          ON CONFLICT (agent_id)
          DO UPDATE SET
            last_seen_at = now(),
            updated_at   = now()`,
         agentIds,
       )
-      void placeholders // suppress unused-var lint
     } catch (err) {
       console.error('[heartbeat] Failed to bulk-update heartbeats:', err)
     }

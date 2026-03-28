@@ -17,6 +17,7 @@
  *            Equivalent to: npm run db:migrate && npm run db:seed
  */
 
+import 'dotenv/config'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { migrate } from 'drizzle-orm/node-postgres/migrator'
 import pg from 'pg'

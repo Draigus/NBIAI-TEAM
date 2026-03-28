@@ -282,7 +282,14 @@ function AddRevenueModal({
 
   const mutation = useMutation({
     mutationFn: () =>
-      finance.revenueSummary(), // placeholder — real API would POST /api/finance/revenue
+      finance.addRevenue({
+        clientName: clientName.trim(),
+        type,
+        amount: Number(amount),
+        startDate,
+        endDate: endDate || null,
+        notes: notes.trim() || null,
+      }),
     onSuccess: () => {
       onAdded()
       onClose()

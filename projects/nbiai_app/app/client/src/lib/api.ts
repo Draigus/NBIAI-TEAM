@@ -170,6 +170,12 @@ export const agents = {
       method: 'POST',
       body: JSON.stringify({ taskId }),
     }),
+
+  executions: (agentId: string) =>
+    apiFetch(`/api/agents/${agentId}/executions`),
+
+  budget: (agentId: string) =>
+    apiFetch(`/api/agents/${agentId}/budget`),
 }
 
 // ---------------------------------------------------------------------------
@@ -295,6 +301,12 @@ export const finance = {
 
   agentCosts: () =>
     apiFetch('/api/finance/agent-costs'),
+
+  addRevenue: (data: Record<string, unknown>) =>
+    apiFetch('/api/finance/revenue', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
 }
 
 // ---------------------------------------------------------------------------
@@ -336,4 +348,7 @@ export const settings = {
 
   budgets: () =>
     apiFetch('/api/settings/budgets'),
+
+  knowledge: () =>
+    apiFetch('/api/settings/knowledge'),
 }

@@ -772,15 +772,10 @@ function SystemPromptTab({ agent }: { agent: AgentDetail }) {
 // ---------------------------------------------------------------------------
 
 function ExecutionLogTab({ agentId }: { agentId: string }) {
-  function fetchExecutions() {
-    return (agentsApi.get(agentId) as Promise<{ data: { executions?: ExecutionEntry[] } }>).then(
-      (res) => ({ data: res.data.executions ?? [] }),
-    )
-  }
-
   const { data, isLoading, isError } = useQuery<ExecutionsResponse>({
     queryKey: ['agent-executions', agentId],
-    queryFn: fetchExecutions,
+    queryFn: () =>
+      agentsApi.executions(agentId) as Promise<ExecutionsResponse>,
     staleTime: 30_000,
   })
 
