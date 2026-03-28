@@ -8,7 +8,8 @@ NBI maintains four distinct technology assets, each with different maturity leve
 
 | Product | Stack | Status | Strategic Priority |
 |---|---|---|---|
-| Playsage | Next.js App Router, Tailwind + shadcn/ui, Supabase PostgreSQL, Vercel | PRD at v1.2 (scored 7.1/10), deliverables 2-5 not started | HIGH -- future SaaS revenue stream, investor-facing |
+| NBIAI Team App | Node.js, PostgreSQL, React, Tailwind CSS | PLANNING -- architecture and spec in progress | HIGH -- operational platform for the AI agent company |
+| Playsage | Next.js App Router, Tailwind + shadcn/ui, Supabase PostgreSQL, Vercel | PRD at v1.2 (scored 7.1/10), deliverables 2-5 not started. Stack under review -- may migrate to Node.js + PostgreSQL for consistency with NBIAI | HIGH -- future SaaS revenue stream, investor-facing |
 | SalarySage | Standalone HTML, CSV data (5MB), React component, SHA-256 auth | Working prototype (v10), security issues flagged | MEDIUM -- will become a Playsage module |
 | Astinus | Python, SQLite, FastAPI | Active personal project (Glen's D&D campaign tool) | LOW -- personal project, not revenue-generating |
 | NBI Website | Framer (nbi-consulting.com) | Live but scored 4.8/10; HTML/CSS prototype built separately, not deployed | MEDIUM -- affects lead generation and brand credibility |
