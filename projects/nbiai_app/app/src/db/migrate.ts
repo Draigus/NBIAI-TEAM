@@ -11,6 +11,10 @@
  *
  * In production (Railway), this script runs as part of the deployment process
  * before the server starts.
+ *
+ * Flags:
+ *   --seed   Run the seed script after migrations complete successfully.
+ *            Equivalent to: npm run db:migrate && npm run db:seed
  */
 
 import { drizzle } from 'drizzle-orm/node-postgres'
@@ -18,6 +22,7 @@ import { migrate } from 'drizzle-orm/node-postgres/migrator'
 import pg from 'pg'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
+import { execFileSync } from 'child_process'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -43,6 +48,14 @@ async function runMigrations(): Promise<void> {
   console.log('[migrate] All migrations applied successfully.')
 
   await client.end()
+
+  // If --seed flag is present, run the seed script after migrations
+  if (process.argv.includes('--seed')) {
+    console.log('[migrate] --seed flag detected — running seed script...')
+    const seedScript = join(__dirname, 'seed.ts')
+    execFileSync('npx', ['tsx', seedScript], { stdio: 'inherit' })
+    console.log('[migrate] Seed complete.')
+  }
 }
 
 runMigrations().catch((err) => {
