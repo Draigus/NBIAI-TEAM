@@ -1,56 +1,36 @@
 # Pending Tasks
 
-Updated 2026-04-08 (Session B)
+Updated 2026-04-09 (Session C)
 
 ---
 
 ## Completed This Session
 
-### 6-Sprint Comprehensive Improvement -- DONE
-- Sprint 1: Foundation (logging, indexes, validation, error sanitisation, PM2 config)
-- Sprint 2: Security (token hashing, escAttrJs XSS fixes, audit redaction, expense approver from DB, atomic user creation)
-- Sprint 3: Backend performance (PATCH consolidation, N+1 fixes, poll pagination, async email, cache invalidation, FX auto-refresh)
-- Sprint 4: Frontend architecture (renderAll decomposition 106→16, listener registry, undo improvement)
-- Sprint 5: Frontend UX (conflict modal, offline indicator, localStorage quota, responsive fixes)
-- Sprint 6: Operations (backup manifest, PATCH validation, performance timing, dead code removal)
+### Move-to-9 Improvement Plan -- DONE
+- Sprint 1: Migration framework, DB pool 50, Prometheus metrics, retry/circuit breaker, backup validation
+- Sprint 2: Response envelope (v2 header), cursor-based pagination (audit, leads, tasks)
+- Sprint 3: IndexedDB WAL, native button elements
+- Sprint 4: Integration testing (15/15 pass)
 
-### Mobile Overhaul -- DONE
-- Header restructured with overflow menu
-- Sidebar forced single-column with slide-in animation
-
-### Excel Import Template -- DONE
-- NBI_Dashboard_Import_Template_v2.xlsx with Tasks, Leads, Clients, Reference sheets
+### Production Deployment -- DONE
+- Cloudflare account created, nbi-consulting.com added
+- Nameservers changed from GoDaddy to Cloudflare
+- Named tunnel `nbi-worksage` created (ID: 2d70956e-f293-44e0-b333-a3a7482ab253)
+- DNS CNAME route: worksage.nbi-consulting.com -> tunnel
+- Tunnel running via PM2 (auto-restart, boot persistence)
+- Waiting on DNS propagation
 
 ---
 
-## Still Queued (What Would Move to 9/10)
+## Active
 
-### Architecture
-- Formal migration framework (version table + numbered SQL files)
-- Cursor-based pagination (replace OFFSET with keyset)
-- Response envelope standardisation ({ data, error, meta })
-- Native `<button>` elements replacing `<div role="button">`
-
-### Scaling
-- DB pool increase (20 → 50+ connections)
-- Per-user rate limiting (replace global 120 req/min)
-- Redis for distributed session/cache layer
-- Read replicas for reporting queries
-
-### Reliability
-- Retry + circuit breaker for OCR, email, FX integrations
-- Write-ahead log (IndexedDB for offline durability)
-- Automated backup validation (test-restore on schedule)
-
-### Monitoring
-- Prometheus metrics (request latency, error rates, pool usage)
-- Alerting on backup failure, DB down, error spikes
+### DNS Propagation
+- Nameservers changed from ns65/ns66.domaincontrol.com to amos/geen.ns.cloudflare.com
+- Waiting for propagation (typically 15-30 min, up to 24h)
+- worksage.nbi-consulting.com will be live once propagated
+- Monitoring every 5 minutes
 
 ## On Hold
-
-### Permanent Cloudflare Tunnel
-- Quick tunnel works but URL changes on restart
-- Needs Glen's Cloudflare account + domain
 
 ### SMTP Configuration
 - Emails log to console (async, non-blocking)
@@ -58,3 +38,7 @@ Updated 2026-04-08 (Session B)
 
 ### QuickBooks Time API Integration
 - Blocked on Bryan Rasmussen's API token
+
+### Excel Import Template
+- NBI_Dashboard_Import_Template_v2.xlsx ready
+- Needs Glen to populate with real project data and test import

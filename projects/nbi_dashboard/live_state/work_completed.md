@@ -133,6 +133,19 @@ See `session_handoffs/handoff_2026-04-07c_bugfixes_qa.md` for items 61-77 (bug f
 117. **Dead Code Removal** -- Removed unused _fe() function.
 118. **Excel Import Template** -- NBI_Dashboard_Import_Template_v2.xlsx with Tasks, Leads, Clients, Reference sheets.
 
+## 2026-04-09 (Move-to-9 + Production Deploy)
+
+119. **Migration Framework** -- schema_migrations table, runner.js, 7 numbered SQL files. First-run detection marks existing schema applied.
+120. **DB Pool Scaling** -- min 5, max 50 connections (was 2/20). Per-user rate limiting 60 req/min keyed by token hash.
+121. **Prometheus Metrics** -- prom-client, /metrics endpoint. Request duration histogram, pool stats gauge, custom counters (sync conflicts, auth failures, OCR, email).
+122. **Retry + Circuit Breaker** -- resilience.js module. OCR (2 retries, 60s circuit), FX (3 retries, 300s circuit), email (2 retries). Exponential backoff.
+123. **Backup Validation** -- backup-validate.js. JSON integrity, table completeness, row count drift detection. Weekly validation cron. Admin notification on failure. Restore expanded to all 7 tables.
+124. **Response Envelope** -- v2 middleware wraps in {data, error, meta} via X-API-Version header. 37 GET endpoints migrated to apiCall(). Backward compatible.
+125. **Cursor-Based Pagination** -- Audit log, leads, tasks endpoints converted. Returns nextCursor + hasMore. OFFSET kept as fallback.
+126. **IndexedDB Write-Ahead Log** -- nbi_dashboard IndexedDB with wal + data_cache stores. Dual-write to localStorage + IDB. WAL recovery on startup. 50MB+ quota.
+127. **Native Button Elements** -- 6 div role=button converted to native button. Sidebar toggle, sidebarItem(), inline filters, standup section.
+128. **Production Deploy** -- Cloudflare account, nbi-consulting.com DNS moved to Cloudflare. Named tunnel nbi-worksage. URL: worksage.nbi-consulting.com. PM2 managed. Free, persistent, SSL.
+
 ## 2026-04-06 (Session D)
 
 58. **Expense Report Workflow** -- New `expense_reports` table (auto-migration). 7 API endpoints: list, create, get, update, delete, submit, add/remove expenses. Expense view reworked: report cards as primary view, unassigned expenses table below. Report detail panel: expense list, totals by currency, add/remove expenses, submit button. Submit notifies Tom Rieger via in-app notification + email (SMTP when configured). Admin approve/reject cascades status to all expenses in report. Deep-link support for notification clicks and direct URLs (`#expenses/report/{id}`).

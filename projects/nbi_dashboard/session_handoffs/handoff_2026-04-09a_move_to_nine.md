@@ -116,6 +116,47 @@ beb086e Dashboard: 6-sprint comprehensive improvement (audit 6.6 to 7.3)
 ## New Dependencies
 - `prom-client` (^15.1.3) -- Prometheus metrics
 
+## Production Deployment (added post-sprints)
+
+### Cloudflare Tunnel Setup
+- **Product name:** NBI WorkSage
+- **URL:** https://worksage.nbi-consulting.com/nbi_project_dashboard.html
+- **Tunnel name:** nbi-worksage
+- **Tunnel ID:** 2d70956e-f293-44e0-b333-a3a7482ab253
+- **Credentials:** `C:\Users\gpbea\.cloudflared\2d70956e-f293-44e0-b333-a3a7482ab253.json`
+- **Config:** `C:\Users\gpbea\.cloudflared\config.yml`
+- **DNS:** CNAME `worksage.nbi-consulting.com` -> tunnel UUID
+- **Managed by:** PM2 (process name: `cloudflare-tunnel`)
+- **Cost:** Free (Cloudflare free tier)
+
+### DNS Change
+- Domain: nbi-consulting.com (registered at GoDaddy)
+- Nameservers changed from `ns65/ns66.domaincontrol.com` to `amos/geen.ns.cloudflare.com`
+- All existing DNS records (A, CNAME, MX, SRV, TXT) auto-imported by Cloudflare
+- Framer website (www CNAME) preserved
+- Microsoft 365 records (autodiscover, enterprise*, lyncdiscover, sip) preserved
+
+### PM2 Processes
+```
+pm2 status
+┌──────────────────────┬──────┬────────┐
+│ name                 │ id   │ status │
+├──────────────────────┼──────┼────────┤
+│ nbi-dashboard        │ 0    │ online │
+│ cloudflare-tunnel    │ 1    │ online │
+└──────────────────────┴──────┴────────┘
+```
+
+### Architecture
+```
+Internet -> worksage.nbi-consulting.com
+         -> Cloudflare DNS (CNAME to tunnel)
+         -> Cloudflare Tunnel (encrypted QUIC)
+         -> Glen's PC (localhost:8888)
+         -> PM2 -> Node.js server
+         -> PostgreSQL (localhost:5432)
+```
+
 ## File Locations
 - Dashboard HTML: `nbi_project_dashboard.html` (root, 12,441 lines)
 - Server: `dashboard-server/server.js` (4,732 lines)
@@ -123,3 +164,5 @@ beb086e Dashboard: 6-sprint comprehensive improvement (audit 6.6 to 7.3)
 - Resilience: `dashboard-server/resilience.js`
 - Backup validation: `dashboard-server/backup-validate.js`
 - PM2 config: `dashboard-server/ecosystem.config.js`
+- Cloudflare config: `C:\Users\gpbea\.cloudflared\config.yml`
+- Tunnel credentials: `C:\Users\gpbea\.cloudflared\*.json`

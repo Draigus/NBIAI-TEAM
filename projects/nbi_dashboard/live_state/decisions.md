@@ -181,3 +181,12 @@ Glen: "There is dead space on the left and right side of the main content." Remo
 
 ### D64: Full 6-Sprint Improvement Plan
 Glen approved comprehensive improvement plan covering all audit critique items except password policy. 40+ items across 6 sprints. All executed same session. Audit score improved from 6.6 to 7.3.
+
+### D65: Move-to-9 Plan -- All 9 Items Approved
+Glen approved all 9 "What Would Move It to 9" items: migration framework, cursor pagination, Prometheus metrics, retry/circuit breaker, response envelope, DB pool scaling, native buttons, IndexedDB WAL, backup validation. 4-sprint plan executed.
+
+### D66: Production URL -- worksage.nbi-consulting.com
+Glen chose to use nbi-consulting.com domain with "worksage" subdomain. Named Cloudflare Tunnel (free) running via PM2. DNS managed by Cloudflare (nameservers moved from GoDaddy). Product name: NBI WorkSage.
+
+### D67: PC as Production Server
+Glen's PC stays as the server. Never turned off. No cloud hosting. Cloudflare Tunnel provides persistent external URL with SSL. Zero monthly cost.
