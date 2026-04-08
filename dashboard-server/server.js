@@ -1,0 +1,4511 @@
+/**
+ * NBI Project Dashboard — Express API Server
+ *
+ * Backend for the NBI Project Dashboard, providing REST APIs for task management,
+ * client CRM, leads pipeline, time tracking, expense reports, finance data,
+ * user authentication, and data synchronisation.
+ *
+ * Dependencies:
+ *   - PostgreSQL (via pg Pool) for persistent storage
+ *   - bcrypt for password hashing
+ *   - multer for file uploads (attachments, receipts, contracts)
+ *   - nodemailer for password reset emails (optional, requires SMTP config)
+ *   - pdf-parse for contract text extraction (optional)
+ *   - compression for gzip response compression
+ *   - express-async-errors for automatic async error forwarding
+ *
+ * Environment variables:
+ *   PORT            — HTTP port (default: 8888)
+ *   DATABASE_URL    — PostgreSQL connection string
+ *   SMTP_HOST/PORT/USER/PASS/FROM — Email config for password resets
+ *   APP_URL         — Base URL for reset links
+ *
+ * Usage:
+ *   node server.js
+ *   (or via PM2: pm2 start ecosystem.config.js)
+ *
+ * @module dashboard-server
+ */
+
+// ==================== DEPENDENCIES ====================
+
+require('dotenv').config({ path: require('path').join(__dirname, '.env') }); // Load .env from server directory
+require('express-async-errors'); // Must be imported before express to patch async route handlers
+const express = require('express');
+const compression = require('compression');
+const { Pool } = require('pg');
+const path = require('path');
+const os = require('os');
+const crypto = require('crypto');
+const bcrypt = require('bcrypt');
+const multer = require('multer');
+const fs = require('fs');
+const nodemailer = require('nodemailer');
+const rateLimit = require('express-rate-limit');
+const XLSX = require('xlsx');
+const PDFDocument = require('pdfkit');
+const Tesseract = require('tesseract.js');
+const sharp = require('sharp');
+const pdfParse = require('pdf-parse');
+let cron, runBackup;
+try { cron = require('node-cron'); runBackup = require('./backup'); }
+catch (e) { /* logged after logger init below */ }
+
+// ==================== STRUCTURED LOGGER ====================
+const LOG_LEVELS = { error: 0, warn: 1, info: 2, debug: 3 };
+const LOG_LEVEL = LOG_LEVELS[process.env.LOG_LEVEL || 'info'];
+
+function log(level, prefix, message, data) {
+  if (LOG_LEVELS[level] > LOG_LEVEL) return;
+  const entry = { ts: new Date().toISOString(), level, prefix, message };
+  if (data) entry.data = data;
+  const line = JSON.stringify(entry);
+  if (level === 'error') process.stderr.write(line + '\n');
+  else process.stdout.write(line + '\n');
+}
+
+// Log deferred optional-deps warning now that logger is available
+if (!cron || !runBackup) log('warn', 'System', 'Optional deps node-cron/backup not found — scheduled tasks disabled');
+
+// ==================== FILE UPLOAD CONFIG ====================
+
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+
+/** Multer instance — stores files with timestamped random names to avoid collisions */
+const ALLOWED_UPLOAD_TYPES = new Set([
+  'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+  'application/pdf',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // xlsx
+  'application/vnd.ms-excel', // xls
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // docx
+  'text/csv', 'text/plain',
+]);
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => cb(null, uploadDir),
+    filename: (req, file, cb) => cb(null, Date.now() + '-' + crypto.randomBytes(4).toString('hex') + path.extname(file.originalname))
+  }),
+  limits: { fileSize: 25 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (ALLOWED_UPLOAD_TYPES.has(file.mimetype)) return cb(null, true);
+    cb(new Error(`File type ${file.mimetype} not allowed. Accepted: images, PDFs, spreadsheets, documents.`));
+  }
+});
+
+// ==================== CONSTANTS & CONFIG ====================
+
+const PORT = process.env.PORT || 8888;
+const DB_URL = process.env.DATABASE_URL;
+if (!DB_URL) { log('error', 'Server', 'FATAL: DATABASE_URL not set. Create a .env file — see .env.example'); process.exit(1); }
+const SESSION_EXPIRY_DAYS = 7;
+
+/** PostgreSQL connection pool — min 2 idle connections, max 20 */
+const pool = new Pool({
+  connectionString: DB_URL,
+  min: 2,
+  max: 20,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 5000,
+  statement_timeout: 30000
+});
+pool.on('error', (err) => log('error', 'Pool', 'Unexpected error on idle client', { error: err.message }));
+
+const app = express();
+app.set('trust proxy', 1); // Trust first proxy (Cloudflare tunnel) for correct IP in rate limiter
+
+// Brute-force protection: track failed logins in memory (resets on restart)
+const _failedLogins = {}; // { username: { count, lastAttempt } }
+const FAILED_LOGIN_THRESHOLD = 3;  // Show "forgot password" link after this many failures
+const FAILED_LOGIN_LOCKOUT = 5;    // Lock account for LOCKOUT_DURATION after this many failures
+const LOCKOUT_DURATION = 15 * 60 * 1000; // 15 minutes
+
+// SMTP config for password reset emails (all optional — falls back to console logging)
+const SMTP_HOST = process.env.SMTP_HOST || '';
+const SMTP_PORT = parseInt(process.env.SMTP_PORT || '587');
+const SMTP_USER = process.env.SMTP_USER || '';
+const SMTP_PASS = process.env.SMTP_PASS || '';
+const SMTP_FROM = process.env.SMTP_FROM || 'noreply@nbi-consulting.com';
+const APP_URL = process.env.APP_URL || `http://localhost:${PORT}`;
+
+/** Nodemailer transport — only created if SMTP_HOST is configured */
+let _mailTransport = null;
+if (SMTP_HOST) {
+  _mailTransport = nodemailer.createTransport({
+    host: SMTP_HOST, port: SMTP_PORT, secure: SMTP_PORT === 465,
+    auth: { user: SMTP_USER, pass: SMTP_PASS }
+  });
+  log('info', 'Server', `SMTP configured: ${SMTP_HOST}:${SMTP_PORT}`);
+}
+
+/** Fire-and-forget email send — logs failures but never blocks the request */
+function sendEmailAsync(mailOptions) {
+  if (!_mailTransport) {
+    log('info', 'Email', 'SMTP not configured, logging email', { to: mailOptions.to, subject: mailOptions.subject });
+    return;
+  }
+  _mailTransport.sendMail(mailOptions).then(() => {
+    log('info', 'Email', 'Email sent', { to: mailOptions.to, subject: mailOptions.subject });
+  }).catch(err => {
+    log('error', 'Email', 'Failed to send email', { to: mailOptions.to, error: err.message });
+  });
+}
+
+// ==================== CACHING LAYER ====================
+// Auth token cache — avoids DB query on every request
+const _tokenCache = new Map();
+const TOKEN_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+/** Store a user object against their auth token with a TTL */
+function cacheToken(token, user) {
+  _tokenCache.set(token, { user, expiresAt: Date.now() + TOKEN_CACHE_TTL });
+}
+/** Retrieve a cached user by token, returning null if expired or missing */
+function getCachedToken(token) {
+  const entry = _tokenCache.get(token);
+  if (!entry) return null;
+  if (entry.expiresAt < Date.now()) { _tokenCache.delete(token); return null; }
+  return entry.user;
+}
+/** Remove a token from cache (e.g. on logout) */
+function invalidateToken(token) { _tokenCache.delete(token); }
+
+// Config cache — leads config, expense categories, rarely change
+const _configCache = {};
+const CONFIG_CACHE_TTL = 5 * 60 * 1000;
+
+/**
+ * Generic cache-aside helper. Returns cached data if fresh, otherwise calls
+ * the fetcher function, stores the result, and returns it.
+ * @param {string} key - Cache key
+ * @param {Function} fetcher - Async function that produces the data
+ */
+async function getCached(key, fetcher) {
+  const entry = _configCache[key];
+  if (entry && entry.expiresAt > Date.now()) return entry.data;
+  const data = await fetcher();
+  _configCache[key] = { data, expiresAt: Date.now() + CONFIG_CACHE_TTL };
+  return data;
+}
+/** Evict a specific key from the config cache (e.g. after admin changes) */
+function invalidateCache(key) { delete _configCache[key]; }
+
+// Cleanup stale cache entries and failed login records every 10 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [token, entry] of _tokenCache) { if (entry.expiresAt <= now) _tokenCache.delete(token); }
+  for (const key of Object.keys(_configCache)) { if (_configCache[key].expiresAt <= now) delete _configCache[key]; }
+  // Evict failed login entries older than 1 hour to prevent unbounded growth
+  const ONE_HOUR = 60 * 60 * 1000;
+  for (const key of Object.keys(_failedLogins)) {
+    if (now - _failedLogins[key].lastAttempt > ONE_HOUR) delete _failedLogins[key];
+  }
+}, 10 * 60 * 1000).unref(); // unref() allows graceful shutdown without this timer blocking exit
+
+// ==================== HELPERS ====================
+
+/**
+ * Build a parameterised SET clause for PATCH endpoints.
+ * Only includes fields present in both the request body and the allow-list.
+ * Used by all PATCH handlers to avoid inline query building.
+ * @param {Object} body - Request body
+ * @param {string[]} allowedFields - Whitelist of column names
+ * @returns {{ updates: string[], vals: any[], nextIdx: number }}
+ */
+function buildPatchQuery(body, allowedFields) {
+  // Validate column names against a strict pattern to prevent SQL injection
+  const SAFE_COL = /^[a-z_][a-z0-9_]*$/;
+  const updates = []; const vals = []; let i = 1;
+  for (const f of allowedFields) {
+    if (!SAFE_COL.test(f)) throw new Error(`Invalid column name: ${f}`);
+    if (body[f] !== undefined) { updates.push(`${f} = $${i}`); vals.push(body[f]); i++; }
+  }
+  return { updates, vals, nextIdx: i };
+}
+
+/** UUID v4 format regex for parameter validation */
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+function isValidUuid(s) { return typeof s === 'string' && UUID_RE.test(s); }
+
+/** Input length limits — prevents oversized payloads reaching the DB */
+const MAX_LENGTHS = { title: 500, description: 10000, notes: 5000, name: 200, email: 254, body: 50000 };
+
+function validateLength(value, field, max) {
+  if (typeof value === 'string' && value.length > (max || MAX_LENGTHS[field] || 10000)) {
+    return `${field} exceeds maximum length of ${max || MAX_LENGTHS[field] || 10000} characters`;
+  }
+  return null;
+}
+
+/** Hash a session token with SHA-256 before storing or looking up in the DB */
+function hashToken(token) {
+  return crypto.createHash('sha256').update(token).digest('hex');
+}
+
+/**
+ * Escape HTML special characters to prevent XSS in server-rendered pages.
+ * Used in the public client report HTML endpoint.
+ * @param {string} str - Raw string to escape
+ * @returns {string} Escaped string safe for HTML interpolation
+ */
+function escHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+// Prevent unhandled async rejections from crashing the server
+process.on('unhandledRejection', (reason, promise) => {
+  log('error', 'Server', 'Unhandled rejection', { reason: reason?.message || String(reason) });
+});
+
+// ==================== MIDDLEWARE ====================
+
+// Security: disable X-Powered-By header (reveals server technology)
+app.disable('x-powered-by');
+
+// Security headers
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  // Content-Security-Policy: restrict script/style sources
+  res.setHeader('Content-Security-Policy',
+    "default-src 'self'; " +
+    "script-src 'self' 'unsafe-inline' cdn.sheetjs.com cdnjs.cloudflare.com; " +
+    "style-src 'self' 'unsafe-inline' fonts.googleapis.com; " +
+    "font-src fonts.gstatic.com; " +
+    "img-src 'self' data: blob:; " +
+    "connect-src 'self' api.frankfurter.dev open.er-api.com; " +
+    "frame-src 'self' blob:; " +
+    "object-src 'none'"
+  );
+  // Cache-Control: no caching for API responses, static files use Express defaults
+  if (req.path.startsWith('/api/')) {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  }
+  next();
+});
+
+// Rate limiting
+const apiLimiter = rateLimit({ windowMs: 60 * 1000, max: 120, standardHeaders: true, legacyHeaders: false });
+const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 30, message: { error: 'Too many requests. Please try again later.' } });
+app.use('/api/', apiLimiter);
+app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/forgot', authLimiter);
+app.use('/api/auth/reset', authLimiter);
+
+app.use(compression({ threshold: 1024 })); // Only compress responses > 1KB
+app.use(express.json({ limit: '10mb' }));   // Allow large payloads for sync/restore
+
+/** GET / -- Serve the dashboard HTML from the parent directory (single-page app entry point) */
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'nbi_project_dashboard.html'));
+});
+/** GET /nbi_project_dashboard.html -- Alias for the dashboard entry point */
+app.get('/nbi_project_dashboard.html', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'nbi_project_dashboard.html'));
+});
+
+// ==================== AUTH ====================
+
+/**
+ * POST /api/auth/login
+ * Authenticate with username/email + password. Returns a bearer token.
+ * Tracks failed attempts and suggests password reset after repeated failures.
+ */
+app.post('/api/auth/login', async (req, res) => {
+  const { username, password } = req.body;
+  if (!username || !password) return res.status(400).json({ error: 'Username and password required' });
+
+  const key = username.toLowerCase().trim();
+
+  // Account lockout: block login after FAILED_LOGIN_LOCKOUT consecutive failures
+  const failEntry = _failedLogins[key];
+  if (failEntry && failEntry.count >= FAILED_LOGIN_LOCKOUT) {
+    const elapsed = Date.now() - failEntry.lastAttempt;
+    if (elapsed < LOCKOUT_DURATION) {
+      const minsLeft = Math.ceil((LOCKOUT_DURATION - elapsed) / 60000);
+      log('warn', 'Auth', `Account lockout active for "${key}" — ${failEntry.count} failures, ${minsLeft}min remaining`);
+      return res.status(429).json({ error: `Account temporarily locked. Try again in ${minsLeft} minute${minsLeft > 1 ? 's' : ''}.`, locked: true, minsLeft });
+    }
+    // Lockout expired — reset counter
+    log('info', 'Auth', `Lockout expired for "${key}", resetting counter`);
+    delete _failedLogins[key];
+  }
+
+  // Allow login by either username or email address
+  const { rows } = await pool.query('SELECT * FROM users WHERE username = $1 OR email = $1', [key]);
+  if (rows.length === 0) {
+    // Track failed attempt even for unknown users (prevents username enumeration timing attacks)
+    if (!_failedLogins[key]) _failedLogins[key] = { count: 0, lastAttempt: 0 };
+    _failedLogins[key].count++;
+    _failedLogins[key].lastAttempt = Date.now();
+    const showReset = _failedLogins[key].count >= FAILED_LOGIN_THRESHOLD;
+    return res.status(401).json({ error: 'Invalid username or password', showReset });
+  }
+
+  const user = rows[0];
+  const valid = await bcrypt.compare(password, user.password_hash);
+  if (!valid) {
+    if (!_failedLogins[key]) _failedLogins[key] = { count: 0, lastAttempt: 0 };
+    _failedLogins[key].count++;
+    _failedLogins[key].lastAttempt = Date.now();
+    const showReset = _failedLogins[key].count >= FAILED_LOGIN_THRESHOLD;
+    return res.status(401).json({ error: 'Invalid username or password', showReset });
+  }
+
+  // Successful login — clear failed attempts
+  delete _failedLogins[key];
+
+  // Create session — store SHA-256 hash in DB, return plaintext to client
+  const token = crypto.randomBytes(32).toString('hex');
+  const hashedToken = hashToken(token);
+  const expiresAt = new Date(Date.now() + SESSION_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
+  await pool.query('INSERT INTO sessions (user_id, token, expires_at) VALUES ($1, $2, $3)', [user.id, hashedToken, expiresAt]);
+  // Cache under hashed key
+  cacheToken(hashedToken, { id: user.id, username: user.username, displayName: user.display_name, role: user.role });
+
+  res.json({
+    token,
+    user: { id: user.id, username: user.username, displayName: user.display_name, role: user.role },
+    expiresAt: expiresAt.toISOString(),
+  });
+});
+
+/** POST /api/auth/logout — Invalidate the current session token */
+app.post('/api/auth/logout', async (req, res) => {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (token) {
+    const hashed = hashToken(token);
+    await pool.query('DELETE FROM sessions WHERE token = $1', [hashed]);
+    invalidateToken(hashed);
+  }
+  res.json({ ok: true });
+});
+
+/** GET /api/auth/me — Return the currently authenticated user's profile */
+app.get('/api/auth/me', async (req, res) => {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Not authenticated' });
+
+  const hashed = hashToken(token);
+  const { rows } = await pool.query(
+    `SELECT u.id, u.username, u.display_name, u.role FROM sessions s
+     JOIN users u ON s.user_id = u.id
+     WHERE s.token = $1 AND s.expires_at > NOW()`, [hashed]
+  );
+  if (rows.length === 0) return res.status(401).json({ error: 'Session expired' });
+  res.json({ user: { id: rows[0].id, username: rows[0].username, displayName: rows[0].display_name, role: rows[0].role } });
+});
+
+/**
+ * Authentication middleware — protects all /api/ routes.
+ * Skips login, health check, password reset, and static file routes.
+ * Checks the token cache first to avoid a DB query on every request.
+ */
+async function requireAuth(req, res, next) {
+  // Public routes that bypass authentication
+  if (req.path === '/api/auth/login' || req.path === '/api/health') return next();
+  if (req.path.startsWith('/api/auth/forgot') || req.path.startsWith('/api/auth/reset-token')) return next();
+  if (req.path.startsWith('/api/reports/')) return next(); // Public shareable reports
+  if (!req.path.startsWith('/api/')) return next();
+
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Authentication required' });
+
+  try {
+    const hashedToken = hashToken(token);
+    // Check cache first (keyed by hashed token)
+    const cached = getCachedToken(hashedToken);
+    if (cached) { req.user = cached; return next(); }
+
+    const { rows } = await pool.query(
+      `SELECT u.id, u.username, u.display_name, u.role FROM sessions s
+       JOIN users u ON s.user_id = u.id
+       WHERE s.token = $1 AND s.expires_at > NOW()`, [hashedToken]
+    );
+    if (rows.length === 0) return res.status(401).json({ error: 'Session expired' });
+    const user = { id: rows[0].id, username: rows[0].username, displayName: rows[0].display_name, role: rows[0].role };
+    cacheToken(hashedToken, user);
+    req.user = user;
+    next();
+  } catch(e) {
+    log('error', 'Auth', 'Auth check failed', { error: e.message, stack: e.stack?.split('\n').slice(0,3).join(' | ') });
+    res.status(500).json({ error: 'An internal error occurred' });
+  }
+}
+/**
+ * POST /api/auth/forgot-password
+ * Request a password reset email. Always returns success to prevent username enumeration.
+ * If SMTP is not configured, the reset link is logged to the console as a fallback.
+ */
+app.post('/api/auth/forgot-password', async (req, res) => {
+  const { username } = req.body;
+  if (!username) return res.status(400).json({ error: 'Username or email required' });
+
+  const { rows } = await pool.query('SELECT id, email, display_name FROM users WHERE username = $1 OR email = $1', [username.toLowerCase().trim()]);
+  // Always return success to prevent username enumeration
+  if (rows.length === 0) return res.json({ ok: true, message: 'If that account exists, a reset link has been sent.' });
+
+  const user = rows[0];
+  if (!user.email) return res.json({ ok: true, message: 'If that account exists, a reset link has been sent.' });
+
+  // Invalidate any existing tokens for this user
+  await pool.query('UPDATE password_reset_tokens SET used = TRUE WHERE user_id = $1 AND used = FALSE', [user.id]);
+
+  // Generate reset token (expires in 1 hour)
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+  await pool.query('INSERT INTO password_reset_tokens (user_id, token, expires_at) VALUES ($1, $2, $3)', [user.id, resetToken, expiresAt]);
+
+  const resetUrl = `${APP_URL}/nbi_project_dashboard.html#reset-password/${resetToken}`;
+
+  sendEmailAsync({
+    from: SMTP_FROM,
+    to: user.email,
+    subject: 'NBI Dashboard — Password Reset',
+    text: `Hi ${user.display_name},\n\nSomeone requested a password reset for your NBI Dashboard account.\n\nClick here to reset your password:\n${resetUrl}\n\nThis link expires in 1 hour. If you did not request this, you can ignore this email.\n\nNBI Dashboard`,
+    html: `<p>Hi ${escHtml(user.display_name)},</p><p>Someone requested a password reset for your NBI Dashboard account.</p><p><a href="${escHtml(resetUrl)}" style="display:inline-block;padding:10px 24px;background:#2563eb;color:#fff;text-decoration:none;border-radius:6px;font-weight:600">Reset Password</a></p><p style="color:#666;font-size:0.85em">This link expires in 1 hour. If you did not request this, you can ignore this email.</p><p>NBI Dashboard</p>`
+  });
+  if (!_mailTransport) {
+    log('info', 'Auth', `FALLBACK — Reset link for ${user.email}: ${resetUrl}`);
+  }
+
+  res.json({ ok: true, message: 'If that account exists, a reset link has been sent.' });
+});
+
+/** GET /api/auth/reset-token/:token — Validate a password reset token (public) */
+app.get('/api/auth/reset-token/:token', async (req, res) => {
+  const { rows } = await pool.query(
+    'SELECT t.*, u.username, u.display_name FROM password_reset_tokens t JOIN users u ON t.user_id = u.id WHERE t.token = $1 AND t.used = FALSE AND t.expires_at > NOW()',
+    [req.params.token]
+  );
+  if (rows.length === 0) return res.status(400).json({ error: 'Invalid or expired reset link' });
+  res.json({ ok: true, displayName: rows[0].display_name });
+});
+
+/** POST /api/auth/reset-token/:token — Set a new password using a valid reset token (public) */
+app.post('/api/auth/reset-token/:token', async (req, res) => {
+  const { newPassword } = req.body;
+  if (!newPassword || newPassword.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
+
+  const { rows } = await pool.query(
+    'SELECT * FROM password_reset_tokens WHERE token = $1 AND used = FALSE AND expires_at > NOW()',
+    [req.params.token]
+  );
+  if (rows.length === 0) return res.status(400).json({ error: 'Invalid or expired reset link' });
+
+  const resetRow = rows[0];
+  const hash = await bcrypt.hash(newPassword, 10);
+  await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [hash, resetRow.user_id]);
+  await pool.query('UPDATE password_reset_tokens SET used = TRUE WHERE id = $1', [resetRow.id]);
+  // Invalidate all existing sessions
+  await pool.query('DELETE FROM sessions WHERE user_id = $1', [resetRow.user_id]);
+
+  res.json({ ok: true, message: 'Password has been reset. You can now sign in.' });
+});
+
+// All routes below this line require a valid auth token
+app.use(requireAuth);
+
+/** POST /api/auth/reset-password — Admin-only: forcibly reset any user's password */
+app.post('/api/auth/reset-password', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const { userId, newPassword } = req.body;
+  if (!userId || !newPassword) return res.status(400).json({ error: 'userId and newPassword required' });
+  if (newPassword.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
+
+  const hash = await bcrypt.hash(newPassword, 10);
+  await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [hash, userId]);
+  // Invalidate all sessions for that user
+  await pool.query('DELETE FROM sessions WHERE user_id = $1', [userId]);
+  // Also clear any failed login counters for this user
+  const { rows: resetUser } = await pool.query('SELECT username FROM users WHERE id = $1', [userId]);
+  if (resetUser.length > 0) delete _failedLogins[resetUser[0].username.toLowerCase()];
+  res.json({ ok: true });
+});
+
+/** POST /api/auth/clear-lockout — Admin-only: clear failed login counter for a user */
+app.post('/api/auth/clear-lockout', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const { username } = req.body;
+  if (!username) return res.status(400).json({ error: 'username required' });
+  const key = username.toLowerCase().trim();
+  const had = !!_failedLogins[key];
+  delete _failedLogins[key];
+  res.json({ ok: true, cleared: had });
+});
+
+/** POST /api/auth/change-password — Change your own password (requires current password) */
+app.post('/api/auth/change-password', async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  if (!currentPassword || !newPassword) return res.status(400).json({ error: 'Both passwords required' });
+  if (newPassword.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
+
+  const { rows } = await pool.query('SELECT password_hash FROM users WHERE id = $1', [req.user.id]);
+  if (rows.length === 0) return res.status(404).json({ error: 'User not found' });
+
+  const valid = await bcrypt.compare(currentPassword, rows[0].password_hash);
+  if (!valid) return res.status(401).json({ error: 'Current password incorrect' });
+
+  const hash = await bcrypt.hash(newPassword, 10);
+  await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [hash, req.user.id]);
+  res.json({ ok: true });
+});
+
+// ==================== USER MANAGEMENT ====================
+
+/** GET /api/users — List users. Admins see full details; members see only id, display_name, username. */
+app.get('/api/users', async (req, res) => {
+  if (req.user.role === 'admin') {
+    const { rows } = await pool.query('SELECT id, username, display_name, email, role, is_active, capacity_hours_per_week, resource_type_ids, created_at FROM users ORDER BY display_name');
+    res.json(rows);
+  } else {
+    // Non-admins only get names (for assignee dropdowns) — no emails, roles, or capacity
+    const { rows } = await pool.query('SELECT id, username, display_name FROM users WHERE is_active = TRUE ORDER BY display_name');
+    res.json(rows);
+  }
+});
+
+/** POST /api/users — Create a new user (admin only) */
+app.post('/api/users', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const { username, display_name, email, password, role } = req.body;
+  if (!username || !password) return res.status(400).json({ error: 'Username and password required' });
+  const lenErr = validateLength(username, 'name', 200) || validateLength(display_name, 'name') || validateLength(email, 'email');
+  if (lenErr) return res.status(400).json({ error: lenErr });
+  const hash = await bcrypt.hash(password, 10);
+  // Atomic insert — ON CONFLICT prevents race conditions
+  const { rows } = await pool.query(
+    `INSERT INTO users (username, display_name, email, password_hash, role)
+     VALUES ($1, $2, $3, $4, $5)
+     ON CONFLICT (username) DO NOTHING
+     RETURNING id, username, display_name, email, role`,
+    [username.toLowerCase().trim(), display_name || username, email || '', hash, role || 'user']
+  );
+  if (rows.length === 0) return res.status(409).json({ error: 'Username already exists' });
+  await auditLog('user', rows[0].id, 'create', req.user?.displayName, { username, display_name });
+  res.status(201).json(rows[0]);
+});
+
+/** DELETE /api/users/:id — Delete a user and their sessions (admin only, cannot delete self) */
+app.delete('/api/users/:id', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  // Prevent deleting yourself
+  if (req.user.id === req.params.id) return res.status(400).json({ error: 'Cannot delete yourself' });
+  await pool.query('DELETE FROM sessions WHERE user_id = $1', [req.params.id]);
+  await pool.query('DELETE FROM users WHERE id = $1', [req.params.id]);
+  await auditLog('user', req.params.id, 'delete', req.user?.displayName);
+  res.json({ ok: true });
+});
+
+/** PATCH /api/users/:id — Update user profile fields: role, display_name, email (admin only) */
+app.patch('/api/users/:id', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const { updates, vals, nextIdx } = buildPatchQuery(req.body, ['role', 'display_name', 'email']);
+  if (req.body.display_name !== undefined && !req.body.display_name.trim()) {
+    return res.status(400).json({ error: 'Display name cannot be empty' });
+  }
+  if (updates.length === 0) return res.status(400).json({ error: 'No valid fields to update' });
+  vals.push(req.params.id);
+  const { rows } = await pool.query(`UPDATE users SET ${updates.join(', ')} WHERE id = $${nextIdx} RETURNING id, username, display_name, email, role`, vals);
+  if (!rows[0]) return res.status(404).json({ error: 'User not found' });
+  // Invalidate token cache entries for this user so stale role/display_name data is refreshed
+  for (const [key, entry] of _tokenCache) {
+    if (entry.user && entry.user.id === req.params.id) _tokenCache.delete(key);
+  }
+  res.json(rows[0]);
+});
+
+// ==================== AUDIT LOG ====================
+
+/**
+ * Write an entry to the audit log. Used throughout the app to record
+ * create/update/delete actions for traceability.
+ * @param {string} entityType - e.g. 'task', 'lead', 'expense', 'user'
+ * @param {string} entityId - UUID of the affected entity
+ * @param {string} action - 'create', 'update', or 'delete'
+ * @param {string} changedBy - Display name of the actor
+ * @param {Object} [changes] - Object describing what changed (old/new values)
+ * @param {Object} [conn] - Optional DB connection (for use within transactions)
+ */
+/** Look up the expense approver username from DB settings, with env/fallback */
+async function getExpenseApprover() {
+  try {
+    const { rows } = await pool.query("SELECT value FROM settings WHERE key = 'expense_approver'");
+    return rows[0]?.value || process.env.EXPENSE_APPROVER_USERNAME || 'tom';
+  } catch(e) {
+    return process.env.EXPENSE_APPROVER_USERNAME || 'tom';
+  }
+}
+
+/** Strip sensitive fields from audit data before persisting */
+function sanitiseAuditData(data) {
+  if (!data || typeof data !== 'object') return data;
+  const sanitised = { ...data };
+  const REDACT_FIELDS = ['password', 'token', 'reset_token', 'secret', 'api_key', 'password_hash', 'newPassword', 'currentPassword'];
+  for (const field of REDACT_FIELDS) {
+    if (sanitised[field]) sanitised[field] = '[REDACTED]';
+  }
+  return sanitised;
+}
+
+async function auditLog(entityType, entityId, action, changedBy, changes, conn) {
+  const db = conn || pool;
+  try {
+    const sanitised = changes ? sanitiseAuditData(changes) : null;
+    await db.query(
+      'INSERT INTO audit_log (entity_type, entity_id, action, changed_by, changes) VALUES ($1, $2, $3, $4, $5)',
+      [entityType, entityId, action, changedBy || 'system', sanitised ? JSON.stringify(sanitised) : null]
+    );
+  } catch (e) {
+    log('warn', 'Audit', 'Failed to log', { error: e.message });
+  }
+}
+
+/**
+ * GET /api/audit-log
+ * Paginated audit log with optional filters by entity_type, action, or free-text search.
+ * Joins to tasks table to enrich entries with task titles where applicable.
+ */
+app.get('/api/audit-log', async (req, res) => {
+  try {
+    const limit = Math.min(parseInt(req.query.limit) || 50, 200);
+    const offset = parseInt(req.query.offset) || 0;
+    const entityType = req.query.entity_type || null;
+    const action = req.query.action || null;
+    const search = req.query.search || null;
+
+    let where = [];
+    let vals = [];
+    let i = 1;
+    if (entityType) { where.push(`a.entity_type = $${i}`); vals.push(entityType); i++; }
+    if (action) { where.push(`a.action = $${i}`); vals.push(action); i++; }
+    if (search) { where.push(`(a.changed_by ILIKE $${i} OR t.title ILIKE $${i})`); vals.push('%' + search + '%'); i++; }
+
+    const whereClause = where.length > 0 ? 'WHERE ' + where.join(' AND ') : '';
+    vals.push(limit, offset);
+
+    const { rows } = await pool.query(`
+      SELECT a.*, t.title as entity_title
+      FROM audit_log a
+      LEFT JOIN tasks t ON a.entity_id = t.id AND a.entity_type = 'task'
+      ${whereClause}
+      ORDER BY a.created_at DESC
+      LIMIT $${i} OFFSET $${i + 1}
+    `, vals);
+
+    const countResult = await pool.query(`SELECT COUNT(*) FROM audit_log a LEFT JOIN tasks t ON a.entity_id = t.id AND a.entity_type = 'task' ${whereClause}`, vals.slice(0, -2));
+    res.json({ entries: rows, total: parseInt(countResult.rows[0].count), limit, offset });
+  } catch (err) {
+    log('error', 'Audit', 'Query error', { error: err.message });
+    res.json({ entries: [], total: 0, limit: 50, offset: 0 });
+  }
+});
+
+// ==================== HEALTH CHECK ====================
+
+/** GET /api/health — Lightweight DB connectivity check (unauthenticated) */
+app.get('/api/health', async (req, res) => {
+  try {
+    await pool.query('SELECT 1');
+    res.json({ status: 'ok', db: 'connected' });
+  } catch (e) {
+    log('error', 'Health', 'DB connectivity check failed', { error: e.message, stack: e.stack?.split('\n').slice(0,3).join(' | ') });
+    res.status(500).json({ status: 'error', db: 'connection failed' });
+  }
+});
+
+/** GET /api/finance/seed — Return finance seed data for initial bootstrap (admin only). */
+app.get('/api/finance/seed', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  try {
+    const seedPath = path.join(__dirname, 'finance-seed.json');
+    if (fs.existsSync(seedPath)) {
+      const data = JSON.parse(fs.readFileSync(seedPath, 'utf-8'));
+      res.json(data);
+    } else {
+      res.json({ revenue: [], pipeline: [], payroll: [], targets: {}, opex: [] });
+    }
+  } catch(e) {
+    log('error', 'Finance', 'Failed to load finance seed data', { error: e.message, stack: e.stack?.split('\n').slice(0,3).join(' | ') });
+    res.status(500).json({ error: 'An internal error occurred' });
+  }
+});
+
+/** GET /api/seed-data — Return seed CSV data for initial bootstrap (admin only).
+ *  Seed data is loaded from seed-data.csv if it exists, otherwise returns empty. */
+app.get('/api/seed-data', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  try {
+    const seedPath = path.join(__dirname, 'seed-data.csv');
+    if (fs.existsSync(seedPath)) {
+      const csv = fs.readFileSync(seedPath, 'utf-8');
+      res.json({ csv });
+    } else {
+      res.json({ csv: null, message: 'No seed data file found. Place seed-data.csv in the server directory.' });
+    }
+  } catch(e) {
+    log('error', 'Sync', 'Failed to load seed data', { error: e.message, stack: e.stack?.split('\n').slice(0,3).join(' | ') });
+    res.status(500).json({ error: 'An internal error occurred' });
+  }
+});
+
+// ==================== DATABASE BACKUP / RESTORE ====================
+
+/**
+ * GET /api/backup
+ * Export all dashboard data as a JSON download (admin only).
+ * Includes tasks, clients, comments, notes, finance data, users, and settings.
+ */
+app.get('/api/backup', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  try {
+    const tasks = await pool.query('SELECT * FROM tasks ORDER BY created_at');
+    const clients = await pool.query('SELECT * FROM clients ORDER BY name');
+    const comments = await pool.query('SELECT * FROM task_comments ORDER BY created_at');
+    const notes = await pool.query('SELECT * FROM task_notes ORDER BY created_at');
+    const finance = await pool.query('SELECT data FROM finance_data ORDER BY id DESC LIMIT 1');
+    const users = await pool.query('SELECT id, username, display_name, email, role, created_at FROM users ORDER BY id');
+    const settings = await pool.query('SELECT * FROM settings');
+
+    // Add uploads manifest to backup
+    const uploadsDir = path.join(__dirname, 'uploads');
+    let uploadManifest = [];
+    try {
+      if (fs.existsSync(uploadsDir)) {
+        uploadManifest = fs.readdirSync(uploadsDir).map(f => {
+          const stat = fs.statSync(path.join(uploadsDir, f));
+          return { name: f, size: stat.size, modified: stat.mtime.toISOString() };
+        });
+      }
+    } catch (e) { /* ignore */ }
+
+    const backup = {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      exportedBy: req.user?.displayName || 'unknown',
+      tables: {
+        tasks: tasks.rows,
+        clients: clients.rows,
+        task_comments: comments.rows,
+        task_notes: notes.rows,
+        finance_data: finance.rows[0]?.data || null,
+        users: users.rows,
+        settings: settings.rows,
+      },
+      uploadManifest,
+    };
+    res.setHeader('Content-Disposition', `attachment; filename="nbi-dashboard-backup-${new Date().toISOString().slice(0,10)}.json"`);
+    res.json(backup);
+  } catch(e) {
+    log('error', 'Backup', 'Failed to export backup', { error: e.message, stack: e.stack?.split('\n').slice(0,3).join(' | ') });
+    res.status(500).json({ error: 'An internal error occurred' });
+  }
+});
+
+/**
+ * POST /api/restore
+ * Restore dashboard data from a backup JSON payload (admin only).
+ * Uses a transaction — rolls back entirely on any error.
+ * Restores clients first since tasks have a foreign key dependency on them.
+ */
+app.post('/api/restore', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const { backup } = req.body;
+  if (!backup || !backup.tables) return res.status(400).json({ error: 'Invalid backup format' });
+  const conn = await pool.connect();
+  try {
+    await conn.query('BEGIN');
+
+    // Restore clients first (tasks depend on them)
+    if (backup.tables.clients) {
+      for (const c of backup.tables.clients) {
+        await conn.query('INSERT INTO clients (id, name, created_at) VALUES ($1, $2, $3) ON CONFLICT (id) DO UPDATE SET name = $2', [c.id, c.name, c.created_at]);
+      }
+    }
+
+    // Restore tasks
+    if (backup.tables.tasks) {
+      for (const t of backup.tables.tasks) {
+        await conn.query(`INSERT INTO tasks (id, title, parent_id, client_id, status, priority, health_state, description, assignees, hours_estimated, hours_spent, due_date, start_date, end_date, source, created_at, updated_at)
+          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
+          ON CONFLICT (id) DO UPDATE SET title=$2, parent_id=$3, client_id=$4, status=$5, priority=$6, health_state=$7, description=$8, assignees=$9, hours_estimated=$10, hours_spent=$11, due_date=$12, start_date=$13, end_date=$14, source=$15, updated_at=$17`,
+          [t.id, t.title, t.parent_id, t.client_id, t.status, t.priority, t.health_state, t.description, t.assignees, t.hours_estimated, t.hours_spent, t.due_date, t.start_date || '', t.end_date || '', t.source, t.created_at, t.updated_at]);
+      }
+    }
+
+    // Restore comments
+    if (backup.tables.task_comments) {
+      for (const c of backup.tables.task_comments) {
+        await conn.query('INSERT INTO task_comments (id, task_id, author, text, created_at) VALUES ($1,$2,$3,$4,$5) ON CONFLICT (id) DO NOTHING', [c.id, c.task_id, c.author, c.text, c.created_at]);
+      }
+    }
+
+    // Restore finance data
+    if (backup.tables.finance_data) {
+      await conn.query('INSERT INTO finance_data (data, updated_by) VALUES ($1, $2)', [JSON.stringify(backup.tables.finance_data), 'restore']);
+    }
+
+    await conn.query('COMMIT');
+    await auditLog('system', 'backup', 'restore', req.user?.displayName, { exportedAt: backup.exportedAt });
+    res.json({ ok: true, message: 'Backup restored successfully' });
+  } catch(e) {
+    await conn.query('ROLLBACK');
+    log('error', 'Backup', 'Failed to restore backup', { error: e.message, stack: e.stack?.split('\n').slice(0,3).join(' | ') });
+    res.status(500).json({ error: 'An internal error occurred' });
+  } finally {
+    conn.release();
+  }
+});
+
+// ==================== TASK COMMENTS ====================
+
+/** GET /api/tasks/:id/comments — List all comments on a task, oldest first */
+app.get('/api/tasks/:id/comments', async (req, res) => {
+  const { rows } = await pool.query('SELECT * FROM task_comments WHERE task_id = $1 ORDER BY created_at ASC', [req.params.id]);
+  res.json(rows);
+});
+
+/** POST /api/tasks/:id/comments — Add a comment to a task */
+app.post('/api/tasks/:id/comments', async (req, res) => {
+  const { text } = req.body;
+  if (!text || !text.trim()) return res.status(400).json({ error: 'text required' });
+  const author = req.user?.displayName || 'Unknown';
+  const { rows } = await pool.query(
+    'INSERT INTO task_comments (task_id, author, text) VALUES ($1, $2, $3) RETURNING *',
+    [req.params.id, author, text.trim()]
+  );
+  await auditLog('comment', rows[0].id, 'create', author, { task_id: req.params.id, text: text.trim() });
+  res.status(201).json(rows[0]);
+});
+
+/** DELETE /api/tasks/:id/comments/:commentId — Remove a comment from a task (owner or admin) */
+app.delete('/api/tasks/:id/comments/:commentId', async (req, res) => {
+  const { rows } = await pool.query('SELECT author FROM task_comments WHERE id = $1 AND task_id = $2', [req.params.commentId, req.params.id]);
+  if (rows.length === 0) return res.status(404).json({ error: 'Comment not found' });
+  const isOwner = rows[0].author === (req.user?.displayName || req.user?.display_name);
+  if (!isOwner && req.user.role !== 'admin') return res.status(403).json({ error: 'Can only delete your own comments' });
+  await pool.query('DELETE FROM task_comments WHERE id = $1 AND task_id = $2', [req.params.commentId, req.params.id]);
+  res.json({ ok: true });
+});
+
+// ==================== DOWNLOADS SCANNER & FILE IMPORT ====================
+
+/**
+ * Detect the import format from CSV/XLSX column headers.
+ * Matches known patterns (Planner, MS Project, NBI CSV, CH Artifacts, etc.).
+ * @param {string[]} headers - Column header names from the first row
+ * @returns {{ format: string, label: string }} Identified format key and human-readable label
+ */
+function detectImportFormat(headers) {
+  const h = headers.map(x => String(x || '').toLowerCase().trim());
+  // Microsoft Planner XLSX export
+  if (h.includes('task id') && h.includes('bucket name') && h.includes('progress'))
+    return { format: 'planner', label: 'Microsoft Planner Export' };
+  // MS Project export
+  if (h.includes('name') && h.includes('duration') && (h.includes('start_date') || h.includes('start date')) && (h.includes('finish_date') || h.includes('finish date')))
+    return { format: 'ms-project', label: 'Microsoft Project Export' };
+  // CH Artifacts Project Plan
+  if (h.includes('ref') && h.includes('artifact name') && h.includes('legal basis / driver'))
+    return { format: 'ch-artifacts', label: 'Couch Heroes Artifacts Plan' };
+  // Glen work list / Slack list (our CSV format)
+  if (h.includes('task') && h.includes('status') && h.includes('priority'))
+    return { format: 'nbi-csv', label: 'NBI Task List (CSV)' };
+  // NBI dashboard export
+  if (h.includes('task') && h.includes('client') && h.includes('health state'))
+    return { format: 'nbi-export', label: 'NBI Dashboard Export' };
+  // Generic — has something task-like
+  if (h.includes('task') || h.includes('task name') || h.includes('name') || h.includes('title'))
+    return { format: 'generic', label: 'Generic Task List' };
+  return { format: 'unknown', label: 'Unknown Format' };
+}
+
+/**
+ * Parse an Excel file and return headers, sample rows, and sheet metadata.
+ * @param {string} filePath - Absolute path to the .xlsx/.xls file
+ * @param {boolean} headersOnly - If true, reads only first 5 rows (fast scan for format detection)
+ * @returns {{ sheetNames: string[], sheets: Object[] }} Parsed sheet data with headers, row counts, and samples
+ */
+function parseExcelFile(filePath, headersOnly) {
+  const opts = { cellDates: true };
+  if (headersOnly) opts.sheetRows = 5;
+  const wb = XLSX.readFile(filePath, opts);
+  const sheets = wb.SheetNames.map(name => {
+    const ws = wb.Sheets[name];
+    const rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: false, dateNF: 'dd/mm/yyyy' });
+    const dataRows = rows.filter(r => r.some(c => c != null && String(c).trim() !== ''));
+    if (dataRows.length === 0) return null;
+    const headers = dataRows[0].map(x => String(x || '').trim());
+    // When doing headers-only scan, we don't know the real row count
+    const rowCount = headersOnly ? -1 : dataRows.length - 1;
+    return { name, headers, rowCount, sample: dataRows.slice(1, 6) };
+  }).filter(Boolean);
+  return { sheetNames: wb.SheetNames, sheets };
+}
+
+/**
+ * Parse a CSV file using a basic state-machine parser (handles quoted fields).
+ * @param {string} filePath - Absolute path to the .csv file
+ * @returns {{ headers: string[], rowCount: number, rows: string[][] }|null} Parsed data, or null if empty
+ */
+function parseCSVFile(filePath) {
+  const text = fs.readFileSync(filePath, 'utf8');
+  const rows = [];
+  let row = [], cell = '', inQuote = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (inQuote) {
+      if (ch === '"') {
+        if (text[i+1] === '"') { cell += '"'; i++; } else { inQuote = false; }
+      } else { cell += ch; }
+    } else {
+      if (ch === '"') { inQuote = true; }
+      else if (ch === ',') { row.push(cell.trim()); cell = ''; }
+      else if (ch === '\r' || ch === '\n') {
+        if (ch === '\r' && text[i+1] === '\n') i++;
+        row.push(cell.trim()); cell = '';
+        if (row.some(c => c !== '')) rows.push(row);
+        row = [];
+      } else { cell += ch; }
+    }
+  }
+  row.push(cell.trim());
+  if (row.some(c => c !== '')) rows.push(row);
+  if (rows.length === 0) return null;
+  const headers = rows[0];
+  return { headers, rowCount: rows.length - 1, rows: rows.slice(1) };
+}
+
+/**
+ * GET /api/import/scan-downloads
+ * Scans the user's Downloads folder for importable Excel/CSV files.
+ * Returns file list with detected format, size, modification date.
+ */
+app.get('/api/import/scan-downloads', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const downloadsDir = path.join(os.homedir(), 'Downloads');
+  try {
+    const files = [];
+
+    // Only scan these known subdirectories (avoid scanning dozens of unrelated folders)
+    const knownSubdirs = ['msteams dload', 'Spreadsheets', 'expense'];
+
+    /** Scan a directory for importable files */
+    function scanDir(dir, prefix) {
+      let entries;
+      try { entries = fs.readdirSync(dir); } catch(e) { return; }
+      for (const name of entries) {
+        if (name.startsWith('~$')) continue;
+        const fullPath = path.join(dir, name);
+        let stat;
+        try { stat = fs.statSync(fullPath); } catch(e) { continue; }
+        // Recurse into known subdirectories only (one level deep)
+        if (stat.isDirectory() && !prefix && knownSubdirs.includes(name)) { scanDir(fullPath, name); continue; }
+        const ext = path.extname(name).toLowerCase();
+        if (!['.csv', '.xlsx', '.xls'].includes(ext)) continue;
+        const relPath = prefix ? prefix + '/' + name : name;
+        let format = { format: 'unknown', label: 'Unknown' };
+        let sheetCount = 1;
+        let rowCount = 0;
+        let planName = '';
+        try {
+          if (ext === '.csv') {
+            const parsed = parseCSVFile(fullPath);
+            if (parsed) { format = detectImportFormat(parsed.headers); rowCount = parsed.rowCount; }
+          } else {
+            const parsed = parseExcelFile(fullPath, true);
+            if (parsed.sheets.length > 0) {
+              format = detectImportFormat(parsed.sheets[0].headers);
+              sheetCount = parsed.sheetNames.length;
+              rowCount = parsed.sheets[0].rowCount;
+            }
+            // Extract Planner plan name from parsed sheets
+            // Plan name sheet layout: Row 0 = ["Plan name", "<actual name>"], Row 1 = ["Plan ID", "<id>"]
+            if (parsed.sheetNames.includes('Plan name')) {
+              const pnSheet = parsed.sheets.find(s => s.name === 'Plan name');
+              if (pnSheet && pnSheet.headers[0] === 'Plan name' && pnSheet.headers[1]) {
+                planName = String(pnSheet.headers[1]);
+              }
+            }
+          }
+        } catch(e) { /* skip unparseable files */ }
+        files.push({
+          name: relPath, ext, folder: prefix || '',
+          size: stat.size,
+          modified: stat.mtime.toISOString(),
+          format: format.format,
+          formatLabel: format.label,
+          sheetCount, rowCount, planName,
+        });
+      }
+    }
+
+    scanDir(downloadsDir, '');
+    files.sort((a, b) => new Date(b.modified) - new Date(a.modified));
+    res.json({ dir: downloadsDir, files });
+  } catch(e) {
+    log('error', 'Import', 'Cannot read Downloads folder', { error: e.message, stack: e.stack?.split('\n').slice(0,3).join(' | ') });
+    res.status(500).json({ error: 'An internal error occurred' });
+  }
+});
+
+/**
+ * POST /api/import/parse-file
+ * Parse a specific file from Downloads and return full preview data.
+ * Body: { filename: string, sheet?: string }
+ */
+app.post('/api/import/parse-file', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const { filename, sheet } = req.body;
+  if (!filename) return res.status(400).json({ error: 'filename required' });
+  // Security: allow files from Downloads or one subdirectory deep, no path traversal
+  const parts = filename.replace(/\\/g, '/').split('/');
+  if (parts.length > 2 || parts.some(p => p === '..' || p === '.')) return res.status(400).json({ error: 'Invalid path' });
+  const safeParts = parts.map(p => path.basename(p));
+  const safeName = safeParts.join('/');
+  const fullPath = path.join(os.homedir(), 'Downloads', ...safeParts);
+  if (!fs.existsSync(fullPath)) return res.status(404).json({ error: 'File not found' });
+
+  try {
+    const ext = path.extname(safeName).toLowerCase();
+    if (ext === '.csv') {
+      const parsed = parseCSVFile(fullPath);
+      if (!parsed) return res.status(400).json({ error: 'Empty CSV' });
+      const format = detectImportFormat(parsed.headers);
+      const mapped = mapRowsToTasks(format.format, parsed.headers, parsed.rows);
+      res.json({
+        filename: safeName, type: 'csv',
+        format: format.format, formatLabel: format.label,
+        headers: parsed.headers,
+        totalRows: parsed.rowCount,
+        preview: mapped.slice(0, 10),
+        tasks: mapped,
+      });
+    } else {
+      const parsed = parseExcelFile(fullPath);
+      if (parsed.sheets.length === 0) return res.status(400).json({ error: 'Empty spreadsheet' });
+      const targetSheet = sheet ? parsed.sheets.find(s => s.name === sheet) : parsed.sheets[0];
+      if (!targetSheet) return res.status(400).json({ error: 'Sheet not found' });
+      const format = detectImportFormat(targetSheet.headers);
+      const mapped = mapRowsToTasks(format.format, targetSheet.headers, targetSheet.sample.length < targetSheet.rowCount
+        ? (() => {
+            // Re-read all rows for full import
+            const wb = XLSX.readFile(fullPath, { cellDates: true });
+            const ws = wb.Sheets[targetSheet.name];
+            const allRows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: false, dateNF: 'dd/mm/yyyy' });
+            return allRows.slice(1).filter(r => r.some(c => c != null && String(c).trim() !== ''));
+          })()
+        : targetSheet.sample
+      );
+      res.json({
+        filename: safeName, type: 'xlsx',
+        format: format.format, formatLabel: format.label,
+        headers: targetSheet.headers,
+        sheets: parsed.sheetNames,
+        activeSheet: targetSheet.name,
+        totalRows: targetSheet.rowCount,
+        preview: mapped.slice(0, 10),
+        tasks: mapped,
+      });
+    }
+  } catch(e) {
+    log('error', 'Import', 'File parse failed', { error: e.message, stack: e.stack?.split('\n').slice(0,3).join(' | ') });
+    res.status(500).json({ error: 'An internal error occurred' });
+  }
+});
+
+/**
+ * Map parsed spreadsheet rows to the dashboard task structure based on detected format.
+ * Handles NBI CSV, CH Artifacts, MS Project, Planner, and generic formats.
+ * @param {string} format - Format key from detectImportFormat (e.g. 'planner', 'nbi-csv')
+ * @param {string[]} headers - Column header names
+ * @param {string[][]} rows - Data rows (each row is an array of cell values)
+ * @returns {Object[]} Array of task objects ready for bulk import
+ */
+function mapRowsToTasks(format, headers, rows) {
+  const ci = (name) => headers.findIndex(h => String(h || '').toLowerCase().trim() === name.toLowerCase().trim());
+  const ciAny = (...names) => { for (const n of names) { const i = ci(n); if (i >= 0) return i; } return -1; };
+  const get = (row, idx) => idx >= 0 && row[idx] != null ? String(row[idx]).trim() : '';
+
+  /** Map varied status strings to canonical dashboard status values */
+  function normaliseStatus(s) {
+    if (!s) return 'Not started';
+    const lower = s.toLowerCase().trim();
+    const map = { 'not started': 'Not started', 'in progress': 'In progress', 'in-progress': 'In progress',
+      planning: 'Planning', drafted: 'Drafted', done: 'Done', completed: 'Done',
+      cancelled: 'Cancelled', canceled: 'Cancelled', complete: 'Done' };
+    return map[lower] || 'Not started';
+  }
+  /** Map varied priority strings (P1-P4, named) to canonical dashboard priority values */
+  function normalisePriority(p) {
+    if (!p) return '';
+    const lower = p.toLowerCase().trim();
+    const map = { p1: 'Critical ACT', critical: 'Critical ACT', urgent: 'Critical ACT',
+      p2: 'High', high: 'High', important: 'High',
+      p3: 'Medium', medium: 'Medium', p4: 'Low', low: 'Low' };
+    return map[lower] || p;
+  }
+
+  switch (format) {
+    case 'nbi-csv':
+    case 'nbi-export': {
+      const iTask = ciAny('task', 'task name', 'title');
+      const iParent = ci('parent task');
+      const iStatus = ci('status');
+      const iPriority = ci('priority');
+      const iDesc = ci('description');
+      const iAssignee = ciAny('assignee', 'assigned to');
+      const iHealth = ci('health state');
+      const iClient = ci('client');
+      const iHoursEst = ciAny('hours estimated', 'hours est');
+      const iHoursSpent = ci('hours spent');
+      const iDue = ciAny('due date', 'due');
+      return rows.map(r => ({
+        title: get(r, iTask),
+        parentTitle: get(r, iParent),
+        status: normaliseStatus(get(r, iStatus)),
+        priority: normalisePriority(get(r, iPriority)),
+        description: get(r, iDesc),
+        assignees: get(r, iAssignee) ? get(r, iAssignee).split(/[,;]/).map(s => s.trim()).filter(Boolean) : [],
+        healthState: get(r, iHealth),
+        client: get(r, iClient),
+        hoursEstimated: parseFloat(get(r, iHoursEst)) || 0,
+        hoursSpent: parseFloat(get(r, iHoursSpent)) || 0,
+        dueDate: get(r, iDue),
+      })).filter(t => t.title);
+    }
+
+    case 'ch-artifacts': {
+      const iRef = ci('ref');
+      const iPriority = ci('priority');
+      const iName = ci('artifact name');
+      const iDesc = ci('description');
+      const iDriver = ciAny('legal basis / driver', 'legal basis');
+      const iDeadline = ciAny('deadline / trigger', 'deadline');
+      const iOwner = ci('owner');
+      const iStatus = ci('status');
+      const iDeps = ci('dependencies');
+      const iNotes = ci('notes');
+      return rows.map(r => {
+        const ref = get(r, iRef);
+        const name = get(r, iName);
+        if (!name || name.startsWith('PRIORITY')) return null; // Skip section headers
+        const desc = [get(r, iDesc), get(r, iDriver) ? 'Legal basis: ' + get(r, iDriver) : '', get(r, iNotes)].filter(Boolean).join('\n\n');
+        const parentTitle = ref && ref.includes('.') ? '' : ''; // Top-level items have no dot
+        return {
+          title: ref ? `[${ref}] ${name}` : name,
+          parentTitle: '',
+          status: normaliseStatus(get(r, iStatus)),
+          priority: normalisePriority(get(r, iPriority)),
+          description: desc,
+          assignees: get(r, iOwner) ? get(r, iOwner).split(/[+,;]/).map(s => s.trim()).filter(Boolean) : [],
+          healthState: '',
+          client: 'Couch Heroes',
+          hoursEstimated: 0,
+          hoursSpent: 0,
+          dueDate: '',
+          deadlineTrigger: get(r, iDeadline),
+          dependencies: get(r, iDeps),
+        };
+      }).filter(Boolean);
+    }
+
+    case 'ms-project': {
+      const iName = ciAny('name', 'task name');
+      const iDuration = ci('duration');
+      const iStart = ciAny('start_date', 'start date', 'start');
+      const iFinish = ciAny('finish_date', 'finish date', 'finish');
+      const iResource = ciAny('resource_names', 'resource names', 'resources');
+      return rows.map(r => {
+        const name = get(r, iName);
+        if (!name) return null;
+        const startRaw = get(r, iStart);
+        const endRaw = get(r, iFinish);
+        // Parse date strings like "January 1, 2026 8:00 AM"
+        const parseDate = (s) => { if (!s) return ''; try { const d = new Date(s); return isNaN(d) ? '' : d.toISOString().split('T')[0]; } catch(e) { return ''; } };
+        return {
+          title: name,
+          parentTitle: '',
+          status: 'Not started',
+          priority: '',
+          description: get(r, iDuration) ? 'Duration: ' + get(r, iDuration) : '',
+          assignees: get(r, iResource) ? get(r, iResource).split(/[,;]/).map(s => s.trim()).filter(Boolean) : [],
+          healthState: '',
+          client: 'Couch Heroes',
+          hoursEstimated: 0,
+          hoursSpent: 0,
+          startDate: parseDate(startRaw),
+          endDate: parseDate(endRaw),
+          dueDate: parseDate(endRaw),
+        };
+      }).filter(Boolean);
+    }
+
+    case 'planner': {
+      const iName = ciAny('task name', 'name');
+      const iBucket = ci('bucket name');
+      const iProgress = ci('progress');
+      const iPriority = ci('priority');
+      const iAssigned = ci('assigned to');
+      const iStartDate = ci('start date');
+      const iDueDate = ci('due date');
+      const iLate = ci('late');
+      const iDesc = ci('description');
+      const iTaskId = ci('task id');
+      const iLabels = ci('labels');
+      return rows.map(r => {
+        const name = get(r, iName);
+        if (!name) return null;
+        const progress = get(r, iProgress).toLowerCase();
+        const status = progress === 'completed' ? 'Done' : progress === 'in progress' ? 'In progress' : 'Not started';
+        const labels = get(r, iLabels).toLowerCase();
+        let health = '';
+        if (labels.includes('blocked')) health = 'Blocked';
+        else if (get(r, iLate) === 'true') health = 'Red';
+        else if (labels.includes('on hold') || labels.includes('review')) health = 'Yellow';
+        return {
+          title: name,
+          parentTitle: get(r, iBucket),
+          status,
+          priority: normalisePriority(get(r, iPriority)),
+          description: get(r, iDesc).replace(/_x000d_/g, ''),
+          assignees: get(r, iAssigned) ? get(r, iAssigned).split(';').map(s => s.trim()).filter(Boolean) : [],
+          healthState: health,
+          client: '',
+          hoursEstimated: 0,
+          hoursSpent: 0,
+          startDate: get(r, iStartDate),
+          dueDate: get(r, iDueDate),
+          plannerTaskId: get(r, iTaskId),
+        };
+      }).filter(Boolean);
+    }
+
+    default: {
+      // Generic: try to find task/name/title column
+      const iName = ciAny('task', 'task name', 'name', 'title', 'item', 'subject');
+      const iStatus = ciAny('status', 'state', 'progress');
+      const iAssigned = ciAny('assignee', 'assigned to', 'owner', 'resource');
+      const iDesc = ciAny('description', 'details', 'notes');
+      const iPriority = ciAny('priority', 'importance');
+      const iDue = ciAny('due date', 'due', 'deadline', 'finish date', 'end date');
+      return rows.map(r => {
+        const name = get(r, iName);
+        if (!name) return null;
+        return {
+          title: name,
+          parentTitle: '',
+          status: normaliseStatus(get(r, iStatus)),
+          priority: normalisePriority(get(r, iPriority)),
+          description: get(r, iDesc),
+          assignees: get(r, iAssigned) ? get(r, iAssigned).split(/[,;]/).map(s => s.trim()).filter(Boolean) : [],
+          healthState: '',
+          client: '',
+          hoursEstimated: 0,
+          hoursSpent: 0,
+          dueDate: get(r, iDue),
+        };
+      }).filter(Boolean);
+    }
+  }
+}
+
+// ==================== CONTRACT UPLOAD & TASK EXTRACTION ====================
+
+// pdf-parse is loaded at the top as a core dependency (used for receipt OCR + contract extraction)
+
+/**
+ * POST /api/contract/extract
+ * Upload a PDF or text file and extract deliverables, milestones, and tasks
+ * using regex pattern matching. Returns the extracted items plus a raw text preview.
+ * The uploaded file is deleted after processing.
+ */
+app.post('/api/contract/extract', upload.single('file'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+  let text = '';
+  try {
+    if (req.file.mimetype === 'application/pdf' && pdfParse) {
+      const dataBuffer = fs.readFileSync(req.file.path);
+      const pdfData = await pdfParse(dataBuffer);
+      text = pdfData.text;
+    } else {
+      // Plain text or fallback
+      text = fs.readFileSync(req.file.path, 'utf8');
+    }
+  } catch(e) {
+    log('error', 'Import', 'Contract file parse failed', { error: e.message, stack: e.stack?.split('\n').slice(0,3).join(' | ') });
+    return res.status(500).json({ error: 'An internal error occurred' });
+  }
+
+  // Extract potential tasks, milestones, deliverables using regex heuristics
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 5);
+  const extracted = [];
+  const patterns = [
+    /(?:deliverable|milestone|task|action|objective|requirement|phase)\s*[\d.:)\-]*\s*(.+)/i, // Labelled items
+    /^\d+[.)]\s+(.+)/,                                    // Numbered lists (e.g. "1. ..." or "1) ...")
+    /^[\u2022\u2023\u25CF\u25CB\-\*]\s+(.+)/,              // Bullet-pointed items (Unicode + ASCII bullets)
+    /(?:shall|must|will)\s+(.{15,})/i,                     // Contractual obligation language
+    /(?:due|deadline|by)\s+(\d{1,2}[\s\/\-]\w+[\s\/\-]\d{2,4})/i, // Date references
+  ];
+
+  lines.forEach((line, i) => {
+    for (const pat of patterns) {
+      const m = line.match(pat);
+      if (m) {
+        const title = (m[1] || line).substring(0, 120).trim();
+        if (title.length > 10 && !extracted.find(e => e.title === title)) {
+          // Try to find a date in the line
+          const dateMatch = line.match(/(\d{1,2}[\s\/\-](?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\w*[\s\/\-]\d{2,4})/i);
+          extracted.push({
+            title,
+            type: line.match(/milestone/i) ? 'milestone' : line.match(/deliverable/i) ? 'deliverable' : 'task',
+            dueDate: dateMatch ? dateMatch[1] : '',
+            sourceLine: i + 1,
+          });
+        }
+        break;
+      }
+    }
+  });
+
+  // Keep the uploaded file so it can be attached to a project later
+  // (previously deleted; now retained in uploads/ directory)
+
+  res.json({
+    filename: req.file.originalname,
+    storedFilename: req.file.filename,  // For attaching to project after import
+    totalLines: lines.length,
+    extracted,
+    rawPreview: text.substring(0, 2000),
+  });
+});
+
+// ==================== TIME TRACKING ====================
+
+/** GET /api/tasks/:id/time-entries — List time entries for a task, newest first */
+app.get('/api/tasks/:id/time-entries', async (req, res) => {
+  const { rows } = await pool.query('SELECT * FROM time_entries WHERE task_id = $1 ORDER BY date DESC, created_at DESC', [req.params.id]);
+  res.json(rows);
+});
+
+/** POST /api/tasks/:id/time-entries — Log time against a task. Also recalculates the task's hours_spent total. */
+app.post('/api/tasks/:id/time-entries', async (req, res) => {
+  const { hours, description, date } = req.body;
+  if (!hours || hours <= 0) return res.status(400).json({ error: 'hours required (> 0)' });
+  const userName = req.user?.displayName || 'Unknown';
+  const entryDate = date || new Date().toISOString().slice(0, 10);
+  const { rows } = await pool.query(
+    'INSERT INTO time_entries (task_id, user_name, description, hours, date) VALUES ($1,$2,$3,$4,$5) RETURNING *',
+    [req.params.id, userName, description || '', hours, entryDate]
+  );
+  // Recalculate the parent task's total hours from all time entries
+  await pool.query('UPDATE tasks SET hours_spent = COALESCE((SELECT SUM(hours) FROM time_entries WHERE task_id = $1), 0), updated_at = NOW() WHERE id = $1', [req.params.id]);
+  res.status(201).json(rows[0]);
+});
+
+/** DELETE /api/time-entries/:id — Delete a time entry and recalculate the parent task's hours (owner or admin) */
+app.delete('/api/time-entries/:id', async (req, res) => {
+  const { rows } = await pool.query('SELECT task_id, user_name FROM time_entries WHERE id = $1', [req.params.id]);
+  if (rows.length === 0) return res.status(404).json({ error: 'Time entry not found' });
+  const isOwner = rows[0].user_name === (req.user?.displayName || req.user?.display_name || req.user?.username);
+  if (!isOwner && req.user.role !== 'admin') return res.status(403).json({ error: 'Can only delete your own time entries' });
+  await pool.query('DELETE FROM time_entries WHERE id = $1', [req.params.id]);
+  if (rows.length > 0) {
+    await pool.query('UPDATE tasks SET hours_spent = COALESCE((SELECT SUM(hours) FROM time_entries WHERE task_id = $1), 0), updated_at = NOW() WHERE id = $1', [rows[0].task_id]);
+  }
+  res.json({ ok: true });
+});
+
+/**
+ * GET /api/time-entries/summary
+ * Aggregate time entries grouped by user and client, with optional date range filter.
+ * Used for utilisation reporting.
+ */
+app.get('/api/time-entries/summary', async (req, res) => {
+  const { from, to } = req.query;
+  let dateFilter = '';
+  const params = [];
+  if (from) { params.push(from); dateFilter += ` AND te.date >= $${params.length}`; }
+  if (to) { params.push(to); dateFilter += ` AND te.date <= $${params.length}`; }
+  const { rows } = await pool.query(`
+    SELECT te.user_name, t.client_id, c.name as client_name,
+           SUM(te.hours) as total_hours, COUNT(*) as entry_count
+    FROM time_entries te
+    JOIN tasks t ON te.task_id = t.id
+    LEFT JOIN clients c ON t.client_id = c.id
+    WHERE 1=1 ${dateFilter}
+    GROUP BY te.user_name, t.client_id, c.name
+    ORDER BY te.user_name, c.name
+  `, params);
+  res.json(rows);
+});
+
+// ==================== NOTIFICATIONS ====================
+
+/** GET /api/notifications — Fetch the latest 50 notifications for the current user, plus unread count */
+app.get('/api/notifications', async (req, res) => {
+  const username = req.user?.username || '';
+  const { rows } = await pool.query(
+    'SELECT * FROM notifications WHERE username = $1 ORDER BY created_at DESC LIMIT 50', [username]
+  );
+  const unread = rows.filter(n => !n.is_read).length;
+  res.json({ notifications: rows, unread });
+});
+
+/** POST /api/notifications/read — Mark specific notifications (by ids array) or all as read.
+ *  Non-dismissable notifications (e.g. expense reminders) are skipped unless force=true. */
+app.post('/api/notifications/read', async (req, res) => {
+  const username = req.user?.username || '';
+  const { ids, force } = req.body;
+  const dismissFilter = force ? '' : ' AND (dismissable IS NULL OR dismissable = true)';
+  if (ids && ids.length > 0) {
+    await pool.query(`UPDATE notifications SET is_read = true WHERE id = ANY($1) AND username = $2${dismissFilter}`, [ids, username]);
+  } else {
+    // No ids provided — mark all dismissable as read
+    await pool.query(`UPDATE notifications SET is_read = true WHERE username = $1${dismissFilter}`, [username]);
+  }
+  res.json({ ok: true });
+});
+
+/**
+ * Insert a notification for a specific user.
+ * Called internally by other endpoints (e.g. task assignment, status changes).
+ * @param {string} username - Target user's username
+ * @param {string} type - Notification category (e.g. 'assignment', 'status_change')
+ * @param {string} title - Short summary
+ * @param {string} [message] - Longer description
+ * @param {string} [link] - URL to navigate to when the notification is clicked
+ */
+async function createNotification(username, type, title, message, link, dismissable = true) {
+  await pool.query('INSERT INTO notifications (username, type, title, message, link, dismissable) VALUES ($1,$2,$3,$4,$5,$6)',
+    [username, type, title, message || '', link || '', dismissable]);
+}
+
+// ==================== TASK TEMPLATES ====================
+
+/** GET /api/templates — List all saved task templates */
+app.get('/api/templates', async (req, res) => {
+  const { rows } = await pool.query('SELECT * FROM task_templates ORDER BY name');
+  res.json(rows);
+});
+
+/** POST /api/templates — Save a new task template (template field is a JSON task tree) */
+app.post('/api/templates', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const { name, template, recurrence } = req.body;
+  if (!name || !template) return res.status(400).json({ error: 'name and template required' });
+  const { rows } = await pool.query(
+    'INSERT INTO task_templates (name, template, recurrence, created_by) VALUES ($1, $2, $3, $4) RETURNING *',
+    [name, JSON.stringify(template), recurrence || '', req.user?.displayName || 'unknown']
+  );
+  res.status(201).json(rows[0]);
+});
+
+/**
+ * POST /api/templates/:id/create
+ * Instantiate a template — recursively creates tasks from the template's JSON tree.
+ * Each node can have { title, status, priority, description, assignees, hoursEstimated, children }.
+ */
+app.post('/api/templates/:id/create', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const { rows } = await pool.query('SELECT * FROM task_templates WHERE id = $1', [req.params.id]);
+  if (rows.length === 0) return res.status(404).json({ error: 'Template not found' });
+  const tmpl = rows[0].template;
+  const created = [];
+
+  /** Recursively insert a task node and its children */
+  async function createFromTemplate(node, parentId) {
+    const taskResult = await pool.query(
+      `INSERT INTO tasks (title, parent_id, status, priority, description, assignees, hours_estimated, source)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, 'template') RETURNING id`,
+      [node.title, parentId, node.status || 'Not started', node.priority || '', node.description || '', node.assignees || [], node.hoursEstimated || 0]
+    );
+    created.push({ id: taskResult.rows[0].id, title: node.title });
+    if (node.children) {
+      for (const child of node.children) {
+        await createFromTemplate(child, taskResult.rows[0].id);
+      }
+    }
+  }
+  await createFromTemplate(tmpl, null);
+  await pool.query('UPDATE task_templates SET last_created_at = NOW() WHERE id = $1', [req.params.id]);
+  res.json({ ok: true, created });
+});
+
+/** DELETE /api/templates/:id — Remove a saved template (admin only) */
+app.delete('/api/templates/:id', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  await pool.query('DELETE FROM task_templates WHERE id = $1', [req.params.id]);
+  res.json({ ok: true });
+});
+
+// ==================== TASK ATTACHMENTS ====================
+
+/** GET /api/tasks/:id/attachments — List file attachments for a task */
+app.get('/api/tasks/:id/attachments', async (req, res) => {
+  const { rows } = await pool.query('SELECT * FROM task_attachments WHERE task_id = $1 ORDER BY created_at DESC', [req.params.id]);
+  res.json(rows);
+});
+
+/** POST /api/tasks/:id/attachments — Upload a file attachment to a task (max 25MB) */
+app.post('/api/tasks/:id/attachments', upload.single('file'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+  const author = req.user?.displayName || 'unknown';
+  const { rows } = await pool.query(
+    'INSERT INTO task_attachments (task_id, filename, original_name, size_bytes, mime_type, uploaded_by) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *',
+    [req.params.id, req.file.filename, req.file.originalname, req.file.size, req.file.mimetype, author]
+  );
+  await auditLog('attachment', rows[0].id, 'create', author, { task_id: req.params.id, filename: req.file.originalname });
+  res.status(201).json(rows[0]);
+});
+
+/** GET /api/attachments/:filename — Serve an uploaded file. Path traversal is prevented. */
+app.get('/api/attachments/:filename', (req, res) => {
+  const filePath = path.resolve(uploadDir, req.params.filename);
+  // Security: resolved path must stay within the uploads directory
+  if (!filePath.startsWith(path.resolve(uploadDir) + path.sep)) {
+    return res.status(400).json({ error: 'Invalid filename' });
+  }
+  if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'File not found' });
+  // Security: force download for non-image, non-PDF files to prevent XSS via uploaded HTML/SVG
+  const ext = path.extname(filePath).toLowerCase();
+  const safeInline = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.pdf'];
+  if (!safeInline.includes(ext)) {
+    res.setHeader('Content-Disposition', `attachment; filename="${path.basename(filePath)}"`);
+  }
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.sendFile(filePath);
+});
+
+/** DELETE /api/tasks/:id/attachments/:attachmentId — Remove an attachment and delete the file from disk */
+app.delete('/api/tasks/:id/attachments/:attachmentId', async (req, res) => {
+  const { rows } = await pool.query('SELECT filename FROM task_attachments WHERE id = $1 AND task_id = $2', [req.params.attachmentId, req.params.id]);
+  if (rows.length > 0) {
+    const filePath = path.join(uploadDir, rows[0].filename);
+    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    await pool.query('DELETE FROM task_attachments WHERE id = $1', [req.params.attachmentId]);
+  }
+  res.json({ ok: true });
+});
+
+// ==================== UNIVERSAL ATTACHMENTS ====================
+// Generic file attachments for any entity type (client, project, task)
+
+/** GET /api/attachments/entity/:type/:id — List all attachments for an entity */
+app.get('/api/attachments/entity/:type/:id', async (req, res) => {
+  const { rows } = await pool.query(
+    'SELECT * FROM attachments WHERE entity_type = $1 AND entity_id = $2 ORDER BY created_at DESC',
+    [req.params.type, req.params.id]
+  );
+  res.json(rows);
+});
+
+/** POST /api/attachments/entity/:type/:id — Upload a file attachment to an entity */
+app.post('/api/attachments/entity/:type/:id', upload.single('file'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file provided' });
+  const { rows } = await pool.query(
+    `INSERT INTO attachments (entity_type, entity_id, filename, original_name, size_bytes, mime_type, uploaded_by)
+     VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
+    [req.params.type, req.params.id, req.file.filename, req.file.originalname, req.file.size, req.file.mimetype, req.user?.displayName || 'unknown']
+  );
+  res.status(201).json(rows[0]);
+});
+
+/** GET /api/attachments/download/:filename — Download an attachment file (with path traversal protection) */
+app.get('/api/attachments/download/:filename', (req, res) => {
+  const filePath = path.resolve(uploadDir, req.params.filename);
+  if (!filePath.startsWith(path.resolve(uploadDir) + path.sep)) return res.status(403).json({ error: 'Forbidden' });
+  if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'File not found' });
+  res.download(filePath);
+});
+
+/** DELETE /api/attachments/:id — Remove an attachment record and delete the file from disk */
+app.delete('/api/attachments/:id', async (req, res) => {
+  const { rows } = await pool.query('SELECT filename FROM attachments WHERE id = $1', [req.params.id]);
+  if (rows.length > 0) {
+    const filePath = path.resolve(uploadDir, rows[0].filename);
+    if (filePath.startsWith(path.resolve(uploadDir) + path.sep) && fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    await pool.query('DELETE FROM attachments WHERE id = $1', [req.params.id]);
+  }
+  res.json({ ok: true });
+});
+
+// ==================== FINANCE DATA ====================
+
+/** GET /api/finance — Return the latest version of the finance data JSON blob with version for conflict detection */
+app.get('/api/finance', async (req, res) => {
+  const { rows } = await pool.query('SELECT id, data, updated_by, updated_at FROM finance_data ORDER BY id DESC LIMIT 1');
+  if (rows.length === 0) return res.json({ data: null, version: 0 });
+  res.json({ data: rows[0].data, updatedBy: rows[0].updated_by, updatedAt: rows[0].updated_at, version: rows[0].id });
+});
+
+/** PUT /api/finance — Save finance data as a new versioned row (append-only for history). Admin only.
+ *  Supports optimistic concurrency: pass expectedVersion (the id from GET) to detect conflicts.
+ *  If another user saved between your read and write, returns 409 Conflict. */
+app.put('/api/finance', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin access required' });
+  const { data, expectedVersion } = req.body;
+  if (!data) return res.status(400).json({ error: 'data required' });
+
+  // Data integrity check: reject saves missing critical arrays (prevents corruption from partial saves)
+  const requiredArrays = ['revenue', 'payroll'];
+  const missing = requiredArrays.filter(k => !Array.isArray(data[k]));
+  if (missing.length > 0) {
+    log('warn', 'Finance', `BLOCKED corrupt save from ${req.user?.displayName}`, { missing: missing.join(', '), keysSent: Object.keys(data).join(', ') });
+    return res.status(400).json({ error: `Finance data integrity check failed: missing ${missing.join(', ')}. This save was blocked to prevent data loss.` });
+  }
+
+  // Optimistic concurrency check
+  if (expectedVersion !== undefined) {
+    const { rows: latest } = await pool.query('SELECT id, updated_by, updated_at FROM finance_data ORDER BY id DESC LIMIT 1');
+    if (latest.length > 0 && latest[0].id !== expectedVersion) {
+      return res.status(409).json({
+        error: 'Conflict: finance data was updated by another user. Please reload and try again.',
+        currentVersion: latest[0].id,
+        updatedBy: latest[0].updated_by,
+        updatedAt: latest[0].updated_at
+      });
+    }
+  }
+
+  const updatedBy = req.user?.displayName || 'unknown';
+  const { rows: inserted } = await pool.query('INSERT INTO finance_data (data, updated_by) VALUES ($1, $2) RETURNING id', [JSON.stringify(data), updatedBy]);
+  await auditLog('finance', 'finance_data', 'update', updatedBy, { sections: Object.keys(data) });
+  res.json({ ok: true, version: inserted[0].id });
+});
+
+// ==================== CLIENTS ====================
+
+/** GET /api/clients — List all clients with their task count (used for client selector and CRM list) */
+app.get('/api/clients', async (req, res) => {
+  const { rows } = await pool.query(`
+    SELECT c.*,
+      (SELECT count(*) FROM tasks t WHERE t.client_id = c.id) as task_count
+    FROM clients c ORDER BY c.name
+  `);
+  res.json(rows);
+});
+
+/** GET /api/clients/:id — Get a single client with its contacts (single query) */
+app.get('/api/clients/:id', async (req, res) => {
+  const { rows } = await pool.query(`
+    SELECT c.*,
+      COALESCE(
+        (SELECT json_agg(row_to_json(ct.*) ORDER BY ct.sort_order)
+         FROM contacts ct WHERE ct.client_id = c.id),
+        '[]'::json
+      ) AS contacts
+    FROM clients c WHERE c.id = $1
+  `, [req.params.id]);
+  if (!rows[0]) return res.status(404).json({ error: 'Not found' });
+  res.json(rows[0]);
+});
+
+/** POST /api/clients — Create a new client record */
+app.post('/api/clients', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const { name, description, founded, headquarters, employees, revenue, website, linkedin_company, nbi_relationship, sector } = req.body;
+  if (!name) return res.status(400).json({ error: 'Name required' });
+  const lenErr = validateLength(name, 'name');
+  if (lenErr) return res.status(400).json({ error: lenErr });
+  const { rows } = await pool.query(
+    `INSERT INTO clients (name, description, founded, headquarters, employees, revenue, website, linkedin_company, nbi_relationship, sector)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,
+    [name, description || '', founded || '', headquarters || '', employees || '', revenue || '', website || '', linkedin_company || '', nbi_relationship || '', sector || null]
+  );
+  res.status(201).json(rows[0]);
+});
+
+/** PATCH /api/clients/:id — Update client fields */
+app.patch('/api/clients/:id', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const { updates, vals, nextIdx } = buildPatchQuery(req.body, ['name', 'description', 'founded', 'headquarters', 'employees', 'revenue', 'website', 'linkedin_company', 'nbi_relationship', 'sector']);
+  if (req.body.name !== undefined && !req.body.name.trim()) {
+    return res.status(400).json({ error: 'Name cannot be empty' });
+  }
+  if (updates.length === 0) return res.status(400).json({ error: 'No valid fields to update' });
+  updates.push(`updated_at = NOW()`);
+  vals.push(req.params.id);
+  const { rows } = await pool.query(`UPDATE clients SET ${updates.join(', ')} WHERE id = $${nextIdx} RETURNING *`, vals);
+  if (!rows[0]) return res.status(404).json({ error: 'Not found' });
+  res.json(rows[0]);
+});
+
+/** DELETE /api/clients/:id — Remove a client (admin only, cascades to tasks) */
+app.delete('/api/clients/:id', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  // Unlink tasks from this client before deleting
+  await pool.query('UPDATE tasks SET client_id = NULL, updated_at = NOW() WHERE client_id = $1', [req.params.id]);
+  await pool.query('DELETE FROM clients WHERE id = $1', [req.params.id]);
+  res.json({ ok: true });
+});
+
+// ==================== CONTACTS ====================
+
+/** GET /api/clients/:clientId/contacts — List contacts for a client, sorted by display order */
+app.get('/api/clients/:clientId/contacts', async (req, res) => {
+  const { rows } = await pool.query('SELECT * FROM contacts WHERE client_id = $1 ORDER BY sort_order', [req.params.clientId]);
+  res.json(rows);
+});
+
+/** POST /api/clients/:clientId/contacts — Add a contact person to a client */
+app.post('/api/clients/:clientId/contacts', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const { name, role, notes, background, linkedin, sort_order, email, phone } = req.body;
+  const { rows } = await pool.query(
+    `INSERT INTO contacts (client_id, name, role, notes, background, linkedin, sort_order, email, phone) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *`,
+    [req.params.clientId, name || '', role || '', notes || '', background || '', linkedin || '', sort_order || 0, email || '', phone || '']
+  );
+  res.status(201).json(rows[0]);
+});
+
+/** PATCH /api/contacts/:id — Update a contact's details */
+app.patch('/api/contacts/:id', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const { updates, vals, nextIdx } = buildPatchQuery(req.body, ['name', 'role', 'notes', 'background', 'linkedin', 'sort_order', 'email', 'phone']);
+  if (updates.length === 0) return res.status(400).json({ error: 'No valid fields to update' });
+  vals.push(req.params.id);
+  const { rows } = await pool.query(`UPDATE contacts SET ${updates.join(', ')} WHERE id = $${nextIdx} RETURNING *`, vals);
+  if (rows.length === 0) return res.status(404).json({ error: 'Contact not found' });
+  res.json(rows[0]);
+});
+
+/** DELETE /api/contacts/:id — Remove a contact (admin only) */
+app.delete('/api/contacts/:id', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  await pool.query('DELETE FROM contacts WHERE id = $1', [req.params.id]);
+  res.json({ ok: true });
+});
+
+// ==================== CLIENT NOTES ====================
+
+/** GET /api/clients/:clientId/notes — List notes/meeting records for a client, newest meeting first */
+app.get('/api/clients/:clientId/notes', async (req, res) => {
+  const { rows } = await pool.query(
+    'SELECT * FROM client_notes WHERE client_id = $1 ORDER BY meeting_date DESC NULLS LAST, created_at DESC',
+    [req.params.clientId]
+  );
+  res.json(rows);
+});
+
+/** GET /api/notes — List all client notes across all clients (for global notes view) */
+app.get('/api/notes', async (req, res) => {
+  const { rows } = await pool.query(`
+    SELECT n.*, c.name as client_name
+    FROM client_notes n JOIN clients c ON n.client_id = c.id
+    ORDER BY n.meeting_date DESC NULLS LAST, n.created_at DESC
+  `);
+  res.json(rows);
+});
+
+/** POST /api/clients/:clientId/notes — Create a note (meeting record, manual note, or synced from Granola) */
+app.post('/api/clients/:clientId/notes', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const { title, content, source, source_id, source_url, meeting_date, author } = req.body;
+  if (!title) return res.status(400).json({ error: 'Title required' });
+  const { rows } = await pool.query(
+    `INSERT INTO client_notes (client_id, title, content, source, source_id, source_url, meeting_date, author)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
+    [req.params.clientId, title, content || '', source || 'manual', source_id || '', source_url || '',
+     meeting_date || null, author || 'Glen']
+  );
+  res.status(201).json(rows[0]);
+});
+
+/** PATCH /api/notes/:id — Update a client note */
+app.patch('/api/notes/:id', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const { updates, vals, nextIdx } = buildPatchQuery(req.body, ['title', 'content', 'source', 'meeting_date', 'author']);
+  if (updates.length === 0) return res.status(400).json({ error: 'No valid fields to update' });
+  updates.push('updated_at = NOW()');
+  vals.push(req.params.id);
+  const { rows } = await pool.query(`UPDATE client_notes SET ${updates.join(', ')} WHERE id = $${nextIdx} RETURNING *`, vals);
+  if (rows.length === 0) return res.status(404).json({ error: 'Note not found' });
+  res.json(rows[0]);
+});
+
+/** DELETE /api/notes/:id — Remove a client note (admin only) */
+app.delete('/api/notes/:id', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  await pool.query('DELETE FROM client_notes WHERE id = $1', [req.params.id]);
+  res.json({ ok: true });
+});
+
+// ==================== TASKS ====================
+
+/**
+ * GET /api/tasks
+ * List tasks with optional filters: client_id, status, assignee.
+ * Includes inline task notes as a JSON aggregate and the client name via join.
+ */
+app.get('/api/tasks', async (req, res) => {
+  const { client_id, status, assignee, limit, offset } = req.query;
+  let where = []; let vals = []; let i = 1;
+  if (client_id) { where.push(`t.client_id = $${i}`); vals.push(client_id); i++; }
+  if (status) { where.push(`t.status = $${i}`); vals.push(status); i++; }
+  if (assignee) { where.push(`$${i} = ANY(t.assignees)`); vals.push(assignee); i++; }
+
+  const whereClause = where.length > 0 ? 'WHERE ' + where.join(' AND ') : '';
+  // Pagination: default to all rows for backwards compat, but support limit/offset for large datasets
+  let pagination = '';
+  if (limit) { pagination += ` LIMIT $${i}`; vals.push(parseInt(limit) || 200); i++; }
+  if (offset) { pagination += ` OFFSET $${i}`; vals.push(parseInt(offset) || 0); i++; }
+
+  const countQuery = `SELECT count(*) FROM tasks t LEFT JOIN clients c ON t.client_id = c.id ${whereClause}`;
+  const countVals = vals.slice(0, where.length); // only filter params, not limit/offset
+  const [{ rows }, countResult] = await Promise.all([
+    pool.query(`
+      SELECT t.*, c.name as client_name,
+        (SELECT json_agg(json_build_object('id', n.id, 'text', n.text, 'author', n.author, 'created_at', n.created_at) ORDER BY n.created_at)
+         FROM task_notes n WHERE n.task_id = t.id) as notes
+      FROM tasks t
+      LEFT JOIN clients c ON t.client_id = c.id
+      ${whereClause}
+      ORDER BY t.created_at
+      ${pagination}
+    `, vals),
+    limit ? pool.query(countQuery, countVals) : Promise.resolve({ rows: [{ count: null }] })
+  ]);
+
+  if (limit) {
+    res.json({ rows, total: parseInt(countResult.rows[0].count), limit: parseInt(limit), offset: parseInt(offset) || 0 });
+  } else {
+    res.json(rows);
+  }
+});
+
+/** GET /api/tasks/:id — Get a single task with notes and client name */
+app.get('/api/tasks/:id', async (req, res) => {
+  if (!isValidUuid(req.params.id)) return res.status(404).json({ error: 'Not found' });
+  const { rows } = await pool.query(`
+    SELECT t.*, c.name as client_name,
+      (SELECT json_agg(json_build_object('id', n.id, 'text', n.text, 'author', n.author, 'created_at', n.created_at) ORDER BY n.created_at)
+       FROM task_notes n WHERE n.task_id = t.id) as notes
+    FROM tasks t LEFT JOIN clients c ON t.client_id = c.id
+    WHERE t.id = $1
+  `, [req.params.id]);
+  if (!rows[0]) return res.status(404).json({ error: 'Not found' });
+  res.json(rows[0]);
+});
+
+/** POST /api/tasks — Create a new task (admin only) */
+app.post('/api/tasks', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const { title, parent_id, client_id, status, priority, health_state, description, assignees, hours_estimated, hours_spent, due_date, start_date, end_date, dependencies, planner_task_id, source } = req.body;
+  if (!title) return res.status(400).json({ error: 'Title required' });
+  const lenErr = validateLength(title, 'title') || validateLength(description, 'description');
+  if (lenErr) return res.status(400).json({ error: lenErr });
+  const { rows } = await pool.query(
+    `INSERT INTO tasks (title, parent_id, client_id, status, priority, health_state, description, assignees, hours_estimated, hours_spent, due_date, start_date, end_date, dependencies, planner_task_id, source)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16) RETURNING *`,
+    [title, parent_id || null, client_id || null, status || 'Not started', priority || '', health_state || '', description || '',
+     assignees || [], hours_estimated || 0, hours_spent || 0, due_date || '', start_date || '', end_date || '', dependencies || [], planner_task_id || '', source || 'manual']
+  );
+  await auditLog('task', rows[0].id, 'create', req.user?.displayName, { title });
+  res.status(201).json(rows[0]);
+});
+
+/**
+ * PATCH /api/tasks/:id
+ * Update task fields. Compares old and new values to build a detailed
+ * audit trail entry showing exactly what changed.
+ */
+app.patch('/api/tasks/:id', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const lenErr = validateLength(req.body.title, 'title') || validateLength(req.body.description, 'description');
+  if (lenErr) return res.status(400).json({ error: lenErr });
+  const allowedFields = ['title', 'parent_id', 'client_id', 'status', 'priority', 'health_state', 'description', 'assignees', 'hours_estimated', 'hours_spent', 'due_date', 'start_date', 'end_date', 'dependencies'];
+  const { updates, vals, nextIdx } = buildPatchQuery(req.body, allowedFields);
+  if (req.body.title !== undefined && !req.body.title.trim()) {
+    return res.status(400).json({ error: 'Title cannot be empty' });
+  }
+  if (updates.length === 0) return res.status(400).json({ error: 'No valid fields to update' });
+  // Fetch old values before update for audit trail
+  const oldResult = await pool.query('SELECT * FROM tasks WHERE id = $1', [req.params.id]);
+  const oldTask = oldResult.rows[0];
+  updates.push(`updated_at = NOW()`);
+  vals.push(req.params.id);
+  const { rows } = await pool.query(`UPDATE tasks SET ${updates.join(', ')} WHERE id = $${nextIdx} RETURNING *`, vals);
+  if (!rows[0]) return res.status(404).json({ error: 'Not found' });
+  // Build detailed change log with old and new values
+  const changes = {};
+  for (const f of allowedFields) {
+    if (req.body[f] !== undefined && oldTask) {
+      const oldVal = oldTask[f];
+      const newVal = req.body[f];
+      if (JSON.stringify(oldVal) !== JSON.stringify(newVal)) {
+        changes[f] = { from: oldVal, to: newVal };
+      }
+    }
+  }
+  if (Object.keys(changes).length > 0) {
+    await auditLog('task', req.params.id, 'update', req.user?.displayName, changes);
+  }
+  res.json(rows[0]);
+});
+
+/** DELETE /api/tasks/:id — Delete a task (admin only, cascades to children) */
+app.delete('/api/tasks/:id', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  await auditLog('task', req.params.id, 'delete', req.user?.displayName);
+  // Re-parent child tasks before deleting
+  await pool.query('UPDATE tasks SET parent_id = NULL, updated_at = NOW() WHERE parent_id = $1', [req.params.id]);
+  await pool.query('DELETE FROM tasks WHERE id = $1', [req.params.id]);
+  res.json({ ok: true });
+});
+
+/**
+ * POST /api/tasks/bulk
+ * Bulk-create tasks from an import. Uses a two-pass approach:
+ * first pass inserts all tasks to get real IDs, second pass resolves
+ * parent relationships using a temp_id -> real_id mapping.
+ */
+app.post('/api/tasks/bulk', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const { tasks: taskList } = req.body;
+  if (!Array.isArray(taskList)) return res.status(400).json({ error: 'tasks array required' });
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const created = [];
+    // First pass: insert tasks without parent_id to get IDs
+    const idMap = {}; // temp_id -> real_id
+    for (const t of taskList) {
+      const { rows } = await client.query(
+        `INSERT INTO tasks (title, client_id, status, priority, health_state, description, assignees, hours_estimated, hours_spent, due_date, planner_task_id, source)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING *`,
+        [t.title, t.client_id || null, t.status || 'Not started', t.priority || '', t.health_state || '',
+         t.description || '', t.assignees || [], t.hours_estimated || 0, t.hours_spent || 0,
+         t.due_date || '', t.planner_task_id || '', t.source || 'import']
+      );
+      if (t._temp_id) idMap[t._temp_id] = rows[0].id;
+      created.push(rows[0]);
+    }
+    // Second pass: set parent_ids
+    for (const t of taskList) {
+      if (t._temp_parent_id && idMap[t._temp_parent_id]) {
+        const realId = idMap[t._temp_id];
+        const realParentId = idMap[t._temp_parent_id];
+        await client.query('UPDATE tasks SET parent_id = $1 WHERE id = $2', [realParentId, realId]);
+      }
+    }
+    await client.query('COMMIT');
+    res.status(201).json({ count: created.length });
+  } catch (e) {
+    await client.query('ROLLBACK');
+    log('error', 'Tasks', 'Bulk task creation failed', { error: e.message, stack: e.stack?.split('\n').slice(0,3).join(' | ') });
+    res.status(500).json({ error: 'An internal error occurred' });
+  } finally {
+    client.release();
+  }
+});
+
+// ==================== DATA SYNC ====================
+
+/**
+ * POST /api/sync/changes
+ * Incremental sync: apply a list of change operations (upsert/delete) to tasks.
+ * Also syncs client briefs and contacts if provided.
+ * Runs in a transaction with a client name -> ID cache to avoid repeated lookups.
+ */
+app.post('/api/sync/changes', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const { changes, client_briefs: briefList } = req.body;
+  if ((!Array.isArray(changes) || changes.length === 0) && !briefList) return res.json({ ok: true, applied: 0 });
+
+  const conn = await pool.connect();
+  try {
+    await conn.query('BEGIN');
+
+    // Build client name->id cache
+    const clientRows = (await conn.query('SELECT id, name FROM clients')).rows;
+    const clientMap = {};
+    clientRows.forEach(r => { clientMap[r.name] = r.id; });
+
+    let applied = 0;
+    const idMap = {}; // frontend_id -> db_id (for new tasks)
+
+    for (const ch of changes) {
+      const t = ch.data || {};
+
+      if (ch.action === 'upsert' && ch.entity === 'task') {
+        // Resolve client name to ID
+        let clientId = null;
+        if (t.client && clientMap[t.client]) {
+          clientId = clientMap[t.client];
+        } else if (t.client) {
+          const cr = await conn.query('INSERT INTO clients (name) VALUES ($1) ON CONFLICT (name) DO UPDATE SET name = $1 RETURNING id', [t.client]);
+          clientId = cr.rows[0].id;
+          clientMap[t.client] = clientId;
+        }
+
+        // Resolve parentId (might be a frontend temp ID or a DB UUID)
+        let parentId = t.parentId || null;
+        if (parentId && idMap[parentId]) parentId = idMap[parentId];
+
+        // Check if task exists
+        const existing = await conn.query('SELECT id, updated_at FROM tasks WHERE id = $1', [t.id]);
+
+        if (existing.rows.length > 0) {
+          // Conflict detection: if another user updated this task after the client last loaded it,
+          // skip this update to avoid overwriting their changes. Client picks up the newer version on next poll.
+          const clientKnownAt = t._serverUpdatedAt;
+          const serverUpdatedAt = existing.rows[0].updated_at;
+          if (clientKnownAt && serverUpdatedAt && new Date(clientKnownAt) < new Date(serverUpdatedAt)) {
+            continue;
+          }
+
+          // Update existing task
+          await conn.query(
+            `UPDATE tasks SET title=$1, parent_id=$2, client_id=$3, status=$4, priority=$5,
+             health_state=$6, description=$7, assignees=$8, hours_estimated=$9, hours_spent=$10,
+             due_date=$11, start_date=$12, end_date=$13, dependencies=$14, updated_at=NOW()
+             WHERE id=$15`,
+            [t.title, parentId, clientId, t.status || 'Not started', t.priority || '',
+             t.healthState || t.health_state || '', t.description || '', t.assignees || [],
+             t.hoursEstimated || t.hours_estimated || 0, t.hoursSpent || t.hours_spent || 0,
+             t.dueDate || t.due_date || '', t.startDate || t.start_date || '', t.endDate || t.end_date || '',
+             t.dependencies || [], t.id]
+          );
+        } else {
+          // Insert new task
+          const { rows } = await conn.query(
+            `INSERT INTO tasks (id, title, parent_id, client_id, status, priority, health_state,
+             description, assignees, hours_estimated, hours_spent, due_date, start_date, end_date, dependencies, source, created_at, updated_at)
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,NOW()) RETURNING id`,
+            [t.id, t.title, parentId, clientId, t.status || 'Not started', t.priority || '',
+             t.healthState || t.health_state || '', t.description || '', t.assignees || [],
+             t.hoursEstimated || t.hours_estimated || 0, t.hoursSpent || t.hours_spent || 0,
+             t.dueDate || t.due_date || '', t.startDate || t.start_date || '', t.endDate || t.end_date || '',
+             t.dependencies || [], t.source || 'sync',
+             t.createdAt || t.created_at || new Date().toISOString()]
+          );
+          idMap[t.id] = rows[0].id;
+        }
+
+        // Sync task notes if present
+        if (Array.isArray(t.notes) && t.notes.length > 0) {
+          const taskDbId = idMap[t.id] || t.id;
+          // Delete existing notes and re-insert (notes are small, append-only)
+          await conn.query('DELETE FROM task_notes WHERE task_id = $1', [taskDbId]);
+          for (const n of t.notes) {
+            if (n.text || n.time) {
+              await conn.query('INSERT INTO task_notes (task_id, text, created_at) VALUES ($1, $2, $3)',
+                [taskDbId, n.text || '', n.time || n.created_at || new Date().toISOString()]);
+            }
+          }
+        }
+        const changedBy = req.user ? req.user.displayName : 'system';
+        await auditLog('task', idMap[t.id] || t.id,
+          existing.rows.length > 0 ? 'update' : 'create',
+          changedBy, { title: t.title, status: t.status, healthState: t.healthState || t.health_state }, conn);
+        applied++;
+
+      } else if (ch.action === 'delete' && ch.entity === 'task') {
+        const changedBy = req.user ? req.user.displayName : 'system';
+        await auditLog('task', ch.id, 'delete', changedBy, null, conn);
+        await conn.query('DELETE FROM tasks WHERE id = $1', [ch.id]);
+        applied++;
+      }
+    }
+
+    // Sync client briefs if provided
+    if (briefList && typeof briefList === 'object') {
+      for (const [name, brief] of Object.entries(briefList)) {
+        await conn.query(
+          `INSERT INTO clients (name, description, founded, headquarters, employees, revenue, website, linkedin_company, nbi_relationship)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+           ON CONFLICT (name) DO UPDATE SET description=$2, founded=$3, headquarters=$4, employees=$5, revenue=$6, website=$7, linkedin_company=$8, nbi_relationship=$9, updated_at=NOW()`,
+          [name, brief.description || '', brief.founded || '', brief.headquarters || '',
+           brief.employees || '', brief.revenue || '', brief.website || '',
+           brief.linkedin || '', brief.nbiRelationship || '']
+        );
+        // Sync contacts
+        if (Array.isArray(brief.contacts)) {
+          const clientRow = await conn.query('SELECT id FROM clients WHERE name = $1', [name]);
+          if (clientRow.rows.length > 0) {
+            const cid = clientRow.rows[0].id;
+            await conn.query('DELETE FROM contacts WHERE client_id = $1', [cid]);
+            for (let i = 0; i < brief.contacts.length; i++) {
+              const ct = brief.contacts[i];
+              await conn.query(
+                'INSERT INTO contacts (client_id, name, role, notes, background, linkedin, sort_order) VALUES ($1,$2,$3,$4,$5,$6,$7)',
+                [cid, ct.name || '', ct.role || '', ct.notes || '', ct.background || '', ct.linkedin || '', i]
+              );
+            }
+          }
+        }
+      }
+    }
+
+    await conn.query('COMMIT');
+    res.json({ ok: true, applied, idMap });
+  } catch (e) {
+    await conn.query('ROLLBACK');
+    log('error', 'Sync', 'Incremental sync failed', { error: e.message, stack: e.stack?.split('\n').slice(0,3).join(' | ') });
+    res.status(500).json({ error: 'An internal error occurred' });
+  } finally {
+    conn.release();
+  }
+});
+
+/**
+ * GET /api/sync/poll?since=<ISO timestamp>
+ * Lightweight polling endpoint — returns tasks updated after the given timestamp
+ * plus the full list of current task IDs (so the client can detect deletions).
+ */
+app.get('/api/sync/poll', async (req, res) => {
+  const since = req.query.since;
+  if (!since) return res.status(400).json({ error: 'since parameter required' });
+
+  const sinceDate = new Date(since);
+  if (isNaN(sinceDate.getTime())) return res.status(400).json({ error: 'Invalid timestamp' });
+
+  // Get tasks updated since the timestamp (capped at 500 to prevent huge payloads)
+  const updated = await pool.query(`
+    SELECT t.*, c.name as client_name
+    FROM tasks t LEFT JOIN clients c ON t.client_id = c.id
+    WHERE t.updated_at > $1
+    ORDER BY t.updated_at
+    LIMIT 501
+  `, [sinceDate.toISOString()]);
+
+  // Get IDs of all current tasks to detect deletions
+  const allIds = await pool.query('SELECT id FROM tasks');
+  const currentIds = allIds.rows.map(r => r.id);
+
+  const hasMore = updated.rows.length > 500;
+  const capped = hasMore ? updated.rows.slice(0, 500) : updated.rows;
+
+  const updatedTasks = capped.map(r => ({
+    id: r.id,
+    title: r.title,
+    parentId: r.parent_id,
+    client: r.client_name || '',
+    status: r.status,
+    priority: r.priority || '',
+    healthState: r.health_state || '',
+    description: r.description || '',
+    assignees: r.assignees || [],
+    hoursEstimated: r.hours_estimated || 0,
+    hoursSpent: r.hours_spent || 0,
+    dueDate: r.due_date || '',
+    startDate: r.start_date || '',
+    endDate: r.end_date || '',
+    dependencies: r.dependencies || [],
+    createdAt: r.created_at,
+    updatedAt: r.updated_at,
+  }));
+
+  res.json({
+    updated: updatedTasks,
+    currentIds,
+    hasMore,
+    serverTime: new Date().toISOString(),
+  });
+});
+
+/**
+ * PUT /api/sync/tasks
+ * Legacy full-replace sync — deletes all tasks then re-inserts from the payload.
+ * Kept for backwards compatibility; prefer POST /api/sync/changes for incremental sync.
+ */
+app.put('/api/sync/tasks', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only — destructive full-replace sync' });
+  const { tasks: taskList, client_briefs: briefList } = req.body;
+  const conn = await pool.connect();
+  try {
+    await conn.query('BEGIN');
+
+    if (Array.isArray(taskList)) {
+      const clientRows = (await conn.query('SELECT id, name FROM clients')).rows;
+      const clientMap = {};
+      clientRows.forEach(r => { clientMap[r.name] = r.id; });
+
+      await conn.query('DELETE FROM tasks');
+
+      const idMap = {};
+      for (const t of taskList) {
+        let clientId = null;
+        if (t.client && clientMap[t.client]) {
+          clientId = clientMap[t.client];
+        } else if (t.client) {
+          const cr = await conn.query('INSERT INTO clients (name) VALUES ($1) ON CONFLICT (name) DO UPDATE SET name = $1 RETURNING id', [t.client]);
+          clientId = cr.rows[0].id;
+          clientMap[t.client] = clientId;
+        }
+
+        const { rows } = await conn.query(
+          `INSERT INTO tasks (title, client_id, status, priority, health_state, description, assignees, hours_estimated, hours_spent, due_date, planner_task_id, source, created_at, updated_at)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING id`,
+          [t.title, clientId, t.status || 'Not started', t.priority || '', t.healthState || t.health_state || '',
+           t.description || '', t.assignees || [], t.hoursEstimated || t.hours_estimated || 0,
+           t.hoursSpent || t.hours_spent || 0, t.dueDate || t.due_date || '',
+           t.plannerTaskId || t.planner_task_id || '', t.source || 'sync',
+           t.createdAt || t.created_at || new Date().toISOString(),
+           t.updatedAt || t.updated_at || new Date().toISOString()]
+        );
+        idMap[t.id] = rows[0].id;
+
+        if (Array.isArray(t.notes)) {
+          for (const n of t.notes) {
+            if (n.text || n.time) {
+              await conn.query('INSERT INTO task_notes (task_id, text, created_at) VALUES ($1, $2, $3)',
+                [rows[0].id, n.text || '', n.time || n.created_at || new Date().toISOString()]);
+            }
+          }
+        }
+      }
+
+      for (const t of taskList) {
+        if (t.parentId && idMap[t.parentId]) {
+          await conn.query('UPDATE tasks SET parent_id = $1 WHERE id = $2', [idMap[t.parentId], idMap[t.id]]);
+        }
+      }
+    }
+
+    if (briefList && typeof briefList === 'object') {
+      for (const [name, brief] of Object.entries(briefList)) {
+        await conn.query(
+          `INSERT INTO clients (name, description, founded, headquarters, employees, revenue, website, linkedin_company, nbi_relationship)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+           ON CONFLICT (name) DO UPDATE SET description=$2, founded=$3, headquarters=$4, employees=$5, revenue=$6, website=$7, linkedin_company=$8, nbi_relationship=$9, updated_at=NOW()`,
+          [name, brief.description || '', brief.founded || '', brief.headquarters || '', brief.employees || '',
+           brief.revenue || '', brief.website || '', brief.linkedinCompany || '', brief.nbiRelationship || '']
+        );
+        if (Array.isArray(brief.contacts)) {
+          const cid = (await conn.query('SELECT id FROM clients WHERE name = $1', [name])).rows[0]?.id;
+          if (cid) {
+            await conn.query('DELETE FROM contacts WHERE client_id = $1', [cid]);
+            for (let i = 0; i < brief.contacts.length; i++) {
+              const c = brief.contacts[i];
+              await conn.query(
+                'INSERT INTO contacts (client_id, name, role, notes, background, linkedin, sort_order) VALUES ($1,$2,$3,$4,$5,$6,$7)',
+                [cid, c.name || '', c.role || '', c.notes || '', c.background || '', c.linkedin || '', i]
+              );
+            }
+          }
+        }
+      }
+    }
+
+    await conn.query('COMMIT');
+    res.json({ ok: true, task_count: taskList ? taskList.length : 0 });
+  } catch (e) {
+    await conn.query('ROLLBACK');
+    log('error', 'Sync', 'Full task sync failed', { error: e.message, stack: e.stack?.split('\n').slice(0,3).join(' | ') });
+    res.status(500).json({ error: 'An internal error occurred' });
+  } finally {
+    conn.release();
+  }
+});
+
+/**
+ * GET /api/sync/load
+ * Bootstrap endpoint — loads all tasks, clients, contacts, and settings in one call.
+ * Maps DB column names (snake_case) to frontend format (camelCase).
+ * Used on initial dashboard load to avoid multiple round-trips.
+ */
+app.get('/api/sync/load', async (req, res) => {
+  if (!req.user) return res.status(401).json({ error: 'Authentication required' });
+  const tasks = await pool.query(`
+    SELECT t.*, c.name as client_name,
+      (SELECT json_agg(json_build_object('text', n.text, 'time', n.created_at) ORDER BY n.created_at)
+       FROM task_notes n WHERE n.task_id = t.id) as notes
+    FROM tasks t LEFT JOIN clients c ON t.client_id = c.id
+    ORDER BY t.created_at
+  `);
+
+  const clients = await pool.query(`
+    SELECT c.*,
+      (SELECT json_agg(json_build_object('name', ct.name, 'role', ct.role, 'notes', ct.notes, 'background', ct.background, 'linkedin', ct.linkedin) ORDER BY ct.sort_order)
+       FROM contacts ct WHERE ct.client_id = c.id) as contacts
+    FROM clients c ORDER BY c.name
+  `);
+
+  const settings = await pool.query('SELECT key, value FROM settings');
+  const settingsObj = {};
+  settings.rows.forEach(r => { settingsObj[r.key] = r.value; });
+
+  // Map tasks back to frontend format
+  const taskIdMap = {};
+  tasks.rows.forEach(r => { taskIdMap[r.id] = r; });
+
+  const frontendTasks = tasks.rows.map(r => ({
+    id: r.id,
+    title: r.title,
+    parentId: r.parent_id,
+    client: r.client_name || '',
+    status: r.status,
+    priority: r.priority || '',
+    healthState: r.health_state || '',
+    description: r.description || '',
+    assignees: r.assignees || [],
+    hoursEstimated: r.hours_estimated || 0,
+    hoursSpent: r.hours_spent || 0,
+    dueDate: r.due_date || '',
+    startDate: r.start_date || '',
+    endDate: r.end_date || '',
+    dependencies: r.dependencies || [],
+    notes: r.notes || [],
+    createdAt: r.created_at,
+    updatedAt: r.updated_at,
+    plannerTaskId: r.planner_task_id || '',
+  }));
+
+  // Map client briefs to frontend format
+  const frontendBriefs = {};
+  clients.rows.forEach(r => {
+    frontendBriefs[r.name] = {
+      name: r.name,
+      description: r.description || '',
+      founded: r.founded || '',
+      headquarters: r.headquarters || '',
+      employees: r.employees || '',
+      revenue: r.revenue || '',
+      website: r.website || '',
+      linkedinCompany: r.linkedin_company || '',
+      nbiRelationship: r.nbi_relationship || '',
+      contacts: r.contacts || [],
+    };
+  });
+
+  res.json({
+    tasks: frontendTasks,
+    clientBriefs: frontendBriefs,
+    settings: settingsObj,
+    knownClients: clients.rows.map(r => r.name),
+  });
+});
+
+// ==================== TASK NOTES ====================
+
+/** POST /api/tasks/:taskId/notes — Add a quick note to a task (also bumps the task's updated_at) */
+app.post('/api/tasks/:taskId/notes', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const { text, author } = req.body;
+  if (!text) return res.status(400).json({ error: 'Text required' });
+  const { rows } = await pool.query(
+    'INSERT INTO task_notes (task_id, text, author) VALUES ($1, $2, $3) RETURNING *',
+    [req.params.taskId, text, author || 'Glen']
+  );
+  // Update task's updated_at
+  await pool.query('UPDATE tasks SET updated_at = NOW() WHERE id = $1', [req.params.taskId]);
+  res.status(201).json(rows[0]);
+});
+
+// ==================== SETTINGS ====================
+
+/** GET /api/settings — Return all settings as a key-value object */
+app.get('/api/settings', async (req, res) => {
+  const { rows } = await pool.query('SELECT key, value FROM settings');
+  const obj = {};
+  rows.forEach(r => { obj[r.key] = r.value; });
+  res.json(obj);
+});
+
+/** PUT /api/settings/:key — Upsert a single setting (admin only, stored as JSON) */
+app.put('/api/settings/:key', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const { value } = req.body;
+  await pool.query(
+    'INSERT INTO settings (key, value, updated_at) VALUES ($1, $2, NOW()) ON CONFLICT (key) DO UPDATE SET value = $2, updated_at = NOW()',
+    [req.params.key, JSON.stringify(value)]
+  );
+  res.json({ ok: true });
+});
+
+// ==================== DASHBOARD AGGREGATES ====================
+
+/**
+ * GET /api/dashboard/summary
+ * Compute dashboard statistics: task counts by status and health,
+ * hours totals, breakdowns by client, and breakdowns by assignee.
+ * Optionally filtered by client_id.
+ */
+app.get('/api/dashboard/summary', async (req, res) => {
+  const { client_id } = req.query;
+  let clientFilter = ''; let vals = [];
+  if (client_id) { clientFilter = 'WHERE t.client_id = $1'; vals = [client_id]; }
+
+  const stats = await pool.query(`
+    SELECT
+      count(*) as total_tasks,
+      count(*) FILTER (WHERE status = 'Not started') as not_started,
+      count(*) FILTER (WHERE status = 'In progress') as in_progress,
+      count(*) FILTER (WHERE status = 'Planning') as planning,
+      count(*) FILTER (WHERE status = 'Done') as done,
+      count(*) FILTER (WHERE status = 'Blocked') as blocked,
+      count(*) FILTER (WHERE status = 'Cancelled') as cancelled,
+      count(*) FILTER (WHERE health_state = 'Red') as health_red,
+      count(*) FILTER (WHERE health_state = 'Yellow') as health_yellow,
+      count(*) FILTER (WHERE health_state = 'Green') as health_green,
+      count(*) FILTER (WHERE health_state = 'Blocked') as health_blocked,
+      COALESCE(sum(hours_estimated), 0) as total_hours_estimated,
+      COALESCE(sum(hours_spent), 0) as total_hours_spent
+    FROM tasks t ${clientFilter}
+  `, vals);
+
+  const byClient = await pool.query(`
+    SELECT c.id, c.name,
+      count(t.id) as task_count,
+      count(t.id) FILTER (WHERE t.status = 'Done') as done_count,
+      COALESCE(sum(t.hours_estimated), 0) as hours_estimated,
+      COALESCE(sum(t.hours_spent), 0) as hours_spent
+    FROM clients c
+    LEFT JOIN tasks t ON t.client_id = c.id
+    GROUP BY c.id, c.name ORDER BY c.name
+  `);
+
+  const byAssignee = await pool.query(`
+    SELECT unnest(assignees) as assignee, count(*) as task_count,
+      count(*) FILTER (WHERE status = 'In progress') as active_count
+    FROM tasks ${clientFilter}
+    GROUP BY assignee ORDER BY task_count DESC
+  `, vals);
+
+  res.json({
+    stats: stats.rows[0],
+    by_client: byClient.rows,
+    by_assignee: byAssignee.rows,
+  });
+});
+
+// ==================== LEADS TRACKER ====================
+// CRM pipeline for tracking sales opportunities, from initial contact through to close.
+// Supports configurable stages, resource requirements, activity logging, and revenue forecasting.
+
+// --- Config endpoints (pipeline stages, resource types, field options) ---
+
+/**
+ * GET /api/leads/config
+ * Return cached pipeline configuration: stages, resource types, and field option dropdowns.
+ * Cache is invalidated whenever an admin modifies any config item.
+ */
+app.get('/api/leads/config', async (req, res) => {
+  const config = await getCached('leads_config', async () => {
+    const stages = await pool.query('SELECT * FROM lead_pipeline_stages ORDER BY sort_order');
+    const resourceTypes = await pool.query('SELECT * FROM lead_resource_types WHERE is_active = true ORDER BY sort_order');
+    const fieldOptions = await pool.query('SELECT * FROM lead_field_options WHERE is_active = true ORDER BY field_name, sort_order');
+    const options = {};
+    fieldOptions.rows.forEach(r => {
+      if (!options[r.field_name]) options[r.field_name] = [];
+      options[r.field_name].push({ id: r.id, value: r.value, sort_order: r.sort_order });
+    });
+    return { stages: stages.rows, resourceTypes: resourceTypes.rows, fieldOptions: options };
+  });
+  res.json(config);
+});
+
+/** POST /api/leads/stages — Create a new pipeline stage (admin only) */
+app.post('/api/leads/stages', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const { name, sort_order, colour, is_closed, is_won } = req.body;
+  if (!name) return res.status(400).json({ error: 'Name required' });
+  const { rows } = await pool.query(
+    'INSERT INTO lead_pipeline_stages (name, sort_order, colour, is_closed, is_won) VALUES ($1,$2,$3,$4,$5) RETURNING *',
+    [name, sort_order || 0, colour || '#666666', is_closed || false, is_won || false]
+  );
+  await auditLog('lead_config', rows[0].id, 'create', req.user.displayName, { type: 'stage', name });
+  invalidateCache('leads_config');
+  res.status(201).json(rows[0]);
+});
+
+/** PATCH /api/leads/stages/:id — Update a pipeline stage (admin only) */
+app.patch('/api/leads/stages/:id', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const { updates, vals, nextIdx } = buildPatchQuery(req.body, ['name', 'sort_order', 'colour', 'is_closed', 'is_won']);
+  if (updates.length === 0) return res.status(400).json({ error: 'No valid fields to update' });
+  vals.push(req.params.id);
+  const { rows } = await pool.query(`UPDATE lead_pipeline_stages SET ${updates.join(', ')} WHERE id = $${nextIdx} RETURNING *`, vals);
+  if (!rows[0]) return res.status(404).json({ error: 'Stage not found' });
+  await auditLog('lead_config', req.params.id, 'update', req.user.displayName, req.body);
+  invalidateCache('leads_config');
+  res.json(rows[0]);
+});
+
+/** DELETE /api/leads/stages/:id — Remove a stage (blocked if leads still reference it) */
+app.delete('/api/leads/stages/:id', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const count = await pool.query('SELECT count(*) FROM leads WHERE stage_id = $1', [req.params.id]);
+  if (parseInt(count.rows[0].count) > 0) return res.status(409).json({ error: 'Cannot delete stage with existing leads. Move leads first.' });
+  await pool.query('DELETE FROM lead_pipeline_stages WHERE id = $1', [req.params.id]);
+  await auditLog('lead_config', req.params.id, 'delete', req.user.displayName, { type: 'stage' });
+  invalidateCache('leads_config');
+  res.json({ ok: true });
+});
+
+/** POST /api/leads/resource-types — Create a resource type (e.g. "Analyst", "Designer") */
+app.post('/api/leads/resource-types', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const { name, sort_order } = req.body;
+  if (!name) return res.status(400).json({ error: 'Name required' });
+  const { rows } = await pool.query(
+    'INSERT INTO lead_resource_types (name, sort_order) VALUES ($1,$2) RETURNING *',
+    [name, sort_order || 0]
+  );
+  await auditLog('lead_config', rows[0].id, 'create', req.user.displayName, { type: 'resource_type', name });
+  invalidateCache('leads_config');
+  res.status(201).json(rows[0]);
+});
+
+/** PATCH /api/leads/resource-types/:id — Update a resource type */
+app.patch('/api/leads/resource-types/:id', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const { updates, vals, nextIdx } = buildPatchQuery(req.body, ['name', 'sort_order', 'is_active']);
+  if (updates.length === 0) return res.status(400).json({ error: 'No valid fields to update' });
+  vals.push(req.params.id);
+  const { rows } = await pool.query(`UPDATE lead_resource_types SET ${updates.join(', ')} WHERE id = $${nextIdx} RETURNING *`, vals);
+  invalidateCache('leads_config');
+  res.json(rows[0]);
+});
+
+/** DELETE /api/leads/resource-types/:id — Soft-delete if in use, hard-delete otherwise */
+app.delete('/api/leads/resource-types/:id', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const count = await pool.query('SELECT count(*) FROM lead_resources WHERE resource_type_id = $1', [req.params.id]);
+  if (parseInt(count.rows[0].count) > 0) {
+    // Soft-delete instead
+    await pool.query('UPDATE lead_resource_types SET is_active = false WHERE id = $1', [req.params.id]);
+    return res.json({ ok: true, soft_deleted: true });
+  }
+  await pool.query('DELETE FROM lead_resource_types WHERE id = $1', [req.params.id]);
+  invalidateCache('leads_config');
+  res.json({ ok: true });
+});
+
+/** POST /api/leads/field-options — Add a dropdown option for a lead field (e.g. work_type, service_line) */
+app.post('/api/leads/field-options', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const { field_name, value, sort_order } = req.body;
+  if (!field_name || !value) return res.status(400).json({ error: 'field_name and value required' });
+  const { rows } = await pool.query(
+    'INSERT INTO lead_field_options (field_name, value, sort_order) VALUES ($1,$2,$3) RETURNING *',
+    [field_name, value, sort_order || 0]
+  );
+  await auditLog('lead_config', rows[0].id, 'create', req.user.displayName, { type: 'field_option', field_name, value });
+  invalidateCache('leads_config');
+  res.status(201).json(rows[0]);
+});
+
+/** DELETE /api/leads/field-options/:id — Remove a field option */
+app.delete('/api/leads/field-options/:id', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  await pool.query('DELETE FROM lead_field_options WHERE id = $1', [req.params.id]);
+  invalidateCache('leads_config');
+  res.json({ ok: true });
+});
+
+// --- Leads CRUD ---
+
+/**
+ * GET /api/leads
+ * Paginated lead listing with filters: stage, client, owner, priority, sector, free-text search.
+ * Includes joined stage, client, contact, and resource data.
+ * Sorted by stage order, then priority, then creation date.
+ */
+app.get('/api/leads', async (req, res) => {
+  const { stage_id, client_id, owner, priority, sector, search, sort, limit: qLimit, offset: qOffset } = req.query;
+  let where = []; let vals = []; let i = 1;
+
+  if (stage_id) { where.push(`l.stage_id = $${i}`); vals.push(stage_id); i++; }
+  if (client_id) { where.push(`l.client_id = $${i}`); vals.push(client_id); i++; }
+  if (owner) { where.push(`l.deal_owner = $${i}`); vals.push(owner); i++; }
+  if (priority) { where.push(`l.priority = $${i}`); vals.push(parseInt(priority)); i++; }
+  if (sector) { where.push(`c.sector = $${i}`); vals.push(sector); i++; }
+  if (search) {
+    where.push(`(l.title ILIKE $${i} OR c.name ILIKE $${i} OR l.work_type ILIKE $${i} OR l.notes ILIKE $${i} OR l.location ILIKE $${i} OR l.deal_owner ILIKE $${i})`);
+    vals.push('%' + search + '%'); i++;
+  }
+
+  const whereClause = where.length > 0 ? 'WHERE ' + where.join(' AND ') : '';
+  const limit = Math.min(parseInt(qLimit) || 200, 500);
+  const offset = parseInt(qOffset) || 0;
+
+  vals.push(limit, offset);
+  const { rows } = await pool.query(`
+    SELECT l.*, l.weighted_value,
+      c.name as client_name, c.sector as client_sector,
+      s.name as stage_name, s.colour as stage_colour, s.sort_order as stage_sort_order,
+      s.is_closed, s.is_won,
+      ct.name as primary_contact_name, ct.email as primary_contact_email, ct.phone as primary_contact_phone,
+      (SELECT json_agg(json_build_object('resource_type_id', lr.resource_type_id, 'quantity', lr.quantity, 'notes', lr.notes,
+        'resource_name', rt.name) ORDER BY rt.sort_order)
+       FROM lead_resources lr JOIN lead_resource_types rt ON lr.resource_type_id = rt.id WHERE lr.lead_id = l.id) as resources
+    FROM leads l
+    LEFT JOIN clients c ON l.client_id = c.id
+    JOIN lead_pipeline_stages s ON l.stage_id = s.id
+    LEFT JOIN contacts ct ON l.primary_contact_id = ct.id
+    ${whereClause}
+    ORDER BY s.sort_order, l.priority NULLS LAST, l.created_at DESC
+    LIMIT $${i} OFFSET $${i + 1}
+  `, vals);
+
+  const countResult = await pool.query(`SELECT count(*) FROM leads l LEFT JOIN clients c ON l.client_id = c.id JOIN lead_pipeline_stages s ON l.stage_id = s.id LEFT JOIN contacts ct ON l.primary_contact_id = ct.id ${whereClause}`, vals.slice(0, -2));
+
+  res.json({ leads: rows, total: parseInt(countResult.rows[0].count), limit, offset });
+});
+
+/** GET /api/leads/reminders — Return open leads whose follow-up date is today or overdue */
+app.get('/api/leads/reminders', async (req, res) => {
+  const { rows } = await pool.query(`
+    SELECT l.id, l.title, l.next_followup_date, l.next_action, l.deal_owner,
+      c.name as client_name, s.name as stage_name
+    FROM leads l
+    LEFT JOIN clients c ON l.client_id = c.id
+    JOIN lead_pipeline_stages s ON l.stage_id = s.id
+    WHERE l.next_followup_date <= CURRENT_DATE AND s.is_closed = false
+    ORDER BY l.next_followup_date ASC
+  `);
+  res.json(rows);
+});
+
+/**
+ * GET /api/leads/pipeline/summary
+ * Aggregate pipeline view: deal count, ROM range, and weighted value per stage.
+ * Grouped by currency. Also returns FX rates from settings for GBP conversion.
+ */
+app.get('/api/leads/pipeline/summary', async (req, res) => {
+  const { sector } = req.query;
+  let sectorFilter = '';
+  let vals = [];
+  if (sector) { sectorFilter = 'AND c.sector = $1'; vals = [sector]; }
+
+  const byStage = await pool.query(`
+    SELECT s.id, s.name, s.colour, s.sort_order, s.is_closed, s.is_won,
+      count(l.id)::int as deal_count,
+      COALESCE(sum(l.rom_min), 0)::numeric as total_rom_min,
+      COALESCE(sum(l.rom_max), 0)::numeric as total_rom_max,
+      COALESCE(sum(l.weighted_value), 0)::numeric as total_weighted
+    FROM lead_pipeline_stages s
+    LEFT JOIN leads l ON l.stage_id = s.id
+    LEFT JOIN clients c ON l.client_id = c.id
+    WHERE 1=1 ${sectorFilter}
+    GROUP BY s.id, s.name, s.colour, s.sort_order, s.is_closed, s.is_won
+    ORDER BY s.sort_order
+  `, vals);
+
+  // FX rates (stored in settings) let the frontend convert USD/EUR pipeline values to GBP
+  const fxResult = await pool.query("SELECT value FROM settings WHERE key = 'fx_rates'");
+  const fxRates = fxResult.rows.length > 0 ? fxResult.rows[0].value : { USD: 0.79, EUR: 0.86 };
+
+  res.json({ byStage: byStage.rows, fxRates });
+});
+
+/** GET /api/leads/pipeline/forecast — Monthly revenue forecast from open deals with expected close dates */
+app.get('/api/leads/pipeline/forecast', async (req, res) => {
+  const { rows } = await pool.query(`
+    SELECT
+      to_char(l.expected_close_date, 'YYYY-MM') as month,
+      l.currency,
+      count(*) as deal_count,
+      COALESCE(sum(l.weighted_value), 0) as total_weighted,
+      COALESCE(sum(l.rom_max), 0) as total_rom
+    FROM leads l
+    JOIN lead_pipeline_stages s ON l.stage_id = s.id
+    WHERE l.expected_close_date IS NOT NULL AND s.is_closed = false
+    GROUP BY to_char(l.expected_close_date, 'YYYY-MM'), l.currency
+    ORDER BY month
+  `);
+  res.json(rows);
+});
+
+/**
+ * GET /api/leads/:id
+ * Full lead detail: includes client info, resources, recent activities, and client contacts.
+ */
+app.get('/api/leads/:id', async (req, res) => {
+  const { rows } = await pool.query(`
+    SELECT l.*, l.weighted_value,
+      c.name as client_name, c.sector as client_sector,
+      c.description as client_description, c.website as client_website,
+      c.headquarters as client_hq, c.linkedin_company as client_linkedin,
+      c.nbi_relationship as client_nbi_relationship,
+      s.name as stage_name, s.colour as stage_colour, s.is_closed, s.is_won,
+      ct.name as primary_contact_name, ct.email as primary_contact_email, ct.phone as primary_contact_phone,
+      COALESCE(
+        (SELECT json_agg(json_build_object(
+          'id', lr.id, 'lead_id', lr.lead_id, 'resource_type_id', lr.resource_type_id,
+          'quantity', lr.quantity, 'notes', lr.notes, 'resource_name', rt.name
+        ) ORDER BY rt.sort_order)
+        FROM lead_resources lr JOIN lead_resource_types rt ON lr.resource_type_id = rt.id
+        WHERE lr.lead_id = l.id),
+        '[]'::json
+      ) AS resources,
+      COALESCE(
+        (SELECT json_agg(row_to_json(la.*) ORDER BY la.created_at DESC)
+         FROM (SELECT * FROM lead_activities WHERE lead_id = l.id ORDER BY created_at DESC LIMIT 50) la),
+        '[]'::json
+      ) AS activities,
+      COALESCE(
+        (SELECT json_agg(row_to_json(cc.*) ORDER BY cc.name)
+         FROM contacts cc WHERE cc.client_id = l.client_id),
+        '[]'::json
+      ) AS client_contacts
+    FROM leads l
+    LEFT JOIN clients c ON l.client_id = c.id
+    JOIN lead_pipeline_stages s ON l.stage_id = s.id
+    LEFT JOIN contacts ct ON l.primary_contact_id = ct.id
+    WHERE l.id = $1
+  `, [req.params.id]);
+  if (!rows[0]) return res.status(404).json({ error: 'Lead not found' });
+  res.json(rows[0]);
+});
+
+/**
+ * POST /api/leads
+ * Create a new lead/opportunity. Also inserts resource requirements and
+ * a "created" activity log entry. Runs in a transaction.
+ */
+app.post('/api/leads', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const { client_id, title, work_type, service_line, stage_id, priority, currency,
+    rom_min, rom_max, rom_text, win_probability, primary_contact_id, deal_owner,
+    lead_source, est_start_date, expected_close_date, last_contacted,
+    next_followup_date, next_action, location, notes, time_estimate, resources } = req.body;
+
+  if (!title) return res.status(400).json({ error: 'Title required' });
+  if (!stage_id) return res.status(400).json({ error: 'Stage required' });
+  const lenErr = validateLength(title, 'title') || validateLength(notes, 'notes');
+  if (lenErr) return res.status(400).json({ error: lenErr });
+
+  const conn = await pool.connect();
+  try {
+    await conn.query('BEGIN');
+    const { rows } = await conn.query(
+      `INSERT INTO leads (client_id, title, work_type, service_line, stage_id, priority, currency,
+        rom_min, rom_max, rom_text, win_probability, primary_contact_id, deal_owner,
+        lead_source, est_start_date, expected_close_date, last_contacted,
+        next_followup_date, next_action, location, notes, time_estimate, created_by)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23) RETURNING *`,
+      [client_id || null, title, work_type || null, service_line || null, stage_id,
+        priority || null, currency || 'GBP',
+        rom_min || null, rom_max || null, rom_text || null, win_probability || null,
+        primary_contact_id || null, deal_owner || null, lead_source || null,
+        est_start_date || null, expected_close_date || null, last_contacted || null,
+        next_followup_date || null, next_action || null, location || null,
+        notes || null, time_estimate || null, req.user?.displayName || 'unknown']
+    );
+
+    const leadId = rows[0].id;
+
+    // Insert resources if provided
+    if (Array.isArray(resources)) {
+      for (const r of resources) {
+        if (r.resource_type_id) {
+          await conn.query(
+            'INSERT INTO lead_resources (lead_id, resource_type_id, quantity, notes) VALUES ($1,$2,$3,$4)',
+            [leadId, r.resource_type_id, r.quantity || 1, r.notes || null]
+          );
+        }
+      }
+    }
+
+    // Create activity entry
+    await conn.query(
+      'INSERT INTO lead_activities (lead_id, activity_type, description, performed_by) VALUES ($1,$2,$3,$4)',
+      [leadId, 'created', `Lead created: ${title}`, req.user?.displayName || 'unknown']
+    );
+
+    await conn.query('COMMIT');
+    await auditLog('lead', leadId, 'create', req.user?.displayName, { title, stage_id, client_id });
+
+    // Return full lead with joins
+    const full = await pool.query(`
+      SELECT l.*, l.weighted_value, c.name as client_name, s.name as stage_name, s.colour as stage_colour
+      FROM leads l LEFT JOIN clients c ON l.client_id = c.id
+      JOIN lead_pipeline_stages s ON l.stage_id = s.id WHERE l.id = $1
+    `, [leadId]);
+    res.status(201).json(full.rows[0]);
+  } catch (e) {
+    await conn.query('ROLLBACK');
+    log('error', 'Leads', 'Lead creation failed', { error: e.message, stack: e.stack?.split('\n').slice(0,3).join(' | ') });
+    res.status(500).json({ error: 'An internal error occurred' });
+  } finally {
+    conn.release();
+  }
+});
+
+/**
+ * PATCH /api/leads/:id
+ * Update lead fields. Detects stage and priority changes and creates
+ * activity log entries for them automatically.
+ */
+app.patch('/api/leads/:id', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const patchFields = ['client_id', 'title', 'work_type', 'service_line', 'stage_id', 'priority',
+    'currency', 'rom_min', 'rom_max', 'rom_text', 'win_probability',
+    'primary_contact_id', 'deal_owner', 'lead_source',
+    'est_start_date', 'expected_close_date', 'last_contacted',
+    'next_followup_date', 'next_action', 'location', 'notes', 'time_estimate'];
+
+  // Pre-process: convert empty strings to null for nullable lead fields
+  const sanitisedBody = { ...req.body };
+  for (const f of patchFields) {
+    if (sanitisedBody[f] === '') sanitisedBody[f] = null;
+  }
+
+  const { updates, vals, nextIdx } = buildPatchQuery(sanitisedBody, patchFields);
+  if (req.body.title !== undefined && !req.body.title.trim()) {
+    return res.status(400).json({ error: 'Title cannot be empty' });
+  }
+  if (updates.length === 0) return res.status(400).json({ error: 'No valid fields to update' });
+
+  // Fetch old values for change detection
+  const oldResult = await pool.query('SELECT * FROM leads WHERE id = $1', [req.params.id]);
+  if (oldResult.rows.length === 0) return res.status(404).json({ error: 'Lead not found' });
+  const oldLead = oldResult.rows[0];
+
+  updates.push(`updated_at = NOW()`);
+  vals.push(req.params.id);
+  const { rows } = await pool.query(`UPDATE leads SET ${updates.join(', ')} WHERE id = $${nextIdx} RETURNING *`, vals);
+
+  // Build change log and create activity entries for key changes
+  const changes = {};
+  for (const f of patchFields) {
+    if (sanitisedBody[f] !== undefined) {
+      const oldVal = oldLead[f];
+      const newVal = sanitisedBody[f];
+      if (JSON.stringify(oldVal) !== JSON.stringify(newVal)) {
+        changes[f] = { from: oldVal, to: newVal };
+      }
+    }
+  }
+
+  if (changes.stage_id) {
+    // Look up stage names for the activity entry
+    const oldStage = await pool.query('SELECT name FROM lead_pipeline_stages WHERE id = $1', [changes.stage_id.from]);
+    const newStage = await pool.query('SELECT name FROM lead_pipeline_stages WHERE id = $1', [changes.stage_id.to]);
+    const desc = `Stage changed from ${oldStage.rows[0]?.name || '?'} to ${newStage.rows[0]?.name || '?'}`;
+    await pool.query(
+      'INSERT INTO lead_activities (lead_id, activity_type, description, performed_by) VALUES ($1,$2,$3,$4)',
+      [req.params.id, 'stage_change', desc, req.user?.displayName || 'unknown']
+    );
+  }
+  if (changes.priority) {
+    await pool.query(
+      'INSERT INTO lead_activities (lead_id, activity_type, description, performed_by) VALUES ($1,$2,$3,$4)',
+      [req.params.id, 'priority_change', `Priority changed from ${changes.priority.from || 'none'} to ${changes.priority.to || 'none'}`, req.user?.displayName || 'unknown']
+    );
+  }
+
+  if (Object.keys(changes).length > 0) {
+    await auditLog('lead', req.params.id, 'update', req.user?.displayName, changes);
+  }
+
+  // Return full lead with joins
+  const full = await pool.query(`
+    SELECT l.*, l.weighted_value, c.name as client_name, c.sector as client_sector,
+      s.name as stage_name, s.colour as stage_colour, s.is_closed, s.is_won
+    FROM leads l LEFT JOIN clients c ON l.client_id = c.id
+    JOIN lead_pipeline_stages s ON l.stage_id = s.id WHERE l.id = $1
+  `, [req.params.id]);
+  res.json(full.rows[0]);
+});
+
+/** DELETE /api/leads/:id — Delete a lead and its related resources/activities (admin only) */
+app.delete('/api/leads/:id', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const lead = await pool.query('SELECT title FROM leads WHERE id = $1', [req.params.id]);
+  await auditLog('lead', req.params.id, 'delete', req.user.displayName, { title: lead.rows[0]?.title });
+  await pool.query('DELETE FROM leads WHERE id = $1', [req.params.id]);
+  res.json({ ok: true });
+});
+
+// --- Lead Resources ---
+
+/**
+ * PUT /api/leads/:id/resources
+ * Replace all resource requirements for a lead (delete + re-insert in a transaction).
+ * Each resource specifies a type and quantity (e.g. 2 x Analyst, 1 x Designer).
+ */
+app.put('/api/leads/:id/resources', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const { resources } = req.body;
+  if (!Array.isArray(resources)) return res.status(400).json({ error: 'resources array required' });
+
+  const conn = await pool.connect();
+  try {
+    await conn.query('BEGIN');
+    await conn.query('DELETE FROM lead_resources WHERE lead_id = $1', [req.params.id]);
+    for (const r of resources) {
+      if (r.resource_type_id) {
+        await conn.query(
+          'INSERT INTO lead_resources (lead_id, resource_type_id, quantity, notes) VALUES ($1,$2,$3,$4)',
+          [req.params.id, r.resource_type_id, r.quantity || 1, r.notes || null]
+        );
+      }
+    }
+    await conn.query('COMMIT');
+    res.json({ ok: true, count: resources.length });
+  } catch (e) {
+    await conn.query('ROLLBACK');
+    log('error', 'Leads', 'Lead resources update failed', { error: e.message, stack: e.stack?.split('\n').slice(0,3).join(' | ') });
+    res.status(500).json({ error: 'An internal error occurred' });
+  } finally {
+    conn.release();
+  }
+});
+
+// --- Lead Activities ---
+
+/** GET /api/leads/:id/activities — Activity timeline for a lead, newest first */
+app.get('/api/leads/:id/activities', async (req, res) => {
+  const { rows } = await pool.query(
+    'SELECT * FROM lead_activities WHERE lead_id = $1 ORDER BY created_at DESC',
+    [req.params.id]
+  );
+  res.json(rows);
+});
+
+/** POST /api/leads/:id/activities — Log a manual activity (call, email, meeting, etc.) against a lead */
+app.post('/api/leads/:id/activities', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const { activity_type, description } = req.body;
+  if (!activity_type || !description) return res.status(400).json({ error: 'activity_type and description required' });
+  const { rows } = await pool.query(
+    'INSERT INTO lead_activities (lead_id, activity_type, description, performed_by) VALUES ($1,$2,$3,$4) RETURNING *',
+    [req.params.id, activity_type, description, req.user?.displayName || 'unknown']
+  );
+  res.status(201).json(rows[0]);
+});
+
+// ==================== EXPENSE REPORTS ====================
+// Expense tracking with approval workflow: employees submit expenses (pending),
+// admins approve/reject them. Receipts can be attached as file uploads.
+
+/** GET /api/expenses/categories — List active expense categories */
+app.get('/api/expenses/categories', async (req, res) => {
+  const { rows } = await pool.query('SELECT * FROM expense_categories WHERE is_active = TRUE ORDER BY sort_order, name');
+  res.json(rows);
+});
+
+/** POST /api/expenses/categories — Create an expense category (admin only) */
+app.post('/api/expenses/categories', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const { name } = req.body;
+  if (!name) return res.status(400).json({ error: 'Name required' });
+  const { rows } = await pool.query('INSERT INTO expense_categories (name) VALUES ($1) RETURNING *', [name.trim()]);
+  invalidateCache('expense_categories');
+  res.status(201).json(rows[0]);
+});
+
+/** DELETE /api/expenses/categories/:id — Remove an expense category (admin only, checks references) */
+app.delete('/api/expenses/categories/:id', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const refs = await pool.query('SELECT count(*)::int AS count FROM expenses WHERE category_id = $1', [req.params.id]);
+  if (refs.rows[0].count > 0) return res.status(400).json({ error: `Cannot delete: ${refs.rows[0].count} expenses use this category. Reassign them first.` });
+  await pool.query('DELETE FROM expense_categories WHERE id = $1', [req.params.id]);
+  invalidateCache('expense_categories');
+  res.json({ ok: true });
+});
+
+/**
+ * GET /api/expenses
+ * List expenses. Non-admin users only see their own; admins see all.
+ * Filterable by user_id, status, and date range.
+ */
+app.get('/api/expenses', async (req, res) => {
+  const isAdmin = req.user && req.user.role === 'admin';
+  const { user_id, status, from_date, to_date } = req.query;
+
+  let where = [];
+  let vals = [];
+  let i = 1;
+
+  // Non-admin users can only see their own
+  if (!isAdmin) {
+    where.push(`e.user_id = $${i}`); vals.push(req.user.id); i++;
+  } else if (user_id) {
+    where.push(`e.user_id = $${i}`); vals.push(user_id); i++;
+  }
+  if (status) { where.push(`e.status = $${i}`); vals.push(status); i++; }
+  if (from_date) { where.push(`e.date >= $${i}`); vals.push(from_date); i++; }
+  if (to_date) { where.push(`e.date <= $${i}`); vals.push(to_date); i++; }
+
+  const whereClause = where.length > 0 ? 'WHERE ' + where.join(' AND ') : '';
+  const { rows } = await pool.query(`
+    SELECT e.*, u.display_name AS employee_name, c.name AS category_name,
+      (SELECT count(*) FROM expense_receipts r WHERE r.expense_id = e.id)::int AS receipt_count,
+      er.title AS report_title
+    FROM expenses e
+    LEFT JOIN users u ON e.user_id = u.id
+    LEFT JOIN expense_categories c ON e.category_id = c.id
+    LEFT JOIN expense_reports er ON e.report_id = er.id
+    ${whereClause}
+    ORDER BY e.date DESC, e.created_at DESC
+  `, vals);
+  res.json({ expenses: rows });
+});
+
+/**
+ * GET /api/expenses/summary
+ * Admin-only aggregate view: totals by employee and by category.
+ * NB: This route must be defined before the :id route to avoid path conflicts.
+ */
+app.get('/api/expenses/summary', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const { from_date, to_date } = req.query;
+
+  let where = [];
+  let vals = [];
+  let i = 1;
+  if (from_date) { where.push(`e.date >= $${i}`); vals.push(from_date); i++; }
+  if (to_date) { where.push(`e.date <= $${i}`); vals.push(to_date); i++; }
+  const whereClause = where.length > 0 ? 'WHERE ' + where.join(' AND ') : '';
+
+  const byEmployee = await pool.query(`
+    SELECT u.display_name, e.status, count(*)::int AS count, sum(e.amount)::numeric AS total
+    FROM expenses e JOIN users u ON e.user_id = u.id
+    ${whereClause}
+    GROUP BY u.display_name, e.status ORDER BY u.display_name
+  `, vals);
+
+  const byCategory = await pool.query(`
+    SELECT COALESCE(c.name, 'Uncategorised') AS category, count(*)::int AS count, sum(e.amount)::numeric AS total
+    FROM expenses e LEFT JOIN expense_categories c ON e.category_id = c.id
+    ${whereClause}
+    GROUP BY c.name ORDER BY total DESC
+  `, vals);
+
+  res.json({ byEmployee: byEmployee.rows, byCategory: byCategory.rows });
+});
+
+/** GET /api/expenses/:id — Get a single expense with its receipt attachments. Access: own or admin. */
+app.get('/api/expenses/:id', async (req, res) => {
+  const { rows } = await pool.query(`
+    SELECT e.*, u.display_name AS employee_name, c.name AS category_name,
+      er.title AS report_title, er.status AS report_status
+    FROM expenses e
+    LEFT JOIN users u ON e.user_id = u.id
+    LEFT JOIN expense_categories c ON e.category_id = c.id
+    LEFT JOIN expense_reports er ON e.report_id = er.id
+    WHERE e.id = $1
+  `, [req.params.id]);
+  if (rows.length === 0) return res.status(404).json({ error: 'Expense not found' });
+  const expense = rows[0];
+
+  // Access check: own expense or admin
+  if (req.user.role !== 'admin' && expense.user_id !== req.user.id) {
+    return res.status(403).json({ error: 'Access denied' });
+  }
+
+  const receipts = await pool.query('SELECT * FROM expense_receipts WHERE expense_id = $1 ORDER BY created_at', [req.params.id]);
+  expense.receipts = receipts.rows;
+  res.json(expense);
+});
+
+/** POST /api/expenses — Submit a new expense (always created as "pending") */
+app.post('/api/expenses', async (req, res) => {
+  const { date, amount, currency, category_id, description, notes, vat_amount } = req.body;
+  if (!date || amount == null) return res.status(400).json({ error: 'Date and amount are required' });
+  const lenErr = validateLength(description, 'description') || validateLength(notes, 'notes');
+  if (lenErr) return res.status(400).json({ error: lenErr });
+  const parsedAmount = parseFloat(amount);
+  if (isNaN(parsedAmount) || parsedAmount < 0) return res.status(400).json({ error: 'Amount must be a valid positive number' });
+  const parsedVat = vat_amount != null ? parseFloat(vat_amount) : null;
+  if (parsedVat !== null && (isNaN(parsedVat) || parsedVat < 0)) return res.status(400).json({ error: 'VAT amount must be a valid positive number' });
+
+  const { rows } = await pool.query(
+    `INSERT INTO expenses (user_id, date, amount, currency, category_id, description, notes, vat_amount)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+    [req.user.id, date, amount, currency || 'GBP', category_id || null, description || null, notes || null, parsedVat]
+  );
+  await auditLog('expense', rows[0].id, 'create', req.user.displayName, { amount, date, description, vat_amount: parsedVat });
+  res.status(201).json(rows[0]);
+});
+
+/**
+ * PATCH /api/expenses/:id
+ * Update an expense. Owners can only edit pending expenses; admins can also change status.
+ * When an admin changes status, reviewed_by and reviewed_at are set automatically.
+ */
+app.patch('/api/expenses/:id', async (req, res) => {
+  // Validate UUID format to prevent 500 errors from invalid IDs
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(req.params.id)) {
+    return res.status(404).json({ error: 'Expense not found' });
+  }
+  const check = await pool.query('SELECT user_id, status FROM expenses WHERE id = $1', [req.params.id]);
+  if (check.rows.length === 0) return res.status(404).json({ error: 'Expense not found' });
+  const expense = check.rows[0];
+
+  const isAdmin = req.user && req.user.role === 'admin';
+  const isOwner = expense.user_id === req.user.id;
+  if (!isAdmin && !isOwner) return res.status(403).json({ error: 'Access denied' });
+
+  // Only admin can change status; owners can only edit pending expenses
+  if (!isAdmin && expense.status !== 'pending') {
+    return res.status(400).json({ error: 'Cannot edit an expense that has been reviewed' });
+  }
+
+  // Validate amount if provided
+  if (req.body.amount !== undefined && (isNaN(req.body.amount) || parseFloat(req.body.amount) < 0)) {
+    return res.status(400).json({ error: 'Amount must be a non-negative number' });
+  }
+
+  const allowed = ['date', 'amount', 'currency', 'category_id', 'description', 'notes', 'vat_amount'];
+  // Admin-only fields
+  if (isAdmin) allowed.push('status', 'reviewed_by', 'reviewed_at');
+
+  const { updates, vals, nextIdx } = buildPatchQuery(req.body, allowed);
+  let idx = nextIdx;
+  // Auto-set review fields when admin changes status
+  if (isAdmin && req.body.status && req.body.status !== expense.status) {
+    if (!req.body.reviewed_by) { updates.push(`reviewed_by = $${idx}`); vals.push(req.user.displayName); idx++; }
+    if (!req.body.reviewed_at) { updates.push(`reviewed_at = $${idx}`); vals.push(new Date().toISOString()); idx++; }
+  }
+  updates.push(`updated_at = $${idx}`); vals.push(new Date().toISOString()); idx++;
+
+  if (updates.length <= 1) return res.status(400).json({ error: 'No fields to update' });
+  vals.push(req.params.id);
+  const { rows } = await pool.query(`UPDATE expenses SET ${updates.join(', ')} WHERE id = $${idx} RETURNING *`, vals);
+  await auditLog('expense', req.params.id, 'update', req.user.displayName, req.body);
+  res.json(rows[0]);
+});
+
+/**
+ * DELETE /api/expenses/:id
+ * Delete an expense and its receipt files from disk.
+ * Owners can only delete pending expenses; admins can delete any.
+ */
+app.delete('/api/expenses/:id', async (req, res) => {
+  const check = await pool.query('SELECT user_id, status FROM expenses WHERE id = $1', [req.params.id]);
+  if (check.rows.length === 0) return res.status(404).json({ error: 'Expense not found' });
+  const expense = check.rows[0];
+
+  const isAdmin = req.user && req.user.role === 'admin';
+  if (!isAdmin && expense.user_id !== req.user.id) return res.status(403).json({ error: 'Access denied' });
+  if (!isAdmin && expense.status !== 'pending') return res.status(400).json({ error: 'Cannot delete a reviewed expense' });
+
+  // Delete receipt files
+  const receipts = await pool.query('SELECT filename FROM expense_receipts WHERE expense_id = $1', [req.params.id]);
+  for (const r of receipts.rows) {
+    const filePath = path.resolve(uploadDir, r.filename);
+    if (filePath.startsWith(path.resolve(uploadDir) + path.sep) && fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+  }
+  await pool.query('DELETE FROM expenses WHERE id = $1', [req.params.id]);
+  await auditLog('expense', req.params.id, 'delete', req.user.displayName);
+  res.json({ ok: true });
+});
+
+/** POST /api/expenses/:id/receipts — Upload a receipt image/PDF for an expense */
+app.post('/api/expenses/:id/receipts', upload.single('file'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+
+  // Check ownership
+  const check = await pool.query('SELECT user_id FROM expenses WHERE id = $1', [req.params.id]);
+  if (check.rows.length === 0) return res.status(404).json({ error: 'Expense not found' });
+  const isAdmin = req.user && req.user.role === 'admin';
+  if (!isAdmin && check.rows[0].user_id !== req.user.id) return res.status(403).json({ error: 'Access denied' });
+
+  const { rows } = await pool.query(
+    `INSERT INTO expense_receipts (expense_id, filename, original_name, size_bytes, mime_type, uploaded_by)
+     VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+    [req.params.id, req.file.filename, req.file.originalname, req.file.size, req.file.mimetype, req.user.displayName]
+  );
+  res.status(201).json(rows[0]);
+});
+
+/** DELETE /api/expenses/:id/receipts/:receiptId — Remove a receipt and delete the file from disk */
+app.delete('/api/expenses/:id/receipts/:receiptId', async (req, res) => {
+  const check = await pool.query('SELECT e.user_id FROM expenses e JOIN expense_receipts r ON r.expense_id = e.id WHERE r.id = $1 AND e.id = $2', [req.params.receiptId, req.params.id]);
+  if (check.rows.length === 0) return res.status(404).json({ error: 'Receipt not found' });
+  const isAdmin = req.user && req.user.role === 'admin';
+  if (!isAdmin && check.rows[0].user_id !== req.user.id) return res.status(403).json({ error: 'Access denied' });
+
+  const receipt = await pool.query('SELECT filename FROM expense_receipts WHERE id = $1', [req.params.receiptId]);
+  if (receipt.rows.length > 0) {
+    const filePath = path.resolve(uploadDir, receipt.rows[0].filename);
+    if (filePath.startsWith(path.resolve(uploadDir) + path.sep) && fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+    await pool.query('DELETE FROM expense_receipts WHERE id = $1', [req.params.receiptId]);
+  }
+  res.json({ ok: true });
+});
+
+/** Extract structured data from receipt text using regex patterns */
+function extractReceiptFields(text) {
+  const result = { date: null, amount: null, currency: 'GBP', description: '', vendor: '', vat_amount: null };
+  if (!text) return result;
+
+  // Extract all amounts — the largest is usually the total
+  const amountMatches = [];
+  // Pattern 1: currency symbol + number
+  for (const m of text.matchAll(/[\u00a3\$\u20ac]\s*([\d,]+\.?\d{0,2})/gi)) {
+    amountMatches.push({ value: parseFloat(m[1].replace(/,/g, '')), raw: m[0] });
+  }
+  // Pattern 2: "total/amount/due" label + number
+  for (const m of text.matchAll(/(?:total|amount|grand total|sum|balance|due|subtotal)[:\s]*[\u00a3\$\u20ac]?\s*([\d,]+\.\d{2})/gi)) {
+    amountMatches.push({ value: parseFloat(m[1].replace(/,/g, '')), isTotal: true, raw: m[0] });
+  }
+  // Prefer labelled totals, otherwise take the largest amount
+  const totals = amountMatches.filter(a => a.isTotal);
+  if (totals.length > 0) result.amount = Math.max(...totals.map(a => a.value));
+  else if (amountMatches.length > 0) result.amount = Math.max(...amountMatches.map(a => a.value));
+
+  // Extract date — try multiple formats
+  const datePatterns = [
+    /(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})/,       // DD/MM/YYYY or MM/DD/YYYY
+    /(\d{4})[\/\-\.](\d{1,2})[\/\-\.](\d{1,2})/,        // YYYY-MM-DD
+    /(\d{1,2})\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\w*\s+(\d{4})/i, // 5 Mar 2026
+    /(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\w*\s+(\d{1,2}),?\s+(\d{4})/i, // Mar 5, 2026
+  ];
+  const monthMap = { jan:1, feb:2, mar:3, apr:4, may:5, jun:6, jul:7, aug:8, sep:9, oct:10, nov:11, dec:12 };
+  for (const pat of datePatterns) {
+    const m = text.match(pat);
+    if (m) {
+      if (m[2] && monthMap[m[2].toLowerCase().slice(0,3)] !== undefined) {
+        // "5 Mar 2026" format
+        result.date = `${m[3]}-${String(monthMap[m[2].toLowerCase().slice(0,3)]).padStart(2,'0')}-${m[1].padStart(2,'0')}`;
+      } else if (m[1] && monthMap[m[1].toLowerCase().slice(0,3)] !== undefined) {
+        // "Mar 5, 2026" format
+        result.date = `${m[3]}-${String(monthMap[m[1].toLowerCase().slice(0,3)]).padStart(2,'0')}-${m[2].padStart(2,'0')}`;
+      } else if (m[1].length === 4) {
+        // YYYY-MM-DD
+        result.date = `${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`;
+      } else {
+        // DD/MM/YYYY (UK format)
+        result.date = `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
+      }
+      break;
+    }
+  }
+  if (!result.date) result.date = new Date().toISOString().slice(0, 10);
+
+  // Currency — only set from explicit text mentions, not symbols (OCR misreads £ as $ too often)
+  if (/\bUSD\b|United States Dollar/i.test(text)) result.currency = 'USD';
+  else if (/\bGBP\b|British Pound|Sterling/i.test(text)) result.currency = 'GBP';
+  else if (/\bEUR\b|\bEuro\b/i.test(text)) result.currency = 'EUR';
+  else if (/\bSEK\b|Swedish Kron/i.test(text)) result.currency = 'SEK';
+  else result.currency = null; // Let user pick from dropdown
+
+  // Vendor — first substantial line (skip very short lines, numbers-only lines)
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 3 && !/^\d+[\.\d]*$/.test(l) && !/^[-=*_]+$/.test(l));
+  if (lines.length > 0) result.vendor = lines[0].substring(0, 120);
+
+  // Itemisation — extract labelled amounts (fare, tip, tax, subtotal, etc.)
+  const items = [];
+  const itemPatterns = [
+    /(?:fare|base\s*fare|ride|trip)[:\s]*[\u00a3\$\u20ac]?\s*([\d,]+\.\d{2})/gi,
+    /(?:tip|gratuity)[:\s]*[\u00a3\$\u20ac]?\s*([\d,]+\.\d{2})/gi,
+    /(?:tax|vat|gst)[:\s]*[\u00a3\$\u20ac]?\s*([\d,]+\.\d{2})/gi,
+    /(?:subtotal|sub[\s-]total)[:\s]*[\u00a3\$\u20ac]?\s*([\d,]+\.\d{2})/gi,
+    /(?:discount|promo)[:\s]*-?[\u00a3\$\u20ac]?\s*([\d,]+\.\d{2})/gi,
+    /(?:service\s*(?:fee|charge)|booking\s*fee|delivery)[:\s]*[\u00a3\$\u20ac]?\s*([\d,]+\.\d{2})/gi,
+  ];
+  for (const pat of itemPatterns) {
+    for (const m of text.matchAll(pat)) {
+      const label = m[0].split(/[\u00a3\$\u20ac\d]/)[0].replace(/[:\s]+$/, '').trim();
+      items.push(`${label}: ${result.currency === 'USD' ? '$' : result.currency === 'EUR' ? '\u20ac' : '\u00a3'}${m[1]}`);
+    }
+  }
+
+  // Extract VAT/tax amount specifically
+  const vatPattern = /(?:tax|vat|gst)[:\s]*[\u00a3\$\u20ac]?\s*([\d,]+\.\d{2})/gi;
+  const vatMatches = [];
+  for (const m of text.matchAll(vatPattern)) {
+    vatMatches.push(parseFloat(m[1].replace(/,/g, '')));
+  }
+  if (vatMatches.length > 0) result.vat_amount = Math.max(...vatMatches);
+
+  // Description — itemised breakdown if found, otherwise line items with amounts
+  if (items.length > 0) {
+    result.description = (result.vendor ? result.vendor + ' — ' : '') + items.join(', ');
+  } else {
+    const itemLines = lines.filter(l => /[\u00a3\$\u20ac]?\s*\d+\.\d{2}/.test(l) && l.length > 5).slice(0, 5);
+    if (itemLines.length > 0) result.description = itemLines.join('; ').substring(0, 300);
+    else result.description = result.vendor;
+  }
+
+  return result;
+}
+
+/** POST /api/expenses/from-receipt — Upload a receipt, OCR/extract fields, create expense + attach receipt */
+app.post('/api/expenses/from-receipt', upload.single('file'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+
+  // Extend timeout for OCR processing (can take 10-30s on first run)
+  req.setTimeout(120000);
+  res.setTimeout(120000);
+
+  const filePath = path.resolve(uploadDir, req.file.filename);
+  let text = '';
+  let extracted = { date: new Date().toISOString().slice(0, 10), amount: null, currency: 'GBP', description: '', vendor: '' };
+  let ocrMethod = 'none';
+
+  try {
+    const mime = req.file.mimetype || '';
+    if (mime === 'application/pdf') {
+      // PDF — extract text layer locally first (faster, no API call)
+      const buffer = fs.readFileSync(filePath);
+      const pdf = await pdfParse(buffer);
+      text = pdf.text || '';
+      ocrMethod = 'pdf-parse';
+      log('info', 'Receipt', `PDF extracted ${text.length} chars from ${req.file.originalname}`);
+      // If PDF had no text layer, fall through to OCR.space
+      if (text.trim().length < 10) {
+        log('info', 'Receipt', 'PDF text layer empty, falling through to OCR.space');
+        text = '';
+      }
+    }
+
+    // For images or PDFs with no text — use OCR.space free API
+    if (!text && (mime.startsWith('image/') || mime === 'application/pdf')) {
+      log('info', 'Receipt', `Sending to OCR.space (${req.file.originalname}, ${mime}, ${(fs.statSync(filePath).size/1024).toFixed(0)}KB)`);
+
+      // Resize images to under 1MB for OCR.space free tier limit
+      let ocrBuffer;
+      let ocrMime = mime;
+      if (mime.startsWith('image/')) {
+        const fileBuffer = fs.readFileSync(filePath);
+        if (fileBuffer.length > 900 * 1024) {
+          log('info', 'Receipt', 'Resizing image for OCR.space (>900KB)');
+          ocrBuffer = await sharp(fileBuffer).resize(1600, null, { withoutEnlargement: true }).jpeg({ quality: 75 }).toBuffer();
+          ocrMime = 'image/jpeg';
+          log('info', 'Receipt', `Resized: ${(fileBuffer.length/1024).toFixed(0)}KB -> ${(ocrBuffer.length/1024).toFixed(0)}KB`);
+        } else {
+          ocrBuffer = fileBuffer;
+        }
+      } else {
+        ocrBuffer = fs.readFileSync(filePath);
+      }
+
+      const base64 = ocrBuffer.toString('base64');
+      const ocrBody = new URLSearchParams();
+      ocrBody.append('base64Image', `data:${ocrMime};base64,${base64}`);
+      ocrBody.append('language', 'eng');
+      ocrBody.append('isTable', 'true');
+      ocrBody.append('OCREngine', '2'); // Engine 2 is better for receipts
+      ocrBody.append('scale', 'true');
+
+      const ocrResp = await fetch('https://api.ocr.space/parse/image', {
+        method: 'POST',
+        headers: { 'apikey': process.env.OCR_API_KEY || 'helloworld' },
+        body: ocrBody,
+        signal: AbortSignal.timeout(30000)
+      });
+      if (ocrResp.ok) {
+        const ocrResult = await ocrResp.json();
+        if (ocrResult.ParsedResults && ocrResult.ParsedResults.length > 0) {
+          text = ocrResult.ParsedResults[0].ParsedText || '';
+          ocrMethod = 'ocr.space';
+          log('info', 'Receipt', `OCR.space extracted ${text.length} chars`);
+        } else {
+          log('warn', 'Receipt', 'OCR.space returned no results', { error: ocrResult.ErrorMessage || 'unknown' });
+          ocrMethod = 'ocr.space-empty';
+        }
+      } else {
+        log('warn', 'Receipt', 'OCR.space HTTP error', { status: ocrResp.status });
+        // Fallback to local Tesseract
+        if (mime.startsWith('image/') && !mime.includes('heic')) {
+          log('info', 'Receipt', 'Falling back to local Tesseract');
+          const { data } = await Tesseract.recognize(filePath, 'eng', { logger: () => {} });
+          text = data.text || '';
+          ocrMethod = 'tesseract-fallback';
+        }
+      }
+    } else if (!text) {
+      // Plain text file
+      text = fs.readFileSync(filePath, 'utf8');
+      ocrMethod = 'text';
+    }
+
+    if (text) {
+      extracted = extractReceiptFields(text);
+      log('info', 'Receipt', 'Extracted fields', { extracted });
+    }
+  } catch(e) {
+    log('warn', 'Receipt', 'Extraction error', { error: e.message });
+    ocrMethod = 'error: ' + e.message.substring(0, 100);
+  }
+
+  // Fall back to filename if no vendor extracted
+  if (!extracted.vendor && req.file.originalname) {
+    extracted.vendor = 'Receipt: ' + req.file.originalname.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ');
+  }
+
+  // Use user's last expense currency as default if OCR couldn't determine it
+  let currency = extracted.currency;
+  if (!currency) {
+    const lastExp = await pool.query('SELECT currency FROM expenses WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1', [req.user.id]);
+    currency = (lastExp.rows[0] && lastExp.rows[0].currency) || 'GBP';
+  }
+
+  // Create the expense
+  const { rows } = await pool.query(
+    `INSERT INTO expenses (user_id, date, amount, currency, description, notes, status, vat_amount)
+     VALUES ($1, $2, $3, $4, $5, $6, 'pending', $7) RETURNING *`,
+    [req.user.id, extracted.date, extracted.amount || 0, currency,
+     extracted.vendor || 'Receipt upload', extracted.description || 'Auto-created from receipt upload',
+     extracted.vat_amount]
+  );
+  const expense = rows[0];
+
+  // Attach the receipt file
+  await pool.query(
+    `INSERT INTO expense_receipts (expense_id, filename, original_name, size_bytes, mime_type, uploaded_by)
+     VALUES ($1, $2, $3, $4, $5, $6)`,
+    [expense.id, req.file.filename, req.file.originalname, req.file.size, req.file.mimetype, req.user.displayName]
+  );
+
+  // Return expense with extracted data and raw text so frontend can show what was read
+  res.status(201).json({ ...expense, extracted: { ...extracted, rawText: text.substring(0, 500), ocrMethod }, receipt: { original_name: req.file.originalname, size_bytes: req.file.size } });
+});
+
+// ==================== BUG / FEATURE REPORTS ====================
+
+/** GET /api/bug-reports — List all bug/feature reports. Admin sees all; regular users see own. */
+app.get('/api/bug-reports', async (req, res) => {
+  const isAdmin = req.user && req.user.role === 'admin';
+  let where = [];
+  let vals = [];
+  let i = 1;
+  if (!isAdmin) { where.push(`b.user_id = $${i}`); vals.push(req.user.id); i++; }
+  const { status, type } = req.query;
+  if (status) { where.push(`b.status = $${i}`); vals.push(status); i++; }
+  if (type) { where.push(`b.type = $${i}`); vals.push(type); i++; }
+  const whereClause = where.length > 0 ? 'WHERE ' + where.join(' AND ') : '';
+  const { rows } = await pool.query(`
+    SELECT b.id, b.user_id, b.type, b.title, b.description, b.page,
+           b.status, b.created_at, (b.screenshot IS NOT NULL) AS has_screenshot,
+           u.display_name AS reporter_name
+    FROM bug_reports b LEFT JOIN users u ON b.user_id = u.id
+    ${whereClause} ORDER BY b.created_at DESC
+  `, vals);
+  res.json({ reports: rows });
+});
+
+/** POST /api/bug-reports — Submit a new bug or feature report */
+app.post('/api/bug-reports', async (req, res) => {
+  const { type, title, description, page, screenshot } = req.body;
+  if (!title || !title.trim()) return res.status(400).json({ error: 'Title is required' });
+  const validTypes = ['bug', 'feature'];
+  const rType = validTypes.includes(type) ? type : 'bug';
+
+  const { rows } = await pool.query(
+    `INSERT INTO bug_reports (user_id, type, title, description, page, screenshot)
+     VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+    [req.user.id, rType, title.trim(), description || null, page || null, screenshot || null]
+  );
+  res.status(201).json(rows[0]);
+});
+
+/** PATCH /api/bug-reports/:id — Update status (admin only) */
+app.patch('/api/bug-reports/:id', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const { status } = req.body;
+  if (!status) return res.status(400).json({ error: 'Status required' });
+  const validStatuses = ['open', 'resolved', 'wontfix'];
+  if (!validStatuses.includes(status)) return res.status(400).json({ error: `Invalid status. Must be one of: ${validStatuses.join(', ')}` });
+  const { rows } = await pool.query('UPDATE bug_reports SET status = $1 WHERE id = $2 RETURNING *', [status, req.params.id]);
+  if (rows.length === 0) return res.status(404).json({ error: 'Report not found' });
+  res.json(rows[0]);
+});
+
+/** DELETE /api/bug-reports/:id — Delete a report (admin only) */
+app.delete('/api/bug-reports/:id', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  await pool.query('DELETE FROM bug_reports WHERE id = $1', [req.params.id]);
+  res.json({ ok: true });
+});
+
+/** GET /api/bug-reports/:id/screenshot — Serve the screenshot image */
+app.get('/api/bug-reports/:id/screenshot', async (req, res) => {
+  const { rows } = await pool.query('SELECT screenshot FROM bug_reports WHERE id = $1', [req.params.id]);
+  if (rows.length === 0 || !rows[0].screenshot) return res.status(404).json({ error: 'No screenshot' });
+  const data = rows[0].screenshot;
+  // Screenshot is stored as base64 data URL
+  const match = data.match(/^data:([^;]+);base64,(.+)$/);
+  if (!match) return res.status(400).json({ error: 'Invalid screenshot format' });
+  const buffer = Buffer.from(match[2], 'base64');
+  res.setHeader('Content-Type', match[1]);
+  res.send(buffer);
+});
+
+// ==================== EXPENSE REPORT SUBMISSIONS ====================
+// Expense reports group individual expenses into a submittable package.
+// Statuses: draft → submitted → approved/rejected
+// Submitting notifies Tom Rieger via in-app notification + email.
+
+/**
+ * GET /api/expense-reports
+ * List expense reports.
+ * - Admins see all reports.
+ * - The expense approver (Tom) sees submitted/approved/rejected reports from everyone.
+ * - Other users only see their own reports.
+ * Each report includes expense count and total amount.
+ */
+app.get('/api/expense-reports', async (req, res) => {
+  const isAdmin = req.user && req.user.role === 'admin';
+  const approverUsername = await getExpenseApprover();
+  const isApprover = req.user && req.user.username === approverUsername;
+  let where = [];
+  let vals = [];
+  let i = 1;
+
+  if (!isAdmin && !isApprover) {
+    // Regular users: only own reports
+    where.push(`r.user_id = $${i}`); vals.push(req.user.id); i++;
+  } else if (isApprover && !isAdmin) {
+    // Expense approver: own reports + submitted/approved/rejected from others
+    where.push(`(r.user_id = $${i} OR r.status IN ('submitted', 'approved', 'rejected'))`);
+    vals.push(req.user.id); i++;
+  }
+  // Admins: no filter (see all)
+
+  const { status } = req.query;
+  if (status) { where.push(`r.status = $${i}`); vals.push(status); i++; }
+
+  const whereClause = where.length > 0 ? 'WHERE ' + where.join(' AND ') : '';
+  const { rows } = await pool.query(`
+    SELECT r.*, u.display_name AS employee_name,
+      (SELECT count(*) FROM expenses e WHERE e.report_id = r.id)::int AS expense_count,
+      (SELECT COALESCE(sum(e.amount), 0) FROM expenses e WHERE e.report_id = r.id)::numeric AS total_amount
+    FROM expense_reports r
+    LEFT JOIN users u ON r.user_id = u.id
+    ${whereClause}
+    ORDER BY r.created_at DESC
+  `, vals);
+  res.json({ reports: rows });
+});
+
+/** POST /api/expense-reports — Create a new expense report (draft) */
+app.post('/api/expense-reports', async (req, res) => {
+  const { title, notes } = req.body;
+  if (!title || !title.trim()) return res.status(400).json({ error: 'Title is required' });
+
+  const { rows } = await pool.query(
+    `INSERT INTO expense_reports (user_id, title, notes) VALUES ($1, $2, $3) RETURNING *`,
+    [req.user.id, title.trim(), notes || null]
+  );
+  await auditLog('expense_report', rows[0].id, 'create', req.user.displayName, { title });
+  res.status(201).json(rows[0]);
+});
+
+/**
+ * GET /api/expense-reports/:id
+ * Get a single expense report with its expenses. Access: own or admin.
+ */
+app.get('/api/expense-reports/:id', async (req, res) => {
+  const { rows } = await pool.query(`
+    SELECT r.*, u.display_name AS employee_name
+    FROM expense_reports r
+    LEFT JOIN users u ON r.user_id = u.id
+    WHERE r.id = $1
+  `, [req.params.id]);
+  if (rows.length === 0) return res.status(404).json({ error: 'Report not found' });
+  const report = rows[0];
+
+  const approverUsername = await getExpenseApprover();
+  const isApprover = req.user && req.user.username === approverUsername;
+  if (req.user.role !== 'admin' && report.user_id !== req.user.id && !isApprover) {
+    return res.status(403).json({ error: 'Access denied' });
+  }
+
+  // Fetch expenses in this report
+  const expenses = await pool.query(`
+    SELECT e.*, c.name AS category_name,
+      (SELECT count(*) FROM expense_receipts r WHERE r.expense_id = e.id)::int AS receipt_count
+    FROM expenses e
+    LEFT JOIN expense_categories c ON e.category_id = c.id
+    WHERE e.report_id = $1
+    ORDER BY e.date DESC, e.created_at DESC
+  `, [req.params.id]);
+  report.expenses = expenses.rows;
+
+  // Also compute totals by currency
+  const totals = await pool.query(`
+    SELECT currency, sum(amount)::numeric AS total, count(*)::int AS count
+    FROM expenses WHERE report_id = $1 GROUP BY currency
+  `, [req.params.id]);
+  report.totals_by_currency = totals.rows;
+
+  res.json(report);
+});
+
+/**
+ * PATCH /api/expense-reports/:id
+ * Update report title/notes. Only draft reports can be edited by their owner.
+ * Admins can also update status (for approve/reject flow).
+ */
+app.patch('/api/expense-reports/:id', async (req, res) => {
+  const check = await pool.query('SELECT user_id, status FROM expense_reports WHERE id = $1', [req.params.id]);
+  if (check.rows.length === 0) return res.status(404).json({ error: 'Report not found' });
+  const report = check.rows[0];
+
+  const isAdmin = req.user && req.user.role === 'admin';
+  const approverUser = await getExpenseApprover();
+  const isApprover = req.user && req.user.username === approverUser;
+  const isOwner = report.user_id === req.user.id;
+  const canReview = isAdmin || isApprover;
+  if (!canReview && !isOwner) return res.status(403).json({ error: 'Access denied' });
+  if (!canReview && report.status !== 'draft') {
+    return res.status(400).json({ error: 'Cannot edit a submitted report' });
+  }
+
+  // Validate status enum if provided
+  const VALID_REPORT_STATUSES = ['draft', 'submitted', 'approved', 'rejected'];
+  if (req.body.status && !VALID_REPORT_STATUSES.includes(req.body.status)) {
+    return res.status(400).json({ error: `Invalid status. Must be one of: ${VALID_REPORT_STATUSES.join(', ')}` });
+  }
+
+  const allowed = ['title', 'notes'];
+  if (canReview) allowed.push('status', 'reviewed_by', 'reviewed_at', 'review_notes');
+
+  const { updates, vals, nextIdx } = buildPatchQuery(req.body, allowed);
+  let idx = nextIdx;
+  // Auto-set review fields when reviewer changes status
+  if (canReview && req.body.status && req.body.status !== report.status) {
+    if (req.body.status === 'approved' || req.body.status === 'rejected') {
+      if (!req.body.reviewed_by) { updates.push(`reviewed_by = $${idx}`); vals.push(req.user.displayName); idx++; }
+      if (!req.body.reviewed_at) { updates.push(`reviewed_at = $${idx}`); vals.push(new Date().toISOString()); idx++; }
+    }
+    // If reviewer approves report, also approve all its expenses
+    if (req.body.status === 'approved') {
+      await pool.query(`UPDATE expenses SET status = 'approved', reviewed_by = $1, reviewed_at = NOW(), updated_at = NOW() WHERE report_id = $2`, [req.user.displayName, req.params.id]);
+    }
+    // If reviewer rejects, set report back so owner can fix
+    if (req.body.status === 'rejected') {
+      await pool.query(`UPDATE expenses SET status = 'pending', updated_at = NOW() WHERE report_id = $1`, [req.params.id]);
+    }
+  }
+  updates.push(`updated_at = $${idx}`); vals.push(new Date().toISOString()); idx++;
+
+  if (updates.length <= 1) return res.status(400).json({ error: 'No fields to update' });
+  vals.push(req.params.id);
+  const { rows } = await pool.query(`UPDATE expense_reports SET ${updates.join(', ')} WHERE id = $${idx} RETURNING *`, vals);
+  await auditLog('expense_report', req.params.id, 'update', req.user.displayName, req.body);
+  res.json(rows[0]);
+});
+
+/**
+ * POST /api/expense-reports/:id/submit
+ * Submit an expense report for review. Changes status to 'submitted'.
+ * Notifies Tom Rieger via in-app notification and email.
+ */
+app.post('/api/expense-reports/:id/submit', async (req, res) => {
+  const check = await pool.query(`
+    SELECT r.*, u.display_name AS employee_name
+    FROM expense_reports r LEFT JOIN users u ON r.user_id = u.id
+    WHERE r.id = $1
+  `, [req.params.id]);
+  if (check.rows.length === 0) return res.status(404).json({ error: 'Report not found' });
+  const report = check.rows[0];
+
+  if (report.user_id !== req.user.id && req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Access denied' });
+  }
+  if (report.status !== 'draft') {
+    return res.status(400).json({ error: 'Report has already been submitted' });
+  }
+
+  // Check report has expenses
+  const expCount = await pool.query('SELECT count(*)::int AS count FROM expenses WHERE report_id = $1', [req.params.id]);
+  if (expCount.rows[0].count === 0) {
+    return res.status(400).json({ error: 'Cannot submit an empty report. Add expenses first.' });
+  }
+
+  // Get total for notification message
+  const totals = await pool.query(`
+    SELECT currency, sum(amount)::numeric AS total, count(*)::int AS count
+    FROM expenses WHERE report_id = $1 GROUP BY currency
+  `, [req.params.id]);
+  const totalStr = totals.rows.map(t => `${t.currency} ${parseFloat(t.total).toFixed(2)} (${t.count} item${t.count > 1 ? 's' : ''})`).join(', ');
+
+  // Update report status
+  await pool.query(`UPDATE expense_reports SET status = 'submitted', submitted_at = NOW(), updated_at = NOW() WHERE id = $1`, [req.params.id]);
+
+  // Auto-dismiss any pending expense_reminder notifications for this user
+  await pool.query(`UPDATE notifications SET is_read = true WHERE username = $1 AND type = 'expense_reminder' AND is_read = false`, [req.user.username]);
+
+  // Build the review URL
+  const reportUrl = `${APP_URL}/nbi_project_dashboard.html#expenses/report/${req.params.id}`;
+
+  // In-app notification to expense approver (from DB settings, falls back to env/tom)
+  const approverUsername = await getExpenseApprover();
+  const approverEmail = process.env.EXPENSE_APPROVER_EMAIL || 'trieger@nbi-consulting.com';
+  try {
+    await createNotification(
+      approverUsername,
+      'expense_report',
+      `Expense Report: ${report.title}`,
+      `${report.employee_name || 'An employee'} submitted an expense report (${totalStr}). Click to review.`,
+      reportUrl
+    );
+    log('info', 'Notification', `Tom notified about expense report "${report.title}"`);
+  } catch(e) {
+    log('warn', 'Notification', 'Failed to notify Tom', { error: e.message });
+  }
+
+  // Email notification to expense approver (fire-and-forget)
+  const emailHtml = `
+    <h2>Expense Report Submitted for Review</h2>
+    <p><strong>${report.employee_name || 'An employee'}</strong> has submitted an expense report.</p>
+    <table style="border-collapse:collapse;margin:16px 0">
+      <tr><td style="padding:4px 12px 4px 0;font-weight:bold">Report:</td><td>${report.title}</td></tr>
+      <tr><td style="padding:4px 12px 4px 0;font-weight:bold">Total:</td><td>${totalStr}</td></tr>
+      <tr><td style="padding:4px 12px 4px 0;font-weight:bold">Submitted:</td><td>${new Date().toLocaleString('en-GB')}</td></tr>
+    </table>
+    <p><a href="${reportUrl}" style="display:inline-block;padding:10px 20px;background:#2563eb;color:#fff;text-decoration:none;border-radius:6px">Review Expense Report</a></p>
+    <p style="color:#666;font-size:0.85em">NBI Project Dashboard</p>
+  `;
+  sendEmailAsync({
+    from: SMTP_FROM,
+    to: approverEmail,
+    subject: `Expense Report: ${report.title} — ${report.employee_name || 'Employee'}`,
+    html: emailHtml
+  });
+
+  await auditLog('expense_report', req.params.id, 'submit', req.user.displayName, { title: report.title, total: totalStr });
+  res.json({ ok: true, status: 'submitted', reportUrl });
+});
+
+/**
+ * POST /api/expense-reports/:id/expenses
+ * Add one or more expenses to a report. Body: { expense_ids: [...] }
+ * Only draft reports. Expenses must belong to the same user and not be in another report.
+ */
+app.post('/api/expense-reports/:id/expenses', async (req, res) => {
+  const check = await pool.query('SELECT user_id, status FROM expense_reports WHERE id = $1', [req.params.id]);
+  if (check.rows.length === 0) return res.status(404).json({ error: 'Report not found' });
+  const report = check.rows[0];
+
+  if (report.user_id !== req.user.id && req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Access denied' });
+  }
+  if (report.status !== 'draft') {
+    return res.status(400).json({ error: 'Cannot modify a submitted report' });
+  }
+
+  const { expense_ids } = req.body;
+  if (!expense_ids || !Array.isArray(expense_ids) || expense_ids.length === 0) {
+    return res.status(400).json({ error: 'expense_ids array required' });
+  }
+
+  // Validate all expenses belong to the user and are unassigned
+  const placeholders = expense_ids.map((_, i) => `$${i + 1}`).join(',');
+  const expenses = await pool.query(
+    `SELECT id, user_id, report_id FROM expenses WHERE id IN (${placeholders})`,
+    expense_ids
+  );
+
+  // Check all requested IDs were found
+  const foundIds = new Set(expenses.rows.map(e => e.id));
+  const missing = expense_ids.filter(id => !foundIds.has(id));
+  if (missing.length > 0) return res.status(400).json({ error: `Expenses not found: ${missing.join(', ')}` });
+
+  const errors = [];
+  for (const exp of expenses.rows) {
+    if (exp.user_id !== report.user_id) errors.push(`Expense ${exp.id} belongs to another user`);
+    if (exp.report_id && exp.report_id !== req.params.id) errors.push(`Expense ${exp.id} is already in another report`);
+  }
+  if (errors.length > 0) return res.status(400).json({ error: errors.join('; ') });
+
+  // Assign expenses to this report (placeholders offset by 1 for report_id at $1)
+  const updatePlaceholders = expense_ids.map((_, i) => `$${i + 2}`).join(',');
+  await pool.query(
+    `UPDATE expenses SET report_id = $1, updated_at = NOW() WHERE id IN (${updatePlaceholders})`,
+    [req.params.id, ...expense_ids]
+  );
+
+  res.json({ ok: true, added: expense_ids.length });
+});
+
+/**
+ * DELETE /api/expense-reports/:id/expenses/:expenseId
+ * Remove an expense from a report (sets report_id to NULL). Only draft reports.
+ */
+app.delete('/api/expense-reports/:id/expenses/:expenseId', async (req, res) => {
+  const check = await pool.query('SELECT user_id, status FROM expense_reports WHERE id = $1', [req.params.id]);
+  if (check.rows.length === 0) return res.status(404).json({ error: 'Report not found' });
+  const report = check.rows[0];
+
+  if (report.user_id !== req.user.id && req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Access denied' });
+  }
+  if (report.status !== 'draft') {
+    return res.status(400).json({ error: 'Cannot modify a submitted report' });
+  }
+
+  await pool.query('UPDATE expenses SET report_id = NULL, updated_at = NOW() WHERE id = $1 AND report_id = $2', [req.params.expenseId, req.params.id]);
+  res.json({ ok: true });
+});
+
+/**
+ * DELETE /api/expense-reports/:id
+ * Delete a draft expense report. Unlinks all its expenses (sets report_id to NULL).
+ */
+app.delete('/api/expense-reports/:id', async (req, res) => {
+  const check = await pool.query('SELECT user_id, status FROM expense_reports WHERE id = $1', [req.params.id]);
+  if (check.rows.length === 0) return res.status(404).json({ error: 'Report not found' });
+  const report = check.rows[0];
+
+  const isAdmin = req.user && req.user.role === 'admin';
+  if (!isAdmin && report.user_id !== req.user.id) return res.status(403).json({ error: 'Access denied' });
+  if (!isAdmin && report.status !== 'draft') {
+    return res.status(400).json({ error: 'Cannot delete a submitted report' });
+  }
+
+  // Unlink expenses first
+  await pool.query('UPDATE expenses SET report_id = NULL, updated_at = NOW() WHERE report_id = $1', [req.params.id]);
+  await pool.query('DELETE FROM expense_reports WHERE id = $1', [req.params.id]);
+  await auditLog('expense_report', req.params.id, 'delete', req.user.displayName);
+  res.json({ ok: true });
+});
+
+/**
+ * GET /api/expense-reports/:id/export
+ * Export a report as a ZIP containing CSV + all receipt files.
+ */
+app.get('/api/expense-reports/:id/export', async (req, res) => {
+  const check = await pool.query(`
+    SELECT r.*, u.display_name AS employee_name
+    FROM expense_reports r LEFT JOIN users u ON r.user_id = u.id
+    WHERE r.id = $1
+  `, [req.params.id]);
+  if (check.rows.length === 0) return res.status(404).json({ error: 'Report not found' });
+  const report = check.rows[0];
+
+  // Get expenses
+  const expResult = await pool.query(`
+    SELECT e.*, c.name AS category_name
+    FROM expenses e LEFT JOIN expense_categories c ON e.category_id = c.id
+    WHERE e.report_id = $1 ORDER BY e.date
+  `, [req.params.id]);
+  const expenses = expResult.rows;
+
+  // Get all receipts for these expenses
+  const expIds = expenses.map(e => e.id);
+  let receipts = [];
+  if (expIds.length > 0) {
+    const ph = expIds.map((_, i) => `$${i + 1}`).join(',');
+    const rcptResult = await pool.query(`SELECT * FROM expense_receipts WHERE expense_id IN (${ph})`, expIds);
+    receipts = rcptResult.rows;
+  }
+
+  // Build CSV
+  const csvRows = [['Date', 'Description', 'Category', 'Amount (GBP)', 'VAT', 'Currency', 'Receipt', 'Status'].join(',')];
+  let grandTotal = 0, vatTotal = 0;
+  expenses.forEach(e => {
+    const amt = parseFloat(e.amount) || 0;
+    const vat = parseFloat(e.vat_amount) || 0;
+    grandTotal += amt;
+    vatTotal += vat;
+    const desc = (e.description || '').replace(/[\t\n\r]/g, ' ').replace(/"/g, '""');
+    const cat = (e.category_name || '').replace(/"/g, '""');
+    const hasReceipt = receipts.some(r => r.expense_id === e.id) ? 'Yes' : 'No';
+    csvRows.push([
+      (e.date ? new Date(e.date).toISOString().slice(0, 10) : ''),
+      `"${desc}"`,
+      `"${cat}"`,
+      amt.toFixed(2),
+      vat ? vat.toFixed(2) : '',
+      e.currency || 'GBP',
+      hasReceipt,
+      e.status || ''
+    ].join(','));
+  });
+  csvRows.push('');
+  csvRows.push(['', '', 'TOTAL', grandTotal.toFixed(2), vatTotal.toFixed(2)].join(','));
+  csvRows.push(['', '', 'Expenses', expenses.length].join(','));
+  csvRows.push(['', '', 'With receipts', receipts.length].join(','));
+  const csvContent = '\uFEFF' + csvRows.join('\r\n');
+
+  // Build ZIP with archiver
+  const archiver = require('archiver');
+  const archive = archiver('zip', { zlib: { level: 9 } });
+
+  const safeName = (report.title || 'Expense_Report').replace(/[^a-zA-Z0-9-_ ]/g, '');
+  res.setHeader('Content-Type', 'application/zip');
+  res.setHeader('Content-Disposition', `attachment; filename="${safeName}.zip"`);
+  archive.pipe(res);
+
+  // Add CSV
+  archive.append(Buffer.from(csvContent, 'utf-8'), { name: `${safeName}.csv` });
+
+  // Add receipt files
+  const uploadsDir = path.join(__dirname, 'uploads');
+  for (const rcpt of receipts) {
+    const filePath = path.join(uploadsDir, rcpt.filename);
+    if (fs.existsSync(filePath)) {
+      archive.file(filePath, { name: `receipts/${rcpt.original_name || rcpt.filename}` });
+    }
+  }
+
+  // Add redacted bank statements
+  const bankStatements = fs.readdirSync(uploadsDir).filter(f => f.includes('REDACTED') && f.endsWith('.pdf'));
+  bankStatements.forEach(f => {
+    archive.file(path.join(uploadsDir, f), { name: `bank_statements/${f}` });
+  });
+
+  archive.finalize();
+});
+
+// ==================== CLIENT STATUS REPORTS ====================
+
+/** POST /api/clients/:id/reports -- Generate a client status report snapshot */
+app.post('/api/clients/:id/reports', async (req, res) => {
+  const clientResult = await pool.query('SELECT * FROM clients WHERE id = $1', [req.params.id]);
+  if (clientResult.rows.length === 0) return res.status(404).json({ error: 'Client not found' });
+  const client = clientResult.rows[0];
+
+  // Gather all task data for this client
+  const tasksResult = await pool.query(
+    `SELECT t.*, c.name as client_name FROM tasks t
+     LEFT JOIN clients c ON t.client_id = c.id
+     WHERE t.client_id = $1 ORDER BY t.created_at`, [req.params.id]
+  );
+  const clientTasks = tasksResult.rows;
+
+  // Compute KPIs
+  const total = clientTasks.length;
+  const done = clientTasks.filter(t => t.status === 'Done').length;
+  const inProgress = clientTasks.filter(t => t.status === 'In progress').length;
+  const blocked = clientTasks.filter(t => t.health_state === 'Blocked').length;
+  const overdue = clientTasks.filter(t => t.due_date && t.status !== 'Done' && t.status !== 'Cancelled' && new Date(t.due_date) < new Date()).length;
+  const hrsSpent = clientTasks.reduce((s, t) => s + (t.hours_spent || 0), 0);
+  const hrsEst = clientTasks.reduce((s, t) => s + (t.hours_estimated || 0), 0);
+  const completePct = total > 0 ? Math.round(done / total * 100) : 0;
+
+  // Group by status
+  const statusBreakdown = {};
+  clientTasks.forEach(t => { statusBreakdown[t.status] = (statusBreakdown[t.status] || 0) + 1; });
+
+  // Group by project (root tasks)
+  const projects = clientTasks.filter(t => !t.parent_id).map(p => {
+    const kids = clientTasks.filter(t => t.parent_id === p.id);
+    const pDone = kids.filter(k => k.status === 'Done').length;
+    return { title: p.title, status: p.status, health: p.health_state, total: kids.length + 1, done: pDone, pct: kids.length > 0 ? Math.round(pDone / kids.length * 100) : (p.status === 'Done' ? 100 : 0) };
+  });
+
+  // Build report data
+  const reportData = {
+    clientName: client.name,
+    generatedAt: new Date().toISOString(),
+    generatedBy: req.user?.displayName || 'system',
+    kpis: { total, done, inProgress, blocked, overdue, hrsSpent: Math.round(hrsSpent * 10) / 10, hrsEst: Math.round(hrsEst * 10) / 10, completePct },
+    statusBreakdown,
+    projects,
+    blockedTasks: clientTasks.filter(t => t.health_state === 'Blocked').map(t => ({ title: t.title, status: t.status, assignees: t.assignees })),
+    overdueTasks: clientTasks.filter(t => t.due_date && t.status !== 'Done' && t.status !== 'Cancelled' && new Date(t.due_date) < new Date()).map(t => ({ title: t.title, dueDate: t.due_date, assignees: t.assignees })),
+  };
+
+  // Save with share token
+  const shareToken = crypto.randomBytes(16).toString('hex');
+  const expiresAt = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000); // 90 days
+  const { rows } = await pool.query(
+    `INSERT INTO client_reports (client_id, client_name, share_token, report_data, generated_by, expires_at)
+     VALUES ($1,$2,$3,$4,$5,$6) RETURNING id, share_token, created_at`,
+    [req.params.id, client.name, shareToken, JSON.stringify(reportData), req.user?.displayName || 'system', expiresAt]
+  );
+
+  res.status(201).json({
+    id: rows[0].id,
+    shareToken: rows[0].share_token,
+    shareUrl: `/api/reports/${rows[0].share_token}/html`,
+    pdfUrl: `/api/reports/${rows[0].share_token}/pdf`,
+    createdAt: rows[0].created_at,
+  });
+});
+
+/** GET /api/clients/:id/reports — List past reports for a client */
+app.get('/api/clients/:id/reports', async (req, res) => {
+  const { rows } = await pool.query(
+    'SELECT id, share_token, generated_by, created_at FROM client_reports WHERE client_id = $1 ORDER BY created_at DESC LIMIT 20',
+    [req.params.id]
+  );
+  res.json(rows);
+});
+
+/** GET /api/reports/:token — Public JSON data (no auth required) */
+app.get('/api/reports/:token', async (req, res) => {
+  const { rows } = await pool.query('SELECT * FROM client_reports WHERE share_token = $1', [req.params.token]);
+  if (rows.length === 0) return res.status(404).json({ error: 'Report not found' });
+  if (rows[0].expires_at && new Date(rows[0].expires_at) < new Date()) return res.status(410).json({ error: 'Report expired' });
+  res.json(rows[0].report_data);
+});
+
+/** GET /api/reports/:token/html — Public styled HTML report page (no auth required) */
+app.get('/api/reports/:token/html', async (req, res) => {
+  const { rows } = await pool.query('SELECT * FROM client_reports WHERE share_token = $1', [req.params.token]);
+  if (rows.length === 0) return res.status(404).send('Report not found');
+  if (rows[0].expires_at && new Date(rows[0].expires_at) < new Date()) return res.status(410).send('Report expired');
+
+  const d = rows[0].report_data;
+  const date = new Date(d.generatedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  const statusColours = { Done: '#22c55e', 'In progress': '#3b82f6', 'Not started': '#6b7280', 'In Review': '#f59e0b', Blocked: '#a855f7', Planning: '#06b6d4', Drafted: '#8b5cf6', Cancelled: '#ef4444' };
+
+  // All user-supplied data is escaped via escHtml() to prevent XSS in this public endpoint
+  let html = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>${escHtml(d.clientName)} — Status Report</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Inter,-apple-system,sans-serif;background:#0a0a0a;color:#e8e8e8;line-height:1.6;padding:40px 20px}
+    .container{max-width:900px;margin:0 auto}
+    .header{border-bottom:2px solid #2a2a2a;padding-bottom:24px;margin-bottom:32px}
+    .header h1{font-size:1.8rem;font-weight:700;margin-bottom:4px}
+    .header .meta{color:#999;font-size:0.85rem}
+    .brand{color:#0066FF;font-size:0.75rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px}
+    .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:16px;margin-bottom:32px}
+    .kpi{background:#141414;border:1px solid #2a2a2a;border-radius:8px;padding:16px;text-align:center}
+    .kpi .value{font-size:1.6rem;font-weight:700}
+    .kpi .label{font-size:0.72rem;color:#999;text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+    .section{margin-bottom:32px}
+    .section h2{font-size:0.8rem;color:#999;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:16px}
+    .bar{display:flex;height:20px;border-radius:4px;overflow:hidden;background:#1e1e1e;margin-bottom:6px}
+    .bar-seg{min-width:2px}
+    table{width:100%;border-collapse:collapse;font-size:0.85rem}
+    th{text-align:left;padding:8px 12px;border-bottom:2px solid #2a2a2a;color:#999;font-size:0.72rem;text-transform:uppercase;letter-spacing:1px}
+    td{padding:8px 12px;border-bottom:1px solid #1e1e1e}
+    .badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:0.72rem;font-weight:600}
+    .pct-bar{width:100%;height:6px;background:#1e1e1e;border-radius:3px;overflow:hidden}
+    .pct-fill{height:100%;background:#22c55e;border-radius:3px}
+    .footer{margin-top:48px;padding-top:24px;border-top:1px solid #2a2a2a;color:#666;font-size:0.75rem;text-align:center}
+    @media(max-width:600px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+  </style></head><body><div class="container">
+  <div class="header"><div class="brand">NBI Analytics</div><h1>${escHtml(d.clientName)}</h1><div class="meta">Status Report &mdash; ${escHtml(date)} &mdash; Prepared by ${escHtml(d.generatedBy)}</div></div>`;
+
+  // KPIs (numeric values are safe but escaped defensively)
+  html += `<div class="kpi-grid">
+    <div class="kpi"><div class="value">${escHtml(String(d.kpis.total))}</div><div class="label">Total Tasks</div></div>
+    <div class="kpi"><div class="value" style="color:#22c55e">${escHtml(String(d.kpis.completePct))}%</div><div class="label">Complete</div></div>
+    <div class="kpi"><div class="value" style="color:#3b82f6">${escHtml(String(d.kpis.inProgress))}</div><div class="label">In Progress</div></div>
+    <div class="kpi"><div class="value" style="color:${d.kpis.overdue > 0 ? '#ef4444' : '#22c55e'}">${escHtml(String(d.kpis.overdue))}</div><div class="label">Overdue</div></div>
+    <div class="kpi"><div class="value" style="color:${d.kpis.blocked > 0 ? '#a855f7' : '#22c55e'}">${escHtml(String(d.kpis.blocked))}</div><div class="label">Blocked</div></div>
+    <div class="kpi"><div class="value">${escHtml(String(d.kpis.hrsSpent))}h</div><div class="label">Hours Spent</div></div>
+  </div>`;
+
+  // Status breakdown bar
+  html += `<div class="section"><h2>Status Breakdown</h2><div class="bar">`;
+  Object.entries(d.statusBreakdown).forEach(([status, count]) => {
+    const pct = (count / d.kpis.total) * 100;
+    html += `<div class="bar-seg" style="width:${pct}%;background:${statusColours[status] || '#666'}" title="${escHtml(status)}: ${count} (${Math.round(pct)}%)"></div>`;
+  });
+  html += `</div><div style="display:flex;flex-wrap:wrap;gap:12px;font-size:0.78rem;color:#999">`;
+  Object.entries(d.statusBreakdown).forEach(([status, count]) => {
+    html += `<span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${statusColours[status] || '#666'};margin-right:4px"></span>${escHtml(status)}: ${count}</span>`;
+  });
+  html += `</div></div>`;
+
+  // Projects
+  if (d.projects.length > 0) {
+    html += `<div class="section"><h2>Projects</h2><table><thead><tr><th>Project</th><th>Status</th><th>Health</th><th>Progress</th><th>Tasks</th></tr></thead><tbody>`;
+    d.projects.forEach(p => {
+      html += `<tr><td><strong>${escHtml(p.title)}</strong></td><td><span class="badge" style="background:${statusColours[p.status] || '#666'}20;color:${statusColours[p.status] || '#666'}">${escHtml(p.status)}</span></td>`;
+      html += `<td>${escHtml(p.health || '-')}</td><td><div class="pct-bar"><div class="pct-fill" style="width:${p.pct}%"></div></div><span style="font-size:0.7rem;color:#999">${p.pct}%</span></td><td>${p.total}</td></tr>`;
+    });
+    html += `</tbody></table></div>`;
+  }
+
+  // Blocked tasks
+  if (d.blockedTasks.length > 0) {
+    html += `<div class="section"><h2>Blocked Items</h2><table><thead><tr><th>Task</th><th>Status</th><th>Assigned To</th></tr></thead><tbody>`;
+    d.blockedTasks.forEach(t => { html += `<tr><td>${escHtml(t.title)}</td><td>${escHtml(t.status)}</td><td>${escHtml((t.assignees || []).join(', ') || '-')}</td></tr>`; });
+    html += `</tbody></table></div>`;
+  }
+
+  // Overdue tasks
+  if (d.overdueTasks.length > 0) {
+    html += `<div class="section"><h2>Overdue Items</h2><table><thead><tr><th>Task</th><th>Due Date</th><th>Assigned To</th></tr></thead><tbody>`;
+    d.overdueTasks.forEach(t => { html += `<tr><td>${escHtml(t.title)}</td><td style="color:#ef4444">${escHtml(t.dueDate)}</td><td>${escHtml((t.assignees || []).join(', ') || '-')}</td></tr>`; });
+    html += `</tbody></table></div>`;
+  }
+
+  html += `<div class="footer">Generated by NBI Analytics Dashboard &mdash; ${escHtml(date)}</div></div></body></html>`;
+  res.setHeader('Content-Type', 'text/html');
+  res.send(html);
+});
+
+/** GET /api/reports/:token/pdf — Public PDF download (no auth required) */
+app.get('/api/reports/:token/pdf', async (req, res) => {
+  const { rows } = await pool.query('SELECT * FROM client_reports WHERE share_token = $1', [req.params.token]);
+  if (rows.length === 0) return res.status(404).json({ error: 'Report not found' });
+  if (rows[0].expires_at && new Date(rows[0].expires_at) < new Date()) return res.status(410).json({ error: 'Report expired' });
+
+  const d = rows[0].report_data;
+  const date = new Date(d.generatedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  const doc = new PDFDocument({ size: 'A4', margin: 50 });
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', `attachment; filename="${d.clientName.replace(/[^a-zA-Z0-9]/g, '_')}_Status_Report_${date.replace(/\s/g, '_')}.pdf"`);
+  doc.pipe(res);
+
+  // Header
+  doc.fontSize(10).fillColor('#0066FF').text('NBI ANALYTICS', { align: 'left' });
+  doc.moveDown(0.5);
+  doc.fontSize(22).fillColor('#1a1a1a').text(d.clientName);
+  doc.fontSize(12).fillColor('#666').text(`Status Report — ${date}`);
+  doc.fontSize(10).fillColor('#999').text(`Prepared by ${d.generatedBy}`);
+  doc.moveDown(1);
+  doc.moveTo(50, doc.y).lineTo(545, doc.y).stroke('#ddd');
+  doc.moveDown(1);
+
+  // KPIs
+  doc.fontSize(14).fillColor('#1a1a1a').text('Key Metrics');
+  doc.moveDown(0.5);
+  doc.fontSize(10).fillColor('#333');
+  doc.text(`Total Tasks: ${d.kpis.total}    Complete: ${d.kpis.completePct}%    In Progress: ${d.kpis.inProgress}    Overdue: ${d.kpis.overdue}    Blocked: ${d.kpis.blocked}`);
+  doc.text(`Hours Spent: ${d.kpis.hrsSpent}h / ${d.kpis.hrsEst}h estimated`);
+  doc.moveDown(1);
+
+  // Projects table
+  if (d.projects.length > 0) {
+    doc.fontSize(14).fillColor('#1a1a1a').text('Projects');
+    doc.moveDown(0.5);
+    doc.fontSize(9).fillColor('#999');
+    doc.text('PROJECT', 50, doc.y, { width: 200, continued: true });
+    doc.text('STATUS', 260, doc.y, { width: 80, continued: true });
+    doc.text('PROGRESS', 350, doc.y, { width: 80, continued: true });
+    doc.text('TASKS', 440, doc.y);
+    doc.moveDown(0.3);
+    doc.moveTo(50, doc.y).lineTo(545, doc.y).stroke('#ddd');
+    doc.moveDown(0.3);
+
+    d.projects.forEach(p => {
+      if (doc.y > 720) { doc.addPage(); }
+      doc.fontSize(9).fillColor('#333');
+      doc.text(p.title.substring(0, 35), 50, doc.y, { width: 200, continued: true });
+      doc.text(p.status, 260, doc.y, { width: 80, continued: true });
+      doc.text(`${p.pct}%`, 350, doc.y, { width: 80, continued: true });
+      doc.text(`${p.total}`, 440, doc.y);
+      doc.moveDown(0.2);
+    });
+    doc.moveDown(1);
+  }
+
+  // Blocked items
+  if (d.blockedTasks.length > 0) {
+    if (doc.y > 650) doc.addPage();
+    doc.fontSize(14).fillColor('#1a1a1a').text('Blocked Items');
+    doc.moveDown(0.5);
+    d.blockedTasks.forEach(t => {
+      doc.fontSize(9).fillColor('#333').text(`• ${t.title} — ${(t.assignees || []).join(', ') || 'Unassigned'}`);
+    });
+    doc.moveDown(1);
+  }
+
+  // Overdue items
+  if (d.overdueTasks.length > 0) {
+    if (doc.y > 650) doc.addPage();
+    doc.fontSize(14).fillColor('#1a1a1a').text('Overdue Items');
+    doc.moveDown(0.5);
+    d.overdueTasks.forEach(t => {
+      doc.fontSize(9).fillColor('#cc0000').text(`• ${t.title} — due ${t.dueDate}`);
+    });
+    doc.moveDown(1);
+  }
+
+  // Footer
+  doc.fontSize(8).fillColor('#999').text(`Generated by NBI Analytics Dashboard — ${date}`, 50, 770, { align: 'center', width: 495 });
+
+  doc.end();
+});
+
+// ==================== RESOURCE PLANNING ====================
+
+/** GET /api/resource-planning/capacity — Per-user weekly capacity vs committed hours (8 weeks forward) */
+app.get('/api/resource-planning/capacity', async (req, res) => {
+  const weeks = parseInt(req.query.weeks) || 8;
+  const users = (await pool.query('SELECT id, username, display_name, capacity_hours_per_week, resource_type_ids FROM users ORDER BY display_name')).rows;
+  const activeTasks = (await pool.query(
+    `SELECT t.assignees, t.hours_estimated, t.start_date, t.end_date, t.due_date, t.status, t.created_at
+     FROM tasks t WHERE t.status NOT IN ('Done', 'Cancelled')`
+  )).rows;
+
+  // Build week ranges starting from current Monday
+  // JS getDay(): 0=Sun, 1=Mon..6=Sat. Offset formula maps any day back to its Monday.
+  const now = new Date(); now.setHours(0,0,0,0);
+  const dayOfWeek = now.getDay();
+  const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Sunday wraps to previous Monday
+  const startMonday = new Date(now); startMonday.setDate(now.getDate() + mondayOffset);
+
+  const weekRanges = [];
+  for (let w = 0; w < weeks; w++) {
+    const wStart = new Date(startMonday); wStart.setDate(startMonday.getDate() + w * 7);
+    const wEnd = new Date(wStart); wEnd.setDate(wStart.getDate() + 6);
+    weekRanges.push({ start: wStart, end: wEnd, label: wStart.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) });
+  }
+
+  // For each user, calculate committed hours per week
+  // Build name variants for partial-match (e.g. "Glen" matches "Glen Pryer")
+  const userNameVariants = {};
+  users.forEach(u => {
+    const dn = (u.display_name || '').toLowerCase();
+    const parts = dn.split(/\s+/);
+    userNameVariants[u.id] = [dn, ...parts]; // full name + each word
+  });
+  const result = users.map(u => {
+    const variants = userNameVariants[u.id] || [];
+    const userWeeks = weekRanges.map(wr => {
+      let committed = 0;
+      activeTasks.forEach(t => {
+        if (!t.assignees) return;
+        // Match if any assignee string matches this user's display name or first name (case-insensitive)
+        const matched = t.assignees.some(a => {
+          const al = a.toLowerCase().trim();
+          return al === (u.display_name || '').toLowerCase() || variants.includes(al) || al.startsWith(variants[0]) || variants[0].startsWith(al);
+        });
+        if (!matched) return;
+        // Determine task's active date range
+        const taskStart = t.start_date ? new Date(t.start_date + 'T00:00:00') : new Date(t.created_at);
+        const taskEnd = t.end_date ? new Date(t.end_date + 'T00:00:00') : t.due_date ? new Date(t.due_date + 'T00:00:00') : new Date(taskStart.getTime() + 14 * 24 * 60 * 60 * 1000); // default 2 weeks
+        // Check overlap with this week
+        if (taskEnd < wr.start || taskStart > wr.end) return;
+        // Distribute hours evenly across the task's active weeks
+        const taskWeeks = Math.max(1, Math.ceil((taskEnd - taskStart) / (7 * 24 * 60 * 60 * 1000)));
+        const hrsPerWeek = (t.hours_estimated || 0) / taskWeeks;
+        committed += hrsPerWeek;
+      });
+      const capacity = u.capacity_hours_per_week || 40;
+      return {
+        label: wr.label,
+        start: wr.start.toISOString().slice(0,10),
+        committed: Math.round(committed * 10) / 10,
+        capacity,
+        utilisation: capacity > 0 ? Math.round(committed / capacity * 100) : 0,
+      };
+    });
+    return {
+      id: u.id, name: u.display_name, username: u.username,
+      capacityPerWeek: u.capacity_hours_per_week || 40,
+      resourceTypeIds: u.resource_type_ids || [],
+      weeks: userWeeks,
+    };
+  });
+
+  res.json({ users: result, weekLabels: weekRanges.map(w => w.label) });
+});
+
+/** GET /api/resource-planning/deal-readiness/:leadId — Check if we can staff a lead's required roles */
+app.get('/api/resource-planning/deal-readiness/:leadId', async (req, res) => {
+  // Get lead's resource requirements
+  const resources = (await pool.query(
+    `SELECT lr.resource_type_id, lr.quantity, rt.name as role_name
+     FROM lead_resources lr JOIN lead_resource_types rt ON lr.resource_type_id = rt.id
+     WHERE lr.lead_id = $1`, [req.params.leadId]
+  )).rows;
+
+  if (resources.length === 0) return res.json({ canStaff: true, readiness: [], message: 'No resource requirements defined' });
+
+  // Get all users with their resource type mappings
+  const users = (await pool.query('SELECT id, display_name, resource_type_ids, capacity_hours_per_week FROM users')).rows;
+
+  const readiness = resources.map(r => {
+    // Find users who have this resource type in their skills
+    const qualified = users.filter(u => (u.resource_type_ids || []).includes(r.resource_type_id));
+    return {
+      role: r.role_name,
+      needed: r.quantity,
+      available: qualified.length,
+      canFill: qualified.length >= r.quantity,
+      users: qualified.map(u => ({ id: u.id, name: u.display_name })),
+    };
+  });
+
+  const canStaff = readiness.every(r => r.canFill);
+  res.json({ canStaff, readiness });
+});
+
+/** PATCH /api/users/:id/skills — Update a user's resource type skills (admin only) */
+app.patch('/api/users/:id/skills', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const { updates, vals, nextIdx } = buildPatchQuery(req.body, ['resource_type_ids', 'capacity_hours_per_week']);
+  if (updates.length === 0) return res.status(400).json({ error: 'No valid fields to update' });
+  vals.push(req.params.id);
+  const { rows } = await pool.query(`UPDATE users SET ${updates.join(', ')} WHERE id = $${nextIdx} RETURNING id, display_name, resource_type_ids, capacity_hours_per_week`, vals);
+  res.json(rows[0]);
+});
+
+// ==================== SCHEDULED TASKS ====================
+
+// Daily database backup at 2:00 AM (only if node-cron + backup module are available)
+if (cron && runBackup) {
+  cron.schedule('0 2 * * *', () => {
+    log('info', 'Cron', 'Running scheduled database backup');
+    runBackup();
+  });
+}
+
+// Monthly expense report reminder — 25th of every month at 9:00 AM
+if (cron) {
+  cron.schedule('0 9 25 * *', async () => {
+    log('info', 'Cron', 'Sending monthly expense report reminders');
+    try {
+      const { rows: users } = await pool.query('SELECT username, display_name FROM users WHERE is_active = true');
+      for (const user of users) {
+        await createNotification(
+          user.username,
+          'expense_reminder',
+          'Expense Report Reminder',
+          `Hi ${escHtml(user.display_name)}, please submit your expense report for this month. Go to Expenses to create or update your report.`,
+          '/nbi_project_dashboard.html#expenses',
+          false  // non-dismissable — stays until a report is submitted
+        );
+      }
+      log('info', 'Cron', `Expense reminders sent to ${users.length} users`);
+    } catch(e) {
+      log('error', 'Cron', 'Failed to send expense reminders', { error: e.message });
+    }
+  });
+  log('info', 'Cron', 'Monthly expense reminder scheduled for 25th at 09:00');
+}
+
+// Daily FX rate auto-refresh at 6:00 AM
+if (cron) {
+  cron.schedule('0 6 * * *', async () => {
+    try {
+      const resp = await fetch('https://api.frankfurter.dev/latest?from=GBP&to=USD,EUR,SEK');
+      if (resp.ok) {
+        const data = await resp.json();
+        const rates = {};
+        for (const [currency, rate] of Object.entries(data.rates)) rates[currency] = 1 / rate;
+        await pool.query(
+          "INSERT INTO settings (key, value) VALUES ('fx_rates', $1) ON CONFLICT (key) DO UPDATE SET value = $1",
+          [JSON.stringify(rates)]
+        );
+        invalidateCache('fx_rates');
+        log('info', 'FX', 'Exchange rates updated', rates);
+      } else {
+        log('warn', 'FX', 'Frankfurter API returned non-OK status', { status: resp.status });
+      }
+    } catch (e) {
+      log('error', 'FX', 'Failed to fetch exchange rates', { err: e.message });
+    }
+  });
+  log('info', 'Cron', 'Daily FX rate refresh scheduled for 06:00');
+}
+
+// ==================== ERROR HANDLING ====================
+// IMPORTANT: Must be registered AFTER all route definitions so it catches errors from every endpoint.
+
+/**
+ * Global error handler -- catches unhandled errors from async route handlers
+ * (forwarded automatically by express-async-errors). Logs the first 3 lines
+ * of the stack trace and returns a generic 500 response.
+ */
+app.use((err, req, res, next) => {
+  log('error', 'Server', 'Unhandled error', { error: err.message, stack: err.stack?.split('\n').slice(0, 3).join(' | ') });
+  if (!res.headersSent) {
+    res.status(500).json({ error: 'An internal error occurred' });
+  }
+});
+
+// ==================== STARTUP ====================
+
+/**
+ * Graceful shutdown -- close the HTTP server then drain the DB pool.
+ * Forces exit after 10 seconds if the shutdown hangs.
+ * @param {string} signal - The signal that triggered shutdown (e.g. 'SIGTERM', 'SIGINT')
+ */
+function gracefulShutdown(signal) {
+  log('info', 'Server', `${signal} received, shutting down gracefully`);
+  server.close(() => {
+    pool.end().then(() => {
+      log('info', 'Server', 'DB pool closed. Goodbye.');
+      process.exit(0);
+    });
+  });
+  // Force exit after 10 seconds if graceful shutdown hangs
+  setTimeout(() => { log('error', 'Server', 'Forced exit after timeout'); process.exit(1); }, 10000).unref();
+}
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
+// Auto-migrations — add columns/tables if they don't exist (safe to run repeatedly)
+(async () => {
+  try {
+    await pool.query(`ALTER TABLE contacts ADD COLUMN IF NOT EXISTS email TEXT DEFAULT ''`);
+    await pool.query(`ALTER TABLE contacts ADD COLUMN IF NOT EXISTS phone TEXT DEFAULT ''`);
+    log('info', 'Migration', 'contacts.email and contacts.phone columns ensured');
+  } catch(e) { log('warn', 'Migration', 'contacts columns', { error: e.message }); }
+
+  // Expense reports table — groups expenses into submittable reports
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS expense_reports (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        title TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'draft',
+        submitted_at TIMESTAMPTZ,
+        reviewed_by TEXT,
+        reviewed_at TIMESTAMPTZ,
+        notes TEXT,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      )
+    `);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_expense_reports_user ON expense_reports(user_id)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_expense_reports_status ON expense_reports(status)`);
+    await pool.query(`ALTER TABLE expenses ADD COLUMN IF NOT EXISTS report_id UUID REFERENCES expense_reports(id) ON DELETE SET NULL`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_expenses_report ON expenses(report_id)`);
+    await pool.query(`ALTER TABLE expenses ADD COLUMN IF NOT EXISTS vat_amount NUMERIC(12,2)`);
+    await pool.query(`ALTER TABLE expense_reports ADD COLUMN IF NOT EXISTS review_notes TEXT`);
+    await pool.query(`ALTER TABLE notifications ADD COLUMN IF NOT EXISTS dismissable BOOLEAN DEFAULT true`);
+    log('info', 'Migration', 'expense_reports table, expenses.report_id, vat_amount, review_notes, notifications.dismissable columns ensured');
+  } catch(e) { log('warn', 'Migration', 'expense_reports', { error: e.message }); }
+
+  // Bug/feature reports table
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS bug_reports (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        type TEXT NOT NULL DEFAULT 'bug',
+        title TEXT NOT NULL,
+        description TEXT,
+        page TEXT,
+        screenshot TEXT,
+        status TEXT NOT NULL DEFAULT 'open',
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      )
+    `);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_bug_reports_user ON bug_reports(user_id)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_bug_reports_status ON bug_reports(status)`);
+    log('info', 'Migration', 'bug_reports table ensured');
+  } catch(e) { log('warn', 'Migration', 'bug_reports', { error: e.message }); }
+
+  // Performance indexes — safe to run repeatedly (IF NOT EXISTS)
+  try {
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_leads_priority ON leads(priority)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_expenses_category ON expenses(category_id)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_audit_log_created ON audit_log(created_at)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_audit_log_entity ON audit_log(entity_type, entity_id)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(username, is_read)`);
+    log('info', 'Migration', 'Performance indexes ensured');
+  } catch(e) { log('warn', 'Migration', 'Performance indexes', { error: e.message }); }
+
+  // Ensure default expense approver setting exists
+  try {
+    await pool.query(`INSERT INTO settings (key, value) VALUES ('expense_approver', $1) ON CONFLICT (key) DO NOTHING`, [JSON.stringify('tom')]);
+    log('info', 'Migration', 'expense_approver setting ensured');
+  } catch(e) { log('warn', 'Migration', 'expense_approver setting', { error: e.message }); }
+})();
+
+// Bind to 0.0.0.0 so the dashboard is accessible from other devices on the local network
+const server = app.listen(PORT, '0.0.0.0', () => {
+  // Enumerate local IPv4 addresses for the "share this URL" message
+  const nets = os.networkInterfaces();
+  const ips = [];
+  for (const iface of Object.values(nets)) {
+    for (const net of iface) {
+      if (net.family === 'IPv4' && !net.internal) ips.push(net.address);
+    }
+  }
+  const maskedUrl = DB_URL.replace(/:([^@]+)@/, ':****@');
+  log('info', 'Server', `NBI Dashboard Server running on port ${PORT}`, {
+    local: `http://localhost:${PORT}/nbi_project_dashboard.html`,
+    network: ips.length > 0 ? `http://${ips[0]}:${PORT}/nbi_project_dashboard.html` : null,
+    api: `http://localhost:${PORT}/api/health`,
+    db: maskedUrl
+  });
+});
