@@ -316,6 +316,32 @@ app.use('/api/auth/reset', authLimiter);
 app.use(compression({ threshold: 1024 })); // Only compress responses > 1KB
 app.use(express.json({ limit: '10mb' }));   // Allow large payloads for sync/restore
 
+// ==================== RESPONSE ENVELOPE (v2) ====================
+// When client sends X-API-Version: 2, responses are wrapped in { data, error, meta }
+// When omitted (v1), responses are unchanged for backward compatibility
+app.use((req, res, next) => {
+  if (req.headers['x-api-version'] !== '2') return next();
+  const origJson = res.json.bind(res);
+  res.json = (body) => {
+    if (res.statusCode >= 400) {
+      return origJson({
+        data: null,
+        error: { message: body?.error || body?.message || 'Unknown error', code: res.statusCode },
+        meta: { serverTime: new Date().toISOString() }
+      });
+    }
+    // For paginated responses, extract meta from the body
+    const meta = { serverTime: new Date().toISOString() };
+    if (body?.total !== undefined) meta.total = body.total;
+    if (body?.limit !== undefined) meta.limit = body.limit;
+    if (body?.offset !== undefined) meta.offset = body.offset;
+    if (body?.nextCursor !== undefined) meta.nextCursor = body.nextCursor;
+    if (body?.hasMore !== undefined) meta.hasMore = body.hasMore;
+    return origJson({ data: body, error: null, meta });
+  };
+  next();
+});
+
 // ==================== PROMETHEUS METRICS ====================
 let promClient;
 try { promClient = require('prom-client'); } catch(e) { log('warn', 'Metrics', 'prom-client not installed, /metrics disabled'); }
@@ -749,6 +775,7 @@ async function auditLog(entityType, entityId, action, changedBy, changes, conn) 
 app.get('/api/audit-log', async (req, res) => {
   try {
     const limit = Math.min(parseInt(req.query.limit) || 50, 200);
+    const cursor = req.query.cursor || null; // ISO timestamp for cursor-based pagination
     const offset = parseInt(req.query.offset) || 0;
     const entityType = req.query.entity_type || null;
     const action = req.query.action || null;
@@ -761,8 +788,27 @@ app.get('/api/audit-log', async (req, res) => {
     if (action) { where.push(`a.action = $${i}`); vals.push(action); i++; }
     if (search) { where.push(`(a.changed_by ILIKE $${i} OR t.title ILIKE $${i})`); vals.push('%' + search + '%'); i++; }
 
+    // Cursor-based: filter rows older than the cursor timestamp
+    if (cursor) {
+      where.push(`a.created_at < $${i}`);
+      vals.push(cursor);
+      i++;
+    }
+
     const whereClause = where.length > 0 ? 'WHERE ' + where.join(' AND ') : '';
-    vals.push(limit, offset);
+
+    // Fetch limit + 1 to determine hasMore without a separate count query
+    const fetchLimit = limit + 1;
+    vals.push(fetchLimit);
+    let paginationClause;
+    if (cursor) {
+      // Cursor mode: no OFFSET
+      paginationClause = `LIMIT $${i}`;
+    } else {
+      // Offset mode (backward compat): LIMIT + OFFSET
+      vals.push(offset);
+      paginationClause = `LIMIT $${i} OFFSET $${i + 1}`;
+    }
 
     const { rows } = await pool.query(`
       SELECT a.*, t.title as entity_title
@@ -770,14 +816,38 @@ app.get('/api/audit-log', async (req, res) => {
       LEFT JOIN tasks t ON a.entity_id = t.id AND a.entity_type = 'task'
       ${whereClause}
       ORDER BY a.created_at DESC
-      LIMIT $${i} OFFSET $${i + 1}
+      ${paginationClause}
     `, vals);
 
-    const countResult = await pool.query(`SELECT COUNT(*) FROM audit_log a LEFT JOIN tasks t ON a.entity_id = t.id AND a.entity_type = 'task' ${whereClause}`, vals.slice(0, -2));
-    res.json({ entries: rows, total: parseInt(countResult.rows[0].count), limit, offset });
+    const hasMore = rows.length > limit;
+    const entries = hasMore ? rows.slice(0, limit) : rows;
+    const nextCursor = hasMore && entries.length > 0 ? entries[entries.length - 1].created_at : null;
+
+    // Count query only for non-cursor mode (backward compat) or first page
+    const filterVals = cursor
+      ? vals.slice(0, -1).filter((_, idx) => idx < i - 2) // exclude cursor and fetchLimit
+      : vals.slice(0, -2).filter((_, idx) => idx < where.length - (cursor ? 1 : 0));
+    const countWhereFilters = [];
+    let ci = 1;
+    if (entityType) { countWhereFilters.push(`a.entity_type = $${ci}`); ci++; }
+    if (action) { countWhereFilters.push(`a.action = $${ci}`); ci++; }
+    if (search) { countWhereFilters.push(`(a.changed_by ILIKE $${ci} OR t.title ILIKE $${ci})`); ci++; }
+    const countWhere = countWhereFilters.length > 0 ? 'WHERE ' + countWhereFilters.join(' AND ') : '';
+    const countVals = [];
+    if (entityType) countVals.push(entityType);
+    if (action) countVals.push(action);
+    if (search) countVals.push('%' + search + '%');
+
+    const countResult = await pool.query(
+      `SELECT COUNT(*) FROM audit_log a LEFT JOIN tasks t ON a.entity_id = t.id AND a.entity_type = 'task' ${countWhere}`,
+      countVals
+    );
+    const total = parseInt(countResult.rows[0].count);
+
+    res.json({ entries, total, limit, offset, nextCursor, hasMore });
   } catch (err) {
     log('error', 'Audit', 'Query error', { error: err.message });
-    res.json({ entries: [], total: 0, limit: 50, offset: 0 });
+    res.json({ entries: [], total: 0, limit: 50, offset: 0, nextCursor: null, hasMore: false });
   }
 });
 
@@ -1964,22 +2034,75 @@ app.delete('/api/notes/:id', async (req, res) => {
  * Includes inline task notes as a JSON aggregate and the client name via join.
  */
 app.get('/api/tasks', async (req, res) => {
-  const { client_id, status, assignee, limit, offset } = req.query;
+  const { client_id, status, assignee, limit, offset, cursor } = req.query;
   let where = []; let vals = []; let i = 1;
   if (client_id) { where.push(`t.client_id = $${i}`); vals.push(client_id); i++; }
   if (status) { where.push(`t.status = $${i}`); vals.push(status); i++; }
   if (assignee) { where.push(`$${i} = ANY(t.assignees)`); vals.push(assignee); i++; }
 
-  const whereClause = where.length > 0 ? 'WHERE ' + where.join(' AND ') : '';
-  // Pagination: default to all rows for backwards compat, but support limit/offset for large datasets
-  let pagination = '';
-  if (limit) { pagination += ` LIMIT $${i}`; vals.push(parseInt(limit) || 200); i++; }
-  if (offset) { pagination += ` OFFSET $${i}`; vals.push(parseInt(offset) || 0); i++; }
+  // Cursor-based: filter tasks with updated_at before the cursor timestamp
+  if (cursor) {
+    where.push(`t.updated_at > $${i}`);
+    vals.push(cursor);
+    i++;
+  }
 
-  const countQuery = `SELECT count(*) FROM tasks t LEFT JOIN clients c ON t.client_id = c.id ${whereClause}`;
-  const countVals = vals.slice(0, where.length); // only filter params, not limit/offset
-  const [{ rows }, countResult] = await Promise.all([
-    pool.query(`
+  const whereClause = where.length > 0 ? 'WHERE ' + where.join(' AND ') : '';
+
+  // Pagination: default to all rows for backwards compat, but support limit/offset/cursor
+  if (cursor || limit) {
+    // Paginated mode — use cursor or offset
+    const parsedLimit = Math.min(parseInt(limit) || 200, 1000);
+    const parsedOffset = parseInt(offset) || 0;
+    const fetchLimit = parsedLimit + 1; // Fetch one extra to determine hasMore
+
+    vals.push(fetchLimit);
+    let paginationClause;
+    if (cursor) {
+      paginationClause = `LIMIT $${i}`;
+    } else {
+      vals.push(parsedOffset);
+      paginationClause = `LIMIT $${i} OFFSET $${i + 1}`;
+    }
+
+    // Count query uses only filter params (no cursor, limit, or offset)
+    const countFilterWhere = [];
+    const countVals = [];
+    let ci = 1;
+    if (client_id) { countFilterWhere.push(`t.client_id = $${ci}`); countVals.push(client_id); ci++; }
+    if (status) { countFilterWhere.push(`t.status = $${ci}`); countVals.push(status); ci++; }
+    if (assignee) { countFilterWhere.push(`$${ci} = ANY(t.assignees)`); countVals.push(assignee); ci++; }
+    const countWhere = countFilterWhere.length > 0 ? 'WHERE ' + countFilterWhere.join(' AND ') : '';
+
+    const [{ rows }, countResult] = await Promise.all([
+      pool.query(`
+        SELECT t.*, c.name as client_name,
+          (SELECT json_agg(json_build_object('id', n.id, 'text', n.text, 'author', n.author, 'created_at', n.created_at) ORDER BY n.created_at)
+           FROM task_notes n WHERE n.task_id = t.id) as notes
+        FROM tasks t
+        LEFT JOIN clients c ON t.client_id = c.id
+        ${whereClause}
+        ORDER BY t.created_at
+        ${paginationClause}
+      `, vals),
+      pool.query(`SELECT count(*) FROM tasks t LEFT JOIN clients c ON t.client_id = c.id ${countWhere}`, countVals)
+    ]);
+
+    const hasMore = rows.length > parsedLimit;
+    const taskRows = hasMore ? rows.slice(0, parsedLimit) : rows;
+    const nextCursor = hasMore && taskRows.length > 0 ? taskRows[taskRows.length - 1].updated_at : null;
+
+    res.json({
+      rows: taskRows,
+      total: parseInt(countResult.rows[0].count),
+      limit: parsedLimit,
+      offset: parsedOffset,
+      nextCursor,
+      hasMore
+    });
+  } else {
+    // No pagination — return all rows (backward compat)
+    const { rows } = await pool.query(`
       SELECT t.*, c.name as client_name,
         (SELECT json_agg(json_build_object('id', n.id, 'text', n.text, 'author', n.author, 'created_at', n.created_at) ORDER BY n.created_at)
          FROM task_notes n WHERE n.task_id = t.id) as notes
@@ -1987,14 +2110,7 @@ app.get('/api/tasks', async (req, res) => {
       LEFT JOIN clients c ON t.client_id = c.id
       ${whereClause}
       ORDER BY t.created_at
-      ${pagination}
-    `, vals),
-    limit ? pool.query(countQuery, countVals) : Promise.resolve({ rows: [{ count: null }] })
-  ]);
-
-  if (limit) {
-    res.json({ rows, total: parseInt(countResult.rows[0].count), limit: parseInt(limit), offset: parseInt(offset) || 0 });
-  } else {
+    `, vals);
     res.json(rows);
   }
 });
@@ -2731,7 +2847,7 @@ app.delete('/api/leads/field-options/:id', async (req, res) => {
  * Sorted by stage order, then priority, then creation date.
  */
 app.get('/api/leads', async (req, res) => {
-  const { stage_id, client_id, owner, priority, sector, search, sort, limit: qLimit, offset: qOffset } = req.query;
+  const { stage_id, client_id, owner, priority, sector, search, sort, limit: qLimit, offset: qOffset, cursor } = req.query;
   let where = []; let vals = []; let i = 1;
 
   if (stage_id) { where.push(`l.stage_id = $${i}`); vals.push(stage_id); i++; }
@@ -2744,11 +2860,28 @@ app.get('/api/leads', async (req, res) => {
     vals.push('%' + search + '%'); i++;
   }
 
+  // Cursor-based: filter leads created before the cursor timestamp
+  if (cursor) {
+    where.push(`l.created_at < $${i}`);
+    vals.push(cursor);
+    i++;
+  }
+
   const whereClause = where.length > 0 ? 'WHERE ' + where.join(' AND ') : '';
   const limit = Math.min(parseInt(qLimit) || 200, 500);
   const offset = parseInt(qOffset) || 0;
 
-  vals.push(limit, offset);
+  // Fetch limit + 1 to determine hasMore
+  const fetchLimit = limit + 1;
+  vals.push(fetchLimit);
+  let paginationClause;
+  if (cursor) {
+    paginationClause = `LIMIT $${i}`;
+  } else {
+    vals.push(offset);
+    paginationClause = `LIMIT $${i} OFFSET $${i + 1}`;
+  }
+
   const { rows } = await pool.query(`
     SELECT l.*, l.weighted_value,
       c.name as client_name, c.sector as client_sector,
@@ -2764,12 +2897,31 @@ app.get('/api/leads', async (req, res) => {
     LEFT JOIN contacts ct ON l.primary_contact_id = ct.id
     ${whereClause}
     ORDER BY s.sort_order, l.priority NULLS LAST, l.created_at DESC
-    LIMIT $${i} OFFSET $${i + 1}
+    ${paginationClause}
   `, vals);
 
-  const countResult = await pool.query(`SELECT count(*) FROM leads l LEFT JOIN clients c ON l.client_id = c.id JOIN lead_pipeline_stages s ON l.stage_id = s.id LEFT JOIN contacts ct ON l.primary_contact_id = ct.id ${whereClause}`, vals.slice(0, -2));
+  const hasMore = rows.length > limit;
+  const leads = hasMore ? rows.slice(0, limit) : rows;
+  const nextCursor = hasMore && leads.length > 0 ? leads[leads.length - 1].created_at : null;
 
-  res.json({ leads: rows, total: parseInt(countResult.rows[0].count), limit, offset });
+  // Count query (uses only filter params, not cursor/limit/offset)
+  const countFilterWhere = [];
+  const countVals = [];
+  let ci = 1;
+  if (stage_id) { countFilterWhere.push(`l.stage_id = $${ci}`); countVals.push(stage_id); ci++; }
+  if (client_id) { countFilterWhere.push(`l.client_id = $${ci}`); countVals.push(client_id); ci++; }
+  if (owner) { countFilterWhere.push(`l.deal_owner = $${ci}`); countVals.push(owner); ci++; }
+  if (priority) { countFilterWhere.push(`l.priority = $${ci}`); countVals.push(parseInt(priority)); ci++; }
+  if (sector) { countFilterWhere.push(`c.sector = $${ci}`); countVals.push(sector); ci++; }
+  if (search) { countFilterWhere.push(`(l.title ILIKE $${ci} OR c.name ILIKE $${ci} OR l.work_type ILIKE $${ci} OR l.notes ILIKE $${ci} OR l.location ILIKE $${ci} OR l.deal_owner ILIKE $${ci})`); countVals.push('%' + search + '%'); ci++; }
+  const countWhere = countFilterWhere.length > 0 ? 'WHERE ' + countFilterWhere.join(' AND ') : '';
+
+  const countResult = await pool.query(
+    `SELECT count(*) FROM leads l LEFT JOIN clients c ON l.client_id = c.id JOIN lead_pipeline_stages s ON l.stage_id = s.id LEFT JOIN contacts ct ON l.primary_contact_id = ct.id ${countWhere}`,
+    countVals
+  );
+
+  res.json({ leads, total: parseInt(countResult.rows[0].count), limit, offset, nextCursor, hasMore });
 });
 
 /** GET /api/leads/reminders — Return open leads whose follow-up date is today or overdue */

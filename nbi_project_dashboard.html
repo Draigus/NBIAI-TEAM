@@ -1611,9 +1611,8 @@ let _lastLocalSyncTime = 0; // Timestamp of last local save — suppresses poll 
 /** Fetch and cache the team member list for dropdowns */
 async function loadTeamMembers() {
   try {
-    const resp = await authFetch('/api/users');
-    if (resp.ok) {
-      const users = await resp.json();
+    const users = await apiCall('/api/users');
+    if (users) {
       _cachedTeamMembers = users.filter(u => u.is_active !== false).map(u => u.display_name).sort();
     }
   } catch(e) {}
@@ -1670,6 +1669,30 @@ function authFetch(url, opts = {}) {
     }
     return resp;
   });
+}
+
+/** Fetch wrapper that handles v2 envelope: unwraps { data, error, meta } automatically.
+ *  Sends X-API-Version: 2 header so the server wraps responses in { data, error, meta }.
+ *  On success, returns the unwrapped data. On failure, shows a toast and returns null. */
+async function apiCall(url, options = {}) {
+  options.headers = { ...options.headers, 'X-API-Version': '2' };
+  const resp = await authFetch(url, options);
+  if (!resp.ok) {
+    let errMsg = 'Request failed';
+    try {
+      const body = await resp.json();
+      errMsg = body?.error?.message || body?.error || errMsg;
+    } catch(e) {}
+    toast(errMsg, 'error');
+    return null;
+  }
+  const body = await resp.json();
+  // v2 envelope: unwrap data
+  if (body && body.hasOwnProperty('data') && body.hasOwnProperty('error')) {
+    return body.data;
+  }
+  // v1 fallback
+  return body;
 }
 
 /** Handle login form submission -- validates credentials and initialises the app on success */
@@ -2533,15 +2556,13 @@ async function loadClientNotes(clientName) {
   if (!el) return;
   try {
     // Get client ID from API
-    const clientsResp = await authFetch('/api/clients');
-    if (!clientsResp.ok) throw new Error('API error');
-    const clients = await clientsResp.json();
+    const clients = await apiCall('/api/clients');
+    if (!clients) throw new Error('API error');
     const client = clients.find(c => c.name === clientName);
     if (!client) { el.innerHTML = ''; return; }
 
-    const notesResp = await authFetch(`/api/clients/${client.id}/notes`);
-    if (!notesResp.ok) throw new Error('API error');
-    const notes = await notesResp.json();
+    const notes = await apiCall(`/api/clients/${client.id}/notes`);
+    if (!notes) throw new Error('API error');
 
     if (notes.length === 0) {
       el.innerHTML = `<span style="color:var(--text-muted);font-family:var(--font-display);font-size:0.65rem;letter-spacing:1px;text-transform:uppercase">Meeting Notes</span><div style="margin-top:8px;color:var(--text-muted);font-size:0.8rem">No notes yet</div>`;
@@ -3147,9 +3168,8 @@ async function renderStandupSection(filtered, now) {
   // Fetch registered users (NBI team only — not client employees)
   let teamMembers = [];
   try {
-    const resp = await authFetch('/api/users');
-    if (resp.ok) {
-      const users = await resp.json();
+    const users = await apiCall('/api/users');
+    if (users) {
       teamMembers = users.filter(u => u.is_active !== false).map(u => u.display_name).sort();
     }
   } catch(e) {}
@@ -5221,9 +5241,8 @@ async function loadAttachments(taskId) {
   const el = document.getElementById('attachmentsList');
   if (!el) return;
   try {
-    const resp = await authFetch('/api/tasks/' + taskId + '/attachments');
-    if (!resp.ok) { el.innerHTML = '<div style="color:var(--text-muted);font-size:0.78rem">Could not load</div>'; return; }
-    const files = await resp.json();
+    const files = await apiCall('/api/tasks/' + taskId + '/attachments');
+    if (!files) { el.innerHTML = '<div style="color:var(--text-muted);font-size:0.78rem">Could not load</div>'; return; }
     if (files.length === 0) { el.innerHTML = '<div style="color:var(--text-muted);font-size:0.78rem">No files attached</div>'; return; }
     el.innerHTML = files.map(f => {
       const sizeKB = Math.round(f.size_bytes / 1024);
@@ -5350,9 +5369,8 @@ async function loadComments(taskId) {
   const el = document.getElementById('commentsList');
   if (!el) return;
   try {
-    const resp = await authFetch('/api/tasks/' + taskId + '/comments');
-    if (!resp.ok) { el.innerHTML = '<div style="color:var(--text-muted);font-size:0.78rem">Could not load comments</div>'; return; }
-    const comments = await resp.json();
+    const comments = await apiCall('/api/tasks/' + taskId + '/comments');
+    if (!comments) { el.innerHTML = '<div style="color:var(--text-muted);font-size:0.78rem">Could not load comments</div>'; return; }
     if (comments.length === 0) {
       el.innerHTML = '<div style="color:var(--text-muted);font-size:0.78rem;padding:4px 0">No comments yet</div>';
       return;
@@ -6209,9 +6227,8 @@ async function checkDealReadiness(leadId) {
   if (!el) return;
   el.innerHTML = '<span style="color:var(--text-muted);font-size:0.75rem">Checking...</span>';
   try {
-    const resp = await authFetch(`/api/resource-planning/deal-readiness/${leadId}`);
-    if (!resp.ok) { el.innerHTML = '<span style="color:var(--danger);font-size:0.75rem">Failed</span>'; return; }
-    const data = await resp.json();
+    const data = await apiCall(`/api/resource-planning/deal-readiness/${leadId}`);
+    if (!data) { el.innerHTML = '<span style="color:var(--danger);font-size:0.75rem">Failed</span>'; return; }
     let html = '';
     if (data.readiness.length === 0) { html = '<span style="color:var(--text-muted);font-size:0.75rem">No resource requirements defined</span>'; }
     else {
@@ -6235,9 +6252,8 @@ async function loadCapacityHeatmap() {
   const el = document.getElementById('capacityHeatmap');
   if (!el) return;
   try {
-    const resp = await authFetch('/api/resource-planning/capacity?weeks=8');
-    if (!resp.ok) { el.innerHTML = '<div style="color:var(--danger);padding:20px">Failed to load capacity data</div>'; return; }
-    const data = await resp.json();
+    const data = await apiCall('/api/resource-planning/capacity?weeks=8');
+    if (!data) { el.innerHTML = '<div style="color:var(--danger);padding:20px">Failed to load capacity data</div>'; return; }
 
     let html = '<div style="overflow-x:auto">';
     html += '<table class="leads-table" style="table-layout:auto"><thead><tr><th style="width:150px">Person</th><th style="width:60px">Hrs/Wk</th>';
@@ -6348,13 +6364,10 @@ function getFinanceData() {
 async function loadFinanceSeedIfEmpty() {
   if (localStorage.getItem('nbi_finance_data')) return; // already have local data
   try {
-    const resp = await authFetch('/api/finance/seed');
-    if (resp.ok) {
-      const seed = await resp.json();
-      if (seed.revenue && seed.revenue.length > 0) {
-        _financeData = seed;
-        localStorage.setItem('nbi_finance_data', JSON.stringify(seed));
-      }
+    const seed = await apiCall('/api/finance/seed');
+    if (seed && seed.revenue && seed.revenue.length > 0) {
+      _financeData = seed;
+      localStorage.setItem('nbi_finance_data', JSON.stringify(seed));
     }
   } catch(e) { /* Server seed not available */ }
 }
@@ -6512,8 +6525,8 @@ let _expenseReportDetailId = null;   // Currently open report detail panel ID (o
 /** Fetch expense categories from the API for use in dropdown selectors */
 async function loadExpenseCategories() {
   try {
-    const resp = await authFetch('/api/expenses/categories');
-    if (resp.ok) _expenseCategories = await resp.json();
+    const cats = await apiCall('/api/expenses/categories');
+    if (cats) _expenseCategories = cats;
   } catch(e) { console.error('Failed to load expense categories:', e); }
 }
 
@@ -6523,16 +6536,16 @@ async function loadExpenses() {
   if (_expenseFilter.status) params.set('status', _expenseFilter.status);
   if (_expenseFilter.user_id) params.set('user_id', _expenseFilter.user_id);
   try {
-    const resp = await authFetch('/api/expenses?' + params.toString());
-    if (resp.ok) _expensesData = await resp.json();
+    const data = await apiCall('/api/expenses?' + params.toString());
+    if (data) _expensesData = data;
   } catch(e) { console.error('Failed to load expenses:', e); }
 }
 
 /** Fetch expense reports from the API */
 async function loadExpenseReports() {
   try {
-    const resp = await authFetch('/api/expense-reports');
-    if (resp.ok) _expenseReportsData = await resp.json();
+    const data = await apiCall('/api/expense-reports');
+    if (data) _expenseReportsData = data;
   } catch(e) { console.error('Failed to load expense reports:', e); }
 }
 
@@ -6742,9 +6755,8 @@ async function openReportDetail(id) {
   document.body.appendChild(fs);
 
   try {
-    const resp = await authFetch('/api/expense-reports/' + id);
-    if (!resp.ok) { fs.innerHTML = '<p style="padding:60px;text-align:center">Failed to load report</p>'; return; }
-    const report = await resp.json();
+    const report = await apiCall('/api/expense-reports/' + id);
+    if (!report) { fs.innerHTML = '<p style="padding:60px;text-align:center">Failed to load report</p>'; return; }
     renderReportDetailContent(fs, report);
   } catch(e) {
     fs.innerHTML = '<p style="padding:60px;text-align:center">Error loading report</p>';
@@ -6948,9 +6960,8 @@ function renderReportDetailContent(container, data) {
 /** Export report as Excel spreadsheet */
 async function exportReportExcel(id) {
   try {
-    const resp = await authFetch('/api/expense-reports/' + id);
-    if (!resp.ok) { toast('Failed to load report', 'error'); return; }
-    const r = await resp.json();
+    const r = await apiCall('/api/expense-reports/' + id);
+    if (!r) return;
     const expenses = r.expenses || [];
 
     // Build CSV content (Excel-compatible)
@@ -7229,9 +7240,8 @@ async function openExpenseDetail(id) {
   panel.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted)">Loading...</div>';
 
   try {
-    const resp = await authFetch('/api/expenses/' + id);
-    if (!resp.ok) { panel.innerHTML = '<p>Failed to load expense</p>'; return; }
-    const expense = await resp.json();
+    const expense = await apiCall('/api/expenses/' + id);
+    if (!expense) { panel.innerHTML = '<p>Failed to load expense</p>'; return; }
     renderExpenseDetailContent(panel, expense);
   } catch(e) {
     panel.innerHTML = '<p>Error loading expense</p>';
@@ -7870,9 +7880,8 @@ function renderFinancesView(el) {
 /** Load actual expense data grouped by month and category from the expense reports */
 async function loadExpenseActuals() {
   try {
-    const resp = await authFetch('/api/expenses');
-    if (!resp.ok) return null;
-    const data = await resp.json();
+    const data = await apiCall('/api/expenses');
+    if (!data) return null;
     const expenses = Array.isArray(data) ? data : (data.expenses || []);
     // Group by month (1-12) and category
     const actuals = {}; // { "2026-01": { "Software & Subscriptions": 324, ... }, ... }
@@ -8450,8 +8459,8 @@ let _leadsDragId = null;
 async function loadLeadsConfig() {
   if (_leadsConfig) return _leadsConfig;
   try {
-    const resp = await authFetch('/api/leads/config');
-    if (resp.ok) { _leadsConfig = await resp.json(); }
+    const data = await apiCall('/api/leads/config');
+    if (data) { _leadsConfig = data; }
   } catch(e) { console.error('Failed to load leads config:', e); }
   return _leadsConfig;
 }
@@ -8467,8 +8476,8 @@ async function loadLeads() {
   if (_leadsFilter.search) params.set('search', _leadsFilter.search);
   params.set('limit', '500');
   try {
-    const resp = await authFetch('/api/leads?' + params.toString());
-    if (resp.ok) { _leadsData = await resp.json(); }
+    const data = await apiCall('/api/leads?' + params.toString());
+    if (data) { _leadsData = data; }
   } catch(e) { console.error('Failed to load leads:', e); }
 }
 
@@ -8886,8 +8895,7 @@ async function renderLeadsPipeline(el, leads) {
   const params = _leadsFilter.sector ? `?sector=${encodeURIComponent(_leadsFilter.sector)}` : '';
   let summary = null;
   try {
-    const resp = await authFetch('/api/leads/pipeline/summary' + params);
-    if (resp.ok) summary = await resp.json();
+    summary = await apiCall('/api/leads/pipeline/summary' + params);
   } catch(e) {}
 
   if (!summary) { el.innerHTML = '<p>Failed to load pipeline summary</p>'; return; }
@@ -8934,8 +8942,7 @@ async function renderLeadsPipeline(el, leads) {
   // Forecast
   let forecast = null;
   try {
-    const resp = await authFetch('/api/leads/pipeline/forecast');
-    if (resp.ok) forecast = await resp.json();
+    forecast = await apiCall('/api/leads/pipeline/forecast');
   } catch(e) {}
 
   if (forecast && forecast.length > 0) {
@@ -9010,8 +9017,8 @@ async function renderManageClients(el) {
 
   let clients = [];
   try {
-    const resp = await authFetch('/api/clients');
-    if (resp.ok) clients = await resp.json();
+    const data = await apiCall('/api/clients');
+    if (data) clients = data;
   } catch(e) {}
 
   // Also get lead counts per client
@@ -9108,9 +9115,8 @@ async function loadClientContacts(clientId) {
   const el = document.getElementById('contactsList_' + clientId);
   if (!el) return;
   try {
-    const resp = await authFetch('/api/clients/' + clientId + '/contacts');
-    if (!resp.ok) { el.innerHTML = '<span style="color:var(--text-muted);font-size:0.78rem">Could not load</span>'; return; }
-    const contacts = await resp.json();
+    const contacts = await apiCall('/api/clients/' + clientId + '/contacts');
+    if (!contacts) { el.innerHTML = '<span style="color:var(--text-muted);font-size:0.78rem">Could not load</span>'; return; }
     if (contacts.length === 0) {
       el.innerHTML = '<span style="color:var(--text-muted);font-size:0.78rem">No contacts yet</span>';
       return;
@@ -9217,9 +9223,8 @@ async function openLeadDetail(id) {
   panel.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted)">Loading...</div>';
 
   try {
-    const resp = await authFetch('/api/leads/' + id);
-    if (!resp.ok) { panel.innerHTML = '<p>Failed to load lead</p>'; return; }
-    const lead = await resp.json();
+    const lead = await apiCall('/api/leads/' + id);
+    if (!lead) { panel.innerHTML = '<p>Failed to load lead</p>'; return; }
     renderLeadDetailContent(panel, lead);
   } catch(e) {
     panel.innerHTML = '<p>Error loading lead</p>';
@@ -9583,8 +9588,8 @@ async function openNewLeadModal() {
   // Load clients list
   let clientsList = [];
   try {
-    const resp = await authFetch('/api/clients');
-    if (resp.ok) clientsList = await resp.json();
+    const data = await apiCall('/api/clients');
+    if (data) clientsList = data;
   } catch(e) {}
 
   const defaultStage = config.stages.find(s => !s.is_closed) || config.stages[0];
@@ -10009,8 +10014,8 @@ async function submitBugReport() {
 /** Load bug reports for the Settings tab */
 async function loadBugReports() {
   try {
-    const resp = await authFetch('/api/bug-reports');
-    if (resp.ok) _bugReportsData = await resp.json();
+    const data = await apiCall('/api/bug-reports');
+    if (data) _bugReportsData = data;
   } catch(e) { console.error('Failed to load bug reports:', e); }
 }
 
@@ -10431,15 +10436,12 @@ try { _pagePermissions = JSON.parse(localStorage.getItem('nbi_page_permissions')
 /** Load page permissions from server settings (shared across all users) */
 async function loadPagePermissions() {
   try {
-    const resp = await authFetch('/api/settings');
-    if (resp.ok) {
-      const settings = await resp.json();
-      if (settings.page_permissions) {
-        const perms = typeof settings.page_permissions === 'string' ? JSON.parse(settings.page_permissions) : settings.page_permissions;
-        _pagePermissions = perms;
-        localStorage.setItem('nbi_page_permissions', JSON.stringify(perms));
-        console.log('[Permissions] Loaded from server:', JSON.stringify(perms));
-      }
+    const settings = await apiCall('/api/settings');
+    if (settings && settings.page_permissions) {
+      const perms = typeof settings.page_permissions === 'string' ? JSON.parse(settings.page_permissions) : settings.page_permissions;
+      _pagePermissions = perms;
+      localStorage.setItem('nbi_page_permissions', JSON.stringify(perms));
+      console.log('[Permissions] Loaded from server:', JSON.stringify(perms));
     }
   } catch(e) { console.warn('[Permissions] Failed to load from server, using local cache'); }
 }
@@ -10495,16 +10497,14 @@ async function adminResetPassword() {
 async function generateClientReport(clientName) {
   // Resolve client name to ID
   try {
-    const clientsResp = await authFetch('/api/clients');
-    if (!clientsResp.ok) { toast('Failed to load clients', 'error'); return; }
-    const clients = await clientsResp.json();
+    const clients = await apiCall('/api/clients');
+    if (!clients) return;
     const client = clients.find(c => c.name === clientName);
     if (!client) { toast('Client not found', 'error'); return; }
 
     toast('Generating report...');
-    const resp = await authFetch(`/api/clients/${client.id}/reports`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
-    if (!resp.ok) { toast('Report generation failed', 'error'); return; }
-    const result = await resp.json();
+    const result = await apiCall(`/api/clients/${client.id}/reports`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+    if (!result) return;
 
     // Show modal with links
     const baseUrl = window.location.origin;
@@ -10536,9 +10536,8 @@ async function loadEntityFiles(entityType, entityId, containerId) {
   const el = document.getElementById(containerId);
   if (!el) return;
   try {
-    const resp = await authFetch(`/api/attachments/entity/${entityType}/${entityId}`);
-    if (!resp.ok) { el.innerHTML = '<span style="color:var(--text-muted);font-size:0.75rem">Failed to load files</span>'; return; }
-    const files = await resp.json();
+    const files = await apiCall(`/api/attachments/entity/${entityType}/${entityId}`);
+    if (!files) { el.innerHTML = '<span style="color:var(--text-muted);font-size:0.75rem">Failed to load files</span>'; return; }
     if (files.length === 0) {
       el.innerHTML = '<span style="color:var(--text-muted);font-size:0.75rem">No files attached</span>';
     } else {
@@ -10760,9 +10759,8 @@ async function openDownloadsImport() {
 
   // Fetch file list
   try {
-    const resp = await authFetch('/api/import/scan-downloads');
-    if (!resp.ok) { toast('Cannot scan Downloads folder', 'error'); overlay.remove(); return; }
-    const data = await resp.json();
+    const data = await apiCall('/api/import/scan-downloads');
+    if (!data) { overlay.remove(); return; }
     renderDownloadsFileList(data);
   } catch(e) { toast('Scan failed: ' + e.message, 'error'); overlay.remove(); }
 }
@@ -11676,9 +11674,8 @@ async function loadUserManagement() {
   const el = document.getElementById('userManageList');
   if (!el) return;
   try {
-    const resp = await authFetch('/api/users');
-    if (!resp.ok) return;
-    const users = await resp.json();
+    const users = await apiCall('/api/users');
+    if (!users) return;
     el.innerHTML = `<table class="report-table" style="font-size:0.8rem"><thead><tr><th>Username</th><th>Display Name</th><th>Email</th><th>Role</th><th></th></tr></thead><tbody>` +
       users.map(u => `<tr>
         <td><strong>${esc(u.username)}</strong></td>
@@ -11777,9 +11774,8 @@ async function loadTimeEntries(taskId) {
   const el = document.getElementById('timeEntriesList');
   if (!el) return;
   try {
-    const resp = await authFetch('/api/tasks/' + taskId + '/time-entries');
-    if (!resp.ok) { el.innerHTML = '<div style="color:var(--text-muted);font-size:0.7rem">Could not load</div>'; return; }
-    const entries = await resp.json();
+    const entries = await apiCall('/api/tasks/' + taskId + '/time-entries');
+    if (!entries) { el.innerHTML = '<div style="color:var(--text-muted);font-size:0.7rem">Could not load</div>'; return; }
     if (entries.length === 0) { el.innerHTML = '<div style="color:var(--text-muted);font-size:0.7rem">No time logged yet</div>'; return; }
     el.innerHTML = entries.map(e => `<div style="display:flex;align-items:center;gap:6px;font-size:0.72rem;padding:3px 0;border-bottom:1px solid var(--border-subtle)"><span style="font-weight:600;font-family:var(--font-mono);color:var(--accent);min-width:40px">${parseFloat(e.hours).toFixed(2)}h</span><span style="flex:1;color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(e.description || '-')}</span><span style="color:var(--text-muted);font-size:0.6rem">${esc(e.user_name)} &middot; ${e.date}</span></div>`).join('');
   } catch(e) {}
@@ -11820,9 +11816,9 @@ function handleNotificationClick(link) {
 
 async function loadNotifications() {
   try {
-    const resp = await authFetch('/api/notifications');
-    if (!resp.ok) return;
-    const { notifications, unread } = await resp.json();
+    const result = await apiCall('/api/notifications');
+    if (!result) return;
+    const { notifications, unread } = result;
     const badge = document.getElementById('notifBadge');
     if (unread > 0) { badge.textContent = unread; badge.style.display = 'block'; }
     else { badge.style.display = 'none'; }
@@ -11845,9 +11841,8 @@ let _leadReminderCount = 0;
 /** Check for overdue lead follow-ups and show a notification badge */
 async function checkLeadReminders() {
   try {
-    const resp = await authFetch('/api/leads/reminders');
-    if (!resp.ok) return;
-    const reminders = await resp.json();
+    const reminders = await apiCall('/api/leads/reminders');
+    if (!reminders) return;
     _leadReminderCount = reminders.length;
     // Update sidebar badge if on a page that shows it
     const leadsNav = document.getElementById('si_Leads');
@@ -11918,9 +11913,8 @@ async function loadTemplates() {
   const el = document.getElementById('templatesList');
   if (!el) return;
   try {
-    const resp = await authFetch('/api/templates');
-    if (!resp.ok) { el.innerHTML = '<div style="color:var(--text-muted);font-size:0.78rem">Could not load templates</div>'; return; }
-    const templates = await resp.json();
+    const templates = await apiCall('/api/templates');
+    if (!templates) { el.innerHTML = '<div style="color:var(--text-muted);font-size:0.78rem">Could not load templates</div>'; return; }
     if (templates.length === 0) { el.innerHTML = '<div style="color:var(--text-muted);font-size:0.78rem">No templates saved yet</div>'; return; }
     el.innerHTML = templates.map(t => {
       const lastUsed = t.last_created_at ? new Date(t.last_created_at).toLocaleDateString('en-GB') : 'Never';
@@ -11986,9 +11980,8 @@ async function deleteTemplate(id) {
 async function downloadBackup() {
   try {
     toast('Creating backup...');
-    const resp = await authFetch('/api/backup');
-    if (!resp.ok) { toast('Backup failed', 'error'); return; }
-    const data = await resp.json();
+    const data = await apiCall('/api/backup');
+    if (!data) return;
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -12185,11 +12178,8 @@ const EMBEDDED_CSV = null; // Removed from client — loaded via fetchSeedData()
 /** Fetch seed data from server (admin only, called when DB has no tasks) */
 async function fetchSeedData() {
   try {
-    const resp = await authFetch('/api/seed-data');
-    if (resp.ok) {
-      const data = await resp.json();
-      return data.csv || null;
-    }
+    const data = await apiCall('/api/seed-data');
+    if (data) return data.csv || null;
   } catch(e) { console.log('[Seed] Server seed data not available'); }
   return null;
 }
