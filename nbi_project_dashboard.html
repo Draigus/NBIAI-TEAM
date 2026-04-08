@@ -224,6 +224,7 @@ body { font-family: var(--font-body); background: var(--bg-base); color: var(--t
 .sidebar.collapsed .sidebar__item__icon { margin-right: 0; font-size: 1rem; }
 .sidebar__toggle { display: flex; align-items: center; justify-content: center; padding: 8px; cursor: pointer; color: var(--text-muted); border-top: 1px solid var(--border-default); font-size: 0.8rem; transition: color 0.12s; flex-shrink: 0; }
 .sidebar__toggle:hover { color: var(--text-primary); background: var(--bg-hover); }
+button.sidebar__item, button.sidebar__toggle { font: inherit; color: inherit; background: none; border: none; text-align: left; width: 100%; }
 .sidebar__nav { flex: 1; overflow-y: auto; padding: var(--space-lg) 0; }
 .sidebar__section { margin-bottom: var(--space-xl); }
 .sidebar__title { font-family: var(--font-display); font-size: 0.6rem; font-weight: 600; color: var(--text-muted); letter-spacing: 1.5px; text-transform: uppercase; padding: 0 var(--space-lg); margin-bottom: var(--space-sm); }
@@ -1507,7 +1508,7 @@ span.fin-editable { display: inline-block; position: relative; }
   <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMobileSidebar()"></div>
   <aside class="sidebar" id="sidebarEl">
     <nav class="sidebar__nav" id="sidebarNav" role="navigation" aria-label="Main navigation"></nav>
-    <div class="sidebar__toggle" onclick="toggleSidebarCollapse()" title="Toggle sidebar" role="button" tabindex="0" aria-label="Toggle sidebar" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleSidebarCollapse()}"<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 3L5 8l5 5"/></svg></div>
+    <button class="sidebar__toggle" onclick="toggleSidebarCollapse()" title="Toggle sidebar" aria-label="Toggle sidebar"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 3L5 8l5 5"/></svg></button>
   </aside>
 
   <!-- MAIN -->
@@ -1607,6 +1608,79 @@ const _expandedStandupPeople = new Set(); // Track which person sections are exp
 const _expandedClientCards = new Set();  // Track which client summary cards are expanded in report view
 let _scrollRestoreTarget = null; // Scroll position to restore after async standup render
 let _lastLocalSyncTime = 0; // Timestamp of last local save — suppresses poll re-render for own changes
+
+// ==================== INDEXEDDB WRITE-AHEAD LOG ====================
+const IDB_NAME = 'nbi_dashboard';
+const IDB_VERSION = 1;
+let _idb = null;
+
+function openIDB() {
+  return new Promise((resolve, reject) => {
+    if (!window.indexedDB) { resolve(null); return; }
+    const req = indexedDB.open(IDB_NAME, IDB_VERSION);
+    req.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains('wal')) db.createObjectStore('wal', { keyPath: 'id' });
+      if (!db.objectStoreNames.contains('data_cache')) db.createObjectStore('data_cache', { keyPath: 'key' });
+    };
+    req.onsuccess = (e) => { _idb = e.target.result; resolve(_idb); };
+    req.onerror = () => { resolve(null); };
+  });
+}
+
+/** Write a change to the WAL for crash recovery */
+function walWrite(taskId, action, data) {
+  if (!_idb) return;
+  try {
+    const tx = _idb.transaction('wal', 'readwrite');
+    tx.objectStore('wal').put({ id: taskId, action, data, ts: Date.now() });
+  } catch(e) { /* IndexedDB unavailable, continue without WAL */ }
+}
+
+/** Remove a task from the WAL after successful sync */
+function walClear(taskIds) {
+  if (!_idb || !taskIds?.length) return;
+  try {
+    const tx = _idb.transaction('wal', 'readwrite');
+    const store = tx.objectStore('wal');
+    taskIds.forEach(id => store.delete(id));
+  } catch(e) {}
+}
+
+/** Read all pending WAL entries for crash recovery */
+function walReadAll() {
+  return new Promise((resolve) => {
+    if (!_idb) { resolve([]); return; }
+    try {
+      const tx = _idb.transaction('wal', 'readonly');
+      const req = tx.objectStore('wal').getAll();
+      req.onsuccess = () => resolve(req.result || []);
+      req.onerror = () => resolve([]);
+    } catch(e) { resolve([]); }
+  });
+}
+
+/** Cache large data in IndexedDB instead of localStorage */
+function idbCacheWrite(key, data) {
+  if (!_idb) return;
+  try {
+    const tx = _idb.transaction('data_cache', 'readwrite');
+    tx.objectStore('data_cache').put({ key, data, ts: Date.now() });
+  } catch(e) {}
+}
+
+/** Read cached data from IndexedDB */
+function idbCacheRead(key) {
+  return new Promise((resolve) => {
+    if (!_idb) { resolve(null); return; }
+    try {
+      const tx = _idb.transaction('data_cache', 'readonly');
+      const req = tx.objectStore('data_cache').get(key);
+      req.onsuccess = () => resolve(req.result?.data || null);
+      req.onerror = () => resolve(null);
+    } catch(e) { resolve(null); }
+  });
+}
 
 /** Fetch and cache the team member list for dropdowns */
 async function loadTeamMembers() {
@@ -1729,6 +1803,7 @@ async function handleLogin(e) {
     _currentUser = data.user;
     localStorage.setItem('nbi_auth_token', data.token);
     showApp();
+    await openIDB();
     await Promise.all([load(), loadTeamMembers(), loadPagePermissions()]);
     await loadFinanceFromDB();
     renderAll();
@@ -1981,6 +2056,15 @@ function save() {
       toast('Local storage full. Your changes are saved to the server only.', 'warning');
     }
   }
+  // Write dirty tasks to IndexedDB WAL for crash recovery
+  _dirtyTaskIds.forEach(id => {
+    const task = tasks.find(t => t.id === id);
+    if (task) walWrite(id, 'update', task);
+  });
+  _deletedTaskIds.forEach(id => walWrite(id, 'delete', null));
+  // Cache full tasks array in IndexedDB (larger quota than localStorage)
+  idbCacheWrite('tasks', tasks);
+  idbCacheWrite('settings', settings);
   // Debounced sync to API (prevents hammering during rapid edits)
   if (useAPI) {
     clearTimeout(syncDebounceTimer);
@@ -2036,6 +2120,7 @@ async function syncToAPI() {
     } else {
       console.log('[Sync] Synced', changes.length, 'changes');
       _lastLocalSyncTime = Date.now();
+      walClear([...dirtyIds, ...deletedIds]);
       showSyncStatus('saving', 'Saved ✓');
     }
   } catch (e) {
@@ -2097,6 +2182,36 @@ async function load() {
         await syncToAPI();
       }
     } catch(e) {}
+  }
+
+  // Recover any uncommitted changes from IndexedDB WAL
+  const walEntries = await walReadAll();
+  if (walEntries.length > 0) {
+    let recovered = 0;
+    for (const entry of walEntries) {
+      if (entry.action === 'update' && entry.data) {
+        const existing = tasks.find(t => t.id === entry.id);
+        if (existing) {
+          // Only recover if WAL is newer than what we loaded
+          const walTime = entry.ts;
+          const loadedTime = new Date(existing.updatedAt || existing.updated_at || 0).getTime();
+          if (walTime > loadedTime) {
+            Object.assign(existing, entry.data);
+            markDirty(entry.id);
+            recovered++;
+          }
+        }
+      } else if (entry.action === 'delete') {
+        if (!_deletedTaskIds.has(entry.id)) {
+          _deletedTaskIds.add(entry.id);
+          recovered++;
+        }
+      }
+    }
+    if (recovered > 0) {
+      toast(`Recovered ${recovered} unsaved change${recovered > 1 ? 's' : ''} from previous session`, 'warning');
+      save();
+    }
   }
 }
 
@@ -2479,11 +2594,11 @@ function renderSidebar() {
 
   // Clients
   html += `<div class="sidebar__section"><div class="sidebar__title">Clients</div>`;
-  html += `<div class="sidebar__item ${!currentFilter.client?'active':''}" onclick="filterByClient(null)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();filterByClient(null)}"><span class="sidebar__dot" style="background:var(--accent)"></span><span class="sidebar__item__label" style="font-weight:600">NBI Portfolio</span><span class="sidebar__item__count">${tasks.length}</span></div>`;
+  html += `<button class="sidebar__item ${!currentFilter.client?'active':''}" onclick="filterByClient(null)"><span class="sidebar__dot" style="background:var(--accent)"></span><span class="sidebar__item__label" style="font-weight:600">NBI Portfolio</span><span class="sidebar__item__count">${tasks.length}</span></button>`;
   clients.forEach(c => {
     const count = tasks.filter(t => getTaskClient(t) === c).length;
     const dotColour = stringToColour(c);
-    html += `<div class="sidebar__item ${currentFilter.client===c?'active':''}" onclick="filterByClient('${escAttrJs(c)}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();filterByClient('${escAttrJs(c)}')}"><span class="sidebar__dot" style="background:${dotColour}"></span><span class="sidebar__item__label">${esc(c)}</span><span class="sidebar__item__count">${count}</span></div>`;
+    html += `<button class="sidebar__item ${currentFilter.client===c?'active':''}" onclick="filterByClient('${escAttrJs(c)}')"><span class="sidebar__dot" style="background:${dotColour}"></span><span class="sidebar__item__label">${esc(c)}</span><span class="sidebar__item__count">${count}</span></button>`;
   });
   html += `</div>`;
 
@@ -2492,7 +2607,7 @@ function renderSidebar() {
   HEALTH_STATES.forEach(h => {
     if (healthCounts[h] > 0) {
       const col = HEALTH_COLOURS_HEX[h] || '#666';
-      html += `<div class="sidebar__item ${currentFilter.health===h?'active':''}" onclick="filterByHealth('${escAttrJs(h)}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();filterByHealth('${escAttrJs(h)}')}"><span class="sidebar__dot" style="background:${col}"></span><span class="sidebar__item__label">${esc(h)}</span><span class="sidebar__item__count">${healthCounts[h]}</span></div>`;
+      html += `<button class="sidebar__item ${currentFilter.health===h?'active':''}" onclick="filterByHealth('${escAttrJs(h)}')"><span class="sidebar__dot" style="background:${col}"></span><span class="sidebar__item__label">${esc(h)}</span><span class="sidebar__item__count">${healthCounts[h]}</span></button>`;
     }
   });
   html += `</div>`;
@@ -2509,7 +2624,7 @@ function renderSidebar() {
 /** Generate HTML for a single sidebar navigation item with icon, label, and optional count badge */
 function sidebarItem(icon, label, count, onclick, active) {
   const id = 'si_' + label.replace(/\s/g,'');
-  return `<div class="sidebar__item ${active?'active':''}" id="${id}" onclick="(${onclick.toString()})()" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();(${onclick.toString()})()}"><span class="sidebar__item__icon">${icon}</span><span class="sidebar__item__label">${label}</span>${count!==''?`<span class="sidebar__item__count">${count}</span>`:''}</div>`;
+  return `<button class="sidebar__item ${active?'active':''}" id="${id}" onclick="(${onclick.toString()})()"><span class="sidebar__item__icon">${icon}</span><span class="sidebar__item__label">${label}</span>${count!==''?`<span class="sidebar__item__count">${count}</span>`:''}</button>`;
 }
 
 /** Deterministically convert a string to an HSL colour -- used for client dot colours */
@@ -3062,10 +3177,10 @@ function renderTacticalDashboard() {
   // Renders a placeholder, then fetches the user list to show all team members (even those with no tasks)
   const standupExpanded = sessionStorage.getItem('nbi_standup_expanded') === '1';
   html += `<div style="margin-top:var(--space-lg)">
-    <div style="cursor:pointer;display:flex;align-items:center;gap:8px;padding:8px 0" onclick="const c=this.nextElementSibling;const open=c.style.display!=='none';c.style.display=open?'none':'block';this.querySelector('.standup-chevron').textContent=open?'\\u25B6':'\\u25BC';sessionStorage.setItem('nbi_standup_expanded',open?'0':'1')" role="button" tabindex="0">
+    <button style="cursor:pointer;display:flex;align-items:center;gap:8px;padding:8px 0;font:inherit;color:inherit;background:none;border:none;text-align:left;width:100%" onclick="const c=this.nextElementSibling;const open=c.style.display!=='none';c.style.display=open?'none':'block';this.querySelector('.standup-chevron').textContent=open?'\\u25B6':'\\u25BC';sessionStorage.setItem('nbi_standup_expanded',open?'0':'1')">
       <span class="standup-chevron" style="font-size:0.7rem;color:var(--text-muted);width:14px">${standupExpanded ? '\u25BC' : '\u25B6'}</span>
       <span style="font-size:0.9rem;font-weight:600">&#128101; Standup - Work by Person</span>
-    </div>
+    </button>
     <div id="standupContainer" style="display:${standupExpanded ? 'block' : 'none'}"><div style="text-align:center;color:var(--text-muted);padding:20px">Loading team...</div></div>
   </div>`;
 
@@ -12194,6 +12309,7 @@ async function fetchSeedData() {
         const data = await resp.json();
         _currentUser = data.user;
         showApp();
+        await openIDB();
         await Promise.all([load(), loadTeamMembers(), loadPagePermissions()]);
         await loadFinanceSeedIfEmpty();
         await loadFinanceFromDB();
@@ -12212,6 +12328,7 @@ async function fetchSeedData() {
       console.log('[Auth] Server unreachable, loading offline');
       document.getElementById('appContainer').style.display = '';
       document.getElementById('loginScreen').style.display = 'none';
+      await openIDB();
       await load();
       // Offline mode: no seed data available without server
       renderAll();
