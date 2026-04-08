@@ -47,6 +47,9 @@ const PDFDocument = require('pdfkit');
 const Tesseract = require('tesseract.js');
 const sharp = require('sharp');
 const pdfParse = require('pdf-parse');
+const { withRetry, CircuitBreaker } = require('./resilience');
+const { validateBackup } = require('./backup-validate');
+const runMigrations = require('./migrations/runner');
 let cron, runBackup;
 try { cron = require('node-cron'); runBackup = require('./backup'); }
 catch (e) { /* logged after logger init below */ }
@@ -100,11 +103,11 @@ const DB_URL = process.env.DATABASE_URL;
 if (!DB_URL) { log('error', 'Server', 'FATAL: DATABASE_URL not set. Create a .env file — see .env.example'); process.exit(1); }
 const SESSION_EXPIRY_DAYS = 7;
 
-/** PostgreSQL connection pool — min 2 idle connections, max 20 */
+/** PostgreSQL connection pool — min 5 idle connections, max 50 */
 const pool = new Pool({
   connectionString: DB_URL,
-  min: 2,
-  max: 20,
+  min: 5,
+  max: 50,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 5000,
   statement_timeout: 30000
@@ -138,17 +141,15 @@ if (SMTP_HOST) {
   log('info', 'Server', `SMTP configured: ${SMTP_HOST}:${SMTP_PORT}`);
 }
 
-/** Fire-and-forget email send — logs failures but never blocks the request */
+/** Fire-and-forget email send with retry — logs failures but never blocks the request */
 function sendEmailAsync(mailOptions) {
   if (!_mailTransport) {
     log('info', 'Email', 'SMTP not configured, logging email', { to: mailOptions.to, subject: mailOptions.subject });
     return;
   }
-  _mailTransport.sendMail(mailOptions).then(() => {
-    log('info', 'Email', 'Email sent', { to: mailOptions.to, subject: mailOptions.subject });
-  }).catch(err => {
-    log('error', 'Email', 'Failed to send email', { to: mailOptions.to, error: err.message });
-  });
+  withRetry(() => _mailTransport.sendMail(mailOptions), { maxAttempts: 2, backoffMs: 2000, log })
+    .then(() => { log('info', 'Email', 'Email sent', { to: mailOptions.to }); emailSends?.inc({ status: 'success' }); })
+    .catch(err => { log('error', 'Email', 'Failed after retries', { to: mailOptions.to, error: err.message }); emailSends?.inc({ status: 'failure' }); });
 }
 
 // ==================== CACHING LAYER ====================
@@ -253,6 +254,10 @@ function escHtml(str) {
   return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
+// Circuit breakers for external APIs
+const ocrBreaker = new CircuitBreaker('OCR.space', { failureThreshold: 3, resetTimeout: 60000, log });
+const fxBreaker = new CircuitBreaker('Frankfurter', { failureThreshold: 3, resetTimeout: 300000, log });
+
 // Prevent unhandled async rejections from crashing the server
 process.on('unhandledRejection', (reason, promise) => {
   log('error', 'Server', 'Unhandled rejection', { reason: reason?.message || String(reason) });
@@ -288,8 +293,20 @@ app.use((req, res, next) => {
   next();
 });
 
-// Rate limiting
-const apiLimiter = rateLimit({ windowMs: 60 * 1000, max: 120, standardHeaders: true, legacyHeaders: false });
+// Rate limiting — per-user (keyed by auth token hash or IP)
+const apiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 60,
+  keyGenerator: (req) => {
+    const auth = req.headers.authorization;
+    if (auth && auth.startsWith('Bearer ')) return hashToken(auth.slice(7));
+    return req.ip;
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  validate: { ip: false },
+  message: { error: 'Too many requests. Please slow down.' }
+});
 const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 30, message: { error: 'Too many requests. Please try again later.' } });
 app.use('/api/', apiLimiter);
 app.use('/api/auth/login', authLimiter);
@@ -298,6 +315,63 @@ app.use('/api/auth/reset', authLimiter);
 
 app.use(compression({ threshold: 1024 })); // Only compress responses > 1KB
 app.use(express.json({ limit: '10mb' }));   // Allow large payloads for sync/restore
+
+// ==================== PROMETHEUS METRICS ====================
+let promClient;
+try { promClient = require('prom-client'); } catch(e) { log('warn', 'Metrics', 'prom-client not installed, /metrics disabled'); }
+
+if (promClient) {
+  promClient.collectDefaultMetrics({ prefix: 'nbi_' });
+
+  const httpDuration = new promClient.Histogram({
+    name: 'nbi_http_request_duration_seconds',
+    help: 'HTTP request duration in seconds',
+    labelNames: ['method', 'route', 'status'],
+    buckets: [0.01, 0.05, 0.1, 0.5, 1, 5]
+  });
+
+  const httpRequests = new promClient.Counter({
+    name: 'nbi_http_requests_total',
+    help: 'Total HTTP requests',
+    labelNames: ['method', 'route', 'status']
+  });
+
+  const dbPoolGauge = new promClient.Gauge({
+    name: 'nbi_db_pool_connections',
+    help: 'Database connection pool stats',
+    labelNames: ['state']
+  });
+
+  // Request timing middleware
+  app.use((req, res, next) => {
+    const end = httpDuration.startTimer();
+    res.on('finish', () => {
+      const route = req.route?.path || req.path.replace(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi, ':id');
+      end({ method: req.method, route, status: res.statusCode });
+      httpRequests.inc({ method: req.method, route, status: res.statusCode });
+    });
+    next();
+  });
+
+  // Pool stats every 15 seconds
+  setInterval(() => {
+    dbPoolGauge.set({ state: 'total' }, pool.totalCount);
+    dbPoolGauge.set({ state: 'idle' }, pool.idleCount);
+    dbPoolGauge.set({ state: 'waiting' }, pool.waitingCount);
+  }, 15000).unref();
+
+  // Metrics endpoint (unauthenticated for Prometheus scraping)
+  app.get('/metrics', async (req, res) => {
+    res.set('Content-Type', promClient.register.contentType);
+    res.end(await promClient.register.metrics());
+  });
+}
+
+// Custom counters for specific events (available even if promClient is loaded)
+const syncConflicts = promClient ? new promClient.Counter({ name: 'nbi_sync_conflicts_total', help: 'Sync conflict count' }) : null;
+const authFailures = promClient ? new promClient.Counter({ name: 'nbi_auth_failures_total', help: 'Auth failure count' }) : null;
+const ocrRequests = promClient ? new promClient.Counter({ name: 'nbi_ocr_requests_total', help: 'OCR request count', labelNames: ['status'] }) : null;
+const emailSends = promClient ? new promClient.Counter({ name: 'nbi_email_sends_total', help: 'Email send count', labelNames: ['status'] }) : null;
 
 /** GET / -- Serve the dashboard HTML from the parent directory (single-page app entry point) */
 app.get('/', (req, res) => {
@@ -343,6 +417,7 @@ app.post('/api/auth/login', async (req, res) => {
     _failedLogins[key].count++;
     _failedLogins[key].lastAttempt = Date.now();
     const showReset = _failedLogins[key].count >= FAILED_LOGIN_THRESHOLD;
+    authFailures?.inc();
     return res.status(401).json({ error: 'Invalid username or password', showReset });
   }
 
@@ -353,6 +428,7 @@ app.post('/api/auth/login', async (req, res) => {
     _failedLogins[key].count++;
     _failedLogins[key].lastAttempt = Date.now();
     const showReset = _failedLogins[key].count >= FAILED_LOGIN_THRESHOLD;
+    authFailures?.inc();
     return res.status(401).json({ error: 'Invalid username or password', showReset });
   }
 
@@ -811,6 +887,7 @@ app.get('/api/backup', async (req, res) => {
  * Restore dashboard data from a backup JSON payload (admin only).
  * Uses a transaction — rolls back entirely on any error.
  * Restores clients first since tasks have a foreign key dependency on them.
+ * Handles all 7 core tables: clients, tasks, users (metadata only), settings, leads, expenses, audit_log (append-only).
  */
 app.post('/api/restore', async (req, res) => {
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
@@ -847,6 +924,50 @@ app.post('/api/restore', async (req, res) => {
     // Restore finance data
     if (backup.tables.finance_data) {
       await conn.query('INSERT INTO finance_data (data, updated_by) VALUES ($1, $2)', [JSON.stringify(backup.tables.finance_data), 'restore']);
+    }
+
+    // Restore users — metadata only (display_name, role, is_active). NEVER restore password hashes.
+    if (backup.tables.users) {
+      for (const u of backup.tables.users) {
+        await conn.query(`UPDATE users SET display_name = COALESCE($2, display_name), role = COALESCE($3, role), is_active = COALESCE($4, is_active) WHERE id = $1`,
+          [u.id, u.display_name, u.role, u.is_active]);
+      }
+    }
+
+    // Restore settings (ON CONFLICT key DO UPDATE)
+    if (backup.tables.settings) {
+      for (const s of backup.tables.settings) {
+        await conn.query('INSERT INTO settings (key, value, updated_at) VALUES ($1, $2, COALESCE($3, NOW())) ON CONFLICT (key) DO UPDATE SET value = $2, updated_at = COALESCE($3, NOW())',
+          [s.key, typeof s.value === 'string' ? s.value : JSON.stringify(s.value), s.updated_at]);
+      }
+    }
+
+    // Restore leads (ON CONFLICT id DO UPDATE)
+    if (backup.tables.leads) {
+      for (const l of backup.tables.leads) {
+        await conn.query(`INSERT INTO leads (id, client_id, title, work_type, service_line, stage_id, priority, currency, rom_min, rom_max, rom_text, win_probability, deal_owner, lead_source, notes, created_at, updated_at)
+          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
+          ON CONFLICT (id) DO UPDATE SET client_id=$2, title=$3, work_type=$4, service_line=$5, stage_id=$6, priority=$7, currency=$8, rom_min=$9, rom_max=$10, rom_text=$11, win_probability=$12, deal_owner=$13, lead_source=$14, notes=$15, updated_at=$17`,
+          [l.id, l.client_id, l.title, l.work_type, l.service_line, l.stage_id, l.priority, l.currency, l.rom_min, l.rom_max, l.rom_text, l.win_probability, l.deal_owner, l.lead_source, l.notes, l.created_at, l.updated_at]);
+      }
+    }
+
+    // Restore expenses (ON CONFLICT id DO UPDATE)
+    if (backup.tables.expenses) {
+      for (const e of backup.tables.expenses) {
+        await conn.query(`INSERT INTO expenses (id, user_id, date, amount, currency, category_id, description, status, notes, created_at, updated_at)
+          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+          ON CONFLICT (id) DO UPDATE SET user_id=$2, date=$3, amount=$4, currency=$5, category_id=$6, description=$7, status=$8, notes=$9, updated_at=$11`,
+          [e.id, e.user_id, e.date, e.amount, e.currency, e.category_id, e.description, e.status, e.notes, e.created_at, e.updated_at]);
+      }
+    }
+
+    // Audit log — append-only, never overwrite existing entries
+    if (backup.tables.audit_log) {
+      for (const a of backup.tables.audit_log) {
+        await conn.query('INSERT INTO audit_log (id, entity_type, entity_id, action, changed_by, changes, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7) ON CONFLICT (id) DO NOTHING',
+          [a.id, a.entity_type, a.entity_id, a.action, a.changed_by, a.changes ? JSON.stringify(a.changes) : null, a.created_at]);
+      }
     }
 
     await conn.query('COMMIT');
@@ -1662,6 +1783,7 @@ app.put('/api/finance', async (req, res) => {
   if (expectedVersion !== undefined) {
     const { rows: latest } = await pool.query('SELECT id, updated_by, updated_at FROM finance_data ORDER BY id DESC LIMIT 1');
     if (latest.length > 0 && latest[0].id !== expectedVersion) {
+      syncConflicts?.inc();
       return res.status(409).json({
         error: 'Conflict: finance data was updated by another user. Please reload and try again.',
         currentVersion: latest[0].id,
@@ -3385,12 +3507,10 @@ app.post('/api/expenses/from-receipt', upload.single('file'), async (req, res) =
       ocrBody.append('OCREngine', '2'); // Engine 2 is better for receipts
       ocrBody.append('scale', 'true');
 
-      const ocrResp = await fetch('https://api.ocr.space/parse/image', {
-        method: 'POST',
-        headers: { 'apikey': process.env.OCR_API_KEY || 'helloworld' },
-        body: ocrBody,
-        signal: AbortSignal.timeout(30000)
-      });
+      const ocrResp = await ocrBreaker.fire(() => withRetry(
+        () => fetch('https://api.ocr.space/parse/image', { method: 'POST', headers: { 'apikey': process.env.OCR_API_KEY || 'helloworld' }, body: ocrBody, signal: AbortSignal.timeout(30000) }),
+        { maxAttempts: 2, backoffMs: 2000, log }
+      ));
       if (ocrResp.ok) {
         const ocrResult = await ocrResp.json();
         if (ocrResult.ParsedResults && ocrResult.ParsedResults.length > 0) {
@@ -4328,9 +4448,24 @@ app.patch('/api/users/:id/skills', async (req, res) => {
 
 // Daily database backup at 2:00 AM (only if node-cron + backup module are available)
 if (cron && runBackup) {
-  cron.schedule('0 2 * * *', () => {
-    log('info', 'Cron', 'Running scheduled database backup');
-    runBackup();
+  cron.schedule('0 2 * * *', async () => {
+    log('info', 'Cron', 'Running scheduled database backup...');
+    try {
+      await runBackup();
+      // Validate the latest backup
+      const backupDir = path.join(__dirname, 'backups');
+      const files = fs.readdirSync(backupDir).filter(f => f.endsWith('.json')).sort().reverse();
+      if (files.length > 0) {
+        const result = await validateBackup(path.join(backupDir, files[0]), pool, log);
+        if (!result.valid) {
+          log('error', 'Backup', 'Backup validation failed', { issues: result.issues });
+          // Notify admin
+          try { await pool.query("INSERT INTO notifications (username, type, title, message, link) VALUES ('glen', 'warning', 'Backup Validation Failed', $1, '/nbi_project_dashboard.html#settings')", [result.issues.join('; ')]); } catch(e) {}
+        } else {
+          log('info', 'Backup', 'Backup validated successfully');
+        }
+      }
+    } catch (e) { log('error', 'Backup', 'Backup failed', { error: e.message }); }
   });
 }
 
@@ -4362,7 +4497,10 @@ if (cron) {
 if (cron) {
   cron.schedule('0 6 * * *', async () => {
     try {
-      const resp = await fetch('https://api.frankfurter.dev/latest?from=GBP&to=USD,EUR,SEK');
+      const resp = await fxBreaker.fire(() => withRetry(
+        () => fetch('https://api.frankfurter.dev/latest?from=GBP&to=USD,EUR,SEK', { signal: AbortSignal.timeout(10000) }),
+        { maxAttempts: 3, backoffMs: 1000, log }
+      ));
       if (resp.ok) {
         const data = await resp.json();
         const rates = {};
@@ -4419,77 +4557,8 @@ function gracefulShutdown(signal) {
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
-// Auto-migrations — add columns/tables if they don't exist (safe to run repeatedly)
-(async () => {
-  try {
-    await pool.query(`ALTER TABLE contacts ADD COLUMN IF NOT EXISTS email TEXT DEFAULT ''`);
-    await pool.query(`ALTER TABLE contacts ADD COLUMN IF NOT EXISTS phone TEXT DEFAULT ''`);
-    log('info', 'Migration', 'contacts.email and contacts.phone columns ensured');
-  } catch(e) { log('warn', 'Migration', 'contacts columns', { error: e.message }); }
-
-  // Expense reports table — groups expenses into submittable reports
-  try {
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS expense_reports (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        title TEXT NOT NULL,
-        status TEXT NOT NULL DEFAULT 'draft',
-        submitted_at TIMESTAMPTZ,
-        reviewed_by TEXT,
-        reviewed_at TIMESTAMPTZ,
-        notes TEXT,
-        created_at TIMESTAMPTZ DEFAULT NOW(),
-        updated_at TIMESTAMPTZ DEFAULT NOW()
-      )
-    `);
-    await pool.query(`CREATE INDEX IF NOT EXISTS idx_expense_reports_user ON expense_reports(user_id)`);
-    await pool.query(`CREATE INDEX IF NOT EXISTS idx_expense_reports_status ON expense_reports(status)`);
-    await pool.query(`ALTER TABLE expenses ADD COLUMN IF NOT EXISTS report_id UUID REFERENCES expense_reports(id) ON DELETE SET NULL`);
-    await pool.query(`CREATE INDEX IF NOT EXISTS idx_expenses_report ON expenses(report_id)`);
-    await pool.query(`ALTER TABLE expenses ADD COLUMN IF NOT EXISTS vat_amount NUMERIC(12,2)`);
-    await pool.query(`ALTER TABLE expense_reports ADD COLUMN IF NOT EXISTS review_notes TEXT`);
-    await pool.query(`ALTER TABLE notifications ADD COLUMN IF NOT EXISTS dismissable BOOLEAN DEFAULT true`);
-    log('info', 'Migration', 'expense_reports table, expenses.report_id, vat_amount, review_notes, notifications.dismissable columns ensured');
-  } catch(e) { log('warn', 'Migration', 'expense_reports', { error: e.message }); }
-
-  // Bug/feature reports table
-  try {
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS bug_reports (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        type TEXT NOT NULL DEFAULT 'bug',
-        title TEXT NOT NULL,
-        description TEXT,
-        page TEXT,
-        screenshot TEXT,
-        status TEXT NOT NULL DEFAULT 'open',
-        created_at TIMESTAMPTZ DEFAULT NOW()
-      )
-    `);
-    await pool.query(`CREATE INDEX IF NOT EXISTS idx_bug_reports_user ON bug_reports(user_id)`);
-    await pool.query(`CREATE INDEX IF NOT EXISTS idx_bug_reports_status ON bug_reports(status)`);
-    log('info', 'Migration', 'bug_reports table ensured');
-  } catch(e) { log('warn', 'Migration', 'bug_reports', { error: e.message }); }
-
-  // Performance indexes — safe to run repeatedly (IF NOT EXISTS)
-  try {
-    await pool.query(`CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status)`);
-    await pool.query(`CREATE INDEX IF NOT EXISTS idx_leads_priority ON leads(priority)`);
-    await pool.query(`CREATE INDEX IF NOT EXISTS idx_expenses_category ON expenses(category_id)`);
-    await pool.query(`CREATE INDEX IF NOT EXISTS idx_audit_log_created ON audit_log(created_at)`);
-    await pool.query(`CREATE INDEX IF NOT EXISTS idx_audit_log_entity ON audit_log(entity_type, entity_id)`);
-    await pool.query(`CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(username, is_read)`);
-    log('info', 'Migration', 'Performance indexes ensured');
-  } catch(e) { log('warn', 'Migration', 'Performance indexes', { error: e.message }); }
-
-  // Ensure default expense approver setting exists
-  try {
-    await pool.query(`INSERT INTO settings (key, value) VALUES ('expense_approver', $1) ON CONFLICT (key) DO NOTHING`, [JSON.stringify('tom')]);
-    log('info', 'Migration', 'expense_approver setting ensured');
-  } catch(e) { log('warn', 'Migration', 'expense_approver setting', { error: e.message }); }
-})();
+// Run versioned migrations (replaces inline auto-migration block)
+runMigrations(pool, log).catch(err => log('error', 'Migration', 'Migration runner failed', { error: err.message }));
 
 // Bind to 0.0.0.0 so the dashboard is accessible from other devices on the local network
 const server = app.listen(PORT, '0.0.0.0', () => {
