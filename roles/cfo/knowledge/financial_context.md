@@ -130,3 +130,75 @@ Engagement types include: T&M, embedded team, fractional C-level advisory, proje
 4. **Track Sarge Universe financial upside:** If the £10M raise succeeds, this could be a transformational engagement for NBI. Model the financial impact
 5. **Assess Playsage product revenue potential:** When Playsage development resumes, model the product revenue timeline against the consulting revenue base
 6. **Build project profitability discipline:** Every engagement should have a clear margin view. Unpaid work (Sarge Universe) must be tracked as an investment with expected return
+
+---
+
+## AI Infrastructure Costs -- CRITICAL SECTION (Read Before Any Cost Modelling)
+
+### NBI's Billing Model: Subscription, Not API
+
+**Glen is on the Claude Max subscription plan. NBI does NOT use the Anthropic API with per-token billing.**
+
+This distinction is critical. Any cost analysis using Anthropic API per-token pricing (e.g. Opus at $15/M input tokens, $75/M output tokens) is wrong and must not be presented to Glen or the C-suite as NBI's actual costs.
+
+### What Glen Actually Pays
+
+| Item | Amount | Currency | Cadence | Type |
+|---|---|---|---|---|
+| Claude Max subscription | £180 | GBP | Monthly flat fee | Fixed overhead |
+
+Source: Glen's March 2026 Anthropic invoice.
+
+This is NBI's entire Anthropic expenditure. It does not vary with how many agents we run or how many tokens we consume -- provided we stay within the plan's usage cap.
+
+### The Real Constraint: Token Usage Capacity
+
+The Claude Max plan provides a monthly token usage allowance. Anthropic does not display this as an explicit token count on invoices. The cap exists as a rate limit on how much output can be generated within the billing period.
+
+**The operational ceiling formula (canon decision, 2026-03-28):**
+
+```
+Operational ceiling = Max plan monthly token allowance - 30%
+```
+
+The 30% buffer prevents hitting the hard cap mid-sprint, which would halt all agent operations.
+
+### What the CFO Tracks for AI Costs
+
+The CFO does NOT track dollar costs per token. The CFO tracks:
+
+| Metric | How to Express It |
+|---|---|
+| Subscription cost | £180/month fixed. Report as overhead line item |
+| Monthly token usage | % of plan cap consumed |
+| Usage by agent | Which agents consumed most tokens (% share) |
+| Usage by project | Which projects drove most consumption (% share) |
+| Usage by model tier | Opus / Sonnet / Haiku % split |
+| Alert thresholds | 60% / 80% / 90% / 100% of plan cap |
+
+**Monthly cost report headline:** "AI infrastructure: £180/month (fixed). Token usage: X% of monthly plan cap."
+
+**NOT:** "Projected AI spend: $297/month."
+
+### Why Per-Token Pricing Is Irrelevant for Glen's Plan
+
+API per-token pricing is the billing model used when calling Anthropic's API directly with an API key and being billed per million tokens used. This is what most businesses and developers use. Glen's Claude Max plan is a consumer/prosumer subscription -- more like a monthly software licence. The economics are entirely different:
+
+- **API:** Pay $X per million tokens. More usage = more cost. Zero usage = zero cost.
+- **Max plan:** Pay £180/month regardless. More usage = same cost. Less usage = same cost. The constraint is the usage cap, not the dollar amount.
+
+For NBI's cost model, the relevant question is never "how many dollars did we spend on tokens this month?" It is always "what percentage of our monthly plan capacity did we consume, and is that sustainable?"
+
+### Determining the Actual Token Cap
+
+As of 2026-03-28, the precise Max plan token allowance has not been confirmed. Action required:
+
+1. Check the Anthropic console usage dashboard for historical session data
+2. Work with the CTO to establish the approximate monthly cap from usage patterns
+3. Document the finding in this file as the official baseline
+
+Until the cap is confirmed, use relative usage tracking (% of observed maximum) rather than absolute token counts.
+
+### Reference
+
+Full corrective brief: `projects/nbiai_app/deliverables/cfo_corrective_brief_2026-03-28.md`

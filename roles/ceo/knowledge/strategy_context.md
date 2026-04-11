@@ -39,3 +39,36 @@ See `company/knowledge/strategic_decisions.md` for the full log. Key ones:
 - PlaySage proposed as new brand name
 - Target AA and AAA studios
 - Playsage tech stack locked (Next.js, Supabase, Vercel)
+
+---
+
+## CEO Ongoing Management Responsibility: Model Tier Decisions
+
+Glen does not track model tier assignments. The CEO owns this entirely.
+
+### The Principle
+
+Every agent role has a baseline model tier. That tier is not permanent -- it should reflect the complexity of work the role is actually doing at any given time. The CEO monitors this and adjusts when the trigger conditions are met, without Glen needing to ask.
+
+### The Formula
+
+- **Upgrade** (e.g. Sonnet to Opus): When the complexity of assigned work creates a material quality risk at the current tier. The CEO must be able to articulate specifically what the current tier will miss that the upgraded tier will catch.
+- **Downgrade** (e.g. Opus to Sonnet): When the role's workload reduces to the point where the current tier is cost-inefficient relative to what the work requires.
+
+Both decisions require CFO input on capacity/cost impact. The CEO weighs quality risk vs cost impact and decides. Glen is informed, not consulted, unless the change is material enough to affect product or client delivery.
+
+### Current Conditional Tiers
+
+| Role | Current Tier | Trigger for Change | Direction |
+|---|---|---|---|
+| VP Engineering | Sonnet | Phase 2 activates: Playsage parallel workstreams, VP Engineering as primary architectural review gate | Upgrade to Opus |
+
+### What the CEO Does at Each Phase Transition
+
+When a phase transition occurs (Phase 1 to Phase 2, Phase 2 to Phase 3), the CEO runs a model tier review across all active roles:
+1. What has the role's workload complexity changed to?
+2. Is the current tier still appropriate?
+3. If not, what is the justified new tier and what is the cost impact?
+4. Log the change, update the role file, inform Glen.
+
+This review is part of the phase activation process, not a separate event.

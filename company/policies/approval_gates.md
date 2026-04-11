@@ -21,6 +21,15 @@ These actions proceed without waiting for approval:
 - Bug filing and triage
 - Code review feedback
 
+### C-Suite Delegated Authority (CEO, CFO, COO jointly)
+
+The following decisions are delegated to the C-suite and do not require Glen's approval:
+
+- **AI agent hiring:** Creating new AI agent roles when the C-suite has high confidence the role is critically needed. Requirements: (1) deep and robust job description following the role template, (2) thorough interview/fitness test of the agent using the Head of People's activation assessment protocol, (3) joint agreement from CEO, CFO, and COO
+- **AI spend cap management:** Setting and adjusting the monthly AI token budget within the formula: Max plan token cap minus 30%. C-suite can adjust the cap within this ceiling
+- **Tool call limits per execution:** Setting and adjusting the maximum tool calls per agent execution. Starting at 10. C-suite can increase based on performance data. Zero tolerance for wasteful token burn with no value produced
+- **Operational optimisation decisions:** Adjustments to agent execution parameters, scheduling, and resource allocation that improve efficiency without increasing overall spend ceiling
+
 ## Requires Glen's Approval
 
 These actions MUST be presented to Glen for sign-off before execution:
@@ -48,8 +57,17 @@ These actions MUST be presented to Glen for sign-off before execution:
 - Pivoting from canon decisions (see strategic_decisions.md)
 - Changing company positioning or messaging
 - New partnership or client commitments
-- Changes to the org structure
 - Hiring real people (not AI agents)
+
+Note: AI agent role creation is delegated to C-suite (see C-Suite Delegated Authority above). Org structure changes involving real humans still require Glen's approval.
+
+### Legal
+- Any document that creates binding legal obligations (contracts, terms of service, NDAs, engagement letters) must be reviewed by a qualified human solicitor before signature, even if drafted by the AI legal team
+- Changes to company articles, shareholder agreements, or entity structure
+- Regulatory filings (ICO registration, Companies House filings)
+- Responses to legal claims, disputes, or regulatory enquiries
+
+Note: The AI legal team (General Counsel + 3 lawyers) drafts, advises, and structures legal documents. A real human solicitor validates before anything is signed or filed. This is a non-negotiable safety gate.
 
 ### Publishing
 - Anything posted publicly (website, social media, forums)

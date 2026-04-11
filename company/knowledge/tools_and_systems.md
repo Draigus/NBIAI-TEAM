@@ -17,6 +17,7 @@ Last updated: 2026-03-28
 | Framer | Website hosting | nbi-consulting.com |
 | Excel | Various (legacy client tracking, analytics) | Being replaced by app for lead tracking |
 | LinkedIn | Company page | Exists but inactive. Identified as untapped asset |
+| Git / GitHub | Version control | Used across all NBI engineering projects. Repository hosting, branching, pull requests, code review |
 
 ## AI and Automation Tools
 

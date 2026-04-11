@@ -50,6 +50,7 @@ import { useAuth } from '@/hooks/useAuth'
 interface AgentBudget {
   currentMonthSpend: number
   monthlyBudgetCap: number | null
+  note?: string
 }
 
 interface TaskHistoryEntry {

@@ -110,9 +110,6 @@ export async function executionRoutes(fastify: FastifyInstance): Promise<void> {
           id: agentExecutions.id,
           status: agentExecutions.status,
           modelUsed: agentExecutions.modelUsed,
-          inputTokens: agentExecutions.inputTokens,
-          outputTokens: agentExecutions.outputTokens,
-          costUsd: agentExecutions.costUsd,
           durationMs: agentExecutions.durationMs,
           startedAt: agentExecutions.startedAt,
           endedAt: agentExecutions.endedAt,
@@ -177,9 +174,6 @@ export async function executionRoutes(fastify: FastifyInstance): Promise<void> {
           taskId: agentExecutions.taskId,
           status: agentExecutions.status,
           modelUsed: agentExecutions.modelUsed,
-          inputTokens: agentExecutions.inputTokens,
-          outputTokens: agentExecutions.outputTokens,
-          costUsd: agentExecutions.costUsd,
           systemPromptTokens: agentExecutions.systemPromptTokens,
           contextTokens: agentExecutions.contextTokens,
           durationMs: agentExecutions.durationMs,
@@ -233,82 +227,29 @@ export async function executionRoutes(fastify: FastifyInstance): Promise<void> {
 
   // -------------------------------------------------------------------------
   // POST /api/executions/trigger
-  // Board and admin only. Manually triggers an agent execution.
+  // REMOVED in no-API architecture (2026-03-28).
+  //
+  // Direct API execution is not supported. Agent execution runs through
+  // Claude Desktop sessions on Glen's Max plan. Use the Queue screen (Sprint 2)
+  // to assemble and dispatch tasks via Claude Desktop.
+  //
+  // Endpoint retained as a 501 stub to avoid breaking any existing references
+  // until Sprint 2 replaces it with POST /api/v1/queue/results.
   // -------------------------------------------------------------------------
 
   fastify.post(
     '/executions/trigger',
     { preHandler: requireRole(BOARD_AND_ADMIN) },
-    async (request: FastifyRequest, reply: FastifyReply) => {
-      const companyId = request.user.companyId
-
-      const body = validateBody(triggerExecutionSchema, request.body)
-
-      // Verify the agent belongs to this company
-      const agentRows = await db
-        .select({
-          id: agents.id,
-          name: agents.name,
-          status: agents.status,
-          companyId: agents.companyId,
-        })
-        .from(agents)
-        .where(
-          and(
-            eq(agents.id, body.agentId),
-            eq(agents.companyId, companyId),
-          ),
-        )
-        .limit(1)
-
-      if (agentRows.length === 0) {
-        return reply.status(404).send({
-          error: {
-            code: 'NOT_FOUND',
-            message: 'Agent not found.',
-          },
-        })
-      }
-
-      const agent = agentRows[0]
-
-      if (agent.status === 'terminated') {
-        return reply.status(400).send({
-          error: {
-            code: 'AGENT_TERMINATED',
-            message: 'Cannot trigger execution for a terminated agent.',
-          },
-        })
-      }
-
-      if (agent.status === 'paused') {
-        return reply.status(400).send({
-          error: {
-            code: 'AGENT_PAUSED',
-            message: 'Cannot trigger execution for a paused agent.',
-          },
-        })
-      }
-
-      // Run the execution — this is synchronous from the HTTP handler's perspective
-      // (we await the full result before returning). Phase 5 will add streaming.
-      const runResult = await runAgentExecution({
-        agentId: body.agentId,
-        taskId: body.taskId ?? null,
-        triggeredBy: 'manual',
-        companyId,
+    async (_request: FastifyRequest, reply: FastifyReply) => {
+      return reply.status(501).send({
+        error: {
+          code: 'NOT_IMPLEMENTED',
+          message:
+            'Direct API execution is not supported in the no-API architecture. ' +
+            'Use the Queue screen to assemble tasks and run them via Claude Desktop. ' +
+            'Results are posted back via POST /api/v1/queue/results (available in Sprint 2).',
+        },
       })
-
-      if (runResult.status === 'budget_blocked') {
-        return reply.status(429).send({
-          error: {
-            code: 'BUDGET_EXHAUSTED',
-            message: runResult.error ?? 'Agent monthly budget cap has been reached.',
-          },
-        })
-      }
-
-      return reply.status(200).send({ data: runResult })
     },
   )
 }

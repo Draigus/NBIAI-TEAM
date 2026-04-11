@@ -77,7 +77,35 @@ No API key, secret, password, or credential ever appears in client-side code. No
 3. Test the feature in the development environment before submitting a PR
 4. Write PR descriptions that tell the reviewer what changed and how to verify it
 5. When code review feedback arrives, address every comment, not just the obvious ones
-6. Status updates are honest: if you are blocked, say so — do not say "almost done" when stuck
+6. Status updates are honest: if you are blocked, say so -- do not say "almost done" when stuck
+7. If you have been blocked for more than 30 minutes, escalate. Show what you tried, what the error or confusion is, and what you think the answer might be. Do not spend hours going in circles
+
+### PR Description Format
+
+Every PR you submit must include:
+```
+## What changed
+[One-line summary of the change]
+
+## Why
+[The task or bug this addresses]
+
+## How to test
+[Step-by-step instructions a reviewer can follow to verify the change works]
+
+## Notes
+[Anything the reviewer should know: edge cases, decisions made, questions]
+```
+
+Do not submit PRs with empty descriptions or "see task" as the only context.
+
+### When a Task is More Complex Than Expected
+
+If you start a task and discover it is significantly more complex than the brief suggested:
+1. Stop coding. Do not build a partial solution in the wrong direction
+2. Write down what you found: what the task actually requires vs what the brief described
+3. Escalate to the Senior Engineer with your findings and a question: "Is approach A or approach B the right path here?"
+4. Wait for guidance before proceeding. Time spent building the wrong thing is worse than time spent waiting for the right answer
 
 ### Communication Style
 

@@ -8,6 +8,9 @@
  * Naming convention:
  * - `Select*` types: what you get back from a SELECT query
  * - `Insert*` types: what you pass to an INSERT (id, created_at etc. optional)
+ *
+ * Schema v2 (2026-03-28): removed agentHeartbeats, agentBudgets, apiKeys types.
+ * Added claudeDesktopSessions and costLogs types for no-API architecture.
  */
 
 import type { InferSelectModel, InferInsertModel } from 'drizzle-orm'
@@ -24,14 +27,13 @@ import type {
   taskComments,
   taskCheckouts,
   agentExecutions,
-  agentHeartbeats,
-  agentBudgets,
+  claudeDesktopSessions,
+  costLogs,
   approvals,
   revenueItems,
   pipelineLeads,
   payrollItems,
   knowledgeFiles,
-  apiKeys,
   activityLog,
   clients,
 } from '../db/schema.js'
@@ -76,11 +78,11 @@ export type InsertTaskCheckout = InferInsertModel<typeof taskCheckouts>
 export type SelectAgentExecution = InferSelectModel<typeof agentExecutions>
 export type InsertAgentExecution = InferInsertModel<typeof agentExecutions>
 
-export type SelectAgentHeartbeat = InferSelectModel<typeof agentHeartbeats>
-export type InsertAgentHeartbeat = InferInsertModel<typeof agentHeartbeats>
+export type SelectClaudeDesktopSession = InferSelectModel<typeof claudeDesktopSessions>
+export type InsertClaudeDesktopSession = InferInsertModel<typeof claudeDesktopSessions>
 
-export type SelectAgentBudget = InferSelectModel<typeof agentBudgets>
-export type InsertAgentBudget = InferInsertModel<typeof agentBudgets>
+export type SelectCostLog = InferSelectModel<typeof costLogs>
+export type InsertCostLog = InferInsertModel<typeof costLogs>
 
 export type SelectApproval = InferSelectModel<typeof approvals>
 export type InsertApproval = InferInsertModel<typeof approvals>
@@ -96,9 +98,6 @@ export type InsertPayrollItem = InferInsertModel<typeof payrollItems>
 
 export type SelectKnowledgeFile = InferSelectModel<typeof knowledgeFiles>
 export type InsertKnowledgeFile = InferInsertModel<typeof knowledgeFiles>
-
-export type SelectApiKey = InferSelectModel<typeof apiKeys>
-export type InsertApiKey = InferInsertModel<typeof apiKeys>
 
 export type SelectActivityLog = InferSelectModel<typeof activityLog>
 export type InsertActivityLog = InferInsertModel<typeof activityLog>
@@ -119,6 +118,8 @@ export type TaskRelationType = SelectTaskRelation['relationType']
 export type ApprovalStatus = SelectApproval['status']
 export type ApprovalType = SelectApproval['approvalType']
 export type ExecutionStatus = SelectAgentExecution['status']
+export type ClaudeSessionStatus = SelectClaudeDesktopSession['status']
+export type SessionTrigger = SelectClaudeDesktopSession['trigger']
 export type RevenueType = SelectRevenueItem['revenueType']
 export type PipelineStage = SelectPipelineLead['stage']
 export type PayrollType = SelectPayrollItem['payrollType']

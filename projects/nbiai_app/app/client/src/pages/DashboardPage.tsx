@@ -21,6 +21,7 @@ import {
   FolderOpen,
   ShieldCheck,
   Zap,
+  Inbox,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -36,6 +37,9 @@ interface DashboardSummary {
   activeAgentsCount: number
   pendingApprovalsCount: number
   projectsCount: number
+  queuedCount: number
+  inProgressCount: number
+  reviewCount: number
 }
 
 interface AgentStatusRow {
@@ -474,6 +478,71 @@ function ApprovalsWidget() {
 }
 
 // ---------------------------------------------------------------------------
+// Widget: Queue Pipeline
+// ---------------------------------------------------------------------------
+
+function QueueWidget({ summary }: { summary: DashboardSummary | undefined }) {
+  const navigate = useNavigate()
+
+  const stages = [
+    { key: 'queued', label: 'Inbox', count: summary?.queuedCount ?? 0, colour: 'bg-status-amber' },
+    { key: 'in_progress', label: 'Active', count: summary?.inProgressCount ?? 0, colour: 'bg-[#60A5FA]' },
+    { key: 'review', label: 'Review', count: summary?.reviewCount ?? 0, colour: 'bg-purple-400' },
+  ]
+
+  const total = stages.reduce((sum, s) => sum + s.count, 0)
+
+  return (
+    <div className="bg-surface border border-subtle rounded-lg">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-subtle">
+        <div className="flex items-center gap-2">
+          <h3 className="text-[15px] font-semibold text-primary">Task Queue</h3>
+          {total > 0 && (
+            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-accent text-inverse text-[10px] font-bold">
+              {total}
+            </span>
+          )}
+        </div>
+        <Link
+          to="/queue"
+          className="text-accent text-[13px] font-medium hover:text-accent-hover transition-colors"
+        >
+          View queue
+        </Link>
+      </div>
+
+      <div className="p-4">
+        {total === 0 ? (
+          <div className="flex flex-col items-center py-6 gap-3">
+            <Inbox size={28} className="text-muted" />
+            <p className="text-sm text-muted">Queue is empty</p>
+            <Button variant="ghost" size="sm" onClick={() => navigate('/queue')}>
+              Go to Queue
+            </Button>
+          </div>
+        ) : (
+          <div className="flex gap-3">
+            {stages.map((stage) => (
+              <button
+                key={stage.key}
+                onClick={() => navigate(`/queue?tab=${stage.key}`)}
+                className="flex-1 bg-elevated border border-subtle rounded-lg p-3 hover:border-strong transition-colors text-center"
+              >
+                <p className="text-[22px] font-bold font-mono text-primary">{stage.count}</p>
+                <div className="flex items-center justify-center gap-1.5 mt-1">
+                  <span className={cn('w-2 h-2 rounded-full', stage.colour)} />
+                  <span className="text-xs font-medium text-muted">{stage.label}</span>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // Widget: Activity Feed
 // ---------------------------------------------------------------------------
 
@@ -619,6 +688,9 @@ export default function DashboardPage() {
           <ApprovalsWidget />
         </div>
       </div>
+
+      {/* Queue pipeline */}
+      <QueueWidget summary={summary} />
 
       {/* Activity feed */}
       <ActivityFeedWidget />

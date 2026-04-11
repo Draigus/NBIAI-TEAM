@@ -21,8 +21,6 @@ import {
   tasks,
   agentReports,
   agentExecutions,
-  agentHeartbeats,
-  agentBudgets,
 } from '../db/schema.js'
 import { requireAuth, requireRole } from '../middleware/auth.js'
 import { BOARD_ONLY, BOARD_AND_ADMIN } from '../middleware/rbac.js'
@@ -40,8 +38,11 @@ const agentListQuerySchema = paginationSchema.extend({
 
 const createAgentSchema = z.object({
   name: z.string().min(1).max(255),
-  roleId: z.string().uuid(),
+  roleId: z.string().uuid().optional(),
+  roleSlug: z.string().optional(),
   personaConfig: z.record(z.unknown()).optional(),
+}).refine((data) => data.roleId || data.roleSlug, {
+  message: 'Either roleId or roleSlug is required.',
 })
 
 const updateAgentSchema = z.object({
@@ -144,11 +145,9 @@ export async function agentRoutes(fastify: FastifyInstance): Promise<void> {
           department: roles.department,
           modelTier: roles.defaultModelTier,
         },
-        lastHeartbeatAt: agentHeartbeats.lastSeenAt,
       })
       .from(agents)
       .innerJoin(roles, eq(agents.roleId, roles.id))
-      .leftJoin(agentHeartbeats, eq(agents.id, agentHeartbeats.agentId))
       .where(whereClause)
       .orderBy(desc(agents.hiredAt), desc(agents.id))
       .limit(pageSize + 1)
@@ -243,18 +242,25 @@ export async function agentRoutes(fastify: FastifyInstance): Promise<void> {
     const companyId = request.user.companyId
     const body = validateBody(createAgentSchema, request.body)
 
-    // Verify role belongs to this company
+    // Resolve role by ID or slug
+    let roleQuery
+    if (body.roleId) {
+      roleQuery = and(eq(roles.id, body.roleId), eq(roles.companyId, companyId))
+    } else {
+      roleQuery = and(eq(roles.slug, body.roleSlug!), eq(roles.companyId, companyId))
+    }
+
     const [role] = await db
       .select({ id: roles.id, defaultModelTier: roles.defaultModelTier })
       .from(roles)
-      .where(and(eq(roles.id, body.roleId), eq(roles.companyId, companyId)))
+      .where(roleQuery)
       .limit(1)
 
     if (!role) {
       return reply.status(404).send({
         statusCode: 404,
         error: 'Not Found',
-        message: 'Resource not found',
+        message: 'Role not found',
       })
     }
 
@@ -262,19 +268,13 @@ export async function agentRoutes(fastify: FastifyInstance): Promise<void> {
       .insert(agents)
       .values({
         companyId,
-        roleId: body.roleId,
+        roleId: role.id,
         name: body.name,
         modelTier: role.defaultModelTier,
         status: 'idle',
         config: body.personaConfig ?? {},
       })
       .returning()
-
-    // Create initial heartbeat record
-    await db.insert(agentHeartbeats).values({
-      agentId: created.id,
-      lastSeenAt: new Date(),
-    })
 
     return reply.status(201).send({ data: created })
   })
@@ -403,6 +403,8 @@ export async function agentRoutes(fastify: FastifyInstance): Promise<void> {
 
   // -------------------------------------------------------------------------
   // GET /api/agents/:id/budget
+  // No-API architecture: no per-token budgets. Returns stub data.
+  // Cost tracking uses the costLogs table (manual session cost entries).
   // -------------------------------------------------------------------------
   fastify.get('/agents/:id/budget', { preHandler: requireAuth }, async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string }
@@ -425,40 +427,14 @@ export async function agentRoutes(fastify: FastifyInstance): Promise<void> {
     const now = new Date()
     const monthYear = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
 
-    const [budget] = await db
-      .select()
-      .from(agentBudgets)
-      .where(
-        and(
-          eq(agentBudgets.agentId, id),
-          eq(agentBudgets.monthYear, monthYear),
-        ),
-      )
-      .limit(1)
-
-    if (!budget) {
-      return reply.send({
-        data: {
-          budgetUsd: null,
-          spentUsd: 0,
-          percentUsed: 0,
-          alertSent: false,
-          monthYear,
-        },
-      })
-    }
-
-    const budgetNum = parseFloat(String(budget.budgetUsd))
-    const spentNum = parseFloat(String(budget.spentUsd))
-    const percentUsed = budgetNum > 0 ? Math.round((spentNum / budgetNum) * 100) : 0
-
     return reply.send({
       data: {
-        budgetUsd: budget.budgetUsd,
-        spentUsd: budget.spentUsd,
-        percentUsed,
-        alertSent: budget.alertSentAt !== null,
-        monthYear: budget.monthYear,
+        budgetUsd: null,
+        spentUsd: 0,
+        percentUsed: 0,
+        alertSent: false,
+        monthYear,
+        note: 'No-API architecture: costs tracked via flat Max plan subscription, not per-token.',
       },
     })
   })

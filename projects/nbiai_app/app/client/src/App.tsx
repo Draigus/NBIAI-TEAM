@@ -16,6 +16,8 @@ const FinancePage = lazy(() => import('@/pages/FinancePage'))
 const ClientsPage = lazy(() => import('@/pages/ClientsPage'))
 const ApprovalsPage = lazy(() => import('@/pages/ApprovalsPage'))
 const SettingsPage = lazy(() => import('@/pages/SettingsPage'))
+const QueuePage = lazy(() => import('@/pages/QueuePage'))
+const SessionsPage = lazy(() => import('@/pages/SessionsPage'))
 
 const AppShell = lazy(() => import('@/components/layout/AppShell'))
 
@@ -62,6 +64,8 @@ export default function App() {
           <Route path="finance" element={<FinancePage />} />
           <Route path="finance/:tab" element={<FinancePage />} />
           <Route path="clients" element={<ClientsPage />} />
+          <Route path="queue" element={<QueuePage />} />
+          <Route path="sessions" element={<SessionsPage />} />
           <Route path="approvals" element={<ApprovalsPage />} />
           <Route path="settings" element={<SettingsPage />} />
           <Route path="settings/:tab" element={<SettingsPage />} />

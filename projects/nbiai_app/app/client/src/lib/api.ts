@@ -280,15 +280,15 @@ export const tasks = {
 
 export const dashboard = {
   summary: () =>
-    apiFetch('/api/v1/dashboard'),
+    apiFetch('/api/v1/dashboard/summary'),
 
   activity: (params?: Record<string, string>) => {
     const qs = params ? '?' + new URLSearchParams(params).toString() : ''
-    return apiFetch(`/api/v1/activity${qs}`)
+    return apiFetch(`/api/v1/dashboard/activity${qs}`)
   },
 
   agentStatus: () =>
-    apiFetch('/api/v1/dashboard'),
+    apiFetch('/api/v1/dashboard/agent-status'),
 }
 
 // ---------------------------------------------------------------------------
@@ -350,6 +350,55 @@ export const clients = {
 
   overdue: () =>
     apiFetch('/api/v1/pipeline?overdue=true'),
+}
+
+// ---------------------------------------------------------------------------
+// Queue
+// ---------------------------------------------------------------------------
+
+export const queue = {
+  list: (params?: Record<string, string>) => {
+    const qs = params ? '?' + new URLSearchParams(params).toString() : ''
+    return apiFetch(`/api/v1/queue${qs}`)
+  },
+
+  create: (agentId: string, taskId: string) =>
+    apiFetch('/api/v1/queue/create', {
+      method: 'POST',
+      body: JSON.stringify({ agentId, taskId }),
+    }),
+
+  getPrompt: (taskId: string) =>
+    apiFetch(`/api/v1/queue/${taskId}/prompt`),
+
+  postResults: (data: { taskId: string; sessionId?: string; status: string; output: string; notes?: string }) =>
+    apiFetch('/api/v1/queue/results', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+}
+
+// ---------------------------------------------------------------------------
+// Sessions
+// ---------------------------------------------------------------------------
+
+export const sessions = {
+  list: (params?: Record<string, string>) => {
+    const qs = params ? '?' + new URLSearchParams(params).toString() : ''
+    return apiFetch(`/api/v1/sessions${qs}`)
+  },
+
+  create: (data: Record<string, unknown>) =>
+    apiFetch('/api/v1/sessions', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  update: (id: string, data: Record<string, unknown>) =>
+    apiFetch(`/api/v1/sessions/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
 }
 
 // ---------------------------------------------------------------------------

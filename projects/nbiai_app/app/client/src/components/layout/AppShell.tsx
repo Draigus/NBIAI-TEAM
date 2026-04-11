@@ -10,6 +10,8 @@ import {
   Settings,
   PanelLeftClose,
   PanelLeftOpen,
+  Inbox,
+  Terminal,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/hooks/useAuth'
@@ -30,6 +32,8 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Command Centre', to: '/dashboard', icon: LayoutDashboard },
   { label: 'Org Chart', to: '/org', icon: Network },
   { label: 'Projects', to: '/projects', icon: FolderKanban },
+  { label: 'Queue', to: '/queue', icon: Inbox },
+  { label: 'Sessions', to: '/sessions', icon: Terminal },
   { label: 'Finance', to: '/finance', icon: BarChart2 },
   { label: 'Leads & Clients', to: '/clients', icon: Users },
   { label: 'Approvals', to: '/approvals', icon: ShieldCheck, badgeKey: 'approvals' },

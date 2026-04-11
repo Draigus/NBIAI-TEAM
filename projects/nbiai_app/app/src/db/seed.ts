@@ -16,6 +16,7 @@ import 'dotenv/config'
 import { db } from './index.js'
 import * as schema from './schema.js'
 import { eq, and } from 'drizzle-orm'
+import { hashPassword } from '../lib/crypto.js'
 
 // ---------------------------------------------------------------------------
 // Company
@@ -24,6 +25,20 @@ import { eq, and } from 'drizzle-orm'
 const COMPANY = {
   name: 'NBI Analytics Ltd',
   slug: 'nbi-analytics',
+}
+
+// ---------------------------------------------------------------------------
+// Board user
+// ---------------------------------------------------------------------------
+
+/**
+ * Glen Pryer -- sole board-level user. Password is set via BOARD_USER_PASSWORD
+ * environment variable. If not set, a placeholder hash is used and Glen must
+ * update his password on first login (not enforced automatically in v1).
+ */
+const BOARD_USER = {
+  email: 'glen@nbi.gg',
+  displayName: 'Glen Pryer',
 }
 
 // ---------------------------------------------------------------------------
@@ -43,7 +58,15 @@ const ROLES: Array<{
   { name: 'CFO',            slug: 'cfo',            modelTier: 'opus',   department: 'Finance',     reportsToSlug: 'ceo',           isLeadership: true  },
   { name: 'CTO',            slug: 'cto',            modelTier: 'opus',   department: 'Technology',  reportsToSlug: 'ceo',           isLeadership: true  },
   { name: 'CMO',            slug: 'cmo',            modelTier: 'opus',   department: 'Marketing',   reportsToSlug: 'ceo',           isLeadership: true  },
-  { name: 'VP Engineering', slug: 'vp_engineering', modelTier: 'opus',   department: 'Technology',  reportsToSlug: 'cto',           isLeadership: true  },
+  /**
+   * VP Engineering: Sonnet (not Opus).
+   * Downgraded per CEO decision 2026-03-28. CTO manages engineers directly
+   * during Phase 1 (sequential projects). Upgrades to Opus when Phase 2
+   * Playsage parallel workstreams are active and VP Engineering becomes the
+   * primary architectural review gate. CEO triggers the upgrade; Glen is informed.
+   * See: company/knowledge/strategic_decisions.md
+   */
+  { name: 'VP Engineering', slug: 'vp_engineering', modelTier: 'sonnet', department: 'Technology',  reportsToSlug: 'cto',           isLeadership: true  },
   { name: 'VP Product',     slug: 'vp_product',     modelTier: 'opus',   department: 'Product',     reportsToSlug: 'ceo',           isLeadership: true  },
   { name: 'Head of People', slug: 'head_of_people', modelTier: 'opus',   department: 'People',      reportsToSlug: 'coo',           isLeadership: false },
   { name: 'Senior Engineer',slug: 'senior_engineer',modelTier: 'sonnet', department: 'Technology',  reportsToSlug: 'vp_engineering', isLeadership: false },
@@ -201,7 +224,42 @@ async function seed(): Promise<void> {
   }
 
   // -------------------------------------------------------------------------
-  // 2. Roles
+  // 2. Board user (Glen Pryer)
+  // -------------------------------------------------------------------------
+  console.log('[seed] Seeding board user...')
+
+  const existingBoardUser = await db
+    .select({ id: schema.users.id })
+    .from(schema.users)
+    .where(eq(schema.users.email, BOARD_USER.email))
+    .limit(1)
+
+  if (existingBoardUser.length > 0) {
+    console.log(`[seed]   Board user '${BOARD_USER.email}' already exists — skipping`)
+  } else {
+    // BOARD_USER_PASSWORD from env, or a strong placeholder that forces a manual reset.
+    // The placeholder is deliberately not a real password -- Glen must set one.
+    const password = process.env.BOARD_USER_PASSWORD ?? 'ChangeMe!NBI2026#'
+    const passwordHash = await hashPassword(password)
+
+    await db.insert(schema.users).values({
+      companyId,
+      email: BOARD_USER.email,
+      displayName: BOARD_USER.displayName,
+      passwordHash,
+      role: 'board',
+      isActive: true,
+    })
+    console.log(`[seed]   Inserted board user: ${BOARD_USER.displayName} (${BOARD_USER.email})`)
+
+    if (!process.env.BOARD_USER_PASSWORD) {
+      console.warn('[seed]   !! BOARD_USER_PASSWORD not set in environment. Using placeholder.')
+      console.warn('[seed]   !! Glen must update his password after first login.')
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // 3. Roles
   // -------------------------------------------------------------------------
   console.log('[seed] Seeding roles...')
 
@@ -246,7 +304,7 @@ async function seed(): Promise<void> {
   }
 
   // -------------------------------------------------------------------------
-  // 3. Agents (one per role) and their reporting relationships
+  // 4. Agents (one per role) and their reporting relationships
   //
   // We insert agents first without reporting relationships (agent_reports is
   // a separate table). Then insert agent_reports rows once all agents exist.
@@ -330,7 +388,7 @@ async function seed(): Promise<void> {
   }
 
   // -------------------------------------------------------------------------
-  // 4. Projects
+  // 5. Projects
   // -------------------------------------------------------------------------
   console.log('[seed] Seeding projects...')
 
@@ -370,7 +428,7 @@ async function seed(): Promise<void> {
   }
 
   // -------------------------------------------------------------------------
-  // 5. Knowledge files (Tier 1)
+  // 6. Knowledge files (Tier 1)
   // -------------------------------------------------------------------------
   console.log('[seed] Seeding Tier 1 knowledge files...')
 
@@ -402,7 +460,7 @@ async function seed(): Promise<void> {
   }
 
   // -------------------------------------------------------------------------
-  // 6. Revenue items
+  // 7. Revenue items
   // -------------------------------------------------------------------------
   console.log('[seed] Seeding revenue items...')
 

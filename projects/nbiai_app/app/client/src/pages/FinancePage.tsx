@@ -37,7 +37,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { PageHeader } from '@/components/layout/PageHeader'
-import { finance, settings } from '@/lib/api'
+import { finance } from '@/lib/api'
 import { cn, formatCurrency, formatDate } from '@/lib/utils'
 import { useAuth } from '@/hooks/useAuth'
 
@@ -1183,8 +1183,12 @@ function AgentCostsTab({ isBoardOrAdmin }: { isBoardOrAdmin: boolean }) {
   const totalSpentGbp = usdToGbp(costData?.totalSpentUsd ?? 0)
 
   const saveBudgetMutation = useMutation({
-    mutationFn: ({ id, budget }: { id: string; budget: number }) =>
-      settings.budgets(), // placeholder — real API would PATCH /api/settings/budgets/:id
+    mutationFn: async ({ id, budget }: { id: string; budget: number }) => {
+      // No-API architecture: per-agent budgets removed. Cost tracking uses
+      // flat Max plan subscription (GBP 180/month). This is a no-op stub.
+      void id; void budget
+      return Promise.resolve()
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['financeAgentCosts'] })
       setEditingBudgetId(null)

@@ -838,10 +838,14 @@ function KnowledgeBaseTab() {
 }
 
 // ---------------------------------------------------------------------------
-// Tab 5 — Budgets
+// Tab 5 — Budgets (REMOVED: no-API architecture, no per-token budgets)
+// Tab 6 — API Keys (REMOVED: no Anthropic API key needed)
 // ---------------------------------------------------------------------------
 
-function BudgetsTab() {
+// These tabs were removed in the v2 migration (2026-03-28).
+// Cost tracking is done via the Finance screen using cost_logs.
+
+function _BudgetsTabRemoved() {
   const queryClient = useQueryClient()
   const { toast, show: showToast, setToast } = useToast()
   const { user } = useAuth()
@@ -1291,15 +1295,13 @@ function ApiKeysTab() {
 // SettingsPage
 // ---------------------------------------------------------------------------
 
-type SettingsTab = 'company' | 'users' | 'agents' | 'knowledge' | 'budgets' | 'api-keys'
+type SettingsTab = 'company' | 'users' | 'agents' | 'knowledge'
 
 const SETTINGS_TABS: Array<{ key: SettingsTab; label: string }> = [
   { key: 'company', label: 'Company' },
   { key: 'users', label: 'Users' },
   { key: 'agents', label: 'Agent Library' },
   { key: 'knowledge', label: 'Knowledge Base' },
-  { key: 'budgets', label: 'Budgets' },
-  { key: 'api-keys', label: 'API Keys' },
 ]
 
 export default function SettingsPage() {
@@ -1322,10 +1324,6 @@ export default function SettingsPage() {
         return <AgentLibraryTab />
       case 'knowledge':
         return <KnowledgeBaseTab />
-      case 'budgets':
-        return <BudgetsTab />
-      case 'api-keys':
-        return <ApiKeysTab />
       default:
         return <CompanyTab />
     }

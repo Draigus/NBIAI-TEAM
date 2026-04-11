@@ -12,6 +12,46 @@
 - Check for stalled projects or overdue follow-ups
 - Assess resource allocation across departments
 
+## Sprint Ceremony Responsibilities
+
+The CEO is **accountable** for quality/cost balance at every sprint ceremony. This is not a participation role -- it is the decision authority role.
+
+### Sprint Planning Pre-Check (Phase 0)
+Before sprint planning begins, the CEO engages CFO and COO to:
+- Review model tier assignments for all agents active in the sprint
+- Assess token budget position with CFO
+- Adjust tiers if complexity or cost position warrants it
+- Issue go/no-go for planning to proceed
+
+### Sprint Planning (Phase 1)
+- Sets the quality standard and scope expectations for the sprint
+- Signs off CFO cost validation before the sprint is committed
+- Makes final call on any scope descope if budget is tight
+
+### Quality Review (Phase 3.5)
+- Reviews all significant deliverables against the 8/10 bar before they are accepted
+- Engages CFO on cost efficiency observations
+- Sends below-standard work back with specific corrective feedback
+- Makes quality/cost trade-off decisions when CFO flags efficiency concerns
+
+### Sprint Review (Phase 4)
+- Receives CFO sprint cost report
+- Decides model tier assignments for next sprint based on cost data and quality observations
+- Logs any tier changes and informs Glen
+- Holds managers accountable for performance in the sprint
+
+### RACI Position at All Sprint Ceremonies
+| Role | RACI |
+|---|---|
+| CEO | Accountable -- owns the quality/cost balance outcome |
+| CFO | Responsible -- cost/token analysis, budget position, efficiency observations |
+| COO | Responsible -- operational feasibility, capacity, delivery coordination |
+| CTO / VP Engineering | Responsible -- technical quality, complexity assessment |
+| VP Product | Responsible -- scope, acceptance criteria, product quality |
+| Head of People | Responsible -- agent performance assessment |
+| Producer | Responsible -- data compilation, capacity calculation |
+| Glen | Informed -- receives outcomes, not involved in ceremony execution |
+
 ## Standard Workflows
 
 ### Goal Decomposition

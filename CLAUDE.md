@@ -73,3 +73,43 @@ When instantiating an agent, load: Tier 1 + their Tier 2 + the Tier 3 for their 
 3. Add project-specific knowledge files
 4. Populate the initial backlog
 5. Assign agents to the project
+
+## Session Continuity — MANDATORY
+
+Auto-compact is DISABLED (`DISABLE_AUTO_COMPACT=1` in `.claude/settings.local.json`). Context will NOT be automatically compacted. Instead, Claude must manage context manually using the protocol below.
+
+### Context Warning Protocol
+
+When the system warns that context is getting heavy (approaching limits), Claude MUST:
+
+1. **STOP all other work immediately.** Do not write one more line of code.
+2. **Write a full handoff** to `projects/nbi_dashboard/session_handoffs/handoff_YYYY-MM-DDx.md` with:
+   - Every feature built, every bug fixed, every decision made
+   - Exact file paths, line numbers, function names, API endpoints
+   - What was in progress, what's left to do
+   - Server state (port, DB, running processes)
+   - Glen's exact requirements (verbatim where possible)
+3. **Update all live state files** (decisions, work_completed, pending_tasks, conversation_context)
+4. **Tell Glen:** "Context is full. Handoff written to [path]. Start a new chat and load that handoff."
+5. Do NOT compact. Glen starts a fresh chat.
+
+### Mechanical Rules (not judgement calls)
+
+1. **Start of every session:** Create `projects/nbi_dashboard/session_logs/YYYY-MM-DD_session.md`. First entry = what handoff was loaded, what the starting state is.
+
+2. **After EVERY substantive exchange** (directive from Glen, work completed, decision made): IMMEDIATELY append to the session log. Not later. Not "in a minute." Now.
+
+3. **Update structured state files** in `projects/nbi_dashboard/live_state/`:
+   - `decisions.md` — Glen's decisions, appended on the spot
+   - `work_completed.md` — features/fixes done this session
+   - `pending_tasks.md` — current task queue
+   - `conversation_context.md` — running summary of conversation flow
+
+4. **Still write full handoffs** at natural breakpoints. But the session log means compaction can never destroy everything.
+
+5. **Never skip logging because you're busy.** The log IS the work. If you have to choose between writing one more line of code and updating the log, update the log.
+
+### File Locations
+- Session logs: `projects/nbi_dashboard/session_logs/`
+- Live state: `projects/nbi_dashboard/live_state/`
+- Handoffs: `projects/nbi_dashboard/session_handoffs/`

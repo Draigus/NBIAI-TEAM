@@ -15,6 +15,7 @@
  * The health check at /health is outside the API prefix for load balancer use.
  */
 
+import 'dotenv/config'
 import Fastify from 'fastify'
 import fastifyCors from '@fastify/cors'
 import fastifyRateLimit from '@fastify/rate-limit'
@@ -35,6 +36,8 @@ import { settingsRoutes } from './routes/settings.js'
 import { dashboardRoutes } from './routes/dashboard.js'
 import { executionRoutes } from './routes/executions.js'
 import { userRoutes } from './routes/users.js'
+import { queueRoutes } from './routes/queue.js'
+import { sessionRoutes } from './routes/sessions.js'
 import { setupWebSocket } from './realtime/websocket.js'
 import { startHeartbeat, stopHeartbeat } from './execution/heartbeat.js'
 
@@ -176,6 +179,8 @@ await fastify.register(settingsRoutes, { prefix: '/api/v1' })
 await fastify.register(dashboardRoutes, { prefix: '/api/v1' })
 await fastify.register(executionRoutes, { prefix: '/api/v1' })
 await fastify.register(userRoutes, { prefix: '/api/v1' })
+await fastify.register(queueRoutes, { prefix: '/api/v1' })
+await fastify.register(sessionRoutes, { prefix: '/api/v1' })
 
 // ---------------------------------------------------------------------------
 // Real-time WebSocket endpoint (/ws)

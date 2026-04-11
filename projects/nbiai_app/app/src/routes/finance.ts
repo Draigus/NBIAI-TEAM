@@ -26,7 +26,7 @@ import { db } from '../db/index.js'
 import {
   revenueItems,
   payrollItems,
-  agentBudgets,
+  costLogs,
   agents,
   roles,
   pipelineLeads,
@@ -558,23 +558,18 @@ export async function financeRoutes(fastify: FastifyInstance): Promise<void> {
         monthlyPayroll += parseFloat(row.monthlyCost)
       }
 
-      // Agent costs: sum of spent_usd for current month, convert to GBP at 1.27
+      // Agent costs: no-API architecture uses flat Max plan (GBP 180/month).
+      // Cost logs track estimated session costs for capacity planning.
       const GBP_PER_USD = 1 / 1.27
 
       const [agentCostResult] = await db
         .select({
-          totalSpentUsd: sum(agentBudgets.spentUsd),
+          totalCostUsd: sum(costLogs.costUsd),
         })
-        .from(agentBudgets)
-        .innerJoin(agents, eq(agentBudgets.agentId, agents.id))
-        .where(
-          and(
-            eq(agents.companyId, companyId),
-            eq(agentBudgets.monthYear, monthYear),
-          ),
-        )
+        .from(costLogs)
+        .where(eq(costLogs.periodMonth, `${monthYear}-01`))
 
-      const totalSpentUsd = parseFloat(agentCostResult?.totalSpentUsd ?? '0') || 0
+      const totalSpentUsd = parseFloat(agentCostResult?.totalCostUsd ?? '0') || 0
       const monthlyAgentCosts = Math.round(totalSpentUsd * GBP_PER_USD * 100) / 100
 
       // Pipeline weighted and total values
@@ -630,39 +625,34 @@ export async function financeRoutes(fastify: FastifyInstance): Promise<void> {
 
   // -------------------------------------------------------------------------
   // GET /api/finance/agent-costs
+  // No-API architecture: returns cost log entries grouped by agent for the
+  // current month. These are manually logged session cost estimates.
   // -------------------------------------------------------------------------
   fastify.get(
     '/finance/agent-costs',
     { preHandler: requireRole(BOARD_AND_ADMIN) },
     async (request: FastifyRequest, reply: FastifyReply) => {
-      const companyId = request.user.companyId
       const monthYear = currentMonthYear()
 
       const rows = await db
         .select({
-          id: agentBudgets.id,
-          agentId: agentBudgets.agentId,
-          monthYear: agentBudgets.monthYear,
-          budgetUsd: agentBudgets.budgetUsd,
-          spentUsd: agentBudgets.spentUsd,
-          alertSentAt: agentBudgets.alertSentAt,
-          hardStopAt: agentBudgets.hardStopAt,
+          id: costLogs.id,
+          agentId: costLogs.agentId,
           agentName: agents.name,
           roleName: roles.name,
+          costUsd: costLogs.costUsd,
+          periodMonth: costLogs.periodMonth,
+          notes: costLogs.notes,
+          createdAt: costLogs.createdAt,
         })
-        .from(agentBudgets)
-        .innerJoin(agents, eq(agentBudgets.agentId, agents.id))
-        .innerJoin(roles, eq(agents.roleId, roles.id))
-        .where(
-          and(
-            eq(agents.companyId, companyId),
-            eq(agentBudgets.monthYear, monthYear),
-          ),
-        )
-        .orderBy(desc(agentBudgets.spentUsd))
+        .from(costLogs)
+        .leftJoin(agents, eq(costLogs.agentId, agents.id))
+        .leftJoin(roles, eq(agents.roleId, roles.id))
+        .where(eq(costLogs.periodMonth, `${monthYear}-01`))
+        .orderBy(desc(costLogs.createdAt))
 
-      const totalSpentUsd = rows.reduce(
-        (acc, row) => acc + parseFloat(row.spentUsd),
+      const totalCostUsd = rows.reduce(
+        (acc, row) => acc + parseFloat(row.costUsd),
         0,
       )
 
@@ -670,7 +660,8 @@ export async function financeRoutes(fastify: FastifyInstance): Promise<void> {
         data: rows,
         summary: {
           monthYear,
-          totalSpentUsd: Math.round(totalSpentUsd * 1000) / 1000,
+          totalCostUsd: Math.round(totalCostUsd * 1000) / 1000,
+          note: 'Flat Max plan: GBP 180/month. Costs here are estimated session fractions.',
         },
       })
     },

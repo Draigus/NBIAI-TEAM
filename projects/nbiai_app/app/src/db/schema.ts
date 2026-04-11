@@ -71,11 +71,14 @@ export const modelTierEnum = pgEnum('model_tier', ['opus', 'sonnet', 'haiku'])
 
 /**
  * Task lifecycle states.
+ * `queued` added for no-API architecture: tasks move to queued when assembled
+ * into a JSON prompt file written to queue/inbox/ for Claude Desktop to pick up.
  * `review` aligns with the CTO schema (the feature spec uses `in_review`; CTO wins on DB naming).
  */
 export const taskStatusEnum = pgEnum('task_status', [
   'backlog',
   'assigned',
+  'queued',
   'in_progress',
   'blocked',
   'review',
@@ -194,6 +197,30 @@ export const commentTypeEnum = pgEnum('comment_type', [
   'assignment',
   'escalation',
   'system',
+])
+
+/**
+ * Claude Desktop session lifecycle states.
+ * pending: session created, not yet started
+ * in_progress: Claude Desktop is actively running the session
+ * completed: session finished successfully, results posted back
+ * failed: session ended with an error; see failed/ queue folder
+ */
+export const claudeSessionStatusEnum = pgEnum('claude_session_status', [
+  'pending',
+  'in_progress',
+  'completed',
+  'failed',
+])
+
+/**
+ * How a Claude Desktop session was triggered.
+ * manual: Glen copied a prompt and ran it manually
+ * scheduled: Windows Task Scheduler fired an automated session
+ */
+export const sessionTriggerEnum = pgEnum('session_trigger', [
+  'manual',
+  'scheduled',
 ])
 
 // ---------------------------------------------------------------------------
@@ -501,6 +528,16 @@ export const tasks = pgTable(
     dueAt: timestamp('due_at', { withTimezone: true }),
     estimatedMinutes: integer('estimated_minutes'),
     actualMinutes: integer('actual_minutes'),
+    /**
+     * No-API queue columns (added 2026-03-28):
+     * When a task moves to 'queued' status, the app writes a JSON prompt file
+     * to queue/inbox/ and records the timestamp here.
+     */
+    queuedAt: timestamp('queued_at', { withTimezone: true }),
+    /** FK to the claude_desktop_session that executed (or is executing) this task. */
+    sessionId: uuid('session_id').references(() => claudeDesktopSessions.id),
+    /** Full assembled prompt ready to paste into Claude Desktop. Stored for audit. */
+    sessionPrompt: text('session_prompt'),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
   },
@@ -631,9 +668,11 @@ export const taskCheckouts = pgTable(
 // ---------------------------------------------------------------------------
 
 /**
- * Primary audit trail for all agent activity. One record per agent run.
- * Token counts and USD cost are recorded for budget tracking and billing
- * analysis.
+ * Primary audit trail for all agent activity. One record per agent Claude Desktop session.
+ *
+ * No-API architecture (2026-03-28): token counts and USD cost columns removed.
+ * Execution runs through Claude Desktop on Glen's Max subscription (flat £180/month).
+ * Token tracking is done via manual cost logs and the claude_desktop_sessions table.
  */
 export const agentExecutions = pgTable(
   'agent_executions',
@@ -642,15 +681,11 @@ export const agentExecutions = pgTable(
     agentId: uuid('agent_id')
       .notNull()
       .references(() => agents.id),
-    /** NULL for heartbeat-only runs that have no associated task. */
+    /** NULL if the execution spans multiple tasks (e.g. a batch session). */
     taskId: uuid('task_id').references(() => tasks.id),
     status: executionStatusEnum('status').notNull().default('running'),
-    /** Actual Claude model identifier used (e.g. "claude-opus-4-5"). */
+    /** Claude model identifier used (e.g. "claude-opus-4-5"). Recorded for audit. */
     modelUsed: varchar('model_used', { length: 50 }).notNull(),
-    inputTokens: integer('input_tokens').notNull().default(0),
-    outputTokens: integer('output_tokens').notNull().default(0),
-    /** USD cost calculated from token counts and model pricing at time of execution. */
-    costUsd: numeric('cost_usd', { precision: 10, scale: 6 }).notNull().default('0'),
     /** Tokens used by the system prompt alone, for context budget analysis. */
     systemPromptTokens: integer('system_prompt_tokens'),
     /** Tokens used by the assembled knowledge context (Tier 1 + 2 + 3). */
@@ -676,68 +711,86 @@ export const agentExecutions = pgTable(
 )
 
 // ---------------------------------------------------------------------------
-// Table: agent_heartbeats
+// Table: claude_desktop_sessions
 // ---------------------------------------------------------------------------
 
 /**
- * Lightweight liveness tracking. One row per agent. Updated on every
- * execution start and completion. The dashboard uses this for real-time
- * agent status display without querying the full executions table.
+ * Records each Claude Desktop session used to execute tasks.
+ *
+ * No-API architecture: Claude Desktop (on Glen's Max plan) is the execution
+ * engine. Each session corresponds to one or more tasks processed in a single
+ * Claude Desktop run. The app writes task files to queue/inbox/ and the session
+ * records the outcome after Glen pastes results back (or Task Scheduler fires
+ * an automated session).
  */
-export const agentHeartbeats = pgTable(
-  'agent_heartbeats',
+export const claudeDesktopSessions = pgTable(
+  'claude_desktop_sessions',
   {
     id: uuid('id').defaultRandom().primaryKey(),
-    agentId: uuid('agent_id')
+    /** Human-readable session label, e.g. "CEO morning review 2026-03-28". */
+    label: varchar('label', { length: 200 }).notNull(),
+    /** The primary agent that ran in this session. Nullable for multi-agent sessions. */
+    agentId: uuid('agent_id').references(() => agents.id),
+    status: claudeSessionStatusEnum('status').notNull().default('pending'),
+    trigger: sessionTriggerEnum('trigger').notNull(),
+    /** For scheduled sessions: when the Task Scheduler was set to fire. */
+    scheduledFor: timestamp('scheduled_for', { withTimezone: true }),
+    startedAt: timestamp('started_at', { withTimezone: true }),
+    completedAt: timestamp('completed_at', { withTimezone: true }),
+    /** Free-text notes: Glen can annotate what the session produced. */
+    notes: text('notes'),
+    createdByUserId: uuid('created_by_user_id')
       .notNull()
-      .unique()
-      .references(() => agents.id, { onDelete: 'cascade' }),
-    lastSeenAt: timestamp('last_seen_at', { withTimezone: true }).defaultNow().notNull(),
-    lastExecutionId: uuid('last_execution_id').references(() => agentExecutions.id),
-    lastTaskId: uuid('last_task_id').references(() => tasks.id),
-    /** Short human-readable status string, e.g. "Drafting proposal for Playtika" */
-    statusMessage: varchar('status_message', { length: 500 }),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
-  },
-  (t) => [
-    uniqueIndex('agent_heartbeats_agent_id_unique').on(t.agentId),
-    index('agent_heartbeats_last_seen_at_idx').on(t.lastSeenAt),
-  ],
-)
-
-// ---------------------------------------------------------------------------
-// Table: agent_budgets
-// ---------------------------------------------------------------------------
-
-/**
- * Monthly cost cap per agent. One row per agent per calendar month.
- * Budget enforcement uses a row-level lock (SELECT ... FOR UPDATE) on the
- * pre-execution check to prevent race conditions when concurrent executions
- * are triggered for the same agent.
- */
-export const agentBudgets = pgTable(
-  'agent_budgets',
-  {
-    id: uuid('id').defaultRandom().primaryKey(),
-    agentId: uuid('agent_id')
-      .notNull()
-      .references(() => agents.id, { onDelete: 'cascade' }),
-    /** Format: '2026-03' (ISO year-month) */
-    monthYear: varchar('month_year', { length: 7 }).notNull(),
-    /** Monthly spend cap in USD. */
-    budgetUsd: numeric('budget_usd', { precision: 10, scale: 2 }).notNull(),
-    /** Running total in USD, updated after each completed execution. */
-    spentUsd: numeric('spent_usd', { precision: 10, scale: 6 }).notNull().default('0'),
-    /** When the 80% threshold alert was sent. Null if not yet sent. */
-    alertSentAt: timestamp('alert_sent_at', { withTimezone: true }),
-    /** When the 100% hard stop was triggered. Null if not yet hit. */
-    hardStopAt: timestamp('hard_stop_at', { withTimezone: true }),
+      .references(() => users.id),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [
-    uniqueIndex('agent_budgets_agent_month_unique').on(t.agentId, t.monthYear),
-    index('agent_budgets_month_year_idx').on(t.monthYear),
+    index('claude_desktop_sessions_agent_id_idx').on(t.agentId),
+    index('claude_desktop_sessions_status_idx').on(t.status),
+    index('claude_desktop_sessions_created_at_desc_idx').on(t.createdAt),
+  ],
+)
+
+// ---------------------------------------------------------------------------
+// Table: cost_logs
+// ---------------------------------------------------------------------------
+
+/**
+ * Manually logged session costs for the Finance module.
+ *
+ * No-API architecture: there is no per-token billing. Glen pays £180/month
+ * flat for Claude Max. This table lets Glen optionally annotate sessions
+ * with estimated token usage (as a % of the monthly plan cap) for capacity
+ * planning. Dollar cost fields retained for future flexibility if pricing
+ * model changes.
+ */
+export const costLogs = pgTable(
+  'cost_logs',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    sessionId: uuid('session_id')
+      .notNull()
+      .references(() => claudeDesktopSessions.id),
+    agentId: uuid('agent_id').references(() => agents.id),
+    /** First day of the month this cost belongs to (e.g. 2026-03-01). */
+    periodMonth: date('period_month').notNull(),
+    /**
+     * Estimated cost in USD for the session.
+     * For Max plan: this is Glen's manual estimate based on subscription fraction.
+     * (£180/month / ~30 sessions = ~£6 per session as a rough guide)
+     */
+    costUsd: numeric('cost_usd', { precision: 10, scale: 2 }).notNull(),
+    notes: varchar('notes', { length: 500 }),
+    createdByUserId: uuid('created_by_user_id')
+      .notNull()
+      .references(() => users.id),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    index('cost_logs_session_id_idx').on(t.sessionId),
+    index('cost_logs_period_month_idx').on(t.periodMonth),
+    index('cost_logs_agent_id_idx').on(t.agentId),
   ],
 )
 
@@ -969,44 +1022,10 @@ export const knowledgeFiles = pgTable(
   ],
 )
 
-// ---------------------------------------------------------------------------
-// Table: api_keys
-// ---------------------------------------------------------------------------
-
-/**
- * Encrypted storage for external API keys (Anthropic, and future integrations).
- * Keys are encrypted at rest using AES-256-GCM with the API_KEY_ENCRYPTION_KEY
- * environment variable. The raw key is never stored in plain text.
- *
- * key_suffix stores the last 4-8 characters of the key for identification
- * in the UI without exposing the full key.
- */
-export const apiKeys = pgTable(
-  'api_keys',
-  {
-    id: uuid('id').defaultRandom().primaryKey(),
-    companyId: uuid('company_id')
-      .notNull()
-      .references(() => companies.id),
-    name: varchar('name', { length: 255 }).notNull(),
-    provider: varchar('provider', { length: 100 }).notNull(),
-    /** AES-256-GCM encrypted key value. */
-    encryptedKey: text('encrypted_key').notNull(),
-    /** Last 4-8 characters of the key, shown in the UI for identification. */
-    keySuffix: varchar('key_suffix', { length: 8 }).notNull(),
-    isActive: boolean('is_active').notNull().default(true),
-    lastUsedAt: timestamp('last_used_at', { withTimezone: true }),
-    createdByUserId: uuid('created_by_user_id')
-      .notNull()
-      .references(() => users.id),
-    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
-  },
-  (t) => [
-    index('api_keys_company_id_provider_idx').on(t.companyId, t.provider),
-    index('api_keys_is_active_idx').on(t.isActive),
-  ],
-)
+// api_keys table REMOVED (2026-03-28).
+// No Anthropic API key is required. The NBIAI App makes zero calls to the
+// Anthropic API. Claude Desktop on Glen's Max plan is the execution engine.
+// See: company/knowledge/strategic_decisions.md -- "NBIAI App: zero Anthropic API"
 
 // ---------------------------------------------------------------------------
 // Table: activity_log

@@ -2,9 +2,9 @@
  * Dashboard (Command Centre) routes.
  *
  * GET /api/dashboard/summary      — quick stats: open tasks, active agents,
- *                                   pending approvals, active projects
+ *                                   pending approvals, active projects, queue counts
  * GET /api/dashboard/activity     — recent activity feed with cursor pagination
- * GET /api/dashboard/agent-status — real-time agent status with heartbeats
+ * GET /api/dashboard/agent-status — agent status list
  */
 
 import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
@@ -19,7 +19,6 @@ import {
   approvals,
   projects,
   activityLog,
-  agentHeartbeats,
   users,
 } from '../db/schema.js'
 import { requireAuth } from '../middleware/auth.js'
@@ -85,12 +84,46 @@ export async function dashboardRoutes(fastify: FastifyInstance): Promise<void> {
         ),
       )
 
+    // Queue counts for the dashboard widget
+    const [{ queuedCount }] = await db
+      .select({ queuedCount: sql<number>`cast(count(*) as int)` })
+      .from(tasks)
+      .where(
+        and(
+          eq(tasks.companyId, companyId),
+          eq(tasks.status, 'queued'),
+        ),
+      )
+
+    const [{ inProgressCount }] = await db
+      .select({ inProgressCount: sql<number>`cast(count(*) as int)` })
+      .from(tasks)
+      .where(
+        and(
+          eq(tasks.companyId, companyId),
+          eq(tasks.status, 'in_progress'),
+        ),
+      )
+
+    const [{ reviewCount }] = await db
+      .select({ reviewCount: sql<number>`cast(count(*) as int)` })
+      .from(tasks)
+      .where(
+        and(
+          eq(tasks.companyId, companyId),
+          eq(tasks.status, 'review'),
+        ),
+      )
+
     return reply.send({
       data: {
         openTasksCount,
         activeAgentsCount,
         pendingApprovalsCount,
         projectsCount,
+        queuedCount,
+        inProgressCount,
+        reviewCount,
       },
     })
   })
@@ -148,15 +181,14 @@ export async function dashboardRoutes(fastify: FastifyInstance): Promise<void> {
         id: agents.id,
         name: agents.name,
         status: agents.status,
+        modelTier: agents.modelTier,
         currentTaskId: agents.currentTaskId,
         roleName: roles.name,
-        roleModelTier: roles.defaultModelTier,
-        lastSeenAt: agentHeartbeats.lastSeenAt,
+        roleSlug: roles.slug,
         currentTaskTitle: tasks.title,
       })
       .from(agents)
       .innerJoin(roles, eq(agents.roleId, roles.id))
-      .leftJoin(agentHeartbeats, eq(agents.id, agentHeartbeats.agentId))
       .leftJoin(tasks, eq(agents.currentTaskId, tasks.id))
       .where(eq(agents.companyId, companyId))
       .orderBy(agents.name)
@@ -165,15 +197,14 @@ export async function dashboardRoutes(fastify: FastifyInstance): Promise<void> {
       id: row.id,
       name: row.name,
       status: row.status,
-      role: {
-        name: row.roleName,
-        modelTier: row.roleModelTier,
-      },
-      lastSeenAt: row.lastSeenAt ?? null,
+      roleName: row.roleName,
+      roleSlug: row.roleSlug,
+      modelTier: row.modelTier,
       currentTask:
         row.currentTaskId && row.currentTaskTitle
           ? { id: row.currentTaskId, title: row.currentTaskTitle }
           : null,
+      currentTaskTitle: row.currentTaskTitle ?? null,
     }))
 
     return reply.send({ data })

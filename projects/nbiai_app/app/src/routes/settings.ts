@@ -2,26 +2,21 @@
  * Settings routes.
  *
  * Company:
- * GET    /api/settings/company          — get company record
- * PATCH  /api/settings/company          — update company (board only)
+ * GET    /api/settings/company          -- get company record
+ * PATCH  /api/settings/company          -- update company (board only)
  *
  * Users:
- * GET    /api/settings/users            — list users (board and admin)
- * POST   /api/settings/users            — create user (board only)
- * PATCH  /api/settings/users/:id        — update user role/displayName (board only)
- * DELETE /api/settings/users/:id        — delete user (board only)
- *
- * API keys:
- * GET    /api/settings/api-keys         — list keys (board only, masked)
- * POST   /api/settings/api-keys         — add key (board only, encrypted)
- * DELETE /api/settings/api-keys/:id     — deactivate key (board only)
- *
- * Budgets:
- * GET    /api/settings/budgets          — list agent budget records (board and admin)
- * PATCH  /api/settings/budgets/:agentId — upsert budget for current month (board only)
+ * GET    /api/settings/users            -- list users (board and admin)
+ * POST   /api/settings/users            -- create user (board only)
+ * PATCH  /api/settings/users/:id        -- update user role/displayName (board only)
+ * DELETE /api/settings/users/:id        -- delete user (board only)
  *
  * Knowledge files:
- * GET    /api/settings/knowledge        — list knowledge files grouped by tier
+ * GET    /api/settings/knowledge        -- list knowledge files grouped by tier
+ *
+ * REMOVED (no-API architecture, 2026-03-28):
+ * - GET/POST/DELETE /api/settings/api-keys  (no Anthropic API key needed)
+ * - GET/PATCH       /api/settings/budgets   (no per-token billing; use cost_logs table)
  */
 
 import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
@@ -32,8 +27,6 @@ import { db } from '../db/index.js'
 import {
   companies,
   users,
-  apiKeys,
-  agentBudgets,
   agents,
   roles,
   knowledgeFiles,
@@ -42,7 +35,7 @@ import {
 import { requireRole } from '../middleware/auth.js'
 import { BOARD_ONLY, BOARD_AND_ADMIN } from '../middleware/rbac.js'
 import { validateBody } from '../lib/validate.js'
-import { encryptApiKey, hashPassword } from '../lib/crypto.js'
+import { hashPassword } from '../lib/crypto.js'
 
 // ---------------------------------------------------------------------------
 // Validation schemas
@@ -68,30 +61,11 @@ const createUserSchema = z.object({
   role: z.enum(['admin', 'viewer']),
 })
 
-// Board role cannot be assigned via PATCH either — prevents role escalation.
+// Board role cannot be assigned via PATCH either -- prevents role escalation.
 const updateUserSchema = z.object({
   role: z.enum(['admin', 'viewer']).optional(),
   displayName: z.string().min(2).max(255).optional(),
 })
-
-const createApiKeySchema = z.object({
-  label: z.string().min(1).max(255),
-  key: z.string().min(1),
-  provider: z.string().min(1).max(100),
-})
-
-const upsertBudgetSchema = z.object({
-  budgetUsd: z.number().positive(),
-})
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-/** Returns current month in YYYY-MM format. */
-function currentMonthYear(): string {
-  return new Date().toISOString().slice(0, 7)
-}
 
 // ---------------------------------------------------------------------------
 // Plugin
@@ -355,209 +329,6 @@ export async function settingsRoutes(fastify: FastifyInstance): Promise<void> {
   )
 
   // -------------------------------------------------------------------------
-  // GET /api/settings/api-keys
-  // -------------------------------------------------------------------------
-  fastify.get(
-    '/settings/api-keys',
-    { preHandler: requireRole(BOARD_ONLY) },
-    async (request: FastifyRequest, reply: FastifyReply) => {
-      const companyId = request.user.companyId
-
-      // Return masked view only — never the encrypted value
-      const rows = await db
-        .select({
-          id: apiKeys.id,
-          label: apiKeys.name,
-          keyPreview: apiKeys.keySuffix,
-          provider: apiKeys.provider,
-          isActive: apiKeys.isActive,
-          lastUsedAt: apiKeys.lastUsedAt,
-          createdAt: apiKeys.createdAt,
-        })
-        .from(apiKeys)
-        .where(eq(apiKeys.companyId, companyId))
-        .orderBy(desc(apiKeys.createdAt))
-
-      return reply.send({ data: rows })
-    },
-  )
-
-  // -------------------------------------------------------------------------
-  // POST /api/settings/api-keys
-  // -------------------------------------------------------------------------
-  fastify.post(
-    '/settings/api-keys',
-    { preHandler: requireRole(BOARD_ONLY) },
-    async (request: FastifyRequest, reply: FastifyReply) => {
-      const companyId = request.user.companyId
-      const userId = request.user.sub
-
-      const body = validateBody(createApiKeySchema, request.body)
-      const { label, key, provider } = body
-
-      // Encrypt the key for storage
-      const encryptedKey = encryptApiKey(key)
-
-      // Store last 8 chars of raw key as preview
-      const keyPreview = key.slice(-8)
-
-      const [created] = await db
-        .insert(apiKeys)
-        .values({
-          companyId,
-          name: label,
-          provider,
-          encryptedKey,
-          keySuffix: keyPreview,
-          isActive: true,
-          createdByUserId: userId,
-        })
-        .returning({
-          id: apiKeys.id,
-          label: apiKeys.name,
-          keyPreview: apiKeys.keySuffix,
-          provider: apiKeys.provider,
-          isActive: apiKeys.isActive,
-          createdAt: apiKeys.createdAt,
-        })
-
-      return reply.status(201).send({ data: created })
-    },
-  )
-
-  // -------------------------------------------------------------------------
-  // DELETE /api/settings/api-keys/:id  (soft-delete: set isActive false)
-  // -------------------------------------------------------------------------
-  fastify.delete(
-    '/settings/api-keys/:id',
-    { preHandler: requireRole(BOARD_ONLY) },
-    async (request: FastifyRequest, reply: FastifyReply) => {
-      const { id } = request.params as { id: string }
-      const companyId = request.user.companyId
-
-      const [existing] = await db
-        .select()
-        .from(apiKeys)
-        .where(and(eq(apiKeys.id, id), eq(apiKeys.companyId, companyId)))
-        .limit(1)
-
-      if (!existing) {
-        return reply.status(404).send({
-          error: { code: 'NOT_FOUND', message: 'API key not found.' },
-        })
-      }
-
-      await db
-        .update(apiKeys)
-        .set({ isActive: false, updatedAt: new Date() })
-        .where(eq(apiKeys.id, id))
-
-      return reply.status(204).send()
-    },
-  )
-
-  // -------------------------------------------------------------------------
-  // GET /api/settings/budgets
-  // -------------------------------------------------------------------------
-  fastify.get(
-    '/settings/budgets',
-    { preHandler: requireRole(BOARD_AND_ADMIN) },
-    async (request: FastifyRequest, reply: FastifyReply) => {
-      const companyId = request.user.companyId
-      const monthYear = currentMonthYear()
-
-      const rows = await db
-        .select({
-          id: agentBudgets.id,
-          agentId: agentBudgets.agentId,
-          monthYear: agentBudgets.monthYear,
-          budgetUsd: agentBudgets.budgetUsd,
-          spentUsd: agentBudgets.spentUsd,
-          alertSentAt: agentBudgets.alertSentAt,
-          hardStopAt: agentBudgets.hardStopAt,
-          createdAt: agentBudgets.createdAt,
-          agentName: agents.name,
-          roleName: roles.name,
-        })
-        .from(agentBudgets)
-        .innerJoin(agents, eq(agentBudgets.agentId, agents.id))
-        .innerJoin(roles, eq(agents.roleId, roles.id))
-        .where(
-          and(
-            eq(agents.companyId, companyId),
-            eq(agentBudgets.monthYear, monthYear),
-          ),
-        )
-        .orderBy(desc(agentBudgets.budgetUsd))
-
-      return reply.send({ data: rows })
-    },
-  )
-
-  // -------------------------------------------------------------------------
-  // PATCH /api/settings/budgets/:agentId
-  // -------------------------------------------------------------------------
-  fastify.patch(
-    '/settings/budgets/:agentId',
-    { preHandler: requireRole(BOARD_ONLY) },
-    async (request: FastifyRequest, reply: FastifyReply) => {
-      const { agentId } = request.params as { agentId: string }
-      const companyId = request.user.companyId
-      const monthYear = currentMonthYear()
-
-      const body = validateBody(upsertBudgetSchema, request.body)
-      const { budgetUsd } = body
-
-      // Verify agent belongs to this company
-      const [agent] = await db
-        .select({ id: agents.id })
-        .from(agents)
-        .where(and(eq(agents.id, agentId), eq(agents.companyId, companyId)))
-        .limit(1)
-
-      if (!agent) {
-        return reply.status(404).send({
-          error: { code: 'NOT_FOUND', message: 'Agent not found.' },
-        })
-      }
-
-      // Upsert: update if exists, insert if not
-      const [existing] = await db
-        .select()
-        .from(agentBudgets)
-        .where(
-          and(
-            eq(agentBudgets.agentId, agentId),
-            eq(agentBudgets.monthYear, monthYear),
-          ),
-        )
-        .limit(1)
-
-      let result
-
-      if (existing) {
-        ;[result] = await db
-          .update(agentBudgets)
-          .set({ budgetUsd: String(budgetUsd), updatedAt: new Date() })
-          .where(eq(agentBudgets.id, existing.id))
-          .returning()
-      } else {
-        ;[result] = await db
-          .insert(agentBudgets)
-          .values({
-            agentId,
-            monthYear,
-            budgetUsd: String(budgetUsd),
-            spentUsd: '0',
-          })
-          .returning()
-      }
-
-      return reply.send({ data: result })
-    },
-  )
-
-  // -------------------------------------------------------------------------
   // GET /api/settings/knowledge
   // -------------------------------------------------------------------------
   fastify.get(
@@ -616,4 +387,16 @@ export async function settingsRoutes(fastify: FastifyInstance): Promise<void> {
       })
     },
   )
+
+  // -------------------------------------------------------------------------
+  // REMOVED: GET/POST/DELETE /api/settings/api-keys
+  // No Anthropic API key required. The app makes zero API calls.
+  // See: company/knowledge/strategic_decisions.md
+  // -------------------------------------------------------------------------
+
+  // -------------------------------------------------------------------------
+  // REMOVED: GET/PATCH /api/settings/budgets
+  // No per-token billing. Glen pays £180/month flat for Claude Max.
+  // Manual cost tracking via cost_logs table (Sprint 2).
+  // -------------------------------------------------------------------------
 }

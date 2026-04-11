@@ -129,3 +129,143 @@ Jeff Day completed a full automated QA assessment of the salary database (FULL_D
 - Tom Rieger reviewed and confirmed: "looks really, really good"
 
 Earlier data concern: Jeff Day had "critical concerns" about some data in January 2026 (video_game_salaries_2025-2026_missing_rows_filled.xlsx). Confirm with VP Engineering whether those concerns were fully resolved before testing data accuracy.
+
+## Security Review Checklist
+
+This checklist is run by the QA Lead on every release, prior to the Opus final QA pass. Each item must be explicitly verified and recorded in the release readiness report. No item may be marked as assumed or skipped without CTO sign-off.
+
+---
+
+### 1. Authentication and Authorisation
+
+**What to check:**
+- JWT tokens are validated on every protected route using `jose` — not just decoded, but cryptographically verified against the expected algorithm and signing key
+- Tokens contain the correct claims (user ID, role, expiry) and those claims are actually used by the authorisation logic
+- RBAC enforcement is applied at the route handler level in Fastify, not only at the UI layer — test by calling API routes directly with a token belonging to a lower-privilege role
+- Sessions expire correctly: attempt to use an expired token and confirm a 401 is returned, not a 200 with stale data
+- Password hashing uses Argon2id — confirm no legacy bcrypt or MD5 paths remain in the codebase
+
+**How to verify:**
+- Use a REST client (e.g. Insomnia or curl) to call protected Fastify routes without a token, with an expired token, and with a valid token for the wrong role
+- Check the Fastify route definitions for `onRequest` or `preHandler` hooks that enforce authentication — any route missing a hook is a finding
+- Inspect the database: confirm stored passwords are Argon2id hashes (they start with `$argon2id$`)
+
+**Pass:** Every protected route returns 401 for unauthenticated requests, 403 for insufficient role, and the correct data only for the correct role. Argon2id hashes confirmed in the database.
+
+**Fail triggers:** Any protected route accessible without a valid token. Any route where a lower-privilege role can access higher-privilege data. Any non-Argon2id password hash present. Escalate to CTO immediately; this is a Critical severity finding and blocks release.
+
+---
+
+### 2. Input Validation
+
+**What to check:**
+- All Fastify route handlers that accept request bodies, query parameters, or URL params have a corresponding Zod schema applied via the Fastify schema validation or a `zod-to-json-schema` integration
+- Every field that touches the database is validated for type, length, and format before it reaches the Drizzle query layer
+- String fields that are written to HTML output are sanitised to prevent XSS — check for any use of `dangerouslySetInnerHTML` in React that operates on unvalidated data
+- No raw SQL string concatenation or template literals used in Drizzle queries — parameterised queries only
+
+**How to verify:**
+- Submit intentionally malformed payloads to each endpoint (missing required fields, type mismatches, oversized strings, SQL metacharacters such as `'; DROP TABLE--`, angle brackets and script tags for XSS)
+- Search the codebase for `dangerouslySetInnerHTML` and audit each instance
+- Search the Drizzle query layer for any `sql` tagged template literals that incorporate unvalidated user input directly
+
+**Pass:** Malformed payloads return 400 with a validation error and no database interaction occurs. SQL metacharacters in inputs do not cause errors or unexpected query behaviour. XSS payloads do not execute in the browser.
+
+**Fail triggers:** Any input that reaches the database without schema validation. Any XSS payload that executes. Any SQL injection that causes an error or data exposure. Critical severity; blocks release.
+
+---
+
+### 3. API Security
+
+**What to check:**
+- Fastify rate limiting is active on authentication endpoints (login, password reset) and on any resource-intensive endpoints (data exports, bulk queries)
+- Error responses from the API do not include stack traces, internal file paths, database error messages, or any detail that would help an attacker map the system
+- Fastify's default error handler has been overridden to return sanitised error objects in production mode
+- CORS configuration is explicit and restricted to known origins — wildcard `*` is not acceptable in production
+
+**How to verify:**
+- Intentionally trigger a server error (e.g. send a payload that causes a Drizzle constraint violation) and inspect the response body for stack traces or database detail
+- Confirm the `@fastify/rate-limit` plugin is configured and test by sending more than the allowed number of requests to the login endpoint in rapid succession — a 429 response is expected
+- Review the CORS configuration in Fastify setup and confirm the allowed origins list matches the production and preview domains only
+
+**Pass:** No stack traces or internal error detail in any API response. Rate limiting returns 429 after threshold is exceeded. CORS blocks requests from unlisted origins.
+
+**Fail triggers:** Stack trace or database error message visible in any API response. Rate limiting absent on authentication endpoints. CORS configured with wildcard in production. High severity; CTO risk acceptance required for release.
+
+---
+
+### 4. Data Handling
+
+**What to check:**
+- Application logs (Fastify's built-in Pino logger or any custom logging) do not include passwords, tokens, API keys, or any PII (names, email addresses, salary figures for identifiable individuals)
+- URLs and query strings do not contain PII or sensitive identifiers — user IDs in URLs are acceptable if they are opaque (UUID), but email addresses, names, or salary values must never appear in a URL
+- Sensitive database fields (e.g. stored API keys, any financial data fields, personal identifiable fields) are encrypted at rest using AES-256-GCM as implemented in the application's encryption utility
+- Drizzle migrations confirm that encrypted columns are defined as text/bytea (not plaintext varchar) and that the encryption/decryption logic is applied consistently at the application layer
+
+**How to verify:**
+- Run the application in a test environment and observe the log output during login, data query, and error conditions — scan for any of the above categories
+- Audit the Drizzle schema for any field that should be encrypted and confirm the corresponding model layer applies `encryptField` / `decryptField` calls
+- Inspect actual database rows for sensitive fields and confirm the stored values are ciphertext, not plaintext
+- Attempt to access user data via URL manipulation (e.g. swap a UUID in a resource URL) and confirm RBAC prevents unauthorised access
+
+**Pass:** No secrets, tokens, or PII found in logs or URLs. Sensitive fields store ciphertext in the database. AES-256-GCM encryption confirmed via code review and database inspection.
+
+**Fail triggers:** Any secret or PII found in application logs. Any plaintext sensitive value found in the database where encryption is expected. Critical severity; blocks release.
+
+---
+
+### 5. Dependency Security
+
+**What to check:**
+- `npm audit` returns no critical or high severity vulnerabilities in production dependencies
+- Any known CVE affecting a direct or transitive production dependency has either been patched (via a version upgrade or `npm audit fix`) or has a documented risk acceptance from the CTO
+- Dev-only dependencies with vulnerabilities are noted but do not block release if they cannot be invoked at runtime
+
+**How to verify:**
+- Run `npm audit --omit=dev` in both the backend and frontend package roots and capture the output
+- For any vulnerability that cannot be immediately patched (e.g. no fix available), document the CVE number, affected package, exploitability in NBI's context, and obtain written CTO acceptance
+
+**Pass:** `npm audit --omit=dev` returns zero critical or high vulnerabilities. Any moderate vulnerabilities are documented and accepted.
+
+**Fail triggers:** Any unpatched critical or high CVE in a production dependency without CTO written acceptance. High severity; blocks release unless CTO accepts the risk explicitly.
+
+---
+
+### 6. Environment Hygiene
+
+**What to check:**
+- `.env` files are not committed to the repository — check `.gitignore` includes `.env`, `.env.local`, `.env.production`, and all variants
+- No hardcoded credentials, API keys, connection strings, or secret values exist in any source file (TypeScript, JavaScript, configuration files, or SQL migration files)
+- Environment variables consumed by the React frontend contain only values that are safe to expose to the browser — any variable prefixed with `VITE_` or equivalent is public; confirm no secrets are passed this way
+- The production deployment environment (Vercel, Railway, or equivalent) stores secrets as encrypted environment variables, not in committed config files
+
+**How to verify:**
+- Run `git log --all --full-history -- "**/.env*"` to confirm no `.env` files have ever been committed (if they have, assess whether secrets need rotating)
+- Search the codebase for patterns matching known secret formats: connection strings (`postgresql://`), JWT secrets assigned inline, API key strings assigned to constants
+- Review the Vite or build tool configuration and confirm which environment variables are bundled into the client build — inspect the built JS bundle for any string that resembles a secret
+- Check the CI/CD configuration for any secrets stored as plaintext in pipeline YAML
+
+**Pass:** No `.env` file in git history. No hardcoded secrets found in source. Client bundle contains no API keys, database credentials, or JWT signing secrets. Deployment secrets stored in encrypted environment variable store.
+
+**Fail triggers:** Any secret found in git history (requires secret rotation and CTO notification). Any API key or credential found in the client-side JS bundle. Critical severity; blocks release.
+
+---
+
+### 7. GDPR Compliance
+
+**What to check:**
+- Data minimisation: the application collects only the personal data fields that are strictly necessary for the stated purpose — audit the user registration and profile flows for any fields that are collected but not used
+- Deletion capability: there is a functional mechanism to delete a user's personal data on request (the "right to erasure") — this must delete or anonymise all records associated with the user, not just the user row
+- Consent flows: where the application sends marketing communications or uses analytics tracking, there is a documented consent mechanism and consent state is stored against the user record
+- Data residency: confirm where PostgreSQL data is hosted and that the hosting region is compliant with any contractual obligations NBI has with clients regarding data location
+- Retention: if the application stores audit logs or access logs containing PII, confirm there is a retention policy and automated deletion or anonymisation process defined (even if not yet fully automated, the policy must exist)
+
+**How to verify:**
+- Walk through the registration and profile flows and list every personal data field collected; cross-reference against what is actually used in the application
+- Test the user deletion flow end-to-end in a staging environment: create a test user, generate activity data across all relevant tables, delete the user, and confirm no orphaned PII remains in any table
+- Review the Drizzle schema for any table that could hold user-linked data and confirm cascading deletes or anonymisation is applied on user deletion
+- If the application sends emails or uses third-party analytics, confirm consent capture is present and auditable
+
+**Pass:** No unnecessary personal data collected. User deletion removes or anonymises all PII across all tables. Consent is captured where required. Data residency is documented and compliant.
+
+**Fail triggers:** Any orphaned PII remaining after a user deletion request. Any personal data collected with no functional justification. Absence of a deletion mechanism entirely. High severity; CTO and Glen must be notified before release if any GDPR finding cannot be resolved, as this carries regulatory exposure for NBI.
