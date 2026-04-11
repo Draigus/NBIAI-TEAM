@@ -451,13 +451,17 @@ button.sidebar__item, button.sidebar__toggle { font: inherit; color: inherit; ba
 /* ===== TASKS MASTER-DETAIL LAYOUT ===== */
 .tasks-layout { display: flex; gap: 0; height: 100%; }
 .tasks-layout__main { flex: 1; min-width: 0; overflow-y: auto; overflow-x: hidden; }
-.tasks-layout__detail { width: 340px; flex-shrink: 0; border-left: 1px solid var(--border-default); background: var(--bg-raised); overflow-y: auto; display: flex; flex-direction: column; }
+.tasks-layout__detail { width: 340px; min-width: 240px; max-width: 70vw; flex-shrink: 0; border-left: 1px solid var(--border-default); background: var(--bg-raised); overflow-y: auto; display: flex; flex-direction: column; position: relative; }
+.tasks-layout__detail-resize { position: absolute; left: -3px; top: 0; bottom: 0; width: 6px; cursor: col-resize; z-index: 10; }
+.tasks-layout__detail-resize:hover, .tasks-layout__detail-resize.active { background: var(--accent); opacity: 0.4; }
 .tasks-layout__detail--hidden { display: none; }
 
 /* ===== DETAIL PANEL (inline + legacy overlay) ===== */
 .detail-overlay { position: fixed; inset: 0; background: var(--bg-overlay); z-index: 200; display: none; }
 .detail-overlay.open { display: block; }
-.detail-panel { position: fixed; top: 0; right: 0; width: 520px; height: 100dvh; background: var(--bg-raised); border-left: 1px solid var(--border-default); z-index: 201; transform: translateX(100%); transition: transform 0.2s; overflow-y: auto; display: flex; flex-direction: column; }
+.detail-panel { position: fixed; top: 0; right: 0; width: 520px; min-width: 320px; max-width: 80vw; height: 100dvh; background: var(--bg-raised); border-left: 1px solid var(--border-default); z-index: 201; transform: translateX(100%); transition: transform 0.2s; overflow-y: auto; display: flex; flex-direction: column; }
+.detail-panel__resize { position: absolute; left: -3px; top: 0; bottom: 0; width: 6px; cursor: col-resize; z-index: 10; }
+.detail-panel__resize:hover, .detail-panel__resize.active { background: var(--accent); opacity: 0.4; }
 .detail-panel.open { transform: translateX(0); }
 .detail-panel__header { padding: var(--space-lg); border-bottom: 1px solid var(--border-default); display: flex; justify-content: space-between; align-items: flex-start; }
 .detail-panel__title { font-size: 1rem; font-weight: 600; flex: 1; margin-right: var(--space-md); }
@@ -727,6 +731,13 @@ span.fin-editable { display: inline-block; position: relative; }
 .gantt__bar--nodate { cursor: grab; }
 .gantt__bar--nodate:hover { opacity: 0.7; }
 .gantt__arrows { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 4; overflow: visible; }
+.gantt-link-mode .gantt__bar { cursor: crosshair !important; }
+.gantt__bar.gantt-link-source { box-shadow: 0 0 0 2px var(--warning), 0 0 8px rgba(245,158,11,0.4); z-index: 5; }
+.gantt__bar.gantt-link-target { box-shadow: 0 0 0 2px var(--accent), 0 0 8px rgba(0,102,255,0.3); z-index: 5; }
+.gantt__collapse-toggle { display: inline-block; width: 14px; font-size: 0.6rem; color: var(--text-muted); flex-shrink: 0; text-align: center; cursor: pointer; }
+.gantt__arrow-hit { fill: none; stroke: transparent; stroke-width: 12; pointer-events: stroke; cursor: pointer; }
+.gantt__arrow-hit:hover + .gantt__arrow { stroke-width: 3; }
+.gantt__arrow--selected { stroke: var(--accent) !important; stroke-width: 3 !important; opacity: 1 !important; stroke-dasharray: none !important; }
 .gantt__arrow { fill: none; stroke-width: 1.5; }
 .gantt__arrow--done { stroke: var(--success); opacity: 0.35; }
 .gantt__arrow--pending { stroke: var(--warning); stroke-dasharray: 4 2; }
@@ -736,7 +747,7 @@ span.fin-editable { display: inline-block; position: relative; }
 .gantt__bar--blocked { background: var(--purple); }
 .gantt__bar--cancelled { background: var(--text-faint); opacity: 0.3; }
 .gantt__bar--nodate { background: var(--warning); opacity: 0.4; width: 4px !important; }
-.gantt__today-line { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--danger); z-index: 3; pointer-events: none; }
+.gantt__today-line { position: absolute; top: 0; bottom: 0; background: rgba(34,197,94,0.18); z-index: 1; pointer-events: none; }
 .gantt__day-col { border-right: 1px solid var(--border-subtle); flex-shrink: 0; }
 .gantt__day-col--weekend { background: color-mix(in srgb, var(--bg-surface) 50%, transparent); }
 .gantt__day-col--today { background: color-mix(in srgb, var(--accent) 5%, transparent); }
@@ -1311,6 +1322,9 @@ span.fin-editable { display: inline-block; position: relative; }
 .bug-reports-table th { text-align: left; padding: 8px 10px; border-bottom: 2px solid var(--border-default); color: var(--text-secondary); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.3px; }
 .bug-reports-table td { padding: 8px 10px; border-bottom: 1px solid var(--border-subtle); vertical-align: top; }
 .bug-reports-table tr:hover td { background: color-mix(in srgb, var(--accent) 4%, var(--bg-surface)); }
+.item-type-badge { display: inline-block; padding: 1px 5px; border-radius: 3px; font-size: 0.58rem; font-weight: 600; letter-spacing: 0.3px; white-space: nowrap; color: #fff; }
+.picker-row { padding: 8px 12px; cursor: pointer; display: flex; gap: 6px; align-items: center; border-bottom: 1px solid var(--border-default); }
+.picker-row:hover { background: var(--bg-hover); }
 .bug-type-badge { display: inline-block; padding: 2px 8px; border-radius: var(--radius-sm); font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
 .bug-type-badge--bug { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
 .bug-type-badge--feature { background: color-mix(in srgb, var(--accent) 12%, var(--bg-card)); color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent); }
@@ -1474,7 +1488,16 @@ span.fin-editable { display: inline-block; position: relative; }
   </div>
   <div class="g-header__actions">
     <span id="userBadge" class="header-desktop-only" style="color:var(--text-secondary);font-size:0.82rem;margin-right:4px;"></span>
-    <button class="btn btn--primary" onclick="addTask()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 1v12M1 7h12"/></svg><span class="header-desktop-only"> Task</span></button>
+    <div class="add-item-menu" style="position:relative;display:inline-flex">
+      <button class="btn btn--primary" onclick="addTask()" style="border-radius:var(--radius-sm) 0 0 var(--radius-sm)"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 1v12M1 7h12"/></svg><span class="header-desktop-only"> New</span></button>
+      <button class="btn btn--primary" onclick="toggleAddItemMenu(event)" style="padding:4px 6px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;border-left:1px solid rgba(255,255,255,0.25)">&#9660;</button>
+      <div id="addItemMenuDropdown" style="display:none;position:absolute;top:100%;right:0;margin-top:4px;background:var(--bg-raised);border:1px solid var(--border-default);border-radius:var(--radius-sm);box-shadow:var(--shadow-lg);z-index:400;min-width:160px;overflow:hidden">
+        <div style="padding:6px 12px;cursor:pointer;font-size:0.82rem;display:flex;gap:8px;align-items:center" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''" onclick="closeAddItemMenu();addItem('project')"><span style="width:18px;text-align:center">\u{1F4C1}</span> New Project</div>
+        <div style="padding:6px 12px;cursor:pointer;font-size:0.82rem;display:flex;gap:8px;align-items:center" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''" onclick="closeAddItemMenu();showAddItemPicker('feature')"><span style="width:18px;text-align:center">\u2605</span> New Feature</div>
+        <div style="padding:6px 12px;cursor:pointer;font-size:0.82rem;display:flex;gap:8px;align-items:center" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''" onclick="closeAddItemMenu();showAddItemPicker('story')"><span style="width:18px;text-align:center">\u{1F4D6}</span> New Story</div>
+        <div style="padding:6px 12px;cursor:pointer;font-size:0.82rem;display:flex;gap:8px;align-items:center" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''" onclick="closeAddItemMenu();showAddItemPicker('task')"><span style="width:18px;text-align:center">\u270E</span> New Task</div>
+      </div>
+    </div>
     <button class="btn header-desktop-only" onclick="printReport()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="1" width="8" height="4" rx="1"/><rect x="1" y="5" width="12" height="6" rx="1.5"/><rect x="4" y="9" width="6" height="4" rx="0.5"/></svg> Print</button>
     <button class="btn header-desktop-only" onclick="openBugReportModal()" id="bugReportBtn" title="Report Bug or Feature Request" style="background:#f59e0b;color:#000;font-weight:600;font-size:0.75rem;padding:4px 10px;border-radius:var(--radius-sm)">&#128030; Report</button>
     <button class="btn btn--ghost" onclick="toggleNotifications()" id="notifBtn" title="Notifications" style="position:relative"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1a4 4 0 014 4c0 4 2 5 2 5H2s2-1 2-5a4 4 0 014-4z"/><path d="M6.5 14a1.5 1.5 0 003 0"/></svg><span id="notifBadge" style="display:none;position:absolute;top:-2px;right:-2px;background:var(--danger);color:#fff;font-size:0.55rem;font-weight:700;border-radius:50%;width:14px;height:14px;line-height:14px;text-align:center">0</span></button>
@@ -2329,6 +2352,52 @@ function clientBadgeHtml(clientName) {
 }
 /** Get all top-level (root/project) tasks that have no parent */
 function getRootTasks() { return tasks.filter(t => !t.parentId); }
+/** Generate a sanitised client group key for collapse/expand tracking (e.g. 'client_Couch_Heroes') */
+function clientGroupKey(task) {
+  const cn = (task.client || getTaskClient(task) || 'Unassigned').replace(/[^a-zA-Z0-9]/g, '_');
+  return 'client_' + cn;
+}
+/** Check if a leaf task is missing required fields (hours, priority, assignee, due date) */
+function isTaskIncomplete(task) {
+  if (getChildren(task.id).length > 0) return false;
+  if (task.status === 'Done' || task.status === 'Cancelled' || task.status === 'Not started') return false;
+  return !task.hoursEstimated || !task.priority || !task.assignees || task.assignees.length === 0 || !task.dueDate;
+}
+
+// ==================== ITEM TYPE HIERARCHY ====================
+// Fixed 4-level hierarchy: Project > Feature > Story > Task
+const ITEM_TYPE_META = {
+  project: { label: 'Project', plural: 'Projects', colour: '#6366f1', icon: '\u{1F4C1}' },
+  feature: { label: 'Feature', plural: 'Features', colour: '#8b5cf6', icon: '\u2605' },
+  story:   { label: 'Story',   plural: 'Stories',  colour: '#06b6d4', icon: '\u{1F4D6}' },
+  task:    { label: 'Task',    plural: 'Tasks',    colour: '#64748b', icon: '\u270E' },
+};
+const ITEM_TYPE_ORDER = ['project', 'feature', 'story', 'task'];
+const VALID_CHILD_TYPE = { project: 'feature', feature: 'story', story: 'task', task: null };
+const VALID_PARENT_TYPE = { project: null, feature: 'project', story: 'feature', task: 'story' };
+
+/** Get the item type string for a task ('project', 'feature', 'story', 'task') */
+function getItemType(task) { return task.itemType || 'task'; }
+/** Get the full metadata object (label, plural, colour, icon) for a task's type */
+function getItemTypeMeta(task) { return ITEM_TYPE_META[getItemType(task)] || ITEM_TYPE_META.task; }
+/** Get the human-readable type label (e.g. 'Feature') */
+function getItemTypeLabel(task) { return getItemTypeMeta(task).label; }
+/** Get the plural form of the type label (e.g. 'Features') */
+function getItemTypePlural(task) { return getItemTypeMeta(task).plural; }
+/** Check whether this item type can have children (tasks cannot) */
+function canHaveChildren(task) { return VALID_CHILD_TYPE[getItemType(task)] !== null; }
+/** Get the allowed child type string, or null if no children allowed */
+function getAllowedChildType(task) { return VALID_CHILD_TYPE[getItemType(task)]; }
+/** Get the plural label for children (e.g. 'Stories' for a feature), or null */
+function getChildTypeLabel(task) {
+  const ct = getAllowedChildType(task);
+  return ct ? ITEM_TYPE_META[ct].plural : null;
+}
+/** Render a coloured badge showing the item's type (Project/Feature/Story/Task) */
+function itemTypeBadgeHtml(task) {
+  const m = getItemTypeMeta(task);
+  return `<span class="item-type-badge" style="background:${m.colour}">${m.label}</span>`;
+}
 const CLIENT_PRIORITY = ['Couch Heroes', 'Lighthouse Studios', 'Sarge Universe', 'Goals Studio'];
 /** Sort comparator that puts priority clients first, 'Unassigned' last, alphabetical otherwise */
 function clientSortOrder(a, b) {
@@ -2571,7 +2640,7 @@ function renderSidebar() {
   html += `<div class="sidebar__section"><div class="sidebar__title">Views</div>`;
   html += sidebarItem(svgReport, 'Dashboard', '', () => switchView('report'), currentView==='report');
   html += sidebarItem(svgDashboard, 'Workload', '', () => switchView('dashboard'), currentView==='dashboard');
-  html += sidebarItem(svgTasks, 'Tasks', scopedForHealth.length, () => switchView('tasks'), currentView==='tasks');
+  html += sidebarItem(svgTasks, 'Projects', scopedForHealth.length, () => switchView('tasks'), currentView==='tasks');
   html += sidebarItem(svgPeople, 'People', '', () => switchView('people'), currentView==='people');
   const svgLeads = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 2h12v3H2zM4 5h8v3H4zM6 8h4v3H6zM7 11h2v3H7z"/></svg>';
   if (hasPageAccess('leads')) {
@@ -2593,7 +2662,7 @@ function renderSidebar() {
     const myActiveTasks = tasks.filter(t => t.assignees?.some(a => a === myName) && t.status !== 'Done' && t.status !== 'Cancelled');
     const svgMyTasks = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>';
     html += `<div class="sidebar__section"><div class="sidebar__title">My Work</div>`;
-    html += sidebarItem(svgMyTasks, 'My Tasks', myActiveTasks.length, () => switchView('mytasks'), currentView === 'mytasks');
+    html += sidebarItem(svgMyTasks, 'My Work', myActiveTasks.length, () => switchView('mytasks'), currentView === 'mytasks');
     html += `</div>`;
   }
 
@@ -2773,7 +2842,7 @@ function renderClientProfileHeader() {
   html += `<button class="btn btn--sm btn--ghost" onclick="event.stopPropagation();toggleClientProfile('${clientKey}')" style="display:inline-flex;align-items:center;gap:4px;color:var(--text-muted);font-size:0.72rem"><span id="clientProfileArrow_${clientKey}" style="font-size:0.6rem;transition:transform 0.15s;${isExpanded?'transform:rotate(90deg)':''}">&#9654;</span><span id="clientProfileBtn_${clientKey}">${isExpanded ? 'Hide Profile' : 'Studio Profile'}</span></button>`;
   html += `</div>`;
   html += `<div class="client-header__stats">
-    <div class="client-stat"><div class="client-stat__value">${clientTasks.length}</div><div class="client-stat__label">Tasks</div></div>
+    <div class="client-stat"><div class="client-stat__value">${clientTasks.length}</div><div class="client-stat__label">Items</div></div>
     <div class="client-stat"><div class="client-stat__value">${hrs.toFixed(1)}</div><div class="client-stat__label">Hours Spent</div></div>
     <div class="client-stat"><div class="client-stat__value">${est.toFixed(1)}</div><div class="client-stat__label">Estimated</div></div>
     <div class="client-stat"><div class="client-stat__value">&pound;${cost.toLocaleString()}</div><div class="client-stat__label">Cost</div></div>
@@ -2824,7 +2893,7 @@ function renderClientProfileHeader() {
 /** Render the main tab bar, filtering out tabs the current user lacks permission to see */
 function renderTabs() {
   const tabs = ['report', 'dashboard', 'tasks', 'people', 'leads', 'expenses', 'finances', 'settings'];
-  const labels = { dashboard: 'Workload', tasks: 'Tasks', report: 'Dashboard', people: 'People', leads: 'Leads', expenses: 'Expenses', finances: 'Finances', settings: 'Settings' };
+  const labels = { dashboard: 'Workload', tasks: 'Projects', report: 'Dashboard', people: 'People', leads: 'Leads', expenses: 'Expenses', finances: 'Finances', settings: 'Settings' };
   // Filter tabs based on permissions
   const visibleTabs = tabs.filter(t => {
     if (t === 'finances' || t === 'leads' || t === 'expenses') return hasPageAccess(t);
@@ -2845,6 +2914,8 @@ function checkTabOverflow() {
 function switchView(view) {
   const prev = currentView;
   currentView = view;
+  // Re-collapse the tree when entering the Projects page from a different view
+  if (view === 'tasks' && prev !== 'tasks') { _tasksInitialCollapse = true; }
   if (prev !== view) { history.pushState({ view, filter: { ...currentFilter }, taskSubView }, '', '#' + view); }
   renderAll();
 }
@@ -3760,7 +3831,7 @@ function renderMyTasksView(el) {
 
   let html = `<div class="mytasks">`;
   html += `<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px">
-    <h1 style="margin:0">${esc(myName)}'s Tasks</h1>
+    <h1 style="margin:0">${esc(myName)}'s Work</h1>
     <div style="display:flex;gap:8px;align-items:center">
       <span style="font-size:0.78rem;color:var(--text-muted)">Sort:</span>
       <button class="btn btn--outline ${_myTasksSort==='priority'?'btn--primary':''}" onclick="_myTasksSort='priority';renderContent()" style="font-size:0.75rem;padding:4px 10px">Priority</button>
@@ -3833,7 +3904,7 @@ function renderTaskView(el) {
 
   let html = renderClientProfileHeader();
   html += `<div class="filter-bar">
-    <input type="text" placeholder="Search tasks... (Enter)" value="${esc(currentFilter.search)}" onkeydown="if(event.key==='Enter'){currentFilter.search=this.value;renderContent()}" onblur="if(this.value!==currentFilter.search){currentFilter.search=this.value;renderContent()}">
+    <input type="text" placeholder="Search items... (Enter)" value="${esc(currentFilter.search)}" onkeydown="if(event.key==='Enter'){currentFilter.search=this.value;renderContent()}" onblur="if(this.value!==currentFilter.search){currentFilter.search=this.value;renderContent()}">
     <select onchange="currentFilter.assignee=this.value||null;renderContent()" style="min-width:100px"><option value="">All People</option>${_cachedTeamMembers.map(m => `<option value="${esc(m)}" ${currentFilter.assignee===m?'selected':''}>${esc(m)}</option>`).join('')}</select>
     <select onchange="currentFilter.project=this.value||null;renderContent()" style="min-width:100px"><option value="">All Projects</option>${getRootTasks().filter(r => r.title && r.title.trim() !== 'New Task').sort((a,b) => a.title.localeCompare(b.title)).map(r => `<option value="${esc(r.id)}" ${currentFilter.project===r.id?'selected':''}>${esc(r.title)}</option>`).join('')}</select>
     <select onchange="currentFilter.status=this.value||null;renderContent()"><option value="">All Statuses</option>${STATUSES.map(s=>`<option ${currentFilter.status===s?'selected':''}>${s}</option>`).join('')}</select>
@@ -3880,7 +3951,7 @@ function renderTaskView(el) {
 
   // Quick-add task bar
   html += `<div style="display:flex;gap:8px;margin-bottom:var(--space-md);align-items:center">
-    <input type="text" id="quickAddInput" placeholder="Quick add task... (press Enter)" style="flex:1;padding:8px 12px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-size:0.85rem" onkeydown="if(event.key==='Enter'&&this.value.trim()){quickAddTask(this.value.trim());this.value=''}">
+    <input type="text" id="quickAddInput" placeholder="Quick add project... (press Enter)" style="flex:1;padding:8px 12px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-size:0.85rem" onkeydown="if(event.key==='Enter'&&this.value.trim()){quickAddTask(this.value.trim());this.value=''}">
     <select id="quickAddClient" style="padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-size:0.78rem">
       <option value="">No Client</option>${getContractedClients().map(c => `<option value="${esc(c)}" ${currentFilter.client===c?'selected':''}>${esc(c)}</option>`).join('')}
     </select>
@@ -3901,6 +3972,7 @@ function renderTaskView(el) {
 
   // Inline detail panel (30% right side)
   html += `<div class="tasks-layout__detail ${inlineDetailVisible ? '' : 'tasks-layout__detail--hidden'}" id="inlineDetailPanel">`;
+  html += `<div class="tasks-layout__detail-resize" onmousedown="startPanelResize(event,'inlineDetailPanel')"></div>`;
   if (activeDetailTaskId && tasks.find(t => t.id === activeDetailTaskId)) {
     html += renderInlineTaskDetail(activeDetailTaskId);
   } else {
@@ -3922,23 +3994,35 @@ function renderTreeView(filtered) {
   filtered.forEach(t => { if (t.parentId) { const root = getRootAncestor(t); rootIds.add(root.id); } });
   const roots = tasks.filter(t => rootIds.has(t.id) && !t.parentId);
 
-  // Start collapsed on first visit
+  // Default collapsed to client level: client groups are collapsed, items inside expanded.
+  // _tasksInitialCollapse is set true on page load and when navigating TO the Projects page.
   if (_tasksInitialCollapse) {
-    _tasksInitialCollapse = false;
-    tasks.forEach(t => { if (getChildren(t.id).length > 0) collapsedTaskIds.add(t.id); });
-    const clientSet = new Set();
-    tasks.filter(t => !t.parentId).forEach(t => { clientSet.add('client_' + (t.client || getTaskClient(t) || 'Unassigned')); });
-    clientSet.forEach(c => collapsedTaskIds.add(c));
+    if (roots.length > 0) {
+      _tasksInitialCollapse = false;
+      collapsedTaskIds.clear();
+      // Collapse client groups and all parent items so expanding a client shows project names only
+      roots.forEach(t => { collapsedTaskIds.add(clientGroupKey(t)); });
+      tasks.forEach(t => { if (getChildren(t.id).length > 0) collapsedTaskIds.add(t.id); });
+    }
   }
 
-  let html = `<div class="tree-controls">
+  let html = `<div class="tree-controls" style="display:flex;gap:8px;align-items:center">
     <button class="btn btn--outline" onclick="collapseAll()">Collapse All</button>
-    <button class="btn btn--outline" onclick="expandAll()">Expand All</button>
+    <div style="display:flex;align-items:center;gap:4px">
+      <span style="font-size:0.78rem;color:var(--text-muted)">Expand to:</span>
+      <select class="leads-select" onchange="if(this.value){expandToLevel(this.value);this.value=''}" style="font-size:0.78rem;padding:4px 8px">
+        <option value="">Choose level...</option>
+        <option value="project">Projects</option>
+        <option value="feature">Features</option>
+        <option value="story">Stories</option>
+        <option value="task">Tasks (all)</option>
+      </select>
+    </div>
   </div>`;
   html += '<div class="task-tree">';
 
   if (roots.length === 0) {
-    html += emptyState('&#128269;', 'No tasks match filters', 'Try adjusting your filters or search to find tasks.');
+    html += emptyState('&#128269;', 'No items match filters', 'Try adjusting your filters or search.');
     html += '</div>';
     return html;
   }
@@ -3968,13 +4052,16 @@ function renderTreeView(filtered) {
     html += `<div class="task-client-header" onclick="toggleClientGroup('${clientKey}')" style="cursor:pointer">`;
     html += `<span class="task-client-header__toggle">${isCollapsed ? '&#9654;' : '&#9660;'}</span>`;
     html += `<span class="task-client-header__name">${esc(client)}</span>`;
-    html += `<span class="task-client-header__stats">${clientRoots.length} project${clientRoots.length !== 1 ? 's' : ''} &middot; ${totalTasks} tasks &middot; ${completePct}% complete`;
+    const featureCount = allClientTasks.filter(t => getItemType(t) === 'feature').length;
+    const storyCount = allClientTasks.filter(t => getItemType(t) === 'story').length;
+    const taskCount = allClientTasks.filter(t => getItemType(t) === 'task').length;
+    html += `<span class="task-client-header__stats">${clientRoots.length} project${clientRoots.length !== 1 ? 's' : ''} &middot; ${featureCount} features &middot; ${storyCount + taskCount} items &middot; ${completePct}% complete`;
     if (inProgress > 0) html += ` &middot; <span style="color:var(--accent)">${inProgress} active</span>`;
     if (blocked > 0) html += ` &middot; <span style="color:var(--danger)">${blocked} blocked</span>`;
     html += `</span></div>`;
 
     // Projects under this client (collapsed or expanded). Lazy render: skip if collapsed.
-    html += `<div class="task-client-children ${isCollapsed ? 'hidden' : ''}" id="clientgroup_${clientKey}">`;
+    html += `<div class="task-client-children ${isCollapsed ? 'hidden' : ''}" id="clientgroup_${clientKey}" data-client-name="${esc(client)}">`;
     if (!isCollapsed) {
       clientRoots.forEach(r => { html += renderTaskRow(r, 1, filtered); });
     }
@@ -3985,13 +4072,13 @@ function renderTreeView(filtered) {
   return html;
 }
 
-/** Collapse all task groups and client groups in the tree view */
+/** Collapse All — collapse everything: client groups and all parent items */
 function collapseAll() {
+  collapsedTaskIds.clear();
+  // Collapse client groups
+  tasks.filter(t => !t.parentId).forEach(t => { collapsedTaskIds.add(clientGroupKey(t)); });
+  // Collapse every item that has children
   tasks.forEach(t => { if (getChildren(t.id).length > 0) collapsedTaskIds.add(t.id); });
-  // Also collapse client groups
-  const clients = new Set();
-  tasks.filter(t => !t.parentId).forEach(t => { clients.add('client_' + (t.client || getTaskClient(t) || 'Unassigned')); });
-  clients.forEach(c => collapsedTaskIds.add(c));
   renderContent();
 }
 
@@ -4001,10 +4088,44 @@ function expandAll() {
   renderContent();
 }
 
-/** Render the Kanban board view -- leaf tasks sorted into status-based swim lanes with drag-and-drop */
+/** Expand the tree to a specific hierarchy level, collapsing everything below it.
+ *  'project'  = open client groups, collapse projects (show project names only)
+ *  'feature'  = open clients + projects, collapse features
+ *  'story'    = open clients + projects + features, collapse stories
+ *  'task'     = expand everything (same as Expand All) */
+function expandToLevel(targetType) {
+  // Depth map: which types should be EXPANDED (visible) vs COLLAPSED
+  const depthOrder = ['project', 'feature', 'story', 'task'];
+  const targetIdx = depthOrder.indexOf(targetType);
+  if (targetIdx < 0) return;
+
+  collapsedTaskIds.clear();
+
+  // If expanding to project level, open client groups but collapse every project (and below)
+  // If expanding to feature level, open client groups + projects, collapse features (and below)
+  // etc.
+  tasks.forEach(t => {
+    if (getChildren(t.id).length === 0) return; // leaf nodes don't need collapsing
+    const type = getItemType(t);
+    const typeIdx = depthOrder.indexOf(type);
+    // Collapse items AT the target level and below (they have children to hide)
+    if (typeIdx >= targetIdx) {
+      collapsedTaskIds.add(t.id);
+    }
+  });
+
+  // Client groups: always expand them (they're above project level)
+  // No need to add client keys — they were cleared above
+
+  renderContent();
+}
+
+let _boardTypeFilter = null; // null = all types, or 'project'|'feature'|'story'|'task'
+
+/** Render the Kanban board view -- items sorted into status-based swim lanes with drag-and-drop */
 function renderBoardView(filtered) {
-  // Only show leaf tasks (no children) — parent/group tasks belong in the tree view
-  const allFiltered = filtered.filter(t => getChildren(t.id).length === 0);
+  // Type filter: show all items by default (no longer leaf-only)
+  let allFiltered = _boardTypeFilter ? filtered.filter(t => getItemType(t) === _boardTypeFilter) : filtered;
   const cancelled = allFiltered.filter(t => t.status === 'Cancelled');
   const active = allFiltered.filter(t => t.status !== 'Cancelled');
 
@@ -4013,7 +4134,12 @@ function renderBoardView(filtered) {
   const notBlockedByHealth = active.filter(t => t.healthState !== 'Blocked');
 
   const LANE_CAP = 50; // Max cards per lane to prevent browser freeze
-  let html = '<div class="board">';
+  let html = `<div style="display:flex;gap:6px;margin-bottom:10px;align-items:center;flex-wrap:wrap">
+    <span style="font-size:0.75rem;color:var(--text-muted)">Show:</span>
+    <button class="btn btn--sm ${!_boardTypeFilter?'btn--primary':''}" onclick="_boardTypeFilter=null;renderContent()" style="font-size:0.7rem;padding:2px 8px">All</button>
+    ${ITEM_TYPE_ORDER.map(type => `<button class="btn btn--sm ${_boardTypeFilter===type?'btn--primary':''}" onclick="_boardTypeFilter='${type}';renderContent()" style="font-size:0.7rem;padding:2px 8px">${ITEM_TYPE_META[type].plural}</button>`).join('')}
+  </div>`;
+  html += '<div class="board">';
   BOARD_COLUMNS.forEach(col => {
     const laneTasks = col.id === 'blocked'
       ? [...active.filter(t => t.status === 'Blocked'), ...blockedByHealth.filter(t => t.status !== 'Blocked')]
@@ -4024,7 +4150,7 @@ function renderBoardView(filtered) {
     html += `<div class="board__lane-header"><span class="board__lane-title" style="color:${col.color}">${col.label}</span><span class="board__lane-count">${laneTotal}</span></div>`;
     html += `<div class="board__lane-body ${laneTasks.length === 0 ? 'board__lane-body--empty' : ''}" data-lane-statuses="${col.statuses.join(',')}" ondragover="onBoardDragOver(event)" ondragleave="onBoardDragLeave(event)" ondrop="onBoardDrop(event)">`;
     if (laneTasks.length === 0) {
-      html += 'No tasks';
+      html += 'No items';
     } else {
       cappedTasks.forEach(t => { html += renderBoardCard(t); });
       if (laneTotal > LANE_CAP) html += `<div style="text-align:center;padding:8px;color:var(--text-muted);font-size:0.75rem">+${laneTotal - LANE_CAP} more</div>`;
@@ -4056,13 +4182,16 @@ function renderBoardCard(task) {
 
   const bcClient = getTaskClient(task);
   let html = `<div class="${cls}" draggable="true" data-task-id="${task.id}" onclick="openDetail('${task.id}')" ondragstart="onBoardCardDragStart(event,'${task.id}')" ondragend="onBoardCardDragEnd(event)">`;
-  if (bcClient) html += `<div style="margin-bottom:3px">${clientBadgeHtml(bcClient)}</div>`;
+  if (bcClient) html += `<div style="margin-bottom:3px;display:flex;gap:4px;align-items:center">${clientBadgeHtml(bcClient)} ${itemTypeBadgeHtml(task)}</div>`;
+  else html += `<div style="margin-bottom:3px">${itemTypeBadgeHtml(task)}</div>`;
   html += `<div class="board-card__title">${esc(task.title)}</div>`;
   // Incomplete marker for board cards
-  const bcIncomplete = !hasKids && task.status !== 'Done' && task.status !== 'Cancelled' && task.status !== 'Not started' && (!task.hoursEstimated || !task.priority || !task.assignees || task.assignees.length === 0 || !task.dueDate);
+  const bcIncomplete = isTaskIncomplete(task);
   const bcMissing = bcIncomplete ? [!task.hoursEstimated?'hours':'', !task.priority?'priority':'', !task.assignees||task.assignees.length===0?'assignee':'', !task.dueDate?'due date':''].filter(Boolean).join(', ') : '';
   html += '<div class="board-card__badges">';
   if (bcIncomplete) html += `<span style="color:var(--danger);font-size:0.7rem;font-weight:700;display:inline-flex;align-items:center;gap:2px" title="Missing: ${bcMissing}">&#9888;</span>`;
+  const bcPrereqBlocked = task.status !== 'Done' && getIncompletePrereqs(task).length > 0;
+  if (bcPrereqBlocked) html += `<span style="color:var(--warning);font-size:0.7rem" title="Has incomplete prerequisites">&#128274;</span>`;
   if (task.priority) html += priorityBadgeHtml(task.priority);
   if (task.healthState) html += healthBadgeHtml(task.healthState);
   html += '</div>';
@@ -4188,15 +4317,21 @@ function calExpandDay(dateStr, el) {
 // ===== GANTT / TIMELINE VIEW =====
 let ganttDayWidth = 28; // px per day, adjustable via zoom
 let _ganttLabelWidth = 260; // px, draggable column width
+let _ganttOffsetDays = 0; // Shift the timeline window: negative = past, positive = future
+let _ganttLinkMode = false;  // Whether dependency link mode is active
+let _ganttLinkFrom = null;   // Source task ID when dragging a dependency arrow
+let _ganttHideArrows = false;  // Toggle dependency arrows visibility
+let _ganttSelectedArrow = null; // { fromId, toId } when an arrow is selected
+let _ganttDepView = false;     // Critical path dependency view mode
 
 /** Render the Gantt/timeline view -- horizontal bars per task, grouped by client, with zoom controls */
-let _ganttLimit = 50; // Max tasks to render in Gantt view (performance guard)
+let _ganttLimit = 200; // Max items to render in Gantt view (performance guard)
 let _ganttHideDone = true; // Hide completed tasks by default on timeline
 
 function renderGanttView(filtered) {
-  // Collect all leaf tasks, optionally excluding Done
-  const allLeafTasks = filtered.filter(t => getChildren(t.id).length === 0 && (!_ganttHideDone || t.status !== 'Done'));
-  if (allLeafTasks.length === 0) return emptyState('&#128197;', 'No Tasks for Timeline', 'Add tasks with due dates to see the Gantt chart.');
+  // Show all items in hierarchy (not just leaves), optionally excluding Done
+  const allLeafTasks = filtered.filter(t => !_ganttHideDone || t.status !== 'Done');
+  if (allLeafTasks.length === 0) return emptyState('&#128197;', 'No items for timeline', 'Add items with due dates to see the Gantt chart.');
 
   // Performance guard: cap rendered tasks, prioritise active/upcoming with due dates
   let leafTasks = allLeafTasks;
@@ -4215,14 +4350,14 @@ function renderGanttView(filtered) {
     truncated = true;
   }
 
-  // Determine date range — clamped to a reasonable window to prevent massive DOM
+  // Determine date range — shifted by _ganttOffsetDays for navigation
   const now = new Date(); now.setHours(0,0,0,0);
-  let minDate = new Date(now); minDate.setDate(minDate.getDate() - 14); // 2 weeks ago
-  let maxDate = new Date(now); maxDate.setDate(maxDate.getDate() + 90); // ~3 months ahead
+  let minDate = new Date(now); minDate.setDate(minDate.getDate() - 14 + _ganttOffsetDays);
+  let maxDate = new Date(now); maxDate.setDate(maxDate.getDate() + 90 + _ganttOffsetDays);
 
-  // Only expand range for tasks within a reasonable window (max 6 months from today)
-  const rangeFloor = new Date(now); rangeFloor.setMonth(rangeFloor.getMonth() - 2);
-  const rangeCeiling = new Date(now); rangeCeiling.setMonth(rangeCeiling.getMonth() + 6);
+  // Expand range for tasks within a reasonable window around the current view
+  const rangeFloor = new Date(minDate); rangeFloor.setMonth(rangeFloor.getMonth() - 2);
+  const rangeCeiling = new Date(maxDate); rangeCeiling.setMonth(rangeCeiling.getMonth() + 3);
   leafTasks.forEach(t => {
     const start = ganttTaskStart(t);
     const end = ganttTaskEnd(t);
@@ -4234,19 +4369,21 @@ function renderGanttView(filtered) {
   maxDate.setDate(maxDate.getDate() + 7);
 
   // Hard cap: never exceed 250 days to prevent DOM explosion
-  const totalDays = Math.min(Math.ceil((maxDate - minDate) / 86400000), 250);
+  // Use round instead of ceil to avoid DST off-by-one errors
+  const totalDays = Math.min(Math.round((maxDate - minDate) / 86400000), 250);
   const dayW = ganttDayWidth;
   const timelineW = totalDays * dayW;
 
-  // Group tasks by client
+  // Group ROOT tasks (projects) by client — children are rendered recursively
+  const rootTasks = leafTasks.filter(t => !t.parentId);
   const clientGroups = {};
-  leafTasks.forEach(t => {
+  rootTasks.forEach(t => {
     const client = getTaskClient(t) || 'Uncategorised';
     if (!clientGroups[client]) clientGroups[client] = [];
     clientGroups[client].push(t);
   });
 
-  // Sort clients, then tasks within each client by due date
+  // Sort clients, then projects within each client by due date
   const sortedClients = Object.keys(clientGroups).sort(clientSortOrder);
   sortedClients.forEach(c => {
     clientGroups[c].sort((a,b) => {
@@ -4259,25 +4396,43 @@ function renderGanttView(filtered) {
   // Zoom + filter controls
   html += `<div class="gantt__zoom" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
     <div style="display:flex;align-items:center;gap:4px">
-      <span style="font-size:0.72rem;color:var(--text-muted);margin-right:4px">Zoom:</span>
-      <button class="btn btn--outline btn--sm ${dayW<=16?'active':''}" onclick="ganttDayWidth=14;renderContent()">Week</button>
-      <button class="btn btn--outline btn--sm ${dayW>16&&dayW<=24?'active':''}" onclick="ganttDayWidth=20;renderContent()">Month</button>
-      <button class="btn btn--outline btn--sm ${dayW>24&&dayW<=32?'active':''}" onclick="ganttDayWidth=28;renderContent()">Day</button>
-      <button class="btn btn--outline btn--sm ${dayW>32?'active':''}" onclick="ganttDayWidth=40;renderContent()">Detail</button>
+      <button class="btn btn--outline btn--sm" onclick="ganttDayWidth=Math.max(8,ganttDayWidth-6);renderContent()" title="Zoom out">&minus;</button>
+      <span style="font-size:0.68rem;color:var(--text-muted);min-width:28px;text-align:center">${dayW}px</span>
+      <button class="btn btn--outline btn--sm" onclick="ganttDayWidth=Math.min(60,ganttDayWidth+6);renderContent()" title="Zoom in">+</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:4px">
+      <button class="btn btn--outline btn--sm" onclick="_ganttOffsetDays-=30;renderContent()" title="Back 1 month">&larr;</button>
+      <button class="btn btn--outline btn--sm" onclick="_ganttOffsetDays=0;renderContent()" title="Jump to today" style="font-size:0.68rem">Today</button>
+      <button class="btn btn--outline btn--sm" onclick="_ganttOffsetDays+=30;renderContent()" title="Forward 1 month">&rarr;</button>
     </div>
     <label style="display:flex;align-items:center;gap:6px;font-size:0.78rem;color:var(--text-muted);cursor:pointer;user-select:none">
       <input type="checkbox" ${_ganttHideDone ? 'checked' : ''} onchange="_ganttHideDone=this.checked;renderContent()" style="accent-color:var(--accent)"> Hide Done
     </label>
+    <div class="add-item-menu" style="position:relative;display:inline-flex">
+      <button class="btn btn--sm ${_ganttLinkMode || _ganttDepView ? 'btn--primary' : 'btn--outline'}" onclick="toggleGanttDepMenu(event)" style="font-size:0.72rem">&#128279; Dependencies &#9660;</button>
+      <div id="ganttDepMenu" style="display:none;position:absolute;top:100%;right:0;margin-top:4px;background:var(--bg-raised);border:1px solid var(--border-default);border-radius:var(--radius-sm);box-shadow:var(--shadow-lg);z-index:400;min-width:180px;overflow:hidden">
+        <div class="picker-row" onclick="closeGanttDepMenu();_ganttLinkMode=!_ganttLinkMode;_ganttLinkFrom=null;renderContent()">
+          <span style="width:18px;text-align:center">${_ganttLinkMode ? '&#10003;' : ''}</span> ${_ganttLinkMode ? 'Stop Linking' : 'Link Mode'}
+        </div>
+        <div class="picker-row" onclick="closeGanttDepMenu();_ganttHideArrows=!_ganttHideArrows;renderContent()">
+          <span style="width:18px;text-align:center">${_ganttHideArrows ? '' : '&#10003;'}</span> Show Arrows
+        </div>
+        <div style="border-top:1px solid var(--border-default)"></div>
+        <div class="picker-row" onclick="closeGanttDepMenu();_ganttDepView=!_ganttDepView;renderContent()">
+          <span style="width:18px;text-align:center">${_ganttDepView ? '&#10003;' : ''}</span> Dependency View
+        </div>
+      </div>
+    </div>
   </div>`;
 
-  html += `<div class="gantt" style="width:100%;--gantt-label-w:${_ganttLabelWidth}px">`;
+  html += `<div class="gantt ${_ganttLinkMode ? 'gantt-link-mode' : ''}" style="width:100%;--gantt-label-w:${_ganttLabelWidth}px" onclick="if(_ganttSelectedArrow && !event.target.closest('.gantt__arrow-hit'))deselectGanttArrow()">`;
 
   // Draggable column resize handle
   html += `<div class="gantt__col-resize" style="left:${_ganttLabelWidth - 3}px" onmousedown="ganttColResizeStart(event)"></div>`;
 
   // Header row: months + day numbers
   html += `<div class="gantt__header">`;
-  html += `<div class="gantt__label-col">Task</div>`;
+  html += `<div class="gantt__label-col">Item</div>`;
   html += `<div style="display:flex;flex-direction:column;flex:1;min-width:${timelineW}px">`;
 
   // Month row
@@ -4298,7 +4453,7 @@ function renderGanttView(filtered) {
   d = new Date(minDate);
   for (let i = 0; i < totalDays; i++) {
     const isWeekend = d.getDay() === 0 || d.getDay() === 6;
-    const isToday = d.getTime() === now.getTime();
+    const isToday = d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
     let cls = 'gantt__day-hdr';
     if (isWeekend) cls += ' gantt__day-hdr--weekend';
     if (isToday) cls += ' gantt__day-hdr--today';
@@ -4311,41 +4466,143 @@ function renderGanttView(filtered) {
 
   // Body
   html += `<div class="gantt__body">`;
+
+  if (_ganttDepView) {
+    // ===== CRITICAL PATH / DEPENDENCY VIEW =====
+    // Show only items involved in dependency chains, topologically sorted (prerequisites first)
+    const depTaskIds = new Set();
+    leafTasks.forEach(t => {
+      if (t.dependencies && t.dependencies.length > 0) { depTaskIds.add(t.id); t.dependencies.forEach(d => depTaskIds.add(d)); }
+    });
+    leafTasks.forEach(t => { if (getDependents(t.id).length > 0) depTaskIds.add(t.id); });
+    const depTasks = leafTasks.filter(t => depTaskIds.has(t.id));
+
+    // Topological sort: prerequisites before dependents
+    const sorted = [];
+    const visited = new Set();
+    function topoVisit(id) {
+      if (visited.has(id)) return;
+      visited.add(id);
+      const t = depTasks.find(x => x.id === id);
+      if (!t) return;
+      (t.dependencies || []).forEach(depId => topoVisit(depId));
+      sorted.push(t);
+    }
+    depTasks.forEach(t => topoVisit(t.id));
+
+    if (sorted.length === 0) {
+      html += `<div style="padding:24px;text-align:center;color:var(--text-muted);font-size:0.85rem">No dependency chains found. Use Link mode to create prerequisites between items.</div>`;
+    } else {
+      // Header row
+      html += `<div class="gantt__row gantt__row--group">`;
+      html += `<div class="gantt__row-label" style="font-weight:600">Critical Path <span style="font-size:0.68rem;color:var(--text-muted);font-weight:400">(${sorted.length} items)</span></div>`;
+      html += `<div class="gantt__row-timeline" style="min-width:${timelineW}px">`;
+      html += ganttDayCols(totalDays, dayW, minDate, now);
+      html += `</div></div>`;
+
+      // Compute chain depth for indentation (0 = no prerequisites, deeper = more prereqs above)
+      const depthMemo = {};
+      function depChainDepth(t) {
+        if (depthMemo[t.id] !== undefined) return depthMemo[t.id];
+        if (!t.dependencies || t.dependencies.length === 0) { depthMemo[t.id] = 0; return 0; }
+        let maxD = 0;
+        t.dependencies.forEach(depId => { const dep = tasks.find(x => x.id === depId); if (dep) maxD = Math.max(maxD, depChainDepth(dep) + 1); });
+        depthMemo[t.id] = maxD;
+        return maxD;
+      }
+      sorted.forEach(t => depChainDepth(t));
+
+      // Render rows
+      sorted.forEach(t => {
+        const start = ganttTaskStart(t);
+        const end = ganttTaskEnd(t);
+        const barClass = ganttBarClass(t);
+        const chainDepth = depthMemo[t.id] || 0;
+        const indent = chainDepth * 20;
+        const typeMeta = getItemTypeMeta(t);
+        const prereqBlocked = getIncompletePrereqs(t).length > 0;
+
+        html += `<div class="gantt__row">`;
+        html += `<div class="gantt__row-label" onclick="openDetailOverlay('${t.id}')" title="${esc(t.title)}" style="padding-left:${8 + indent}px;font-size:0.72rem">`;
+        html += `<span class="item-type-badge" style="background:${typeMeta.colour};font-size:0.5rem;padding:0 4px">${typeMeta.label.charAt(0)}</span>`;
+        if (prereqBlocked) html += `<span style="color:var(--warning);font-size:0.65rem">&#128274;</span>`;
+        html += `<span style="overflow:hidden;text-overflow:ellipsis">${esc(t.title)}</span>`;
+        html += `</div>`;
+        html += `<div class="gantt__row-timeline" style="min-width:${timelineW}px">`;
+        html += ganttDayCols(totalDays, dayW, minDate, now);
+        const todayOff = Math.round((now - minDate) / 86400000);
+        if (todayOff >= 0 && todayOff < totalDays) html += `<div class="gantt__today-line" style="left:${todayOff * dayW}px;width:${dayW}px"></div>`;
+        if (start && end && end >= start) {
+          const rawOff = Math.round((start - minDate) / 86400000);
+          const sOff = Math.max(0, rawOff);
+          const dur = Math.max(1, Math.ceil((end - start) / 86400000) + 1) - (sOff - rawOff);
+          if (dur > 0) {
+            html += `<div class="gantt__bar ${barClass}" style="left:${sOff * dayW}px;width:${dur * dayW}px" data-task-id="${t.id}" data-start="${start.toISOString().slice(0,10)}" data-end="${end.toISOString().slice(0,10)}" data-min-date="${minDate.toISOString().slice(0,10)}" data-day-width="${dayW}" onmousedown="ganttBarDragStart(event,'${t.id}','move')" ondblclick="event.stopPropagation();openDetailOverlay('${t.id}')" title="${esc(t.title)} | ${t.status}">`;
+            if (dur * dayW > 40) html += `<span style="overflow:hidden;text-overflow:ellipsis;pointer-events:none;flex:1">${esc(t.title)}</span>`;
+            html += `</div>`;
+          }
+        } else if (end) {
+          const eOff = Math.max(0, Math.round((end - minDate) / 86400000));
+          html += `<div class="gantt__bar ${barClass}" style="left:${eOff * dayW}px;width:${dayW}px" data-task-id="${t.id}" title="${esc(t.title)} — due ${t.dueDate}"></div>`;
+        }
+        html += `</div></div>`;
+      });
+    }
+  } else {
+  // ===== NORMAL HIERARCHICAL VIEW =====
   sortedClients.forEach(client => {
     // Client group header row
     html += `<div class="gantt__row gantt__row--group">`;
-    html += `<div class="gantt__row-label">${esc(client)} <span style="font-size:0.68rem;color:var(--text-muted);font-weight:400">(${clientGroups[client].length})</span></div>`;
+    const totalClientItems = clientGroups[client].reduce((s, r) => s + 1 + getDescendants(r.id).length, 0);
+    html += `<div class="gantt__row-label">${esc(client)} <span style="font-size:0.68rem;color:var(--text-muted);font-weight:400">(${totalClientItems} items)</span></div>`;
     html += `<div class="gantt__row-timeline" style="min-width:${timelineW}px">`;
     // Day columns for background
     html += ganttDayCols(totalDays, dayW, minDate, now);
     html += `</div></div>`;
 
-    // Task rows
-    clientGroups[client].forEach(t => {
+    // Hierarchical task rows — render projects then recurse into children
+    function renderGanttRow(t, depth) {
+      if (_ganttHideDone && t.status === 'Done') return;
       const start = ganttTaskStart(t);
       const end = ganttTaskEnd(t);
       const barClass = ganttBarClass(t);
-      const hasKids = getChildren(t.id).length > 0;
-      const bcIncomplete = !hasKids && t.status !== 'Done' && t.status !== 'Cancelled' && t.status !== 'Not started' && (!t.hoursEstimated || !t.priority || !t.assignees || t.assignees.length === 0 || !t.dueDate);
+      const indent = depth * 16;
+      const typeMeta = getItemTypeMeta(t);
+      const kids = getChildren(t.id).filter(c => !_ganttHideDone || c.status !== 'Done');
+      const isParent = kids.length > 0;
+      const isCollapsed = collapsedTaskIds.has(t.id);
+      const fontWeight = isParent ? '600' : '400';
+      const fontSize = depth === 0 ? '0.78rem' : '0.72rem';
 
       html += `<div class="gantt__row">`;
-      html += `<div class="gantt__row-label" onclick="openDetailOverlay('${t.id}')" title="${esc(t.title)}">`;
-      if (bcIncomplete) html += `<span style="color:var(--danger);font-size:0.65rem">&#9888;</span>`;
+      html += `<div class="gantt__row-label" onclick="openDetailOverlay('${t.id}')" title="${esc(t.title)}" style="padding-left:${8 + indent}px;font-weight:${fontWeight};font-size:${fontSize}">`;
+      // Collapse toggle for parent items
+      if (isParent) {
+        html += `<span class="gantt__collapse-toggle" onclick="event.stopPropagation();toggleGanttCollapse('${t.id}')">${isCollapsed ? '&#9654;' : '&#9660;'}</span>`;
+      } else {
+        html += `<span style="width:14px;display:inline-block"></span>`;
+      }
+      html += `<span class="item-type-badge" style="background:${typeMeta.colour};font-size:0.5rem;padding:0 4px">${typeMeta.label.charAt(0)}</span>`;
+      if (isTaskIncomplete(t)) html += `<span style="color:var(--danger);font-size:0.65rem">&#9888;</span>`;
       html += `<span style="overflow:hidden;text-overflow:ellipsis">${esc(t.title)}</span>`;
+      if (isParent && isCollapsed) html += `<span style="font-size:0.6rem;color:var(--text-muted);margin-left:4px">(${kids.length})</span>`;
       html += `</div>`;
       html += `<div class="gantt__row-timeline" style="min-width:${timelineW}px">`;
       html += ganttDayCols(totalDays, dayW, minDate, now);
 
       // Today line
-      const todayOffset = Math.floor((now - minDate) / 86400000);
+      const todayOffset = Math.round((now - minDate) / 86400000);
       if (todayOffset >= 0 && todayOffset < totalDays) {
-        html += `<div class="gantt__today-line" style="left:${todayOffset * dayW + dayW/2}px"></div>`;
+        html += `<div class="gantt__today-line" style="left:${todayOffset * dayW}px;width:${dayW}px"></div>`;
       }
 
-      // Bar
+      // Bar — clamp left edge so bars never render behind the label column
       if (start && end && end >= start) {
-        const startOff = Math.max(0, Math.floor((start - minDate) / 86400000));
-        const dur = Math.max(1, Math.ceil((end - start) / 86400000) + 1);
+        const rawStartOff = Math.round((start - minDate) / 86400000);
+        const startOff = Math.max(0, rawStartOff);
+        const rawDur = Math.max(1, Math.ceil((end - start) / 86400000) + 1);
+        const dur = rawDur - (startOff - rawStartOff); // trim days lost to clamping
+        if (dur <= 0) { /* bar entirely before visible range */ } else {
         const left = startOff * dayW;
         const width = dur * dayW;
         const startISO = start.toISOString().slice(0,10);
@@ -4356,21 +4613,29 @@ function renderGanttView(filtered) {
         if (width > 40) html += `<span style="overflow:hidden;text-overflow:ellipsis;pointer-events:none;flex:1">${esc(t.title)}</span>`;
         html += `<div class="gantt__bar-handle gantt__bar-handle--right" onmousedown="event.stopPropagation();ganttBarDragStart(event,'${t.id}','resize-end')"></div>`;
         html += `</div>`;
+        } // close dur > 0
       } else if (end) {
-        // Point marker (due date only) — draggable
-        const endOff = Math.floor((end - minDate) / 86400000);
+        // Single-day bar (due date only, no start) — uses status colour
+        const endOff = Math.max(0, Math.round((end - minDate) / 86400000));
         const endISO = end.toISOString().slice(0,10);
-        html += `<div class="gantt__bar gantt__bar--nodate" style="left:${endOff * dayW}px;width:${dayW}px;border-radius:50%" data-task-id="${t.id}" data-start="${endISO}" data-end="${endISO}" data-min-date="${minDate.toISOString().slice(0,10)}" data-day-width="${dayW}" onmousedown="ganttBarDragStart(event, '${t.id}', 'move')" ondblclick="event.stopPropagation();openDetailOverlay('${t.id}')" title="${esc(t.title)} — due ${t.dueDate}"></div>`;
+        html += `<div class="gantt__bar ${barClass}" style="left:${endOff * dayW}px;width:${dayW}px" data-task-id="${t.id}" data-start="${endISO}" data-end="${endISO}" data-min-date="${minDate.toISOString().slice(0,10)}" data-day-width="${dayW}" onmousedown="ganttBarDragStart(event, '${t.id}', 'move')" ondblclick="event.stopPropagation();openDetailOverlay('${t.id}')" title="${esc(t.title)} — due ${t.dueDate}"></div>`;
       } else if (start) {
-        // No due date — show a placeholder dot at created date, draggable
-        const startOff = Math.floor((start - minDate) / 86400000);
+        // Single-day bar (start only, no due date) — uses status colour, dimmed
+        const startOff = Math.max(0, Math.round((start - minDate) / 86400000));
         const startISO = start.toISOString().slice(0,10);
-        html += `<div class="gantt__bar gantt__bar--nodate" style="left:${startOff * dayW}px;width:${dayW}px;border-radius:50%" data-task-id="${t.id}" data-start="${startISO}" data-end="${startISO}" data-min-date="${minDate.toISOString().slice(0,10)}" data-day-width="${dayW}" onmousedown="ganttBarDragStart(event, '${t.id}', 'move')" ondblclick="event.stopPropagation();openDetailOverlay('${t.id}')" title="${esc(t.title)} — no due date"></div>`;
+        html += `<div class="gantt__bar ${barClass}" style="left:${startOff * dayW}px;width:${dayW}px;opacity:0.5" data-task-id="${t.id}" data-start="${startISO}" data-end="${startISO}" data-min-date="${minDate.toISOString().slice(0,10)}" data-day-width="${dayW}" onmousedown="ganttBarDragStart(event, '${t.id}', 'move')" ondblclick="event.stopPropagation();openDetailOverlay('${t.id}')" title="${esc(t.title)} — no due date"></div>`;
       }
 
       html += `</div></div>`;
-    });
+      // Recurse into children (skip if collapsed)
+      if (!isCollapsed) {
+        kids.forEach(c => renderGanttRow(c, depth + 1));
+      }
+    }
+    // Render root tasks (projects) for this client, then recurse
+    clientGroups[client].forEach(t => renderGanttRow(t, 0));
   });
+  } // close if/else _ganttDepView
 
   html += `<svg class="gantt__arrows" id="ganttArrowsSvg"></svg>`;
   html += `</div>`; // close body
@@ -4388,42 +4653,181 @@ function renderGanttView(filtered) {
 }
 
 /** Draw SVG dependency arrows on the Gantt chart — called after DOM render via requestAnimationFrame */
+/** Draw dependency arrows on the Gantt chart: right edge of prerequisite → left edge of dependent */
 function drawGanttArrows() {
   const svg = document.getElementById('ganttArrowsSvg');
   if (!svg) return;
-  const body = svg.parentElement;
-  const bodyRect = body.getBoundingClientRect();
-  svg.setAttribute('width', body.scrollWidth);
-  svg.setAttribute('height', body.scrollHeight);
-  svg.innerHTML = '<defs><marker id="depArrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="var(--warning)"/></marker></defs>';
+  if (_ganttHideArrows) { svg.innerHTML = ''; return; }
+  const ganttBody = svg.closest('.gantt');
+  if (!ganttBody) return;
+  svg.setAttribute('width', ganttBody.scrollWidth);
+  svg.setAttribute('height', ganttBody.scrollHeight);
+  // Arrowhead markers for done (green) and pending (orange)
+  svg.innerHTML = `<defs>
+    <marker id="depArrowDone" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="var(--success)"/></marker>
+    <marker id="depArrowPending" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="var(--warning)"/></marker>
+  </defs>`;
 
+  // Build a map of task ID → bar element
   const barMap = {};
-  body.querySelectorAll('.gantt__bar[data-task-id]').forEach(bar => { barMap[bar.dataset.taskId] = bar; });
+  ganttBody.querySelectorAll('.gantt__bar[data-task-id]').forEach(bar => { barMap[bar.dataset.taskId] = bar; });
+
+  // Get scroll-aware origin: the gantt element's position relative to the viewport, adjusted for scroll
+  const ganttRect = ganttBody.getBoundingClientRect();
+  const scrollLeft = ganttBody.scrollLeft || 0;
+  const scrollTop = ganttBody.scrollTop || 0;
 
   tasks.forEach(t => {
     if (!t.dependencies || t.dependencies.length === 0) return;
-    const toBar = barMap[t.id];
+    const toBar = barMap[t.id]; // dependent bar (this task)
     if (!toBar) return;
     t.dependencies.forEach(depId => {
-      const fromBar = barMap[depId];
+      const fromBar = barMap[depId]; // prerequisite bar
       if (!fromBar) return;
+
       const fr = fromBar.getBoundingClientRect();
       const tr = toBar.getBoundingClientRect();
-      // End of blocker bar → start of dependent bar, right-angle connector
-      const x1 = fr.right - bodyRect.left;
-      const y1 = fr.top + fr.height / 2 - bodyRect.top;
-      const x2 = tr.left - bodyRect.left;
-      const y2 = tr.top + tr.height / 2 - bodyRect.top;
-      const midX = x1 + 10;
-      const depTask = tasks.find(d => d.id === depId);
+
+      // Right edge of prerequisite → left edge of dependent (scroll-adjusted)
+      const x1 = fr.right - ganttRect.left + scrollLeft;
+      const y1 = fr.top + fr.height / 2 - ganttRect.top + scrollTop;
+      const x2 = tr.left - ganttRect.left + scrollLeft;
+      const y2 = tr.top + tr.height / 2 - ganttRect.top + scrollTop;
+
+      // Route the connector: right-angle path with sensible routing
+      const gap = 12; // horizontal gap before/after vertical segment
+      let d;
+      if (x2 > x1 + gap * 2) {
+        // Normal: prereq ends before dependent starts — straight connector
+        const midX = (x1 + x2) / 2;
+        d = `M${x1},${y1} H${midX} V${y2} H${x2}`;
+      } else {
+        // Overlap: dependent starts before prereq ends — route around
+        const rowH = 16;
+        const detourY = Math.max(y1, y2) + rowH;
+        d = `M${x1},${y1} H${x1 + gap} V${detourY} H${x2 - gap} V${y2} H${x2}`;
+      }
+
+      const depTask = tasks.find(dd => dd.id === depId);
       const isDone = depTask && depTask.status === 'Done';
+      const isSelected = _ganttSelectedArrow && _ganttSelectedArrow.fromId === depId && _ganttSelectedArrow.toId === t.id;
+
+      // Invisible wide hit area for clicking
+      const hitEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      hitEl.setAttribute('d', d);
+      hitEl.setAttribute('class', 'gantt__arrow-hit');
+      hitEl.dataset.fromId = depId;
+      hitEl.dataset.toId = t.id;
+      hitEl.addEventListener('click', (ev) => { ev.stopPropagation(); selectGanttArrow(depId, t.id); });
+      hitEl.addEventListener('mousedown', (ev) => {
+        if (_ganttSelectedArrow && _ganttSelectedArrow.fromId === depId && _ganttSelectedArrow.toId === t.id) {
+          ev.stopPropagation();
+          startArrowRedrag(ev, depId, t.id, ganttBody, ganttRect, scrollLeft, scrollTop, x1, y1);
+        }
+      });
+      svg.appendChild(hitEl);
+
+      // Visible arrow path
       const pathEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-      pathEl.setAttribute('d', `M${x1},${y1} H${midX} V${y2} H${x2}`);
-      pathEl.setAttribute('class', 'gantt__arrow ' + (isDone ? 'gantt__arrow--done' : 'gantt__arrow--pending'));
-      pathEl.setAttribute('marker-end', 'url(#depArrowhead)');
+      pathEl.setAttribute('d', d);
+      pathEl.setAttribute('class', 'gantt__arrow ' + (isSelected ? 'gantt__arrow--selected' : isDone ? 'gantt__arrow--done' : 'gantt__arrow--pending'));
+      if (!isSelected) pathEl.setAttribute('marker-end', isDone ? 'url(#depArrowDone)' : 'url(#depArrowPending)');
+      else pathEl.setAttribute('marker-end', 'url(#depArrowPending)');
       svg.appendChild(pathEl);
     });
   });
+}
+
+/** Select a dependency arrow for editing (delete or re-drag) */
+function selectGanttArrow(fromId, toId) {
+  _ganttSelectedArrow = { fromId, toId };
+  drawGanttArrows(); // redraw with selected state
+  const fromTask = tasks.find(t => t.id === fromId);
+  const toTask = tasks.find(t => t.id === toId);
+  toast(`Selected: "${fromTask?.title || '?'}" → "${toTask?.title || '?'}". Press Delete to remove, or drag to reconnect.`);
+}
+
+/** Deselect the current arrow */
+function deselectGanttArrow() {
+  if (!_ganttSelectedArrow) return;
+  _ganttSelectedArrow = null;
+  drawGanttArrows();
+}
+
+/** Re-drag a selected arrow's endpoint to a new target bar */
+function startArrowRedrag(e, fromId, toId, ganttBody, ganttRect, scrollLeft, scrollTop, x1, y1) {
+  e.preventDefault();
+  const svg = document.getElementById('ganttArrowsSvg');
+  if (!svg) return;
+
+  // Draw a preview line from the prereq bar to the cursor
+  const previewLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  previewLine.id = 'ganttArrowRedrag';
+  previewLine.setAttribute('stroke', 'var(--accent)');
+  previewLine.setAttribute('stroke-width', '2');
+  previewLine.setAttribute('stroke-dasharray', '6 3');
+  previewLine.setAttribute('x1', x1);
+  previewLine.setAttribute('y1', y1);
+  previewLine.setAttribute('x2', e.clientX - ganttRect.left + scrollLeft);
+  previewLine.setAttribute('y2', e.clientY - ganttRect.top + scrollTop);
+  svg.appendChild(previewLine);
+
+  function onMove(ev) {
+    const line = document.getElementById('ganttArrowRedrag');
+    if (!line) return;
+    line.setAttribute('x2', ev.clientX - ganttRect.left + scrollLeft);
+    line.setAttribute('y2', ev.clientY - ganttRect.top + scrollTop);
+    document.querySelectorAll('.gantt__bar.gantt-link-target').forEach(b => b.classList.remove('gantt-link-target'));
+    const target = ev.target.closest('.gantt__bar');
+    if (target && target.dataset.taskId && target.dataset.taskId !== fromId) {
+      target.classList.add('gantt-link-target');
+    }
+  }
+
+  function onUp(ev) {
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+    const line = document.getElementById('ganttArrowRedrag');
+    if (line) line.remove();
+    document.querySelectorAll('.gantt__bar.gantt-link-target').forEach(b => b.classList.remove('gantt-link-target'));
+
+    const target = ev.target.closest('.gantt__bar');
+    const newToId = target?.dataset?.taskId;
+
+    if (!newToId || newToId === fromId || newToId === toId) {
+      // No change or invalid target
+      return;
+    }
+
+    // Validate the new connection
+    const newDepTask = tasks.find(t => t.id === newToId);
+    if (!newDepTask) return;
+    if (newDepTask.dependencies && newDepTask.dependencies.includes(fromId)) {
+      toast('This prerequisite already exists', 'warning'); return;
+    }
+    if (wouldCreateCycle(newToId, fromId)) {
+      toast('Cannot link — would create a circular dependency', 'warning'); return;
+    }
+
+    // Remove old dependency
+    const oldDepTask = tasks.find(t => t.id === toId);
+    if (oldDepTask && oldDepTask.dependencies) {
+      oldDepTask.dependencies = oldDepTask.dependencies.filter(d => d !== fromId);
+      updateTask(toId, 'dependencies', oldDepTask.dependencies);
+    }
+
+    // Add new dependency
+    if (!newDepTask.dependencies) newDepTask.dependencies = [];
+    newDepTask.dependencies.push(fromId);
+    updateTask(newToId, 'dependencies', newDepTask.dependencies);
+
+    _ganttSelectedArrow = { fromId, toId: newToId };
+    const fromTask = tasks.find(t => t.id === fromId);
+    toast(`Reconnected: "${fromTask?.title}" → "${newDepTask.title}"`);
+  }
+
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
 }
 
 /** Parse a date string safely, returning null for invalid dates */
@@ -4498,13 +4902,122 @@ document.addEventListener('mousedown', function(e) {
   }
 });
 
+/** Toggle the Dependencies dropdown menu */
+function toggleGanttDepMenu(e) {
+  e.stopPropagation();
+  const dd = document.getElementById('ganttDepMenu');
+  if (!dd) return;
+  const open = dd.style.display !== 'none';
+  dd.style.display = open ? 'none' : '';
+  if (!open) document.addEventListener('click', closeGanttDepMenu, { once: true });
+}
+function closeGanttDepMenu() {
+  const dd = document.getElementById('ganttDepMenu');
+  if (dd) dd.style.display = 'none';
+}
+
+/** Toggle collapse/expand of a parent item in the timeline view */
+function toggleGanttCollapse(id) {
+  if (collapsedTaskIds.has(id)) collapsedTaskIds.delete(id);
+  else collapsedTaskIds.add(id);
+  renderContent();
+}
+
+// ===== GANTT LINK MODE — drag arrows to create dependency relationships =====
+
+/** Start a link drag from a bar (prerequisite → dependent). Called from ganttBarDragStart when link mode is on. */
+function ganttLinkDragStart(e, taskId) {
+  e.preventDefault();
+  e.stopPropagation();
+  _ganttLinkFrom = taskId;
+  const barEl = e.target.closest('.gantt__bar');
+  if (barEl) barEl.classList.add('gantt-link-source');
+  const ganttEl = document.querySelector('.gantt');
+  if (ganttEl) ganttEl.classList.add('gantt-link-mode');
+
+  // Get SVG for drawing the preview line
+  const svg = document.getElementById('ganttArrowsSvg');
+  if (!svg) return;
+  const previewLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  previewLine.id = 'ganttLinkPreview';
+  previewLine.setAttribute('stroke', 'var(--warning)');
+  previewLine.setAttribute('stroke-width', '2');
+  previewLine.setAttribute('stroke-dasharray', '6 3');
+  previewLine.setAttribute('marker-end', '');
+  const barRect = barEl.getBoundingClientRect();
+  const svgRect = svg.getBoundingClientRect();
+  const x1 = barRect.right - svgRect.left;
+  const y1 = barRect.top + barRect.height / 2 - svgRect.top;
+  previewLine.setAttribute('x1', x1);
+  previewLine.setAttribute('y1', y1);
+  previewLine.setAttribute('x2', x1);
+  previewLine.setAttribute('y2', y1);
+  svg.appendChild(previewLine);
+
+  function onMove(ev) {
+    const line = document.getElementById('ganttLinkPreview');
+    if (!line) return;
+    line.setAttribute('x2', ev.clientX - svgRect.left);
+    line.setAttribute('y2', ev.clientY - svgRect.top);
+    // Highlight target bar on hover
+    document.querySelectorAll('.gantt__bar.gantt-link-target').forEach(b => b.classList.remove('gantt-link-target'));
+    const target = ev.target.closest('.gantt__bar');
+    if (target && target.dataset.taskId && target.dataset.taskId !== taskId) {
+      target.classList.add('gantt-link-target');
+    }
+  }
+
+  function onUp(ev) {
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+    // Clean up visuals
+    const line = document.getElementById('ganttLinkPreview');
+    if (line) line.remove();
+    document.querySelectorAll('.gantt__bar.gantt-link-source').forEach(b => b.classList.remove('gantt-link-source'));
+    document.querySelectorAll('.gantt__bar.gantt-link-target').forEach(b => b.classList.remove('gantt-link-target'));
+
+    // Check if we landed on a valid target bar
+    const target = ev.target.closest('.gantt__bar');
+    const toId = target?.dataset?.taskId;
+    if (!toId || toId === taskId) { _ganttLinkFrom = null; return; }
+
+    // Validate and create dependency: source (taskId) is the prerequisite, target (toId) is the dependent
+    const depTask = tasks.find(t => t.id === toId);
+    const prereqTask = tasks.find(t => t.id === taskId);
+    if (!depTask || !prereqTask) { _ganttLinkFrom = null; return; }
+
+    if (depTask.dependencies && depTask.dependencies.includes(taskId)) {
+      toast('This prerequisite already exists', 'warning');
+      _ganttLinkFrom = null; return;
+    }
+    if (wouldCreateCycle(toId, taskId)) {
+      toast('Cannot link — would create a circular dependency', 'warning');
+      _ganttLinkFrom = null; return;
+    }
+
+    // Create the dependency
+    if (!depTask.dependencies) depTask.dependencies = [];
+    depTask.dependencies.push(taskId);
+    updateTask(toId, 'dependencies', depTask.dependencies);
+    toast(`Linked: "${prereqTask.title}" → "${depTask.title}"`);
+    _ganttLinkFrom = null;
+    // Arrows will redraw on next renderContent via the updateTask call
+  }
+
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
+}
+
 /**
  * Begin dragging a Gantt bar to move or resize it.
+ * In link mode, intercepts to start a dependency link drag instead.
  * @param {MouseEvent} e
  * @param {string} taskId
  * @param {string} mode - 'move' | 'resize-start' | 'resize-end'
  */
 function ganttBarDragStart(e, taskId, mode) {
+  // Intercept for link mode
+  if (_ganttLinkMode) { ganttLinkDragStart(e, taskId); return; }
   e.preventDefault();
   e.stopPropagation();
   const barEl = e.target.closest('.gantt__bar');
@@ -4604,6 +5117,8 @@ function ganttBarDragEnd(e) {
     const label = document.querySelector(`.gantt__row-label[onclick*="${taskId}"]`);
     if (label) label.title = task.title;
     toast(`${mode === 'move' ? 'Moved' : 'Resized'}: ${newStartStr} to ${newEndStr}`);
+    // Redraw dependency arrows to match new bar positions
+    requestAnimationFrame(() => drawGanttArrows());
   } else {
     // Snap back to original position
     barEl.style.left = origLeft + 'px';
@@ -4763,6 +5278,7 @@ function renderInlineTaskDetail(id) {
   // Properties — Name first, then Client, editable on all tasks
   const ilClient = getTaskClient(task);
   html += `<div class="detail-section"><div class="detail-section__title">Properties</div>`;
+  html += `<div class="detail-field"><span class="detail-field__label">Type</span><div style="display:flex;align-items:center;gap:6px">${itemTypeBadgeHtml(task)} <span style="font-size:0.82rem;color:var(--text-primary)">${getItemTypeLabel(task)}</span></div></div>`;
   html += `<div class="detail-field"><span class="detail-field__label">Name</span><input value="${esc(task.title)}" onchange="updateTask('${id}','title',this.value)" onkeydown="if(event.key==='Enter')this.blur()"></div>`;
   if (ilClient) {
     html += `<div class="detail-field"><span class="detail-field__label">Client</span><div style="display:flex;align-items:center;gap:6px">${clientBadgeHtml(ilClient)} <span style="font-size:0.82rem;color:var(--text-primary)">${esc(ilClient)}</span></div></div>`;
@@ -4797,19 +5313,52 @@ function renderInlineTaskDetail(id) {
   // Attachments
   html += renderAttachmentsSection(isRoot ? 'project' : 'task', id);
 
-  // Children summary
-  if (children.length > 0) {
-    html += `<div class="detail-section"><div class="detail-section__title">Sub-tasks (${children.length})</div>`;
-    const childDone = children.filter(c => c.status === 'Done').length;
-    const childPct = Math.round(childDone / children.length * 100);
-    html += `<div class="summary-progress"><div class="summary-progress__bar"><div class="summary-progress__fill" style="width:${childPct}%;background:var(--success)"></div></div></div>`;
-    html += `<div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:8px">${childDone}/${children.length} complete</div>`;
-    children.slice(0, 8).forEach(c => {
-      const icon = c.status === 'Done' ? '&#10003;' : c.status === 'In progress' ? '&#9654;' : '&#9675;';
-      const style = c.status === 'Done' ? 'color:var(--success)' : c.status === 'Blocked' ? 'color:var(--danger)' : '';
-      html += `<div style="font-size:0.78rem;padding:3px 0;cursor:pointer;display:flex;align-items:center;gap:6px;${style}" onclick="openDetail('${c.id}')"><span>${icon}</span><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.title)}</span></div>`;
+  // Prerequisites (compact version for inline panel)
+  const inlineDeps = task.dependencies || [];
+  const inlineDepTasks = inlineDeps.map(did => tasks.find(t => t.id === did)).filter(Boolean);
+  const inlineBlockers = inlineDepTasks.filter(d => d.status !== 'Done');
+  html += `<div class="detail-section"><div class="detail-section__title">Prerequisites ${inlineBlockers.length > 0 ? `<span style="color:var(--warning);font-size:0.7rem;font-weight:400">(${inlineBlockers.length} incomplete)</span>` : inlineDeps.length > 0 ? '<span style="color:var(--success);font-size:0.7rem;font-weight:400">All met</span>' : ''}</div>`;
+  if (inlineDepTasks.length > 0) {
+    inlineDepTasks.forEach(d => {
+      const dIcon = d.status === 'Done' ? '<span style="color:var(--success)">&#10003;</span>' : '<span style="color:var(--warning)">&#9679;</span>';
+      html += `<div style="display:flex;align-items:center;gap:6px;font-size:0.75rem;padding:2px 0">${dIcon} ${itemTypeBadgeHtml(d)} <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;color:var(--accent-text)" onclick="openDetailOverlay('${d.id}')">${esc(d.title)}</span><button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.65rem" onclick="event.stopPropagation();removeDependency('${id}','${d.id}');renderContent()" title="Remove">&times;</button></div>`;
     });
-    if (children.length > 8) html += `<div style="font-size:0.72rem;color:var(--text-muted);padding:4px 0">+ ${children.length - 8} more</div>`;
+  } else {
+    html += `<div style="color:var(--text-muted);font-size:0.75rem;padding:2px 0">None</div>`;
+  }
+  html += `</div>`;
+
+  // Dependents (compact, read-only)
+  const inlineDependents = getDependents(id);
+  if (inlineDependents.length > 0) {
+    html += `<div class="detail-section"><div class="detail-section__title">Dependents <span style="font-size:0.7rem;font-weight:400;color:var(--text-muted)">(${inlineDependents.length} waiting)</span></div>`;
+    inlineDependents.forEach(d => {
+      html += `<div style="display:flex;align-items:center;gap:6px;font-size:0.75rem;padding:2px 0">${itemTypeBadgeHtml(d)} <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;color:var(--accent-text)" onclick="openDetailOverlay('${d.id}')">${esc(d.title)}</span><span style="font-size:0.65rem;color:var(--text-muted)">${d.status}</span></div>`;
+    });
+    html += `</div>`;
+  }
+
+  // Children summary + add child button
+  const childType = getAllowedChildType(task);
+  if (children.length > 0 || childType) {
+    const childLabel = getChildTypeLabel(task) || 'Children';
+    html += `<div class="detail-section"><div class="detail-section__title">${childLabel} (${children.length})</div>`;
+    if (children.length > 0) {
+      const childDone = children.filter(c => c.status === 'Done').length;
+      const childPct = Math.round(childDone / children.length * 100);
+      html += `<div class="summary-progress"><div class="summary-progress__bar"><div class="summary-progress__fill" style="width:${childPct}%;background:var(--success)"></div></div></div>`;
+      html += `<div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:8px">${childDone}/${children.length} complete</div>`;
+      children.slice(0, 8).forEach(c => {
+        const icon = c.status === 'Done' ? '&#10003;' : c.status === 'In progress' ? '&#9654;' : '&#9675;';
+        const style = c.status === 'Done' ? 'color:var(--success)' : c.status === 'Blocked' ? 'color:var(--danger)' : '';
+        html += `<div style="font-size:0.78rem;padding:3px 0;cursor:pointer;display:flex;align-items:center;gap:6px;${style}" onclick="openDetail('${c.id}')"><span>${icon}</span><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.title)}</span></div>`;
+      });
+      if (children.length > 8) html += `<div style="font-size:0.72rem;color:var(--text-muted);padding:4px 0">+ ${children.length - 8} more</div>`;
+    }
+    if (childType) {
+      const childMeta = ITEM_TYPE_META[childType];
+      html += `<button class="btn btn--sm btn--outline" onclick="addItem('${childType}','${id}')" style="margin-top:8px;font-size:0.72rem">+ Add ${childMeta.label}</button>`;
+    }
     html += '</div>';
   }
 
@@ -4870,7 +5419,10 @@ function renderTaskRow(task, depth, filtered) {
   html += `<span class="${iconClass}" onclick="event.stopPropagation();toggleDone('${task.id}')">${iconContent}</span>`;
   const trClient = getTaskClient(task);
   if (trClient) html += clientBadgeHtml(trClient);
-  const isIncomplete = !hasKids && task.status !== 'Done' && task.status !== 'Cancelled' && task.status !== 'Not started' && (!task.hoursEstimated || !task.priority || !task.assignees || task.assignees.length === 0 || !task.dueDate);
+  html += itemTypeBadgeHtml(task);
+  const prereqBlocked = task.status !== 'Done' && getIncompletePrereqs(task).length > 0;
+  if (prereqBlocked) html += `<span style="color:var(--warning);font-size:0.7rem;flex-shrink:0" title="Has incomplete prerequisites">&#128274;</span>`;
+  const isIncomplete = isTaskIncomplete(task);
   html += `<span class="task-row__title ${hasKids?'task-row__title--parent':''}">${esc(task.title)}</span>`;
   if (isIncomplete) html += `<span style="color:var(--danger);font-size:0.7rem;flex-shrink:0" title="Missing fields: ${!task.hoursEstimated?'hours ':''}${!task.priority?'priority ':''}${!task.assignees||task.assignees.length===0?'assignee ':''}${!task.dueDate?'due date':''}">&#9888;</span>`;
   html += `<div class="task-row__badges">`;
@@ -4909,6 +5461,14 @@ function renderTaskRow(task, depth, filtered) {
 function toggleDone(id) {
   const task = tasks.find(t => t.id === id);
   if (!task) return;
+  // Hard-block: cannot mark Done if prerequisites are incomplete
+  if (task.status !== 'Done') {
+    const blockers = getIncompletePrereqs(task);
+    if (blockers.length > 0) {
+      toast(`Cannot complete "${task.title}" — ${blockers.length} prerequisite${blockers.length > 1 ? 's' : ''} not done: ${blockers.map(b => b.title).join(', ')}`, 'warning');
+      return;
+    }
+  }
   task.status = task.status === 'Done' ? 'In progress' : 'Done';
   task.updatedAt = new Date().toISOString();
   markDirty(id);
@@ -4954,7 +5514,7 @@ function toggleClientGroup(clientKey) {
     collapsedTaskIds.delete(clientKey);
     // Lazy render: populate children if empty
     if (wrap.innerHTML.trim() === '') {
-      const clientName = clientKey.replace('client_', '');
+      const clientName = wrap.getAttribute('data-client-name') || clientKey.replace('client_', '');
       const rootTasks = tasks.filter(t => !t.parentId && (t.client || getTaskClient(t) || 'Unassigned') === clientName);
       let childHtml = '';
       rootTasks.forEach(r => { childHtml += renderTaskRow(r, 1, tasks); });
@@ -4992,22 +5552,35 @@ function toggleSelect(id, checked) {
 async function bulkSetField(field, value) {
   if (selectedTaskIds.size === 0) return;
   const count = selectedTaskIds.size;
-  if (!(await themedConfirm(`Set ${field} to "${value}" on ${count} task${count>1?'s':''}?`))) return;
+  if (!(await themedConfirm(`Set ${field} to "${value}" on ${count} item${count>1?'s':''}?`))) return;
+
+  let applied = 0, blocked = 0;
   selectedTaskIds.forEach(id => {
     const task = tasks.find(t => t.id === id);
-    if (task) { task[field] = value; task.updatedAt = new Date().toISOString(); markDirty(id); }
+    if (!task) return;
+    // Hard-block: skip items with incomplete prerequisites when setting to Done
+    if (field === 'status' && value === 'Done' && getIncompletePrereqs(task).length > 0) {
+      blocked++;
+      return;
+    }
+    task[field] = value; task.updatedAt = new Date().toISOString(); markDirty(id);
+    applied++;
   });
   save();
   selectedTaskIds.clear();
   renderSidebarCounts(); renderContent();
-  toast(`${count} task${count>1?'s':''} updated`);
+  if (blocked > 0) {
+    toast(`${applied} item${applied!==1?'s':''} updated, ${blocked} skipped (incomplete prerequisites)`, 'warning');
+  } else {
+    toast(`${applied} item${applied!==1?'s':''} updated`);
+  }
 }
 
 /** Delete all selected tasks after confirmation */
 async function bulkDelete() {
   if (selectedTaskIds.size === 0) return;
   const count = selectedTaskIds.size;
-  if (!(await themedConfirm(`Delete ${count} task${count>1?'s':''}? This cannot be undone.`))) return;
+  if (!(await themedConfirm(`Delete ${count} item${count>1?'s':''}? This cannot be undone.`))) return;
   selectedTaskIds.forEach(id => {
     const idx = tasks.findIndex(t => t.id === id);
     if (idx >= 0) { tasks.splice(idx, 1); markDeleted(id); }
@@ -5015,7 +5588,7 @@ async function bulkDelete() {
   save();
   selectedTaskIds.clear();
   renderSidebarCounts(); renderContent();
-  toast(`${count} task${count>1?'s':''} deleted`);
+  toast(`${count} item${count>1?'s':''} deleted`);
 }
 
 // ==================== TREE VIEW DRAG AND DROP ====================
@@ -5072,6 +5645,17 @@ function onDrop(e, targetParentId) {
   const task = tasks.find(t => t.id === draggedTaskId);
   if (!task) return;
 
+  // Enforce item type hierarchy: only allow valid parent-child type combinations
+  const targetTask = targetParentId ? tasks.find(t => t.id === targetParentId) : null;
+  if (targetTask) {
+    const allowedChild = VALID_CHILD_TYPE[getItemType(targetTask)];
+    if (!allowedChild) { toast(`A ${getItemTypeLabel(targetTask)} cannot have children`, 'warning'); draggedTaskId = null; return; }
+    if (getItemType(task) !== allowedChild) { toast(`A ${getItemTypeLabel(task)} cannot be placed under a ${getItemTypeLabel(targetTask)}. Expected: ${ITEM_TYPE_META[allowedChild].label}`, 'warning'); draggedTaskId = null; return; }
+  } else {
+    // Dropping at root — only projects allowed
+    if (getItemType(task) !== 'project') { toast(`Only Projects can exist at the root level`, 'warning'); draggedTaskId = null; return; }
+  }
+
   const oldParent = task.parentId ? tasks.find(t => t.id === task.parentId) : null;
   task.parentId = targetParentId;
   task.updatedAt = new Date().toISOString();
@@ -5082,7 +5666,6 @@ function onDrop(e, targetParentId) {
   if (newRoot.client && !task.client) task.client = '';
 
   save(); renderSidebarCounts(); renderContent();
-  const targetTask = tasks.find(t => t.id === targetParentId);
   toast(`Moved "${task.title}" under "${targetTask ? targetTask.title : 'root'}"`);
   draggedTaskId = null;
 }
@@ -5208,6 +5791,17 @@ function onBoardDrop(e) {
 
   if (!statusChanged && !priorityChanged) { boardDraggedTaskId = null; return; }
 
+  // Hard-block: cannot drag to Done lane if prerequisites are incomplete
+  if (statusChanged && newStatus === 'Done') {
+    const blockers = getIncompletePrereqs(task);
+    if (blockers.length > 0) {
+      toast(`Cannot complete "${task.title}" \u2014 ${blockers.length} prerequisite${blockers.length > 1 ? 's' : ''} not done`, 'warning');
+      boardDraggedTaskId = null;
+      renderContent();
+      return;
+    }
+  }
+
   const oldStatus = task.status;
   if (statusChanged) task.status = newStatus;
   if (priorityChanged) task.priority = newPriority;
@@ -5247,10 +5841,11 @@ function openDetailOverlay(id) {
   const isRoot = !task.parentId;
 
   // Incomplete marker for detail panel
-  const dpIncomplete = !children.length && task.status !== 'Done' && task.status !== 'Cancelled' && task.status !== 'Not started' && (!task.hoursEstimated || !task.priority || !task.assignees || task.assignees.length === 0 || !task.dueDate);
+  const dpIncomplete = isTaskIncomplete(task);
   const dpMissingFields = dpIncomplete ? [!task.hoursEstimated?'Hours estimated':'', !task.priority?'Priority':'', !task.assignees||task.assignees.length===0?'Assignee':'', !task.dueDate?'Due date':''].filter(Boolean) : [];
 
-  let html = `<div class="detail-panel__header"><input class="detail-panel__title-input" value="${esc(task.title)}" onchange="updateTask('${id}','title',this.value);this.closest('.detail-panel__header').querySelector('.detail-panel__title-input').value=this.value" onkeydown="if(event.key==='Enter')this.blur()"><button class="detail-panel__close" onclick="closeDetail()">&times;</button></div>`;
+  let html = `<div class="detail-panel__resize" onmousedown="startPanelResize(event,'detailPanel')"></div>`;
+  html += `<div class="detail-panel__header"><input class="detail-panel__title-input" value="${esc(task.title)}" onchange="updateTask('${id}','title',this.value);this.closest('.detail-panel__header').querySelector('.detail-panel__title-input').value=this.value" onkeydown="if(event.key==='Enter')this.blur()"><button class="detail-panel__close" onclick="closeDetail()">&times;</button></div>`;
   html += `<div class="detail-panel__body">`;
 
   // Incomplete warning banner
@@ -5261,9 +5856,10 @@ function openDetailOverlay(id) {
     html += `</div>`;
   }
 
-  // Properties — Name first, then Client, editable on all tasks
+  // Properties — Type, Name, Client, editable fields
   const dpClient = getTaskClient(task);
   html += `<div class="detail-section"><div class="detail-section__title">Properties</div>`;
+  html += `<div class="detail-field"><span class="detail-field__label">Type</span><div style="display:flex;align-items:center;gap:6px">${itemTypeBadgeHtml(task)} <span style="font-size:0.82rem;color:var(--text-primary)">${getItemTypeLabel(task)}</span></div></div>`;
   html += `<div class="detail-field"><span class="detail-field__label">Name</span><input value="${esc(task.title)}" onchange="updateTask('${id}','title',this.value)" onkeydown="if(event.key==='Enter')this.blur()"></div>`;
   if (dpClient) {
     html += `<div class="detail-field"><span class="detail-field__label">Client</span><div style="display:flex;align-items:center;gap:6px">${clientBadgeHtml(dpClient)} <span style="font-size:0.82rem;color:var(--text-primary)">${esc(dpClient)}</span></div></div>`;
@@ -5301,20 +5897,32 @@ function openDetailOverlay(id) {
   // Attachments (universal system — works for tasks, projects, clients)
   html += renderAttachmentsSection('task', id);
 
-  // Dependencies
+  // Prerequisites (what must be done before this item)
   const deps = task.dependencies || [];
   const depTasks = deps.map(did => tasks.find(t => t.id === did)).filter(Boolean);
   const blockedByUndone = depTasks.filter(d => d.status !== 'Done');
-  html += `<div class="detail-section"><div class="detail-section__title">Dependencies ${blockedByUndone.length > 0 ? `<span style="color:var(--warning);font-size:0.7rem;font-weight:400">(${blockedByUndone.length} unfinished)</span>` : ''}</div>`;
+  html += `<div class="detail-section"><div class="detail-section__title">Prerequisites ${blockedByUndone.length > 0 ? `<span style="color:var(--warning);font-size:0.7rem;font-weight:400">(${blockedByUndone.length} incomplete)</span>` : deps.length > 0 ? '<span style="color:var(--success);font-size:0.7rem;font-weight:400">All met</span>' : ''}</div>`;
   if (depTasks.length > 0) {
     depTasks.forEach(d => {
       const doneIcon = d.status === 'Done' ? '<span style="color:var(--success)">&#10003;</span>' : '<span style="color:var(--warning)">&#9679;</span>';
-      html += `<div style="display:flex;align-items:center;gap:6px;font-size:0.78rem;padding:3px 0"><span>${doneIcon}</span><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;color:var(--accent-text)" onclick="openDetailOverlay('${d.id}')">${esc(d.title)}</span><button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.7rem" onclick="removeDependency('${id}','${d.id}')">&times;</button></div>`;
+      html += `<div style="display:flex;align-items:center;gap:6px;font-size:0.78rem;padding:3px 0"><span>${doneIcon}</span>${itemTypeBadgeHtml(d)}<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;color:var(--accent-text)" onclick="openDetailOverlay('${d.id}')">${esc(d.title)}</span><span style="font-size:0.68rem;color:var(--text-muted)">${d.status}</span><button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.7rem" onclick="removeDependency('${id}','${d.id}')" title="Remove prerequisite">&times;</button></div>`;
     });
   } else {
-    html += `<div style="color:var(--text-muted);font-size:0.78rem;padding:4px 0">No dependencies</div>`;
+    html += `<div style="color:var(--text-muted);font-size:0.78rem;padding:4px 0">No prerequisites</div>`;
   }
-  html += `<div style="margin-top:6px"><select id="addDepSelect" style="font-size:0.78rem;padding:3px 6px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);max-width:200px"><option value="">Add dependency...</option>${tasks.filter(t => t.id !== id && !deps.includes(t.id)).slice(0,50).map(t => `<option value="${t.id}">${esc(t.title.substring(0,40))}</option>`).join('')}</select><button class="btn btn--sm" style="margin-left:4px" onclick="addDependency('${id}')">Add</button></div>`;
+  html += `<div style="margin-top:6px"><select id="addDepSelect" style="font-size:0.78rem;padding:3px 6px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);max-width:200px"><option value="">Add prerequisite...</option>${tasks.filter(t => t.id !== id && !deps.includes(t.id)).sort((a,b) => a.title.localeCompare(b.title)).slice(0,80).map(t => `<option value="${t.id}">${esc(t.title.substring(0,50))}</option>`).join('')}</select><button class="btn btn--sm" style="margin-left:4px" onclick="addDependency('${id}')">Add</button></div>`;
+  html += `</div>`;
+
+  // Dependents (items waiting on this one — read-only reverse lookup)
+  const dependents = getDependents(id);
+  html += `<div class="detail-section"><div class="detail-section__title">Dependents ${dependents.length > 0 ? `<span style="font-size:0.7rem;font-weight:400;color:var(--text-muted)">(${dependents.length} item${dependents.length !== 1 ? 's' : ''} waiting)</span>` : ''}</div>`;
+  if (dependents.length > 0) {
+    dependents.forEach(d => {
+      html += `<div style="display:flex;align-items:center;gap:6px;font-size:0.78rem;padding:3px 0">${itemTypeBadgeHtml(d)}<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;color:var(--accent-text)" onclick="openDetailOverlay('${d.id}')">${esc(d.title)}</span><span style="font-size:0.68rem;color:var(--text-muted)">${d.status}</span></div>`;
+    });
+  } else {
+    html += `<div style="color:var(--text-muted);font-size:0.78rem;padding:4px 0">Nothing depends on this item</div>`;
+  }
   html += `</div>`;
 
   // Comments / Activity Feed (API-backed)
@@ -5322,30 +5930,54 @@ function openDetailOverlay(id) {
   html += `<div id="commentsList" style="max-height:250px;overflow-y:auto;margin-bottom:var(--space-md)"><div style="color:var(--text-muted);font-size:0.78rem;padding:8px 0">Loading comments...</div></div>`;
   html += `<div class="note-input"><input id="commentInput" placeholder="Add a comment..." onkeydown="if(event.key==='Enter')postComment('${id}')"><button class="btn btn--sm btn--primary" onclick="postComment('${id}')">Post</button></div></div>`;
 
-  // Move / Reparent
+  // Children + add child button (overlay panel)
+  const ovChildType = getAllowedChildType(task);
+  if (children.length > 0 || ovChildType) {
+    const ovChildLabel = getChildTypeLabel(task) || 'Children';
+    html += `<div class="detail-section"><div class="detail-section__title">${ovChildLabel} (${children.length})</div>`;
+    if (children.length > 0) {
+      const ovChildDone = children.filter(c => c.status === 'Done').length;
+      const ovChildPct = Math.round(ovChildDone / children.length * 100);
+      html += `<div class="summary-progress"><div class="summary-progress__bar"><div class="summary-progress__fill" style="width:${ovChildPct}%;background:var(--success)"></div></div></div>`;
+      html += `<div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:8px">${ovChildDone}/${children.length} complete</div>`;
+      children.forEach(c => {
+        const icon = c.status === 'Done' ? '&#10003;' : c.status === 'In progress' ? '&#9654;' : '&#9675;';
+        const cStyle = c.status === 'Done' ? 'color:var(--success)' : c.healthState === 'Blocked' ? 'color:var(--danger)' : '';
+        html += `<div style="font-size:0.78rem;padding:3px 0;cursor:pointer;display:flex;align-items:center;gap:6px;${cStyle}" onclick="openDetailOverlay('${c.id}')"><span>${icon}</span>${itemTypeBadgeHtml(c)} <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.title)}</span></div>`;
+      });
+    }
+    if (ovChildType) {
+      const ovChildMeta = ITEM_TYPE_META[ovChildType];
+      html += `<button class="btn btn--sm btn--outline" onclick="addItem('${ovChildType}','${id}')" style="margin-top:8px;font-size:0.72rem">+ Add ${ovChildMeta.label}</button>`;
+    }
+    html += `</div>`;
+  }
+
+  // Move / Reparent — filtered by valid parent type
+  const requiredParentType = VALID_PARENT_TYPE[getItemType(task)];
   html += `<div class="detail-section"><div class="detail-section__title">Move Under</div>`;
   const currentParent = task.parentId ? tasks.find(t => t.id === task.parentId) : null;
   html += `<div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:8px">Currently under: <strong>${currentParent ? esc(currentParent.title) : 'Root (top level)'}</strong></div>`;
-  // Build list of possible parents (any task that isn't this task or a descendant)
   const descIds = new Set(getDescendants(id).map(d => d.id));
-  const possibleParents = tasks.filter(t => t.id !== id && !descIds.has(t.id));
-  html += `<select style="width:100%" onchange="reparentTask('${id}', this.value)"><option value="">-- Root (top level) --</option>`;
-  // Group by roots
-  const parentRoots = possibleParents.filter(t => !t.parentId);
-  parentRoots.forEach(r => {
-    const selected = task.parentId === r.id ? 'selected' : '';
-    html += `<option value="${r.id}" ${selected}>${esc(r.title)}</option>`;
-    const rKids = possibleParents.filter(t => t.parentId === r.id);
-    rKids.forEach(k => {
-      const sel = task.parentId === k.id ? 'selected' : '';
-      html += `<option value="${k.id}" ${sel}>&nbsp;&nbsp;&#8627; ${esc(k.title)}</option>`;
+  if (requiredParentType) {
+    // Only show items of the correct parent type
+    const possibleParents = tasks.filter(t => t.id !== id && !descIds.has(t.id) && getItemType(t) === requiredParentType);
+    html += `<select style="width:100%" onchange="reparentTask('${id}', this.value)"><option value="">-- Select a ${ITEM_TYPE_META[requiredParentType].label} --</option>`;
+    possibleParents.sort((a, b) => a.title.localeCompare(b.title)).forEach(p => {
+      const sel = task.parentId === p.id ? 'selected' : '';
+      const client = getTaskClient(p);
+      html += `<option value="${p.id}" ${sel}>${client ? clientPrefix(client) + ' - ' : ''}${esc(p.title)}</option>`;
     });
-  });
-  html += `</select></div>`;
+    html += `</select>`;
+  } else {
+    // Projects live at root — no move selector needed
+    html += `<div style="font-size:0.8rem;color:var(--text-muted)">Projects are always at the root level.</div>`;
+  }
+  html += `</div>`;
 
   // Actions
   html += `<div class="detail-section"><div class="detail-section__title">Actions</div>`;
-  html += `<button class="btn btn--danger" onclick="deleteTask('${id}')" style="margin-top:12px">Delete Task</button>`;
+  html += `<button class="btn btn--danger" onclick="deleteTask('${id}')" style="margin-top:12px">Delete ${getItemTypeLabel(task)}</button>`;
   html += `</div>`;
 
   html += `</div>`;
@@ -5463,19 +6095,50 @@ async function deleteAttachmentUI(taskId, attachmentId) {
   } catch(e) { toast('Delete error', 'error'); }
 }
 
-/** Add a task dependency from the dropdown selector in the detail panel */
+/** Check if a task has incomplete prerequisites. Returns array of {id, title, status} or empty array. */
+function getIncompletePrereqs(task) {
+  if (!task.dependencies || task.dependencies.length === 0) return [];
+  return task.dependencies
+    .map(did => tasks.find(t => t.id === did))
+    .filter(d => d && d.status !== 'Done')
+    .map(d => ({ id: d.id, title: d.title, status: d.status }));
+}
+
+/** Check if adding depId as a prerequisite of taskId would create a circular dependency.
+ *  Walks the dependency chain from depId to see if it eventually leads back to taskId. */
+function wouldCreateCycle(taskId, depId) {
+  const visited = new Set();
+  function walk(id) {
+    if (id === taskId) return true;
+    if (visited.has(id)) return false;
+    visited.add(id);
+    const t = tasks.find(x => x.id === id);
+    if (!t || !t.dependencies) return false;
+    return t.dependencies.some(d => walk(d));
+  }
+  return walk(depId);
+}
+
+/** Get all tasks that depend on a given task (reverse lookup — this task is their prerequisite). */
+function getDependents(taskId) {
+  return tasks.filter(t => t.dependencies && t.dependencies.includes(taskId));
+}
+
 function addDependency(taskId) {
   const sel = document.getElementById('addDepSelect');
   if (!sel || !sel.value) return;
   const task = tasks.find(t => t.id === taskId);
   if (!task) return;
   if (!task.dependencies) task.dependencies = [];
-  if (!task.dependencies.includes(sel.value)) {
-    task.dependencies.push(sel.value);
-    updateTask(taskId, 'dependencies', task.dependencies);
-    // Re-open detail to refresh
-    openDetailOverlay(taskId);
+  if (task.dependencies.includes(sel.value)) return;
+  // Prevent circular dependencies
+  if (wouldCreateCycle(taskId, sel.value)) {
+    toast('Cannot add — would create a circular dependency', 'warning');
+    return;
   }
+  task.dependencies.push(sel.value);
+  updateTask(taskId, 'dependencies', task.dependencies);
+  openDetailOverlay(taskId);
 }
 
 /** Remove a dependency link between two tasks */
@@ -5537,6 +6200,35 @@ function closeDetail() {
   activeDetailTaskId = null;
 }
 
+/** Resizable detail panels — drag left edge to widen/narrow */
+function startPanelResize(e, panelId) {
+  e.preventDefault();
+  const panel = document.getElementById(panelId);
+  if (!panel) return;
+  const handle = e.target;
+  handle.classList.add('active');
+  const startX = e.clientX;
+  const startWidth = panel.offsetWidth;
+  document.body.style.cursor = 'col-resize';
+  document.body.style.userSelect = 'none';
+
+  function onMove(ev) {
+    // Panel is on the right side, so dragging left = wider
+    const delta = startX - ev.clientX;
+    const newWidth = Math.max(240, Math.min(window.innerWidth * 0.8, startWidth + delta));
+    panel.style.width = newWidth + 'px';
+  }
+  function onUp() {
+    handle.classList.remove('active');
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+  }
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
+}
+
 /**
  * Update a single field on a task with undo support.
  * Includes safety checks: client change confirmation and dependency soft-block warning.
@@ -5556,14 +6248,23 @@ async function updateTask(id, field, value) {
     }
   }
 
-  // Dependency soft-block: warn if moving to "In progress" with incomplete blockers
-  if (field === 'status' && value === 'In progress' && task.dependencies && task.dependencies.length > 0) {
-    const blockers = task.dependencies
-      .map(did => tasks.find(t => t.id === did))
-      .filter(d => d && d.status !== 'Done');
+  // Hard-block: cannot mark Done if prerequisites are incomplete (no override)
+  if (field === 'status' && value === 'Done') {
+    const blockers = getIncompletePrereqs(task);
     if (blockers.length > 0) {
       const names = blockers.map(b => `  \u2022 ${b.title} (${b.status})`).join('\n');
-      if (!(await themedConfirm(`${blockers.length} blocking task(s) not done:\n${names}\n\nProceed anyway?`))) {
+      await themedConfirm(`Cannot mark as Done \u2014 ${blockers.length} prerequisite${blockers.length > 1 ? 's' : ''} not complete:\n${names}\n\nComplete these first.`);
+      renderContent();
+      return;
+    }
+  }
+
+  // Soft-block: warn if moving to "In progress" with incomplete prerequisites (can override)
+  if (field === 'status' && value === 'In progress') {
+    const blockers = getIncompletePrereqs(task);
+    if (blockers.length > 0) {
+      const names = blockers.map(b => `  \u2022 ${b.title} (${b.status})`).join('\n');
+      if (!(await themedConfirm(`${blockers.length} prerequisite${blockers.length > 1 ? 's' : ''} not done:\n${names}\n\nStart anyway?`))) {
         renderContent();
         return;
       }
@@ -5587,8 +6288,10 @@ async function updateTask(id, field, value) {
   if (currentView !== 'dashboard' && scrollEl && savedScroll > 0) {
     requestAnimationFrame(() => { scrollEl.scrollTop = savedScroll; _scrollRestoreTarget = null; });
   }
-  // If overlay panel is open (non-tasks view), refresh it
-  if (activeDetailTaskId === id && currentView !== 'tasks') openDetailOverlay(id);
+  // Refresh the overlay detail panel if it's open for this task
+  if (activeDetailTaskId === id && document.getElementById('detailPanel')?.classList.contains('open')) {
+    openDetailOverlay(id);
+  }
 }
 
 /** Add a timestamped note to a task from the overlay detail panel input */
@@ -5605,10 +6308,22 @@ function addNote(id) {
   openDetail(id);
 }
 
-/** Move a task under a new parent (or to root if newParentId is empty) */
+/** Move a task under a new parent (or to root if newParentId is empty). Enforces item type hierarchy. */
 function reparentTask(id, newParentId) {
   const task = tasks.find(t => t.id === id);
   if (!task) return;
+  // Enforce hierarchy rules
+  if (newParentId) {
+    const newParent = tasks.find(t => t.id === newParentId);
+    if (newParent) {
+      const allowedChild = VALID_CHILD_TYPE[getItemType(newParent)];
+      if (!allowedChild || getItemType(task) !== allowedChild) {
+        toast(`A ${getItemTypeLabel(task)} cannot be placed under a ${getItemTypeLabel(newParent)}`, 'warning'); return;
+      }
+    }
+  } else if (getItemType(task) !== 'project') {
+    toast(`Only Projects can exist at the root level`, 'warning'); return;
+  }
   task.parentId = newParentId || null;
   task.updatedAt = new Date().toISOString();
   markDirty(id);
@@ -5618,39 +6333,119 @@ function reparentTask(id, newParentId) {
   toast(`Moved "${task.title}" to ${newParent ? newParent.title : 'root'}`);
 }
 
-/** Delete a task and all its descendants after confirmation */
+/** Delete an item and all its descendants after confirmation with cascade warning */
 async function deleteTask(id) {
-  if (!(await themedConfirm('Delete this task and all its children?'))) return;
-  const toRemove = new Set([id, ...getDescendants(id).map(d => d.id)]);
+  const task = tasks.find(t => t.id === id);
+  if (!task) return;
+  const typeLabel = getItemTypeLabel(task);
+  const descendants = getDescendants(id);
+  let msg = `Delete this ${typeLabel}?`;
+  if (descendants.length > 0) {
+    const counts = {};
+    descendants.forEach(d => { const dt = getItemType(d); counts[dt] = (counts[dt] || 0) + 1; });
+    const parts = ITEM_TYPE_ORDER.filter(t => counts[t]).map(t => `${counts[t]} ${counts[t] === 1 ? ITEM_TYPE_META[t].label.toLowerCase() : ITEM_TYPE_META[t].plural.toLowerCase()}`);
+    msg = `Removing this ${typeLabel.toLowerCase()} will delete everything underneath it:\n${parts.join(', ')}.\n\nAll artifacts and time tracking will be lost. This cannot be undone.\n\nAre you sure?`;
+  }
+  if (!(await themedConfirm(msg))) return;
+  const toRemove = new Set([id, ...descendants.map(d => d.id)]);
   toRemove.forEach(rid => markDeleted(rid));
   tasks = tasks.filter(t => !toRemove.has(t.id));
+  // Clean up stale dependency references: remove deleted IDs from other tasks' prerequisites
+  tasks.forEach(t => {
+    if (t.dependencies && t.dependencies.some(d => toRemove.has(d))) {
+      t.dependencies = t.dependencies.filter(d => !toRemove.has(d));
+      markDirty(t.id);
+    }
+  });
   save(); closeDetail(); renderSidebarCounts(); renderContent();
-  toast('Task deleted');
+  toast(`${typeLabel} deleted`);
 }
 
-/** Create a new blank task at root level and open its detail panel */
+/** Create a new task/item object with all default fields. Shared factory for addTask, addItem, quickAddTask. */
+function createTaskObject(overrides) {
+  const now = new Date().toISOString();
+  return {
+    id: uid(), title: 'New Item', parentId: null, itemType: 'task', client: '',
+    status: 'Not started', priority: '', healthState: '', description: '',
+    assignees: [], hoursEstimated: 0, hoursSpent: 0,
+    dueDate: '', startDate: '', endDate: '', dependencies: [],
+    notes: [], createdAt: now, updatedAt: now,
+    ...overrides,
+  };
+}
+
+/** Create a new project at root level and open its detail panel (header + button default action) */
 function addTask() {
-  const t = { id: uid(), title: 'New Task', parentId: null, client: '', status: 'Not started', priority: '', healthState: '', description: '', assignees: [], hoursEstimated: 0, hoursSpent: 0, dueDate: '', startDate: '', endDate: '', notes: [], createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+  const t = createTaskObject({ title: 'New Project', itemType: 'project' });
   tasks.push(t);
   markDirty(t.id);
   save(); renderSidebarCounts(); renderContent();
   openDetail(t.id);
 }
 
-/** Quick-add a task by title from the inline input */
+/** Toggle the + New dropdown menu */
+function toggleAddItemMenu(e) {
+  e.stopPropagation();
+  const dd = document.getElementById('addItemMenuDropdown');
+  if (!dd) return;
+  const open = dd.style.display !== 'none';
+  dd.style.display = open ? 'none' : '';
+  if (!open) document.addEventListener('click', closeAddItemMenu, { once: true });
+}
+/** Close the + New dropdown menu */
+function closeAddItemMenu() {
+  const dd = document.getElementById('addItemMenuDropdown');
+  if (dd) dd.style.display = 'none';
+}
+
+/** Create a new item of a given type under an optional parent. Opens its detail panel. */
+function addItem(type, parentId) {
+  const meta = ITEM_TYPE_META[type] || ITEM_TYPE_META.task;
+  const parent = parentId ? tasks.find(t => t.id === parentId) : null;
+  const client = parent ? getTaskClient(parent) : '';
+  const t = createTaskObject({ title: `New ${meta.label}`, parentId: parentId || null, itemType: type, client });
+  tasks.push(t);
+  markDirty(t.id);
+  save(); renderSidebarCounts(); renderContent();
+  openDetail(t.id);
+}
+
+/** Show a modal to pick a parent before creating an item of a given type */
+function showAddItemPicker(type) {
+  const parentType = VALID_PARENT_TYPE[type];
+  if (!parentType) { addItem(type, null); return; }
+  const parents = tasks.filter(t => getItemType(t) === parentType).sort((a, b) => a.title.localeCompare(b.title));
+  if (parents.length === 0) {
+    toast(`No ${ITEM_TYPE_META[parentType].plural} exist yet. Create a ${ITEM_TYPE_META[parentType].label} first.`, 'warning');
+    return;
+  }
+  let html = `<div class="modal-overlay open" id="addItemPickerModal" onclick="if(event.target===this)this.remove()">
+    <div class="modal" style="max-width:420px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <h2 style="margin:0">New ${ITEM_TYPE_META[type].label}</h2>
+        <button class="btn btn--ghost" onclick="document.getElementById('addItemPickerModal').remove()">&times;</button>
+      </div>
+      <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:12px">Select a ${ITEM_TYPE_META[parentType].label} to create this ${ITEM_TYPE_META[type].label} under:</p>
+      <div style="max-height:300px;overflow-y:auto;border:1px solid var(--border-default);border-radius:var(--radius-sm)">`;
+  parents.forEach(p => {
+    const clientBadge = p.client ? clientBadgeHtml(p.client) : '';
+    html += `<div class="picker-row" onclick="document.getElementById('addItemPickerModal').remove();addItem('${type}','${p.id}')">
+      ${clientBadge} ${itemTypeBadgeHtml(p)} <span>${esc(p.title)}</span>
+    </div>`;
+  });
+  html += `</div></div></div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+/** Quick-add a project by title from the inline input bar */
 function quickAddTask(title) {
   const client = document.getElementById('quickAddClient')?.value || currentFilter.client || '';
-  const t = {
-    id: uid(), title, parentId: null, client,
-    status: 'Not started', priority: '', healthState: '',
-    description: '', assignees: currentFilter.assignee ? [currentFilter.assignee] : [],
-    hoursEstimated: 0, hoursSpent: 0, dueDate: '', startDate: '', endDate: '',
-    notes: [], createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
-  };
+  const assignees = currentFilter.assignee ? [currentFilter.assignee] : [];
+  const t = createTaskObject({ title, itemType: 'project', client, assignees });
   tasks.push(t);
   markDirty(t.id);
   save();
-  toast(`Task "${title}" created`);
+  toast(`Project "${title}" created`);
   renderSidebarCounts(); renderContent();
   // Re-focus the quick-add input
   setTimeout(() => { const input = document.getElementById('quickAddInput'); if (input) input.focus(); }, 100);
@@ -5684,7 +6479,7 @@ function renderReport(el) {
 
   // ===== EXECUTIVE KPI STRIP (all views) =====
   html += `<div class="report__section"><div class="report-exec">
-    <div class="kpi-card"><div class="kpi-card__value" style="color:var(--accent)">${scopedTasks.length}</div><div class="kpi-card__label">Total Tasks</div></div>
+    <div class="kpi-card"><div class="kpi-card__value" style="color:var(--accent)">${scopedTasks.length}</div><div class="kpi-card__label">Total Items</div></div>
     <div class="kpi-card"><div class="kpi-card__value" style="color:var(--success)">${donePct}%</div><div class="kpi-card__label">Complete</div></div>
     <div class="kpi-card"><div class="kpi-card__value" style="color:var(--danger)">${atRisk.length}</div><div class="kpi-card__label">At Risk</div></div>
     <div class="kpi-card"><div class="kpi-card__value" style="color:var(--text-primary)">${totalHrs.toFixed(1)}</div><div class="kpi-card__label">Hours Spent</div></div>
@@ -5956,7 +6751,7 @@ function renderReport(el) {
     if (aBlocked > 0) html += `<div class="rw-seg" style="flex:${aBlocked};background:var(--danger)" title="Blocked: ${aBlocked}"></div>`;
     if (aOther > 0) html += `<div class="rw-seg" style="flex:${aOther};background:var(--text-muted)" title="Other: ${aOther}"></div>`;
     html += `</div></div>`;
-    html += `<div class="rw-nums"><span>${at.length} task${at.length === 1 ? '' : 's'}</span><span>${hs.toFixed(1)}h / ${he.toFixed(1)}h</span></div>`;
+    html += `<div class="rw-nums"><span>${at.length} item${at.length === 1 ? '' : 's'}</span><span>${hs.toFixed(1)}h / ${he.toFixed(1)}h</span></div>`;
     html += `</div>`;
   });
   // Unassigned
@@ -6509,6 +7304,16 @@ function saveFinanceData(data) {
 
   _financeData = data;
   localStorage.setItem('nbi_finance_data', JSON.stringify(data));
+
+  // SAFEGUARD: do not push empty/seed data to the server if the DB already has real data.
+  // This prevents overwriting another user's finance entries when loading with an empty local cache.
+  const totalEntries = (data.revenue || []).length + (data.payroll || []).length + (data.opex || []).length + (data.pipeline || []).length;
+  if (totalEntries === 0 && _financeVersion > 0) {
+    console.warn('[Finance] Skipping DB save — data is empty but server has version', _financeVersion);
+    renderContent();
+    return;
+  }
+
   // Debounced save to PostgreSQL with optimistic concurrency
   clearTimeout(_financeSaveTimer);
   _financeSaveTimer = setTimeout(async () => {
@@ -6526,6 +7331,11 @@ function saveFinanceData(data) {
         const err = await resp.json();
         showToast(`Finance data conflict: updated by ${err.updatedBy}. Reloading...`, 'warning');
         await loadFinanceFromDB();
+      } else if (resp.status === 401) {
+        showToast('Please log in to save finance changes', 'warning');
+      } else {
+        const err = await resp.json().catch(() => ({}));
+        showToast(err.error || 'Failed to save finance data', 'warning');
       }
     } catch(e) { console.warn('[Finance] DB save failed, data safe in localStorage:', e.message); }
   }, 800);
@@ -9965,6 +10775,8 @@ async function updateFxRate(currency, rate) {
 let _bugReportScreenshot = null;  // Base64 data URL of the captured screenshot (or null)
 let _bugReportType = 'bug';       // Current selection in the modal: 'bug' or 'feature'
 let _bugReportsData = null;       // Cached response from GET /api/bug-reports
+let _bugSortCol = 'created_at';   // Current sort column: reporter_name|title|page|status|created_at
+let _bugSortDir = 'desc';         // Sort direction: asc|desc
 
 /** Lazy-load html2canvas from CDN and capture a screenshot of the main content area */
 let _html2canvasLoaded = false;
@@ -10177,8 +10989,24 @@ async function renderBugReportsTab() {
     if (window._bugFilterType) filtered = filtered.filter(r => r.type === window._bugFilterType);
     if (window._bugFilterStatus) filtered = filtered.filter(r => r.status === window._bugFilterStatus);
 
+    // Sort filtered results
+    filtered = [...filtered].sort((a, b) => {
+      let va, vb;
+      if (_bugSortCol === 'created_at') { va = new Date(a.created_at).getTime(); vb = new Date(b.created_at).getTime(); }
+      else if (_bugSortCol === 'reporter_name') { va = (a.reporter_name || '').toLowerCase(); vb = (b.reporter_name || '').toLowerCase(); }
+      else if (_bugSortCol === 'title') { va = (a.title || '').toLowerCase(); vb = (b.title || '').toLowerCase(); }
+      else if (_bugSortCol === 'page') { va = (a.page || '').toLowerCase(); vb = (b.page || '').toLowerCase(); }
+      else if (_bugSortCol === 'status') { va = a.status || ''; vb = b.status || ''; }
+      else { va = a[_bugSortCol] || ''; vb = b[_bugSortCol] || ''; }
+      if (va < vb) return _bugSortDir === 'asc' ? -1 : 1;
+      if (va > vb) return _bugSortDir === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    const sortIcon = (col) => _bugSortCol === col ? (_bugSortDir === 'asc' ? ' &#9650;' : ' &#9660;') : '';
+    const sortTh = (col, label) => `<th style="cursor:pointer;user-select:none;white-space:nowrap" onclick="toggleBugSort('${col}')">${label}${sortIcon(col)}</th>`;
     html += `<div class="expenses-table-wrap"><table class="bug-reports-table"><thead><tr>
-      <th>Type</th><th>Reporter</th><th>Title</th><th>Page</th><th>Status</th><th>Date</th>
+      <th>Type</th>${sortTh('reporter_name','Reporter')}${sortTh('title','Title')}${sortTh('page','Page')}${sortTh('status','Status')}${sortTh('created_at','Date')}
       ${isAdmin ? '<th></th>' : ''}
     </tr></thead><tbody>`;
 
@@ -10207,6 +11035,13 @@ async function renderBugReportsTab() {
   }
   html += `</div>`;
   return html;
+}
+
+/** Toggle sort column/direction for bug reports table and re-render */
+function toggleBugSort(col) {
+  if (_bugSortCol === col) { _bugSortDir = _bugSortDir === 'asc' ? 'desc' : 'asc'; }
+  else { _bugSortCol = col; _bugSortDir = col === 'created_at' ? 'desc' : 'asc'; }
+  renderContent();
 }
 
 /** View a bug report detail in a modal */
@@ -12426,6 +13261,36 @@ document.addEventListener('keydown', function(e) {
   if (tag === 'input' || tag === 'textarea' || tag === 'select' || e.target.isContentEditable) return;
   // Skip if modal is open
   if (document.querySelector('.modal-overlay.open')) return;
+
+  // Delete/Backspace removes a selected dependency arrow
+  if ((e.key === 'Delete' || e.key === 'Backspace') && _ganttSelectedArrow) {
+    e.preventDefault();
+    const { fromId, toId } = _ganttSelectedArrow;
+    const depTask = tasks.find(t => t.id === toId);
+    const prereqTask = tasks.find(t => t.id === fromId);
+    if (depTask && depTask.dependencies) {
+      depTask.dependencies = depTask.dependencies.filter(d => d !== fromId);
+      updateTask(toId, 'dependencies', depTask.dependencies);
+    }
+    toast(`Removed link: "${prereqTask?.title || '?'}" → "${depTask?.title || '?'}"`);
+    _ganttSelectedArrow = null;
+    return;
+  }
+
+  // Escape deselects arrow or exits link mode
+  if (e.key === 'Escape' && _ganttSelectedArrow) {
+    deselectGanttArrow();
+    return;
+  }
+  if (e.key === 'Escape' && _ganttLinkMode) {
+    _ganttLinkMode = false;
+    _ganttLinkFrom = null;
+    document.querySelectorAll('.gantt__bar.gantt-link-source').forEach(b => b.classList.remove('gantt-link-source'));
+    const preview = document.getElementById('ganttLinkPreview');
+    if (preview) preview.remove();
+    renderContent();
+    return;
+  }
 
   if (e.key === '/' && !e.ctrlKey && !e.metaKey) {
     e.preventDefault();

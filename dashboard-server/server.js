@@ -54,6 +54,17 @@ let cron, runBackup;
 try { cron = require('node-cron'); runBackup = require('./backup'); }
 catch (e) { /* logged after logger init below */ }
 
+// ==================== ITEM TYPE HIERARCHY ====================
+const ITEM_TYPES = ['project', 'feature', 'story', 'task'];
+const VALID_CHILD_TYPE = { project: 'feature', feature: 'story', story: 'task', task: null };
+const VALID_PARENT_TYPE = { project: null, feature: 'project', story: 'feature', task: 'story' };
+
+/** Infer item_type from the parent's type. If no parent, default to 'project'. */
+function inferItemType(parentType) {
+  if (!parentType) return 'project';
+  return VALID_CHILD_TYPE[parentType] || 'task';
+}
+
 // ==================== STRUCTURED LOGGER ====================
 const LOG_LEVELS = { error: 0, warn: 1, info: 2, debug: 3 };
 const LOG_LEVEL = LOG_LEVELS[process.env.LOG_LEVEL || 'info'];
@@ -1848,11 +1859,12 @@ app.get('/api/finance', async (req, res) => {
   res.json({ data: rows[0].data, updatedBy: rows[0].updated_by, updatedAt: rows[0].updated_at, version: rows[0].id });
 });
 
-/** PUT /api/finance — Save finance data as a new versioned row (append-only for history). Admin only.
+/** PUT /api/finance — Save finance data as a new versioned row (append-only for history).
+ *  Any authenticated user can save (page-level access is enforced client-side via hasPageAccess).
  *  Supports optimistic concurrency: pass expectedVersion (the id from GET) to detect conflicts.
  *  If another user saved between your read and write, returns 409 Conflict. */
 app.put('/api/finance', async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin access required' });
+  if (!req.user) return res.status(401).json({ error: 'Authentication required' });
   const { data, expectedVersion } = req.body;
   if (!data) return res.status(400).json({ error: 'data required' });
 
@@ -2144,20 +2156,36 @@ app.get('/api/tasks/:id', async (req, res) => {
   res.json(rows[0]);
 });
 
-/** POST /api/tasks — Create a new task (admin only) */
+/** POST /api/tasks — Create a new task (admin only). Enforces hierarchy: project > feature > story > task. */
 app.post('/api/tasks', async (req, res) => {
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
-  const { title, parent_id, client_id, status, priority, health_state, description, assignees, hours_estimated, hours_spent, due_date, start_date, end_date, dependencies, planner_task_id, source } = req.body;
+  const { title, parent_id, client_id, item_type, status, priority, health_state, description, assignees, hours_estimated, hours_spent, due_date, start_date, end_date, dependencies, planner_task_id, source } = req.body;
   if (!title) return res.status(400).json({ error: 'Title required' });
   const lenErr = validateLength(title, 'title') || validateLength(description, 'description');
   if (lenErr) return res.status(400).json({ error: lenErr });
+
+  // Infer or validate item_type based on parent hierarchy
+  let resolvedType;
+  if (parent_id) {
+    const parentResult = await pool.query('SELECT item_type FROM tasks WHERE id = $1', [parent_id]);
+    if (parentResult.rows.length > 0) {
+      const expectedType = VALID_CHILD_TYPE[parentResult.rows[0].item_type];
+      if (!expectedType) return res.status(400).json({ error: `Cannot create children under a ${parentResult.rows[0].item_type}` });
+      resolvedType = item_type || expectedType;
+      if (resolvedType !== expectedType) return res.status(400).json({ error: `Expected ${expectedType} under ${parentResult.rows[0].item_type}, got ${resolvedType}` });
+    }
+  } else {
+    resolvedType = item_type || 'project';
+  }
+  if (!ITEM_TYPES.includes(resolvedType)) return res.status(400).json({ error: `Invalid item_type: ${resolvedType}` });
+
   const { rows } = await pool.query(
-    `INSERT INTO tasks (title, parent_id, client_id, status, priority, health_state, description, assignees, hours_estimated, hours_spent, due_date, start_date, end_date, dependencies, planner_task_id, source)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16) RETURNING *`,
-    [title, parent_id || null, client_id || null, status || 'Not started', priority || '', health_state || '', description || '',
+    `INSERT INTO tasks (title, parent_id, client_id, item_type, status, priority, health_state, description, assignees, hours_estimated, hours_spent, due_date, start_date, end_date, dependencies, planner_task_id, source)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17) RETURNING *`,
+    [title, parent_id || null, client_id || null, resolvedType, status || 'Not started', priority || '', health_state || '', description || '',
      assignees || [], hours_estimated || 0, hours_spent || 0, due_date || '', start_date || '', end_date || '', dependencies || [], planner_task_id || '', source || 'manual']
   );
-  await auditLog('task', rows[0].id, 'create', req.user?.displayName, { title });
+  await auditLog('task', rows[0].id, 'create', req.user?.displayName, { title, item_type: resolvedType });
   res.status(201).json(rows[0]);
 });
 
@@ -2168,9 +2196,14 @@ app.post('/api/tasks', async (req, res) => {
  */
 app.patch('/api/tasks/:id', async (req, res) => {
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid task ID' });
   const lenErr = validateLength(req.body.title, 'title') || validateLength(req.body.description, 'description');
   if (lenErr) return res.status(400).json({ error: lenErr });
-  const allowedFields = ['title', 'parent_id', 'client_id', 'status', 'priority', 'health_state', 'description', 'assignees', 'hours_estimated', 'hours_spent', 'due_date', 'start_date', 'end_date', 'dependencies'];
+  // Validate item_type if provided
+  if (req.body.item_type && !ITEM_TYPES.includes(req.body.item_type)) {
+    return res.status(400).json({ error: `Invalid item_type: ${req.body.item_type}. Must be one of: ${ITEM_TYPES.join(', ')}` });
+  }
+  const allowedFields = ['title', 'parent_id', 'client_id', 'item_type', 'status', 'priority', 'health_state', 'description', 'assignees', 'hours_estimated', 'hours_spent', 'due_date', 'start_date', 'end_date', 'dependencies'];
   const { updates, vals, nextIdx } = buildPatchQuery(req.body, allowedFields);
   if (req.body.title !== undefined && !req.body.title.trim()) {
     return res.status(400).json({ error: 'Title cannot be empty' });
@@ -2200,14 +2233,33 @@ app.patch('/api/tasks/:id', async (req, res) => {
   res.json(rows[0]);
 });
 
-/** DELETE /api/tasks/:id — Delete a task (admin only, cascades to children) */
+/** DELETE /api/tasks/:id — Delete a task and all descendants (admin only). Uses a transaction for atomicity. */
 app.delete('/api/tasks/:id', async (req, res) => {
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
-  await auditLog('task', req.params.id, 'delete', req.user?.displayName);
-  // Re-parent child tasks before deleting
-  await pool.query('UPDATE tasks SET parent_id = NULL, updated_at = NOW() WHERE parent_id = $1', [req.params.id]);
-  await pool.query('DELETE FROM tasks WHERE id = $1', [req.params.id]);
-  res.json({ ok: true });
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid task ID' });
+  const conn = await pool.connect();
+  try {
+    await conn.query('BEGIN');
+    // Cascade-delete all descendants first, then the item itself
+    await conn.query(`
+      WITH RECURSIVE descendants AS (
+        SELECT id FROM tasks WHERE parent_id = $1
+        UNION ALL
+        SELECT t.id FROM tasks t INNER JOIN descendants d ON t.parent_id = d.id
+      )
+      DELETE FROM tasks WHERE id IN (SELECT id FROM descendants)
+    `, [req.params.id]);
+    await conn.query('DELETE FROM tasks WHERE id = $1', [req.params.id]);
+    await conn.query('COMMIT');
+    // Audit log after successful delete
+    await auditLog('task', req.params.id, 'delete', req.user?.displayName);
+    res.json({ ok: true });
+  } catch (e) {
+    await conn.query('ROLLBACK');
+    throw e;
+  } finally {
+    conn.release();
+  }
 });
 
 /**
@@ -2300,6 +2352,10 @@ app.post('/api/sync/changes', async (req, res) => {
         let parentId = t.parentId || null;
         if (parentId && idMap[parentId]) parentId = idMap[parentId];
 
+        // Validate item_type — sanitise to a known value
+        const rawType = t.itemType || t.item_type || 'task';
+        const itemType = ITEM_TYPES.includes(rawType) ? rawType : 'task';
+
         // Check if task exists
         const existing = await conn.query('SELECT id, updated_at FROM tasks WHERE id = $1', [t.id]);
 
@@ -2314,11 +2370,11 @@ app.post('/api/sync/changes', async (req, res) => {
 
           // Update existing task
           await conn.query(
-            `UPDATE tasks SET title=$1, parent_id=$2, client_id=$3, status=$4, priority=$5,
-             health_state=$6, description=$7, assignees=$8, hours_estimated=$9, hours_spent=$10,
-             due_date=$11, start_date=$12, end_date=$13, dependencies=$14, updated_at=NOW()
-             WHERE id=$15`,
-            [t.title, parentId, clientId, t.status || 'Not started', t.priority || '',
+            `UPDATE tasks SET title=$1, parent_id=$2, client_id=$3, item_type=$4, status=$5, priority=$6,
+             health_state=$7, description=$8, assignees=$9, hours_estimated=$10, hours_spent=$11,
+             due_date=$12, start_date=$13, end_date=$14, dependencies=$15, updated_at=NOW()
+             WHERE id=$16`,
+            [t.title, parentId, clientId, itemType, t.status || 'Not started', t.priority || '',
              t.healthState || t.health_state || '', t.description || '', t.assignees || [],
              t.hoursEstimated || t.hours_estimated || 0, t.hoursSpent || t.hours_spent || 0,
              t.dueDate || t.due_date || '', t.startDate || t.start_date || '', t.endDate || t.end_date || '',
@@ -2327,10 +2383,10 @@ app.post('/api/sync/changes', async (req, res) => {
         } else {
           // Insert new task
           const { rows } = await conn.query(
-            `INSERT INTO tasks (id, title, parent_id, client_id, status, priority, health_state,
+            `INSERT INTO tasks (id, title, parent_id, client_id, item_type, status, priority, health_state,
              description, assignees, hours_estimated, hours_spent, due_date, start_date, end_date, dependencies, source, created_at, updated_at)
-             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,NOW()) RETURNING id`,
-            [t.id, t.title, parentId, clientId, t.status || 'Not started', t.priority || '',
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,NOW()) RETURNING id`,
+            [t.id, t.title, parentId, clientId, itemType, t.status || 'Not started', t.priority || '',
              t.healthState || t.health_state || '', t.description || '', t.assignees || [],
              t.hoursEstimated || t.hours_estimated || 0, t.hoursSpent || t.hours_spent || 0,
              t.dueDate || t.due_date || '', t.startDate || t.start_date || '', t.endDate || t.end_date || '',
@@ -2604,6 +2660,7 @@ app.get('/api/sync/load', async (req, res) => {
     startDate: r.start_date || '',
     endDate: r.end_date || '',
     dependencies: r.dependencies || [],
+    itemType: r.item_type || 'task',
     notes: r.notes || [],
     createdAt: r.created_at,
     updatedAt: r.updated_at,
