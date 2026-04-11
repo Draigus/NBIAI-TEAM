@@ -1318,6 +1318,7 @@ span.fin-editable { display: inline-block; position: relative; }
 .bug-status-badge--open { background: var(--warning-bg); color: var(--warning); }
 .bug-status-badge--resolved { background: var(--success-bg); color: var(--success); }
 .bug-status-badge--wontfix { background: var(--bg-surface); color: var(--text-muted); }
+.bug-status-badge--please_review { background: var(--accent-glow); color: var(--accent-text); border: 1px solid var(--accent-border); }
 
 /* ===== MANAGE CLIENTS ===== */
 .manage-clients { max-width: 900px; }
@@ -2573,9 +2574,13 @@ function renderSidebar() {
   html += sidebarItem(svgTasks, 'Tasks', scopedForHealth.length, () => switchView('tasks'), currentView==='tasks');
   html += sidebarItem(svgPeople, 'People', '', () => switchView('people'), currentView==='people');
   const svgLeads = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 2h12v3H2zM4 5h8v3H4zM6 8h4v3H6zM7 11h2v3H7z"/></svg>';
-  html += sidebarItem(svgLeads, 'Leads', '', () => switchView('leads'), currentView==='leads');
+  if (hasPageAccess('leads')) {
+    html += sidebarItem(svgLeads, 'Leads', '', () => switchView('leads'), currentView==='leads');
+  }
   const svgExpenses = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="10" rx="1"/><path d="M2 6h12M5 9h3M5 11h2"/></svg>';
-  html += sidebarItem(svgExpenses, 'Expenses', '', () => switchView('expenses'), currentView==='expenses');
+  if (hasPageAccess('expenses')) {
+    html += sidebarItem(svgExpenses, 'Expenses', '', () => switchView('expenses'), currentView==='expenses');
+  }
   if (hasPageAccess('finances')) {
     html += sidebarItem(svgFinances, 'Finances', '', () => switchView('finances'), currentView==='finances');
   }
@@ -5221,8 +5226,11 @@ function openDetail(id) {
   activeDetailTaskId = id;
   // In tasks view, update the inline panel instead of the overlay
   if (currentView === 'tasks') {
+    const content = document.getElementById('mainContent');
+    const savedScroll = content ? content.scrollTop : 0;
     inlineDetailVisible = true;
     renderContent();
+    if (content) requestAnimationFrame(() => { content.scrollTop = savedScroll; });
     return;
   }
   openDetailOverlay(id);
@@ -10028,7 +10036,7 @@ async function openBugReportModal() {
   const screenshotPromise = captureScreenshot();
   const currentPage = currentView || 'unknown';
 
-  let html = `<div class="modal-overlay open" id="bugReportModal" onclick="if(event.target===this)this.remove()">
+  let html = `<div class="modal-overlay open" id="bugReportModal">
     <div class="modal bug-report-modal">
       <h2>&#128030; Report a Bug or Feature Request</h2>
       <div style="margin-bottom:12px">
@@ -10158,6 +10166,7 @@ async function renderBugReportsTab() {
       <select class="leads-select" onchange="_bugFilterStatus=this.value||null;loadBugReports().then(()=>renderContent())">
         <option value="">All Statuses</option>
         <option value="open" ${window._bugFilterStatus==='open'?'selected':''}>Open</option>
+        <option value="please_review" ${window._bugFilterStatus==='please_review'?'selected':''}>Please Review</option>
         <option value="resolved" ${window._bugFilterStatus==='resolved'?'selected':''}>Resolved</option>
         <option value="wontfix" ${window._bugFilterStatus==='wontfix'?'selected':''}>Won't Fix</option>
       </select>
@@ -10175,17 +10184,18 @@ async function renderBugReportsTab() {
 
     filtered.forEach(r => {
       const typeCls = r.type === 'bug' ? 'bug' : 'feature';
-      const statusCls = r.status === 'resolved' ? 'resolved' : r.status === 'wontfix' ? 'wontfix' : 'open';
+      const statusCls = r.status === 'resolved' ? 'resolved' : r.status === 'wontfix' ? 'wontfix' : r.status === 'please_review' ? 'please_review' : 'open';
       html += `<tr onclick="viewBugReport('${r.id}')" style="cursor:pointer">
         <td><span class="bug-type-badge bug-type-badge--${typeCls}">${r.type}</span></td>
         <td>${esc(r.reporter_name || 'Unknown')}</td>
         <td><strong>${esc(r.title)}</strong></td>
         <td style="color:var(--text-muted)">${esc(r.page || '-')}</td>
-        <td><span class="bug-status-badge bug-status-badge--${statusCls}">${r.status}</span></td>
+        <td><span class="bug-status-badge bug-status-badge--${statusCls}">${r.status === 'please_review' ? 'Please Review' : r.status}</span></td>
         <td style="color:var(--text-muted);font-size:0.75rem;white-space:nowrap">${new Date(r.created_at).toLocaleDateString('en-GB')}</td>
         ${isAdmin ? `<td>
           <select class="leads-select" style="font-size:0.7rem;padding:2px 6px" onclick="event.stopPropagation()" onchange="updateBugReportStatus('${r.id}',this.value)">
             <option value="open" ${r.status==='open'?'selected':''}>Open</option>
+            <option value="please_review" ${r.status==='please_review'?'selected':''}>Please Review</option>
             <option value="resolved" ${r.status==='resolved'?'selected':''}>Resolved</option>
             <option value="wontfix" ${r.status==='wontfix'?'selected':''}>Won't Fix</option>
           </select>
@@ -10210,7 +10220,7 @@ async function viewBugReport(id) {
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
         <div>
           <span class="bug-type-badge bug-type-badge--${r.type}">${r.type}</span>
-          <span class="bug-status-badge bug-status-badge--${r.status === 'resolved' ? 'resolved' : r.status === 'wontfix' ? 'wontfix' : 'open'}" style="margin-left:6px">${r.status}</span>
+          <span class="bug-status-badge bug-status-badge--${r.status === 'resolved' ? 'resolved' : r.status === 'wontfix' ? 'wontfix' : r.status === 'please_review' ? 'please_review' : 'open'}" style="margin-left:6px">${r.status === 'please_review' ? 'Please Review' : r.status}</span>
         </div>
         <div style="display:flex;gap:6px;align-items:center">
           <button class="btn btn--danger btn--sm" onclick="deleteBugReport('${r.id}')">Delete</button>
@@ -10224,6 +10234,10 @@ async function viewBugReport(id) {
       </div>
       ${r.description ? `<div style="padding:12px;background:var(--bg-surface);border-radius:var(--radius-sm);font-size:0.85rem;margin-bottom:16px;white-space:pre-wrap">${esc(r.description)}</div>` : ''}
       ${r.has_screenshot ? `<div style="margin-bottom:16px"><img id="bugScreenshotImg" style="max-width:100%;max-height:400px;border-radius:var(--radius-sm);border:1px solid var(--border-default);display:none" alt="Screenshot"><div id="bugScreenshotLoading" style="color:var(--text-muted);font-size:0.8rem">Loading screenshot...</div></div>` : '<div style="color:var(--text-muted);font-size:0.8rem;margin-bottom:16px">No screenshot attached</div>'}
+      <div style="display:flex;gap:8px;margin-top:16px">
+        <button class="btn btn--primary" onclick="addBugReportDetails('${r.id}')">Add Details</button>
+        <button class="btn" style="border-color:var(--success-border);color:var(--success)" onclick="resolveBugReport('${r.id}')">Mark Resolved</button>
+      </div>
     </div>
   </div>`;
   document.body.insertAdjacentHTML('beforeend', html);
@@ -10252,6 +10266,16 @@ async function updateBugReportStatus(id, status) {
     body: JSON.stringify({ status })
   });
   if (resp.ok) {
+    // If setting to please_review, notify the submitter via server-side notification
+    if (status === 'please_review') {
+      const reports = (_bugReportsData && _bugReportsData.reports) || [];
+      const report = reports.find(r => r.id === id);
+      if (report && report.user_id) {
+        try {
+          await authFetch('/api/bug-reports/' + id + '/notify-review', { method: 'POST' });
+        } catch(e) { console.warn('Failed to send review notification:', e); }
+      }
+    }
     toast('Status updated');
     await loadBugReports();
     renderContent();
@@ -10272,6 +10296,58 @@ async function deleteBugReport(id) {
   } else {
     toast('Failed to delete report', 'error');
   }
+}
+
+/** Open a follow-up text area inside the bug view modal */
+function addBugReportDetails(id) {
+  const modal = document.getElementById('bugViewModal');
+  if (!modal) return;
+  const existing = modal.querySelector('.bug-followup-area');
+  if (existing) { existing.querySelector('textarea')?.focus(); return; }
+
+  const area = document.createElement('div');
+  area.className = 'bug-followup-area';
+  area.innerHTML = `
+    <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border-default)">
+      <label style="font-size:0.8rem;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:4px">Add Follow-up Details</label>
+      <textarea id="bugFollowupText" style="width:100%;min-height:80px;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-family:var(--font-body);font-size:0.85rem;resize:vertical" placeholder="Add additional details, context, or response..."></textarea>
+      <button class="btn btn--primary btn--sm" onclick="submitBugFollowup('${id}')" style="margin-top:8px">Submit</button>
+    </div>
+  `;
+  modal.querySelector('.modal').appendChild(area);
+  area.querySelector('textarea').focus();
+}
+
+/** Submit a follow-up to a bug report, appending to description */
+async function submitBugFollowup(id) {
+  const text = document.getElementById('bugFollowupText')?.value?.trim();
+  if (!text) { toast('Please enter some details', 'warning'); return; }
+
+  const reports = (_bugReportsData && _bugReportsData.reports) || [];
+  const report = reports.find(r => r.id === id);
+  const currentDesc = report?.description || '';
+  const followup = currentDesc + '\n\n--- Follow-up by ' + (_currentUser?.displayName || 'Unknown') + ' (' + new Date().toLocaleDateString('en-GB') + ') ---\n' + text;
+
+  const resp = await authFetch('/api/bug-reports/' + id, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ description: followup })
+  });
+  if (resp.ok) {
+    toast('Follow-up added');
+    document.getElementById('bugViewModal')?.remove();
+    await loadBugReports();
+    renderContent();
+  } else {
+    toast('Failed to add follow-up', 'error');
+  }
+}
+
+/** Resolve a bug report from the detail modal */
+async function resolveBugReport(id) {
+  if (!(await themedConfirm('Mark this report as resolved?', 'Resolve Report', 'Mark Resolved'))) return;
+  await updateBugReportStatus(id, 'resolved');
+  document.getElementById('bugViewModal')?.remove();
 }
 
 // ==================== SETTINGS VIEW ====================
@@ -10372,9 +10448,11 @@ function renderSettings(el) {
       </div>
       <input type="file" id="restoreFileInput" accept=".json" style="display:none" onchange="restoreBackup(this.files[0])">
     </div>`;
-    html += `<div class="settings__group"><h2 style="color:var(--danger)">Danger Zone</h2>
-      <button class="btn btn--danger" onclick="clearAllTasks()">Clear All Tasks</button>
-    </div>`;
+    if (isAdmin) {
+      html += `<div class="settings__group"><h2 style="color:var(--danger)">Danger Zone</h2>
+        <button class="btn btn--danger" onclick="clearAllTasks()">Clear All Tasks</button>
+      </div>`;
+    }
   }
 
   // === BUG REPORTING TAB ===

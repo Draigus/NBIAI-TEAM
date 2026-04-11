@@ -916,6 +916,9 @@ app.get('/api/backup', async (req, res) => {
     const finance = await pool.query('SELECT data FROM finance_data ORDER BY id DESC LIMIT 1');
     const users = await pool.query('SELECT id, username, display_name, email, role, created_at FROM users ORDER BY id');
     const settings = await pool.query('SELECT * FROM settings');
+    const leads = await pool.query('SELECT * FROM leads ORDER BY created_at');
+    const expenses = await pool.query('SELECT * FROM expenses ORDER BY created_at DESC');
+    const auditLog = await pool.query('SELECT * FROM audit_log ORDER BY created_at DESC LIMIT 10000');
 
     // Add uploads manifest to backup
     const uploadsDir = path.join(__dirname, 'uploads');
@@ -941,6 +944,9 @@ app.get('/api/backup', async (req, res) => {
         finance_data: finance.rows[0]?.data || null,
         users: users.rows,
         settings: settings.rows,
+        leads: leads.rows,
+        expenses: expenses.rows,
+        audit_log: auditLog.rows,
       },
       uploadManifest,
     };
@@ -1644,6 +1650,15 @@ app.get('/api/notifications', async (req, res) => {
   );
   const unread = rows.filter(n => !n.is_read).length;
   res.json({ notifications: rows, unread });
+});
+
+/** POST /api/notifications — Create a notification (admin only) */
+app.post('/api/notifications', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const { username, type, title, message, link } = req.body;
+  if (!username || !title) return res.status(400).json({ error: 'username and title required' });
+  await createNotification(username, type || 'info', title, message || '', link || '');
+  res.status(201).json({ ok: true });
 });
 
 /** POST /api/notifications/read — Mark specific notifications (by ids array) or all as read.
@@ -2830,6 +2845,17 @@ app.post('/api/leads/field-options', async (req, res) => {
   res.status(201).json(rows[0]);
 });
 
+/** PATCH /api/leads/field-options/:id — Update a field option value (admin only) */
+app.patch('/api/leads/field-options/:id', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const { value, sort_order } = req.body;
+  if (!value) return res.status(400).json({ error: 'value required' });
+  const { rows } = await pool.query('UPDATE lead_field_options SET value = $1, sort_order = COALESCE($2, sort_order) WHERE id = $3 RETURNING *', [value, sort_order, req.params.id]);
+  if (rows.length === 0) return res.status(404).json({ error: 'Option not found' });
+  invalidateCache('leads_config');
+  res.json(rows[0]);
+});
+
 /** DELETE /api/leads/field-options/:id — Remove a field option */
 app.delete('/api/leads/field-options/:id', async (req, res) => {
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
@@ -3769,16 +3795,55 @@ app.post('/api/bug-reports', async (req, res) => {
   res.status(201).json(rows[0]);
 });
 
-/** PATCH /api/bug-reports/:id — Update status (admin only) */
+/** PATCH /api/bug-reports/:id — Update status and/or description (admin only) */
 app.patch('/api/bug-reports/:id', async (req, res) => {
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
-  const { status } = req.body;
-  if (!status) return res.status(400).json({ error: 'Status required' });
-  const validStatuses = ['open', 'resolved', 'wontfix'];
-  if (!validStatuses.includes(status)) return res.status(400).json({ error: `Invalid status. Must be one of: ${validStatuses.join(', ')}` });
-  const { rows } = await pool.query('UPDATE bug_reports SET status = $1 WHERE id = $2 RETURNING *', [status, req.params.id]);
+  const { status, description } = req.body;
+  if (!status && description === undefined) return res.status(400).json({ error: 'status or description required' });
+
+  const sets = [];
+  const vals = [];
+  let idx = 1;
+
+  if (status) {
+    const validStatuses = ['open', 'resolved', 'wontfix', 'please_review'];
+    if (!validStatuses.includes(status)) return res.status(400).json({ error: `Invalid status. Must be one of: ${validStatuses.join(', ')}` });
+    sets.push(`status = $${idx++}`);
+    vals.push(status);
+  }
+  if (description !== undefined) {
+    sets.push(`description = $${idx++}`);
+    vals.push(description);
+  }
+
+  vals.push(req.params.id);
+  const { rows } = await pool.query(`UPDATE bug_reports SET ${sets.join(', ')} WHERE id = $${idx} RETURNING *`, vals);
   if (rows.length === 0) return res.status(404).json({ error: 'Report not found' });
   res.json(rows[0]);
+});
+
+/** POST /api/bug-reports/:id/notify-review — Send a notification to the report submitter (admin only) */
+app.post('/api/bug-reports/:id/notify-review', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  try {
+    const { rows } = await pool.query(
+      `SELECT b.title, b.user_id, u.username FROM bug_reports b LEFT JOIN users u ON b.user_id = u.id WHERE b.id = $1`,
+      [req.params.id]
+    );
+    if (rows.length === 0) return res.status(404).json({ error: 'Report not found' });
+    const { title, username } = rows[0];
+    if (username) {
+      await createNotification(
+        username, 'info', 'Your report needs review',
+        `"${title}" has been updated to Please Review. Click to add details or mark as resolved.`,
+        '/nbi_project_dashboard.html#settings'
+      );
+    }
+    res.json({ ok: true });
+  } catch (e) {
+    console.error('Failed to send review notification:', e);
+    res.status(500).json({ error: 'Failed to send notification' });
+  }
 });
 
 /** DELETE /api/bug-reports/:id — Delete a report (admin only) */
