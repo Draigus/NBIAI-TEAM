@@ -38,11 +38,11 @@ const createUserSchema = z.object({
     .regex(/[A-Z]/, 'Password must contain at least one uppercase letter.')
     .regex(/[a-z]/, 'Password must contain at least one lowercase letter.')
     .regex(/[0-9]/, 'Password must contain at least one number.'),
-  role: z.enum(['board', 'admin', 'viewer']),
+  role: z.enum(['admin', 'viewer']),
 })
 
 const updateUserSchema = z.object({
-  role: z.enum(['board', 'admin', 'viewer']).optional(),
+  role: z.enum(['admin', 'viewer']).optional(),
   displayName: z.string().min(2).max(255).optional(),
 })
 

@@ -267,7 +267,7 @@ export const users = pgTable(
       .notNull()
       .references(() => companies.id),
     email: varchar('email', { length: 255 }).notNull().unique(),
-    /** Argon2id hash. bcrypt was considered but CTO chose Argon2id; CEO approved. */
+    /** bcrypt hash (12 rounds). */
     passwordHash: varchar('password_hash', { length: 255 }).notNull(),
     displayName: varchar('display_name', { length: 255 }).notNull(),
     /** Path or URL to the user's avatar image. Added per CEO review note. */

@@ -192,9 +192,9 @@ export const agents = {
     apiFetch(`/api/v1/agents/${id}`, { method: 'DELETE' }),
 
   trigger: (agentId: string, taskId?: string) =>
-    apiFetch(`/api/v1/executions/${agentId}/trigger`, {
+    apiFetch('/api/v1/executions/trigger', {
       method: 'POST',
-      body: JSON.stringify({ taskId }),
+      body: JSON.stringify({ agentId, taskId }),
     }),
 
   executions: (agentId: string) =>
@@ -323,10 +323,10 @@ export const finance = {
     apiFetch('/api/v1/finance/payroll'),
 
   summary: () =>
-    apiFetch('/api/v1/finance/revenue'),
+    apiFetch('/api/v1/finance/summary'),
 
   agentCosts: () =>
-    apiFetch('/api/v1/finance/payroll'),
+    apiFetch('/api/v1/finance/agent-costs'),
 
   addRevenue: (data: Record<string, unknown>) =>
     apiFetch('/api/v1/finance/revenue', {
@@ -342,14 +342,14 @@ export const finance = {
 export const clients = {
   pipeline: (params?: Record<string, string>) => {
     const qs = params ? '?' + new URLSearchParams(params).toString() : ''
-    return apiFetch(`/api/v1/pipeline${qs}`)
+    return apiFetch(`/api/v1/clients/pipeline${qs}`)
   },
 
   active: () =>
-    apiFetch('/api/v1/clients?is_active=true'),
+    apiFetch('/api/v1/clients/active'),
 
   overdue: () =>
-    apiFetch('/api/v1/pipeline?overdue=true'),
+    apiFetch('/api/v1/clients/overdue'),
 }
 
 // ---------------------------------------------------------------------------
@@ -407,10 +407,10 @@ export const sessions = {
 
 export const settings = {
   company: () =>
-    apiFetch('/api/v1/settings'),
+    apiFetch('/api/v1/settings/company'),
 
   updateCompany: (data: Record<string, unknown>) =>
-    apiFetch('/api/v1/settings', {
+    apiFetch('/api/v1/settings/company', {
       method: 'PATCH',
       body: JSON.stringify(data),
     }),
@@ -418,12 +418,6 @@ export const settings = {
   users: () =>
     apiFetch('/api/v1/users'),
 
-  apiKeys: () =>
-    apiFetch('/api/v1/settings/api-keys'),
-
-  budgets: () =>
-    apiFetch('/api/v1/settings/budgets'),
-
   knowledge: () =>
-    apiFetch('/api/v1/knowledge'),
+    apiFetch('/api/v1/settings/knowledge'),
 }

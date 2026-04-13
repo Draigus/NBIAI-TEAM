@@ -8,7 +8,7 @@
  *   npm run pm2:logs     -- tail logs
  *
  * Or directly:
- *   pm2 start ecosystem.config.js
+ *   pm2 start ecosystem.config.cjs
  *   pm2 stop nbiai-api
  *   pm2 logs nbiai-api
  *   pm2 status
@@ -17,18 +17,19 @@
  * PM2 expects the compiled output at dist/index.js
  */
 
+const path = require('path')
+const appDir = path.resolve(__dirname)
+
 module.exports = {
   apps: [
     {
       name: 'nbiai-api',
       script: 'dist/index.js',
+      cwd: appDir,
       interpreter: 'node',
 
-      // Load environment variables from .env file
-      env_file: '.env',
-
-      // Node.js flags -- use ESM loader for the compiled output
-      node_args: [],
+      // Node.js flags
+      node_args: ['--env-file=.env'],
 
       // Restart policy: restart on crash, max 5 attempts before marking as errored
       autorestart: true,
@@ -55,7 +56,8 @@ module.exports = {
         PORT: '3001',
       },
 
-      // Instance count: 1 (single instance, no clustering needed for local use)
+      // Fork mode required for ESM output; single instance for local use
+      exec_mode: 'fork',
       instances: 1,
 
       // Graceful shutdown: give the process 5 seconds to clean up

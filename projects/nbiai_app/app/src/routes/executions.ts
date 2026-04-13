@@ -160,10 +160,10 @@ export async function executionRoutes(fastify: FastifyInstance): Promise<void> {
   // GET /api/executions/:id
   // -------------------------------------------------------------------------
 
-  fastify.get(
+  fastify.get<{ Params: { id: string } }>(
     '/executions/:id',
     { preHandler: requireAuth },
-    async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
+    async (request, reply) => {
       const { id } = request.params
       const companyId = request.user.companyId
 

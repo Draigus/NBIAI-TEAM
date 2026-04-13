@@ -36,7 +36,8 @@ import { validateBody, paginationSchema } from '../lib/validate.js'
 
 const STATUS_TRANSITIONS: Record<string, string[]> = {
   backlog: ['assigned'],
-  assigned: ['in_progress', 'cancelled'],
+  assigned: ['in_progress', 'queued', 'cancelled'],
+  queued: ['in_progress', 'cancelled'],
   in_progress: ['blocked', 'review', 'cancelled'],
   blocked: ['in_progress', 'assigned', 'cancelled'],
   review: ['done', 'in_progress'],

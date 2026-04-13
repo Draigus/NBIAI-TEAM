@@ -591,8 +591,9 @@ app.post('/api/auth/forgot-password', async (req, res) => {
 
   // Generate reset token (expires in 1 hour)
   const resetToken = crypto.randomBytes(32).toString('hex');
+  const hashedResetToken = hashToken(resetToken);
   const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
-  await pool.query('INSERT INTO password_reset_tokens (user_id, token, expires_at) VALUES ($1, $2, $3)', [user.id, resetToken, expiresAt]);
+  await pool.query('INSERT INTO password_reset_tokens (user_id, token, expires_at) VALUES ($1, $2, $3)', [user.id, hashedResetToken, expiresAt]);
 
   const resetUrl = `${APP_URL}/nbi_project_dashboard.html#reset-password/${resetToken}`;
 
@@ -612,9 +613,10 @@ app.post('/api/auth/forgot-password', async (req, res) => {
 
 /** GET /api/auth/reset-token/:token — Validate a password reset token (public) */
 app.get('/api/auth/reset-token/:token', async (req, res) => {
+  const hashedResetToken = hashToken(req.params.token);
   const { rows } = await pool.query(
     'SELECT t.*, u.username, u.display_name FROM password_reset_tokens t JOIN users u ON t.user_id = u.id WHERE t.token = $1 AND t.used = FALSE AND t.expires_at > NOW()',
-    [req.params.token]
+    [hashedResetToken]
   );
   if (rows.length === 0) return res.status(400).json({ error: 'Invalid or expired reset link' });
   res.json({ ok: true, displayName: rows[0].display_name });
@@ -625,9 +627,10 @@ app.post('/api/auth/reset-token/:token', async (req, res) => {
   const { newPassword } = req.body;
   if (!newPassword || newPassword.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
 
+  const hashedResetToken = hashToken(req.params.token);
   const { rows } = await pool.query(
     'SELECT * FROM password_reset_tokens WHERE token = $1 AND used = FALSE AND expires_at > NOW()',
-    [req.params.token]
+    [hashedResetToken]
   );
   if (rows.length === 0) return res.status(400).json({ error: 'Invalid or expired reset link' });
 
@@ -726,6 +729,7 @@ app.post('/api/users', async (req, res) => {
 
 /** DELETE /api/users/:id — Delete a user and their sessions (admin only, cannot delete self) */
 app.delete('/api/users/:id', async (req, res) => {
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid user ID' });
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   // Prevent deleting yourself
   if (req.user.id === req.params.id) return res.status(400).json({ error: 'Cannot delete yourself' });
@@ -737,6 +741,7 @@ app.delete('/api/users/:id', async (req, res) => {
 
 /** PATCH /api/users/:id — Update user profile fields: role, display_name, email (admin only) */
 app.patch('/api/users/:id', async (req, res) => {
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid user ID' });
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   const { updates, vals, nextIdx } = buildPatchQuery(req.body, ['role', 'display_name', 'email']);
   if (req.body.display_name !== undefined && !req.body.display_name.trim()) {
@@ -1650,6 +1655,7 @@ app.post('/api/tasks/:id/time-entries', async (req, res) => {
 
 /** DELETE /api/time-entries/:id — Delete a time entry and recalculate the parent task's hours (owner or admin) */
 app.delete('/api/time-entries/:id', async (req, res) => {
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid time entry ID' });
   const { rows } = await pool.query('SELECT task_id, user_name FROM time_entries WHERE id = $1', [req.params.id]);
   if (rows.length === 0) return res.status(404).json({ error: 'Time entry not found' });
   const isOwner = rows[0].user_name === (req.user?.displayName || req.user?.display_name || req.user?.username);
@@ -1761,6 +1767,7 @@ app.post('/api/templates', async (req, res) => {
  * Each node can have { title, status, priority, description, assignees, hoursEstimated, children }.
  */
 app.post('/api/templates/:id/create', async (req, res) => {
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid template ID' });
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   const { rows } = await pool.query('SELECT * FROM task_templates WHERE id = $1', [req.params.id]);
   if (rows.length === 0) return res.status(404).json({ error: 'Template not found' });
@@ -1792,6 +1799,7 @@ app.post('/api/templates/:id/create', async (req, res) => {
 
 /** DELETE /api/templates/:id — Remove a saved template (admin only) */
 app.delete('/api/templates/:id', async (req, res) => {
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid template ID' });
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   await pool.query('DELETE FROM task_templates WHERE id = $1', [req.params.id]);
   res.json({ ok: true });
@@ -1956,6 +1964,7 @@ app.get('/api/clients', async (req, res) => {
 
 /** GET /api/clients/:id — Get a single client with its contacts (single query) */
 app.get('/api/clients/:id', async (req, res) => {
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid client ID' });
   const { rows } = await pool.query(`
     SELECT c.*,
       COALESCE(
@@ -1986,6 +1995,7 @@ app.post('/api/clients', async (req, res) => {
 
 /** PATCH /api/clients/:id — Update client fields */
 app.patch('/api/clients/:id', async (req, res) => {
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid client ID' });
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   const { updates, vals, nextIdx } = buildPatchQuery(req.body, ['name', 'description', 'founded', 'headquarters', 'employees', 'revenue', 'website', 'linkedin_company', 'nbi_relationship', 'sector']);
   if (req.body.name !== undefined && !req.body.name.trim()) {
@@ -2001,6 +2011,7 @@ app.patch('/api/clients/:id', async (req, res) => {
 
 /** DELETE /api/clients/:id — Remove a client (admin only, cascades to tasks) */
 app.delete('/api/clients/:id', async (req, res) => {
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid client ID' });
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   // Unlink tasks from this client before deleting
   await pool.query('UPDATE tasks SET client_id = NULL, updated_at = NOW() WHERE client_id = $1', [req.params.id]);
@@ -2029,6 +2040,7 @@ app.post('/api/clients/:clientId/contacts', async (req, res) => {
 
 /** PATCH /api/contacts/:id — Update a contact's details */
 app.patch('/api/contacts/:id', async (req, res) => {
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid contact ID' });
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   const { updates, vals, nextIdx } = buildPatchQuery(req.body, ['name', 'role', 'notes', 'background', 'linkedin', 'sort_order', 'email', 'phone']);
   if (updates.length === 0) return res.status(400).json({ error: 'No valid fields to update' });
@@ -2040,6 +2052,7 @@ app.patch('/api/contacts/:id', async (req, res) => {
 
 /** DELETE /api/contacts/:id — Remove a contact (admin only) */
 app.delete('/api/contacts/:id', async (req, res) => {
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid contact ID' });
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   await pool.query('DELETE FROM contacts WHERE id = $1', [req.params.id]);
   res.json({ ok: true });
@@ -2531,7 +2544,7 @@ app.post('/api/sync/changes', async (req, res) => {
         }
         const changedBy = req.user ? req.user.displayName : 'system';
         await auditLog('task', idMap[t.id] || t.id,
-          existing.rows.length > 0 ? 'update' : 'create',
+          taskExists ? 'update' : 'create',
           changedBy, { title: t.title, status: t.status, healthState: t.healthState || t.health_state }, conn);
         applied++;
 
@@ -2604,8 +2617,9 @@ app.get('/api/sync/poll', async (req, res) => {
     LIMIT 501
   `, [sinceDate.toISOString()]);
 
-  // Get IDs of all current tasks to detect deletions
-  const allIds = await pool.query('SELECT id FROM tasks');
+  // Get IDs of tasks updated or created since last poll to detect deletions
+  // Only check tasks that the client might have cached (updated within the last 24 hours or all if initial)
+  const allIds = await pool.query('SELECT id FROM tasks WHERE updated_at > $1', [sinceDate.toISOString()]);
   const currentIds = allIds.rows.map(r => r.id);
 
   const hasMore = updated.rows.length > 500;
@@ -2895,7 +2909,7 @@ app.get('/api/dashboard/summary', async (req, res) => {
   const byAssignee = await pool.query(`
     SELECT unnest(assignees) as assignee, count(*) as task_count,
       count(*) FILTER (WHERE status = 'In progress') as active_count
-    FROM tasks ${clientFilter}
+    FROM tasks t ${clientFilter}
     GROUP BY assignee ORDER BY task_count DESC
   `, vals);
 
@@ -3197,6 +3211,7 @@ app.get('/api/leads/pipeline/forecast', async (req, res) => {
  * Full lead detail: includes client info, resources, recent activities, and client contacts.
  */
 app.get('/api/leads/:id', async (req, res) => {
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid lead ID' });
   const { rows } = await pool.query(`
     SELECT l.*, l.weighted_value,
       c.name as client_name, c.sector as client_sector,
@@ -3314,6 +3329,7 @@ app.post('/api/leads', async (req, res) => {
  * activity log entries for them automatically.
  */
 app.patch('/api/leads/:id', async (req, res) => {
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid lead ID' });
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   const patchFields = ['client_id', 'title', 'work_type', 'service_line', 'stage_id', 'priority',
     'currency', 'rom_min', 'rom_max', 'rom_text', 'win_probability',
@@ -3387,6 +3403,7 @@ app.patch('/api/leads/:id', async (req, res) => {
 
 /** DELETE /api/leads/:id — Delete a lead and its related resources/activities (admin only) */
 app.delete('/api/leads/:id', async (req, res) => {
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid lead ID' });
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   const lead = await pool.query('SELECT title FROM leads WHERE id = $1', [req.params.id]);
   await auditLog('lead', req.params.id, 'delete', req.user.displayName, { title: lead.rows[0]?.title });

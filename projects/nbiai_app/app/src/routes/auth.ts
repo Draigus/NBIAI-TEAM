@@ -152,7 +152,7 @@ export async function authRoutes(fastify: FastifyInstance): Promise<void> {
     // The dummy hash is a valid bcrypt hash so compare() runs its full cost
     // path and does not short-circuit on format errors.
     const dummyHash =
-      '$2a$12$aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+      '$2a$12$ahm9B9ZGM6W6Da8VCZI6Des3x4qbapXT0WKHixHlmoFhhz30C8HNa'
     const passwordValid = user
       ? await verifyPassword(user.passwordHash, body.password)
       : await verifyPassword(dummyHash, body.password).catch(() => false)

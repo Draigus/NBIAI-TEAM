@@ -386,9 +386,9 @@ export async function agentRoutes(fastify: FastifyInstance): Promise<void> {
         taskTitle: tasks.title,
         status: agentExecutions.status,
         modelUsed: agentExecutions.modelUsed,
-        inputTokens: agentExecutions.inputTokens,
-        outputTokens: agentExecutions.outputTokens,
-        costUsd: agentExecutions.costUsd,
+        durationMs: agentExecutions.durationMs,
+        systemPromptTokens: agentExecutions.systemPromptTokens,
+        contextTokens: agentExecutions.contextTokens,
         startedAt: agentExecutions.startedAt,
         endedAt: agentExecutions.endedAt,
       })

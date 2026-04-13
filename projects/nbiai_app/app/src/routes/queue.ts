@@ -88,7 +88,7 @@ export async function queueRoutes(app: FastifyInstance) {
 
   app.post(
     '/queue/create',
-    { preHandler: [requireAuth, requireRole(BOARD_AND_ADMIN)] },
+    { preHandler: requireRole(BOARD_AND_ADMIN) },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const body = validateBody(createQueueSchema, request.body)
 
@@ -156,7 +156,7 @@ export async function queueRoutes(app: FastifyInstance) {
       const sessionPrompt = promptParts.join('\n\n')
 
       // 5. Create claude_desktop_session record
-      const user = request.user as { id: string }
+      const userId = request.user.sub
 
       const [session] = await db
         .insert(claudeDesktopSessions)
@@ -165,7 +165,7 @@ export async function queueRoutes(app: FastifyInstance) {
           agentId: body.agentId,
           status: 'pending',
           trigger: 'manual',
-          createdByUserId: user.id,
+          createdByUserId: userId,
         })
         .returning()
 
@@ -216,7 +216,7 @@ export async function queueRoutes(app: FastifyInstance) {
       await db.insert(activityLog).values({
         companyId: agent.companyId,
         eventType: 'task_queued',
-        userId: user.id,
+        userId: userId,
         agentId: body.agentId,
         taskId: body.taskId,
         projectId: task.projectId,
@@ -247,8 +247,12 @@ export async function queueRoutes(app: FastifyInstance) {
     async (request: FastifyRequest, reply: FastifyReply) => {
       const query = queueListQuerySchema.parse(request.query)
       const { limit, cursor, status } = query
+      const companyId = request.user.companyId
 
       const conditions = []
+
+      // Scope to user's company
+      conditions.push(eq(tasks.companyId, companyId))
 
       // Filter to queue-relevant statuses
       if (status) {
@@ -317,14 +321,12 @@ export async function queueRoutes(app: FastifyInstance) {
   // GET /queue/:taskId/prompt — retrieve stored session prompt for clipboard
   // =========================================================================
 
-  app.get(
+  app.get<{ Params: { taskId: string } }>(
     '/queue/:taskId/prompt',
     { preHandler: [requireAuth] },
-    async (
-      request: FastifyRequest<{ Params: { taskId: string } }>,
-      reply: FastifyReply,
-    ) => {
+    async (request, reply) => {
       const { taskId } = request.params
+      const companyId = request.user.companyId
 
       const rows = await db
         .select({
@@ -335,7 +337,7 @@ export async function queueRoutes(app: FastifyInstance) {
           status: tasks.status,
         })
         .from(tasks)
-        .where(eq(tasks.id, taskId))
+        .where(and(eq(tasks.id, taskId), eq(tasks.companyId, companyId)))
         .limit(1)
 
       if (rows.length === 0) {
@@ -373,11 +375,11 @@ export async function queueRoutes(app: FastifyInstance) {
 
   app.post(
     '/queue/results',
-    { preHandler: [requireAuth, requireRole(BOARD_AND_ADMIN)] },
+    { preHandler: requireRole(BOARD_AND_ADMIN) },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const body = validateBody(resultsSchema, request.body)
       const now = new Date()
-      const user = request.user as { id: string }
+      const userId = request.user.sub
 
       // 1. Validate task exists
       const taskRows = await db
@@ -445,7 +447,7 @@ export async function queueRoutes(app: FastifyInstance) {
       await db.insert(activityLog).values({
         companyId: task.companyId,
         eventType: body.status === 'done' ? 'task_completed' : 'task_failed',
-        userId: user.id,
+        userId: userId,
         agentId: task.assignedAgentId,
         taskId: body.taskId,
         projectId: task.projectId,

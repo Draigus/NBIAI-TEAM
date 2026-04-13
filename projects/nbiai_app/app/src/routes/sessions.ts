@@ -61,10 +61,10 @@ export async function sessionRoutes(app: FastifyInstance) {
 
   app.post(
     '/sessions',
-    { preHandler: [requireAuth, requireRole(BOARD_AND_ADMIN)] },
+    { preHandler: requireRole(BOARD_AND_ADMIN) },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const body = validateBody(createSessionSchema, request.body)
-      const user = request.user as { id: string }
+      const userId = request.user.sub
 
       // Validate agent if provided
       if (body.agentId) {
@@ -87,9 +87,9 @@ export async function sessionRoutes(app: FastifyInstance) {
           label: body.label,
           agentId: body.agentId ?? null,
           status: 'pending',
-          trigger: body.trigger,
+          trigger: body.trigger ?? 'manual',
           scheduledFor: body.scheduledFor ? new Date(body.scheduledFor) : null,
-          createdByUserId: user.id,
+          createdByUserId: userId,
         })
         .returning()
 
@@ -168,13 +168,10 @@ export async function sessionRoutes(app: FastifyInstance) {
   // PATCH /sessions/:id — update status, notes, timestamps
   // =========================================================================
 
-  app.patch(
+  app.patch<{ Params: { id: string } }>(
     '/sessions/:id',
-    { preHandler: [requireAuth, requireRole(BOARD_AND_ADMIN)] },
-    async (
-      request: FastifyRequest<{ Params: { id: string } }>,
-      reply: FastifyReply,
-    ) => {
+    { preHandler: requireRole(BOARD_AND_ADMIN) },
+    async (request, reply) => {
       const { id } = request.params
       const body = validateBody(updateSessionSchema, request.body)
 
