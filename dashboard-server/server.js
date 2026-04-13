@@ -1914,11 +1914,12 @@ app.get('/api/finance', async (req, res) => {
 });
 
 /** PUT /api/finance — Save finance data as a new versioned row (append-only for history).
- *  Any authenticated user can save (page-level access is enforced client-side via hasPageAccess).
+ *  Admin-only: finance data modifications require admin privileges.
  *  Supports optimistic concurrency: pass expectedVersion (the id from GET) to detect conflicts.
  *  If another user saved between your read and write, returns 409 Conflict. */
 app.put('/api/finance', async (req, res) => {
   if (!req.user) return res.status(401).json({ error: 'Authentication required' });
+  if (req.user.role !== 'admin') return res.status(403).json({ error: 'Admin access required' });
   const { data, expectedVersion } = req.body;
   if (!data) return res.status(400).json({ error: 'data required' });
 
@@ -1981,14 +1982,14 @@ app.get('/api/clients/:id', async (req, res) => {
 /** POST /api/clients — Create a new client record */
 app.post('/api/clients', async (req, res) => {
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
-  const { name, description, founded, headquarters, employees, revenue, website, linkedin_company, nbi_relationship, sector } = req.body;
+  const { name, description, founded, headquarters, employees, revenue, website, linkedin_company, nbi_relationship, sector, studio_size, contract_value } = req.body;
   if (!name) return res.status(400).json({ error: 'Name required' });
   const lenErr = validateLength(name, 'name');
   if (lenErr) return res.status(400).json({ error: lenErr });
   const { rows } = await pool.query(
-    `INSERT INTO clients (name, description, founded, headquarters, employees, revenue, website, linkedin_company, nbi_relationship, sector)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,
-    [name, description || '', founded || '', headquarters || '', employees || '', revenue || '', website || '', linkedin_company || '', nbi_relationship || '', sector || null]
+    `INSERT INTO clients (name, description, founded, headquarters, employees, revenue, website, linkedin_company, nbi_relationship, sector, studio_size, contract_value)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING *`,
+    [name, description || '', founded || '', headquarters || '', employees || '', revenue || '', website || '', linkedin_company || '', nbi_relationship || '', sector || null, studio_size != null ? parseInt(studio_size, 10) || null : null, contract_value != null ? parseFloat(contract_value) || null : null]
   );
   res.status(201).json(rows[0]);
 });
@@ -1997,7 +1998,7 @@ app.post('/api/clients', async (req, res) => {
 app.patch('/api/clients/:id', async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid client ID' });
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
-  const { updates, vals, nextIdx } = buildPatchQuery(req.body, ['name', 'description', 'founded', 'headquarters', 'employees', 'revenue', 'website', 'linkedin_company', 'nbi_relationship', 'sector']);
+  const { updates, vals, nextIdx } = buildPatchQuery(req.body, ['name', 'description', 'founded', 'headquarters', 'employees', 'revenue', 'website', 'linkedin_company', 'nbi_relationship', 'sector', 'studio_size', 'contract_value']);
   if (req.body.name !== undefined && !req.body.name.trim()) {
     return res.status(400).json({ error: 'Name cannot be empty' });
   }
@@ -2241,7 +2242,7 @@ app.post('/api/tasks', async (req, res) => {
   const { rows } = await pool.query(
     `INSERT INTO tasks (title, parent_id, client_id, item_type, status, priority, health_state, description, assignees, hours_estimated, hours_spent, due_date, start_date, end_date, dependencies, planner_task_id, source)
      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17) RETURNING *`,
-    [title, parent_id || null, client_id || null, resolvedType, status || 'Not started', priority || '', health_state || '', description || '',
+    [escHtml(title), parent_id || null, client_id || null, resolvedType, status || 'Not started', priority || '', health_state || '', escHtml(description) || '',
      assignees || [], hours_estimated || 0, hours_spent || 0, due_date || '', start_date || '', end_date || '', dependencies || [], planner_task_id || '', source || 'manual']
   );
   await auditLog('task', rows[0].id, 'create', req.user?.displayName, { title, item_type: resolvedType });
@@ -2262,6 +2263,10 @@ app.patch('/api/tasks/:id', async (req, res) => {
   if (req.body.item_type && !ITEM_TYPES.includes(req.body.item_type)) {
     return res.status(400).json({ error: `Invalid item_type: ${req.body.item_type}. Must be one of: ${ITEM_TYPES.join(', ')}` });
   }
+  // Sanitise text fields before storage
+  if (req.body.title !== undefined) req.body.title = escHtml(req.body.title);
+  if (req.body.description !== undefined) req.body.description = escHtml(req.body.description);
+
   const allowedFields = ['title', 'parent_id', 'client_id', 'item_type', 'status', 'priority', 'health_state', 'description', 'assignees', 'hours_estimated', 'hours_spent', 'due_date', 'start_date', 'end_date', 'dependencies'];
   const { updates, vals, nextIdx } = buildPatchQuery(req.body, allowedFields);
   if (req.body.title !== undefined && !req.body.title.trim()) {
@@ -3275,13 +3280,13 @@ app.post('/api/leads', async (req, res) => {
         lead_source, est_start_date, expected_close_date, last_contacted,
         next_followup_date, next_action, location, notes, time_estimate, created_by)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23) RETURNING *`,
-      [client_id || null, title, work_type || null, service_line || null, stage_id,
+      [client_id || null, escHtml(title), work_type || null, service_line || null, stage_id,
         priority || null, currency || 'GBP',
         rom_min || null, rom_max || null, rom_text || null, win_probability || null,
         primary_contact_id || null, deal_owner || null, lead_source || null,
         est_start_date || null, expected_close_date || null, last_contacted || null,
         next_followup_date || null, next_action || null, location || null,
-        notes || null, time_estimate || null, req.user?.displayName || 'unknown']
+        escHtml(notes) || null, time_estimate || null, req.user?.displayName || 'unknown']
     );
 
     const leadId = rows[0].id;
@@ -3342,6 +3347,9 @@ app.patch('/api/leads/:id', async (req, res) => {
   for (const f of patchFields) {
     if (sanitisedBody[f] === '') sanitisedBody[f] = null;
   }
+  // Sanitise text fields before storage
+  if (sanitisedBody.title) sanitisedBody.title = escHtml(sanitisedBody.title);
+  if (sanitisedBody.notes) sanitisedBody.notes = escHtml(sanitisedBody.notes);
 
   const { updates, vals, nextIdx } = buildPatchQuery(sanitisedBody, patchFields);
   if (req.body.title !== undefined && !req.body.title.trim()) {
@@ -3572,6 +3580,7 @@ app.get('/api/expenses/summary', async (req, res) => {
 
 /** GET /api/expenses/:id — Get a single expense with its receipt attachments. Access: own or admin. */
 app.get('/api/expenses/:id', async (req, res) => {
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid expense ID' });
   const { rows } = await pool.query(`
     SELECT e.*, u.display_name AS employee_name, c.name AS category_name,
       er.title AS report_title, er.status AS report_status
@@ -3601,14 +3610,14 @@ app.post('/api/expenses', async (req, res) => {
   const lenErr = validateLength(description, 'description') || validateLength(notes, 'notes');
   if (lenErr) return res.status(400).json({ error: lenErr });
   const parsedAmount = parseFloat(amount);
-  if (isNaN(parsedAmount) || parsedAmount < 0) return res.status(400).json({ error: 'Amount must be a valid positive number' });
+  if (isNaN(parsedAmount) || parsedAmount <= 0) return res.status(400).json({ error: 'Amount must be a valid positive number' });
   const parsedVat = vat_amount != null ? parseFloat(vat_amount) : null;
   if (parsedVat !== null && (isNaN(parsedVat) || parsedVat < 0)) return res.status(400).json({ error: 'VAT amount must be a valid positive number' });
 
   const { rows } = await pool.query(
     `INSERT INTO expenses (user_id, date, amount, currency, category_id, description, notes, vat_amount)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
-    [req.user.id, date, amount, currency || 'GBP', category_id || null, description || null, notes || null, parsedVat]
+    [req.user.id, date, amount, currency || 'GBP', category_id || null, escHtml(description) || null, escHtml(notes) || null, parsedVat]
   );
   await auditLog('expense', rows[0].id, 'create', req.user.displayName, { amount, date, description, vat_amount: parsedVat });
   res.status(201).json(rows[0]);
@@ -3638,9 +3647,13 @@ app.patch('/api/expenses/:id', async (req, res) => {
   }
 
   // Validate amount if provided
-  if (req.body.amount !== undefined && (isNaN(req.body.amount) || parseFloat(req.body.amount) < 0)) {
-    return res.status(400).json({ error: 'Amount must be a non-negative number' });
+  if (req.body.amount !== undefined && (isNaN(req.body.amount) || parseFloat(req.body.amount) <= 0)) {
+    return res.status(400).json({ error: 'Amount must be a valid positive number' });
   }
+
+  // Sanitise text fields before storage
+  if (req.body.description !== undefined) req.body.description = escHtml(req.body.description);
+  if (req.body.notes !== undefined) req.body.notes = escHtml(req.body.notes);
 
   const allowed = ['date', 'amount', 'currency', 'category_id', 'description', 'notes', 'vat_amount'];
   // Admin-only fields
@@ -3668,6 +3681,7 @@ app.patch('/api/expenses/:id', async (req, res) => {
  * Owners can only delete pending expenses; admins can delete any.
  */
 app.delete('/api/expenses/:id', async (req, res) => {
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid expense ID' });
   const check = await pool.query('SELECT user_id, status FROM expenses WHERE id = $1', [req.params.id]);
   if (check.rows.length === 0) return res.status(404).json({ error: 'Expense not found' });
   const expense = check.rows[0];
@@ -3998,7 +4012,7 @@ app.post('/api/bug-reports', async (req, res) => {
   const { rows } = await pool.query(
     `INSERT INTO bug_reports (user_id, type, title, description, page, screenshot)
      VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-    [req.user.id, rType, title.trim(), description || null, page || null, safeScreenshot]
+    [req.user.id, rType, escHtml(title.trim()), escHtml(description) || null, page || null, safeScreenshot]
   );
   res.status(201).json(rows[0]);
 });

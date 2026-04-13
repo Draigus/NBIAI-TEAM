@@ -32,7 +32,7 @@
   --bg-card: #141414; --bg-hover: #1e1e1e; --bg-input: #1c1c1c;
   --bg-overlay: rgba(0,0,0,0.65);
   --border-subtle: #1f1f1f; --border-default: #2a2a2a; --border-strong: #3a3a3a;
-  --text-primary: #e8e8e8; --text-secondary: #999; --text-muted: #777; --text-faint: #555;
+  --text-primary: #e8e8e8; --text-secondary: #999; --text-muted: #888; --text-faint: #666;
   --accent: #0066FF; --accent-hover: #0055dd; --accent-dim: #0044aa;
   --accent-glow: rgba(0,102,255,0.12); --accent-border: rgba(0,102,255,0.3);
   --accent-text: #4d9aff;
@@ -50,6 +50,7 @@
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.3); --shadow-md: 0 2px 8px rgba(0,0,0,0.4);
   --shadow-lg: 0 4px 16px rgba(0,0,0,0.5);
   --header-h: 52px; --sidebar-w: 240px;
+  --modal-sm: 420px; --modal-md: 560px; --modal-lg: 720px; --modal-xl: 960px;
 }
 /* ===== LIGHT THEME ===== */
 html[data-theme="light"] {
@@ -57,7 +58,7 @@ html[data-theme="light"] {
   --bg-card: #ffffff; --bg-hover: #e8e8ec; --bg-input: #f0f0f2;
   --bg-overlay: rgba(0,0,0,0.3);
   --border-subtle: #e5e5ea; --border-default: #d1d1d6; --border-strong: #b0b0b8;
-  --text-primary: #1a1a1a; --text-secondary: #555; --text-muted: #777; --text-faint: #aaa;
+  --text-primary: #1a1a1a; --text-secondary: #555; --text-muted: #666; --text-faint: #999;
   --accent: #0055dd; --accent-hover: #0044bb; --accent-dim: #003399;
   --accent-glow: rgba(0,85,221,0.08); --accent-border: rgba(0,85,221,0.2);
   --accent-text: #0055dd;
@@ -81,7 +82,7 @@ html[data-theme="midnight"] {
   --bg-card: #1e293b; --bg-hover: #273549; --bg-input: #1a2744;
   --bg-overlay: rgba(15,23,42,0.7);
   --border-subtle: #1e3a5f; --border-default: #2d4a6f; --border-strong: #3b5998;
-  --text-primary: #e2e8f0; --text-secondary: #94a3b8; --text-muted: #64748b; --text-faint: #475569;
+  --text-primary: #e2e8f0; --text-secondary: #94a3b8; --text-muted: #7a8ba4; --text-faint: #5a6a7e;
   --accent: #38bdf8; --accent-hover: #0ea5e9; --accent-dim: #0284c7;
   --accent-glow: rgba(56,189,248,0.12); --accent-border: rgba(56,189,248,0.3);
   --accent-text: #7dd3fc;
@@ -100,7 +101,7 @@ html[data-theme="nord"] {
   --bg-card: #3b4252; --bg-hover: #434c5e; --bg-input: #3b4252;
   --bg-overlay: rgba(46,52,64,0.7);
   --border-subtle: #3b4252; --border-default: #4c566a; --border-strong: #5e6a82;
-  --text-primary: #eceff4; --text-secondary: #d8dee9; --text-muted: #7b88a1; --text-faint: #4c566a;
+  --text-primary: #eceff4; --text-secondary: #d8dee9; --text-muted: #8893aa; --text-faint: #606a7e;
   --accent: #88c0d0; --accent-hover: #81a1c1; --accent-dim: #5e81ac;
   --accent-glow: rgba(136,192,208,0.12); --accent-border: rgba(136,192,208,0.3);
   --accent-text: #88c0d0;
@@ -140,7 +141,7 @@ html[data-theme="dracula"] {
   --bg-card: #343746; --bg-hover: #3e4256; --bg-input: #2e3142;
   --bg-overlay: rgba(40,42,54,0.7);
   --border-subtle: #3a3d50; --border-default: #44475a; --border-strong: #565970;
-  --text-primary: #f8f8f2; --text-secondary: #ccc5d9; --text-muted: #6272a4; --text-faint: #44475a;
+  --text-primary: #f8f8f2; --text-secondary: #ccc5d9; --text-muted: #7585b5; --text-faint: #5a5d72;
   --accent: #bd93f9; --accent-hover: #a77bfa; --accent-dim: #8b5cf6;
   --accent-glow: rgba(189,147,249,0.12); --accent-border: rgba(189,147,249,0.3);
   --accent-text: #d0abff;
@@ -159,7 +160,7 @@ html[data-theme="emerald"] {
   --bg-card: #142118; --bg-hover: #1d3224; --bg-input: #112016;
   --bg-overlay: rgba(12,26,15,0.7);
   --border-subtle: #1a3322; --border-default: #264d33; --border-strong: #366644;
-  --text-primary: #e0f0e4; --text-secondary: #9ab8a0; --text-muted: #5c8266; --text-faint: #3a5940;
+  --text-primary: #e0f0e4; --text-secondary: #9ab8a0; --text-muted: #6e9478; --text-faint: #4e6d55;
   --accent: #34d399; --accent-hover: #10b981; --accent-dim: #059669;
   --accent-glow: rgba(52,211,153,0.12); --accent-border: rgba(52,211,153,0.3);
   --accent-text: #6ee7b7;
@@ -244,7 +245,7 @@ button.sidebar__item, button.sidebar__toggle { font: inherit; color: inherit; ba
 .main__tab { padding: 10px 20px; cursor: pointer; font-size: 0.85rem; color: var(--text-secondary); border-bottom: 2px solid transparent; transition: all 0.15s; }
 .main__tab:hover { color: var(--text-primary); }
 .main__tab.active { color: var(--accent-text); border-bottom-color: var(--accent); }
-.main__content { flex: 1; overflow-y: auto; overflow-x: hidden; padding: var(--space-xl); }
+.main__content { flex: 1; overflow-y: auto; overflow-x: hidden; padding: var(--space-xl); max-width: 1800px; margin-inline: auto; width: 100%; }
 
 /* ===== KPI CARDS ===== */
 .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--space-lg); margin-bottom: var(--space-xl); }
@@ -440,6 +441,17 @@ button.sidebar__item, button.sidebar__toggle { font: inherit; color: inherit; ba
 .filter-bar select, .filter-bar input { background: var(--bg-input); border: 1px solid var(--border-default); border-radius: var(--radius-md); color: var(--text-primary); padding: 6px 10px; font-family: var(--font-body); font-size: 0.8rem; }
 .filter-bar select:focus, .filter-bar input:focus { border-color: var(--accent-border); }
 .filter-bar input { flex: 1; min-width: 140px; max-width: 320px; }
+/* ===== MULTI-SELECT FILTER ===== */
+.multi-select { position: relative; display: inline-block; }
+.multi-select__trigger { display: inline-flex; align-items: center; gap: 6px; background: var(--bg-input); border: 1px solid var(--border-default); border-radius: var(--radius-md); color: var(--text-primary); padding: 5px 10px; font-family: var(--font-body); font-size: 0.8rem; cursor: pointer; white-space: nowrap; transition: border-color 0.15s; }
+.multi-select__trigger:hover { border-color: var(--accent-border); }
+.multi-select__trigger.active { border-color: var(--accent); }
+.multi-select__count { font-size: 0.68rem; background: var(--accent-glow, color-mix(in srgb, var(--accent) 15%, transparent)); color: var(--accent); padding: 1px 6px; border-radius: 10px; font-weight: 600; }
+.multi-select__dropdown { position: absolute; top: calc(100% + 4px); left: 0; z-index: 100; background: var(--bg-card); border: 1px solid var(--border-default); border-radius: var(--radius-md); padding: 4px 0; min-width: 190px; max-height: 280px; overflow-y: auto; box-shadow: 0 8px 24px rgba(0,0,0,0.25); }
+.multi-select__option { display: flex; align-items: center; gap: 6px; padding: 5px 12px; cursor: pointer; font-size: 0.8rem; color: var(--text-primary); transition: background 0.1s; }
+.multi-select__option:hover { background: var(--bg-hover); }
+.multi-select__option input[type="checkbox"] { accent-color: var(--accent); cursor: pointer; margin: 0; }
+.multi-select__option--all { border-bottom: 1px solid var(--border-subtle); margin-bottom: 2px; padding-bottom: 6px; font-weight: 600; }
 .filter-chips { display: flex; gap: var(--space-sm); align-items: center; margin-bottom: var(--space-md); flex-wrap: wrap; }
 .filter-chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; font-size: 0.75rem; font-weight: 500; background: var(--accent-glow, color-mix(in srgb, var(--accent) 12%, transparent)); color: var(--accent); border: 1px solid var(--accent-border, color-mix(in srgb, var(--accent) 30%, transparent)); border-radius: 20px; }
 .filter-chip button { background: none; border: none; color: var(--accent); cursor: pointer; font-size: 0.9rem; line-height: 1; padding: 4px 6px; font-weight: 700; min-width: 28px; min-height: 28px; display: inline-flex; align-items: center; justify-content: center; }
@@ -452,7 +464,7 @@ button.sidebar__item, button.sidebar__toggle { font: inherit; color: inherit; ba
 .tasks-layout { display: flex; gap: 0; height: 100%; }
 .tasks-layout__main { flex: 1; min-width: 0; overflow-y: auto; overflow-x: hidden; }
 .tasks-layout__detail { width: 340px; min-width: 240px; max-width: 70vw; flex-shrink: 0; border-left: 1px solid var(--border-default); background: var(--bg-raised); overflow-y: auto; display: flex; flex-direction: column; position: relative; }
-.tasks-layout__detail-resize { position: absolute; left: -3px; top: 0; bottom: 0; width: 6px; cursor: col-resize; z-index: 10; }
+.tasks-layout__detail-resize { position: absolute; left: -3px; top: 0; bottom: 0; width: 12px; cursor: col-resize; z-index: 10; }
 .tasks-layout__detail-resize:hover, .tasks-layout__detail-resize.active { background: var(--accent); opacity: 0.4; }
 .tasks-layout__detail--hidden { display: none; }
 
@@ -460,7 +472,7 @@ button.sidebar__item, button.sidebar__toggle { font: inherit; color: inherit; ba
 .detail-overlay { position: fixed; inset: 0; background: var(--bg-overlay); z-index: 200; display: none; }
 .detail-overlay.open { display: block; }
 .detail-panel { position: fixed; top: 0; right: 0; width: 520px; min-width: 320px; max-width: 80vw; height: 100dvh; background: var(--bg-raised); border-left: 1px solid var(--border-default); z-index: 201; transform: translateX(100%); transition: transform 0.2s; overflow-y: auto; display: flex; flex-direction: column; }
-.detail-panel__resize { position: absolute; left: -3px; top: 0; bottom: 0; width: 6px; cursor: col-resize; z-index: 10; }
+.detail-panel__resize { position: absolute; left: -3px; top: 0; bottom: 0; width: 12px; cursor: col-resize; z-index: 10; }
 .detail-panel__resize:hover, .detail-panel__resize.active { background: var(--accent); opacity: 0.4; }
 .detail-panel.open { transform: translateX(0); }
 .detail-panel__header { padding: var(--space-lg); border-bottom: 1px solid var(--border-default); display: flex; justify-content: space-between; align-items: flex-start; }
@@ -531,6 +543,8 @@ button.sidebar__item, button.sidebar__toggle { font: inherit; color: inherit; ba
 .report-table th { text-align: left; padding: 8px 12px; background: var(--bg-card); color: var(--text-secondary); font-weight: 600; border-bottom: 1px solid var(--border-default); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; }
 .report-table td { padding: 8px 12px; border-bottom: 1px solid var(--border-subtle); }
 .report-table tr:hover { background: var(--bg-hover); }
+.report-table tbody tr:nth-child(even) { background: var(--bg-surface); }
+.report-table tbody tr:nth-child(even):hover { background: var(--bg-hover); }
 .report-exec { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: var(--space-lg); margin-bottom: var(--space-xl); }
 /* Client summary cards — dashboard top section */
 .client-summary-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-md); }
@@ -1308,7 +1322,7 @@ span.fin-editable { display: inline-block; position: relative; }
 }
 
 /* ===== BUG / FEATURE REPORTS ===== */
-.bug-report-modal { max-width: 560px; }
+.bug-report-modal { max-width: var(--modal-md); }
 .bug-report-modal h2 { margin-top: 0; }
 .bug-report-modal .screenshot-preview { max-width: 100%; max-height: 200px; border-radius: var(--radius-sm); border: 1px solid var(--border-default); margin: 8px 0; }
 .bug-report-type-toggle { display: flex; gap: 0; border: 1px solid var(--border-default); border-radius: var(--radius-sm); overflow: hidden; }
@@ -1348,12 +1362,13 @@ span.fin-editable { display: inline-block; position: relative; }
 .manage-clients__detail { padding: 12px 14px; border-top: 1px solid var(--border-subtle); background: var(--bg-card); }
 
 /* ===== MODAL WIDTH TOKENS ===== */
-.modal--sm { width: min(400px, calc(100vw - 32px)); }
-.modal--md { width: min(560px, calc(100vw - 32px)); }
-.modal--lg { width: min(720px, calc(100vw - 32px)); }
+.modal--sm { width: min(var(--modal-sm), calc(100vw - 32px)); }
+.modal--md { width: min(var(--modal-md), calc(100vw - 32px)); }
+.modal--lg { width: min(var(--modal-lg), calc(100vw - 32px)); }
+.modal--xl { width: min(var(--modal-xl), calc(100vw - 32px)); }
 
 /* ===== THEMED CONFIRMATION DIALOG ===== */
-#confirmModal .modal { max-width: 420px; }
+#confirmModal .modal { max-width: var(--modal-sm); }
 #confirmModal .modal__title { margin-bottom: var(--space-md); }
 #confirmModal p { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: var(--space-xl); line-height: 1.6; }
 #confirmModal .confirm-actions { display: flex; gap: 8px; justify-content: flex-end; }
@@ -1369,6 +1384,7 @@ span.fin-editable { display: inline-block; position: relative; }
 .field-error { font-size: 0.72rem; color: var(--danger); margin-top: 2px; display: none; }
 .field-error.visible { display: block; }
 .field-required::after { content: ' *'; color: var(--danger); font-weight: 700; }
+.detail-field__error { font-size: 0.72rem; color: var(--danger); margin-top: 2px; }
 
 /* ===== SYNC PENDING STATE ===== */
 .sync-badge--pending { display: block; background: var(--text-muted); }
@@ -1417,6 +1433,7 @@ span.fin-editable { display: inline-block; position: relative; }
 @media (max-width: 768px) {
   .fin-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .fin-table-wrap .report-table { min-width: 600px; }
+  .report-table-wrapper, .fin-section table { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 }
 </style>
 </head>
@@ -1481,10 +1498,10 @@ span.fin-editable { display: inline-block; position: relative; }
       <button class="btn btn--primary" onclick="addTask()" style="border-radius:var(--radius-sm) 0 0 var(--radius-sm)"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 1v12M1 7h12"/></svg><span class="header-desktop-only"> New</span></button>
       <button class="btn btn--primary" onclick="toggleAddItemMenu(event)" style="padding:4px 6px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;border-left:1px solid rgba(255,255,255,0.25)">&#9660;</button>
       <div id="addItemMenuDropdown" style="display:none;position:absolute;top:100%;right:0;margin-top:4px;background:var(--bg-raised);border:1px solid var(--border-default);border-radius:var(--radius-sm);box-shadow:var(--shadow-lg);z-index:400;min-width:160px;overflow:hidden">
-        <div class="hover-item" style="padding:6px 12px;cursor:pointer;font-size:0.82rem;display:flex;gap:8px;align-items:center" onclick="closeAddItemMenu();addItem('project')"><span style="width:18px;text-align:center">\u{1F4C1}</span> New Project</div>
-        <div class="hover-item" style="padding:6px 12px;cursor:pointer;font-size:0.82rem;display:flex;gap:8px;align-items:center" onclick="closeAddItemMenu();showAddItemPicker('feature')"><span style="width:18px;text-align:center">\u2605</span> New Feature</div>
-        <div class="hover-item" style="padding:6px 12px;cursor:pointer;font-size:0.82rem;display:flex;gap:8px;align-items:center" onclick="closeAddItemMenu();showAddItemPicker('story')"><span style="width:18px;text-align:center">\u{1F4D6}</span> New Story</div>
-        <div class="hover-item" style="padding:6px 12px;cursor:pointer;font-size:0.82rem;display:flex;gap:8px;align-items:center" onclick="closeAddItemMenu();showAddItemPicker('task')"><span style="width:18px;text-align:center">\u270E</span> New Task</div>
+        <div class="hover-item" role="button" tabindex="0" style="padding:6px 12px;cursor:pointer;font-size:0.82rem;display:flex;gap:8px;align-items:center" onclick="closeAddItemMenu();addItem('project')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}"><span style="width:18px;text-align:center">\u{1F4C1}</span> New Project</div>
+        <div class="hover-item" role="button" tabindex="0" style="padding:6px 12px;cursor:pointer;font-size:0.82rem;display:flex;gap:8px;align-items:center" onclick="closeAddItemMenu();showAddItemPicker('feature')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}"><span style="width:18px;text-align:center">\u2605</span> New Feature</div>
+        <div class="hover-item" role="button" tabindex="0" style="padding:6px 12px;cursor:pointer;font-size:0.82rem;display:flex;gap:8px;align-items:center" onclick="closeAddItemMenu();showAddItemPicker('story')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}"><span style="width:18px;text-align:center">\u{1F4D6}</span> New Story</div>
+        <div class="hover-item" role="button" tabindex="0" style="padding:6px 12px;cursor:pointer;font-size:0.82rem;display:flex;gap:8px;align-items:center" onclick="closeAddItemMenu();showAddItemPicker('task')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}"><span style="width:18px;text-align:center">\u270E</span> New Task</div>
       </div>
     </div>
     <button class="btn header-desktop-only" onclick="printReport()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="1" width="8" height="4" rx="1"/><rect x="1" y="5" width="12" height="6" rx="1.5"/><rect x="4" y="9" width="6" height="4" rx="0.5"/></svg> Print</button>
@@ -1504,10 +1521,10 @@ span.fin-editable { display: inline-block; position: relative; }
       <button class="btn btn--ghost header-mobile-only" onclick="toggleHeaderOverflow(event)" aria-label="More actions" style="font-size:1.1rem;padding:4px 8px">&#8942;</button>
       <div class="header-overflow__menu" id="headerOverflowMenu">
         <div id="overflowUserBadge" class="header-overflow__item" style="color:var(--text-muted);font-size:0.78rem;padding:10px 14px;border-bottom:1px solid var(--border-subtle)"></div>
-        <div class="header-overflow__item" onclick="printReport();toggleHeaderOverflow()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="1" width="8" height="4" rx="1"/><rect x="1" y="5" width="12" height="6" rx="1.5"/><rect x="4" y="9" width="6" height="4" rx="0.5"/></svg> Print</div>
-        <div class="header-overflow__item" onclick="openBugReportModal();toggleHeaderOverflow()">&#128030; Report Bug</div>
-        <div class="header-overflow__item" onclick="toggleThemeDropdown(event);toggleHeaderOverflow()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="3.5" cy="7" r="2"/><circle cx="10.5" cy="4.5" r="1.5"/><circle cx="9.5" cy="10.5" r="1.2"/></svg> Theme</div>
-        <div class="header-overflow__item header-overflow__item--danger" onclick="handleLogout()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 1.5H2.5a1 1 0 00-1 1v9a1 1 0 001 1H5M9.5 9.5l2.5-2.5-2.5-2.5M5 7h7"/></svg> Sign Out</div>
+        <div class="header-overflow__item" role="button" tabindex="0" onclick="printReport();toggleHeaderOverflow()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="1" width="8" height="4" rx="1"/><rect x="1" y="5" width="12" height="6" rx="1.5"/><rect x="4" y="9" width="6" height="4" rx="0.5"/></svg> Print</div>
+        <div class="header-overflow__item" role="button" tabindex="0" onclick="openBugReportModal();toggleHeaderOverflow()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">&#128030; Report Bug</div>
+        <div class="header-overflow__item" role="button" tabindex="0" onclick="toggleThemeDropdown(event);toggleHeaderOverflow()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="3.5" cy="7" r="2"/><circle cx="10.5" cy="4.5" r="1.5"/><circle cx="9.5" cy="10.5" r="1.2"/></svg> Theme</div>
+        <div class="header-overflow__item header-overflow__item--danger" role="button" tabindex="0" onclick="handleLogout()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 1.5H2.5a1 1 0 00-1 1v9a1 1 0 001 1H5M9.5 9.5l2.5-2.5-2.5-2.5M5 7h7"/></svg> Sign Out</div>
       </div>
     </div>
   </div>
@@ -1526,7 +1543,7 @@ span.fin-editable { display: inline-block; position: relative; }
 
   <!-- MAIN -->
   <div class="main">
-    <div class="main__tabs" id="mainTabs"></div>
+    <div class="main__tabs" id="mainTabs" role="tablist"></div>
     <div id="breadcrumbBar" style="display:none;align-items:center;gap:6px;padding:6px var(--space-xl);background:var(--bg-surface);border-bottom:1px solid var(--border-default);flex-wrap:wrap;position:relative;z-index:50"></div>
     <div class="main__content" id="mainContent"></div>
   </div>
@@ -1568,7 +1585,7 @@ span.fin-editable { display: inline-block; position: relative; }
   </div>
 </div>
 <div class="modal-overlay" id="conflictModal" role="dialog" aria-modal="true" aria-labelledby="conflictTitle">
-  <div class="modal" style="max-width:500px">
+  <div class="modal" style="max-width:var(--modal-md)">
     <div class="modal__title" id="conflictTitle">Edit Conflict</div>
     <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:var(--space-lg)">Another user has edited this item. Choose which version to keep:</p>
     <div id="conflictFields"></div>
@@ -1977,7 +1994,7 @@ let settings = { hourlyRate: 150, knownClients: ['Couch Heroes', 'Lighthouse Stu
 
 // View state — controls which view is active and what filters are applied
 let currentView = 'dashboard';
-let currentFilter = { client: null, project: null, status: null, health: null, search: '', sort: 'default' };
+let currentFilter = { client: null, project: null, status: [], health: [], assignee: [], search: '', sort: 'default' };
 let selectedTaskIds = new Set();  // Bulk selection for batch operations
 let pendingCSVData = null;        // Staging area for CSV import preview
 let taskSubView = localStorage.getItem('nbi_task_subview') || 'tree'; // 'tree' | 'board' | 'gantt' | 'calendar'
@@ -1985,6 +2002,7 @@ let collapsedTaskIds = new Set(); // Tracks which parent tasks are collapsed in 
 let _tasksInitialCollapse = true; // Auto-collapse all tasks on first visit (expand is manual)
 let inlineDetailVisible = true;   // Whether the 30% detail panel is shown in tasks view
 let _pagePermissions = {};        // Role-based page access: { finances: 'admin'|'all'|['user1','user2'], ... }
+let _apiClientsCache = {};        // Cached client records from API (keyed by name)
 let _peopleFilter = { person: null, dateRange: 'all' };
 let _peopleSubView = 'workload'; // 'workload' | 'capacity'
 let _reportSubView = 'overall';   // 'overall' | 'byProject' | 'byPerson'
@@ -2418,9 +2436,9 @@ function getFilteredTasks() {
   let list = tasks;
   if (currentFilter.client) list = list.filter(t => getTaskClient(t) === currentFilter.client);
   if (currentFilter.project) { const pid = currentFilter.project; list = list.filter(t => t.id === pid || getDescendants(pid).some(d => d.id === t.id)); }
-  if (currentFilter.status) list = list.filter(t => t.status === currentFilter.status);
-  if (currentFilter.health) list = list.filter(t => (t.healthState || 'Not set') === currentFilter.health);
-  if (currentFilter.assignee) list = list.filter(t => t.assignees?.some(a => a === currentFilter.assignee));
+  if (currentFilter.status && currentFilter.status.length > 0) list = list.filter(t => currentFilter.status.includes(t.status));
+  if (currentFilter.health && currentFilter.health.length > 0) list = list.filter(t => currentFilter.health.includes(t.healthState || 'Not set'));
+  if (currentFilter.assignee && currentFilter.assignee.length > 0) list = list.filter(t => t.assignees?.some(a => currentFilter.assignee.includes(a)));
   if (currentFilter.incomplete) list = list.filter(t => t.status !== 'Done' && t.status !== 'Cancelled' && (!t.hoursEstimated || !t.priority || !t.dueDate || !t.healthState));
   if (currentFilter.search) {
     const q = currentFilter.search.toLowerCase();
@@ -2516,6 +2534,21 @@ function _releaseFocusTrap(container) {
   if (handler) { container.removeEventListener('keydown', handler); _focusTrapMap.delete(container); }
 }
 
+/** Activate focus management on a dynamically inserted modal overlay.
+ *  Saves the previously focused element, traps Tab/Escape, and restores focus on close. */
+function _activateDynamicModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (!modal) return;
+  const prevFocus = document.activeElement;
+  _trapFocus(modal);
+  // Patch .remove() to restore focus when the modal is dismissed
+  const origRemove = modal.remove.bind(modal);
+  modal.remove = function() { _releaseFocusTrap(modal); origRemove(); if (prevFocus && prevFocus.focus) prevFocus.focus(); };
+  // Focus the first focusable element inside the modal
+  const first = modal.querySelector('button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"]), a[href]');
+  if (first) setTimeout(() => first.focus(), 50);
+}
+
 // ==================== ASYNC BUTTON HELPER ====================
 
 /** Disable a button during an async operation, show spinner, re-enable on completion. */
@@ -2526,6 +2559,28 @@ async function withButtonLoading(btn, asyncFn) {
   btn.innerHTML = '<span class="loading-spinner" style="width:14px;height:14px;border-width:2px;display:inline-block;vertical-align:middle"></span> ' + btn.textContent.trim();
   try { return await asyncFn(); }
   finally { btn.disabled = false; btn.innerHTML = originalHtml; }
+}
+
+// ==================== INLINE FORM VALIDATION ====================
+
+/** Show an inline validation error beneath an input element */
+function showFieldError(input, message) {
+  if (!input) return;
+  input.classList.add('is-invalid');
+  let errEl = input.parentElement.querySelector('.detail-field__error');
+  if (!errEl) {
+    errEl = document.createElement('div');
+    errEl.className = 'detail-field__error';
+    input.parentElement.appendChild(errEl);
+  }
+  errEl.textContent = message;
+}
+
+/** Clear all inline validation errors within a container */
+function clearFieldErrors(container) {
+  if (!container) return;
+  container.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+  container.querySelectorAll('.detail-field__error').forEach(el => el.remove());
 }
 
 // ==================== TEXTAREA AUTO-RESIZE FALLBACK ====================
@@ -2617,7 +2672,7 @@ function renderSidebar() {
   HEALTH_STATES.forEach(h => {
     if (healthCounts[h] > 0) {
       const col = HEALTH_COLOURS_HEX[h] || '#666';
-      html += `<button class="sidebar__item ${currentFilter.health===h?'active':''}" onclick="filterByHealth('${escAttrJs(h)}')"><span class="sidebar__dot" style="background:${col}"></span><span class="sidebar__item__label">${esc(h)}</span><span class="sidebar__item__count">${healthCounts[h]}</span></button>`;
+      html += `<button class="sidebar__item ${currentFilter.health && currentFilter.health.includes(h)?'active':''}" onclick="filterByHealth('${escAttrJs(h)}')"><span class="sidebar__dot" style="background:${col}"></span><span class="sidebar__item__label">${esc(h)}</span><span class="sidebar__item__count">${healthCounts[h]}</span></button>`;
     }
   });
   html += `</div>`;
@@ -2625,7 +2680,7 @@ function renderSidebar() {
   // Quick Filters
   html += `<div class="sidebar__section"><div class="sidebar__title">Quick Filters</div>`;
   const critCount = tasks.filter(t => t.priority === 'Critical ACT' || t.priority === 'Urgent' || t.priority === 'High').length;
-  html += sidebarItem('&#9888;', 'Critical / High', critCount, () => { currentFilter = { ...currentFilter, status: null, health: null, client: null, project: null }; switchView('tasks'); renderAll(); }, false);
+  html += sidebarItem('&#9888;', 'Critical / High', critCount, () => { currentFilter = { ...currentFilter, status: [], health: [], client: null, project: null }; switchView('tasks'); renderAll(); }, false);
   html += `</div>`;
 
   document.getElementById('sidebarNav').innerHTML = html;
@@ -2795,6 +2850,9 @@ function renderClientProfileHeader() {
     if (brief.employees && brief.employees !== 'TBC') html += `<div><span style="color:var(--text-muted)">Team size:</span> ${esc(brief.employees)}</div>`;
     if (brief.revenue && brief.revenue !== 'TBC') html += `<div><span style="color:var(--text-muted)">Revenue/Funding:</span> ${esc(brief.revenue)}</div>`;
     if (brief.nbiRelationship) html += `<div><span style="color:var(--text-muted)">NBI relationship:</span> ${esc(brief.nbiRelationship)}</div>`;
+    const _apiClient = _apiClientsCache[ct];
+    if (_apiClient && _apiClient.studio_size) html += `<div><span style="color:var(--text-muted)">Studio size:</span> ${_apiClient.studio_size} employees</div>`;
+    if (_apiClient && _apiClient.contract_value) html += `<div><span style="color:var(--text-muted)">Contract value:</span> &pound;${Number(_apiClient.contract_value).toLocaleString()}</div>`;
     html += `</div>`;
     if (brief.contacts && brief.contacts.length > 0) {
       html += `<div style="grid-column:1/-1;margin-top:8px"><span style="color:var(--text-muted);font-family:var(--font-display);font-size:0.65rem;letter-spacing:1px;text-transform:uppercase">Key Contacts</span>`;
@@ -2862,7 +2920,16 @@ function switchView(view) {
 addManagedListener(window, 'popstate', e => {
   if (e.state && e.state.view) {
     currentView = LEGACY_ROUTES[e.state.view] || e.state.view;
-    if (e.state.filter) currentFilter = e.state.filter;
+    if (e.state.filter) {
+      currentFilter = e.state.filter;
+      // Migrate old single-value filters from browser history to arrays
+      if (currentFilter.status && typeof currentFilter.status === 'string') currentFilter.status = [currentFilter.status];
+      if (currentFilter.health && typeof currentFilter.health === 'string') currentFilter.health = [currentFilter.health];
+      if (currentFilter.assignee && typeof currentFilter.assignee === 'string') currentFilter.assignee = [currentFilter.assignee];
+      if (!Array.isArray(currentFilter.status)) currentFilter.status = [];
+      if (!Array.isArray(currentFilter.health)) currentFilter.health = [];
+      if (!Array.isArray(currentFilter.assignee)) currentFilter.assignee = [];
+    }
     taskSubView = e.state.taskSubView || 'tree';
     renderAll();
   }
@@ -2870,14 +2937,14 @@ addManagedListener(window, 'popstate', e => {
 // Set initial history state
 history.replaceState({ view: currentView, filter: { ...currentFilter }, taskSubView }, '', '#' + currentView);
 /** Clear all active filters except sort order, and deselect any bulk-selected tasks */
-function resetFilters() { currentFilter = { client: null, project: null, status: null, health: null, search: '', sort: currentFilter.sort || 'default', assignee: null, incomplete: false }; selectedTaskIds.clear(); }
+function resetFilters() { currentFilter = { client: null, project: null, status: [], health: [], search: '', sort: currentFilter.sort || 'default', assignee: [], incomplete: false }; selectedTaskIds.clear(); }
 /** Set the client filter and re-render -- pass null to show all clients */
-function filterByClient(c) { currentFilter = { client: c, project: null, status: null, health: null, search: '' }; selectedTaskIds.clear(); renderSidebarCounts(); renderContent(); renderBreadcrumbs(); history.pushState({ view: currentView, filter: { ...currentFilter }, taskSubView }, '', '#' + currentView); }
+function filterByClient(c) { currentFilter = { client: c, project: null, status: [], health: [], assignee: [], search: '' }; selectedTaskIds.clear(); renderSidebarCounts(); renderContent(); renderBreadcrumbs(); history.pushState({ view: currentView, filter: { ...currentFilter }, taskSubView }, '', '#' + currentView); }
 /** Filter by health state and switch to tasks view */
-function filterByHealth(h) { currentFilter = { client: currentFilter.client, project: null, status: null, health: h, search: '' }; switchView('tasks'); }
+function filterByHealth(h) { currentFilter = { client: currentFilter.client, project: null, status: [], health: [h], assignee: [], search: '' }; switchView('tasks'); }
 /** Filter to a specific project, switch to tree view, and scroll to the project row */
 function filterByProject(projectId) {
-  currentFilter = { client: currentFilter.client, project: projectId, status: null, health: null, search: '', sort: 'default', assignee: null, incomplete: false };
+  currentFilter = { client: currentFilter.client, project: projectId, status: [], health: [], search: '', sort: 'default', assignee: [], incomplete: false };
   taskSubView = 'tree';
   // Ensure the project is expanded in the tree
   if (typeof collapsedTaskIds !== 'undefined') collapsedTaskIds.delete(projectId);
@@ -2893,14 +2960,14 @@ function filterByProject(projectId) {
 function renderBreadcrumbs() {
   const bar = document.getElementById('breadcrumbBar');
   if (!bar) return;
-  const hasFilter = currentFilter.client || currentFilter.assignee || currentFilter.health || currentFilter.status || currentFilter.incomplete || currentFilter.project;
+  const hasFilter = currentFilter.client || (currentFilter.assignee && currentFilter.assignee.length > 0) || (currentFilter.health && currentFilter.health.length > 0) || (currentFilter.status && currentFilter.status.length > 0) || currentFilter.incomplete || currentFilter.project;
   if (!hasFilter) { bar.innerHTML = ''; bar.style.display = 'none'; return; }
   bar.style.display = 'flex';
   let html = '<span style="font-size:0.72rem;color:var(--text-muted);margin-right:4px">Filtered:</span>';
   if (currentFilter.client) html += `<span class="filter-chip">${esc(currentFilter.client)} <button onclick="currentFilter.client=null;renderSidebarCounts();renderContent();renderBreadcrumbs()">&times;</button></span>`;
-  if (currentFilter.assignee) html += `<span class="filter-chip">${esc(currentFilter.assignee)} <button onclick="currentFilter.assignee=null;renderContent();renderBreadcrumbs()">&times;</button></span>`;
-  if (currentFilter.health) html += `<span class="filter-chip">${esc(currentFilter.health)} <button onclick="currentFilter.health=null;renderContent();renderBreadcrumbs()">&times;</button></span>`;
-  if (currentFilter.status) html += `<span class="filter-chip">${esc(currentFilter.status)} <button onclick="currentFilter.status=null;renderContent();renderBreadcrumbs()">&times;</button></span>`;
+  if (currentFilter.assignee && currentFilter.assignee.length > 0) html += `<span class="filter-chip">${currentFilter.assignee.map(a => esc(a)).join(', ')} <button onclick="currentFilter.assignee=[];renderContent();renderBreadcrumbs()">&times;</button></span>`;
+  if (currentFilter.health && currentFilter.health.length > 0) html += `<span class="filter-chip">${currentFilter.health.map(h => esc(h)).join(', ')} <button onclick="currentFilter.health=[];renderContent();renderBreadcrumbs()">&times;</button></span>`;
+  if (currentFilter.status && currentFilter.status.length > 0) html += `<span class="filter-chip">${currentFilter.status.map(s => esc(s)).join(', ')} <button onclick="currentFilter.status=[];renderContent();renderBreadcrumbs()">&times;</button></span>`;
   if (currentFilter.project) { const pt = tasks.find(t => t.id === currentFilter.project); html += `<span class="filter-chip">${esc(pt ? pt.title : 'Project')} <button onclick="currentFilter.project=null;renderContent();renderBreadcrumbs()">&times;</button></span>`; }
   if (currentFilter.incomplete) html += `<span class="filter-chip">Incomplete only <button onclick="currentFilter.incomplete=false;renderContent();renderBreadcrumbs()">&times;</button></span>`;
   html += `<button class="filter-chip-clear" onclick="resetFilters();renderContent();renderBreadcrumbs()">Clear all</button>`;
@@ -3017,6 +3084,13 @@ function renderTacticalDashboard() {
   // Compute data
   const overdueTasks = filtered.filter(t => t.dueDate && t.status !== 'Done' && t.status !== 'Cancelled' && safeParseDate(t.dueDate) < now)
     .sort((a,b) => new Date(a.dueDate) - new Date(b.dueDate));
+  // Imminent: due within 3 days but not overdue
+  const imminentEnd = new Date(now.getTime() + 3 * 86400000);
+  const imminentTasks = filtered.filter(t => {
+    if (!t.dueDate || t.status === 'Done' || t.status === 'Cancelled') return false;
+    const d = safeParseDate(t.dueDate);
+    return d >= now && d <= imminentEnd;
+  }).sort((a,b) => new Date(a.dueDate) - new Date(b.dueDate));
   const dueThisWeek = filtered.filter(t => {
     if (!t.dueDate || t.status === 'Done' || t.status === 'Cancelled') return false;
     const d = safeParseDate(t.dueDate);
@@ -3059,10 +3133,11 @@ function renderTacticalDashboard() {
   // Project-focused metric strip — clickable, each scrolls to its section or filters
   const donePct = filtered.length ? Math.round(done / filtered.length * 100) : 0;
   const metricClick = (section) => `onclick="document.getElementById('${section}')?.scrollIntoView({behavior:'smooth',block:'start'})"`;
-  const metricFilter = (status) => `onclick="currentFilter.status='${status}';switchView('tasks')"`;
+  const metricFilter = (status) => `onclick="currentFilter.status=['${status}'];switchView('tasks')"`;
   html += `<div class="tactical-metrics">
     <div class="tactical-metric" style="cursor:pointer" ${metricFilter('In progress')}><span class="tactical-metric__value" style="color:var(--accent)">${inProgress.length}</span><span class="tactical-metric__label">Active</span></div>
     <div class="tactical-metric" style="cursor:pointer" ${metricClick('tactOverdue')}><span class="tactical-metric__value" style="color:${overdueTasks.length > 0 ? 'var(--danger)' : 'var(--success)'}">${overdueTasks.length}</span>${trendArrow(newlyOverdue, true)}<span class="tactical-metric__label">Overdue</span></div>
+    <div class="tactical-metric" style="cursor:pointer" ${metricClick('tactImminent')}><span class="tactical-metric__value" style="color:${imminentTasks.length > 0 ? '#f59e0b' : 'var(--success)'}">${imminentTasks.length}</span><span class="tactical-metric__label">Imminent</span></div>
     <div class="tactical-metric" style="cursor:pointer" ${metricClick('tactThisWeek')}><span class="tactical-metric__value" style="color:var(--warning)">${dueThisWeek.length}</span><span class="tactical-metric__label">Due This Week</span></div>
     <div class="tactical-metric" style="cursor:pointer" ${metricClick('tactBlocked')}><span class="tactical-metric__value" style="color:${blockedTasks.length > 0 ? 'var(--purple)' : 'var(--success)'}">${blockedTasks.length}</span><span class="tactical-metric__label">Blocked</span></div>
     <div class="tactical-metric" style="cursor:pointer" ${metricClick('tactAtRisk')}><span class="tactical-metric__value" style="color:${redHealth.length > 0 ? 'var(--warning)' : 'var(--success)'}">${redHealth.length}</span><span class="tactical-metric__label">At Risk</span></div>
@@ -3116,7 +3191,28 @@ function renderTacticalDashboard() {
       });
     });
   }
-  html += `</div>`;
+  html += `</div>`; // close tactOverdue section
+
+  // Imminent (due within 3 days)
+  html += `<div class="tactical-section" id="tactImminent">`;
+  html += `<div class="tactical-section__header"><span class="tactical-section__title" style="color:#f59e0b">&#9200; ${sectionClient}Imminent (${imminentTasks.length})</span></div>`;
+  if (imminentTasks.length === 0) {
+    html += `<div class="tactical-empty">Nothing due in the next 3 days</div>`;
+  } else {
+    imminentTasks.forEach(t => {
+      const d = safeParseDate(t.dueDate);
+      const daysUntil = Math.ceil((d - now) / 86400000);
+      const dayLabel = daysUntil === 0 ? 'Today' : daysUntil === 1 ? 'Tomorrow' : daysUntil + 'd';
+      const owner = (t.assignees || []).join(', ') || 'Unassigned';
+      html += `<div class="tactical-item" onclick="openDetailOverlay('${t.id}')" style="border-left:3px solid #f59e0b">
+        ${clientBadgeHtml(getTaskClient(t))}
+        <span class="tactical-item__title">${esc(t.title)}</span>
+        <span class="tactical-item__assignee">${esc(owner)}</span>
+        <span class="tactical-item__meta" style="color:#f59e0b;font-weight:600">${dayLabel}</span>
+      </div>`;
+    });
+  }
+  html += `</div>`; // close tactImminent section
   html += `</div>`; // close left panel
 
   // RIGHT: This Week
@@ -3735,6 +3831,70 @@ function renderMyTasksView(el) {
   el.innerHTML = html;
 }
 
+// ==================== MULTI-SELECT FILTER HELPERS ====================
+
+/** Build a multi-select filter component HTML string */
+function buildMultiSelect(filterKey, label, options, currentValues) {
+  const vals = currentValues || [];
+  const allSelected = vals.length === 0;
+  const countLabel = allSelected ? 'All' : vals.length;
+  let html = `<div class="multi-select" data-filter="${filterKey}">`;
+  html += `<button class="multi-select__trigger ${!allSelected ? 'active' : ''}" onclick="toggleMultiSelect(this.parentElement)">${esc(label)} <span class="multi-select__count">${countLabel}</span></button>`;
+  html += `<div class="multi-select__dropdown" style="display:none">`;
+  html += `<label class="multi-select__option multi-select__option--all"><input type="checkbox" value="__all__" ${allSelected ? 'checked' : ''} onchange="multiSelectAll(this, '${filterKey}')"> All</label>`;
+  options.forEach(o => {
+    const val = typeof o === 'object' ? o.value : o;
+    const lbl = typeof o === 'object' ? o.label : o;
+    const checked = vals.includes(val) ? 'checked' : '';
+    html += `<label class="multi-select__option"><input type="checkbox" value="${esc(val)}" ${checked} onchange="multiSelectChanged(this, '${filterKey}')"> ${esc(lbl)}</label>`;
+  });
+  html += `</div></div>`;
+  return html;
+}
+
+/** Toggle a multi-select dropdown open/closed */
+function toggleMultiSelect(container) {
+  const dd = container.querySelector('.multi-select__dropdown');
+  const isOpen = dd.style.display !== 'none';
+  // Close all other open multi-selects first
+  document.querySelectorAll('.multi-select__dropdown').forEach(d => d.style.display = 'none');
+  dd.style.display = isOpen ? 'none' : 'block';
+}
+
+/** Handle "All" checkbox in multi-select */
+function multiSelectAll(checkbox, filterKey) {
+  if (checkbox.checked) {
+    currentFilter[filterKey] = [];
+    renderContent();
+  }
+}
+
+/** Handle individual checkbox change in multi-select */
+function multiSelectChanged(checkbox, filterKey) {
+  const container = checkbox.closest('.multi-select');
+  const allCheckboxes = container.querySelectorAll('.multi-select__option:not(.multi-select__option--all) input[type="checkbox"]');
+  const allBox = container.querySelector('.multi-select__option--all input[type="checkbox"]');
+  const selected = [];
+  allCheckboxes.forEach(cb => { if (cb.checked) selected.push(cb.value); });
+  if (selected.length === 0 || selected.length === allCheckboxes.length) {
+    // All or none selected means "All"
+    currentFilter[filterKey] = [];
+    if (allBox) allBox.checked = true;
+    allCheckboxes.forEach(cb => cb.checked = false);
+  } else {
+    currentFilter[filterKey] = selected;
+    if (allBox) allBox.checked = false;
+  }
+  renderContent();
+}
+
+/** Close multi-select dropdowns when clicking outside */
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.multi-select')) {
+    document.querySelectorAll('.multi-select__dropdown').forEach(d => d.style.display = 'none');
+  }
+});
+
 // ==================== TASK VIEW ====================
 
 /** Render the tasks view: filter bar, sub-view toggle, quick-add, and the active sub-view (tree/board/gantt/calendar) */
@@ -3744,10 +3904,10 @@ function renderTaskView(el) {
   let html = renderClientProfileHeader();
   html += `<div class="filter-bar">
     <input type="text" placeholder="Search items... (Enter)" value="${esc(currentFilter.search)}" onkeydown="if(event.key==='Enter'){currentFilter.search=this.value;renderContent()}" onblur="if(this.value!==currentFilter.search){currentFilter.search=this.value;renderContent()}">
-    <select onchange="currentFilter.assignee=this.value||null;renderContent()" style="min-width:100px"><option value="">All People</option>${_cachedTeamMembers.map(m => `<option value="${esc(m)}" ${currentFilter.assignee===m?'selected':''}>${esc(m)}</option>`).join('')}</select>
+    ${buildMultiSelect('assignee', 'People', _cachedTeamMembers, currentFilter.assignee)}
     <select onchange="currentFilter.project=this.value||null;renderContent()" style="min-width:100px"><option value="">All Projects</option>${getRootTasks().filter(r => r.title && r.title.trim() !== 'New Task').sort((a,b) => a.title.localeCompare(b.title)).map(r => `<option value="${esc(r.id)}" ${currentFilter.project===r.id?'selected':''}>${esc(r.title)}</option>`).join('')}</select>
-    <select onchange="currentFilter.status=this.value||null;renderContent()"><option value="">All Statuses</option>${STATUSES.map(s=>`<option ${currentFilter.status===s?'selected':''}>${s}</option>`).join('')}</select>
-    <select onchange="currentFilter.health=this.value||null;renderContent()"><option value="">All Health</option>${HEALTH_STATES.map(h=>`<option ${currentFilter.health===h?'selected':''}>${h}</option>`).join('')}</select>
+    ${buildMultiSelect('status', 'Status', STATUSES, currentFilter.status)}
+    ${buildMultiSelect('health', 'Health', HEALTH_STATES, currentFilter.health)}
     <select onchange="currentFilter.sort=this.value;renderContent()" style="min-width:100px">
       <option value="default" ${currentFilter.sort==='default'?'selected':''}>Sort: Default</option>
       <option value="due-asc" ${currentFilter.sort==='due-asc'?'selected':''}>Due Date (earliest)</option>
@@ -3765,7 +3925,7 @@ function renderTaskView(el) {
       <button class="task-subview-btn ${taskSubView==='calendar'?'active':''}" onclick="taskSubView='calendar';localStorage.setItem('nbi_task_subview',taskSubView);renderContent()">Calendar</button>
     </div>
     <button class="btn btn--sm ${currentFilter.incomplete ? 'btn--danger' : 'btn--outline'}" onclick="currentFilter.incomplete=!currentFilter.incomplete;renderContent()" style="font-size:0.72rem;padding:3px 10px" title="Show only tasks with missing fields">&#9888; Incomplete</button>
-    ${currentFilter.assignee ? `<span class="filter-chip" style="font-size:0.72rem">${esc(currentFilter.assignee)} <button onclick="currentFilter.assignee=null;renderContent()" style="background:none;border:none;color:var(--text-secondary);cursor:pointer;padding:0 2px">&times;</button></span>` : ''}
+    ${currentFilter.assignee && currentFilter.assignee.length > 0 ? `<span class="filter-chip" style="font-size:0.72rem">${currentFilter.assignee.map(a => esc(a)).join(', ')} <button onclick="currentFilter.assignee=[];renderContent()" style="background:none;border:none;color:var(--text-secondary);cursor:pointer;padding:0 2px">&times;</button></span>` : ''}
     ${!inlineDetailVisible ? '<button class="btn btn--outline" onclick="inlineDetailVisible=true;renderContent()" style="font-size:0.72rem;padding:3px 10px" title="Show detail panel">&#9776; Detail</button>' : ''}
     <div class="batch-actions">${selectedTaskIds.size > 0 ? `
       <span style="font-size:0.75rem;color:var(--accent);font-weight:600">${selectedTaskIds.size} selected</span>
@@ -3778,12 +3938,14 @@ function renderTaskView(el) {
   </div>`;
 
   // Active filter breadcrumbs
-  if (currentFilter.client || currentFilter.status || currentFilter.health || currentFilter.project) {
+  const hasActiveFilters = currentFilter.client || (currentFilter.status && currentFilter.status.length > 0) || (currentFilter.health && currentFilter.health.length > 0) || currentFilter.project || (currentFilter.assignee && currentFilter.assignee.length > 0);
+  if (hasActiveFilters) {
     html += `<div class="filter-chips">`;
     if (currentFilter.client) html += `<span class="filter-chip">Client: ${esc(currentFilter.client)} <button onclick="currentFilter.client=null;renderContent()" title="Clear filter">&times;</button></span>`;
     if (currentFilter.project) { const pTask = tasks.find(t => t.id === currentFilter.project); html += `<span class="filter-chip">Project: ${esc(pTask ? pTask.title : 'Unknown')} <button onclick="currentFilter.project=null;renderContent()" title="Clear filter">&times;</button></span>`; }
-    if (currentFilter.status) html += `<span class="filter-chip">Status: ${esc(currentFilter.status)} <button onclick="currentFilter.status=null;renderContent()" title="Clear filter">&times;</button></span>`;
-    if (currentFilter.health) html += `<span class="filter-chip">Health: ${esc(currentFilter.health)} <button onclick="currentFilter.health=null;renderContent()" title="Clear filter">&times;</button></span>`;
+    if (currentFilter.status && currentFilter.status.length > 0) html += `<span class="filter-chip">Status: ${currentFilter.status.map(s => esc(s)).join(', ')} <button onclick="currentFilter.status=[];renderContent()" title="Clear filter">&times;</button></span>`;
+    if (currentFilter.health && currentFilter.health.length > 0) html += `<span class="filter-chip">Health: ${currentFilter.health.map(h => esc(h)).join(', ')} <button onclick="currentFilter.health=[];renderContent()" title="Clear filter">&times;</button></span>`;
+    if (currentFilter.assignee && currentFilter.assignee.length > 0) html += `<span class="filter-chip">People: ${currentFilter.assignee.map(a => esc(a)).join(', ')} <button onclick="currentFilter.assignee=[];renderContent()" title="Clear filter">&times;</button></span>`;
     html += `<button class="filter-chip-clear" onclick="resetFilters();renderContent()">Clear all</button>`;
     html += `</div>`;
   }
@@ -6258,8 +6420,8 @@ function showAddItemPicker(type) {
     toast(`No ${ITEM_TYPE_META[parentType].plural} exist yet. Create a ${ITEM_TYPE_META[parentType].label} first.`, 'warning');
     return;
   }
-  let html = `<div class="modal-overlay open" id="addItemPickerModal" onclick="if(event.target===this)this.remove()">
-    <div class="modal" style="max-width:420px">
+  let html = `<div class="modal-overlay open" id="addItemPickerModal" role="dialog" aria-modal="true" onclick="if(event.target===this)this.remove()">
+    <div class="modal" style="max-width:var(--modal-sm)">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
         <h2 style="margin:0">New ${ITEM_TYPE_META[type].label}</h2>
         <button class="btn btn--ghost" onclick="document.getElementById('addItemPickerModal').remove()">&times;</button>
@@ -6274,6 +6436,7 @@ function showAddItemPicker(type) {
   });
   html += `</div></div></div>`;
   document.body.insertAdjacentHTML('beforeend', html);
+  _activateDynamicModal('addItemPickerModal');
 }
 
 /** Quick-add a project by title from the inline input bar */
@@ -7942,27 +8105,30 @@ async function deleteReport(id) {
 
 /** Open modal to create a new expense report */
 function openNewReportModal() {
-  let html = `<div class="modal-overlay open" id="newReportModal" onclick="if(event.target===this)this.remove()">
-    <div class="modal" style="max-width:420px">
+  let html = `<div class="modal-overlay open" id="newReportModal" role="dialog" aria-modal="true" onclick="if(event.target===this)this.remove()">
+    <div class="modal" style="max-width:var(--modal-sm)">
       <h2 style="margin-top:0">New Expense Report</h2>
       <div class="lead-detail__grid">
-        <label>Title *</label><input type="text" id="newReportTitle" placeholder="e.g. GDC March 2026">
+        <label class="field-required">Title</label><input type="text" id="newReportTitle" placeholder="e.g. GDC March 2026">
         <label>Notes</label><textarea id="newReportNotes" rows="2" style="resize:vertical" placeholder="Optional notes..."></textarea>
       </div>
       <div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end">
         <button class="btn" onclick="document.getElementById('newReportModal').remove()">Cancel</button>
-        <button class="btn btn--primary" onclick="submitNewReport()">Create Report</button>
+        <button class="btn btn--primary" onclick="withButtonLoading(this,submitNewReport)">Create Report</button>
       </div>
     </div>
   </div>`;
   document.body.insertAdjacentHTML('beforeend', html);
-  setTimeout(() => document.getElementById('newReportTitle')?.focus(), 50);
+  _activateDynamicModal('newReportModal');
 }
 
 /** Submit new report creation */
 async function submitNewReport() {
-  const title = document.getElementById('newReportTitle').value.trim();
-  if (!title) { alert('Title is required'); return; }
+  const modal = document.getElementById('newReportModal');
+  clearFieldErrors(modal);
+  const titleEl = document.getElementById('newReportTitle');
+  const title = titleEl.value.trim();
+  if (!title) { showFieldError(titleEl, 'Title is required'); return; }
 
   const resp = await authFetch('/api/expense-reports', {
     method: 'POST',
@@ -7976,7 +8142,7 @@ async function submitNewReport() {
     openReportDetail(created.id);
   } else {
     const err = await resp.json().catch(() => ({}));
-    alert('Failed to create report: ' + (err.error || 'Unknown error'));
+    toast('Failed to create report: ' + (err.error || 'Unknown error'), 'error');
   }
 }
 
@@ -8225,12 +8391,12 @@ async function deleteExpenseReceipt(expenseId, receiptId) {
 async function openNewExpenseModal() {
   if (!_expenseCategories) await loadExpenseCategories();
 
-  let html = `<div class="modal-overlay open" id="newExpenseModal" onclick="if(event.target===this)this.remove()">
-    <div class="modal" style="max-width:450px">
+  let html = `<div class="modal-overlay open" id="newExpenseModal" role="dialog" aria-modal="true" onclick="if(event.target===this)this.remove()">
+    <div class="modal" style="max-width:var(--modal-sm)">
       <h2 style="margin-top:0">New Expense</h2>
       <div class="lead-detail__grid">
-        <label>Date *</label><input type="date" id="newExpDate" value="${new Date().toISOString().slice(0,10)}">
-        <label>Amount *</label><input type="number" id="newExpAmount" step="0.01" placeholder="0.00">
+        <label class="field-required">Date</label><input type="date" id="newExpDate" value="${new Date().toISOString().slice(0,10)}">
+        <label class="field-required">Amount</label><input type="number" id="newExpAmount" step="0.01" placeholder="0.00">
         <label>Currency</label><select id="newExpCurrency">
           <option value="GBP" selected>GBP</option>
           <option value="USD">USD</option>
@@ -8239,27 +8405,36 @@ async function openNewExpenseModal() {
         <label>Category</label><select id="newExpCategory"><option value="">-- Select --</option>`;
   (_expenseCategories || []).forEach(c => { html += `<option value="${c.id}">${esc(c.name)}</option>`; });
   html += `</select>
-        <label>Description *</label><input type="text" id="newExpDesc" placeholder="What was this expense for?">
+        <label class="field-required">Description</label><input type="text" id="newExpDesc" placeholder="What was this expense for?">
         <label>VAT</label><input type="number" id="newExpVat" step="0.01" placeholder="0.00">
         <label>Notes</label><textarea id="newExpNotes" rows="2" style="resize:vertical" placeholder="Additional details..."></textarea>
       </div>
       <div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end">
         <button class="btn" onclick="document.getElementById('newExpenseModal').remove()">Cancel</button>
-        <button class="btn btn--primary" onclick="submitNewExpense()">Create Expense</button>
+        <button class="btn btn--primary" onclick="withButtonLoading(this,submitNewExpense)">Create Expense</button>
       </div>
     </div>
   </div>`;
   document.body.insertAdjacentHTML('beforeend', html);
+  _activateDynamicModal('newExpenseModal');
 }
 
 /** Validate and submit the new expense form to the API */
 async function submitNewExpense() {
-  const date = document.getElementById('newExpDate').value;
-  const amount = document.getElementById('newExpAmount').value;
-  const description = document.getElementById('newExpDesc').value.trim();
+  const modal = document.getElementById('newExpenseModal');
+  clearFieldErrors(modal);
+  const dateEl = document.getElementById('newExpDate');
+  const amountEl = document.getElementById('newExpAmount');
+  const descEl = document.getElementById('newExpDesc');
+  const date = dateEl.value;
+  const amount = amountEl.value;
+  const description = descEl.value.trim();
 
-  if (!date || !amount) { alert('Date and amount are required'); return; }
-  if (!description) { alert('Description is required'); return; }
+  let valid = true;
+  if (!date) { showFieldError(dateEl, 'Date is required'); valid = false; }
+  if (!amount) { showFieldError(amountEl, 'Amount is required'); valid = false; }
+  if (!description) { showFieldError(descEl, 'Description is required'); valid = false; }
+  if (!valid) return;
 
   const vatVal = document.getElementById('newExpVat').value;
   const body = {
@@ -8286,7 +8461,7 @@ async function submitNewExpense() {
     openExpenseDetail(created.id);
   } else {
     const err = await resp.json().catch(() => ({}));
-    alert('Failed to create expense: ' + (err.error || 'Unknown error'));
+    toast('Failed to create expense: ' + (err.error || 'Unknown error'), 'error');
   }
 }
 
@@ -9755,7 +9930,11 @@ async function renderManageClients(el) {
   let clients = [];
   try {
     const data = await apiCall('/api/clients');
-    if (data) clients = data;
+    if (data) {
+      clients = data;
+      // Cache clients by name for use in profile headers
+      clients.forEach(c => { _apiClientsCache[c.name] = c; });
+    }
   } catch(e) {}
 
   // Also get lead counts per client
@@ -9796,6 +9975,8 @@ async function renderManageClients(el) {
           <span class="manage-clients__name">${esc(c.name)}</span>
           ${c.sector ? `<span class="leads-client-group__sector">${esc(c.sector)}</span>` : '<span class="manage-clients__no-sector">No sector</span>'}
           ${c.headquarters ? `<span class="manage-clients__hq">${esc(c.headquarters)}</span>` : ''}
+          ${c.studio_size ? `<span style="color:var(--text-secondary);font-size:0.78rem">${c.studio_size} staff</span>` : ''}
+          ${c.contract_value ? `<span style="color:var(--success);font-size:0.78rem;font-weight:600">&pound;${Number(c.contract_value).toLocaleString()}</span>` : ''}
           <span class="manage-clients__leads">${count} lead${count !== 1 ? 's' : ''}</span>
           <span class="manage-clients__arrow">\u25BC</span>
         </div>
@@ -9809,6 +9990,8 @@ async function renderManageClients(el) {
             <label>Website</label><input type="text" value="${esc(c.website || '')}" onchange="updateClientField('${c.id}','website',this.value)">
             <label>Description</label><textarea rows="2" style="resize:vertical" onchange="updateClientField('${c.id}','description',this.value)">${esc(c.description || '')}</textarea>
             <label>NBI Relationship</label><input type="text" value="${esc(c.nbi_relationship || '')}" onchange="updateClientField('${c.id}','nbi_relationship',this.value)" placeholder="e.g. Active client, Prospect">
+            <label>Studio Size</label><input type="number" min="0" value="${c.studio_size != null ? c.studio_size : ''}" onchange="updateClientField('${c.id}','studio_size',this.value?parseInt(this.value,10):null)" placeholder="Number of employees">
+            <label>Contract Value</label><div style="display:flex;align-items:center;gap:0"><span style="background:var(--bg-elevated);border:1px solid var(--border-default);border-right:none;border-radius:var(--radius-md) 0 0 var(--radius-md);padding:6px 8px;color:var(--text-muted);font-size:0.82rem">&pound;</span><input type="number" min="0" step="0.01" value="${c.contract_value != null ? c.contract_value : ''}" onchange="updateClientField('${c.id}','contract_value',this.value?parseFloat(this.value):null)" placeholder="0.00" style="border-radius:0 var(--radius-md) var(--radius-md) 0;flex:1"></div>
           </div>
           <div class="manage-clients__contacts" id="clientContacts_${c.id}">
             <h4 style="margin:12px 0 6px;font-size:0.82rem;color:var(--text-secondary)">Contacts</h4>
@@ -10332,16 +10515,16 @@ async function openNewLeadModal() {
 
   const defaultStage = config.stages.find(s => !s.is_closed) || config.stages[0];
 
-  let html = `<div class="modal-overlay open" id="newLeadModal" onclick="if(event.target===this)this.remove()">
-    <div class="modal" style="max-width:500px">
+  let html = `<div class="modal-overlay open" id="newLeadModal" role="dialog" aria-modal="true" onclick="if(event.target===this)this.remove()">
+    <div class="modal" style="max-width:var(--modal-md)">
       <h2 style="margin-top:0">New Lead</h2>
       <div class="lead-detail__grid">
-        <label>Client *</label>
+        <label class="field-required">Client</label>
         <select id="newLeadClient"><option value="">-- Select or type below --</option>`;
   clientsList.forEach(c => { html += `<option value="${c.id}">${esc(c.name)}</option>`; });
   html += `</select>
         <label>Or New Client</label><input type="text" id="newLeadNewClient" placeholder="New client name">
-        <label>Title *</label><input type="text" id="newLeadTitle" placeholder="Deal title">
+        <label class="field-required">Title</label><input type="text" id="newLeadTitle" placeholder="Deal title">
         <label>Work Type</label><select id="newLeadWorkType"><option value="">-- Select --</option>`;
   (config.fieldOptions.work_type || []).forEach(o => { html += `<option value="${esc(o.value)}">${esc(o.value)}</option>`; });
   html += `</select>
@@ -10363,17 +10546,21 @@ async function openNewLeadModal() {
       </div>
       <div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end">
         <button class="btn" onclick="document.getElementById('newLeadModal').remove()">Cancel</button>
-        <button class="btn btn--primary" onclick="submitNewLead()">Create Lead</button>
+        <button class="btn btn--primary" onclick="withButtonLoading(this,submitNewLead)">Create Lead</button>
       </div>
     </div>
   </div>`;
   document.body.insertAdjacentHTML('beforeend', html);
+  _activateDynamicModal('newLeadModal');
 }
 
 /** Validate and submit the new lead form to the API */
 async function submitNewLead() {
-  const title = document.getElementById('newLeadTitle').value.trim();
-  if (!title) { alert('Title is required'); return; }
+  const modal = document.getElementById('newLeadModal');
+  clearFieldErrors(modal);
+  const titleEl = document.getElementById('newLeadTitle');
+  const title = titleEl.value.trim();
+  if (!title) { showFieldError(titleEl, 'Title is required'); return; }
 
   let client_id = document.getElementById('newLeadClient').value || null;
   const newClientName = document.getElementById('newLeadNewClient').value.trim();
@@ -10390,11 +10577,11 @@ async function submitNewLead() {
         const c = await resp.json();
         client_id = c.id;
       } else {
-        alert('Failed to create client. Please try again.');
+        toast('Failed to create client. Please try again.', 'error');
         return;
       }
     } catch(e) {
-      alert('Failed to create client. Please try again.');
+      toast('Failed to create client. Please try again.', 'error');
       return;
     }
   }
@@ -10442,7 +10629,7 @@ async function submitNewLead() {
     await refreshLeads();
   } else {
     const err = await resp.json().catch(() => ({}));
-    alert('Failed to create lead: ' + (err.error || 'Unknown error'));
+    toast('Failed to create lead: ' + (err.error || 'Unknown error'), 'error');
   }
 }
 
@@ -10653,7 +10840,7 @@ async function openBugReportModal() {
   const screenshotPromise = captureScreenshot();
   const currentPage = currentView || 'unknown';
 
-  let html = `<div class="modal-overlay open" id="bugReportModal">
+  let html = `<div class="modal-overlay open" id="bugReportModal" role="dialog" aria-modal="true">
     <div class="modal bug-report-modal">
       <h2>&#128030; Report a Bug or Feature Request</h2>
       <div style="margin-bottom:12px">
@@ -10664,7 +10851,7 @@ async function openBugReportModal() {
         </div>
       </div>
       <div style="margin-bottom:12px">
-        <label style="font-size:0.8rem;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:4px">Title *</label>
+        <label class="field-required" style="font-size:0.8rem;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:4px">Title</label>
         <input type="text" id="bugReportTitle" placeholder="Brief summary of the issue or request" style="width:100%;padding:8px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.9rem">
       </div>
       <div style="margin-bottom:12px">
@@ -10678,12 +10865,12 @@ async function openBugReportModal() {
       <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:12px">Page: <strong>${esc(currentPage)}</strong></div>
       <div style="display:flex;gap:8px;justify-content:flex-end">
         <button class="btn" onclick="document.getElementById('bugReportModal').remove()">Cancel</button>
-        <button class="btn btn--primary" onclick="submitBugReport()">Submit Report</button>
+        <button class="btn btn--primary" onclick="withButtonLoading(this,submitBugReport)">Submit Report</button>
       </div>
     </div>
   </div>`;
   document.body.insertAdjacentHTML('beforeend', html);
-  setTimeout(() => document.getElementById('bugReportTitle')?.focus(), 50);
+  _activateDynamicModal('bugReportModal');
 
   // Attach screenshot when ready
   const screenshot = await screenshotPromise;
@@ -10721,8 +10908,11 @@ function setBugReportType(type) {
 
 /** Submit the bug/feature report to the API */
 async function submitBugReport() {
-  const title = document.getElementById('bugReportTitle')?.value.trim();
-  if (!title) { alert('Title is required'); return; }
+  const modal = document.getElementById('bugReportModal');
+  clearFieldErrors(modal);
+  const titleEl = document.getElementById('bugReportTitle');
+  const title = titleEl?.value.trim();
+  if (!title) { showFieldError(titleEl, 'Title is required'); return; }
 
   const body = {
     type: _bugReportType,
@@ -10855,8 +11045,8 @@ async function viewBugReport(id) {
   const r = reports.find(r => r.id === id);
   if (!r) return;
 
-  let html = `<div class="modal-overlay open" id="bugViewModal" onclick="if(event.target===this)this.remove()">
-    <div class="modal" style="max-width:600px">
+  let html = `<div class="modal-overlay open" id="bugViewModal" role="dialog" aria-modal="true" onclick="if(event.target===this)this.remove()">
+    <div class="modal" style="max-width:var(--modal-md)">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
         <div>
           <span class="bug-type-badge bug-type-badge--${r.type}">${r.type}</span>
@@ -10881,6 +11071,7 @@ async function viewBugReport(id) {
     </div>
   </div>`;
   document.body.insertAdjacentHTML('beforeend', html);
+  _activateDynamicModal('bugViewModal');
   // Fetch screenshot via authenticated API and display
   if (r.has_screenshot) {
     authFetch('/api/bug-reports/' + id + '/screenshot').then(resp => {
@@ -11045,7 +11236,7 @@ function renderSettings(el) {
           <input id="newUserEmail" placeholder="Email" style="padding:6px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.82rem;width:160px">
           <input id="newUserPw" type="password" placeholder="Password" style="padding:6px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.82rem;width:120px">
           <select id="newUserRole" style="padding:6px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.82rem"><option value="user">User</option><option value="admin">Admin</option></select>
-          <button class="btn btn--sm btn--primary" onclick="createUser()">Create</button>
+          <button class="btn btn--sm btn--primary" onclick="withButtonLoading(this,createUser)">Create</button>
         </div>
       </div>
     </div>`;
@@ -12500,12 +12691,19 @@ async function loadUserManagement() {
 
 /** Create a new user account via prompt dialogs (admin only) */
 async function createUser() {
-  const username = document.getElementById('newUserUsername')?.value?.trim();
+  const usernameEl = document.getElementById('newUserUsername');
+  const passwordEl = document.getElementById('newUserPw');
+  const container = usernameEl?.closest('.settings__group') || usernameEl?.parentElement;
+  clearFieldErrors(container);
+  const username = usernameEl?.value?.trim();
   const displayName = document.getElementById('newUserName')?.value?.trim();
   const email = document.getElementById('newUserEmail')?.value?.trim();
-  const password = document.getElementById('newUserPw')?.value;
+  const password = passwordEl?.value;
   const role = document.getElementById('newUserRole')?.value;
-  if (!username || !password) { toast('Username and password required', 'error'); return; }
+  let valid = true;
+  if (!username) { showFieldError(usernameEl, 'Username is required'); valid = false; }
+  if (!password) { showFieldError(passwordEl, 'Password is required'); valid = false; }
+  if (!valid) return;
   try {
     const resp = await authFetch('/api/users', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -13005,7 +13203,7 @@ async function fetchSeedData() {
         _currentUser = data.user;
         showApp();
         await openIDB();
-        await Promise.all([load(), loadTeamMembers(), loadPagePermissions()]);
+        await Promise.all([load(), loadTeamMembers(), loadPagePermissions(), apiCall('/api/clients').then(data => { if (data) data.forEach(c => { _apiClientsCache[c.name] = c; }); }).catch(() => {})]);
         await loadFinanceSeedIfEmpty();
         await loadFinanceFromDB();
         checkLeadReminders();
@@ -13034,6 +13232,46 @@ async function fetchSeedData() {
   if (checkHashForReset()) return;
   // No valid token -- show login
   showLoginScreen();
+})();
+
+// ===== KEYBOARD ACCESSIBILITY: delegated Enter/Space for clickable non-interactive elements =====
+document.addEventListener('keydown', function(e) {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const el = e.target;
+  const tag = (el.tagName || '').toLowerCase();
+  // Skip native interactive elements (already keyboard-accessible)
+  if (tag === 'button' || tag === 'a' || tag === 'input' || tag === 'textarea' || tag === 'select' || el.isContentEditable) return;
+  // Only act on elements with an onclick handler (inline or attribute) and cursor:pointer or role=button
+  if (el.hasAttribute('onclick') || el.closest('[onclick]') === el) {
+    e.preventDefault();
+    el.click();
+  }
+});
+
+// MutationObserver: auto-add tabindex and role to dynamically rendered clickable divs/spans
+(function() {
+  const processed = new WeakSet();
+  function patchClickable(root) {
+    root.querySelectorAll('div[onclick], span[onclick]').forEach(el => {
+      if (processed.has(el)) return;
+      processed.add(el);
+      const tag = el.tagName.toLowerCase();
+      if (tag === 'button' || tag === 'a') return;
+      if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+      if (!el.hasAttribute('role')) el.setAttribute('role', 'button');
+    });
+  }
+  // Patch on each render cycle via MutationObserver
+  const observer = new MutationObserver(mutations => {
+    for (const m of mutations) {
+      for (const node of m.addedNodes) {
+        if (node.nodeType === 1) patchClickable(node);
+      }
+    }
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+  // Initial pass
+  patchClickable(document.body);
 })();
 
 // ===== KEYBOARD SHORTCUTS =====

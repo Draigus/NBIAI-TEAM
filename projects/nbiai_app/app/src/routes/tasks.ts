@@ -31,6 +31,12 @@ import { BOARD_AND_ADMIN } from '../middleware/rbac.js'
 import { validateBody, paginationSchema } from '../lib/validate.js'
 
 // ---------------------------------------------------------------------------
+// UUID format guard (BUG-QA-002)
+// ---------------------------------------------------------------------------
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+// ---------------------------------------------------------------------------
 // Status transition matrix
 // ---------------------------------------------------------------------------
 
@@ -227,6 +233,9 @@ export async function taskRoutes(fastify: FastifyInstance): Promise<void> {
   // -------------------------------------------------------------------------
   fastify.get('/tasks/:id', { preHandler: requireAuth }, async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string }
+    if (!UUID_RE.test(id)) {
+      return reply.status(400).send({ error: { code: 'VALIDATION_ERROR', message: 'Invalid ID format' } })
+    }
     const companyId = request.user.companyId
 
     const [row] = await db
@@ -246,9 +255,7 @@ export async function taskRoutes(fastify: FastifyInstance): Promise<void> {
 
     if (!row) {
       return reply.status(404).send({
-        statusCode: 404,
-        error: 'Not Found',
-        message: 'Resource not found',
+        error: { code: 'NOT_FOUND', message: 'Task not found' },
       })
     }
 
@@ -377,9 +384,7 @@ export async function taskRoutes(fastify: FastifyInstance): Promise<void> {
 
     if (!project) {
       return reply.status(404).send({
-        statusCode: 404,
-        error: 'Not Found',
-        message: 'Resource not found',
+        error: { code: 'NOT_FOUND', message: 'Project not found' },
       })
     }
 
@@ -392,9 +397,7 @@ export async function taskRoutes(fastify: FastifyInstance): Promise<void> {
 
       if (!agent) {
         return reply.status(404).send({
-          statusCode: 404,
-          error: 'Not Found',
-          message: 'Resource not found',
+          error: { code: 'NOT_FOUND', message: 'Agent not found' },
         })
       }
     }
@@ -435,6 +438,9 @@ export async function taskRoutes(fastify: FastifyInstance): Promise<void> {
   // -------------------------------------------------------------------------
   fastify.patch('/tasks/:id', { preHandler: requireAuth }, async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string }
+    if (!UUID_RE.test(id)) {
+      return reply.status(400).send({ error: { code: 'VALIDATION_ERROR', message: 'Invalid ID format' } })
+    }
     const companyId = request.user.companyId
     const userId = request.user.sub
     const body = validateBody(updateTaskSchema, request.body)
@@ -451,9 +457,7 @@ export async function taskRoutes(fastify: FastifyInstance): Promise<void> {
 
     if (!existing) {
       return reply.status(404).send({
-        statusCode: 404,
-        error: 'Not Found',
-        message: 'Resource not found',
+        error: { code: 'NOT_FOUND', message: 'Task not found' },
       })
     }
 
@@ -461,9 +465,7 @@ export async function taskRoutes(fastify: FastifyInstance): Promise<void> {
       const allowed = STATUS_TRANSITIONS[existing.status] ?? []
       if (!allowed.includes(body.status)) {
         return reply.status(422).send({
-          statusCode: 422,
-          error: 'Unprocessable Entity',
-          message: `Invalid status transition: "${existing.status}" → "${body.status}". Allowed: ${allowed.join(', ') || 'none'}.`,
+          error: { code: 'VALIDATION_ERROR', message: `Invalid status transition: "${existing.status}" to "${body.status}". Allowed: ${allowed.join(', ') || 'none'}.` },
         })
       }
     }
@@ -477,9 +479,7 @@ export async function taskRoutes(fastify: FastifyInstance): Promise<void> {
 
       if (!agent) {
         return reply.status(404).send({
-          statusCode: 404,
-          error: 'Not Found',
-          message: 'Resource not found',
+          error: { code: 'NOT_FOUND', message: 'Agent not found' },
         })
       }
     }
@@ -532,6 +532,9 @@ export async function taskRoutes(fastify: FastifyInstance): Promise<void> {
   // -------------------------------------------------------------------------
   fastify.post('/tasks/:id/comments', { preHandler: requireAuth }, async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string }
+    if (!UUID_RE.test(id)) {
+      return reply.status(400).send({ error: { code: 'VALIDATION_ERROR', message: 'Invalid ID format' } })
+    }
     const companyId = request.user.companyId
     const userId = request.user.sub
     const body = validateBody(addCommentSchema, request.body)
@@ -544,9 +547,7 @@ export async function taskRoutes(fastify: FastifyInstance): Promise<void> {
 
     if (!existing) {
       return reply.status(404).send({
-        statusCode: 404,
-        error: 'Not Found',
-        message: 'Resource not found',
+        error: { code: 'NOT_FOUND', message: 'Task not found' },
       })
     }
 
@@ -568,6 +569,9 @@ export async function taskRoutes(fastify: FastifyInstance): Promise<void> {
   // -------------------------------------------------------------------------
   fastify.post('/tasks/:id/checkout', { preHandler: requireAuth }, async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string }
+    if (!UUID_RE.test(id)) {
+      return reply.status(400).send({ error: { code: 'VALIDATION_ERROR', message: 'Invalid ID format' } })
+    }
     const companyId = request.user.companyId
     const body = validateBody(checkoutSchema, request.body)
 
@@ -579,9 +583,7 @@ export async function taskRoutes(fastify: FastifyInstance): Promise<void> {
 
     if (!existing) {
       return reply.status(404).send({
-        statusCode: 404,
-        error: 'Not Found',
-        message: 'Resource not found',
+        error: { code: 'NOT_FOUND', message: 'Task not found' },
       })
     }
 
@@ -597,9 +599,7 @@ export async function taskRoutes(fastify: FastifyInstance): Promise<void> {
     if (activeCheckout) {
       if (activeCheckout.agentId !== body.agentId) {
         return reply.status(409).send({
-          statusCode: 409,
-          error: 'Conflict',
-          message: 'Task is already checked out by another agent.',
+          error: { code: 'CONFLICT', message: 'Task is already checked out by another agent.' },
         })
       }
 
@@ -627,6 +627,9 @@ export async function taskRoutes(fastify: FastifyInstance): Promise<void> {
   // -------------------------------------------------------------------------
   fastify.post('/tasks/:id/checkin', { preHandler: requireAuth }, async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string }
+    if (!UUID_RE.test(id)) {
+      return reply.status(400).send({ error: { code: 'VALIDATION_ERROR', message: 'Invalid ID format' } })
+    }
     const companyId = request.user.companyId
     const body = validateBody(checkinSchema, request.body)
 
@@ -638,9 +641,7 @@ export async function taskRoutes(fastify: FastifyInstance): Promise<void> {
 
     if (!existing) {
       return reply.status(404).send({
-        statusCode: 404,
-        error: 'Not Found',
-        message: 'Resource not found',
+        error: { code: 'NOT_FOUND', message: 'Task not found' },
       })
     }
 
@@ -670,6 +671,9 @@ export async function taskRoutes(fastify: FastifyInstance): Promise<void> {
   // -------------------------------------------------------------------------
   fastify.post('/tasks/:id/relations', { preHandler: requireRole(BOARD_AND_ADMIN) }, async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string }
+    if (!UUID_RE.test(id)) {
+      return reply.status(400).send({ error: { code: 'VALIDATION_ERROR', message: 'Invalid ID format' } })
+    }
     const companyId = request.user.companyId
     const body = validateBody(relationSchema, request.body)
 
@@ -681,9 +685,7 @@ export async function taskRoutes(fastify: FastifyInstance): Promise<void> {
 
     if (!existing) {
       return reply.status(404).send({
-        statusCode: 404,
-        error: 'Not Found',
-        message: 'Resource not found',
+        error: { code: 'NOT_FOUND', message: 'Task not found' },
       })
     }
 
@@ -695,9 +697,7 @@ export async function taskRoutes(fastify: FastifyInstance): Promise<void> {
 
     if (!relatedTask) {
       return reply.status(404).send({
-        statusCode: 404,
-        error: 'Not Found',
-        message: 'Resource not found',
+        error: { code: 'NOT_FOUND', message: 'Related task not found' },
       })
     }
 

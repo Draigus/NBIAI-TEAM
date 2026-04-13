@@ -27,6 +27,12 @@ import { BOARD_ONLY, BOARD_AND_ADMIN } from '../middleware/rbac.js'
 import { validateBody, paginationSchema } from '../lib/validate.js'
 
 // ---------------------------------------------------------------------------
+// UUID format guard (BUG-QA-002)
+// ---------------------------------------------------------------------------
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+// ---------------------------------------------------------------------------
 // Validation schemas
 // ---------------------------------------------------------------------------
 
@@ -181,6 +187,9 @@ export async function agentRoutes(fastify: FastifyInstance): Promise<void> {
   // -------------------------------------------------------------------------
   fastify.get('/agents/:id', { preHandler: requireAuth }, async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string }
+    if (!UUID_RE.test(id)) {
+      return reply.status(400).send({ error: { code: 'VALIDATION_ERROR', message: 'Invalid ID format' } })
+    }
     const companyId = request.user.companyId
 
     const [row] = await db
@@ -195,9 +204,7 @@ export async function agentRoutes(fastify: FastifyInstance): Promise<void> {
 
     if (!row) {
       return reply.status(404).send({
-        statusCode: 404,
-        error: 'Not Found',
-        message: 'Resource not found',
+        error: { code: 'NOT_FOUND', message: 'Agent not found' },
       })
     }
 
@@ -258,25 +265,33 @@ export async function agentRoutes(fastify: FastifyInstance): Promise<void> {
 
     if (!role) {
       return reply.status(404).send({
-        statusCode: 404,
-        error: 'Not Found',
-        message: 'Role not found',
+        error: { code: 'NOT_FOUND', message: 'Role not found' },
       })
     }
 
-    const [created] = await db
-      .insert(agents)
-      .values({
-        companyId,
-        roleId: role.id,
-        name: body.name,
-        modelTier: role.defaultModelTier,
-        status: 'idle',
-        config: body.personaConfig ?? {},
-      })
-      .returning()
+    try {
+      const [created] = await db
+        .insert(agents)
+        .values({
+          companyId,
+          roleId: role.id,
+          name: body.name,
+          modelTier: role.defaultModelTier,
+          status: 'idle',
+          config: body.personaConfig ?? {},
+        })
+        .returning()
 
-    return reply.status(201).send({ data: created })
+      return reply.status(201).send({ data: created })
+    } catch (err: unknown) {
+      const pgErr = err as { code?: string }
+      if (pgErr.code === '23505') {
+        return reply.status(409).send({
+          error: { code: 'CONFLICT', message: 'An active agent already exists for this role.' },
+        })
+      }
+      throw err
+    }
   })
 
   // -------------------------------------------------------------------------
@@ -284,6 +299,9 @@ export async function agentRoutes(fastify: FastifyInstance): Promise<void> {
   // -------------------------------------------------------------------------
   fastify.patch('/agents/:id', { preHandler: requireRole(BOARD_AND_ADMIN) }, async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string }
+    if (!UUID_RE.test(id)) {
+      return reply.status(400).send({ error: { code: 'VALIDATION_ERROR', message: 'Invalid ID format' } })
+    }
     const companyId = request.user.companyId
     const body = validateBody(updateAgentSchema, request.body)
 
@@ -295,9 +313,7 @@ export async function agentRoutes(fastify: FastifyInstance): Promise<void> {
 
     if (!existing) {
       return reply.status(404).send({
-        statusCode: 404,
-        error: 'Not Found',
-        message: 'Resource not found',
+        error: { code: 'NOT_FOUND', message: 'Agent not found' },
       })
     }
 
@@ -320,6 +336,9 @@ export async function agentRoutes(fastify: FastifyInstance): Promise<void> {
   // -------------------------------------------------------------------------
   fastify.delete('/agents/:id', { preHandler: requireRole(BOARD_ONLY) }, async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string }
+    if (!UUID_RE.test(id)) {
+      return reply.status(400).send({ error: { code: 'VALIDATION_ERROR', message: 'Invalid ID format' } })
+    }
     const companyId = request.user.companyId
 
     const [existing] = await db
@@ -330,9 +349,7 @@ export async function agentRoutes(fastify: FastifyInstance): Promise<void> {
 
     if (!existing) {
       return reply.status(404).send({
-        statusCode: 404,
-        error: 'Not Found',
-        message: 'Resource not found',
+        error: { code: 'NOT_FOUND', message: 'Agent not found' },
       })
     }
 
@@ -363,6 +380,9 @@ export async function agentRoutes(fastify: FastifyInstance): Promise<void> {
   // -------------------------------------------------------------------------
   fastify.get('/agents/:id/executions', { preHandler: requireAuth }, async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string }
+    if (!UUID_RE.test(id)) {
+      return reply.status(400).send({ error: { code: 'VALIDATION_ERROR', message: 'Invalid ID format' } })
+    }
     const companyId = request.user.companyId
 
     const [existing] = await db
@@ -373,9 +393,7 @@ export async function agentRoutes(fastify: FastifyInstance): Promise<void> {
 
     if (!existing) {
       return reply.status(404).send({
-        statusCode: 404,
-        error: 'Not Found',
-        message: 'Resource not found',
+        error: { code: 'NOT_FOUND', message: 'Agent not found' },
       })
     }
 
@@ -408,6 +426,9 @@ export async function agentRoutes(fastify: FastifyInstance): Promise<void> {
   // -------------------------------------------------------------------------
   fastify.get('/agents/:id/budget', { preHandler: requireAuth }, async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string }
+    if (!UUID_RE.test(id)) {
+      return reply.status(400).send({ error: { code: 'VALIDATION_ERROR', message: 'Invalid ID format' } })
+    }
     const companyId = request.user.companyId
 
     const [existing] = await db
@@ -418,9 +439,7 @@ export async function agentRoutes(fastify: FastifyInstance): Promise<void> {
 
     if (!existing) {
       return reply.status(404).send({
-        statusCode: 404,
-        error: 'Not Found',
-        message: 'Resource not found',
+        error: { code: 'NOT_FOUND', message: 'Agent not found' },
       })
     }
 

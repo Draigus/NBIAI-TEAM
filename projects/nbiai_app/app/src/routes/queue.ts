@@ -32,6 +32,12 @@ import { BOARD_AND_ADMIN } from '../middleware/rbac.js'
 import { validateBody, paginationSchema } from '../lib/validate.js'
 
 // ---------------------------------------------------------------------------
+// UUID format guard (BUG-QA-002)
+// ---------------------------------------------------------------------------
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+// ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
 
@@ -326,6 +332,9 @@ export async function queueRoutes(app: FastifyInstance) {
     { preHandler: [requireAuth] },
     async (request, reply) => {
       const { taskId } = request.params
+      if (!UUID_RE.test(taskId)) {
+        return reply.status(400).send({ error: { code: 'VALIDATION_ERROR', message: 'Invalid ID format' } })
+      }
       const companyId = request.user.companyId
 
       const rows = await db

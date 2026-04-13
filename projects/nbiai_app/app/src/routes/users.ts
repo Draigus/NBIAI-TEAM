@@ -26,6 +26,12 @@ import { validateBody } from '../lib/validate.js'
 import { hashPassword } from '../lib/crypto.js'
 
 // ---------------------------------------------------------------------------
+// UUID format guard (BUG-QA-002)
+// ---------------------------------------------------------------------------
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+// ---------------------------------------------------------------------------
 // Validation schemas
 // ---------------------------------------------------------------------------
 
@@ -134,6 +140,9 @@ export async function userRoutes(fastify: FastifyInstance): Promise<void> {
     { preHandler: requireRole(BOARD_ONLY) },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { id } = request.params as { id: string }
+      if (!UUID_RE.test(id)) {
+        return reply.status(400).send({ error: { code: 'VALIDATION_ERROR', message: 'Invalid ID format' } })
+      }
       const companyId = request.user.companyId
       const body = validateBody(updateUserSchema, request.body)
 
@@ -179,6 +188,9 @@ export async function userRoutes(fastify: FastifyInstance): Promise<void> {
     { preHandler: requireRole(BOARD_ONLY) },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { id } = request.params as { id: string }
+      if (!UUID_RE.test(id)) {
+        return reply.status(400).send({ error: { code: 'VALIDATION_ERROR', message: 'Invalid ID format' } })
+      }
       const companyId = request.user.companyId
 
       // Prevent self-deletion

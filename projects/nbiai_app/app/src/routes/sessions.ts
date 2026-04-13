@@ -17,6 +17,12 @@ import { BOARD_AND_ADMIN } from '../middleware/rbac.js'
 import { validateBody, paginationSchema } from '../lib/validate.js'
 
 // ---------------------------------------------------------------------------
+// UUID format guard (BUG-QA-002)
+// ---------------------------------------------------------------------------
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+// ---------------------------------------------------------------------------
 // Validation schemas
 // ---------------------------------------------------------------------------
 
@@ -173,6 +179,9 @@ export async function sessionRoutes(app: FastifyInstance) {
     { preHandler: requireRole(BOARD_AND_ADMIN) },
     async (request, reply) => {
       const { id } = request.params
+      if (!UUID_RE.test(id)) {
+        return reply.status(400).send({ error: { code: 'VALIDATION_ERROR', message: 'Invalid ID format' } })
+      }
       const body = validateBody(updateSessionSchema, request.body)
 
       // Check session exists
