@@ -4,7 +4,7 @@
 ALTER TABLE bug_reports ADD COLUMN IF NOT EXISTS priority TEXT DEFAULT NULL;
 ALTER TABLE bug_reports ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
 
-UPDATE bug_reports SET updated_at = created_at WHERE updated_at IS NULL;
+UPDATE bug_reports SET updated_at = COALESCE(created_at, NOW()) WHERE updated_at IS NULL;
 
 CREATE TABLE IF NOT EXISTS bug_report_comments (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

@@ -38,6 +38,74 @@ Each item has an `item_type` field (`project`, `feature`, `story`, `task`). Type
 - **7 colour themes** — Dark, Light, Midnight, Nord, Solarised, Dracula, Emerald
 - **Prometheus metrics** — `/metrics` endpoint for monitoring
 
+## Bug Tracker
+
+User-facing bug and feature request tracker. All authenticated users can submit reports and comment; admins have full control over triage and resolution.
+
+### Sidebar View
+
+The Bug Tracker has its own top-level view in the sidebar navigation. It presents a sortable, filterable list of all reports with inline search. Clicking a row opens a slide-in detail panel with properties, description editing, screenshot preview, and a threaded comment section.
+
+### Priority Levels
+
+| Priority | Usage |
+|---|---|
+| `critical` | Blocks core functionality, needs immediate attention |
+| `high` | Significant issue, should be addressed soon |
+| `medium` | Non-blocking but notable (default for new reports) |
+| `low` | Minor or cosmetic, fix when convenient |
+
+Priority is set by admins via the detail panel. Reports can also have no priority (unset).
+
+### Status Workflow
+
+```
+open -> in_progress -> please_review -> resolved
+                                    \-> wontfix
+```
+
+- **open** — newly submitted, awaiting triage
+- **in_progress** — actively being worked on
+- **please_review** — fix applied, awaiting verification
+- **resolved** — confirmed fixed or implemented
+- **wontfix** — declined (out of scope, by design, etc.)
+
+Reporters can move their own reports to `resolved`. Admins can set any status.
+
+### Comment System
+
+Each report has a threaded comment section visible in the detail panel. Any authenticated user can post comments. Users can delete their own comments; admins can delete any comment. Comment counts are shown in the list view.
+
+### Permission Model
+
+| Action | Admin | Reporter (own report) | Other Users |
+|---|---|---|---|
+| Submit report | Yes | Yes | Yes |
+| View all reports | Yes | Yes | Yes |
+| Change status | Any status | Can resolve own | No |
+| Set priority | Yes | No | No |
+| Edit description | Yes | Own only | No |
+| Post comment | Yes | Yes | Yes |
+| Delete comment | Any comment | Own comments | Own comments |
+| Delete report | Yes | No | No |
+
+### API Endpoints
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/bug-reports` | List all bug/feature reports |
+| POST | `/api/bug-reports` | Submit a new report (with optional screenshot) |
+| PATCH | `/api/bug-reports/:id` | Update report fields (status, priority, description) |
+| DELETE | `/api/bug-reports/:id` | Delete a report (admin) |
+| GET | `/api/bug-reports/:id/screenshot` | Retrieve the report screenshot |
+| GET | `/api/bug-reports/:id/comments` | List comments for a report |
+| POST | `/api/bug-reports/:id/comments` | Add a comment |
+| DELETE | `/api/bug-reports/:id/comments/:commentId` | Delete a comment (own or admin) |
+
+### Migration
+
+Migration `010_bug_tracker_upgrade.sql` adds `priority` and `updated_at` columns to `bug_reports`, and creates the `bug_report_comments` table with a foreign key cascade on report deletion.
+
 ## Setup
 
 ### Prerequisites

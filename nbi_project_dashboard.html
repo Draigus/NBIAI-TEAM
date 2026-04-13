@@ -10963,7 +10963,10 @@ async function openBugReportModal() {
   }
 }
 
-/** Toggle bug/feature type in the modal */
+/**
+ * Toggle bug/feature type selection in the report modal.
+ * @param {string} type - 'bug' or 'feature'
+ */
 function setBugReportType(type) {
   _bugReportType = type;
   const bugBtn = document.getElementById('bugTypeBtn');
@@ -11017,7 +11020,10 @@ async function loadBugReports() {
   } catch(e) { console.error('Failed to load bug reports:', e); }
 }
 
-/** Render the Bug Tracker view (visible to all users) */
+/**
+ * Render the Bug Tracker list view with filtering, sorting, and search.
+ * @param {HTMLElement} container - The DOM element to render the view into
+ */
 function renderBugTrackerView(container) {
   const reports = (_bugReportsData && _bugReportsData.reports) || [];
   const isAdmin = _currentUser && _currentUser.role === 'admin';
@@ -11026,7 +11032,8 @@ function renderBugTrackerView(container) {
   let filtered = [...reports];
   if (window._btFilterType) filtered = filtered.filter(r => r.type === window._btFilterType);
   if (window._btFilterStatus) filtered = filtered.filter(r => r.status === window._btFilterStatus);
-  if (window._btFilterPriority) filtered = filtered.filter(r => r.priority === window._btFilterPriority);
+  if (window._btFilterPriority === 'none') filtered = filtered.filter(r => !r.priority);
+  else if (window._btFilterPriority) filtered = filtered.filter(r => r.priority === window._btFilterPriority);
   if (window._btSearchQuery) {
     const q = window._btSearchQuery.toLowerCase();
     filtered = filtered.filter(r => (r.title || '').toLowerCase().includes(q) || (r.reporter_name || '').toLowerCase().includes(q));
@@ -11083,10 +11090,11 @@ function renderBugTrackerView(container) {
           <option value="high" ${window._btFilterPriority==='high'?'selected':''}>High</option>
           <option value="medium" ${window._btFilterPriority==='medium'?'selected':''}>Medium</option>
           <option value="low" ${window._btFilterPriority==='low'?'selected':''}>Low</option>
+          <option value="none" ${window._btFilterPriority==='none'?'selected':''}>Unset</option>
         </select>
         <input type="text" class="bug-tracker__search" placeholder="Search title or reporter..."
                value="${esc(window._btSearchQuery || '')}"
-               oninput="window._btSearchQuery=this.value;renderContent()">
+               oninput="window._btSearchQuery=this.value;clearTimeout(window._btSearchDebounce);window._btSearchDebounce=setTimeout(()=>renderContent(),300)">
         <span style="font-size:0.75rem;color:var(--text-muted)">${filtered.length} of ${reports.length} reports</span>
       </div>
       <div class="bug-tracker__list">
@@ -11208,14 +11216,20 @@ async function renderBugReportsTab() {
   return html;
 }
 
-/** Toggle sort column/direction for bug reports table and re-render */
+/**
+ * Toggle sort column/direction for the bug reports settings table and re-render.
+ * @param {string} col - The column key to sort by
+ */
 function toggleBugSort(col) {
   if (_bugSortCol === col) { _bugSortDir = _bugSortDir === 'asc' ? 'desc' : 'asc'; }
   else { _bugSortCol = col; _bugSortDir = col === 'created_at' ? 'desc' : 'asc'; }
   renderContent();
 }
 
-/** Delete a bug/feature report (admin) */
+/**
+ * Delete a bug/feature report permanently (admin only).
+ * @param {string} id - The bug report UUID
+ */
 async function deleteBugReport(id) {
   if (!(await themedConfirm('Delete this report permanently?'))) return;
   const resp = await authFetch('/api/bug-reports/' + id, { method: 'DELETE' });
@@ -11229,13 +11243,19 @@ async function deleteBugReport(id) {
   }
 }
 
-/** Resolve a bug report from the detail modal */
+/**
+ * Resolve a bug report from the detail panel after confirmation.
+ * @param {string} id - The bug report UUID
+ */
 async function resolveBugReport(id) {
   if (!(await themedConfirm('Mark this report as resolved?', 'Resolve Report', 'Mark Resolved'))) return;
   await updateBugField(id, 'status', 'resolved');
 }
 
-/** Open the bug detail slide-in panel */
+/**
+ * Open the slide-in detail panel for a bug report, loading screenshot and comments.
+ * @param {string} id - The bug report UUID
+ */
 async function openBugDetail(id) {
   const overlay = document.getElementById('bugDetailOverlay');
   const panel = document.getElementById('bugDetailPanel');
@@ -11327,6 +11347,10 @@ async function openBugDetail(id) {
   overlay.style.display = 'block';
   overlay.onclick = (e) => { if (e.target === overlay) closeBugDetail(); };
   panel.classList.add('open');
+  window._bugDetailPreviousFocus = document.activeElement;
+  if (typeof _trapFocus === 'function') _trapFocus(panel);
+  window._bugDetailEscHandler = (e) => { if (e.key === 'Escape') closeBugDetail(); };
+  document.addEventListener('keydown', window._bugDetailEscHandler);
 
   // Load screenshot
   if (r.has_screenshot) {
@@ -11335,6 +11359,7 @@ async function openBugDetail(id) {
       if (resp.ok) {
         const blob = await resp.blob();
         const url = URL.createObjectURL(blob);
+        window._bugScreenshotBlobUrl = url;
         const container = document.getElementById('bugScreenshotContainer');
         if (container) container.innerHTML = `<img src="${url}" style="max-width:100%;max-height:400px;border-radius:var(--radius-md);border:1px solid var(--border-default)" alt="Screenshot">`;
       }
@@ -11345,14 +11370,21 @@ async function openBugDetail(id) {
   loadBugComments(id);
 }
 
+/** Close the bug detail slide-in panel and hide the overlay */
 function closeBugDetail() {
+  if (window._bugDetailPreviousFocus) { window._bugDetailPreviousFocus.focus(); window._bugDetailPreviousFocus = null; }
+  if (window._bugScreenshotBlobUrl) { URL.revokeObjectURL(window._bugScreenshotBlobUrl); window._bugScreenshotBlobUrl = null; }
+  if (window._bugDetailEscHandler) { document.removeEventListener('keydown', window._bugDetailEscHandler); window._bugDetailEscHandler = null; }
   const overlay = document.getElementById('bugDetailOverlay');
   const panel = document.getElementById('bugDetailPanel');
   if (panel) panel.classList.remove('open');
   if (overlay) overlay.style.display = 'none';
 }
 
-/** Load and render comments for a bug report */
+/**
+ * Load and render comments for a bug report in the detail panel.
+ * @param {string} reportId - The bug report UUID
+ */
 async function loadBugComments(reportId) {
   const container = document.getElementById('bugCommentsContainer');
   if (!container) return;
@@ -11376,7 +11408,10 @@ async function loadBugComments(reportId) {
   } catch(e) { container.innerHTML = '<div style="color:var(--danger);font-size:0.78rem">Failed to load comments.</div>'; }
 }
 
-/** Post a comment on a bug report */
+/**
+ * Post a new comment on a bug report and refresh the comments list.
+ * @param {string} reportId - The bug report UUID
+ */
 async function postBugComment(reportId) {
   const textarea = document.getElementById('bugCommentText');
   if (!textarea || !textarea.value.trim()) return;
@@ -11395,7 +11430,11 @@ async function postBugComment(reportId) {
   }
 }
 
-/** Delete a comment on a bug report */
+/**
+ * Delete a comment on a bug report after confirmation.
+ * @param {string} reportId - The bug report UUID
+ * @param {string} commentId - The comment UUID to delete
+ */
 async function deleteBugComment(reportId, commentId) {
   if (!(await themedConfirm('Delete this comment?'))) return;
   const resp = await authFetch('/api/bug-reports/' + reportId + '/comments/' + commentId, { method: 'DELETE' });
@@ -11408,7 +11447,12 @@ async function deleteBugComment(reportId, commentId) {
   }
 }
 
-/** Update a bug report field (status or priority) */
+/**
+ * Update a bug report field (status or priority) and refresh the view.
+ * @param {string} id - The bug report UUID
+ * @param {string} field - The field name to update ('status' or 'priority')
+ * @param {string|null} value - The new field value, or null to unset
+ */
 async function updateBugField(id, field, value) {
   const body = {};
   body[field] = value === '' ? null : value;
@@ -11430,7 +11474,10 @@ async function updateBugField(id, field, value) {
   }
 }
 
-/** Save the bug description from the detail panel textarea */
+/**
+ * Save the edited description from the bug detail panel textarea.
+ * @param {string} id - The bug report UUID
+ */
 async function saveBugDescription(id) {
   const textarea = document.getElementById('bugDescEdit');
   if (!textarea) return;

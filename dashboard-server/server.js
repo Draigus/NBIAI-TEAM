@@ -1094,6 +1094,26 @@ app.post('/api/restore', async (req, res) => {
       }
     }
 
+    // Bug reports (must come before comments due to FK dependency)
+    if (backup.tables.bug_reports) {
+      for (const b of backup.tables.bug_reports) {
+        await conn.query(
+          `INSERT INTO bug_reports (id, user_id, type, title, description, page, status, priority, created_at, updated_at)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) ON CONFLICT (id) DO NOTHING`,
+          [b.id, b.user_id, b.type, b.title, b.description, b.page, b.status, b.priority, b.created_at, b.updated_at]
+        );
+      }
+    }
+    if (backup.tables.bug_report_comments) {
+      for (const c of backup.tables.bug_report_comments) {
+        await conn.query(
+          `INSERT INTO bug_report_comments (id, report_id, author, text, created_at)
+           VALUES ($1,$2,$3,$4,$5) ON CONFLICT (id) DO NOTHING`,
+          [c.id, c.report_id, c.author, c.text, c.created_at]
+        );
+      }
+    }
+
     await conn.query('COMMIT');
     await auditLog('system', 'backup', 'restore', req.user?.displayName, { exportedAt: backup.exportedAt });
     res.json({ ok: true, message: 'Backup restored successfully' });
@@ -4026,6 +4046,7 @@ app.post('/api/bug-reports', async (req, res) => {
  *  Permissions: admin can change anything; reporter can change status + description on own reports. */
 app.patch('/api/bug-reports/:id', async (req, res) => {
   if (!req.user) return res.status(401).json({ error: 'Authentication required' });
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid report ID' });
   const { status, description, priority } = req.body;
   if (!status && description === undefined && priority === undefined) {
     return res.status(400).json({ error: 'status, description, or priority required' });
@@ -4075,12 +4096,15 @@ app.patch('/api/bug-reports/:id', async (req, res) => {
     vals.push(priority);
   }
   if (description !== undefined) {
+    const descErr = validateLength(description, 'description');
+    if (descErr) return res.status(400).json({ error: descErr });
     sets.push(`description = $${idx++}`);
-    vals.push(description);
+    vals.push(escHtml(description));
   }
 
   vals.push(req.params.id);
   const { rows } = await pool.query(`UPDATE bug_reports SET ${sets.join(', ')} WHERE id = $${idx} RETURNING *`, vals);
+  await auditLog('bug_report', req.params.id, 'update', req.user?.displayName || 'unknown', { status, priority, description: description !== undefined });
 
   // Send notifications for status and priority changes
   const notifyUser = report.reporter_username;
@@ -4107,6 +4131,7 @@ app.patch('/api/bug-reports/:id', async (req, res) => {
 /** POST /api/bug-reports/:id/notify-review — Send a notification to the report submitter (admin only) */
 app.post('/api/bug-reports/:id/notify-review', async (req, res) => {
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid report ID' });
   try {
     const { rows } = await pool.query(
       `SELECT b.title, b.user_id, u.username FROM bug_reports b LEFT JOIN users u ON b.user_id = u.id WHERE b.id = $1`,
@@ -4143,6 +4168,8 @@ app.post('/api/bug-reports/:id/comments', async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid report ID' });
   const { text } = req.body;
   if (!text || !text.trim()) return res.status(400).json({ error: 'text required' });
+  const textErr = validateLength(text, 'text');
+  if (textErr) return res.status(400).json({ error: textErr });
   const author = req.user?.displayName || req.user?.display_name || 'Unknown';
   const { rows } = await pool.query(
     'INSERT INTO bug_report_comments (report_id, author, text) VALUES ($1, $2, $3) RETURNING *',
@@ -4199,18 +4226,23 @@ app.delete('/api/bug-reports/:id/comments/:commentId', async (req, res) => {
 /** DELETE /api/bug-reports/:id — Delete a report (admin only) */
 app.delete('/api/bug-reports/:id', async (req, res) => {
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid report ID' });
   await pool.query('DELETE FROM bug_reports WHERE id = $1', [req.params.id]);
+  await auditLog('bug_report', req.params.id, 'delete', req.user?.displayName || 'unknown', {});
   res.json({ ok: true });
 });
 
 /** GET /api/bug-reports/:id/screenshot — Serve the screenshot image */
 app.get('/api/bug-reports/:id/screenshot', async (req, res) => {
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid report ID' });
   const { rows } = await pool.query('SELECT screenshot FROM bug_reports WHERE id = $1', [req.params.id]);
   if (rows.length === 0 || !rows[0].screenshot) return res.status(404).json({ error: 'No screenshot' });
   const data = rows[0].screenshot;
   // Screenshot is stored as base64 data URL
   const match = data.match(/^data:([^;]+);base64,(.+)$/);
   if (!match) return res.status(400).json({ error: 'Invalid screenshot format' });
+  const allowedTypes = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
+  if (!allowedTypes.includes(match[1])) return res.status(400).json({ error: 'Invalid image type' });
   const buffer = Buffer.from(match[2], 'base64');
   res.setHeader('Content-Type', match[1]);
   res.send(buffer);
