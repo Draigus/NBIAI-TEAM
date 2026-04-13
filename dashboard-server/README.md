@@ -7,8 +7,8 @@ Project management dashboard for NBI Analytics Ltd. Single-page application with
 
 ## Architecture
 
-- **Frontend:** `nbi_project_dashboard.html` — monolithic SPA with inline CSS and JS (~12,800 lines)
-- **Backend:** `server.js` — Express.js REST API (~4,900 lines)
+- **Frontend:** `nbi_project_dashboard.html` — monolithic SPA with inline CSS and JS (~13,100 lines, 100% JSDoc coverage)
+- **Backend:** `server.js` — Express.js REST API (~4,950 lines)
 - **Database:** PostgreSQL (connection via `DATABASE_URL` env var)
 - **Deployment:** PM2 process manager + Cloudflare Tunnel
 
@@ -24,7 +24,7 @@ Client
                     └── Task
 ```
 
-Each item has an `item_type` field (`project`, `feature`, `story`, `task`). Type rules are enforced on creation, drag-and-drop, and reparenting. Items with incomplete prerequisites cannot be marked as Done.
+Each item has an `item_type` field (`project`, `feature`, `story`, `task`). Type rules are enforced on creation, drag-and-drop, and reparenting. Items with incomplete prerequisites cannot be marked as Done (enforced server-side). Circular dependencies are detected and blocked. Deleting a prerequisite automatically cleans up references from dependent items.
 
 ## Key Features
 
@@ -79,7 +79,7 @@ npx pm2 startup
 
 ## API Overview
 
-All endpoints require authentication via Bearer token (from `/api/auth/login`) except `/api/health` and `/metrics`.
+All endpoints require authentication via Bearer token (from `/api/auth/login`) except `/api/health` and public report share links. `/metrics` is restricted to localhost only.
 
 ### Auth
 | Method | Endpoint | Description |

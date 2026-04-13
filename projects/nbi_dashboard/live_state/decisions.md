@@ -190,3 +190,35 @@ Glen chose to use nbi-consulting.com domain with "worksage" subdomain. Named Clo
 
 ### D67: PC as Production Server
 Glen's PC stays as the server. Never turned off. No cloud hosting. Cloudflare Tunnel provides persistent external URL with SSL. Zero monthly cost.
+
+## 2026-04-11 (Session B -- Hierarchy, Dependencies, Timeline)
+
+### D68: Fixed 4-Level Hierarchy
+Project > Feature > Story > Task. Not "Tickets". `item_type` column on tasks table. Migration 008 assigned types by depth. Nesting enforcement on drag-drop and reparent.
+
+### D69: Sidebar Terminology
+"Tasks" renamed to "Projects". "My Tasks" renamed to "My Work".
+
+### D70: Delete Cascade with Warning
+Deleting a parent shows a strong warning with descendant counts by type. CASCADE DELETE in transaction.
+
+### D71: Prerequisites Terminology
+Dependencies are called "Prerequisites" (not "Dependencies" or "Blocked By"). Reverse direction is "Dependents".
+
+### D72: Prerequisite Enforcement
+Hard-block on marking Done (must complete all prerequisites first). Soft-warn on In Progress (can override). Bulk operations also enforce.
+
+### D73: Timeline Zoom
+Plus/minus buttons (8px to 60px per day). Not preset zoom levels like Week/Month/Day/Detail.
+
+### D74: Dependency Link Mode
+Drag arrow from prerequisite bar to dependent bar in Gantt. Not a floating applet.
+
+### D75: Dependencies Dropdown
+Single dropdown button consolidating Link Mode, Show Arrows, and Dependency View options.
+
+### D76: Critical Path View
+Filtered Gantt showing only items in dependency chains. Topologically sorted. Indented by chain depth. Not a separate tree list.
+
+### D77: Today Marker
+Semi-transparent green column across the full timeline. Not a thin red line.

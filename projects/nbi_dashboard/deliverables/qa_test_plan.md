@@ -211,6 +211,89 @@
 | 15.6 | GET /api/users | With auth token | Returns active users | |
 | 15.7 | Unauthenticated request | No token | 401 Unauthorized | |
 
+## 16. Work Item Hierarchy (Session B additions)
+
+| # | Test Case | Steps | Expected Result | Status |
+|---|-----------|-------|-----------------|--------|
+| 16.1 | Item type badges display | View tree/board/timeline | P/F/S/T coloured badges on all items | |
+| 16.2 | New Project creation | Click "+ New" > New Project | Creates project with item_type=project | |
+| 16.3 | New Feature under Project | Select project, "+ New" > New Feature | Feature created under correct project | |
+| 16.4 | New Story under Feature | Select feature, "+ New" > New Story | Story created under correct feature | |
+| 16.5 | New Task under Story | Select story, "+ New" > New Task | Task created under correct story | |
+| 16.6 | Nesting enforcement | Drag task under another task | Blocked — tasks cannot contain children | |
+| 16.7 | Type filter on Board | Click All/Projects/Features/Stories/Tasks buttons | Board filters by item type | |
+| 16.8 | Delete cascade warning | Delete a project with children | Warning shows descendant counts by type | |
+| 16.9 | Detail panel shows type | Open detail for any item | Type row displays with badge | |
+| 16.10 | Children labels dynamic | Open project detail | Children section labelled "Features", not "Children" | |
+
+## 17. Prerequisites & Dependents
+
+| # | Test Case | Steps | Expected Result | Status |
+|---|-----------|-------|-----------------|--------|
+| 17.1 | Add prerequisite | Open detail > Prerequisites > Add | Prerequisite added, appears in list | |
+| 17.2 | Prerequisite status icons | Add prereq, check incomplete items | Lock icon and status indicator shown | |
+| 17.3 | Hard-block on Done | Mark item Done with incomplete prereqs | Blocked — error toast shown | |
+| 17.4 | Soft-warn on In Progress | Set In Progress with incomplete prereqs | Warning shown, can override | |
+| 17.5 | Circular prevention | Add A depends on B, then B depends on A | Second add blocked — cycle detected | |
+| 17.6 | Dependents section | Open item that others depend on | Dependents section shows reverse lookup (read-only) | |
+| 17.7 | Lock icon on tree | View tree with blocked items | Lock icon visible on items with incomplete prereqs | |
+| 17.8 | Lock icon on board | View board with blocked items | Lock icon on board cards | |
+| 17.9 | Bulk Done blocked | Select multiple items, set Done | Items with incomplete prereqs skipped | |
+| 17.10 | Delete cleans up deps | Delete an item that is a prerequisite | Deleted ID removed from other items' dependency arrays | |
+
+## 18. Timeline / Gantt
+
+| # | Test Case | Steps | Expected Result | Status |
+|---|-----------|-------|-----------------|--------|
+| 18.1 | Hierarchical rendering | Switch to Timeline view | Items show in Project > Feature > Story > Task tree | |
+| 18.2 | Collapsible rows | Click toggle arrow on parent | Children collapse/expand, child count badge when collapsed | |
+| 18.3 | Time navigation | Click back/forward arrows | Shifts 1 month back/forward | |
+| 18.4 | Today button | Click "Today" | Scrolls to current date | |
+| 18.5 | Zoom in/out | Click +/- buttons | Day width changes (8px min, 60px max) | |
+| 18.6 | Today column | Check timeline | Green semi-transparent column on today | |
+| 18.7 | Status-coloured bars | Check task bars | Colours match task status | |
+| 18.8 | Bar drag to move | Drag a bar left/right | Start/end dates update | |
+| 18.9 | Bar resize | Drag bar edge | Duration changes, dates update | |
+| 18.10 | Resizable detail panel | Drag left edge of detail panel | Panel width adjusts | |
+
+## 19. Dependency Link Mode
+
+| # | Test Case | Steps | Expected Result | Status |
+|---|-----------|-------|-----------------|--------|
+| 19.1 | Open Dependencies dropdown | Click Dependencies button on timeline | Dropdown with Link Mode / Show Arrows / Dependency View | |
+| 19.2 | Enable Link Mode | Select Link Mode | Crosshair cursor, source glows orange | |
+| 19.3 | Create dependency by drag | Drag from prereq bar to dependent bar | Dashed preview arrow, then solid arrow on release | |
+| 19.4 | Select arrow | Click on a dependency arrow | Arrow highlights blue | |
+| 19.5 | Delete arrow | Select arrow, press Delete | Dependency removed | |
+| 19.6 | Reconnect arrow | Drag selected arrow to new target | Dependency retargeted | |
+| 19.7 | Escape deselects | Press Escape with arrow selected | Arrow deselected | |
+| 19.8 | Show/Hide Arrows toggle | Toggle Show Arrows | All dependency arrows shown/hidden | |
+| 19.9 | Critical Path View | Select Dependency View | Filtered Gantt showing only dependency chains, topologically sorted | |
+| 19.10 | Arrows update on move | Move a bar that has dependencies | Arrows redraw to follow bar | |
+
+## 20. Collapse/Expand System
+
+| # | Test Case | Steps | Expected Result | Status |
+|---|-----------|-------|-----------------|--------|
+| 20.1 | Default load state | Navigate to Tasks tree | Items collapsed to client level | |
+| 20.2 | Collapse All | Click "Collapse All" | All client groups and items collapsed | |
+| 20.3 | Expand to Projects | Select "Expand to" > Projects | Projects visible, children collapsed | |
+| 20.4 | Expand to Features | Select "Expand to" > Features | Features visible under projects | |
+| 20.5 | Expand to Stories | Select "Expand to" > Stories | Stories visible under features | |
+| 20.6 | Expand to All | Select "Expand to" > Tasks | Everything expanded | |
+| 20.7 | Re-collapse on view switch | Switch away and back to Tasks | Collapses back to default | |
+
+## 21. Server Code Quality (Session C fixes)
+
+| # | Test Case | Steps | Expected Result | Status |
+|---|-----------|-------|-----------------|--------|
+| 21.1 | Metrics localhost only | curl localhost:8888/metrics | Returns metrics | |
+| 21.2 | Metrics blocked remotely | Attempt from external IP | 403 Forbidden | |
+| 21.3 | Bug report screenshot limit | Submit bug with >5MB screenshot | Screenshot silently dropped, report still created | |
+| 21.4 | Invalid UUID on comments | GET /api/tasks/not-a-uuid/comments | 400 "Invalid task ID" | |
+| 21.5 | Invalid entity type | POST /api/attachments/entity/invalid/uuid | 400 "Invalid entity type" | |
+| 21.6 | Auth bypass tightened | GET /api/reports-admin/secret | 401 (not bypassed by old wildcard) | |
+
 ## Regression Checklist (from restructuring)
 
 - [ ] Old Dashboard content now lives in Workload view
@@ -221,8 +304,12 @@
 - [ ] Filter persistence across tab switches
 - [ ] Detail panel opens from every view that shows tasks
 - [ ] All keyboard shortcuts map to correct views
+- [ ] Hierarchy type badges render correctly in all views
+- [ ] Prerequisites block Done status correctly
+- [ ] Timeline arrows render and update on bar move
+- [ ] Dead code removal didn't break any view rendering
 
 ---
 
-**Total test cases: 118**
+**Total test cases: 175**
 **Pass criteria: Zero critical/high bugs, all core flows working**

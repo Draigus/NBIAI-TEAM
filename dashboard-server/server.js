@@ -47,6 +47,8 @@ const PDFDocument = require('pdfkit');
 const Tesseract = require('tesseract.js');
 const sharp = require('sharp');
 const pdfParse = require('pdf-parse');
+let archiver;
+try { archiver = require('archiver'); } catch (e) { /* archiver optional — expense report ZIP export disabled */ }
 const { withRetry, CircuitBreaker } = require('./resilience');
 const { validateBackup } = require('./backup-validate');
 const runMigrations = require('./migrations/runner');
@@ -69,6 +71,13 @@ function inferItemType(parentType) {
 const LOG_LEVELS = { error: 0, warn: 1, info: 2, debug: 3 };
 const LOG_LEVEL = LOG_LEVELS[process.env.LOG_LEVEL || 'info'];
 
+/**
+ * Structured JSON logger. Writes to stdout (info/debug/warn) or stderr (error).
+ * @param {'error'|'warn'|'info'|'debug'} level - Log severity
+ * @param {string} prefix - Module/section tag (e.g. 'Auth', 'Sync', 'Tasks')
+ * @param {string} message - Human-readable log message
+ * @param {Object} [data] - Optional structured data to include in the log entry
+ */
 function log(level, prefix, message, data) {
   if (LOG_LEVELS[level] > LOG_LEVEL) return;
   const entry = { ts: new Date().toISOString(), level, prefix, message };
@@ -242,6 +251,13 @@ function isValidUuid(s) { return typeof s === 'string' && UUID_RE.test(s); }
 /** Input length limits — prevents oversized payloads reaching the DB */
 const MAX_LENGTHS = { title: 500, description: 10000, notes: 5000, name: 200, email: 254, body: 50000 };
 
+/**
+ * Validate that a string does not exceed the maximum allowed length.
+ * @param {*} value - The value to check
+ * @param {string} field - Field name (used for error message and MAX_LENGTHS lookup)
+ * @param {number} [max] - Override max length; falls back to MAX_LENGTHS[field] or 10000
+ * @returns {string|null} Error message if exceeded, null if valid
+ */
 function validateLength(value, field, max) {
   if (typeof value === 'string' && value.length > (max || MAX_LENGTHS[field] || 10000)) {
     return `${field} exceeds maximum length of ${max || MAX_LENGTHS[field] || 10000} characters`;
@@ -397,14 +413,18 @@ if (promClient) {
     dbPoolGauge.set({ state: 'waiting' }, pool.waitingCount);
   }, 15000).unref();
 
-  // Metrics endpoint (unauthenticated for Prometheus scraping)
+  // Metrics endpoint — restricted to localhost for Prometheus scraping
   app.get('/metrics', async (req, res) => {
+    const ip = req.ip || req.connection.remoteAddress;
+    if (!['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(ip)) {
+      return res.status(403).json({ error: 'Metrics available from localhost only' });
+    }
     res.set('Content-Type', promClient.register.contentType);
     res.end(await promClient.register.metrics());
   });
 }
 
-// Custom counters for specific events (available even if promClient is loaded)
+// Custom counters for specific events (only available when promClient is loaded)
 const syncConflicts = promClient ? new promClient.Counter({ name: 'nbi_sync_conflicts_total', help: 'Sync conflict count' }) : null;
 const authFailures = promClient ? new promClient.Counter({ name: 'nbi_auth_failures_total', help: 'Auth failure count' }) : null;
 const ocrRequests = promClient ? new promClient.Counter({ name: 'nbi_ocr_requests_total', help: 'OCR request count', labelNames: ['status'] }) : null;
@@ -522,7 +542,8 @@ async function requireAuth(req, res, next) {
   // Public routes that bypass authentication
   if (req.path === '/api/auth/login' || req.path === '/api/health') return next();
   if (req.path.startsWith('/api/auth/forgot') || req.path.startsWith('/api/auth/reset-token')) return next();
-  if (req.path.startsWith('/api/reports/')) return next(); // Public shareable reports
+  // Public shareable report routes (explicit pattern — only /:token, /:token/html, /:token/pdf)
+  if (/^\/api\/reports\/[^/]+(\/html|\/pdf)?$/.test(req.path)) return next();
   if (!req.path.startsWith('/api/')) return next();
 
   const token = (req.headers.authorization || '').replace('Bearer ', '');
@@ -735,16 +756,9 @@ app.patch('/api/users/:id', async (req, res) => {
 // ==================== AUDIT LOG ====================
 
 /**
- * Write an entry to the audit log. Used throughout the app to record
- * create/update/delete actions for traceability.
- * @param {string} entityType - e.g. 'task', 'lead', 'expense', 'user'
- * @param {string} entityId - UUID of the affected entity
- * @param {string} action - 'create', 'update', or 'delete'
- * @param {string} changedBy - Display name of the actor
- * @param {Object} [changes] - Object describing what changed (old/new values)
- * @param {Object} [conn] - Optional DB connection (for use within transactions)
+ * Look up the expense approver username from DB settings, with env/fallback.
+ * @returns {Promise<string>} The username of the designated expense approver
  */
-/** Look up the expense approver username from DB settings, with env/fallback */
 async function getExpenseApprover() {
   try {
     const { rows } = await pool.query("SELECT value FROM settings WHERE key = 'expense_approver'");
@@ -754,7 +768,11 @@ async function getExpenseApprover() {
   }
 }
 
-/** Strip sensitive fields from audit data before persisting */
+/**
+ * Strip sensitive fields from audit data before persisting.
+ * @param {Object} data - The raw audit data object
+ * @returns {Object} Data with password/token fields redacted
+ */
 function sanitiseAuditData(data) {
   if (!data || typeof data !== 'object') return data;
   const sanitised = { ...data };
@@ -765,6 +783,16 @@ function sanitiseAuditData(data) {
   return sanitised;
 }
 
+/**
+ * Write an entry to the audit log. Sensitive fields are automatically
+ * redacted via sanitiseAuditData(). Failures are logged but do not throw.
+ * @param {string} entityType - e.g. 'task', 'lead', 'expense', 'user'
+ * @param {string} entityId - UUID of the affected entity
+ * @param {string} action - 'create', 'update', or 'delete'
+ * @param {string} changedBy - Display name of the actor
+ * @param {Object} [changes] - Object describing what changed (old/new values)
+ * @param {import('pg').PoolClient} [conn] - Optional DB connection (for use within transactions)
+ */
 async function auditLog(entityType, entityId, action, changedBy, changes, conn) {
   const db = conn || pool;
   try {
@@ -858,7 +886,7 @@ app.get('/api/audit-log', async (req, res) => {
     res.json({ entries, total, limit, offset, nextCursor, hasMore });
   } catch (err) {
     log('error', 'Audit', 'Query error', { error: err.message });
-    res.json({ entries: [], total: 0, limit: 50, offset: 0, nextCursor: null, hasMore: false });
+    res.status(500).json({ error: 'Failed to fetch audit log', entries: [], total: 0 });
   }
 });
 
@@ -1073,12 +1101,14 @@ app.post('/api/restore', async (req, res) => {
 
 /** GET /api/tasks/:id/comments — List all comments on a task, oldest first */
 app.get('/api/tasks/:id/comments', async (req, res) => {
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid task ID' });
   const { rows } = await pool.query('SELECT * FROM task_comments WHERE task_id = $1 ORDER BY created_at ASC', [req.params.id]);
   res.json(rows);
 });
 
 /** POST /api/tasks/:id/comments — Add a comment to a task */
 app.post('/api/tasks/:id/comments', async (req, res) => {
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid task ID' });
   const { text } = req.body;
   if (!text || !text.trim()) return res.status(400).json({ error: 'text required' });
   const author = req.user?.displayName || 'Unknown';
@@ -1201,7 +1231,11 @@ app.get('/api/import/scan-downloads', async (req, res) => {
     // Only scan these known subdirectories (avoid scanning dozens of unrelated folders)
     const knownSubdirs = ['msteams dload', 'Spreadsheets', 'expense'];
 
-    /** Scan a directory for importable files */
+    /**
+     * Scan a directory for importable files (.xlsx, .xls, .csv).
+     * @param {string} dir - Absolute path to scan
+     * @param {string} prefix - Display prefix for nested paths (e.g. 'subfolder/')
+     */
     function scanDir(dir, prefix) {
       let entries;
       try { entries = fs.readdirSync(dir); } catch(e) { return; }
@@ -1402,10 +1436,9 @@ function mapRowsToTasks(format, headers, rows) {
         const name = get(r, iName);
         if (!name || name.startsWith('PRIORITY')) return null; // Skip section headers
         const desc = [get(r, iDesc), get(r, iDriver) ? 'Legal basis: ' + get(r, iDriver) : '', get(r, iNotes)].filter(Boolean).join('\n\n');
-        const parentTitle = ref && ref.includes('.') ? '' : ''; // Top-level items have no dot
         return {
           title: ref ? `[${ref}] ${name}` : name,
-          parentTitle: '',
+          parentTitle: '',  // Parent resolution happens in the frontend during import
           status: normaliseStatus(get(r, iStatus)),
           priority: normalisePriority(get(r, iPriority)),
           description: desc,
@@ -1523,7 +1556,7 @@ function mapRowsToTasks(format, headers, rows) {
 
 // ==================== CONTRACT UPLOAD & TASK EXTRACTION ====================
 
-// pdf-parse is loaded at the top as a core dependency (used for receipt OCR + contract extraction)
+// pdf-parse is loaded at the top as a core dependency (used for contract text extraction)
 
 /**
  * POST /api/contract/extract
@@ -1579,8 +1612,7 @@ app.post('/api/contract/extract', upload.single('file'), async (req, res) => {
     }
   });
 
-  // Keep the uploaded file so it can be attached to a project later
-  // (previously deleted; now retained in uploads/ directory)
+  // Uploaded file is retained in uploads/ for project attachment
 
   res.json({
     filename: req.file.originalname,
@@ -1595,12 +1627,14 @@ app.post('/api/contract/extract', upload.single('file'), async (req, res) => {
 
 /** GET /api/tasks/:id/time-entries — List time entries for a task, newest first */
 app.get('/api/tasks/:id/time-entries', async (req, res) => {
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid task ID' });
   const { rows } = await pool.query('SELECT * FROM time_entries WHERE task_id = $1 ORDER BY date DESC, created_at DESC', [req.params.id]);
   res.json(rows);
 });
 
 /** POST /api/tasks/:id/time-entries — Log time against a task. Also recalculates the task's hours_spent total. */
 app.post('/api/tasks/:id/time-entries', async (req, res) => {
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid task ID' });
   const { hours, description, date } = req.body;
   if (!hours || hours <= 0) return res.status(400).json({ error: 'hours required (> 0)' });
   const userName = req.user?.displayName || 'Unknown';
@@ -1733,7 +1767,11 @@ app.post('/api/templates/:id/create', async (req, res) => {
   const tmpl = rows[0].template;
   const created = [];
 
-  /** Recursively insert a task node and its children */
+  /**
+   * Recursively insert a task node and its children from a template tree.
+   * @param {Object} node - Template node with title, status, priority, children, etc.
+   * @param {string|null} parentId - UUID of the parent task (null for root)
+   */
   async function createFromTemplate(node, parentId) {
     const taskResult = await pool.query(
       `INSERT INTO tasks (title, parent_id, status, priority, description, assignees, hours_estimated, source)
@@ -1763,12 +1801,14 @@ app.delete('/api/templates/:id', async (req, res) => {
 
 /** GET /api/tasks/:id/attachments — List file attachments for a task */
 app.get('/api/tasks/:id/attachments', async (req, res) => {
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid task ID' });
   const { rows } = await pool.query('SELECT * FROM task_attachments WHERE task_id = $1 ORDER BY created_at DESC', [req.params.id]);
   res.json(rows);
 });
 
 /** POST /api/tasks/:id/attachments — Upload a file attachment to a task (max 25MB) */
 app.post('/api/tasks/:id/attachments', upload.single('file'), async (req, res) => {
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid task ID' });
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
   const author = req.user?.displayName || 'unknown';
   const { rows } = await pool.query(
@@ -1811,8 +1851,12 @@ app.delete('/api/tasks/:id/attachments/:attachmentId', async (req, res) => {
 // ==================== UNIVERSAL ATTACHMENTS ====================
 // Generic file attachments for any entity type (client, project, task)
 
+const VALID_ENTITY_TYPES = ['client', 'project', 'task', 'lead', 'expense'];
+
 /** GET /api/attachments/entity/:type/:id — List all attachments for an entity */
 app.get('/api/attachments/entity/:type/:id', async (req, res) => {
+  if (!VALID_ENTITY_TYPES.includes(req.params.type)) return res.status(400).json({ error: 'Invalid entity type' });
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid entity ID' });
   const { rows } = await pool.query(
     'SELECT * FROM attachments WHERE entity_type = $1 AND entity_id = $2 ORDER BY created_at DESC',
     [req.params.type, req.params.id]
@@ -1822,6 +1866,8 @@ app.get('/api/attachments/entity/:type/:id', async (req, res) => {
 
 /** POST /api/attachments/entity/:type/:id — Upload a file attachment to an entity */
 app.post('/api/attachments/entity/:type/:id', upload.single('file'), async (req, res) => {
+  if (!VALID_ENTITY_TYPES.includes(req.params.type)) return res.status(400).json({ error: 'Invalid entity type' });
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid entity ID' });
   if (!req.file) return res.status(400).json({ error: 'No file provided' });
   const { rows } = await pool.query(
     `INSERT INTO attachments (entity_type, entity_id, filename, original_name, size_bytes, mime_type, uploaded_by)
@@ -2212,6 +2258,50 @@ app.patch('/api/tasks/:id', async (req, res) => {
   // Fetch old values before update for audit trail
   const oldResult = await pool.query('SELECT * FROM tasks WHERE id = $1', [req.params.id]);
   const oldTask = oldResult.rows[0];
+
+  // Server-side prerequisite enforcement: block Done if prerequisites are incomplete
+  if (req.body.status === 'Done' && oldTask && Array.isArray(oldTask.dependencies) && oldTask.dependencies.length > 0) {
+    const { rows: prereqs } = await pool.query(
+      "SELECT id, title, status FROM tasks WHERE id = ANY($1::uuid[]) AND status != 'Done'",
+      [oldTask.dependencies]
+    );
+    if (prereqs.length > 0) {
+      return res.status(400).json({
+        error: 'Cannot mark as Done — incomplete prerequisites',
+        incompletePrereqs: prereqs.map(p => ({ id: p.id, title: p.title, status: p.status }))
+      });
+    }
+  }
+
+  // Server-side circular dependency prevention
+  if (Array.isArray(req.body.dependencies) && req.body.dependencies.length > 0) {
+    // Check each new dependency doesn't create a cycle
+    for (const depId of req.body.dependencies) {
+      if (depId === req.params.id) {
+        return res.status(400).json({ error: 'A task cannot depend on itself' });
+      }
+      // Walk the dependency chain from depId to check if it eventually reaches this task
+      const visited = new Set();
+      const queue = [depId];
+      let cycleFound = false;
+      while (queue.length > 0) {
+        const current = queue.shift();
+        if (visited.has(current)) continue;
+        visited.add(current);
+        const { rows: depRows } = await pool.query('SELECT dependencies FROM tasks WHERE id = $1', [current]);
+        if (depRows.length > 0 && Array.isArray(depRows[0].dependencies)) {
+          for (const nextDep of depRows[0].dependencies) {
+            if (nextDep === req.params.id) { cycleFound = true; break; }
+            queue.push(nextDep);
+          }
+        }
+        if (cycleFound) break;
+      }
+      if (cycleFound) {
+        return res.status(400).json({ error: 'Circular dependency detected — this would create a cycle' });
+      }
+    }
+  }
   updates.push(`updated_at = NOW()`);
   vals.push(req.params.id);
   const { rows } = await pool.query(`UPDATE tasks SET ${updates.join(', ')} WHERE id = $${nextIdx} RETURNING *`, vals);
@@ -2240,6 +2330,17 @@ app.delete('/api/tasks/:id', async (req, res) => {
   const conn = await pool.connect();
   try {
     await conn.query('BEGIN');
+    // Collect all IDs to delete (target + descendants) BEFORE deleting
+    const { rows: deletedRows } = await conn.query(`
+      WITH RECURSIVE descendants AS (
+        SELECT id FROM tasks WHERE id = $1
+        UNION ALL
+        SELECT t.id FROM tasks t INNER JOIN descendants d ON t.parent_id = d.id
+      )
+      SELECT id FROM descendants
+    `, [req.params.id]);
+    const deletedIds = deletedRows.map(r => r.id);
+
     // Cascade-delete all descendants first, then the item itself
     await conn.query(`
       WITH RECURSIVE descendants AS (
@@ -2250,6 +2351,17 @@ app.delete('/api/tasks/:id', async (req, res) => {
       DELETE FROM tasks WHERE id IN (SELECT id FROM descendants)
     `, [req.params.id]);
     await conn.query('DELETE FROM tasks WHERE id = $1', [req.params.id]);
+
+    // Clean up orphaned dependency references: remove deleted IDs from other tasks' dependencies arrays
+    if (deletedIds.length > 0) {
+      await conn.query(`
+        UPDATE tasks SET dependencies = (
+          SELECT COALESCE(array_agg(d), '{}') FROM unnest(dependencies) d WHERE d != ALL($1::text[])
+        ), updated_at = NOW()
+        WHERE dependencies && $1::text[]
+      `, [deletedIds]);
+    }
+
     await conn.query('COMMIT');
     // Audit log after successful delete
     await auditLog('task', req.params.id, 'delete', req.user?.displayName);
@@ -2334,6 +2446,14 @@ app.post('/api/sync/changes', async (req, res) => {
     let applied = 0;
     const idMap = {}; // frontend_id -> db_id (for new tasks)
 
+    // Batch-fetch existing task states to avoid N+1 queries in the loop
+    const upsertIds = changes.filter(ch => ch.action === 'upsert' && ch.entity === 'task' && ch.data?.id).map(ch => ch.data.id);
+    const existingTaskMap = new Map();
+    if (upsertIds.length > 0) {
+      const { rows: existingRows } = await conn.query('SELECT id, updated_at FROM tasks WHERE id = ANY($1::uuid[])', [upsertIds]);
+      existingRows.forEach(r => existingTaskMap.set(r.id, r.updated_at));
+    }
+
     for (const ch of changes) {
       const t = ch.data || {};
 
@@ -2356,14 +2476,14 @@ app.post('/api/sync/changes', async (req, res) => {
         const rawType = t.itemType || t.item_type || 'task';
         const itemType = ITEM_TYPES.includes(rawType) ? rawType : 'task';
 
-        // Check if task exists
-        const existing = await conn.query('SELECT id, updated_at FROM tasks WHERE id = $1', [t.id]);
+        // Check if task exists (pre-fetched above, or created within this batch)
+        const serverUpdatedAt = existingTaskMap.get(t.id) || null;
+        const taskExists = serverUpdatedAt !== null;
 
-        if (existing.rows.length > 0) {
+        if (taskExists) {
           // Conflict detection: if another user updated this task after the client last loaded it,
           // skip this update to avoid overwriting their changes. Client picks up the newer version on next poll.
           const clientKnownAt = t._serverUpdatedAt;
-          const serverUpdatedAt = existing.rows[0].updated_at;
           if (clientKnownAt && serverUpdatedAt && new Date(clientKnownAt) < new Date(serverUpdatedAt)) {
             continue;
           }
@@ -2394,6 +2514,7 @@ app.post('/api/sync/changes', async (req, res) => {
              t.createdAt || t.created_at || new Date().toISOString()]
           );
           idMap[t.id] = rows[0].id;
+          existingTaskMap.set(rows[0].id, new Date()); // Register in map for subsequent batch references
         }
 
         // Sync task notes if present
@@ -3587,7 +3708,14 @@ app.delete('/api/expenses/:id/receipts/:receiptId', async (req, res) => {
   res.json({ ok: true });
 });
 
-/** Extract structured data from receipt text using regex patterns */
+// ==================== RECEIPT OCR & PARSING ====================
+
+/**
+ * Extract structured data from receipt text using regex patterns.
+ * Identifies amounts, dates, currency, vendor name, and VAT.
+ * @param {string} text - Raw OCR text from the receipt image
+ * @returns {{date: string|null, amount: number|null, currency: string, description: string, vendor: string, vat_amount: number|null}}
+ */
 function extractReceiptFields(text) {
   const result = { date: null, amount: null, currency: 'GBP', description: '', vendor: '', vat_amount: null };
   if (!text) return result;
@@ -3742,8 +3870,9 @@ app.post('/api/expenses/from-receipt', upload.single('file'), async (req, res) =
       ocrBody.append('OCREngine', '2'); // Engine 2 is better for receipts
       ocrBody.append('scale', 'true');
 
+      const ocrApiKey = process.env.OCR_API_KEY || 'helloworld'; // 'helloworld' is ocr.space's free demo key
       const ocrResp = await ocrBreaker.fire(() => withRetry(
-        () => fetch('https://api.ocr.space/parse/image', { method: 'POST', headers: { 'apikey': process.env.OCR_API_KEY || 'helloworld' }, body: ocrBody, signal: AbortSignal.timeout(30000) }),
+        () => fetch('https://api.ocr.space/parse/image', { method: 'POST', headers: { 'apikey': ocrApiKey }, body: ocrBody, signal: AbortSignal.timeout(30000) }),
         { maxAttempts: 2, backoffMs: 2000, log }
       ));
       if (ocrResp.ok) {
@@ -3841,13 +3970,18 @@ app.get('/api/bug-reports', async (req, res) => {
 app.post('/api/bug-reports', async (req, res) => {
   const { type, title, description, page, screenshot } = req.body;
   if (!title || !title.trim()) return res.status(400).json({ error: 'Title is required' });
+  const descErr = validateLength(description, 'description');
+  if (descErr) return res.status(400).json({ error: descErr });
   const validTypes = ['bug', 'feature'];
   const rType = validTypes.includes(type) ? type : 'bug';
+  // Limit screenshot base64 payload to ~5MB (safety valve against oversized uploads)
+  const MAX_SCREENSHOT_BYTES = 5 * 1024 * 1024;
+  const safeScreenshot = (screenshot && screenshot.length <= MAX_SCREENSHOT_BYTES) ? screenshot : null;
 
   const { rows } = await pool.query(
     `INSERT INTO bug_reports (user_id, type, title, description, page, screenshot)
      VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-    [req.user.id, rType, title.trim(), description || null, page || null, screenshot || null]
+    [req.user.id, rType, title.trim(), description || null, page || null, safeScreenshot]
   );
   res.status(201).json(rows[0]);
 });
@@ -3898,7 +4032,7 @@ app.post('/api/bug-reports/:id/notify-review', async (req, res) => {
     }
     res.json({ ok: true });
   } catch (e) {
-    console.error('Failed to send review notification:', e);
+    log('error', 'BugReports', 'Failed to send review notification', { error: e.message });
     res.status(500).json({ error: 'Failed to send notification' });
   }
 });
@@ -4312,8 +4446,8 @@ app.get('/api/expense-reports/:id/export', async (req, res) => {
   csvRows.push(['', '', 'With receipts', receipts.length].join(','));
   const csvContent = '\uFEFF' + csvRows.join('\r\n');
 
-  // Build ZIP with archiver
-  const archiver = require('archiver');
+  // Build ZIP with archiver (loaded at startup)
+  if (!archiver) return res.status(500).json({ error: 'archiver module not installed — ZIP export unavailable' });
   const archive = archiver('zip', { zlib: { level: 9 } });
 
   const safeName = (report.title || 'Expense_Report').replace(/[^a-zA-Z0-9-_ ]/g, '');

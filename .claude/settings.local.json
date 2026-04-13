@@ -51,7 +51,10 @@
       "mcp__framer__readCodeFile",
       "mcp__framer__createCodeFile",
       "Bash(pm2 start:*)",
-      "Bash(pm2 save:*)"
+      "Bash(pm2 save:*)",
+      "Bash(xargs ls:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(claude skill:*)"
     ]
   }
 }

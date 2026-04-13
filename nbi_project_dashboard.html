@@ -634,10 +634,11 @@ span.fin-editable { display: inline-block; position: relative; }
 .import-summary { padding: var(--space-lg); background: var(--accent-glow); border: 1px solid var(--accent-border); border-radius: var(--radius-md); font-size: 0.85rem; margin-bottom: var(--space-lg); }
 
 /* ===== TOAST ===== */
-/* ===== LOADING SPINNER ===== */
-.loading-overlay { display: none; position: fixed; top: var(--header-h); left: 0; right: 0; bottom: 0; background: var(--bg-overlay); z-index: 350; justify-content: center; align-items: center; }
-.loading-overlay.active { display: flex; }
-.loading-spinner { width: 36px; height: 36px; border: 3px solid var(--border-default); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.6s linear infinite; }
+/* ===== HOVER ITEM (menu dropdown items, note headers) ===== */
+.hover-item { transition: background 0.12s; }
+.hover-item:hover { background: var(--bg-hover); }
+/* ===== INLINE SPINNER (used in button loading state) ===== */
+.loading-spinner { border: 3px solid var(--border-default); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.6s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 /* ===== SYNC STATUS INDICATOR ===== */
 .sync-badge { position: fixed; bottom: var(--space-md); right: var(--space-md); font-size: 0.65rem; padding: 3px 8px; border-radius: 10px; color: #fff; z-index: 300; display: none; }
@@ -1024,8 +1025,6 @@ span.fin-editable { display: inline-block; position: relative; }
 .leads-card__contact { display: flex; flex-direction: column; gap: 1px; font-size: 0.72rem; color: var(--text-secondary); padding: 4px 0; border-top: 1px solid var(--border-subtle); margin-top: 4px; }
 .leads-card__footer { display: flex; justify-content: space-between; align-items: center;
   font-size: 0.7rem; color: var(--text-muted); }
-.leads-card__owner { }
-.leads-card__followup { }
 .leads-card__followup.overdue { color: var(--danger); font-weight: 600; }
 .leads-card__followup.today { color: var(--warning); font-weight: 600; }
 
@@ -1046,7 +1045,6 @@ span.fin-editable { display: inline-block; position: relative; }
 .leads-card-list__item { background: var(--bg-raised); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-md) var(--space-lg); cursor: pointer; transition: border-color 0.15s; }
 .leads-card-list__item:hover { border-color: var(--accent-border); }
 .leads-swipe-counter { text-align: center; font-size: 0.82rem; color: var(--text-secondary); font-family: var(--font-mono); padding: var(--space-sm) 0; cursor: pointer; user-select: none; }
-.leads-card-list__item:hover { border-color: var(--accent-border); }
 .leads-card-list__top { display: flex; align-items: center; gap: var(--space-sm); margin-bottom: 4px; }
 .leads-card-list__title { font-size: 0.95rem; font-weight: 600; color: var(--text-primary); margin-bottom: 2px; }
 .leads-card-list__client { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 6px; }
@@ -1111,7 +1109,6 @@ span.fin-editable { display: inline-block; position: relative; }
   color: var(--accent); border-radius: 3px; font-weight: 500; }
 .leads-client-group__stats { font-size: 0.75rem; color: var(--text-muted); margin-left: auto; }
 .leads-client-group__arrow { font-size: 0.7rem; color: var(--text-muted); transition: transform 0.15s; }
-.leads-client-group__body { }
 .leads-client-group__lead { display: flex; align-items: center; gap: 10px;
   padding: 8px 16px; border-top: 1px solid var(--border-subtle); cursor: pointer;
   transition: background 0.1s; font-size: 0.82rem; }
@@ -1365,14 +1362,6 @@ span.fin-editable { display: inline-block; position: relative; }
 .conflict-field__mine { color: var(--warning); font-size: 0.85rem; }
 .conflict-field__theirs { color: var(--accent-text); font-size: 0.85rem; }
 
-/* ===== SKELETON LOADING ===== */
-.skeleton { background: linear-gradient(90deg, var(--bg-surface) 25%, var(--bg-hover) 50%, var(--bg-surface) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: var(--radius-md); }
-.skeleton--text { height: 14px; margin-bottom: 8px; }
-.skeleton--heading { height: 20px; width: 40%; margin-bottom: 12px; }
-.skeleton--card { height: 80px; margin-bottom: var(--space-md); }
-.skeleton--kpi { height: 72px; }
-@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-
 /* ===== FORM VALIDATION ===== */
 .detail-field input.is-invalid,
 .detail-field select.is-invalid,
@@ -1492,10 +1481,10 @@ span.fin-editable { display: inline-block; position: relative; }
       <button class="btn btn--primary" onclick="addTask()" style="border-radius:var(--radius-sm) 0 0 var(--radius-sm)"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 1v12M1 7h12"/></svg><span class="header-desktop-only"> New</span></button>
       <button class="btn btn--primary" onclick="toggleAddItemMenu(event)" style="padding:4px 6px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;border-left:1px solid rgba(255,255,255,0.25)">&#9660;</button>
       <div id="addItemMenuDropdown" style="display:none;position:absolute;top:100%;right:0;margin-top:4px;background:var(--bg-raised);border:1px solid var(--border-default);border-radius:var(--radius-sm);box-shadow:var(--shadow-lg);z-index:400;min-width:160px;overflow:hidden">
-        <div style="padding:6px 12px;cursor:pointer;font-size:0.82rem;display:flex;gap:8px;align-items:center" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''" onclick="closeAddItemMenu();addItem('project')"><span style="width:18px;text-align:center">\u{1F4C1}</span> New Project</div>
-        <div style="padding:6px 12px;cursor:pointer;font-size:0.82rem;display:flex;gap:8px;align-items:center" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''" onclick="closeAddItemMenu();showAddItemPicker('feature')"><span style="width:18px;text-align:center">\u2605</span> New Feature</div>
-        <div style="padding:6px 12px;cursor:pointer;font-size:0.82rem;display:flex;gap:8px;align-items:center" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''" onclick="closeAddItemMenu();showAddItemPicker('story')"><span style="width:18px;text-align:center">\u{1F4D6}</span> New Story</div>
-        <div style="padding:6px 12px;cursor:pointer;font-size:0.82rem;display:flex;gap:8px;align-items:center" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''" onclick="closeAddItemMenu();showAddItemPicker('task')"><span style="width:18px;text-align:center">\u270E</span> New Task</div>
+        <div class="hover-item" style="padding:6px 12px;cursor:pointer;font-size:0.82rem;display:flex;gap:8px;align-items:center" onclick="closeAddItemMenu();addItem('project')"><span style="width:18px;text-align:center">\u{1F4C1}</span> New Project</div>
+        <div class="hover-item" style="padding:6px 12px;cursor:pointer;font-size:0.82rem;display:flex;gap:8px;align-items:center" onclick="closeAddItemMenu();showAddItemPicker('feature')"><span style="width:18px;text-align:center">\u2605</span> New Feature</div>
+        <div class="hover-item" style="padding:6px 12px;cursor:pointer;font-size:0.82rem;display:flex;gap:8px;align-items:center" onclick="closeAddItemMenu();showAddItemPicker('story')"><span style="width:18px;text-align:center">\u{1F4D6}</span> New Story</div>
+        <div class="hover-item" style="padding:6px 12px;cursor:pointer;font-size:0.82rem;display:flex;gap:8px;align-items:center" onclick="closeAddItemMenu();showAddItemPicker('task')"><span style="width:18px;text-align:center">\u270E</span> New Task</div>
       </div>
     </div>
     <button class="btn header-desktop-only" onclick="printReport()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="1" width="8" height="4" rx="1"/><rect x="1" y="5" width="12" height="6" rx="1.5"/><rect x="4" y="9" width="6" height="4" rx="0.5"/></svg> Print</button>
@@ -1565,7 +1554,6 @@ span.fin-editable { display: inline-block; position: relative; }
 
 <!-- TOAST -->
 <div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="true" role="status"></div>
-<div class="loading-overlay" id="loadingOverlay"><div class="loading-spinner"></div></div>
 <div class="sync-badge" id="syncBadge"></div>
 
 <!-- THEMED CONFIRMATION DIALOG -->
@@ -1613,10 +1601,12 @@ span.fin-editable { display: inline-block; position: relative; }
 
 // ==================== LISTENER REGISTRY ====================
 const _listenerRegistry = [];
+/** Register an event listener and track it for later cleanup */
 function addManagedListener(target, event, handler, options) {
   target.addEventListener(event, handler, options);
   _listenerRegistry.push({ target, event, handler, options });
 }
+/** Remove all managed event listeners and clear the registry */
 function cleanupListeners() {
   _listenerRegistry.forEach(({ target, event, handler, options }) => {
     target.removeEventListener(event, handler, options);
@@ -1638,6 +1628,7 @@ const IDB_NAME = 'nbi_dashboard';
 const IDB_VERSION = 1;
 let _idb = null;
 
+/** Open the IndexedDB database for the write-ahead log and data cache */
 function openIDB() {
   return new Promise((resolve, reject) => {
     if (!window.indexedDB) { resolve(null); return; }
@@ -1693,18 +1684,6 @@ function idbCacheWrite(key, data) {
   } catch(e) {}
 }
 
-/** Read cached data from IndexedDB */
-function idbCacheRead(key) {
-  return new Promise((resolve) => {
-    if (!_idb) { resolve(null); return; }
-    try {
-      const tx = _idb.transaction('data_cache', 'readonly');
-      const req = tx.objectStore('data_cache').get(key);
-      req.onsuccess = () => resolve(req.result?.data || null);
-      req.onerror = () => resolve(null);
-    } catch(e) { resolve(null); }
-  });
-}
 
 /** Fetch and cache the team member list for dropdowns */
 async function loadTeamMembers() {
@@ -2066,6 +2045,7 @@ function mergeBriefDefaults() {
 
 /** Flag a task as locally modified — it will be included in the next sync batch */
 function markDirty(taskId) { _dirtyTaskIds.add(taskId); }
+/** Flag a task as deleted locally — removes it from the dirty set and queues it for server deletion */
 function markDeleted(taskId) { _deletedTaskIds.add(taskId); _dirtyTaskIds.delete(taskId); }
 
 /** Save to localStorage immediately, then debounce an API sync (500ms) */
@@ -2382,10 +2362,6 @@ function getItemType(task) { return task.itemType || 'task'; }
 function getItemTypeMeta(task) { return ITEM_TYPE_META[getItemType(task)] || ITEM_TYPE_META.task; }
 /** Get the human-readable type label (e.g. 'Feature') */
 function getItemTypeLabel(task) { return getItemTypeMeta(task).label; }
-/** Get the plural form of the type label (e.g. 'Features') */
-function getItemTypePlural(task) { return getItemTypeMeta(task).plural; }
-/** Check whether this item type can have children (tasks cannot) */
-function canHaveChildren(task) { return VALID_CHILD_TYPE[getItemType(task)] !== null; }
 /** Get the allowed child type string, or null if no children allowed */
 function getAllowedChildType(task) { return VALID_CHILD_TYPE[getItemType(task)]; }
 /** Get the plural label for children (e.g. 'Stories' for a feature), or null */
@@ -2422,9 +2398,6 @@ function getContractedClients() {
   tasks.forEach(t => { const c = getTaskClient(t); if (c) s.add(c); });
   return [...s].sort(clientSortOrder);
 }
-/** Collect all unique assignee names from tasks, sorted alphabetically */
-function getAllAssignees() { const s = new Set(); tasks.forEach(t => { if (t.assignees) t.assignees.forEach(a => s.add(a)); }); return [...s].sort(); }
-
 /** Aggregate hours spent and estimated for a task and all its descendants */
 function aggHours(taskId) {
   const desc = getDescendants(taskId);
@@ -2502,6 +2475,7 @@ function themedConfirm(message, title = 'Confirm', dangerLabel = 'Confirm') {
   });
 }
 
+/** Close the confirm modal and resolve the pending promise with the user's choice */
 function _resolveConfirm(result) {
   const modal = document.getElementById('confirmModal');
   modal.classList.remove('open');
@@ -2513,6 +2487,7 @@ function _resolveConfirm(result) {
 
 const _focusTrapMap = new WeakMap();
 
+/** Trap keyboard focus inside a modal container (Tab cycling and Escape to close) */
 function _trapFocus(container) {
   const handler = (e) => {
     if (e.key === 'Escape') {
@@ -2535,6 +2510,7 @@ function _trapFocus(container) {
   container.addEventListener('keydown', handler);
 }
 
+/** Remove the focus trap from a container and clean up the keydown handler */
 function _releaseFocusTrap(container) {
   const handler = _focusTrapMap.get(container);
   if (handler) { container.removeEventListener('keydown', handler); _focusTrapMap.delete(container); }
@@ -2552,23 +2528,9 @@ async function withButtonLoading(btn, asyncFn) {
   finally { btn.disabled = false; btn.innerHTML = originalHtml; }
 }
 
-// ==================== SKELETON SCREEN ====================
-
-function renderSkeleton(type = 'list', count = 5) {
-  let html = '';
-  if (type === 'kpi') {
-    html = '<div class="kpi-grid">';
-    for (let i = 0; i < count; i++) html += '<div class="kpi-card skeleton skeleton--kpi"></div>';
-    html += '</div>';
-  } else {
-    html += '<div class="skeleton skeleton--heading"></div>';
-    for (let i = 0; i < count; i++) html += '<div class="skeleton skeleton--card"></div>';
-  }
-  return html;
-}
-
 // ==================== TEXTAREA AUTO-RESIZE FALLBACK ====================
 
+/** Auto-resize textareas to fit their content (fallback for browsers without field-sizing: content) */
 function initTextareaAutoResize(container) {
   if (CSS.supports && CSS.supports('field-sizing', 'content')) return;
   (container || document).querySelectorAll('textarea').forEach(ta => {
@@ -2579,32 +2541,6 @@ function initTextareaAutoResize(container) {
       ta._autoResizeBound = true;
     }
   });
-}
-
-// ==================== FORM VALIDATION HELPER ====================
-
-function validateField(input, message) {
-  if (!input.value.trim()) {
-    input.classList.add('is-invalid');
-    let err = input.parentElement.querySelector('.field-error');
-    if (!err) {
-      err = document.createElement('div');
-      err.className = 'field-error visible';
-      input.parentElement.appendChild(err);
-    }
-    err.textContent = message;
-    err.classList.add('visible');
-    return false;
-  }
-  input.classList.remove('is-invalid');
-  const err = input.parentElement.querySelector('.field-error');
-  if (err) err.classList.remove('visible');
-  return true;
-}
-
-function clearFieldErrors(container) {
-  (container || document).querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-  (container || document).querySelectorAll('.field-error').forEach(el => el.classList.remove('visible'));
 }
 
 // ==================== MOBILE SIDEBAR KEYBOARD HANDLING ====================
@@ -2765,7 +2701,7 @@ async function loadClientNotes(clientName) {
       const date = n.meeting_date ? new Date(n.meeting_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
       const srcBadge = '';
       html += `<div style="background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:var(--radius-md);overflow:hidden">`;
-      html += `<div onclick="toggleNoteDetail('${nid}')" style="padding:8px 12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:background 0.12s" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='transparent'">`;
+      html += `<div class="hover-item" onclick="toggleNoteDetail('${nid}')" style="padding:8px 12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center">`;
       html += `<div><strong style="color:var(--text-primary);font-size:0.82rem">${esc(n.title)}</strong>${srcBadge}</div>`;
       html += `<div style="display:flex;align-items:center;gap:8px"><span style="color:var(--text-muted);font-size:0.72rem">${date}</span><span style="color:var(--text-muted);font-size:0.65rem;transition:transform 0.15s" id="${nid}_arrow">&#9654;</span></div>`;
       html += `</div>`;
@@ -2910,8 +2846,12 @@ function checkTabOverflow() {
   if (tabs) tabs.classList.toggle('has-overflow', tabs.scrollWidth > tabs.clientWidth);
 }
 
+/** Legacy hash route redirects — map removed views to their replacements */
+const LEGACY_ROUTES = { incomplete: 'tasks', changelog: 'settings' };
+
 /** Switch to a different view and push a history state for browser back/forward */
 function switchView(view) {
+  if (LEGACY_ROUTES[view]) view = LEGACY_ROUTES[view];
   const prev = currentView;
   currentView = view;
   // Re-collapse the tree when entering the Projects page from a different view
@@ -2921,7 +2861,7 @@ function switchView(view) {
 }
 addManagedListener(window, 'popstate', e => {
   if (e.state && e.state.view) {
-    currentView = e.state.view;
+    currentView = LEGACY_ROUTES[e.state.view] || e.state.view;
     if (e.state.filter) currentFilter = e.state.filter;
     taskSubView = e.state.taskSubView || 'tree';
     renderAll();
@@ -3108,7 +3048,7 @@ function renderTacticalDashboard() {
     const d = safeParseDate(t.dueDate);
     return d >= weekAgo && d < now;
   }).length;
-  // Trend arrow helper
+  /** Render a coloured up/down trend arrow with delta value */
   function trendArrow(delta, invertColour) {
     if (delta === 0) return '<span style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-muted);margin-top:2px">&mdash; 0</span>';
     const up = delta > 0;
@@ -3130,7 +3070,7 @@ function renderTacticalDashboard() {
     <div class="tactical-metric"><span class="tactical-metric__value">${filtered.length}</span><span class="tactical-metric__label">Total</span></div>
   </div>`;
 
-  // Helper: severity styling for days late
+  /** Return severity styling (background, font weight, icon) based on days overdue */
   function lateSeverity(daysLate) {
     if (daysLate >= 14) return { bg: 'color-mix(in srgb, var(--danger) 20%, transparent)', weight: '700', icon: '&#9888;' };
     if (daysLate >= 7) return { bg: 'color-mix(in srgb, var(--danger) 12%, transparent)', weight: '600', icon: '' };
@@ -3538,10 +3478,6 @@ async function renderStandupSection(filtered, now) {
   }
 }
 
-// NOTE: renderStrategicDashboard was removed (dead code -- never called after D26 killed the MD/PM/IC toggle)
-
-// (strategic dashboard body removed)
-
 // ==================== CHARTS (SVG) ====================
 
 /**
@@ -3590,104 +3526,6 @@ function renderBarChart(data, colours) {
     html += `<div style="display:flex;align-items:center;gap:8px"><span style="min-width:85px;font-size:0.88rem;color:var(--text-secondary);text-align:right">${esc(key)}</span><div style="flex:1;height:24px;background:var(--border-subtle);border-radius:3px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${colours[key]||'var(--accent)'};border-radius:3px;transition:width 0.3s"></div></div><span style="min-width:30px;font-family:var(--font-mono);font-size:0.9rem;color:var(--text-secondary)">${val}</span></div>`;
   });
   html += '</div>';
-  return html;
-}
-
-/**
- * Render a stacked bar chart showing task counts by status per creation week.
- * Displays the last 12 weeks maximum.
- */
-function renderStatusOverTimeChart(filtered) {
-  if (filtered.length === 0) return '';
-  // Group tasks by creation week and current status
-  const weekMap = {};
-  const statusOrder = ['Done', 'In progress', 'In Review', 'Not started', 'Cancelled'];
-  filtered.forEach(t => {
-    const d = new Date(t.createdAt || t.updatedAt || Date.now());
-    // Week start (Monday)
-    const day = d.getDay(); const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-    const weekStart = new Date(d); weekStart.setDate(diff); weekStart.setHours(0,0,0,0);
-    const key = weekStart.toISOString().slice(0,10);
-    if (!weekMap[key]) weekMap[key] = {};
-    const st = t.status || 'Not started';
-    weekMap[key][st] = (weekMap[key][st] || 0) + 1;
-  });
-  const weeks = Object.keys(weekMap).sort();
-  if (weeks.length === 0) return ''; // No data at all
-  // Only show last 12 weeks max
-  const displayWeeks = weeks.slice(-12);
-  const maxStack = Math.max(...displayWeeks.map(w => Object.values(weekMap[w]).reduce((s,v) => s+v, 0)), 1);
-  const barW = Math.max(20, Math.min(50, Math.floor(400 / displayWeeks.length)));
-
-  let html = `<div class="chart-card chart-card--compact"><div class="chart-card__title">Status Over Time (by creation week)</div>`;
-  html += `<div class="chart-bar-area">`;
-  displayWeeks.forEach(w => {
-    const total = Object.values(weekMap[w]).reduce((s,v) => s+v, 0);
-    const heightPct = (total / maxStack) * 100;
-    html += `<div style="display:flex;flex-direction:column-reverse;width:${barW}px;height:${heightPct}%;min-height:2px" title="Week of ${w}: ${total} tasks">`;
-    statusOrder.forEach(st => {
-      const count = weekMap[w][st] || 0;
-      if (count > 0) {
-        const segPct = (count / total) * 100;
-        const col = STATUS_COLOURS_HEX[st] || '#666';
-        html += `<div style="width:100%;height:${segPct}%;background:${col};min-height:2px" title="${st}: ${count}"></div>`;
-      }
-    });
-    html += `</div>`;
-  });
-  html += `</div>`;
-  // Week labels
-  html += `<div style="display:flex;gap:3px;margin-top:4px">`;
-  displayWeeks.forEach(w => {
-    const d = new Date(w + 'T00:00:00');
-    html += `<div style="width:${barW}px;font-size:0.7rem;color:var(--text-muted);text-align:center;overflow:hidden">${d.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</div>`;
-  });
-  html += `</div>`;
-  // Legend
-  html += `<div style="display:flex;flex-wrap:wrap;gap:var(--space-md);margin-top:var(--space-sm)">`;
-  statusOrder.forEach(st => {
-    html += `<div style="display:flex;align-items:center;gap:4px;font-size:0.8rem;color:var(--text-muted)"><span style="width:10px;height:10px;border-radius:2px;background:${STATUS_COLOURS_HEX[st]||'#666'}"></span>${st}</div>`;
-  });
-  html += `</div>`;
-  html += `</div>`;
-  return html;
-}
-
-/** Render horizontal stacked bars showing status distribution per project (top 15) */
-function renderProjectBreakdownChart(filtered, roots) {
-  if (roots.length === 0) return '';
-  const statusOrder = ['Done', 'In progress', 'In Review', 'Not started', 'Cancelled'];
-
-  let html = `<div class="chart-card chart-card--compact"><div class="chart-card__title">Project Breakdown by Status</div>`;
-  html += `<div style="margin-top:var(--space-md);flex:1;display:flex;flex-direction:column;justify-content:space-between">`;
-  const projectData = roots.map(r => {
-    const kids = getDescendants(r.id);
-    const all = [r, ...kids];
-    const statusCount = {};
-    all.forEach(t => { const st = t.status || 'Not started'; statusCount[st] = (statusCount[st] || 0) + 1; });
-    return { title: r.title, id: r.id, total: all.length, statusCount, client: r.client || '' };
-  }).filter(p => p.total > 0).sort((a,b) => b.total - a.total).slice(0, 15);
-
-  projectData.forEach(p => {
-    html += `<div style="margin-bottom:8px;cursor:pointer" onclick="currentFilter={client:null,project:'${p.id}',status:null,health:null,search:''};switchView('tasks')">`;
-    html += `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px"><span style="font-size:0.88rem;color:var(--text-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70%">${esc(p.title)}</span><span style="font-size:0.8rem;color:var(--text-muted);font-family:var(--font-mono)">${p.total}</span></div>`;
-    html += `<div style="display:flex;height:20px;border-radius:3px;overflow:hidden;background:var(--border-subtle)">`;
-    statusOrder.forEach(st => {
-      const count = p.statusCount[st] || 0;
-      if (count > 0) {
-        const pct = (count / p.total) * 100;
-        html += `<div style="width:${pct}%;background:${STATUS_COLOURS_HEX[st]||'#666'};min-width:2px" title="${st}: ${count} (${Math.round(pct)}%)"></div>`;
-      }
-    });
-    html += `</div></div>`;
-  });
-  html += `</div>`;
-  // Legend
-  html += `<div style="display:flex;flex-wrap:wrap;gap:var(--space-md);margin-top:var(--space-sm)">`;
-  statusOrder.forEach(st => {
-    html += `<div style="display:flex;align-items:center;gap:4px;font-size:0.8rem;color:var(--text-muted)"><span style="width:10px;height:10px;border-radius:2px;background:${STATUS_COLOURS_HEX[st]||'#666'}"></span>${st}</div>`;
-  });
-  html += `</div></div>`;
   return html;
 }
 
@@ -3799,8 +3637,9 @@ function renderMyTasksView(el) {
   const inProgress = active.filter(t => t.status === 'In progress' && !critical.includes(t) && !overdue.includes(t));
   const upcoming = active.filter(t => !critical.includes(t) && !overdue.includes(t) && !inProgress.includes(t));
 
-  // Sort function (uses _parseTaskDate for DD/MM/YYYY compat)
+  /** Extract a numeric sort value from a task's due date (Infinity if missing) */
   function _dateSortVal(t) { const d = _parseTaskDate(t.dueDate); return d && !isNaN(d) ? d.getTime() : Infinity; }
+  /** Sort a task array by the current My Tasks sort mode (priority, dueDate, or status) */
   function sortTasks(arr) {
     return [...arr].sort((a, b) => {
       if (_myTasksSort === 'priority') {
@@ -4082,12 +3921,6 @@ function collapseAll() {
   renderContent();
 }
 
-/** Expand all collapsed groups in the tree view */
-function expandAll() {
-  collapsedTaskIds.clear();
-  renderContent();
-}
-
 /** Expand the tree to a specific hierarchy level, collapsing everything below it.
  *  'project'  = open client groups, collapse projects (show project names only)
  *  'feature'  = open clients + projects, collapse features
@@ -4328,6 +4161,7 @@ let _ganttDepView = false;     // Critical path dependency view mode
 let _ganttLimit = 200; // Max items to render in Gantt view (performance guard)
 let _ganttHideDone = true; // Hide completed tasks by default on timeline
 
+/** Render the Gantt/timeline view with horizontal bars, dependency chains, and zoom controls */
 function renderGanttView(filtered) {
   // Show all items in hierarchy (not just leaves), optionally excluding Done
   const allLeafTasks = filtered.filter(t => !_ganttHideDone || t.status !== 'Done');
@@ -4480,6 +4314,7 @@ function renderGanttView(filtered) {
     // Topological sort: prerequisites before dependents
     const sorted = [];
     const visited = new Set();
+    /** Topological sort visitor — recursively visits prerequisites before the task itself */
     function topoVisit(id) {
       if (visited.has(id)) return;
       visited.add(id);
@@ -4502,6 +4337,7 @@ function renderGanttView(filtered) {
 
       // Compute chain depth for indentation (0 = no prerequisites, deeper = more prereqs above)
       const depthMemo = {};
+      /** Calculate the dependency chain depth of a task (memoised) for indentation */
       function depChainDepth(t) {
         if (depthMemo[t.id] !== undefined) return depthMemo[t.id];
         if (!t.dependencies || t.dependencies.length === 0) { depthMemo[t.id] = 0; return 0; }
@@ -4560,7 +4396,7 @@ function renderGanttView(filtered) {
     html += ganttDayCols(totalDays, dayW, minDate, now);
     html += `</div></div>`;
 
-    // Hierarchical task rows — render projects then recurse into children
+    /** Render a single Gantt row with bar, label, and recursively render child rows */
     function renderGanttRow(t, depth) {
       if (_ganttHideDone && t.status === 'Done') return;
       const start = ganttTaskStart(t);
@@ -4772,6 +4608,7 @@ function startArrowRedrag(e, fromId, toId, ganttBody, ganttRect, scrollLeft, scr
   previewLine.setAttribute('y2', e.clientY - ganttRect.top + scrollTop);
   svg.appendChild(previewLine);
 
+  /** Track mouse movement during arrow redrag — update preview line endpoint */
   function onMove(ev) {
     const line = document.getElementById('ganttArrowRedrag');
     if (!line) return;
@@ -4784,6 +4621,7 @@ function startArrowRedrag(e, fromId, toId, ganttBody, ganttRect, scrollLeft, scr
     }
   }
 
+  /** Finish arrow redrag — clean up visuals and apply the new dependency target */
   function onUp(ev) {
     document.removeEventListener('mousemove', onMove);
     document.removeEventListener('mouseup', onUp);
@@ -4911,6 +4749,7 @@ function toggleGanttDepMenu(e) {
   dd.style.display = open ? 'none' : '';
   if (!open) document.addEventListener('click', closeGanttDepMenu, { once: true });
 }
+/** Close the Gantt dependency display mode dropdown menu */
 function closeGanttDepMenu() {
   const dd = document.getElementById('ganttDepMenu');
   if (dd) dd.style.display = 'none';
@@ -4954,6 +4793,7 @@ function ganttLinkDragStart(e, taskId) {
   previewLine.setAttribute('y2', y1);
   svg.appendChild(previewLine);
 
+  /** Track mouse movement during link drag — update preview line and highlight target bars */
   function onMove(ev) {
     const line = document.getElementById('ganttLinkPreview');
     if (!line) return;
@@ -4967,6 +4807,7 @@ function ganttLinkDragStart(e, taskId) {
     }
   }
 
+  /** Finish link drag — clean up visuals and create the dependency if target is valid */
   function onUp(ev) {
     document.removeEventListener('mousemove', onMove);
     document.removeEventListener('mouseup', onUp);
@@ -5540,12 +5381,6 @@ function getDepth(task) {
   return depth;
 }
 
-/** Add or remove a task from the bulk selection set */
-function toggleSelect(id, checked) {
-  if (checked) selectedTaskIds.add(id); else selectedTaskIds.delete(id);
-  renderContent();
-}
-
 // ==================== BULK OPERATIONS ====================
 
 /** Set a field (status/priority/health) on all selected tasks after confirmation */
@@ -6108,6 +5943,7 @@ function getIncompletePrereqs(task) {
  *  Walks the dependency chain from depId to see if it eventually leads back to taskId. */
 function wouldCreateCycle(taskId, depId) {
   const visited = new Set();
+  /** Recursively walk dependencies to detect cycles */
   function walk(id) {
     if (id === taskId) return true;
     if (visited.has(id)) return false;
@@ -6124,6 +5960,7 @@ function getDependents(taskId) {
   return tasks.filter(t => t.dependencies && t.dependencies.includes(taskId));
 }
 
+/** Add a dependency (prerequisite) to a task from the detail overlay dropdown */
 function addDependency(taskId) {
   const sel = document.getElementById('addDepSelect');
   if (!sel || !sel.value) return;
@@ -6212,12 +6049,14 @@ function startPanelResize(e, panelId) {
   document.body.style.cursor = 'col-resize';
   document.body.style.userSelect = 'none';
 
+  /** Handle mouse movement during panel resize — adjust width based on drag delta */
   function onMove(ev) {
     // Panel is on the right side, so dragging left = wider
     const delta = startX - ev.clientX;
     const newWidth = Math.max(240, Math.min(window.innerWidth * 0.8, startWidth + delta));
     panel.style.width = newWidth + 'px';
   }
+  /** Finish panel resize — restore cursor and remove drag listeners */
   function onUp() {
     handle.classList.remove('active');
     document.body.style.cursor = '';
@@ -6882,13 +6721,14 @@ function renderPeopleView(el) {
   // Helper: check if a task is assigned to canonical person (matches any merged variant)
   const mergeKeys = {};
   allPeople.forEach(p => { mergeKeys[p] = Object.keys(_assigneeMerge).filter(k => _assigneeMerge[k] === p); });
+  /** Check if a task is assigned to a person (handles merged name variants) */
   function isAssignedTo(task, person) {
     if (!task.assignees) return false;
     const variants = mergeKeys[person] || [person];
     return variants.some(v => task.assignees.includes(v));
   }
 
-  // Date range filtering
+  /** Filter tasks by the selected date range (week, month, quarter, or all) */
   function filterByDate(taskList) {
     if (_peopleFilter.dateRange === 'all') return taskList;
     const now = new Date();
@@ -7209,8 +7049,6 @@ async function loadCapacityHeatmap() {
 
 // ==================== FINANCES VIEW ====================
 // ----- FINANCE SEED DATA -----
-// Removed from source code — contained real salaries, revenue, and pipeline data
-// visible in page source before login. Now loaded from server via /api/finance/seed (admin only).
 const NBI_FINANCE_SEED = { revenue: [], pipeline: [], payroll: [], targets: { y2026: 0, y2027: 0 }, opex: [] };
 
 // ===== GBP/USD FX RATE =====
@@ -8356,6 +8194,7 @@ async function processReceiptUpload(file) {
   if (input) input.value = '';
 }
 
+/** Upload a receipt file attachment to an expense via the API */
 async function uploadExpenseReceipt(expenseId) {
   const input = document.getElementById('expenseReceiptInput');
   if (!input || !input.files || !input.files[0]) { toast('Select a file first'); return; }
@@ -8865,16 +8704,18 @@ function renderMonthlyFinanceView(S, months, hasFx) {
   }
   const MO = window._monthlyOverrides;
 
-  // Helper: get editable monthly value (key = "category.item.monthIdx")
+  /** Get an editable monthly override value, falling back to the default if not set */
   function getVal(key, defaultVal) { return MO[key] !== undefined ? parseFloat(MO[key]) : defaultVal; }
 
   // Editable cell renderer
   const thStyle = 'text-align:right;font-size:0.72rem;min-width:68px;padding:4px 6px';
   const cellStyle = 'text-align:right;font-family:var(--font-mono);font-size:0.78rem;padding:2px 4px';
+  /** Render an editable table cell with a number input that saves monthly overrides on change */
   function editCell(key, val, colour) {
     const v = Math.round(val);
     return `<td style="${cellStyle}"><input type="number" value="${v}" style="width:70px;text-align:right;font-family:var(--font-mono);font-size:0.78rem;padding:2px 4px;background:var(--bg-input);border:1px solid var(--border-subtle);border-radius:3px;color:${colour || 'var(--text-primary)'}" onchange="updateMonthlyOverride('${key}',this.value)"></td>`;
   }
+  /** Render a read-only table cell with formatted GBP value */
   function roCell(val, colour, bold) {
     const v = Math.round(val);
     return `<td style="${cellStyle};color:${colour || 'var(--text-primary)'};${bold ? 'font-weight:700' : ''}">&pound;${v.toLocaleString()}</td>`;
@@ -9100,44 +8941,6 @@ function exportFinancesCSV() {
   a.download = 'nbi_finances_' + new Date().toISOString().split('T')[0] + '.csv';
   a.click();
   URL.revokeObjectURL(url);
-}
-
-/**
- * Render an SVG semi-circular gauge chart (used for revenue target progress).
- * @param {number} pct - Percentage (0-100+)
- * @param {number} size - Diameter in pixels
- */
-function renderGaugeChart(pct, size) {
-  const cx = size / 2, cy = size / 2 + 8;
-  const r = size / 2 - 10;
-  const stroke = 10;
-  // Semicircular arc (180 degrees, from left to right across the top)
-  const startAngle = Math.PI; // 180 deg (left)
-  const endAngle = 0; // 0 deg (right)
-  const arcLength = Math.PI * r; // half circumference
-  const filled = (Math.min(Math.max(pct, 0), 100) / 100) * arcLength;
-  const unfilled = arcLength - filled;
-  // Colour zones
-  const colour = pct > 30 ? 'var(--success)' : pct >= 15 ? 'var(--warning)' : 'var(--danger)';
-  // Arc start/end points
-  const x1 = cx + r * Math.cos(startAngle), y1 = cy + r * Math.sin(startAngle);
-  const x2 = cx + r * Math.cos(endAngle), y2 = cy + r * Math.sin(endAngle);
-  let svg = `<svg width="${size}" height="${size * 0.65}" viewBox="0 0 ${size} ${size * 0.65}">`;
-  // Background arc
-  svg += `<path d="M${x1},${y1} A${r},${r} 0 0 1 ${x2},${y2}" fill="none" stroke="var(--border-subtle)" stroke-width="${stroke}" stroke-linecap="round"/>`;
-  // Filled arc
-  svg += `<path d="M${x1},${y1} A${r},${r} 0 0 1 ${x2},${y2}" fill="none" stroke="${colour}" stroke-width="${stroke}" stroke-linecap="round" stroke-dasharray="${arcLength}" stroke-dashoffset="${unfilled}" style="transition:stroke-dashoffset 0.5s ease"/>`;
-  // Tick marks at 0%, 25%, 50%, 75%, 100%
-  for (let t = 0; t <= 4; t++) {
-    const angle = Math.PI - (t / 4) * Math.PI;
-    const tx1 = cx + (r + 5) * Math.cos(angle), ty1 = cy + (r + 5) * Math.sin(angle);
-    const tx2 = cx + (r - 5) * Math.cos(angle), ty2 = cy + (r - 5) * Math.sin(angle);
-    svg += `<line x1="${tx1}" y1="${ty1}" x2="${tx2}" y2="${ty2}" stroke="var(--text-faint)" stroke-width="1"/>`;
-  }
-  // Percentage text
-  svg += `<text x="${cx}" y="${cy - 6}" text-anchor="middle" dominant-baseline="middle" fill="var(--text-primary)" font-family="var(--font-display)" font-size="${size * 0.22}" font-weight="700">${pct}%</text>`;
-  svg += `</svg>`;
-  return svg;
 }
 
 /** Render a paired bar chart comparing monthly revenue vs expenses across 12 months */
@@ -9788,6 +9591,7 @@ function initLaneCounter(trackSel) {
   counterEl.className = 'leads-swipe-counter';
   track.parentElement.after(counterEl);
 
+  /** Update the lane counter display based on current scroll position */
   function update() {
     const idx = Math.round(track.scrollLeft / track.offsetWidth);
     const current = Math.max(0, Math.min(idx, total - 1));
@@ -10196,6 +10000,7 @@ async function addContactFromDetail(clientId, leadId) {
   } catch(e) { toast('Error: ' + e.message, 'error'); }
 }
 
+/** Close the lead detail slide-over panel */
 function closeLeadDetail() {
   _leadsDetailId = null;
   document.getElementById('leadDetailOverlay')?.classList.remove('open');
@@ -10778,8 +10583,8 @@ let _bugReportsData = null;       // Cached response from GET /api/bug-reports
 let _bugSortCol = 'created_at';   // Current sort column: reporter_name|title|page|status|created_at
 let _bugSortDir = 'desc';         // Sort direction: asc|desc
 
-/** Lazy-load html2canvas from CDN and capture a screenshot of the main content area */
 let _html2canvasLoaded = false;
+/** Lazy-load html2canvas from CDN and capture a screenshot of the main content area */
 async function captureScreenshot() {
   try {
     const mainEl = document.getElementById('appContainer') || document.querySelector('.main__content');
@@ -11408,16 +11213,6 @@ function addClient() {
 }
 /** Remove a client from the known clients list */
 function removeClient(c) { settings.knownClients = settings.knownClients.filter(x => x !== c); save(); renderSettings(document.getElementById('mainContent')); }
-
-/** Update the access permission for a page (admin/all/specific users) */
-function updatePagePermission(page, value) {
-  _pagePermissions[page] = value;
-  savePagePermissions();
-  renderContent();
-  if (value === 'all') toast(`${page} visibility: All Users`);
-  else if (value === 'admin') toast(`${page} visibility: Admin Only`);
-  else if (Array.isArray(value)) toast(`${page} visibility: ${value.length} specific user(s)`);
-}
 
 // Check if current user has access to a permission-gated page
 /** Check whether the current user has access to a given page based on RBAC settings */
@@ -12366,7 +12161,7 @@ function confirmPlannerImport(headers, rows, planName) {
 
   if (iName < 0) { toast('Planner export must have a "Task Name" column', 'error'); return; }
 
-  // Map Planner Progress to dashboard status
+  /** Map Microsoft Planner progress values to dashboard status strings */
   function plannerStatus(progress) {
     if (!progress) return 'Not started';
     const lower = progress.toLowerCase().trim();
@@ -12378,7 +12173,7 @@ function confirmPlannerImport(headers, rows, planName) {
     return map[lower] || 'Not started';
   }
 
-  // Map Planner Priority
+  /** Map Microsoft Planner priority levels to dashboard priority strings */
   function plannerPriority(p) {
     if (!p) return '';
     const lower = p.toLowerCase().trim();
@@ -12386,7 +12181,7 @@ function confirmPlannerImport(headers, rows, planName) {
     return map[lower] || p;
   }
 
-  // Derive health from labels and late status
+  /** Derive health state from Planner labels and late status */
   function plannerHealth(labels, isLate) {
     if (!labels) labels = '';
     const lower = labels.toLowerCase();
@@ -12397,13 +12192,13 @@ function confirmPlannerImport(headers, rows, planName) {
     return '';
   }
 
-  // Parse hours from task name (pattern: *Xh or *X hrs)
+  /** Parse estimated hours from a task name (pattern: *Xh or *X hrs) */
   function parseHoursFromTitle(title) {
     const match = title.match(/\*\s*(\d+)\s*h/i);
     return match ? parseInt(match[1], 10) : 0;
   }
 
-  // Parse checklist fraction
+  /** Parse checklist completion from Planner done/total columns (e.g. '3/5') */
   function parseChecklist(done, total) {
     if (!done || !total) return { done: 0, total: 0 };
     const doneMatch = String(done).match(/(\d+)/);
@@ -12415,7 +12210,7 @@ function confirmPlannerImport(headers, rows, planName) {
     return { done: doneMatch ? parseInt(doneMatch[1], 10) : 0, total: totalMatch ? parseInt(totalMatch[1], 10) : 0 };
   }
 
-  // Detect client from plan name or task name prefix
+  /** Detect the client name from a task or plan name using known client aliases */
   function detectClient(taskName, pName) {
     const combined = (taskName + ' ' + pName).toLowerCase();
     const clientAliases = {
@@ -12587,10 +12382,6 @@ function generateClientReport(clientName) {
 }
 
 // ===== LOADING & SYNC STATUS =====
-/** Show the full-screen loading overlay */
-function showLoading() { document.getElementById('loadingOverlay')?.classList.add('active'); }
-/** Hide the full-screen loading overlay */
-function hideLoading() { document.getElementById('loadingOverlay')?.classList.remove('active'); }
 /** Display sync status indicator (saving/error/conflict) in the header bar */
 function showSyncStatus(type, msg) {
   const el = document.getElementById('syncBadge');
@@ -12610,6 +12401,7 @@ addManagedListener(window, 'offline', () => { document.getElementById('offlineBa
 // ===== CONFLICT RESOLUTION =====
 let _conflictData = null;
 
+/** Display the conflict resolution modal showing field-level diffs between local and server versions */
 function showConflict(taskTitle, myChanges, serverVersion) {
   _conflictData = { myChanges, serverVersion };
   document.getElementById('conflictTitle').textContent = 'Conflict: ' + taskTitle;
@@ -12629,6 +12421,7 @@ function showConflict(taskTitle, myChanges, serverVersion) {
   document.getElementById('conflictModal').classList.add('open');
 }
 
+/** Resolve a sync conflict — apply the chosen version ('mine' keeps local, 'theirs' accepts server) */
 function resolveConflict(choice) {
   document.getElementById('conflictModal').classList.remove('open');
   if (choice === 'theirs' && _conflictData) {
@@ -12675,17 +12468,6 @@ function performUndo() {
   save();
   renderSidebarCounts(); renderContent();
   toast('Undone: ' + op.desc);
-}
-
-// Toast with undo button
-/** Show a toast with an undo button that reverses the described action */
-function toastWithUndo(msg, undoDesc, undoFn) {
-  pushUndo(undoDesc, undoFn);
-  const el = document.createElement('div');
-  el.className = 'toast toast--success';
-  el.innerHTML = `${esc(msg)} <button onclick="performUndo();this.parentElement.remove()" style="background:none;border:1px solid rgba(255,255,255,0.3);color:#fff;border-radius:3px;padding:2px 8px;margin-left:8px;cursor:pointer;font-size:0.72rem">Undo</button>`;
-  document.getElementById('toastContainer').appendChild(el);
-  setTimeout(() => el.remove(), 6000);
 }
 
 // Keyboard shortcut: Ctrl+Z for undo
@@ -12773,8 +12555,6 @@ async function updateUserField(userId, field, value) {
   } catch(e) { toast('Error: ' + e.message, 'error'); }
 }
 
-// Old contract upload removed — replaced by CONTRACT IMPORT WIZARD above
-
 // ===== TIME TRACKING =====
 
 /** Manually log a time entry from the detail panel's quick-log fields */
@@ -12842,6 +12622,7 @@ function handleNotificationClick(link) {
   toggleNotifications();
 }
 
+/** Fetch notifications from the API and update the badge count and dropdown list */
 async function loadNotifications() {
   try {
     const result = await apiCall('/api/notifications');
@@ -12960,7 +12741,7 @@ async function saveAsTemplate() {
   const name = prompt('Template name:', rootTask.title + ' Template');
   if (!name) return;
 
-  // Build template tree from task + descendants
+  /** Recursively build a template tree from a task and its descendants */
   function buildTree(task) {
     const children = getChildren(task.id);
     return {
@@ -13131,6 +12912,7 @@ function setTheme(name) {
 }
 
 // ==================== MOBILE HEADER OVERFLOW MENU ====================
+/** Toggle the mobile header overflow menu (three-dot menu for narrow screens) */
 function toggleHeaderOverflow(e) {
   if (e) e.stopPropagation();
   const menu = document.getElementById('headerOverflowMenu');
@@ -13201,7 +12983,7 @@ switchView = function(view) {
 // Seed data is now loaded from the server API (/api/seed-data) to avoid exposing
 // sensitive business data (salaries, performance reviews, client strategies) in page source.
 // The server serves it only to authenticated admin users.
-const EMBEDDED_CSV = null; // Removed from client — loaded via fetchSeedData() below
+
 
 /** Fetch seed data from server (admin only, called when DB has no tasks) */
 async function fetchSeedData() {

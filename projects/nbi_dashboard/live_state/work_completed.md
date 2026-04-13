@@ -151,3 +151,26 @@ See `session_handoffs/handoff_2026-04-07c_bugfixes_qa.md` for items 61-77 (bug f
 58. **Expense Report Workflow** -- New `expense_reports` table (auto-migration). 7 API endpoints: list, create, get, update, delete, submit, add/remove expenses. Expense view reworked: report cards as primary view, unassigned expenses table below. Report detail panel: expense list, totals by currency, add/remove expenses, submit button. Submit notifies Tom Rieger via in-app notification + email (SMTP when configured). Admin approve/reject cascades status to all expenses in report. Deep-link support for notification clicks and direct URLs (`#expenses/report/{id}`).
 59. **Bug/Feature Report Button** -- Yellow "Report" button in header bar. Modal with bug/feature toggle, title, description, automatic screenshot (html2canvas CDN with 5s timeout fallback). `bug_reports` table (auto-migration). 5 API endpoints: list, create, update status, delete, serve screenshot. Settings > "Bug Reporting" tab with filterable index: type, reporter, title, page, status, date. Click-to-view detail modal with screenshot. Admin inline status change (open/resolved/won't fix).
 60. **Code commenting pass** -- Added section-level and state variable comments to all new expense report and bug report code in both server.js and HTML.
+
+## 2026-04-11 (Session A -- Bug Fixes + Production)
+
+See items 78-128 above (already logged from earlier sessions).
+
+## 2026-04-11 (Session B -- Hierarchy, Dependencies, Timeline)
+
+155. **Work Item Hierarchy** -- 4-level system: Project > Feature > Story > Task. Migration 008 assigned types by depth (38 projects, 154 features, 924 stories, 4 tasks). Validation on all CRUD + sync. Type badges (P/F/S/T) in tree, board, timeline, detail panels. Split "+ New" dropdown with parent picker modal. Nesting enforcement on drag-drop and reparent. Board type filter buttons.
+156. **Collapse/Expand System** -- Default load: collapsed to client level. "Collapse All" and "Expand to" dropdown (Projects/Features/Stories/Tasks). Re-collapse on view navigation. Fixed key format mismatch bug.
+157. **Prerequisites & Dependents System** -- Hard-block on Done, soft-warn on In Progress. Circular prevention. Detail panels show "Prerequisites" with status icons and "Dependents" (reverse lookup, read-only). Lock icons on tree rows and board cards. Stale cleanup on delete.
+158. **Timeline Overhaul** -- Hierarchical rendering (Project > Feature > Story > Task tree with indentation). Collapsible rows. Time navigation (back/forward arrows + Today button). Zoom (8px-60px per day). Today column (green). Status-coloured bars. Resizable detail panels.
+159. **Dependency Link Mode** -- Dependencies dropdown (Link Mode + Show Arrows + Dependency View). Drag-to-create dependencies with preview arrow. Interactive arrows (click to select, Delete to remove, drag to reconnect). Show/Hide toggle. Critical Path View (filtered Gantt, topologically sorted).
+160. **Code Quality Pass** -- Server: 15 issues fixed (schema drift, item_type validation, DELETE transaction, UUID validation). Frontend: 10 issues (CSS rules, JSDoc, createTaskObject factory, clientGroupKey helper, isTaskIncomplete helper). README written.
+161. **Bug Fixes** -- Fee income auth changed to any user. Finance data recovery from append-only table. Bug report sort (5 columns). Assignee panel refresh. Robin removed from assignments.
+
+## 2026-04-11 (Session C -- Code Review & Quality)
+
+162. **Server Code Review -- ALL issues fixed** -- Metrics endpoint restricted to localhost. Orphaned JSDoc fixed. Full JSDoc added to 8 functions. Dead code removed. console.error replaced with structured log. archiver moved to top-level require with fallback. Screenshot size limit (5MB). UUID validation on 8 sub-resource endpoints. Entity type whitelist on attachments. Auth bypass tightened (explicit regex). N+1 query fix in sync/changes. Audit log returns 500 on error.
+163. **Frontend Code Review** -- 16 dead functions removed. 5 stale comments removed. 8 dead CSS rules removed. 3 empty CSS rules removed. 4 duplicate CSS rules fixed. 45 JSDoc additions (100% coverage, 403 functions). Inline hover handlers replaced with CSS.
+164. **QA Test Plan Extended** -- 118 cases expanded to 175 (6 new sections: hierarchy, prerequisites, timeline, dependency links, collapse/expand, server quality).
+165. **QA Execution** -- 175 cases run. 169 pass. 3 high-severity prereq bugs found and fixed. 2 false positives (rate limit, wrong endpoint). 1 low fixed (legacy routes).
+166. **Server-Side Prerequisite Enforcement** -- PATCH /api/tasks/:id now blocks Done status when prerequisites incomplete. Circular dependency detection via BFS walk. DELETE cascade cleans up orphaned dependency references from dependent items (text[] array fix).
+167. **Legacy Hash Route Redirects** -- LEGACY_ROUTES map redirects #incomplete to #tasks, #changelog to #settings. Applied to switchView() and popstate handler.

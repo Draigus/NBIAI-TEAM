@@ -1,32 +1,28 @@
 # Conversation Context
 
-Updated 2026-04-06 (Session D)
+Updated 2026-04-11 (Session C)
 
 ---
 
-## 2026-04-06 Session D
+## 2026-04-11 Session C
 
 ### What Happened
 
-Glen loaded handoff from Session C (UAT session). Requested two major features:
-1. Expense report submission workflow (expenses grouped into reports, submit notifies Tom)
-2. Bug/feature report button (yellow header button, screenshot, text, settings index)
+Glen loaded handoff from Session B (hierarchy, dependencies, timeline overhaul). Directed: do data cleanup then process/quality tasks (code review, QA, MD updates).
 
-Both features built, tested end-to-end, and deployed. Glen then requested code review, QA pass, code commenting, MD file updates, and PM tool feature gap research.
+1. Data cleanup: attempted reparent of hiring tasks, Glen corrected — those are Couch Heroes client tasks, not NBI internal. Reverted.
+2. Full outstanding work audit: compiled complete list of 23 items across all sources. Glen pushed back on incomplete first attempt (only 14 of 16 feature requests listed).
+3. Server code review: audit agent found 25+ issues. Glen directed: fix ALL, not just high/medium. Prioritisation = order of operations, not filtering. All server issues fixed.
+4. Frontend code review: audit found ~80 functions missing JSDoc, 16 dead functions, dead CSS/comments, duplicates. Two agents running fixes.
+5. MD files updated: decisions D68-D77, work completed 155-163, pending tasks rewritten, this file updated.
 
-### Key Decisions This Session
-- D59: Expense reports are the primary container for expenses. Reports get submitted, not individual expenses.
-- D60: Bug/feature report button in yellow, auto-screenshot, appears in Settings > Bug Reporting tab
+### Key Corrections from Glen
+- "Do not mix client hiring versus NBI hiring" — Couch Heroes hiring tasks stay under Couch Heroes
+- "Why are you doing the high and medium instead of doing all of them?" — Fix everything, prioritise by order not importance
+- "Prioritisation just means order of operations. Leaving stuff creates tech debt."
 
 ### Current State
-- Server running on port 8888 via preview_start
-- Expense report workflow fully operational (create, add expenses, submit, Tom notification)
-- Bug report button in header, reports in Settings > Bug Reporting tab
-- Code review agents running in background
-- PM tools research agent running in background
-- Auto-migration for expense_reports, expenses.report_id, and bug_reports tables all confirmed working
-
-### What's Next
-- Process code review findings and fix any issues
-- Compile PM tools research into feature gap list for Glen
-- Continue responding to Glen's UAT feedback
+- Server: PM2 restarted with all fixes, health check confirmed
+- Frontend: two agents applying dead code removal + JSDoc additions
+- Production: https://worksage.nbi-consulting.com (unchanged, running)
+- Next: QA test plan & execution after frontend agents complete
