@@ -1,53 +1,54 @@
 # Pending Tasks
 
-Updated 2026-04-11 (Session C)
+Updated 2026-04-13 (Session A)
 
 ---
 
 ## Completed This Session
 
-### Data Cleanup
-- Attempted reparent of hiring tasks — REVERTED. Those are Couch Heroes client tasks, not NBI internal.
+### QA Bug Fixes
+- BUG-002: Amount validation <= 0
+- BUG-003: XSS input sanitisation (7 endpoints, 12 fields)
+- BUG-004: UUID validation on expense GET/DELETE
+- BUG-006: Admin RBAC on PUT /api/finance
 
-### Server Code Review — ALL Issues Fixed
-- Metrics endpoint localhost-only, orphaned JSDoc fixed, 8 functions documented
-- Dead code removed, structured logging, archiver top-level require
-- Screenshot size limit, UUID validation on 8 endpoints, entity type whitelist
-- Auth bypass tightened, N+1 sync fix, audit log error handling
+### Accessibility
+- ARIA on modals/tabs, contrast boost, focus trapping, keyboard access
 
-### Frontend Code Review — In Progress
-- 16 dead functions being removed
-- ~80 JSDoc additions being applied
-- Dead/duplicate/empty CSS being cleaned
+### UX Polish
+- withButtonLoading, required field indicators, inline validation
 
-### MD File Updates
-- decisions.md: D68-D77 added
-- work_completed.md: items 155-163 added
-- pending_tasks.md: this file rewritten
-- conversation_context.md: to update
+### Medium Fixes
+- max-width 1800px, resize handles, mobile scroll, modal tokens, zebra striping
 
----
+### Features
+- Multi-select filters (status/health/assignee)
+- Imminent time filter (due within 3 days)
+- Client page studio_size + contract_value fields
 
-## Active
-
-### QA Test Plan & Execution
-- Needs comprehensive pass after code review changes
-- Verify server health, all views, detail panels, mobile
+### Hub
+- 25 security/quality fixes
+- First QA pass (68 tests, 3 bugs fixed)
 
 ---
 
-## Feature Requests (16 open from bug triage)
+## UI/UX Audit Backlog (Low Priority)
 
-### Partially Implemented
-1. **Multi-select filters** — single-select exists, needs checkboxes
-2. **Time-based filters** (Imminent/Late) — overdue works, no "Imminent" filter
-3. **Client Page** — detail page + contacts exist, needs studio size + contract values fields
-4. **Due & Late email warnings** — detection works, no emails (blocked by SMTP)
+1. **Replace renderAll() with targeted DOM updates** -- major architecture change
+2. **Optimistic updates** for task/expense/finance changes
+3. **Skeleton screens** for async-loaded content
+4. **Standardise tab component HTML/class** across views
+5. **Collapse dashboard standup by default**
+6. **Split Settings page** into sub-pages
+7. **Textarea auto-resize** during typing (only fires on panel open)
 
-### Not Started
+---
+
+## Feature Requests (12 remaining, not started)
+
 5. **Calendar view dependency display**
 6. **Warnings & Alerts Sidebar** (right-hand notifications panel)
-7. **PM Report System** (daily email summaries) — also blocked by SMTP
+7. **PM Report System** (daily email summaries) -- blocked by SMTP
 8. **SoW Upload on leads**
 9. **"Complete" marker for Won leads**
 10. **Hiring Page** (candidate pipeline)

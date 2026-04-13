@@ -1345,6 +1345,59 @@ span.fin-editable { display: inline-block; position: relative; }
 .bug-status-badge--wontfix { background: var(--bg-surface); color: var(--text-muted); }
 .bug-status-badge--please_review { background: var(--accent-glow); color: var(--accent-text); border: 1px solid var(--accent-border); }
 
+/* Bug priority badges */
+.bug-priority-badge { display: inline-block; padding: 2px 8px; border-radius: var(--radius-sm); font-size: 0.7rem; font-weight: 600; text-transform: capitalize; }
+.bug-priority-badge--critical { background: var(--danger-bg); color: #ff6b6b; border: 1px solid rgba(255,107,107,0.3); }
+.bug-priority-badge--high { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+.bug-priority-badge--medium { background: var(--warning-bg); color: var(--warning); border: 1px solid var(--warning-border); }
+.bug-priority-badge--low { background: var(--bg-surface); color: var(--text-muted); border: 1px solid var(--border-default); }
+.bug-status-badge--in_progress { background: color-mix(in srgb, var(--accent) 12%, var(--bg-card)); color: var(--accent-text); border: 1px solid var(--accent-border); }
+
+/* Bug Tracker view */
+.bug-tracker { padding: var(--space-lg); max-width: 1400px; }
+.bug-tracker__header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-lg); flex-wrap: wrap; gap: var(--space-md); }
+.bug-tracker__filters { display: flex; gap: var(--space-sm); align-items: center; flex-wrap: wrap; }
+.bug-tracker__search { padding: 6px 10px; border: 1px solid var(--border-default); border-radius: var(--radius-sm); background: var(--bg-input); color: var(--text-primary); font-size: 0.8rem; width: 200px; }
+.bug-tracker__list { border: 1px solid var(--border-default); border-radius: var(--radius-md); overflow: hidden; }
+.bug-tracker__row { display: grid; grid-template-columns: 60px 80px 1fr 100px 120px 90px 50px; align-items: center; padding: 10px var(--space-md); border-bottom: 1px solid var(--border-default); cursor: pointer; transition: background 0.12s; font-size: 0.82rem; gap: var(--space-sm); }
+.bug-tracker__row:hover { background: var(--bg-hover); }
+.bug-tracker__row:last-child { border-bottom: none; }
+.bug-tracker__row--header { background: var(--bg-surface); font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); cursor: default; }
+.bug-tracker__row--header:hover { background: var(--bg-surface); }
+.bug-tracker__row--header > span { cursor: pointer; }
+.bug-tracker__row--header > span:hover { color: var(--text-primary); }
+.bug-tracker__title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bug-tracker__comment-count { display: inline-flex; align-items: center; gap: 3px; font-size: 0.72rem; color: var(--text-muted); }
+
+/* Bug detail panel */
+.bug-detail-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; display: none; }
+.bug-detail-panel { position: fixed; top: 0; right: 0; width: 520px; min-width: 320px; max-width: 80vw; height: 100dvh; background: var(--bg-raised); border-left: 1px solid var(--border-default); z-index: 201; overflow-y: auto; display: none; flex-direction: column; }
+.bug-detail-panel.open { display: flex; }
+.bug-detail__header { padding: var(--space-md) var(--space-lg); border-bottom: 1px solid var(--border-default); display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-md); }
+.bug-detail__body { padding: var(--space-lg); flex: 1; overflow-y: auto; }
+.bug-detail__section { margin-bottom: var(--space-lg); }
+.bug-detail__section-title { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: var(--space-sm); font-weight: 600; }
+.bug-detail__props { display: grid; grid-template-columns: 100px 1fr; gap: 6px var(--space-md); font-size: 0.82rem; align-items: center; }
+.bug-detail__props dt { color: var(--text-muted); font-size: 0.75rem; }
+.bug-detail__props dd { margin: 0; }
+.bug-detail__description { white-space: pre-wrap; font-size: 0.82rem; line-height: 1.5; background: var(--bg-surface); padding: var(--space-md); border-radius: var(--radius-md); border: 1px solid var(--border-default); min-height: 60px; }
+.bug-detail__comment { padding: var(--space-sm) 0; border-bottom: 1px solid var(--border-default); }
+.bug-detail__comment:last-child { border-bottom: none; }
+.bug-detail__comment-author { font-weight: 600; font-size: 0.78rem; }
+.bug-detail__comment-date { font-size: 0.7rem; color: var(--text-muted); margin-left: var(--space-sm); }
+.bug-detail__comment-text { font-size: 0.82rem; margin-top: 4px; line-height: 1.4; }
+.bug-detail__comment-actions { font-size: 0.7rem; margin-top: 2px; }
+.bug-detail__comment-input { display: flex; gap: var(--space-sm); margin-top: var(--space-sm); }
+.bug-detail__comment-input textarea { flex: 1; resize: vertical; min-height: 60px; padding: var(--space-sm); border: 1px solid var(--border-default); border-radius: var(--radius-sm); background: var(--bg-input); color: var(--text-primary); font-size: 0.82rem; font-family: var(--font-body); }
+
+@media (max-width: 768px) {
+  .bug-tracker__row { grid-template-columns: 50px 1fr 80px; }
+  .bug-tracker__row > :nth-child(2),
+  .bug-tracker__row > :nth-child(5),
+  .bug-tracker__row > :nth-child(6) { display: none; }
+  .bug-detail-panel { width: 100vw; max-width: 100vw; }
+}
+
 /* ===== MANAGE CLIENTS ===== */
 .manage-clients { max-width: 900px; }
 .manage-clients__add { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
@@ -1552,6 +1605,10 @@ span.fin-editable { display: inline-block; position: relative; }
 <!-- DETAIL PANEL -->
 <div class="detail-overlay" id="detailOverlay" onclick="closeDetail()"></div>
 <div class="detail-panel" id="detailPanel" role="dialog" aria-modal="true" aria-label="Detail panel"></div>
+
+<!-- BUG DETAIL PANEL -->
+<div class="bug-detail-overlay" id="bugDetailOverlay"></div>
+<div class="bug-detail-panel" id="bugDetailPanel" role="dialog" aria-modal="true" aria-label="Bug report detail"></div>
 
 <!-- IMPORT MODAL -->
 <div class="modal-overlay" id="importModal" role="dialog" aria-modal="true" aria-labelledby="importModalTitle">
@@ -1824,7 +1881,7 @@ async function handleLogin(e) {
     localStorage.setItem('nbi_auth_token', data.token);
     showApp();
     await openIDB();
-    await Promise.all([load(), loadTeamMembers(), loadPagePermissions()]);
+    await Promise.all([load(), loadTeamMembers(), loadPagePermissions(), loadBugReports()]);
     await loadFinanceFromDB();
     renderAll();
     restartPollingIntervals();
@@ -2641,6 +2698,9 @@ function renderSidebar() {
   if (hasPageAccess('expenses')) {
     html += sidebarItem(svgExpenses, 'Expenses', '', () => switchView('expenses'), currentView==='expenses');
   }
+  const svgBugs = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="9" r="4"/><path d="M6 5.5C6 4.1 6.9 3 8 3s2 1.1 2 2.5M1 7h3M12 7h3M2 12l2.5-1.5M14 12l-2.5-1.5M4 5L2 3.5M12 5l2-1.5"/></svg>';
+  const bugOpenCount = ((_bugReportsData && _bugReportsData.reports) || []).filter(r => r.status === 'open' || r.status === 'in_progress').length;
+  html += sidebarItem(svgBugs, 'Bug Tracker', bugOpenCount || '', () => switchView('bugs'), currentView==='bugs');
   if (hasPageAccess('finances')) {
     html += sidebarItem(svgFinances, 'Finances', '', () => switchView('finances'), currentView==='finances');
   }
@@ -2934,6 +2994,12 @@ addManagedListener(window, 'popstate', e => {
     renderAll();
   }
 });
+// Restore view from URL hash on page load (supports deep-linking e.g. #bugs, #leads)
+(function() {
+  const h = window.location.hash.replace('#', '');
+  const known = ['report','dashboard','tasks','people','leads','expenses','finances','bugs','settings','mytasks'];
+  if (h && known.includes(h)) currentView = LEGACY_ROUTES[h] || h;
+})();
 // Set initial history state
 history.replaceState({ view: currentView, filter: { ...currentFilter }, taskSubView }, '', '#' + currentView);
 /** Clear all active filters except sort order, and deselect any bulk-selected tasks */
@@ -2995,6 +3061,7 @@ function renderContent() {
   else if (currentView === 'leads') renderLeadsView(content);
   else if (currentView === 'expenses') renderExpensesView(content);
   else if (currentView === 'finances') renderFinancesView(content);
+  else if (currentView === 'bugs') renderBugTrackerView(content);
   else if (currentView === 'settings') renderSettings(content);
   if (currentView === 'tasks' && taskSubView === 'gantt') {
     requestAnimationFrame(drawGanttArrows);
@@ -3034,6 +3101,7 @@ function renderAll() {
   else if (currentView === 'leads') renderLeadsView(content);
   else if (currentView === 'expenses') renderExpensesView(content);
   else if (currentView === 'finances') renderFinancesView(content);
+  else if (currentView === 'bugs') renderBugTrackerView(content);
   else if (currentView === 'settings') renderSettings(content);
 
   // Draw Gantt dependency arrows after DOM is ready
@@ -10949,6 +11017,105 @@ async function loadBugReports() {
   } catch(e) { console.error('Failed to load bug reports:', e); }
 }
 
+/** Render the Bug Tracker view (visible to all users) */
+function renderBugTrackerView(container) {
+  const reports = (_bugReportsData && _bugReportsData.reports) || [];
+  const isAdmin = _currentUser && _currentUser.role === 'admin';
+
+  // Apply filters
+  let filtered = [...reports];
+  if (window._btFilterType) filtered = filtered.filter(r => r.type === window._btFilterType);
+  if (window._btFilterStatus) filtered = filtered.filter(r => r.status === window._btFilterStatus);
+  if (window._btFilterPriority) filtered = filtered.filter(r => r.priority === window._btFilterPriority);
+  if (window._btSearchQuery) {
+    const q = window._btSearchQuery.toLowerCase();
+    filtered = filtered.filter(r => (r.title || '').toLowerCase().includes(q) || (r.reporter_name || '').toLowerCase().includes(q));
+  }
+
+  // Sort
+  const col = window._btSortCol || 'created_at';
+  const dir = window._btSortDir || 'desc';
+  filtered.sort((a, b) => {
+    let va, vb;
+    if (col === 'priority') {
+      const pOrder = { critical: 0, high: 1, medium: 2, low: 3 };
+      va = a.priority ? pOrder[a.priority] ?? 4 : 5;
+      vb = b.priority ? pOrder[b.priority] ?? 4 : 5;
+    } else if (col === 'created_at' || col === 'updated_at') {
+      va = a[col] || ''; vb = b[col] || '';
+    } else {
+      va = (a[col] || '').toString().toLowerCase();
+      vb = (b[col] || '').toString().toLowerCase();
+    }
+    if (va < vb) return dir === 'asc' ? -1 : 1;
+    if (va > vb) return dir === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  const sortIcon = (c) => col === c ? (dir === 'asc' ? ' \u25B2' : ' \u25BC') : '';
+  const sortClick = (c) => `onclick="window._btSortCol='${c}'; window._btSortDir = (window._btSortCol==='${c}' && window._btSortDir==='desc') ? 'asc' : 'desc'; renderContent()"`;
+
+  container.innerHTML = `
+    <div class="bug-tracker">
+      <div class="bug-tracker__header">
+        <h2 style="font-size:1.1rem;font-weight:600;margin:0">Bug Tracker</h2>
+        <div style="display:flex;gap:var(--space-sm);align-items:center">
+          <button class="btn btn--primary btn--sm" onclick="openBugReportModal()">+ Report</button>
+        </div>
+      </div>
+      <div class="bug-tracker__filters" style="margin-bottom:var(--space-md)">
+        <select class="leads-select" onchange="window._btFilterType=this.value||null;renderContent()">
+          <option value="">All Types</option>
+          <option value="bug" ${window._btFilterType==='bug'?'selected':''}>Bugs</option>
+          <option value="feature" ${window._btFilterType==='feature'?'selected':''}>Features</option>
+        </select>
+        <select class="leads-select" onchange="window._btFilterStatus=this.value||null;renderContent()">
+          <option value="">All Statuses</option>
+          <option value="open" ${window._btFilterStatus==='open'?'selected':''}>Open</option>
+          <option value="in_progress" ${window._btFilterStatus==='in_progress'?'selected':''}>In Progress</option>
+          <option value="please_review" ${window._btFilterStatus==='please_review'?'selected':''}>Please Review</option>
+          <option value="resolved" ${window._btFilterStatus==='resolved'?'selected':''}>Resolved</option>
+          <option value="wontfix" ${window._btFilterStatus==='wontfix'?'selected':''}>Won't Fix</option>
+        </select>
+        <select class="leads-select" onchange="window._btFilterPriority=this.value||null;renderContent()">
+          <option value="">All Priorities</option>
+          <option value="critical" ${window._btFilterPriority==='critical'?'selected':''}>Critical</option>
+          <option value="high" ${window._btFilterPriority==='high'?'selected':''}>High</option>
+          <option value="medium" ${window._btFilterPriority==='medium'?'selected':''}>Medium</option>
+          <option value="low" ${window._btFilterPriority==='low'?'selected':''}>Low</option>
+        </select>
+        <input type="text" class="bug-tracker__search" placeholder="Search title or reporter..."
+               value="${esc(window._btSearchQuery || '')}"
+               oninput="window._btSearchQuery=this.value;renderContent()">
+        <span style="font-size:0.75rem;color:var(--text-muted)">${filtered.length} of ${reports.length} reports</span>
+      </div>
+      <div class="bug-tracker__list">
+        <div class="bug-tracker__row bug-tracker__row--header">
+          <span ${sortClick('type')}>Type${sortIcon('type')}</span>
+          <span ${sortClick('priority')}>Priority${sortIcon('priority')}</span>
+          <span ${sortClick('title')}>Title${sortIcon('title')}</span>
+          <span ${sortClick('status')}>Status${sortIcon('status')}</span>
+          <span ${sortClick('reporter_name')}>Reporter${sortIcon('reporter_name')}</span>
+          <span ${sortClick('created_at')}>Date${sortIcon('created_at')}</span>
+          <span>\uD83D\uDCAC</span>
+        </div>
+        ${filtered.length === 0 ? '<div style="padding:var(--space-xl);text-align:center;color:var(--text-muted)">No reports found</div>' :
+          filtered.map(r => `
+            <div class="bug-tracker__row" onclick="openBugDetail('${r.id}')" tabindex="0" role="button"
+                 onkeydown="if(event.key==='Enter')openBugDetail('${r.id}')">
+              <span><span class="bug-type-badge bug-type-badge--${r.type}">${r.type}</span></span>
+              <span>${r.priority ? `<span class="bug-priority-badge bug-priority-badge--${r.priority}">${r.priority}</span>` : '<span style="color:var(--text-faint)">\u2014</span>'}</span>
+              <span class="bug-tracker__title">${esc(r.title)}</span>
+              <span><span class="bug-status-badge bug-status-badge--${r.status}">${r.status === 'please_review' ? 'Review' : r.status === 'in_progress' ? 'In Progress' : r.status === 'wontfix' ? "Won't Fix" : r.status}</span></span>
+              <span style="color:var(--text-muted)">${esc(r.reporter_name || 'Unknown')}</span>
+              <span style="color:var(--text-muted);font-size:0.72rem">${new Date(r.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</span>
+              <span class="bug-tracker__comment-count">${r.comment_count > 0 ? `\uD83D\uDCAC${r.comment_count}` : ''}</span>
+            </div>
+          `).join('')}
+      </div>
+    </div>`;
+}
+
 /** Render the bug reports settings tab content */
 async function renderBugReportsTab() {
   if (!_bugReportsData) await loadBugReports();
@@ -10957,7 +11124,7 @@ async function renderBugReportsTab() {
 
   let html = `<div class="settings__group"><h2>Bug &amp; Feature Reports</h2>`;
   html += `<p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:16px">
-    Use the yellow &#128030; Report button in the header to submit bugs or feature requests. All reports are listed below.
+    Use the yellow &#128030; Report button in the header to submit bugs or feature requests, or visit the <a href="#bugs" onclick="event.preventDefault();switchView('bugs')" style="color:var(--accent)">Bug Tracker</a> for the full view.
   </p>`;
 
   if (reports.length === 0) {
@@ -10973,6 +11140,7 @@ async function renderBugReportsTab() {
       <select class="leads-select" onchange="_bugFilterStatus=this.value||null;loadBugReports().then(()=>renderContent())">
         <option value="">All Statuses</option>
         <option value="open" ${window._bugFilterStatus==='open'?'selected':''}>Open</option>
+        <option value="in_progress" ${window._bugFilterStatus==='in_progress'?'selected':''}>In Progress</option>
         <option value="please_review" ${window._bugFilterStatus==='please_review'?'selected':''}>Please Review</option>
         <option value="resolved" ${window._bugFilterStatus==='resolved'?'selected':''}>Resolved</option>
         <option value="wontfix" ${window._bugFilterStatus==='wontfix'?'selected':''}>Won't Fix</option>
@@ -10992,6 +11160,11 @@ async function renderBugReportsTab() {
       else if (_bugSortCol === 'title') { va = (a.title || '').toLowerCase(); vb = (b.title || '').toLowerCase(); }
       else if (_bugSortCol === 'page') { va = (a.page || '').toLowerCase(); vb = (b.page || '').toLowerCase(); }
       else if (_bugSortCol === 'status') { va = a.status || ''; vb = b.status || ''; }
+      else if (_bugSortCol === 'priority') {
+        const pOrder = { critical: 0, high: 1, medium: 2, low: 3 };
+        va = a.priority ? pOrder[a.priority] ?? 4 : 5;
+        vb = b.priority ? pOrder[b.priority] ?? 4 : 5;
+      }
       else { va = a[_bugSortCol] || ''; vb = b[_bugSortCol] || ''; }
       if (va < vb) return _bugSortDir === 'asc' ? -1 : 1;
       if (va > vb) return _bugSortDir === 'asc' ? 1 : -1;
@@ -11001,23 +11174,26 @@ async function renderBugReportsTab() {
     const sortIcon = (col) => _bugSortCol === col ? (_bugSortDir === 'asc' ? ' &#9650;' : ' &#9660;') : '';
     const sortTh = (col, label) => `<th style="cursor:pointer;user-select:none;white-space:nowrap" onclick="toggleBugSort('${col}')">${label}${sortIcon(col)}</th>`;
     html += `<div class="expenses-table-wrap"><table class="bug-reports-table"><thead><tr>
-      <th>Type</th>${sortTh('reporter_name','Reporter')}${sortTh('title','Title')}${sortTh('page','Page')}${sortTh('status','Status')}${sortTh('created_at','Date')}
+      <th>Type</th>${sortTh('priority','Priority')}${sortTh('reporter_name','Reporter')}${sortTh('title','Title')}${sortTh('status','Status')}${sortTh('created_at','Date')}<th>\uD83D\uDCAC</th>
       ${isAdmin ? '<th></th>' : ''}
     </tr></thead><tbody>`;
 
     filtered.forEach(r => {
       const typeCls = r.type === 'bug' ? 'bug' : 'feature';
-      const statusCls = r.status === 'resolved' ? 'resolved' : r.status === 'wontfix' ? 'wontfix' : r.status === 'please_review' ? 'please_review' : 'open';
-      html += `<tr onclick="viewBugReport('${r.id}')" style="cursor:pointer">
+      const statusCls = r.status === 'in_progress' ? 'in_progress' : r.status === 'resolved' ? 'resolved' : r.status === 'wontfix' ? 'wontfix' : r.status === 'please_review' ? 'please_review' : 'open';
+      const statusLabel = r.status === 'please_review' ? 'Please Review' : r.status === 'in_progress' ? 'In Progress' : r.status === 'wontfix' ? "Won't Fix" : r.status;
+      html += `<tr onclick="openBugDetail('${r.id}')" style="cursor:pointer">
         <td><span class="bug-type-badge bug-type-badge--${typeCls}">${r.type}</span></td>
+        <td>${r.priority ? `<span class="bug-priority-badge bug-priority-badge--${r.priority}">${r.priority}</span>` : '<span style="color:var(--text-faint)">\u2014</span>'}</td>
         <td>${esc(r.reporter_name || 'Unknown')}</td>
         <td><strong>${esc(r.title)}</strong></td>
-        <td style="color:var(--text-muted)">${esc(r.page || '-')}</td>
-        <td><span class="bug-status-badge bug-status-badge--${statusCls}">${r.status === 'please_review' ? 'Please Review' : r.status}</span></td>
+        <td><span class="bug-status-badge bug-status-badge--${statusCls}">${statusLabel}</span></td>
         <td style="color:var(--text-muted);font-size:0.75rem;white-space:nowrap">${new Date(r.created_at).toLocaleDateString('en-GB')}</td>
+        <td style="color:var(--text-muted);font-size:0.72rem">${r.comment_count > 0 ? `\uD83D\uDCAC${r.comment_count}` : ''}</td>
         ${isAdmin ? `<td>
-          <select class="leads-select" style="font-size:0.7rem;padding:2px 6px" onclick="event.stopPropagation()" onchange="updateBugReportStatus('${r.id}',this.value)">
+          <select class="leads-select" style="font-size:0.7rem;padding:2px 6px" onclick="event.stopPropagation()" onchange="updateBugField('${r.id}','status',this.value)">
             <option value="open" ${r.status==='open'?'selected':''}>Open</option>
+            <option value="in_progress" ${r.status==='in_progress'?'selected':''}>In Progress</option>
             <option value="please_review" ${r.status==='please_review'?'selected':''}>Please Review</option>
             <option value="resolved" ${r.status==='resolved'?'selected':''}>Resolved</option>
             <option value="wontfix" ${r.status==='wontfix'?'selected':''}>Won't Fix</option>
@@ -11039,88 +11215,12 @@ function toggleBugSort(col) {
   renderContent();
 }
 
-/** View a bug report detail in a modal */
-async function viewBugReport(id) {
-  const reports = (_bugReportsData && _bugReportsData.reports) || [];
-  const r = reports.find(r => r.id === id);
-  if (!r) return;
-
-  let html = `<div class="modal-overlay open" id="bugViewModal" role="dialog" aria-modal="true" onclick="if(event.target===this)this.remove()">
-    <div class="modal" style="max-width:var(--modal-md)">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
-        <div>
-          <span class="bug-type-badge bug-type-badge--${r.type}">${r.type}</span>
-          <span class="bug-status-badge bug-status-badge--${r.status === 'resolved' ? 'resolved' : r.status === 'wontfix' ? 'wontfix' : r.status === 'please_review' ? 'please_review' : 'open'}" style="margin-left:6px">${r.status === 'please_review' ? 'Please Review' : r.status}</span>
-        </div>
-        <div style="display:flex;gap:6px;align-items:center">
-          <button class="btn btn--danger btn--sm" onclick="deleteBugReport('${r.id}')">Delete</button>
-          <button class="btn btn--ghost" onclick="document.getElementById('bugViewModal').remove()">&times;</button>
-        </div>
-      </div>
-      <h2 style="margin:0 0 8px 0">${esc(r.title)}</h2>
-      <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:16px">
-        Reported by <strong>${esc(r.reporter_name || 'Unknown')}</strong> on ${new Date(r.created_at).toLocaleString('en-GB')}
-        ${r.page ? ` &middot; Page: <strong>${esc(r.page)}</strong>` : ''}
-      </div>
-      ${r.description ? `<div style="padding:12px;background:var(--bg-surface);border-radius:var(--radius-sm);font-size:0.85rem;margin-bottom:16px;white-space:pre-wrap">${esc(r.description)}</div>` : ''}
-      ${r.has_screenshot ? `<div style="margin-bottom:16px"><img id="bugScreenshotImg" style="max-width:100%;max-height:400px;border-radius:var(--radius-sm);border:1px solid var(--border-default);display:none" alt="Screenshot"><div id="bugScreenshotLoading" style="color:var(--text-muted);font-size:0.8rem">Loading screenshot...</div></div>` : '<div style="color:var(--text-muted);font-size:0.8rem;margin-bottom:16px">No screenshot attached</div>'}
-      <div style="display:flex;gap:8px;margin-top:16px">
-        <button class="btn btn--primary" onclick="addBugReportDetails('${r.id}')">Add Details</button>
-        <button class="btn" style="border-color:var(--success-border);color:var(--success)" onclick="resolveBugReport('${r.id}')">Mark Resolved</button>
-      </div>
-    </div>
-  </div>`;
-  document.body.insertAdjacentHTML('beforeend', html);
-  _activateDynamicModal('bugViewModal');
-  // Fetch screenshot via authenticated API and display
-  if (r.has_screenshot) {
-    authFetch('/api/bug-reports/' + id + '/screenshot').then(resp => {
-      if (!resp.ok) throw new Error('Failed');
-      return resp.blob();
-    }).then(blob => {
-      const img = document.getElementById('bugScreenshotImg');
-      const loading = document.getElementById('bugScreenshotLoading');
-      if (img) { img.src = URL.createObjectURL(blob); img.style.display = ''; img.onload = () => URL.revokeObjectURL(img.src); }
-      if (loading) loading.remove();
-    }).catch(() => {
-      const loading = document.getElementById('bugScreenshotLoading');
-      if (loading) loading.textContent = 'Screenshot unavailable';
-    });
-  }
-}
-
-/** Update bug report status (admin) */
-async function updateBugReportStatus(id, status) {
-  const resp = await authFetch('/api/bug-reports/' + id, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ status })
-  });
-  if (resp.ok) {
-    // If setting to please_review, notify the submitter via server-side notification
-    if (status === 'please_review') {
-      const reports = (_bugReportsData && _bugReportsData.reports) || [];
-      const report = reports.find(r => r.id === id);
-      if (report && report.user_id) {
-        try {
-          await authFetch('/api/bug-reports/' + id + '/notify-review', { method: 'POST' });
-        } catch(e) { console.warn('Failed to send review notification:', e); }
-      }
-    }
-    toast('Status updated');
-    await loadBugReports();
-    renderContent();
-  } else {
-    toast('Failed to update status', 'error');
-  }
-}
-
 /** Delete a bug/feature report (admin) */
 async function deleteBugReport(id) {
   if (!(await themedConfirm('Delete this report permanently?'))) return;
   const resp = await authFetch('/api/bug-reports/' + id, { method: 'DELETE' });
   if (resp.ok) {
-    document.getElementById('bugViewModal')?.remove();
+    closeBugDetail();
     toast('Report deleted');
     await loadBugReports();
     renderContent();
@@ -11129,56 +11229,222 @@ async function deleteBugReport(id) {
   }
 }
 
-/** Open a follow-up text area inside the bug view modal */
-function addBugReportDetails(id) {
-  const modal = document.getElementById('bugViewModal');
-  if (!modal) return;
-  const existing = modal.querySelector('.bug-followup-area');
-  if (existing) { existing.querySelector('textarea')?.focus(); return; }
-
-  const area = document.createElement('div');
-  area.className = 'bug-followup-area';
-  area.innerHTML = `
-    <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border-default)">
-      <label style="font-size:0.8rem;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:4px">Add Follow-up Details</label>
-      <textarea id="bugFollowupText" style="width:100%;min-height:80px;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-family:var(--font-body);font-size:0.85rem;resize:vertical" placeholder="Add additional details, context, or response..."></textarea>
-      <button class="btn btn--primary btn--sm" onclick="submitBugFollowup('${id}')" style="margin-top:8px">Submit</button>
-    </div>
-  `;
-  modal.querySelector('.modal').appendChild(area);
-  area.querySelector('textarea').focus();
-}
-
-/** Submit a follow-up to a bug report, appending to description */
-async function submitBugFollowup(id) {
-  const text = document.getElementById('bugFollowupText')?.value?.trim();
-  if (!text) { toast('Please enter some details', 'warning'); return; }
-
-  const reports = (_bugReportsData && _bugReportsData.reports) || [];
-  const report = reports.find(r => r.id === id);
-  const currentDesc = report?.description || '';
-  const followup = currentDesc + '\n\n--- Follow-up by ' + (_currentUser?.displayName || 'Unknown') + ' (' + new Date().toLocaleDateString('en-GB') + ') ---\n' + text;
-
-  const resp = await authFetch('/api/bug-reports/' + id, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ description: followup })
-  });
-  if (resp.ok) {
-    toast('Follow-up added');
-    document.getElementById('bugViewModal')?.remove();
-    await loadBugReports();
-    renderContent();
-  } else {
-    toast('Failed to add follow-up', 'error');
-  }
-}
-
 /** Resolve a bug report from the detail modal */
 async function resolveBugReport(id) {
   if (!(await themedConfirm('Mark this report as resolved?', 'Resolve Report', 'Mark Resolved'))) return;
-  await updateBugReportStatus(id, 'resolved');
-  document.getElementById('bugViewModal')?.remove();
+  await updateBugField(id, 'status', 'resolved');
+}
+
+/** Open the bug detail slide-in panel */
+async function openBugDetail(id) {
+  const overlay = document.getElementById('bugDetailOverlay');
+  const panel = document.getElementById('bugDetailPanel');
+  if (!overlay || !panel) return;
+
+  const reports = (_bugReportsData && _bugReportsData.reports) || [];
+  const r = reports.find(x => x.id === id);
+  if (!r) return;
+
+  const isAdmin = _currentUser && _currentUser.role === 'admin';
+  const isReporter = _currentUser && _currentUser.id === r.user_id;
+  const canChangeStatus = isAdmin || isReporter;
+  const canEditDesc = isAdmin || isReporter;
+
+  const statusOptions = ['open', 'in_progress', 'please_review', 'resolved', 'wontfix'];
+  const statusLabels = { open: 'Open', in_progress: 'In Progress', please_review: 'Please Review', resolved: 'Resolved', wontfix: "Won't Fix" };
+  const priorityOptions = ['critical', 'high', 'medium', 'low'];
+
+  panel.innerHTML = `
+    <div class="bug-detail__header">
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;gap:var(--space-sm);align-items:center;margin-bottom:6px;flex-wrap:wrap">
+          <span class="bug-type-badge bug-type-badge--${r.type}">${r.type}</span>
+          <span class="bug-status-badge bug-status-badge--${r.status}">${statusLabels[r.status] || r.status}</span>
+          ${r.priority ? `<span class="bug-priority-badge bug-priority-badge--${r.priority}">${r.priority}</span>` : ''}
+        </div>
+        <h3 style="font-size:1rem;font-weight:600;margin:0;word-break:break-word">${esc(r.title)}</h3>
+      </div>
+      <button class="btn btn--ghost btn--sm" onclick="closeBugDetail()" aria-label="Close" style="flex-shrink:0">&times;</button>
+    </div>
+    <div class="bug-detail__body">
+      <div class="bug-detail__section">
+        <div class="bug-detail__section-title">Properties</div>
+        <dl class="bug-detail__props">
+          <dt>Status</dt>
+          <dd>${canChangeStatus
+            ? `<select class="leads-select" style="font-size:0.78rem;padding:2px 6px" onchange="updateBugField('${r.id}','status',this.value)">
+                ${statusOptions.map(s => `<option value="${s}" ${r.status===s?'selected':''}>${statusLabels[s]}</option>`).join('')}
+               </select>`
+            : `<span class="bug-status-badge bug-status-badge--${r.status}">${statusLabels[r.status] || r.status}</span>`
+          }</dd>
+          <dt>Priority</dt>
+          <dd>${isAdmin
+            ? `<select class="leads-select" style="font-size:0.78rem;padding:2px 6px" onchange="updateBugField('${r.id}','priority',this.value||null)">
+                <option value="">— Unset</option>
+                ${priorityOptions.map(p => `<option value="${p}" ${r.priority===p?'selected':''}>${p.charAt(0).toUpperCase()+p.slice(1)}</option>`).join('')}
+               </select>`
+            : (r.priority ? `<span class="bug-priority-badge bug-priority-badge--${r.priority}">${r.priority}</span>` : '<span style="color:var(--text-muted)">Unset</span>')
+          }</dd>
+          <dt>Reporter</dt><dd>${esc(r.reporter_name || 'Unknown')}</dd>
+          <dt>Page</dt><dd style="color:var(--text-muted)">${esc(r.page || '\u2014')}</dd>
+          <dt>Reported</dt><dd style="color:var(--text-muted)">${new Date(r.created_at).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</dd>
+          ${r.updated_at && r.updated_at !== r.created_at ? `<dt>Updated</dt><dd style="color:var(--text-muted)">${new Date(r.updated_at).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</dd>` : ''}
+        </dl>
+      </div>
+
+      <div class="bug-detail__section">
+        <div class="bug-detail__section-title">Description</div>
+        ${canEditDesc
+          ? `<textarea id="bugDescEdit" class="bug-detail__description" style="width:100%;border:1px solid var(--border-default);background:var(--bg-input);color:var(--text-primary);font-family:var(--font-body);padding:var(--space-md);border-radius:var(--radius-md);font-size:0.82rem;resize:vertical;min-height:80px">${esc(r.description || '')}</textarea>
+             <button class="btn btn--ghost btn--sm" style="margin-top:4px" onclick="saveBugDescription('${r.id}')">Save Description</button>`
+          : `<div class="bug-detail__description">${esc(r.description || 'No description provided.')}</div>`
+        }
+      </div>
+
+      ${r.has_screenshot ? `
+        <div class="bug-detail__section">
+          <div class="bug-detail__section-title">Screenshot</div>
+          <div id="bugScreenshotContainer" style="cursor:pointer" onclick="this.querySelector('img')&&window.open(this.querySelector('img').src)">
+            <div style="color:var(--text-muted);font-size:0.78rem">Loading screenshot...</div>
+          </div>
+        </div>` : ''}
+
+      <div class="bug-detail__section">
+        <div class="bug-detail__section-title">Comments</div>
+        <div id="bugCommentsContainer"><div style="color:var(--text-muted);font-size:0.78rem">Loading comments...</div></div>
+        <div class="bug-detail__comment-input">
+          <textarea id="bugCommentText" placeholder="Add a comment..." rows="2"></textarea>
+          <button class="btn btn--primary btn--sm" style="align-self:flex-end" onclick="postBugComment('${r.id}')">Post</button>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:var(--space-sm);margin-top:var(--space-lg);padding-top:var(--space-md);border-top:1px solid var(--border-default)">
+        ${isReporter && r.status !== 'resolved' ? `<button class="btn btn--sm" onclick="updateBugField('${r.id}','status','resolved')">Mark Resolved</button>` : ''}
+        ${isAdmin ? `<button class="btn btn--danger btn--sm" onclick="deleteBugReport('${r.id}');closeBugDetail()">Delete</button>` : ''}
+      </div>
+    </div>`;
+
+  overlay.style.display = 'block';
+  overlay.onclick = (e) => { if (e.target === overlay) closeBugDetail(); };
+  panel.classList.add('open');
+
+  // Load screenshot
+  if (r.has_screenshot) {
+    try {
+      const resp = await authFetch('/api/bug-reports/' + id + '/screenshot');
+      if (resp.ok) {
+        const blob = await resp.blob();
+        const url = URL.createObjectURL(blob);
+        const container = document.getElementById('bugScreenshotContainer');
+        if (container) container.innerHTML = `<img src="${url}" style="max-width:100%;max-height:400px;border-radius:var(--radius-md);border:1px solid var(--border-default)" alt="Screenshot">`;
+      }
+    } catch(e) { /* ignore */ }
+  }
+
+  // Load comments
+  loadBugComments(id);
+}
+
+function closeBugDetail() {
+  const overlay = document.getElementById('bugDetailOverlay');
+  const panel = document.getElementById('bugDetailPanel');
+  if (panel) panel.classList.remove('open');
+  if (overlay) overlay.style.display = 'none';
+}
+
+/** Load and render comments for a bug report */
+async function loadBugComments(reportId) {
+  const container = document.getElementById('bugCommentsContainer');
+  if (!container) return;
+  try {
+    const resp = await authFetch('/api/bug-reports/' + reportId + '/comments');
+    const comments = await resp.json();
+    if (comments.length === 0) {
+      container.innerHTML = '<div style="color:var(--text-muted);font-size:0.78rem;padding:var(--space-sm) 0">No comments yet.</div>';
+      return;
+    }
+    const isAdmin = _currentUser && _currentUser.role === 'admin';
+    const myName = _currentUser?.displayName || _currentUser?.display_name || '';
+    container.innerHTML = comments.map(c => `
+      <div class="bug-detail__comment">
+        <span class="bug-detail__comment-author">${esc(c.author)}</span>
+        <span class="bug-detail__comment-date">${new Date(c.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</span>
+        ${(c.author === myName || isAdmin) ? `<span class="bug-detail__comment-actions"><a href="#" onclick="event.preventDefault();deleteBugComment('${reportId}','${c.id}')" style="color:var(--danger);font-size:0.7rem">delete</a></span>` : ''}
+        <div class="bug-detail__comment-text">${esc(c.text)}</div>
+      </div>
+    `).join('');
+  } catch(e) { container.innerHTML = '<div style="color:var(--danger);font-size:0.78rem">Failed to load comments.</div>'; }
+}
+
+/** Post a comment on a bug report */
+async function postBugComment(reportId) {
+  const textarea = document.getElementById('bugCommentText');
+  if (!textarea || !textarea.value.trim()) return;
+  const resp = await authFetch('/api/bug-reports/' + reportId + '/comments', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text: textarea.value.trim() })
+  });
+  if (resp.ok) {
+    textarea.value = '';
+    loadBugComments(reportId);
+    await loadBugReports();
+    if (currentView === 'bugs') renderContent();
+  } else {
+    toast('Failed to post comment', 'error');
+  }
+}
+
+/** Delete a comment on a bug report */
+async function deleteBugComment(reportId, commentId) {
+  if (!(await themedConfirm('Delete this comment?'))) return;
+  const resp = await authFetch('/api/bug-reports/' + reportId + '/comments/' + commentId, { method: 'DELETE' });
+  if (resp.ok) {
+    loadBugComments(reportId);
+    await loadBugReports();
+    if (currentView === 'bugs') renderContent();
+  } else {
+    toast('Failed to delete comment', 'error');
+  }
+}
+
+/** Update a bug report field (status or priority) */
+async function updateBugField(id, field, value) {
+  const body = {};
+  body[field] = value === '' ? null : value;
+  const resp = await authFetch('/api/bug-reports/' + id, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (resp.ok) {
+    toast(field.charAt(0).toUpperCase() + field.slice(1) + ' updated');
+    await loadBugReports();
+    if (currentView === 'bugs') renderContent();
+    // Refresh the detail panel if open
+    const panel = document.getElementById('bugDetailPanel');
+    if (panel && panel.classList.contains('open')) openBugDetail(id);
+  } else {
+    const err = await resp.json().catch(() => ({}));
+    toast(err.error || 'Failed to update', 'error');
+  }
+}
+
+/** Save the bug description from the detail panel textarea */
+async function saveBugDescription(id) {
+  const textarea = document.getElementById('bugDescEdit');
+  if (!textarea) return;
+  const resp = await authFetch('/api/bug-reports/' + id, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ description: textarea.value })
+  });
+  if (resp.ok) {
+    toast('Description saved');
+    await loadBugReports();
+  } else {
+    toast('Failed to save description', 'error');
+  }
 }
 
 // ==================== SETTINGS VIEW ====================
@@ -13203,7 +13469,7 @@ async function fetchSeedData() {
         _currentUser = data.user;
         showApp();
         await openIDB();
-        await Promise.all([load(), loadTeamMembers(), loadPagePermissions(), apiCall('/api/clients').then(data => { if (data) data.forEach(c => { _apiClientsCache[c.name] = c; }); }).catch(() => {})]);
+        await Promise.all([load(), loadTeamMembers(), loadPagePermissions(), loadBugReports(), apiCall('/api/clients').then(data => { if (data) data.forEach(c => { _apiClientsCache[c.name] = c; }); }).catch(() => {})]);
         await loadFinanceSeedIfEmpty();
         await loadFinanceFromDB();
         checkLeadReminders();

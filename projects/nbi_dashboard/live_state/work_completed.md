@@ -174,3 +174,16 @@ See items 78-128 above (already logged from earlier sessions).
 165. **QA Execution** -- 175 cases run. 169 pass. 3 high-severity prereq bugs found and fixed. 2 false positives (rate limit, wrong endpoint). 1 low fixed (legacy routes).
 166. **Server-Side Prerequisite Enforcement** -- PATCH /api/tasks/:id now blocks Done status when prerequisites incomplete. Circular dependency detection via BFS walk. DELETE cascade cleans up orphaned dependency references from dependent items (text[] array fix).
 167. **Legacy Hash Route Redirects** -- LEGACY_ROUTES map redirects #incomplete to #tasks, #changelog to #settings. Applied to switchView() and popstate handler.
+
+## 2026-04-13 (Session A -- QA Bugs, Accessibility, UX Polish, Features, Hub QA)
+
+168. **QA Bug Fixes (4 closed)** -- BUG-002: amount <= 0 rejected. BUG-003: XSS input sanitisation on 7 endpoints (12 fields). BUG-004: UUID validation on expense GET/DELETE. BUG-006: admin RBAC on PUT /api/finance.
+169. **Accessibility Overhaul** -- ARIA on modals/tabs. Contrast boost across 7 themes (WCAG AA). Focus trapping in modals. MutationObserver for dynamic keyboard access (tabindex/role auto-patching). Delegated keydown for Enter/Space on onclick divs.
+170. **UX Polish** -- withButtonLoading on 5 submit forms. Required field indicators on 7 labels. Inline validation (showFieldError/clearFieldErrors) on 5 form handlers.
+171. **Medium Fixes** -- max-width 1800px on main content. Resize handles 6px to 12px. Finance table mobile scroll. Modal width tokens (--modal-sm/md/lg/xl). Zebra striping on report tables.
+172. **Multi-Select Filters** -- Status, health, assignee converted from single-select to multi-select checkbox dropdowns. Click-outside-to-close. Backward-compatible history states.
+173. **Imminent Time Filter** -- Tasks due within 3 days shown as amber "Imminent" metric with panel section. Labels: Today/Tomorrow/Xd.
+174. **Client Page Fields** -- studio_size (INTEGER) and contract_value (NUMERIC 12,2) added to clients table (migration 009). Server POST/PATCH updated. Frontend inputs in detail panel + collapsed row + profile header.
+175. **Hub Infra + Security (prior commit)** -- 25 cross-app issues fixed. user.id to user.sub data corruption. Board role escalation removed. Bcrypt dummy hash. Company scoping on queue routes. 11 frontend API endpoints corrected. ESM config fix.
+176. **Hub QA (68 tests)** -- First functional test. 63 pass, 5 bugs found and fixed: duplicate agent 500->409, UUID validation on 14 handlers across 6 route files, error response format standardised.
+177. **Hub Build** -- TypeScript compiles clean. PM2 running from dist/index.js in fork mode.

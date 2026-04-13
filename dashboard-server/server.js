@@ -963,6 +963,8 @@ app.get('/api/backup', async (req, res) => {
     const leads = await pool.query('SELECT * FROM leads ORDER BY created_at');
     const expenses = await pool.query('SELECT * FROM expenses ORDER BY created_at DESC');
     const auditLog = await pool.query('SELECT * FROM audit_log ORDER BY created_at DESC LIMIT 10000');
+    const bugReports = await pool.query('SELECT id, user_id, type, title, description, page, status, priority, created_at, updated_at FROM bug_reports ORDER BY created_at DESC');
+    const bugComments = await pool.query('SELECT * FROM bug_report_comments ORDER BY created_at');
 
     // Add uploads manifest to backup
     const uploadsDir = path.join(__dirname, 'uploads');
@@ -991,6 +993,8 @@ app.get('/api/backup', async (req, res) => {
         leads: leads.rows,
         expenses: expenses.rows,
         audit_log: auditLog.rows,
+        bug_reports: bugReports.rows,
+        bug_report_comments: bugComments.rows,
       },
       uploadManifest,
     };
@@ -3976,21 +3980,22 @@ app.post('/api/expenses/from-receipt', upload.single('file'), async (req, res) =
 
 // ==================== BUG / FEATURE REPORTS ====================
 
-/** GET /api/bug-reports — List all bug/feature reports. Admin sees all; regular users see own. */
+/** GET /api/bug-reports — List all bug/feature reports (visible to all authenticated users) */
 app.get('/api/bug-reports', async (req, res) => {
-  const isAdmin = req.user && req.user.role === 'admin';
   let where = [];
   let vals = [];
   let i = 1;
-  if (!isAdmin) { where.push(`b.user_id = $${i}`); vals.push(req.user.id); i++; }
-  const { status, type } = req.query;
+  const { status, type, priority } = req.query;
   if (status) { where.push(`b.status = $${i}`); vals.push(status); i++; }
   if (type) { where.push(`b.type = $${i}`); vals.push(type); i++; }
+  if (priority) { where.push(`b.priority = $${i}`); vals.push(priority); i++; }
   const whereClause = where.length > 0 ? 'WHERE ' + where.join(' AND ') : '';
   const { rows } = await pool.query(`
     SELECT b.id, b.user_id, b.type, b.title, b.description, b.page,
-           b.status, b.created_at, (b.screenshot IS NOT NULL) AS has_screenshot,
-           u.display_name AS reporter_name
+           b.status, b.priority, b.created_at, b.updated_at,
+           (b.screenshot IS NOT NULL) AS has_screenshot,
+           u.display_name AS reporter_name,
+           (SELECT COUNT(*) FROM bug_report_comments c WHERE c.report_id = b.id)::int AS comment_count
     FROM bug_reports b LEFT JOIN users u ON b.user_id = u.id
     ${whereClause} ORDER BY b.created_at DESC
   `, vals);
@@ -4017,21 +4022,57 @@ app.post('/api/bug-reports', async (req, res) => {
   res.status(201).json(rows[0]);
 });
 
-/** PATCH /api/bug-reports/:id — Update status and/or description (admin only) */
+/** PATCH /api/bug-reports/:id — Update status, priority, and/or description.
+ *  Permissions: admin can change anything; reporter can change status + description on own reports. */
 app.patch('/api/bug-reports/:id', async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
-  const { status, description } = req.body;
-  if (!status && description === undefined) return res.status(400).json({ error: 'status or description required' });
+  if (!req.user) return res.status(401).json({ error: 'Authentication required' });
+  const { status, description, priority } = req.body;
+  if (!status && description === undefined && priority === undefined) {
+    return res.status(400).json({ error: 'status, description, or priority required' });
+  }
 
-  const sets = [];
+  const isAdmin = req.user.role === 'admin';
+
+  // Look up the report to check ownership and get reporter info for notifications
+  const { rows: existing } = await pool.query(
+    `SELECT b.user_id, b.title, b.status AS old_status, b.priority AS old_priority, u.username AS reporter_username
+     FROM bug_reports b LEFT JOIN users u ON b.user_id = u.id WHERE b.id = $1`,
+    [req.params.id]
+  );
+  if (existing.length === 0) return res.status(404).json({ error: 'Report not found' });
+  const report = existing[0];
+  const isReporter = req.user.id === report.user_id;
+
+  // Priority: admin only
+  if (priority !== undefined && !isAdmin) {
+    return res.status(403).json({ error: 'Only admins can set priority' });
+  }
+  // Status: admin or reporter
+  if (status && !isAdmin && !isReporter) {
+    return res.status(403).json({ error: 'Only the reporter or an admin can change status' });
+  }
+  // Description: admin or reporter
+  if (description !== undefined && !isAdmin && !isReporter) {
+    return res.status(403).json({ error: 'Only the reporter or an admin can edit the description' });
+  }
+
+  const sets = ['updated_at = NOW()'];
   const vals = [];
   let idx = 1;
 
   if (status) {
-    const validStatuses = ['open', 'resolved', 'wontfix', 'please_review'];
+    const validStatuses = ['open', 'in_progress', 'please_review', 'resolved', 'wontfix'];
     if (!validStatuses.includes(status)) return res.status(400).json({ error: `Invalid status. Must be one of: ${validStatuses.join(', ')}` });
     sets.push(`status = $${idx++}`);
     vals.push(status);
+  }
+  if (priority !== undefined) {
+    const validPriorities = ['critical', 'high', 'medium', 'low', null];
+    if (priority !== null && !validPriorities.includes(priority)) {
+      return res.status(400).json({ error: `Invalid priority. Must be one of: critical, high, medium, low` });
+    }
+    sets.push(`priority = $${idx++}`);
+    vals.push(priority);
   }
   if (description !== undefined) {
     sets.push(`description = $${idx++}`);
@@ -4040,7 +4081,26 @@ app.patch('/api/bug-reports/:id', async (req, res) => {
 
   vals.push(req.params.id);
   const { rows } = await pool.query(`UPDATE bug_reports SET ${sets.join(', ')} WHERE id = $${idx} RETURNING *`, vals);
-  if (rows.length === 0) return res.status(404).json({ error: 'Report not found' });
+
+  // Send notifications for status and priority changes
+  const notifyUser = report.reporter_username;
+  if (notifyUser && notifyUser !== req.user.username) {
+    try {
+      if (status && status !== report.old_status) {
+        const statusLabels = { in_progress: 'In Progress', please_review: 'Please Review', resolved: 'Resolved', wontfix: "Won't Fix", open: 'Open' };
+        await createNotification(notifyUser, status === 'resolved' ? 'success' : 'info',
+          `Report ${statusLabels[status] || status}`,
+          `"${report.title}" has been updated to ${statusLabels[status] || status}.`,
+          '/nbi_project_dashboard.html#bugs');
+      }
+      if (priority !== undefined && priority !== report.old_priority) {
+        await createNotification(notifyUser, 'info', 'Priority updated',
+          `"${report.title}" priority set to ${priority || 'unset'}.`,
+          '/nbi_project_dashboard.html#bugs');
+      }
+    } catch (e) { log('error', 'BugReports', 'Failed to send notification', { error: e.message }); }
+  }
+
   res.json(rows[0]);
 });
 
@@ -4058,7 +4118,7 @@ app.post('/api/bug-reports/:id/notify-review', async (req, res) => {
       await createNotification(
         username, 'info', 'Your report needs review',
         `"${title}" has been updated to Please Review. Click to add details or mark as resolved.`,
-        '/nbi_project_dashboard.html#settings'
+        '/nbi_project_dashboard.html#bugs'
       );
     }
     res.json({ ok: true });
@@ -4066,6 +4126,74 @@ app.post('/api/bug-reports/:id/notify-review', async (req, res) => {
     log('error', 'BugReports', 'Failed to send review notification', { error: e.message });
     res.status(500).json({ error: 'Failed to send notification' });
   }
+});
+
+/** GET /api/bug-reports/:id/comments — List comments for a bug report */
+app.get('/api/bug-reports/:id/comments', async (req, res) => {
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid report ID' });
+  const { rows } = await pool.query(
+    'SELECT * FROM bug_report_comments WHERE report_id = $1 ORDER BY created_at ASC',
+    [req.params.id]
+  );
+  res.json(rows);
+});
+
+/** POST /api/bug-reports/:id/comments — Add a comment to a bug report */
+app.post('/api/bug-reports/:id/comments', async (req, res) => {
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid report ID' });
+  const { text } = req.body;
+  if (!text || !text.trim()) return res.status(400).json({ error: 'text required' });
+  const author = req.user?.displayName || req.user?.display_name || 'Unknown';
+  const { rows } = await pool.query(
+    'INSERT INTO bug_report_comments (report_id, author, text) VALUES ($1, $2, $3) RETURNING *',
+    [req.params.id, author, escHtml(text.trim())]
+  );
+  await pool.query('UPDATE bug_reports SET updated_at = NOW() WHERE id = $1', [req.params.id]);
+  await auditLog('bug_comment', rows[0].id, 'create', author, { report_id: req.params.id, text: text.trim() });
+
+  // Notify the reporter (if commenter is not the reporter) and admin (if commenter is not admin)
+  try {
+    const { rows: rpt } = await pool.query(
+      `SELECT b.user_id, b.title, u.username AS reporter_username
+       FROM bug_reports b LEFT JOIN users u ON b.user_id = u.id WHERE b.id = $1`,
+      [req.params.id]
+    );
+    if (rpt.length > 0) {
+      const { reporter_username, title } = rpt[0];
+      if (reporter_username && reporter_username !== req.user.username) {
+        await createNotification(reporter_username, 'info', 'New comment on your report',
+          `${author} commented on "${title}".`, '/nbi_project_dashboard.html#bugs');
+      }
+      // Notify admin if commenter is not admin
+      if (req.user.role !== 'admin') {
+        const { rows: admins } = await pool.query("SELECT username FROM users WHERE role = 'admin' AND username != $1", [req.user.username]);
+        for (const a of admins) {
+          await createNotification(a.username, 'info', 'New bug report comment',
+            `${author} commented on "${title}".`, '/nbi_project_dashboard.html#bugs');
+        }
+      }
+    }
+  } catch (e) { log('error', 'BugComments', 'Failed to send comment notification', { error: e.message }); }
+
+  res.status(201).json(rows[0]);
+});
+
+/** DELETE /api/bug-reports/:id/comments/:commentId — Delete a comment (own or admin) */
+app.delete('/api/bug-reports/:id/comments/:commentId', async (req, res) => {
+  if (!isValidUuid(req.params.id) || !isValidUuid(req.params.commentId)) {
+    return res.status(400).json({ error: 'Invalid ID format' });
+  }
+  const { rows } = await pool.query(
+    'SELECT author FROM bug_report_comments WHERE id = $1 AND report_id = $2',
+    [req.params.commentId, req.params.id]
+  );
+  if (rows.length === 0) return res.status(404).json({ error: 'Comment not found' });
+  const isOwner = rows[0].author === (req.user?.displayName || req.user?.display_name);
+  if (!isOwner && req.user.role !== 'admin') return res.status(403).json({ error: 'Can only delete your own comments' });
+  await pool.query('DELETE FROM bug_report_comments WHERE id = $1 AND report_id = $2',
+    [req.params.commentId, req.params.id]
+  );
+  res.json({ ok: true });
 });
 
 /** DELETE /api/bug-reports/:id — Delete a report (admin only) */
