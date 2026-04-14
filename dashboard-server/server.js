@@ -798,6 +798,61 @@ function sanitiseAuditData(data) {
  * @param {Object} [changes] - Object describing what changed (old/new values)
  * @param {import('pg').PoolClient} [conn] - Optional DB connection (for use within transactions)
  */
+/**
+ * Compute the next due date for a repeating task, given its repeat_rule and a base date.
+ * @param {Object} rule - { type: 'daily'|'weekly'|'yearly', daysOfWeek?, everyNWeeks?, dates? }
+ * @param {Date} from - The reference "now" date
+ * @returns {string|null} ISO date string (YYYY-MM-DD) or null if rule is invalid
+ */
+function computeNextRepeatDate(rule, from) {
+  if (!rule || typeof rule !== 'object' || !rule.type) return null;
+  const base = new Date(from);
+  base.setHours(0, 0, 0, 0);
+  const toIso = d => d.toISOString().slice(0, 10);
+
+  if (rule.type === 'daily') {
+    base.setDate(base.getDate() + 1);
+    return toIso(base);
+  }
+
+  if (rule.type === 'weekly') {
+    const days = Array.isArray(rule.daysOfWeek) && rule.daysOfWeek.length > 0
+      ? rule.daysOfWeek.map(Number).filter(n => !isNaN(n) && n >= 0 && n <= 6).sort((a, b) => a - b)
+      : [];
+    if (days.length === 0) {
+      // Fallback: same day next week
+      base.setDate(base.getDate() + 7);
+      return toIso(base);
+    }
+    // Find the next matching day after today
+    for (let i = 1; i <= 14; i++) {
+      const cand = new Date(base);
+      cand.setDate(cand.getDate() + i);
+      if (days.includes(cand.getDay())) return toIso(cand);
+    }
+    return null;
+  }
+
+  if (rule.type === 'yearly') {
+    const dates = Array.isArray(rule.dates) ? rule.dates.filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d)) : [];
+    if (dates.length === 0) return null;
+    // Find the earliest date strictly after today, possibly in next year(s)
+    const todayMs = base.getTime();
+    let best = null;
+    for (const ds of dates) {
+      const d = new Date(ds + 'T00:00:00');
+      // Try this year and next year — pick whichever is the first > today
+      for (let yearOffset = 0; yearOffset <= 2; yearOffset++) {
+        const cand = new Date(d.getFullYear() + yearOffset, d.getMonth(), d.getDate());
+        if (cand.getTime() > todayMs && (!best || cand < best)) { best = cand; break; }
+      }
+    }
+    return best ? toIso(best) : null;
+  }
+
+  return null;
+}
+
 async function auditLog(entityType, entityId, action, changedBy, changes, conn) {
   const db = conn || pool;
   try {
@@ -2578,7 +2633,10 @@ app.patch('/api/tasks/:id', async (req, res) => {
   if (req.body.title !== undefined) req.body.title = escHtml(req.body.title);
   if (req.body.description !== undefined) req.body.description = escHtml(req.body.description);
 
-  const allowedFields = ['title', 'parent_id', 'client_id', 'item_type', 'status', 'priority', 'health_state', 'description', 'assignees', 'hours_estimated', 'hours_spent', 'due_date', 'start_date', 'end_date', 'dependencies'];
+  const allowedFields = ['title', 'parent_id', 'client_id', 'item_type', 'status', 'priority', 'health_state', 'description', 'assignees', 'hours_estimated', 'hours_spent', 'due_date', 'start_date', 'end_date', 'dependencies', 'collaborations', 'success_factor', 'repeat_rule', 'blocker_info'];
+  // Sanitise the new text fields the same way as description
+  if (req.body.collaborations !== undefined) req.body.collaborations = req.body.collaborations ? escHtml(req.body.collaborations) : null;
+  if (req.body.success_factor !== undefined) req.body.success_factor = req.body.success_factor ? escHtml(req.body.success_factor) : null;
   const { updates, vals, nextIdx } = buildPatchQuery(req.body, allowedFields);
   if (req.body.title !== undefined && !req.body.title.trim()) {
     return res.status(400).json({ error: 'Title cannot be empty' });
@@ -2684,6 +2742,7 @@ app.patch('/api/tasks/:id', async (req, res) => {
   vals.push(req.params.id);
   const { rows } = await pool.query(`UPDATE tasks SET ${updates.join(', ')} WHERE id = $${nextIdx} RETURNING *`, vals);
   if (!rows[0]) return res.status(404).json({ error: 'Not found' });
+  const updatedTask = rows[0];
   // Build detailed change log with old and new values
   const changes = {};
   for (const f of allowedFields) {
@@ -2698,7 +2757,82 @@ app.patch('/api/tasks/:id', async (req, res) => {
   if (Object.keys(changes).length > 0) {
     await auditLog('task', req.params.id, 'update', req.user?.displayName, changes);
   }
-  res.json(rows[0]);
+
+  // Feature 3: cascade Cancelled status from a project to all descendants
+  if (req.body.status === 'Cancelled' && updatedTask.item_type === 'project' && (!oldTask || oldTask.status !== 'Cancelled')) {
+    try {
+      const { rows: cascaded } = await pool.query(`
+        WITH RECURSIVE descendants AS (
+          SELECT id FROM tasks WHERE parent_id = $1
+          UNION ALL
+          SELECT t.id FROM tasks t INNER JOIN descendants d ON t.parent_id = d.id
+        )
+        UPDATE tasks SET status = 'Cancelled', updated_at = NOW()
+        WHERE id IN (SELECT id FROM descendants) AND status != 'Cancelled'
+        RETURNING id
+      `, [req.params.id]);
+      if (cascaded.length > 0) {
+        await auditLog('task', req.params.id, 'cascade_cancel', req.user?.displayName, { count: cascaded.length, ids: cascaded.map(r => r.id) });
+      }
+    } catch (e) {
+      log('warn', 'Tasks', 'Cascade cancel failed', { error: e.message });
+    }
+  }
+
+  // Feature 2: clone next instance of a repeating task when marked Done or Cancelled
+  try {
+    const TERMINAL_STATUSES = ['Done', 'Cancelled'];
+    const newTerminal = req.body.status && TERMINAL_STATUSES.includes(req.body.status);
+    const wasTerminal = oldTask && TERMINAL_STATUSES.includes(oldTask.status);
+    if (newTerminal && !wasTerminal && updatedTask.repeat_rule) {
+      const nextDate = computeNextRepeatDate(updatedTask.repeat_rule, new Date());
+      if (nextDate) {
+        const cloneSql = `INSERT INTO tasks
+          (title, parent_id, client_id, item_type, status, priority, health_state, description, assignees,
+           hours_estimated, hours_spent, due_date, start_date, end_date, dependencies, planner_task_id, source,
+           collaborations, success_factor, repeat_rule)
+          VALUES ($1,$2,$3,$4,'Not started',$5,$6,$7,$8,$9,0,$10,'','',$11,'','repeat',$12,$13,$14)
+          RETURNING id`;
+        const cloneVals = [
+          updatedTask.title, updatedTask.parent_id, updatedTask.client_id, updatedTask.item_type,
+          updatedTask.priority || '', updatedTask.health_state || '', updatedTask.description || '',
+          updatedTask.assignees || [], updatedTask.hours_estimated || 0, nextDate, updatedTask.dependencies || [],
+          updatedTask.collaborations || null, updatedTask.success_factor || null, updatedTask.repeat_rule
+        ];
+        const cloneRes = await pool.query(cloneSql, cloneVals);
+        await auditLog('task', cloneRes.rows[0].id, 'repeat_clone', req.user?.displayName, { source_task_id: req.params.id, due_date: nextDate });
+      }
+    }
+  } catch (e) {
+    log('warn', 'Tasks', 'Repeat clone failed', { error: e.message });
+  }
+
+  // Feature 6: notify internal assignees tagged as blockers when task is set to Blocked
+  try {
+    if (req.body.status === 'Blocked' && updatedTask.blocker_info && Array.isArray(updatedTask.blocker_info.internal)) {
+      const internalNames = updatedTask.blocker_info.internal.filter(n => n && typeof n === 'string');
+      if (internalNames.length > 0) {
+        const { rows: matchedUsers } = await pool.query(
+          'SELECT username, display_name FROM users WHERE display_name = ANY($1) OR username = ANY($1)',
+          [internalNames]
+        );
+        for (const u of matchedUsers) {
+          if (u.username && u.username !== req.user?.username) {
+            await createNotification(
+              u.username, 'warning',
+              `Task blocking on you`,
+              `Task "${updatedTask.title}" is blocking on you.`,
+              '/nbi_project_dashboard.html#workload'
+            );
+          }
+        }
+      }
+    }
+  } catch (e) {
+    log('warn', 'Tasks', 'Blocker notification failed', { error: e.message });
+  }
+
+  res.json(updatedTask);
 });
 
 /** DELETE /api/tasks/:id — Delete a task and all descendants (admin only). Uses a transaction for atomicity. */
@@ -2827,10 +2961,13 @@ app.post('/api/sync/changes', async (req, res) => {
     // Batch-fetch existing task states to avoid N+1 queries in the loop
     const upsertIds = changes.filter(ch => ch.action === 'upsert' && ch.entity === 'task' && ch.data?.id).map(ch => ch.data.id);
     const existingTaskMap = new Map();
+    const existingFullMap = new Map(); // full row, used for post-processing transitions
     if (upsertIds.length > 0) {
-      const { rows: existingRows } = await conn.query('SELECT id, updated_at FROM tasks WHERE id = ANY($1::uuid[])', [upsertIds]);
-      existingRows.forEach(r => existingTaskMap.set(r.id, r.updated_at));
+      const { rows: existingRows } = await conn.query('SELECT * FROM tasks WHERE id = ANY($1::uuid[])', [upsertIds]);
+      existingRows.forEach(r => { existingTaskMap.set(r.id, r.updated_at); existingFullMap.set(r.id, r); });
     }
+    // Track per-task transitions to process after the main upsert loop (cascade cancel, repeat clones, blocker notifications)
+    const postProcessTransitions = [];
 
     for (const ch of changes) {
       const t = ch.data || {};
@@ -2870,26 +3007,34 @@ app.post('/api/sync/changes', async (req, res) => {
           await conn.query(
             `UPDATE tasks SET title=$1, parent_id=$2, client_id=$3, item_type=$4, status=$5, priority=$6,
              health_state=$7, description=$8, assignees=$9, hours_estimated=$10, hours_spent=$11,
-             due_date=$12, start_date=$13, end_date=$14, dependencies=$15, updated_at=NOW()
-             WHERE id=$16`,
+             due_date=$12, start_date=$13, end_date=$14, dependencies=$15,
+             collaborations=$16, success_factor=$17, repeat_rule=$18, blocker_info=$19,
+             updated_at=NOW()
+             WHERE id=$20`,
             [t.title, parentId, clientId, itemType, t.status || 'Not started', t.priority || '',
              t.healthState || t.health_state || '', t.description || '', t.assignees || [],
              t.hoursEstimated || t.hours_estimated || 0, t.hoursSpent || t.hours_spent || 0,
              t.dueDate || t.due_date || '', t.startDate || t.start_date || '', t.endDate || t.end_date || '',
-             t.dependencies || [], t.id]
+             t.dependencies || [],
+             t.collaborations || null, t.successFactor || t.success_factor || null,
+             t.repeatRule || t.repeat_rule || null, t.blockerInfo || t.blocker_info || null,
+             t.id]
           );
         } else {
           // Insert new task
           const { rows } = await conn.query(
             `INSERT INTO tasks (id, title, parent_id, client_id, item_type, status, priority, health_state,
-             description, assignees, hours_estimated, hours_spent, due_date, start_date, end_date, dependencies, source, created_at, updated_at)
-             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,NOW()) RETURNING id`,
+             description, assignees, hours_estimated, hours_spent, due_date, start_date, end_date, dependencies, source, created_at,
+             collaborations, success_factor, repeat_rule, blocker_info, updated_at)
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,NOW()) RETURNING id`,
             [t.id, t.title, parentId, clientId, itemType, t.status || 'Not started', t.priority || '',
              t.healthState || t.health_state || '', t.description || '', t.assignees || [],
              t.hoursEstimated || t.hours_estimated || 0, t.hoursSpent || t.hours_spent || 0,
              t.dueDate || t.due_date || '', t.startDate || t.start_date || '', t.endDate || t.end_date || '',
              t.dependencies || [], t.source || 'sync',
-             t.createdAt || t.created_at || new Date().toISOString()]
+             t.createdAt || t.created_at || new Date().toISOString(),
+             t.collaborations || null, t.successFactor || t.success_factor || null,
+             t.repeatRule || t.repeat_rule || null, t.blockerInfo || t.blocker_info || null]
           );
           idMap[t.id] = rows[0].id;
           existingTaskMap.set(rows[0].id, new Date()); // Register in map for subsequent batch references
@@ -2911,6 +3056,37 @@ app.post('/api/sync/changes', async (req, res) => {
         await auditLog('task', idMap[t.id] || t.id,
           taskExists ? 'update' : 'create',
           changedBy, { title: t.title, status: t.status, healthState: t.healthState || t.health_state }, conn);
+
+        // Capture state transitions for post-processing (cancel cascade, repeat clones, blocker notifications)
+        if (taskExists) {
+          const oldRow = existingFullMap.get(t.id);
+          if (oldRow) {
+            postProcessTransitions.push({
+              id: t.id,
+              oldStatus: oldRow.status,
+              newStatus: t.status,
+              itemType,
+              repeatRule: t.repeatRule || t.repeat_rule || oldRow.repeat_rule || null,
+              blockerInfo: t.blockerInfo || t.blocker_info || null,
+              title: t.title || oldRow.title,
+              snapshot: { ...oldRow,
+                title: t.title,
+                priority: t.priority || '',
+                health_state: t.healthState || t.health_state || '',
+                description: t.description || '',
+                assignees: t.assignees || [],
+                hours_estimated: t.hoursEstimated || t.hours_estimated || 0,
+                client_id: clientId,
+                parent_id: parentId,
+                item_type: itemType,
+                collaborations: t.collaborations || null,
+                success_factor: t.successFactor || t.success_factor || null,
+                repeat_rule: t.repeatRule || t.repeat_rule || null,
+                dependencies: t.dependencies || []
+              }
+            });
+          }
+        }
         applied++;
 
       } else if (ch.action === 'delete' && ch.entity === 'task') {
@@ -2950,7 +3126,89 @@ app.post('/api/sync/changes', async (req, res) => {
       }
     }
 
+    // Post-process state transitions (cancel cascade, repeat clones, blocker notifications)
+    const blockerNotifications = []; // run after COMMIT
+    for (const tr of postProcessTransitions) {
+      const TERMINAL = ['Done', 'Cancelled'];
+      // Cancel cascade for project-type items
+      if (tr.newStatus === 'Cancelled' && tr.oldStatus !== 'Cancelled' && tr.itemType === 'project') {
+        try {
+          const { rows: cascaded } = await conn.query(`
+            WITH RECURSIVE descendants AS (
+              SELECT id FROM tasks WHERE parent_id = $1
+              UNION ALL
+              SELECT t.id FROM tasks t INNER JOIN descendants d ON t.parent_id = d.id
+            )
+            UPDATE tasks SET status = 'Cancelled', updated_at = NOW()
+            WHERE id IN (SELECT id FROM descendants) AND status != 'Cancelled'
+            RETURNING id
+          `, [tr.id]);
+          if (cascaded.length > 0) {
+            await auditLog('task', tr.id, 'cascade_cancel', req.user?.displayName || 'system', { count: cascaded.length }, conn);
+          }
+        } catch (e) {
+          log('warn', 'Sync', 'Cascade cancel failed', { error: e.message });
+        }
+      }
+
+      // Repeat clone when transitioning into Done or Cancelled
+      if (TERMINAL.includes(tr.newStatus) && !TERMINAL.includes(tr.oldStatus) && tr.repeatRule) {
+        try {
+          const nextDate = computeNextRepeatDate(tr.repeatRule, new Date());
+          if (nextDate) {
+            const snap = tr.snapshot;
+            const cloneRes = await conn.query(
+              `INSERT INTO tasks
+                (title, parent_id, client_id, item_type, status, priority, health_state, description, assignees,
+                 hours_estimated, hours_spent, due_date, start_date, end_date, dependencies, source,
+                 collaborations, success_factor, repeat_rule)
+                VALUES ($1,$2,$3,$4,'Not started',$5,$6,$7,$8,$9,0,$10,'','',$11,'repeat',$12,$13,$14)
+                RETURNING id`,
+              [snap.title, snap.parent_id, snap.client_id, snap.item_type, snap.priority || '',
+               snap.health_state || '', snap.description || '', snap.assignees || [],
+               snap.hours_estimated || 0, nextDate, snap.dependencies || [],
+               snap.collaborations || null, snap.success_factor || null, tr.repeatRule]
+            );
+            await auditLog('task', cloneRes.rows[0].id, 'repeat_clone', req.user?.displayName || 'system', { source_task_id: tr.id, due_date: nextDate }, conn);
+          }
+        } catch (e) {
+          log('warn', 'Sync', 'Repeat clone failed', { error: e.message });
+        }
+      }
+
+      // Blocker notifications: queue for after COMMIT (createNotification uses pool, not conn)
+      if (tr.newStatus === 'Blocked' && tr.oldStatus !== 'Blocked' && tr.blockerInfo && Array.isArray(tr.blockerInfo.internal)) {
+        const internalNames = tr.blockerInfo.internal.filter(n => n && typeof n === 'string');
+        if (internalNames.length > 0) {
+          blockerNotifications.push({ taskId: tr.id, taskTitle: tr.title, names: internalNames });
+        }
+      }
+    }
+
     await conn.query('COMMIT');
+
+    // Send blocker notifications (after the transaction has committed)
+    for (const bn of blockerNotifications) {
+      try {
+        const { rows: matchedUsers } = await pool.query(
+          'SELECT username, display_name FROM users WHERE display_name = ANY($1) OR username = ANY($1)',
+          [bn.names]
+        );
+        for (const u of matchedUsers) {
+          if (u.username && u.username !== req.user?.username) {
+            await createNotification(
+              u.username, 'warning',
+              `Task blocking on you`,
+              `Task "${bn.taskTitle}" is blocking on you.`,
+              '/nbi_project_dashboard.html#workload'
+            );
+          }
+        }
+      } catch (e) {
+        log('warn', 'Sync', 'Blocker notify failed', { error: e.message });
+      }
+    }
+
     res.json({ ok: true, applied, idMap });
   } catch (e) {
     await conn.query('ROLLBACK');
@@ -2999,6 +3257,10 @@ app.get('/api/sync/poll', async (req, res) => {
     priority: r.priority || '',
     healthState: r.health_state || '',
     description: r.description || '',
+    collaborations: r.collaborations || '',
+    successFactor: r.success_factor || '',
+    repeatRule: r.repeat_rule || null,
+    blockerInfo: r.blocker_info || null,
     assignees: r.assignees || [],
     hoursEstimated: r.hours_estimated || 0,
     hoursSpent: r.hours_spent || 0,
@@ -3153,6 +3415,10 @@ app.get('/api/sync/load', async (req, res) => {
     priority: r.priority || '',
     healthState: r.health_state || '',
     description: r.description || '',
+    collaborations: r.collaborations || '',
+    successFactor: r.success_factor || '',
+    repeatRule: r.repeat_rule || null,
+    blockerInfo: r.blocker_info || null,
     assignees: r.assignees || [],
     hoursEstimated: r.hours_estimated || 0,
     hoursSpent: r.hours_spent || 0,
@@ -3700,7 +3966,8 @@ app.patch('/api/leads/:id', async (req, res) => {
     'currency', 'rom_min', 'rom_max', 'rom_text', 'win_probability',
     'primary_contact_id', 'deal_owner', 'lead_source',
     'est_start_date', 'expected_close_date', 'last_contacted',
-    'next_followup_date', 'next_action', 'location', 'notes', 'time_estimate'];
+    'next_followup_date', 'next_action', 'location', 'notes', 'time_estimate',
+    'completed_at'];
 
   // Pre-process: convert empty strings to null for nullable lead fields
   const sanitisedBody = { ...req.body };
