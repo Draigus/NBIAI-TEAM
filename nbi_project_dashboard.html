@@ -4375,6 +4375,73 @@ function renderBoardCard(task) {
 // ===== CALENDAR VIEW =====
 let _calMonth = new Date().getMonth();
 let _calYear = new Date().getFullYear();
+let _calEvents = [];                 // Cached list of calendar events for the visible month
+let _calEventsKey = '';              // Cache key (year-month) so re-renders don't re-fetch
+let _calShowOthers = true;           // Toggle: show events created by other users
+const CAL_EVENT_TYPES = [
+  { value: 'vacation',    label: 'Vacation',     colour: '#22c55e' },
+  { value: 'sick_leave',  label: 'Sick Leave',   colour: '#ef4444' },
+  { value: 'bank_holiday',label: 'Bank Holiday', colour: '#3b82f6' },
+  { value: 'uto',         label: 'UTO',          colour: '#a855f7' },
+  { value: 'business',    label: 'Business',     colour: '#f97316' },
+  { value: 'other',       label: 'Other',        colour: '#9ca3af' }
+];
+const CAL_EVENT_VISIBILITY = [
+  { value: 'private', label: 'Private' },
+  { value: 'team',    label: 'Team' },
+  { value: 'client',  label: 'Client' },
+  { value: 'public',  label: 'Public' }
+];
+
+/** Look up an event type colour, falling back to grey. */
+function calEventColour(type) {
+  const t = CAL_EVENT_TYPES.find(x => x.value === type);
+  return t ? t.colour : '#9ca3af';
+}
+
+/** Look up an event type human label. */
+function calEventTypeLabel(type) {
+  const t = CAL_EVENT_TYPES.find(x => x.value === type);
+  return t ? t.label : 'Other';
+}
+
+/** Fetch calendar events for the currently visible month and cache them. */
+async function loadCalendarEvents(year, month) {
+  // Pad the window by one week on either side so multi-day events that
+  // overlap the month boundary still show up.
+  const from = new Date(year, month, 1); from.setDate(from.getDate() - 7);
+  const to = new Date(year, month + 1, 0); to.setDate(to.getDate() + 7);
+  const fmt = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const events = await apiCall(`/api/calendar-events?from=${fmt(from)}&to=${fmt(to)}`);
+  _calEvents = Array.isArray(events) ? events : [];
+  _calEventsKey = `${year}-${month}`;
+  // Re-render the calendar slot in place if it exists
+  const main = document.querySelector('.tasks-layout__main');
+  if (main && taskSubView === 'calendar') renderContent();
+}
+
+/** Build a date-keyed map of events that overlap each day in the visible month. */
+function calBuildEventDayMap(year, month) {
+  const dayEvents = {};
+  const monthStart = new Date(year, month, 1);
+  const monthEnd = new Date(year, month + 1, 0);
+  _calEvents.forEach(ev => {
+    if (!_calShowOthers && _currentUser && ev.user_id !== _currentUser.id) return;
+    const start = ev.start_date ? new Date(ev.start_date + 'T00:00:00') : null;
+    const end = ev.end_date ? new Date(ev.end_date + 'T00:00:00') : start;
+    if (!start) return;
+    // Walk every day in the event's range that falls inside the visible month
+    const cursor = new Date(Math.max(start.getTime(), monthStart.getTime()));
+    const stop = new Date(Math.min(end.getTime(), monthEnd.getTime()));
+    while (cursor <= stop) {
+      const key = `${cursor.getFullYear()}-${String(cursor.getMonth()+1).padStart(2,'0')}-${String(cursor.getDate()).padStart(2,'0')}`;
+      if (!dayEvents[key]) dayEvents[key] = [];
+      dayEvents[key].push(ev);
+      cursor.setDate(cursor.getDate() + 1);
+    }
+  });
+  return dayEvents;
+}
 
 /** Render the monthly calendar grid view -- tasks shown as coloured chips on their due/start/end dates */
 function renderCalendarView(filtered) {
@@ -4396,13 +4463,33 @@ function renderCalendarView(filtered) {
     });
   });
 
+  // Trigger a calendar events fetch the first time we render this month
+  // (or when navigating). loadCalendarEvents will re-render once the data is in.
+  const visibleKey = `${_calYear}-${_calMonth}`;
+  if (_calEventsKey !== visibleKey) {
+    setTimeout(() => loadCalendarEvents(_calYear, _calMonth), 0);
+  }
+  const eventDayMap = calBuildEventDayMap(_calYear, _calMonth);
+
   let html = '<div class="cal">';
-  // Navigation
-  html += `<div class="cal__nav">`;
-  html += `<button class="cal__nav-btn" onclick="_calMonth--;if(_calMonth<0){_calMonth=11;_calYear--;}renderContent()">&laquo; Prev</button>`;
-  html += `<button class="cal__nav-btn" onclick="_calMonth=new Date().getMonth();_calYear=new Date().getFullYear();renderContent()">Today</button>`;
+  // Navigation + add-event controls
+  html += `<div class="cal__nav" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">`;
+  html += `<button class="cal__nav-btn" onclick="_calMonth--;if(_calMonth<0){_calMonth=11;_calYear--;}_calEventsKey='';renderContent()">&laquo; Prev</button>`;
+  html += `<button class="cal__nav-btn" onclick="_calMonth=new Date().getMonth();_calYear=new Date().getFullYear();_calEventsKey='';renderContent()">Today</button>`;
   html += `<div class="cal__month-title">${monthName}</div>`;
-  html += `<button class="cal__nav-btn" onclick="_calMonth++;if(_calMonth>11){_calMonth=0;_calYear++;}renderContent()">Next &raquo;</button>`;
+  html += `<button class="cal__nav-btn" onclick="_calMonth++;if(_calMonth>11){_calMonth=0;_calYear++;}_calEventsKey='';renderContent()">Next &raquo;</button>`;
+  html += `<div style="flex:1"></div>`;
+  html += `<label style="display:flex;align-items:center;gap:6px;font-size:0.78rem;color:var(--text-muted);cursor:pointer;user-select:none">
+    <input type="checkbox" ${_calShowOthers ? 'checked' : ''} onchange="_calShowOthers=this.checked;renderContent()" style="accent-color:var(--accent)"> Show events from others
+  </label>`;
+  html += `<button class="btn btn--sm btn--primary" onclick="openCalendarEventModal()">+ Add Event</button>`;
+  html += `</div>`;
+
+  // Legend for event type colours
+  html += `<div class="cal__legend" style="display:flex;flex-wrap:wrap;gap:10px;padding:6px 4px;font-size:0.7rem;color:var(--text-muted)">`;
+  CAL_EVENT_TYPES.forEach(t => {
+    html += `<span style="display:inline-flex;align-items:center;gap:4px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${t.colour}"></span>${t.label}</span>`;
+  });
   html += `</div>`;
 
   // Grid
@@ -4430,9 +4517,19 @@ function renderCalendarView(filtered) {
     else if (isWeekend) cls += ' cal__cell--weekend';
 
     const tasksOnDay = dayTasks[dateStr] || [];
+    const eventsOnDay = eventDayMap[dateStr] || [];
     const maxShow = 3;
 
     html += `<div class="${cls}"><div class="cal__date">${d}</div>`;
+    // Calendar events render first as solid coloured bars (distinct from task cards)
+    eventsOnDay.slice(0, maxShow).forEach(ev => {
+      const col = calEventColour(ev.event_type);
+      const ownerSuffix = ev.user_display_name ? ' — ' + ev.user_display_name : '';
+      html += `<div class="cal__event" style="background:${col};color:#fff;padding:1px 5px;border-radius:3px;font-size:0.65rem;margin-top:2px;cursor:pointer;border-left:3px solid rgba(0,0,0,0.25);overflow:hidden;text-overflow:ellipsis;white-space:nowrap" onclick="event.stopPropagation();openCalendarEventDetail('${ev.id}')" title="${esc(calEventTypeLabel(ev.event_type))}: ${esc(ev.title)}${esc(ownerSuffix)}">${esc(ev.title)}</div>`;
+    });
+    if (eventsOnDay.length > maxShow) {
+      html += `<div class="cal__more" style="font-size:0.62rem;color:var(--text-muted)">+${eventsOnDay.length - maxShow} more events</div>`;
+    }
     tasksOnDay.slice(0, maxShow).forEach(t => {
       const col = STATUS_COLOURS_HEX[t.status] || '#666';
       const overdue = t.dueDate === dateStr && dt < now && t.status !== 'Done';
@@ -4453,6 +4550,100 @@ function renderCalendarView(filtered) {
 
   html += '</div></div>';
   return html;
+}
+
+/**
+ * Open the create/edit modal for a calendar event. Pass an event object to
+ * edit, or omit/null to create a new event for the current user.
+ */
+async function openCalendarEventModal(event) {
+  const isEdit = !!(event && event.id);
+  // Pull live client list so we have the canonical IDs to attach to the event
+  const clientList = (await apiCall('/api/clients')) || [];
+  const typeOpts = CAL_EVENT_TYPES.map(t => `<option value="${t.value}" ${event && event.event_type === t.value ? 'selected' : ''}>${t.label}</option>`).join('');
+  const visOpts = CAL_EVENT_VISIBILITY.map(v => `<option value="${v.value}" ${event && event.visibility === v.value ? 'selected' : (!event && v.value === 'team' ? 'selected' : '')}>${v.label}</option>`).join('');
+  const clientOpts = `<option value="">-- None --</option>` + clientList.map(c =>
+    `<option value="${esc(c.id)}" ${event && event.client_id === c.id ? 'selected' : ''}>${esc(c.name)}</option>`
+  ).join('');
+
+  const html = `<div class="modal-overlay open" id="calEventModal" role="dialog" aria-modal="true" onclick="if(event.target===this)this.remove()">
+    <div class="modal" style="max-width:var(--modal-sm)">
+      <h2 style="margin-top:0">${isEdit ? 'Edit' : 'New'} Calendar Event</h2>
+      <div class="lead-detail__grid">
+        <label class="field-required">Title</label><input type="text" id="calEvTitle" value="${esc(event?.title || '')}" placeholder="e.g. London Games Conference">
+        <label class="field-required">Type</label><select id="calEvType">${typeOpts}</select>
+        <label class="field-required">Start date</label><input type="date" id="calEvStart" value="${event?.start_date ? String(event.start_date).slice(0,10) : ''}">
+        <label>End date</label><input type="date" id="calEvEnd" value="${event?.end_date ? String(event.end_date).slice(0,10) : ''}">
+        <label>Client</label><select id="calEvClient">${clientOpts}</select>
+        <label>Visibility</label><select id="calEvVis">${visOpts}</select>
+        <label>Description</label><textarea id="calEvDesc" rows="3" style="resize:vertical">${esc(event?.description || '')}</textarea>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end">
+        ${isEdit ? `<button class="btn btn--danger" onclick="deleteCalendarEventFromModal('${event.id}')">Delete</button>` : ''}
+        <button class="btn" onclick="document.getElementById('calEventModal').remove()">Cancel</button>
+        <button class="btn btn--primary" onclick="withButtonLoading(this, () => submitCalendarEvent(${isEdit ? `'${event.id}'` : 'null'}))">${isEdit ? 'Save' : 'Create'}</button>
+      </div>
+    </div>
+  </div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+  if (typeof _activateDynamicModal === 'function') _activateDynamicModal('calEventModal');
+}
+
+/** Submit the calendar event modal — POSTs a new event or PATCHes an existing one. */
+async function submitCalendarEvent(eventId) {
+  const modal = document.getElementById('calEventModal');
+  if (!modal) return;
+  if (typeof clearFieldErrors === 'function') clearFieldErrors(modal);
+  const titleEl = document.getElementById('calEvTitle');
+  const startEl = document.getElementById('calEvStart');
+  const title = titleEl.value.trim();
+  const start_date = startEl.value;
+  if (!title) { if (typeof showFieldError === 'function') showFieldError(titleEl, 'Title is required'); return; }
+  if (!start_date) { if (typeof showFieldError === 'function') showFieldError(startEl, 'Start date is required'); return; }
+
+  const payload = {
+    title,
+    event_type: document.getElementById('calEvType').value,
+    start_date,
+    end_date: document.getElementById('calEvEnd').value || null,
+    client_id: document.getElementById('calEvClient').value || null,
+    visibility: document.getElementById('calEvVis').value,
+    description: document.getElementById('calEvDesc').value.trim() || null
+  };
+
+  const url = eventId ? `/api/calendar-events/${eventId}` : '/api/calendar-events';
+  const resp = await authFetch(url, {
+    method: eventId ? 'PATCH' : 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    toast('Failed to save event: ' + (err.error?.message || err.error || 'Unknown error'), 'error');
+    return;
+  }
+  modal.remove();
+  toast(eventId ? 'Event updated' : 'Event created');
+  _calEventsKey = '';
+  await loadCalendarEvents(_calYear, _calMonth);
+}
+
+/** Open the calendar event detail/edit modal for an existing event. */
+async function openCalendarEventDetail(eventId) {
+  const event = await apiCall(`/api/calendar-events/${eventId}`);
+  if (!event) return;
+  openCalendarEventModal(event);
+}
+
+/** Delete a calendar event from inside the edit modal, with confirmation. */
+async function deleteCalendarEventFromModal(eventId) {
+  if (!(await themedConfirm('Delete this calendar event?'))) return;
+  const resp = await authFetch(`/api/calendar-events/${eventId}`, { method: 'DELETE' });
+  if (!resp.ok) { toast('Delete failed', 'error'); return; }
+  document.getElementById('calEventModal')?.remove();
+  toast('Event deleted');
+  _calEventsKey = '';
+  await loadCalendarEvents(_calYear, _calMonth);
 }
 
 /** Expand a calendar day cell to show all tasks */
@@ -12432,6 +12623,17 @@ async function loadEntityFiles(entityType, entityId, containerId) {
       el.innerHTML = '<span style="color:var(--text-muted);font-size:0.75rem">No files attached</span>';
     } else {
       el.innerHTML = files.map(f => {
+        // Link attachments: distinct icon, open in new tab, no size
+        if (f.link_url) {
+          const display = f.link_title || f.link_url;
+          // &#128279; = link, looks similar to a Sharepoint chain-link icon
+          return `<div class="attachment-row">
+            <span class="attachment-row__icon" title="Link">&#128279;</span>
+            <a href="${esc(f.link_url)}" target="_blank" rel="noopener noreferrer" class="attachment-row__name" title="${esc(f.link_url)}">${esc(display)}</a>
+            <span class="attachment-row__size" style="font-size:0.62rem;color:var(--text-muted)">link</span>
+            <button class="attachment-row__delete" onclick="deleteEntityFile('${f.id}','${entityType}','${entityId}','${containerId}')" title="Delete">&times;</button>
+          </div>`;
+        }
         const sizeMB = (f.size_bytes / (1024 * 1024)).toFixed(1);
         const icon = f.mime_type?.startsWith('image/') ? '&#128444;' : f.mime_type?.includes('pdf') ? '&#128196;' : '&#128206;';
         return `<div class="attachment-row">
@@ -12443,6 +12645,45 @@ async function loadEntityFiles(entityType, entityId, containerId) {
       }).join('');
     }
   } catch(e) { el.innerHTML = '<span style="color:var(--text-muted);font-size:0.75rem">Error loading files</span>'; }
+}
+
+/** Toggle an inline "Add Link" form inside an attachments section. */
+function toggleAddLinkForm(entityType, entityId) {
+  const formId = `addLinkForm_${entityType}_${entityId}`;
+  const form = document.getElementById(formId);
+  if (!form) return;
+  form.style.display = form.style.display === 'none' ? 'flex' : 'none';
+  if (form.style.display !== 'none') {
+    const urlInput = form.querySelector('input[type="url"]');
+    if (urlInput) urlInput.focus();
+  }
+}
+
+/** Submit the inline Add Link form for an entity, posting to the link attachment endpoint. */
+async function submitAttachmentLink(entityType, entityId, containerId) {
+  const formId = `addLinkForm_${entityType}_${entityId}`;
+  const form = document.getElementById(formId);
+  if (!form) return;
+  const url = form.querySelector('input[type="url"]').value.trim();
+  const title = form.querySelector('input[type="text"]').value.trim();
+  if (!url) { toast('Enter a URL', 'error'); return; }
+  // Use the universal endpoint so the same code path serves any entity type
+  const resp = await authFetch(`/api/attachments/entity/${entityType}/${entityId}/link`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ url, title: title || null })
+  });
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    toast('Failed to add link: ' + (err.error?.message || err.error || 'Unknown error'), 'error');
+    return;
+  }
+  // Reset and hide form, refresh list
+  form.querySelector('input[type="url"]').value = '';
+  form.querySelector('input[type="text"]').value = '';
+  form.style.display = 'none';
+  loadEntityFiles(entityType, entityId, containerId);
+  toast('Link added');
 }
 
 /** Upload a file via XHR (supports progress tracking for large files) */
@@ -12488,13 +12729,24 @@ async function deleteEntityFile(attachId, entityType, entityId, containerId) {
 function renderAttachmentsSection(entityType, entityId) {
   const containerId = `${entityType}Files_${entityId}`;
   const inputId = `${entityType}FileInput_${entityId}`;
+  const addLinkFormId = `addLinkForm_${entityType}_${entityId}`;
   let html = `<div class="detail-section">`;
   html += `<div class="detail-section__title">Files & Attachments</div>`;
   html += `<div id="${containerId}" style="margin-bottom:8px"><span style="color:var(--text-muted);font-size:0.75rem">Loading...</span></div>`;
-  html += `<div style="display:flex;gap:6px;align-items:center">`;
+  html += `<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">`;
   html += `<input type="file" id="${inputId}" style="font-size:0.72rem;max-width:180px;color:var(--text-secondary)">`;
   html += `<button class="btn btn--sm btn--primary" onclick="uploadEntityFile('${entityType}','${entityId}','${inputId}','${containerId}')">Upload</button>`;
+  html += `<button class="btn btn--sm" onclick="toggleAddLinkForm('${entityType}','${entityId}')" title="Attach a Sharepoint or other link">&#128279; Add Link</button>`;
+  html += `</div>`;
+  // Inline Add Link form, hidden until the user clicks the button
+  html += `<div id="${addLinkFormId}" style="display:none;flex-direction:column;gap:4px;margin-top:6px;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm)">`;
+  html += `<input type="url" placeholder="https://nbigaming.sharepoint.com/..." style="font-size:0.78rem;padding:4px 6px;background:var(--bg-surface);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)">`;
+  html += `<input type="text" placeholder="Display title (optional)" style="font-size:0.78rem;padding:4px 6px;background:var(--bg-surface);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)">`;
+  html += `<div style="display:flex;gap:6px;justify-content:flex-end">`;
+  html += `<button class="btn btn--sm" onclick="toggleAddLinkForm('${entityType}','${entityId}')">Cancel</button>`;
+  html += `<button class="btn btn--sm btn--primary" onclick="submitAttachmentLink('${entityType}','${entityId}','${containerId}')">Save Link</button>`;
   html += `</div></div>`;
+  html += `</div>`;
   // Schedule file load after DOM is updated
   setTimeout(() => loadEntityFiles(entityType, entityId, containerId), 50);
   return html;

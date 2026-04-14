@@ -1022,6 +1022,7 @@ app.get('/api/backup', async (req, res) => {
     const bugComments = await pool.query('SELECT * FROM bug_report_comments ORDER BY created_at');
     // SoWs — work_package_text is already filtered (pricing/legal stripped) so safe to include in backups
     const sows = await pool.query('SELECT * FROM sows ORDER BY created_at');
+    const calendarEvents = await pool.query('SELECT * FROM calendar_events ORDER BY created_at');
 
     // Add uploads manifest to backup
     const uploadsDir = path.join(__dirname, 'uploads');
@@ -1053,6 +1054,7 @@ app.get('/api/backup', async (req, res) => {
         bug_reports: bugReports.rows,
         bug_report_comments: bugComments.rows,
         sows: sows.rows,
+        calendar_events: calendarEvents.rows,
       },
       uploadManifest,
     };
@@ -1168,6 +1170,18 @@ app.post('/api/restore', async (req, res) => {
           `INSERT INTO bug_report_comments (id, report_id, author, text, created_at)
            VALUES ($1,$2,$3,$4,$5) ON CONFLICT (id) DO NOTHING`,
           [c.id, c.report_id, c.author, c.text, c.created_at]
+        );
+      }
+    }
+
+    // Calendar events
+    if (backup.tables.calendar_events) {
+      for (const ev of backup.tables.calendar_events) {
+        await conn.query(
+          `INSERT INTO calendar_events (id, user_id, title, event_type, start_date, end_date, client_id, visibility, description, created_at, updated_at)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+           ON CONFLICT (id) DO UPDATE SET title=$3, event_type=$4, start_date=$5, end_date=$6, client_id=$7, visibility=$8, description=$9, updated_at=$11`,
+          [ev.id, ev.user_id, ev.title, ev.event_type, ev.start_date, ev.end_date, ev.client_id, ev.visibility, ev.description, ev.created_at, ev.updated_at]
         );
       }
     }
@@ -1987,14 +2001,270 @@ app.get('/api/attachments/download/:filename', (req, res) => {
   res.download(filePath);
 });
 
-/** DELETE /api/attachments/:id — Remove an attachment record and delete the file from disk */
+/** DELETE /api/attachments/:id — Remove an attachment record. For file attachments the file on disk is also removed; link attachments simply delete the row. */
 app.delete('/api/attachments/:id', async (req, res) => {
-  const { rows } = await pool.query('SELECT filename FROM attachments WHERE id = $1', [req.params.id]);
+  const { rows } = await pool.query('SELECT filename, link_url FROM attachments WHERE id = $1', [req.params.id]);
   if (rows.length > 0) {
-    const filePath = path.resolve(uploadDir, rows[0].filename);
-    if (filePath.startsWith(path.resolve(uploadDir) + path.sep) && fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    // Only attempt to delete a file if this is a file attachment (no link_url, has filename)
+    if (!rows[0].link_url && rows[0].filename) {
+      const filePath = path.resolve(uploadDir, rows[0].filename);
+      if (filePath.startsWith(path.resolve(uploadDir) + path.sep) && fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    }
     await pool.query('DELETE FROM attachments WHERE id = $1', [req.params.id]);
   }
+  res.json({ ok: true });
+});
+
+/**
+ * POST /api/attachments/entity/:type/:id/link
+ * Attach a link (URL) to any entity instead of a file. Used for Sharepoint or
+ * any other external resource. Body: { url: string, title?: string }.
+ */
+app.post('/api/attachments/entity/:type/:id/link', async (req, res) => {
+  if (!VALID_ENTITY_TYPES.includes(req.params.type)) return res.status(400).json({ error: 'Invalid entity type' });
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid entity ID' });
+  const { url, title } = req.body || {};
+  if (!url || typeof url !== 'string') return res.status(400).json({ error: 'url is required' });
+  // Basic URL validation — must be http/https
+  let parsed;
+  try { parsed = new URL(url.trim()); } catch (e) { return res.status(400).json({ error: 'Invalid URL' }); }
+  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+    return res.status(400).json({ error: 'URL must use http or https' });
+  }
+  const linkUrl = parsed.toString();
+  const linkTitle = (title && typeof title === 'string') ? title.trim().slice(0, 255) : null;
+  const { rows } = await pool.query(
+    `INSERT INTO attachments (entity_type, entity_id, filename, original_name, size_bytes, mime_type, uploaded_by, link_url, link_title)
+     VALUES ($1,$2,NULL,NULL,NULL,'link',$3,$4,$5) RETURNING *`,
+    [req.params.type, req.params.id, req.user?.displayName || 'unknown', linkUrl, linkTitle]
+  );
+  await auditLog('attachment', rows[0].id, 'create_link', req.user?.displayName, { entity_type: req.params.type, entity_id: req.params.id, url: linkUrl });
+  res.status(201).json(rows[0]);
+});
+
+/**
+ * POST /api/tasks/:id/attachments/link
+ * Convenience alias for adding a link attachment to a task. Mirrors the
+ * universal endpoint above so the task detail panel does not need to know the
+ * generic /entity/task/:id form.
+ */
+app.post('/api/tasks/:id/attachments/link', async (req, res) => {
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid task ID' });
+  const { url, title } = req.body || {};
+  if (!url || typeof url !== 'string') return res.status(400).json({ error: 'url is required' });
+  let parsed;
+  try { parsed = new URL(url.trim()); } catch (e) { return res.status(400).json({ error: 'Invalid URL' }); }
+  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+    return res.status(400).json({ error: 'URL must use http or https' });
+  }
+  const linkUrl = parsed.toString();
+  const linkTitle = (title && typeof title === 'string') ? title.trim().slice(0, 255) : null;
+  const { rows } = await pool.query(
+    `INSERT INTO attachments (entity_type, entity_id, filename, original_name, size_bytes, mime_type, uploaded_by, link_url, link_title)
+     VALUES ('task',$1,NULL,NULL,NULL,'link',$2,$3,$4) RETURNING *`,
+    [req.params.id, req.user?.displayName || 'unknown', linkUrl, linkTitle]
+  );
+  await auditLog('attachment', rows[0].id, 'create_link', req.user?.displayName, { task_id: req.params.id, url: linkUrl });
+  res.status(201).json(rows[0]);
+});
+
+// ==================== CALENDAR EVENTS ====================
+// Personal/team/business calendar events that show up in the calendar view
+// alongside tasks. Visibility model:
+//   private  — only the owner (and admin)
+//   team     — everyone in the team
+//   client   — team plus anyone whose assigned tasks share the event's client
+//   public   — everyone
+// Event types: vacation, sick_leave, bank_holiday, uto, business, other.
+
+const VALID_EVENT_TYPES = ['vacation', 'sick_leave', 'bank_holiday', 'uto', 'business', 'other'];
+const VALID_EVENT_VISIBILITY = ['private', 'team', 'client', 'public'];
+
+/**
+ * Build the WHERE clause (and params) that enforces visibility for the
+ * current user. Admins see everything. Regular users see:
+ *   - their own events, regardless of visibility
+ *   - any event marked team or public
+ *   - any client-scoped event whose client_id matches a client the user is
+ *     assigned to via at least one task (assignees array contains displayName)
+ */
+async function buildCalendarVisibilityClause(req, startParamIdx) {
+  if (req.user?.role === 'admin') return { clause: 'TRUE', params: [], nextIdx: startParamIdx };
+  // Resolve the user's assigned clients via tasks.assignees
+  let assignedClientIds = [];
+  try {
+    const { rows } = await pool.query(
+      `SELECT DISTINCT client_id FROM tasks WHERE $1 = ANY(assignees) AND client_id IS NOT NULL`,
+      [req.user?.displayName || '']
+    );
+    assignedClientIds = rows.map(r => r.client_id);
+  } catch (e) { /* swallow — fall back to no client matches */ }
+
+  const params = [];
+  let i = startParamIdx;
+  // Owner clause
+  params.push(req.user?.id || null);
+  const ownerIdx = i++;
+  // Visibility list
+  params.push(['team', 'public']);
+  const visListIdx = i++;
+  let clause = `(user_id = $${ownerIdx} OR visibility = ANY($${visListIdx}::text[])`;
+  if (assignedClientIds.length > 0) {
+    params.push(assignedClientIds);
+    const clientListIdx = i++;
+    clause += ` OR (visibility = 'client' AND client_id = ANY($${clientListIdx}::uuid[]))`;
+  }
+  clause += ')';
+  return { clause, params, nextIdx: i };
+}
+
+/** GET /api/calendar-events?from=YYYY-MM-DD&to=YYYY-MM-DD&user_id=&client_id= — List events with visibility enforcement */
+app.get('/api/calendar-events', async (req, res) => {
+  const { from, to } = req.query;
+  const dateRe = /^\d{4}-\d{2}-\d{2}$/;
+  if (!from || !to || !dateRe.test(from) || !dateRe.test(to)) {
+    return res.status(400).json({ error: 'from and to (YYYY-MM-DD) are required' });
+  }
+  try {
+    // Date range overlap: an event overlaps [from, to] when
+    //   start_date <= to AND COALESCE(end_date, start_date) >= from
+    const params = [from, to];
+    let i = 3;
+    let where = `(ce.start_date <= $2::date AND COALESCE(ce.end_date, ce.start_date) >= $1::date)`;
+
+    if (req.query.user_id) {
+      if (!isValidUuid(req.query.user_id)) return res.status(400).json({ error: 'Invalid user_id' });
+      params.push(req.query.user_id);
+      where += ` AND ce.user_id = $${i++}`;
+    }
+    if (req.query.client_id) {
+      if (!isValidUuid(req.query.client_id)) return res.status(400).json({ error: 'Invalid client_id' });
+      params.push(req.query.client_id);
+      where += ` AND ce.client_id = $${i++}`;
+    }
+
+    const vis = await buildCalendarVisibilityClause(req, i);
+    const sql = `
+      SELECT ce.*, u.display_name AS user_display_name, c.name AS client_name
+      FROM calendar_events ce
+      LEFT JOIN users u ON u.id = ce.user_id
+      LEFT JOIN clients c ON c.id = ce.client_id
+      WHERE ${where} AND ${vis.clause}
+      ORDER BY ce.start_date ASC, ce.created_at ASC
+    `;
+    const { rows } = await pool.query(sql, [...params, ...vis.params]);
+    res.json(rows);
+  } catch (e) {
+    log('error', 'Calendar', 'Failed to list calendar events', { error: e.message });
+    res.status(500).json({ error: 'An internal error occurred' });
+  }
+});
+
+/** GET /api/calendar-events/:id — Fetch one event, respecting visibility */
+app.get('/api/calendar-events/:id', async (req, res) => {
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid event ID' });
+  try {
+    const vis = await buildCalendarVisibilityClause(req, 2);
+    const { rows } = await pool.query(
+      `SELECT ce.*, u.display_name AS user_display_name, c.name AS client_name
+       FROM calendar_events ce
+       LEFT JOIN users u ON u.id = ce.user_id
+       LEFT JOIN clients c ON c.id = ce.client_id
+       WHERE ce.id = $1 AND ${vis.clause}`,
+      [req.params.id, ...vis.params]
+    );
+    if (rows.length === 0) return res.status(404).json({ error: 'Event not found' });
+    res.json(rows[0]);
+  } catch (e) {
+    log('error', 'Calendar', 'Failed to fetch calendar event', { error: e.message });
+    res.status(500).json({ error: 'An internal error occurred' });
+  }
+});
+
+/** POST /api/calendar-events — Create a new event. Regular users create for themselves; admins may target any user. */
+app.post('/api/calendar-events', async (req, res) => {
+  const { title, event_type, start_date, end_date, client_id, visibility, description } = req.body || {};
+  if (!title || typeof title !== 'string') return res.status(400).json({ error: 'title is required' });
+  if (!event_type || !VALID_EVENT_TYPES.includes(event_type)) return res.status(400).json({ error: 'Invalid event_type' });
+  const dateRe = /^\d{4}-\d{2}-\d{2}$/;
+  if (!start_date || !dateRe.test(start_date)) return res.status(400).json({ error: 'start_date (YYYY-MM-DD) is required' });
+  if (end_date && !dateRe.test(end_date)) return res.status(400).json({ error: 'Invalid end_date' });
+  if (end_date && end_date < start_date) return res.status(400).json({ error: 'end_date must be on or after start_date' });
+  const vis = visibility && VALID_EVENT_VISIBILITY.includes(visibility) ? visibility : 'team';
+  if (client_id && !isValidUuid(client_id)) return res.status(400).json({ error: 'Invalid client_id' });
+
+  // Default to current user; admin may override via body.user_id
+  let userId = req.user?.id;
+  if (req.body?.user_id && req.body.user_id !== userId) {
+    if (req.user?.role !== 'admin') return res.status(403).json({ error: 'Only admin can create events for other users' });
+    if (!isValidUuid(req.body.user_id)) return res.status(400).json({ error: 'Invalid user_id' });
+    userId = req.body.user_id;
+  }
+
+  try {
+    const { rows } = await pool.query(
+      `INSERT INTO calendar_events (user_id, title, event_type, start_date, end_date, client_id, visibility, description)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
+      [userId, title.trim().slice(0, 255), event_type, start_date, end_date || null, client_id || null, vis, description || null]
+    );
+    await auditLog('calendar_event', rows[0].id, 'create', req.user?.displayName, { title, event_type });
+    res.status(201).json(rows[0]);
+  } catch (e) {
+    log('error', 'Calendar', 'Failed to create calendar event', { error: e.message });
+    res.status(500).json({ error: 'An internal error occurred' });
+  }
+});
+
+/** PATCH /api/calendar-events/:id — Update an event. Owner or admin only. */
+app.patch('/api/calendar-events/:id', async (req, res) => {
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid event ID' });
+  const { rows: existing } = await pool.query('SELECT * FROM calendar_events WHERE id = $1', [req.params.id]);
+  if (existing.length === 0) return res.status(404).json({ error: 'Event not found' });
+  const ev = existing[0];
+  if (req.user?.role !== 'admin' && ev.user_id !== req.user?.id) {
+    return res.status(403).json({ error: 'Only the owner or an admin can edit this event' });
+  }
+
+  const allowed = ['title', 'event_type', 'start_date', 'end_date', 'client_id', 'visibility', 'description'];
+  const updates = [];
+  const params = [];
+  let i = 1;
+  for (const k of allowed) {
+    if (k in req.body) {
+      if (k === 'event_type' && req.body[k] && !VALID_EVENT_TYPES.includes(req.body[k])) return res.status(400).json({ error: 'Invalid event_type' });
+      if (k === 'visibility' && req.body[k] && !VALID_EVENT_VISIBILITY.includes(req.body[k])) return res.status(400).json({ error: 'Invalid visibility' });
+      if ((k === 'start_date' || k === 'end_date') && req.body[k] && !/^\d{4}-\d{2}-\d{2}$/.test(req.body[k])) return res.status(400).json({ error: `Invalid ${k}` });
+      if (k === 'client_id' && req.body[k] && !isValidUuid(req.body[k])) return res.status(400).json({ error: 'Invalid client_id' });
+      updates.push(`${k} = $${i++}`);
+      params.push(req.body[k] === '' ? null : req.body[k]);
+    }
+  }
+  if (updates.length === 0) return res.json(ev);
+  updates.push(`updated_at = NOW()`);
+  params.push(req.params.id);
+  try {
+    const { rows } = await pool.query(
+      `UPDATE calendar_events SET ${updates.join(', ')} WHERE id = $${i} RETURNING *`,
+      params
+    );
+    await auditLog('calendar_event', req.params.id, 'update', req.user?.displayName, req.body);
+    res.json(rows[0]);
+  } catch (e) {
+    log('error', 'Calendar', 'Failed to update calendar event', { error: e.message });
+    res.status(500).json({ error: 'An internal error occurred' });
+  }
+});
+
+/** DELETE /api/calendar-events/:id — Delete an event. Owner or admin only. */
+app.delete('/api/calendar-events/:id', async (req, res) => {
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid event ID' });
+  const { rows: existing } = await pool.query('SELECT user_id FROM calendar_events WHERE id = $1', [req.params.id]);
+  if (existing.length === 0) return res.json({ ok: true });
+  if (req.user?.role !== 'admin' && existing[0].user_id !== req.user?.id) {
+    return res.status(403).json({ error: 'Only the owner or an admin can delete this event' });
+  }
+  await pool.query('DELETE FROM calendar_events WHERE id = $1', [req.params.id]);
+  await auditLog('calendar_event', req.params.id, 'delete', req.user?.displayName);
   res.json({ ok: true });
 });
 
