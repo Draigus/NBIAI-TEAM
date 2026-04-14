@@ -4,6 +4,24 @@ Append-only. Every feature/fix completed gets logged here immediately.
 
 ---
 
+## 2026-04-14 (Phase 9 - Organisational Practice)
+
+WorkSage backlog Phase 9 — Organisational Practice page and rename HC.
+
+- **Migration 018_practice_areas.sql**: added `practice_area` column to `leads`, `tasks`, `clients`; partial btree indexes; seeded 7 new work types (Barrier analysis, Market research, Change management, AI readiness, Advanced analytics, Training, Other for organisational performance); renamed legacy `client_sector='Human Capital'` to `Organisational` and back-filled `clients.sector`.
+- **Server (server.js)**: `practice_area` added to allowed PATCH fields on `/api/leads/:id`, `/api/tasks/:id`, `/api/clients/:id`. `/api/sync/load`, `/api/sync/poll`, and `/api/sync/changes` insert+update paths now read/write `practice_area` (mapped to camelCase `practiceArea` for the frontend).
+- **Frontend (nbi_project_dashboard.html)**: new `PRACTICES` constant, `currentFilter.practice` state, `filterByPractice()` action, `getTaskPractice()` parent-walking helper. Sidebar grew a "Practices" section (All / Organisational / Gaming / General) with combined task+lead counts. Practice filter applies inside `getFilteredTasks`, `renderLeadsContent`, and `renderManageClients`. Practice dropdown added to inline + overlay task detail panels, lead detail Deal Info section, and client management row. Breadcrumb chip + clear button included.
+- **Seed file (migrate-leads.js)**: updated so a clean install gets the new work types and "Organisational" sector by default.
+- **DB cleanup**: removed pre-existing duplicate title-case work_type rows (Barrier Analysis / Market Research / Change Management / AI Readiness / Advanced Analytics / Other) and the US-spelling "Organizational Performance" sector option.
+- **Verification**: migration applied via PM2 reload (logs confirm `Applied migration 018_practice_areas.sql`). Direct DB writes confirmed practice_area accepted on all three tables. server.js syntax check clean.
+
+WorkSage backlog items addressed:
+- `a6c82c8c` Organisational Practice Page and Board — please_review
+- `9a10d8d1` Rename HC to Organisational — please_review
+- `c5f0705e` More work types for leads — please_review
+
+---
+
 ## 2026-04-04 (Sessions a + b)
 
 All 26 features from Glen's approved roadmap built. See `session_handoffs/handoff_2026-04-04b_feature_blitz.md` for full list.

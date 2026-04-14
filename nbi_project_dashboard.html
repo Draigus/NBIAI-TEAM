@@ -2297,7 +2297,11 @@ let settings = { hourlyRate: 150, knownClients: ['Couch Heroes', 'Lighthouse Stu
 
 // View state — controls which view is active and what filters are applied
 let currentView = 'dashboard';
-let currentFilter = { client: null, project: null, status: [], health: [], assignee: [], search: '', sort: 'default' };
+// `practice` filters the entire workspace down to a single practice area.
+// Valid values: 'organisational', 'gaming', 'general', or null (= All).
+// Phase 9 of the WorkSage backlog (a6c82c8c). Stored on tasks/leads/clients
+// as `practiceArea` / `practice_area`. Sidebar PRACTICES section toggles it.
+let currentFilter = { client: null, project: null, status: [], health: [], assignee: [], search: '', sort: 'default', practice: null };
 let selectedTaskIds = new Set();  // Bulk selection for batch operations
 let pendingCSVData = null;        // Staging area for CSV import preview
 let taskSubView = localStorage.getItem('nbi_task_subview') || 'tree'; // 'tree' | 'board' | 'gantt' | 'calendar'
@@ -2736,9 +2740,21 @@ function countByStatus(list) { const c = {}; STATUSES.forEach(s => c[s] = 0); li
 function countByHealth(list) { const c = {}; HEALTH_STATES.forEach(h => c[h] = 0); c['Not set'] = 0; list.forEach(t => { const h = t.healthState || 'Not set'; c[h] = (c[h]||0) + 1; }); return c; }
 
 /** Apply all active filters (client, status, health, search, sort) and return the matching task list */
+/** Resolve the practice for a task, walking up the parent chain if it
+ *  has none of its own. Lets a project tag a whole subtree once. */
+function getTaskPractice(t) {
+  if (!t) return null;
+  if (t.practiceArea) return t.practiceArea;
+  if (t.parentId) {
+    const parent = tasks.find(x => x.id === t.parentId);
+    if (parent) return getTaskPractice(parent);
+  }
+  return null;
+}
 function getFilteredTasks() {
   let list = tasks;
   if (currentFilter.client) list = list.filter(t => getTaskClient(t) === currentFilter.client);
+  if (currentFilter.practice) list = list.filter(t => getTaskPractice(t) === currentFilter.practice);
   if (currentFilter.project) { const pid = currentFilter.project; list = list.filter(t => t.id === pid || getDescendants(pid).some(d => d.id === t.id)); }
   if (currentFilter.status && currentFilter.status.length > 0) list = list.filter(t => currentFilter.status.includes(t.status));
   if (currentFilter.health && currentFilter.health.length > 0) list = list.filter(t => currentFilter.health.includes(t.healthState || 'Not set'));
@@ -2974,6 +2990,21 @@ function renderSidebar() {
     const count = tasks.filter(t => getTaskClient(t) === c).length;
     const dotColour = stringToColour(c);
     html += `<button class="sidebar__item ${currentFilter.client===c?'active':''}" onclick="filterByClient('${escAttrJs(c)}')"><span class="sidebar__dot" style="background:${dotColour}"></span><span class="sidebar__item__label">${esc(c)}</span><span class="sidebar__item__count">${count}</span></button>`;
+  });
+  html += `</div>`;
+
+  // Practices (Phase 9, a6c82c8c). Counts span tasks + leads so users
+  // see at a glance how much volume sits in each practice. The "All"
+  // entry clears the filter rather than passing a value.
+  html += `<div class="sidebar__section"><div class="sidebar__title">Practices</div>`;
+  const _leadList = (typeof _leadsData !== 'undefined' && _leadsData && _leadsData.leads) ? _leadsData.leads : [];
+  const allPracticeCount = tasks.length + _leadList.length;
+  html += `<button class="sidebar__item ${!currentFilter.practice?'active':''}" onclick="filterByPractice(null)"><span class="sidebar__dot" style="background:var(--accent)"></span><span class="sidebar__item__label" style="font-weight:600">All</span><span class="sidebar__item__count">${allPracticeCount}</span></button>`;
+  PRACTICES.forEach(p => {
+    const tCount = tasks.filter(t => getTaskPractice(t) === p.value).length;
+    const lCount = _leadList.filter(l => l.practice_area === p.value).length;
+    const total = tCount + lCount;
+    html += `<button class="sidebar__item ${currentFilter.practice===p.value?'active':''}" onclick="filterByPractice('${escAttrJs(p.value)}')"><span class="sidebar__dot" style="background:${p.colour}"></span><span class="sidebar__item__label">${esc(p.label)}</span><span class="sidebar__item__count">${total}</span></button>`;
   });
   html += `</div>`;
 
@@ -3253,14 +3284,43 @@ addManagedListener(window, 'popstate', e => {
 // Set initial history state
 history.replaceState({ view: currentView, filter: { ...currentFilter }, taskSubView }, '', '#' + currentView);
 /** Clear all active filters except sort order, and deselect any bulk-selected tasks */
-function resetFilters() { currentFilter = { client: null, project: null, status: [], health: [], search: '', sort: currentFilter.sort || 'default', assignee: [], incomplete: false }; selectedTaskIds.clear(); }
+function resetFilters() { currentFilter = { client: null, project: null, status: [], health: [], search: '', sort: currentFilter.sort || 'default', assignee: [], incomplete: false, practice: currentFilter.practice || null }; selectedTaskIds.clear(); }
 /** Set the client filter and re-render -- pass null to show all clients */
-function filterByClient(c) { currentFilter = { client: c, project: null, status: [], health: [], assignee: [], search: '' }; selectedTaskIds.clear(); renderSidebarCounts(); renderContent(); renderBreadcrumbs(); history.pushState({ view: currentView, filter: { ...currentFilter }, taskSubView }, '', '#' + currentView); }
+function filterByClient(c) { currentFilter = { client: c, project: null, status: [], health: [], assignee: [], search: '', practice: currentFilter.practice || null }; selectedTaskIds.clear(); renderSidebarCounts(); renderContent(); renderBreadcrumbs(); history.pushState({ view: currentView, filter: { ...currentFilter }, taskSubView }, '', '#' + currentView); }
+// Practice areas (Phase 9 of the NBI WorkSage backlog, a6c82c8c).
+// Stored as `practice_area` on tasks/leads/clients. The legacy "Human
+// Capital" / HC label has been retired in favour of "Organisational"
+// (closes 9a10d8d1) — Glen's call: HC is one piece of organisational
+// performance, not the umbrella. The dot colours match the sidebar
+// styling for consistency.
+const PRACTICES = [
+  { value: 'organisational', label: 'Organisational', colour: '#7c5cff' },
+  { value: 'gaming',         label: 'Gaming',         colour: '#22c1c3' },
+  { value: 'general',        label: 'General',        colour: '#9aa0a6' },
+];
+function getPracticeLabel(value) {
+  const p = PRACTICES.find(x => x.value === value);
+  return p ? p.label : value || '';
+}
+/** Toggle the practice-area filter that scopes the entire workspace
+ *  (dashboard, projects, leads, clients) to a single practice. Pass null
+ *  to clear and show All. */
+function filterByPractice(p) {
+  currentFilter = { ...currentFilter, practice: p };
+  selectedTaskIds.clear();
+  renderSidebarCounts();
+  renderContent();
+  renderBreadcrumbs();
+  // Re-render leads/clients views if they're active so the practice
+  // filter takes effect across every page that displays records.
+  if (currentView === 'leads') { try { renderLeadsContent(); } catch(e) {} }
+  history.pushState({ view: currentView, filter: { ...currentFilter }, taskSubView }, '', '#' + currentView);
+}
 /** Filter by health state and switch to tasks view */
-function filterByHealth(h) { currentFilter = { client: currentFilter.client, project: null, status: [], health: [h], assignee: [], search: '' }; switchView('tasks'); }
+function filterByHealth(h) { currentFilter = { client: currentFilter.client, project: null, status: [], health: [h], assignee: [], search: '', practice: currentFilter.practice || null }; switchView('tasks'); }
 /** Filter to a specific project, switch to tree view, and scroll to the project row */
 function filterByProject(projectId) {
-  currentFilter = { client: currentFilter.client, project: projectId, status: [], health: [], search: '', sort: 'default', assignee: [], incomplete: false };
+  currentFilter = { client: currentFilter.client, project: projectId, status: [], health: [], search: '', sort: 'default', assignee: [], incomplete: false, practice: currentFilter.practice || null };
   taskSubView = 'tree';
   // Ensure the project is expanded in the tree
   if (typeof collapsedTaskIds !== 'undefined') collapsedTaskIds.delete(projectId);
@@ -3276,10 +3336,11 @@ function filterByProject(projectId) {
 function renderBreadcrumbs() {
   const bar = document.getElementById('breadcrumbBar');
   if (!bar) return;
-  const hasFilter = currentFilter.client || (currentFilter.assignee && currentFilter.assignee.length > 0) || (currentFilter.health && currentFilter.health.length > 0) || (currentFilter.status && currentFilter.status.length > 0) || currentFilter.incomplete || currentFilter.project;
+  const hasFilter = currentFilter.client || currentFilter.practice || (currentFilter.assignee && currentFilter.assignee.length > 0) || (currentFilter.health && currentFilter.health.length > 0) || (currentFilter.status && currentFilter.status.length > 0) || currentFilter.incomplete || currentFilter.project;
   if (!hasFilter) { bar.innerHTML = ''; bar.style.display = 'none'; return; }
   bar.style.display = 'flex';
   let html = '<span style="font-size:0.72rem;color:var(--text-muted);margin-right:4px">Filtered:</span>';
+  if (currentFilter.practice) html += `<span class="filter-chip">Practice: ${esc(getPracticeLabel(currentFilter.practice))} <button onclick="filterByPractice(null)">&times;</button></span>`;
   if (currentFilter.client) html += `<span class="filter-chip">${esc(currentFilter.client)} <button onclick="currentFilter.client=null;renderSidebarCounts();renderContent();renderBreadcrumbs()">&times;</button></span>`;
   if (currentFilter.assignee && currentFilter.assignee.length > 0) html += `<span class="filter-chip">${currentFilter.assignee.map(a => esc(a)).join(', ')} <button onclick="currentFilter.assignee=[];renderContent();renderBreadcrumbs()">&times;</button></span>`;
   if (currentFilter.health && currentFilter.health.length > 0) html += `<span class="filter-chip">${currentFilter.health.map(h => esc(h)).join(', ')} <button onclick="currentFilter.health=[];renderContent();renderBreadcrumbs()">&times;</button></span>`;
@@ -5864,6 +5925,10 @@ function renderInlineTaskDetail(id) {
   html += inlineDetailSelect('Priority', 'priority', task.priority || '', ['', ...PRIORITIES], id, true);
   html += inlineDetailSelect('Health', 'healthState', task.healthState || '', ['', ...HEALTH_STATES], id);
   html += `<div class="detail-field"><span class="detail-field__label">Assignee</span>${assigneeSelectHtml(id, task.assignees)}</div>`;
+  // Practice (Phase 9, a6c82c8c). Tag a task to roll it up under a
+  // practice in the sidebar filter. Inherits from the parent chain when
+  // unset, so users normally only need to set this on a project.
+  html += `<div class="detail-field"><span class="detail-field__label">Practice</span><select onchange="updateTask('${id}','practiceArea',this.value||null)"><option value="">-- Inherit / None --</option>${PRACTICES.map(p => `<option value="${esc(p.value)}" ${task.practiceArea === p.value ? 'selected' : ''}>${esc(p.label)}</option>`).join('')}</select></div>`;
   html += `<div class="detail-field"><span class="detail-field__label">Start Date</span><input type="date" value="${task.startDate||''}" onchange="updateTask('${id}','startDate',this.value)"></div>`;
   html += `<div class="detail-field"><span class="detail-field__label">End Date</span><input type="date" value="${task.endDate||''}" onchange="updateTask('${id}','endDate',this.value)"></div>`;
   html += `<div class="detail-field"><span class="detail-field__label">Due Date</span><input type="date" value="${task.dueDate||''}" onchange="updateTask('${id}','dueDate',this.value)"></div>`;
@@ -6459,6 +6524,9 @@ function openDetailOverlay(id) {
   html += detailSelect('Priority', 'priority', task.priority || '', ['', ...PRIORITIES], true);
   html += detailSelect('Health', 'healthState', task.healthState || '', ['', ...HEALTH_STATES]);
   html += `<div class="detail-field"><span class="detail-field__label">Assignee</span>${assigneeSelectHtml(id, task.assignees)}</div>`;
+  // Practice (Phase 9, a6c82c8c). Same semantics as the inline panel —
+  // unset means "inherit from parent project" for the sidebar filter.
+  html += `<div class="detail-field"><span class="detail-field__label">Practice</span><select onchange="updateTask('${id}','practiceArea',this.value||null)"><option value="">-- Inherit / None --</option>${PRACTICES.map(p => `<option value="${esc(p.value)}" ${task.practiceArea === p.value ? 'selected' : ''}>${esc(p.label)}</option>`).join('')}</select></div>`;
   html += `<div class="detail-field"><span class="detail-field__label">Start Date</span><input type="date" value="${task.startDate||''}" onchange="updateTask('${id}','startDate',this.value)"></div>`;
   html += `<div class="detail-field"><span class="detail-field__label">End Date</span><input type="date" value="${task.endDate||''}" onchange="updateTask('${id}','endDate',this.value)"></div>`;
   html += `<div class="detail-field"><span class="detail-field__label">Due Date</span><input type="date" value="${task.dueDate||''}" onchange="updateTask('${id}','dueDate',this.value)"></div>`;
@@ -10352,11 +10420,17 @@ async function refreshLeads() {
   renderLeadsContent();
 }
 
-/** Route to the correct leads sub-view renderer based on _leadsSubView */
+/** Route to the correct leads sub-view renderer based on _leadsSubView.
+ *  Honours the global practice filter (currentFilter.practice) so flipping
+ *  Practices in the sidebar narrows the kanban/table/pipeline/clients
+ *  views without a server round-trip. */
 function renderLeadsContent() {
   const el = document.getElementById('leadsContent');
   if (!el) return;
-  const leads = (_leadsData && _leadsData.leads) || [];
+  let leads = (_leadsData && _leadsData.leads) || [];
+  if (currentFilter.practice) {
+    leads = leads.filter(l => l.practice_area === currentFilter.practice);
+  }
 
   if (_leadsSubView === 'kanban') renderLeadsKanban(el, leads);
   else if (_leadsSubView === 'table') renderLeadsTable(el, leads);
@@ -10794,10 +10868,13 @@ async function renderManageClients(el) {
     <button class="btn btn--primary btn--sm" onclick="createClientFromManage()">Add Client</button>
   </div>`;
 
-  // Apply sector filter
+  // Apply sector filter (legacy) and practice filter (Phase 9, a6c82c8c)
   let filtered = clients;
   if (_leadsFilter.sector) {
-    filtered = clients.filter(c => c.sector === _leadsFilter.sector);
+    filtered = filtered.filter(c => c.sector === _leadsFilter.sector);
+  }
+  if (currentFilter.practice) {
+    filtered = filtered.filter(c => c.practice_area === currentFilter.practice);
   }
 
   // Client list
@@ -10841,6 +10918,7 @@ async function renderManageClients(el) {
             <label>Studio Size</label><input type="number" min="0" value="${c.studio_size != null ? c.studio_size : ''}" onchange="updateClientField('${c.id}','studio_size',this.value?parseInt(this.value,10):null)" placeholder="Number of employees">
             <label>Contract Value</label><div style="display:flex;align-items:center;gap:0"><span style="background:var(--bg-elevated);border:1px solid var(--border-default);border-right:none;border-radius:var(--radius-md) 0 0 var(--radius-md);padding:6px 8px;color:var(--text-muted);font-size:0.82rem">&pound;</span><input type="number" min="0" step="0.01" value="${c.contract_value != null ? c.contract_value : ''}" onchange="updateClientField('${c.id}','contract_value',this.value?parseFloat(this.value):null)" placeholder="0.00" style="border-radius:0 var(--radius-md) var(--radius-md) 0;flex:1"></div>
             <label>Current Studio Project</label><input type="text" value="${esc(c.current_studio_project || '')}" onchange="updateClientField('${c.id}','current_studio_project',this.value)" placeholder="e.g. Project Alpha">
+            <label>Practice</label><select onchange="updateClientField('${c.id}','practice_area',this.value||null)"><option value="">-- Unclassified --</option>${PRACTICES.map(p => `<option value="${esc(p.value)}" ${c.practice_area === p.value ? 'selected' : ''}>${esc(p.label)}</option>`).join('')}</select>
           </div>
           <div class="manage-clients__contacts" id="clientContacts_${c.id}">
             <h4 style="margin:12px 0 6px;font-size:0.82rem;color:var(--text-secondary)">Contacts</h4>
@@ -11565,6 +11643,14 @@ function renderLeadDetailContent(panel, lead) {
   html += `<label>Lead Source</label><select onchange="updateLead('${lead.id}','lead_source',this.value)"><option value="">-- Select --</option>`;
   (config.fieldOptions.lead_source || []).forEach(o => {
     html += `<option value="${esc(o.value)}" ${lead.lead_source===o.value?'selected':''}>${esc(o.value)}</option>`;
+  });
+  html += `</select>`;
+
+  // Practice (Phase 9, a6c82c8c). Tagging a lead with a practice makes
+  // it appear when the sidebar Practices filter is active.
+  html += `<label>Practice</label><select onchange="updateLead('${lead.id}','practice_area',this.value||null)"><option value="">-- Unclassified --</option>`;
+  PRACTICES.forEach(p => {
+    html += `<option value="${esc(p.value)}" ${lead.practice_area === p.value ? 'selected' : ''}>${esc(p.label)}</option>`;
   });
   html += `</select>`;
 

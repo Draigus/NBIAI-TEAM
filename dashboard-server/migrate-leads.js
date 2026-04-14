@@ -170,9 +170,11 @@ async function run() {
     // Lead sources
     { field: 'lead_source', values: ['Referral', 'Conference', 'Inbound', 'Existing Client', 'LinkedIn', 'Cold Outreach'] },
     // Work types
-    { field: 'work_type', values: ['Playtesting', 'Data Library Blueprint', 'Analytics Audit', 'Player Research', 'Economy Design', 'LiveOps Review', 'AI Implementation', 'Process Consulting'] },
-    // Client sectors
-    { field: 'client_sector', values: ['Gaming', 'Human Capital'] },
+    { field: 'work_type', values: ['Playtesting', 'Data Library Blueprint', 'Analytics Audit', 'Player Research', 'Economy Design', 'LiveOps Review', 'AI Implementation', 'Process Consulting',
+      // Organisational practice work types (Phase 9, closes c5f0705e)
+      'Barrier analysis', 'Market research', 'Change management', 'AI readiness', 'Advanced analytics', 'Training', 'Other for organisational performance'] },
+    // Client sectors — "Organisational" is the modern label; HC is now a subset
+    { field: 'client_sector', values: ['Gaming', 'Organisational'] },
     // Currencies
     { field: 'currency', values: ['GBP', 'USD', 'EUR'] },
     // Deal owners

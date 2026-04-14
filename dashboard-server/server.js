@@ -2438,7 +2438,7 @@ app.post('/api/clients', async (req, res) => {
 app.patch('/api/clients/:id', async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid client ID' });
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
-  const { updates, vals, nextIdx } = buildPatchQuery(req.body, ['name', 'description', 'founded', 'headquarters', 'employees', 'revenue', 'website', 'linkedin_company', 'nbi_relationship', 'sector', 'studio_size', 'contract_value', 'current_studio_project']);
+  const { updates, vals, nextIdx } = buildPatchQuery(req.body, ['name', 'description', 'founded', 'headquarters', 'employees', 'revenue', 'website', 'linkedin_company', 'nbi_relationship', 'sector', 'studio_size', 'contract_value', 'current_studio_project', 'practice_area']);
   if (req.body.name !== undefined && !req.body.name.trim()) {
     return res.status(400).json({ error: 'Name cannot be empty' });
   }
@@ -3217,7 +3217,7 @@ app.patch('/api/tasks/:id', async (req, res) => {
   if (req.body.title !== undefined) req.body.title = escHtml(req.body.title);
   if (req.body.description !== undefined) req.body.description = escHtml(req.body.description);
 
-  const allowedFields = ['title', 'parent_id', 'client_id', 'item_type', 'status', 'priority', 'health_state', 'description', 'assignees', 'hours_estimated', 'hours_spent', 'due_date', 'start_date', 'end_date', 'dependencies', 'collaborations', 'success_factor', 'repeat_rule', 'blocker_info'];
+  const allowedFields = ['title', 'parent_id', 'client_id', 'item_type', 'status', 'priority', 'health_state', 'description', 'assignees', 'hours_estimated', 'hours_spent', 'due_date', 'start_date', 'end_date', 'dependencies', 'collaborations', 'success_factor', 'repeat_rule', 'blocker_info', 'practice_area'];
   // Sanitise the new text fields the same way as description
   if (req.body.collaborations !== undefined) req.body.collaborations = req.body.collaborations ? escHtml(req.body.collaborations) : null;
   if (req.body.success_factor !== undefined) req.body.success_factor = req.body.success_factor ? escHtml(req.body.success_factor) : null;
@@ -3593,8 +3593,9 @@ app.post('/api/sync/changes', async (req, res) => {
              health_state=$7, description=$8, assignees=$9, hours_estimated=$10, hours_spent=$11,
              due_date=$12, start_date=$13, end_date=$14, dependencies=$15,
              collaborations=$16, success_factor=$17, repeat_rule=$18, blocker_info=$19,
+             practice_area=$20,
              updated_at=NOW()
-             WHERE id=$20`,
+             WHERE id=$21`,
             [t.title, parentId, clientId, itemType, t.status || 'Not started', t.priority || '',
              t.healthState || t.health_state || '', t.description || '', t.assignees || [],
              t.hoursEstimated || t.hours_estimated || 0, t.hoursSpent || t.hours_spent || 0,
@@ -3602,6 +3603,7 @@ app.post('/api/sync/changes', async (req, res) => {
              t.dependencies || [],
              t.collaborations || null, t.successFactor || t.success_factor || null,
              t.repeatRule || t.repeat_rule || null, t.blockerInfo || t.blocker_info || null,
+             t.practiceArea || t.practice_area || null,
              t.id]
           );
         } else {
@@ -3609,8 +3611,8 @@ app.post('/api/sync/changes', async (req, res) => {
           const { rows } = await conn.query(
             `INSERT INTO tasks (id, title, parent_id, client_id, item_type, status, priority, health_state,
              description, assignees, hours_estimated, hours_spent, due_date, start_date, end_date, dependencies, source, created_at,
-             collaborations, success_factor, repeat_rule, blocker_info, updated_at)
-             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,NOW()) RETURNING id`,
+             collaborations, success_factor, repeat_rule, blocker_info, practice_area, updated_at)
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,NOW()) RETURNING id`,
             [t.id, t.title, parentId, clientId, itemType, t.status || 'Not started', t.priority || '',
              t.healthState || t.health_state || '', t.description || '', t.assignees || [],
              t.hoursEstimated || t.hours_estimated || 0, t.hoursSpent || t.hours_spent || 0,
@@ -3618,7 +3620,8 @@ app.post('/api/sync/changes', async (req, res) => {
              t.dependencies || [], t.source || 'sync',
              t.createdAt || t.created_at || new Date().toISOString(),
              t.collaborations || null, t.successFactor || t.success_factor || null,
-             t.repeatRule || t.repeat_rule || null, t.blockerInfo || t.blocker_info || null]
+             t.repeatRule || t.repeat_rule || null, t.blockerInfo || t.blocker_info || null,
+             t.practiceArea || t.practice_area || null]
           );
           idMap[t.id] = rows[0].id;
           existingTaskMap.set(rows[0].id, new Date()); // Register in map for subsequent batch references
@@ -3852,6 +3855,7 @@ app.get('/api/sync/poll', async (req, res) => {
     startDate: r.start_date || '',
     endDate: r.end_date || '',
     dependencies: r.dependencies || [],
+    practiceArea: r.practice_area || null,
     createdAt: r.created_at,
     updatedAt: r.updated_at,
   }));
@@ -4011,6 +4015,7 @@ app.get('/api/sync/load', async (req, res) => {
     endDate: r.end_date || '',
     dependencies: r.dependencies || [],
     itemType: r.item_type || 'task',
+    practiceArea: r.practice_area || null,
     notes: r.notes || [],
     createdAt: r.created_at,
     updatedAt: r.updated_at,
@@ -4030,6 +4035,7 @@ app.get('/api/sync/load', async (req, res) => {
       website: r.website || '',
       linkedinCompany: r.linkedin_company || '',
       nbiRelationship: r.nbi_relationship || '',
+      practiceArea: r.practice_area || null,
       contacts: r.contacts || [],
     };
   });
@@ -4551,7 +4557,7 @@ app.patch('/api/leads/:id', async (req, res) => {
     'primary_contact_id', 'deal_owner', 'lead_source',
     'est_start_date', 'expected_close_date', 'last_contacted',
     'next_followup_date', 'next_action', 'location', 'notes', 'time_estimate',
-    'completed_at'];
+    'completed_at', 'practice_area'];
 
   // Pre-process: convert empty strings to null for nullable lead fields
   const sanitisedBody = { ...req.body };
