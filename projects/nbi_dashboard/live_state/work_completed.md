@@ -4,6 +4,47 @@ Append-only. Every feature/fix completed gets logged here immediately.
 
 ---
 
+## 2026-04-14 (Session b — Deferred Audit Items)
+
+Picked up the overnight backlog after session a ran into context limits mid-review. Finished the deferred audit items that were not blocked on external input.
+
+**Frontend a11y/UX sweep** (nbi_project_dashboard.html):
+- C1 Light theme badge contrast: darkened --danger/--warning/--success/--purple/--cyan text tokens to WCAG AA shades. priority-critical uses weight 800 + underline for distinction
+- C3 Task detail panels: 20 form inputs got unique IDs and `<label for="...">` associations (inline + overlay variants, done by subagent)
+- C6 Mobile overflow at 375px: Settings/Leads/Finances/Report all respect viewport. overflow-x auto on inner tables
+- C7 Added `<main id="mainLandmark">` wrapping content; skip link updated
+- H1 Calendar events keyboard accessible (role=button, tabindex, Enter/Space handler)
+- H2 Warning sidebar: removed nested `<button>` inside `role="button"`. Refactored to plain div wrapper + inner button class
+- H4 Sidebar sections are now collapsible, state persisted in localStorage per-section
+- H5/H6 Active sidebar items get `aria-current="page"`; label+count combined in `aria-label`
+- H7 Bug rows get full `aria-label` with type/status/priority/reporter/comment-count
+- H9 Client research stub copy: honest "not yet connected to a live search backend" messaging
+- H10/H11 Candidate and Team modals: `aria-labelledby`, Escape handler, focus management
+
+**Server hardening** (dashboard-server/server.js):
+- Code review H3: Cycle detection replaced with single recursive CTE (was O(M*N))
+- Code review H5: SoW INSERT failures log client_id + title + uploader
+- Code review M5: POST /api/clients/:id/reports is now admin-only, UUID-validated, audit-logged, 30-day expiry (was 90)
+- Code review M6: Hiring CV uploads restricted to PDF (MIME + extension check)
+- Code review M8: SoW zero-paragraph error surfaces filter stats + hint
+- Code review M9: Calendar visibility DB failures now log('warn', ...) instead of silent swallow
+- Security M10: Public report HTML adds X-Robots-Tag, Referrer-Policy, meta robots, meta referrer
+
+**Verification:**
+- Frontend: badge colors correct in light theme, sidebar collapse toggles + persists, bug rows expose aria-labels, mobile 375px zero overflow
+- Server: task PATCH + cycle detection self-dep, CV PDF-only, report admin gate all return expected status codes via curl
+- Production URL 200 OK after cloudflared auto-restart
+
+**Deferred (too risky without user awake):**
+- Security H4 httpOnly cookie migration (1-2 days)
+- Security H1 xlsx replacement (days)
+- Code review H1 double-escape storage migration (affects every text field)
+- Skeleton screens on remaining views (cosmetic)
+
+Commit: 5db75a9
+
+---
+
 ## 2026-04-14 (Phase 9 - Organisational Practice)
 
 WorkSage backlog Phase 9 — Organisational Practice page and rename HC.
