@@ -2159,7 +2159,9 @@ const VALID_EVENT_VISIBILITY = ['private', 'team', 'client', 'public'];
  */
 async function buildCalendarVisibilityClause(req, startParamIdx) {
   if (req.user?.role === 'admin') return { clause: 'TRUE', params: [], nextIdx: startParamIdx };
-  // Resolve the user's assigned clients via tasks.assignees
+  // Resolve the user's assigned clients via tasks.assignees.
+  // Failure is logged (code review M9) but tolerated — a DB hiccup here should degrade
+  // to "no client matches" rather than bring the calendar view down.
   let assignedClientIds = [];
   try {
     const { rows } = await pool.query(
@@ -2167,7 +2169,12 @@ async function buildCalendarVisibilityClause(req, startParamIdx) {
       [req.user?.displayName || '']
     );
     assignedClientIds = rows.map(r => r.client_id);
-  } catch (e) { /* swallow — fall back to no client matches */ }
+  } catch (e) {
+    log('warn', 'Calendar', 'Failed to resolve assigned clients for visibility; falling back to owner/team/public only', {
+      error: e.message,
+      user: req.user?.displayName
+    });
+  }
 
   const params = [];
   let i = startParamIdx;
@@ -2666,7 +2673,7 @@ app.post('/api/sows/upload', (req, res, next) => {
   try {
     extracted = await extractWorkPackage(req.file.buffer);
   } catch (e) {
-    log('error', 'SoW', 'Extraction failed', { error: e.message });
+    log('error', 'SoW', 'Extraction failed', { error: e.message, client_id, title: title.trim() });
     return res.status(400).json({ error: 'Failed to parse PDF: ' + e.message });
   } finally {
     // Drop the buffer immediately — never keep the original file in memory
@@ -2674,7 +2681,25 @@ app.post('/api/sows/upload', (req, res, next) => {
   }
 
   if (!extracted || !extracted.text || !extracted.text.trim()) {
-    return res.status(400).json({ error: 'Could not extract any work package content' });
+    // Surface filter stats so the user can tell *why* the PDF was rejected (code review M8).
+    // extraction_stats include filteredParagraphs, keptParagraphs, and filteredReasons[].
+    const stats = (extracted && extracted.stats) || {};
+    const reasons = Array.isArray(stats.filteredReasons) ? stats.filteredReasons : [];
+    const filteredCount = Number(stats.filteredParagraphs || 0);
+    const keptCount = Number(stats.keptParagraphs || 0);
+    let hint;
+    if (filteredCount > 0 && keptCount === 0) {
+      hint = `All ${filteredCount} paragraph${filteredCount === 1 ? '' : 's'} were filtered out by the pricing/legal filter. If this PDF only contains pricing or legal content, upload a scope-only variant.`;
+    } else if (filteredCount === 0 && keptCount === 0) {
+      hint = 'The PDF parsed but contained no extractable text. It may be a scanned image — try exporting to text first.';
+    } else {
+      hint = 'No work package content was recognised.';
+    }
+    return res.status(400).json({
+      error: 'Could not extract any work package content',
+      hint,
+      stats: { filteredParagraphs: filteredCount, keptParagraphs: keptCount, reasons: reasons.slice(0, 10) }
+    });
   }
 
   try {
@@ -2693,8 +2718,14 @@ app.post('/api/sows/upload', (req, res, next) => {
     // Return without work_package_text (client fetches via GET /api/sows/:id)
     res.status(201).json({ ...created, extraction_stats: extracted.stats || {} });
   } catch (e) {
-    log('error', 'SoW', 'Failed to insert SoW', { error: e.message });
-    res.status(500).json({ error: 'An internal error occurred' });
+    // Include client_id and title in logs so failures are diagnosable (code review H5)
+    log('error', 'SoW', 'Failed to insert SoW', {
+      error: e.message,
+      client_id,
+      title: title.trim(),
+      uploader: req.user.displayName
+    });
+    res.status(500).json({ error: 'An internal error occurred saving the SoW' });
   }
 });
 
@@ -3359,33 +3390,29 @@ app.patch('/api/tasks/:id', async (req, res) => {
     }
   }
 
-  // Server-side circular dependency prevention
+  // Server-side circular dependency prevention (single recursive CTE, replaces O(M*N) loop — code review H3)
   if (Array.isArray(req.body.dependencies) && req.body.dependencies.length > 0) {
-    // Check each new dependency doesn't create a cycle
-    for (const depId of req.body.dependencies) {
-      if (depId === req.params.id) {
-        return res.status(400).json({ error: 'A task cannot depend on itself' });
-      }
-      // Walk the dependency chain from depId to check if it eventually reaches this task
-      const visited = new Set();
-      const queue = [depId];
-      let cycleFound = false;
-      while (queue.length > 0) {
-        const current = queue.shift();
-        if (visited.has(current)) continue;
-        visited.add(current);
-        const { rows: depRows } = await pool.query('SELECT dependencies FROM tasks WHERE id = $1', [current]);
-        if (depRows.length > 0 && Array.isArray(depRows[0].dependencies)) {
-          for (const nextDep of depRows[0].dependencies) {
-            if (nextDep === req.params.id) { cycleFound = true; break; }
-            queue.push(nextDep);
-          }
-        }
-        if (cycleFound) break;
-      }
-      if (cycleFound) {
-        return res.status(400).json({ error: 'Circular dependency detected — this would create a cycle' });
-      }
+    // Self-dependency check first (cheap)
+    if (req.body.dependencies.some(d => d === req.params.id)) {
+      return res.status(400).json({ error: 'A task cannot depend on itself' });
+    }
+    // Walk the transitive closure of all proposed dependencies in one query and see if the
+    // current task appears anywhere in the reachable set. If it does, adding these dependencies
+    // would create a cycle.
+    const { rows: reachRows } = await pool.query(`
+      WITH RECURSIVE dep_closure(task_id, depth) AS (
+        SELECT unnest($1::uuid[]), 1
+        UNION
+        SELECT dep_id::uuid, dc.depth + 1
+        FROM dep_closure dc
+        JOIN tasks t ON t.id = dc.task_id
+        CROSS JOIN LATERAL unnest(COALESCE(t.dependencies, ARRAY[]::text[])) AS dep_id
+        WHERE dc.depth < 500
+      )
+      SELECT 1 FROM dep_closure WHERE task_id = $2::uuid LIMIT 1
+    `, [req.body.dependencies, req.params.id]);
+    if (reachRows.length > 0) {
+      return res.status(400).json({ error: 'Circular dependency detected — this would create a cycle' });
     }
   }
   updates.push(`updated_at = NOW()`);
@@ -5811,6 +5838,9 @@ app.delete('/api/candidates/:id', async (req, res) => {
 
 /** POST /api/candidates/:id/cv — Upload a CV file for a candidate.
  *  Reuses the shared multer instance (25 MB cap, allowlisted MIME types).
+ *  Code review M6: restrict to PDF only. CVs are almost always PDFs in practice,
+ *  and narrowing the MIME surface reduces the attack area (no DOCX macros, no
+ *  arbitrary binary that happens to satisfy the generic allowlist).
  *  If the candidate already has a CV, the previous file is deleted from disk
  *  before the new one replaces it. */
 app.post('/api/candidates/:id/cv', upload.single('file'), async (req, res) => {
@@ -5820,6 +5850,13 @@ app.post('/api/candidates/:id/cv', upload.single('file'), async (req, res) => {
     return res.status(400).json({ error: 'Invalid candidate ID' });
   }
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+  // Enforce PDF-only for CVs
+  const isPdfMime = req.file.mimetype === 'application/pdf';
+  const isPdfExt = /\.pdf$/i.test(req.file.originalname || '');
+  if (!isPdfMime || !isPdfExt) {
+    try { fs.unlinkSync(req.file.path); } catch (e) {}
+    return res.status(400).json({ error: 'Only PDF CVs are accepted' });
+  }
   try {
     const { rows: existing } = await pool.query('SELECT cv_filename FROM candidates WHERE id = $1', [req.params.id]);
     if (existing.length === 0) {
@@ -6310,8 +6347,12 @@ app.get('/api/expense-reports/:id/export', async (req, res) => {
 
 // ==================== CLIENT STATUS REPORTS ====================
 
-/** POST /api/clients/:id/reports -- Generate a client status report snapshot */
+/** POST /api/clients/:id/reports -- Generate a client status report snapshot.
+ *  Admin-only: generates a public share token that bypasses auth, so creation is gated.
+ *  UUID-validated, audit-logged (code review M5). */
 app.post('/api/clients/:id/reports', async (req, res) => {
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid client ID' });
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only -- public share tokens are gated' });
   const clientResult = await pool.query('SELECT * FROM clients WHERE id = $1', [req.params.id]);
   if (clientResult.rows.length === 0) return res.status(404).json({ error: 'Client not found' });
   const client = clientResult.rows[0];
@@ -6357,14 +6398,21 @@ app.post('/api/clients/:id/reports', async (req, res) => {
     overdueTasks: clientTasks.filter(t => t.due_date && t.status !== 'Done' && t.status !== 'Cancelled' && new Date(t.due_date) < new Date()).map(t => ({ title: t.title, dueDate: t.due_date, assignees: t.assignees })),
   };
 
-  // Save with share token
+  // Save with share token. 30-day expiry (was 90 -- code review M5 recommended shorter default).
   const shareToken = crypto.randomBytes(16).toString('hex');
-  const expiresAt = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000); // 90 days
+  const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
   const { rows } = await pool.query(
     `INSERT INTO client_reports (client_id, client_name, share_token, report_data, generated_by, expires_at)
      VALUES ($1,$2,$3,$4,$5,$6) RETURNING id, share_token, created_at`,
     [req.params.id, client.name, shareToken, JSON.stringify(reportData), req.user?.displayName || 'system', expiresAt]
   );
+
+  // Audit so we have a record of every public share token ever created
+  await auditLog('client_report', rows[0].id, 'create', req.user?.displayName, {
+    client_id: req.params.id,
+    client_name: client.name,
+    expires_at: expiresAt
+  });
 
   res.status(201).json({
     id: rows[0].id,
@@ -6392,11 +6440,17 @@ app.get('/api/reports/:token', async (req, res) => {
   res.json(rows[0].report_data);
 });
 
-/** GET /api/reports/:token/html — Public styled HTML report page (no auth required) */
+/** GET /api/reports/:token/html — Public styled HTML report page (no auth required).
+ *  Adds X-Robots-Tag and Referrer-Policy headers + meta tags so tokens don't leak
+ *  via search indexing or the Referer header (security audit M10). */
 app.get('/api/reports/:token/html', async (req, res) => {
   const { rows } = await pool.query('SELECT * FROM client_reports WHERE share_token = $1', [req.params.token]);
   if (rows.length === 0) return res.status(404).send('Report not found');
   if (rows[0].expires_at && new Date(rows[0].expires_at) < new Date()) return res.status(410).send('Report expired');
+
+  // Tell search engines not to index and tell browsers not to send a Referer on outbound links
+  res.set('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet');
+  res.set('Referrer-Policy', 'no-referrer');
 
   const d = rows[0].report_data;
   const date = new Date(d.generatedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -6405,6 +6459,8 @@ app.get('/api/reports/:token/html', async (req, res) => {
 
   // All user-supplied data is escaped via escHtml() to prevent XSS in this public endpoint
   let html = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+  <meta name="referrer" content="no-referrer">
   <title>${escHtml(d.clientName)} — Status Report</title>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}

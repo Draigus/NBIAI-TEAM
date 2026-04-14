@@ -62,11 +62,12 @@ html[data-theme="light"] {
   --accent: #0055dd; --accent-hover: #0044bb; --accent-dim: #003399;
   --accent-glow: rgba(0,85,221,0.08); --accent-border: rgba(0,85,221,0.2);
   --accent-text: #0055dd;
-  --success: #16a34a; --success-bg: rgba(22,163,74,0.08); --success-border: rgba(22,163,74,0.2);
-  --warning: #d97706; --warning-bg: rgba(217,119,6,0.08); --warning-border: rgba(217,119,6,0.2);
-  --danger: #dc2626; --danger-bg: rgba(220,38,38,0.08); --danger-border: rgba(220,38,38,0.2);
-  --purple: #9333ea; --purple-bg: rgba(147,51,234,0.08); --purple-bg-subtle: rgba(147,51,234,0.02); --purple-border: rgba(147,51,234,0.2);
-  --cyan: #0891b2; --cyan-bg: rgba(8,145,178,0.08); --cyan-border: rgba(8,145,178,0.2);
+  /* Text tokens darkened for WCAG AA on tinted backgrounds (audit C1). Background/border rgba kept as original brighter hues. */
+  --success: #166534; --success-bg: rgba(22,163,74,0.08); --success-border: rgba(22,163,74,0.2);
+  --warning: #92400e; --warning-bg: rgba(217,119,6,0.08); --warning-border: rgba(217,119,6,0.2);
+  --danger: #991b1b; --danger-bg: rgba(220,38,38,0.08); --danger-border: rgba(220,38,38,0.2);
+  --purple: #6b21a8; --purple-bg: rgba(147,51,234,0.08); --purple-bg-subtle: rgba(147,51,234,0.02); --purple-border: rgba(147,51,234,0.2);
+  --cyan: #155e75; --cyan-bg: rgba(8,145,178,0.08); --cyan-border: rgba(8,145,178,0.2);
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.06); --shadow-md: 0 2px 8px rgba(0,0,0,0.08);
   --shadow-lg: 0 4px 16px rgba(0,0,0,0.1);
 }
@@ -229,6 +230,14 @@ button.sidebar__item, button.sidebar__toggle { font: inherit; color: inherit; ba
 .sidebar__nav { flex: 1; overflow-y: auto; padding: var(--space-lg) 0; }
 .sidebar__section { margin-bottom: var(--space-xl); }
 .sidebar__title { font-family: var(--font-display); font-size: 0.6rem; font-weight: 600; color: var(--text-muted); letter-spacing: 1.5px; text-transform: uppercase; padding: 0 var(--space-lg); margin-bottom: var(--space-sm); }
+/* Collapsible section titles (audit H4 sidebar overload).
+   Clicking the title hides the section's items. State persists in localStorage. */
+button.sidebar__title { display: flex; align-items: center; justify-content: space-between; width: 100%; background: none; border: none; font: inherit; color: var(--text-muted); cursor: pointer; text-align: left; padding: 2px var(--space-lg); border-radius: 3px; }
+button.sidebar__title:hover { color: var(--text-primary); background: var(--bg-hover); }
+button.sidebar__title:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: transform 0.15s; opacity: 0.6; }
+.sidebar__section[data-collapsed="true"] > button.sidebar__title::after { transform: rotate(-90deg); }
+.sidebar__section[data-collapsed="true"] > .sidebar__section__body { display: none; }
 .sidebar__item { display: flex; align-items: center; justify-content: space-between; padding: 7px var(--space-lg); cursor: pointer; color: var(--text-secondary); font-size: 0.85rem; transition: all 0.12s; border-left: 2px solid transparent; }
 .sidebar__item:hover { background: var(--bg-hover); color: var(--text-primary); }
 .sidebar__item.active { background: var(--accent-glow); color: var(--accent-text); border-left-color: var(--accent); }
@@ -390,7 +399,7 @@ button.sidebar__item, button.sidebar__toggle { font: inherit; color: inherit; ba
 .badge--waiting { background: var(--cyan-bg); color: var(--cyan); border: 1px solid var(--cyan-border); }
 .badge--status { background: var(--bg-surface); color: var(--text-secondary); border: 1px solid var(--border-default); }
 .badge--priority-high { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
-.badge--priority-critical { background: var(--danger-bg); color: #ff6b6b; border: 1px solid rgba(255,107,107,0.3); }
+.badge--priority-critical { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); font-weight: 800; text-decoration: underline; text-underline-offset: 2px; }
 .badge--priority-medium { background: var(--warning-bg); color: var(--warning); border: 1px solid var(--warning-border); }
 .badge--priority-low { background: var(--bg-surface); color: var(--text-muted); border: 1px solid var(--border-default); }
 
@@ -920,6 +929,16 @@ span.fin-editable { display: inline-block; position: relative; }
   .dashboard-charts-quad > .chart-card { flex: 1 1 100%; }
   .chart-card { min-height: 220px; padding: var(--space-md); }
   .progress-card { padding: var(--space-md); }
+  /* Audit C6 remainder: Settings/Leads/Finances/Report overflow at 375px.
+     These views contain tables, grids, and filter bars that outgrow narrow viewports. */
+  .main__content { overflow-x: hidden; }
+  .settings, .settings__group, .settings__group > div, .settings__group form { max-width: 100%; min-width: 0; }
+  .settings input[type="text"], .settings input[type="email"], .settings input[type="number"], .settings textarea, .settings select { max-width: 100%; width: 100%; box-sizing: border-box; }
+  .leads-view, .leads-view__header, .leads-view__filters, .leads-view__content { max-width: 100%; min-width: 0; flex-wrap: wrap; }
+  .leads-view__filters { overflow-x: auto; }
+  .finance-view, .finance-view__content, .finance-view .report { max-width: 100%; min-width: 0; overflow-x: auto; }
+  .finance-view table, .report table { display: block; overflow-x: auto; max-width: 100%; }
+  .report, .report__section { max-width: 100%; min-width: 0; }
 }
 
 /* Hamburger sidebar toggle for mobile */
@@ -1654,6 +1673,8 @@ span.fin-editable { display: inline-block; position: relative; }
   transition: background 0.12s;
 }
 .warn-item:hover { background: var(--bg-hover); }
+.warn-item__main { display: block; width: 100%; background: none; border: none; padding: 0; margin: 0; text-align: left; color: inherit; font: inherit; cursor: pointer; }
+.warn-item__main:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .warn-item__header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 4px; }
 .warn-item__title { font-size: 0.85rem; font-weight: 600; color: var(--text-primary); }
 .warn-item__meta { font-size: 0.72rem; color: var(--text-muted); }
@@ -1678,7 +1699,7 @@ span.fin-editable { display: inline-block; position: relative; }
 </style>
 </head>
 <body>
-<a href="#mainContent" class="skip-link">Skip to main content</a>
+<a href="#mainLandmark" class="skip-link">Skip to main content</a>
 
 <!-- LOGIN SCREEN (hidden when authenticated) -->
 <div id="loginScreen" class="login-screen" style="display:none;">
@@ -1782,11 +1803,11 @@ span.fin-editable { display: inline-block; position: relative; }
   </aside>
 
   <!-- MAIN -->
-  <div class="main">
+  <main class="main" id="mainLandmark">
     <div class="main__tabs" id="mainTabs" role="tablist"></div>
     <div id="breadcrumbBar" style="display:none;align-items:center;gap:6px;padding:6px var(--space-xl);background:var(--bg-surface);border-bottom:1px solid var(--border-default);flex-wrap:wrap;position:relative;z-index:50"></div>
     <div class="main__content" id="mainContent"></div>
-  </div>
+  </main>
 </div>
 
 <!-- DETAIL PANEL -->
@@ -2960,6 +2981,29 @@ addManagedListener(document, 'keydown', (e) => {
 // ==================== SIDEBAR NAVIGATION ====================
 
 /** Build and render the sidebar: views list, client filters, health filters, quick filters */
+/** Return the opening markup for a collapsible sidebar section.
+ *  Collapsed state is persisted in localStorage under 'sidebarSection:<key>'. */
+function sidebarSectionOpen(key, title) {
+  const collapsed = localStorage.getItem('sidebarSection:' + key) === '1';
+  const keyAttr = esc(key);
+  return `<div class="sidebar__section" data-collapsed="${collapsed}" data-section="${keyAttr}">
+    <button type="button" class="sidebar__title" aria-expanded="${!collapsed}" onclick="toggleSidebarSection('${keyAttr}')">${esc(title)}</button>
+    <div class="sidebar__section__body">`;
+}
+function sidebarSectionClose() { return `</div></div>`; }
+
+/** Toggle a sidebar section's collapsed state and persist it. */
+function toggleSidebarSection(key) {
+  const current = localStorage.getItem('sidebarSection:' + key) === '1';
+  localStorage.setItem('sidebarSection:' + key, current ? '0' : '1');
+  const section = document.querySelector(`.sidebar__section[data-section="${CSS.escape(key)}"]`);
+  if (section) {
+    section.setAttribute('data-collapsed', String(!current));
+    const title = section.querySelector('.sidebar__title');
+    if (title) title.setAttribute('aria-expanded', String(current));
+  }
+}
+
 function renderSidebar() {
   const roots = getRootTasks();
   const clients = getAllClients();
@@ -2976,7 +3020,7 @@ function renderSidebar() {
   const svgFinances = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1v14M5 4c0-1 1.5-2 3-2s3 1 3 2-1.5 2-3 2-3 1-3 2 1.5 2 3 2 3-1 3-2"/></svg>';
   const svgSettings = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M2.9 2.9l1.4 1.4M11.7 11.7l1.4 1.4M13.1 2.9l-1.4 1.4M4.3 11.7l-1.4 1.4"/></svg>';
 
-  html += `<div class="sidebar__section"><div class="sidebar__title">Views</div>`;
+  html += sidebarSectionOpen('views', 'Views');
   html += sidebarItem(svgReport, 'Dashboard', '', () => switchView('report'), currentView==='report');
   html += sidebarItem(svgDashboard, 'Workload', '', () => switchView('dashboard'), currentView==='dashboard');
   html += sidebarItem(svgTasks, 'Projects', scopedForHealth.length, () => switchView('tasks'), currentView==='tasks');
@@ -2999,66 +3043,76 @@ function renderSidebar() {
     html += sidebarItem(svgFinances, 'Finances', '', () => switchView('finances'), currentView==='finances');
   }
   html += sidebarItem(svgSettings, 'Settings', '', () => switchView('settings'), currentView==='settings');
-  html += `</div>`;
+  html += sidebarSectionClose();
 
   // My Tasks shortcut
   const myName = _currentUser?.displayName || '';
   if (myName) {
     const myActiveTasks = tasks.filter(t => t.assignees?.some(a => a === myName) && t.status !== 'Done' && t.status !== 'Cancelled');
     const svgMyTasks = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>';
-    html += `<div class="sidebar__section"><div class="sidebar__title">My Work</div>`;
+    html += sidebarSectionOpen('mywork', 'My Work');
     html += sidebarItem(svgMyTasks, 'My Work', myActiveTasks.length, () => switchView('mytasks'), currentView === 'mytasks');
-    html += `</div>`;
+    html += sidebarSectionClose();
   }
 
   // Clients
-  html += `<div class="sidebar__section"><div class="sidebar__title">Clients</div>`;
-  html += `<button class="sidebar__item ${!currentFilter.client?'active':''}" onclick="filterByClient(null)"><span class="sidebar__dot" style="background:var(--accent)"></span><span class="sidebar__item__label" style="font-weight:600">NBI Portfolio</span><span class="sidebar__item__count">${tasks.length}</span></button>`;
+  html += sidebarSectionOpen('clients', 'Clients');
+  const portfolioActive = !currentFilter.client;
+  html += `<button class="sidebar__item ${portfolioActive?'active':''}"${portfolioActive?' aria-current="page"':''} aria-label="NBI Portfolio, ${tasks.length} items" onclick="filterByClient(null)"><span class="sidebar__dot" aria-hidden="true" style="background:var(--accent)"></span><span class="sidebar__item__label" style="font-weight:600">NBI Portfolio</span><span class="sidebar__item__count" aria-hidden="true">${tasks.length}</span></button>`;
   clients.forEach(c => {
     const count = tasks.filter(t => getTaskClient(t) === c).length;
     const dotColour = stringToColour(c);
-    html += `<button class="sidebar__item ${currentFilter.client===c?'active':''}" onclick="filterByClient('${escAttrJs(c)}')"><span class="sidebar__dot" style="background:${dotColour}"></span><span class="sidebar__item__label">${esc(c)}</span><span class="sidebar__item__count">${count}</span></button>`;
+    const isActive = currentFilter.client===c;
+    html += `<button class="sidebar__item ${isActive?'active':''}"${isActive?' aria-current="page"':''} aria-label="${esc(c)}, ${count} items" onclick="filterByClient('${escAttrJs(c)}')"><span class="sidebar__dot" aria-hidden="true" style="background:${dotColour}"></span><span class="sidebar__item__label">${esc(c)}</span><span class="sidebar__item__count" aria-hidden="true">${count}</span></button>`;
   });
-  html += `</div>`;
+  html += sidebarSectionClose();
 
   // Practices (Phase 9, a6c82c8c). Counts span tasks + leads so users
   // see at a glance how much volume sits in each practice. The "All"
   // entry clears the filter rather than passing a value.
-  html += `<div class="sidebar__section"><div class="sidebar__title">Practices</div>`;
+  html += sidebarSectionOpen('practices', 'Practices');
   const _leadList = (typeof _leadsData !== 'undefined' && _leadsData && _leadsData.leads) ? _leadsData.leads : [];
   const allPracticeCount = tasks.length + _leadList.length;
-  html += `<button class="sidebar__item ${!currentFilter.practice?'active':''}" onclick="filterByPractice(null)"><span class="sidebar__dot" style="background:var(--accent)"></span><span class="sidebar__item__label" style="font-weight:600">All</span><span class="sidebar__item__count">${allPracticeCount}</span></button>`;
+  const practiceAllActive = !currentFilter.practice;
+  html += `<button class="sidebar__item ${practiceAllActive?'active':''}"${practiceAllActive?' aria-current="page"':''} aria-label="All practices, ${allPracticeCount} items" onclick="filterByPractice(null)"><span class="sidebar__dot" aria-hidden="true" style="background:var(--accent)"></span><span class="sidebar__item__label" style="font-weight:600">All</span><span class="sidebar__item__count" aria-hidden="true">${allPracticeCount}</span></button>`;
   PRACTICES.forEach(p => {
     const tCount = tasks.filter(t => getTaskPractice(t) === p.value).length;
     const lCount = _leadList.filter(l => l.practice_area === p.value).length;
     const total = tCount + lCount;
-    html += `<button class="sidebar__item ${currentFilter.practice===p.value?'active':''}" onclick="filterByPractice('${escAttrJs(p.value)}')"><span class="sidebar__dot" style="background:${p.colour}"></span><span class="sidebar__item__label">${esc(p.label)}</span><span class="sidebar__item__count">${total}</span></button>`;
+    const isActive = currentFilter.practice===p.value;
+    html += `<button class="sidebar__item ${isActive?'active':''}"${isActive?' aria-current="page"':''} aria-label="${esc(p.label)}, ${total} items" onclick="filterByPractice('${escAttrJs(p.value)}')"><span class="sidebar__dot" aria-hidden="true" style="background:${p.colour}"></span><span class="sidebar__item__label">${esc(p.label)}</span><span class="sidebar__item__count" aria-hidden="true">${total}</span></button>`;
   });
-  html += `</div>`;
+  html += sidebarSectionClose();
 
   // Health
-  html += `<div class="sidebar__section"><div class="sidebar__title">Health</div>`;
+  html += sidebarSectionOpen('health', 'Health');
   HEALTH_STATES.forEach(h => {
     if (healthCounts[h] > 0) {
       const col = HEALTH_COLOURS_HEX[h] || '#666';
-      html += `<button class="sidebar__item ${currentFilter.health && currentFilter.health.includes(h)?'active':''}" onclick="filterByHealth('${escAttrJs(h)}')"><span class="sidebar__dot" style="background:${col}"></span><span class="sidebar__item__label">${esc(h)}</span><span class="sidebar__item__count">${healthCounts[h]}</span></button>`;
+      const isActive = !!(currentFilter.health && currentFilter.health.includes(h));
+      html += `<button class="sidebar__item ${isActive?'active':''}"${isActive?' aria-current="page"':''} aria-label="${esc(h)}, ${healthCounts[h]} items" onclick="filterByHealth('${escAttrJs(h)}')"><span class="sidebar__dot" aria-hidden="true" style="background:${col}"></span><span class="sidebar__item__label">${esc(h)}</span><span class="sidebar__item__count" aria-hidden="true">${healthCounts[h]}</span></button>`;
     }
   });
-  html += `</div>`;
+  html += sidebarSectionClose();
 
   // Quick Filters
-  html += `<div class="sidebar__section"><div class="sidebar__title">Quick Filters</div>`;
+  html += sidebarSectionOpen('quickfilters', 'Quick Filters');
   const critCount = tasks.filter(t => t.priority === 'Critical ACT' || t.priority === 'Urgent' || t.priority === 'High').length;
   html += sidebarItem('&#9888;', 'Critical / High', critCount, () => { currentFilter = { ...currentFilter, status: [], health: [], client: null, project: null }; switchView('tasks'); renderAll(); }, false);
-  html += `</div>`;
+  html += sidebarSectionClose();
 
   document.getElementById('sidebarNav').innerHTML = html;
 }
 
-/** Generate HTML for a single sidebar navigation item with icon, label, and optional count badge */
+/** Generate HTML for a single sidebar navigation item with icon, label, and optional count badge.
+ *  Active item gets aria-current="page" (a11y H5). Count badge gets an aria-label prefix so
+ *  screen readers announce "Projects, 1123 items" instead of "Projects1123" (a11y H6). */
 function sidebarItem(icon, label, count, onclick, active) {
   const id = 'si_' + label.replace(/\s/g,'');
-  return `<button class="sidebar__item ${active?'active':''}" id="${id}" onclick="(${onclick.toString()})()"><span class="sidebar__item__icon">${icon}</span><span class="sidebar__item__label">${label}</span>${count!==''?`<span class="sidebar__item__count">${count}</span>`:''}</button>`;
+  const ariaCurrent = active ? ' aria-current="page"' : '';
+  const ariaLabel = count !== '' ? ` aria-label="${esc(label)}, ${esc(String(count))} items"` : ` aria-label="${esc(label)}"`;
+  const countHtml = count !== '' ? `<span class="sidebar__item__count" aria-hidden="true">${count}</span>` : '';
+  return `<button class="sidebar__item ${active?'active':''}" id="${id}"${ariaCurrent}${ariaLabel} onclick="(${onclick.toString()})()"><span class="sidebar__item__icon" aria-hidden="true">${icon}</span><span class="sidebar__item__label">${label}</span>${countHtml}</button>`;
 }
 
 /** Deterministically convert a string to an HSL colour -- used for client dot colours */
@@ -4845,7 +4899,7 @@ function renderCalendarView(filtered) {
     eventsOnDay.slice(0, maxShow).forEach(ev => {
       const col = calEventColour(ev.event_type);
       const ownerSuffix = ev.user_display_name ? ' — ' + ev.user_display_name : '';
-      html += `<div class="cal__event" style="background:${col};color:#fff;padding:1px 5px;border-radius:3px;font-size:0.65rem;margin-top:2px;cursor:pointer;border-left:3px solid rgba(0,0,0,0.25);overflow:hidden;text-overflow:ellipsis;white-space:nowrap" onclick="event.stopPropagation();openCalendarEventDetail('${ev.id}')" title="${esc(calEventTypeLabel(ev.event_type))}: ${esc(ev.title)}${esc(ownerSuffix)}">${esc(ev.title)}</div>`;
+      html += `<div class="cal__event" role="button" tabindex="0" aria-label="${esc(calEventTypeLabel(ev.event_type))}: ${esc(ev.title)}${esc(ownerSuffix)}" style="background:${col};color:#fff;padding:1px 5px;border-radius:3px;font-size:0.65rem;margin-top:2px;cursor:pointer;border-left:3px solid rgba(0,0,0,0.25);overflow:hidden;text-overflow:ellipsis;white-space:nowrap" onclick="event.stopPropagation();openCalendarEventDetail('${ev.id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();openCalendarEventDetail('${ev.id}')}" title="${esc(calEventTypeLabel(ev.event_type))}: ${esc(ev.title)}${esc(ownerSuffix)}">${esc(ev.title)}</div>`;
     });
     if (eventsOnDay.length > maxShow) {
       html += `<div class="cal__more" style="font-size:0.62rem;color:var(--text-muted)">+${eventsOnDay.length - maxShow} more events</div>`;
@@ -5959,11 +6013,11 @@ function renderInlineTaskDetail(id) {
   const ilClient = getTaskClient(task);
   html += `<div class="detail-section"><div class="detail-section__title">Properties</div>`;
   html += `<div class="detail-field"><span class="detail-field__label">Type</span><div style="display:flex;align-items:center;gap:6px">${itemTypeBadgeHtml(task)} <span style="font-size:0.82rem;color:var(--text-primary)">${getItemTypeLabel(task)}</span></div></div>`;
-  html += `<div class="detail-field"><span class="detail-field__label field-required">Name</span><input value="${esc(task.title)}" onchange="updateTask('${id}','title',this.value)" onkeydown="if(event.key==='Enter')this.blur()"></div>`;
+  html += `<div class="detail-field"><label class="detail-field__label field-required" for="inline-detail-title">Name</label><input id="inline-detail-title" value="${esc(task.title)}" onchange="updateTask('${id}','title',this.value)" onkeydown="if(event.key==='Enter')this.blur()"></div>`;
   if (ilClient) {
     html += `<div class="detail-field"><span class="detail-field__label field-required">Client</span><div style="display:flex;align-items:center;gap:6px">${clientBadgeHtml(ilClient)} <span style="font-size:0.82rem;color:var(--text-primary)">${esc(ilClient)}</span></div></div>`;
   } else {
-    html += `<div class="detail-field"><span class="detail-field__label field-required">Client</span><select onchange="updateTask('${id}','client',this.value)">${['', ...getContractedClients()].map(o => `<option value="${esc(o)}" ${(task.client||'')=== o ? 'selected' : ''}>${esc(o||'-- None --')}</option>`).join('')}</select></div>`;
+    html += `<div class="detail-field"><label class="detail-field__label field-required" for="inline-detail-client">Client</label><select id="inline-detail-client" onchange="updateTask('${id}','client',this.value)">${['', ...getContractedClients()].map(o => `<option value="${esc(o)}" ${(task.client||'')=== o ? 'selected' : ''}>${esc(o||'-- None --')}</option>`).join('')}</select></div>`;
   }
   html += inlineDetailSelect('Status', 'status', task.status, STATUSES, id, true);
   html += inlineDetailSelect('Priority', 'priority', task.priority || '', ['', ...PRIORITIES], id, true);
@@ -5975,18 +6029,18 @@ function renderInlineTaskDetail(id) {
   // Read both camelCase (sync/load) and snake_case (REST) for compatibility.
   html += (function() {
     const cur = task.practiceArea || task.practice_area || '';
-    return `<div class="detail-field"><span class="detail-field__label">Practice</span><select onchange="updateTask('${id}','practiceArea',this.value||null)"><option value="">-- Inherit / None --</option>${PRACTICES.map(p => `<option value="${esc(p.value)}" ${cur === p.value ? 'selected' : ''}>${esc(p.label)}</option>`).join('')}</select></div>`;
+    return `<div class="detail-field"><label class="detail-field__label" for="inline-detail-practice">Practice</label><select id="inline-detail-practice" onchange="updateTask('${id}','practiceArea',this.value||null)"><option value="">-- Inherit / None --</option>${PRACTICES.map(p => `<option value="${esc(p.value)}" ${cur === p.value ? 'selected' : ''}>${esc(p.label)}</option>`).join('')}</select></div>`;
   })();
-  html += `<div class="detail-field"><span class="detail-field__label">Start Date</span><input type="date" value="${task.startDate||''}" onchange="updateTask('${id}','startDate',this.value)"></div>`;
-  html += `<div class="detail-field"><span class="detail-field__label">End Date</span><input type="date" value="${task.endDate||''}" onchange="updateTask('${id}','endDate',this.value)"></div>`;
-  html += `<div class="detail-field"><span class="detail-field__label">Due Date</span><input type="date" value="${task.dueDate||''}" onchange="updateTask('${id}','dueDate',this.value)"></div>`;
+  html += `<div class="detail-field"><label class="detail-field__label" for="inline-detail-startDate">Start Date</label><input id="inline-detail-startDate" type="date" value="${task.startDate||''}" onchange="updateTask('${id}','startDate',this.value)"></div>`;
+  html += `<div class="detail-field"><label class="detail-field__label" for="inline-detail-endDate">End Date</label><input id="inline-detail-endDate" type="date" value="${task.endDate||''}" onchange="updateTask('${id}','endDate',this.value)"></div>`;
+  html += `<div class="detail-field"><label class="detail-field__label" for="inline-detail-dueDate">Due Date</label><input id="inline-detail-dueDate" type="date" value="${task.dueDate||''}" onchange="updateTask('${id}','dueDate',this.value)"></div>`;
   html += `</div>`;
 
   // Time Tracking
   html += `<div class="detail-section"><div class="detail-section__title">Time Tracking</div>`;
   if (children.length > 0) html += `<div class="detail-agg" style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:8px">${hrs.spent.toFixed(1)}h spent / ${hrs.est.toFixed(1)}h estimated (${hrs.est > 0 ? Math.round(hrs.spent/hrs.est*100) : 0}%)</div>`;
-  html += `<div class="detail-field"><span class="detail-field__label">Hours Spent</span><input type="number" step="0.5" min="0" value="${task.hoursSpent||0}" onchange="updateTask('${id}','hoursSpent',parseFloat(this.value)||0)"></div>`;
-  html += `<div class="detail-field"><span class="detail-field__label field-required">Hours Est.</span><input type="number" step="0.5" min="0" value="${task.hoursEstimated||0}" onchange="updateTask('${id}','hoursEstimated',parseFloat(this.value)||0)"></div>`;
+  html += `<div class="detail-field"><label class="detail-field__label" for="inline-detail-hoursSpent">Hours Spent</label><input id="inline-detail-hoursSpent" type="number" step="0.5" min="0" value="${task.hoursSpent||0}" onchange="updateTask('${id}','hoursSpent',parseFloat(this.value)||0)"></div>`;
+  html += `<div class="detail-field"><label class="detail-field__label field-required" for="inline-detail-hoursEstimated">Hours Est.</label><input id="inline-detail-hoursEstimated" type="number" step="0.5" min="0" value="${task.hoursEstimated||0}" onchange="updateTask('${id}','hoursEstimated',parseFloat(this.value)||0)"></div>`;
   html += `</div>`;
 
   // Description (split into three fields — Feature 5)
@@ -6068,7 +6122,8 @@ function renderInlineTaskDetail(id) {
 /** Generate a labelled select dropdown for the inline detail panel. Pass required=true to mark the label as mandatory. */
 function inlineDetailSelect(label, field, value, options, taskId, required) {
   const cls = 'detail-field__label' + (required ? ' field-required' : '');
-  return `<div class="detail-field"><span class="${cls}">${label}</span><select onchange="updateTask('${taskId}','${field}',this.value)">${options.map(o => `<option value="${esc(o)}" ${o===value?'selected':''}>${esc(o||'-- None --')}</option>`).join('')}</select></div>`;
+  const selId = `inline-detail-${field}`;
+  return `<div class="detail-field"><label class="${cls}" for="${selId}">${label}</label><select id="${selId}" onchange="updateTask('${taskId}','${field}',this.value)">${options.map(o => `<option value="${esc(o)}" ${o===value?'selected':''}>${esc(o||'-- None --')}</option>`).join('')}</select></div>`;
 }
 
 /** Add a timestamped note to a task from the inline detail panel input */
@@ -6553,11 +6608,11 @@ function openDetailOverlay(id) {
   const dpClient = getTaskClient(task);
   html += `<div class="detail-section"><div class="detail-section__title">Properties</div>`;
   html += `<div class="detail-field"><span class="detail-field__label">Type</span><div style="display:flex;align-items:center;gap:6px">${itemTypeBadgeHtml(task)} <span style="font-size:0.82rem;color:var(--text-primary)">${getItemTypeLabel(task)}</span></div></div>`;
-  html += `<div class="detail-field"><span class="detail-field__label field-required">Name</span><input value="${esc(task.title)}" onchange="updateTask('${id}','title',this.value)" onkeydown="if(event.key==='Enter')this.blur()"></div>`;
+  html += `<div class="detail-field"><label class="detail-field__label field-required" for="detail-title">Name</label><input id="detail-title" value="${esc(task.title)}" onchange="updateTask('${id}','title',this.value)" onkeydown="if(event.key==='Enter')this.blur()"></div>`;
   if (dpClient) {
     html += `<div class="detail-field"><span class="detail-field__label field-required">Client</span><div style="display:flex;align-items:center;gap:6px">${clientBadgeHtml(dpClient)} <span style="font-size:0.82rem;color:var(--text-primary)">${esc(dpClient)}</span></div></div>`;
   } else {
-    html += `<div class="detail-field"><span class="detail-field__label field-required">Client</span><select onchange="updateTask('${id}','client',this.value)">${['', ...getContractedClients()].map(o => `<option value="${esc(o)}" ${(task.client||'')=== o ? 'selected' : ''}>${esc(o||'-- None --')}</option>`).join('')}</select></div>`;
+    html += `<div class="detail-field"><label class="detail-field__label field-required" for="detail-client">Client</label><select id="detail-client" onchange="updateTask('${id}','client',this.value)">${['', ...getContractedClients()].map(o => `<option value="${esc(o)}" ${(task.client||'')=== o ? 'selected' : ''}>${esc(o||'-- None --')}</option>`).join('')}</select></div>`;
   }
   // Team — read-only derived from the task's client/SoW. If the project's
   // client (or specific SoW) belongs to a team, surface it here so people
@@ -6577,17 +6632,17 @@ function openDetailOverlay(id) {
   // Read both camelCase (sync/load) and snake_case (REST) for compatibility.
   html += (function() {
     const cur = task.practiceArea || task.practice_area || '';
-    return `<div class="detail-field"><span class="detail-field__label">Practice</span><select onchange="updateTask('${id}','practiceArea',this.value||null)"><option value="">-- Inherit / None --</option>${PRACTICES.map(p => `<option value="${esc(p.value)}" ${cur === p.value ? 'selected' : ''}>${esc(p.label)}</option>`).join('')}</select></div>`;
+    return `<div class="detail-field"><label class="detail-field__label" for="detail-practice">Practice</label><select id="detail-practice" onchange="updateTask('${id}','practiceArea',this.value||null)"><option value="">-- Inherit / None --</option>${PRACTICES.map(p => `<option value="${esc(p.value)}" ${cur === p.value ? 'selected' : ''}>${esc(p.label)}</option>`).join('')}</select></div>`;
   })();
-  html += `<div class="detail-field"><span class="detail-field__label">Start Date</span><input type="date" value="${task.startDate||''}" onchange="updateTask('${id}','startDate',this.value)"></div>`;
-  html += `<div class="detail-field"><span class="detail-field__label">End Date</span><input type="date" value="${task.endDate||''}" onchange="updateTask('${id}','endDate',this.value)"></div>`;
-  html += `<div class="detail-field"><span class="detail-field__label">Due Date</span><input type="date" value="${task.dueDate||''}" onchange="updateTask('${id}','dueDate',this.value)"></div>`;
+  html += `<div class="detail-field"><label class="detail-field__label" for="detail-startDate">Start Date</label><input id="detail-startDate" type="date" value="${task.startDate||''}" onchange="updateTask('${id}','startDate',this.value)"></div>`;
+  html += `<div class="detail-field"><label class="detail-field__label" for="detail-endDate">End Date</label><input id="detail-endDate" type="date" value="${task.endDate||''}" onchange="updateTask('${id}','endDate',this.value)"></div>`;
+  html += `<div class="detail-field"><label class="detail-field__label" for="detail-dueDate">Due Date</label><input id="detail-dueDate" type="date" value="${task.dueDate||''}" onchange="updateTask('${id}','dueDate',this.value)"></div>`;
   html += `</div>`;
 
   // Time Tracking (quick log + entries)
   html += `<div class="detail-section"><div class="detail-section__title">Time Tracking</div>`;
   if (children.length > 0) html += `<div class="detail-agg">${hrs.spent.toFixed(1)}h spent / ${hrs.est.toFixed(1)}h estimated (${hrs.est > 0 ? Math.round(hrs.spent/hrs.est*100) : 0}%)</div>`;
-  html += `<div class="detail-field"><span class="detail-field__label field-required">Hours Est.</span><input type="number" step="0.5" min="0" value="${task.hoursEstimated||0}" onchange="updateTask('${id}','hoursEstimated',parseFloat(this.value)||0)"></div>`;
+  html += `<div class="detail-field"><label class="detail-field__label field-required" for="detail-hoursEstimated">Hours Est.</label><input id="detail-hoursEstimated" type="number" step="0.5" min="0" value="${task.hoursEstimated||0}" onchange="updateTask('${id}','hoursEstimated',parseFloat(this.value)||0)"></div>`;
   // Quick log entry
   html += `<div style="display:flex;gap:4px;align-items:center;margin-bottom:8px"><input id="logHours" type="number" step="0.25" min="0.25" placeholder="Hours" style="width:60px;padding:4px 6px;font-size:0.78rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)"><input id="logDesc" placeholder="What did you work on?" style="flex:1;padding:4px 6px;font-size:0.78rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)"><button class="btn btn--sm" onclick="logTimeEntry('${id}')">Log</button></div>`;
   // Time entries list
@@ -6909,7 +6964,8 @@ async function postComment(taskId) {
 /** Generate a labelled select dropdown for the overlay detail panel. Pass required=true to mark the label as mandatory. */
 function detailSelect(label, field, value, options, required) {
   const cls = 'detail-field__label' + (required ? ' field-required' : '');
-  return `<div class="detail-field"><span class="${cls}">${label}</span><select onchange="updateTask('${activeDetailTaskId}','${field}',this.value)">${options.map(o => `<option value="${esc(o)}" ${o===value?'selected':''}>${esc(o||'-- None --')}</option>`).join('')}</select></div>`;
+  const selId = `detail-${field}`;
+  return `<div class="detail-field"><label class="${cls}" for="${selId}">${label}</label><select id="${selId}" onchange="updateTask('${activeDetailTaskId}','${field}',this.value)">${options.map(o => `<option value="${esc(o)}" ${o===value?'selected':''}>${esc(o||'-- None --')}</option>`).join('')}</select></div>`;
 }
 
 /** Close the detail overlay panel */
@@ -7079,7 +7135,7 @@ function renderRepeatSection(task) {
   html += `<label style="display:inline-flex;align-items:center;gap:6px;font-size:0.82rem;margin-bottom:8px"><input type="checkbox" ${enabled ? 'checked' : ''} onchange="toggleRepeat('${task.id}', this.checked)"> Make this task repeating</label>`;
   if (enabled) {
     const ruleType = rule.type || 'daily';
-    html += `<div class="detail-field"><span class="detail-field__label">Frequency</span><select onchange="setRepeatType('${task.id}', this.value)">`;
+    html += `<div class="detail-field"><label class="detail-field__label" for="detail-repeatFrequency">Frequency</label><select id="detail-repeatFrequency" onchange="setRepeatType('${task.id}', this.value)">`;
     ['daily', 'weekly', 'yearly'].forEach(t => {
       html += `<option value="${t}" ${ruleType === t ? 'selected' : ''}>${t.charAt(0).toUpperCase() + t.slice(1)}</option>`;
     });
@@ -11305,9 +11361,9 @@ async function openCreateTeamModal(clientId, clientName) {
   const sowOpts = `<option value="">-- None --</option>` + sows.map(s =>
     `<option value="${esc(s.id)}">${esc(s.title)}</option>`
   ).join('');
-  const html = `<div class="modal-overlay open" id="createTeamModal" role="dialog" aria-modal="true" onclick="if(event.target===this)this.remove()">
+  const html = `<div class="modal-overlay open" id="createTeamModal" role="dialog" aria-modal="true" aria-labelledby="createTeamModalTitle" onclick="if(event.target===this)this.remove()">
     <div class="modal" style="max-width:var(--modal-sm)">
-      <h2 style="margin-top:0">New Team</h2>
+      <h2 id="createTeamModalTitle" style="margin-top:0">New Team</h2>
       <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:8px">For client: <strong>${esc(clientName)}</strong></div>
       <div class="lead-detail__grid">
         <label class="field-required">Name</label><input type="text" id="newTeamName" placeholder="e.g. DS&amp;A Team">
@@ -11391,11 +11447,11 @@ async function openTeamDetailModal(teamId) {
   }).join('') || '<span style="color:var(--text-muted);font-size:0.78rem">No members yet</span>';
 
   const swatch = team.colour ? `<span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${esc(team.colour)};margin-right:6px;vertical-align:middle"></span>` : '';
-  const html = `<div class="modal-overlay open" id="teamDetailModal" role="dialog" aria-modal="true" onclick="if(event.target===this)this.remove()">
+  const html = `<div class="modal-overlay open" id="teamDetailModal" role="dialog" aria-modal="true" aria-labelledby="teamDetailModalTitle" onclick="if(event.target===this)this.remove()">
     <div class="modal" style="max-width:var(--modal-md);max-height:90vh;display:flex;flex-direction:column">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <h2 style="margin:0">${swatch}${esc(team.name)}</h2>
-        <button class="btn btn--ghost" onclick="document.getElementById('teamDetailModal').remove()" aria-label="Close">&times;</button>
+        <h2 id="teamDetailModalTitle" style="margin:0">${swatch}${esc(team.name)}</h2>
+        <button class="btn btn--ghost" onclick="document.getElementById('teamDetailModal').remove()" aria-label="Close team detail">&times;</button>
       </div>
       <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:8px">
         ${team.client_name ? 'Client: ' + esc(team.client_name) : ''}
@@ -11527,18 +11583,23 @@ async function updateClientField(clientId, field, value) {
   else { toast('Update failed', 'error'); }
 }
 
-/** Trigger the client research pipeline. Only verified fields are populated to avoid hallucinated data. */
+/** Trigger the client research pipeline. Currently a stub -- no search backend is wired.
+ *  The user is told this explicitly rather than shown a "0 fields verified" success toast. */
 async function gatherClientPortfolio(clientId, clientName) {
-  if (!(await themedConfirm(`Research public information about ${clientName}?\n\nThis will search public sources and populate only verified fields. Anything that cannot be verified will be left blank.`, 'Gather Portfolio Information'))) return;
-  toast('Researching ' + clientName + '...');
+  if (!(await themedConfirm(
+    `Research is not yet connected to a live search backend.\n\nClicking Continue will log the request and create an audit trail, but no fields will be populated until the research backend is configured (Brave / Tavily / Anthropic search).\n\nContinue?`,
+    'Gather Portfolio Information — Not Yet Active'
+  ))) return;
+  toast('Logging research request for ' + clientName + '...');
   try {
     const result = await apiCall('/api/clients/' + clientId + '/research', { method: 'POST' });
-    if (!result) { toast('Research failed', 'error'); return; }
-    if (result.note) {
-      toast(result.note, 'warning');
-    }
+    if (!result) { toast('Request failed', 'error'); return; }
     const fieldCount = Object.keys(result.fields || {}).length;
-    toast(`Research complete. ${fieldCount} field${fieldCount !== 1 ? 's' : ''} verified and populated.`);
+    if (fieldCount > 0) {
+      toast(`Research complete. ${fieldCount} field${fieldCount !== 1 ? 's' : ''} populated.`);
+    } else {
+      toast('Request logged. Research backend not yet wired -- no fields populated.', 'warning');
+    }
     renderContent();
   } catch (e) {
     toast('Research error: ' + e.message, 'error');
@@ -12537,18 +12598,24 @@ function renderBugTrackerView(container) {
           <span>\uD83D\uDCAC</span>
         </div>
         ${filtered.length === 0 ? '<div style="padding:var(--space-xl);text-align:center;color:var(--text-muted)">No reports found</div>' :
-          filtered.map(r => `
+          filtered.map(r => {
+            const statusLabel = r.status === 'please_review' ? 'Review' : r.status === 'in_progress' ? 'In Progress' : r.status === 'wontfix' ? "Won't Fix" : r.status;
+            const priorityLabel = r.priority ? r.priority + ' priority' : 'no priority';
+            const commentLabel = r.comment_count > 0 ? `, ${r.comment_count} comment${r.comment_count === 1 ? '' : 's'}` : '';
+            const rowAria = `${r.type}: ${r.title}. ${statusLabel}, ${priorityLabel}. Reported by ${r.reporter_name || 'Unknown'}${commentLabel}.`;
+            return `
             <div class="bug-tracker__row" onclick="openBugDetail('${r.id}')" tabindex="0" role="button"
-                 onkeydown="if(event.key==='Enter')openBugDetail('${r.id}')">
-              <span><span class="bug-type-badge bug-type-badge--${r.type}">${r.type}</span></span>
-              <span>${r.priority ? `<span class="bug-priority-badge bug-priority-badge--${r.priority}">${r.priority}</span>` : '<span style="color:var(--text-faint)">\u2014</span>'}</span>
+                 aria-label="${esc(rowAria)}"
+                 onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openBugDetail('${r.id}')}">
+              <span><span class="bug-type-badge bug-type-badge--${r.type}" aria-hidden="true">${r.type}</span></span>
+              <span aria-hidden="true">${r.priority ? `<span class="bug-priority-badge bug-priority-badge--${r.priority}">${r.priority}</span>` : '<span style="color:var(--text-faint)">\u2014</span>'}</span>
               <span class="bug-tracker__title">${esc(r.title)}</span>
-              <span><span class="bug-status-badge bug-status-badge--${r.status}">${r.status === 'please_review' ? 'Review' : r.status === 'in_progress' ? 'In Progress' : r.status === 'wontfix' ? "Won't Fix" : r.status}</span></span>
-              <span style="color:var(--text-muted)">${esc(r.reporter_name || 'Unknown')}</span>
-              <span style="color:var(--text-muted);font-size:0.72rem">${new Date(r.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</span>
-              <span class="bug-tracker__comment-count">${r.comment_count > 0 ? `\uD83D\uDCAC${r.comment_count}` : ''}</span>
+              <span aria-hidden="true"><span class="bug-status-badge bug-status-badge--${r.status}">${statusLabel}</span></span>
+              <span style="color:var(--text-muted)" aria-hidden="true">${esc(r.reporter_name || 'Unknown')}</span>
+              <span style="color:var(--text-muted);font-size:0.72rem" aria-hidden="true">${new Date(r.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</span>
+              <span class="bug-tracker__comment-count" aria-hidden="true">${r.comment_count > 0 ? `\uD83D\uDCAC${r.comment_count}` : ''}</span>
             </div>
-          `).join('')}
+          `; }).join('')}
       </div>
     </div>`;
 }
@@ -13088,9 +13155,13 @@ async function openCreateCandidateModal() {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
   overlay.style.display = 'flex';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.setAttribute('aria-labelledby', 'ccModalTitle');
+  overlay.id = 'createCandidateOverlay';
   overlay.innerHTML = `
     <div class="modal" style="min-width:360px;max-width:480px">
-      <div class="modal__title">Create Candidate Card</div>
+      <div class="modal__title" id="ccModalTitle">Create Candidate Card</div>
       <div style="display:flex;flex-direction:column;gap:10px">
         <label style="font-size:0.78rem;color:var(--text-muted)">Name *
           <input type="text" id="ccName" style="width:100%;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;margin-top:4px" autofocus></label>
@@ -13111,7 +13182,16 @@ async function openCreateCandidateModal() {
     </div>`;
   document.body.appendChild(overlay);
 
-  const close = () => { try { document.body.removeChild(overlay); } catch (e) {} };
+  // Focus the first input for keyboard users
+  setTimeout(() => { const firstInput = overlay.querySelector('#ccName'); if (firstInput) firstInput.focus(); }, 0);
+
+  const escHandler = (e) => { if (e.key === 'Escape') { e.preventDefault(); close(); } };
+  document.addEventListener('keydown', escHandler);
+
+  const close = () => {
+    document.removeEventListener('keydown', escHandler);
+    try { document.body.removeChild(overlay); } catch (e) {}
+  };
   overlay.querySelector('#ccCancel').onclick = close;
   overlay.onclick = (e) => { if (e.target === overlay) close(); };
   overlay.querySelector('#ccCreate').onclick = async () => {
@@ -15794,15 +15874,17 @@ async function renderWarnAlertContent() {
       return;
     }
     list.innerHTML = warnings.map(w => `
-      <div class="warn-item warn-item--${w.severity}" role="button" tabindex="0" onclick="openDetailOverlay('${escAttrJs(w.id)}');toggleWarnAlertSidebar()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
-        <div class="warn-item__header">
-          <div class="warn-item__title">${esc(w.title)}</div>
-          <span class="warn-item__sev warn-item__sev--${w.severity}">${esc(w.severity.toUpperCase())}</span>
-        </div>
-        <div class="warn-item__meta">${w.client ? esc(w.client) + ' &middot; ' : ''}${esc(w.label)}</div>
-        <div class="warn-item__actions" onclick="event.stopPropagation()">
-          <button class="btn btn--ghost btn--sm" onclick="snoozeWarning('${escAttrJs(w.id)}', 24)">Snooze 1 day</button>
-          <button class="btn btn--ghost btn--sm" onclick="snoozeWarning('${escAttrJs(w.id)}', 168)">Snooze 1 week</button>
+      <div class="warn-item warn-item--${w.severity}">
+        <button type="button" class="warn-item__main" aria-label="${esc(w.severity.toUpperCase())}: ${esc(w.title)}${w.client ? ' for ' + esc(w.client) : ''}" onclick="openDetailOverlay('${escAttrJs(w.id)}');toggleWarnAlertSidebar()">
+          <div class="warn-item__header">
+            <div class="warn-item__title">${esc(w.title)}</div>
+            <span class="warn-item__sev warn-item__sev--${w.severity}" aria-hidden="true">${esc(w.severity.toUpperCase())}</span>
+          </div>
+          <div class="warn-item__meta">${w.client ? esc(w.client) + ' &middot; ' : ''}${esc(w.label)}</div>
+        </button>
+        <div class="warn-item__actions">
+          <button type="button" class="btn btn--ghost btn--sm" onclick="snoozeWarning('${escAttrJs(w.id)}', 24)">Snooze 1 day</button>
+          <button type="button" class="btn btn--ghost btn--sm" onclick="snoozeWarning('${escAttrJs(w.id)}', 168)">Snooze 1 week</button>
         </div>
       </div>
     `).join('');
