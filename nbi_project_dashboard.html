@@ -3929,15 +3929,17 @@ function toggleMultiSelect(container) {
   dd.style.display = isOpen ? 'none' : 'block';
 }
 
-/** Handle "All" checkbox in multi-select */
+/** Handle "All" checkbox in multi-select. Keeps the dropdown open after re-render. */
 function multiSelectAll(checkbox, filterKey) {
   if (checkbox.checked) {
     currentFilter[filterKey] = [];
     renderContent();
+    _reopenMultiSelect(filterKey);
   }
 }
 
-/** Handle individual checkbox change in multi-select */
+/** Handle individual checkbox change in multi-select. Keeps the dropdown open after re-render
+ *  so users can select multiple values in a single interaction. */
 function multiSelectChanged(checkbox, filterKey) {
   const container = checkbox.closest('.multi-select');
   const allCheckboxes = container.querySelectorAll('.multi-select__option:not(.multi-select__option--all) input[type="checkbox"]');
@@ -3954,6 +3956,16 @@ function multiSelectChanged(checkbox, filterKey) {
     if (allBox) allBox.checked = false;
   }
   renderContent();
+  _reopenMultiSelect(filterKey);
+}
+
+/** After renderContent re-creates the filter bar, re-open the dropdown for the given filter key
+ *  so the user can continue selecting multiple values without having to click the trigger again. */
+function _reopenMultiSelect(filterKey) {
+  const container = document.querySelector(`.multi-select[data-filter="${filterKey}"]`);
+  if (!container) return;
+  const dd = container.querySelector('.multi-select__dropdown');
+  if (dd) dd.style.display = 'block';
 }
 
 /** Close multi-select dropdowns when clicking outside */
@@ -5880,16 +5892,22 @@ function onBoardDrop(e) {
 
 // ==================== DETAIL PANEL ====================
 
-/** Open a task detail -- uses inline panel in tasks view, overlay panel elsewhere */
+/** Open a task detail -- uses inline panel in tasks view, overlay panel elsewhere.
+ *  Preserves scroll position of the actual scrolling element (.tasks-layout__main)
+ *  which gets destroyed and recreated by renderContent. Restores synchronously
+ *  after renderContent returns (the new DOM is in place even before paint). */
 function openDetail(id) {
   activeDetailTaskId = id;
   // In tasks view, update the inline panel instead of the overlay
   if (currentView === 'tasks') {
-    const content = document.getElementById('mainContent');
-    const savedScroll = content ? content.scrollTop : 0;
+    // Capture scroll from the real scrollable element BEFORE re-render destroys it
+    const oldMain = document.querySelector('.tasks-layout__main');
+    const savedScroll = oldMain ? oldMain.scrollTop : 0;
     inlineDetailVisible = true;
     renderContent();
-    if (content) requestAnimationFrame(() => { content.scrollTop = savedScroll; });
+    // Restore scroll on the newly-created .tasks-layout__main synchronously
+    const newMain = document.querySelector('.tasks-layout__main');
+    if (newMain) newMain.scrollTop = savedScroll;
     return;
   }
   openDetailOverlay(id);
