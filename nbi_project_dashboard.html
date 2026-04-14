@@ -255,8 +255,10 @@ button.sidebar__item, button.sidebar__toggle { font: inherit; color: inherit; ba
 .tactical-metric { flex: 1; text-align: center; padding: 12px 8px; background: var(--bg-card); }
 .tactical-metric__value { display: block; font-size: 1.6rem; font-weight: 700; font-family: var(--font-display); line-height: 1.2; }
 .tactical-metric__label { font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; }
-.tactical-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg); }
-.tactical-panel { display: flex; flex-direction: column; gap: var(--space-md); }
+.tactical-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: var(--space-lg); }
+.tactical-panel { display: flex; flex-direction: column; gap: var(--space-md); min-width: 0; }
+.tactical-section { min-width: 0; overflow: hidden; }
+.tactical-section .tactical-item { word-break: break-word; }
 .tactical-section { background: var(--bg-card); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-md); }
 .tactical-multi-col { columns: 2 400px; column-gap: 32px; column-rule: 1px solid var(--border-strong); }
 .tactical-multi-col > * { break-inside: avoid; margin-bottom: 2px; }
@@ -406,7 +408,7 @@ button.sidebar__item, button.sidebar__toggle { font: inherit; color: inherit; ba
 .task-row--done { opacity: 0.55; }
 .task-row--done .task-row__title { text-decoration: line-through; text-decoration-color: var(--text-muted); }
 /* My Tasks view */
-.mytasks { max-width: 960px; }
+.mytasks { max-width: none; }
 .mytasks-section { margin-bottom: 28px; }
 .mytasks-section--critical { border-left: 3px solid var(--danger); padding-left: 12px; }
 .mytasks-section--overdue { border-left: 3px solid var(--warning); padding-left: 12px; }
@@ -630,7 +632,7 @@ span.fin-editable { display: inline-block; position: relative; }
 .task-client-children.hidden { display: none; }
 
 /* ===== SETTINGS ===== */
-.settings { max-width: 800px; }
+.settings { max-width: none; }
 .settings__group { margin-bottom: var(--space-2xl); }
 .settings__group h2 { font-family: var(--font-display); font-size: 0.75rem; font-weight: 600; color: var(--text-muted); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: var(--space-lg); }
 
@@ -1372,7 +1374,7 @@ span.fin-editable { display: inline-block; position: relative; }
 .bug-status-badge--in_progress { background: color-mix(in srgb, var(--accent) 12%, var(--bg-card)); color: var(--accent-text); border: 1px solid var(--accent-border); }
 
 /* Bug Tracker view */
-.bug-tracker { padding: var(--space-lg); max-width: 1400px; }
+.bug-tracker { padding: var(--space-lg); }
 .bug-tracker__header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-lg); flex-wrap: wrap; gap: var(--space-md); }
 .bug-tracker__filters { display: flex; gap: var(--space-sm); align-items: center; flex-wrap: wrap; }
 .bug-tracker__search { padding: 6px 10px; border: 1px solid var(--border-default); border-radius: var(--radius-sm); background: var(--bg-input); color: var(--text-primary); font-size: 0.8rem; width: 200px; }
@@ -1417,7 +1419,7 @@ span.fin-editable { display: inline-block; position: relative; }
 }
 
 /* ===== HIRING ===== */
-.hiring { padding: var(--space-lg); max-width: 1400px; }
+.hiring { padding: var(--space-lg); }
 .hiring__header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-lg); flex-wrap: wrap; gap: var(--space-md); }
 .hiring__filters { display: flex; gap: var(--space-sm); align-items: center; flex-wrap: wrap; margin-bottom: var(--space-md); }
 
@@ -1605,16 +1607,18 @@ span.fin-editable { display: inline-block; position: relative; }
   padding: 0 5px; border: 1px solid var(--danger-border);
 }
 
-/* Expanded sidebar panel */
+/* Expanded sidebar panel.
+ * Uses display toggle instead of transform/right slide because the
+ * monolithic page has a MutationObserver and sync layer that can
+ * race with inline style writes — display:none/flex is deterministic. */
 .warn-alert-panel {
-  position: fixed; top: 0; right: -420px; width: 400px; max-width: 90vw;
+  position: fixed; top: 0; right: 0; width: 400px; max-width: 90vw;
   height: 100dvh; background: var(--bg-raised);
   border-left: 1px solid var(--border-default);
   box-shadow: var(--shadow-lg);
-  z-index: 250; display: flex; flex-direction: column;
-  transition: right 0.25s ease;
+  z-index: 250; display: none; flex-direction: column;
 }
-.warn-alert-panel.open { right: 0; }
+.warn-alert-panel.open { display: flex; }
 .warn-alert-panel__header {
   display: flex; justify-content: space-between; align-items: center;
   padding: var(--space-md) var(--space-lg);
@@ -2763,10 +2767,14 @@ function getTaskPractice(t) {
   let current = t;
   let depth = 0;
   while (current && depth < 32) {
-    if (current.practiceArea) return current.practiceArea;
-    if (!current.parentId || visited.has(current.id)) return null;
+    // Accept both camelCase (from sync/load) and snake_case (from GET /api/tasks)
+    // because the two transport paths use different casing conventions.
+    const p = current.practiceArea || current.practice_area;
+    if (p) return p;
+    const parentId = current.parentId || current.parent_id;
+    if (!parentId || visited.has(current.id)) return null;
     visited.add(current.id);
-    current = tasks.find(x => x.id === current.parentId);
+    current = tasks.find(x => x.id === parentId);
     depth++;
   }
   return null;
@@ -5964,7 +5972,11 @@ function renderInlineTaskDetail(id) {
   // Practice (Phase 9, a6c82c8c). Tag a task to roll it up under a
   // practice in the sidebar filter. Inherits from the parent chain when
   // unset, so users normally only need to set this on a project.
-  html += `<div class="detail-field"><span class="detail-field__label">Practice</span><select onchange="updateTask('${id}','practiceArea',this.value||null)"><option value="">-- Inherit / None --</option>${PRACTICES.map(p => `<option value="${esc(p.value)}" ${task.practiceArea === p.value ? 'selected' : ''}>${esc(p.label)}</option>`).join('')}</select></div>`;
+  // Read both camelCase (sync/load) and snake_case (REST) for compatibility.
+  html += (function() {
+    const cur = task.practiceArea || task.practice_area || '';
+    return `<div class="detail-field"><span class="detail-field__label">Practice</span><select onchange="updateTask('${id}','practiceArea',this.value||null)"><option value="">-- Inherit / None --</option>${PRACTICES.map(p => `<option value="${esc(p.value)}" ${cur === p.value ? 'selected' : ''}>${esc(p.label)}</option>`).join('')}</select></div>`;
+  })();
   html += `<div class="detail-field"><span class="detail-field__label">Start Date</span><input type="date" value="${task.startDate||''}" onchange="updateTask('${id}','startDate',this.value)"></div>`;
   html += `<div class="detail-field"><span class="detail-field__label">End Date</span><input type="date" value="${task.endDate||''}" onchange="updateTask('${id}','endDate',this.value)"></div>`;
   html += `<div class="detail-field"><span class="detail-field__label">Due Date</span><input type="date" value="${task.dueDate||''}" onchange="updateTask('${id}','dueDate',this.value)"></div>`;
@@ -6526,7 +6538,7 @@ function openDetailOverlay(id) {
   const dpMissingFields = dpIncomplete ? [!task.hoursEstimated?'Hours estimated':'', !task.priority?'Priority':'', !task.assignees||task.assignees.length===0?'Assignee':'', !task.dueDate?'Due date':'', !task.client?'Client':'', (task.description||'').trim().length < 15 ? 'Description (min 15 chars)' : ''].filter(Boolean) : [];
 
   let html = `<div class="detail-panel__resize" onmousedown="startPanelResize(event,'detailPanel')"></div>`;
-  html += `<div class="detail-panel__header"><input class="detail-panel__title-input" value="${esc(task.title)}" onchange="updateTask('${id}','title',this.value);this.closest('.detail-panel__header').querySelector('.detail-panel__title-input').value=this.value" onkeydown="if(event.key==='Enter')this.blur()"><button class="detail-panel__close" onclick="closeDetail()">&times;</button></div>`;
+  html += `<div class="detail-panel__header"><input class="detail-panel__title-input" value="${esc(task.title)}" onchange="updateTask('${id}','title',this.value);this.closest('.detail-panel__header').querySelector('.detail-panel__title-input').value=this.value" onkeydown="if(event.key==='Enter')this.blur()"><button class="detail-panel__close" onclick="closeDetail()" aria-label="Close detail panel">&times;</button></div>`;
   html += `<div class="detail-panel__body">`;
 
   // Incomplete warning banner
@@ -6562,7 +6574,11 @@ function openDetailOverlay(id) {
   html += `<div class="detail-field"><span class="detail-field__label">Assignee</span>${assigneeSelectHtml(id, task.assignees)}</div>`;
   // Practice (Phase 9, a6c82c8c). Same semantics as the inline panel —
   // unset means "inherit from parent project" for the sidebar filter.
-  html += `<div class="detail-field"><span class="detail-field__label">Practice</span><select onchange="updateTask('${id}','practiceArea',this.value||null)"><option value="">-- Inherit / None --</option>${PRACTICES.map(p => `<option value="${esc(p.value)}" ${task.practiceArea === p.value ? 'selected' : ''}>${esc(p.label)}</option>`).join('')}</select></div>`;
+  // Read both camelCase (sync/load) and snake_case (REST) for compatibility.
+  html += (function() {
+    const cur = task.practiceArea || task.practice_area || '';
+    return `<div class="detail-field"><span class="detail-field__label">Practice</span><select onchange="updateTask('${id}','practiceArea',this.value||null)"><option value="">-- Inherit / None --</option>${PRACTICES.map(p => `<option value="${esc(p.value)}" ${cur === p.value ? 'selected' : ''}>${esc(p.label)}</option>`).join('')}</select></div>`;
+  })();
   html += `<div class="detail-field"><span class="detail-field__label">Start Date</span><input type="date" value="${task.startDate||''}" onchange="updateTask('${id}','startDate',this.value)"></div>`;
   html += `<div class="detail-field"><span class="detail-field__label">End Date</span><input type="date" value="${task.endDate||''}" onchange="updateTask('${id}','endDate',this.value)"></div>`;
   html += `<div class="detail-field"><span class="detail-field__label">Due Date</span><input type="date" value="${task.dueDate||''}" onchange="updateTask('${id}','dueDate',this.value)"></div>`;
@@ -6901,7 +6917,39 @@ function closeDetail() {
   document.getElementById('detailPanel').classList.remove('open');
   document.getElementById('detailOverlay').classList.remove('open');
   activeDetailTaskId = null;
+  if (window._detailEscHandler) {
+    document.removeEventListener('keydown', window._detailEscHandler);
+    window._detailEscHandler = null;
+  }
 }
+
+/** Install Escape-to-close handler when the task detail panel opens. */
+(function installDetailEscape() {
+  if (typeof window === 'undefined') return;
+  const origOpen = window.openDetailOverlay;
+  if (typeof origOpen !== 'function') {
+    // openDetailOverlay defined later in file — defer install via document.addEventListener
+    document.addEventListener('DOMContentLoaded', installDetailEscape);
+    return;
+  }
+  window.openDetailOverlay = function(...args) {
+    const result = origOpen.apply(this, args);
+    if (window._detailEscHandler) document.removeEventListener('keydown', window._detailEscHandler);
+    window._detailEscHandler = (e) => {
+      if (e.key === 'Escape') {
+        const panel = document.getElementById('detailPanel');
+        if (panel && panel.classList.contains('open')) closeDetail();
+      }
+    };
+    document.addEventListener('keydown', window._detailEscHandler);
+    // Move focus to the panel for keyboard users
+    setTimeout(() => {
+      const titleInput = document.querySelector('#detailPanel .detail-panel__title-input');
+      if (titleInput) titleInput.focus();
+    }, 50);
+    return result;
+  };
+})();
 
 /** Resizable detail panels — drag left edge to widen/narrow */
 function startPanelResize(e, panelId) {
