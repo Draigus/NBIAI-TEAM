@@ -2006,14 +2006,14 @@ app.get('/api/clients/:id', async (req, res) => {
 /** POST /api/clients — Create a new client record */
 app.post('/api/clients', async (req, res) => {
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
-  const { name, description, founded, headquarters, employees, revenue, website, linkedin_company, nbi_relationship, sector, studio_size, contract_value } = req.body;
+  const { name, description, founded, headquarters, employees, revenue, website, linkedin_company, nbi_relationship, sector, studio_size, contract_value, current_studio_project } = req.body;
   if (!name) return res.status(400).json({ error: 'Name required' });
   const lenErr = validateLength(name, 'name');
   if (lenErr) return res.status(400).json({ error: lenErr });
   const { rows } = await pool.query(
-    `INSERT INTO clients (name, description, founded, headquarters, employees, revenue, website, linkedin_company, nbi_relationship, sector, studio_size, contract_value)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING *`,
-    [name, description || '', founded || '', headquarters || '', employees || '', revenue || '', website || '', linkedin_company || '', nbi_relationship || '', sector || null, studio_size != null ? parseInt(studio_size, 10) || null : null, contract_value != null ? parseFloat(contract_value) || null : null]
+    `INSERT INTO clients (name, description, founded, headquarters, employees, revenue, website, linkedin_company, nbi_relationship, sector, studio_size, contract_value, current_studio_project)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *`,
+    [name, description || '', founded || '', headquarters || '', employees || '', revenue || '', website || '', linkedin_company || '', nbi_relationship || '', sector || null, studio_size != null ? parseInt(studio_size, 10) || null : null, contract_value != null ? parseFloat(contract_value) || null : null, current_studio_project || null]
   );
   res.status(201).json(rows[0]);
 });
@@ -2022,7 +2022,7 @@ app.post('/api/clients', async (req, res) => {
 app.patch('/api/clients/:id', async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid client ID' });
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
-  const { updates, vals, nextIdx } = buildPatchQuery(req.body, ['name', 'description', 'founded', 'headquarters', 'employees', 'revenue', 'website', 'linkedin_company', 'nbi_relationship', 'sector', 'studio_size', 'contract_value']);
+  const { updates, vals, nextIdx } = buildPatchQuery(req.body, ['name', 'description', 'founded', 'headquarters', 'employees', 'revenue', 'website', 'linkedin_company', 'nbi_relationship', 'sector', 'studio_size', 'contract_value', 'current_studio_project']);
   if (req.body.name !== undefined && !req.body.name.trim()) {
     return res.status(400).json({ error: 'Name cannot be empty' });
   }
@@ -2032,6 +2032,57 @@ app.patch('/api/clients/:id', async (req, res) => {
   const { rows } = await pool.query(`UPDATE clients SET ${updates.join(', ')} WHERE id = $${nextIdx} RETURNING *`, vals);
   if (!rows[0]) return res.status(404).json({ error: 'Not found' });
   res.json(rows[0]);
+});
+
+/**
+ * POST /api/clients/:id/research — Trigger client portfolio research.
+ *
+ * v1 placeholder: there is no real search-API integration yet, so this returns
+ * an empty `fields` set and a `note` explaining the situation. The endpoint
+ * still records the attempt by writing the structured result to
+ * clients.research_data and bumping research_updated_at, so the audit trail
+ * and the "Last researched" UI work end-to-end. NEVER populate fields the
+ * system cannot verify — empty is always safer than wrong.
+ *
+ * When a real research backend is wired in, only fields with high-confidence
+ * verification should appear in `fields`; everything else stays in
+ * `unverified` for human review. The DB write and response shape stay stable.
+ *
+ * Admin only.
+ */
+app.post('/api/clients/:id/research', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid client ID' });
+  const { rows: clientRows } = await pool.query('SELECT id, name, website FROM clients WHERE id = $1', [req.params.id]);
+  if (clientRows.length === 0) return res.status(404).json({ error: 'Client not found' });
+  const client = clientRows[0];
+
+  // v1 stub: no real research integration yet. Return zero verified fields so
+  // the frontend never receives hallucinated data.
+  const result = {
+    researched: true,
+    fields: {},
+    unverified: [],
+    note: 'Research pipeline not yet integrated with search API. No fields populated. This is a v1 placeholder that keeps the API stable for frontend integration.',
+    inputs: { name: client.name, website: client.website || null },
+    ranAt: new Date().toISOString(),
+    ranBy: req.user?.displayName || 'unknown'
+  };
+
+  // Persist the structured result for audit/history. We store the full result
+  // (including the note and timestamps) so future iterations can diff against it.
+  try {
+    await pool.query(
+      'UPDATE clients SET research_data = $1, research_updated_at = NOW(), updated_at = NOW() WHERE id = $2',
+      [JSON.stringify(result), req.params.id]
+    );
+    await auditLog('client', req.params.id, 'research', req.user?.displayName || 'unknown', { fieldsCount: Object.keys(result.fields).length, placeholder: true });
+  } catch (e) {
+    log('error', 'ClientResearch', 'Failed to persist research result', { error: e.message, clientId: req.params.id });
+    // Still return the result so the frontend can show the placeholder note
+  }
+
+  res.json(result);
 });
 
 /** DELETE /api/clients/:id — Remove a client (admin only, cascades to tasks) */
@@ -2300,6 +2351,55 @@ app.patch('/api/tasks/:id', async (req, res) => {
   // Fetch old values before update for audit trail
   const oldResult = await pool.query('SELECT * FROM tasks WHERE id = $1', [req.params.id]);
   const oldTask = oldResult.rows[0];
+
+  // If this update sets status to In progress / In Review / Done, validate that all
+  // mandatory fields are present (merged old + new). Leaf tasks only — skip if the task
+  // has children. Description must be at least 15 characters when provided.
+  // Client is inherited from parent chain on the frontend, so walk ancestors.
+  const ACTIVE_STATUSES = ['In progress', 'In Review', 'Done'];
+  if (req.body.status && ACTIVE_STATUSES.includes(req.body.status) && oldTask) {
+    // Skip validation for parent items (rollups, not leaf work)
+    const { rows: childRows } = await pool.query('SELECT 1 FROM tasks WHERE parent_id = $1 LIMIT 1', [req.params.id]);
+    if (childRows.length === 0) {
+      const merged = { ...oldTask, ...req.body };
+      // Resolve effective client by walking the parent chain if not directly set
+      let effectiveClientId = merged.client_id;
+      if (!effectiveClientId) {
+        const { rows: ancestorRows } = await pool.query(`
+          WITH RECURSIVE ancestors AS (
+            SELECT id, parent_id, client_id FROM tasks WHERE id = $1
+            UNION ALL
+            SELECT t.id, t.parent_id, t.client_id FROM tasks t
+            INNER JOIN ancestors a ON t.id = a.parent_id
+          )
+          SELECT client_id FROM ancestors WHERE client_id IS NOT NULL LIMIT 1
+        `, [req.params.id]);
+        if (ancestorRows.length > 0) effectiveClientId = ancestorRows[0].client_id;
+      }
+      const missing = [];
+      if (!merged.hours_estimated || Number(merged.hours_estimated) <= 0) missing.push('Hours estimated');
+      if (!merged.priority || String(merged.priority).trim() === '') missing.push('Priority');
+      if (!Array.isArray(merged.assignees) || merged.assignees.length === 0) missing.push('Assignee');
+      if (!merged.due_date || String(merged.due_date).trim() === '') missing.push('Due date');
+      if (!effectiveClientId) missing.push('Client');
+      const desc = (merged.description || '').toString().trim();
+      if (desc.length < 15) missing.push('Description (min 15 chars)');
+      if (missing.length > 0) {
+        return res.status(400).json({
+          error: `Cannot set status to "${req.body.status}" — missing mandatory fields: ${missing.join(', ')}`,
+          missingFields: missing
+        });
+      }
+    }
+  }
+  // If description is being set on its own, still enforce the 15-char minimum
+  // (allow empty/clear, but reject 1-14 char values)
+  if (req.body.description !== undefined) {
+    const d = (req.body.description || '').toString().trim();
+    if (d.length > 0 && d.length < 15) {
+      return res.status(400).json({ error: 'Description must be at least 15 characters' });
+    }
+  }
 
   // Server-side prerequisite enforcement: block Done if prerequisites are incomplete
   if (req.body.status === 'Done' && oldTask && Array.isArray(oldTask.dependencies) && oldTask.dependencies.length > 0) {

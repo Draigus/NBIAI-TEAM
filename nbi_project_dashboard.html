@@ -2415,11 +2415,12 @@ function clientGroupKey(task) {
   const cn = (task.client || getTaskClient(task) || 'Unassigned').replace(/[^a-zA-Z0-9]/g, '_');
   return 'client_' + cn;
 }
-/** Check if a leaf task is missing required fields (hours, priority, assignee, due date) */
+/** Check if a leaf task is missing required fields (hours, priority, assignee, due date, client, description) */
 function isTaskIncomplete(task) {
   if (getChildren(task.id).length > 0) return false;
   if (task.status === 'Done' || task.status === 'Cancelled' || task.status === 'Not started') return false;
-  return !task.hoursEstimated || !task.priority || !task.assignees || task.assignees.length === 0 || !task.dueDate;
+  const descLen = (task.description || '').trim().length;
+  return !task.hoursEstimated || !task.priority || !task.assignees || task.assignees.length === 0 || !task.dueDate || !task.client || descLen < 15;
 }
 
 // ==================== ITEM TYPE HIERARCHY ====================
@@ -5365,14 +5366,14 @@ function renderInlineTaskDetail(id) {
   const ilClient = getTaskClient(task);
   html += `<div class="detail-section"><div class="detail-section__title">Properties</div>`;
   html += `<div class="detail-field"><span class="detail-field__label">Type</span><div style="display:flex;align-items:center;gap:6px">${itemTypeBadgeHtml(task)} <span style="font-size:0.82rem;color:var(--text-primary)">${getItemTypeLabel(task)}</span></div></div>`;
-  html += `<div class="detail-field"><span class="detail-field__label">Name</span><input value="${esc(task.title)}" onchange="updateTask('${id}','title',this.value)" onkeydown="if(event.key==='Enter')this.blur()"></div>`;
+  html += `<div class="detail-field"><span class="detail-field__label field-required">Name</span><input value="${esc(task.title)}" onchange="updateTask('${id}','title',this.value)" onkeydown="if(event.key==='Enter')this.blur()"></div>`;
   if (ilClient) {
-    html += `<div class="detail-field"><span class="detail-field__label">Client</span><div style="display:flex;align-items:center;gap:6px">${clientBadgeHtml(ilClient)} <span style="font-size:0.82rem;color:var(--text-primary)">${esc(ilClient)}</span></div></div>`;
+    html += `<div class="detail-field"><span class="detail-field__label field-required">Client</span><div style="display:flex;align-items:center;gap:6px">${clientBadgeHtml(ilClient)} <span style="font-size:0.82rem;color:var(--text-primary)">${esc(ilClient)}</span></div></div>`;
   } else {
-    html += `<div class="detail-field"><span class="detail-field__label">Client</span><select onchange="updateTask('${id}','client',this.value)">${['', ...getContractedClients()].map(o => `<option value="${esc(o)}" ${(task.client||'')=== o ? 'selected' : ''}>${esc(o||'-- None --')}</option>`).join('')}</select></div>`;
+    html += `<div class="detail-field"><span class="detail-field__label field-required">Client</span><select onchange="updateTask('${id}','client',this.value)">${['', ...getContractedClients()].map(o => `<option value="${esc(o)}" ${(task.client||'')=== o ? 'selected' : ''}>${esc(o||'-- None --')}</option>`).join('')}</select></div>`;
   }
-  html += inlineDetailSelect('Status', 'status', task.status, STATUSES, id);
-  html += inlineDetailSelect('Priority', 'priority', task.priority || '', ['', ...PRIORITIES], id);
+  html += inlineDetailSelect('Status', 'status', task.status, STATUSES, id, true);
+  html += inlineDetailSelect('Priority', 'priority', task.priority || '', ['', ...PRIORITIES], id, true);
   html += inlineDetailSelect('Health', 'healthState', task.healthState || '', ['', ...HEALTH_STATES], id);
   html += `<div class="detail-field"><span class="detail-field__label">Assignee</span>${assigneeSelectHtml(id, task.assignees)}</div>`;
   html += `<div class="detail-field"><span class="detail-field__label">Start Date</span><input type="date" value="${task.startDate||''}" onchange="updateTask('${id}','startDate',this.value)"></div>`;
@@ -5384,11 +5385,11 @@ function renderInlineTaskDetail(id) {
   html += `<div class="detail-section"><div class="detail-section__title">Time Tracking</div>`;
   if (children.length > 0) html += `<div class="detail-agg" style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:8px">${hrs.spent.toFixed(1)}h spent / ${hrs.est.toFixed(1)}h estimated (${hrs.est > 0 ? Math.round(hrs.spent/hrs.est*100) : 0}%)</div>`;
   html += `<div class="detail-field"><span class="detail-field__label">Hours Spent</span><input type="number" step="0.5" min="0" value="${task.hoursSpent||0}" onchange="updateTask('${id}','hoursSpent',parseFloat(this.value)||0)"></div>`;
-  html += `<div class="detail-field"><span class="detail-field__label">Hours Est.</span><input type="number" step="0.5" min="0" value="${task.hoursEstimated||0}" onchange="updateTask('${id}','hoursEstimated',parseFloat(this.value)||0)"></div>`;
+  html += `<div class="detail-field"><span class="detail-field__label field-required">Hours Est.</span><input type="number" step="0.5" min="0" value="${task.hoursEstimated||0}" onchange="updateTask('${id}','hoursEstimated',parseFloat(this.value)||0)"></div>`;
   html += `</div>`;
 
   // Description
-  html += `<div class="detail-section"><div class="detail-section__title">Description</div>`;
+  html += `<div class="detail-section"><div class="detail-section__title field-required">Description <span style="font-size:0.7rem;font-weight:400;color:var(--text-muted)">(min 15 characters)</span></div>`;
   html += `<div class="detail-field"><textarea onchange="updateTask('${id}','description',this.value)" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(task.description||'')}</textarea></div></div>`;
 
   // Notes
@@ -5459,9 +5460,10 @@ function renderInlineTaskDetail(id) {
   return html;
 }
 
-/** Generate a labelled select dropdown for the inline detail panel */
-function inlineDetailSelect(label, field, value, options, taskId) {
-  return `<div class="detail-field"><span class="detail-field__label">${label}</span><select onchange="updateTask('${taskId}','${field}',this.value)">${options.map(o => `<option value="${esc(o)}" ${o===value?'selected':''}>${esc(o||'-- None --')}</option>`).join('')}</select></div>`;
+/** Generate a labelled select dropdown for the inline detail panel. Pass required=true to mark the label as mandatory. */
+function inlineDetailSelect(label, field, value, options, taskId, required) {
+  const cls = 'detail-field__label' + (required ? ' field-required' : '');
+  return `<div class="detail-field"><span class="${cls}">${label}</span><select onchange="updateTask('${taskId}','${field}',this.value)">${options.map(o => `<option value="${esc(o)}" ${o===value?'selected':''}>${esc(o||'-- None --')}</option>`).join('')}</select></div>`;
 }
 
 /** Add a timestamped note to a task from the inline detail panel input */
@@ -5928,7 +5930,7 @@ function openDetailOverlay(id) {
 
   // Incomplete marker for detail panel
   const dpIncomplete = isTaskIncomplete(task);
-  const dpMissingFields = dpIncomplete ? [!task.hoursEstimated?'Hours estimated':'', !task.priority?'Priority':'', !task.assignees||task.assignees.length===0?'Assignee':'', !task.dueDate?'Due date':''].filter(Boolean) : [];
+  const dpMissingFields = dpIncomplete ? [!task.hoursEstimated?'Hours estimated':'', !task.priority?'Priority':'', !task.assignees||task.assignees.length===0?'Assignee':'', !task.dueDate?'Due date':'', !task.client?'Client':'', (task.description||'').trim().length < 15 ? 'Description (min 15 chars)' : ''].filter(Boolean) : [];
 
   let html = `<div class="detail-panel__resize" onmousedown="startPanelResize(event,'detailPanel')"></div>`;
   html += `<div class="detail-panel__header"><input class="detail-panel__title-input" value="${esc(task.title)}" onchange="updateTask('${id}','title',this.value);this.closest('.detail-panel__header').querySelector('.detail-panel__title-input').value=this.value" onkeydown="if(event.key==='Enter')this.blur()"><button class="detail-panel__close" onclick="closeDetail()">&times;</button></div>`;
@@ -5946,14 +5948,14 @@ function openDetailOverlay(id) {
   const dpClient = getTaskClient(task);
   html += `<div class="detail-section"><div class="detail-section__title">Properties</div>`;
   html += `<div class="detail-field"><span class="detail-field__label">Type</span><div style="display:flex;align-items:center;gap:6px">${itemTypeBadgeHtml(task)} <span style="font-size:0.82rem;color:var(--text-primary)">${getItemTypeLabel(task)}</span></div></div>`;
-  html += `<div class="detail-field"><span class="detail-field__label">Name</span><input value="${esc(task.title)}" onchange="updateTask('${id}','title',this.value)" onkeydown="if(event.key==='Enter')this.blur()"></div>`;
+  html += `<div class="detail-field"><span class="detail-field__label field-required">Name</span><input value="${esc(task.title)}" onchange="updateTask('${id}','title',this.value)" onkeydown="if(event.key==='Enter')this.blur()"></div>`;
   if (dpClient) {
-    html += `<div class="detail-field"><span class="detail-field__label">Client</span><div style="display:flex;align-items:center;gap:6px">${clientBadgeHtml(dpClient)} <span style="font-size:0.82rem;color:var(--text-primary)">${esc(dpClient)}</span></div></div>`;
+    html += `<div class="detail-field"><span class="detail-field__label field-required">Client</span><div style="display:flex;align-items:center;gap:6px">${clientBadgeHtml(dpClient)} <span style="font-size:0.82rem;color:var(--text-primary)">${esc(dpClient)}</span></div></div>`;
   } else {
-    html += `<div class="detail-field"><span class="detail-field__label">Client</span><select onchange="updateTask('${id}','client',this.value)">${['', ...getContractedClients()].map(o => `<option value="${esc(o)}" ${(task.client||'')=== o ? 'selected' : ''}>${esc(o||'-- None --')}</option>`).join('')}</select></div>`;
+    html += `<div class="detail-field"><span class="detail-field__label field-required">Client</span><select onchange="updateTask('${id}','client',this.value)">${['', ...getContractedClients()].map(o => `<option value="${esc(o)}" ${(task.client||'')=== o ? 'selected' : ''}>${esc(o||'-- None --')}</option>`).join('')}</select></div>`;
   }
-  html += detailSelect('Status', 'status', task.status, STATUSES);
-  html += detailSelect('Priority', 'priority', task.priority || '', ['', ...PRIORITIES]);
+  html += detailSelect('Status', 'status', task.status, STATUSES, true);
+  html += detailSelect('Priority', 'priority', task.priority || '', ['', ...PRIORITIES], true);
   html += detailSelect('Health', 'healthState', task.healthState || '', ['', ...HEALTH_STATES]);
   html += `<div class="detail-field"><span class="detail-field__label">Assignee</span>${assigneeSelectHtml(id, task.assignees)}</div>`;
   html += `<div class="detail-field"><span class="detail-field__label">Start Date</span><input type="date" value="${task.startDate||''}" onchange="updateTask('${id}','startDate',this.value)"></div>`;
@@ -5964,7 +5966,7 @@ function openDetailOverlay(id) {
   // Time Tracking (quick log + entries)
   html += `<div class="detail-section"><div class="detail-section__title">Time Tracking</div>`;
   if (children.length > 0) html += `<div class="detail-agg">${hrs.spent.toFixed(1)}h spent / ${hrs.est.toFixed(1)}h estimated (${hrs.est > 0 ? Math.round(hrs.spent/hrs.est*100) : 0}%)</div>`;
-  html += `<div class="detail-field"><span class="detail-field__label">Hours Est.</span><input type="number" step="0.5" min="0" value="${task.hoursEstimated||0}" onchange="updateTask('${id}','hoursEstimated',parseFloat(this.value)||0)"></div>`;
+  html += `<div class="detail-field"><span class="detail-field__label field-required">Hours Est.</span><input type="number" step="0.5" min="0" value="${task.hoursEstimated||0}" onchange="updateTask('${id}','hoursEstimated',parseFloat(this.value)||0)"></div>`;
   // Quick log entry
   html += `<div style="display:flex;gap:4px;align-items:center;margin-bottom:8px"><input id="logHours" type="number" step="0.25" min="0.25" placeholder="Hours" style="width:60px;padding:4px 6px;font-size:0.78rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)"><input id="logDesc" placeholder="What did you work on?" style="flex:1;padding:4px 6px;font-size:0.78rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)"><button class="btn btn--sm" onclick="logTimeEntry('${id}')">Log</button></div>`;
   // Time entries list
@@ -5972,7 +5974,7 @@ function openDetailOverlay(id) {
   html += `</div>`;
 
   // Description
-  html += `<div class="detail-section"><div class="detail-section__title">Description</div>`;
+  html += `<div class="detail-section"><div class="detail-section__title field-required">Description <span style="font-size:0.7rem;font-weight:400;color:var(--text-muted)">(min 15 characters)</span></div>`;
   html += `<div class="detail-field"><textarea onchange="updateTask('${id}','description',this.value)" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(task.description||'')}</textarea></div></div>`;
 
   // Notes
@@ -6276,9 +6278,10 @@ async function postComment(taskId) {
   input.focus();
 }
 
-/** Generate a labelled select dropdown for the overlay detail panel */
-function detailSelect(label, field, value, options) {
-  return `<div class="detail-field"><span class="detail-field__label">${label}</span><select onchange="updateTask('${activeDetailTaskId}','${field}',this.value)">${options.map(o => `<option value="${esc(o)}" ${o===value?'selected':''}>${esc(o||'-- None --')}</option>`).join('')}</select></div>`;
+/** Generate a labelled select dropdown for the overlay detail panel. Pass required=true to mark the label as mandatory. */
+function detailSelect(label, field, value, options, required) {
+  const cls = 'detail-field__label' + (required ? ' field-required' : '');
+  return `<div class="detail-field"><span class="${cls}">${label}</span><select onchange="updateTask('${activeDetailTaskId}','${field}',this.value)">${options.map(o => `<option value="${esc(o)}" ${o===value?'selected':''}>${esc(o||'-- None --')}</option>`).join('')}</select></div>`;
 }
 
 /** Close the detail overlay panel */
@@ -10059,6 +10062,11 @@ async function renderManageClients(el) {
     filtered.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
     filtered.forEach(c => {
       const count = leadCounts[c.id] || 0;
+      // Compute Active Contracts and Total SoW Value from won leads for this client
+      const clientLeads = leads.filter(l => l.client_id === c.id && l.stage === 'Won');
+      const activeCount = clientLeads.length;
+      const totalSoWValue = clientLeads.reduce((sum, l) => sum + (parseFloat(l.rom_max) || 0), 0);
+      const escName = escAttrJs(c.name);
       html += `<div class="manage-clients__row" data-client-id="${c.id}">
         <div class="manage-clients__info" onclick="toggleClientExpand(this.parentElement)">
           <span class="manage-clients__name">${esc(c.name)}</span>
@@ -10070,6 +10078,11 @@ async function renderManageClients(el) {
           <span class="manage-clients__arrow">\u25BC</span>
         </div>
         <div class="manage-clients__detail" style="display:none">
+          <div style="display:flex;gap:24px;margin:12px 0;padding:12px;background:var(--bg-surface);border-radius:var(--radius-md);flex-wrap:wrap">
+            <div><div style="font-size:0.72rem;color:var(--text-muted)">Active Contracts</div><div style="font-size:1.1rem;font-weight:600"><span style="cursor:pointer;color:var(--accent-text);text-decoration:underline" onclick="filterByClient('${escName}');switchView('tasks')" title="View tasks for ${esc(c.name)}">${activeCount}</span></div></div>
+            <div><div style="font-size:0.72rem;color:var(--text-muted)">Total SoW Value</div><div style="font-size:1.1rem;font-weight:600">&pound;${totalSoWValue.toLocaleString()}</div></div>
+            <div><div style="font-size:0.72rem;color:var(--text-muted)">Hiring Positions</div><div style="font-size:1.1rem;font-weight:600">0</div></div>
+          </div>
           <div class="lead-detail__grid" style="max-width:500px">
             <label>Name</label><input type="text" value="${esc(c.name)}" onchange="updateClientField('${c.id}','name',this.value)">
             <label>Sector</label><select onchange="updateClientField('${c.id}','sector',this.value)"><option value="">-- None --</option>`;
@@ -10081,6 +10094,7 @@ async function renderManageClients(el) {
             <label>NBI Relationship</label><input type="text" value="${esc(c.nbi_relationship || '')}" onchange="updateClientField('${c.id}','nbi_relationship',this.value)" placeholder="e.g. Active client, Prospect">
             <label>Studio Size</label><input type="number" min="0" value="${c.studio_size != null ? c.studio_size : ''}" onchange="updateClientField('${c.id}','studio_size',this.value?parseInt(this.value,10):null)" placeholder="Number of employees">
             <label>Contract Value</label><div style="display:flex;align-items:center;gap:0"><span style="background:var(--bg-elevated);border:1px solid var(--border-default);border-right:none;border-radius:var(--radius-md) 0 0 var(--radius-md);padding:6px 8px;color:var(--text-muted);font-size:0.82rem">&pound;</span><input type="number" min="0" step="0.01" value="${c.contract_value != null ? c.contract_value : ''}" onchange="updateClientField('${c.id}','contract_value',this.value?parseFloat(this.value):null)" placeholder="0.00" style="border-radius:0 var(--radius-md) var(--radius-md) 0;flex:1"></div>
+            <label>Current Studio Project</label><input type="text" value="${esc(c.current_studio_project || '')}" onchange="updateClientField('${c.id}','current_studio_project',this.value)" placeholder="e.g. Project Alpha">
           </div>
           <div class="manage-clients__contacts" id="clientContacts_${c.id}">
             <h4 style="margin:12px 0 6px;font-size:0.82rem;color:var(--text-secondary)">Contacts</h4>
@@ -10092,8 +10106,12 @@ async function renderManageClients(el) {
               <button class="btn btn--sm btn--primary" onclick="addClientContact('${c.id}')">Add</button>
             </div>
           </div>
+          <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border-subtle);display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <button class="btn btn--sm" onclick="gatherClientPortfolio('${c.id}','${escName}')">Gather Portfolio Detail Information</button>
+            ${c.research_updated_at ? `<span style="font-size:0.72rem;color:var(--text-muted)">Last researched: ${new Date(c.research_updated_at).toLocaleDateString('en-GB')}</span>` : ''}
+          </div>
           <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border-subtle)">
-            <button class="btn btn--danger btn--sm" onclick="deleteClientFromManage('${c.id}','${escAttrJs(c.name)}')" ${count > 0 ? 'title="Client has leads — leads will lose their client link"' : ''}>Delete Client</button>
+            <button class="btn btn--danger btn--sm" onclick="deleteClientFromManage('${c.id}','${escName}')" ${count > 0 ? 'title="Client has leads — leads will lose their client link"' : ''}>Delete Client</button>
           </div>
         </div>
       </div>`;
@@ -10133,7 +10151,7 @@ async function loadClientContacts(clientId) {
     el.innerHTML = contacts.map(ct => `<div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:0.82rem;border-bottom:1px solid var(--border-subtle)">
       <strong style="min-width:120px">${esc(ct.name)}</strong>
       <span style="color:var(--text-muted);min-width:120px">${esc(ct.role || '')}</span>
-      <span style="color:var(--text-secondary);flex:1">${esc(ct.email || '')}</span>
+      <span style="color:var(--text-secondary);flex:1">${ct.email ? `<a href="mailto:${esc(ct.email)}" onclick="event.stopPropagation()" style="color:var(--accent-text);text-decoration:none">${esc(ct.email)}</a>` : ''}</span>
       ${ct.phone ? `<span style="color:var(--text-muted)">${esc(ct.phone)}</span>` : ''}
       <button class="btn btn--ghost btn--sm" onclick="deleteClientContact('${clientId}','${ct.id}')" style="padding:0 4px;color:var(--text-muted)">&times;</button>
     </div>`).join('');
@@ -10204,6 +10222,24 @@ async function updateClientField(clientId, field, value) {
   });
   if (resp.ok) { toast('Updated'); }
   else { toast('Update failed', 'error'); }
+}
+
+/** Trigger the client research pipeline. Only verified fields are populated to avoid hallucinated data. */
+async function gatherClientPortfolio(clientId, clientName) {
+  if (!(await themedConfirm(`Research public information about ${clientName}?\n\nThis will search public sources and populate only verified fields. Anything that cannot be verified will be left blank.`, 'Gather Portfolio Information'))) return;
+  toast('Researching ' + clientName + '...');
+  try {
+    const result = await apiCall('/api/clients/' + clientId + '/research', { method: 'POST' });
+    if (!result) { toast('Research failed', 'error'); return; }
+    if (result.note) {
+      toast(result.note, 'warning');
+    }
+    const fieldCount = Object.keys(result.fields || {}).length;
+    toast(`Research complete. ${fieldCount} field${fieldCount !== 1 ? 's' : ''} verified and populated.`);
+    renderContent();
+  } catch (e) {
+    toast('Research error: ' + e.message, 'error');
+  }
 }
 
 /** Delete a client record after confirmation (warns about data loss) */
