@@ -1026,6 +1026,9 @@ app.get('/api/backup', async (req, res) => {
     // Teams + memberships
     const teams = await pool.query('SELECT * FROM teams ORDER BY created_at');
     const teamMembers = await pool.query('SELECT * FROM team_members ORDER BY created_at');
+    // Hiring tables (positions first because candidates may FK them)
+    const hiringPositions = await pool.query('SELECT * FROM hiring_positions ORDER BY created_at');
+    const candidates = await pool.query('SELECT * FROM candidates ORDER BY created_at');
 
     // Add uploads manifest to backup
     const uploadsDir = path.join(__dirname, 'uploads');
@@ -1060,6 +1063,8 @@ app.get('/api/backup', async (req, res) => {
         calendar_events: calendarEvents.rows,
         teams: teams.rows,
         team_members: teamMembers.rows,
+        hiring_positions: hiringPositions.rows,
+        candidates: candidates.rows,
       },
       uploadManifest,
     };
@@ -1209,6 +1214,28 @@ app.post('/api/restore', async (req, res) => {
            VALUES ($1,$2,$3,$4,$5)
            ON CONFLICT (team_id, user_id) DO UPDATE SET role = EXCLUDED.role`,
           [tm.id, tm.team_id, tm.user_id, tm.role, tm.created_at]
+        );
+      }
+    }
+
+    // Hiring positions (must come before candidates due to FK; safe re-run via ON CONFLICT)
+    if (backup.tables.hiring_positions) {
+      for (const p of backup.tables.hiring_positions) {
+        await conn.query(
+          `INSERT INTO hiring_positions (id, client_id, sow_id, title, description, seniority, status, created_at, updated_at)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+           ON CONFLICT (id) DO UPDATE SET client_id=$2, sow_id=$3, title=$4, description=$5, seniority=$6, status=$7, updated_at=$9`,
+          [p.id, p.client_id, p.sow_id, p.title, p.description, p.seniority, p.status, p.created_at, p.updated_at]
+        );
+      }
+    }
+    if (backup.tables.candidates) {
+      for (const ca of backup.tables.candidates) {
+        await conn.query(
+          `INSERT INTO candidates (id, position_id, client_id, name, role, linkedin_url, cv_filename, due_date, stage, notes, created_at, updated_at)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+           ON CONFLICT (id) DO UPDATE SET position_id=$2, client_id=$3, name=$4, role=$5, linkedin_url=$6, cv_filename=$7, due_date=$8, stage=$9, notes=$10, updated_at=$12`,
+          [ca.id, ca.position_id, ca.client_id, ca.name, ca.role, ca.linkedin_url, ca.cv_filename, ca.due_date, ca.stage, ca.notes, ca.created_at, ca.updated_at]
         );
       }
     }
@@ -5406,6 +5433,362 @@ app.get('/api/bug-reports/:id/screenshot', async (req, res) => {
   const buffer = Buffer.from(match[2], 'base64');
   res.setHeader('Content-Type', match[1]);
   res.send(buffer);
+});
+
+// ==================== HIRING ====================
+//
+// The Hiring page tracks job candidates against client hiring positions.
+// Two related resources:
+//   - hiring_positions: a role NBI is helping a client fill (admin-managed)
+//   - candidates:       a person being considered for that role (any user
+//                       can create / update; only admins may delete)
+//
+// Candidates carry a kanban "stage" (sourced -> screening -> interview ->
+// offer -> hired/rejected). Each candidate may have a CV file uploaded;
+// the file lives in /uploads (same as task attachments) and is referenced
+// from candidates.cv_filename.
+
+const HIRING_STAGES = ['sourced', 'screening', 'interview', 'offer', 'hired', 'rejected'];
+
+/** GET /api/hiring-positions — List hiring positions, optionally filtered by client */
+app.get('/api/hiring-positions', async (req, res) => {
+  if (!req.user) return res.status(401).json({ error: 'Auth required' });
+  const { client_id } = req.query;
+  let where = '';
+  let vals = [];
+  if (client_id) {
+    if (!isValidUuid(client_id)) return res.status(400).json({ error: 'Invalid client_id' });
+    where = 'WHERE p.client_id = $1';
+    vals = [client_id];
+  }
+  try {
+    const { rows } = await pool.query(`
+      SELECT p.id, p.client_id, p.sow_id, p.title, p.description, p.seniority,
+             p.status, p.created_at, p.updated_at,
+             c.name AS client_name,
+             s.title AS sow_title,
+             (SELECT COUNT(*)::int FROM candidates ca WHERE ca.position_id = p.id) AS candidate_count
+      FROM hiring_positions p
+      LEFT JOIN clients c ON p.client_id = c.id
+      LEFT JOIN sows s ON p.sow_id = s.id
+      ${where}
+      ORDER BY c.name NULLS LAST, p.created_at DESC
+    `, vals);
+    res.json(rows);
+  } catch (e) {
+    log('error', 'Hiring', 'Failed to list positions', { error: e.message });
+    res.status(500).json({ error: 'An internal error occurred' });
+  }
+});
+
+/** POST /api/hiring-positions — Create a hiring position (admin only) */
+app.post('/api/hiring-positions', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const { client_id, sow_id, title, description, seniority, status } = req.body || {};
+  if (!title || !title.trim()) return res.status(400).json({ error: 'title required' });
+  const lenErr = validateLength(title, 'title');
+  if (lenErr) return res.status(400).json({ error: lenErr });
+  if (client_id && !isValidUuid(client_id)) return res.status(400).json({ error: 'Invalid client_id' });
+  if (sow_id && !isValidUuid(sow_id)) return res.status(400).json({ error: 'Invalid sow_id' });
+  try {
+    const { rows } = await pool.query(
+      `INSERT INTO hiring_positions (client_id, sow_id, title, description, seniority, status)
+       VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,
+      [client_id || null, sow_id || null, title.trim(), description || null, seniority || null, status || 'open']
+    );
+    await auditLog('hiring_position', rows[0].id, 'create', req.user.displayName || 'unknown', { title: title.trim() });
+    res.status(201).json(rows[0]);
+  } catch (e) {
+    log('error', 'Hiring', 'Failed to create position', { error: e.message });
+    res.status(500).json({ error: 'An internal error occurred' });
+  }
+});
+
+/** PATCH /api/hiring-positions/:id — Update a hiring position (admin only) */
+app.patch('/api/hiring-positions/:id', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid position ID' });
+  const { updates, vals, nextIdx } = buildPatchQuery(req.body, ['client_id', 'sow_id', 'title', 'description', 'seniority', 'status']);
+  if (req.body.title !== undefined && !String(req.body.title).trim()) {
+    return res.status(400).json({ error: 'title cannot be empty' });
+  }
+  if (updates.length === 0) return res.status(400).json({ error: 'No valid fields to update' });
+  updates.push('updated_at = NOW()');
+  vals.push(req.params.id);
+  try {
+    const { rows } = await pool.query(
+      `UPDATE hiring_positions SET ${updates.join(', ')} WHERE id = $${nextIdx} RETURNING *`,
+      vals
+    );
+    if (!rows[0]) return res.status(404).json({ error: 'Not found' });
+    await auditLog('hiring_position', req.params.id, 'update', req.user.displayName || 'unknown', { fields: Object.keys(req.body) });
+    res.json(rows[0]);
+  } catch (e) {
+    log('error', 'Hiring', 'Failed to update position', { error: e.message });
+    res.status(500).json({ error: 'An internal error occurred' });
+  }
+});
+
+/** DELETE /api/hiring-positions/:id — Remove a hiring position (admin only) */
+app.delete('/api/hiring-positions/:id', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid position ID' });
+  try {
+    const { rowCount } = await pool.query('DELETE FROM hiring_positions WHERE id = $1', [req.params.id]);
+    if (rowCount === 0) return res.status(404).json({ error: 'Not found' });
+    await auditLog('hiring_position', req.params.id, 'delete', req.user.displayName || 'unknown');
+    res.json({ ok: true });
+  } catch (e) {
+    log('error', 'Hiring', 'Failed to delete position', { error: e.message });
+    res.status(500).json({ error: 'An internal error occurred' });
+  }
+});
+
+/** GET /api/candidates — List candidates with optional filters */
+app.get('/api/candidates', async (req, res) => {
+  if (!req.user) return res.status(401).json({ error: 'Auth required' });
+  const { client_id, stage, position_id } = req.query;
+  const where = [];
+  const vals = [];
+  let i = 1;
+  if (client_id) {
+    if (!isValidUuid(client_id)) return res.status(400).json({ error: 'Invalid client_id' });
+    where.push(`ca.client_id = $${i++}`); vals.push(client_id);
+  }
+  if (position_id) {
+    if (!isValidUuid(position_id)) return res.status(400).json({ error: 'Invalid position_id' });
+    where.push(`ca.position_id = $${i++}`); vals.push(position_id);
+  }
+  if (stage) {
+    if (!HIRING_STAGES.includes(stage)) return res.status(400).json({ error: `Invalid stage. Must be one of: ${HIRING_STAGES.join(', ')}` });
+    where.push(`ca.stage = $${i++}`); vals.push(stage);
+  }
+  const whereClause = where.length ? 'WHERE ' + where.join(' AND ') : '';
+  try {
+    const { rows } = await pool.query(`
+      SELECT ca.id, ca.position_id, ca.client_id, ca.name, ca.role, ca.linkedin_url,
+             ca.cv_filename, ca.due_date, ca.stage, ca.notes, ca.created_at, ca.updated_at,
+             c.name AS client_name,
+             p.title AS position_title,
+             (ca.cv_filename IS NOT NULL) AS has_cv
+      FROM candidates ca
+      LEFT JOIN clients c ON ca.client_id = c.id
+      LEFT JOIN hiring_positions p ON ca.position_id = p.id
+      ${whereClause}
+      ORDER BY c.name NULLS LAST, ca.created_at DESC
+    `, vals);
+    res.json(rows);
+  } catch (e) {
+    log('error', 'Hiring', 'Failed to list candidates', { error: e.message });
+    res.status(500).json({ error: 'An internal error occurred' });
+  }
+});
+
+/** GET /api/candidates/:id — Single candidate */
+app.get('/api/candidates/:id', async (req, res) => {
+  if (!req.user) return res.status(401).json({ error: 'Auth required' });
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid candidate ID' });
+  try {
+    const { rows } = await pool.query(`
+      SELECT ca.*, c.name AS client_name, p.title AS position_title,
+             (ca.cv_filename IS NOT NULL) AS has_cv
+      FROM candidates ca
+      LEFT JOIN clients c ON ca.client_id = c.id
+      LEFT JOIN hiring_positions p ON ca.position_id = p.id
+      WHERE ca.id = $1
+    `, [req.params.id]);
+    if (!rows[0]) return res.status(404).json({ error: 'Not found' });
+    res.json(rows[0]);
+  } catch (e) {
+    log('error', 'Hiring', 'Failed to fetch candidate', { error: e.message });
+    res.status(500).json({ error: 'An internal error occurred' });
+  }
+});
+
+/** POST /api/candidates — Create a candidate (any authenticated user) */
+app.post('/api/candidates', async (req, res) => {
+  if (!req.user) return res.status(401).json({ error: 'Auth required' });
+  const { client_id, position_id, name, role, linkedin_url, due_date, stage, notes } = req.body || {};
+  if (!name || !name.trim()) return res.status(400).json({ error: 'name required' });
+  const lenErr = validateLength(name, 'name');
+  if (lenErr) return res.status(400).json({ error: lenErr });
+  if (client_id && !isValidUuid(client_id)) return res.status(400).json({ error: 'Invalid client_id' });
+  if (position_id && !isValidUuid(position_id)) return res.status(400).json({ error: 'Invalid position_id' });
+  if (stage && !HIRING_STAGES.includes(stage)) {
+    return res.status(400).json({ error: `Invalid stage. Must be one of: ${HIRING_STAGES.join(', ')}` });
+  }
+  if (notes !== undefined) {
+    const ne = validateLength(notes, 'notes');
+    if (ne) return res.status(400).json({ error: ne });
+  }
+  try {
+    const { rows } = await pool.query(
+      `INSERT INTO candidates (client_id, position_id, name, role, linkedin_url, due_date, stage, notes)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
+      [
+        client_id || null,
+        position_id || null,
+        escHtml(name.trim()),
+        role ? escHtml(role) : null,
+        linkedin_url || null,
+        due_date || null,
+        stage || 'sourced',
+        notes ? escHtml(notes) : null
+      ]
+    );
+    await auditLog('candidate', rows[0].id, 'create', req.user.displayName || 'unknown', { name: name.trim(), client_id: client_id || null });
+    res.status(201).json(rows[0]);
+  } catch (e) {
+    log('error', 'Hiring', 'Failed to create candidate', { error: e.message });
+    res.status(500).json({ error: 'An internal error occurred' });
+  }
+});
+
+/** PATCH /api/candidates/:id — Update a candidate (any authenticated user) */
+app.patch('/api/candidates/:id', async (req, res) => {
+  if (!req.user) return res.status(401).json({ error: 'Auth required' });
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid candidate ID' });
+  // Validate stage if present
+  if (req.body.stage !== undefined && !HIRING_STAGES.includes(req.body.stage)) {
+    return res.status(400).json({ error: `Invalid stage. Must be one of: ${HIRING_STAGES.join(', ')}` });
+  }
+  // Validate FKs if present
+  if (req.body.client_id !== undefined && req.body.client_id !== null && !isValidUuid(req.body.client_id)) {
+    return res.status(400).json({ error: 'Invalid client_id' });
+  }
+  if (req.body.position_id !== undefined && req.body.position_id !== null && !isValidUuid(req.body.position_id)) {
+    return res.status(400).json({ error: 'Invalid position_id' });
+  }
+  // Validate text length
+  if (req.body.name !== undefined) {
+    if (!String(req.body.name).trim()) return res.status(400).json({ error: 'name cannot be empty' });
+    const ne = validateLength(req.body.name, 'name');
+    if (ne) return res.status(400).json({ error: ne });
+  }
+  if (req.body.notes !== undefined) {
+    const ne = validateLength(req.body.notes, 'notes');
+    if (ne) return res.status(400).json({ error: ne });
+  }
+  // Escape user text fields before they hit the DB
+  const body = { ...req.body };
+  if (body.name !== undefined && body.name !== null) body.name = escHtml(String(body.name).trim());
+  if (body.role !== undefined && body.role !== null) body.role = escHtml(String(body.role));
+  if (body.notes !== undefined && body.notes !== null) body.notes = escHtml(String(body.notes));
+
+  const { updates, vals, nextIdx } = buildPatchQuery(body, ['client_id', 'position_id', 'name', 'role', 'linkedin_url', 'due_date', 'stage', 'notes']);
+  if (updates.length === 0) return res.status(400).json({ error: 'No valid fields to update' });
+  updates.push('updated_at = NOW()');
+  vals.push(req.params.id);
+  try {
+    const { rows } = await pool.query(
+      `UPDATE candidates SET ${updates.join(', ')} WHERE id = $${nextIdx} RETURNING *`,
+      vals
+    );
+    if (!rows[0]) return res.status(404).json({ error: 'Not found' });
+    await auditLog('candidate', req.params.id, 'update', req.user.displayName || 'unknown', { fields: Object.keys(req.body) });
+    res.json(rows[0]);
+  } catch (e) {
+    log('error', 'Hiring', 'Failed to update candidate', { error: e.message });
+    res.status(500).json({ error: 'An internal error occurred' });
+  }
+});
+
+/** DELETE /api/candidates/:id — Remove a candidate (admin only).
+ *  Also deletes the CV file from disk if one is attached. */
+app.delete('/api/candidates/:id', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid candidate ID' });
+  try {
+    const { rows } = await pool.query('SELECT cv_filename FROM candidates WHERE id = $1', [req.params.id]);
+    if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
+    if (rows[0].cv_filename) {
+      // Strip any path components defensively before unlinking
+      const safe = path.basename(rows[0].cv_filename);
+      const filePath = path.join(uploadDir, safe);
+      try { if (fs.existsSync(filePath)) fs.unlinkSync(filePath); } catch (e) { /* swallow */ }
+    }
+    await pool.query('DELETE FROM candidates WHERE id = $1', [req.params.id]);
+    await auditLog('candidate', req.params.id, 'delete', req.user.displayName || 'unknown');
+    res.json({ ok: true });
+  } catch (e) {
+    log('error', 'Hiring', 'Failed to delete candidate', { error: e.message });
+    res.status(500).json({ error: 'An internal error occurred' });
+  }
+});
+
+/** POST /api/candidates/:id/cv — Upload a CV file for a candidate.
+ *  Reuses the shared multer instance (25 MB cap, allowlisted MIME types).
+ *  If the candidate already has a CV, the previous file is deleted from disk
+ *  before the new one replaces it. */
+app.post('/api/candidates/:id/cv', upload.single('file'), async (req, res) => {
+  if (!req.user) return res.status(401).json({ error: 'Auth required' });
+  if (!isValidUuid(req.params.id)) {
+    if (req.file) { try { fs.unlinkSync(req.file.path); } catch (e) {} }
+    return res.status(400).json({ error: 'Invalid candidate ID' });
+  }
+  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+  try {
+    const { rows: existing } = await pool.query('SELECT cv_filename FROM candidates WHERE id = $1', [req.params.id]);
+    if (existing.length === 0) {
+      try { fs.unlinkSync(req.file.path); } catch (e) {}
+      return res.status(404).json({ error: 'Candidate not found' });
+    }
+    // Delete old CV file if present
+    if (existing[0].cv_filename) {
+      const safe = path.basename(existing[0].cv_filename);
+      const oldPath = path.join(uploadDir, safe);
+      try { if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath); } catch (e) {}
+    }
+    const { rows } = await pool.query(
+      'UPDATE candidates SET cv_filename = $1, updated_at = NOW() WHERE id = $2 RETURNING *',
+      [req.file.filename, req.params.id]
+    );
+    await auditLog('candidate', req.params.id, 'cv_upload', req.user.displayName || 'unknown', { filename: req.file.originalname, size: req.file.size });
+    res.json({ ...rows[0], original_name: req.file.originalname, size: req.file.size });
+  } catch (e) {
+    if (req.file) { try { fs.unlinkSync(req.file.path); } catch (err) {} }
+    log('error', 'Hiring', 'Failed to upload CV', { error: e.message });
+    res.status(500).json({ error: 'An internal error occurred' });
+  }
+});
+
+/** GET /api/candidates/:id/cv — Download the candidate's CV file */
+app.get('/api/candidates/:id/cv', async (req, res) => {
+  if (!req.user) return res.status(401).json({ error: 'Auth required' });
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid candidate ID' });
+  try {
+    const { rows } = await pool.query('SELECT cv_filename, name FROM candidates WHERE id = $1', [req.params.id]);
+    if (rows.length === 0 || !rows[0].cv_filename) return res.status(404).json({ error: 'No CV uploaded' });
+    // Defensive: strip path components, never trust the DB value to be a bare filename
+    const safe = path.basename(rows[0].cv_filename);
+    const filePath = path.join(uploadDir, safe);
+    if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'CV file missing on disk' });
+    // Suggest a friendly download name based on the candidate's name + the stored extension
+    const ext = path.extname(safe);
+    const friendly = `${rows[0].name || 'candidate'}-CV${ext}`.replace(/[^a-zA-Z0-9_.\- ]/g, '_');
+    res.download(filePath, friendly);
+  } catch (e) {
+    log('error', 'Hiring', 'Failed to download CV', { error: e.message });
+    res.status(500).json({ error: 'An internal error occurred' });
+  }
+});
+
+/** GET /api/clients/:id/hiring-count — Real count of active hiring positions for a client.
+ *  "Active" = candidates in stages other than 'hired' or 'rejected'. */
+app.get('/api/clients/:id/hiring-count', async (req, res) => {
+  if (!req.user) return res.status(401).json({ error: 'Auth required' });
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid client ID' });
+  try {
+    const { rows } = await pool.query(
+      `SELECT COUNT(*)::int AS count FROM candidates
+       WHERE client_id = $1 AND stage NOT IN ('hired','rejected')`,
+      [req.params.id]
+    );
+    res.json({ count: rows[0]?.count || 0 });
+  } catch (e) {
+    log('error', 'Hiring', 'Failed to compute hiring count', { error: e.message });
+    res.status(500).json({ error: 'An internal error occurred' });
+  }
 });
 
 // ==================== EXPENSE REPORT SUBMISSIONS ====================

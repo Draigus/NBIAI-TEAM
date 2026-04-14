@@ -1405,6 +1405,74 @@ span.fin-editable { display: inline-block; position: relative; }
   .bug-detail-panel { width: 100vw; max-width: 100vw; }
 }
 
+/* ===== HIRING ===== */
+.hiring { padding: var(--space-lg); max-width: 1400px; }
+.hiring__header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-lg); flex-wrap: wrap; gap: var(--space-md); }
+.hiring__filters { display: flex; gap: var(--space-sm); align-items: center; flex-wrap: wrap; margin-bottom: var(--space-md); }
+
+.hiring-card {
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 12px; background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  cursor: pointer; transition: all 0.15s;
+  width: 180px; min-height: 100px;
+}
+.hiring-card:hover { border-color: var(--accent-border); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.hiring-card__name { font-weight: 600; font-size: 0.85rem; }
+.hiring-card__role { font-size: 0.75rem; color: var(--text-muted); }
+.hiring-card__meta { font-size: 0.72rem; color: var(--text-muted); display: flex; justify-content: space-between; margin-top: auto; align-items: center; gap: 6px; }
+.hiring-card__due--late { color: var(--danger); font-weight: 600; }
+.hiring-stage-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.68rem; font-weight: 600; text-transform: uppercase; }
+.hiring-stage-badge--sourced { background: var(--bg-surface); color: var(--text-muted); }
+.hiring-stage-badge--screening { background: color-mix(in srgb, #3b82f6 15%, var(--bg-card)); color: #3b82f6; }
+.hiring-stage-badge--interview { background: color-mix(in srgb, #f59e0b 15%, var(--bg-card)); color: #f59e0b; }
+.hiring-stage-badge--offer { background: color-mix(in srgb, #a855f7 15%, var(--bg-card)); color: #a855f7; }
+.hiring-stage-badge--hired { background: var(--success-bg); color: var(--success); }
+.hiring-stage-badge--rejected { background: var(--danger-bg); color: var(--danger); }
+
+.hiring-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.hiring-client-group { margin-bottom: 24px; }
+.hiring-client-group__header { font-size: 1rem; font-weight: 600; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid var(--border-default); }
+
+/* Slide-in detail panel — reuses bug-detail layout but scoped */
+.candidate-detail-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; display: none; }
+.candidate-detail-panel { position: fixed; top: 0; right: 0; width: 520px; min-width: 320px; max-width: 80vw; height: 100dvh; background: var(--bg-raised); border-left: 1px solid var(--border-default); z-index: 201; overflow-y: auto; display: none; flex-direction: column; }
+.candidate-detail-panel.open { display: flex; }
+.candidate-detail__header { padding: var(--space-md) var(--space-lg); border-bottom: 1px solid var(--border-default); display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-md); }
+.candidate-detail__body { padding: var(--space-lg); flex: 1; overflow-y: auto; }
+.candidate-detail__section { margin-bottom: var(--space-lg); }
+.candidate-detail__section-title { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: var(--space-sm); font-weight: 600; }
+.candidate-detail__field { display: flex; flex-direction: column; gap: 4px; margin-bottom: var(--space-md); }
+.candidate-detail__field label { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+.candidate-detail__field input,
+.candidate-detail__field select,
+.candidate-detail__field textarea {
+  padding: 6px 10px; background: var(--bg-input); border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm); color: var(--text-primary); font-size: 0.85rem;
+  font-family: var(--font-body);
+}
+.candidate-detail__field textarea { resize: vertical; min-height: 80px; }
+.candidate-stages { display: flex; gap: 6px; flex-wrap: wrap; }
+.candidate-stage-pill {
+  padding: 4px 10px; border: 1px solid var(--border-default); border-radius: 14px;
+  font-size: 0.72rem; font-weight: 600; text-transform: uppercase;
+  background: var(--bg-card); color: var(--text-muted); cursor: pointer; transition: all 0.12s;
+}
+.candidate-stage-pill:hover { border-color: var(--accent-border); }
+.candidate-stage-pill--active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.candidate-cv { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.candidate-cv__name { font-size: 0.78rem; color: var(--text-muted); word-break: break-all; }
+
+@media (max-width: 768px) {
+  .candidate-detail-panel { width: 100vw; max-width: 100vw; }
+}
+
 /* ===== MANAGE CLIENTS ===== */
 .manage-clients { max-width: 900px; }
 .manage-clients__add { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
@@ -1713,6 +1781,10 @@ span.fin-editable { display: inline-block; position: relative; }
 <!-- BUG DETAIL PANEL -->
 <div class="bug-detail-overlay" id="bugDetailOverlay"></div>
 <div class="bug-detail-panel" id="bugDetailPanel" role="dialog" aria-modal="true" aria-label="Bug report detail"></div>
+
+<!-- CANDIDATE DETAIL PANEL -->
+<div class="candidate-detail-overlay" id="candidateDetailOverlay"></div>
+<div class="candidate-detail-panel" id="candidateDetailPanel" role="dialog" aria-modal="true" aria-label="Candidate detail"></div>
 
 <!-- IMPORT MODAL -->
 <div class="modal-overlay" id="importModal" role="dialog" aria-modal="true" aria-labelledby="importModalTitle">
@@ -2055,7 +2127,7 @@ async function handleLogin(e) {
     localStorage.setItem('nbi_auth_token', data.token);
     showApp();
     await openIDB();
-    await Promise.all([load(), loadTeamMembers(), loadPagePermissions(), loadBugReports()]);
+    await Promise.all([load(), loadTeamMembers(), loadPagePermissions(), loadBugReports(), loadCandidates()]);
     await loadFinanceFromDB();
     renderAll();
     restartPollingIntervals();
@@ -2876,6 +2948,9 @@ function renderSidebar() {
   const svgBugs = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="9" r="4"/><path d="M6 5.5C6 4.1 6.9 3 8 3s2 1.1 2 2.5M1 7h3M12 7h3M2 12l2.5-1.5M14 12l-2.5-1.5M4 5L2 3.5M12 5l2-1.5"/></svg>';
   const bugOpenCount = ((_bugReportsData && _bugReportsData.reports) || []).filter(r => r.status === 'open' || r.status === 'in_progress').length;
   html += sidebarItem(svgBugs, 'Bug Tracker', bugOpenCount || '', () => switchView('bugs'), currentView==='bugs');
+  const svgHiring = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="5" r="2.5"/><path d="M1 14c0-3 2.5-5 5-5 1.3 0 2.5.4 3.4 1.1"/><circle cx="12" cy="11" r="3"/><path d="M12 9.5v3M10.5 11h3"/></svg>';
+  const hiringActiveCount = (_candidatesData || []).filter(c => c.stage !== 'hired' && c.stage !== 'rejected').length;
+  html += sidebarItem(svgHiring, 'Hiring', hiringActiveCount || '', () => switchView('hiring'), currentView==='hiring');
   if (hasPageAccess('finances')) {
     html += sidebarItem(svgFinances, 'Finances', '', () => switchView('finances'), currentView==='finances');
   }
@@ -3237,6 +3312,7 @@ function renderContent() {
   else if (currentView === 'expenses') renderExpensesView(content);
   else if (currentView === 'finances') renderFinancesView(content);
   else if (currentView === 'bugs') renderBugTrackerView(content);
+  else if (currentView === 'hiring') renderHiringView(content);
   else if (currentView === 'settings') renderSettings(content);
   if (currentView === 'tasks' && taskSubView === 'gantt') {
     requestAnimationFrame(drawGanttArrows);
@@ -3277,6 +3353,7 @@ function renderAll() {
   else if (currentView === 'expenses') renderExpensesView(content);
   else if (currentView === 'finances') renderFinancesView(content);
   else if (currentView === 'bugs') renderBugTrackerView(content);
+  else if (currentView === 'hiring') renderHiringView(content);
   else if (currentView === 'settings') renderSettings(content);
 
   // Draw Gantt dependency arrows after DOM is ready
@@ -10750,7 +10827,7 @@ async function renderManageClients(el) {
           <div style="display:flex;gap:24px;margin:12px 0;padding:12px;background:var(--bg-surface);border-radius:var(--radius-md);flex-wrap:wrap">
             <div><div style="font-size:0.72rem;color:var(--text-muted)">Active Contracts</div><div style="font-size:1.1rem;font-weight:600"><span style="cursor:pointer;color:var(--accent-text);text-decoration:underline" onclick="filterByClient('${escName}');switchView('tasks')" title="View tasks for ${esc(c.name)}">${activeCount}</span></div></div>
             <div><div style="font-size:0.72rem;color:var(--text-muted)">Total SoW Value</div><div style="font-size:1.1rem;font-weight:600">&pound;${totalSoWValue.toLocaleString()}</div></div>
-            <div><div style="font-size:0.72rem;color:var(--text-muted)">Hiring Positions</div><div style="font-size:1.1rem;font-weight:600">0</div></div>
+            <div><div style="font-size:0.72rem;color:var(--text-muted)">Hiring Positions</div><div style="font-size:1.1rem;font-weight:600"><span style="cursor:pointer;color:var(--accent-text);text-decoration:underline" onclick="window._hiringFilterClient='${c.id}';switchView('hiring')" title="View hiring for ${esc(c.name)}">${(_candidatesData || []).filter(x => x.client_id === c.id && x.stage !== 'hired' && x.stage !== 'rejected').length}</span></div></div>
           </div>
           <div class="lead-detail__grid" style="max-width:500px">
             <label>Name</label><input type="text" value="${esc(c.name)}" onchange="updateClientField('${c.id}','name',this.value)">
@@ -12655,6 +12732,394 @@ async function saveBugDescription(id) {
     await loadBugReports();
   } else {
     toast('Failed to save description', 'error');
+  }
+}
+
+// ==================== HIRING ====================
+// Cached candidates list (populated by loadCandidates). Used by the sidebar
+// active-count badge and the hiring view itself so we don't refetch on every
+// re-render. Refresh by calling loadCandidates() after any mutation.
+let _candidatesData = [];
+let _hiringPositionsData = [];
+const HIRING_STAGES = ['sourced', 'screening', 'interview', 'offer', 'hired', 'rejected'];
+const HIRING_STAGE_LABELS = { sourced: 'Sourced', screening: 'Screening', interview: 'Interview', offer: 'Offer', hired: 'Hired', rejected: 'Rejected' };
+
+/** Load all candidates from the API into _candidatesData. */
+async function loadCandidates() {
+  try {
+    const data = await apiCall('/api/candidates');
+    if (Array.isArray(data)) _candidatesData = data;
+  } catch (e) { console.error('Failed to load candidates:', e); }
+}
+
+/** Load all hiring positions from the API into _hiringPositionsData. */
+async function loadHiringPositions() {
+  try {
+    const data = await apiCall('/api/hiring-positions');
+    if (Array.isArray(data)) _hiringPositionsData = data;
+  } catch (e) { console.error('Failed to load hiring positions:', e); }
+}
+
+/**
+ * Render the Hiring view: filters at the top, candidates grouped by client
+ * with thumbnail cards. Click a card to open the slide-in detail panel.
+ * @param {HTMLElement} container - The DOM element to render into
+ */
+function renderHiringView(container) {
+  // First render: kick off async loads then re-render once data is in
+  if (!window._hiringLoaded) {
+    container.innerHTML = '<div class="hiring"><div style="padding:24px;color:var(--text-muted)">Loading hiring data...</div></div>';
+    Promise.all([loadCandidates(), loadHiringPositions()]).then(() => {
+      window._hiringLoaded = true;
+      if (currentView === 'hiring') renderContent();
+    });
+    return;
+  }
+
+  const candidates = _candidatesData || [];
+  const positions = _hiringPositionsData || [];
+  const isAdmin = _currentUser && _currentUser.role === 'admin';
+
+  // Apply filters
+  let filtered = [...candidates];
+  if (window._hiringFilterClient) filtered = filtered.filter(c => c.client_id === window._hiringFilterClient);
+  if (window._hiringFilterStage) filtered = filtered.filter(c => c.stage === window._hiringFilterStage);
+
+  // Build client filter options from clients we already loaded for the rest of the app
+  const clientOptions = (typeof clients !== 'undefined' && Array.isArray(clients))
+    ? [...clients].sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+    : [];
+
+  // Group by client (null client groups under "Unassigned")
+  const groups = {};
+  filtered.forEach(c => {
+    const key = c.client_id || '__unassigned__';
+    const label = c.client_name || 'Unassigned';
+    if (!groups[key]) groups[key] = { label, items: [] };
+    groups[key].items.push(c);
+  });
+  const groupKeys = Object.keys(groups).sort((a, b) => groups[a].label.localeCompare(groups[b].label));
+
+  let html = '<div class="hiring">';
+  html += `<div class="hiring__header">
+    <h2 style="font-size:1.1rem;font-weight:600;margin:0">Hiring</h2>
+    <button class="btn btn--primary" onclick="openCreateCandidateModal()">+ Create Candidate Card</button>
+  </div>`;
+
+  html += `<div class="hiring__filters">
+    <select class="leads-select" onchange="window._hiringFilterClient=this.value||null;renderContent()">
+      <option value="">All Clients</option>
+      ${clientOptions.map(c => `<option value="${c.id}" ${window._hiringFilterClient===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}
+    </select>
+    <select class="leads-select" onchange="window._hiringFilterStage=this.value||null;renderContent()">
+      <option value="">All Stages</option>
+      ${HIRING_STAGES.map(s => `<option value="${s}" ${window._hiringFilterStage===s?'selected':''}>${HIRING_STAGE_LABELS[s]}</option>`).join('')}
+    </select>
+    <span style="font-size:0.75rem;color:var(--text-muted)">${filtered.length} of ${candidates.length} candidates</span>
+  </div>`;
+
+  if (groupKeys.length === 0) {
+    html += `<div style="padding:var(--space-xl);text-align:center;color:var(--text-muted)">No candidates yet. Click "Create Candidate Card" to add one.</div>`;
+  } else {
+    groupKeys.forEach(k => {
+      const g = groups[k];
+      html += `<div class="hiring-client-group">
+        <div class="hiring-client-group__header">${esc(g.label)} <span style="color:var(--text-muted);font-weight:400;font-size:0.82rem">(${g.items.length})</span></div>
+        <div class="hiring-grid">`;
+      g.items.forEach(c => {
+        const due = c.due_date ? new Date(c.due_date) : null;
+        const isLate = due && due < new Date() && c.stage !== 'hired' && c.stage !== 'rejected';
+        const dueText = due ? due.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '';
+        html += `<div class="hiring-card" onclick="openCandidateDetail('${c.id}')" tabindex="0" role="button"
+                      onkeydown="if(event.key==='Enter')openCandidateDetail('${c.id}')">
+          <div class="hiring-card__name">${esc(c.name)}</div>
+          ${c.role ? `<div class="hiring-card__role">${esc(c.role)}</div>` : ''}
+          <div class="hiring-card__meta">
+            <span class="${isLate ? 'hiring-card__due--late' : ''}">${dueText || '\u2014'}</span>
+            <span class="hiring-stage-badge hiring-stage-badge--${c.stage}">${HIRING_STAGE_LABELS[c.stage] || c.stage}</span>
+          </div>
+        </div>`;
+      });
+      html += `</div></div>`;
+    });
+  }
+
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+/**
+ * Open the "Create Candidate" modal — uses themedPrompt-style series of inputs
+ * via a small inline modal so we can collect name + client + role in one go.
+ */
+async function openCreateCandidateModal() {
+  // Make sure clients are loaded (sidebar uses them, normally already in memory)
+  const clientList = (typeof clients !== 'undefined' && Array.isArray(clients))
+    ? [...clients].sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+    : [];
+
+  // Build a tiny inline modal — reuse modal-overlay/modal classes
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.style.display = 'flex';
+  overlay.innerHTML = `
+    <div class="modal" style="min-width:360px;max-width:480px">
+      <div class="modal__title">Create Candidate Card</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <label style="font-size:0.78rem;color:var(--text-muted)">Name *
+          <input type="text" id="ccName" style="width:100%;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;margin-top:4px" autofocus></label>
+        <label style="font-size:0.78rem;color:var(--text-muted)">Client
+          <select id="ccClient" style="width:100%;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;margin-top:4px">
+            <option value="">— None —</option>
+            ${clientList.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('')}
+          </select></label>
+        <label style="font-size:0.78rem;color:var(--text-muted)">Role
+          <input type="text" id="ccRole" placeholder="e.g. Senior Backend Engineer" style="width:100%;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;margin-top:4px"></label>
+        <label style="font-size:0.78rem;color:var(--text-muted)">Due date
+          <input type="date" id="ccDue" style="width:100%;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;margin-top:4px"></label>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+        <button class="btn" id="ccCancel">Cancel</button>
+        <button class="btn btn--primary" id="ccCreate">Create</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  const close = () => { try { document.body.removeChild(overlay); } catch (e) {} };
+  overlay.querySelector('#ccCancel').onclick = close;
+  overlay.onclick = (e) => { if (e.target === overlay) close(); };
+  overlay.querySelector('#ccCreate').onclick = async () => {
+    const name = overlay.querySelector('#ccName').value.trim();
+    if (!name) { toast('Name is required', 'error'); return; }
+    const body = {
+      name,
+      client_id: overlay.querySelector('#ccClient').value || null,
+      role: overlay.querySelector('#ccRole').value.trim() || null,
+      due_date: overlay.querySelector('#ccDue').value || null,
+      stage: 'sourced'
+    };
+    const resp = await authFetch('/api/candidates', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    if (resp.ok) {
+      const created = await resp.json();
+      toast('Candidate created');
+      close();
+      await loadCandidates();
+      if (currentView === 'hiring') renderContent();
+      renderSidebar();
+      // Open the newly created candidate's detail panel for further editing
+      openCandidateDetail(created.id);
+    } else {
+      const err = await resp.json().catch(() => ({}));
+      toast(err.error || 'Failed to create candidate', 'error');
+    }
+  };
+}
+
+/**
+ * Open the slide-in detail panel for a candidate. Shows all editable fields
+ * plus stage progression pills, CV upload/download, and (for admins) a delete
+ * button.
+ * @param {string} id - The candidate UUID
+ */
+async function openCandidateDetail(id) {
+  const overlay = document.getElementById('candidateDetailOverlay');
+  const panel = document.getElementById('candidateDetailPanel');
+  if (!overlay || !panel) return;
+
+  // Always fetch fresh — list may be stale after a mutation
+  const c = await apiCall('/api/candidates/' + id);
+  if (!c) return;
+
+  const isAdmin = _currentUser && _currentUser.role === 'admin';
+  const clientList = (typeof clients !== 'undefined' && Array.isArray(clients))
+    ? [...clients].sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+    : [];
+  const positions = _hiringPositionsData || [];
+
+  panel.innerHTML = `
+    <div class="candidate-detail__header">
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;gap:var(--space-sm);align-items:center;margin-bottom:6px;flex-wrap:wrap">
+          <span class="hiring-stage-badge hiring-stage-badge--${c.stage}">${HIRING_STAGE_LABELS[c.stage] || c.stage}</span>
+          ${c.client_name ? `<span style="font-size:0.78rem;color:var(--text-muted)">${esc(c.client_name)}</span>` : ''}
+        </div>
+        <h3 style="font-size:1rem;font-weight:600;margin:0;word-break:break-word">${esc(c.name)}</h3>
+      </div>
+      <button class="btn btn--ghost btn--sm" onclick="closeCandidateDetail()" aria-label="Close" style="flex-shrink:0">&times;</button>
+    </div>
+    <div class="candidate-detail__body">
+      <div class="candidate-detail__section">
+        <div class="candidate-detail__section-title">Stage</div>
+        <div class="candidate-stages">
+          ${HIRING_STAGES.map(s => `<button class="candidate-stage-pill ${c.stage===s?'candidate-stage-pill--active':''}" onclick="updateCandidateField('${c.id}','stage','${s}')">${HIRING_STAGE_LABELS[s]}</button>`).join('')}
+        </div>
+      </div>
+
+      <div class="candidate-detail__section">
+        <div class="candidate-detail__section-title">Details</div>
+        <div class="candidate-detail__field">
+          <label>Name</label>
+          <input type="text" id="cdName" value="${esc(c.name)}" onchange="updateCandidateField('${c.id}','name',this.value)">
+        </div>
+        <div class="candidate-detail__field">
+          <label>Role</label>
+          <input type="text" id="cdRole" value="${esc(c.role || '')}" onchange="updateCandidateField('${c.id}','role',this.value)">
+        </div>
+        <div class="candidate-detail__field">
+          <label>LinkedIn URL</label>
+          <input type="url" id="cdLinkedIn" value="${esc(c.linkedin_url || '')}" placeholder="https://linkedin.com/in/..." onchange="updateCandidateField('${c.id}','linkedin_url',this.value)">
+        </div>
+        <div class="candidate-detail__field">
+          <label>Due date</label>
+          <input type="date" id="cdDue" value="${c.due_date ? c.due_date.slice(0,10) : ''}" onchange="updateCandidateField('${c.id}','due_date',this.value||null)">
+        </div>
+        <div class="candidate-detail__field">
+          <label>Client</label>
+          <select id="cdClient" onchange="updateCandidateField('${c.id}','client_id',this.value||null)">
+            <option value="">— None —</option>
+            ${clientList.map(cl => `<option value="${cl.id}" ${c.client_id===cl.id?'selected':''}>${esc(cl.name)}</option>`).join('')}
+          </select>
+        </div>
+        <div class="candidate-detail__field">
+          <label>Hiring Position</label>
+          <select id="cdPosition" onchange="updateCandidateField('${c.id}','position_id',this.value||null)">
+            <option value="">— None —</option>
+            ${positions.filter(p => !c.client_id || p.client_id === c.client_id).map(p => `<option value="${p.id}" ${c.position_id===p.id?'selected':''}>${esc(p.title)}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+
+      <div class="candidate-detail__section">
+        <div class="candidate-detail__section-title">CV</div>
+        <div class="candidate-cv">
+          ${c.cv_filename ? `
+            <span class="candidate-cv__name">${esc(c.cv_filename)}</span>
+            <button class="btn btn--sm" onclick="downloadCandidateCV('${c.id}')">Download</button>
+          ` : '<span style="color:var(--text-muted);font-size:0.78rem">No CV uploaded</span>'}
+          <input type="file" id="cdCvFile" style="display:none" onchange="uploadCandidateCV('${c.id}',this)">
+          <button class="btn btn--sm" onclick="document.getElementById('cdCvFile').click()">${c.cv_filename ? 'Replace' : 'Upload'}</button>
+        </div>
+      </div>
+
+      <div class="candidate-detail__section">
+        <div class="candidate-detail__section-title">Notes</div>
+        <div class="candidate-detail__field">
+          <textarea id="cdNotes" rows="4" onchange="updateCandidateField('${c.id}','notes',this.value)">${esc(c.notes || '')}</textarea>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:var(--space-sm);margin-top:var(--space-lg);padding-top:var(--space-md);border-top:1px solid var(--border-default)">
+        ${isAdmin ? `<button class="btn btn--danger btn--sm" onclick="deleteCandidate('${c.id}')">Delete</button>` : ''}
+      </div>
+    </div>`;
+
+  overlay.style.display = 'block';
+  overlay.onclick = (e) => { if (e.target === overlay) closeCandidateDetail(); };
+  panel.classList.add('open');
+  window._candidateDetailPreviousFocus = document.activeElement;
+  if (typeof _trapFocus === 'function') _trapFocus(panel);
+  window._candidateDetailEscHandler = (e) => { if (e.key === 'Escape') closeCandidateDetail(); };
+  document.addEventListener('keydown', window._candidateDetailEscHandler);
+}
+
+/** Close the candidate detail slide-in panel and restore focus. */
+function closeCandidateDetail() {
+  if (window._candidateDetailPreviousFocus) { window._candidateDetailPreviousFocus.focus(); window._candidateDetailPreviousFocus = null; }
+  if (window._candidateDetailEscHandler) { document.removeEventListener('keydown', window._candidateDetailEscHandler); window._candidateDetailEscHandler = null; }
+  const overlay = document.getElementById('candidateDetailOverlay');
+  const panel = document.getElementById('candidateDetailPanel');
+  if (panel) panel.classList.remove('open');
+  if (overlay) overlay.style.display = 'none';
+}
+
+/**
+ * Update a single field on a candidate via PATCH and refresh the cached list.
+ * @param {string} id - Candidate UUID
+ * @param {string} field - Field key (name, role, linkedin_url, due_date, stage, client_id, position_id, notes)
+ * @param {*} value - New value (empty string is normalised to null)
+ */
+async function updateCandidateField(id, field, value) {
+  const body = {};
+  body[field] = value === '' ? null : value;
+  const resp = await authFetch('/api/candidates/' + id, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (resp.ok) {
+    await loadCandidates();
+    if (currentView === 'hiring') renderContent();
+    renderSidebar();
+    // Re-render detail panel so dependent UI (stage pills, position list) updates
+    const panel = document.getElementById('candidateDetailPanel');
+    if (panel && panel.classList.contains('open')) openCandidateDetail(id);
+  } else {
+    const err = await resp.json().catch(() => ({}));
+    toast(err.error || 'Failed to update', 'error');
+  }
+}
+
+/**
+ * Upload a CV file for a candidate. Uses multipart/form-data POST.
+ * @param {string} id - Candidate UUID
+ * @param {HTMLInputElement} input - The file input element
+ */
+async function uploadCandidateCV(id, input) {
+  if (!input.files || input.files.length === 0) return;
+  const file = input.files[0];
+  const formData = new FormData();
+  formData.append('file', file);
+  const resp = await authFetch('/api/candidates/' + id + '/cv', { method: 'POST', body: formData });
+  if (resp.ok) {
+    toast('CV uploaded');
+    await loadCandidates();
+    if (currentView === 'hiring') renderContent();
+    openCandidateDetail(id);
+  } else {
+    const err = await resp.json().catch(() => ({}));
+    toast(err.error || 'Failed to upload CV', 'error');
+  }
+  input.value = '';
+}
+
+/**
+ * Download the CV file for a candidate. Triggers a browser download via
+ * an in-memory blob URL so the auth header is preserved.
+ * @param {string} id - Candidate UUID
+ */
+async function downloadCandidateCV(id) {
+  const resp = await authFetch('/api/candidates/' + id + '/cv');
+  if (!resp.ok) { toast('Failed to download CV', 'error'); return; }
+  const disp = resp.headers.get('Content-Disposition') || '';
+  const m = disp.match(/filename="?([^"]+)"?/);
+  const filename = m ? m[1] : 'cv';
+  const blob = await resp.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 100);
+}
+
+/**
+ * Delete a candidate after confirmation (admin only).
+ * @param {string} id - Candidate UUID
+ */
+async function deleteCandidate(id) {
+  if (!(await themedConfirm('Delete this candidate permanently?'))) return;
+  const resp = await authFetch('/api/candidates/' + id, { method: 'DELETE' });
+  if (resp.ok) {
+    toast('Candidate deleted');
+    closeCandidateDetail();
+    await loadCandidates();
+    if (currentView === 'hiring') renderContent();
+    renderSidebar();
+  } else {
+    toast('Failed to delete candidate', 'error');
   }
 }
 
