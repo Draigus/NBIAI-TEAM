@@ -4502,6 +4502,7 @@ let _calYear = new Date().getFullYear();
 let _calEvents = [];                 // Cached list of calendar events for the visible month
 let _calEventsKey = '';              // Cache key (year-month) so re-renders don't re-fetch
 let _calShowOthers = true;           // Toggle: show events created by other users
+let _calTeamFilter = '';             // Selected team_id for the calendar team filter (empty = no filter)
 const CAL_EVENT_TYPES = [
   { value: 'vacation',    label: 'Vacation',     colour: '#22c55e' },
   { value: 'sick_leave',  label: 'Sick Leave',   colour: '#ef4444' },
@@ -4536,9 +4537,13 @@ async function loadCalendarEvents(year, month) {
   const from = new Date(year, month, 1); from.setDate(from.getDate() - 7);
   const to = new Date(year, month + 1, 0); to.setDate(to.getDate() + 7);
   const fmt = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-  const events = await apiCall(`/api/calendar-events?from=${fmt(from)}&to=${fmt(to)}`);
+  // Append the team filter if one is active so the server returns events
+  // for every member of that team.
+  let url = `/api/calendar-events?from=${fmt(from)}&to=${fmt(to)}`;
+  if (_calTeamFilter) url += `&team_id=${encodeURIComponent(_calTeamFilter)}`;
+  const events = await apiCall(url);
   _calEvents = Array.isArray(events) ? events : [];
-  _calEventsKey = `${year}-${month}`;
+  _calEventsKey = `${year}-${month}` + (_calTeamFilter ? `:team:${_calTeamFilter}` : '');
   // Re-render the calendar slot in place if it exists
   const main = document.querySelector('.tasks-layout__main');
   if (main && taskSubView === 'calendar') renderContent();
@@ -4603,6 +4608,15 @@ function renderCalendarView(filtered) {
   html += `<div class="cal__month-title">${monthName}</div>`;
   html += `<button class="cal__nav-btn" onclick="_calMonth++;if(_calMonth>11){_calMonth=0;_calYear++;}_calEventsKey='';renderContent()">Next &raquo;</button>`;
   html += `<div style="flex:1"></div>`;
+  // Team filter — when a team is selected, the server returns events for
+  // every member of that team. The dropdown is populated from _teamsCache
+  // which is refreshed on startup and after any team mutation.
+  const teamOpts = `<option value="">None</option>` + (_teamsCache || []).map(t =>
+    `<option value="${esc(t.id)}" ${_calTeamFilter === t.id ? 'selected' : ''}>${esc(t.name)}${t.client_name ? ' (' + esc(t.client_name) + ')' : ''}</option>`
+  ).join('');
+  html += `<label style="display:flex;align-items:center;gap:6px;font-size:0.78rem;color:var(--text-muted)">Filter by team:
+    <select onchange="_calTeamFilter=this.value;_calEventsKey='';loadCalendarEvents(_calYear,_calMonth)" style="font-size:0.78rem;padding:2px 4px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)">${teamOpts}</select>
+  </label>`;
   html += `<label style="display:flex;align-items:center;gap:6px;font-size:0.78rem;color:var(--text-muted);cursor:pointer;user-select:none">
     <input type="checkbox" ${_calShowOthers ? 'checked' : ''} onchange="_calShowOthers=this.checked;renderContent()" style="accent-color:var(--accent)"> Show events from others
   </label>`;
@@ -6354,6 +6368,15 @@ function openDetailOverlay(id) {
     html += `<div class="detail-field"><span class="detail-field__label field-required">Client</span><div style="display:flex;align-items:center;gap:6px">${clientBadgeHtml(dpClient)} <span style="font-size:0.82rem;color:var(--text-primary)">${esc(dpClient)}</span></div></div>`;
   } else {
     html += `<div class="detail-field"><span class="detail-field__label field-required">Client</span><select onchange="updateTask('${id}','client',this.value)">${['', ...getContractedClients()].map(o => `<option value="${esc(o)}" ${(task.client||'')=== o ? 'selected' : ''}>${esc(o||'-- None --')}</option>`).join('')}</select></div>`;
+  }
+  // Team — read-only derived from the task's client/SoW. If the project's
+  // client (or specific SoW) belongs to a team, surface it here so people
+  // know who they're working with.
+  const dpClientObj = dpClient ? _apiClientsCache[dpClient] : null;
+  const dpTeam = findTeamForClientOrSow(dpClientObj?.id, task.sow_id);
+  if (dpTeam) {
+    const teamSwatch = dpTeam.colour ? `<span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${esc(dpTeam.colour)};margin-right:4px;vertical-align:middle"></span>` : '';
+    html += `<div class="detail-field"><span class="detail-field__label">Team</span><div style="display:flex;align-items:center;gap:6px"><a href="#" onclick="event.preventDefault();openTeamDetailModal('${dpTeam.id}')" style="font-size:0.82rem;color:var(--accent-text);text-decoration:none">${teamSwatch}${esc(dpTeam.name)}</a></div></div>`;
   }
   html += detailSelect('Status', 'status', task.status, STATUSES, true);
   html += detailSelect('Priority', 'priority', task.priority || '', ['', ...PRIORITIES], true);
@@ -10762,6 +10785,11 @@ async function renderManageClients(el) {
             </div>
             <div style="font-size:0.7rem;color:var(--text-muted);margin-top:4px">PDF only. Pricing and legal sections are automatically stripped. Only the work package is stored.</div>` : ''}
           </div>
+          <div class="manage-clients__teams" id="clientTeams_${c.id}">
+            <h4 style="margin:12px 0 6px;font-size:0.82rem;color:var(--text-secondary)">Teams</h4>
+            <div id="teamsList_${c.id}"><span style="color:var(--text-muted);font-size:0.78rem">Loading...</span></div>
+            ${(_currentUser && _currentUser.role === 'admin') ? `<button class="btn btn--sm btn--primary" onclick="openCreateTeamModal('${c.id}','${escName}')" style="margin-top:6px">+ New Team</button>` : ''}
+          </div>
           <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border-subtle);display:flex;gap:8px;flex-wrap:wrap;align-items:center">
             <button class="btn btn--sm" onclick="gatherClientPortfolio('${c.id}','${escName}')">Gather Portfolio Detail Information</button>
             ${c.research_updated_at ? `<span style="font-size:0.72rem;color:var(--text-muted)">Last researched: ${new Date(c.research_updated_at).toLocaleDateString('en-GB')}</span>` : ''}
@@ -10786,11 +10814,12 @@ function toggleClientExpand(row) {
   detail.style.display = isOpen ? 'none' : 'block';
   row.querySelector('.manage-clients__arrow').textContent = isOpen ? '\u25BC' : '\u25B2';
 
-  // Load contacts and SoWs when expanding
+  // Load contacts, SoWs and teams when expanding
   if (!isOpen) {
     const clientId = row.getAttribute('data-client-id');
     loadClientContacts(clientId);
     loadClientSows(clientId);
+    loadClientTeams(clientId);
   }
 }
 
@@ -10945,6 +10974,265 @@ async function deleteSow(sowId, title, clientId) {
   } else {
     toast('Delete failed', 'error');
   }
+}
+
+// ===== TEAMS =====
+// Cache of all teams keyed by id, refreshed by loadAllTeams. Used by the
+// task detail panel to look up which team a project's client/SoW belongs to
+// without an extra fetch per task.
+let _teamsCache = [];
+
+/**
+ * Refresh the in-memory teams cache from /api/teams. Called on startup and
+ * any time team data changes via create/update/delete/membership operations.
+ */
+async function loadAllTeams() {
+  try {
+    const teams = await apiCall('/api/teams');
+    _teamsCache = Array.isArray(teams) ? teams : [];
+  } catch (e) { _teamsCache = []; }
+  return _teamsCache;
+}
+
+/** Return the team that owns a given client or SoW, or null if none. SoW match takes precedence. */
+function findTeamForClientOrSow(clientId, sowId) {
+  if (!Array.isArray(_teamsCache) || _teamsCache.length === 0) return null;
+  if (sowId) {
+    const bySow = _teamsCache.find(t => t.sow_id === sowId);
+    if (bySow) return bySow;
+  }
+  if (clientId) {
+    return _teamsCache.find(t => t.client_id === clientId) || null;
+  }
+  return null;
+}
+
+/**
+ * Render the teams list for a client in the Manage Clients view. Each row
+ * shows the team name, member count and (for admins) edit / delete controls.
+ */
+async function loadClientTeams(clientId) {
+  const el = document.getElementById('teamsList_' + clientId);
+  if (!el) return;
+  try {
+    const teams = await apiCall('/api/teams?client_id=' + clientId);
+    if (!teams) { el.innerHTML = '<span style="color:var(--text-muted);font-size:0.78rem">Could not load</span>'; return; }
+    if (teams.length === 0) {
+      el.innerHTML = '<span style="color:var(--text-muted);font-size:0.78rem">No teams yet</span>';
+      return;
+    }
+    const isAdmin = _currentUser && _currentUser.role === 'admin';
+    el.innerHTML = teams.map(t => {
+      const swatch = t.colour ? `<span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${esc(t.colour)};margin-right:4px;vertical-align:middle"></span>` : '';
+      const sowSuffix = t.sow_title ? ` <span style="color:var(--text-muted);font-size:0.7rem">\u00b7 ${esc(t.sow_title)}</span>` : '';
+      const mc = t.member_count || 0;
+      return `<div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:0.82rem;border-bottom:1px solid var(--border-subtle)">
+        <a href="#" onclick="event.preventDefault();openTeamDetailModal('${t.id}')" style="flex:1;color:var(--accent-text);text-decoration:none">${swatch}${esc(t.name)}${sowSuffix}</a>
+        <span style="color:var(--text-muted);font-size:0.72rem">${mc} member${mc !== 1 ? 's' : ''}</span>
+        ${isAdmin ? `<button class="btn btn--ghost btn--sm" onclick="deleteTeam('${t.id}','${escAttrJs(t.name)}','${clientId}')" style="padding:0 4px;color:var(--text-muted)" title="Delete team">&times;</button>` : ''}
+      </div>`;
+    }).join('');
+  } catch (e) { el.innerHTML = '<span style="color:var(--text-muted);font-size:0.78rem">Error</span>'; }
+}
+
+/**
+ * Open the create-team modal scoped to a particular client. Admin only.
+ * Pre-fetches SoWs for the client so the user can optionally tie the team
+ * to a specific SoW.
+ */
+async function openCreateTeamModal(clientId, clientName) {
+  if (!_currentUser || _currentUser.role !== 'admin') { toast('Admin only', 'error'); return; }
+  // Fetch SoWs for the client to populate the optional dropdown
+  let sows = [];
+  try { sows = (await apiCall('/api/sows?client_id=' + clientId)) || []; } catch (e) {}
+  const sowOpts = `<option value="">-- None --</option>` + sows.map(s =>
+    `<option value="${esc(s.id)}">${esc(s.title)}</option>`
+  ).join('');
+  const html = `<div class="modal-overlay open" id="createTeamModal" role="dialog" aria-modal="true" onclick="if(event.target===this)this.remove()">
+    <div class="modal" style="max-width:var(--modal-sm)">
+      <h2 style="margin-top:0">New Team</h2>
+      <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:8px">For client: <strong>${esc(clientName)}</strong></div>
+      <div class="lead-detail__grid">
+        <label class="field-required">Name</label><input type="text" id="newTeamName" placeholder="e.g. DS&amp;A Team">
+        <label>Description</label><textarea id="newTeamDesc" rows="2" style="resize:vertical" placeholder="What does this team do?"></textarea>
+        <label>SoW (optional)</label><select id="newTeamSow">${sowOpts}</select>
+        <label>Colour</label><input type="color" id="newTeamColour" value="#3b82f6" style="height:32px;width:60px;padding:2px">
+      </div>
+      <div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end">
+        <button class="btn" onclick="document.getElementById('createTeamModal').remove()">Cancel</button>
+        <button class="btn btn--primary" onclick="withButtonLoading(this, () => submitCreateTeam('${clientId}'))">Create</button>
+      </div>
+    </div>
+  </div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+  if (typeof _activateDynamicModal === 'function') _activateDynamicModal('createTeamModal');
+}
+
+/** Submit the create-team modal and refresh the client's teams list on success. */
+async function submitCreateTeam(clientId) {
+  const nameEl = document.getElementById('newTeamName');
+  const name = nameEl ? nameEl.value.trim() : '';
+  if (!name) {
+    if (typeof showFieldError === 'function' && nameEl) showFieldError(nameEl, 'Name is required');
+    else toast('Name is required');
+    return;
+  }
+  const description = document.getElementById('newTeamDesc')?.value.trim() || null;
+  const sow_id = document.getElementById('newTeamSow')?.value || null;
+  const colour = document.getElementById('newTeamColour')?.value || null;
+  const resp = await authFetch('/api/teams', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, description, client_id: clientId, sow_id: sow_id || null, colour })
+  });
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    toast('Failed to create team: ' + (err.error?.message || err.error || 'Unknown error'), 'error');
+    return;
+  }
+  document.getElementById('createTeamModal')?.remove();
+  toast('Team created');
+  await loadAllTeams();
+  loadClientTeams(clientId);
+}
+
+/**
+ * Open the team detail modal showing metadata, members and (for admins) the
+ * controls to add / remove members and toggle their lead/member role.
+ */
+async function openTeamDetailModal(teamId) {
+  const team = await apiCall('/api/teams/' + teamId);
+  if (!team) { toast('Could not load team', 'error'); return; }
+  // Fetch all users so the admin add-member dropdown can pick anyone
+  const isAdmin = _currentUser && _currentUser.role === 'admin';
+  let allUsers = [];
+  if (isAdmin) {
+    try { allUsers = (await apiCall('/api/users')) || []; } catch (e) {}
+  }
+  const memberIds = new Set((team.members || []).map(m => m.user_id));
+  const candidateUsers = allUsers.filter(u => !memberIds.has(u.id));
+  const userOpts = `<option value="">-- Select user --</option>` + candidateUsers
+    .sort((a, b) => (a.display_name || '').localeCompare(b.display_name || ''))
+    .map(u => `<option value="${esc(u.id)}">${esc(u.display_name || u.username)}</option>`).join('');
+
+  const memberRows = (team.members || []).map(m => {
+    const isLead = m.role === 'lead';
+    const roleSelect = isAdmin
+      ? `<select onchange="setTeamMemberRole('${teamId}','${m.user_id}',this.value)" style="font-size:0.72rem;padding:2px 4px">
+           <option value="member" ${!isLead ? 'selected' : ''}>Member</option>
+           <option value="lead" ${isLead ? 'selected' : ''}>Lead</option>
+         </select>`
+      : `<span style="font-size:0.72rem;color:var(--text-muted)">${isLead ? 'Lead' : 'Member'}</span>`;
+    const removeBtn = isAdmin
+      ? `<button class="btn btn--ghost btn--sm" onclick="removeTeamMember('${teamId}','${m.user_id}')" title="Remove from team" style="padding:0 4px;color:var(--text-muted)">&times;</button>`
+      : '';
+    return `<div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:0.82rem;border-bottom:1px solid var(--border-subtle)">
+      <strong style="flex:1">${esc(m.display_name || m.username)}</strong>
+      ${roleSelect}
+      ${removeBtn}
+    </div>`;
+  }).join('') || '<span style="color:var(--text-muted);font-size:0.78rem">No members yet</span>';
+
+  const swatch = team.colour ? `<span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${esc(team.colour)};margin-right:6px;vertical-align:middle"></span>` : '';
+  const html = `<div class="modal-overlay open" id="teamDetailModal" role="dialog" aria-modal="true" onclick="if(event.target===this)this.remove()">
+    <div class="modal" style="max-width:var(--modal-md);max-height:90vh;display:flex;flex-direction:column">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <h2 style="margin:0">${swatch}${esc(team.name)}</h2>
+        <button class="btn btn--ghost" onclick="document.getElementById('teamDetailModal').remove()" aria-label="Close">&times;</button>
+      </div>
+      <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:8px">
+        ${team.client_name ? 'Client: ' + esc(team.client_name) : ''}
+        ${team.sow_title ? ' \u00b7 SoW: ' + esc(team.sow_title) : ''}
+      </div>
+      ${team.description ? `<div style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:12px">${esc(team.description)}</div>` : ''}
+      <h3 style="margin:8px 0 4px;font-size:0.82rem;color:var(--text-secondary)">Members</h3>
+      <div id="teamMembersList" style="overflow-y:auto;flex:1;min-height:80px">${memberRows}</div>
+      ${isAdmin ? `<div style="display:flex;gap:6px;margin-top:12px;align-items:center">
+        <select id="addTeamMemberUser" style="flex:1;font-size:0.78rem">${userOpts}</select>
+        <select id="addTeamMemberRole" style="font-size:0.78rem">
+          <option value="member" selected>Member</option>
+          <option value="lead">Lead</option>
+        </select>
+        <button class="btn btn--sm btn--primary" onclick="addTeamMemberFromModal('${teamId}')">Add</button>
+      </div>` : ''}
+    </div>
+  </div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+  if (typeof _activateDynamicModal === 'function') _activateDynamicModal('teamDetailModal');
+}
+
+/** Add a member to a team from the team detail modal. Admin only. */
+async function addTeamMemberFromModal(teamId) {
+  const userSel = document.getElementById('addTeamMemberUser');
+  const roleSel = document.getElementById('addTeamMemberRole');
+  const userId = userSel ? userSel.value : '';
+  if (!userId) { toast('Select a user first'); return; }
+  const role = roleSel ? roleSel.value : 'member';
+  await addTeamMember(teamId, userId, role);
+}
+
+/**
+ * POST a new team membership and refresh the modal + teams cache. Used by
+ * both the team detail modal add button and any future programmatic callers.
+ */
+async function addTeamMember(teamId, userId, role) {
+  const resp = await authFetch('/api/teams/' + teamId + '/members', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ user_id: userId, role: role || 'member' })
+  });
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    toast('Failed to add member: ' + (err.error?.message || err.error || 'Unknown error'), 'error');
+    return;
+  }
+  toast('Member added');
+  await loadAllTeams();
+  // Reopen detail modal to reflect the change
+  document.getElementById('teamDetailModal')?.remove();
+  openTeamDetailModal(teamId);
+}
+
+/** DELETE a team membership and refresh the modal. Admin only. */
+async function removeTeamMember(teamId, userId) {
+  if (!(await themedConfirm('Remove this member from the team?'))) return;
+  const resp = await authFetch('/api/teams/' + teamId + '/members/' + userId, { method: 'DELETE' });
+  if (!resp.ok) {
+    toast('Failed to remove member', 'error');
+    return;
+  }
+  toast('Member removed');
+  await loadAllTeams();
+  document.getElementById('teamDetailModal')?.remove();
+  openTeamDetailModal(teamId);
+}
+
+/** PATCH a team member's role (lead/member) and refresh the cache. Admin only. */
+async function setTeamMemberRole(teamId, userId, role) {
+  const resp = await authFetch('/api/teams/' + teamId + '/members/' + userId, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ role })
+  });
+  if (!resp.ok) {
+    toast('Failed to update role', 'error');
+    return;
+  }
+  toast('Role updated');
+  await loadAllTeams();
+}
+
+/** Delete a team after confirmation. Admin only. */
+async function deleteTeam(teamId, name, clientId) {
+  if (!(await themedConfirm('Delete team "' + name + '"? All memberships will be removed. This cannot be undone.'))) return;
+  const resp = await authFetch('/api/teams/' + teamId, { method: 'DELETE' });
+  if (!resp.ok) {
+    toast('Delete failed', 'error');
+    return;
+  }
+  toast('Team deleted');
+  await loadAllTeams();
+  if (clientId) loadClientTeams(clientId);
 }
 
 /** Create a new client from the management view via prompt dialog */
@@ -14471,7 +14759,7 @@ async function fetchSeedData() {
         _currentUser = data.user;
         showApp();
         await openIDB();
-        await Promise.all([load(), loadTeamMembers(), loadPagePermissions(), loadBugReports(), apiCall('/api/clients').then(data => { if (data) data.forEach(c => { _apiClientsCache[c.name] = c; }); }).catch(() => {})]);
+        await Promise.all([load(), loadTeamMembers(), loadPagePermissions(), loadBugReports(), loadAllTeams(), apiCall('/api/clients').then(data => { if (data) data.forEach(c => { _apiClientsCache[c.name] = c; }); }).catch(() => {})]);
         await loadFinanceSeedIfEmpty();
         await loadFinanceFromDB();
         checkLeadReminders();
