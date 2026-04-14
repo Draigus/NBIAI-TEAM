@@ -1421,6 +1421,9 @@ span.fin-editable { display: inline-block; position: relative; }
 .modal--xl { width: min(var(--modal-xl), calc(100vw - 32px)); }
 
 /* ===== THEMED CONFIRMATION DIALOG ===== */
+/* z-index 10001 sits above full-screen overlays like .report-fullscreen (400) and .lead-detail-overlay (500)
+   so destructive-action confirm prompts are never trapped behind the screen the user is acting on. */
+#confirmModal { z-index: 10001; }
 #confirmModal .modal { max-width: var(--modal-sm); }
 #confirmModal .modal__title { margin-bottom: var(--space-md); }
 #confirmModal p { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: var(--space-xl); line-height: 1.6; }
@@ -3817,7 +3820,7 @@ function renderMyTasksView(el) {
         return _dateSortVal(a) - _dateSortVal(b);
       }
       if (_myTasksSort === 'client') {
-        return (a.client || '').localeCompare(b.client || '');
+        return (getTaskClient(a) || '').localeCompare(getTaskClient(b) || '');
       }
       if (_myTasksSort === 'status') {
         const order = ['In progress', 'Planning', 'In Review', 'Not started', 'Done'];
@@ -11534,9 +11537,11 @@ function renderSettings(el) {
 
   // === ACCOUNT TAB ===
   if (tab === 'account') {
-    html += `<div class="settings__group"><h2>General</h2>
-      <div class="detail-field"><span class="detail-field__label">Hourly Rate (&pound;)</span><input type="number" value="${settings.hourlyRate}" onchange="settings.hourlyRate=parseFloat(this.value)||150;save();renderContent()"></div>
-    </div>`;
+    if (isAdmin) {
+      html += `<div class="settings__group"><h2>General</h2>
+        <div class="detail-field"><span class="detail-field__label">Hourly Rate (&pound;)</span><input type="number" value="${settings.hourlyRate}" onchange="settings.hourlyRate=parseFloat(this.value)||150;save();renderContent()"></div>
+      </div>`;
+    }
     html += `<div class="settings__group"><h2>Account</h2>
       <div style="margin-bottom:12px;color:var(--text-secondary)">Signed in as <strong>${_currentUser ? esc(_currentUser.displayName) : 'Unknown'}</strong> (${_currentUser ? esc(_currentUser.role) : ''})</div>
       <div class="detail-field"><span class="detail-field__label">Change Password</span></div>
@@ -13129,7 +13134,9 @@ function toggleNotifications() {
 }
 
 /** Fetch notifications from the API and update the badge count + dropdown content */
-/** Handle notification click — route to the right view based on the link content */
+/** Handle notification click — route to the right view based on the link content.
+ *  Supports: expense-report deep links (#expenses/report/{uuid}), hash-based view routes
+ *  (#bugs, #settings, #mytasks, etc.), and bare task IDs. */
 function handleNotificationClick(link) {
   if (!link) return;
   // Expense report link: URL containing #expenses/report/{uuid}
@@ -13145,6 +13152,18 @@ function handleNotificationClick(link) {
     tryOpen();
     toggleNotifications(); // close notification panel
     return;
+  }
+  // Hash-route link, e.g. "/nbi_project_dashboard.html#bugs" or "#settings"
+  const hashIdx = link.indexOf('#');
+  if (hashIdx !== -1) {
+    const hashPart = link.slice(hashIdx + 1);
+    const knownViews = ['report','dashboard','tasks','people','leads','expenses','finances','bugs','settings','mytasks','changelog','hiring','data','timeTracking'];
+    const firstSeg = hashPart.split('/')[0];
+    if (firstSeg && knownViews.includes(LEGACY_ROUTES[firstSeg] || firstSeg)) {
+      switchView(firstSeg);
+      toggleNotifications();
+      return;
+    }
   }
   // Default: treat as task ID
   openDetailOverlay(link);
