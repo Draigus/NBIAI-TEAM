@@ -1498,6 +1498,100 @@ span.fin-editable { display: inline-block; position: relative; }
   .fin-table-wrap .report-table { min-width: 600px; }
   .report-table-wrapper, .fin-section table { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 }
+
+/* ===== WARNINGS & ALERTS SIDEBAR ===== */
+/* Minimised trigger button (top-right corner of viewport) */
+.warn-alert-btn {
+  position: fixed; top: 70px; right: 16px; z-index: 150;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--danger); color: #fff;
+  border: 2px solid var(--danger-border);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  box-shadow: var(--shadow-lg);
+  transition: transform 0.15s, background 0.15s;
+  animation: warnPulse 2s ease-in-out infinite;
+}
+.warn-alert-btn:hover { transform: scale(1.1); }
+.warn-alert-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@keyframes warnPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+}
+.warn-alert-btn__badge {
+  position: absolute; top: -4px; right: -4px;
+  min-width: 18px; height: 18px; border-radius: 9px;
+  background: #fff; color: var(--danger);
+  font-size: 0.65rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 5px; border: 1px solid var(--danger-border);
+}
+
+/* Expanded sidebar panel */
+.warn-alert-panel {
+  position: fixed; top: 0; right: -420px; width: 400px; max-width: 90vw;
+  height: 100dvh; background: var(--bg-raised);
+  border-left: 1px solid var(--border-default);
+  box-shadow: var(--shadow-lg);
+  z-index: 250; display: flex; flex-direction: column;
+  transition: right 0.25s ease;
+}
+.warn-alert-panel.open { right: 0; }
+.warn-alert-panel__header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid var(--border-default);
+}
+.warn-alert-panel__header h3 { margin: 0; font-size: 1rem; font-weight: 600; color: var(--text-primary); }
+.warn-alert-panel__tabs {
+  display: flex; border-bottom: 1px solid var(--border-default);
+}
+.warn-alert-panel__tab {
+  flex: 1; padding: 12px 16px;
+  background: none; border: none; color: var(--text-muted);
+  font-size: 0.82rem; font-weight: 600; cursor: pointer;
+  border-bottom: 2px solid transparent;
+  position: relative;
+}
+.warn-alert-panel__tab:hover { color: var(--text-primary); }
+.warn-alert-panel__tab--active { color: var(--text-primary); border-bottom-color: var(--accent); }
+.warn-alert-panel__tab-count {
+  display: inline-block; min-width: 18px; padding: 0 5px;
+  background: var(--danger); color: #fff;
+  border-radius: 9px; font-size: 0.65rem; font-weight: 700;
+  margin-left: 4px; vertical-align: top;
+}
+.warn-alert-panel__tab-count:empty { display: none; }
+.warn-alert-panel__body { flex: 1; overflow-y: auto; padding: var(--space-md); }
+
+/* Individual warning/alert items */
+.warn-item {
+  padding: 12px; border-radius: var(--radius-md);
+  border: 1px solid var(--border-default); margin-bottom: 8px;
+  background: var(--bg-card); cursor: pointer;
+  transition: background 0.12s;
+}
+.warn-item:hover { background: var(--bg-hover); }
+.warn-item__header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 4px; }
+.warn-item__title { font-size: 0.85rem; font-weight: 600; color: var(--text-primary); }
+.warn-item__meta { font-size: 0.72rem; color: var(--text-muted); }
+.warn-item__actions { display: flex; gap: 6px; margin-top: 6px; }
+.warn-item__actions button { font-size: 0.7rem; padding: 2px 8px; }
+.warn-item__sev { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.4px; padding: 1px 6px; border-radius: 3px; white-space: nowrap; }
+.warn-item__sev--critical { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+.warn-item__sev--high { background: var(--warning-bg); color: var(--warning); border: 1px solid var(--warning-border); }
+.warn-item__sev--medium { background: var(--bg-surface); color: var(--text-secondary); border: 1px solid var(--border-default); }
+.warn-item__sev--low { background: var(--bg-surface); color: var(--text-muted); border: 1px solid var(--border-subtle); }
+.warn-item--critical { border-left: 3px solid #ef4444; }
+.warn-item--high { border-left: 3px solid #f97316; }
+.warn-item--medium { border-left: 3px solid #f59e0b; }
+.warn-item--low { border-left: 3px solid #9ca3af; }
+
+/* Sidebar overlay backdrop */
+.warn-alert-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.3);
+  z-index: 245; display: none;
+}
+.warn-alert-overlay.open { display: block; }
 </style>
 </head>
 <body>
@@ -1702,6 +1796,36 @@ span.fin-editable { display: inline-block; position: relative; }
   </div>
 </div>
 </div><!-- /appContainer -->
+
+<!-- ===== WARNINGS & ALERTS SIDEBAR ===== -->
+<!-- Minimised trigger button (hidden until there are warnings or unread alerts) -->
+<button id="warnAlertBtn" class="warn-alert-btn" onclick="toggleWarnAlertSidebar()" aria-label="Warnings and alerts" title="Warnings and alerts" style="display:none">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+    <line x1="12" y1="9" x2="12" y2="13"/>
+    <line x1="12" y1="17" x2="12.01" y2="17"/>
+  </svg>
+  <span id="warnAlertBadge" class="warn-alert-btn__badge"></span>
+</button>
+
+<!-- Sidebar panel -->
+<div id="warnAlertPanel" class="warn-alert-panel" role="dialog" aria-modal="false" aria-label="Warnings and alerts">
+  <div class="warn-alert-panel__header">
+    <h3>Warnings &amp; Alerts</h3>
+    <button class="btn btn--ghost btn--sm" onclick="toggleWarnAlertSidebar()" aria-label="Close">&times;</button>
+  </div>
+  <div class="warn-alert-panel__tabs" role="tablist">
+    <button role="tab" class="warn-alert-panel__tab warn-alert-panel__tab--active" data-tab="warnings" onclick="switchWarnAlertTab('warnings')">
+      Warnings <span id="warnTabCount" class="warn-alert-panel__tab-count"></span>
+    </button>
+    <button role="tab" class="warn-alert-panel__tab" data-tab="alerts" onclick="switchWarnAlertTab('alerts')">
+      Alerts <span id="alertTabCount" class="warn-alert-panel__tab-count"></span>
+    </button>
+  </div>
+  <div class="warn-alert-panel__body">
+    <div id="warnAlertList"></div>
+  </div>
+</div>
 
 <script>
 // ===================================================================
@@ -13968,6 +14092,8 @@ async function loadNotifications() {
     const result = await apiCall('/api/notifications');
     if (!result) return;
     const { notifications, unread } = result;
+    window._lastNotificationCount = unread || 0;
+    if (typeof updateWarnAlertButton === 'function') updateWarnAlertButton();
     const badge = document.getElementById('notifBadge');
     if (unread > 0) { badge.textContent = unread; badge.style.display = 'block'; }
     else { badge.style.display = 'none'; }
@@ -14527,6 +14653,234 @@ if (_origRenderAll) {
   const mc = document.getElementById('mainContent');
   if (mc) _a11yObserver.observe(mc, { childList: true, subtree: true });
 }
+
+// ==================== WARNINGS & ALERTS SIDEBAR ====================
+// Right-hand sidebar that surfaces task warnings (imminent, late, blocked)
+// and the existing notification feed in two tabs. Trigger button is hidden
+// unless there is at least one warning or unread alert.
+let _warnAlertTab = 'warnings';
+let _warnAlertSnoozedUntil = (() => {
+  try { return JSON.parse(localStorage.getItem('nbi_warn_snoozed') || '{}'); }
+  catch (e) { return {}; }
+})();
+
+/** Compute the list of warnings derived from the user's tasks. */
+function computeWarnings() {
+  if (!Array.isArray(tasks)) return [];
+  const now = new Date(); now.setHours(0, 0, 0, 0);
+  const myName = (_currentUser && (_currentUser.displayName || _currentUser.display_name)) || '';
+  const isAdmin = _currentUser && _currentUser.role === 'admin';
+  const warnings = [];
+
+  tasks.forEach(t => {
+    if (!t || t.status === 'Done' || t.status === 'Cancelled') return;
+    const isAssigned = Array.isArray(t.assignees) && myName && t.assignees.includes(myName);
+    if (!isAdmin && !isAssigned) return;
+
+    // Skip snoozed items
+    const snoozeUntil = _warnAlertSnoozedUntil[t.id];
+    if (snoozeUntil && new Date(snoozeUntil) > new Date()) return;
+
+    let warning = null;
+
+    // Late / imminent tasks (require a due date)
+    if (t.dueDate) {
+      const due = safeParseDate(t.dueDate);
+      if (due) {
+        due.setHours(0, 0, 0, 0);
+        const oneDay = 1000 * 60 * 60 * 24;
+        const daysLate = Math.floor((now - due) / oneDay);
+        const daysUntil = Math.floor((due - now) / oneDay);
+        if (daysLate > 7) {
+          warning = { severity: 'critical', type: 'late', label: daysLate + ' days late' };
+        } else if (daysLate > 2) {
+          warning = { severity: 'high', type: 'late', label: daysLate + ' days late' };
+        } else if (daysLate >= 1) {
+          warning = { severity: 'medium', type: 'late', label: daysLate + ' day' + (daysLate === 1 ? '' : 's') + ' late' };
+        } else if (daysLate === 0) {
+          warning = { severity: 'medium', type: 'imminent', label: 'Due today' };
+        } else if (daysUntil <= 3) {
+          warning = {
+            severity: daysUntil <= 1 ? 'high' : 'medium',
+            type: 'imminent',
+            label: 'Due in ' + daysUntil + ' day' + (daysUntil === 1 ? '' : 's')
+          };
+        }
+      }
+    }
+
+    // Blocked tasks always count as a warning, even if not late
+    if (!warning && t.status === 'Blocked') {
+      warning = { severity: 'high', type: 'blocked', label: 'Blocked' };
+    }
+
+    if (warning) {
+      warnings.push({
+        id: t.id,
+        title: t.title || 'Untitled',
+        client: getTaskClient(t),
+        dueDate: t.dueDate,
+        severity: warning.severity,
+        type: warning.type,
+        label: warning.label
+      });
+    }
+  });
+
+  // Sort: critical > high > medium > low, then earliest due date first
+  const order = { critical: 0, high: 1, medium: 2, low: 3 };
+  warnings.sort((a, b) => {
+    const sev = (order[a.severity] || 9) - (order[b.severity] || 9);
+    if (sev !== 0) return sev;
+    if (a.dueDate && b.dueDate) return new Date(a.dueDate) - new Date(b.dueDate);
+    if (a.dueDate) return -1;
+    if (b.dueDate) return 1;
+    return 0;
+  });
+
+  return warnings;
+}
+
+/** Update the floating trigger button badge and hide/show based on counts. */
+function updateWarnAlertButton() {
+  const btn = document.getElementById('warnAlertBtn');
+  const badge = document.getElementById('warnAlertBadge');
+  if (!btn || !badge) return;
+  const warnings = computeWarnings();
+  const alertCount = window._lastNotificationCount || 0;
+  const total = warnings.length + alertCount;
+  if (total === 0) {
+    btn.style.display = 'none';
+    return;
+  }
+  btn.style.display = 'flex';
+  badge.textContent = total > 99 ? '99+' : String(total);
+  // If panel is open, also refresh the body
+  const panel = document.getElementById('warnAlertPanel');
+  if (panel && panel.classList.contains('open')) renderWarnAlertContent();
+}
+
+/** Toggle the right-hand sidebar panel open or closed. */
+function toggleWarnAlertSidebar() {
+  const panel = document.getElementById('warnAlertPanel');
+  if (!panel) return;
+  const open = panel.classList.contains('open');
+  if (open) {
+    panel.classList.remove('open');
+  } else {
+    renderWarnAlertContent();
+    panel.classList.add('open');
+  }
+}
+
+/** Switch the active tab inside the warnings/alerts sidebar. */
+function switchWarnAlertTab(tab) {
+  _warnAlertTab = tab;
+  document.querySelectorAll('.warn-alert-panel__tab').forEach(el => {
+    el.classList.toggle('warn-alert-panel__tab--active', el.getAttribute('data-tab') === tab);
+  });
+  renderWarnAlertContent();
+}
+
+/** Render the body of the active sidebar tab. */
+async function renderWarnAlertContent() {
+  const list = document.getElementById('warnAlertList');
+  if (!list) return;
+
+  const warnTabCount = document.getElementById('warnTabCount');
+  const alertTabCount = document.getElementById('alertTabCount');
+
+  // Always update the warnings tab count, regardless of which tab is active
+  const warnings = computeWarnings();
+  if (warnTabCount) warnTabCount.textContent = warnings.length > 0 ? String(warnings.length) : '';
+
+  if (_warnAlertTab === 'warnings') {
+    if (warnings.length === 0) {
+      list.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:24px;font-size:0.82rem">No warnings. Nice work.</div>';
+      return;
+    }
+    list.innerHTML = warnings.map(w => `
+      <div class="warn-item warn-item--${w.severity}" role="button" tabindex="0" onclick="openDetailOverlay('${escAttrJs(w.id)}');toggleWarnAlertSidebar()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
+        <div class="warn-item__header">
+          <div class="warn-item__title">${esc(w.title)}</div>
+          <span class="warn-item__sev warn-item__sev--${w.severity}">${esc(w.severity.toUpperCase())}</span>
+        </div>
+        <div class="warn-item__meta">${w.client ? esc(w.client) + ' &middot; ' : ''}${esc(w.label)}</div>
+        <div class="warn-item__actions" onclick="event.stopPropagation()">
+          <button class="btn btn--ghost btn--sm" onclick="snoozeWarning('${escAttrJs(w.id)}', 24)">Snooze 1 day</button>
+          <button class="btn btn--ghost btn--sm" onclick="snoozeWarning('${escAttrJs(w.id)}', 168)">Snooze 1 week</button>
+        </div>
+      </div>
+    `).join('');
+  } else {
+    // Alerts tab — pull from the existing notifications API
+    list.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:24px;font-size:0.82rem">Loading...</div>';
+    try {
+      const result = await apiCall('/api/notifications');
+      const notifications = (result && result.notifications) || [];
+      const unread = notifications.filter(n => !n.is_read).length;
+      window._lastNotificationCount = unread;
+      if (alertTabCount) alertTabCount.textContent = unread > 0 ? String(unread) : '';
+      if (notifications.length === 0) {
+        list.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:24px;font-size:0.82rem">No alerts.</div>';
+        return;
+      }
+      list.innerHTML = notifications.map(n => {
+        const sevClass = n.type === 'error' ? 'critical' : (n.type === 'warning' ? 'high' : 'low');
+        const dateLabel = n.created_at ? new Date(n.created_at).toLocaleDateString('en-GB') : '';
+        const newBadge = n.is_read ? '' : ' <span style="color:var(--accent);font-size:0.65rem;font-weight:700">NEW</span>';
+        return `
+          <div class="warn-item warn-item--${sevClass}" role="button" tabindex="0" onclick="handleNotificationClick('${escAttrJs(n.link || '')}');toggleWarnAlertSidebar()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
+            <div class="warn-item__header">
+              <div class="warn-item__title">${esc(n.title || '')}${newBadge}</div>
+            </div>
+            <div class="warn-item__meta">${esc(n.message || '')}${dateLabel ? ' &middot; ' + esc(dateLabel) : ''}</div>
+          </div>
+        `;
+      }).join('');
+    } catch (e) {
+      list.innerHTML = '<div style="color:var(--danger);font-size:0.82rem;padding:12px">Failed to load alerts.</div>';
+    }
+  }
+}
+
+/** Snooze a warning for N hours (persisted to localStorage). */
+function snoozeWarning(taskId, hours) {
+  const until = new Date(Date.now() + hours * 60 * 60 * 1000).toISOString();
+  _warnAlertSnoozedUntil[taskId] = until;
+  try { localStorage.setItem('nbi_warn_snoozed', JSON.stringify(_warnAlertSnoozedUntil)); } catch (e) {}
+  if (typeof toast === 'function') {
+    toast('Snoozed for ' + (hours < 24 ? hours + 'h' : (hours / 24) + 'd'));
+  }
+  renderWarnAlertContent();
+  updateWarnAlertButton();
+}
+
+// Close the sidebar with Escape and refresh once tasks are loaded
+document.addEventListener('keydown', function(e) {
+  if (e.key !== 'Escape') return;
+  const panel = document.getElementById('warnAlertPanel');
+  if (panel && panel.classList.contains('open')) {
+    panel.classList.remove('open');
+  }
+});
+
+// Patch renderAll so the trigger button stays current after every render
+(function() {
+  if (typeof renderAll !== 'function') return;
+  const _origRA = renderAll;
+  window.renderAll = function() {
+    const r = _origRA.apply(this, arguments);
+    try { updateWarnAlertButton(); } catch (e) {}
+    return r;
+  };
+})();
+
+// Refresh the button once a minute so newly-imminent tasks surface promptly
+setInterval(function() { try { updateWarnAlertButton(); } catch (e) {} }, 60000);
+
+// Initial paint after the page settles (tasks may load asynchronously)
+setTimeout(function() { try { updateWarnAlertButton(); } catch (e) {} }, 1500);
 
 // ==================== FOCUS TRAP ON DETAIL PANEL ====================
 const _detailOverlay = document.getElementById('detailOverlay');
