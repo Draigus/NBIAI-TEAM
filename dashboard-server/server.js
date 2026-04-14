@@ -965,6 +965,8 @@ app.get('/api/backup', async (req, res) => {
     const auditLog = await pool.query('SELECT * FROM audit_log ORDER BY created_at DESC LIMIT 10000');
     const bugReports = await pool.query('SELECT id, user_id, type, title, description, page, status, priority, created_at, updated_at FROM bug_reports ORDER BY created_at DESC');
     const bugComments = await pool.query('SELECT * FROM bug_report_comments ORDER BY created_at');
+    // SoWs — work_package_text is already filtered (pricing/legal stripped) so safe to include in backups
+    const sows = await pool.query('SELECT * FROM sows ORDER BY created_at');
 
     // Add uploads manifest to backup
     const uploadsDir = path.join(__dirname, 'uploads');
@@ -995,6 +997,7 @@ app.get('/api/backup', async (req, res) => {
         audit_log: auditLog.rows,
         bug_reports: bugReports.rows,
         bug_report_comments: bugComments.rows,
+        sows: sows.rows,
       },
       uploadManifest,
     };
@@ -1110,6 +1113,18 @@ app.post('/api/restore', async (req, res) => {
           `INSERT INTO bug_report_comments (id, report_id, author, text, created_at)
            VALUES ($1,$2,$3,$4,$5) ON CONFLICT (id) DO NOTHING`,
           [c.id, c.report_id, c.author, c.text, c.created_at]
+        );
+      }
+    }
+
+    // SoWs (must come before tasks if tasks reference sow_id, but tasks restore is above; safe because sow_id allows NULL)
+    if (backup.tables.sows) {
+      for (const s of backup.tables.sows) {
+        await conn.query(
+          `INSERT INTO sows (id, client_id, title, start_date, end_date, status, work_package_text, extraction_stats, uploaded_by, created_at, updated_at)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+           ON CONFLICT (id) DO UPDATE SET title=$3, start_date=$4, end_date=$5, status=$6, work_package_text=$7, extraction_stats=$8, updated_at=$11`,
+          [s.id, s.client_id, s.title, s.start_date, s.end_date, s.status, s.work_package_text, s.extraction_stats ? (typeof s.extraction_stats === 'string' ? s.extraction_stats : JSON.stringify(s.extraction_stats)) : null, s.uploaded_by, s.created_at, s.updated_at]
         );
       }
     }
@@ -2093,6 +2108,227 @@ app.delete('/api/clients/:id', async (req, res) => {
   await pool.query('UPDATE tasks SET client_id = NULL, updated_at = NOW() WHERE client_id = $1', [req.params.id]);
   await pool.query('DELETE FROM clients WHERE id = $1', [req.params.id]);
   res.json({ ok: true });
+});
+
+// ==================== SOWs ====================
+//
+// Statements of Work sit between Client and Project (task) in the hierarchy.
+// CRITICAL SECURITY MODEL:
+//  - Original SoW PDF is NEVER written to disk. Multer holds the upload in
+//    memory only, the extractor filters out pricing & legal content, and the
+//    buffer is dropped immediately after extraction.
+//  - Only the filtered work_package_text is persisted in the DB.
+//  - All authenticated users may READ work-package text; only admins may
+//    create, upload, update, or delete SoWs.
+
+const { extractWorkPackage } = require('./lib/sow-extractor');
+
+/** Memory-only multer instance for SoW uploads — buffer never touches disk */
+const sowUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB cap
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === 'application/pdf') return cb(null, true);
+    cb(new Error('Only PDF files are accepted for SoW upload'));
+  }
+});
+
+/**
+ * GET /api/sows — List SoWs.
+ * Optional ?client_id=<uuid> filter. Returns metadata only — work_package_text
+ * is intentionally excluded from list responses to keep payloads small.
+ * Includes a project (task) count subquery.
+ */
+app.get('/api/sows', async (req, res) => {
+  if (!req.user) return res.status(401).json({ error: 'Auth required' });
+  const { client_id } = req.query;
+  let where = '';
+  let vals = [];
+  if (client_id) {
+    if (!isValidUuid(client_id)) return res.status(400).json({ error: 'Invalid client_id' });
+    where = 'WHERE s.client_id = $1';
+    vals = [client_id];
+  }
+  try {
+    const { rows } = await pool.query(`
+      SELECT s.id, s.client_id, s.title, s.start_date, s.end_date, s.status,
+             s.created_at, s.updated_at, s.uploaded_by, s.extraction_stats,
+             (SELECT COUNT(*)::int FROM tasks WHERE sow_id = s.id) AS task_count,
+             c.name AS client_name
+      FROM sows s LEFT JOIN clients c ON s.client_id = c.id
+      ${where}
+      ORDER BY c.name, s.created_at DESC
+    `, vals);
+    res.json(rows);
+  } catch (e) {
+    log('error', 'SoW', 'Failed to list SoWs', { error: e.message });
+    res.status(500).json({ error: 'An internal error occurred' });
+  }
+});
+
+/** GET /api/sows/:id — Single SoW including the full filtered work_package_text */
+app.get('/api/sows/:id', async (req, res) => {
+  if (!req.user) return res.status(401).json({ error: 'Auth required' });
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid SoW ID' });
+  try {
+    const { rows } = await pool.query(`
+      SELECT s.*, c.name AS client_name
+      FROM sows s LEFT JOIN clients c ON s.client_id = c.id
+      WHERE s.id = $1
+    `, [req.params.id]);
+    if (!rows[0]) return res.status(404).json({ error: 'Not found' });
+    res.json(rows[0]);
+  } catch (e) {
+    log('error', 'SoW', 'Failed to fetch SoW', { error: e.message });
+    res.status(500).json({ error: 'An internal error occurred' });
+  }
+});
+
+/**
+ * POST /api/sows — Create a SoW manually (no file upload).
+ * Used for placeholder SoWs the user wants to populate later via PATCH.
+ * Admin only.
+ */
+app.post('/api/sows', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const { client_id, title, start_date, end_date, status } = req.body || {};
+  if (!client_id || !isValidUuid(client_id)) return res.status(400).json({ error: 'Valid client_id required' });
+  if (!title || !title.trim()) return res.status(400).json({ error: 'title required' });
+  const lenErr = validateLength(title, 'title');
+  if (lenErr) return res.status(400).json({ error: lenErr });
+  try {
+    const { rows } = await pool.query(
+      `INSERT INTO sows (client_id, title, start_date, end_date, status, uploaded_by)
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+      [client_id, title.trim(), start_date || null, end_date || null, status || 'active', req.user.displayName || 'unknown']
+    );
+    await auditLog('sow', rows[0].id, 'create', req.user.displayName, { client_id, title: title.trim() });
+    res.status(201).json(rows[0]);
+  } catch (e) {
+    log('error', 'SoW', 'Failed to create SoW', { error: e.message });
+    res.status(500).json({ error: 'An internal error occurred' });
+  }
+});
+
+/**
+ * POST /api/sows/upload — Upload a SoW PDF, extract & filter, persist text only.
+ *
+ * The uploaded buffer lives ONLY in memory and is explicitly nulled after
+ * extraction. The original file is never written to disk. The extractor strips
+ * all pricing and legal content before any data is persisted.
+ *
+ * Multipart fields:
+ *   file       — PDF (required, max 10 MB)
+ *   client_id  — UUID of client (required)
+ *   title      — Title for the SoW (required)
+ *
+ * Admin only.
+ */
+app.post('/api/sows/upload', (req, res, next) => {
+  // Wrap multer to surface fileFilter / size errors as JSON
+  sowUpload.single('file')(req, res, (err) => {
+    if (err) return res.status(400).json({ error: err.message || 'Upload failed' });
+    next();
+  });
+}, async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+  if (req.file.mimetype !== 'application/pdf') {
+    return res.status(400).json({ error: 'Only PDF files are accepted' });
+  }
+  const { client_id, title } = req.body || {};
+  if (!client_id || !isValidUuid(client_id)) {
+    return res.status(400).json({ error: 'Valid client_id required' });
+  }
+  if (!title || !title.trim()) {
+    return res.status(400).json({ error: 'title required' });
+  }
+  const lenErr = validateLength(title, 'title');
+  if (lenErr) return res.status(400).json({ error: lenErr });
+
+  let extracted;
+  try {
+    extracted = await extractWorkPackage(req.file.buffer);
+  } catch (e) {
+    log('error', 'SoW', 'Extraction failed', { error: e.message });
+    return res.status(400).json({ error: 'Failed to parse PDF: ' + e.message });
+  } finally {
+    // Drop the buffer immediately — never keep the original file in memory
+    if (req.file) req.file.buffer = null;
+  }
+
+  if (!extracted || !extracted.text || !extracted.text.trim()) {
+    return res.status(400).json({ error: 'Could not extract any work package content' });
+  }
+
+  try {
+    const { rows } = await pool.query(
+      `INSERT INTO sows (client_id, title, work_package_text, extraction_stats, uploaded_by, status)
+       VALUES ($1, $2, $3, $4, $5, 'active')
+       RETURNING id, client_id, title, start_date, end_date, status, created_at, updated_at, uploaded_by, extraction_stats`,
+      [client_id, title.trim(), extracted.text, JSON.stringify(extracted.stats || {}), req.user.displayName || 'unknown']
+    );
+    const created = rows[0];
+    await auditLog('sow', created.id, 'upload', req.user.displayName, {
+      client_id,
+      title: title.trim(),
+      stats: extracted.stats || {}
+    });
+    // Return without work_package_text (client fetches via GET /api/sows/:id)
+    res.status(201).json({ ...created, extraction_stats: extracted.stats || {} });
+  } catch (e) {
+    log('error', 'SoW', 'Failed to insert SoW', { error: e.message });
+    res.status(500).json({ error: 'An internal error occurred' });
+  }
+});
+
+/**
+ * PATCH /api/sows/:id — Update SoW metadata.
+ * work_package_text is intentionally NOT updatable via PATCH — it is locked
+ * after upload to prevent tampering with the filtered content. Admin only.
+ */
+app.patch('/api/sows/:id', async (req, res) => {
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid SoW ID' });
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const { updates, vals, nextIdx } = buildPatchQuery(req.body, ['title', 'start_date', 'end_date', 'status']);
+  if (req.body.title !== undefined && !String(req.body.title).trim()) {
+    return res.status(400).json({ error: 'title cannot be empty' });
+  }
+  if (updates.length === 0) return res.status(400).json({ error: 'No valid fields to update' });
+  updates.push('updated_at = NOW()');
+  vals.push(req.params.id);
+  try {
+    const { rows } = await pool.query(
+      `UPDATE sows SET ${updates.join(', ')} WHERE id = $${nextIdx}
+       RETURNING id, client_id, title, start_date, end_date, status, created_at, updated_at, uploaded_by, extraction_stats`,
+      vals
+    );
+    if (!rows[0]) return res.status(404).json({ error: 'Not found' });
+    await auditLog('sow', req.params.id, 'update', req.user.displayName, { fields: Object.keys(req.body) });
+    res.json(rows[0]);
+  } catch (e) {
+    log('error', 'SoW', 'Failed to update SoW', { error: e.message });
+    res.status(500).json({ error: 'An internal error occurred' });
+  }
+});
+
+/**
+ * DELETE /api/sows/:id — Remove a SoW.
+ * Tasks linked via sow_id are unlinked automatically (ON DELETE SET NULL).
+ * Admin only.
+ */
+app.delete('/api/sows/:id', async (req, res) => {
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid SoW ID' });
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  try {
+    const { rowCount } = await pool.query('DELETE FROM sows WHERE id = $1', [req.params.id]);
+    if (rowCount === 0) return res.status(404).json({ error: 'Not found' });
+    await auditLog('sow', req.params.id, 'delete', req.user.displayName);
+    res.json({ ok: true });
+  } catch (e) {
+    log('error', 'SoW', 'Failed to delete SoW', { error: e.message });
+    res.status(500).json({ error: 'An internal error occurred' });
+  }
 });
 
 // ==================== CONTACTS ====================

@@ -10106,6 +10106,16 @@ async function renderManageClients(el) {
               <button class="btn btn--sm btn--primary" onclick="addClientContact('${c.id}')">Add</button>
             </div>
           </div>
+          <div class="manage-clients__sows" id="clientSows_${c.id}">
+            <h4 style="margin:12px 0 6px;font-size:0.82rem;color:var(--text-secondary)">Statements of Work</h4>
+            <div id="sowsList_${c.id}"><span style="color:var(--text-muted);font-size:0.78rem">Loading...</span></div>
+            ${(_currentUser && _currentUser.role === 'admin') ? `<div style="display:flex;gap:6px;margin-top:6px;align-items:center;flex-wrap:wrap">
+              <input type="file" id="sowFileInput_${c.id}" accept=".pdf,application/pdf" style="font-size:0.78rem">
+              <input type="text" id="newSowTitle_${c.id}" placeholder="SoW title" style="flex:1;min-width:120px">
+              <button class="btn btn--sm btn--primary" onclick="uploadSowFile('${c.id}')">Upload SoW</button>
+            </div>
+            <div style="font-size:0.7rem;color:var(--text-muted);margin-top:4px">PDF only. Pricing and legal sections are automatically stripped. Only the work package is stored.</div>` : ''}
+          </div>
           <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border-subtle);display:flex;gap:8px;flex-wrap:wrap;align-items:center">
             <button class="btn btn--sm" onclick="gatherClientPortfolio('${c.id}','${escName}')">Gather Portfolio Detail Information</button>
             ${c.research_updated_at ? `<span style="font-size:0.72rem;color:var(--text-muted)">Last researched: ${new Date(c.research_updated_at).toLocaleDateString('en-GB')}</span>` : ''}
@@ -10130,10 +10140,11 @@ function toggleClientExpand(row) {
   detail.style.display = isOpen ? 'none' : 'block';
   row.querySelector('.manage-clients__arrow').textContent = isOpen ? '\u25BC' : '\u25B2';
 
-  // Load contacts when expanding
+  // Load contacts and SoWs when expanding
   if (!isOpen) {
     const clientId = row.getAttribute('data-client-id');
     loadClientContacts(clientId);
+    loadClientSows(clientId);
   }
 }
 
@@ -10187,6 +10198,107 @@ async function deleteClientContact(clientId, contactId) {
   const resp = await authFetch('/api/contacts/' + contactId, { method: 'DELETE' });
   if (resp.ok) { toast('Contact deleted'); loadClientContacts(clientId); }
   else { toast('Delete failed', 'error'); }
+}
+
+/**
+ * Load and render the SoWs list for a client in the Manage Clients view.
+ * Lists are metadata only (no work_package_text) — clicking a SoW opens the
+ * full filtered text in a modal via viewSow().
+ */
+async function loadClientSows(clientId) {
+  const el = document.getElementById('sowsList_' + clientId);
+  if (!el) return;
+  try {
+    const sows = await apiCall('/api/sows?client_id=' + clientId);
+    if (!sows) { el.innerHTML = '<span style="color:var(--text-muted);font-size:0.78rem">Could not load</span>'; return; }
+    if (sows.length === 0) {
+      el.innerHTML = '<span style="color:var(--text-muted);font-size:0.78rem">No SoWs yet</span>';
+      return;
+    }
+    const isAdmin = _currentUser && _currentUser.role === 'admin';
+    el.innerHTML = sows.map(s => {
+      const range = [s.start_date, s.end_date].filter(Boolean).join(' \u2192 ');
+      const tc = s.task_count || 0;
+      return `<div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:0.82rem;border-bottom:1px solid var(--border-subtle)">
+        <a href="#" onclick="event.preventDefault();viewSow('${s.id}','${escAttrJs(s.title)}')" style="flex:1;color:var(--accent-text);text-decoration:none">${esc(s.title)}</a>
+        ${range ? `<span style="color:var(--text-muted);font-size:0.72rem">${esc(range)}</span>` : ''}
+        <span style="color:var(--text-muted);font-size:0.72rem">${tc} project${tc !== 1 ? 's' : ''}</span>
+        ${isAdmin ? `<button class="btn btn--ghost btn--sm" onclick="deleteSow('${s.id}','${escAttrJs(s.title)}','${clientId}')" style="padding:0 4px;color:var(--text-muted)" title="Delete SoW">&times;</button>` : ''}
+      </div>`;
+    }).join('');
+  } catch(e) { el.innerHTML = '<span style="color:var(--text-muted);font-size:0.78rem">Error</span>'; }
+}
+
+/**
+ * Upload a SoW PDF file. The server extracts and filters work-package text
+ * before storing — pricing and legal sections are stripped, the original
+ * file is never written to disk.
+ */
+async function uploadSowFile(clientId) {
+  const fileInput = document.getElementById('sowFileInput_' + clientId);
+  const titleInput = document.getElementById('newSowTitle_' + clientId);
+  if (!fileInput || !fileInput.files || !fileInput.files[0]) { toast('Select a PDF file first'); return; }
+  const file = fileInput.files[0];
+  if (file.type && file.type !== 'application/pdf') { toast('Only PDF files are accepted', 'error'); return; }
+  const title = (titleInput && titleInput.value.trim()) || file.name.replace(/\.pdf$/i, '');
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('client_id', clientId);
+  formData.append('title', title);
+  try {
+    toast('Extracting work package content...');
+    const token = localStorage.getItem('nbi_auth_token');
+    const resp = await fetch('/api/sows/upload', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token },
+      body: formData
+    });
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      toast(err.error || 'Upload failed', 'error');
+      return;
+    }
+    const result = await resp.json();
+    const stats = result.extraction_stats || {};
+    toast('SoW uploaded. ' + (stats.kept || 0) + ' work package sections kept, ' + (stats.filtered || 0) + ' pricing/legal sections stripped.');
+    fileInput.value = '';
+    if (titleInput) titleInput.value = '';
+    loadClientSows(clientId);
+  } catch(e) { toast('Upload error: ' + e.message, 'error'); }
+}
+
+/** Open a modal showing the filtered work-package text of a SoW */
+async function viewSow(sowId, title) {
+  try {
+    const sow = await apiCall('/api/sows/' + sowId);
+    if (!sow) { toast('Could not load SoW', 'error'); return; }
+    const range = [sow.start_date, sow.end_date].filter(Boolean).join(' \u2192 ');
+    const html = `<div class="modal-overlay open" id="sowViewModal" role="dialog" aria-modal="true" onclick="if(event.target===this)this.remove()">
+      <div class="modal" style="max-width:var(--modal-lg);max-height:90vh;display:flex;flex-direction:column">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <h2 style="margin:0">${esc(sow.title)}</h2>
+          <button class="btn btn--ghost" onclick="document.getElementById('sowViewModal').remove()" aria-label="Close">&times;</button>
+        </div>
+        <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:8px">${sow.client_name ? 'Client: ' + esc(sow.client_name) + (range ? ' \u00b7 ' : '') : ''}${range ? esc(range) : ''}</div>
+        <div style="padding:12px;background:var(--bg-surface);border-radius:var(--radius-md);border:1px solid var(--border-default);font-size:0.82rem;line-height:1.5;overflow-y:auto;flex:1;white-space:pre-wrap">${esc(sow.work_package_text || '(No work package content)')}</div>
+        <div style="font-size:0.7rem;color:var(--text-muted);margin-top:8px">Pricing and legal sections were automatically filtered from the source document.</div>
+      </div>
+    </div>`;
+    document.body.insertAdjacentHTML('beforeend', html);
+    if (typeof _activateDynamicModal === 'function') _activateDynamicModal('sowViewModal');
+  } catch(e) { toast('View error: ' + e.message, 'error'); }
+}
+
+/** Delete a SoW (admin only). Linked projects are unlinked via ON DELETE SET NULL. */
+async function deleteSow(sowId, title, clientId) {
+  if (!(await themedConfirm('Delete SoW "' + title + '"? Projects currently linked to this SoW will be unlinked.'))) return;
+  const resp = await authFetch('/api/sows/' + sowId, { method: 'DELETE' });
+  if (resp.ok) {
+    toast('SoW deleted');
+    if (clientId) loadClientSows(clientId);
+  } else {
+    toast('Delete failed', 'error');
+  }
 }
 
 /** Create a new client from the management view via prompt dialog */
