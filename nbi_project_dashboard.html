@@ -654,6 +654,17 @@ span.fin-editable { display: inline-block; position: relative; }
 /* ===== INLINE SPINNER (used in button loading state) ===== */
 .loading-spinner { border: 3px solid var(--border-default); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.6s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
+/* ===== SKELETON PLACEHOLDERS (used while async lists load) ===== */
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-surface) 25%, var(--bg-hover) 50%, var(--bg-surface) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s infinite;
+  border-radius: var(--radius-sm);
+}
+@keyframes skeleton-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+.skeleton-row { height: 48px; margin-bottom: 8px; }
+.skeleton-card { height: 120px; margin-bottom: 12px; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 /* ===== SYNC STATUS INDICATOR ===== */
 .sync-badge { position: fixed; bottom: var(--space-md); right: var(--space-md); font-size: 0.65rem; padding: 3px 8px; border-radius: 10px; color: #fff; z-index: 300; display: none; }
 .sync-badge--saving { display: block; background: var(--accent); }
@@ -2542,6 +2553,8 @@ async function load() {
       save();
     }
   }
+  // Mark initial load as complete so skeleton placeholders (Phase 12.1) stop showing
+  window._initialLoadComplete = true;
 }
 
 // Poll for other users' changes every 10 seconds (incremental)
@@ -3634,11 +3647,13 @@ function renderTacticalDashboard() {
   html += `</div>`; // close right panel
   html += `</div>`; // close tactical-grid
 
-  // BOTTOM ROW: Blocked + At Risk — grid of cards, 2-3 columns
+  // BOTTOM ROW: Blocked + At Risk — grid of cards, 2-3 columns.
+  // Phase 12.4: collapsible to reduce dashboard cognitive load. Default collapsed.
   if (blockedTasks.length > 0) {
+    const blockedExpanded = sessionStorage.getItem('nbi_blocked_expanded') === '1';
     html += `<div class="tactical-section" id="tactBlocked" style="margin-top:var(--space-md)">`;
-    html += `<div class="tactical-section__header"><span class="tactical-section__title" style="color:var(--purple)">&#128721; Blocked (${blockedTasks.length})</span></div>`;
-    html += `<div class="risk-grid">`;
+    html += `<div class="tactical-section__header" style="cursor:pointer;user-select:none" role="button" tabindex="0" aria-expanded="${blockedExpanded}" aria-controls="tactBlockedBody" onclick="const c=document.getElementById('tactBlockedBody');const open=c.style.display!=='none';c.style.display=open?'none':'block';this.setAttribute('aria-expanded',open?'false':'true');this.querySelector('.blocked-chevron').textContent=open?'\\u25B6':'\\u25BC';sessionStorage.setItem('nbi_blocked_expanded',open?'0':'1')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"><span class="blocked-chevron" style="font-size:0.7rem;color:var(--text-muted);margin-right:6px">${blockedExpanded ? '\u25BC' : '\u25B6'}</span><span class="tactical-section__title" style="color:var(--purple)">&#128721; Blocked (${blockedTasks.length})</span></div>`;
+    html += `<div id="tactBlockedBody" style="display:${blockedExpanded ? 'block' : 'none'}"><div class="risk-grid">`;
     blockedTasks.forEach(t => {
       const owner = (t.assignees || []).join(', ') || 'Unassigned';
       html += `<div class="risk-card" onclick="openDetailOverlay('${t.id}')">
@@ -3646,13 +3661,16 @@ function renderTacticalDashboard() {
         <div class="risk-card__bottom"><span class="risk-card__assignee">${esc(owner)}</span>${healthBadgeHtml(t.healthState)}</div>
       </div>`;
     });
-    html += `</div></div>`;
+    html += `</div></div></div>`;
   }
 
   if (redHealth.length > 0) {
+    // Phase 12.4: At Risk section collapsible to reduce dashboard cognitive load.
+    // Default collapsed; sessionStorage remembers the user's choice for the session.
+    const atRiskExpanded = sessionStorage.getItem('nbi_atrisk_expanded') === '1';
     html += `<div class="tactical-section" id="tactAtRisk" style="margin-top:var(--space-md)">`;
-    html += `<div class="tactical-section__header"><span class="tactical-section__title" style="color:var(--warning)">&#9888; At Risk (${redHealth.length})</span></div>`;
-    html += `<div class="risk-grid">`;
+    html += `<div class="tactical-section__header" style="cursor:pointer;user-select:none" role="button" tabindex="0" aria-expanded="${atRiskExpanded}" aria-controls="tactAtRiskBody" onclick="const c=document.getElementById('tactAtRiskBody');const open=c.style.display!=='none';c.style.display=open?'none':'block';this.setAttribute('aria-expanded',open?'false':'true');this.querySelector('.atrisk-chevron').textContent=open?'\\u25B6':'\\u25BC';sessionStorage.setItem('nbi_atrisk_expanded',open?'0':'1')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"><span class="atrisk-chevron" style="font-size:0.7rem;color:var(--text-muted);margin-right:6px">${atRiskExpanded ? '\u25BC' : '\u25B6'}</span><span class="tactical-section__title" style="color:var(--warning)">&#9888; At Risk (${redHealth.length})</span></div>`;
+    html += `<div id="tactAtRiskBody" style="display:${atRiskExpanded ? 'block' : 'none'}"><div class="risk-grid">`;
     redHealth.forEach(t => {
       const owner = (t.assignees || []).join(', ') || 'Unassigned';
       const lastNote = (t.notes || []).slice(-1)[0];
@@ -3663,22 +3681,26 @@ function renderTacticalDashboard() {
         <div class="risk-card__bottom"><span class="risk-card__assignee">${esc(owner)}</span>${reason ? `<span class="risk-card__reason">${esc(reason)}</span>` : ''}</div>
       </div>`;
     });
-    html += `</div></div>`;
+    html += `</div></div></div>`;
   }
 
-  // Standup view: work by NBI team member, grouped by client
-  // Renders a placeholder, then fetches the user list to show all team members (even those with no tasks)
+  // Standup view: work by NBI team member, grouped by client.
+  // Phase 12.2 / 12.4 — collapsed by default to reduce dashboard cognitive load.
+  // Persists per-session via sessionStorage so the user's preference survives
+  // re-renders within the session but resets fresh each new tab/session.
   const standupExpanded = sessionStorage.getItem('nbi_standup_expanded') === '1';
   html += `<div style="margin-top:var(--space-lg)">
-    <button style="cursor:pointer;display:flex;align-items:center;gap:8px;padding:8px 0;font:inherit;color:inherit;background:none;border:none;text-align:left;width:100%" onclick="const c=this.nextElementSibling;const open=c.style.display!=='none';c.style.display=open?'none':'block';this.querySelector('.standup-chevron').textContent=open?'\\u25B6':'\\u25BC';sessionStorage.setItem('nbi_standup_expanded',open?'0':'1')">
+    <button aria-expanded="${standupExpanded}" aria-controls="standupContainer" style="cursor:pointer;display:flex;align-items:center;gap:8px;padding:8px 0;font:inherit;color:inherit;background:none;border:none;text-align:left;width:100%" onclick="const c=this.nextElementSibling;const open=c.style.display!=='none';c.style.display=open?'none':'block';this.setAttribute('aria-expanded',open?'false':'true');this.querySelector('.standup-chevron').textContent=open?'\\u25B6':'\\u25BC';this.querySelector('.standup-hint').textContent=open?'(click to expand)':'(click to collapse)';sessionStorage.setItem('nbi_standup_expanded',open?'0':'1')">
       <span class="standup-chevron" style="font-size:0.7rem;color:var(--text-muted);width:14px">${standupExpanded ? '\u25BC' : '\u25B6'}</span>
-      <span style="font-size:0.9rem;font-weight:600">&#128101; Standup - Work by Person</span>
+      <span style="font-size:0.9rem;font-weight:600">&#128101; Team Standup - Work by Person</span>
+      <span class="standup-hint" style="font-size:0.72rem;color:var(--text-muted);font-weight:400">${standupExpanded ? '(click to collapse)' : '(click to expand)'}</span>
     </button>
     <div id="standupContainer" style="display:${standupExpanded ? 'block' : 'none'}"><div style="text-align:center;color:var(--text-muted);padding:20px">Loading team...</div></div>
   </div>`;
 
-  // Defer standup rendering until after DOM is set and users are fetched
-  setTimeout(() => renderStandupSection(filtered, now), 50);
+  // Defer standup rendering until after DOM is set and users are fetched.
+  // Skip the network call entirely while collapsed to save the team list fetch.
+  if (standupExpanded) setTimeout(() => renderStandupSection(filtered, now), 50);
 
   return html;
 }
@@ -4419,6 +4441,13 @@ function renderTaskView(el) {
 
 /** Render the hierarchical tree view -- tasks grouped by client, then by project, with collapsible nesting */
 function renderTreeView(filtered) {
+  // Skeleton placeholders while the initial /api/sync/load is still in flight (Phase 12.1).
+  // Once `tasks` is populated we never show this again — it's a one-time first-paint state.
+  if (tasks.length === 0 && !window._initialLoadComplete) {
+    return '<div style="padding:24px">' +
+      Array(5).fill('<div class="skeleton skeleton-row"></div>').join('') +
+      '<span class="visually-hidden">Loading projects</span></div>';
+  }
   const rootIds = new Set(filtered.filter(t => !t.parentId).map(t => t.id));
   filtered.forEach(t => { if (t.parentId) { const root = getRootAncestor(t); rootIds.add(root.id); } });
   const roots = tasks.filter(t => rootIds.has(t.id) && !t.parentId);
@@ -8334,8 +8363,12 @@ function finRemoveRow(section, idx) {
   const data = getFinanceData();
   if (data[section]) { data[section].splice(idx, 1); saveFinanceData(data); }
 }
-/** Reset all finance data to hardcoded seed defaults after confirmation */
+/** Reset all finance data to hardcoded seed defaults after confirmation. Admin only. */
 async function finResetData() {
+  if (!_currentUser || _currentUser.role !== 'admin') {
+    toast('Admin only', 'error');
+    return;
+  }
   if (!(await themedConfirm('Reset all financial data to defaults? This cannot be undone.'))) return;
   localStorage.removeItem('nbi_finance_data');
   renderContent();
@@ -8405,7 +8438,10 @@ function expenseStatusClass(status) {
 /** Render the expenses view: header, reports, unassigned expenses, and detail overlays */
 async function renderExpensesView(el) {
   if (!_expenseCategories) {
-    el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted)">Loading expenses...</div>';
+    // Skeleton placeholders while async data loads (Phase 12.1)
+    el.innerHTML = '<div style="padding:24px"><div class="skeleton skeleton-card"></div>' +
+      Array(5).fill('<div class="skeleton skeleton-row"></div>').join('') +
+      '<span class="visually-hidden">Loading expenses</span></div>';
     await loadExpenseCategories();
     await Promise.all([loadExpenses(), loadExpenseReports()]);
   }
@@ -9447,7 +9483,11 @@ function renderFinancesView(el) {
   let html = `<div class="report finance-view">`;
   html += `<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:var(--space-lg)">`;
   html += `<div><h1 style="margin:0">NBI Analytics Ltd</h1><div class="report__date">Financial Dashboard &mdash; FY 2026${hasFx ? ` <span style="margin-left:12px;font-size:0.72rem;padding:2px 8px;border-radius:3px;background:var(--accent-glow);color:var(--accent-text);border:1px solid var(--accent-border)">GBP/USD ${_fxRate.toFixed(4)} <span style="color:var(--text-muted)">(${_fxDate})</span></span>` : ''}</div></div>`;
-  html += `<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" onclick="exportFinancesCSV()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 1v9M4 7l3 3 3-3M2 12h10"/></svg> Export CSV</button><button class="btn" onclick="exportPnLCSV()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="1" width="10" height="12" rx="1"/><path d="M5 4h4M5 7h4M5 10h2"/></svg> P&amp;L Export</button><button class="btn" onclick="finResetData()" style="color:var(--text-muted)"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1v5h5"/><path d="M2.5 9A5.5 5.5 0 1 0 3 4L1 6"/></svg> Reset</button></div>`;
+  // Finance toolbar. Reset is destructive (wipes all financial data) so it is
+  // gated to admins only — closes e8b58255 ("big bad button" — non-admins were
+  // seeing the Danger Zone reset). Non-admin users see Export buttons but no Reset.
+  const isFinAdmin = _currentUser && _currentUser.role === 'admin';
+  html += `<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" onclick="exportFinancesCSV()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 1v9M4 7l3 3 3-3M2 12h10"/></svg> Export CSV</button><button class="btn" onclick="exportPnLCSV()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="1" width="10" height="12" rx="1"/><path d="M5 4h4M5 7h4M5 10h2"/></svg> P&amp;L Export</button>${isFinAdmin ? `<button class="btn btn--danger" onclick="finResetData()" title="Admin only — wipes all financial data" aria-label="Reset financial data (admin only)"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1v5h5"/><path d="M2.5 9A5.5 5.5 0 1 0 3 4L1 6"/></svg> Reset</button>` : ''}</div>`;
   html += `</div>`;
 
   // ===== SUB-VIEW TABS =====
@@ -9506,6 +9546,10 @@ function renderFinancesView(el) {
   if (otherIncome > 0) {
     html += `<tr><td style="padding-left:20px;color:var(--text-muted)">Other Income</td><td style="text-align:right;font-family:var(--font-mono);font-weight:500">&pound;${Math.round(otherIncome/12).toLocaleString()}</td><td style="text-align:right;font-family:var(--font-mono);color:var(--text-muted);font-size:0.78rem">&pound;${Math.round(otherIncome).toLocaleString()}</td>${usdTd(Math.round(otherIncome/12))}<td></td></tr>`;
   }
+  // The "+ Add Revenue" button creates a new revenue row for ANY client (existing or new):
+  // finAddRow('revenue') pushes a {client:'New Client', annual:0, type:'TBD', ...} row,
+  // which can then be edited inline (click the client name / type / annual cells) via finStartEdit.
+  // No client lookup is required, so adding revenue for a brand-new client works the same way.
   html += `<tr><td colspan="${3 + (hasFx?1:0) + 1}" style="padding:3px 20px"><button class="btn btn--sm" onclick="finAddRow('revenue')" style="font-size:0.7rem;padding:2px 7px">+ Add Revenue</button></td></tr>`;
   const totalFeeIncome = contractedRevenue + otherIncome;
   const totalFeeMonthly = Math.round(totalFeeIncome / 12);
@@ -10332,7 +10376,10 @@ function safeColour(c) { return /^#[0-9a-fA-F]{3,8}$/.test(c) ? c : '#666666'; }
 async function renderLeadsView(el) {
   // Load config + data in parallel on first render
   if (!_leadsConfig) {
-    el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted)">Loading leads...</div>';
+    // Skeleton placeholders while leads config + data loads (Phase 12.1)
+    el.innerHTML = '<div style="padding:24px"><div class="skeleton skeleton-card"></div>' +
+      Array(5).fill('<div class="skeleton skeleton-row"></div>').join('') +
+      '<span class="visually-hidden">Loading leads</span></div>';
     await loadLeadsConfig();
     await loadLeads();
   }
@@ -11713,9 +11760,9 @@ function renderLeadDetailContent(panel, lead) {
   }
   html += `</div>`;
 
-  // Notes
+  // Notes — Phase 12.3: auto-resize during typing as well as on initial render
   html += `<div class="lead-detail__section"><h3>Notes</h3>
-    <textarea rows="4" style="width:100%;resize:vertical" onchange="updateLead('${lead.id}','notes',this.value)">${esc(lead.notes||'')}</textarea>
+    <textarea rows="4" style="width:100%;resize:vertical" onchange="updateLead('${lead.id}','notes',this.value)" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(lead.notes||'')}</textarea>
   </div>`;
 
   // Activity log
@@ -12596,6 +12643,7 @@ async function openBugDetail(id) {
   const isReporter = _currentUser && _currentUser.id === r.user_id;
   const canChangeStatus = isAdmin || isReporter;
   const canEditDesc = isAdmin || isReporter;
+  const canEditTitle = isAdmin || isReporter;
 
   const statusOptions = ['open', 'in_progress', 'please_review', 'resolved', 'wontfix'];
   const statusLabels = { open: 'Open', in_progress: 'In Progress', please_review: 'Please Review', resolved: 'Resolved', wontfix: "Won't Fix" };
@@ -12609,7 +12657,14 @@ async function openBugDetail(id) {
           <span class="bug-status-badge bug-status-badge--${r.status}">${statusLabels[r.status] || r.status}</span>
           ${r.priority ? `<span class="bug-priority-badge bug-priority-badge--${r.priority}">${r.priority}</span>` : ''}
         </div>
-        <h3 style="font-size:1rem;font-weight:600;margin:0;word-break:break-word">${esc(r.title)}</h3>
+        ${canEditTitle
+          ? `<input id="bugTitleEdit" type="text" value="${esc(r.title)}" maxlength="500"
+              style="width:100%;font-size:1rem;font-weight:600;margin:0;padding:4px 6px;border:1px solid var(--border-default);background:var(--bg-input);color:var(--text-primary);border-radius:var(--radius-sm)"
+              onblur="saveBugTitle('${r.id}')"
+              onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}"
+              aria-label="Report title">`
+          : `<h3 style="font-size:1rem;font-weight:600;margin:0;word-break:break-word">${esc(r.title)}</h3>`
+        }
       </div>
       <button class="btn btn--ghost btn--sm" onclick="closeBugDetail()" aria-label="Close" style="flex-shrink:0">&times;</button>
     </div>
@@ -12818,6 +12873,36 @@ async function saveBugDescription(id) {
     await loadBugReports();
   } else {
     toast('Failed to save description', 'error');
+  }
+}
+
+/**
+ * Save the edited title from the bug detail panel input. Skips the API call
+ * when the title is unchanged or empty (reverts to original on empty).
+ * @param {string} id - The bug report UUID
+ */
+async function saveBugTitle(id) {
+  const input = document.getElementById('bugTitleEdit');
+  if (!input) return;
+  const newTitle = input.value.trim();
+  const reports = (_bugReportsData && _bugReportsData.reports) || [];
+  const r = reports.find(x => x.id === id);
+  if (!r) return;
+  if (!newTitle) { input.value = r.title || ''; return; }
+  if (newTitle === r.title) return;
+  const resp = await authFetch('/api/bug-reports/' + id, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title: newTitle })
+  });
+  if (resp.ok) {
+    toast('Title saved');
+    await loadBugReports();
+    if (currentView === 'bugs') renderContent();
+  } else {
+    const err = await resp.json().catch(() => ({}));
+    toast(err.error || 'Failed to save title', 'error');
+    input.value = r.title || '';
   }
 }
 
@@ -13371,7 +13456,11 @@ function renderSettings(el) {
       const container = document.getElementById('pagePermsContainer');
       if (!container) return;
       const nonAdminUsers = users.filter(u => u.role !== 'admin');
-      const pages = ['finances'];
+      // RBAC for sensitive top-bar tabs. Leads + Expenses default to admin-only
+      // (closes 25d920da — Magnus and other members were seeing these tabs in the
+      // main nav even though they aren't supposed to). Admins can grant access via
+      // 'All Users' or 'Specific Users' from this page.
+      const pages = ['finances', 'leads', 'expenses'];
       let html = '';
       pages.forEach(page => {
         const perm = _pagePermissions[page];

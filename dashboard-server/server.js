@@ -5235,14 +5235,14 @@ app.post('/api/bug-reports', async (req, res) => {
   res.status(201).json(rows[0]);
 });
 
-/** PATCH /api/bug-reports/:id — Update status, priority, and/or description.
- *  Permissions: admin can change anything; reporter can change status + description on own reports. */
+/** PATCH /api/bug-reports/:id — Update status, priority, title, and/or description.
+ *  Permissions: admin can change anything; reporter can change status, title, and description on own reports. */
 app.patch('/api/bug-reports/:id', async (req, res) => {
   if (!req.user) return res.status(401).json({ error: 'Authentication required' });
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid report ID' });
-  const { status, description, priority } = req.body;
-  if (!status && description === undefined && priority === undefined) {
-    return res.status(400).json({ error: 'status, description, or priority required' });
+  const { status, description, priority, title } = req.body;
+  if (!status && description === undefined && priority === undefined && title === undefined) {
+    return res.status(400).json({ error: 'status, title, description, or priority required' });
   }
 
   const isAdmin = req.user.role === 'admin';
@@ -5269,6 +5269,10 @@ app.patch('/api/bug-reports/:id', async (req, res) => {
   if (description !== undefined && !isAdmin && !isReporter) {
     return res.status(403).json({ error: 'Only the reporter or an admin can edit the description' });
   }
+  // Title: admin or reporter
+  if (title !== undefined && !isAdmin && !isReporter) {
+    return res.status(403).json({ error: 'Only the reporter or an admin can edit the title' });
+  }
 
   const sets = ['updated_at = NOW()'];
   const vals = [];
@@ -5288,6 +5292,13 @@ app.patch('/api/bug-reports/:id', async (req, res) => {
     sets.push(`priority = $${idx++}`);
     vals.push(priority);
   }
+  if (title !== undefined) {
+    if (!title || !String(title).trim()) return res.status(400).json({ error: 'Title cannot be empty' });
+    const titleErr = validateLength(title, 'title');
+    if (titleErr) return res.status(400).json({ error: titleErr });
+    sets.push(`title = $${idx++}`);
+    vals.push(escHtml(String(title).trim()));
+  }
   if (description !== undefined) {
     const descErr = validateLength(description, 'description');
     if (descErr) return res.status(400).json({ error: descErr });
@@ -5297,7 +5308,7 @@ app.patch('/api/bug-reports/:id', async (req, res) => {
 
   vals.push(req.params.id);
   const { rows } = await pool.query(`UPDATE bug_reports SET ${sets.join(', ')} WHERE id = $${idx} RETURNING *`, vals);
-  await auditLog('bug_report', req.params.id, 'update', req.user?.displayName || 'unknown', { status, priority, description: description !== undefined });
+  await auditLog('bug_report', req.params.id, 'update', req.user?.displayName || 'unknown', { status, priority, description: description !== undefined, title: title !== undefined });
 
   // Send notifications for status and priority changes
   const notifyUser = report.reporter_username;
