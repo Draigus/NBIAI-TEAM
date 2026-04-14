@@ -872,13 +872,19 @@ async function auditLog(entityType, entityId, action, changedBy, changes, conn) 
  * Joins to tasks table to enrich entries with task titles where applicable.
  */
 app.get('/api/audit-log', async (req, res) => {
+  // Admin only — the audit log contains change deltas, assignee names, and
+  // reporter metadata that are not safe for regular members to read.
+  if (!req.user || req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Admin only' });
+  }
   try {
     const limit = Math.min(parseInt(req.query.limit) || 50, 200);
     const cursor = req.query.cursor || null; // ISO timestamp for cursor-based pagination
     const offset = parseInt(req.query.offset) || 0;
     const entityType = req.query.entity_type || null;
     const action = req.query.action || null;
-    const search = req.query.search || null;
+    // Cap search length to avoid slow ILIKE queries
+    const search = req.query.search ? String(req.query.search).slice(0, 200) : null;
 
     let where = [];
     let vals = [];
@@ -2055,17 +2061,26 @@ app.get('/api/attachments/download/:filename', (req, res) => {
   res.download(filePath);
 });
 
-/** DELETE /api/attachments/:id — Remove an attachment record. For file attachments the file on disk is also removed; link attachments simply delete the row. */
+/** DELETE /api/attachments/:id — Remove an attachment record. For file attachments the file on disk is also removed; link attachments simply delete the row. Admin or the uploader only. */
 app.delete('/api/attachments/:id', async (req, res) => {
-  const { rows } = await pool.query('SELECT filename, link_url FROM attachments WHERE id = $1', [req.params.id]);
-  if (rows.length > 0) {
-    // Only attempt to delete a file if this is a file attachment (no link_url, has filename)
-    if (!rows[0].link_url && rows[0].filename) {
-      const filePath = path.resolve(uploadDir, rows[0].filename);
-      if (filePath.startsWith(path.resolve(uploadDir) + path.sep) && fs.existsSync(filePath)) fs.unlinkSync(filePath);
-    }
-    await pool.query('DELETE FROM attachments WHERE id = $1', [req.params.id]);
+  if (!req.user) return res.status(401).json({ error: 'Authentication required' });
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid attachment ID' });
+  const { rows } = await pool.query('SELECT filename, link_url, uploaded_by FROM attachments WHERE id = $1', [req.params.id]);
+  if (rows.length === 0) return res.status(404).json({ error: 'Attachment not found' });
+  const row = rows[0];
+  // Admin or the original uploader only
+  const isAdmin = req.user.role === 'admin';
+  const isUploader = row.uploaded_by && row.uploaded_by === req.user.displayName;
+  if (!isAdmin && !isUploader) {
+    return res.status(403).json({ error: 'Only the uploader or an admin can delete this attachment' });
   }
+  // Only attempt to delete a file if this is a file attachment (no link_url, has filename)
+  if (!row.link_url && row.filename) {
+    const filePath = path.resolve(uploadDir, row.filename);
+    if (filePath.startsWith(path.resolve(uploadDir) + path.sep) && fs.existsSync(filePath)) fs.unlinkSync(filePath);
+  }
+  await pool.query('DELETE FROM attachments WHERE id = $1', [req.params.id]);
+  await auditLog('attachment', req.params.id, 'delete', req.user?.displayName);
   res.json({ ok: true });
 });
 
@@ -2315,7 +2330,7 @@ app.patch('/api/calendar-events/:id', async (req, res) => {
       params.push(req.body[k] === '' ? null : req.body[k]);
     }
   }
-  if (updates.length === 0) return res.json(ev);
+  if (updates.length === 0) return res.status(400).json({ error: 'No valid fields to update' });
   updates.push(`updated_at = NOW()`);
   params.push(req.params.id);
   try {
@@ -2331,11 +2346,11 @@ app.patch('/api/calendar-events/:id', async (req, res) => {
   }
 });
 
-/** DELETE /api/calendar-events/:id — Delete an event. Owner or admin only. */
+/** DELETE /api/calendar-events/:id — Delete an event. Owner or admin only. Returns 404 on missing. */
 app.delete('/api/calendar-events/:id', async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid event ID' });
   const { rows: existing } = await pool.query('SELECT user_id FROM calendar_events WHERE id = $1', [req.params.id]);
-  if (existing.length === 0) return res.json({ ok: true });
+  if (existing.length === 0) return res.status(404).json({ error: 'Event not found' });
   if (req.user?.role !== 'admin' && existing[0].user_id !== req.user?.id) {
     return res.status(403).json({ error: 'Only the owner or an admin can delete this event' });
   }
@@ -3174,6 +3189,33 @@ app.post('/api/tasks', async (req, res) => {
   const lenErr = validateLength(title, 'title') || validateLength(description, 'description');
   if (lenErr) return res.status(400).json({ error: lenErr });
 
+  // Validate status against the canonical enum (matches frontend STATUSES constant).
+  const VALID_STATUSES = ['Not started', 'In progress', 'Planning', 'Drafted', 'In Review', 'Blocked', 'Done', 'Cancelled'];
+  if (status !== undefined && status !== null && status !== '' && !VALID_STATUSES.includes(status)) {
+    return res.status(400).json({ error: `Invalid status. Must be one of: ${VALID_STATUSES.join(', ')}` });
+  }
+
+  // Coerce and validate numeric hour fields up-front so bad input returns 400, not 500.
+  let parsedHoursEst = 0;
+  if (hours_estimated !== undefined && hours_estimated !== null && hours_estimated !== '') {
+    parsedHoursEst = Number(hours_estimated);
+    if (!Number.isFinite(parsedHoursEst) || parsedHoursEst < 0) {
+      return res.status(400).json({ error: 'hours_estimated must be a non-negative number' });
+    }
+  }
+  let parsedHoursSpent = 0;
+  if (hours_spent !== undefined && hours_spent !== null && hours_spent !== '') {
+    parsedHoursSpent = Number(hours_spent);
+    if (!Number.isFinite(parsedHoursSpent) || parsedHoursSpent < 0) {
+      return res.status(400).json({ error: 'hours_spent must be a non-negative number' });
+    }
+  }
+
+  // Reject start_date after end_date
+  if (start_date && end_date && start_date > end_date) {
+    return res.status(400).json({ error: 'start_date must be before or equal to end_date' });
+  }
+
   // Infer or validate item_type based on parent hierarchy
   let resolvedType;
   if (parent_id) {
@@ -3193,7 +3235,7 @@ app.post('/api/tasks', async (req, res) => {
     `INSERT INTO tasks (title, parent_id, client_id, item_type, status, priority, health_state, description, assignees, hours_estimated, hours_spent, due_date, start_date, end_date, dependencies, planner_task_id, source)
      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17) RETURNING *`,
     [escHtml(title), parent_id || null, client_id || null, resolvedType, status || 'Not started', priority || '', health_state || '', escHtml(description) || '',
-     assignees || [], hours_estimated || 0, hours_spent || 0, due_date || '', start_date || '', end_date || '', dependencies || [], planner_task_id || '', source || 'manual']
+     assignees || [], parsedHoursEst, parsedHoursSpent, due_date || '', start_date || '', end_date || '', dependencies || [], planner_task_id || '', source || 'manual']
   );
   await auditLog('task', rows[0].id, 'create', req.user?.displayName, { title, item_type: resolvedType });
   res.status(201).json(rows[0]);
@@ -3212,6 +3254,30 @@ app.patch('/api/tasks/:id', async (req, res) => {
   // Validate item_type if provided
   if (req.body.item_type && !ITEM_TYPES.includes(req.body.item_type)) {
     return res.status(400).json({ error: `Invalid item_type: ${req.body.item_type}. Must be one of: ${ITEM_TYPES.join(', ')}` });
+  }
+  // Validate status enum (matches frontend STATUSES constant)
+  const VALID_STATUSES = ['Not started', 'In progress', 'Planning', 'Drafted', 'In Review', 'Blocked', 'Done', 'Cancelled'];
+  if (req.body.status !== undefined && req.body.status !== null && req.body.status !== '' && !VALID_STATUSES.includes(req.body.status)) {
+    return res.status(400).json({ error: `Invalid status. Must be one of: ${VALID_STATUSES.join(', ')}` });
+  }
+  // Coerce and validate numeric hour fields up-front
+  if (req.body.hours_estimated !== undefined && req.body.hours_estimated !== null && req.body.hours_estimated !== '') {
+    const h = Number(req.body.hours_estimated);
+    if (!Number.isFinite(h) || h < 0) {
+      return res.status(400).json({ error: 'hours_estimated must be a non-negative number' });
+    }
+    req.body.hours_estimated = h;
+  }
+  if (req.body.hours_spent !== undefined && req.body.hours_spent !== null && req.body.hours_spent !== '') {
+    const h = Number(req.body.hours_spent);
+    if (!Number.isFinite(h) || h < 0) {
+      return res.status(400).json({ error: 'hours_spent must be a non-negative number' });
+    }
+    req.body.hours_spent = h;
+  }
+  // Reject start_date > end_date (use both incoming values, or fall back to existing below)
+  if (req.body.start_date && req.body.end_date && req.body.start_date > req.body.end_date) {
+    return res.status(400).json({ error: 'start_date must be before or equal to end_date' });
   }
   // Sanitise text fields before storage
   if (req.body.title !== undefined) req.body.title = escHtml(req.body.title);
@@ -5217,20 +5283,30 @@ app.get('/api/bug-reports', async (req, res) => {
 
 /** POST /api/bug-reports — Submit a new bug or feature report */
 app.post('/api/bug-reports', async (req, res) => {
-  const { type, title, description, page, screenshot } = req.body;
+  const { type, title, description, page, screenshot, priority } = req.body;
   if (!title || !title.trim()) return res.status(400).json({ error: 'Title is required' });
   const descErr = validateLength(description, 'description');
   if (descErr) return res.status(400).json({ error: descErr });
   const validTypes = ['bug', 'feature'];
   const rType = validTypes.includes(type) ? type : 'bug';
+  // Priority is optional at creation; admins can set it later. Non-admin submissions cannot set it.
+  const validPriorities = ['critical', 'high', 'medium', 'low'];
+  let safePriority = null;
+  if (priority !== undefined && priority !== null && priority !== '') {
+    if (!validPriorities.includes(priority)) {
+      return res.status(400).json({ error: `Invalid priority. Must be one of: ${validPriorities.join(', ')}` });
+    }
+    // Only admins can set priority at creation time. Members get their priority silently dropped.
+    if (req.user.role === 'admin') safePriority = priority;
+  }
   // Limit screenshot base64 payload to ~5MB (safety valve against oversized uploads)
   const MAX_SCREENSHOT_BYTES = 5 * 1024 * 1024;
   const safeScreenshot = (screenshot && screenshot.length <= MAX_SCREENSHOT_BYTES) ? screenshot : null;
 
   const { rows } = await pool.query(
-    `INSERT INTO bug_reports (user_id, type, title, description, page, screenshot)
-     VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-    [req.user.id, rType, escHtml(title.trim()), escHtml(description) || null, page || null, safeScreenshot]
+    `INSERT INTO bug_reports (user_id, type, title, description, page, screenshot, priority)
+     VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+    [req.user.id, rType, escHtml(title.trim()), escHtml(description) || null, page || null, safeScreenshot, safePriority]
   );
   res.status(201).json(rows[0]);
 });
@@ -5790,15 +5866,20 @@ app.get('/api/candidates/:id/cv', async (req, res) => {
   }
 });
 
-/** GET /api/clients/:id/hiring-count — Real count of active hiring positions for a client.
- *  "Active" = candidates in stages other than 'hired' or 'rejected'. */
+/** GET /api/clients/:id/hiring-count — Real count of active candidates for a client.
+ *  "Active" = candidates in stages other than 'hired' or 'rejected'.
+ *  Counts candidates whose client_id matches OR whose parent hiring_position belongs
+ *  to the client. This covers both direct candidate-to-client links and candidates
+ *  attached via a position. */
 app.get('/api/clients/:id/hiring-count', async (req, res) => {
   if (!req.user) return res.status(401).json({ error: 'Auth required' });
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid client ID' });
   try {
     const { rows } = await pool.query(
-      `SELECT COUNT(*)::int AS count FROM candidates
-       WHERE client_id = $1 AND stage NOT IN ('hired','rejected')`,
+      `SELECT COUNT(*)::int AS count FROM candidates c
+       LEFT JOIN hiring_positions p ON c.position_id = p.id
+       WHERE (c.client_id = $1 OR p.client_id = $1)
+         AND c.stage NOT IN ('hired','rejected')`,
       [req.params.id]
     );
     res.json({ count: rows[0]?.count || 0 });
