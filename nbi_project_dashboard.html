@@ -482,7 +482,9 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 /* ===== DETAIL PANEL (inline + legacy overlay) ===== */
 .detail-overlay { position: fixed; inset: 0; background: var(--bg-overlay); z-index: 200; display: none; }
 .detail-overlay.open { display: block; }
-.detail-panel { position: fixed; top: 0; right: 0; width: 520px; min-width: 320px; max-width: 80vw; height: 100dvh; background: var(--bg-raised); border-left: 1px solid var(--border-default); z-index: 201; transform: translateX(100%); transition: transform 0.2s; overflow-y: auto; display: flex; flex-direction: column; }
+/* Start detail panel below the header bar so the title is never hidden
+ * (Magnus report C.6 / C.12 "header obfuscation"). Task detail panel. */
+.detail-panel { position: fixed; top: var(--header-h); right: 0; width: 520px; min-width: 320px; max-width: 80vw; height: calc(100dvh - var(--header-h)); background: var(--bg-raised); border-left: 1px solid var(--border-default); z-index: 201; transform: translateX(100%); transition: transform 0.2s; overflow-y: auto; display: flex; flex-direction: column; }
 .detail-panel__resize { position: absolute; left: -3px; top: 0; bottom: 0; width: 12px; cursor: col-resize; z-index: 10; }
 .detail-panel__resize:hover, .detail-panel__resize.active { background: var(--accent); opacity: 0.4; }
 .detail-panel.open { transform: translateX(0); }
@@ -1433,7 +1435,8 @@ span.fin-editable { display: inline-block; position: relative; }
 
 /* Bug detail panel */
 .bug-detail-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; display: none; }
-.bug-detail-panel { position: fixed; top: 0; right: 0; width: 520px; min-width: 320px; max-width: 80vw; height: 100dvh; background: var(--bg-raised); border-left: 1px solid var(--border-default); z-index: 201; overflow-y: auto; display: none; flex-direction: column; }
+/* Start bug detail panel below the header (Magnus C.6/C.12). */
+.bug-detail-panel { position: fixed; top: var(--header-h); right: 0; width: 520px; min-width: 320px; max-width: 80vw; height: calc(100dvh - var(--header-h)); background: var(--bg-raised); border-left: 1px solid var(--border-default); z-index: 201; overflow-y: auto; display: none; flex-direction: column; }
 .bug-detail-panel.open { display: flex; }
 .bug-detail__header { padding: var(--space-md) var(--space-lg); border-bottom: 1px solid var(--border-default); display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-md); }
 .bug-detail__body { padding: var(--space-lg); flex: 1; overflow-y: auto; }
@@ -1523,7 +1526,8 @@ span.fin-editable { display: inline-block; position: relative; }
 
 /* Slide-in detail panel — reuses bug-detail layout but scoped */
 .candidate-detail-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; display: none; }
-.candidate-detail-panel { position: fixed; top: 0; right: 0; width: 520px; min-width: 320px; max-width: 80vw; height: 100dvh; background: var(--bg-raised); border-left: 1px solid var(--border-default); z-index: 201; overflow-y: auto; display: none; flex-direction: column; }
+/* Start candidate detail panel below the header (Magnus C.6/C.12). */
+.candidate-detail-panel { position: fixed; top: var(--header-h); right: 0; width: 520px; min-width: 320px; max-width: 80vw; height: calc(100dvh - var(--header-h)); background: var(--bg-raised); border-left: 1px solid var(--border-default); z-index: 201; overflow-y: auto; display: none; flex-direction: column; }
 .candidate-detail-panel.open { display: flex; }
 .candidate-detail__header { padding: var(--space-md) var(--space-lg); border-bottom: 1px solid var(--border-default); display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-md); }
 .candidate-detail__body { padding: var(--space-lg); flex: 1; overflow-y: auto; }
@@ -1649,9 +1653,13 @@ span.fin-editable { display: inline-block; position: relative; }
 }
 
 /* ===== WARNINGS & ALERTS SIDEBAR ===== */
-/* Minimised trigger button (top-right corner of viewport) */
+/* Minimised trigger button (top-right corner of viewport).
+ * z-index must be > .g-header (202) and > .main__tabs (201) so the bell
+ * is never obscured by the tabs bar below the header. Fix for Magnus
+ * report C.10 "Warning Button Obscured". Positioned below the tabs
+ * strip so it doesn't overlap tab buttons visually. */
 .warn-alert-btn {
-  position: fixed; top: 70px; right: 16px; z-index: 150;
+  position: fixed; top: calc(var(--header-h) + 56px); right: 16px; z-index: 210;
   width: 40px; height: 40px; border-radius: 50%;
   background: var(--danger); color: #fff;
   border: 2px solid var(--danger-border);
@@ -2726,7 +2734,14 @@ const _clientPrefixCache = {};
 function clientPrefix(clientName) {
   if (!clientName) return '';
   if (_clientPrefixCache[clientName]) return _clientPrefixCache[clientName];
-  // Known overrides
+  // Prefer the persisted abbreviation stored on the client record (Magnus B.3).
+  // The _apiClientsCache is keyed by client name and holds full records including abbreviation.
+  const cached = _apiClientsCache && _apiClientsCache[clientName];
+  if (cached && cached.abbreviation) {
+    _clientPrefixCache[clientName] = cached.abbreviation;
+    return cached.abbreviation;
+  }
+  // Legacy hardcoded fallback (kept so the page still works when the cache is cold).
   const known = { 'Couch Heroes': 'CH', 'Lighthouse Studios': 'LH', 'Goals Studio': 'GO', 'Sarge Universe': 'SU', 'Playsage': 'PL', 'NBI Operations': 'NBI' };
   if (known[clientName]) { _clientPrefixCache[clientName] = known[clientName]; return known[clientName]; }
   // Auto-generate: take first letter of each word, uppercase, max 3
@@ -2734,6 +2749,11 @@ function clientPrefix(clientName) {
   const prefix = words.length >= 2 ? words.map(w => w[0]).join('').toUpperCase().slice(0,3) : clientName.slice(0,2).toUpperCase();
   _clientPrefixCache[clientName] = prefix;
   return prefix;
+}
+/** Clear the client prefix cache — call after a client's abbreviation is edited. */
+function clearClientPrefixCache(clientName) {
+  if (clientName) delete _clientPrefixCache[clientName];
+  else Object.keys(_clientPrefixCache).forEach(k => delete _clientPrefixCache[k]);
 }
 /** Render a coloured badge chip with the client's short prefix code */
 function clientBadgeHtml(clientName) {
@@ -3880,7 +3900,7 @@ function renderStandupTaskRow(t, now) {
   html += `<input type="number" class="standup-inline standup-inline--number" step="0.5" min="0" value="${t.hoursEstimated||0}" onclick="event.stopPropagation()" onchange="event.stopPropagation();standupUpdateTask('${t.id}','hoursEstimated',parseFloat(this.value)||0,this)" title="Hours Est.">`;
   html += `<span class="standup-label">h</span>`;
   if (depNames.length > 0) {
-    html += `<span class="standup-deps" onclick="event.stopPropagation()" title="${esc(depNames.join(', '))}">Deps: ${depNames.map((n, i) => `<a onclick="event.stopPropagation();openDetailOverlay('${t.dependencies[i]}')">${esc(n.length > 20 ? n.substring(0, 18) + '..' : n)}</a>`).join(', ')}</span>`;
+    html += `<span class="standup-deps" onclick="event.stopPropagation()" title="${esc(depNames.join(', '))}">Prereqs: ${depNames.map((n, i) => `<a onclick="event.stopPropagation();openDetailOverlay('${t.dependencies[i]}')">${esc(n.length > 20 ? n.substring(0, 18) + '..' : n)}</a>`).join(', ')}</span>`;
   }
   html += `</div>`;
   html += `</div>`;
@@ -4115,7 +4135,7 @@ async function renderStandupSection(filtered, now) {
       html += `<input type="number" class="standup-inline standup-inline--number" step="0.5" min="0" value="${t.hoursEstimated||0}" onclick="event.stopPropagation()" onchange="event.stopPropagation();standupUpdateTask('${t.id}','hoursEstimated',parseFloat(this.value)||0,this)" title="Hours Est.">`;
       html += `<span class="standup-label">h</span>`;
       if (depNames.length > 0) {
-        html += `<span class="standup-deps" onclick="event.stopPropagation()" title="${esc(depNames.join(', '))}">Deps: ${depNames.map((n, i) => `<a onclick="event.stopPropagation();openDetailOverlay('${t.dependencies[i]}')">${esc(n.length > 20 ? n.substring(0, 18) + '..' : n)}</a>`).join(', ')}</span>`;
+        html += `<span class="standup-deps" onclick="event.stopPropagation()" title="${esc(depNames.join(', '))}">Prereqs: ${depNames.map((n, i) => `<a onclick="event.stopPropagation();openDetailOverlay('${t.dependencies[i]}')">${esc(n.length > 20 ? n.substring(0, 18) + '..' : n)}</a>`).join(', ')}</span>`;
       }
       html += `</div>`;
       html += `</div>`;
@@ -5194,7 +5214,7 @@ function renderGanttView(filtered) {
       <input type="checkbox" ${_ganttHideDone ? 'checked' : ''} onchange="_ganttHideDone=this.checked;renderContent()" style="accent-color:var(--accent)"> Hide Done
     </label>
     <div class="add-item-menu" style="position:relative;display:inline-flex">
-      <button class="btn btn--sm ${_ganttLinkMode || _ganttDepView ? 'btn--primary' : 'btn--outline'}" onclick="toggleGanttDepMenu(event)" style="font-size:0.72rem">&#128279; Dependencies &#9660;</button>
+      <button class="btn btn--sm ${_ganttLinkMode || _ganttDepView ? 'btn--primary' : 'btn--outline'}" onclick="toggleGanttDepMenu(event)" style="font-size:0.72rem">&#128279; Prerequisites &#9660;</button>
       <div id="ganttDepMenu" style="display:none;position:absolute;top:100%;right:0;margin-top:4px;background:var(--bg-raised);border:1px solid var(--border-default);border-radius:var(--radius-sm);box-shadow:var(--shadow-lg);z-index:400;min-width:180px;overflow:hidden">
         <div class="picker-row" onclick="closeGanttDepMenu();_ganttLinkMode=!_ganttLinkMode;_ganttLinkFrom=null;renderContent()">
           <span style="width:18px;text-align:center">${_ganttLinkMode ? '&#10003;' : ''}</span> ${_ganttLinkMode ? 'Stop Linking' : 'Link Mode'}
@@ -5204,7 +5224,7 @@ function renderGanttView(filtered) {
         </div>
         <div style="border-top:1px solid var(--border-default)"></div>
         <div class="picker-row" onclick="closeGanttDepMenu();_ganttDepView=!_ganttDepView;renderContent()">
-          <span style="width:18px;text-align:center">${_ganttDepView ? '&#10003;' : ''}</span> Dependency View
+          <span style="width:18px;text-align:center">${_ganttDepView ? '&#10003;' : ''}</span> Prerequisite View
         </div>
       </div>
     </div>
@@ -5277,7 +5297,7 @@ function renderGanttView(filtered) {
     depTasks.forEach(t => topoVisit(t.id));
 
     if (sorted.length === 0) {
-      html += `<div style="padding:24px;text-align:center;color:var(--text-muted);font-size:0.85rem">No dependency chains found. Use Link mode to create prerequisites between items.</div>`;
+      html += `<div style="padding:24px;text-align:center;color:var(--text-muted);font-size:0.85rem">No prerequisite chains found. Use Link mode to create prerequisites between items.</div>`;
     } else {
       // Header row
       html += `<div class="gantt__row gantt__row--group">`;
@@ -5595,7 +5615,7 @@ function startArrowRedrag(e, fromId, toId, ganttBody, ganttRect, scrollLeft, scr
       toast('This prerequisite already exists', 'warning'); return;
     }
     if (wouldCreateCycle(newToId, fromId)) {
-      toast('Cannot link — would create a circular dependency', 'warning'); return;
+      toast('Cannot link — would create a prerequisite loop', 'warning'); return;
     }
 
     // Remove old dependency
@@ -5783,7 +5803,7 @@ function ganttLinkDragStart(e, taskId) {
       _ganttLinkFrom = null; return;
     }
     if (wouldCreateCycle(toId, taskId)) {
-      toast('Cannot link — would create a circular dependency', 'warning');
+      toast('Cannot link — would create a prerequisite loop', 'warning');
       _ganttLinkFrom = null; return;
     }
 
@@ -6933,7 +6953,7 @@ function getIncompletePrereqs(task) {
     .map(d => ({ id: d.id, title: d.title, status: d.status }));
 }
 
-/** Check if adding depId as a prerequisite of taskId would create a circular dependency.
+/** Check if adding depId as a prerequisite of taskId would create a prerequisite loop.
  *  Walks the dependency chain from depId to see if it eventually leads back to taskId. */
 function wouldCreateCycle(taskId, depId) {
   const visited = new Set();
@@ -6964,7 +6984,7 @@ function addDependency(taskId) {
   if (task.dependencies.includes(sel.value)) return;
   // Prevent circular dependencies
   if (wouldCreateCycle(taskId, sel.value)) {
-    toast('Cannot add — would create a circular dependency', 'warning');
+    toast('Cannot add — would create a prerequisite loop', 'warning');
     return;
   }
   task.dependencies.push(sel.value);
@@ -11134,6 +11154,7 @@ async function renderManageClients(el) {
             <label>Studio Size</label><input type="number" min="0" value="${c.studio_size != null ? c.studio_size : ''}" onchange="updateClientField('${c.id}','studio_size',this.value?parseInt(this.value,10):null)" placeholder="Number of employees">
             <label>Contract Value</label><div style="display:flex;align-items:center;gap:0"><span style="background:var(--bg-elevated);border:1px solid var(--border-default);border-right:none;border-radius:var(--radius-md) 0 0 var(--radius-md);padding:6px 8px;color:var(--text-muted);font-size:0.82rem">&pound;</span><input type="number" min="0" step="0.01" value="${c.contract_value != null ? c.contract_value : ''}" onchange="updateClientField('${c.id}','contract_value',this.value?parseFloat(this.value):null)" placeholder="0.00" style="border-radius:0 var(--radius-md) var(--radius-md) 0;flex:1"></div>
             <label>Current Studio Project</label><input type="text" value="${esc(c.current_studio_project || '')}" onchange="updateClientField('${c.id}','current_studio_project',this.value)" placeholder="e.g. Project Alpha">
+            <label title="Short code shown in calendar chips and truncated lists (e.g. CH for Couch Heroes)">Abbreviation</label><input type="text" value="${esc(c.abbreviation || '')}" maxlength="6" onchange="updateClientField('${c.id}','abbreviation',this.value.trim().toUpperCase()||null)" placeholder="CH" style="text-transform:uppercase;max-width:80px">
             <label>Practice</label><select onchange="updateClientField('${c.id}','practice_area',this.value||null)"><option value="">-- Unclassified --</option>${PRACTICES.map(p => `<option value="${esc(p.value)}" ${c.practice_area === p.value ? 'selected' : ''}>${esc(p.label)}</option>`).join('')}</select>
           </div>
           <div class="manage-clients__contacts" id="clientContacts_${c.id}">
@@ -11637,7 +11658,18 @@ async function updateClientField(clientId, field, value) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ [field]: value })
   });
-  if (resp.ok) { toast('Updated'); }
+  if (resp.ok) {
+    toast('Updated');
+    // Update the in-memory client cache so changes are reflected without a reload.
+    try {
+      const updated = await resp.json();
+      if (updated && updated.name) {
+        _apiClientsCache[updated.name] = updated;
+        // Bust the prefix cache so the new abbreviation takes effect immediately
+        if (field === 'abbreviation' || field === 'name') clearClientPrefixCache(updated.name);
+      }
+    } catch (e) { /* non-fatal — next poll will refresh */ }
+  }
   else { toast('Update failed', 'error'); }
 }
 
@@ -13520,13 +13552,15 @@ async function openCandidateDetail(id) {
             ${clientList.map(cl => `<option value="${cl.id}" ${c.client_id===cl.id?'selected':''}>${esc(cl.name)}</option>`).join('')}
           </select>
         </div>
+        ${positions.length > 0 ? `
         <div class="candidate-detail__field">
-          <label>Hiring Position</label>
+          <label>Hiring Position (template)</label>
           <select id="cdPosition" onchange="updateCandidateField('${c.id}','position_id',this.value||null)">
             <option value="">— None —</option>
             ${positions.filter(p => !c.client_id || p.client_id === c.client_id).map(p => `<option value="${p.id}" ${c.position_id===p.id?'selected':''}>${esc(p.title)}</option>`).join('')}
           </select>
         </div>
+        ` : ''}
       </div>
 
       <div class="candidate-detail__section">

@@ -2444,14 +2444,19 @@ app.get('/api/clients/:id', async (req, res) => {
 /** POST /api/clients — Create a new client record */
 app.post('/api/clients', async (req, res) => {
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
-  const { name, description, founded, headquarters, employees, revenue, website, linkedin_company, nbi_relationship, sector, studio_size, contract_value, current_studio_project } = req.body;
+  const { name, description, founded, headquarters, employees, revenue, website, linkedin_company, nbi_relationship, sector, studio_size, contract_value, current_studio_project, abbreviation } = req.body;
   if (!name) return res.status(400).json({ error: 'Name required' });
   const lenErr = validateLength(name, 'name');
   if (lenErr) return res.status(400).json({ error: lenErr });
+  // Abbreviation must be 1-6 uppercase alphanumeric characters if provided
+  const abbr = abbreviation ? String(abbreviation).trim().toUpperCase() : null;
+  if (abbr && !/^[A-Z0-9]{1,6}$/.test(abbr)) {
+    return res.status(400).json({ error: 'Abbreviation must be 1-6 letters or digits' });
+  }
   const { rows } = await pool.query(
-    `INSERT INTO clients (name, description, founded, headquarters, employees, revenue, website, linkedin_company, nbi_relationship, sector, studio_size, contract_value, current_studio_project)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *`,
-    [name, description || '', founded || '', headquarters || '', employees || '', revenue || '', website || '', linkedin_company || '', nbi_relationship || '', sector || null, studio_size != null ? parseInt(studio_size, 10) || null : null, contract_value != null ? parseFloat(contract_value) || null : null, current_studio_project || null]
+    `INSERT INTO clients (name, description, founded, headquarters, employees, revenue, website, linkedin_company, nbi_relationship, sector, studio_size, contract_value, current_studio_project, abbreviation)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING *`,
+    [name, description || '', founded || '', headquarters || '', employees || '', revenue || '', website || '', linkedin_company || '', nbi_relationship || '', sector || null, studio_size != null ? parseInt(studio_size, 10) || null : null, contract_value != null ? parseFloat(contract_value) || null : null, current_studio_project || null, abbr]
   );
   res.status(201).json(rows[0]);
 });
@@ -2460,7 +2465,19 @@ app.post('/api/clients', async (req, res) => {
 app.patch('/api/clients/:id', async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid client ID' });
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
-  const { updates, vals, nextIdx } = buildPatchQuery(req.body, ['name', 'description', 'founded', 'headquarters', 'employees', 'revenue', 'website', 'linkedin_company', 'nbi_relationship', 'sector', 'studio_size', 'contract_value', 'current_studio_project', 'practice_area']);
+  // Normalise the abbreviation to uppercase and validate shape before building the patch
+  if (req.body.abbreviation !== undefined) {
+    if (req.body.abbreviation === '' || req.body.abbreviation === null) {
+      req.body.abbreviation = null;
+    } else {
+      const abbr = String(req.body.abbreviation).trim().toUpperCase();
+      if (!/^[A-Z0-9]{1,6}$/.test(abbr)) {
+        return res.status(400).json({ error: 'Abbreviation must be 1-6 letters or digits' });
+      }
+      req.body.abbreviation = abbr;
+    }
+  }
+  const { updates, vals, nextIdx } = buildPatchQuery(req.body, ['name', 'description', 'founded', 'headquarters', 'employees', 'revenue', 'website', 'linkedin_company', 'nbi_relationship', 'sector', 'studio_size', 'contract_value', 'current_studio_project', 'practice_area', 'abbreviation']);
   if (req.body.name !== undefined && !req.body.name.trim()) {
     return res.status(400).json({ error: 'Name cannot be empty' });
   }
@@ -3619,8 +3636,16 @@ app.post('/api/tasks/bulk', async (req, res) => {
  * Runs in a transaction with a client name -> ID cache to avoid repeated lookups.
  */
 app.post('/api/sync/changes', async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
-  const { changes, client_briefs: briefList } = req.body;
+  // Any authenticated user may sync their task changes. Previously this was
+  // admin-only, which silently blocked every member's local edit (Magnus
+  // report C.9 "Ticket Not Marked as Blocked" was a symptom of this —
+  // her Blocked status never reached the server so it reverted on reload).
+  // Client briefs remain admin-only because they carry client metadata.
+  if (!req.user) return res.status(401).json({ error: 'Auth required' });
+  const isAdmin = req.user.role === 'admin';
+  const { changes } = req.body;
+  // Silently drop client-brief updates from non-admins instead of rejecting the whole sync
+  const briefList = isAdmin ? req.body.client_briefs : null;
   if ((!Array.isArray(changes) || changes.length === 0) && !briefList) return res.json({ ok: true, applied: 0 });
 
   const conn = await pool.connect();
