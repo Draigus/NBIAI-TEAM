@@ -1497,7 +1497,8 @@ span.fin-editable { display: inline-block; position: relative; }
 
 /* Kanban view — visible stage lanes */
 .hiring-kanban { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; align-items: flex-start; }
-.hiring-lane { flex: 0 0 240px; background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-md); display: flex; flex-direction: column; min-height: 300px; max-height: calc(100dvh - 260px); }
+.hiring-lane { flex: 0 0 240px; background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-md); display: flex; flex-direction: column; min-height: 300px; max-height: calc(100dvh - 260px); transition: border-color 0.15s, background 0.15s; }
+.hiring-lane.drag-over { border-color: var(--accent); background: var(--accent-glow); }
 .hiring-lane__header { padding: 10px 12px; border-bottom: 1px solid var(--border-default); font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .hiring-lane__count { background: var(--bg-raised); color: var(--text-muted); font-size: 0.7rem; padding: 1px 7px; border-radius: 10px; font-weight: 600; }
 .hiring-lane__header--sourced { color: var(--text-secondary); }
@@ -1509,6 +1510,10 @@ span.fin-editable { display: inline-block; position: relative; }
 .hiring-lane__body { padding: 10px; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; flex: 1; }
 .hiring-lane__body .hiring-card { width: auto; }
 .hiring-lane__empty { text-align: center; color: var(--text-faint); font-size: 0.75rem; padding: 20px 10px; font-style: italic; }
+/* Drag states for hiring cards */
+.hiring-card[draggable="true"] { cursor: grab; }
+.hiring-card[draggable="true"]:active { cursor: grabbing; }
+.hiring-card.dragging { opacity: 0.4; }
 
 /* Hiring view-mode toggle */
 .hiring-view-toggle { display: inline-flex; border: 1px solid var(--border-default); border-radius: var(--radius-sm); overflow: hidden; }
@@ -2805,6 +2810,15 @@ function getContractedClients() {
   const s = new Set(ALWAYS_INCLUDE.filter(c => settings.knownClients.includes(c)));
   tasks.forEach(t => { const c = getTaskClient(t); if (c) s.add(c); });
   return [...s].sort(clientSortOrder);
+}
+/** Return the full client records for the contracted-client set, pulled from
+ *  _apiClientsCache. Used by the Hiring page so dropdowns only surface active
+ *  clients (not the full leads/prospects list). Returns [{id, name, ...}] sorted by name. */
+function getContractedClientRecords() {
+  const contractedNames = new Set(getContractedClients());
+  return Object.values(_apiClientsCache || {})
+    .filter(c => c && c.id && c.name && contractedNames.has(c.name))
+    .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
 }
 /** Aggregate hours spent and estimated for a task and all its descendants */
 function aggHours(taskId) {
@@ -13167,13 +13181,17 @@ async function loadHiringPositions() {
  * with thumbnail cards. Click a card to open the slide-in detail panel.
  * @param {HTMLElement} container - The DOM element to render into
  */
-/** Render a single candidate card (reused by Kanban and By Client modes) */
-function renderHiringCard(c) {
+/** Render a single candidate card (reused by Kanban and By Client modes).
+ *  In Kanban mode the card is draggable so users can move candidates between stage lanes. */
+function renderHiringCard(c, draggable) {
   const due = c.due_date ? new Date(c.due_date) : null;
   const isLate = due && due < new Date() && c.stage !== 'hired' && c.stage !== 'rejected';
   const dueText = due ? due.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '';
   const clientChip = c.client_name ? `<span style="color:var(--text-muted);font-size:0.7rem">${esc(c.client_name)}</span>` : '';
-  return `<div class="hiring-card" onclick="openCandidateDetail('${c.id}')" tabindex="0" role="button"
+  const dragAttrs = draggable
+    ? ` draggable="true" ondragstart="onHiringCardDragStart(event, '${c.id}')" ondragend="onHiringCardDragEnd(event)"`
+    : '';
+  return `<div class="hiring-card" data-candidate-id="${c.id}"${dragAttrs} onclick="if(!window._hiringDragActive)openCandidateDetail('${c.id}')" tabindex="0" role="button"
               aria-label="${esc(c.name)}${c.role ? ', ' + esc(c.role) : ''}${c.client_name ? ', ' + esc(c.client_name) : ''}, stage ${esc(HIRING_STAGE_LABELS[c.stage] || c.stage)}"
               onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openCandidateDetail('${c.id}')}">
     <div class="hiring-card__name">${esc(c.name)}</div>
@@ -13183,6 +13201,60 @@ function renderHiringCard(c) {
       <span class="hiring-stage-badge hiring-stage-badge--${c.stage}" aria-hidden="true">${HIRING_STAGE_LABELS[c.stage] || c.stage}</span>
     </div>
   </div>`;
+}
+
+// ---- Hiring Kanban drag-and-drop ----
+// These handlers move a candidate between stage lanes. The drop calls the existing
+// updateCandidateField('stage', newStage) path so the server is the source of truth
+// and audit logging / notifications still fire.
+
+/** Start dragging a candidate card — stash the id on the dataTransfer payload. */
+function onHiringCardDragStart(ev, candidateId) {
+  if (!ev.dataTransfer) return;
+  ev.dataTransfer.effectAllowed = 'move';
+  ev.dataTransfer.setData('text/plain', candidateId);
+  ev.currentTarget.classList.add('dragging');
+  // Stop the card's click handler from firing once the drop completes
+  window._hiringDragActive = true;
+}
+
+/** End of drag (whether dropped or cancelled) — clean up visual state. */
+function onHiringCardDragEnd(ev) {
+  ev.currentTarget.classList.remove('dragging');
+  document.querySelectorAll('.hiring-lane.drag-over').forEach(el => el.classList.remove('drag-over'));
+  // Defer clearing the flag so the click that would otherwise fire on drop is suppressed
+  setTimeout(() => { window._hiringDragActive = false; }, 50);
+}
+
+/** Allow a lane to accept the drop by preventing the default "not allowed" behaviour. */
+function onHiringLaneDragOver(ev) {
+  ev.preventDefault();
+  if (ev.dataTransfer) ev.dataTransfer.dropEffect = 'move';
+  const lane = ev.currentTarget.closest('.hiring-lane');
+  if (lane) lane.classList.add('drag-over');
+}
+
+/** Remove the drag-over highlight when the cursor leaves the lane. */
+function onHiringLaneDragLeave(ev) {
+  const lane = ev.currentTarget.closest('.hiring-lane');
+  if (!lane) return;
+  // Only clear if we actually left the lane (dragleave fires on child enter too)
+  const related = ev.relatedTarget;
+  if (!related || !lane.contains(related)) lane.classList.remove('drag-over');
+}
+
+/** Handle the drop — grab the candidate id from dataTransfer and PATCH the stage. */
+async function onHiringLaneDrop(ev, newStage) {
+  ev.preventDefault();
+  const lane = ev.currentTarget.closest('.hiring-lane');
+  if (lane) lane.classList.remove('drag-over');
+  const candidateId = ev.dataTransfer ? ev.dataTransfer.getData('text/plain') : '';
+  if (!candidateId) return;
+  const candidate = (_candidatesData || []).find(c => c.id === candidateId);
+  if (!candidate) { toast('Candidate not found', 'error'); return; }
+  if (candidate.stage === newStage) return; // dropped in the same lane
+  // Call the existing update path so the server validates and persists
+  await updateCandidateField(candidateId, 'stage', newStage);
 }
 
 function renderHiringView(container) {
@@ -13205,11 +13277,9 @@ function renderHiringView(container) {
   if (window._hiringFilterClient) filtered = filtered.filter(c => c.client_id === window._hiringFilterClient);
   if (window._hiringFilterStage) filtered = filtered.filter(c => c.stage === window._hiringFilterStage);
 
-  // Build client filter options from _apiClientsCache (populated at app load).
-  // This cache is keyed by name; values are full client records with ids.
-  const clientOptions = Object.values(_apiClientsCache || {})
-    .filter(c => c && c.id && c.name)
-    .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+  // Only list active/contracted clients (those with tasks, plus NBI Ops/NSI).
+  // Avoids polluting the Hiring dropdown with the full leads/prospects list.
+  const clientOptions = getContractedClientRecords();
 
   // View mode: kanban (by stage, default) or client (grouped by client)
   const viewMode = window._hiringViewMode || 'kanban';
@@ -13241,20 +13311,25 @@ function renderHiringView(container) {
   if (filtered.length === 0) {
     html += `<div style="padding:var(--space-xl);text-align:center;color:var(--text-muted)">No candidates yet. Click "Create Candidate Card" to add one.</div>`;
   } else if (viewMode === 'kanban') {
-    // Kanban: one lane per hiring stage, candidates fall into their current stage
+    // Kanban: one lane per hiring stage, candidates fall into their current stage.
+    // Drag-and-drop: cards are draggable, lane bodies accept the drop and call
+    // updateCandidateField('stage', newStage).
     html += `<div class="hiring-kanban" role="list" aria-label="Hiring pipeline">`;
     HIRING_STAGES.forEach(stage => {
       const stageCandidates = filtered.filter(c => c.stage === stage);
-      html += `<section class="hiring-lane" role="listitem" aria-label="${esc(HIRING_STAGE_LABELS[stage])} lane, ${stageCandidates.length} candidates">
+      html += `<section class="hiring-lane" data-stage="${stage}" role="listitem" aria-label="${esc(HIRING_STAGE_LABELS[stage])} lane, ${stageCandidates.length} candidates">
         <div class="hiring-lane__header hiring-lane__header--${stage}">
           <span>${esc(HIRING_STAGE_LABELS[stage] || stage)}</span>
           <span class="hiring-lane__count">${stageCandidates.length}</span>
         </div>
-        <div class="hiring-lane__body">`;
+        <div class="hiring-lane__body"
+             ondragover="onHiringLaneDragOver(event)"
+             ondragleave="onHiringLaneDragLeave(event)"
+             ondrop="onHiringLaneDrop(event, '${stage}')">`;
       if (stageCandidates.length === 0) {
-        html += `<div class="hiring-lane__empty">None</div>`;
+        html += `<div class="hiring-lane__empty">Drop candidate here</div>`;
       } else {
-        stageCandidates.forEach(c => { html += renderHiringCard(c); });
+        stageCandidates.forEach(c => { html += renderHiringCard(c, true); });
       }
       html += `</div></section>`;
     });
@@ -13288,18 +13363,16 @@ function renderHiringView(container) {
  * via a small inline modal so we can collect name + client + role in one go.
  */
 async function openCreateCandidateModal() {
-  // Pull from the global client cache populated at app startup.
-  // Falls back to a fresh fetch if the cache is empty (e.g. first page after a hard reload).
-  let clientList = Object.values(_apiClientsCache || {})
-    .filter(c => c && c.id && c.name)
-    .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+  // Only show contracted/active clients (not the full leads/prospects list).
+  // Falls back to a fresh /api/clients fetch if the cache is empty (e.g. hard reload).
+  let clientList = getContractedClientRecords();
   if (clientList.length === 0) {
     try {
       const data = await apiCall('/api/clients');
       if (Array.isArray(data)) {
         data.forEach(c => { if (c && c.name) _apiClientsCache[c.name] = c; });
-        clientList = [...data].sort((a, b) => (a.name || '').localeCompare(b.name || ''));
       }
+      clientList = getContractedClientRecords();
     } catch (e) { /* non-fatal — modal will still open with empty dropdown */ }
   }
 
@@ -13393,10 +13466,14 @@ async function openCandidateDetail(id) {
   if (!c) return;
 
   const isAdmin = _currentUser && _currentUser.role === 'admin';
-  // Use the global cache populated at app startup rather than a non-existent `clients` global
-  const clientList = Object.values(_apiClientsCache || {})
-    .filter(cl => cl && cl.id && cl.name)
-    .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+  // Only contracted/active clients in the dropdown (excludes leads/prospects).
+  // If the candidate is already assigned to a non-contracted client, include that
+  // client in the list so the existing selection still appears and is editable.
+  let clientList = getContractedClientRecords();
+  if (c.client_id && !clientList.some(cl => cl.id === c.client_id)) {
+    const existing = Object.values(_apiClientsCache || {}).find(cl => cl && cl.id === c.client_id);
+    if (existing) clientList = [...clientList, existing].sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+  }
   const positions = _hiringPositionsData || [];
 
   panel.innerHTML = `
