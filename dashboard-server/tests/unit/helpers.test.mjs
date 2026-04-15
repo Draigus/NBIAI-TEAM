@@ -10,7 +10,13 @@ const require = createRequire(import.meta.url);
 
 const { pool, truncate } = require('../helpers/db.js');
 const { mintSession } = require('../helpers/auth.js');
-const { createTestUser, createTestBugReport } = require('../helpers/fixtures.js');
+const {
+  createTestUser,
+  createTestBugReport,
+  createTestCandidate,
+  createTestLead,
+  createTestLeadStage,
+} = require('../helpers/fixtures.js');
 
 beforeEach(async () => { await truncate(); });
 // No afterAll(end()) — the pool is shared across test files and is
@@ -52,5 +58,39 @@ describe('helpers', () => {
     // After beforeEach truncate, the users table should be empty
     const { rows } = await pool.query('SELECT count(*)::int AS n FROM users');
     expect(rows[0].n).toBe(0);
+  });
+
+  it('createTestLeadStage inserts a lead pipeline stage and returns it', async () => {
+    const stage = await createTestLeadStage({ name: 'Qualified-' + Date.now() });
+    expect(stage.id).toBeTruthy();
+    expect(stage.name).toMatch(/^Qualified-/);
+    const { rows } = await pool.query('SELECT name FROM lead_pipeline_stages WHERE id = $1', [stage.id]);
+    expect(rows[0].name).toBe(stage.name);
+    // Cleanup so the next test doesn't leak a stage row (lead_pipeline_stages is NOT truncated)
+    await pool.query('DELETE FROM lead_pipeline_stages WHERE id = $1', [stage.id]);
+  });
+
+  it('createTestCandidate inserts a candidate row with sane defaults', async () => {
+    const c = await createTestCandidate({ name: 'Alice', stage: 'screening' });
+    expect(c.id).toBeTruthy();
+    expect(c.name).toBe('Alice');
+    expect(c.stage).toBe('screening');
+    const { rows } = await pool.query('SELECT name, stage FROM candidates WHERE id = $1', [c.id]);
+    expect(rows[0]).toEqual({ name: 'Alice', stage: 'screening' });
+  });
+
+  it('createTestLead inserts a lead row, requires a stage_id', async () => {
+    const stage = await createTestLeadStage({ name: 'New-' + Date.now() });
+    try {
+      const lead = await createTestLead({ title: 'Big Deal', stage_id: stage.id });
+      expect(lead.id).toBeTruthy();
+      expect(lead.title).toBe('Big Deal');
+      expect(lead.stage_id).toBe(stage.id);
+      const { rows } = await pool.query('SELECT title FROM leads WHERE id = $1', [lead.id]);
+      expect(rows[0].title).toBe('Big Deal');
+    } finally {
+      await pool.query('DELETE FROM leads WHERE stage_id = $1', [stage.id]);
+      await pool.query('DELETE FROM lead_pipeline_stages WHERE id = $1', [stage.id]);
+    }
   });
 });
