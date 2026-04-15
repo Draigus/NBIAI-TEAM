@@ -6851,38 +6851,48 @@ app.use((err, req, res, next) => {
  * Forces exit after 10 seconds if the shutdown hangs.
  * @param {string} signal - The signal that triggered shutdown (e.g. 'SIGTERM', 'SIGINT')
  */
-function gracefulShutdown(signal) {
-  log('info', 'Server', `${signal} received, shutting down gracefully`);
-  server.close(() => {
-    pool.end().then(() => {
-      log('info', 'Server', 'DB pool closed. Goodbye.');
-      process.exit(0);
+// Side-effects below are gated so that test runners (supertest / Playwright)
+// can `require('./server')` to get the Express app without binding a port,
+// running migrations, or installing signal handlers. The `app` export at the
+// bottom of this file is the only public API for tests.
+if (require.main === module) {
+  function gracefulShutdown(signal) {
+    log('info', 'Server', `${signal} received, shutting down gracefully`);
+    server.close(() => {
+      pool.end().then(() => {
+        log('info', 'Server', 'DB pool closed. Goodbye.');
+        process.exit(0);
+      });
+    });
+    // Force exit after 10 seconds if graceful shutdown hangs
+    setTimeout(() => { log('error', 'Server', 'Forced exit after timeout'); process.exit(1); }, 10000).unref();
+  }
+  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+  process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
+  // Run versioned migrations (replaces inline auto-migration block)
+  runMigrations(pool, log).catch(err => log('error', 'Migration', 'Migration runner failed', { error: err.message }));
+
+  // Bind to 0.0.0.0 so the dashboard is accessible from other devices on the local network
+  var server = app.listen(PORT, '0.0.0.0', () => {
+    // Enumerate local IPv4 addresses for the "share this URL" message
+    const nets = os.networkInterfaces();
+    const ips = [];
+    for (const iface of Object.values(nets)) {
+      for (const net of iface) {
+        if (net.family === 'IPv4' && !net.internal) ips.push(net.address);
+      }
+    }
+    const maskedUrl = DB_URL.replace(/:([^@]+)@/, ':****@');
+    log('info', 'Server', `NBI Dashboard Server running on port ${PORT}`, {
+      local: `http://localhost:${PORT}/nbi_project_dashboard.html`,
+      network: ips.length > 0 ? `http://${ips[0]}:${PORT}/nbi_project_dashboard.html` : null,
+      api: `http://localhost:${PORT}/api/health`,
+      db: maskedUrl
     });
   });
-  // Force exit after 10 seconds if graceful shutdown hangs
-  setTimeout(() => { log('error', 'Server', 'Forced exit after timeout'); process.exit(1); }, 10000).unref();
 }
-process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
-// Run versioned migrations (replaces inline auto-migration block)
-runMigrations(pool, log).catch(err => log('error', 'Migration', 'Migration runner failed', { error: err.message }));
-
-// Bind to 0.0.0.0 so the dashboard is accessible from other devices on the local network
-const server = app.listen(PORT, '0.0.0.0', () => {
-  // Enumerate local IPv4 addresses for the "share this URL" message
-  const nets = os.networkInterfaces();
-  const ips = [];
-  for (const iface of Object.values(nets)) {
-    for (const net of iface) {
-      if (net.family === 'IPv4' && !net.internal) ips.push(net.address);
-    }
-  }
-  const maskedUrl = DB_URL.replace(/:([^@]+)@/, ':****@');
-  log('info', 'Server', `NBI Dashboard Server running on port ${PORT}`, {
-    local: `http://localhost:${PORT}/nbi_project_dashboard.html`,
-    network: ips.length > 0 ? `http://${ips[0]}:${PORT}/nbi_project_dashboard.html` : null,
-    api: `http://localhost:${PORT}/api/health`,
-    db: maskedUrl
-  });
-});
+// Export the Express app so supertest/Playwright can import it without
+// triggering the listener block above. Tests do: const app = require('../../server');
+module.exports = app;
