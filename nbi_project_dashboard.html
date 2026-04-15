@@ -1465,6 +1465,10 @@ span.fin-editable { display: inline-block; position: relative; }
 .bug-card__top { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
 .bug-card__title { font-size: 0.82rem; font-weight: 600; color: var(--text-primary); line-height: 1.3; }
 .bug-card__meta { display: flex; justify-content: space-between; align-items: center; gap: 6px; font-size: 0.7rem; color: var(--text-muted); }
+/* Drag-to-reorder visual feedback (D79) */
+.bug-card.dragging { opacity: 0.4; }
+.bug-lane__body.drag-over { background: rgba(46, 163, 255, 0.06); }
+.bug-drop-indicator { height: 2px; background: var(--accent, #2ea3ff); border-radius: 1px; margin: 4px 0; pointer-events: none; }
 .bug-tracker__view-toggle { display: inline-flex; border: 1px solid var(--border-default); border-radius: var(--radius-sm); overflow: hidden; }
 .bug-tracker__view-toggle button { background: var(--bg-raised); color: var(--text-secondary); border: none; padding: 5px 12px; font-size: 0.78rem; cursor: pointer; font-family: inherit; }
 .bug-tracker__view-toggle button.active { background: var(--accent); color: #fff; }
@@ -12824,13 +12828,18 @@ function renderBugTrackerKanban(filtered) {
   }
   let html = `<div class="bug-tracker__kanban" role="list" aria-label="Bug tracker board">`;
   STATUSES.forEach(s => {
-    const items = filtered.filter(r => r.status === s.key);
+    // Sort by position so drag-to-reorder is reflected on render
+    const items = filtered.filter(r => r.status === s.key)
+      .sort((a, b) => (a.position || 0) - (b.position || 0));
     html += `<section class="bug-lane" role="listitem" aria-label="${esc(s.label)} lane, ${items.length} items">
       <div class="bug-lane__header bug-lane__header--${s.key}">
         <span>${esc(s.label)}</span>
         <span class="bug-lane__count">${items.length}</span>
       </div>
-      <div class="bug-lane__body">`;
+      <div class="bug-lane__body"
+           ondragover="onBugLaneDragOver(event)"
+           ondragleave="onBugLaneDragLeave(event)"
+           ondrop="onBugLaneDrop(event,'${s.key}')">`;
     if (items.length === 0) {
       html += `<div class="bug-lane__empty">None</div>`;
     } else {
@@ -12838,7 +12847,12 @@ function renderBugTrackerKanban(filtered) {
         const priorityLabel = r.priority ? r.priority + ' priority' : 'no priority';
         const commentLabel = r.comment_count > 0 ? `, ${r.comment_count} comment${r.comment_count === 1 ? '' : 's'}` : '';
         const cardAria = `${r.type}: ${r.title}. ${priorityLabel}. Reported by ${r.reporter_name || 'Unknown'}${commentLabel}.`;
-        html += `<button type="button" class="bug-card" onclick="openBugDetail('${r.id}')"
+        html += `<div class="bug-card" role="button" tabindex="0" data-bug-id="${r.id}" data-position="${r.position || 0}"
+                       draggable="true"
+                       ondragstart="onBugCardDragStart(event,'${r.id}','${s.key}')"
+                       ondragend="onBugCardDragEnd(event)"
+                       onclick="if(!window._bugDragActive)openBugDetail('${r.id}')"
+                       onkeydown="if((event.key==='Enter'||event.key===' ')&&!window._bugDragActive){event.preventDefault();openBugDetail('${r.id}')}"
                        aria-label="${esc(cardAria)}">
           <div class="bug-card__top">
             <span class="bug-type-badge bug-type-badge--${r.type}" aria-hidden="true">${r.type}</span>
@@ -12849,13 +12863,111 @@ function renderBugTrackerKanban(filtered) {
             <span aria-hidden="true">${esc(r.reporter_name || 'Unknown')}</span>
             <span aria-hidden="true">${new Date(r.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}${r.comment_count > 0 ? ' \u00b7 \uD83D\uDCAC' + r.comment_count : ''}</span>
           </div>
-        </button>`;
+        </div>`;
       });
     }
     html += `</div></section>`;
   });
   html += `</div>`;
   return html;
+}
+
+// =========================================================================
+// Bug Tracker Kanban drag-to-reorder (decision D79)
+// =========================================================================
+
+let _bugDragId = null;
+let _bugDragSourceStatus = null;
+window._bugDragActive = false;
+
+function onBugCardDragStart(ev, bugId, sourceStatus) {
+  _bugDragId = bugId;
+  _bugDragSourceStatus = sourceStatus;
+  window._bugDragActive = true;
+  if (ev.dataTransfer) {
+    ev.dataTransfer.effectAllowed = 'move';
+    ev.dataTransfer.setData('text/plain', bugId);
+  }
+  if (ev.currentTarget && ev.currentTarget.classList) {
+    ev.currentTarget.classList.add('dragging');
+  }
+}
+
+function onBugCardDragEnd(ev) {
+  if (ev.currentTarget && ev.currentTarget.classList) {
+    ev.currentTarget.classList.remove('dragging');
+  }
+  setTimeout(() => { window._bugDragActive = false; }, 0);
+}
+
+function onBugLaneDragOver(ev) {
+  if (!_bugDragId) return;
+  ev.preventDefault();
+  if (ev.dataTransfer) ev.dataTransfer.dropEffect = 'move';
+  const lane = ev.currentTarget;
+  lane.classList.add('drag-over');
+  const cards = [...lane.querySelectorAll('.bug-card:not(.dragging)')];
+  lane.querySelectorAll('.bug-drop-indicator').forEach(d => d.remove());
+  const afterCard = cards.reduce((closest, card) => {
+    const box = card.getBoundingClientRect();
+    const offset = ev.clientY - box.top - box.height / 2;
+    if (offset < 0 && offset > closest.offset) return { offset, el: card };
+    return closest;
+  }, { offset: Number.NEGATIVE_INFINITY, el: null }).el;
+  const indicator = document.createElement('div');
+  indicator.className = 'bug-drop-indicator';
+  if (afterCard) lane.insertBefore(indicator, afterCard);
+  else lane.appendChild(indicator);
+}
+
+function onBugLaneDragLeave(ev) {
+  const lane = ev.currentTarget;
+  if (lane.contains(ev.relatedTarget)) return;
+  lane.classList.remove('drag-over');
+  lane.querySelectorAll('.bug-drop-indicator').forEach(d => d.remove());
+}
+
+async function onBugLaneDrop(ev, targetStatus) {
+  ev.preventDefault();
+  const lane = ev.currentTarget;
+  lane.classList.remove('drag-over');
+  lane.querySelectorAll('.bug-drop-indicator').forEach(d => d.remove());
+  if (!_bugDragId) return;
+
+  const cards = [...lane.querySelectorAll('.bug-card:not(.dragging)')];
+  const afterCard = cards.reduce((closest, card) => {
+    const box = card.getBoundingClientRect();
+    const offset = ev.clientY - box.top - box.height / 2;
+    if (offset < 0 && offset > closest.offset) return { offset, el: card };
+    return closest;
+  }, { offset: Number.NEGATIVE_INFINITY, el: null }).el;
+  const dropIdx = afterCard ? cards.indexOf(afterCard) : cards.length;
+
+  const patch = { position: dropIdx };
+  if (targetStatus !== _bugDragSourceStatus) patch.status = targetStatus;
+
+  const bugId = _bugDragId;
+  _bugDragId = null;
+  _bugDragSourceStatus = null;
+
+  try {
+    const res = await authFetch(`/api/bug-reports/${bugId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(patch),
+    });
+    if (!res.ok) {
+      toast('Failed to move bug', 'error');
+      return;
+    }
+    if (typeof loadBugReports === 'function') {
+      await loadBugReports();
+      renderContent();
+    }
+  } catch (e) {
+    console.error('Bug drop failed', e);
+    toast('Failed to move bug', 'error');
+  }
 }
 
 /** Render the bug reports settings tab content */
