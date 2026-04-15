@@ -429,6 +429,12 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .task-row__status-icon--blocked { border-color: var(--purple); background: var(--purple-bg); }
 .task-row--done { opacity: 0.55; }
 .task-row--done .task-row__title { text-decoration: line-through; text-decoration-color: var(--text-muted); }
+.task-row--cancelled { opacity: 0.45; filter: grayscale(0.6); }
+.task-row--cancelled .task-row__title { text-decoration: line-through; text-decoration-color: var(--text-muted); color: var(--text-muted); }
+.standup-task--cancelled { opacity: 0.45; filter: grayscale(0.6); }
+.standup-task--cancelled .standup-task__title { text-decoration: line-through; color: var(--text-muted); }
+.board-card--cancelled { opacity: 0.5; filter: grayscale(0.6); }
+.board-card--cancelled .board-card__title { text-decoration: line-through; color: var(--text-muted); }
 /* My Tasks view */
 .mytasks { max-width: none; }
 .mytasks-section { margin-bottom: 28px; }
@@ -4054,8 +4060,9 @@ function toggleStandupDone(personName, el) {
 function renderStandupTaskRow(t, now) {
   const isOverdue = t.dueDate && safeParseDate(t.dueDate) < now;
   const isDone = t.status === 'Done';
+  const isCancelled = t.status === 'Cancelled';
   const depNames = (t.dependencies || []).map(did => { const d = tasks.find(x => x.id === did); return d ? d.title : null; }).filter(Boolean);
-  let html = `<div class="standup-task ${isOverdue ? 'standup-task--danger' : ''} ${isDone ? 'standup-task--done' : ''}">`;
+  let html = `<div class="standup-task ${isOverdue ? 'standup-task--danger' : ''} ${isDone ? 'standup-task--done' : ''} ${isCancelled ? 'standup-task--cancelled' : ''}">`;
   html += `<div class="standup-task__row">`;
   html += standupSelect(t.id, 'status', t.status, STATUSES);
   html += `<span class="standup-task__title ${isDone ? 'standup-task__title--done' : ''}" onclick="event.stopPropagation();openDetailOverlay('${t.id}')">${esc(t.title)}</span>`;
@@ -4288,8 +4295,9 @@ async function renderStandupSection(filtered, now) {
     }).forEach(t => {
       const isOverdue = t.dueDate && safeParseDate(t.dueDate) < now;
       const isDone = t.status === 'Done';
+      const isCancelled = t.status === 'Cancelled';
       const depNames = (t.dependencies || []).map(did => { const d = tasks.find(x => x.id === did); return d ? d.title : null; }).filter(Boolean);
-      html += `<div class="standup-task ${isOverdue ? 'standup-task--danger' : ''} ${isDone ? 'standup-task--done' : ''}">`;
+      html += `<div class="standup-task ${isOverdue ? 'standup-task--danger' : ''} ${isDone ? 'standup-task--done' : ''} ${isCancelled ? 'standup-task--cancelled' : ''}">`;
       html += `<div class="standup-task__row">`;
       html += `${clientBadgeHtml(getTaskClient(t))} `;
       html += standupSelect(t.id, 'status', t.status, STATUSES);
@@ -4944,9 +4952,11 @@ function renderBoardView(filtered) {
 function renderBoardCard(task) {
   const hasKids = getChildren(task.id).length > 0;
   const isBlocked = task.healthState === 'Blocked';
+  const isCancelled = task.status === 'Cancelled';
   let cls = 'board-card';
   if (isBlocked) cls += ' board-card--blocked';
   if (hasKids) cls += ' board-card--parent';
+  if (isCancelled) cls += ' board-card--cancelled';
 
   const bcClient = getTaskClient(task);
   let html = `<div class="${cls}" draggable="true" data-task-id="${task.id}" onclick="openDetail('${task.id}')" ondragstart="onBoardCardDragStart(event,'${task.id}')" ondragend="onBoardCardDragEnd(event)">`;
@@ -6428,14 +6438,16 @@ function renderTaskRow(task, depth, filtered) {
   const hrs = aggHours(task.id);
   const hrsStr = (hrs.spent > 0 || hrs.est > 0) ? `${hrs.spent.toFixed(1)}/${hrs.est.toFixed(1)}h` : '';
   const isDone = task.status === 'Done';
+  const isCancelled = task.status === 'Cancelled';
   const isInProgress = task.status === 'In progress';
   const isBlocked = task.healthState === 'Blocked';
   let iconClass = 'task-row__status-icon';
   let iconContent = '';
   if (isDone) { iconClass += ' task-row__status-icon--done'; iconContent = '&#10003;'; }
+  else if (isCancelled) { iconContent = '&times;'; }
   else if (isBlocked) { iconClass += ' task-row__status-icon--blocked'; }
   else if (isInProgress) { iconClass += ' task-row__status-icon--inprogress'; }
-  const rowClass = isDone ? 'task-row task-row--done' : 'task-row';
+  const rowClass = 'task-row' + (isDone ? ' task-row--done' : '') + (isCancelled ? ' task-row--cancelled' : '');
 
   let html = `<div class="${rowClass}" style="padding-left:${16 + depth*20}px" draggable="true" data-task-id="${task.id}" onclick="openDetail('${task.id}')" ondragstart="onDragStart(event,'${task.id}')" ondragend="onDragEnd(event)">`;
   const isCollapsed = collapsedTaskIds.has(task.id);
