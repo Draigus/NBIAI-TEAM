@@ -10797,7 +10797,8 @@ function renderLeadsKanban(el, leads) {
   let html = '<div class="leads-kanban">';
   if (isMobile) html += '<div class="leads-kanban__track" id="kanbanTrack">';
   stages.forEach(stage => {
-    const stageLeads = leads.filter(l => l.stage_id === stage.id).sort((a,b) => (a.priority||99) - (b.priority||99));
+    const stageLeads = leads.filter(l => l.stage_id === stage.id)
+      .sort((a, b) => (a.position || 0) - (b.position || 0));
     const totalRom = stageLeads.reduce((sum, l) => sum + (parseFloat(l.rom_max) || parseFloat(l.rom_min) || 0), 0);
 
     html += `<div class="leads-kanban__lane" data-stage-id="${stage.id}"
@@ -10899,14 +10900,12 @@ async function onLeadDrop(event, stageId) {
     return closest;
   }, { offset: Number.NEGATIVE_INFINITY, el: null }).el;
 
-  // Build the new order of lead IDs in this lane
+  // Drop index is the new position in the target stage.
+  // Priority (P1-P5) is the client need indicator and is unchanged by drag (decision D79).
   const laneLeadIds = cards.map(c => c.dataset.leadId);
   const dropIdx = afterCard ? laneLeadIds.indexOf(afterCard.dataset.leadId) : laneLeadIds.length;
 
-  // Determine new priority: assign P1 to top, incrementing down
-  const newPriority = Math.max(1, Math.min(5, dropIdx + 1));
-
-  const patch = { priority: newPriority };
+  const patch = { position: dropIdx };
   if (stageId !== _leadsDragStage) patch.stage_id = stageId;
 
   const resp = await authFetch(`/api/leads/${_leadsDragId}`, {

@@ -4616,7 +4616,7 @@ app.get('/api/leads', async (req, res) => {
     JOIN lead_pipeline_stages s ON l.stage_id = s.id
     LEFT JOIN contacts ct ON l.primary_contact_id = ct.id
     ${whereClause}
-    ORDER BY s.sort_order, l.priority NULLS LAST, l.created_at DESC
+    ORDER BY s.sort_order, l.position, l.created_at DESC
     ${paginationClause}
   `, vals);
 
