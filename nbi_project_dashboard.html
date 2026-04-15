@@ -8907,11 +8907,13 @@ function renderPeopleCalendarView(allPeople, assigneeMerge) {
         // Also fan the firm closure onto every person's row so the roster
         // explicitly shows each person is off, not just the dedicated
         // Firm Closed row at the bottom (Glen follow-up to D92/D93).
+        // Dedupe: at most ONE firm_closed bar per person per day, regardless
+        // of how many separate firm closures overlap. If the firm is closed
+        // it's closed — two events on the same day collapse to one visual.
         (allPeople || []).forEach(person => {
           const ck = cellKey(person, key);
           if (!personDay[ck]) personDay[ck] = [];
-          // Avoid duplicate entries if a person already got this event via another path
-          if (!personDay[ck].some(e => e.id === ev.id)) personDay[ck].push(ev);
+          if (!personDay[ck].some(e => e.event_type === 'firm_closed')) personDay[ck].push(ev);
         });
       } else if (ev.team_id) {
         // Team event — fan out to every member of that team (bug d4367137)
