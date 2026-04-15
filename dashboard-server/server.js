@@ -3282,7 +3282,7 @@ app.post('/api/tasks', async (req, res) => {
   const { rows } = await pool.query(
     `INSERT INTO tasks (title, parent_id, client_id, item_type, status, priority, health_state, description, assignees, hours_estimated, hours_spent, due_date, start_date, end_date, dependencies, planner_task_id, source)
      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17) RETURNING *`,
-    [escHtml(title), parent_id || null, client_id || null, resolvedType, status || 'Not started', priority || '', health_state || '', escHtml(description) || '',
+    [title, parent_id || null, client_id || null, resolvedType, status || 'Not started', priority || '', health_state || '', description || '',
      assignees || [], parsedHoursEst, parsedHoursSpent, due_date || '', start_date || '', end_date || '', dependencies || [], planner_task_id || '', source || 'manual']
   );
   await auditLog('task', rows[0].id, 'create', req.user?.displayName, { title, item_type: resolvedType });
@@ -3327,14 +3327,8 @@ app.patch('/api/tasks/:id', async (req, res) => {
   if (req.body.start_date && req.body.end_date && req.body.start_date > req.body.end_date) {
     return res.status(400).json({ error: 'start_date must be before or equal to end_date' });
   }
-  // Sanitise text fields before storage
-  if (req.body.title !== undefined) req.body.title = escHtml(req.body.title);
-  if (req.body.description !== undefined) req.body.description = escHtml(req.body.description);
-
+  // Text fields are stored raw; escaping happens at render time in the frontend (esc()).
   const allowedFields = ['title', 'parent_id', 'client_id', 'item_type', 'status', 'priority', 'health_state', 'description', 'assignees', 'hours_estimated', 'hours_spent', 'due_date', 'start_date', 'end_date', 'dependencies', 'collaborations', 'success_factor', 'repeat_rule', 'blocker_info', 'practice_area'];
-  // Sanitise the new text fields the same way as description
-  if (req.body.collaborations !== undefined) req.body.collaborations = req.body.collaborations ? escHtml(req.body.collaborations) : null;
-  if (req.body.success_factor !== undefined) req.body.success_factor = req.body.success_factor ? escHtml(req.body.success_factor) : null;
   const { updates, vals, nextIdx } = buildPatchQuery(req.body, allowedFields);
   if (req.body.title !== undefined && !req.body.title.trim()) {
     return res.status(400).json({ error: 'Title cannot be empty' });
@@ -4614,13 +4608,13 @@ app.post('/api/leads', async (req, res) => {
         lead_source, est_start_date, expected_close_date, last_contacted,
         next_followup_date, next_action, location, notes, time_estimate, created_by)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23) RETURNING *`,
-      [client_id || null, escHtml(title), work_type || null, service_line || null, stage_id,
+      [client_id || null, title, work_type || null, service_line || null, stage_id,
         priority || null, currency || 'GBP',
         rom_min || null, rom_max || null, rom_text || null, win_probability || null,
         primary_contact_id || null, deal_owner || null, lead_source || null,
         est_start_date || null, expected_close_date || null, last_contacted || null,
         next_followup_date || null, next_action || null, location || null,
-        escHtml(notes) || null, time_estimate || null, req.user?.displayName || 'unknown']
+        notes || null, time_estimate || null, req.user?.displayName || 'unknown']
     );
 
     const leadId = rows[0].id;
@@ -4682,10 +4676,7 @@ app.patch('/api/leads/:id', async (req, res) => {
   for (const f of patchFields) {
     if (sanitisedBody[f] === '') sanitisedBody[f] = null;
   }
-  // Sanitise text fields before storage
-  if (sanitisedBody.title) sanitisedBody.title = escHtml(sanitisedBody.title);
-  if (sanitisedBody.notes) sanitisedBody.notes = escHtml(sanitisedBody.notes);
-
+  // Text fields are stored raw; escaping happens at render time in the frontend (esc()).
   const { updates, vals, nextIdx } = buildPatchQuery(sanitisedBody, patchFields);
   if (req.body.title !== undefined && !req.body.title.trim()) {
     return res.status(400).json({ error: 'Title cannot be empty' });
@@ -4952,7 +4943,7 @@ app.post('/api/expenses', async (req, res) => {
   const { rows } = await pool.query(
     `INSERT INTO expenses (user_id, date, amount, currency, category_id, description, notes, vat_amount)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
-    [req.user.id, date, amount, currency || 'GBP', category_id || null, escHtml(description) || null, escHtml(notes) || null, parsedVat]
+    [req.user.id, date, amount, currency || 'GBP', category_id || null, description || null, notes || null, parsedVat]
   );
   await auditLog('expense', rows[0].id, 'create', req.user.displayName, { amount, date, description, vat_amount: parsedVat });
   res.status(201).json(rows[0]);
@@ -4986,10 +4977,7 @@ app.patch('/api/expenses/:id', async (req, res) => {
     return res.status(400).json({ error: 'Amount must be a valid positive number' });
   }
 
-  // Sanitise text fields before storage
-  if (req.body.description !== undefined) req.body.description = escHtml(req.body.description);
-  if (req.body.notes !== undefined) req.body.notes = escHtml(req.body.notes);
-
+  // Text fields are stored raw; escaping happens at render time in the frontend (esc()).
   const allowed = ['date', 'amount', 'currency', 'category_id', 'description', 'notes', 'vat_amount'];
   // Admin-only fields
   if (isAdmin) allowed.push('status', 'reviewed_by', 'reviewed_at');
@@ -5358,7 +5346,7 @@ app.post('/api/bug-reports', async (req, res) => {
   const { rows } = await pool.query(
     `INSERT INTO bug_reports (user_id, type, title, description, page, screenshot, priority)
      VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
-    [req.user.id, rType, escHtml(title.trim()), escHtml(description) || null, page || null, safeScreenshot, safePriority]
+    [req.user.id, rType, title.trim(), description || null, page || null, safeScreenshot, safePriority]
   );
   res.status(201).json(rows[0]);
 });
@@ -5425,13 +5413,13 @@ app.patch('/api/bug-reports/:id', async (req, res) => {
     const titleErr = validateLength(title, 'title');
     if (titleErr) return res.status(400).json({ error: titleErr });
     sets.push(`title = $${idx++}`);
-    vals.push(escHtml(String(title).trim()));
+    vals.push(String(title).trim());
   }
   if (description !== undefined) {
     const descErr = validateLength(description, 'description');
     if (descErr) return res.status(400).json({ error: descErr });
     sets.push(`description = $${idx++}`);
-    vals.push(escHtml(description));
+    vals.push(description);
   }
 
   vals.push(req.params.id);
@@ -5505,7 +5493,7 @@ app.post('/api/bug-reports/:id/comments', async (req, res) => {
   const author = req.user?.displayName || req.user?.display_name || 'Unknown';
   const { rows } = await pool.query(
     'INSERT INTO bug_report_comments (report_id, author, text) VALUES ($1, $2, $3) RETURNING *',
-    [req.params.id, author, escHtml(text.trim())]
+    [req.params.id, author, text.trim()]
   );
   await pool.query('UPDATE bug_reports SET updated_at = NOW() WHERE id = $1', [req.params.id]);
   await auditLog('bug_comment', rows[0].id, 'create', author, { report_id: req.params.id, text: text.trim() });
@@ -5773,12 +5761,12 @@ app.post('/api/candidates', async (req, res) => {
       [
         client_id || null,
         position_id || null,
-        escHtml(name.trim()),
-        role ? escHtml(role) : null,
+        name.trim(),
+        role || null,
         linkedin_url || null,
         due_date || null,
         stage || 'sourced',
-        notes ? escHtml(notes) : null
+        notes || null
       ]
     );
     await auditLog('candidate', rows[0].id, 'create', req.user.displayName || 'unknown', { name: name.trim(), client_id: client_id || null });
@@ -5814,11 +5802,10 @@ app.patch('/api/candidates/:id', async (req, res) => {
     const ne = validateLength(req.body.notes, 'notes');
     if (ne) return res.status(400).json({ error: ne });
   }
-  // Escape user text fields before they hit the DB
+  // Text fields are stored raw; escaping happens at render time in the frontend (esc()).
+  // Name is trimmed here because the POST path also trims it.
   const body = { ...req.body };
-  if (body.name !== undefined && body.name !== null) body.name = escHtml(String(body.name).trim());
-  if (body.role !== undefined && body.role !== null) body.role = escHtml(String(body.role));
-  if (body.notes !== undefined && body.notes !== null) body.notes = escHtml(String(body.notes));
+  if (body.name !== undefined && body.name !== null) body.name = String(body.name).trim();
 
   const { updates, vals, nextIdx } = buildPatchQuery(body, ['client_id', 'position_id', 'name', 'role', 'linkedin_url', 'due_date', 'stage', 'notes']);
   if (updates.length === 0) return res.status(400).json({ error: 'No valid fields to update' });
@@ -6801,7 +6788,7 @@ if (cron) {
           user.username,
           'expense_reminder',
           'Expense Report Reminder',
-          `Hi ${escHtml(user.display_name)}, please submit your expense report for this month. Go to Expenses to create or update your report.`,
+          `Hi ${user.display_name}, please submit your expense report for this month. Go to Expenses to create or update your report.`,
           '/nbi_project_dashboard.html#expenses',
           false  // non-dismissable — stays until a report is submitted
         );
