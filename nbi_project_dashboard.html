@@ -4685,6 +4685,17 @@ function renderTaskView(el) {
   const filtered = getFilteredTasks();
 
   let html = renderClientProfileHeader();
+  // Practice-mode banner (bug a6c82c8c). When the practice filter is active,
+  // show a coloured banner naming the practice so the user knows the entire
+  // workspace is scoped down. Doubles as the landing experience Glen asked
+  // for with "HC Page and Board" — pick Org Health in the sidebar and every
+  // tab (Dashboard, Projects, Leads, Clients) scopes to it.
+  if (currentFilter.practice) {
+    const p = PRACTICES.find(x => x.value === currentFilter.practice);
+    if (p) {
+      html += `<div class="practice-mode-banner" style="background:color-mix(in srgb, ${p.colour} 14%, var(--bg-raised));border:1px solid ${p.colour};border-left:4px solid ${p.colour};border-radius:var(--radius-md);padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${p.colour}"></span><strong style="font-size:0.85rem;color:var(--text-primary)">${esc(p.label)} mode</strong><span style="font-size:0.75rem;color:var(--text-muted);flex:1;min-width:200px">Dashboard, Projects, Leads and Clients are all scoped to this practice. Tag clients and projects with Practice = ${esc(p.label)} to populate this view.</span><button class="btn btn--sm btn--ghost" onclick="filterByPractice(null)">Exit ${esc(p.shortLabel || p.label)}</button></div>`;
+    }
+  }
   html += `<div class="filter-bar">
     <input type="text" placeholder="Search items... (Enter)" value="${esc(currentFilter.search)}" onkeydown="if(event.key==='Enter'){currentFilter.search=this.value;renderContent()}" onblur="if(this.value!==currentFilter.search){currentFilter.search=this.value;renderContent()}">
     ${buildMultiSelect('assignee', 'People', _cachedTeamMembers, currentFilter.assignee)}
