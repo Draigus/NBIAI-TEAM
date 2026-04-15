@@ -4,6 +4,94 @@ Append-only. Every feature/fix completed gets logged here immediately.
 
 ---
 
+## 2026-04-15 (Late-night session — quick wins + team calendar events)
+
+Context refactor after the previous session hit a 20MB request-size error.
+Used surgical Grep/Read instead of loading full files.
+
+### 5 quick-win bugs (Phase A of the remaining workload)
+- **6b581233 — New button legibility** (`fe4f925`): bumped to 0.875rem/600
+- **afe33305 — Bug Tracker Priority/Type column overlap** (`fe4f925`): added spacing to feature rows
+- **420ee3b6 — Standup click jumps to top** (`52c5325`): `openDetailOverlay` snapshots and restores `scrollY` + `mainContent.scrollTop` in a requestAnimationFrame so the fixed overlay + textarea auto-resize can't reset the dashboard scroll
+- **9a8010a7 — Cancelled items crossed out** (`f8bfe14`): `.task-row--cancelled`, `.standup-task--cancelled`, `.board-card--cancelled` CSS with strikethrough, grayscale, and 45-50% opacity. Task row status icon shows × for Cancelled
+- **53f56fe0 — Kanban density** (`f0dce5c`): tightened padding, fonts, and column widths across all four boards. Projects (160→140 lane, 0.82→0.76 title), Bug Tracker (280→220 lane), Hiring (180x100→150x78 card), Leads (220-280→180-240 lane). ~25-30% smaller cards, no legibility loss at 0.65rem minimum
+
+### People → Calendar auto-scale + admin firm-closure quick-add (`7c8a462`)
+- Roster table: `table-layout: fixed`, day columns share remaining width via `width: auto` with a 110px sticky name column; wrap max-height ties to `calc(100dvh - header - 260)` and scrolls internally
+- Month grid: `grid-auto-rows: minmax(72px, 1fr)` + fixed height so cells divide remaining vertical space instead of pushing the page
+- Admin-only "× Firm Closed (All)" button next to "+ Add Event" in the People Calendar controls bar; prefills a `firm_closed` event with today's date range and "Firm Closed — All Day" title. Modal opens pre-populated so admin can extend the range or edit the label before saving
+- Wired `prefill.title` through to the modal input (was previously ignored)
+
+### 2 more calendar fixes
+- **1d3d811e — My Work → Workload expand on click** (`4b3a9c1`): new `navigateToTaskInTree` helper walks up `parentId` uncollapsing every ancestor + the client group, switches to Projects, opens detail, and `scrollIntoView({block: 'center'})` on the target row
+- **e49be05e — Calendar declutter** (`4b3a9c1`): "Show events from others" toggle now appears on the People → Calendar controls bar (previously only Projects → Calendar). `firm_closed` events are exempted from the filter everywhere — always visible since they apply to the whole team
+
+### d4367137 — Team events on calendar (`e116433`)
+**Server** (migration 023 + server.js):
+- Migration 023: nullable `team_id` FK on `calendar_events`, indexed
+- POST accepts `team_id`; non-admin must be a member of the target team (403 otherwise); admin can target any team. When `team_id` set, `user_id` forced to null
+- PATCH allowlist extended with `team_id`
+- GET joins `teams.name` as `team_name`
+- `buildCalendarVisibilityClause` extended: team events only visible to their own team members or admins, even if `visibility='team'`. Tagging an event to a team is implicitly team-private
+- `GET /api/teams?include=members` adds `member_display_names` inline so calendar can fan team events onto each member's row in one round trip
+
+**Frontend**:
+- Calendar event modal gains a "For" dropdown (Myself | Team: X | ...)
+- `loadCalendarEvents` fetches `/api/teams?include=members` in parallel and caches `team_id → [display_name, ...]` in `_teamMembersCache`
+- `renderPeopleCalendarView` fans out team events onto every member's row; falls back to a synthetic "Team: <name>" row when membership cache misses
+- "Show events from others" filter exempts team events (user still sees team events they're a member of regardless of toggle)
+
+**Tests**: 5 new regression tests in `calendar-team-events.test.mjs`:
+- Member can create for own team
+- Non-member gets 403 for foreign team
+- Admin can create for any team
+- GET returns `team_name` joined
+- Team members see private team event, non-members don't
+
+### CLAUDE.md — Bug triage pipeline (`fe4f925`)
+Documented Glen's 7-step mandatory pipeline for every bug_reports item:
+receive → review → plan → prioritise → fix → test → update+comment.
+Plain English comments only (no jargon), must start with "Fixed."/"Done."
+and end with "Please test by..."
+
+### Magnus permissions cleanup earlier in session (`16831ef`)
+Already committed: `users.role` member → admin, `page_permissions` wiped
+of all `magnus` allow-list entries, 26 stale sessions deleted, `init-db.js`
+seed role updated.
+
+### 2f1b052a — Complete marker for Won leads (already shipped, moved to please_review)
+Verified the `Mark Complete` button at line ~12467, the `.lead-detail--complete`
+CSS that locks inputs, the `completeLead`/`uncompleteLead` API functions, and the
+visual markers across kanban/table/card-list views. Extended from kanban-only to
+all three lead views earlier today in Phase 5 polish commit.
+
+### Test suite state
+- 71 vitest tests (was 66 at start of session — added 5 team-events tests)
+- 14 playwright tests
+- **85 total, all green**
+- All migrations applied to dev DB (021, 022, 023)
+- PM2 restarted clean at 22:41ish with new pid 40468
+
+### Bug tracker state
+- **19 please_review** total (was 15 at start of session)
+- 11 items added to please_review this session:
+  - 5 quick wins (the 5 bugs I worked through in pipeline order)
+  - 4 calendar-related fixes/features (1d3d811e, e49be05e, d4367137, 2f1b052a)
+  - 2 earlier completions from the overnight push (not counted twice — already logged)
+
+### Remaining in_progress / open
+- **a6c82c8c HC Page and Board** — in_progress, big feature (Z7), needs brainstorming
+- **b7a2f97f Hiring Page** — in_progress, basic kanban shipped but Glen's detailed spec (arrows, stage-specific fields, "Clear Candidate" button, auto-archive on Hired) would be a rewrite
+- **86be4df5 Gantt Chart** — in_progress, dependency arrows in calendar detail (O6), needs brainstorming
+- **cb32b7f9 Work Organisation in Tasks Menu (SoW layer)** — open, Z6 in master plan, needs brainstorming
+- **c73af494 By Employee Sort Incomplete** — open, semantically ambiguous (sort vs filter), needs Glen input
+
+### Blocked on Glen
+- **ae561c32 PM Report System** — needs SMTP provider
+- **f3a5e888 Due & Late Ticket Warning System** — needs SMTP provider
+
+---
+
 ## 2026-04-15 (Session — Kanban merge + Phase 1 cleanup)
 
 ### Kanban drag-to-reorder (D79) — MERGED
