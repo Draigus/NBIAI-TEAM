@@ -16389,18 +16389,57 @@ let _warnAlertSnoozedUntil = (() => {
   } catch (e) { return {}; }
 })();
 
-/** Compute the list of warnings derived from the user's tasks. */
+/** Compute the list of warnings derived from the user's tasks.
+ *
+ *  Ownership model (Glen 2026-04-15): warnings are user-specific and NOT
+ *  role-gated. A user "owns" a task if they are listed in `assignees` on
+ *  that task OR on any ancestor in the task hierarchy (root project,
+ *  intermediate feature, etc.). This lets PMs who own a project see
+ *  warnings for every task under it without needing to be listed on
+ *  each child, while keeping individual contributors scoped to the work
+ *  they're actually responsible for.
+ *
+ *  Admins get NO special treatment — they see the same warnings as any
+ *  other user based purely on ownership. This is deliberate: admins
+ *  should see a quiet, personalised panel when nothing they own is on
+ *  fire, not a firehose of every late task across the whole company.
+ */
 function computeWarnings() {
   if (!Array.isArray(tasks)) return [];
   const now = new Date(); now.setHours(0, 0, 0, 0);
   const myName = (_currentUser && (_currentUser.displayName || _currentUser.display_name)) || '';
-  const isAdmin = _currentUser && _currentUser.role === 'admin';
+  if (!myName) return [];
   const warnings = [];
+
+  // Pre-compute a set of ancestor-assignee ownership by walking each task's
+  // parent chain once. Cache the per-root result so we don't walk the chain
+  // for every single task on every computeWarnings() call.
+  const _ownedCache = {};
+  const _ownsViaAncestor = (task) => {
+    // Walk up parent chain collecting every assignee list
+    let cur = task;
+    let guard = 0;
+    while (cur && guard < 20) {
+      if (cur.id && _ownedCache[cur.id] !== undefined) return _ownedCache[cur.id];
+      if (Array.isArray(cur.assignees) && cur.assignees.includes(myName)) {
+        if (cur.id) _ownedCache[cur.id] = true;
+        return true;
+      }
+      if (!cur.parentId) break;
+      cur = tasks.find(t => t.id === cur.parentId);
+      guard++;
+    }
+    if (task && task.id) _ownedCache[task.id] = false;
+    return false;
+  };
 
   tasks.forEach(t => {
     if (!t || t.status === 'Done' || t.status === 'Cancelled') return;
-    const isAssigned = Array.isArray(t.assignees) && myName && t.assignees.includes(myName);
-    if (!isAdmin && !isAssigned) return;
+    // Fast path: direct assignment
+    const isAssigned = Array.isArray(t.assignees) && t.assignees.includes(myName);
+    // Slow path: owns an ancestor (PM owns the project, warning fires on a child task)
+    const ownsHierarchy = isAssigned || _ownsViaAncestor(t);
+    if (!ownsHierarchy) return;
 
     // Skip snoozed items
     const snoozeUntil = _warnAlertSnoozedUntil[t.id];
