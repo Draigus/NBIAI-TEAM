@@ -31,6 +31,8 @@ test.describe('@mobile-audit iPhone 11 portrait screenshots', () => {
   test.use({ viewport: IPHONE_11 });
 
   test('capture all audit targets', async ({ page }) => {
+    page.on('pageerror', err => console.log('[pageerror]', err.message, err.stack?.split('\n').slice(0,5).join(' | ')));
+    page.on('console', msg => { if (msg.type() === 'error' || msg.type() === 'warning') console.log('[browser', msg.type() + ']', msg.text()); });
     // Seed just enough data to make every view render something real
     await truncate();
     const user = await createTestUser({ role: 'admin' });
@@ -101,6 +103,29 @@ test.describe('@mobile-audit iPhone 11 portrait screenshots', () => {
     await page.screenshot({ path: path.join(SHOT_DIR, '03-projects-board.png'), fullPage: false });
 
     await capture('04-people', () => { if (typeof switchView === 'function') switchView('people'); });
+
+    // Seed a couple of calendar events so the new People → Calendar view
+    // has something to render (D92)
+    await pool.query(
+      `INSERT INTO calendar_events (user_id, title, event_type, start_date, end_date, visibility)
+       VALUES ($1, 'Vacation day',   'vacation',    CURRENT_DATE + 3, CURRENT_DATE + 5,  'team'),
+              ($1, 'Sick',           'sick_leave',  CURRENT_DATE + 1, CURRENT_DATE + 1,  'team'),
+              ($1, 'Xmas shutdown',  'firm_closed', CURRENT_DATE + 10, CURRENT_DATE + 12, 'public')`,
+      [user.id]
+    );
+    // People → Calendar: click the Calendar subview button (let-scoped state)
+    await page.evaluate(() => { if (typeof switchView === 'function') switchView('people'); });
+    await page.locator('.task-subview-btn', { hasText: 'Calendar' }).click();
+    // Wait for the calendar events fetch to complete and the roster to render
+    await page.waitForSelector('.people-cal__roster', { timeout: 10000 });
+    await page.waitForTimeout(600);
+    await page.screenshot({ path: path.join(SHOT_DIR, '04b-people-calendar-roster.png'), fullPage: false });
+
+    // Switch to month view
+    await page.locator('.people-cal__controls .task-subview-btn', { hasText: 'Month' }).click();
+    await page.waitForSelector('.people-cal__grid', { timeout: 5000 });
+    await page.waitForTimeout(400);
+    await page.screenshot({ path: path.join(SHOT_DIR, '04c-people-calendar-month.png'), fullPage: false });
 
     await capture('05-reports', async () => {
       if (typeof switchView === 'function') switchView('report');

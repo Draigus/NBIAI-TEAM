@@ -2272,7 +2272,11 @@ app.post('/api/tasks/:id/attachments/link', async (req, res) => {
 //   public   — everyone
 // Event types: vacation, sick_leave, bank_holiday, uto, business, other.
 
-const VALID_EVENT_TYPES = ['vacation', 'sick_leave', 'bank_holiday', 'uto', 'business', 'other'];
+// firm_closed (2026-04-15, Glen): admin-only event type representing an
+// NBI-wide closure (Christmas shutdown, offsite, etc.). Distinct from
+// bank_holiday which is UK statutory. Enforced as admin-only in POST /PATCH.
+const VALID_EVENT_TYPES = ['vacation', 'sick_leave', 'bank_holiday', 'firm_closed', 'uto', 'business', 'other'];
+const ADMIN_ONLY_EVENT_TYPES = ['firm_closed'];
 const VALID_EVENT_VISIBILITY = ['private', 'team', 'client', 'public'];
 
 /**
@@ -2410,6 +2414,9 @@ app.post('/api/calendar-events', async (req, res) => {
   const { title, event_type, start_date, end_date, client_id, visibility, description } = req.body || {};
   if (!title || typeof title !== 'string') return res.status(400).json({ error: 'title is required' });
   if (!event_type || !VALID_EVENT_TYPES.includes(event_type)) return res.status(400).json({ error: 'Invalid event_type' });
+  if (ADMIN_ONLY_EVENT_TYPES.includes(event_type) && req.user?.role !== 'admin') {
+    return res.status(403).json({ error: `Only admins can create ${event_type} events` });
+  }
   const dateRe = /^\d{4}-\d{2}-\d{2}$/;
   if (!start_date || !dateRe.test(start_date)) return res.status(400).json({ error: 'start_date (YYYY-MM-DD) is required' });
   if (end_date && !dateRe.test(end_date)) return res.status(400).json({ error: 'Invalid end_date' });
@@ -2456,6 +2463,9 @@ app.patch('/api/calendar-events/:id', async (req, res) => {
   for (const k of allowed) {
     if (k in req.body) {
       if (k === 'event_type' && req.body[k] && !VALID_EVENT_TYPES.includes(req.body[k])) return res.status(400).json({ error: 'Invalid event_type' });
+      if (k === 'event_type' && ADMIN_ONLY_EVENT_TYPES.includes(req.body[k]) && req.user?.role !== 'admin') {
+        return res.status(403).json({ error: `Only admins can set event_type to ${req.body[k]}` });
+      }
       if (k === 'visibility' && req.body[k] && !VALID_EVENT_VISIBILITY.includes(req.body[k])) return res.status(400).json({ error: 'Invalid visibility' });
       if ((k === 'start_date' || k === 'end_date') && req.body[k] && !/^\d{4}-\d{2}-\d{2}$/.test(req.body[k])) return res.status(400).json({ error: `Invalid ${k}` });
       if (k === 'client_id' && req.body[k] && !isValidUuid(req.body[k])) return res.status(400).json({ error: 'Invalid client_id' });

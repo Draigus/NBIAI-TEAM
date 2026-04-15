@@ -883,6 +883,48 @@ span.fin-editable { display: inline-block; position: relative; }
 .report-table__clickable { cursor: pointer; transition: background 0.15s; }
 .report-table__clickable:hover { background: color-mix(in srgb, var(--accent) 8%, var(--bg-raised)); }
 
+/* ===== PEOPLE → CALENDAR SUB-VIEW (D92) ===== */
+.people-cal__controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: var(--space-md); }
+.people-cal__legend { display: flex; flex-wrap: wrap; gap: 12px; padding: 6px 0 10px; font-size: 0.72rem; color: var(--text-muted); }
+.people-cal__legend-item { display: inline-flex; align-items: center; gap: 5px; }
+.people-cal__legend-swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; }
+
+/* Roster: horizontal scroll table, first column sticky */
+.people-cal__roster-wrap { overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--bg-raised); }
+.people-cal__roster { border-collapse: separate; border-spacing: 0; font-size: 0.72rem; width: max-content; min-width: 100%; }
+.people-cal__roster th, .people-cal__roster td { border-right: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle); }
+.people-cal__roster thead th { background: var(--bg-surface); color: var(--text-secondary); font-weight: 600; text-align: center; padding: 6px 4px; position: sticky; top: 0; z-index: 2; }
+.people-cal__roster th.people-cal__roster-name { position: sticky; left: 0; z-index: 3; min-width: 120px; max-width: 120px; text-align: left; padding: 6px 10px; background: var(--bg-surface); }
+.people-cal__roster td.people-cal__roster-name { position: sticky; left: 0; z-index: 1; min-width: 120px; max-width: 120px; background: var(--bg-raised); font-weight: 600; padding: 6px 10px; color: var(--text-primary); }
+.people-cal__roster-daycol { min-width: 28px; max-width: 28px; padding: 4px 0 !important; }
+.people-cal__roster-daycol.is-weekend { background: color-mix(in srgb, var(--bg-surface) 60%, var(--bg-base)); color: var(--text-muted); }
+.people-cal__roster-daycol.is-today { background: color-mix(in srgb, var(--accent) 20%, var(--bg-surface)); color: var(--accent-text); }
+.people-cal__roster-daycol.is-firm-closed { background: color-mix(in srgb, #64748b 35%, var(--bg-surface)); color: #fff; }
+.people-cal__roster-dow { font-size: 0.55rem; color: var(--text-muted); letter-spacing: 0.5px; }
+.people-cal__roster-cell { min-width: 28px; max-width: 28px; height: 28px; padding: 2px; vertical-align: middle; position: relative; cursor: pointer; transition: background 0.1s; }
+.people-cal__roster-cell:hover { background: color-mix(in srgb, var(--accent) 12%, var(--bg-raised)); }
+.people-cal__roster-cell.is-weekend { background: color-mix(in srgb, var(--bg-surface) 80%, var(--bg-raised)); }
+.people-cal__roster-cell.is-firm-closed { background: color-mix(in srgb, #64748b 20%, var(--bg-raised)); cursor: default; }
+.people-cal__roster-cell.is-firm-closed-full { background: #64748b; cursor: pointer; }
+.people-cal__roster-bar { height: 12px; margin: 2px 0; border-radius: 2px; cursor: pointer; transition: opacity 0.15s; }
+.people-cal__roster-bar:hover { opacity: 0.75; }
+.people-cal__roster-firm-row td.people-cal__roster-name { color: #64748b; font-weight: 700; text-transform: uppercase; font-size: 0.65rem; letter-spacing: 0.5px; }
+
+/* Month grid view */
+.people-cal__grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: var(--border-subtle); border: 1px solid var(--border-default); border-radius: var(--radius-md); overflow: hidden; }
+.people-cal__grid-header { background: var(--bg-surface); padding: 6px; text-align: center; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+.people-cal__grid-cell { background: var(--bg-raised); min-height: 90px; padding: 4px; cursor: pointer; transition: background 0.1s; position: relative; display: flex; flex-direction: column; gap: 2px; }
+.people-cal__grid-cell:hover { background: color-mix(in srgb, var(--accent) 8%, var(--bg-raised)); }
+.people-cal__grid-cell.is-other-month { background: var(--bg-base); opacity: 0.4; cursor: default; }
+.people-cal__grid-cell.is-weekend { background: color-mix(in srgb, var(--bg-surface) 60%, var(--bg-base)); }
+.people-cal__grid-cell.is-today { box-shadow: inset 0 0 0 2px var(--accent); }
+.people-cal__grid-cell.is-firm-closed { background: color-mix(in srgb, #64748b 22%, var(--bg-raised)); }
+.people-cal__grid-daynum { font-size: 0.72rem; color: var(--text-secondary); font-weight: 600; }
+.people-cal__grid-firm-label { font-size: 0.55rem; color: #fff; background: #64748b; padding: 1px 4px; border-radius: 2px; font-weight: 700; letter-spacing: 0.5px; text-align: center; }
+.people-cal__grid-chip { display: inline-flex; align-items: center; padding: 2px 5px; border-radius: 3px; font-size: 0.62rem; color: #fff; font-weight: 600; cursor: pointer; transition: opacity 0.15s; }
+.people-cal__grid-chip:hover { opacity: 0.85; }
+.people-cal__grid-chip-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
 /* ===== PRINT ===== */
 @media print {
   body { background: #fff !important; color: #111 !important; font-size: 11px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -1009,6 +1051,15 @@ span.fin-editable { display: inline-block; position: relative; }
   /* People tab — G4 sort toolbar must wrap on narrow screens so the
      Name / Tasks / Hours Spent / Hours Est buttons stack cleanly. */
   .report__section .task-subview-toggle { flex-wrap: wrap; gap: 4px; }
+  /* People → Calendar roster: narrower columns + tighter header so more
+     days fit in the horizontal scroll area on a 414px viewport. */
+  .people-cal__roster th.people-cal__roster-name,
+  .people-cal__roster td.people-cal__roster-name { min-width: 90px; max-width: 90px; padding: 4px 6px; font-size: 0.7rem; }
+  .people-cal__roster-daycol { min-width: 22px; max-width: 22px; font-size: 0.62rem; }
+  .people-cal__roster-cell { min-width: 22px; max-width: 22px; height: 22px; }
+  .people-cal__grid-cell { min-height: 60px; }
+  .people-cal__grid-chip { font-size: 0.56rem; padding: 1px 3px; }
+  .people-cal__controls { gap: 6px; }
   /* Workload Overview bar chart rows — keep the name column narrow
      enough that the bar still has room to render. */
   .rw-name { min-width: 72px !important; font-size: 0.72rem; }
@@ -2112,6 +2163,7 @@ function cleanupListeners() {
 let _authToken = localStorage.getItem('nbi_auth_token') || null;
 let _currentUser = null;
 let _cachedTeamMembers = []; // Cached list of user display names for assignee dropdowns
+let _cachedUsers = [];       // Cached full user records (id, username, display_name, role, is_active) for ID lookups
 const _expandedStandupPeople = new Set(); // Track which person sections are expanded in standup
 const _standupDoneExpanded = new Set(); // Per-person: track which standup Done sections are expanded (default collapsed)
 const _expandedClientCards = new Set();  // Track which client summary cards are expanded in report view
@@ -2185,7 +2237,8 @@ async function loadTeamMembers() {
   try {
     const users = await apiCall('/api/users');
     if (users) {
-      _cachedTeamMembers = users.filter(u => u.is_active !== false).map(u => u.display_name).sort();
+      _cachedUsers = users.filter(u => u.is_active !== false);
+      _cachedTeamMembers = _cachedUsers.map(u => u.display_name).sort();
     }
   } catch(e) {}
 }
@@ -2486,7 +2539,11 @@ let inlineDetailVisible = true;   // Whether the 30% detail panel is shown in ta
 let _pagePermissions = {};        // Role-based page access: { finances: 'admin'|'all'|['user1','user2'], ... }
 let _apiClientsCache = {};        // Cached client records from API (keyed by name)
 let _peopleFilter = { person: null, dateRange: 'all' };
-let _peopleSubView = 'workload'; // 'workload' | 'capacity'
+let _peopleSubView = 'workload'; // 'workload' | 'capacity' | 'calendar'
+// People → Calendar sub-view state (D92)
+let _peopleCalView = localStorage.getItem('nbi_people_cal_view') || 'roster'; // 'roster' | 'month'
+// _peopleCalYear/Month share state with the Projects Calendar's _calYear/_calMonth
+// via loadCalendarEvents() — navigation on either view affects the other.
 let _reportSubView = 'overall';   // 'overall' | 'byProject' | 'byPerson'
 let _reportInitialCollapse = true;
 let _rptProjectSort = { col: 'client', dir: 'asc' };
@@ -4917,8 +4974,9 @@ let _calTeamFilter = '';             // Selected team_id for the calendar team f
 const CAL_EVENT_TYPES = [
   { value: 'vacation',    label: 'Vacation',     colour: '#22c55e' },
   { value: 'sick_leave',  label: 'Sick Leave',   colour: '#ef4444' },
-  { value: 'bank_holiday',label: 'Bank Holiday', colour: '#3b82f6' },
   { value: 'uto',         label: 'UTO',          colour: '#a855f7' },
+  { value: 'bank_holiday',label: 'Bank Holiday', colour: '#3b82f6' },
+  { value: 'firm_closed', label: 'Firm Closed',  colour: '#64748b', adminOnly: true },
   { value: 'business',    label: 'Business',     colour: '#f97316' },
   { value: 'other',       label: 'Other',        colour: '#9ca3af' }
 ];
@@ -4955,9 +5013,11 @@ async function loadCalendarEvents(year, month) {
   const events = await apiCall(url);
   _calEvents = Array.isArray(events) ? events : [];
   _calEventsKey = `${year}-${month}` + (_calTeamFilter ? `:team:${_calTeamFilter}` : '');
-  // Re-render the calendar slot in place if it exists
+  // Re-render whichever calendar surface is currently visible.
   const main = document.querySelector('.tasks-layout__main');
-  if (main && taskSubView === 'calendar') renderContent();
+  if (main && taskSubView === 'calendar') { renderContent(); return; }
+  // People → Calendar sub-view (D92)
+  if (currentView === 'people' && _peopleSubView === 'calendar') { renderContent(); return; }
 }
 
 /** Build a date-keyed map of events that overlap each day in the visible month. */
@@ -5107,27 +5167,42 @@ function renderCalendarView(filtered) {
 }
 
 /**
- * Open the create/edit modal for a calendar event. Pass an event object to
- * edit, or omit/null to create a new event for the current user.
+ * Open the create/edit modal for a calendar event.
+ *
+ * @param {Object|null} event    An existing event to edit (with id), or null to create.
+ * @param {Object}      prefill  Optional prefill for a fresh create:
+ *   - start_date / end_date (ISO YYYY-MM-DD)
+ *   - event_type (slug from CAL_EVENT_TYPES)
+ *   - user_id (target user for admin-created entries; hidden form field)
+ *   - user_display_name (for the h2 subtitle)
  */
-async function openCalendarEventModal(event) {
+async function openCalendarEventModal(event, prefill) {
   const isEdit = !!(event && event.id);
+  prefill = prefill || {};
   // Pull live client list so we have the canonical IDs to attach to the event
   const clientList = (await apiCall('/api/clients')) || [];
-  const typeOpts = CAL_EVENT_TYPES.map(t => `<option value="${t.value}" ${event && event.event_type === t.value ? 'selected' : ''}>${t.label}</option>`).join('');
+  const selectedType = event?.event_type || prefill.event_type || '';
+  const typeOpts = CAL_EVENT_TYPES.map(t => `<option value="${t.value}" ${selectedType === t.value ? 'selected' : ''}>${t.label}</option>`).join('');
   const visOpts = CAL_EVENT_VISIBILITY.map(v => `<option value="${v.value}" ${event && event.visibility === v.value ? 'selected' : (!event && v.value === 'team' ? 'selected' : '')}>${v.label}</option>`).join('');
   const clientOpts = `<option value="">-- None --</option>` + clientList.map(c =>
     `<option value="${esc(c.id)}" ${event && event.client_id === c.id ? 'selected' : ''}>${esc(c.name)}</option>`
   ).join('');
+  const startVal = event?.start_date ? String(event.start_date).slice(0,10) : (prefill.start_date || '');
+  const endVal = event?.end_date ? String(event.end_date).slice(0,10) : (prefill.end_date || '');
+  const targetUserId = prefill.user_id || '';
+  const targetName = prefill.user_display_name || '';
+  const subtitle = targetName && !isEdit ? `<div style="color:var(--text-muted);font-size:0.82rem;margin-top:-8px;margin-bottom:12px">for <strong>${esc(targetName)}</strong></div>` : '';
 
   const html = `<div class="modal-overlay open" id="calEventModal" role="dialog" aria-modal="true" onclick="if(event.target===this)this.remove()">
     <div class="modal" style="max-width:var(--modal-sm)">
       <h2 style="margin-top:0">${isEdit ? 'Edit' : 'New'} Calendar Event</h2>
+      ${subtitle}
+      <input type="hidden" id="calEvTargetUserId" value="${esc(targetUserId)}">
       <div class="lead-detail__grid">
         <label class="field-required">Title</label><input type="text" id="calEvTitle" value="${esc(event?.title || '')}" placeholder="e.g. London Games Conference">
         <label class="field-required">Type</label><select id="calEvType">${typeOpts}</select>
-        <label class="field-required">Start date</label><input type="date" id="calEvStart" value="${event?.start_date ? String(event.start_date).slice(0,10) : ''}">
-        <label>End date</label><input type="date" id="calEvEnd" value="${event?.end_date ? String(event.end_date).slice(0,10) : ''}">
+        <label class="field-required">Start date</label><input type="date" id="calEvStart" value="${startVal}">
+        <label>End date</label><input type="date" id="calEvEnd" value="${endVal}">
         <label>Client</label><select id="calEvClient">${clientOpts}</select>
         <label>Visibility</label><select id="calEvVis">${visOpts}</select>
         <label>Description</label><textarea id="calEvDesc" rows="3" style="resize:vertical">${esc(event?.description || '')}</textarea>
@@ -5164,6 +5239,12 @@ async function submitCalendarEvent(eventId) {
     visibility: document.getElementById('calEvVis').value,
     description: document.getElementById('calEvDesc').value.trim() || null
   };
+  // Admin-created entries can target another user via the hidden field
+  // that the People → Calendar roster fills in. Server-side enforcement
+  // ensures only admins can actually use this — members get a 403 if
+  // they try to POST with a user_id != their own.
+  const targetUserId = document.getElementById('calEvTargetUserId')?.value || '';
+  if (!eventId && targetUserId) payload.user_id = targetUserId;
 
   const url = eventId ? `/api/calendar-events/${eventId}` : '/api/calendar-events';
   const resp = await authFetch(url, {
@@ -8216,6 +8297,7 @@ function renderPeopleView(el) {
   <div class="task-subview-toggle">
     <button class="task-subview-btn ${_peopleSubView==='workload'?'active':''}" onclick="_peopleSubView='workload';renderContent()">Workload</button>
     <button class="task-subview-btn ${_peopleSubView==='capacity'?'active':''}" onclick="_peopleSubView='capacity';renderContent()">Capacity</button>
+    <button class="task-subview-btn ${_peopleSubView==='calendar'?'active':''}" onclick="_peopleSubView='calendar';renderContent()">Calendar</button>
   </div></div>`;
 
   // Capacity heatmap view
@@ -8224,6 +8306,21 @@ function renderPeopleView(el) {
     html += `</div>`;
     el.innerHTML = html;
     loadCapacityHeatmap();
+    return;
+  }
+
+  // Calendar view: team roster or month grid of vacation / sick / uto /
+  // bank_holiday / firm_closed entries. Shares _calEvents cache with the
+  // Projects Calendar — navigating months here affects both.
+  if (_peopleSubView === 'calendar') {
+    html += renderPeopleCalendarView(allPeople, _assigneeMerge);
+    html += `</div>`;
+    el.innerHTML = html;
+    // Trigger a fetch if the cache is stale for the visible month
+    const visibleKey = `${_calYear}-${_calMonth}` + (_calTeamFilter ? `:team:${_calTeamFilter}` : '');
+    if (_calEventsKey !== visibleKey) {
+      setTimeout(() => loadCalendarEvents(_calYear, _calMonth), 0);
+    }
     return;
   }
 
@@ -8546,6 +8643,229 @@ function renderPeopleView(el) {
 
   html += `</div>`;
   el.innerHTML = html;
+}
+
+// =============================================================================
+// People → Calendar sub-view (D92, 2026-04-15)
+// =============================================================================
+
+/** Render the People → Calendar sub-view. Shows team time-off (vacation /
+ *  sick / uto / bank_holiday / firm_closed) in either a roster layout
+ *  (one row per person) or a month grid. Reads from _calEvents (shared
+ *  with the Projects Calendar). Inline click-to-create wires through the
+ *  existing openCalendarEventModal() modal. */
+function renderPeopleCalendarView(allPeople, assigneeMerge) {
+  const year = _calYear;
+  const monthIdx = _calMonth;
+  const firstDay = new Date(year, monthIdx, 1);
+  const lastDay = new Date(year, monthIdx + 1, 0);
+  const daysInMonth = lastDay.getDate();
+  const monthName = firstDay.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+  const todayStr = (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; })();
+
+  // Helper: resolve a display name to a user_id by looking it up in _cachedUsers.
+  // Used for inline create — when the user clicks an empty cell in their own
+  // row, we need the user_id to pass to the modal's target user field.
+  const lookupUserId = (displayName) => {
+    if (!Array.isArray(_cachedUsers)) return null;
+    const u = _cachedUsers.find(x => x.display_name === displayName);
+    return u ? u.id : null;
+  };
+
+  // Build a per-person-per-day index: { 'Glen Pryer|2026-04-16': [event, ...] }
+  // We walk each event's start..end range and drop it into every matching cell.
+  // Firm closed events are special: they apply to everyone, not a single user.
+  const cellKey = (person, dateStr) => `${person}|${dateStr}`;
+  const personDay = {};
+  const firmClosedDays = new Set();
+  const monthStart = new Date(year, monthIdx, 1);
+  const monthEnd = new Date(year, monthIdx + 1, 0);
+  (_calEvents || []).forEach(ev => {
+    if (!ev.start_date) return;
+    const start = new Date(ev.start_date + 'T00:00:00');
+    const end = ev.end_date ? new Date(ev.end_date + 'T00:00:00') : start;
+    if (isNaN(start.getTime())) return;
+    const cursor = new Date(Math.max(start.getTime(), monthStart.getTime()));
+    const stop = new Date(Math.min(end.getTime(), monthEnd.getTime()));
+    while (cursor <= stop) {
+      const key = `${cursor.getFullYear()}-${String(cursor.getMonth()+1).padStart(2,'0')}-${String(cursor.getDate()).padStart(2,'0')}`;
+      if (ev.event_type === 'firm_closed') {
+        firmClosedDays.add(key);
+      } else if (ev.user_display_name) {
+        const ck = cellKey(ev.user_display_name, key);
+        if (!personDay[ck]) personDay[ck] = [];
+        personDay[ck].push(ev);
+      }
+      cursor.setDate(cursor.getDate() + 1);
+    }
+  });
+
+  const typeColour = (t) => {
+    const meta = CAL_EVENT_TYPES.find(x => x.value === t);
+    return meta ? meta.colour : '#9ca3af';
+  };
+  const typeLabel = (t) => {
+    const meta = CAL_EVENT_TYPES.find(x => x.value === t);
+    return meta ? meta.label : t;
+  };
+
+  let html = `<div class="report__section" style="margin-top:var(--space-lg)">`;
+  // Controls bar: prev/today/next + layout toggle + add-event button
+  html += `<div class="people-cal__controls">`;
+  html += `<button class="cal__nav-btn" onclick="_calMonth--;if(_calMonth<0){_calMonth=11;_calYear--;}_calEventsKey='';renderContent()">&laquo; Prev</button>`;
+  html += `<button class="cal__nav-btn" onclick="_calMonth=new Date().getMonth();_calYear=new Date().getFullYear();_calEventsKey='';renderContent()">Today</button>`;
+  html += `<div class="cal__month-title" style="font-weight:600;font-size:0.95rem">${esc(monthName)}</div>`;
+  html += `<button class="cal__nav-btn" onclick="_calMonth++;if(_calMonth>11){_calMonth=0;_calYear++;}_calEventsKey='';renderContent()">Next &raquo;</button>`;
+  html += `<div style="flex:1"></div>`;
+  html += `<div class="task-subview-toggle">
+    <button class="task-subview-btn ${_peopleCalView==='roster'?'active':''}" onclick="_peopleCalView='roster';localStorage.setItem('nbi_people_cal_view','roster');renderContent()">Roster</button>
+    <button class="task-subview-btn ${_peopleCalView==='month'?'active':''}" onclick="_peopleCalView='month';localStorage.setItem('nbi_people_cal_view','month');renderContent()">Month</button>
+  </div>`;
+  html += `<button class="btn btn--sm btn--primary" onclick="openCalendarEventModal()">+ Add Event</button>`;
+  html += `</div>`;
+
+  // Legend
+  html += `<div class="people-cal__legend">`;
+  CAL_EVENT_TYPES.forEach(t => {
+    html += `<span class="people-cal__legend-item"><span class="people-cal__legend-swatch" style="background:${t.colour}"></span>${esc(t.label)}${t.adminOnly ? ' <em style="color:var(--text-muted);font-size:0.65rem">(admin)</em>' : ''}</span>`;
+  });
+  html += `</div>`;
+
+  if (_peopleCalView === 'roster') {
+    // --- ROSTER VIEW -------------------------------------------------------
+    // Horizontal: name column + one cell per day of the visible month.
+    // Sticky first column so the name stays put while scrolling. Firm-closed
+    // days get a grey overlay across every row. Click an empty cell in your
+    // own row to create, click a filled cell to edit.
+    const myName = (_currentUser && (_currentUser.displayName || _currentUser.display_name)) || '';
+    const isAdmin = _currentUser && _currentUser.role === 'admin';
+    html += `<div class="people-cal__roster-wrap"><table class="people-cal__roster"><thead><tr>`;
+    html += `<th class="people-cal__roster-name">Person</th>`;
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${year}-${String(monthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const dt = new Date(year, monthIdx, d);
+      const dow = dt.getDay();
+      const isWknd = (dow === 0 || dow === 6);
+      const isToday = dateStr === todayStr;
+      const isFirmClosed = firmClosedDays.has(dateStr);
+      let cls = 'people-cal__roster-daycol';
+      if (isWknd) cls += ' is-weekend';
+      if (isToday) cls += ' is-today';
+      if (isFirmClosed) cls += ' is-firm-closed';
+      html += `<th class="${cls}" data-date="${dateStr}" title="${dt.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}${isFirmClosed ? ' — FIRM CLOSED' : ''}">${d}<div class="people-cal__roster-dow">${['S','M','T','W','T','F','S'][dow]}</div></th>`;
+    }
+    html += `</tr></thead><tbody>`;
+    allPeople.forEach(person => {
+      const isMe = person === myName;
+      const userId = lookupUserId(person);
+      html += `<tr>`;
+      html += `<td class="people-cal__roster-name">${esc(person)}</td>`;
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dateStr = `${year}-${String(monthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const evs = personDay[cellKey(person, dateStr)] || [];
+        const isFirmClosed = firmClosedDays.has(dateStr);
+        const dt = new Date(year, monthIdx, d);
+        const dow = dt.getDay();
+        const isWknd = (dow === 0 || dow === 6);
+        let cellCls = 'people-cal__roster-cell';
+        if (isWknd) cellCls += ' is-weekend';
+        if (isFirmClosed) cellCls += ' is-firm-closed';
+        const canCreate = isMe || isAdmin;
+        const canEdit = (ev) => isAdmin || (myName && ev.user_display_name === myName);
+        if (evs.length === 0) {
+          if (canCreate) {
+            // Empty cell — click to create in this row, prefilled for this user
+            const targetId = isMe ? '' : (isAdmin && userId ? userId : '');
+            html += `<td class="${cellCls}" data-date="${dateStr}" onclick="openCalendarEventModal(null, { start_date: '${dateStr}', end_date: '${dateStr}', user_id: '${targetId}', user_display_name: '${escAttrJs(person)}' })" title="Add event for ${esc(person)} on ${dateStr}"></td>`;
+          } else {
+            html += `<td class="${cellCls}"></td>`;
+          }
+        } else {
+          // Filled cell — single or multiple events stacked as thin bars
+          let inner = '';
+          evs.forEach(ev => {
+            const editable = canEdit(ev);
+            const title = `${typeLabel(ev.event_type)}: ${ev.title || ''}`;
+            inner += `<div class="people-cal__roster-bar" style="background:${typeColour(ev.event_type)}" ${editable ? `onclick="event.stopPropagation();openCalendarEventDetail('${escAttrJs(ev.id)}')"` : ''} title="${esc(title)}"></div>`;
+          });
+          html += `<td class="${cellCls}" data-date="${dateStr}">${inner}</td>`;
+        }
+      }
+      html += `</tr>`;
+    });
+    // Firm closed row (admin-scoped row at the bottom showing any admin-created closures)
+    if (firmClosedDays.size > 0 || isAdmin) {
+      html += `<tr class="people-cal__roster-firm-row"><td class="people-cal__roster-name">Firm Closed</td>`;
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dateStr = `${year}-${String(monthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const isFirmClosed = firmClosedDays.has(dateStr);
+        if (isFirmClosed) {
+          // Find the firm_closed event for this day and wire edit
+          const ev = (_calEvents || []).find(e => {
+            if (e.event_type !== 'firm_closed' || !e.start_date) return false;
+            const s = new Date(e.start_date + 'T00:00:00');
+            const en = e.end_date ? new Date(e.end_date + 'T00:00:00') : s;
+            const cur = new Date(year, monthIdx, d);
+            return s <= cur && cur <= en;
+          });
+          const clickAttr = isAdmin && ev ? `onclick="openCalendarEventDetail('${escAttrJs(ev.id)}')"` : '';
+          html += `<td class="people-cal__roster-cell is-firm-closed-full" ${clickAttr} title="${ev ? esc(ev.title || 'Firm Closed') : 'Firm Closed'}"></td>`;
+        } else if (isAdmin) {
+          html += `<td class="people-cal__roster-cell" data-date="${dateStr}" onclick="openCalendarEventModal(null, { start_date: '${dateStr}', end_date: '${dateStr}', event_type: 'firm_closed' })" title="Admin: add firm closure"></td>`;
+        } else {
+          html += `<td class="people-cal__roster-cell"></td>`;
+        }
+      }
+      html += `</tr>`;
+    }
+    html += `</tbody></table></div>`;
+  } else {
+    // --- MONTH GRID VIEW ---------------------------------------------------
+    // Standard calendar month layout with one cell per day. Each cell
+    // shows stacked coloured chips for every person with an event that day.
+    const startDow = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1; // Monday-first
+    html += `<div class="people-cal__grid">`;
+    ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].forEach(d => { html += `<div class="people-cal__grid-header">${d}</div>`; });
+    // Leading blank cells for the first row
+    for (let i = 0; i < startDow; i++) {
+      html += `<div class="people-cal__grid-cell is-other-month"></div>`;
+    }
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${year}-${String(monthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const isFirmClosed = firmClosedDays.has(dateStr);
+      const isToday = dateStr === todayStr;
+      const dt = new Date(year, monthIdx, d);
+      const dow = dt.getDay();
+      const isWknd = (dow === 0 || dow === 6);
+      let cls = 'people-cal__grid-cell';
+      if (isWknd) cls += ' is-weekend';
+      if (isToday) cls += ' is-today';
+      if (isFirmClosed) cls += ' is-firm-closed';
+      // Collect all events that overlap this day
+      const dayEvents = (_calEvents || []).filter(ev => {
+        if (!ev.start_date) return false;
+        const s = new Date(ev.start_date + 'T00:00:00');
+        const en = ev.end_date ? new Date(ev.end_date + 'T00:00:00') : s;
+        const cur = new Date(year, monthIdx, d);
+        return s <= cur && cur <= en;
+      });
+      html += `<div class="${cls}" data-date="${dateStr}" onclick="openCalendarEventModal(null, { start_date: '${dateStr}', end_date: '${dateStr}' })">`;
+      html += `<div class="people-cal__grid-daynum">${d}</div>`;
+      if (isFirmClosed) {
+        html += `<div class="people-cal__grid-firm-label">FIRM CLOSED</div>`;
+      }
+      dayEvents.forEach(ev => {
+        if (ev.event_type === 'firm_closed') return; // already shown above
+        const name = ev.user_display_name || '';
+        html += `<div class="people-cal__grid-chip" style="background:${typeColour(ev.event_type)}" onclick="event.stopPropagation();openCalendarEventDetail('${escAttrJs(ev.id)}')" title="${esc(typeLabel(ev.event_type))}: ${esc(ev.title || '')} — ${esc(name)}"><span class="people-cal__grid-chip-name">${esc(name.split(' ')[0] || '?')}</span></div>`;
+      });
+      html += `</div>`;
+    }
+    html += `</div>`;
+  }
+
+  html += `</div>`;
+  return html;
 }
 
 /** Check if we can staff a lead's required roles — shows green/red per role in the lead detail */
