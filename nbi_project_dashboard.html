@@ -5000,6 +5000,10 @@ let _calEventsKey = '';              // Cache key (year-month) so re-renders don
 let _calShowOthers = true;           // Toggle: show events created by other users
 let _calTeamFilter = '';             // Selected team_id for the calendar team filter (empty = no filter)
 let _teamMembersCache = {};          // team_id → [display_name, ...] for fanning team events onto roster rows
+let _capacityEvents = [];            // Calendar events covering the Capacity Planning 4-week window
+let _capacityEventsKey = '';         // Cache key so re-renders of People view don't re-fetch
+// Event types that reduce a person's effective weekly capacity. Full day off each.
+const CAPACITY_REDUCING_TYPES = ['vacation', 'sick_leave', 'uto', 'bank_holiday', 'firm_closed'];
 const CAL_EVENT_TYPES = [
   { value: 'vacation',    label: 'Vacation',     colour: '#22c55e' },
   { value: 'sick_leave',  label: 'Sick Leave',   colour: '#ef4444' },
@@ -5061,6 +5065,63 @@ async function loadCalendarEvents(year, month) {
   if (main && taskSubView === 'calendar') { renderContent(); return; }
   // People → Calendar sub-view (D92)
   if (currentView === 'people' && _peopleSubView === 'calendar') { renderContent(); return; }
+}
+
+/**
+ * Fetch calendar events covering the Capacity Planning 4-week window so the
+ * People → Workload capacity table can deduct time off (vacation, sick_leave,
+ * uto, bank_holiday, firm_closed) from each person's weekly capacity (D93).
+ * Separate from _calEvents because that cache is keyed to the visible
+ * calendar month, while capacity is always "today → today+28 days".
+ */
+async function loadCapacityEvents() {
+  const fmt = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const start = new Date(); start.setHours(0,0,0,0);
+  start.setDate(start.getDate() - start.getDay() + 1); // Monday of current week
+  const end = new Date(start); end.setDate(end.getDate() + 28); // +4 weeks
+  const key = `${fmt(start)}:${fmt(end)}`;
+  if (_capacityEventsKey === key && _capacityEvents.length >= 0) return;
+  try {
+    const events = await apiCall(`/api/calendar-events?from=${fmt(start)}&to=${fmt(end)}`);
+    _capacityEvents = Array.isArray(events) ? events : [];
+    _capacityEventsKey = key;
+  } catch (e) {
+    _capacityEvents = [];
+    _capacityEventsKey = '';
+  }
+}
+
+/**
+ * Count how many weekdays (Mon-Fri only) within [weekStart, weekEnd] the
+ * given person has off based on capacity-reducing calendar events. Counts
+ * firm_closed events for everyone; personal events only for the named
+ * person. Returns the weekday count (0-5), clamped.
+ */
+function computeDaysOff(person, weekStart, weekEnd, events) {
+  if (!Array.isArray(events) || events.length === 0) return 0;
+  const personKey = person || '';
+  const daysOff = new Set();
+  events.forEach(ev => {
+    if (!ev || !ev.start_date) return;
+    if (!CAPACITY_REDUCING_TYPES.includes(ev.event_type)) return;
+    const isFirm = ev.event_type === 'firm_closed';
+    const isForThisPerson = isFirm || ev.user_display_name === personKey;
+    if (!isForThisPerson) return;
+    const s = new Date(ev.start_date + 'T00:00:00');
+    const eEnd = ev.end_date ? new Date(ev.end_date + 'T00:00:00') : new Date(s);
+    // Walk every day in the event's range that falls inside the requested week
+    const cursor = new Date(Math.max(s.getTime(), weekStart.getTime()));
+    const stop = new Date(Math.min(eEnd.getTime(), weekEnd.getTime()));
+    while (cursor <= stop) {
+      const dow = cursor.getDay(); // 0=Sun, 6=Sat
+      if (dow !== 0 && dow !== 6) {
+        const key = `${cursor.getFullYear()}-${cursor.getMonth()}-${cursor.getDate()}`;
+        daysOff.add(key);
+      }
+      cursor.setDate(cursor.getDate() + 1);
+    }
+  });
+  return Math.min(5, daysOff.size);
 }
 
 /** Build a date-keyed map of events that overlap each day in the visible month. */
@@ -5325,6 +5386,7 @@ async function submitCalendarEvent(eventId) {
   modal.remove();
   toast(eventId ? 'Event updated' : 'Event created');
   _calEventsKey = '';
+  _capacityEventsKey = ''; // D93: invalidate capacity cache so People view picks up the change
   await loadCalendarEvents(_calYear, _calMonth);
 }
 
@@ -5343,6 +5405,7 @@ async function deleteCalendarEventFromModal(eventId) {
   document.getElementById('calEventModal')?.remove();
   toast('Event deleted');
   _calEventsKey = '';
+  _capacityEventsKey = ''; // D93: invalidate capacity cache so People view picks up the change
   await loadCalendarEvents(_calYear, _calMonth);
 }
 
@@ -8357,6 +8420,19 @@ function normaliseAssignees(rawNames) {
 
 /** Render the people view: workload overview, capacity planning, hours-by-client, or individual person detail */
 function renderPeopleView(el) {
+  // D93: Capacity Planning reads from _capacityEvents which is keyed to
+  // today → today+28 days. Fetch once per view render if missing, then
+  // re-render so the table shows effective capacity with days off deducted.
+  const capKey = (() => {
+    const s = new Date(); s.setHours(0,0,0,0);
+    s.setDate(s.getDate() - s.getDay() + 1);
+    const e = new Date(s); e.setDate(e.getDate() + 28);
+    const fmt = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    return `${fmt(s)}:${fmt(e)}`;
+  })();
+  if (_capacityEventsKey !== capKey) {
+    loadCapacityEvents().then(() => { if (currentView === 'people') renderContent(); });
+  }
   const scopedTasks = currentFilter.client ? tasks.filter(t => getTaskClient(t) === currentFilter.client) : tasks;
   const assigneeSet = new Set();
   scopedTasks.forEach(t => { if (t.assignees) t.assignees.forEach(a => assigneeSet.add(a)); });
@@ -8514,8 +8590,10 @@ function renderPeopleView(el) {
     });
     html += `</div></div>`;
 
-    // Capacity Planning — next 4 weeks, sortable per column (G4)
-    html += `<div class="report__section"><h2>Capacity Planning <span style="font-weight:400;font-size:0.72rem;color:var(--text-muted)">Next 4 weeks &middot; 40hr/week baseline</span></h2>`;
+    // Capacity Planning — next 4 weeks, sortable per column (G4 + D93)
+    // D93: effective capacity subtracts days off from calendar events
+    // (vacation, sick_leave, uto, bank_holiday, firm_closed). 8h per weekday off.
+    html += `<div class="report__section"><h2>Capacity Planning <span style="font-weight:400;font-size:0.72rem;color:var(--text-muted)">Next 4 weeks &middot; 40hr/week baseline, less days off from calendar</span></h2>`;
     const capNow = new Date(); capNow.setHours(0,0,0,0);
     const capWeeks = [];
     for (let w = 0; w < 4; w++) {
@@ -8523,7 +8601,7 @@ function renderPeopleView(el) {
       const wEnd = new Date(wStart); wEnd.setDate(wEnd.getDate() + 6);
       capWeeks.push({ start: wStart, end: wEnd, label: wStart.toLocaleDateString('en-GB', {day:'numeric',month:'short'}), key: 'w'+w });
     }
-    // Build rows with per-week committed hours so we can sort them
+    // Build rows with per-week committed hours, days off, and effective capacity
     const capRows = allPeople.map(p => {
       const row = { name: p };
       capWeeks.forEach(wk => {
@@ -8536,6 +8614,10 @@ function renderPeopleView(el) {
           return (!start || start <= wk.end) && end >= wk.start;
         });
         row[wk.key] = weekTasks.reduce((s,t) => s + (t.hoursEstimated||0), 0);
+        // D93: deduct full-day time off from effective capacity
+        const daysOff = computeDaysOff(p, wk.start, wk.end, _capacityEvents);
+        row[wk.key + '_off'] = daysOff;
+        row[wk.key + '_eff'] = Math.max(0, WEEKLY_CAPACITY - daysOff * 8);
       });
       return row;
     });
@@ -8561,9 +8643,20 @@ function renderPeopleView(el) {
       html += `<tr><td><strong>${esc(r.name)}</strong></td>`;
       capWeeks.forEach(wk => {
         const committedHrs = r[wk.key];
-        const pct = Math.round((committedHrs / WEEKLY_CAPACITY) * 100);
+        const daysOff = r[wk.key + '_off'];
+        const effCap = r[wk.key + '_eff'];
+        // Fully off: show "OFF" label, no percentage maths
+        if (effCap === 0) {
+          html += `<td style="text-align:center"><span style="color:var(--text-muted);font-weight:600;font-family:var(--font-mono)">OFF</span><div style="font-size:0.6rem;color:var(--text-muted)">${daysOff}d off</div></td>`;
+          return;
+        }
+        const pct = Math.round((committedHrs / effCap) * 100);
         const col = pct > 100 ? 'var(--danger)' : pct > 80 ? 'var(--warning)' : pct > 50 ? 'var(--accent)' : 'var(--text-muted)';
-        html += `<td style="text-align:center"><span style="color:${col};font-weight:600;font-family:var(--font-mono)">${committedHrs.toFixed(0)}h</span><div style="font-size:0.6rem;color:var(--text-muted)">${pct}%</div></td>`;
+        // Sub-label format: "committed/effective" when any days off, else just "commit/40"
+        const subLabel = daysOff > 0
+          ? `${pct}% &middot; ${daysOff}d off`
+          : `${pct}%`;
+        html += `<td style="text-align:center"><span style="color:${col};font-weight:600;font-family:var(--font-mono)">${committedHrs.toFixed(0)}h<span style="color:var(--text-muted);font-weight:400">/${effCap}h</span></span><div style="font-size:0.6rem;color:var(--text-muted)">${subLabel}</div></td>`;
       });
       html += `</tr>`;
     });
