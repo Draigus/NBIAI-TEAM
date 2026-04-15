@@ -4,6 +4,31 @@ Append-only. Every feature/fix completed gets logged here immediately.
 
 ---
 
+## 2026-04-15 (Session — Kanban merge + Phase 1 cleanup)
+
+### Kanban drag-to-reorder (D79) — MERGED
+- Merge commit `e9b6166` on master. 22 commits from `kanban-drag-reorder` branch.
+- Migration 021 applied to dev DB; backfill verified dense across all four tables.
+- Full test suite green: 53 vitest + 7 playwright = 60 tests.
+- PM2 restarted, dev server running the new code on port 8888.
+- Deliverable note lives in the plan file (`.claude/plans/iridescent-imagining-kitten.md`); not written as a separate deliverable doc yet.
+
+### Phase 1: Cleanup (Master Workload Roadmap)
+
+**B1 — express-rate-limit IPv6 fix** — commit `69f4129`
+- `dashboard-server/server.js:44` — imported `ipKeyGenerator` from `express-rate-limit`
+- `dashboard-server/server.js:443-447` — keyGenerator now delegates to `ipKeyGenerator(req)` for the fallback path
+- PM2 restart at 12:07:25 produced a clean boot log (no ValidationError)
+
+**B2 — Sync endpoint [[]] malformed array fix** — commit `6d33612`
+- `dashboard-server/server.js:3838-3860` — added `normaliseStringArray()` helper in the sync upsert loop. Flattens + string-filters `t.assignees` and `t.dependencies` and logs `warn 'Sync' 'Normalised non-flat array field'` with taskId + before/after when it has to rewrite a payload.
+- `dashboard-server/tests/unit/sync.test.mjs` — new file, 3 tests covering [[]] input, well-formed input, and mixed-garbage normalisation.
+- Existing PM2 log spam was from the frontend sending `[[]]`; the defensive normalisation catches it at the server boundary. Frontend source still pending identification from the next live warn-log hit.
+
+**Phase 1 status:** done. Test count 56/56 (56 vitest + 7 playwright pending). Next: Phase 2 (K1 — Playwright drag specs).
+
+---
+
 ## 2026-04-14 (Session b — Deferred Audit Items)
 
 Picked up the overnight backlog after session a ran into context limits mid-review. Finished the deferred audit items that were not blocked on external input.

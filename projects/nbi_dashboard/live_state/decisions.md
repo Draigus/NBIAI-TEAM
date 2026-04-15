@@ -248,3 +248,18 @@ Glen sent six follow-up requests before going to sleep, captured in `pending_tas
 5. **G5**: Client-scoped users (e.g. Lorenza for Couch Heroes) — biggest item, requires spec + plan first. Effectively a multi-day project.
 
 Glen's instruction was "just keep working" overnight. Order of execution: finish Kanban → G1 → G2 → G4 → G3 → G5 spec/plan. Continue committing frequently and update live_state after each merge.
+
+### D83: NSI = National Strategic Insights
+Clarified 2026-04-15 during master plan brainstorm. NSI is a client (not a practice), abbreviation "NSI" in the collapsed sidebar.
+
+### D84: Practice model — Gaming + Organizational Health only
+Going forward there are exactly two practices: slugs `gaming` and `organisational_health`, display labels "Gaming" and "Organizational Health" (short: "Org Health"). The "general" practice is removed. All existing work migrates to `gaming`. Going forward, **practice is mandatory at client creation** — the client-creation modal forces the user to pick one before saving, and `POST /api/clients` validates it.
+
+### D85: G5 (Client-scoped users) earmarked for Phase 6 brainstorming
+No spec work in the 2026-04-15 planning round. When we reach Phase 6, a dedicated brainstorming session produces the spec and implementation plan before any code. Glen's call on timing — expected after all S/M/L items above are done.
+
+### D86: Master Workload Roadmap — phase-by-phase execution with stop points
+Approved plan `.claude/plans/iridescent-imagining-kitten.md`. 30 tracked items across 10 phases. I execute Phases 1 through 5 continuously with brief check-ins between phases; Phases 6-10 require explicit approval per-phase (they're decision points, not execution slots).
+
+### D87: Sync array-literal bug — server-side defensive normalisation
+Pre-existing bug from ~10:00 2026-04-15. Frontend was intermittently POSTing `task.assignees = [[]]` or `task.dependencies = [[]]` to `/api/sync/changes`, which Postgres text[] columns rejected as malformed literal `"{{}}"`. Fixed at the server boundary: the sync upsert loop now flattens + string-filters both fields before the query runs, and logs `warn 'Sync' 'Normalised non-flat array field'` with taskId + before/after when it has to rewrite. Frontend source of the bad shape is still pending identification — the warn-log is how we catch it next time. 3 regression tests in `tests/unit/sync.test.mjs`. Commit `6d33612`.
