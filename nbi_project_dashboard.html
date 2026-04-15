@@ -76,6 +76,14 @@ html[data-theme="light"] .task-children { background: rgba(0,85,221,0.02); borde
 html[data-theme="light"] .toast--success { background: #ecfdf5; border-color: var(--success-border); color: #166534; }
 html[data-theme="light"] .toast--error { background: #fef2f2; border-color: var(--danger-border); color: #991b1b; }
 html[data-theme="light"] .toast--warning { background: #fffbeb; border-color: var(--warning-border); color: #92400e; }
+/* O3: warnings sidebar light-theme contrast tweaks (2026-04-15)
+   The default .warn-item hover uses --bg-hover (#e8e8ec) which is only ~5%
+   darker than --bg-card (#ffffff), making the hover state nearly invisible
+   in light mode. Bump it to a tinted accent so the hover is unambiguous. */
+html[data-theme="light"] .warn-item:hover { background: color-mix(in srgb, var(--accent) 6%, var(--bg-card)); border-color: var(--accent-border); }
+html[data-theme="light"] .warn-alert-panel__tab-count { background: var(--danger); color: #fff; }
+html[data-theme="light"] .warn-item__sev--medium { background: #fef3c7; color: #92400e; border-color: #fbbf24; }
+html[data-theme="light"] .warn-item__sev--low { background: #f3f4f6; color: #4b5563; border-color: #d1d5db; }
 
 /* ===== MIDNIGHT THEME ===== */
 html[data-theme="midnight"] {
@@ -1183,6 +1191,11 @@ span.fin-editable { display: inline-block; position: relative; }
 .lead-card--complete { opacity: 0.6; position: relative; }
 .lead-card--complete::after { content: '\2713'; position: absolute; bottom: 4px; right: 6px; color: var(--success); font-size: 1.2rem; font-weight: bold; }
 .lead-card--complete .leads-card__title, .lead-card--complete .leads-card__client, .lead-card--complete .leads-card__meta { color: var(--text-muted); }
+/* O7: Won lead marker on the table view — strikethrough and muted */
+.leads-table__row--complete td { color: var(--text-muted); }
+.leads-table__row--complete td:nth-child(3) { /* Title column */
+  background: linear-gradient(transparent, transparent 49%, var(--success) 49%, var(--success) 51%, transparent 51%);
+}
 .lead-detail--complete { opacity: 0.85; }
 .lead-detail--complete input:not([type=button]):not([type=submit]), .lead-detail--complete textarea, .lead-detail--complete select { pointer-events: none; opacity: 0.55; }
 .lead-detail--complete .btn--success, .lead-detail--complete .btn--outline, .lead-detail--complete .btn--ghost, .lead-detail--complete .btn--danger, .lead-detail--complete button[onclick*="uncompleteLead"], .lead-detail--complete button[onclick*="closeLeadDetail"] { pointer-events: auto; opacity: 1; }
@@ -7793,6 +7806,13 @@ function quickAddTask(title) {
 
 /** Render the executive report view: KPI strip, blocked/at-risk, project table, workload, and charts */
 function renderReport(el) {
+  // Skeleton placeholder while the initial sync/load is still in flight (O4)
+  if (tasks.length === 0 && !window._initialLoadComplete) {
+    el.innerHTML = '<div style="padding:24px"><div class="skeleton skeleton-card"></div>' +
+      Array(5).fill('<div class="skeleton skeleton-row"></div>').join('') +
+      '<span class="visually-hidden">Loading report</span></div>';
+    return;
+  }
   const scopedTasks = currentFilter.client ? tasks.filter(t => getTaskClient(t) === currentFilter.client) : tasks;
   const statusC = countByStatus(scopedTasks);
   const healthC = countByHealth(scopedTasks);
@@ -11439,10 +11459,11 @@ function renderLeadsTable(el, leads) {
 
   sortedLeads.forEach(lead => {
     const isOverdue = lead.next_followup_date && new Date(lead.next_followup_date) < new Date(new Date().toDateString());
-    html += `<tr onclick="openLeadDetail('${lead.id}')" class="leads-table__row">`;
+    const isComplete = !!lead.completed_at;
+    html += `<tr onclick="openLeadDetail('${lead.id}')" class="leads-table__row${isComplete ? ' leads-table__row--complete' : ''}">`;
     html += `<td>${lead.priority ? `<span class="leads-card__prio leads-card__prio--${lead.priority}">P${lead.priority}</span>` : ''}</td>`;
     html += `<td>${lead.client_name ? esc(lead.client_name) : ''}</td>`;
-    html += `<td><strong>${esc(lead.title)}</strong></td>`;
+    html += `<td><strong>${isComplete ? '\u2713 ' : ''}${esc(lead.title)}</strong></td>`;
     html += `<td>${lead.work_type ? esc(lead.work_type) : ''}</td>`;
     html += `<td><span class="leads-stage-badge" style="background:${safeColour(lead.stage_colour)}20;color:${safeColour(lead.stage_colour)};border:1px solid ${safeColour(lead.stage_colour)}40">${esc(lead.stage_name)}</span></td>`;
     html += `<td>${formatROM(lead)}</td>`;
@@ -11479,9 +11500,11 @@ function renderLeadsCardList(el, leads) {
     }
     stageLeads.forEach(lead => {
       const isOverdue = lead.next_followup_date && new Date(lead.next_followup_date) < new Date(new Date().toDateString());
-      html += `<div class="leads-card-list__item" onclick="openLeadDetail('${lead.id}')">`;
+      const isComplete = !!lead.completed_at;
+      html += `<div class="leads-card-list__item${isComplete ? ' lead-card--complete' : ''}" onclick="openLeadDetail('${lead.id}')">`;
       html += `<div class="leads-card-list__top">`;
       if (lead.priority) html += `<span class="leads-card__prio leads-card__prio--${lead.priority}">P${lead.priority}</span>`;
+      if (isComplete) html += `<span style="color:var(--success);font-weight:700;font-size:0.78rem">\u2713 Won</span>`;
       html += `</div>`;
       html += `<div class="leads-card-list__title">${esc(lead.title)}</div>`;
       if (lead.client_name) html += `<div class="leads-card-list__client">${esc(lead.client_name)}</div>`;
@@ -11675,7 +11698,10 @@ function renderLeadsByClient(el, leads) {
 // ---- MANAGE CLIENTS VIEW ----
 /** Render the client management view with expandable rows for contacts */
 async function renderManageClients(el) {
-  el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted)">Loading clients...</div>';
+  // Skeleton placeholder while the clients fetch is in flight (O4)
+  el.innerHTML = '<div style="padding:24px"><div class="skeleton skeleton-card"></div>' +
+    Array(5).fill('<div class="skeleton skeleton-row"></div>').join('') +
+    '<span class="visually-hidden">Loading clients</span></div>';
 
   let clients = [];
   try {
@@ -13214,6 +13240,17 @@ async function loadBugReports() {
  * @param {HTMLElement} container - The DOM element to render the view into
  */
 function renderBugTrackerView(container) {
+  // Skeleton placeholder while the initial loadBugReports() is still in flight.
+  // _bugReportsData starts as null and is populated by loadBugReports during
+  // the post-login Promise.all. If the user clicks Bug Tracker before that
+  // resolves they'd otherwise see a misleading empty state.
+  if (_bugReportsData === null) {
+    container.innerHTML = '<div style="padding:24px"><div class="skeleton skeleton-card"></div>' +
+      Array(5).fill('<div class="skeleton skeleton-row"></div>').join('') +
+      '<span class="visually-hidden">Loading bug reports</span></div>';
+    if (typeof loadBugReports === 'function') loadBugReports().then(() => { if (currentView === 'bugs') renderContent(); });
+    return;
+  }
   const reports = (_bugReportsData && _bugReportsData.reports) || [];
   const isAdmin = _currentUser && _currentUser.role === 'admin';
 
@@ -14037,9 +14074,12 @@ async function onHiringLaneDrop(ev, newStage) {
 }
 
 function renderHiringView(container) {
-  // First render: kick off async loads then re-render once data is in
+  // First render: kick off async loads then re-render once data is in.
+  // Skeleton placeholders match the Leads / Expenses pattern (O4, 2026-04-15).
   if (!window._hiringLoaded) {
-    container.innerHTML = '<div class="hiring"><div style="padding:24px;color:var(--text-muted)">Loading hiring data...</div></div>';
+    container.innerHTML = '<div class="hiring" style="padding:24px"><div class="skeleton skeleton-card"></div>' +
+      Array(5).fill('<div class="skeleton skeleton-row"></div>').join('') +
+      '<span class="visually-hidden">Loading hiring data</span></div>';
     Promise.all([loadCandidates(), loadHiringPositions()]).then(() => {
       window._hiringLoaded = true;
       if (currentView === 'hiring') renderContent();
