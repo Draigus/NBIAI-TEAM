@@ -1542,7 +1542,9 @@ span.fin-editable { display: inline-block; position: relative; }
 .bug-tracker__filters { display: flex; gap: var(--space-sm); align-items: center; flex-wrap: wrap; }
 .bug-tracker__search { padding: 6px 10px; border: 1px solid var(--border-default); border-radius: var(--radius-sm); background: var(--bg-input); color: var(--text-primary); font-size: 0.8rem; width: 200px; }
 .bug-tracker__list { border: 1px solid var(--border-default); border-radius: var(--radius-md); overflow: hidden; }
-.bug-tracker__row { display: grid; grid-template-columns: 60px 80px 1fr 100px 120px 90px 50px; align-items: center; padding: 10px var(--space-md); border-bottom: 1px solid var(--border-default); cursor: pointer; transition: background 0.12s; font-size: 0.82rem; gap: var(--space-sm); }
+.bug-tracker__row { display: grid; grid-template-columns: 80px 90px 1fr 100px 120px 90px 50px; align-items: center; padding: 10px var(--space-md); border-bottom: 1px solid var(--border-default); cursor: pointer; transition: background 0.12s; font-size: 0.82rem; gap: var(--space-sm); }
+.bug-tracker__row > span { min-width: 0; overflow: hidden; }
+.bug-tracker__row > span:first-child { overflow: visible; }
 .bug-tracker__row:hover { background: var(--bg-hover); }
 .bug-tracker__row:last-child { border-bottom: none; }
 .bug-tracker__row--header { background: var(--bg-surface); font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); cursor: default; }
@@ -1959,7 +1961,7 @@ span.fin-editable { display: inline-block; position: relative; }
   <div class="g-header__actions">
     <span id="userBadge" class="header-desktop-only" style="color:var(--text-secondary);font-size:0.82rem;margin-right:4px;"></span>
     <div class="add-item-menu" style="position:relative;display:inline-flex">
-      <button class="btn btn--primary" onclick="addTask()" style="border-radius:var(--radius-sm) 0 0 var(--radius-sm)"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 1v12M1 7h12"/></svg><span class="header-desktop-only"> New</span></button>
+      <button class="btn btn--primary" onclick="addTask()" style="border-radius:var(--radius-sm) 0 0 var(--radius-sm);font-weight:700;font-size:0.85rem;letter-spacing:0.3px;padding:6px 12px"><svg width="16" height="16" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 1v12M1 7h12"/></svg><span class="header-desktop-only">New</span></button>
       <button class="btn btn--primary" onclick="toggleAddItemMenu(event)" style="padding:4px 6px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;border-left:1px solid rgba(255,255,255,0.25)">&#9660;</button>
       <div id="addItemMenuDropdown" style="display:none;position:absolute;top:100%;right:0;margin-top:4px;background:var(--bg-raised);border:1px solid var(--border-default);border-radius:var(--radius-sm);box-shadow:var(--shadow-lg);z-index:400;min-width:160px;overflow:hidden">
         <div class="hover-item" role="button" tabindex="0" style="padding:6px 12px;cursor:pointer;font-size:0.82rem;display:flex;gap:8px;align-items:center" onclick="closeAddItemMenu();addItem('project')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}"><span style="width:18px;text-align:center">\u{1F4C1}</span> New Project</div>

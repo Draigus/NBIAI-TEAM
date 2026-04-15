@@ -49,6 +49,26 @@ When instantiating an agent, load: Tier 1 + their Tier 2 + the Tier 3 for their 
 - Everything tailored to NBI's specific situation — no generic/template output
 - If uncertain about a fact, say so — never fabricate
 
+## Bug Triage Pipeline (MANDATORY for every bug_reports item)
+
+Glen's directive 2026-04-15: every item from the dashboard's Bug Tracker that I work on must follow this 7-step pipeline in order. No skipping, no shortcuts.
+
+1. **Receive** — Read the full title and description from the bug_reports row. If there are existing comments, read those too. Capture the exact wording.
+2. **Review** — Find the relevant code. Read enough of it to understand what's happening. If anything is ambiguous, ask Glen via AskUserQuestion BEFORE planning. Don't guess.
+3. **Plan** — Write down (in the response or a TodoWrite list) what files will change, what the fix is, and what could go wrong. For multi-step bugs use the writing-plans skill.
+4. **Prioritise** — If working a batch, slot this item against the others. Quick wins go first; big features go last; blocked items get parked. The current bug's priority field (`critical`/`high`/`medium`/`low`) is the input, my judgement about effort is the multiplier.
+5. **Fix** — Implement the change. Test-first if there's logic worth testing (server endpoints especially). Frontend-only visual fixes can skip the unit test but should still get a Playwright screenshot if the change is non-trivial.
+6. **Test** — Run `npm test` (vitest) and, if frontend was touched, `npm run test:all` (vitest + playwright). Both must be green before moving on.
+7. **Update bug list + add comment** — Set the bug's `status` to `please_review` (or `resolved` if Glen has already signed off in chat). Insert a `bug_report_comments` row authored as 'Glen Pryer' (or whoever ran the fix). The comment MUST:
+   - Start with "Fixed." or "Done."
+   - Explain the root cause in plain English (no jargon: no "memoization", "regex", "scroll-snap-type", "stale closure", etc.)
+   - Explain what changed at a behavioural level (what Glen will see now)
+   - End with "Please test by..." and a one-line reproduction step Glen can click through
+
+After ALL items in a batch are done, commit them as a single feat/fix commit with a multi-bullet message that references each bug ID, then restart PM2 if a server file changed, then update `live_state/work_completed.md` and `live_state/decisions.md` if a meaningful decision was made.
+
+The pipeline applies regardless of who reported the bug or how it arrived (Bug Tracker item, Glen verbal, screenshot in chat, etc). For chat-reported issues that don't yet have a bug_reports row, create one as the first step (status `open`, then go through the pipeline and end at `please_review`).
+
 ## Agent Communication Protocol
 
 1. Direct reports: Agents assign tasks directly to their reports
