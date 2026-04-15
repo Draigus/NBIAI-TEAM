@@ -1645,6 +1645,22 @@ span.fin-editable { display: inline-block; position: relative; }
 .hiring-stage-badge--offer { background: color-mix(in srgb, #a855f7 15%, var(--bg-card)); color: #a855f7; }
 .hiring-stage-badge--hired { background: var(--success-bg); color: var(--success); }
 .hiring-stage-badge--rejected { background: var(--danger-bg); color: var(--danger); }
+/* Glen's 8-stage hiring process (bug b7a2f97f). Colour progression from
+   neutral grey at discovery to success green at hired. */
+.hiring-stage-badge--find_candidate       { background: var(--bg-surface); color: var(--text-muted); }
+.hiring-stage-badge--upload_cv            { background: color-mix(in srgb, #3b82f6 15%, var(--bg-card)); color: #3b82f6; }
+.hiring-stage-badge--conduct_interviews   { background: color-mix(in srgb, #f59e0b 15%, var(--bg-card)); color: #f59e0b; }
+.hiring-stage-badge--background_check     { background: color-mix(in srgb, #06b6d4 15%, var(--bg-card)); color: #06b6d4; }
+.hiring-stage-badge--establish_start_date { background: color-mix(in srgb, #a855f7 15%, var(--bg-card)); color: #a855f7; }
+.hiring-stage-badge--send_offer_letter    { background: color-mix(in srgb, #ec4899 15%, var(--bg-card)); color: #ec4899; }
+.hiring-stage-badge--onboard_candidate    { background: color-mix(in srgb, #10b981 15%, var(--bg-card)); color: #10b981; }
+.hiring-lane__header--find_candidate       { color: var(--text-secondary); }
+.hiring-lane__header--upload_cv            { color: #3b82f6; }
+.hiring-lane__header--conduct_interviews   { color: #f59e0b; }
+.hiring-lane__header--background_check     { color: #06b6d4; }
+.hiring-lane__header--establish_start_date { color: #a855f7; }
+.hiring-lane__header--send_offer_letter    { color: #ec4899; }
+.hiring-lane__header--onboard_candidate    { color: #10b981; }
 
 .hiring-grid {
   display: grid;
@@ -3294,7 +3310,7 @@ function renderSidebar() {
   const bugOpenCount = ((_bugReportsData && _bugReportsData.reports) || []).filter(r => r.status === 'open' || r.status === 'in_progress').length;
   html += sidebarItem(svgBugs, 'Bug Tracker', bugOpenCount || '', () => switchView('bugs'), currentView==='bugs');
   const svgHiring = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="5" r="2.5"/><path d="M1 14c0-3 2.5-5 5-5 1.3 0 2.5.4 3.4 1.1"/><circle cx="12" cy="11" r="3"/><path d="M12 9.5v3M10.5 11h3"/></svg>';
-  const hiringActiveCount = (_candidatesData || []).filter(c => c.stage !== 'hired' && c.stage !== 'rejected').length;
+  const hiringActiveCount = (_candidatesData || []).filter(c => !c.archived_at).length;
   html += sidebarItem(svgHiring, 'Hiring', hiringActiveCount || '', () => switchView('hiring'), currentView==='hiring');
   if (hasPageAccess('finances')) {
     html += sidebarItem(svgFinances, 'Finances', '', () => switchView('finances'), currentView==='finances');
@@ -12069,7 +12085,7 @@ async function renderManageClients(el) {
           <div style="display:flex;gap:24px;margin:12px 0;padding:12px;background:var(--bg-surface);border-radius:var(--radius-md);flex-wrap:wrap">
             <div><div style="font-size:0.72rem;color:var(--text-muted)">Active Contracts</div><div style="font-size:1.1rem;font-weight:600"><span style="cursor:pointer;color:var(--accent-text);text-decoration:underline" onclick="filterByClient('${escName}');switchView('tasks')" title="View tasks for ${esc(c.name)}">${activeCount}</span></div></div>
             <div><div style="font-size:0.72rem;color:var(--text-muted)">Total SoW Value</div><div style="font-size:1.1rem;font-weight:600">&pound;${totalSoWValue.toLocaleString()}</div></div>
-            <div><div style="font-size:0.72rem;color:var(--text-muted)">Hiring Positions</div><div style="font-size:1.1rem;font-weight:600"><span style="cursor:pointer;color:var(--accent-text);text-decoration:underline" onclick="window._hiringFilterClient='${c.id}';switchView('hiring')" title="View hiring for ${esc(c.name)}">${(_candidatesData || []).filter(x => x.client_id === c.id && x.stage !== 'hired' && x.stage !== 'rejected').length}</span></div></div>
+            <div><div style="font-size:0.72rem;color:var(--text-muted)">Hiring Positions</div><div style="font-size:1.1rem;font-weight:600"><span style="cursor:pointer;color:var(--accent-text);text-decoration:underline" onclick="window._hiringFilterClient='${c.id}';switchView('hiring')" title="View hiring for ${esc(c.name)}">${(_candidatesData || []).filter(x => x.client_id === c.id && !x.archived_at).length}</span></div></div>
           </div>
           <div class="lead-detail__grid" style="max-width:500px">
             <label>Name</label><input type="text" value="${esc(c.name)}" onchange="updateClientField('${c.id}','name',this.value)">
@@ -14258,8 +14274,45 @@ async function saveBugTitle(id) {
 // re-render. Refresh by calling loadCandidates() after any mutation.
 let _candidatesData = [];
 let _hiringPositionsData = [];
-const HIRING_STAGES = ['sourced', 'screening', 'interview', 'offer', 'hired', 'rejected'];
-const HIRING_STAGE_LABELS = { sourced: 'Sourced', screening: 'Screening', interview: 'Interview', offer: 'Offer', hired: 'Hired', rejected: 'Rejected' };
+// Glen's 8-stage hiring process (bug b7a2f97f, migration 024). Linear order.
+// Rejected is no longer a stage — use archived_at on the candidate row to
+// take them out of pipeline (set when Hired is confirmed, also when an
+// active candidate is intentionally archived).
+const HIRING_STAGES = [
+  'find_candidate',
+  'upload_cv',
+  'conduct_interviews',
+  'background_check',
+  'establish_start_date',
+  'send_offer_letter',
+  'onboard_candidate',
+  'hired',
+];
+const HIRING_STAGE_LABELS = {
+  find_candidate:       'Find Candidate',
+  upload_cv:            'Upload CV',
+  conduct_interviews:   'Conduct Interviews',
+  background_check:     'Background Check',
+  establish_start_date: 'Establish Start Date',
+  send_offer_letter:    'Send Offer Letter',
+  onboard_candidate:    'Onboard Candidate',
+  hired:                'Hired',
+};
+/** Return the index of a stage in the linear process, or 0 if unknown. */
+function hiringStageIndex(stage) {
+  const i = HIRING_STAGES.indexOf(stage);
+  return i < 0 ? 0 : i;
+}
+/** Return the next stage in the linear process, or null at the end. */
+function hiringNextStage(stage) {
+  const i = hiringStageIndex(stage);
+  return i >= HIRING_STAGES.length - 1 ? null : HIRING_STAGES[i + 1];
+}
+/** Return the previous stage in the linear process, or null at the start. */
+function hiringPrevStage(stage) {
+  const i = hiringStageIndex(stage);
+  return i <= 0 ? null : HIRING_STAGES[i - 1];
+}
 
 /** Load all candidates from the API into _candidatesData. */
 async function loadCandidates() {
@@ -14286,17 +14339,31 @@ async function loadHiringPositions() {
  *  In Kanban mode the card is draggable so users can move candidates between stage lanes. */
 function renderHiringCard(c, draggable) {
   const due = c.due_date ? new Date(c.due_date) : null;
-  const isLate = due && due < new Date() && c.stage !== 'hired' && c.stage !== 'rejected';
+  const isArchived = !!c.archived_at;
+  const isLate = due && due < new Date() && c.stage !== 'hired' && !isArchived;
   const dueText = due ? due.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '';
   const clientChip = c.client_name ? `<span style="color:var(--text-muted);font-size:0.7rem">${esc(c.client_name)}</span>` : '';
-  const dragAttrs = draggable
+  // Glen's spec (bug b7a2f97f):
+  //  - Role-as-header fallback when no candidate name
+  //  - Warning marker in top-right when current stage has no assignee
+  //  - Archived cards are greyed with a green tick bottom-left
+  const header = c.name && c.name.trim() ? c.name : (c.role || 'Unnamed candidate');
+  const subheader = c.name && c.name.trim() && c.role ? c.role : '';
+  const stageAssignees = (c.stage_assignees && typeof c.stage_assignees === 'object') ? c.stage_assignees : {};
+  const currentStageAssignees = Array.isArray(stageAssignees[c.stage]) ? stageAssignees[c.stage] : [];
+  const unassigned = !isArchived && currentStageAssignees.length === 0;
+  const warnMarker = unassigned ? '<span style="position:absolute;top:4px;right:4px;color:var(--danger);font-size:0.8rem" title="No assignee on the current stage">&#9888;</span>' : '';
+  const archivedMarker = isArchived ? '<span style="position:absolute;bottom:4px;left:4px;color:var(--success);font-size:0.9rem;font-weight:bold" title="Archived (Hired confirmed)">&#10003;</span>' : '';
+  const archivedStyle = isArchived ? 'opacity:0.55;filter:grayscale(0.4);' : '';
+  const dragAttrs = draggable && !isArchived
     ? ` draggable="true" ondragstart="onHiringCardDragStart(event, '${c.id}')" ondragend="onHiringCardDragEnd(event)"`
     : '';
-  return `<div class="hiring-card" data-candidate-id="${c.id}"${dragAttrs} onclick="if(!window._hiringDragActive)openCandidateDetail('${c.id}')" tabindex="0" role="button"
-              aria-label="${esc(c.name)}${c.role ? ', ' + esc(c.role) : ''}${c.client_name ? ', ' + esc(c.client_name) : ''}, stage ${esc(HIRING_STAGE_LABELS[c.stage] || c.stage)}"
+  return `<div class="hiring-card" data-candidate-id="${c.id}" style="position:relative;${archivedStyle}"${dragAttrs} onclick="if(!window._hiringDragActive)openCandidateDetail('${c.id}')" tabindex="0" role="button"
+              aria-label="${esc(header)}${subheader ? ', ' + esc(subheader) : ''}${c.client_name ? ', ' + esc(c.client_name) : ''}, stage ${esc(HIRING_STAGE_LABELS[c.stage] || c.stage)}${unassigned ? ', no assignee' : ''}${isArchived ? ', archived' : ''}"
               onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openCandidateDetail('${c.id}')}">
-    <div class="hiring-card__name">${esc(c.name)}</div>
-    ${c.role ? `<div class="hiring-card__role">${esc(c.role)}</div>` : ''}
+    ${warnMarker}${archivedMarker}
+    <div class="hiring-card__name">${esc(header)}</div>
+    ${subheader ? `<div class="hiring-card__role">${esc(subheader)}</div>` : ''}
     <div class="hiring-card__meta">
       ${clientChip || `<span class="${isLate ? 'hiring-card__due--late' : ''}">${dueText || '\u2014'}</span>`}
       <span class="hiring-stage-badge hiring-stage-badge--${c.stage}" aria-hidden="true">${HIRING_STAGE_LABELS[c.stage] || c.stage}</span>
@@ -14410,6 +14477,20 @@ function renderHiringView(container) {
   let filtered = [...candidates];
   if (window._hiringFilterClient) filtered = filtered.filter(c => c.client_id === window._hiringFilterClient);
   if (window._hiringFilterStage) filtered = filtered.filter(c => c.stage === window._hiringFilterStage);
+  // Archived filter — default hides archived cards. Glen spec: archived thumbnails
+  // sort off to the right-hand side when shown (bug b7a2f97f). Per-view toggle
+  // lives below on window._hiringShowArchived.
+  const showArchived = !!window._hiringShowArchived;
+  if (!showArchived) {
+    filtered = filtered.filter(c => !c.archived_at);
+  } else {
+    // Sort archived to the end
+    filtered = filtered.sort((a, b) => {
+      const aArch = a.archived_at ? 1 : 0;
+      const bArch = b.archived_at ? 1 : 0;
+      return aArch - bArch;
+    });
+  }
 
   // Only list active/contracted clients (those with tasks, plus NBI Ops/NSI).
   // Avoids polluting the Hiring dropdown with the full leads/prospects list.
@@ -14439,6 +14520,7 @@ function renderHiringView(container) {
       <option value="">All Stages</option>
       ${HIRING_STAGES.map(s => `<option value="${s}" ${window._hiringFilterStage===s?'selected':''}>${HIRING_STAGE_LABELS[s]}</option>`).join('')}
     </select>
+    <label style="display:flex;align-items:center;gap:4px;font-size:0.75rem;color:var(--text-muted);cursor:pointer;user-select:none"><input type="checkbox" ${showArchived ? 'checked' : ''} onchange="window._hiringShowArchived=this.checked;renderContent()" style="accent-color:var(--accent)"> Show archived</label>
     <span style="font-size:0.75rem;color:var(--text-muted)">${filtered.length} of ${candidates.length} candidates</span>
   </div>`;
 
@@ -14556,13 +14638,21 @@ async function openCreateCandidateModal() {
   overlay.onclick = (e) => { if (e.target === overlay) close(); };
   overlay.querySelector('#ccCreate').onclick = async () => {
     const name = overlay.querySelector('#ccName').value.trim();
-    if (!name) { toast('Name is required', 'error'); return; }
+    const role = overlay.querySelector('#ccRole').value.trim();
+    // Glen spec (bug b7a2f97f): name OR role is required — if both blank, refuse.
+    // If role is blank, warn and ask for confirmation (role is the backbone of
+    // the card). Cards always start in 'find_candidate'.
+    if (!name && !role) { toast('Name or role is required', 'error'); return; }
+    if (!role) {
+      const ok = await themedConfirm('No role on this candidate card — are you sure?\nThe role is normally what you fill first and it anchors the whole pipeline.', 'No role set', 'Create anyway');
+      if (!ok) return;
+    }
     const body = {
-      name,
+      name: name || '(vacant)',
       client_id: overlay.querySelector('#ccClient').value || null,
-      role: overlay.querySelector('#ccRole').value.trim() || null,
+      role: role || null,
       due_date: overlay.querySelector('#ccDue').value || null,
-      stage: 'sourced'
+      stage: 'find_candidate'
     };
     const resp = await authFetch('/api/candidates', {
       method: 'POST',
@@ -14611,81 +14701,103 @@ async function openCandidateDetail(id) {
   }
   const positions = _hiringPositionsData || [];
 
+  // Glen's spec (bug b7a2f97f): header, stage arrows, per-stage assignees,
+  // stage-scoped sub-section, Clear Candidate + Hire confirm + Reopen flow.
+  const isArchived = !!c.archived_at;
+  const header = c.name && c.name.trim() ? c.name : (c.role || 'Unnamed candidate');
+  const subheader = c.name && c.name.trim() && c.role ? c.role : '';
+  const stageAssignees = (c.stage_assignees && typeof c.stage_assignees === 'object') ? c.stage_assignees : {};
+  const currentStageAssignees = Array.isArray(stageAssignees[c.stage]) ? stageAssignees[c.stage] : [];
+  const unassigned = !isArchived && currentStageAssignees.length === 0;
+  const prev = hiringPrevStage(c.stage);
+  const next = hiringNextStage(c.stage);
+  const disabledStyle = isArchived ? 'pointer-events:none;opacity:0.55' : '';
+
+  // Stage-scoped sub-section below the arrows (bottom half of the card per Glen's spec)
+  let stageSubHtml = '';
+  if (c.stage === 'establish_start_date') {
+    stageSubHtml = `<div class="candidate-detail__field"><label>Start date</label><input type="date" id="cdStartDate" value="${c.start_date ? String(c.start_date).slice(0,10) : ''}" onchange="updateCandidateField('${c.id}','start_date',this.value||null)"></div>`;
+  } else if (c.stage === 'onboard_candidate') {
+    const links = Array.isArray(c.onboarding_links) ? c.onboarding_links : [];
+    const linksHtml = links.length > 0
+      ? links.map((l, i) => `<div style="display:flex;align-items:center;gap:6px;font-size:0.78rem;padding:4px 0"><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${l.type === 'file' ? '&#128196;' : '&#128279;'} <a href="${esc(l.value)}" target="_blank" rel="noopener" style="color:var(--accent-text)">${esc(l.value)}</a></span><button class="btn btn--sm btn--ghost" onclick="removeOnboardingLink('${c.id}',${i})" title="Remove">&times;</button></div>`).join('')
+      : '<div style="color:var(--text-muted);font-size:0.78rem;padding:4px 0">No onboarding docs yet</div>';
+    stageSubHtml = `<div class="candidate-detail__field"><label>Onboarding documents</label>${linksHtml}<div style="display:flex;gap:6px;margin-top:6px"><input type="text" id="cdOnboardLink" placeholder="Paste a link (Google Doc, Drive, etc.)" style="flex:1"><button class="btn btn--sm" onclick="addOnboardingLink('${c.id}')">Add link</button></div></div>`;
+  } else if (c.stage === 'conduct_interviews') {
+    stageSubHtml = `<div class="candidate-detail__field"><label>Interview rounds</label><textarea rows="3" placeholder="e.g. Round 1: Glen + Magnus on Mon, Round 2: Stavros on Wed" onchange="updateCandidateField('${c.id}','notes',(c.notes||'')+'\\n'+this.value)">${esc(c.notes || '')}</textarea></div>`;
+  }
+
   panel.innerHTML = `
     <div class="candidate-detail__header">
       <div style="flex:1;min-width:0">
         <div style="display:flex;gap:var(--space-sm);align-items:center;margin-bottom:6px;flex-wrap:wrap">
           <span class="hiring-stage-badge hiring-stage-badge--${c.stage}">${HIRING_STAGE_LABELS[c.stage] || c.stage}</span>
           ${c.client_name ? `<span style="font-size:0.78rem;color:var(--text-muted)">${esc(c.client_name)}</span>` : ''}
+          ${isArchived ? '<span style="background:var(--success);color:#fff;padding:2px 8px;border-radius:10px;font-size:0.65rem;font-weight:700">ARCHIVED &#10003;</span>' : ''}
         </div>
-        <h3 style="font-size:1rem;font-weight:600;margin:0;word-break:break-word">${esc(c.name)}</h3>
+        <h3 style="font-size:1rem;font-weight:600;margin:0;word-break:break-word">${esc(header)}</h3>
+        ${subheader ? `<div style="font-size:0.8rem;color:var(--text-muted);margin-top:2px">${esc(subheader)}</div>` : ''}
       </div>
       <button class="btn btn--ghost btn--sm" onclick="closeCandidateDetail()" aria-label="Close" style="flex-shrink:0">&times;</button>
     </div>
     <div class="candidate-detail__body">
-      <div class="candidate-detail__section">
+
+      <!-- TOP THIRD: candidate profile fields (per Glen spec) -->
+      <div class="candidate-detail__section" style="${disabledStyle}">
+        <div class="candidate-detail__section-title">Profile</div>
+        <div class="candidate-detail__field"><label>Name</label><input type="text" id="cdName" value="${esc(c.name || '')}" placeholder="Leave blank to show role as header" onchange="updateCandidateField('${c.id}','name',this.value)"></div>
+        <div class="candidate-detail__field"><label>Role</label><input type="text" id="cdRole" value="${esc(c.role || '')}" placeholder="e.g. Senior Backend Engineer" onchange="updateCandidateField('${c.id}','role',this.value)"></div>
+        <div class="candidate-detail__field"><label>LinkedIn URL</label><input type="url" id="cdLinkedIn" value="${esc(c.linkedin_url || '')}" placeholder="https://linkedin.com/in/..." onchange="updateCandidateField('${c.id}','linkedin_url',this.value)"></div>
+        <div class="candidate-detail__field"><label>Due date</label><input type="date" id="cdDue" value="${c.due_date ? c.due_date.slice(0,10) : ''}" onchange="updateCandidateField('${c.id}','due_date',this.value||null)"></div>
+        <div class="candidate-detail__field"><label>Client</label><select id="cdClient" onchange="updateCandidateField('${c.id}','client_id',this.value||null)"><option value="">— None —</option>${clientList.map(cl => `<option value="${cl.id}" ${c.client_id===cl.id?'selected':''}>${esc(cl.name)}</option>`).join('')}</select></div>
+        <div class="candidate-detail__field">
+          <label>CV</label>
+          <div class="candidate-cv">
+            ${c.cv_filename ? `<span class="candidate-cv__name">${esc(c.cv_filename)}</span><button class="btn btn--sm" onclick="downloadCandidateCV('${c.id}')">Download</button>` : '<span style="color:var(--text-muted);font-size:0.78rem">No CV uploaded</span>'}
+            <input type="file" id="cdCvFile" style="display:none" onchange="uploadCandidateCV('${c.id}',this)">
+            <button class="btn btn--sm" onclick="document.getElementById('cdCvFile').click()">${c.cv_filename ? 'Replace' : 'Upload'}</button>
+          </div>
+        </div>
+        ${positions.length > 0 ? `<div class="candidate-detail__field"><label>Hiring Position (template)</label><select id="cdPosition" onchange="updateCandidateField('${c.id}','position_id',this.value||null)"><option value="">— None —</option>${positions.filter(p => !c.client_id || p.client_id === c.client_id).map(p => `<option value="${p.id}" ${c.position_id===p.id?'selected':''}>${esc(p.title)}</option>`).join('')}</select></div>` : ''}
+      </div>
+
+      <!-- STAGE NAVIGATION: arrows + dropdown per Glen spec -->
+      <div class="candidate-detail__section" style="${disabledStyle}">
         <div class="candidate-detail__section-title">Stage</div>
-        <div class="candidate-stages">
-          ${HIRING_STAGES.map(s => `<button class="candidate-stage-pill ${c.stage===s?'candidate-stage-pill--active':''}" onclick="updateCandidateField('${c.id}','stage','${s}')">${HIRING_STAGE_LABELS[s]}</button>`).join('')}
-        </div>
-      </div>
-
-      <div class="candidate-detail__section">
-        <div class="candidate-detail__section-title">Details</div>
-        <div class="candidate-detail__field">
-          <label>Name</label>
-          <input type="text" id="cdName" value="${esc(c.name)}" onchange="updateCandidateField('${c.id}','name',this.value)">
-        </div>
-        <div class="candidate-detail__field">
-          <label>Role</label>
-          <input type="text" id="cdRole" value="${esc(c.role || '')}" onchange="updateCandidateField('${c.id}','role',this.value)">
-        </div>
-        <div class="candidate-detail__field">
-          <label>LinkedIn URL</label>
-          <input type="url" id="cdLinkedIn" value="${esc(c.linkedin_url || '')}" placeholder="https://linkedin.com/in/..." onchange="updateCandidateField('${c.id}','linkedin_url',this.value)">
-        </div>
-        <div class="candidate-detail__field">
-          <label>Due date</label>
-          <input type="date" id="cdDue" value="${c.due_date ? c.due_date.slice(0,10) : ''}" onchange="updateCandidateField('${c.id}','due_date',this.value||null)">
-        </div>
-        <div class="candidate-detail__field">
-          <label>Client</label>
-          <select id="cdClient" onchange="updateCandidateField('${c.id}','client_id',this.value||null)">
-            <option value="">— None —</option>
-            ${clientList.map(cl => `<option value="${cl.id}" ${c.client_id===cl.id?'selected':''}>${esc(cl.name)}</option>`).join('')}
+        <div style="display:flex;align-items:center;gap:6px">
+          <button class="btn btn--sm" style="min-width:36px;background:var(--bg-surface);color:${prev ? 'var(--text-secondary)' : 'var(--text-faint)'};border:1px solid var(--border-default)" ${prev ? `onclick="updateCandidateField('${c.id}','stage','${prev}')" title="Previous: ${HIRING_STAGE_LABELS[prev]}"` : 'disabled'}>&larr;</button>
+          <select id="cdStageSel" onchange="hiringStageSelectChange('${c.id}',this.value)" style="flex:1;font-weight:600;text-align:center;padding:6px 8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)">
+            ${HIRING_STAGES.map(s => `<option value="${s}" ${c.stage===s?'selected':''}>${HIRING_STAGE_LABELS[s]}</option>`).join('')}
           </select>
+          <button class="btn btn--sm" style="min-width:36px;background:color-mix(in srgb, var(--success) 30%, var(--bg-surface));color:#fff;border:1px solid var(--success)" ${next ? `onclick="updateCandidateField('${c.id}','stage','${next}')" title="Next: ${HIRING_STAGE_LABELS[next]}"` : `onclick="hiringConfirmHire('${c.id}')" title="Confirm Hired"`}>&rarr;</button>
         </div>
-        ${positions.length > 0 ? `
-        <div class="candidate-detail__field">
-          <label>Hiring Position (template)</label>
-          <select id="cdPosition" onchange="updateCandidateField('${c.id}','position_id',this.value||null)">
-            <option value="">— None —</option>
-            ${positions.filter(p => !c.client_id || p.client_id === c.client_id).map(p => `<option value="${p.id}" ${c.position_id===p.id?'selected':''}>${esc(p.title)}</option>`).join('')}
-          </select>
-        </div>
-        ` : ''}
+        ${unassigned ? '<div style="color:var(--danger);font-size:0.72rem;margin-top:6px">&#9888; No assignee on this stage</div>' : ''}
       </div>
 
-      <div class="candidate-detail__section">
-        <div class="candidate-detail__section-title">CV</div>
-        <div class="candidate-cv">
-          ${c.cv_filename ? `
-            <span class="candidate-cv__name">${esc(c.cv_filename)}</span>
-            <button class="btn btn--sm" onclick="downloadCandidateCV('${c.id}')">Download</button>
-          ` : '<span style="color:var(--text-muted);font-size:0.78rem">No CV uploaded</span>'}
-          <input type="file" id="cdCvFile" style="display:none" onchange="uploadCandidateCV('${c.id}',this)">
-          <button class="btn btn--sm" onclick="document.getElementById('cdCvFile').click()">${c.cv_filename ? 'Replace' : 'Upload'}</button>
+      <!-- PER-STAGE ASSIGNEE FIELD per Glen spec -->
+      <div class="candidate-detail__section" style="${disabledStyle}">
+        <div class="candidate-detail__section-title">Assigned to this stage</div>
+        <div id="cdStageAssignees" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px">
+          ${currentStageAssignees.map((name, i) => `<span style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:10px;padding:2px 8px;font-size:0.72rem;display:inline-flex;align-items:center;gap:4px">${esc(name)} <button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.75rem" onclick="hiringRemoveStageAssignee('${c.id}','${escAttrJs(c.stage)}',${i})">&times;</button></span>`).join('')}
+          ${currentStageAssignees.length === 0 ? '<span style="color:var(--danger);font-size:0.72rem;padding:2px 0">Unassigned — add someone</span>' : ''}
         </div>
+        <div style="display:flex;gap:4px"><select id="cdStageAssigneeAdd" style="flex:1;font-size:0.78rem;padding:3px 6px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)"><option value="">+ Add assignee…</option>${(_cachedTeamMembers || []).map(m => `<option value="${esc(m)}">${esc(m)}</option>`).join('')}</select><button class="btn btn--sm" onclick="hiringAddStageAssignee('${c.id}','${escAttrJs(c.stage)}')">Add</button></div>
       </div>
 
-      <div class="candidate-detail__section">
+      <!-- STAGE-SPECIFIC FIELD (bottom half per spec) -->
+      ${stageSubHtml ? `<div class="candidate-detail__section" style="${disabledStyle}"><div class="candidate-detail__section-title">${esc(HIRING_STAGE_LABELS[c.stage])} details</div>${stageSubHtml}</div>` : ''}
+
+      <div class="candidate-detail__section" style="${disabledStyle}">
         <div class="candidate-detail__section-title">Notes</div>
-        <div class="candidate-detail__field">
-          <textarea id="cdNotes" rows="4" onchange="updateCandidateField('${c.id}','notes',this.value)">${esc(c.notes || '')}</textarea>
-        </div>
+        <div class="candidate-detail__field"><textarea id="cdNotes" rows="3" onchange="updateCandidateField('${c.id}','notes',this.value)">${esc(c.notes || '')}</textarea></div>
       </div>
 
-      <div style="display:flex;gap:var(--space-sm);margin-top:var(--space-lg);padding-top:var(--space-md);border-top:1px solid var(--border-default)">
+      <!-- BOTTOM ACTIONS: Clear Candidate / Reopen / Delete -->
+      <div style="display:flex;gap:var(--space-sm);margin-top:var(--space-lg);padding-top:var(--space-md);border-top:1px solid var(--border-default);flex-wrap:wrap">
+        ${isArchived
+          ? `<button class="btn btn--sm" style="background:var(--accent);color:#fff" onclick="hiringReopen('${c.id}')">Reopen Card</button>`
+          : `<button class="btn btn--sm" style="background:transparent;color:var(--danger);border:1px solid var(--danger)" onclick="hiringClearCandidate('${c.id}')" title="Void candidate fields but keep the role">Clear Candidate</button>`
+        }
         ${isAdmin ? `<button class="btn btn--danger btn--sm" onclick="deleteCandidate('${c.id}')">Delete</button>` : ''}
       </div>
     </div>`;
@@ -14734,6 +14846,135 @@ async function updateCandidateField(id, field, value) {
     const err = await resp.json().catch(() => ({}));
     toast(err.error || 'Failed to update', 'error');
   }
+}
+
+// ===== HIRING — Glen spec helpers (bug b7a2f97f) =====
+
+/** Handle stage dropdown change — intercepts 'hired' to show the confirm flow. */
+async function hiringStageSelectChange(id, newStage) {
+  if (newStage === 'hired') {
+    const c = _candidatesData.find(x => x.id === id);
+    if (!c || c.stage === 'hired') return;
+    await hiringConfirmHire(id);
+    return;
+  }
+  await updateCandidateField(id, 'stage', newStage);
+}
+
+/** Show the "Close Candidate Card?" confirmation for moving a candidate to Hired.
+ *  On confirm: sets stage=hired + archived_at=now. On cancel: reverts to the previous stage. */
+async function hiringConfirmHire(id) {
+  const c = _candidatesData.find(x => x.id === id);
+  if (!c) return;
+  const prev = c.stage;
+  const ok = await themedConfirm('Close Candidate Card?\nThis will mark the candidate as Hired and archive the card.', 'Close Candidate Card', 'Confirm');
+  if (!ok) {
+    // Revert — just re-render with the previous stage still in place
+    if (document.getElementById('candidateDetailPanel')?.classList.contains('open')) openCandidateDetail(id);
+    return;
+  }
+  const resp = await authFetch('/api/candidates/' + id, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ stage: 'hired', archived_at: new Date().toISOString() })
+  });
+  if (resp.ok) {
+    toast('Candidate archived');
+    await loadCandidates();
+    if (currentView === 'hiring') renderContent();
+    renderSidebar();
+    if (document.getElementById('candidateDetailPanel')?.classList.contains('open')) openCandidateDetail(id);
+  } else {
+    toast('Failed to archive', 'error');
+  }
+}
+
+/** Reopen an archived candidate — clears archived_at. */
+async function hiringReopen(id) {
+  const ok = await themedConfirm('Reopen this card?\nThe candidate will become editable again at their current stage.', 'Reopen Card', 'Reopen');
+  if (!ok) return;
+  const resp = await authFetch('/api/candidates/' + id, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ archived_at: null })
+  });
+  if (resp.ok) {
+    toast('Card reopened');
+    await loadCandidates();
+    if (currentView === 'hiring') renderContent();
+    if (document.getElementById('candidateDetailPanel')?.classList.contains('open')) openCandidateDetail(id);
+  } else {
+    toast('Failed to reopen', 'error');
+  }
+}
+
+/** Clear the candidate identity — voids name, CV, linkedin, but keeps role/client
+ *  so the slot can be refilled. Per Glen spec. */
+async function hiringClearCandidate(id) {
+  const ok = await themedConfirm('Clear this candidate?\nName, LinkedIn and CV will be wiped so the slot can be reused. Role and client are kept.', 'Clear Candidate', 'Clear');
+  if (!ok) return;
+  const resp = await authFetch('/api/candidates/' + id, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name: '(vacant)', linkedin_url: null, cv_filename: null, stage: 'find_candidate', stage_assignees: {} })
+  });
+  if (resp.ok) {
+    toast('Candidate cleared');
+    await loadCandidates();
+    if (currentView === 'hiring') renderContent();
+    if (document.getElementById('candidateDetailPanel')?.classList.contains('open')) openCandidateDetail(id);
+  } else {
+    toast('Failed to clear', 'error');
+  }
+}
+
+/** Add a team member to the assignee list for a specific stage. */
+async function hiringAddStageAssignee(id, stage) {
+  const sel = document.getElementById('cdStageAssigneeAdd');
+  if (!sel || !sel.value) return;
+  const name = sel.value;
+  const c = _candidatesData.find(x => x.id === id);
+  if (!c) return;
+  const current = (c.stage_assignees && typeof c.stage_assignees === 'object') ? { ...c.stage_assignees } : {};
+  const list = Array.isArray(current[stage]) ? [...current[stage]] : [];
+  if (list.includes(name)) { toast('Already assigned', 'warning'); return; }
+  list.push(name);
+  current[stage] = list;
+  await updateCandidateField(id, 'stage_assignees', current);
+}
+
+/** Remove an assignee from a specific stage. */
+async function hiringRemoveStageAssignee(id, stage, idx) {
+  const c = _candidatesData.find(x => x.id === id);
+  if (!c) return;
+  const current = (c.stage_assignees && typeof c.stage_assignees === 'object') ? { ...c.stage_assignees } : {};
+  const list = Array.isArray(current[stage]) ? [...current[stage]] : [];
+  if (idx < 0 || idx >= list.length) return;
+  list.splice(idx, 1);
+  current[stage] = list;
+  await updateCandidateField(id, 'stage_assignees', current);
+}
+
+/** Add an onboarding link (Google Doc / Drive / etc.) to the Onboard Candidate stage. */
+async function addOnboardingLink(id) {
+  const input = document.getElementById('cdOnboardLink');
+  if (!input || !input.value.trim()) return;
+  const url = input.value.trim();
+  const c = _candidatesData.find(x => x.id === id);
+  if (!c) return;
+  const links = Array.isArray(c.onboarding_links) ? [...c.onboarding_links] : [];
+  links.push({ type: 'link', value: url });
+  await updateCandidateField(id, 'onboarding_links', links);
+}
+
+/** Remove an onboarding link by index. */
+async function removeOnboardingLink(id, idx) {
+  const c = _candidatesData.find(x => x.id === id);
+  if (!c) return;
+  const links = Array.isArray(c.onboarding_links) ? [...c.onboarding_links] : [];
+  if (idx < 0 || idx >= links.length) return;
+  links.splice(idx, 1);
+  await updateCandidateField(id, 'onboarding_links', links);
 }
 
 /**

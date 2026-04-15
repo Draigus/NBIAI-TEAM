@@ -5948,7 +5948,19 @@ app.get('/api/bug-reports/:id/screenshot', async (req, res) => {
 // the file lives in /uploads (same as task attachments) and is referenced
 // from candidates.cv_filename.
 
-const HIRING_STAGES = ['sourced', 'screening', 'interview', 'offer', 'hired', 'rejected'];
+// Glen's 8-stage process (bug b7a2f97f, migration 024). Linear process from
+// Find Candidate to Hired. Rejected is no longer a stage — use archived_at
+// on the row instead to take a candidate out of pipeline.
+const HIRING_STAGES = [
+  'find_candidate',
+  'upload_cv',
+  'conduct_interviews',
+  'background_check',
+  'establish_start_date',
+  'send_offer_letter',
+  'onboard_candidate',
+  'hired',
+];
 
 /** GET /api/hiring-positions — List hiring positions, optionally filtered by client */
 app.get('/api/hiring-positions', async (req, res) => {
@@ -6121,7 +6133,7 @@ app.post('/api/candidates', async (req, res) => {
     const ne = validateLength(notes, 'notes');
     if (ne) return res.status(400).json({ error: ne });
   }
-  const targetStage = stage || 'sourced';
+  const targetStage = stage || 'find_candidate';
   const dbClient = await pool.connect();
   let createdRow;
   try {
@@ -6185,7 +6197,10 @@ app.patch('/api/candidates/:id', async (req, res) => {
   if (body.name !== undefined && body.name !== null) body.name = String(body.name).trim();
 
   // Stage is routed through reorderInGroup below — NOT in allowedFields here.
-  const { updates, vals, nextIdx } = buildPatchQuery(body, ['client_id', 'position_id', 'name', 'role', 'linkedin_url', 'due_date', 'notes']);
+  // stage_assignees / onboarding_links / start_date / archived_at were added
+  // by migration 024 for Glen's hiring rewrite (bug b7a2f97f). JSONB columns
+  // are passed through as JS objects — pg handles the serialisation.
+  const { updates, vals, nextIdx } = buildPatchQuery(body, ['client_id', 'position_id', 'name', 'role', 'linkedin_url', 'due_date', 'notes', 'stage_assignees', 'start_date', 'onboarding_links', 'archived_at']);
   const wantsReorder = (body.stage !== undefined) || (req.body.position !== undefined);
   if (updates.length === 0 && !wantsReorder) return res.status(400).json({ error: 'No valid fields to update' });
 

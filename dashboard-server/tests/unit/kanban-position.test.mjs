@@ -541,7 +541,7 @@ describe('POST /api/candidates — inserts at position 0', () => {
     const res = await request(app)
       .post('/api/candidates')
       .set('Authorization', `Bearer ${token}`)
-      .send({ name: 'Alice', stage: 'sourced' });
+      .send({ name: 'Alice', stage: 'find_candidate' });
     expect(res.status).toBe(201);
     expect(res.body.position).toBe(0);
   });
@@ -553,10 +553,10 @@ describe('POST /api/candidates — inserts at position 0', () => {
       await request(app)
         .post('/api/candidates')
         .set('Authorization', `Bearer ${token}`)
-        .send({ name, stage: 'sourced' });
+        .send({ name, stage: 'find_candidate' });
     }
     const { rows } = await pool.query(
-      `SELECT name, position FROM candidates WHERE stage = 'sourced' ORDER BY position`
+      `SELECT name, position FROM candidates WHERE stage = 'find_candidate' ORDER BY position`
     );
     expect(rows.map(r => r.name)).toEqual(['c3', 'c2', 'c1']);
   });
@@ -569,7 +569,7 @@ describe('PATCH /api/candidates/:id — drag-to-reorder', () => {
     const ids = [];
     for (const name of ['c0', 'c1', 'c2']) {
       const r = await request(app).post('/api/candidates')
-        .set('Authorization', `Bearer ${token}`).send({ name, stage: 'sourced' });
+        .set('Authorization', `Bearer ${token}`).send({ name, stage: 'find_candidate' });
       ids.push(r.body.id);
     }
     const res = await request(app)
@@ -578,7 +578,7 @@ describe('PATCH /api/candidates/:id — drag-to-reorder', () => {
       .send({ position: 0 });
     expect(res.status).toBe(200);
     const { rows } = await pool.query(
-      `SELECT name, position FROM candidates WHERE stage = 'sourced' ORDER BY position`
+      `SELECT name, position FROM candidates WHERE stage = 'find_candidate' ORDER BY position`
     );
     expect(rows.map(r => r.name)).toEqual(['c0', 'c2', 'c1']);
   });
@@ -587,19 +587,19 @@ describe('PATCH /api/candidates/:id — drag-to-reorder', () => {
     const u = await createTestUser({ role: 'admin' });
     const token = await mintSession(u.id);
     const r = await request(app).post('/api/candidates')
-      .set('Authorization', `Bearer ${token}`).send({ name: 'mover', stage: 'sourced' });
+      .set('Authorization', `Bearer ${token}`).send({ name: 'mover', stage: 'find_candidate' });
     await pool.query(
-      `INSERT INTO candidates (name, stage, position) VALUES ('existing', 'screening', 0)`
+      `INSERT INTO candidates (name, stage, position) VALUES ('existing', 'upload_cv', 0)`
     );
     const res = await request(app)
       .patch(`/api/candidates/${r.body.id}`)
       .set('Authorization', `Bearer ${token}`)
-      .send({ stage: 'screening' });
+      .send({ stage: 'upload_cv' });
     expect(res.status).toBe(200);
-    expect(res.body.stage).toBe('screening');
+    expect(res.body.stage).toBe('upload_cv');
     expect(res.body.position).toBe(0);
     const { rows } = await pool.query(
-      `SELECT name, position FROM candidates WHERE stage = 'screening' ORDER BY position`
+      `SELECT name, position FROM candidates WHERE stage = 'upload_cv' ORDER BY position`
     );
     expect(rows).toEqual([
       { name: 'mover',    position: 0 },
