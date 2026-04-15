@@ -261,6 +261,11 @@ No spec work in the 2026-04-15 planning round. When we reach Phase 6, a dedicate
 ### D86: Master Workload Roadmap — phase-by-phase execution with stop points
 Approved plan `.claude/plans/iridescent-imagining-kitten.md`. 30 tracked items across 10 phases. I execute Phases 1 through 5 continuously with brief check-ins between phases; Phases 6-10 require explicit approval per-phase (they're decision points, not execution slots).
 
+### D90: Calendar events — pg DATE columns returned as raw YYYY-MM-DD strings
+Glen reported a `uto` event he created for 2026-04-16 ("Glen is too drunk to work this day") never appeared on the calendar grid. Root cause: the `pg` driver's default DATE parser converts pure DATE columns to JS Date at local midnight, then serialises via `toISOString()` as UTC. On the BST dev box (UTC+1), `2026-04-16` came out as `2026-04-15T23:00:00.000Z` in the JSON response. The frontend's `calBuildEventDayMap()` did `new Date(ev.start_date + 'T00:00:00')`, concatenating onto the already-ISO string and producing Invalid Date. The day-comparison loop (`cursor <= stop` with NaN) then silently dropped every event. Every event Glen and Magnus created today hit this; nobody had exercised the calendar enough to notice it was broken for everyone, not just Glen.
+
+**Fix**: `pgTypes.setTypeParser(1082, v => v)` at the top of `dashboard-server/server.js`. Postgres returns DATE as a bare `YYYY-MM-DD` string and the driver now passes it through untouched. Server-wide change (affects every DATE column on every endpoint), but no other code paths concatenate `T...` onto ISO-parsed DATE values, so the blast radius is limited to calendar + future DATE consumers that already expected the string shape. 2 new regression tests in `tests/unit/calendar-date.test.mjs`. Commit `1e93661`.
+
 ### D89: Warnings and alerts are user-specific (no admin short-circuit)
 Glen's 2026-04-15 directive: "Let's make sure the warning behavior is targeted to specifics of that user, not where they have no ownership of the task or project. So all warnings and alerts should be user-specific."
 
