@@ -91,7 +91,44 @@ Append-only. Every feature/fix completed gets logged here immediately.
 
 **Phase 4 status:** done. Test count 62 vitest + 12 playwright = 74 green. PM2 restarted at 14:02:xx, clean boot.
 
-Next: Phase 5 (older actionable — O1 Dashboard standup collapse, O3 warnings light theme QA, O4 skeleton screens, O7 Won lead complete marker).
+### Ad-hoc fixes during Phase 4 → 5 transition
+
+**Projects mobile filter bar (D91)** — commit `2560417`
+- `.filter-bar` at 1024px gained `align-items: stretch` so multi-select chips, subview toggle, and Incomplete button fill rows instead of collapsing centered. Quick-add bar got a `.quick-add-bar` class so it can stack on mobile.
+
+**Calendar team filter render loop (D91)** — same commit
+- One-line fix: `visibleKey` now includes the team filter suffix so the cache check converges. Was previously crashing the tab when picking a team.
+
+**People → Calendar sub-view + firm_closed (D92)** — commit `24d168e`
+- New `firm_closed` event type, admin-only at server level, 4 vitest regression tests
+- New People-tab Calendar sub-view with roster + month grid layouts
+- Inline click-to-create via existing modal, prefilled with date and target user
+- New `_cachedUsers` global for ID lookups
+
+### Phase 5: Older actionable polish
+
+**O1 — Dashboard standup collapse-by-default**: ALREADY SHIPPED in a prior session ("Phase 12.2 / 12.4"). Verified via comment at `nbi_project_dashboard.html:3988` and the existing `sessionStorage.getItem('nbi_standup_expanded') === '1'` default-collapse logic. No work needed.
+
+**O3 — Warnings sidebar light theme QA** — commit `a547788`
+- The `.warn-item:hover` background was `--bg-hover` (#e8e8ec), only ~5% darker than `--bg-card` (#ffffff) in light theme — making the hover state nearly invisible. Bumped to a 6% accent tint with an accent-tinted border so hover is unambiguous.
+- `.warn-item__sev--medium` was using bg-surface fallback. Now uses a real amber palette (#fef3c7 + #92400e) for a clearer "medium severity" feel.
+- `.warn-item__sev--low` gets its own grey palette (#f3f4f6 + #4b5563).
+- New `tests/e2e/warnings-light-theme.spec.js` captures dark/light/hover screenshots in `2026-04-15-warnings-light-theme/`. Tagged `@mobile-audit`.
+
+**O4 — Skeleton screens for async-loaded views** — same commit
+- `renderHiringView`: replaced "Loading hiring data..." text with `.skeleton skeleton-card` + 5x `.skeleton-row` (matches Leads/Expenses pattern).
+- `renderBugTrackerView`: added skeleton placeholder for the `_bugReportsData === null` path so users navigating before the post-login Promise.all resolves see loading state instead of a misleading "No reports found".
+- `renderReport`: skeleton when tasks is empty and `window._initialLoadComplete` is false.
+- `renderManageClients`: skeleton instead of "Loading clients..." text.
+
+**O7 — Won lead complete marker on table + card-list views** — same commit
+- Kanban view already had `.lead-card--complete` (opacity 0.6 + green checkmark `::after`) from a prior session.
+- Table view: rows with `completed_at` set get `.leads-table__row--complete` which mutes text colour and strikes through the title cell via a linear-gradient background. Title also gets a leading `✓`.
+- Card-list view (mobile): completed leads get a green "✓ Won" badge in the top bar plus the `.lead-card--complete` opacity treatment.
+
+**Phase 5 status:** done. Test count 66 vitest + 14 playwright = 80 green. PM2 restarted, clean boot.
+
+Next: Phase 6 (brainstorming-required items: G5 client-scoped users, L1-L4, plus O2/O5/O6/O8/Z3/Z6) — Glen picks the order. These each need a dedicated brainstorming session before implementation.
 
 ---
 
