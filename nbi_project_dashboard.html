@@ -936,8 +936,24 @@ span.fin-editable { display: inline-block; position: relative; }
    * via openDetail() viewport check. */
   .tasks-layout__detail { display: none !important; }
   .modal { width: calc(100vw - 32px); max-width: 600px; }
-  .filter-bar { flex-direction: column; }
+  .filter-bar { flex-direction: column; align-items: stretch; }
   .filter-bar input, .filter-bar select { width: 100%; }
+  /* G3 follow-up (2026-04-15): the filter-bar children that aren't
+     <input> or <select> (multi-select dropdowns, subview toggle, and
+     standalone buttons like Incomplete / Detail) default to their
+     content width and end up horizontally centred by the desktop
+     align-items: center rule. Force them to fill the column so every
+     row looks like a real form field. */
+  .filter-bar .multi-select { display: block; width: 100%; }
+  .filter-bar .multi-select__trigger { width: 100%; justify-content: space-between; }
+  .filter-bar .task-subview-toggle { width: 100%; display: flex; }
+  .filter-bar .task-subview-toggle .task-subview-btn { flex: 1 1 0; justify-content: center; }
+  .filter-bar > button.btn { width: 100%; justify-content: center; }
+  .filter-bar .filter-chip { width: 100%; justify-content: space-between; }
+  /* Quick-add task bar stacks on mobile — the search input and client
+     dropdown were sharing a row and truncating "Quick add project... (press E". */
+  .quick-add-bar { flex-direction: column !important; gap: 6px !important; }
+  .quick-add-bar > input, .quick-add-bar > select { width: 100% !important; }
   .report-table { font-size: 0.72rem; }
   .report-table th, .report-table td { padding: 6px 8px; }
   .client-header { flex-direction: column; align-items: flex-start; }
@@ -4628,7 +4644,7 @@ function renderTaskView(el) {
   }
 
   // Quick-add task bar
-  html += `<div style="display:flex;gap:8px;margin-bottom:var(--space-md);align-items:center">
+  html += `<div class="quick-add-bar" style="display:flex;gap:8px;margin-bottom:var(--space-md);align-items:center">
     <input type="text" id="quickAddInput" placeholder="Quick add project... (press Enter)" style="flex:1;padding:8px 12px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-size:0.85rem" onkeydown="if(event.key==='Enter'&&this.value.trim()){quickAddTask(this.value.trim());this.value=''}">
     <select id="quickAddClient" style="padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-size:0.78rem">
       <option value="">No Client</option>${getContractedClients().map(c => `<option value="${esc(c)}" ${currentFilter.client===c?'selected':''}>${esc(c)}</option>`).join('')}
@@ -4989,7 +5005,12 @@ function renderCalendarView(filtered) {
 
   // Trigger a calendar events fetch the first time we render this month
   // (or when navigating). loadCalendarEvents will re-render once the data is in.
-  const visibleKey = `${_calYear}-${_calMonth}`;
+  // IMPORTANT: visibleKey must match the same shape that loadCalendarEvents
+  // writes into _calEventsKey, including the team filter suffix. Otherwise
+  // picking a team makes the check perpetually mismatched, and each render
+  // schedules another loadCalendarEvents → renderContent → render loop that
+  // crashes the tab. (Reported by Glen 2026-04-15, D91.)
+  const visibleKey = `${_calYear}-${_calMonth}` + (_calTeamFilter ? `:team:${_calTeamFilter}` : '');
   if (_calEventsKey !== visibleKey) {
     setTimeout(() => loadCalendarEvents(_calYear, _calMonth), 0);
   }

@@ -88,9 +88,13 @@ test.describe('@mobile-audit iPhone 11 portrait screenshots', () => {
 
     await capture('02-workload', () => { if (typeof switchView === 'function') switchView('dashboard'); });
 
-    // Projects Board — click the subview button since taskSubView is let-scoped
+    // Projects (tree) — default subview. Captures filter bar layout too.
     await page.evaluate(() => { if (typeof switchView === 'function') switchView('tasks'); });
     await page.waitForSelector('.task-subview-btn', { timeout: 5000 });
+    await page.waitForTimeout(400);
+    await page.screenshot({ path: path.join(SHOT_DIR, '03a-projects-tree.png'), fullPage: false });
+
+    // Projects Board — click the subview button since taskSubView is let-scoped
     await page.locator('.task-subview-btn', { hasText: 'Board' }).click();
     await page.waitForSelector('.board-card', { timeout: 5000 });
     await page.waitForTimeout(400);
