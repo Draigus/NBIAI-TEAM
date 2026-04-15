@@ -2446,6 +2446,7 @@ let _reportSubView = 'overall';   // 'overall' | 'byProject' | 'byPerson'
 let _reportInitialCollapse = true;
 let _rptProjectSort = { col: 'client', dir: 'asc' };
 let _rptProjectFilterClient = null;
+let _rptProgressSort = { col: 'title', dir: 'asc' }; // Sort state for the "Progress by Project" table on the Reports view
 let _financeEntries = [];          // Ad-hoc finance entries (loaded from API or localStorage)
 
 // ----- CLIENT BRIEFS -----
@@ -7940,9 +7941,9 @@ function renderReport(el) {
   } // end overall distribution
 
   if (_reportSubView === 'overall' || _reportSubView === 'byProject') {
-  // ===== DETAILED PROJECT TABLE (clickable) =====
-  html += `<div class="report__section"><h2>Progress by Project</h2><table class="report-table"><thead><tr><th>Project</th><th>Client</th><th>Tasks</th><th>Done</th><th>Active</th><th>Blocked</th><th>%</th><th>Est.</th><th>Actual</th></tr></thead><tbody>`;
-  roots.forEach(r => {
+  // ===== DETAILED PROJECT TABLE (clickable, sortable) =====
+  // Build row data once so we can sort independently of render.
+  const progressRows = roots.map(r => {
     const kids = getDescendants(r.id);
     const all = [r, ...kids];
     const d = all.filter(t => t.status === 'Done').length;
@@ -7951,10 +7952,51 @@ function renderReport(el) {
     const pct = all.length ? Math.round(d/all.length*100) : 0;
     const hS = all.reduce((s,t) => s + (t.hoursSpent||0), 0);
     const hE = all.reduce((s,t) => s + (t.hoursEstimated||0), 0);
-    html += `<tr class="report-table__clickable" onclick="filterByClient('${escAttrJs(getTaskClient(r))}');switchView('tasks');openDetail('${r.id}')">
-      <td><strong>${esc(r.title)}</strong></td><td>${esc(getTaskClient(r))}</td><td>${all.length}</td><td style="color:var(--success)">${d}</td><td style="color:var(--accent)">${ip}</td><td style="color:${bl>0?'var(--danger)':'inherit'}">${bl}</td>
-      <td><div style="display:flex;align-items:center;gap:6px"><div style="width:50px;height:6px;background:var(--border-subtle);border-radius:3px;overflow:hidden"><div style="width:${pct}%;height:100%;background:var(--success);border-radius:3px"></div></div><span style="font-family:var(--font-mono)">${pct}%</span></div></td>
-      <td style="font-family:var(--font-mono)">${hE.toFixed(1)}h</td><td style="font-family:var(--font-mono);color:${hS>hE&&hE>0?'var(--danger)':'inherit'}">${hS.toFixed(1)}h</td></tr>`;
+    return {
+      id: r.id,
+      title: r.title || '',
+      client: getTaskClient(r) || '',
+      tasks: all.length,
+      done: d,
+      active: ip,
+      blocked: bl,
+      pct,
+      estimate: hE,
+      actual: hS
+    };
+  });
+  const pgSc = _rptProgressSort.col;
+  const pgSd = _rptProgressSort.dir === 'asc' ? 1 : -1;
+  progressRows.sort((a, b) => {
+    if (pgSc === 'title') return (a.title || '').localeCompare(b.title || '') * pgSd;
+    if (pgSc === 'client') return clientSortOrder(a.client, b.client) * pgSd;
+    return ((a[pgSc] || 0) - (b[pgSc] || 0)) * pgSd;
+  });
+
+  // Clickable header helper — mirrors the Project Portfolio table pattern.
+  const pgSortTh = (col, label, align) => {
+    const isActive = _rptProgressSort.col === col;
+    const arrow = isActive ? (_rptProgressSort.dir === 'asc' ? ' &#9650;' : ' &#9660;') : '';
+    const style = align === 'right' ? 'text-align:right;' : '';
+    return `<th style="${style}cursor:pointer;user-select:none;white-space:nowrap${isActive ? ';color:var(--accent)' : ''}" onclick="_rptProgressSort={col:'${col}',dir:_rptProgressSort.col==='${col}'&&_rptProgressSort.dir==='asc'?'desc':'asc'};renderContent()">${label}${arrow}</th>`;
+  };
+
+  html += `<div class="report__section"><h2>Progress by Project</h2><table class="report-table"><thead><tr>`;
+  html += pgSortTh('title', 'Project', 'left');
+  html += pgSortTh('client', 'Client', 'left');
+  html += pgSortTh('tasks', 'Tasks', 'left');
+  html += pgSortTh('done', 'Done', 'left');
+  html += pgSortTh('active', 'Active', 'left');
+  html += pgSortTh('blocked', 'Blocked', 'left');
+  html += pgSortTh('pct', '%', 'left');
+  html += pgSortTh('estimate', 'Est.', 'left');
+  html += pgSortTh('actual', 'Actual', 'left');
+  html += `</tr></thead><tbody>`;
+  progressRows.forEach(r => {
+    html += `<tr class="report-table__clickable" onclick="filterByClient('${escAttrJs(r.client)}');switchView('tasks');openDetail('${r.id}')">
+      <td><strong>${esc(r.title)}</strong></td><td>${esc(r.client)}</td><td>${r.tasks}</td><td style="color:var(--success)">${r.done}</td><td style="color:var(--accent)">${r.active}</td><td style="color:${r.blocked>0?'var(--danger)':'inherit'}">${r.blocked}</td>
+      <td><div style="display:flex;align-items:center;gap:6px"><div style="width:50px;height:6px;background:var(--border-subtle);border-radius:3px;overflow:hidden"><div style="width:${r.pct}%;height:100%;background:var(--success);border-radius:3px"></div></div><span style="font-family:var(--font-mono)">${r.pct}%</span></div></td>
+      <td style="font-family:var(--font-mono)">${r.estimate.toFixed(1)}h</td><td style="font-family:var(--font-mono);color:${r.actual>r.estimate&&r.estimate>0?'var(--danger)':'inherit'}">${r.actual.toFixed(1)}h</td></tr>`;
   });
   html += `</tbody></table></div>`;
 
