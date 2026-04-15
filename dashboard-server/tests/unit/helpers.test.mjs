@@ -4,16 +4,17 @@
 // "fixture factory broken" class of bug before it cascades into
 // every other test failing for the wrong reason.
 
-import { describe, it, expect, beforeEach, afterAll } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 
-const { pool, truncate, end } = require('../helpers/db.js');
+const { pool, truncate } = require('../helpers/db.js');
 const { mintSession } = require('../helpers/auth.js');
 const { createTestUser, createTestBugReport } = require('../helpers/fixtures.js');
 
 beforeEach(async () => { await truncate(); });
-afterAll(async () => { await end(); });
+// No afterAll(end()) — the pool is shared across test files and is
+// cleaned up when the vitest fork process terminates.
 
 describe('helpers', () => {
   it('createTestUser inserts a row and returns it', async () => {

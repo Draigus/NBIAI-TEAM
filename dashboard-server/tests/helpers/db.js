@@ -58,7 +58,14 @@ async function truncate() {
   await pool.query(`TRUNCATE ${TRUNCATE_TABLES.join(', ')} RESTART IDENTITY CASCADE`);
 }
 
+// Idempotent — multiple test files share this module-cached pool, and
+// each one calls end() in its afterAll. Without the guard, the second
+// call throws "Called end on pool more than once" and unrelated tests
+// fail with "Cannot use a pool after calling end on the pool".
+let _ended = false;
 async function end() {
+  if (_ended) return;
+  _ended = true;
   await pool.end();
 }
 
