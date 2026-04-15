@@ -58,7 +58,40 @@ Append-only. Every feature/fix completed gets logged here immediately.
 
 **Phase 3 status:** done. Test count 60 vitest + 12 playwright = 72 tests green. PM2 restarted at 12:38:52 — clean boot, no warnings, no sync errors.
 
-Next: Phase 4 (G3 — Mobile UI pass for iPhone 11 viewport).
+### Ad-hoc cleanups during Phase 3 check-in
+
+**Magnus → admin (D88)** — commit `16831ef`
+- Dev DB: `users.role` for Magnus flipped member → admin
+- Dev DB: `settings.page_permissions` — per-user entries (`{"leads": ["magnus"], ...}`) replaced with default `{"leads": "admin", "expenses": "admin", "finances": "admin"}`
+- `dashboard-server/init-db.js:176` — default seed role changed member → admin (existing DBs unaffected by `ON CONFLICT DO NOTHING`)
+- 26 existing Magnus sessions deleted so she re-logs-in with fresh admin role
+- Zero code-path changes — all Magnus refs in source are historical comments with no runtime effect
+
+**Warnings user-specific (D89)** — commit `739ea6a`
+- `nbi_project_dashboard.html:computeWarnings()` removed the `isAdmin` short-circuit
+- Added `_ownsViaAncestor(task)` walking parentId up 20 levels with per-root cache
+- Warnings now fire only for tasks the user is an assignee on OR on an ancestor in the hierarchy
+- Alerts tab was already server-scoped via `WHERE username = req.user.username`
+
+**Calendar DATE timezone fix (D90)** — commit `1e93661`
+- pg driver's default DATE parser was converting `'2026-04-16'` → JS Date at local midnight → `'2026-04-15T23:00:00.000Z'` ISO
+- Frontend concatenated `'T00:00:00'` onto the ISO string → Invalid Date → silent drop in day-building loop
+- Every calendar event Glen and Magnus created today was affected
+- Fix: `pgTypes.setTypeParser(1082, v => v)` at top of `server.js` — returns DATE as bare YYYY-MM-DD string
+- 2 new regression tests in `tests/unit/calendar-date.test.mjs` proving no `'T'` leaks through
+
+### Phase 4: Mobile UI pass (G3)
+
+**G3 — iPhone 11 (414×896) CSS fixes** — commit `1033c1a`
+- Audit found three kanban boards lacked scroll-snap mobile treatment: Bug Tracker, Hiring, Tasks Board. At 414px portrait they showed "one lane plus a sliver" — Glen's "some views looked awful" complaint.
+- Added `@media (max-width: 480px)` rules: `.bug-tracker__kanban`, `.hiring-kanban`, `.board` all now use `display: flex; overflow-x: auto; scroll-snap-type: x mandatory`. Lane widths: 100% for Bug Tracker/Hiring, 92% for Board (so the next lane peeks through).
+- People tab G4 sort toolbar gains `flex-wrap: wrap`, and `.rw-name` column shrinks from 100px to 72px so the bar has room to render.
+- Deliverable: `projects/nbi_dashboard/deliverables/2026-04-15-mobile-ui-pass.md` with 8 screenshots at 414x896 covering Dashboard, Workload, Projects Board, People, Reports, Bug Tracker, Hiring, Leads.
+- Capture harness: `dashboard-server/tests/e2e/mobile-screenshots.spec.js` — seeds fixture data per run, walks each view, saves PNGs to `deliverables/2026-04-15-mobile-screenshots/`. Tagged `@mobile-audit` so it runs when explicitly invoked.
+
+**Phase 4 status:** done. Test count 62 vitest + 12 playwright = 74 green. PM2 restarted at 14:02:xx, clean boot.
+
+Next: Phase 5 (older actionable — O1 Dashboard standup collapse, O3 warnings light theme QA, O4 skeleton screens, O7 Won lead complete marker).
 
 ---
 
