@@ -261,5 +261,15 @@ No spec work in the 2026-04-15 planning round. When we reach Phase 6, a dedicate
 ### D86: Master Workload Roadmap — phase-by-phase execution with stop points
 Approved plan `.claude/plans/iridescent-imagining-kitten.md`. 30 tracked items across 10 phases. I execute Phases 1 through 5 continuously with brief check-ins between phases; Phases 6-10 require explicit approval per-phase (they're decision points, not execution slots).
 
+### D88: Magnus's account — promoted to admin, custom per-user permissions removed
+Glen's 2026-04-15 directive: "Wipe all the custom permissions I gave Magnus' account down to a normal account and then just add her as an admin. Any hard-coded permissions around that account need to be removed and she needs to follow the normal work path for her account in the tool to be systemic."
+
+Changes applied:
+1. **Dev DB**: `users.role` for Magnus (id `7e6f9278-ee0b-401b-b6cd-5329288f7ecf`) flipped from `member` → `admin`.
+2. **Dev DB**: `settings.page_permissions` cleaned up. Previous value was `{"leads": ["magnus"], "expenses": ["magnus"], "finances": ["magnus"]}` — three per-user allow-list entries granting her access while she was a member. Replaced with `{"leads": "admin", "expenses": "admin", "finances": "admin"}`, the default for fresh installs. Any user who is an admin (including Magnus now) gets access via the role short-circuit in `hasPageAccess()`, so the per-user entries were redundant going forward and clashed with Glen's "systemic" request.
+3. **`dashboard-server/init-db.js:176`**: default seed role changed from `member` → `admin` so fresh DB installs create her as admin. `ON CONFLICT (username) DO NOTHING` means this doesn't affect existing DBs (which we migrated above).
+
+Audit check: grep for `'magnus'`, `"magnus"`, `mpryer`, `Magnus Pryer` found only comments referencing historical feedback tickets she filed (Magnus C.6, Magnus B.3, Magnus and other members...). Those are preserved as git-blame context and have zero behavioural impact. There are NO code paths that branch on her username or ID. Her account now follows the same admin code path as Glen's.
+
 ### D87: Sync array-literal bug — server-side defensive normalisation
 Pre-existing bug from ~10:00 2026-04-15. Frontend was intermittently POSTing `task.assignees = [[]]` or `task.dependencies = [[]]` to `/api/sync/changes`, which Postgres text[] columns rejected as malformed literal `"{{}}"`. Fixed at the server boundary: the sync upsert loop now flattens + string-filters both fields before the query runs, and logs `warn 'Sync' 'Normalised non-flat array field'` with taskId + before/after when it has to rewrite. Frontend source of the bad shape is still pending identification — the warn-log is how we catch it next time. 3 regression tests in `tests/unit/sync.test.mjs`. Commit `6d33612`.

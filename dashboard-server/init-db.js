@@ -173,7 +173,7 @@ async function run() {
   const defaultPassword = await bcrypt.hash('nbi2026', 10);
   const defaultUsers = [
     { username: 'glen', display_name: 'Glen Pryer', email: 'glen@nbigaming.com', role: 'admin' },
-    { username: 'magnus', display_name: 'Magnus Pryer', email: 'magnus@nbigaming.com', role: 'member' },
+    { username: 'magnus', display_name: 'Magnus Pryer', email: 'magnus@nbigaming.com', role: 'admin' },
     { username: 'tom', display_name: 'Tom Rieger', email: 'tom@nbigaming.com', role: 'member' },
     { username: 'devin', display_name: 'Devin Rieger', email: 'devin@nbigaming.com', role: 'member' },
     { username: 'jeff', display_name: 'Jeff Day', email: 'jeff@nbigaming.com', role: 'member' },
