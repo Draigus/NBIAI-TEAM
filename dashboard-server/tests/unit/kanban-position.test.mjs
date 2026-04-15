@@ -529,3 +529,81 @@ describe('PATCH /api/tasks/:id — drag-to-reorder', () => {
     ]);
   });
 });
+
+// ============================================================================
+// Candidates endpoints
+// ============================================================================
+
+describe('POST /api/candidates — inserts at position 0', () => {
+  it('first candidate in a stage lands at position 0', async () => {
+    const u = await createTestUser({ role: 'admin' });
+    const token = await mintSession(u.id);
+    const res = await request(app)
+      .post('/api/candidates')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: 'Alice', stage: 'sourced' });
+    expect(res.status).toBe(201);
+    expect(res.body.position).toBe(0);
+  });
+
+  it('subsequent candidates push older ones down', async () => {
+    const u = await createTestUser({ role: 'admin' });
+    const token = await mintSession(u.id);
+    for (const name of ['c1', 'c2', 'c3']) {
+      await request(app)
+        .post('/api/candidates')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ name, stage: 'sourced' });
+    }
+    const { rows } = await pool.query(
+      `SELECT name, position FROM candidates WHERE stage = 'sourced' ORDER BY position`
+    );
+    expect(rows.map(r => r.name)).toEqual(['c3', 'c2', 'c1']);
+  });
+});
+
+describe('PATCH /api/candidates/:id — drag-to-reorder', () => {
+  it('intra-stage position change shifts others', async () => {
+    const u = await createTestUser({ role: 'admin' });
+    const token = await mintSession(u.id);
+    const ids = [];
+    for (const name of ['c0', 'c1', 'c2']) {
+      const r = await request(app).post('/api/candidates')
+        .set('Authorization', `Bearer ${token}`).send({ name, stage: 'sourced' });
+      ids.push(r.body.id);
+    }
+    const res = await request(app)
+      .patch(`/api/candidates/${ids[0]}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ position: 0 });
+    expect(res.status).toBe(200);
+    const { rows } = await pool.query(
+      `SELECT name, position FROM candidates WHERE stage = 'sourced' ORDER BY position`
+    );
+    expect(rows.map(r => r.name)).toEqual(['c0', 'c2', 'c1']);
+  });
+
+  it('stage change without explicit position lands at position 0 of new stage', async () => {
+    const u = await createTestUser({ role: 'admin' });
+    const token = await mintSession(u.id);
+    const r = await request(app).post('/api/candidates')
+      .set('Authorization', `Bearer ${token}`).send({ name: 'mover', stage: 'sourced' });
+    await pool.query(
+      `INSERT INTO candidates (name, stage, position) VALUES ('existing', 'screening', 0)`
+    );
+    const res = await request(app)
+      .patch(`/api/candidates/${r.body.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ stage: 'screening' });
+    expect(res.status).toBe(200);
+    expect(res.body.stage).toBe('screening');
+    expect(res.body.position).toBe(0);
+    const { rows } = await pool.query(
+      `SELECT name, position FROM candidates WHERE stage = 'screening' ORDER BY position`
+    );
+    expect(rows).toEqual([
+      { name: 'mover',    position: 0 },
+      { name: 'existing', position: 1 },
+    ]);
+  });
+});

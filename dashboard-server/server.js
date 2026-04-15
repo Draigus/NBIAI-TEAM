@@ -5975,10 +5975,15 @@ app.post('/api/candidates', async (req, res) => {
     const ne = validateLength(notes, 'notes');
     if (ne) return res.status(400).json({ error: ne });
   }
+  const targetStage = stage || 'sourced';
+  const dbClient = await pool.connect();
+  let createdRow;
   try {
-    const { rows } = await pool.query(
-      `INSERT INTO candidates (client_id, position_id, name, role, linkedin_url, due_date, stage, notes)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
+    await dbClient.query('BEGIN');
+    await shiftForInsert(dbClient, 'candidates', 'stage', targetStage);
+    const { rows } = await dbClient.query(
+      `INSERT INTO candidates (client_id, position_id, name, role, linkedin_url, due_date, stage, notes, position)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,0) RETURNING *`,
       [
         client_id || null,
         position_id || null,
@@ -5986,16 +5991,21 @@ app.post('/api/candidates', async (req, res) => {
         role || null,
         linkedin_url || null,
         due_date || null,
-        stage || 'sourced',
+        targetStage,
         notes || null
       ]
     );
-    await auditLog('candidate', rows[0].id, 'create', req.user.displayName || 'unknown', { name: name.trim(), client_id: client_id || null });
-    res.status(201).json(rows[0]);
+    createdRow = rows[0];
+    await dbClient.query('COMMIT');
   } catch (e) {
+    await dbClient.query('ROLLBACK');
     log('error', 'Hiring', 'Failed to create candidate', { error: e.message });
-    res.status(500).json({ error: 'An internal error occurred' });
+    return res.status(500).json({ error: 'An internal error occurred' });
+  } finally {
+    dbClient.release();
   }
+  await auditLog('candidate', createdRow.id, 'create', req.user.displayName || 'unknown', { name: name.trim(), client_id: client_id || null });
+  res.status(201).json(createdRow);
 });
 
 /** PATCH /api/candidates/:id — Update a candidate (any authenticated user) */
@@ -6028,22 +6038,55 @@ app.patch('/api/candidates/:id', async (req, res) => {
   const body = { ...req.body };
   if (body.name !== undefined && body.name !== null) body.name = String(body.name).trim();
 
-  const { updates, vals, nextIdx } = buildPatchQuery(body, ['client_id', 'position_id', 'name', 'role', 'linkedin_url', 'due_date', 'stage', 'notes']);
-  if (updates.length === 0) return res.status(400).json({ error: 'No valid fields to update' });
-  updates.push('updated_at = NOW()');
-  vals.push(req.params.id);
+  // Stage is routed through reorderInGroup below — NOT in allowedFields here.
+  const { updates, vals, nextIdx } = buildPatchQuery(body, ['client_id', 'position_id', 'name', 'role', 'linkedin_url', 'due_date', 'notes']);
+  const wantsReorder = (body.stage !== undefined) || (req.body.position !== undefined);
+  if (updates.length === 0 && !wantsReorder) return res.status(400).json({ error: 'No valid fields to update' });
+
+  const dbClient = await pool.connect();
+  let updatedRow;
   try {
-    const { rows } = await pool.query(
-      `UPDATE candidates SET ${updates.join(', ')} WHERE id = $${nextIdx} RETURNING *`,
-      vals
-    );
-    if (!rows[0]) return res.status(404).json({ error: 'Not found' });
-    await auditLog('candidate', req.params.id, 'update', req.user.displayName || 'unknown', { fields: Object.keys(req.body) });
-    res.json(rows[0]);
+    await dbClient.query('BEGIN');
+
+    if (wantsReorder) {
+      const oldRow = await dbClient.query('SELECT stage FROM candidates WHERE id = $1', [req.params.id]);
+      if (oldRow.rows.length === 0) {
+        await dbClient.query('ROLLBACK');
+        return res.status(404).json({ error: 'Not found' });
+      }
+      const targetStage = (body.stage !== undefined) ? body.stage : oldRow.rows[0].stage;
+      const targetPos = (typeof req.body.position === 'number' && Number.isInteger(req.body.position))
+        ? req.body.position
+        : 0;
+      await reorderInGroup(dbClient, 'candidates', 'stage', req.params.id, targetStage, targetPos);
+    }
+
+    if (updates.length > 0) {
+      updates.push('updated_at = NOW()');
+      vals.push(req.params.id);
+      await dbClient.query(
+        `UPDATE candidates SET ${updates.join(', ')} WHERE id = $${nextIdx}`,
+        vals
+      );
+    }
+
+    const fresh = await dbClient.query('SELECT * FROM candidates WHERE id = $1', [req.params.id]);
+    if (!fresh.rows[0]) {
+      await dbClient.query('ROLLBACK');
+      return res.status(404).json({ error: 'Not found' });
+    }
+    updatedRow = fresh.rows[0];
+    await dbClient.query('COMMIT');
   } catch (e) {
+    await dbClient.query('ROLLBACK');
     log('error', 'Hiring', 'Failed to update candidate', { error: e.message });
-    res.status(500).json({ error: 'An internal error occurred' });
+    return res.status(500).json({ error: 'An internal error occurred' });
+  } finally {
+    dbClient.release();
   }
+
+  await auditLog('candidate', req.params.id, 'update', req.user.displayName || 'unknown', { fields: Object.keys(req.body) });
+  res.json(updatedRow);
 });
 
 /** DELETE /api/candidates/:id — Remove a candidate (admin only).
