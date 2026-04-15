@@ -222,3 +222,8 @@ Filtered Gantt showing only items in dependency chains. Topologically sorted. In
 
 ### D77: Today Marker
 Semi-transparent green column across the full timeline. Not a thin red line.
+
+## 2026-04-15 (Session g)
+
+### D78: Option C — Full Double-Escape Storage Fix
+Glen confirmed in the prior session's handoff that he wants Option C: stop escaping at write time and decode the existing double-escaped rows. Implemented this session as commits `203dad6` (W1) and `abac7f2` (W2). All text fields now store raw user input; only the frontend's `esc()` runs at render time. Public client-report HTML and password-reset emails still use `escHtml()` because they are server-rendered documents.

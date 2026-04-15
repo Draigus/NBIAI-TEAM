@@ -246,3 +246,10 @@ See items 78-128 above (already logged from earlier sessions).
 175. **Hub Infra + Security (prior commit)** -- 25 cross-app issues fixed. user.id to user.sub data corruption. Board role escalation removed. Bcrypt dummy hash. Company scoping on queue routes. 11 frontend API endpoints corrected. ESM config fix.
 176. **Hub QA (68 tests)** -- First functional test. 63 pass, 5 bugs found and fixed: duplicate agent 500->409, UUID validation on 14 handlers across 6 route files, error response format standardised.
 177. **Hub Build** -- TypeScript compiles clean. PM2 running from dist/index.js in fork mode.
+
+## 2026-04-15 (Session g -- double-escape storage migration)
+
+178. **W1: escHtml() removed from all write paths (commit 203dad6)** -- 21 call sites across tasks / leads / expenses / bug_reports / bug_report_comments / candidates POSTs and PATCHes, plus the monthly expense-reminder notification body at line 6804 (missed by the handoff). escHtml() kept on the 3 legitimate surfaces: function definition, password-reset email HTML, public client-report HTML document.
+179. **W2: Migration 020_decode_double_escape.sql (commit abac7f2)** -- decode_html_entities(TEXT) plpgsql fixpoint function with &amp; replaced FIRST so nested sequences collapse correctly across iterations. 19 rows decoded: tasks.description 2, bug_reports.description 14, bug_report_comments.text 3. Defensive no-op UPDATE statements on all other affected tables for idempotency. Migration function left in place for future manual use.
+180. **Round-trip test** -- Minted a short-lived admin test session (cleaned up after), POSTed / PATCHed a bug report + comment with `can't "quoted" & <tag>`, confirmed raw storage at DB + API-response level. GET list round-trips raw. Frontend esc() at nbi_project_dashboard.html:3243 unchanged, 412 call sites untouched.
+181. **Pre-migration backup** -- pg_dump saved to dashboard-server/backups/pre_migration_020_20260415_032100.sql (4.3 MB). Rollback procedure documented in deliverables/double_escape_migration_2026-04-15.md.
