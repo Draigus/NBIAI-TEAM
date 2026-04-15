@@ -15,7 +15,7 @@ const { defineConfig } = require('vitest/config');
 
 module.exports = defineConfig({
   test: {
-    include: ['tests/unit/**/*.test.js'],
+    include: ['tests/unit/**/*.test.mjs'],
     globalSetup: ['./tests/setup/global-setup.js'],
     setupFiles: ['./tests/setup/load-env.js'],
     pool: 'forks',
