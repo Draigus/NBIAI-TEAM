@@ -54,7 +54,10 @@
       "Bash(pm2 save:*)",
       "Bash(xargs ls:*)",
       "WebFetch(domain:github.com)",
-      "Bash(claude skill:*)"
+      "Bash(claude skill:*)",
+      "Bash(wc -l projects/nbi_dashboard/deliverables/final_*.md)",
+      "Bash(ToolSearch_placeholder)",
+      "Bash(npm run:*)"
     ]
   }
 }

@@ -4999,6 +4999,7 @@ let _calEvents = [];                 // Cached list of calendar events for the v
 let _calEventsKey = '';              // Cache key (year-month) so re-renders don't re-fetch
 let _calShowOthers = true;           // Toggle: show events created by other users
 let _calTeamFilter = '';             // Selected team_id for the calendar team filter (empty = no filter)
+let _teamMembersCache = {};          // team_id → [display_name, ...] for fanning team events onto roster rows
 const CAL_EVENT_TYPES = [
   { value: 'vacation',    label: 'Vacation',     colour: '#22c55e' },
   { value: 'sick_leave',  label: 'Sick Leave',   colour: '#ef4444' },
@@ -5038,8 +5039,22 @@ async function loadCalendarEvents(year, month) {
   // for every member of that team.
   let url = `/api/calendar-events?from=${fmt(from)}&to=${fmt(to)}`;
   if (_calTeamFilter) url += `&team_id=${encodeURIComponent(_calTeamFilter)}`;
-  const events = await apiCall(url);
+  // Fetch events + team member roster in parallel so team events can be
+  // fanned out to each member's row without a render-time lookup miss.
+  const [events, teamsWithMembers] = await Promise.all([
+    apiCall(url),
+    apiCall('/api/teams?include=members')
+  ]);
   _calEvents = Array.isArray(events) ? events : [];
+  // Populate the team-members cache keyed by team_id → [display_name, ...]
+  _teamMembersCache = {};
+  if (Array.isArray(teamsWithMembers)) {
+    teamsWithMembers.forEach(t => {
+      if (Array.isArray(t.member_display_names)) {
+        _teamMembersCache[t.id] = t.member_display_names;
+      }
+    });
+  }
   _calEventsKey = `${year}-${month}` + (_calTeamFilter ? `:team:${_calTeamFilter}` : '');
   // Re-render whichever calendar surface is currently visible.
   const main = document.querySelector('.tasks-layout__main');
@@ -5211,11 +5226,19 @@ async function openCalendarEventModal(event, prefill) {
   prefill = prefill || {};
   // Pull live client list so we have the canonical IDs to attach to the event
   const clientList = (await apiCall('/api/clients')) || [];
+  // Pull teams for the "For" dropdown — members see teams they belong to,
+  // admins see all. Non-admin non-members fall through to "Myself only".
+  const teamsList = (await apiCall('/api/teams')) || [];
   const selectedType = event?.event_type || prefill.event_type || '';
   const typeOpts = CAL_EVENT_TYPES.map(t => `<option value="${t.value}" ${selectedType === t.value ? 'selected' : ''}>${t.label}</option>`).join('');
   const visOpts = CAL_EVENT_VISIBILITY.map(v => `<option value="${v.value}" ${event && event.visibility === v.value ? 'selected' : (!event && v.value === 'team' ? 'selected' : '')}>${v.label}</option>`).join('');
   const clientOpts = `<option value="">-- None --</option>` + clientList.map(c =>
     `<option value="${esc(c.id)}" ${event && event.client_id === c.id ? 'selected' : ''}>${esc(c.name)}</option>`
+  ).join('');
+  // "For" dropdown: Myself (default) or one of the teams. Admins get every team.
+  const selectedTeamId = event?.team_id || prefill.team_id || '';
+  const teamOpts = `<option value="">Myself</option>` + teamsList.map(t =>
+    `<option value="${esc(t.id)}" ${selectedTeamId === t.id ? 'selected' : ''}>Team: ${esc(t.name)}</option>`
   ).join('');
   const startVal = event?.start_date ? String(event.start_date).slice(0,10) : (prefill.start_date || '');
   const endVal = event?.end_date ? String(event.end_date).slice(0,10) : (prefill.end_date || '');
@@ -5231,6 +5254,7 @@ async function openCalendarEventModal(event, prefill) {
       <div class="lead-detail__grid">
         <label class="field-required">Title</label><input type="text" id="calEvTitle" value="${esc(event?.title || prefill.title || '')}" placeholder="e.g. London Games Conference">
         <label class="field-required">Type</label><select id="calEvType">${typeOpts}</select>
+        <label>For</label><select id="calEvTeam" title="Choose Myself for a personal entry, or a team to mark the event for everyone on that team">${teamOpts}</select>
         <label class="field-required">Start date</label><input type="date" id="calEvStart" value="${startVal}">
         <label>End date</label><input type="date" id="calEvEnd" value="${endVal}">
         <label>Client</label><select id="calEvClient">${clientOpts}</select>
@@ -5260,6 +5284,8 @@ async function submitCalendarEvent(eventId) {
   if (!title) { if (typeof showFieldError === 'function') showFieldError(titleEl, 'Title is required'); return; }
   if (!start_date) { if (typeof showFieldError === 'function') showFieldError(startEl, 'Start date is required'); return; }
 
+  const teamSel = document.getElementById('calEvTeam');
+  const teamId = teamSel ? teamSel.value : '';
   const payload = {
     title,
     event_type: document.getElementById('calEvType').value,
@@ -5269,12 +5295,21 @@ async function submitCalendarEvent(eventId) {
     visibility: document.getElementById('calEvVis').value,
     description: document.getElementById('calEvDesc').value.trim() || null
   };
+  // Team event branch — when the "For" dropdown is set to a team, the
+  // server drops user_id and attaches team_id, so the event shows on
+  // every team member's roster row (bug d4367137).
+  if (teamId) {
+    payload.team_id = teamId;
+  } else if (eventId) {
+    // Editing: explicitly clear team_id to switch a team event back to a personal one
+    payload.team_id = null;
+  }
   // Admin-created entries can target another user via the hidden field
   // that the People → Calendar roster fills in. Server-side enforcement
   // ensures only admins can actually use this — members get a 403 if
-  // they try to POST with a user_id != their own.
+  // they try to POST with a user_id != their own. Ignored when team_id is set.
   const targetUserId = document.getElementById('calEvTargetUserId')?.value || '';
-  if (!eventId && targetUserId) payload.user_id = targetUserId;
+  if (!eventId && targetUserId && !teamId) payload.user_id = targetUserId;
 
   const url = eventId ? `/api/calendar-events/${eventId}` : '/api/calendar-events';
   const resp = await authFetch(url, {
@@ -8752,11 +8787,21 @@ function renderPeopleCalendarView(allPeople, assigneeMerge) {
   const firmClosedDays = new Set();
   const monthStart = new Date(year, monthIdx, 1);
   const monthEnd = new Date(year, monthIdx + 1, 0);
+  // For team events (user_id is null, team_id set) we need to know which
+  // people to fan the event out to. We synchronously look up team
+  // membership from the _teamMembersCache populated alongside _cachedUsers.
+  // If missing, the event lands under a synthetic "Team: <name>" row.
+  const teamEventRecipients = (teamId) => {
+    if (!teamId) return [];
+    const cache = (typeof _teamMembersCache === 'object' && _teamMembersCache) ? _teamMembersCache[teamId] : null;
+    return Array.isArray(cache) ? cache : [];
+  };
+
   (_calEvents || []).forEach(ev => {
     if (!ev.start_date) return;
     // "Show events from others" filter — respects toggle but firm_closed is
     // always visible since it applies to everyone (bug e49be05e).
-    if (!_calShowOthers && _currentUser && ev.user_id !== _currentUser.id && ev.event_type !== 'firm_closed') return;
+    if (!_calShowOthers && _currentUser && ev.user_id !== _currentUser.id && ev.event_type !== 'firm_closed' && !ev.team_id) return;
     const start = new Date(ev.start_date + 'T00:00:00');
     const end = ev.end_date ? new Date(ev.end_date + 'T00:00:00') : start;
     if (isNaN(start.getTime())) return;
@@ -8766,6 +8811,22 @@ function renderPeopleCalendarView(allPeople, assigneeMerge) {
       const key = `${cursor.getFullYear()}-${String(cursor.getMonth()+1).padStart(2,'0')}-${String(cursor.getDate()).padStart(2,'0')}`;
       if (ev.event_type === 'firm_closed') {
         firmClosedDays.add(key);
+      } else if (ev.team_id) {
+        // Team event — fan out to every member of that team (bug d4367137)
+        const members = teamEventRecipients(ev.team_id);
+        if (members.length > 0) {
+          members.forEach(name => {
+            const ck = cellKey(name, key);
+            if (!personDay[ck]) personDay[ck] = [];
+            personDay[ck].push(ev);
+          });
+        } else {
+          // Fallback row: events show under "Team: <name>" when membership isn't cached
+          const teamLabel = `Team: ${ev.team_name || 'Unknown'}`;
+          const ck = cellKey(teamLabel, key);
+          if (!personDay[ck]) personDay[ck] = [];
+          personDay[ck].push(ev);
+        }
       } else if (ev.user_display_name) {
         const ck = cellKey(ev.user_display_name, key);
         if (!personDay[ck]) personDay[ck] = [];

@@ -2293,6 +2293,7 @@ async function buildCalendarVisibilityClause(req, startParamIdx) {
   // Failure is logged (code review M9) but tolerated — a DB hiccup here should degrade
   // to "no client matches" rather than bring the calendar view down.
   let assignedClientIds = [];
+  let memberTeamIds = [];
   try {
     const { rows } = await pool.query(
       `SELECT DISTINCT client_id FROM tasks WHERE $1 = ANY(assignees) AND client_id IS NOT NULL`,
@@ -2305,20 +2306,39 @@ async function buildCalendarVisibilityClause(req, startParamIdx) {
       user: req.user?.displayName
     });
   }
+  // Resolve teams this user belongs to — needed so team events (user_id is
+  // null, team_id set) are visible to every member of that team.
+  try {
+    const { rows } = await pool.query(
+      `SELECT team_id FROM team_members WHERE user_id = $1`,
+      [req.user?.id || null]
+    );
+    memberTeamIds = rows.map(r => r.team_id);
+  } catch (e) {
+    log('warn', 'Calendar', 'Failed to resolve team memberships for visibility', { error: e.message });
+  }
 
   const params = [];
   let i = startParamIdx;
   // Owner clause
   params.push(req.user?.id || null);
   const ownerIdx = i++;
-  // Visibility list
+  // Visibility list — applies only to events WITHOUT a team_id. An event
+  // that's tagged to a team is only visible to that team's members, even
+  // if visibility is 'team' or 'public'. This matches the user-mental
+  // model: tagging an event to a team means "this is team-private".
   params.push(['team', 'public']);
   const visListIdx = i++;
-  let clause = `(user_id = $${ownerIdx} OR visibility = ANY($${visListIdx}::text[])`;
+  let clause = `(user_id = $${ownerIdx} OR (team_id IS NULL AND visibility = ANY($${visListIdx}::text[]))`;
   if (assignedClientIds.length > 0) {
     params.push(assignedClientIds);
     const clientListIdx = i++;
     clause += ` OR (visibility = 'client' AND client_id = ANY($${clientListIdx}::uuid[]))`;
+  }
+  if (memberTeamIds.length > 0) {
+    params.push(memberTeamIds);
+    const teamListIdx = i++;
+    clause += ` OR team_id = ANY($${teamListIdx}::uuid[])`;
   }
   clause += ')';
   return { clause, params, nextIdx: i };
@@ -2373,10 +2393,11 @@ app.get('/api/calendar-events', async (req, res) => {
 
     const vis = await buildCalendarVisibilityClause(req, i);
     const sql = `
-      SELECT ce.*, u.display_name AS user_display_name, c.name AS client_name
+      SELECT ce.*, u.display_name AS user_display_name, c.name AS client_name, t.name AS team_name
       FROM calendar_events ce
       LEFT JOIN users u ON u.id = ce.user_id
       LEFT JOIN clients c ON c.id = ce.client_id
+      LEFT JOIN teams t ON t.id = ce.team_id
       WHERE ${where} AND ${vis.clause}
       ORDER BY ce.start_date ASC, ce.created_at ASC
     `;
@@ -2394,10 +2415,11 @@ app.get('/api/calendar-events/:id', async (req, res) => {
   try {
     const vis = await buildCalendarVisibilityClause(req, 2);
     const { rows } = await pool.query(
-      `SELECT ce.*, u.display_name AS user_display_name, c.name AS client_name
+      `SELECT ce.*, u.display_name AS user_display_name, c.name AS client_name, t.name AS team_name
        FROM calendar_events ce
        LEFT JOIN users u ON u.id = ce.user_id
        LEFT JOIN clients c ON c.id = ce.client_id
+       LEFT JOIN teams t ON t.id = ce.team_id
        WHERE ce.id = $1 AND ${vis.clause}`,
       [req.params.id, ...vis.params]
     );
@@ -2409,9 +2431,12 @@ app.get('/api/calendar-events/:id', async (req, res) => {
   }
 });
 
-/** POST /api/calendar-events — Create a new event. Regular users create for themselves; admins may target any user. */
+/** POST /api/calendar-events — Create a new event. Regular users create for themselves;
+ *  admins may target any user. If team_id is provided the event is a team event —
+ *  user_id becomes null and the event applies to all members of that team.
+ *  Non-admins can only create team events for teams they are a member of. */
 app.post('/api/calendar-events', async (req, res) => {
-  const { title, event_type, start_date, end_date, client_id, visibility, description } = req.body || {};
+  const { title, event_type, start_date, end_date, client_id, visibility, description, team_id } = req.body || {};
   if (!title || typeof title !== 'string') return res.status(400).json({ error: 'title is required' });
   if (!event_type || !VALID_EVENT_TYPES.includes(event_type)) return res.status(400).json({ error: 'Invalid event_type' });
   if (ADMIN_ONLY_EVENT_TYPES.includes(event_type) && req.user?.role !== 'admin') {
@@ -2423,10 +2448,25 @@ app.post('/api/calendar-events', async (req, res) => {
   if (end_date && end_date < start_date) return res.status(400).json({ error: 'end_date must be on or after start_date' });
   const vis = visibility && VALID_EVENT_VISIBILITY.includes(visibility) ? visibility : 'team';
   if (client_id && !isValidUuid(client_id)) return res.status(400).json({ error: 'Invalid client_id' });
+  if (team_id && !isValidUuid(team_id)) return res.status(400).json({ error: 'Invalid team_id' });
 
-  // Default to current user; admin may override via body.user_id
+  // Team event path — user_id is null, team_id points to the target team
   let userId = req.user?.id;
-  if (req.body?.user_id && req.body.user_id !== userId) {
+  let teamId = null;
+  if (team_id) {
+    teamId = team_id;
+    const { rows: teamRows } = await pool.query('SELECT id FROM teams WHERE id = $1', [team_id]);
+    if (teamRows.length === 0) return res.status(404).json({ error: 'Team not found' });
+    if (req.user?.role !== 'admin') {
+      const { rows: membership } = await pool.query(
+        'SELECT 1 FROM team_members WHERE team_id = $1 AND user_id = $2',
+        [team_id, req.user?.id]
+      );
+      if (membership.length === 0) return res.status(403).json({ error: 'Only team members or admins can create team events' });
+    }
+    userId = null; // team event — not tied to a single user
+  } else if (req.body?.user_id && req.body.user_id !== userId) {
+    // Admin creating for another specific user
     if (req.user?.role !== 'admin') return res.status(403).json({ error: 'Only admin can create events for other users' });
     if (!isValidUuid(req.body.user_id)) return res.status(400).json({ error: 'Invalid user_id' });
     userId = req.body.user_id;
@@ -2434,11 +2474,11 @@ app.post('/api/calendar-events', async (req, res) => {
 
   try {
     const { rows } = await pool.query(
-      `INSERT INTO calendar_events (user_id, title, event_type, start_date, end_date, client_id, visibility, description)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
-      [userId, title.trim().slice(0, 255), event_type, start_date, end_date || null, client_id || null, vis, description || null]
+      `INSERT INTO calendar_events (user_id, team_id, title, event_type, start_date, end_date, client_id, visibility, description)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *`,
+      [userId, teamId, title.trim().slice(0, 255), event_type, start_date, end_date || null, client_id || null, vis, description || null]
     );
-    await auditLog('calendar_event', rows[0].id, 'create', req.user?.displayName, { title, event_type });
+    await auditLog('calendar_event', rows[0].id, 'create', req.user?.displayName, { title, event_type, team_id: teamId });
     res.status(201).json(rows[0]);
   } catch (e) {
     log('error', 'Calendar', 'Failed to create calendar event', { error: e.message });
@@ -2456,7 +2496,7 @@ app.patch('/api/calendar-events/:id', async (req, res) => {
     return res.status(403).json({ error: 'Only the owner or an admin can edit this event' });
   }
 
-  const allowed = ['title', 'event_type', 'start_date', 'end_date', 'client_id', 'visibility', 'description'];
+  const allowed = ['title', 'event_type', 'start_date', 'end_date', 'client_id', 'visibility', 'description', 'team_id'];
   const updates = [];
   const params = [];
   let i = 1;
@@ -2469,6 +2509,7 @@ app.patch('/api/calendar-events/:id', async (req, res) => {
       if (k === 'visibility' && req.body[k] && !VALID_EVENT_VISIBILITY.includes(req.body[k])) return res.status(400).json({ error: 'Invalid visibility' });
       if ((k === 'start_date' || k === 'end_date') && req.body[k] && !/^\d{4}-\d{2}-\d{2}$/.test(req.body[k])) return res.status(400).json({ error: `Invalid ${k}` });
       if (k === 'client_id' && req.body[k] && !isValidUuid(req.body[k])) return res.status(400).json({ error: 'Invalid client_id' });
+      if (k === 'team_id' && req.body[k] && !isValidUuid(req.body[k])) return res.status(400).json({ error: 'Invalid team_id' });
       updates.push(`${k} = $${i++}`);
       params.push(req.body[k] === '' ? null : req.body[k]);
     }
@@ -2955,7 +2996,8 @@ const VALID_TEAM_ROLES = ['lead', 'member'];
  */
 app.get('/api/teams', async (req, res) => {
   if (!req.user) return res.status(401).json({ error: 'Auth required' });
-  const { client_id } = req.query;
+  const { client_id, include } = req.query;
+  const includeMembers = include === 'members';
   let where = '';
   let vals = [];
   if (client_id) {
@@ -2976,6 +3018,25 @@ app.get('/api/teams', async (req, res) => {
       ${where}
       ORDER BY c.name NULLS LAST, t.name
     `, vals);
+    // Optionally join member display names. Used by the calendar modal so
+    // team events can be fanned out to every team member's roster row
+    // without a second round-trip (bug d4367137).
+    if (includeMembers && rows.length > 0) {
+      const ids = rows.map(r => r.id);
+      const { rows: memberRows } = await pool.query(
+        `SELECT tm.team_id, u.display_name
+         FROM team_members tm
+         JOIN users u ON u.id = tm.user_id
+         WHERE tm.team_id = ANY($1::uuid[])`,
+        [ids]
+      );
+      const byTeam = {};
+      memberRows.forEach(m => {
+        if (!byTeam[m.team_id]) byTeam[m.team_id] = [];
+        byTeam[m.team_id].push(m.display_name);
+      });
+      rows.forEach(r => { r.member_display_names = byTeam[r.id] || []; });
+    }
     res.json(rows);
   } catch (e) {
     log('error', 'Teams', 'Failed to list teams', { error: e.message });
