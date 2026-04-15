@@ -2456,6 +2456,13 @@ let _reportInitialCollapse = true;
 let _rptProjectSort = { col: 'client', dir: 'asc' };
 let _rptProjectFilterClient = null;
 let _rptProgressSort = { col: 'title', dir: 'asc' }; // Sort state for the "Progress by Project" table on the Reports view
+// People-tab sort state (G4). Each table on the People view has its own
+// state object. Columns are table-specific; default order matches the
+// previous alphabetical-by-name behaviour.
+let _peopleWorkloadSort = { col: 'name', dir: 'asc' };       // Workload Overview bar chart
+let _peopleCapacitySort = { col: 'name', dir: 'asc' };       // Capacity Planning table (cols: name | w0..w3)
+let _peopleClientHoursSort = { col: 'name', dir: 'asc' };    // Hours by Person per Client (cols: name | <client name> | total)
+let _peopleTaskSummarySort = { col: 'name', dir: 'asc' };    // Task Summary by Person (cols: name | total | done | active | blocked | notstarted | spent | estimate)
 let _financeEntries = [];          // Ad-hoc finance entries (loaded from API or localStorage)
 
 // ----- CLIENT BRIEFS -----
@@ -8201,54 +8208,80 @@ function renderPeopleView(el) {
   if (!selectedPerson) {
     // === OVERVIEW: all people ===
 
-    // Workload comparison bar chart
+    // Workload comparison bar chart — sortable toolbar per G4.
+    // Build rows once so the sort can reorder them independently of render.
     const WEEKLY_CAPACITY = 40;
-    const maxHrs = Math.max(...allPeople.map(p => filtered.filter(t => isAssignedTo(t, p)).reduce((s,t) => s + (t.hoursEstimated||0), 0)), WEEKLY_CAPACITY, 1);
-    const maxTasks = Math.max(...allPeople.map(p => filtered.filter(t => isAssignedTo(t, p)).length), 1);
+    const workloadRows = allPeople.map(p => {
+      const pt = filtered.filter(t => isAssignedTo(t, p));
+      return {
+        name: p,
+        pt,
+        total: pt.length,
+        done: pt.filter(t => t.status === 'Done').length,
+        active: pt.filter(t => t.status === 'In progress').length,
+        blocked: pt.filter(t => t.healthState === 'Blocked').length,
+        hs: pt.reduce((s,t) => s + (t.hoursSpent||0), 0),
+        he: pt.reduce((s,t) => s + (t.hoursEstimated||0), 0),
+      };
+    });
+    const maxHrs = Math.max(...workloadRows.map(r => r.he), WEEKLY_CAPACITY, 1);
+    const maxTasks = Math.max(...workloadRows.map(r => r.total), 1);
+
+    // Apply the sort
+    const wSc = _peopleWorkloadSort.col;
+    const wSd = _peopleWorkloadSort.dir === 'asc' ? 1 : -1;
+    workloadRows.sort((a, b) => {
+      if (wSc === 'name') return a.name.localeCompare(b.name) * wSd;
+      return ((a[wSc] || 0) - (b[wSc] || 0)) * wSd;
+    });
+
+    // Sort toolbar — "sortable by person from highest to lowest" per Glen's G4 note
+    const wlSortBtn = (col, label) => {
+      const isActive = _peopleWorkloadSort.col === col;
+      const arrow = isActive ? (_peopleWorkloadSort.dir === 'asc' ? ' \u25B2' : ' \u25BC') : '';
+      return `<button class="task-subview-btn ${isActive?'active':''}" onclick="_peopleWorkloadSort={col:'${col}',dir:_peopleWorkloadSort.col==='${col}'&&_peopleWorkloadSort.dir==='asc'?'desc':'asc'};renderContent()">${label}${arrow}</button>`;
+    };
     html += `<div class="report__section"><h2>Workload Overview <span style="font-weight:400;font-size:0.72rem;color:var(--text-muted)">40hr/week baseline</span></h2>`;
+    html += `<div style="display:flex;gap:6px;margin-bottom:8px;align-items:center;flex-wrap:wrap"><span style="font-size:0.72rem;color:var(--text-muted);margin-right:6px">Sort:</span>`;
+    html += wlSortBtn('name',  'Name');
+    html += wlSortBtn('total', 'Tasks');
+    html += wlSortBtn('hs',    'Hours Spent');
+    html += wlSortBtn('he',    'Hours Est.');
+    html += `</div>`;
     html += `<div class="report-workload" style="position:relative">`;
     // 40hr baseline marker
     const baselinePct = (WEEKLY_CAPACITY / maxHrs * 100).toFixed(1);
     html += `<div style="position:absolute;left:calc(120px + ${baselinePct}% * 0.65);top:0;bottom:0;width:1px;border-left:2px dashed var(--warning);opacity:0.4;z-index:1" title="40hr/week capacity"></div>`;
-    allPeople.forEach(p => {
-      const pt = filtered.filter(t => isAssignedTo(t, p));
-      const done = pt.filter(t => t.status === 'Done').length;
-      const active = pt.filter(t => t.status === 'In progress').length;
-      const blocked = pt.filter(t => t.healthState === 'Blocked').length;
-      const other = pt.length - done - active - blocked;
-      const hs = pt.reduce((s,t) => s + (t.hoursSpent||0), 0);
-      const he = pt.reduce((s,t) => s + (t.hoursEstimated||0), 0);
-      const barW = pt.length / maxTasks * 100;
+    workloadRows.forEach(r => {
+      const other = r.pt.length - r.done - r.active - r.blocked;
+      const barW = r.pt.length / maxTasks * 100;
 
-      html += `<div class="rw-row" style="cursor:pointer" onclick="_peopleFilter.person='${escAttrJs(p)}';renderContent()">`;
-      html += `<div class="rw-name">${esc(p)}</div>`;
+      html += `<div class="rw-row" style="cursor:pointer" onclick="_peopleFilter.person='${escAttrJs(r.name)}';renderContent()">`;
+      html += `<div class="rw-name">${esc(r.name)}</div>`;
       html += `<div class="rw-bar-wrap"><div class="rw-bar" style="width:${barW}%">`;
-      if (done > 0) html += `<div class="rw-seg" style="flex:${done};background:var(--success)" title="Done: ${done}"></div>`;
-      if (active > 0) html += `<div class="rw-seg" style="flex:${active};background:var(--accent)" title="Active: ${active}"></div>`;
-      if (blocked > 0) html += `<div class="rw-seg" style="flex:${blocked};background:var(--danger)" title="Blocked: ${blocked}"></div>`;
+      if (r.done > 0) html += `<div class="rw-seg" style="flex:${r.done};background:var(--success)" title="Done: ${r.done}"></div>`;
+      if (r.active > 0) html += `<div class="rw-seg" style="flex:${r.active};background:var(--accent)" title="Active: ${r.active}"></div>`;
+      if (r.blocked > 0) html += `<div class="rw-seg" style="flex:${r.blocked};background:var(--danger)" title="Blocked: ${r.blocked}"></div>`;
       if (other > 0) html += `<div class="rw-seg" style="flex:${other};background:var(--text-muted)" title="Other: ${other}"></div>`;
       html += `</div></div>`;
-      html += `<div class="rw-nums"><span>${pt.length}</span><span>${hs.toFixed(1)}h</span></div>`;
+      html += `<div class="rw-nums"><span>${r.pt.length}</span><span>${r.hs.toFixed(1)}h</span></div>`;
       html += `</div>`;
     });
     html += `</div></div>`;
 
-    // Capacity Planning — next 4 weeks
+    // Capacity Planning — next 4 weeks, sortable per column (G4)
     html += `<div class="report__section"><h2>Capacity Planning <span style="font-weight:400;font-size:0.72rem;color:var(--text-muted)">Next 4 weeks &middot; 40hr/week baseline</span></h2>`;
-    html += `<div style="overflow-x:auto"><table class="report-table"><thead><tr><th>Person</th>`;
-    const now = new Date(); now.setHours(0,0,0,0);
+    const capNow = new Date(); capNow.setHours(0,0,0,0);
     const capWeeks = [];
     for (let w = 0; w < 4; w++) {
-      const wStart = new Date(now); wStart.setDate(wStart.getDate() - wStart.getDay() + 1 + w*7);
+      const wStart = new Date(capNow); wStart.setDate(wStart.getDate() - wStart.getDay() + 1 + w*7);
       const wEnd = new Date(wStart); wEnd.setDate(wEnd.getDate() + 6);
-      capWeeks.push({ start: wStart, end: wEnd, label: wStart.toLocaleDateString('en-GB', {day:'numeric',month:'short'}) });
-      html += `<th style="text-align:center">${capWeeks[w].label}</th>`;
+      capWeeks.push({ start: wStart, end: wEnd, label: wStart.toLocaleDateString('en-GB', {day:'numeric',month:'short'}), key: 'w'+w });
     }
-    html += `</tr></thead><tbody>`;
-    allPeople.forEach(p => {
-      html += `<tr><td><strong>${esc(p)}</strong></td>`;
+    // Build rows with per-week committed hours so we can sort them
+    const capRows = allPeople.map(p => {
+      const row = { name: p };
       capWeeks.forEach(wk => {
-        // Tasks due/active this week for this person
         const weekTasks = tasks.filter(t => {
           if (!isAssignedTo(t, p)) return false;
           if (t.status === 'Done' || t.status === 'Cancelled') return false;
@@ -8257,7 +8290,32 @@ function renderPeopleView(el) {
           if (!end) return false;
           return (!start || start <= wk.end) && end >= wk.start;
         });
-        const committedHrs = weekTasks.reduce((s,t) => s + (t.hoursEstimated||0), 0);
+        row[wk.key] = weekTasks.reduce((s,t) => s + (t.hoursEstimated||0), 0);
+      });
+      return row;
+    });
+    // Apply sort
+    const capSc = _peopleCapacitySort.col;
+    const capSd = _peopleCapacitySort.dir === 'asc' ? 1 : -1;
+    capRows.sort((a, b) => {
+      if (capSc === 'name') return a.name.localeCompare(b.name) * capSd;
+      return ((a[capSc] || 0) - (b[capSc] || 0)) * capSd;
+    });
+    // Clickable header helper for this table
+    const capSortTh = (col, label, align) => {
+      const isActive = _peopleCapacitySort.col === col;
+      const arrow = isActive ? (_peopleCapacitySort.dir === 'asc' ? ' \u25B2' : ' \u25BC') : '';
+      const style = align === 'center' ? 'text-align:center;' : '';
+      return `<th style="${style}cursor:pointer;user-select:none;white-space:nowrap${isActive ? ';color:var(--accent)' : ''}" onclick="_peopleCapacitySort={col:'${col}',dir:_peopleCapacitySort.col==='${col}'&&_peopleCapacitySort.dir==='asc'?'desc':'asc'};renderContent()">${label}${arrow}</th>`;
+    };
+    html += `<div style="overflow-x:auto"><table class="report-table"><thead><tr>`;
+    html += capSortTh('name', 'Person', 'left');
+    capWeeks.forEach(wk => { html += capSortTh(wk.key, wk.label, 'center'); });
+    html += `</tr></thead><tbody>`;
+    capRows.forEach(r => {
+      html += `<tr><td><strong>${esc(r.name)}</strong></td>`;
+      capWeeks.forEach(wk => {
+        const committedHrs = r[wk.key];
         const pct = Math.round((committedHrs / WEEKLY_CAPACITY) * 100);
         const col = pct > 100 ? 'var(--danger)' : pct > 80 ? 'var(--warning)' : pct > 50 ? 'var(--accent)' : 'var(--text-muted)';
         html += `<td style="text-align:center"><span style="color:${col};font-weight:600;font-family:var(--font-mono)">${committedHrs.toFixed(0)}h</span><div style="font-size:0.6rem;color:var(--text-muted)">${pct}%</div></td>`;
@@ -8266,48 +8324,107 @@ function renderPeopleView(el) {
     });
     html += `</tbody></table></div></div>`;
 
-    // Hours by person per client grid
+    // Hours by person per client grid — sortable per column (G4)
     const clientList = currentFilter.client ? [currentFilter.client] : getAllClients();
-    html += `<div class="report__section"><h2>Hours by Person per Client</h2>`;
-    html += `<div style="overflow-x:auto"><table class="report-table"><thead><tr><th>Person</th>`;
-    clientList.forEach(c => { html += `<th>${esc(c)}</th>`; });
-    html += `<th style="font-weight:700">Total</th></tr></thead><tbody>`;
-    allPeople.forEach(p => {
-      let rowTotal = 0;
-      html += `<tr><td><strong>${esc(p)}</strong></td>`;
-      clientList.forEach(c => {
-        const ct = filtered.filter(t => isAssignedTo(t, p) && getTaskClient(t) === c);
+    // Use indexed client keys so the sort helper can reference them safely
+    // (raw client names contain spaces and special chars that would break onclick)
+    const clientKeys = clientList.map((c, i) => ({ name: c, key: 'c' + i }));
+    // Build rows
+    const clhRows = allPeople.map(p => {
+      const row = { name: p, total: 0 };
+      clientKeys.forEach(ck => {
+        const ct = filtered.filter(t => isAssignedTo(t, p) && getTaskClient(t) === ck.name);
         const h = ct.reduce((s,t) => s + (t.hoursSpent||0), 0);
-        rowTotal += h;
+        row[ck.key] = h;
+        row.total += h;
+      });
+      return row;
+    });
+    // Apply sort
+    const clhSc = _peopleClientHoursSort.col;
+    const clhSd = _peopleClientHoursSort.dir === 'asc' ? 1 : -1;
+    clhRows.sort((a, b) => {
+      if (clhSc === 'name') return a.name.localeCompare(b.name) * clhSd;
+      return ((a[clhSc] || 0) - (b[clhSc] || 0)) * clhSd;
+    });
+    // Clickable header helper
+    const clhSortTh = (col, label, align) => {
+      const isActive = _peopleClientHoursSort.col === col;
+      const arrow = isActive ? (_peopleClientHoursSort.dir === 'asc' ? ' \u25B2' : ' \u25BC') : '';
+      const style = align === 'right' ? 'text-align:right;' : '';
+      return `<th style="${style}cursor:pointer;user-select:none;white-space:nowrap${isActive ? ';color:var(--accent)' : ''}" onclick="_peopleClientHoursSort={col:'${col}',dir:_peopleClientHoursSort.col==='${col}'&&_peopleClientHoursSort.dir==='asc'?'desc':'asc'};renderContent()">${label}${arrow}</th>`;
+    };
+    html += `<div class="report__section"><h2>Hours by Person per Client</h2>`;
+    html += `<div style="overflow-x:auto"><table class="report-table"><thead><tr>`;
+    html += clhSortTh('name', 'Person', 'left');
+    clientKeys.forEach(ck => { html += clhSortTh(ck.key, esc(ck.name), 'left'); });
+    html += clhSortTh('total', 'Total', 'left');
+    html += `</tr></thead><tbody>`;
+    clhRows.forEach(r => {
+      html += `<tr><td><strong>${esc(r.name)}</strong></td>`;
+      clientKeys.forEach(ck => {
+        const h = r[ck.key];
         html += `<td style="font-family:var(--font-mono);color:${h > 0 ? 'var(--text-primary)' : 'var(--text-muted)'}">${h > 0 ? h.toFixed(1) : '-'}</td>`;
       });
-      html += `<td style="font-family:var(--font-mono);font-weight:600">${rowTotal.toFixed(1)}h</td></tr>`;
+      html += `<td style="font-family:var(--font-mono);font-weight:600">${r.total.toFixed(1)}h</td></tr>`;
     });
-    // Totals row
+    // Totals row (always at bottom regardless of sort)
     html += `<tr style="border-top:2px solid var(--border-default);font-weight:600"><td>Total</td>`;
     let grandTotal = 0;
-    clientList.forEach(c => {
-      const h = filtered.filter(t => getTaskClient(t) === c).reduce((s,t) => s + (t.hoursSpent||0), 0);
+    clientKeys.forEach(ck => {
+      const h = filtered.filter(t => getTaskClient(t) === ck.name).reduce((s,t) => s + (t.hoursSpent||0), 0);
       grandTotal += h;
       html += `<td style="font-family:var(--font-mono)">${h.toFixed(1)}</td>`;
     });
     html += `<td style="font-family:var(--font-mono)">${grandTotal.toFixed(1)}h</td></tr>`;
     html += `</tbody></table></div></div>`;
 
-    // Summary grid: tasks by person
-    html += `<div class="report__section"><h2>Task Summary by Person</h2>`;
-    html += `<table class="report-table"><thead><tr><th>Person</th><th>Total</th><th>Done</th><th>Active</th><th>Blocked</th><th>Not Started</th><th>Hrs Spent</th><th>Hrs Est.</th></tr></thead><tbody>`;
-    allPeople.forEach(p => {
+    // Summary grid: tasks by person — sortable per column (G4)
+    const tsRows = allPeople.map(p => {
       const pt = filtered.filter(t => isAssignedTo(t, p));
-      html += `<tr class="report-table__clickable" onclick="_peopleFilter.person='${escAttrJs(p)}';renderContent()">`;
-      html += `<td><strong>${esc(p)}</strong></td>`;
-      html += `<td>${pt.length}</td>`;
-      html += `<td style="color:var(--success)">${pt.filter(t=>t.status==='Done').length}</td>`;
-      html += `<td style="color:var(--accent)">${pt.filter(t=>t.status==='In progress').length}</td>`;
-      html += `<td style="color:var(--danger)">${pt.filter(t=>t.healthState==='Blocked').length}</td>`;
-      html += `<td>${pt.filter(t=>t.status==='Not started').length}</td>`;
-      html += `<td style="font-family:var(--font-mono)">${pt.reduce((s,t)=>s+(t.hoursSpent||0),0).toFixed(1)}h</td>`;
-      html += `<td style="font-family:var(--font-mono)">${pt.reduce((s,t)=>s+(t.hoursEstimated||0),0).toFixed(1)}h</td>`;
+      return {
+        name: p,
+        total: pt.length,
+        done: pt.filter(t=>t.status==='Done').length,
+        active: pt.filter(t=>t.status==='In progress').length,
+        blocked: pt.filter(t=>t.healthState==='Blocked').length,
+        notstarted: pt.filter(t=>t.status==='Not started').length,
+        spent: pt.reduce((s,t)=>s+(t.hoursSpent||0),0),
+        estimate: pt.reduce((s,t)=>s+(t.hoursEstimated||0),0),
+      };
+    });
+    const tsSc = _peopleTaskSummarySort.col;
+    const tsSd = _peopleTaskSummarySort.dir === 'asc' ? 1 : -1;
+    tsRows.sort((a, b) => {
+      if (tsSc === 'name') return a.name.localeCompare(b.name) * tsSd;
+      return ((a[tsSc] || 0) - (b[tsSc] || 0)) * tsSd;
+    });
+    const tsSortTh = (col, label) => {
+      const isActive = _peopleTaskSummarySort.col === col;
+      const arrow = isActive ? (_peopleTaskSummarySort.dir === 'asc' ? ' \u25B2' : ' \u25BC') : '';
+      return `<th style="cursor:pointer;user-select:none;white-space:nowrap${isActive ? ';color:var(--accent)' : ''}" onclick="_peopleTaskSummarySort={col:'${col}',dir:_peopleTaskSummarySort.col==='${col}'&&_peopleTaskSummarySort.dir==='asc'?'desc':'asc'};renderContent()">${label}${arrow}</th>`;
+    };
+    html += `<div class="report__section"><h2>Task Summary by Person</h2>`;
+    html += `<table class="report-table"><thead><tr>`;
+    html += tsSortTh('name',       'Person');
+    html += tsSortTh('total',      'Total');
+    html += tsSortTh('done',       'Done');
+    html += tsSortTh('active',     'Active');
+    html += tsSortTh('blocked',    'Blocked');
+    html += tsSortTh('notstarted', 'Not Started');
+    html += tsSortTh('spent',      'Hrs Spent');
+    html += tsSortTh('estimate',   'Hrs Est.');
+    html += `</tr></thead><tbody>`;
+    tsRows.forEach(r => {
+      html += `<tr class="report-table__clickable" onclick="_peopleFilter.person='${escAttrJs(r.name)}';renderContent()">`;
+      html += `<td><strong>${esc(r.name)}</strong></td>`;
+      html += `<td>${r.total}</td>`;
+      html += `<td style="color:var(--success)">${r.done}</td>`;
+      html += `<td style="color:var(--accent)">${r.active}</td>`;
+      html += `<td style="color:var(--danger)">${r.blocked}</td>`;
+      html += `<td>${r.notstarted}</td>`;
+      html += `<td style="font-family:var(--font-mono)">${r.spent.toFixed(1)}h</td>`;
+      html += `<td style="font-family:var(--font-mono)">${r.estimate.toFixed(1)}h</td>`;
       html += `</tr>`;
     });
     html += `</tbody></table></div>`;
