@@ -2560,19 +2560,25 @@ app.get('/api/clients/:id', async (req, res) => {
 /** POST /api/clients — Create a new client record */
 app.post('/api/clients', async (req, res) => {
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
-  const { name, description, founded, headquarters, employees, revenue, website, linkedin_company, nbi_relationship, sector, studio_size, contract_value, current_studio_project, abbreviation } = req.body;
+  const { name, description, founded, headquarters, employees, revenue, website, linkedin_company, nbi_relationship, sector, studio_size, contract_value, current_studio_project, abbreviation, practice_area } = req.body;
   if (!name) return res.status(400).json({ error: 'Name required' });
   const lenErr = validateLength(name, 'name');
   if (lenErr) return res.status(400).json({ error: lenErr });
+  // G2 / decision D84: practice_area is MANDATORY and must be one of the
+  // two valid slugs. "general" is rejected going forward.
+  const VALID_PRACTICES = ['gaming', 'organisational_health'];
+  if (!practice_area || !VALID_PRACTICES.includes(practice_area)) {
+    return res.status(400).json({ error: `practice_area is required and must be one of: ${VALID_PRACTICES.join(', ')}` });
+  }
   // Abbreviation must be 1-6 uppercase alphanumeric characters if provided
   const abbr = abbreviation ? String(abbreviation).trim().toUpperCase() : null;
   if (abbr && !/^[A-Z0-9]{1,6}$/.test(abbr)) {
     return res.status(400).json({ error: 'Abbreviation must be 1-6 letters or digits' });
   }
   const { rows } = await pool.query(
-    `INSERT INTO clients (name, description, founded, headquarters, employees, revenue, website, linkedin_company, nbi_relationship, sector, studio_size, contract_value, current_studio_project, abbreviation)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING *`,
-    [name, description || '', founded || '', headquarters || '', employees || '', revenue || '', website || '', linkedin_company || '', nbi_relationship || '', sector || null, studio_size != null ? parseInt(studio_size, 10) || null : null, contract_value != null ? parseFloat(contract_value) || null : null, current_studio_project || null, abbr]
+    `INSERT INTO clients (name, description, founded, headquarters, employees, revenue, website, linkedin_company, nbi_relationship, sector, studio_size, contract_value, current_studio_project, abbreviation, practice_area)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING *`,
+    [name, description || '', founded || '', headquarters || '', employees || '', revenue || '', website || '', linkedin_company || '', nbi_relationship || '', sector || null, studio_size != null ? parseInt(studio_size, 10) || null : null, contract_value != null ? parseFloat(contract_value) || null : null, current_studio_project || null, abbr, practice_area]
   );
   res.status(201).json(rows[0]);
 });

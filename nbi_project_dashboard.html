@@ -3503,10 +3503,13 @@ function filterByClient(c) { currentFilter = { client: c, project: null, status:
 // (closes 9a10d8d1) — Glen's call: HC is one piece of organisational
 // performance, not the umbrella. The dot colours match the sidebar
 // styling for consistency.
+// G2 / decision D84: exactly two practices, with "general" removed.
+// Slug is stored in the DB; label is shown in the full sidebar; abbrev is
+// shown in the collapsed sidebar. shortLabel is the terser display name
+// Glen specified ("Org Health") for space-constrained UIs.
 const PRACTICES = [
-  { value: 'organisational', label: 'Organisational', abbrev: 'OR', colour: '#7c5cff' },
-  { value: 'gaming',         label: 'Gaming',         abbrev: 'GM', colour: '#22c1c3' },
-  { value: 'general',        label: 'General',        abbrev: 'GN', colour: '#9aa0a6' },
+  { value: 'gaming',                label: 'Gaming',                shortLabel: 'Gaming',    abbrev: 'GM', colour: '#22c1c3' },
+  { value: 'organisational_health', label: 'Organizational Health', shortLabel: 'Org Health', abbrev: 'OH', colour: '#7c5cff' },
 ];
 function getPracticeLabel(value) {
   const p = PRACTICES.find(x => x.value === value);
@@ -11215,9 +11218,12 @@ async function renderManageClients(el) {
 
   let html = '<div class="manage-clients">';
 
-  // Add client form
+  // Add client form — practice is REQUIRED (G2 / D84)
   html += `<div class="manage-clients__add">
     <input type="text" id="newClientName" placeholder="New client name..." style="flex:1">
+    <select id="newClientPractice" required aria-label="Practice (required)"><option value="">-- Practice * --</option>`;
+  PRACTICES.forEach(p => { html += `<option value="${esc(p.value)}">${esc(p.label)}</option>`; });
+  html += `</select>
     <select id="newClientSector"><option value="">-- Sector --</option>`;
   sectors.forEach(s => { html += `<option value="${esc(s)}">${esc(s)}</option>`; });
   html += `</select>
@@ -11752,17 +11758,21 @@ async function deleteTeam(teamId, name, clientId) {
 async function createClientFromManage() {
   const name = document.getElementById('newClientName')?.value.trim();
   if (!name) { toast('Client name is required'); return; }
+  // G2 / D84: practice_area is required at creation time
+  const practice_area = document.getElementById('newClientPractice')?.value || '';
+  if (!practice_area) { toast('Practice is required — pick Gaming or Organizational Health', 'warning'); return; }
   const sector = document.getElementById('newClientSector')?.value || null;
   const headquarters = document.getElementById('newClientHQ')?.value.trim() || null;
 
   const resp = await authFetch('/api/clients', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name, sector, headquarters })
+    body: JSON.stringify({ name, sector, headquarters, practice_area })
   });
   if (resp.ok) {
     toast('Client created');
     document.getElementById('newClientName').value = '';
+    document.getElementById('newClientPractice').value = '';
     document.getElementById('newClientSector').value = '';
     document.getElementById('newClientHQ').value = '';
     renderLeadsContent();
