@@ -6886,6 +6886,10 @@ function openDetail(id) {
 
 /** Open the full-screen detail overlay for a task -- properties, time tracking, notes, deps, comments */
 function openDetailOverlay(id) {
+  // Preserve scroll position — opening the fixed overlay + auto-sizing textareas
+  // caused the dashboard scroll to reset when standup items were clicked (bug 420ee3b6).
+  const _savedScrollY = window.scrollY;
+  const _savedMainScroll = (document.getElementById('mainContent') || {}).scrollTop || 0;
   activeDetailTaskId = id;
   const task = tasks.find(t => t.id === id);
   if (!task) return;
@@ -7063,6 +7067,12 @@ function openDetailOverlay(id) {
   document.getElementById('detailOverlay').classList.add('open');
   // Auto-size description textareas to fit content
   setTimeout(() => { panel.querySelectorAll('textarea').forEach(ta => { ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; }); }, 50);
+  // Restore scroll — fixed overlay + textarea auto-resize can otherwise reset the dashboard scroll.
+  requestAnimationFrame(() => {
+    if (window.scrollY !== _savedScrollY) window.scrollTo(0, _savedScrollY);
+    const mc = document.getElementById('mainContent');
+    if (mc && mc.scrollTop !== _savedMainScroll) mc.scrollTop = _savedMainScroll;
+  });
   // Load async content (attachments handled by renderAttachmentsSection's setTimeout)
   loadTimeEntries(id);
   loadComments(id);
