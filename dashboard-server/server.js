@@ -3395,14 +3395,29 @@ app.post('/api/tasks', async (req, res) => {
   }
   if (!ITEM_TYPES.includes(resolvedType)) return res.status(400).json({ error: `Invalid item_type: ${resolvedType}` });
 
-  const { rows } = await pool.query(
-    `INSERT INTO tasks (title, parent_id, client_id, item_type, status, priority, health_state, description, assignees, hours_estimated, hours_spent, due_date, start_date, end_date, dependencies, planner_task_id, source)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17) RETURNING *`,
-    [title, parent_id || null, client_id || null, resolvedType, status || 'Not started', priority || '', health_state || '', description || '',
-     assignees || [], parsedHoursEst, parsedHoursSpent, due_date || '', start_date || '', end_date || '', dependencies || [], planner_task_id || '', source || 'manual']
-  );
-  await auditLog('task', rows[0].id, 'create', req.user?.displayName, { title, item_type: resolvedType });
-  res.status(201).json(rows[0]);
+  const targetStatus = status || 'Not started';
+  const dbClient = await pool.connect();
+  let createdRow;
+  try {
+    await dbClient.query('BEGIN');
+    await shiftForInsert(dbClient, 'tasks', 'status', targetStatus);
+    const { rows } = await dbClient.query(
+      `INSERT INTO tasks (title, parent_id, client_id, item_type, status, priority, health_state, description, assignees, hours_estimated, hours_spent, due_date, start_date, end_date, dependencies, planner_task_id, source, position)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,0) RETURNING *`,
+      [title, parent_id || null, client_id || null, resolvedType, targetStatus, priority || '', health_state || '', description || '',
+       assignees || [], parsedHoursEst, parsedHoursSpent, due_date || '', start_date || '', end_date || '', dependencies || [], planner_task_id || '', source || 'manual']
+    );
+    createdRow = rows[0];
+    await dbClient.query('COMMIT');
+  } catch (err) {
+    await dbClient.query('ROLLBACK');
+    log('error', 'Tasks', 'POST failed', { error: err.message });
+    return res.status(500).json({ error: 'Failed to create task' });
+  } finally {
+    dbClient.release();
+  }
+  await auditLog('task', createdRow.id, 'create', req.user?.displayName, { title, item_type: resolvedType });
+  res.status(201).json(createdRow);
 });
 
 /**
@@ -3444,12 +3459,14 @@ app.patch('/api/tasks/:id', async (req, res) => {
     return res.status(400).json({ error: 'start_date must be before or equal to end_date' });
   }
   // Text fields are stored raw; escaping happens at render time in the frontend (esc()).
-  const allowedFields = ['title', 'parent_id', 'client_id', 'item_type', 'status', 'priority', 'health_state', 'description', 'assignees', 'hours_estimated', 'hours_spent', 'due_date', 'start_date', 'end_date', 'dependencies', 'collaborations', 'success_factor', 'repeat_rule', 'blocker_info', 'practice_area'];
+  // Status is routed through reorderInGroup below — NOT in allowedFields.
+  const allowedFields = ['title', 'parent_id', 'client_id', 'item_type', 'priority', 'health_state', 'description', 'assignees', 'hours_estimated', 'hours_spent', 'due_date', 'start_date', 'end_date', 'dependencies', 'collaborations', 'success_factor', 'repeat_rule', 'blocker_info', 'practice_area'];
   const { updates, vals, nextIdx } = buildPatchQuery(req.body, allowedFields);
   if (req.body.title !== undefined && !req.body.title.trim()) {
     return res.status(400).json({ error: 'Title cannot be empty' });
   }
-  if (updates.length === 0) return res.status(400).json({ error: 'No valid fields to update' });
+  const wantsReorder = (req.body.status !== undefined) || (req.body.position !== undefined);
+  if (updates.length === 0 && !wantsReorder) return res.status(400).json({ error: 'No valid fields to update' });
   // Fetch old values before update for audit trail
   const oldResult = await pool.query('SELECT * FROM tasks WHERE id = $1', [req.params.id]);
   const oldTask = oldResult.rows[0];
@@ -3542,17 +3559,51 @@ app.patch('/api/tasks/:id', async (req, res) => {
       return res.status(400).json({ error: 'Circular dependency detected — this would create a cycle' });
     }
   }
-  updates.push(`updated_at = NOW()`);
-  vals.push(req.params.id);
-  const { rows } = await pool.query(`UPDATE tasks SET ${updates.join(', ')} WHERE id = $${nextIdx} RETURNING *`, vals);
-  if (!rows[0]) return res.status(404).json({ error: 'Not found' });
-  const updatedTask = rows[0];
-  // Build detailed change log with old and new values
+  // Run reorder + field updates atomically
+  const txnClient = await pool.connect();
+  let updatedTask;
+  try {
+    await txnClient.query('BEGIN');
+
+    if (wantsReorder) {
+      const targetStatus = (req.body.status !== undefined && req.body.status !== '')
+        ? req.body.status
+        : (oldTask ? oldTask.status : 'Not started');
+      const targetPos = (typeof req.body.position === 'number' && Number.isInteger(req.body.position))
+        ? req.body.position
+        : 0;
+      await reorderInGroup(txnClient, 'tasks', 'status', req.params.id, targetStatus, targetPos);
+    }
+
+    if (updates.length > 0) {
+      updates.push(`updated_at = NOW()`);
+      vals.push(req.params.id);
+      await txnClient.query(`UPDATE tasks SET ${updates.join(', ')} WHERE id = $${nextIdx}`, vals);
+    }
+
+    const fresh = await txnClient.query('SELECT * FROM tasks WHERE id = $1', [req.params.id]);
+    if (!fresh.rows[0]) {
+      await txnClient.query('ROLLBACK');
+      txnClient.release();
+      return res.status(404).json({ error: 'Not found' });
+    }
+    updatedTask = fresh.rows[0];
+    await txnClient.query('COMMIT');
+  } catch (err) {
+    await txnClient.query('ROLLBACK');
+    log('error', 'Tasks', 'PATCH failed', { error: err.message });
+    return res.status(500).json({ error: 'Failed to update task' });
+  } finally {
+    txnClient.release();
+  }
+
+  // Build detailed change log against the freshly-updated row
   const changes = {};
-  for (const f of allowedFields) {
+  const allFields = [...allowedFields, 'status', 'position'];
+  for (const f of allFields) {
     if (req.body[f] !== undefined && oldTask) {
       const oldVal = oldTask[f];
-      const newVal = req.body[f];
+      const newVal = updatedTask[f];
       if (JSON.stringify(oldVal) !== JSON.stringify(newVal)) {
         changes[f] = { from: oldVal, to: newVal };
       }

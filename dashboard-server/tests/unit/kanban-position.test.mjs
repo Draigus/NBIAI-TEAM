@@ -414,3 +414,118 @@ describe('PATCH /api/bug-reports/:id — drag-to-reorder', () => {
     expect(res.body.position).toBe(1);
   });
 });
+
+// ============================================================================
+// Tasks endpoints
+// ============================================================================
+
+describe('POST /api/tasks — inserts at position 0', () => {
+  it('first task in a status lands at position 0', async () => {
+    const u = await createTestUser({ role: 'admin' });
+    const token = await mintSession(u.id);
+    const res = await request(app)
+      .post('/api/tasks')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ title: 'first', status: 'Not started' });
+    expect(res.status).toBe(201);
+    expect(res.body.position).toBe(0);
+  });
+
+  it('subsequent tasks push older ones down', async () => {
+    const u = await createTestUser({ role: 'admin' });
+    const token = await mintSession(u.id);
+    for (const title of ['t1', 't2', 't3']) {
+      const res = await request(app)
+        .post('/api/tasks')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ title, status: 'Not started' });
+      expect(res.status).toBe(201);
+    }
+    const { rows } = await pool.query(
+      `SELECT title, position FROM tasks WHERE status = 'Not started' ORDER BY position`
+    );
+    expect(rows.map(r => r.title)).toEqual(['t3', 't2', 't1']);
+  });
+});
+
+describe('PATCH /api/tasks/:id — drag-to-reorder', () => {
+  async function makeTasks(token, count, status = 'Not started') {
+    const ids = [];
+    for (let i = 0; i < count; i++) {
+      const res = await request(app)
+        .post('/api/tasks')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ title: `t${i}`, status });
+      ids.push(res.body.id);
+    }
+    return ids;
+  }
+
+  it('intra-column position move shifts others', async () => {
+    const u = await createTestUser({ role: 'admin' });
+    const token = await mintSession(u.id);
+    const ids = await makeTasks(token, 4); // t3@0, t2@1, t1@2, t0@3
+
+    const res = await request(app)
+      .patch(`/api/tasks/${ids[0]}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ position: 0 });
+    expect(res.status).toBe(200);
+    expect(res.body.position).toBe(0);
+
+    const { rows } = await pool.query(
+      `SELECT title, position FROM tasks WHERE status = 'Not started' ORDER BY position`
+    );
+    expect(rows.map(r => r.title)).toEqual(['t0', 't3', 't2', 't1']);
+  });
+
+  it('cross-column move with explicit position', async () => {
+    const u = await createTestUser({ role: 'admin' });
+    const token = await mintSession(u.id);
+    const ids = await makeTasks(token, 3);
+
+    const res = await request(app)
+      .patch(`/api/tasks/${ids[1]}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ status: 'Planning', position: 0 });
+    expect(res.status).toBe(200);
+
+    const inProg = await pool.query(
+      `SELECT title FROM tasks WHERE status = 'Planning' ORDER BY position`
+    );
+    expect(inProg.rows.map(r => r.title)).toEqual(['t1']);
+
+    const notStarted = await pool.query(
+      `SELECT title, position FROM tasks WHERE status = 'Not started' ORDER BY position`
+    );
+    expect(notStarted.rows).toEqual([
+      { title: 't2', position: 0 },
+      { title: 't0', position: 1 },
+    ]);
+  });
+
+  it('status change without explicit position lands at position 0', async () => {
+    const u = await createTestUser({ role: 'admin' });
+    const token = await mintSession(u.id);
+    const ids = await makeTasks(token, 2);
+    await pool.query(
+      `INSERT INTO tasks (title, status, position, item_type)
+       VALUES ('old', 'Planning', 0, 'project')`
+    );
+
+    const res = await request(app)
+      .patch(`/api/tasks/${ids[0]}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ status: 'Planning' });
+    expect(res.status).toBe(200);
+    expect(res.body.position).toBe(0);
+
+    const inProg = await pool.query(
+      `SELECT title, position FROM tasks WHERE status = 'Planning' ORDER BY position`
+    );
+    expect(inProg.rows).toEqual([
+      { title: 't0',  position: 0 },
+      { title: 'old', position: 1 },
+    ]);
+  });
+});
