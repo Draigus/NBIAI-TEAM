@@ -8904,6 +8904,15 @@ function renderPeopleCalendarView(allPeople, assigneeMerge) {
       const key = `${cursor.getFullYear()}-${String(cursor.getMonth()+1).padStart(2,'0')}-${String(cursor.getDate()).padStart(2,'0')}`;
       if (ev.event_type === 'firm_closed') {
         firmClosedDays.add(key);
+        // Also fan the firm closure onto every person's row so the roster
+        // explicitly shows each person is off, not just the dedicated
+        // Firm Closed row at the bottom (Glen follow-up to D92/D93).
+        (allPeople || []).forEach(person => {
+          const ck = cellKey(person, key);
+          if (!personDay[ck]) personDay[ck] = [];
+          // Avoid duplicate entries if a person already got this event via another path
+          if (!personDay[ck].some(e => e.id === ev.id)) personDay[ck].push(ev);
+        });
       } else if (ev.team_id) {
         // Team event — fan out to every member of that team (bug d4367137)
         const members = teamEventRecipients(ev.team_id);
