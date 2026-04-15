@@ -5253,7 +5253,7 @@ function renderCalendarView(filtered) {
     tasksOnDay.slice(0, maxShow).forEach(t => {
       const col = STATUS_COLOURS_HEX[t.status] || '#666';
       const overdue = t.dueDate === dateStr && dt < now && t.status !== 'Done';
-      html += `<div class="cal__task${overdue?' cal__task--overdue':''}" style="background:${col}" onclick="event.stopPropagation();openDetailOverlay('${t.id}')" title="${esc(t.title)}">${clientPrefix(getTaskClient(t))} ${esc(t.title)}</div>`;
+      html += `<div class="cal__task${overdue?' cal__task--overdue':''}" style="background:${col}" onclick="event.stopPropagation();openDetail('${t.id}')" title="${esc(t.title)}">${clientPrefix(getTaskClient(t))} ${esc(t.title)}</div>`;
     });
     if (tasksOnDay.length > maxShow) {
       html += `<div class="cal__more" onclick="event.stopPropagation();calExpandDay('${dateStr}',this)">+${tasksOnDay.length - maxShow} more</div>`;
@@ -5424,7 +5424,7 @@ function calExpandDay(dateStr, el) {
     div.style.background = col;
     div.title = t.title;
     div.textContent = (getTaskClient(t) ? getTaskClient(t).substring(0,2).toUpperCase() + ' ' : '') + t.title;
-    div.onclick = (e) => { e.stopPropagation(); openDetailOverlay(t.id); };
+    div.onclick = (e) => { e.stopPropagation(); openDetail(t.id); };
     cell.appendChild(div);
   });
 }
