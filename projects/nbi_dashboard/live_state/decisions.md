@@ -261,6 +261,30 @@ No spec work in the 2026-04-15 planning round. When we reach Phase 6, a dedicate
 ### D86: Master Workload Roadmap — phase-by-phase execution with stop points
 Approved plan `.claude/plans/iridescent-imagining-kitten.md`. 30 tracked items across 10 phases. I execute Phases 1 through 5 continuously with brief check-ins between phases; Phases 6-10 require explicit approval per-phase (they're decision points, not execution slots).
 
+### D92: People → Calendar sub-view + firm_closed event type
+Glen asked for a third sub-view on the People tab (alongside Workload and Capacity) showing team time off (vacation, sick, UTO, bank holiday) plus admin-created firm-wide closures. Brainstormed the four product decisions via AskUserQuestion:
+
+1. **Firm closure storage**: new event type `firm_closed`, distinct from `bank_holiday` (UK statutory). Admin-only at server level.
+2. **Layout**: both roster (one row per person, day columns) and month grid, toggleable. Roster default.
+3. **Edit permissions**: self-serve for own entries, admins edit anyone, admins are the only ones who can create `firm_closed` (matches existing admin model).
+4. **Create flow**: inline click-to-create on the roster — click an empty cell in your own row (or any cell as admin) and the existing `openCalendarEventModal()` opens with date and target user prefilled.
+
+**Server** (`dashboard-server/server.js`): added `firm_closed` to `VALID_EVENT_TYPES`, added `ADMIN_ONLY_EVENT_TYPES` whitelist, enforced in POST and PATCH (members get 403 if they try to create or upgrade). 4 new vitest regression tests in `tests/unit/calendar-firm-closed.test.mjs`.
+
+**Frontend** (`nbi_project_dashboard.html`):
+- `CAL_EVENT_TYPES` gains `firm_closed` (grey #64748b, `adminOnly: true` flag for the legend)
+- `_peopleSubView` accepts 'calendar', `_peopleCalView` toggles 'roster'/'month' (persisted in localStorage)
+- New `Calendar` button in the People sub-view toggle
+- New `renderPeopleCalendarView()` with both layouts. Reuses `_calEvents` cache shared with the Projects → Calendar so navigation between months affects both views
+- `loadCalendarEvents()` extended to re-render when on People → Calendar
+- `openCalendarEventModal(event, prefill)` now accepts a prefill object with `start_date / end_date / event_type / user_id` so the inline click-to-create path can route admins to create entries for other users without a visible user picker. Server-side enforces that members can't actually use `user_id` != their own.
+- New `_cachedUsers` global (full user records with id) populated by `loadTeamMembers()` alongside the existing display-name list. `lookupUserId()` resolves a display name to a user_id for the prefill payload.
+- New CSS block `.people-cal__*` for both layouts including sticky first column on the roster, weekend shading, today highlight, firm-closed grey treatment, and mobile (480px) overrides
+
+Screenshots: `04b-people-calendar-roster.png` and `04c-people-calendar-month.png` in the mobile-screenshots deliverable directory show both layouts at iPhone 11 portrait. Month view clearly shows all event types rendering correctly (vacation green, sick red, firm_closed grey banner).
+
+Test count: 66 vitest + 13 playwright = 79 green. Commit `24d168e`.
+
 ### D91: Calendar team filter — infinite render loop fixed + Projects mobile filter bar
 Glen reported two issues while testing on his phone:
 
