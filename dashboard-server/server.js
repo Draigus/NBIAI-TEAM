@@ -41,7 +41,7 @@ const bcrypt = require('bcrypt');
 const multer = require('multer');
 const fs = require('fs');
 const nodemailer = require('nodemailer');
-const rateLimit = require('express-rate-limit');
+const { rateLimit, ipKeyGenerator } = require('express-rate-limit');
 const XLSX = require('xlsx');
 const PDFDocument = require('pdfkit');
 const Tesseract = require('tesseract.js');
@@ -443,7 +443,7 @@ const apiLimiter = rateLimit({
   keyGenerator: (req) => {
     const auth = req.headers.authorization;
     if (auth && auth.startsWith('Bearer ')) return hashToken(auth.slice(7));
-    return req.ip;
+    return ipKeyGenerator(req);
   },
   standardHeaders: true,
   legacyHeaders: false,
