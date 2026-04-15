@@ -3547,7 +3547,7 @@ app.patch('/api/tasks/:id', async (req, res) => {
   }
   // Text fields are stored raw; escaping happens at render time in the frontend (esc()).
   // Status is routed through reorderInGroup below — NOT in allowedFields.
-  const allowedFields = ['title', 'parent_id', 'client_id', 'item_type', 'priority', 'health_state', 'description', 'assignees', 'hours_estimated', 'hours_spent', 'due_date', 'start_date', 'end_date', 'dependencies', 'collaborations', 'success_factor', 'repeat_rule', 'blocker_info', 'practice_area'];
+  const allowedFields = ['title', 'parent_id', 'client_id', 'item_type', 'priority', 'health_state', 'description', 'assignees', 'hours_estimated', 'hours_spent', 'due_date', 'start_date', 'end_date', 'dependencies', 'collaborations', 'success_factor', 'repeat_rule', 'blocker_info', 'practice_area', 'sow_id'];
   const { updates, vals, nextIdx } = buildPatchQuery(req.body, allowedFields);
   if (req.body.title !== undefined && !req.body.title.trim()) {
     return res.status(400).json({ error: 'Title cannot be empty' });
@@ -3981,9 +3981,9 @@ app.post('/api/sync/changes', async (req, res) => {
              health_state=$7, description=$8, assignees=$9, hours_estimated=$10, hours_spent=$11,
              due_date=$12, start_date=$13, end_date=$14, dependencies=$15,
              collaborations=$16, success_factor=$17, repeat_rule=$18, blocker_info=$19,
-             practice_area=$20,
+             practice_area=$20, sow_id=$21,
              updated_at=NOW()
-             WHERE id=$21`,
+             WHERE id=$22`,
             [t.title, parentId, clientId, itemType, t.status || 'Not started', t.priority || '',
              t.healthState || t.health_state || '', t.description || '', t.assignees || [],
              t.hoursEstimated || t.hours_estimated || 0, t.hoursSpent || t.hours_spent || 0,
@@ -3992,6 +3992,7 @@ app.post('/api/sync/changes', async (req, res) => {
              t.collaborations || null, t.successFactor || t.success_factor || null,
              t.repeatRule || t.repeat_rule || null, t.blockerInfo || t.blocker_info || null,
              t.practiceArea || t.practice_area || null,
+             t.sowId || t.sow_id || null,
              t.id]
           );
         } else {
@@ -3999,8 +4000,8 @@ app.post('/api/sync/changes', async (req, res) => {
           const { rows } = await conn.query(
             `INSERT INTO tasks (id, title, parent_id, client_id, item_type, status, priority, health_state,
              description, assignees, hours_estimated, hours_spent, due_date, start_date, end_date, dependencies, source, created_at,
-             collaborations, success_factor, repeat_rule, blocker_info, practice_area, updated_at)
-             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,NOW()) RETURNING id`,
+             collaborations, success_factor, repeat_rule, blocker_info, practice_area, sow_id, updated_at)
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,NOW()) RETURNING id`,
             [t.id, t.title, parentId, clientId, itemType, t.status || 'Not started', t.priority || '',
              t.healthState || t.health_state || '', t.description || '', t.assignees || [],
              t.hoursEstimated || t.hours_estimated || 0, t.hoursSpent || t.hours_spent || 0,
@@ -4009,7 +4010,8 @@ app.post('/api/sync/changes', async (req, res) => {
              t.createdAt || t.created_at || new Date().toISOString(),
              t.collaborations || null, t.successFactor || t.success_factor || null,
              t.repeatRule || t.repeat_rule || null, t.blockerInfo || t.blocker_info || null,
-             t.practiceArea || t.practice_area || null]
+             t.practiceArea || t.practice_area || null,
+             t.sowId || t.sow_id || null]
           );
           idMap[t.id] = rows[0].id;
           existingTaskMap.set(rows[0].id, new Date()); // Register in map for subsequent batch references
@@ -4410,6 +4412,7 @@ app.get('/api/sync/load', async (req, res) => {
     createdAt: r.created_at,
     updatedAt: r.updated_at,
     plannerTaskId: r.planner_task_id || '',
+    sowId: r.sow_id || null,
   }));
 
   // Map client briefs to frontend format

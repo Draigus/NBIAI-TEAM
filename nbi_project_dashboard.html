@@ -4851,10 +4851,51 @@ function renderTreeView(filtered) {
     if (blocked > 0) html += ` &middot; <span style="color:var(--danger)">${blocked} blocked</span>`;
     html += `</span></div>`;
 
-    // Projects under this client (collapsed or expanded). Lazy render: skip if collapsed.
+    // Projects under this client, now grouped by Statement of Work (bug cb32b7f9).
+    // Client > SoW > Project > Tickets. Projects without a SoW land in a
+    // "(No SoW)" bucket so nothing disappears. Buckets collapse independently
+    // via their own clientGroupKey-style keys.
     html += `<div class="task-client-children ${isCollapsed ? 'hidden' : ''}" id="clientgroup_${clientKey}" data-client-name="${esc(client)}">`;
     if (!isCollapsed) {
-      clientRoots.forEach(r => { html += renderTaskRow(r, 1, filtered); });
+      // Group roots by sowId
+      const sowBuckets = new Map();
+      clientRoots.forEach(r => {
+        const sid = r.sowId || r.sow_id || '__nosow__';
+        if (!sowBuckets.has(sid)) sowBuckets.set(sid, []);
+        sowBuckets.get(sid).push(r);
+      });
+      // Order: known SoWs by title (stable), "(No SoW)" bucket last
+      const orderedSowIds = [...sowBuckets.keys()].filter(k => k !== '__nosow__').sort((a, b) => {
+        const sa = _sowsCache.find(s => s.id === a);
+        const sb = _sowsCache.find(s => s.id === b);
+        return (sa?.title || 'zzz').localeCompare(sb?.title || 'zzz');
+      });
+      if (sowBuckets.has('__nosow__')) orderedSowIds.push('__nosow__');
+      // If there's only one bucket AND it's the no-sow bucket, skip the SoW
+      // header entirely so existing clients without any SoW tagging render
+      // exactly like before — avoids clutter when the feature isn't being used.
+      const skipSowHeader = orderedSowIds.length === 1 && orderedSowIds[0] === '__nosow__';
+      orderedSowIds.forEach(sid => {
+        const bucketRoots = sowBuckets.get(sid);
+        const sow = sid !== '__nosow__' ? _sowsCache.find(s => s.id === sid) : null;
+        const sowLabel = sow ? sow.title : 'No Statement of Work';
+        const sowKey = `sow_${clientKey}_${sid}`;
+        const sowCollapsed = collapsedTaskIds.has(sowKey);
+        if (!skipSowHeader) {
+          html += `<div class="task-sow-group" style="margin-left:24px;margin-top:4px">`;
+          html += `<div class="task-sow-header" onclick="toggleClientGroup('${sowKey}')" style="cursor:pointer;display:flex;align-items:center;gap:6px;padding:4px 8px;font-size:0.78rem;color:var(--text-secondary);border-left:2px solid var(--border-subtle)">`;
+          html += `<span style="font-size:0.7rem">${sowCollapsed ? '&#9654;' : '&#9660;'}</span>`;
+          html += `<span style="font-weight:600">${esc(sowLabel)}</span>`;
+          html += `<span style="color:var(--text-muted);font-size:0.7rem">${bucketRoots.length} project${bucketRoots.length !== 1 ? 's' : ''}</span>`;
+          html += `</div>`;
+          if (!sowCollapsed) {
+            bucketRoots.forEach(r => { html += renderTaskRow(r, 1, filtered); });
+          }
+          html += `</div>`;
+        } else {
+          bucketRoots.forEach(r => { html += renderTaskRow(r, 1, filtered); });
+        }
+      });
     }
     html += `</div></div>`;
   });
@@ -6427,6 +6468,18 @@ function renderInlineTaskDetail(id) {
     const cur = task.practiceArea || task.practice_area || '';
     return `<div class="detail-field"><label class="detail-field__label" for="inline-detail-practice">Practice</label><select id="inline-detail-practice" onchange="updateTask('${id}','practiceArea',this.value||null)"><option value="">-- Inherit / None --</option>${PRACTICES.map(p => `<option value="${esc(p.value)}" ${cur === p.value ? 'selected' : ''}>${esc(p.label)}</option>`).join('')}</select></div>`;
   })();
+  // SoW selector (bug cb32b7f9). Only shown on root tasks (projects) — child
+  // tasks inherit the parent's SoW via the tree grouping. Filters the SoW
+  // list to the task's client so PMs don't see irrelevant SoWs.
+  if (isRoot) {
+    html += (function() {
+      const curSow = task.sowId || task.sow_id || '';
+      const taskClient = getTaskClient(task);
+      const clientId = taskClient ? (_apiClientsCache[taskClient] && _apiClientsCache[taskClient].id) : null;
+      const scopedSows = clientId ? _sowsCache.filter(s => s.client_id === clientId) : _sowsCache;
+      return `<div class="detail-field"><label class="detail-field__label" for="inline-detail-sow">Statement of Work</label><select id="inline-detail-sow" onchange="updateTask('${id}','sowId',this.value||null)"><option value="">-- No SoW --</option>${scopedSows.map(s => `<option value="${esc(s.id)}" ${curSow === s.id ? 'selected' : ''}>${esc(s.title)}${s.client_name && !clientId ? ' (' + esc(s.client_name) + ')' : ''}</option>`).join('')}</select></div>`;
+    })();
+  }
   html += `<div class="detail-field"><label class="detail-field__label" for="inline-detail-startDate">Start Date</label><input id="inline-detail-startDate" type="date" value="${task.startDate||''}" onchange="updateTask('${id}','startDate',this.value)"></div>`;
   html += `<div class="detail-field"><label class="detail-field__label" for="inline-detail-endDate">End Date</label><input id="inline-detail-endDate" type="date" value="${task.endDate||''}" onchange="updateTask('${id}','endDate',this.value)"></div>`;
   html += `<div class="detail-field"><label class="detail-field__label" for="inline-detail-dueDate">Due Date</label><input id="inline-detail-dueDate" type="date" value="${task.dueDate||''}" onchange="updateTask('${id}','dueDate',this.value)"></div>`;
@@ -12238,6 +12291,10 @@ async function deleteSow(sowId, title, clientId) {
 // task detail panel to look up which team a project's client/SoW belongs to
 // without an extra fetch per task.
 let _teamsCache = [];
+// SoW cache — refreshed on startup. Used by the task detail panel's SoW
+// selector and by renderTreeView to group projects under SoW buckets
+// (bug cb32b7f9: Client > SoW > Project > Tickets hierarchy).
+let _sowsCache = [];
 
 /**
  * Refresh the in-memory teams cache from /api/teams. Called on startup and
@@ -12249,6 +12306,19 @@ async function loadAllTeams() {
     _teamsCache = Array.isArray(teams) ? teams : [];
   } catch (e) { _teamsCache = []; }
   return _teamsCache;
+}
+
+/**
+ * Refresh the in-memory SoWs cache from /api/sows. Called on startup and
+ * any time a task's SoW changes. SoWs are pre-loaded with their client_name
+ * joined server-side so the selector and tree grouping don't need extra lookups.
+ */
+async function loadAllSows() {
+  try {
+    const sows = await apiCall('/api/sows');
+    _sowsCache = Array.isArray(sows) ? sows : [];
+  } catch (e) { _sowsCache = []; }
+  return _sowsCache;
 }
 
 /** Return the team that owns a given client or SoW, or null if none. SoW match takes precedence. */
@@ -16820,7 +16890,7 @@ async function fetchSeedData() {
         _currentUser = data.user;
         showApp();
         await openIDB();
-        await Promise.all([load(), loadTeamMembers(), loadPagePermissions(), loadBugReports(), loadAllTeams(), apiCall('/api/clients').then(data => { if (data) data.forEach(c => { _apiClientsCache[c.name] = c; }); }).catch(() => {})]);
+        await Promise.all([load(), loadTeamMembers(), loadPagePermissions(), loadBugReports(), loadAllTeams(), loadAllSows(), apiCall('/api/clients').then(data => { if (data) data.forEach(c => { _apiClientsCache[c.name] = c; }); }).catch(() => {})]);
         await loadFinanceSeedIfEmpty();
         await loadFinanceFromDB();
         checkLeadReminders();
