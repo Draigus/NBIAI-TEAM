@@ -90,10 +90,76 @@ async function createTestBugReport(opts) {
   return rows[0];
 }
 
+/**
+ * Create a candidate row. Stage defaults to 'sourced' (matches schema default).
+ */
+async function createTestCandidate(opts = {}) {
+  const name = opts.name || uniq('TestCandidate');
+  const stage = opts.stage || 'sourced';
+  const { rows } = await pool.query(
+    `INSERT INTO candidates (client_id, position_id, name, role, linkedin_url, due_date, stage, notes)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+    [
+      opts.client_id || null,
+      opts.position_id || null,
+      name,
+      opts.role || null,
+      opts.linkedin_url || null,
+      opts.due_date || null,
+      stage,
+      opts.notes || null,
+    ]
+  );
+  return rows[0];
+}
+
+/**
+ * Create a lead row. stage_id is required (FK to lead_pipeline_stages.id).
+ */
+async function createTestLead(opts = {}) {
+  if (!opts.stage_id) throw new Error('createTestLead: stage_id required');
+  const title = opts.title || uniq('TestLead');
+  const { rows } = await pool.query(
+    `INSERT INTO leads (client_id, title, work_type, service_line, stage_id, priority, currency, created_by)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+    [
+      opts.client_id || null,
+      title,
+      opts.work_type || null,
+      opts.service_line || null,
+      opts.stage_id,
+      opts.priority || null,
+      opts.currency || 'GBP',
+      opts.created_by || 'test',
+    ]
+  );
+  return rows[0];
+}
+
+/**
+ * Create a lead_pipeline_stages row. Note: lead_pipeline_stages is NOT in
+ * the truncate list (system-of-record). Tests that create a stage should
+ * delete it themselves at the end of the test (use try/finally).
+ */
+async function createTestLeadStage(opts = {}) {
+  const name = opts.name || uniq('TestStage');
+  const sort_order = opts.sort_order || 0;
+  const colour = opts.colour || '#666666';
+  const { rows } = await pool.query(
+    `INSERT INTO lead_pipeline_stages (name, sort_order, colour, is_closed, is_won)
+     VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+    [name, sort_order, colour, !!opts.is_closed, !!opts.is_won]
+  );
+  return rows[0];
+}
+
 module.exports = {
   uniq,
   createTestUser,
   createTestClient,
   createTestTask,
   createTestBugReport,
+  createTestCandidate,
+  createTestLead,
+  createTestLeadStage,
 };

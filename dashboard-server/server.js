@@ -244,6 +244,122 @@ function buildPatchQuery(body, allowedFields) {
   return { updates, vals, nextIdx: i };
 }
 
+// =============================================================================
+// Kanban position helpers (migration 021 / decision D79)
+// =============================================================================
+
+// Whitelist of (table -> groupCol) pairs that are valid for the position
+// helpers. New kanban boards must be added here. The helpers refuse to
+// operate on anything outside this list, which prevents SQL injection via
+// the dynamic identifier interpolation.
+const POSITION_TABLES = {
+  tasks:        { groupCol: 'status' },
+  bug_reports:  { groupCol: 'status' },
+  candidates:   { groupCol: 'stage' },
+  leads:        { groupCol: 'stage_id' },
+};
+
+function _validatePositionTable(table, groupCol) {
+  if (!POSITION_TABLES[table]) throw new Error(`Invalid table for position helper: ${table}`);
+  if (POSITION_TABLES[table].groupCol !== groupCol) {
+    throw new Error(`Invalid column for position helper on ${table}: ${groupCol}`);
+  }
+}
+
+/**
+ * Shift every row in the target group down by 1 to make room for an INSERT
+ * at position 0. MUST be called inside an active transaction (caller passes
+ * the pg client). Caller then runs the actual INSERT with position = 0.
+ *
+ * @param {pg.PoolClient} client - active transaction client
+ * @param {string} table - one of POSITION_TABLES keys
+ * @param {string} groupCol - the group key column
+ * @param {*} groupVal - the group value to shift
+ */
+async function shiftForInsert(client, table, groupCol, groupVal) {
+  _validatePositionTable(table, groupCol);
+  await client.query(
+    `UPDATE ${table} SET position = position + 1 WHERE ${groupCol} = $1`,
+    [groupVal]
+  );
+}
+
+/**
+ * Move a row to a new (group, position) inside an active transaction.
+ *
+ * Steps:
+ *   1. Fetch the row's current group + position (FOR UPDATE).
+ *   2. Compute target column length and clamp newPos.
+ *   3. If group + position unchanged: no-op.
+ *   4. If group changed: shift old group above the vacated slot up by -1.
+ *   5. Shift target group from clampedPos onwards down by +1 (excluding rowId).
+ *   6. UPDATE the row's group + position + updated_at.
+ */
+async function reorderInGroup(client, table, groupCol, rowId, newGroup, newPos) {
+  _validatePositionTable(table, groupCol);
+  if (!Number.isInteger(newPos) || newPos < 0) {
+    throw new Error(`reorderInGroup: newPos must be a non-negative integer, got ${newPos}`);
+  }
+
+  const cur = await client.query(
+    `SELECT ${groupCol} AS grp, position FROM ${table} WHERE id = $1 FOR UPDATE`,
+    [rowId]
+  );
+  if (cur.rows.length === 0) throw new Error(`reorderInGroup: row not found ${rowId}`);
+  const oldGroup = cur.rows[0].grp;
+  const oldPos = cur.rows[0].position;
+  const sameGroup = oldGroup === newGroup
+    || (oldGroup != null && newGroup != null && String(oldGroup) === String(newGroup));
+
+  const lengthRes = await client.query(
+    `SELECT COUNT(*)::int AS n FROM ${table} WHERE ${groupCol} = $1`,
+    [newGroup]
+  );
+  const targetLen = lengthRes.rows[0].n;
+  // Same-group: moved row is already counted, valid range 0..len-1.
+  // Cross-group: moved row not yet in target, valid range 0..len.
+  const maxPos = sameGroup ? Math.max(0, targetLen - 1) : targetLen;
+  const clampedPos = Math.min(newPos, maxPos);
+
+  if (sameGroup && clampedPos === oldPos) return;
+
+  if (sameGroup) {
+    if (clampedPos < oldPos) {
+      // Move up: shift [clampedPos .. oldPos-1] down by +1
+      await client.query(
+        `UPDATE ${table} SET position = position + 1
+         WHERE ${groupCol} = $1 AND position >= $2 AND position < $3 AND id <> $4`,
+        [oldGroup, clampedPos, oldPos, rowId]
+      );
+    } else {
+      // Move down: shift (oldPos .. clampedPos] up by -1
+      await client.query(
+        `UPDATE ${table} SET position = position - 1
+         WHERE ${groupCol} = $1 AND position > $2 AND position <= $3 AND id <> $4`,
+        [oldGroup, oldPos, clampedPos, rowId]
+      );
+    }
+  } else {
+    // Cross-column: close gap in old group
+    await client.query(
+      `UPDATE ${table} SET position = position - 1
+       WHERE ${groupCol} = $1 AND position > $2`,
+      [oldGroup, oldPos]
+    );
+    // Open slot in new group
+    await client.query(
+      `UPDATE ${table} SET position = position + 1
+       WHERE ${groupCol} = $1 AND position >= $2 AND id <> $3`,
+      [newGroup, clampedPos, rowId]
+    );
+  }
+
+  await client.query(
+    `UPDATE ${table} SET ${groupCol} = $1, position = $2, updated_at = NOW() WHERE id = $3`,
+    [newGroup, clampedPos, rowId]
+  );
+}
+
 /** UUID v4 format regex for parameter validation */
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 function isValidUuid(s) { return typeof s === 'string' && UUID_RE.test(s); }
@@ -3279,14 +3395,29 @@ app.post('/api/tasks', async (req, res) => {
   }
   if (!ITEM_TYPES.includes(resolvedType)) return res.status(400).json({ error: `Invalid item_type: ${resolvedType}` });
 
-  const { rows } = await pool.query(
-    `INSERT INTO tasks (title, parent_id, client_id, item_type, status, priority, health_state, description, assignees, hours_estimated, hours_spent, due_date, start_date, end_date, dependencies, planner_task_id, source)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17) RETURNING *`,
-    [title, parent_id || null, client_id || null, resolvedType, status || 'Not started', priority || '', health_state || '', description || '',
-     assignees || [], parsedHoursEst, parsedHoursSpent, due_date || '', start_date || '', end_date || '', dependencies || [], planner_task_id || '', source || 'manual']
-  );
-  await auditLog('task', rows[0].id, 'create', req.user?.displayName, { title, item_type: resolvedType });
-  res.status(201).json(rows[0]);
+  const targetStatus = status || 'Not started';
+  const dbClient = await pool.connect();
+  let createdRow;
+  try {
+    await dbClient.query('BEGIN');
+    await shiftForInsert(dbClient, 'tasks', 'status', targetStatus);
+    const { rows } = await dbClient.query(
+      `INSERT INTO tasks (title, parent_id, client_id, item_type, status, priority, health_state, description, assignees, hours_estimated, hours_spent, due_date, start_date, end_date, dependencies, planner_task_id, source, position)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,0) RETURNING *`,
+      [title, parent_id || null, client_id || null, resolvedType, targetStatus, priority || '', health_state || '', description || '',
+       assignees || [], parsedHoursEst, parsedHoursSpent, due_date || '', start_date || '', end_date || '', dependencies || [], planner_task_id || '', source || 'manual']
+    );
+    createdRow = rows[0];
+    await dbClient.query('COMMIT');
+  } catch (err) {
+    await dbClient.query('ROLLBACK');
+    log('error', 'Tasks', 'POST failed', { error: err.message });
+    return res.status(500).json({ error: 'Failed to create task' });
+  } finally {
+    dbClient.release();
+  }
+  await auditLog('task', createdRow.id, 'create', req.user?.displayName, { title, item_type: resolvedType });
+  res.status(201).json(createdRow);
 });
 
 /**
@@ -3328,12 +3459,14 @@ app.patch('/api/tasks/:id', async (req, res) => {
     return res.status(400).json({ error: 'start_date must be before or equal to end_date' });
   }
   // Text fields are stored raw; escaping happens at render time in the frontend (esc()).
-  const allowedFields = ['title', 'parent_id', 'client_id', 'item_type', 'status', 'priority', 'health_state', 'description', 'assignees', 'hours_estimated', 'hours_spent', 'due_date', 'start_date', 'end_date', 'dependencies', 'collaborations', 'success_factor', 'repeat_rule', 'blocker_info', 'practice_area'];
+  // Status is routed through reorderInGroup below — NOT in allowedFields.
+  const allowedFields = ['title', 'parent_id', 'client_id', 'item_type', 'priority', 'health_state', 'description', 'assignees', 'hours_estimated', 'hours_spent', 'due_date', 'start_date', 'end_date', 'dependencies', 'collaborations', 'success_factor', 'repeat_rule', 'blocker_info', 'practice_area'];
   const { updates, vals, nextIdx } = buildPatchQuery(req.body, allowedFields);
   if (req.body.title !== undefined && !req.body.title.trim()) {
     return res.status(400).json({ error: 'Title cannot be empty' });
   }
-  if (updates.length === 0) return res.status(400).json({ error: 'No valid fields to update' });
+  const wantsReorder = (req.body.status !== undefined) || (req.body.position !== undefined);
+  if (updates.length === 0 && !wantsReorder) return res.status(400).json({ error: 'No valid fields to update' });
   // Fetch old values before update for audit trail
   const oldResult = await pool.query('SELECT * FROM tasks WHERE id = $1', [req.params.id]);
   const oldTask = oldResult.rows[0];
@@ -3426,17 +3559,51 @@ app.patch('/api/tasks/:id', async (req, res) => {
       return res.status(400).json({ error: 'Circular dependency detected — this would create a cycle' });
     }
   }
-  updates.push(`updated_at = NOW()`);
-  vals.push(req.params.id);
-  const { rows } = await pool.query(`UPDATE tasks SET ${updates.join(', ')} WHERE id = $${nextIdx} RETURNING *`, vals);
-  if (!rows[0]) return res.status(404).json({ error: 'Not found' });
-  const updatedTask = rows[0];
-  // Build detailed change log with old and new values
+  // Run reorder + field updates atomically
+  const txnClient = await pool.connect();
+  let updatedTask;
+  try {
+    await txnClient.query('BEGIN');
+
+    if (wantsReorder) {
+      const targetStatus = (req.body.status !== undefined && req.body.status !== '')
+        ? req.body.status
+        : (oldTask ? oldTask.status : 'Not started');
+      const targetPos = (typeof req.body.position === 'number' && Number.isInteger(req.body.position))
+        ? req.body.position
+        : 0;
+      await reorderInGroup(txnClient, 'tasks', 'status', req.params.id, targetStatus, targetPos);
+    }
+
+    if (updates.length > 0) {
+      updates.push(`updated_at = NOW()`);
+      vals.push(req.params.id);
+      await txnClient.query(`UPDATE tasks SET ${updates.join(', ')} WHERE id = $${nextIdx}`, vals);
+    }
+
+    const fresh = await txnClient.query('SELECT * FROM tasks WHERE id = $1', [req.params.id]);
+    if (!fresh.rows[0]) {
+      await txnClient.query('ROLLBACK');
+      txnClient.release();
+      return res.status(404).json({ error: 'Not found' });
+    }
+    updatedTask = fresh.rows[0];
+    await txnClient.query('COMMIT');
+  } catch (err) {
+    await txnClient.query('ROLLBACK');
+    log('error', 'Tasks', 'PATCH failed', { error: err.message });
+    return res.status(500).json({ error: 'Failed to update task' });
+  } finally {
+    txnClient.release();
+  }
+
+  // Build detailed change log against the freshly-updated row
   const changes = {};
-  for (const f of allowedFields) {
+  const allFields = [...allowedFields, 'status', 'position'];
+  for (const f of allFields) {
     if (req.body[f] !== undefined && oldTask) {
       const oldVal = oldTask[f];
-      const newVal = req.body[f];
+      const newVal = updatedTask[f];
       if (JSON.stringify(oldVal) !== JSON.stringify(newVal)) {
         changes[f] = { from: oldVal, to: newVal };
       }
@@ -3968,6 +4135,7 @@ app.get('/api/sync/poll', async (req, res) => {
     endDate: r.end_date || '',
     dependencies: r.dependencies || [],
     practiceArea: r.practice_area || null,
+    position: r.position || 0,
     createdAt: r.created_at,
     updatedAt: r.updated_at,
   }));
@@ -4128,6 +4296,7 @@ app.get('/api/sync/load', async (req, res) => {
     dependencies: r.dependencies || [],
     itemType: r.item_type || 'task',
     practiceArea: r.practice_area || null,
+    position: r.position || 0,
     notes: r.notes || [],
     createdAt: r.created_at,
     updatedAt: r.updated_at,
@@ -4447,7 +4616,7 @@ app.get('/api/leads', async (req, res) => {
     JOIN lead_pipeline_stages s ON l.stage_id = s.id
     LEFT JOIN contacts ct ON l.primary_contact_id = ct.id
     ${whereClause}
-    ORDER BY s.sort_order, l.priority NULLS LAST, l.created_at DESC
+    ORDER BY s.sort_order, l.position, l.created_at DESC
     ${paginationClause}
   `, vals);
 
@@ -4602,12 +4771,14 @@ app.post('/api/leads', async (req, res) => {
   const conn = await pool.connect();
   try {
     await conn.query('BEGIN');
+    // Shift all leads in the target stage down by 1 so the new lead lands at position 0
+    await shiftForInsert(conn, 'leads', 'stage_id', stage_id);
     const { rows } = await conn.query(
       `INSERT INTO leads (client_id, title, work_type, service_line, stage_id, priority, currency,
         rom_min, rom_max, rom_text, win_probability, primary_contact_id, deal_owner,
         lead_source, est_start_date, expected_close_date, last_contacted,
-        next_followup_date, next_action, location, notes, time_estimate, created_by)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23) RETURNING *`,
+        next_followup_date, next_action, location, notes, time_estimate, created_by, position)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,0) RETURNING *`,
       [client_id || null, title, work_type || null, service_line || null, stage_id,
         priority || null, currency || 'GBP',
         rom_min || null, rom_max || null, rom_text || null, win_probability || null,
@@ -4664,40 +4835,70 @@ app.post('/api/leads', async (req, res) => {
 app.patch('/api/leads/:id', async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid lead ID' });
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
-  const patchFields = ['client_id', 'title', 'work_type', 'service_line', 'stage_id', 'priority',
+  // stage_id is routed through reorderInGroup below — NOT in patchFields.
+  const patchFields = ['client_id', 'title', 'work_type', 'service_line', 'priority',
     'currency', 'rom_min', 'rom_max', 'rom_text', 'win_probability',
     'primary_contact_id', 'deal_owner', 'lead_source',
     'est_start_date', 'expected_close_date', 'last_contacted',
     'next_followup_date', 'next_action', 'location', 'notes', 'time_estimate',
     'completed_at', 'practice_area'];
 
-  // Pre-process: convert empty strings to null for nullable lead fields
   const sanitisedBody = { ...req.body };
   for (const f of patchFields) {
     if (sanitisedBody[f] === '') sanitisedBody[f] = null;
   }
-  // Text fields are stored raw; escaping happens at render time in the frontend (esc()).
   const { updates, vals, nextIdx } = buildPatchQuery(sanitisedBody, patchFields);
   if (req.body.title !== undefined && !req.body.title.trim()) {
     return res.status(400).json({ error: 'Title cannot be empty' });
   }
-  if (updates.length === 0) return res.status(400).json({ error: 'No valid fields to update' });
+  const wantsReorder = (req.body.stage_id !== undefined) || (req.body.position !== undefined);
+  if (updates.length === 0 && !wantsReorder) return res.status(400).json({ error: 'No valid fields to update' });
 
-  // Fetch old values for change detection
+  // Fetch old values for change detection + activity logging
   const oldResult = await pool.query('SELECT * FROM leads WHERE id = $1', [req.params.id]);
   if (oldResult.rows.length === 0) return res.status(404).json({ error: 'Lead not found' });
   const oldLead = oldResult.rows[0];
 
-  updates.push(`updated_at = NOW()`);
-  vals.push(req.params.id);
-  const { rows } = await pool.query(`UPDATE leads SET ${updates.join(', ')} WHERE id = $${nextIdx} RETURNING *`, vals);
+  // Run reorder + field update atomically
+  const conn = await pool.connect();
+  let updatedRow;
+  try {
+    await conn.query('BEGIN');
 
-  // Build change log and create activity entries for key changes
+    if (wantsReorder) {
+      const targetStage = (req.body.stage_id !== undefined && req.body.stage_id !== '')
+        ? req.body.stage_id
+        : oldLead.stage_id;
+      const targetPos = (typeof req.body.position === 'number' && Number.isInteger(req.body.position))
+        ? req.body.position
+        : 0;
+      await reorderInGroup(conn, 'leads', 'stage_id', req.params.id, targetStage, targetPos);
+    }
+
+    if (updates.length > 0) {
+      updates.push(`updated_at = NOW()`);
+      vals.push(req.params.id);
+      await conn.query(`UPDATE leads SET ${updates.join(', ')} WHERE id = $${nextIdx}`, vals);
+    }
+
+    const fresh = await conn.query('SELECT * FROM leads WHERE id = $1', [req.params.id]);
+    updatedRow = fresh.rows[0];
+    await conn.query('COMMIT');
+  } catch (err) {
+    await conn.query('ROLLBACK');
+    log('error', 'Leads', 'PATCH failed', { error: err.message });
+    return res.status(500).json({ error: 'Failed to update lead' });
+  } finally {
+    conn.release();
+  }
+
+  // Build change log against the freshly-updated row (includes stage_id/position)
   const changes = {};
-  for (const f of patchFields) {
-    if (sanitisedBody[f] !== undefined) {
+  const allFields = [...patchFields, 'stage_id', 'position'];
+  for (const f of allFields) {
+    if (sanitisedBody[f] !== undefined || (f === 'position' && req.body.position !== undefined) || (f === 'stage_id' && req.body.stage_id !== undefined)) {
       const oldVal = oldLead[f];
-      const newVal = sanitisedBody[f];
+      const newVal = updatedRow[f];
       if (JSON.stringify(oldVal) !== JSON.stringify(newVal)) {
         changes[f] = { from: oldVal, to: newVal };
       }
@@ -5311,12 +5512,12 @@ app.get('/api/bug-reports', async (req, res) => {
   const whereClause = where.length > 0 ? 'WHERE ' + where.join(' AND ') : '';
   const { rows } = await pool.query(`
     SELECT b.id, b.user_id, b.type, b.title, b.description, b.page,
-           b.status, b.priority, b.created_at, b.updated_at,
+           b.status, b.priority, b.position, b.created_at, b.updated_at,
            (b.screenshot IS NOT NULL) AS has_screenshot,
            u.display_name AS reporter_name,
            (SELECT COUNT(*) FROM bug_report_comments c WHERE c.report_id = b.id)::int AS comment_count
     FROM bug_reports b LEFT JOIN users u ON b.user_id = u.id
-    ${whereClause} ORDER BY b.created_at DESC
+    ${whereClause} ORDER BY b.status, b.position, b.created_at DESC
   `, vals);
   res.json({ reports: rows });
 });
@@ -5343,12 +5544,25 @@ app.post('/api/bug-reports', async (req, res) => {
   const MAX_SCREENSHOT_BYTES = 5 * 1024 * 1024;
   const safeScreenshot = (screenshot && screenshot.length <= MAX_SCREENSHOT_BYTES) ? screenshot : null;
 
-  const { rows } = await pool.query(
-    `INSERT INTO bug_reports (user_id, type, title, description, page, screenshot, priority)
-     VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
-    [req.user.id, rType, title.trim(), description || null, page || null, safeScreenshot, safePriority]
-  );
-  res.status(201).json(rows[0]);
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    // Shift everything in the target column ('open' is the default for new bugs) down by 1
+    await shiftForInsert(client, 'bug_reports', 'status', 'open');
+    const { rows } = await client.query(
+      `INSERT INTO bug_reports (user_id, type, title, description, page, screenshot, priority, position)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, 0) RETURNING *`,
+      [req.user.id, rType, title.trim(), description || null, page || null, safeScreenshot, safePriority]
+    );
+    await client.query('COMMIT');
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    await client.query('ROLLBACK');
+    log('error', 'BugReports', 'POST failed', { error: err.message });
+    res.status(500).json({ error: 'Failed to create bug report' });
+  } finally {
+    client.release();
+  }
 });
 
 /** PATCH /api/bug-reports/:id — Update status, priority, title, and/or description.
@@ -5357,8 +5571,8 @@ app.patch('/api/bug-reports/:id', async (req, res) => {
   if (!req.user) return res.status(401).json({ error: 'Authentication required' });
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid report ID' });
   const { status, description, priority, title } = req.body;
-  if (!status && description === undefined && priority === undefined && title === undefined) {
-    return res.status(400).json({ error: 'status, title, description, or priority required' });
+  if (!status && description === undefined && priority === undefined && title === undefined && req.body.position === undefined) {
+    return res.status(400).json({ error: 'status, title, description, priority, or position required' });
   }
 
   const isAdmin = req.user.role === 'admin';
@@ -5397,8 +5611,7 @@ app.patch('/api/bug-reports/:id', async (req, res) => {
   if (status) {
     const validStatuses = ['open', 'in_progress', 'please_review', 'resolved', 'wontfix'];
     if (!validStatuses.includes(status)) return res.status(400).json({ error: `Invalid status. Must be one of: ${validStatuses.join(', ')}` });
-    sets.push(`status = $${idx++}`);
-    vals.push(status);
+    // Status is routed through reorderInGroup below — do NOT add to sets
   }
   if (priority !== undefined) {
     const validPriorities = ['critical', 'high', 'medium', 'low', null];
@@ -5422,9 +5635,51 @@ app.patch('/api/bug-reports/:id', async (req, res) => {
     vals.push(description);
   }
 
-  vals.push(req.params.id);
-  const { rows } = await pool.query(`UPDATE bug_reports SET ${sets.join(', ')} WHERE id = $${idx} RETURNING *`, vals);
-  await auditLog('bug_report', req.params.id, 'update', req.user?.displayName || 'unknown', { status, priority, description: description !== undefined, title: title !== undefined });
+  // Position / status routed through the reorder helper inside a transaction
+  const wantsReorder = (status !== undefined) || (req.body.position !== undefined);
+  const newPosition = req.body.position;
+
+  const client = await pool.connect();
+  let resultRow;
+  try {
+    await client.query('BEGIN');
+
+    if (wantsReorder) {
+      const targetStatus = status || report.old_status;
+      const targetPos = (typeof newPosition === 'number' && Number.isInteger(newPosition))
+        ? newPosition
+        : 0;
+      await reorderInGroup(client, 'bug_reports', 'status', req.params.id, targetStatus, targetPos);
+    }
+
+    if (vals.length > 0) {
+      vals.push(req.params.id);
+      await client.query(`UPDATE bug_reports SET ${sets.join(', ')} WHERE id = $${idx}`, vals);
+    } else if (sets.length > 1) {
+      // sets has only updated_at if no body fields — only worth touching if reorder didn't already update_at
+      // (reorderInGroup already updates updated_at, so skip this when wantsReorder)
+      if (!wantsReorder) {
+        await client.query(`UPDATE bug_reports SET updated_at = NOW() WHERE id = $1`, [req.params.id]);
+      }
+    }
+
+    const fresh = await client.query('SELECT * FROM bug_reports WHERE id = $1', [req.params.id]);
+    resultRow = fresh.rows[0];
+    await client.query('COMMIT');
+  } catch (err) {
+    await client.query('ROLLBACK');
+    log('error', 'BugReports', 'PATCH failed', { error: err.message });
+    return res.status(500).json({ error: 'Failed to update bug report' });
+  } finally {
+    client.release();
+  }
+
+  await auditLog('bug_report', req.params.id, 'update', req.user?.displayName || 'unknown', {
+    status, priority,
+    description: description !== undefined,
+    title: title !== undefined,
+    position: newPosition !== undefined ? newPosition : undefined,
+  });
 
   // Send notifications for status and priority changes
   const notifyUser = report.reporter_username;
@@ -5445,7 +5700,7 @@ app.patch('/api/bug-reports/:id', async (req, res) => {
     } catch (e) { log('error', 'BugReports', 'Failed to send notification', { error: e.message }); }
   }
 
-  res.json(rows[0]);
+  res.json(resultRow);
 });
 
 /** POST /api/bug-reports/:id/notify-review — Send a notification to the report submitter (admin only) */
@@ -5700,7 +5955,7 @@ app.get('/api/candidates', async (req, res) => {
   try {
     const { rows } = await pool.query(`
       SELECT ca.id, ca.position_id, ca.client_id, ca.name, ca.role, ca.linkedin_url,
-             ca.cv_filename, ca.due_date, ca.stage, ca.notes, ca.created_at, ca.updated_at,
+             ca.cv_filename, ca.due_date, ca.stage, ca.notes, ca.position, ca.created_at, ca.updated_at,
              c.name AS client_name,
              p.title AS position_title,
              (ca.cv_filename IS NOT NULL) AS has_cv
@@ -5754,10 +6009,15 @@ app.post('/api/candidates', async (req, res) => {
     const ne = validateLength(notes, 'notes');
     if (ne) return res.status(400).json({ error: ne });
   }
+  const targetStage = stage || 'sourced';
+  const dbClient = await pool.connect();
+  let createdRow;
   try {
-    const { rows } = await pool.query(
-      `INSERT INTO candidates (client_id, position_id, name, role, linkedin_url, due_date, stage, notes)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
+    await dbClient.query('BEGIN');
+    await shiftForInsert(dbClient, 'candidates', 'stage', targetStage);
+    const { rows } = await dbClient.query(
+      `INSERT INTO candidates (client_id, position_id, name, role, linkedin_url, due_date, stage, notes, position)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,0) RETURNING *`,
       [
         client_id || null,
         position_id || null,
@@ -5765,16 +6025,21 @@ app.post('/api/candidates', async (req, res) => {
         role || null,
         linkedin_url || null,
         due_date || null,
-        stage || 'sourced',
+        targetStage,
         notes || null
       ]
     );
-    await auditLog('candidate', rows[0].id, 'create', req.user.displayName || 'unknown', { name: name.trim(), client_id: client_id || null });
-    res.status(201).json(rows[0]);
+    createdRow = rows[0];
+    await dbClient.query('COMMIT');
   } catch (e) {
+    await dbClient.query('ROLLBACK');
     log('error', 'Hiring', 'Failed to create candidate', { error: e.message });
-    res.status(500).json({ error: 'An internal error occurred' });
+    return res.status(500).json({ error: 'An internal error occurred' });
+  } finally {
+    dbClient.release();
   }
+  await auditLog('candidate', createdRow.id, 'create', req.user.displayName || 'unknown', { name: name.trim(), client_id: client_id || null });
+  res.status(201).json(createdRow);
 });
 
 /** PATCH /api/candidates/:id — Update a candidate (any authenticated user) */
@@ -5807,22 +6072,55 @@ app.patch('/api/candidates/:id', async (req, res) => {
   const body = { ...req.body };
   if (body.name !== undefined && body.name !== null) body.name = String(body.name).trim();
 
-  const { updates, vals, nextIdx } = buildPatchQuery(body, ['client_id', 'position_id', 'name', 'role', 'linkedin_url', 'due_date', 'stage', 'notes']);
-  if (updates.length === 0) return res.status(400).json({ error: 'No valid fields to update' });
-  updates.push('updated_at = NOW()');
-  vals.push(req.params.id);
+  // Stage is routed through reorderInGroup below — NOT in allowedFields here.
+  const { updates, vals, nextIdx } = buildPatchQuery(body, ['client_id', 'position_id', 'name', 'role', 'linkedin_url', 'due_date', 'notes']);
+  const wantsReorder = (body.stage !== undefined) || (req.body.position !== undefined);
+  if (updates.length === 0 && !wantsReorder) return res.status(400).json({ error: 'No valid fields to update' });
+
+  const dbClient = await pool.connect();
+  let updatedRow;
   try {
-    const { rows } = await pool.query(
-      `UPDATE candidates SET ${updates.join(', ')} WHERE id = $${nextIdx} RETURNING *`,
-      vals
-    );
-    if (!rows[0]) return res.status(404).json({ error: 'Not found' });
-    await auditLog('candidate', req.params.id, 'update', req.user.displayName || 'unknown', { fields: Object.keys(req.body) });
-    res.json(rows[0]);
+    await dbClient.query('BEGIN');
+
+    if (wantsReorder) {
+      const oldRow = await dbClient.query('SELECT stage FROM candidates WHERE id = $1', [req.params.id]);
+      if (oldRow.rows.length === 0) {
+        await dbClient.query('ROLLBACK');
+        return res.status(404).json({ error: 'Not found' });
+      }
+      const targetStage = (body.stage !== undefined) ? body.stage : oldRow.rows[0].stage;
+      const targetPos = (typeof req.body.position === 'number' && Number.isInteger(req.body.position))
+        ? req.body.position
+        : 0;
+      await reorderInGroup(dbClient, 'candidates', 'stage', req.params.id, targetStage, targetPos);
+    }
+
+    if (updates.length > 0) {
+      updates.push('updated_at = NOW()');
+      vals.push(req.params.id);
+      await dbClient.query(
+        `UPDATE candidates SET ${updates.join(', ')} WHERE id = $${nextIdx}`,
+        vals
+      );
+    }
+
+    const fresh = await dbClient.query('SELECT * FROM candidates WHERE id = $1', [req.params.id]);
+    if (!fresh.rows[0]) {
+      await dbClient.query('ROLLBACK');
+      return res.status(404).json({ error: 'Not found' });
+    }
+    updatedRow = fresh.rows[0];
+    await dbClient.query('COMMIT');
   } catch (e) {
+    await dbClient.query('ROLLBACK');
     log('error', 'Hiring', 'Failed to update candidate', { error: e.message });
-    res.status(500).json({ error: 'An internal error occurred' });
+    return res.status(500).json({ error: 'An internal error occurred' });
+  } finally {
+    dbClient.release();
   }
+
+  await auditLog('candidate', req.params.id, 'update', req.user.displayName || 'unknown', { fields: Object.keys(req.body) });
+  res.json(updatedRow);
 });
 
 /** DELETE /api/candidates/:id — Remove a candidate (admin only).
@@ -6896,3 +7194,5 @@ if (require.main === module) {
 // Export the Express app so supertest/Playwright can import it without
 // triggering the listener block above. Tests do: const app = require('../../server');
 module.exports = app;
+module.exports.shiftForInsert = shiftForInsert;
+module.exports.reorderInGroup = reorderInGroup;
