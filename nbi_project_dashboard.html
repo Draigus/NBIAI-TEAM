@@ -220,10 +220,15 @@ body { font-family: var(--font-body); background: var(--bg-base); color: var(--t
 /* ===== LAYOUT ===== */
 .shell { display: flex; height: calc(100dvh - var(--header-h)); }
 .sidebar { width: var(--sidebar-w); min-width: var(--sidebar-w); background: var(--bg-raised); border-right: 1px solid var(--border-default); display: flex; flex-direction: column; overflow: hidden; transition: width 0.15s, min-width 0.15s; }
-.sidebar.collapsed { width: 48px; min-width: 48px; }
+.sidebar.collapsed { width: 56px; min-width: 56px; }
 .sidebar.collapsed .sidebar__title, .sidebar.collapsed .sidebar__item__label, .sidebar.collapsed .sidebar__item__count, .sidebar.collapsed .sidebar__dot { display: none; }
 .sidebar.collapsed .sidebar__item { justify-content: center; padding: 9px 0; }
 .sidebar.collapsed .sidebar__item__icon { margin-right: 0; font-size: 1rem; }
+/* Collapsed-sidebar abbreviation chip — used by client and practice items
+   that have no icon and would otherwise show as an empty button (G1). */
+.sidebar__item__abbrev { display: none; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.02em; color: var(--text-secondary); }
+.sidebar.collapsed .sidebar__item__abbrev { display: inline-flex; align-items: center; justify-content: center; min-width: 28px; padding: 2px 4px; border-radius: 3px; background: var(--bg-hover); }
+.sidebar.collapsed .sidebar__item.active .sidebar__item__abbrev { background: var(--accent); color: #fff; }
 .sidebar__toggle { display: flex; align-items: center; justify-content: center; padding: 8px; cursor: pointer; color: var(--text-muted); border-top: 1px solid var(--border-default); font-size: 0.8rem; transition: color 0.12s; flex-shrink: 0; }
 .sidebar__toggle:hover { color: var(--text-primary); background: var(--bg-hover); }
 button.sidebar__item, button.sidebar__toggle { font: inherit; color: inherit; background: none; border: none; text-align: left; width: 100%; }
@@ -2784,7 +2789,8 @@ function clientPrefix(clientName) {
     return cached.abbreviation;
   }
   // Legacy hardcoded fallback (kept so the page still works when the cache is cold).
-  const known = { 'Couch Heroes': 'CH', 'Lighthouse Studios': 'LH', 'Goals Studio': 'GO', 'Sarge Universe': 'SU', 'Playsage': 'PL', 'NBI Operations': 'NBI' };
+  // Matches the DB abbreviation column per G1 (2026-04-15).
+  const known = { 'Couch Heroes': 'CH', 'Lighthouse Games': 'LH', 'Lighthouse Studios': 'LS', 'Goals Studio': 'GS', 'Sarge Universe': 'SU', 'Playsage': 'PS', 'NSI': 'NSI', 'NBI Operations': 'NBI', 'NBI  OPS': 'NBI' };
   if (known[clientName]) { _clientPrefixCache[clientName] = known[clientName]; return known[clientName]; }
   // Auto-generate: take first letter of each word, uppercase, max 3
   const words = clientName.split(/\s+/).filter(Boolean);
@@ -3178,12 +3184,13 @@ function renderSidebar() {
   // Clients
   html += sidebarSectionOpen('clients', 'Clients');
   const portfolioActive = !currentFilter.client;
-  html += `<button class="sidebar__item ${portfolioActive?'active':''}"${portfolioActive?' aria-current="page"':''} aria-label="NBI Portfolio, ${tasks.length} items" onclick="filterByClient(null)"><span class="sidebar__dot" aria-hidden="true" style="background:var(--accent)"></span><span class="sidebar__item__label" style="font-weight:600">NBI Portfolio</span><span class="sidebar__item__count" aria-hidden="true">${tasks.length}</span></button>`;
+  html += `<button class="sidebar__item ${portfolioActive?'active':''}"${portfolioActive?' aria-current="page"':''} aria-label="NBI Portfolio, ${tasks.length} items" onclick="filterByClient(null)"><span class="sidebar__dot" aria-hidden="true" style="background:var(--accent)"></span><span class="sidebar__item__abbrev" aria-hidden="true">NBI</span><span class="sidebar__item__label" style="font-weight:600">NBI Portfolio</span><span class="sidebar__item__count" aria-hidden="true">${tasks.length}</span></button>`;
   clients.forEach(c => {
     const count = tasks.filter(t => getTaskClient(t) === c).length;
     const dotColour = stringToColour(c);
     const isActive = currentFilter.client===c;
-    html += `<button class="sidebar__item ${isActive?'active':''}"${isActive?' aria-current="page"':''} aria-label="${esc(c)}, ${count} items" onclick="filterByClient('${escAttrJs(c)}')"><span class="sidebar__dot" aria-hidden="true" style="background:${dotColour}"></span><span class="sidebar__item__label">${esc(c)}</span><span class="sidebar__item__count" aria-hidden="true">${count}</span></button>`;
+    const abbrev = clientPrefix(c);
+    html += `<button class="sidebar__item ${isActive?'active':''}"${isActive?' aria-current="page"':''} aria-label="${esc(c)}, ${count} items" onclick="filterByClient('${escAttrJs(c)}')"><span class="sidebar__dot" aria-hidden="true" style="background:${dotColour}"></span><span class="sidebar__item__abbrev" aria-hidden="true">${esc(abbrev)}</span><span class="sidebar__item__label">${esc(c)}</span><span class="sidebar__item__count" aria-hidden="true">${count}</span></button>`;
   });
   html += sidebarSectionClose();
 
@@ -3194,13 +3201,14 @@ function renderSidebar() {
   const _leadList = (typeof _leadsData !== 'undefined' && _leadsData && _leadsData.leads) ? _leadsData.leads : [];
   const allPracticeCount = tasks.length + _leadList.length;
   const practiceAllActive = !currentFilter.practice;
-  html += `<button class="sidebar__item ${practiceAllActive?'active':''}"${practiceAllActive?' aria-current="page"':''} aria-label="All practices, ${allPracticeCount} items" onclick="filterByPractice(null)"><span class="sidebar__dot" aria-hidden="true" style="background:var(--accent)"></span><span class="sidebar__item__label" style="font-weight:600">All</span><span class="sidebar__item__count" aria-hidden="true">${allPracticeCount}</span></button>`;
+  html += `<button class="sidebar__item ${practiceAllActive?'active':''}"${practiceAllActive?' aria-current="page"':''} aria-label="All practices, ${allPracticeCount} items" onclick="filterByPractice(null)"><span class="sidebar__dot" aria-hidden="true" style="background:var(--accent)"></span><span class="sidebar__item__abbrev" aria-hidden="true">ALL</span><span class="sidebar__item__label" style="font-weight:600">All</span><span class="sidebar__item__count" aria-hidden="true">${allPracticeCount}</span></button>`;
   PRACTICES.forEach(p => {
     const tCount = tasks.filter(t => getTaskPractice(t) === p.value).length;
     const lCount = _leadList.filter(l => l.practice_area === p.value).length;
     const total = tCount + lCount;
     const isActive = currentFilter.practice===p.value;
-    html += `<button class="sidebar__item ${isActive?'active':''}"${isActive?' aria-current="page"':''} aria-label="${esc(p.label)}, ${total} items" onclick="filterByPractice('${escAttrJs(p.value)}')"><span class="sidebar__dot" aria-hidden="true" style="background:${p.colour}"></span><span class="sidebar__item__label">${esc(p.label)}</span><span class="sidebar__item__count" aria-hidden="true">${total}</span></button>`;
+    const abbrev = p.abbrev || p.label.slice(0, 2).toUpperCase();
+    html += `<button class="sidebar__item ${isActive?'active':''}"${isActive?' aria-current="page"':''} aria-label="${esc(p.label)}, ${total} items" onclick="filterByPractice('${escAttrJs(p.value)}')"><span class="sidebar__dot" aria-hidden="true" style="background:${p.colour}"></span><span class="sidebar__item__abbrev" aria-hidden="true">${esc(abbrev)}</span><span class="sidebar__item__label">${esc(p.label)}</span><span class="sidebar__item__count" aria-hidden="true">${total}</span></button>`;
   });
   html += sidebarSectionClose();
 
@@ -3496,9 +3504,9 @@ function filterByClient(c) { currentFilter = { client: c, project: null, status:
 // performance, not the umbrella. The dot colours match the sidebar
 // styling for consistency.
 const PRACTICES = [
-  { value: 'organisational', label: 'Organisational', colour: '#7c5cff' },
-  { value: 'gaming',         label: 'Gaming',         colour: '#22c1c3' },
-  { value: 'general',        label: 'General',        colour: '#9aa0a6' },
+  { value: 'organisational', label: 'Organisational', abbrev: 'OR', colour: '#7c5cff' },
+  { value: 'gaming',         label: 'Gaming',         abbrev: 'GM', colour: '#22c1c3' },
+  { value: 'general',        label: 'General',        abbrev: 'GN', colour: '#9aa0a6' },
 ];
 function getPracticeLabel(value) {
   const p = PRACTICES.find(x => x.value === value);
