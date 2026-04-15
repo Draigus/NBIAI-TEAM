@@ -27,6 +27,39 @@ Append-only. Every feature/fix completed gets logged here immediately.
 
 **Phase 1 status:** done. Test count 56/56 (56 vitest + 7 playwright pending). Next: Phase 2 (K1 — Playwright drag specs).
 
+### Phase 2: Test debt
+
+**K1 — Playwright drag specs for all four boards** — commit `26b04be`
+- `dashboard-server/tests/e2e/kanban-drag.spec.js` — 5 new E2E tests: Bug Tracker intra-column, Bug Tracker cross-lane, Tasks intra-column (priority preservation), Leads intra-stage (priority preservation), Hiring intra-stage.
+- Navigation uses `page.evaluate(() => switchView(...))` + direct function calls (loadBugReports, loadCandidates, etc.) rather than clicking sidebar buttons — the sidebar render races with post-login data load.
+- Dummy task seeded per test to bypass `renderContent`'s `tasks.length === 0` empty-state shortcut (root cause discovery during first test run).
+- Total suite now 56 vitest + 12 playwright = 68 tests.
+
+### Phase 3: Overnight wins
+
+**G1 — Collapsible sidebar with client/practice abbreviations** — commit `357c542`
+- Existing collapse mechanism (`.sidebar.collapsed`, `toggleSidebarCollapse()`) just hid client/practice labels. Now shows a 2-letter abbrev chip instead.
+- Added `.sidebar__item__abbrev` CSS (hidden normally, shown when collapsed).
+- Sidebar render functions build a `<span class="sidebar__item__abbrev">` for every client (via `clientPrefix()`) and every practice (via `PRACTICES[i].abbrev`).
+- Widened collapsed sidebar from 48px to 56px to fit 3-char `NSI`.
+- Dev DB: set abbreviations for 5 clients (Goals Studio→GS, Lighthouse Games→LH, Lighthouse Studios→LS, NSI→NSI, Playsage→PS). Couch Heroes (CH) and Sarge Universe (SU) were already set.
+
+**G2 — Practice model: Gaming + Organizational Health only** — commit `a99c9c7`
+- Migration 022 applied to dev DB. Backfilled 1122 tasks + 43 leads + 44 clients to `gaming`. Zero rows left as `general`, `organisational`, or NULL.
+- `POST /api/clients` now requires `practice_area` ∈ {gaming, organisational_health}. 4 new vitest regression tests.
+- Frontend `PRACTICES` array reduced to 2 entries with shortLabel + abbrev fields. General removed.
+- Manage Clients view now has a required practice dropdown on the create form. `createClientFromManage()` validates client-side before POSTing.
+
+**G4 — Sortable People-tab tables** — commit `56231a2`
+- 4 sort-state globals added: `_peopleWorkloadSort`, `_peopleCapacitySort`, `_peopleClientHoursSort`, `_peopleTaskSummarySort`.
+- Workload Overview bar chart has a sort toolbar (Name / Tasks / Hours Spent / Hours Est.).
+- Capacity Planning, Hours by Person per Client, and Task Summary by Person all have clickable sortable headers with ▲▼ indicators. Pattern mirrors `_rptProgressSort` from the Reports view (commit dd87753).
+- Row-building refactored so sort runs on an object array independent of render.
+
+**Phase 3 status:** done. Test count 60 vitest + 12 playwright = 72 tests green. PM2 restarted at 12:38:52 — clean boot, no warnings, no sync errors.
+
+Next: Phase 4 (G3 — Mobile UI pass for iPhone 11 viewport).
+
 ---
 
 ## 2026-04-14 (Session b — Deferred Audit Items)
