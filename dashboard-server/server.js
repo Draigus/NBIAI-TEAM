@@ -4769,12 +4769,14 @@ app.post('/api/leads', async (req, res) => {
   const conn = await pool.connect();
   try {
     await conn.query('BEGIN');
+    // Shift all leads in the target stage down by 1 so the new lead lands at position 0
+    await shiftForInsert(conn, 'leads', 'stage_id', stage_id);
     const { rows } = await conn.query(
       `INSERT INTO leads (client_id, title, work_type, service_line, stage_id, priority, currency,
         rom_min, rom_max, rom_text, win_probability, primary_contact_id, deal_owner,
         lead_source, est_start_date, expected_close_date, last_contacted,
-        next_followup_date, next_action, location, notes, time_estimate, created_by)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23) RETURNING *`,
+        next_followup_date, next_action, location, notes, time_estimate, created_by, position)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,0) RETURNING *`,
       [client_id || null, title, work_type || null, service_line || null, stage_id,
         priority || null, currency || 'GBP',
         rom_min || null, rom_max || null, rom_text || null, win_probability || null,
@@ -4831,40 +4833,70 @@ app.post('/api/leads', async (req, res) => {
 app.patch('/api/leads/:id', async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid lead ID' });
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
-  const patchFields = ['client_id', 'title', 'work_type', 'service_line', 'stage_id', 'priority',
+  // stage_id is routed through reorderInGroup below — NOT in patchFields.
+  const patchFields = ['client_id', 'title', 'work_type', 'service_line', 'priority',
     'currency', 'rom_min', 'rom_max', 'rom_text', 'win_probability',
     'primary_contact_id', 'deal_owner', 'lead_source',
     'est_start_date', 'expected_close_date', 'last_contacted',
     'next_followup_date', 'next_action', 'location', 'notes', 'time_estimate',
     'completed_at', 'practice_area'];
 
-  // Pre-process: convert empty strings to null for nullable lead fields
   const sanitisedBody = { ...req.body };
   for (const f of patchFields) {
     if (sanitisedBody[f] === '') sanitisedBody[f] = null;
   }
-  // Text fields are stored raw; escaping happens at render time in the frontend (esc()).
   const { updates, vals, nextIdx } = buildPatchQuery(sanitisedBody, patchFields);
   if (req.body.title !== undefined && !req.body.title.trim()) {
     return res.status(400).json({ error: 'Title cannot be empty' });
   }
-  if (updates.length === 0) return res.status(400).json({ error: 'No valid fields to update' });
+  const wantsReorder = (req.body.stage_id !== undefined) || (req.body.position !== undefined);
+  if (updates.length === 0 && !wantsReorder) return res.status(400).json({ error: 'No valid fields to update' });
 
-  // Fetch old values for change detection
+  // Fetch old values for change detection + activity logging
   const oldResult = await pool.query('SELECT * FROM leads WHERE id = $1', [req.params.id]);
   if (oldResult.rows.length === 0) return res.status(404).json({ error: 'Lead not found' });
   const oldLead = oldResult.rows[0];
 
-  updates.push(`updated_at = NOW()`);
-  vals.push(req.params.id);
-  const { rows } = await pool.query(`UPDATE leads SET ${updates.join(', ')} WHERE id = $${nextIdx} RETURNING *`, vals);
+  // Run reorder + field update atomically
+  const conn = await pool.connect();
+  let updatedRow;
+  try {
+    await conn.query('BEGIN');
 
-  // Build change log and create activity entries for key changes
+    if (wantsReorder) {
+      const targetStage = (req.body.stage_id !== undefined && req.body.stage_id !== '')
+        ? req.body.stage_id
+        : oldLead.stage_id;
+      const targetPos = (typeof req.body.position === 'number' && Number.isInteger(req.body.position))
+        ? req.body.position
+        : 0;
+      await reorderInGroup(conn, 'leads', 'stage_id', req.params.id, targetStage, targetPos);
+    }
+
+    if (updates.length > 0) {
+      updates.push(`updated_at = NOW()`);
+      vals.push(req.params.id);
+      await conn.query(`UPDATE leads SET ${updates.join(', ')} WHERE id = $${nextIdx}`, vals);
+    }
+
+    const fresh = await conn.query('SELECT * FROM leads WHERE id = $1', [req.params.id]);
+    updatedRow = fresh.rows[0];
+    await conn.query('COMMIT');
+  } catch (err) {
+    await conn.query('ROLLBACK');
+    log('error', 'Leads', 'PATCH failed', { error: err.message });
+    return res.status(500).json({ error: 'Failed to update lead' });
+  } finally {
+    conn.release();
+  }
+
+  // Build change log against the freshly-updated row (includes stage_id/position)
   const changes = {};
-  for (const f of patchFields) {
-    if (sanitisedBody[f] !== undefined) {
+  const allFields = [...patchFields, 'stage_id', 'position'];
+  for (const f of allFields) {
+    if (sanitisedBody[f] !== undefined || (f === 'position' && req.body.position !== undefined) || (f === 'stage_id' && req.body.stage_id !== undefined)) {
       const oldVal = oldLead[f];
-      const newVal = sanitisedBody[f];
+      const newVal = updatedRow[f];
       if (JSON.stringify(oldVal) !== JSON.stringify(newVal)) {
         changes[f] = { from: oldVal, to: newVal };
       }

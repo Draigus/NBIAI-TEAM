@@ -607,3 +607,122 @@ describe('PATCH /api/candidates/:id — drag-to-reorder', () => {
     ]);
   });
 });
+
+// ============================================================================
+// Leads endpoints
+// ============================================================================
+
+describe('POST /api/leads — inserts at position 0', () => {
+  it('first lead in a stage lands at position 0', async () => {
+    const u = await createTestUser({ role: 'admin' });
+    const token = await mintSession(u.id);
+    const stage = await createTestLeadStage();
+    try {
+      const res = await request(app)
+        .post('/api/leads')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ title: 'Big Deal', stage_id: stage.id });
+      expect(res.status).toBe(201);
+      expect(res.body.position).toBe(0);
+    } finally {
+      await pool.query('DELETE FROM lead_activities WHERE lead_id IN (SELECT id FROM leads WHERE stage_id = $1)', [stage.id]);
+      await pool.query('DELETE FROM leads WHERE stage_id = $1', [stage.id]);
+      await pool.query('DELETE FROM lead_pipeline_stages WHERE id = $1', [stage.id]);
+    }
+  });
+
+  it('subsequent leads push older ones down within the same stage', async () => {
+    const u = await createTestUser({ role: 'admin' });
+    const token = await mintSession(u.id);
+    const stage = await createTestLeadStage();
+    try {
+      for (const title of ['L1', 'L2', 'L3']) {
+        await request(app)
+          .post('/api/leads')
+          .set('Authorization', `Bearer ${token}`)
+          .send({ title, stage_id: stage.id });
+      }
+      const { rows } = await pool.query(
+        `SELECT title, position FROM leads WHERE stage_id = $1 ORDER BY position`,
+        [stage.id]
+      );
+      expect(rows.map(r => r.title)).toEqual(['L3', 'L2', 'L1']);
+    } finally {
+      await pool.query('DELETE FROM lead_activities WHERE lead_id IN (SELECT id FROM leads WHERE stage_id = $1)', [stage.id]);
+      await pool.query('DELETE FROM leads WHERE stage_id = $1', [stage.id]);
+      await pool.query('DELETE FROM lead_pipeline_stages WHERE id = $1', [stage.id]);
+    }
+  });
+});
+
+describe('PATCH /api/leads/:id — drag-to-reorder', () => {
+  it('intra-stage move shifts others', async () => {
+    const u = await createTestUser({ role: 'admin' });
+    const token = await mintSession(u.id);
+    const stage = await createTestLeadStage();
+    const ids = [];
+    try {
+      for (const title of ['L0', 'L1', 'L2']) {
+        const r = await request(app).post('/api/leads')
+          .set('Authorization', `Bearer ${token}`)
+          .send({ title, stage_id: stage.id });
+        ids.push(r.body.id);
+      }
+      const res = await request(app)
+        .patch(`/api/leads/${ids[0]}`)
+        .set('Authorization', `Bearer ${token}`)
+        .send({ position: 0 });
+      expect(res.status).toBe(200);
+      expect(res.body.position).toBe(0);
+      const { rows } = await pool.query(
+        `SELECT title, position FROM leads WHERE stage_id = $1 ORDER BY position`,
+        [stage.id]
+      );
+      expect(rows.map(r => r.title)).toEqual(['L0', 'L2', 'L1']);
+    } finally {
+      await pool.query('DELETE FROM lead_activities WHERE lead_id IN (SELECT id FROM leads WHERE stage_id = $1)', [stage.id]);
+      await pool.query('DELETE FROM leads WHERE stage_id = $1', [stage.id]);
+      await pool.query('DELETE FROM lead_pipeline_stages WHERE id = $1', [stage.id]);
+    }
+  });
+
+  it('cross-stage move closes old gap and opens new slot', async () => {
+    const u = await createTestUser({ role: 'admin' });
+    const token = await mintSession(u.id);
+    const stageA = await createTestLeadStage({ name: 'A-' + Date.now() });
+    const stageB = await createTestLeadStage({ name: 'B-' + Date.now() });
+    try {
+      await request(app).post('/api/leads')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ title: 'A0', stage_id: stageA.id });
+      const r2 = await request(app).post('/api/leads')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ title: 'A1', stage_id: stageA.id }); // A1@0, A0@1
+      await request(app).post('/api/leads')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ title: 'B0', stage_id: stageB.id });
+
+      const res = await request(app)
+        .patch(`/api/leads/${r2.body.id}`)
+        .set('Authorization', `Bearer ${token}`)
+        .send({ stage_id: stageB.id, position: 0 });
+      expect(res.status).toBe(200);
+
+      const a = await pool.query(
+        `SELECT title, position FROM leads WHERE stage_id = $1 ORDER BY position`,
+        [stageA.id]
+      );
+      expect(a.rows).toEqual([{ title: 'A0', position: 0 }]);
+
+      const b = await pool.query(
+        `SELECT title, position FROM leads WHERE stage_id = $1 ORDER BY position`,
+        [stageB.id]
+      );
+      expect(b.rows.map(r => r.title)).toEqual(['A1', 'B0']);
+    } finally {
+      await pool.query('DELETE FROM lead_activities WHERE lead_id IN (SELECT id FROM leads WHERE stage_id IN ($1, $2))', [stageA.id, stageB.id]);
+      await pool.query('DELETE FROM leads WHERE stage_id IN ($1, $2)', [stageA.id, stageB.id]);
+      await pool.query('DELETE FROM lead_pipeline_stages WHERE id IN ($1, $2)', [stageA.id, stageB.id]);
+    }
+  });
+});
