@@ -11,6 +11,14 @@ queue/failed/*.json
 .env
 .env.local
 .env.production
+.env.test
+dashboard-server/.env.test
+
+# Test infrastructure
+dashboard-server/tests/.tmp/
+dashboard-server/tests/.coverage/
+dashboard-server/test-results/
+dashboard-server/playwright-report/
 
 # Node.js
 node_modules/
