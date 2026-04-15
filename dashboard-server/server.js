@@ -33,7 +33,17 @@ require('dotenv').config({ path: require('path').join(__dirname, '.env') }); // 
 require('express-async-errors'); // Must be imported before express to patch async route handlers
 const express = require('express');
 const compression = require('compression');
-const { Pool } = require('pg');
+const { Pool, types: pgTypes } = require('pg');
+// Return Postgres DATE columns (OID 1082) as raw 'YYYY-MM-DD' strings
+// instead of JS Date objects. The default pg driver parses DATE as local
+// midnight then serialises via toISOString(), which shifts the date
+// backwards in every timezone west of UTC and forwards in every timezone
+// east of UTC. For the calendar_events table in particular that turned
+// '2026-04-16' into '2026-04-15T23:00:00.000Z' on the BST dev box and
+// silently dropped events off the calendar grid. String pass-through is
+// the canonical fix — the frontend already treats DATE values as YYYY-MM-DD
+// anywhere it builds a date cell key.
+pgTypes.setTypeParser(1082, v => v);
 const path = require('path');
 const os = require('os');
 const crypto = require('crypto');
