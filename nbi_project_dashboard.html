@@ -3058,6 +3058,13 @@ function getFilteredTasks() {
   if (currentFilter.status && currentFilter.status.length > 0) list = list.filter(t => currentFilter.status.includes(t.status));
   if (currentFilter.health && currentFilter.health.length > 0) list = list.filter(t => currentFilter.health.includes(t.healthState || 'Not set'));
   if (currentFilter.assignee && currentFilter.assignee.length > 0) list = list.filter(t => t.assignees?.some(a => currentFilter.assignee.includes(a)));
+  // "My Work Only" sort option (bug c73af494): when selected, auto-filter to
+  // the current user's tasks even if the People multi-select is empty.
+  // Explicit People filter wins — this only kicks in when no filter is set.
+  if (currentFilter.sort === 'assignee' && (!currentFilter.assignee || currentFilter.assignee.length === 0)) {
+    const myName = (_currentUser && (_currentUser.displayName || _currentUser.display_name)) || '';
+    if (myName) list = list.filter(t => t.assignees?.includes(myName));
+  }
   if (currentFilter.incomplete) list = list.filter(t => t.status !== 'Done' && t.status !== 'Cancelled' && (!t.hoursEstimated || !t.priority || !t.dueDate || !t.healthState));
   if (currentFilter.search) {
     const q = currentFilter.search.toLowerCase();
@@ -4690,7 +4697,7 @@ function renderTaskView(el) {
       <option value="due-desc" ${currentFilter.sort==='due-desc'?'selected':''}>Due Date (latest)</option>
       <option value="priority" ${currentFilter.sort==='priority'?'selected':''}>Priority (highest)</option>
       <option value="status" ${currentFilter.sort==='status'?'selected':''}>Status</option>
-      <option value="assignee" ${currentFilter.sort==='assignee'?'selected':''}>Assignee</option>
+      <option value="assignee" ${currentFilter.sort==='assignee'?'selected':''}>My Work Only</option>
       <option value="hours-desc" ${currentFilter.sort==='hours-desc'?'selected':''}>Hours (most)</option>
       <option value="updated" ${currentFilter.sort==='updated'?'selected':''}>Recently Updated</option>
     </select>
