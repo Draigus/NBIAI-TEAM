@@ -261,6 +261,15 @@ No spec work in the 2026-04-15 planning round. When we reach Phase 6, a dedicate
 ### D86: Master Workload Roadmap — phase-by-phase execution with stop points
 Approved plan `.claude/plans/iridescent-imagining-kitten.md`. 30 tracked items across 10 phases. I execute Phases 1 through 5 continuously with brief check-ins between phases; Phases 6-10 require explicit approval per-phase (they're decision points, not execution slots).
 
+### D89: Warnings and alerts are user-specific (no admin short-circuit)
+Glen's 2026-04-15 directive: "Let's make sure the warning behavior is targeted to specifics of that user, not where they have no ownership of the task or project. So all warnings and alerts should be user-specific."
+
+Previous behaviour: `computeWarnings()` in `nbi_project_dashboard.html` short-circuited for admins, making them see warnings for every non-Done/Cancelled task in the system. This became a firehose once Magnus was promoted to admin (D88).
+
+New behaviour: role-agnostic ownership. A warning fires for the current user only if they are an assignee on the task OR on any ancestor in the task hierarchy (root project, intermediate feature, etc.). This lets PMs who own a project see warnings for every task under it without being listed on each child, while keeping individual contributors scoped to the work they're actually responsible for. Per-root cache prevents re-walking the parent chain on every warning pass. Commit `739ea6a`.
+
+Alerts (notifications) tab was already user-scoped server-side via `GET /api/notifications` with `WHERE username = req.user.username` at server.js:1984. No change needed there.
+
 ### D88: Magnus's account — promoted to admin, custom per-user permissions removed
 Glen's 2026-04-15 directive: "Wipe all the custom permissions I gave Magnus' account down to a normal account and then just add her as an admin. Any hard-coded permissions around that account need to be removed and she needs to follow the normal work path for her account in the tool to be systemic."
 
