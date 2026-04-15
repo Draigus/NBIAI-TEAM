@@ -4456,7 +4456,7 @@ function _myTaskRow(t) {
   const parent = t.parentId ? tasks.find(p => p.id === t.parentId) : null;
   const projectName = parent ? parent.title : '';
 
-  return `<div class="mytask-row" onclick="switchView('tasks');openDetail('${t.id}')" style="cursor:pointer">
+  return `<div class="mytask-row" onclick="navigateToTaskInTree('${t.id}')" style="cursor:pointer">
     <div class="mytask-row__left">
       <div class="mytask-row__badges">${t.priority ? priorityBadgeHtml(t.priority) : ''}${t.healthState ? healthBadgeHtml(t.healthState) : ''}${statusBadgeHtml(t.status)}</div>
       <div class="mytask-row__title">${esc(t.title)}</div>
@@ -5054,7 +5054,9 @@ function calBuildEventDayMap(year, month) {
   const monthStart = new Date(year, month, 1);
   const monthEnd = new Date(year, month + 1, 0);
   _calEvents.forEach(ev => {
-    if (!_calShowOthers && _currentUser && ev.user_id !== _currentUser.id) return;
+    // Firm-closed events apply to the whole team — always visible regardless
+    // of the "Show events from others" toggle (bug e49be05e).
+    if (!_calShowOthers && _currentUser && ev.user_id !== _currentUser.id && ev.event_type !== 'firm_closed') return;
     const start = ev.start_date ? new Date(ev.start_date + 'T00:00:00') : null;
     const end = ev.end_date ? new Date(ev.end_date + 'T00:00:00') : start;
     if (!start) return;
@@ -6881,6 +6883,29 @@ async function onBoardDrop(e) {
  *  at every size).
  *  Preserves scroll position of the actual scrolling element (.tasks-layout__main)
  *  which gets destroyed and recreated by renderContent. */
+/** Jump from My Work → Projects tree view, expanding ancestors and scrolling
+ *  the target task into view (bug 1d3d811e). Without this, clicking a My Work
+ *  item would land on Projects with everything collapsed. */
+function navigateToTaskInTree(taskId) {
+  // Expand every ancestor so the target row is actually rendered
+  let cursor = tasks.find(t => t.id === taskId);
+  while (cursor && cursor.parentId) {
+    collapsedTaskIds.delete(cursor.parentId);
+    cursor = tasks.find(t => t.id === cursor.parentId);
+  }
+  // Also expand the client group header (it's keyed by clientGroupKey)
+  if (cursor) {
+    try { collapsedTaskIds.delete(clientGroupKey(cursor)); } catch (e) {}
+  }
+  switchView('tasks');
+  openDetail(taskId);
+  // After the re-render, scroll the row into view
+  requestAnimationFrame(() => {
+    const row = document.querySelector(`.task-row[data-task-id="${taskId}"]`);
+    if (row) row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+}
+
 function openDetail(id) {
   activeDetailTaskId = id;
   // At ≤1024px the layout is stacked; inline panel is unusable. Use overlay.
@@ -8729,6 +8754,9 @@ function renderPeopleCalendarView(allPeople, assigneeMerge) {
   const monthEnd = new Date(year, monthIdx + 1, 0);
   (_calEvents || []).forEach(ev => {
     if (!ev.start_date) return;
+    // "Show events from others" filter — respects toggle but firm_closed is
+    // always visible since it applies to everyone (bug e49be05e).
+    if (!_calShowOthers && _currentUser && ev.user_id !== _currentUser.id && ev.event_type !== 'firm_closed') return;
     const start = new Date(ev.start_date + 'T00:00:00');
     const end = ev.end_date ? new Date(ev.end_date + 'T00:00:00') : start;
     if (isNaN(start.getTime())) return;
@@ -8768,6 +8796,7 @@ function renderPeopleCalendarView(allPeople, assigneeMerge) {
     <button class="task-subview-btn ${_peopleCalView==='roster'?'active':''}" onclick="_peopleCalView='roster';localStorage.setItem('nbi_people_cal_view','roster');renderContent()">Roster</button>
     <button class="task-subview-btn ${_peopleCalView==='month'?'active':''}" onclick="_peopleCalView='month';localStorage.setItem('nbi_people_cal_view','month');renderContent()">Month</button>
   </div>`;
+  html += `<label style="display:flex;align-items:center;gap:4px;font-size:0.72rem;color:var(--text-muted);cursor:pointer;user-select:none"><input type="checkbox" ${_calShowOthers ? 'checked' : ''} onchange="_calShowOthers=this.checked;_calEventsKey='';renderContent()" style="accent-color:var(--accent)"> Show events from others</label>`;
   html += `<button class="btn btn--sm btn--primary" onclick="openCalendarEventModal()">+ Add Event</button>`;
   // Admin quick-add: declare today as firm-closed in one click. Prefills a
   // firm_closed event on today's date for both start and end. Admin can edit
