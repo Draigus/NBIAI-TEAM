@@ -4135,6 +4135,7 @@ app.get('/api/sync/poll', async (req, res) => {
     endDate: r.end_date || '',
     dependencies: r.dependencies || [],
     practiceArea: r.practice_area || null,
+    position: r.position || 0,
     createdAt: r.created_at,
     updatedAt: r.updated_at,
   }));
@@ -4295,6 +4296,7 @@ app.get('/api/sync/load', async (req, res) => {
     dependencies: r.dependencies || [],
     itemType: r.item_type || 'task',
     practiceArea: r.practice_area || null,
+    position: r.position || 0,
     notes: r.notes || [],
     createdAt: r.created_at,
     updatedAt: r.updated_at,

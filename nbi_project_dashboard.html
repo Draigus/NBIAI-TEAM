@@ -4782,9 +4782,10 @@ function renderBoardView(filtered) {
   </div>`;
   html += '<div class="board">';
   BOARD_COLUMNS.forEach(col => {
-    const laneTasks = col.id === 'blocked'
+    const laneTasks = (col.id === 'blocked'
       ? [...active.filter(t => t.status === 'Blocked'), ...blockedByHealth.filter(t => t.status !== 'Blocked')]
-      : notBlockedByHealth.filter(t => col.statuses.includes(t.status));
+      : notBlockedByHealth.filter(t => col.statuses.includes(t.status)))
+      .sort((a, b) => (a.position || 0) - (b.position || 0));
     const laneTotal = laneTasks.length;
     const cappedTasks = laneTasks.slice(0, LANE_CAP);
     html += `<div class="board__lane">`;
@@ -6621,8 +6622,10 @@ function onBoardDragLeave(e) {
   e.currentTarget.querySelectorAll('.board-drop-indicator').forEach(d => d.remove());
 }
 
-/** Handle board drop — cross-lane changes status, within-lane reorders priority */
-function onBoardDrop(e) {
+/** Handle board drop — cross-lane changes status, within-lane reorders by position.
+ *  Priority is the "client need" classification and is no longer touched by drag (decision D79).
+ *  PATCHes /api/tasks/:id directly with { status, position } and refetches via load() to converge. */
+async function onBoardDrop(e) {
   e.preventDefault();
   const lane = e.currentTarget;
   lane.classList.remove('drag-over');
@@ -6643,15 +6646,11 @@ function onBoardDrop(e) {
   }, { offset: Number.NEGATIVE_INFINITY, el: null }).el;
   const dropIdx = afterCard ? cards.indexOf(afterCard) : cards.length;
 
-  // Map drop position to priority: top = Critical ACT, bottom = Low
-  const priorityMap = ['Critical ACT', 'Urgent', 'High', 'Medium', 'Low'];
-  const newPriority = priorityMap[Math.min(dropIdx, priorityMap.length - 1)] || 'Medium';
-
   const newStatus = laneStatuses.split(',')[0];
   const statusChanged = task.status !== newStatus;
-  const priorityChanged = task.priority !== newPriority;
+  const positionChanged = (task.position || 0) !== dropIdx;
 
-  if (!statusChanged && !priorityChanged) { boardDraggedTaskId = null; return; }
+  if (!statusChanged && !positionChanged) { boardDraggedTaskId = null; return; }
 
   // Hard-block: cannot drag to Done lane if prerequisites are incomplete
   if (statusChanged && newStatus === 'Done') {
@@ -6664,15 +6663,43 @@ function onBoardDrop(e) {
     }
   }
 
-  const oldStatus = task.status;
-  if (statusChanged) task.status = newStatus;
-  if (priorityChanged) task.priority = newPriority;
-  task.updatedAt = new Date().toISOString();
-  markDirty(boardDraggedTaskId);
-  save(); renderSidebarCounts(); renderContent();
-  if (statusChanged) toast(`"${task.title}" moved to ${newStatus}${priorityChanged ? ' (priority: ' + newPriority + ')' : ''}`);
-  else toast(`"${task.title}" priority: ${newPriority}`);
+  const taskId = boardDraggedTaskId;
   boardDraggedTaskId = null;
+
+  // Optimistic local update so the user sees the move immediately
+  if (statusChanged) task.status = newStatus;
+  task.position = dropIdx;
+  task.updatedAt = new Date().toISOString();
+  renderSidebarCounts(); renderContent();
+
+  // PATCH the server, then refetch so other shifted positions converge
+  try {
+    const patch = { position: dropIdx };
+    if (statusChanged) patch.status = newStatus;
+    const resp = await authFetch(`/api/tasks/${taskId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(patch),
+    });
+    if (!resp.ok) {
+      let msg = 'Failed to move task';
+      try { const j = await resp.json(); if (j && j.error) msg = j.error; } catch (_) {}
+      toast(msg, 'error');
+      // Reload to recover canonical state
+      if (typeof load === 'function') await load();
+      renderContent();
+      return;
+    }
+    if (statusChanged) toast(`"${task.title}" moved to ${newStatus}`);
+    // Refresh local cache from server so shifted siblings get correct positions
+    if (typeof load === 'function') await load();
+    renderContent();
+  } catch (err) {
+    console.error('Board drop PATCH failed', err);
+    toast('Failed to move task', 'error');
+    if (typeof load === 'function') await load();
+    renderContent();
+  }
 }
 
 // ==================== DETAIL PANEL ====================
