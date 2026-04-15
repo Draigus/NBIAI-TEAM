@@ -5459,12 +5459,25 @@ app.post('/api/bug-reports', async (req, res) => {
   const MAX_SCREENSHOT_BYTES = 5 * 1024 * 1024;
   const safeScreenshot = (screenshot && screenshot.length <= MAX_SCREENSHOT_BYTES) ? screenshot : null;
 
-  const { rows } = await pool.query(
-    `INSERT INTO bug_reports (user_id, type, title, description, page, screenshot, priority)
-     VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
-    [req.user.id, rType, title.trim(), description || null, page || null, safeScreenshot, safePriority]
-  );
-  res.status(201).json(rows[0]);
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    // Shift everything in the target column ('open' is the default for new bugs) down by 1
+    await shiftForInsert(client, 'bug_reports', 'status', 'open');
+    const { rows } = await client.query(
+      `INSERT INTO bug_reports (user_id, type, title, description, page, screenshot, priority, position)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, 0) RETURNING *`,
+      [req.user.id, rType, title.trim(), description || null, page || null, safeScreenshot, safePriority]
+    );
+    await client.query('COMMIT');
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    await client.query('ROLLBACK');
+    log('error', 'BugReports', 'POST failed', { error: err.message });
+    res.status(500).json({ error: 'Failed to create bug report' });
+  } finally {
+    client.release();
+  }
 });
 
 /** PATCH /api/bug-reports/:id — Update status, priority, title, and/or description.
@@ -5473,8 +5486,8 @@ app.patch('/api/bug-reports/:id', async (req, res) => {
   if (!req.user) return res.status(401).json({ error: 'Authentication required' });
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid report ID' });
   const { status, description, priority, title } = req.body;
-  if (!status && description === undefined && priority === undefined && title === undefined) {
-    return res.status(400).json({ error: 'status, title, description, or priority required' });
+  if (!status && description === undefined && priority === undefined && title === undefined && req.body.position === undefined) {
+    return res.status(400).json({ error: 'status, title, description, priority, or position required' });
   }
 
   const isAdmin = req.user.role === 'admin';
@@ -5513,8 +5526,7 @@ app.patch('/api/bug-reports/:id', async (req, res) => {
   if (status) {
     const validStatuses = ['open', 'in_progress', 'please_review', 'resolved', 'wontfix'];
     if (!validStatuses.includes(status)) return res.status(400).json({ error: `Invalid status. Must be one of: ${validStatuses.join(', ')}` });
-    sets.push(`status = $${idx++}`);
-    vals.push(status);
+    // Status is routed through reorderInGroup below — do NOT add to sets
   }
   if (priority !== undefined) {
     const validPriorities = ['critical', 'high', 'medium', 'low', null];
@@ -5538,9 +5550,51 @@ app.patch('/api/bug-reports/:id', async (req, res) => {
     vals.push(description);
   }
 
-  vals.push(req.params.id);
-  const { rows } = await pool.query(`UPDATE bug_reports SET ${sets.join(', ')} WHERE id = $${idx} RETURNING *`, vals);
-  await auditLog('bug_report', req.params.id, 'update', req.user?.displayName || 'unknown', { status, priority, description: description !== undefined, title: title !== undefined });
+  // Position / status routed through the reorder helper inside a transaction
+  const wantsReorder = (status !== undefined) || (req.body.position !== undefined);
+  const newPosition = req.body.position;
+
+  const client = await pool.connect();
+  let resultRow;
+  try {
+    await client.query('BEGIN');
+
+    if (wantsReorder) {
+      const targetStatus = status || report.old_status;
+      const targetPos = (typeof newPosition === 'number' && Number.isInteger(newPosition))
+        ? newPosition
+        : 0;
+      await reorderInGroup(client, 'bug_reports', 'status', req.params.id, targetStatus, targetPos);
+    }
+
+    if (vals.length > 0) {
+      vals.push(req.params.id);
+      await client.query(`UPDATE bug_reports SET ${sets.join(', ')} WHERE id = $${idx}`, vals);
+    } else if (sets.length > 1) {
+      // sets has only updated_at if no body fields — only worth touching if reorder didn't already update_at
+      // (reorderInGroup already updates updated_at, so skip this when wantsReorder)
+      if (!wantsReorder) {
+        await client.query(`UPDATE bug_reports SET updated_at = NOW() WHERE id = $1`, [req.params.id]);
+      }
+    }
+
+    const fresh = await client.query('SELECT * FROM bug_reports WHERE id = $1', [req.params.id]);
+    resultRow = fresh.rows[0];
+    await client.query('COMMIT');
+  } catch (err) {
+    await client.query('ROLLBACK');
+    log('error', 'BugReports', 'PATCH failed', { error: err.message });
+    return res.status(500).json({ error: 'Failed to update bug report' });
+  } finally {
+    client.release();
+  }
+
+  await auditLog('bug_report', req.params.id, 'update', req.user?.displayName || 'unknown', {
+    status, priority,
+    description: description !== undefined,
+    title: title !== undefined,
+    position: newPosition !== undefined ? newPosition : undefined,
+  });
 
   // Send notifications for status and priority changes
   const notifyUser = report.reporter_username;
@@ -5561,7 +5615,7 @@ app.patch('/api/bug-reports/:id', async (req, res) => {
     } catch (e) { log('error', 'BugReports', 'Failed to send notification', { error: e.message }); }
   }
 
-  res.json(rows[0]);
+  res.json(resultRow);
 });
 
 /** POST /api/bug-reports/:id/notify-review — Send a notification to the report submitter (admin only) */

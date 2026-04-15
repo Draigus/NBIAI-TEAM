@@ -245,3 +245,172 @@ describe('reorderInGroup', () => {
     ]);
   });
 });
+
+// ============================================================================
+// 2. POST integration tests
+// ============================================================================
+
+describe('POST /api/bug-reports — inserts at position 0', () => {
+  it('first bug in a status lands at position 0', async () => {
+    const u = await createTestUser({ role: 'admin' });
+    const token = await mintSession(u.id);
+    const res = await request(app)
+      .post('/api/bug-reports')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ type: 'bug', title: 'first', description: 'first' });
+    expect(res.status).toBe(201);
+    expect(res.body.position).toBe(0);
+  });
+
+  it('subsequent bugs push older ones down', async () => {
+    const u = await createTestUser({ role: 'admin' });
+    const token = await mintSession(u.id);
+    for (const title of ['first', 'second', 'third']) {
+      const res = await request(app)
+        .post('/api/bug-reports')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ type: 'bug', title, description: '' });
+      expect(res.status).toBe(201);
+    }
+    const { rows } = await pool.query(
+      `SELECT title, position FROM bug_reports WHERE status = 'open' ORDER BY position`
+    );
+    expect(rows).toEqual([
+      { title: 'third',  position: 0 },
+      { title: 'second', position: 1 },
+      { title: 'first',  position: 2 },
+    ]);
+  });
+
+  it('insert into one status does not touch another status', async () => {
+    const u = await createTestUser({ role: 'admin' });
+    await pool.query(
+      `INSERT INTO bug_reports (user_id, type, title, description, status, position)
+       VALUES ($1, 'bug', 'old-resolved', '', 'resolved', 0)`,
+      [u.id]
+    );
+    const token = await mintSession(u.id);
+    const res = await request(app)
+      .post('/api/bug-reports')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ type: 'bug', title: 'new-open', description: '' });
+    expect(res.status).toBe(201);
+    const { rows } = await pool.query(
+      `SELECT title, status, position FROM bug_reports ORDER BY status, position`
+    );
+    expect(rows).toEqual([
+      { title: 'new-open',     status: 'open',     position: 0 },
+      { title: 'old-resolved', status: 'resolved', position: 0 },
+    ]);
+  });
+});
+
+// ============================================================================
+// 3. PATCH integration tests
+// ============================================================================
+
+describe('PATCH /api/bug-reports/:id — drag-to-reorder', () => {
+  async function makeBugs(token, count) {
+    const ids = [];
+    for (let i = 0; i < count; i++) {
+      const res = await request(app)
+        .post('/api/bug-reports')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ type: 'bug', title: `bug${i}`, description: '' });
+      ids.push(res.body.id);
+    }
+    // After this loop: bug_{count-1}@0 ... bug_0@count-1
+    return ids;
+  }
+
+  it('intra-column move shifts others', async () => {
+    const u = await createTestUser({ role: 'admin' });
+    const token = await mintSession(u.id);
+    const ids = await makeBugs(token, 4);
+
+    const res = await request(app)
+      .patch(`/api/bug-reports/${ids[0]}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ position: 0 });
+    expect(res.status).toBe(200);
+    expect(res.body.position).toBe(0);
+
+    const { rows } = await pool.query(
+      `SELECT title, position FROM bug_reports WHERE status = 'open' ORDER BY position`
+    );
+    expect(rows).toEqual([
+      { title: 'bug0', position: 0 },
+      { title: 'bug3', position: 1 },
+      { title: 'bug2', position: 2 },
+      { title: 'bug1', position: 3 },
+    ]);
+  });
+
+  it('cross-column move with explicit position', async () => {
+    const u = await createTestUser({ role: 'admin' });
+    const token = await mintSession(u.id);
+    const ids = await makeBugs(token, 3);
+
+    const res = await request(app)
+      .patch(`/api/bug-reports/${ids[1]}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ status: 'in_progress', position: 0 });
+    expect(res.status).toBe(200);
+    expect(res.body.status).toBe('in_progress');
+    expect(res.body.position).toBe(0);
+
+    const open = await pool.query(
+      `SELECT title, position FROM bug_reports WHERE status = 'open' ORDER BY position`
+    );
+    expect(open.rows).toEqual([
+      { title: 'bug2', position: 0 },
+      { title: 'bug0', position: 1 },
+    ]);
+    const inProgress = await pool.query(
+      `SELECT title, position FROM bug_reports WHERE status = 'in_progress' ORDER BY position`
+    );
+    expect(inProgress.rows).toEqual([
+      { title: 'bug1', position: 0 },
+    ]);
+  });
+
+  it('status change without explicit position lands at 0 of new column', async () => {
+    const u = await createTestUser({ role: 'admin' });
+    const token = await mintSession(u.id);
+    const ids = await makeBugs(token, 3);
+
+    await pool.query(
+      `INSERT INTO bug_reports (user_id, type, title, description, status, position)
+       VALUES ($1, 'bug', 'old-resolved', '', 'resolved', 0)`, [u.id]
+    );
+
+    const res = await request(app)
+      .patch(`/api/bug-reports/${ids[1]}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ status: 'resolved' });
+    expect(res.status).toBe(200);
+    expect(res.body.position).toBe(0);
+
+    const resolved = await pool.query(
+      `SELECT title, position FROM bug_reports WHERE status = 'resolved' ORDER BY position`
+    );
+    expect(resolved.rows).toEqual([
+      { title: 'bug1',         position: 0 },
+      { title: 'old-resolved', position: 1 },
+    ]);
+  });
+
+  it('PATCH with neither status nor position updates other fields', async () => {
+    const u = await createTestUser({ role: 'admin' });
+    const token = await mintSession(u.id);
+    const ids = await makeBugs(token, 2);
+
+    const res = await request(app)
+      .patch(`/api/bug-reports/${ids[0]}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ title: 'renamed' });
+    expect(res.status).toBe(200);
+    expect(res.body.title).toBe('renamed');
+    expect(res.body.position).toBe(1);
+  });
+});
