@@ -978,6 +978,26 @@ span.fin-editable { display: inline-block; position: relative; }
   .finance-view, .finance-view__content, .finance-view .report { max-width: 100%; min-width: 0; overflow-x: auto; }
   .finance-view table, .report table { display: block; overflow-x: auto; max-width: 100%; }
   .report, .report__section { max-width: 100%; min-width: 0; }
+  /* G3 mobile pass (2026-04-15): kanban boards that lacked mobile handling.
+     Bug Tracker, Hiring, and Tasks Board all use a horizontal flex strip
+     with fixed-width lanes (280/240/200px). On 414px (iPhone 11 portrait)
+     that showed one lane plus a sliver of the next — awkward and easy to
+     miss the scrollbar. Apply the same scroll-snap-type: x mandatory
+     pattern Leads already uses so each lane snaps to the viewport. */
+  .bug-tracker__kanban { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; gap: 8px; padding-bottom: 8px; }
+  .bug-tracker__kanban > .bug-lane { flex: 0 0 100%; min-width: 100%; max-width: 100%; scroll-snap-align: start; }
+  .hiring-kanban { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; gap: 8px; padding-bottom: 8px; }
+  .hiring-kanban > .hiring-lane { flex: 0 0 100%; min-width: 100%; max-width: 100%; scroll-snap-align: start; }
+  .board { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; gap: 8px; }
+  .board > .board__lane { flex: 0 0 92%; min-width: 92%; max-width: 92%; scroll-snap-align: start; }
+  /* People tab — G4 sort toolbar must wrap on narrow screens so the
+     Name / Tasks / Hours Spent / Hours Est buttons stack cleanly. */
+  .report__section .task-subview-toggle { flex-wrap: wrap; gap: 4px; }
+  /* Workload Overview bar chart rows — keep the name column narrow
+     enough that the bar still has room to render. */
+  .rw-name { min-width: 72px !important; font-size: 0.72rem; }
+  .rw-bar { height: 16px; }
+  .rw-nums { font-size: 0.68rem; gap: 4px; }
 }
 
 /* Hamburger sidebar toggle for mobile */
