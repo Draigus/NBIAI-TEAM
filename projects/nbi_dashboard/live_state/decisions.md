@@ -233,3 +233,18 @@ Glen approved the design for drag-to-reorder on Tasks / Bug Tracker / Hiring / L
 
 ### D80: Build Automated Test Suite Before Kanban Implementation
 Glen pushed back on my too-fast deferral of frontend tests and approved building a real test suite as a predecessor to the Kanban work. Stack: Vitest + supertest for server unit tests, Playwright + chromium for frontend E2E. Six retroactive tests covering existing shipped behaviour: smoke (proves harness detects failures), double-escape round-trip, auth flow, migration runner idempotency, plus E2E coverage for auth, tasks, and bugs critical flows. Going forward every server-side feature is written test-first. Frontend tests via Playwright, server tests via Vitest. Built in the `test-infra-setup` worktree as a single feature branch. Spec at `projects/nbi_dashboard/specs/2026-04-15-test-infrastructure-design.md`, plan at `projects/nbi_dashboard/plans/2026-04-15-test-infrastructure-plan.md`.
+
+## 2026-04-15 (Session post-test-infra — Kanban impl + overnight backlog)
+
+### D81: Kanban Drag-To-Reorder Implementation Plan Written
+Wrote the test-first implementation plan for D79 at `projects/nbi_dashboard/plans/2026-04-15-kanban-drag-reorder.md`. Plan structure: Phase 0 fixtures → Phase 1 migration 021 → Phase 2 helpers (`shiftForInsert`, `reorderInGroup`) → Phases 3-6 server endpoints (bug_reports, tasks, candidates, leads) → Phases 7-10 frontend (Bug Tracker new drag, Tasks/Leads remove priority-as-position, Hiring extend with intra-stage drop) → Phase 11 wrap-up + merge. Every server task is test-first. Frontend tasks include Playwright specs.
+
+### D82: Glen's Overnight Backlog (sent 2026-04-15 before bed, "just keep working")
+Glen sent six follow-up requests before going to sleep, captured in `pending_tasks.md` as G1-G5 (G3 is split: mobile UI is a single audit, no sub-items). Rough order from smallest to largest:
+1. **G1**: Collapsible left sidebar with practice/client abbreviations (CH/LH/SU/GS/NSI/PS).
+2. **G2**: Practice filters — only "Organizational" and "Gaming" should exist; remove "General"; tag all current work as Gaming.
+3. **G4**: Sortable People-tab tables (workload, capacity, hours per client, task summary).
+4. **G3**: Mobile UI pass for iPhone 11 viewport (414×896).
+5. **G5**: Client-scoped users (e.g. Lorenza for Couch Heroes) — biggest item, requires spec + plan first. Effectively a multi-day project.
+
+Glen's instruction was "just keep working" overnight. Order of execution: finish Kanban → G1 → G2 → G4 → G3 → G5 spec/plan. Continue committing frequently and update live_state after each merge.
