@@ -3836,6 +3836,28 @@ app.post('/api/sync/changes', async (req, res) => {
       const t = ch.data || {};
 
       if (ch.action === 'upsert' && ch.entity === 'task') {
+        // Defensive normalisation: Postgres text[] columns must receive a flat
+        // 1-D array of strings. The frontend has been observed sending [[]]
+        // (nested empty array) which Postgres parses as the invalid array
+        // literal "{{}}". Flatten + filter-string + log when we had to fix it,
+        // so we keep visibility into frontend sources still producing bad data
+        // while the server stops throwing.
+        const normaliseStringArray = (val, fieldName) => {
+          if (val == null) return [];
+          if (!Array.isArray(val)) return [];
+          // Fast path: already flat 1-D string array
+          const isFlat = val.every(x => typeof x === 'string');
+          if (isFlat) return val;
+          // Flatten recursively and keep only non-empty strings
+          const flat = val.flat(Infinity).filter(x => typeof x === 'string' && x.length > 0);
+          log('warn', 'Sync', 'Normalised non-flat array field', {
+            taskId: t.id, field: fieldName, before: val, after: flat
+          });
+          return flat;
+        };
+        t.assignees = normaliseStringArray(t.assignees, 'assignees');
+        t.dependencies = normaliseStringArray(t.dependencies, 'dependencies');
+
         // Resolve client name to ID
         let clientId = null;
         if (t.client && clientMap[t.client]) {
