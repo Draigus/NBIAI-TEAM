@@ -13496,7 +13496,7 @@ function onHiringLaneDragLeave(ev) {
   if (!related || !lane.contains(related)) lane.classList.remove('drag-over');
 }
 
-/** Handle the drop — grab the candidate id from dataTransfer and PATCH the stage. */
+/** Handle the drop — compute drop index in the target lane and PATCH stage + position. */
 async function onHiringLaneDrop(ev, newStage) {
   ev.preventDefault();
   const lane = ev.currentTarget.closest('.hiring-lane');
@@ -13505,9 +13505,39 @@ async function onHiringLaneDrop(ev, newStage) {
   if (!candidateId) return;
   const candidate = (_candidatesData || []).find(c => c.id === candidateId);
   if (!candidate) { toast('Candidate not found', 'error'); return; }
-  if (candidate.stage === newStage) return; // dropped in the same lane
-  // Call the existing update path so the server validates and persists
-  await updateCandidateField(candidateId, 'stage', newStage);
+
+  // Compute the drop index against visible cards in the target lane body
+  const body = ev.currentTarget;
+  const cards = [...body.querySelectorAll('.hiring-card:not(.dragging)')];
+  const afterCard = cards.reduce((closest, card) => {
+    const box = card.getBoundingClientRect();
+    const offset = ev.clientY - box.top - box.height / 2;
+    if (offset < 0 && offset > closest.offset) return { offset, el: card };
+    return closest;
+  }, { offset: Number.NEGATIVE_INFINITY, el: null }).el;
+  const dropIdx = afterCard ? cards.indexOf(afterCard) : cards.length;
+
+  const patch = { position: dropIdx };
+  if (candidate.stage !== newStage) patch.stage = newStage;
+
+  try {
+    const res = await authFetch(`/api/candidates/${candidateId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(patch),
+    });
+    if (!res.ok) {
+      toast('Failed to move candidate', 'error');
+      return;
+    }
+    if (typeof loadCandidates === 'function') {
+      await loadCandidates();
+    }
+    renderContent();
+  } catch (e) {
+    console.error('Hiring drop failed', e);
+    toast('Failed to move candidate', 'error');
+  }
 }
 
 function renderHiringView(container) {
@@ -13569,7 +13599,8 @@ function renderHiringView(container) {
     // updateCandidateField('stage', newStage).
     html += `<div class="hiring-kanban" role="list" aria-label="Hiring pipeline">`;
     HIRING_STAGES.forEach(stage => {
-      const stageCandidates = filtered.filter(c => c.stage === stage);
+      const stageCandidates = filtered.filter(c => c.stage === stage)
+        .sort((a, b) => (a.position || 0) - (b.position || 0));
       html += `<section class="hiring-lane" data-stage="${stage}" role="listitem" aria-label="${esc(HIRING_STAGE_LABELS[stage])} lane, ${stageCandidates.length} candidates">
         <div class="hiring-lane__header hiring-lane__header--${stage}">
           <span>${esc(HIRING_STAGE_LABELS[stage] || stage)}</span>

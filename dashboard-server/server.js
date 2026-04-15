@@ -5512,12 +5512,12 @@ app.get('/api/bug-reports', async (req, res) => {
   const whereClause = where.length > 0 ? 'WHERE ' + where.join(' AND ') : '';
   const { rows } = await pool.query(`
     SELECT b.id, b.user_id, b.type, b.title, b.description, b.page,
-           b.status, b.priority, b.created_at, b.updated_at,
+           b.status, b.priority, b.position, b.created_at, b.updated_at,
            (b.screenshot IS NOT NULL) AS has_screenshot,
            u.display_name AS reporter_name,
            (SELECT COUNT(*) FROM bug_report_comments c WHERE c.report_id = b.id)::int AS comment_count
     FROM bug_reports b LEFT JOIN users u ON b.user_id = u.id
-    ${whereClause} ORDER BY b.created_at DESC
+    ${whereClause} ORDER BY b.status, b.position, b.created_at DESC
   `, vals);
   res.json({ reports: rows });
 });
@@ -5955,7 +5955,7 @@ app.get('/api/candidates', async (req, res) => {
   try {
     const { rows } = await pool.query(`
       SELECT ca.id, ca.position_id, ca.client_id, ca.name, ca.role, ca.linkedin_url,
-             ca.cv_filename, ca.due_date, ca.stage, ca.notes, ca.created_at, ca.updated_at,
+             ca.cv_filename, ca.due_date, ca.stage, ca.notes, ca.position, ca.created_at, ca.updated_at,
              c.name AS client_name,
              p.title AS position_title,
              (ca.cv_filename IS NOT NULL) AS has_cv
