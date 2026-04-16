@@ -7670,6 +7670,155 @@ async function matchSubjectToTask(subject) {
   };
 }
 
+// ==================== INBOUND EMAIL PROCESSING ====================
+
+/**
+ * Extract <a href="...">text</a> links from HTML.
+ * Returns [{url, title}].
+ */
+function extractLinksFromHtml(html) {
+  const links = [];
+  const re = /<a\s[^>]*href=["']([^"']+)["'][^>]*>(.*?)<\/a>/gi;
+  let match;
+  while ((match = re.exec(html)) !== null) {
+    const url = match[1].trim();
+    const title = match[2].replace(/<[^>]*>/g, '').trim();
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      links.push({ url, title: title.slice(0, 255) || url });
+    }
+  }
+  return links;
+}
+
+/**
+ * Process a single inbound email message from Graph API.
+ * opts.skipGraphApi = true to skip marking as read + downloading attachments (for testing).
+ * Returns { matched, skipped, taskId, confidence, error }
+ */
+async function processOneInboundEmail(message, opts = {}) {
+  const fromAddr = message.from?.emailAddress?.address || '';
+  const emailFrom = process.env.EMAIL_FROM || 'nbihub@nbi-consulting.com';
+
+  // Skip emails from ourselves
+  if (fromAddr.toLowerCase() === emailFrom.toLowerCase()) {
+    return { skipped: true, reason: 'self' };
+  }
+
+  const subject = message.subject || '(no subject)';
+  const bodyHtml = message.body?.content || '';
+  const senderName = message.from?.emailAddress?.name || fromAddr;
+
+  // Step 1: Match subject to client/task
+  const match = await matchSubjectToTask(subject);
+
+  if (!match.taskId) {
+    log('warn', 'InboundEmail', 'No match for email', { subject, from: fromAddr });
+    return { matched: false, confidence: 'none', subject };
+  }
+
+  const uploadedBy = match.confidence === 'high'
+    ? 'nbihub (email)'
+    : 'nbihub (email - verify match)';
+
+  // Step 2: Save email body as HTML file
+  const timestamp = Date.now();
+  const randomHex = crypto.randomBytes(4).toString('hex');
+  const htmlFilename = `${timestamp}-${randomHex}.html`;
+  const htmlPath = path.join(uploadDir, htmlFilename);
+  const originalName = `Email from ${senderName} - ${subject.slice(0, 100)}.html`;
+
+  fs.writeFileSync(htmlPath, bodyHtml, 'utf8');
+  const htmlSize = Buffer.byteLength(bodyHtml, 'utf8');
+
+  await pool.query(
+    `INSERT INTO attachments (entity_type, entity_id, filename, original_name, size_bytes, mime_type, uploaded_by)
+     VALUES ('task', $1, $2, $3, $4, 'text/html', $5)`,
+    [match.taskId, htmlFilename, originalName, htmlSize, uploadedBy]
+  );
+
+  // Step 3: Extract and store URL links
+  const links = extractLinksFromHtml(bodyHtml);
+  for (const link of links) {
+    await pool.query(
+      `INSERT INTO attachments (entity_type, entity_id, filename, original_name, size_bytes, mime_type, uploaded_by, link_url, link_title)
+       VALUES ('task', $1, NULL, NULL, NULL, 'link', $2, $3, $4)`,
+      [match.taskId, uploadedBy, link.url, link.title]
+    );
+  }
+
+  // Step 4: Download file attachments via Graph API (if any)
+  if (message.hasAttachments && !opts.skipGraphApi) {
+    try {
+      const token = await _getGraphToken();
+      const attRes = await fetch(
+        `https://graph.microsoft.com/v1.0/users/${emailFrom}/messages/${message.id}/attachments`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (attRes.ok) {
+        const attData = await attRes.json();
+        for (const att of (attData.value || [])) {
+          if (att['@odata.type'] !== '#microsoft.graph.fileAttachment') continue;
+          if (!att.contentBytes) continue;
+          const attSize = att.size || 0;
+          if (attSize > 25 * 1024 * 1024) {
+            log('warn', 'InboundEmail', 'Skipping oversized attachment', { name: att.name, size: attSize });
+            continue;
+          }
+          const ext = path.extname(att.name || '.bin');
+          const attFilename = `${Date.now()}-${crypto.randomBytes(4).toString('hex')}${ext}`;
+          const attPath = path.join(uploadDir, attFilename);
+          fs.writeFileSync(attPath, Buffer.from(att.contentBytes, 'base64'));
+
+          await pool.query(
+            `INSERT INTO attachments (entity_type, entity_id, filename, original_name, size_bytes, mime_type, uploaded_by)
+             VALUES ('task', $1, $2, $3, $4, $5, $6)`,
+            [match.taskId, attFilename, att.name, attSize, att.contentType || 'application/octet-stream', uploadedBy]
+          );
+        }
+      }
+    } catch (e) {
+      log('error', 'InboundEmail', 'Failed to download attachments', { messageId: message.id, error: e.message });
+    }
+  }
+
+  // Step 5: Create notification for low-confidence matches
+  if (match.confidence === 'low') {
+    const { rows: admins } = await pool.query("SELECT username FROM users WHERE role = 'admin' AND is_active = true");
+    for (const admin of admins) {
+      await createNotification(
+        admin.username, 'email', 'Email auto-matched (low confidence)',
+        `"${subject}" from ${senderName} was matched to ${match.matchedClient} / ${match.matchedTask}. Please verify.`,
+        null, true
+      );
+    }
+  }
+
+  // Step 6: Mark email as read in Graph API
+  if (!opts.skipGraphApi) {
+    try {
+      const token = await _getGraphToken();
+      await fetch(
+        `https://graph.microsoft.com/v1.0/users/${emailFrom}/messages/${message.id}`,
+        {
+          method: 'PATCH',
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ isRead: true })
+        }
+      );
+    } catch (e) {
+      log('error', 'InboundEmail', 'Failed to mark email as read', { messageId: message.id, error: e.message });
+    }
+  }
+
+  log('info', 'InboundEmail', 'Processed email', {
+    subject, from: fromAddr, taskId: match.taskId,
+    client: match.matchedClient, task: match.matchedTask,
+    confidence: match.confidence, links: links.length,
+  });
+
+  return { matched: true, taskId: match.taskId, confidence: match.confidence, client: match.matchedClient, task: match.matchedTask };
+}
+
 // ==================== EMAIL CRON: DUE/LATE WARNINGS ====================
 
 /**
@@ -7848,3 +7997,5 @@ module.exports.buildEmailSection = buildEmailSection;
 module.exports.buildDueWarningEmails = buildDueWarningEmails;
 module.exports.buildPmReportEmails = buildPmReportEmails;
 module.exports.matchSubjectToTask = matchSubjectToTask;
+module.exports.processOneInboundEmail = processOneInboundEmail;
+module.exports.extractLinksFromHtml = extractLinksFromHtml;
