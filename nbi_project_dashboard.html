@@ -15227,6 +15227,12 @@ function renderSettings(el) {
       <div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:12px">Control which pages are visible to non-admin users. Admins always have access.</div>
       <div id="pagePermsContainer">Loading permissions...</div>
     </div>`;
+    html += `<div class="settings__group"><h2>Send System Message</h2>
+      <div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:12px">Broadcast a notification to all active users. Useful for announcements or planned downtime.</div>
+      <input type="text" id="sysMessageTitle" placeholder="Message title" style="display:block;width:100%;box-sizing:border-box;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-size:0.9rem;margin-bottom:8px">
+      <textarea id="sysMessageBody" placeholder="Message body" rows="3" style="display:block;width:100%;box-sizing:border-box;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-size:0.9rem;resize:vertical;margin-bottom:8px"></textarea>
+      <button class="btn btn--primary btn--sm" onclick="sendSystemMessage()">Send to All Users</button>
+    </div>`;
   }
 
   // === CONFIGURATION TAB ===
@@ -15391,6 +15397,33 @@ function addClient() {
 }
 /** Remove a client from the known clients list */
 function removeClient(c) { settings.knownClients = settings.knownClients.filter(x => x !== c); save(); renderSettings(document.getElementById('mainContent')); }
+
+/** Send a system-wide broadcast notification to all active users (admin only) */
+async function sendSystemMessage() {
+  const title = (document.getElementById('sysMessageTitle') || {}).value?.trim() || '';
+  const body = (document.getElementById('sysMessageBody') || {}).value?.trim() || '';
+  if (!title || !body) { showToast('Title and message are both required', 'error'); return; }
+  try {
+    const res = await authFetch('/api/notifications/system', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, message: body })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      showToast(`System message sent to ${data.sent} user${data.sent === 1 ? '' : 's'}`);
+      const titleEl = document.getElementById('sysMessageTitle');
+      const bodyEl = document.getElementById('sysMessageBody');
+      if (titleEl) titleEl.value = '';
+      if (bodyEl) bodyEl.value = '';
+    } else {
+      const err = await res.json().catch(() => ({}));
+      showToast(err.error || 'Failed to send message', 'error');
+    }
+  } catch (e) {
+    showToast('Failed to send message', 'error');
+  }
+}
 
 // Check if current user has access to a permission-gated page
 /** Check whether the current user has access to a given page based on RBAC settings */
@@ -17656,6 +17689,16 @@ function computeWarnings() {
       warning = { severity: 'high', type: 'blocked', label: 'Blocked' };
     }
 
+    // Missing fields on directly-assigned active tasks
+    if (!warning && isAssigned) {
+      if (t.status === 'In progress' && (!t.dueDate || t.dueDate === '')) {
+        warning = { severity: 'medium', type: 'missing_field', label: 'No due date set' };
+      } else if ((t.status === 'In progress' || t.status === 'Not started') &&
+                 (!Array.isArray(t.assignees) || t.assignees.length === 0)) {
+        warning = { severity: 'medium', type: 'missing_field', label: 'No assignee' };
+      }
+    }
+
     if (warning) {
       warnings.push({
         id: t.id,
@@ -17742,11 +17785,21 @@ async function renderWarnAlertContent() {
   if (warnTabCount) warnTabCount.textContent = warnings.length > 0 ? String(warnings.length) : '';
 
   if (_warnAlertTab === 'warnings') {
-    if (warnings.length === 0) {
+    // Fetch verify-match items from the server alongside the computed warnings
+    let verifyMatches = [];
+    try {
+      verifyMatches = await apiCall('/api/attachments/verify-matches') || [];
+    } catch (e) { /* non-fatal */ }
+
+    if (warnings.length === 0 && verifyMatches.length === 0) {
       list.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:24px;font-size:0.82rem">No warnings. Nice work.</div>';
       return;
     }
-    list.innerHTML = warnings.map(w => `
+    // Update badge to include verify-match count
+    const totalWarnCount = warnings.length + verifyMatches.length;
+    if (warnTabCount) warnTabCount.textContent = totalWarnCount > 0 ? String(totalWarnCount) : '';
+
+    const taskWarningsHtml = warnings.map(w => `
       <div class="warn-item warn-item--${w.severity}">
         <button type="button" class="warn-item__main" aria-label="${esc(w.severity.toUpperCase())}: ${esc(w.title)}${w.client ? ' for ' + esc(w.client) : ''}" onclick="openDetailOverlay('${escAttrJs(w.id)}');toggleWarnAlertSidebar()">
           <div class="warn-item__header">
@@ -17761,6 +17814,27 @@ async function renderWarnAlertContent() {
         </div>
       </div>
     `).join('');
+
+    const verifyMatchHtml = verifyMatches.length === 0 ? '' :
+      `<div style="font-size:0.7rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;padding:8px 12px 4px;margin-top:${warnings.length > 0 ? '8px' : '0'}">Email attachments needing verification (${verifyMatches.length})</div>` +
+      verifyMatches.map(m => {
+        const label = m.entity_name ? esc(m.entity_name) : (m.entity_type + ' attachment');
+        const fileName = m.original_name ? esc(m.original_name) : 'Untitled';
+        return `<div class="warn-item warn-item--medium">
+          <div class="warn-item__main" style="cursor:default">
+            <div class="warn-item__header">
+              <div class="warn-item__title">${fileName}</div>
+              <span class="warn-item__sev warn-item__sev--medium" aria-hidden="true">VERIFY</span>
+            </div>
+            <div class="warn-item__meta">Matched to: ${label} &middot; Auto-matched from email</div>
+          </div>
+          <div class="warn-item__actions">
+            <button type="button" class="btn btn--ghost btn--sm" onclick="showAttachmentVerifyDialog('${escAttrJs(m.id)}','${escAttrJs(m.entity_type)}','${escAttrJs(m.entity_id)}','warn-verify-${escAttrJs(m.id)}');toggleWarnAlertSidebar()">Verify</button>
+          </div>
+        </div>`;
+      }).join('');
+
+    list.innerHTML = taskWarningsHtml + verifyMatchHtml;
   } else if (_warnAlertTab === 'alerts') {
     // Alerts tab — pull from the existing notifications API
     list.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:24px;font-size:0.82rem">Loading...</div>';

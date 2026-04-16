@@ -2162,6 +2162,19 @@ async function createNotification(username, type, title, message, link, dismissa
     [username, type, title, message || '', link || '', dismissable]);
 }
 
+/** POST /api/notifications/system — Send a system-wide notification to all active users (admin only) */
+app.post('/api/notifications/system', requireInternal, async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const { title, message } = req.body;
+  if (!title || !message) return res.status(400).json({ error: 'Title and message required' });
+  const { rows: users } = await pool.query('SELECT username FROM users WHERE is_active = true');
+  for (const user of users) {
+    await createNotification(user.username, 'system', title, message, null, false);
+  }
+  log('info', 'Notifications', `System message sent to ${users.length} users`, { title });
+  res.json({ sent: users.length });
+});
+
 // ==================== TASK TEMPLATES ====================
 
 /** GET /api/templates — List all saved task templates */
@@ -2281,6 +2294,21 @@ app.delete('/api/tasks/:id/attachments/:attachmentId', async (req, res) => {
 // Generic file attachments for any entity type (client, project, task)
 
 const VALID_ENTITY_TYPES = ['client', 'project', 'task', 'lead', 'expense'];
+
+/** GET /api/attachments/verify-matches — List all auto-matched email attachments needing verification */
+app.get('/api/attachments/verify-matches', async (req, res) => {
+  const { rows } = await pool.query(`
+    SELECT a.id, a.entity_type, a.entity_id, a.original_name, a.uploaded_by, a.created_at,
+           CASE WHEN a.entity_type = 'task' THEN (SELECT title FROM tasks WHERE id = a.entity_id)
+                WHEN a.entity_type = 'client' THEN (SELECT name FROM clients WHERE id = a.entity_id)
+                ELSE NULL END as entity_name
+    FROM attachments a
+    WHERE a.uploaded_by LIKE '%verify match%'
+    ORDER BY a.created_at DESC
+    LIMIT 50
+  `);
+  res.json(rows);
+});
 
 /** GET /api/attachments/entity/:type/:id — List all attachments for an entity */
 app.get('/api/attachments/entity/:type/:id', async (req, res) => {
@@ -3938,6 +3966,30 @@ app.patch('/api/tasks/:id', async (req, res) => {
     log('warn', 'Tasks', 'Blocker notification failed', { error: e.message });
   }
 
+  // Notify assignees of meaningful task changes (skip position/updated_at noise)
+  try {
+    const changedFields = Object.keys(changes).filter(k => !['position', 'updated_at'].includes(k));
+    if (changedFields.length > 0 && Array.isArray(updatedTask.assignees) && updatedTask.assignees.length > 0) {
+      for (const assignee of updatedTask.assignees) {
+        if (!assignee) continue;
+        const { rows: userRows } = await pool.query(
+          'SELECT username FROM users WHERE display_name = $1 AND is_active = true',
+          [assignee]
+        );
+        if (userRows.length === 0) continue;
+        const assigneeUsername = userRows[0].username;
+        if (assigneeUsername === req.user?.username) continue; // Don't notify the person making the change
+        await createNotification(
+          assigneeUsername, 'info', 'Task updated',
+          `"${updatedTask.title}" was updated: ${changedFields.join(', ')}`,
+          updatedTask.id, true
+        );
+      }
+    }
+  } catch (e) {
+    log('warn', 'Tasks', 'Assignee change notification failed', { error: e.message });
+  }
+
   res.json(updatedTask);
 });
 
@@ -3945,6 +3997,9 @@ app.patch('/api/tasks/:id', async (req, res) => {
 app.delete('/api/tasks/:id', async (req, res) => {
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid task ID' });
+  // Fetch the task before deletion so we can notify assignees
+  const { rows: preDeleteRows } = await pool.query('SELECT title, assignees FROM tasks WHERE id = $1', [req.params.id]);
+  const taskToDelete = preDeleteRows[0] || null;
   const conn = await pool.connect();
   try {
     await conn.query('BEGIN');
@@ -3984,6 +4039,29 @@ app.delete('/api/tasks/:id', async (req, res) => {
     // Audit log after successful delete
     await auditLog('task', req.params.id, 'delete', req.user?.displayName);
     res.json({ ok: true });
+
+    // Notify assignees the task was deleted (fire-and-forget, outside the transaction)
+    if (taskToDelete && Array.isArray(taskToDelete.assignees) && taskToDelete.assignees.length > 0) {
+      for (const assignee of taskToDelete.assignees) {
+        if (!assignee) continue;
+        try {
+          const { rows: userRows } = await pool.query(
+            'SELECT username FROM users WHERE display_name = $1 AND is_active = true',
+            [assignee]
+          );
+          if (userRows.length === 0) continue;
+          const assigneeUsername = userRows[0].username;
+          if (assigneeUsername === req.user?.username) continue;
+          await createNotification(
+            assigneeUsername, 'warning', 'Task deleted',
+            `Task "${taskToDelete.title}" was deleted by ${req.user?.displayName || 'an admin'}.`,
+            null, true
+          );
+        } catch (notifErr) {
+          log('warn', 'Tasks', 'Delete notification failed for assignee', { assignee, error: notifErr.message });
+        }
+      }
+    }
   } catch (e) {
     await conn.query('ROLLBACK');
     throw e;
