@@ -4722,10 +4722,20 @@ function renderTaskView(el) {
       html += `<div class="practice-mode-banner" style="background:color-mix(in srgb, ${p.colour} 14%, var(--bg-raised));border:1px solid ${p.colour};border-left:4px solid ${p.colour};border-radius:var(--radius-md);padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${p.colour}"></span><strong style="font-size:0.85rem;color:var(--text-primary)">${esc(p.label)} mode</strong><span style="font-size:0.75rem;color:var(--text-muted);flex:1;min-width:200px">Dashboard, Projects, Leads and Clients are all scoped to this practice. Tag clients and projects with Practice = ${esc(p.label)} to populate this view.</span><button class="btn btn--sm btn--ghost" onclick="filterByPractice(null)">Exit ${esc(p.shortLabel || p.label)}</button></div>`;
     }
   }
+  // Client dropdown populated from the contracted-client list. When a client
+  // is picked, the project dropdown narrows to that client's projects only,
+  // and the tree view scopes the same way the sidebar client chip does.
+  // Glen 2026-04-16: filter bar had All Projects but no All Clients.
+  const allClients = getContractedClients();
+  const projectOptions = getRootTasks()
+    .filter(r => r.title && r.title.trim() !== 'New Task')
+    .filter(r => !currentFilter.client || getTaskClient(r) === currentFilter.client)
+    .sort((a,b) => a.title.localeCompare(b.title));
   html += `<div class="filter-bar">
     <input type="text" placeholder="Search items... (Enter)" value="${esc(currentFilter.search)}" onkeydown="if(event.key==='Enter'){currentFilter.search=this.value;renderContent()}" onblur="if(this.value!==currentFilter.search){currentFilter.search=this.value;renderContent()}">
     ${buildMultiSelect('assignee', 'People', _cachedTeamMembers, currentFilter.assignee)}
-    <select onchange="currentFilter.project=this.value||null;renderContent()" style="min-width:100px"><option value="">All Projects</option>${getRootTasks().filter(r => r.title && r.title.trim() !== 'New Task').sort((a,b) => a.title.localeCompare(b.title)).map(r => `<option value="${esc(r.id)}" ${currentFilter.project===r.id?'selected':''}>${esc(r.title)}</option>`).join('')}</select>
+    <select onchange="currentFilter.client=this.value||null;currentFilter.project=null;renderContent();renderBreadcrumbs();renderSidebarCounts()" style="min-width:120px" aria-label="Filter by client"><option value="">All Clients</option>${allClients.map(c => `<option value="${esc(c)}" ${currentFilter.client===c?'selected':''}>${esc(c)}</option>`).join('')}</select>
+    <select onchange="currentFilter.project=this.value||null;renderContent()" style="min-width:100px" aria-label="Filter by project"><option value="">All Projects</option>${projectOptions.map(r => `<option value="${esc(r.id)}" ${currentFilter.project===r.id?'selected':''}>${esc(r.title)}</option>`).join('')}</select>
     ${buildMultiSelect('status', 'Status', STATUSES, currentFilter.status)}
     ${buildMultiSelect('health', 'Health', HEALTH_STATES, currentFilter.health)}
     <select onchange="currentFilter.sort=this.value;renderContent()" style="min-width:100px">
