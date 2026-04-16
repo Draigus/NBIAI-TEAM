@@ -57,7 +57,8 @@
       "Bash(claude skill:*)",
       "Bash(wc -l projects/nbi_dashboard/deliverables/final_*.md)",
       "Bash(ToolSearch_placeholder)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(ls -la /d/OneDrive/Claude_code/NBIAI_TEAM/dashboard-server/*.js)"
     ]
   }
 }

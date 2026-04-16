@@ -7711,7 +7711,11 @@ async function processOneInboundEmail(message, opts = {}) {
   // Step 1: Match subject to client/task
   const match = await matchSubjectToTask(subject);
 
-  if (!match.taskId) {
+  // Fallback: if client matched but no task, attach to the client entity
+  const entityType = match.taskId ? 'task' : (match.clientId ? 'client' : null);
+  const entityId = match.taskId || match.clientId;
+
+  if (!entityId) {
     log('warn', 'InboundEmail', 'No match for email', { subject, from: fromAddr });
     return { matched: false, confidence: 'none', subject };
   }
@@ -7732,8 +7736,8 @@ async function processOneInboundEmail(message, opts = {}) {
 
   await pool.query(
     `INSERT INTO attachments (entity_type, entity_id, filename, original_name, size_bytes, mime_type, uploaded_by)
-     VALUES ('task', $1, $2, $3, $4, 'text/html', $5)`,
-    [match.taskId, htmlFilename, originalName, htmlSize, uploadedBy]
+     VALUES ($1, $2, $3, $4, $5, 'text/html', $6)`,
+    [entityType, entityId, htmlFilename, originalName, htmlSize, uploadedBy]
   );
 
   // Step 3: Extract and store URL links
@@ -7741,8 +7745,8 @@ async function processOneInboundEmail(message, opts = {}) {
   for (const link of links) {
     await pool.query(
       `INSERT INTO attachments (entity_type, entity_id, filename, original_name, size_bytes, mime_type, uploaded_by, link_url, link_title)
-       VALUES ('task', $1, NULL, NULL, NULL, 'link', $2, $3, $4)`,
-      [match.taskId, uploadedBy, link.url, link.title]
+       VALUES ($1, $2, NULL, NULL, NULL, 'link', $3, $4, $5)`,
+      [entityType, entityId, uploadedBy, link.url, link.title]
     );
   }
 
@@ -7771,8 +7775,8 @@ async function processOneInboundEmail(message, opts = {}) {
 
           await pool.query(
             `INSERT INTO attachments (entity_type, entity_id, filename, original_name, size_bytes, mime_type, uploaded_by)
-             VALUES ('task', $1, $2, $3, $4, $5, $6)`,
-            [match.taskId, attFilename, att.name, attSize, att.contentType || 'application/octet-stream', uploadedBy]
+             VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+            [entityType, entityId, attFilename, att.name, attSize, att.contentType || 'application/octet-stream', uploadedBy]
           );
         }
       }
@@ -7811,12 +7815,12 @@ async function processOneInboundEmail(message, opts = {}) {
   }
 
   log('info', 'InboundEmail', 'Processed email', {
-    subject, from: fromAddr, taskId: match.taskId,
+    subject, from: fromAddr, entityType, entityId,
     client: match.matchedClient, task: match.matchedTask,
     confidence: match.confidence, links: links.length,
   });
 
-  return { matched: true, taskId: match.taskId, confidence: match.confidence, client: match.matchedClient, task: match.matchedTask };
+  return { matched: true, taskId: match.taskId, entityType, entityId, confidence: match.confidence, client: match.matchedClient, task: match.matchedTask };
 }
 
 /**
