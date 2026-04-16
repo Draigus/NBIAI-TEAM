@@ -58,7 +58,13 @@
       "Bash(wc -l projects/nbi_dashboard/deliverables/final_*.md)",
       "Bash(ToolSearch_placeholder)",
       "Bash(npm run:*)",
-      "Bash(ls -la /d/OneDrive/Claude_code/NBIAI_TEAM/dashboard-server/*.js)"
+      "Bash(ls -la /d/OneDrive/Claude_code/NBIAI_TEAM/dashboard-server/*.js)",
+      "Bash(pm2 restart:*)",
+      "Bash(pm2 logs:*)",
+      "Bash(npx vitest:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m ':*)",
+      "Bash(node -e ':*)"
     ]
   }
 }
