@@ -733,11 +733,11 @@ app.post('/api/auth/login', async (req, res) => {
   const expiresAt = new Date(Date.now() + SESSION_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
   await pool.query('INSERT INTO sessions (user_id, token, expires_at) VALUES ($1, $2, $3)', [user.id, hashedToken, expiresAt]);
   // Cache under hashed key
-  cacheToken(hashedToken, { id: user.id, username: user.username, displayName: user.display_name, role: user.role });
+  cacheToken(hashedToken, { id: user.id, username: user.username, displayName: user.display_name, role: user.role, clientId: user.client_id });
 
   res.json({
     token,
-    user: { id: user.id, username: user.username, displayName: user.display_name, role: user.role },
+    user: { id: user.id, username: user.username, displayName: user.display_name, role: user.role, clientId: user.client_id },
     expiresAt: expiresAt.toISOString(),
   });
 });
@@ -760,12 +760,12 @@ app.get('/api/auth/me', async (req, res) => {
 
   const hashed = hashToken(token);
   const { rows } = await pool.query(
-    `SELECT u.id, u.username, u.display_name, u.role FROM sessions s
+    `SELECT u.id, u.username, u.display_name, u.role, u.client_id FROM sessions s
      JOIN users u ON s.user_id = u.id
      WHERE s.token = $1 AND s.expires_at > NOW()`, [hashed]
   );
   if (rows.length === 0) return res.status(401).json({ error: 'Session expired' });
-  res.json({ user: { id: rows[0].id, username: rows[0].username, displayName: rows[0].display_name, role: rows[0].role } });
+  res.json({ user: { id: rows[0].id, username: rows[0].username, displayName: rows[0].display_name, role: rows[0].role, clientId: rows[0].client_id } });
 });
 
 /**
@@ -791,12 +791,12 @@ async function requireAuth(req, res, next) {
     if (cached) { req.user = cached; return next(); }
 
     const { rows } = await pool.query(
-      `SELECT u.id, u.username, u.display_name, u.role FROM sessions s
+      `SELECT u.id, u.username, u.display_name, u.role, u.client_id FROM sessions s
        JOIN users u ON s.user_id = u.id
        WHERE s.token = $1 AND s.expires_at > NOW()`, [hashedToken]
     );
     if (rows.length === 0) return res.status(401).json({ error: 'Session expired' });
-    const user = { id: rows[0].id, username: rows[0].username, displayName: rows[0].display_name, role: rows[0].role };
+    const user = { id: rows[0].id, username: rows[0].username, displayName: rows[0].display_name, role: rows[0].role, clientId: rows[0].client_id };
     cacheToken(hashedToken, user);
     req.user = user;
     next();
@@ -805,6 +805,17 @@ async function requireAuth(req, res, next) {
     res.status(500).json({ error: 'An internal error occurred' });
   }
 }
+/** Return the client_id if the user is client-scoped, null otherwise */
+function getClientScope(req) {
+  return req.user?.clientId || null;
+}
+
+/** Middleware: block client-scoped users from internal-only endpoints */
+function requireInternal(req, res, next) {
+  if (req.user?.clientId) return res.status(403).json({ error: 'This feature is not available for client accounts' });
+  next();
+}
+
 /**
  * POST /api/auth/forgot-password
  * Request a password reset email. Always returns success to prevent username enumeration.
@@ -945,17 +956,18 @@ app.get('/api/users', async (req, res) => {
 app.post('/api/users', async (req, res) => {
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   const { username, display_name, email, password, role } = req.body;
+  const client_id = req.body.client_id || null;
   if (!username || !password) return res.status(400).json({ error: 'Username and password required' });
   const lenErr = validateLength(username, 'name', 200) || validateLength(display_name, 'name') || validateLength(email, 'email');
   if (lenErr) return res.status(400).json({ error: lenErr });
   const hash = await bcrypt.hash(password, 10);
   // Atomic insert — ON CONFLICT prevents race conditions
   const { rows } = await pool.query(
-    `INSERT INTO users (username, display_name, email, password_hash, role)
-     VALUES ($1, $2, $3, $4, $5)
+    `INSERT INTO users (username, display_name, email, password_hash, role, client_id)
+     VALUES ($1, $2, $3, $4, $5, $6)
      ON CONFLICT (username) DO NOTHING
-     RETURNING id, username, display_name, email, role`,
-    [username.toLowerCase().trim(), display_name || username, email || '', hash, role || 'user']
+     RETURNING id, username, display_name, email, role, client_id`,
+    [username.toLowerCase().trim(), display_name || username, email || '', hash, role || 'user', client_id]
   );
   if (rows.length === 0) return res.status(409).json({ error: 'Username already exists' });
   await auditLog('user', rows[0].id, 'create', req.user?.displayName, { username, display_name });
@@ -974,17 +986,17 @@ app.delete('/api/users/:id', async (req, res) => {
   res.json({ ok: true });
 });
 
-/** PATCH /api/users/:id — Update user profile fields: role, display_name, email (admin only) */
+/** PATCH /api/users/:id — Update user profile fields: role, display_name, email, client_id (admin only) */
 app.patch('/api/users/:id', async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid user ID' });
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
-  const { updates, vals, nextIdx } = buildPatchQuery(req.body, ['role', 'display_name', 'email']);
+  const { updates, vals, nextIdx } = buildPatchQuery(req.body, ['role', 'display_name', 'email', 'client_id']);
   if (req.body.display_name !== undefined && !req.body.display_name.trim()) {
     return res.status(400).json({ error: 'Display name cannot be empty' });
   }
   if (updates.length === 0) return res.status(400).json({ error: 'No valid fields to update' });
   vals.push(req.params.id);
-  const { rows } = await pool.query(`UPDATE users SET ${updates.join(', ')} WHERE id = $${nextIdx} RETURNING id, username, display_name, email, role`, vals);
+  const { rows } = await pool.query(`UPDATE users SET ${updates.join(', ')} WHERE id = $${nextIdx} RETURNING id, username, display_name, email, role, client_id`, vals);
   if (!rows[0]) return res.status(404).json({ error: 'User not found' });
   // Invalidate token cache entries for this user so stale role/display_name data is refreshed
   for (const [key, entry] of _tokenCache) {
@@ -1106,7 +1118,7 @@ async function auditLog(entityType, entityId, action, changedBy, changes, conn) 
  * Paginated audit log with optional filters by entity_type, action, or free-text search.
  * Joins to tasks table to enrich entries with task titles where applicable.
  */
-app.get('/api/audit-log', async (req, res) => {
+app.get('/api/audit-log', requireInternal, async (req, res) => {
   // Admin only — the audit log contains change deltas, assignee names, and
   // reporter metadata that are not safe for regular members to read.
   if (!req.user || req.user.role !== 'admin') {
@@ -1205,7 +1217,7 @@ app.get('/api/health', async (req, res) => {
 });
 
 /** GET /api/finance/seed — Return finance seed data for initial bootstrap (admin only). */
-app.get('/api/finance/seed', async (req, res) => {
+app.get('/api/finance/seed', requireInternal, async (req, res) => {
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   try {
     const seedPath = path.join(__dirname, 'finance-seed.json');
@@ -1223,7 +1235,7 @@ app.get('/api/finance/seed', async (req, res) => {
 
 /** GET /api/seed-data — Return seed CSV data for initial bootstrap (admin only).
  *  Seed data is loaded from seed-data.csv if it exists, otherwise returns empty. */
-app.get('/api/seed-data', async (req, res) => {
+app.get('/api/seed-data', requireInternal, async (req, res) => {
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   try {
     const seedPath = path.join(__dirname, 'seed-data.csv');
@@ -1246,7 +1258,7 @@ app.get('/api/seed-data', async (req, res) => {
  * Export all dashboard data as a JSON download (admin only).
  * Includes tasks, clients, comments, notes, finance data, users, and settings.
  */
-app.get('/api/backup', async (req, res) => {
+app.get('/api/backup', requireInternal, async (req, res) => {
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   try {
     const tasks = await pool.query('SELECT * FROM tasks ORDER BY created_at');
@@ -2678,7 +2690,7 @@ app.delete('/api/calendar-events/:id', async (req, res) => {
 // ==================== FINANCE DATA ====================
 
 /** GET /api/finance — Return the latest version of the finance data JSON blob with version for conflict detection */
-app.get('/api/finance', async (req, res) => {
+app.get('/api/finance', requireInternal, async (req, res) => {
   const { rows } = await pool.query('SELECT id, data, updated_by, updated_at FROM finance_data ORDER BY id DESC LIMIT 1');
   if (rows.length === 0) return res.json({ data: null, version: 0 });
   res.json({ data: rows[0].data, updatedBy: rows[0].updated_by, updatedAt: rows[0].updated_at, version: rows[0].id });
@@ -2688,7 +2700,7 @@ app.get('/api/finance', async (req, res) => {
  *  Admin-only: finance data modifications require admin privileges.
  *  Supports optimistic concurrency: pass expectedVersion (the id from GET) to detect conflicts.
  *  If another user saved between your read and write, returns 409 Conflict. */
-app.put('/api/finance', async (req, res) => {
+app.put('/api/finance', requireInternal, async (req, res) => {
   if (!req.user) return res.status(401).json({ error: 'Authentication required' });
   if (req.user.role !== 'admin') return res.status(403).json({ error: 'Admin access required' });
   const { data, expectedVersion } = req.body;
@@ -2726,6 +2738,11 @@ app.put('/api/finance', async (req, res) => {
 
 /** GET /api/clients — List all clients with their task count (used for client selector and CRM list) */
 app.get('/api/clients', async (req, res) => {
+  const scope = getClientScope(req);
+  if (scope) {
+    const { rows } = await pool.query('SELECT c.*, (SELECT count(*) FROM tasks t WHERE t.client_id = c.id)::int as task_count FROM clients c WHERE c.id = $1', [scope]);
+    return res.json(rows);
+  }
   const { rows } = await pool.query(`
     SELECT c.*,
       (SELECT count(*) FROM tasks t WHERE t.client_id = c.id) as task_count
@@ -3471,7 +3488,9 @@ app.delete('/api/notes/:id', async (req, res) => {
  * Includes inline task notes as a JSON aggregate and the client name via join.
  */
 app.get('/api/tasks', async (req, res) => {
-  const { client_id, status, assignee, limit, offset, cursor } = req.query;
+  let { client_id, status, assignee, limit, offset, cursor } = req.query;
+  const scope = getClientScope(req);
+  if (scope) { client_id = scope; } // Override any client_id param for scoped users
   let where = []; let vals = []; let i = 1;
   if (client_id) { where.push(`t.client_id = $${i}`); vals.push(client_id); i++; }
   if (status) { where.push(`t.status = $${i}`); vals.push(status); i++; }
@@ -3569,7 +3588,10 @@ app.get('/api/tasks/:id', async (req, res) => {
 /** POST /api/tasks — Create a new task (admin only). Enforces hierarchy: project > feature > story > task. */
 app.post('/api/tasks', async (req, res) => {
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
-  const { title, parent_id, client_id, item_type, status, priority, health_state, description, assignees, hours_estimated, hours_spent, due_date, start_date, end_date, dependencies, planner_task_id, source } = req.body;
+  let { title, parent_id, client_id, item_type, status, priority, health_state, description, assignees, hours_estimated, hours_spent, due_date, start_date, end_date, dependencies, planner_task_id, source } = req.body;
+  const scope = getClientScope(req);
+  if (scope && client_id && client_id !== scope) return res.status(403).json({ error: 'Cannot create tasks for other clients' });
+  if (scope && !client_id) client_id = scope; // Default to their client
   if (!title) return res.status(400).json({ error: 'Title required' });
   const lenErr = validateLength(title, 'title') || validateLength(description, 'description');
   if (lenErr) return res.status(400).json({ error: lenErr });
@@ -3691,6 +3713,8 @@ app.patch('/api/tasks/:id', async (req, res) => {
   // Fetch old values before update for audit trail
   const oldResult = await pool.query('SELECT * FROM tasks WHERE id = $1', [req.params.id]);
   const oldTask = oldResult.rows[0];
+  const scope = getClientScope(req);
+  if (scope && oldTask && oldTask.client_id !== scope) return res.status(403).json({ error: 'Cannot edit tasks for other clients' });
 
   // If this update sets status to In progress / In Review / Done, validate that all
   // mandatory fields are present (merged old + new). Leaf tasks only — skip if the task
@@ -4567,11 +4591,24 @@ app.get('/api/sync/load', async (req, res) => {
     };
   });
 
+  const scope = getClientScope(req);
+  let finalTasks = frontendTasks;
+  let finalBriefs = frontendBriefs;
+  let finalKnownClients = clients.rows;
+  if (scope) {
+    // Filter tasks to only those belonging to the scoped client (match on raw DB client_id)
+    const scopedTaskIds = new Set(tasks.rows.filter(r => r.client_id === scope).map(r => r.id));
+    finalTasks = frontendTasks.filter(t => scopedTaskIds.has(t.id));
+    finalKnownClients = clients.rows.filter(c => c.id === scope);
+    finalBriefs = {};
+    finalKnownClients.forEach(r => { finalBriefs[r.name] = frontendBriefs[r.name]; });
+  }
+
   res.json({
-    tasks: frontendTasks,
-    clientBriefs: frontendBriefs,
+    tasks: finalTasks,
+    clientBriefs: finalBriefs,
     settings: settingsObj,
-    knownClients: clients.rows.map(r => r.name),
+    knownClients: finalKnownClients.map(r => r.name),
   });
 });
 
@@ -4813,7 +4850,9 @@ app.delete('/api/leads/field-options/:id', async (req, res) => {
  * Sorted by stage order, then priority, then creation date.
  */
 app.get('/api/leads', async (req, res) => {
-  const { stage_id, client_id, owner, priority, sector, search, sort, limit: qLimit, offset: qOffset, cursor } = req.query;
+  let { stage_id, client_id, owner, priority, sector, search, sort, limit: qLimit, offset: qOffset, cursor } = req.query;
+  const scope = getClientScope(req);
+  if (scope) { client_id = scope; } // Override any client_id param for scoped users
   let where = []; let vals = []; let i = 1;
 
   if (stage_id) { where.push(`l.stage_id = $${i}`); vals.push(stage_id); i++; }
@@ -5255,13 +5294,13 @@ app.post('/api/leads/:id/activities', async (req, res) => {
 // admins approve/reject them. Receipts can be attached as file uploads.
 
 /** GET /api/expenses/categories — List active expense categories */
-app.get('/api/expenses/categories', async (req, res) => {
+app.get('/api/expenses/categories', requireInternal, async (req, res) => {
   const { rows } = await pool.query('SELECT * FROM expense_categories WHERE is_active = TRUE ORDER BY sort_order, name');
   res.json(rows);
 });
 
 /** POST /api/expenses/categories — Create an expense category (admin only) */
-app.post('/api/expenses/categories', async (req, res) => {
+app.post('/api/expenses/categories', requireInternal, async (req, res) => {
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   const { name } = req.body;
   if (!name) return res.status(400).json({ error: 'Name required' });
@@ -5271,7 +5310,7 @@ app.post('/api/expenses/categories', async (req, res) => {
 });
 
 /** DELETE /api/expenses/categories/:id — Remove an expense category (admin only, checks references) */
-app.delete('/api/expenses/categories/:id', async (req, res) => {
+app.delete('/api/expenses/categories/:id', requireInternal, async (req, res) => {
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   const refs = await pool.query('SELECT count(*)::int AS count FROM expenses WHERE category_id = $1', [req.params.id]);
   if (refs.rows[0].count > 0) return res.status(400).json({ error: `Cannot delete: ${refs.rows[0].count} expenses use this category. Reassign them first.` });
@@ -5285,7 +5324,7 @@ app.delete('/api/expenses/categories/:id', async (req, res) => {
  * List expenses. Non-admin users only see their own; admins see all.
  * Filterable by user_id, status, and date range.
  */
-app.get('/api/expenses', async (req, res) => {
+app.get('/api/expenses', requireInternal, async (req, res) => {
   const isAdmin = req.user && req.user.role === 'admin';
   const { user_id, status, from_date, to_date } = req.query;
 
@@ -5323,7 +5362,7 @@ app.get('/api/expenses', async (req, res) => {
  * Admin-only aggregate view: totals by employee and by category.
  * NB: This route must be defined before the :id route to avoid path conflicts.
  */
-app.get('/api/expenses/summary', async (req, res) => {
+app.get('/api/expenses/summary', requireInternal, async (req, res) => {
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   const { from_date, to_date } = req.query;
 
@@ -5352,7 +5391,7 @@ app.get('/api/expenses/summary', async (req, res) => {
 });
 
 /** GET /api/expenses/:id — Get a single expense with its receipt attachments. Access: own or admin. */
-app.get('/api/expenses/:id', async (req, res) => {
+app.get('/api/expenses/:id', requireInternal, async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid expense ID' });
   const { rows } = await pool.query(`
     SELECT e.*, u.display_name AS employee_name, c.name AS category_name,
@@ -5377,7 +5416,7 @@ app.get('/api/expenses/:id', async (req, res) => {
 });
 
 /** POST /api/expenses — Submit a new expense (always created as "pending") */
-app.post('/api/expenses', async (req, res) => {
+app.post('/api/expenses', requireInternal, async (req, res) => {
   const { date, amount, currency, category_id, description, notes, vat_amount } = req.body;
   if (!date || amount == null) return res.status(400).json({ error: 'Date and amount are required' });
   const lenErr = validateLength(description, 'description') || validateLength(notes, 'notes');
@@ -5401,7 +5440,7 @@ app.post('/api/expenses', async (req, res) => {
  * Update an expense. Owners can only edit pending expenses; admins can also change status.
  * When an admin changes status, reviewed_by and reviewed_at are set automatically.
  */
-app.patch('/api/expenses/:id', async (req, res) => {
+app.patch('/api/expenses/:id', requireInternal, async (req, res) => {
   // Validate UUID format to prevent 500 errors from invalid IDs
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(req.params.id)) {
     return res.status(404).json({ error: 'Expense not found' });
@@ -5450,7 +5489,7 @@ app.patch('/api/expenses/:id', async (req, res) => {
  * Delete an expense and its receipt files from disk.
  * Owners can only delete pending expenses; admins can delete any.
  */
-app.delete('/api/expenses/:id', async (req, res) => {
+app.delete('/api/expenses/:id', requireInternal, async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid expense ID' });
   const check = await pool.query('SELECT user_id, status FROM expenses WHERE id = $1', [req.params.id]);
   if (check.rows.length === 0) return res.status(404).json({ error: 'Expense not found' });
@@ -5474,7 +5513,7 @@ app.delete('/api/expenses/:id', async (req, res) => {
 });
 
 /** POST /api/expenses/:id/receipts — Upload a receipt image/PDF for an expense */
-app.post('/api/expenses/:id/receipts', upload.single('file'), async (req, res) => {
+app.post('/api/expenses/:id/receipts', requireInternal, upload.single('file'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
 
   // Check ownership
@@ -5492,7 +5531,7 @@ app.post('/api/expenses/:id/receipts', upload.single('file'), async (req, res) =
 });
 
 /** DELETE /api/expenses/:id/receipts/:receiptId — Remove a receipt and delete the file from disk */
-app.delete('/api/expenses/:id/receipts/:receiptId', async (req, res) => {
+app.delete('/api/expenses/:id/receipts/:receiptId', requireInternal, async (req, res) => {
   const check = await pool.query('SELECT e.user_id FROM expenses e JOIN expense_receipts r ON r.expense_id = e.id WHERE r.id = $1 AND e.id = $2', [req.params.receiptId, req.params.id]);
   if (check.rows.length === 0) return res.status(404).json({ error: 'Receipt not found' });
   const isAdmin = req.user && req.user.role === 'admin';
@@ -5614,7 +5653,7 @@ function extractReceiptFields(text) {
 }
 
 /** POST /api/expenses/from-receipt — Upload a receipt, OCR/extract fields, create expense + attach receipt */
-app.post('/api/expenses/from-receipt', upload.single('file'), async (req, res) => {
+app.post('/api/expenses/from-receipt', requireInternal, upload.single('file'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
 
   // Extend timeout for OCR processing (can take 10-30s on first run)
@@ -5747,7 +5786,7 @@ app.post('/api/expenses/from-receipt', upload.single('file'), async (req, res) =
 // ==================== BUG / FEATURE REPORTS ====================
 
 /** GET /api/bug-reports — List all bug/feature reports (visible to all authenticated users) */
-app.get('/api/bug-reports', async (req, res) => {
+app.get('/api/bug-reports', requireInternal, async (req, res) => {
   let where = [];
   let vals = [];
   let i = 1;
@@ -5769,7 +5808,7 @@ app.get('/api/bug-reports', async (req, res) => {
 });
 
 /** POST /api/bug-reports — Submit a new bug or feature report */
-app.post('/api/bug-reports', async (req, res) => {
+app.post('/api/bug-reports', requireInternal, async (req, res) => {
   const { type, title, description, page, screenshot, priority } = req.body;
   if (!title || !title.trim()) return res.status(400).json({ error: 'Title is required' });
   const descErr = validateLength(description, 'description');
@@ -5813,7 +5852,7 @@ app.post('/api/bug-reports', async (req, res) => {
 
 /** PATCH /api/bug-reports/:id — Update status, priority, title, and/or description.
  *  Permissions: admin can change anything; reporter can change status, title, and description on own reports. */
-app.patch('/api/bug-reports/:id', async (req, res) => {
+app.patch('/api/bug-reports/:id', requireInternal, async (req, res) => {
   if (!req.user) return res.status(401).json({ error: 'Authentication required' });
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid report ID' });
   const { status, description, priority, title } = req.body;
@@ -5950,7 +5989,7 @@ app.patch('/api/bug-reports/:id', async (req, res) => {
 });
 
 /** POST /api/bug-reports/:id/notify-review — Send a notification to the report submitter (admin only) */
-app.post('/api/bug-reports/:id/notify-review', async (req, res) => {
+app.post('/api/bug-reports/:id/notify-review', requireInternal, async (req, res) => {
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid report ID' });
   try {
@@ -5975,7 +6014,7 @@ app.post('/api/bug-reports/:id/notify-review', async (req, res) => {
 });
 
 /** GET /api/bug-reports/:id/comments — List comments for a bug report */
-app.get('/api/bug-reports/:id/comments', async (req, res) => {
+app.get('/api/bug-reports/:id/comments', requireInternal, async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid report ID' });
   const { rows } = await pool.query(
     'SELECT * FROM bug_report_comments WHERE report_id = $1 ORDER BY created_at ASC',
@@ -5985,7 +6024,7 @@ app.get('/api/bug-reports/:id/comments', async (req, res) => {
 });
 
 /** POST /api/bug-reports/:id/comments — Add a comment to a bug report */
-app.post('/api/bug-reports/:id/comments', async (req, res) => {
+app.post('/api/bug-reports/:id/comments', requireInternal, async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid report ID' });
   const { text } = req.body;
   if (!text || !text.trim()) return res.status(400).json({ error: 'text required' });
@@ -6027,7 +6066,7 @@ app.post('/api/bug-reports/:id/comments', async (req, res) => {
 });
 
 /** DELETE /api/bug-reports/:id/comments/:commentId — Delete a comment (own or admin) */
-app.delete('/api/bug-reports/:id/comments/:commentId', async (req, res) => {
+app.delete('/api/bug-reports/:id/comments/:commentId', requireInternal, async (req, res) => {
   if (!isValidUuid(req.params.id) || !isValidUuid(req.params.commentId)) {
     return res.status(400).json({ error: 'Invalid ID format' });
   }
@@ -6045,7 +6084,7 @@ app.delete('/api/bug-reports/:id/comments/:commentId', async (req, res) => {
 });
 
 /** DELETE /api/bug-reports/:id — Delete a report (admin only) */
-app.delete('/api/bug-reports/:id', async (req, res) => {
+app.delete('/api/bug-reports/:id', requireInternal, async (req, res) => {
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid report ID' });
   await pool.query('DELETE FROM bug_reports WHERE id = $1', [req.params.id]);
@@ -6054,7 +6093,7 @@ app.delete('/api/bug-reports/:id', async (req, res) => {
 });
 
 /** GET /api/bug-reports/:id/screenshot — Serve the screenshot image */
-app.get('/api/bug-reports/:id/screenshot', async (req, res) => {
+app.get('/api/bug-reports/:id/screenshot', requireInternal, async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid report ID' });
   const { rows } = await pool.query('SELECT screenshot FROM bug_reports WHERE id = $1', [req.params.id]);
   if (rows.length === 0 || !rows[0].screenshot) return res.status(404).json({ error: 'No screenshot' });
@@ -6097,7 +6136,7 @@ const HIRING_STAGES = [
 ];
 
 /** GET /api/hiring-positions — List hiring positions, optionally filtered by client */
-app.get('/api/hiring-positions', async (req, res) => {
+app.get('/api/hiring-positions', requireInternal, async (req, res) => {
   if (!req.user) return res.status(401).json({ error: 'Auth required' });
   const { client_id } = req.query;
   let where = '';
@@ -6128,7 +6167,7 @@ app.get('/api/hiring-positions', async (req, res) => {
 });
 
 /** POST /api/hiring-positions — Create a hiring position (admin only) */
-app.post('/api/hiring-positions', async (req, res) => {
+app.post('/api/hiring-positions', requireInternal, async (req, res) => {
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   const { client_id, sow_id, title, description, seniority, status } = req.body || {};
   if (!title || !title.trim()) return res.status(400).json({ error: 'title required' });
@@ -6151,7 +6190,7 @@ app.post('/api/hiring-positions', async (req, res) => {
 });
 
 /** PATCH /api/hiring-positions/:id — Update a hiring position (admin only) */
-app.patch('/api/hiring-positions/:id', async (req, res) => {
+app.patch('/api/hiring-positions/:id', requireInternal, async (req, res) => {
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid position ID' });
   const { updates, vals, nextIdx } = buildPatchQuery(req.body, ['client_id', 'sow_id', 'title', 'description', 'seniority', 'status']);
@@ -6176,7 +6215,7 @@ app.patch('/api/hiring-positions/:id', async (req, res) => {
 });
 
 /** DELETE /api/hiring-positions/:id — Remove a hiring position (admin only) */
-app.delete('/api/hiring-positions/:id', async (req, res) => {
+app.delete('/api/hiring-positions/:id', requireInternal, async (req, res) => {
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid position ID' });
   try {
@@ -6191,7 +6230,7 @@ app.delete('/api/hiring-positions/:id', async (req, res) => {
 });
 
 /** GET /api/candidates — List candidates with optional filters */
-app.get('/api/candidates', async (req, res) => {
+app.get('/api/candidates', requireInternal, async (req, res) => {
   if (!req.user) return res.status(401).json({ error: 'Auth required' });
   const { client_id, stage, position_id } = req.query;
   const where = [];
@@ -6231,7 +6270,7 @@ app.get('/api/candidates', async (req, res) => {
 });
 
 /** GET /api/candidates/:id — Single candidate */
-app.get('/api/candidates/:id', async (req, res) => {
+app.get('/api/candidates/:id', requireInternal, async (req, res) => {
   if (!req.user) return res.status(401).json({ error: 'Auth required' });
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid candidate ID' });
   try {
@@ -6252,7 +6291,7 @@ app.get('/api/candidates/:id', async (req, res) => {
 });
 
 /** POST /api/candidates — Create a candidate (any authenticated user) */
-app.post('/api/candidates', async (req, res) => {
+app.post('/api/candidates', requireInternal, async (req, res) => {
   if (!req.user) return res.status(401).json({ error: 'Auth required' });
   const { client_id, position_id, name, role, linkedin_url, due_date, stage, notes } = req.body || {};
   if (!name || !name.trim()) return res.status(400).json({ error: 'name required' });
@@ -6301,7 +6340,7 @@ app.post('/api/candidates', async (req, res) => {
 });
 
 /** PATCH /api/candidates/:id — Update a candidate (any authenticated user) */
-app.patch('/api/candidates/:id', async (req, res) => {
+app.patch('/api/candidates/:id', requireInternal, async (req, res) => {
   if (!req.user) return res.status(401).json({ error: 'Auth required' });
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid candidate ID' });
   // Validate stage if present
@@ -6386,7 +6425,7 @@ app.patch('/api/candidates/:id', async (req, res) => {
 
 /** DELETE /api/candidates/:id — Remove a candidate (admin only).
  *  Also deletes the CV file from disk if one is attached. */
-app.delete('/api/candidates/:id', async (req, res) => {
+app.delete('/api/candidates/:id', requireInternal, async (req, res) => {
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid candidate ID' });
   try {
@@ -6414,7 +6453,7 @@ app.delete('/api/candidates/:id', async (req, res) => {
  *  arbitrary binary that happens to satisfy the generic allowlist).
  *  If the candidate already has a CV, the previous file is deleted from disk
  *  before the new one replaces it. */
-app.post('/api/candidates/:id/cv', upload.single('file'), async (req, res) => {
+app.post('/api/candidates/:id/cv', requireInternal, upload.single('file'), async (req, res) => {
   if (!req.user) return res.status(401).json({ error: 'Auth required' });
   if (!isValidUuid(req.params.id)) {
     if (req.file) { try { fs.unlinkSync(req.file.path); } catch (e) {} }
@@ -6454,7 +6493,7 @@ app.post('/api/candidates/:id/cv', upload.single('file'), async (req, res) => {
 });
 
 /** GET /api/candidates/:id/cv — Download the candidate's CV file */
-app.get('/api/candidates/:id/cv', async (req, res) => {
+app.get('/api/candidates/:id/cv', requireInternal, async (req, res) => {
   if (!req.user) return res.status(401).json({ error: 'Auth required' });
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid candidate ID' });
   try {
@@ -6510,7 +6549,7 @@ app.get('/api/clients/:id/hiring-count', async (req, res) => {
  * - Other users only see their own reports.
  * Each report includes expense count and total amount.
  */
-app.get('/api/expense-reports', async (req, res) => {
+app.get('/api/expense-reports', requireInternal, async (req, res) => {
   const isAdmin = req.user && req.user.role === 'admin';
   const approverUsername = await getExpenseApprover();
   const isApprover = req.user && req.user.username === approverUsername;
@@ -6545,7 +6584,7 @@ app.get('/api/expense-reports', async (req, res) => {
 });
 
 /** POST /api/expense-reports — Create a new expense report (draft) */
-app.post('/api/expense-reports', async (req, res) => {
+app.post('/api/expense-reports', requireInternal, async (req, res) => {
   const { title, notes } = req.body;
   if (!title || !title.trim()) return res.status(400).json({ error: 'Title is required' });
 
@@ -6561,7 +6600,7 @@ app.post('/api/expense-reports', async (req, res) => {
  * GET /api/expense-reports/:id
  * Get a single expense report with its expenses. Access: own or admin.
  */
-app.get('/api/expense-reports/:id', async (req, res) => {
+app.get('/api/expense-reports/:id', requireInternal, async (req, res) => {
   const { rows } = await pool.query(`
     SELECT r.*, u.display_name AS employee_name
     FROM expense_reports r
@@ -6603,7 +6642,7 @@ app.get('/api/expense-reports/:id', async (req, res) => {
  * Update report title/notes. Only draft reports can be edited by their owner.
  * Admins can also update status (for approve/reject flow).
  */
-app.patch('/api/expense-reports/:id', async (req, res) => {
+app.patch('/api/expense-reports/:id', requireInternal, async (req, res) => {
   const check = await pool.query('SELECT user_id, status FROM expense_reports WHERE id = $1', [req.params.id]);
   if (check.rows.length === 0) return res.status(404).json({ error: 'Report not found' });
   const report = check.rows[0];
@@ -6658,7 +6697,7 @@ app.patch('/api/expense-reports/:id', async (req, res) => {
  * Submit an expense report for review. Changes status to 'submitted'.
  * Notifies Tom Rieger via in-app notification and email.
  */
-app.post('/api/expense-reports/:id/submit', async (req, res) => {
+app.post('/api/expense-reports/:id/submit', requireInternal, async (req, res) => {
   const check = await pool.query(`
     SELECT r.*, u.display_name AS employee_name
     FROM expense_reports r LEFT JOIN users u ON r.user_id = u.id
@@ -6740,7 +6779,7 @@ app.post('/api/expense-reports/:id/submit', async (req, res) => {
  * Add one or more expenses to a report. Body: { expense_ids: [...] }
  * Only draft reports. Expenses must belong to the same user and not be in another report.
  */
-app.post('/api/expense-reports/:id/expenses', async (req, res) => {
+app.post('/api/expense-reports/:id/expenses', requireInternal, async (req, res) => {
   const check = await pool.query('SELECT user_id, status FROM expense_reports WHERE id = $1', [req.params.id]);
   if (check.rows.length === 0) return res.status(404).json({ error: 'Report not found' });
   const report = check.rows[0];
@@ -6790,7 +6829,7 @@ app.post('/api/expense-reports/:id/expenses', async (req, res) => {
  * DELETE /api/expense-reports/:id/expenses/:expenseId
  * Remove an expense from a report (sets report_id to NULL). Only draft reports.
  */
-app.delete('/api/expense-reports/:id/expenses/:expenseId', async (req, res) => {
+app.delete('/api/expense-reports/:id/expenses/:expenseId', requireInternal, async (req, res) => {
   const check = await pool.query('SELECT user_id, status FROM expense_reports WHERE id = $1', [req.params.id]);
   if (check.rows.length === 0) return res.status(404).json({ error: 'Report not found' });
   const report = check.rows[0];
@@ -6810,7 +6849,7 @@ app.delete('/api/expense-reports/:id/expenses/:expenseId', async (req, res) => {
  * DELETE /api/expense-reports/:id
  * Delete a draft expense report. Unlinks all its expenses (sets report_id to NULL).
  */
-app.delete('/api/expense-reports/:id', async (req, res) => {
+app.delete('/api/expense-reports/:id', requireInternal, async (req, res) => {
   const check = await pool.query('SELECT user_id, status FROM expense_reports WHERE id = $1', [req.params.id]);
   if (check.rows.length === 0) return res.status(404).json({ error: 'Report not found' });
   const report = check.rows[0];
@@ -6832,7 +6871,7 @@ app.delete('/api/expense-reports/:id', async (req, res) => {
  * GET /api/expense-reports/:id/export
  * Export a report as a ZIP containing CSV + all receipt files.
  */
-app.get('/api/expense-reports/:id/export', async (req, res) => {
+app.get('/api/expense-reports/:id/export', requireInternal, async (req, res) => {
   const check = await pool.query(`
     SELECT r.*, u.display_name AS employee_name
     FROM expense_reports r LEFT JOIN users u ON r.user_id = u.id
@@ -8085,6 +8124,8 @@ if (require.main === module) {
 // Export the Express app so supertest/Playwright can import it without
 // triggering the listener block above. Tests do: const app = require('../../server');
 module.exports = app;
+module.exports.getClientScope = getClientScope;
+module.exports.requireInternal = requireInternal;
 module.exports.shiftForInsert = shiftForInsert;
 module.exports.reorderInGroup = reorderInGroup;
 module.exports.addBusinessDays = addBusinessDays;
