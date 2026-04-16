@@ -45,7 +45,7 @@ For NBI's current stage (early product, limited live users), monitoring is light
 - Contact form must be functional (this is the primary lead generation mechanism)
 
 **Key pages:**
-- Homepage, Services page (Digital Entertainment, Analytics & Insights, Organisational Health), About, Contact
+- Homepage, Services page (Digital Entertainment, Analytics & Insights, Organisational Performance), About, Contact
 - Client logo carousel loading correctly (social proof — Blizzard, Xbox, NASA, etc.)
 
 **SSL certificate:**

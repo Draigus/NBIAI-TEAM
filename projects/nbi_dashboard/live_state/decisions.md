@@ -318,3 +318,22 @@ Audit check: grep for `'magnus'`, `"magnus"`, `mpryer`, `Magnus Pryer` found onl
 
 ### D87: Sync array-literal bug — server-side defensive normalisation
 Pre-existing bug from ~10:00 2026-04-15. Frontend was intermittently POSTing `task.assignees = [[]]` or `task.dependencies = [[]]` to `/api/sync/changes`, which Postgres text[] columns rejected as malformed literal `"{{}}"`. Fixed at the server boundary: the sync upsert loop now flattens + string-filters both fields before the query runs, and logs `warn 'Sync' 'Normalised non-flat array field'` with taskId + before/after when it has to rewrite. Frontend source of the bad shape is still pending identification — the warn-log is how we catch it next time. 3 regression tests in `tests/unit/sync.test.mjs`. Commit `6d33612`.
+
+### D93: Practice renamed Organizational Health → Organizational Performance
+2026-04-16. Glen decided to reframe the second practice as "Performance" rather than "Health". Full rename including the underlying slug so the code stays consistent (no mismatch between internal name and user-facing label). Changes:
+
+- **Slug** `organisational_health` → `organisational_performance` (British spelling preserved on the slug; display label uses American spelling per the rest of the UI)
+- **Display label** "Organizational Health" → "Organizational Performance"
+- **Short label** "Org Health" → "Org Perf"
+- **Sidebar abbreviation** "OH" → "OP"
+- **Colour** unchanged (#7c5cff purple)
+
+Migration 025 defensively UPDATEs any stray `organisational_health` rows on clients/leads/tasks to the new slug. At migration time the dev DB had zero rows with the old slug (everything was migrated to `gaming` in G2/migration 022), so the UPDATEs were no-ops but the code-level rename still took effect.
+
+`server.js` `VALID_PRACTICES` now validates against `['gaming', 'organisational_performance']` — anyone POSTing the old slug gets a 400. A new regression test in `clients-practice.test.mjs` explicitly sends the old slug and expects rejection, so this rename can't silently regress.
+
+**Brand boundary:** the internal dashboard label is now "Organizational Performance", but this is NEVER used in external/brand-facing copy. Marketing copy still uses "Studio Health and Team Performance" per the brand rules — `roles/brand_manager/knowledge/brand_context.md` and `roles/tech_writer/knowledge/writing_context.md` were both updated to add "Organizational Performance" to the forbidden variants list for external writing, with an explicit note pointing at the dashboard as the reason the internal term exists.
+
+**Historical context:** D84 (the G2 decision that established the two-practice model) used "Organizational Health" as the display label and `organisational_health` as the slug. D84 is preserved as-is — this D93 supersedes it on naming only.
+
+**Commit:** `9913ec3`. Tests: 72 vitest green.

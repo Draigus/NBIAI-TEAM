@@ -62,7 +62,7 @@ Led by Glen Pryer. This is the revenue driver and the brand leader. In every con
 
 ### Human Capital / Studio Health (Secondary)
 Led by Tom Rieger. This practice is real, valuable, and strategically important. But it is secondary in brand terms. Key brand decisions:
-- **Renamed for gaming context:** "Studio Health and Team Performance" -- not "Organisational Health", "Behavioural Economics", or "People Analytics". Tom agreed to reframe in gaming-native language
+- **Renamed for gaming context:** "Studio Health and Team Performance" -- not "Organisational Health", "Organizational Performance", "Behavioural Economics", or "People Analytics". Tom agreed to reframe in gaming-native language. (Note: the NBI dashboard uses "Organizational Performance" as the internal practice-area label for categorising this work, but that label is NEVER used in external/brand-facing copy — always Studio Health.)
 - **Positioned within the gaming frame:** The HC practice exists because healthy studios ship better games. The brand connects HC back to game development outcomes, not to HR or corporate wellness
 - **Never co-equal visually:** HC does not get equal visual weight, equal navigation prominence, or equal hero space. It is "also" not "and"
 - **Tom's credibility is real:** 25+ years experience, 17 years at Gallup, two published books. This is strong social proof but it is positioned within the NBI brand, not as a separate practice brand

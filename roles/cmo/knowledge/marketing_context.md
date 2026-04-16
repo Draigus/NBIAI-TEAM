@@ -49,14 +49,14 @@ The current naming carries corporate and analytics connotations that work agains
 - Services
   - Digital Entertainment (/services/games)
   - Analytics and Insights (/services/analytics-insights)
-  - Organizational Health (/services/organizational-performance)
+  - Organizational Performance (/services/organizational-performance)
 - Careers
 - Contact
 
 ### Known Issues
 - Hero section appears nearly empty on load due to animation timing
 - Equal weight given to 3 service pillars dilutes the gaming message
-- Org health and gaming positioned as co-equal -- confuses both audiences
+- Org performance and gaming positioned as co-equal -- confuses both audiences
 - Does not reflect actual business reality (gaming drives all revenue)
 - Client carousel missing 4 active clients: Lighthouse Studios, Sarge Universe, Couch Heroes, Goals Studio
 

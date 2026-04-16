@@ -71,7 +71,7 @@ These are non-negotiable for every document you produce:
 | The Sage (AI module) | AI Advisor, The AI, Smart Assistant |
 | Foresight (revenue module) | Revenue Engine, Forecaster, Prediction Module |
 | Executive Dashboard | Exec Dashboard, C-Level View, Leadership Dashboard |
-| Studio Health | Org Health, Team Health, People Analytics (unless specifically referring to Tom's methodology) |
+| Studio Health | Org Health, Org Performance, Organizational Performance, Team Health, People Analytics (unless specifically referring to Tom's methodology). Note: "Organizational Performance" is the internal practice-area label in the NBI dashboard; do NOT use it in marketing copy — Studio Health is the product-facing term. |
 | live ops | LiveOps, Live Ops, live-ops |
 | monetisation | monetization (American spelling) |
 | IAP | in-app purchase (spell out on first use, then abbreviate) |
