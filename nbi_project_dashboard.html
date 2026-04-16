@@ -4161,10 +4161,16 @@ function standupUpdateTask(taskId, field, value, el) {
   markDirty(taskId);
   pushUndo(`${field} change on "${task.title}"`, () => { task[field] = oldValue; task.updatedAt = new Date().toISOString(); markDirty(taskId); });
   save();
-  // Re-render standup for fields that affect sort order, visibility, or grouping
-  if (field === 'status' || field === 'healthState' || field === 'assignees') {
-    const filtered = currentFilter.client ? tasks.filter(t => getTaskClient(t) === currentFilter.client) : tasks;
-    renderStandupSection(filtered, new Date());
+  // Always re-render so KPI metrics strip, sidebar counts, and other views
+  // reflect the change immediately (Glen 2026-04-16: "updating a field doesn't
+  // update the dashboard until it's refreshed"). Previously only status/health/
+  // assignee triggered a standup re-render; hours/priority/dates were silent.
+  const scrollEl = document.querySelector('.main__content');
+  const savedScroll = scrollEl ? scrollEl.scrollTop : 0;
+  _scrollRestoreTarget = savedScroll > 0 ? savedScroll : null;
+  renderContent();
+  if (currentView !== 'dashboard' && scrollEl && savedScroll > 0) {
+    requestAnimationFrame(() => { scrollEl.scrollTop = savedScroll; _scrollRestoreTarget = null; });
   }
   // Refresh detail overlay if open on this task
   if (activeDetailTaskId === taskId) openDetailOverlay(taskId);
@@ -10141,6 +10147,10 @@ async function updateReport(id, field, value) {
   if (!resp.ok) {
     const err = await resp.json().catch(() => ({}));
     toast(err.error || 'Update failed', 'error');
+  } else {
+    // Re-render so the Expenses view reflects the change immediately
+    // (Glen 2026-04-16: fields updated but page didn't refresh).
+    await refreshExpenses();
   }
 }
 
@@ -12734,6 +12744,10 @@ async function updateClientField(clientId, field, value) {
         if (field === 'abbreviation' || field === 'name') clearClientPrefixCache(updated.name);
       }
     } catch (e) { /* non-fatal — next poll will refresh */ }
+    // Re-render so the Manage Clients page reflects the change immediately
+    // (Glen 2026-04-16: fields updated but page didn't refresh).
+    renderContent();
+    renderSidebar();
   }
   else { toast('Update failed', 'error'); }
 }
