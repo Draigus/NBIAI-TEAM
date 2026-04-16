@@ -807,7 +807,51 @@ async function requireAuth(req, res, next) {
     res.status(500).json({ error: 'An internal error occurred' });
   }
 }
-/** Return the client_id if the user is client-scoped, null otherwise */
+/** Exception client names that are always visible to all internal users */
+const ALWAYS_VISIBLE_CLIENTS = ['NBI  OPS', 'Playsage'];
+
+/**
+ * Return allowed client IDs for the current user, or null if unrestricted.
+ *
+ * - Admin (role=admin, no client_id): null (sees everything)
+ * - External (client_id set): [client_id] (G5 single-client scope)
+ * - Internal member with teams: team clients + exception clients + null-client tasks
+ * - Internal member with no teams: null (sees everything — can't restrict without team data)
+ *
+ * Result is cached on req._clientScopes to avoid re-querying per request.
+ */
+async function getClientScopes(req) {
+  if (req._clientScopes !== undefined) return req._clientScopes;
+
+  // Admin: unrestricted
+  if (req.user?.role === 'admin') { req._clientScopes = null; return null; }
+
+  // External (G5): single client
+  if (req.user?.clientId) { req._clientScopes = [req.user.clientId]; return req._clientScopes; }
+
+  // Internal member: resolve team memberships
+  const { rows: teams } = await pool.query(
+    'SELECT DISTINCT t.client_id FROM team_members tm JOIN teams t ON t.id = tm.team_id WHERE tm.user_id = $1 AND t.client_id IS NOT NULL',
+    [req.user?.id]
+  );
+
+  // No team memberships: unrestricted (can't filter without team data)
+  if (teams.length === 0) { req._clientScopes = null; return null; }
+
+  const teamClientIds = teams.map(t => t.client_id);
+
+  // Add exception clients
+  const { rows: exceptions } = await pool.query(
+    'SELECT id FROM clients WHERE name = ANY($1)',
+    [ALWAYS_VISIBLE_CLIENTS]
+  );
+  const exceptionIds = exceptions.map(e => e.id);
+
+  req._clientScopes = [...new Set([...teamClientIds, ...exceptionIds])];
+  return req._clientScopes;
+}
+
+/** Synchronous backward-compat wrapper — returns single client_id for G5 users, null otherwise */
 function getClientScope(req) {
   return req.user?.clientId || null;
 }
@@ -2774,9 +2818,12 @@ app.put('/api/finance', requireInternal, async (req, res) => {
 
 /** GET /api/clients — List all clients with their task count (used for client selector and CRM list) */
 app.get('/api/clients', async (req, res) => {
-  const scope = getClientScope(req);
-  if (scope) {
-    const { rows } = await pool.query('SELECT c.*, (SELECT count(*) FROM tasks t WHERE t.client_id = c.id)::int as task_count FROM clients c WHERE c.id = $1', [scope]);
+  const scopes = await getClientScopes(req);
+  if (scopes) {
+    const { rows } = await pool.query(
+      'SELECT c.*, (SELECT count(*) FROM tasks t WHERE t.client_id = c.id)::int as task_count FROM clients c WHERE c.id = ANY($1) ORDER BY c.name',
+      [scopes]
+    );
     return res.json(rows);
   }
   const { rows } = await pool.query(`
@@ -3525,10 +3572,12 @@ app.delete('/api/notes/:id', async (req, res) => {
  */
 app.get('/api/tasks', async (req, res) => {
   let { client_id, status, assignee, limit, offset, cursor } = req.query;
-  const scope = getClientScope(req);
-  if (scope) { client_id = scope; } // Override any client_id param for scoped users
+  const scopes = await getClientScopes(req);
+  if (scopes && scopes.length === 1) { client_id = scopes[0]; } // G5: force single client
+  else if (scopes && !client_id) { /* Team visibility: filter applied below */ }
   let where = []; let vals = []; let i = 1;
   if (client_id) { where.push(`t.client_id = $${i}`); vals.push(client_id); i++; }
+  else if (scopes && scopes.length > 1) { where.push(`(t.client_id = ANY($${i}) OR t.client_id IS NULL)`); vals.push(scopes); i++; }
   if (status) { where.push(`t.status = $${i}`); vals.push(status); i++; }
   if (assignee) { where.push(`$${i} = ANY(t.assignees)`); vals.push(assignee); i++; }
 
@@ -3632,9 +3681,9 @@ app.get('/api/tasks/:id', async (req, res) => {
 app.post('/api/tasks', async (req, res) => {
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   let { title, parent_id, client_id, item_type, status, priority, health_state, description, assignees, hours_estimated, hours_spent, due_date, start_date, end_date, dependencies, planner_task_id, source } = req.body;
-  const scope = getClientScope(req);
-  if (scope && client_id && client_id !== scope) return res.status(403).json({ error: 'Cannot create tasks for other clients' });
-  if (scope && !client_id) client_id = scope; // Default to their client
+  const scopes = await getClientScopes(req);
+  if (scopes && client_id && !scopes.includes(client_id)) return res.status(403).json({ error: 'Cannot create tasks for other clients' });
+  if (scopes && scopes.length === 1 && !client_id) client_id = scopes[0]; // Default for G5 users
   if (!title) return res.status(400).json({ error: 'Title required' });
   const lenErr = validateLength(title, 'title') || validateLength(description, 'description');
   if (lenErr) return res.status(400).json({ error: lenErr });
@@ -3756,8 +3805,8 @@ app.patch('/api/tasks/:id', async (req, res) => {
   // Fetch old values before update for audit trail
   const oldResult = await pool.query('SELECT * FROM tasks WHERE id = $1', [req.params.id]);
   const oldTask = oldResult.rows[0];
-  const scope = getClientScope(req);
-  if (scope && oldTask && oldTask.client_id !== scope) return res.status(403).json({ error: 'Cannot edit tasks for other clients' });
+  const scopes = await getClientScopes(req);
+  if (scopes && oldTask && !scopes.includes(oldTask.client_id)) return res.status(403).json({ error: 'Cannot edit tasks for other clients' });
 
   // If this update sets status to In progress / In Review / Done, validate that all
   // mandatory fields are present (merged old + new). Leaf tasks only — skip if the task
@@ -4683,15 +4732,16 @@ app.get('/api/sync/load', async (req, res) => {
     };
   });
 
-  const scope = getClientScope(req);
+  const scopes = await getClientScopes(req);
   let finalTasks = frontendTasks;
   let finalBriefs = frontendBriefs;
   let finalKnownClients = clients.rows;
-  if (scope) {
-    // Filter tasks to only those belonging to the scoped client (match on raw DB client_id)
-    const scopedTaskIds = new Set(tasks.rows.filter(r => r.client_id === scope).map(r => r.id));
+  if (scopes) {
+    const scopeSet = new Set(scopes);
+    // Filter tasks to only those belonging to scoped clients (match on raw DB client_id)
+    const scopedTaskIds = new Set(tasks.rows.filter(r => r.client_id && scopeSet.has(r.client_id) || !r.client_id).map(r => r.id));
     finalTasks = frontendTasks.filter(t => scopedTaskIds.has(t.id));
-    finalKnownClients = clients.rows.filter(c => c.id === scope);
+    finalKnownClients = clients.rows.filter(c => scopeSet.has(c.id));
     finalBriefs = {};
     finalKnownClients.forEach(r => { finalBriefs[r.name] = frontendBriefs[r.name]; });
   }
@@ -4943,12 +4993,13 @@ app.delete('/api/leads/field-options/:id', async (req, res) => {
  */
 app.get('/api/leads', async (req, res) => {
   let { stage_id, client_id, owner, priority, sector, search, sort, limit: qLimit, offset: qOffset, cursor } = req.query;
-  const scope = getClientScope(req);
-  if (scope) { client_id = scope; } // Override any client_id param for scoped users
+  const scopes = await getClientScopes(req);
+  if (scopes && scopes.length === 1) { client_id = scopes[0]; }
   let where = []; let vals = []; let i = 1;
 
   if (stage_id) { where.push(`l.stage_id = $${i}`); vals.push(stage_id); i++; }
   if (client_id) { where.push(`l.client_id = $${i}`); vals.push(client_id); i++; }
+  else if (scopes && scopes.length > 1) { where.push(`l.client_id = ANY($${i})`); vals.push(scopes); i++; }
   if (owner) { where.push(`l.deal_owner = $${i}`); vals.push(owner); i++; }
   if (priority) { where.push(`l.priority = $${i}`); vals.push(parseInt(priority)); i++; }
   if (sector) { where.push(`c.sector = $${i}`); vals.push(sector); i++; }
@@ -8217,6 +8268,7 @@ if (require.main === module) {
 // triggering the listener block above. Tests do: const app = require('../../server');
 module.exports = app;
 module.exports.getClientScope = getClientScope;
+module.exports.getClientScopes = getClientScopes;
 module.exports.requireInternal = requireInternal;
 module.exports.shiftForInsert = shiftForInsert;
 module.exports.reorderInGroup = reorderInGroup;
