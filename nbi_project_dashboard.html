@@ -4159,23 +4159,22 @@ function standupUpdateTask(taskId, field, value, el) {
 
 /** Rebuild only the metrics strip on the workload page without touching the rest of the DOM */
 /** Re-render the page content for remote changes without visible scroll flash.
- *  Freezes the scroll container's height during render so the browser can't reset scroll. */
+ *  Hides the container during render so the browser never paints the scroll-reset state. */
 function _softReRender() {
   const scrollEl = document.querySelector('.main__content');
-  const savedScroll = scrollEl ? scrollEl.scrollTop : 0;
-  // Freeze container height so scroll position doesn't reset during DOM rebuild
-  if (scrollEl) scrollEl.style.minHeight = scrollEl.scrollHeight + 'px';
+  if (!scrollEl) { renderContent(); return; }
+  const savedScroll = scrollEl.scrollTop;
+  // Make the container invisible during the rebuild — the browser won't repaint
+  // so the user never sees the scroll jump. visibility:hidden keeps the layout
+  // dimensions stable (unlike display:none which collapses the element).
+  scrollEl.style.visibility = 'hidden';
   renderContent();
   if (typeof renderSidebar === 'function') renderSidebar();
   if (typeof updateWarnAlertButton === 'function') updateWarnAlertButton();
-  // Restore scroll synchronously before the browser paints
-  if (scrollEl && savedScroll > 0) {
-    scrollEl.scrollTop = savedScroll;
-    // Release the height freeze after paint
-    requestAnimationFrame(() => { if (scrollEl) scrollEl.style.minHeight = ''; });
-  } else if (scrollEl) {
-    scrollEl.style.minHeight = '';
-  }
+  // Restore scroll and make visible again — all in one synchronous block
+  // before the browser gets a chance to paint.
+  scrollEl.scrollTop = savedScroll;
+  scrollEl.style.visibility = '';
 }
 
 function standupRefreshMetrics() {
