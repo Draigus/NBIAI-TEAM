@@ -257,9 +257,8 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .sidebar__item__icon { margin-right: var(--space-sm); font-size: 0.9rem; }
 .sidebar__item__label { flex: 1; }
 .sidebar__item__count { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); }
-.sidebar__item--alert-active { animation: alert-flash 2s ease-in-out infinite; }
-@keyframes alert-flash { 0%,100% { background: transparent; } 50% { background: rgba(239, 68, 68, 0.15); } }
-.sidebar__item--alert-active .sidebar__item__icon { color: var(--danger); }
+.header-alerts-btn--active { animation: header-alert-flash 2s ease-in-out infinite; background: rgba(220, 38, 38, 0.15) !important; border-color: #dc2626 !important; color: #fca5a5 !important; }
+@keyframes header-alert-flash { 0%,100% { background: rgba(220, 38, 38, 0.08); } 50% { background: rgba(220, 38, 38, 0.25); } }
 .sidebar__dot { width: 10px; height: 10px; border-radius: 50%; margin-right: var(--space-sm); flex-shrink: 0; }
 
 /* ===== MAIN CONTENT ===== */
@@ -2024,7 +2023,7 @@ span.fin-editable { display: inline-block; position: relative; }
     </div>
     <button class="btn header-desktop-only" onclick="printReport()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="1" width="8" height="4" rx="1"/><rect x="1" y="5" width="12" height="6" rx="1.5"/><rect x="4" y="9" width="6" height="4" rx="0.5"/></svg> Print</button>
     <button class="btn header-desktop-only" onclick="openBugReportModal()" id="bugReportBtn" title="Report Bug or Feature Request" style="background:#f59e0b;color:#000;font-weight:600;font-size:0.75rem;padding:4px 10px;border-radius:var(--radius-sm)">&#128030; Report</button>
-    <!-- Notification bell removed — now in sidebar Alerts panel -->
+    <button class="btn header-alerts-btn" id="headerAlertsBtn" onclick="toggleWarnAlertSidebar()" title="Warnings, Alerts & Notifications" style="position:relative;font-weight:600;font-size:0.75rem;padding:4px 12px;border-radius:var(--radius-sm);border:1px solid var(--border-default)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span class="header-desktop-only">Alerts</span><span id="headerAlertsBadge" style="display:none;margin-left:6px;background:#fff;color:#dc2626;font-size:0.6rem;font-weight:700;border-radius:8px;padding:0 5px;min-width:16px;text-align:center">0</span></button>
     <div class="theme-picker header-desktop-only" id="themePicker">
       <button class="btn btn--ghost" onclick="toggleThemeDropdown(event)" id="themeBtn" title="Choose theme"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="4" cy="8" r="2.5"/><circle cx="12" cy="5" r="2"/><circle cx="11" cy="12" r="1.5"/></svg></button>
       <div class="theme-picker__dropdown" id="themeDropdown"></div>
@@ -3344,15 +3343,6 @@ function renderSidebar() {
     html += sidebarItem(svgFinances, 'Finances', '', () => switchView('finances'), currentView==='finances');
   }
   html += sidebarItem(svgSettings, 'Settings', '', () => switchView('settings'), currentView==='settings');
-  // Alerts button — slow red flash when active
-  const alertTotal = (typeof computeWarnings === 'function' ? computeWarnings().length : 0) + (window._lastNotificationCount || 0);
-  const alertActiveClass = alertTotal > 0 ? ' sidebar__item--alert-active' : '';
-  html += `<div style="flex:1"></div>`;
-  html += `<button class="sidebar__item${alertActiveClass}" onclick="toggleWarnAlertSidebar()" title="Warnings, Alerts &amp; Notifications">
-    <span class="sidebar__item__icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
-    <span class="sidebar__item__label">Alerts</span>
-    ${alertTotal > 0 ? '<span class="sidebar__item__count">' + (alertTotal > 99 ? '99+' : alertTotal) + '</span>' : ''}
-  </button>`;
   html += sidebarSectionClose();
 
   // My Tasks shortcut
@@ -17657,9 +17647,25 @@ function computeWarnings() {
   return warnings;
 }
 
-/** Re-render the sidebar to update the alert count and flash state. */
+/** Update the header Alerts button badge and flash state */
 function updateWarnAlertButton() {
-  if (typeof renderSidebar === 'function') renderSidebar();
+  const btn = document.getElementById('headerAlertsBtn');
+  const badge = document.getElementById('headerAlertsBadge');
+  if (!btn || !badge) return;
+
+  const warnings = typeof computeWarnings === 'function' ? computeWarnings().length : 0;
+  const alertCount = window._lastNotificationCount || 0;
+  const total = warnings + alertCount;
+
+  if (total > 0) {
+    badge.textContent = total > 99 ? '99+' : String(total);
+    badge.style.display = 'inline-block';
+    btn.classList.add('header-alerts-btn--active');
+  } else {
+    badge.style.display = 'none';
+    btn.classList.remove('header-alerts-btn--active');
+  }
+
   // If panel is open, also refresh the body
   const panel = document.getElementById('warnAlertPanel');
   if (panel && panel.classList.contains('open')) renderWarnAlertContent();
