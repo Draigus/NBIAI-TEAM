@@ -3300,8 +3300,18 @@ function toggleSidebarSection(key) {
 
 function renderSidebar() {
   const roots = getRootTasks();
-  const clients = getAllClients();
-  const scopedForHealth = currentFilter.client ? tasks.filter(t => getTaskClient(t) === currentFilter.client) : tasks;
+  // Sidebar counts must respect the active practice filter so that picking
+  // Org Performance actually narrows the visible client list, health counts,
+  // and critical count — not just the main content area (Glen 2026-04-16).
+  const practiceTasks = currentFilter.practice
+    ? tasks.filter(t => getTaskPractice(t) === currentFilter.practice)
+    : tasks;
+  const clients = currentFilter.practice
+    ? [...new Set(practiceTasks.map(t => getTaskClient(t)).filter(Boolean))].sort()
+    : getAllClients();
+  const scopedForHealth = currentFilter.client
+    ? practiceTasks.filter(t => getTaskClient(t) === currentFilter.client)
+    : practiceTasks;
   const healthCounts = countByHealth(scopedForHealth);
 
   let html = '';
@@ -3342,7 +3352,7 @@ function renderSidebar() {
   // My Tasks shortcut
   const myName = _currentUser?.displayName || '';
   if (myName) {
-    const myActiveTasks = tasks.filter(t => t.assignees?.some(a => a === myName) && t.status !== 'Done' && t.status !== 'Cancelled');
+    const myActiveTasks = practiceTasks.filter(t => t.assignees?.some(a => a === myName) && t.status !== 'Done' && t.status !== 'Cancelled');
     const svgMyTasks = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>';
     html += sidebarSectionOpen('mywork', 'My Work');
     html += sidebarItem(svgMyTasks, 'My Work', myActiveTasks.length, () => switchView('mytasks'), currentView === 'mytasks');
@@ -3352,9 +3362,9 @@ function renderSidebar() {
   // Clients
   html += sidebarSectionOpen('clients', 'Clients');
   const portfolioActive = !currentFilter.client;
-  html += `<button class="sidebar__item ${portfolioActive?'active':''}"${portfolioActive?' aria-current="page"':''} aria-label="NBI Portfolio, ${tasks.length} items" onclick="filterByClient(null)"><span class="sidebar__dot" aria-hidden="true" style="background:var(--accent)"></span><span class="sidebar__item__abbrev" aria-hidden="true">NBI</span><span class="sidebar__item__label" style="font-weight:600">NBI Portfolio</span><span class="sidebar__item__count" aria-hidden="true">${tasks.length}</span></button>`;
+  html += `<button class="sidebar__item ${portfolioActive?'active':''}"${portfolioActive?' aria-current="page"':''} aria-label="NBI Portfolio, ${practiceTasks.length} items" onclick="filterByClient(null)"><span class="sidebar__dot" aria-hidden="true" style="background:var(--accent)"></span><span class="sidebar__item__abbrev" aria-hidden="true">NBI</span><span class="sidebar__item__label" style="font-weight:600">NBI Portfolio</span><span class="sidebar__item__count" aria-hidden="true">${practiceTasks.length}</span></button>`;
   clients.forEach(c => {
-    const count = tasks.filter(t => getTaskClient(t) === c).length;
+    const count = practiceTasks.filter(t => getTaskClient(t) === c).length;
     const dotColour = stringToColour(c);
     const isActive = currentFilter.client===c;
     const abbrev = clientPrefix(c);
@@ -3393,7 +3403,7 @@ function renderSidebar() {
 
   // Quick Filters
   html += sidebarSectionOpen('quickfilters', 'Quick Filters');
-  const critCount = tasks.filter(t => t.priority === 'Critical ACT' || t.priority === 'Urgent' || t.priority === 'High').length;
+  const critCount = practiceTasks.filter(t => t.priority === 'Critical ACT' || t.priority === 'Urgent' || t.priority === 'High').length;
   html += sidebarItem('&#9888;', 'Critical / High', critCount, () => { currentFilter = { ...currentFilter, status: [], health: [], client: null, project: null }; switchView('tasks'); renderAll(); }, false);
   html += sidebarSectionClose();
 
@@ -10582,7 +10592,7 @@ function renderFinancesView(el) {
 
   // Load finance data
   try { _financeEntries = JSON.parse(localStorage.getItem('nbi_finance_entries') || '[]'); } catch(e) { _financeEntries = []; }
-  const S = getFinanceData();
+  let S = getFinanceData();
 
   // USD conversion helpers (only show if FX rate loaded)
   const hasFx = _fxRate !== null;
@@ -10648,16 +10658,25 @@ function renderFinancesView(el) {
   if (!window._financeSubView) window._financeSubView = 'summary';
 
   let html = `<div class="report finance-view">`;
-  // Practice-mode banner — Finances data (payroll, revenue, opex, expenses)
-  // has no practice_area tagging, so the filter genuinely does not apply
-  // here. The banner is honest about that so Glen doesn't chase ghost bugs
-  // (Glen 2026-04-16: "finances does not filter"). If we later tag finance
-  // rows with a practice, change the copy here and add the filter logic.
-  if (currentFilter.practice) {
-    const p = PRACTICES.find(x => x.value === currentFilter.practice);
+  // Practice filter on Finances (Glen 2026-04-16): revenue rows and payroll
+  // rows both have a `client` name field. We look up each client's practice_area
+  // via _apiClientsCache and filter. OpEx + ad-hoc entries are portfolio-wide.
+  const _finPractice = currentFilter.practice || null;
+  const _finClientMatchesPractice = (clientName) => {
+    if (!_finPractice || !clientName) return !_finPractice; // no filter = include all; no client name = exclude when filtering
+    const rec = _apiClientsCache[clientName];
+    return rec && rec.practice_area === _finPractice;
+  };
+  if (_finPractice) {
+    const p = PRACTICES.find(x => x.value === _finPractice);
     if (p) {
-      html += `<div class="practice-mode-banner" style="background:color-mix(in srgb, var(--warning) 10%, var(--bg-raised));border:1px solid var(--warning);border-left:4px solid var(--warning);border-radius:var(--radius-md);padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span style="color:var(--warning);font-size:1rem">&#9888;</span><strong style="font-size:0.85rem;color:var(--text-primary)">Practice filter does not apply to Finances</strong><span style="font-size:0.75rem;color:var(--text-muted);flex:1;min-width:200px">Payroll, revenue and expense data are not practice-tagged — this view is always portfolio-wide regardless of the ${esc(p.label)} filter.</span><button class="btn btn--sm btn--ghost" onclick="filterByPractice(null)">Exit ${esc(p.shortLabel || p.label)}</button></div>`;
+      html += `<div class="practice-mode-banner" style="background:color-mix(in srgb, ${p.colour} 14%, var(--bg-raised));border:1px solid ${p.colour};border-left:4px solid ${p.colour};border-radius:var(--radius-md);padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${p.colour}"></span><strong style="font-size:0.85rem;color:var(--text-primary)">${esc(p.label)} mode</strong><span style="font-size:0.75rem;color:var(--text-muted);flex:1;min-width:200px">Revenue and staff are filtered to ${esc(p.label)} clients. OpEx and ad-hoc entries are always portfolio-wide.</span><button class="btn btn--sm btn--ghost" onclick="filterByPractice(null)">Exit ${esc(p.shortLabel || p.label)}</button></div>`;
     }
+    // Filter COPIES — do NOT mutate S directly since it's the shared _financeData
+    // reference. Mutating it would permanently delete rows when the filter is
+    // cleared. The rest of renderFinancesView reads S.revenue / S.payroll, so
+    // shadowing them with filtered copies is sufficient.
+    S = { ...S, revenue: S.revenue.filter(r => _finClientMatchesPractice(r.client)), payroll: S.payroll.filter(r => _finClientMatchesPractice(r.client)) };
   }
   html += `<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:var(--space-lg)">`;
   html += `<div><h1 style="margin:0">NBI Analytics Ltd</h1><div class="report__date">Financial Dashboard &mdash; FY 2026${hasFx ? ` <span style="margin-left:12px;font-size:0.72rem;padding:2px 8px;border-radius:3px;background:var(--accent-glow);color:var(--accent-text);border:1px solid var(--accent-border)">GBP/USD ${_fxRate.toFixed(4)} <span style="color:var(--text-muted)">(${_fxDate})</span></span>` : ''}</div></div>`;
