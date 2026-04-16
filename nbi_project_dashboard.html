@@ -3803,6 +3803,16 @@ function renderDashboard(el) {
     setTimeout(() => loadClientNotes(currentFilter.client), 50);
   }
 
+  // Practice-mode banner — same affordance as the Projects view so Glen
+  // can see the filter is active (Glen 2026-04-16: "dashboard does not
+  // filter" — it does, via getFilteredTasks(), but there was no visual cue).
+  if (currentFilter.practice) {
+    const p = PRACTICES.find(x => x.value === currentFilter.practice);
+    if (p) {
+      html += `<div class="practice-mode-banner" style="background:color-mix(in srgb, ${p.colour} 14%, var(--bg-raised));border:1px solid ${p.colour};border-left:4px solid ${p.colour};border-radius:var(--radius-md);padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${p.colour}"></span><strong style="font-size:0.85rem;color:var(--text-primary)">${esc(p.label)} mode</strong><span style="font-size:0.75rem;color:var(--text-muted);flex:1;min-width:200px">All metrics below are scoped to tasks tagged Practice = ${esc(p.label)}.</span><button class="btn btn--sm btn--ghost" onclick="filterByPractice(null)">Exit ${esc(p.shortLabel || p.label)}</button></div>`;
+    }
+  }
+
   // Current date header
   const now = new Date();
   const dateStr = now.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
@@ -10607,6 +10617,17 @@ function renderFinancesView(el) {
   if (!window._financeSubView) window._financeSubView = 'summary';
 
   let html = `<div class="report finance-view">`;
+  // Practice-mode banner — Finances data (payroll, revenue, opex, expenses)
+  // has no practice_area tagging, so the filter genuinely does not apply
+  // here. The banner is honest about that so Glen doesn't chase ghost bugs
+  // (Glen 2026-04-16: "finances does not filter"). If we later tag finance
+  // rows with a practice, change the copy here and add the filter logic.
+  if (currentFilter.practice) {
+    const p = PRACTICES.find(x => x.value === currentFilter.practice);
+    if (p) {
+      html += `<div class="practice-mode-banner" style="background:color-mix(in srgb, var(--warning) 10%, var(--bg-raised));border:1px solid var(--warning);border-left:4px solid var(--warning);border-radius:var(--radius-md);padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span style="color:var(--warning);font-size:1rem">&#9888;</span><strong style="font-size:0.85rem;color:var(--text-primary)">Practice filter does not apply to Finances</strong><span style="font-size:0.75rem;color:var(--text-muted);flex:1;min-width:200px">Payroll, revenue and expense data are not practice-tagged — this view is always portfolio-wide regardless of the ${esc(p.label)} filter.</span><button class="btn btn--sm btn--ghost" onclick="filterByPractice(null)">Exit ${esc(p.shortLabel || p.label)}</button></div>`;
+    }
+  }
   html += `<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:var(--space-lg)">`;
   html += `<div><h1 style="margin:0">NBI Analytics Ltd</h1><div class="report__date">Financial Dashboard &mdash; FY 2026${hasFx ? ` <span style="margin-left:12px;font-size:0.72rem;padding:2px 8px;border-radius:3px;background:var(--accent-glow);color:var(--accent-text);border:1px solid var(--accent-border)">GBP/USD ${_fxRate.toFixed(4)} <span style="color:var(--text-muted)">(${_fxDate})</span></span>` : ''}</div></div>`;
   // Finance toolbar. Reset is destructive (wipes all financial data) so it is
@@ -11517,15 +11538,25 @@ async function renderLeadsView(el) {
   const config = _leadsConfig;
   const leads = _leadsData.leads || [];
   const sectors = (config.fieldOptions.client_sector || []).map(o => o.value);
+  // Guard: sector filter was causing confusion with the practice filter
+  // (Glen 2026-04-16) — if no sector values are defined, the sector tabs
+  // are suppressed entirely so the only scoping control is the sidebar
+  // practice chip. When Glen re-populates sectors with real industry
+  // categories via the Config tab, the tabs come back automatically.
+  if (sectors.length > 0 && _leadsFilter.sector && !sectors.includes(_leadsFilter.sector)) {
+    _leadsFilter.sector = null;
+  }
 
   let html = '';
 
-  // Segment tabs
+  // Header row — New Lead button + sector tabs when sectors exist
   html += `<div class="leads-tabs">`;
-  html += `<button class="leads-tab ${!_leadsFilter.sector ? 'active' : ''}" onclick="_leadsFilter.sector=null;refreshLeads()">All Clients</button>`;
-  sectors.forEach(s => {
-    html += `<button class="leads-tab ${_leadsFilter.sector===s ? 'active' : ''}" onclick="_leadsFilter.sector='${escAttrJs(s)}';refreshLeads()">${esc(s)}</button>`;
-  });
+  if (sectors.length > 0) {
+    html += `<button class="leads-tab ${!_leadsFilter.sector ? 'active' : ''}" onclick="_leadsFilter.sector=null;refreshLeads()">All Sectors</button>`;
+    sectors.forEach(s => {
+      html += `<button class="leads-tab ${_leadsFilter.sector===s ? 'active' : ''}" onclick="_leadsFilter.sector='${escAttrJs(s)}';refreshLeads()">${esc(s)}</button>`;
+    });
+  }
   html += `<div style="flex:1"></div>`;
   html += `<button class="btn btn--primary btn--sm" onclick="openNewLeadModal()" style="margin-right:8px">+ New Lead</button>`;
   html += `</div>`;
