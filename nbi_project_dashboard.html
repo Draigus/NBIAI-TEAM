@@ -3933,8 +3933,7 @@ function renderTacticalDashboard() {
   html += `<div class="tactical-metrics">
     <div class="tactical-metric" style="cursor:pointer" ${metricFilter('In progress')}><span class="tactical-metric__value" style="color:var(--accent)">${inProgress.length}</span><span class="tactical-metric__label">Active</span></div>
     <div class="tactical-metric" style="cursor:pointer" ${metricClick('tactOverdue')}><span class="tactical-metric__value" style="color:${overdueTasks.length > 0 ? 'var(--danger)' : 'var(--success)'}">${overdueTasks.length}</span>${trendArrow(newlyOverdue, true)}<span class="tactical-metric__label">Overdue</span></div>
-    <div class="tactical-metric" style="cursor:pointer" ${metricClick('tactImminent')}><span class="tactical-metric__value" style="color:${imminentTasks.length > 0 ? '#f59e0b' : 'var(--success)'}">${imminentTasks.length}</span><span class="tactical-metric__label">Imminent</span></div>
-    <div class="tactical-metric" style="cursor:pointer" ${metricClick('tactThisWeek')}><span class="tactical-metric__value" style="color:var(--warning)">${dueThisWeek.length}</span><span class="tactical-metric__label">Due This Week</span></div>
+    <div class="tactical-metric" style="cursor:pointer" ${metricClick('tactThisWeek')}><span class="tactical-metric__value" style="color:${dueThisWeek.length > 0 ? '#f59e0b' : 'var(--success)'}">${dueThisWeek.length}</span><span class="tactical-metric__label">This Week</span></div>
     <div class="tactical-metric" style="cursor:pointer" ${metricClick('tactBlocked')}><span class="tactical-metric__value" style="color:${blockedTasks.length > 0 ? 'var(--purple)' : 'var(--success)'}">${blockedTasks.length}</span><span class="tactical-metric__label">Blocked</span></div>
     <div class="tactical-metric" style="cursor:pointer" ${metricClick('tactAtRisk')}><span class="tactical-metric__value" style="color:${redHealth.length > 0 ? 'var(--warning)' : 'var(--success)'}">${redHealth.length}</span><span class="tactical-metric__label">At Risk</span></div>
     <div class="tactical-metric"><span class="tactical-metric__value" style="color:var(--success)">${donePct}%</span>${trendArrow(completedThisWeek, false)}<span class="tactical-metric__label">Complete</span></div>
@@ -3988,26 +3987,32 @@ function renderTacticalDashboard() {
   }
   html += `</div>`; // close Overdue column
 
-  // Column 2: Imminent (due within 3 days)
-  html += `<div class="tactical-section" id="tactImminent">`;
-  html += `<div class="tactical-section__header"><span class="tactical-section__title" style="color:#f59e0b">&#9200; ${sectionClient}Imminent (${imminentTasks.length})</span></div>`;
-  if (imminentTasks.length === 0) {
-    html += `<div class="tactical-empty">Nothing due in the next 3 days</div>`;
+  // Column 2: This Week (combines Imminent + Due This Week, sorted soonest first)
+  const thisWeekCombined = filtered.filter(t => {
+    if (!t.dueDate || t.status === 'Done' || t.status === 'Cancelled') return false;
+    const d = safeParseDate(t.dueDate);
+    return d && d >= now && d <= weekEnd;
+  }).sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+  html += `<div class="tactical-section" id="tactThisWeek">`;
+  html += `<div class="tactical-section__header"><span class="tactical-section__title" style="color:#f59e0b">&#128197; ${sectionClient}This Week (${thisWeekCombined.length})</span></div>`;
+  if (thisWeekCombined.length === 0) {
+    html += `<div class="tactical-empty">Nothing due this week</div>`;
   } else {
-    imminentTasks.forEach(t => {
+    thisWeekCombined.forEach(t => {
       const d = safeParseDate(t.dueDate);
       const daysUntil = Math.ceil((d - now) / 86400000);
-      const dayLabel = daysUntil === 0 ? 'Today' : daysUntil === 1 ? 'Tomorrow' : daysUntil + 'd';
+      const dayLabel = daysUntil === 0 ? 'Today' : daysUntil === 1 ? 'Tomorrow' : d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+      const urgentColour = daysUntil <= 1 ? '#dc2626' : daysUntil <= 3 ? '#f59e0b' : 'var(--text-muted)';
       const owner = (t.assignees || []).join(', ') || 'Unassigned';
-      html += `<div class="tactical-item" onclick="openDetailOverlay('${t.id}')" style="border-left:3px solid #f59e0b">
+      html += `<div class="tactical-item" onclick="openDetailOverlay('${t.id}')" style="border-left:3px solid ${urgentColour}">
         ${clientBadgeHtml(getTaskClient(t))}
         <span class="tactical-item__title">${esc(t.title)}</span>
         <span class="tactical-item__assignee">${esc(owner)}</span>
-        <span class="tactical-item__meta" style="color:#f59e0b;font-weight:600">${dayLabel}</span>
+        <span class="tactical-item__meta" style="color:${urgentColour};font-weight:600">${dayLabel}</span>
       </div>`;
     });
   }
-  html += `</div>`; // close tactImminent section
+  html += `</div>`; // close This Week section
 
   // Blocked (inline in the grid row on widescreen)
   if (blockedTasks.length > 0) {
@@ -4040,45 +4045,7 @@ function renderTacticalDashboard() {
     html += `</div>`;
   }
 
-  // This Week (separate section below the grid, or as the last grid child)
-  html += `<div class="tactical-panel">`;
-  const dueThisWeekAll = filtered.filter(t => {
-    if (!t.dueDate) return false;
-    const d = safeParseDate(t.dueDate);
-    if (!d) return false;
-    return d >= now && d <= weekEnd;
-  }).sort((a,b) => {
-    const da = safeParseDate(a.dueDate) || new Date(9999,0);
-    const db = safeParseDate(b.dueDate) || new Date(9999,0);
-    return da - db;
-  });
-  const dueThisWeekOpen = dueThisWeekAll.filter(t => t.status !== 'Done' && t.status !== 'Cancelled');
-  const dueThisWeekDone = dueThisWeekAll.filter(t => t.status === 'Done');
-  html += `<div class="tactical-section" id="tactThisWeek">`;
-  html += `<div class="tactical-section__header"><span class="tactical-section__title">&#128197; ${sectionClient}This Week (${dueThisWeekOpen.length} open${dueThisWeekDone.length > 0 ? ', ' + dueThisWeekDone.length + ' done' : ''})</span></div>`;
-  if (dueThisWeekAll.length === 0) {
-    html += `<div class="tactical-empty">Nothing due this week</div>`;
-  } else {
-    dueThisWeekAll.forEach(t => {
-      const d = safeParseDate(t.dueDate);
-      const dayName = d ? d.toLocaleDateString('en-GB', { weekday: 'short' }) : '';
-      const dateStr = d ? d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '';
-      const owner = (t.assignees || []).join(', ') || 'Unassigned';
-      const isDone = t.status === 'Done';
-      html += `<div class="tactical-item" onclick="openDetailOverlay('${t.id}')" style="${isDone ? 'opacity:0.6' : ''}">
-        ${clientBadgeHtml(getTaskClient(t))}
-        ${isDone ? '<span style="color:var(--success);font-size:0.7rem;margin-right:4px">&#10003;</span>' : ''}
-        <span class="tactical-item__title" style="${isDone ? 'text-decoration:line-through' : ''}">${esc(t.title)}</span>
-        <span class="tactical-item__assignee">${esc(owner)}</span>
-        <span class="tactical-item__meta">${dayName} ${dateStr}</span>
-      </div>`;
-    });
-  }
-  html += `</div>`;
-  html += `</div>`; // close right panel
   html += `</div>`; // close tactical-grid
-
-  // Blocked + At Risk are now inline in the tactical-grid left panel above
 
   // Standup view: work by NBI team member, grouped by client.
   // Phase 12.2 / 12.4 — collapsed by default to reduce dashboard cognitive load.
