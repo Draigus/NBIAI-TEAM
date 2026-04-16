@@ -10606,6 +10606,25 @@ function renderFinancesView(el) {
   try { _financeEntries = JSON.parse(localStorage.getItem('nbi_finance_entries') || '[]'); } catch(e) { _financeEntries = []; }
   let S = getFinanceData();
 
+  // Practice filter MUST run BEFORE the P&L calculations so KPI cards,
+  // monthly charts, and burn rate all use the filtered data. Moving this
+  // after the calculations was the bug Glen caught (2026-04-16).
+  const _finPractice = currentFilter.practice || null;
+  const _finClientMatchesPractice = (clientName) => {
+    if (!_finPractice || !clientName) return !_finPractice;
+    const rec = _apiClientsCache[clientName];
+    return rec && rec.practice_area === _finPractice;
+  };
+  if (_finPractice) {
+    S = {
+      ...S,
+      revenue: S.revenue.filter(r => _finClientMatchesPractice(r.client)),
+      payroll: S.payroll.filter(r => _finClientMatchesPractice(r.client)),
+      opex: [],
+    };
+    _financeEntries = [];
+  }
+
   // USD conversion helpers (only show if FX rate loaded)
   const hasFx = _fxRate !== null;
   const usdTh = hasFx ? `<th style="text-align:right;font-size:0.72rem;color:var(--text-muted);width:100px">USD</th>` : '';
@@ -10670,25 +10689,12 @@ function renderFinancesView(el) {
   if (!window._financeSubView) window._financeSubView = 'summary';
 
   let html = `<div class="report finance-view">`;
-  // Practice filter on Finances (Glen 2026-04-16): revenue rows and payroll
-  // rows both have a `client` name field. We look up each client's practice_area
-  // via _apiClientsCache and filter. OpEx + ad-hoc entries are portfolio-wide.
-  const _finPractice = currentFilter.practice || null;
-  const _finClientMatchesPractice = (clientName) => {
-    if (!_finPractice || !clientName) return !_finPractice; // no filter = include all; no client name = exclude when filtering
-    const rec = _apiClientsCache[clientName];
-    return rec && rec.practice_area === _finPractice;
-  };
+  // Practice banner (filter logic already ran above, before calculations)
   if (_finPractice) {
     const p = PRACTICES.find(x => x.value === _finPractice);
     if (p) {
-      html += `<div class="practice-mode-banner" style="background:color-mix(in srgb, ${p.colour} 14%, var(--bg-raised));border:1px solid ${p.colour};border-left:4px solid ${p.colour};border-radius:var(--radius-md);padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${p.colour}"></span><strong style="font-size:0.85rem;color:var(--text-primary)">${esc(p.label)} mode</strong><span style="font-size:0.75rem;color:var(--text-muted);flex:1;min-width:200px">Revenue and staff are filtered to ${esc(p.label)} clients. OpEx and ad-hoc entries are always portfolio-wide.</span><button class="btn btn--sm btn--ghost" onclick="filterByPractice(null)">Exit ${esc(p.shortLabel || p.label)}</button></div>`;
+      html += `<div class="practice-mode-banner" style="background:color-mix(in srgb, ${p.colour} 14%, var(--bg-raised));border:1px solid ${p.colour};border-left:4px solid ${p.colour};border-radius:var(--radius-md);padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${p.colour}"></span><strong style="font-size:0.85rem;color:var(--text-primary)">${esc(p.label)} mode</strong><span style="font-size:0.75rem;color:var(--text-muted);flex:1;min-width:200px">Revenue and staff are filtered to ${esc(p.label)} clients only. Shared costs (OpEx, ad-hoc expenses) are excluded since they cannot be attributed to a single practice.</span><button class="btn btn--sm btn--ghost" onclick="filterByPractice(null)">Exit ${esc(p.shortLabel || p.label)}</button></div>`;
     }
-    // Filter COPIES — do NOT mutate S directly since it's the shared _financeData
-    // reference. Mutating it would permanently delete rows when the filter is
-    // cleared. The rest of renderFinancesView reads S.revenue / S.payroll, so
-    // shadowing them with filtered copies is sufficient.
-    S = { ...S, revenue: S.revenue.filter(r => _finClientMatchesPractice(r.client)), payroll: S.payroll.filter(r => _finClientMatchesPractice(r.client)) };
   }
   html += `<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:var(--space-lg)">`;
   html += `<div><h1 style="margin:0">NBI Analytics Ltd</h1><div class="report__date">Financial Dashboard &mdash; FY 2026${hasFx ? ` <span style="margin-left:12px;font-size:0.72rem;padding:2px 8px;border-radius:3px;background:var(--accent-glow);color:var(--accent-text);border:1px solid var(--accent-border)">GBP/USD ${_fxRate.toFixed(4)} <span style="color:var(--text-muted)">(${_fxDate})</span></span>` : ''}</div></div>`;
