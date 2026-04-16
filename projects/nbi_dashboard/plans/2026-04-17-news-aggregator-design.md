@@ -432,7 +432,19 @@ Every LLM call records input and output token counts plus the resolved auth mode
 
 ### 10.1 Integration
 
-New "News" tab added to the NBI Hub sidebar in `nbi_project_dashboard.html`. Position: between Dashboard and Workload (subject to confirmation in review).
+New "News" tab added to the top tab bar in `nbi_project_dashboard.html`, rendered by `renderTabs()` at line ~3596. Inserted into the base tabs array between `finances` and `settings`:
+
+```js
+const tabs = ['report', 'dashboard', 'tasks', 'people', 'leads', 'expenses', 'finances', 'news', 'settings'];
+```
+
+Because `finances`, `leads`, and `expenses` are permission-gated via `hasPageAccess()` and `settings` is admin-only, the visible ordering by role is:
+
+- **Admin (all tabs visible):** Dashboard, Workload, Projects, People, Leads, Expenses, Finances, News, Settings.
+- **User with Expenses access, no Settings:** Dashboard, Workload, Projects, People, Leads, Expenses, News.
+- **User without Expenses access:** News lands at the end of their visible nav.
+
+News is visible to all authenticated users; no permission gate on News itself. No sidebar nav item.
 
 Tab content renders in a lazy-loaded container. The News tab's JS module loads only on first click and is cached for the session. Opening any other tab does not fetch news data. Cost on non-News-tab page loads: zero bytes transferred.
 
@@ -473,9 +485,9 @@ Tab content renders in a lazy-loaded container. The News tab's JS module loads o
 
 ### 10.4 Responsive breakpoints
 
-- ≥1280px: 3-column card grid, full hero.
-- 768-1279px: 2-column grid, hero constrained.
-- <768px: single column, hero image reduced, monthly synthesis body collapses behind a read-more.
+- ≥1280px: 3-column card grid, full hero, all section bands visible.
+- 768-1279px: 2-column grid, hero constrained, section bands visible.
+- <768px (mobile): **top-news-only mode**. Hero story full (image, headline, summary, sources drawer). Below the hero, a compact headline list of the remaining selected stories of the week (no cards, no images, just tappable headline + category pill + source count). Section bands, the dynamic 5th section, and the full archive grid are not rendered. Monthly synthesis block renders on month-end weeks (condensed body behind a read-more). Search and archive views remain accessible via the header links with the same compact layout.
 
 ### 10.5 Loading and error states
 
@@ -589,7 +601,7 @@ Deliverables:
 Deliverables:
 - Clustering, curation, summarisation, and hero selection all functional via Claude Agent SDK.
 - Max Pro and API key auth modes both tested, failover logic verified by forced failure.
-- First end-to-end weekly digest generated from 30 days of ingested articles (the launch edition).
+- First end-to-end weekly digest generated from the last 30 days of ingested articles (the launch edition). Only articles with `published_at` within the 30-day window are eligible for inclusion in the launch digest, regardless of what a source's archive exposes.
 - Digest inspectable via DB and raw API; not yet in the Hub.
 - Glen reviews the first three stories' summaries and signs off on the prompt voice, or iterates the prompt.
 
@@ -629,11 +641,15 @@ Deliverables:
 
 ## 19. Open questions
 
-1. Sidebar placement of the News tab. Between Dashboard and Workload is proposed; confirm.
-2. Mobile reading: is the mobile-web experience sufficient at launch, or is a native wrapper planned later?
-3. Monthly synthesis is published at 22:00 GMT on the month-end day. Is that the right time, or should it align with weekday morning readership?
-4. Launch edition: 30-day backfill. Some sources may have stale or malformed archives; the launch digest covers whatever ingests cleanly. Acceptable?
-5. Search index granularity: query articles and stories together (as specced) or separately with a tab toggle?
+None outstanding.
+
+### Resolved
+
+1. **Entry point placement.** Top tab bar in `nbi_project_dashboard.html`. Inserted between `finances` and `settings` in the base tabs array, so it lands before Settings for admins and after Expenses/Finances for everyone else (see §10.1).
+2. **Mobile reading.** Top-news-only mode on <768px (hero + compact headline list). No native wrapper at launch.
+3. **Monthly synthesis publication time.** 22:00 GMT on the month-end day stands.
+4. **Launch edition window.** Only articles with `published_at` within the last 30 days are eligible for the launch digest, regardless of what a source's archive exposes. Stale data is excluded.
+5. **Search index granularity.** Unified over articles and stories. No tab split.
 
 ## 20. Risk register
 
