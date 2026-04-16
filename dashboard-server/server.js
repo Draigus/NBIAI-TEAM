@@ -2296,6 +2296,29 @@ app.get('/api/attachments/download/:filename', (req, res) => {
   res.download(filePath);
 });
 
+/** PATCH /api/attachments/:id/confirm — Confirm an auto-matched email attachment (remove verify flag) */
+app.patch('/api/attachments/:id/confirm', requireAuth, async (req, res) => {
+  const { rows } = await pool.query(
+    "UPDATE attachments SET uploaded_by = REPLACE(uploaded_by, ' - verify match', '') WHERE id = $1 RETURNING *",
+    [req.params.id]
+  );
+  if (rows.length === 0) return res.status(404).json({ error: 'Attachment not found' });
+  res.json(rows[0]);
+});
+
+/** PATCH /api/attachments/:id/reassign — Move an attachment to a different entity */
+app.patch('/api/attachments/:id/reassign', requireAuth, async (req, res) => {
+  const { entityType, entityId } = req.body;
+  if (!['client', 'project', 'task', 'lead'].includes(entityType)) return res.status(400).json({ error: 'Invalid entity type' });
+  if (!isValidUuid(entityId)) return res.status(400).json({ error: 'Invalid entity ID' });
+  const { rows } = await pool.query(
+    "UPDATE attachments SET entity_type = $1, entity_id = $2, uploaded_by = REPLACE(uploaded_by, ' - verify match', '') WHERE id = $3 RETURNING *",
+    [entityType, entityId, req.params.id]
+  );
+  if (rows.length === 0) return res.status(404).json({ error: 'Attachment not found' });
+  res.json(rows[0]);
+});
+
 /** DELETE /api/attachments/:id — Remove an attachment record. For file attachments the file on disk is also removed; link attachments simply delete the row. Admin or the uploader only. */
 app.delete('/api/attachments/:id', async (req, res) => {
   if (!req.user) return res.status(401).json({ error: 'Authentication required' });
@@ -7792,7 +7815,7 @@ async function processOneInboundEmail(message, opts = {}) {
       await createNotification(
         admin.username, 'email', 'Email auto-matched (low confidence)',
         `"${subject}" from ${senderName} was matched to ${match.matchedClient} / ${match.matchedTask}. Please verify.`,
-        null, true
+        entityId, true
       );
     }
   }

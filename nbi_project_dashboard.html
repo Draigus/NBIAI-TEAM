@@ -1263,6 +1263,9 @@ span.fin-editable { display: inline-block; position: relative; }
 .attachment-row__size { color: var(--text-muted); font-size: 0.68rem; font-family: var(--font-mono); flex-shrink: 0; }
 .attachment-row__delete { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1rem; padding: 0 4px; flex-shrink: 0; }
 .attachment-row__delete:hover { color: var(--danger); }
+.attachment-verify-badge { background: #fef3c7; color: #92400e; border: 1px solid #f59e0b; border-radius: 4px; font-size: 0.6rem; font-weight: 600; padding: 1px 6px; cursor: pointer; flex-shrink: 0; animation: verify-pulse 2s ease-in-out infinite; }
+.attachment-verify-badge:hover { background: #fde68a; }
+@keyframes verify-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
 
 .leads-card-list__item { background: var(--bg-raised); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-md) var(--space-lg); cursor: pointer; transition: border-color 0.15s; }
 .leads-card-list__item:hover { border-color: var(--accent-border); }
@@ -15531,13 +15534,18 @@ async function loadEntityFiles(entityType, entityId, containerId) {
       el.innerHTML = '<span style="color:var(--text-muted);font-size:0.75rem">No files attached</span>';
     } else {
       el.innerHTML = files.map(f => {
+        const needsVerify = f.uploaded_by && f.uploaded_by.includes('verify match');
+        const verifyBadge = needsVerify
+          ? `<button class="attachment-verify-badge" onclick="showAttachmentVerifyDialog('${f.id}','${entityType}','${entityId}','${containerId}')" title="Auto-matched from email — click to confirm or reassign">&#9888; Verify</button>`
+          : (f.uploaded_by && f.uploaded_by.startsWith('nbihub') ? `<span style="font-size:0.58rem;color:var(--text-muted);padding:1px 4px;border:1px solid var(--border-subtle);border-radius:3px">&#128231; email</span>` : '');
+
         // Link attachments: distinct icon, open in new tab, no size
         if (f.link_url) {
           const display = f.link_title || f.link_url;
-          // &#128279; = link, looks similar to a Sharepoint chain-link icon
           return `<div class="attachment-row">
             <span class="attachment-row__icon" title="Link">&#128279;</span>
             <a href="${esc(f.link_url)}" target="_blank" rel="noopener noreferrer" class="attachment-row__name" title="${esc(f.link_url)}">${esc(display)}</a>
+            ${verifyBadge}
             <span class="attachment-row__size" style="font-size:0.62rem;color:var(--text-muted)">link</span>
             <button class="attachment-row__delete" onclick="deleteEntityFile('${f.id}','${entityType}','${entityId}','${containerId}')" title="Delete">&times;</button>
           </div>`;
@@ -15547,12 +15555,78 @@ async function loadEntityFiles(entityType, entityId, containerId) {
         return `<div class="attachment-row">
           <span class="attachment-row__icon">${icon}</span>
           <a href="/api/attachments/download/${encodeURIComponent(f.filename)}" target="_blank" class="attachment-row__name" title="${esc(f.original_name)}">${esc(f.original_name)}</a>
+          ${verifyBadge}
           <span class="attachment-row__size">${sizeMB}MB</span>
           <button class="attachment-row__delete" onclick="deleteEntityFile('${f.id}','${entityType}','${entityId}','${containerId}')" title="Delete">&times;</button>
         </div>`;
       }).join('');
     }
   } catch(e) { el.innerHTML = '<span style="color:var(--text-muted);font-size:0.75rem">Error loading files</span>'; }
+}
+
+/** Show verify/reassign dialog for auto-matched email attachments */
+async function showAttachmentVerifyDialog(attachmentId, entityType, entityId, containerId) {
+  // Fetch clients + projects for the reassign picker
+  const clients = await apiCall('/api/clients') || [];
+  const clientOpts = clients.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
+
+  const html = `<div class="modal-overlay open" id="verifyAttachmentModal" onclick="if(event.target===this)this.remove()" style="z-index:500">
+    <div style="background:var(--bg-raised);border:1px solid var(--border-default);border-radius:var(--radius-lg);padding:24px;max-width:420px;margin:auto;margin-top:15vh">
+      <h3 style="margin:0 0 12px;font-size:0.95rem;color:var(--text-primary)">Verify Email Attachment Match</h3>
+      <p style="font-size:0.8rem;color:var(--text-secondary);margin:0 0 16px">This attachment was auto-matched from an inbound email. Is it attached to the right place?</p>
+      <div style="display:flex;gap:8px;margin-bottom:16px">
+        <button class="btn btn--primary" onclick="confirmAttachmentMatch('${attachmentId}','${entityType}','${entityId}','${containerId}')">Yes, correct</button>
+        <button class="btn btn--danger" onclick="document.getElementById('reassignPicker').style.display='flex'">No, reassign</button>
+      </div>
+      <div id="reassignPicker" style="display:none;flex-direction:column;gap:8px;border-top:1px solid var(--border-default);padding-top:12px">
+        <label style="font-size:0.75rem;color:var(--text-muted)">Move to a different client/project:</label>
+        <select id="reassignClient" onchange="loadReassignTasks(this.value)" style="font-size:0.8rem;padding:4px 8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)">
+          <option value="">Select client...</option>
+          ${clientOpts}
+        </select>
+        <select id="reassignTask" style="font-size:0.8rem;padding:4px 8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)">
+          <option value="">Select project/task...</option>
+        </select>
+        <button class="btn btn--primary btn--sm" onclick="reassignAttachment('${attachmentId}','${entityType}','${entityId}','${containerId}')" style="align-self:flex-end">Move attachment</button>
+      </div>
+    </div>
+  </div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+/** Load tasks for the reassign picker when client is selected */
+async function loadReassignTasks(clientId) {
+  const sel = document.getElementById('reassignTask');
+  if (!clientId) { sel.innerHTML = '<option value="">Select project/task...</option>'; return; }
+  const tasks = await apiCall(`/api/tasks?client_id=${clientId}`) || [];
+  const active = tasks.filter(t => t.status !== 'Done' && t.status !== 'Cancelled');
+  sel.innerHTML = '<option value="">Attach to client (no specific task)</option>' +
+    active.map(t => `<option value="${t.id}">${esc(t.title)} (${t.item_type})</option>`).join('');
+}
+
+/** Confirm an auto-matched attachment is correct — removes verify flag */
+async function confirmAttachmentMatch(attachmentId, entityType, entityId, containerId) {
+  await authFetch(`/api/attachments/${attachmentId}/confirm`, { method: 'PATCH' });
+  document.getElementById('verifyAttachmentModal')?.remove();
+  loadEntityFiles(entityType, entityId, containerId);
+  showToast('Attachment confirmed');
+}
+
+/** Reassign an attachment to a different entity */
+async function reassignAttachment(attachmentId, oldEntityType, oldEntityId, containerId) {
+  const clientId = document.getElementById('reassignClient').value;
+  const taskId = document.getElementById('reassignTask').value;
+  if (!clientId) { showToast('Please select a client', 'error'); return; }
+  const newEntityType = taskId ? 'task' : 'client';
+  const newEntityId = taskId || clientId;
+  await authFetch(`/api/attachments/${attachmentId}/reassign`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ entityType: newEntityType, entityId: newEntityId })
+  });
+  document.getElementById('verifyAttachmentModal')?.remove();
+  loadEntityFiles(oldEntityType, oldEntityId, containerId);
+  showToast('Attachment moved');
 }
 
 /** Toggle an inline "Add Link" form inside an attachments section. */
