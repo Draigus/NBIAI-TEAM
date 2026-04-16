@@ -961,13 +961,19 @@ app.post('/api/users', async (req, res) => {
   const lenErr = validateLength(username, 'name', 200) || validateLength(display_name, 'name') || validateLength(email, 'email');
   if (lenErr) return res.status(400).json({ error: lenErr });
   const hash = await bcrypt.hash(password, 10);
+  const cleanEmail = email && email.trim() ? email.trim() : null;
+  // Check for duplicate email before insert
+  if (cleanEmail) {
+    const { rows: existing } = await pool.query('SELECT id FROM users WHERE email = $1', [cleanEmail]);
+    if (existing.length > 0) return res.status(409).json({ error: 'Email address already in use' });
+  }
   // Atomic insert — ON CONFLICT prevents race conditions
   const { rows } = await pool.query(
     `INSERT INTO users (username, display_name, email, password_hash, role, client_id)
      VALUES ($1, $2, $3, $4, $5, $6)
      ON CONFLICT (username) DO NOTHING
      RETURNING id, username, display_name, email, role, client_id`,
-    [username.toLowerCase().trim(), display_name || username, email || '', hash, role || 'user', client_id]
+    [username.toLowerCase().trim(), display_name || username, cleanEmail, hash, role || 'member', client_id]
   );
   if (rows.length === 0) return res.status(409).json({ error: 'Username already exists' });
   await auditLog('user', rows[0].id, 'create', req.user?.displayName, { username, display_name });
@@ -8045,16 +8051,16 @@ if (cron) {
   log('info', 'Cron', 'Due/late ticket warnings scheduled for 09:00 weekdays');
 }
 
-// Inbound Email Polling — every 5 minutes
+// Inbound Email Polling — every 10 minutes (reduced from 5 to avoid Graph API 429 throttling)
 if (cron) {
-  cron.schedule('*/5 * * * *', async () => {
+  cron.schedule('*/10 * * * *', async () => {
     try {
       await processInboundEmails();
     } catch (e) {
       log('error', 'Cron', 'Inbound email poll failed', { error: e.message });
     }
   });
-  log('info', 'Cron', 'Inbound email polling scheduled every 5 minutes');
+  log('info', 'Cron', 'Inbound email polling scheduled every 10 minutes');
 }
 
 // ==================== ERROR HANDLING ====================
