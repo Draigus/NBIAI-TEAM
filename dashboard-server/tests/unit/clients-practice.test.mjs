@@ -1,8 +1,10 @@
 // dashboard-server/tests/unit/clients-practice.test.mjs
 //
 // G2 regression: practice_area is mandatory on client creation and must
-// be one of the two valid slugs (gaming | organisational_health). "general"
-// is rejected going forward (Glen decision D84, 2026-04-15).
+// be one of the two valid slugs (gaming | organisational_performance).
+// "general" is rejected going forward (Glen decision D84, 2026-04-15).
+// The second slug was renamed from organisational_health → organisational_performance
+// in migration 025 — Glen reframed the practice as Performance.
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { createRequire } from 'module';
@@ -40,7 +42,7 @@ describe('POST /api/clients — practice_area is mandatory (G2)', () => {
       .send({ name: 'General Co', practice_area: 'general' });
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toMatch(/gaming|organisational_health/i);
+    expect(res.body.error).toMatch(/gaming|organisational_performance/i);
   });
 
   it('accepts a create with practice_area = "gaming"', async () => {
@@ -56,16 +58,29 @@ describe('POST /api/clients — practice_area is mandatory (G2)', () => {
     expect(res.body.practice_area).toBe('gaming');
   });
 
-  it('accepts a create with practice_area = "organisational_health"', async () => {
+  it('accepts a create with practice_area = "organisational_performance"', async () => {
     const u = await createTestUser({ role: 'admin' });
     const token = await mintSession(u.id);
 
     const res = await request(app)
       .post('/api/clients')
       .set('Authorization', `Bearer ${token}`)
-      .send({ name: 'Org Health Co', practice_area: 'organisational_health' });
+      .send({ name: 'Org Perf Co', practice_area: 'organisational_performance' });
 
     expect(res.status).toBe(201);
-    expect(res.body.practice_area).toBe('organisational_health');
+    expect(res.body.practice_area).toBe('organisational_performance');
+  });
+
+  it('rejects a create with the old "organisational_health" slug', async () => {
+    const u = await createTestUser({ role: 'admin' });
+    const token = await mintSession(u.id);
+
+    const res = await request(app)
+      .post('/api/clients')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: 'Old Slug Co', practice_area: 'organisational_health' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/organisational_performance/i);
   });
 });

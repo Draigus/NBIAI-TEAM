@@ -3653,10 +3653,10 @@ function filterByClient(c) { currentFilter = { client: c, project: null, status:
 // G2 / decision D84: exactly two practices, with "general" removed.
 // Slug is stored in the DB; label is shown in the full sidebar; abbrev is
 // shown in the collapsed sidebar. shortLabel is the terser display name
-// Glen specified ("Org Health") for space-constrained UIs.
+// Glen specified ("Org Perf") for space-constrained UIs.
 const PRACTICES = [
   { value: 'gaming',                label: 'Gaming',                shortLabel: 'Gaming',    abbrev: 'GM', colour: '#22c1c3' },
-  { value: 'organisational_health', label: 'Organizational Health', shortLabel: 'Org Health', abbrev: 'OH', colour: '#7c5cff' },
+  { value: 'organisational_performance', label: 'Organizational Performance', shortLabel: 'Org Perf', abbrev: 'OP', colour: '#7c5cff' },
 ];
 function getPracticeLabel(value) {
   const p = PRACTICES.find(x => x.value === value);
@@ -12595,7 +12595,7 @@ async function createClientFromManage() {
   if (!name) { toast('Client name is required'); return; }
   // G2 / D84: practice_area is required at creation time
   const practice_area = document.getElementById('newClientPractice')?.value || '';
-  if (!practice_area) { toast('Practice is required — pick Gaming or Organizational Health', 'warning'); return; }
+  if (!practice_area) { toast('Practice is required — pick Gaming or Organizational Performance', 'warning'); return; }
   const sector = document.getElementById('newClientSector')?.value || null;
   const headquarters = document.getElementById('newClientHQ')?.value.trim() || null;
 

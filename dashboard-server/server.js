@@ -2626,8 +2626,10 @@ app.post('/api/clients', async (req, res) => {
   const lenErr = validateLength(name, 'name');
   if (lenErr) return res.status(400).json({ error: lenErr });
   // G2 / decision D84: practice_area is MANDATORY and must be one of the
-  // two valid slugs. "general" is rejected going forward.
-  const VALID_PRACTICES = ['gaming', 'organisational_health'];
+  // two valid slugs. "general" is rejected going forward. The second slug
+  // was renamed from organisational_health → organisational_performance
+  // in migration 025 per Glen's decision to reframe as Performance.
+  const VALID_PRACTICES = ['gaming', 'organisational_performance'];
   if (!practice_area || !VALID_PRACTICES.includes(practice_area)) {
     return res.status(400).json({ error: `practice_area is required and must be one of: ${VALID_PRACTICES.join(', ')}` });
   }
