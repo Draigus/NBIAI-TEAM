@@ -18,10 +18,11 @@ describe('buildDueWarningEmails', () => {
   });
 
   it('sends one email per assignee consolidating all their due/late tickets', async () => {
-    const alice = await createTestUser({ username: 'alice', email: 'alice@example.invalid' });
+    // Assignees are stored as display_names in tasks, not usernames
+    const alice = await createTestUser({ username: 'alice', display_name: 'Alice Smith', email: 'alice@example.invalid' });
     const client = await createTestClient({ name: 'Acme' });
-    await createTestTask({ title: 'Due Today', assignees: ['alice'], due_date: '2026-04-16', status: 'In progress', client_id: client.id });
-    await createTestTask({ title: 'Late 1d', assignees: ['alice'], due_date: '2026-04-15', status: 'In progress', client_id: client.id });
+    await createTestTask({ title: 'Due Today', assignees: [alice.display_name], due_date: '2026-04-16', status: 'In progress', client_id: client.id });
+    await createTestTask({ title: 'Late 1d', assignees: [alice.display_name], due_date: '2026-04-15', status: 'In progress', client_id: client.id });
 
     const emails = await buildDueWarningEmails('2026-04-16');
     expect(emails).toHaveLength(1);

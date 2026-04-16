@@ -177,6 +177,21 @@ async function createTestTeamMember(opts) {
 }
 
 async function createTestAuditEntry(opts) {
+  if (opts.created_at) {
+    const { rows } = await pool.query(
+      `INSERT INTO audit_log (entity_type, entity_id, action, changed_by, changes, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+      [
+        opts.entity_type || 'task',
+        opts.entity_id,
+        opts.action || 'update',
+        opts.changed_by || 'test',
+        opts.changes ? JSON.stringify(opts.changes) : null,
+        opts.created_at
+      ]
+    );
+    return rows[0];
+  }
   const { rows } = await pool.query(
     `INSERT INTO audit_log (entity_type, entity_id, action, changed_by, changes)
      VALUES ($1, $2, $3, $4, $5) RETURNING *`,

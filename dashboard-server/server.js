@@ -17,7 +17,7 @@
  * Environment variables:
  *   PORT            — HTTP port (default: 8888)
  *   DATABASE_URL    — PostgreSQL connection string
- *   SMTP_HOST/PORT/USER/PASS/FROM — Email config for password resets
+ *   AZURE_CLIENT_ID/TENANT_ID/CLIENT_SECRET/EMAIL_FROM — Microsoft Graph API email config
  *   APP_URL         — Base URL for reset links
  *
  * Usage:
@@ -176,9 +176,11 @@ if (AZURE_TENANT_ID && AZURE_CLIENT_ID && AZURE_CLIENT_SECRET) {
 
 /** Acquire a Graph API access token (cached internally by MSAL) */
 async function _getGraphToken() {
+  if (!_msalClient) throw new Error('MSAL client not configured');
   const result = await _msalClient.acquireTokenByClientCredential({
     scopes: ['https://graph.microsoft.com/.default']
   });
+  if (!result || !result.accessToken) throw new Error('Failed to acquire Graph API token');
   return result.accessToken;
 }
 
@@ -277,7 +279,7 @@ function buildEmailTable(cols, rows) {
   const tdStyle = 'padding:8px 12px;border-bottom:1px solid #f1f5f9;font-size:13px';
   const header = cols.map(c => `<th style="${thStyle}">${c.label}</th>`).join('');
   const body = rows.map(r =>
-    '<tr>' + cols.map(c => `<td style="${tdStyle}${c.style ? ';' + c.style : ''}">${r[c.key] ?? ''}</td>`).join('') + '</tr>'
+    '<tr>' + cols.map(c => `<td style="${tdStyle}${c.style ? ';' + c.style : ''}">${escHtml(String(r[c.key] ?? ''))}</td>`).join('') + '</tr>'
   ).join('');
   return `<table style="width:100%;border-collapse:collapse;margin:12px 0">${header ? `<tr>${header}</tr>` : ''}${body}</table>`;
 }
@@ -819,7 +821,7 @@ function requireInternal(req, res, next) {
 /**
  * POST /api/auth/forgot-password
  * Request a password reset email. Always returns success to prevent username enumeration.
- * If SMTP is not configured, the reset link is logged to the console as a fallback.
+ * If Microsoft Graph API email is not configured, the reset link is logged to the console as a fallback.
  */
 app.post('/api/auth/forgot-password', async (req, res) => {
   const { username } = req.body;
@@ -2296,7 +2298,7 @@ app.delete('/api/tasks/:id/attachments/:attachmentId', async (req, res) => {
 const VALID_ENTITY_TYPES = ['client', 'project', 'task', 'lead', 'expense'];
 
 /** GET /api/attachments/verify-matches — List all auto-matched email attachments needing verification */
-app.get('/api/attachments/verify-matches', async (req, res) => {
+app.get('/api/attachments/verify-matches', requireInternal, async (req, res) => {
   const { rows } = await pool.query(`
     SELECT a.id, a.entity_type, a.entity_id, a.original_name, a.uploaded_by, a.created_at,
            CASE WHEN a.entity_type = 'task' THEN (SELECT title FROM tasks WHERE id = a.entity_id)
@@ -2343,7 +2345,7 @@ app.get('/api/attachments/download/:filename', (req, res) => {
 });
 
 /** PATCH /api/attachments/:id/confirm — Confirm an auto-matched email attachment (remove verify flag) */
-app.patch('/api/attachments/:id/confirm', requireAuth, async (req, res) => {
+app.patch('/api/attachments/:id/confirm', requireInternal, async (req, res) => {
   const { rows } = await pool.query(
     "UPDATE attachments SET uploaded_by = REPLACE(uploaded_by, ' - verify match', '') WHERE id = $1 RETURNING *",
     [req.params.id]
@@ -2353,7 +2355,7 @@ app.patch('/api/attachments/:id/confirm', requireAuth, async (req, res) => {
 });
 
 /** PATCH /api/attachments/:id/reassign — Move an attachment to a different entity */
-app.patch('/api/attachments/:id/reassign', requireAuth, async (req, res) => {
+app.patch('/api/attachments/:id/reassign', requireInternal, async (req, res) => {
   const { entityType, entityId } = req.body;
   if (!['client', 'project', 'task', 'lead'].includes(entityType)) return res.status(400).json({ error: 'Invalid entity type' });
   if (!isValidUuid(entityId)) return res.status(400).json({ error: 'Invalid entity ID' });
@@ -3969,18 +3971,16 @@ app.patch('/api/tasks/:id', async (req, res) => {
   // Notify assignees of meaningful task changes (skip position/updated_at noise)
   try {
     const changedFields = Object.keys(changes).filter(k => !['position', 'updated_at'].includes(k));
-    if (changedFields.length > 0 && Array.isArray(updatedTask.assignees) && updatedTask.assignees.length > 0) {
-      for (const assignee of updatedTask.assignees) {
-        if (!assignee) continue;
-        const { rows: userRows } = await pool.query(
-          'SELECT username FROM users WHERE display_name = $1 AND is_active = true',
-          [assignee]
-        );
-        if (userRows.length === 0) continue;
-        const assigneeUsername = userRows[0].username;
-        if (assigneeUsername === req.user?.username) continue; // Don't notify the person making the change
+    // Batch lookup: one query for all assignees instead of one per assignee
+    const assigneeNames = (updatedTask.assignees || []).filter(a => a !== req.user?.displayName);
+    if (assigneeNames.length > 0 && changedFields.length > 0) {
+      const { rows: assigneeUsers } = await pool.query(
+        'SELECT username, display_name FROM users WHERE display_name = ANY($1) AND is_active = true',
+        [assigneeNames]
+      );
+      for (const u of assigneeUsers) {
         await createNotification(
-          assigneeUsername, 'info', 'Task updated',
+          u.username, 'info', 'Task updated',
           `"${updatedTask.title}" was updated: ${changedFields.join(', ')}`,
           updatedTask.id, true
         );
@@ -4042,24 +4042,25 @@ app.delete('/api/tasks/:id', async (req, res) => {
 
     // Notify assignees the task was deleted (fire-and-forget, outside the transaction)
     if (taskToDelete && Array.isArray(taskToDelete.assignees) && taskToDelete.assignees.length > 0) {
-      for (const assignee of taskToDelete.assignees) {
-        if (!assignee) continue;
-        try {
-          const { rows: userRows } = await pool.query(
-            'SELECT username FROM users WHERE display_name = $1 AND is_active = true',
-            [assignee]
+      try {
+        // Batch lookup: one query for all assignees instead of one per assignee
+        const assigneeNames = taskToDelete.assignees.filter(a => a);
+        if (assigneeNames.length > 0) {
+          const { rows: assigneeUsers } = await pool.query(
+            'SELECT username, display_name FROM users WHERE display_name = ANY($1) AND is_active = true',
+            [assigneeNames]
           );
-          if (userRows.length === 0) continue;
-          const assigneeUsername = userRows[0].username;
-          if (assigneeUsername === req.user?.username) continue;
-          await createNotification(
-            assigneeUsername, 'warning', 'Task deleted',
-            `Task "${taskToDelete.title}" was deleted by ${req.user?.displayName || 'an admin'}.`,
-            null, true
-          );
-        } catch (notifErr) {
-          log('warn', 'Tasks', 'Delete notification failed for assignee', { assignee, error: notifErr.message });
+          for (const u of assigneeUsers) {
+            if (u.username === req.user?.username) continue;
+            await createNotification(
+              u.username, 'warning', 'Task deleted',
+              `Task "${taskToDelete.title}" was deleted by ${req.user?.displayName || 'an admin'}.`,
+              null, true
+            );
+          }
         }
+      } catch (notifErr) {
+        log('warn', 'Tasks', 'Delete notification failed', { error: notifErr.message });
       }
     }
   } catch (e) {
@@ -8057,10 +8058,10 @@ async function buildDueWarningEmails(todayStr) {
 
   // Fetch email addresses for those users
   const { rows: users } = await pool.query(
-    'SELECT username, email, display_name FROM users WHERE username = ANY($1) AND email IS NOT NULL AND is_active = true',
+    'SELECT username, email, display_name FROM users WHERE display_name = ANY($1) AND email IS NOT NULL AND is_active = true',
     [allAssignees]
   );
-  const emailMap = Object.fromEntries(users.map(u => [u.username, { email: u.email, name: u.display_name }]));
+  const emailMap = Object.fromEntries(users.map(u => [u.display_name, { email: u.email, name: u.display_name }]));
 
   // Group tasks by assignee
   const byAssignee = {};

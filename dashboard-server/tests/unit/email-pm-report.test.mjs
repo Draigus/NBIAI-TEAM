@@ -34,6 +34,7 @@ describe('buildPmReportEmails', () => {
     await createTestAuditEntry({
       entity_type: 'task', entity_id: task.id, action: 'update',
       changed_by: 'dev1', changes: { status: { from: 'Not started', to: 'In progress' } },
+      created_at: '2026-04-15T12:00:00Z', // within the test window
     });
 
     const emails = await buildPmReportEmails('2026-04-16', '2026-04-15T08:00:00Z', '2026-04-16T08:00:00Z');
