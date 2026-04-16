@@ -2586,7 +2586,7 @@ let currentView = 'dashboard';
 // Valid values: 'organisational', 'gaming', 'general', or null (= All).
 // Phase 9 of the WorkSage backlog (a6c82c8c). Stored on tasks/leads/clients
 // as `practiceArea` / `practice_area`. Sidebar PRACTICES section toggles it.
-let currentFilter = { client: null, project: null, status: [], health: [], assignee: [], search: '', sort: 'default', practice: null };
+let currentFilter = { client: null, project: null, status: [], health: [], priority: [], assignee: [], search: '', sort: 'default', practice: null };
 let selectedTaskIds = new Set();  // Bulk selection for batch operations
 let pendingCSVData = null;        // Staging area for CSV import preview
 let taskSubView = localStorage.getItem('nbi_task_subview') || 'tree'; // 'tree' | 'board' | 'gantt' | 'calendar'
@@ -3090,6 +3090,7 @@ function getFilteredTasks() {
   if (currentFilter.project) { const pid = currentFilter.project; list = list.filter(t => t.id === pid || getDescendants(pid).some(d => d.id === t.id)); }
   if (currentFilter.status && currentFilter.status.length > 0) list = list.filter(t => currentFilter.status.includes(t.status));
   if (currentFilter.health && currentFilter.health.length > 0) list = list.filter(t => currentFilter.health.includes(t.healthState || 'Not set'));
+  if (currentFilter.priority && currentFilter.priority.length > 0) list = list.filter(t => currentFilter.priority.includes(t.priority));
   if (currentFilter.assignee && currentFilter.assignee.length > 0) list = list.filter(t => t.assignees?.some(a => currentFilter.assignee.includes(a)));
   // "My Work Only" sort option (bug c73af494): when selected, auto-filter to
   // the current user's tasks even if the People multi-select is empty.
@@ -3327,7 +3328,7 @@ function renderSidebar() {
   if (!isScoped) {
     html += sidebarItem(svgDashboard, 'Workload', '', () => switchView('dashboard'), currentView==='dashboard');
   }
-  html += sidebarItem(svgTasks, 'Projects', scopedForHealth.length, () => switchView('tasks'), currentView==='tasks');
+  html += sidebarItem(svgTasks, 'Projects', scopedForHealth.length, () => { currentFilter.priority = []; switchView('tasks'); }, currentView==='tasks');
   html += sidebarItem(svgPeople, 'People', '', () => switchView('people'), currentView==='people');
   const svgLeads = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 2h12v3H2zM4 5h8v3H4zM6 8h4v3H6zM7 11h2v3H7z"/></svg>';
   if (!isScoped && hasPageAccess('leads')) {
@@ -3415,8 +3416,9 @@ function renderSidebar() {
 
   // Quick Filters
   html += sidebarSectionOpen('quickfilters', 'Quick Filters');
-  const critCount = practiceTasks.filter(t => t.priority === 'Critical ACT' || t.priority === 'Urgent' || t.priority === 'High').length;
-  html += sidebarItem('&#9888;', 'Critical / High', critCount, () => { currentFilter = { ...currentFilter, status: [], health: [], client: null, project: null }; switchView('tasks'); renderAll(); }, false);
+  const critPriorities = ['Critical ACT', 'Urgent', 'High'];
+  const critCount = practiceTasks.filter(t => critPriorities.includes(t.priority)).length;
+  html += sidebarItem('&#9888;', 'Critical / High', critCount, () => { currentFilter = { ...currentFilter, status: [], health: [], priority: critPriorities, client: null, project: null }; switchView('tasks'); renderAll(); }, false);
   html += sidebarSectionClose();
 
   document.getElementById('sidebarNav').innerHTML = html;
