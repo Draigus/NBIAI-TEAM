@@ -279,7 +279,7 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .tactical-metric { flex: 1; text-align: center; padding: 12px 8px; background: var(--bg-card); }
 .tactical-metric__value { display: block; font-size: 1.6rem; font-weight: 700; font-family: var(--font-display); line-height: 1.2; }
 .tactical-metric__label { font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; }
-.tactical-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: var(--space-lg); }
+.tactical-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: var(--space-md); }
 .tactical-panel { display: flex; flex-direction: column; gap: var(--space-md); min-width: 0; }
 .tactical-section { min-width: 0; overflow: hidden; }
 .tactical-section .tactical-item { word-break: break-word; }
@@ -3949,11 +3949,10 @@ function renderTacticalDashboard() {
     return { bg: 'transparent', weight: '400', icon: '' };
   }
 
-  // TOP ROW: Overdue (left) + This Week (right) side by side
+  // GRID: Overdue | Imminent | Blocked | At Risk — 4 columns on widescreen
   html += `<div class="tactical-grid">`;
 
-  // LEFT: Overdue
-  html += `<div class="tactical-panel">`;
+  // Column 1: Overdue
   html += `<div class="tactical-section" id="tactOverdue">`;
   const sectionClient = currentFilter.client ? currentFilter.client + ' — ' : '';
   html += `<div class="tactical-section__header"><span class="tactical-section__title" style="color:var(--danger)">&#9888; ${sectionClient}Overdue (${overdueTasks.length})</span></div>`;
@@ -3987,9 +3986,9 @@ function renderTacticalDashboard() {
       });
     });
   }
-  html += `</div>`; // close tactOverdue section
+  html += `</div>`; // close Overdue column
 
-  // Imminent (due within 3 days)
+  // Column 2: Imminent (due within 3 days)
   html += `<div class="tactical-section" id="tactImminent">`;
   html += `<div class="tactical-section__header"><span class="tactical-section__title" style="color:#f59e0b">&#9200; ${sectionClient}Imminent (${imminentTasks.length})</span></div>`;
   if (imminentTasks.length === 0) {
@@ -4041,9 +4040,7 @@ function renderTacticalDashboard() {
     html += `</div>`;
   }
 
-  html += `</div>`; // close left panel (now contains Overdue + Imminent + Blocked + At Risk)
-
-  // RIGHT: This Week
+  // This Week (separate section below the grid, or as the last grid child)
   html += `<div class="tactical-panel">`;
   const dueThisWeekAll = filtered.filter(t => {
     if (!t.dueDate) return false;
