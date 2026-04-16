@@ -57,9 +57,11 @@ async function createTestTask(opts = {}) {
   const title = opts.title || uniq('TestTask');
   const item_type = opts.item_type || 'project';
   const status = opts.status || 'Not started';
+  const due_date = opts.due_date || '';
+  const assignees = opts.assignees || [];
   const { rows } = await pool.query(
-    `INSERT INTO tasks (title, parent_id, client_id, item_type, status, priority, description)
-     VALUES ($1, $2, $3, $4, $5, $6, $7)
+    `INSERT INTO tasks (title, parent_id, client_id, item_type, status, priority, description, due_date, assignees)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
      RETURNING *`,
     [
       title,
@@ -68,7 +70,9 @@ async function createTestTask(opts = {}) {
       item_type,
       status,
       opts.priority || '',
-      opts.description || ''
+      opts.description || '',
+      due_date,
+      assignees
     ]
   );
   return rows[0];
@@ -153,6 +157,40 @@ async function createTestLeadStage(opts = {}) {
   return rows[0];
 }
 
+async function createTestTeam(opts = {}) {
+  const name = opts.name || uniq('TestTeam');
+  const { rows } = await pool.query(
+    `INSERT INTO teams (name, description, client_id, colour)
+     VALUES ($1, $2, $3, $4) RETURNING *`,
+    [name, opts.description || '', opts.client_id || null, opts.colour || '#3b82f6']
+  );
+  return rows[0];
+}
+
+async function createTestTeamMember(opts) {
+  const { rows } = await pool.query(
+    `INSERT INTO team_members (team_id, user_id, role)
+     VALUES ($1, $2, $3) RETURNING *`,
+    [opts.team_id, opts.user_id, opts.role || 'member']
+  );
+  return rows[0];
+}
+
+async function createTestAuditEntry(opts) {
+  const { rows } = await pool.query(
+    `INSERT INTO audit_log (entity_type, entity_id, action, changed_by, changes)
+     VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+    [
+      opts.entity_type || 'task',
+      opts.entity_id,
+      opts.action || 'update',
+      opts.changed_by || 'test',
+      opts.changes ? JSON.stringify(opts.changes) : null
+    ]
+  );
+  return rows[0];
+}
+
 module.exports = {
   uniq,
   createTestUser,
@@ -162,4 +200,7 @@ module.exports = {
   createTestCandidate,
   createTestLead,
   createTestLeadStage,
+  createTestTeam,
+  createTestTeamMember,
+  createTestAuditEntry,
 };
