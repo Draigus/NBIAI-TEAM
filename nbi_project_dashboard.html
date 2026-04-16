@@ -257,6 +257,9 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .sidebar__item__icon { margin-right: var(--space-sm); font-size: 0.9rem; }
 .sidebar__item__label { flex: 1; }
 .sidebar__item__count { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); }
+.sidebar__item--alert-active { animation: alert-flash 2s ease-in-out infinite; }
+@keyframes alert-flash { 0%,100% { background: transparent; } 50% { background: rgba(239, 68, 68, 0.15); } }
+.sidebar__item--alert-active .sidebar__item__icon { color: var(--danger); }
 .sidebar__dot { width: 10px; height: 10px; border-radius: 50%; margin-right: var(--space-sm); flex-shrink: 0; }
 
 /* ===== MAIN CONTENT ===== */
@@ -2021,11 +2024,7 @@ span.fin-editable { display: inline-block; position: relative; }
     </div>
     <button class="btn header-desktop-only" onclick="printReport()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="1" width="8" height="4" rx="1"/><rect x="1" y="5" width="12" height="6" rx="1.5"/><rect x="4" y="9" width="6" height="4" rx="0.5"/></svg> Print</button>
     <button class="btn header-desktop-only" onclick="openBugReportModal()" id="bugReportBtn" title="Report Bug or Feature Request" style="background:#f59e0b;color:#000;font-weight:600;font-size:0.75rem;padding:4px 10px;border-radius:var(--radius-sm)">&#128030; Report</button>
-    <button class="btn btn--ghost" onclick="toggleNotifications()" id="notifBtn" title="Notifications" style="position:relative"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1a4 4 0 014 4c0 4 2 5 2 5H2s2-1 2-5a4 4 0 014-4z"/><path d="M6.5 14a1.5 1.5 0 003 0"/></svg><span id="notifBadge" style="display:none;position:absolute;top:-2px;right:-2px;background:var(--danger);color:#fff;font-size:0.55rem;font-weight:700;border-radius:50%;width:14px;height:14px;line-height:14px;text-align:center">0</span></button>
-    <div id="notifPanel" style="display:none;position:absolute;top:48px;right:60px;width:340px;max-height:400px;overflow-y:auto;background:var(--bg-raised);border:1px solid var(--border-default);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);z-index:300;padding:0">
-      <div style="padding:var(--space-md) var(--space-lg);border-bottom:1px solid var(--border-default);display:flex;justify-content:space-between;align-items:center"><strong style="font-size:0.82rem">Notifications</strong><button class="btn btn--sm" onclick="markAllNotificationsRead()" style="font-size:0.65rem;padding:2px 6px">Mark all read</button></div>
-      <div id="notifList" style="padding:var(--space-sm)"><div style="color:var(--text-muted);font-size:0.78rem;padding:12px;text-align:center">No notifications</div></div>
-    </div>
+    <!-- Notification bell removed — now in sidebar Alerts panel -->
     <div class="theme-picker header-desktop-only" id="themePicker">
       <button class="btn btn--ghost" onclick="toggleThemeDropdown(event)" id="themeBtn" title="Choose theme"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="4" cy="8" r="2.5"/><circle cx="12" cy="5" r="2"/><circle cx="11" cy="12" r="1.5"/></svg></button>
       <div class="theme-picker__dropdown" id="themeDropdown"></div>
@@ -2160,15 +2159,7 @@ span.fin-editable { display: inline-block; position: relative; }
 </div><!-- /appContainer -->
 
 <!-- ===== WARNINGS & ALERTS SIDEBAR ===== -->
-<!-- Minimised trigger button (hidden until there are warnings or unread alerts) -->
-<button id="warnAlertBtn" class="warn-alert-btn" onclick="toggleWarnAlertSidebar()" aria-label="Warnings and alerts" title="Warnings and alerts" style="display:none">
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-    <line x1="12" y1="9" x2="12" y2="13"/>
-    <line x1="12" y1="17" x2="12.01" y2="17"/>
-  </svg>
-  <span id="warnAlertBadge" class="warn-alert-btn__badge"></span>
-</button>
+<!-- Alerts button is now in the sidebar (see renderSidebar) -->
 
 <!-- Sidebar panel -->
 <div id="warnAlertPanel" class="warn-alert-panel" role="dialog" aria-modal="false" aria-label="Warnings and alerts">
@@ -2182,6 +2173,9 @@ span.fin-editable { display: inline-block; position: relative; }
     </button>
     <button role="tab" class="warn-alert-panel__tab" data-tab="alerts" onclick="switchWarnAlertTab('alerts')">
       Alerts <span id="alertTabCount" class="warn-alert-panel__tab-count"></span>
+    </button>
+    <button role="tab" class="warn-alert-panel__tab" data-tab="notifications" onclick="switchWarnAlertTab('notifications')">
+      Notifications <span id="notifTabCount" class="warn-alert-panel__tab-count"></span>
     </button>
   </div>
   <div class="warn-alert-panel__body">
@@ -3350,6 +3344,15 @@ function renderSidebar() {
     html += sidebarItem(svgFinances, 'Finances', '', () => switchView('finances'), currentView==='finances');
   }
   html += sidebarItem(svgSettings, 'Settings', '', () => switchView('settings'), currentView==='settings');
+  // Alerts button — slow red flash when active
+  const alertTotal = (typeof computeWarnings === 'function' ? computeWarnings().length : 0) + (window._lastNotificationCount || 0);
+  const alertActiveClass = alertTotal > 0 ? ' sidebar__item--alert-active' : '';
+  html += `<div style="flex:1"></div>`;
+  html += `<button class="sidebar__item${alertActiveClass}" onclick="toggleWarnAlertSidebar()" title="Warnings, Alerts &amp; Notifications">
+    <span class="sidebar__item__icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
+    <span class="sidebar__item__label">Alerts</span>
+    ${alertTotal > 0 ? '<span class="sidebar__item__count">' + (alertTotal > 99 ? '99+' : alertTotal) + '</span>' : ''}
+  </button>`;
   html += sidebarSectionClose();
 
   // My Tasks shortcut
@@ -16917,19 +16920,23 @@ async function loadTimeEntries(taskId) {
 // ===== NOTIFICATIONS =====
 let _notifOpen = false;
 
-/** Toggle the notifications dropdown panel open/closed */
+/** Legacy no-op — notification bell is removed; alerts live in the sidebar panel now. */
 function toggleNotifications() {
-  _notifOpen = !_notifOpen;
-  document.getElementById('notifPanel').style.display = _notifOpen ? 'block' : 'none';
-  if (_notifOpen) loadNotifications();
+  // Close the warn-alert sidebar if it is open
+  const panel = document.getElementById('warnAlertPanel');
+  if (panel && panel.classList.contains('open')) {
+    panel.classList.remove('open');
+  }
 }
 
-/** Fetch notifications from the API and update the badge count + dropdown content */
 /** Handle notification click — route to the right view based on the link content.
  *  Supports: expense-report deep links (#expenses/report/{uuid}), hash-based view routes
  *  (#bugs, #settings, #mytasks, etc.), and bare task IDs. */
 function handleNotificationClick(link) {
   if (!link) return;
+  // Close the warn-alert sidebar
+  const panel = document.getElementById('warnAlertPanel');
+  if (panel && panel.classList.contains('open')) panel.classList.remove('open');
   // Expense report link: URL containing #expenses/report/{uuid}
   const reportMatch = link.match(/[#/]expenses\/report\/([a-f0-9-]+)/i);
   if (reportMatch) {
@@ -16941,7 +16948,6 @@ function handleNotificationClick(link) {
       } else { attempts++; setTimeout(tryOpen, 200); }
     };
     tryOpen();
-    toggleNotifications(); // close notification panel
     return;
   }
   // Hash-route link, e.g. "/nbi_project_dashboard.html#bugs" or "#settings"
@@ -16952,37 +16958,21 @@ function handleNotificationClick(link) {
     const firstSeg = hashPart.split('/')[0];
     if (firstSeg && knownViews.includes(LEGACY_ROUTES[firstSeg] || firstSeg)) {
       switchView(firstSeg);
-      toggleNotifications();
       return;
     }
   }
   // Default: treat as task ID
   openDetailOverlay(link);
-  toggleNotifications();
 }
 
-/** Fetch notifications from the API and update the badge count and dropdown list */
+/** Fetch notifications from the API and update the sidebar alert count */
 async function loadNotifications() {
   try {
     const result = await apiCall('/api/notifications');
     if (!result) return;
-    const { notifications, unread } = result;
+    const { unread } = result;
     window._lastNotificationCount = unread || 0;
     if (typeof updateWarnAlertButton === 'function') updateWarnAlertButton();
-    const badge = document.getElementById('notifBadge');
-    if (unread > 0) { badge.textContent = unread; badge.style.display = 'block'; }
-    else { badge.style.display = 'none'; }
-    const list = document.getElementById('notifList');
-    if (!list) return;
-    if (notifications.length === 0) { list.innerHTML = '<div style="color:var(--text-muted);font-size:0.78rem;padding:12px;text-align:center">No notifications</div>'; return; }
-    list.innerHTML = notifications.map(n => {
-      const ago = timeAgo(new Date(n.created_at));
-      const isPersistent = n.dismissable === false;
-      const readStyle = n.is_read && !isPersistent ? 'opacity:0.5' : '';
-      const persistBadge = isPersistent && !n.is_read ? '<span style="display:inline-block;font-size:0.6rem;padding:1px 5px;border-radius:3px;background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger-border);margin-left:6px">Action required</span>' : '';
-      const bgStyle = isPersistent && !n.is_read ? 'background:color-mix(in srgb, var(--danger) 6%, var(--bg-surface));border-left:3px solid var(--danger);' : '';
-      return `<div style="padding:8px;border-bottom:1px solid var(--border-subtle);font-size:0.78rem;${readStyle};${bgStyle};cursor:pointer" onclick="handleNotificationClick('${escAttrJs(n.link || '')}')"><div style="font-weight:${n.is_read && !isPersistent?'400':'600'};color:var(--text-primary)">${esc(n.title)}${persistBadge}</div><div style="color:var(--text-muted);font-size:0.68rem;margin-top:2px">${esc(n.message)} &middot; ${ago}</div></div>`;
-    }).join('');
   } catch(e) {}
 }
 
@@ -17009,12 +16999,13 @@ async function checkLeadReminders() {
 // Run reminders check every 60 seconds
 let _leadsReminderInterval = setInterval(() => { if (_currentUser) checkLeadReminders(); }, 60000);
 
-/** Mark all notifications as read via the API and refresh the badge */
+/** Mark all notifications as read via the API and refresh the sidebar alert count */
 async function markAllNotificationsRead() {
   try {
     await authFetch('/api/notifications/read', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
-    document.getElementById('notifBadge').style.display = 'none';
-    loadNotifications();
+    window._lastNotificationCount = 0;
+    if (typeof updateWarnAlertButton === 'function') updateWarnAlertButton();
+    renderWarnAlertContent();
   } catch(e) {}
 }
 
@@ -17054,8 +17045,8 @@ function restartPollingIntervals() {
   _leadsReminderInterval = setInterval(() => { if (_currentUser) checkLeadReminders(); }, 60000);
   _notifPollInterval = setInterval(() => { if (_currentUser) loadNotifications(); }, 30000);
 }
-// Close panel when clicking outside
-addManagedListener(document, 'click', e => { if (_notifOpen && !e.target.closest('#notifPanel') && !e.target.closest('#notifBtn')) { _notifOpen = false; document.getElementById('notifPanel').style.display = 'none'; } });
+// Close panel when clicking outside (legacy — notification bell removed, kept as no-op guard)
+addManagedListener(document, 'click', e => { if (_notifOpen && !e.target.closest('#warnAlertPanel')) { _notifOpen = false; } });
 
 // ===== TASK TEMPLATES =====
 /** Fetch task templates from the API and render them in the settings view */
@@ -17239,7 +17230,7 @@ function toggleThemeDropdown(e) {
   const dd = document.getElementById('themeDropdown');
   const isOpen = dd.classList.contains('open');
   // Close all other panels first
-  document.getElementById('notifPanel').style.display = 'none';
+  const _np = document.getElementById('notifPanel'); if (_np) _np.style.display = 'none';
   if (isOpen) { dd.classList.remove('open'); }
   else { renderThemeDropdown(); dd.classList.add('open'); }
 }
@@ -17666,20 +17657,9 @@ function computeWarnings() {
   return warnings;
 }
 
-/** Update the floating trigger button badge and hide/show based on counts. */
+/** Re-render the sidebar to update the alert count and flash state. */
 function updateWarnAlertButton() {
-  const btn = document.getElementById('warnAlertBtn');
-  const badge = document.getElementById('warnAlertBadge');
-  if (!btn || !badge) return;
-  const warnings = computeWarnings();
-  const alertCount = window._lastNotificationCount || 0;
-  const total = warnings.length + alertCount;
-  if (total === 0) {
-    btn.style.display = 'none';
-    return;
-  }
-  btn.style.display = 'flex';
-  badge.textContent = total > 99 ? '99+' : String(total);
+  if (typeof renderSidebar === 'function') renderSidebar();
   // If panel is open, also refresh the body
   const panel = document.getElementById('warnAlertPanel');
   if (panel && panel.classList.contains('open')) renderWarnAlertContent();
@@ -17739,7 +17719,7 @@ async function renderWarnAlertContent() {
         </div>
       </div>
     `).join('');
-  } else {
+  } else if (_warnAlertTab === 'alerts') {
     // Alerts tab — pull from the existing notifications API
     list.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:24px;font-size:0.82rem">Loading...</div>';
     try {
@@ -17767,6 +17747,33 @@ async function renderWarnAlertContent() {
       }).join('');
     } catch (e) {
       list.innerHTML = '<div style="color:var(--danger);font-size:0.82rem;padding:12px">Failed to load alerts.</div>';
+    }
+  } else if (_warnAlertTab === 'notifications') {
+    // Notifications tab — chronological notification feed
+    list.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:24px;font-size:0.82rem">Loading...</div>';
+    try {
+      const result = await apiCall('/api/notifications');
+      const notifications = (result && result.notifications) || [];
+      const unread = notifications.filter(n => !n.is_read).length;
+      const notifCount = document.getElementById('notifTabCount');
+      if (notifCount) notifCount.textContent = unread > 0 ? String(unread) : '';
+      if (notifications.length === 0) {
+        list.innerHTML = '<div style="color:var(--text-muted);font-size:0.78rem;padding:16px;text-align:center">No notifications</div>';
+        return;
+      }
+      list.innerHTML = '<div style="padding:4px 12px 4px;display:flex;justify-content:flex-end"><button class="btn btn--sm" onclick="markAllNotificationsRead()" style="font-size:0.65rem;padding:2px 6px">Mark all read</button></div>' + notifications.slice(0, 50).map(n => {
+        const ago = timeAgo(new Date(n.created_at));
+        const isPersistent = n.dismissable === false;
+        const readStyle = n.is_read && !isPersistent ? 'opacity:0.5' : '';
+        const persistBadge = isPersistent && !n.is_read ? '<span style="display:inline-block;font-size:0.6rem;padding:1px 5px;border-radius:3px;background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger-border);margin-left:6px">Action required</span>' : '';
+        const bgStyle = isPersistent && !n.is_read ? 'background:color-mix(in srgb, var(--danger) 6%, var(--bg-surface));border-left:3px solid var(--danger);' : '';
+        return `<div style="padding:8px 12px;border-bottom:1px solid var(--border-subtle);font-size:0.78rem;${readStyle};${bgStyle};cursor:pointer" onclick="handleNotificationClick('${escAttrJs(n.link || '')}')">
+          <div style="font-weight:${n.is_read && !isPersistent ? '400' : '600'};color:var(--text-primary)">${esc(n.title)}${persistBadge}</div>
+          <div style="color:var(--text-muted);font-size:0.68rem;margin-top:2px">${esc(n.message)} &middot; ${ago}</div>
+        </div>`;
+      }).join('');
+    } catch (e) {
+      list.innerHTML = '<div style="color:var(--danger);font-size:0.82rem;padding:12px">Failed to load notifications.</div>';
     }
   }
 }
