@@ -2226,6 +2226,7 @@ const _standupDoneExpanded = new Set(); // Per-person: track which standup Done 
 const _expandedClientCards = new Set();  // Track which client summary cards are expanded in report view
 let _scrollRestoreTarget = null; // Scroll position to restore after async standup render
 let _lastLocalSyncTime = 0; // Timestamp of last local save — suppresses poll re-render for own changes
+const _recentlyEditedIds = new Set(); // Task IDs edited locally in the last 15s — for self-echo detection
 
 // ==================== INDEXEDDB WRITE-AHEAD LOG ====================
 const IDB_NAME = 'nbi_dashboard';
@@ -2666,7 +2667,7 @@ function mergeBriefDefaults() {
 }
 
 /** Flag a task as locally modified — it will be included in the next sync batch */
-function markDirty(taskId) { _dirtyTaskIds.add(taskId); }
+function markDirty(taskId) { _dirtyTaskIds.add(taskId); _recentlyEditedIds.add(taskId); setTimeout(() => _recentlyEditedIds.delete(taskId), 15000); }
 /** Flag a task as deleted locally — removes it from the dirty set and queues it for server deletion */
 function markDeleted(taskId) { _deletedTaskIds.add(taskId); _dirtyTaskIds.delete(taskId); }
 
@@ -2895,14 +2896,10 @@ let _syncPollInterval = setInterval(async () => {
       if (Date.now() - _lastLocalSyncTime < 15000) {
         console.log('[Sync] Poll: skipping re-render (own changes within cooldown)');
       } else {
-        // Changes from another user — re-render with scroll preservation
-        const scrollEl = document.querySelector('.main__content');
-        const savedScroll = scrollEl ? scrollEl.scrollTop : 0;
-        _scrollRestoreTarget = savedScroll > 0 ? savedScroll : null;
-        renderAll();
-        if (currentView !== 'dashboard' && scrollEl && savedScroll > 0) {
-          requestAnimationFrame(() => { scrollEl.scrollTop = savedScroll; _scrollRestoreTarget = null; });
-        }
+        // Changes from another user — lightweight update, no DOM nuke
+        if (typeof standupRefreshMetrics === 'function') standupRefreshMetrics();
+        if (typeof renderSidebar === 'function') renderSidebar();
+        if (typeof updateWarnAlertButton === 'function') updateWarnAlertButton();
       }
     }
   } catch (e) { /* silent */ }
@@ -17118,11 +17115,26 @@ function restartPollingIntervals() {
       if (!resp.ok) return;
       const data = await resp.json();
       if (data.updated?.length > 0 || data.deleted?.length > 0 || data.created?.length > 0) {
-        await load();
-        const sc = document.querySelector('.main-content');
-        const savedScroll = sc ? sc.scrollTop : 0;
-        renderAll();
-        if (sc) sc.scrollTop = savedScroll;
+        // Skip re-render if all changes are from our own recent save (self-echo).
+        // The local state is already up to date — we made these changes.
+        const selfEcho = _lastLocalSyncTime && (Date.now() - _lastLocalSyncTime < 15000) &&
+          (data.updated || []).every(t => _recentlyEditedIds.has(t.id));
+        if (!selfEcho) {
+          // Merge remote changes into local state without full reload
+          for (const t of (data.updated || [])) {
+            const idx = tasks.findIndex(x => x.id === t.id);
+            if (idx >= 0) Object.assign(tasks[idx], t, { _serverUpdatedAt: t.updatedAt || t.updated_at });
+            else tasks.push({ ...t, _serverUpdatedAt: t.updatedAt || t.updated_at });
+          }
+          for (const id of (data.deleted || [])) {
+            const idx = tasks.findIndex(x => x.id === id);
+            if (idx >= 0) tasks.splice(idx, 1);
+          }
+          // Lightweight refresh — update metrics + sidebar, no DOM nuke
+          if (typeof standupRefreshMetrics === 'function') standupRefreshMetrics();
+          if (typeof renderSidebar === 'function') renderSidebar();
+          if (typeof updateWarnAlertButton === 'function') updateWarnAlertButton();
+        }
       }
       if (data.serverTime) _lastPollTime = data.serverTime;
     } catch(e) {}
