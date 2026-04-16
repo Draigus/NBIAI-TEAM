@@ -7568,6 +7568,108 @@ if (cron) {
   log('info', 'Cron', 'PM daily report scheduled for 08:00 weekdays');
 }
 
+// ==================== INBOUND EMAIL MATCHING ====================
+
+/**
+ * Match an email subject line to a client and task.
+ * Returns { taskId, clientId, confidence: 'high'|'low'|'none', matchedClient, matchedTask }
+ */
+async function matchSubjectToTask(subject) {
+  if (!subject || !subject.trim()) return { taskId: null, clientId: null, confidence: 'none', matchedClient: null, matchedTask: null };
+
+  const subjectLower = subject.toLowerCase().trim();
+
+  // Step 1: Score all clients against the subject
+  const { rows: clients } = await pool.query('SELECT id, name FROM clients ORDER BY name');
+
+  let bestClient = null;
+  let bestClientScore = 0;
+  let confidence = 'none';
+
+  for (const client of clients) {
+    const clientLower = client.name.toLowerCase();
+
+    // Exact substring match (highest score)
+    if (subjectLower.includes(clientLower)) {
+      const score = clientLower.length; // longer match = better
+      if (score > bestClientScore) {
+        bestClient = client;
+        bestClientScore = score;
+        confidence = 'high';
+      }
+      continue;
+    }
+
+    // Partial word match: check what fraction of client name words appear in subject
+    const clientWords = clientLower.split(/\s+/);
+    const matchedWords = clientWords.filter(w => w.length > 2 && subjectLower.includes(w));
+    const ratio = matchedWords.length / clientWords.length;
+    if (ratio >= 0.5) {
+      const score = matchedWords.join('').length;
+      if (score > bestClientScore) {
+        bestClient = client;
+        bestClientScore = score;
+        confidence = ratio >= 1.0 ? 'high' : 'low';
+      }
+    }
+  }
+
+  if (!bestClient) return { taskId: null, clientId: null, confidence: 'none', matchedClient: null, matchedTask: null };
+
+  // Step 2: Find the best matching task under this client
+  const { rows: tasks } = await pool.query(`
+    SELECT id, title, item_type, parent_id, updated_at
+    FROM tasks
+    WHERE client_id = $1 AND status NOT IN ('Done', 'Cancelled')
+    ORDER BY updated_at DESC
+  `, [bestClient.id]);
+
+  if (tasks.length === 0) {
+    return { taskId: null, clientId: bestClient.id, confidence, matchedClient: bestClient.name, matchedTask: null };
+  }
+
+  // Strip the client name from the subject to get the remainder for task matching
+  const clientLower = bestClient.name.toLowerCase();
+  let remainder = subjectLower.replace(clientLower, '').replace(/^[\s\-:]+|[\s\-:]+$/g, '').trim();
+
+  // Score tasks by title match against the remainder
+  let bestTask = null;
+  let bestTaskScore = 0;
+
+  if (remainder.length > 0) {
+    for (const task of tasks) {
+      const titleLower = task.title.toLowerCase();
+      if (remainder.includes(titleLower) || titleLower.includes(remainder)) {
+        const score = Math.min(titleLower.length, remainder.length);
+        if (score > bestTaskScore) {
+          bestTask = task;
+          bestTaskScore = score;
+        }
+        continue;
+      }
+      const titleWords = titleLower.split(/\s+/).filter(w => w.length > 2);
+      const matchCount = titleWords.filter(w => remainder.includes(w)).length;
+      if (matchCount > 0 && matchCount > bestTaskScore) {
+        bestTask = task;
+        bestTaskScore = matchCount;
+      }
+    }
+  }
+
+  // Fall back to most recently updated project for this client
+  if (!bestTask) {
+    bestTask = tasks.find(t => t.item_type === 'project') || tasks[0];
+  }
+
+  return {
+    taskId: bestTask.id,
+    clientId: bestClient.id,
+    confidence,
+    matchedClient: bestClient.name,
+    matchedTask: bestTask.title,
+  };
+}
+
 // ==================== EMAIL CRON: DUE/LATE WARNINGS ====================
 
 /**
@@ -7745,3 +7847,4 @@ module.exports.buildEmailTable = buildEmailTable;
 module.exports.buildEmailSection = buildEmailSection;
 module.exports.buildDueWarningEmails = buildDueWarningEmails;
 module.exports.buildPmReportEmails = buildPmReportEmails;
+module.exports.matchSubjectToTask = matchSubjectToTask;
