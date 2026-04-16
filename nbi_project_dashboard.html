@@ -2227,6 +2227,7 @@ const _expandedClientCards = new Set();  // Track which client summary cards are
 let _scrollRestoreTarget = null; // Scroll position to restore after async standup render
 let _lastLocalSyncTime = 0; // Timestamp of last local save — suppresses poll re-render for own changes
 const _recentlyEditedIds = new Set(); // Task IDs edited locally in the last 15s — for self-echo detection
+let _cachedTeamMembers = null; // Cached team member display names — avoids async fetch on re-render
 
 // ==================== INDEXEDDB WRITE-AHEAD LOG ====================
 const IDB_NAME = 'nbi_dashboard';
@@ -4056,9 +4057,15 @@ function renderTacticalDashboard() {
     <div id="standupContainer" style="display:${standupExpanded ? 'block' : 'none'}"><div style="text-align:center;color:var(--text-muted);padding:20px">Loading team...</div></div>
   </div>`;
 
-  // Defer standup rendering until after DOM is set and users are fetched.
-  // Skip the network call entirely while collapsed to save the team list fetch.
-  if (standupExpanded) setTimeout(() => renderStandupSection(filtered, now), 50);
+  // Render standup synchronously if we have cached team members, defer only on first load.
+  // This prevents the scroll-flash on re-renders (remote sync, field changes).
+  if (standupExpanded) {
+    if (_cachedTeamMembers && _cachedTeamMembers.length > 0) {
+      renderStandupSectionSync(filtered, now, _cachedTeamMembers);
+    } else {
+      setTimeout(() => renderStandupSection(filtered, now), 50);
+    }
+  }
 
   return html;
 }
@@ -4157,22 +4164,22 @@ function standupUpdateTask(taskId, field, value, el) {
   if (activeDetailTaskId === taskId) openDetailOverlay(taskId);
 }
 
-/** Rebuild only the metrics strip on the workload page without touching the rest of the DOM */
-/** Re-render the page content for remote changes without visible scroll flash.
- *  Sets _scrollRestoreTarget so the deferred standup render (50ms later) also restores scroll. */
+/** Re-render page for remote changes without visible scroll flash.
+ *  When cached team members exist, the standup renders synchronously — the entire
+ *  rebuild + scroll restore happens in one JS block before the browser paints.
+ *  On first load (no cache), falls back to _scrollRestoreTarget for the async standup. */
 function _softReRender() {
   const scrollEl = document.querySelector('.main__content');
   if (!scrollEl) { renderContent(); return; }
   const savedScroll = scrollEl.scrollTop;
-  // Set the global restore target — renderStandupSection (which fires 50ms after
-  // renderContent via setTimeout) checks this and restores scroll after it finishes.
-  // This is the ONLY reliable way because the standup render is deferred/async.
+  // Fallback for async standup (first load only, before cache exists)
   _scrollRestoreTarget = savedScroll > 0 ? savedScroll : null;
   renderContent();
   if (typeof renderSidebar === 'function') renderSidebar();
   if (typeof updateWarnAlertButton === 'function') updateWarnAlertButton();
-  // Also restore immediately for non-workload views (no deferred standup)
-  if (currentView !== 'dashboard' && scrollEl && savedScroll > 0) {
+  // Restore scroll synchronously — works because standup now renders synchronously
+  // when _cachedTeamMembers exists (which it does after the first render).
+  if (scrollEl && savedScroll > 0) {
     scrollEl.scrollTop = savedScroll;
   }
 }
@@ -4245,6 +4252,13 @@ function standupAssigneeHtml(taskId, assignees) {
 }
 
 /** Fetch NBI team from /api/users and render the standup breakdown */
+/** Synchronous standup render using cached team members — no scroll flash */
+function renderStandupSectionSync(filtered, now, teamMembers) {
+  const container = document.getElementById('standupContainer');
+  if (!container) return;
+  _renderStandupBody(container, filtered, now, teamMembers);
+}
+
 async function renderStandupSection(filtered, now) {
   const container = document.getElementById('standupContainer');
   if (!container) return;
@@ -4265,6 +4279,13 @@ async function renderStandupSection(filtered, now) {
     teamMembers = [...s].sort();
   }
 
+  // Cache for future synchronous re-renders
+  _cachedTeamMembers = teamMembers;
+
+  _renderStandupBody(container, filtered, now, teamMembers);
+}
+
+function _renderStandupBody(container, filtered, now, teamMembers) {
   // Standup: active work + done this sprint. Sort order per Glen's spec.
   const sprintStart = new Date(now); sprintStart.setDate(sprintStart.getDate() - 7);
   const standupSortOrder = { 'Blocked': 0, 'Planning': 2, 'In progress': 3, 'Drafted': 4, 'In Review': 5, 'Done': 6 };
