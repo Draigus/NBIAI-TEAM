@@ -4136,19 +4136,56 @@ function standupUpdateTask(taskId, field, value, el) {
   markDirty(taskId);
   pushUndo(`${field} change on "${task.title}"`, () => { task[field] = oldValue; task.updatedAt = new Date().toISOString(); markDirty(taskId); });
   save();
-  // Always re-render so KPI metrics strip, sidebar counts, and other views
-  // reflect the change immediately (Glen 2026-04-16: "updating a field doesn't
-  // update the dashboard until it's refreshed"). Previously only status/health/
-  // assignee triggered a standup re-render; hours/priority/dates were silent.
-  const scrollEl = document.querySelector('.main__content');
-  const savedScroll = scrollEl ? scrollEl.scrollTop : 0;
-  _scrollRestoreTarget = savedScroll > 0 ? savedScroll : null;
-  renderContent();
-  if (currentView !== 'dashboard' && scrollEl && savedScroll > 0) {
-    requestAnimationFrame(() => { scrollEl.scrollTop = savedScroll; _scrollRestoreTarget = null; });
+
+  // Structural changes (status to/from Done/Cancelled) need a full re-render
+  // because tasks move between sections. Everything else is a lightweight update.
+  const structural = field === 'status' && (
+    value === 'Done' || value === 'Cancelled' || oldValue === 'Done' || oldValue === 'Cancelled'
+  );
+
+  if (structural) {
+    const scrollEl = document.querySelector('.main__content');
+    const savedScroll = scrollEl ? scrollEl.scrollTop : 0;
+    renderContent();
+    if (scrollEl && savedScroll > 0) {
+      requestAnimationFrame(() => { scrollEl.scrollTop = savedScroll; });
+    }
+  } else {
+    // Lightweight: update only the metrics strip and sidebar counts.
+    // The input/select the user just changed already shows the new value.
+    standupRefreshMetrics();
+    if (typeof renderSidebar === 'function') renderSidebar();
+    if (typeof updateWarnAlertButton === 'function') updateWarnAlertButton();
   }
+
   // Refresh detail overlay if open on this task
   if (activeDetailTaskId === taskId) openDetailOverlay(taskId);
+}
+
+/** Rebuild only the metrics strip on the workload page without touching the rest of the DOM */
+function standupRefreshMetrics() {
+  const metricsEl = document.querySelector('.tactical-metrics');
+  if (!metricsEl) return;
+  const now = new Date(); now.setHours(0,0,0,0);
+  const filtered = typeof getFilteredTasks === 'function' ? getFilteredTasks() : tasks;
+  const active = filtered.filter(t => t.status !== 'Done' && t.status !== 'Cancelled');
+  const overdue = active.filter(t => t.dueDate && safeParseDate(t.dueDate) < now).length;
+  const weekEnd = new Date(now); weekEnd.setDate(weekEnd.getDate() + (7 - weekEnd.getDay()));
+  const thisWeek = active.filter(t => { if (!t.dueDate) return false; const d = safeParseDate(t.dueDate); return d && d >= now && d <= weekEnd; }).length;
+  const blocked = active.filter(t => t.healthState === 'Blocked').length;
+  const atRisk = active.filter(t => t.healthState === 'Red').length;
+  const inProgress = filtered.filter(t => t.status === 'In progress').length;
+  const done = filtered.filter(t => t.status === 'Done').length;
+  const donePct = filtered.length ? Math.round(done / filtered.length * 100) : 0;
+  // Update metric values in place
+  const vals = metricsEl.querySelectorAll('.tactical-metric__value');
+  if (vals[0]) vals[0].textContent = inProgress;
+  if (vals[1]) { vals[1].textContent = overdue; vals[1].style.color = overdue > 0 ? 'var(--danger)' : 'var(--success)'; }
+  if (vals[2]) { vals[2].textContent = thisWeek; vals[2].style.color = thisWeek > 0 ? '#f59e0b' : 'var(--success)'; }
+  if (vals[3]) { vals[3].textContent = blocked; vals[3].style.color = blocked > 0 ? 'var(--purple)' : 'var(--success)'; }
+  if (vals[4]) { vals[4].textContent = atRisk; vals[4].style.color = atRisk > 0 ? 'var(--warning)' : 'var(--success)'; }
+  if (vals[5]) vals[5].textContent = donePct + '%';
+  if (vals[6]) vals[6].textContent = filtered.length;
 }
 
 /** Build a compact inline <select> for the standup row */
@@ -7679,22 +7716,47 @@ async function updateTask(id, field, value) {
   task[field] = value;
   task.updatedAt = new Date().toISOString();
   markDirty(id);
-  // Push undo
   pushUndo(`${field} change on "${task.title}"`, () => { task[field] = oldValue; task.updatedAt = new Date().toISOString(); markDirty(id); });
   save();
-  // Preserve scroll position across re-render
-  const scrollEl = document.querySelector('.main__content');
-  const savedScroll = scrollEl ? scrollEl.scrollTop : 0;
-  // Store globally so renderStandupSection can restore after its async render
-  _scrollRestoreTarget = savedScroll > 0 ? savedScroll : null;
-  renderContent();
-  // For non-workload views (no deferred standup), restore immediately
-  if (currentView !== 'dashboard' && scrollEl && savedScroll > 0) {
-    requestAnimationFrame(() => { scrollEl.scrollTop = savedScroll; _scrollRestoreTarget = null; });
+
+  // Structural changes need a full re-render (task moves between sections).
+  // Non-structural changes get a lightweight update — no scroll flash.
+  const structural = (field === 'status' && (
+    value === 'Done' || value === 'Cancelled' || oldValue === 'Done' || oldValue === 'Cancelled'
+  )) || field === 'client_id' || field === 'parent_id';
+
+  if (structural) {
+    const scrollEl = document.querySelector('.main__content');
+    const savedScroll = scrollEl ? scrollEl.scrollTop : 0;
+    _scrollRestoreTarget = savedScroll > 0 ? savedScroll : null;
+    renderContent();
+    if (currentView !== 'dashboard' && scrollEl && savedScroll > 0) {
+      requestAnimationFrame(() => { scrollEl.scrollTop = savedScroll; _scrollRestoreTarget = null; });
+    }
+  } else {
+    // Lightweight: update metrics + sidebar, leave the DOM alone
+    if (typeof standupRefreshMetrics === 'function') standupRefreshMetrics();
+    if (typeof renderSidebar === 'function') renderSidebar();
+    if (typeof updateWarnAlertButton === 'function') updateWarnAlertButton();
+    // Update inline task row styling if status/health changed
+    _updateTaskRowInPlace(id, field, value);
   }
+
   // Refresh the overlay detail panel if it's open for this task
   if (activeDetailTaskId === id && document.getElementById('detailPanel')?.classList.contains('open')) {
     openDetailOverlay(id);
+  }
+}
+
+/** Update a task row's visual styling in place without re-rendering the whole page */
+function _updateTaskRowInPlace(taskId, field, value) {
+  // Update any visible select/input that shows this field for this task
+  // (handles the case where the same task appears in multiple views)
+  if (field === 'status') {
+    document.querySelectorAll(`[data-task-id="${taskId}"] .task-status-badge, .task-row[data-id="${taskId}"] .task-row__status`).forEach(el => {
+      if (el.tagName === 'SELECT') el.value = value;
+      else el.textContent = value;
+    });
   }
 }
 
