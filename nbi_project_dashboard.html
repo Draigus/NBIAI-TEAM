@@ -4159,22 +4159,22 @@ function standupUpdateTask(taskId, field, value, el) {
 
 /** Rebuild only the metrics strip on the workload page without touching the rest of the DOM */
 /** Re-render the page content for remote changes without visible scroll flash.
- *  Hides the container during render so the browser never paints the scroll-reset state. */
+ *  Sets _scrollRestoreTarget so the deferred standup render (50ms later) also restores scroll. */
 function _softReRender() {
   const scrollEl = document.querySelector('.main__content');
   if (!scrollEl) { renderContent(); return; }
   const savedScroll = scrollEl.scrollTop;
-  // Make the container invisible during the rebuild — the browser won't repaint
-  // so the user never sees the scroll jump. visibility:hidden keeps the layout
-  // dimensions stable (unlike display:none which collapses the element).
-  scrollEl.style.visibility = 'hidden';
+  // Set the global restore target — renderStandupSection (which fires 50ms after
+  // renderContent via setTimeout) checks this and restores scroll after it finishes.
+  // This is the ONLY reliable way because the standup render is deferred/async.
+  _scrollRestoreTarget = savedScroll > 0 ? savedScroll : null;
   renderContent();
   if (typeof renderSidebar === 'function') renderSidebar();
   if (typeof updateWarnAlertButton === 'function') updateWarnAlertButton();
-  // Restore scroll and make visible again — all in one synchronous block
-  // before the browser gets a chance to paint.
-  scrollEl.scrollTop = savedScroll;
-  scrollEl.style.visibility = '';
+  // Also restore immediately for non-workload views (no deferred standup)
+  if (currentView !== 'dashboard' && scrollEl && savedScroll > 0) {
+    scrollEl.scrollTop = savedScroll;
+  }
 }
 
 function standupRefreshMetrics() {
@@ -4430,7 +4430,10 @@ async function renderStandupSection(filtered, now) {
     const scrollEl = document.querySelector('.main__content');
     const target = _scrollRestoreTarget;
     _scrollRestoreTarget = null;
-    if (scrollEl) requestAnimationFrame(() => { scrollEl.scrollTop = target; });
+    if (scrollEl) {
+      // Synchronously restore — don't wait for rAF (which allows a flash frame)
+      scrollEl.scrollTop = target;
+    }
   }
 }
 
