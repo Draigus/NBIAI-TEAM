@@ -8101,21 +8101,33 @@ function renderReport(el) {
       '<span class="visually-hidden">Loading report</span></div>';
     return;
   }
-  const scopedTasks = currentFilter.client ? tasks.filter(t => getTaskClient(t) === currentFilter.client) : tasks;
+  // Respect practice filter (Glen 2026-04-16). Start from the practice-
+  // scoped task set so KPIs, client cards, and project tables all narrow.
+  let baseTasks = tasks;
+  if (currentFilter.practice) baseTasks = tasks.filter(t => getTaskPractice(t) === currentFilter.practice);
+  const scopedTasks = currentFilter.client ? baseTasks.filter(t => getTaskClient(t) === currentFilter.client) : baseTasks;
   const statusC = countByStatus(scopedTasks);
   const healthC = countByHealth(scopedTasks);
-  const roots = (currentFilter.client ? getRootTasks().filter(r => getTaskClient(r) === currentFilter.client) : getRootTasks())
-    .filter(r => r.title && r.title.trim() !== 'New Task'); // Filter out placeholder tasks
+  const baseRoots = baseTasks.filter(t => !t.parentId);
+  const roots = (currentFilter.client ? baseRoots.filter(r => getTaskClient(r) === currentFilter.client) : baseRoots)
+    .filter(r => r.title && r.title.trim() !== 'New Task');
   const totalHrs = scopedTasks.reduce((s,t) => s + (t.hoursSpent||0), 0);
   const totalEst = scopedTasks.reduce((s,t) => s + (t.hoursEstimated||0), 0);
   const atRisk = scopedTasks.filter(t => t.healthState === 'Red' || t.healthState === 'Blocked');
-  const clients = currentFilter.client ? [currentFilter.client] : getAllClients();
+  const clients = currentFilter.client ? [currentFilter.client] : [...new Set(baseTasks.map(t => getTaskClient(t)).filter(Boolean))].sort();
   const assigneeSet = new Set(); scopedTasks.forEach(t => { if (t.assignees) t.assignees.forEach(a => assigneeSet.add(a)); });
   const assignees = [...assigneeSet].sort();
   const donePct = scopedTasks.length ? Math.round((statusC['Done']||0) / scopedTasks.length * 100) : 0;
   const reportTitle = currentFilter.client ? `${currentFilter.client} Report` : 'NBI Portfolio Report';
 
   let html = renderClientProfileHeader();
+  // Practice-mode banner (same as Dashboard/Projects/Finances)
+  if (currentFilter.practice) {
+    const p = PRACTICES.find(x => x.value === currentFilter.practice);
+    if (p) {
+      html += `<div class="practice-mode-banner" style="background:color-mix(in srgb, ${p.colour} 14%, var(--bg-raised));border:1px solid ${p.colour};border-left:4px solid ${p.colour};border-radius:var(--radius-md);padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${p.colour}"></span><strong style="font-size:0.85rem;color:var(--text-primary)">${esc(p.label)} mode</strong><span style="font-size:0.75rem;color:var(--text-muted);flex:1;min-width:200px">KPIs, client cards, and project tables are scoped to ${esc(p.label)} work only.</span><button class="btn btn--sm btn--ghost" onclick="filterByPractice(null)">Exit ${esc(p.shortLabel || p.label)}</button></div>`;
+    }
+  }
   html += `<div class="report"><div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:var(--space-md)"><div><h1 style="margin:0">${esc(reportTitle)}</h1><div class="report__date">Generated ${new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'})}</div></div>
   <div class="task-subview-toggle">
     <button class="task-subview-btn ${_reportSubView==='overall'?'active':''}" onclick="_reportSubView='overall';renderContent()">Overall</button>
