@@ -3061,8 +3061,8 @@ function getFilteredTasks() {
   // the current user's tasks even if the People multi-select is empty.
   // Explicit People filter wins — this only kicks in when no filter is set.
   if (currentFilter.sort === 'assignee' && (!currentFilter.assignee || currentFilter.assignee.length === 0)) {
-    const myName = (_currentUser && (_currentUser.displayName || _currentUser.display_name)) || '';
-    if (myName) list = list.filter(t => t.assignees?.includes(myName));
+    const myName = _currentUser?.displayName || _currentUser?.display_name || '';
+    if (myName) list = list.filter(t => (t.assignees || []).some(a => a.toLowerCase() === myName.toLowerCase()));
   }
   if (currentFilter.incomplete) list = list.filter(t => t.status !== 'Done' && t.status !== 'Cancelled' && (!t.hoursEstimated || !t.priority || !t.dueDate || !t.healthState));
   if (currentFilter.search) {
@@ -5095,7 +5095,12 @@ function renderBoardView(filtered) {
         <span>&#9654;</span> Cancelled (${cancelled.length})
       </button>
       <div class="board__cancelled-cards hidden">`;
-    cancelled.forEach(t => { html += renderBoardCard(t); });
+    const CANCELLED_CAP = 20;
+    const cappedCancelled = cancelled.slice(0, CANCELLED_CAP);
+    cappedCancelled.forEach(t => { html += renderBoardCard(t); });
+    if (cancelled.length > CANCELLED_CAP) {
+      html += `<div style="padding:8px 12px;font-size:0.72rem;color:var(--text-muted);text-align:center;border-top:1px solid var(--border-subtle)">Showing ${CANCELLED_CAP} of ${cancelled.length} cancelled tickets</div>`;
+    }
     html += '</div></div>';
   }
 
@@ -5344,9 +5349,11 @@ function renderCalendarView(filtered) {
   // Team filter — when a team is selected, the server returns events for
   // every member of that team. The dropdown is populated from _teamsCache
   // which is refreshed on startup and after any team mutation.
-  const teamOpts = `<option value="">None</option>` + (_teamsCache || []).map(t =>
-    `<option value="${esc(t.id)}" ${_calTeamFilter === t.id ? 'selected' : ''}>${esc(t.name)}${t.client_name ? ' (' + esc(t.client_name) + ')' : ''}</option>`
-  ).join('');
+  const teamOpts = (_teamsCache && _teamsCache.length > 0)
+    ? `<option value="">None</option>` + _teamsCache.map(t =>
+        `<option value="${esc(t.id)}" ${_calTeamFilter === t.id ? 'selected' : ''}>${esc(t.name)}${t.client_name ? ' (' + esc(t.client_name) + ')' : ''}</option>`
+      ).join('')
+    : `<option value="">Loading teams\u2026</option>`;
   html += `<label style="display:flex;align-items:center;gap:6px;font-size:0.78rem;color:var(--text-muted)">Filter by team:
     <select onchange="_calTeamFilter=this.value;_calEventsKey='';loadCalendarEvents(_calYear,_calMonth)" style="font-size:0.78rem;padding:2px 4px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)">${teamOpts}</select>
   </label>`;
@@ -12485,6 +12492,8 @@ async function loadAllTeams() {
     const teams = await apiCall('/api/teams');
     _teamsCache = Array.isArray(teams) ? teams : [];
   } catch (e) { _teamsCache = []; }
+  // If the calendar was rendered before teams arrived, refresh the filter bar now
+  if (currentView === 'people' && _peopleSubView === 'calendar') renderContent();
   return _teamsCache;
 }
 
@@ -15102,9 +15111,12 @@ async function hiringAddStageAssignee(id, stage) {
 
 /** Remove an assignee from a specific stage. */
 async function hiringRemoveStageAssignee(id, stage, idx) {
-  const c = _candidatesData.find(x => x.id === id);
-  if (!c) return;
-  const current = (c.stage_assignees && typeof c.stage_assignees === 'object') ? { ...c.stage_assignees } : {};
+  // Fetch the single candidate so we get stage_assignees — the list endpoint
+  // omits that column, so reading from _candidatesData would give an empty object
+  // and silently wipe all assignees instead of removing just the one clicked.
+  const fresh = await apiCall('/api/candidates/' + id);
+  if (!fresh) return;
+  const current = (fresh.stage_assignees && typeof fresh.stage_assignees === 'object') ? { ...fresh.stage_assignees } : {};
   const list = Array.isArray(current[stage]) ? [...current[stage]] : [];
   if (idx < 0 || idx >= list.length) return;
   list.splice(idx, 1);
