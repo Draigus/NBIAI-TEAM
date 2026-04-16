@@ -7819,6 +7819,65 @@ async function processOneInboundEmail(message, opts = {}) {
   return { matched: true, taskId: match.taskId, confidence: match.confidence, client: match.matchedClient, task: match.matchedTask };
 }
 
+/**
+ * Poll nbihub inbox for unread emails and process each.
+ * Called by the cron job every 5 minutes.
+ */
+async function processInboundEmails() {
+  if (!_msalClient) {
+    log('info', 'InboundEmail', 'Graph API not configured, skipping inbox poll');
+    return;
+  }
+
+  const token = await _getGraphToken();
+  const emailFrom = process.env.EMAIL_FROM || 'nbihub@nbi-consulting.com';
+
+  const res = await fetch(
+    `https://graph.microsoft.com/v1.0/users/${emailFrom}/mailFolders/Inbox/messages?$filter=isRead%20eq%20false&$select=id,subject,from,body,hasAttachments,receivedDateTime&$top=20&$orderby=receivedDateTime%20asc`,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`Graph API inbox poll failed ${res.status}: ${errText}`);
+  }
+
+  const data = await res.json();
+  const messages = data.value || [];
+
+  if (messages.length === 0) return;
+
+  log('info', 'InboundEmail', `Processing ${messages.length} unread email(s)`);
+
+  let processed = 0;
+  let matched = 0;
+  let skipped = 0;
+
+  for (const msg of messages) {
+    try {
+      const result = await processOneInboundEmail(msg);
+      if (result.skipped) skipped++;
+      else if (result.matched) matched++;
+      processed++;
+    } catch (e) {
+      log('error', 'InboundEmail', 'Failed to process email', { messageId: msg.id, subject: msg.subject, error: e.message });
+      // Mark as read anyway to prevent infinite retry loops
+      try {
+        await fetch(
+          `https://graph.microsoft.com/v1.0/users/${emailFrom}/messages/${msg.id}`,
+          {
+            method: 'PATCH',
+            headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ isRead: true })
+          }
+        );
+      } catch (_) { /* swallow */ }
+    }
+  }
+
+  log('info', 'InboundEmail', `Inbox poll complete: ${processed} processed, ${matched} matched, ${skipped} skipped`);
+}
+
 // ==================== EMAIL CRON: DUE/LATE WARNINGS ====================
 
 /**
@@ -7920,6 +7979,18 @@ if (cron) {
   log('info', 'Cron', 'Due/late ticket warnings scheduled for 09:00 weekdays');
 }
 
+// Inbound Email Polling — every 5 minutes
+if (cron) {
+  cron.schedule('*/5 * * * *', async () => {
+    try {
+      await processInboundEmails();
+    } catch (e) {
+      log('error', 'Cron', 'Inbound email poll failed', { error: e.message });
+    }
+  });
+  log('info', 'Cron', 'Inbound email polling scheduled every 5 minutes');
+}
+
 // ==================== ERROR HANDLING ====================
 // IMPORTANT: Must be registered AFTER all route definitions so it catches errors from every endpoint.
 
@@ -7998,4 +8069,5 @@ module.exports.buildDueWarningEmails = buildDueWarningEmails;
 module.exports.buildPmReportEmails = buildPmReportEmails;
 module.exports.matchSubjectToTask = matchSubjectToTask;
 module.exports.processOneInboundEmail = processOneInboundEmail;
+module.exports.processInboundEmails = processInboundEmails;
 module.exports.extractLinksFromHtml = extractLinksFromHtml;
