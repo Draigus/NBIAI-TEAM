@@ -3569,10 +3569,12 @@ app.get('/api/tasks', async (req, res) => {
     const [{ rows }, countResult] = await Promise.all([
       pool.query(`
         SELECT t.*, c.name as client_name,
+          s.title AS sow_title, s.status AS sow_status,
           (SELECT json_agg(json_build_object('id', n.id, 'text', n.text, 'author', n.author, 'created_at', n.created_at) ORDER BY n.created_at)
            FROM task_notes n WHERE n.task_id = t.id) as notes
         FROM tasks t
         LEFT JOIN clients c ON t.client_id = c.id
+        LEFT JOIN sows s ON s.id = t.sow_id
         ${whereClause}
         ORDER BY t.created_at
         ${paginationClause}
@@ -3596,10 +3598,12 @@ app.get('/api/tasks', async (req, res) => {
     // No pagination — return all rows (backward compat)
     const { rows } = await pool.query(`
       SELECT t.*, c.name as client_name,
+        s.title AS sow_title, s.status AS sow_status,
         (SELECT json_agg(json_build_object('id', n.id, 'text', n.text, 'author', n.author, 'created_at', n.created_at) ORDER BY n.created_at)
          FROM task_notes n WHERE n.task_id = t.id) as notes
       FROM tasks t
       LEFT JOIN clients c ON t.client_id = c.id
+      LEFT JOIN sows s ON s.id = t.sow_id
       ${whereClause}
       ORDER BY t.created_at
     `, vals);
@@ -3607,14 +3611,17 @@ app.get('/api/tasks', async (req, res) => {
   }
 });
 
-/** GET /api/tasks/:id — Get a single task with notes and client name */
+/** GET /api/tasks/:id — Get a single task with notes, client name and SoW title */
 app.get('/api/tasks/:id', async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(404).json({ error: 'Not found' });
   const { rows } = await pool.query(`
     SELECT t.*, c.name as client_name,
+      s.title AS sow_title, s.status AS sow_status,
       (SELECT json_agg(json_build_object('id', n.id, 'text', n.text, 'author', n.author, 'created_at', n.created_at) ORDER BY n.created_at)
        FROM task_notes n WHERE n.task_id = t.id) as notes
-    FROM tasks t LEFT JOIN clients c ON t.client_id = c.id
+    FROM tasks t
+    LEFT JOIN clients c ON t.client_id = c.id
+    LEFT JOIN sows s ON s.id = t.sow_id
     WHERE t.id = $1
   `, [req.params.id]);
   if (!rows[0]) return res.status(404).json({ error: 'Not found' });

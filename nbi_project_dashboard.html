@@ -12622,8 +12622,16 @@ async function openTeamDetailModal(teamId) {
   // Fetch all users so the admin add-member dropdown can pick anyone
   const isAdmin = _currentUser && _currentUser.role === 'admin';
   let allUsers = [];
+  let clientSows = [];
   if (isAdmin) {
     try { allUsers = (await apiCall('/api/users')) || []; } catch (e) {}
+    // Fetch SoWs scoped to this team's client so the SoW picker is relevant
+    if (team.client_id) {
+      try { clientSows = (await apiCall('/api/sows?client_id=' + team.client_id)) || []; } catch (e) {}
+    } else {
+      // No client set — offer all SoWs as a fallback
+      clientSows = Array.isArray(_sowsCache) ? _sowsCache : [];
+    }
   }
   const memberIds = new Set((team.members || []).map(m => m.user_id));
   const candidateUsers = allUsers.filter(u => !memberIds.has(u.id));
@@ -12649,6 +12657,21 @@ async function openTeamDetailModal(teamId) {
     </div>`;
   }).join('') || '<span style="color:var(--text-muted);font-size:0.78rem">No members yet</span>';
 
+  // SoW row: admins get an editable dropdown; others see read-only text
+  let sowRow = '';
+  if (isAdmin) {
+    const sowOpts = `<option value="">-- No SoW --</option>` + clientSows.map(s =>
+      `<option value="${esc(s.id)}" ${team.sow_id === s.id ? 'selected' : ''}>${esc(s.title)}</option>`
+    ).join('');
+    sowRow = `<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+      <span style="font-size:0.75rem;color:var(--text-muted);white-space:nowrap">SoW:</span>
+      <select id="teamDetailSowSelect" style="font-size:0.78rem;flex:1">${sowOpts}</select>
+      <button class="btn btn--sm btn--primary" onclick="patchTeamSow('${teamId}')">Save</button>
+    </div>`;
+  } else if (team.sow_title) {
+    sowRow = `<div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:8px">SoW: ${esc(team.sow_title)}</div>`;
+  }
+
   const swatch = team.colour ? `<span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${esc(team.colour)};margin-right:6px;vertical-align:middle"></span>` : '';
   const html = `<div class="modal-overlay open" id="teamDetailModal" role="dialog" aria-modal="true" aria-labelledby="teamDetailModalTitle" onclick="if(event.target===this)this.remove()">
     <div class="modal" style="max-width:var(--modal-md);max-height:90vh;display:flex;flex-direction:column">
@@ -12658,8 +12681,8 @@ async function openTeamDetailModal(teamId) {
       </div>
       <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:8px">
         ${team.client_name ? 'Client: ' + esc(team.client_name) : ''}
-        ${team.sow_title ? ' \u00b7 SoW: ' + esc(team.sow_title) : ''}
       </div>
+      ${sowRow}
       ${team.description ? `<div style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:12px">${esc(team.description)}</div>` : ''}
       <h3 style="margin:8px 0 4px;font-size:0.82rem;color:var(--text-secondary)">Members</h3>
       <div id="teamMembersList" style="overflow-y:auto;flex:1;min-height:80px">${memberRows}</div>
@@ -12675,6 +12698,27 @@ async function openTeamDetailModal(teamId) {
   </div>`;
   document.body.insertAdjacentHTML('beforeend', html);
   if (typeof _activateDynamicModal === 'function') _activateDynamicModal('teamDetailModal');
+}
+
+/** PATCH sow_id on a team from the team detail modal. Admin only. */
+async function patchTeamSow(teamId) {
+  const sel = document.getElementById('teamDetailSowSelect');
+  if (!sel) return;
+  const sow_id = sel.value || null;
+  const resp = await authFetch('/api/teams/' + teamId, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sow_id: sow_id || '' })
+  });
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    toast('Failed to update SoW: ' + (err.error?.message || err.error || 'Unknown error'), 'error');
+    return;
+  }
+  toast('SoW updated');
+  await loadAllTeams();
+  document.getElementById('teamDetailModal')?.remove();
+  openTeamDetailModal(teamId);
 }
 
 /** Add a member to a team from the team detail modal. Admin only. */
