@@ -15554,7 +15554,7 @@ async function loadEntityFiles(entityType, entityId, containerId) {
         const icon = f.mime_type?.startsWith('image/') ? '&#128444;' : f.mime_type?.includes('pdf') ? '&#128196;' : '&#128206;';
         return `<div class="attachment-row">
           <span class="attachment-row__icon">${icon}</span>
-          <a href="/api/attachments/download/${encodeURIComponent(f.filename)}" target="_blank" class="attachment-row__name" title="${esc(f.original_name)}">${esc(f.original_name)}</a>
+          <a href="#" onclick="event.preventDefault();downloadAttachment('${encodeURIComponent(f.filename)}','${esc(f.original_name)}')" class="attachment-row__name" title="${esc(f.original_name)}">${esc(f.original_name)}</a>
           ${verifyBadge}
           <span class="attachment-row__size">${sizeMB}MB</span>
           <button class="attachment-row__delete" onclick="deleteEntityFile('${f.id}','${entityType}','${entityId}','${containerId}')" title="Delete">&times;</button>
@@ -15701,6 +15701,23 @@ function uploadEntityFile(entityType, entityId, inputId, containerId) {
 }
 
 /** Delete an attachment and refresh the file list */
+/** Download an attachment file using authenticated fetch, then trigger browser download */
+async function downloadAttachment(encodedFilename, displayName) {
+  try {
+    const resp = await authFetch(`/api/attachments/download/${encodedFilename}`);
+    if (!resp.ok) { showToast('Download failed', 'error'); return; }
+    const blob = await resp.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = displayName || 'download';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (e) { showToast('Download failed: ' + e.message, 'error'); }
+}
+
 async function deleteEntityFile(attachId, entityType, entityId, containerId) {
   if (!(await themedConfirm('Delete this file?'))) return;
   await authFetch(`/api/attachments/${attachId}`, { method: 'DELETE' });
