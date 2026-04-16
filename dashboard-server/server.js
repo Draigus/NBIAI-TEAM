@@ -7365,6 +7365,107 @@ if (cron) {
   log('info', 'Cron', 'Daily FX rate refresh scheduled for 06:00');
 }
 
+// ==================== EMAIL CRON: DUE/LATE WARNINGS ====================
+
+/**
+ * Build warning emails for tasks that are due today or overdue.
+ * Returns an array of { to, subject, html } mail option objects.
+ * Exported for testing — the cron job calls this then sends each.
+ */
+async function buildDueWarningEmails(todayStr) {
+  const today = todayStr || new Date().toISOString().slice(0, 10);
+
+  // All active tasks where due_date <= today
+  const { rows: tasks } = await pool.query(`
+    SELECT t.id, t.title, t.due_date, t.status, t.priority, t.assignees,
+           c.name AS client_name
+    FROM tasks t
+    LEFT JOIN clients c ON c.id = t.client_id
+    WHERE t.due_date != '' AND t.due_date <= $1
+      AND t.status NOT IN ('Done', 'Cancelled')
+    ORDER BY t.due_date ASC
+  `, [today]);
+
+  if (tasks.length === 0) return [];
+
+  // Collect all unique assignee usernames
+  const allAssignees = [...new Set(tasks.flatMap(t => t.assignees || []))];
+  if (allAssignees.length === 0) return [];
+
+  // Fetch email addresses for those users
+  const { rows: users } = await pool.query(
+    'SELECT username, email, display_name FROM users WHERE username = ANY($1) AND email IS NOT NULL AND is_active = true',
+    [allAssignees]
+  );
+  const emailMap = Object.fromEntries(users.map(u => [u.username, { email: u.email, name: u.display_name }]));
+
+  // Group tasks by assignee
+  const byAssignee = {};
+  for (const task of tasks) {
+    for (const assignee of (task.assignees || [])) {
+      if (!emailMap[assignee]) continue;
+      if (!byAssignee[assignee]) byAssignee[assignee] = [];
+      byAssignee[assignee].push(task);
+    }
+  }
+
+  // Build one email per assignee
+  const emails = [];
+  for (const [username, userTasks] of Object.entries(byAssignee)) {
+    const { email, name } = emailMap[username];
+    const overdue = userTasks.filter(t => t.due_date < today);
+    const dueToday = userTasks.filter(t => t.due_date === today);
+
+    let sectionsHtml = '';
+    if (overdue.length > 0) {
+      const cols = [
+        { label: 'Ticket', key: 'title' },
+        { label: 'Client', key: 'client_name' },
+        { label: 'Due', key: 'due_date' },
+        { label: 'Days Late', key: '_daysLate', style: 'color:#dc2626;font-weight:600' },
+      ];
+      const rows = overdue.map(t => ({
+        ...t,
+        _daysLate: businessDaysBetween(t.due_date, today)
+      }));
+      sectionsHtml += buildEmailSection(`Overdue (${overdue.length})`, '#dc2626', buildEmailTable(cols, rows));
+    }
+    if (dueToday.length > 0) {
+      const cols = [
+        { label: 'Ticket', key: 'title' },
+        { label: 'Client', key: 'client_name' },
+        { label: 'Priority', key: 'priority' },
+      ];
+      sectionsHtml += buildEmailSection(`Due Today (${dueToday.length})`, '#f59e0b', buildEmailTable(cols, dueToday));
+    }
+
+    const total = userTasks.length;
+    const subject = `NBI Hub \u2014 ${total} ticket${total === 1 ? '' : 's'} need${total === 1 ? 's' : ''} attention`;
+    emails.push({
+      to: email,
+      subject,
+      html: buildEmailHtml(subject, `<p>Hi ${name || username},</p>${sectionsHtml}`),
+    });
+  }
+
+  return emails;
+}
+
+// Due & Late Ticket Warnings — 09:00 weekdays
+if (cron) {
+  cron.schedule('0 9 * * 1-5', async () => {
+    log('info', 'Cron', 'Running due/late ticket warning emails');
+    try {
+      const emails = await buildDueWarningEmails();
+      for (const mail of emails) sendEmailAsync(mail);
+      log('info', 'Cron', `Due/late warnings: ${emails.length} email(s) queued`);
+    } catch (e) {
+      log('error', 'Cron', 'Due/late warning job failed', { error: e.message });
+    }
+  });
+  log('info', 'Cron', 'Due/late ticket warnings scheduled for 09:00 weekdays');
+}
+
 // ==================== ERROR HANDLING ====================
 // IMPORTANT: Must be registered AFTER all route definitions so it catches errors from every endpoint.
 
@@ -7439,3 +7540,4 @@ module.exports.businessDaysBetween = businessDaysBetween;
 module.exports.buildEmailHtml = buildEmailHtml;
 module.exports.buildEmailTable = buildEmailTable;
 module.exports.buildEmailSection = buildEmailSection;
+module.exports.buildDueWarningEmails = buildDueWarningEmails;

@@ -23,7 +23,7 @@ function uniq(prefix) {
 async function createTestUser(opts = {}) {
   const username = opts.username || uniq('testuser');
   const display_name = opts.display_name || `Test User ${_seq}`;
-  const email = opts.email || `${username}@example.invalid`;
+  const email = 'email' in opts ? opts.email : `${username}@example.invalid`;
   const role = opts.role || 'admin';
   const raw_password = opts.password || 'test_password_123';
   const password_hash = await bcrypt.hash(raw_password, 4); // low cost for speed
