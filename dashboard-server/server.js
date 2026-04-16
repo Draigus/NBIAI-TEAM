@@ -7365,6 +7365,209 @@ if (cron) {
   log('info', 'Cron', 'Daily FX rate refresh scheduled for 06:00');
 }
 
+// ==================== EMAIL CRON: PM DAILY REPORT ====================
+
+/**
+ * Build PM report emails for team leads.
+ * @param {string} todayStr - YYYY-MM-DD
+ * @param {string} windowStart - ISO timestamp for audit_log window start
+ * @param {string} windowEnd - ISO timestamp for audit_log window end
+ * @returns {Array<{to, subject, html}>}
+ */
+async function buildPmReportEmails(todayStr, windowStart, windowEnd) {
+  const today = todayStr || new Date().toISOString().slice(0, 10);
+
+  // Default window: previous business day 08:00 to today 08:00
+  // Monday: window starts Friday 08:00
+  if (!windowStart || !windowEnd) {
+    const todayDate = new Date(today + 'T08:00:00');
+    const dow = todayDate.getDay();
+    const daysBack = dow === 1 ? 3 : 1; // Monday = 3 days back (from Friday)
+    const startDate = new Date(todayDate);
+    startDate.setDate(startDate.getDate() - daysBack);
+    windowStart = startDate.toISOString();
+    windowEnd = todayDate.toISOString();
+  }
+
+  const fiveAhead = addBusinessDays(today, 5);
+
+  // Get all team leads with their teams and client scopes
+  const { rows: leads } = await pool.query(`
+    SELECT u.id AS user_id, u.username, u.display_name, u.email,
+           t.id AS team_id, t.name AS team_name, t.client_id
+    FROM team_members tm
+    JOIN users u ON u.id = tm.user_id
+    JOIN teams t ON t.id = tm.team_id
+    WHERE tm.role = 'lead' AND u.is_active = true
+  `);
+
+  if (leads.length === 0) return [];
+
+  // Group by user (a lead can lead multiple teams)
+  const byUser = {};
+  for (const row of leads) {
+    if (!row.email) continue;
+    if (!byUser[row.user_id]) {
+      byUser[row.user_id] = { username: row.username, name: row.display_name, email: row.email, clientIds: new Set() };
+    }
+    if (row.client_id) byUser[row.user_id].clientIds.add(row.client_id);
+  }
+
+  const emails = [];
+  for (const [userId, lead] of Object.entries(byUser)) {
+    const clientIds = [...lead.clientIds];
+    if (clientIds.length === 0) continue;
+
+    // 1. Changed tickets (from audit_log)
+    const { rows: changes } = await pool.query(`
+      SELECT al.entity_id, al.action, al.changes, al.changed_by, al.created_at,
+             tk.title, tk.status
+      FROM audit_log al
+      JOIN tasks tk ON tk.id::text = al.entity_id::text
+      WHERE al.entity_type = 'task'
+        AND al.created_at >= $1 AND al.created_at < $2
+        AND tk.client_id = ANY($3)
+      ORDER BY al.created_at DESC
+    `, [windowStart, windowEnd, clientIds]);
+
+    // 2. Overdue tasks
+    const { rows: overdue } = await pool.query(`
+      SELECT id, title, due_date, assignees, status, priority
+      FROM tasks WHERE due_date != '' AND due_date < $1
+        AND status NOT IN ('Done', 'Cancelled') AND client_id = ANY($2)
+      ORDER BY due_date ASC
+    `, [today, clientIds]);
+
+    // 3. Due within 5 business days
+    const { rows: dueSoon } = await pool.query(`
+      SELECT id, title, due_date, assignees, status, priority
+      FROM tasks WHERE due_date != '' AND due_date >= $1 AND due_date <= $2
+        AND status NOT IN ('Done', 'Cancelled') AND client_id = ANY($3)
+      ORDER BY due_date ASC
+    `, [today, fiveAhead, clientIds]);
+
+    // 4. Blocked tasks
+    const { rows: blocked } = await pool.query(`
+      SELECT id, title, due_date, assignees, status
+      FROM tasks WHERE status = 'Blocked' AND client_id = ANY($1)
+    `, [clientIds]);
+
+    // 5. Lead activity updates
+    const { rows: leadUpdates } = await pool.query(`
+      SELECT la.activity_type, la.description, la.performed_by, la.created_at,
+             l.title AS lead_title
+      FROM lead_activities la
+      JOIN leads l ON l.id = la.lead_id
+      WHERE la.created_at >= $1 AND la.created_at < $2
+        AND l.client_id = ANY($3)
+      ORDER BY la.created_at DESC
+    `, [windowStart, windowEnd, clientIds]);
+
+    // If nothing to report, skip
+    if (changes.length === 0 && overdue.length === 0 && dueSoon.length === 0 && blocked.length === 0 && leadUpdates.length === 0) continue;
+
+    // Build summary bar
+    const summaryParts = [];
+    if (changes.length > 0) summaryParts.push(`${changes.length} change${changes.length === 1 ? '' : 's'}`);
+    if (dueSoon.length > 0) summaryParts.push(`${dueSoon.length} due this week`);
+    if (overdue.length > 0) summaryParts.push(`${overdue.length} overdue`);
+    if (blocked.length > 0) summaryParts.push(`${blocked.length} blocked`);
+    if (leadUpdates.length > 0) summaryParts.push(`${leadUpdates.length} lead update${leadUpdates.length === 1 ? '' : 's'}`);
+    const summaryHtml = `<p style="background:#f1f5f9;padding:12px 16px;border-radius:6px;font-size:14px;color:#475569">${summaryParts.join(' &middot; ')}</p>`;
+
+    let sectionsHtml = summaryHtml;
+
+    // Overdue & Blocked
+    if (overdue.length > 0 || blocked.length > 0) {
+      const items = [...overdue.map(tk => ({ ...tk, _reason: `${businessDaysBetween(tk.due_date, today)}d late` })),
+                     ...blocked.map(tk => ({ ...tk, _reason: 'Blocked' }))];
+      const cols = [
+        { label: 'Ticket', key: 'title' },
+        { label: 'Assignee', key: '_assigneeStr' },
+        { label: 'Due', key: 'due_date' },
+        { label: 'Issue', key: '_reason', style: 'color:#dc2626;font-weight:600' },
+      ];
+      const rows = items.map(tk => ({ ...tk, _assigneeStr: (tk.assignees || []).join(', ') }));
+      sectionsHtml += buildEmailSection('Overdue & Blocked', '#dc2626', buildEmailTable(cols, rows));
+    }
+
+    // Due this week
+    if (dueSoon.length > 0) {
+      const cols = [
+        { label: 'Ticket', key: 'title' },
+        { label: 'Assignee', key: '_assigneeStr' },
+        { label: 'Due', key: 'due_date' },
+        { label: 'Status', key: 'status' },
+      ];
+      const rows = dueSoon.map(tk => ({ ...tk, _assigneeStr: (tk.assignees || []).join(', ') }));
+      sectionsHtml += buildEmailSection('Due This Week', '#f59e0b', buildEmailTable(cols, rows));
+    }
+
+    // Changes
+    if (changes.length > 0) {
+      const byTask = {};
+      for (const c of changes) {
+        if (!byTask[c.entity_id]) byTask[c.entity_id] = { title: c.title, entries: [] };
+        byTask[c.entity_id].entries.push(c);
+      }
+      let changesHtml = '';
+      for (const [taskId, { title, entries }] of Object.entries(byTask)) {
+        changesHtml += `<div style="margin:8px 0"><strong>${title}</strong> &mdash; ${entries.length} change${entries.length === 1 ? '' : 's'}<ul style="margin:4px 0;padding-left:20px">`;
+        for (const e of entries) {
+          const changeData = typeof e.changes === 'string' ? JSON.parse(e.changes) : e.changes;
+          const desc = changeData ? Object.entries(changeData).map(([k, v]) =>
+            typeof v === 'object' && v.from !== undefined ? `${k}: ${v.from} \u2192 ${v.to}` : `${k}: ${JSON.stringify(v)}`
+          ).join(', ') : e.action;
+          const time = new Date(e.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+          changesHtml += `<li style="font-size:13px;color:#475569">${desc} (by ${e.changed_by}, ${time})</li>`;
+        }
+        changesHtml += '</ul></div>';
+      }
+      sectionsHtml += buildEmailSection('Changes Since Last Report', '#3b82f6', changesHtml);
+    }
+
+    // Lead updates
+    if (leadUpdates.length > 0) {
+      const cols = [
+        { label: 'Lead', key: 'lead_title' },
+        { label: 'Activity', key: 'activity_type' },
+        { label: 'By', key: 'performed_by' },
+        { label: 'When', key: '_time' },
+      ];
+      const rows = leadUpdates.map(la => ({
+        ...la,
+        _time: new Date(la.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+      }));
+      sectionsHtml += buildEmailSection('Lead Updates', '#8b5cf6', buildEmailTable(cols, rows));
+    }
+
+    const dateLabel = new Date(today + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    const subject = `NBI Hub \u2014 Daily Report for ${lead.name || lead.username} \u2014 ${dateLabel}`;
+    emails.push({
+      to: lead.email,
+      subject,
+      html: buildEmailHtml(subject, `<p>Hi ${lead.name || lead.username},</p>${sectionsHtml}`),
+    });
+  }
+
+  return emails;
+}
+
+// PM Daily Report — 08:00 weekdays
+if (cron) {
+  cron.schedule('0 8 * * 1-5', async () => {
+    log('info', 'Cron', 'Running PM daily report emails');
+    try {
+      const emails = await buildPmReportEmails();
+      for (const mail of emails) sendEmailAsync(mail);
+      log('info', 'Cron', `PM reports: ${emails.length} email(s) queued`);
+    } catch (e) {
+      log('error', 'Cron', 'PM report job failed', { error: e.message });
+    }
+  });
+  log('info', 'Cron', 'PM daily report scheduled for 08:00 weekdays');
+}
+
 // ==================== EMAIL CRON: DUE/LATE WARNINGS ====================
 
 /**
@@ -7541,3 +7744,4 @@ module.exports.buildEmailHtml = buildEmailHtml;
 module.exports.buildEmailTable = buildEmailTable;
 module.exports.buildEmailSection = buildEmailSection;
 module.exports.buildDueWarningEmails = buildDueWarningEmails;
+module.exports.buildPmReportEmails = buildPmReportEmails;
