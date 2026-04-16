@@ -249,6 +249,48 @@ function businessDaysBetween(a, b) {
   return count * sign;
 }
 
+/**
+ * Build a branded HTML email wrapper.
+ * @param {string} title — email heading
+ * @param {string} bodyHtml — inner HTML content (sections, tables, etc.)
+ * @returns {string} complete HTML document
+ */
+function buildEmailHtml(title, bodyHtml) {
+  return `<!DOCTYPE html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"></head>
+<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f4f4f5">
+<div style="max-width:640px;margin:0 auto;background:#fff">
+  <div style="background:#1e293b;padding:16px 24px">
+    <h1 style="margin:0;color:#fff;font-size:18px;font-weight:600">${title}</h1>
+  </div>
+  <div style="padding:24px">${bodyHtml}</div>
+  <div style="padding:16px 24px;background:#f8fafc;border-top:1px solid #e2e8f0;color:#94a3b8;font-size:12px">
+    Sent from NBI Hub &middot; <a href="${APP_URL}/nbi_project_dashboard.html" style="color:#64748b">Open Dashboard</a>
+  </div>
+</div>
+</body></html>`;
+}
+
+/** Build an HTML table from rows. cols = [{label, key, style?}], rows = objects */
+function buildEmailTable(cols, rows) {
+  const thStyle = 'padding:8px 12px;text-align:left;border-bottom:2px solid #e2e8f0;font-size:13px;color:#64748b';
+  const tdStyle = 'padding:8px 12px;border-bottom:1px solid #f1f5f9;font-size:13px';
+  const header = cols.map(c => `<th style="${thStyle}">${c.label}</th>`).join('');
+  const body = rows.map(r =>
+    '<tr>' + cols.map(c => `<td style="${tdStyle}${c.style ? ';' + c.style : ''}">${r[c.key] ?? ''}</td>`).join('') + '</tr>'
+  ).join('');
+  return `<table style="width:100%;border-collapse:collapse;margin:12px 0">${header ? `<tr>${header}</tr>` : ''}${body}</table>`;
+}
+
+/** Section heading with optional coloured left border */
+function buildEmailSection(title, colour, contentHtml) {
+  if (!contentHtml) return '';
+  return `<div style="margin:20px 0;border-left:4px solid ${colour};padding-left:16px">
+    <h2 style="margin:0 0 8px;font-size:15px;color:#1e293b">${title}</h2>
+    ${contentHtml}
+  </div>`;
+}
+
 // ==================== CACHING LAYER ====================
 // Auth token cache — avoids DB query on every request
 const _tokenCache = new Map();
@@ -7394,3 +7436,6 @@ module.exports.shiftForInsert = shiftForInsert;
 module.exports.reorderInGroup = reorderInGroup;
 module.exports.addBusinessDays = addBusinessDays;
 module.exports.businessDaysBetween = businessDaysBetween;
+module.exports.buildEmailHtml = buildEmailHtml;
+module.exports.buildEmailTable = buildEmailTable;
+module.exports.buildEmailSection = buildEmailSection;
