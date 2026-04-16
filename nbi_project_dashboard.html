@@ -2896,10 +2896,8 @@ let _syncPollInterval = setInterval(async () => {
       if (Date.now() - _lastLocalSyncTime < 15000) {
         console.log('[Sync] Poll: skipping re-render (own changes within cooldown)');
       } else {
-        // Changes from another user — lightweight update, no DOM nuke
-        if (typeof standupRefreshMetrics === 'function') standupRefreshMetrics();
-        if (typeof renderSidebar === 'function') renderSidebar();
-        if (typeof updateWarnAlertButton === 'function') updateWarnAlertButton();
+        // Changes from another user — re-render content but preserve scroll exactly
+        _softReRender();
       }
     }
   } catch (e) { /* silent */ }
@@ -4160,6 +4158,26 @@ function standupUpdateTask(taskId, field, value, el) {
 }
 
 /** Rebuild only the metrics strip on the workload page without touching the rest of the DOM */
+/** Re-render the page content for remote changes without visible scroll flash.
+ *  Freezes the scroll container's height during render so the browser can't reset scroll. */
+function _softReRender() {
+  const scrollEl = document.querySelector('.main__content');
+  const savedScroll = scrollEl ? scrollEl.scrollTop : 0;
+  // Freeze container height so scroll position doesn't reset during DOM rebuild
+  if (scrollEl) scrollEl.style.minHeight = scrollEl.scrollHeight + 'px';
+  renderContent();
+  if (typeof renderSidebar === 'function') renderSidebar();
+  if (typeof updateWarnAlertButton === 'function') updateWarnAlertButton();
+  // Restore scroll synchronously before the browser paints
+  if (scrollEl && savedScroll > 0) {
+    scrollEl.scrollTop = savedScroll;
+    // Release the height freeze after paint
+    requestAnimationFrame(() => { if (scrollEl) scrollEl.style.minHeight = ''; });
+  } else if (scrollEl) {
+    scrollEl.style.minHeight = '';
+  }
+}
+
 function standupRefreshMetrics() {
   const metricsEl = document.querySelector('.tactical-metrics');
   if (!metricsEl) return;
@@ -17130,10 +17148,8 @@ function restartPollingIntervals() {
             const idx = tasks.findIndex(x => x.id === id);
             if (idx >= 0) tasks.splice(idx, 1);
           }
-          // Lightweight refresh — update metrics + sidebar, no DOM nuke
-          if (typeof standupRefreshMetrics === 'function') standupRefreshMetrics();
-          if (typeof renderSidebar === 'function') renderSidebar();
-          if (typeof updateWarnAlertButton === 'function') updateWarnAlertButton();
+          // Remote changes — re-render content but preserve scroll exactly
+          _softReRender();
         }
       }
       if (data.serverTime) _lastPollTime = data.serverTime;
