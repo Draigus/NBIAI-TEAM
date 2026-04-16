@@ -9,7 +9,7 @@
  *   - PostgreSQL (via pg Pool) for persistent storage
  *   - bcrypt for password hashing
  *   - multer for file uploads (attachments, receipts, contracts)
- *   - nodemailer for password reset emails (optional, requires SMTP config)
+ *   - @azure/msal-node for Microsoft Graph API email sending (optional, requires Azure AD app)
  *   - pdf-parse for contract text extraction (optional)
  *   - compression for gzip response compression
  *   - express-async-errors for automatic async error forwarding
@@ -50,7 +50,7 @@ const crypto = require('crypto');
 const bcrypt = require('bcrypt');
 const multer = require('multer');
 const fs = require('fs');
-const nodemailer = require('nodemailer');
+
 const { rateLimit, ipKeyGenerator } = require('express-rate-limit');
 const XLSX = require('xlsx');
 const PDFDocument = require('pdfkit');
@@ -153,33 +153,100 @@ const FAILED_LOGIN_THRESHOLD = 3;  // Show "forgot password" link after this man
 const FAILED_LOGIN_LOCKOUT = 5;    // Lock account for LOCKOUT_DURATION after this many failures
 const LOCKOUT_DURATION = 15 * 60 * 1000; // 15 minutes
 
-// SMTP config for password reset emails (all optional — falls back to console logging)
-const SMTP_HOST = process.env.SMTP_HOST || '';
-const SMTP_PORT = parseInt(process.env.SMTP_PORT || '587');
-const SMTP_USER = process.env.SMTP_USER || '';
-const SMTP_PASS = process.env.SMTP_PASS || '';
-const SMTP_FROM = process.env.SMTP_FROM || 'noreply@nbi-consulting.com';
+// Email config — Microsoft Graph API (OAuth2 client credentials)
+const AZURE_TENANT_ID = process.env.AZURE_TENANT_ID || '';
+const AZURE_CLIENT_ID = process.env.AZURE_CLIENT_ID || '';
+const AZURE_CLIENT_SECRET = process.env.AZURE_CLIENT_SECRET || '';
+const EMAIL_FROM = process.env.EMAIL_FROM || 'nbihub@nbi-consulting.com';
 const APP_URL = process.env.APP_URL || `http://localhost:${PORT}`;
 
-/** Nodemailer transport — only created if SMTP_HOST is configured */
-let _mailTransport = null;
-if (SMTP_HOST) {
-  _mailTransport = nodemailer.createTransport({
-    host: SMTP_HOST, port: SMTP_PORT, secure: SMTP_PORT === 465,
-    auth: { user: SMTP_USER, pass: SMTP_PASS }
+/** MSAL confidential client for Graph API token acquisition */
+let _msalClient = null;
+if (AZURE_TENANT_ID && AZURE_CLIENT_ID && AZURE_CLIENT_SECRET) {
+  const msal = require('@azure/msal-node');
+  _msalClient = new msal.ConfidentialClientApplication({
+    auth: {
+      clientId: AZURE_CLIENT_ID,
+      authority: `https://login.microsoftonline.com/${AZURE_TENANT_ID}`,
+      clientSecret: AZURE_CLIENT_SECRET
+    }
   });
-  log('info', 'Server', `SMTP configured: ${SMTP_HOST}:${SMTP_PORT}`);
+  log('info', 'Server', `Email configured: Graph API as ${EMAIL_FROM}`);
+}
+
+/** Acquire a Graph API access token (cached internally by MSAL) */
+async function _getGraphToken() {
+  const result = await _msalClient.acquireTokenByClientCredential({
+    scopes: ['https://graph.microsoft.com/.default']
+  });
+  return result.accessToken;
+}
+
+/** Send email via Microsoft Graph API — POST /users/{sender}/sendMail */
+async function _sendViaGraph(mailOptions) {
+  const token = await _getGraphToken();
+  const toRecipients = (Array.isArray(mailOptions.to) ? mailOptions.to : [mailOptions.to])
+    .map(addr => ({ emailAddress: { address: addr } }));
+  const body = {
+    message: {
+      subject: mailOptions.subject,
+      body: { contentType: mailOptions.html ? 'HTML' : 'Text', content: mailOptions.html || mailOptions.text || '' },
+      toRecipients
+    },
+    saveToSentItems: false
+  };
+  const sender = mailOptions.from || EMAIL_FROM;
+  const res = await fetch(`https://graph.microsoft.com/v1.0/users/${sender}/sendMail`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`Graph API ${res.status}: ${errText}`);
+  }
 }
 
 /** Fire-and-forget email send with retry — logs failures but never blocks the request */
 function sendEmailAsync(mailOptions) {
-  if (!_mailTransport) {
-    log('info', 'Email', 'SMTP not configured, logging email', { to: mailOptions.to, subject: mailOptions.subject });
+  if (!_msalClient) {
+    log('info', 'Email', 'Graph API not configured, logging email', { to: mailOptions.to, subject: mailOptions.subject });
     return;
   }
-  withRetry(() => _mailTransport.sendMail(mailOptions), { maxAttempts: 2, backoffMs: 2000, log })
-    .then(() => { log('info', 'Email', 'Email sent', { to: mailOptions.to }); emailSends?.inc({ status: 'success' }); })
+  withRetry(() => _sendViaGraph(mailOptions), { maxAttempts: 2, backoffMs: 2000, log })
+    .then(() => { log('info', 'Email', 'Email sent via Graph API', { to: mailOptions.to }); emailSends?.inc({ status: 'success' }); })
     .catch(err => { log('error', 'Email', 'Failed after retries', { to: mailOptions.to, error: err.message }); emailSends?.inc({ status: 'failure' }); });
+}
+
+// ==================== BUSINESS-DAY UTILITIES ====================
+
+/** Add N business days to a YYYY-MM-DD string. Skips weekends. */
+function addBusinessDays(dateStr, n) {
+  const d = new Date(dateStr + 'T12:00:00');
+  let remaining = n;
+  while (remaining > 0) {
+    d.setDate(d.getDate() + 1);
+    const dow = d.getDay();
+    if (dow !== 0 && dow !== 6) remaining--;
+  }
+  return d.toISOString().slice(0, 10);
+}
+
+/** Count business days between two YYYY-MM-DD strings. Negative if b < a. */
+function businessDaysBetween(a, b) {
+  const da = new Date(a + 'T12:00:00');
+  const db = new Date(b + 'T12:00:00');
+  const sign = db >= da ? 1 : -1;
+  const start = sign === 1 ? da : db;
+  const end = sign === 1 ? db : da;
+  let count = 0;
+  const cur = new Date(start);
+  while (cur < end) {
+    cur.setDate(cur.getDate() + 1);
+    const dow = cur.getDay();
+    if (dow !== 0 && dow !== 6) count++;
+  }
+  return count * sign;
 }
 
 // ==================== CACHING LAYER ====================
@@ -724,7 +791,7 @@ app.post('/api/auth/forgot-password', async (req, res) => {
   const resetUrl = `${APP_URL}/nbi_project_dashboard.html#reset-password/${resetToken}`;
 
   sendEmailAsync({
-    from: SMTP_FROM,
+    from: EMAIL_FROM,
     to: user.email,
     subject: 'NBI Dashboard — Password Reset',
     text: `Hi ${user.display_name},\n\nSomeone requested a password reset for your NBI Dashboard account.\n\nClick here to reset your password:\n${resetUrl}\n\nThis link expires in 1 hour. If you did not request this, you can ignore this email.\n\nNBI Dashboard`,
@@ -6593,7 +6660,7 @@ app.post('/api/expense-reports/:id/submit', async (req, res) => {
     <p style="color:#666;font-size:0.85em">NBI Project Dashboard</p>
   `;
   sendEmailAsync({
-    from: SMTP_FROM,
+    from: EMAIL_FROM,
     to: approverEmail,
     subject: `Expense Report: ${report.title} — ${report.employee_name || 'Employee'}`,
     html: emailHtml
@@ -7325,3 +7392,5 @@ if (require.main === module) {
 module.exports = app;
 module.exports.shiftForInsert = shiftForInsert;
 module.exports.reorderInGroup = reorderInGroup;
+module.exports.addBusinessDays = addBusinessDays;
+module.exports.businessDaysBetween = businessDaysBetween;
