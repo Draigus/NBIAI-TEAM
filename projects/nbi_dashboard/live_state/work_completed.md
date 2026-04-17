@@ -4,6 +4,37 @@ Append-only. Every feature/fix completed gets logged here immediately.
 
 ---
 
+## 2026-04-17 (News aggregator M2 start — Task 14: LLM client wrapper)
+
+Task 14 complete. `src/llm/client.ts` wraps the Claude Agent SDK with Max
+Pro primary + `ANTHROPIC_API_KEY_FAILOVER` fallback. Records every call
+to `news.generation_runs` (status, llm_auth_mode, failover_occurred,
+input/output token counts, error message). On auth failure, promotes
+the failover key, latches for the process lifetime, and posts
+`notifyAuthFailover`. On double failure, posts `notifyGenerationFailed`
+and flips the row to `status='failed'`.
+
+`healthcheckAuth` runs at service startup (after `startCronJobs`); skip
+via `NEWS_SKIP_LLM_HEALTHCHECK=1`. End-to-end verified: PM2 restart →
+log shows `LLM auth pre-flight { ok: true, mode: 'max_pro' }` and a
+`completed` row lands in `news.generation_runs` with 3 input / 4 output
+tokens.
+
+Tests: 3 new (`tests/unit/client-failover.test.ts`), SDK + notifications
+mocked via `vi.mock`, real DB with `afterEach` cleanup. Total suite now
+35/35 green. TypeScript clean.
+
+Deviations from plan recorded in the session log
+(`session_logs/2026-04-17_task14_llm_client.md`):
+- Added `startedAt: new Date()` to the insert (schema is notNull, no default)
+- Prefer the SDK's final `result` message over the last assistant message
+- Added `settingSources: []` + `allowedTools: []` to strip what we can
+- SDK still injects ~13K cache_creation tokens of built-in context per call
+  (hard-coded tool schemas, slash commands, skills, agents) — flagged as
+  a cost concern for heavy generation days
+
+---
+
 ## 2026-04-17 (News aggregator M1 complete — Tasks 6 to 13)
 
 Picked up from handoff_2026-04-17a. Executed Tasks 6 through 13 of the
