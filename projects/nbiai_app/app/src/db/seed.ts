@@ -237,9 +237,14 @@ async function seed(): Promise<void> {
   if (existingBoardUser.length > 0) {
     console.log(`[seed]   Board user '${BOARD_USER.email}' already exists — skipping`)
   } else {
-    // BOARD_USER_PASSWORD from env, or a strong placeholder that forces a manual reset.
-    // The placeholder is deliberately not a real password -- Glen must set one.
-    const password = process.env.BOARD_USER_PASSWORD ?? 'ChangeMe!NBI2026#'
+    const password = process.env.BOARD_USER_PASSWORD
+    if (!password) {
+      throw new Error(
+        '[seed] BOARD_USER_PASSWORD is not set. Refusing to seed the board user with a hardcoded default. ' +
+          'Set BOARD_USER_PASSWORD in the environment (at least 12 characters, with upper, lower, and digit) and re-run.',
+      )
+    }
+
     const passwordHash = await hashPassword(password)
 
     await db.insert(schema.users).values({
@@ -251,11 +256,6 @@ async function seed(): Promise<void> {
       isActive: true,
     })
     console.log(`[seed]   Inserted board user: ${BOARD_USER.displayName} (${BOARD_USER.email})`)
-
-    if (!process.env.BOARD_USER_PASSWORD) {
-      console.warn('[seed]   !! BOARD_USER_PASSWORD not set in environment. Using placeholder.')
-      console.warn('[seed]   !! Glen must update his password after first login.')
-    }
   }
 
   // -------------------------------------------------------------------------
