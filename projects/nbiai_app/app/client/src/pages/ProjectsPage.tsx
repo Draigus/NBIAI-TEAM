@@ -235,7 +235,7 @@ function NewProjectModal({ open, onOpenChange, agents }: NewProjectModalProps) {
             </Select>
           </div>
 
-          {mutation.error && !nameError && (
+          {Boolean(mutation.error) && !nameError && (
             <p className="text-xs text-status-red">Failed to create project. Please try again.</p>
           )}
 
