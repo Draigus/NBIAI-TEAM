@@ -326,8 +326,13 @@ function TerminateDialog({ agentId, roleName, open, onOpenChange }: TerminateDia
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
+  // Terminate is a soft-delete server-side (DELETE /agents/:id sets
+  // status='terminated', clears current_task_id, and unassigns any
+  // active task). The updateAgentSchema explicitly excludes
+  // 'terminated' as a user-settable status, so calling update with
+  // that status returns a 400; use the delete route instead.
   const mutation = useMutation({
-    mutationFn: () => agentsApi.update(agentId, { status: 'terminated' }),
+    mutationFn: () => agentsApi.delete(agentId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['agent', agentId] })
       onOpenChange(false)

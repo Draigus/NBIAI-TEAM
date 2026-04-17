@@ -401,7 +401,7 @@ interface AddRelationModalProps {
 
 function AddRelationModal({ open, onClose, currentTaskId, onRelationAdded }: AddRelationModalProps) {
   const [search, setSearch] = useState('')
-  const [relationType, setRelationType] = useState<'blocks' | 'blocked_by' | 'related'>('related')
+  const [relationType, setRelationType] = useState<'blocking' | 'blocked_by' | 'related'>('related')
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
   const [selectedTaskTitle, setSelectedTaskTitle] = useState('')
 
@@ -414,11 +414,15 @@ function AddRelationModal({ open, onClose, currentTaskId, onRelationAdded }: Add
 
   const searchResults = (searchRes?.data ?? []).filter((t) => t.id !== currentTaskId)
 
+  // POST /tasks/:id/relations is the real endpoint. The earlier
+  // implementation PATCHed the task with an `addRelation` field that
+  // the updateTaskSchema strips on the server, so the relation never
+  // persisted and no error surfaced.
   const addMutation = useMutation({
-    mutationFn: () =>
-      tasks.update(currentTaskId, {
-        addRelation: { relatedTaskId: selectedTaskId, type: relationType },
-      }),
+    mutationFn: () => {
+      if (!selectedTaskId) throw new Error('No related task selected')
+      return tasks.addRelation(currentTaskId, selectedTaskId, relationType)
+    },
     onSuccess: () => {
       onRelationAdded()
       onClose()
@@ -452,7 +456,7 @@ function AddRelationModal({ open, onClose, currentTaskId, onRelationAdded }: Add
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="blocks">Blocks</SelectItem>
+                <SelectItem value="blocking">Blocks</SelectItem>
                 <SelectItem value="blocked_by">Blocked by</SelectItem>
                 <SelectItem value="related">Related</SelectItem>
               </SelectContent>

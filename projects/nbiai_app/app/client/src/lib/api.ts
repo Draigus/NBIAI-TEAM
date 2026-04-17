@@ -272,6 +272,19 @@ export const tasks = {
       method: 'POST',
       body: JSON.stringify({ agentId, output }),
     }),
+
+  // POST /api/v1/tasks/:id/relations inserts two rows (the relation and
+  // its mirror) so blocking/blocked_by stay consistent. relationType
+  // values must match the server's task_relation_type enum.
+  addRelation: (
+    id: string,
+    relatedTaskId: string,
+    relationType: 'blocking' | 'blocked_by' | 'related',
+  ) =>
+    apiFetch(`/api/v1/tasks/${id}/relations`, {
+      method: 'POST',
+      body: JSON.stringify({ relatedTaskId, relationType }),
+    }),
 }
 
 // ---------------------------------------------------------------------------
