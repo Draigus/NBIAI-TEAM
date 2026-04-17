@@ -79,36 +79,60 @@ interface KnowledgeFile {
   updatedAt: string | null
 }
 
+// Shape matches GET /api/v1/agents/:id as of 2026-04-17
+// (src/routes/agents.ts). Optional fields are server-side TODOs —
+// stats, taskHistory, knowledge, systemPrompt, reportsTo, budget
+// are not computed yet and the page renders placeholders for them.
 interface AgentDetail {
   id: string
   name: string | null
-  roleName: string
-  roleSlug: string
   modelTier: string
   status: string
-  isVacant: boolean
-  reportsTo: { id: string; roleName: string } | null
-  directReports: { id: string; roleName: string }[]
+  currentTaskId: string | null
+  personaOverride: string | null
+  config: Record<string, unknown> | null
+  hiredAt: string
+  pausedAt: string | null
+  terminatedAt: string | null
+  createdAt: string
+  updatedAt: string
+  role: {
+    id: string
+    name: string
+    slug: string
+    department: string
+    defaultModelTier: string
+    isLeadership: boolean
+  }
   currentTask: {
     id: string
     title: string
-    projectName: string | null
     status: string
-    priority: string
-    assignedAt: string
   } | null
-  stats: {
+  directReports: Array<{
+    id: string
+    name: string
+    status: string
+    roleName: string
+  }>
+
+  // ----- client-side derived / server TODOs (optional) -----
+  roleName?: string
+  roleSlug?: string
+  isVacant?: boolean
+  reportsTo?: { id: string; roleName: string } | null
+  stats?: {
     tasksCompleted: number
     avgCompletionSeconds: number | null
     escalationsThisMonth: number
   }
-  taskHistory: TaskHistoryEntry[]
-  knowledgeTier1: KnowledgeFile[]
-  knowledgeTier2: KnowledgeFile[]
-  knowledgeTier3: KnowledgeFile[]
-  systemPrompt: string | null
-  personaConfig: Record<string, unknown> | null
-  budget: AgentBudget
+  taskHistory?: TaskHistoryEntry[]
+  knowledgeTier1?: KnowledgeFile[]
+  knowledgeTier2?: KnowledgeFile[]
+  knowledgeTier3?: KnowledgeFile[]
+  systemPrompt?: string | null
+  personaConfig?: Record<string, unknown> | null
+  budget?: AgentBudget
 }
 
 interface ExecutionsResponse {
@@ -241,7 +265,7 @@ function EditAgentModal({ agent, open, onOpenChange }: EditAgentModalProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[520px] bg-elevated border-default">
         <DialogHeader>
-          <DialogTitle className="text-primary">Edit Agent — {agent.roleName}</DialogTitle>
+          <DialogTitle className="text-primary">Edit Agent — {agent.role.name}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 pt-2">
@@ -251,7 +275,7 @@ function EditAgentModal({ agent, open, onOpenChange }: EditAgentModalProps) {
               className="w-full bg-input border border-default text-primary placeholder:text-muted rounded-md px-3 py-2 text-sm focus:outline-none focus:border-strong focus:ring-1 focus:ring-accent"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder={agent.roleName}
+              placeholder={agent.role.name}
             />
           </div>
 
@@ -418,9 +442,11 @@ function PauseDialog({ agentId, roleName, isPaused, open, onOpenChange }: PauseD
 
 function OverviewTab({ agent }: { agent: AgentDetail }) {
   const { stats, currentTask, budget } = agent
-  const budgetPct = budget.monthlyBudgetCap
-    ? Math.round((budget.currentMonthSpend / budget.monthlyBudgetCap) * 100)
-    : null
+
+  const budgetPct =
+    budget && budget.monthlyBudgetCap
+      ? Math.round((budget.currentMonthSpend / budget.monthlyBudgetCap) * 100)
+      : null
   const budgetBarColor =
     budgetPct === null
       ? 'bg-accent'
@@ -429,6 +455,13 @@ function OverviewTab({ agent }: { agent: AgentDetail }) {
       : budgetPct >= 80
       ? 'bg-status-amber'
       : 'bg-status-green'
+
+  // Use config jsonb as the persona surface; personaOverride takes precedence if set.
+  const personaSummary =
+    agent.personaOverride ??
+    (agent.config && typeof agent.config === 'object' && 'summary' in agent.config
+      ? String(agent.config.summary)
+      : null)
 
   return (
     <div className="space-y-6">
@@ -448,22 +481,9 @@ function OverviewTab({ agent }: { agent: AgentDetail }) {
             </Link>
 
             <div className="flex items-center gap-4 mt-2 flex-wrap">
-              {currentTask.projectName && (
-                <span className="text-xs text-muted">{currentTask.projectName}</span>
-              )}
               <Badge variant={statusBadgeVariant(currentTask.status)}>
                 {currentTask.status.replace(/_/g, ' ')}
               </Badge>
-              <Badge variant={statusBadgeVariant(currentTask.priority)}>
-                {currentTask.priority}
-              </Badge>
-              <span className="text-xs text-muted">
-                In progress for {formatTimeElapsed(currentTask.assignedAt)}
-              </span>
-            </div>
-
-            <div className="mt-3">
-              <Progress value={undefined} className="h-1" />
             </div>
           </div>
         ) : (
@@ -473,35 +493,41 @@ function OverviewTab({ agent }: { agent: AgentDetail }) {
         )}
       </div>
 
-      {/* Performance stats */}
+      {/* Performance stats — server-computed stats are a TODO; render
+          placeholders when the backend has not yet supplied them so the
+          tab degrades cleanly rather than crashing. */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard
           label="Tasks Completed"
-          value={stats.tasksCompleted}
+          value={stats?.tasksCompleted ?? '—'}
           sub="all time"
         />
         <StatCard
           label="Avg Completion"
           value={
-            stats.avgCompletionSeconds !== null
-              ? formatDuration(stats.avgCompletionSeconds)
-              : 'N/A'
+            stats && stats.avgCompletionSeconds !== null
+              ? formatDuration(stats.avgCompletionSeconds ?? null)
+              : '—'
           }
           sub="per task (last 30 days)"
         />
         <StatCard
           label="Escalations"
-          value={stats.escalationsThisMonth}
+          value={stats?.escalationsThisMonth ?? '—'}
           sub="this month"
-          valueClassName={stats.escalationsThisMonth > 3 ? 'text-status-amber' : undefined}
+          valueClassName={
+            stats && stats.escalationsThisMonth > 3 ? 'text-status-amber' : undefined
+          }
         />
         <StatCard
           label="Budget Used"
-          value={`£${budget.currentMonthSpend.toFixed(2)}`}
+          value={budget ? `£${budget.currentMonthSpend.toFixed(2)}` : '—'}
           sub={
-            budget.monthlyBudgetCap
-              ? `of £${budget.monthlyBudgetCap.toFixed(2)} this month`
-              : 'this month (no cap set)'
+            budget
+              ? budget.monthlyBudgetCap
+                ? `of £${budget.monthlyBudgetCap.toFixed(2)} this month`
+                : 'this month (no cap set)'
+              : 'flat Max plan · no per-agent budget'
           }
         >
           {budgetPct !== null && (
@@ -518,15 +544,13 @@ function OverviewTab({ agent }: { agent: AgentDetail }) {
       </div>
 
       {/* Persona summary */}
-      {agent.personaConfig && (
+      {personaSummary && (
         <div className="bg-surface border border-subtle rounded-lg p-5">
           <p className="text-[11px] font-semibold uppercase tracking-widest text-muted mb-3">
             Persona
           </p>
-          <p className="text-sm text-secondary leading-relaxed">
-            {typeof agent.personaConfig === 'object' && 'summary' in agent.personaConfig
-              ? String(agent.personaConfig.summary)
-              : JSON.stringify(agent.personaConfig)}
+          <p className="text-sm text-secondary leading-relaxed whitespace-pre-wrap">
+            {personaSummary}
           </p>
         </div>
       )}
@@ -653,13 +677,17 @@ function KnowledgeSection({ label, files, fallbackPaths }: KnowledgeSectionProps
 }
 
 function KnowledgeTab({ agent }: { agent: AgentDetail }) {
-  const slug = agent.roleSlug
+  const slug = agent.role.slug
 
+  // Knowledge files are not returned by GET /agents/:id today; this tab
+  // renders the expected on-disk paths (loaded at prompt-assembly time
+  // by src/execution/context-loader.ts) as reference until the server
+  // starts returning the public.knowledge_files rows for this role.
   return (
     <div className="bg-surface border border-subtle rounded-lg p-5">
       <KnowledgeSection
         label="Tier 1 — Company Knowledge"
-        files={agent.knowledgeTier1}
+        files={agent.knowledgeTier1 ?? []}
         fallbackPaths={[
           'company/knowledge/nbi_overview.md',
           'company/knowledge/clients.md',
@@ -670,7 +698,7 @@ function KnowledgeTab({ agent }: { agent: AgentDetail }) {
       <div className="border-t border-subtle my-4" />
       <KnowledgeSection
         label="Tier 2 — Role Knowledge"
-        files={agent.knowledgeTier2}
+        files={agent.knowledgeTier2 ?? []}
         fallbackPaths={[
           `roles/${slug}/persona.md`,
           `roles/${slug}/responsibilities.md`,
@@ -679,20 +707,14 @@ function KnowledgeTab({ agent }: { agent: AgentDetail }) {
         ]}
       />
       <div className="border-t border-subtle my-4" />
-      {agent.currentTask?.projectName ? (
-        <KnowledgeSection
-          label="Tier 3 — Project Knowledge"
-          files={agent.knowledgeTier3}
-          fallbackPaths={[
-            `projects/${agent.currentTask.projectName.toLowerCase().replace(/\s+/g, '_')}/knowledge/`,
-          ]}
-        />
-      ) : (
-        <div>
-          <h3 className="text-sm font-semibold text-secondary mb-2">Tier 3 — Project Knowledge</h3>
-          <p className="text-xs text-muted italic">No project assigned.</p>
-        </div>
-      )}
+      <div>
+        <h3 className="text-sm font-semibold text-secondary mb-2">Tier 3 — Project Knowledge</h3>
+        <p className="text-xs text-muted italic">
+          {agent.currentTask
+            ? 'Project knowledge files are loaded at prompt-assembly time from the current task\u2019s project directory.'
+            : 'No current task — Tier 3 knowledge is loaded only for active assignments.'}
+        </p>
+      </div>
     </div>
   )
 }
@@ -918,20 +940,26 @@ export default function RoleDetailPage() {
   const isPaused = agent.status === 'paused'
   const tierBadge = getModelTierBadge(agent.modelTier)
 
+  // Server always returns a real agent row (route is 404 otherwise) so
+  // isVacant is false in practice; left optional so a future /agents
+  // endpoint that returns vacant role placeholders can flip it.
+  const roleName = agent.roleName ?? agent.role.name
+  const isVacant = agent.isVacant ?? false
+
   return (
     <>
       {/* ---- Modals ---- */}
       <EditAgentModal agent={agent} open={editOpen} onOpenChange={setEditOpen} />
       <PauseDialog
         agentId={agent.id}
-        roleName={agent.roleName}
+        roleName={roleName}
         isPaused={isPaused}
         open={pauseOpen}
         onOpenChange={setPauseOpen}
       />
       <TerminateDialog
         agentId={agent.id}
-        roleName={agent.roleName}
+        roleName={roleName}
         open={terminateOpen}
         onOpenChange={setTerminateOpen}
       />
@@ -949,7 +977,7 @@ export default function RoleDetailPage() {
       <div
         className={cn(
           'bg-surface border border-subtle rounded-lg p-6 mb-6',
-          agent.isVacant && 'border-dashed',
+          isVacant && 'border-dashed',
         )}
       >
         <div className="flex items-start gap-5">
@@ -957,12 +985,12 @@ export default function RoleDetailPage() {
           <div
             className={cn(
               'size-14 rounded-full flex items-center justify-center shrink-0 text-sm font-semibold',
-              agent.isVacant
+              isVacant
                 ? 'border-2 border-dashed border-subtle text-muted'
                 : 'bg-accent-muted text-accent',
             )}
           >
-            {agent.isVacant ? '+' : getAgentInitials(agent.roleName)}
+            {isVacant ? '+' : getAgentInitials(roleName)}
           </div>
 
           {/* Info */}
@@ -970,20 +998,20 @@ export default function RoleDetailPage() {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h1 className="text-[22px] font-bold tracking-tight text-primary leading-tight">
-                  {agent.roleName}
+                  {roleName}
                 </h1>
                 <p className="text-[15px] font-semibold text-secondary mt-0.5">
-                  {agent.isVacant ? (
+                  {isVacant ? (
                     <span className="text-muted">Vacant</span>
                   ) : (
-                    agent.name ?? agent.roleName
+                    agent.name ?? roleName
                   )}
                 </p>
               </div>
 
               {/* Action buttons */}
               <div className="flex items-center gap-2 shrink-0">
-                {agent.isVacant ? (
+                {isVacant ? (
                   <Button>Hire Agent</Button>
                 ) : isBoardOrAdmin ? (
                   <>
@@ -1043,7 +1071,7 @@ export default function RoleDetailPage() {
             </div>
 
             {/* Vacant notice */}
-            {agent.isVacant && (
+            {isVacant && (
               <div className="mt-4 border border-dashed border-subtle rounded-md px-4 py-3 text-sm text-muted">
                 No agent assigned to this role.
               </div>
@@ -1068,7 +1096,7 @@ export default function RoleDetailPage() {
         </TabsContent>
 
         <TabsContent value="history">
-          <TaskHistoryTab tasks={agent.taskHistory} />
+          <TaskHistoryTab tasks={agent.taskHistory ?? []} />
         </TabsContent>
 
         <TabsContent value="performance">
