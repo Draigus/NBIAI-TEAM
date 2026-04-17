@@ -567,7 +567,12 @@ export async function financeRoutes(fastify: FastifyInstance): Promise<void> {
           totalCostUsd: sum(costLogs.costUsd),
         })
         .from(costLogs)
-        .where(eq(costLogs.periodMonth, `${monthYear}-01`))
+        .where(
+          and(
+            eq(costLogs.companyId, companyId),
+            eq(costLogs.periodMonth, `${monthYear}-01`),
+          ),
+        )
 
       const totalSpentUsd = parseFloat(agentCostResult?.totalCostUsd ?? '0') || 0
       const monthlyAgentCosts = Math.round(totalSpentUsd * GBP_PER_USD * 100) / 100
@@ -633,6 +638,7 @@ export async function financeRoutes(fastify: FastifyInstance): Promise<void> {
     { preHandler: requireRole(BOARD_AND_ADMIN) },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const monthYear = currentMonthYear()
+      const companyId = request.user.companyId
 
       const rows = await db
         .select({
@@ -648,7 +654,12 @@ export async function financeRoutes(fastify: FastifyInstance): Promise<void> {
         .from(costLogs)
         .leftJoin(agents, eq(costLogs.agentId, agents.id))
         .leftJoin(roles, eq(agents.roleId, roles.id))
-        .where(eq(costLogs.periodMonth, `${monthYear}-01`))
+        .where(
+          and(
+            eq(costLogs.companyId, companyId),
+            eq(costLogs.periodMonth, `${monthYear}-01`),
+          ),
+        )
         .orderBy(desc(costLogs.createdAt))
 
       const totalCostUsd = rows.reduce(

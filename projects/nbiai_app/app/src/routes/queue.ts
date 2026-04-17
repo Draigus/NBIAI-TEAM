@@ -97,8 +97,9 @@ export async function queueRoutes(app: FastifyInstance) {
     { preHandler: requireRole(BOARD_AND_ADMIN) },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const body = validateBody(createQueueSchema, request.body)
+      const companyId = request.user.companyId
 
-      // 1. Validate agent exists
+      // 1. Validate agent belongs to the caller's company
       const agentRows = await db
         .select({
           id: agents.id,
@@ -109,7 +110,7 @@ export async function queueRoutes(app: FastifyInstance) {
         })
         .from(agents)
         .innerJoin(roles, eq(agents.roleId, roles.id))
-        .where(eq(agents.id, body.agentId))
+        .where(and(eq(agents.id, body.agentId), eq(agents.companyId, companyId)))
         .limit(1)
 
       if (agentRows.length === 0) {
@@ -120,11 +121,11 @@ export async function queueRoutes(app: FastifyInstance) {
 
       const agent = agentRows[0]
 
-      // 2. Validate task exists and belongs to the same company
+      // 2. Validate task belongs to the caller's company
       const taskRows = await db
         .select()
         .from(tasks)
-        .where(eq(tasks.id, body.taskId))
+        .where(and(eq(tasks.id, body.taskId), eq(tasks.companyId, companyId)))
         .limit(1)
 
       if (taskRows.length === 0) {
@@ -134,12 +135,6 @@ export async function queueRoutes(app: FastifyInstance) {
       }
 
       const task = taskRows[0]
-
-      if (task.companyId !== agent.companyId) {
-        return reply.status(400).send({
-          error: { code: 'BAD_REQUEST', message: 'Agent and task belong to different companies.' },
-        })
-      }
 
       // 3. Load three-tier context
       const context = await loadAgentContext(body.agentId, body.taskId)
@@ -167,6 +162,7 @@ export async function queueRoutes(app: FastifyInstance) {
       const [session] = await db
         .insert(claudeDesktopSessions)
         .values({
+          companyId,
           label: `${agent.name}: ${task.title}`,
           agentId: body.agentId,
           status: 'pending',
@@ -389,12 +385,13 @@ export async function queueRoutes(app: FastifyInstance) {
       const body = validateBody(resultsSchema, request.body)
       const now = new Date()
       const userId = request.user.sub
+      const companyId = request.user.companyId
 
-      // 1. Validate task exists
+      // 1. Validate task exists and belongs to the caller's company
       const taskRows = await db
         .select()
         .from(tasks)
-        .where(eq(tasks.id, body.taskId))
+        .where(and(eq(tasks.id, body.taskId), eq(tasks.companyId, companyId)))
         .limit(1)
 
       if (taskRows.length === 0) {

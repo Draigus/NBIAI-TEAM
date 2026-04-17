@@ -7,7 +7,7 @@
  */
 
 import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
-import { eq, desc, sql } from 'drizzle-orm'
+import { and, eq, desc, sql } from 'drizzle-orm'
 import { z } from 'zod'
 
 import { db } from '../db/index.js'
@@ -71,13 +71,14 @@ export async function sessionRoutes(app: FastifyInstance) {
     async (request: FastifyRequest, reply: FastifyReply) => {
       const body = validateBody(createSessionSchema, request.body)
       const userId = request.user.sub
+      const companyId = request.user.companyId
 
-      // Validate agent if provided
+      // Validate agent belongs to the caller's company
       if (body.agentId) {
         const agentRows = await db
           .select({ id: agents.id })
           .from(agents)
-          .where(eq(agents.id, body.agentId))
+          .where(and(eq(agents.id, body.agentId), eq(agents.companyId, companyId)))
           .limit(1)
 
         if (agentRows.length === 0) {
@@ -90,6 +91,7 @@ export async function sessionRoutes(app: FastifyInstance) {
       const [session] = await db
         .insert(claudeDesktopSessions)
         .values({
+          companyId,
           label: body.label,
           agentId: body.agentId ?? null,
           status: 'pending',
@@ -111,21 +113,23 @@ export async function sessionRoutes(app: FastifyInstance) {
     '/sessions',
     { preHandler: [requireAuth] },
     async (request: FastifyRequest, reply: FastifyReply) => {
-      const query = paginationSchema.parse(request.query)
-      const { limit, cursor } = query
+      const query = validateBody(paginationSchema, request.query as Record<string, unknown>)
+      const limit = query.limit ?? 25
+      const cursor = query.cursor
+      const companyId = request.user.companyId
 
-      const conditions = []
+      const conditions: Array<ReturnType<typeof eq>> = [
+        eq(claudeDesktopSessions.companyId, companyId),
+      ]
 
       if (cursor) {
         const decoded = decodeCursor(cursor)
         if (decoded) {
           conditions.push(
-            sql`(${claudeDesktopSessions.createdAt}, ${claudeDesktopSessions.id}) < (${decoded.createdAt}::timestamptz, ${decoded.id}::uuid)`,
+            sql`(${claudeDesktopSessions.createdAt}, ${claudeDesktopSessions.id}) < (${decoded.createdAt}::timestamptz, ${decoded.id}::uuid)` as ReturnType<typeof eq>,
           )
         }
       }
-
-      const whereClause = conditions.length > 0 ? conditions[0] : undefined
 
       const rows = await db
         .select({
@@ -145,7 +149,7 @@ export async function sessionRoutes(app: FastifyInstance) {
         .from(claudeDesktopSessions)
         .leftJoin(agents, eq(claudeDesktopSessions.agentId, agents.id))
         .leftJoin(roles, eq(agents.roleId, roles.id))
-        .where(whereClause)
+        .where(and(...conditions))
         .orderBy(desc(claudeDesktopSessions.createdAt), desc(claudeDesktopSessions.id))
         .limit(limit + 1)
 
@@ -183,12 +187,18 @@ export async function sessionRoutes(app: FastifyInstance) {
         return reply.status(400).send({ error: { code: 'VALIDATION_ERROR', message: 'Invalid ID format' } })
       }
       const body = validateBody(updateSessionSchema, request.body)
+      const companyId = request.user.companyId
 
-      // Check session exists
+      // Check session exists and belongs to the caller's company
       const existing = await db
         .select({ id: claudeDesktopSessions.id })
         .from(claudeDesktopSessions)
-        .where(eq(claudeDesktopSessions.id, id))
+        .where(
+          and(
+            eq(claudeDesktopSessions.id, id),
+            eq(claudeDesktopSessions.companyId, companyId),
+          ),
+        )
         .limit(1)
 
       if (existing.length === 0) {
@@ -207,7 +217,12 @@ export async function sessionRoutes(app: FastifyInstance) {
       const [updated] = await db
         .update(claudeDesktopSessions)
         .set(updates)
-        .where(eq(claudeDesktopSessions.id, id))
+        .where(
+          and(
+            eq(claudeDesktopSessions.id, id),
+            eq(claudeDesktopSessions.companyId, companyId),
+          ),
+        )
         .returning()
 
       return reply.send({ data: updated })

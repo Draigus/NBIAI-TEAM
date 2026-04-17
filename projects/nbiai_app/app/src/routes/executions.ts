@@ -7,7 +7,7 @@
  */
 
 import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
-import { eq, and, desc, lt } from 'drizzle-orm'
+import { eq, and, desc, lt, sql } from 'drizzle-orm'
 import { z } from 'zod'
 
 import { db } from '../db/index.js'
@@ -139,9 +139,14 @@ export async function executionRoutes(fastify: FastifyInstance): Promise<void> {
       const hasMore = rows.length > pageSize
       const data = hasMore ? rows.slice(0, pageSize) : rows
 
-      // Count total for display purposes
-      const totalResult = await db.$count(agentExecutions)
-      const total = totalResult ?? 0
+      // Count total for display purposes, scoped to this company via the
+      // agents join — previously db.$count returned a global count across
+      // tenants which leaked other tenants' volume.
+      const [{ total }] = await db
+        .select({ total: sql<number>`cast(count(*) as int)` })
+        .from(agentExecutions)
+        .innerJoin(agents, eq(agentExecutions.agentId, agents.id))
+        .where(eq(agents.companyId, companyId))
 
       const nextCursor =
         hasMore && data.length > 0

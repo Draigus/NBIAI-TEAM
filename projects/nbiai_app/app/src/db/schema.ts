@@ -727,6 +727,11 @@ export const claudeDesktopSessions = pgTable(
   'claude_desktop_sessions',
   {
     id: uuid('id').defaultRandom().primaryKey(),
+    /** Tenant scope; mirrors every other domain table. Required for list,
+     *  read, and update paths so sessions cannot leak across companies. */
+    companyId: uuid('company_id')
+      .notNull()
+      .references(() => companies.id),
     /** Human-readable session label, e.g. "CEO morning review 2026-03-28". */
     label: varchar('label', { length: 200 }).notNull(),
     /** The primary agent that ran in this session. Nullable for multi-agent sessions. */
@@ -746,6 +751,7 @@ export const claudeDesktopSessions = pgTable(
     updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [
+    index('claude_desktop_sessions_company_id_idx').on(t.companyId),
     index('claude_desktop_sessions_agent_id_idx').on(t.agentId),
     index('claude_desktop_sessions_status_idx').on(t.status),
     index('claude_desktop_sessions_created_at_desc_idx').on(t.createdAt),
@@ -769,6 +775,11 @@ export const costLogs = pgTable(
   'cost_logs',
   {
     id: uuid('id').defaultRandom().primaryKey(),
+    /** Tenant scope; required so the finance endpoints can filter by
+     *  companyId. Previously cost rows were global across tenants. */
+    companyId: uuid('company_id')
+      .notNull()
+      .references(() => companies.id),
     sessionId: uuid('session_id')
       .notNull()
       .references(() => claudeDesktopSessions.id),
@@ -788,6 +799,7 @@ export const costLogs = pgTable(
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [
+    index('cost_logs_company_id_idx').on(t.companyId),
     index('cost_logs_session_id_idx').on(t.sessionId),
     index('cost_logs_period_month_idx').on(t.periodMonth),
     index('cost_logs_agent_id_idx').on(t.agentId),
