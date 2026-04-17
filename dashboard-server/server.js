@@ -936,6 +936,32 @@ app.post('/api/auth/reset-token/:token', async (req, res) => {
   res.json({ ok: true, message: 'Password has been reset. You can now sign in.' });
 });
 
+// Internal endpoint for services (e.g. nbi-news) to create admin notifications.
+// Authenticated via x-nbi-internal-token matching NEWS_INTERNAL_TOKEN.
+app.post('/api/internal/notifications', async (req, res) => {
+  const token = req.get('x-nbi-internal-token');
+  if (!token || token !== (process.env.NEWS_INTERNAL_TOKEN || '')) {
+    return res.status(401).json({ error: 'unauthorised' });
+  }
+  const { type, title, message, link, dismissable, targetAdmins, username } = req.body || {};
+  if (!type || !title) return res.status(400).json({ error: 'type and title required' });
+  try {
+    if (targetAdmins) {
+      const admins = await pool.query('SELECT username FROM users WHERE role = \'admin\' AND is_active = true');
+      for (const a of admins.rows) {
+        await createNotification(a.username, type, title, message || '', link || '', dismissable !== false);
+      }
+      return res.json({ ok: true, recipients: admins.rows.length });
+    }
+    if (!username) return res.status(400).json({ error: 'username required when targetAdmins not set' });
+    await createNotification(username, type, title, message || '', link || '', dismissable !== false);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[internal/notifications] error:', err);
+    res.status(500).json({ error: 'internal error' });
+  }
+});
+
 // All routes below this line require a valid auth token
 app.use(requireAuth);
 
