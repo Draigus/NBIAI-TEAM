@@ -12,8 +12,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   Info,
   BarChart2,
-  AlertTriangle,
-  Ban,
   Loader2,
   TrendingUp,
   Plus,
@@ -90,18 +88,28 @@ interface FinanceSummary {
   monthlyOperatingCosts: number
 }
 
-interface AgentCostEntry {
+// Server shape: GET /api/v1/finance/agent-costs returns
+//   { data: CostLogEntry[], summary: { monthYear, totalCostUsd, note } }
+// One row per cost_log entry (monthly session-cost annotations).
+// No per-agent budgets in the no-API architecture.
+interface CostLogEntry {
   id: string
-  agentName: string
-  roleName: string
-  modelTier: string
-  budgetUsd: number
-  spentUsd: number
+  agentId: string | null
+  agentName: string | null
+  roleName: string | null
+  costUsd: string
+  periodMonth: string
+  notes: string | null
+  createdAt: string
 }
 
-interface AgentCostsSummary {
-  entries: AgentCostEntry[]
-  totalSpentUsd: number
+interface AgentCostsResponse {
+  data: CostLogEntry[]
+  summary: {
+    monthYear: string
+    totalCostUsd: number
+    note: string
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -1168,37 +1176,15 @@ function NSIScenariosTab() {
 // Tab 5: Agent Costs
 // ---------------------------------------------------------------------------
 
-function AgentCostsTab({ isBoardOrAdmin }: { isBoardOrAdmin: boolean }) {
-  const queryClient = useQueryClient()
-  const [editingBudgetId, setEditingBudgetId] = useState<string | null>(null)
-  const [editingBudgetValue, setEditingBudgetValue] = useState('')
-
+function AgentCostsTab(_props: { isBoardOrAdmin: boolean }) {
   const { data: res, isLoading } = useQuery({
     queryKey: ['financeAgentCosts'],
-    queryFn: () => finance.agentCosts() as Promise<{ data: AgentCostsSummary }>,
+    queryFn: () => finance.agentCosts() as Promise<AgentCostsResponse>,
   })
 
-  const costData = res?.data
-  const entries = costData?.entries ?? []
-  const totalSpentGbp = usdToGbp(costData?.totalSpentUsd ?? 0)
-
-  const saveBudgetMutation = useMutation({
-    mutationFn: async ({ id, budget }: { id: string; budget: number }) => {
-      // No-API architecture: per-agent budgets removed. Cost tracking uses
-      // flat Max plan subscription (GBP 180/month). This is a no-op stub.
-      void id; void budget
-      return Promise.resolve()
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['financeAgentCosts'] })
-      setEditingBudgetId(null)
-    },
-  })
-
-  function startEditBudget(entry: AgentCostEntry) {
-    setEditingBudgetId(entry.id)
-    setEditingBudgetValue(String(usdToGbp(entry.budgetUsd).toFixed(2)))
-  }
+  const entries = res?.data ?? []
+  const summary = res?.summary
+  const totalSpentGbp = usdToGbp(summary?.totalCostUsd ?? 0)
 
   return (
     <div className="space-y-6">
@@ -1211,14 +1197,18 @@ function AgentCostsTab({ isBoardOrAdmin }: { isBoardOrAdmin: boolean }) {
           {formatCurrency(totalSpentGbp)}
         </p>
         <p className="text-xs text-[#5C5C72] mt-0.5">
-          USD converted to GBP at 1.27. Actual exchange rate may vary.
+          {summary?.note ??
+            'Flat Max plan: GBP 180/month. Entries below are manual session-cost annotations logged by the CFO agent.'}
         </p>
       </SectionCard>
 
-      {/* Agent costs table */}
+      {/* Cost log table */}
       <SectionCard className="overflow-hidden">
         <div className="px-5 py-3 border-b border-[#1E1E2C]">
-          <h3 className="text-[15px] font-semibold text-[#F1F1F3]">Agent Budget Usage</h3>
+          <h3 className="text-[15px] font-semibold text-[#F1F1F3]">Cost Log</h3>
+          {summary?.monthYear && (
+            <p className="text-xs text-[#5C5C72] mt-0.5">Period: {summary.monthYear}</p>
+          )}
         </div>
 
         {isLoading ? (
@@ -1230,142 +1220,51 @@ function AgentCostsTab({ isBoardOrAdmin }: { isBoardOrAdmin: boolean }) {
         ) : entries.length === 0 ? (
           <div className="py-12 text-center">
             <TrendingUp size={40} className="text-[#5C5C72] mx-auto mb-3" />
-            <p className="text-sm text-[#5C5C72]">No agent cost data available.</p>
+            <p className="text-sm text-[#5C5C72]">
+              No cost entries for this period. The CFO agent logs these as sessions are completed.
+            </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-[#1E1E2C]">
-                  {['Agent', 'Role', 'Model Tier', 'Budget (£)', 'Spent (£)', '% Used', 'Alert'].map(
-                    (col) => (
-                      <th
-                        key={col}
-                        className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#5C5C72]"
-                      >
-                        {col}
-                      </th>
-                    ),
-                  )}
+                  {['Agent', 'Role', 'Cost (£)', 'Cost (USD)', 'Logged', 'Notes'].map((col) => (
+                    <th
+                      key={col}
+                      className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#5C5C72]"
+                    >
+                      {col}
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
                 {entries.map((entry) => {
-                  const budgetGbp = usdToGbp(entry.budgetUsd)
-                  const spentGbp = usdToGbp(entry.spentUsd)
-                  const usedPct = pct(entry.spentUsd, entry.budgetUsd)
-                  const isOver100 = usedPct >= 100
-                  const isOver80 = usedPct >= 80
-
-                  const isEditing = editingBudgetId === entry.id
-
+                  const costUsd = parseFloat(entry.costUsd) || 0
+                  const costGbp = usdToGbp(costUsd)
                   return (
                     <tr
                       key={entry.id}
                       className="border-b border-[#1E1E2C] last:border-0 hover:bg-[#1C1C27] transition-colors"
                     >
-                      <td className="px-4 py-3 font-medium text-[#F1F1F3]">{entry.agentName}</td>
-                      <td className="px-4 py-3 text-xs text-[#9494A8]">{entry.roleName}</td>
-                      <td className="px-4 py-3">
-                        <span
-                          className={cn(
-                            'inline-flex items-center px-2 py-0.5 rounded border text-[11px] font-semibold uppercase',
-                            entry.modelTier.toLowerCase() === 'opus'
-                              ? 'bg-[#4F6EF7]/10 border-[#4F6EF7]/30 text-[#4F6EF7]'
-                              : 'bg-[#1C1C27] border-[#2A2A3C] text-[#5C5C72]',
-                          )}
-                        >
-                          {entry.modelTier}
-                        </span>
+                      <td className="px-4 py-3 font-medium text-[#F1F1F3]">
+                        {entry.agentName ?? '—'}
+                      </td>
+                      <td className="px-4 py-3 text-xs text-[#9494A8]">
+                        {entry.roleName ?? '—'}
                       </td>
                       <td className="px-4 py-3 font-mono text-[#F1F1F3]">
-                        {isBoardOrAdmin ? (
-                          isEditing ? (
-                            <div className="flex items-center gap-1.5">
-                              <span className="text-[#5C5C72]">£</span>
-                              <input
-                                type="number"
-                                value={editingBudgetValue}
-                                onChange={(e) => setEditingBudgetValue(e.target.value)}
-                                className="w-24 h-7 px-2 rounded bg-[#0A0A0F] border border-[#4F6EF7]/50 text-sm text-[#F1F1F3] font-mono focus:outline-none"
-                                autoFocus
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter') {
-                                    saveBudgetMutation.mutate({
-                                      id: entry.id,
-                                      budget: parseFloat(editingBudgetValue) * USD_TO_GBP,
-                                    })
-                                  }
-                                  if (e.key === 'Escape') setEditingBudgetId(null)
-                                }}
-                              />
-                              <button
-                                className="text-xs text-[#4F6EF7] hover:text-[#6B87FF]"
-                                onClick={() =>
-                                  saveBudgetMutation.mutate({
-                                    id: entry.id,
-                                    budget: parseFloat(editingBudgetValue) * USD_TO_GBP,
-                                  })
-                                }
-                              >
-                                Save
-                              </button>
-                              <button
-                                className="text-xs text-[#5C5C72] hover:text-[#9494A8]"
-                                onClick={() => setEditingBudgetId(null)}
-                              >
-                                ✕
-                              </button>
-                            </div>
-                          ) : (
-                            <button
-                              className="hover:text-[#4F6EF7] transition-colors cursor-pointer underline decoration-dotted decoration-[#5C5C72]"
-                              onClick={() => startEditBudget(entry)}
-                              title="Click to edit budget"
-                            >
-                              {formatCurrency(budgetGbp)}
-                            </button>
-                          )
-                        ) : (
-                          formatCurrency(budgetGbp)
-                        )}
+                        {formatCurrency(costGbp)}
                       </td>
-                      <td className="px-4 py-3 font-mono text-[#F1F1F3]">
-                        {formatCurrency(spentGbp)}
+                      <td className="px-4 py-3 font-mono text-xs text-[#9494A8]">
+                        ${costUsd.toFixed(2)}
                       </td>
-                      <td className="px-4 py-3 min-w-[120px]">
-                        <div className="space-y-1">
-                          <div className="flex items-center justify-between">
-                            <span
-                              className={cn(
-                                'text-xs font-mono font-medium',
-                                isOver100
-                                  ? 'text-[#EF4444]'
-                                  : isOver80
-                                  ? 'text-[#F59E0B]'
-                                  : 'text-[#22C55E]',
-                              )}
-                            >
-                              {usedPct}%
-                            </span>
-                          </div>
-                          <Progress value={usedPct} className="h-1.5 w-full" />
-                        </div>
+                      <td className="px-4 py-3 text-xs text-[#5C5C72] whitespace-nowrap">
+                        {formatDate(entry.createdAt)}
                       </td>
-                      <td className="px-4 py-3">
-                        {isOver100 ? (
-                          <Ban
-                            size={15}
-                            className="text-[#EF4444]"
-                            title="Budget exceeded"
-                          />
-                        ) : isOver80 ? (
-                          <AlertTriangle
-                            size={15}
-                            className="text-[#F59E0B]"
-                            title="Approaching budget limit"
-                          />
-                        ) : null}
+                      <td className="px-4 py-3 text-xs text-[#9494A8] max-w-[280px] truncate">
+                        {entry.notes ?? ''}
                       </td>
                     </tr>
                   )
