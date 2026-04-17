@@ -62,25 +62,28 @@ interface CheckoutStatus {
   checkedOutAt?: string
 }
 
+// Shape matches server response of GET /api/v1/tasks/:id (see
+// src/routes/tasks.ts). `relationType` uses the server's enum values
+// and the relation-type matcher checks for 'blocking' (not 'blocks').
 interface TaskRelation {
   id: string
   relatedTaskId: string
-  relatedTaskTitle: string
-  type: 'blocks' | 'blocked_by' | 'related'
+  relatedTaskTitle: string | null
+  relationType: 'blocking' | 'blocked_by' | 'related'
 }
 
-interface ActivityEntry {
+// Server row from public.task_comments. The server returns `authorName`
+// resolved from authorUserId or authorAgentId; type-specific details
+// (e.g. status_change from/to) live in the JSON metadata blob.
+interface TaskCommentRow {
   id: string
-  type: 'status_change' | 'assignment' | 'comment' | 'relation_added'
-  actorName: string
-  actorType: 'agent' | 'user'
-  actorRoleSlug?: string
-  oldStatus?: string
-  newStatus?: string
-  assignedAgentName?: string
-  content?: string
-  relatedTaskTitle?: string
+  commentType: 'comment' | 'status_change' | 'assignment' | 'escalation' | 'system'
+  content: string
+  metadata: Record<string, unknown> | null
   createdAt: string
+  authorUserId: string | null
+  authorAgentId: string | null
+  authorName: string | null
 }
 
 interface Task {
@@ -94,9 +97,15 @@ interface Task {
   createdByName?: string
   createdAt: string
   dueDate?: string | null
-  checkoutStatus?: CheckoutStatus
-  relations?: TaskRelation[]
-  activity?: ActivityEntry[]
+  checkout?: {
+    id: string
+    agentId: string
+    checkedOutAt: string
+    checkedInAt: string | null
+    outcome: string | null
+  } | null
+  taskRelations?: TaskRelation[]
+  taskComments?: TaskCommentRow[]
 }
 
 // ---------------------------------------------------------------------------
@@ -131,7 +140,7 @@ const TASK_STATUS_CONFIG: Record<
     bg: 'bg-[#EF4444]/10',
     border: 'border-[#EF4444]/30',
   },
-  in_review: {
+  review: {
     label: 'In Review',
     text: 'text-[#4F6EF7]',
     bg: 'bg-[#4F6EF7]/10',
@@ -181,27 +190,35 @@ const PRIORITY_CONFIG: Record<
   },
 }
 
-// Transition matrix
+// Transition matrix MUST match STATUS_TRANSITIONS on the server
+// (src/routes/tasks.ts). Any drift here surfaces as 422 "Invalid
+// status transition" errors from the PATCH /tasks/:id handler.
 const TRANSITIONS: Record<string, Array<{ to: string; label: string; requiresComment?: boolean }>> = {
   backlog: [
     { to: 'assigned', label: 'Assign' },
-    { to: 'in_progress', label: 'Start' },
   ],
   assigned: [
     { to: 'in_progress', label: 'Start' },
-    { to: 'backlog', label: 'Move to Backlog' },
+    { to: 'queued', label: 'Queue for Claude Desktop' },
+    { to: 'cancelled', label: 'Cancel' },
+  ],
+  queued: [
+    { to: 'in_progress', label: 'Start' },
+    { to: 'cancelled', label: 'Cancel' },
   ],
   in_progress: [
-    { to: 'in_review', label: 'Submit for Review', requiresComment: true },
+    { to: 'review', label: 'Submit for Review', requiresComment: true },
     { to: 'blocked', label: 'Mark Blocked', requiresComment: true },
-    { to: 'done', label: 'Complete' },
+    { to: 'cancelled', label: 'Cancel' },
   ],
-  in_review: [
+  review: [
     { to: 'done', label: 'Approve & Complete' },
     { to: 'in_progress', label: 'Request Changes' },
   ],
   blocked: [
     { to: 'in_progress', label: 'Unblock' },
+    { to: 'assigned', label: 'Move to Assigned' },
+    { to: 'cancelled', label: 'Cancel' },
   ],
 }
 
@@ -284,16 +301,22 @@ function AgentAvatar({
 // Activity log entry
 // ---------------------------------------------------------------------------
 
-function ActivityEntry({ entry }: { entry: ActivityEntry }) {
-  if (entry.type === 'status_change') {
-    const oldCfg = TASK_STATUS_CONFIG[entry.oldStatus ?? ''] ?? TASK_STATUS_CONFIG.backlog
-    const newCfg = TASK_STATUS_CONFIG[entry.newStatus ?? ''] ?? TASK_STATUS_CONFIG.backlog
+// Renders a single task_comments row. Branches on commentType; the
+// server uses {'comment','status_change','assignment','escalation',
+// 'system'}. Type-specific details live in the metadata blob.
+function ActivityEntry({ entry }: { entry: TaskCommentRow }) {
+  const actorName = entry.authorName ?? (entry.authorAgentId ? 'Agent' : 'System')
+
+  if (entry.commentType === 'status_change') {
+    const meta = (entry.metadata ?? {}) as { from?: string; to?: string }
+    const oldCfg = TASK_STATUS_CONFIG[meta.from ?? ''] ?? TASK_STATUS_CONFIG.backlog
+    const newCfg = TASK_STATUS_CONFIG[meta.to ?? ''] ?? TASK_STATUS_CONFIG.backlog
     return (
       <div className="flex items-start gap-3 py-3 border-b border-[#1E1E2C] last:border-0">
-        <AgentAvatar roleSlug={entry.actorRoleSlug} name={entry.actorName} size={24} />
+        <AgentAvatar name={actorName} size={24} />
         <div className="flex-1 min-w-0">
           <p className="text-sm text-[#9494A8] leading-snug">
-            <span className="font-medium text-[#F1F1F3]">{entry.actorName}</span> changed status{' '}
+            <span className="font-medium text-[#F1F1F3]">{actorName}</span> changed status{' '}
             <span
               className={cn(
                 'inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px] font-semibold border',
@@ -322,47 +345,41 @@ function ActivityEntry({ entry }: { entry: ActivityEntry }) {
     )
   }
 
-  if (entry.type === 'assignment') {
+  if (entry.commentType === 'assignment') {
     return (
       <div className="flex items-start gap-3 py-3 border-b border-[#1E1E2C] last:border-0">
         <div className="w-6 h-6 flex items-center justify-center shrink-0">
           <UserCheck size={14} className="text-[#5C5C72]" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm text-[#9494A8] leading-snug">
-            Assigned to{' '}
-            <span className="text-[#4F6EF7] font-medium">{entry.assignedAgentName}</span>
-          </p>
+          <p className="text-sm text-[#9494A8] leading-snug">{entry.content}</p>
           <p className="text-xs text-[#5C5C72] mt-0.5">{formatRelativeTime(entry.createdAt)}</p>
         </div>
       </div>
     )
   }
 
-  if (entry.type === 'relation_added') {
+  if (entry.commentType === 'escalation' || entry.commentType === 'system') {
     return (
       <div className="flex items-start gap-3 py-3 border-b border-[#1E1E2C] last:border-0">
         <div className="w-6 h-6 flex items-center justify-center shrink-0">
           <LinkIcon size={14} className="text-[#5C5C72]" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm text-[#9494A8] leading-snug">
-            Linked to{' '}
-            <span className="text-[#4F6EF7] font-medium">{entry.relatedTaskTitle}</span>
-          </p>
+          <p className="text-sm text-[#9494A8] leading-snug">{entry.content}</p>
           <p className="text-xs text-[#5C5C72] mt-0.5">{formatRelativeTime(entry.createdAt)}</p>
         </div>
       </div>
     )
   }
 
-  // comment
+  // 'comment' — human or agent note
   return (
     <div className="flex items-start gap-3 py-3 border-b border-[#1E1E2C] last:border-0">
-      <AgentAvatar roleSlug={entry.actorRoleSlug} name={entry.actorName} size={24} />
+      <AgentAvatar name={actorName} size={24} />
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
-          <span className="text-sm font-medium text-[#F1F1F3]">{entry.actorName}</span>
+          <span className="text-sm font-medium text-[#F1F1F3]">{actorName}</span>
           <span className="text-xs text-[#5C5C72]">{formatRelativeTime(entry.createdAt)}</span>
         </div>
         <p className="text-sm text-[#9494A8] whitespace-pre-wrap leading-relaxed">{entry.content}</p>
@@ -843,12 +860,12 @@ export default function TaskDetailPage() {
 
   const transitions = TRANSITIONS[task.status] ?? []
   const isTerminal = task.status === 'done' || task.status === 'cancelled'
-  const activity = task.activity ?? []
-  const relations = task.relations ?? []
+  const activity = task.taskComments ?? []
+  const relations = task.taskRelations ?? []
 
-  const blockingRelations = relations.filter((r) => r.type === 'blocks')
-  const blockedByRelations = relations.filter((r) => r.type === 'blocked_by')
-  const relatedRelations = relations.filter((r) => r.type === 'related')
+  const blockingRelations = relations.filter((r) => r.relationType === 'blocking')
+  const blockedByRelations = relations.filter((r) => r.relationType === 'blocked_by')
+  const relatedRelations = relations.filter((r) => r.relationType === 'related')
 
   return (
     <div className="px-6 py-6">
@@ -1135,36 +1152,43 @@ export default function TaskDetailPage() {
         {/* ---- RIGHT COLUMN (SIDEBAR) ---- */}
         <div className="col-span-12 lg:col-span-4">
           <div className="bg-[#111118] border border-[#1E1E2C] rounded-lg p-5">
-            {/* Checkout status */}
-            <div className="mb-4 pb-4 border-b border-[#1E1E2C]">
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-[#5C5C72] mb-2">
-                Checkout status
-              </p>
-              {task.checkoutStatus?.checkedOut ? (
-                <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F59E0B]/10 border border-[#F59E0B]/30 text-[#F59E0B] text-[11px] font-semibold uppercase tracking-wider">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#F59E0B] animate-pulse" />
-                    Checked out
-                  </span>
-                </div>
-              ) : (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#22C55E]/10 border border-[#22C55E]/30 text-[#22C55E] text-[11px] font-semibold uppercase tracking-wider">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#22C55E]" />
-                  Available
-                </span>
-              )}
-              {task.checkoutStatus?.checkedOut && task.checkoutStatus.agentName && (
-                <p className="text-xs text-[#9494A8] mt-1.5">
-                  By{' '}
-                  <span className="text-[#F1F1F3] font-medium">
-                    {task.checkoutStatus.agentName}
-                  </span>
-                  {task.checkoutStatus.checkedOutAt && (
-                    <> since {formatRelativeTime(task.checkoutStatus.checkedOutAt)}</>
+            {/* Checkout status — server returns the active checkout row
+                (or null). A row with checkedInAt === null means the
+                task is currently held. Agent name is not joined server-
+                side; fall back to the short agent id when unavailable. */}
+            {(() => {
+              const checkout = task.checkout ?? null
+              const isHeld = Boolean(checkout && checkout.checkedInAt === null)
+              return (
+                <div className="mb-4 pb-4 border-b border-[#1E1E2C]">
+                  <p className="text-[10px] font-semibold uppercase tracking-widest text-[#5C5C72] mb-2">
+                    Checkout status
+                  </p>
+                  {isHeld ? (
+                    <div className="flex items-center gap-2">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F59E0B]/10 border border-[#F59E0B]/30 text-[#F59E0B] text-[11px] font-semibold uppercase tracking-wider">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#F59E0B] animate-pulse" />
+                        Checked out
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#22C55E]/10 border border-[#22C55E]/30 text-[#22C55E] text-[11px] font-semibold uppercase tracking-wider">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#22C55E]" />
+                      Available
+                    </span>
                   )}
-                </p>
-              )}
-            </div>
+                  {isHeld && checkout && (
+                    <p className="text-xs text-[#9494A8] mt-1.5">
+                      By{' '}
+                      <span className="text-[#F1F1F3] font-medium">
+                        {checkout.agentId.slice(0, 8)}
+                      </span>{' '}
+                      since {formatRelativeTime(checkout.checkedOutAt)}
+                    </p>
+                  )}
+                </div>
+              )
+            })()}
 
             {/* Metadata rows */}
             <MetaRow label="Assigned to">
