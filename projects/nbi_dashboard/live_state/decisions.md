@@ -337,3 +337,19 @@ Migration 025 defensively UPDATEs any stray `organisational_health` rows on clie
 **Historical context:** D84 (the G2 decision that established the two-practice model) used "Organizational Health" as the display label and `organisational_health` as the slug. D84 is preserved as-is — this D93 supersedes it on naming only.
 
 **Commit:** `9913ec3`. Tests: 72 vitest green.
+
+## 2026-04-17 News aggregator
+
+- **Separate PM2 service, not bolted into dashboard-server.** Port 8890. Keeps LLM calls, ingest polling, media cache isolated from the main dashboard.
+- **Proxy pattern for auth reuse.** Dashboard proxies `/api/news/*` to nbi-news and forwards authenticated user context in `x-nbi-user` header plus internal token. No CORS, no duplicate sessions, frontend stays on one origin.
+- **Claude Agent SDK with Max Pro primary, API key silent failover, admin notification on failover.** Failover promotes `ANTHROPIC_API_KEY_FAILOVER` to `ANTHROPIC_API_KEY` in memory, not on disk. Glen's explicit choice after weighing the robustness question (paraphrased: "I want it to use my Max Pro account to get this done if there's a way to do it robustly").
+- **Sonnet 4.6 for all pipeline stages, not Haiku.** Glen's pushback: "haiku is a model, is complete shit, though, right?" Resolved as: Haiku 4.5 is usable but curation quality is the entire point of this feature, so Sonnet wins regardless of cost. The cost difference is pennies per day.
+- **53 sources, not 10.** Glen's pushback: "Hacky code corner cutting watering down my intention to lower the quality is completely fucking unacceptable." Full tier distribution: trade 12, consumer 7, crossover 3, mobile_asia 8, analyst 5, trade_body 3, structured_data 15.
+- **Weekly digest Sunday 22:00 UTC; monthly synthesis on the 30th (or last day of Feb) at 22:00 UTC.** Implemented as `dayOfMonth = min(30, lastDayOfMonth)`.
+- **Dynamic 5th category requires at least 4 clusters.** Claude names it each week (Mobile, Asia, Esports, Publishing, Regulation, IP & Adaptations, etc.).
+- **News tab placement: top tab bar, between Finances and Settings.** Glen's direction: "right before settings for the admin, and after expenses for all of the users." Because Settings and Finances are permission-gated, inserting News once before Settings in the base array produces the right ordering for every role.
+- **Mobile under 768px: top-news-only mode.** Hero plus compact headline list, no section bands. Glen's wording: "Mobile web means just the top news."
+- **Launch edition window: last 30 days, articles with `published_at` in window only.** Glen's direction: "Yes, that's also fine as long as the stale data is relevant to the 30-day window."
+- **Unified search, not split tabs for articles vs stories.** Postgres tsvector with `ts_rank_cd` and recency decay.
+- **Serif headlines (Playfair Display), sans-serif body.** Consistent with Hub, distinguishes News as a reading experience.
+- **No user-facing visibility gates on the News tab.** All authenticated Hub users see it. No per-client scoping because the content is industry-general.
