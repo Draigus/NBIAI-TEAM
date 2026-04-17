@@ -1,31 +1,48 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import pg from 'pg'
 
-// Mock the Agent SDK before the client imports it.
-let sdkAttempts = 0
-let sdkMode: 'fail-then-succeed' | 'succeed' | 'fail-always' = 'fail-then-succeed'
+// Mock the Anthropic SDK before the client imports it.
+// The SDK default export is the Anthropic class; also exposes error classes
+// as static properties (AuthenticationError, PermissionDeniedError, etc).
+type Mode = 'fail-then-succeed' | 'succeed' | 'fail-always'
+let apiCalls = 0
+let sdkMode: Mode = 'fail-then-succeed'
+const primaryKeyAtConstruct: Array<string | undefined> = []
+const failoverKeyAtConstruct: Array<string | undefined> = []
+const constructedKeys: Array<string | undefined> = []
 
-vi.mock('@anthropic-ai/claude-agent-sdk', () => ({
-  query: async function* () {
-    sdkAttempts++
-    if (sdkMode === 'fail-always') throw new Error('401 Unauthorized')
-    if (sdkMode === 'fail-then-succeed' && sdkAttempts === 1) throw new Error('401 Unauthorized')
-    yield {
-      type: 'assistant',
-      message: {
-        content: [{ type: 'text', text: 'ok' }],
-        usage: { input_tokens: 5, output_tokens: 1 },
+class AuthenticationError extends Error {
+  status = 401
+  constructor(msg = '401 Unauthorized') { super(msg) }
+}
+class PermissionDeniedError extends Error {
+  status = 403
+  constructor(msg = '403 Forbidden') { super(msg) }
+}
+
+vi.mock('@anthropic-ai/sdk', () => {
+  class Anthropic {
+    apiKey: string | undefined
+    constructor(opts: { apiKey?: string }) {
+      this.apiKey = opts.apiKey
+      constructedKeys.push(opts.apiKey)
+    }
+    messages = {
+      create: async () => {
+        apiCalls++
+        if (sdkMode === 'fail-always') throw new AuthenticationError()
+        if (sdkMode === 'fail-then-succeed' && apiCalls === 1) throw new AuthenticationError()
+        return {
+          content: [{ type: 'text', text: 'ok' }],
+          usage: { input_tokens: 5, output_tokens: 1 },
+        }
       },
     }
-    yield {
-      type: 'result',
-      subtype: 'success',
-      is_error: false,
-      result: 'ok',
-      usage: { input_tokens: 5, output_tokens: 1 },
-    }
-  },
-}))
+    static AuthenticationError = AuthenticationError
+    static PermissionDeniedError = PermissionDeniedError
+  }
+  return { default: Anthropic }
+})
 
 vi.mock('../../src/notifications/hub.js', () => ({
   notifyAuthFailover: vi.fn().mockResolvedValue(undefined),
@@ -34,10 +51,13 @@ vi.mock('../../src/notifications/hub.js', () => ({
 }))
 
 beforeEach(() => {
-  sdkAttempts = 0
+  apiCalls = 0
   sdkMode = 'fail-then-succeed'
+  primaryKeyAtConstruct.length = 0
+  failoverKeyAtConstruct.length = 0
+  constructedKeys.length = 0
+  process.env.ANTHROPIC_API_KEY = 'sk-test-primary'
   process.env.ANTHROPIC_API_KEY_FAILOVER = 'sk-test-failover'
-  delete process.env.ANTHROPIC_API_KEY
   vi.clearAllMocks()
   vi.resetModules()
 })
@@ -68,14 +88,17 @@ describe('callClaude failover', () => {
       period: 'test',
     })
 
-    expect(result.authMode).toBe('api_key')
+    expect(result.authMode).toBe('failover')
     expect(result.failoverOccurred).toBe(true)
     expect(result.text).toBe('ok')
+    expect(result.inputTokens).toBe(5)
+    expect(result.outputTokens).toBe(1)
     expect(hub.notifyAuthFailover).toHaveBeenCalledWith('clustering')
     expect(hub.notifyGenerationFailed).not.toHaveBeenCalled()
-    expect(process.env.ANTHROPIC_API_KEY).toBe('sk-test-failover')
 
-    // The generation_runs row should be 'completed' with failoverOccurred=true
+    // Two Anthropic clients were constructed: first with primary key, second with failover key.
+    expect(constructedKeys).toEqual(['sk-test-primary', 'sk-test-failover'])
+
     const pool = new pg.Pool({ connectionString: process.env.NEWS_DB_URL })
     try {
       const { rows } = await pool.query<{ status: string; failover_occurred: boolean; llm_auth_mode: string }>(
@@ -83,15 +106,15 @@ describe('callClaude failover', () => {
       )
       expect(rows[0]?.status).toBe('completed')
       expect(rows[0]?.failover_occurred).toBe(true)
-      expect(rows[0]?.llm_auth_mode).toBe('api_key')
+      expect(rows[0]?.llm_auth_mode).toBe('failover')
     } finally {
       await pool.end()
     }
   })
 
-  it('marks run as failed and notifies when both Max Pro and API key fail', async () => {
+  it('marks run as failed and notifies when both primary and failover keys fail', async () => {
     vi.resetModules()
-    sdkAttempts = 0
+    apiCalls = 0
     sdkMode = 'fail-always'
 
     const { callClaude, __resetFailoverForTests } = await import('../../src/llm/client.js')
@@ -117,15 +140,15 @@ describe('callClaude failover', () => {
       )
       expect(rows[0]?.status).toBe('failed')
       expect(rows[0]?.failover_occurred).toBe(true)
-      expect(rows[0]?.error_message).toMatch(/401/)
+      expect(rows[0]?.error_message).toMatch(/401|Unauthorized/i)
     } finally {
       await pool.end()
     }
   })
 
-  it('succeeds on Max Pro without failover when auth is fine', async () => {
+  it('succeeds on primary key without failover when auth is fine', async () => {
     vi.resetModules()
-    sdkAttempts = 0
+    apiCalls = 0
     sdkMode = 'succeed'
 
     const { callClaude, __resetFailoverForTests } = await import('../../src/llm/client.js')
@@ -138,11 +161,12 @@ describe('callClaude failover', () => {
       userMessage: 'user',
     })
 
-    expect(result.authMode).toBe('max_pro')
+    expect(result.authMode).toBe('primary')
     expect(result.failoverOccurred).toBe(false)
     expect(result.text).toBe('ok')
     expect(result.inputTokens).toBe(5)
     expect(result.outputTokens).toBe(1)
     expect(hub.notifyAuthFailover).not.toHaveBeenCalled()
+    expect(constructedKeys).toEqual(['sk-test-primary'])
   })
 })

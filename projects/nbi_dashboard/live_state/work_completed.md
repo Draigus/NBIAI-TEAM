@@ -4,7 +4,38 @@ Append-only. Every feature/fix completed gets logged here immediately.
 
 ---
 
-## 2026-04-17 (News aggregator M2 start — Task 14: LLM client wrapper)
+## 2026-04-17 (News aggregator M2 — Task 14 revised: raw SDK, dropped Max Pro)
+
+After Task 14 shipped with `@anthropic-ai/claude-agent-sdk`, the pre-check
+exposed a ~13K token overhead per call (the Agent SDK hard-codes the full
+Claude Code harness — 28 tool schemas + 18 slash commands + 8 skills + 4
+agents — into every system prompt). Projected cost: ~420K overhead tokens
+per weekly digest before any real prompt content. Against Max Pro's
+5-hour window, a single digest could blow the cap.
+
+Glen's call: rip it out. Replace with raw `@anthropic-ai/sdk` (`^0.90.0`).
+Trade Max Pro subscription billing for USD-per-token API billing. Clean
+text-in/text-out, no harness overhead. A weekly digest at ~500K real
+tokens on Sonnet 4.6 costs roughly $1.50/run.
+
+Changes:
+- `package.json`: `@anthropic-ai/claude-agent-sdk` → `@anthropic-ai/sdk`
+- `src/llm/client.ts`: uses `Anthropic.messages.create()` directly.
+  Primary/failover semantics: `ANTHROPIC_API_KEY` primary,
+  `ANTHROPIC_API_KEY_FAILOVER` backup. `llmAuthMode` enum is now
+  `'primary' | 'failover'` (was `'max_pro' | 'api_key'`).
+- `tests/unit/client-failover.test.ts`: mock rewired around the raw SDK
+  class; asserts both keys are attempted in the right order.
+- `.env` / `.env.example`: added `ANTHROPIC_API_KEY=` (Glen to populate).
+- Failover logic preserved: primary key auth error → switch to failover
+  key, latch for the process lifetime, notify. Double failure → mark run
+  `failed`, notify, throw.
+- `healthcheckAuth()` and its `NEWS_SKIP_LLM_HEALTHCHECK=1` opt-out kept.
+
+All 35 tests green. PM2 boots cleanly with skip flag. Awaiting Glen's
+primary `ANTHROPIC_API_KEY` to validate live.
+
+## 2026-04-17 (News aggregator M2 start — Task 14: LLM client wrapper, Agent SDK version, superseded)
 
 Task 14 complete. `src/llm/client.ts` wraps the Claude Agent SDK with Max
 Pro primary + `ANTHROPIC_API_KEY_FAILOVER` fallback. Records every call
