@@ -4,6 +4,126 @@ Append-only. Every feature/fix completed gets logged here immediately.
 
 ---
 
+## 2026-04-17 (News aggregator M1 complete — Tasks 6 to 13)
+
+Picked up from handoff_2026-04-17a. Executed Tasks 6 through 13 of the
+news aggregator implementation plan back to back. M1 (infrastructure,
+ingest, media) is now done end to end.
+
+### Task 6 — URL canonicalisation (`b1c32ca`)
+- `src/ingest/canonical.ts` + 8 TDD tests
+- Strips utm_*, fbclid, gclid, ref_src, mc_cid, mc_eid; forces https;
+  lowercases host; drops fragment; trims trailing slash on paths
+  (preserves on bare hostnames); returns null for non-http(s)
+
+### Task 7 — RSS/ATOM fetcher (`62d125c`)
+- `src/ingest/fetcher.ts` with parseFeedAsync + fetchFeed
+- Dropped plan's sync parseFeed stub (rss-parser has no sync API)
+- 15s AbortController timeout; NBI Hub User-Agent
+- Normalises RSS 2.0 + ATOM into a single FeedItem shape
+- 4 tests vs synthetic RSS/ATOM fixtures + unreachable-host timeout
+
+### Task 8 — Article dedup (`8c11542`)
+- `src/ingest/dedup.ts` returns { newCount, newIds } so the scheduler
+  can enrich only the new rows
+- ON CONFLICT (canonical_url) DO NOTHING; publishedAt defaults to now()
+  since schema column is NOT NULL
+- Added tests/fixtures/db.ts helper + tests/setup.ts .env loader +
+  vitest.config.ts wiring (no new dependencies)
+- 4 dedup tests
+
+### Task 9 — Feed health tracking (`7c62c0a`)
+- recordFeedAttempt appends news.feed_health + updates sources.last_*
+  and consecutive_failures atomically (success zeroes, failure increments)
+- getRollingErrorRate over configurable window (default 7 days)
+- autoDisableIfUnhealthy flips sources.enabled=false at >=50% error rate
+  and returns true so caller can send hub notification
+- 6 tests
+
+### Task 10 — Hourly ingest scheduler (`5217f6d`)
+- `src/ingest/scheduler.ts` runIngestOnce with 8-way shared-queue workers
+- classifyError maps AbortError/http_error/other to FeedOutcome enum
+- `src/notifications/hub.ts` with notifyFeedDisabled, notifyAuthFailover,
+  notifyGenerationFailed — all POST to dashboard
+  /api/internal/notifications; errors swallowed so ingest never breaks
+  on a flaky dashboard
+
+### Task 11 — Article enrichment (`5bd458c`)
+- `src/ingest/enrichment.ts` extractMetadata (pure, cheerio) +
+  fetchAndEnrich (10s timeout)
+- OG image (fallback: twitter:image), canonical URL, author
+  (article:author preferred), publishedAt (article:published_time
+  preferred), embedded videos
+- VIDEO_PATTERNS with normalise() collapses YouTube watch/embed/short,
+  Vimeo, Twitter, X to canonical forms — dedupes across iframes + a[href]
+- scheduler.ts spawns p-limit(4) background enrichment pass per source
+  (fire-and-forget so it never blocks the next feed)
+- Installed cheerio@^1.0.0 + p-limit@^6.0.0
+- 6 enrichment tests vs fixture HTML with real iframes + links
+
+### Task 12 — Media cache with sharp variants (`4a085e9`)
+- `src/media/variants.ts` buildVariant: thumb 400w/q75, card 800w/q80,
+  hero 1600w/q85 (webp, withoutEnlargement)
+- `src/media/cache.ts` cacheOgImage: 10s fetch timeout, 2 MB cap per
+  spec §15, SHA-256 for content dedup, 2-char hash prefix subdirs,
+  ON CONFLICT DO NOTHING on media_assets insert
+- fetchAndEnrich now calls cacheOgImage and returns ogImageHash;
+  scheduler writes articles.og_image_hash
+- Narrowed .gitignore `media/` pattern to `/media/` so src/media/
+  tracks correctly
+- 4 variants tests
+
+### Task 13 — Media route + cron wiring (`ba68dee`)
+- `src/routes/media.ts` GET /media/:hash/:variant with 64-hex hash
+  validation, allow-listed variants, 1-day immutable cache header,
+  streams WebP from disk
+- `src/scheduler/cron.ts` startCronJobs registers '0 * * * *' UTC
+  hourly ingest. Weekly/monthly added in M2
+- `src/index.ts` registers mediaRoutes and starts cron after Fastify listens
+- Installed @types/node-cron
+
+### M1 smoke test — real live ingest
+Triggered runIngestOnce manually (53 sources). Results:
+- news.articles: 708 rows
+- news.media_assets: 173 rows
+- articles with og_image_hash: 175
+- 11 placeholder feeds (earnings.*, structured-data, sensor-tower,
+  niko-partners, etc.) auto-disabled with 404/403/timeout as expected
+  (the source URLs in seed.json are placeholders pending a real feed
+  discovery pass)
+- GET http://localhost:8890/media/{hash}/{thumb|card|hero} returns 200
+  image/webp with correct sizes (12K / 44K / 136K for a sample)
+- GET http://localhost:8888/api/news/media/{hash}/card returns 401
+  unauthenticated (correct — the dashboard proxy sits behind
+  requireAuth; cookie-bearing browser requests from the News tab in M3
+  will pass)
+
+### Test suite
+32 tests total, all green. Break down: canonical 8, fetcher 4, dedup 4,
+feed-health 6, enrichment 6, variants 4. Typecheck clean.
+
+### Deviations from plan (all captured in commits)
+1. Task 7: dropped sync parseFeed stub (rss-parser has no sync API)
+2. Task 8: insertArticlesDedup returns { newCount, newIds } instead of
+   plain number — needed by Task 11 enrichment wiring
+3. Task 9: recordFeedAttempt explicitly sets attemptedAt (schema is
+   notNull; plan omitted)
+4. Task 11: fetchAndEnrich calls cacheOgImage inline and returns
+   ogImageHash; cleaner than scheduler post-processing
+
+### Placeholder feed URLs needing follow-up
+The following seed.json entries 404'd and got auto-disabled; their URLs
+need a real-feed discovery pass before LLM work starts in M2:
+axios-gaming, forbes-tassi, bloomberg-schreier, pc-gamer-news,
+sensor-tower, aaaa-games, wired-gaming, benji-sales, niko-partners,
+crunchbase-gaming, videogamelayoffs, ukie, earnings-sony, epic-calendar,
+earnings-take-two, igdb-releases, earnings-cdpr, earnings-nintendo,
+earnings-ea, earnings-tencent, nikkei-asia-gaming, earnings-netease.
+Logged here rather than fixed inline to keep the commit boundary clean.
+These are separate research tasks, not coding bugs.
+
+---
+
 ## 2026-04-15 (Late-night session — quick wins + team calendar events)
 
 Context refactor after the previous session hit a 20MB request-size error.

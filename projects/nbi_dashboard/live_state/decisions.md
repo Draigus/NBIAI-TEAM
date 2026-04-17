@@ -4,6 +4,24 @@ Append-only. Every decision Glen makes gets logged here immediately.
 
 ---
 
+## 2026-04-17 (News aggregator M1)
+
+No new directives from Glen this session; executed the plan from
+handoff_2026-04-17a verbatim. One small implementation deviation
+recorded in work_completed.md: insertArticlesDedup now returns the new
+row IDs alongside the count so enrichment can be wired without a second
+DB round-trip. All prior decisions still apply (no scope watering, no
+timelines, Max Pro primary with API-key failover, 53 sources, serif
+headlines, etc.).
+
+### Finding to flag next session
+11 seed.json feed URLs are stale placeholders (earnings pages, analyst
+blogs with no RSS, moved domains). They auto-disabled cleanly. Need a
+discovery pass to swap them for live feeds before M2 LLM work gets
+meaningful input from those tiers. Full list in work_completed.md.
+
+---
+
 ## 2026-04-04 (Session c)
 
 ### D1: Client Leads Tracker — Plan Before Code
