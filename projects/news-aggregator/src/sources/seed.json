@@ -1,0 +1,484 @@
+[
+  {
+    "slug": "gamesindustry-biz",
+    "name": "GamesIndustry.biz",
+    "tier": "trade",
+    "feed_url": "https://www.gamesindustry.biz/feed",
+    "feed_type": "rss",
+    "base_url": "https://www.gamesindustry.biz",
+    "priority_weight": 1.3
+  },
+  {
+    "slug": "vgc",
+    "name": "Video Games Chronicle",
+    "tier": "trade",
+    "feed_url": "https://www.videogameschronicle.com/feed/",
+    "feed_type": "rss",
+    "base_url": "https://www.videogameschronicle.com",
+    "priority_weight": 1.2
+  },
+  {
+    "slug": "game-developer",
+    "name": "Game Developer",
+    "tier": "trade",
+    "feed_url": "https://www.gamedeveloper.com/rss.xml",
+    "feed_type": "rss",
+    "base_url": "https://www.gamedeveloper.com",
+    "priority_weight": 1.2
+  },
+  {
+    "slug": "mcv",
+    "name": "MCV",
+    "tier": "trade",
+    "feed_url": "https://www.mcvuk.com/feed/",
+    "feed_type": "rss",
+    "base_url": "https://www.mcvuk.com",
+    "priority_weight": 1.1
+  },
+  {
+    "slug": "the-game-business",
+    "name": "The Game Business",
+    "tier": "trade",
+    "feed_url": "https://thegamebusiness.com/feed",
+    "feed_type": "rss",
+    "base_url": "https://thegamebusiness.com",
+    "priority_weight": 1.3
+  },
+  {
+    "slug": "axios-gaming",
+    "name": "Axios: Gaming",
+    "tier": "trade",
+    "feed_url": "https://api.axios.com/feed/games",
+    "feed_type": "rss",
+    "base_url": "https://www.axios.com",
+    "priority_weight": 1.2
+  },
+  {
+    "slug": "naavik",
+    "name": "Naavik",
+    "tier": "trade",
+    "feed_url": "https://naavik.co/feed",
+    "feed_type": "rss",
+    "base_url": "https://naavik.co",
+    "priority_weight": 1.2
+  },
+  {
+    "slug": "deconstructor-of-fun",
+    "name": "Deconstructor of Fun",
+    "tier": "trade",
+    "feed_url": "https://www.deconstructoroffun.com/blog?format=rss",
+    "feed_type": "rss",
+    "base_url": "https://www.deconstructoroffun.com",
+    "priority_weight": 1.1
+  },
+  {
+    "slug": "game-file",
+    "name": "Game File",
+    "tier": "trade",
+    "feed_url": "https://www.gamefile.news/feed",
+    "feed_type": "rss",
+    "base_url": "https://www.gamefile.news",
+    "priority_weight": 1.1
+  },
+  {
+    "slug": "bloomberg-schreier",
+    "name": "Bloomberg: Jason Schreier",
+    "tier": "trade",
+    "feed_url": "https://www.bloomberg.com/authors/ATUG31SYFEE/jason-schreier.rss",
+    "feed_type": "rss",
+    "base_url": "https://www.bloomberg.com",
+    "priority_weight": 1.3
+  },
+  {
+    "slug": "aftermath",
+    "name": "Aftermath",
+    "tier": "trade",
+    "feed_url": "https://aftermath.site/rss",
+    "feed_type": "rss",
+    "base_url": "https://aftermath.site",
+    "priority_weight": 1.2
+  },
+  {
+    "slug": "forbes-tassi",
+    "name": "Forbes: Paul Tassi",
+    "tier": "trade",
+    "feed_url": "https://www.forbes.com/sites/paultassi/feed/",
+    "feed_type": "rss",
+    "base_url": "https://www.forbes.com",
+    "priority_weight": 1.0
+  },
+  {
+    "slug": "eurogamer",
+    "name": "Eurogamer",
+    "tier": "consumer",
+    "feed_url": "https://www.eurogamer.net/feed",
+    "feed_type": "rss",
+    "base_url": "https://www.eurogamer.net",
+    "priority_weight": 1.0
+  },
+  {
+    "slug": "pc-gamer-news",
+    "name": "PC Gamer: News",
+    "tier": "consumer",
+    "feed_url": "https://www.pcgamer.com/news/feed/",
+    "feed_type": "rss",
+    "base_url": "https://www.pcgamer.com",
+    "priority_weight": 1.0
+  },
+  {
+    "slug": "polygon-industry",
+    "name": "Polygon: Industry",
+    "tier": "consumer",
+    "feed_url": "https://www.polygon.com/rss/index.xml",
+    "feed_type": "rss",
+    "base_url": "https://www.polygon.com",
+    "priority_weight": 1.0
+  },
+  {
+    "slug": "ign-news",
+    "name": "IGN: News",
+    "tier": "consumer",
+    "feed_url": "https://feeds.feedburner.com/ign/news",
+    "feed_type": "rss",
+    "base_url": "https://www.ign.com",
+    "priority_weight": 1.0
+  },
+  {
+    "slug": "kotaku-news",
+    "name": "Kotaku: News",
+    "tier": "consumer",
+    "feed_url": "https://kotaku.com/rss",
+    "feed_type": "rss",
+    "base_url": "https://kotaku.com",
+    "priority_weight": 0.9
+  },
+  {
+    "slug": "the-verge-gaming",
+    "name": "The Verge: Gaming",
+    "tier": "consumer",
+    "feed_url": "https://www.theverge.com/rss/games/index.xml",
+    "feed_type": "rss",
+    "base_url": "https://www.theverge.com",
+    "priority_weight": 1.0
+  },
+  {
+    "slug": "rock-paper-shotgun",
+    "name": "Rock Paper Shotgun",
+    "tier": "consumer",
+    "feed_url": "https://www.rockpapershotgun.com/feed",
+    "feed_type": "rss",
+    "base_url": "https://www.rockpapershotgun.com",
+    "priority_weight": 0.9
+  },
+  {
+    "slug": "variety-gaming",
+    "name": "Variety: Gaming",
+    "tier": "crossover",
+    "feed_url": "https://variety.com/v/gaming/feed/",
+    "feed_type": "rss",
+    "base_url": "https://variety.com",
+    "priority_weight": 1.1
+  },
+  {
+    "slug": "hollywood-reporter-gaming",
+    "name": "The Hollywood Reporter: Gaming",
+    "tier": "crossover",
+    "feed_url": "https://www.hollywoodreporter.com/c/business/gaming/feed/",
+    "feed_type": "rss",
+    "base_url": "https://www.hollywoodreporter.com",
+    "priority_weight": 1.1
+  },
+  {
+    "slug": "wired-gaming",
+    "name": "Wired: Gaming",
+    "tier": "crossover",
+    "feed_url": "https://www.wired.com/feed/tag/video-games/latest/rss",
+    "feed_type": "rss",
+    "base_url": "https://www.wired.com",
+    "priority_weight": 1.0
+  },
+  {
+    "slug": "mobilegamer-biz",
+    "name": "Mobile Games Industry",
+    "tier": "mobile_asia",
+    "feed_url": "https://mobilegamer.biz/feed/",
+    "feed_type": "rss",
+    "base_url": "https://mobilegamer.biz",
+    "priority_weight": 1.0
+  },
+  {
+    "slug": "pocketgamer-biz",
+    "name": "Pocket Gamer.biz",
+    "tier": "mobile_asia",
+    "feed_url": "https://www.pocketgamer.biz/rss/",
+    "feed_type": "rss",
+    "base_url": "https://www.pocketgamer.biz",
+    "priority_weight": 1.0
+  },
+  {
+    "slug": "gamediscoverco",
+    "name": "Game Discover Co",
+    "tier": "mobile_asia",
+    "feed_url": "https://newsletter.gamediscover.co/feed",
+    "feed_type": "rss",
+    "base_url": "https://gamediscover.co",
+    "priority_weight": 1.1
+  },
+  {
+    "slug": "nikkei-asia-gaming",
+    "name": "Nikkei Asia: Gaming",
+    "tier": "mobile_asia",
+    "feed_url": "https://asia.nikkei.com/rss/feed/industries/games",
+    "feed_type": "rss",
+    "base_url": "https://asia.nikkei.com",
+    "priority_weight": 1.0
+  },
+  {
+    "slug": "scmp-gaming",
+    "name": "South China Morning Post: Gaming",
+    "tier": "mobile_asia",
+    "feed_url": "https://www.scmp.com/rss/324200/feed",
+    "feed_type": "rss",
+    "base_url": "https://www.scmp.com",
+    "priority_weight": 0.9
+  },
+  {
+    "slug": "data-ai",
+    "name": "data.ai (Sensor Tower)",
+    "tier": "mobile_asia",
+    "feed_url": "https://www.data.ai/en/insights/rss.xml",
+    "feed_type": "rss",
+    "base_url": "https://www.data.ai",
+    "priority_weight": 0.9
+  },
+  {
+    "slug": "niko-partners",
+    "name": "Niko Partners",
+    "tier": "mobile_asia",
+    "feed_url": "https://nikopartners.com/feed/",
+    "feed_type": "rss",
+    "base_url": "https://nikopartners.com",
+    "priority_weight": 1.0
+  },
+  {
+    "slug": "sensor-tower",
+    "name": "Sensor Tower",
+    "tier": "mobile_asia",
+    "feed_url": "https://sensortower.com/blog/feed",
+    "feed_type": "rss",
+    "base_url": "https://sensortower.com",
+    "priority_weight": 0.9
+  },
+  {
+    "slug": "hit-points",
+    "name": "Hit Points",
+    "tier": "analyst",
+    "feed_url": "https://hitpoints.substack.com/feed",
+    "feed_type": "rss",
+    "base_url": "https://hitpoints.substack.com",
+    "priority_weight": 1.1
+  },
+  {
+    "slug": "matthew-ball",
+    "name": "Matthew Ball",
+    "tier": "analyst",
+    "feed_url": "https://www.matthewball.co/all?format=rss",
+    "feed_type": "rss",
+    "base_url": "https://www.matthewball.co",
+    "priority_weight": 1.1
+  },
+  {
+    "slug": "benji-sales",
+    "name": "Benji Sales",
+    "tier": "analyst",
+    "feed_url": "https://benjisales.substack.com/feed",
+    "feed_type": "rss",
+    "base_url": "https://benjisales.substack.com",
+    "priority_weight": 1.0
+  },
+  {
+    "slug": "aaaa-games",
+    "name": "AAAA Games",
+    "tier": "analyst",
+    "feed_url": "https://aaaa-games.com/feed",
+    "feed_type": "rss",
+    "base_url": "https://aaaa-games.com",
+    "priority_weight": 1.0
+  },
+  {
+    "slug": "konvoy",
+    "name": "Konvoy",
+    "tier": "analyst",
+    "feed_url": "https://www.konvoy.vc/newsletter?format=rss",
+    "feed_type": "rss",
+    "base_url": "https://www.konvoy.vc",
+    "priority_weight": 1.1
+  },
+  {
+    "slug": "esa",
+    "name": "Entertainment Software Association",
+    "tier": "trade_body",
+    "feed_url": "https://www.theesa.com/feed/",
+    "feed_type": "rss",
+    "base_url": "https://www.theesa.com",
+    "priority_weight": 0.8
+  },
+  {
+    "slug": "ukie",
+    "name": "UKIE",
+    "tier": "trade_body",
+    "feed_url": "https://ukie.org.uk/news/feed",
+    "feed_type": "rss",
+    "base_url": "https://ukie.org.uk",
+    "priority_weight": 0.8
+  },
+  {
+    "slug": "igda",
+    "name": "IGDA",
+    "tier": "trade_body",
+    "feed_url": "https://igda.org/feed/",
+    "feed_type": "rss",
+    "base_url": "https://igda.org",
+    "priority_weight": 0.8
+  },
+  {
+    "slug": "videogamelayoffs",
+    "name": "Video Game Layoffs",
+    "tier": "structured_data",
+    "feed_url": "https://www.videogamelayoffs.com/api/feed",
+    "feed_type": "api",
+    "base_url": "https://www.videogamelayoffs.com",
+    "priority_weight": 1.0,
+    "custom_parser_key": "videogamelayoffs"
+  },
+  {
+    "slug": "crunchbase-gaming",
+    "name": "Crunchbase: Gaming",
+    "tier": "structured_data",
+    "feed_url": "https://www.crunchbase.com/organization/categories/gaming",
+    "feed_type": "scrape",
+    "base_url": "https://www.crunchbase.com",
+    "priority_weight": 1.0,
+    "custom_parser_key": "crunchbase_gaming"
+  },
+  {
+    "slug": "igdb-releases",
+    "name": "IGDB: Releases",
+    "tier": "structured_data",
+    "feed_url": "https://api.igdb.com/v4/games",
+    "feed_type": "api",
+    "base_url": "https://www.igdb.com",
+    "priority_weight": 1.0,
+    "custom_parser_key": "igdb_releases"
+  },
+  {
+    "slug": "steam-upcoming",
+    "name": "Steam: Upcoming Releases",
+    "tier": "structured_data",
+    "feed_url": "https://steamcommunity.com/actions/GetSteamFeed",
+    "feed_type": "api",
+    "base_url": "https://store.steampowered.com",
+    "priority_weight": 0.9,
+    "custom_parser_key": "steam_upcoming"
+  },
+  {
+    "slug": "epic-calendar",
+    "name": "Epic Games: Release Calendar",
+    "tier": "structured_data",
+    "feed_url": "https://www.epicgames.com/store/en-US/browse",
+    "feed_type": "scrape",
+    "base_url": "https://www.epicgames.com",
+    "priority_weight": 0.9,
+    "custom_parser_key": "epic_calendar"
+  },
+  {
+    "slug": "earnings-msft",
+    "name": "Microsoft Earnings",
+    "tier": "structured_data",
+    "feed_url": "https://www.microsoft.com/en-us/investor/earnings/",
+    "feed_type": "rss",
+    "base_url": "https://www.microsoft.com",
+    "priority_weight": 1.0
+  },
+  {
+    "slug": "earnings-sony",
+    "name": "Sony Earnings",
+    "tier": "structured_data",
+    "feed_url": "https://www.sony.com/en_us/SCA/company-news/",
+    "feed_type": "rss",
+    "base_url": "https://www.sony.com",
+    "priority_weight": 1.0
+  },
+  {
+    "slug": "earnings-nintendo",
+    "name": "Nintendo Earnings",
+    "tier": "structured_data",
+    "feed_url": "https://www.nintendo.com/ir/news/",
+    "feed_type": "rss",
+    "base_url": "https://www.nintendo.com",
+    "priority_weight": 1.0
+  },
+  {
+    "slug": "earnings-ea",
+    "name": "Electronic Arts Earnings",
+    "tier": "structured_data",
+    "feed_url": "https://investor.ea.com/news-and-events/news/",
+    "feed_type": "rss",
+    "base_url": "https://investor.ea.com",
+    "priority_weight": 1.0
+  },
+  {
+    "slug": "earnings-take-two",
+    "name": "Take-Two Earnings",
+    "tier": "structured_data",
+    "feed_url": "https://investor.take2games.com/news-and-events/news/",
+    "feed_type": "rss",
+    "base_url": "https://investor.take2games.com",
+    "priority_weight": 1.0
+  },
+  {
+    "slug": "earnings-ubisoft",
+    "name": "Ubisoft Earnings",
+    "tier": "structured_data",
+    "feed_url": "https://www.ubisoft.com/en-US/company/news/",
+    "feed_type": "rss",
+    "base_url": "https://www.ubisoft.com",
+    "priority_weight": 1.0
+  },
+  {
+    "slug": "earnings-cdpr",
+    "name": "CD Projekt Red Earnings",
+    "tier": "structured_data",
+    "feed_url": "https://cdprojektred.com/en/news/",
+    "feed_type": "rss",
+    "base_url": "https://cdprojektred.com",
+    "priority_weight": 1.0
+  },
+  {
+    "slug": "earnings-ncsoft",
+    "name": "NCSoft Earnings",
+    "tier": "structured_data",
+    "feed_url": "https://www.ncsoft.com/en/news/",
+    "feed_type": "rss",
+    "base_url": "https://www.ncsoft.com",
+    "priority_weight": 0.9
+  },
+  {
+    "slug": "earnings-tencent",
+    "name": "Tencent Earnings",
+    "tier": "structured_data",
+    "feed_url": "https://www.tencent.com/en-us/news.html",
+    "feed_type": "rss",
+    "base_url": "https://www.tencent.com",
+    "priority_weight": 1.0
+  },
+  {
+    "slug": "earnings-netease",
+    "name": "NetEase Earnings",
+    "tier": "structured_data",
+    "feed_url": "https://ir.netease.com/news-releases",
+    "feed_type": "rss",
+    "base_url": "https://ir.netease.com",
+    "priority_weight": 0.9
+  }
+]
