@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>GamesIndustry.biz</title>
+    <link>https://www.gamesindustry.biz/</link>
+    <description>The latest news from GamesIndustry.biz</description>
+    <language>en-gb</language>
+    <item>
+      <title>Embracer splits into three companies</title>
+      <link>https://www.gamesindustry.biz/embracer-splits-into-three-companies</link>
+      <guid isPermaLink="true">https://www.gamesindustry.biz/embracer-splits-into-three-companies</guid>
+      <pubDate>Tue, 14 Apr 2026 09:00:00 +0000</pubDate>
+      <dc:creator>Jane Doe</dc:creator>
+      <description>Swedish publisher restructures into Asmodee, Coffee Stain, and Embracer.</description>
+      <content:encoded><![CDATA[<p>Swedish publisher restructures into Asmodee, Coffee Stain, and Embracer.</p><p>The split was announced Tuesday morning.</p>]]></content:encoded>
+      <enclosure url="https://www.gamesindustry.biz/images/embracer-hero.jpg" type="image/jpeg" length="48231" />
+    </item>
+    <item>
+      <title>Sega reports strong Q4 on Sonic sales</title>
+      <link>https://www.gamesindustry.biz/sega-strong-q4</link>
+      <guid isPermaLink="true">https://www.gamesindustry.biz/sega-strong-q4</guid>
+      <pubDate>Mon, 13 Apr 2026 14:30:00 +0000</pubDate>
+      <dc:creator>John Smith</dc:creator>
+      <description>Sega Sammy posts record Q4 earnings driven by Sonic franchise revival.</description>
+    </item>
+    <item>
+      <title>Unity CEO responds to pricing backlash</title>
+      <link>https://www.gamesindustry.biz/unity-ceo-pricing-backlash</link>
+      <guid isPermaLink="true">https://www.gamesindustry.biz/unity-ceo-pricing-backlash</guid>
+      <pubDate>Mon, 13 Apr 2026 11:15:00 +0000</pubDate>
+      <description>New Unity chief addresses developer concerns about runtime fees.</description>
+    </item>
+  </channel>
+</rss>
