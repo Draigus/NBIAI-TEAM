@@ -1,0 +1,38 @@
+{
+  "name": "nbi-news",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "tsx src/db/migrate.ts",
+    "pm2:start": "pm2 start ecosystem.config.cjs",
+    "pm2:restart": "pm2 restart nbi-news",
+    "pm2:logs": "pm2 logs nbi-news"
+  },
+  "dependencies": {
+    "@fastify/cors": "^9.0.0",
+    "@fastify/static": "^7.0.0",
+    "drizzle-orm": "^0.36.0",
+    "fastify": "^4.28.0",
+    "node-cron": "^3.0.3",
+    "pg": "^8.13.0",
+    "pino": "^9.0.0",
+    "rss-parser": "^3.13.0",
+    "sharp": "^0.33.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/pg": "^8.11.0",
+    "drizzle-kit": "^0.28.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0",
+    "vitest": "^2.1.0"
+  }
+}
