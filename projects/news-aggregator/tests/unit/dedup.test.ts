@@ -16,41 +16,44 @@ describe('insertArticlesDedup', () => {
     })
   })
 
-  it('inserts new articles, returns newCount', async () => {
-    const n = await insertArticlesDedup(sourceId, [
+  it('inserts new articles, returns newCount and newIds', async () => {
+    const r = await insertArticlesDedup(sourceId, [
       { url: 'https://example.com/a', title: 'A' },
       { url: 'https://example.com/b', title: 'B' },
     ])
-    expect(n).toBe(2)
+    expect(r.newCount).toBe(2)
+    expect(r.newIds).toHaveLength(2)
+    for (const id of r.newIds) expect(id).toMatch(/^[0-9a-f-]{36}$/)
   })
 
   it('skips duplicates on canonical_url', async () => {
     await insertArticlesDedup(sourceId, [
       { url: 'https://example.com/a?utm_source=x', title: 'A' },
     ])
-    const n = await insertArticlesDedup(sourceId, [
+    const r = await insertArticlesDedup(sourceId, [
       { url: 'https://example.com/a', title: 'A' },
     ])
-    expect(n).toBe(0)
+    expect(r.newCount).toBe(0)
+    expect(r.newIds).toEqual([])
   })
 
   it('drops items whose URL cannot be canonicalised', async () => {
-    const n = await insertArticlesDedup(sourceId, [
+    const r = await insertArticlesDedup(sourceId, [
       { url: 'javascript:alert(1)', title: 'bad' },
       { url: 'not a url', title: 'worse' },
       { url: 'https://example.com/good', title: 'good' },
     ])
-    expect(n).toBe(1)
+    expect(r.newCount).toBe(1)
   })
 
   it('collapses same story arriving twice with different tracking', async () => {
-    const n1 = await insertArticlesDedup(sourceId, [
+    const r1 = await insertArticlesDedup(sourceId, [
       { url: 'https://example.com/story?utm_campaign=newsletter', title: 'Story' },
     ])
-    const n2 = await insertArticlesDedup(sourceId, [
+    const r2 = await insertArticlesDedup(sourceId, [
       { url: 'https://example.com/story?fbclid=abc', title: 'Story' },
     ])
-    expect(n1).toBe(1)
-    expect(n2).toBe(0)
+    expect(r1.newCount).toBe(1)
+    expect(r2.newCount).toBe(0)
   })
 })

@@ -12,16 +12,22 @@ export interface RawArticle {
   contentHtml?: string
 }
 
+export interface DedupResult {
+  /** Number of newly inserted article rows. */
+  newCount: number
+  /** UUIDs of the newly inserted rows, in insertion order. */
+  newIds: string[]
+}
+
 /**
  * Insert articles, skipping any whose canonical_url already exists.
- * Returns the number of newly inserted rows.
  *
  * Articles whose URL fails canonicalisation (non-http(s), malformed) are
  * dropped. If publishedAt is missing the ingest time is used, since the
  * schema column is NOT NULL.
  */
-export async function insertArticlesDedup(sourceId: string, items: RawArticle[]): Promise<number> {
-  let inserted = 0
+export async function insertArticlesDedup(sourceId: string, items: RawArticle[]): Promise<DedupResult> {
+  const newIds: string[] = []
   for (const item of items) {
     const canonical = canonicaliseUrl(item.url)
     if (!canonical) continue
@@ -39,7 +45,8 @@ export async function insertArticlesDedup(sourceId: string, items: RawArticle[])
       ON CONFLICT (canonical_url) DO NOTHING
       RETURNING id
     `)
-    if (result.rowCount && result.rowCount > 0) inserted++
+    const row = result.rows[0] as { id: string } | undefined
+    if (row?.id) newIds.push(row.id)
   }
-  return inserted
+  return { newCount: newIds.length, newIds }
 }
