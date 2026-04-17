@@ -1,7 +1,9 @@
 import * as cheerio from 'cheerio'
+import { cacheOgImage } from '../media/cache.js'
 
 export interface ArticleMetadata {
   ogImage: string | null
+  ogImageHash: string | null
   canonicalUrl: string
   author: string | null
   videoUrls: string[]
@@ -74,13 +76,14 @@ export function extractMetadata(html: string, fallbackUrl: string): ArticleMetad
 
     return {
       ogImage,
+      ogImageHash: null,
       canonicalUrl: canonical,
       author,
       videoUrls: [...videoUrls],
       publishedAt,
     }
   } catch {
-    return { ogImage: null, canonicalUrl: fallbackUrl, author: null, videoUrls: [], publishedAt: null }
+    return { ogImage: null, ogImageHash: null, canonicalUrl: fallbackUrl, author: null, videoUrls: [], publishedAt: null }
   }
 }
 
@@ -94,7 +97,11 @@ export async function fetchAndEnrich(articleUrl: string): Promise<ArticleMetadat
     })
     if (!resp.ok) throw new Error(`enrichment_http_${resp.status}`)
     const html = await resp.text()
-    return extractMetadata(html, articleUrl)
+    const meta = extractMetadata(html, articleUrl)
+    if (meta.ogImage) {
+      meta.ogImageHash = await cacheOgImage(meta.ogImage)
+    }
+    return meta
   } finally {
     clearTimeout(timer)
   }

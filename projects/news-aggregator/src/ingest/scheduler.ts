@@ -40,6 +40,7 @@ async function enrichNewArticles(newArticleIds: string[], log: SchedulerLogger):
       const meta = await fetchAndEnrich(row.url)
       await db.update(schema.articles).set({
         ogImageUrl: meta.ogImage ?? row.ogImageUrl,
+        ogImageHash: meta.ogImageHash ?? row.ogImageHash,
         author: meta.author ?? row.author,
         embeddedVideoUrls: meta.videoUrls.length ? meta.videoUrls : row.embeddedVideoUrls,
         publishedAt: meta.publishedAt ?? row.publishedAt,
