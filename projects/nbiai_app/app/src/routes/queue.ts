@@ -405,8 +405,11 @@ export async function queueRoutes(app: FastifyInstance) {
 
       const task = taskRows[0]
 
-      // Determine new task status: done tasks go to review for Glen's sign-off
-      const newTaskStatus = body.status === 'done' ? 'review' : 'done'
+      // Determine new task status:
+      //   done   -> review (Glen signs off before the task closes)
+      //   failed -> blocked (surfaces in the Blocked bucket for triage; nothing
+      //                       in the schema represents "failed" as a terminal state)
+      const newTaskStatus = body.status === 'done' ? 'review' : 'blocked'
 
       // 2. Update task
       const [updatedTask] = await db
