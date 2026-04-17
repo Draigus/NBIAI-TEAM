@@ -3,6 +3,7 @@ import { loadConfig } from './config.js'
 import { healthRoutes } from './routes/health.js'
 import { mediaRoutes } from './routes/media.js'
 import { seedSourcesIfEmpty } from './sources/registry.js'
+import { seedPromptsIfEmpty } from './llm/seed-prompts.js'
 import { startCronJobs } from './scheduler/cron.js'
 import { healthcheckAuth } from './llm/client.js'
 
@@ -14,6 +15,9 @@ await app.register(mediaRoutes)
 
 const seeded = await seedSourcesIfEmpty()
 if (seeded > 0) app.log.info(`Seeded ${seeded} sources`)
+
+const seededPrompts = await seedPromptsIfEmpty()
+if (seededPrompts > 0) app.log.info(`Seeded ${seededPrompts} prompts`)
 
 app.listen({ port: config.PORT, host: '127.0.0.1' }, async (err, address) => {
   if (err) { app.log.error(err); process.exit(1) }
