@@ -436,7 +436,7 @@ export async function taskRoutes(fastify: FastifyInstance): Promise<void> {
   // -------------------------------------------------------------------------
   // PATCH /api/tasks/:id
   // -------------------------------------------------------------------------
-  fastify.patch('/tasks/:id', { preHandler: requireAuth }, async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.patch('/tasks/:id', { preHandler: requireRole(BOARD_AND_ADMIN) }, async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string }
     if (!UUID_RE.test(id)) {
       return reply.status(400).send({ error: { code: 'VALIDATION_ERROR', message: 'Invalid ID format' } })
@@ -567,7 +567,7 @@ export async function taskRoutes(fastify: FastifyInstance): Promise<void> {
   // -------------------------------------------------------------------------
   // POST /api/tasks/:id/checkout
   // -------------------------------------------------------------------------
-  fastify.post('/tasks/:id/checkout', { preHandler: requireAuth }, async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.post('/tasks/:id/checkout', { preHandler: requireRole(BOARD_AND_ADMIN) }, async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string }
     if (!UUID_RE.test(id)) {
       return reply.status(400).send({ error: { code: 'VALIDATION_ERROR', message: 'Invalid ID format' } })
@@ -625,7 +625,7 @@ export async function taskRoutes(fastify: FastifyInstance): Promise<void> {
   // -------------------------------------------------------------------------
   // POST /api/tasks/:id/checkin
   // -------------------------------------------------------------------------
-  fastify.post('/tasks/:id/checkin', { preHandler: requireAuth }, async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.post('/tasks/:id/checkin', { preHandler: requireRole(BOARD_AND_ADMIN) }, async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string }
     if (!UUID_RE.test(id)) {
       return reply.status(400).send({ error: { code: 'VALIDATION_ERROR', message: 'Invalid ID format' } })
