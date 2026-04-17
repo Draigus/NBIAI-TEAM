@@ -16,7 +16,8 @@ afterEach(cleanupPrompts)
 
 describe('loadActivePrompt', () => {
   it('throws when no prompt exists for the key', async () => {
-    await expect(loadActivePrompt('clustering' as unknown as 'clustering')).rejects.toThrow(/no active prompt/i)
+    // Use a bespoke key that the seed job never creates.
+    await expect(loadActivePrompt('test_missing' as unknown as 'clustering')).rejects.toThrow(/no active prompt/i)
   })
 
   it('returns the active row when one exists', async () => {
