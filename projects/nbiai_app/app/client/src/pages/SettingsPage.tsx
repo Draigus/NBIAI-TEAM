@@ -416,7 +416,7 @@ function UsersTab() {
 
   async function handleInvite(data: { email: string; displayName: string; role: string; password: string }) {
     try {
-      await apiFetch('/api/settings/users', {
+      await apiFetch('/api/v1/settings/users', {
         method: 'POST',
         body: JSON.stringify(data),
       })
@@ -429,7 +429,7 @@ function UsersTab() {
 
   async function handleRoleChange(id: string, role: string) {
     try {
-      await apiFetch(`/api/settings/users/${id}`, {
+      await apiFetch(`/api/v1/settings/users/${id}`, {
         method: 'PATCH',
         body: JSON.stringify({ role }),
       })
@@ -442,7 +442,7 @@ function UsersTab() {
   async function handleRemove(id: string) {
     setRemovingId(id)
     try {
-      await apiFetch(`/api/settings/users/${id}`, { method: 'DELETE' })
+      await apiFetch(`/api/v1/settings/users/${id}`, { method: 'DELETE' })
       queryClient.invalidateQueries({ queryKey: ['settings', 'users'] })
       showToast('User removed.', '', 'success')
     } catch {

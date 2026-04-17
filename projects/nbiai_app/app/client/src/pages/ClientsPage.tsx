@@ -917,7 +917,7 @@ function ActiveClientsTab() {
 
   async function handleSave(id: string, data: Partial<Client>) {
     try {
-      await apiFetch(`/api/clients/active/${id}`, {
+      await apiFetch(`/api/v1/clients/${id}`, {
         method: 'PATCH',
         body: JSON.stringify(data),
       })
@@ -930,11 +930,17 @@ function ActiveClientsTab() {
 
   async function handleDelete(id: string) {
     try {
-      await apiFetch(`/api/clients/active/${id}`, { method: 'DELETE' })
+      // Soft-delete via PATCH isActive=false; server does not expose a hard
+      // DELETE route for /clients/:id. This matches the server's stated
+      // deactivate-not-delete policy.
+      await apiFetch(`/api/v1/clients/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ isActive: false }),
+      })
       queryClient.invalidateQueries({ queryKey: ['clients'] })
-      showToast('Client deleted', '', 'success')
+      showToast('Client deactivated', '', 'success')
     } catch {
-      showToast('Failed to delete', '', 'error')
+      showToast('Failed to deactivate', '', 'error')
     }
   }
 
@@ -1063,11 +1069,22 @@ function OverdueTab() {
 
   async function handleMarkContacted(item: OverdueLead) {
     setMarkingId(item.id)
+    // Overdue-follow-ups spans both pipeline leads and active clients;
+    // route to the correct server endpoint based on item.type. The
+    // clients table does not currently store lastContactDate (only the
+    // pipeline_leads table does), so for clients we simply touch
+    // updatedAt by sending an empty-notes patch; refine once the
+    // clients schema grows a last-contact field.
+    const url =
+      item.type === 'client'
+        ? `/api/v1/clients/${item.id}`
+        : `/api/v1/clients/pipeline/${item.id}`
+    const body =
+      item.type === 'client'
+        ? { notes: null } // no-op touch until clients has lastContactDate
+        : { lastContactDate: new Date().toISOString().slice(0, 10) }
     try {
-      await apiFetch(`/api/clients/${item.id}`, {
-        method: 'PATCH',
-        body: JSON.stringify({ lastContactDate: new Date().toISOString() }),
-      })
+      await apiFetch(url, { method: 'PATCH', body: JSON.stringify(body) })
       queryClient.invalidateQueries({ queryKey: ['clients', 'overdue'] })
       showToast('Marked as contacted', '', 'success')
     } catch {
@@ -1188,7 +1205,7 @@ function PipelineTab({ headerNewLeadOpen, onHeaderNewLeadClose }: PipelineTabPro
 
   async function handleCreateLead(data: Partial<Lead>) {
     try {
-      await apiFetch('/api/clients/pipeline', {
+      await apiFetch('/api/v1/clients/pipeline', {
         method: 'POST',
         body: JSON.stringify(data),
       })
@@ -1201,7 +1218,7 @@ function PipelineTab({ headerNewLeadOpen, onHeaderNewLeadClose }: PipelineTabPro
 
   async function handleSaveLead(id: string, data: Partial<Lead>) {
     try {
-      await apiFetch(`/api/clients/pipeline/${id}`, {
+      await apiFetch(`/api/v1/clients/pipeline/${id}`, {
         method: 'PATCH',
         body: JSON.stringify(data),
       })
@@ -1214,7 +1231,7 @@ function PipelineTab({ headerNewLeadOpen, onHeaderNewLeadClose }: PipelineTabPro
 
   async function handleDeleteLead(id: string) {
     try {
-      await apiFetch(`/api/clients/pipeline/${id}`, { method: 'DELETE' })
+      await apiFetch(`/api/v1/clients/pipeline/${id}`, { method: 'DELETE' })
       queryClient.invalidateQueries({ queryKey: ['clients', 'pipeline'] })
       showToast('Lead deleted', '', 'success')
     } catch {
