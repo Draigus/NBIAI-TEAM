@@ -37,10 +37,11 @@ export async function summariseStory(
   if (articleIds.length === 0) {
     return fallback('(no articles)', '')
   }
+  const idArray = `{${articleIds.join(',')}}`
   const articles = await db.execute(sql`
     SELECT a.id, s.name AS source, a.title, a.summary, a.url, a.embedded_video_urls
     FROM news.articles a JOIN news.sources s ON s.id = a.source_id
-    WHERE a.id = ANY(${articleIds}::uuid[])
+    WHERE a.id = ANY(${idArray}::uuid[])
   `)
   const rows = articles.rows as unknown as ArticleRow[]
 

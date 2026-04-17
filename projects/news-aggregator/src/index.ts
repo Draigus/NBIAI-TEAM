@@ -1,3 +1,11 @@
+import 'dotenv/config'
+// dotenv/config auto-loads .env but only fills in missing vars. Force-override
+// any ambient process.env values — PM2's saved dump occasionally ships empty
+// strings for ANTHROPIC_API_KEY, which the default dotenv behaviour would
+// otherwise preserve.
+import dotenv from 'dotenv'
+dotenv.config({ override: true })
+
 import Fastify from 'fastify'
 import { loadConfig } from './config.js'
 import { healthRoutes } from './routes/health.js'

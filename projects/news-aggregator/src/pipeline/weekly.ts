@@ -60,11 +60,20 @@ export async function generateWeeklyDigest(
   const clusters = await clusterArticles(articleIds, digest.id)
   log.info({ digestId: digest.id, clusterCount: clusters.length }, 'clustering done')
 
+  // Guard: if clustering returned nothing we cannot produce stories. Leave
+  // the digest as 'draft' so the operator notices and regenerates rather
+  // than publishing an empty page.
+  if (clusters.length === 0) {
+    log.warn({ digestId: digest.id, articleCount: articleIds.length }, 'clustering returned zero clusters; digest left as draft')
+    return digest.id
+  }
+
   // Build article → source priorityWeight map for curation weighting
+  const idArray = `{${articleIds.join(',')}}`
   const srcRows = await db.execute(sql`
     SELECT a.id AS article_id, s.priority_weight
     FROM news.articles a JOIN news.sources s ON s.id = a.source_id
-    WHERE a.id = ANY(${articleIds}::uuid[])
+    WHERE a.id = ANY(${idArray}::uuid[])
   `)
   const sourceWeights = new Map<string, ArticleSourceInfo>()
   for (const r of srcRows.rows as Array<{ article_id: string; priority_weight: string }>) {

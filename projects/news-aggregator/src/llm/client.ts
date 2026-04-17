@@ -46,14 +46,28 @@ export interface CallResult {
 
 async function runApiCall(mode: LlmAuthMode, opts: CallOptions): Promise<CallResult> {
   const client = makeClient(mode)
-  const response = await client.messages.create({
+  // Streaming is required for large max_tokens (clustering on a backfill
+  // window can run longer than the 10-minute non-stream timeout). We use
+  // streaming unconditionally so there's one code path and we never hit
+  // the SDK's non-streaming guard.
+  const stream = client.messages.stream({
     model: MODEL,
     max_tokens: opts.maxTokens ?? 4096,
     system: opts.systemPrompt,
     messages: [{ role: 'user', content: opts.userMessage }],
   })
+  const response = await stream.finalMessage()
+
   const textBlock = response.content.find((b) => b.type === 'text')
   const text = textBlock && 'text' in textBlock ? textBlock.text : ''
+  // Loud warning on max_tokens — truncation produces invalid JSON that
+  // silently returns empty downstream. Better to surface it in the logs
+  // than chase empty digests.
+  if (response.stop_reason === 'max_tokens') {
+    console.warn(
+      `[llm] WARNING: ${opts.runType} hit max_tokens (${opts.maxTokens ?? 4096}) — output truncated; downstream parse will likely fail`,
+    )
+  }
   return {
     text,
     inputTokens: response.usage.input_tokens,

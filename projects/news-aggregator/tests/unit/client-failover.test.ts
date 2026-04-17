@@ -28,13 +28,21 @@ vi.mock('@anthropic-ai/sdk', () => {
       constructedKeys.push(opts.apiKey)
     }
     messages = {
-      create: async () => {
+      // Client uses stream() + finalMessage(). Our mock returns an object
+      // with a finalMessage() method; failures are raised synchronously so
+      // the awaited finalMessage() rejects.
+      stream: () => {
         apiCalls++
-        if (sdkMode === 'fail-always') throw new AuthenticationError()
-        if (sdkMode === 'fail-then-succeed' && apiCalls === 1) throw new AuthenticationError()
+        const shouldFail = sdkMode === 'fail-always' || (sdkMode === 'fail-then-succeed' && apiCalls === 1)
         return {
-          content: [{ type: 'text', text: 'ok' }],
-          usage: { input_tokens: 5, output_tokens: 1 },
+          finalMessage: async () => {
+            if (shouldFail) throw new AuthenticationError()
+            return {
+              content: [{ type: 'text', text: 'ok' }],
+              usage: { input_tokens: 5, output_tokens: 1 },
+              stop_reason: 'end_turn',
+            }
+          },
         }
       },
     }

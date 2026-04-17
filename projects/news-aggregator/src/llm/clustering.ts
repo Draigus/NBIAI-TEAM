@@ -37,10 +37,14 @@ interface ArticleRow {
  */
 export async function clusterArticles(articleIds: string[], digestId: string): Promise<ClusterResult[]> {
   if (articleIds.length === 0) return []
+  // Drizzle serialises JS arrays as records, which Postgres won't cast to
+  // uuid[]. Build the array literal manually — all IDs come from our DB
+  // so they are guaranteed valid UUIDs (no injection risk).
+  const idArray = `{${articleIds.join(',')}}`
   const articles = await db.execute(sql`
     SELECT a.id, s.name AS source, a.title, a.summary
     FROM news.articles a JOIN news.sources s ON s.id = a.source_id
-    WHERE a.id = ANY(${articleIds}::uuid[])
+    WHERE a.id = ANY(${idArray}::uuid[])
   `)
   const prompt = await loadActivePrompt('clustering')
   const userMessage = `Articles:\n${JSON.stringify(articles.rows as unknown as ArticleRow[], null, 2)}`
@@ -49,7 +53,11 @@ export async function clusterArticles(articleIds: string[], digestId: string): P
     digestId,
     systemPrompt: prompt.body,
     userMessage,
-    maxTokens: 8192,
+    // Clustering emits one JSON entry per cluster covering every article +
+    // its extracted entities. For a 500-article backfill this can comfortably
+    // exceed 8K tokens. 32K leaves plenty of headroom without risking
+    // runaway generation.
+    maxTokens: 32768,
   })
   const parsed = safeParseJson<ClusteringOutput>(result.text)
   if (!parsed || !Array.isArray(parsed.clusters)) return []
