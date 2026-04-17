@@ -4,6 +4,67 @@ Append-only. Every feature/fix completed gets logged here immediately.
 
 ---
 
+## 2026-04-17 (News aggregator M2 COMPLETE — Tasks 14-26)
+
+Full M2 milestone shipped end-to-end. LLM pipeline, prompts, orchestrators,
+and cron wiring all in place. 79/79 tests green. PM2 boots with all cron
+schedules registered.
+
+### What runs on schedule (once Glen drops in the API key)
+- **Hourly ingest** — top of every hour UTC (already live from M1)
+- **Weekly pre-flight** — Sun 21:50 UTC — healthcheckAuth logged
+- **Weekly digest** — Sun 22:00 UTC — covers Mon-Sun window just closed,
+  runs full pipeline: cluster → curate → summarise each story → hero
+  select → publish
+- **Monthly pre-flight** — 21:50 UTC daily, short-circuits unless it's
+  the synthesis day
+- **Monthly synthesis** — 22:00 UTC on min(30, last-day-of-month),
+  generates "State of the Industry" essay across the month's weeklies
+- All cron in Etc/UTC
+
+### Task-by-task
+- Task 14 (f43b2f8 — revised): callClaude wrapper on raw
+  @anthropic-ai/sdk, primary/failover semantics, healthcheckAuth.
+- Task 15 (87a5086): loadActivePrompt, savePromptVersion,
+  listPromptVersions.
+- Task 16 (87a5086): v1 prompt bodies for all 5 stages seeded at boot
+  (idempotent). British English, no placeholders; system prompts only,
+  caller puts articles/stories in the user message.
+- Task 17 (665d271): clusterArticles + safeParseJson (shared).
+- Task 18 (b84657a): curateClusters with client-side dynamic 5th
+  category recomputation (threshold >= 4).
+- Task 19 (5e54378): summariseStory with fallback on parse failure.
+- Task 20 (019369d): selectHeroStory with hallucination guard.
+- Task 21 (d5a9304): synthesiseMonth across weekly digests.
+- Task 22 (27536ff): dates util — monthlySynthesisDay,
+  isMonthlySynthesisDay, nextMonthlySynthesisDate, weeklyDigestPeriod.
+  25 tests covering leap year (century rules), month boundaries,
+  day-of-week math.
+- Task 23 (3d5f0b3): generateWeeklyDigest — full pipeline orchestration.
+- Task 24 (872de49): generateMonthlySynthesis — check-then-insert on
+  monthly_summaries (schema's month column is indexed but not unique;
+  concurrency is a non-issue for a daily cron).
+- Task 25 (95710a0): generateLaunchDigest — 30-day window, flips
+  digest_type to 'launch_30day'.
+- Task 26 (05723ee): cron.ts — all 5 schedules, try/catch wrapped,
+  Etc/UTC pinned, pre-flights 10 min before major runs.
+
+### Gating item before M2 is truly live
+Glen needs to populate `ANTHROPIC_API_KEY` in
+`projects/news-aggregator/.env`. Without it, the weekly cron fires but
+the healthcheck returns `{ ok: false, mode: 'primary', error: 'No API
+key available for mode=primary' }` and the pipeline's first LLM call
+throws. Failover is optional (populate `ANTHROPIC_API_KEY_FAILOVER` too
+if desired).
+
+### Cost note
+Weekly digest ~32 LLM calls × ~15-30K tokens average per call. At
+Sonnet 4.6 rates (~$3 in / $15 out per 1M tokens) a typical weekly
+should land around $1-2. Monthly synthesis adds one $0.50-ish call per
+month.
+
+---
+
 ## 2026-04-17 (News aggregator M2 — Task 14 revised: raw SDK, dropped Max Pro)
 
 After Task 14 shipped with `@anthropic-ai/claude-agent-sdk`, the pre-check
