@@ -48,6 +48,8 @@ interface ApprovalItem {
 // Approval type badge
 // ---------------------------------------------------------------------------
 
+// Keys match the server's approval_type enum exactly
+// (see src/db/schema.ts approvalTypeEnum).
 const APPROVAL_TYPE_CONFIG: Record<
   string,
   { label: string; textClass: string; bgClass: string; borderClass: string }
@@ -58,26 +60,26 @@ const APPROVAL_TYPE_CONFIG: Record<
     bgClass: 'bg-[#60A5FA]/10',
     borderClass: 'border-[#60A5FA]/30',
   },
-  financial: {
-    label: 'Financial',
+  financial_commitment: {
+    label: 'Financial Commitment',
     textClass: 'text-status-amber',
     bgClass: 'bg-status-amber/10',
     borderClass: 'border-status-amber/30',
   },
-  external_post: {
-    label: 'External Post',
+  public_publish: {
+    label: 'Public Publish',
     textClass: 'text-purple-400',
     bgClass: 'bg-purple-400/10',
     borderClass: 'border-purple-400/30',
   },
-  client_comms: {
-    label: 'Client Comms',
+  client_communication: {
+    label: 'Client Communication',
     textClass: 'text-teal-400',
     bgClass: 'bg-teal-400/10',
     borderClass: 'border-teal-400/30',
   },
-  strategic: {
-    label: 'Strategic',
+  strategic_decision: {
+    label: 'Strategic Decision',
     textClass: 'text-status-red',
     bgClass: 'bg-status-red/10',
     borderClass: 'border-status-red/30',
@@ -87,6 +89,12 @@ const APPROVAL_TYPE_CONFIG: Record<
     textClass: 'text-indigo-400',
     bgClass: 'bg-indigo-400/10',
     borderClass: 'border-indigo-400/30',
+  },
+  other: {
+    label: 'Other',
+    textClass: 'text-secondary',
+    bgClass: 'bg-elevated',
+    borderClass: 'border-default',
   },
 }
 
@@ -278,11 +286,14 @@ function ApprovalListItem({ item, selected, mode, onClick }: ListItemProps) {
 // Detail panel
 // ---------------------------------------------------------------------------
 
-type ActionType = 'approve' | 'reject' | 'changes_requested'
+// Decision values are sent to the server and must match the
+// approval_status enum (minus 'pending'). Keep these three distinct —
+// 'changes_requested' was being silently collapsed to 'reject'.
+type ActionType = 'approved' | 'rejected' | 'changes_requested'
 
 interface DetailPanelProps {
   item: ApprovalItem
-  onDecide: (id: string, decision: 'approve' | 'reject', comment?: string) => Promise<void>
+  onDecide: (id: string, decision: ActionType, comment?: string) => Promise<void>
   isDeciding: boolean
 }
 
@@ -293,7 +304,7 @@ function DetailPanel({ item, onDecide, isDeciding }: DetailPanelProps) {
   const [confirming, setConfirming] = useState(false)
 
   const isPending = item.status === 'pending'
-  const commentRequired = selectedAction === 'reject' || selectedAction === 'changes_requested'
+  const commentRequired = selectedAction === 'rejected' || selectedAction === 'changes_requested'
 
   function handleActionSelect(action: ActionType) {
     setSelectedAction(action)
@@ -307,8 +318,7 @@ function DetailPanel({ item, onDecide, isDeciding }: DetailPanelProps) {
       return
     }
     setConfirming(true)
-    const apiDecision: 'approve' | 'reject' = selectedAction === 'approve' ? 'approve' : 'reject'
-    await onDecide(item.id, apiDecision, comment.trim() || undefined)
+    await onDecide(item.id, selectedAction, comment.trim() || undefined)
     setConfirming(false)
     setSelectedAction(null)
     setComment('')
@@ -316,11 +326,11 @@ function DetailPanel({ item, onDecide, isDeciding }: DetailPanelProps) {
   }
 
   const commentPlaceholder =
-    selectedAction === 'approve'
+    selectedAction === 'approved'
       ? "Optional note (e.g. 'Approved — send by EOD')"
       : selectedAction === 'changes_requested'
         ? 'Required — explain what needs to change'
-        : selectedAction === 'reject'
+        : selectedAction === 'rejected'
           ? 'Required — explain why this was rejected'
           : 'Select an action above'
 
@@ -407,10 +417,10 @@ function DetailPanel({ item, onDecide, isDeciding }: DetailPanelProps) {
 
           <div className="flex gap-3 mb-4">
             <button
-              onClick={() => handleActionSelect('approve')}
+              onClick={() => handleActionSelect('approved')}
               className={cn(
                 'flex items-center gap-1.5 px-3 py-1.5 rounded text-sm font-medium transition-colors border',
-                selectedAction === 'approve'
+                selectedAction === 'approved'
                   ? 'bg-[#22C55E] border-[#22C55E] text-[#0A0A0F]'
                   : 'bg-[#22C55E1A] border-[#22C55E33] text-status-green hover:bg-[#22C55E]/20',
               )}
@@ -431,10 +441,10 @@ function DetailPanel({ item, onDecide, isDeciding }: DetailPanelProps) {
               Request Changes
             </button>
             <button
-              onClick={() => handleActionSelect('reject')}
+              onClick={() => handleActionSelect('rejected')}
               className={cn(
                 'flex items-center gap-1.5 px-3 py-1.5 rounded text-sm font-medium transition-colors border',
-                selectedAction === 'reject'
+                selectedAction === 'rejected'
                   ? 'bg-[#EF4444] border-[#EF4444] text-[#0A0A0F]'
                   : 'bg-[#EF44441A] border-[#EF444433] text-status-red hover:bg-[#EF4444]/20',
               )}
@@ -477,7 +487,7 @@ function DetailPanel({ item, onDecide, isDeciding }: DetailPanelProps) {
             {(isDeciding || confirming) && <Loader2 size={16} className="animate-spin mr-2" />}
             {selectedAction
               ? `Confirm ${
-                  selectedAction === 'approve'
+                  selectedAction === 'approved'
                     ? 'Approve'
                     : selectedAction === 'changes_requested'
                       ? 'Request Changes'
@@ -558,7 +568,7 @@ export default function ApprovalsPage() {
       comment,
     }: {
       id: string
-      decision: 'approve' | 'reject'
+      decision: ActionType
       comment?: string
     }) => approvals.decide(id, decision, comment),
     onSuccess: () => {
@@ -568,10 +578,12 @@ export default function ApprovalsPage() {
     },
   })
 
-  async function handleDecide(id: string, decision: 'approve' | 'reject', comment?: string) {
+  async function handleDecide(id: string, decision: ActionType, comment?: string) {
     await decide({ id, decision, comment })
-    if (decision === 'approve') {
+    if (decision === 'approved') {
       showToast('Approval confirmed', 'Agent will proceed.', 'success')
+    } else if (decision === 'changes_requested') {
+      showToast('Changes requested', 'Agent notified and will revise.', 'warning')
     } else {
       showToast('Request rejected', 'Agent notified.', 'error')
     }

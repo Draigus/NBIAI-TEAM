@@ -152,6 +152,8 @@ function AgentStatusBadge({ status }: { status: string }) {
   )
 }
 
+// Keys match the server's approval_type enum exactly
+// (see src/db/schema.ts approvalTypeEnum).
 const APPROVAL_TYPE_CONFIG: Record<
   string,
   { label: string; text: string; bg: string; border: string }
@@ -162,14 +164,32 @@ const APPROVAL_TYPE_CONFIG: Record<
     bg: 'bg-status-blue/10',
     border: 'border-status-blue/30',
   },
-  financial: {
+  client_communication: {
+    label: 'CLIENT',
+    text: 'text-status-blue',
+    bg: 'bg-status-blue/10',
+    border: 'border-status-blue/30',
+  },
+  financial_commitment: {
     label: 'FINANCIAL',
     text: 'text-status-amber',
     bg: 'bg-status-amber/10',
     border: 'border-status-amber/30',
   },
-  strategic: {
+  public_publish: {
+    label: 'PUBLISH',
+    text: 'text-status-amber',
+    bg: 'bg-status-amber/10',
+    border: 'border-status-amber/30',
+  },
+  strategic_decision: {
     label: 'STRATEGIC',
+    text: 'text-status-red',
+    bg: 'bg-status-red/10',
+    border: 'border-status-red/30',
+  },
+  hiring: {
+    label: 'HIRING',
     text: 'text-status-red',
     bg: 'bg-status-red/10',
     border: 'border-status-red/30',
