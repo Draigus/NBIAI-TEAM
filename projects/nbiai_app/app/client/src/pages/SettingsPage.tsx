@@ -362,12 +362,14 @@ function InviteUserModal({
           </div>
           <div>
             <label className="block text-xs text-muted mb-1">Role</label>
+            {/* Board role cannot be assigned via invite; it is fixed at
+                first-time setup (see POST /api/v1/auth/setup) and the
+                createUserSchema on the server accepts only admin/viewer. */}
             <Select value={form.role} onValueChange={(v) => setForm((f) => ({ ...f, role: v }))}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="board">Board</SelectItem>
                 <SelectItem value="admin">Admin</SelectItem>
                 <SelectItem value="viewer">Viewer</SelectItem>
               </SelectContent>
