@@ -10,6 +10,7 @@ import Fastify from 'fastify'
 import { loadConfig } from './config.js'
 import { healthRoutes } from './routes/health.js'
 import { mediaRoutes } from './routes/media.js'
+import { digestRoutes } from './routes/digests.js'
 import { seedSourcesIfEmpty } from './sources/registry.js'
 import { seedPromptsIfEmpty } from './llm/seed-prompts.js'
 import { startCronJobs } from './scheduler/cron.js'
@@ -20,6 +21,7 @@ const app = Fastify({ logger: { level: config.LOG_LEVEL } })
 
 await app.register(healthRoutes)
 await app.register(mediaRoutes)
+await app.register(digestRoutes, { prefix: '/news' })
 
 const seeded = await seedSourcesIfEmpty()
 if (seeded > 0) app.log.info(`Seeded ${seeded} sources`)
