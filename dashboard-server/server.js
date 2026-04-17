@@ -939,6 +939,31 @@ app.post('/api/auth/reset-token/:token', async (req, res) => {
 // All routes below this line require a valid auth token
 app.use(requireAuth);
 
+// News aggregator proxy. Forwards authenticated user context and an internal token.
+const { createProxyMiddleware } = require('http-proxy-middleware');
+const NEWS_INTERNAL_TOKEN = process.env.NEWS_INTERNAL_TOKEN || '';
+app.use('/api/news', createProxyMiddleware({
+  target: 'http://127.0.0.1:8890',
+  changeOrigin: true,
+  pathRewrite: { '^/api/news': '/news' },
+  on: {
+    proxyReq: (proxyReq, req) => {
+      if (req.user) {
+        proxyReq.setHeader('x-nbi-user', JSON.stringify({
+          username: req.user.username,
+          displayName: req.user.display_name,
+          isAdmin: !!req.user.is_admin,
+        }));
+      }
+      proxyReq.setHeader('x-nbi-internal-token', NEWS_INTERNAL_TOKEN);
+    },
+    error: (err, req, res) => {
+      console.error('[news-proxy] error:', err.message);
+      if (!res.headersSent) res.status(502).json({ error: 'news service unavailable' });
+    },
+  },
+}));
+
 /** POST /api/auth/reset-password — Admin-only: forcibly reset any user's password */
 app.post('/api/auth/reset-password', async (req, res) => {
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
