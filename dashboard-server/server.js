@@ -764,7 +764,7 @@ app.get('/api/auth/me', async (req, res) => {
   const { rows } = await pool.query(
     `SELECT u.id, u.username, u.display_name, u.role, u.client_id FROM sessions s
      JOIN users u ON s.user_id = u.id
-     WHERE s.token = $1 AND s.expires_at > NOW()`, [hashed]
+     WHERE s.token = $1 AND s.expires_at > NOW() AND u.is_active = true`, [hashed]
   );
   if (rows.length === 0) return res.status(401).json({ error: 'Session expired' });
   res.json({ user: { id: rows[0].id, username: rows[0].username, displayName: rows[0].display_name, role: rows[0].role, clientId: rows[0].client_id } });
@@ -795,7 +795,7 @@ async function requireAuth(req, res, next) {
     const { rows } = await pool.query(
       `SELECT u.id, u.username, u.display_name, u.role, u.client_id FROM sessions s
        JOIN users u ON s.user_id = u.id
-       WHERE s.token = $1 AND s.expires_at > NOW()`, [hashedToken]
+       WHERE s.token = $1 AND s.expires_at > NOW() AND u.is_active = true`, [hashedToken]
     );
     if (rows.length === 0) return res.status(401).json({ error: 'Session expired' });
     const user = { id: rows[0].id, username: rows[0].username, displayName: rows[0].display_name, role: rows[0].role, clientId: rows[0].client_id };
@@ -835,8 +835,15 @@ async function getClientScopes(req) {
     [req.user?.id]
   );
 
-  // No team memberships: unrestricted (can't filter without team data)
-  if (teams.length === 0) { req._clientScopes = null; return null; }
+  if (teams.length === 0) {
+    const { rows: exceptions } = await pool.query(
+      'SELECT id FROM clients WHERE name = ANY($1)',
+      [ALWAYS_VISIBLE_CLIENTS]
+    );
+    const exceptionIds = exceptions.map(e => e.id);
+    req._clientScopes = exceptionIds.length > 0 ? exceptionIds : ['00000000-0000-0000-0000-000000000000'];
+    return req._clientScopes;
+  }
 
   const teamClientIds = teams.map(t => t.client_id);
 
@@ -1049,6 +1056,8 @@ app.post('/api/auth/change-password', async (req, res) => {
 
   const hash = await bcrypt.hash(newPassword, 10);
   await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [hash, req.user.id]);
+  await pool.query('DELETE FROM sessions WHERE user_id = $1', [req.user.id]);
+  _tokenCache.clear();
   res.json({ ok: true });
 });
 
@@ -1454,6 +1463,68 @@ app.get('/api/backup', requireInternal, async (req, res) => {
   }
 });
 
+const VALID_STATUSES = new Set(['Not started', 'Planning', 'In progress', 'Done', 'Blocked', 'Cancelled']);
+const SETTINGS_KEY_RE = /^[a-zA-Z][a-zA-Z0-9_]{0,63}$/;
+
+function validateRestoreClients(rows) {
+  for (let i = 0; i < rows.length; i++) {
+    const c = rows[i];
+    if (!c.id || !UUID_RE.test(c.id)) return `clients[${i}].id: invalid UUID`;
+    if (!c.name || typeof c.name !== 'string' || c.name.trim().length === 0) return `clients[${i}].name: required`;
+    if (c.name.length > 200) return `clients[${i}].name: too long (max 200)`;
+  }
+  return null;
+}
+
+function validateRestoreTasks(rows) {
+  for (let i = 0; i < rows.length; i++) {
+    const t = rows[i];
+    if (!t.id || !UUID_RE.test(t.id)) return `tasks[${i}].id: invalid UUID`;
+    if (!t.title || typeof t.title !== 'string' || t.title.trim().length === 0) return `tasks[${i}].title: required`;
+    if (t.title.length > 500) return `tasks[${i}].title: too long (max 500)`;
+    if (t.status && !VALID_STATUSES.has(t.status)) return `tasks[${i}].status: invalid value "${t.status}"`;
+    if (t.parent_id && !UUID_RE.test(t.parent_id)) return `tasks[${i}].parent_id: invalid UUID`;
+    if (t.client_id && !UUID_RE.test(t.client_id)) return `tasks[${i}].client_id: invalid UUID`;
+  }
+  return null;
+}
+
+function validateRestoreSettings(rows) {
+  for (let i = 0; i < rows.length; i++) {
+    const s = rows[i];
+    if (!s.key || typeof s.key !== 'string') return `settings[${i}].key: required`;
+    if (!SETTINGS_KEY_RE.test(s.key)) return `settings[${i}].key: invalid format`;
+  }
+  return null;
+}
+
+function validateRestoreLeads(rows) {
+  for (let i = 0; i < rows.length; i++) {
+    const l = rows[i];
+    if (!l.id || !UUID_RE.test(l.id)) return `leads[${i}].id: invalid UUID`;
+    if (!l.title || typeof l.title !== 'string') return `leads[${i}].title: required`;
+    if (l.client_id && !UUID_RE.test(l.client_id)) return `leads[${i}].client_id: invalid UUID`;
+    if (l.stage_id && !UUID_RE.test(l.stage_id)) return `leads[${i}].stage_id: invalid UUID`;
+  }
+  return null;
+}
+
+function validateRestoreUsers(rows) {
+  for (let i = 0; i < rows.length; i++) {
+    const u = rows[i];
+    if (!u.id || !UUID_RE.test(u.id)) return `users[${i}].id: invalid UUID`;
+    if (u.role && !['admin', 'member'].includes(u.role)) return `users[${i}].role: invalid`;
+  }
+  return null;
+}
+
+function validateRestoreGenericUUID(rows, tableName) {
+  for (let i = 0; i < rows.length; i++) {
+    if (!rows[i].id || !UUID_RE.test(rows[i].id)) return `${tableName}[${i}].id: invalid UUID`;
+  }
+  return null;
+}
+
 /**
  * POST /api/restore
  * Restore dashboard data from a backup JSON payload (admin only).
@@ -1465,6 +1536,28 @@ app.post('/api/restore', async (req, res) => {
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   const { backup } = req.body;
   if (!backup || !backup.tables) return res.status(400).json({ error: 'Invalid backup format' });
+
+  const validators = [
+    ['clients', validateRestoreClients],
+    ['tasks', validateRestoreTasks],
+    ['settings', validateRestoreSettings],
+    ['leads', validateRestoreLeads],
+    ['users', validateRestoreUsers],
+  ];
+  for (const [table, validator] of validators) {
+    if (backup.tables[table] && Array.isArray(backup.tables[table])) {
+      const err = validator(backup.tables[table]);
+      if (err) return res.status(400).json({ error: `Restore validation failed: ${err}` });
+    }
+  }
+  for (const table of ['task_comments', 'expenses', 'audit_log', 'bug_reports', 'bug_report_comments',
+      'calendar_events', 'teams', 'team_members', 'hiring_positions', 'candidates', 'sows']) {
+    if (backup.tables[table] && Array.isArray(backup.tables[table])) {
+      const err = validateRestoreGenericUUID(backup.tables[table], table);
+      if (err) return res.status(400).json({ error: `Restore validation failed: ${err}` });
+    }
+  }
+
   const conn = await pool.connect();
   try {
     await conn.query('BEGIN');
@@ -4936,11 +5029,18 @@ app.post('/api/tasks/:taskId/notes', async (req, res) => {
 
 // ==================== SETTINGS ====================
 
-/** GET /api/settings — Return all settings as a key-value object */
+/** GET /api/settings — Return settings as a key-value object (external users see only safe keys) */
 app.get('/api/settings', async (req, res) => {
+  const SETTINGS_ALLOW = new Set([
+    'currency', 'hourly_rate', 'hourlyRate', 'date_format', 'dateFormat',
+    'timezone', 'client_priority', 'clientPriority',
+  ]);
+  const isExternal = !!req.user?.clientId;
   const { rows } = await pool.query('SELECT key, value FROM settings');
   const obj = {};
-  rows.forEach(r => { obj[r.key] = r.value; });
+  rows.forEach(r => {
+    if (!isExternal || SETTINGS_ALLOW.has(r.key)) obj[r.key] = r.value;
+  });
   res.json(obj);
 });
 
@@ -4964,9 +5064,12 @@ app.put('/api/settings/:key', async (req, res) => {
  * Optionally filtered by client_id.
  */
 app.get('/api/dashboard/summary', async (req, res) => {
-  const { client_id } = req.query;
+  const scopes = await getClientScopes(req);
+  let { client_id } = req.query;
+  if (scopes && scopes.length === 1) client_id = scopes[0];
   let clientFilter = ''; let vals = [];
   if (client_id) { clientFilter = 'WHERE t.client_id = $1'; vals = [client_id]; }
+  else if (scopes && scopes.length > 1) { clientFilter = 'WHERE t.client_id = ANY($1)'; vals = [scopes]; }
 
   const stats = await pool.query(`
     SELECT
@@ -4986,16 +5089,21 @@ app.get('/api/dashboard/summary', async (req, res) => {
     FROM tasks t ${clientFilter}
   `, vals);
 
-  const byClient = await pool.query(`
+  let byClientQuery = `
     SELECT c.id, c.name,
       count(t.id) as task_count,
       count(t.id) FILTER (WHERE t.status = 'Done') as done_count,
       COALESCE(sum(t.hours_estimated), 0) as hours_estimated,
       COALESCE(sum(t.hours_spent), 0) as hours_spent
     FROM clients c
-    LEFT JOIN tasks t ON t.client_id = c.id
-    GROUP BY c.id, c.name ORDER BY c.name
-  `);
+    LEFT JOIN tasks t ON t.client_id = c.id`;
+  let byClientVals = [];
+  if (scopes) {
+    byClientQuery += ' WHERE c.id = ANY($1)';
+    byClientVals = [scopes];
+  }
+  byClientQuery += ' GROUP BY c.id, c.name ORDER BY c.name';
+  const byClient = await pool.query(byClientQuery, byClientVals);
 
   const byAssignee = await pool.query(`
     SELECT unnest(assignees) as assignee, count(*) as task_count,
@@ -5238,15 +5346,22 @@ app.get('/api/leads', async (req, res) => {
 
 /** GET /api/leads/reminders — Return open leads whose follow-up date is today or overdue */
 app.get('/api/leads/reminders', async (req, res) => {
+  const scopes = await getClientScopes(req);
+  let scopeFilter = '';
+  let vals = [];
+  if (scopes) {
+    scopeFilter = ' AND l.client_id = ANY($1)';
+    vals = [scopes];
+  }
   const { rows } = await pool.query(`
     SELECT l.id, l.title, l.next_followup_date, l.next_action, l.deal_owner,
       c.name as client_name, s.name as stage_name
     FROM leads l
     LEFT JOIN clients c ON l.client_id = c.id
     JOIN lead_pipeline_stages s ON l.stage_id = s.id
-    WHERE l.next_followup_date <= CURRENT_DATE AND s.is_closed = false
+    WHERE l.next_followup_date <= CURRENT_DATE AND s.is_closed = false${scopeFilter}
     ORDER BY l.next_followup_date ASC
-  `);
+  `, vals);
   res.json(rows);
 });
 
@@ -5256,10 +5371,14 @@ app.get('/api/leads/reminders', async (req, res) => {
  * Grouped by currency. Also returns FX rates from settings for GBP conversion.
  */
 app.get('/api/leads/pipeline/summary', async (req, res) => {
+  const scopes = await getClientScopes(req);
   const { sector } = req.query;
-  let sectorFilter = '';
+  let filters = [];
   let vals = [];
-  if (sector) { sectorFilter = 'AND c.sector = $1'; vals = [sector]; }
+  let i = 1;
+  if (sector) { filters.push(`c.sector = $${i}`); vals.push(sector); i++; }
+  if (scopes) { filters.push(`l.client_id = ANY($${i})`); vals.push(scopes); i++; }
+  const whereClause = filters.length > 0 ? 'WHERE ' + filters.join(' AND ') : '';
 
   const byStage = await pool.query(`
     SELECT s.id, s.name, s.colour, s.sort_order, s.is_closed, s.is_won,
@@ -5270,12 +5389,11 @@ app.get('/api/leads/pipeline/summary', async (req, res) => {
     FROM lead_pipeline_stages s
     LEFT JOIN leads l ON l.stage_id = s.id
     LEFT JOIN clients c ON l.client_id = c.id
-    WHERE 1=1 ${sectorFilter}
+    ${whereClause}
     GROUP BY s.id, s.name, s.colour, s.sort_order, s.is_closed, s.is_won
     ORDER BY s.sort_order
   `, vals);
 
-  // FX rates (stored in settings) let the frontend convert USD/EUR pipeline values to GBP
   const fxResult = await pool.query("SELECT value FROM settings WHERE key = 'fx_rates'");
   const fxRates = fxResult.rows.length > 0 ? fxResult.rows[0].value : { USD: 0.79, EUR: 0.86 };
 
@@ -5284,6 +5402,13 @@ app.get('/api/leads/pipeline/summary', async (req, res) => {
 
 /** GET /api/leads/pipeline/forecast — Monthly revenue forecast from open deals with expected close dates */
 app.get('/api/leads/pipeline/forecast', async (req, res) => {
+  const scopes = await getClientScopes(req);
+  let scopeFilter = '';
+  let vals = [];
+  if (scopes) {
+    scopeFilter = ' AND l.client_id = ANY($1)';
+    vals = [scopes];
+  }
   const { rows } = await pool.query(`
     SELECT
       to_char(l.expected_close_date, 'YYYY-MM') as month,
@@ -5293,10 +5418,10 @@ app.get('/api/leads/pipeline/forecast', async (req, res) => {
       COALESCE(sum(l.rom_max), 0) as total_rom
     FROM leads l
     JOIN lead_pipeline_stages s ON l.stage_id = s.id
-    WHERE l.expected_close_date IS NOT NULL AND s.is_closed = false
+    WHERE l.expected_close_date IS NOT NULL AND s.is_closed = false${scopeFilter}
     GROUP BY to_char(l.expected_close_date, 'YYYY-MM'), l.currency
     ORDER BY month
-  `);
+  `, vals);
   res.json(rows);
 });
 
@@ -6022,29 +6147,37 @@ app.post('/api/expenses/from-receipt', requireInternal, upload.single('file'), a
       ocrBody.append('OCREngine', '2'); // Engine 2 is better for receipts
       ocrBody.append('scale', 'true');
 
-      const ocrApiKey = process.env.OCR_API_KEY || 'helloworld'; // 'helloworld' is ocr.space's free demo key
-      const ocrResp = await ocrBreaker.fire(() => withRetry(
-        () => fetch('https://api.ocr.space/parse/image', { method: 'POST', headers: { 'apikey': ocrApiKey }, body: ocrBody, signal: AbortSignal.timeout(30000) }),
-        { maxAttempts: 2, backoffMs: 2000, log }
-      ));
-      if (ocrResp.ok) {
-        const ocrResult = await ocrResp.json();
-        if (ocrResult.ParsedResults && ocrResult.ParsedResults.length > 0) {
-          text = ocrResult.ParsedResults[0].ParsedText || '';
-          ocrMethod = 'ocr.space';
-          log('info', 'Receipt', `OCR.space extracted ${text.length} chars`);
-        } else {
-          log('warn', 'Receipt', 'OCR.space returned no results', { error: ocrResult.ErrorMessage || 'unknown' });
-          ocrMethod = 'ocr.space-empty';
-        }
-      } else {
-        log('warn', 'Receipt', 'OCR.space HTTP error', { status: ocrResp.status });
-        // Fallback to local Tesseract
+      const ocrApiKey = process.env.OCR_API_KEY;
+      if (!ocrApiKey) {
+        log('warn', 'Receipt', 'OCR_API_KEY not set, skipping external OCR');
         if (mime.startsWith('image/') && !mime.includes('heic')) {
-          log('info', 'Receipt', 'Falling back to local Tesseract');
           const { data } = await Tesseract.recognize(filePath, 'eng', { logger: () => {} });
           text = data.text || '';
-          ocrMethod = 'tesseract-fallback';
+          ocrMethod = 'tesseract-local';
+        }
+      } else {
+        const ocrResp = await ocrBreaker.fire(() => withRetry(
+          () => fetch('https://api.ocr.space/parse/image', { method: 'POST', headers: { 'apikey': ocrApiKey }, body: ocrBody, signal: AbortSignal.timeout(30000) }),
+          { maxAttempts: 2, backoffMs: 2000, log }
+        ));
+        if (ocrResp.ok) {
+          const ocrResult = await ocrResp.json();
+          if (ocrResult.ParsedResults && ocrResult.ParsedResults.length > 0) {
+            text = ocrResult.ParsedResults[0].ParsedText || '';
+            ocrMethod = 'ocr.space';
+            log('info', 'Receipt', `OCR.space extracted ${text.length} chars`);
+          } else {
+            log('warn', 'Receipt', 'OCR.space returned no results', { error: ocrResult.ErrorMessage || 'unknown' });
+            ocrMethod = 'ocr.space-empty';
+          }
+        } else {
+          log('warn', 'Receipt', 'OCR.space HTTP error', { status: ocrResp.status });
+          if (mime.startsWith('image/') && !mime.includes('heic')) {
+            log('info', 'Receipt', 'Falling back to local Tesseract');
+            const { data } = await Tesseract.recognize(filePath, 'eng', { logger: () => {} });
+            text = data.text || '';
+            ocrMethod = 'tesseract-fallback';
+          }
         }
       }
     } else if (!text) {

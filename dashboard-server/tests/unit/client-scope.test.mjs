@@ -15,7 +15,7 @@ const require = createRequire(import.meta.url);
 const request = require('supertest');
 const { pool, truncate } = require('../helpers/db.js');
 const { mintSession } = require('../helpers/auth.js');
-const { createTestUser, createTestClient, createTestTask } = require('../helpers/fixtures.js');
+const { createTestUser, createTestClient, createTestTask, createTestLead, createTestLeadStage } = require('../helpers/fixtures.js');
 const app = require('../../server.js');
 
 beforeEach(async () => { await truncate(); });
@@ -44,6 +44,25 @@ describe('Client-scoped users', () => {
 
     return { clientA, clientB, admin, adminToken, scoped, scopedToken, taskA, taskB };
   }
+
+  it('internal user with no team gets empty scope (not unrestricted)', async () => {
+    const clientA = await createTestClient({ name: 'Client A' });
+    const clientB = await createTestClient({ name: 'Client B' });
+
+    const noTeam = await createTestUser({ username: 'orphan', role: 'member' });
+    const noTeamToken = await mintSession(noTeam.id);
+
+    await createTestTask({ title: 'Task A', client_id: clientA.id });
+    await createTestTask({ title: 'Task B', client_id: clientB.id });
+
+    const res = await request(app)
+      .get('/api/tasks')
+      .set('Authorization', `Bearer ${noTeamToken}`);
+    expect(res.status).toBe(200);
+    const titles = res.body.map(t => t.title);
+    expect(titles).not.toContain('Task A');
+    expect(titles).not.toContain('Task B');
+  });
 
   it('scoped user only sees tasks for their client', async () => {
     const { scopedToken, taskA, taskB } = await createScopedSetup();
@@ -131,5 +150,56 @@ describe('Client-scoped users', () => {
       .send({ username: scoped.username, password: scoped.raw_password });
     expect(res.status).toBe(200);
     expect(res.body.user.clientId).toBe(clientA.id);
+  });
+
+  it('scoped user only sees whitelisted settings from GET /api/settings', async () => {
+    const { adminToken, scopedToken } = await createScopedSetup();
+
+    await pool.query("INSERT INTO settings (key, value) VALUES ('expense_approver', '\"tom\"') ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value");
+    await pool.query("INSERT INTO settings (key, value) VALUES ('currency', '\"GBP\"') ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value");
+
+    const adminRes = await request(app)
+      .get('/api/settings')
+      .set('Authorization', `Bearer ${adminToken}`);
+    expect(adminRes.status).toBe(200);
+    expect(adminRes.body).toHaveProperty('expense_approver');
+    expect(adminRes.body).toHaveProperty('currency');
+
+    const scopedRes = await request(app)
+      .get('/api/settings')
+      .set('Authorization', `Bearer ${scopedToken}`);
+    expect(scopedRes.status).toBe(200);
+    expect(scopedRes.body).not.toHaveProperty('expense_approver');
+    expect(scopedRes.body).toHaveProperty('currency');
+  });
+
+  it('scoped user only sees their client in leads/pipeline/summary', async () => {
+    const { clientA, clientB, scopedToken } = await createScopedSetup();
+
+    const stage = await createTestLeadStage({ name: 'Discovery' });
+    try {
+      await createTestLead({ client_id: clientA.id, stage_id: stage.id, title: 'Lead A' });
+      await createTestLead({ client_id: clientB.id, stage_id: stage.id, title: 'Lead B' });
+
+      const scopedRes = await request(app)
+        .get('/api/leads/pipeline/summary')
+        .set('Authorization', `Bearer ${scopedToken}`);
+      expect(scopedRes.status).toBe(200);
+      const totalDeals = scopedRes.body.byStage.reduce((sum, s) => sum + s.deal_count, 0);
+      expect(totalDeals).toBeLessThanOrEqual(1);
+    } finally {
+      await pool.query('DELETE FROM leads WHERE stage_id = $1', [stage.id]);
+      await pool.query('DELETE FROM lead_pipeline_stages WHERE id = $1', [stage.id]);
+    }
+  });
+
+  it('dashboard summary is scoped for external users', async () => {
+    const { scopedToken } = await createScopedSetup();
+    const res = await request(app)
+      .get('/api/dashboard/summary')
+      .set('Authorization', `Bearer ${scopedToken}`);
+    expect(res.status).toBe(200);
+    const clientNames = res.body.by_client.map(c => c.name);
+    expect(clientNames).not.toContain('Client B');
   });
 });

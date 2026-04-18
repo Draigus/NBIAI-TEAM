@@ -3000,9 +3000,9 @@ function uid() {
 /** Get direct children of a task by parent ID */
 function getChildren(parentId) { return tasks.filter(t => t.parentId === parentId); }
 /** Walk up the task tree to find the root ancestor (the project-level task) */
-function getRootAncestor(task) { if (!task.parentId) return task; const p = tasks.find(t => t.id === task.parentId); return p ? getRootAncestor(p) : task; }
+function getRootAncestor(task) { const visited = new Set(); let cur = task; while (cur && cur.parentId) { if (visited.has(cur.id)) return cur; visited.add(cur.id); const p = tasks.find(t => t.id === cur.parentId); if (!p) return cur; cur = p; } return cur || task; }
 /** Get all descendants of a task (children, grandchildren, etc.) — O(n) recursive */
-function getDescendants(taskId) { const kids = getChildren(taskId); let all = [...kids]; kids.forEach(k => all.push(...getDescendants(k.id))); return all; }
+function getDescendants(taskId, _visited) { const seen = _visited || new Set(); if (seen.has(taskId)) return []; seen.add(taskId); const kids = getChildren(taskId); let all = [...kids]; kids.forEach(k => all.push(...getDescendants(k.id, seen))); return all; }
 /** Get the client name for a task — inherits from root ancestor if not set directly */
 function getTaskClient(task) { if (task.client) return task.client; const root = getRootAncestor(task); return root.client || ''; }
 // Client prefix: 2-3 letter code from client name

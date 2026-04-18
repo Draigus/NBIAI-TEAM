@@ -11,7 +11,8 @@ import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 
 const request = require('supertest');
-const { truncate } = require('../helpers/db.js');
+const { pool, truncate } = require('../helpers/db.js');
+const { mintSession } = require('../helpers/auth.js');
 const { createTestUser } = require('../helpers/fixtures.js');
 const app = require('../../server.js');
 
@@ -70,5 +71,41 @@ describe('auth flow', () => {
       .get('/api/auth/me')
       .set('Authorization', `Bearer ${token}`);
     expect(after.status).toBe(401);
+  });
+
+  it('deactivated user is rejected by GET /api/auth/me', async () => {
+    const user = await createTestUser({ role: 'admin' });
+    const token = await mintSession(user.id);
+    await pool.query('UPDATE users SET is_active = false WHERE id = $1', [user.id]);
+    const res = await request(app)
+      .get('/api/auth/me')
+      .set('Authorization', `Bearer ${token}`);
+    expect(res.status).toBe(401);
+  });
+
+  it('deactivated user is rejected by requireAuth middleware', async () => {
+    const user = await createTestUser({ role: 'admin' });
+    const token = await mintSession(user.id);
+    await pool.query('UPDATE users SET is_active = false WHERE id = $1', [user.id]);
+    const res = await request(app)
+      .get('/api/tasks')
+      .set('Authorization', `Bearer ${token}`);
+    expect(res.status).toBe(401);
+  });
+
+  it('change-password invalidates other sessions', async () => {
+    const user = await createTestUser({ role: 'admin' });
+    const token1 = await mintSession(user.id);
+    const token2 = await mintSession(user.id);
+
+    await request(app)
+      .post('/api/auth/change-password')
+      .set('Authorization', `Bearer ${token1}`)
+      .send({ currentPassword: user.raw_password, newPassword: 'NewPass123!' });
+
+    const res = await request(app)
+      .get('/api/auth/me')
+      .set('Authorization', `Bearer ${token2}`);
+    expect(res.status).toBe(401);
   });
 });
