@@ -116,7 +116,11 @@ interface AgentCostsResponse {
 // Constants
 // ---------------------------------------------------------------------------
 
-const USD_TO_GBP = 1.27
+// GBP per 1 USD. Sourced from VITE_GBP_USD_RATE at build time; matches
+// the server's GBP_USD_RATE env var semantics in src/routes/finance.ts.
+// Default 0.79 reflects Q1 2026 pricing; update the env var when it
+// drifts. Fully dynamic FX (live rate lookup) is deferred.
+const GBP_PER_USD = Number(import.meta.env.VITE_GBP_USD_RATE ?? '0.79') || 0.79
 const MONTHLY_TARGET = 50_000
 
 // NSI scenario data (static, based on NBI Brain)
@@ -164,7 +168,7 @@ const NSI_SCENARIOS = [
 // ---------------------------------------------------------------------------
 
 function usdToGbp(usd: number): number {
-  return usd / USD_TO_GBP
+  return usd * GBP_PER_USD
 }
 
 function pct(value: number, total: number): number {

@@ -560,7 +560,9 @@ export async function financeRoutes(fastify: FastifyInstance): Promise<void> {
 
       // Agent costs: no-API architecture uses flat Max plan (GBP 180/month).
       // Cost logs track estimated session costs for capacity planning.
-      const GBP_PER_USD = 1 / 1.27
+      // FX rate comes from GBP_USD_RATE env var (GBP per 1 USD). Default
+      // 0.79 reflects Q1 2026 pricing; update the env var when it drifts.
+      const GBP_PER_USD = parseFloat(process.env.GBP_USD_RATE ?? '0.79')
 
       const [agentCostResult] = await db
         .select({
