@@ -121,7 +121,7 @@ await fastify.register(fastifyWebsocket)
 // Static files (serves the built React client in production)
 // ---------------------------------------------------------------------------
 
-const clientDistPath = join(__dirname, '..', '..', 'client', 'dist')
+const clientDistPath = join(__dirname, '..', 'client', 'dist')
 
 if (NODE_ENV === 'production') {
   await fastify.register(fastifyStatic, {
