@@ -83,11 +83,15 @@ export default function LoginPage() {
       navigate('/dashboard', { replace: true })
     } catch (err: unknown) {
       clearTimeout(timeoutId)
-      const status = (err as { status?: number })?.status
+      // apiFetch throws the parsed JSON body directly ({ error: { code,
+      // message } }) rather than an Error with a `status` property, so
+      // branching on err.status was dead code. Read the server-issued
+      // error code; treat anything else (fetch TypeError, parse failure,
+      // missing code) as a network-level failure.
       const code = (err as { error?: { code?: string } })?.error?.code
-      if (status === 401 || code === 'UNAUTHORIZED') {
+      if (code === 'UNAUTHORIZED') {
         setError('invalid_credentials')
-      } else if (status === 403 || code === 'FORBIDDEN') {
+      } else if (code === 'FORBIDDEN') {
         setError('account_inactive')
       } else {
         setError('network_error')
