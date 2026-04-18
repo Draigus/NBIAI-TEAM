@@ -1926,7 +1926,15 @@ span.fin-editable { display: inline-block; position: relative; }
 /* ---------- News aggregator (M3) ---------- */
 /* Editorial-style layout; lives inside #mainContent when currentView === 'news' */
 
-.news-page { max-width: 1240px; margin: 0 auto; padding: 24px 32px 64px; font-family: var(--font-body, system-ui, -apple-system, sans-serif); }
+.news-page {
+  /* Map generic news CSS tokens onto the Dashboard's design system so the
+     theme (dark by default, light via data-theme="light") is respected. */
+  --text: var(--text-primary);
+  --bg: var(--bg-raised);
+  --bg-alt: var(--bg-surface);
+  --border: var(--border-default);
+  max-width: 1240px; margin: 0 auto; padding: 24px 32px 64px; font-family: var(--font-body, system-ui, -apple-system, sans-serif);
+}
 .news-page__header { border-bottom: 1px solid var(--border, #e5e7eb); padding-bottom: 16px; margin-bottom: 28px; }
 .news-page__header h1 { margin: 0 0 4px 0; font-size: 30px; font-weight: 700; line-height: 1.15; color: var(--text, #111); }
 .news-page__meta { margin: 0; font-size: 13px; color: var(--text-muted, #6b7280); }
@@ -18168,22 +18176,22 @@ let _newsState = {
 
 const newsApi = {
   async loadCurrent() {
-    const r = await fetch('/api/news/digests/current', { credentials: 'same-origin' });
+    const r = await authFetch('/api/news/digests/current');
     if (!r.ok) throw new Error('news service unavailable (HTTP ' + r.status + ')');
     return r.json();
   },
   async loadDigest(id) {
-    const r = await fetch('/api/news/digests/' + encodeURIComponent(id), { credentials: 'same-origin' });
+    const r = await authFetch('/api/news/digests/' + encodeURIComponent(id));
     if (!r.ok) throw new Error('digest not found (HTTP ' + r.status + ')');
     return r.json();
   },
   async loadArchive() {
-    const r = await fetch('/api/news/digests/archive?limit=48', { credentials: 'same-origin' });
+    const r = await authFetch('/api/news/digests/archive?limit=48');
     if (!r.ok) throw new Error('archive unavailable (HTTP ' + r.status + ')');
     return r.json();
   },
   async loadMonthlySummary(id) {
-    const r = await fetch('/api/news/monthly-summaries/' + encodeURIComponent(id), { credentials: 'same-origin' });
+    const r = await authFetch('/api/news/monthly-summaries/' + encodeURIComponent(id));
     if (!r.ok) throw new Error('monthly summary not found (HTTP ' + r.status + ')');
     return r.json();
   },

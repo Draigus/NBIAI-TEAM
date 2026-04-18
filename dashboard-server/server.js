@@ -971,7 +971,7 @@ const NEWS_INTERNAL_TOKEN = process.env.NEWS_INTERNAL_TOKEN || '';
 app.use('/api/news', createProxyMiddleware({
   target: 'http://127.0.0.1:8890',
   changeOrigin: true,
-  pathRewrite: { '^/api/news': '/news' },
+  pathRewrite: (path) => '/news' + path,
   on: {
     proxyReq: (proxyReq, req) => {
       if (req.user) {
