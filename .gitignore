@@ -12,6 +12,7 @@ queue/failed/*.json
 .env.local
 .env.production
 .env.test
+.env.bak-*
 dashboard-server/.env.test
 
 # Test infrastructure
@@ -39,6 +40,9 @@ dashboard-server/uploads/
 # Sensitive seed data (salaries, client details)
 dashboard-server/finance-seed.json
 dashboard-server/seed-data.csv
+
+# Archive / migration backups
+_archive/
 
 # OS files
 .DS_Store

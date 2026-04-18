@@ -133,3 +133,9 @@ When the system warns that context is getting heavy (approaching limits), Claude
 - Session logs: `projects/nbi_dashboard/session_logs/`
 - Live state: `projects/nbi_dashboard/live_state/`
 - Handoffs: `projects/nbi_dashboard/session_handoffs/`
+
+## Risky Edits — Worktree First
+
+- Any change touching >3 files in `dashboard-server/` or `nbi_project_dashboard.html`: create a worktree first via the using-git-worktrees skill. Master branch stays clean; if the change goes sideways, drop the worktree.
+- Any change where the agent has low confidence or is working with incomplete information: worktree first. State the uncertainty before starting.
+- Experimental refactors: always worktree.

@@ -599,32 +599,44 @@ export async function financeRoutes(fastify: FastifyInstance): Promise<void> {
         }
       }
 
-      // Monthly target: from company settings or 50000 default
+      // Monthly target: hardcoded 50000 for now; audit finding #39 tracks
+      // moving this to company settings. ytdTarget + ytdRevenue use the
+      // month number (1-12) as the elapsed-months multiplier, treating
+      // active retainers as contracted-for-the-full-year-to-date.
       const monthlyTarget = 50000
+      const monthsElapsed = new Date().getMonth() + 1
+      const ytdTarget = monthlyTarget * monthsElapsed
+      const ytdRevenue =
+        Math.round(monthlyContracted * monthsElapsed * 100) / 100
+
+      // Operating costs are not yet tracked in the schema (audit finding
+      // #91 notes this). Returning 0 rather than undefined keeps the
+      // client's arithmetic stable until a source exists.
+      const monthlyOperatingCosts = 0
 
       const net =
         Math.round(
-          (monthlyContracted - monthlyPayroll - monthlyAgentCosts) * 100,
+          (monthlyContracted -
+            monthlyPayroll -
+            monthlyAgentCosts -
+            monthlyOperatingCosts) *
+            100,
         ) / 100
 
       return reply.send({
         data: {
-          revenue: {
-            monthlyContracted: Math.round(monthlyContracted * 100) / 100,
-            annualContracted: Math.round(annualContracted * 100) / 100,
-            monthlyTarget,
-          },
-          costs: {
-            monthlyPayroll: Math.round(monthlyPayroll * 100) / 100,
-            monthlyAgentCosts,
-          },
-          net: {
-            monthly: net,
-          },
-          pipeline: {
-            totalValue: Math.round(totalPipelineValue * 100) / 100,
-            weightedValue: Math.round(weightedPipelineValue * 100) / 100,
-          },
+          monthlyRevenue: Math.round(monthlyContracted * 100) / 100,
+          monthlyTarget,
+          ytdRevenue,
+          ytdTarget,
+          monthlyPayroll: Math.round(monthlyPayroll * 100) / 100,
+          monthlyAgentCosts,
+          monthlyOperatingCosts,
+          netMonthly: net,
+          annualContracted: Math.round(annualContracted * 100) / 100,
+          pipelineTotalValue: Math.round(totalPipelineValue * 100) / 100,
+          pipelineWeightedValue:
+            Math.round(weightedPipelineValue * 100) / 100,
         },
       })
     },

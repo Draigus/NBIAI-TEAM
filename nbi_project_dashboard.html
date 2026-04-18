@@ -3980,6 +3980,12 @@ function renderDashboard(el) {
 
   html += renderTacticalDashboard();
   el.innerHTML = html;
+
+  // Populate standup AFTER innerHTML so the container is in the DOM
+  const standupExpanded = sessionStorage.getItem('nbi_standup_expanded') === '1';
+  if (standupExpanded) {
+    _loadStandupContent();
+  }
 }
 
 // ===== TACTICAL DASHBOARD — "What needs attention right now?" =====
@@ -4165,23 +4171,13 @@ function renderTacticalDashboard() {
   // re-renders within the session but resets fresh each new tab/session.
   const standupExpanded = sessionStorage.getItem('nbi_standup_expanded') === '1';
   html += `<div style="margin-top:var(--space-lg)">
-    <button aria-expanded="${standupExpanded}" aria-controls="standupContainer" style="cursor:pointer;display:flex;align-items:center;gap:8px;padding:8px 0;font:inherit;color:inherit;background:none;border:none;text-align:left;width:100%" onclick="const c=this.nextElementSibling;const open=c.style.display!=='none';c.style.display=open?'none':'block';this.setAttribute('aria-expanded',open?'false':'true');this.querySelector('.standup-chevron').textContent=open?'\\u25B6':'\\u25BC';this.querySelector('.standup-hint').textContent=open?'(click to expand)':'(click to collapse)';sessionStorage.setItem('nbi_standup_expanded',open?'0':'1')">
+    <button aria-expanded="${standupExpanded}" aria-controls="standupContainer" style="cursor:pointer;display:flex;align-items:center;gap:8px;padding:8px 0;font:inherit;color:inherit;background:none;border:none;text-align:left;width:100%" onclick="const c=this.nextElementSibling;const open=c.style.display!=='none';c.style.display=open?'none':'block';this.setAttribute('aria-expanded',open?'false':'true');this.querySelector('.standup-chevron').textContent=open?'\\u25B6':'\\u25BC';this.querySelector('.standup-hint').textContent=open?'(click to expand)':'(click to collapse)';sessionStorage.setItem('nbi_standup_expanded',open?'0':'1');if(!open){_loadStandupContent();}">
       <span class="standup-chevron" style="font-size:0.7rem;color:var(--text-muted);width:14px">${standupExpanded ? '\u25BC' : '\u25B6'}</span>
       <span style="font-size:0.9rem;font-weight:600">&#128101; Team Standup - Work by Person</span>
       <span class="standup-hint" style="font-size:0.72rem;color:var(--text-muted);font-weight:400">${standupExpanded ? '(click to collapse)' : '(click to expand)'}</span>
     </button>
     <div id="standupContainer" style="display:${standupExpanded ? 'block' : 'none'}"><div style="text-align:center;color:var(--text-muted);padding:20px">Loading team...</div></div>
   </div>`;
-
-  // Render standup synchronously if we have cached team members, defer only on first load.
-  // This prevents the scroll-flash on re-renders (remote sync, field changes).
-  if (standupExpanded) {
-    if (_cachedTeamMembers && _cachedTeamMembers.length > 0) {
-      renderStandupSectionSync(filtered, now, _cachedTeamMembers);
-    } else {
-      setTimeout(() => renderStandupSection(filtered, now), 50);
-    }
-  }
 
   return html;
 }
@@ -4367,8 +4363,18 @@ function standupAssigneeHtml(taskId, assignees) {
   return h;
 }
 
-/** Fetch NBI team from /api/users and render the standup breakdown */
-/** Synchronous standup render using cached team members — no scroll flash */
+function _loadStandupContent() {
+  const container = document.getElementById('standupContainer');
+  if (!container) return;
+  const filtered = getFilteredTasks();
+  const now = new Date(); now.setHours(0,0,0,0);
+  if (_cachedTeamMembers && _cachedTeamMembers.length > 0) {
+    _renderStandupBody(container, filtered, now, _cachedTeamMembers);
+  } else {
+    renderStandupSection(filtered, now);
+  }
+}
+
 function renderStandupSectionSync(filtered, now, teamMembers) {
   const container = document.getElementById('standupContainer');
   if (!container) return;

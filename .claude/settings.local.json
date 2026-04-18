@@ -74,9 +74,32 @@
       "Skill(claude-api)",
       "Skill(claude-api:*)",
       "Bash(pm2 env *)",
-      "Bash(railway --version)"
-    ]
+      "Bash(railway --version)",
+      "Skill(update-config)",
+      "Skill(update-config:*)",
+      "Read(//c/Users/gpbea/**)",
+      "Bash(claude mcp *)",
+      "Bash(Get-Date -Format yyyy-MM-dd)",
+      "Bash(powershell -Command \"Compress-Archive -Path 'C:\\\\Users\\\\gpbea\\\\AppData\\\\Roaming\\\\Claude' -DestinationPath 'D:\\\\OneDrive\\\\Claude_code\\\\NBIAI_TEAM\\\\_archive\\\\claude_desktop_backup_$\\(Get-Date -Format yyyy-MM-dd\\).zip' -Force\")",
+      "PowerShell(Get-ChildItem \"D:\\\\OneDrive\\\\Claude_code\\\\NBIAI_TEAM\\\\_archive\\\\\" -Recurse | Select-Object FullName, @{N='Size_MB';E={\"{0:N2}\" -f \\($_.Length/1MB\\)}} | Format-Table -AutoSize)",
+      "Bash(tar -rf D:/OneDrive/Claude_code/NBIAI_TEAM/_archive/claude_desktop_backup_2026-04-18.tar --ignore-failed-read claude_desktop_config.json buddy-tokens.json bridge-state.json git-worktrees.json)",
+      "Bash(cp \"C:/Users/gpbea/AppData/Roaming/Claude/claude_desktop_config.json\" \"D:/OneDrive/Claude_code/NBIAI_TEAM/_archive/claude_desktop_config.json\")",
+      "Bash(cp \"C:/Users/gpbea/AppData/Roaming/Claude/buddy-tokens.json\" \"D:/OneDrive/Claude_code/NBIAI_TEAM/_archive/buddy-tokens.json\")",
+      "Bash(cp \"C:/Users/gpbea/AppData/Roaming/Claude/bridge-state.json\" \"D:/OneDrive/Claude_code/NBIAI_TEAM/_archive/bridge-state.json\")",
+      "Bash(cp \"C:/Users/gpbea/AppData/Roaming/Claude/git-worktrees.json\" \"D:/OneDrive/Claude_code/NBIAI_TEAM/_archive/git-worktrees.json\")",
+      "PowerShell(*)",
+      "Bash(git log *)",
+      "Bash(xargs wc *)",
+      "Bash(awk '{print $1}')",
+      "Bash(echo \"---EXIT:$?\")",
+      "Bash(git worktree *)",
+      "Bash(git -C .claude/worktrees/agent-a97850f3 status --short)",
+      "Bash(git branch *)",
+      "Bash(git rm *)"
+    ],
+    "defaultMode": "dontAsk"
   },
+  "model": "claude-opus-4-6",
   "hooks": {
     "PostToolUse": [
       {
