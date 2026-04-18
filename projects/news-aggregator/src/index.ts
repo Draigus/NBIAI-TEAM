@@ -7,6 +7,7 @@ import dotenv from 'dotenv'
 dotenv.config({ override: true })
 
 import Fastify from 'fastify'
+import { timingSafeEqual } from 'node:crypto'
 import { loadConfig } from './config.js'
 import { healthRoutes } from './routes/health.js'
 import { mediaRoutes } from './routes/media.js'
@@ -17,7 +18,45 @@ import { startCronJobs } from './scheduler/cron.js'
 import { healthcheckAuth } from './llm/client.js'
 
 const config = loadConfig()
-const app = Fastify({ logger: { level: config.LOG_LEVEL } })
+const app = Fastify({
+  logger: {
+    level: config.LOG_LEVEL,
+    // Strip internal tokens and API keys from error / request logs so a
+    // wrapped SDK error cannot serialise a credential into the log file
+    // (audit finding N-C6).
+    redact: {
+      paths: [
+        'req.headers.authorization',
+        'req.headers["x-nbi-internal-token"]',
+        '*.headers.authorization',
+        'apiKey',
+        'api_key',
+        'ANTHROPIC_API_KEY',
+        'ANTHROPIC_API_KEY_FAILOVER',
+      ],
+      censor: '[REDACTED]',
+    },
+  },
+})
+
+/**
+ * Require the internal token on every /news/* request. Uses
+ * timingSafeEqual over equal-length buffers to resist timing probes.
+ * Public /health is exempt so reverse proxies can still probe it.
+ * Closes audit finding N-C1 — the previous implementation relied
+ * entirely on the 127.0.0.1 bind and verified nothing inbound.
+ */
+const expectedInboundToken = Buffer.from(config.NEWS_INTERNAL_TOKEN, 'utf8')
+app.addHook('onRequest', async (req, reply) => {
+  const url = req.url ?? ''
+  if (!url.startsWith('/news')) return
+  const raw = req.headers['x-nbi-internal-token']
+  const presented = typeof raw === 'string' ? raw : ''
+  const provided = Buffer.from(presented, 'utf8')
+  if (provided.length !== expectedInboundToken.length || !timingSafeEqual(provided, expectedInboundToken)) {
+    reply.code(401).send({ error: 'unauthorised' })
+  }
+})
 
 await app.register(healthRoutes)
 await app.register(mediaRoutes, { prefix: '/news' })

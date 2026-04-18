@@ -937,10 +937,23 @@ app.post('/api/auth/reset-token/:token', async (req, res) => {
 });
 
 // Internal endpoint for services (e.g. nbi-news) to create admin notifications.
-// Authenticated via x-nbi-internal-token matching NEWS_INTERNAL_TOKEN.
+// Authenticated via x-nbi-internal-token matching DASHBOARD_NOTIFICATION_TOKEN
+// (the token the news sidecar presents on its way IN). The previous
+// implementation expected NEWS_INTERNAL_TOKEN (the token this server
+// presents on its way OUT to the sidecar) — a token-confusion bug that
+// made rotation unsafe and defeated the separation of the two secrets
+// (audit finding N-C3). Comparison is timing-safe and refuses empty
+// values — the old `!==` bypassed auth when both sides were '' because
+// NEWS_INTERNAL_TOKEN was unset in the environment (audit finding B-B6).
 app.post('/api/internal/notifications', async (req, res) => {
-  const token = req.get('x-nbi-internal-token');
-  if (!token || token !== (process.env.NEWS_INTERNAL_TOKEN || '')) {
+  const presented = req.get('x-nbi-internal-token') || '';
+  const expected = process.env.DASHBOARD_NOTIFICATION_TOKEN || '';
+  if (!expected || !presented || presented.length !== expected.length) {
+    return res.status(401).json({ error: 'unauthorised' });
+  }
+  const a = Buffer.from(presented, 'utf8');
+  const b = Buffer.from(expected, 'utf8');
+  if (!require('crypto').timingSafeEqual(a, b)) {
     return res.status(401).json({ error: 'unauthorised' });
   }
   const { type, title, message, link, dismissable, targetAdmins, username } = req.body || {};

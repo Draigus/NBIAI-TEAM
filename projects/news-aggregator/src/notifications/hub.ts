@@ -2,13 +2,24 @@ import { loadConfig } from '../config.js'
 
 const config = loadConfig()
 
+// Outbound calls to the Dashboard must use DASHBOARD_NOTIFICATION_TOKEN,
+// not NEWS_INTERNAL_TOKEN. The previous code sent the inbound secret on
+// the wire, making token rotation unsafe and the advertised separation
+// of concerns fake (audit finding N-C3).
+if (config.NEWS_INTERNAL_TOKEN === config.DASHBOARD_NOTIFICATION_TOKEN) {
+  console.warn(
+    '[hub-notify] NEWS_INTERNAL_TOKEN and DASHBOARD_NOTIFICATION_TOKEN are identical; ' +
+    'set them to different values so rotation of one does not compromise the other.'
+  )
+}
+
 async function post(body: Record<string, unknown>): Promise<void> {
   try {
     await fetch(config.DASHBOARD_NOTIFICATION_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-nbi-internal-token': config.NEWS_INTERNAL_TOKEN,
+        'x-nbi-internal-token': config.DASHBOARD_NOTIFICATION_TOKEN,
       },
       body: JSON.stringify(body),
     })
