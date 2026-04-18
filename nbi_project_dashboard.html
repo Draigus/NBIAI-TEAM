@@ -3528,8 +3528,34 @@ function stringToColour(str) {
 /** HTML-escape a string to prevent XSS — used on ALL user-supplied content before insertion into innerHTML.
  *  IMPORTANT: Do NOT use esc() inside onclick="..." attributes for user-controlled text.
  *  HTML attribute decoding runs before JS eval, undoing the entity encoding.
- *  Use escAttrJs() instead for values inside onclick/onchange JS string literals. */
+ *  Use escAttrJs() instead for values inside onclick/onchange JS string literals.
+ *  For href/src attributes with user-controlled URLs use safeUrl() — esc() alone
+ *  does not block `javascript:` or `data:` schemes. */
 function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+/**
+ * Sanitise a user-supplied URL for safe injection into an href/src attribute.
+ * Allows only http, https, mailto, tel, and protocol-relative (//host/...) schemes.
+ * Anything else (including javascript:, data:, file:, vbscript:) is replaced with '#'.
+ * The returned value is also HTML-escaped so it is safe to interpolate between
+ * double quotes in an attribute. Use this instead of esc() whenever the string
+ * is going into an href or src.
+ */
+function safeUrl(s) {
+  if (s == null) return '#';
+  const trimmed = String(s).trim();
+  if (trimmed === '') return '#';
+  // Allow relative paths (starts with / but not //) and fragment-only links.
+  if (trimmed.startsWith('#')) return esc(trimmed);
+  if (trimmed.startsWith('/') && !trimmed.startsWith('//')) return esc(trimmed);
+  // Allow protocol-relative //host/... (will inherit the page's https scheme).
+  if (trimmed.startsWith('//')) return esc(trimmed);
+  // Allow only the four known-safe schemes. Match is case-insensitive and
+  // tolerates leading control chars the way the HTML parser would.
+  const SAFE_SCHEME = /^(?:[\x00-\x20]*)(https?|mailto|tel):/i;
+  if (SAFE_SCHEME.test(trimmed)) return esc(trimmed);
+  return '#';
+}
 
 /**
  * Escape a string for use inside a JS string literal within an HTML attribute (e.g. onclick="func('${escAttrJs(val)}')").
@@ -3589,7 +3615,7 @@ async function loadClientNotes(clientName) {
       html += `</div>`;
       html += `<div id="${nid}" style="display:none;padding:0 12px 12px;border-top:1px solid var(--border-subtle)">`;
       html += `<pre style="white-space:pre-wrap;font-family:var(--font-body);font-size:0.78rem;color:var(--text-secondary);margin:8px 0 0;line-height:1.6">${esc(n.content)}</pre>`;
-      if (n.source_url) html += `<a href="${esc(n.source_url)}" target="_blank" style="display:inline-block;margin-top:8px;color:var(--accent);font-size:0.72rem;text-decoration:none">&#8599; Open source</a>`;
+      if (n.source_url) html += `<a href="${safeUrl(n.source_url)}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-top:8px;color:var(--accent);font-size:0.72rem;text-decoration:none">&#8599; Open source</a>`;
       html += `</div></div>`;
     });
     html += `</div>`;
@@ -3656,7 +3682,7 @@ function renderClientProfileHeader() {
   // Top bar: name, links, stats, toggle button
   html += `<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">`;
   html += `<div style="display:flex;align-items:center;gap:12px">`;
-  html += `<div class="client-header__name">${esc(brief ? brief.name : ct)}${brief && brief.website ? ` <a href="${esc(brief.website)}" target="_blank" style="font-size:0.7rem;color:var(--accent);font-family:var(--font-body);text-decoration:none">&#8599; website</a>` : ''}${brief && brief.linkedinCompany ? ` <a href="${esc(brief.linkedinCompany)}" target="_blank" style="font-size:0.7rem;color:var(--accent);font-family:var(--font-body);text-decoration:none">&#8599; LinkedIn</a>` : ''}</div>`;
+  html += `<div class="client-header__name">${esc(brief ? brief.name : ct)}${brief && brief.website ? ` <a href="${safeUrl(brief.website)}" target="_blank" rel="noopener noreferrer" style="font-size:0.7rem;color:var(--accent);font-family:var(--font-body);text-decoration:none">&#8599; website</a>` : ''}${brief && brief.linkedinCompany ? ` <a href="${safeUrl(brief.linkedinCompany)}" target="_blank" rel="noopener noreferrer" style="font-size:0.7rem;color:var(--accent);font-family:var(--font-body);text-decoration:none">&#8599; LinkedIn</a>` : ''}</div>`;
   html += `<button class="btn btn--sm btn--ghost" onclick="event.stopPropagation();toggleClientProfile('${clientKey}')" style="display:inline-flex;align-items:center;gap:4px;color:var(--text-muted);font-size:0.72rem"><span id="clientProfileArrow_${clientKey}" style="font-size:0.6rem;transition:transform 0.15s;${isExpanded?'transform:rotate(90deg)':''}">&#9654;</span><span id="clientProfileBtn_${clientKey}">${isExpanded ? 'Hide Profile' : 'Studio Profile'}</span></button>`;
   html += `</div>`;
   html += `<div class="client-header__stats">
@@ -3693,7 +3719,7 @@ function renderClientProfileHeader() {
         if (c.notes) html += `<div style="color:var(--text-muted);font-size:0.72rem;margin-top:4px">${esc(c.notes)}</div>`;
         html += `<div id="${cid}" class="contact-detail" style="display:none;margin-top:8px;padding-top:8px;border-top:1px solid var(--border-subtle)">`;
         if (c.background) html += `<div style="color:var(--text-secondary);font-size:0.72rem;margin-bottom:6px"><span style="color:var(--text-muted)">Background:</span> ${esc(c.background)}</div>`;
-        if (c.linkedin) html += `<div style="margin-bottom:6px"><a href="${esc(c.linkedin)}" target="_blank" style="color:var(--accent);font-size:0.72rem;text-decoration:none">&#8599; LinkedIn Profile</a></div>`;
+        if (c.linkedin) html += `<div style="margin-bottom:6px"><a href="${safeUrl(c.linkedin)}" target="_blank" rel="noopener noreferrer" style="color:var(--accent);font-size:0.72rem;text-decoration:none">&#8599; LinkedIn Profile</a></div>`;
         html += `<div style="margin-top:4px"><label style="color:var(--text-muted);font-size:0.65rem;font-family:var(--font-display);letter-spacing:0.5px;text-transform:uppercase">My Notes</label>`;
         html += `<textarea id="${cid}_notes" rows="2" style="width:100%;margin-top:4px;padding:6px 8px;background:var(--bg-elevated);color:var(--text-primary);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);font-size:0.75rem;font-family:var(--font-body);resize:vertical" placeholder="Add notes about ${esc(c.name)}..." onclick="event.stopPropagation()" oninput="saveContactNotes('${escAttrJs(ct)}',${ci},this.value)">${esc(savedNotes)}</textarea>`;
         html += `</div></div></div>`;
@@ -13110,8 +13136,8 @@ function renderLeadDetailContent(panel, lead) {
         </div>
         <div class="client-profile__fields">
           ${lead.client_hq ? `<div class="client-profile__field"><span class="client-profile__label">HQ</span><span>${esc(lead.client_hq)}</span></div>` : ''}
-          ${lead.client_website ? `<div class="client-profile__field"><span class="client-profile__label">Website</span><a href="${esc(lead.client_website)}" target="_blank" rel="noopener" style="color:var(--accent)">${esc(lead.client_website)}</a></div>` : ''}
-          ${lead.client_linkedin ? `<div class="client-profile__field"><span class="client-profile__label">LinkedIn</span><a href="${esc(lead.client_linkedin)}" target="_blank" rel="noopener" style="color:var(--accent)">${esc(lead.client_linkedin)}</a></div>` : ''}
+          ${lead.client_website ? `<div class="client-profile__field"><span class="client-profile__label">Website</span><a href="${safeUrl(lead.client_website)}" target="_blank" rel="noopener noreferrer" style="color:var(--accent)">${esc(lead.client_website)}</a></div>` : ''}
+          ${lead.client_linkedin ? `<div class="client-profile__field"><span class="client-profile__label">LinkedIn</span><a href="${safeUrl(lead.client_linkedin)}" target="_blank" rel="noopener noreferrer" style="color:var(--accent)">${esc(lead.client_linkedin)}</a></div>` : ''}
           ${lead.client_nbi_relationship ? `<div class="client-profile__field"><span class="client-profile__label">NBI Relationship</span><span>${esc(lead.client_nbi_relationship)}</span></div>` : ''}
           ${lead.client_description ? `<div class="client-profile__field client-profile__field--full"><span class="client-profile__label">About</span><span>${esc(lead.client_description)}</span></div>` : ''}
         </div>`;
@@ -15051,7 +15077,7 @@ async function openCandidateDetail(id) {
   } else if (c.stage === 'onboard_candidate') {
     const links = Array.isArray(c.onboarding_links) ? c.onboarding_links : [];
     const linksHtml = links.length > 0
-      ? links.map((l, i) => `<div style="display:flex;align-items:center;gap:6px;font-size:0.78rem;padding:4px 0"><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${l.type === 'file' ? '&#128196;' : '&#128279;'} <a href="${esc(l.value)}" target="_blank" rel="noopener" style="color:var(--accent-text)">${esc(l.value)}</a></span><button class="btn btn--sm btn--ghost" onclick="removeOnboardingLink('${c.id}',${i})" title="Remove">&times;</button></div>`).join('')
+      ? links.map((l, i) => `<div style="display:flex;align-items:center;gap:6px;font-size:0.78rem;padding:4px 0"><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${l.type === 'file' ? '&#128196;' : '&#128279;'} <a href="${safeUrl(l.value)}" target="_blank" rel="noopener noreferrer" style="color:var(--accent-text)">${esc(l.value)}</a></span><button class="btn btn--sm btn--ghost" onclick="removeOnboardingLink('${c.id}',${i})" title="Remove">&times;</button></div>`).join('')
       : '<div style="color:var(--text-muted);font-size:0.78rem;padding:4px 0">No onboarding docs yet</div>';
     stageSubHtml = `<div class="candidate-detail__field"><label>Onboarding documents</label>${linksHtml}<div style="display:flex;gap:6px;margin-top:6px"><input type="text" id="cdOnboardLink" placeholder="Paste a link (Google Doc, Drive, etc.)" style="flex:1"><button class="btn btn--sm" onclick="addOnboardingLink('${c.id}')">Add link</button></div></div>`;
   } else if (c.stage === 'conduct_interviews') {
@@ -15802,7 +15828,7 @@ async function loadEntityFiles(entityType, entityId, containerId) {
           const display = f.link_title || f.link_url;
           return `<div class="attachment-row">
             <span class="attachment-row__icon" title="Link">&#128279;</span>
-            <a href="${esc(f.link_url)}" target="_blank" rel="noopener noreferrer" class="attachment-row__name" title="${esc(f.link_url)}">${esc(display)}</a>
+            <a href="${safeUrl(f.link_url)}" target="_blank" rel="noopener noreferrer" class="attachment-row__name" title="${esc(f.link_url)}">${esc(display)}</a>
             ${verifyBadge}
             <span class="attachment-row__size" style="font-size:0.62rem;color:var(--text-muted)">link</span>
             <button class="attachment-row__delete" onclick="deleteEntityFile('${f.id}','${entityType}','${entityId}','${containerId}')" title="Delete">&times;</button>
@@ -18301,7 +18327,7 @@ const newsTemplates = {
     if (!story.articles || !story.articles.length) return '';
     return '<div class="news-sources-drawer" id="news-sources-' + newsEsc(story.id) + '">' +
       story.articles.map(a =>
-        '<a class="news-source-link" href="' + newsEsc(a.url) + '" target="_blank" rel="noopener noreferrer">' +
+        '<a class="news-source-link" href="' + safeUrl(a.url) + '" target="_blank" rel="noopener noreferrer">' +
           '<strong>' + newsEsc(a.source) + '</strong>: ' + newsEsc(a.title) +
           '<span class="news-source-meta">' + (a.author ? newsEsc(a.author) + ' / ' : '') + newsEsc(newsFormatDate(a.published_at)) + '</span>' +
         '</a>'
