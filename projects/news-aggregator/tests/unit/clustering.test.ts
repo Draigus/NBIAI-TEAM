@@ -15,12 +15,16 @@ vi.mock('../../src/db/index.js', () => ({
   schema: {},
 }))
 
+const UUID_A = '00000000-0000-4000-a000-000000000001'
+const UUID_B = '00000000-0000-4000-a000-000000000002'
+const UUID_C = '00000000-0000-4000-a000-000000000003'
+
 beforeEach(() => {
   vi.clearAllMocks()
   loadActivePromptMock.mockResolvedValue({ id: 'p1', key: 'clustering', version: 1, body: 'sys', fewShotExamples: null })
   dbExecuteMock.mockResolvedValue({ rows: [
-    { id: 'a', source: 'GI.biz', title: 'A', summary: 's1' },
-    { id: 'b', source: 'IGN', title: 'B', summary: 's2' },
+    { id: UUID_A, source: 'GI.biz', title: 'A', summary: 's1' },
+    { id: UUID_B, source: 'IGN', title: 'B', summary: 's2' },
   ] })
 })
 
@@ -35,16 +39,16 @@ describe('clusterArticles', () => {
 
   it('parses the LLM JSON output into ClusterResult[]', async () => {
     callClaudeMock.mockResolvedValue({
-      text: '{"clusters":[{"article_ids":["a","b"],"entities":{"studios":["Xbox"],"games":[],"people":[],"deals":[],"figures":[]}}]}',
+      text: `{"clusters":[{"article_ids":["${UUID_A}","${UUID_B}"],"entities":{"studios":["Xbox"],"games":[],"people":[],"deals":[],"figures":[]}}]}`,
       inputTokens: 100,
       outputTokens: 50,
       authMode: 'primary',
       failoverOccurred: false,
     })
     const { clusterArticles } = await import('../../src/llm/clustering.js')
-    const result = await clusterArticles(['a', 'b'], 'digest-id')
+    const result = await clusterArticles([UUID_A, UUID_B], 'digest-id')
     expect(result).toHaveLength(1)
-    expect(result[0].article_ids).toEqual(['a', 'b'])
+    expect(result[0].article_ids).toEqual([UUID_A, UUID_B])
     expect(result[0].entities.studios).toEqual(['Xbox'])
     expect(callClaudeMock).toHaveBeenCalledWith(expect.objectContaining({
       runType: 'clustering',
@@ -55,16 +59,16 @@ describe('clusterArticles', () => {
 
   it('tolerates code-fenced JSON from the model', async () => {
     callClaudeMock.mockResolvedValue({
-      text: 'Here you go:\n```json\n{"clusters":[{"article_ids":["a"],"entities":{"studios":[],"games":[],"people":[],"deals":[],"figures":[]}}]}\n```',
+      text: `Here you go:\n\`\`\`json\n{"clusters":[{"article_ids":["${UUID_A}"],"entities":{"studios":[],"games":[],"people":[],"deals":[],"figures":[]}}]}\n\`\`\``,
       inputTokens: 50,
       outputTokens: 30,
       authMode: 'primary',
       failoverOccurred: false,
     })
     const { clusterArticles } = await import('../../src/llm/clustering.js')
-    const result = await clusterArticles(['a'], 'digest-id')
+    const result = await clusterArticles([UUID_A], 'digest-id')
     expect(result).toHaveLength(1)
-    expect(result[0].article_ids).toEqual(['a'])
+    expect(result[0].article_ids).toEqual([UUID_A])
   })
 
   it('returns [] when the model outputs malformed JSON', async () => {
@@ -76,20 +80,20 @@ describe('clusterArticles', () => {
       failoverOccurred: false,
     })
     const { clusterArticles } = await import('../../src/llm/clustering.js')
-    const result = await clusterArticles(['a'], 'digest-id')
+    const result = await clusterArticles([UUID_A], 'digest-id')
     expect(result).toEqual([])
   })
 
   it('filters out malformed cluster entries', async () => {
     callClaudeMock.mockResolvedValue({
-      text: '{"clusters":[{"article_ids":["a"]},{"not_a_cluster":true},{"article_ids":["b","c"]}]}',
+      text: `{"clusters":[{"article_ids":["${UUID_A}"]},{"not_a_cluster":true},{"article_ids":["${UUID_B}","${UUID_C}"]}]}`,
       inputTokens: 10,
       outputTokens: 5,
       authMode: 'primary',
       failoverOccurred: false,
     })
     const { clusterArticles } = await import('../../src/llm/clustering.js')
-    const result = await clusterArticles(['a', 'b', 'c'], 'digest-id')
+    const result = await clusterArticles([UUID_A, UUID_B, UUID_C], 'digest-id')
     expect(result).toHaveLength(2)
     expect(result.map((c) => c.article_ids.length)).toEqual([1, 2])
   })

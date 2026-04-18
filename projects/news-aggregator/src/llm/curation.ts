@@ -65,7 +65,7 @@ export async function curateClusters(
     runType: 'curation',
     digestId,
     systemPrompt: prompt.body,
-    userMessage: `Clusters:\n${JSON.stringify(enriched, null, 2)}`,
+    userMessage: `Clusters:\n${JSON.stringify(enriched)}`,
     maxTokens: 8192,
   })
 

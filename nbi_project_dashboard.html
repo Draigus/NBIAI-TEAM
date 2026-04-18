@@ -3847,7 +3847,7 @@ history.replaceState({ view: currentView, filter: { ...currentFilter }, taskSubV
 /** Clear all active filters except sort order, and deselect any bulk-selected tasks */
 function resetFilters() { currentFilter = { client: null, project: null, status: [], health: [], search: '', sort: currentFilter.sort || 'default', assignee: [], incomplete: false, practice: currentFilter.practice || null }; selectedTaskIds.clear(); }
 /** Set the client filter and re-render -- pass null to show all clients */
-function filterByClient(c) { currentFilter = { client: c, project: null, status: [], health: [], assignee: [], search: '', practice: currentFilter.practice || null }; selectedTaskIds.clear(); renderSidebarCounts(); renderContent(); renderBreadcrumbs(); history.pushState({ view: currentView, filter: { ...currentFilter }, taskSubView }, '', '#' + currentView); }
+function filterByClient(c) { currentFilter = { client: c, project: null, status: [], health: [], assignee: [], search: '', sort: currentFilter.sort || 'default', practice: currentFilter.practice || null }; selectedTaskIds.clear(); renderSidebarCounts(); renderContent(); renderBreadcrumbs(); history.replaceState({ view: currentView, filter: { ...currentFilter }, taskSubView }, '', '#' + currentView); }
 // Practice areas (Phase 9 of the NBI WorkSage backlog, a6c82c8c).
 // Stored as `practice_area` on tasks/leads/clients. The legacy "Human
 // Capital" / HC label has been retired in favour of "Organisational"
@@ -3878,7 +3878,7 @@ function filterByPractice(p) {
   // Re-render leads/clients views if they're active so the practice
   // filter takes effect across every page that displays records.
   if (currentView === 'leads') { try { renderLeadsContent(); } catch(e) {} }
-  history.pushState({ view: currentView, filter: { ...currentFilter }, taskSubView }, '', '#' + currentView);
+  history.replaceState({ view: currentView, filter: { ...currentFilter }, taskSubView }, '', '#' + currentView);
 }
 /** Filter by health state and switch to tasks view */
 function filterByHealth(h) { currentFilter = { client: currentFilter.client, project: null, status: [], health: [h], assignee: [], search: '', practice: currentFilter.practice || null }; switchView('tasks'); }

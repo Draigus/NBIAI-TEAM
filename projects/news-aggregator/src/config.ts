@@ -6,6 +6,7 @@ const ConfigSchema = z.object({
   NEWS_INTERNAL_TOKEN: z.string().min(16),
   DASHBOARD_NOTIFICATION_URL: z.string().url(),
   DASHBOARD_NOTIFICATION_TOKEN: z.string().min(16),
+  ANTHROPIC_API_KEY: z.string().optional(),
   ANTHROPIC_API_KEY_FAILOVER: z.string().optional(),
   MEDIA_STORAGE_PATH: z.string().default('./media'),
   LOG_LEVEL: z.string().default('info'),

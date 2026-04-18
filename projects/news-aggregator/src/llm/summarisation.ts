@@ -58,7 +58,7 @@ export async function summariseStory(
     runType: 'summarisation',
     digestId,
     systemPrompt: prompt.body,
-    userMessage: `Articles:\n${JSON.stringify(rows, null, 2)}`,
+    userMessage: `Articles:\n${JSON.stringify(rows)}`,
     maxTokens: 1024,
   })
 

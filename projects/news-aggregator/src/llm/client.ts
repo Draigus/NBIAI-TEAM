@@ -2,6 +2,7 @@ import Anthropic from '@anthropic-ai/sdk'
 import { sql } from 'drizzle-orm'
 import { db, schema } from '../db/index.js'
 import { notifyAuthFailover, notifyGenerationFailed } from '../notifications/hub.js'
+import { loadConfig } from '../config.js'
 
 export type LlmAuthMode = 'primary' | 'failover'
 
@@ -36,9 +37,8 @@ function timeoutForRunType(runType: CallOptions['runType']): number {
 const MODEL = 'claude-sonnet-4-6'
 
 function makeClient(mode: LlmAuthMode): Anthropic {
-  const apiKey = mode === 'failover'
-    ? process.env.ANTHROPIC_API_KEY_FAILOVER
-    : process.env.ANTHROPIC_API_KEY
+  const cfg = loadConfig()
+  const apiKey = mode === 'failover' ? cfg.ANTHROPIC_API_KEY_FAILOVER : cfg.ANTHROPIC_API_KEY
   if (!apiKey) throw new Error(`No API key available for mode=${mode}`)
   return new Anthropic({ apiKey })
 }
@@ -142,7 +142,7 @@ export async function callClaude(opts: CallOptions): Promise<CallResult> {
     }).where(sql`id = ${runId}`)
     return result
   } catch (err) {
-    if (isAuthError(err) && !isFailoverLatched() && process.env.ANTHROPIC_API_KEY_FAILOVER) {
+    if (isAuthError(err) && !isFailoverLatched() && loadConfig().ANTHROPIC_API_KEY_FAILOVER) {
       latchFailover()
       await notifyAuthFailover(opts.runType)
       try {

@@ -56,7 +56,7 @@ export async function synthesiseMonth(
     runType: 'monthly_synthesis',
     monthlySummaryId,
     systemPrompt: prompt.body,
-    userMessage: `Weekly digests for ${periodStr}:\n${JSON.stringify(rows, null, 2)}`,
+    userMessage: `Weekly digests for ${periodStr}:\n${JSON.stringify(rows)}`,
     maxTokens: 4096,
     period: periodStr,
   })

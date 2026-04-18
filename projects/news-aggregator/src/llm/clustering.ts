@@ -51,7 +51,7 @@ export async function clusterArticles(articleIds: string[], digestId: string): P
     WHERE a.id = ANY(${idArray}::uuid[])
   `)
   const prompt = await loadActivePrompt('clustering')
-  const userMessage = `Articles:\n${JSON.stringify(articles.rows as unknown as ArticleRow[], null, 2)}`
+  const userMessage = `Articles:\n${JSON.stringify(articles.rows as unknown as ArticleRow[])}`
   const result = await callClaude({
     runType: 'clustering',
     digestId,

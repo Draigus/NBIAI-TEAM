@@ -30,7 +30,7 @@ export async function selectHeroStory(
     runType: 'hero_selection',
     digestId,
     systemPrompt: prompt.body,
-    userMessage: `Stories:\n${JSON.stringify(stories, null, 2)}`,
+    userMessage: `Stories:\n${JSON.stringify(stories)}`,
     maxTokens: 256,
   })
 

@@ -146,6 +146,6 @@ describe('curateClusters', () => {
     const { curateClusters } = await import('../../src/llm/curation.js')
     await curateClusters(makeClusters(1), 'digest-id', sources)
     const call = callClaudeMock.mock.calls[0][0]
-    expect(call.userMessage).toContain('"weight": 2.5')
+    expect(call.userMessage).toContain('"weight":2.5')
   })
 })

@@ -123,3 +123,40 @@ Ran `npm test` — all 19 test files, 124 tests green. No regressions from B-B25
 - F-B7 (polling double-up): Already handled by `restartPollingIntervals()` clear-then-recreate
 - F-B4 (browser prompt): Needs themed modal, larger UI change, deferred
 
+### Committed as ed7259f — 14 Bad-tier fixes
+
+---
+
+### F-B13 + F-B21 — filterByClient drops sort + pushState pollutes back-history
+
+**Fix (combined):** In `filterByClient()` at nbi_project_dashboard.html:3850:
+1. Added `sort: currentFilter.sort || 'default'` to preserve the active sort order when switching clients (was silently reset).
+2. Changed `history.pushState` to `history.replaceState` so filter changes replace the current history entry instead of stacking — prevents the browser back button requiring N clicks to leave the page.
+Also changed `filterByPractice()` pushState to replaceState for the same reason.
+
+### B-B27 + B-B9 — migration 027_audit_fixes.sql
+
+Created `dashboard-server/migrations/027_audit_fixes.sql` with:
+- B-B27: FK from `bug_report_comments.report_id` to `bug_reports.id` with `ON DELETE CASCADE`. Prevents orphaned comments when a report is deleted. Made idempotent (FK already existed from init-db).
+- B-B9: GIN index on `tasks.dependencies` text[] column. The cycle-detection CTE runs on every PATCH and unnests the array — GIN index makes this O(log n) instead of sequential.
+Applied to dev DB successfully.
+
+### N-B14 — JSON.stringify pretty-prints tokens sent to LLM
+
+**Fix:** Removed `null, 2` from all 5 `JSON.stringify` calls in LLM pipeline files:
+- clustering.ts:54, curation.ts:68, hero-selection.ts:33, monthly-synthesis.ts:59, summarisation.ts:61
+Compact JSON saves ~20-30% of whitespace tokens per call. At ~32 LLM calls per weekly digest, the savings add up.
+
+### N-B15 — unused @fastify/cors and @fastify/static deps
+
+**Fix:** Removed both from `package.json`. Grep confirmed zero imports in src/.
+
+### N-B9 — ANTHROPIC_API_KEY bypasses Zod config schema
+
+**Fix:** Added `ANTHROPIC_API_KEY: z.string().optional()` to the Zod schema in config.ts. Updated `client.ts` to import `loadConfig()` and read both API keys from config instead of `process.env` directly (3 sites: makeClient primary, makeClient failover, failover latch check). Keys are optional so the service still boots without them (Glen hasn't set the primary key yet).
+
+### Test fixes for N-B14 + N-C2 interactions
+
+- `curation.test.ts:149`: Updated expected string from `'"weight": 2.5'` to `'"weight":2.5'` (compact JSON after N-B14 fix)
+- `clustering.test.ts`: Replaced all bare `'a'`, `'b'`, `'c'` article IDs with valid UUID constants (`UUID_A/B/C`). The N-C2 fix (commit 15522a5) added `filterUuids` which strips non-UUID IDs — these tests were silently broken since that commit.
+
