@@ -1,8 +1,5 @@
-import 'dotenv/config'
-// dotenv/config auto-loads .env but only fills in missing vars. Force-override
-// any ambient process.env values — PM2's saved dump occasionally ships empty
-// strings for ANTHROPIC_API_KEY, which the default dotenv behaviour would
-// otherwise preserve.
+// Force-override any ambient process.env values — PM2's saved dump
+// occasionally ships empty strings for ANTHROPIC_API_KEY.
 import dotenv from 'dotenv'
 dotenv.config({ override: true })
 

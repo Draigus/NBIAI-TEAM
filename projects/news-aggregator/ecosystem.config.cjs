@@ -5,7 +5,7 @@ module.exports = {
     script: 'dist/index.js',
     cwd: path.resolve(__dirname),
     interpreter: 'node',
-    node_args: ['--env-file=.env'],
+    node_args: [],
     autorestart: true,
     max_restarts: 5,
     restart_delay: 3000,

@@ -567,14 +567,18 @@ app.use((req, res, next) => {
   next();
 });
 
-// Rate limiting — per-user (keyed by auth token hash or IP)
+// Rate limiting — per-user (keyed by auth token hash or IP).
+// Checks Bearer header first (legacy), then cookie (F-C2), then
+// Cloudflare's cf-connecting-ip (unspoofable), then raw TCP peer (B-B5).
 const apiLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 60,
   keyGenerator: (req) => {
     const auth = req.headers.authorization;
     if (auth && auth.startsWith('Bearer ')) return hashToken(auth.slice(7));
-    return ipKeyGenerator(req);
+    const cookieToken = getCookieToken(req);
+    if (cookieToken) return hashToken(cookieToken);
+    return req.headers['cf-connecting-ip'] || req.socket.remoteAddress || '127.0.0.1';
   },
   standardHeaders: true,
   legacyHeaders: false,
@@ -660,9 +664,11 @@ if (promClient) {
     dbPoolGauge.set({ state: 'waiting' }, pool.waitingCount);
   }, 15000).unref();
 
-  // Metrics endpoint — restricted to localhost for Prometheus scraping
+  // Metrics endpoint — restricted to localhost for Prometheus scraping.
+  // Uses req.socket.remoteAddress (raw TCP peer) instead of req.ip so that
+  // trust-proxy / X-Forwarded-For cannot bypass the localhost gate (B-B25).
   app.get('/metrics', async (req, res) => {
-    const ip = req.ip || req.connection.remoteAddress;
+    const ip = req.socket.remoteAddress;
     if (!['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(ip)) {
       return res.status(403).json({ error: 'Metrics available from localhost only' });
     }
@@ -791,8 +797,8 @@ async function requireAuth(req, res, next) {
   // Public routes that bypass authentication
   if (req.path === '/api/auth/login' || req.path === '/api/health') return next();
   if (req.path.startsWith('/api/auth/forgot') || req.path.startsWith('/api/auth/reset-token')) return next();
-  // Public shareable report routes (explicit pattern — only /:token, /:token/html, /:token/pdf)
-  if (/^\/api\/reports\/[^/]+(\/html|\/pdf)?$/.test(req.path)) return next();
+  // Public shareable report routes — share tokens are 32 hex chars (B-B1)
+  if (/^\/api\/reports\/[0-9a-f]{32}(\/html|\/pdf)?$/.test(req.path)) return next();
   if (!req.path.startsWith('/api/')) return next();
 
   const token = getCookieToken(req) || (req.headers.authorization || '').replace('Bearer ', '');
@@ -2496,7 +2502,7 @@ app.get('/api/attachments/:filename', (req, res) => {
   if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'File not found' });
   // Security: force download for non-image, non-PDF files to prevent XSS via uploaded HTML/SVG
   const ext = path.extname(filePath).toLowerCase();
-  const safeInline = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.pdf'];
+  const safeInline = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
   if (!safeInline.includes(ext)) {
     res.setHeader('Content-Disposition', `attachment; filename="${path.basename(filePath)}"`);
   }
@@ -4810,100 +4816,17 @@ app.get('/api/sync/poll', async (req, res) => {
   });
 });
 
-/**
- * PUT /api/sync/tasks
- * Legacy full-replace sync — deletes all tasks then re-inserts from the payload.
- * Kept for backwards compatibility; prefer POST /api/sync/changes for incremental sync.
- */
-app.put('/api/sync/tasks', async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only — destructive full-replace sync' });
-  const { tasks: taskList, client_briefs: briefList } = req.body;
-  const conn = await pool.connect();
-  try {
-    await conn.query('BEGIN');
+// PUT /api/sync/tasks — REMOVED (B-B16). Was a destructive full-replace
+// that DELETE FROM tasks then re-inserted everything. No frontend caller
+// existed; the incremental POST /api/sync/changes replaced it. Keeping
+// this comment so git blame shows the removal was intentional.
 
-    if (Array.isArray(taskList)) {
-      const clientRows = (await conn.query('SELECT id, name FROM clients')).rows;
-      const clientMap = {};
-      clientRows.forEach(r => { clientMap[r.name] = r.id; });
+// Client briefs are still writable via POST /api/sync/changes (admin-only,
+// scope-checked). The brief upsert block that lived here was a duplicate
+// of the one in POST /api/sync/changes and is not preserved.
 
-      await conn.query('DELETE FROM tasks');
-
-      const idMap = {};
-      for (const t of taskList) {
-        let clientId = null;
-        if (t.client && clientMap[t.client]) {
-          clientId = clientMap[t.client];
-        } else if (t.client) {
-          const cr = await conn.query('INSERT INTO clients (name) VALUES ($1) ON CONFLICT (name) DO UPDATE SET name = $1 RETURNING id', [t.client]);
-          clientId = cr.rows[0].id;
-          clientMap[t.client] = clientId;
-        }
-
-        const { rows } = await conn.query(
-          `INSERT INTO tasks (title, client_id, status, priority, health_state, description, assignees, hours_estimated, hours_spent, due_date, planner_task_id, source, created_at, updated_at)
-           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING id`,
-          [t.title, clientId, t.status || 'Not started', t.priority || '', t.healthState || t.health_state || '',
-           t.description || '', t.assignees || [], t.hoursEstimated || t.hours_estimated || 0,
-           t.hoursSpent || t.hours_spent || 0, t.dueDate || t.due_date || '',
-           t.plannerTaskId || t.planner_task_id || '', t.source || 'sync',
-           t.createdAt || t.created_at || new Date().toISOString(),
-           t.updatedAt || t.updated_at || new Date().toISOString()]
-        );
-        idMap[t.id] = rows[0].id;
-
-        if (Array.isArray(t.notes)) {
-          for (const n of t.notes) {
-            if (n.text || n.time) {
-              await conn.query('INSERT INTO task_notes (task_id, text, created_at) VALUES ($1, $2, $3)',
-                [rows[0].id, n.text || '', n.time || n.created_at || new Date().toISOString()]);
-            }
-          }
-        }
-      }
-
-      for (const t of taskList) {
-        if (t.parentId && idMap[t.parentId]) {
-          await conn.query('UPDATE tasks SET parent_id = $1 WHERE id = $2', [idMap[t.parentId], idMap[t.id]]);
-        }
-      }
-    }
-
-    if (briefList && typeof briefList === 'object') {
-      for (const [name, brief] of Object.entries(briefList)) {
-        await conn.query(
-          `INSERT INTO clients (name, description, founded, headquarters, employees, revenue, website, linkedin_company, nbi_relationship)
-           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
-           ON CONFLICT (name) DO UPDATE SET description=$2, founded=$3, headquarters=$4, employees=$5, revenue=$6, website=$7, linkedin_company=$8, nbi_relationship=$9, updated_at=NOW()`,
-          [name, brief.description || '', brief.founded || '', brief.headquarters || '', brief.employees || '',
-           brief.revenue || '', brief.website || '', brief.linkedinCompany || '', brief.nbiRelationship || '']
-        );
-        if (Array.isArray(brief.contacts)) {
-          const cid = (await conn.query('SELECT id FROM clients WHERE name = $1', [name])).rows[0]?.id;
-          if (cid) {
-            await conn.query('DELETE FROM contacts WHERE client_id = $1', [cid]);
-            for (let i = 0; i < brief.contacts.length; i++) {
-              const c = brief.contacts[i];
-              await conn.query(
-                'INSERT INTO contacts (client_id, name, role, notes, background, linkedin, sort_order) VALUES ($1,$2,$3,$4,$5,$6,$7)',
-                [cid, c.name || '', c.role || '', c.notes || '', c.background || '', c.linkedin || '', i]
-              );
-            }
-          }
-        }
-      }
-    }
-
-    await conn.query('COMMIT');
-    res.json({ ok: true, task_count: taskList ? taskList.length : 0 });
-  } catch (e) {
-    await conn.query('ROLLBACK');
-    log('error', 'Sync', 'Full task sync failed', { error: e.message, stack: e.stack?.split('\n').slice(0,3).join(' | ') });
-    res.status(500).json({ error: 'An internal error occurred' });
-  } finally {
-    conn.release();
-  }
-});
+/* eslint-disable-next-line no-unused-vars -- placeholder to keep line numbers stable for any in-flight references */
+void 0; // B-B16 removal anchor
 
 /**
  * GET /api/sync/load
@@ -5058,8 +4981,16 @@ app.get('/api/settings', async (req, res) => {
 });
 
 /** PUT /api/settings/:key — Upsert a single setting (admin only, stored as JSON) */
+const SETTINGS_ALLOW_LIST = new Set([
+  'page_permissions', 'expense_approver', 'fx_rates', 'theme',
+  'dashboard_layout', 'notification_preferences', 'hourly_rate',
+  'working_hours_per_week', 'currency', 'company_name',
+]);
 app.put('/api/settings/:key', async (req, res) => {
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  if (!SETTINGS_ALLOW_LIST.has(req.params.key)) {
+    return res.status(400).json({ error: `Setting key '${req.params.key}' is not recognised` });
+  }
   const { value } = req.body;
   await pool.query(
     'INSERT INTO settings (key, value, updated_at) VALUES ($1, $2, NOW()) ON CONFLICT (key) DO UPDATE SET value = $2, updated_at = NOW()',
@@ -7274,6 +7205,9 @@ app.post('/api/expense-reports/:id/expenses', requireInternal, async (req, res) 
   if (!expense_ids || !Array.isArray(expense_ids) || expense_ids.length === 0) {
     return res.status(400).json({ error: 'expense_ids array required' });
   }
+  if (expense_ids.some(id => !isValidUuid(id))) {
+    return res.status(400).json({ error: 'All expense_ids must be valid UUIDs' });
+  }
 
   // Validate all expenses belong to the user and are unassigned
   const placeholders = expense_ids.map((_, i) => `$${i + 1}`).join(',');
@@ -7521,6 +7455,14 @@ app.get('/api/clients/:id/reports', async (req, res) => {
     [req.params.id]
   );
   res.json(rows);
+});
+
+/** DELETE /api/reports/:id/revoke — Revoke a share token (admin only, B-B7) */
+app.delete('/api/reports/:id/revoke', requireInternal, async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const { rowCount } = await pool.query('DELETE FROM client_reports WHERE id = $1', [req.params.id]);
+  if (rowCount === 0) return res.status(404).json({ error: 'Report not found' });
+  res.json({ ok: true });
 });
 
 /** GET /api/reports/:token — Public JSON data (no auth required) */
@@ -7966,7 +7908,7 @@ async function buildPmReportEmails(todayStr, windowStart, windowEnd) {
       SELECT al.entity_id, al.action, al.changes, al.changed_by, al.created_at,
              tk.title, tk.status
       FROM audit_log al
-      JOIN tasks tk ON tk.id::text = al.entity_id::text
+      JOIN tasks tk ON tk.id = al.entity_id::uuid
       WHERE al.entity_type = 'task'
         AND al.created_at >= $1 AND al.created_at < $2
         AND tk.client_id = ANY($3)
