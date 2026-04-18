@@ -20,7 +20,7 @@ const config = loadConfig()
 const app = Fastify({ logger: { level: config.LOG_LEVEL } })
 
 await app.register(healthRoutes)
-await app.register(mediaRoutes)
+await app.register(mediaRoutes, { prefix: '/news' })
 await app.register(digestRoutes, { prefix: '/news' })
 
 const seeded = await seedSourcesIfEmpty()
