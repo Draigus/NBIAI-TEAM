@@ -3,6 +3,7 @@ import { callClaude } from './client.js'
 import { loadActivePrompt } from './prompts.js'
 import { db } from '../db/index.js'
 import { safeParseJson } from './json-utils.js'
+import { filterUuids } from '../utils/uuids.js'
 
 export interface StorySummary {
   headline: string
@@ -37,7 +38,14 @@ export async function summariseStory(
   if (articleIds.length === 0) {
     return fallback('(no articles)', '')
   }
-  const idArray = `{${articleIds.join(',')}}`
+  // articleIds can arrive from the LLM clustering output — treat as
+  // untrusted and drop anything that isn't a canonical UUID before
+  // building the Postgres array literal (audit finding N-C2).
+  const safeIds = filterUuids(articleIds, 'summariseStory')
+  if (safeIds.length === 0) {
+    return fallback('(no valid article ids)', '')
+  }
+  const idArray = `{${safeIds.join(',')}}`
   const articles = await db.execute(sql`
     SELECT a.id, s.name AS source, a.title, a.summary, a.url, a.embedded_video_urls
     FROM news.articles a JOIN news.sources s ON s.id = a.source_id

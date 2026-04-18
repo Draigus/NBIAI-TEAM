@@ -7,6 +7,7 @@ import { summariseStory } from '../llm/summarisation.js'
 import { selectHeroStory } from '../llm/hero-selection.js'
 import { healthcheckAuth } from '../llm/client.js'
 import type { ArticleSourceInfo } from '../llm/curation.js'
+import { filterUuids } from '../utils/uuids.js'
 
 const CANONICAL_CATEGORIES: ReadonlySet<string> = new Set(['studios', 'games', 'shifts', 'strategy'])
 
@@ -68,9 +69,14 @@ export async function generateWeeklyDigest(
     return digest.id
   }
 
-  // Build article → source priorityWeight map for curation weighting
-  const idArray = `{${articleIds.join(',')}}`
-  const srcRows = await db.execute(sql`
+  // Build article → source priorityWeight map for curation weighting.
+  // Validate IDs defensively even though they originate from our DB
+  // (audit finding N-C2, shared filterUuids helper in utils/uuids).
+  const safeArticleIds = filterUuids(articleIds, 'weekly.sourceWeights')
+  const idArray = `{${safeArticleIds.join(',')}}`
+  const srcRows = safeArticleIds.length === 0
+    ? { rows: [] as Array<{ article_id: string; priority_weight: string }> }
+    : await db.execute(sql`
     SELECT a.id AS article_id, s.priority_weight
     FROM news.articles a JOIN news.sources s ON s.id = a.source_id
     WHERE a.id = ANY(${idArray}::uuid[])

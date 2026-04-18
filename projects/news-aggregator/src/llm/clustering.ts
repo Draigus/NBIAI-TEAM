@@ -3,6 +3,7 @@ import { callClaude } from './client.js'
 import { loadActivePrompt } from './prompts.js'
 import { db } from '../db/index.js'
 import { safeParseJson } from './json-utils.js'
+import { filterUuids } from '../utils/uuids.js'
 
 export interface ClusterEntities {
   studios: string[]
@@ -38,9 +39,12 @@ interface ArticleRow {
 export async function clusterArticles(articleIds: string[], digestId: string): Promise<ClusterResult[]> {
   if (articleIds.length === 0) return []
   // Drizzle serialises JS arrays as records, which Postgres won't cast to
-  // uuid[]. Build the array literal manually — all IDs come from our DB
-  // so they are guaranteed valid UUIDs (no injection risk).
-  const idArray = `{${articleIds.join(',')}}`
+  // uuid[]. Build the array literal manually. IDs normally come from our
+  // DB, but filterUuids() is a cheap defence-in-depth guard so a stray
+  // non-UUID never reaches Postgres as a raw string (audit finding N-C2).
+  const safeIds = filterUuids(articleIds, 'clusterArticles')
+  if (safeIds.length === 0) return []
+  const idArray = `{${safeIds.join(',')}}`
   const articles = await db.execute(sql`
     SELECT a.id, s.name AS source, a.title, a.summary
     FROM news.articles a JOIN news.sources s ON s.id = a.source_id
