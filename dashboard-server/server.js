@@ -147,6 +147,16 @@ pool.on('error', (err) => log('error', 'Pool', 'Unexpected error on idle client'
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Cloudflare tunnel) for correct IP in rate limiter
 
+const SESSION_COOKIE_NAME = 'nbi_session';
+function getSessionCookieOpts(req) {
+  return { httpOnly: true, secure: req.secure, sameSite: 'lax', path: '/', maxAge: SESSION_EXPIRY_DAYS * 24 * 60 * 60 * 1000 };
+}
+function getCookieToken(req) {
+  const raw = req.headers.cookie || '';
+  const match = raw.match(/nbi_session=([^;]+)/);
+  return match ? match[1] : null;
+}
+
 // Brute-force protection: track failed logins in memory (resets on restart)
 const _failedLogins = {}; // { username: { count, lastAttempt } }
 const FAILED_LOGIN_THRESHOLD = 3;  // Show "forgot password" link after this many failures
@@ -737,6 +747,7 @@ app.post('/api/auth/login', async (req, res) => {
   // Cache under hashed key
   cacheToken(hashedToken, { id: user.id, username: user.username, displayName: user.display_name, role: user.role, clientId: user.client_id });
 
+  res.cookie(SESSION_COOKIE_NAME, token, getSessionCookieOpts(req));
   res.json({
     token,
     user: { id: user.id, username: user.username, displayName: user.display_name, role: user.role, clientId: user.client_id },
@@ -746,18 +757,19 @@ app.post('/api/auth/login', async (req, res) => {
 
 /** POST /api/auth/logout — Invalidate the current session token */
 app.post('/api/auth/logout', async (req, res) => {
-  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  const token = getCookieToken(req) || (req.headers.authorization || '').replace('Bearer ', '');
   if (token) {
     const hashed = hashToken(token);
     await pool.query('DELETE FROM sessions WHERE token = $1', [hashed]);
     invalidateToken(hashed);
   }
+  res.clearCookie(SESSION_COOKIE_NAME, { httpOnly: true, sameSite: 'lax', path: '/' });
   res.json({ ok: true });
 });
 
 /** GET /api/auth/me — Return the currently authenticated user's profile */
 app.get('/api/auth/me', async (req, res) => {
-  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  const token = getCookieToken(req) || (req.headers.authorization || '').replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Not authenticated' });
 
   const hashed = hashToken(token);
@@ -783,7 +795,7 @@ async function requireAuth(req, res, next) {
   if (/^\/api\/reports\/[^/]+(\/html|\/pdf)?$/.test(req.path)) return next();
   if (!req.path.startsWith('/api/')) return next();
 
-  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  const token = getCookieToken(req) || (req.headers.authorization || '').replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Authentication required' });
 
   try {
@@ -1058,6 +1070,7 @@ app.post('/api/auth/change-password', async (req, res) => {
   await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [hash, req.user.id]);
   await pool.query('DELETE FROM sessions WHERE user_id = $1', [req.user.id]);
   _tokenCache.clear();
+  res.clearCookie(SESSION_COOKIE_NAME, { httpOnly: true, sameSite: 'lax', path: '/' });
   res.json({ ok: true });
 });
 

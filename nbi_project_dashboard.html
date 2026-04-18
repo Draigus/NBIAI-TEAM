@@ -2300,7 +2300,6 @@ function cleanupListeners() {
 }
 
 // ----- AUTH -----
-let _authToken = localStorage.getItem('nbi_auth_token') || null;
 let _currentUser = null;
 let _cachedUsers = [];       // Cached full user records (id, username, display_name, role, is_active) for ID lookups
 const _expandedStandupPeople = new Set(); // Track which person sections are expanded in standup
@@ -2420,17 +2419,12 @@ function removeAssignee(taskId, name) {
   updateTask(taskId, 'assignees', assignees);
 }
 
-/** Wraps fetch() with auth token injection and automatic 401 → login screen redirect */
+/** Wraps fetch() with HttpOnly cookie credentials and automatic 401 → login screen redirect */
 function authFetch(url, opts = {}) {
-  if (_authToken) {
-    opts.headers = { ...opts.headers, 'Authorization': 'Bearer ' + _authToken };
-  }
+  opts.credentials = 'include';
   return fetch(url, opts).then(resp => {
     if (resp.status === 401) {
-      // Session expired -- show login
-      _authToken = null;
       _currentUser = null;
-      localStorage.removeItem('nbi_auth_token');
       showLoginScreen();
     }
     return resp;
@@ -2477,6 +2471,7 @@ async function handleLogin(e) {
     const resp = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ username, password }),
     });
     const data = await resp.json();
@@ -2491,9 +2486,7 @@ async function handleLogin(e) {
     }
 
     resetPrompt.style.display = 'none';
-    _authToken = data.token;
     _currentUser = data.user;
-    localStorage.setItem('nbi_auth_token', data.token);
     showApp();
     await openIDB();
     await Promise.all([load(), loadTeamMembers(), loadPagePermissions(), loadBugReports(), loadCandidates()]);
@@ -2536,9 +2529,7 @@ async function handleLogout() {
   clearInterval(_leadsReminderInterval);
   clearInterval(_notifPollInterval);
   cleanupListeners();
-  _authToken = null;
   _currentUser = null;
-  localStorage.removeItem('nbi_auth_token');
   showLoginScreen();
 }
 
@@ -7563,10 +7554,9 @@ async function uploadAttachment(taskId) {
   formData.append('file', input.files[0]);
   try {
     toast('Uploading...');
-    const token = localStorage.getItem('nbi_auth_token');
     const resp = await fetch('/api/tasks/' + taskId + '/attachments', {
       method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + token },
+      credentials: 'include',
       body: formData
     });
     if (resp.ok) { toast('File uploaded'); loadAttachments(taskId); input.value = ''; }
@@ -10680,10 +10670,9 @@ async function processReceiptUpload(file) {
   formData.append('file', file);
   try {
     toast('Processing receipt... (this may take 10-15 seconds)');
-    const token = localStorage.getItem('nbi_auth_token');
     const resp = await fetch('/api/expenses/from-receipt', {
       method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + token },
+      credentials: 'include',
       body: formData
     });
     console.log('[Receipt] Response status:', resp.status);
@@ -10718,10 +10707,9 @@ async function uploadExpenseReceipt(expenseId) {
   formData.append('file', input.files[0]);
   try {
     toast('Uploading...');
-    const token = localStorage.getItem('nbi_auth_token');
     const resp = await fetch('/api/expenses/' + expenseId + '/receipts', {
       method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + token },
+      credentials: 'include',
       body: formData
     });
     if (resp.ok) { toast('Receipt uploaded'); openExpenseDetail(expenseId); }
@@ -12578,10 +12566,9 @@ async function uploadSowFile(clientId) {
   formData.append('title', title);
   try {
     toast('Extracting work package content...');
-    const token = localStorage.getItem('nbi_auth_token');
     const resp = await fetch('/api/sows/upload', {
       method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + token },
+      credentials: 'include',
       body: formData
     });
     if (!resp.ok) {
@@ -15976,7 +15963,7 @@ function uploadEntityFile(entityType, entityId, inputId, containerId) {
 
   const xhr = new XMLHttpRequest();
   xhr.open('POST', `/api/attachments/entity/${entityType}/${entityId}`);
-  xhr.setRequestHeader('Authorization', 'Bearer ' + _authToken);
+  xhr.withCredentials = true;
   xhr.upload.onprogress = (e) => {
     if (e.lengthComputable) {
       const pct = Math.round(e.loaded / e.total * 100);
@@ -17664,43 +17651,39 @@ async function fetchSeedData() {
 
 // ----- INIT -----
 (async function init() {
-  // Check if we have a stored auth token
-  if (_authToken) {
-    try {
-      const resp = await fetch('/api/auth/me', { headers: { 'Authorization': 'Bearer ' + _authToken } });
-      if (resp.ok) {
-        const data = await resp.json();
-        _currentUser = data.user;
-        showApp();
-        await openIDB();
-        await Promise.all([load(), loadTeamMembers(), loadPagePermissions(), loadBugReports(), loadAllTeams(), loadAllSows(), apiCall('/api/clients').then(data => { if (data) data.forEach(c => { _apiClientsCache[c.name] = c; }); }).catch(() => {})]);
-        await loadFinanceSeedIfEmpty();
-        await loadFinanceFromDB();
-        checkLeadReminders();
-        if (tasks.length === 0) {
-          const seedCSV = await fetchSeedData();
-          if (seedCSV) { parseCSVPreview(seedCSV); if (pendingCSVData) confirmImport(); }
-        }
-        renderAll();
-        restartPollingIntervals();
-        checkExpenseReportDeepLink();
-        return;
-      }
-    } catch (e) {
-      // Server might not be running yet -- fall back to localStorage offline mode
-      console.log('[Auth] Server unreachable, loading offline');
-      document.getElementById('appContainer').style.display = '';
-      document.getElementById('loginScreen').style.display = 'none';
+  // Check for a valid session cookie by calling auth/me
+  try {
+    const resp = await fetch('/api/auth/me', { credentials: 'include' });
+    if (resp.ok) {
+      const data = await resp.json();
+      _currentUser = data.user;
+      showApp();
       await openIDB();
-      await load();
-      // Offline mode: no seed data available without server
+      await Promise.all([load(), loadTeamMembers(), loadPagePermissions(), loadBugReports(), loadAllTeams(), loadAllSows(), apiCall('/api/clients').then(data => { if (data) data.forEach(c => { _apiClientsCache[c.name] = c; }); }).catch(() => {})]);
+      await loadFinanceSeedIfEmpty();
+      await loadFinanceFromDB();
+      checkLeadReminders();
+      if (tasks.length === 0) {
+        const seedCSV = await fetchSeedData();
+        if (seedCSV) { parseCSVPreview(seedCSV); if (pendingCSVData) confirmImport(); }
+      }
       renderAll();
+      restartPollingIntervals();
+      checkExpenseReportDeepLink();
       return;
     }
+  } catch (e) {
+    console.log('[Auth] Server unreachable, loading offline');
+    document.getElementById('appContainer').style.display = '';
+    document.getElementById('loginScreen').style.display = 'none';
+    await openIDB();
+    await load();
+    renderAll();
+    return;
   }
   // Check if this is a password reset link
   if (checkHashForReset()) return;
-  // No valid token -- show login
+  // No valid session -- show login
   showLoginScreen();
 })();
 

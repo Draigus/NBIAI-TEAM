@@ -109,3 +109,66 @@ describe('auth flow', () => {
     expect(res.status).toBe(401);
   });
 });
+
+describe('HttpOnly cookie auth (F-C2)', () => {
+  it('login sets an HttpOnly session cookie', async () => {
+    const user = await createTestUser({ role: 'admin' });
+    const res = await request(app)
+      .post('/api/auth/login')
+      .send({ username: user.username, password: user.raw_password });
+    expect(res.status).toBe(200);
+    const cookies = res.headers['set-cookie'];
+    expect(cookies).toBeDefined();
+    const sessionCookie = cookies.find(c => c.startsWith('nbi_session='));
+    expect(sessionCookie).toBeTruthy();
+    expect(sessionCookie).toMatch(/HttpOnly/i);
+    expect(sessionCookie).toMatch(/SameSite=Lax/i);
+  });
+
+  it('auth/me works with cookie only (no Authorization header)', async () => {
+    const user = await createTestUser({ role: 'admin' });
+    const login = await request(app)
+      .post('/api/auth/login')
+      .send({ username: user.username, password: user.raw_password });
+    const cookies = login.headers['set-cookie'];
+    const sessionCookie = cookies.find(c => c.startsWith('nbi_session='));
+    const cookieValue = sessionCookie.split(';')[0];
+
+    const me = await request(app)
+      .get('/api/auth/me')
+      .set('Cookie', cookieValue);
+    expect(me.status).toBe(200);
+    expect(me.body.user.username).toBe(user.username);
+  });
+
+  it('requireAuth works with cookie only (no Authorization header)', async () => {
+    const user = await createTestUser({ role: 'admin' });
+    const login = await request(app)
+      .post('/api/auth/login')
+      .send({ username: user.username, password: user.raw_password });
+    const cookies = login.headers['set-cookie'];
+    const cookieValue = cookies.find(c => c.startsWith('nbi_session=')).split(';')[0];
+
+    const res = await request(app)
+      .get('/api/tasks')
+      .set('Cookie', cookieValue);
+    expect(res.status).toBe(200);
+  });
+
+  it('logout clears the session cookie', async () => {
+    const user = await createTestUser({ role: 'admin' });
+    const login = await request(app)
+      .post('/api/auth/login')
+      .send({ username: user.username, password: user.raw_password });
+    const cookies = login.headers['set-cookie'];
+    const cookieValue = cookies.find(c => c.startsWith('nbi_session=')).split(';')[0];
+
+    const logout = await request(app)
+      .post('/api/auth/logout')
+      .set('Cookie', cookieValue);
+    expect(logout.status).toBe(200);
+    const clearCookies = logout.headers['set-cookie'];
+    const cleared = clearCookies?.find(c => c.startsWith('nbi_session='));
+    expect(cleared).toMatch(/nbi_session=;|Max-Age=0|Expires=Thu, 01 Jan 1970/i);
+  });
+});
