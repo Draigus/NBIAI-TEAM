@@ -48,13 +48,12 @@ const PORT = parseInt(process.env.PORT ?? '3000', 10)
 const NODE_ENV = process.env.NODE_ENV ?? 'development'
 const FRONTEND_URL = process.env.FRONTEND_URL ?? 'http://localhost:5173'
 const JWT_SECRET = process.env.JWT_SECRET
-const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET
 
-
-if (!JWT_SECRET || !JWT_REFRESH_SECRET) {
-  console.error(
-    '[startup] JWT_SECRET and JWT_REFRESH_SECRET must be set in environment variables.',
-  )
+// Refresh tokens are random bytes SHA-256 hashed (see src/lib/crypto.ts
+// and the sessions table), not JWTs, so no JWT_REFRESH_SECRET is
+// needed. The previous startup check required an unused env var.
+if (!JWT_SECRET) {
+  console.error('[startup] JWT_SECRET must be set in environment variables.')
   process.exit(1)
 }
 
