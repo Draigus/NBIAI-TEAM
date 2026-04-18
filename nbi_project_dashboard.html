@@ -18385,13 +18385,21 @@ const newsTemplates = {
     const body = ms.body_markdown || '';
     // Simple excerpt: first paragraph.
     const excerpt = body.split(/\n\s*\n/)[0].slice(0, 280);
-    const fullHtml = newsMarkdownLite(body);
+    // Store the raw markdown source on the body node (data-md). The
+    // toggle handler re-runs newsMarkdownLite at toggle time and writes
+    // via DOM APIs, so HTML is never round-tripped through an attribute
+    // and innerHTML — which was the previous design and a latent XSS
+    // (audit finding F-C3). newsEsc in an attribute is safe today, but
+    // the attribute→innerHTML round-trip means any future markdown
+    // extension (images, links, etc.) would turn into stored XSS on the
+    // LLM's monthly essay content. The new flow keeps the output HTML
+    // entirely server-side-equivalent with no live re-parse of attr text.
     return '<section class="news-monthly">' +
       '<p class="news-monthly__kicker">State of the Industry</p>' +
       '<h2 class="news-monthly__title">' + newsEsc(ms.title) + '</h2>' +
       '<p class="news-monthly__excerpt">' + newsEsc(excerpt) + (body.length > excerpt.length ? '…' : '') + '</p>' +
       '<button class="news-monthly__read-more" onclick="toggleNewsMonthly(this)">Read the essay</button>' +
-      '<div class="news-monthly__body" data-full="' + newsEsc(fullHtml) + '"></div>' +
+      '<div class="news-monthly__body" data-md="' + newsEsc(body) + '"></div>' +
     '</section>';
   },
 };
@@ -18417,7 +18425,21 @@ function toggleNewsMonthly(btn) {
   if (!body) return;
   const isOpen = body.classList.contains('open');
   if (isOpen) { body.classList.remove('open'); btn.textContent = 'Read the essay'; return; }
-  if (!body.innerHTML) body.innerHTML = body.getAttribute('data-full') || '';
+  if (!body.firstChild) {
+    // Render the markdown source to DOM nodes at toggle time rather than
+    // round-tripping an HTML string through a data attribute and
+    // innerHTML. data-md holds the escaped markdown source; we unescape
+    // it and feed it through newsMarkdownLite which only produces a
+    // fixed set of block tags (p, h1-h3, br, strong, em) from content
+    // that newsEsc() has already entity-encoded. Any future markdown
+    // extension stays bounded by this function rather than leaking
+    // arbitrary HTML (audit finding F-C3).
+    const raw = body.getAttribute('data-md') || '';
+    const tmp = document.createElement('textarea');
+    tmp.innerHTML = raw; // textarea decodes entities without executing anything
+    const md = tmp.value;
+    body.innerHTML = newsMarkdownLite(md);
+  }
   body.classList.add('open');
   btn.textContent = 'Hide essay';
 }
