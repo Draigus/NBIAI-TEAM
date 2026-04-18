@@ -10179,8 +10179,14 @@ function renderReportDetailContent(container, data) {
     }
   }
 
-  // Review section — visible to admins and expense approver (Tom)
-  const canReview = isAdmin || (_currentUser && _currentUser.username === 'tom');
+  // Review section — visible to admins and the configured expense approver.
+  // The old check (_currentUser.username === 'tom') hardcoded the username
+  // in the client bundle; anyone with a 'tom' account could review
+  // (audit finding F-C8). Now we read settings.expense_approver, which the
+  // server sources from DB settings / env var. The server enforces this
+  // again on every PATCH regardless of what the client decides to show.
+  const configuredApprover = (settings && (settings.expense_approver || settings.expenseApprover)) || null;
+  const canReview = isAdmin || (_currentUser && configuredApprover && _currentUser.username === configuredApprover);
   if (canReview && r.status === 'submitted') {
     html += `<div class="report-fs__notes" style="margin-top:24px">
       <h3>Review</h3>
@@ -16977,10 +16983,26 @@ function generateClientReport(clientName) {
     report += `  - ${t.title} [${pct}% | ${(t.assignees||[]).join(', ')||'Unassigned'}]\n`;
   });
 
-  // Copy to clipboard and open in a new window
+  // Copy to clipboard and open in a new window. The old implementation
+  // used document.write with clientName interpolated directly into the
+  // title tag, which let a client name containing a closing title tag
+  // followed by an injected script break out of the title context and
+  // run arbitrary JS with access to window.opener (audit finding F-C4).
+  // Build the DOM via textContent and a pre element instead, and drop
+  // window.opener so the popup cannot reach back into the parent origin.
   navigator.clipboard.writeText(report).then(() => toast('Report copied to clipboard'));
   const win = window.open('', '_blank', 'width=700,height=600');
-  win.document.write(`<html><head><title>Status Report: ${clientName}</title><style>body{font-family:monospace;background:#111;color:#ddd;padding:24px;white-space:pre-wrap;font-size:13px;line-height:1.6}</style></head><body>${report.replace(/</g,'&lt;')}</body></html>`);
+  if (!win) { toast('Popup blocked — report copied to clipboard', 'warning'); return; }
+  try { win.opener = null; } catch (_) { /* ignore — some browsers lock this */ }
+  const doc = win.document;
+  doc.title = 'Status Report: ' + clientName;
+  const style = doc.createElement('style');
+  style.textContent = 'body{font-family:monospace;background:#111;color:#ddd;padding:24px;white-space:pre-wrap;font-size:13px;line-height:1.6}';
+  doc.head.appendChild(style);
+  const pre = doc.createElement('pre');
+  pre.textContent = report;
+  doc.body.innerHTML = '';
+  doc.body.appendChild(pre);
 }
 
 // ===== LOADING & SYNC STATUS =====

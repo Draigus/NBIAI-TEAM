@@ -1128,16 +1128,21 @@ app.patch('/api/users/:id', async (req, res) => {
 // ==================== AUDIT LOG ====================
 
 /**
- * Look up the expense approver username from DB settings, with env/fallback.
- * @returns {Promise<string>} The username of the designated expense approver
+ * Look up the expense approver username from DB settings or env.
+ * Returns null when neither source is configured — callers must handle
+ * that case (typically by falling back to a broadcast to admins).
+ * The old hardcoded 'tom' fallback (audit finding B-B11) silently
+ * misdirected approval notifications to whichever user happened to
+ * have that username after a DB hiccup.
  */
 async function getExpenseApprover() {
   try {
     const { rows } = await pool.query("SELECT value FROM settings WHERE key = 'expense_approver'");
-    return rows[0]?.value || process.env.EXPENSE_APPROVER_USERNAME || 'tom';
-  } catch(e) {
-    return process.env.EXPENSE_APPROVER_USERNAME || 'tom';
+    if (rows[0]?.value) return rows[0].value;
+  } catch (e) {
+    console.error('[getExpenseApprover] settings lookup failed:', e.message);
   }
+  return process.env.EXPENSE_APPROVER_USERNAME || null;
 }
 
 /**
@@ -5767,15 +5772,20 @@ app.patch('/api/expenses/:id', requireInternal, async (req, res) => {
 
   // Text fields are stored raw; escaping happens at render time in the frontend (esc()).
   const allowed = ['date', 'amount', 'currency', 'category_id', 'description', 'notes', 'vat_amount'];
-  // Admin-only fields
-  if (isAdmin) allowed.push('status', 'reviewed_by', 'reviewed_at');
+  // Admin-only fields. reviewed_by and reviewed_at are NOT in the allow-list
+  // (audit finding B-C3) — admins could otherwise forge the audit trail by
+  // setting reviewed_by to any string or backdating reviewed_at, defeating
+  // the legal control on reimbursements. Both are always server-stamped
+  // below when status changes.
+  if (isAdmin) allowed.push('status');
 
   const { updates, vals, nextIdx } = buildPatchQuery(req.body, allowed);
   let idx = nextIdx;
-  // Auto-set review fields when admin changes status
+  // Auto-set review fields when admin changes status. These are always
+  // server-stamped; any reviewed_by/reviewed_at in the body is ignored.
   if (isAdmin && req.body.status && req.body.status !== expense.status) {
-    if (!req.body.reviewed_by) { updates.push(`reviewed_by = $${idx}`); vals.push(req.user.displayName); idx++; }
-    if (!req.body.reviewed_at) { updates.push(`reviewed_at = $${idx}`); vals.push(new Date().toISOString()); idx++; }
+    updates.push(`reviewed_by = $${idx}`); vals.push(req.user.displayName); idx++;
+    updates.push(`reviewed_at = $${idx}`); vals.push(new Date().toISOString()); idx++;
   }
   updates.push(`updated_at = $${idx}`); vals.push(new Date().toISOString()); idx++;
 
@@ -6966,15 +6976,18 @@ app.patch('/api/expense-reports/:id', requireInternal, async (req, res) => {
   }
 
   const allowed = ['title', 'notes'];
-  if (canReview) allowed.push('status', 'reviewed_by', 'reviewed_at', 'review_notes');
+  // reviewed_by and reviewed_at are NOT in the allow-list (audit finding
+  // B-C3) — they are always server-stamped from req.user below so the
+  // audit trail on approval cannot be forged by a reviewer.
+  if (canReview) allowed.push('status', 'review_notes');
 
   const { updates, vals, nextIdx } = buildPatchQuery(req.body, allowed);
   let idx = nextIdx;
-  // Auto-set review fields when reviewer changes status
+  // Auto-set review fields when reviewer changes status. Always server-stamped.
   if (canReview && req.body.status && req.body.status !== report.status) {
     if (req.body.status === 'approved' || req.body.status === 'rejected') {
-      if (!req.body.reviewed_by) { updates.push(`reviewed_by = $${idx}`); vals.push(req.user.displayName); idx++; }
-      if (!req.body.reviewed_at) { updates.push(`reviewed_at = $${idx}`); vals.push(new Date().toISOString()); idx++; }
+      updates.push(`reviewed_by = $${idx}`); vals.push(req.user.displayName); idx++;
+      updates.push(`reviewed_at = $${idx}`); vals.push(new Date().toISOString()); idx++;
     }
     // If reviewer approves report, also approve all its expenses
     if (req.body.status === 'approved') {
@@ -7037,20 +7050,38 @@ app.post('/api/expense-reports/:id/submit', requireInternal, async (req, res) =>
   // Build the review URL
   const reportUrl = `${APP_URL}/nbi_project_dashboard.html#expenses/report/${req.params.id}`;
 
-  // In-app notification to expense approver (from DB settings, falls back to env/tom)
+  // In-app notification to the designated expense approver. If no approver
+  // is configured (settings or env), broadcast to all admins instead so the
+  // report doesn't disappear silently. The old path fell back to 'tom' as
+  // a hardcoded username (audit finding B-B11) which misdirected approvals
+  // whenever settings lookup failed.
   const approverUsername = await getExpenseApprover();
   const approverEmail = process.env.EXPENSE_APPROVER_EMAIL || 'trieger@nbi-consulting.com';
   try {
-    await createNotification(
-      approverUsername,
-      'expense_report',
-      `Expense Report: ${report.title}`,
-      `${report.employee_name || 'An employee'} submitted an expense report (${totalStr}). Click to review.`,
-      reportUrl
-    );
-    log('info', 'Notification', `Tom notified about expense report "${report.title}"`);
+    if (approverUsername) {
+      await createNotification(
+        approverUsername,
+        'expense_report',
+        `Expense Report: ${report.title}`,
+        `${report.employee_name || 'An employee'} submitted an expense report (${totalStr}). Click to review.`,
+        reportUrl
+      );
+      log('info', 'Notification', `Approver ${approverUsername} notified about expense report "${report.title}"`);
+    } else {
+      const admins = await pool.query("SELECT username FROM users WHERE role = 'admin' AND is_active = true");
+      for (const a of admins.rows) {
+        await createNotification(
+          a.username,
+          'expense_report',
+          `Expense Report: ${report.title}`,
+          `${report.employee_name || 'An employee'} submitted an expense report (${totalStr}). No approver is configured — review as admin.`,
+          reportUrl
+        );
+      }
+      log('info', 'Notification', `No approver configured; broadcast expense report "${report.title}" to ${admins.rows.length} admin(s)`);
+    }
   } catch(e) {
-    log('warn', 'Notification', 'Failed to notify Tom', { error: e.message });
+    log('warn', 'Notification', 'Failed to notify approver', { error: e.message });
   }
 
   // Email notification to expense approver (fire-and-forget)
