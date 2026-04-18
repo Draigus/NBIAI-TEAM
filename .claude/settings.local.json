@@ -66,7 +66,28 @@
       "Bash(git commit -m ':*)",
       "Bash(node -e ':*)",
       "mcp__Claude_in_Chrome__navigate",
-      "mcp__Claude_in_Chrome__computer"
+      "mcp__Claude_in_Chrome__computer",
+      "Bash(pm2 jlist *)",
+      "Bash(python -c \"import sys, json; [print\\(p['name'], '::', p['pm2_env'].get\\('pm_cwd',''\\), '::', p['pm2_env'].get\\('script',''\\)\\) for p in json.load\\(sys.stdin\\)]\")",
+      "Bash(pm2 list *)",
+      "Bash(PGPASSWORD='NbiAi2026!SecureDb' psql -U nbiai -h localhost -d nbi_dashboard -c \"SELECT tier, count\\(*\\) FROM news.sources GROUP BY tier ORDER BY tier\")",
+      "Skill(claude-api)",
+      "Skill(claude-api:*)",
+      "Bash(pm2 env *)",
+      "Bash(railway --version)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"NO-FABRICATION GUARDRAIL: any numbers, percentages, ratios, or counts in this sub-agent result are CLAIMS, not measurements. Before including them in grids, tables, comparisons, or verdicts, personally run the underlying command or read the file. Do not relay sub-agent numbers as measurements. See memory/feedback_no_fabricated_analysis.md.\"}}'"
+          }
+        ]
+      }
     ]
   }
 }
