@@ -5066,6 +5066,69 @@ app.get('/api/dashboard/summary', async (req, res) => {
   });
 });
 
+/**
+ * Compute a daily KPI snapshot from current task state.
+ * Returns an object with all dashboard_snapshots columns (except id/created_at).
+ */
+async function computeDashboardSnapshot() {
+  const today = new Date().toISOString().slice(0, 10);
+  const { rows: taskRows } = await pool.query(`
+    SELECT t.status, t.health_state, t.due_date, t.hours_spent, t.hours_estimated,
+           t.parent_id, t.created_at::date as created_date, t.title
+    FROM tasks t
+  `);
+
+  const now = new Date(); now.setHours(0, 0, 0, 0);
+  const roots = taskRows.filter(r => !r.parent_id && r.title && r.title.trim() !== 'New Task');
+  const activeRoots = roots.filter(r => r.status !== 'Done' && r.status !== 'Cancelled');
+  const overdue = taskRows.filter(r => r.due_date && r.status !== 'Done' && r.status !== 'Cancelled' && new Date(r.due_date) < now);
+  const blocked = taskRows.filter(r => r.health_state === 'Blocked' && r.status !== 'Done' && r.status !== 'Cancelled');
+  const atRisk = taskRows.filter(r => r.health_state === 'Red' && r.status !== 'Done' && r.status !== 'Cancelled');
+  const hrsSpent = taskRows.reduce((s, r) => s + (parseFloat(r.hours_spent) || 0), 0);
+  const hrsEst = taskRows.reduce((s, r) => s + (parseFloat(r.hours_estimated) || 0), 0);
+
+  const activeTasks = taskRows.filter(r => r.status !== 'Done' && r.status !== 'Cancelled');
+  const addedToday = taskRows.filter(r => r.created_date === today);
+  const completedToday = taskRows.filter(r => r.status === 'Done');
+
+  return {
+    snapshot_date: today,
+    active_projects: activeRoots.length,
+    overdue_count: overdue.length,
+    blocked_count: blocked.length,
+    at_risk_count: atRisk.length,
+    hours_spent: hrsSpent.toFixed(1),
+    hours_estimated: hrsEst.toFixed(1),
+    tasks_planned: activeTasks.length,
+    tasks_added: addedToday.length,
+    tasks_completed: completedToday.length,
+  };
+}
+
+/**
+ * GET /api/dashboard/snapshots?days=56
+ * Returns daily KPI snapshots for the last N days (default 56 = 8 weeks).
+ * Used for week-over-week trend deltas and the Work Completed chart.
+ */
+app.get('/api/dashboard/snapshots', async (req, res) => {
+  if (!req.user) return res.status(401).json({ error: 'Authentication required' });
+  const days = Math.min(Math.max(parseInt(req.query.days) || 56, 1), 365);
+  try {
+    const { rows } = await pool.query(
+      `SELECT snapshot_date, active_projects, overdue_count, blocked_count, at_risk_count,
+              hours_spent, hours_estimated, tasks_planned, tasks_added, tasks_completed
+       FROM dashboard_snapshots
+       WHERE snapshot_date >= CURRENT_DATE - $1::integer
+       ORDER BY snapshot_date ASC`,
+      [days]
+    );
+    res.json({ snapshots: rows });
+  } catch (e) {
+    log('error', 'API', 'Dashboard snapshots query failed', { error: e.message });
+    res.status(500).json({ error: 'An internal error occurred' });
+  }
+});
+
 // ==================== LEADS TRACKER ====================
 // CRM pipeline for tracking sales opportunities, from initial contact through to close.
 // Supports configurable stages, resource requirements, activity logging, and revenue forecasting.
@@ -8501,6 +8564,45 @@ if (cron) {
   });
   log('info', 'Cron', 'Inbound email polling scheduled every 10 minutes');
 }
+
+// Daily dashboard snapshot at 00:05 UTC
+if (cron) {
+  cron.schedule('5 0 * * *', async () => {
+    try {
+      const snap = await computeDashboardSnapshot();
+      await pool.query(
+        `INSERT INTO dashboard_snapshots (snapshot_date, active_projects, overdue_count, blocked_count, at_risk_count, hours_spent, hours_estimated, tasks_planned, tasks_added, tasks_completed)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+         ON CONFLICT (snapshot_date) DO NOTHING`,
+        [snap.snapshot_date, snap.active_projects, snap.overdue_count, snap.blocked_count, snap.at_risk_count, snap.hours_spent, snap.hours_estimated, snap.tasks_planned, snap.tasks_added, snap.tasks_completed]
+      );
+      log('info', 'Cron', 'Dashboard snapshot recorded', { date: snap.snapshot_date });
+    } catch (e) {
+      log('error', 'Cron', 'Dashboard snapshot failed', { error: e.message });
+    }
+  });
+  log('info', 'Cron', 'Dashboard snapshot scheduled for 00:05 UTC daily');
+}
+
+// Bootstrap today's snapshot on startup if it doesn't exist yet
+(async () => {
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const { rows } = await pool.query('SELECT 1 FROM dashboard_snapshots WHERE snapshot_date = $1', [today]);
+    if (rows.length === 0) {
+      const snap = await computeDashboardSnapshot();
+      await pool.query(
+        `INSERT INTO dashboard_snapshots (snapshot_date, active_projects, overdue_count, blocked_count, at_risk_count, hours_spent, hours_estimated, tasks_planned, tasks_added, tasks_completed)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+         ON CONFLICT (snapshot_date) DO NOTHING`,
+        [snap.snapshot_date, snap.active_projects, snap.overdue_count, snap.blocked_count, snap.at_risk_count, snap.hours_spent, snap.hours_estimated, snap.tasks_planned, snap.tasks_added, snap.tasks_completed]
+      );
+      log('info', 'Startup', 'Bootstrapped dashboard snapshot', { date: today });
+    }
+  } catch (e) {
+    log('warn', 'Startup', 'Dashboard snapshot bootstrap failed', { error: e.message });
+  }
+})();
 
 // ==================== ERROR HANDLING ====================
 // IMPORTANT: Must be registered AFTER all route definitions so it catches errors from every endpoint.
