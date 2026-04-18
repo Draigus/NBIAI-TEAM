@@ -1,3 +1,5 @@
+import { getToken } from './api'
+
 const BASE_RECONNECT_DELAY = 1_000
 const MAX_RECONNECT_DELAY = 30_000
 
@@ -29,8 +31,12 @@ export function createWsClient(
     ws.addEventListener('open', () => {
       reconnectDelay = BASE_RECONNECT_DELAY
 
-      // Auth handshake
-      const token = localStorage.getItem('accessToken')
+      // Auth handshake. The access token lives in memory only (see
+      // lib/api.ts; localStorage holds only the refresh token). Calling
+      // localStorage.getItem('accessToken') here previously always
+      // returned null and the server closed the socket with 4001
+      // "Invalid token".
+      const token = getToken()
       if (token) {
         ws!.send(JSON.stringify({ type: 'auth', token }))
       }
