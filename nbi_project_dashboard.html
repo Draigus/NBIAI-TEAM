@@ -3203,22 +3203,6 @@ function clientSortOrder(a, b) {
   return a.localeCompare(b);
 }
 
-function bestGridColumns(count, maxCols) {
-  if (count <= 1) return 1;
-  if (count <= maxCols) return count;
-  let best = 2;
-  let bestRatio = 0;
-  for (let c = 2; c <= maxCols; c++) {
-    const remainder = count % c;
-    const lastRowCount = remainder === 0 ? c : remainder;
-    const ratio = lastRowCount / c;
-    if (ratio > bestRatio || (ratio === bestRatio && c > best)) {
-      bestRatio = ratio;
-      best = c;
-    }
-  }
-  return best;
-}
 /** Collect all unique client names from tasks, sorted by client priority order */
 function getAllClients() {
   const s = new Set(); tasks.forEach(t => { const c = getTaskClient(t); if (c) s.add(c); });
@@ -4340,17 +4324,6 @@ function toggleClientCard(clientName) {
     _expandedClientCards.add(clientName);
   }
   const card = document.getElementById('clientCard_' + clientName.replace(/[^a-zA-Z0-9]/g, '_'));
-  if (card) card.classList.toggle('expanded');
-}
-
-/** Toggle portfolio card expansion in portfolio dashboard */
-function togglePortfolioCard(clientName) {
-  if (_expandedPortfolioCards.has(clientName)) {
-    _expandedPortfolioCards.delete(clientName);
-  } else {
-    _expandedPortfolioCards.add(clientName);
-  }
-  const card = document.getElementById('portfolioCard_' + clientName.replace(/[^a-zA-Z0-9]/g, '_'));
   if (card) card.classList.toggle('expanded');
 }
 
