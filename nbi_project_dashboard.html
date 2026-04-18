@@ -367,47 +367,87 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 @media (max-width: 768px) { .tactical-grid { grid-template-columns: 1fr; } .tactical-metrics { flex-wrap: wrap; } .tactical-metric { flex: 1 1 30%; } .standup-task__row { gap: 4px; } .standup-inline--date { width: 96px; } }
 @media (min-width: 769px) and (max-width: 1024px) { .tactical-grid { grid-template-columns: 1fr 1fr; } }
 
-/* ===== PORTFOLIO DASHBOARD ===== */
-.portfolio-strip { display: flex; gap: 2px; margin-bottom: var(--space-lg); background: var(--bg-surface); border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--border-default); }
-.portfolio-strip__item { flex: 1; text-align: center; padding: 14px 8px; background: color-mix(in srgb, var(--bg-card) 85%, var(--text-muted)); }
-.portfolio-strip__value { display: block; font-size: 1.8rem; font-weight: 700; font-family: var(--font-display); line-height: 1.2; }
-.portfolio-strip__label { font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; }
-.portfolio-grid { display: flex; flex-wrap: wrap; gap: var(--space-md); margin-bottom: var(--space-lg); }
-.portfolio-card { background: color-mix(in srgb, var(--bg-card) 85%, var(--text-muted)); border: 1px solid var(--border-default); border-radius: var(--radius-lg); overflow: hidden; transition: border-color 0.15s; flex: 1 1 var(--portfolio-basis, 100%); min-width: var(--portfolio-basis, 100%); }
-.portfolio-card:hover { border-color: var(--accent-border); }
-.portfolio-card--red { border-left: 4px solid var(--danger); }
-.portfolio-card--yellow { border-left: 4px solid var(--warning); }
-.portfolio-card--green { border-left: 4px solid var(--success); }
-.portfolio-card__header { display: flex; align-items: center; gap: var(--space-md); padding: 28px var(--space-lg); cursor: pointer; min-height: 100px; }
-.portfolio-card__header:hover { background: var(--bg-hover); }
-.portfolio-card__health { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
-.portfolio-card__name { font-weight: 600; font-size: 1.1rem; flex: 1; min-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.portfolio-card__stats { display: flex; gap: var(--space-md); font-size: 0.78rem; color: var(--text-muted); flex-shrink: 1; flex-wrap: wrap; }
-.portfolio-card__stat { display: flex; align-items: center; gap: 4px; white-space: nowrap; }
-.portfolio-card__stat--danger { color: var(--danger); font-weight: 600; }
-.portfolio-card__stat--warning { color: var(--warning); font-weight: 600; }
-.portfolio-card__progress { flex-shrink: 0; width: 60px; }
-.portfolio-card__progress-bar { height: 6px; background: var(--border-subtle); border-radius: 3px; overflow: hidden; }
-.portfolio-card__progress-fill { height: 100%; border-radius: 3px; }
-.portfolio-card__pct { font-size: 0.72rem; color: var(--text-muted); text-align: right; margin-top: 2px; }
-.portfolio-card__arrow { font-size: 0.75rem; color: var(--text-secondary); transition: transform 0.2s; flex-shrink: 0; }
-.portfolio-card.expanded .portfolio-card__arrow { transform: rotate(180deg); }
-.portfolio-card__body { display: none; padding: 0 var(--space-lg) var(--space-lg); border-top: 1px solid var(--border-subtle); }
-.portfolio-card.expanded .portfolio-card__body { display: block; }
-.portfolio-project { display: flex; align-items: center; gap: var(--space-sm); padding: 8px 0; border-bottom: 1px solid var(--border-subtle); font-size: 0.82rem; cursor: pointer; }
-.portfolio-project:last-child { border-bottom: none; }
-.portfolio-project:hover { color: var(--accent-text); }
-.portfolio-project__health { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.portfolio-project__title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.portfolio-project__bar { width: 80px; height: 4px; background: var(--border-subtle); border-radius: 2px; overflow: hidden; flex-shrink: 0; }
-.portfolio-project__bar-fill { height: 100%; border-radius: 2px; }
-.portfolio-project__meta { font-size: 0.72rem; color: var(--text-muted); flex-shrink: 0; min-width: 35px; text-align: right; }
-.portfolio-project__flags { display: flex; gap: 4px; flex-shrink: 0; }
-.portfolio-project__flag { font-size: 0.68rem; padding: 1px 6px; border-radius: 3px; font-weight: 600; }
-.portfolio-project__flag--overdue { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
-.portfolio-project__flag--blocked { background: var(--purple-bg); color: var(--purple); border: 1px solid var(--purple-border); }
-.portfolio-project__flag--risk { background: var(--warning-bg); color: var(--warning); border: 1px solid var(--warning-border); }
-@media (max-width: 768px) { .portfolio-strip { flex-wrap: wrap; } .portfolio-strip__item { flex: 1 1 45%; } .portfolio-card { flex: 1 1 100% !important; min-width: 100% !important; } .portfolio-card__header { flex-wrap: wrap; } .portfolio-card__name { white-space: normal; } }
+/* ===== PORTFOLIO DASHBOARD v3 ===== */
+.pf { display: flex; flex-direction: column; gap: var(--space-lg); }
+.pf__strip { display: flex; gap: 2px; background: var(--bg-surface); border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--border-default); }
+.pf__strip-item { flex: 1; text-align: center; padding: 14px 8px; background: color-mix(in srgb, var(--bg-card) 85%, var(--text-muted)); }
+.pf__strip-val { display: block; font-size: 1.8rem; font-weight: 700; font-family: var(--font-display); line-height: 1.2; }
+.pf__strip-label { font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; }
+.pf__strip-delta { font-size: 0.68rem; font-weight: 600; margin-left: 4px; }
+
+.pf__main { display: flex; gap: var(--space-md); min-height: 0; }
+.pf__sidebar { width: 240px; flex-shrink: 0; display: flex; flex-direction: column; gap: var(--space-sm); max-height: calc(100vh - 220px); overflow-y: auto; }
+.pf__sidebar::-webkit-scrollbar { width: 4px; }
+.pf__sidebar::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: 2px; }
+
+.pf__client { background: color-mix(in srgb, var(--bg-card) 85%, var(--text-muted)); border: 1px solid var(--border-default); border-radius: var(--radius-md); padding: 14px; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; }
+.pf__client:hover { border-color: var(--accent-border); }
+.pf__client--selected { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.pf__client--red { border-left: 4px solid var(--danger); }
+.pf__client--yellow { border-left: 4px solid var(--warning); }
+.pf__client--green { border-left: 4px solid var(--success); }
+.pf__client-name { font-weight: 600; font-size: 1.1rem; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+.pf__client-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.pf__client-stats { font-size: 0.75rem; color: var(--text-muted); line-height: 1.6; }
+.pf__client-stats span { margin-right: 8px; }
+.pf__client-stats .danger { color: var(--danger); font-weight: 600; }
+.pf__client-bar { height: 5px; background: var(--border-subtle); border-radius: 3px; overflow: hidden; margin-top: 8px; }
+.pf__client-bar-fill { height: 100%; border-radius: 3px; }
+.pf__client-pct { font-size: 0.7rem; color: var(--text-muted); text-align: right; margin-top: 2px; }
+
+.pf__panels { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md); min-width: 0; }
+.pf__panel { background: color-mix(in srgb, var(--bg-card) 85%, var(--text-muted)); border: 1px solid var(--border-default); border-radius: var(--radius-lg); overflow: hidden; display: flex; flex-direction: column; }
+.pf__panel-hdr { padding: 16px 20px 8px; }
+.pf__panel-title { font-size: 0.88rem; font-weight: 600; color: var(--text-primary); }
+.pf__panel-sub { font-size: 0.68rem; color: var(--text-muted); margin-top: 2px; }
+.pf__panel-body { padding: 0 16px 16px; flex: 1; overflow: auto; }
+
+.pf__bottom { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-md); }
+
+.pf__attn-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--bg-surface); border-radius: 6px; cursor: pointer; transition: background 0.15s; }
+.pf__attn-item:hover { background: var(--bg-hover); }
+.pf__attn-badge { font-size: 0.6rem; padding: 3px 7px; border-radius: 3px; font-weight: 600; white-space: nowrap; border: 1px solid; }
+.pf__attn-badge--overdue { background: rgba(248,113,113,0.1); color: var(--danger); border-color: rgba(248,113,113,0.2); }
+.pf__attn-badge--risk { background: rgba(248,113,113,0.1); color: var(--danger); border-color: rgba(248,113,113,0.2); }
+.pf__attn-badge--blocked { background: rgba(167,139,250,0.1); color: var(--purple); border-color: rgba(167,139,250,0.2); }
+.pf__attn-title { font-size: 0.78rem; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pf__attn-context { font-size: 0.65rem; color: var(--text-muted); margin-top: 2px; }
+
+.pf__bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 150px; border-bottom: 1px solid var(--border-default); }
+.pf__bar-week { flex: 1; display: flex; gap: 2px; align-items: flex-end; }
+.pf__bar-stack { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; }
+.pf__bar-seg { border-radius: 2px 2px 0 0; }
+.pf__bar-week--current { outline: 1px solid rgba(59,130,246,0.25); border-radius: 2px; }
+
+.pf__scorecard { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+.pf__scorecard th { text-align: center; padding: 8px; color: var(--text-muted); font-weight: 500; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border-default); }
+.pf__scorecard th:first-child { text-align: left; }
+.pf__scorecard td { padding: 10px 8px; border-bottom: 1px solid var(--border-subtle); }
+.pf__scorecard tr { cursor: pointer; }
+.pf__scorecard tr:hover { background: var(--bg-hover); }
+.pf__scorecard-dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; }
+
+.pf__workload-row { display: flex; align-items: center; gap: 10px; padding: 6px 10px; background: var(--bg-surface); border-radius: 6px; cursor: pointer; }
+.pf__workload-row:hover { background: var(--bg-hover); }
+.pf__workload-name { font-size: 0.78rem; color: var(--text-primary); width: 70px; flex-shrink: 0; }
+.pf__workload-bar { flex: 1; height: 14px; background: var(--border-subtle); border-radius: 3px; overflow: hidden; }
+.pf__workload-fill { height: 100%; border-radius: 3px; }
+.pf__workload-count { font-size: 0.7rem; font-weight: 600; width: 24px; text-align: right; }
+
+@media (max-width: 1024px) {
+  .pf__main { flex-direction: column; }
+  .pf__sidebar { width: 100%; flex-direction: row; flex-wrap: wrap; max-height: none; overflow: visible; }
+  .pf__client { flex: 1 1 200px; }
+  .pf__panels { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 768px) {
+  .pf__strip { flex-wrap: wrap; }
+  .pf__strip-item { flex: 1 1 45%; }
+  .pf__sidebar { flex-direction: column; }
+  .pf__client { flex: 1 1 100%; }
+  .pf__panels { grid-template-columns: 1fr; }
+  .pf__bottom { grid-template-columns: 1fr; }
+}
 
 .kpi-card { background: var(--bg-card); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-lg) var(--space-xl); text-align: center; cursor: pointer; transition: all 0.15s; }
 .kpi-card:hover { border-color: var(--accent-border); box-shadow: var(--shadow-md); transform: translateY(-1px); }
@@ -2349,7 +2389,33 @@ let _cachedUsers = [];       // Cached full user records (id, username, display_
 const _expandedStandupPeople = new Set(); // Track which person sections are expanded in standup
 const _standupDoneExpanded = new Set(); // Per-person: track which standup Done sections are expanded (default collapsed)
 const _expandedClientCards = new Set();  // Track which client summary cards are expanded in report view
-const _expandedPortfolioCards = new Set(); // Track which client cards are expanded in portfolio dashboard
+let _portfolioSelectedClient = null;
+let _portfolioSnapshots = null;
+let _portfolioAttentionExpanded = false;
+let _pfGanttDayWidth = 12;
+let _pfGanttOffsetDays = 0;
+
+async function loadDashboardSnapshots() {
+  try {
+    const resp = await authFetch('/api/dashboard/snapshots?days=56');
+    if (resp.ok) {
+      const data = await resp.json();
+      _portfolioSnapshots = data.snapshots || [];
+    }
+  } catch (e) {
+    _portfolioSnapshots = [];
+  }
+}
+
+function selectPortfolioClient(clientName) {
+  _portfolioSelectedClient = _portfolioSelectedClient === clientName ? null : clientName;
+  renderContent();
+}
+
+function pfGanttZoom(delta) { _pfGanttDayWidth = Math.max(6, Math.min(40, _pfGanttDayWidth + delta)); renderContent(); }
+function pfGanttNav(days) { _pfGanttOffsetDays += days; renderContent(); }
+function pfGanttToday() { _pfGanttOffsetDays = 0; renderContent(); }
+
 let _scrollRestoreTarget = null; // Scroll position to restore after async standup render
 let _lastLocalSyncTime = 0; // Timestamp of last local save — suppresses poll re-render for own changes
 const _recentlyEditedIds = new Set(); // Task IDs edited locally in the last 15s — for self-echo detection
@@ -4054,6 +4120,13 @@ function renderDashboard(el) {
     <div style="font-size:0.82rem;color:var(--text-muted)">${dateStr}</div>
   </div>`;
 
+  // Load snapshots for trend deltas + Work Completed chart
+  if (!_portfolioSnapshots) {
+    loadDashboardSnapshots().then(() => {
+      if (currentView === 'dashboard') renderContent();
+    });
+  }
+
   // html += renderTacticalDashboard(); // COMMENTED OUT — old tactical/ops view, kept for revert
   html += renderPortfolioDashboard();
   el.innerHTML = html;
@@ -4281,7 +4354,7 @@ function togglePortfolioCard(clientName) {
   if (card) card.classList.toggle('expanded');
 }
 
-// ===== PORTFOLIO DASHBOARD — Executive view: one card per client =====
+// ===== PORTFOLIO DASHBOARD v3 — Sidebar + panels layout =====
 function renderPortfolioDashboard() {
   const filtered = getFilteredTasks();
   const now = new Date(); now.setHours(0,0,0,0);
@@ -4295,18 +4368,67 @@ function renderPortfolioDashboard() {
   const totalHrs = filtered.reduce((s, t) => s + (t.hoursSpent || 0), 0);
   const totalEst = filtered.reduce((s, t) => s + (t.hoursEstimated || 0), 0);
 
-  let html = '';
+  const snap7 = _portfolioSnapshots ? _portfolioSnapshots.find(s => {
+    const d = new Date(s.snapshot_date);
+    const ago = new Date(now); ago.setDate(ago.getDate() - 7);
+    return d.toISOString().slice(0,10) === ago.toISOString().slice(0,10);
+  }) : null;
 
-  html += `<div class="portfolio-strip">
-    <div class="portfolio-strip__item"><span class="portfolio-strip__value" style="color:var(--accent)">${activeRoots.length}</span><span class="portfolio-strip__label">Active Projects</span></div>
-    <div class="portfolio-strip__item"><span class="portfolio-strip__value" style="color:${overdueTasks.length > 0 ? 'var(--danger)' : 'var(--success)'}">${overdueTasks.length}</span><span class="portfolio-strip__label">Overdue</span></div>
-    <div class="portfolio-strip__item"><span class="portfolio-strip__value" style="color:${blockedTasks.length > 0 ? 'var(--purple)' : 'var(--success)'}">${blockedTasks.length}</span><span class="portfolio-strip__label">Blocked</span></div>
-    <div class="portfolio-strip__item"><span class="portfolio-strip__value" style="color:${atRiskTasks.length > 0 ? 'var(--danger)' : 'var(--success)'}">${atRiskTasks.length}</span><span class="portfolio-strip__label">At Risk</span></div>
-    <div class="portfolio-strip__item"><span class="portfolio-strip__value" style="color:var(--text-primary)">${totalHrs.toFixed(1)}</span><span class="portfolio-strip__label">Hours Spent</span></div>
-    <div class="portfolio-strip__item"><span class="portfolio-strip__value" style="color:var(--text-muted)">${totalEst.toFixed(1)}</span><span class="portfolio-strip__label">Hours Est.</span></div>
+  let html = '<div class="pf">';
+  html += renderPfStrip(activeRoots.length, overdueTasks.length, blockedTasks.length, atRiskTasks.length, totalHrs, totalEst, snap7);
+
+  html += '<div class="pf__main">';
+  html += renderPfSidebar(filtered, roots, now);
+
+  const panelTasks = _portfolioSelectedClient
+    ? filtered.filter(t => getTaskClient(t) === _portfolioSelectedClient)
+    : filtered;
+  const panelRoots = _portfolioSelectedClient
+    ? roots.filter(r => getTaskClient(r) === _portfolioSelectedClient)
+    : roots;
+
+  html += '<div class="pf__panels">';
+  html += renderPfWorkCompleted();
+  html += renderPfHealthScorecard(filtered, roots, now);
+  html += renderPfTimeline(panelTasks, panelRoots, now);
+  html += renderPfNeedsAttention(panelTasks, now);
+  html += '</div>';
+  html += '</div>';
+
+  html += '<div class="pf__bottom">';
+  html += renderPfCompletingSoon(panelRoots, now);
+  html += renderPfUpcomingMilestones(panelTasks, now, fortnight);
+  html += renderPfTeamWorkload(panelTasks);
+  html += '</div>';
+
+  html += '</div>';
+  return html;
+}
+
+function renderPfStrip(activeCount, overdueCount, blockedCount, atRiskCount, hrsSpent, hrsEst, snap7) {
+  function delta(current, field) {
+    if (!snap7) return '';
+    const prev = parseFloat(snap7[field]) || 0;
+    const diff = current - prev;
+    if (diff === 0) return '';
+    const isGood = (field === 'active_projects' || field === 'hours_spent' || field === 'hours_estimated') ? diff > 0 : diff < 0;
+    const arrow = diff > 0 ? '\u25B2' : '\u25BC';
+    const sign = diff > 0 ? '+' : '';
+    const col = isGood ? 'var(--success)' : 'var(--danger)';
+    return ` <span class="pf__strip-delta" style="color:${col}">${arrow} ${sign}${Math.round(diff * 10) / 10}</span>`;
+  }
+
+  return `<div class="pf__strip">
+    <div class="pf__strip-item"><span class="pf__strip-val" style="color:var(--accent)">${activeCount}${delta(activeCount, 'active_projects')}</span><span class="pf__strip-label">Active Projects</span></div>
+    <div class="pf__strip-item"><span class="pf__strip-val" style="color:${overdueCount > 0 ? 'var(--danger)' : 'var(--success)'}">${overdueCount}${delta(overdueCount, 'overdue_count')}</span><span class="pf__strip-label">Overdue</span></div>
+    <div class="pf__strip-item"><span class="pf__strip-val" style="color:${blockedCount > 0 ? 'var(--purple)' : 'var(--success)'}">${blockedCount}${delta(blockedCount, 'blocked_count')}</span><span class="pf__strip-label">Blocked</span></div>
+    <div class="pf__strip-item"><span class="pf__strip-val" style="color:${atRiskCount > 0 ? 'var(--danger)' : 'var(--success)'}">${atRiskCount}${delta(atRiskCount, 'at_risk_count')}</span><span class="pf__strip-label">At Risk</span></div>
+    <div class="pf__strip-item"><span class="pf__strip-val" style="color:var(--text-primary)">${hrsSpent.toFixed(1)}${delta(hrsSpent, 'hours_spent')}</span><span class="pf__strip-label">Hours Spent</span></div>
+    <div class="pf__strip-item"><span class="pf__strip-val" style="color:var(--text-muted)">${hrsEst.toFixed(1)}${delta(hrsEst, 'hours_estimated')}</span><span class="pf__strip-label">Hours Est.</span></div>
   </div>`;
+}
 
-  // Client cards (skip unassigned — every project must have a client)
+function renderPfSidebar(filtered, roots, now) {
   const clientMap = {};
   roots.forEach(r => {
     const client = getTaskClient(r);
@@ -4316,172 +4438,444 @@ function renderPortfolioDashboard() {
   });
   const sortedClients = Object.keys(clientMap).sort(clientSortOrder);
 
-  const maxCols = window.innerWidth < 600 ? 1 : window.innerWidth < 1024 ? 2 : window.innerWidth < 1600 ? 3 : 4;
-  const cols = bestGridColumns(sortedClients.length, maxCols);
-  const gapPx = 12;
-  const basisCalc = `calc((100% - ${(cols - 1) * gapPx}px) / ${cols})`;
+  const allActive = roots.filter(r => r.status !== 'Done' && r.status !== 'Cancelled');
+  const allOverdue = filtered.filter(t => t.dueDate && t.status !== 'Done' && t.status !== 'Cancelled' && safeParseDate(t.dueDate) < now);
+  const allAtRisk = filtered.filter(t => t.healthState === 'Red' && t.status !== 'Done' && t.status !== 'Cancelled');
+  const allDone = filtered.filter(t => t.status === 'Done').length;
+  const allPct = filtered.length > 0 ? Math.round(allDone / filtered.length * 100) : 0;
 
-  html += `<div class="portfolio-grid" style="--portfolio-basis:${basisCalc}">`;
-  sortedClients.forEach(clientName => {
-    const projects = clientMap[clientName];
-    const clientTasks = filtered.filter(t => getTaskClient(t) === clientName);
-    const clientDone = clientTasks.filter(t => t.status === 'Done').length;
-    const clientPct = clientTasks.length > 0 ? Math.round(clientDone / clientTasks.length * 100) : 0;
-    const clientActive = projects.filter(p => p.status !== 'Done' && p.status !== 'Cancelled');
+  let html = '<div class="pf__sidebar">';
 
-    const clientRedTasks = clientTasks.filter(t => t.healthState === 'Red' && t.status !== 'Done' && t.status !== 'Cancelled');
-    const clientBlockedTasks = clientTasks.filter(t => t.healthState === 'Blocked' && t.status !== 'Done' && t.status !== 'Cancelled');
-    const clientOverdueTasks = clientTasks.filter(t => t.dueDate && t.status !== 'Done' && t.status !== 'Cancelled' && safeParseDate(t.dueDate) < now);
-    const hasIssues = clientRedTasks.length > 0 || clientBlockedTasks.length > 0;
-    const hasYellow = clientTasks.some(t => t.healthState === 'Yellow' && t.status !== 'Done' && t.status !== 'Cancelled');
-    const clientHealth = hasIssues ? 'Red' : hasYellow ? 'Yellow' : 'Green';
-    const healthColour = HEALTH_COLOURS[clientHealth] || 'var(--success)';
-    const borderClass = hasIssues ? 'portfolio-card--red' : hasYellow ? 'portfolio-card--yellow' : 'portfolio-card--green';
-    const clientHrsSpent = clientTasks.reduce((s, t) => s + (t.hoursSpent || 0), 0);
-    const clientHrsEst = clientTasks.reduce((s, t) => s + (t.hoursEstimated || 0), 0);
-
-    const isExpanded = (currentFilter.client && currentFilter.client === clientName) || _expandedPortfolioCards.has(clientName);
-
-    html += `<div class="portfolio-card ${borderClass} ${isExpanded ? 'expanded' : ''}" id="portfolioCard_${clientName.replace(/[^a-zA-Z0-9]/g, '_')}">`;
-    html += `<div class="portfolio-card__header" onclick="togglePortfolioCard('${escAttrJs(clientName)}')">`;
-    html += `<span class="portfolio-card__health" style="background:${healthColour}"></span>`;
-    html += `<span class="portfolio-card__name">${esc(clientName)}</span>`;
-    html += `<div class="portfolio-card__stats">`;
-    html += `<span class="portfolio-card__stat">${clientActive.length} active</span>`;
-    if (clientOverdueTasks.length > 0) html += `<span class="portfolio-card__stat portfolio-card__stat--danger">${clientOverdueTasks.length} overdue</span>`;
-    if (clientBlockedTasks.length > 0) html += `<span class="portfolio-card__stat portfolio-card__stat--warning">${clientBlockedTasks.length} blocked</span>`;
-    if (clientRedTasks.length > 0) html += `<span class="portfolio-card__stat portfolio-card__stat--danger">${clientRedTasks.length} at risk</span>`;
-    html += `</div>`;
-    html += `<div class="portfolio-card__progress"><div class="portfolio-card__progress-bar"><div class="portfolio-card__progress-fill" style="width:${clientPct}%;background:${healthColour}"></div></div><div class="portfolio-card__pct">${clientPct}%</div></div>`;
-    html += `<span class="portfolio-card__arrow">\u25BC</span>`;
-    html += `</div>`;
-
-    // Expanded body
-    html += `<div class="portfolio-card__body">`;
-
-    // Client hours
-    if (clientHrsSpent > 0 || clientHrsEst > 0) {
-      html += `<div style="display:flex;gap:var(--space-xl);padding:8px 0;margin-bottom:4px;font-size:0.78rem;color:var(--text-muted);border-bottom:1px solid var(--border-subtle)">`;
-      html += `<span><strong style="color:var(--text-primary)">${clientHrsSpent.toFixed(1)}</strong> hrs spent</span>`;
-      html += `<span><strong style="color:var(--text-primary)">${clientHrsEst.toFixed(1)}</strong> hrs est.</span>`;
-      if (clientHrsEst > 0) html += `<span><strong style="color:var(--text-primary)">${Math.round(clientHrsSpent / clientHrsEst * 100)}%</strong> burn</span>`;
-      html += `</div>`;
-    }
-
-    // Attention section — what's red/blocked/overdue and WHY
-    const attentionItems = [...clientBlockedTasks, ...clientRedTasks, ...clientOverdueTasks.filter(t => t.healthState !== 'Red' && t.healthState !== 'Blocked')];
-    const seen = new Set();
-    const uniqueAttention = attentionItems.filter(t => { if (seen.has(t.id)) return false; seen.add(t.id); return true; });
-
-    if (uniqueAttention.length > 0) {
-      html += `<div style="background:color-mix(in srgb,var(--danger) 6%,var(--bg-surface));border:1px solid var(--danger-border);border-radius:var(--radius-md);padding:var(--space-sm) var(--space-md);margin-bottom:var(--space-sm)">`;
-      html += `<div style="font-size:0.75rem;font-weight:600;color:var(--danger);margin-bottom:6px">Needs Attention (${uniqueAttention.length})</div>`;
-      uniqueAttention.forEach(t => {
-        const parent = t.parentId ? tasks.find(p => p.id === t.parentId) : null;
-        const projectName = parent ? parent.title : '';
-        const owner = (t.assignees || []).join(', ') || 'Unassigned';
-        let reason = '';
-        if (t.healthState === 'Blocked') reason = 'BLOCKED';
-        else if (t.healthState === 'Red') reason = 'AT RISK';
-        if (t.dueDate && safeParseDate(t.dueDate) < now) {
-          const daysLate = Math.ceil((now - safeParseDate(t.dueDate)) / 86400000);
-          reason += (reason ? ' \u00B7 ' : '') + daysLate + 'd overdue';
-        }
-        const reasonCol = t.healthState === 'Blocked' ? 'var(--purple)' : 'var(--danger)';
-        html += `<div style="display:flex;align-items:center;gap:6px;padding:4px 0;font-size:0.78rem;cursor:pointer;border-bottom:1px solid var(--border-subtle)" onclick="openDetailOverlay('${t.id}')">`;
-        html += `<span style="flex-shrink:0;font-size:0.68rem;padding:1px 6px;border-radius:3px;font-weight:600;background:color-mix(in srgb,${reasonCol} 15%,transparent);color:${reasonCol};border:1px solid color-mix(in srgb,${reasonCol} 30%,transparent)">${reason}</span>`;
-        if (projectName) html += `<span style="color:var(--text-muted);flex-shrink:0;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:0.72rem">${esc(projectName)}</span>`;
-        html += `<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(t.title)}</span>`;
-        html += `<span style="flex-shrink:0;font-size:0.7rem;color:var(--text-muted)">${esc(owner)}</span>`;
-        html += `</div>`;
-      });
-      html += `</div>`;
-    }
-
-    // Project list
-    const sortedProjects = [...projects].sort((a, b) => {
-      const aActive = a.status !== 'Done' && a.status !== 'Cancelled';
-      const bActive = b.status !== 'Done' && b.status !== 'Cancelled';
-      if (aActive !== bActive) return aActive ? -1 : 1;
-      return (a.title || '').localeCompare(b.title || '');
-    });
-
-    sortedProjects.forEach(project => {
-      const kids = getDescendants(project.id);
-      const all = [project, ...kids];
-      const pDone = all.filter(t => t.status === 'Done').length;
-      const pTotal = all.length;
-      const pPct = pTotal > 0 ? Math.round(pDone / pTotal * 100) : 0;
-      const pOverdue = all.filter(t => t.dueDate && t.status !== 'Done' && t.status !== 'Cancelled' && safeParseDate(t.dueDate) < now).length;
-      const pBlocked = all.filter(t => t.healthState === 'Blocked' && t.status !== 'Done' && t.status !== 'Cancelled').length;
-      const pAtRisk = all.filter(t => t.healthState === 'Red' && t.status !== 'Done' && t.status !== 'Cancelled').length;
-      const pHealth = project.healthState || 'Green';
-      const pHealthCol = HEALTH_COLOURS[pHealth] || 'var(--success)';
-      const isDone = project.status === 'Done' || project.status === 'Cancelled';
-
-      html += `<div class="portfolio-project" style="${isDone ? 'opacity:0.5' : ''}" onclick="openDetailOverlay('${project.id}')">`;
-      html += `<span class="portfolio-project__health" style="background:${pHealthCol}"></span>`;
-      html += `<span class="portfolio-project__title">${esc(project.title)}</span>`;
-      html += `<div class="portfolio-project__flags">`;
-      if (pOverdue > 0) html += `<span class="portfolio-project__flag portfolio-project__flag--overdue">${pOverdue} late</span>`;
-      if (pBlocked > 0) html += `<span class="portfolio-project__flag portfolio-project__flag--blocked">${pBlocked} blocked</span>`;
-      if (pAtRisk > 0) html += `<span class="portfolio-project__flag portfolio-project__flag--risk">${pAtRisk} at risk</span>`;
-      html += `</div>`;
-      html += `<div class="portfolio-project__bar"><div class="portfolio-project__bar-fill" style="width:${pPct}%;background:${pHealthCol}"></div></div>`;
-      html += `<span class="portfolio-project__meta" style="font-size:0.7rem;min-width:55px">${pDone}/${pTotal} ${pPct}%</span>`;
-      html += `</div>`;
-    });
-
-    html += `</div>`;
-    html += `</div>`;
-  });
+  const pfSelected = !_portfolioSelectedClient;
+  html += `<div class="pf__client pf__client--green ${pfSelected ? 'pf__client--selected' : ''}" onclick="selectPortfolioClient(null)">`;
+  html += `<div class="pf__client-name"><span class="pf__client-dot" style="background:var(--accent)"></span>Portfolio</div>`;
+  html += `<div class="pf__client-stats"><span>${allActive.length} active</span>`;
+  if (allOverdue.length > 0) html += `<span class="danger">${allOverdue.length} overdue</span>`;
+  if (allAtRisk.length > 0) html += `<span class="danger">${allAtRisk.length} at risk</span>`;
+  html += `</div>`;
+  html += `<div class="pf__client-bar"><div class="pf__client-bar-fill" style="width:${allPct}%;background:var(--accent)"></div></div>`;
+  html += `<div class="pf__client-pct">${allPct}%</div>`;
   html += `</div>`;
 
-  // Nearly complete + upcoming milestones
+  sortedClients.forEach(clientName => {
+    const clientTasks = filtered.filter(t => getTaskClient(t) === clientName);
+    const projects = clientMap[clientName];
+    const active = projects.filter(p => p.status !== 'Done' && p.status !== 'Cancelled');
+    const overdue = clientTasks.filter(t => t.dueDate && t.status !== 'Done' && t.status !== 'Cancelled' && safeParseDate(t.dueDate) < now);
+    const blocked = clientTasks.filter(t => t.healthState === 'Blocked' && t.status !== 'Done' && t.status !== 'Cancelled');
+    const atRisk = clientTasks.filter(t => t.healthState === 'Red' && t.status !== 'Done' && t.status !== 'Cancelled');
+    const done = clientTasks.filter(t => t.status === 'Done').length;
+    const pct = clientTasks.length > 0 ? Math.round(done / clientTasks.length * 100) : 0;
+
+    const hasIssues = atRisk.length > 0 || blocked.length > 0;
+    const hasYellow = clientTasks.some(t => t.healthState === 'Yellow' && t.status !== 'Done' && t.status !== 'Cancelled');
+    const health = hasIssues ? 'Red' : hasYellow ? 'Yellow' : 'Green';
+    const healthCol = HEALTH_COLOURS[health] || 'var(--success)';
+    const borderClass = hasIssues ? 'pf__client--red' : hasYellow ? 'pf__client--yellow' : 'pf__client--green';
+    const isSelected = _portfolioSelectedClient === clientName;
+
+    html += `<div class="pf__client ${borderClass} ${isSelected ? 'pf__client--selected' : ''}" onclick="selectPortfolioClient('${escAttrJs(clientName)}')">`;
+    html += `<div class="pf__client-name"><span class="pf__client-dot" style="background:${healthCol}"></span>${esc(clientName)}</div>`;
+    html += `<div class="pf__client-stats"><span>${active.length} active</span>`;
+    if (overdue.length > 0) html += `<span class="danger">${overdue.length} overdue</span>`;
+    if (blocked.length > 0) html += `<span class="danger">${blocked.length} blocked</span>`;
+    if (atRisk.length > 0) html += `<span class="danger">${atRisk.length} at risk</span>`;
+    html += `</div>`;
+    html += `<div class="pf__client-bar"><div class="pf__client-bar-fill" style="width:${pct}%;background:${healthCol}"></div></div>`;
+    html += `<div class="pf__client-pct">${pct}%</div>`;
+    html += `</div>`;
+  });
+
+  html += '</div>';
+  return html;
+}
+
+function renderPfWorkCompleted() {
+  let html = '<div class="pf__panel">';
+  html += '<div class="pf__panel-hdr"><div class="pf__panel-title">Work Completed</div><div class="pf__panel-sub">8 week rolling view</div></div>';
+  html += '<div class="pf__panel-body">';
+
+  if (!_portfolioSnapshots || _portfolioSnapshots.length === 0) {
+    html += '<div style="display:flex;align-items:center;justify-content:center;height:150px;color:var(--text-muted);font-size:0.82rem">Collecting data \u2014 chart will appear after a few days.</div>';
+    html += '</div></div>';
+    return html;
+  }
+
+  const weekMap = {};
+  _portfolioSnapshots.forEach(s => {
+    const d = new Date(s.snapshot_date + 'T00:00:00');
+    const onejan = new Date(d.getFullYear(), 0, 1);
+    const weekNum = Math.ceil(((d - onejan) / 86400000 + onejan.getDay() + 1) / 7);
+    const key = `W${weekNum}`;
+    if (!weekMap[key]) weekMap[key] = { planned: 0, added: 0, completed: 0, count: 0 };
+    weekMap[key].planned += parseInt(s.tasks_planned) || 0;
+    weekMap[key].added += parseInt(s.tasks_added) || 0;
+    weekMap[key].completed += parseInt(s.tasks_completed) || 0;
+    weekMap[key].count++;
+  });
+
+  const weeks = Object.entries(weekMap).slice(-8);
+  const maxVal = Math.max(1, ...weeks.map(([, w]) => Math.max(w.planned + w.added, w.completed)));
+
+  html += `<div style="display:flex;gap:14px;font-size:0.62rem;color:var(--text-muted);margin-bottom:8px;justify-content:flex-end">`;
+  html += `<span style="display:flex;align-items:center;gap:4px"><span style="width:7px;height:7px;border-radius:1px;background:#3b82f6"></span>Planned</span>`;
+  html += `<span style="display:flex;align-items:center;gap:4px"><span style="width:7px;height:7px;border-radius:1px;background:#fbbf24"></span>Added</span>`;
+  html += `<span style="display:flex;align-items:center;gap:4px"><span style="width:7px;height:7px;border-radius:1px;background:#4ade80"></span>Completed</span>`;
+  html += `</div>`;
+
+  html += '<div class="pf__bar-chart">';
+  weeks.forEach(([label, w], i) => {
+    const isLast = i === weeks.length - 1;
+    const stackH = Math.round((w.planned + w.added) / maxVal * 140);
+    const plannedH = Math.round(w.planned / maxVal * 140);
+    const addedH = stackH - plannedH;
+    const compH = Math.round(w.completed / maxVal * 140);
+
+    html += `<div class="pf__bar-week ${isLast ? 'pf__bar-week--current' : ''}">`;
+    html += `<div class="pf__bar-stack">`;
+    if (addedH > 0) html += `<div class="pf__bar-seg" style="height:${addedH}px;background:#fbbf24;opacity:0.65"></div>`;
+    if (plannedH > 0) html += `<div class="pf__bar-seg" style="height:${plannedH}px;background:#3b82f6;opacity:0.5"></div>`;
+    html += `</div>`;
+    html += `<div style="flex:1;height:${compH}px;background:#4ade80;opacity:0.6;border-radius:2px 2px 0 0"></div>`;
+    html += `</div>`;
+  });
+  html += '</div>';
+
+  html += '<div style="display:flex;gap:8px;margin-top:4px">';
+  weeks.forEach(([label], i) => {
+    const isLast = i === weeks.length - 1;
+    html += `<div style="flex:1;text-align:center;font-size:0.55rem;color:${isLast ? 'var(--accent)' : 'var(--text-muted)'};font-weight:${isLast ? '600' : '400'}">${label}</div>`;
+  });
+  html += '</div>';
+
+  if (weeks.length > 0) {
+    const [, cur] = weeks[weeks.length - 1];
+    html += `<div style="display:flex;gap:16px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border-subtle);font-size:0.7rem">`;
+    html += `<span style="color:var(--text-muted)">This week:</span>`;
+    html += `<span style="color:#3b82f6">${cur.planned} planned</span>`;
+    html += `<span style="color:#fbbf24">+${cur.added} added</span>`;
+    html += `<span style="color:#4ade80">${cur.completed} completed</span>`;
+    html += `</div>`;
+  }
+
+  html += '</div></div>';
+  return html;
+}
+
+function renderPfHealthScorecard(filtered, roots, now) {
+  const clientMap = {};
+  roots.forEach(r => {
+    const client = getTaskClient(r);
+    if (!client) return;
+    if (!clientMap[client]) clientMap[client] = [];
+    clientMap[client].push(r);
+  });
+  const sortedClients = Object.keys(clientMap).sort(clientSortOrder);
+
+  function ragDot(colour) {
+    return `<span class="pf__scorecard-dot" style="background:${colour}"></span>`;
+  }
+
+  function ragColour(val, thresholds) {
+    if (val >= thresholds[1]) return 'var(--danger)';
+    if (val >= thresholds[0]) return 'var(--warning)';
+    return 'var(--success)';
+  }
+
+  let html = '<div class="pf__panel">';
+  html += '<div class="pf__panel-hdr"><div class="pf__panel-title">Client Health</div><div class="pf__panel-sub">RAG across schedule, blockers, burn rate</div></div>';
+  html += '<div class="pf__panel-body">';
+  html += '<table class="pf__scorecard"><thead><tr><th style="text-align:left">Client</th><th>Schedule</th><th>Blockers</th><th>Burn Rate</th><th>Overall</th></tr></thead><tbody>';
+
+  sortedClients.forEach(clientName => {
+    const clientTasks = filtered.filter(t => getTaskClient(t) === clientName);
+    const overdueCount = clientTasks.filter(t => t.dueDate && t.status !== 'Done' && t.status !== 'Cancelled' && safeParseDate(t.dueDate) < now).length;
+    const blockedCount = clientTasks.filter(t => t.healthState === 'Blocked' && t.status !== 'Done' && t.status !== 'Cancelled').length;
+    const hrsSpent = clientTasks.reduce((s, t) => s + (t.hoursSpent || 0), 0);
+    const hrsEst = clientTasks.reduce((s, t) => s + (t.hoursEstimated || 0), 0);
+    const burnPct = hrsEst > 0 ? (hrsSpent / hrsEst * 100) : 0;
+
+    const schedCol = ragColour(overdueCount, [1, 3]);
+    const blockCol = ragColour(blockedCount, [1, 2]);
+    const burnCol = ragColour(burnPct, [80, 100]);
+    const overallCol = [schedCol, blockCol, burnCol].includes('var(--danger)') ? 'var(--danger)' :
+                       [schedCol, blockCol, burnCol].includes('var(--warning)') ? 'var(--warning)' : 'var(--success)';
+
+    html += `<tr onclick="selectPortfolioClient('${escAttrJs(clientName)}')">`;
+    html += `<td style="color:var(--text-primary)">${esc(clientName)}</td>`;
+    html += `<td style="text-align:center">${ragDot(schedCol)}</td>`;
+    html += `<td style="text-align:center">${ragDot(blockCol)}</td>`;
+    html += `<td style="text-align:center">${ragDot(burnCol)}</td>`;
+    html += `<td style="text-align:center">${ragDot(overallCol)}</td>`;
+    html += `</tr>`;
+  });
+
+  html += '</tbody></table>';
+  html += '</div></div>';
+  return html;
+}
+
+function renderPfTimeline(panelTasks, panelRoots, now) {
+  let html = '<div class="pf__panel">';
+  html += '<div class="pf__panel-hdr" style="display:flex;justify-content:space-between;align-items:center">';
+  html += '<div><div class="pf__panel-title">Project Timeline</div><div class="pf__panel-sub">Gantt view</div></div>';
+  html += `<div style="display:flex;gap:4px">`;
+  html += `<button class="btn btn--outline btn--sm" onclick="pfGanttZoom(-2)" style="font-size:0.6rem;padding:2px 6px">&minus;</button>`;
+  html += `<button class="btn btn--outline btn--sm" onclick="pfGanttZoom(2)" style="font-size:0.6rem;padding:2px 6px">+</button>`;
+  html += `<button class="btn btn--outline btn--sm" onclick="pfGanttNav(-30)" style="font-size:0.6rem;padding:2px 6px">&larr;</button>`;
+  html += `<button class="btn btn--outline btn--sm" onclick="pfGanttToday()" style="font-size:0.6rem;padding:2px 6px;color:var(--accent)">Today</button>`;
+  html += `<button class="btn btn--outline btn--sm" onclick="pfGanttNav(30)" style="font-size:0.6rem;padding:2px 6px">&rarr;</button>`;
+  html += `</div></div>`;
+
+  html += '<div class="pf__panel-body" style="overflow-x:auto;padding:0 0 12px">';
+
+  const activeTasks = panelTasks.filter(t => t.status !== 'Done' && t.status !== 'Cancelled');
+  if (activeTasks.length === 0) {
+    html += '<div style="display:flex;align-items:center;justify-content:center;height:100px;color:var(--text-muted);font-size:0.82rem">No active tasks with dates.</div>';
+    html += '</div></div>';
+    return html;
+  }
+
+  const dayW = _pfGanttDayWidth;
+  let minDate = new Date(now); minDate.setDate(minDate.getDate() - 14 + _pfGanttOffsetDays);
+  let maxDate = new Date(now); maxDate.setDate(maxDate.getDate() + 90 + _pfGanttOffsetDays);
+  minDate.setDate(minDate.getDate() - 3);
+  maxDate.setDate(maxDate.getDate() + 7);
+  const totalDays = Math.min(Math.round((maxDate - minDate) / 86400000), 200);
+  const timelineW = totalDays * dayW;
+
+  const activeRoots = panelRoots.filter(r => r.status !== 'Done' && r.status !== 'Cancelled');
+  const clientGroups = {};
+  activeRoots.forEach(r => {
+    const client = getTaskClient(r) || 'Uncategorised';
+    if (!clientGroups[client]) clientGroups[client] = [];
+    clientGroups[client].push(r);
+  });
+  const sortedClients = Object.keys(clientGroups).sort(clientSortOrder);
+
+  html += `<div style="min-width:${timelineW + 140}px">`;
+
+  html += `<div style="display:flex;border-bottom:1px solid var(--border-default)">`;
+  html += `<div style="width:140px;padding:4px 10px;font-size:0.6rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;border-right:1px solid var(--border-default);background:var(--bg-base);flex-shrink:0">Item</div>`;
+  let d = new Date(minDate);
+  while (d < maxDate) {
+    const monthStart = new Date(d);
+    const monthEnd = new Date(d.getFullYear(), d.getMonth() + 1, 1);
+    const end = monthEnd < maxDate ? monthEnd : maxDate;
+    const daysInMonth = Math.ceil((end - monthStart) / 86400000);
+    html += `<div style="width:${daysInMonth * dayW}px;font-size:0.6rem;color:var(--text-muted);text-align:center;padding:4px 0;border-right:1px solid var(--border-subtle);font-weight:600">${monthStart.toLocaleDateString('en-GB', {month:'short', year:'numeric'})}</div>`;
+    d = monthEnd;
+  }
+  html += `</div>`;
+
+  sortedClients.forEach(client => {
+    const projects = clientGroups[client];
+    const totalItems = projects.reduce((s, r) => s + 1 + getDescendants(r.id).filter(c => c.status !== 'Done' && c.status !== 'Cancelled').length, 0);
+
+    html += `<div style="display:flex;min-height:24px;align-items:center;background:var(--bg-surface);border-bottom:1px solid var(--border-subtle)">`;
+    html += `<div style="width:140px;padding:0 10px;font-size:0.72rem;color:var(--text-secondary);font-weight:600;border-right:1px solid var(--border-default);flex-shrink:0">${esc(client)} <span style="font-size:0.6rem;color:var(--text-muted);font-weight:400">(${totalItems})</span></div>`;
+    html += `<div style="flex:1;position:relative;height:24px">`;
+    const todayOff = Math.round((now - minDate) / 86400000);
+    if (todayOff >= 0 && todayOff < totalDays) html += `<div style="position:absolute;left:${todayOff * dayW}px;top:0;bottom:0;width:1px;background:rgba(59,130,246,0.35)"></div>`;
+    html += `</div></div>`;
+
+    projects.forEach(project => {
+      const start = ganttTaskStart(project);
+      const end = ganttTaskEnd(project);
+      const barClass = ganttBarClass(project);
+      const typeMeta = getItemTypeMeta(project);
+
+      html += `<div style="display:flex;min-height:28px;align-items:center;border-bottom:1px solid var(--border-subtle);cursor:pointer" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''" onclick="openDetailOverlay('${project.id}')">`;
+      html += `<div style="width:140px;padding:0 10px 0 16px;font-size:0.7rem;color:var(--text-primary);border-right:1px solid var(--border-default);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0;display:flex;align-items:center;gap:4px">`;
+      html += `<span class="item-type-badge" style="background:${typeMeta.colour};font-size:0.5rem;padding:0 4px">${typeMeta.label.charAt(0)}</span>`;
+      html += `${esc(project.title)}</div>`;
+      html += `<div style="flex:1;position:relative;height:28px;min-width:${timelineW}px">`;
+      if (todayOff >= 0 && todayOff < totalDays) html += `<div style="position:absolute;left:${todayOff * dayW}px;top:0;bottom:0;width:1px;background:rgba(59,130,246,0.35)"></div>`;
+      if (start && end && end >= start) {
+        const rawOff = Math.round((start - minDate) / 86400000);
+        const sOff = Math.max(0, rawOff);
+        const dur = Math.max(1, Math.ceil((end - start) / 86400000) + 1) - (sOff - rawOff);
+        if (dur > 0) {
+          html += `<div class="gantt__bar ${barClass}" style="left:${sOff * dayW}px;width:${dur * dayW}px;height:18px;top:5px" title="${esc(project.title)} | ${project.status}">`;
+          if (dur * dayW > 40) html += `<span style="overflow:hidden;text-overflow:ellipsis;pointer-events:none;flex:1;font-size:0.6rem">${esc(project.title)}</span>`;
+          html += `</div>`;
+        }
+      }
+      html += `</div></div>`;
+    });
+  });
+
+  html += '</div>';
+  html += '</div></div>';
+  return html;
+}
+
+function renderPfNeedsAttention(panelTasks, now) {
+  const blocked = panelTasks.filter(t => t.healthState === 'Blocked' && t.status !== 'Done' && t.status !== 'Cancelled');
+  const overdue = panelTasks.filter(t => t.dueDate && t.status !== 'Done' && t.status !== 'Cancelled' && safeParseDate(t.dueDate) < now && t.healthState !== 'Blocked');
+  const atRisk = panelTasks.filter(t => t.healthState === 'Red' && t.status !== 'Done' && t.status !== 'Cancelled' && !(t.dueDate && safeParseDate(t.dueDate) < now));
+
+  overdue.sort((a, b) => safeParseDate(a.dueDate) - safeParseDate(b.dueDate));
+  const items = [...blocked, ...overdue, ...atRisk];
+  const seen = new Set();
+  const unique = items.filter(t => { if (seen.has(t.id)) return false; seen.add(t.id); return true; });
+
+  const showCount = _portfolioAttentionExpanded ? unique.length : 5;
+  const visible = unique.slice(0, showCount);
+  const remaining = unique.length - visible.length;
+
+  let html = '<div class="pf__panel">';
+  html += `<div class="pf__panel-hdr" style="display:flex;justify-content:space-between;align-items:center"><div><div class="pf__panel-title">Needs Attention</div><div class="pf__panel-sub">Overdue, at risk, and blocked</div></div><span style="font-size:0.72rem;color:var(--danger);font-weight:600">${unique.length} items</span></div>`;
+  html += '<div class="pf__panel-body">';
+
+  if (unique.length === 0) {
+    html += '<div style="display:flex;align-items:center;justify-content:center;height:80px;color:var(--success);font-size:0.82rem">All clear \u2014 nothing needs attention.</div>';
+  } else {
+    html += '<div style="display:flex;flex-direction:column;gap:3px">';
+    visible.forEach(t => {
+      const parent = t.parentId ? tasks.find(p => p.id === t.parentId) : null;
+      const projectName = parent ? parent.title : '';
+      const clientName = getTaskClient(t) || '';
+      const owner = (t.assignees || []).join(', ') || '';
+      let badge = '';
+      let badgeClass = '';
+      let borderCol = 'var(--danger)';
+
+      if (t.healthState === 'Blocked') {
+        badge = 'BLOCKED';
+        badgeClass = 'pf__attn-badge--blocked';
+        borderCol = 'var(--purple)';
+      } else if (t.dueDate && safeParseDate(t.dueDate) < now) {
+        const daysLate = Math.ceil((now - safeParseDate(t.dueDate)) / 86400000);
+        badge = daysLate + 'd overdue';
+        badgeClass = 'pf__attn-badge--overdue';
+      } else {
+        badge = 'AT RISK';
+        badgeClass = 'pf__attn-badge--risk';
+      }
+
+      html += `<div class="pf__attn-item" style="border-left:3px solid ${borderCol}" onclick="openDetailOverlay('${t.id}')">`;
+      html += `<span class="pf__attn-badge ${badgeClass}">${badge}</span>`;
+      html += `<div style="flex:1;min-width:0"><div class="pf__attn-title">${esc(t.title)}</div>`;
+      const ctx = [clientName, projectName].filter(Boolean).join(' \u2014 ');
+      if (ctx) html += `<div class="pf__attn-context">${esc(ctx)}</div>`;
+      html += `</div>`;
+      if (owner) html += `<span style="font-size:0.68rem;color:var(--text-muted);flex-shrink:0">${esc(owner)}</span>`;
+      html += `</div>`;
+    });
+    html += '</div>';
+
+    if (remaining > 0) {
+      html += `<div style="text-align:center;padding:8px;font-size:0.7rem;color:var(--text-muted);cursor:pointer;border-top:1px solid var(--border-subtle);margin-top:4px" onclick="_portfolioAttentionExpanded=true;renderContent()">+ ${remaining} more items</div>`;
+    }
+  }
+
+  html += '</div></div>';
+  return html;
+}
+
+function renderPfCompletingSoon(panelRoots, now) {
+  const activeRoots = panelRoots.filter(r => r.status !== 'Done' && r.status !== 'Cancelled');
   const nearComplete = activeRoots.map(r => {
     const kids = getDescendants(r.id);
     const all = [r, ...kids];
     const d = all.filter(t => t.status === 'Done').length;
     const pct = all.length > 0 ? Math.round(d / all.length * 100) : 0;
-    return { ...r, _pct: pct, _client: getTaskClient(r) || 'Unassigned' };
+    return { ...r, _pct: pct, _client: getTaskClient(r) || '' };
   }).filter(r => r._pct >= 60 && r._pct < 100).sort((a, b) => b._pct - a._pct).slice(0, 6);
 
-  const upcoming = filtered.filter(t => {
+  let html = '<div class="pf__panel">';
+  html += '<div class="pf__panel-hdr"><div class="pf__panel-title" style="color:var(--success)">Completing Soon</div><div class="pf__panel-sub">Projects 60-99% done</div></div>';
+  html += '<div class="pf__panel-body">';
+
+  if (nearComplete.length === 0) {
+    html += '<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:0.82rem">No projects near completion.</div>';
+  } else {
+    html += '<div style="display:flex;flex-direction:column;gap:6px">';
+    nearComplete.forEach(r => {
+      const healthCol = HEALTH_COLOURS[r.healthState] || 'var(--success)';
+      html += `<div class="pf__attn-item" onclick="openDetailOverlay('${r.id}')">`;
+      html += `<span style="width:6px;height:6px;border-radius:50%;background:${healthCol};flex-shrink:0"></span>`;
+      html += `<div style="flex:1;min-width:0"><div class="pf__attn-title">${esc(r.title)}</div><div class="pf__attn-context">${esc(r._client)}</div></div>`;
+      html += `<div style="width:60px;flex-shrink:0"><div style="height:4px;background:var(--border-subtle);border-radius:2px;overflow:hidden"><div style="width:${r._pct}%;height:100%;background:var(--success);border-radius:2px"></div></div></div>`;
+      html += `<span style="font-size:0.72rem;color:var(--success);font-weight:600;flex-shrink:0;width:32px;text-align:right">${r._pct}%</span>`;
+      html += `</div>`;
+    });
+    html += '</div>';
+  }
+
+  html += '</div></div>';
+  return html;
+}
+
+function renderPfUpcomingMilestones(panelTasks, now, fortnight) {
+  const upcoming = panelTasks.filter(t => {
     if (!t.dueDate || t.status === 'Done' || t.status === 'Cancelled' || t.parentId) return false;
     const d = safeParseDate(t.dueDate);
     return d >= now && d <= fortnight;
   }).sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate)).slice(0, 6);
 
-  if (nearComplete.length > 0 || upcoming.length > 0) {
-    html += `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:var(--space-md);margin-bottom:var(--space-lg)">`;
-    if (nearComplete.length > 0) {
-      html += `<div class="tactical-section"><div class="tactical-section__header"><span class="tactical-section__title" style="color:var(--success)">Nearly Complete</span></div>`;
-      nearComplete.forEach(r => {
-        html += `<div class="portfolio-project" onclick="openDetailOverlay('${r.id}')">`;
-        html += `<span class="portfolio-project__health" style="background:var(--success)"></span>`;
-        html += `<span class="portfolio-project__title">${esc(r._client)} \u2014 ${esc(r.title)}</span>`;
-        html += `<div class="portfolio-project__bar"><div class="portfolio-project__bar-fill" style="width:${r._pct}%;background:var(--success)"></div></div>`;
-        html += `<span class="portfolio-project__meta">${r._pct}%</span></div>`;
-      });
+  let html = '<div class="pf__panel">';
+  html += '<div class="pf__panel-hdr"><div class="pf__panel-title" style="color:var(--accent)">Upcoming Milestones</div><div class="pf__panel-sub">Due within 14 days</div></div>';
+  html += '<div class="pf__panel-body">';
+
+  if (upcoming.length === 0) {
+    html += '<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:0.82rem">No milestones in the next 14 days.</div>';
+  } else {
+    html += '<div style="display:flex;flex-direction:column;gap:6px">';
+    upcoming.forEach(t => {
+      const d = safeParseDate(t.dueDate);
+      const daysUntil = Math.ceil((d - now) / 86400000);
+      const dayLabel = daysUntil === 0 ? 'Today' : daysUntil === 1 ? 'Tomorrow' : d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+      const badgeClass = daysUntil <= 2 ? 'pf__attn-badge--overdue' : daysUntil <= 5 ? 'pf__attn-badge--risk' : '';
+      const badgeStyle = !badgeClass ? 'background:rgba(85,85,85,0.2);color:var(--text-muted);border-color:rgba(85,85,85,0.3)' : '';
+
+      html += `<div class="pf__attn-item" onclick="openDetailOverlay('${t.id}')">`;
+      html += `<span class="pf__attn-badge ${badgeClass}" ${badgeStyle ? `style="${badgeStyle}"` : ''}>${dayLabel}</span>`;
+      html += `<div style="flex:1;min-width:0"><div class="pf__attn-title">${esc(t.title)}</div><div class="pf__attn-context">${esc(getTaskClient(t) || '')}</div></div>`;
       html += `</div>`;
-    }
-    if (upcoming.length > 0) {
-      html += `<div class="tactical-section"><div class="tactical-section__header"><span class="tactical-section__title" style="color:var(--accent)">Upcoming Milestones</span></div>`;
-      upcoming.forEach(t => {
-        const d = safeParseDate(t.dueDate);
-        const daysUntil = Math.ceil((d - now) / 86400000);
-        const dayLabel = daysUntil === 0 ? 'Today' : daysUntil === 1 ? 'Tomorrow' : d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
-        const urgentCol = daysUntil <= 2 ? 'var(--danger)' : daysUntil <= 5 ? 'var(--warning)' : 'var(--text-muted)';
-        html += `<div class="portfolio-project" onclick="openDetailOverlay('${t.id}')">`;
-        html += `<span class="portfolio-project__health" style="background:${urgentCol}"></span>`;
-        html += `<span class="portfolio-project__title">${esc(getTaskClient(t) || '')} \u2014 ${esc(t.title)}</span>`;
-        html += `<span class="portfolio-project__meta" style="color:${urgentCol};font-weight:600">${dayLabel}</span></div>`;
-      });
-      html += `</div>`;
-    }
-    html += `</div>`;
+    });
+    html += '</div>';
   }
 
+  html += '</div></div>';
+  return html;
+}
+
+function renderPfTeamWorkload(panelTasks) {
+  const activeTasks = panelTasks.filter(t => t.status !== 'Done' && t.status !== 'Cancelled');
+  const personMap = {};
+  activeTasks.forEach(t => {
+    (t.assignees || []).forEach(a => {
+      if (!personMap[a]) personMap[a] = 0;
+      personMap[a]++;
+    });
+  });
+  const sorted = Object.entries(personMap).sort((a, b) => b[1] - a[1]);
+  const maxCount = sorted.length > 0 ? sorted[0][1] : 1;
+
+  let html = '<div class="pf__panel">';
+  html += '<div class="pf__panel-hdr"><div class="pf__panel-title">Team Workload</div><div class="pf__panel-sub">Active tasks per person</div></div>';
+  html += '<div class="pf__panel-body">';
+
+  if (sorted.length === 0) {
+    html += '<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:0.82rem">No assigned tasks.</div>';
+  } else {
+    html += '<div style="display:flex;flex-direction:column;gap:4px">';
+    sorted.forEach(([name, count]) => {
+      const barW = Math.round(count / maxCount * 100);
+      const col = count > 30 ? 'var(--danger)' : count > 15 ? 'var(--warning)' : 'var(--success)';
+      html += `<div class="pf__workload-row" onclick="currentFilter.assignee=['${escAttrJs(name)}'];renderSidebarCounts();renderContent()">`;
+      html += `<span class="pf__workload-name">${esc(name)}</span>`;
+      html += `<div class="pf__workload-bar"><div class="pf__workload-fill" style="width:${barW}%;background:${col}"></div></div>`;
+      html += `<span class="pf__workload-count" style="color:${col}">${count}</span>`;
+      html += `</div>`;
+    });
+    html += '</div>';
+    html += `<div style="padding:6px 0 0;font-size:0.62rem;color:var(--text-muted)"><span style="color:var(--danger)">\u25CF</span> >30 &nbsp; <span style="color:var(--warning)">\u25CF</span> 15-30 &nbsp; <span style="color:var(--success)">\u25CF</span> <15</div>`;
+  }
+
+  html += '</div></div>';
   return html;
 }
 
