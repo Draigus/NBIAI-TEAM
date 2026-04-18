@@ -69,7 +69,7 @@ export async function cacheOgImage(sourceUrl: string): Promise<string | null> {
           height: meta.height,
           fetchedAt: new Date(),
         })
-        .onConflictDoNothing()
+        .onConflictDoNothing({ target: schema.mediaAssets.hash })
 
       return hash
     } finally {

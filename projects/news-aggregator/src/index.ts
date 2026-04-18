@@ -55,9 +55,10 @@ app.addHook('onRequest', async (req, reply) => {
   }
 })
 
+const NEWS_PREFIX = '/news'
 await app.register(healthRoutes)
-await app.register(mediaRoutes, { prefix: '/news' })
-await app.register(digestRoutes, { prefix: '/news' })
+await app.register(mediaRoutes, { prefix: NEWS_PREFIX })
+await app.register(digestRoutes, { prefix: NEWS_PREFIX })
 
 const seeded = await seedSourcesIfEmpty()
 if (seeded > 0) app.log.info(`Seeded ${seeded} sources`)

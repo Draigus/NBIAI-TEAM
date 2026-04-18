@@ -4327,15 +4327,16 @@ app.post('/api/tasks/bulk', async (req, res) => {
   try {
     await client.query('BEGIN');
     const created = [];
-    // First pass: insert tasks without parent_id to get IDs
-    const idMap = {}; // temp_id -> real_id
+    const idMap = {};
     for (const t of taskList) {
+      const status = t.status || 'Not started';
+      await shiftForInsert(client, 'tasks', 'status', status);
       const { rows } = await client.query(
-        `INSERT INTO tasks (title, client_id, status, priority, health_state, description, assignees, hours_estimated, hours_spent, due_date, planner_task_id, source)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING *`,
-        [t.title, t.client_id || null, t.status || 'Not started', t.priority || '', t.health_state || '',
+        `INSERT INTO tasks (title, client_id, status, priority, health_state, description, assignees, hours_estimated, hours_spent, due_date, planner_task_id, source, item_type, position)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,0) RETURNING *`,
+        [t.title, t.client_id || null, status, t.priority || '', t.health_state || '',
          t.description || '', t.assignees || [], t.hours_estimated || 0, t.hours_spent || 0,
-         t.due_date || '', t.planner_task_id || '', t.source || 'import']
+         t.due_date || '', t.planner_task_id || '', t.source || 'import', t.item_type || 'task']
       );
       if (t._temp_id) idMap[t._temp_id] = rows[0].id;
       created.push(rows[0]);
@@ -4699,6 +4700,7 @@ app.post('/api/sync/changes', async (req, res) => {
     await conn.query('COMMIT');
 
     // Send blocker notifications (after the transaction has committed)
+    let notificationsSent = 0;
     for (const bn of blockerNotifications) {
       try {
         const { rows: matchedUsers } = await pool.query(
@@ -4713,6 +4715,7 @@ app.post('/api/sync/changes', async (req, res) => {
               `Task "${bn.taskTitle}" is blocking on you.`,
               '/nbi_project_dashboard.html#workload'
             );
+            notificationsSent++;
           }
         }
       } catch (e) {
@@ -4720,7 +4723,7 @@ app.post('/api/sync/changes', async (req, res) => {
       }
     }
 
-    res.json({ ok: true, applied, idMap, rejectedOutOfScope });
+    res.json({ ok: true, applied, idMap, rejectedOutOfScope, notificationsSent });
   } catch (e) {
     await conn.query('ROLLBACK');
     log('error', 'Sync', 'Incremental sync failed', { error: e.message, stack: e.stack?.split('\n').slice(0,3).join(' | ') });
@@ -7795,6 +7798,25 @@ if (cron && runBackup) {
         }
       }
     } catch (e) { log('error', 'Backup', 'Backup failed', { error: e.message }); }
+  });
+}
+
+// Weekly cleanup of orphaned contract PDFs older than 90 days (B-B17)
+if (cron) {
+  cron.schedule('0 3 * * 0', async () => {
+    try {
+      const uploadsDir = path.join(__dirname, 'uploads');
+      if (!fs.existsSync(uploadsDir)) return;
+      const cutoff = Date.now() - 90 * 24 * 60 * 60 * 1000;
+      let removed = 0;
+      for (const f of fs.readdirSync(uploadsDir)) {
+        if (!f.endsWith('.pdf')) continue;
+        const fp = path.join(uploadsDir, f);
+        const stat = fs.statSync(fp);
+        if (stat.mtimeMs < cutoff) { fs.unlinkSync(fp); removed++; }
+      }
+      if (removed > 0) log('info', 'Cron', `Cleaned up ${removed} orphaned PDF(s) older than 90 days`);
+    } catch (e) { log('warn', 'Cron', 'PDF cleanup failed', { error: e.message }); }
   });
 }
 

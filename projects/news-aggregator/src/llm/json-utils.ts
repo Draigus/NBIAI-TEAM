@@ -14,14 +14,17 @@ export function safeParseJson<T = unknown>(text: string): T | null {
   if (fenced) {
     try { return JSON.parse(fenced[1]) as T } catch { /* fall through */ }
   }
-  // Otherwise take the first balanced-ish {…} via a lazy match on the first `{`
-  // and the last `}`. This handles common "prose before JSON" noise.
+  // Find the first `{` then try each `}` from outermost inward until one parses.
+  // Outermost first handles nested objects; falling inward handles trailing prose
+  // that contains `}` characters (the old lastIndexOf approach was too greedy).
   const first = text.indexOf('{')
-  const last = text.lastIndexOf('}')
-  if (first === -1 || last === -1 || last <= first) return null
-  try {
-    return JSON.parse(text.slice(first, last + 1)) as T
-  } catch {
-    return null
+  if (first === -1) return null
+  let pos = text.length
+  while (true) {
+    pos = text.lastIndexOf('}', pos - 1)
+    if (pos === -1 || pos <= first) return null
+    try {
+      return JSON.parse(text.slice(first, pos + 1)) as T
+    } catch { /* try next innermost } */ }
   }
 }

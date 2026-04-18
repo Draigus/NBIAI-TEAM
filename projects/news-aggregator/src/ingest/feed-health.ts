@@ -56,7 +56,14 @@ export interface HealthLogger {
  * If the 7-day rolling error rate is at or above 50%, disable the source
  * and return true. Caller is responsible for sending the hub notification.
  */
+const MIN_ATTEMPTS_BEFORE_DISABLE = 5
 export async function autoDisableIfUnhealthy(sourceId: string, log: HealthLogger): Promise<boolean> {
+  const countResult = await db.execute(sql`
+    SELECT count(*)::int AS total FROM news.feed_health
+    WHERE source_id = ${sourceId} AND attempted_at > now() - interval '7 days'
+  `)
+  const total = (countResult.rows[0] as { total: number } | undefined)?.total ?? 0
+  if (total < MIN_ATTEMPTS_BEFORE_DISABLE) return false
   const rate = await getRollingErrorRate(sourceId)
   if (rate >= 0.5) {
     await db.execute(sql`UPDATE news.sources SET enabled = false WHERE id = ${sourceId}`)

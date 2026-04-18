@@ -2225,6 +2225,7 @@ span.fin-editable { display: inline-block; position: relative; }
   <div class="modal modal--sm">
     <div class="modal__title" id="confirmTitle">Confirm</div>
     <p id="confirmMessage"></p>
+    <input type="text" id="confirmInput" style="display:none;width:100%;padding:8px;margin-bottom:var(--space-md);background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-size:0.85rem">
     <div class="confirm-actions">
       <button class="btn" onclick="_resolveConfirm(false)">Cancel</button>
       <button class="btn btn--danger" id="confirmOkBtn" onclick="_resolveConfirm(true)">Confirm</button>
@@ -2936,7 +2937,6 @@ async function load() {
       if (entry.action === 'update' && entry.data) {
         const existing = tasks.find(t => t.id === entry.id);
         if (existing) {
-          // Only recover if WAL is newer than what we loaded
           const walTime = entry.ts;
           const loadedTime = new Date(existing.updatedAt || existing.updated_at || 0).getTime();
           if (walTime > loadedTime) {
@@ -2944,6 +2944,8 @@ async function load() {
             markDirty(entry.id);
             recovered++;
           }
+        } else {
+          console.warn('[WAL] Skipped orphan entry — task', entry.id, 'no longer exists on server');
         }
       } else if (entry.action === 'delete') {
         if (!_deletedTaskIds.has(entry.id)) {
@@ -3288,12 +3290,37 @@ function themedConfirm(message, title = 'Confirm', dangerLabel = 'Confirm') {
   });
 }
 
+/** Themed replacement for window.prompt(). Returns Promise<string|null>. */
+function themedPrompt(message, defaultValue = '', title = 'Input') {
+  return new Promise(resolve => {
+    _confirmResolve = (ok) => ok ? (document.getElementById('confirmInput').value || null) : null;
+    const realResolve = resolve;
+    _confirmResolve = (ok) => {
+      const val = ok ? (document.getElementById('confirmInput').value || null) : null;
+      realResolve(val);
+    };
+    document.getElementById('confirmTitle').textContent = title;
+    document.getElementById('confirmMessage').textContent = message;
+    document.getElementById('confirmOkBtn').textContent = 'OK';
+    const input = document.getElementById('confirmInput');
+    input.style.display = 'block';
+    input.value = defaultValue;
+    const modal = document.getElementById('confirmModal');
+    modal.classList.add('open');
+    _trapFocus(modal);
+    setTimeout(() => { input.focus(); input.select(); }, 50);
+  });
+}
+
 /** Close the confirm modal and resolve the pending promise with the user's choice */
 function _resolveConfirm(result) {
   const modal = document.getElementById('confirmModal');
   modal.classList.remove('open');
   _releaseFocusTrap(modal);
+  const input = document.getElementById('confirmInput');
   if (_confirmResolve) { _confirmResolve(result); _confirmResolve = null; }
+  input.style.display = 'none';
+  input.value = '';
 }
 
 // ==================== FOCUS TRAP (ACCESSIBILITY) ====================
@@ -17671,7 +17698,7 @@ async function saveAsTemplate() {
   if (!sel || !sel.value) { toast('Select a root task first'); return; }
   const rootTask = tasks.find(t => t.id === sel.value);
   if (!rootTask) return;
-  const name = prompt('Template name:', rootTask.title + ' Template');
+  const name = await themedPrompt('Enter a name for this template:', rootTask.title + ' Template', 'Save Template');
   if (!name) return;
 
   /** Recursively build a template tree from a task and its descendants */

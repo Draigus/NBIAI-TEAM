@@ -155,6 +155,32 @@ Compact JSON saves ~20-30% of whitespace tokens per call. At ~32 LLM calls per w
 
 **Fix:** Added `ANTHROPIC_API_KEY: z.string().optional()` to the Zod schema in config.ts. Updated `client.ts` to import `loadConfig()` and read both API keys from config instead of `process.env` directly (3 sites: makeClient primary, makeClient failover, failover latch check). Keys are optional so the service still boots without them (Glen hasn't set the primary key yet).
 
+### Batch 3 — quick fixes + medium items (Glen's directive: do all 12)
+
+**F-B10** — WAL recovery orphan logging: Added `console.warn` at nbi_project_dashboard.html:2948 when a WAL entry references a task that no longer exists server-side. Previously silently skipped.
+
+**B-B22** — Notification fan-out count: Added `notificationsSent` counter to sync response at server.js:4701-4723. Errors were already logged; now callers also know how many notifications were delivered.
+
+**B-B15** — tasks/bulk validation: Added `shiftForInsert` call + `item_type` and `position` columns to `POST /api/tasks/bulk` at server.js:4332. New tasks now get proper kanban positions instead of all colliding at 0.
+
+**N-B13** — Extracted `NEWS_PREFIX = '/news'` constant in index.ts:58. Two register calls now reference the constant instead of duplicating the string.
+
+**N-B12** — Added explicit conflict target `{ target: schema.mediaAssets.hash }` to onConflictDoNothing in cache.ts:72.
+
+**N-B7** — JSON parser: Replaced greedy `indexOf/lastIndexOf` with a loop that tries each `}` from outermost inward in json-utils.ts. Handles LLM prose after the JSON object.
+
+**F-B4** — Replaced browser `prompt()` with themed modal: Added `themedPrompt()` function (Promise-based, reuses confirmModal + new input field). Updated `saveAsTemplate()` to use it. Input auto-focused and pre-selected.
+
+**B-B17** — Contract PDF cleanup cron: Added weekly cron (Sunday 3:00 AM) to server.js that deletes PDFs older than 90 days from uploads/. Logs count of removed files.
+
+**N-B11** — Minimum-sample guard on auto-disable: Added `MIN_ATTEMPTS_BEFORE_DISABLE = 5` check in feed-health.ts. Sources with fewer than 5 attempts in the 7-day window are never auto-disabled.
+
+**N-B6** — embeddedVideoUrls preserve: Changed enrichment to preserve existing video URLs. Only sets them if the article has none yet. Glen's directive: existing URLs go to archive, re-enrichment happens next cycle.
+
+**N-B10** — Feed fetch retry: Added 1 retry with 5s backoff in the ingest catch block. On initial failure, waits 5s then retries the full fetch+dedup cycle. Error message includes both attempts. Auto-disable only fires after the retry fails.
+
+**N-B3** — Re-enrich unenriched articles: Added a pass at the end of `runIngestOnce` that finds articles missing `og_image_hash` created in the last 24 hours and re-runs enrichment on them.
+
 ### Test fixes for N-B14 + N-C2 interactions
 
 - `curation.test.ts:149`: Updated expected string from `'"weight": 2.5'` to `'"weight":2.5'` (compact JSON after N-B14 fix)

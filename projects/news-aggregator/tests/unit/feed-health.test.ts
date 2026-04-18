@@ -66,9 +66,11 @@ describe('feed-health', () => {
     expect(rate).toBe(0)
   })
 
-  it('auto-disables when error rate >= 50%', async () => {
+  it('auto-disables when error rate >= 50% (with enough samples)', async () => {
+    await recordFeedAttempt(sourceId, 'success')
     await recordFeedAttempt(sourceId, 'success')
     await recordFeedAttempt(sourceId, 'timeout')
+    await recordFeedAttempt(sourceId, 'http_error')
     await recordFeedAttempt(sourceId, 'http_error')
     const disabled = await autoDisableIfUnhealthy(sourceId, noopLog)
     expect(disabled).toBe(true)
