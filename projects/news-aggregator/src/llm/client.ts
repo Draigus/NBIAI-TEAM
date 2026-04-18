@@ -5,7 +5,33 @@ import { notifyAuthFailover, notifyGenerationFailed } from '../notifications/hub
 
 export type LlmAuthMode = 'primary' | 'failover'
 
-let failoverLatched = false
+// Failover latch with auto-reset. A transient 401 used to park the
+// service on the secondary key for the entire PM2 process lifetime
+// (audit finding N-C5). Now the latch expires after
+// FAILOVER_COOLDOWN_MS and we try the primary again on the next call.
+const FAILOVER_COOLDOWN_MS = 6 * 60 * 60 * 1000 // 6 hours
+let failoverLatchedUntil = 0
+function isFailoverLatched(): boolean {
+  return Date.now() < failoverLatchedUntil
+}
+function latchFailover(): void {
+  failoverLatchedUntil = Date.now() + FAILOVER_COOLDOWN_MS
+}
+
+// Per-stage timeouts. Without these a wedged Anthropic stream would hang
+// forever, leaving the generation_runs row stuck on 'running' and
+// blocking the next cron tick (audit finding N-C4). Clustering at
+// max_tokens=32768 is the longest legitimate stage; everything else
+// finishes well inside 90 s.
+const DEFAULT_TIMEOUT_MS = 90_000
+const CLUSTERING_TIMEOUT_MS = 12 * 60 * 1000 // 12 minutes
+const MONTHLY_SYNTHESIS_TIMEOUT_MS = 6 * 60 * 1000
+
+function timeoutForRunType(runType: CallOptions['runType']): number {
+  if (runType === 'clustering') return CLUSTERING_TIMEOUT_MS
+  if (runType === 'monthly_synthesis') return MONTHLY_SYNTHESIS_TIMEOUT_MS
+  return DEFAULT_TIMEOUT_MS
+}
 
 const MODEL = 'claude-sonnet-4-6'
 
@@ -50,13 +76,29 @@ async function runApiCall(mode: LlmAuthMode, opts: CallOptions): Promise<CallRes
   // window can run longer than the 10-minute non-stream timeout). We use
   // streaming unconditionally so there's one code path and we never hit
   // the SDK's non-streaming guard.
-  const stream = client.messages.stream({
-    model: MODEL,
-    max_tokens: opts.maxTokens ?? 4096,
-    system: opts.systemPrompt,
-    messages: [{ role: 'user', content: opts.userMessage }],
-  })
-  const response = await stream.finalMessage()
+  //
+  // An AbortController enforces a hard per-stage ceiling; without it a
+  // wedged stream hangs until the process dies and leaves every
+  // generation_runs row with status='running', blocking subsequent
+  // hourly crons (audit finding N-C4).
+  const abort = new AbortController()
+  const timeoutMs = timeoutForRunType(opts.runType)
+  const timer = setTimeout(() => abort.abort(new Error(`llm timeout after ${timeoutMs}ms (${opts.runType})`)), timeoutMs)
+  let response
+  try {
+    const stream = client.messages.stream(
+      {
+        model: MODEL,
+        max_tokens: opts.maxTokens ?? 4096,
+        system: opts.systemPrompt,
+        messages: [{ role: 'user', content: opts.userMessage }],
+      },
+      { signal: abort.signal },
+    )
+    response = await stream.finalMessage()
+  } finally {
+    clearTimeout(timer)
+  }
 
   const textBlock = response.content.find((b) => b.type === 'text')
   const text = textBlock && 'text' in textBlock ? textBlock.text : ''
@@ -78,7 +120,7 @@ async function runApiCall(mode: LlmAuthMode, opts: CallOptions): Promise<CallRes
 }
 
 export async function callClaude(opts: CallOptions): Promise<CallResult> {
-  const startMode: LlmAuthMode = failoverLatched ? 'failover' : 'primary'
+  const startMode: LlmAuthMode = isFailoverLatched() ? 'failover' : 'primary'
   const runInsert = await db.insert(schema.generationRuns).values({
     runType: opts.runType,
     digestId: opts.digestId ?? null,
@@ -100,8 +142,8 @@ export async function callClaude(opts: CallOptions): Promise<CallResult> {
     }).where(sql`id = ${runId}`)
     return result
   } catch (err) {
-    if (isAuthError(err) && !failoverLatched && process.env.ANTHROPIC_API_KEY_FAILOVER) {
-      failoverLatched = true
+    if (isAuthError(err) && !isFailoverLatched() && process.env.ANTHROPIC_API_KEY_FAILOVER) {
+      latchFailover()
       await notifyAuthFailover(opts.runType)
       try {
         const result = await runApiCall('failover', opts)
@@ -143,12 +185,12 @@ export async function healthcheckAuth(): Promise<{ ok: boolean; mode: LlmAuthMod
       userMessage: 'ok',
       maxTokens: 5,
     })
-    return { ok: true, mode: failoverLatched ? 'failover' : 'primary' }
+    return { ok: true, mode: isFailoverLatched() ? 'failover' : 'primary' }
   } catch (err) {
-    return { ok: false, mode: failoverLatched ? 'failover' : 'primary', error: (err as Error).message }
+    return { ok: false, mode: isFailoverLatched() ? 'failover' : 'primary', error: (err as Error).message }
   }
 }
 
 export function __resetFailoverForTests(): void {
-  failoverLatched = false
+  failoverLatchedUntil = 0
 }
