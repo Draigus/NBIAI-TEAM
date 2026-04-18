@@ -3211,6 +3211,12 @@ function toast(msg, type='success') {
   setTimeout(() => el.remove(), 4000);
 }
 
+// Alias: a handful of call-sites (finance 409 conflict, system broadcast,
+// attachment confirm/move/download failure) were wired up calling
+// `showToast` which was never defined and threw ReferenceError. This
+// keeps both names working so no call site is silently broken.
+const showToast = toast;
+
 // ==================== THEMED CONFIRMATION DIALOG ====================
 
 let _confirmResolve = null;
@@ -15731,8 +15737,14 @@ async function adminResetPassword() {
 
 // ----- CLIENT STATUS REPORTS -----
 
-/** Generate a client status report — creates a snapshot, returns share/PDF links */
-async function generateClientReport(clientName) {
+/** Generate a client status report via the server API — creates a snapshot
+ *  and returns share/PDF links. Currently NOT wired to any UI button; the
+ *  'Generate Client Report' button in renderClientHeader invokes
+ *  generateClientReport (below), which is the local CSV/clipboard variant
+ *  that historically shadowed this declaration via JS function hoisting.
+ *  Renamed to generateClientReportPDF so both flows can coexist; wire this
+ *  to a button when the server-audited flow is ready to be the default. */
+async function generateClientReportPDF(clientName) {
   // Resolve client name to ID
   try {
     const clients = await apiCall('/api/clients');

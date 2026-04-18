@@ -978,7 +978,11 @@ app.use('/api/news', createProxyMiddleware({
         proxyReq.setHeader('x-nbi-user', JSON.stringify({
           username: req.user.username,
           displayName: req.user.display_name,
-          isAdmin: !!req.user.is_admin,
+          // req.user carries `role` (populated by requireAuth), not `is_admin` —
+          // the latter never exists, so the previous `!!req.user.is_admin`
+          // evaluated to false for everyone and silently killed any admin-only
+          // feature on the news sidecar.
+          isAdmin: req.user.role === 'admin',
         }));
       }
       proxyReq.setHeader('x-nbi-internal-token', NEWS_INTERNAL_TOKEN);
