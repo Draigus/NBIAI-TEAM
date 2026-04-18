@@ -4260,15 +4260,37 @@ app.post('/api/sync/changes', async (req, res) => {
     clientRows.forEach(r => { clientMap[r.name] = r.id; });
 
     let applied = 0;
+    let rejectedOutOfScope = 0;
     const idMap = {}; // frontend_id -> db_id (for new tasks)
 
-    // Batch-fetch existing task states to avoid N+1 queries in the loop
+    // Scope gate for the write path. Admin passes through; everyone else
+    // may only touch tasks whose client_id is in their scope. External (G5)
+    // users can never touch null-client tasks; internal-with-team users
+    // can. Out-of-scope changes are silently dropped from the batch and
+    // surfaced to the client via rejectedOutOfScope in the response.
+    const scopes = await getClientScopes(req);
+    const isExternal = !!req.user?.clientId;
+    const scopeSet = scopes ? new Set(scopes) : null;
+    const clientInScope = (clientId) => {
+      if (scopeSet === null) return true;
+      if (clientId == null) return !isExternal;
+      return scopeSet.has(clientId);
+    };
+
+    // Batch-fetch existing task states to avoid N+1 queries in the loop.
+    // Also fetch client_ids of any tasks being deleted so we can scope-check them.
     const upsertIds = changes.filter(ch => ch.action === 'upsert' && ch.entity === 'task' && ch.data?.id).map(ch => ch.data.id);
+    const deleteIds = changes.filter(ch => ch.action === 'delete' && ch.entity === 'task' && ch.id).map(ch => ch.id);
     const existingTaskMap = new Map();
     const existingFullMap = new Map(); // full row, used for post-processing transitions
+    const deleteClientMap = new Map();
     if (upsertIds.length > 0) {
       const { rows: existingRows } = await conn.query('SELECT * FROM tasks WHERE id = ANY($1::uuid[])', [upsertIds]);
       existingRows.forEach(r => { existingTaskMap.set(r.id, r.updated_at); existingFullMap.set(r.id, r); });
+    }
+    if (scopeSet !== null && deleteIds.length > 0) {
+      const { rows: delRows } = await conn.query('SELECT id, client_id FROM tasks WHERE id = ANY($1::uuid[])', [deleteIds]);
+      delRows.forEach(r => deleteClientMap.set(r.id, r.client_id));
     }
     // Track per-task transitions to process after the main upsert loop (cascade cancel, repeat clones, blocker notifications)
     const postProcessTransitions = [];
@@ -4299,14 +4321,32 @@ app.post('/api/sync/changes', async (req, res) => {
         t.assignees = normaliseStringArray(t.assignees, 'assignees');
         t.dependencies = normaliseStringArray(t.dependencies, 'dependencies');
 
-        // Resolve client name to ID
+        // Resolve client name to ID. Auto-creation of clients (the old
+        // INSERT ... ON CONFLICT path) is restricted to admins — otherwise
+        // any caller could manufacture client rows by picking novel names.
         let clientId = null;
         if (t.client && clientMap[t.client]) {
           clientId = clientMap[t.client];
-        } else if (t.client) {
+        } else if (t.client && isAdmin) {
           const cr = await conn.query('INSERT INTO clients (name) VALUES ($1) ON CONFLICT (name) DO UPDATE SET name = $1 RETURNING id', [t.client]);
           clientId = cr.rows[0].id;
           clientMap[t.client] = clientId;
+        } else if (t.client) {
+          // Non-admin referenced an unknown client name: drop the row rather
+          // than create it. Surface via rejectedOutOfScope so the client can
+          // warn the user.
+          rejectedOutOfScope++;
+          continue;
+        }
+
+        // Scope gate: reject writes whose resolved clientId is outside the
+        // user's scope. For updates we also require the task's OLD clientId
+        // to be in scope (so a scoped user can't steal a task by patching
+        // its client_id to their own).
+        if (!clientInScope(clientId)) { rejectedOutOfScope++; continue; }
+        if (existingTaskMap.has(t.id)) {
+          const oldClientId = existingFullMap.get(t.id)?.client_id ?? null;
+          if (!clientInScope(oldClientId)) { rejectedOutOfScope++; continue; }
         }
 
         // Resolve parentId (might be a frontend temp ID or a DB UUID)
@@ -4421,6 +4461,16 @@ app.post('/api/sync/changes', async (req, res) => {
         applied++;
 
       } else if (ch.action === 'delete' && ch.entity === 'task') {
+        // Scope gate for deletes. Admins pass through. Others may only
+        // delete tasks whose client_id is in their scope.
+        if (scopeSet !== null) {
+          const existingClientId = deleteClientMap.get(ch.id);
+          if (existingClientId === undefined) {
+            // Task not found or not visible: treat as out of scope.
+            rejectedOutOfScope++; continue;
+          }
+          if (!clientInScope(existingClientId)) { rejectedOutOfScope++; continue; }
+        }
         const changedBy = req.user ? req.user.displayName : 'system';
         await auditLog('task', ch.id, 'delete', changedBy, null, conn);
         await conn.query('DELETE FROM tasks WHERE id = $1', [ch.id]);
@@ -4540,7 +4590,7 @@ app.post('/api/sync/changes', async (req, res) => {
       }
     }
 
-    res.json({ ok: true, applied, idMap });
+    res.json({ ok: true, applied, idMap, rejectedOutOfScope });
   } catch (e) {
     await conn.query('ROLLBACK');
     log('error', 'Sync', 'Incremental sync failed', { error: e.message, stack: e.stack?.split('\n').slice(0,3).join(' | ') });
@@ -4554,6 +4604,11 @@ app.post('/api/sync/changes', async (req, res) => {
  * GET /api/sync/poll?since=<ISO timestamp>
  * Lightweight polling endpoint — returns tasks updated after the given timestamp
  * plus the full list of current task IDs (so the client can detect deletions).
+ *
+ * Scoped by getClientScopes: admins and internal-no-team users see everything;
+ * internal-with-team users see their team's clients + ALWAYS_VISIBLE_CLIENTS +
+ * null-client tasks (internal work); G5 external users see only their own
+ * client's tasks and never null-client tasks.
  */
 app.get('/api/sync/poll', async (req, res) => {
   const since = req.query.since;
@@ -4562,18 +4617,36 @@ app.get('/api/sync/poll', async (req, res) => {
   const sinceDate = new Date(since);
   if (isNaN(sinceDate.getTime())) return res.status(400).json({ error: 'Invalid timestamp' });
 
-  // Get tasks updated since the timestamp (capped at 500 to prevent huge payloads)
-  const updated = await pool.query(`
-    SELECT t.*, c.name as client_name
-    FROM tasks t LEFT JOIN clients c ON t.client_id = c.id
-    WHERE t.updated_at > $1
-    ORDER BY t.updated_at
-    LIMIT 501
-  `, [sinceDate.toISOString()]);
+  const scopes = await getClientScopes(req);
+  const isExternal = !!req.user?.clientId;
 
-  // Get IDs of tasks updated or created since last poll to detect deletions
-  // Only check tasks that the client might have cached (updated within the last 24 hours or all if initial)
-  const allIds = await pool.query('SELECT id FROM tasks WHERE updated_at > $1', [sinceDate.toISOString()]);
+  let updated, allIds;
+  if (scopes === null) {
+    // Unrestricted
+    updated = await pool.query(`
+      SELECT t.*, c.name as client_name
+      FROM tasks t LEFT JOIN clients c ON t.client_id = c.id
+      WHERE t.updated_at > $1
+      ORDER BY t.updated_at
+      LIMIT 501
+    `, [sinceDate.toISOString()]);
+    allIds = await pool.query('SELECT id FROM tasks WHERE updated_at > $1', [sinceDate.toISOString()]);
+  } else {
+    // Scoped. External users never see null-client tasks.
+    const nullClause = isExternal ? '' : ' OR t.client_id IS NULL';
+    updated = await pool.query(`
+      SELECT t.*, c.name as client_name
+      FROM tasks t LEFT JOIN clients c ON t.client_id = c.id
+      WHERE t.updated_at > $1 AND (t.client_id = ANY($2)${nullClause})
+      ORDER BY t.updated_at
+      LIMIT 501
+    `, [sinceDate.toISOString(), scopes]);
+    const idNullClause = isExternal ? '' : ' OR client_id IS NULL';
+    allIds = await pool.query(
+      `SELECT id FROM tasks WHERE updated_at > $1 AND (client_id = ANY($2)${idNullClause})`,
+      [sinceDate.toISOString(), scopes]
+    );
+  }
   const currentIds = allIds.rows.map(r => r.id);
 
   const hasMore = updated.rows.length > 500;
@@ -4731,9 +4804,19 @@ app.get('/api/sync/load', async (req, res) => {
     FROM clients c ORDER BY c.name
   `);
 
+  // Settings are returned to the browser, so external users (G5) must see
+  // only UI-relevant keys. fx_rates, expense_approver, feature flags, and
+  // anything else internal is stripped for external accounts.
+  const EXTERNAL_SETTINGS_ALLOW = new Set([
+    'currency', 'hourly_rate', 'hourlyRate', 'date_format', 'dateFormat',
+    'timezone', 'client_priority', 'clientPriority',
+  ]);
   const settings = await pool.query('SELECT key, value FROM settings');
+  const isExternal = !!req.user?.clientId;
   const settingsObj = {};
-  settings.rows.forEach(r => { settingsObj[r.key] = r.value; });
+  settings.rows.forEach(r => {
+    if (!isExternal || EXTERNAL_SETTINGS_ALLOW.has(r.key)) settingsObj[r.key] = r.value;
+  });
 
   // Map tasks back to frontend format
   const taskIdMap = {};
@@ -4793,8 +4876,16 @@ app.get('/api/sync/load', async (req, res) => {
   let finalKnownClients = clients.rows;
   if (scopes) {
     const scopeSet = new Set(scopes);
-    // Filter tasks to only those belonging to scoped clients (match on raw DB client_id)
-    const scopedTaskIds = new Set(tasks.rows.filter(r => r.client_id && scopeSet.has(r.client_id) || !r.client_id).map(r => r.id));
+    // Filter tasks to only those belonging to scoped clients. External (G5)
+    // users never see null-client tasks (those are NBI-internal work, not
+    // theirs). Internal-with-team users keep seeing null-client tasks.
+    // The previous expression `r.client_id && scopeSet.has(r.client_id) || !r.client_id`
+    // parses as (A && B) || C, which exposed every null-client task to every
+    // scoped user regardless of their type — audit finding B-C6.
+    const scopedTaskIds = new Set(tasks.rows.filter(r => {
+      if (r.client_id) return scopeSet.has(r.client_id);
+      return !isExternal;
+    }).map(r => r.id));
     finalTasks = frontendTasks.filter(t => scopedTaskIds.has(t.id));
     finalKnownClients = clients.rows.filter(c => scopeSet.has(c.id));
     finalBriefs = {};
