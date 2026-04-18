@@ -7235,12 +7235,14 @@ app.get('/api/expense-reports/:id/export', requireInternal, async (req, res) => 
     }
   }
 
-  // Add redacted bank statements
-  const bankStatements = fs.readdirSync(uploadsDir).filter(f => f.includes('REDACTED') && f.endsWith('.pdf'));
-  bankStatements.forEach(f => {
-    archive.file(path.join(uploadsDir, f), { name: `bank_statements/${f}` });
-  });
-
+  // Bank statements intentionally NOT included in the export. The previous
+  // implementation dumped every *REDACTED*.pdf in uploads/ into every
+  // expense-report ZIP — which meant one employee's export contained every
+  // other employee's redacted bank statements (audit finding B-B20). Today
+  // this is a latent leak because only Glen uses the system, but it would
+  // fire the moment a second employee submits a report.
+  // To re-enable, add a bank_statements table keyed by user_id, associate
+  // redacted PDFs at upload time, and filter here on user_id = report.user_id.
   archive.finalize();
 });
 
