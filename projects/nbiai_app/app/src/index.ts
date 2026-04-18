@@ -20,6 +20,7 @@ import Fastify from 'fastify'
 import fastifyCors from '@fastify/cors'
 import fastifyRateLimit from '@fastify/rate-limit'
 import fastifyJwt from '@fastify/jwt'
+import fastifyCookie from '@fastify/cookie'
 import fastifyWebsocket from '@fastify/websocket'
 import fastifyStatic from '@fastify/static'
 import { join, dirname } from 'path'
@@ -99,6 +100,12 @@ await fastify.register(fastifyRateLimit, {
     },
   }),
 })
+
+// ---------------------------------------------------------------------------
+// Cookie (refresh token lives in an httpOnly cookie; registered before JWT)
+// ---------------------------------------------------------------------------
+
+await fastify.register(fastifyCookie)
 
 // ---------------------------------------------------------------------------
 // JWT

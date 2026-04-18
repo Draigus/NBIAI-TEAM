@@ -2,26 +2,23 @@
 // Token helpers
 // ---------------------------------------------------------------------------
 
-// BUG-001 fix: access token stored in module-level memory to protect against XSS.
-// It is never written to localStorage.
-// BUG-002 partial fix: refresh token remains in localStorage for now so that
-// sessions survive page reloads. In production this MUST be replaced with an
-// httpOnly cookie set by the server (requires backend Set-Cookie change) so
-// that JavaScript cannot access it at all.
+// Access token lives in module-level memory only (defends against XSS
+// exfiltration). Refresh token is now an httpOnly cookie set by the server
+// on /login, /refresh, /setup and cleared on /logout — JavaScript never
+// sees it. Page reloads re-establish the in-memory access token via a
+// silent /refresh call (see useAuth.ts).
 let accessToken: string | null = null
 
 export function getToken(): string | null {
   return accessToken
 }
 
-export function setTokens(newAccessToken: string, refreshToken: string): void {
+export function setAccessToken(newAccessToken: string): void {
   accessToken = newAccessToken
-  localStorage.setItem('refreshToken', refreshToken)
 }
 
 export function clearTokens(): void {
   accessToken = null
-  localStorage.removeItem('refreshToken')
 }
 
 // ---------------------------------------------------------------------------
@@ -37,20 +34,16 @@ function drainQueue(token: string | null) {
 }
 
 async function attemptRefresh(): Promise<string | null> {
-  const refreshToken = localStorage.getItem('refreshToken')
-  if (!refreshToken) return null
-
   try {
     const res = await fetch('/api/v1/auth/refresh', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refreshToken }),
+      credentials: 'include',
     })
     if (!res.ok) return null
     const json = await res.json()
-    const { accessToken, refreshToken: newRefreshToken } = json
-    setTokens(accessToken, newRefreshToken)
-    return accessToken
+    if (!json?.accessToken) return null
+    setAccessToken(json.accessToken)
+    return json.accessToken as string
   } catch {
     return null
   }
@@ -67,7 +60,12 @@ export async function apiFetch<T>(
   }
   if (token) headers['Authorization'] = `Bearer ${token}`
 
-  const res = await fetch(path, { ...options, headers })
+  // Include the refresh cookie on auth endpoints so /refresh and /logout can
+  // read it. Other endpoints authenticate with the Authorization header and
+  // don't need cookies, but sending credentials across the board is harmless
+  // since the cookie's Path is scoped to /api/v1/auth on the server.
+  const fetchOptions: RequestInit = { ...options, headers, credentials: 'include' }
+  const res = await fetch(path, fetchOptions)
 
   if (res.status !== 401) {
     if (!res.ok) {
@@ -88,7 +86,7 @@ export async function apiFetch<T>(
           return
         }
         const retryHeaders = { ...headers, Authorization: `Bearer ${newToken}` }
-        const retryRes = await fetch(path, { ...options, headers: retryHeaders })
+        const retryRes = await fetch(path, { ...options, headers: retryHeaders, credentials: 'include' })
         if (!retryRes.ok) reject(await retryRes.json())
         else resolve(retryRes.json() as T)
       })
@@ -129,27 +127,20 @@ export const auth = {
       body: JSON.stringify({ email, password }),
     }),
 
-  logout: () => {
-    const refreshToken = localStorage.getItem('refreshToken')
-    return apiFetch('/api/v1/auth/logout', {
-      method: 'POST',
-      body: JSON.stringify({ refreshToken }),
-    })
-  },
-
-  refresh: () =>
-    apiFetch('/api/v1/auth/refresh', { method: 'POST' }),
+  logout: () =>
+    apiFetch('/api/v1/auth/logout', { method: 'POST' }),
 
   // Silent refresh used on app mount to restore an in-memory access token after
-  // a page reload. Calls fetch directly rather than apiFetch to avoid the 401
-  // retry loop that would cause infinite recursion during session restoration.
-  refreshWithToken: async (refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> => {
+  // a page reload. The refresh token lives in an httpOnly cookie set by the
+  // server; we just hit /refresh with credentials and the browser sends it
+  // automatically. Calls fetch directly rather than apiFetch to avoid the
+  // 401 retry loop that would cause infinite recursion during session restore.
+  silentRefresh: async (): Promise<{ accessToken: string } | null> => {
     const res = await fetch('/api/v1/auth/refresh', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refreshToken }),
+      credentials: 'include',
     })
-    if (!res.ok) throw new Error('Refresh failed')
+    if (!res.ok) return null
     return res.json()
   },
 

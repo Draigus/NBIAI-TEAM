@@ -67,15 +67,8 @@ export const setupSchema = z.object({
     .max(255, 'Display name must not exceed 255 characters.'),
 })
 
-/** POST /auth/refresh request body. */
-export const refreshSchema = z.object({
-  refreshToken: z.string().min(1, 'Refresh token is required.'),
-})
-
-/** POST /auth/logout request body. */
-export const logoutSchema = z.object({
-  refreshToken: z.string().min(1, 'Refresh token is required.'),
-})
+// Refresh and logout read the refresh token from an httpOnly cookie, not the
+// request body, so no body schema is needed for those routes.
 
 // ---------------------------------------------------------------------------
 // Inferred types
@@ -83,8 +76,6 @@ export const logoutSchema = z.object({
 
 export type LoginBody = z.infer<typeof loginSchema>
 export type SetupBody = z.infer<typeof setupSchema>
-export type RefreshBody = z.infer<typeof refreshSchema>
-export type LogoutBody = z.infer<typeof logoutSchema>
 export type PaginationQuery = z.infer<typeof paginationSchema>
 
 // ---------------------------------------------------------------------------

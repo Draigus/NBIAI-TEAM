@@ -7,7 +7,7 @@ import {
   type ReactNode,
   createElement,
 } from 'react'
-import { auth, setTokens, clearTokens, getToken } from '@/lib/api'
+import { auth, setAccessToken, clearTokens } from '@/lib/api'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -46,36 +46,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  // On mount, attempt to restore the session.
-  // BUG-001 fix: the access token is now stored in memory (not localStorage), so
-  // it is always absent after a page reload. If a refresh token is in localStorage
-  // we attempt a silent refresh to obtain a new access token before calling /me.
+  // On mount, attempt to restore the session. Access tokens live in memory
+  // and are always absent after a page reload; the refresh token is an
+  // httpOnly cookie the browser sends automatically to /api/v1/auth/*.
+  // A successful silent refresh re-hydrates the in-memory access token and
+  // lets us call /me. Any failure (no cookie, expired, revoked) leaves the
+  // user logged out.
   useEffect(() => {
-    const inMemoryToken = getToken()
-    const storedRefreshToken = localStorage.getItem('refreshToken')
-
-    if (!inMemoryToken && !storedRefreshToken) {
-      // No session at all — nothing to restore.
-      setIsLoading(false)
-      return
-    }
-
     const restoreSession = async () => {
       try {
-        // If there is no in-memory access token (e.g. after a page reload) but
-        // a refresh token exists, silently obtain a new access token first.
-        if (!inMemoryToken && storedRefreshToken) {
-          const refreshRes = (await auth.refreshWithToken(storedRefreshToken)) as {
-            accessToken: string
-            refreshToken: string
-          }
-          setTokens(refreshRes.accessToken, refreshRes.refreshToken)
+        const refreshRes = await auth.silentRefresh()
+        if (!refreshRes) {
+          setIsLoading(false)
+          return
         }
+        setAccessToken(refreshRes.accessToken)
 
         // The /me endpoint returns the user object directly (no data wrapper).
         const res = await auth.me()
-        const data = res as User
-        setUser(data)
+        setUser(res as User)
       } catch {
         clearTokens()
       } finally {
@@ -87,14 +76,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [])
 
   const login = useCallback(async (email: string, password: string) => {
-    // The login endpoint returns { accessToken, refreshToken, user } directly
-    // (no data wrapper). See auth.ts issueTokens().
+    // The login endpoint returns { accessToken, user } directly (no data
+    // wrapper). The refresh token is set as an httpOnly cookie by the server.
     const res = (await auth.login(email, password)) as {
       accessToken: string
-      refreshToken: string
       user: User
     }
-    setTokens(res.accessToken, res.refreshToken)
+    setAccessToken(res.accessToken)
     setUser(res.user)
   }, [])
 

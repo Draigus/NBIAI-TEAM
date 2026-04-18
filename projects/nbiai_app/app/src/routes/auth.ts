@@ -37,8 +37,6 @@ import {
 import {
   validateBody,
   loginSchema,
-  refreshSchema,
-  logoutSchema,
   setupSchema,
 } from '../lib/validate.js'
 
@@ -55,7 +53,6 @@ interface JwtPayloadInput {
 
 interface AuthResponse {
   accessToken: string
-  refreshToken: string
   user: {
     id: string
     email: string
@@ -65,6 +62,14 @@ interface AuthResponse {
   }
 }
 
+// Cookie scope: refresh token only travels to /api/v1/auth/*. httpOnly keeps
+// JS from touching it; sameSite=lax covers the top-level navigation case for
+// same-site deployments (Vite proxy in dev, @fastify/static in prod). `secure`
+// is set in production so browsers refuse to send the cookie over http.
+const REFRESH_COOKIE_NAME = 'refreshToken'
+const REFRESH_COOKIE_PATH = '/api/v1/auth'
+const REFRESH_COOKIE_MAX_AGE_SECONDS = 30 * 24 * 60 * 60
+
 // ---------------------------------------------------------------------------
 // Internal helpers
 // ---------------------------------------------------------------------------
@@ -73,12 +78,15 @@ const REFRESH_TOKEN_TTL_DAYS = 30
 
 /**
  * Issue a JWT access token and a new refresh token, store the session,
- * and return the full auth response shape.
+ * set the refresh token as an httpOnly cookie on `reply`, and return the
+ * response body (access token + user). The raw refresh token never leaves
+ * the server except inside the Set-Cookie header.
  */
 async function issueTokens(
   fastify: FastifyInstance,
   user: SelectUser,
   request: FastifyRequest,
+  reply: FastifyReply,
 ): Promise<AuthResponse> {
   const payload: JwtPayloadInput = {
     sub: user.id,
@@ -90,7 +98,7 @@ async function issueTokens(
   // JWT access token — @fastify/jwt sign uses the options from plugin registration (15m TTL)
   const accessToken = fastify.jwt.sign(payload)
 
-  // Refresh token — raw issued to client, hash stored in DB
+  // Refresh token — raw set as httpOnly cookie, hash stored in DB
   const rawRefreshToken = generateRefreshToken()
   const tokenHash = hashRefreshToken(rawRefreshToken)
 
@@ -105,9 +113,16 @@ async function issueTokens(
     expiresAt,
   })
 
+  reply.setCookie(REFRESH_COOKIE_NAME, rawRefreshToken, {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    path: REFRESH_COOKIE_PATH,
+    maxAge: REFRESH_COOKIE_MAX_AGE_SECONDS,
+  })
+
   return {
     accessToken,
-    refreshToken: rawRefreshToken,
     user: {
       id: user.id,
       email: user.email,
@@ -169,7 +184,7 @@ export async function authRoutes(fastify: FastifyInstance): Promise<void> {
       .where(eq(users.id, user.id))
       .catch((err) => fastify.log.warn(err, 'Failed to update last_login_at'))
 
-    const response = await issueTokens(fastify, user, request)
+    const response = await issueTokens(fastify, user, request, reply)
     return reply.status(200).send(response)
   })
 
@@ -178,9 +193,14 @@ export async function authRoutes(fastify: FastifyInstance): Promise<void> {
   // -------------------------------------------------------------------------
 
   fastify.post('/refresh', async (request: FastifyRequest, reply: FastifyReply) => {
-    const body = validateBody(refreshSchema, request.body)
+    const rawRefreshToken = request.cookies?.[REFRESH_COOKIE_NAME]
+    if (!rawRefreshToken) {
+      return reply.status(401).send({
+        error: { code: 'UNAUTHORIZED', message: 'Missing refresh token.' },
+      })
+    }
 
-    const tokenHash = hashRefreshToken(body.refreshToken)
+    const tokenHash = hashRefreshToken(rawRefreshToken)
     const now = new Date()
 
     // Find a valid, non-expired, non-revoked session matching this hash
@@ -234,7 +254,7 @@ export async function authRoutes(fastify: FastifyInstance): Promise<void> {
       })
     }
 
-    const response = await issueTokens(fastify, userRow, request)
+    const response = await issueTokens(fastify, userRow, request, reply)
     return reply.status(200).send(response)
   })
 
@@ -246,24 +266,25 @@ export async function authRoutes(fastify: FastifyInstance): Promise<void> {
     '/logout',
     { preHandler: requireAuth },
     async (request: FastifyRequest, reply: FastifyReply) => {
-      const body = validateBody(logoutSchema, request.body)
+      const rawRefreshToken = request.cookies?.[REFRESH_COOKIE_NAME]
 
-      const tokenHash = hashRefreshToken(body.refreshToken)
-
-      try {
-        await db.delete(sessions).where(
-          and(
-            eq(sessions.refreshTokenHash, tokenHash),
-            eq(sessions.userId, request.user.sub),
-          ),
-        )
-      } catch (err) {
-        fastify.log.error(err, 'DB error during logout')
-        return reply.status(500).send({
-          error: { code: 'INTERNAL_ERROR', message: 'An unexpected error occurred.' },
-        })
+      if (rawRefreshToken) {
+        const tokenHash = hashRefreshToken(rawRefreshToken)
+        try {
+          await db.delete(sessions).where(
+            and(
+              eq(sessions.refreshTokenHash, tokenHash),
+              eq(sessions.userId, request.user.sub),
+            ),
+          )
+        } catch (err) {
+          fastify.log.error(err, 'DB error during logout')
+          // Still clear the cookie on the client even if DB delete failed —
+          // the user's intent is to log out.
+        }
       }
 
+      reply.clearCookie(REFRESH_COOKIE_NAME, { path: REFRESH_COOKIE_PATH })
       return reply.status(204).send()
     },
   )
@@ -398,7 +419,7 @@ export async function authRoutes(fastify: FastifyInstance): Promise<void> {
       })
     }
 
-    const response = await issueTokens(fastify, newUser, request)
+    const response = await issueTokens(fastify, newUser, request, reply)
     return reply.status(201).send(response)
   })
 }
