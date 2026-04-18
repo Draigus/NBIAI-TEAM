@@ -1,4 +1,5 @@
 import { sql, eq } from 'drizzle-orm'
+import pLimit from 'p-limit'
 import type { SchedulerLogger } from '../ingest/scheduler.js'
 import { db, schema } from '../db/index.js'
 import { clusterArticles } from '../llm/clustering.js'
@@ -8,6 +9,8 @@ import { selectHeroStory } from '../llm/hero-selection.js'
 import { healthcheckAuth } from '../llm/client.js'
 import type { ArticleSourceInfo } from '../llm/curation.js'
 import { filterUuids } from '../utils/uuids.js'
+
+const SUMMARISE_CONCURRENCY = 4
 
 const CANONICAL_CATEGORIES: ReadonlySet<string> = new Set(['studios', 'games', 'shifts', 'strategy'])
 
@@ -77,24 +80,26 @@ export async function generateWeeklyDigest(
   const srcRows = safeArticleIds.length === 0
     ? { rows: [] as Array<{ article_id: string; priority_weight: string }> }
     : await db.execute(sql`
-    SELECT a.id AS article_id, s.priority_weight
+    SELECT a.id AS article_id, a.title AS article_title, s.priority_weight
     FROM news.articles a JOIN news.sources s ON s.id = a.source_id
     WHERE a.id = ANY(${idArray}::uuid[])
   `)
   const sourceWeights = new Map<string, ArticleSourceInfo>()
-  for (const r of srcRows.rows as Array<{ article_id: string; priority_weight: string }>) {
+  const articleTitles = new Map<string, string>()
+  for (const r of srcRows.rows as Array<{ article_id: string; article_title: string; priority_weight: string }>) {
     sourceWeights.set(r.article_id, { priorityWeight: Number(r.priority_weight) })
+    articleTitles.set(r.article_id, r.article_title)
   }
 
   // Curate
-  const curation = await curateClusters(clusters, digest.id, sourceWeights)
+  const curation = await curateClusters(clusters, digest.id, sourceWeights, articleTitles)
   log.info(
     { digestId: digest.id, selected: curation.selected.length, dynamic: curation.dynamic_category_label },
     'curation done',
   )
 
-  // Create story rows from selected clusters + summarise each
-  const storyIds: string[] = []
+  // Phase 1: create story rows + link articles (sequential DB writes)
+  const storyJobs: Array<{ storyId: string; articleIds: string[] }> = []
   for (const s of curation.selected) {
     const cluster = clusters[s.cluster_index]
     if (!cluster || cluster.article_ids.length === 0) continue
@@ -122,9 +127,13 @@ export async function generateWeeklyDigest(
         .values({ storyId: story.id, articleId: aid, isPrimarySource: false })
         .onConflictDoNothing()
     }
-    storyIds.push(story.id)
+    storyJobs.push({ storyId: story.id, articleIds: cluster.article_ids })
+  }
 
-    const summary = await summariseStory(story.id, cluster.article_ids, digest.id)
+  // Phase 2: summarise stories in parallel (N-B4)
+  const summariseLimit = pLimit(SUMMARISE_CONCURRENCY)
+  await Promise.allSettled(storyJobs.map(job => summariseLimit(async () => {
+    const summary = await summariseStory(job.storyId, job.articleIds, digest.id)
     await db
       .update(schema.stories)
       .set({
@@ -132,15 +141,17 @@ export async function generateWeeklyDigest(
         summary: summary.summary,
         hasVideo: summary.has_video,
       })
-      .where(eq(schema.stories.id, story.id))
+      .where(eq(schema.stories.id, job.storyId))
 
     if (summary.primary_article_id) {
       await db
         .update(schema.storyArticles)
         .set({ isPrimarySource: true })
-        .where(sql`story_id = ${story.id} AND article_id = ${summary.primary_article_id}`)
+        .where(sql`story_id = ${job.storyId} AND article_id = ${summary.primary_article_id}`)
     }
-  }
+  })))
+
+  const storyIds = storyJobs.map(j => j.storyId)
 
   // Hero selection across all published stories
   const heroCandidates = await db

@@ -181,6 +181,14 @@ Compact JSON saves ~20-30% of whitespace tokens per call. At ~32 LLM calls per w
 
 **N-B3** — Re-enrich unenriched articles: Added a pass at the end of `runIngestOnce` that finds articles missing `og_image_hash` created in the last 24 hours and re-runs enrichment on them.
 
+### Batch 4 — news pre-live (N-B2, N-B4, N-B5)
+
+**N-B2** — Article titles in curation payload: weekly.ts now fetches `a.title` alongside `s.priority_weight`, builds `articleTitles` Map, passes it as 4th arg to `curateClusters`. Curation enriched payload gets `titles: [...]` per cluster so the LLM sees what articles are about, not just entity names.
+
+**N-B4** — Parallel summarisation: Split the summarisation loop in weekly.ts into two phases. Phase 1 creates story rows + links articles (sequential DB writes). Phase 2 summarises stories with `pLimit(4)` concurrency. Previously held the event loop for the full serial duration of all LLM calls.
+
+**N-B5** — Checked: NOT a real issue. `loadDigest` already does a single SQL query with `json_agg` correlated subqueries — the subqueries run inside Postgres, not as N separate round-trips. No change needed.
+
 ### Test fixes for N-B14 + N-C2 interactions
 
 - `curation.test.ts:149`: Updated expected string from `'"weight": 2.5'` to `'"weight":2.5'` (compact JSON after N-B14 fix)

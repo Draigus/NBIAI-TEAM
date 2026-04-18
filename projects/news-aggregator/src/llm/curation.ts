@@ -47,6 +47,7 @@ export async function curateClusters(
   clusters: ClusterResult[],
   digestId: string,
   articleSources: Map<string, ArticleSourceInfo>,
+  articleTitles?: Map<string, string>,
 ): Promise<CurationResult> {
   if (clusters.length === 0) return { selected: [], dynamic_category_label: null }
 
@@ -54,6 +55,7 @@ export async function curateClusters(
     cluster_index: idx,
     article_count: c.article_ids.length,
     entities: c.entities,
+    titles: articleTitles ? c.article_ids.map(id => articleTitles.get(id)).filter(Boolean) : [],
     weight: c.article_ids.reduce(
       (sum, aid) => sum + (articleSources.get(aid)?.priorityWeight ?? 1),
       0,
