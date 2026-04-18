@@ -722,7 +722,7 @@ app.post('/api/auth/login', async (req, res) => {
   // Allow login by either username or email address
   const { rows } = await pool.query('SELECT * FROM users WHERE username = $1 OR email = $1', [key]);
   if (rows.length === 0) {
-    // Track failed attempt even for unknown users (prevents username enumeration timing attacks)
+      if (Object.keys(_failedLogins).length > 10000) { for (const k of Object.keys(_failedLogins).slice(0, 5000)) delete _failedLogins[k]; }
     if (!_failedLogins[key]) _failedLogins[key] = { count: 0, lastAttempt: 0 };
     _failedLogins[key].count++;
     _failedLogins[key].lastAttempt = Date.now();
@@ -826,7 +826,7 @@ async function requireAuth(req, res, next) {
   }
 }
 /** Exception client names that are always visible to all internal users */
-const ALWAYS_VISIBLE_CLIENTS = ['NBI  OPS', 'Playsage'];
+const ALWAYS_VISIBLE_CLIENTS = ['NBI OPS', 'Playsage'];
 
 /**
  * Return allowed client IDs for the current user, or null if unrestricted.
@@ -4458,8 +4458,8 @@ app.post('/api/sync/changes', async (req, res) => {
         let clientId = null;
         if (t.client && clientMap[t.client]) {
           clientId = clientMap[t.client];
-        } else if (t.client && isAdmin) {
-          const cr = await conn.query('INSERT INTO clients (name) VALUES ($1) ON CONFLICT (name) DO UPDATE SET name = $1 RETURNING id', [t.client]);
+        } else if (t.client && isAdmin && typeof t.client === 'string' && t.client.trim().length > 0 && t.client.length <= 200) {
+          const cr = await conn.query('INSERT INTO clients (name) VALUES ($1) ON CONFLICT (name) DO UPDATE SET name = $1 RETURNING id', [t.client.trim()]);
           clientId = cr.rows[0].id;
           clientMap[t.client] = clientId;
         } else if (t.client) {
@@ -4481,7 +4481,7 @@ app.post('/api/sync/changes', async (req, res) => {
         }
 
         // Resolve parentId (might be a frontend temp ID or a DB UUID)
-        let parentId = t.parentId || null;
+        let parentId = t.parentId || t.parent_id || null;
         if (parentId && idMap[parentId]) parentId = idMap[parentId];
 
         // Validate item_type — sanitise to a known value

@@ -189,6 +189,18 @@ Compact JSON saves ~20-30% of whitespace tokens per call. At ~32 LLM calls per w
 
 **N-B5** — Checked: NOT a real issue. `loadDigest` already does a single SQL query with `json_agg` correlated subqueries — the subqueries run inside Postgres, not as N separate round-trips. No change needed.
 
+### Batch 5 — Needs Review quick wins
+
+**B-N8 + F-N7** — "NBI  OPS" double-space typo: Fixed in server.js ALWAYS_VISIBLE_CLIENTS, nbi_project_dashboard.html clientPrefix known map, and getContractedClients ALWAYS_INCLUDE. All three changed to single-space "NBI OPS". Also fixed the DB row (`UPDATE clients SET name = 'NBI OPS' WHERE name = 'NBI  OPS'`, 1 row).
+
+**B-N15** — _failedLogins hard cap: Added eviction of oldest 5000 entries when map exceeds 10000 at server.js:726. Existing hourly cleanup handles normal operation; this is a belt-and-suspenders cap against sustained brute-force flooding.
+
+**B-N16** — Auto-created client name validation: Added `typeof === 'string'`, `.trim().length > 0`, and `length <= 200` guards to the auto-create path in sync/changes at server.js:4462. Empty, non-string, or absurdly long names are now rejected.
+
+**B-N17** — parentId vs parent_id naming: Changed `t.parentId || null` to `t.parentId || t.parent_id || null` at server.js:4484. Accepts both camelCase (frontend) and snake_case (backup/import) formats so parent relationships aren't silently dropped.
+
+**F-C7** — Finance conflict UI: Replaced silent `loadFinanceFromDB()` on 409 with conflict modal. The 409 handler now shows the existing `#conflictModal` with a summary of the user's pending changes. "Keep My Changes" retries the save with the updated `expectedVersion`. "Use Server Version" reloads from DB. User's edits are no longer silently dropped.
+
 ### Test fixes for N-B14 + N-C2 interactions
 
 - `curation.test.ts:149`: Updated expected string from `'"weight": 2.5'` to `'"weight":2.5'` (compact JSON after N-B14 fix)

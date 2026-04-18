@@ -3061,7 +3061,7 @@ function clientPrefix(clientName) {
   }
   // Legacy hardcoded fallback (kept so the page still works when the cache is cold).
   // Matches the DB abbreviation column per G1 (2026-04-15).
-  const known = { 'Couch Heroes': 'CH', 'Lighthouse Games': 'LH', 'Lighthouse Studios': 'LS', 'Goals Studio': 'GS', 'Sarge Universe': 'SU', 'Playsage': 'PS', 'NSI': 'NSI', 'NBI Operations': 'NBI', 'NBI  OPS': 'NBI' };
+  const known = { 'Couch Heroes': 'CH', 'Lighthouse Games': 'LH', 'Lighthouse Studios': 'LS', 'Goals Studio': 'GS', 'Sarge Universe': 'SU', 'Playsage': 'PS', 'NSI': 'NSI', 'NBI Operations': 'NBI', 'NBI OPS': 'NBI' };
   if (known[clientName]) { _clientPrefixCache[clientName] = known[clientName]; return known[clientName]; }
   // Auto-generate: take first letter of each word, uppercase, max 3
   const words = clientName.split(/\s+/).filter(Boolean);
@@ -3162,7 +3162,7 @@ function getAllClients() {
  *  Used for task dropdowns, filter bars, and reports — excludes leads/prospects.
  *  Leads page uses its own client list from the DB. */
 function getContractedClients() {
-  const ALWAYS_INCLUDE = ['NBI Operations', 'NBI  OPS', 'NSI'];
+  const ALWAYS_INCLUDE = ['NBI Operations', 'NBI OPS', 'NSI'];
   const s = new Set(ALWAYS_INCLUDE.filter(c => settings.knownClients.includes(c)));
   tasks.forEach(t => { const c = getTaskClient(t); if (c) s.add(c); });
   return [...s].sort(clientSortOrder);
@@ -9958,8 +9958,16 @@ function saveFinanceData(data) {
         console.log('[Finance] Saved to database, version:', _financeVersion);
       } else if (resp.status === 409) {
         const err = await resp.json();
-        showToast(`Finance data conflict: updated by ${err.updatedBy}. Reloading...`, 'warning');
-        await loadFinanceFromDB();
+        const pendingData = JSON.parse(JSON.stringify(data));
+        document.getElementById('conflictTitle').textContent = 'Finance Conflict';
+        document.getElementById('conflictFields').innerHTML =
+          `<p style="font-size:0.85rem;margin-bottom:var(--space-md)">Finance data was updated by <strong>${esc(err.updatedBy || 'another user')}</strong> while you were editing.</p>` +
+          `<div class="conflict-field"><div class="conflict-field__label">Your version</div><div class="conflict-field__mine">${(pendingData.revenue||[]).length} revenue + ${(pendingData.payroll||[]).length} payroll + ${(pendingData.opex||[]).length} opex entries</div></div>`;
+        window._financeConflictPending = pendingData;
+        window._financeConflictServerVersion = err.currentVersion;
+        const modal = document.getElementById('conflictModal');
+        modal.classList.add('open');
+        _trapFocus(modal);
       } else if (resp.status === 401) {
         showToast('Please log in to save finance changes', 'warning');
       } else {
@@ -17344,8 +17352,25 @@ function showConflict(taskTitle, myChanges, serverVersion) {
 }
 
 /** Resolve a sync conflict — apply the chosen version ('mine' keeps local, 'theirs' accepts server) */
-function resolveConflict(choice) {
-  document.getElementById('conflictModal').classList.remove('open');
+async function resolveConflict(choice) {
+  const modal = document.getElementById('conflictModal');
+  modal.classList.remove('open');
+  _releaseFocusTrap(modal);
+  // Finance conflict path (F-C7)
+  if (window._financeConflictPending) {
+    if (choice === 'mine') {
+      _financeVersion = window._financeConflictServerVersion || _financeVersion;
+      saveFinanceData(window._financeConflictPending);
+      toast('Retrying save with your version', 'info');
+    } else {
+      await loadFinanceFromDB();
+      toast('Server version loaded', 'success');
+    }
+    window._financeConflictPending = null;
+    window._financeConflictServerVersion = null;
+    return;
+  }
+  // Task conflict path
   if (choice === 'theirs' && _conflictData) {
     const sv = _conflictData.serverVersion;
     const task = tasks.find(t => t.id === sv.id);
