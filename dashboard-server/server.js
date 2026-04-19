@@ -993,10 +993,16 @@ app.post('/api/internal/notifications', async (req, res) => {
   try {
     if (targetAdmins) {
       const admins = await pool.query('SELECT username FROM users WHERE role = \'admin\' AND is_active = true');
+      let sent = 0;
       for (const a of admins.rows) {
-        await createNotification(a.username, type, title, message || '', link || '', dismissable !== false);
+        try {
+          await createNotification(a.username, type, title, message || '', link || '', dismissable !== false);
+          sent++;
+        } catch (e) {
+          log('warn', 'Notifications', `Internal admin fan-out failed for ${a.username}`, { error: e.message });
+        }
       }
-      return res.json({ ok: true, recipients: admins.rows.length });
+      return res.json({ ok: true, recipients: sent });
     }
     if (!username) return res.status(400).json({ error: 'username required when targetAdmins not set' });
     await createNotification(username, type, title, message || '', link || '', dismissable !== false);
@@ -2424,11 +2430,17 @@ app.post('/api/notifications/system', requireInternal, async (req, res) => {
   const { title, message } = req.body;
   if (!title || !message) return res.status(400).json({ error: 'Title and message required' });
   const { rows: users } = await pool.query('SELECT username FROM users WHERE is_active = true');
+  let sent = 0;
   for (const user of users) {
-    await createNotification(user.username, 'system', title, message, null, false);
+    try {
+      await createNotification(user.username, 'system', title, message, null, false);
+      sent++;
+    } catch (e) {
+      log('warn', 'Notifications', `System broadcast failed for ${user.username}`, { error: e.message });
+    }
   }
-  log('info', 'Notifications', `System message sent to ${users.length} users`, { title });
-  res.json({ sent: users.length });
+  log('info', 'Notifications', `System message sent to ${sent}/${users.length} users`, { title });
+  res.json({ sent, total: users.length });
 });
 
 // ==================== TASK TEMPLATES ====================
@@ -7092,20 +7104,23 @@ app.post('/api/expense-reports', requireInternal, async (req, res) => {
  * Get a single expense report with its expenses. Access: own or admin.
  */
 app.get('/api/expense-reports/:id', requireInternal, async (req, res) => {
+  // Access check before full data fetch (B-B12)
+  const check = await pool.query('SELECT user_id FROM expense_reports WHERE id = $1', [req.params.id]);
+  if (check.rows.length === 0) return res.status(404).json({ error: 'Report not found' });
+
+  const approverUsername = await getExpenseApprover();
+  const isApprover = req.user && req.user.username === approverUsername;
+  if (req.user.role !== 'admin' && check.rows[0].user_id !== req.user.id && !isApprover) {
+    return res.status(403).json({ error: 'Access denied' });
+  }
+
   const { rows } = await pool.query(`
     SELECT r.*, u.display_name AS employee_name
     FROM expense_reports r
     LEFT JOIN users u ON r.user_id = u.id
     WHERE r.id = $1
   `, [req.params.id]);
-  if (rows.length === 0) return res.status(404).json({ error: 'Report not found' });
   const report = rows[0];
-
-  const approverUsername = await getExpenseApprover();
-  const isApprover = req.user && req.user.username === approverUsername;
-  if (req.user.role !== 'admin' && report.user_id !== req.user.id && !isApprover) {
-    return res.status(403).json({ error: 'Access denied' });
-  }
 
   // Fetch expenses in this report
   const expenses = await pool.query(`
@@ -7926,17 +7941,23 @@ if (cron) {
     log('info', 'Cron', 'Sending monthly expense report reminders');
     try {
       const { rows: users } = await pool.query('SELECT username, display_name FROM users WHERE is_active = true');
+      let sent = 0;
       for (const user of users) {
-        await createNotification(
-          user.username,
-          'expense_reminder',
-          'Expense Report Reminder',
-          `Hi ${user.display_name}, please submit your expense report for this month. Go to Expenses to create or update your report.`,
-          '/nbi_project_dashboard.html#expenses',
-          false  // non-dismissable — stays until a report is submitted
-        );
+        try {
+          await createNotification(
+            user.username,
+            'expense_reminder',
+            'Expense Report Reminder',
+            `Hi ${user.display_name}, please submit your expense report for this month. Go to Expenses to create or update your report.`,
+            '/nbi_project_dashboard.html#expenses',
+            false
+          );
+          sent++;
+        } catch (e) {
+          log('warn', 'Cron', `Expense reminder failed for ${user.username}`, { error: e.message });
+        }
       }
-      log('info', 'Cron', `Expense reminders sent to ${users.length} users`);
+      log('info', 'Cron', `Expense reminders sent to ${sent}/${users.length} users`);
     } catch(e) {
       log('error', 'Cron', 'Failed to send expense reminders', { error: e.message });
     }

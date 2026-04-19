@@ -4877,10 +4877,15 @@ function toggleStandupPerson(personName, el) {
 
 /** Toggle the per-person Completed (Done) section in standup. Default is collapsed. */
 function toggleStandupDone(personName, el) {
-  if (_standupDoneExpanded.has(personName)) _standupDoneExpanded.delete(personName);
+  const wasExpanded = _standupDoneExpanded.has(personName);
+  if (wasExpanded) _standupDoneExpanded.delete(personName);
   else _standupDoneExpanded.add(personName);
-  // Re-render just this person's body via full standup re-render
-  renderContent();
+  const section = el.closest('.standup-done-section');
+  if (!section) return;
+  const body = section.querySelector('.standup-done-body');
+  if (body) body.style.display = wasExpanded ? 'none' : '';
+  const arrow = el.querySelector('span');
+  if (arrow) arrow.textContent = arrow.textContent.replace(wasExpanded ? '\u25BC' : '\u25B6', wasExpanded ? '\u25B6' : '\u25BC');
 }
 
 /** Render a single standup task row (used for both active and done sections) */
@@ -5178,14 +5183,12 @@ function _renderStandupBody(container, filtered, now, teamMembers) {
         html += `<div class="tactical-client-group__header" style="cursor:pointer;user-select:none" onclick="toggleStandupDone('${escAttrJs(person)}', this)">`;
         html += `<span style="color:var(--success);font-size:0.78rem;font-weight:600">${doneCollapsed ? '\u25B6' : '\u25BC'} Completed (${allDone.length})</span>`;
         html += `</div>`;
-        if (!doneCollapsed) {
-          html += `<div class="standup-done-body">`;
-          allDone.forEach(({ task: t, client }) => {
-            html += `<div style="font-size:0.7rem;color:var(--text-muted);padding-left:6px">${esc(client)}</div>`;
-            html += renderStandupTaskRow(t, now);
-          });
-          html += `</div>`;
-        }
+        html += `<div class="standup-done-body"${doneCollapsed ? ' style="display:none"' : ''}>`;
+        allDone.forEach(({ task: t, client }) => {
+          html += `<div style="font-size:0.7rem;color:var(--text-muted);padding-left:6px">${esc(client)}</div>`;
+          html += renderStandupTaskRow(t, now);
+        });
+        html += `</div>`;
         html += `</div>`;
       }
       html += `</div>`;
