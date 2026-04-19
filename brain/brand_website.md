@@ -142,7 +142,7 @@ Additional testimonials can be sourced if needed.
 |---|---|
 | 200+ successful projects | Website - confirmed accurate |
 | 100+ clients | Website - confirmed accurate |
-| 20 years industry experience (Glen) | Glen confirmed |
+| 22 years industry experience (Glen) | Glen confirmed |
 | 25+ years experience (Tom) | Website / published bio |
 | Tom: former Gallup senior leader (17 years) | Published bio |
 | Tom: *Breaking the Fear Barrier* - one of 5 best management books of 2011 | 800-CEO-READ award, confirmed |

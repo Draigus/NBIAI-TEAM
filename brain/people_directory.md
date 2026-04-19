@@ -8,7 +8,7 @@
 
 | Name | Role | Practice | Employment | Monthly (GBP) | Annual (GBP) | Key Notes |
 |---|---|---|---|---|---|---|
-| Glen Pryer | Practice Lead, Gaming and Partner | Gaming | Full-time (owns NBI Analytics Ltd) | £18,000 | £216,000 | 20-year gaming industry veteran. Based in Wymondham, Norfolk, England |
+| Glen Pryer | Practice Lead, Gaming and Partner | Gaming | Full-time (owns NBI Analytics Ltd) | £18,000 | £216,000 | 22-year gaming industry veteran. Based in Wymondham, Norfolk, England |
 | Tom Rieger | Practice Lead, Human Capital and Partner | Human Capital | Full-time (owns National Business Innovations, LLC) | ~£16,667 | ~£200,000 | 25+ years experience, former Gallup senior leader (17 years). Age 61. Currently NSI-covered |
 | Magnus (Kali) Pryer | Producer | Gaming / Internal | Full-time | £4,500 | £54,000 | Glen's daughter. Internal tracking, accounts, cross-practice support |
 | Amir Didar | Senior Analyst | Gaming / Data | Full-time (embedded at Lighthouse) | £10,000 | £120,000 | Embedded full-time at Lighthouse Studios under 3-year contract |
