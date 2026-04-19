@@ -22,8 +22,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NBI Project Dashboard</title>
-<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" integrity="sha384-EnyY0/GSHQGSxSgMwaIPzSESbqoOLSexfnSMN2AP+39Ckmn92stwABZynq1JyzdT" crossorigin="anonymous"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="/public/vendor/xlsx.full.min.js"></script>
+<link href="/public/fonts/fonts.css" rel="stylesheet">
 <style>
 /* ===== RESET & TOKENS ===== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -2962,6 +2962,7 @@ async function load() {
       if (data.clientBriefs) clientBriefs = data.clientBriefs;
       if (data.settings) {
         if (data.settings.hourlyRate) settings.hourlyRate = Number(data.settings.hourlyRate) || 150;
+        if (data.settings.fx_rates) { settings.fx_rates = data.settings.fx_rates; fetchFxRate(); }
       }
       if (data.knownClients) settings.knownClients = data.knownClients;
       _lastPollTime = new Date().toISOString();
@@ -10227,7 +10228,7 @@ function gbpToUsd(gbp) { return _fxRate ? Math.round(gbp * _fxRate) : null; }
 /** Format a GBP amount as a USD string, or dash if FX rate unavailable */
 function fmtUsd(gbp) { const usd = gbpToUsd(gbp); return usd !== null ? '$' + usd.toLocaleString() : '—'; }
 // Fetch on load
-fetchFxRate().catch(e => console.warn('[FX] Rate fetch failed:', e.message));
+fetchFxRate();
 
 // ===== EDITABLE FINANCE DATA LAYER (PostgreSQL-backed) =====
 let _financeData = null;

@@ -592,6 +592,7 @@ app.use('/api/auth/forgot', authLimiter);
 app.use('/api/auth/reset', authLimiter);
 
 app.use(compression({ threshold: 1024 })); // Only compress responses > 1KB
+app.use('/public', express.static(path.join(__dirname, 'public'), { maxAge: '7d' }));
 app.use(express.json({ limit: '10mb' }));   // Allow large payloads for sync/restore
 
 // ==================== RESPONSE ENVELOPE (v2) ====================
