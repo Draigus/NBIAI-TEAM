@@ -16458,9 +16458,9 @@ async function generateClientReportPDF(clientName) {
       <h2 style="margin:0 0 8px;font-size:1.1rem">Report Generated</h2>
       <p style="color:var(--text-muted);font-size:0.82rem;margin-bottom:20px">${esc(clientName)} — ${new Date().toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' })}</p>
       <div style="display:flex;flex-direction:column;gap:10px">
-        <a href="${esc(pdfUrl)}" target="_blank" class="btn btn--primary" style="text-decoration:none;text-align:center">&#128196; Download PDF</a>
+        <a href="${esc(pdfUrl)}" target="_blank" rel="noopener noreferrer" class="btn btn--primary" style="text-decoration:none;text-align:center">&#128196; Download PDF</a>
         <button class="btn" onclick="navigator.clipboard.writeText('${escAttrJs(shareUrl)}');toast('Link copied!')">&#128279; Copy Share Link</button>
-        <a href="${esc(shareUrl)}" target="_blank" class="btn" style="text-decoration:none;text-align:center">&#128065; Preview HTML Report</a>
+        <a href="${esc(shareUrl)}" target="_blank" rel="noopener noreferrer" class="btn" style="text-decoration:none;text-align:center">&#128065; Preview HTML Report</a>
       </div>
       <button class="btn btn--sm" onclick="this.closest('.detail-overlay').remove()" style="margin-top:16px;width:100%">Close</button>
     </div>`;

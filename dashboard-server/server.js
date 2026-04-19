@@ -1141,21 +1141,28 @@ app.delete('/api/users/:id', async (req, res) => {
   res.json({ ok: true });
 });
 
-/** PATCH /api/users/:id — Update user profile fields: role, display_name, email, client_id (admin only) */
+/** PATCH /api/users/:id — Update user profile fields (admin only) */
 app.patch('/api/users/:id', async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid user ID' });
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
-  const { updates, vals, nextIdx } = buildPatchQuery(req.body, ['role', 'display_name', 'email', 'client_id']);
+  if (req.body.is_active !== undefined && typeof req.body.is_active !== 'boolean') {
+    return res.status(400).json({ error: 'is_active must be a boolean' });
+  }
+  const { updates, vals, nextIdx } = buildPatchQuery(req.body, ['role', 'display_name', 'email', 'client_id', 'is_active']);
   if (req.body.display_name !== undefined && !req.body.display_name.trim()) {
     return res.status(400).json({ error: 'Display name cannot be empty' });
   }
   if (updates.length === 0) return res.status(400).json({ error: 'No valid fields to update' });
   vals.push(req.params.id);
-  const { rows } = await pool.query(`UPDATE users SET ${updates.join(', ')} WHERE id = $${nextIdx} RETURNING id, username, display_name, email, role, client_id`, vals);
+  const { rows } = await pool.query(`UPDATE users SET ${updates.join(', ')} WHERE id = $${nextIdx} RETURNING id, username, display_name, email, role, client_id, is_active`, vals);
   if (!rows[0]) return res.status(404).json({ error: 'User not found' });
   // Invalidate token cache entries for this user so stale role/display_name data is refreshed
   for (const [key, entry] of _tokenCache) {
     if (entry.user && entry.user.id === req.params.id) _tokenCache.delete(key);
+  }
+  // When deactivating a user, kill all their sessions immediately (B-B3)
+  if (req.body.is_active === false) {
+    await pool.query('DELETE FROM sessions WHERE user_id = $1', [req.params.id]);
   }
   res.json(rows[0]);
 });
@@ -4340,6 +4347,16 @@ app.post('/api/tasks/bulk', async (req, res) => {
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   const { tasks: taskList } = req.body;
   if (!Array.isArray(taskList)) return res.status(400).json({ error: 'tasks array required' });
+  if (taskList.length === 0) return res.status(400).json({ error: 'tasks array must not be empty' });
+  if (taskList.length > 500) return res.status(400).json({ error: 'Too many tasks (max 500 per batch)' });
+  for (let i = 0; i < taskList.length; i++) {
+    const t = taskList[i];
+    if (!t.title || typeof t.title !== 'string' || !t.title.trim()) return res.status(400).json({ error: `tasks[${i}].title: required` });
+    if (t.title.length > 500) return res.status(400).json({ error: `tasks[${i}].title: too long (max 500)` });
+    if (t.status && !VALID_STATUSES.has(t.status)) return res.status(400).json({ error: `tasks[${i}].status: invalid value "${t.status}"` });
+    if (t.client_id && !isValidUuid(t.client_id)) return res.status(400).json({ error: `tasks[${i}].client_id: invalid UUID` });
+    if (t.item_type && !ITEM_TYPES.includes(t.item_type)) return res.status(400).json({ error: `tasks[${i}].item_type: invalid value "${t.item_type}"` });
+  }
 
   const client = await pool.connect();
   try {
