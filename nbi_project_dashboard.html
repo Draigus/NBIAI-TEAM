@@ -2762,10 +2762,21 @@ function checkHashForReset() {
   return false;
 }
 
+// ----- CONFIGURATION CONSTANTS -----
+const SYNC_POLL_MS = 10000;
+const SYNC_DEBOUNCE_MS = 500;
+const FINANCE_DEBOUNCE_MS = 800;
+const SELF_ECHO_WINDOW_MS = 15000;
+const DEFAULT_HOURLY_RATE = 150;
+const GANTT_ROW_LIMIT = 200;
+const BOARD_BOARD_LANE_CAP = 50;
+const CANCELLED_CAP = 20;
+const CLIENT_PRIORITY = ['Couch Heroes', 'Lighthouse Studios', 'Sarge Universe', 'Goals Studio'];
+
 // ----- STATE -----
 // Core data — loaded from API on startup, synced incrementally on edits
 let tasks = [];                   // Main task array — the single source of truth for all task data
-let settings = { hourlyRate: 150, knownClients: ['Couch Heroes', 'Lighthouse Studios', 'Sarge Universe', 'Goals Studio', 'Playsage', 'NBI Operations'] };
+let settings = { hourlyRate: DEFAULT_HOURLY_RATE, knownClients: ['Couch Heroes', 'Lighthouse Studios', 'Sarge Universe', 'Goals Studio', 'Playsage', 'NBI Operations'] };
 
 // View state — controls which view is active and what filters are applied
 let currentView = 'dashboard';
@@ -2853,7 +2864,7 @@ function mergeBriefDefaults() {
 }
 
 /** Flag a task as locally modified — it will be included in the next sync batch */
-function markDirty(taskId) { _dirtyTaskIds.add(taskId); _recentlyEditedIds.add(taskId); setTimeout(() => _recentlyEditedIds.delete(taskId), 15000); }
+function markDirty(taskId) { _dirtyTaskIds.add(taskId); _recentlyEditedIds.add(taskId); setTimeout(() => _recentlyEditedIds.delete(taskId), SELF_ECHO_WINDOW_MS); }
 /** Flag a task as deleted locally — removes it from the dirty set and queues it for server deletion */
 function markDeleted(taskId) { _deletedTaskIds.add(taskId); _dirtyTaskIds.delete(taskId); }
 
@@ -2881,7 +2892,7 @@ function save() {
   // Debounced sync to API (prevents hammering during rapid edits)
   if (useAPI) {
     clearTimeout(syncDebounceTimer);
-    syncDebounceTimer = setTimeout(syncToAPI, 500);
+    syncDebounceTimer = setTimeout(syncToAPI, SYNC_DEBOUNCE_MS);
   }
 }
 
@@ -3080,8 +3091,7 @@ let _syncPollInterval = setInterval(async () => {
     if (data.serverTime) _lastPollTime = data.serverTime;
     if (changed) {
       localStorage.setItem('nbi_dashboard_tasks', JSON.stringify(tasks));
-      // Skip re-render if these are our own changes bouncing back from the server (within 15s of our last sync)
-      if (Date.now() - _lastLocalSyncTime < 15000) {
+      if (Date.now() - _lastLocalSyncTime < SELF_ECHO_WINDOW_MS) {
         console.log('[Sync] Poll: skipping re-render (own changes within cooldown)');
       } else {
         // Changes from another user — re-render content but preserve scroll exactly
@@ -3089,7 +3099,7 @@ let _syncPollInterval = setInterval(async () => {
       }
     }
   } catch (e) { /* silent */ }
-}, 10000);
+}, SYNC_POLL_MS);
 
 // ==================== HELPERS & TASK TREE UTILITIES ====================
 
@@ -3195,7 +3205,6 @@ function itemTypeBadgeHtml(task) {
   const m = getItemTypeMeta(task);
   return `<span class="item-type-badge" style="background:${m.colour}">${m.label}</span>`;
 }
-const CLIENT_PRIORITY = ['Couch Heroes', 'Lighthouse Studios', 'Sarge Universe', 'Goals Studio'];
 /** Sort comparator that puts priority clients first, 'Unassigned' last, alphabetical otherwise */
 function clientSortOrder(a, b) {
   if (a === 'Unassigned' || a === 'Uncategorised') return 1;
@@ -5877,7 +5886,7 @@ function renderBoardView(filtered) {
   const blockedByHealth = active.filter(t => t.healthState === 'Blocked');
   const notBlockedByHealth = active.filter(t => t.healthState !== 'Blocked');
 
-  const LANE_CAP = 50; // Max cards per lane to prevent browser freeze
+  // BOARD_BOARD_LANE_CAP defined in config constants
   let html = `<div style="display:flex;gap:6px;margin-bottom:10px;align-items:center;flex-wrap:wrap">
     <span style="font-size:0.75rem;color:var(--text-muted)">Show:</span>
     <button class="btn btn--sm ${!_boardTypeFilter?'btn--primary':''}" onclick="_boardTypeFilter=null;renderContent()" style="font-size:0.7rem;padding:2px 8px">All</button>
@@ -5890,7 +5899,7 @@ function renderBoardView(filtered) {
       : notBlockedByHealth.filter(t => col.statuses.includes(t.status)))
       .sort((a, b) => (a.position || 0) - (b.position || 0));
     const laneTotal = laneTasks.length;
-    const cappedTasks = laneTasks.slice(0, LANE_CAP);
+    const cappedTasks = laneTasks.slice(0, BOARD_LANE_CAP);
     html += `<div class="board__lane">`;
     html += `<div class="board__lane-header"><span class="board__lane-title" style="color:${col.color}">${col.label}</span><span class="board__lane-count">${laneTotal}</span></div>`;
     html += `<div class="board__lane-body ${laneTasks.length === 0 ? 'board__lane-body--empty' : ''}" data-lane-statuses="${col.statuses.join(',')}" ondragover="onBoardDragOver(event)" ondragleave="onBoardDragLeave(event)" ondrop="onBoardDrop(event)">`;
@@ -5898,7 +5907,7 @@ function renderBoardView(filtered) {
       html += 'No items';
     } else {
       cappedTasks.forEach(t => { html += renderBoardCard(t); });
-      if (laneTotal > LANE_CAP) html += `<div style="text-align:center;padding:8px;color:var(--text-muted);font-size:0.75rem">+${laneTotal - LANE_CAP} more</div>`;
+      if (laneTotal > BOARD_LANE_CAP) html += `<div style="text-align:center;padding:8px;color:var(--text-muted);font-size:0.75rem">+${laneTotal - BOARD_LANE_CAP} more</div>`;
     }
     html += '</div></div>';
   });
@@ -5910,7 +5919,6 @@ function renderBoardView(filtered) {
         <span>&#9654;</span> Cancelled (${cancelled.length})
       </button>
       <div class="board__cancelled-cards hidden">`;
-    const CANCELLED_CAP = 20;
     const cappedCancelled = cancelled.slice(0, CANCELLED_CAP);
     cappedCancelled.forEach(t => { html += renderBoardCard(t); });
     if (cancelled.length > CANCELLED_CAP) {
@@ -6413,7 +6421,7 @@ let _ganttSelectedArrow = null; // { fromId, toId } when an arrow is selected
 let _ganttDepView = false;     // Critical path dependency view mode
 
 /** Render the Gantt/timeline view -- horizontal bars per task, grouped by client, with zoom controls */
-let _ganttLimit = 200; // Max items to render in Gantt view (performance guard)
+let _ganttLimit = GANTT_ROW_LIMIT;
 let _ganttHideDone = true; // Hide completed tasks by default on timeline
 
 /** Render the Gantt/timeline view with horizontal bars, dependency chains, and zoom controls */
@@ -10319,7 +10327,7 @@ function saveFinanceData(data) {
         showToast(err.error || 'Failed to save finance data', 'warning');
       }
     } catch(e) { console.warn('[Finance] DB save failed, data safe in localStorage:', e.message); }
-  }, 800);
+  }, FINANCE_DEBOUNCE_MS);
   renderContent();
 }
 
@@ -18038,7 +18046,7 @@ function restartPollingIntervals() {
       }
       if (data.serverTime) _lastPollTime = data.serverTime;
     } catch(e) {}
-  }, 10000);
+  }, SYNC_POLL_MS);
   _leadsReminderInterval = setInterval(() => { if (_currentUser) checkLeadReminders(); }, 60000);
   _notifPollInterval = setInterval(() => { if (_currentUser) loadNotifications(); }, 30000);
 }

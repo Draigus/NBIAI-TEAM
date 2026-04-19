@@ -594,6 +594,12 @@ app.use('/api/auth/reset', authLimiter);
 app.use(compression({ threshold: 1024 })); // Only compress responses > 1KB
 app.use('/public', express.static(path.join(__dirname, 'public'), { maxAge: '7d' }));
 app.use(express.json({ limit: '10mb' }));   // Allow large payloads for sync/restore
+app.use((req, res, next) => {
+  const ms = req.path.startsWith('/api/restore') || req.path.startsWith('/api/backup') ? 120000 : 30000;
+  req.setTimeout(ms);
+  res.setTimeout(ms);
+  next();
+});
 
 // ==================== RESPONSE ENVELOPE (v2) ====================
 // When client sends X-API-Version: 2, responses are wrapped in { data, error, meta }
@@ -5417,7 +5423,8 @@ app.get('/api/leads/pipeline/summary', async (req, res) => {
   `, vals);
 
   const fxResult = await pool.query("SELECT value FROM settings WHERE key = 'fx_rates'");
-  const fxRates = fxResult.rows.length > 0 ? fxResult.rows[0].value : { USD: 0.79, EUR: 0.86 };
+  const FX_STALE_FALLBACK = { USD: 0.79, EUR: 0.86 };
+  const fxRates = fxResult.rows.length > 0 ? fxResult.rows[0].value : FX_STALE_FALLBACK;
 
   res.json({ byStage: byStage.rows, fxRates });
 });
@@ -8646,6 +8653,7 @@ app.use((err, req, res, next) => {
 if (require.main === module) {
   function gracefulShutdown(signal) {
     log('info', 'Server', `${signal} received, shutting down gracefully`);
+    if (cron) { try { cron.getTasks().forEach(t => t.stop()); } catch(e) {} }
     server.close(() => {
       pool.end().then(() => {
         log('info', 'Server', 'DB pool closed. Goodbye.');
