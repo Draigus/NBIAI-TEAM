@@ -841,7 +841,7 @@ const ALWAYS_VISIBLE_CLIENTS = ['NBI OPS', 'Playsage'];
  * - Admin (role=admin, no client_id): null (sees everything)
  * - External (client_id set): [client_id] (G5 single-client scope)
  * - Internal member with teams: team clients + exception clients + null-client tasks
- * - Internal member with no teams: null (sees everything — can't restrict without team data)
+ * - Internal member with no teams: exception clients only (NBI OPS, Playsage) + null-client tasks
  *
  * Result is cached on req._clientScopes to avoid re-querying per request.
  */
@@ -4888,20 +4888,52 @@ void 0; // B-B16 removal anchor
  */
 app.get('/api/sync/load', async (req, res) => {
   if (!req.user) return res.status(401).json({ error: 'Authentication required' });
-  const tasks = await pool.query(`
-    SELECT t.*, c.name as client_name,
-      (SELECT json_agg(json_build_object('text', n.text, 'time', n.created_at) ORDER BY n.created_at)
-       FROM task_notes n WHERE n.task_id = t.id) as notes
-    FROM tasks t LEFT JOIN clients c ON t.client_id = c.id
-    ORDER BY t.created_at
-  `);
 
-  const clients = await pool.query(`
-    SELECT c.*,
-      (SELECT json_agg(json_build_object('name', ct.name, 'role', ct.role, 'notes', ct.notes, 'background', ct.background, 'linkedin', ct.linkedin) ORDER BY ct.sort_order)
-       FROM contacts ct WHERE ct.client_id = c.id) as contacts
-    FROM clients c ORDER BY c.name
-  `);
+  // Client visibility scoping (bug 4af29301): filter tasks and clients by
+  // the user's team memberships. Admins see everything; internal users with
+  // teams see their team's clients + exceptions + null-client tasks;
+  // internal users with no teams see only exceptions + null-client tasks;
+  // G5 external users see only their own client.
+  const scopes = await getClientScopes(req);
+  const isExternal = !!req.user?.clientId;
+
+  let tasks;
+  if (scopes === null) {
+    tasks = await pool.query(`
+      SELECT t.*, c.name as client_name,
+        (SELECT json_agg(json_build_object('text', n.text, 'time', n.created_at) ORDER BY n.created_at)
+         FROM task_notes n WHERE n.task_id = t.id) as notes
+      FROM tasks t LEFT JOIN clients c ON t.client_id = c.id
+      ORDER BY t.created_at
+    `);
+  } else {
+    const nullClause = isExternal ? '' : ' OR t.client_id IS NULL';
+    tasks = await pool.query(`
+      SELECT t.*, c.name as client_name,
+        (SELECT json_agg(json_build_object('text', n.text, 'time', n.created_at) ORDER BY n.created_at)
+         FROM task_notes n WHERE n.task_id = t.id) as notes
+      FROM tasks t LEFT JOIN clients c ON t.client_id = c.id
+      WHERE t.client_id = ANY($1)${nullClause}
+      ORDER BY t.created_at
+    `, [scopes]);
+  }
+
+  let clients;
+  if (scopes === null) {
+    clients = await pool.query(`
+      SELECT c.*,
+        (SELECT json_agg(json_build_object('name', ct.name, 'role', ct.role, 'notes', ct.notes, 'background', ct.background, 'linkedin', ct.linkedin) ORDER BY ct.sort_order)
+         FROM contacts ct WHERE ct.client_id = c.id) as contacts
+      FROM clients c ORDER BY c.name
+    `);
+  } else {
+    clients = await pool.query(`
+      SELECT c.*,
+        (SELECT json_agg(json_build_object('name', ct.name, 'role', ct.role, 'notes', ct.notes, 'background', ct.background, 'linkedin', ct.linkedin) ORDER BY ct.sort_order)
+         FROM contacts ct WHERE ct.client_id = c.id) as contacts
+      FROM clients c WHERE c.id = ANY($1) ORDER BY c.name
+    `, [scopes]);
+  }
 
   // Settings are returned to the browser, so external users (G5) must see
   // only UI-relevant keys. fx_rates, expense_approver, feature flags, and
@@ -4911,7 +4943,6 @@ app.get('/api/sync/load', async (req, res) => {
     'timezone', 'client_priority', 'clientPriority',
   ]);
   const settings = await pool.query('SELECT key, value FROM settings');
-  const isExternal = !!req.user?.clientId;
   const settingsObj = {};
   settings.rows.forEach(r => {
     if (!isExternal || EXTERNAL_SETTINGS_ALLOW.has(r.key)) settingsObj[r.key] = r.value;
@@ -4971,33 +5002,11 @@ app.get('/api/sync/load', async (req, res) => {
     };
   });
 
-  const scopes = await getClientScopes(req);
-  let finalTasks = frontendTasks;
-  let finalBriefs = frontendBriefs;
-  let finalKnownClients = clients.rows;
-  if (scopes) {
-    const scopeSet = new Set(scopes);
-    // Filter tasks to only those belonging to scoped clients. External (G5)
-    // users never see null-client tasks (those are NBI-internal work, not
-    // theirs). Internal-with-team users keep seeing null-client tasks.
-    // The previous expression `r.client_id && scopeSet.has(r.client_id) || !r.client_id`
-    // parses as (A && B) || C, which exposed every null-client task to every
-    // scoped user regardless of their type — audit finding B-C6.
-    const scopedTaskIds = new Set(tasks.rows.filter(r => {
-      if (r.client_id) return scopeSet.has(r.client_id);
-      return !isExternal;
-    }).map(r => r.id));
-    finalTasks = frontendTasks.filter(t => scopedTaskIds.has(t.id));
-    finalKnownClients = clients.rows.filter(c => scopeSet.has(c.id));
-    finalBriefs = {};
-    finalKnownClients.forEach(r => { finalBriefs[r.name] = frontendBriefs[r.name]; });
-  }
-
   res.json({
-    tasks: finalTasks,
-    clientBriefs: finalBriefs,
+    tasks: frontendTasks,
+    clientBriefs: frontendBriefs,
     settings: settingsObj,
-    knownClients: finalKnownClients.map(r => r.name),
+    knownClients: clients.rows.map(r => r.name),
   });
 });
 
@@ -6648,13 +6657,10 @@ app.get('/api/bug-reports/:id/screenshot', requireInternal, async (req, res) => 
 // Find Candidate to Hired. Rejected is no longer a stage — use archived_at
 // on the row instead to take a candidate out of pipeline.
 const HIRING_STAGES = [
-  'find_candidate',
-  'upload_cv',
-  'conduct_interviews',
-  'background_check',
-  'establish_start_date',
-  'send_offer_letter',
-  'onboard_candidate',
+  'sourcing',
+  'interviews',
+  'offer',
+  'onboarding',
   'hired',
 ];
 
@@ -6829,7 +6835,7 @@ app.post('/api/candidates', requireInternal, async (req, res) => {
     const ne = validateLength(notes, 'notes');
     if (ne) return res.status(400).json({ error: ne });
   }
-  const targetStage = stage || 'find_candidate';
+  const targetStage = stage || 'sourcing';
   const dbClient = await pool.connect();
   let createdRow;
   try {

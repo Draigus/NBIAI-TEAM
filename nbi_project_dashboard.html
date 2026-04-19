@@ -1781,10 +1781,11 @@ span.fin-editable { display: inline-block; position: relative; }
 .bug-detail__comment-input textarea { flex: 1; resize: vertical; min-height: 60px; padding: var(--space-sm); border: 1px solid var(--border-default); border-radius: var(--radius-sm); background: var(--bg-input); color: var(--text-primary); font-size: 0.82rem; font-family: var(--font-body); }
 
 @media (max-width: 768px) {
-  .bug-tracker__row { grid-template-columns: 50px 1fr 80px; }
+  .bug-tracker__row { grid-template-columns: 60px 1fr 80px; }
   .bug-tracker__row > :nth-child(2),
   .bug-tracker__row > :nth-child(5),
-  .bug-tracker__row > :nth-child(6) { display: none; }
+  .bug-tracker__row > :nth-child(6),
+  .bug-tracker__row > :nth-child(7) { display: none; }
   .bug-detail-panel { width: 100vw; max-width: 100vw; }
 }
 
@@ -1815,20 +1816,14 @@ span.fin-editable { display: inline-block; position: relative; }
 .hiring-stage-badge--rejected { background: var(--danger-bg); color: var(--danger); }
 /* Glen's 8-stage hiring process (bug b7a2f97f). Colour progression from
    neutral grey at discovery to success green at hired. */
-.hiring-stage-badge--find_candidate       { background: var(--bg-surface); color: var(--text-muted); }
-.hiring-stage-badge--upload_cv            { background: color-mix(in srgb, #3b82f6 15%, var(--bg-card)); color: #3b82f6; }
-.hiring-stage-badge--conduct_interviews   { background: color-mix(in srgb, #f59e0b 15%, var(--bg-card)); color: #f59e0b; }
-.hiring-stage-badge--background_check     { background: color-mix(in srgb, #06b6d4 15%, var(--bg-card)); color: #06b6d4; }
-.hiring-stage-badge--establish_start_date { background: color-mix(in srgb, #a855f7 15%, var(--bg-card)); color: #a855f7; }
-.hiring-stage-badge--send_offer_letter    { background: color-mix(in srgb, #ec4899 15%, var(--bg-card)); color: #ec4899; }
-.hiring-stage-badge--onboard_candidate    { background: color-mix(in srgb, #10b981 15%, var(--bg-card)); color: #10b981; }
-.hiring-lane__header--find_candidate       { color: var(--text-secondary); }
-.hiring-lane__header--upload_cv            { color: #3b82f6; }
-.hiring-lane__header--conduct_interviews   { color: #f59e0b; }
-.hiring-lane__header--background_check     { color: #06b6d4; }
-.hiring-lane__header--establish_start_date { color: #a855f7; }
-.hiring-lane__header--send_offer_letter    { color: #ec4899; }
-.hiring-lane__header--onboard_candidate    { color: #10b981; }
+.hiring-stage-badge--sourcing   { background: var(--bg-surface); color: var(--text-muted); }
+.hiring-stage-badge--interviews { background: color-mix(in srgb, #f59e0b 15%, var(--bg-card)); color: #f59e0b; }
+.hiring-stage-badge--offer      { background: color-mix(in srgb, #a855f7 15%, var(--bg-card)); color: #a855f7; }
+.hiring-stage-badge--onboarding { background: color-mix(in srgb, #10b981 15%, var(--bg-card)); color: #10b981; }
+.hiring-lane__header--sourcing   { color: var(--text-secondary); }
+.hiring-lane__header--interviews { color: #f59e0b; }
+.hiring-lane__header--offer      { color: #a855f7; }
+.hiring-lane__header--onboarding { color: #10b981; }
 
 .hiring-grid {
   display: grid;
@@ -2388,17 +2383,14 @@ span.fin-editable { display: inline-block; position: relative; }
 <!-- Alerts button is now in the sidebar (see renderSidebar) -->
 
 <!-- Sidebar panel -->
-<div id="warnAlertPanel" class="warn-alert-panel" role="dialog" aria-modal="false" aria-label="Warnings and alerts">
+<div id="warnAlertPanel" class="warn-alert-panel" role="dialog" aria-modal="false" aria-label="Warnings and notifications">
   <div class="warn-alert-panel__header">
-    <h3>Warnings &amp; Alerts</h3>
+    <h3>Warnings &amp; Notifications</h3>
     <button class="btn btn--ghost btn--sm" data-action="toggleWarnAlertSidebar" aria-label="Close">&times;</button>
   </div>
   <div class="warn-alert-panel__tabs" role="tablist">
     <button role="tab" class="warn-alert-panel__tab warn-alert-panel__tab--active" data-tab="warnings" data-action="switchWarnAlertTab" data-arg0="warnings">
       Warnings <span id="warnTabCount" class="warn-alert-panel__tab-count"></span>
-    </button>
-    <button role="tab" class="warn-alert-panel__tab" data-tab="alerts" data-action="switchWarnAlertTab" data-arg0="alerts">
-      Alerts <span id="alertTabCount" class="warn-alert-panel__tab-count"></span>
     </button>
     <button role="tab" class="warn-alert-panel__tab" data-tab="notifications" data-action="switchWarnAlertTab" data-arg0="notifications">
       Notifications <span id="notifTabCount" class="warn-alert-panel__tab-count"></span>
@@ -2523,8 +2515,7 @@ function _actFilterClientReport(client) { filterByClient(client); switchView('re
 function _actFilterClientTasks(client) { filterByClient(client); switchView('tasks'); }
 function _actFilterClientAndOpenTask(client, taskId) { filterByClient(client); switchView('tasks'); openDetail(taskId); }
 function _actSwitchAndOpenDetail(taskId) { switchView('tasks'); openDetail(taskId); }
-function _actHandleNotifAndClose(link) { handleNotificationClick(link); toggleWarnAlertSidebar(); }
-function _actOpenOverlayAndClose(id) { openDetailOverlay(id); toggleWarnAlertSidebar(); }
+function _actOpenOverlayAndClose(id) { toggleWarnAlertSidebar(); navigateToTaskInTree(id); }
 function _actShareCopy(url) { navigator.clipboard.writeText(url); toast('Link copied!'); }
 function _actShowVerifyAndClose(id, entityType, entityId, containerId) { showAttachmentVerifyDialog(id, entityType, entityId, containerId); toggleWarnAlertSidebar(); }
 
@@ -3506,10 +3497,10 @@ function getFilteredTasks() {
   if (currentFilter.health && currentFilter.health.length > 0) list = list.filter(t => currentFilter.health.includes(t.healthState || 'Not set'));
   if (currentFilter.priority && currentFilter.priority.length > 0) list = list.filter(t => currentFilter.priority.includes(t.priority));
   if (currentFilter.assignee && currentFilter.assignee.length > 0) list = list.filter(t => t.assignees?.some(a => currentFilter.assignee.includes(a)));
-  // "My Work Only" sort option (bug c73af494): when selected, auto-filter to
-  // the current user's tasks even if the People multi-select is empty.
-  // Explicit People filter wins — this only kicks in when no filter is set.
-  if (currentFilter.sort === 'assignee' && (!currentFilter.assignee || currentFilter.assignee.length === 0)) {
+  // "My Work Only" sort option (bugs c73af494, f09303f1): auto-filter to
+  // the current user's tasks. Scoped to the Projects view only — previously
+  // leaked to Dashboard/People/etc. because currentFilter is global.
+  if (currentView === 'tasks' && currentFilter.sort === 'assignee' && (!currentFilter.assignee || currentFilter.assignee.length === 0)) {
     const myName = _currentUser?.displayName || _currentUser?.display_name || '';
     if (myName) list = list.filter(t => (t.assignees || []).some(a => a.toLowerCase() === myName.toLowerCase()));
   }
@@ -6036,6 +6027,22 @@ function renderTreeView(filtered) {
   filtered.forEach(t => { if (t.parentId) { const root = getRootAncestor(t); rootIds.add(root.id); } });
   const roots = tasks.filter(t => rootIds.has(t.id) && !t.parentId);
 
+  // "My Work Only" tree-level filtering (bugs f09303f1, c73af494): build a
+  // set of task IDs that should be visible — the filtered tasks themselves
+  // plus every ancestor needed to maintain hierarchy. renderTaskRow uses this
+  // to skip siblings the user is not assigned to.
+  let visibleIds = null;
+  if (currentFilter.sort === 'assignee' && filtered.length < tasks.length) {
+    visibleIds = new Set(filtered.map(t => t.id));
+    filtered.forEach(t => {
+      let cursor = tasks.find(p => p.id === t.parentId);
+      while (cursor) {
+        visibleIds.add(cursor.id);
+        cursor = tasks.find(p => p.id === cursor.parentId);
+      }
+    });
+  }
+
   // Default collapsed to client level: client groups are collapsed, items inside expanded.
   // _tasksInitialCollapse is set true on page load and when navigating TO the Projects page.
   if (_tasksInitialCollapse) {
@@ -6140,11 +6147,11 @@ function renderTreeView(filtered) {
           html += `<span style="color:var(--text-muted);font-size:0.7rem">${bucketRoots.length} project${bucketRoots.length !== 1 ? 's' : ''}</span>`;
           html += `</div>`;
           if (!sowCollapsed) {
-            bucketRoots.forEach(r => { html += renderTaskRow(r, 1, filtered); });
+            bucketRoots.forEach(r => { html += renderTaskRow(r, 1, filtered, visibleIds); });
           }
           html += `</div>`;
         } else {
-          bucketRoots.forEach(r => { html += renderTaskRow(r, 1, filtered); });
+          bucketRoots.forEach(r => { html += renderTaskRow(r, 1, filtered, visibleIds); });
         }
       });
     }
@@ -6461,9 +6468,19 @@ function renderCalendarView(filtered) {
   const daysInMonth = lastDay.getDate();
   const monthName = firstDay.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
 
+  // When "Show events from others" is off, only show the current user's own
+  // tasks on the calendar (bug e49be05e — unassigned/others' due-date chips
+  // were still visible). Firm-closed events are handled separately in
+  // calBuildEventDayMap.
+  let calFiltered = filtered;
+  if (!_calShowOthers && _currentUser) {
+    const myName = (_currentUser.displayName || _currentUser.display_name || '').toLowerCase();
+    if (myName) calFiltered = filtered.filter(t => (t.assignees || []).some(a => a.toLowerCase() === myName));
+  }
+
   // Build map: date string → tasks due/ending that day
   const dayTasks = {};
-  filtered.forEach(t => {
+  calFiltered.forEach(t => {
     const dates = [t.dueDate, t.endDate, t.startDate].filter(Boolean);
     const uniqueDates = [...new Set(dates)];
     uniqueDates.forEach(ds => {
@@ -7861,7 +7878,8 @@ function addNoteInline(id) {
  * @param {number} depth - Nesting depth (controls indentation)
  * @param {Array} filtered - The currently filtered task list
  */
-function renderTaskRow(task, depth, filtered) {
+function renderTaskRow(task, depth, filtered, visibleIds) {
+  if (visibleIds && !visibleIds.has(task.id)) return '';
   const children = getChildren(task.id);
   const hasKids = children.length > 0;
   const hrs = aggHours(task.id);
@@ -7914,7 +7932,7 @@ function renderTaskRow(task, depth, filtered) {
     html += `<div class="task-children ${isCollapsed ? 'hidden' : ''}" id="children_${task.id}" ondragover="onDragOver(event,'${task.id}')" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'${task.id}')">`;
     // Performance: skip rendering children of collapsed nodes entirely (lazy render)
     if (!isCollapsed) {
-      children.forEach(c => { html += renderTaskRow(c, depth + 1, filtered); });
+      children.forEach(c => { html += renderTaskRow(c, depth + 1, filtered, visibleIds); });
     }
     html += `</div>`;
   }
@@ -8317,12 +8335,18 @@ function navigateToTaskInTree(taskId) {
   if (cursor) {
     try { collapsedTaskIds.delete(clientGroupKey(cursor)); } catch (e) {}
   }
+  // Force "By Project" (tree) sub-view so the hierarchical rows exist in the
+  // DOM — board/gantt/calendar views don't render .task-row elements.
+  taskSubView = 'tree';
+  localStorage.setItem('nbi_task_subview', 'tree');
   switchView('tasks');
   openDetail(taskId);
-  // After the re-render, scroll the row into view
+  // Two frames: first lets renderContent rebuild the DOM, second scrolls.
   requestAnimationFrame(() => {
-    const row = document.querySelector(`.task-row[data-task-id="${taskId}"]`);
-    if (row) row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    requestAnimationFrame(() => {
+      const row = document.querySelector(`.task-row[data-task-id="${taskId}"]`);
+      if (row) row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
   });
 }
 
@@ -15651,24 +15675,18 @@ let _hiringPositionsData = [];
 // take them out of pipeline (set when Hired is confirmed, also when an
 // active candidate is intentionally archived).
 const HIRING_STAGES = [
-  'find_candidate',
-  'upload_cv',
-  'conduct_interviews',
-  'background_check',
-  'establish_start_date',
-  'send_offer_letter',
-  'onboard_candidate',
+  'sourcing',
+  'interviews',
+  'offer',
+  'onboarding',
   'hired',
 ];
 const HIRING_STAGE_LABELS = {
-  find_candidate:       'Find Candidate',
-  upload_cv:            'Upload CV',
-  conduct_interviews:   'Conduct Interviews',
-  background_check:     'Background Check',
-  establish_start_date: 'Establish Start Date',
-  send_offer_letter:    'Send Offer Letter',
-  onboard_candidate:    'Onboard Candidate',
-  hired:                'Hired',
+  sourcing:   'Sourcing',
+  interviews: 'Interviews',
+  offer:      'Offer',
+  onboarding: 'Onboarding',
+  hired:      'Hired',
 };
 /** Return the index of a stage in the linear process, or 0 if unknown. */
 function hiringStageIndex(stage) {
@@ -15725,7 +15743,7 @@ function renderHiringCard(c, draggable) {
   const currentStageAssignees = Array.isArray(stageAssignees[c.stage]) ? stageAssignees[c.stage] : [];
   const unassigned = !isArchived && currentStageAssignees.length === 0;
   const warnMarker = unassigned ? '<span style="position:absolute;top:4px;right:4px;color:var(--danger);font-size:0.8rem" title="No assignee on the current stage">&#9888;</span>' : '';
-  const archivedMarker = isArchived ? '<span style="position:absolute;bottom:4px;left:4px;color:var(--success);font-size:0.9rem;font-weight:bold" title="Archived (Hired confirmed)">&#10003;</span>' : '';
+  const archivedMarker = (isArchived || c.stage === 'hired') ? '<span style="position:absolute;bottom:4px;left:4px;color:var(--success);font-size:0.9rem;font-weight:bold" title="Hired">&#10003;</span>' : '';
   const archivedStyle = isArchived ? 'opacity:0.55;filter:grayscale(0.4);' : '';
   const dragAttrs = draggable && !isArchived
     ? ` draggable="true" ondragstart="onHiringCardDragStart(event, '${c.id}')" ondragend="onHiringCardDragEnd(event)"`
@@ -15734,7 +15752,7 @@ function renderHiringCard(c, draggable) {
               aria-label="${esc(header)}${subheader ? ', ' + esc(subheader) : ''}${c.client_name ? ', ' + esc(c.client_name) : ''}, stage ${esc(HIRING_STAGE_LABELS[c.stage] || c.stage)}${unassigned ? ', no assignee' : ''}${isArchived ? ', archived' : ''}"
               onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openCandidateDetail('${c.id}')}">
     ${warnMarker}${archivedMarker}
-    <div class="hiring-card__name">${esc(header)}</div>
+    <div class="hiring-card__name" ${c.stage === 'hired' ? 'style="text-decoration:line-through"' : ''}>${esc(header)}</div>
     ${subheader ? `<div class="hiring-card__role">${esc(subheader)}</div>` : ''}
     <div class="hiring-card__meta">
       ${clientChip || `<span class="${isLate ? 'hiring-card__due--late' : ''}">${dueText || '\u2014'}</span>`}
@@ -16013,7 +16031,7 @@ async function openCreateCandidateModal() {
     const role = overlay.querySelector('#ccRole').value.trim();
     // Glen spec (bug b7a2f97f): name OR role is required — if both blank, refuse.
     // If role is blank, warn and ask for confirmation (role is the backbone of
-    // the card). Cards always start in 'find_candidate'.
+    // the card). Cards always start in 'sourcing'.
     if (!name && !role) { toast('Name or role is required', 'error'); return; }
     if (!role) {
       const ok = await themedConfirm('No role on this candidate card — are you sure?\nThe role is normally what you fill first and it anchors the whole pipeline.', 'No role set', 'Create anyway');
@@ -16024,7 +16042,7 @@ async function openCreateCandidateModal() {
       client_id: overlay.querySelector('#ccClient').value || null,
       role: role || null,
       due_date: overlay.querySelector('#ccDue').value || null,
-      stage: 'find_candidate'
+      stage: 'sourcing'
     };
     const resp = await authFetch('/api/candidates', {
       method: 'POST',
@@ -16087,15 +16105,15 @@ async function openCandidateDetail(id) {
 
   // Stage-scoped sub-section below the arrows (bottom half of the card per Glen's spec)
   let stageSubHtml = '';
-  if (c.stage === 'establish_start_date') {
+  if (c.stage === 'offer') {
     stageSubHtml = `<div class="candidate-detail__field"><label>Start date</label><input type="date" id="cdStartDate" value="${c.start_date ? String(c.start_date).slice(0,10) : ''}" onchange="updateCandidateField('${c.id}','start_date',this.value||null)"></div>`;
-  } else if (c.stage === 'onboard_candidate') {
+  } else if (c.stage === 'onboarding') {
     const links = Array.isArray(c.onboarding_links) ? c.onboarding_links : [];
     const linksHtml = links.length > 0
       ? links.map((l, i) => `<div style="display:flex;align-items:center;gap:6px;font-size:0.78rem;padding:4px 0"><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${l.type === 'file' ? '&#128196;' : '&#128279;'} <a href="${safeUrl(l.value)}" target="_blank" rel="noopener noreferrer" style="color:var(--accent-text)">${esc(l.value)}</a></span><button class="btn btn--sm btn--ghost" data-action="removeOnboardingLink" data-arg0="${c.id}" data-arg1="${i}" title="Remove">&times;</button></div>`).join('')
       : '<div style="color:var(--text-muted);font-size:0.78rem;padding:4px 0">No onboarding docs yet</div>';
     stageSubHtml = `<div class="candidate-detail__field"><label>Onboarding documents</label>${linksHtml}<div style="display:flex;gap:6px;margin-top:6px"><input type="text" id="cdOnboardLink" placeholder="Paste a link (Google Doc, Drive, etc.)" style="flex:1"><button class="btn btn--sm" data-action="addOnboardingLink" data-arg0="${c.id}">Add link</button></div></div>`;
-  } else if (c.stage === 'conduct_interviews') {
+  } else if (c.stage === 'interviews') {
     stageSubHtml = `<div class="candidate-detail__field"><label>Interview rounds</label><textarea rows="3" placeholder="e.g. Round 1: Glen + Magnus on Mon, Round 2: Stavros on Wed" onchange="updateCandidateField('${c.id}','notes',(c.notes||'')+'\\n'+this.value)">${esc(c.notes || '')}</textarea></div>`;
   }
 
@@ -16288,7 +16306,7 @@ async function hiringClearCandidate(id) {
   const resp = await authFetch('/api/candidates/' + id, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name: '(vacant)', linkedin_url: null, cv_filename: null, stage: 'find_candidate', stage_assignees: {} })
+    body: JSON.stringify({ name: '(vacant)', linkedin_url: null, cv_filename: null, stage: 'sourcing', stage_assignees: {} })
   });
   if (resp.ok) {
     toast('Candidate cleared');
@@ -18288,7 +18306,12 @@ function toggleNotifications() { toggleWarnAlertSidebar(); }
 /** Handle notification click — route to the right view based on the link content.
  *  Supports: expense-report deep links (#expenses/report/{uuid}), hash-based view routes
  *  (#bugs, #settings, #mytasks, etc.), and bare task IDs. */
-function handleNotificationClick(link) {
+function handleNotificationClick(link, notifId) {
+  if (notifId) {
+    authFetch('/api/notifications/read', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids: [notifId] }) })
+      .then(() => { window._lastNotificationCount = Math.max(0, (window._lastNotificationCount || 1) - 1); if (typeof updateWarnAlertButton === 'function') updateWarnAlertButton(); })
+      .catch(() => {});
+  }
   if (!link) return;
   // Close the warn-alert sidebar
   const panel = document.getElementById('warnAlertPanel');
@@ -18530,6 +18553,7 @@ async function restoreBackup(file) {
 /** Clear all tasks after themed confirmation */
 async function clearAllTasks() {
   if (!(await themedConfirm('Clear all tasks? This cannot be undone.', 'Clear All Tasks', 'Clear All'))) return;
+  tasks.forEach(t => markDeleted(t.id));
   tasks = [];
   save();
   renderAll();
@@ -19084,7 +19108,6 @@ async function renderWarnAlertContent() {
   if (!list) return;
 
   const warnTabCount = document.getElementById('warnTabCount');
-  const alertTabCount = document.getElementById('alertTabCount');
 
   // Always update the warnings tab count, regardless of which tab is active
   const warnings = computeWarnings();
@@ -19141,35 +19164,6 @@ async function renderWarnAlertContent() {
       }).join('');
 
     list.innerHTML = taskWarningsHtml + verifyMatchHtml;
-  } else if (_warnAlertTab === 'alerts') {
-    // Alerts tab — pull from the existing notifications API
-    list.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:24px;font-size:0.82rem">Loading...</div>';
-    try {
-      const result = await apiCall('/api/notifications');
-      const notifications = (result && result.notifications) || [];
-      const unread = notifications.filter(n => !n.is_read).length;
-      window._lastNotificationCount = unread;
-      if (alertTabCount) alertTabCount.textContent = unread > 0 ? String(unread) : '';
-      if (notifications.length === 0) {
-        list.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:24px;font-size:0.82rem">No alerts.</div>';
-        return;
-      }
-      list.innerHTML = notifications.map(n => {
-        const sevClass = n.type === 'error' ? 'critical' : (n.type === 'warning' ? 'high' : 'low');
-        const dateLabel = n.created_at ? new Date(n.created_at).toLocaleDateString('en-GB') : '';
-        const newBadge = n.is_read ? '' : ' <span style="color:var(--accent);font-size:0.65rem;font-weight:700">NEW</span>';
-        return `
-          <div class="warn-item warn-item--${sevClass}" role="button" tabindex="0" data-action="_actHandleNotifAndClose" data-arg0="${esc(n.link || '')}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
-            <div class="warn-item__header">
-              <div class="warn-item__title">${esc(n.title || '')}${newBadge}</div>
-            </div>
-            <div class="warn-item__meta">${esc(n.message || '')}${dateLabel ? ' &middot; ' + esc(dateLabel) : ''}</div>
-          </div>
-        `;
-      }).join('');
-    } catch (e) {
-      list.innerHTML = '<div style="color:var(--danger);font-size:0.82rem;padding:12px">Failed to load alerts.</div>';
-    }
   } else if (_warnAlertTab === 'notifications') {
     // Notifications tab — chronological notification feed
     list.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:24px;font-size:0.82rem">Loading...</div>';
@@ -19177,6 +19171,7 @@ async function renderWarnAlertContent() {
       const result = await apiCall('/api/notifications');
       const notifications = (result && result.notifications) || [];
       const unread = notifications.filter(n => !n.is_read).length;
+      window._lastNotificationCount = unread;
       const notifCount = document.getElementById('notifTabCount');
       if (notifCount) notifCount.textContent = unread > 0 ? String(unread) : '';
       if (notifications.length === 0) {
@@ -19189,7 +19184,7 @@ async function renderWarnAlertContent() {
         const readStyle = n.is_read && !isPersistent ? 'opacity:0.5' : '';
         const persistBadge = isPersistent && !n.is_read ? '<span style="display:inline-block;font-size:0.6rem;padding:1px 5px;border-radius:3px;background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger-border);margin-left:6px">Action required</span>' : '';
         const bgStyle = isPersistent && !n.is_read ? 'background:color-mix(in srgb, var(--danger) 6%, var(--bg-surface));border-left:3px solid var(--danger);' : '';
-        return `<div style="padding:8px 12px;border-bottom:1px solid var(--border-subtle);font-size:0.78rem;${readStyle};${bgStyle};cursor:pointer" data-action="handleNotificationClick" data-arg0="${esc(n.link || '')}">
+        return `<div style="padding:8px 12px;border-bottom:1px solid var(--border-subtle);font-size:0.78rem;${readStyle};${bgStyle};cursor:pointer" data-action="handleNotificationClick" data-arg0="${esc(n.link || '')}" data-arg1="${esc(n.id || '')}">
           <div style="font-weight:${n.is_read && !isPersistent ? '400' : '600'};color:var(--text-primary)">${esc(n.title)}${persistBadge}</div>
           <div style="color:var(--text-muted);font-size:0.68rem;margin-top:2px">${esc(n.message)} &middot; ${ago}</div>
         </div>`;

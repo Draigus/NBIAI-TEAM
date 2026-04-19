@@ -165,7 +165,7 @@ CREATE TABLE public.candidates (
     linkedin_url text,
     cv_filename text,
     due_date date,
-    stage text DEFAULT 'sourced'::text,
+    stage text DEFAULT 'sourcing'::text,
     notes text,
     created_at timestamp with time zone DEFAULT now(),
     updated_at timestamp with time zone DEFAULT now()

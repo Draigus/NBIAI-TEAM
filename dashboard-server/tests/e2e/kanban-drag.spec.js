@@ -295,9 +295,9 @@ test.describe('Hiring kanban drag', () => {
     await seedDummyTaskForEmptyStateBypass();
     await pool.query(
       `INSERT INTO candidates (name, stage, position)
-       VALUES ('Alice', 'find_candidate', 0),
-              ('Bob',   'find_candidate', 1),
-              ('Carol', 'find_candidate', 2)`
+       VALUES ('Alice', 'sourcing', 0),
+              ('Bob',   'sourcing', 1),
+              ('Carol', 'sourcing', 2)`
     );
 
     await loginAs(page, user.username, user.raw_password);
@@ -322,7 +322,7 @@ test.describe('Hiring kanban drag', () => {
     await patchPromise;
 
     const { rows } = await pool.query(
-      `SELECT name, position FROM candidates WHERE stage = 'find_candidate' ORDER BY position`
+      `SELECT name, position FROM candidates WHERE stage = 'sourcing' ORDER BY position`
     );
     expect(rows[0].name).toBe('Carol');
     expect(rows[0].position).toBe(0);

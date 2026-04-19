@@ -95,11 +95,11 @@ async function createTestBugReport(opts) {
 }
 
 /**
- * Create a candidate row. Stage defaults to 'sourced' (matches schema default).
+ * Create a candidate row. Stage defaults to 'sourcing' (matches schema default).
  */
 async function createTestCandidate(opts = {}) {
   const name = opts.name || uniq('TestCandidate');
-  const stage = opts.stage || 'sourced';
+  const stage = opts.stage || 'sourcing';
   const { rows } = await pool.query(
     `INSERT INTO candidates (client_id, position_id, name, role, linkedin_url, due_date, stage, notes)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,

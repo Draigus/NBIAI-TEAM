@@ -64,8 +64,8 @@ test.describe('@mobile-audit iPhone 11 portrait screenshots', () => {
     // Candidates for Hiring kanban
     await pool.query(
       `INSERT INTO candidates (name, stage, position)
-       VALUES ('Alice Candidate', 'sourced',   0),
-              ('Bob Candidate',   'screening', 0)`
+       VALUES ('Alice Candidate', 'sourcing',    0),
+              ('Bob Candidate',   'interviews', 0)`
     );
 
     // Leads for Leads kanban
