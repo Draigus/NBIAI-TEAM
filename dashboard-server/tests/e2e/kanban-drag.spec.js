@@ -178,6 +178,39 @@ test.describe('Tasks kanban drag', () => {
     expect(rows.find(r => r.title === 'Top task').priority).toBe('High');
     expect(rows.find(r => r.title === 'Middle task').priority).toBe('Medium');
   });
+
+  test('board sub-view renders when nbi_task_subview is "board" in localStorage', async ({ page }) => {
+    await truncate();
+    const user = await createTestUser({ role: 'admin' });
+    await pool.query(
+      `INSERT INTO tasks (title, status, priority, position, item_type)
+       VALUES ('Board task A', 'Not started', 'Medium', 0, 'project'),
+              ('Board task B', 'In progress', 'High',   0, 'project')`
+    );
+
+    // Set localStorage BEFORE the script initialises taskSubView. The let
+    // binding reads localStorage once at parse time, so we must navigate,
+    // write to localStorage, then reload so the script sees 'board'.
+    await page.goto('/nbi_project_dashboard.html');
+    await page.evaluate(() => localStorage.setItem('nbi_task_subview', 'board'));
+    await page.reload();
+    await page.waitForSelector('#loginScreen', { state: 'visible', timeout: 10000 });
+
+    await page.locator('#loginUser').fill(user.username);
+    await page.locator('#loginPass').fill(user.raw_password);
+    await page.locator('#loginBtn').click();
+    await page.waitForSelector('#loginScreen', { state: 'hidden', timeout: 10000 });
+
+    // Navigate to Projects — board sub-view should render from localStorage
+    await page.waitForFunction(() => typeof switchView === 'function', { timeout: 15000 });
+    await page.evaluate(() => switchView('tasks'));
+    await page.waitForSelector('.board-card', { timeout: 15000 });
+
+    const cards = page.locator('.board-card');
+    await expect(cards).toHaveCount(2);
+    await expect(cards.filter({ hasText: 'Board task A' })).toHaveCount(1);
+    await expect(cards.filter({ hasText: 'Board task B' })).toHaveCount(1);
+  });
 });
 
 // -----------------------------------------------------------------------------
@@ -189,20 +222,35 @@ test.describe('Leads kanban drag', () => {
     await truncate();
     const user = await createTestUser({ role: 'admin' });
     await seedDummyTaskForEmptyStateBypass();
-    const stage = await createTestLeadStage({ name: 'Active-' + Date.now() });
-    try {
-      await pool.query(
-        `INSERT INTO leads (title, stage_id, priority, currency, position, created_by)
-         VALUES ('Top lead',    $1, 1, 'GBP', 0, 'test'),
-                ('Middle lead', $1, 2, 'GBP', 1, 'test'),
-                ('Bottom lead', $1, 3, 'GBP', 2, 'test')`,
-        [stage.id]
-      );
 
-      await loginAs(page, user.username, user.raw_password);
+    await loginAs(page, user.username, user.raw_password);
+
+    // Create stage via API (not direct DB) so the server-side leads_config
+    // cache is invalidated. Direct DB inserts bypass invalidateCache().
+    const stage = await page.evaluate(async () => {
+      const resp = await fetch('/api/leads/stages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'Active-Test', sort_order: 0, colour: '#666666' }),
+      });
+      return resp.json();
+    });
+
+    await pool.query(
+      `INSERT INTO leads (title, stage_id, priority, currency, position, created_by)
+       VALUES ('Top lead',    $1, 1, 'GBP', 0, 'test'),
+              ('Middle lead', $1, 2, 'GBP', 1, 'test'),
+              ('Bottom lead', $1, 3, 'GBP', 2, 'test')`,
+      [stage.id]
+    );
+
+    try {
       await page.evaluate(async () => {
-        // Pre-load config + leads data so renderLeadsView doesn't render the
-        // skeleton-and-wait path on first visit.
+        // _leadsConfig is a top-level `let` — not on `window`. Reset the
+        // binding directly so loadLeadsConfig re-fetches from the API
+        // (server cache was invalidated by the POST above).
+        _leadsConfig = null;
+        _leadsData = null;
         if (typeof loadLeadsConfig === 'function') await loadLeadsConfig();
         if (typeof loadLeads === 'function') await loadLeads();
         if (typeof switchView === 'function') switchView('leads');
@@ -247,9 +295,9 @@ test.describe('Hiring kanban drag', () => {
     await seedDummyTaskForEmptyStateBypass();
     await pool.query(
       `INSERT INTO candidates (name, stage, position)
-       VALUES ('Alice', 'sourced', 0),
-              ('Bob',   'sourced', 1),
-              ('Carol', 'sourced', 2)`
+       VALUES ('Alice', 'find_candidate', 0),
+              ('Bob',   'find_candidate', 1),
+              ('Carol', 'find_candidate', 2)`
     );
 
     await loginAs(page, user.username, user.raw_password);
@@ -274,7 +322,7 @@ test.describe('Hiring kanban drag', () => {
     await patchPromise;
 
     const { rows } = await pool.query(
-      `SELECT name, position FROM candidates WHERE stage = 'sourced' ORDER BY position`
+      `SELECT name, position FROM candidates WHERE stage = 'find_candidate' ORDER BY position`
     );
     expect(rows[0].name).toBe('Carol');
     expect(rows[0].position).toBe(0);
