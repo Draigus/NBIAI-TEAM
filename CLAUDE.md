@@ -2,27 +2,30 @@
 
 ## What This Is
 
-This repository defines a reusable AI agent company that replicates a real organisational structure. It is designed to handle both business operations and software development across multiple projects simultaneously.
+This repository contains NBI's business knowledge, AI infrastructure, and active project work. It serves as the working environment for Glen Pryer's Claude Code sessions.
 
 **Owner:** Glen Pryer, Managing Director, NBI Gaming / NBI Analytics Ltd
-**Architecture inspired by:** Paperclip (github.com/paperclipai/paperclip)
+
+## Business Context
+
+See `NBI_Brain.md` for full business context: Glen's identity, operating style, AI working preferences, current clients, pipeline, team roster, and internal AI infrastructure. Extended modules in `brain/` provide deep-dive detail on specific topics - consult the index in Section 9 of the Brain.
 
 ## Repository Structure
 
-- `NBI_Brain.md` — Full company knowledge base (source of truth for all NBI business information)
-- `company/` — Company-wide configuration: org chart, policies, Tier 1 knowledge
-- `roles/` — Agent role definitions (persona, responsibilities, workflows, knowledge, system prompts)
-- `projects/` — Project-specific configurations with Tier 3 knowledge
-- `pipelines/` — Reusable workflow definitions (SDLC, client delivery, BD, reporting)
-- `templates/` — Output templates for common deliverables
+- `NBI_Brain.md` - Core business context (always loaded, ~300 lines)
+- `brain/` - Extended Brain modules (loaded on demand by topic)
+- `company/` - Company-wide configuration: org chart, policies, domain reference knowledge
+- `roles/` - Agent role definitions used as depth-skill assets (persona, responsibilities, workflows, knowledge)
+- `projects/` - Project-specific configurations with project-level knowledge
+- `pipelines/` - Reusable workflow definitions (SDLC, client delivery, BD, reporting)
+- `templates/` - Output templates for common deliverables
 
-## Knowledge Architecture (Three Tiers)
+## Knowledge Architecture
 
-1. **Tier 1 — Company Knowledge** (`company/knowledge/`): Loaded by ALL agents. Who NBI is, clients, strategy, org chart. Keep lean (~2-3 pages)
-2. **Tier 2 — Role Knowledge** (`roles/{role}/knowledge/`): Loaded per role. Deep domain knowledge relevant to the function
-3. **Tier 3 — Project Knowledge** (`projects/{project}/knowledge/`): Loaded per active assignment. Project brief, requirements, status
-
-When instantiating an agent, load: Tier 1 + their Tier 2 + the Tier 3 for their assigned project.
+1. **Core - NBI Brain** (`NBI_Brain.md` + `brain/`): Glen's identity, how he works, business state, clients, team, AI infrastructure. The Brain is the single source of truth for all NBI business information. Core is always loaded; extended modules loaded on demand
+2. **Domain Reference** (`company/knowledge/gaming_industry_context.md`): Gaming industry platforms, genres, business models, terminology. Standalone reference file
+3. **Role Knowledge** (`roles/{role}/knowledge/`): Deep domain knowledge per role. These serve as expert knowledge banks that Claude Code can consult when domain depth is needed
+4. **Project Knowledge** (`projects/{project}/knowledge/`): Project-specific context - briefs, requirements, status
 
 ## Model Tier Strategy
 
