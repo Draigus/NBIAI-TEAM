@@ -444,23 +444,23 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .pf__donut-leader { stroke: var(--border-default); stroke-width: 0.8; fill: none; }
 
 /* === v4 Upcoming Milestones === */
-.pf__milestone-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border-subtle); cursor: pointer; }
+.pf__milestone-item { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border-subtle); cursor: pointer; }
 .pf__milestone-item:last-child { border-bottom: none; }
-.pf__milestone-item:hover { background: var(--bg-hover); margin: 0 -16px; padding: 8px 16px; }
-.pf__milestone-bar { width: 3px; min-height: 36px; border-radius: 2px; flex-shrink: 0; }
-.pf__milestone-title { font-size: 0.78rem; font-weight: 500; color: var(--text-primary); }
-.pf__milestone-sub { font-size: 0.6rem; color: var(--text-muted); margin-top: 1px; }
-.pf__milestone-status { font-size: 0.65rem; font-weight: 600; text-align: right; flex-shrink: 0; }
-.pf__milestone-date { font-size: 0.55rem; color: var(--text-muted); text-align: right; }
-.pf__milestone-abbr { font-size: 0.65rem; font-weight: 700; }
+.pf__milestone-item:hover { background: var(--bg-hover); margin: 0 -16px; padding: 10px 16px; }
+.pf__milestone-bar { width: 4px; min-height: 44px; border-radius: 2px; flex-shrink: 0; }
+.pf__milestone-title { font-size: 0.88rem; font-weight: 600; color: var(--text-primary); }
+.pf__milestone-sub { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; }
+.pf__milestone-status { font-size: 0.78rem; font-weight: 700; text-align: right; flex-shrink: 0; }
+.pf__milestone-date { font-size: 0.68rem; color: var(--text-muted); text-align: right; }
+.pf__milestone-abbr { font-size: 0.78rem; font-weight: 700; }
 
 /* === v4 Work Types bar chart === */
-.pf__wt-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; }
-.pf__wt-label { width: 120px; flex-shrink: 0; font-size: 0.78rem; font-weight: 600; text-align: right; color: var(--text-primary); }
-.pf__wt-bar-track { flex: 1; height: 20px; }
-.pf__wt-bar { height: 100%; background: #00e5ff; border-radius: 3px; opacity: 0.7; }
-.pf__wt-axis { display: flex; margin-top: 4px; padding-left: 128px; }
-.pf__wt-axis span { flex: 1; font-size: 0.55rem; color: var(--text-muted); }
+.pf__wt-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
+.pf__wt-label { width: 140px; flex-shrink: 0; font-size: 0.85rem; font-weight: 700; text-align: right; color: var(--text-primary); }
+.pf__wt-bar-track { flex: 1; height: 28px; }
+.pf__wt-bar { height: 100%; background: #00e5ff; border-radius: 3px; opacity: 0.85; }
+.pf__wt-axis { display: flex; margin-top: 6px; padding-left: 150px; }
+.pf__wt-axis span { flex: 1; font-size: 0.68rem; color: var(--text-muted); }
 
 /* === v4 Bottom row — 4 columns, constrained height === */
 .pf__bottom--v4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-md); }
@@ -2185,7 +2185,7 @@ span.fin-editable { display: inline-block; position: relative; }
     </form>
     <div id="loginResetPrompt" style="display:none;margin-top:12px;padding:12px;background:var(--bg-warning,#fff3cd);border:1px solid var(--border-warning,#ffc107);border-radius:var(--radius-md,6px);text-align:center">
       <div style="font-size:0.82rem;color:var(--text-default,#333);margin-bottom:8px">Too many failed attempts.</div>
-      <button class="login-card__btn" onclick="sendPasswordResetEmail()" id="resetEmailBtn" style="background:#2563eb;font-size:0.82rem;padding:8px 16px">Send an email with a link to change password</button>
+      <button class="login-card__btn" data-action="sendPasswordResetEmail" id="resetEmailBtn" style="background:#2563eb;font-size:0.82rem;padding:8px 16px">Send an email with a link to change password</button>
       <div id="resetEmailMsg" style="font-size:0.78rem;margin-top:8px;display:none"></div>
     </div>
   </div>
@@ -2206,7 +2206,7 @@ span.fin-editable { display: inline-block; position: relative; }
       <button type="submit" class="login-card__btn" id="resetBtn">Reset Password</button>
     </form>
     <div style="margin-top:12px;text-align:center">
-      <a href="#" onclick="window.location.hash='';showLoginScreen();return false" style="font-size:0.82rem;color:#2563eb">Back to Sign In</a>
+      <a href="#" data-action="backToLogin" data-prevent style="font-size:0.82rem;color:#2563eb">Back to Sign In</a>
     </div>
   </div>
 </div>
@@ -2215,39 +2215,39 @@ span.fin-editable { display: inline-block; position: relative; }
 <div id="appContainer" style="display:none;">
 <header class="g-header">
   <div class="g-header__brand">
-    <button class="sidebar-toggle" onclick="toggleMobileSidebar()" aria-label="Menu">&#9776;</button>
+    <button class="sidebar-toggle" data-action="toggleMobileSidebar" aria-label="Menu">&#9776;</button>
     <span class="g-header__logo">NBI</span>
     <span class="g-header__subtitle">Project Dashboard</span>
   </div>
   <div class="g-header__actions">
     <span id="userBadge" class="header-desktop-only" style="color:var(--text-secondary);font-size:0.82rem;margin-right:4px;"></span>
     <div class="add-item-menu" style="position:relative;display:inline-flex">
-      <button class="btn btn--primary" onclick="addTask()" style="border-radius:var(--radius-sm) 0 0 var(--radius-sm);font-weight:700;font-size:0.85rem;letter-spacing:0.3px;padding:6px 12px"><svg width="16" height="16" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 1v12M1 7h12"/></svg><span class="header-desktop-only">New</span></button>
-      <button class="btn btn--primary" onclick="toggleAddItemMenu(event)" style="padding:4px 6px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;border-left:1px solid rgba(255,255,255,0.25)">&#9660;</button>
+      <button class="btn btn--primary" data-action="addTask" style="border-radius:var(--radius-sm) 0 0 var(--radius-sm);font-weight:700;font-size:0.85rem;letter-spacing:0.3px;padding:6px 12px"><svg width="16" height="16" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 1v12M1 7h12"/></svg><span class="header-desktop-only">New</span></button>
+      <button class="btn btn--primary" data-action="toggleAddItemMenu" data-pass-event style="padding:4px 6px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;border-left:1px solid rgba(255,255,255,0.25)">&#9660;</button>
       <div id="addItemMenuDropdown" style="display:none;position:absolute;top:100%;right:0;margin-top:4px;background:var(--bg-raised);border:1px solid var(--border-default);border-radius:var(--radius-sm);box-shadow:var(--shadow-lg);z-index:400;min-width:160px;overflow:hidden">
-        <div class="hover-item" role="button" tabindex="0" style="padding:6px 12px;cursor:pointer;font-size:0.82rem;display:flex;gap:8px;align-items:center" onclick="closeAddItemMenu();addItem('project')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}"><span style="width:18px;text-align:center">&#128193;</span> New Project</div>
-        <div class="hover-item" role="button" tabindex="0" style="padding:6px 12px;cursor:pointer;font-size:0.82rem;display:flex;gap:8px;align-items:center" onclick="closeAddItemMenu();showAddItemPicker('feature')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}"><span style="width:18px;text-align:center">&#9733;</span> New Feature</div>
-        <div class="hover-item" role="button" tabindex="0" style="padding:6px 12px;cursor:pointer;font-size:0.82rem;display:flex;gap:8px;align-items:center" onclick="closeAddItemMenu();showAddItemPicker('story')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}"><span style="width:18px;text-align:center">&#128214;</span> New Story</div>
-        <div class="hover-item" role="button" tabindex="0" style="padding:6px 12px;cursor:pointer;font-size:0.82rem;display:flex;gap:8px;align-items:center" onclick="closeAddItemMenu();showAddItemPicker('task')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}"><span style="width:18px;text-align:center">&#9998;</span> New Task</div>
+        <div class="hover-item" role="button" tabindex="0" style="padding:6px 12px;cursor:pointer;font-size:0.82rem;display:flex;gap:8px;align-items:center" data-action="addItemFromMenu" data-arg0="project" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}"><span style="width:18px;text-align:center">&#128193;</span> New Project</div>
+        <div class="hover-item" role="button" tabindex="0" style="padding:6px 12px;cursor:pointer;font-size:0.82rem;display:flex;gap:8px;align-items:center" data-action="addItemFromMenu" data-arg0="feature" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}"><span style="width:18px;text-align:center">&#9733;</span> New Feature</div>
+        <div class="hover-item" role="button" tabindex="0" style="padding:6px 12px;cursor:pointer;font-size:0.82rem;display:flex;gap:8px;align-items:center" data-action="addItemFromMenu" data-arg0="story" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}"><span style="width:18px;text-align:center">&#128214;</span> New Story</div>
+        <div class="hover-item" role="button" tabindex="0" style="padding:6px 12px;cursor:pointer;font-size:0.82rem;display:flex;gap:8px;align-items:center" data-action="addItemFromMenu" data-arg0="task" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}"><span style="width:18px;text-align:center">&#9998;</span> New Task</div>
       </div>
     </div>
-    <button class="btn header-desktop-only" onclick="printReport()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="1" width="8" height="4" rx="1"/><rect x="1" y="5" width="12" height="6" rx="1.5"/><rect x="4" y="9" width="6" height="4" rx="0.5"/></svg> Print</button>
-    <button class="btn header-desktop-only" onclick="openBugReportModal()" id="bugReportBtn" title="Report Bug or Feature Request" style="background:#f59e0b;color:#000;font-weight:600;font-size:0.75rem;padding:4px 10px;border-radius:var(--radius-sm)">&#128030; Report</button>
-    <button class="btn header-alerts-btn" id="headerAlertsBtn" onclick="toggleWarnAlertSidebar()" title="Warnings, Alerts & Notifications" style="position:relative;font-weight:600;font-size:0.75rem;padding:4px 12px;border-radius:var(--radius-sm);border:1px solid var(--border-default)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span class="header-desktop-only">Alerts</span><span id="headerAlertsBadge" style="display:none;margin-left:6px;background:#fff;color:#dc2626;font-size:0.6rem;font-weight:700;border-radius:8px;padding:0 5px;min-width:16px;text-align:center">0</span></button>
+    <button class="btn header-desktop-only" data-action="printReport"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="1" width="8" height="4" rx="1"/><rect x="1" y="5" width="12" height="6" rx="1.5"/><rect x="4" y="9" width="6" height="4" rx="0.5"/></svg> Print</button>
+    <button class="btn header-desktop-only" data-action="openBugReportModal" id="bugReportBtn" title="Report Bug or Feature Request" style="background:#f59e0b;color:#000;font-weight:600;font-size:0.75rem;padding:4px 10px;border-radius:var(--radius-sm)">&#128030; Report</button>
+    <button class="btn header-alerts-btn" id="headerAlertsBtn" data-action="toggleWarnAlertSidebar" title="Warnings, Alerts & Notifications" style="position:relative;font-weight:600;font-size:0.75rem;padding:4px 12px;border-radius:var(--radius-sm);border:1px solid var(--border-default)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span class="header-desktop-only">Alerts</span><span id="headerAlertsBadge" style="display:none;margin-left:6px;background:#fff;color:#dc2626;font-size:0.6rem;font-weight:700;border-radius:8px;padding:0 5px;min-width:16px;text-align:center">0</span></button>
     <div class="theme-picker header-desktop-only" id="themePicker">
-      <button class="btn btn--ghost" onclick="toggleThemeDropdown(event)" id="themeBtn" title="Choose theme"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="4" cy="8" r="2.5"/><circle cx="12" cy="5" r="2"/><circle cx="11" cy="12" r="1.5"/></svg></button>
+      <button class="btn btn--ghost" data-action="toggleThemeDropdown" data-pass-event id="themeBtn" title="Choose theme"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="4" cy="8" r="2.5"/><circle cx="12" cy="5" r="2"/><circle cx="11" cy="12" r="1.5"/></svg></button>
       <div class="theme-picker__dropdown" id="themeDropdown"></div>
     </div>
-    <button class="btn btn--ghost header-desktop-only" onclick="handleLogout()" title="Sign out"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3M11 11l3-3-3-3M6 8h8"/></svg></button>
+    <button class="btn btn--ghost header-desktop-only" data-action="handleLogout" title="Sign out"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3M11 11l3-3-3-3M6 8h8"/></svg></button>
     <!-- Mobile overflow menu -->
     <div class="header-overflow" id="headerOverflow">
-      <button class="btn btn--ghost header-mobile-only" onclick="toggleHeaderOverflow(event)" aria-label="More actions" style="font-size:1.1rem;padding:4px 8px">&#8942;</button>
+      <button class="btn btn--ghost header-mobile-only" data-action="toggleHeaderOverflow" data-pass-event aria-label="More actions" style="font-size:1.1rem;padding:4px 8px">&#8942;</button>
       <div class="header-overflow__menu" id="headerOverflowMenu">
         <div id="overflowUserBadge" class="header-overflow__item" style="color:var(--text-muted);font-size:0.78rem;padding:10px 14px;border-bottom:1px solid var(--border-subtle)"></div>
-        <div class="header-overflow__item" role="button" tabindex="0" onclick="printReport();toggleHeaderOverflow()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="1" width="8" height="4" rx="1"/><rect x="1" y="5" width="12" height="6" rx="1.5"/><rect x="4" y="9" width="6" height="4" rx="0.5"/></svg> Print</div>
-        <div class="header-overflow__item" role="button" tabindex="0" onclick="openBugReportModal();toggleHeaderOverflow()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">&#128030; Report Bug</div>
-        <div class="header-overflow__item" role="button" tabindex="0" onclick="toggleThemeDropdown(event);toggleHeaderOverflow()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="3.5" cy="7" r="2"/><circle cx="10.5" cy="4.5" r="1.5"/><circle cx="9.5" cy="10.5" r="1.2"/></svg> Theme</div>
-        <div class="header-overflow__item header-overflow__item--danger" role="button" tabindex="0" onclick="handleLogout()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 1.5H2.5a1 1 0 00-1 1v9a1 1 0 001 1H5M9.5 9.5l2.5-2.5-2.5-2.5M5 7h7"/></svg> Sign Out</div>
+        <div class="header-overflow__item" role="button" tabindex="0" data-action="overflowPrint" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="1" width="8" height="4" rx="1"/><rect x="1" y="5" width="12" height="6" rx="1.5"/><rect x="4" y="9" width="6" height="4" rx="0.5"/></svg> Print</div>
+        <div class="header-overflow__item" role="button" tabindex="0" data-action="overflowReport" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">&#128030; Report Bug</div>
+        <div class="header-overflow__item" role="button" tabindex="0" data-action="overflowTheme" data-pass-event onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="3.5" cy="7" r="2"/><circle cx="10.5" cy="4.5" r="1.5"/><circle cx="9.5" cy="10.5" r="1.2"/></svg> Theme</div>
+        <div class="header-overflow__item header-overflow__item--danger" role="button" tabindex="0" data-action="handleLogout" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 1.5H2.5a1 1 0 00-1 1v9a1 1 0 001 1H5M9.5 9.5l2.5-2.5-2.5-2.5M5 7h7"/></svg> Sign Out</div>
       </div>
     </div>
   </div>
@@ -2258,10 +2258,10 @@ span.fin-editable { display: inline-block; position: relative; }
 <!-- SHELL -->
 <div class="shell">
   <!-- SIDEBAR -->
-  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMobileSidebar()"></div>
+  <div class="sidebar-overlay" id="sidebarOverlay" data-action="toggleMobileSidebar"></div>
   <aside class="sidebar" id="sidebarEl">
     <nav class="sidebar__nav" id="sidebarNav" role="navigation" aria-label="Main navigation"></nav>
-    <button class="sidebar__toggle" onclick="toggleSidebarCollapse()" title="Toggle sidebar" aria-label="Toggle sidebar"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 3L5 8l5 5"/></svg></button>
+    <button class="sidebar__toggle" data-action="toggleSidebarCollapse" title="Toggle sidebar" aria-label="Toggle sidebar"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 3L5 8l5 5"/></svg></button>
   </aside>
 
   <!-- MAIN -->
@@ -2273,7 +2273,7 @@ span.fin-editable { display: inline-block; position: relative; }
 </div>
 
 <!-- DETAIL PANEL -->
-<div class="detail-overlay" id="detailOverlay" onclick="closeDetail()"></div>
+<div class="detail-overlay" id="detailOverlay" data-action="closeDetail"></div>
 <div class="detail-panel" id="detailPanel" role="dialog" aria-modal="true" aria-label="Detail panel"></div>
 
 <!-- BUG DETAIL PANEL -->
@@ -2294,8 +2294,8 @@ span.fin-editable { display: inline-block; position: relative; }
     </div>
     <div id="importPreview"></div>
     <div style="display:flex;gap:8px;justify-content:flex-end">
-      <button class="btn" onclick="closeImportModal()">Cancel</button>
-      <button class="btn btn--primary" id="confirmImportBtn" onclick="confirmImport()" style="display:none">Import</button>
+      <button class="btn" data-action="closeImportModal">Cancel</button>
+      <button class="btn btn--primary" id="confirmImportBtn" data-action="confirmImport" style="display:none">Import</button>
     </div>
   </div>
 </div>
@@ -2311,8 +2311,8 @@ span.fin-editable { display: inline-block; position: relative; }
     <p id="confirmMessage"></p>
     <input type="text" id="confirmInput" style="display:none;width:100%;padding:8px;margin-bottom:var(--space-md);background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-size:0.85rem">
     <div class="confirm-actions">
-      <button class="btn" onclick="_resolveConfirm(false)">Cancel</button>
-      <button class="btn btn--danger" id="confirmOkBtn" onclick="_resolveConfirm(true)">Confirm</button>
+      <button class="btn" data-action="_resolveConfirm" data-arg0="false">Cancel</button>
+      <button class="btn btn--danger" id="confirmOkBtn" data-action="_resolveConfirm" data-arg0="true">Confirm</button>
     </div>
   </div>
 </div>
@@ -2322,8 +2322,8 @@ span.fin-editable { display: inline-block; position: relative; }
     <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:var(--space-lg)">Another user has edited this item. Choose which version to keep:</p>
     <div id="conflictFields"></div>
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:var(--space-xl)">
-      <button class="btn" onclick="resolveConflict('mine')">Keep My Changes</button>
-      <button class="btn btn--primary" onclick="resolveConflict('theirs')">Use Server Version</button>
+      <button class="btn" data-action="resolveConflict" data-arg0="mine">Keep My Changes</button>
+      <button class="btn btn--primary" data-action="resolveConflict" data-arg0="theirs">Use Server Version</button>
     </div>
   </div>
 </div>
@@ -2361,8 +2361,8 @@ span.fin-editable { display: inline-block; position: relative; }
       <div id="blockerError" style="display:none;color:var(--danger);font-size:0.78rem"></div>
     </div>
     <div class="confirm-actions" style="margin-top:var(--space-lg)">
-      <button class="btn" onclick="cancelMarkAsBlocked()">Cancel</button>
-      <button class="btn btn--primary" id="blockerSaveBtn" onclick="saveMarkAsBlocked()">Save</button>
+      <button class="btn" data-action="cancelMarkAsBlocked">Cancel</button>
+      <button class="btn btn--primary" id="blockerSaveBtn" data-action="saveMarkAsBlocked">Save</button>
     </div>
   </div>
 </div>
@@ -2375,16 +2375,16 @@ span.fin-editable { display: inline-block; position: relative; }
 <div id="warnAlertPanel" class="warn-alert-panel" role="dialog" aria-modal="false" aria-label="Warnings and alerts">
   <div class="warn-alert-panel__header">
     <h3>Warnings &amp; Alerts</h3>
-    <button class="btn btn--ghost btn--sm" onclick="toggleWarnAlertSidebar()" aria-label="Close">&times;</button>
+    <button class="btn btn--ghost btn--sm" data-action="toggleWarnAlertSidebar" aria-label="Close">&times;</button>
   </div>
   <div class="warn-alert-panel__tabs" role="tablist">
-    <button role="tab" class="warn-alert-panel__tab warn-alert-panel__tab--active" data-tab="warnings" onclick="switchWarnAlertTab('warnings')">
+    <button role="tab" class="warn-alert-panel__tab warn-alert-panel__tab--active" data-tab="warnings" data-action="switchWarnAlertTab" data-arg0="warnings">
       Warnings <span id="warnTabCount" class="warn-alert-panel__tab-count"></span>
     </button>
-    <button role="tab" class="warn-alert-panel__tab" data-tab="alerts" onclick="switchWarnAlertTab('alerts')">
+    <button role="tab" class="warn-alert-panel__tab" data-tab="alerts" data-action="switchWarnAlertTab" data-arg0="alerts">
       Alerts <span id="alertTabCount" class="warn-alert-panel__tab-count"></span>
     </button>
-    <button role="tab" class="warn-alert-panel__tab" data-tab="notifications" onclick="switchWarnAlertTab('notifications')">
+    <button role="tab" class="warn-alert-panel__tab" data-tab="notifications" data-action="switchWarnAlertTab" data-arg0="notifications">
       Notifications <span id="notifTabCount" class="warn-alert-panel__tab-count"></span>
     </button>
   </div>
@@ -2426,6 +2426,26 @@ function cleanupListeners() {
   });
   _listenerRegistry.length = 0;
 }
+
+// ==================== EVENT DELEGATION ====================
+const _BOOL = { 'true': true, 'false': false, 'null': null };
+addManagedListener(document, 'click', function(e) {
+  const el = e.target.closest('[data-action]');
+  if (!el) return;
+  if (el.hasAttribute('data-stop')) e.stopPropagation();
+  if (el.hasAttribute('data-prevent')) e.preventDefault();
+  const action = el.dataset.action;
+  const fn = window[action];
+  if (typeof fn !== 'function') return;
+  const args = [];
+  if (el.hasAttribute('data-pass-event')) args.push(e);
+  for (let i = 0; el.dataset['arg' + i] !== undefined; i++) {
+    const v = el.dataset['arg' + i];
+    args.push(v in _BOOL ? _BOOL[v] : v);
+  }
+  if (el.hasAttribute('data-pass-el')) args.push(el);
+  fn.apply(null, args);
+});
 
 // ----- AUTH -----
 let _currentUser = null;
@@ -2560,7 +2580,7 @@ function assigneeSelectHtml(taskId, currentAssignees) {
   let html = '<div class="assignee-selector">';
   // Show currently assigned as chips
   selected.forEach(name => {
-    html += `<span class="filter-chip" style="font-size:0.72rem;margin:2px">${esc(name)} <button onclick="removeAssignee('${taskId}','${escAttrJs(name)}')">&times;</button></span>`;
+    html += `<span class="filter-chip" style="font-size:0.72rem;margin:2px">${esc(name)} <button data-action="removeAssignee" data-arg0="${taskId}" data-arg1="${esc(name)}">&times;</button></span>`;
   });
   // Dropdown to add
   html += `<select onchange="addAssignee('${taskId}',this.value);this.value=''" style="padding:4px 8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-size:0.78rem;min-width:120px">`;
@@ -3562,7 +3582,7 @@ function sidebarSectionOpen(key, title) {
   const collapsed = localStorage.getItem('sidebarSection:' + key) === '1';
   const keyAttr = esc(key);
   return `<div class="sidebar__section" data-collapsed="${collapsed}" data-section="${keyAttr}">
-    <button type="button" class="sidebar__title" aria-expanded="${!collapsed}" onclick="toggleSidebarSection('${keyAttr}')">${esc(title)}</button>
+    <button type="button" class="sidebar__title" aria-expanded="${!collapsed}" data-action="toggleSidebarSection" data-arg0="${keyAttr}">${esc(title)}</button>
     <div class="sidebar__section__body">`;
 }
 function sidebarSectionClose() { return `</div></div>`; }
@@ -3807,7 +3827,7 @@ async function loadClientNotes(clientName) {
       const date = n.meeting_date ? new Date(n.meeting_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
       const srcBadge = '';
       html += `<div style="background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:var(--radius-md);overflow:hidden">`;
-      html += `<div class="hover-item" onclick="toggleNoteDetail('${nid}')" style="padding:8px 12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center">`;
+      html += `<div class="hover-item" data-action="toggleNoteDetail" data-arg0="${nid}" style="padding:8px 12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center">`;
       html += `<div><strong style="color:var(--text-primary);font-size:0.82rem">${esc(n.title)}</strong>${srcBadge}</div>`;
       html += `<div style="display:flex;align-items:center;gap:8px"><span style="color:var(--text-muted);font-size:0.72rem">${date}</span><span style="color:var(--text-muted);font-size:0.65rem;transition:transform 0.15s" id="${nid}_arrow">&#9654;</span></div>`;
       html += `</div>`;
@@ -3945,7 +3965,7 @@ function renderTabs() {
     return true;
   });
   document.getElementById('mainTabs').setAttribute('role', 'tablist');
-  document.getElementById('mainTabs').innerHTML = visibleTabs.map(t => `<div class="main__tab ${currentView===t?'active':''}" onclick="switchView('${t}')" role="tab" aria-selected="${currentView===t}" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchView('${t}')}">${labels[t]}</div>`).join('');
+  document.getElementById('mainTabs').innerHTML = visibleTabs.map(t => `<div class="main__tab ${currentView===t?'active':''}" data-action="switchView" data-arg0="${t}" role="tab" aria-selected="${currentView===t}" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchView('${t}')}">${labels[t]}</div>`).join('');
   checkTabOverflow();
 }
 
@@ -4068,7 +4088,7 @@ function _renderMainContent(content) {
   if (currentView === 'incomplete') { currentView = 'tasks'; currentFilter.incomplete = true; }
   if (currentView === 'changelog') { currentView = 'settings'; }
   if (tasks.length === 0 && currentView !== 'settings') {
-    content.innerHTML = `<div class="empty-state"><div class="empty-state__icon">&#128203;</div><div class="empty-state__title">No Tasks Yet</div><div class="empty-state__desc">Import tasks or add them manually to get started.</div><button class="btn btn--primary" onclick="openImportModal()">Import</button></div>`;
+    content.innerHTML = `<div class="empty-state"><div class="empty-state__icon">&#128203;</div><div class="empty-state__title">No Tasks Yet</div><div class="empty-state__desc">Import tasks or add them manually to get started.</div><button class="btn btn--primary" data-action="openImportModal">Import</button></div>`;
     return;
   }
   if (currentView === 'dashboard') renderDashboard(content);
@@ -4289,7 +4309,7 @@ function renderTacticalDashboard() {
         const daysLate = Math.ceil((now - safeParseDate(t.dueDate)) / (1000 * 60 * 60 * 24));
         const sev = lateSeverity(daysLate);
         const owner = (t.assignees || []).join(', ') || 'Unassigned';
-        html += `<div class="tactical-item tactical-item--danger" onclick="openDetailOverlay('${t.id}')" style="background:${sev.bg}">
+        html += `<div class="tactical-item tactical-item--danger" data-action="openDetailOverlay" data-arg0="${t.id}" style="background:${sev.bg}">
           ${!showClientGroups ? clientBadgeHtml(getTaskClient(t)) : ''}
           <span class="tactical-item__title">${esc(t.title)}</span>
           <span class="tactical-item__assignee">${esc(owner)}</span>
@@ -4317,7 +4337,7 @@ function renderTacticalDashboard() {
       const dayLabel = daysUntil === 0 ? 'Today' : daysUntil === 1 ? 'Tomorrow' : d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
       const urgentColour = daysUntil <= 1 ? '#dc2626' : daysUntil <= 3 ? '#f59e0b' : 'var(--text-muted)';
       const owner = (t.assignees || []).join(', ') || 'Unassigned';
-      html += `<div class="tactical-item" onclick="openDetailOverlay('${t.id}')" style="border-left:3px solid ${urgentColour}">
+      html += `<div class="tactical-item" data-action="openDetailOverlay" data-arg0="${t.id}" style="border-left:3px solid ${urgentColour}">
         ${clientBadgeHtml(getTaskClient(t))}
         <span class="tactical-item__title">${esc(t.title)}</span>
         <span class="tactical-item__assignee">${esc(owner)}</span>
@@ -4333,7 +4353,7 @@ function renderTacticalDashboard() {
     html += `<div class="tactical-section__header"><span class="tactical-section__title" style="color:var(--purple)">&#128721; Blocked (${blockedTasks.length})</span></div>`;
     blockedTasks.forEach(t => {
       const owner = (t.assignees || []).join(', ') || 'Unassigned';
-      html += `<div class="tactical-item" onclick="openDetailOverlay('${t.id}')" style="border-left:3px solid var(--purple)">
+      html += `<div class="tactical-item" data-action="openDetailOverlay" data-arg0="${t.id}" style="border-left:3px solid var(--purple)">
         ${clientBadgeHtml(getTaskClient(t))}
         <span class="tactical-item__title">${esc(t.title)}</span>
         <span class="tactical-item__assignee">${esc(owner)}</span>
@@ -4348,7 +4368,7 @@ function renderTacticalDashboard() {
     html += `<div class="tactical-section__header"><span class="tactical-section__title" style="color:var(--warning)">&#9888; At Risk (${redHealth.length})</span></div>`;
     redHealth.forEach(t => {
       const owner = (t.assignees || []).join(', ') || 'Unassigned';
-      html += `<div class="tactical-item" onclick="openDetailOverlay('${t.id}')" style="border-left:3px solid var(--warning)">
+      html += `<div class="tactical-item" data-action="openDetailOverlay" data-arg0="${t.id}" style="border-left:3px solid var(--warning)">
         ${clientBadgeHtml(getTaskClient(t))}
         <span class="tactical-item__title">${esc(t.title)}</span>
         <span class="tactical-item__assignee">${esc(owner)}</span>
@@ -4531,7 +4551,7 @@ function renderPfSidebar(filtered, roots, now) {
     const borderClass = hasIssues ? 'pf__client--red' : hasYellow ? 'pf__client--yellow' : 'pf__client--green';
     const isSelected = _portfolioSelectedClient === clientName;
 
-    html += `<div class="pf__client ${borderClass} ${isSelected ? 'pf__client--selected' : ''}" onclick="selectPortfolioClient('${escAttrJs(clientName)}')">`;
+    html += `<div class="pf__client ${borderClass} ${isSelected ? 'pf__client--selected' : ''}" data-action="selectPortfolioClient" data-arg0="${esc(clientName)}">`;
     html += `<div class="pf__client-name"><span class="pf__client-dot" style="background:${healthCol}"></span>${esc(clientName)}</div>`;
     html += `<div class="pf__client-stats"><span>${active.length} active</span>`;
     if (overdue.length > 0) html += `<span class="danger">${overdue.length} overdue</span>`;
@@ -4598,23 +4618,34 @@ function renderPfProgressStatus(panelTasks) {
   });
 
   const outerR = r + sw / 2 + 4;
-  segments.forEach(({ b, midAngle, pct }) => {
-    const dotX = cx + Math.cos(midAngle) * outerR;
-    const dotY = cy + Math.sin(midAngle) * outerR;
-    const isRight = dotX > cx;
-    const elbowX = cx + Math.cos(midAngle) * (outerR + 35);
-    const elbowY = cy + Math.sin(midAngle) * (outerR + 35);
-    const labelX = isRight ? svgW - 20 : 20;
-    const labelY = elbowY;
-    const anchor = isRight ? 'end' : 'start';
-    const pctText = Math.round(pct * 100) + '%';
+  const rightLabels = segments.filter(s => Math.cos(s.midAngle) >= 0);
+  const leftLabels = segments.filter(s => Math.cos(s.midAngle) < 0);
 
-    svg += `<circle cx="${dotX.toFixed(1)}" cy="${dotY.toFixed(1)}" r="3.5" fill="${b.colour}"/>`;
-    svg += `<line x1="${dotX.toFixed(1)}" y1="${dotY.toFixed(1)}" x2="${elbowX.toFixed(1)}" y2="${elbowY.toFixed(1)}" stroke="#4dd0e1" stroke-width="1" fill="none" opacity="0.6"/>`;
-    svg += `<line x1="${elbowX.toFixed(1)}" y1="${elbowY.toFixed(1)}" x2="${labelX}" y2="${labelY.toFixed(1)}" stroke="#4dd0e1" stroke-width="1" fill="none" opacity="0.6"/>`;
-    svg += `<text x="${labelX}" y="${(labelY - 4).toFixed(1)}" text-anchor="${anchor}" fill="${b.colour}" font-size="22" font-weight="700">${pctText}</text>`;
-    svg += `<text x="${labelX}" y="${(labelY + 14).toFixed(1)}" text-anchor="${anchor}" fill="#94a3b8" font-size="10" font-weight="600">${b.label}</text>`;
-  });
+  function spaceLabels(group, side) {
+    if (group.length === 0) return;
+    const labelSpacing = 80;
+    const startY = cy - ((group.length - 1) * labelSpacing) / 2;
+    const labelX = side === 'right' ? svgW - 20 : 20;
+    const anchor = side === 'right' ? 'end' : 'start';
+
+    group.forEach((seg, i) => {
+      const dotX = cx + Math.cos(seg.midAngle) * outerR;
+      const dotY = cy + Math.sin(seg.midAngle) * outerR;
+      const labelY = startY + i * labelSpacing;
+      const elbowX = cx + Math.cos(seg.midAngle) * (outerR + 30);
+      const elbowY = cy + Math.sin(seg.midAngle) * (outerR + 30);
+      const pctText = Math.round(seg.pct * 100) + '%';
+
+      svg += `<circle cx="${dotX.toFixed(1)}" cy="${dotY.toFixed(1)}" r="3.5" fill="${seg.b.colour}"/>`;
+      svg += `<line x1="${dotX.toFixed(1)}" y1="${dotY.toFixed(1)}" x2="${elbowX.toFixed(1)}" y2="${elbowY.toFixed(1)}" stroke="#4dd0e1" stroke-width="1.2" fill="none" opacity="0.65"/>`;
+      svg += `<line x1="${elbowX.toFixed(1)}" y1="${elbowY.toFixed(1)}" x2="${labelX}" y2="${labelY.toFixed(1)}" stroke="#4dd0e1" stroke-width="1.2" fill="none" opacity="0.65"/>`;
+      svg += `<text x="${labelX}" y="${(labelY - 2).toFixed(1)}" text-anchor="${anchor}" fill="${seg.b.colour}" font-size="28" font-weight="700">${pctText}</text>`;
+      svg += `<text x="${labelX}" y="${(labelY + 18).toFixed(1)}" text-anchor="${anchor}" fill="#94a3b8" font-size="11" font-weight="700" letter-spacing="0.5">${seg.b.label}</text>`;
+    });
+  }
+
+  spaceLabels(rightLabels, 'right');
+  spaceLabels(leftLabels, 'left');
 
   svg += '</svg>';
 
@@ -4668,20 +4699,24 @@ function renderPfMilestones(panelRoots, now) {
       } else if (daysUntil === 0) {
         statusText = 'Due today';
         statusCol = 'var(--danger)';
+      } else if (daysUntil === 1) {
+        statusText = 'Due tomorrow';
+        statusCol = 'var(--warning)';
       } else if (daysUntil <= 7) {
         statusText = daysUntil + 'd left';
         statusCol = 'var(--warning)';
       } else {
-        statusText = daysUntil + 'd left';
+        statusText = 'On track';
         statusCol = 'var(--success)';
       }
       const dateStr = t._due.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 
-      html += `<div class="pf__milestone-item" onclick="openDetailOverlay('${t.id}')">`;
+      html += `<div class="pf__milestone-item" data-action="openDetailOverlay" data-arg0="${t.id}">`;
       html += `<div class="pf__milestone-bar" style="background:${barCol}"></div>`;
       html += '<div style="flex:1;min-width:0">';
-      html += `<div class="pf__milestone-title"><span class="pf__milestone-abbr" style="color:${abbrCol}">${esc(abbr)}</span> \u2014 ${esc(t.title)}</div>`;
-      html += `<div class="pf__milestone-sub">${esc(client)} \u00B7 ${t._pct}% complete</div>`;
+      html += `<div class="pf__milestone-title"><span class="pf__milestone-abbr" style="color:${abbrCol}">${esc(abbr)}</span> - ${esc(t.title)}</div>`;
+      const workType = t.workType || '';
+      html += `<div class="pf__milestone-sub">${esc(client)}${workType ? ' \u00B7 ' + esc(workType) : ''}</div>`;
       html += '</div>';
       html += `<div style="text-align:right"><div class="pf__milestone-status" style="color:${statusCol}">${statusText}</div><div class="pf__milestone-date">${dateStr}</div></div>`;
       html += '</div>';
@@ -4739,17 +4774,17 @@ function renderPfTimeline(panelTasks, panelRoots, now) {
   html += `<div style="flex:1;display:flex;border-bottom:1px solid var(--border-subtle)">`;
   months.forEach(m => {
     const widthPct = (m.days / totalDays * 100).toFixed(2);
-    html += `<div style="width:${widthPct}%;text-align:center;font-size:${m.isNow ? '0.82rem' : '0.7rem'};font-weight:${m.isNow ? '700' : '600'};color:${m.isNow ? 'var(--text-primary)' : 'var(--text-muted)'};padding:4px 0;border-right:1px solid var(--border-subtle)">${m.label}</div>`;
+    html += `<div style="width:${widthPct}%;text-align:center;font-size:${m.isNow ? '1.1rem' : '0.85rem'};font-weight:${m.isNow ? '700' : '600'};color:${m.isNow ? 'var(--text-primary)' : 'var(--text-muted)'};padding:8px 0;border-right:1px solid var(--border-subtle)">${m.label}</div>`;
   });
   html += '</div></div>';
 
   projects.forEach(p => {
     const leftPct = ((p._start - globalMin) / 86400000 / totalDays * 100).toFixed(2);
     const widthPct = Math.max(1, ((p._end - p._start) / 86400000 / totalDays * 100)).toFixed(2);
-    html += `<div style="display:flex;align-items:center;min-height:36px;cursor:pointer;border-bottom:1px solid var(--border-subtle)" onclick="openDetailOverlay('${p.id}')" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''">`;
-    html += `<div style="width:${labelW}px;flex-shrink:0;font-size:0.72rem;color:var(--text-primary);padding-right:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.title)}</div>`;
-    html += `<div style="flex:1;position:relative;height:20px">`;
-    html += `<div style="position:absolute;left:${leftPct}%;width:${widthPct}%;top:2px;bottom:2px;background:#00e5ff;border-radius:3px;opacity:0.8"></div>`;
+    html += `<div style="display:flex;align-items:center;min-height:42px;cursor:pointer;border-bottom:1px solid var(--border-subtle)" data-action="openDetailOverlay" data-arg0="${p.id}" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''">`;
+    html += `<div style="width:${labelW}px;flex-shrink:0;font-size:0.82rem;font-weight:600;color:var(--text-primary);padding-right:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.title)}</div>`;
+    html += `<div style="flex:1;position:relative;height:26px">`;
+    html += `<div style="position:absolute;left:${leftPct}%;width:${widthPct}%;top:2px;bottom:2px;background:#00e5ff;border-radius:3px;opacity:0.85"></div>`;
     html += '</div></div>';
   });
 
@@ -4823,7 +4858,7 @@ function renderPfCompletingSoon(panelRoots, now) {
     html += '<div style="display:flex;flex-direction:column;gap:6px">';
     nearComplete.forEach(r => {
       const healthCol = HEALTH_COLOURS[r.healthState] || 'var(--success)';
-      html += `<div class="pf__attn-item" onclick="openDetailOverlay('${r.id}')">`;
+      html += `<div class="pf__attn-item" data-action="openDetailOverlay" data-arg0="${r.id}">`;
       html += `<span style="width:6px;height:6px;border-radius:50%;background:${healthCol};flex-shrink:0"></span>`;
       html += `<div style="flex:1;min-width:0"><div class="pf__attn-title">${esc(r.title)}</div><div class="pf__attn-context">${esc(r._client)}</div></div>`;
       html += `<div style="width:60px;flex-shrink:0"><div style="height:4px;background:var(--border-subtle);border-radius:2px;overflow:hidden"><div style="width:${r._pct}%;height:100%;background:var(--success);border-radius:2px"></div></div></div>`;
@@ -4859,7 +4894,7 @@ function renderPfUpcomingMilestones(panelTasks, now, fortnight) {
       const badgeClass = daysUntil <= 2 ? 'pf__attn-badge--overdue' : daysUntil <= 5 ? 'pf__attn-badge--risk' : '';
       const badgeStyle = !badgeClass ? 'background:rgba(85,85,85,0.2);color:var(--text-muted);border-color:rgba(85,85,85,0.3)' : '';
 
-      html += `<div class="pf__attn-item" onclick="openDetailOverlay('${t.id}')">`;
+      html += `<div class="pf__attn-item" data-action="openDetailOverlay" data-arg0="${t.id}">`;
       html += `<span class="pf__attn-badge ${badgeClass}" ${badgeStyle ? `style="${badgeStyle}"` : ''}>${dayLabel}</span>`;
       html += `<div style="flex:1;min-width:0"><div class="pf__attn-title">${esc(t.title)}</div><div class="pf__attn-context">${esc(getTaskClient(t) || '')}</div></div>`;
       html += `</div>`;
@@ -4943,7 +4978,7 @@ function renderPfBottomNeedsAttention(panelTasks, now) {
         badge = 'AT RISK'; badgeClass = 'pf__na-badge--risk'; borderCol = '#f97316';
       }
       const ctx = [clientName, projectName].filter(Boolean).join(' \u2014 ');
-      html += `<div class="pf__na-item" onclick="openDetailOverlay('${t.id}')">`;
+      html += `<div class="pf__na-item" data-action="openDetailOverlay" data-arg0="${t.id}">`;
       html += `<div class="pf__na-border" style="background:${borderCol}"></div>`;
       html += `<span class="pf__na-badge ${badgeClass}">${badge}</span>`;
       html += `<div style="flex:1;min-width:0"><div style="font-size:0.7rem;color:var(--text-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(t.title)}</div>`;
@@ -5466,7 +5501,7 @@ function _myTaskRow(t) {
   const parent = t.parentId ? tasks.find(p => p.id === t.parentId) : null;
   const projectName = parent ? parent.title : '';
 
-  return `<div class="mytask-row" onclick="navigateToTaskInTree('${t.id}')" style="cursor:pointer">
+  return `<div class="mytask-row" data-action="navigateToTaskInTree" data-arg0="${t.id}" style="cursor:pointer">
     <div class="mytask-row__left">
       <div class="mytask-row__badges">${t.priority ? priorityBadgeHtml(t.priority) : ''}${t.healthState ? healthBadgeHtml(t.healthState) : ''}${statusBadgeHtml(t.status)}</div>
       <div class="mytask-row__title">${esc(t.title)}</div>
@@ -5822,7 +5857,7 @@ function renderTreeView(filtered) {
   }
 
   let html = `<div class="tree-controls" style="display:flex;gap:8px;align-items:center">
-    <button class="btn btn--outline" onclick="collapseAll()">Collapse All</button>
+    <button class="btn btn--outline" data-action="collapseAll">Collapse All</button>
     <div style="display:flex;align-items:center;gap:4px">
       <span style="font-size:0.78rem;color:var(--text-muted)">Expand to:</span>
       <select class="leads-select" onchange="if(this.value){expandToLevel(this.value);this.value=''}" style="font-size:0.78rem;padding:4px 8px">
@@ -5864,7 +5899,7 @@ function renderTreeView(filtered) {
 
     // Client header row (Epic)
     html += `<div class="task-client-group">`;
-    html += `<div class="task-client-header" onclick="toggleClientGroup('${clientKey}')" style="cursor:pointer">`;
+    html += `<div class="task-client-header" data-action="toggleClientGroup" data-arg0="${clientKey}" style="cursor:pointer">`;
     html += `<span class="task-client-header__toggle">${isCollapsed ? '&#9654;' : '&#9660;'}</span>`;
     html += `<span class="task-client-header__name">${esc(client)}</span>`;
     const featureCount = allClientTasks.filter(t => getItemType(t) === 'feature').length;
@@ -5907,7 +5942,7 @@ function renderTreeView(filtered) {
         const sowCollapsed = collapsedTaskIds.has(sowKey);
         if (!skipSowHeader) {
           html += `<div class="task-sow-group" style="margin-left:24px;margin-top:4px">`;
-          html += `<div class="task-sow-header" onclick="toggleClientGroup('${sowKey}')" style="cursor:pointer;display:flex;align-items:center;gap:6px;padding:4px 8px;font-size:0.78rem;color:var(--text-secondary);border-left:2px solid var(--border-subtle)">`;
+          html += `<div class="task-sow-header" data-action="toggleClientGroup" data-arg0="${sowKey}" style="cursor:pointer;display:flex;align-items:center;gap:6px;padding:4px 8px;font-size:0.78rem;color:var(--text-secondary);border-left:2px solid var(--border-subtle)">`;
           html += `<span style="font-size:0.7rem">${sowCollapsed ? '&#9654;' : '&#9660;'}</span>`;
           html += `<span style="font-weight:600">${esc(sowLabel)}</span>`;
           html += `<span style="color:var(--text-muted);font-size:0.7rem">${bucketRoots.length} project${bucketRoots.length !== 1 ? 's' : ''}</span>`;
@@ -6038,7 +6073,7 @@ function renderBoardCard(task) {
   if (isCancelled) cls += ' board-card--cancelled';
 
   const bcClient = getTaskClient(task);
-  let html = `<div class="${cls}" draggable="true" data-task-id="${task.id}" onclick="openDetail('${task.id}')" ondragstart="onBoardCardDragStart(event,'${task.id}')" ondragend="onBoardCardDragEnd(event)">`;
+  let html = `<div class="${cls}" draggable="true" data-task-id="${task.id}" data-action="openDetail" data-arg0="${task.id}" ondragstart="onBoardCardDragStart(event,'${task.id}')" ondragend="onBoardCardDragEnd(event)">`;
   if (bcClient) html += `<div style="margin-bottom:3px;display:flex;gap:4px;align-items:center">${clientBadgeHtml(bcClient)} ${itemTypeBadgeHtml(task)}</div>`;
   else html += `<div style="margin-bottom:3px">${itemTypeBadgeHtml(task)}</div>`;
   html += `<div class="board-card__title">${esc(task.title)}</div>`;
@@ -6280,7 +6315,7 @@ function renderCalendarView(filtered) {
   html += `<label style="display:flex;align-items:center;gap:6px;font-size:0.78rem;color:var(--text-muted);cursor:pointer;user-select:none">
     <input type="checkbox" ${_calShowOthers ? 'checked' : ''} onchange="_calShowOthers=this.checked;renderContent()" style="accent-color:var(--accent)"> Show events from others
   </label>`;
-  html += `<button class="btn btn--sm btn--primary" onclick="openCalendarEventModal()">+ Add Event</button>`;
+  html += `<button class="btn btn--sm btn--primary" data-action="openCalendarEventModal">+ Add Event</button>`;
   html += `</div>`;
 
   // Legend for event type colours
@@ -6719,7 +6754,7 @@ function renderGanttView(filtered) {
         const prereqBlocked = getIncompletePrereqs(t).length > 0;
 
         html += `<div class="gantt__row">`;
-        html += `<div class="gantt__row-label" onclick="openDetailOverlay('${t.id}')" title="${esc(t.title)}" style="padding-left:${8 + indent}px;font-size:0.72rem">`;
+        html += `<div class="gantt__row-label" data-action="openDetailOverlay" data-arg0="${t.id}" title="${esc(t.title)}" style="padding-left:${8 + indent}px;font-size:0.72rem">`;
         html += `<span class="item-type-badge" style="background:${typeMeta.colour};font-size:0.5rem;padding:0 4px">${typeMeta.label.charAt(0)}</span>`;
         if (prereqBlocked) html += `<span style="color:var(--warning);font-size:0.65rem">&#128274;</span>`;
         html += `<span style="overflow:hidden;text-overflow:ellipsis">${esc(t.title)}</span>`;
@@ -6771,7 +6806,7 @@ function renderGanttView(filtered) {
       const fontSize = depth === 0 ? '0.78rem' : '0.72rem';
 
       html += `<div class="gantt__row">`;
-      html += `<div class="gantt__row-label" onclick="openDetailOverlay('${t.id}')" title="${esc(t.title)}" style="padding-left:${8 + indent}px;font-weight:${fontWeight};font-size:${fontSize}">`;
+      html += `<div class="gantt__row-label" data-action="openDetailOverlay" data-arg0="${t.id}" title="${esc(t.title)}" style="padding-left:${8 + indent}px;font-weight:${fontWeight};font-size:${fontSize}">`;
       // Collapse toggle for parent items
       if (isParent) {
         html += `<span class="gantt__collapse-toggle" onclick="event.stopPropagation();toggleGanttCollapse('${t.id}')">${isCollapsed ? '&#9654;' : '&#9660;'}</span>`;
@@ -7555,7 +7590,7 @@ function renderInlineTaskDetail(id) {
   if (inlineDepTasks.length > 0) {
     inlineDepTasks.forEach(d => {
       const dIcon = d.status === 'Done' ? '<span style="color:var(--success)">&#10003;</span>' : '<span style="color:var(--warning)">&#9679;</span>';
-      html += `<div style="display:flex;align-items:center;gap:6px;font-size:0.75rem;padding:2px 0">${dIcon} ${itemTypeBadgeHtml(d)} <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;color:var(--accent-text)" onclick="openDetailOverlay('${d.id}')">${esc(d.title)}</span><button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.65rem" onclick="event.stopPropagation();removeDependency('${id}','${d.id}');renderContent()" title="Remove">&times;</button></div>`;
+      html += `<div style="display:flex;align-items:center;gap:6px;font-size:0.75rem;padding:2px 0">${dIcon} ${itemTypeBadgeHtml(d)} <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;color:var(--accent-text)" data-action="openDetailOverlay" data-arg0="${d.id}">${esc(d.title)}</span><button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.65rem" onclick="event.stopPropagation();removeDependency('${id}','${d.id}');renderContent()" title="Remove">&times;</button></div>`;
     });
   } else {
     html += `<div style="color:var(--text-muted);font-size:0.75rem;padding:2px 0">None</div>`;
@@ -7567,7 +7602,7 @@ function renderInlineTaskDetail(id) {
   if (inlineDependents.length > 0) {
     html += `<div class="detail-section"><div class="detail-section__title">Dependents <span style="font-size:0.7rem;font-weight:400;color:var(--text-muted)">(${inlineDependents.length} waiting)</span></div>`;
     inlineDependents.forEach(d => {
-      html += `<div style="display:flex;align-items:center;gap:6px;font-size:0.75rem;padding:2px 0">${itemTypeBadgeHtml(d)} <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;color:var(--accent-text)" onclick="openDetailOverlay('${d.id}')">${esc(d.title)}</span><span style="font-size:0.65rem;color:var(--text-muted)">${d.status}</span></div>`;
+      html += `<div style="display:flex;align-items:center;gap:6px;font-size:0.75rem;padding:2px 0">${itemTypeBadgeHtml(d)} <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;color:var(--accent-text)" data-action="openDetailOverlay" data-arg0="${d.id}">${esc(d.title)}</span><span style="font-size:0.65rem;color:var(--text-muted)">${d.status}</span></div>`;
     });
     html += `</div>`;
   }
@@ -7585,7 +7620,7 @@ function renderInlineTaskDetail(id) {
       children.slice(0, 8).forEach(c => {
         const icon = c.status === 'Done' ? '&#10003;' : c.status === 'In progress' ? '&#9654;' : '&#9675;';
         const style = c.status === 'Done' ? 'color:var(--success)' : c.status === 'Blocked' ? 'color:var(--danger)' : '';
-        html += `<div style="font-size:0.78rem;padding:3px 0;cursor:pointer;display:flex;align-items:center;gap:6px;${style}" onclick="openDetail('${c.id}')"><span>${icon}</span><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.title)}</span></div>`;
+        html += `<div style="font-size:0.78rem;padding:3px 0;cursor:pointer;display:flex;align-items:center;gap:6px;${style}" data-action="openDetail" data-arg0="${c.id}"><span>${icon}</span><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.title)}</span></div>`;
       });
       if (children.length > 8) html += `<div style="font-size:0.72rem;color:var(--text-muted);padding:4px 0">+ ${children.length - 8} more</div>`;
     }
@@ -7599,8 +7634,8 @@ function renderInlineTaskDetail(id) {
   // Actions
   html += `<div class="detail-section"><div class="detail-section__title">Actions</div>`;
   html += `<div style="display:flex;gap:8px">`;
-  html += `<button class="btn btn--outline" onclick="openDetailOverlay('${id}')" style="font-size:0.72rem">Expand</button>`;
-  html += `<button class="btn btn--danger" onclick="deleteTask('${id}')" style="font-size:0.72rem">Delete</button>`;
+  html += `<button class="btn btn--outline" data-action="openDetailOverlay" data-arg0="${id}" style="font-size:0.72rem">Expand</button>`;
+  html += `<button class="btn btn--danger" data-action="deleteTask" data-arg0="${id}" style="font-size:0.72rem">Delete</button>`;
   html += `</div></div>`;
 
   html += '</div>';
@@ -7651,7 +7686,7 @@ function renderTaskRow(task, depth, filtered) {
   else if (isInProgress) { iconClass += ' task-row__status-icon--inprogress'; }
   const rowClass = 'task-row' + (isDone ? ' task-row--done' : '') + (isCancelled ? ' task-row--cancelled' : '');
 
-  let html = `<div class="${rowClass}" style="padding-left:${16 + depth*20}px" draggable="true" data-task-id="${task.id}" onclick="openDetail('${task.id}')" ondragstart="onDragStart(event,'${task.id}')" ondragend="onDragEnd(event)">`;
+  let html = `<div class="${rowClass}" style="padding-left:${16 + depth*20}px" draggable="true" data-task-id="${task.id}" data-action="openDetail" data-arg0="${task.id}" ondragstart="onDragStart(event,'${task.id}')" ondragend="onDragEnd(event)">`;
   const isCollapsed = collapsedTaskIds.has(task.id);
   html += `<span class="task-row__toggle" onclick="event.stopPropagation();toggleChildren('${task.id}',this)">${hasKids ? (isCollapsed ? '&#9654;' : '&#9660;') : '&nbsp;'}</span>`;
   html += `<span class="${iconClass}" onclick="event.stopPropagation();toggleDone('${task.id}')">${iconContent}</span>`;
@@ -8137,7 +8172,7 @@ function openDetailOverlay(id) {
   const dpMissingFields = dpIncomplete ? [!task.hoursEstimated?'Hours estimated':'', !task.priority?'Priority':'', !task.assignees||task.assignees.length===0?'Assignee':'', !task.dueDate?'Due date':'', !task.client?'Client':'', (task.description||'').trim().length < 15 ? 'Description (min 15 chars)' : ''].filter(Boolean) : [];
 
   let html = `<div class="detail-panel__resize" onmousedown="startPanelResize(event,'detailPanel')"></div>`;
-  html += `<div class="detail-panel__header"><input class="detail-panel__title-input" value="${esc(task.title)}" onchange="updateTask('${id}','title',this.value);this.closest('.detail-panel__header').querySelector('.detail-panel__title-input').value=this.value" onkeydown="if(event.key==='Enter')this.blur()"><button class="detail-panel__close" onclick="closeDetail()" aria-label="Close detail panel">&times;</button></div>`;
+  html += `<div class="detail-panel__header"><input class="detail-panel__title-input" value="${esc(task.title)}" onchange="updateTask('${id}','title',this.value);this.closest('.detail-panel__header').querySelector('.detail-panel__title-input').value=this.value" onkeydown="if(event.key==='Enter')this.blur()"><button class="detail-panel__close" data-action="closeDetail" aria-label="Close detail panel">&times;</button></div>`;
   html += `<div class="detail-panel__body">`;
 
   // Incomplete warning banner
@@ -8197,7 +8232,7 @@ function openDetailOverlay(id) {
   if (children.length > 0) html += `<div class="detail-agg">${hrs.spent.toFixed(1)}h spent / ${hrs.est.toFixed(1)}h estimated (${hrs.est > 0 ? Math.round(hrs.spent/hrs.est*100) : 0}%)</div>`;
   html += `<div class="detail-field"><label class="detail-field__label field-required" for="detail-hoursEstimated">Hours Est.</label><input id="detail-hoursEstimated" type="number" step="0.5" min="0" value="${task.hoursEstimated||0}" onchange="updateTask('${id}','hoursEstimated',parseFloat(this.value)||0)"></div>`;
   // Quick log entry
-  html += `<div style="display:flex;gap:4px;align-items:center;margin-bottom:8px"><input id="logHours" type="number" step="0.25" min="0.25" placeholder="Hours" style="width:60px;padding:4px 6px;font-size:0.78rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)"><input id="logDesc" placeholder="What did you work on?" style="flex:1;padding:4px 6px;font-size:0.78rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)"><button class="btn btn--sm" onclick="logTimeEntry('${id}')">Log</button></div>`;
+  html += `<div style="display:flex;gap:4px;align-items:center;margin-bottom:8px"><input id="logHours" type="number" step="0.25" min="0.25" placeholder="Hours" style="width:60px;padding:4px 6px;font-size:0.78rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)"><input id="logDesc" placeholder="What did you work on?" style="flex:1;padding:4px 6px;font-size:0.78rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)"><button class="btn btn--sm" data-action="logTimeEntry" data-arg0="${id}">Log</button></div>`;
   // Time entries list
   html += `<div id="timeEntriesList" style="max-height:150px;overflow-y:auto"><div style="color:var(--text-muted);font-size:0.7rem">Loading time entries...</div></div>`;
   html += `</div>`;
@@ -8229,7 +8264,7 @@ function openDetailOverlay(id) {
   if (depTasks.length > 0) {
     depTasks.forEach(d => {
       const doneIcon = d.status === 'Done' ? '<span style="color:var(--success)">&#10003;</span>' : '<span style="color:var(--warning)">&#9679;</span>';
-      html += `<div style="display:flex;align-items:center;gap:6px;font-size:0.78rem;padding:3px 0"><span>${doneIcon}</span>${itemTypeBadgeHtml(d)}<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;color:var(--accent-text)" onclick="openDetailOverlay('${d.id}')">${esc(d.title)}</span><span style="font-size:0.68rem;color:var(--text-muted)">${d.status}</span><button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.7rem" onclick="removeDependency('${id}','${d.id}')" title="Remove prerequisite">&times;</button></div>`;
+      html += `<div style="display:flex;align-items:center;gap:6px;font-size:0.78rem;padding:3px 0"><span>${doneIcon}</span>${itemTypeBadgeHtml(d)}<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;color:var(--accent-text)" data-action="openDetailOverlay" data-arg0="${d.id}">${esc(d.title)}</span><span style="font-size:0.68rem;color:var(--text-muted)">${d.status}</span><button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.7rem" data-action="removeDependency" data-arg0="${id}" data-arg1="${d.id}" title="Remove prerequisite">&times;</button></div>`;
     });
   } else {
     html += `<div style="color:var(--text-muted);font-size:0.78rem;padding:4px 0">No prerequisites</div>`;
@@ -8242,7 +8277,7 @@ function openDetailOverlay(id) {
   html += `<div class="detail-section"><div class="detail-section__title">Dependents ${dependents.length > 0 ? `<span style="font-size:0.7rem;font-weight:400;color:var(--text-muted)">(${dependents.length} item${dependents.length !== 1 ? 's' : ''} waiting)</span>` : ''}</div>`;
   if (dependents.length > 0) {
     dependents.forEach(d => {
-      html += `<div style="display:flex;align-items:center;gap:6px;font-size:0.78rem;padding:3px 0">${itemTypeBadgeHtml(d)}<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;color:var(--accent-text)" onclick="openDetailOverlay('${d.id}')">${esc(d.title)}</span><span style="font-size:0.68rem;color:var(--text-muted)">${d.status}</span></div>`;
+      html += `<div style="display:flex;align-items:center;gap:6px;font-size:0.78rem;padding:3px 0">${itemTypeBadgeHtml(d)}<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;color:var(--accent-text)" data-action="openDetailOverlay" data-arg0="${d.id}">${esc(d.title)}</span><span style="font-size:0.68rem;color:var(--text-muted)">${d.status}</span></div>`;
     });
   } else {
     html += `<div style="color:var(--text-muted);font-size:0.78rem;padding:4px 0">Nothing depends on this item</div>`;
@@ -8252,7 +8287,7 @@ function openDetailOverlay(id) {
   // Comments / Activity Feed (API-backed)
   html += `<div class="detail-section"><div class="detail-section__title">Comments</div>`;
   html += `<div id="commentsList" style="max-height:250px;overflow-y:auto;margin-bottom:var(--space-md)"><div style="color:var(--text-muted);font-size:0.78rem;padding:8px 0">Loading comments...</div></div>`;
-  html += `<div class="note-input"><input id="commentInput" placeholder="Add a comment..." onkeydown="if(event.key==='Enter')postComment('${id}')"><button class="btn btn--sm btn--primary" onclick="postComment('${id}')">Post</button></div></div>`;
+  html += `<div class="note-input"><input id="commentInput" placeholder="Add a comment..." onkeydown="if(event.key==='Enter')postComment('${id}')"><button class="btn btn--sm btn--primary" data-action="postComment" data-arg0="${id}">Post</button></div></div>`;
 
   // Children + add child button (overlay panel)
   const ovChildType = getAllowedChildType(task);
@@ -8267,7 +8302,7 @@ function openDetailOverlay(id) {
       children.forEach(c => {
         const icon = c.status === 'Done' ? '&#10003;' : c.status === 'In progress' ? '&#9654;' : '&#9675;';
         const cStyle = c.status === 'Done' ? 'color:var(--success)' : c.healthState === 'Blocked' ? 'color:var(--danger)' : '';
-        html += `<div style="font-size:0.78rem;padding:3px 0;cursor:pointer;display:flex;align-items:center;gap:6px;${cStyle}" onclick="openDetailOverlay('${c.id}')"><span>${icon}</span>${itemTypeBadgeHtml(c)} <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.title)}</span></div>`;
+        html += `<div style="font-size:0.78rem;padding:3px 0;cursor:pointer;display:flex;align-items:center;gap:6px;${cStyle}" data-action="openDetailOverlay" data-arg0="${c.id}"><span>${icon}</span>${itemTypeBadgeHtml(c)} <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.title)}</span></div>`;
       });
     }
     if (ovChildType) {
@@ -8301,7 +8336,7 @@ function openDetailOverlay(id) {
 
   // Actions
   html += `<div class="detail-section"><div class="detail-section__title">Actions</div>`;
-  html += `<button class="btn btn--danger" onclick="deleteTask('${id}')" style="margin-top:12px">Delete ${getItemTypeLabel(task)}</button>`;
+  html += `<button class="btn btn--danger" data-action="deleteTask" data-arg0="${id}" style="margin-top:12px">Delete ${getItemTypeLabel(task)}</button>`;
   html += `</div>`;
 
   html += `</div>`;
@@ -9034,6 +9069,11 @@ function closeAddItemMenu() {
   const dd = document.getElementById('addItemMenuDropdown');
   if (dd) dd.style.display = 'none';
 }
+function addItemFromMenu(type) { closeAddItemMenu(); if (type === 'project') addItem('project'); else showAddItemPicker(type); }
+function overflowPrint() { printReport(); toggleHeaderOverflow(); }
+function overflowReport() { openBugReportModal(); toggleHeaderOverflow(); }
+function overflowTheme(e) { toggleThemeDropdown(e); toggleHeaderOverflow(); }
+function backToLogin() { window.location.hash = ''; showLoginScreen(); }
 
 /** Create a new item of a given type under an optional parent. Opens its detail panel. */
 function addItem(type, parentId) {
@@ -9134,7 +9174,7 @@ function renderReport(el) {
     <button class="task-subview-btn ${_reportSubView==='overall'?'active':''}" onclick="_reportSubView='overall';renderContent()">Overall</button>
     <button class="task-subview-btn ${_reportSubView==='byProject'?'active':''}" onclick="_reportSubView='byProject';renderContent()">By Project</button>
     <button class="task-subview-btn ${_reportSubView==='byPerson'?'active':''}" onclick="_reportSubView='byPerson';renderContent()">By Person</button>
-  </div>${currentFilter.client ? `<button class="btn btn--primary" onclick="generateClientReport('${escAttrJs(currentFilter.client)}')">&#128196; Generate Client Report</button>` : ''}</div>`;
+  </div>${currentFilter.client ? `<button class="btn btn--primary" data-action="generateClientReport" data-arg0="${esc(currentFilter.client)}">&#128196; Generate Client Report</button>` : ''}</div>`;
 
   // ===== EXECUTIVE KPI STRIP (all views) =====
   html += `<div class="report__section"><div class="report-exec">
@@ -9239,7 +9279,7 @@ function renderReport(el) {
       const donePctW = p.tasks > 0 ? (p.done / p.tasks * 100) : 0;
       const ipPctW = p.tasks > 0 ? (p.active / p.tasks * 100) : 0;
       const completeStyle = isComplete ? 'opacity:0.6;' : '';
-      html += `<div class="client-summary-card__project" onclick="openDetailOverlay('${p.id}')" style="cursor:pointer;${completeStyle}">`;
+      html += `<div class="client-summary-card__project" data-action="openDetailOverlay" data-arg0="${p.id}" style="cursor:pointer;${completeStyle}">`;
       html += `<span class="client-summary-card__pname" title="${esc(p.title)}">${isComplete ? '<span style="color:var(--success);margin-right:4px">&#10003;</span>' : ''}${esc(p.title)}</span>`;
       html += `<div class="client-summary-card__bar">`;
       if (donePctW > 0) html += `<div class="client-summary-card__seg" style="width:${donePctW}%;background:var(--success)"></div>`;
@@ -9286,7 +9326,7 @@ function renderReport(el) {
       const projectClient = getTaskClient(g.root);
       const projectOwner = (g.root.assignees || []).join(', ') || 'Unassigned';
       // Project header row
-      s += `<div class="risk-list__project" onclick="openDetailOverlay('${g.root.id}')">`;
+      s += `<div class="risk-list__project" data-action="openDetailOverlay" data-arg0="${g.root.id}">`;
       s += `<span class="risk-list__col risk-list__col--client">${clientBadgeHtml(projectClient)}</span>`;
       s += `<span class="risk-list__col risk-list__col--assignee">${esc(projectOwner)}</span>`;
       s += `<span class="risk-list__col risk-list__col--title">${esc(g.root.title)}</span>`;
@@ -9295,7 +9335,7 @@ function renderReport(el) {
       // Sub-task rows (indented)
       g.tasks.forEach(t => {
         const owner = (t.assignees || []).join(', ') || 'Unassigned';
-        s += `<div class="risk-list__task" onclick="openDetailOverlay('${t.id}')">`;
+        s += `<div class="risk-list__task" data-action="openDetailOverlay" data-arg0="${t.id}">`;
         s += `<span class="risk-list__col risk-list__col--client"></span>`;
         s += `<span class="risk-list__col risk-list__col--assignee">${esc(owner)}</span>`;
         s += `<span class="risk-list__col risk-list__col--title-indent">${esc(t.title)}</span>`;
@@ -10113,7 +10153,7 @@ function renderPeopleCalendarView(allPeople, assigneeMerge) {
     <button class="task-subview-btn ${_peopleCalView==='month'?'active':''}" onclick="_peopleCalView='month';localStorage.setItem('nbi_people_cal_view','month');renderContent()">Month</button>
   </div>`;
   html += `<label style="display:flex;align-items:center;gap:4px;font-size:0.72rem;color:var(--text-muted);cursor:pointer;user-select:none"><input type="checkbox" ${_calShowOthers ? 'checked' : ''} onchange="_calShowOthers=this.checked;_calEventsKey='';renderContent()" style="accent-color:var(--accent)"> Show events from others</label>`;
-  html += `<button class="btn btn--sm btn--primary" onclick="openCalendarEventModal()">+ Add Event</button>`;
+  html += `<button class="btn btn--sm btn--primary" data-action="openCalendarEventModal">+ Add Event</button>`;
   // Admin quick-add: declare today as firm-closed in one click. Prefills a
   // firm_closed event on today's date for both start and end. Admin can edit
   // the date range or title in the modal before saving — applies to everyone.
@@ -10206,7 +10246,7 @@ function renderPeopleCalendarView(allPeople, assigneeMerge) {
             const cur = new Date(year, monthIdx, d);
             return s <= cur && cur <= en;
           });
-          const clickAttr = isAdmin && ev ? `onclick="openCalendarEventDetail('${escAttrJs(ev.id)}')"` : '';
+          const clickAttr = isAdmin && ev ? `data-action="openCalendarEventDetail" data-arg0="${esc(ev.id)}"` : '';
           html += `<td class="people-cal__roster-cell is-firm-closed-full" ${clickAttr} title="${ev ? esc(ev.title || 'Firm Closed') : 'Firm Closed'}"></td>`;
         } else if (isAdmin) {
           html += `<td class="people-cal__roster-cell" data-date="${dateStr}" onclick="openCalendarEventModal(null, { start_date: '${dateStr}', end_date: '${dateStr}', event_type: 'firm_closed' })" title="Admin: add firm closure"></td>`;
@@ -10633,8 +10673,8 @@ async function renderExpensesView(el) {
   html += `<div class="expenses-header">`;
   html += `<h1 style="margin:0;font-size:1.3rem">Expense Reports</h1>`;
   html += `<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">`;
-  html += `<button class="btn btn--primary btn--sm" onclick="openNewReportModal()">+ New Report</button>`;
-  html += `<button class="btn btn--sm" onclick="openNewExpenseModal()">+ New Expense</button>`;
+  html += `<button class="btn btn--primary btn--sm" data-action="openNewReportModal">+ New Report</button>`;
+  html += `<button class="btn btn--sm" data-action="openNewExpenseModal">+ New Expense</button>`;
   html += `<button class="btn btn--sm" onclick="document.getElementById('receiptUploadInput').click()" style="background:var(--accent);color:#fff">&#128247; Upload Receipt</button>`;
   html += `<input type="file" id="receiptUploadInput" accept="image/*,.pdf" style="display:none" onchange="processReceiptUpload(this.files[0])">`;
   html += `</div></div>`;
@@ -10683,7 +10723,7 @@ function renderExpensesContent() {
       const statusCls = expenseStatusClass(r.status);
       const total = parseFloat(r.total_amount || 0).toFixed(2);
       const dateStr = r.submitted_at ? new Date(r.submitted_at).toLocaleDateString('en-GB') : new Date(r.created_at).toLocaleDateString('en-GB');
-      html += `<div class="report-card" onclick="openReportDetail('${r.id}')">
+      html += `<div class="report-card" data-action="openReportDetail" data-arg0="${r.id}">
         <div class="report-card__header">
           <div class="report-card__title">${esc(r.title)}</div>
           <span class="expense-status expense-status--${statusCls}">${r.status}</span>
@@ -10744,7 +10784,7 @@ function renderExpensesContent() {
     html += '</tr></thead><tbody>';
 
     unassigned.forEach(exp => {
-      html += `<tr class="leads-table__row" onclick="openExpenseDetail('${exp.id}')">`;
+      html += `<tr class="leads-table__row" data-action="openExpenseDetail" data-arg0="${exp.id}">`;
       html += `<td>${(exp.date||'').slice(0,10)}</td>`;
       if (isAdmin) html += `<td>${esc(exp.employee_name || '')}</td>`;
       html += `<td><strong>${esc(exp.description || '-')}</strong></td>`;
@@ -10761,7 +10801,7 @@ function renderExpensesContent() {
     html += '<div class="expenses-mobile">';
     unassigned.forEach(exp => {
       const amt = currencySym(exp.currency) + (parseFloat(exp.amount) || 0).toFixed(2);
-      html += `<div class="expense-card" onclick="openExpenseDetail('${exp.id}')">
+      html += `<div class="expense-card" data-action="openExpenseDetail" data-arg0="${exp.id}">
         <div class="expense-card__top">
           <div class="expense-card__desc">${esc(exp.description || 'Expense')}</div>
           <div class="expense-card__amount">${amt}</div>
@@ -10849,11 +10889,11 @@ function renderReportDetailContent(container, data) {
 
   // Top bar
   html += `<div class="report-fs__topbar">
-    <button class="btn btn--ghost" onclick="closeReportDetail()" title="Back to expenses">&#8592; Back</button>
+    <button class="btn btn--ghost" data-action="closeReportDetail" title="Back to expenses">&#8592; Back</button>
     <h1>${esc(r.title)}</h1>
     <span class="expense-status expense-status--${expenseStatusClass(r.status)}" style="font-size:0.85rem;padding:4px 14px">${r.status}</span>
-    <button class="btn btn--ghost" onclick="exportReportExcel('${r.id}')" title="Export as Excel">&#128196; Export Excel</button>
-    <button class="btn btn--ghost" onclick="emailReport('${r.id}')" title="Email to approver">&#9993; Email</button>
+    <button class="btn btn--ghost" data-action="exportReportExcel" data-arg0="${r.id}" title="Export as Excel">&#128196; Export Excel</button>
+    <button class="btn btn--ghost" data-action="emailReport" data-arg0="${r.id}" title="Email to approver">&#9993; Email</button>
   </div>`;
 
   html += `<div class="report-fs__body">`;
@@ -10924,7 +10964,7 @@ function renderReportDetailContent(container, data) {
         <tbody>`;
     sorted.forEach(exp => {
       const hasReceipt = exp.receipt_count > 0;
-      html += `<tr style="cursor:pointer" onclick="openExpenseDetail('${exp.id}')">
+      html += `<tr style="cursor:pointer" data-action="openExpenseDetail" data-arg0="${exp.id}">
         <td style="color:var(--text-muted)">${(exp.date || '').slice(0, 10)}</td>
         <td>${esc(exp.description || '-')}</td>
         <td class="amt">${currencySym(exp.currency)}${(parseFloat(exp.amount) || 0).toFixed(2)}</td>
@@ -10972,8 +11012,8 @@ function renderReportDetailContent(container, data) {
       <textarea id="reviewNotes" rows="3" placeholder="Add review notes (required for rejection)..."
         style="width:100%;resize:vertical;padding:8px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;margin-bottom:12px"></textarea>
       <div style="display:flex;gap:12px">
-        <button class="btn btn--primary" onclick="reviewReport('${r.id}','approved')" style="flex:1">Approve</button>
-        <button class="btn btn--danger" onclick="reviewReport('${r.id}','rejected')" style="flex:1">Reject &amp; Return</button>
+        <button class="btn btn--primary" data-action="reviewReport" data-arg0="${r.id}" data-arg1="approved" style="flex:1">Approve</button>
+        <button class="btn btn--danger" data-action="reviewReport" data-arg0="${r.id}" data-arg1="rejected" style="flex:1">Reject &amp; Return</button>
       </div>
     </div>`;
   }
@@ -10992,17 +11032,17 @@ function renderReportDetailContent(container, data) {
   // Action buttons
   html += `<div class="report-fs__actions">`;
   if (canEdit && expenses.length > 0) {
-    html += `<button class="btn btn--primary" onclick="submitReport('${r.id}')" style="min-width:180px">Submit Report</button>`;
+    html += `<button class="btn btn--primary" data-action="submitReport" data-arg0="${r.id}" style="min-width:180px">Submit Report</button>`;
   } else if (canEdit) {
     html += `<button class="btn" disabled style="min-width:180px;opacity:0.5" title="Add expenses before submitting">Submit Report</button>`;
   }
-  html += `<button class="btn btn--ghost" onclick="exportReportExcel('${r.id}')">&#128196; Export Excel</button>`;
-  html += `<button class="btn btn--ghost" onclick="emailReport('${r.id}')">&#9993; Email to Tom</button>`;
+  html += `<button class="btn btn--ghost" data-action="exportReportExcel" data-arg0="${r.id}">&#128196; Export Excel</button>`;
+  html += `<button class="btn btn--ghost" data-action="emailReport" data-arg0="${r.id}">&#9993; Email to Tom</button>`;
   if (canEdit) {
     html += `<button class="btn btn--danger" onclick="deleteReport('${r.id}')" style="margin-left:auto">Delete Report</button>`;
   }
   if (!canEdit && !isAdmin) {
-    html += `<button class="btn" onclick="closeReportDetail()" style="min-width:120px">Close</button>`;
+    html += `<button class="btn" data-action="closeReportDetail" style="min-width:120px">Close</button>`;
   }
   html += `</div>`;
 
@@ -11324,7 +11364,7 @@ function renderExpenseDetailContent(panel, exp) {
   let html = `<div class="lead-detail">`;
   // Header
   html += `<div class="lead-detail__header">
-    <button class="btn btn--ghost" onclick="closeExpenseDetail()" style="margin-right:8px">\u2715</button>
+    <button class="btn btn--ghost" data-action="closeExpenseDetail" style="margin-right:8px">\u2715</button>
     <div style="flex:1">
       <div style="color:var(--text-secondary);font-size:0.8rem">${esc(exp.employee_name || '')}</div>
       <h2 style="margin:0">${esc(exp.description || 'Expense')}</h2>
@@ -11399,14 +11439,14 @@ function renderExpenseDetailContent(panel, exp) {
   if (canEdit) {
     html += `<div style="display:flex;gap:6px;align-items:center;margin-top:8px">
       <input type="file" id="expenseReceiptInput" style="font-size:0.75rem;color:var(--text-secondary);max-width:200px">
-      <button class="btn btn--sm btn--primary" onclick="uploadExpenseReceipt('${exp.id}')">Upload Receipt</button>
+      <button class="btn btn--sm btn--primary" data-action="uploadExpenseReceipt" data-arg0="${exp.id}">Upload Receipt</button>
     </div>`;
   }
   html += `</div>`;
 
   // Save & Close + Delete
   html += `<div class="lead-detail__section" style="display:flex;gap:8px;align-items:center;margin-top:16px;padding-top:16px;border-top:1px solid var(--border-default)">
-    <button class="btn btn--primary" onclick="closeExpenseDetail()" style="flex:1">Save &amp; Close</button>`;
+    <button class="btn btn--primary" data-action="closeExpenseDetail" style="flex:1">Save &amp; Close</button>`;
   if (canEdit) {
     html += `<button class="btn btn--danger" onclick="deleteExpense('${exp.id}')">Delete</button>`;
   }
@@ -11693,7 +11733,7 @@ function renderFinancesView(el) {
   // gated to admins only — closes e8b58255 ("big bad button" — non-admins were
   // seeing the Danger Zone reset). Non-admin users see Export buttons but no Reset.
   const isFinAdmin = _currentUser && _currentUser.role === 'admin';
-  html += `<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" onclick="exportFinancesCSV()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 1v9M4 7l3 3 3-3M2 12h10"/></svg> Export CSV</button><button class="btn" onclick="exportPnLCSV()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="1" width="10" height="12" rx="1"/><path d="M5 4h4M5 7h4M5 10h2"/></svg> P&amp;L Export</button>${isFinAdmin ? `<button class="btn btn--danger" onclick="finResetData()" title="Admin only — wipes all financial data" aria-label="Reset financial data (admin only)"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1v5h5"/><path d="M2.5 9A5.5 5.5 0 1 0 3 4L1 6"/></svg> Reset</button>` : ''}</div>`;
+  html += `<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-action="exportFinancesCSV"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 1v9M4 7l3 3 3-3M2 12h10"/></svg> Export CSV</button><button class="btn" data-action="exportPnLCSV"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="1" width="10" height="12" rx="1"/><path d="M5 4h4M5 7h4M5 10h2"/></svg> P&amp;L Export</button>${isFinAdmin ? `<button class="btn btn--danger" data-action="finResetData" title="Admin only — wipes all financial data" aria-label="Reset financial data (admin only)"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1v5h5"/><path d="M2.5 9A5.5 5.5 0 1 0 3 4L1 6"/></svg> Reset</button>` : ''}</div>`;
   html += `</div>`;
 
   // ===== SUB-VIEW TABS =====
@@ -11756,7 +11796,7 @@ function renderFinancesView(el) {
   // finAddRow('revenue') pushes a {client:'New Client', annual:0, type:'TBD', ...} row,
   // which can then be edited inline (click the client name / type / annual cells) via finStartEdit.
   // No client lookup is required, so adding revenue for a brand-new client works the same way.
-  html += `<tr><td colspan="${3 + (hasFx?1:0) + 1}" style="padding:3px 20px"><button class="btn btn--sm" onclick="finAddRow('revenue')" style="font-size:0.7rem;padding:2px 7px">+ Add Revenue</button></td></tr>`;
+  html += `<tr><td colspan="${3 + (hasFx?1:0) + 1}" style="padding:3px 20px"><button class="btn btn--sm" data-action="finAddRow" data-arg0="revenue" style="font-size:0.7rem;padding:2px 7px">+ Add Revenue</button></td></tr>`;
   const totalFeeIncome = contractedRevenue + otherIncome;
   const totalFeeMonthly = Math.round(totalFeeIncome / 12);
   html += `<tr style="border-top:2px solid var(--border-strong);font-weight:700"><td>Total Fee Income</td><td style="text-align:right;font-family:var(--font-mono);color:var(--success)">&pound;${totalFeeMonthly.toLocaleString()}</td><td style="text-align:right;font-family:var(--font-mono);color:var(--success);font-size:0.78rem">&pound;${totalFeeIncome.toLocaleString()}</td>${usdTdBold(totalFeeMonthly,'var(--success)')}<td></td></tr>`;
@@ -11794,7 +11834,7 @@ function renderFinancesView(el) {
     html += `<td><button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.85rem" onclick="finRemoveRow('payroll',${i})" title="Remove">&times;</button></td>`;
     html += `</tr>`;
   });
-  html += `<tr><td colspan="${colSpan + 2}" style="padding:3px 20px"><button class="btn btn--sm" onclick="finAddRow('payroll')" style="font-size:0.7rem;padding:2px 7px">+ Add Staff</button></td></tr>`;
+  html += `<tr><td colspan="${colSpan + 2}" style="padding:3px 20px"><button class="btn btn--sm" data-action="finAddRow" data-arg0="payroll" style="font-size:0.7rem;padding:2px 7px">+ Add Staff</button></td></tr>`;
 
   // Employer costs row
   const ecMo = Math.round(employerCosts / 12);
@@ -11829,7 +11869,7 @@ function renderFinancesView(el) {
       html += `<tr><td style="padding-left:20px">${esc(e.name)} <span style="color:var(--text-muted);font-size:0.72rem">${esc(e.tag||'')}</span></td><td style="text-align:right;font-family:var(--font-mono);font-weight:500">&pound;${mo.toLocaleString()}</td><td style="text-align:right;font-family:var(--font-mono);color:var(--text-muted);font-size:0.78rem">&pound;${Math.round(mo*12).toLocaleString()}</td>${usdTd(mo)}<td><button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.85rem" onclick="removeFinanceEntry(${idx})">&times;</button></td></tr>`;
     });
   }
-  html += `<tr><td colspan="${3 + (hasFx?1:0) + 1}" style="padding:3px 20px"><button class="btn btn--sm" onclick="finAddRow('opex')" style="font-size:0.7rem;padding:2px 7px">+ Add Expense</button></td></tr>`;
+  html += `<tr><td colspan="${3 + (hasFx?1:0) + 1}" style="padding:3px 20px"><button class="btn btn--sm" data-action="finAddRow" data-arg0="opex" style="font-size:0.7rem;padding:2px 7px">+ Add Expense</button></td></tr>`;
   if (oneOffExp.length > 0) {
     html += `<tr><td colspan="${3 + (hasFx?1:0) + 1}" style="padding-left:10px;font-size:0.72rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;padding-top:6px">One-off Costs</td></tr>`;
     oneOffExp.forEach(e => {
@@ -11916,7 +11956,7 @@ function renderFinancesView(el) {
     html += `<td><button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.8rem" onclick="finRemoveRow('pipeline',${i})" title="Remove">&times;</button></td>`;
     html += `</tr>`;
   });
-  html += `<tr><td colspan="4" style="padding:3px 0"><button class="btn btn--sm" onclick="finAddRow('pipeline')" style="font-size:0.68rem;padding:2px 6px">+ Add Opportunity</button></td></tr>`;
+  html += `<tr><td colspan="4" style="padding:3px 0"><button class="btn btn--sm" data-action="finAddRow" data-arg0="pipeline" style="font-size:0.68rem;padding:2px 6px">+ Add Opportunity</button></td></tr>`;
   html += `</tbody></table></div>`;
 
   html += `</div>`; // close fin-sidebar
@@ -12617,7 +12657,7 @@ async function renderLeadsView(el) {
     });
   }
   html += `<div style="flex:1"></div>`;
-  html += `<button class="btn btn--primary btn--sm" onclick="openNewLeadModal()" style="margin-right:8px">+ New Lead</button>`;
+  html += `<button class="btn btn--primary btn--sm" data-action="openNewLeadModal" style="margin-right:8px">+ New Lead</button>`;
   html += `</div>`;
 
   // Filter bar
@@ -12649,7 +12689,7 @@ async function renderLeadsView(el) {
   html += `<div class="leads-view-toggles">`;
   const subviews = [{id:'kanban',label:'Kanban'},{id:'table',label:'Table'},{id:'pipeline',label:'Pipeline'},{id:'clients',label:'By Client'},{id:'manage',label:'Manage Clients'}];
   subviews.forEach(sv => {
-    html += `<button class="leads-view-btn ${_leadsSubView===sv.id?'active':''}" onclick="switchLeadsView('${sv.id}')">${sv.label}</button>`;
+    html += `<button class="leads-view-btn ${_leadsSubView===sv.id?'active':''}" data-action="switchLeadsView" data-arg0="${sv.id}">${sv.label}</button>`;
   });
   html += `</div>`;
   html += `</div>`;
@@ -12729,7 +12769,7 @@ function renderLeadsKanban(el, leads) {
       html += `<div class="leads-kanban__card ${isLeadComplete ? 'lead-card--complete' : ''}" ${isMobile||isLeadComplete?'':'draggable="true"'} data-lead-id="${lead.id}" data-lead-idx="${idx}"
         ${isLeadComplete?'':"ondragstart=\"_leadsDragId='"+lead.id+"';_leadsDragStage='"+stage.id+"';this.classList.add('dragging')\""}
         ondragend="this.classList.remove('dragging')"
-        onclick="openLeadDetail('${lead.id}')">`;
+        data-action="openLeadDetail" data-arg0="${lead.id}">`;
       if (lead.client_name) html += `<div class="leads-card__client">${esc(lead.client_name)}</div>`;
       html += `<div class="leads-card__title">${esc(lead.title)}</div>`;
       html += `<div class="leads-card__meta">`;
@@ -12857,14 +12897,14 @@ function renderLeadsTable(el, leads) {
   ];
   cols.forEach(c => {
     const isSorted = _leadsFilter.sort === c.key;
-    html += `<th style="width:${c.w}" onclick="toggleLeadSort('${c.key}')" class="sortable ${isSorted?'sorted':''}">${c.label}</th>`;
+    html += `<th style="width:${c.w}" data-action="toggleLeadSort" data-arg0="${c.key}" class="sortable ${isSorted?'sorted':''}">${c.label}</th>`;
   });
   html += '</tr></thead><tbody>';
 
   sortedLeads.forEach(lead => {
     const isOverdue = lead.next_followup_date && new Date(lead.next_followup_date) < new Date(new Date().toDateString());
     const isComplete = !!lead.completed_at;
-    html += `<tr onclick="openLeadDetail('${lead.id}')" class="leads-table__row${isComplete ? ' leads-table__row--complete' : ''}">`;
+    html += `<tr data-action="openLeadDetail" data-arg0="${lead.id}" class="leads-table__row${isComplete ? ' leads-table__row--complete' : ''}">`;
     html += `<td>${lead.priority ? `<span class="leads-card__prio leads-card__prio--${lead.priority}">P${lead.priority}</span>` : ''}</td>`;
     html += `<td>${lead.client_name ? esc(lead.client_name) : ''}</td>`;
     html += `<td><strong>${isComplete ? '\u2713 ' : ''}${esc(lead.title)}</strong></td>`;
@@ -12905,7 +12945,7 @@ function renderLeadsCardList(el, leads) {
     stageLeads.forEach(lead => {
       const isOverdue = lead.next_followup_date && new Date(lead.next_followup_date) < new Date(new Date().toDateString());
       const isComplete = !!lead.completed_at;
-      html += `<div class="leads-card-list__item${isComplete ? ' lead-card--complete' : ''}" onclick="openLeadDetail('${lead.id}')">`;
+      html += `<div class="leads-card-list__item${isComplete ? ' lead-card--complete' : ''}" data-action="openLeadDetail" data-arg0="${lead.id}">`;
       html += `<div class="leads-card-list__top">`;
       if (lead.priority) html += `<span class="leads-card__prio leads-card__prio--${lead.priority}">P${lead.priority}</span>`;
       if (isComplete) html += `<span style="color:var(--success);font-weight:700;font-size:0.78rem">\u2713 Won</span>`;
@@ -13080,7 +13120,7 @@ function renderLeadsByClient(el, leads) {
     </div>`;
     html += `<div class="leads-client-group__body">`;
     g.leads.forEach(lead => {
-      html += `<div class="leads-client-group__lead" onclick="openLeadDetail('${lead.id}')">
+      html += `<div class="leads-client-group__lead" data-action="openLeadDetail" data-arg0="${lead.id}">
         <span class="leads-stage-badge" style="background:${safeColour(lead.stage_colour)}20;color:${safeColour(lead.stage_colour)};border:1px solid ${safeColour(lead.stage_colour)}40">${esc(lead.stage_name)}</span>
         <span class="leads-client-group__title">${esc(lead.title)}</span>
         ${lead.priority ? `<span class="leads-card__prio leads-card__prio--${lead.priority}">P${lead.priority}</span>` : ''}
@@ -13136,7 +13176,7 @@ async function renderManageClients(el) {
   sectors.forEach(s => { html += `<option value="${esc(s)}">${esc(s)}</option>`; });
   html += `</select>
     <input type="text" id="newClientHQ" placeholder="HQ / Location" style="width:150px">
-    <button class="btn btn--primary btn--sm" onclick="createClientFromManage()">Add Client</button>
+    <button class="btn btn--primary btn--sm" data-action="createClientFromManage">Add Client</button>
   </div>`;
 
   // Apply sector filter (legacy) and practice filter (Phase 9, a6c82c8c)
@@ -13208,14 +13248,14 @@ async function renderManageClients(el) {
             ${(_currentUser && _currentUser.role === 'admin') ? `<div style="display:flex;gap:6px;margin-top:6px;align-items:center;flex-wrap:wrap">
               <input type="file" id="sowFileInput_${c.id}" accept=".pdf,application/pdf" style="font-size:0.78rem">
               <input type="text" id="newSowTitle_${c.id}" placeholder="SoW title" style="flex:1;min-width:120px">
-              <button class="btn btn--sm btn--primary" onclick="uploadSowFile('${c.id}')">Upload SoW</button>
+              <button class="btn btn--sm btn--primary" data-action="uploadSowFile" data-arg0="${c.id}">Upload SoW</button>
             </div>
             <div style="font-size:0.7rem;color:var(--text-muted);margin-top:4px">PDF only. Pricing and legal sections are automatically stripped. Only the work package is stored.</div>` : ''}
           </div>
           <div class="manage-clients__teams" id="clientTeams_${c.id}">
             <h4 style="margin:12px 0 6px;font-size:0.82rem;color:var(--text-secondary)">Teams</h4>
             <div id="teamsList_${c.id}"><span style="color:var(--text-muted);font-size:0.78rem">Loading...</span></div>
-            ${(_currentUser && _currentUser.role === 'admin') ? `<button class="btn btn--sm btn--primary" onclick="openCreateTeamModal('${c.id}','${escName}')" style="margin-top:6px">+ New Team</button>` : ''}
+            ${(_currentUser && _currentUser.role === 'admin') ? `<button class="btn btn--sm btn--primary" data-action="openCreateTeamModal" data-arg0="${c.id}" data-arg1="${escName}" style="margin-top:6px">+ New Team</button>` : ''}
           </div>
           <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border-subtle);display:flex;gap:8px;flex-wrap:wrap;align-items:center">
             <button class="btn btn--sm" onclick="gatherClientPortfolio('${c.id}','${escName}')">Gather Portfolio Detail Information</button>
@@ -13577,7 +13617,7 @@ async function openTeamDetailModal(teamId) {
          </select>`
       : `<span style="font-size:0.72rem;color:var(--text-muted)">${isLead ? 'Lead' : 'Member'}</span>`;
     const removeBtn = isAdmin
-      ? `<button class="btn btn--ghost btn--sm" onclick="removeTeamMember('${teamId}','${m.user_id}')" title="Remove from team" style="padding:0 4px;color:var(--text-muted)">&times;</button>`
+      ? `<button class="btn btn--ghost btn--sm" data-action="removeTeamMember" data-arg0="${teamId}" data-arg1="${m.user_id}" title="Remove from team" style="padding:0 4px;color:var(--text-muted)">&times;</button>`
       : '';
     return `<div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:0.82rem;border-bottom:1px solid var(--border-subtle)">
       <strong style="flex:1">${esc(m.display_name || m.username)}</strong>
@@ -13595,7 +13635,7 @@ async function openTeamDetailModal(teamId) {
     sowRow = `<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
       <span style="font-size:0.75rem;color:var(--text-muted);white-space:nowrap">SoW:</span>
       <select id="teamDetailSowSelect" style="font-size:0.78rem;flex:1">${sowOpts}</select>
-      <button class="btn btn--sm btn--primary" onclick="patchTeamSow('${teamId}')">Save</button>
+      <button class="btn btn--sm btn--primary" data-action="patchTeamSow" data-arg0="${teamId}">Save</button>
     </div>`;
   } else if (team.sow_title) {
     sowRow = `<div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:8px">SoW: ${esc(team.sow_title)}</div>`;
@@ -13883,7 +13923,7 @@ function renderLeadDetailContent(panel, lead) {
   let html = `<div class="lead-detail ${isComplete ? 'lead-detail--complete' : ''}">`;
   // Header
   html += `<div class="lead-detail__header">
-    <button class="btn btn--ghost" onclick="closeLeadDetail()" style="margin-right:8px">\u2715</button>
+    <button class="btn btn--ghost" data-action="closeLeadDetail" style="margin-right:8px">\u2715</button>
     <div style="flex:1">
       ${lead.client_name ? `<div class="leads-card__client">${esc(lead.client_name)}</div>` : ''}
       <h2 style="margin:0">${esc(lead.title)}${isComplete ? ' <span style="color:var(--success);font-size:0.8em" title="Completed">\u2713</span>' : ''}</h2>
@@ -13898,7 +13938,7 @@ function renderLeadDetailContent(panel, lead) {
       const completedOn = new Date(lead.completed_at).toLocaleDateString();
       html += `<span style="font-size:0.78rem;color:var(--success)">\u2713 Completed on ${esc(completedOn)}</span>`;
       if (isAdmin) {
-        html += `<button class="btn btn--sm btn--outline" onclick="uncompleteLead('${lead.id}')" style="margin-left:auto">Uncomplete</button>`;
+        html += `<button class="btn btn--sm btn--outline" data-action="uncompleteLead" data-arg0="${lead.id}" style="margin-left:auto">Uncomplete</button>`;
       }
     } else {
       html += `<button class="btn btn--sm btn--success" onclick="completeLead('${lead.id}')">\u2713 Mark Complete</button>`;
@@ -14051,7 +14091,7 @@ function renderLeadDetailContent(panel, lead) {
       html += `<div class="lead-resource-row">
         <span>${esc(r.resource_name)}</span>
         <input type="number" min="1" value="${r.quantity}" style="width:60px" onchange="updateLeadResource('${lead.id}','${r.resource_type_id}',parseInt(this.value))">
-        <button class="btn btn--ghost btn--sm" onclick="removeLeadResource('${lead.id}','${r.resource_type_id}')">\u2715</button>
+        <button class="btn btn--ghost btn--sm" data-action="removeLeadResource" data-arg0="${lead.id}" data-arg1="${r.resource_type_id}">\u2715</button>
       </div>`;
     });
     html += `</div>`;
@@ -14407,7 +14447,7 @@ async function renderLeadsSettings() {
   });
   html += `</div>`;
   html += `<div style="margin-top:8px"><input type="text" id="newStageName" placeholder="New stage name" style="width:200px">
-    <button class="btn btn--sm" onclick="createLeadStage()">Add Stage</button></div>`;
+    <button class="btn btn--sm" data-action="createLeadStage">Add Stage</button></div>`;
 
   // Field options sections
   const fieldGroups = [
@@ -14436,7 +14476,7 @@ async function renderLeadsSettings() {
   });
   html += `</div>`;
   html += `<div style="margin-top:4px"><input type="text" id="newResourceType" placeholder="Add resource type" style="width:180px">
-    <button class="btn btn--sm" onclick="createResourceType()">Add</button></div>`;
+    <button class="btn btn--sm" data-action="createResourceType">Add</button></div>`;
 
   // FX Rates
   html += `<h3 style="margin-top:16px">FX Rates (to GBP)</h3><div class="lead-detail__grid" style="max-width:300px">`;
@@ -14599,8 +14639,8 @@ async function openBugReportModal() {
       <div style="margin-bottom:12px">
         <label style="font-size:0.8rem;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:4px">Type</label>
         <div class="bug-report-type-toggle">
-          <button id="bugTypeBtn" class="active-bug" onclick="setBugReportType('bug')">&#128027; Bug</button>
-          <button id="featureTypeBtn" onclick="setBugReportType('feature')">&#10024; Feature</button>
+          <button id="bugTypeBtn" class="active-bug" data-action="setBugReportType" data-arg0="bug">&#128027; Bug</button>
+          <button id="featureTypeBtn" data-action="setBugReportType" data-arg0="feature">&#10024; Feature</button>
         </div>
       </div>
       <div style="margin-bottom:12px">
@@ -14770,7 +14810,7 @@ function renderBugTrackerView(container) {
             <button type="button" class="${btViewMode==='list'?'active':''}" role="tab" aria-selected="${btViewMode==='list'}" onclick="window._btViewMode='list';renderContent()">List</button>
             <button type="button" class="${btViewMode==='kanban'?'active':''}" role="tab" aria-selected="${btViewMode==='kanban'}" onclick="window._btViewMode='kanban';renderContent()">Kanban</button>
           </div>
-          <button class="btn btn--primary btn--sm" onclick="openBugReportModal()">+ Report</button>
+          <button class="btn btn--primary btn--sm" data-action="openBugReportModal">+ Report</button>
         </div>
       </div>
       <div class="bug-tracker__filters" style="margin-bottom:var(--space-md)">
@@ -14815,7 +14855,7 @@ function renderBugTrackerList(filtered, sortIcon, sortClick) {
     const commentLabel = r.comment_count > 0 ? `, ${r.comment_count} comment${r.comment_count === 1 ? '' : 's'}` : '';
     const rowAria = `${r.type}: ${r.title}. ${statusLabel}, ${priorityLabel}. Reported by ${r.reporter_name || 'Unknown'}${commentLabel}.`;
     return `
-      <div class="bug-tracker__row" onclick="openBugDetail('${r.id}')" tabindex="0" role="button"
+      <div class="bug-tracker__row" data-action="openBugDetail" data-arg0="${r.id}" tabindex="0" role="button"
            aria-label="${esc(rowAria)}"
            onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openBugDetail('${r.id}')}">
         <span><span class="bug-type-badge bug-type-badge--${r.type}" aria-hidden="true">${r.type}</span></span>
@@ -15055,7 +15095,7 @@ async function renderBugReportsTab() {
     });
 
     const sortIcon = (col) => _bugSortCol === col ? (_bugSortDir === 'asc' ? ' &#9650;' : ' &#9660;') : '';
-    const sortTh = (col, label) => `<th style="cursor:pointer;user-select:none;white-space:nowrap" onclick="toggleBugSort('${col}')">${label}${sortIcon(col)}</th>`;
+    const sortTh = (col, label) => `<th style="cursor:pointer;user-select:none;white-space:nowrap" data-action="toggleBugSort" data-arg0="${col}">${label}${sortIcon(col)}</th>`;
     html += `<div class="expenses-table-wrap"><table class="bug-reports-table"><thead><tr>
       <th>Type</th>${sortTh('priority','Priority')}${sortTh('reporter_name','Reporter')}${sortTh('title','Title')}${sortTh('status','Status')}${sortTh('created_at','Date')}<th>\uD83D\uDCAC</th>
       ${isAdmin ? '<th></th>' : ''}
@@ -15065,7 +15105,7 @@ async function renderBugReportsTab() {
       const typeCls = r.type === 'bug' ? 'bug' : 'feature';
       const statusCls = r.status === 'in_progress' ? 'in_progress' : r.status === 'resolved' ? 'resolved' : r.status === 'wontfix' ? 'wontfix' : r.status === 'please_review' ? 'please_review' : 'open';
       const statusLabel = r.status === 'please_review' ? 'Please Review' : r.status === 'in_progress' ? 'In Progress' : r.status === 'wontfix' ? "Won't Fix" : r.status;
-      html += `<tr onclick="openBugDetail('${r.id}')" style="cursor:pointer">
+      html += `<tr data-action="openBugDetail" data-arg0="${r.id}" style="cursor:pointer">
         <td><span class="bug-type-badge bug-type-badge--${typeCls}">${r.type}</span></td>
         <td>${r.priority ? `<span class="bug-priority-badge bug-priority-badge--${r.priority}">${r.priority}</span>` : '<span style="color:var(--text-faint)">\u2014</span>'}</td>
         <td>${esc(r.reporter_name || 'Unknown')}</td>
@@ -15167,7 +15207,7 @@ async function openBugDetail(id) {
           : `<h3 style="font-size:1rem;font-weight:600;margin:0;word-break:break-word">${esc(r.title)}</h3>`
         }
       </div>
-      <button class="btn btn--ghost btn--sm" onclick="closeBugDetail()" aria-label="Close" style="flex-shrink:0">&times;</button>
+      <button class="btn btn--ghost btn--sm" data-action="closeBugDetail" aria-label="Close" style="flex-shrink:0">&times;</button>
     </div>
     <div class="bug-detail__body">
       <div class="bug-detail__section">
@@ -15199,7 +15239,7 @@ async function openBugDetail(id) {
         <div class="bug-detail__section-title">Description</div>
         ${canEditDesc
           ? `<textarea id="bugDescEdit" class="bug-detail__description" style="width:100%;border:1px solid var(--border-default);background:var(--bg-input);color:var(--text-primary);font-family:var(--font-body);padding:var(--space-md);border-radius:var(--radius-md);font-size:0.82rem;resize:vertical;min-height:80px">${esc(r.description || '')}</textarea>
-             <button class="btn btn--ghost btn--sm" style="margin-top:4px" onclick="saveBugDescription('${r.id}')">Save Description</button>`
+             <button class="btn btn--ghost btn--sm" style="margin-top:4px" data-action="saveBugDescription" data-arg0="${r.id}">Save Description</button>`
           : `<div class="bug-detail__description">${esc(r.description || 'No description provided.')}</div>`
         }
       </div>
@@ -15217,7 +15257,7 @@ async function openBugDetail(id) {
         <div id="bugCommentsContainer"><div style="color:var(--text-muted);font-size:0.78rem">Loading comments...</div></div>
         <div class="bug-detail__comment-input">
           <textarea id="bugCommentText" placeholder="Add a comment..." rows="2"></textarea>
-          <button class="btn btn--primary btn--sm" style="align-self:flex-end" onclick="postBugComment('${r.id}')">Post</button>
+          <button class="btn btn--primary btn--sm" style="align-self:flex-end" data-action="postBugComment" data-arg0="${r.id}">Post</button>
         </div>
       </div>
 
@@ -15646,7 +15686,7 @@ function renderHiringView(container) {
         <button type="button" class="${viewMode==='kanban'?'active':''}" role="tab" aria-selected="${viewMode==='kanban'}" onclick="window._hiringViewMode='kanban';renderContent()">Kanban</button>
         <button type="button" class="${viewMode==='client'?'active':''}" role="tab" aria-selected="${viewMode==='client'}" onclick="window._hiringViewMode='client';renderContent()">By Client</button>
       </div>
-      <button class="btn btn--primary" onclick="openCreateCandidateModal()">+ Create Candidate Card</button>
+      <button class="btn btn--primary" data-action="openCreateCandidateModal">+ Create Candidate Card</button>
     </div>
   </div>`;
 
@@ -15877,7 +15917,7 @@ async function openCandidateDetail(id) {
         <h3 style="font-size:1rem;font-weight:600;margin:0;word-break:break-word">${esc(header)}</h3>
         ${subheader ? `<div style="font-size:0.8rem;color:var(--text-muted);margin-top:2px">${esc(subheader)}</div>` : ''}
       </div>
-      <button class="btn btn--ghost btn--sm" onclick="closeCandidateDetail()" aria-label="Close" style="flex-shrink:0">&times;</button>
+      <button class="btn btn--ghost btn--sm" data-action="closeCandidateDetail" aria-label="Close" style="flex-shrink:0">&times;</button>
     </div>
     <div class="candidate-detail__body">
 
@@ -15908,7 +15948,7 @@ async function openCandidateDetail(id) {
           <select id="cdStageSel" onchange="hiringStageSelectChange('${c.id}',this.value)" style="flex:1;font-weight:600;text-align:center;padding:6px 8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)">
             ${HIRING_STAGES.map(s => `<option value="${s}" ${c.stage===s?'selected':''}>${HIRING_STAGE_LABELS[s]}</option>`).join('')}
           </select>
-          <button class="btn btn--sm" style="min-width:36px;background:color-mix(in srgb, var(--success) 30%, var(--bg-surface));color:#fff;border:1px solid var(--success)" ${next ? `onclick="updateCandidateField('${c.id}','stage','${next}')" title="Next: ${HIRING_STAGE_LABELS[next]}"` : `onclick="hiringConfirmHire('${c.id}')" title="Confirm Hired"`}>&rarr;</button>
+          <button class="btn btn--sm" style="min-width:36px;background:color-mix(in srgb, var(--success) 30%, var(--bg-surface));color:#fff;border:1px solid var(--success)" ${next ? `onclick="updateCandidateField('${c.id}','stage','${next}')" title="Next: ${HIRING_STAGE_LABELS[next]}"` : `data-action="hiringConfirmHire" data-arg0="${c.id}" title="Confirm Hired"`}>&rarr;</button>
         </div>
         ${unassigned ? '<div style="color:var(--danger);font-size:0.72rem;margin-top:6px">&#9888; No assignee on this stage</div>' : ''}
       </div>
@@ -15934,8 +15974,8 @@ async function openCandidateDetail(id) {
       <!-- BOTTOM ACTIONS: Clear Candidate / Reopen / Delete -->
       <div style="display:flex;gap:var(--space-sm);margin-top:var(--space-lg);padding-top:var(--space-md);border-top:1px solid var(--border-default);flex-wrap:wrap">
         ${isArchived
-          ? `<button class="btn btn--sm" style="background:var(--accent);color:#fff" onclick="hiringReopen('${c.id}')">Reopen Card</button>`
-          : `<button class="btn btn--sm" style="background:transparent;color:var(--danger);border:1px solid var(--danger)" onclick="hiringClearCandidate('${c.id}')" title="Void candidate fields but keep the role">Clear Candidate</button>`
+          ? `<button class="btn btn--sm" style="background:var(--accent);color:#fff" data-action="hiringReopen" data-arg0="${c.id}">Reopen Card</button>`
+          : `<button class="btn btn--sm" style="background:transparent;color:var(--danger);border:1px solid var(--danger)" data-action="hiringClearCandidate" data-arg0="${c.id}" title="Void candidate fields but keep the role">Clear Candidate</button>`
         }
         ${isAdmin ? `<button class="btn btn--danger btn--sm" onclick="deleteCandidate('${c.id}')">Delete</button>` : ''}
       </div>
@@ -16212,7 +16252,7 @@ function renderSettings(el) {
       <div style="display:flex;gap:8px;align-items:flex-end;margin-bottom:12px">
         <input type="password" id="settingsCurPw" placeholder="Current password" style="padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-size:0.9rem">
         <input type="password" id="settingsNewPw" placeholder="New password" style="padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-size:0.9rem">
-        <button class="btn btn--sm" onclick="changeOwnPassword()">Update</button>
+        <button class="btn btn--sm" data-action="changeOwnPassword">Update</button>
       </div>
       ${isAdmin ? `
       <div class="detail-field"><span class="detail-field__label">Admin: Reset User Password</span></div>
@@ -16249,14 +16289,14 @@ function renderSettings(el) {
       <div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:12px">Broadcast a notification to all active users. Useful for announcements or planned downtime.</div>
       <input type="text" id="sysMessageTitle" placeholder="Message title" style="display:block;width:100%;box-sizing:border-box;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-size:0.9rem;margin-bottom:8px">
       <textarea id="sysMessageBody" placeholder="Message body" rows="3" style="display:block;width:100%;box-sizing:border-box;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-size:0.9rem;resize:vertical;margin-bottom:8px"></textarea>
-      <button class="btn btn--primary btn--sm" onclick="sendSystemMessage()">Send to All Users</button>
+      <button class="btn btn--primary btn--sm" data-action="sendSystemMessage">Send to All Users</button>
     </div>`;
   }
 
   // === CONFIGURATION TAB ===
   if (tab === 'config') {
     html += `<div class="settings__group"><h2>Known Clients</h2>
-      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">${settings.knownClients.map(c => `<span class="badge badge--status">${esc(c)} <span style="cursor:pointer;margin-left:4px" onclick="removeClient('${escAttrJs(c)}')">&times;</span></span>`).join('')}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">${settings.knownClients.map(c => `<span class="badge badge--status">${esc(c)} <span style="cursor:pointer;margin-left:4px" data-action="removeClient" data-arg0="${esc(c)}">&times;</span></span>`).join('')}</div>
       <div class="detail-field"><input id="newClientInput" placeholder="Add client..."><button class="btn btn--sm" onclick="addClient()">Add</button></div>
     </div>`;
     if (isAdmin) html += `<div id="leadsSettingsContainer"></div>`;
@@ -16267,7 +16307,7 @@ function renderSettings(el) {
           <option value="">Select a root task to save as template...</option>
           ${getRootTasks().map(t => `<option value="${t.id}">${esc(t.title)}</option>`).join('')}
         </select>
-        <button class="btn btn--sm btn--primary" onclick="saveAsTemplate()">Save as Template</button>
+        <button class="btn btn--sm btn--primary" data-action="saveAsTemplate">Save as Template</button>
       </div>
       <div id="templatesList" style="margin-bottom:12px"><div style="color:var(--text-muted);font-size:0.78rem">Loading templates...</div></div>
     </div>`;
@@ -16277,18 +16317,18 @@ function renderSettings(el) {
   if (tab === 'data') {
     html += `<div class="settings__group"><h2>Import &amp; Export</h2>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:var(--space-md);margin-bottom:var(--space-lg)">
-        <button class="btn btn--primary" onclick="openDownloadsImport()" style="padding:var(--space-md);text-align:center">&#128194;<br>Import from Downloads</button>
-        <button class="btn" onclick="openImportModal()" style="padding:var(--space-md);text-align:center">&#128196;<br>Import CSV</button>
-        <button class="btn" onclick="openContractImport()" style="padding:var(--space-md);text-align:center">&#128196;<br>Import from Contract</button>
-        <button class="btn" onclick="exportCSV()" style="padding:var(--space-md);text-align:center">&#128196;<br>Export CSV</button>
-        <button class="btn" onclick="downloadBackup()" style="padding:var(--space-md);text-align:center;background:var(--success);color:#fff">&#128190;<br>Full Backup</button>
+        <button class="btn btn--primary" data-action="openDownloadsImport" style="padding:var(--space-md);text-align:center">&#128194;<br>Import from Downloads</button>
+        <button class="btn" data-action="openImportModal" style="padding:var(--space-md);text-align:center">&#128196;<br>Import CSV</button>
+        <button class="btn" data-action="openContractImport" style="padding:var(--space-md);text-align:center">&#128196;<br>Import from Contract</button>
+        <button class="btn" data-action="exportCSV" style="padding:var(--space-md);text-align:center">&#128196;<br>Export CSV</button>
+        <button class="btn" data-action="downloadBackup" style="padding:var(--space-md);text-align:center;background:var(--success);color:#fff">&#128190;<br>Full Backup</button>
         <button class="btn" onclick="document.getElementById('restoreFileInput').click()" style="padding:var(--space-md);text-align:center">&#128194;<br>Restore Backup</button>
       </div>
       <input type="file" id="restoreFileInput" accept=".json" style="display:none" onchange="restoreBackup(this.files[0])">
     </div>`;
     if (isAdmin) {
       html += `<div class="settings__group"><h2 style="color:var(--danger)">Danger Zone</h2>
-        <button class="btn btn--danger" onclick="clearAllTasks()">Clear All Tasks</button>
+        <button class="btn btn--danger" data-action="clearAllTasks">Clear All Tasks</button>
       </div>`;
     }
   }
@@ -16801,14 +16841,14 @@ function renderAttachmentsSection(entityType, entityId) {
   html += `<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">`;
   html += `<input type="file" id="${inputId}" style="font-size:0.72rem;max-width:180px;color:var(--text-secondary)">`;
   html += `<button class="btn btn--sm btn--primary" onclick="uploadEntityFile('${entityType}','${entityId}','${inputId}','${containerId}')">Upload</button>`;
-  html += `<button class="btn btn--sm" onclick="toggleAddLinkForm('${entityType}','${entityId}')" title="Attach a Sharepoint or other link">&#128279; Add Link</button>`;
+  html += `<button class="btn btn--sm" data-action="toggleAddLinkForm" data-arg0="${entityType}" data-arg1="${entityId}" title="Attach a Sharepoint or other link">&#128279; Add Link</button>`;
   html += `</div>`;
   // Inline Add Link form, hidden until the user clicks the button
   html += `<div id="${addLinkFormId}" style="display:none;flex-direction:column;gap:4px;margin-top:6px;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm)">`;
   html += `<input type="url" placeholder="https://nbigaming.sharepoint.com/..." style="font-size:0.78rem;padding:4px 6px;background:var(--bg-surface);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)">`;
   html += `<input type="text" placeholder="Display title (optional)" style="font-size:0.78rem;padding:4px 6px;background:var(--bg-surface);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)">`;
   html += `<div style="display:flex;gap:6px;justify-content:flex-end">`;
-  html += `<button class="btn btn--sm" onclick="toggleAddLinkForm('${entityType}','${entityId}')">Cancel</button>`;
+  html += `<button class="btn btn--sm" data-action="toggleAddLinkForm" data-arg0="${entityType}" data-arg1="${entityId}">Cancel</button>`;
   html += `<button class="btn btn--sm btn--primary" onclick="submitAttachmentLink('${entityType}','${entityId}','${containerId}')">Save Link</button>`;
   html += `</div></div>`;
   html += `</div>`;
@@ -16840,7 +16880,7 @@ function openContractImport() {
       <select id="contractClientSelect" style="width:100%;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-size:0.82rem"><option value="">-- Select Client --</option>${clientOpts}</select></div>
       <div style="margin-bottom:16px"><label style="display:block;font-size:0.82rem;color:var(--text-secondary);margin-bottom:4px">Parent Project</label>
       <select id="contractParentSelect" style="width:100%;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-size:0.82rem"><option value="">-- New Root Project --</option>${rootOpts}</select></div>
-      <button class="btn btn--primary" onclick="extractContractTasks()">Extract Tasks</button>
+      <button class="btn btn--primary" data-action="extractContractTasks">Extract Tasks</button>
     </div>
     <div id="contractStep2" style="display:none"></div>
   </div>`;
@@ -16886,7 +16926,7 @@ async function extractContractTasks() {
     }
 
     html += `<div style="display:flex;gap:8px;margin-top:16px">`;
-    html += `<button class="btn btn--primary" onclick="createContractTasks()">Create ${_extractedTasks.filter(t=>t.selected).length} Tasks</button>`;
+    html += `<button class="btn btn--primary" data-action="createContractTasks">Create ${_extractedTasks.filter(t=>t.selected).length} Tasks</button>`;
     html += `<button class="btn" onclick="document.getElementById('contractWizard').remove()">Cancel</button>`;
     html += `</div>`;
 
@@ -17015,7 +17055,7 @@ function renderDownloadsFileList(data) {
         html += `<td>${f.rowCount >= 0 ? f.rowCount : '--'}</td>`;
         html += `<td>${fmtSize(f.size)}</td>`;
         html += `<td>${fmtDate(f.modified)}</td>`;
-        html += `<td><button class="btn btn--sm btn--primary" onclick="previewDownloadsFile('${escAttrJs(f.name)}')">Preview</button></td>`;
+        html += `<td><button class="btn btn--sm btn--primary" data-action="previewDownloadsFile" data-arg0="${esc(f.name)}">Preview</button></td>`;
         html += `</tr>`;
       });
     });
@@ -17119,7 +17159,7 @@ function renderDownloadsPreview(data) {
 
   html += `<div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end">`;
   html += `<button class="btn" onclick="document.getElementById('dlStep2').style.display='none';document.getElementById('dlStep1').style.display='block'">Cancel</button>`;
-  html += `<button class="btn btn--primary" onclick="executeDownloadsImport()">Import ${data.tasks ? data.tasks.length : 0} Tasks</button>`;
+  html += `<button class="btn btn--primary" data-action="executeDownloadsImport">Import ${data.tasks ? data.tasks.length : 0} Tasks</button>`;
   html += `</div>`;
 
   step2.innerHTML = html;
@@ -18332,14 +18372,14 @@ function renderThemeDropdown() {
   const cur = currentTheme();
   let html = '<div class="theme-picker__label">Standard</div>';
   THEMES.filter(t => t.group === 'default').forEach(t => {
-    html += `<div class="theme-picker__item ${cur===t.id?'active':''}" onclick="setTheme('${t.id}')">
+    html += `<div class="theme-picker__item ${cur===t.id?'active':''}" data-action="setTheme" data-arg0="${t.id}">
       <span>${t.label}</span>
       <span class="theme-picker__swatches">${t.swatches.map(c => `<span class="theme-picker__swatch" style="background:${c}"></span>`).join('')}</span>
     </div>`;
   });
   html += '<div class="theme-picker__sep"></div><div class="theme-picker__label">Colour Themes</div>';
   THEMES.filter(t => t.group === 'extra').forEach(t => {
-    html += `<div class="theme-picker__item ${cur===t.id?'active':''}" onclick="setTheme('${t.id}')">
+    html += `<div class="theme-picker__item ${cur===t.id?'active':''}" data-action="setTheme" data-arg0="${t.id}">
       <span>${t.label}</span>
       <span class="theme-picker__swatches">${t.swatches.map(c => `<span class="theme-picker__swatch" style="background:${c}"></span>`).join('')}</span>
     </div>`;
@@ -18937,7 +18977,7 @@ async function renderWarnAlertContent() {
         list.innerHTML = '<div style="color:var(--text-muted);font-size:0.78rem;padding:16px;text-align:center">No notifications</div>';
         return;
       }
-      list.innerHTML = '<div style="padding:4px 12px 4px;display:flex;justify-content:flex-end"><button class="btn btn--sm" onclick="markAllNotificationsRead()" style="font-size:0.65rem;padding:2px 6px">Mark all read</button></div>' + notifications.slice(0, 50).map(n => {
+      list.innerHTML = '<div style="padding:4px 12px 4px;display:flex;justify-content:flex-end"><button class="btn btn--sm" data-action="markAllNotificationsRead" style="font-size:0.65rem;padding:2px 6px">Mark all read</button></div>' + notifications.slice(0, 50).map(n => {
         const ago = timeAgo(new Date(n.created_at));
         const isPersistent = n.dismissable === false;
         const readStyle = n.is_read && !isPersistent ? 'opacity:0.5' : '';
@@ -19105,7 +19145,7 @@ function newsGroupStories(stories) {
 const newsTemplates = {
   errorBanner(msg) {
     return '<div class="news-error"><span>News service error: ' + newsEsc(msg) + '</span>' +
-           '<button onclick="loadNewsModule()">Retry</button></div>';
+           '<button data-action="loadNewsModule">Retry</button></div>';
   },
   empty() {
     return '<div class="news-empty">No published digest yet. Come back after Sunday evening.</div>';
