@@ -4017,7 +4017,7 @@ app.patch('/api/tasks/:id', async (req, res) => {
   }
   // Text fields are stored raw; escaping happens at render time in the frontend (esc()).
   // Status is routed through reorderInGroup below — NOT in allowedFields.
-  const allowedFields = ['title', 'parent_id', 'client_id', 'item_type', 'priority', 'health_state', 'description', 'assignees', 'hours_estimated', 'hours_spent', 'due_date', 'start_date', 'end_date', 'dependencies', 'collaborations', 'success_factor', 'repeat_rule', 'blocker_info', 'practice_area', 'sow_id'];
+  const allowedFields = ['title', 'parent_id', 'client_id', 'item_type', 'priority', 'health_state', 'description', 'assignees', 'hours_estimated', 'hours_spent', 'due_date', 'start_date', 'end_date', 'dependencies', 'collaborations', 'success_factor', 'repeat_rule', 'blocker_info', 'practice_area', 'sow_id', 'work_type'];
   const { updates, vals, nextIdx } = buildPatchQuery(req.body, allowedFields);
   if (req.body.title !== undefined && !req.body.title.trim()) {
     return res.status(400).json({ error: 'Title cannot be empty' });
@@ -4553,9 +4553,9 @@ app.post('/api/sync/changes', async (req, res) => {
              health_state=$7, description=$8, assignees=$9, hours_estimated=$10, hours_spent=$11,
              due_date=$12, start_date=$13, end_date=$14, dependencies=$15,
              collaborations=$16, success_factor=$17, repeat_rule=$18, blocker_info=$19,
-             practice_area=$20, sow_id=$21,
+             practice_area=$20, sow_id=$21, work_type=$22,
              updated_at=NOW()
-             WHERE id=$22`,
+             WHERE id=$23`,
             [t.title, parentId, clientId, itemType, t.status || 'Not started', t.priority || '',
              t.healthState || t.health_state || '', t.description || '', t.assignees || [],
              t.hoursEstimated || t.hours_estimated || 0, t.hoursSpent || t.hours_spent || 0,
@@ -4565,6 +4565,7 @@ app.post('/api/sync/changes', async (req, res) => {
              t.repeatRule || t.repeat_rule || null, t.blockerInfo || t.blocker_info || null,
              t.practiceArea || t.practice_area || null,
              t.sowId || t.sow_id || null,
+             t.workType || t.work_type || null,
              t.id]
           );
         } else {
@@ -4572,8 +4573,8 @@ app.post('/api/sync/changes', async (req, res) => {
           const { rows } = await conn.query(
             `INSERT INTO tasks (id, title, parent_id, client_id, item_type, status, priority, health_state,
              description, assignees, hours_estimated, hours_spent, due_date, start_date, end_date, dependencies, source, created_at,
-             collaborations, success_factor, repeat_rule, blocker_info, practice_area, sow_id, updated_at)
-             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,NOW()) RETURNING id`,
+             collaborations, success_factor, repeat_rule, blocker_info, practice_area, sow_id, work_type, updated_at)
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,NOW()) RETURNING id`,
             [t.id, t.title, parentId, clientId, itemType, t.status || 'Not started', t.priority || '',
              t.healthState || t.health_state || '', t.description || '', t.assignees || [],
              t.hoursEstimated || t.hours_estimated || 0, t.hoursSpent || t.hours_spent || 0,
@@ -4583,7 +4584,8 @@ app.post('/api/sync/changes', async (req, res) => {
              t.collaborations || null, t.successFactor || t.success_factor || null,
              t.repeatRule || t.repeat_rule || null, t.blockerInfo || t.blocker_info || null,
              t.practiceArea || t.practice_area || null,
-             t.sowId || t.sow_id || null]
+             t.sowId || t.sow_id || null,
+             t.workType || t.work_type || null]
           );
           idMap[t.id] = rows[0].id;
           existingTaskMap.set(rows[0].id, new Date()); // Register in map for subsequent batch references
@@ -4947,6 +4949,7 @@ app.get('/api/sync/load', async (req, res) => {
     updatedAt: r.updated_at,
     plannerTaskId: r.planner_task_id || '',
     sowId: r.sow_id || null,
+    workType: r.work_type || null,
   }));
 
   // Map client briefs to frontend format
@@ -4963,6 +4966,7 @@ app.get('/api/sync/load', async (req, res) => {
       linkedinCompany: r.linkedin_company || '',
       nbiRelationship: r.nbi_relationship || '',
       practiceArea: r.practice_area || null,
+      abbreviation: r.abbreviation || null,
       contacts: r.contacts || [],
     };
   });
@@ -5138,6 +5142,19 @@ async function computeDashboardSnapshot() {
   const addedToday = taskRows.filter(r => r.created_date === today);
   const completedToday = taskRows.filter(r => r.status === 'Done');
 
+  const uniqueProblems = new Set([...overdue.map(r => r.title), ...atRisk.map(r => r.title)]);
+  const onTrackCount = Math.max(0, activeRoots.length - uniqueProblems.size);
+
+  let activeLeadsCount = 0;
+  try {
+    const { rows: [lc] } = await pool.query(
+      `SELECT count(*) as cnt FROM leads l
+       JOIN lead_pipeline_stages s ON l.stage_id = s.id
+       WHERE s.is_closed = false`
+    );
+    activeLeadsCount = parseInt(lc.cnt) || 0;
+  } catch (e) { /* leads table may not exist in test env */ }
+
   return {
     snapshot_date: today,
     active_projects: activeRoots.length,
@@ -5149,6 +5166,8 @@ async function computeDashboardSnapshot() {
     tasks_planned: activeTasks.length,
     tasks_added: addedToday.length,
     tasks_completed: completedToday.length,
+    on_track_count: onTrackCount,
+    active_leads_count: activeLeadsCount,
   };
 }
 
@@ -5163,7 +5182,8 @@ app.get('/api/dashboard/snapshots', async (req, res) => {
   try {
     const { rows } = await pool.query(
       `SELECT snapshot_date, active_projects, overdue_count, blocked_count, at_risk_count,
-              hours_spent, hours_estimated, tasks_planned, tasks_added, tasks_completed
+              hours_spent, hours_estimated, tasks_planned, tasks_added, tasks_completed,
+              on_track_count, active_leads_count
        FROM dashboard_snapshots
        WHERE snapshot_date >= CURRENT_DATE - $1::integer
        ORDER BY snapshot_date ASC`,
@@ -8629,10 +8649,10 @@ if (cron) {
     try {
       const snap = await computeDashboardSnapshot();
       await pool.query(
-        `INSERT INTO dashboard_snapshots (snapshot_date, active_projects, overdue_count, blocked_count, at_risk_count, hours_spent, hours_estimated, tasks_planned, tasks_added, tasks_completed)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+        `INSERT INTO dashboard_snapshots (snapshot_date, active_projects, overdue_count, blocked_count, at_risk_count, hours_spent, hours_estimated, tasks_planned, tasks_added, tasks_completed, on_track_count, active_leads_count)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
          ON CONFLICT (snapshot_date) DO NOTHING`,
-        [snap.snapshot_date, snap.active_projects, snap.overdue_count, snap.blocked_count, snap.at_risk_count, snap.hours_spent, snap.hours_estimated, snap.tasks_planned, snap.tasks_added, snap.tasks_completed]
+        [snap.snapshot_date, snap.active_projects, snap.overdue_count, snap.blocked_count, snap.at_risk_count, snap.hours_spent, snap.hours_estimated, snap.tasks_planned, snap.tasks_added, snap.tasks_completed, snap.on_track_count, snap.active_leads_count]
       );
       log('info', 'Cron', 'Dashboard snapshot recorded', { date: snap.snapshot_date });
     } catch (e) {
@@ -8650,10 +8670,10 @@ if (cron) {
     if (rows.length === 0) {
       const snap = await computeDashboardSnapshot();
       await pool.query(
-        `INSERT INTO dashboard_snapshots (snapshot_date, active_projects, overdue_count, blocked_count, at_risk_count, hours_spent, hours_estimated, tasks_planned, tasks_added, tasks_completed)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+        `INSERT INTO dashboard_snapshots (snapshot_date, active_projects, overdue_count, blocked_count, at_risk_count, hours_spent, hours_estimated, tasks_planned, tasks_added, tasks_completed, on_track_count, active_leads_count)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
          ON CONFLICT (snapshot_date) DO NOTHING`,
-        [snap.snapshot_date, snap.active_projects, snap.overdue_count, snap.blocked_count, snap.at_risk_count, snap.hours_spent, snap.hours_estimated, snap.tasks_planned, snap.tasks_added, snap.tasks_completed]
+        [snap.snapshot_date, snap.active_projects, snap.overdue_count, snap.blocked_count, snap.at_risk_count, snap.hours_spent, snap.hours_estimated, snap.tasks_planned, snap.tasks_added, snap.tasks_completed, snap.on_track_count, snap.active_leads_count]
       );
       log('info', 'Startup', 'Bootstrapped dashboard snapshot', { date: today });
     }

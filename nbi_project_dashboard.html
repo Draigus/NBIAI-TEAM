@@ -4744,9 +4744,10 @@ function renderPfTimeline(panelTasks, panelRoots, now) {
   }
   html += `</div>`;
 
+  html += '<div style="max-height:220px;overflow-y:auto">';
   sortedClients.forEach(client => {
     const projects = clientGroups[client];
-    const totalItems = projects.reduce((s, r) => s + 1 + getDescendants(r.id).filter(c => c.status !== 'Done' && c.status !== 'Cancelled').length, 0);
+    const totalItems = projects.length;
 
     html += `<div style="display:flex;min-height:24px;align-items:center;background:var(--bg-surface);border-bottom:1px solid var(--border-subtle)">`;
     html += `<div style="width:180px;padding:0 10px;font-size:0.72rem;color:var(--text-secondary);font-weight:600;border-right:1px solid var(--border-default);flex-shrink:0">${esc(client)} <span style="font-size:0.6rem;color:var(--text-muted);font-weight:400">(${totalItems})</span></div>`;
@@ -4780,70 +4781,47 @@ function renderPfTimeline(panelTasks, panelRoots, now) {
       html += `</div></div>`;
     });
   });
+  html += '</div>';
 
   html += '</div>';
   html += '</div></div>';
   return html;
 }
 
-function renderPfNeedsAttention(panelTasks, now) {
-  const blocked = panelTasks.filter(t => t.healthState === 'Blocked' && t.status !== 'Done' && t.status !== 'Cancelled');
-  const overdue = panelTasks.filter(t => t.dueDate && t.status !== 'Done' && t.status !== 'Cancelled' && safeParseDate(t.dueDate) < now && t.healthState !== 'Blocked');
-  const atRisk = panelTasks.filter(t => t.healthState === 'Red' && t.status !== 'Done' && t.status !== 'Cancelled' && !(t.dueDate && safeParseDate(t.dueDate) < now));
+// COMMENTED OUT — v3 Needs Attention main panel (moved to bottom row in v4)
+// function renderPfNeedsAttention(panelTasks, now) { /* ... see git history ... */ }
 
-  overdue.sort((a, b) => safeParseDate(a.dueDate) - safeParseDate(b.dueDate));
-  const items = [...blocked, ...overdue, ...atRisk];
-  const seen = new Set();
-  const unique = items.filter(t => { if (seen.has(t.id)) return false; seen.add(t.id); return true; });
-
-  const showCount = _portfolioAttentionExpanded ? unique.length : 5;
-  const visible = unique.slice(0, showCount);
-  const remaining = unique.length - visible.length;
+function renderPfWorkTypes(panelRoots) {
+  const activeRoots = panelRoots.filter(r => r.status !== 'Done' && r.status !== 'Cancelled');
+  const typeCounts = {};
+  activeRoots.forEach(r => {
+    if (r.workType) {
+      typeCounts[r.workType] = (typeCounts[r.workType] || 0) + 1;
+    }
+  });
+  const sorted = Object.entries(typeCounts).sort((a, b) => b[1] - a[1]);
+  const maxCount = sorted.length > 0 ? sorted[0][1] : 1;
 
   let html = '<div class="pf__panel">';
-  html += `<div class="pf__panel-hdr" style="display:flex;justify-content:space-between;align-items:center"><div><div class="pf__panel-title">Needs Attention</div><div class="pf__panel-sub">Overdue, at risk, and blocked</div></div><span style="font-size:0.72rem;color:var(--danger);font-weight:600">${unique.length} items</span></div>`;
+  html += '<div class="pf__panel-hdr"><div class="pf__panel-title">Work Types</div></div>';
   html += '<div class="pf__panel-body">';
 
-  if (unique.length === 0) {
-    html += '<div style="display:flex;align-items:center;justify-content:center;height:80px;color:var(--success);font-size:0.82rem">All clear \u2014 nothing needs attention.</div>';
+  if (sorted.length === 0) {
+    html += '<div style="display:flex;align-items:center;justify-content:center;height:100px;color:var(--text-muted);font-size:0.82rem">No work types assigned yet. Add work types to projects in the detail overlay.</div>';
   } else {
-    html += '<div style="display:flex;flex-direction:column;gap:3px">';
-    visible.forEach(t => {
-      const parent = t.parentId ? tasks.find(p => p.id === t.parentId) : null;
-      const projectName = parent ? parent.title : '';
-      const clientName = getTaskClient(t) || '';
-      const owner = (t.assignees || []).join(', ') || '';
-      let badge = '';
-      let badgeClass = '';
-      let borderCol = 'var(--danger)';
-
-      if (t.healthState === 'Blocked') {
-        badge = 'BLOCKED';
-        badgeClass = 'pf__attn-badge--blocked';
-        borderCol = 'var(--purple)';
-      } else if (t.dueDate && safeParseDate(t.dueDate) < now) {
-        const daysLate = Math.ceil((now - safeParseDate(t.dueDate)) / 86400000);
-        badge = daysLate + 'd overdue';
-        badgeClass = 'pf__attn-badge--overdue';
-      } else {
-        badge = 'AT RISK';
-        badgeClass = 'pf__attn-badge--risk';
-      }
-
-      html += `<div class="pf__attn-item" style="border-left:3px solid ${borderCol}" onclick="openDetailOverlay('${t.id}')">`;
-      html += `<span class="pf__attn-badge ${badgeClass}">${badge}</span>`;
-      html += `<div style="flex:1;min-width:0"><div class="pf__attn-title">${esc(t.title)}</div>`;
-      const ctx = [clientName, projectName].filter(Boolean).join(' \u2014 ');
-      if (ctx) html += `<div class="pf__attn-context">${esc(ctx)}</div>`;
-      html += `</div>`;
-      if (owner) html += `<span style="font-size:0.68rem;color:var(--text-muted);flex-shrink:0">${esc(owner)}</span>`;
-      html += `</div>`;
+    sorted.forEach(([name, count]) => {
+      const barW = Math.round(count / maxCount * 100);
+      html += '<div class="pf__wt-row">';
+      html += `<div class="pf__wt-label">${esc(name)}</div>`;
+      html += `<div class="pf__wt-bar-track"><div class="pf__wt-bar" style="width:${barW}%"></div></div>`;
+      html += '</div>';
     });
-    html += '</div>';
-
-    if (remaining > 0) {
-      html += `<div style="text-align:center;padding:8px;font-size:0.7rem;color:var(--text-muted);cursor:pointer;border-top:1px solid var(--border-subtle);margin-top:4px" onclick="_portfolioAttentionExpanded=true;renderContent()">+ ${remaining} more items</div>`;
+    const axisSteps = Math.min(maxCount, 6);
+    html += '<div class="pf__wt-axis">';
+    for (let i = 0; i <= axisSteps; i++) {
+      html += `<span>${Math.round(i * maxCount / axisSteps)}</span>`;
     }
+    html += '</div>';
   }
 
   html += '</div></div>';
@@ -4951,6 +4929,54 @@ function renderPfTeamWorkload(panelTasks) {
     html += `<div style="padding:6px 0 0;font-size:0.62rem;color:var(--text-muted)"><span style="color:var(--danger)">\u25CF</span> >30 &nbsp; <span style="color:var(--warning)">\u25CF</span> 15-30 &nbsp; <span style="color:var(--success)">\u25CF</span> <15</div>`;
   }
 
+  html += '</div></div>';
+  return html;
+}
+
+function renderPfBottomNeedsAttention(panelTasks, now) {
+  const blocked = panelTasks.filter(t => t.healthState === 'Blocked' && t.status !== 'Done' && t.status !== 'Cancelled');
+  const overdue = panelTasks.filter(t => t.dueDate && t.status !== 'Done' && t.status !== 'Cancelled' && safeParseDate(t.dueDate) < now && t.healthState !== 'Blocked');
+  const atRisk = panelTasks.filter(t => t.healthState === 'Red' && t.status !== 'Done' && t.status !== 'Cancelled' && !(t.dueDate && safeParseDate(t.dueDate) < now));
+  overdue.sort((a, b) => safeParseDate(a.dueDate) - safeParseDate(b.dueDate));
+  const items = [...blocked, ...overdue, ...atRisk];
+  const seen = new Set();
+  const unique = items.filter(t => { if (seen.has(t.id)) return false; seen.add(t.id); return true; });
+  const showCount = _portfolioBottomAttentionExpanded ? unique.length : 5;
+  const visible = unique.slice(0, showCount);
+  const remaining = unique.length - visible.length;
+
+  let html = '<div class="pf__panel">';
+  html += `<div class="pf__panel-hdr"><div class="pf__panel-title" style="color:var(--danger)">Needs Attention</div><div class="pf__panel-sub">Blocked, overdue &amp; at risk</div></div>`;
+  html += '<div class="pf__panel-body">';
+
+  if (unique.length === 0) {
+    html += '<div style="display:flex;align-items:center;justify-content:center;height:80px;color:var(--success);font-size:0.82rem">All clear.</div>';
+  } else {
+    visible.forEach(t => {
+      const parent = t.parentId ? tasks.find(p => p.id === t.parentId) : null;
+      const projectName = parent ? parent.title : '';
+      const clientName = getTaskClient(t) || '';
+      let badge = '', badgeClass = '', borderCol = 'var(--danger)';
+      if (t.healthState === 'Blocked') {
+        badge = 'BLOCKED'; badgeClass = 'pf__na-badge--blocked'; borderCol = 'var(--purple)';
+      } else if (t.dueDate && safeParseDate(t.dueDate) < now) {
+        const daysLate = Math.ceil((now - safeParseDate(t.dueDate)) / 86400000);
+        badge = daysLate + 'd late'; badgeClass = 'pf__na-badge--overdue';
+      } else {
+        badge = 'AT RISK'; badgeClass = 'pf__na-badge--risk'; borderCol = '#f97316';
+      }
+      const ctx = [clientName, projectName].filter(Boolean).join(' \u2014 ');
+      html += `<div class="pf__na-item" onclick="openDetailOverlay('${t.id}')">`;
+      html += `<div class="pf__na-border" style="background:${borderCol}"></div>`;
+      html += `<span class="pf__na-badge ${badgeClass}">${badge}</span>`;
+      html += `<div style="flex:1;min-width:0"><div style="font-size:0.7rem;color:var(--text-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(t.title)}</div>`;
+      if (ctx) html += `<div style="font-size:0.58rem;color:var(--text-muted)">${esc(ctx)}</div>`;
+      html += '</div></div>';
+    });
+    if (remaining > 0) {
+      html += `<div style="text-align:center;padding:6px;font-size:0.65rem;color:var(--text-muted);cursor:pointer" onclick="_portfolioBottomAttentionExpanded=true;renderContent()">+ ${remaining} more</div>`;
+    }
+  }
   html += '</div></div>';
   return html;
 }
@@ -7495,6 +7521,15 @@ function renderInlineTaskDetail(id) {
     const cur = task.practiceArea || task.practice_area || '';
     return `<div class="detail-field"><label class="detail-field__label" for="inline-detail-practice">Practice</label><select id="inline-detail-practice" onchange="updateTask('${id}','practiceArea',this.value||null)"><option value="">-- Inherit / None --</option>${PRACTICES.map(p => `<option value="${esc(p.value)}" ${cur === p.value ? 'selected' : ''}>${esc(p.label)}</option>`).join('')}</select></div>`;
   })();
+  html += (function() {
+    if (task.parentId) return '';
+    const cur = task.workType || '';
+    const config = _leadsConfig;
+    const opts = config && config.fieldOptions
+      ? (config.fieldOptions.work_type || []).map(o => typeof o === 'string' ? o : o.value)
+      : [];
+    return `<div class="detail-field"><label class="detail-field__label" for="inline-detail-workType">Work Type</label><select id="inline-detail-workType" onchange="updateTask('${id}','workType',this.value||null)"><option value="">-- None --</option>${opts.map(v => `<option value="${esc(v)}" ${cur === v ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select></div>`;
+  })();
   // SoW selector (bug cb32b7f9). Only shown on root tasks (projects) — child
   // tasks inherit the parent's SoW via the tree grouping. Filters the SoW
   // list to the task's client so PMs don't see irrelevant SoWs.
@@ -8118,6 +8153,7 @@ function openDetailOverlay(id) {
   activeDetailTaskId = id;
   const task = tasks.find(t => t.id === id);
   if (!task) return;
+  if (!_leadsConfig && !task.parentId) loadLeadsConfig().then(() => { if (activeDetailTaskId === id) openDetailOverlay(id); });
   const panel = document.getElementById('detailPanel');
   const children = getChildren(id);
   const hrs = aggHours(id);
@@ -8168,6 +8204,15 @@ function openDetailOverlay(id) {
   html += (function() {
     const cur = task.practiceArea || task.practice_area || '';
     return `<div class="detail-field"><label class="detail-field__label" for="detail-practice">Practice</label><select id="detail-practice" onchange="updateTask('${id}','practiceArea',this.value||null)"><option value="">-- Inherit / None --</option>${PRACTICES.map(p => `<option value="${esc(p.value)}" ${cur === p.value ? 'selected' : ''}>${esc(p.label)}</option>`).join('')}</select></div>`;
+  })();
+  html += (function() {
+    if (task.parentId) return '';
+    const cur = task.workType || '';
+    const config = _leadsConfig;
+    const opts = config && config.fieldOptions
+      ? (config.fieldOptions.work_type || []).map(o => typeof o === 'string' ? o : o.value)
+      : [];
+    return `<div class="detail-field"><label class="detail-field__label" for="detail-workType">Work Type</label><select id="detail-workType" onchange="updateTask('${id}','workType',this.value||null)"><option value="">-- None --</option>${opts.map(v => `<option value="${esc(v)}" ${cur === v ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select></div>`;
   })();
   html += `<div class="detail-field"><label class="detail-field__label" for="detail-startDate">Start Date</label><input id="detail-startDate" type="date" value="${task.startDate||''}" onchange="updateTask('${id}','startDate',this.value)"></div>`;
   html += `<div class="detail-field"><label class="detail-field__label" for="detail-endDate">End Date</label><input id="detail-endDate" type="date" value="${task.endDate||''}" onchange="updateTask('${id}','endDate',this.value)"></div>`;
