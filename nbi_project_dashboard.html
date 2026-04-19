@@ -462,8 +462,10 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .pf__wt-axis { display: flex; margin-top: 4px; padding-left: 128px; }
 .pf__wt-axis span { flex: 1; font-size: 0.55rem; color: var(--text-muted); }
 
-/* === v4 Bottom row — 4 columns instead of 3 === */
+/* === v4 Bottom row — 4 columns, constrained height === */
 .pf__bottom--v4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-md); }
+.pf__bottom--v4 > .pf__panel { max-height: 300px; }
+.pf__bottom--v4 > .pf__panel > .pf__panel-body { max-height: 240px; overflow-y: auto; }
 
 /* === v4 Needs Attention (bottom row version) === */
 .pf__na-item { display: flex; align-items: center; gap: 6px; padding: 5px 0; border-bottom: 1px solid var(--border-subtle); cursor: pointer; }
@@ -4062,13 +4064,7 @@ function renderBreadcrumbs() {
   bar.innerHTML = html;
 }
 
-/** Re-render only the main content area (not sidebar/tabs). Use for in-view data changes. */
-function renderContent() {
-  const _perfStart = performance.now();
-  const content = document.getElementById('mainContent');
-  if (!content) return;
-  const savedScroll = content.scrollTop;
-  // Redirect removed views
+function _renderMainContent(content) {
   if (currentView === 'incomplete') { currentView = 'tasks'; currentFilter.incomplete = true; }
   if (currentView === 'changelog') { currentView = 'settings'; }
   if (tasks.length === 0 && currentView !== 'settings') {
@@ -4090,6 +4086,15 @@ function renderContent() {
   if (currentView === 'tasks' && taskSubView === 'gantt') {
     requestAnimationFrame(drawGanttArrows);
   }
+}
+
+/** Re-render only the main content area (not sidebar/tabs). Preserves scroll position. */
+function renderContent() {
+  const _perfStart = performance.now();
+  const content = document.getElementById('mainContent');
+  if (!content) return;
+  const savedScroll = content.scrollTop;
+  _renderMainContent(content);
   requestAnimationFrame(() => { content.scrollTop = savedScroll; });
   const _perfEnd = performance.now();
   if (_perfEnd - _perfStart > 100) {
@@ -4102,38 +4107,14 @@ function renderSidebarCounts() {
   renderSidebar();
 }
 
-/** Re-render the entire UI: sidebar, tabs, and the active view. Called on every state change. */
+/** Re-render the entire UI: sidebar, tabs, breadcrumbs, and the active view. */
 function renderAll() {
   const _perfStart = performance.now();
   renderSidebar();
   renderTabs();
   renderBreadcrumbs();
   const content = document.getElementById('mainContent');
-  if (tasks.length === 0 && currentView !== 'settings') {
-    content.innerHTML = `<div class="empty-state"><div class="empty-state__icon">&#128203;</div><div class="empty-state__title">No Tasks Yet</div><div class="empty-state__desc">Import tasks or add them manually to get started.</div><button class="btn btn--primary" onclick="openImportModal()">Import</button></div>`;
-    return;
-  }
-  // Redirect removed views
-  if (currentView === 'incomplete') { currentView = 'tasks'; currentFilter.incomplete = true; }
-  if (currentView === 'changelog') { currentView = 'settings'; }
-
-  if (currentView === 'dashboard') renderDashboard(content);
-  else if (currentView === 'mytasks') renderMyTasksView(content);
-  else if (currentView === 'tasks') renderTaskView(content);
-  else if (currentView === 'report') renderReport(content);
-  else if (currentView === 'people') renderPeopleView(content);
-  else if (currentView === 'leads') renderLeadsView(content);
-  else if (currentView === 'expenses') renderExpensesView(content);
-  else if (currentView === 'finances') renderFinancesView(content);
-  else if (currentView === 'bugs') renderBugTrackerView(content);
-  else if (currentView === 'hiring') renderHiringView(content);
-  else if (currentView === 'news') renderNewsOrLoad(content);
-  else if (currentView === 'settings') renderSettings(content);
-
-  // Draw Gantt dependency arrows after DOM is ready
-  if (currentView === 'tasks' && taskSubView === 'gantt') {
-    requestAnimationFrame(drawGanttArrows);
-  }
+  _renderMainContent(content);
   const _perfEnd = performance.now();
   if (_perfEnd - _perfStart > 100) {
     console.debug('[Perf] renderAll took ' + Math.round(_perfEnd - _perfStart) + 'ms');
@@ -4182,6 +4163,11 @@ function renderDashboard(el) {
   }
   if (_portfolioLeadCount === null) {
     loadPortfolioLeadCount().then(() => {
+      if (currentView === 'dashboard') renderContent();
+    });
+  }
+  if (!_leadsConfig) {
+    loadLeadsConfig().then(() => {
       if (currentView === 'dashboard') renderContent();
     });
   }
@@ -4572,60 +4558,69 @@ function renderPfProgressStatus(panelTasks) {
   }
 
   const buckets = [
-    { key: 'blocked', label: 'BLOCKED', colour: '#ef4444', count: 0 },
-    { key: 'waiting', label: 'WAITING ON CLIENT', colour: '#fbbf24', count: 0 },
-    { key: 'done', label: 'COMPLETED', colour: '#4ade80', count: 0 },
+    { key: 'done', label: 'COMPLETED', colour: '#22c55e', count: 0 },
     { key: 'inprogress', label: 'IN PROGRESS', colour: '#06b6d4', count: 0 },
     { key: 'planning', label: 'PLANNING', colour: '#3b82f6', count: 0 },
-    { key: 'notstarted', label: 'NOT STARTED', colour: '#666', count: 0 },
+    { key: 'notstarted', label: 'NOT STARTED', colour: '#94a3b8', count: 0 },
+    { key: 'waiting', label: 'WAITING ON CLIENT', colour: '#f59e0b', count: 0 },
+    { key: 'blocked', label: 'BLOCKED', colour: '#ef4444', count: 0 },
   ];
 
   active.forEach(t => {
-    if (t.status === 'Blocked') buckets[0].count++;
-    else if (t.healthState === 'Waiting on Client') buckets[1].count++;
-    else if (t.status === 'Done') buckets[2].count++;
-    else if (t.status === 'In progress') buckets[3].count++;
-    else if (t.status === 'Planning') buckets[4].count++;
-    else buckets[5].count++;
+    if (t.status === 'Blocked') buckets[5].count++;
+    else if (t.healthState === 'Waiting on Client') buckets[4].count++;
+    else if (t.status === 'Done') buckets[0].count++;
+    else if (t.status === 'In progress') buckets[1].count++;
+    else if (t.status === 'Planning') buckets[2].count++;
+    else buckets[3].count++;
   });
 
   const nonZero = buckets.filter(b => b.count > 0);
-  const cx = 200, cy = 150, r = 72, sw = 30;
+  const cx = 320, cy = 230, r = 110, sw = 42;
   const circ = 2 * Math.PI * r;
+  const svgW = 640, svgH = 460;
 
-  const labelPositions = [
-    { x: 334, y: 82, lx1: 262, ly1: 100, lx2: 280, ly2: 85, lx3: 330, ly3: 85 },
-    { x: 334, y: 152, lx1: 272, ly1: 155, lx2: 290, ly2: 155, lx3: 330, ly3: 155 },
-    { x: 334, y: 222, lx1: 252, ly1: 212, lx2: 270, ly2: 225, lx3: 330, ly3: 225 },
-    { x: 15, y: 222, lx1: 148, ly1: 212, lx2: 130, ly2: 225, lx3: 55, ly3: 225 },
-    { x: 15, y: 147, lx1: 128, ly1: 150, lx2: 110, ly2: 150, lx3: 55, ly3: 150 },
-    { x: 15, y: 75, lx1: 145, ly1: 92, lx2: 125, ly2: 78, lx3: 55, ly3: 78 },
-  ];
+  let svg = `<svg viewBox="0 0 ${svgW} ${svgH}" width="100%" style="display:block">`;
+  svg += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="${sw}"/>`;
 
-  let svg = '<svg viewBox="0 0 400 300" width="100%" height="100%" style="max-height:280px">';
   let offset = 0;
+  const segments = [];
   nonZero.forEach(b => {
     const pct = b.count / total;
     const dashLen = pct * circ;
-    svg += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${b.colour}" stroke-width="${sw}" stroke-dasharray="${dashLen.toFixed(1)} ${(circ - dashLen).toFixed(1)}" stroke-dashoffset="${(-offset).toFixed(1)}" transform="rotate(-90 ${cx} ${cy})"/>`;
+    const gap = nonZero.length > 1 ? 2 : 0;
+    const drawLen = Math.max(0, dashLen - gap);
+    svg += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${b.colour}" stroke-width="${sw}" stroke-dasharray="${drawLen.toFixed(1)} ${(circ - drawLen).toFixed(1)}" stroke-dashoffset="${(-(offset + gap / 2)).toFixed(1)}" transform="rotate(-90 ${cx} ${cy})"/>`;
+    const midFrac = (offset + dashLen / 2) / circ;
+    const midAngle = midFrac * 2 * Math.PI - Math.PI / 2;
+    segments.push({ b, midAngle, pct });
     offset += dashLen;
   });
 
-  nonZero.forEach((b, i) => {
-    const pos = labelPositions[i % labelPositions.length];
-    const pctText = Math.round(b.count / total * 100) + '%';
-    svg += `<line x1="${pos.lx1}" y1="${pos.ly1}" x2="${pos.lx2}" y2="${pos.ly2}" class="pf__donut-leader"/>`;
-    svg += `<line x1="${pos.lx2}" y1="${pos.ly2}" x2="${pos.lx3}" y2="${pos.ly3}" class="pf__donut-leader"/>`;
-    svg += `<circle cx="${pos.lx1}" cy="${pos.ly1}" r="3" fill="${b.colour}"/>`;
-    svg += `<text x="${pos.x}" y="${pos.y}" fill="${b.colour}" font-size="16" font-weight="700">${pctText}</text>`;
-    svg += `<text x="${pos.x}" y="${pos.y + 14}" fill="#999" font-size="9">${b.label}</text>`;
+  const outerR = r + sw / 2 + 4;
+  segments.forEach(({ b, midAngle, pct }) => {
+    const dotX = cx + Math.cos(midAngle) * outerR;
+    const dotY = cy + Math.sin(midAngle) * outerR;
+    const isRight = dotX > cx;
+    const elbowX = cx + Math.cos(midAngle) * (outerR + 35);
+    const elbowY = cy + Math.sin(midAngle) * (outerR + 35);
+    const labelX = isRight ? svgW - 20 : 20;
+    const labelY = elbowY;
+    const anchor = isRight ? 'end' : 'start';
+    const pctText = Math.round(pct * 100) + '%';
+
+    svg += `<circle cx="${dotX.toFixed(1)}" cy="${dotY.toFixed(1)}" r="3.5" fill="${b.colour}"/>`;
+    svg += `<line x1="${dotX.toFixed(1)}" y1="${dotY.toFixed(1)}" x2="${elbowX.toFixed(1)}" y2="${elbowY.toFixed(1)}" stroke="#4dd0e1" stroke-width="1" fill="none" opacity="0.6"/>`;
+    svg += `<line x1="${elbowX.toFixed(1)}" y1="${elbowY.toFixed(1)}" x2="${labelX}" y2="${labelY.toFixed(1)}" stroke="#4dd0e1" stroke-width="1" fill="none" opacity="0.6"/>`;
+    svg += `<text x="${labelX}" y="${(labelY - 4).toFixed(1)}" text-anchor="${anchor}" fill="${b.colour}" font-size="22" font-weight="700">${pctText}</text>`;
+    svg += `<text x="${labelX}" y="${(labelY + 14).toFixed(1)}" text-anchor="${anchor}" fill="#94a3b8" font-size="10" font-weight="600">${b.label}</text>`;
   });
 
   svg += '</svg>';
 
   let html = '<div class="pf__panel">';
-  html += '<div class="pf__panel-hdr"><div class="pf__panel-title">Progress Status</div></div>';
-  html += `<div class="pf__panel-body" style="padding:0"><div class="pf__donut-container">${svg}</div></div>`;
+  html += '<div class="pf__panel-hdr"><div class="pf__panel-title">PROGRESS STATUS</div></div>';
+  html += `<div class="pf__panel-body" style="padding:0">${svg}</div>`;
   html += '</div>';
   return html;
 }
@@ -4634,31 +4629,37 @@ function renderPfProgressStatus(panelTasks) {
 // function renderPfHealthScorecard(filtered, roots, now) { /* ... see git history ... */ }
 
 function renderPfMilestones(panelRoots, now) {
-  const withDue = panelRoots.filter(r => r.dueDate && r.status !== 'Done' && r.status !== 'Cancelled');
-  const overdue = withDue.filter(r => safeParseDate(r.dueDate) < now)
-    .sort((a, b) => safeParseDate(a.dueDate) - safeParseDate(b.dueDate));
-  const upcoming = withDue.filter(r => safeParseDate(r.dueDate) >= now)
-    .sort((a, b) => safeParseDate(a.dueDate) - safeParseDate(b.dueDate));
-  const items = [...overdue, ...upcoming].slice(0, 6);
+  const activeRoots = panelRoots.filter(r => r.status !== 'Done' && r.status !== 'Cancelled');
+  const withDate = activeRoots.map(r => {
+    const targetDate = r.dueDate || r.endDate;
+    if (!targetDate) return null;
+    const due = safeParseDate(targetDate);
+    const kids = getDescendants(r.id);
+    const all = [r, ...kids];
+    const done = all.filter(t => t.status === 'Done').length;
+    const pct = all.length > 0 ? Math.round(done / all.length * 100) : 0;
+    return { ...r, _due: due, _pct: pct, _dateType: r.dueDate ? 'due' : 'end' };
+  }).filter(Boolean);
+
+  const overdue = withDate.filter(r => r._due < now).sort((a, b) => a._due - b._due);
+  const upcoming = withDate.filter(r => r._due >= now).sort((a, b) => a._due - b._due);
+  const items = [...overdue, ...upcoming].slice(0, 8);
 
   let html = '<div class="pf__panel">';
-  html += '<div class="pf__panel-hdr"><div class="pf__panel-title">Upcoming Milestones</div></div>';
+  html += '<div class="pf__panel-hdr"><div class="pf__panel-title">UPCOMING MILESTONES</div></div>';
   html += '<div class="pf__panel-body">';
 
   if (items.length === 0) {
-    html += '<div style="display:flex;align-items:center;justify-content:center;height:100px;color:var(--text-muted);font-size:0.82rem">No milestones with due dates.</div>';
+    html += '<div style="display:flex;align-items:center;justify-content:center;height:100px;color:var(--text-muted);font-size:0.82rem">No projects with target dates.</div>';
   } else {
     items.forEach(t => {
-      const due = safeParseDate(t.dueDate);
-      const isOverdue = due < now;
-      const daysUntil = Math.ceil((due - now) / 86400000);
-      const daysLate = Math.ceil((now - due) / 86400000);
-      const barCol = isOverdue ? 'var(--danger)' : 'var(--success)';
+      const isOverdue = t._due < now;
+      const daysUntil = Math.ceil((t._due - now) / 86400000);
+      const daysLate = Math.ceil((now - t._due) / 86400000);
+      const barCol = isOverdue ? 'var(--danger)' : daysUntil <= 7 ? 'var(--warning)' : 'var(--success)';
       const client = getTaskClient(t) || '';
       const abbr = getClientAbbreviation(client);
       const abbrCol = isOverdue ? 'var(--danger)' : 'var(--accent)';
-      const wt = t.workType || '';
-      const subtitle = wt ? `${esc(client)} \u00B7 ${esc(wt)}` : esc(client);
 
       let statusText, statusCol;
       if (isOverdue) {
@@ -4667,22 +4668,22 @@ function renderPfMilestones(panelRoots, now) {
       } else if (daysUntil === 0) {
         statusText = 'Due today';
         statusCol = 'var(--danger)';
-      } else if (daysUntil === 1) {
-        statusText = 'Due tomorrow';
-        statusCol = 'var(--danger)';
+      } else if (daysUntil <= 7) {
+        statusText = daysUntil + 'd left';
+        statusCol = 'var(--warning)';
       } else {
-        statusText = 'On track';
+        statusText = daysUntil + 'd left';
         statusCol = 'var(--success)';
       }
-      const dateStr = due.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+      const dateStr = t._due.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 
       html += `<div class="pf__milestone-item" onclick="openDetailOverlay('${t.id}')">`;
       html += `<div class="pf__milestone-bar" style="background:${barCol}"></div>`;
       html += '<div style="flex:1;min-width:0">';
       html += `<div class="pf__milestone-title"><span class="pf__milestone-abbr" style="color:${abbrCol}">${esc(abbr)}</span> \u2014 ${esc(t.title)}</div>`;
-      html += `<div class="pf__milestone-sub">${subtitle}</div>`;
+      html += `<div class="pf__milestone-sub">${esc(client)} \u00B7 ${t._pct}% complete</div>`;
       html += '</div>';
-      html += `<div><div class="pf__milestone-status" style="color:${statusCol}">${statusText}</div><div class="pf__milestone-date">${dateStr}</div></div>`;
+      html += `<div style="text-align:right"><div class="pf__milestone-status" style="color:${statusCol}">${statusText}</div><div class="pf__milestone-date">${dateStr}</div></div>`;
       html += '</div>';
     });
   }
@@ -4692,98 +4693,66 @@ function renderPfMilestones(panelRoots, now) {
 }
 
 function renderPfTimeline(panelTasks, panelRoots, now) {
+  const activeRoots = panelRoots.filter(r => r.status !== 'Done' && r.status !== 'Cancelled');
+  const withDates = activeRoots.filter(r => r.startDate || r.endDate || r.dueDate);
+
   let html = '<div class="pf__panel">';
-  html += '<div class="pf__panel-hdr" style="display:flex;justify-content:space-between;align-items:center">';
-  html += '<div><div class="pf__panel-title">Project Timeline</div><div class="pf__panel-sub">Gantt view</div></div>';
-  html += `<div style="display:flex;gap:4px">`;
-  html += `<button class="btn btn--outline btn--sm" onclick="pfGanttZoom(-2)" style="font-size:0.6rem;padding:2px 6px">&minus;</button>`;
-  html += `<button class="btn btn--outline btn--sm" onclick="pfGanttZoom(2)" style="font-size:0.6rem;padding:2px 6px">+</button>`;
-  html += `<button class="btn btn--outline btn--sm" onclick="pfGanttNav(-30)" style="font-size:0.6rem;padding:2px 6px">&larr;</button>`;
-  html += `<button class="btn btn--outline btn--sm" onclick="pfGanttToday()" style="font-size:0.6rem;padding:2px 6px;color:var(--accent)">Today</button>`;
-  html += `<button class="btn btn--outline btn--sm" onclick="pfGanttNav(30)" style="font-size:0.6rem;padding:2px 6px">&rarr;</button>`;
-  html += `</div></div>`;
+  html += '<div class="pf__panel-hdr"><div class="pf__panel-title">PROJECT TIMELINE</div></div>';
+  html += '<div class="pf__panel-body" style="padding:8px 16px 16px">';
 
-  html += '<div class="pf__panel-body" style="overflow-x:auto;padding:0 0 12px">';
-
-  const activeTasks = panelTasks.filter(t => t.status !== 'Done' && t.status !== 'Cancelled');
-  if (activeTasks.length === 0) {
-    html += '<div style="display:flex;align-items:center;justify-content:center;height:100px;color:var(--text-muted);font-size:0.82rem">No active tasks with dates.</div>';
+  if (withDates.length === 0) {
+    html += '<div style="display:flex;align-items:center;justify-content:center;height:100px;color:var(--text-muted);font-size:0.82rem">No projects with dates.</div>';
     html += '</div></div>';
     return html;
   }
 
-  const dayW = _pfGanttDayWidth;
-  let minDate = new Date(now); minDate.setDate(minDate.getDate() - 14 + _pfGanttOffsetDays);
-  let maxDate = new Date(now); maxDate.setDate(maxDate.getDate() + 90 + _pfGanttOffsetDays);
-  minDate.setDate(minDate.getDate() - 3);
-  maxDate.setDate(maxDate.getDate() + 7);
-  const totalDays = Math.min(Math.round((maxDate - minDate) / 86400000), 200);
-  const timelineW = totalDays * dayW;
+  const projects = withDates.map(r => {
+    const s = r.startDate ? safeParseDate(r.startDate) : null;
+    const e = r.endDate ? safeParseDate(r.endDate) : (r.dueDate ? safeParseDate(r.dueDate) : null);
+    return { id: r.id, title: r.title, _start: s, _end: e };
+  }).filter(p => p._start && p._end).sort((a, b) => a._start - b._start);
 
-  const activeRoots = panelRoots.filter(r => r.status !== 'Done' && r.status !== 'Cancelled');
-  const clientGroups = {};
-  activeRoots.forEach(r => {
-    const client = getTaskClient(r) || 'Uncategorised';
-    if (!clientGroups[client]) clientGroups[client] = [];
-    clientGroups[client].push(r);
-  });
-  const sortedClients = Object.keys(clientGroups).sort(clientSortOrder);
-
-  html += `<div style="min-width:${timelineW + 180}px">`;
-
-  html += `<div style="display:flex;border-bottom:1px solid var(--border-default)">`;
-  html += `<div style="width:180px;padding:4px 10px;font-size:0.6rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;border-right:1px solid var(--border-default);background:var(--bg-base);flex-shrink:0">Item</div>`;
-  let d = new Date(minDate);
-  while (d < maxDate) {
-    const monthStart = new Date(d);
-    const monthEnd = new Date(d.getFullYear(), d.getMonth() + 1, 1);
-    const end = monthEnd < maxDate ? monthEnd : maxDate;
-    const daysInMonth = Math.ceil((end - monthStart) / 86400000);
-    html += `<div style="width:${daysInMonth * dayW}px;font-size:0.6rem;color:var(--text-muted);text-align:center;padding:4px 0;border-right:1px solid var(--border-subtle);font-weight:600">${monthStart.toLocaleDateString('en-GB', {month:'short', year:'numeric'})}</div>`;
-    d = monthEnd;
+  if (projects.length === 0) {
+    html += '<div style="display:flex;align-items:center;justify-content:center;height:100px;color:var(--text-muted);font-size:0.82rem">No projects with start + end dates.</div>';
+    html += '</div></div>';
+    return html;
   }
-  html += `</div>`;
 
-  html += '<div style="max-height:220px;overflow-y:auto">';
-  sortedClients.forEach(client => {
-    const projects = clientGroups[client];
-    const totalItems = projects.length;
+  const globalMin = new Date(Math.min(...projects.map(p => p._start)));
+  const globalMax = new Date(Math.max(...projects.map(p => p._end)));
+  globalMin.setDate(1);
+  globalMax.setMonth(globalMax.getMonth() + 1, 1);
+  const totalDays = Math.round((globalMax - globalMin) / 86400000);
 
-    html += `<div style="display:flex;min-height:24px;align-items:center;background:var(--bg-surface);border-bottom:1px solid var(--border-subtle)">`;
-    html += `<div style="width:180px;padding:0 10px;font-size:0.72rem;color:var(--text-secondary);font-weight:600;border-right:1px solid var(--border-default);flex-shrink:0">${esc(client)} <span style="font-size:0.6rem;color:var(--text-muted);font-weight:400">(${totalItems})</span></div>`;
-    html += `<div style="flex:1;position:relative;height:24px">`;
-    const todayOff = Math.round((now - minDate) / 86400000);
-    if (todayOff >= 0 && todayOff < totalDays) html += `<div style="position:absolute;left:${todayOff * dayW}px;top:0;bottom:0;width:1px;background:rgba(59,130,246,0.35)"></div>`;
-    html += `</div></div>`;
+  const months = [];
+  let md = new Date(globalMin);
+  while (md < globalMax) {
+    const mEnd = new Date(md.getFullYear(), md.getMonth() + 1, 1);
+    const mDays = Math.round((Math.min(mEnd, globalMax) - md) / 86400000);
+    months.push({ label: md.toLocaleDateString('en-GB', { month: 'short' }).toUpperCase(), days: mDays, isNow: md.getMonth() === now.getMonth() && md.getFullYear() === now.getFullYear() });
+    md = mEnd;
+  }
 
-    projects.forEach(project => {
-      const start = ganttTaskStart(project);
-      const end = ganttTaskEnd(project);
-      const barClass = ganttBarClass(project);
-      const typeMeta = getItemTypeMeta(project);
-
-      html += `<div style="display:flex;min-height:28px;align-items:center;border-bottom:1px solid var(--border-subtle);cursor:pointer" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''" onclick="openDetailOverlay('${project.id}')">`;
-      html += `<div style="width:180px;padding:0 10px 0 16px;font-size:0.7rem;color:var(--text-primary);border-right:1px solid var(--border-default);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0;display:flex;align-items:center;gap:4px">`;
-      html += `<span class="item-type-badge" style="background:${typeMeta.colour};font-size:0.5rem;padding:0 4px">${typeMeta.label.charAt(0)}</span>`;
-      html += `${esc(project.title)}</div>`;
-      html += `<div style="flex:1;position:relative;height:28px;min-width:${timelineW}px">`;
-      if (todayOff >= 0 && todayOff < totalDays) html += `<div style="position:absolute;left:${todayOff * dayW}px;top:0;bottom:0;width:1px;background:rgba(59,130,246,0.35)"></div>`;
-      if (start && end && end >= start) {
-        const rawOff = Math.round((start - minDate) / 86400000);
-        const sOff = Math.max(0, rawOff);
-        const dur = Math.max(1, Math.ceil((end - start) / 86400000) + 1) - (sOff - rawOff);
-        if (dur > 0) {
-          html += `<div class="gantt__bar ${barClass}" style="left:${sOff * dayW}px;width:${dur * dayW}px;height:18px;top:5px" title="${esc(project.title)} | ${project.status}">`;
-          if (dur * dayW > 40) html += `<span style="overflow:hidden;text-overflow:ellipsis;pointer-events:none;flex:1;font-size:0.6rem">${esc(project.title)}</span>`;
-          html += `</div>`;
-        }
-      }
-      html += `</div></div>`;
-    });
+  const labelW = 160;
+  html += `<div style="display:flex">`;
+  html += `<div style="width:${labelW}px;flex-shrink:0"></div>`;
+  html += `<div style="flex:1;display:flex;border-bottom:1px solid var(--border-subtle)">`;
+  months.forEach(m => {
+    const widthPct = (m.days / totalDays * 100).toFixed(2);
+    html += `<div style="width:${widthPct}%;text-align:center;font-size:${m.isNow ? '0.82rem' : '0.7rem'};font-weight:${m.isNow ? '700' : '600'};color:${m.isNow ? 'var(--text-primary)' : 'var(--text-muted)'};padding:4px 0;border-right:1px solid var(--border-subtle)">${m.label}</div>`;
   });
-  html += '</div>';
+  html += '</div></div>';
 
-  html += '</div>';
+  projects.forEach(p => {
+    const leftPct = ((p._start - globalMin) / 86400000 / totalDays * 100).toFixed(2);
+    const widthPct = Math.max(1, ((p._end - p._start) / 86400000 / totalDays * 100)).toFixed(2);
+    html += `<div style="display:flex;align-items:center;min-height:36px;cursor:pointer;border-bottom:1px solid var(--border-subtle)" onclick="openDetailOverlay('${p.id}')" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''">`;
+    html += `<div style="width:${labelW}px;flex-shrink:0;font-size:0.72rem;color:var(--text-primary);padding-right:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.title)}</div>`;
+    html += `<div style="flex:1;position:relative;height:20px">`;
+    html += `<div style="position:absolute;left:${leftPct}%;width:${widthPct}%;top:2px;bottom:2px;background:#00e5ff;border-radius:3px;opacity:0.8"></div>`;
+    html += '</div></div>';
+  });
+
   html += '</div></div>';
   return html;
 }
@@ -4799,15 +4768,21 @@ function renderPfWorkTypes(panelRoots) {
       typeCounts[r.workType] = (typeCounts[r.workType] || 0) + 1;
     }
   });
+
+  const configOpts = _leadsConfig && _leadsConfig.fieldOptions && _leadsConfig.fieldOptions.work_type
+    ? _leadsConfig.fieldOptions.work_type.map(o => typeof o === 'string' ? o : o.value)
+    : [];
+  configOpts.forEach(name => { if (!(name in typeCounts)) typeCounts[name] = 0; });
+
   const sorted = Object.entries(typeCounts).sort((a, b) => b[1] - a[1]);
-  const maxCount = sorted.length > 0 ? sorted[0][1] : 1;
+  const maxCount = Math.max(1, sorted.length > 0 ? sorted[0][1] : 1);
 
   let html = '<div class="pf__panel">';
-  html += '<div class="pf__panel-hdr"><div class="pf__panel-title">Work Types</div></div>';
+  html += '<div class="pf__panel-hdr"><div class="pf__panel-title">WORK TYPES</div></div>';
   html += '<div class="pf__panel-body">';
 
   if (sorted.length === 0) {
-    html += '<div style="display:flex;align-items:center;justify-content:center;height:100px;color:var(--text-muted);font-size:0.82rem">No work types assigned yet. Add work types to projects in the detail overlay.</div>';
+    html += '<div style="display:flex;align-items:center;justify-content:center;height:100px;color:var(--text-muted);font-size:0.82rem">No work type categories configured.</div>';
   } else {
     sorted.forEach(([name, count]) => {
       const barW = Math.round(count / maxCount * 100);
@@ -4898,9 +4873,11 @@ function renderPfUpcomingMilestones(panelTasks, now, fortnight) {
 
 function renderPfTeamWorkload(panelTasks) {
   const activeTasks = panelTasks.filter(t => t.status !== 'Done' && t.status !== 'Cancelled');
+  const activeStaff = new Set(_cachedTeamMembers || []);
   const personMap = {};
   activeTasks.forEach(t => {
     (t.assignees || []).forEach(a => {
+      if (activeStaff.size > 0 && !activeStaff.has(a)) return;
       if (!personMap[a]) personMap[a] = 0;
       personMap[a]++;
     });
@@ -7966,6 +7943,7 @@ addManagedListener(document, 'drop', function(e) {
 // ==================== BOARD DRAG AND DROP ====================
 
 let boardDraggedTaskId = null;
+let _pendingBoardDropPosition = null;
 
 /** Begin dragging a Kanban board card */
 function onBoardCardDragStart(e, taskId) {
@@ -8014,9 +7992,8 @@ function onBoardDragLeave(e) {
   e.currentTarget.querySelectorAll('.board-drop-indicator').forEach(d => d.remove());
 }
 
-/** Handle board drop — cross-lane changes status, within-lane reorders by position.
- *  Priority is the "client need" classification and is no longer touched by drag (decision D79).
- *  PATCHes /api/tasks/:id directly with { status, position } and refetches via load() to converge. */
+/** Handle board drop -- status changes route through updateTask (sync pipeline with
+ *  conflict detection), position changes use direct PATCH (server-side reorderInGroup). */
 async function onBoardDrop(e) {
   e.preventDefault();
   const lane = e.currentTarget;
@@ -8028,7 +8005,6 @@ async function onBoardDrop(e) {
   const task = tasks.find(t => t.id === boardDraggedTaskId);
   if (!task) return;
 
-  // Find drop position among cards in the lane
   const cards = [...lane.querySelectorAll('.board-card:not(.dragging)')];
   const afterCard = cards.reduce((closest, card) => {
     const box = card.getBoundingClientRect();
@@ -8044,51 +8020,48 @@ async function onBoardDrop(e) {
 
   if (!statusChanged && !positionChanged) { boardDraggedTaskId = null; return; }
 
-  // Hard-block: cannot drag to Done lane if prerequisites are incomplete
-  if (statusChanged && newStatus === 'Done') {
-    const blockers = getIncompletePrereqs(task);
-    if (blockers.length > 0) {
-      toast(`Cannot complete "${task.title}" \u2014 ${blockers.length} prerequisite${blockers.length > 1 ? 's' : ''} not done`, 'warning');
-      boardDraggedTaskId = null;
-      renderContent();
-      return;
-    }
-  }
-
   const taskId = boardDraggedTaskId;
   boardDraggedTaskId = null;
 
-  // Optimistic local update so the user sees the move immediately
-  if (statusChanged) task.status = newStatus;
-  task.position = dropIdx;
-  task.updatedAt = new Date().toISOString();
-  renderSidebarCounts(); renderContent();
+  if (!statusChanged) {
+    task.position = dropIdx;
+    task.updatedAt = new Date().toISOString();
+    renderContent();
+    await _patchBoardPosition(taskId, dropIdx);
+    return;
+  }
 
-  // PATCH the server, then refetch so other shifted positions converge
+  // Blocked requires the popup workflow; store pending position for saveMarkAsBlocked
+  if (newStatus === 'Blocked' && task.status !== 'Blocked') {
+    if (positionChanged) _pendingBoardDropPosition = { taskId, position: dropIdx };
+    openMarkAsBlockedPopup(taskId);
+    renderContent();
+    return;
+  }
+
+  // All other status changes go through updateTask for safety checks,
+  // undo support, and the sync pipeline (conflict detection via _serverUpdatedAt)
+  const oldStatus = task.status;
+  await updateTask(taskId, 'status', newStatus);
+
+  if (task.status === oldStatus) return;
+
+  if (positionChanged) await _patchBoardPosition(taskId, dropIdx);
+}
+
+/** PATCH position to the server so reorderInGroup shifts siblings, then reload */
+async function _patchBoardPosition(taskId, position) {
   try {
-    const patch = { position: dropIdx };
-    if (statusChanged) patch.status = newStatus;
     const resp = await authFetch(`/api/tasks/${taskId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(patch),
+      body: JSON.stringify({ position }),
     });
-    if (!resp.ok) {
-      let msg = 'Failed to move task';
-      try { const j = await resp.json(); if (j && j.error) msg = j.error; } catch (_) {}
-      toast(msg, 'error');
-      // Reload to recover canonical state
-      if (typeof load === 'function') await load();
-      renderContent();
-      return;
-    }
-    if (statusChanged) toast(`"${task.title}" moved to ${newStatus}`);
-    // Refresh local cache from server so shifted siblings get correct positions
+    if (!resp.ok) toast('Failed to set position', 'error');
     if (typeof load === 'function') await load();
     renderContent();
   } catch (err) {
-    console.error('Board drop PATCH failed', err);
-    toast('Failed to move task', 'error');
+    toast('Failed to set position', 'error');
     if (typeof load === 'function') await load();
     renderContent();
   }
@@ -8898,6 +8871,7 @@ function toggleBlockerType(which) {
 /** Cancel the Mark As Blocked popup without saving */
 function cancelMarkAsBlocked() {
   document.getElementById('blockerModal').classList.remove('open');
+  _pendingBoardDropPosition = null;
   _markAsBlockedTaskId = null;
 }
 
@@ -8941,6 +8915,11 @@ function saveMarkAsBlocked() {
   renderContent();
   if (activeDetailTaskId === taskId && document.getElementById('detailPanel')?.classList.contains('open')) {
     openDetailOverlay(taskId);
+  }
+  if (_pendingBoardDropPosition && _pendingBoardDropPosition.taskId === taskId) {
+    const pos = _pendingBoardDropPosition;
+    _pendingBoardDropPosition = null;
+    _patchBoardPosition(pos.taskId, pos.position);
   }
 }
 
