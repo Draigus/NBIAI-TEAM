@@ -169,8 +169,7 @@ async function run() {
     await db.query(`INSERT INTO clients (name) VALUES ($1) ON CONFLICT (name) DO NOTHING`, [name]);
   }
 
-  // Seed default users
-  const defaultPassword = await bcrypt.hash('nbi2026', 10);
+  // Seed default users with unique random passwords
   const defaultUsers = [
     { username: 'glen', display_name: 'Glen Pryer', email: 'glen@nbigaming.com', role: 'admin' },
     { username: 'magnus', display_name: 'Magnus Pryer', email: 'magnus@nbigaming.com', role: 'admin' },
@@ -179,18 +178,27 @@ async function run() {
     { username: 'jeff', display_name: 'Jeff Day', email: 'jeff@nbigaming.com', role: 'member' },
     { username: 'amir', display_name: 'Amir Didar', email: 'amir@nbigaming.com', role: 'member' },
   ];
+  const seededPasswords = [];
   for (const u of defaultUsers) {
-    await db.query(
+    const tempPassword = require('crypto').randomBytes(12).toString('base64url');
+    const hash = await bcrypt.hash(tempPassword, 10);
+    const { rowCount } = await db.query(
       `INSERT INTO users (username, display_name, email, password_hash, role)
        VALUES ($1, $2, $3, $4, $5)
        ON CONFLICT (username) DO NOTHING`,
-      [u.username, u.display_name, u.email, defaultPassword, u.role]
+      [u.username, u.display_name, u.email, hash, u.role]
     );
+    if (rowCount > 0) seededPasswords.push({ username: u.username, password: tempPassword });
   }
 
   console.log('Schema created successfully');
   console.log('Default clients inserted');
-  console.log('Default users seeded (password: nbi2026)');
+  if (seededPasswords.length > 0) {
+    console.log('Default users seeded with random passwords (change immediately):');
+    for (const s of seededPasswords) console.log(`  ${s.username}: ${s.password}`);
+  } else {
+    console.log('Default users already exist — no passwords changed');
+  }
 
   // Show table summary
   const tables = await db.query(`

@@ -2537,6 +2537,8 @@ function authFetch(url, opts = {}) {
     if (resp.status === 401) {
       _currentUser = null;
       showLoginScreen();
+    } else if (resp.status === 403) {
+      toast('You do not have permission for this action', 'error');
     }
     return resp;
   });
@@ -10212,38 +10214,12 @@ const NBI_FINANCE_SEED = { revenue: [], pipeline: [], payroll: [], targets: { y2
 // ===== GBP/USD FX RATE =====
 let _fxRate = null;
 let _fxDate = null;
-/** Fetch GBP/USD exchange rate from Frankfurter (ECB) API, with 4-hour localStorage cache and fallback */
-async function fetchFxRate() {
-  // Check localStorage cache first (cached for 4 hours)
-  try {
-    const cached = JSON.parse(localStorage.getItem('nbi_fx_cache') || 'null');
-    if (cached && cached.rate && (Date.now() - cached.ts) < 4 * 60 * 60 * 1000) {
-      _fxRate = cached.rate; _fxDate = cached.date;
-      return;
-    }
-  } catch(e) {}
-  // Fetch from Frankfurter API (ECB data, free, no key, CORS-enabled)
-  try {
-    const res = await fetch('https://api.frankfurter.dev/v1/latest?from=GBP&to=USD');
-    const data = await res.json();
-    if (data && data.rates && data.rates.USD) {
-      _fxRate = data.rates.USD;
-      _fxDate = data.date;
-      localStorage.setItem('nbi_fx_cache', JSON.stringify({ rate: _fxRate, date: _fxDate, ts: Date.now() }));
-      if (currentView === 'finances') renderContent();
-    }
-  } catch(e) {
-    // Fallback: try open.er-api.com
-    try {
-      const res2 = await fetch('https://open.er-api.com/v6/latest/GBP');
-      const data2 = await res2.json();
-      if (data2 && data2.rates && data2.rates.USD) {
-        _fxRate = data2.rates.USD;
-        _fxDate = new Date().toISOString().split('T')[0];
-        localStorage.setItem('nbi_fx_cache', JSON.stringify({ rate: _fxRate, date: _fxDate, ts: Date.now() }));
-        if (currentView === 'finances') renderContent();
-      }
-    } catch(e2) { console.warn('FX rate fetch failed:', e2); }
+/** Read FX rate from server-managed settings (updated by daily cron). No cross-origin calls. */
+function fetchFxRate() {
+  const fx = settings.fx_rates;
+  if (fx && fx.USD) {
+    _fxRate = fx.USD;
+    _fxDate = new Date().toISOString().split('T')[0];
   }
 }
 /** Convert a GBP amount to USD using the cached FX rate (null if rate unavailable) */

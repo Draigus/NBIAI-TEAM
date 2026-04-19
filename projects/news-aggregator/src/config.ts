@@ -8,6 +8,8 @@ const ConfigSchema = z.object({
   DASHBOARD_NOTIFICATION_TOKEN: z.string().min(16),
   ANTHROPIC_API_KEY: z.string().optional(),
   ANTHROPIC_API_KEY_FAILOVER: z.string().optional(),
+  LLM_MODEL: z.string().default('claude-sonnet-4-6'),
+  LLM_DAILY_TOKEN_BUDGET: z.coerce.number().default(500_000),
   MEDIA_STORAGE_PATH: z.string().default('./media'),
   LOG_LEVEL: z.string().default('info'),
 })

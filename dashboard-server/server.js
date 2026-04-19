@@ -1360,13 +1360,24 @@ app.get('/api/audit-log', requireInternal, async (req, res) => {
 
 /** GET /api/health — Lightweight DB connectivity check (unauthenticated) */
 app.get('/api/health', async (req, res) => {
+  const checks = { db: 'unknown', news: 'unknown' };
+  let anyFailed = false;
   try {
     await pool.query('SELECT 1');
-    res.json({ status: 'ok', db: 'connected' });
+    checks.db = 'connected';
   } catch (e) {
+    checks.db = 'connection failed';
+    anyFailed = true;
     log('error', 'Health', 'DB connectivity check failed', { error: e.message, stack: e.stack?.split('\n').slice(0,3).join(' | ') });
-    res.status(500).json({ status: 'error', db: 'connection failed' });
   }
+  try {
+    const newsResp = await fetch('http://127.0.0.1:8890/health', { signal: AbortSignal.timeout(3000) });
+    checks.news = newsResp.ok ? 'ok' : `http ${newsResp.status}`;
+  } catch (e) {
+    checks.news = 'unreachable';
+    anyFailed = true;
+  }
+  res.status(anyFailed ? 503 : 200).json({ status: anyFailed ? 'degraded' : 'ok', ...checks });
 });
 
 /** GET /api/finance/seed — Return finance seed data for initial bootstrap (admin only). */
@@ -7840,6 +7851,7 @@ app.patch('/api/users/:id/skills', async (req, res) => {
 });
 
 // ==================== SCHEDULED TASKS ====================
+const CRON_TZ = { timezone: 'Europe/London' };
 
 // Daily database backup at 2:00 AM (only if node-cron + backup module are available)
 if (cron && runBackup) {
@@ -7861,7 +7873,7 @@ if (cron && runBackup) {
         }
       }
     } catch (e) { log('error', 'Backup', 'Backup failed', { error: e.message }); }
-  });
+  }, CRON_TZ);
 }
 
 // Weekly cleanup of orphaned contract PDFs older than 90 days (B-B17)
@@ -7880,7 +7892,7 @@ if (cron) {
       }
       if (removed > 0) log('info', 'Cron', `Cleaned up ${removed} orphaned PDF(s) older than 90 days`);
     } catch (e) { log('warn', 'Cron', 'PDF cleanup failed', { error: e.message }); }
-  });
+  }, CRON_TZ);
 }
 
 // Monthly expense report reminder — 25th of every month at 9:00 AM
@@ -7903,7 +7915,7 @@ if (cron) {
     } catch(e) {
       log('error', 'Cron', 'Failed to send expense reminders', { error: e.message });
     }
-  });
+  }, CRON_TZ);
   log('info', 'Cron', 'Monthly expense reminder scheduled for 25th at 09:00');
 }
 
@@ -7931,7 +7943,7 @@ if (cron) {
     } catch (e) {
       log('error', 'FX', 'Failed to fetch exchange rates', { err: e.message });
     }
-  });
+  }, CRON_TZ);
   log('info', 'Cron', 'Daily FX rate refresh scheduled for 06:00');
 }
 
@@ -8134,7 +8146,7 @@ if (cron) {
     } catch (e) {
       log('error', 'Cron', 'PM report job failed', { error: e.message });
     }
-  });
+  }, CRON_TZ);
   log('info', 'Cron', 'PM daily report scheduled for 08:00 weekdays');
 }
 
@@ -8549,7 +8561,7 @@ if (cron) {
     } catch (e) {
       log('error', 'Cron', 'Due/late warning job failed', { error: e.message });
     }
-  });
+  }, CRON_TZ);
   log('info', 'Cron', 'Due/late ticket warnings scheduled for 09:00 weekdays');
 }
 
@@ -8561,7 +8573,7 @@ if (cron) {
     } catch (e) {
       log('error', 'Cron', 'Inbound email poll failed', { error: e.message });
     }
-  });
+  }, CRON_TZ);
   log('info', 'Cron', 'Inbound email polling scheduled every 10 minutes');
 }
 
@@ -8580,8 +8592,8 @@ if (cron) {
     } catch (e) {
       log('error', 'Cron', 'Dashboard snapshot failed', { error: e.message });
     }
-  });
-  log('info', 'Cron', 'Dashboard snapshot scheduled for 00:05 UTC daily');
+  }, CRON_TZ);
+  log('info', 'Cron', 'Dashboard snapshot scheduled for 00:05 daily (Europe/London)');
 }
 
 // Bootstrap today's snapshot on startup if it doesn't exist yet

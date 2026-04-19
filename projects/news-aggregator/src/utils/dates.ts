@@ -71,15 +71,29 @@ const DAY_MS = 86_400_000
  */
 export function weeklyDigestPeriod(ref: Date): { start: Date; end: Date } {
   const dow = ref.getUTCDay() // 0 = Sunday, 1 = Monday, …, 6 = Saturday
+  // Find most recent Sunday at-or-before ref. On Sunday dow=0 this is today;
+  // on any other day it's the previous Sunday. The returned window is the
+  // Mon-Mon week that Sunday closes — i.e. the most recently COMPLETED week.
+  // For mid-week manual runs, use currentWeekPeriod() instead.
   const sundayUtcMs = Date.UTC(
     ref.getUTCFullYear(),
     ref.getUTCMonth(),
     ref.getUTCDate() - dow,
     0, 0, 0,
   )
-  // End = next Monday 00:00 UTC
   const end = new Date(sundayUtcMs + DAY_MS)
-  // Start = Monday of that same week = Sunday - 6 days
   const start = new Date(sundayUtcMs - 6 * DAY_MS)
   return { start, end }
+}
+
+export function currentWeekPeriod(ref: Date): { start: Date; end: Date } {
+  const dow = ref.getUTCDay()
+  const mondayOffset = dow === 0 ? -6 : 1 - dow
+  const mondayMs = Date.UTC(
+    ref.getUTCFullYear(),
+    ref.getUTCMonth(),
+    ref.getUTCDate() + mondayOffset,
+    0, 0, 0,
+  )
+  return { start: new Date(mondayMs), end: new Date(mondayMs + 7 * DAY_MS) }
 }

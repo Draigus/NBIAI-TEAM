@@ -34,7 +34,7 @@ function timeoutForRunType(runType: CallOptions['runType']): number {
   return DEFAULT_TIMEOUT_MS
 }
 
-const MODEL = 'claude-sonnet-4-6'
+function getModel(): string { return loadConfig().LLM_MODEL }
 
 function makeClient(mode: LlmAuthMode): Anthropic {
   const cfg = loadConfig()
@@ -88,7 +88,7 @@ async function runApiCall(mode: LlmAuthMode, opts: CallOptions): Promise<CallRes
   try {
     const stream = client.messages.stream(
       {
-        model: MODEL,
+        model: getModel(),
         max_tokens: opts.maxTokens ?? 4096,
         system: opts.systemPrompt,
         messages: [{ role: 'user', content: opts.userMessage }],
@@ -119,7 +119,24 @@ async function runApiCall(mode: LlmAuthMode, opts: CallOptions): Promise<CallRes
   }
 }
 
+async function checkDailyBudget(): Promise<void> {
+  const budget = loadConfig().LLM_DAILY_TOKEN_BUDGET
+  if (budget <= 0) return
+  const today = new Date().toISOString().slice(0, 10)
+  const result = await db.execute(sql`
+    SELECT COALESCE(SUM(input_token_count + output_token_count), 0)::int AS total
+    FROM news.generation_runs
+    WHERE started_at >= ${today}::date AND status = 'completed'
+  `)
+  const rows = result as unknown as { total: number }[]
+  const used = rows[0]?.total ?? 0
+  if (used >= budget) {
+    throw new Error(`Daily token budget exceeded (${used}/${budget}). LLM calls paused until midnight UTC.`)
+  }
+}
+
 export async function callClaude(opts: CallOptions): Promise<CallResult> {
+  await checkDailyBudget()
   const startMode: LlmAuthMode = isFailoverLatched() ? 'failover' : 'primary'
   const runInsert = await db.insert(schema.generationRuns).values({
     runType: opts.runType,
@@ -178,16 +195,17 @@ export async function callClaude(opts: CallOptions): Promise<CallResult> {
 }
 
 export async function healthcheckAuth(): Promise<{ ok: boolean; mode: LlmAuthMode; error?: string }> {
+  const mode: LlmAuthMode = isFailoverLatched() ? 'failover' : 'primary'
   try {
-    await callClaude({
+    await runApiCall(mode, {
       runType: 'clustering',
       systemPrompt: 'Reply with a single word: ok',
       userMessage: 'ok',
       maxTokens: 5,
     })
-    return { ok: true, mode: isFailoverLatched() ? 'failover' : 'primary' }
+    return { ok: true, mode }
   } catch (err) {
-    return { ok: false, mode: isFailoverLatched() ? 'failover' : 'primary', error: (err as Error).message }
+    return { ok: false, mode, error: (err as Error).message }
   }
 }
 

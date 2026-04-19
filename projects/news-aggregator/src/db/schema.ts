@@ -134,7 +134,7 @@ export const storyArticles = newsSchema.table('story_articles', {
 // §5.6 news.monthly_summaries
 export const monthlySummaries = newsSchema.table('monthly_summaries', {
   id: uuid('id').primaryKey().defaultRandom(),
-  month: date('month').notNull(),
+  month: date('month').notNull().unique(),
   publishedAt: timestamp('published_at', { withTimezone: true }),
   title: text('title').notNull(),
   bodyMarkdown: text('body_markdown').notNull(),
