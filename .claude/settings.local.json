@@ -1,9 +1,8 @@
 {
-  "env": {
-    "DISABLE_AUTO_COMPACT": "1"
-  },
+  "env": {},
   "permissions": {
     "allow": [
+      "Bash(*)",
       "Read(//d/OneDrive/Claude_code/paperclip/**)",
       "Bash(curl -s http://localhost:3100/api/health)",
       "Bash(curl -s http://localhost:3100/api/tasks?limit=20)",
@@ -95,12 +94,47 @@
       "Bash(git worktree *)",
       "Bash(git -C .claude/worktrees/agent-a97850f3 status --short)",
       "Bash(git branch *)",
-      "Bash(git rm *)"
+      "Bash(git rm *)",
+      "Bash(git stash *)",
+      "Bash(git checkout *)",
+      "Bash(grep -oE 'onclick=\"[^\"]{1,80}\"' nbi_project_dashboard.html)",
+      "Bash(awk -F: '{line=$1; if\\(line<3000\\) zone=\"HTML/head\"; else if\\(line<4000\\) zone=\"Sidebar/Nav\"; else if\\(line<5000\\) zone=\"Render/Dashboard\"; else if\\(line<6000\\) zone=\"MyTasks/Tasks\"; else if\\(line<7000\\) zone=\"Calendar/Gantt\"; else if\\(line<8000\\) zone=\"Tree/Board/DnD\"; else if\\(line<9000\\) zone=\"Detail/Blocked\"; else if\\(line<10000\\) zone=\"People/Reports\"; else if\\(line<11000\\) zone=\"Leads/Clients\"; else if\\(line<12000\\) zone=\"Expenses\"; else if\\(line<13000\\) zone=\"Leads2/Finance\"; else if\\(line<14000\\) zone=\"Finance/BugTrack\"; else if\\(line<15000\\) zone=\"Hiring/News\"; else if\\(line<16000\\) zone=\"Settings/Import\"; else zone=\"Rest\"; counts[zone]++} END{for\\(z in counts\\) print counts[z], z}')",
+      "Bash(npm test *)",
+      "Bash(sed -i 's/\\\\.pf__milestone-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0;/.pf__milestone-item { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0;/' nbi_project_dashboard.html)",
+      "Bash(sed -i 's/\\\\.pf__milestone-item:hover { background: var\\(--bg-hover\\); margin: 0 -16px; padding: 8px 16px;/.pf__milestone-item:hover { background: var\\(--bg-hover\\); margin: 0 -16px; padding: 10px 16px;/' nbi_project_dashboard.html)",
+      "Bash(sed -i 's/\\\\.pf__milestone-bar { width: 3px; min-height: 36px;/.pf__milestone-bar { width: 4px; min-height: 44px;/' nbi_project_dashboard.html)",
+      "Bash(sed -i 's/\\\\.pf__milestone-title { font-size: 0.78rem; font-weight: 500;/.pf__milestone-title { font-size: 0.88rem; font-weight: 600;/' nbi_project_dashboard.html)",
+      "Bash(sed -i 's/\\\\.pf__milestone-sub { font-size: 0.6rem;/.pf__milestone-sub { font-size: 0.72rem;/' nbi_project_dashboard.html)",
+      "Bash(curl -s http://localhost:8888/)",
+      "Bash(git commit -m ' *)",
+      "WebFetch(domain:localhost)",
+      "Bash(node convert_onclick.js)",
+      "Bash(grep -oE 'data-arg[0-9]+=\"\\\\$\\\\{escAttrJs\\\\\\([^\\)]+\\\\\\)\\\\}\"' nbi_project_dashboard.html)"
     ],
     "defaultMode": "dontAsk"
   },
   "model": "claude-opus-4-6",
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"additionalContext\":\"SKILL GATE: Before changing code, have you invoked the right skill for this task? Bug/test failure → systematic-debugging. New feature/creative work → brainstorming. Multi-step task → writing-plans. 2+ independent tasks → dispatching-parallel-agents. About to claim done → verification-before-completion. If a matching skill exists and you have not invoked it yet this session, STOP and invoke it NOW before proceeding.\"}}'"
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"additionalContext\":\"SKILL GATE: Before changing code, have you invoked the right skill for this task? Bug/test failure → systematic-debugging. New feature/creative work → brainstorming. Multi-step task → writing-plans. 2+ independent tasks → dispatching-parallel-agents. About to claim done → verification-before-completion. If a matching skill exists and you have not invoked it yet this session, STOP and invoke it NOW before proceeding.\"}}'"
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Agent",

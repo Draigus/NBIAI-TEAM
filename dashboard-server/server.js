@@ -554,7 +554,7 @@ app.use((req, res, next) => {
     "default-src 'self'; " +
     "script-src 'self' 'unsafe-inline' cdn.sheetjs.com cdnjs.cloudflare.com; " +
     "style-src 'self' 'unsafe-inline' fonts.googleapis.com; " +
-    "font-src fonts.gstatic.com; " +
+    "font-src 'self' fonts.gstatic.com; " +
     "img-src 'self' data: blob:; " +
     "connect-src 'self' api.frankfurter.dev open.er-api.com; " +
     "frame-src 'self' blob:; " +

@@ -368,15 +368,15 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 @media (min-width: 769px) and (max-width: 1024px) { .tactical-grid { grid-template-columns: 1fr 1fr; } }
 
 /* ===== PORTFOLIO DASHBOARD v3 ===== */
-.pf { display: flex; flex-direction: column; gap: var(--space-lg); }
-.pf__strip { display: flex; gap: 2px; background: var(--bg-surface); border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--border-default); }
-.pf__strip-item { flex: 1; text-align: center; padding: 14px 8px; background: color-mix(in srgb, var(--bg-card) 85%, var(--text-muted)); }
+.pf { display: flex; flex-direction: column; gap: 10px; height: calc(100dvh - 140px); }
+.pf__strip { display: flex; gap: 10px; flex-shrink: 0; }
+.pf__strip-item { flex: 1; text-align: center; padding: 14px 8px; background: color-mix(in srgb, var(--bg-card) 85%, var(--text-muted)); border-radius: var(--radius-lg); border: 1px solid var(--border-default); }
 .pf__strip-val { display: block; font-size: 1.8rem; font-weight: 700; font-family: var(--font-display); line-height: 1.2; }
 .pf__strip-label { font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; }
 .pf__strip-delta { font-size: 0.68rem; font-weight: 600; margin-left: 4px; }
 
-.pf__main { display: flex; gap: var(--space-md); min-height: 0; }
-.pf__sidebar { width: 240px; flex-shrink: 0; display: flex; flex-direction: column; gap: var(--space-sm); max-height: calc(100vh - 220px); overflow-y: auto; }
+.pf__main { display: flex; gap: var(--space-md); min-height: 0; flex: 1; }
+.pf__sidebar { width: 240px; flex-shrink: 0; display: flex; flex-direction: column; gap: var(--space-sm); overflow-y: auto; min-height: 0; align-self: stretch; border-right: 1px solid var(--border-subtle); padding-right: var(--space-md); background: color-mix(in srgb, var(--bg-card) 40%, transparent); border-radius: var(--radius-lg) 0 0 var(--radius-lg); padding-left: var(--space-sm); padding-bottom: var(--space-sm); }
 .pf__sidebar::-webkit-scrollbar { width: 4px; }
 .pf__sidebar::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: 2px; }
 
@@ -395,12 +395,13 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .pf__client-bar-fill { height: 100%; border-radius: 3px; }
 .pf__client-pct { font-size: 0.7rem; color: var(--text-muted); text-align: right; margin-top: 2px; }
 
-.pf__panels { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md); min-width: 0; }
-.pf__panel { background: color-mix(in srgb, var(--bg-card) 85%, var(--text-muted)); border: 1px solid var(--border-default); border-radius: var(--radius-lg); overflow: hidden; display: flex; flex-direction: column; }
-.pf__panel-hdr { padding: 16px 20px 8px; }
-.pf__panel-title { font-size: 0.88rem; font-weight: 600; color: var(--text-primary); }
-.pf__panel-sub { font-size: 0.68rem; color: var(--text-muted); margin-top: 2px; }
-.pf__panel-body { padding: 0 16px 16px; flex: 1; overflow: auto; }
+.pf__content { flex: 1; display: flex; flex-direction: column; gap: 10px; min-width: 0; min-height: 0; }
+.pf__panels { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; flex: 2; min-height: 0; }
+.pf__panel { background: color-mix(in srgb, var(--bg-card) 85%, var(--text-muted)); border: 1px solid var(--border-default); border-radius: var(--radius-lg); overflow: hidden; display: flex; flex-direction: column; min-height: 0; }
+.pf__panel-hdr { padding: 10px 16px 6px; flex-shrink: 0; }
+.pf__panel-title { font-size: 0.82rem; font-weight: 600; color: var(--text-primary); }
+.pf__panel-sub { font-size: 0.65rem; color: var(--text-muted); margin-top: 2px; }
+.pf__panel-body { padding: 0 14px 10px; flex: 1; overflow-y: auto; min-height: 0; }
 
 .pf__bottom { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-md); }
 
@@ -440,32 +441,32 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .pf__strip-delta-beside .pf__strip-delta-week { display: block; font-size: 0.5rem; font-weight: 400; color: var(--text-muted); letter-spacing: 0.5px; }
 
 /* === v4 Progress Status donut === */
-.pf__donut-container { display: flex; align-items: center; justify-content: center; position: relative; height: 100%; min-height: 260px; }
+.pf__donut-container { display: flex; align-items: center; justify-content: center; position: relative; height: 100%; }
 .pf__donut-leader { stroke: var(--border-default); stroke-width: 0.8; fill: none; }
 
 /* === v4 Upcoming Milestones === */
-.pf__milestone-item { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border-subtle); cursor: pointer; }
+.pf__milestone-item { display: flex; align-items: flex-start; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border-subtle); cursor: pointer; }
 .pf__milestone-item:last-child { border-bottom: none; }
-.pf__milestone-item:hover { background: var(--bg-hover); margin: 0 -16px; padding: 10px 16px; }
-.pf__milestone-bar { width: 4px; min-height: 44px; border-radius: 2px; flex-shrink: 0; }
-.pf__milestone-title { font-size: 0.88rem; font-weight: 600; color: var(--text-primary); }
-.pf__milestone-sub { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; }
+.pf__milestone-item:hover { background: var(--bg-hover); margin: 0 -14px; padding: 7px 14px; }
+.pf__milestone-bar { width: 3px; min-height: 36px; border-radius: 2px; flex-shrink: 0; }
+.pf__milestone-title { font-size: 0.82rem; font-weight: 600; color: var(--text-primary); }
+.pf__milestone-sub { font-size: 0.68rem; color: var(--text-muted); margin-top: 1px; }
 .pf__milestone-status { font-size: 0.78rem; font-weight: 700; text-align: right; flex-shrink: 0; }
 .pf__milestone-date { font-size: 0.68rem; color: var(--text-muted); text-align: right; }
 .pf__milestone-abbr { font-size: 0.78rem; font-weight: 700; }
 
 /* === v4 Work Types bar chart === */
-.pf__wt-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
-.pf__wt-label { width: 140px; flex-shrink: 0; font-size: 0.85rem; font-weight: 700; text-align: right; color: var(--text-primary); }
-.pf__wt-bar-track { flex: 1; height: 28px; }
+.pf__wt-row { display: flex; align-items: center; gap: 8px; padding: 5px 0; }
+.pf__wt-label { width: 140px; flex-shrink: 0; font-size: 0.8rem; font-weight: 700; text-align: right; color: var(--text-primary); }
+.pf__wt-bar-track { flex: 1; height: 22px; }
 .pf__wt-bar { height: 100%; background: #00e5ff; border-radius: 3px; opacity: 0.95; }
 .pf__wt-axis { display: flex; margin-top: 6px; padding-left: 150px; }
 .pf__wt-axis span { flex: 1; font-size: 0.68rem; color: var(--text-muted); }
 
-/* === v4 Bottom row — 4 columns, constrained height === */
-.pf__bottom--v4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-md); }
-.pf__bottom--v4 > .pf__panel { max-height: 300px; }
-.pf__bottom--v4 > .pf__panel > .pf__panel-body { max-height: 240px; overflow-y: auto; }
+/* === v4 Bottom row — 3 columns, compact, no scroll === */
+.pf__bottom--v4 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; flex: 1; min-height: 0; }
+.pf__bottom--v4 > .pf__panel { min-height: 0; }
+.pf__bottom--v4 > .pf__panel > .pf__panel-body { overflow: hidden; }
 
 /* === v4 Needs Attention (bottom row version) === */
 .pf__na-item { display: flex; align-items: center; gap: 6px; padding: 5px 0; border-bottom: 1px solid var(--border-subtle); cursor: pointer; }
@@ -477,11 +478,18 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .pf__na-badge--overdue { background: var(--danger); color: white; }
 .pf__na-badge--risk { background: #f97316; color: white; }
 
+@media (max-height: 850px) {
+  .pf { height: auto; }
+  .pf__panels { flex: none; min-height: 350px; grid-template-rows: 1fr 1fr; }
+  .pf__bottom--v4 { flex: none; min-height: 160px; }
+}
 @media (max-width: 1024px) {
+  .pf { height: auto; overflow: visible; }
   .pf__main { flex-direction: column; }
-  .pf__sidebar { width: 100%; flex-direction: row; flex-wrap: wrap; max-height: none; overflow: visible; }
+  .pf__sidebar { width: 100%; flex-direction: row; flex-wrap: wrap; max-height: none; overflow: visible; background: none; border-right: none; border-radius: 0; padding-left: 0; padding-bottom: 0; }
   .pf__client { flex: 1 1 200px; }
-  .pf__panels { grid-template-columns: 1fr 1fr; }
+  .pf__panels { grid-template-columns: 1fr 1fr; flex: none; grid-template-rows: auto auto; }
+  .pf__panel { max-height: 360px; }
   .pf__bottom--v4 { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 768px) {
@@ -2225,6 +2233,7 @@ span.fin-editable { display: inline-block; position: relative; }
     <button class="sidebar-toggle" data-action="toggleMobileSidebar" aria-label="Menu">&#9776;</button>
     <span class="g-header__logo">NBI</span>
     <span class="g-header__subtitle">Project Dashboard</span>
+    <span id="headerDate" class="header-desktop-only" style="font-size:0.78rem;color:var(--text-muted);border-left:1px solid var(--border-default);padding-left:var(--space-md);margin-left:4px"></span>
   </div>
   <div class="g-header__actions">
     <span id="userBadge" class="header-desktop-only" style="color:var(--text-secondary);font-size:0.82rem;margin-right:4px;"></span>
@@ -2436,7 +2445,7 @@ function cleanupListeners() {
 
 // ==================== EVENT DELEGATION ====================
 const _BOOL = { 'true': true, 'false': false, 'null': null };
-addManagedListener(document, 'click', function(e) {
+document.addEventListener('click', function(e) {
   const el = e.target.closest('[data-action]');
   if (!el) return;
   if (el.hasAttribute('data-stop')) e.stopPropagation();
@@ -2462,7 +2471,7 @@ function _actSetPeopleSubView(v) { _peopleSubView = v; renderContent(); }
 function _actSetReportSubView(v) { _reportSubView = v; renderContent(); }
 function _actSetPortfolioBottomExpanded() { _portfolioBottomAttentionExpanded = true; renderContent(); }
 function _actClearDetailTask() { activeDetailTaskId = null; renderContent(); }
-function _actSetInlineDetail(v) { inlineDetailVisible = (v === 'true'); renderContent(); }
+function _actSetInlineDetail(v) { inlineDetailVisible = !!v; renderContent(); }
 function _actClearSelectedTasks() { selectedTaskIds.clear(); renderContent(); }
 function _actSetPeopleFilterDateRange(v) { _peopleFilter.dateRange = v; renderContent(); }
 function _actSetPeopleFilterPerson(v) { _peopleFilter.person = v; renderContent(); }
@@ -2981,7 +2990,7 @@ const FINANCE_DEBOUNCE_MS = 800;
 const SELF_ECHO_WINDOW_MS = 15000;
 const DEFAULT_HOURLY_RATE = 150;
 const GANTT_ROW_LIMIT = 200;
-const BOARD_BOARD_LANE_CAP = 50;
+const BOARD_LANE_CAP = 50;
 const CANCELLED_CAP = 20;
 const CLIENT_PRIORITY = ['Couch Heroes', 'Lighthouse Studios', 'Sarge Universe', 'Goals Studio'];
 
@@ -3696,7 +3705,7 @@ function initTextareaAutoResize(container) {
 
 // ==================== MOBILE SIDEBAR KEYBOARD HANDLING ====================
 
-addManagedListener(document, 'keydown', (e) => {
+document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     const sidebar = document.getElementById('sidebarEl');
     if (sidebar && sidebar.classList.contains('mobile-open')) {
@@ -3760,7 +3769,7 @@ function renderSidebar() {
   const svgSettings = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M2.9 2.9l1.4 1.4M11.7 11.7l1.4 1.4M13.1 2.9l-1.4 1.4M4.3 11.7l-1.4 1.4"/></svg>';
 
   html += sidebarSectionOpen('views', 'Views');
-  html += sidebarItem(svgDashboard, 'Dashboard', '', () => switchView('dashboard'), currentView==='dashboard');
+  html += sidebarItem(svgDashboard, 'Portfolio', '', () => switchView('dashboard'), currentView==='dashboard');
   // html += sidebarItem(svgReport, 'Report', '', () => switchView('report'), currentView==='report'); // COMMENTED OUT — old report view, kept for revert
   html += sidebarItem(svgTasks, 'Projects', scopedForHealth.length, () => { currentFilter.priority = []; switchView('tasks'); }, currentView==='tasks');
   html += sidebarItem(svgPeople, 'People', '', () => switchView('people'), currentView==='people');
@@ -4082,7 +4091,7 @@ function renderClientProfileHeader() {
 /** Render the main tab bar, filtering out tabs the current user lacks permission to see */
 function renderTabs() {
   const tabs = ['dashboard', 'tasks', 'people', 'leads', 'expenses', 'finances', 'news', 'settings']; // 'report' removed — old report view, kept for revert
-  const labels = { dashboard: 'Dashboard', tasks: 'Projects', report: 'Report', people: 'People', leads: 'Leads', expenses: 'Expenses', finances: 'Finances', news: 'News', settings: 'Settings' };
+  const labels = { dashboard: 'Portfolio', tasks: 'Projects', report: 'Report', people: 'People', leads: 'Leads', expenses: 'Expenses', finances: 'Finances', news: 'News', settings: 'Settings' };
   // Filter tabs based on permissions
   const visibleTabs = tabs.filter(t => {
     if (t === 'finances' || t === 'leads' || t === 'expenses') return hasPageAccess(t);
@@ -4112,7 +4121,7 @@ function switchView(view) {
   if (prev !== view) { history.pushState({ view, filter: { ...currentFilter }, taskSubView }, '', '#' + view); }
   renderAll();
 }
-addManagedListener(window, 'popstate', e => {
+window.addEventListener('popstate', e => {
   if (e.state && e.state.view) {
     currentView = LEGACY_ROUTES[e.state.view] || e.state.view;
     if (e.state.filter) {
@@ -4291,13 +4300,10 @@ function renderDashboard(el) {
     }
   }
 
-  // Current date header
   const now = new Date();
   const dateStr = now.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-  const contextLabel = currentFilter.client || 'NBI Portfolio';
-  html += `<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:var(--space-md)">
-    <div style="font-size:0.82rem;color:var(--text-muted)">${dateStr}</div>
-  </div>`;
+  const headerDateEl = document.getElementById('headerDate');
+  if (headerDateEl) headerDateEl.textContent = dateStr;
 
   // Load snapshots for trend deltas + Work Completed chart
   if (!_portfolioSnapshots) {
@@ -4319,6 +4325,20 @@ function renderDashboard(el) {
   // html += renderTacticalDashboard(); // COMMENTED OUT — old tactical/ops view, kept for revert
   html += renderPortfolioDashboard();
   el.innerHTML = html;
+
+  requestAnimationFrame(() => {
+    const pf = el.querySelector('.pf');
+    if (pf) {
+      if (window.matchMedia('(max-height: 850px)').matches) {
+        pf.style.height = '';
+        return;
+      }
+      const top = pf.getBoundingClientRect().top;
+      const contentEl = document.getElementById('mainContent');
+      const padBot = contentEl ? parseFloat(getComputedStyle(contentEl).paddingBottom) || 0 : 0;
+      pf.style.height = (window.innerHeight - top - padBot) + 'px';
+    }
+  });
 
   // COMMENTED OUT — standup was part of the tactical dashboard, not used in portfolio view
   // const standupExpanded = sessionStorage.getItem('nbi_standup_expanded') === '1';
@@ -4576,21 +4596,22 @@ function renderPortfolioDashboard() {
     ? roots.filter(r => getTaskClient(r) === _portfolioSelectedClient)
     : roots;
 
+  html += '<div class="pf__content">';
   html += '<div class="pf__panels">';
   html += renderPfProgressStatus(panelTasks);
   html += renderPfMilestones(panelRoots, now);
   html += renderPfTimeline(panelTasks, panelRoots, now);
   html += renderPfWorkTypes(panelRoots);
   html += '</div>';
-  html += '</div>';
 
   html += '<div class="pf__bottom pf__bottom--v4">';
   html += renderPfCompletingSoon(panelRoots, now);
-  html += renderPfUpcomingMilestones(panelTasks, now, fortnight);
   html += renderPfTeamWorkload(panelTasks);
   html += renderPfBottomNeedsAttention(panelTasks, now);
   html += '</div>';
+  html += '</div>';
 
+  html += '</div>';
   html += '</div>';
   return html;
 }
@@ -4720,11 +4741,11 @@ function renderPfProgressStatus(panelTasks) {
   });
 
   const nonZero = buckets.filter(b => b.count > 0);
-  const cx = 320, cy = 230, r = 110, sw = 42;
+  const cx = 400, cy = 200, r = 150, sw = 50;
   const circ = 2 * Math.PI * r;
-  const svgW = 640, svgH = 460;
+  const svgW = 800, svgH = 400;
 
-  let svg = `<svg viewBox="0 0 ${svgW} ${svgH}" width="100%" style="display:block">`;
+  let svg = `<svg viewBox="0 0 ${svgW} ${svgH}" preserveAspectRatio="xMidYMid meet" width="100%" height="100%" style="display:block">`;
   svg += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="${sw}"/>`;
 
   let offset = 0;
@@ -4737,7 +4758,7 @@ function renderPfProgressStatus(panelTasks) {
     svg += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${b.colour}" stroke-width="${sw}" stroke-dasharray="${drawLen.toFixed(1)} ${(circ - drawLen).toFixed(1)}" stroke-dashoffset="${(-(offset + gap / 2)).toFixed(1)}" transform="rotate(-90 ${cx} ${cy})"/>`;
     const midFrac = (offset + dashLen / 2) / circ;
     const midAngle = midFrac * 2 * Math.PI - Math.PI / 2;
-    segments.push({ b, midAngle, pct });
+    if (Math.round(pct * 100) > 0) segments.push({ b, midAngle, pct });
     offset += dashLen;
   });
 
@@ -4752,24 +4773,42 @@ function renderPfProgressStatus(panelTasks) {
       const by = cy + Math.sin(b.midAngle) * outerR;
       return ay - by;
     });
-    const labelSpacing = 85;
-    const startY = cy - ((group.length - 1) * labelSpacing) / 2;
-    const labelX = side === 'right' ? svgW - 20 : 20;
-    const anchor = side === 'right' ? 'end' : 'start';
+    const minGap = 50;
+    const minY = 30, maxY = svgH - 30;
+    const positions = group.map(seg => cy + Math.sin(seg.midAngle) * outerR);
+    for (let i = 1; i < positions.length; i++) {
+      if (positions[i] - positions[i - 1] < minGap) positions[i] = positions[i - 1] + minGap;
+    }
+    if (positions.length > 0 && positions[positions.length - 1] > maxY) {
+      const shift = positions[positions.length - 1] - maxY;
+      for (let i = 0; i < positions.length; i++) positions[i] -= shift;
+      for (let i = 1; i < positions.length; i++) {
+        if (positions[i] - positions[i - 1] < minGap) positions[i] = positions[i - 1] + minGap;
+      }
+    }
+    if (positions.length > 0 && positions[0] < minY) {
+      const shift = minY - positions[0];
+      for (let i = 0; i < positions.length; i++) positions[i] += shift;
+      for (let i = 1; i < positions.length; i++) {
+        if (positions[i] - positions[i - 1] < minGap) positions[i] = positions[i - 1] + minGap;
+      }
+    }
+    const elbowX = side === 'right' ? cx + outerR + 30 : cx - outerR - 30;
+    const lineEndX = side === 'right' ? elbowX + 30 : elbowX - 30;
+    const textX = side === 'right' ? lineEndX + 6 : lineEndX - 6;
+    const anchor = side === 'right' ? 'start' : 'end';
 
     group.forEach((seg, i) => {
       const dotX = cx + Math.cos(seg.midAngle) * outerR;
       const dotY = cy + Math.sin(seg.midAngle) * outerR;
-      const labelY = startY + i * labelSpacing;
-      const elbowX = side === 'right' ? svgW - 80 : 80;
-      const elbowY = labelY;
+      const labelY = positions[i];
       const pctText = Math.round(seg.pct * 100) + '%';
 
       svg += `<circle cx="${dotX.toFixed(1)}" cy="${dotY.toFixed(1)}" r="3.5" fill="${seg.b.colour}"/>`;
-      svg += `<line x1="${dotX.toFixed(1)}" y1="${dotY.toFixed(1)}" x2="${elbowX}" y2="${elbowY.toFixed(1)}" stroke="#4dd0e1" stroke-width="1.2" fill="none" opacity="0.65"/>`;
-      svg += `<line x1="${elbowX}" y1="${elbowY.toFixed(1)}" x2="${labelX}" y2="${labelY.toFixed(1)}" stroke="#4dd0e1" stroke-width="1.2" fill="none" opacity="0.65"/>`;
-      svg += `<text x="${labelX}" y="${(labelY - 2).toFixed(1)}" text-anchor="${anchor}" fill="${seg.b.colour}" font-size="28" font-weight="700">${pctText}</text>`;
-      svg += `<text x="${labelX}" y="${(labelY + 22).toFixed(1)}" text-anchor="${anchor}" fill="#94a3b8" font-size="15" font-weight="700" letter-spacing="0.5">${seg.b.label}</text>`;
+      svg += `<line x1="${dotX.toFixed(1)}" y1="${dotY.toFixed(1)}" x2="${elbowX}" y2="${labelY.toFixed(1)}" stroke="#4dd0e1" stroke-width="1.2" fill="none" opacity="0.65"/>`;
+      svg += `<line x1="${elbowX}" y1="${labelY.toFixed(1)}" x2="${lineEndX}" y2="${labelY.toFixed(1)}" stroke="#4dd0e1" stroke-width="1.2" fill="none" opacity="0.65"/>`;
+      svg += `<text x="${textX}" y="${(labelY - 2).toFixed(1)}" text-anchor="${anchor}" fill="${seg.b.colour}" font-size="28" font-weight="700">${pctText}</text>`;
+      svg += `<text x="${textX}" y="${(labelY + 22).toFixed(1)}" text-anchor="${anchor}" fill="#94a3b8" font-size="15" font-weight="700" letter-spacing="0.5">${seg.b.label}</text>`;
     });
   }
 
@@ -4858,30 +4897,44 @@ function renderPfMilestones(panelRoots, now) {
 }
 
 function renderPfTimeline(panelTasks, panelRoots, now) {
-  const activeRoots = panelRoots.filter(r => r.status !== 'Done' && r.status !== 'Cancelled');
-  const withDates = activeRoots.filter(r => r.startDate || r.endDate || r.dueDate);
+  const activeProjects = panelRoots.filter(r => r.status !== 'Done' && r.status !== 'Cancelled' && r.itemType === 'project');
 
   let html = '<div class="pf__panel">';
   html += '<div class="pf__panel-hdr"><div class="pf__panel-title">PROJECT TIMELINE</div></div>';
-  html += '<div class="pf__panel-body" style="padding:8px 16px 16px">';
+  html += '<div class="pf__panel-body" style="padding:0 14px 10px">';
 
-  if (withDates.length === 0) {
-    html += '<div style="display:flex;align-items:center;justify-content:center;height:100px;color:var(--text-muted);font-size:0.82rem">No projects with dates.</div>';
+  if (activeProjects.length === 0) {
+    html += '<div style="display:flex;align-items:center;justify-content:center;height:60px;color:var(--text-muted);font-size:0.82rem">No active projects.</div>';
     html += '</div></div>';
     return html;
   }
 
-  const projects = withDates.map(r => {
-    const s = r.startDate ? safeParseDate(r.startDate) : null;
-    const e = r.endDate ? safeParseDate(r.endDate) : (r.dueDate ? safeParseDate(r.dueDate) : null);
-    return { id: r.id, title: r.title, _start: s, _end: e };
-  }).filter(p => p._start && p._end).sort((a, b) => a._start - b._start);
+  const projects = activeProjects.map(r => {
+    let s = r.startDate ? safeParseDate(r.startDate) : null;
+    let e = r.endDate ? safeParseDate(r.endDate) : (r.dueDate ? safeParseDate(r.dueDate) : null);
+    if (!s && r.createdAt) s = safeParseDate(r.createdAt);
+    if (!s) s = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    if (!e) { e = new Date(s); e.setMonth(e.getMonth() + 3); }
+    if (e <= s) { e = new Date(s); e.setMonth(e.getMonth() + 1); }
+    const client = getTaskClient(r) || 'Other';
+    return { id: r.id, title: r.title, client, _start: s, _end: e };
+  });
 
-  if (projects.length === 0) {
-    html += '<div style="display:flex;align-items:center;justify-content:center;height:100px;color:var(--text-muted);font-size:0.82rem">No projects with start + end dates.</div>';
-    html += '</div></div>';
-    return html;
-  }
+  const clientOrder = ['Couch Heroes', 'Lighthouse Studios', 'Sarge Universe', 'Goals Studio', 'Playsage', 'NBI OPS', 'NSI'];
+  const clientGroups = {};
+  projects.forEach(p => {
+    if (!clientGroups[p.client]) clientGroups[p.client] = [];
+    clientGroups[p.client].push(p);
+  });
+  const sortedClients = Object.keys(clientGroups).sort((a, b) => {
+    const ai = clientOrder.indexOf(a); const bi = clientOrder.indexOf(b);
+    return (ai >= 0 ? ai : 99) - (bi >= 0 ? bi : 99);
+  });
+  const clientSummaries = sortedClients.map(name => {
+    const grp = clientGroups[name];
+    grp.sort((a, b) => a._start - b._start);
+    return { name, _start: new Date(Math.min(...grp.map(p => p._start))), _end: new Date(Math.max(...grp.map(p => p._end))), count: grp.length, projects: grp };
+  });
 
   const globalMin = new Date(Math.min(...projects.map(p => p._start)));
   const globalMax = new Date(Math.max(...projects.map(p => p._end)));
@@ -4898,25 +4951,38 @@ function renderPfTimeline(panelTasks, panelRoots, now) {
     md = mEnd;
   }
 
-  const labelW = 160;
+  const labelW = 150;
   html += `<div style="display:flex">`;
   html += `<div style="width:${labelW}px;flex-shrink:0"></div>`;
   html += `<div style="flex:1;display:flex;border-bottom:1px solid var(--border-subtle)">`;
   months.forEach(m => {
     const widthPct = (m.days / totalDays * 100).toFixed(2);
-    html += `<div style="width:${widthPct}%;text-align:center;font-size:${m.isNow ? '1.1rem' : '0.85rem'};font-weight:${m.isNow ? '700' : '600'};color:${m.isNow ? 'var(--text-primary)' : 'var(--text-muted)'};padding:8px 0;border-right:1px solid var(--border-subtle)">${m.label}</div>`;
+    html += `<div style="width:${widthPct}%;text-align:center;font-size:${m.isNow ? '0.82rem' : '0.68rem'};font-weight:${m.isNow ? '700' : '600'};color:${m.isNow ? 'var(--text-primary)' : 'var(--text-muted)'};padding:4px 0;border-right:1px solid var(--border-subtle)">${m.label}</div>`;
   });
   html += '</div></div>';
 
-  projects.forEach((p, idx) => {
-    const leftPct = ((p._start - globalMin) / 86400000 / totalDays * 100).toFixed(2);
-    const widthPct = Math.max(1, ((p._end - p._start) / 86400000 / totalDays * 100)).toFixed(2);
+  clientSummaries.forEach((cs, idx) => {
+    const leftPct = ((cs._start - globalMin) / 86400000 / totalDays * 100).toFixed(2);
+    const widthPct = Math.max(1, ((cs._end - cs._start) / 86400000 / totalDays * 100)).toFixed(2);
     const zebra = idx % 2 === 1 ? 'background:rgba(255,255,255,0.02);' : '';
-    html += `<div style="display:flex;align-items:center;min-height:42px;cursor:pointer;border-bottom:1px solid var(--border-subtle);${zebra}" data-action="openDetailOverlay" data-arg0="${p.id}" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='${idx % 2 === 1 ? 'rgba(255,255,255,0.02)' : ''}'">`;
-    html += `<div style="width:${labelW}px;flex-shrink:0;font-size:0.82rem;font-weight:600;color:var(--text-primary);padding-right:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.title)}</div>`;
-    html += `<div style="flex:1;position:relative;height:26px">`;
-    html += `<div style="position:absolute;left:${leftPct}%;width:${widthPct}%;top:2px;bottom:2px;background:#00e5ff;border-radius:3px;opacity:0.95"></div>`;
+    const groupId = 'tlg_' + idx;
+    html += `<div style="display:flex;align-items:center;min-height:30px;cursor:pointer;border-bottom:1px solid var(--border-subtle);${zebra}" onclick="var el=document.getElementById('${groupId}');if(el.style.display==='none'){el.style.display='block';this.querySelector('.tl-chev').textContent='\\u25BC'}else{el.style.display='none';this.querySelector('.tl-chev').textContent='\\u25B6'}" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='${idx % 2 === 1 ? 'rgba(255,255,255,0.02)' : ''}'">`;
+    html += `<div style="width:${labelW}px;flex-shrink:0;font-size:0.75rem;font-weight:700;color:var(--accent);padding:0 8px 0 4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><span class="tl-chev" style="font-size:0.6rem;margin-right:4px;color:var(--text-muted)">&#9654;</span>${esc(cs.name)} <span style="font-weight:400;color:var(--text-muted)">(${cs.count})</span></div>`;
+    html += `<div style="flex:1;position:relative;height:18px">`;
+    html += `<div style="position:absolute;left:${leftPct}%;width:${widthPct}%;top:2px;bottom:2px;background:#00e5ff;border-radius:3px;opacity:0.85"></div>`;
     html += '</div></div>';
+
+    html += `<div id="${groupId}" style="display:none">`;
+    cs.projects.forEach(p => {
+      const pLeft = ((p._start - globalMin) / 86400000 / totalDays * 100).toFixed(2);
+      const pWidth = Math.max(0.5, ((p._end - p._start) / 86400000 / totalDays * 100)).toFixed(2);
+      html += `<div style="display:flex;align-items:center;min-height:26px;cursor:pointer;border-bottom:1px solid var(--border-subtle);background:rgba(255,255,255,0.015)" data-action="openDetailOverlay" data-arg0="${p.id}" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='rgba(255,255,255,0.015)'">`;
+      html += `<div style="width:${labelW}px;flex-shrink:0;font-size:0.7rem;font-weight:400;color:var(--text-secondary);padding:0 8px 0 18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.title)}</div>`;
+      html += `<div style="flex:1;position:relative;height:14px">`;
+      html += `<div style="position:absolute;left:${pLeft}%;width:${pWidth}%;top:2px;bottom:2px;background:#00e5ff;border-radius:2px;opacity:0.65"></div>`;
+      html += '</div></div>';
+    });
+    html += '</div>';
   });
 
   html += '</div></div>';
@@ -4935,12 +5001,7 @@ function renderPfWorkTypes(panelRoots) {
     }
   });
 
-  const configOpts = _leadsConfig && _leadsConfig.fieldOptions && _leadsConfig.fieldOptions.work_type
-    ? _leadsConfig.fieldOptions.work_type.map(o => typeof o === 'string' ? o : o.value)
-    : [];
-  configOpts.forEach(name => { if (!(name in typeCounts)) typeCounts[name] = 0; });
-
-  const sorted = Object.entries(typeCounts).sort((a, b) => b[1] - a[1]);
+  const sorted = Object.entries(typeCounts).filter(([, c]) => c > 0).sort((a, b) => b[1] - a[1]);
   const maxCount = Math.max(1, sorted.length > 0 ? sorted[0][1] : 1);
 
   let html = '<div class="pf__panel">';
@@ -4948,13 +5009,13 @@ function renderPfWorkTypes(panelRoots) {
   html += '<div class="pf__panel-body">';
 
   if (sorted.length === 0) {
-    html += '<div style="display:flex;align-items:center;justify-content:center;height:100px;color:var(--text-muted);font-size:0.82rem">No work type categories configured.</div>';
+    html += '<div style="display:flex;align-items:center;justify-content:center;height:100px;color:var(--text-muted);font-size:0.82rem">No work types assigned to projects.</div>';
   } else {
     sorted.forEach(([name, count]) => {
       const barW = Math.round(count / maxCount * 100);
       html += '<div class="pf__wt-row">';
       html += `<div class="pf__wt-label">${esc(name)}</div>`;
-      html += `<div class="pf__wt-bar-track"><div class="pf__wt-bar" style="width:${barW}%"></div></div>`;
+      html += `<div class="pf__wt-bar-track"><div class="pf__wt-bar" style="width:${barW}%"></div></div><span style="min-width:24px;text-align:right;font-size:0.8rem;font-weight:700;color:var(--text-secondary)">${count}</span>`;
       html += '</div>';
     });
     const axisSteps = Math.min(maxCount, 6);
@@ -6149,7 +6210,7 @@ function renderBoardView(filtered) {
   const blockedByHealth = active.filter(t => t.healthState === 'Blocked');
   const notBlockedByHealth = active.filter(t => t.healthState !== 'Blocked');
 
-  // BOARD_BOARD_LANE_CAP defined in config constants
+  // BOARD_LANE_CAP defined in config constants
   let html = `<div style="display:flex;gap:6px;margin-bottom:10px;align-items:center;flex-wrap:wrap">
     <span style="font-size:0.75rem;color:var(--text-muted)">Show:</span>
     <button class="btn btn--sm ${!_boardTypeFilter?'btn--primary':''}" data-action="_actSetBoardTypeFilter" data-arg0="null" style="font-size:0.7rem;padding:2px 8px">All</button>
@@ -8069,7 +8130,7 @@ function onDrop(e, targetParentId) {
 }
 
 // Also allow dropping on parent task rows directly (not just their children container)
-addManagedListener(document, 'dragover', function(e) {
+document.addEventListener('dragover', function(e) {
   if (!draggedTaskId) return;
   const row = e.target.closest('.task-row');
   if (!row) return;
@@ -8084,7 +8145,7 @@ addManagedListener(document, 'dragover', function(e) {
   row.classList.add('drag-over');
 });
 
-addManagedListener(document, 'drop', function(e) {
+document.addEventListener('drop', function(e) {
   if (!draggedTaskId) return;
   const row = e.target.closest('.task-row');
   if (!row) return;
@@ -8977,7 +9038,8 @@ function removeRepeatDate(taskId, idx) {
   const task = tasks.find(t => t.id === taskId);
   if (!task || !task.repeatRule || task.repeatRule.type !== 'yearly') return;
   const dates = task.repeatRule.dates || [];
-  task.repeatRule.dates = dates.filter((_, i) => i !== idx);
+  const numIdx = typeof idx === 'string' ? parseInt(idx, 10) : idx;
+  task.repeatRule.dates = dates.filter((_, i) => i !== numIdx);
   task.updatedAt = new Date().toISOString();
   markDirty(taskId);
   save();
@@ -17963,11 +18025,24 @@ function showSyncStatus(type, msg) {
 }
 
 // ===== TAB OVERFLOW CHECK ON RESIZE =====
-addManagedListener(window, 'resize', () => { checkTabOverflow(); });
+window.addEventListener('resize', () => {
+  checkTabOverflow();
+  const pf = document.querySelector('.pf');
+  if (pf && currentView === 'dashboard') {
+    if (window.matchMedia('(max-height: 850px)').matches) {
+      pf.style.height = '';
+    } else {
+      const top = pf.getBoundingClientRect().top;
+      const contentEl = document.getElementById('mainContent');
+      const padBot = contentEl ? parseFloat(getComputedStyle(contentEl).paddingBottom) || 0 : 0;
+      pf.style.height = (window.innerHeight - top - padBot) + 'px';
+    }
+  }
+});
 
 // ===== OFFLINE INDICATOR =====
-addManagedListener(window, 'online', () => { document.getElementById('offlineBanner')?.classList.remove('visible'); syncToAPI(); });
-addManagedListener(window, 'offline', () => { document.getElementById('offlineBanner')?.classList.add('visible'); });
+window.addEventListener('online', () => { document.getElementById('offlineBanner')?.classList.remove('visible'); syncToAPI(); });
+window.addEventListener('offline', () => { document.getElementById('offlineBanner')?.classList.add('visible'); });
 
 // ===== CONFLICT RESOLUTION =====
 let _conflictData = null;
@@ -18059,7 +18134,7 @@ function performUndo() {
 }
 
 // Keyboard shortcut: Ctrl+Z for undo
-addManagedListener(document, 'keydown', function(e) {
+document.addEventListener('keydown', function(e) {
   if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.target.closest('input,textarea,select')) {
     e.preventDefault();
     performUndo();
@@ -18340,7 +18415,7 @@ function restartPollingIntervals() {
   _notifPollInterval = setInterval(() => { if (_currentUser) loadNotifications(); }, 30000);
 }
 // Close panel when clicking outside (legacy — notification bell removed, kept as no-op guard)
-addManagedListener(document, 'click', e => { if (_notifOpen && !e.target.closest('#warnAlertPanel')) { _notifOpen = false; } });
+document.addEventListener('click', e => { if (_notifOpen && !e.target.closest('#warnAlertPanel')) { _notifOpen = false; } });
 
 // ===== TASK TEMPLATES =====
 /** Fetch task templates from the API and render them in the settings view */

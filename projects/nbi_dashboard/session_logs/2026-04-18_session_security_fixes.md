@@ -109,3 +109,135 @@ Replaced client cards section and added milestones. Changes:
      - Rewrite `init()` to check cookie via `/api/auth/me` with `credentials: 'include'` (no more localStorage-gated check)
 - Server.js + auth.test.mjs F-C2 changes were already complete from the crashed session, left as-is.
 - Next: verify HTML syntax, stage + commit F-C2 files only, then restore /tmp/html_with_everything.html to get portfolio back in working dir for a separate commit later.
+
+### Entry 3 (new chat): F-C2 committed + handoff written
+- Applied 10 F-C2 edits to clean HEAD version of nbi_project_dashboard.html
+- Verified HTML JS syntax (920983 chars, parses clean); diff shrank from 360 → 85 lines (F-C2 only)
+- Confirmed 0 _authToken refs and 0 nbi_auth_token localStorage refs remain
+- Staged: server.js, auth.test.mjs, nbi_project_dashboard.html, this session log
+- Committed F-C2 as `b4f818e`: "fix(hub): migrate auth tokens from localStorage to HttpOnly cookie (F-C2)"
+- Restored /tmp/html_with_everything.html to working tree — portfolio changes back as uncommitted
+- Restarted PM2 nbi-dashboard (pid 492); /api/health returned 200
+- Rewrote docs/HANDOFF.md to reflect: b4f818e F-C2 commit, uncommitted portfolio/CLAUDE.md/settings, 1M context model change takes effect next session, browser verification checklist for F-C2
+- End of this session's coding. Next session: browser-verify F-C2 + portfolio, then commit portfolio or iterate.
+
+### Entry 4: Model ID corrected
+- Glen wants Opus 4.6 specifically with 1M context, not the floating "opus" alias which resolves to latest (4.7).
+- `.claude/settings.local.json` model: `opus[1m]` → `claude-opus-4-6[1m]`
+- Pins to 4.6 explicitly with the [1m] suffix for 1M context window.
+- Takes effect next session.
+
+### Entry 5: Portfolio dashboard v2 — continued iteration
+
+**Loaded handoff:** `handoff_2026-04-18_portfolio_dashboard_v2.md`
+
+**Glen's corrections:**
+- PlaySage goes under NBI OPS, NOT PlayGoals (previous session misheard)
+- V2 dashboard "still needs a ton of work"
+
+**Section reorder (Glen's directive):**
+- Old order: KPI strip → Nearly Complete + Upcoming Milestones → Client cards
+- New order: KPI strip → Client cards → Nearly Complete + Upcoming Milestones
+- Implementation: moved the nearComplete/upcoming computation and HTML block from between the KPI strip and clientMap to after the portfolio-grid closing tag, before `return html`. No logic changed, just position in the output.
+
+**"Unassigned" removed from portfolio + client enforcement:**
+- Portfolio dashboard `clientMap` builder now skips tasks with no client (line ~4267: `if (!client) return;`)
+- `addTask()` (line ~4467): requires `currentFilter.client`; shows warning toast if no client selected
+- `quickAddTask()` (line ~4531): same enforcement
+- `addItem()` at root level (line ~4491): falls back to `currentFilter.client`, blocks with toast if empty
+- Inline detail panel client dropdown (line ~6963): removed empty `-- None --` option; blank value disabled with `-- Select Client --` placeholder; `onchange` blocks clearing to empty with toast
+- Overlay detail panel client dropdown (line ~7629): same treatment as inline panel
+- Glen's directive: "something can't be unassigned. It has to be assigned to something."
+
+**Card layout fixes (Glen: "cards are too thin, formatting on Lighthouse is fucked up"):**
+- `.portfolio-grid` min column width bumped from 420px to 520px — fewer cards per row, wider cards
+- `.portfolio-card__header` added `flex-wrap: wrap` so stats wrap below name instead of overflowing/truncating
+
+**Balanced flexbox grid (Glen: "4 on one row, 3 stretch to fill the next"):**
+- Switched `.portfolio-grid` from CSS Grid (`auto-fill`) to flexbox (`flex-wrap: wrap`)
+- Cards use `flex: 1 1 var(--portfolio-basis)` + `min-width: var(--portfolio-basis)` — last-row cards stretch to fill full width, zero dead space
+- Added `bestGridColumns(count, maxCols)` function (after `clientSortOrder`): picks column count where last row is closest to full. E.g. 7 cards with max 5 → picks 4 (4+3, ratio 0.75) over 5 (5+2, ratio 0.4)
+- Responsive maxCols: mobile(<600)=1, tablet(<1024)=2, desktop(<1600)=3, widescreen=4
+- `--portfolio-basis` CSS variable calculated per render: `calc((100% - gaps) / cols)`
+- Card header `min-height: 68px` + `padding: 18px` to match KPI strip height
+- Card header stats `flex-shrink: 1; flex-wrap: wrap` so they wrap instead of truncating
+- Card name `min-width: 80px` so it doesn't collapse to nothing
+- Mobile breakpoint: cards forced to `100%` width, name wraps to multiple lines
+
+**Card height doubled (Glen: "double the vertical width"):**
+- `.portfolio-card__header` padding 18px → 28px, min-height 68px → 100px
+
+**server.js syntax fix:** Removed orphaned closing brackets at server.js:4830-4846 — leftover from B-B16 PUT /api/sync/tasks removal. The `void 0;` anchor was correct but the closing `); } } } } }`, `COMMIT`, `catch`, `finally`, `});` below it were dead code from the deleted endpoint body, causing a SyntaxError on startup.
+
+**Spacing + font polish:**
+- `.portfolio-grid` added `margin-bottom: var(--space-lg)` — matches KPI strip → cards gap, so cards → Nearly Complete spacing is equal
+- `.portfolio-card__name` font-size 0.95rem → 1.1rem
+
+**Lighter card backgrounds (Glen: "a little bit lighter to differentiate from background"):**
+- `.portfolio-strip__item`, `.portfolio-card`, `.tactical-section` all changed from `var(--bg-card)` to `color-mix(in srgb, var(--bg-card) 85%, var(--text-muted))` — blends 15% of the muted text colour into the card bg, lifting them slightly above the dark base without being jarring. Works across all themes via the CSS variables.
+
+### Entry 6: Portfolio dashboard v3 brainstorming (visual companion)
+
+Started brainstorming session for major portfolio dashboard redesign. Visual companion server running at localhost:62113.
+
+**Glen's architecture decisions (from wireframe review):**
+1. Client cards move to a narrow LEFT COLUMN (stacked vertically, scrollable)
+2. "Portfolio" card at top = aggregate summary across all clients
+3. Clicking a client card FILTERS the 4 viz panels (no more expand/collapse on cards)
+4. KPI trend deltas = week-over-week comparison (needs historical snapshot DB table)
+5. Four viz panels in 2x2 grid to the right of client column
+6. Bottom row: Nearly Complete + 2 TBD panels
+
+**Wireframes shown:**
+- `layout-architecture.html` — overall layout structure (approved)
+- `viz-panels.html` — mockups for all 4 viz panels with specific content proposals
+
+**Awaiting Glen's feedback on:** panel content specifics, bottom TBD panel ideas, charting approach
+
+**Glen's v2 feedback:**
+- Timeline panel must replicate the actual Projects Gantt view, not a simplified version
+- Visual quality across all panels was poor ("looks like shit")
+- Work Completed needs three data series: existing backlog, new work added, completed
+- Glen clarified he's not frustrated, just correcting a mistake
+
+**v3 wireframe (`viz-panels-v3.html`):**
+- Timeline now replicates actual Gantt: label column with P/F type badges, client group headers, day/month headers, today line, zoom+nav controls, status-coloured bars, hierarchy indentation
+- Work Completed: cleaner with grid lines, three series, current week highlight, net summary
+- Health Scorecard: tighter layout with dot-in-cell RAG treatment
+- Needs Attention: two-line items with project context, cleaner spacing
+
+**Glen's v3 feedback + v4 wireframe (`viz-panels-v4.html`):**
+- Health Scorecard: reverted to plain dots in a simple table — the tinted cells made it worse
+- Work Completed: now three side-by-side bars per week (Planned/Added/Completed), not stacked
+- Timeline: approved (v3)
+- Needs Attention: approved (v3)
+- Interaction model: clicking any item in any panel opens `openDetailOverlay()` as pop-out, no page navigation
+
+**Implementation plan written:** `docs/superpowers/plans/2026-04-18-portfolio-dashboard-v3.md`
+- 14 tasks: migration, server (cron+API+bootstrap), CSS layout, state vars, orchestrator rewrite, KPI strip, client sidebar, Work Completed chart, Health Scorecard, Timeline Gantt, Needs Attention, bottom row (3 panels), v2 cleanup, smoke test
+
+### Entry 7: Portfolio v3 implementation (worktree d:/tmp/portfolio-v3, branch portfolio-dashboard-v3)
+
+**Completed Tasks 1-2 (server):**
+- `516a21c` — migration 028_dashboard_snapshots.sql
+- `4a37e23` — computeDashboardSnapshot(), GET /api/dashboard/snapshots, daily cron 00:05 UTC, startup bootstrap, 4 tests passing
+
+**Completed Tasks 3-12 (frontend):**
+- `dc1de9b` — full frontend rewrite: CSS (.pf__* classes), state variables, renderPortfolioDashboard() orchestrator, 9 panel render functions (Strip, Sidebar, WorkCompleted, HealthScorecard, Timeline, NeedsAttention, CompletingSoon, UpcomingMilestones, TeamWorkload)
+
+**Task 13 cleanup (in progress):**
+- Removed `togglePortfolioCard()` — no longer called (cards don't expand)
+- Removed `bestGridColumns()` — no longer called (sidebar layout replaces grid)
+
+**v5 wireframe (`work-completed-v5.html`):**
+- Work Completed: Planned + Added stacked as left bar, Completed as right bar per week. Stacked bar = total workload, green bar = output. Green shorter than stacked = backlog growing.
+
+**Bottom row wireframe (`bottom-row.html`):**
+- Nearly Complete: projects 60-99% done, progress bars, click opens overlay
+- Upcoming Milestones: root tasks due within 14 days, urgency-coded badges
+- Team Workload: horizontal bars per person, active task count, red/amber/green by load thresholds
+- Glen renamed "Nearly Complete" to "Completing Soon"
+- Bottom row approved
+
+**Design spec written:** `docs/superpowers/specs/2026-04-18-portfolio-dashboard-v3-design.md`
+- Full spec covering: layout architecture, KPI strip with WoW deltas, client sidebar, 4 viz panels (Work Completed, Client Health, Project Timeline, Needs Attention), bottom row (Completing Soon, Upcoming Milestones, Team Workload), interaction model, new `dashboard_snapshots` DB table + cron + API endpoint
