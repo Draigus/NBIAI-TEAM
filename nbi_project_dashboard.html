@@ -434,6 +434,47 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .pf__workload-fill { height: 100%; border-radius: 3px; }
 .pf__workload-count { font-size: 0.7rem; font-weight: 600; width: 24px; text-align: right; }
 
+/* === v4 KPI strip layout — delta beside number === */
+.pf__strip-top { display: flex; align-items: baseline; justify-content: center; gap: 6px; }
+.pf__strip-delta-beside { font-size: 0.72rem; font-weight: 600; line-height: 1.2; }
+.pf__strip-delta-beside .pf__strip-delta-week { display: block; font-size: 0.5rem; font-weight: 400; color: var(--text-muted); letter-spacing: 0.5px; }
+
+/* === v4 Progress Status donut === */
+.pf__donut-container { display: flex; align-items: center; justify-content: center; position: relative; height: 100%; min-height: 260px; }
+.pf__donut-leader { stroke: var(--border-default); stroke-width: 0.8; fill: none; }
+
+/* === v4 Upcoming Milestones === */
+.pf__milestone-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border-subtle); cursor: pointer; }
+.pf__milestone-item:last-child { border-bottom: none; }
+.pf__milestone-item:hover { background: var(--bg-hover); margin: 0 -16px; padding: 8px 16px; }
+.pf__milestone-bar { width: 3px; min-height: 36px; border-radius: 2px; flex-shrink: 0; }
+.pf__milestone-title { font-size: 0.78rem; font-weight: 500; color: var(--text-primary); }
+.pf__milestone-sub { font-size: 0.6rem; color: var(--text-muted); margin-top: 1px; }
+.pf__milestone-status { font-size: 0.65rem; font-weight: 600; text-align: right; flex-shrink: 0; }
+.pf__milestone-date { font-size: 0.55rem; color: var(--text-muted); text-align: right; }
+.pf__milestone-abbr { font-size: 0.65rem; font-weight: 700; }
+
+/* === v4 Work Types bar chart === */
+.pf__wt-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; }
+.pf__wt-label { width: 120px; flex-shrink: 0; font-size: 0.78rem; font-weight: 600; text-align: right; color: var(--text-primary); }
+.pf__wt-bar-track { flex: 1; height: 20px; }
+.pf__wt-bar { height: 100%; background: #00e5ff; border-radius: 3px; opacity: 0.7; }
+.pf__wt-axis { display: flex; margin-top: 4px; padding-left: 128px; }
+.pf__wt-axis span { flex: 1; font-size: 0.55rem; color: var(--text-muted); }
+
+/* === v4 Bottom row — 4 columns instead of 3 === */
+.pf__bottom--v4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-md); }
+
+/* === v4 Needs Attention (bottom row version) === */
+.pf__na-item { display: flex; align-items: center; gap: 6px; padding: 5px 0; border-bottom: 1px solid var(--border-subtle); cursor: pointer; }
+.pf__na-item:last-child { border-bottom: none; }
+.pf__na-item:hover { background: var(--bg-hover); }
+.pf__na-border { width: 3px; min-height: 28px; border-radius: 1px; flex-shrink: 0; }
+.pf__na-badge { font-size: 0.52rem; padding: 1px 5px; border-radius: 2px; font-weight: 600; flex-shrink: 0; white-space: nowrap; }
+.pf__na-badge--blocked { background: var(--purple); color: white; }
+.pf__na-badge--overdue { background: var(--danger); color: white; }
+.pf__na-badge--risk { background: #f97316; color: white; }
+
 @media (max-width: 1024px) {
   .pf__main { flex-direction: column; }
   .pf__sidebar { width: 100%; flex-direction: row; flex-wrap: wrap; max-height: none; overflow: visible; }
@@ -447,6 +488,7 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
   .pf__client { flex: 1 1 100%; }
   .pf__panels { grid-template-columns: 1fr; }
   .pf__bottom { grid-template-columns: 1fr; }
+  .pf__bottom--v4 { grid-template-columns: 1fr; }
 }
 
 .kpi-card { background: var(--bg-card); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-lg) var(--space-xl); text-align: center; cursor: pointer; transition: all 0.15s; }
@@ -2363,7 +2405,7 @@ span.fin-editable { display: inline-block; position: relative; }
 // Naming conventions:
 //   _prefixed variables = module-level state (not truly private, just convention)
 //   esc()               = HTML-escape user input (XSS prevention)
-//   authFetch()         = fetch() wrapper that injects Bearer token + handles 401
+//   authFetch()         = fetch() wrapper with cookie credentials + 401/403 handling
 //   renderXxxView()     = builds HTML string for a view and sets el.innerHTML
 //   markDirty(id)       = flags a task for sync on next save cycle
 // ===================================================================
@@ -2392,6 +2434,8 @@ const _expandedClientCards = new Set();  // Track which client summary cards are
 let _portfolioSelectedClient = null;
 let _portfolioSnapshots = null;
 let _portfolioAttentionExpanded = false;
+let _portfolioLeadCount = null;
+let _portfolioBottomAttentionExpanded = false;
 let _pfGanttDayWidth = 12;
 let _pfGanttOffsetDays = 0;
 
@@ -2404,6 +2448,20 @@ async function loadDashboardSnapshots() {
     }
   } catch (e) {
     _portfolioSnapshots = [];
+  }
+}
+
+async function loadPortfolioLeadCount() {
+  try {
+    const resp = await authFetch('/api/leads/pipeline/summary');
+    if (resp.ok) {
+      const data = await resp.json();
+      _portfolioLeadCount = (data.stages || [])
+        .filter(s => !s.is_closed)
+        .reduce((sum, s) => sum + parseInt(s.count || 0), 0);
+    }
+  } catch (e) {
+    _portfolioLeadCount = 0;
   }
 }
 
@@ -4122,6 +4180,11 @@ function renderDashboard(el) {
       if (currentView === 'dashboard') renderContent();
     });
   }
+  if (_portfolioLeadCount === null) {
+    loadPortfolioLeadCount().then(() => {
+      if (currentView === 'dashboard') renderContent();
+    });
+  }
 
   // html += renderTacticalDashboard(); // COMMENTED OUT — old tactical/ops view, kept for revert
   html += renderPortfolioDashboard();
@@ -4339,7 +4402,15 @@ function toggleClientCard(clientName) {
   if (card) card.classList.toggle('expanded');
 }
 
-// ===== PORTFOLIO DASHBOARD v3 — Sidebar + panels layout =====
+function getClientAbbreviation(clientName) {
+  if (!clientName) return '';
+  const brief = clientBriefs[clientName];
+  if (brief && brief.abbreviation) return brief.abbreviation;
+  if (clientName.length <= 4 || clientName === clientName.toUpperCase()) return clientName;
+  return clientName.split(/\s+/).map(w => w[0]).join('').toUpperCase().slice(0, 3);
+}
+
+// ===== PORTFOLIO DASHBOARD v4 — Sidebar + panels layout =====
 function renderPortfolioDashboard() {
   const filtered = getFilteredTasks();
   const now = new Date(); now.setHours(0,0,0,0);
@@ -4350,8 +4421,11 @@ function renderPortfolioDashboard() {
   const overdueTasks = filtered.filter(t => t.dueDate && t.status !== 'Done' && t.status !== 'Cancelled' && safeParseDate(t.dueDate) < now);
   const blockedTasks = filtered.filter(t => t.healthState === 'Blocked' && t.status !== 'Done' && t.status !== 'Cancelled');
   const atRiskTasks = filtered.filter(t => t.healthState === 'Red' && t.status !== 'Done' && t.status !== 'Cancelled');
-  const totalHrs = filtered.reduce((s, t) => s + (t.hoursSpent || 0), 0);
-  const totalEst = filtered.reduce((s, t) => s + (t.hoursEstimated || 0), 0);
+
+  const needsAttentionCount = overdueTasks.length;
+  const uniqueProblemIds = new Set([...overdueTasks.map(t => t.id), ...atRiskTasks.map(t => t.id)]);
+  const onTrackCount = Math.max(0, activeRoots.length - uniqueProblemIds.size);
+  const workTypesActive = new Set(activeRoots.filter(r => r.workType).map(r => r.workType)).size;
 
   const snap7 = _portfolioSnapshots ? _portfolioSnapshots.find(s => {
     const d = new Date(s.snapshot_date);
@@ -4360,7 +4434,7 @@ function renderPortfolioDashboard() {
   }) : null;
 
   let html = '<div class="pf">';
-  html += renderPfStrip(activeRoots.length, overdueTasks.length, blockedTasks.length, atRiskTasks.length, totalHrs, totalEst, snap7);
+  html += renderPfStrip(activeRoots.length, onTrackCount, needsAttentionCount, atRiskTasks.length, _portfolioLeadCount || 0, workTypesActive, snap7);
 
   html += '<div class="pf__main">';
   html += renderPfSidebar(filtered, roots, now);
@@ -4373,43 +4447,55 @@ function renderPortfolioDashboard() {
     : roots;
 
   html += '<div class="pf__panels">';
-  html += renderPfWorkCompleted();
-  html += renderPfHealthScorecard(filtered, roots, now);
+  html += renderPfProgressStatus(panelTasks);
+  html += renderPfMilestones(panelRoots, now);
   html += renderPfTimeline(panelTasks, panelRoots, now);
-  html += renderPfNeedsAttention(panelTasks, now);
+  html += renderPfWorkTypes(panelRoots);
   html += '</div>';
   html += '</div>';
 
-  html += '<div class="pf__bottom">';
+  html += '<div class="pf__bottom pf__bottom--v4">';
   html += renderPfCompletingSoon(panelRoots, now);
   html += renderPfUpcomingMilestones(panelTasks, now, fortnight);
   html += renderPfTeamWorkload(panelTasks);
+  html += renderPfBottomNeedsAttention(panelTasks, now);
   html += '</div>';
 
   html += '</div>';
   return html;
 }
 
-function renderPfStrip(activeCount, overdueCount, blockedCount, atRiskCount, hrsSpent, hrsEst, snap7) {
+// COMMENTED OUT — v3 KPI strip
+// function renderPfStrip_v3(activeCount, overdueCount, blockedCount, atRiskCount, hrsSpent, hrsEst, snap7) { ... }
+
+function renderPfStrip(activeCount, onTrackCount, needsAttentionCount, atRiskCount, leadsCount, workTypesCount, snap7) {
   function delta(current, field) {
     if (!snap7) return '';
     const prev = parseFloat(snap7[field]) || 0;
     const diff = current - prev;
     if (diff === 0) return '';
-    const isGood = (field === 'active_projects' || field === 'hours_spent' || field === 'hours_estimated') ? diff > 0 : diff < 0;
+    const isGood = (field === 'active_projects' || field === 'on_track_count' || field === 'active_leads_count')
+      ? diff > 0 : diff < 0;
     const arrow = diff > 0 ? '\u25B2' : '\u25BC';
     const sign = diff > 0 ? '+' : '';
     const col = isGood ? 'var(--success)' : 'var(--danger)';
-    return ` <span class="pf__strip-delta" style="color:${col}">${arrow} ${sign}${Math.round(diff * 10) / 10}</span>`;
+    return `<span class="pf__strip-delta-beside" style="color:${col}"><span class="pf__strip-delta-arrow">${arrow}</span> ${sign}${Math.round(diff)}<span class="pf__strip-delta-week">LST WK</span></span>`;
   }
 
-  return `<div class="pf__strip">
-    <div class="pf__strip-item"><span class="pf__strip-val" style="color:var(--accent)">${activeCount}${delta(activeCount, 'active_projects')}</span><span class="pf__strip-label">Active Projects</span></div>
-    <div class="pf__strip-item"><span class="pf__strip-val" style="color:${overdueCount > 0 ? 'var(--danger)' : 'var(--success)'}">${overdueCount}${delta(overdueCount, 'overdue_count')}</span><span class="pf__strip-label">Overdue</span></div>
-    <div class="pf__strip-item"><span class="pf__strip-val" style="color:${blockedCount > 0 ? 'var(--purple)' : 'var(--success)'}">${blockedCount}${delta(blockedCount, 'blocked_count')}</span><span class="pf__strip-label">Blocked</span></div>
-    <div class="pf__strip-item"><span class="pf__strip-val" style="color:${atRiskCount > 0 ? 'var(--danger)' : 'var(--success)'}">${atRiskCount}${delta(atRiskCount, 'at_risk_count')}</span><span class="pf__strip-label">At Risk</span></div>
-    <div class="pf__strip-item"><span class="pf__strip-val" style="color:var(--text-primary)">${hrsSpent.toFixed(1)}${delta(hrsSpent, 'hours_spent')}</span><span class="pf__strip-label">Hours Spent</span></div>
-    <div class="pf__strip-item"><span class="pf__strip-val" style="color:var(--text-muted)">${hrsEst.toFixed(1)}${delta(hrsEst, 'hours_estimated')}</span><span class="pf__strip-label">Hours Est.</span></div>
+  const items = [
+    { val: activeCount, label: 'Active Engagements', col: 'var(--success)', d: delta(activeCount, 'active_projects') },
+    { val: onTrackCount, label: 'On Track', col: 'var(--success)', d: delta(onTrackCount, 'on_track_count') },
+    { val: needsAttentionCount, label: 'Needs Attention', col: 'var(--warning)', d: delta(needsAttentionCount, 'overdue_count') },
+    { val: atRiskCount, label: 'At Risk', col: 'var(--danger)', d: delta(atRiskCount, 'at_risk_count') },
+    { val: leadsCount, label: 'Active Leads', col: 'var(--accent)', d: delta(leadsCount, 'active_leads_count') },
+    { val: workTypesCount, label: 'Work Types Active', col: 'var(--purple)', d: '' },
+  ];
+
+  return `<div class="pf__strip">${items.map(i => `
+    <div class="pf__strip-item">
+      <div class="pf__strip-top"><span class="pf__strip-val" style="color:${i.col}">${i.val}</span>${i.d}</div>
+      <span class="pf__strip-label">${i.label}</span>
+    </div>`).join('')}
   </div>`;
 }
 
@@ -4475,127 +4561,132 @@ function renderPfSidebar(filtered, roots, now) {
   return html;
 }
 
-function renderPfWorkCompleted() {
+// COMMENTED OUT — v3 Work Completed (replaced by v4 Progress Status donut)
+// function renderPfWorkCompleted() { /* ... see git history ... */ }
+
+function renderPfProgressStatus(panelTasks) {
+  const active = panelTasks.filter(t => t.status !== 'Cancelled');
+  const total = active.length;
+  if (total === 0) {
+    return '<div class="pf__panel"><div class="pf__panel-hdr"><div class="pf__panel-title">Progress Status</div></div><div class="pf__panel-body"><div style="display:flex;align-items:center;justify-content:center;height:200px;color:var(--text-muted);font-size:0.82rem">No tasks found.</div></div></div>';
+  }
+
+  const buckets = [
+    { key: 'blocked', label: 'BLOCKED', colour: '#ef4444', count: 0 },
+    { key: 'waiting', label: 'WAITING ON CLIENT', colour: '#fbbf24', count: 0 },
+    { key: 'done', label: 'COMPLETED', colour: '#4ade80', count: 0 },
+    { key: 'inprogress', label: 'IN PROGRESS', colour: '#06b6d4', count: 0 },
+    { key: 'planning', label: 'PLANNING', colour: '#3b82f6', count: 0 },
+    { key: 'notstarted', label: 'NOT STARTED', colour: '#666', count: 0 },
+  ];
+
+  active.forEach(t => {
+    if (t.status === 'Blocked') buckets[0].count++;
+    else if (t.healthState === 'Waiting on Client') buckets[1].count++;
+    else if (t.status === 'Done') buckets[2].count++;
+    else if (t.status === 'In progress') buckets[3].count++;
+    else if (t.status === 'Planning') buckets[4].count++;
+    else buckets[5].count++;
+  });
+
+  const nonZero = buckets.filter(b => b.count > 0);
+  const cx = 200, cy = 150, r = 72, sw = 30;
+  const circ = 2 * Math.PI * r;
+
+  const labelPositions = [
+    { x: 334, y: 82, lx1: 262, ly1: 100, lx2: 280, ly2: 85, lx3: 330, ly3: 85 },
+    { x: 334, y: 152, lx1: 272, ly1: 155, lx2: 290, ly2: 155, lx3: 330, ly3: 155 },
+    { x: 334, y: 222, lx1: 252, ly1: 212, lx2: 270, ly2: 225, lx3: 330, ly3: 225 },
+    { x: 15, y: 222, lx1: 148, ly1: 212, lx2: 130, ly2: 225, lx3: 55, ly3: 225 },
+    { x: 15, y: 147, lx1: 128, ly1: 150, lx2: 110, ly2: 150, lx3: 55, ly3: 150 },
+    { x: 15, y: 75, lx1: 145, ly1: 92, lx2: 125, ly2: 78, lx3: 55, ly3: 78 },
+  ];
+
+  let svg = '<svg viewBox="0 0 400 300" width="100%" height="100%" style="max-height:280px">';
+  let offset = 0;
+  nonZero.forEach(b => {
+    const pct = b.count / total;
+    const dashLen = pct * circ;
+    svg += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${b.colour}" stroke-width="${sw}" stroke-dasharray="${dashLen.toFixed(1)} ${(circ - dashLen).toFixed(1)}" stroke-dashoffset="${(-offset).toFixed(1)}" transform="rotate(-90 ${cx} ${cy})"/>`;
+    offset += dashLen;
+  });
+
+  nonZero.forEach((b, i) => {
+    const pos = labelPositions[i % labelPositions.length];
+    const pctText = Math.round(b.count / total * 100) + '%';
+    svg += `<line x1="${pos.lx1}" y1="${pos.ly1}" x2="${pos.lx2}" y2="${pos.ly2}" class="pf__donut-leader"/>`;
+    svg += `<line x1="${pos.lx2}" y1="${pos.ly2}" x2="${pos.lx3}" y2="${pos.ly3}" class="pf__donut-leader"/>`;
+    svg += `<circle cx="${pos.lx1}" cy="${pos.ly1}" r="3" fill="${b.colour}"/>`;
+    svg += `<text x="${pos.x}" y="${pos.y}" fill="${b.colour}" font-size="16" font-weight="700">${pctText}</text>`;
+    svg += `<text x="${pos.x}" y="${pos.y + 14}" fill="#999" font-size="9">${b.label}</text>`;
+  });
+
+  svg += '</svg>';
+
   let html = '<div class="pf__panel">';
-  html += '<div class="pf__panel-hdr"><div class="pf__panel-title">Work Completed</div><div class="pf__panel-sub">8 week rolling view</div></div>';
-  html += '<div class="pf__panel-body">';
-
-  if (!_portfolioSnapshots || _portfolioSnapshots.length === 0) {
-    html += '<div style="display:flex;align-items:center;justify-content:center;height:150px;color:var(--text-muted);font-size:0.82rem">Collecting data \u2014 chart will appear after a few days.</div>';
-    html += '</div></div>';
-    return html;
-  }
-
-  const weekMap = {};
-  _portfolioSnapshots.forEach(s => {
-    const d = new Date(s.snapshot_date + 'T00:00:00');
-    const onejan = new Date(d.getFullYear(), 0, 1);
-    const weekNum = Math.ceil(((d - onejan) / 86400000 + onejan.getDay() + 1) / 7);
-    const key = `W${weekNum}`;
-    if (!weekMap[key]) weekMap[key] = { planned: 0, added: 0, completed: 0, count: 0 };
-    weekMap[key].planned += parseInt(s.tasks_planned) || 0;
-    weekMap[key].added += parseInt(s.tasks_added) || 0;
-    weekMap[key].completed += parseInt(s.tasks_completed) || 0;
-    weekMap[key].count++;
-  });
-
-  const weeks = Object.entries(weekMap).slice(-8);
-  const maxVal = Math.max(1, ...weeks.map(([, w]) => Math.max(w.planned + w.added, w.completed)));
-
-  html += `<div style="display:flex;gap:14px;font-size:0.62rem;color:var(--text-muted);margin-bottom:8px;justify-content:flex-end">`;
-  html += `<span style="display:flex;align-items:center;gap:4px"><span style="width:7px;height:7px;border-radius:1px;background:#3b82f6"></span>Planned</span>`;
-  html += `<span style="display:flex;align-items:center;gap:4px"><span style="width:7px;height:7px;border-radius:1px;background:#fbbf24"></span>Added</span>`;
-  html += `<span style="display:flex;align-items:center;gap:4px"><span style="width:7px;height:7px;border-radius:1px;background:#4ade80"></span>Completed</span>`;
-  html += `</div>`;
-
-  html += '<div class="pf__bar-chart">';
-  weeks.forEach(([label, w], i) => {
-    const isLast = i === weeks.length - 1;
-    const stackH = Math.round((w.planned + w.added) / maxVal * 140);
-    const plannedH = Math.round(w.planned / maxVal * 140);
-    const addedH = stackH - plannedH;
-    const compH = Math.round(w.completed / maxVal * 140);
-
-    html += `<div class="pf__bar-week ${isLast ? 'pf__bar-week--current' : ''}">`;
-    html += `<div class="pf__bar-stack">`;
-    if (addedH > 0) html += `<div class="pf__bar-seg" style="height:${addedH}px;background:#fbbf24;opacity:0.65"></div>`;
-    if (plannedH > 0) html += `<div class="pf__bar-seg" style="height:${plannedH}px;background:#3b82f6;opacity:0.5"></div>`;
-    html += `</div>`;
-    html += `<div style="flex:1;height:${compH}px;background:#4ade80;opacity:0.6;border-radius:2px 2px 0 0"></div>`;
-    html += `</div>`;
-  });
+  html += '<div class="pf__panel-hdr"><div class="pf__panel-title">Progress Status</div></div>';
+  html += `<div class="pf__panel-body" style="padding:0"><div class="pf__donut-container">${svg}</div></div>`;
   html += '</div>';
-
-  html += '<div style="display:flex;gap:8px;margin-top:4px">';
-  weeks.forEach(([label], i) => {
-    const isLast = i === weeks.length - 1;
-    html += `<div style="flex:1;text-align:center;font-size:0.55rem;color:${isLast ? 'var(--accent)' : 'var(--text-muted)'};font-weight:${isLast ? '600' : '400'}">${label}</div>`;
-  });
-  html += '</div>';
-
-  if (weeks.length > 0) {
-    const [, cur] = weeks[weeks.length - 1];
-    html += `<div style="display:flex;gap:16px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border-subtle);font-size:0.7rem">`;
-    html += `<span style="color:var(--text-muted)">This week:</span>`;
-    html += `<span style="color:#3b82f6">${cur.planned} planned</span>`;
-    html += `<span style="color:#fbbf24">+${cur.added} added</span>`;
-    html += `<span style="color:#4ade80">${cur.completed} completed</span>`;
-    html += `</div>`;
-  }
-
-  html += '</div></div>';
   return html;
 }
 
-function renderPfHealthScorecard(filtered, roots, now) {
-  const clientMap = {};
-  roots.forEach(r => {
-    const client = getTaskClient(r);
-    if (!client) return;
-    if (!clientMap[client]) clientMap[client] = [];
-    clientMap[client].push(r);
-  });
-  const sortedClients = Object.keys(clientMap).sort(clientSortOrder);
+// COMMENTED OUT — v3 Client Health Scorecard (replaced by v4 Upcoming Milestones)
+// function renderPfHealthScorecard(filtered, roots, now) { /* ... see git history ... */ }
 
-  function ragDot(colour) {
-    return `<span class="pf__scorecard-dot" style="background:${colour}"></span>`;
-  }
-
-  function ragColour(val, thresholds) {
-    if (val >= thresholds[1]) return 'var(--danger)';
-    if (val >= thresholds[0]) return 'var(--warning)';
-    return 'var(--success)';
-  }
+function renderPfMilestones(panelRoots, now) {
+  const withDue = panelRoots.filter(r => r.dueDate && r.status !== 'Done' && r.status !== 'Cancelled');
+  const overdue = withDue.filter(r => safeParseDate(r.dueDate) < now)
+    .sort((a, b) => safeParseDate(a.dueDate) - safeParseDate(b.dueDate));
+  const upcoming = withDue.filter(r => safeParseDate(r.dueDate) >= now)
+    .sort((a, b) => safeParseDate(a.dueDate) - safeParseDate(b.dueDate));
+  const items = [...overdue, ...upcoming].slice(0, 6);
 
   let html = '<div class="pf__panel">';
-  html += '<div class="pf__panel-hdr"><div class="pf__panel-title">Client Health</div><div class="pf__panel-sub">RAG across schedule, blockers, burn rate</div></div>';
+  html += '<div class="pf__panel-hdr"><div class="pf__panel-title">Upcoming Milestones</div></div>';
   html += '<div class="pf__panel-body">';
-  html += '<table class="pf__scorecard"><thead><tr><th style="text-align:left">Client</th><th>Schedule</th><th>Blockers</th><th>Burn Rate</th><th>Overall</th></tr></thead><tbody>';
 
-  sortedClients.forEach(clientName => {
-    const clientTasks = filtered.filter(t => getTaskClient(t) === clientName);
-    const overdueCount = clientTasks.filter(t => t.dueDate && t.status !== 'Done' && t.status !== 'Cancelled' && safeParseDate(t.dueDate) < now).length;
-    const blockedCount = clientTasks.filter(t => t.healthState === 'Blocked' && t.status !== 'Done' && t.status !== 'Cancelled').length;
-    const hrsSpent = clientTasks.reduce((s, t) => s + (t.hoursSpent || 0), 0);
-    const hrsEst = clientTasks.reduce((s, t) => s + (t.hoursEstimated || 0), 0);
-    const burnPct = hrsEst > 0 ? (hrsSpent / hrsEst * 100) : 0;
+  if (items.length === 0) {
+    html += '<div style="display:flex;align-items:center;justify-content:center;height:100px;color:var(--text-muted);font-size:0.82rem">No milestones with due dates.</div>';
+  } else {
+    items.forEach(t => {
+      const due = safeParseDate(t.dueDate);
+      const isOverdue = due < now;
+      const daysUntil = Math.ceil((due - now) / 86400000);
+      const daysLate = Math.ceil((now - due) / 86400000);
+      const barCol = isOverdue ? 'var(--danger)' : 'var(--success)';
+      const client = getTaskClient(t) || '';
+      const abbr = getClientAbbreviation(client);
+      const abbrCol = isOverdue ? 'var(--danger)' : 'var(--accent)';
+      const wt = t.workType || '';
+      const subtitle = wt ? `${esc(client)} \u00B7 ${esc(wt)}` : esc(client);
 
-    const schedCol = ragColour(overdueCount, [1, 3]);
-    const blockCol = ragColour(blockedCount, [1, 2]);
-    const burnCol = ragColour(burnPct, [80, 100]);
-    const overallCol = [schedCol, blockCol, burnCol].includes('var(--danger)') ? 'var(--danger)' :
-                       [schedCol, blockCol, burnCol].includes('var(--warning)') ? 'var(--warning)' : 'var(--success)';
+      let statusText, statusCol;
+      if (isOverdue) {
+        statusText = daysLate + 'd overdue';
+        statusCol = 'var(--danger)';
+      } else if (daysUntil === 0) {
+        statusText = 'Due today';
+        statusCol = 'var(--danger)';
+      } else if (daysUntil === 1) {
+        statusText = 'Due tomorrow';
+        statusCol = 'var(--danger)';
+      } else {
+        statusText = 'On track';
+        statusCol = 'var(--success)';
+      }
+      const dateStr = due.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 
-    html += `<tr onclick="selectPortfolioClient('${escAttrJs(clientName)}')">`;
-    html += `<td style="color:var(--text-primary)">${esc(clientName)}</td>`;
-    html += `<td style="text-align:center">${ragDot(schedCol)}</td>`;
-    html += `<td style="text-align:center">${ragDot(blockCol)}</td>`;
-    html += `<td style="text-align:center">${ragDot(burnCol)}</td>`;
-    html += `<td style="text-align:center">${ragDot(overallCol)}</td>`;
-    html += `</tr>`;
-  });
+      html += `<div class="pf__milestone-item" onclick="openDetailOverlay('${t.id}')">`;
+      html += `<div class="pf__milestone-bar" style="background:${barCol}"></div>`;
+      html += '<div style="flex:1;min-width:0">';
+      html += `<div class="pf__milestone-title"><span class="pf__milestone-abbr" style="color:${abbrCol}">${esc(abbr)}</span> \u2014 ${esc(t.title)}</div>`;
+      html += `<div class="pf__milestone-sub">${subtitle}</div>`;
+      html += '</div>';
+      html += `<div><div class="pf__milestone-status" style="color:${statusCol}">${statusText}</div><div class="pf__milestone-date">${dateStr}</div></div>`;
+      html += '</div>';
+    });
+  }
 
-  html += '</tbody></table>';
   html += '</div></div>';
   return html;
 }
@@ -4638,10 +4729,10 @@ function renderPfTimeline(panelTasks, panelRoots, now) {
   });
   const sortedClients = Object.keys(clientGroups).sort(clientSortOrder);
 
-  html += `<div style="min-width:${timelineW + 140}px">`;
+  html += `<div style="min-width:${timelineW + 180}px">`;
 
   html += `<div style="display:flex;border-bottom:1px solid var(--border-default)">`;
-  html += `<div style="width:140px;padding:4px 10px;font-size:0.6rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;border-right:1px solid var(--border-default);background:var(--bg-base);flex-shrink:0">Item</div>`;
+  html += `<div style="width:180px;padding:4px 10px;font-size:0.6rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;border-right:1px solid var(--border-default);background:var(--bg-base);flex-shrink:0">Item</div>`;
   let d = new Date(minDate);
   while (d < maxDate) {
     const monthStart = new Date(d);
@@ -4658,7 +4749,7 @@ function renderPfTimeline(panelTasks, panelRoots, now) {
     const totalItems = projects.reduce((s, r) => s + 1 + getDescendants(r.id).filter(c => c.status !== 'Done' && c.status !== 'Cancelled').length, 0);
 
     html += `<div style="display:flex;min-height:24px;align-items:center;background:var(--bg-surface);border-bottom:1px solid var(--border-subtle)">`;
-    html += `<div style="width:140px;padding:0 10px;font-size:0.72rem;color:var(--text-secondary);font-weight:600;border-right:1px solid var(--border-default);flex-shrink:0">${esc(client)} <span style="font-size:0.6rem;color:var(--text-muted);font-weight:400">(${totalItems})</span></div>`;
+    html += `<div style="width:180px;padding:0 10px;font-size:0.72rem;color:var(--text-secondary);font-weight:600;border-right:1px solid var(--border-default);flex-shrink:0">${esc(client)} <span style="font-size:0.6rem;color:var(--text-muted);font-weight:400">(${totalItems})</span></div>`;
     html += `<div style="flex:1;position:relative;height:24px">`;
     const todayOff = Math.round((now - minDate) / 86400000);
     if (todayOff >= 0 && todayOff < totalDays) html += `<div style="position:absolute;left:${todayOff * dayW}px;top:0;bottom:0;width:1px;background:rgba(59,130,246,0.35)"></div>`;
@@ -4671,7 +4762,7 @@ function renderPfTimeline(panelTasks, panelRoots, now) {
       const typeMeta = getItemTypeMeta(project);
 
       html += `<div style="display:flex;min-height:28px;align-items:center;border-bottom:1px solid var(--border-subtle);cursor:pointer" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''" onclick="openDetailOverlay('${project.id}')">`;
-      html += `<div style="width:140px;padding:0 10px 0 16px;font-size:0.7rem;color:var(--text-primary);border-right:1px solid var(--border-default);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0;display:flex;align-items:center;gap:4px">`;
+      html += `<div style="width:180px;padding:0 10px 0 16px;font-size:0.7rem;color:var(--text-primary);border-right:1px solid var(--border-default);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0;display:flex;align-items:center;gap:4px">`;
       html += `<span class="item-type-badge" style="background:${typeMeta.colour};font-size:0.5rem;padding:0 4px">${typeMeta.label.charAt(0)}</span>`;
       html += `${esc(project.title)}</div>`;
       html += `<div style="flex:1;position:relative;height:28px;min-width:${timelineW}px">`;
