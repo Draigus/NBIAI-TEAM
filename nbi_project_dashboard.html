@@ -2420,6 +2420,33 @@ span.fin-editable { display: inline-block; position: relative; }
   </div>
 </div>
 
+<!-- DATA CLEANSE MODAL -->
+<div class="modal-overlay" id="cleanseModal" role="dialog" aria-modal="true" aria-labelledby="cleanseModalTitle">
+  <div class="modal" style="width:min(700px, calc(100vw - 32px));position:relative">
+    <div class="modal__title" id="cleanseModalTitle" style="color:var(--danger)">&#9888;&#65039; Data Cleanse Tool</div>
+    <p style="margin:0 0 var(--space-lg);color:var(--text-muted);font-size:0.85rem">Select data categories to permanently delete. Config data (pipeline stages, expense categories, users, teams) is always preserved.</p>
+    <div id="cleanseCategories" style="display:flex;flex-direction:column;gap:var(--space-sm)"></div>
+    <hr style="border:none;border-top:2px solid var(--danger);margin:var(--space-lg) 0;opacity:0.4">
+    <div id="cleanseNuclear"></div>
+    <div style="margin-top:var(--space-lg);display:flex;gap:var(--space-sm)">
+      <button class="btn btn--ghost" data-action="cleanseSelectAll" style="font-size:0.8rem">Select All</button>
+      <button class="btn btn--ghost" data-action="cleanseDeselectAll" style="font-size:0.8rem">Deselect All</button>
+    </div>
+    <div style="margin-top:var(--space-lg)">
+      <label style="font-size:0.8rem;color:var(--text-muted);display:block;margin-bottom:var(--space-xs)">Type <strong>DELETE ALL SELECTED DATA</strong> to confirm:</label>
+      <input type="text" id="cleanseConfirmInput" class="input" style="width:100%" autocomplete="off" spellcheck="false">
+    </div>
+    <div style="display:flex;gap:var(--space-sm);justify-content:flex-end;margin-top:var(--space-lg)">
+      <button class="btn" data-action="closeCleanseModal">Cancel</button>
+      <button class="btn btn--danger" id="cleanseDeleteBtn" data-action="executeDataCleanse" disabled>Permanently Delete</button>
+    </div>
+    <div id="cleanseProgress" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,0.7);border-radius:var(--radius-xl);justify-content:center;align-items:center;flex-direction:column;gap:var(--space-md)">
+      <div class="spinner"></div>
+      <p style="color:#fff;font-size:0.9rem">Deleting&hellip; do not close this tab</p>
+    </div>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="true" role="status"></div>
 <div class="sync-badge" id="syncBadge"></div>
@@ -10887,17 +10914,6 @@ function finRemoveRow(section, idx) {
   const data = getFinanceData();
   if (data[section]) { data[section].splice(idx, 1); saveFinanceData(data); }
 }
-/** Reset all finance data to hardcoded seed defaults after confirmation. Admin only. */
-async function finResetData() {
-  if (!_currentUser || _currentUser.role !== 'admin') {
-    toast('Admin only', 'error');
-    return;
-  }
-  if (!(await themedConfirm('Reset all financial data to defaults? This cannot be undone.'))) return;
-  localStorage.removeItem('nbi_finance_data');
-  renderContent();
-  toast('Financial data reset to defaults');
-}
 // ==================== EXPENSE REPORTS ====================
 // Expenses are grouped into submittable reports. The view shows:
 // 1. Report cards (draft/submitted/approved) at the top
@@ -12042,7 +12058,7 @@ function renderFinancesView(el) {
   // gated to admins only — closes e8b58255 ("big bad button" — non-admins were
   // seeing the Danger Zone reset). Non-admin users see Export buttons but no Reset.
   const isFinAdmin = _currentUser && _currentUser.role === 'admin';
-  html += `<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-action="exportFinancesCSV"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 1v9M4 7l3 3 3-3M2 12h10"/></svg> Export CSV</button><button class="btn" data-action="exportPnLCSV"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="1" width="10" height="12" rx="1"/><path d="M5 4h4M5 7h4M5 10h2"/></svg> P&amp;L Export</button>${isFinAdmin ? `<button class="btn btn--danger" data-action="finResetData" title="Admin only — wipes all financial data" aria-label="Reset financial data (admin only)"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1v5h5"/><path d="M2.5 9A5.5 5.5 0 1 0 3 4L1 6"/></svg> Reset</button>` : ''}</div>`;
+  html += `<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-action="exportFinancesCSV"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 1v9M4 7l3 3 3-3M2 12h10"/></svg> Export CSV</button><button class="btn" data-action="exportPnLCSV"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="1" width="10" height="12" rx="1"/><path d="M5 4h4M5 7h4M5 10h2"/></svg> P&amp;L Export</button></div>`;
   html += `</div>`;
 
   // ===== SUB-VIEW TABS =====
@@ -16652,7 +16668,7 @@ function renderSettings(el) {
     </div>`;
     if (isAdmin) {
       html += `<div class="settings__group"><h2 style="color:var(--danger)">Danger Zone</h2>
-        <button class="btn btn--danger" data-action="clearAllTasks">Clear All Tasks</button>
+        <button class="btn btn--danger" data-action="openCleanseModal">Data Cleanse Tool</button>
       </div>`;
     }
   }
@@ -18906,14 +18922,144 @@ async function restoreBackup(file) {
   } catch(e) { toast('Restore failed: ' + e.message, 'error'); }
 }
 
-/** Clear all tasks after themed confirmation */
-async function clearAllTasks() {
-  if (!(await themedConfirm('Clear all tasks? This cannot be undone.', 'Clear All Tasks', 'Clear All'))) return;
-  tasks.forEach(t => markDeleted(t.id));
-  tasks = [];
-  save();
-  renderAll();
-  toast('All tasks cleared');
+let _cleanseData = null;
+
+async function openCleanseModal() {
+  const modal = document.getElementById('cleanseModal');
+  modal.classList.add('open');
+  document.getElementById('cleanseConfirmInput').value = '';
+  document.getElementById('cleanseDeleteBtn').disabled = true;
+  document.getElementById('cleanseProgress').style.display = 'none';
+  document.getElementById('cleanseCategories').innerHTML = '<div style="padding:12px;text-align:center;color:var(--text-muted)">Loading...</div>';
+  document.getElementById('cleanseNuclear').innerHTML = '';
+
+  try {
+    const resp = await fetchAPI('/api/admin/cleanse/preview');
+    if (!resp.ok) throw new Error('Failed to load preview');
+    const json = await resp.json();
+    _cleanseData = json.data ? json.data.categories : json.categories;
+    renderCleanseCategories();
+  } catch (e) {
+    document.getElementById('cleanseCategories').innerHTML = `<p style="color:var(--danger)">Failed to load: ${e.message}</p>`;
+  }
+}
+
+function renderCleanseCategories() {
+  const standard = _cleanseData.filter(c => c.tier !== 'nuclear');
+  const nuclear = _cleanseData.filter(c => c.tier === 'nuclear');
+
+  let html = '';
+  for (const cat of standard) {
+    const childInfo = Object.entries(cat.children || {});
+    const childText = childInfo.length > 0 ? ` <span style="font-size:0.75rem;color:var(--text-muted)">(+ ${childInfo.map(([k, v]) => `${v} ${k.replace(/_/g, ' ')}`).join(', ')})</span>` : '';
+    const nullText = cat.nullifies.length > 0 ? `<div style="font-size:0.72rem;color:var(--warning);margin-left:24px">Will nullify: ${cat.nullifies.join(', ')}</div>` : '';
+    html += `<label style="display:flex;align-items:center;gap:var(--space-sm);cursor:pointer">
+      <input type="checkbox" class="cleanse-cat-checkbox" data-cat-id="${cat.id}" ${cat._locked ? 'checked disabled' : ''}>
+      <span><strong>${cat.label}</strong> <span style="color:var(--text-muted)">(${cat.count} records)</span>${childText}</span>
+    </label>${nullText}`;
+    if (cat._locked) {
+      html += `<div style="font-size:0.72rem;color:var(--text-muted);margin-left:24px;font-style:italic">Included in client deletion</div>`;
+    }
+  }
+  document.getElementById('cleanseCategories').innerHTML = html;
+
+  let nucHtml = '';
+  for (const cat of nuclear) {
+    const childInfo = Object.entries(cat.children || {});
+    const childText = childInfo.length > 0 ? `<div style="font-size:0.75rem;color:var(--text-muted);margin-left:24px">Cascades: ${childInfo.map(([k, v]) => `${v} ${k.replace(/_/g, ' ')}`).join(', ')}</div>` : '';
+    nucHtml += `<label style="display:flex;align-items:center;gap:var(--space-sm);cursor:pointer;color:var(--danger)">
+      <input type="checkbox" class="cleanse-cat-checkbox" data-cat-id="${cat.id}">
+      <span><strong>${cat.label}</strong> <span style="color:var(--text-muted)">(${cat.count} records)</span></span>
+    </label>${childText}`;
+    if (cat.nullifies.length > 0) {
+      nucHtml += `<div style="font-size:0.72rem;color:var(--warning);margin-left:24px">Will nullify: ${cat.nullifies.join(', ')}</div>`;
+    }
+  }
+  document.getElementById('cleanseNuclear').innerHTML = nucHtml;
+
+  document.querySelectorAll('.cleanse-cat-checkbox').forEach(cb => {
+    cb.addEventListener('change', handleCleanseCheckboxChange);
+  });
+  document.getElementById('cleanseConfirmInput').addEventListener('input', function() {
+    document.getElementById('cleanseDeleteBtn').disabled = this.value.trim() !== 'DELETE ALL SELECTED DATA';
+  });
+}
+
+function handleCleanseCheckboxChange(e) {
+  const catId = e.target.dataset.catId;
+  const checked = e.target.checked;
+
+  if (catId === 'clients') {
+    const cascadeDeps = ['contacts', 'leads', 'client_notes', 'sows'];
+    _cleanseData.forEach(c => {
+      if (cascadeDeps.includes(c.id)) c._locked = checked;
+    });
+    renderCleanseCategories();
+  }
+}
+
+function cleanseSelectAll() {
+  _cleanseData.forEach(c => { c._locked = (c.id !== 'clients' && ['contacts', 'leads', 'client_notes', 'sows'].includes(c.id)); });
+  document.querySelectorAll('.cleanse-cat-checkbox').forEach(cb => {
+    cb.checked = true;
+    cb.disabled = ['contacts', 'leads', 'client_notes', 'sows'].includes(cb.dataset.catId);
+  });
+}
+
+function cleanseDeselectAll() {
+  _cleanseData.forEach(c => { c._locked = false; });
+  document.querySelectorAll('.cleanse-cat-checkbox').forEach(cb => {
+    cb.checked = false;
+    cb.disabled = false;
+  });
+}
+
+function closeCleanseModal() {
+  document.getElementById('cleanseModal').classList.remove('open');
+  _cleanseData = null;
+}
+
+async function executeDataCleanse() {
+  const selected = [];
+  document.querySelectorAll('.cleanse-cat-checkbox:checked').forEach(cb => {
+    selected.push(cb.dataset.catId);
+  });
+  if (selected.length === 0) { toast('No categories selected', 'error'); return; }
+
+  const confirmation = document.getElementById('cleanseConfirmInput').value.trim();
+  if (confirmation !== 'DELETE ALL SELECTED DATA') {
+    toast('Confirmation text does not match', 'error');
+    return;
+  }
+
+  document.getElementById('cleanseProgress').style.display = 'flex';
+  document.querySelectorAll('#cleanseModal button, #cleanseModal input, #cleanseModal .cleanse-cat-checkbox').forEach(el => { el.disabled = true; });
+
+  try {
+    const resp = await fetchAPI('/api/admin/cleanse', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ categories: selected, confirmation }),
+    });
+    const json = await resp.json();
+    if (!resp.ok) throw new Error(json.error?.message || json.error || 'Cleanse failed');
+
+    const result = json.data || json;
+    if (result.localStorageKeys) {
+      result.localStorageKeys.forEach(k => localStorage.removeItem(k));
+    }
+
+    closeCleanseModal();
+    renderAll();
+
+    const totalDeleted = Object.values(result.deleted).reduce((sum, n) => sum + n, 0);
+    toast(`Data cleanse complete: ${totalDeleted} records deleted across ${selected.length} categories`);
+  } catch (e) {
+    document.getElementById('cleanseProgress').style.display = 'none';
+    document.querySelectorAll('#cleanseModal button, #cleanseModal input').forEach(el => { el.disabled = false; });
+    document.getElementById('cleanseDeleteBtn').disabled = true;
+    toast('Cleanse failed — nothing was deleted. ' + e.message, 'error');
+  }
 }
 
 /** Export all tasks as a CSV file download */
