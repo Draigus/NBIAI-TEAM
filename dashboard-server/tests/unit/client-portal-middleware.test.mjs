@@ -73,3 +73,99 @@ describe('requireNBI (renamed from requireInternal)', () => {
     expect(res.status).toBe(403);
   });
 });
+
+describe('requireAuth attaches client fields', () => {
+  it('req.user includes clientRole for client users', async () => {
+    const client = await createTestClient({ name: 'TestCorp' });
+    const clientAdmin = await createTestUser({ role: 'member', client_id: client.id, client_role: 'admin' });
+    const token = await mintSession(clientAdmin.id);
+
+    const res = await request(app)
+      .get('/api/auth/me')
+      .set('Authorization', `Bearer ${token}`);
+    expect(res.status).toBe(200);
+    expect(res.body.user.clientRole).toBe('admin');
+    expect(res.body.user.isNBI).toBe(false);
+    expect(res.body.user.isClientAdmin).toBe(true);
+  });
+
+  it('req.user.isNBI is true for internal users', async () => {
+    const member = await createTestUser({ role: 'member' });
+    const token = await mintSession(member.id);
+
+    const res = await request(app)
+      .get('/api/auth/me')
+      .set('Authorization', `Bearer ${token}`);
+    expect(res.status).toBe(200);
+    expect(res.body.user.isNBI).toBe(true);
+    expect(res.body.user.isClientAdmin).toBe(false);
+  });
+
+  it('login response includes clientRole and mustChangePassword', async () => {
+    const client = await createTestClient({ name: 'TestCorp' });
+    const clientUser = await createTestUser({
+      role: 'member', client_id: client.id, client_role: 'member', must_change_password: true
+    });
+
+    const res = await request(app)
+      .post('/api/auth/login')
+      .send({ username: clientUser.username, password: clientUser.raw_password });
+    expect(res.status).toBe(200);
+    expect(res.body.user.clientRole).toBe('member');
+    expect(res.body.user.mustChangePassword).toBe(true);
+  });
+});
+
+describe('requireTaskAccess', () => {
+  it('client user can access tasks belonging to their client', async () => {
+    const client = await createTestClient({ name: 'TestCorp' });
+    const clientUser = await createTestUser({ role: 'member', client_id: client.id, client_role: 'member' });
+    const token = await mintSession(clientUser.id);
+    const task = await createTestTask({ title: 'My task', client_id: client.id });
+
+    const res = await request(app)
+      .get(`/api/tasks/${task.id}/comments`)
+      .set('Authorization', `Bearer ${token}`);
+    expect(res.status).toBe(200);
+  });
+
+  it('client user cannot access tasks belonging to another client (403)', async () => {
+    const clientA = await createTestClient({ name: 'ClientA' });
+    const clientB = await createTestClient({ name: 'ClientB' });
+    const clientUser = await createTestUser({ role: 'member', client_id: clientA.id, client_role: 'member' });
+    const token = await mintSession(clientUser.id);
+    const taskB = await createTestTask({ title: 'Other task', client_id: clientB.id });
+
+    const res = await request(app)
+      .get(`/api/tasks/${taskB.id}/comments`)
+      .set('Authorization', `Bearer ${token}`);
+    expect(res.status).toBe(403);
+  });
+
+  it('NBI user can access any task regardless of client', async () => {
+    const clientB = await createTestClient({ name: 'ClientB' });
+    const admin = await createTestUser({ role: 'admin' });
+    const token = await mintSession(admin.id);
+    const taskB = await createTestTask({ title: 'Any task', client_id: clientB.id });
+
+    const res = await request(app)
+      .get(`/api/tasks/${taskB.id}/comments`)
+      .set('Authorization', `Bearer ${token}`);
+    expect(res.status).toBe(200);
+  });
+
+  it('requireTaskAccess walks parent chain to root', async () => {
+    const clientA = await createTestClient({ name: 'ClientA' });
+    const clientB = await createTestClient({ name: 'ClientB' });
+    const clientUser = await createTestUser({ role: 'member', client_id: clientA.id, client_role: 'member' });
+    const token = await mintSession(clientUser.id);
+
+    const parent = await createTestTask({ title: 'Parent', client_id: clientB.id, item_type: 'project' });
+    const child = await createTestTask({ title: 'Child', parent_id: parent.id, client_id: clientB.id, item_type: 'feature' });
+
+    const res = await request(app)
+      .get(`/api/tasks/${child.id}/comments`)
+      .set('Authorization', `Bearer ${token}`);
+    expect(res.status).toBe(403);
+  });
+});

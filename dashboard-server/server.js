@@ -51,7 +51,7 @@ const bcrypt = require('bcrypt');
 const multer = require('multer');
 const fs = require('fs');
 
-const { rateLimit, ipKeyGenerator } = require('express-rate-limit');
+const { rateLimit } = require('express-rate-limit');
 const XLSX = require('xlsx');
 const PDFDocument = require('pdfkit');
 const Tesseract = require('tesseract.js');
@@ -758,12 +758,22 @@ app.post('/api/auth/login', async (req, res) => {
   const expiresAt = new Date(Date.now() + SESSION_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
   await pool.query('INSERT INTO sessions (user_id, token, expires_at) VALUES ($1, $2, $3)', [user.id, hashedToken, expiresAt]);
   // Cache under hashed key
-  cacheToken(hashedToken, { id: user.id, username: user.username, displayName: user.display_name, role: user.role, clientId: user.client_id });
+  cacheToken(hashedToken, {
+    id: user.id, username: user.username, displayName: user.display_name,
+    role: user.role, clientId: user.client_id, clientRole: user.client_role,
+    isNBI: !user.client_id, isClientAdmin: !!user.client_id && user.client_role === 'admin',
+    mustChangePassword: user.must_change_password,
+  });
 
   res.cookie(SESSION_COOKIE_NAME, token, getSessionCookieOpts(req));
   res.json({
     token,
-    user: { id: user.id, username: user.username, displayName: user.display_name, role: user.role, clientId: user.client_id },
+    user: {
+      id: user.id, username: user.username, displayName: user.display_name,
+      role: user.role, clientId: user.client_id, clientRole: user.client_role,
+      isNBI: !user.client_id, isClientAdmin: !!user.client_id && user.client_role === 'admin',
+      mustChangePassword: user.must_change_password,
+    },
     expiresAt: expiresAt.toISOString(),
   });
 });
@@ -787,12 +797,17 @@ app.get('/api/auth/me', async (req, res) => {
 
   const hashed = hashToken(token);
   const { rows } = await pool.query(
-    `SELECT u.id, u.username, u.display_name, u.role, u.client_id FROM sessions s
+    `SELECT u.id, u.username, u.display_name, u.role, u.client_id, u.client_role, u.must_change_password FROM sessions s
      JOIN users u ON s.user_id = u.id
      WHERE s.token = $1 AND s.expires_at > NOW() AND u.is_active = true`, [hashed]
   );
   if (rows.length === 0) return res.status(401).json({ error: 'Session expired' });
-  res.json({ user: { id: rows[0].id, username: rows[0].username, displayName: rows[0].display_name, role: rows[0].role, clientId: rows[0].client_id } });
+  res.json({ user: {
+    id: rows[0].id, username: rows[0].username, displayName: rows[0].display_name,
+    role: rows[0].role, clientId: rows[0].client_id, clientRole: rows[0].client_role,
+    isNBI: !rows[0].client_id, isClientAdmin: !!rows[0].client_id && rows[0].client_role === 'admin',
+    mustChangePassword: rows[0].must_change_password,
+  } });
 });
 
 /**
@@ -818,12 +833,17 @@ async function requireAuth(req, res, next) {
     if (cached) { req.user = cached; return next(); }
 
     const { rows } = await pool.query(
-      `SELECT u.id, u.username, u.display_name, u.role, u.client_id FROM sessions s
+      `SELECT u.id, u.username, u.display_name, u.role, u.client_id, u.client_role, u.must_change_password FROM sessions s
        JOIN users u ON s.user_id = u.id
        WHERE s.token = $1 AND s.expires_at > NOW() AND u.is_active = true`, [hashedToken]
     );
     if (rows.length === 0) return res.status(401).json({ error: 'Session expired' });
-    const user = { id: rows[0].id, username: rows[0].username, displayName: rows[0].display_name, role: rows[0].role, clientId: rows[0].client_id };
+    const user = {
+      id: rows[0].id, username: rows[0].username, displayName: rows[0].display_name,
+      role: rows[0].role, clientId: rows[0].client_id, clientRole: rows[0].client_role,
+      isNBI: !rows[0].client_id, isClientAdmin: !!rows[0].client_id && rows[0].client_role === 'admin',
+      mustChangePassword: rows[0].must_change_password,
+    };
     cacheToken(hashedToken, user);
     req.user = user;
     next();
@@ -898,6 +918,49 @@ function requireNBI(req, res, next) {
 function requireAdmin(req, res, next) {
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   next();
+}
+
+/** Middleware: block non-client-admin users */
+function requireClientAdmin(req, res, next) {
+  if (!req.user?.clientId || req.user?.clientRole !== 'admin') {
+    return res.status(403).json({ error: 'Client admin access required' });
+  }
+  next();
+}
+
+/**
+ * Check whether a client-scoped user may access a task by walking the
+ * parent chain to the root and comparing client_id. NBI users always pass.
+ * Returns true if access is allowed, false if a response has been sent.
+ */
+async function requireTaskAccess(req, res, taskId) {
+  if (!req.user?.clientId) return true; // NBI users always pass
+
+  let currentId = taskId;
+  let depth = 0;
+  const MAX_DEPTH = 10;
+
+  while (currentId && depth < MAX_DEPTH) {
+    const { rows } = await pool.query('SELECT parent_id, client_id FROM tasks WHERE id = $1', [currentId]);
+    if (rows.length === 0) { res.status(404).json({ error: 'Task not found' }); return false; }
+
+    if (!rows[0].parent_id) {
+      if (rows[0].client_id && rows[0].client_id !== req.user.clientId) {
+        res.status(403).json({ error: 'Access denied' });
+        return false;
+      }
+      return true;
+    }
+    currentId = rows[0].parent_id;
+    depth++;
+  }
+
+  const { rows: last } = await pool.query('SELECT client_id FROM tasks WHERE id = $1', [currentId]);
+  if (last.length > 0 && last[0].client_id && last[0].client_id !== req.user.clientId) {
+    res.status(403).json({ error: 'Access denied' });
+    return false;
+  }
+  return true;
 }
 
 /**
@@ -1782,6 +1845,8 @@ app.post('/api/restore', requireAdmin, async (req, res) => {
 /** GET /api/tasks/:id/comments — List all comments on a task, oldest first */
 app.get('/api/tasks/:id/comments', async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid task ID' });
+  const allowed = await requireTaskAccess(req, res, req.params.id);
+  if (!allowed) return;
   const { rows } = await pool.query('SELECT * FROM task_comments WHERE task_id = $1 ORDER BY created_at ASC', [req.params.id]);
   res.json(rows);
 });
@@ -1789,6 +1854,8 @@ app.get('/api/tasks/:id/comments', async (req, res) => {
 /** POST /api/tasks/:id/comments — Add a comment to a task */
 app.post('/api/tasks/:id/comments', async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid task ID' });
+  const allowed = await requireTaskAccess(req, res, req.params.id);
+  if (!allowed) return;
   const { text } = req.body;
   if (!text || !text.trim()) return res.status(400).json({ error: 'text required' });
   const author = req.user?.displayName || 'Unknown';
@@ -1802,6 +1869,8 @@ app.post('/api/tasks/:id/comments', async (req, res) => {
 
 /** DELETE /api/tasks/:id/comments/:commentId — Remove a comment from a task (owner or admin) */
 app.delete('/api/tasks/:id/comments/:commentId', async (req, res) => {
+  const allowed = await requireTaskAccess(req, res, req.params.id);
+  if (!allowed) return;
   const { rows } = await pool.query('SELECT author FROM task_comments WHERE id = $1 AND task_id = $2', [req.params.commentId, req.params.id]);
   if (rows.length === 0) return res.status(404).json({ error: 'Comment not found' });
   const isOwner = rows[0].author === (req.user?.displayName || req.user?.display_name);
@@ -2306,6 +2375,8 @@ app.post('/api/contract/extract', upload.single('file'), async (req, res) => {
 /** GET /api/tasks/:id/time-entries — List time entries for a task, newest first */
 app.get('/api/tasks/:id/time-entries', async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid task ID' });
+  const allowed = await requireTaskAccess(req, res, req.params.id);
+  if (!allowed) return;
   const { rows } = await pool.query('SELECT * FROM time_entries WHERE task_id = $1 ORDER BY date DESC, created_at DESC', [req.params.id]);
   res.json(rows);
 });
@@ -2313,6 +2384,8 @@ app.get('/api/tasks/:id/time-entries', async (req, res) => {
 /** POST /api/tasks/:id/time-entries — Log time against a task. Also recalculates the task's hours_spent total. */
 app.post('/api/tasks/:id/time-entries', async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid task ID' });
+  const allowed = await requireTaskAccess(req, res, req.params.id);
+  if (!allowed) return;
   const { hours, description, date } = req.body;
   if (!hours || hours <= 0) return res.status(400).json({ error: 'hours required (> 0)' });
   const userName = req.user?.displayName || 'Unknown';
@@ -2497,6 +2570,8 @@ app.delete('/api/templates/:id', requireAdmin, async (req, res) => {
 /** GET /api/tasks/:id/attachments — List file attachments for a task */
 app.get('/api/tasks/:id/attachments', async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid task ID' });
+  const allowed = await requireTaskAccess(req, res, req.params.id);
+  if (!allowed) return;
   const { rows } = await pool.query('SELECT * FROM task_attachments WHERE task_id = $1 ORDER BY created_at DESC', [req.params.id]);
   res.json(rows);
 });
@@ -2504,6 +2579,8 @@ app.get('/api/tasks/:id/attachments', async (req, res) => {
 /** POST /api/tasks/:id/attachments — Upload a file attachment to a task (max 25MB) */
 app.post('/api/tasks/:id/attachments', upload.single('file'), async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid task ID' });
+  const allowed = await requireTaskAccess(req, res, req.params.id);
+  if (!allowed) return;
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
   const author = req.user?.displayName || 'unknown';
   const { rows } = await pool.query(
@@ -2534,6 +2611,8 @@ app.get('/api/attachments/:filename', (req, res) => {
 
 /** DELETE /api/tasks/:id/attachments/:attachmentId — Remove an attachment and delete the file from disk */
 app.delete('/api/tasks/:id/attachments/:attachmentId', async (req, res) => {
+  const allowed = await requireTaskAccess(req, res, req.params.id);
+  if (!allowed) return;
   const { rows } = await pool.query('SELECT filename FROM task_attachments WHERE id = $1 AND task_id = $2', [req.params.attachmentId, req.params.id]);
   if (rows.length > 0) {
     const filePath = path.join(uploadDir, rows[0].filename);
@@ -2676,6 +2755,8 @@ app.post('/api/attachments/entity/:type/:id/link', async (req, res) => {
  */
 app.post('/api/tasks/:id/attachments/link', async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid task ID' });
+  const allowed = await requireTaskAccess(req, res, req.params.id);
+  if (!allowed) return;
   const { url, title } = req.body || {};
   if (!url || typeof url !== 'string') return res.status(400).json({ error: 'url is required' });
   let parsed;
