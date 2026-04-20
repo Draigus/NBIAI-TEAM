@@ -16675,6 +16675,10 @@ function renderSettings(el) {
       <div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:12px">Manage news sources. <button class="btn btn--sm" data-action="newsAdminAddSource">Add source</button></div>
       <div id="newsAdminSources"></div>
     </div>`;
+    html += `<div class="settings__group"><h2>Stories</h2>
+      <div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:12px">Merge, split, or regenerate stories in the current digest.</div>
+      <div id="newsAdminStories"><div style="color:var(--text-muted);font-size:0.78rem">Loading stories...</div></div>
+    </div>`;
   }
 
   html += `</div>`;
@@ -18338,6 +18342,52 @@ async function loadNewsAdmin() {
       prEl.innerHTML = prHtml;
     } catch (err) { prEl.innerHTML = '<div style="color:var(--text-muted)">Failed to load prompts: ' + esc(err.message || '') + '</div>'; }
   }
+  var stEl = document.getElementById('newsAdminStories');
+  if (stEl) {
+    try {
+      var dgData = await apiCall('/api/news/digests/current');
+      var stories = dgData.stories || [];
+      if (!stories.length) { stEl.innerHTML = '<div style="color:var(--text-muted)">No stories in current digest.</div>'; }
+      else {
+        var stHtml = '<div style="margin-bottom:8px;font-size:12px;color:var(--text-muted)">Select stories to merge, or click Regenerate on individual stories.</div>';
+        stHtml += '<form id="newsStoryForm">';
+        stories.forEach(function(s) {
+          stHtml += '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-default)">';
+          stHtml += '<input type="checkbox" name="storyId" value="' + esc(s.id) + '">';
+          stHtml += '<div style="flex:1"><strong>' + esc(s.headline) + '</strong> <span style="color:var(--text-muted);font-size:11px">' + esc(s.category || '') + '</span></div>';
+          stHtml += '<button type="button" class="btn btn--sm" data-action="newsAdminRegenerateStory" data-arg0="' + esc(s.id) + '">Regenerate</button>';
+          stHtml += '</div>';
+        });
+        stHtml += '</form>';
+        stHtml += '<div style="margin-top:8px;display:flex;gap:8px">';
+        stHtml += '<button class="btn btn--sm btn--primary" data-action="newsAdminMergeStories">Merge selected</button>';
+        stHtml += '</div>';
+        stEl.innerHTML = stHtml;
+      }
+    } catch (err) { stEl.innerHTML = '<div style="color:var(--text-muted)">Failed to load stories: ' + esc(err.message || '') + '</div>'; }
+  }
+}
+
+async function newsAdminMergeStories() {
+  var form = document.getElementById('newsStoryForm');
+  if (!form) return;
+  var checked = Array.from(form.querySelectorAll('input[name="storyId"]:checked')).map(function(cb) { return cb.value; });
+  if (checked.length < 2) { toast('Select at least 2 stories to merge', 'warning'); return; }
+  if (!confirm('Merge ' + checked.length + ' stories? This will regenerate the summary via LLM.')) return;
+  try {
+    await apiCall('/api/news/admin/stories/merge', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ storyIds: checked }) });
+    toast('Stories merged and regenerated', 'success');
+    window._settingsTab = 'news'; renderContent();
+  } catch (err) { toast(err.message || 'Merge failed', 'error'); }
+}
+
+async function newsAdminRegenerateStory(id) {
+  if (!confirm('Regenerate this story summary via LLM?')) return;
+  try {
+    await apiCall('/api/news/admin/regenerate/stories/' + id, { method: 'POST' });
+    toast('Story regenerated', 'success');
+    window._settingsTab = 'news'; renderContent();
+  } catch (err) { toast(err.message || 'Regeneration failed', 'error'); }
 }
 
 async function newsAdminToggleSource(id, enabled) {

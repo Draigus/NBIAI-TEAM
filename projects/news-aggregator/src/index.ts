@@ -9,6 +9,13 @@ import { loadConfig } from './config.js'
 import { healthRoutes } from './routes/health.js'
 import { mediaRoutes } from './routes/media.js'
 import { digestRoutes } from './routes/digests.js'
+import { searchRoutes } from './routes/search.js'
+import { authenticateInternal } from './auth/internal.js'
+import { adminFeedHealthRoutes } from './routes/admin/feed-health.js'
+import { adminStoriesRoutes } from './routes/admin/stories.js'
+import { adminPromptsRoutes } from './routes/admin/prompts.js'
+import { adminSourcesRoutes } from './routes/admin/sources.js'
+import { adminRegenerateRoutes } from './routes/admin/regenerate.js'
 import { seedSourcesIfEmpty } from './sources/registry.js'
 import { seedPromptsIfEmpty } from './llm/seed-prompts.js'
 import { startCronJobs } from './scheduler/cron.js'
@@ -59,6 +66,16 @@ const NEWS_PREFIX = '/news'
 await app.register(healthRoutes)
 await app.register(mediaRoutes, { prefix: NEWS_PREFIX })
 await app.register(digestRoutes, { prefix: NEWS_PREFIX })
+await app.register(searchRoutes, { prefix: NEWS_PREFIX })
+
+await app.register(async function adminRoutes(admin) {
+  admin.addHook('preHandler', authenticateInternal)
+  await admin.register(adminFeedHealthRoutes, { prefix: `${NEWS_PREFIX}/admin/feed-health` })
+  await admin.register(adminStoriesRoutes, { prefix: `${NEWS_PREFIX}/admin/stories` })
+  await admin.register(adminPromptsRoutes, { prefix: `${NEWS_PREFIX}/admin/prompts` })
+  await admin.register(adminSourcesRoutes, { prefix: `${NEWS_PREFIX}/admin/sources` })
+  await admin.register(adminRegenerateRoutes, { prefix: `${NEWS_PREFIX}/admin/regenerate` })
+})
 
 const seeded = await seedSourcesIfEmpty()
 if (seeded > 0) app.log.info(`Seeded ${seeded} sources`)
