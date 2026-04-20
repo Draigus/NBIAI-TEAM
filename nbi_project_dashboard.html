@@ -3142,7 +3142,7 @@ let _pagePermissions = {};        // Role-based page access: { finances: 'admin'
 let _apiClientsCache = {};        // Cached client records from API (keyed by name)
 let _peopleFilter = { person: null, dateRange: 'all' };
 let _peopleSearchFilter = '';
-let _peopleSubView = 'workload'; // 'workload' | 'capacity' | 'calendar'
+let _peopleSubView = 'workload'; // 'workload' | 'capacity'
 // People → Calendar sub-view state (D92)
 let _peopleCalView = localStorage.getItem('nbi_people_cal_view') || 'roster'; // 'roster' | 'month'
 // _peopleCalYear/Month share state with the Projects Calendar's _calYear/_calMonth
