@@ -2171,6 +2171,28 @@ span.fin-editable { display: inline-block; position: relative; }
   .news-page { padding: 16px 14px 40px; }
 }
 .news-section__show-all { display: none; margin-top: 10px; background: none; border: 1px solid var(--border, #e5e7eb); border-radius: 6px; padding: 6px 12px; font-size: 13px; color: var(--text, #111); cursor: pointer; }
+.news-search { max-width: 900px; }
+.news-search input[type="search"] { width: 100%; padding: 12px 16px; font-size: 16px; background: var(--bg-raised, var(--bg, #fff)); border: 1px solid var(--border, #e5e7eb); border-radius: 8px; color: var(--text, #111); }
+.news-search__filters { display: flex; gap: 12px; margin-top: 12px; align-items: center; }
+.news-search__filters select { padding: 8px 12px; background: var(--bg-raised, var(--bg, #fff)); border: 1px solid var(--border, #e5e7eb); border-radius: 6px; color: var(--text, #111); }
+.news-search button { margin-top: 12px; padding: 10px 20px; background: var(--accent, #2563eb); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; }
+.news-search button:hover { opacity: 0.9; }
+.news-search-result { padding: 16px 0; border-bottom: 1px solid var(--border, #e5e7eb); }
+.news-search-result h4 { margin: 0 0 6px 0; font-family: 'Playfair Display', Georgia, serif; }
+.news-search-result h4 a { color: var(--text, #111); text-decoration: none; }
+.news-search-result h4 a:hover { text-decoration: underline; }
+.news-search-result p { color: var(--text-secondary, #6b7280); margin: 0 0 6px 0; line-height: 1.5; }
+.news-search-result p b { background: rgba(251, 191, 36, 0.25); color: var(--text, #111); padding: 0 2px; }
+.news-search-result__meta { color: var(--text-muted, #6b7280); font-size: 12px; }
+.news-admin-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.news-admin-table th { text-align: left; padding: 8px 10px; border-bottom: 2px solid var(--border, #e5e7eb); color: var(--text-muted, #6b7280); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+.news-admin-table td { padding: 8px 10px; border-bottom: 1px solid var(--border, #e5e7eb); color: var(--text, #111); }
+.news-admin-table tr:hover td { background: var(--bg-hover, rgba(0,0,0,0.02)); }
+.news-admin-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+.news-admin-badge--ok { background: #d1fae5; color: #065f46; }
+.news-admin-badge--warn { background: #fef3c7; color: #92400e; }
+.news-admin-badge--err { background: #fee2e2; color: #991b1b; }
+.news-admin-toggle { cursor: pointer; font-size: 18px; }
 
 </style>
 </head>
@@ -16501,11 +16523,14 @@ function renderSettings(el) {
   html += `<div style="display:flex;align-items:center;gap:var(--space-md);margin-bottom:var(--space-lg)"><h1 style="margin:0">Settings</h1></div>`;
   html += `<div class="task-subview-toggle" style="margin-bottom:var(--space-lg)">`;
   html += tabBtn('account', 'Account');
-  if (isAdmin) html += tabBtn('team', 'Team');
-  html += tabBtn('config', 'Configuration');
-  html += tabBtn('data', 'Data');
-  html += tabBtn('bugs', 'Bug Reporting');
-  if (isAdmin) html += tabBtn('changelog', 'Changelog');
+  if (isAdmin || isClientAdmin()) html += tabBtn('team', 'Team');
+  if (!isClientUser()) {
+    html += tabBtn('config', 'Configuration');
+    html += tabBtn('data', 'Data');
+    html += tabBtn('bugs', 'Bug Reporting');
+    if (isAdmin) html += tabBtn('changelog', 'Changelog');
+    if (isAdmin) html += tabBtn('news', 'News');
+  }
   html += `</div>`;
 
   // === ACCOUNT TAB ===
@@ -16533,7 +16558,7 @@ function renderSettings(el) {
     </div>`;
   }
 
-  // === TEAM TAB (admin only) ===
+  // === TEAM TAB (admin or client admin) ===
   if (tab === 'team' && isAdmin) {
     html += `<div class="settings__group"><h2>User Management</h2>
       <div id="userManageList" style="margin-bottom:12px">Loading users...</div>
@@ -16560,10 +16585,26 @@ function renderSettings(el) {
       <textarea id="sysMessageBody" placeholder="Message body" rows="3" style="display:block;width:100%;box-sizing:border-box;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-size:0.9rem;resize:vertical;margin-bottom:8px"></textarea>
       <button class="btn btn--primary btn--sm" data-action="sendSystemMessage">Send to All Users</button>
     </div>`;
+  } else if (tab === 'team' && isClientAdmin()) {
+    html += `<div class="settings__group"><h2>Team Management</h2>
+      <div id="clientTeamList" style="margin-bottom:12px">Loading...</div>
+      <div style="border:1px solid var(--border-default);border-radius:var(--radius-md);padding:var(--space-md);background:var(--bg-surface)">
+        <div style="font-size:0.82rem;font-weight:600;margin-bottom:8px">Invite Team Member</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:flex-end">
+          <input id="inviteDisplayName" placeholder="Display Name" style="padding:6px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.82rem;width:140px">
+          <input id="inviteEmail" placeholder="Email" style="padding:6px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.82rem;width:180px">
+          <select id="inviteRole" style="padding:6px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.82rem">
+            <option value="member">Member</option>
+            <option value="admin">Admin</option>
+          </select>
+          <button class="btn btn--sm btn--primary" data-action="inviteClientUser">Invite</button>
+        </div>
+      </div>
+    </div>`;
   }
 
-  // === CONFIGURATION TAB ===
-  if (tab === 'config') {
+  // === CONFIGURATION TAB (NBI only) ===
+  if (tab === 'config' && !isClientUser()) {
     html += `<div class="settings__group"><h2>Known Clients</h2>
       <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">${settings.knownClients.map(c => `<span class="badge badge--status">${esc(c)} <span style="cursor:pointer;margin-left:4px" data-action="removeClient" data-arg0="${esc(c)}">&times;</span></span>`).join('')}</div>
       <div class="detail-field"><input id="newClientInput" placeholder="Add client..."><button class="btn btn--sm" data-action="addClient">Add</button></div>
@@ -16582,8 +16623,8 @@ function renderSettings(el) {
     </div>`;
   }
 
-  // === DATA TAB ===
-  if (tab === 'data') {
+  // === DATA TAB (NBI only) ===
+  if (tab === 'data' && !isClientUser()) {
     html += `<div class="settings__group"><h2>Import &amp; Export</h2>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:var(--space-md);margin-bottom:var(--space-lg)">
         <button class="btn btn--primary" data-action="openDownloadsImport" style="padding:var(--space-md);text-align:center">&#128194;<br>Import from Downloads</button>
@@ -16602,8 +16643,8 @@ function renderSettings(el) {
     }
   }
 
-  // === BUG REPORTING TAB ===
-  if (tab === 'bugs') {
+  // === BUG REPORTING TAB (NBI only) ===
+  if (tab === 'bugs' && !isClientUser()) {
     html += `<div id="bugReportsTabContent"><div style="padding:24px;text-align:center;color:var(--text-muted)">Loading reports...</div></div>`;
   }
 
@@ -16615,11 +16656,29 @@ function renderSettings(el) {
     </div>`;
   }
 
+  // === NEWS ADMIN TAB (admin only) ===
+  if (tab === 'news' && isAdmin) {
+    html += `<div class="settings__group"><h2>Feed Health</h2>
+      <div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:12px">Source ingestion status over the last 7 days.</div>
+      <div id="newsAdminFeedHealth"><div style="color:var(--text-muted);font-size:0.78rem">Loading feed health...</div></div>
+    </div>`;
+    html += `<div class="settings__group"><h2>Prompts</h2>
+      <div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:12px">LLM prompt versions used for digest generation.</div>
+      <div id="newsAdminPrompts"><div style="color:var(--text-muted);font-size:0.78rem">Loading prompts...</div></div>
+    </div>`;
+    html += `<div class="settings__group"><h2>Sources</h2>
+      <div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:12px">Manage news sources. <button class="btn btn--sm" data-action="newsAdminAddSource">Add source</button></div>
+      <div id="newsAdminSources"></div>
+    </div>`;
+  }
+
   html += `</div>`;
   el.innerHTML = html;
   // Load async content for the active tab
   if (tab === 'config') loadTemplates();
   if (tab === 'team' && isAdmin) loadUserManagement();
+  if (tab === 'team' && isClientAdmin()) loadClientTeamList();
+  if (tab === 'news' && isAdmin) loadNewsAdmin();
   if (tab === 'bugs') {
     renderBugReportsTab().then(tabHtml => {
       const container = document.getElementById('bugReportsTabContent');
@@ -18217,6 +18276,105 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
+// ===== NEWS ADMIN =====
+async function loadNewsAdmin() {
+  var fhEl = document.getElementById('newsAdminFeedHealth');
+  if (fhEl) {
+    try {
+      var fhData = await apiCall('/api/news/admin/feed-health/sources');
+      var sources = fhData.sources || [];
+      var fhHtml = '<table class="news-admin-table"><thead><tr><th>Source</th><th>Tier</th><th>Status</th><th>7d Attempts</th><th>7d Failures</th><th>New Items</th><th>Last Success</th><th>Enabled</th></tr></thead><tbody>';
+      sources.forEach(function(s) {
+        var rate = s.attempts_7d > 0 ? Math.round((s.failures_7d / s.attempts_7d) * 100) : 0;
+        var badge = rate === 0 ? 'ok' : rate < 50 ? 'warn' : 'err';
+        var lastSuccess = s.last_success_at ? new Date(s.last_success_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Never';
+        fhHtml += '<tr><td><strong>' + esc(s.name) + '</strong><br><span style="color:var(--text-muted);font-size:11px">' + esc(s.slug) + '</span></td>';
+        fhHtml += '<td>' + esc(s.tier) + '</td>';
+        fhHtml += '<td><span class="news-admin-badge news-admin-badge--' + badge + '">' + rate + '% fail</span></td>';
+        fhHtml += '<td>' + (s.attempts_7d || 0) + '</td>';
+        fhHtml += '<td>' + (s.failures_7d || 0) + '</td>';
+        fhHtml += '<td>' + (s.new_items_7d || 0) + '</td>';
+        fhHtml += '<td>' + lastSuccess + '</td>';
+        fhHtml += '<td><span class="news-admin-toggle" data-action="newsAdminToggleSource" data-arg0="' + esc(s.id) + '" data-arg1="' + (s.enabled ? 'false' : 'true') + '">' + (s.enabled ? '\u2705' : '\u274c') + '</span></td>';
+        fhHtml += '</tr>';
+      });
+      fhHtml += '</tbody></table>';
+      fhEl.innerHTML = fhHtml;
+    } catch (err) { fhEl.innerHTML = '<div style="color:var(--text-muted)">Failed to load feed health: ' + esc(err.message || '') + '</div>'; }
+  }
+  var prEl = document.getElementById('newsAdminPrompts');
+  if (prEl) {
+    try {
+      var prData = await apiCall('/api/news/admin/prompts');
+      var prompts = prData.prompts || [];
+      var keys = {};
+      prompts.forEach(function(p) { if (!keys[p.prompt_key]) keys[p.prompt_key] = []; keys[p.prompt_key].push(p); });
+      var prHtml = '';
+      Object.keys(keys).forEach(function(key) {
+        var versions = keys[key];
+        var active = versions.find(function(v) { return v.is_active; }) || versions[0];
+        prHtml += '<div style="margin-bottom:16px;padding:12px;border:1px solid var(--border-default);border-radius:var(--radius-md);background:var(--bg-surface)">';
+        prHtml += '<div style="font-weight:600;margin-bottom:8px">' + esc(key) + ' <span style="color:var(--text-muted);font-size:11px">v' + active.version + ' (active)</span></div>';
+        prHtml += '<textarea id="newsPrompt_' + esc(key) + '" style="width:100%;min-height:100px;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-family:monospace;font-size:12px;resize:vertical">' + esc(active.body || '') + '</textarea>';
+        prHtml += '<button class="btn btn--sm" style="margin-top:6px" data-action="newsAdminSavePrompt" data-arg0="' + esc(key) + '">Save as new version</button>';
+        if (versions.length > 1) {
+          prHtml += '<details style="margin-top:8px"><summary style="cursor:pointer;font-size:12px;color:var(--text-muted)">Version history (' + versions.length + ')</summary>';
+          versions.forEach(function(v) {
+            prHtml += '<div style="padding:4px 0;font-size:12px;border-bottom:1px solid var(--border-default)">';
+            prHtml += 'v' + v.version + (v.is_active ? ' (active)' : '') + ' by ' + esc(v.created_by || 'unknown') + ' ';
+            if (!v.is_active) prHtml += '<button class="btn btn--sm" data-action="newsAdminActivatePrompt" data-arg0="' + esc(v.id) + '">Activate</button>';
+            prHtml += '</div>';
+          });
+          prHtml += '</details>';
+        }
+        prHtml += '</div>';
+      });
+      if (!prHtml) prHtml = '<div style="color:var(--text-muted)">No prompts configured.</div>';
+      prEl.innerHTML = prHtml;
+    } catch (err) { prEl.innerHTML = '<div style="color:var(--text-muted)">Failed to load prompts: ' + esc(err.message || '') + '</div>'; }
+  }
+}
+
+async function newsAdminToggleSource(id, enabled) {
+  try {
+    await apiCall('/api/news/admin/feed-health/sources/' + id, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ enabled: enabled === 'true' }) });
+    window._settingsTab = 'news'; renderContent();
+  } catch (err) { toast(err.message || 'Failed to toggle source', 'error'); }
+}
+
+async function newsAdminSavePrompt(promptKey) {
+  var ta = document.getElementById('newsPrompt_' + promptKey);
+  if (!ta) return;
+  try {
+    await apiCall('/api/news/admin/prompts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ promptKey: promptKey, body: ta.value }) });
+    toast('Prompt saved as new version', 'success');
+    window._settingsTab = 'news'; renderContent();
+  } catch (err) { toast(err.message || 'Failed to save prompt', 'error'); }
+}
+
+async function newsAdminActivatePrompt(id) {
+  try {
+    await apiCall('/api/news/admin/prompts/' + id + '/activate', { method: 'POST' });
+    toast('Prompt version activated', 'success');
+    window._settingsTab = 'news'; renderContent();
+  } catch (err) { toast(err.message || 'Failed to activate prompt', 'error'); }
+}
+
+async function newsAdminAddSource() {
+  var slug = prompt('Source slug (e.g. ign):');
+  if (!slug) return;
+  var name = prompt('Display name:');
+  if (!name) return;
+  var feedUrl = prompt('RSS feed URL:');
+  if (!feedUrl) return;
+  var tier = prompt('Tier (t1/t2/t3):', 't2');
+  try {
+    await apiCall('/api/news/admin/sources', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ slug: slug, name: name, feedUrl: feedUrl, tier: tier || 't2' }) });
+    toast('Source added', 'success');
+    window._settingsTab = 'news'; renderContent();
+  } catch (err) { toast(err.message || 'Failed to add source', 'error'); }
+}
+
 // ===== USER MANAGEMENT =====
 /** Fetch user list from the API and render the user management table in settings */
 async function loadUserManagement() {
@@ -18319,6 +18477,71 @@ async function updateUserField(userId, field, value) {
     if (resp.ok) toast(field === 'display_name' ? 'Name updated' : 'Email updated');
     else toast('Update failed', 'error');
   } catch(e) { toast('Error: ' + e.message, 'error'); }
+}
+
+// ===== CLIENT TEAM MANAGEMENT =====
+
+async function loadClientTeamList() {
+  const container = document.getElementById('clientTeamList');
+  if (!container) return;
+  try {
+    const res = await authFetch('/api/users');
+    if (!res.ok) return;
+    const users = await res.json();
+    if (users.length === 0) { container.innerHTML = '<div style="color:var(--text-muted);font-size:0.82rem">No team members yet.</div>'; return; }
+    container.innerHTML = users.map(u => `
+      <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-subtle)">
+        <span style="flex:1;font-size:0.85rem">${esc(u.display_name)}</span>
+        <span style="font-size:0.75rem;color:var(--text-muted)">${esc(u.email || '')}</span>
+        <span style="font-size:0.75rem;padding:2px 6px;border-radius:3px;background:${u.is_active ? 'var(--bg-surface)' : 'var(--status-overdue)'};color:${u.is_active ? 'var(--text-muted)' : '#fff'}">${u.is_active ? (u.client_role || 'member') : 'Inactive'}</span>
+        ${u.id !== _currentUser.id ? `
+          <button class="btn btn--sm" data-action="toggleClientUserActive" data-arg0="${u.id}" data-arg1="${u.is_active ? 'deactivate' : 'reactivate'}">${u.is_active ? 'Deactivate' : 'Reactivate'}</button>
+          <button class="btn btn--sm" data-action="resetClientUserPassword" data-arg0="${u.id}">Reset PW</button>
+        ` : ''}
+      </div>`).join('');
+  } catch (e) { container.innerHTML = '<div style="color:var(--status-overdue)">Failed to load team</div>'; }
+}
+
+async function inviteClientUser() {
+  const display_name = document.getElementById('inviteDisplayName')?.value?.trim();
+  const email = document.getElementById('inviteEmail')?.value?.trim();
+  const client_role = document.getElementById('inviteRole')?.value;
+  if (!display_name || !email) { toast('Name and email required', 'error'); return; }
+  const username = email.split('@')[0].toLowerCase();
+  try {
+    const res = await authFetch('/api/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, display_name, email, client_role }),
+    });
+    if (res.ok) {
+      toast('User created. Invite email sent to ' + email);
+      const dnEl = document.getElementById('inviteDisplayName'); if (dnEl) dnEl.value = '';
+      const emEl = document.getElementById('inviteEmail'); if (emEl) emEl.value = '';
+      loadClientTeamList();
+    } else {
+      const data = await res.json();
+      toast(data.error || 'Failed to create user', 'error');
+    }
+  } catch (e) { toast('Network error', 'error'); }
+}
+
+async function toggleClientUserActive(userId, action) {
+  if (action === 'deactivate' && !(await themedConfirm('Deactivate this user? They will be logged out immediately.'))) return;
+  try {
+    const res = await authFetch('/api/users/' + userId + '/' + action, { method: 'POST' });
+    if (res.ok) { toast(action === 'reactivate' ? 'User reactivated' : 'User deactivated'); loadClientTeamList(); }
+    else { const d = await res.json(); toast(d.error || 'Failed', 'error'); }
+  } catch (e) { toast('Network error', 'error'); }
+}
+
+async function resetClientUserPassword(userId) {
+  if (!(await themedConfirm("Reset this user's password? They will receive a new temporary password by email."))) return;
+  try {
+    const res = await authFetch('/api/users/' + userId + '/reset-password', { method: 'POST' });
+    if (res.ok) { toast('Password reset. New temporary password sent by email.'); }
+    else { const d = await res.json(); toast(d.error || 'Failed', 'error'); }
+  } catch (e) { toast('Network error', 'error'); }
 }
 
 // ===== TIME TRACKING =====
