@@ -52,13 +52,13 @@
     <div class="login-card__logo">NBI DASHBOARD</div>
     <div class="login-card__subtitle">Project Management System</div>
     <div class="login-card__error" id="loginError"></div>
-    <form id="loginForm" onsubmit="handleLogin(event)">
+    <form id="loginForm">
       <label for="loginUser">Username or Email</label>
       <input type="text" id="loginUser" autocomplete="username" autofocus>
       <label for="loginPass">Password</label>
       <input type="password" id="loginPass" autocomplete="current-password">
       <label class="login-card__show-pw">
-        <input type="checkbox" onchange="document.getElementById('loginPass').type=this.checked?'text':'password'"> Show password
+        <input type="checkbox" id="showPasswordToggle"> Show password
       </label>
       <button type="submit" class="login-card__btn" id="loginBtn">Sign In</button>
     </form>
@@ -77,7 +77,7 @@
     <div class="login-card__subtitle">Reset Your Password</div>
     <div class="login-card__error" id="resetError"></div>
     <div id="resetUserGreeting" style="font-size:0.85rem;color:var(--text-secondary,#666);margin-bottom:12px;text-align:center"></div>
-    <form id="resetForm" onsubmit="submitPasswordReset(event)">
+    <form id="resetForm">
       <label for="resetNewPass">New Password</label>
       <input type="password" id="resetNewPass" autocomplete="new-password" minlength="6">
       <label for="resetConfirmPass">Confirm Password</label>
@@ -232,8 +232,8 @@
       </label>
       <div>
         <div style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:6px">Type (at least one required)</div>
-        <label style="display:inline-flex;align-items:center;gap:6px;margin-right:var(--space-md);font-size:0.85rem"><input type="checkbox" id="blockerInternalChk" onchange="toggleBlockerType('internal')"> Internal</label>
-        <label style="display:inline-flex;align-items:center;gap:6px;font-size:0.85rem"><input type="checkbox" id="blockerExternalChk" onchange="toggleBlockerType('external')"> External</label>
+        <label style="display:inline-flex;align-items:center;gap:6px;margin-right:var(--space-md);font-size:0.85rem"><input type="checkbox" id="blockerInternalChk" data-action="toggleBlockerType" data-arg0="internal"> Internal</label>
+        <label style="display:inline-flex;align-items:center;gap:6px;font-size:0.85rem"><input type="checkbox" id="blockerExternalChk" data-action="toggleBlockerType" data-arg0="external"> External</label>
       </div>
       <div id="blockerInternalRow" style="display:none;flex-direction:column;gap:4px">
         <span style="font-size:0.78rem;color:var(--text-secondary)">Internal people (comma-separated names)</span>
@@ -17864,6 +17864,13 @@ async function executeNewsSearch() {
     if (results) results.innerHTML = newsTemplates.errorBanner(err && err.message || 'Search failed');
   }
 }
+
+// Managed listeners for forms (replaces inline onsubmit handlers)
+document.getElementById('loginForm')?.addEventListener('submit', handleLogin);
+document.getElementById('resetForm')?.addEventListener('submit', submitPasswordReset);
+document.getElementById('showPasswordToggle')?.addEventListener('change', function() {
+  document.getElementById('loginPass').type = this.checked ? 'text' : 'password';
+});
 </script>
 </body>
 </html>
