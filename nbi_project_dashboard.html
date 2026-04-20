@@ -1108,6 +1108,29 @@ span.fin-editable { display: inline-block; position: relative; }
 .people-client-card__count { font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono); }
 .people-client-card__bar { height: 4px; background: var(--bg-card); border-radius: 2px; overflow: hidden; }
 
+/* ===== CAPACITY HEATMAP MASTER-DETAIL ===== */
+.cap-split { display: flex; gap: var(--space-md); align-items: flex-start; }
+.cap-table-wrap { flex: 1; min-width: 0; overflow-x: auto; }
+.cap-detail { width: 340px; min-width: 280px; flex-shrink: 0; position: sticky; top: 60px; max-height: calc(100vh - 120px); overflow-y: auto; }
+.cap-detail__card { background: var(--bg-card); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: 14px; }
+.cap-detail__name { font-size: 1rem; font-weight: 700; margin-bottom: var(--space-sm); }
+.cap-detail__kpi { display: flex; gap: var(--space-sm); margin-bottom: var(--space-md); flex-wrap: wrap; }
+.cap-detail__kpi-item { flex: 1; min-width: 70px; text-align: center; padding: 8px 6px; background: var(--bg-raised); border-radius: var(--radius-md); }
+.cap-detail__kpi-val { font-size: 1.1rem; font-weight: 700; font-family: var(--font-display); }
+.cap-detail__kpi-lbl { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; margin-top: 2px; }
+.cap-detail__section { margin-bottom: var(--space-md); }
+.cap-detail__section-title { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; }
+.cap-detail__client { margin-bottom: 10px; }
+.cap-detail__client-name { font-size: 0.8rem; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+.cap-detail__task { display: flex; justify-content: space-between; align-items: baseline; padding: 3px 0; font-size: 0.78rem; border-bottom: 1px solid color-mix(in srgb, var(--border-default) 40%, transparent); }
+.cap-detail__task-title { color: var(--text-secondary); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cap-detail__task-hrs { font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted); margin-left: 8px; flex-shrink: 0; }
+.cap-th-vertical { writing-mode: vertical-rl; transform: rotate(180deg); text-align: left; padding: 8px 4px !important; height: 70px; white-space: nowrap; font-size: 0.72rem; }
+.cap-row--selected { background: color-mix(in srgb, var(--accent) 8%, transparent) !important; }
+.cap-row--clickable { cursor: pointer; transition: background 0.1s; }
+.cap-row--clickable:hover { background: color-mix(in srgb, var(--accent) 4%, transparent); }
+@media (max-width: 1024px) { .cap-split { flex-direction: column; } .cap-detail { width: 100%; position: static; max-height: none; } }
+
 /* ===== CLICKABLE REPORT ROWS ===== */
 .report-table__clickable { cursor: pointer; transition: background 0.15s; }
 .report-table__clickable:hover { background: color-mix(in srgb, var(--accent) 8%, var(--bg-raised)); }
@@ -2555,6 +2578,7 @@ function _actSetPeopleFilterDateRange(v) { _peopleFilter.dateRange = v; renderCo
 function _actSetPeopleFilterPerson(v) { _peopleFilter.person = v; renderContent(); }
 function _actSelectPerson(name) { _peopleFilter.person = name; renderContent(); }
 function _actPeopleSearch(el) { _peopleSearchFilter = el.value.toLowerCase(); const pos = el.selectionStart; renderContent(); const inp = document.querySelector('.people-list__search input'); if (inp) { inp.focus(); inp.setSelectionRange(pos, pos); } }
+function _actSelectCapPerson(name) { _capSelectedPerson = name; loadCapacityHeatmap(); }
 function _actSetPeopleCalView(v) { _peopleCalView = v; localStorage.setItem('nbi_people_cal_view', v); renderContent(); }
 function _actSetLeadsSector(v) { _leadsFilter.sector = v; refreshLeads(); }
 function _actClearLeadsSector() { _leadsFilter.sector = null; refreshLeads(); }
@@ -3142,6 +3166,7 @@ let _pagePermissions = {};        // Role-based page access: { finances: 'admin'
 let _apiClientsCache = {};        // Cached client records from API (keyed by name)
 let _peopleFilter = { person: null, dateRange: 'all' };
 let _peopleSearchFilter = '';
+let _capSelectedPerson = null;
 let _peopleSubView = 'workload'; // 'workload' | 'capacity'
 // People → Calendar sub-view state (D92)
 let _peopleCalView = localStorage.getItem('nbi_people_cal_view') || 'roster'; // 'roster' | 'month'
@@ -10562,13 +10587,22 @@ async function loadCapacityHeatmap() {
     const data = await apiCall('/api/resource-planning/capacity?weeks=8');
     if (!data) { el.innerHTML = '<div style="color:var(--danger);padding:20px">Failed to load capacity data</div>'; return; }
 
-    let html = '<div style="overflow-x:auto">';
-    html += '<table class="leads-table" style="table-layout:auto"><thead><tr><th style="width:150px">Person</th><th style="width:60px">Hrs/Wk</th>';
-    data.weekLabels.forEach(w => { html += `<th style="text-align:center;min-width:80px">${w}</th>`; });
+    // Auto-select first person if none selected
+    if (!_capSelectedPerson && data.users.length > 0) _capSelectedPerson = data.users[0].name;
+
+    let html = '<div class="cap-split">';
+
+    // --- LEFT: Heatmap table ---
+    html += '<div class="cap-table-wrap">';
+    html += '<table class="leads-table" style="table-layout:fixed"><thead><tr><th style="width:140px">Person</th><th style="width:50px">Hrs/Wk</th>';
+    data.weekLabels.forEach(w => { html += `<th class="cap-th-vertical" style="width:45px">${w}</th>`; });
     html += '</tr></thead><tbody>';
 
     data.users.forEach(u => {
-      html += `<tr><td><strong style="font-size:0.85rem">${esc(u.name)}</strong></td><td style="font-family:var(--font-mono);font-size:0.8rem;text-align:center">${u.capacityPerWeek}h</td>`;
+      const isSelected = u.name === _capSelectedPerson;
+      html += `<tr class="cap-row--clickable${isSelected ? ' cap-row--selected' : ''}" data-action="_actSelectCapPerson" data-arg0="${esc(u.name)}">`;
+      html += `<td><strong style="font-size:0.82rem">${esc(u.name)}</strong></td>`;
+      html += `<td style="font-family:var(--font-mono);font-size:0.78rem;text-align:center">${u.capacityPerWeek}h</td>`;
       u.weeks.forEach(w => {
         const util = w.utilisation;
         let bg, fg;
@@ -10577,21 +10611,80 @@ async function loadCapacityHeatmap() {
         else if (util < 90) { bg = 'rgba(245,158,11,0.15)'; fg = 'var(--warning)'; }
         else if (util <= 100) { bg = 'rgba(249,115,22,0.2)'; fg = '#f97316'; }
         else { bg = 'rgba(239,68,68,0.2)'; fg = 'var(--danger)'; }
-        html += `<td style="text-align:center;background:${bg};font-family:var(--font-mono);font-size:0.78rem;font-weight:600;color:${fg}" title="${u.name}: ${w.committed ?? 0}h / ${w.capacity ?? 40}h (${util ?? 0}%)">${w.committed ?? 0}h<div style="font-size:0.6rem;font-weight:400;color:var(--text-muted)">${util ?? 0}%</div></td>`;
+        html += `<td style="text-align:center;background:${bg};font-family:var(--font-mono);font-size:0.75rem;font-weight:600;color:${fg}" title="${u.name}: ${w.committed ?? 0}h / ${w.capacity ?? 40}h (${util ?? 0}%)">${w.committed ?? 0}h<div style="font-size:0.58rem;font-weight:400;color:var(--text-muted)">${util ?? 0}%</div></td>`;
       });
       html += '</tr>';
     });
 
-    html += '</tbody></table></div>';
+    html += '</tbody></table>';
 
     // Legend
-    html += `<div style="display:flex;gap:var(--space-lg);margin-top:var(--space-md);font-size:0.75rem;color:var(--text-muted)">
-      <span><span style="display:inline-block;width:12px;height:12px;border-radius:2px;background:rgba(34,197,94,0.15);margin-right:4px;vertical-align:middle"></span>&lt;60% Available</span>
-      <span><span style="display:inline-block;width:12px;height:12px;border-radius:2px;background:rgba(245,158,11,0.15);margin-right:4px;vertical-align:middle"></span>60-90% Busy</span>
-      <span><span style="display:inline-block;width:12px;height:12px;border-radius:2px;background:rgba(249,115,22,0.2);margin-right:4px;vertical-align:middle"></span>90-100% At Capacity</span>
-      <span><span style="display:inline-block;width:12px;height:12px;border-radius:2px;background:rgba(239,68,68,0.2);margin-right:4px;vertical-align:middle"></span>&gt;100% Overloaded</span>
+    html += `<div style="display:flex;gap:var(--space-md);margin-top:var(--space-sm);font-size:0.7rem;color:var(--text-muted);flex-wrap:wrap">
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(34,197,94,0.15);margin-right:3px;vertical-align:middle"></span>&lt;60%</span>
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(245,158,11,0.15);margin-right:3px;vertical-align:middle"></span>60-90%</span>
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(249,115,22,0.2);margin-right:3px;vertical-align:middle"></span>90-100%</span>
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(239,68,68,0.2);margin-right:3px;vertical-align:middle"></span>&gt;100%</span>
     </div>`;
+    html += '</div>';
 
+    // --- RIGHT: Detail panel ---
+    html += '<div class="cap-detail">';
+    if (_capSelectedPerson) {
+      const selUser = data.users.find(u => u.name === _capSelectedPerson);
+      if (selUser) {
+        const avgUtil = selUser.weeks.length > 0 ? Math.round(selUser.weeks.reduce((s, w) => s + w.utilisation, 0) / selUser.weeks.length) : 0;
+        const totalCommitted = selUser.weeks.reduce((s, w) => s + (w.committed || 0), 0);
+
+        html += '<div class="cap-detail__card">';
+        html += `<div class="cap-detail__name">${esc(_capSelectedPerson)}</div>`;
+
+        // KPIs
+        html += '<div class="cap-detail__kpi">';
+        html += `<div class="cap-detail__kpi-item"><div class="cap-detail__kpi-val" style="color:var(--accent)">${selUser.capacityPerWeek}h</div><div class="cap-detail__kpi-lbl">Cap/Wk</div></div>`;
+        const utilCol = avgUtil > 100 ? 'var(--danger)' : avgUtil > 80 ? 'var(--warning)' : 'var(--success)';
+        html += `<div class="cap-detail__kpi-item"><div class="cap-detail__kpi-val" style="color:${utilCol}">${avgUtil}%</div><div class="cap-detail__kpi-lbl">Avg Util</div></div>`;
+        html += `<div class="cap-detail__kpi-item"><div class="cap-detail__kpi-val">${totalCommitted.toFixed(0)}h</div><div class="cap-detail__kpi-lbl">8wk Total</div></div>`;
+        html += '</div>';
+
+        // Task breakdown by client
+        const personTasks = tasks.filter(t => isAssignedTo(t, _capSelectedPerson) && t.status !== 'Done' && t.status !== 'Cancelled');
+        const clientMap = {};
+        personTasks.forEach(t => {
+          const client = getTaskClient(t) || 'Unassigned';
+          if (!clientMap[client]) clientMap[client] = [];
+          clientMap[client].push(t);
+        });
+        const clientEntries = Object.entries(clientMap).sort((a, b) => b[1].length - a[1].length);
+
+        html += '<div class="cap-detail__section">';
+        html += `<div class="cap-detail__section-title">Active Tasks by Client (${personTasks.length})</div>`;
+        if (clientEntries.length === 0) {
+          html += '<div style="color:var(--text-muted);font-size:0.8rem;padding:6px 0">No active tasks</div>';
+        } else {
+          clientEntries.forEach(([client, ctasks]) => {
+            const clientHrs = ctasks.reduce((s, t) => s + (t.hoursEstimated || 0), 0);
+            const clientSpent = ctasks.reduce((s, t) => s + (t.hoursSpent || 0), 0);
+            html += '<div class="cap-detail__client">';
+            html += `<div class="cap-detail__client-name">${esc(client)} <span style="font-weight:400;font-size:0.72rem;color:var(--text-muted)">${ctasks.length} tasks &middot; ${clientSpent.toFixed(0)}h/${clientHrs.toFixed(0)}h</span></div>`;
+            ctasks.slice(0, 8).forEach(t => {
+              const root = getRootAncestor(t);
+              const label = root.id !== t.id ? root.title + ' → ' + t.title : t.title;
+              html += `<div class="cap-detail__task" data-action="openDetailOverlay" data-arg0="${t.id}" style="cursor:pointer">`;
+              html += `<span class="cap-detail__task-title" title="${esc(label)}">${esc(label)}</span>`;
+              html += `<span class="cap-detail__task-hrs">${(t.hoursEstimated || 0).toFixed(0)}h</span>`;
+              html += '</div>';
+            });
+            if (ctasks.length > 8) html += `<div style="font-size:0.72rem;color:var(--text-muted);padding:3px 0">+ ${ctasks.length - 8} more</div>`;
+            html += '</div>';
+          });
+        }
+        html += '</div>';
+        html += '</div>';
+      }
+    }
+    html += '</div>';
+
+    html += '</div>'; // close cap-split
     el.innerHTML = html;
   } catch(e) { el.innerHTML = `<div style="color:var(--danger);padding:20px">Error: ${esc(e.message)}</div>`; }
 }
