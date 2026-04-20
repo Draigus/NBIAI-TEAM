@@ -3,14 +3,15 @@
   Built for NBI Gaming / NBI Analytics Ltd
 
   Architecture:
-    - Single HTML file with inline CSS (~1000 lines) and JS (~7200 lines)
+    - HTML shell with external CSS and ES modules
+    - CSS: /public/css/ (tokens, layout, components, mobile, view-specific)
+    - JS:  /public/js/app.js -> core/ (events, state, helpers, ui, router) + views/
     - Backend: dashboard-server/server.js (Express + PostgreSQL)
-    - Auth: Token-based sessions, stored in localStorage
+    - Auth: Token-based sessions, stored in cookies
     - Sync: Incremental changes with 10-second polling for multi-user support
-    - Offline: Falls back to localStorage when API is unavailable
 
-  Major views: Dashboard, Tasks (tree/board/gantt/calendar), Report, People,
-               Leads CRM, Expenses, Finances, Changelog, Settings
+  Views: Dashboard, Tasks (tree/board/gantt/calendar), Report, People,
+         Leads CRM, Expenses, Finances, Hiring, News, Settings
 
   CSS uses BEM-ish naming with CSS custom properties (design tokens).
   7 colour themes: Dark, Light, Midnight, Nord, Solarized, Dracula, Emerald.
