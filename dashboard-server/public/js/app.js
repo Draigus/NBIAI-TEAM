@@ -1,0 +1,21 @@
+// Core
+import './core/events.js';
+import './core/helpers.js';
+import './core/ui.js';
+import './core/state.js';
+import './core/router.js';
+
+// Views
+import './views/dashboard.js';
+import './views/tasks.js';
+import './views/leads.js';
+import './views/expenses.js';
+import './views/bugs.js';
+import './views/hiring.js';
+import './views/finances.js';
+import './views/people.js';
+import './views/reports.js';
+import './views/settings.js';
+import './views/sidebar.js';
+import './views/themes.js';
+import './views/news.js';
