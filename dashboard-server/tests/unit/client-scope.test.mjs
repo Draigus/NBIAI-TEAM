@@ -94,12 +94,12 @@ describe('Client-scoped users', () => {
     expect(res.status).toBe(403);
   });
 
-  it('scoped user gets 403 on bug tracker endpoints', async () => {
+  it('scoped user can access bug reports (own company only)', async () => {
     const { scopedToken } = await createScopedSetup();
     const res = await request(app)
       .get('/api/bug-reports')
       .set('Authorization', `Bearer ${scopedToken}`);
-    expect(res.status).toBe(403);
+    expect(res.status).toBe(200);
   });
 
   it('scoped user cannot create tasks for other clients', async () => {

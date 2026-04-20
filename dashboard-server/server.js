@@ -6574,11 +6574,19 @@ app.post('/api/expenses/from-receipt', requireNBI, upload.single('file'), async 
 // ==================== BUG / FEATURE REPORTS ====================
 
 /** GET /api/bug-reports — List all bug/feature reports (visible to all authenticated users) */
-app.get('/api/bug-reports', requireNBI, async (req, res) => {
+app.get('/api/bug-reports', async (req, res) => {
   let where = [];
   let vals = [];
   let i = 1;
   const { status, type, priority } = req.query;
+
+  // Client scoping: client users only see their company's reports
+  if (req.user?.clientId) {
+    where.push(`b.reporter_client_id = $${i}`);
+    vals.push(req.user.clientId);
+    i++;
+  }
+
   if (status) { where.push(`b.status = $${i}`); vals.push(status); i++; }
   if (type) { where.push(`b.type = $${i}`); vals.push(type); i++; }
   if (priority) { where.push(`b.priority = $${i}`); vals.push(priority); i++; }
@@ -6586,17 +6594,20 @@ app.get('/api/bug-reports', requireNBI, async (req, res) => {
   const { rows } = await pool.query(`
     SELECT b.id, b.user_id, b.type, b.title, b.description, b.page,
            b.status, b.priority, b.position, b.created_at, b.updated_at,
+           b.source, b.reporter_client_id,
            (b.screenshot IS NOT NULL) AS has_screenshot,
            u.display_name AS reporter_name,
+           rc.name AS reporter_client_name,
            (SELECT COUNT(*) FROM bug_report_comments c WHERE c.report_id = b.id)::int AS comment_count
     FROM bug_reports b LEFT JOIN users u ON b.user_id = u.id
+    LEFT JOIN clients rc ON b.reporter_client_id = rc.id
     ${whereClause} ORDER BY b.status, b.position, b.created_at DESC
   `, vals);
   res.json({ reports: rows });
 });
 
 /** POST /api/bug-reports — Submit a new bug or feature report */
-app.post('/api/bug-reports', requireNBI, async (req, res) => {
+app.post('/api/bug-reports', async (req, res) => {
   const { type, title, description, page, screenshot, priority } = req.body;
   if (!title || !title.trim()) return res.status(400).json({ error: 'Title is required' });
   const descErr = validateLength(description, 'description');
@@ -6617,15 +6628,19 @@ app.post('/api/bug-reports', requireNBI, async (req, res) => {
   const MAX_SCREENSHOT_BYTES = 5 * 1024 * 1024;
   const safeScreenshot = (screenshot && screenshot.length <= MAX_SCREENSHOT_BYTES) ? screenshot : null;
 
+  // Tag source and reporter_client_id for client-submitted reports
+  const source = req.user?.clientId ? 'client' : 'internal';
+  const reporter_client_id = req.user?.clientId || null;
+
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
     // Shift everything in the target column ('open' is the default for new bugs) down by 1
     await shiftForInsert(client, 'bug_reports', 'status', 'open');
     const { rows } = await client.query(
-      `INSERT INTO bug_reports (user_id, type, title, description, page, screenshot, priority, position)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, 0) RETURNING *`,
-      [req.user.id, rType, title.trim(), description || null, page || null, safeScreenshot, safePriority]
+      `INSERT INTO bug_reports (user_id, type, title, description, page, screenshot, priority, position, source, reporter_client_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, 0, $8, $9) RETURNING *`,
+      [req.user.id, rType, title.trim(), description || null, page || null, safeScreenshot, safePriority, source, reporter_client_id]
     );
     await client.query('COMMIT');
     res.status(201).json(rows[0]);
@@ -6640,9 +6655,17 @@ app.post('/api/bug-reports', requireNBI, async (req, res) => {
 
 /** PATCH /api/bug-reports/:id — Update status, priority, title, and/or description.
  *  Permissions: admin can change anything; reporter can change status, title, and description on own reports. */
-app.patch('/api/bug-reports/:id', requireNBI, async (req, res) => {
+app.patch('/api/bug-reports/:id', async (req, res) => {
   if (!req.user) return res.status(401).json({ error: 'Authentication required' });
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid report ID' });
+
+  // Client scoping: client users can only modify their own company's reports
+  if (req.user?.clientId) {
+    const { rows: check } = await pool.query('SELECT reporter_client_id FROM bug_reports WHERE id = $1', [req.params.id]);
+    if (check.length === 0) return res.status(404).json({ error: 'Not found' });
+    if (check[0].reporter_client_id !== req.user.clientId) return res.status(403).json({ error: 'Access denied' });
+  }
+
   const { status, description, priority, title } = req.body;
   if (!status && description === undefined && priority === undefined && title === undefined && req.body.position === undefined) {
     return res.status(400).json({ error: 'status, title, description, priority, or position required' });
@@ -6801,8 +6824,14 @@ app.post('/api/bug-reports/:id/notify-review', requireNBI, requireAdmin, async (
 });
 
 /** GET /api/bug-reports/:id/comments — List comments for a bug report */
-app.get('/api/bug-reports/:id/comments', requireNBI, async (req, res) => {
+app.get('/api/bug-reports/:id/comments', async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid report ID' });
+  // Client scoping: client users can only access comments on their company's reports
+  if (req.user?.clientId) {
+    const { rows: check } = await pool.query('SELECT reporter_client_id FROM bug_reports WHERE id = $1', [req.params.id]);
+    if (check.length === 0) return res.status(404).json({ error: 'Not found' });
+    if (check[0].reporter_client_id !== req.user.clientId) return res.status(403).json({ error: 'Access denied' });
+  }
   const { rows } = await pool.query(
     'SELECT * FROM bug_report_comments WHERE report_id = $1 ORDER BY created_at ASC',
     [req.params.id]
@@ -6811,8 +6840,14 @@ app.get('/api/bug-reports/:id/comments', requireNBI, async (req, res) => {
 });
 
 /** POST /api/bug-reports/:id/comments — Add a comment to a bug report */
-app.post('/api/bug-reports/:id/comments', requireNBI, async (req, res) => {
+app.post('/api/bug-reports/:id/comments', async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid report ID' });
+  // Client scoping: client users can only comment on their company's reports
+  if (req.user?.clientId) {
+    const { rows: check } = await pool.query('SELECT reporter_client_id FROM bug_reports WHERE id = $1', [req.params.id]);
+    if (check.length === 0) return res.status(404).json({ error: 'Not found' });
+    if (check[0].reporter_client_id !== req.user.clientId) return res.status(403).json({ error: 'Access denied' });
+  }
   const { text } = req.body;
   if (!text || !text.trim()) return res.status(400).json({ error: 'text required' });
   const textErr = validateLength(text, 'text');
@@ -6853,9 +6888,15 @@ app.post('/api/bug-reports/:id/comments', requireNBI, async (req, res) => {
 });
 
 /** DELETE /api/bug-reports/:id/comments/:commentId — Delete a comment (own or admin) */
-app.delete('/api/bug-reports/:id/comments/:commentId', requireNBI, async (req, res) => {
+app.delete('/api/bug-reports/:id/comments/:commentId', async (req, res) => {
   if (!isValidUuid(req.params.id) || !isValidUuid(req.params.commentId)) {
     return res.status(400).json({ error: 'Invalid ID format' });
+  }
+  // Client scoping: client users can only delete comments on their company's reports
+  if (req.user?.clientId) {
+    const { rows: check } = await pool.query('SELECT reporter_client_id FROM bug_reports WHERE id = $1', [req.params.id]);
+    if (check.length === 0) return res.status(404).json({ error: 'Not found' });
+    if (check[0].reporter_client_id !== req.user.clientId) return res.status(403).json({ error: 'Access denied' });
   }
   const { rows } = await pool.query(
     'SELECT author FROM bug_report_comments WHERE id = $1 AND report_id = $2',
@@ -6871,7 +6912,7 @@ app.delete('/api/bug-reports/:id/comments/:commentId', requireNBI, async (req, r
 });
 
 /** DELETE /api/bug-reports/:id — Delete a report (admin only) */
-app.delete('/api/bug-reports/:id', requireNBI, requireAdmin, async (req, res) => {
+app.delete('/api/bug-reports/:id', requireAdmin, async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid report ID' });
   await pool.query('DELETE FROM bug_reports WHERE id = $1', [req.params.id]);
   await auditLog('bug_report', req.params.id, 'delete', req.user?.displayName || 'unknown', {});
@@ -6879,8 +6920,14 @@ app.delete('/api/bug-reports/:id', requireNBI, requireAdmin, async (req, res) =>
 });
 
 /** GET /api/bug-reports/:id/screenshot — Serve the screenshot image */
-app.get('/api/bug-reports/:id/screenshot', requireNBI, async (req, res) => {
+app.get('/api/bug-reports/:id/screenshot', async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid report ID' });
+  // Client scoping: client users can only view screenshots from their company's reports
+  if (req.user?.clientId) {
+    const { rows: check } = await pool.query('SELECT reporter_client_id FROM bug_reports WHERE id = $1', [req.params.id]);
+    if (check.length === 0) return res.status(404).json({ error: 'Not found' });
+    if (check[0].reporter_client_id !== req.user.clientId) return res.status(403).json({ error: 'Access denied' });
+  }
   const { rows } = await pool.query('SELECT screenshot FROM bug_reports WHERE id = $1', [req.params.id]);
   if (rows.length === 0 || !rows[0].screenshot) return res.status(404).json({ error: 'No screenshot' });
   const data = rows[0].screenshot;
