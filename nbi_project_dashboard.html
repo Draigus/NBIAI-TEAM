@@ -286,6 +286,7 @@
 <script type="module" src="/public/js/core/events.js"></script>
 <script type="module" src="/public/js/core/helpers.js"></script>
 <script type="module" src="/public/js/core/ui.js"></script>
+<script type="module" src="/public/js/core/state.js"></script>
 <script>
 // ===================================================================
 // NBI PROJECT DASHBOARD v2 — FULL FUNCTIONAL BUILD
@@ -430,10 +431,8 @@ function _actOpenCalEventFirmClosed(dateStr) { openCalendarEventModal(null, { ev
 function _actOpenCalEventForPerson(dateStr, userId, displayName) { openCalendarEventModal(null, { start_date: dateStr, end_date: dateStr, user_id: userId, user_display_name: displayName }); }
 
 // ----- AUTH -----
-let _currentUser = null;
-function isClientUser() { return !!(_currentUser && _currentUser.clientId); }
-function isClientAdmin() { return _currentUser?.clientRole === 'admin'; }
-let _cachedUsers = [];       // Cached full user records (id, username, display_name, role, is_active) for ID lookups
+var _currentUser = null;
+var _cachedUsers = [];       // Cached full user records (id, username, display_name, role, is_active) for ID lookups
 const _expandedStandupPeople = new Set(); // Track which person sections are expanded in standup
 const _standupDoneExpanded = new Set(); // Per-person: track which standup Done sections are expanded (default collapsed)
 const _expandedClientCards = new Set();  // Track which client summary cards are expanded in report view
@@ -481,29 +480,17 @@ function pfGanttNav(days) { _pfGanttOffsetDays += days; renderContent(); }
 function pfGanttToday() { _pfGanttOffsetDays = 0; renderContent(); }
 
 let _scrollRestoreTarget = null; // Scroll position to restore after async standup render
-let _lastLocalSyncTime = 0; // Timestamp of last local save — suppresses poll re-render for own changes
+var _lastLocalSyncTime = 0; // Timestamp of last local save — suppresses poll re-render for own changes
 const _recentlyEditedIds = new Set(); // Task IDs edited locally in the last 15s — for self-echo detection
-let _cachedTeamMembers = null; // Cached team member display names — avoids async fetch on re-render
+window._recentlyEditedIds = _recentlyEditedIds;
+var _cachedTeamMembers = null; // Cached team member display names — avoids async fetch on re-render
 
 // ==================== INDEXEDDB WRITE-AHEAD LOG ====================
 const IDB_NAME = 'nbi_dashboard';
 const IDB_VERSION = 1;
-let _idb = null;
+window.IDB_NAME = IDB_NAME; window.IDB_VERSION = IDB_VERSION;
+var _idb = null;
 
-/** Open the IndexedDB database for the write-ahead log and data cache */
-function openIDB() {
-  return new Promise((resolve, reject) => {
-    if (!window.indexedDB) { resolve(null); return; }
-    const req = indexedDB.open(IDB_NAME, IDB_VERSION);
-    req.onupgradeneeded = (e) => {
-      const db = e.target.result;
-      if (!db.objectStoreNames.contains('wal')) db.createObjectStore('wal', { keyPath: 'id' });
-      if (!db.objectStoreNames.contains('data_cache')) db.createObjectStore('data_cache', { keyPath: 'key' });
-    };
-    req.onsuccess = (e) => { _idb = e.target.result; resolve(_idb); };
-    req.onerror = () => { resolve(null); };
-  });
-}
 
 /** Write a change to the WAL for crash recovery */
 function walWrite(taskId, action, data) {
@@ -547,16 +534,6 @@ function idbCacheWrite(key, data) {
 }
 
 
-/** Fetch and cache the team member list for dropdowns */
-async function loadTeamMembers() {
-  try {
-    const users = await apiCall('/api/users');
-    if (users) {
-      _cachedUsers = users.filter(u => u.is_active !== false);
-      _cachedTeamMembers = _cachedUsers.map(u => u.display_name).sort();
-    }
-  } catch(e) {}
-}
 
 /** Add a team member to a task's assignee list */
 function addAssignee(taskId, name) {
@@ -576,92 +553,8 @@ function removeAssignee(taskId, name) {
   updateTask(taskId, 'assignees', assignees);
 }
 
-/** Wraps fetch() with auth token injection and automatic 401 → login screen redirect */
-function authFetch(url, opts = {}) {
-  opts.credentials = 'include';
-  return fetch(url, opts).then(resp => {
-    if (resp.status === 401) {
-      _currentUser = null;
-      showLoginScreen();
-    } else if (resp.status === 403) {
-      toast('You do not have permission for this action', 'error');
-    }
-    return resp;
-  });
-}
 
-/** Fetch wrapper that handles v2 envelope: unwraps { data, error, meta } automatically.
- *  Sends X-API-Version: 2 header so the server wraps responses in { data, error, meta }.
- *  On success, returns the unwrapped data. On failure, shows a toast and returns null. */
-async function apiCall(url, options = {}) {
-  options.headers = { ...options.headers, 'X-API-Version': '2' };
-  const resp = await authFetch(url, options);
-  if (!resp.ok) {
-    let errMsg = 'Request failed';
-    try {
-      const body = await resp.json();
-      errMsg = body?.error?.message || body?.error || errMsg;
-    } catch(e) {}
-    toast(errMsg, 'error');
-    return null;
-  }
-  const body = await resp.json();
-  // v2 envelope: unwrap data
-  if (body && body.hasOwnProperty('data') && body.hasOwnProperty('error')) {
-    return body.data;
-  }
-  // v1 fallback
-  return body;
-}
 
-/** Handle login form submission -- validates credentials and initialises the app on success */
-async function handleLogin(e) {
-  e.preventDefault();
-  const btn = document.getElementById('loginBtn');
-  const errEl = document.getElementById('loginError');
-  const resetPrompt = document.getElementById('loginResetPrompt');
-  const username = document.getElementById('loginUser').value.trim();
-  const password = document.getElementById('loginPass').value;
-  if (!username || !password) { errEl.textContent = 'Please enter username and password'; return; }
-
-  btn.disabled = true;
-  errEl.textContent = '';
-  try {
-    const resp = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
-    });
-    const data = await resp.json();
-    if (!resp.ok) {
-      errEl.textContent = data.error || 'Login failed';
-      if (data.showReset) {
-        resetPrompt.style.display = 'block';
-        document.getElementById('resetEmailMsg').style.display = 'none';
-      }
-      btn.disabled = false;
-      return;
-    }
-
-    resetPrompt.style.display = 'none';
-    _currentUser = data.user;
-    if (checkForcePasswordChange()) { btn.disabled = false; return; }
-    showApp();
-    await openIDB();
-    await Promise.all([load(), loadTeamMembers(), loadPagePermissions(), loadBugReports(), loadCandidates()]);
-    await loadFinanceFromDB();
-    if (isClientUser()) {
-      const myClient = Object.values(_apiClientsCache).find(c => c.id === _currentUser.clientId);
-      if (myClient) currentFilter.client = myClient.name;
-    }
-    renderAll();
-    restartPollingIntervals();
-    checkExpenseReportDeepLink();
-  } catch (err) {
-    errEl.textContent = 'Connection error. Is the server running?';
-  }
-  btn.disabled = false;
-}
 
 /** Check URL hash for expense report deep-links (e.g. #expenses/report/{uuid}) */
 function checkExpenseReportDeepLink() {
@@ -695,129 +588,10 @@ async function handleLogout() {
   showLoginScreen();
 }
 
-/** Reset UI to the login screen -- hides app container and clears form fields */
-function showLoginScreen() {
-  document.getElementById('loginScreen').style.display = 'flex';
-  document.getElementById('resetPasswordScreen').style.display = 'none';
-  document.getElementById('appContainer').style.display = 'none';
-  document.getElementById('loginUser').value = '';
-  document.getElementById('loginPass').value = '';
-  document.getElementById('loginError').textContent = '';
-  document.getElementById('loginResetPrompt').style.display = 'none';
-  document.getElementById('loginUser').focus();
-}
 
-/** Show the main app container and display the current user's name badge */
-function showApp() {
-  document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('resetPasswordScreen').style.display = 'none';
-  document.getElementById('appContainer').style.display = '';
-  if (_currentUser) {
-    document.getElementById('userBadge').textContent = _currentUser.displayName;
-    if (isClientUser()) {
-      const co = Object.values(_apiClientsCache).find(c => c.id === _currentUser.clientId);
-      const subtitleEl = document.querySelector('.g-header__subtitle');
-      if (co && subtitleEl) subtitleEl.textContent = co.name;
-    }
-  }
-}
 
-function checkForcePasswordChange() {
-  if (_currentUser?.mustChangePassword) {
-    document.getElementById('forcePasswordChangeModal').style.display = 'flex';
-    document.getElementById('fpwSubmit').onclick = async () => {
-      const current = document.getElementById('fpwCurrent').value;
-      const newPw = document.getElementById('fpwNew').value;
-      const confirm = document.getElementById('fpwConfirm').value;
-      const errorEl = document.getElementById('fpwError');
-      if (!current || !newPw || !confirm) { errorEl.textContent = 'All fields required'; errorEl.style.display = 'block'; return; }
-      if (newPw.length < 6) { errorEl.textContent = 'Password must be at least 6 characters'; errorEl.style.display = 'block'; return; }
-      if (newPw !== confirm) { errorEl.textContent = 'Passwords do not match'; errorEl.style.display = 'block'; return; }
-      try {
-        const res = await authFetch('/api/auth/change-password', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ currentPassword: current, newPassword: newPw }),
-        });
-        if (res.ok) {
-          _currentUser.mustChangePassword = false;
-          document.getElementById('forcePasswordChangeModal').style.display = 'none';
-          window.location.reload();
-        } else {
-          const data = await res.json();
-          errorEl.textContent = data.error || 'Password change failed';
-          errorEl.style.display = 'block';
-        }
-      } catch (e) {
-        errorEl.textContent = 'Network error';
-        errorEl.style.display = 'block';
-      }
-    };
-    return true;
-  }
-  return false;
-}
 
-/** Request a password reset email for the username entered on the login form */
-async function sendPasswordResetEmail() {
-  const username = document.getElementById('loginUser').value.trim();
-  const btn = document.getElementById('resetEmailBtn');
-  const msgEl = document.getElementById('resetEmailMsg');
-  if (!username) { msgEl.style.display = 'block'; msgEl.style.color = '#dc2626'; msgEl.textContent = 'Enter your username or email above first.'; return; }
-  btn.disabled = true;
-  msgEl.style.display = 'none';
-  try {
-    const resp = await fetch('/api/auth/forgot-password', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username }),
-    });
-    const data = await resp.json();
-    msgEl.style.display = 'block';
-    msgEl.style.color = '#16a34a';
-    msgEl.textContent = data.message || 'If an account exists, a reset email has been sent.';
-  } catch (err) {
-    msgEl.style.display = 'block';
-    msgEl.style.color = '#dc2626';
-    msgEl.textContent = 'Connection error. Is the server running?';
-  }
-  btn.disabled = false;
-}
 
-/** Submit a new password using the reset token from the URL hash */
-async function submitPasswordReset(e) {
-  e.preventDefault();
-  const btn = document.getElementById('resetBtn');
-  const errEl = document.getElementById('resetError');
-  const newPass = document.getElementById('resetNewPass').value;
-  const confirmPass = document.getElementById('resetConfirmPass').value;
-  if (!newPass || newPass.length < 6) { errEl.textContent = 'Password must be at least 6 characters.'; return; }
-  if (newPass !== confirmPass) { errEl.textContent = 'Passwords do not match.'; return; }
-
-  const token = window.location.hash.replace('#reset-password/', '');
-  btn.disabled = true;
-  errEl.textContent = '';
-  try {
-    const resp = await fetch('/api/auth/reset-token/' + encodeURIComponent(token), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ newPassword: newPass }),
-    });
-    const data = await resp.json();
-    if (!resp.ok) { errEl.textContent = data.error || 'Reset failed.'; btn.disabled = false; return; }
-    window.location.hash = '';
-    showLoginScreen();
-    document.getElementById('loginError').textContent = '';
-    document.getElementById('loginResetPrompt').style.display = 'none';
-    const successEl = document.getElementById('loginError');
-    successEl.textContent = 'Password reset successfully. Please sign in.';
-    successEl.style.color = '#16a34a';
-    setTimeout(() => { successEl.style.color = ''; }, 5000);
-  } catch (err) {
-    errEl.textContent = 'Connection error.';
-  }
-  btn.disabled = false;
-}
 
 /** Show the password reset form and validate the reset token against the API */
 function showResetPasswordScreen(token) {
@@ -843,21 +617,13 @@ function showResetPasswordScreen(token) {
     });
 }
 
-/** Check whether the URL hash contains a password reset token; if so, show the reset screen */
-function checkHashForReset() {
-  const hash = window.location.hash;
-  if (hash.startsWith('#reset-password/')) {
-    const token = hash.replace('#reset-password/', '');
-    if (token) { showResetPasswordScreen(token); return true; }
-  }
-  return false;
-}
 
 // ----- CONFIGURATION CONSTANTS -----
 const SYNC_POLL_MS = 10000;
 const SYNC_DEBOUNCE_MS = 500;
 const FINANCE_DEBOUNCE_MS = 800;
 const SELF_ECHO_WINDOW_MS = 15000;
+window.SYNC_POLL_MS = SYNC_POLL_MS; window.SYNC_DEBOUNCE_MS = SYNC_DEBOUNCE_MS; window.SELF_ECHO_WINDOW_MS = SELF_ECHO_WINDOW_MS;
 const DEFAULT_HOURLY_RATE = 150;
 const GANTT_ROW_LIMIT = 200;
 const BOARD_LANE_CAP = 50;
@@ -866,26 +632,26 @@ const CLIENT_PRIORITY = ['Couch Heroes', 'Lighthouse Studios', 'Sarge Universe',
 
 // ----- STATE -----
 // Core data — loaded from API on startup, synced incrementally on edits
-let tasks = [];                   // Main task array — the single source of truth for all task data
-let settings = { hourlyRate: DEFAULT_HOURLY_RATE, knownClients: ['Couch Heroes', 'Lighthouse Studios', 'Sarge Universe', 'Goals Studio', 'Playsage', 'NBI Operations'] };
+var tasks = [];                   // Main task array — the single source of truth for all task data
+var settings = { hourlyRate: DEFAULT_HOURLY_RATE, knownClients: ['Couch Heroes', 'Lighthouse Studios', 'Sarge Universe', 'Goals Studio', 'Playsage', 'NBI Operations'] };
 
 // View state — controls which view is active and what filters are applied
-let currentView = 'dashboard';
+var currentView = 'dashboard';
 // `practice` filters the entire workspace down to a single practice area.
 // Valid values: 'organisational', 'gaming', 'general', or null (= All).
 // Phase 9 of the WorkSage backlog (a6c82c8c). Stored on tasks/leads/clients
 // as `practiceArea` / `practice_area`. Sidebar PRACTICES section toggles it.
-let currentFilter = { client: null, project: null, status: [], health: [], priority: [], assignee: [], search: '', sort: 'default', practice: null };
+var currentFilter = { client: null, project: null, status: [], health: [], priority: [], assignee: [], search: '', sort: 'default', practice: null };
 let selectedTaskIds = new Set();  // Bulk selection for batch operations
 let pendingCSVData = null;        // Staging area for CSV import preview
 let taskSubView = localStorage.getItem('nbi_task_subview') || 'tree'; // 'tree' | 'board' | 'gantt' | 'calendar'
 let collapsedTaskIds = new Set(); // Tracks which parent tasks are collapsed in tree view
 let _tasksInitialCollapse = true; // Auto-collapse all tasks on first visit (expand is manual)
 let inlineDetailVisible = true;   // Whether the 30% detail panel is shown in tasks view
-let _pagePermissions = {};        // Role-based page access: { finances: 'admin'|'all'|['user1','user2'], ... }
-let _apiClientsCache = {};        // Cached client records from API (keyed by name)
+var _pagePermissions = {};        // Role-based page access: { finances: 'admin'|'all'|['user1','user2'], ... }
+var _apiClientsCache = {};        // Cached client records from API (keyed by name)
 let _peopleFilter = { person: null, dateRange: 'all' };
-let _peopleSubView = 'workload'; // 'workload' | 'capacity' | 'calendar'
+var _peopleSubView = 'workload'; // 'workload' | 'capacity' | 'calendar'
 // People → Calendar sub-view state (D92)
 let _peopleCalView = localStorage.getItem('nbi_people_cal_view') || 'roster'; // 'roster' | 'month'
 // _peopleCalYear/Month share state with the Projects Calendar's _calYear/_calMonth
@@ -929,14 +695,14 @@ const BOARD_COLUMNS = [
 ];
 
 // ----- PERSISTENCE -----
-let clientBriefs = {};
-let useAPI = false; // set true once API is confirmed reachable
-let syncDebounceTimer = null;
-let _dirtyTaskIds = new Set();   // tasks changed locally since last sync
-let _deletedTaskIds = new Set(); // tasks deleted locally since last sync
-let _briefsDirty = false;        // client briefs changed since last sync
-let _lastPollTime = null;        // ISO timestamp of last successful poll
-let _syncInFlight = false;       // prevent overlapping syncs
+var clientBriefs = {};
+var useAPI = false; // set true once API is confirmed reachable
+var syncDebounceTimer = null;
+var _dirtyTaskIds = new Set();   // tasks changed locally since last sync
+var _deletedTaskIds = new Set(); // tasks deleted locally since last sync
+var _briefsDirty = false;        // client briefs changed since last sync
+var _lastPollTime = null;        // ISO timestamp of last successful poll
+var _syncInFlight = false;       // prevent overlapping syncs
 
 /** Merge hardcoded client brief defaults with user-edited briefs (API data wins, defaults fill gaps) */
 function mergeBriefDefaults() {
@@ -954,185 +720,14 @@ function mergeBriefDefaults() {
   });
 }
 
-/** Flag a task as locally modified — it will be included in the next sync batch */
-function markDirty(taskId) { _dirtyTaskIds.add(taskId); _recentlyEditedIds.add(taskId); setTimeout(() => _recentlyEditedIds.delete(taskId), SELF_ECHO_WINDOW_MS); }
 /** Flag a task as deleted locally — removes it from the dirty set and queues it for server deletion */
 function markDeleted(taskId) { _deletedTaskIds.add(taskId); _dirtyTaskIds.delete(taskId); }
 
-/** Save to localStorage immediately, then debounce an API sync (500ms) */
-function save() {
-  // Always save to localStorage as local cache
-  try {
-    localStorage.setItem('nbi_dashboard_tasks', JSON.stringify(tasks));
-    localStorage.setItem('nbi_dashboard_settings', JSON.stringify(settings));
-    localStorage.setItem('nbi_dashboard_briefs', JSON.stringify(clientBriefs));
-  } catch (e) {
-    if (e.name === 'QuotaExceededError' || e.code === 22) {
-      toast('Local storage full. Your changes are saved to the server only.', 'warning');
-    }
-  }
-  // Write dirty tasks to IndexedDB WAL for crash recovery
-  _dirtyTaskIds.forEach(id => {
-    const task = tasks.find(t => t.id === id);
-    if (task) walWrite(id, 'update', task);
-  });
-  _deletedTaskIds.forEach(id => walWrite(id, 'delete', null));
-  // Cache full tasks array in IndexedDB (larger quota than localStorage)
-  idbCacheWrite('tasks', tasks);
-  idbCacheWrite('settings', settings);
-  // Debounced sync to API (prevents hammering during rapid edits)
-  if (useAPI) {
-    clearTimeout(syncDebounceTimer);
-    syncDebounceTimer = setTimeout(syncToAPI, SYNC_DEBOUNCE_MS);
-  }
-}
 
-/**
- * Push local changes to the server via POST /api/sync/changes.
- * Sends only dirty/deleted tasks (not the full array).
- * Includes _serverUpdatedAt for conflict detection — server rejects if another user edited since.
- * On failure, re-queues the changes for the next cycle.
- */
-async function syncToAPI() {
-  if (_syncInFlight) return;
-  if (_dirtyTaskIds.size === 0 && _deletedTaskIds.size === 0 && !_briefsDirty) return;
-  _syncInFlight = true;
 
-  // Snapshot and clear so new edits during flight get queued for next sync
-  const dirtyIds = [..._dirtyTaskIds];
-  const deletedIds = [..._deletedTaskIds];
-  const sendBriefs = _briefsDirty;
-  _dirtyTaskIds.clear();
-  _deletedTaskIds.clear();
-  _briefsDirty = false;
-
-  const changes = [];
-  for (const id of dirtyIds) {
-    const t = tasks.find(x => x.id === id);
-    if (t) changes.push({ action: 'upsert', entity: 'task', data: { ...t, _serverUpdatedAt: t._serverUpdatedAt || t.updatedAt } });
-  }
-  for (const id of deletedIds) {
-    changes.push({ action: 'delete', entity: 'task', id });
-  }
-
-  if (changes.length === 0) { _syncInFlight = false; return; }
-
-  showSyncStatus('saving', 'Saving...');
-  try {
-    const payload = { changes };
-    if (sendBriefs) payload.client_briefs = clientBriefs;
-    const resp = await authFetch('/api/sync/changes', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    if (!resp.ok) {
-      if (window._nbiDebug) console.warn('[Sync] Incremental sync failed:', resp.status);
-      dirtyIds.forEach(id => _dirtyTaskIds.add(id));
-      deletedIds.forEach(id => _deletedTaskIds.add(id));
-      if (sendBriefs) _briefsDirty = true;
-      showSyncStatus('error', 'Sync failed — retrying...');
-    } else {
-      _lastLocalSyncTime = Date.now();
-      walClear([...dirtyIds, ...deletedIds]);
-      showSyncStatus('saving', 'Saved ✓');
-    }
-  } catch (e) {
-    if (window._nbiDebug) console.warn('[Sync] Error:', e.message);
-    dirtyIds.forEach(id => _dirtyTaskIds.add(id));
-    deletedIds.forEach(id => _deletedTaskIds.add(id));
-    if (sendBriefs) _briefsDirty = true;
-    showSyncStatus('error', 'Server unreachable — changes saved locally');
-  } finally {
-    _syncInFlight = false;
-  }
-}
-
-/** Load all data on startup — tries API first, falls back to localStorage. Stamps _serverUpdatedAt for conflict detection. */
-async function load() {
-  // Try API first
-  try {
-    const resp = await authFetch('/api/sync/load');
-    if (resp.ok) {
-      const data = await resp.json();
-      if (data.tasks && data.tasks.length > 0) {
-        // Stamp each task with its server timestamp for conflict detection
-        tasks = data.tasks.map(t => ({ ...t, _serverUpdatedAt: t.updatedAt }));
-        useAPI = true;
-      }
-      if (data.clientBriefs) clientBriefs = data.clientBriefs;
-      if (data.settings) {
-        if (data.settings.hourlyRate) settings.hourlyRate = Number(data.settings.hourlyRate) || 150;
-        if (data.settings.fx_rates) { settings.fx_rates = data.settings.fx_rates; fetchFxRate(); }
-      }
-      if (data.knownClients) settings.knownClients = data.knownClients;
-      _lastPollTime = new Date().toISOString();
-    }
-  } catch (e) {
-  }
-
-  // Fall back to localStorage if API had no data
-  if (tasks.length === 0) {
-    try { const t = localStorage.getItem('nbi_dashboard_tasks'); if (t) tasks = JSON.parse(t); } catch(e) {}
-  }
-  try {
-    const s = localStorage.getItem('nbi_dashboard_settings');
-    if (s && !useAPI) settings = { ...settings, ...JSON.parse(s) };
-  } catch(e) {}
-  if (Object.keys(clientBriefs).length === 0) {
-    try { const b = localStorage.getItem('nbi_dashboard_briefs'); if (b) clientBriefs = JSON.parse(b); } catch(e) {}
-  }
-  mergeBriefDefaults();
-
-  // If API is connected and localStorage has data the DB doesn't, push it up
-  if (useAPI && tasks.length === 0) {
-    try {
-      const t = localStorage.getItem('nbi_dashboard_tasks');
-      if (t) {
-        tasks = JSON.parse(t);
-        // Mark all as dirty so incremental sync pushes them
-        tasks.forEach(task => _dirtyTaskIds.add(task.id));
-        await syncToAPI();
-      }
-    } catch(e) {}
-  }
-
-  // Recover any uncommitted changes from IndexedDB WAL
-  const walEntries = await walReadAll();
-  if (walEntries.length > 0) {
-    let recovered = 0;
-    for (const entry of walEntries) {
-      if (entry.action === 'update' && entry.data) {
-        const existing = tasks.find(t => t.id === entry.id);
-        if (existing) {
-          const walTime = entry.ts;
-          const loadedTime = new Date(existing.updatedAt || existing.updated_at || 0).getTime();
-          if (walTime > loadedTime) {
-            Object.assign(existing, entry.data);
-            markDirty(entry.id);
-            recovered++;
-          }
-        } else {
-          if (window._nbiDebug) console.warn('[WAL] Skipped orphan entry — task', entry.id, 'no longer exists on server');
-        }
-      } else if (entry.action === 'delete') {
-        if (!_deletedTaskIds.has(entry.id)) {
-          _deletedTaskIds.add(entry.id);
-          recovered++;
-        }
-      }
-    }
-    if (recovered > 0) {
-      toast(`Recovered ${recovered} unsaved change${recovered > 1 ? 's' : ''} from previous session`, 'warning');
-      save();
-    }
-  }
-  // Mark initial load as complete so skeleton placeholders (Phase 12.1) stop showing
-  window._initialLoadComplete = true;
-}
 
 // Poll for other users' changes every 10 seconds (incremental)
-let _syncPollInterval = setInterval(async () => {
+var _syncPollInterval = setInterval(async () => {
   if (!useAPI || !_lastPollTime) return;
   try {
     const resp = await authFetch('/api/sync/poll?since=' + encodeURIComponent(_lastPollTime));
@@ -6742,7 +6337,6 @@ function addItemFromMenu(type) { closeAddItemMenu(); if (type === 'project') add
 function overflowPrint() { printReport(); toggleHeaderOverflow(); }
 function overflowReport() { openBugReportModal(); toggleHeaderOverflow(); }
 function overflowTheme(e) { toggleThemeDropdown(e); toggleHeaderOverflow(); }
-function backToLogin() { window.location.hash = ''; showLoginScreen(); }
 
 /** Create a new item of a given type under an optional parent. Opens its detail panel. */
 function addItem(type, parentId) {
@@ -11096,38 +10690,12 @@ async function deleteSow(sowId, title, clientId) {
 // Cache of all teams keyed by id, refreshed by loadAllTeams. Used by the
 // task detail panel to look up which team a project's client/SoW belongs to
 // without an extra fetch per task.
-let _teamsCache = [];
+var _teamsCache = [];
 // SoW cache — refreshed on startup. Used by the task detail panel's SoW
 // selector and by renderTreeView to group projects under SoW buckets
 // (bug cb32b7f9: Client > SoW > Project > Tickets hierarchy).
-let _sowsCache = [];
+var _sowsCache = [];
 
-/**
- * Refresh the in-memory teams cache from /api/teams. Called on startup and
- * any time team data changes via create/update/delete/membership operations.
- */
-async function loadAllTeams() {
-  try {
-    const teams = await apiCall('/api/teams');
-    _teamsCache = Array.isArray(teams) ? teams : [];
-  } catch (e) { _teamsCache = []; }
-  // If the calendar was rendered before teams arrived, refresh the filter bar now
-  if (currentView === 'people' && _peopleSubView === 'calendar') renderContent();
-  return _teamsCache;
-}
-
-/**
- * Refresh the in-memory SoWs cache from /api/sows. Called on startup and
- * any time a task's SoW changes. SoWs are pre-loaded with their client_name
- * joined server-side so the selector and tree grouping don't need extra lookups.
- */
-async function loadAllSows() {
-  try {
-    const sows = await apiCall('/api/sows');
-    _sowsCache = Array.isArray(sows) ? sows : [];
-  } catch (e) { _sowsCache = []; }
-  return _sowsCache;
-}
 
 /** Return the team that owns a given client or SoW, or null if none. SoW match takes precedence. */
 function findTeamForClientOrSow(clientId, sowId) {
@@ -12209,7 +11777,7 @@ async function updateFxRate(currency, rate) {
 
 let _bugReportScreenshot = null;  // Base64 data URL of the captured screenshot (or null)
 let _bugReportType = 'bug';       // Current selection in the modal: 'bug' or 'feature'
-let _bugReportsData = null;       // Cached response from GET /api/bug-reports
+var _bugReportsData = null;       // Cached response from GET /api/bug-reports
 let _bugSortCol = 'created_at';   // Current sort column: reporter_name|title|page|status|created_at
 let _bugSortDir = 'desc';         // Sort direction: asc|desc
 
@@ -12387,13 +11955,6 @@ async function submitBugReport() {
   }
 }
 
-/** Load bug reports for the Settings tab */
-async function loadBugReports() {
-  try {
-    const data = await apiCall('/api/bug-reports');
-    if (data) _bugReportsData = data;
-  } catch(e) { if (window._nbiDebug) console.error('Failed to load bug reports:', e); }
-}
 
 /**
  * Render the Bug Tracker list view with filtering, sorting, and search.
@@ -14201,17 +13762,6 @@ function setPagePermMode(page, mode) {
 // Load page permissions on startup (from localStorage cache first, then sync from server)
 try { _pagePermissions = JSON.parse(localStorage.getItem('nbi_page_permissions') || '{}'); } catch(e) { _pagePermissions = {}; }
 
-/** Load page permissions from server settings (shared across all users) */
-async function loadPagePermissions() {
-  try {
-    const settings = await apiCall('/api/settings');
-    if (settings && settings.page_permissions) {
-      const perms = typeof settings.page_permissions === 'string' ? JSON.parse(settings.page_permissions) : settings.page_permissions;
-      _pagePermissions = perms;
-      localStorage.setItem('nbi_page_permissions', JSON.stringify(perms));
-    }
-  } catch(e) { if (window._nbiDebug) console.warn('[Permissions] Failed to load from server, using local cache'); }
-}
 
 /** Save page permissions to server settings (admin only) */
 async function savePagePermissions() {
@@ -16052,7 +15602,7 @@ async function checkLeadReminders() {
   } catch(e) {}
 }
 // Run reminders check every 60 seconds
-let _leadsReminderInterval = setInterval(() => { if (_currentUser) checkLeadReminders(); }, 60000);
+var _leadsReminderInterval = setInterval(() => { if (_currentUser) checkLeadReminders(); }, 60000);
 
 /** Mark all notifications as read via the API and refresh the sidebar alert count */
 async function markAllNotificationsRead() {
@@ -16074,45 +15624,8 @@ function timeAgo(date) {
 }
 
 // Poll notifications every 30 seconds
-let _notifPollInterval = setInterval(() => { if (_currentUser) loadNotifications(); }, 30000);
+var _notifPollInterval = setInterval(() => { if (_currentUser) loadNotifications(); }, 30000);
 
-/** Restart all polling intervals after re-login (they are cleared on logout) */
-function restartPollingIntervals() {
-  clearInterval(_syncPollInterval);
-  clearInterval(_leadsReminderInterval);
-  clearInterval(_notifPollInterval);
-  _syncPollInterval = setInterval(async () => {
-    if (!useAPI || !_lastPollTime) return;
-    try {
-      const resp = await authFetch('/api/sync/poll?since=' + encodeURIComponent(_lastPollTime));
-      if (!resp.ok) return;
-      const data = await resp.json();
-      if (data.updated?.length > 0 || data.deleted?.length > 0 || data.created?.length > 0) {
-        // Skip re-render if all changes are from our own recent save (self-echo).
-        // The local state is already up to date — we made these changes.
-        const selfEcho = _lastLocalSyncTime && (Date.now() - _lastLocalSyncTime < 15000) &&
-          (data.updated || []).every(t => _recentlyEditedIds.has(t.id));
-        if (!selfEcho) {
-          // Merge remote changes into local state without full reload
-          for (const t of (data.updated || [])) {
-            const idx = tasks.findIndex(x => x.id === t.id);
-            if (idx >= 0) Object.assign(tasks[idx], t, { _serverUpdatedAt: t.updatedAt || t.updated_at });
-            else tasks.push({ ...t, _serverUpdatedAt: t.updatedAt || t.updated_at });
-          }
-          for (const id of (data.deleted || [])) {
-            const idx = tasks.findIndex(x => x.id === id);
-            if (idx >= 0) tasks.splice(idx, 1);
-          }
-          // Remote changes — re-render content but preserve scroll exactly
-          _softReRender();
-        }
-      }
-      if (data.serverTime) _lastPollTime = data.serverTime;
-    } catch(e) {}
-  }, SYNC_POLL_MS);
-  _leadsReminderInterval = setInterval(() => { if (_currentUser) checkLeadReminders(); }, 60000);
-  _notifPollInterval = setInterval(() => { if (_currentUser) loadNotifications(); }, 30000);
-}
 // Close panel when clicking outside (legacy — notification bell removed, kept as no-op guard)
 document.addEventListener('click', e => { if (_notifOpen && !e.target.closest('#warnAlertPanel')) { _notifOpen = false; } });
 
@@ -16395,47 +15908,6 @@ async function fetchSeedData() {
   return null;
 }
 
-// ----- INIT -----
-(async function init() {
-  // Check if we have a valid session cookie by calling auth/me
-  try {
-    const resp = await fetch('/api/auth/me', { credentials: 'include' });
-    if (resp.ok) {
-      const data = await resp.json();
-      _currentUser = data.user;
-      if (checkForcePasswordChange()) return;
-      showApp();
-      await openIDB();
-      await Promise.all([load(), loadTeamMembers(), loadPagePermissions(), loadBugReports(), loadAllTeams(), loadAllSows(), apiCall('/api/clients').then(data => { if (data) data.forEach(c => { _apiClientsCache[c.name] = c; }); }).catch(() => {})]);
-      await loadFinanceSeedIfEmpty();
-      await loadFinanceFromDB();
-      checkLeadReminders();
-      if (tasks.length === 0) {
-        const seedCSV = await fetchSeedData();
-        if (seedCSV) { parseCSVPreview(seedCSV); if (pendingCSVData) confirmImport(); }
-      }
-      if (isClientUser()) {
-        const myClient = Object.values(_apiClientsCache).find(c => c.id === _currentUser.clientId);
-        if (myClient) currentFilter.client = myClient.name;
-      }
-      renderAll();
-      restartPollingIntervals();
-      checkExpenseReportDeepLink();
-      return;
-    }
-  } catch (e) {
-    document.getElementById('appContainer').style.display = '';
-    document.getElementById('loginScreen').style.display = 'none';
-    await openIDB();
-    await load();
-    renderAll();
-    return;
-  }
-  // Check if this is a password reset link
-  if (checkHashForReset()) return;
-  // No valid session -- show login
-  showLoginScreen();
-})();
 
 // ===== KEYBOARD ACCESSIBILITY: delegated Enter/Space for clickable non-interactive elements =====
 document.addEventListener('keydown', function(e) {
@@ -17353,12 +16825,6 @@ async function executeNewsSearch() {
   }
 }
 
-// Managed listeners for forms (replaces inline onsubmit handlers)
-document.getElementById('loginForm')?.addEventListener('submit', handleLogin);
-document.getElementById('resetForm')?.addEventListener('submit', submitPasswordReset);
-document.getElementById('showPasswordToggle')?.addEventListener('change', function() {
-  document.getElementById('loginPass').type = this.checked ? 'text' : 'password';
-});
 </script>
 </body>
 </html>

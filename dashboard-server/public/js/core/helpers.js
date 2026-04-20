@@ -1,6 +1,5 @@
 // helpers.js — Core utility functions extracted from the monolith
-// Access shared state from window (inline script globals)
-// These will be replaced with proper imports when state.js is extracted
+// Access shared state from window (inline script globals declared with var)
 
 // ==================== ESCAPE / SECURITY ====================
 
