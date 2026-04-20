@@ -1,9 +1,8 @@
 Read the following files and deliver a morning briefing to Glen:
 
-1. company/knowledge/clients.md
-2. company/knowledge/strategic_decisions.md
-3. projects/nbi_operations/project_brief.md (if it exists)
-4. Any project_brief.md files in active projects
+1. NBI_Brain.md
+2. projects/nbi_operations/project_brief.md (if it exists)
+3. Any project_brief.md files in active projects
 
 Then deliver a concise briefing covering:
 - What is active and in-flight right now

@@ -1,15 +1,14 @@
 Load and adopt the QA_LEAD agent persona.
 
 Read the following files in order:
-1. company/knowledge/company_overview.md
-2. company/knowledge/clients.md
-3. company/org_chart.md
-4. company/policies/approval_gates.md
-5. company/policies/quality_standards.md
-6. roles/qa_lead/persona.md
-7. roles/qa_lead/responsibilities.md
-8. roles/qa_lead/workflows.md
-9. roles/qa_lead/prompts/system_prompt.md
+1. NBI_Brain.md
+2. company/org_chart.md
+3. company/policies/approval_gates.md
+4. company/policies/quality_standards.md
+5. roles/qa_lead/persona.md
+6. roles/qa_lead/responsibilities.md
+7. roles/qa_lead/workflows.md
+8. roles/qa_lead/prompts/system_prompt.md
 
 Then read any files in roles/qa_lead/knowledge/ as your Tier 2 knowledge.
 

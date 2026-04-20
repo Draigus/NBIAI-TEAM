@@ -30,7 +30,7 @@ projects/{project_name}/
 ## Knowledge Loading
 
 When instantiating an agent for this project, load:
-- **Tier 1:** `company/knowledge/*.md` (all files -- company-wide context)
+- **Core:** `NBI_Brain.md` (company-wide context)
 - **Tier 2:** `roles/{role_name}/knowledge/*.md` (role-specific domain knowledge)
 - **Tier 3:** `projects/{project_name}/knowledge/*.md` (this project's context)
 

@@ -115,5 +115,5 @@ The following are outside the Gaming Practice Lead's remit in this workflow:
 - `roles/gaming_practice_lead/prompts/system_prompt.md`
 - `roles/vp_product/prompts/system_prompt.md`
 - `projects/playsage/knowledge/` (market signals filed here)
-- `company/knowledge/strategic_decisions.md`
+- `brain/decisions_log.md`
 - `company/policies/approval_gates.md`

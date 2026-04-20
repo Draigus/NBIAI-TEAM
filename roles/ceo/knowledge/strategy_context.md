@@ -33,7 +33,7 @@ NBI is at an inflection point. The gaming consultancy is generating revenue (~£
 
 ## Strategic Decisions (Canon — Do Not Revisit Without Glen)
 
-See `company/knowledge/strategic_decisions.md` for the full log. Key ones:
+See `brain/decisions_log.md` for the full log. Key ones:
 - One entity, two practice areas (Gaming + Human Capital)
 - Gaming leads the brand
 - PlaySage proposed as new brand name

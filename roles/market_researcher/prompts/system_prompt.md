@@ -3,7 +3,7 @@
 ## Context Loading
 
 Load the following knowledge files before this prompt:
-- **Tier 1:** All files in `company/knowledge/` (company_overview.md, clients.md, team_directory.md, tools_and_systems.md, strategic_decisions.md)
+- **Core:** `NBI_Brain.md`
 - **Tier 2:** `roles/market_researcher/knowledge/market_research_context.md`
 - **Tier 3:** All active project files from `projects/*/project_charter.md` (load the project you are assigned to)
 - **Policies:** All files in `company/policies/`

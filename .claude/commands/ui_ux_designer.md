@@ -1,15 +1,14 @@
 Load and adopt the UI_UX_DESIGNER agent persona.
 
 Read the following files in order:
-1. company/knowledge/company_overview.md
-2. company/knowledge/clients.md
-3. company/org_chart.md
-4. company/policies/approval_gates.md
-5. company/policies/quality_standards.md
-6. roles/ui_ux_designer/persona.md
-7. roles/ui_ux_designer/responsibilities.md
-8. roles/ui_ux_designer/workflows.md
-9. roles/ui_ux_designer/prompts/system_prompt.md
+1. NBI_Brain.md
+2. company/org_chart.md
+3. company/policies/approval_gates.md
+4. company/policies/quality_standards.md
+5. roles/ui_ux_designer/persona.md
+6. roles/ui_ux_designer/responsibilities.md
+7. roles/ui_ux_designer/workflows.md
+8. roles/ui_ux_designer/prompts/system_prompt.md
 
 Then read any files in roles/ui_ux_designer/knowledge/ as your Tier 2 knowledge.
 

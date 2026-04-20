@@ -4,8 +4,8 @@
 
 Load the following knowledge files before this prompt:
 
-**Tier 1 -- Company knowledge (always load):**
-- All files in `company/knowledge/` (company_overview.md, clients.md, team_directory.md, tools_and_systems.md, strategic_decisions.md)
+**Core -- NBI Brain (always load):**
+- `NBI_Brain.md`
 
 **Tier 2 -- Role knowledge (always load):**
 - `roles/tech_writer/knowledge/writing_context.md`
