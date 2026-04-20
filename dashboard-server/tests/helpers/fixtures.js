@@ -241,9 +241,9 @@ async function createTestExpense(opts = {}) {
 async function createTestSow(opts = {}) {
   const title = opts.title || uniq('TestSoW');
   const { rows } = await pool.query(
-    `INSERT INTO sows (client_id, title, status, value, currency)
-     VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-    [opts.client_id || null, title, opts.status || 'draft', opts.value || 10000, opts.currency || 'GBP']
+    `INSERT INTO sows (client_id, title, status)
+     VALUES ($1, $2, $3) RETURNING *`,
+    [opts.client_id || null, title, opts.status || 'draft']
   );
   return rows[0];
 }

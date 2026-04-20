@@ -199,4 +199,43 @@ describe('POST /api/admin/cleanse', () => {
     expect(Array.isArray(res.body.data.localStorageKeys)).toBe(true);
     expect(res.body.data.localStorageKeys).toContain('nbi_dashboard_tasks');
   });
+
+  it('handles multiple categories in one request', async () => {
+    const admin = await createTestUser({ role: 'admin' });
+    const token = await mintSession(admin.id);
+    await createTestTask();
+    const stage = await createTestLeadStage();
+    await createTestLead({ stage_id: stage.id });
+
+    const res = await request(app)
+      .post('/api/admin/cleanse')
+      .set('Authorization', `Bearer ${token}`)
+      .set('X-API-Version', '2')
+      .send({ categories: ['tasks', 'leads'], confirmation: 'DELETE ALL SELECTED DATA' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.deleted.tasks).toBeGreaterThan(0);
+    expect(res.body.data.deleted.leads).toBeGreaterThan(0);
+
+    const t = await pool.query('SELECT count(*)::int AS n FROM tasks');
+    expect(t.rows[0].n).toBe(0);
+    const l = await pool.query('SELECT count(*)::int AS n FROM leads');
+    expect(l.rows[0].n).toBe(0);
+  });
+
+  it('clients category forces cascade of contacts, leads, client_notes, sows', async () => {
+    const admin = await createTestUser({ role: 'admin' });
+    const token = await mintSession(admin.id);
+    const client = await createTestClient();
+    await createTestContact({ client_id: client.id });
+    await createTestSow({ client_id: client.id });
+
+    const res = await request(app)
+      .post('/api/admin/cleanse')
+      .set('Authorization', `Bearer ${token}`)
+      .set('X-API-Version', '2')
+      .send({ categories: ['clients'], confirmation: 'DELETE ALL SELECTED DATA' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.deleted.contacts).toBe(1);
+    expect(res.body.data.deleted.sows).toBe(1);
+  });
 });
