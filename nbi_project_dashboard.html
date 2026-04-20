@@ -3887,7 +3887,10 @@ function renderSidebar() {
     const portfolioActive = !currentFilter.client;
     html += `<button class="sidebar__item ${portfolioActive?'active':''}"${portfolioActive?' aria-current="page"':''} aria-label="NBI Portfolio, ${practiceTasks.length} items" data-action="filterByClient" data-arg0="null"><span class="sidebar__dot" aria-hidden="true" style="background:var(--accent)"></span><span class="sidebar__item__abbrev" aria-hidden="true">NBI</span><span class="sidebar__item__label" style="font-weight:600">NBI Portfolio</span><span class="sidebar__item__count" aria-hidden="true">${practiceTasks.length}</span></button>`;
   }
-  clients.forEach(c => {
+  const sidebarClients = isScoped
+    ? clients.filter(c => { const co = Object.values(_apiClientsCache).find(x => x.name === c); return co && co.id === _currentUser.clientId; })
+    : clients;
+  sidebarClients.forEach(c => {
     const count = practiceTasks.filter(t => getTaskClient(t) === c).length;
     const dotColour = stringToColour(c);
     const isActive = currentFilter.client===c;
@@ -15160,6 +15163,7 @@ function renderBugTrackerList(filtered, sortIcon, sortClick) {
         <span class="bug-tracker__title">${esc(r.title)}</span>
         <span aria-hidden="true"><span class="bug-status-badge bug-status-badge--${r.status}">${statusLabel}</span></span>
         <span style="color:var(--text-muted)" aria-hidden="true">${esc(r.reporter_name || 'Unknown')}</span>
+        ${!isClientUser() ? `<span style="color:var(--text-muted);font-size:0.72rem" aria-hidden="true">${r.source === 'client' ? esc(r.reporter_client_name || 'Client') : 'Internal'}</span>` : ''}
         <span style="color:var(--text-muted);font-size:0.72rem" aria-hidden="true">${new Date(r.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</span>
         <span class="bug-tracker__comment-count" aria-hidden="true">${r.comment_count > 0 ? `\uD83D\uDCAC${r.comment_count}` : ''}</span>
       </div>`;
@@ -15172,6 +15176,7 @@ function renderBugTrackerList(filtered, sortIcon, sortClick) {
         <span ${sortClick('title')}>Title${sortIcon('title')}</span>
         <span ${sortClick('status')}>Status${sortIcon('status')}</span>
         <span ${sortClick('reporter_name')}>Reporter${sortIcon('reporter_name')}</span>
+        ${!isClientUser() ? `<span ${sortClick('source')}>Source${sortIcon('source')}</span>` : ''}
         <span ${sortClick('created_at')}>Date${sortIcon('created_at')}</span>
         <span>\uD83D\uDCAC</span>
       </div>
