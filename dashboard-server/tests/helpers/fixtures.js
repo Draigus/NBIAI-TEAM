@@ -254,9 +254,9 @@ async function createTestSow(opts = {}) {
 async function createTestClientNote(opts = {}) {
   if (!opts.client_id) throw new Error('createTestClientNote: client_id required');
   const { rows } = await pool.query(
-    `INSERT INTO client_notes (client_id, content, author)
-     VALUES ($1, $2, $3) RETURNING *`,
-    [opts.client_id, opts.content || 'Test note content', opts.author || 'test']
+    `INSERT INTO client_notes (client_id, title, content, author)
+     VALUES ($1, $2, $3, $4) RETURNING *`,
+    [opts.client_id, opts.title || 'Test Note', opts.content || 'Test note content', opts.author || 'test']
   );
   return rows[0];
 }

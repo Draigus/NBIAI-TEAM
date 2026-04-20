@@ -9082,6 +9082,228 @@ app.get('/api/admin/cleanse/preview', requireNBI, requireAdmin, async (req, res)
   }
 });
 
+const VALID_CATEGORY_IDS = new Set(CLEANSE_CATEGORIES.map(c => c.id));
+const CLEANSE_LOCAL_STORAGE_MAP = {
+  tasks: ['nbi_dashboard_tasks', 'nbi_dashboard_briefs'],
+  finance: ['nbi_finance_data'],
+  clients: ['nbi_dashboard_tasks', 'nbi_dashboard_briefs', 'nbi_dashboard_settings'],
+  leads: [],
+  contacts: [],
+  client_notes: [],
+  sows: [],
+  expenses: [],
+  bugs: [],
+  hiring: [],
+  calendar: [],
+  notifications: [],
+  audit_log: [],
+};
+
+app.post('/api/admin/cleanse', requireNBI, requireAdmin, async (req, res) => {
+  const { categories, confirmation } = req.body;
+
+  if (confirmation !== 'DELETE ALL SELECTED DATA') {
+    return res.status(400).json({ error: 'Invalid confirmation string. Must be exactly: DELETE ALL SELECTED DATA' });
+  }
+  if (!Array.isArray(categories) || categories.length === 0) {
+    return res.status(400).json({ error: 'At least one category must be selected' });
+  }
+  const invalid = categories.filter(c => !VALID_CATEGORY_IDS.has(c));
+  if (invalid.length > 0) {
+    return res.status(400).json({ error: `Invalid category IDs: ${invalid.join(', ')}` });
+  }
+
+  const selected = new Set(categories);
+  if (selected.has('clients')) {
+    for (const dep of ['contacts', 'leads', 'client_notes', 'sows']) {
+      selected.add(dep);
+    }
+  }
+
+  let filesToDelete = [];
+  try {
+    if (selected.has('tasks')) {
+      const { rows } = await pool.query('SELECT filename FROM task_attachments');
+      filesToDelete.push(...rows.map(r => r.filename));
+    }
+    if (selected.has('expenses')) {
+      const { rows } = await pool.query('SELECT filename FROM expense_receipts');
+      filesToDelete.push(...rows.map(r => r.filename));
+    }
+  } catch (e) {
+    log('warn', 'Cleanse', 'Failed to pre-query filenames', { error: e.message });
+  }
+
+  const conn = await pool.connect();
+  const deleted = {};
+  const nullified = {};
+
+  try {
+    await conn.query('BEGIN');
+
+    if (selected.has('clients')) {
+      const r = await conn.query('DELETE FROM client_activity_log');
+      deleted.client_activity_log = r.rowCount;
+    }
+
+    if (selected.has('clients')) {
+      const r = await conn.query('UPDATE bug_reports SET reporter_client_id = NULL WHERE reporter_client_id IS NOT NULL');
+      nullified['bug_reports.reporter_client_id'] = r.rowCount;
+    }
+
+    if (selected.has('tasks') || selected.has('bugs')) {
+      const types = [];
+      if (selected.has('tasks')) types.push('task');
+      if (selected.has('bugs')) types.push('bug_report');
+      if (types.length > 0) {
+        const r = await conn.query('DELETE FROM attachments WHERE entity_type = ANY($1)', [types]);
+        if (r.rowCount > 0) deleted.attachments = (deleted.attachments || 0) + r.rowCount;
+      }
+    }
+
+    if (selected.has('contacts') && !selected.has('leads')) {
+      const r = await conn.query('UPDATE leads SET primary_contact_id = NULL WHERE primary_contact_id IS NOT NULL');
+      nullified['leads.primary_contact_id'] = r.rowCount;
+    }
+
+    if (selected.has('leads')) {
+      const r1 = await conn.query('DELETE FROM lead_resources');
+      deleted.lead_resources = r1.rowCount;
+      const r2 = await conn.query('DELETE FROM lead_activities');
+      deleted.lead_activities = r2.rowCount;
+    }
+
+    if (selected.has('leads')) {
+      const r = await conn.query('DELETE FROM leads');
+      deleted.leads = r.rowCount;
+    }
+
+    if (selected.has('contacts')) {
+      const r = await conn.query('DELETE FROM contacts');
+      deleted.contacts = r.rowCount;
+    }
+
+    if (selected.has('client_notes')) {
+      const r = await conn.query('DELETE FROM client_notes');
+      deleted.client_notes = r.rowCount;
+    }
+
+    if (selected.has('sows')) {
+      const r1 = await conn.query('UPDATE tasks SET sow_id = NULL WHERE sow_id IS NOT NULL');
+      nullified['tasks.sow_id'] = r1.rowCount;
+      const r2 = await conn.query('UPDATE hiring_positions SET sow_id = NULL WHERE sow_id IS NOT NULL');
+      nullified['hiring_positions.sow_id'] = r2.rowCount;
+      const r3 = await conn.query('UPDATE teams SET sow_id = NULL WHERE sow_id IS NOT NULL');
+      nullified['teams.sow_id'] = r3.rowCount;
+    }
+
+    if (selected.has('sows')) {
+      const r = await conn.query('DELETE FROM sows');
+      deleted.sows = r.rowCount;
+    }
+
+    if (selected.has('tasks')) {
+      const rNotes = await conn.query('SELECT count(*)::int AS n FROM task_notes');
+      const rComments = await conn.query('SELECT count(*)::int AS n FROM task_comments');
+      const rAttach = await conn.query('SELECT count(*)::int AS n FROM task_attachments');
+      const rTime = await conn.query('SELECT count(*)::int AS n FROM time_entries');
+      const r = await conn.query('DELETE FROM tasks');
+      deleted.tasks = r.rowCount;
+      deleted.task_notes = rNotes.rows[0].n;
+      deleted.task_comments = rComments.rows[0].n;
+      deleted.task_attachments = rAttach.rows[0].n;
+      deleted.time_entries = rTime.rows[0].n;
+    }
+
+    if (selected.has('clients')) {
+      const r1 = await conn.query('UPDATE tasks SET client_id = NULL WHERE client_id IS NOT NULL');
+      nullified['tasks.client_id'] = r1.rowCount;
+      const r2 = await conn.query('UPDATE users SET client_id = NULL WHERE client_id IS NOT NULL');
+      nullified['users.client_id'] = r2.rowCount;
+      const r3 = await conn.query('UPDATE hiring_positions SET client_id = NULL WHERE client_id IS NOT NULL');
+      nullified['hiring_positions.client_id'] = r3.rowCount;
+      const r4 = await conn.query('UPDATE candidates SET client_id = NULL WHERE client_id IS NOT NULL');
+      nullified['candidates.client_id'] = r4.rowCount;
+      const r5 = await conn.query('UPDATE calendar_events SET client_id = NULL WHERE client_id IS NOT NULL');
+      nullified['calendar_events.client_id'] = r5.rowCount;
+      const r = await conn.query('DELETE FROM clients');
+      deleted.clients = r.rowCount;
+    }
+
+    if (selected.has('expenses')) {
+      const r1 = await conn.query('DELETE FROM expense_receipts');
+      deleted.expense_receipts = r1.rowCount;
+      const r2 = await conn.query('DELETE FROM expenses');
+      deleted.expenses = r2.rowCount;
+      const r3 = await conn.query('DELETE FROM expense_reports');
+      deleted.expense_reports = r3.rowCount;
+    }
+
+    if (selected.has('bugs')) {
+      const r1 = await conn.query('DELETE FROM bug_report_comments');
+      deleted.bug_report_comments = r1.rowCount;
+      const r2 = await conn.query('DELETE FROM bug_reports');
+      deleted.bug_reports = r2.rowCount;
+    }
+
+    if (selected.has('hiring')) {
+      const r1 = await conn.query('DELETE FROM candidates');
+      deleted.candidates = r1.rowCount;
+      const r2 = await conn.query('DELETE FROM hiring_positions');
+      deleted.hiring_positions = r2.rowCount;
+    }
+
+    if (selected.has('calendar')) {
+      const r = await conn.query('DELETE FROM calendar_events');
+      deleted.calendar_events = r.rowCount;
+    }
+
+    if (selected.has('finance')) {
+      const r = await conn.query('DELETE FROM finance_data');
+      deleted.finance_data = r.rowCount;
+    }
+
+    if (selected.has('notifications')) {
+      const r = await conn.query('DELETE FROM notifications');
+      deleted.notifications = r.rowCount;
+    }
+
+    if (selected.has('audit_log')) {
+      const r = await conn.query('DELETE FROM audit_log');
+      deleted.audit_log = r.rowCount;
+    }
+
+    await conn.query('COMMIT');
+  } catch (e) {
+    await conn.query('ROLLBACK');
+    log('error', 'Cleanse', 'Transaction failed — rolled back', { error: e.message, stack: e.stack?.split('\n').slice(0, 3).join(' | ') });
+    return res.status(500).json({ error: 'Cleanse failed — all changes rolled back. ' + e.message });
+  } finally {
+    conn.release();
+  }
+
+  for (const filename of filesToDelete) {
+    try {
+      const filePath = path.join(uploadDir, filename);
+      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    } catch (e) {
+      log('warn', 'Cleanse', 'Failed to delete file', { filename, error: e.message });
+    }
+  }
+
+  if (!selected.has('audit_log')) {
+    await auditLog('system', null, 'cleanse', req.user?.displayName || req.user?.username, { categories: [...selected], deleted });
+  } else {
+    log('info', 'Cleanse', 'Data cleanse completed (audit_log was included in deletion)', { categories: [...selected], deleted });
+  }
+
+  const localStorageKeys = [...new Set(
+    [...selected].flatMap(cat => CLEANSE_LOCAL_STORAGE_MAP[cat] || [])
+  )];
+
+  res.json({ deleted, nullified, localStorageKeys });
+});
+
 // ==================== STARTUP ====================
 
 /**
