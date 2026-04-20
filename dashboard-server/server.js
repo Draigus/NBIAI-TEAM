@@ -3945,9 +3945,8 @@ app.get('/api/tasks/:id', async (req, res) => {
   res.json(rows[0]);
 });
 
-/** POST /api/tasks — Create a new task (admin only). Enforces hierarchy: project > feature > story > task. */
+/** POST /api/tasks — Create a new task (all authenticated users). Client users are scoped to their own client. Enforces hierarchy: project > feature > story > task. */
 app.post('/api/tasks', async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   let { title, parent_id, client_id, item_type, status, priority, health_state, description, assignees, hours_estimated, hours_spent, due_date, start_date, end_date, dependencies, planner_task_id, source } = req.body;
   const scopes = await getClientScopes(req);
   if (scopes && client_id && !scopes.includes(client_id)) return res.status(403).json({ error: 'Cannot create tasks for other clients' });
@@ -4029,8 +4028,16 @@ app.post('/api/tasks', async (req, res) => {
  * audit trail entry showing exactly what changed.
  */
 app.patch('/api/tasks/:id', async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid task ID' });
+
+  const allowed = await requireTaskAccess(req, res, req.params.id);
+  if (!allowed) return;
+
+  // Client users cannot change client_id on tasks
+  if (req.user?.clientId && req.body.client_id !== undefined) {
+    delete req.body.client_id;
+  }
+
   const lenErr = validateLength(req.body.title, 'title') || validateLength(req.body.description, 'description');
   if (lenErr) return res.status(400).json({ error: lenErr });
   // Validate item_type if provided
