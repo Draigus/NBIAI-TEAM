@@ -28,6 +28,7 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 // lead_resource_types, expense_categories, and any other system-of-record
 // tables are deliberately omitted. CASCADE handles FK chains.
 const TRUNCATE_TABLES = [
+  'client_activity_log',
   'dashboard_snapshots',
   'bug_report_comments',
   'bug_reports',

@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict ENY5q7lEWgWipCQLGXEobiq1D54z4PdP8b1VsRAFmNX2YhsEqhkudkeikiscA3R
+\restrict WQkCKuBH27OHbzdINniOjXHEAWxChzPvi457dFGfapDdA7G8y7xLvtVqcTDxeRV
 
 -- Dumped from database version 16.13
 -- Dumped by pg_dump version 16.13
@@ -17,6 +17,20 @@ SET check_function_bodies = false;
 SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
+
+--
+-- Name: public; Type: SCHEMA; Schema: -; Owner: -
+--
+
+-- *not* creating schema, since initdb creates it
+
+
+--
+-- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON SCHEMA public IS '';
+
 
 --
 -- Name: decode_html_entities(text); Type: FUNCTION; Schema: public; Owner: -
@@ -129,7 +143,10 @@ CREATE TABLE public.bug_reports (
     status text DEFAULT 'open'::text NOT NULL,
     created_at timestamp with time zone DEFAULT now(),
     priority text,
-    updated_at timestamp with time zone DEFAULT now()
+    updated_at timestamp with time zone DEFAULT now(),
+    "position" integer DEFAULT 0 NOT NULL,
+    source text DEFAULT 'internal'::text,
+    reporter_client_id uuid
 );
 
 
@@ -148,7 +165,8 @@ CREATE TABLE public.calendar_events (
     visibility text DEFAULT 'team'::text,
     description text,
     created_at timestamp with time zone DEFAULT now(),
-    updated_at timestamp with time zone DEFAULT now()
+    updated_at timestamp with time zone DEFAULT now(),
+    team_id uuid
 );
 
 
@@ -168,7 +186,28 @@ CREATE TABLE public.candidates (
     stage text DEFAULT 'sourcing'::text,
     notes text,
     created_at timestamp with time zone DEFAULT now(),
-    updated_at timestamp with time zone DEFAULT now()
+    updated_at timestamp with time zone DEFAULT now(),
+    "position" integer DEFAULT 0 NOT NULL,
+    stage_assignees jsonb DEFAULT '{}'::jsonb,
+    start_date date,
+    onboarding_links jsonb DEFAULT '[]'::jsonb,
+    archived_at timestamp with time zone
+);
+
+
+--
+-- Name: client_activity_log; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.client_activity_log (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    user_id uuid NOT NULL,
+    client_id uuid NOT NULL,
+    action text NOT NULL,
+    target_type text,
+    target_id uuid,
+    details jsonb,
+    created_at timestamp with time zone DEFAULT now()
 );
 
 
@@ -251,6 +290,28 @@ CREATE TABLE public.contacts (
     created_at timestamp with time zone DEFAULT now(),
     email text DEFAULT ''::text,
     phone text DEFAULT ''::text
+);
+
+
+--
+-- Name: dashboard_snapshots; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.dashboard_snapshots (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    snapshot_date date NOT NULL,
+    active_projects integer DEFAULT 0 NOT NULL,
+    overdue_count integer DEFAULT 0 NOT NULL,
+    blocked_count integer DEFAULT 0 NOT NULL,
+    at_risk_count integer DEFAULT 0 NOT NULL,
+    hours_spent numeric(10,1) DEFAULT 0 NOT NULL,
+    hours_estimated numeric(10,1) DEFAULT 0 NOT NULL,
+    tasks_planned integer DEFAULT 0 NOT NULL,
+    tasks_added integer DEFAULT 0 NOT NULL,
+    tasks_completed integer DEFAULT 0 NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    on_track_count integer DEFAULT 0 NOT NULL,
+    active_leads_count integer DEFAULT 0 NOT NULL
 );
 
 
@@ -476,7 +537,8 @@ CREATE TABLE public.leads (
     updated_at timestamp with time zone DEFAULT now(),
     weighted_value numeric GENERATED ALWAYS AS (((COALESCE(rom_max, rom_min, (0)::numeric) * (COALESCE(win_probability, 0))::numeric) / (100)::numeric)) STORED,
     completed_at timestamp with time zone,
-    practice_area text
+    practice_area text,
+    "position" integer DEFAULT 0 NOT NULL
 );
 
 
@@ -732,7 +794,9 @@ CREATE TABLE public.tasks (
     collaborations text,
     success_factor text,
     blocker_info jsonb,
-    practice_area text
+    practice_area text,
+    "position" integer DEFAULT 0 NOT NULL,
+    work_type text
 );
 
 
@@ -814,7 +878,11 @@ CREATE TABLE public.users (
     created_at timestamp with time zone DEFAULT now(),
     capacity_hours_per_week real DEFAULT 40,
     resource_type_ids uuid[] DEFAULT '{}'::uuid[],
-    is_active boolean DEFAULT true
+    is_active boolean DEFAULT true,
+    client_id uuid,
+    client_role text,
+    must_change_password boolean DEFAULT false,
+    CONSTRAINT chk_client_role_requires_client CHECK (((client_role IS NULL) OR (client_id IS NOT NULL)))
 );
 
 
@@ -916,6 +984,14 @@ ALTER TABLE ONLY public.candidates
 
 
 --
+-- Name: client_activity_log client_activity_log_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.client_activity_log
+    ADD CONSTRAINT client_activity_log_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: client_notes client_notes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -961,6 +1037,22 @@ ALTER TABLE ONLY public.clients
 
 ALTER TABLE ONLY public.contacts
     ADD CONSTRAINT contacts_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: dashboard_snapshots dashboard_snapshots_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dashboard_snapshots
+    ADD CONSTRAINT dashboard_snapshots_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: dashboard_snapshots dashboard_snapshots_snapshot_date_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dashboard_snapshots
+    ADD CONSTRAINT dashboard_snapshots_snapshot_date_key UNIQUE (snapshot_date);
 
 
 --
@@ -1309,6 +1401,13 @@ CREATE INDEX idx_bug_reports_status ON public.bug_reports USING btree (status);
 
 
 --
+-- Name: idx_bug_reports_status_position; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_bug_reports_status_position ON public.bug_reports USING btree (status, "position");
+
+
+--
 -- Name: idx_bug_reports_user; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1327,6 +1426,13 @@ CREATE INDEX idx_calendar_events_client ON public.calendar_events USING btree (c
 --
 
 CREATE INDEX idx_calendar_events_dates ON public.calendar_events USING btree (start_date, end_date);
+
+
+--
+-- Name: idx_calendar_events_team; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_calendar_events_team ON public.calendar_events USING btree (team_id);
 
 
 --
@@ -1355,6 +1461,34 @@ CREATE INDEX idx_candidates_position_id ON public.candidates USING btree (positi
 --
 
 CREATE INDEX idx_candidates_stage ON public.candidates USING btree (stage);
+
+
+--
+-- Name: idx_candidates_stage_position; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_candidates_stage_position ON public.candidates USING btree (stage, "position");
+
+
+--
+-- Name: idx_client_activity_client; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_client_activity_client ON public.client_activity_log USING btree (client_id);
+
+
+--
+-- Name: idx_client_activity_created; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_client_activity_created ON public.client_activity_log USING btree (created_at);
+
+
+--
+-- Name: idx_client_activity_user; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_client_activity_user ON public.client_activity_log USING btree (user_id);
 
 
 --
@@ -1397,6 +1531,13 @@ CREATE INDEX idx_clients_practice_area ON public.clients USING btree (practice_a
 --
 
 CREATE INDEX idx_contacts_client ON public.contacts USING btree (client_id);
+
+
+--
+-- Name: idx_dashboard_snapshots_date; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_dashboard_snapshots_date ON public.dashboard_snapshots USING btree (snapshot_date DESC);
 
 
 --
@@ -1540,6 +1681,13 @@ CREATE INDEX idx_leads_stage ON public.leads USING btree (stage_id);
 
 
 --
+-- Name: idx_leads_stage_position; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_leads_stage_position ON public.leads USING btree (stage_id, "position");
+
+
+--
 -- Name: idx_notifications_user; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1631,6 +1779,13 @@ CREATE INDEX idx_tasks_dependencies ON public.tasks USING gin (dependencies);
 
 
 --
+-- Name: idx_tasks_dependencies_gin; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_tasks_dependencies_gin ON public.tasks USING gin (dependencies);
+
+
+--
 -- Name: idx_tasks_item_type; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1673,6 +1828,13 @@ CREATE INDEX idx_tasks_status ON public.tasks USING btree (status);
 
 
 --
+-- Name: idx_tasks_status_position; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_tasks_status_position ON public.tasks USING btree (status, "position");
+
+
+--
 -- Name: idx_team_members_team_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1708,6 +1870,13 @@ CREATE INDEX idx_time_entries_task_date ON public.time_entries USING btree (task
 
 
 --
+-- Name: idx_users_client_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_users_client_id ON public.users USING btree (client_id) WHERE (client_id IS NOT NULL);
+
+
+--
 -- Name: idx_users_email; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1730,6 +1899,14 @@ ALTER TABLE ONLY public.bug_report_comments
 
 
 --
+-- Name: bug_reports bug_reports_reporter_client_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.bug_reports
+    ADD CONSTRAINT bug_reports_reporter_client_id_fkey FOREIGN KEY (reporter_client_id) REFERENCES public.clients(id);
+
+
+--
 -- Name: bug_reports bug_reports_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1743,6 +1920,14 @@ ALTER TABLE ONLY public.bug_reports
 
 ALTER TABLE ONLY public.calendar_events
     ADD CONSTRAINT calendar_events_client_id_fkey FOREIGN KEY (client_id) REFERENCES public.clients(id) ON DELETE SET NULL;
+
+
+--
+-- Name: calendar_events calendar_events_team_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.calendar_events
+    ADD CONSTRAINT calendar_events_team_id_fkey FOREIGN KEY (team_id) REFERENCES public.teams(id) ON DELETE SET NULL;
 
 
 --
@@ -1767,6 +1952,22 @@ ALTER TABLE ONLY public.candidates
 
 ALTER TABLE ONLY public.candidates
     ADD CONSTRAINT candidates_position_id_fkey FOREIGN KEY (position_id) REFERENCES public.hiring_positions(id) ON DELETE SET NULL;
+
+
+--
+-- Name: client_activity_log client_activity_log_client_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.client_activity_log
+    ADD CONSTRAINT client_activity_log_client_id_fkey FOREIGN KEY (client_id) REFERENCES public.clients(id);
+
+
+--
+-- Name: client_activity_log client_activity_log_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.client_activity_log
+    ADD CONSTRAINT client_activity_log_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
 
 
 --
@@ -1831,6 +2032,14 @@ ALTER TABLE ONLY public.expenses
 
 ALTER TABLE ONLY public.expenses
     ADD CONSTRAINT expenses_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: bug_report_comments fk_bug_report_comments_report; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.bug_report_comments
+    ADD CONSTRAINT fk_bug_report_comments_report FOREIGN KEY (report_id) REFERENCES public.bug_reports(id) ON DELETE CASCADE;
 
 
 --
@@ -2010,16 +2219,31 @@ ALTER TABLE ONLY public.time_entries
 
 
 --
+-- Name: users users_client_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_client_id_fkey FOREIGN KEY (client_id) REFERENCES public.clients(id) ON DELETE SET NULL;
+
+
+--
+-- Name: SCHEMA public; Type: ACL; Schema: -; Owner: -
+--
+
+REVOKE USAGE ON SCHEMA public FROM PUBLIC;
+
+
+--
 -- PostgreSQL database dump complete
 --
 
-\unrestrict ENY5q7lEWgWipCQLGXEobiq1D54z4PdP8b1VsRAFmNX2YhsEqhkudkeikiscA3R
+\unrestrict WQkCKuBH27OHbzdINniOjXHEAWxChzPvi457dFGfapDdA7G8y7xLvtVqcTDxeRV
 
 --
 -- PostgreSQL database dump
 --
 
-\restrict GcLXK6hft5YOoB4jHsxMYJH6JM8PfzuM6j0kjkcJAwaL97rbmJE2yDLo37H98AA
+\restrict qa1F4qpQjiwJ8EydhRegx4PDnhYxEPgeAHjTqSfYWPEkejGhqIIDXOIZkduUIlk
 
 -- Dumped from database version 16.13
 -- Dumped by pg_dump version 16.13
@@ -2040,26 +2264,37 @@ SET row_security = off;
 --
 
 COPY public.schema_migrations (version, name, applied_at) FROM stdin;
-1	001_initial_schema.sql	2026-04-08 23:35:39.676764+01
-2	002_contacts_columns.sql	2026-04-08 23:35:39.678175+01
-3	003_expense_reports.sql	2026-04-08 23:35:39.67894+01
-4	004_bug_reports.sql	2026-04-08 23:35:39.679728+01
-5	005_performance_indexes.sql	2026-04-08 23:35:39.680347+01
-6	006_expense_approver_setting.sql	2026-04-08 23:35:39.680984+01
-7	007_notifications_index.sql	2026-04-08 23:35:39.681554+01
-8	008_item_type_hierarchy.sql	2026-04-11 12:55:08.981205+01
-9	009_client_studio_contract.sql	2026-04-13 04:11:52.287656+01
-10	010_bug_tracker_upgrade.sql	2026-04-13 22:52:30.61454+01
-11	011_client_page_fields.sql	2026-04-14 03:22:27.268189+01
-12	012_sow_layer.sql	2026-04-14 03:36:20.243047+01
-13	013_phase4_features.sql	2026-04-14 03:50:41.257986+01
-14	014_calendar_events.sql	2026-04-14 04:07:18.986891+01
-15	015_attachment_links.sql	2026-04-14 04:07:19.013671+01
-16	016_teams.sql	2026-04-14 04:25:56.174425+01
-17	017_hiring.sql	2026-04-14 04:39:33.767842+01
-18	018_practice_areas.sql	2026-04-14 04:54:52.827505+01
-19	019_client_abbreviation.sql	2026-04-15 00:08:51.787293+01
-20	020_decode_double_escape.sql	2026-04-15 03:25:25.210274+01
+1	001_initial_schema.sql	2026-04-20 01:10:48.161566+01
+2	002_contacts_columns.sql	2026-04-20 01:10:48.163303+01
+3	003_expense_reports.sql	2026-04-20 01:10:48.163993+01
+4	004_bug_reports.sql	2026-04-20 01:10:48.164555+01
+5	005_performance_indexes.sql	2026-04-20 01:10:48.165056+01
+6	006_expense_approver_setting.sql	2026-04-20 01:10:48.165665+01
+7	007_notifications_index.sql	2026-04-20 01:10:48.166217+01
+8	008_item_type_hierarchy.sql	2026-04-20 01:10:48.166861+01
+9	009_client_studio_contract.sql	2026-04-20 01:10:48.174806+01
+10	010_bug_tracker_upgrade.sql	2026-04-20 01:10:48.176553+01
+11	011_client_page_fields.sql	2026-04-20 01:10:48.179868+01
+12	012_sow_layer.sql	2026-04-20 01:10:48.181096+01
+13	013_phase4_features.sql	2026-04-20 01:10:48.184661+01
+14	014_calendar_events.sql	2026-04-20 01:10:48.18633+01
+15	015_attachment_links.sql	2026-04-20 01:10:48.188151+01
+16	016_teams.sql	2026-04-20 01:10:48.189483+01
+17	017_hiring.sql	2026-04-20 01:10:48.191121+01
+18	018_practice_areas.sql	2026-04-20 01:10:48.193226+01
+19	019_client_abbreviation.sql	2026-04-20 01:10:48.198357+01
+20	020_decode_double_escape.sql	2026-04-20 01:10:48.200121+01
+21	021_kanban_position.sql	2026-04-20 01:10:48.222383+01
+22	022_practice_rename_and_backfill.sql	2026-04-20 01:10:48.226671+01
+23	023_calendar_team_events.sql	2026-04-20 01:10:48.229418+01
+24	024_hiring_rewrite.sql	2026-04-20 01:10:48.23374+01
+25	025_rename_practice_to_organisational_performance.sql	2026-04-20 01:10:48.235782+01
+26	026_client_scoped_users.sql	2026-04-20 01:10:48.237698+01
+27	027_audit_fixes.sql	2026-04-20 01:10:48.239131+01
+28	028_dashboard_snapshots.sql	2026-04-20 01:10:48.240611+01
+29	029_work_type.sql	2026-04-20 01:10:48.241877+01
+30	030_hiring_stage_streamline.sql	2026-04-20 01:10:48.243108+01
+31	031_client_portal.sql	2026-04-20 01:12:26.711215+01
 \.
 
 
@@ -2067,5 +2302,5 @@ COPY public.schema_migrations (version, name, applied_at) FROM stdin;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict GcLXK6hft5YOoB4jHsxMYJH6JM8PfzuM6j0kjkcJAwaL97rbmJE2yDLo37H98AA
+\unrestrict qa1F4qpQjiwJ8EydhRegx4PDnhYxEPgeAHjTqSfYWPEkejGhqIIDXOIZkduUIlk
 
