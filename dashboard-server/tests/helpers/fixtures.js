@@ -17,7 +17,7 @@ function uniq(prefix) {
 }
 
 /**
- * Create a user. Returns { id, username, display_name, email, role, raw_password }.
+ * Create a user. Returns { id, username, display_name, email, role, client_id, client_role, must_change_password, raw_password }.
  * raw_password is included so the test can use it for login flows.
  */
 async function createTestUser(opts = {}) {
@@ -26,13 +26,16 @@ async function createTestUser(opts = {}) {
   const email = 'email' in opts ? opts.email : `${username}@example.invalid`;
   const role = opts.role || 'admin';
   const raw_password = opts.password || 'test_password_123';
-  const password_hash = await bcrypt.hash(raw_password, 4); // low cost for speed
+  const password_hash = await bcrypt.hash(raw_password, 4);
+  const client_id = opts.client_id || null;
+  const client_role = opts.client_role || null;
+  const must_change_password = opts.must_change_password || false;
 
   const { rows } = await pool.query(
-    `INSERT INTO users (username, display_name, email, role, password_hash, is_active)
-     VALUES ($1, $2, $3, $4, $5, true)
-     RETURNING id, username, display_name, email, role`,
-    [username, display_name, email, role, password_hash]
+    `INSERT INTO users (username, display_name, email, role, password_hash, is_active, client_id, client_role, must_change_password)
+     VALUES ($1, $2, $3, $4, $5, true, $6, $7, $8)
+     RETURNING id, username, display_name, email, role, client_id, client_role, must_change_password`,
+    [username, display_name, email, role, password_hash, client_id, client_role, must_change_password]
   );
   return { ...rows[0], raw_password };
 }

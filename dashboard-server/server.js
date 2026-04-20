@@ -51,7 +51,7 @@ const bcrypt = require('bcrypt');
 const multer = require('multer');
 const fs = require('fs');
 
-const { rateLimit, ipKeyGenerator } = require('express-rate-limit');
+const { rateLimit } = require('express-rate-limit');
 const XLSX = require('xlsx');
 const PDFDocument = require('pdfkit');
 const Tesseract = require('tesseract.js');
@@ -758,12 +758,22 @@ app.post('/api/auth/login', async (req, res) => {
   const expiresAt = new Date(Date.now() + SESSION_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
   await pool.query('INSERT INTO sessions (user_id, token, expires_at) VALUES ($1, $2, $3)', [user.id, hashedToken, expiresAt]);
   // Cache under hashed key
-  cacheToken(hashedToken, { id: user.id, username: user.username, displayName: user.display_name, role: user.role, clientId: user.client_id });
+  cacheToken(hashedToken, {
+    id: user.id, username: user.username, displayName: user.display_name,
+    role: user.role, clientId: user.client_id, clientRole: user.client_role,
+    isNBI: !user.client_id, isClientAdmin: !!user.client_id && user.client_role === 'admin',
+    mustChangePassword: user.must_change_password,
+  });
 
   res.cookie(SESSION_COOKIE_NAME, token, getSessionCookieOpts(req));
   res.json({
     token,
-    user: { id: user.id, username: user.username, displayName: user.display_name, role: user.role, clientId: user.client_id },
+    user: {
+      id: user.id, username: user.username, displayName: user.display_name,
+      role: user.role, clientId: user.client_id, clientRole: user.client_role,
+      isNBI: !user.client_id, isClientAdmin: !!user.client_id && user.client_role === 'admin',
+      mustChangePassword: user.must_change_password,
+    },
     expiresAt: expiresAt.toISOString(),
   });
 });
@@ -787,12 +797,17 @@ app.get('/api/auth/me', async (req, res) => {
 
   const hashed = hashToken(token);
   const { rows } = await pool.query(
-    `SELECT u.id, u.username, u.display_name, u.role, u.client_id FROM sessions s
+    `SELECT u.id, u.username, u.display_name, u.role, u.client_id, u.client_role, u.must_change_password FROM sessions s
      JOIN users u ON s.user_id = u.id
      WHERE s.token = $1 AND s.expires_at > NOW() AND u.is_active = true`, [hashed]
   );
   if (rows.length === 0) return res.status(401).json({ error: 'Session expired' });
-  res.json({ user: { id: rows[0].id, username: rows[0].username, displayName: rows[0].display_name, role: rows[0].role, clientId: rows[0].client_id } });
+  res.json({ user: {
+    id: rows[0].id, username: rows[0].username, displayName: rows[0].display_name,
+    role: rows[0].role, clientId: rows[0].client_id, clientRole: rows[0].client_role,
+    isNBI: !rows[0].client_id, isClientAdmin: !!rows[0].client_id && rows[0].client_role === 'admin',
+    mustChangePassword: rows[0].must_change_password,
+  } });
 });
 
 /**
@@ -818,12 +833,17 @@ async function requireAuth(req, res, next) {
     if (cached) { req.user = cached; return next(); }
 
     const { rows } = await pool.query(
-      `SELECT u.id, u.username, u.display_name, u.role, u.client_id FROM sessions s
+      `SELECT u.id, u.username, u.display_name, u.role, u.client_id, u.client_role, u.must_change_password FROM sessions s
        JOIN users u ON s.user_id = u.id
        WHERE s.token = $1 AND s.expires_at > NOW() AND u.is_active = true`, [hashedToken]
     );
     if (rows.length === 0) return res.status(401).json({ error: 'Session expired' });
-    const user = { id: rows[0].id, username: rows[0].username, displayName: rows[0].display_name, role: rows[0].role, clientId: rows[0].client_id };
+    const user = {
+      id: rows[0].id, username: rows[0].username, displayName: rows[0].display_name,
+      role: rows[0].role, clientId: rows[0].client_id, clientRole: rows[0].client_role,
+      isNBI: !rows[0].client_id, isClientAdmin: !!rows[0].client_id && rows[0].client_role === 'admin',
+      mustChangePassword: rows[0].must_change_password,
+    };
     cacheToken(hashedToken, user);
     req.user = user;
     next();
@@ -889,9 +909,58 @@ function getClientScope(req) {
 }
 
 /** Middleware: block client-scoped users from internal-only endpoints */
-function requireInternal(req, res, next) {
+function requireNBI(req, res, next) {
   if (req.user?.clientId) return res.status(403).json({ error: 'This feature is not available for client accounts' });
   next();
+}
+
+/** Middleware: block non-admin users */
+function requireAdmin(req, res, next) {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  next();
+}
+
+/** Middleware: block non-client-admin users */
+function requireClientAdmin(req, res, next) {
+  if (!req.user?.clientId || req.user?.clientRole !== 'admin') {
+    return res.status(403).json({ error: 'Client admin access required' });
+  }
+  next();
+}
+
+/**
+ * Check whether a client-scoped user may access a task by walking the
+ * parent chain to the root and comparing client_id. NBI users always pass.
+ * Returns true if access is allowed, false if a response has been sent.
+ */
+async function requireTaskAccess(req, res, taskId) {
+  if (!req.user?.clientId) return true; // NBI users always pass
+
+  let currentId = taskId;
+  let depth = 0;
+  const MAX_DEPTH = 10;
+
+  while (currentId && depth < MAX_DEPTH) {
+    const { rows } = await pool.query('SELECT parent_id, client_id FROM tasks WHERE id = $1', [currentId]);
+    if (rows.length === 0) { res.status(404).json({ error: 'Task not found' }); return false; }
+
+    if (!rows[0].parent_id) {
+      if (rows[0].client_id && rows[0].client_id !== req.user.clientId) {
+        res.status(403).json({ error: 'Access denied' });
+        return false;
+      }
+      return true;
+    }
+    currentId = rows[0].parent_id;
+    depth++;
+  }
+
+  const { rows: last } = await pool.query('SELECT client_id FROM tasks WHERE id = $1', [currentId]);
+  if (last.length > 0 && last[0].client_id && last[0].client_id !== req.user.clientId) {
+    res.status(403).json({ error: 'Access denied' });
+    return false;
+  }
+  return true;
 }
 
 /**
@@ -1046,8 +1115,7 @@ app.use('/api/news', createProxyMiddleware({
 }));
 
 /** POST /api/auth/reset-password — Admin-only: forcibly reset any user's password */
-app.post('/api/auth/reset-password', async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.post('/api/auth/reset-password', requireAdmin, async (req, res) => {
   const { userId, newPassword } = req.body;
   if (!userId || !newPassword) return res.status(400).json({ error: 'userId and newPassword required' });
   if (newPassword.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
@@ -1063,8 +1131,7 @@ app.post('/api/auth/reset-password', async (req, res) => {
 });
 
 /** POST /api/auth/clear-lockout — Admin-only: clear failed login counter for a user */
-app.post('/api/auth/clear-lockout', async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.post('/api/auth/clear-lockout', requireAdmin, async (req, res) => {
   const { username } = req.body;
   if (!username) return res.status(400).json({ error: 'username required' });
   const key = username.toLowerCase().trim();
@@ -1087,6 +1154,7 @@ app.post('/api/auth/change-password', async (req, res) => {
 
   const hash = await bcrypt.hash(newPassword, 10);
   await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [hash, req.user.id]);
+  await pool.query('UPDATE users SET must_change_password = false WHERE id = $1', [req.user.id]);
   await pool.query('DELETE FROM sessions WHERE user_id = $1', [req.user.id]);
   _tokenCache.clear();
   res.clearCookie(SESSION_COOKIE_NAME, { httpOnly: true, sameSite: 'lax', path: '/' });
@@ -1095,10 +1163,17 @@ app.post('/api/auth/change-password', async (req, res) => {
 
 // ==================== USER MANAGEMENT ====================
 
-/** GET /api/users — List users. Admins see full details; members see only id, display_name, username. */
+/** GET /api/users — List users. Admins see full details; client users see their company; members see names only. */
 app.get('/api/users', async (req, res) => {
   if (req.user.role === 'admin') {
-    const { rows } = await pool.query('SELECT id, username, display_name, email, role, is_active, capacity_hours_per_week, resource_type_ids, created_at FROM users ORDER BY display_name');
+    const { rows } = await pool.query('SELECT id, username, display_name, email, role, is_active, capacity_hours_per_week, resource_type_ids, created_at, client_id, client_role FROM users ORDER BY display_name');
+    res.json(rows);
+  } else if (req.user.clientId) {
+    // Client users see only their company's users
+    const { rows } = await pool.query(
+      'SELECT id, username, display_name, email, client_role, is_active FROM users WHERE client_id = $1 ORDER BY display_name',
+      [req.user.clientId]
+    );
     res.json(rows);
   } else {
     // Non-admins only get names (for assignee dropdowns) — no emails, roles, or capacity
@@ -1107,11 +1182,39 @@ app.get('/api/users', async (req, res) => {
   }
 });
 
-/** POST /api/users — Create a new user (admin only) */
+/** POST /api/users — Create a new user (admin or client admin) */
 app.post('/api/users', async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
-  const { username, display_name, email, password, role } = req.body;
-  const client_id = req.body.client_id || null;
+  const isAdmin = req.user?.role === 'admin';
+  const isClientAdminUser = req.user?.isClientAdmin;
+
+  // Auth: must be NBI admin or client admin
+  if (!isAdmin && !isClientAdminUser) {
+    return res.status(403).json({ error: 'Admin or client admin access required' });
+  }
+
+  let { username, display_name, email, password, role } = req.body;
+  let client_id = req.body.client_id || null;
+  let client_role = req.body.client_role || null;
+  let must_change_password = false;
+
+  // Client admin constraints
+  if (isClientAdminUser) {
+    // Cannot set NBI admin role
+    if (role === 'admin') {
+      return res.status(403).json({ error: 'Client admins cannot create NBI admin users' });
+    }
+    // Force role to member, client_id to own company
+    role = 'member';
+    client_id = req.user.clientId;
+    client_role = client_role || 'member';
+    must_change_password = true;
+
+    // Generate temp password if not provided
+    if (!password) {
+      password = crypto.randomBytes(12).toString('base64url').slice(0, 16);
+    }
+  }
+
   if (!username || !password) return res.status(400).json({ error: 'Username and password required' });
   const lenErr = validateLength(username, 'name', 200) || validateLength(display_name, 'name') || validateLength(email, 'email');
   if (lenErr) return res.status(400).json({ error: lenErr });
@@ -1124,21 +1227,39 @@ app.post('/api/users', async (req, res) => {
   }
   // Atomic insert — ON CONFLICT prevents race conditions
   const { rows } = await pool.query(
-    `INSERT INTO users (username, display_name, email, password_hash, role, client_id)
-     VALUES ($1, $2, $3, $4, $5, $6)
+    `INSERT INTO users (username, display_name, email, password_hash, role, client_id, client_role, must_change_password)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
      ON CONFLICT (username) DO NOTHING
-     RETURNING id, username, display_name, email, role, client_id`,
-    [username.toLowerCase().trim(), display_name || username, cleanEmail, hash, role || 'member', client_id]
+     RETURNING id, username, display_name, email, role, client_id, client_role, must_change_password`,
+    [username.toLowerCase().trim(), display_name || username, cleanEmail, hash, role || 'member', client_id, client_role, must_change_password]
   );
   if (rows.length === 0) return res.status(409).json({ error: 'Username already exists' });
   await auditLog('user', rows[0].id, 'create', req.user?.displayName, { username, display_name });
+
+  // Client admin actions: log to client_activity_log and send invite email
+  if (isClientAdminUser) {
+    await pool.query(
+      `INSERT INTO client_activity_log (user_id, client_id, action, target_type, target_id, details)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [req.user.id, req.user.clientId, 'create_user', 'user', rows[0].id, JSON.stringify({ username, display_name })]
+    );
+    if (cleanEmail) {
+      sendEmailAsync({
+        to: cleanEmail,
+        subject: 'Your NBI WorkSage account has been created',
+        body: `<p>Hello ${display_name || username},</p>
+<p>An account has been created for you on NBI WorkSage. Your temporary password is: <strong>${password}</strong></p>
+<p>You will be asked to change your password on first login.</p>`,
+      });
+    }
+  }
+
   res.status(201).json(rows[0]);
 });
 
 /** DELETE /api/users/:id — Delete a user and their sessions (admin only, cannot delete self) */
-app.delete('/api/users/:id', async (req, res) => {
+app.delete('/api/users/:id', requireAdmin, async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid user ID' });
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   // Prevent deleting yourself
   if (req.user.id === req.params.id) return res.status(400).json({ error: 'Cannot delete yourself' });
   await pool.query('DELETE FROM sessions WHERE user_id = $1', [req.params.id]);
@@ -1147,20 +1268,59 @@ app.delete('/api/users/:id', async (req, res) => {
   res.json({ ok: true });
 });
 
-/** PATCH /api/users/:id — Update user profile fields (admin only) */
+/** PATCH /api/users/:id — Update user profile fields (admin or client admin) */
 app.patch('/api/users/:id', async (req, res) => {
+  const isAdmin = req.user?.role === 'admin';
+  const isClientAdminUser = req.user?.isClientAdmin;
+
+  if (!isAdmin && !isClientAdminUser) {
+    return res.status(403).json({ error: 'Admin or client admin access required' });
+  }
+
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid user ID' });
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   if (req.body.is_active !== undefined && typeof req.body.is_active !== 'boolean') {
     return res.status(400).json({ error: 'is_active must be a boolean' });
   }
-  const { updates, vals, nextIdx } = buildPatchQuery(req.body, ['role', 'display_name', 'email', 'client_id', 'is_active']);
+
+  // Client admin constraints
+  if (isClientAdminUser) {
+    // Cannot change client_id
+    if (req.body.client_id !== undefined) {
+      return res.status(403).json({ error: 'Client admins cannot change client assignment' });
+    }
+    // Cannot promote to NBI admin role
+    if (req.body.role === 'admin') {
+      return res.status(403).json({ error: 'Client admins cannot promote to NBI admin role' });
+    }
+    // Verify target user belongs to the same client
+    const { rows: targetRows } = await pool.query('SELECT client_id, client_role FROM users WHERE id = $1', [req.params.id]);
+    if (targetRows.length === 0) return res.status(404).json({ error: 'User not found' });
+    if (targetRows[0].client_id !== req.user.clientId) {
+      return res.status(403).json({ error: 'Cannot modify users outside your company' });
+    }
+    // Prevent last client admin self-demotion
+    if (req.body.client_role && req.body.client_role !== 'admin' && req.params.id === req.user.id) {
+      const { rows: adminCount } = await pool.query(
+        'SELECT COUNT(*) as cnt FROM users WHERE client_id = $1 AND client_role = $2 AND is_active = true',
+        [req.user.clientId, 'admin']
+      );
+      if (Number(adminCount[0].cnt) <= 1) {
+        return res.status(400).json({ error: 'Cannot demote the last client admin — at least one admin must remain' });
+      }
+    }
+  }
+
+  const allowedFields = isAdmin
+    ? ['role', 'display_name', 'email', 'client_id', 'is_active', 'client_role']
+    : ['display_name', 'client_role', 'is_active'];
+
+  const { updates, vals, nextIdx } = buildPatchQuery(req.body, allowedFields);
   if (req.body.display_name !== undefined && !req.body.display_name.trim()) {
     return res.status(400).json({ error: 'Display name cannot be empty' });
   }
   if (updates.length === 0) return res.status(400).json({ error: 'No valid fields to update' });
   vals.push(req.params.id);
-  const { rows } = await pool.query(`UPDATE users SET ${updates.join(', ')} WHERE id = $${nextIdx} RETURNING id, username, display_name, email, role, client_id, is_active`, vals);
+  const { rows } = await pool.query(`UPDATE users SET ${updates.join(', ')} WHERE id = $${nextIdx} RETURNING id, username, display_name, email, role, client_id, client_role, is_active`, vals);
   if (!rows[0]) return res.status(404).json({ error: 'User not found' });
   // Invalidate token cache entries for this user so stale role/display_name data is refreshed
   for (const [key, entry] of _tokenCache) {
@@ -1170,7 +1330,135 @@ app.patch('/api/users/:id', async (req, res) => {
   if (req.body.is_active === false) {
     await pool.query('DELETE FROM sessions WHERE user_id = $1', [req.params.id]);
   }
+  // Log client admin actions
+  if (isClientAdminUser) {
+    await pool.query(
+      `INSERT INTO client_activity_log (user_id, client_id, action, target_type, target_id, details)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [req.user.id, req.user.clientId, 'update_user', 'user', req.params.id, JSON.stringify(req.body)]
+    );
+  }
   res.json(rows[0]);
+});
+
+/** POST /api/users/:id/deactivate — Deactivate a user (admin or client admin) */
+app.post('/api/users/:id/deactivate', async (req, res) => {
+  const isAdmin = req.user?.role === 'admin';
+  const isClientAdminUser = req.user?.isClientAdmin;
+
+  if (!isAdmin && !isClientAdminUser) {
+    return res.status(403).json({ error: 'Admin or client admin access required' });
+  }
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid user ID' });
+
+  // Client admin: verify target belongs to same client
+  if (isClientAdminUser) {
+    const { rows: targetRows } = await pool.query('SELECT client_id FROM users WHERE id = $1', [req.params.id]);
+    if (targetRows.length === 0) return res.status(404).json({ error: 'User not found' });
+    if (targetRows[0].client_id !== req.user.clientId) {
+      return res.status(403).json({ error: 'Cannot deactivate users outside your company' });
+    }
+  }
+
+  await pool.query('UPDATE users SET is_active = false WHERE id = $1', [req.params.id]);
+  await pool.query('DELETE FROM sessions WHERE user_id = $1', [req.params.id]);
+  // Clear token cache for this user
+  for (const [key, entry] of _tokenCache) {
+    if (entry.user && entry.user.id === req.params.id) _tokenCache.delete(key);
+  }
+  await auditLog('user', req.params.id, 'deactivate', req.user?.displayName);
+  if (isClientAdminUser) {
+    await pool.query(
+      `INSERT INTO client_activity_log (user_id, client_id, action, target_type, target_id, details)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [req.user.id, req.user.clientId, 'deactivate_user', 'user', req.params.id, '{}']
+    );
+  }
+  res.json({ ok: true });
+});
+
+/** POST /api/users/:id/reactivate — Reactivate a user (admin or client admin) */
+app.post('/api/users/:id/reactivate', async (req, res) => {
+  const isAdmin = req.user?.role === 'admin';
+  const isClientAdminUser = req.user?.isClientAdmin;
+
+  if (!isAdmin && !isClientAdminUser) {
+    return res.status(403).json({ error: 'Admin or client admin access required' });
+  }
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid user ID' });
+
+  // Client admin: verify target belongs to same client
+  if (isClientAdminUser) {
+    const { rows: targetRows } = await pool.query('SELECT client_id FROM users WHERE id = $1', [req.params.id]);
+    if (targetRows.length === 0) return res.status(404).json({ error: 'User not found' });
+    if (targetRows[0].client_id !== req.user.clientId) {
+      return res.status(403).json({ error: 'Cannot reactivate users outside your company' });
+    }
+  }
+
+  await pool.query('UPDATE users SET is_active = true WHERE id = $1', [req.params.id]);
+  await auditLog('user', req.params.id, 'reactivate', req.user?.displayName);
+  if (isClientAdminUser) {
+    await pool.query(
+      `INSERT INTO client_activity_log (user_id, client_id, action, target_type, target_id, details)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [req.user.id, req.user.clientId, 'reactivate_user', 'user', req.params.id, '{}']
+    );
+  }
+  res.json({ ok: true });
+});
+
+/** POST /api/users/:id/reset-password — Reset a user's password (admin or client admin) */
+app.post('/api/users/:id/reset-password', async (req, res) => {
+  const isAdmin = req.user?.role === 'admin';
+  const isClientAdminUser = req.user?.isClientAdmin;
+
+  if (!isAdmin && !isClientAdminUser) {
+    return res.status(403).json({ error: 'Admin or client admin access required' });
+  }
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid user ID' });
+
+  // Client admin: verify target belongs to same client
+  if (isClientAdminUser) {
+    const { rows: targetRows } = await pool.query('SELECT client_id FROM users WHERE id = $1', [req.params.id]);
+    if (targetRows.length === 0) return res.status(404).json({ error: 'User not found' });
+    if (targetRows[0].client_id !== req.user.clientId) {
+      return res.status(403).json({ error: 'Cannot reset password for users outside your company' });
+    }
+  }
+
+  // Generate 16-char temp password
+  const tempPassword = crypto.randomBytes(12).toString('base64url').slice(0, 16);
+  const hash = await bcrypt.hash(tempPassword, 10);
+
+  await pool.query('UPDATE users SET password_hash = $1, must_change_password = true WHERE id = $2', [hash, req.params.id]);
+  await pool.query('DELETE FROM sessions WHERE user_id = $1', [req.params.id]);
+  // Clear token cache for this user
+  for (const [key, entry] of _tokenCache) {
+    if (entry.user && entry.user.id === req.params.id) _tokenCache.delete(key);
+  }
+
+  // Send email with new temp password
+  const { rows: userRows } = await pool.query('SELECT email, display_name, username FROM users WHERE id = $1', [req.params.id]);
+  if (userRows[0]?.email) {
+    sendEmailAsync({
+      to: userRows[0].email,
+      subject: 'Your NBI WorkSage password has been reset',
+      body: `<p>Hello ${userRows[0].display_name || userRows[0].username},</p>
+<p>Your password has been reset. Your temporary password is: <strong>${tempPassword}</strong></p>
+<p>You will be asked to change your password on next login.</p>`,
+    });
+  }
+
+  await auditLog('user', req.params.id, 'reset_password', req.user?.displayName);
+  if (isClientAdminUser) {
+    await pool.query(
+      `INSERT INTO client_activity_log (user_id, client_id, action, target_type, target_id, details)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [req.user.id, req.user.clientId, 'reset_password', 'user', req.params.id, '{}']
+    );
+  }
+  res.json({ ok: true, tempPassword });
 });
 
 // ==================== AUDIT LOG ====================
@@ -1291,12 +1579,7 @@ async function auditLog(entityType, entityId, action, changedBy, changes, conn) 
  * Paginated audit log with optional filters by entity_type, action, or free-text search.
  * Joins to tasks table to enrich entries with task titles where applicable.
  */
-app.get('/api/audit-log', requireInternal, async (req, res) => {
-  // Admin only — the audit log contains change deltas, assignee names, and
-  // reporter metadata that are not safe for regular members to read.
-  if (!req.user || req.user.role !== 'admin') {
-    return res.status(403).json({ error: 'Admin only' });
-  }
+app.get('/api/audit-log', requireNBI, requireAdmin, async (req, res) => {
   try {
     const limit = Math.min(parseInt(req.query.limit) || 50, 200);
     const cursor = req.query.cursor || null; // ISO timestamp for cursor-based pagination
@@ -1401,8 +1684,7 @@ app.get('/api/health', async (req, res) => {
 });
 
 /** GET /api/finance/seed — Return finance seed data for initial bootstrap (admin only). */
-app.get('/api/finance/seed', requireInternal, async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.get('/api/finance/seed', requireNBI, requireAdmin, async (req, res) => {
   try {
     const seedPath = path.join(__dirname, 'finance-seed.json');
     if (fs.existsSync(seedPath)) {
@@ -1419,8 +1701,7 @@ app.get('/api/finance/seed', requireInternal, async (req, res) => {
 
 /** GET /api/seed-data — Return seed CSV data for initial bootstrap (admin only).
  *  Seed data is loaded from seed-data.csv if it exists, otherwise returns empty. */
-app.get('/api/seed-data', requireInternal, async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.get('/api/seed-data', requireNBI, requireAdmin, async (req, res) => {
   try {
     const seedPath = path.join(__dirname, 'seed-data.csv');
     if (fs.existsSync(seedPath)) {
@@ -1442,8 +1723,7 @@ app.get('/api/seed-data', requireInternal, async (req, res) => {
  * Export all dashboard data as a JSON download (admin only).
  * Includes tasks, clients, comments, notes, finance data, users, and settings.
  */
-app.get('/api/backup', requireInternal, async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.get('/api/backup', requireNBI, requireAdmin, async (req, res) => {
   try {
     const tasks = await pool.query('SELECT * FROM tasks ORDER BY created_at');
     const clients = await pool.query('SELECT * FROM clients ORDER BY name');
@@ -1582,8 +1862,7 @@ function validateRestoreGenericUUID(rows, tableName) {
  * Restores clients first since tasks have a foreign key dependency on them.
  * Handles all 7 core tables: clients, tasks, users (metadata only), settings, leads, expenses, audit_log (append-only).
  */
-app.post('/api/restore', async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.post('/api/restore', requireAdmin, async (req, res) => {
   const { backup } = req.body;
   if (!backup || !backup.tables) return res.status(400).json({ error: 'Invalid backup format' });
 
@@ -1790,6 +2069,8 @@ app.post('/api/restore', async (req, res) => {
 /** GET /api/tasks/:id/comments — List all comments on a task, oldest first */
 app.get('/api/tasks/:id/comments', async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid task ID' });
+  const allowed = await requireTaskAccess(req, res, req.params.id);
+  if (!allowed) return;
   const { rows } = await pool.query('SELECT * FROM task_comments WHERE task_id = $1 ORDER BY created_at ASC', [req.params.id]);
   res.json(rows);
 });
@@ -1797,6 +2078,8 @@ app.get('/api/tasks/:id/comments', async (req, res) => {
 /** POST /api/tasks/:id/comments — Add a comment to a task */
 app.post('/api/tasks/:id/comments', async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid task ID' });
+  const allowed = await requireTaskAccess(req, res, req.params.id);
+  if (!allowed) return;
   const { text } = req.body;
   if (!text || !text.trim()) return res.status(400).json({ error: 'text required' });
   const author = req.user?.displayName || 'Unknown';
@@ -1810,6 +2093,8 @@ app.post('/api/tasks/:id/comments', async (req, res) => {
 
 /** DELETE /api/tasks/:id/comments/:commentId — Remove a comment from a task (owner or admin) */
 app.delete('/api/tasks/:id/comments/:commentId', async (req, res) => {
+  const allowed = await requireTaskAccess(req, res, req.params.id);
+  if (!allowed) return;
   const { rows } = await pool.query('SELECT author FROM task_comments WHERE id = $1 AND task_id = $2', [req.params.commentId, req.params.id]);
   if (rows.length === 0) return res.status(404).json({ error: 'Comment not found' });
   const isOwner = rows[0].author === (req.user?.displayName || req.user?.display_name);
@@ -1910,8 +2195,7 @@ function parseCSVFile(filePath) {
  * Scans the user's Downloads folder for importable Excel/CSV files.
  * Returns file list with detected format, size, modification date.
  */
-app.get('/api/import/scan-downloads', async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.get('/api/import/scan-downloads', requireAdmin, async (req, res) => {
   const downloadsDir = path.join(os.homedir(), 'Downloads');
   try {
     const files = [];
@@ -1987,8 +2271,7 @@ app.get('/api/import/scan-downloads', async (req, res) => {
  * Parse a specific file from Downloads and return full preview data.
  * Body: { filename: string, sheet?: string }
  */
-app.post('/api/import/parse-file', async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.post('/api/import/parse-file', requireAdmin, async (req, res) => {
   const { filename, sheet } = req.body;
   if (!filename) return res.status(400).json({ error: 'filename required' });
   // Security: allow files from Downloads or one subdirectory deep, no path traversal
@@ -2316,6 +2599,8 @@ app.post('/api/contract/extract', upload.single('file'), async (req, res) => {
 /** GET /api/tasks/:id/time-entries — List time entries for a task, newest first */
 app.get('/api/tasks/:id/time-entries', async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid task ID' });
+  const allowed = await requireTaskAccess(req, res, req.params.id);
+  if (!allowed) return;
   const { rows } = await pool.query('SELECT * FROM time_entries WHERE task_id = $1 ORDER BY date DESC, created_at DESC', [req.params.id]);
   res.json(rows);
 });
@@ -2323,6 +2608,8 @@ app.get('/api/tasks/:id/time-entries', async (req, res) => {
 /** POST /api/tasks/:id/time-entries — Log time against a task. Also recalculates the task's hours_spent total. */
 app.post('/api/tasks/:id/time-entries', async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid task ID' });
+  const allowed = await requireTaskAccess(req, res, req.params.id);
+  if (!allowed) return;
   const { hours, description, date } = req.body;
   if (!hours || hours <= 0) return res.status(400).json({ error: 'hours required (> 0)' });
   const userName = req.user?.displayName || 'Unknown';
@@ -2387,8 +2674,7 @@ app.get('/api/notifications', async (req, res) => {
 });
 
 /** POST /api/notifications — Create a notification (admin only) */
-app.post('/api/notifications', async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.post('/api/notifications', requireAdmin, async (req, res) => {
   const { username, type, title, message, link } = req.body;
   if (!username || !title) return res.status(400).json({ error: 'username and title required' });
   await createNotification(username, type || 'info', title, message || '', link || '');
@@ -2425,8 +2711,7 @@ async function createNotification(username, type, title, message, link, dismissa
 }
 
 /** POST /api/notifications/system — Send a system-wide notification to all active users (admin only) */
-app.post('/api/notifications/system', requireInternal, async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.post('/api/notifications/system', requireNBI, requireAdmin, async (req, res) => {
   const { title, message } = req.body;
   if (!title || !message) return res.status(400).json({ error: 'Title and message required' });
   const { rows: users } = await pool.query('SELECT username FROM users WHERE is_active = true');
@@ -2452,8 +2737,7 @@ app.get('/api/templates', async (req, res) => {
 });
 
 /** POST /api/templates — Save a new task template (template field is a JSON task tree) */
-app.post('/api/templates', async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.post('/api/templates', requireAdmin, async (req, res) => {
   const { name, template, recurrence } = req.body;
   if (!name || !template) return res.status(400).json({ error: 'name and template required' });
   const { rows } = await pool.query(
@@ -2468,9 +2752,8 @@ app.post('/api/templates', async (req, res) => {
  * Instantiate a template — recursively creates tasks from the template's JSON tree.
  * Each node can have { title, status, priority, description, assignees, hoursEstimated, children }.
  */
-app.post('/api/templates/:id/create', async (req, res) => {
+app.post('/api/templates/:id/create', requireAdmin, async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid template ID' });
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   const { rows } = await pool.query('SELECT * FROM task_templates WHERE id = $1', [req.params.id]);
   if (rows.length === 0) return res.status(404).json({ error: 'Template not found' });
   const tmpl = rows[0].template;
@@ -2500,9 +2783,8 @@ app.post('/api/templates/:id/create', async (req, res) => {
 });
 
 /** DELETE /api/templates/:id — Remove a saved template (admin only) */
-app.delete('/api/templates/:id', async (req, res) => {
+app.delete('/api/templates/:id', requireAdmin, async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid template ID' });
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   await pool.query('DELETE FROM task_templates WHERE id = $1', [req.params.id]);
   res.json({ ok: true });
 });
@@ -2512,6 +2794,8 @@ app.delete('/api/templates/:id', async (req, res) => {
 /** GET /api/tasks/:id/attachments — List file attachments for a task */
 app.get('/api/tasks/:id/attachments', async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid task ID' });
+  const allowed = await requireTaskAccess(req, res, req.params.id);
+  if (!allowed) return;
   const { rows } = await pool.query('SELECT * FROM task_attachments WHERE task_id = $1 ORDER BY created_at DESC', [req.params.id]);
   res.json(rows);
 });
@@ -2519,6 +2803,8 @@ app.get('/api/tasks/:id/attachments', async (req, res) => {
 /** POST /api/tasks/:id/attachments — Upload a file attachment to a task (max 25MB) */
 app.post('/api/tasks/:id/attachments', upload.single('file'), async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid task ID' });
+  const allowed = await requireTaskAccess(req, res, req.params.id);
+  if (!allowed) return;
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
   const author = req.user?.displayName || 'unknown';
   const { rows } = await pool.query(
@@ -2549,6 +2835,8 @@ app.get('/api/attachments/:filename', (req, res) => {
 
 /** DELETE /api/tasks/:id/attachments/:attachmentId — Remove an attachment and delete the file from disk */
 app.delete('/api/tasks/:id/attachments/:attachmentId', async (req, res) => {
+  const allowed = await requireTaskAccess(req, res, req.params.id);
+  if (!allowed) return;
   const { rows } = await pool.query('SELECT filename FROM task_attachments WHERE id = $1 AND task_id = $2', [req.params.attachmentId, req.params.id]);
   if (rows.length > 0) {
     const filePath = path.join(uploadDir, rows[0].filename);
@@ -2564,7 +2852,7 @@ app.delete('/api/tasks/:id/attachments/:attachmentId', async (req, res) => {
 const VALID_ENTITY_TYPES = ['client', 'project', 'task', 'lead', 'expense'];
 
 /** GET /api/attachments/verify-matches — List all auto-matched email attachments needing verification */
-app.get('/api/attachments/verify-matches', requireInternal, async (req, res) => {
+app.get('/api/attachments/verify-matches', requireNBI, async (req, res) => {
   const { rows } = await pool.query(`
     SELECT a.id, a.entity_type, a.entity_id, a.original_name, a.uploaded_by, a.created_at,
            CASE WHEN a.entity_type = 'task' THEN (SELECT title FROM tasks WHERE id = a.entity_id)
@@ -2611,7 +2899,7 @@ app.get('/api/attachments/download/:filename', (req, res) => {
 });
 
 /** PATCH /api/attachments/:id/confirm — Confirm an auto-matched email attachment (remove verify flag) */
-app.patch('/api/attachments/:id/confirm', requireInternal, async (req, res) => {
+app.patch('/api/attachments/:id/confirm', requireNBI, async (req, res) => {
   const { rows } = await pool.query(
     "UPDATE attachments SET uploaded_by = REPLACE(uploaded_by, ' - verify match', '') WHERE id = $1 RETURNING *",
     [req.params.id]
@@ -2621,7 +2909,7 @@ app.patch('/api/attachments/:id/confirm', requireInternal, async (req, res) => {
 });
 
 /** PATCH /api/attachments/:id/reassign — Move an attachment to a different entity */
-app.patch('/api/attachments/:id/reassign', requireInternal, async (req, res) => {
+app.patch('/api/attachments/:id/reassign', requireNBI, async (req, res) => {
   const { entityType, entityId } = req.body;
   if (!['client', 'project', 'task', 'lead'].includes(entityType)) return res.status(400).json({ error: 'Invalid entity type' });
   if (!isValidUuid(entityId)) return res.status(400).json({ error: 'Invalid entity ID' });
@@ -2691,6 +2979,8 @@ app.post('/api/attachments/entity/:type/:id/link', async (req, res) => {
  */
 app.post('/api/tasks/:id/attachments/link', async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid task ID' });
+  const allowed = await requireTaskAccess(req, res, req.params.id);
+  if (!allowed) return;
   const { url, title } = req.body || {};
   if (!url || typeof url !== 'string') return res.status(400).json({ error: 'url is required' });
   let parsed;
@@ -2992,7 +3282,7 @@ app.delete('/api/calendar-events/:id', async (req, res) => {
 // ==================== FINANCE DATA ====================
 
 /** GET /api/finance — Return the latest version of the finance data JSON blob with version for conflict detection */
-app.get('/api/finance', requireInternal, async (req, res) => {
+app.get('/api/finance', requireNBI, async (req, res) => {
   const { rows } = await pool.query('SELECT id, data, updated_by, updated_at FROM finance_data ORDER BY id DESC LIMIT 1');
   if (rows.length === 0) return res.json({ data: null, version: 0 });
   res.json({ data: rows[0].data, updatedBy: rows[0].updated_by, updatedAt: rows[0].updated_at, version: rows[0].id });
@@ -3002,7 +3292,7 @@ app.get('/api/finance', requireInternal, async (req, res) => {
  *  Admin-only: finance data modifications require admin privileges.
  *  Supports optimistic concurrency: pass expectedVersion (the id from GET) to detect conflicts.
  *  If another user saved between your read and write, returns 409 Conflict. */
-app.put('/api/finance', requireInternal, async (req, res) => {
+app.put('/api/finance', requireNBI, async (req, res) => {
   if (!req.user) return res.status(401).json({ error: 'Authentication required' });
   if (req.user.role !== 'admin') return res.status(403).json({ error: 'Admin access required' });
   const { data, expectedVersion } = req.body;
@@ -3073,8 +3363,7 @@ app.get('/api/clients/:id', async (req, res) => {
 });
 
 /** POST /api/clients — Create a new client record */
-app.post('/api/clients', async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.post('/api/clients', requireAdmin, async (req, res) => {
   const { name, description, founded, headquarters, employees, revenue, website, linkedin_company, nbi_relationship, sector, studio_size, contract_value, current_studio_project, abbreviation, practice_area } = req.body;
   if (!name) return res.status(400).json({ error: 'Name required' });
   const lenErr = validateLength(name, 'name');
@@ -3101,9 +3390,8 @@ app.post('/api/clients', async (req, res) => {
 });
 
 /** PATCH /api/clients/:id — Update client fields */
-app.patch('/api/clients/:id', async (req, res) => {
+app.patch('/api/clients/:id', requireAdmin, async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid client ID' });
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   // Normalise the abbreviation to uppercase and validate shape before building the patch
   if (req.body.abbreviation !== undefined) {
     if (req.body.abbreviation === '' || req.body.abbreviation === null) {
@@ -3144,8 +3432,7 @@ app.patch('/api/clients/:id', async (req, res) => {
  *
  * Admin only.
  */
-app.post('/api/clients/:id/research', async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.post('/api/clients/:id/research', requireAdmin, async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid client ID' });
   const { rows: clientRows } = await pool.query('SELECT id, name, website FROM clients WHERE id = $1', [req.params.id]);
   if (clientRows.length === 0) return res.status(404).json({ error: 'Client not found' });
@@ -3180,9 +3467,8 @@ app.post('/api/clients/:id/research', async (req, res) => {
 });
 
 /** DELETE /api/clients/:id — Remove a client (admin only, cascades to tasks) */
-app.delete('/api/clients/:id', async (req, res) => {
+app.delete('/api/clients/:id', requireAdmin, async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid client ID' });
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   // Unlink tasks from this client before deleting
   await pool.query('UPDATE tasks SET client_id = NULL, updated_at = NOW() WHERE client_id = $1', [req.params.id]);
   await pool.query('DELETE FROM clients WHERE id = $1', [req.params.id]);
@@ -3268,8 +3554,7 @@ app.get('/api/sows/:id', async (req, res) => {
  * Used for placeholder SoWs the user wants to populate later via PATCH.
  * Admin only.
  */
-app.post('/api/sows', async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.post('/api/sows', requireAdmin, async (req, res) => {
   const { client_id, title, start_date, end_date, status } = req.body || {};
   if (!client_id || !isValidUuid(client_id)) return res.status(400).json({ error: 'Valid client_id required' });
   if (!title || !title.trim()) return res.status(400).json({ error: 'title required' });
@@ -3303,14 +3588,13 @@ app.post('/api/sows', async (req, res) => {
  *
  * Admin only.
  */
-app.post('/api/sows/upload', (req, res, next) => {
+app.post('/api/sows/upload', requireAdmin, (req, res, next) => {
   // Wrap multer to surface fileFilter / size errors as JSON
   sowUpload.single('file')(req, res, (err) => {
     if (err) return res.status(400).json({ error: err.message || 'Upload failed' });
     next();
   });
 }, async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
   if (req.file.mimetype !== 'application/pdf') {
     return res.status(400).json({ error: 'Only PDF files are accepted' });
@@ -3390,9 +3674,8 @@ app.post('/api/sows/upload', (req, res, next) => {
  * work_package_text is intentionally NOT updatable via PATCH — it is locked
  * after upload to prevent tampering with the filtered content. Admin only.
  */
-app.patch('/api/sows/:id', async (req, res) => {
+app.patch('/api/sows/:id', requireAdmin, async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid SoW ID' });
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   const { updates, vals, nextIdx } = buildPatchQuery(req.body, ['title', 'start_date', 'end_date', 'status']);
   if (req.body.title !== undefined && !String(req.body.title).trim()) {
     return res.status(400).json({ error: 'title cannot be empty' });
@@ -3420,9 +3703,8 @@ app.patch('/api/sows/:id', async (req, res) => {
  * Tasks linked via sow_id are unlinked automatically (ON DELETE SET NULL).
  * Admin only.
  */
-app.delete('/api/sows/:id', async (req, res) => {
+app.delete('/api/sows/:id', requireAdmin, async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid SoW ID' });
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   try {
     const { rowCount } = await pool.query('DELETE FROM sows WHERE id = $1', [req.params.id]);
     if (rowCount === 0) return res.status(404).json({ error: 'Not found' });
@@ -3538,8 +3820,7 @@ app.get('/api/teams/:id', async (req, res) => {
  * POST /api/teams — Create a team. Admin only.
  * Body: { name, description?, client_id?, sow_id?, colour? }
  */
-app.post('/api/teams', async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.post('/api/teams', requireAdmin, async (req, res) => {
   const { name, description, client_id, sow_id, colour } = req.body || {};
   if (!name || !String(name).trim()) return res.status(400).json({ error: 'name required' });
   const lenErr = validateLength(name, 'name');
@@ -3568,9 +3849,8 @@ app.post('/api/teams', async (req, res) => {
  * PATCH /api/teams/:id — Update team metadata. Admin only.
  * Allowed fields: name, description, client_id, sow_id, colour.
  */
-app.patch('/api/teams/:id', async (req, res) => {
+app.patch('/api/teams/:id', requireAdmin, async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid team ID' });
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   if ('name' in req.body && !String(req.body.name || '').trim()) {
     return res.status(400).json({ error: 'name cannot be empty' });
   }
@@ -3605,9 +3885,8 @@ app.patch('/api/teams/:id', async (req, res) => {
 });
 
 /** DELETE /api/teams/:id — Remove a team. Members are removed via ON DELETE CASCADE. Admin only. */
-app.delete('/api/teams/:id', async (req, res) => {
+app.delete('/api/teams/:id', requireAdmin, async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid team ID' });
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   try {
     const { rowCount } = await pool.query('DELETE FROM teams WHERE id = $1', [req.params.id]);
     if (rowCount === 0) return res.status(404).json({ error: 'Not found' });
@@ -3623,9 +3902,8 @@ app.delete('/api/teams/:id', async (req, res) => {
  * POST /api/teams/:id/members — Add a user to the team. Admin only.
  * Body: { user_id, role? }
  */
-app.post('/api/teams/:id/members', async (req, res) => {
+app.post('/api/teams/:id/members', requireAdmin, async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid team ID' });
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   const { user_id, role } = req.body || {};
   if (!user_id || !isValidUuid(user_id)) return res.status(400).json({ error: 'Valid user_id required' });
   const memberRole = role && VALID_TEAM_ROLES.includes(role) ? role : 'member';
@@ -3651,10 +3929,9 @@ app.post('/api/teams/:id/members', async (req, res) => {
 });
 
 /** PATCH /api/teams/:id/members/:user_id — Change a member's role. Admin only. */
-app.patch('/api/teams/:id/members/:user_id', async (req, res) => {
+app.patch('/api/teams/:id/members/:user_id', requireAdmin, async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid team ID' });
   if (!isValidUuid(req.params.user_id)) return res.status(400).json({ error: 'Invalid user_id' });
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   const { role } = req.body || {};
   if (!role || !VALID_TEAM_ROLES.includes(role)) {
     return res.status(400).json({ error: `Invalid role. Must be one of: ${VALID_TEAM_ROLES.join(', ')}` });
@@ -3674,10 +3951,9 @@ app.patch('/api/teams/:id/members/:user_id', async (req, res) => {
 });
 
 /** DELETE /api/teams/:id/members/:user_id — Remove a member from a team. Admin only. */
-app.delete('/api/teams/:id/members/:user_id', async (req, res) => {
+app.delete('/api/teams/:id/members/:user_id', requireAdmin, async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid team ID' });
   if (!isValidUuid(req.params.user_id)) return res.status(400).json({ error: 'Invalid user_id' });
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   try {
     const { rowCount } = await pool.query(
       `DELETE FROM team_members WHERE team_id = $1 AND user_id = $2`,
@@ -3701,8 +3977,7 @@ app.get('/api/clients/:clientId/contacts', async (req, res) => {
 });
 
 /** POST /api/clients/:clientId/contacts — Add a contact person to a client */
-app.post('/api/clients/:clientId/contacts', async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.post('/api/clients/:clientId/contacts', requireAdmin, async (req, res) => {
   const { name, role, notes, background, linkedin, sort_order, email, phone } = req.body;
   const { rows } = await pool.query(
     `INSERT INTO contacts (client_id, name, role, notes, background, linkedin, sort_order, email, phone) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *`,
@@ -3712,9 +3987,8 @@ app.post('/api/clients/:clientId/contacts', async (req, res) => {
 });
 
 /** PATCH /api/contacts/:id — Update a contact's details */
-app.patch('/api/contacts/:id', async (req, res) => {
+app.patch('/api/contacts/:id', requireAdmin, async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid contact ID' });
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   const { updates, vals, nextIdx } = buildPatchQuery(req.body, ['name', 'role', 'notes', 'background', 'linkedin', 'sort_order', 'email', 'phone']);
   if (updates.length === 0) return res.status(400).json({ error: 'No valid fields to update' });
   vals.push(req.params.id);
@@ -3724,9 +3998,8 @@ app.patch('/api/contacts/:id', async (req, res) => {
 });
 
 /** DELETE /api/contacts/:id — Remove a contact (admin only) */
-app.delete('/api/contacts/:id', async (req, res) => {
+app.delete('/api/contacts/:id', requireAdmin, async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid contact ID' });
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   await pool.query('DELETE FROM contacts WHERE id = $1', [req.params.id]);
   res.json({ ok: true });
 });
@@ -3753,8 +4026,7 @@ app.get('/api/notes', async (req, res) => {
 });
 
 /** POST /api/clients/:clientId/notes — Create a note (meeting record, manual note, or synced from Granola) */
-app.post('/api/clients/:clientId/notes', async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.post('/api/clients/:clientId/notes', requireAdmin, async (req, res) => {
   const { title, content, source, source_id, source_url, meeting_date, author } = req.body;
   if (!title) return res.status(400).json({ error: 'Title required' });
   const { rows } = await pool.query(
@@ -3767,8 +4039,7 @@ app.post('/api/clients/:clientId/notes', async (req, res) => {
 });
 
 /** PATCH /api/notes/:id — Update a client note */
-app.patch('/api/notes/:id', async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.patch('/api/notes/:id', requireAdmin, async (req, res) => {
   const { updates, vals, nextIdx } = buildPatchQuery(req.body, ['title', 'content', 'source', 'meeting_date', 'author']);
   if (updates.length === 0) return res.status(400).json({ error: 'No valid fields to update' });
   updates.push('updated_at = NOW()');
@@ -3779,8 +4050,7 @@ app.patch('/api/notes/:id', async (req, res) => {
 });
 
 /** DELETE /api/notes/:id — Remove a client note (admin only) */
-app.delete('/api/notes/:id', async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.delete('/api/notes/:id', requireAdmin, async (req, res) => {
   await pool.query('DELETE FROM client_notes WHERE id = $1', [req.params.id]);
   res.json({ ok: true });
 });
@@ -3899,9 +4169,8 @@ app.get('/api/tasks/:id', async (req, res) => {
   res.json(rows[0]);
 });
 
-/** POST /api/tasks — Create a new task (admin only). Enforces hierarchy: project > feature > story > task. */
+/** POST /api/tasks — Create a new task (all authenticated users). Client users are scoped to their own client. Enforces hierarchy: project > feature > story > task. */
 app.post('/api/tasks', async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   let { title, parent_id, client_id, item_type, status, priority, health_state, description, assignees, hours_estimated, hours_spent, due_date, start_date, end_date, dependencies, planner_task_id, source } = req.body;
   const scopes = await getClientScopes(req);
   if (scopes && client_id && !scopes.includes(client_id)) return res.status(403).json({ error: 'Cannot create tasks for other clients' });
@@ -3983,8 +4252,16 @@ app.post('/api/tasks', async (req, res) => {
  * audit trail entry showing exactly what changed.
  */
 app.patch('/api/tasks/:id', async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid task ID' });
+
+  const allowed = await requireTaskAccess(req, res, req.params.id);
+  if (!allowed) return;
+
+  // Client users cannot change client_id on tasks
+  if (req.user?.clientId && req.body.client_id !== undefined) {
+    delete req.body.client_id;
+  }
+
   const lenErr = validateLength(req.body.title, 'title') || validateLength(req.body.description, 'description');
   if (lenErr) return res.status(400).json({ error: lenErr });
   // Validate item_type if provided
@@ -4272,8 +4549,7 @@ app.patch('/api/tasks/:id', async (req, res) => {
 });
 
 /** DELETE /api/tasks/:id — Delete a task and all descendants (admin only). Uses a transaction for atomicity. */
-app.delete('/api/tasks/:id', async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.delete('/api/tasks/:id', requireAdmin, async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid task ID' });
   // Fetch the task before deletion so we can notify assignees
   const { rows: preDeleteRows } = await pool.query('SELECT title, assignees FROM tasks WHERE id = $1', [req.params.id]);
@@ -4355,8 +4631,7 @@ app.delete('/api/tasks/:id', async (req, res) => {
  * first pass inserts all tasks to get real IDs, second pass resolves
  * parent relationships using a temp_id -> real_id mapping.
  */
-app.post('/api/tasks/bulk', async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.post('/api/tasks/bulk', requireAdmin, async (req, res) => {
   const { tasks: taskList } = req.body;
   if (!Array.isArray(taskList)) return res.status(400).json({ error: 'tasks array required' });
   if (taskList.length === 0) return res.status(400).json({ error: 'tasks array must not be empty' });
@@ -5013,8 +5288,7 @@ app.get('/api/sync/load', async (req, res) => {
 // ==================== TASK NOTES ====================
 
 /** POST /api/tasks/:taskId/notes — Add a quick note to a task (also bumps the task's updated_at) */
-app.post('/api/tasks/:taskId/notes', async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.post('/api/tasks/:taskId/notes', requireAdmin, async (req, res) => {
   const { text, author } = req.body;
   if (!text) return res.status(400).json({ error: 'Text required' });
   const { rows } = await pool.query(
@@ -5049,8 +5323,7 @@ const SETTINGS_ALLOW_LIST = new Set([
   'dashboard_layout', 'notification_preferences', 'hourly_rate',
   'working_hours_per_week', 'currency', 'company_name',
 ]);
-app.put('/api/settings/:key', async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.put('/api/settings/:key', requireAdmin, async (req, res) => {
   if (!SETTINGS_ALLOW_LIST.has(req.params.key)) {
     return res.status(400).json({ error: `Setting key '${req.params.key}' is not recognised` });
   }
@@ -5232,8 +5505,7 @@ app.get('/api/leads/config', async (req, res) => {
 });
 
 /** POST /api/leads/stages — Create a new pipeline stage (admin only) */
-app.post('/api/leads/stages', async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.post('/api/leads/stages', requireAdmin, async (req, res) => {
   const { name, sort_order, colour, is_closed, is_won } = req.body;
   if (!name) return res.status(400).json({ error: 'Name required' });
   const { rows } = await pool.query(
@@ -5246,8 +5518,7 @@ app.post('/api/leads/stages', async (req, res) => {
 });
 
 /** PATCH /api/leads/stages/:id — Update a pipeline stage (admin only) */
-app.patch('/api/leads/stages/:id', async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.patch('/api/leads/stages/:id', requireAdmin, async (req, res) => {
   const { updates, vals, nextIdx } = buildPatchQuery(req.body, ['name', 'sort_order', 'colour', 'is_closed', 'is_won']);
   if (updates.length === 0) return res.status(400).json({ error: 'No valid fields to update' });
   vals.push(req.params.id);
@@ -5259,8 +5530,7 @@ app.patch('/api/leads/stages/:id', async (req, res) => {
 });
 
 /** DELETE /api/leads/stages/:id — Remove a stage (blocked if leads still reference it) */
-app.delete('/api/leads/stages/:id', async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.delete('/api/leads/stages/:id', requireAdmin, async (req, res) => {
   const count = await pool.query('SELECT count(*) FROM leads WHERE stage_id = $1', [req.params.id]);
   if (parseInt(count.rows[0].count) > 0) return res.status(409).json({ error: 'Cannot delete stage with existing leads. Move leads first.' });
   await pool.query('DELETE FROM lead_pipeline_stages WHERE id = $1', [req.params.id]);
@@ -5270,8 +5540,7 @@ app.delete('/api/leads/stages/:id', async (req, res) => {
 });
 
 /** POST /api/leads/resource-types — Create a resource type (e.g. "Analyst", "Designer") */
-app.post('/api/leads/resource-types', async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.post('/api/leads/resource-types', requireAdmin, async (req, res) => {
   const { name, sort_order } = req.body;
   if (!name) return res.status(400).json({ error: 'Name required' });
   const { rows } = await pool.query(
@@ -5284,8 +5553,7 @@ app.post('/api/leads/resource-types', async (req, res) => {
 });
 
 /** PATCH /api/leads/resource-types/:id — Update a resource type */
-app.patch('/api/leads/resource-types/:id', async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.patch('/api/leads/resource-types/:id', requireAdmin, async (req, res) => {
   const { updates, vals, nextIdx } = buildPatchQuery(req.body, ['name', 'sort_order', 'is_active']);
   if (updates.length === 0) return res.status(400).json({ error: 'No valid fields to update' });
   vals.push(req.params.id);
@@ -5295,8 +5563,7 @@ app.patch('/api/leads/resource-types/:id', async (req, res) => {
 });
 
 /** DELETE /api/leads/resource-types/:id — Soft-delete if in use, hard-delete otherwise */
-app.delete('/api/leads/resource-types/:id', async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.delete('/api/leads/resource-types/:id', requireAdmin, async (req, res) => {
   const count = await pool.query('SELECT count(*) FROM lead_resources WHERE resource_type_id = $1', [req.params.id]);
   if (parseInt(count.rows[0].count) > 0) {
     // Soft-delete instead
@@ -5309,8 +5576,7 @@ app.delete('/api/leads/resource-types/:id', async (req, res) => {
 });
 
 /** POST /api/leads/field-options — Add a dropdown option for a lead field (e.g. work_type, service_line) */
-app.post('/api/leads/field-options', async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.post('/api/leads/field-options', requireAdmin, async (req, res) => {
   const { field_name, value, sort_order } = req.body;
   if (!field_name || !value) return res.status(400).json({ error: 'field_name and value required' });
   const { rows } = await pool.query(
@@ -5323,8 +5589,7 @@ app.post('/api/leads/field-options', async (req, res) => {
 });
 
 /** PATCH /api/leads/field-options/:id — Update a field option value (admin only) */
-app.patch('/api/leads/field-options/:id', async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.patch('/api/leads/field-options/:id', requireAdmin, async (req, res) => {
   const { value, sort_order } = req.body;
   if (!value) return res.status(400).json({ error: 'value required' });
   const { rows } = await pool.query('UPDATE lead_field_options SET value = $1, sort_order = COALESCE($2, sort_order) WHERE id = $3 RETURNING *', [value, sort_order, req.params.id]);
@@ -5334,8 +5599,7 @@ app.patch('/api/leads/field-options/:id', async (req, res) => {
 });
 
 /** DELETE /api/leads/field-options/:id — Remove a field option */
-app.delete('/api/leads/field-options/:id', async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.delete('/api/leads/field-options/:id', requireAdmin, async (req, res) => {
   await pool.query('DELETE FROM lead_field_options WHERE id = $1', [req.params.id]);
   invalidateCache('leads_config');
   res.json({ ok: true });
@@ -5560,8 +5824,7 @@ app.get('/api/leads/:id', async (req, res) => {
  * Create a new lead/opportunity. Also inserts resource requirements and
  * a "created" activity log entry. Runs in a transaction.
  */
-app.post('/api/leads', async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.post('/api/leads', requireAdmin, async (req, res) => {
   const { client_id, title, work_type, service_line, stage_id, priority, currency,
     rom_min, rom_max, rom_text, win_probability, primary_contact_id, deal_owner,
     lead_source, est_start_date, expected_close_date, last_contacted,
@@ -5636,9 +5899,8 @@ app.post('/api/leads', async (req, res) => {
  * Update lead fields. Detects stage and priority changes and creates
  * activity log entries for them automatically.
  */
-app.patch('/api/leads/:id', async (req, res) => {
+app.patch('/api/leads/:id', requireAdmin, async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid lead ID' });
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   // stage_id is routed through reorderInGroup below — NOT in patchFields.
   const patchFields = ['client_id', 'title', 'work_type', 'service_line', 'priority',
     'currency', 'rom_min', 'rom_max', 'rom_text', 'win_probability',
@@ -5741,9 +6003,8 @@ app.patch('/api/leads/:id', async (req, res) => {
 });
 
 /** DELETE /api/leads/:id — Delete a lead and its related resources/activities (admin only) */
-app.delete('/api/leads/:id', async (req, res) => {
+app.delete('/api/leads/:id', requireAdmin, async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid lead ID' });
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   const lead = await pool.query('SELECT title FROM leads WHERE id = $1', [req.params.id]);
   await auditLog('lead', req.params.id, 'delete', req.user.displayName, { title: lead.rows[0]?.title });
   await pool.query('DELETE FROM leads WHERE id = $1', [req.params.id]);
@@ -5757,8 +6018,7 @@ app.delete('/api/leads/:id', async (req, res) => {
  * Replace all resource requirements for a lead (delete + re-insert in a transaction).
  * Each resource specifies a type and quantity (e.g. 2 x Analyst, 1 x Designer).
  */
-app.put('/api/leads/:id/resources', async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.put('/api/leads/:id/resources', requireAdmin, async (req, res) => {
   const { resources } = req.body;
   if (!Array.isArray(resources)) return res.status(400).json({ error: 'resources array required' });
 
@@ -5797,8 +6057,7 @@ app.get('/api/leads/:id/activities', async (req, res) => {
 });
 
 /** POST /api/leads/:id/activities — Log a manual activity (call, email, meeting, etc.) against a lead */
-app.post('/api/leads/:id/activities', async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.post('/api/leads/:id/activities', requireAdmin, async (req, res) => {
   const { activity_type, description } = req.body;
   if (!activity_type || !description) return res.status(400).json({ error: 'activity_type and description required' });
   const { rows } = await pool.query(
@@ -5813,14 +6072,13 @@ app.post('/api/leads/:id/activities', async (req, res) => {
 // admins approve/reject them. Receipts can be attached as file uploads.
 
 /** GET /api/expenses/categories — List active expense categories */
-app.get('/api/expenses/categories', requireInternal, async (req, res) => {
+app.get('/api/expenses/categories', requireNBI, async (req, res) => {
   const { rows } = await pool.query('SELECT * FROM expense_categories WHERE is_active = TRUE ORDER BY sort_order, name');
   res.json(rows);
 });
 
 /** POST /api/expenses/categories — Create an expense category (admin only) */
-app.post('/api/expenses/categories', requireInternal, async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.post('/api/expenses/categories', requireNBI, requireAdmin, async (req, res) => {
   const { name } = req.body;
   if (!name) return res.status(400).json({ error: 'Name required' });
   const { rows } = await pool.query('INSERT INTO expense_categories (name) VALUES ($1) RETURNING *', [name.trim()]);
@@ -5829,8 +6087,7 @@ app.post('/api/expenses/categories', requireInternal, async (req, res) => {
 });
 
 /** DELETE /api/expenses/categories/:id — Remove an expense category (admin only, checks references) */
-app.delete('/api/expenses/categories/:id', requireInternal, async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.delete('/api/expenses/categories/:id', requireNBI, requireAdmin, async (req, res) => {
   const refs = await pool.query('SELECT count(*)::int AS count FROM expenses WHERE category_id = $1', [req.params.id]);
   if (refs.rows[0].count > 0) return res.status(400).json({ error: `Cannot delete: ${refs.rows[0].count} expenses use this category. Reassign them first.` });
   await pool.query('DELETE FROM expense_categories WHERE id = $1', [req.params.id]);
@@ -5843,7 +6100,7 @@ app.delete('/api/expenses/categories/:id', requireInternal, async (req, res) => 
  * List expenses. Non-admin users only see their own; admins see all.
  * Filterable by user_id, status, and date range.
  */
-app.get('/api/expenses', requireInternal, async (req, res) => {
+app.get('/api/expenses', requireNBI, async (req, res) => {
   const isAdmin = req.user && req.user.role === 'admin';
   const { user_id, status, from_date, to_date } = req.query;
 
@@ -5881,8 +6138,7 @@ app.get('/api/expenses', requireInternal, async (req, res) => {
  * Admin-only aggregate view: totals by employee and by category.
  * NB: This route must be defined before the :id route to avoid path conflicts.
  */
-app.get('/api/expenses/summary', requireInternal, async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.get('/api/expenses/summary', requireNBI, requireAdmin, async (req, res) => {
   const { from_date, to_date } = req.query;
 
   let where = [];
@@ -5910,7 +6166,7 @@ app.get('/api/expenses/summary', requireInternal, async (req, res) => {
 });
 
 /** GET /api/expenses/:id — Get a single expense with its receipt attachments. Access: own or admin. */
-app.get('/api/expenses/:id', requireInternal, async (req, res) => {
+app.get('/api/expenses/:id', requireNBI, async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid expense ID' });
   const { rows } = await pool.query(`
     SELECT e.*, u.display_name AS employee_name, c.name AS category_name,
@@ -5935,7 +6191,7 @@ app.get('/api/expenses/:id', requireInternal, async (req, res) => {
 });
 
 /** POST /api/expenses — Submit a new expense (always created as "pending") */
-app.post('/api/expenses', requireInternal, async (req, res) => {
+app.post('/api/expenses', requireNBI, async (req, res) => {
   const { date, amount, currency, category_id, description, notes, vat_amount } = req.body;
   if (!date || amount == null) return res.status(400).json({ error: 'Date and amount are required' });
   const lenErr = validateLength(description, 'description') || validateLength(notes, 'notes');
@@ -5959,7 +6215,7 @@ app.post('/api/expenses', requireInternal, async (req, res) => {
  * Update an expense. Owners can only edit pending expenses; admins can also change status.
  * When an admin changes status, reviewed_by and reviewed_at are set automatically.
  */
-app.patch('/api/expenses/:id', requireInternal, async (req, res) => {
+app.patch('/api/expenses/:id', requireNBI, async (req, res) => {
   // Validate UUID format to prevent 500 errors from invalid IDs
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(req.params.id)) {
     return res.status(404).json({ error: 'Expense not found' });
@@ -6013,7 +6269,7 @@ app.patch('/api/expenses/:id', requireInternal, async (req, res) => {
  * Delete an expense and its receipt files from disk.
  * Owners can only delete pending expenses; admins can delete any.
  */
-app.delete('/api/expenses/:id', requireInternal, async (req, res) => {
+app.delete('/api/expenses/:id', requireNBI, async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid expense ID' });
   const check = await pool.query('SELECT user_id, status FROM expenses WHERE id = $1', [req.params.id]);
   if (check.rows.length === 0) return res.status(404).json({ error: 'Expense not found' });
@@ -6037,7 +6293,7 @@ app.delete('/api/expenses/:id', requireInternal, async (req, res) => {
 });
 
 /** POST /api/expenses/:id/receipts — Upload a receipt image/PDF for an expense */
-app.post('/api/expenses/:id/receipts', requireInternal, upload.single('file'), async (req, res) => {
+app.post('/api/expenses/:id/receipts', requireNBI, upload.single('file'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
 
   // Check ownership
@@ -6055,7 +6311,7 @@ app.post('/api/expenses/:id/receipts', requireInternal, upload.single('file'), a
 });
 
 /** DELETE /api/expenses/:id/receipts/:receiptId — Remove a receipt and delete the file from disk */
-app.delete('/api/expenses/:id/receipts/:receiptId', requireInternal, async (req, res) => {
+app.delete('/api/expenses/:id/receipts/:receiptId', requireNBI, async (req, res) => {
   const check = await pool.query('SELECT e.user_id FROM expenses e JOIN expense_receipts r ON r.expense_id = e.id WHERE r.id = $1 AND e.id = $2', [req.params.receiptId, req.params.id]);
   if (check.rows.length === 0) return res.status(404).json({ error: 'Receipt not found' });
   const isAdmin = req.user && req.user.role === 'admin';
@@ -6177,7 +6433,7 @@ function extractReceiptFields(text) {
 }
 
 /** POST /api/expenses/from-receipt — Upload a receipt, OCR/extract fields, create expense + attach receipt */
-app.post('/api/expenses/from-receipt', requireInternal, upload.single('file'), async (req, res) => {
+app.post('/api/expenses/from-receipt', requireNBI, upload.single('file'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
 
   // Extend timeout for OCR processing (can take 10-30s on first run)
@@ -6318,11 +6574,19 @@ app.post('/api/expenses/from-receipt', requireInternal, upload.single('file'), a
 // ==================== BUG / FEATURE REPORTS ====================
 
 /** GET /api/bug-reports — List all bug/feature reports (visible to all authenticated users) */
-app.get('/api/bug-reports', requireInternal, async (req, res) => {
+app.get('/api/bug-reports', async (req, res) => {
   let where = [];
   let vals = [];
   let i = 1;
   const { status, type, priority } = req.query;
+
+  // Client scoping: client users only see their company's reports
+  if (req.user?.clientId) {
+    where.push(`b.reporter_client_id = $${i}`);
+    vals.push(req.user.clientId);
+    i++;
+  }
+
   if (status) { where.push(`b.status = $${i}`); vals.push(status); i++; }
   if (type) { where.push(`b.type = $${i}`); vals.push(type); i++; }
   if (priority) { where.push(`b.priority = $${i}`); vals.push(priority); i++; }
@@ -6330,17 +6594,20 @@ app.get('/api/bug-reports', requireInternal, async (req, res) => {
   const { rows } = await pool.query(`
     SELECT b.id, b.user_id, b.type, b.title, b.description, b.page,
            b.status, b.priority, b.position, b.created_at, b.updated_at,
+           b.source, b.reporter_client_id,
            (b.screenshot IS NOT NULL) AS has_screenshot,
            u.display_name AS reporter_name,
+           rc.name AS reporter_client_name,
            (SELECT COUNT(*) FROM bug_report_comments c WHERE c.report_id = b.id)::int AS comment_count
     FROM bug_reports b LEFT JOIN users u ON b.user_id = u.id
+    LEFT JOIN clients rc ON b.reporter_client_id = rc.id
     ${whereClause} ORDER BY b.status, b.position, b.created_at DESC
   `, vals);
   res.json({ reports: rows });
 });
 
 /** POST /api/bug-reports — Submit a new bug or feature report */
-app.post('/api/bug-reports', requireInternal, async (req, res) => {
+app.post('/api/bug-reports', async (req, res) => {
   const { type, title, description, page, screenshot, priority } = req.body;
   if (!title || !title.trim()) return res.status(400).json({ error: 'Title is required' });
   const descErr = validateLength(description, 'description');
@@ -6361,15 +6628,19 @@ app.post('/api/bug-reports', requireInternal, async (req, res) => {
   const MAX_SCREENSHOT_BYTES = 5 * 1024 * 1024;
   const safeScreenshot = (screenshot && screenshot.length <= MAX_SCREENSHOT_BYTES) ? screenshot : null;
 
+  // Tag source and reporter_client_id for client-submitted reports
+  const source = req.user?.clientId ? 'client' : 'internal';
+  const reporter_client_id = req.user?.clientId || null;
+
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
     // Shift everything in the target column ('open' is the default for new bugs) down by 1
     await shiftForInsert(client, 'bug_reports', 'status', 'open');
     const { rows } = await client.query(
-      `INSERT INTO bug_reports (user_id, type, title, description, page, screenshot, priority, position)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, 0) RETURNING *`,
-      [req.user.id, rType, title.trim(), description || null, page || null, safeScreenshot, safePriority]
+      `INSERT INTO bug_reports (user_id, type, title, description, page, screenshot, priority, position, source, reporter_client_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, 0, $8, $9) RETURNING *`,
+      [req.user.id, rType, title.trim(), description || null, page || null, safeScreenshot, safePriority, source, reporter_client_id]
     );
     await client.query('COMMIT');
     res.status(201).json(rows[0]);
@@ -6384,9 +6655,17 @@ app.post('/api/bug-reports', requireInternal, async (req, res) => {
 
 /** PATCH /api/bug-reports/:id — Update status, priority, title, and/or description.
  *  Permissions: admin can change anything; reporter can change status, title, and description on own reports. */
-app.patch('/api/bug-reports/:id', requireInternal, async (req, res) => {
+app.patch('/api/bug-reports/:id', async (req, res) => {
   if (!req.user) return res.status(401).json({ error: 'Authentication required' });
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid report ID' });
+
+  // Client scoping: client users can only modify their own company's reports
+  if (req.user?.clientId) {
+    const { rows: check } = await pool.query('SELECT reporter_client_id FROM bug_reports WHERE id = $1', [req.params.id]);
+    if (check.length === 0) return res.status(404).json({ error: 'Not found' });
+    if (check[0].reporter_client_id !== req.user.clientId) return res.status(403).json({ error: 'Access denied' });
+  }
+
   const { status, description, priority, title } = req.body;
   if (!status && description === undefined && priority === undefined && title === undefined && req.body.position === undefined) {
     return res.status(400).json({ error: 'status, title, description, priority, or position required' });
@@ -6521,8 +6800,7 @@ app.patch('/api/bug-reports/:id', requireInternal, async (req, res) => {
 });
 
 /** POST /api/bug-reports/:id/notify-review — Send a notification to the report submitter (admin only) */
-app.post('/api/bug-reports/:id/notify-review', requireInternal, async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.post('/api/bug-reports/:id/notify-review', requireNBI, requireAdmin, async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid report ID' });
   try {
     const { rows } = await pool.query(
@@ -6546,8 +6824,14 @@ app.post('/api/bug-reports/:id/notify-review', requireInternal, async (req, res)
 });
 
 /** GET /api/bug-reports/:id/comments — List comments for a bug report */
-app.get('/api/bug-reports/:id/comments', requireInternal, async (req, res) => {
+app.get('/api/bug-reports/:id/comments', async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid report ID' });
+  // Client scoping: client users can only access comments on their company's reports
+  if (req.user?.clientId) {
+    const { rows: check } = await pool.query('SELECT reporter_client_id FROM bug_reports WHERE id = $1', [req.params.id]);
+    if (check.length === 0) return res.status(404).json({ error: 'Not found' });
+    if (check[0].reporter_client_id !== req.user.clientId) return res.status(403).json({ error: 'Access denied' });
+  }
   const { rows } = await pool.query(
     'SELECT * FROM bug_report_comments WHERE report_id = $1 ORDER BY created_at ASC',
     [req.params.id]
@@ -6556,8 +6840,14 @@ app.get('/api/bug-reports/:id/comments', requireInternal, async (req, res) => {
 });
 
 /** POST /api/bug-reports/:id/comments — Add a comment to a bug report */
-app.post('/api/bug-reports/:id/comments', requireInternal, async (req, res) => {
+app.post('/api/bug-reports/:id/comments', async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid report ID' });
+  // Client scoping: client users can only comment on their company's reports
+  if (req.user?.clientId) {
+    const { rows: check } = await pool.query('SELECT reporter_client_id FROM bug_reports WHERE id = $1', [req.params.id]);
+    if (check.length === 0) return res.status(404).json({ error: 'Not found' });
+    if (check[0].reporter_client_id !== req.user.clientId) return res.status(403).json({ error: 'Access denied' });
+  }
   const { text } = req.body;
   if (!text || !text.trim()) return res.status(400).json({ error: 'text required' });
   const textErr = validateLength(text, 'text');
@@ -6598,9 +6888,15 @@ app.post('/api/bug-reports/:id/comments', requireInternal, async (req, res) => {
 });
 
 /** DELETE /api/bug-reports/:id/comments/:commentId — Delete a comment (own or admin) */
-app.delete('/api/bug-reports/:id/comments/:commentId', requireInternal, async (req, res) => {
+app.delete('/api/bug-reports/:id/comments/:commentId', async (req, res) => {
   if (!isValidUuid(req.params.id) || !isValidUuid(req.params.commentId)) {
     return res.status(400).json({ error: 'Invalid ID format' });
+  }
+  // Client scoping: client users can only delete comments on their company's reports
+  if (req.user?.clientId) {
+    const { rows: check } = await pool.query('SELECT reporter_client_id FROM bug_reports WHERE id = $1', [req.params.id]);
+    if (check.length === 0) return res.status(404).json({ error: 'Not found' });
+    if (check[0].reporter_client_id !== req.user.clientId) return res.status(403).json({ error: 'Access denied' });
   }
   const { rows } = await pool.query(
     'SELECT author FROM bug_report_comments WHERE id = $1 AND report_id = $2',
@@ -6616,8 +6912,7 @@ app.delete('/api/bug-reports/:id/comments/:commentId', requireInternal, async (r
 });
 
 /** DELETE /api/bug-reports/:id — Delete a report (admin only) */
-app.delete('/api/bug-reports/:id', requireInternal, async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.delete('/api/bug-reports/:id', requireAdmin, async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid report ID' });
   await pool.query('DELETE FROM bug_reports WHERE id = $1', [req.params.id]);
   await auditLog('bug_report', req.params.id, 'delete', req.user?.displayName || 'unknown', {});
@@ -6625,8 +6920,14 @@ app.delete('/api/bug-reports/:id', requireInternal, async (req, res) => {
 });
 
 /** GET /api/bug-reports/:id/screenshot — Serve the screenshot image */
-app.get('/api/bug-reports/:id/screenshot', requireInternal, async (req, res) => {
+app.get('/api/bug-reports/:id/screenshot', async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid report ID' });
+  // Client scoping: client users can only view screenshots from their company's reports
+  if (req.user?.clientId) {
+    const { rows: check } = await pool.query('SELECT reporter_client_id FROM bug_reports WHERE id = $1', [req.params.id]);
+    if (check.length === 0) return res.status(404).json({ error: 'Not found' });
+    if (check[0].reporter_client_id !== req.user.clientId) return res.status(403).json({ error: 'Access denied' });
+  }
   const { rows } = await pool.query('SELECT screenshot FROM bug_reports WHERE id = $1', [req.params.id]);
   if (rows.length === 0 || !rows[0].screenshot) return res.status(404).json({ error: 'No screenshot' });
   const data = rows[0].screenshot;
@@ -6665,7 +6966,7 @@ const HIRING_STAGES = [
 ];
 
 /** GET /api/hiring-positions — List hiring positions, optionally filtered by client */
-app.get('/api/hiring-positions', requireInternal, async (req, res) => {
+app.get('/api/hiring-positions', requireNBI, async (req, res) => {
   if (!req.user) return res.status(401).json({ error: 'Auth required' });
   const { client_id } = req.query;
   let where = '';
@@ -6696,8 +6997,7 @@ app.get('/api/hiring-positions', requireInternal, async (req, res) => {
 });
 
 /** POST /api/hiring-positions — Create a hiring position (admin only) */
-app.post('/api/hiring-positions', requireInternal, async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.post('/api/hiring-positions', requireNBI, requireAdmin, async (req, res) => {
   const { client_id, sow_id, title, description, seniority, status } = req.body || {};
   if (!title || !title.trim()) return res.status(400).json({ error: 'title required' });
   const lenErr = validateLength(title, 'title');
@@ -6719,8 +7019,7 @@ app.post('/api/hiring-positions', requireInternal, async (req, res) => {
 });
 
 /** PATCH /api/hiring-positions/:id — Update a hiring position (admin only) */
-app.patch('/api/hiring-positions/:id', requireInternal, async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.patch('/api/hiring-positions/:id', requireNBI, requireAdmin, async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid position ID' });
   const { updates, vals, nextIdx } = buildPatchQuery(req.body, ['client_id', 'sow_id', 'title', 'description', 'seniority', 'status']);
   if (req.body.title !== undefined && !String(req.body.title).trim()) {
@@ -6744,8 +7043,7 @@ app.patch('/api/hiring-positions/:id', requireInternal, async (req, res) => {
 });
 
 /** DELETE /api/hiring-positions/:id — Remove a hiring position (admin only) */
-app.delete('/api/hiring-positions/:id', requireInternal, async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.delete('/api/hiring-positions/:id', requireNBI, requireAdmin, async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid position ID' });
   try {
     const { rowCount } = await pool.query('DELETE FROM hiring_positions WHERE id = $1', [req.params.id]);
@@ -6759,7 +7057,7 @@ app.delete('/api/hiring-positions/:id', requireInternal, async (req, res) => {
 });
 
 /** GET /api/candidates — List candidates with optional filters */
-app.get('/api/candidates', requireInternal, async (req, res) => {
+app.get('/api/candidates', requireNBI, async (req, res) => {
   if (!req.user) return res.status(401).json({ error: 'Auth required' });
   const { client_id, stage, position_id } = req.query;
   const where = [];
@@ -6799,7 +7097,7 @@ app.get('/api/candidates', requireInternal, async (req, res) => {
 });
 
 /** GET /api/candidates/:id — Single candidate */
-app.get('/api/candidates/:id', requireInternal, async (req, res) => {
+app.get('/api/candidates/:id', requireNBI, async (req, res) => {
   if (!req.user) return res.status(401).json({ error: 'Auth required' });
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid candidate ID' });
   try {
@@ -6820,7 +7118,7 @@ app.get('/api/candidates/:id', requireInternal, async (req, res) => {
 });
 
 /** POST /api/candidates — Create a candidate (any authenticated user) */
-app.post('/api/candidates', requireInternal, async (req, res) => {
+app.post('/api/candidates', requireNBI, async (req, res) => {
   if (!req.user) return res.status(401).json({ error: 'Auth required' });
   const { client_id, position_id, name, role, linkedin_url, due_date, stage, notes } = req.body || {};
   if (!name || !name.trim()) return res.status(400).json({ error: 'name required' });
@@ -6869,7 +7167,7 @@ app.post('/api/candidates', requireInternal, async (req, res) => {
 });
 
 /** PATCH /api/candidates/:id — Update a candidate (any authenticated user) */
-app.patch('/api/candidates/:id', requireInternal, async (req, res) => {
+app.patch('/api/candidates/:id', requireNBI, async (req, res) => {
   if (!req.user) return res.status(401).json({ error: 'Auth required' });
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid candidate ID' });
   // Validate stage if present
@@ -6954,8 +7252,7 @@ app.patch('/api/candidates/:id', requireInternal, async (req, res) => {
 
 /** DELETE /api/candidates/:id — Remove a candidate (admin only).
  *  Also deletes the CV file from disk if one is attached. */
-app.delete('/api/candidates/:id', requireInternal, async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.delete('/api/candidates/:id', requireNBI, requireAdmin, async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid candidate ID' });
   try {
     const { rows } = await pool.query('SELECT cv_filename FROM candidates WHERE id = $1', [req.params.id]);
@@ -6982,7 +7279,7 @@ app.delete('/api/candidates/:id', requireInternal, async (req, res) => {
  *  arbitrary binary that happens to satisfy the generic allowlist).
  *  If the candidate already has a CV, the previous file is deleted from disk
  *  before the new one replaces it. */
-app.post('/api/candidates/:id/cv', requireInternal, upload.single('file'), async (req, res) => {
+app.post('/api/candidates/:id/cv', requireNBI, upload.single('file'), async (req, res) => {
   if (!req.user) return res.status(401).json({ error: 'Auth required' });
   if (!isValidUuid(req.params.id)) {
     if (req.file) { try { fs.unlinkSync(req.file.path); } catch (e) {} }
@@ -7022,7 +7319,7 @@ app.post('/api/candidates/:id/cv', requireInternal, upload.single('file'), async
 });
 
 /** GET /api/candidates/:id/cv — Download the candidate's CV file */
-app.get('/api/candidates/:id/cv', requireInternal, async (req, res) => {
+app.get('/api/candidates/:id/cv', requireNBI, async (req, res) => {
   if (!req.user) return res.status(401).json({ error: 'Auth required' });
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid candidate ID' });
   try {
@@ -7078,7 +7375,7 @@ app.get('/api/clients/:id/hiring-count', async (req, res) => {
  * - Other users only see their own reports.
  * Each report includes expense count and total amount.
  */
-app.get('/api/expense-reports', requireInternal, async (req, res) => {
+app.get('/api/expense-reports', requireNBI, async (req, res) => {
   const isAdmin = req.user && req.user.role === 'admin';
   const approverUsername = await getExpenseApprover();
   const isApprover = req.user && req.user.username === approverUsername;
@@ -7113,7 +7410,7 @@ app.get('/api/expense-reports', requireInternal, async (req, res) => {
 });
 
 /** POST /api/expense-reports — Create a new expense report (draft) */
-app.post('/api/expense-reports', requireInternal, async (req, res) => {
+app.post('/api/expense-reports', requireNBI, async (req, res) => {
   const { title, notes } = req.body;
   if (!title || !title.trim()) return res.status(400).json({ error: 'Title is required' });
 
@@ -7129,7 +7426,7 @@ app.post('/api/expense-reports', requireInternal, async (req, res) => {
  * GET /api/expense-reports/:id
  * Get a single expense report with its expenses. Access: own or admin.
  */
-app.get('/api/expense-reports/:id', requireInternal, async (req, res) => {
+app.get('/api/expense-reports/:id', requireNBI, async (req, res) => {
   // Access check before full data fetch (B-B12)
   const check = await pool.query('SELECT user_id FROM expense_reports WHERE id = $1', [req.params.id]);
   if (check.rows.length === 0) return res.status(404).json({ error: 'Report not found' });
@@ -7174,7 +7471,7 @@ app.get('/api/expense-reports/:id', requireInternal, async (req, res) => {
  * Update report title/notes. Only draft reports can be edited by their owner.
  * Admins can also update status (for approve/reject flow).
  */
-app.patch('/api/expense-reports/:id', requireInternal, async (req, res) => {
+app.patch('/api/expense-reports/:id', requireNBI, async (req, res) => {
   const check = await pool.query('SELECT user_id, status FROM expense_reports WHERE id = $1', [req.params.id]);
   if (check.rows.length === 0) return res.status(404).json({ error: 'Report not found' });
   const report = check.rows[0];
@@ -7232,7 +7529,7 @@ app.patch('/api/expense-reports/:id', requireInternal, async (req, res) => {
  * Submit an expense report for review. Changes status to 'submitted'.
  * Notifies Tom Rieger via in-app notification and email.
  */
-app.post('/api/expense-reports/:id/submit', requireInternal, async (req, res) => {
+app.post('/api/expense-reports/:id/submit', requireNBI, async (req, res) => {
   const check = await pool.query(`
     SELECT r.*, u.display_name AS employee_name
     FROM expense_reports r LEFT JOIN users u ON r.user_id = u.id
@@ -7332,7 +7629,7 @@ app.post('/api/expense-reports/:id/submit', requireInternal, async (req, res) =>
  * Add one or more expenses to a report. Body: { expense_ids: [...] }
  * Only draft reports. Expenses must belong to the same user and not be in another report.
  */
-app.post('/api/expense-reports/:id/expenses', requireInternal, async (req, res) => {
+app.post('/api/expense-reports/:id/expenses', requireNBI, async (req, res) => {
   const check = await pool.query('SELECT user_id, status FROM expense_reports WHERE id = $1', [req.params.id]);
   if (check.rows.length === 0) return res.status(404).json({ error: 'Report not found' });
   const report = check.rows[0];
@@ -7385,7 +7682,7 @@ app.post('/api/expense-reports/:id/expenses', requireInternal, async (req, res) 
  * DELETE /api/expense-reports/:id/expenses/:expenseId
  * Remove an expense from a report (sets report_id to NULL). Only draft reports.
  */
-app.delete('/api/expense-reports/:id/expenses/:expenseId', requireInternal, async (req, res) => {
+app.delete('/api/expense-reports/:id/expenses/:expenseId', requireNBI, async (req, res) => {
   const check = await pool.query('SELECT user_id, status FROM expense_reports WHERE id = $1', [req.params.id]);
   if (check.rows.length === 0) return res.status(404).json({ error: 'Report not found' });
   const report = check.rows[0];
@@ -7405,7 +7702,7 @@ app.delete('/api/expense-reports/:id/expenses/:expenseId', requireInternal, asyn
  * DELETE /api/expense-reports/:id
  * Delete a draft expense report. Unlinks all its expenses (sets report_id to NULL).
  */
-app.delete('/api/expense-reports/:id', requireInternal, async (req, res) => {
+app.delete('/api/expense-reports/:id', requireNBI, async (req, res) => {
   const check = await pool.query('SELECT user_id, status FROM expense_reports WHERE id = $1', [req.params.id]);
   if (check.rows.length === 0) return res.status(404).json({ error: 'Report not found' });
   const report = check.rows[0];
@@ -7427,7 +7724,7 @@ app.delete('/api/expense-reports/:id', requireInternal, async (req, res) => {
  * GET /api/expense-reports/:id/export
  * Export a report as a ZIP containing CSV + all receipt files.
  */
-app.get('/api/expense-reports/:id/export', requireInternal, async (req, res) => {
+app.get('/api/expense-reports/:id/export', requireNBI, async (req, res) => {
   const check = await pool.query(`
     SELECT r.*, u.display_name AS employee_name
     FROM expense_reports r LEFT JOIN users u ON r.user_id = u.id
@@ -7518,9 +7815,8 @@ app.get('/api/expense-reports/:id/export', requireInternal, async (req, res) => 
 /** POST /api/clients/:id/reports -- Generate a client status report snapshot.
  *  Admin-only: generates a public share token that bypasses auth, so creation is gated.
  *  UUID-validated, audit-logged (code review M5). */
-app.post('/api/clients/:id/reports', async (req, res) => {
+app.post('/api/clients/:id/reports', requireAdmin, async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid client ID' });
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only -- public share tokens are gated' });
   const clientResult = await pool.query('SELECT * FROM clients WHERE id = $1', [req.params.id]);
   if (clientResult.rows.length === 0) return res.status(404).json({ error: 'Client not found' });
   const client = clientResult.rows[0];
@@ -7601,8 +7897,7 @@ app.get('/api/clients/:id/reports', async (req, res) => {
 });
 
 /** DELETE /api/reports/:id/revoke — Revoke a share token (admin only, B-B7) */
-app.delete('/api/reports/:id/revoke', requireInternal, async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.delete('/api/reports/:id/revoke', requireNBI, requireAdmin, async (req, res) => {
   const { rowCount } = await pool.query('DELETE FROM client_reports WHERE id = $1', [req.params.id]);
   if (rowCount === 0) return res.status(404).json({ error: 'Report not found' });
   res.json({ ok: true });
@@ -7907,8 +8202,7 @@ app.get('/api/resource-planning/deal-readiness/:leadId', async (req, res) => {
 });
 
 /** PATCH /api/users/:id/skills — Update a user's resource type skills (admin only) */
-app.patch('/api/users/:id/skills', async (req, res) => {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+app.patch('/api/users/:id/skills', requireAdmin, async (req, res) => {
   const { updates, vals, nextIdx } = buildPatchQuery(req.body, ['resource_type_ids', 'capacity_hours_per_week']);
   if (updates.length === 0) return res.status(400).json({ error: 'No valid fields to update' });
   vals.push(req.params.id);
@@ -8055,8 +8349,6 @@ async function buildPmReportEmails(todayStr, windowStart, windowEnd) {
     WHERE tm.role = 'lead' AND u.is_active = true
   `);
 
-  if (leads.length === 0) return [];
-
   // Group by user (a lead can lead multiple teams)
   const byUser = {};
   for (const row of leads) {
@@ -8065,6 +8357,19 @@ async function buildPmReportEmails(todayStr, windowStart, windowEnd) {
       byUser[row.user_id] = { username: row.username, name: row.display_name, email: row.email, clientIds: new Set() };
     }
     if (row.client_id) byUser[row.user_id].clientIds.add(row.client_id);
+  }
+
+  // Fallback: if no team leads configured, send to admins covering all clients
+  if (Object.keys(byUser).length === 0) {
+    const { rows: admins } = await pool.query(`
+      SELECT id AS user_id, username, display_name, email
+      FROM users WHERE role = 'admin' AND is_active = true AND email IS NOT NULL AND email != ''
+    `);
+    const { rows: allClients } = await pool.query(`SELECT id FROM clients`);
+    const allClientIds = allClients.map(c => c.id);
+    for (const admin of admins) {
+      byUser[admin.user_id] = { username: admin.username, name: admin.display_name, email: admin.email, clientIds: new Set(allClientIds) };
+    }
   }
 
   const emails = [];
@@ -8372,6 +8677,31 @@ async function processOneInboundEmail(message, opts = {}) {
   if (!entityId) {
     log('warn', 'InboundEmail', 'No match for email', { subject, from: fromAddr });
     return { matched: false, confidence: 'none', subject };
+  }
+
+  if (match.taskId && fromAddr) {
+    const { rows: senderRows } = await pool.query(
+      'SELECT client_id FROM users WHERE email = $1 AND is_active = true',
+      [fromAddr.toLowerCase()]
+    );
+    if (senderRows.length > 0 && senderRows[0].client_id) {
+      let currentId = match.taskId;
+      let depth = 0;
+      let rootClientId = null;
+      while (currentId && depth < 10) {
+        const { rows: t } = await pool.query('SELECT parent_id, client_id FROM tasks WHERE id = $1', [currentId]);
+        if (t.length === 0) break;
+        if (!t[0].parent_id) { rootClientId = t[0].client_id; break; }
+        currentId = t[0].parent_id;
+        depth++;
+      }
+      if (rootClientId && rootClientId !== senderRows[0].client_id) {
+        log('warn', 'InboundEmail', 'Client user email rejected — task belongs to different client', {
+          sender: fromAddr, taskId: match.taskId, senderClient: senderRows[0].client_id, taskClient: rootClientId
+        });
+        return { matched: false, reason: 'client_scope_mismatch' };
+      }
+    }
   }
 
   const uploadedBy = match.confidence === 'high'
@@ -8758,7 +9088,8 @@ if (require.main === module) {
 module.exports = app;
 module.exports.getClientScope = getClientScope;
 module.exports.getClientScopes = getClientScopes;
-module.exports.requireInternal = requireInternal;
+module.exports.requireNBI = requireNBI;
+module.exports.requireAdmin = requireAdmin;
 module.exports.shiftForInsert = shiftForInsert;
 module.exports.reorderInGroup = reorderInGroup;
 module.exports.addBusinessDays = addBusinessDays;
