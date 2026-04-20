@@ -2221,6 +2221,19 @@ span.fin-editable { display: inline-block; position: relative; }
   </div>
 </div>
 
+<!-- FORCED PASSWORD CHANGE MODAL (first login with temp password) -->
+<div id="forcePasswordChangeModal" style="display:none;position:fixed;inset:0;z-index:10000;background:var(--bg-base);align-items:center;justify-content:center">
+  <div style="background:var(--bg-card);border:1px solid var(--border-default);border-radius:var(--radius-lg);padding:32px;max-width:400px;width:90%">
+    <h2 style="margin:0 0 8px;font-size:1.2rem;color:var(--text-primary)">Change Your Password</h2>
+    <p style="margin:0 0 20px;font-size:0.85rem;color:var(--text-muted)">You must change your temporary password before continuing.</p>
+    <input type="password" id="fpwCurrent" placeholder="Current (temporary) password" style="display:block;width:100%;box-sizing:border-box;padding:8px 12px;margin-bottom:10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-size:0.9rem">
+    <input type="password" id="fpwNew" placeholder="New password (min 6 characters)" style="display:block;width:100%;box-sizing:border-box;padding:8px 12px;margin-bottom:10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-size:0.9rem">
+    <input type="password" id="fpwConfirm" placeholder="Confirm new password" style="display:block;width:100%;box-sizing:border-box;padding:8px 12px;margin-bottom:16px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-size:0.9rem">
+    <div id="fpwError" style="color:var(--status-overdue);font-size:0.82rem;margin-bottom:10px;display:none"></div>
+    <button id="fpwSubmit" class="btn btn--primary" style="width:100%">Change Password</button>
+  </div>
+</div>
+
 <!-- APP (hidden until authenticated) -->
 <div id="appContainer" style="display:none;">
 <header class="g-header">
@@ -2813,6 +2826,7 @@ async function handleLogin(e) {
 
     resetPrompt.style.display = 'none';
     _currentUser = data.user;
+    if (checkForcePasswordChange()) { btn.disabled = false; return; }
     showApp();
     await openIDB();
     await Promise.all([load(), loadTeamMembers(), loadPagePermissions(), loadBugReports(), loadCandidates()]);
@@ -2823,7 +2837,6 @@ async function handleLogin(e) {
     }
     renderAll();
     restartPollingIntervals();
-    // Deep-link: check if URL hash points to a specific expense report
     checkExpenseReportDeepLink();
   } catch (err) {
     errEl.textContent = 'Connection error. Is the server running?';
@@ -2888,6 +2901,42 @@ function showApp() {
       if (co && subtitleEl) subtitleEl.textContent = co.name;
     }
   }
+}
+
+function checkForcePasswordChange() {
+  if (_currentUser?.mustChangePassword) {
+    document.getElementById('forcePasswordChangeModal').style.display = 'flex';
+    document.getElementById('fpwSubmit').onclick = async () => {
+      const current = document.getElementById('fpwCurrent').value;
+      const newPw = document.getElementById('fpwNew').value;
+      const confirm = document.getElementById('fpwConfirm').value;
+      const errorEl = document.getElementById('fpwError');
+      if (!current || !newPw || !confirm) { errorEl.textContent = 'All fields required'; errorEl.style.display = 'block'; return; }
+      if (newPw.length < 6) { errorEl.textContent = 'Password must be at least 6 characters'; errorEl.style.display = 'block'; return; }
+      if (newPw !== confirm) { errorEl.textContent = 'Passwords do not match'; errorEl.style.display = 'block'; return; }
+      try {
+        const res = await authFetch('/api/auth/change-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ currentPassword: current, newPassword: newPw }),
+        });
+        if (res.ok) {
+          _currentUser.mustChangePassword = false;
+          document.getElementById('forcePasswordChangeModal').style.display = 'none';
+          window.location.reload();
+        } else {
+          const data = await res.json();
+          errorEl.textContent = data.error || 'Password change failed';
+          errorEl.style.display = 'block';
+        }
+      } catch (e) {
+        errorEl.textContent = 'Network error';
+        errorEl.style.display = 'block';
+      }
+    };
+    return true;
+  }
+  return false;
 }
 
 /** Request a password reset email for the username entered on the login form */
@@ -18736,6 +18785,7 @@ async function fetchSeedData() {
     if (resp.ok) {
       const data = await resp.json();
       _currentUser = data.user;
+      if (checkForcePasswordChange()) return;
       showApp();
       await openIDB();
       await Promise.all([load(), loadTeamMembers(), loadPagePermissions(), loadBugReports(), loadAllTeams(), loadAllSows(), apiCall('/api/clients').then(data => { if (data) data.forEach(c => { _apiClientsCache[c.name] = c; }); }).catch(() => {})]);
@@ -19619,6 +19669,70 @@ async function newsOpenDigest(id) {
     renderNewsView();
   } catch (err) {
     if (root) root.innerHTML = newsTemplates.errorBanner(err && err.message || 'Could not load digest');
+  }
+}
+
+function renderSearchView(root) {
+  if (!_newsState.searchFilters) _newsState.searchFilters = { q: '', source: '', category: '', has_video: '' };
+  const f = _newsState.searchFilters;
+  root.innerHTML =
+    '<div class="news-page">' +
+      '<header class="news-page__header">' +
+        '<h1>Search the archive</h1>' +
+        '<div class="news-page__subtabs">' +
+          '<span class="news-page__subtab" data-action="newsSwitchSubView" data-arg0="today">Today</span>' +
+          '<span class="news-page__subtab" data-action="newsSwitchSubView" data-arg0="archive">Archive</span>' +
+          '<span class="news-page__subtab active" data-action="newsSwitchSubView" data-arg0="search">Search</span>' +
+        '</div>' +
+      '</header>' +
+      '<div class="news-search">' +
+        '<input type="search" id="newsSearchQuery" placeholder="Search stories and articles..." value="' + newsEsc(f.q) + '">' +
+        '<div class="news-search__filters">' +
+          '<select id="newsSearchCategory">' +
+            '<option value="">All categories</option>' +
+            '<option value="studios"' + (f.category === 'studios' ? ' selected' : '') + '>Studios</option>' +
+            '<option value="games"' + (f.category === 'games' ? ' selected' : '') + '>Games</option>' +
+            '<option value="shifts"' + (f.category === 'shifts' ? ' selected' : '') + '>Shifts</option>' +
+            '<option value="strategy"' + (f.category === 'strategy' ? ' selected' : '') + '>Strategy</option>' +
+          '</select>' +
+          '<label><input type="checkbox" id="newsSearchVideo"' + (f.has_video ? ' checked' : '') + '> Has video</label>' +
+        '</div>' +
+        '<button id="newsSearchBtn" data-action="executeNewsSearch">Search</button>' +
+        '<div id="newsSearchResults"></div>' +
+      '</div>' +
+    '</div>';
+  var qi = document.getElementById('newsSearchQuery');
+  if (qi) { qi.addEventListener('keydown', function(e) { if (e.key === 'Enter') executeNewsSearch(); }); qi.focus(); }
+}
+
+async function executeNewsSearch() {
+  var q = (document.getElementById('newsSearchQuery') || {}).value || '';
+  q = q.trim();
+  var category = (document.getElementById('newsSearchCategory') || {}).value || '';
+  var hasVideo = (document.getElementById('newsSearchVideo') || {}).checked ? 'true' : '';
+  _newsState.searchFilters = { q: q, category: category, has_video: hasVideo };
+  var results = document.getElementById('newsSearchResults');
+  if (!q) { if (results) results.innerHTML = ''; return; }
+  if (results) results.innerHTML = '<div class="news-loading"><span class="news-loading__spinner"></span>Searching\u2026</div>';
+  try {
+    var data = await newsApi.search(q, { category: category, has_video: hasVideo });
+    var html = '<h3>Stories (' + data.stories.length + ')</h3>';
+    if (data.stories.length) {
+      html += data.stories.map(function(s) {
+        return '<div class="news-search-result"><h4>' + newsEsc(s.headline) + '</h4><p>' + (s.snippet || '') + '</p>' +
+          '<span class="news-search-result__meta">' + newsEsc(s.category || '') + ' \u00b7 ' + (s.period_end ? new Date(s.period_end).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '') + '</span></div>';
+      }).join('');
+    } else { html += '<p class="news-empty">No story matches</p>'; }
+    html += '<h3>Articles (' + data.articles.length + ')</h3>';
+    if (data.articles.length) {
+      html += data.articles.map(function(a) {
+        return '<div class="news-search-result"><h4><a href="' + newsEsc(a.url || '') + '" target="_blank" rel="noopener noreferrer">' + newsEsc(a.title) + '</a></h4><p>' + (a.snippet || '') + '</p>' +
+          '<span class="news-search-result__meta">' + newsEsc(a.source || '') + ' \u00b7 ' + (a.published_at ? new Date(a.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '') + '</span></div>';
+      }).join('');
+    } else { html += '<p class="news-empty">No article matches</p>'; }
+    if (results) results.innerHTML = html;
+  } catch (err) {
+    if (results) results.innerHTML = newsTemplates.errorBanner(err && err.message || 'Search failed');
   }
 }
 </script>
