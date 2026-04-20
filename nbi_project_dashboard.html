@@ -16557,6 +16557,26 @@ function renderSettings(el) {
     </div>`;
   }
 
+  // === NEWS ADMIN TAB (admin only) ===
+  if (tab === 'news' && isAdmin) {
+    html += `<div class="settings__group"><h2>Feed Health</h2>
+      <div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:12px">Source ingestion status over the last 7 days.</div>
+      <div id="newsAdminFeedHealth"><div style="color:var(--text-muted);font-size:0.78rem">Loading feed health...</div></div>
+    </div>`;
+    html += `<div class="settings__group"><h2>Prompts</h2>
+      <div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:12px">LLM prompt versions used for digest generation.</div>
+      <div id="newsAdminPrompts"><div style="color:var(--text-muted);font-size:0.78rem">Loading prompts...</div></div>
+    </div>`;
+    html += `<div class="settings__group"><h2>Sources</h2>
+      <div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:12px">Manage news sources. <button class="btn btn--sm" data-action="newsAdminAddSource">Add source</button></div>
+      <div id="newsAdminSources"></div>
+    </div>`;
+    html += `<div class="settings__group"><h2>Stories</h2>
+      <div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:12px">Merge, split, or regenerate stories in the current digest.</div>
+      <div id="newsAdminStories"><div style="color:var(--text-muted);font-size:0.78rem">Loading stories...</div></div>
+    </div>`;
+  }
+
   html += `</div>`;
   el.innerHTML = html;
   // Load async content for the active tab
@@ -18158,6 +18178,151 @@ document.addEventListener('keydown', function(e) {
     performUndo();
   }
 });
+
+// ===== NEWS ADMIN =====
+async function loadNewsAdmin() {
+  var fhEl = document.getElementById('newsAdminFeedHealth');
+  if (fhEl) {
+    try {
+      var fhData = await apiCall('/api/news/admin/feed-health/sources');
+      var sources = fhData.sources || [];
+      var fhHtml = '<table class="news-admin-table"><thead><tr><th>Source</th><th>Tier</th><th>Status</th><th>7d Attempts</th><th>7d Failures</th><th>New Items</th><th>Last Success</th><th>Enabled</th></tr></thead><tbody>';
+      sources.forEach(function(s) {
+        var rate = s.attempts_7d > 0 ? Math.round((s.failures_7d / s.attempts_7d) * 100) : 0;
+        var badge = rate === 0 ? 'ok' : rate < 50 ? 'warn' : 'err';
+        var lastSuccess = s.last_success_at ? new Date(s.last_success_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Never';
+        fhHtml += '<tr><td><strong>' + esc(s.name) + '</strong><br><span style="color:var(--text-muted);font-size:11px">' + esc(s.slug) + '</span></td>';
+        fhHtml += '<td>' + esc(s.tier) + '</td>';
+        fhHtml += '<td><span class="news-admin-badge news-admin-badge--' + badge + '">' + rate + '% fail</span></td>';
+        fhHtml += '<td>' + (s.attempts_7d || 0) + '</td>';
+        fhHtml += '<td>' + (s.failures_7d || 0) + '</td>';
+        fhHtml += '<td>' + (s.new_items_7d || 0) + '</td>';
+        fhHtml += '<td>' + lastSuccess + '</td>';
+        fhHtml += '<td><span class="news-admin-toggle" data-action="newsAdminToggleSource" data-arg0="' + esc(s.id) + '" data-arg1="' + (s.enabled ? 'false' : 'true') + '">' + (s.enabled ? '\u2705' : '\u274c') + '</span></td>';
+        fhHtml += '</tr>';
+      });
+      fhHtml += '</tbody></table>';
+      fhEl.innerHTML = fhHtml;
+    } catch (err) { fhEl.innerHTML = '<div style="color:var(--text-muted)">Failed to load feed health: ' + esc(err.message || '') + '</div>'; }
+  }
+  var prEl = document.getElementById('newsAdminPrompts');
+  if (prEl) {
+    try {
+      var prData = await apiCall('/api/news/admin/prompts');
+      var prompts = prData.prompts || [];
+      var keys = {};
+      prompts.forEach(function(p) { if (!keys[p.prompt_key]) keys[p.prompt_key] = []; keys[p.prompt_key].push(p); });
+      var prHtml = '';
+      Object.keys(keys).forEach(function(key) {
+        var versions = keys[key];
+        var active = versions.find(function(v) { return v.is_active; }) || versions[0];
+        prHtml += '<div style="margin-bottom:16px;padding:12px;border:1px solid var(--border-default);border-radius:var(--radius-md);background:var(--bg-surface)">';
+        prHtml += '<div style="font-weight:600;margin-bottom:8px">' + esc(key) + ' <span style="color:var(--text-muted);font-size:11px">v' + active.version + ' (active)</span></div>';
+        prHtml += '<textarea id="newsPrompt_' + esc(key) + '" style="width:100%;min-height:100px;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-family:monospace;font-size:12px;resize:vertical">' + esc(active.body || '') + '</textarea>';
+        prHtml += '<button class="btn btn--sm" style="margin-top:6px" data-action="newsAdminSavePrompt" data-arg0="' + esc(key) + '">Save as new version</button>';
+        if (versions.length > 1) {
+          prHtml += '<details style="margin-top:8px"><summary style="cursor:pointer;font-size:12px;color:var(--text-muted)">Version history (' + versions.length + ')</summary>';
+          versions.forEach(function(v) {
+            prHtml += '<div style="padding:4px 0;font-size:12px;border-bottom:1px solid var(--border-default)">';
+            prHtml += 'v' + v.version + (v.is_active ? ' (active)' : '') + ' by ' + esc(v.created_by || 'unknown') + ' ';
+            if (!v.is_active) prHtml += '<button class="btn btn--sm" data-action="newsAdminActivatePrompt" data-arg0="' + esc(v.id) + '">Activate</button>';
+            prHtml += '</div>';
+          });
+          prHtml += '</details>';
+        }
+        prHtml += '</div>';
+      });
+      if (!prHtml) prHtml = '<div style="color:var(--text-muted)">No prompts configured.</div>';
+      prEl.innerHTML = prHtml;
+    } catch (err) { prEl.innerHTML = '<div style="color:var(--text-muted)">Failed to load prompts: ' + esc(err.message || '') + '</div>'; }
+  }
+  var stEl = document.getElementById('newsAdminStories');
+  if (stEl) {
+    try {
+      var dgData = await apiCall('/api/news/digests/current');
+      var stories = dgData.stories || [];
+      if (!stories.length) { stEl.innerHTML = '<div style="color:var(--text-muted)">No stories in current digest.</div>'; }
+      else {
+        var stHtml = '<div style="margin-bottom:8px;font-size:12px;color:var(--text-muted)">Select stories to merge, or click Regenerate on individual stories.</div>';
+        stHtml += '<form id="newsStoryForm">';
+        stories.forEach(function(s) {
+          stHtml += '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-default)">';
+          stHtml += '<input type="checkbox" name="storyId" value="' + esc(s.id) + '">';
+          stHtml += '<div style="flex:1"><strong>' + esc(s.headline) + '</strong> <span style="color:var(--text-muted);font-size:11px">' + esc(s.category || '') + '</span></div>';
+          stHtml += '<button type="button" class="btn btn--sm" data-action="newsAdminRegenerateStory" data-arg0="' + esc(s.id) + '">Regenerate</button>';
+          stHtml += '</div>';
+        });
+        stHtml += '</form>';
+        stHtml += '<div style="margin-top:8px;display:flex;gap:8px">';
+        stHtml += '<button class="btn btn--sm btn--primary" data-action="newsAdminMergeStories">Merge selected</button>';
+        stHtml += '</div>';
+        stEl.innerHTML = stHtml;
+      }
+    } catch (err) { stEl.innerHTML = '<div style="color:var(--text-muted)">Failed to load stories: ' + esc(err.message || '') + '</div>'; }
+  }
+}
+
+async function newsAdminMergeStories() {
+  var form = document.getElementById('newsStoryForm');
+  if (!form) return;
+  var checked = Array.from(form.querySelectorAll('input[name="storyId"]:checked')).map(function(cb) { return cb.value; });
+  if (checked.length < 2) { toast('Select at least 2 stories to merge', 'warning'); return; }
+  if (!confirm('Merge ' + checked.length + ' stories? This will regenerate the summary via LLM.')) return;
+  try {
+    await apiCall('/api/news/admin/stories/merge', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ storyIds: checked }) });
+    toast('Stories merged and regenerated', 'success');
+    window._settingsTab = 'news'; renderContent();
+  } catch (err) { toast(err.message || 'Merge failed', 'error'); }
+}
+
+async function newsAdminRegenerateStory(id) {
+  if (!confirm('Regenerate this story summary via LLM?')) return;
+  try {
+    await apiCall('/api/news/admin/regenerate/stories/' + id, { method: 'POST' });
+    toast('Story regenerated', 'success');
+    window._settingsTab = 'news'; renderContent();
+  } catch (err) { toast(err.message || 'Regeneration failed', 'error'); }
+}
+
+async function newsAdminToggleSource(id, enabled) {
+  try {
+    await apiCall('/api/news/admin/feed-health/sources/' + id, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ enabled: enabled === 'true' }) });
+    window._settingsTab = 'news'; renderContent();
+  } catch (err) { toast(err.message || 'Failed to toggle source', 'error'); }
+}
+
+async function newsAdminSavePrompt(promptKey) {
+  var ta = document.getElementById('newsPrompt_' + promptKey);
+  if (!ta) return;
+  try {
+    await apiCall('/api/news/admin/prompts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ promptKey: promptKey, body: ta.value }) });
+    toast('Prompt saved as new version', 'success');
+    window._settingsTab = 'news'; renderContent();
+  } catch (err) { toast(err.message || 'Failed to save prompt', 'error'); }
+}
+
+async function newsAdminActivatePrompt(id) {
+  try {
+    await apiCall('/api/news/admin/prompts/' + id + '/activate', { method: 'POST' });
+    toast('Prompt version activated', 'success');
+    window._settingsTab = 'news'; renderContent();
+  } catch (err) { toast(err.message || 'Failed to activate prompt', 'error'); }
+}
+
+async function newsAdminAddSource() {
+  var slug = prompt('Source slug (e.g. ign):');
+  if (!slug) return;
+  var name = prompt('Display name:');
+  if (!name) return;
+  var feedUrl = prompt('RSS feed URL:');
+  if (!feedUrl) return;
+  var tier = prompt('Tier (t1/t2/t3):', 't2');
+  try {
+    await apiCall('/api/news/admin/sources', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ slug: slug, name: name, feedUrl: feedUrl, tier: tier || 't2' }) });
+    toast('Source added', 'success');
+    window._settingsTab = 'news'; renderContent();
+  } catch (err) { toast(err.message || 'Failed to add source', 'error'); }
+}
 
 // ===== USER MANAGEMENT =====
 /** Fetch user list from the API and render the user management table in settings */
