@@ -2553,6 +2553,8 @@ function _actSetInlineDetail(v) { inlineDetailVisible = !!v; renderContent(); }
 function _actClearSelectedTasks() { selectedTaskIds.clear(); renderContent(); }
 function _actSetPeopleFilterDateRange(v) { _peopleFilter.dateRange = v; renderContent(); }
 function _actSetPeopleFilterPerson(v) { _peopleFilter.person = v; renderContent(); }
+function _actSelectPerson(name) { _peopleFilter.person = name; renderContent(); }
+function _actPeopleSearch(el) { _peopleSearchFilter = el.value.toLowerCase(); const pos = el.selectionStart; renderContent(); const inp = document.querySelector('.people-list__search input'); if (inp) { inp.focus(); inp.setSelectionRange(pos, pos); } }
 function _actSetPeopleCalView(v) { _peopleCalView = v; localStorage.setItem('nbi_people_cal_view', v); renderContent(); }
 function _actSetLeadsSector(v) { _leadsFilter.sector = v; refreshLeads(); }
 function _actClearLeadsSector() { _leadsFilter.sector = null; refreshLeads(); }
@@ -3139,6 +3141,7 @@ let inlineDetailVisible = true;   // Whether the 30% detail panel is shown in ta
 let _pagePermissions = {};        // Role-based page access: { finances: 'admin'|'all'|['user1','user2'], ... }
 let _apiClientsCache = {};        // Cached client records from API (keyed by name)
 let _peopleFilter = { person: null, dateRange: 'all' };
+let _peopleSearchFilter = '';
 let _peopleSubView = 'workload'; // 'workload' | 'capacity' | 'calendar'
 // People → Calendar sub-view state (D92)
 let _peopleCalView = localStorage.getItem('nbi_people_cal_view') || 'roster'; // 'roster' | 'month'
@@ -10022,7 +10025,6 @@ function renderPeopleView(el) {
   <div class="task-subview-toggle">
     <button class="task-subview-btn ${_peopleSubView==='workload'?'active':''}" data-action="_actSetPeopleSubView" data-arg0="workload">Workload</button>
     <button class="task-subview-btn ${_peopleSubView==='capacity'?'active':''}" data-action="_actSetPeopleSubView" data-arg0="capacity">Capacity</button>
-    <button class="task-subview-btn ${_peopleSubView==='calendar'?'active':''}" data-action="_actSetPeopleSubView" data-arg0="calendar">Calendar</button>
   </div></div>`;
 
   // Capacity heatmap view
@@ -10034,20 +10036,8 @@ function renderPeopleView(el) {
     return;
   }
 
-  // Calendar view: team roster or month grid of vacation / sick / uto /
-  // bank_holiday / firm_closed entries. Shares _calEvents cache with the
-  // Projects Calendar — navigating months here affects both.
-  if (_peopleSubView === 'calendar') {
-    html += renderPeopleCalendarView(allPeople, _assigneeMerge);
-    html += `</div>`;
-    el.innerHTML = html;
-    // Trigger a fetch if the cache is stale for the visible month
-    const visibleKey = `${_calYear}-${_calMonth}` + (_calTeamFilter ? `:team:${_calTeamFilter}` : '');
-    if (_calEventsKey !== visibleKey) {
-      setTimeout(() => loadCalendarEvents(_calYear, _calMonth), 0);
-    }
-    return;
-  }
+  // Calendar sub-view removed in People redesign (2026-04-20).
+  // renderPeopleCalendarView() function retained for potential future use.
 
   // Filters bar (workload view only)
   html += `<div class="filter-bar" style="margin-bottom:var(--space-xl)">`;
