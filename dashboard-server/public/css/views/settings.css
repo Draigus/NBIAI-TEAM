@@ -1,0 +1,40 @@
+/* ===== SETTINGS ===== */
+.settings { max-width: none; }
+.settings__group { margin-bottom: var(--space-2xl); }
+.settings__group h2 { font-family: var(--font-display); font-size: 0.75rem; font-weight: 600; color: var(--text-muted); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: var(--space-lg); }
+
+/* ===== CSV IMPORT MODAL ===== */
+.modal-overlay { position: fixed; inset: 0; background: var(--bg-overlay); z-index: 300; display: none; justify-content: center; align-items: center; }
+.modal-overlay.open { display: flex; }
+.modal { background: var(--bg-raised); border: 1px solid var(--border-default); border-radius: var(--radius-xl); width: min(600px, calc(100vw - 32px)); max-height: 85vh; overflow-y: auto; padding: var(--space-2xl); box-shadow: var(--shadow-lg); }
+/* Modal titles are sticky so they stay visible when body content scrolls.
+ * Catches both the .modal__title class and first-child <h2>/<h3> (some modals
+ * skipped the class). Negative margins extend the background across the
+ * modal's padding, and top: calc(-1 * space-2xl) anchors the sticky against
+ * the padding edge so the title appears to stay locked to the modal's top. */
+.modal__title,
+.modal > h2:first-child,
+.modal > h3:first-child {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin: calc(-1 * var(--space-2xl)) calc(-1 * var(--space-2xl)) var(--space-lg);
+  padding: var(--space-2xl) var(--space-2xl) var(--space-md);
+  position: sticky;
+  top: calc(-1 * var(--space-2xl));
+  background: var(--bg-raised);
+  z-index: 2;
+  border-bottom: 1px solid var(--border-default);
+}
+/* Some modal h2's are larger — scale them down to match .modal__title so the
+ * sticky layout is consistent across static and dynamic modals */
+.modal > h2:first-child { font-size: 1rem; }
+.modal > h3:first-child { font-size: 0.9rem; }
+.drop-zone { border: 2px dashed var(--border-strong); border-radius: var(--radius-lg); padding: var(--space-2xl); text-align: center; cursor: pointer; transition: all 0.2s; margin-bottom: var(--space-lg); }
+.drop-zone:hover, .drop-zone.dragover { border-color: var(--accent); background: var(--accent-glow); }
+.drop-zone__text { color: var(--text-secondary); font-size: 0.9rem; }
+.preview-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; margin-bottom: var(--space-lg); overflow-x: auto; display: block; }
+.preview-table th { background: var(--bg-card); color: var(--accent-text); padding: 6px 8px; text-align: left; font-weight: 600; white-space: nowrap; }
+.preview-table td { padding: 6px 8px; border-bottom: 1px solid var(--border-subtle); white-space: nowrap; max-width: 200px; overflow: hidden; text-overflow: ellipsis; }
+.import-summary { padding: var(--space-lg); background: var(--accent-glow); border: 1px solid var(--accent-border); border-radius: var(--radius-md); font-size: 0.85rem; margin-bottom: var(--space-lg); }

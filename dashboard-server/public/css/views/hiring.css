@@ -1,0 +1,104 @@
+/* ===== HIRING ===== */
+.hiring { padding: var(--space-lg); }
+.hiring__header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-lg); flex-wrap: wrap; gap: var(--space-md); }
+.hiring__filters { display: flex; gap: var(--space-sm); align-items: center; flex-wrap: wrap; margin-bottom: var(--space-md); }
+
+.hiring-card {
+  display: flex; flex-direction: column; gap: 3px;
+  padding: 7px 9px; background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  cursor: pointer; transition: all 0.15s;
+  width: 150px; min-height: 78px;
+}
+.hiring-card:hover { border-color: var(--accent-border); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.hiring-card__name { font-weight: 600; font-size: 0.78rem; }
+.hiring-card__role { font-size: 0.68rem; color: var(--text-muted); }
+.hiring-card__meta { font-size: 0.65rem; color: var(--text-muted); display: flex; justify-content: space-between; margin-top: auto; align-items: center; gap: 5px; }
+.hiring-card__due--late { color: var(--danger); font-weight: 600; }
+.hiring-stage-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.68rem; font-weight: 600; text-transform: uppercase; }
+.hiring-stage-badge--sourced { background: var(--bg-surface); color: var(--text-muted); }
+.hiring-stage-badge--screening { background: color-mix(in srgb, #3b82f6 15%, var(--bg-card)); color: #3b82f6; }
+.hiring-stage-badge--interview { background: color-mix(in srgb, #f59e0b 15%, var(--bg-card)); color: #f59e0b; }
+.hiring-stage-badge--offer { background: color-mix(in srgb, #a855f7 15%, var(--bg-card)); color: #a855f7; }
+.hiring-stage-badge--hired { background: var(--success-bg); color: var(--success); }
+.hiring-stage-badge--rejected { background: var(--danger-bg); color: var(--danger); }
+/* Glen's 8-stage hiring process (bug b7a2f97f). Colour progression from
+   neutral grey at discovery to success green at hired. */
+.hiring-stage-badge--sourcing   { background: var(--bg-surface); color: var(--text-muted); }
+.hiring-stage-badge--interviews { background: color-mix(in srgb, #f59e0b 15%, var(--bg-card)); color: #f59e0b; }
+.hiring-stage-badge--offer      { background: color-mix(in srgb, #a855f7 15%, var(--bg-card)); color: #a855f7; }
+.hiring-stage-badge--onboarding { background: color-mix(in srgb, #10b981 15%, var(--bg-card)); color: #10b981; }
+.hiring-lane__header--sourcing   { color: var(--text-secondary); }
+.hiring-lane__header--interviews { color: #f59e0b; }
+.hiring-lane__header--offer      { color: #a855f7; }
+.hiring-lane__header--onboarding { color: #10b981; }
+
+.hiring-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.hiring-client-group { margin-bottom: 24px; }
+.hiring-client-group__header { font-size: 1rem; font-weight: 600; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid var(--border-default); }
+
+/* Kanban view — visible stage lanes */
+.hiring-kanban { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; align-items: flex-start; }
+.hiring-lane { flex: 0 0 180px; background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-md); display: flex; flex-direction: column; min-height: 300px; max-height: calc(100dvh - 240px); transition: border-color 0.15s, background 0.15s; }
+.hiring-lane.drag-over { border-color: var(--accent); background: var(--accent-glow); }
+.hiring-lane__header { padding: 7px 10px; border-bottom: 1px solid var(--border-default); font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.hiring-lane__count { background: var(--bg-raised); color: var(--text-muted); font-size: 0.65rem; padding: 1px 6px; border-radius: 9px; font-weight: 600; }
+.hiring-lane__header--sourced { color: var(--text-secondary); }
+.hiring-lane__header--screening { color: #3b82f6; }
+.hiring-lane__header--interview { color: #f59e0b; }
+.hiring-lane__header--offer { color: #a855f7; }
+.hiring-lane__header--hired { color: var(--success); }
+.hiring-lane__header--rejected { color: var(--danger); }
+.hiring-lane__body { padding: 6px; display: flex; flex-direction: column; gap: 5px; overflow-y: auto; flex: 1; }
+.hiring-lane__body .hiring-card { width: auto; min-height: 64px; }
+.hiring-lane__empty { text-align: center; color: var(--text-faint); font-size: 0.7rem; padding: 16px 8px; font-style: italic; }
+/* Drag states for hiring cards */
+.hiring-card[draggable="true"] { cursor: grab; }
+.hiring-card[draggable="true"]:active { cursor: grabbing; }
+.hiring-card.dragging { opacity: 0.4; }
+
+/* Hiring view-mode toggle */
+.hiring-view-toggle { display: inline-flex; border: 1px solid var(--border-default); border-radius: var(--radius-sm); overflow: hidden; }
+.hiring-view-toggle button { background: var(--bg-raised); color: var(--text-secondary); border: none; padding: 5px 12px; font-size: 0.78rem; cursor: pointer; font-family: inherit; }
+.hiring-view-toggle button.active { background: var(--accent); color: #fff; }
+.hiring-view-toggle button:hover:not(.active) { background: var(--bg-hover); color: var(--text-primary); }
+
+/* Slide-in detail panel — reuses bug-detail layout but scoped */
+.candidate-detail-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; display: none; }
+/* Candidate detail panel. Starts below header; body scrolls with header pinned. */
+.candidate-detail-panel { position: fixed; top: var(--header-h); right: 0; width: 520px; min-width: 320px; max-width: 80vw; height: calc(100dvh - var(--header-h)); background: var(--bg-raised); border-left: 1px solid var(--border-default); z-index: 201; overflow: hidden; display: none; flex-direction: column; }
+.candidate-detail-panel.open { display: flex; }
+.candidate-detail__header { padding: var(--space-md) var(--space-lg); border-bottom: 1px solid var(--border-default); display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-md); flex-shrink: 0; background: var(--bg-raised); }
+.candidate-detail__body { padding: var(--space-lg); flex: 1; overflow-y: auto; min-height: 0; }
+.candidate-detail__section { margin-bottom: var(--space-lg); }
+.candidate-detail__section-title { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: var(--space-sm); font-weight: 600; }
+.candidate-detail__field { display: flex; flex-direction: column; gap: 4px; margin-bottom: var(--space-md); }
+.candidate-detail__field label { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+.candidate-detail__field input,
+.candidate-detail__field select,
+.candidate-detail__field textarea {
+  padding: 6px 10px; background: var(--bg-input); border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm); color: var(--text-primary); font-size: 0.85rem;
+  font-family: var(--font-body);
+}
+.candidate-detail__field textarea { resize: vertical; min-height: 80px; }
+.candidate-stages { display: flex; gap: 6px; flex-wrap: wrap; }
+.candidate-stage-pill {
+  padding: 4px 10px; border: 1px solid var(--border-default); border-radius: 14px;
+  font-size: 0.72rem; font-weight: 600; text-transform: uppercase;
+  background: var(--bg-card); color: var(--text-muted); cursor: pointer; transition: all 0.12s;
+}
+.candidate-stage-pill:hover { border-color: var(--accent-border); }
+.candidate-stage-pill--active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.candidate-cv { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.candidate-cv__name { font-size: 0.78rem; color: var(--text-muted); word-break: break-all; }
+
+@media (max-width: 768px) {
+  .candidate-detail-panel { width: 100vw; max-width: 100vw; }
+}

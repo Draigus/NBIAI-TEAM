@@ -1,0 +1,106 @@
+/* ===== EXPENSE REPORTS ===== */
+.expenses-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
+.expenses-summary { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+.expenses-summary .kpi-card { flex: 1; min-width: 120px; }
+.expenses-table-wrap { overflow-x: auto; }
+.expense-status { display: inline-block; padding: 2px 10px; border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.expense-status--warning { background: var(--warning-bg); color: var(--warning); border: 1px solid var(--warning-border); }
+.expense-status--success { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
+.expense-status--danger { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+.expense-status--info { background: color-mix(in srgb, var(--accent) 12%, var(--bg-card)); color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent); }
+
+/* Expense report cards */
+.report-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; margin-bottom: 24px; }
+.report-card { background: var(--bg-card); border: 1px solid var(--border-default); border-radius: var(--radius-md); padding: 16px; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; }
+.report-card:hover { border-color: var(--accent); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.report-card__header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 8px; }
+.report-card__title { font-weight: 600; font-size: 0.95rem; color: var(--text-primary); }
+.report-card__meta { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 0.78rem; color: var(--text-muted); }
+.report-card__total { font-family: var(--font-mono); font-weight: 700; font-size: 1.05rem; color: var(--text-primary); margin-top: 8px; }
+
+/* Unassigned expenses section */
+.unassigned-section { margin-top: 8px; }
+.unassigned-section h3 { font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+
+/* Mobile expense cards -- hidden on desktop, shown on mobile */
+.expenses-mobile { display: none; flex-direction: column; gap: 8px; }
+.expense-card { background: var(--bg-card); border: 1px solid var(--border-default); border-radius: var(--radius-md); padding: 12px 14px; cursor: pointer; transition: border-color 0.15s, background 0.15s; }
+.expense-card:hover { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 5%, var(--bg-card)); }
+.expense-card:active { background: color-mix(in srgb, var(--accent) 12%, var(--bg-card)); }
+.expense-card__top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 6px; }
+.expense-card__desc { font-weight: 600; font-size: 0.9rem; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+.expense-card__amount { font-family: var(--font-mono); font-weight: 700; font-size: 0.95rem; color: var(--text-primary); white-space: nowrap; }
+.expense-card__meta { display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px; }
+.expense-card__bottom { display: flex; align-items: center; justify-content: space-between; }
+
+/* Report detail panel expense rows */
+.report-expense-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-bottom: 1px solid var(--border-subtle); font-size: 0.82rem; }
+.report-expense-row:hover { background: color-mix(in srgb, var(--accent) 5%, var(--bg-surface)); }
+.report-expense-row__date { color: var(--text-muted); min-width: 80px; }
+.report-expense-row__desc { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.report-expense-row__amount { font-family: var(--font-mono); font-weight: 600; min-width: 80px; text-align: right; }
+
+/* Add-to-report checkboxes */
+.expense-checkbox-row { display: flex; align-items: center; gap: 10px; padding: 6px 10px; border-bottom: 1px solid var(--border-subtle); font-size: 0.82rem; cursor: pointer; }
+.expense-checkbox-row:hover { background: color-mix(in srgb, var(--accent) 5%, var(--bg-surface)); }
+.expense-checkbox-row input[type="checkbox"] { accent-color: var(--accent); width: 16px; height: 16px; }
+
+/* Full-screen report view */
+.report-fullscreen { position: fixed; inset: 0; z-index: 400; background: var(--bg-base);
+  overflow-y: auto; animation: reportSlideIn 0.25s ease-out; }
+@keyframes reportSlideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.report-fs__topbar { position: sticky; top: 0; z-index: 2; background: var(--bg-raised);
+  border-bottom: 1px solid var(--border-default); padding: 12px 32px; display: flex;
+  align-items: center; gap: 16px; }
+.report-fs__topbar h1 { margin: 0; font-size: 1.1rem; flex: 1; }
+.report-fs__body { max-width: 960px; margin: 0 auto; padding: 32px; }
+.report-fs__summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px; margin-bottom: 32px; }
+.report-fs__card { background: var(--bg-surface); border: 1px solid var(--border-default);
+  border-radius: var(--radius-md); padding: 20px; }
+.report-fs__card-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;
+  letter-spacing: 0.5px; margin-bottom: 6px; }
+.report-fs__card-value { font-size: 1.5rem; font-weight: 700; font-family: var(--font-mono); }
+.report-fs__table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.report-fs__table th { text-align: left; font-size: 0.72rem; text-transform: uppercase;
+  letter-spacing: 0.5px; color: var(--text-muted); padding: 10px 12px;
+  border-bottom: 2px solid var(--border-default); font-weight: 600; }
+.report-fs__table td { padding: 10px 12px; border-bottom: 1px solid var(--border-subtle);
+  vertical-align: middle; }
+.report-fs__table tr:hover td { background: color-mix(in srgb, var(--accent) 4%, var(--bg-surface)); }
+.report-fs__table .amt { font-family: var(--font-mono); font-weight: 600; text-align: right; }
+.report-fs__table .receipt-yes { color: var(--success); }
+.report-fs__table .receipt-no { color: var(--text-muted); }
+.report-fs__cat-group { margin-bottom: 24px; }
+.report-fs__cat-header { font-size: 0.82rem; font-weight: 600; color: var(--text-secondary);
+  padding: 8px 12px; background: var(--bg-surface); border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  border: 1px solid var(--border-default); border-bottom: none; display: flex;
+  justify-content: space-between; align-items: center; }
+.report-fs__cat-subtotal { font-family: var(--font-mono); }
+.report-fs__actions { display: flex; gap: 12px; margin-top: 32px; padding-top: 24px;
+  border-top: 1px solid var(--border-default); }
+.report-fs__notes { background: var(--bg-surface); border: 1px solid var(--border-default);
+  border-radius: var(--radius-md); padding: 16px; margin-bottom: 24px; }
+.report-fs__notes h3 { margin: 0 0 8px; font-size: 0.82rem; color: var(--text-secondary);
+  text-transform: uppercase; letter-spacing: 0.5px; }
+@media print {
+  .report-fs__topbar { position: static; border: none; }
+  .report-fs__topbar button { display: none !important; }
+  .report-fs__actions { display: none !important; }
+  .report-fullscreen { position: static; }
+}
+
+@media (max-width: 768px) {
+  .expenses-desktop { display: none !important; }
+  .expenses-mobile { display: flex !important; }
+  .expenses-header { flex-direction: column; align-items: stretch; gap: 10px; }
+  .expenses-header h1 { font-size: 1.1rem; }
+  .expenses-header > div { flex-wrap: wrap; gap: 6px; }
+  .expenses-header .btn { flex: 1; min-width: 0; font-size: 0.8rem; padding: 8px 10px; text-align: center; }
+  .expenses-header .leads-select { flex: 1; min-width: 0; font-size: 0.8rem; }
+  .expenses-summary { gap: 8px; }
+  .expenses-summary .kpi-card { flex: 1 1 45%; min-width: 0; padding: 10px; }
+  .expenses-summary .kpi-card__value { font-size: 0.95rem !important; }
+  .expenses-summary .kpi-card__label { font-size: 0.65rem; }
+  .report-cards { grid-template-columns: 1fr; }
+}

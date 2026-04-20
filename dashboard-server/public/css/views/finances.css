@@ -1,0 +1,48 @@
+/* ===== FINANCE EDIT AFFORDANCE ===== */
+.fin-editable { cursor: pointer; position: relative; padding-right: 18px !important; }
+.fin-editable::after { content: '✎'; position: absolute; right: 2px; top: 50%; transform: translateY(-50%); font-size: 0.65rem; color: var(--text-faint); opacity: 0; transition: opacity 0.15s; pointer-events: none; }
+.fin-editable:hover::after { opacity: 1; color: var(--accent); }
+td.fin-editable { position: relative; }
+span.fin-editable { display: inline-block; position: relative; }
+
+/* ===== FINANCES RESPONSIVE LAYOUT ===== */
+.finance-view .report { max-width: none; }
+.finance-view .report__section { margin-bottom: var(--space-xl); }
+.fin-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg); }
+.fin-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-lg); }
+.fin-pnl-wrap { display: grid; grid-template-columns: 1fr; gap: var(--space-lg); }
+.fin-sidebar { display: flex; flex-direction: column; gap: 0; }
+.fin-sidebar .report__section { margin-bottom: var(--space-lg); }
+.fin-sidebar .report__section h2 { margin-bottom: var(--space-sm); }
+@media (min-width: 1200px) {
+  .fin-pnl-wrap { grid-template-columns: 1fr 1fr; }
+  .fin-sidebar { position: sticky; top: 0; align-self: start; }
+}
+@media (max-width: 1024px) {
+  .fin-grid-2, .fin-grid-3 { grid-template-columns: 1fr; }
+  .fin-pnl-wrap { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  .fin-grid-2, .fin-grid-3 { grid-template-columns: 1fr; }
+  .fin-pnl-wrap { grid-template-columns: 1fr !important; }
+  .report-table { font-size: 0.75rem; display: block; overflow-x: auto; }
+  .report-table th, .report-table td { padding: 6px 8px; }
+  .kpi-card { padding: var(--space-md); }
+  .kpi-card__value { font-size: 1rem !important; }
+  .kpi-grid { grid-template-columns: repeat(2, 1fr) !important; gap: var(--space-sm) !important; }
+  .progress-grid { grid-template-columns: 1fr !important; }
+  .filter-bar { flex-wrap: wrap; gap: var(--space-xs) !important; }
+  .filter-bar input { max-width: 100% !important; }
+  .task-subview-toggle { width: 100%; justify-content: center; }
+  .detail-panel { width: 100vw !important; }
+  .gantt__label-col, .gantt__row-label { min-width: 140px !important; max-width: 140px !important; font-size: 0.65rem !important; }
+  .cal__cell { min-height: 60px; }
+  .cal__task { font-size: 0.55rem; }
+  .board__lanes { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .sidebar { display: none; }
+  .main { margin-left: 0 !important; }
+}
+/* Editable cell hover hint */
+[data-val] { border-bottom: 1px dashed transparent; transition: border-color 0.15s; position: relative; }
+[data-val]:hover { border-bottom-color: var(--accent-border); }
+[data-val]:hover::after { content: '\270E'; position: absolute; right: -14px; top: 50%; transform: translateY(-50%); font-size: 0.7rem; color: var(--accent-text); opacity: 0.7; pointer-events: none; }

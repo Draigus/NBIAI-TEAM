@@ -1,0 +1,26 @@
+/* ===== PRINT ===== */
+@media print {
+  body { background: #fff !important; color: #111 !important; font-size: 11px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .g-header, .sidebar, .main__tabs, .filter-bar, .btn, .batch-actions, .toast-container, .detail-overlay, .detail-panel, .modal-overlay, .sync-badge, #breadcrumbBar, .task-subview-toggle, .inline-detail, .client-summary { display: none !important; }
+  .shell { height: auto !important; }
+  .main { overflow: visible !important; width: 100% !important; }
+  .main__content { padding: 20px !important; overflow: visible !important; height: auto !important; }
+  .tasks-layout { display: block !important; }
+  .tasks-layout__main { width: 100% !important; }
+  .report { max-width: 100%; }
+  .report h1 { color: #111; }
+  .report__section h2 { color: #333; border-color: #ccc; }
+  .report-table th { background: #f0f0f0 !important; color: #333 !important; }
+  .report-table td { border-color: #ddd; }
+  .kpi-card { border-color: #ddd; background: #f9f9f9 !important; }
+  .kpi-card__value { color: #111 !important; }
+  .chart-card { border-color: #ddd; background: #fff !important; }
+  .badge { border-color: #ccc; }
+  .tactical-metrics { background: #f0f0f0 !important; }
+  .tactical-metric__value { color: #111 !important; }
+  .tactical-section { border-color: #ddd !important; background: #fff !important; }
+  .tactical-item { color: #111 !important; }
+  .board { flex-wrap: wrap !important; }
+  .board__lane { page-break-inside: avoid; }
+  @page { margin: 1.5cm; }
+}

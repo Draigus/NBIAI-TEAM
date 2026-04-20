@@ -1,0 +1,199 @@
+.hidden { display: none !important; }
+
+/* ===== MOBILE & TABLET ===== */
+@media (max-width: 1024px) {
+  .sidebar { display: none; }
+  .shell { flex-direction: column; }
+  .main { width: 100%; }
+  .g-header { padding: 0 var(--space-md); gap: var(--space-sm); flex-wrap: nowrap; height: var(--header-h); }
+  .g-header__actions { flex-wrap: nowrap; gap: 4px; }
+  .g-header__actions .btn { padding: 5px 10px; font-size: 0.72rem; }
+  .main__tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .main__tab { white-space: nowrap; flex-shrink: 0; }
+  .main__content { padding: var(--space-md); }
+  .charts-grid { grid-template-columns: 1fr; }
+  .progress-grid { grid-template-columns: 1fr; }
+  .kpi-grid { grid-template-columns: repeat(3, 1fr); gap: var(--space-sm); }
+  .kpi-card { padding: var(--space-md); }
+  .kpi-card__value { font-size: 1.3rem; }
+  .kpi-card__label { font-size: 0.72rem; }
+  .detail-panel { width: 100vw; max-width: 100vw; }
+  .tasks-layout { flex-direction: column; }
+  /* At tablet/mobile, hide the inline detail panel entirely — it has nowhere
+   * sensible to live in the stacked layout. Task clicks route to the overlay
+   * via openDetail() viewport check. */
+  .tasks-layout__detail { display: none !important; }
+  .modal { width: calc(100vw - 32px); max-width: 600px; }
+  .filter-bar { flex-direction: column; align-items: stretch; }
+  .filter-bar input, .filter-bar select { width: 100%; }
+  /* G3 follow-up (2026-04-15): the filter-bar children that aren't
+     <input> or <select> (multi-select dropdowns, subview toggle, and
+     standalone buttons like Incomplete / Detail) default to their
+     content width and end up horizontally centred by the desktop
+     align-items: center rule. Force them to fill the column so every
+     row looks like a real form field. */
+  .filter-bar .multi-select { display: block; width: 100%; }
+  .filter-bar .multi-select__trigger { width: 100%; justify-content: space-between; }
+  .filter-bar .task-subview-toggle { width: 100%; display: flex; }
+  .filter-bar .task-subview-toggle .task-subview-btn { flex: 1 1 0; justify-content: center; }
+  .filter-bar > button.btn { width: 100%; justify-content: center; }
+  .filter-bar .filter-chip { width: 100%; justify-content: space-between; }
+  /* Quick-add task bar stacks on mobile — the search input and client
+     dropdown were sharing a row and truncating "Quick add project... (press E". */
+  .quick-add-bar { flex-direction: column !important; gap: 6px !important; }
+  .quick-add-bar > input, .quick-add-bar > select { width: 100% !important; }
+  .report-table { font-size: 0.72rem; }
+  .report-table th, .report-table td { padding: 6px 8px; }
+  .client-header { flex-direction: column; align-items: flex-start; }
+  .client-header__stats { flex-wrap: wrap; gap: var(--space-md); }
+  .report-exec { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 480px) {
+  .g-header__logo { font-size: 0.75rem; letter-spacing: 1px; }
+  .g-header__subtitle { display: none; }
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .kpi-card__value { font-size: 1.1rem; }
+  .main__tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .main__tab { padding: 8px 14px; font-size: 0.8rem; white-space: nowrap; }
+  .task-row { padding: 6px var(--space-sm) !important; gap: 4px; flex-wrap: wrap; }
+  .task-row__title { min-width: 0; font-size: 0.8rem; }
+  .task-row__badges { flex-wrap: wrap; gap: 3px; }
+  .task-row__hours { display: none; }
+  .task-row__assignee { display: none; }
+  .task-children { margin-left: 14px; }
+  .board__lane { flex: 0 0 200px; }
+  .board-card { padding: var(--space-xs) var(--space-sm); }
+  .board-card__title { font-size: 0.78rem; }
+  .badge { font-size: 0.6rem; padding: 1px 5px; }
+  .report-exec { grid-template-columns: repeat(2, 1fr); }
+  .report-table { display: block; overflow-x: auto; }
+  .dashboard-charts-row { grid-template-columns: 1fr; }
+  .dashboard-charts-quad > .chart-card { flex: 1 1 100%; }
+  .chart-card { min-height: 220px; padding: var(--space-md); }
+  .progress-card { padding: var(--space-md); }
+  /* Audit C6 remainder: Settings/Leads/Finances/Report overflow at 375px.
+     These views contain tables, grids, and filter bars that outgrow narrow viewports. */
+  .main__content { overflow-x: hidden; }
+  .settings, .settings__group, .settings__group > div, .settings__group form { max-width: 100%; min-width: 0; }
+  .settings input[type="text"], .settings input[type="email"], .settings input[type="number"], .settings textarea, .settings select { max-width: 100%; width: 100%; box-sizing: border-box; }
+  .leads-view, .leads-view__header, .leads-view__filters, .leads-view__content { max-width: 100%; min-width: 0; flex-wrap: wrap; }
+  .leads-view__filters { overflow-x: auto; }
+  .finance-view, .finance-view__content, .finance-view .report { max-width: 100%; min-width: 0; overflow-x: auto; }
+  .finance-view table, .report table { display: block; overflow-x: auto; max-width: 100%; }
+  .report, .report__section { max-width: 100%; min-width: 0; }
+  /* G3 mobile pass (2026-04-15): kanban boards that lacked mobile handling.
+     Bug Tracker, Hiring, and Tasks Board all use a horizontal flex strip
+     with fixed-width lanes (280/240/200px). On 414px (iPhone 11 portrait)
+     that showed one lane plus a sliver of the next — awkward and easy to
+     miss the scrollbar. Apply the same scroll-snap-type: x mandatory
+     pattern Leads already uses so each lane snaps to the viewport. */
+  .bug-tracker__kanban { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; gap: 8px; padding-bottom: 8px; }
+  .bug-tracker__kanban > .bug-lane { flex: 0 0 100%; min-width: 100%; max-width: 100%; scroll-snap-align: start; }
+  .hiring-kanban { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; gap: 8px; padding-bottom: 8px; }
+  .hiring-kanban > .hiring-lane { flex: 0 0 100%; min-width: 100%; max-width: 100%; scroll-snap-align: start; }
+  .board { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; gap: 8px; }
+  .board > .board__lane { flex: 0 0 92%; min-width: 92%; max-width: 92%; scroll-snap-align: start; }
+  /* People tab — G4 sort toolbar must wrap on narrow screens so the
+     Name / Tasks / Hours Spent / Hours Est buttons stack cleanly. */
+  .report__section .task-subview-toggle { flex-wrap: wrap; gap: 4px; }
+  /* People → Calendar roster: narrower columns + tighter header so more
+     days fit in the horizontal scroll area on a 414px viewport. */
+  .people-cal__roster th.people-cal__roster-name,
+  .people-cal__roster td.people-cal__roster-name { min-width: 90px; max-width: 90px; padding: 4px 6px; font-size: 0.7rem; }
+  .people-cal__roster-daycol { min-width: 22px; max-width: 22px; font-size: 0.62rem; }
+  .people-cal__roster-cell { min-width: 22px; max-width: 22px; height: 22px; }
+  .people-cal__grid-cell { min-height: 60px; }
+  .people-cal__grid-chip { font-size: 0.56rem; padding: 1px 3px; }
+  .people-cal__controls { gap: 6px; }
+  /* Workload Overview bar chart rows — keep the name column narrow
+     enough that the bar still has room to render. */
+  .rw-name { min-width: 72px !important; font-size: 0.72rem; }
+  .rw-bar { height: 16px; }
+  .rw-nums { font-size: 0.68rem; gap: 4px; }
+}
+
+/* Hamburger sidebar toggle for mobile */
+.sidebar-toggle { display: none; background: none; border: none; color: var(--text-primary); font-size: 1.3rem; cursor: pointer; padding: 4px 8px; }
+@media (max-width: 1024px) {
+  .sidebar-toggle { display: inline-flex; }
+  .sidebar.mobile-open {
+    display: flex !important; flex-direction: column !important;
+    position: fixed; top: 0; left: 0; width: 280px; max-width: 80vw; min-width: 0 !important;
+    height: 100dvh; z-index: 150; box-shadow: var(--shadow-lg);
+    animation: slideInSidebar 0.2s ease-out; overflow-y: auto; overflow-x: hidden;
+  }
+  .sidebar.mobile-open .sidebar__nav {
+    display: flex !important; flex-direction: column !important;
+    padding: var(--space-xl) 0; width: 100% !important;
+  }
+  .sidebar.mobile-open .sidebar__section {
+    display: flex !important; flex-direction: column !important;
+    width: 100% !important; margin-bottom: var(--space-lg);
+  }
+  .sidebar.mobile-open .sidebar__item {
+    display: flex !important; flex-direction: row !important; width: 100% !important;
+    padding: 12px var(--space-xl); font-size: 0.9rem; min-height: 44px;
+    justify-content: flex-start; flex-shrink: 0;
+  }
+  .sidebar.mobile-open .sidebar__item__icon { font-size: 1.1rem; margin-right: var(--space-md); display: inline-flex !important; }
+  .sidebar.mobile-open .sidebar__item__label { display: block !important; flex: 1; }
+  .sidebar.mobile-open .sidebar__item__count { display: block !important; }
+  .sidebar.mobile-open .sidebar__dot { display: inline-block !important; }
+  .sidebar.mobile-open .sidebar__title {
+    display: block !important; font-size: 0.65rem;
+    padding: 0 var(--space-xl); margin-bottom: var(--space-sm); margin-top: var(--space-sm);
+    width: 100%;
+  }
+  .sidebar.mobile-open .sidebar__toggle { display: none !important; }
+  .sidebar-overlay { display: none; position: fixed; inset: 0; background: var(--bg-overlay); z-index: 149; }
+  .sidebar-overlay.open { display: block; }
+  @keyframes slideInSidebar { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+}
+
+/* ===== TOUCH TARGET OVERRIDES (MOBILE) ===== */
+@media (max-width: 1024px) {
+  .btn, .sidebar__item, .main__tab, .task-subview-btn, .leads-tab { min-height: 44px; display: inline-flex; align-items: center; }
+  .sidebar__toggle { min-height: 44px; }
+  .report-table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+}
+@media (max-width: 480px) {
+  .tactical-metrics { flex-wrap: wrap; }
+  .tactical-metric { flex: 1 1 calc(50% - 1px); min-width: 0; }
+}
+
+/* ===== MOBILE HEADER RESTRUCTURE ===== */
+.header-mobile-only { display: none; }
+.header-overflow__menu { display: none; position: absolute; top: calc(100% + 4px); right: 0; width: 200px; background: var(--bg-raised); border: 1px solid var(--border-default); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); z-index: 400; padding: var(--space-xs) 0; }
+.header-overflow__menu.open { display: block; }
+.header-overflow__item { display: flex; align-items: center; gap: var(--space-sm); padding: 10px 14px; font-size: 0.82rem; color: var(--text-secondary); cursor: pointer; transition: background 0.1s; }
+.header-overflow__item:hover { background: var(--bg-hover); color: var(--text-primary); }
+.header-overflow__item--danger { color: var(--danger); }
+.header-overflow__item--danger:hover { background: var(--danger-bg); }
+.header-overflow { position: relative; }
+
+@media (max-width: 768px) {
+  .header-desktop-only { display: none !important; }
+  .header-mobile-only { display: inline-flex; }
+  .g-header { height: var(--header-h); flex-wrap: nowrap; padding: 0 var(--space-sm); }
+  .g-header__actions { flex-wrap: nowrap; gap: 2px; }
+  .g-header__actions .btn { padding: 6px 8px; }
+  .g-header__brand { gap: var(--space-sm); }
+  .g-header__subtitle { display: none; }
+  .g-header__logo { font-size: 0.85rem; }
+  /* Force single-column layouts on mobile */
+  .tactical-grid { grid-template-columns: 1fr !important; }
+  .kpi-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  .tactical-metrics { flex-wrap: wrap; }
+  .tactical-metric { flex: 1 1 30%; min-width: 0; }
+  /* Tabs: horizontal scroll, never wrap */
+  .main__tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap; }
+  .main__tab { white-space: nowrap; flex-shrink: 0; padding: 8px 14px; font-size: 0.82rem; }
+}
+
+/* ===== FINANCE TABLE MOBILE OVERFLOW ===== */
+@media (max-width: 768px) {
+  .fin-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .fin-table-wrap .report-table { min-width: 600px; }
+  .report-table-wrapper, .fin-section table { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+}

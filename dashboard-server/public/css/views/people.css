@@ -1,0 +1,44 @@
+/* ===== PEOPLE → CALENDAR SUB-VIEW (D92) ===== */
+.people-cal__controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: var(--space-md); }
+.people-cal__legend { display: flex; flex-wrap: wrap; gap: 12px; padding: 6px 0 10px; font-size: 0.72rem; color: var(--text-muted); }
+.people-cal__legend-item { display: inline-flex; align-items: center; gap: 5px; }
+.people-cal__legend-swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; }
+
+/* Roster: horizontal scroll table, first column sticky */
+/* Auto-scale: fit the viewport. Scrolls internally when the table overflows. */
+.people-cal__roster-wrap { overflow: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--bg-raised); max-height: calc(100dvh - var(--header-h) - 260px); }
+.people-cal__roster { border-collapse: separate; border-spacing: 0; font-size: 0.7rem; width: 100%; table-layout: fixed; }
+.people-cal__roster th, .people-cal__roster td { border-right: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle); }
+.people-cal__roster thead th { background: var(--bg-surface); color: var(--text-secondary); font-weight: 600; text-align: center; padding: 4px 2px; position: sticky; top: 0; z-index: 2; }
+.people-cal__roster th.people-cal__roster-name { position: sticky; left: 0; z-index: 3; width: 110px; min-width: 110px; text-align: left; padding: 6px 8px; background: var(--bg-surface); }
+.people-cal__roster td.people-cal__roster-name { position: sticky; left: 0; z-index: 1; width: 110px; min-width: 110px; background: var(--bg-raised); font-weight: 600; padding: 6px 8px; color: var(--text-primary); }
+.people-cal__roster-daycol { width: auto; padding: 4px 0 !important; }
+.people-cal__roster-daycol.is-weekend { background: color-mix(in srgb, var(--bg-surface) 60%, var(--bg-base)); color: var(--text-muted); }
+.people-cal__roster-daycol.is-today { background: color-mix(in srgb, var(--accent) 20%, var(--bg-surface)); color: var(--accent-text); }
+.people-cal__roster-daycol.is-firm-closed { background: color-mix(in srgb, #64748b 35%, var(--bg-surface)); color: #fff; }
+.people-cal__roster-dow { font-size: 0.55rem; color: var(--text-muted); letter-spacing: 0.5px; }
+.people-cal__roster-cell { width: auto; height: 28px; padding: 2px; vertical-align: middle; position: relative; cursor: pointer; transition: background 0.1s; }
+.people-cal__roster-cell:hover { background: color-mix(in srgb, var(--accent) 12%, var(--bg-raised)); }
+.people-cal__roster-cell.is-weekend { background: color-mix(in srgb, var(--bg-surface) 80%, var(--bg-raised)); }
+.people-cal__roster-cell.is-firm-closed { background: color-mix(in srgb, #64748b 20%, var(--bg-raised)); cursor: default; }
+.people-cal__roster-cell.is-firm-closed-full { background: #64748b; cursor: pointer; }
+.people-cal__roster-bar { height: 12px; margin: 2px 0; border-radius: 2px; cursor: pointer; transition: opacity 0.15s; }
+.people-cal__roster-bar:hover { opacity: 0.75; }
+.people-cal__roster-firm-row td.people-cal__roster-name { color: #64748b; font-weight: 700; text-transform: uppercase; font-size: 0.65rem; letter-spacing: 0.5px; }
+
+/* Month grid view */
+/* Auto-scale: fit the grid to the visible viewport window. One row per week,
+   height auto-divided. Cells never grow beyond the remaining space. */
+.people-cal__grid { display: grid; grid-template-columns: repeat(7, 1fr); grid-auto-rows: minmax(72px, 1fr); gap: 1px; background: var(--border-subtle); border: 1px solid var(--border-default); border-radius: var(--radius-md); overflow: auto; height: calc(100dvh - var(--header-h) - 260px); min-height: 460px; }
+.people-cal__grid-header { background: var(--bg-surface); padding: 4px; text-align: center; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+.people-cal__grid-cell { background: var(--bg-raised); padding: 4px; cursor: pointer; transition: background 0.1s; position: relative; display: flex; flex-direction: column; gap: 2px; overflow: hidden; min-height: 0; }
+.people-cal__grid-cell:hover { background: color-mix(in srgb, var(--accent) 8%, var(--bg-raised)); }
+.people-cal__grid-cell.is-other-month { background: var(--bg-base); opacity: 0.4; cursor: default; }
+.people-cal__grid-cell.is-weekend { background: color-mix(in srgb, var(--bg-surface) 60%, var(--bg-base)); }
+.people-cal__grid-cell.is-today { box-shadow: inset 0 0 0 2px var(--accent); }
+.people-cal__grid-cell.is-firm-closed { background: color-mix(in srgb, #64748b 22%, var(--bg-raised)); }
+.people-cal__grid-daynum { font-size: 0.72rem; color: var(--text-secondary); font-weight: 600; }
+.people-cal__grid-firm-label { font-size: 0.55rem; color: #fff; background: #64748b; padding: 1px 4px; border-radius: 2px; font-weight: 700; letter-spacing: 0.5px; text-align: center; }
+.people-cal__grid-chip { display: inline-flex; align-items: center; padding: 2px 5px; border-radius: 3px; font-size: 0.62rem; color: #fff; font-weight: 600; cursor: pointer; transition: opacity 0.15s; }
+.people-cal__grid-chip:hover { opacity: 0.85; }
+.people-cal__grid-chip-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
