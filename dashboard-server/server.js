@@ -9036,6 +9036,52 @@ app.use((err, req, res, next) => {
   }
 });
 
+// ==================== DATA CLEANSE (ADMIN) ====================
+
+const CLEANSE_CATEGORIES = [
+  { id: 'tasks', label: 'Projects & Tasks', tier: 'standard', tables: ['tasks'], cascades: [], nullifies: [], childQueries: { task_notes: 'SELECT count(*) FROM task_notes', task_comments: 'SELECT count(*) FROM task_comments', task_attachments: 'SELECT count(*) FROM task_attachments', time_entries: 'SELECT count(*) FROM time_entries' } },
+  { id: 'leads', label: 'Leads & Pipeline', tier: 'standard', tables: ['leads'], cascades: [], nullifies: [], childQueries: { lead_resources: 'SELECT count(*) FROM lead_resources', lead_activities: 'SELECT count(*) FROM lead_activities' } },
+  { id: 'contacts', label: 'Contacts', tier: 'standard', tables: ['contacts'], cascades: [], nullifies: ['leads.primary_contact_id'], childQueries: {} },
+  { id: 'client_notes', label: 'Client Notes', tier: 'standard', tables: ['client_notes'], cascades: [], nullifies: [], childQueries: {} },
+  { id: 'sows', label: 'SoWs', tier: 'standard', tables: ['sows'], cascades: [], nullifies: ['tasks.sow_id', 'hiring_positions.sow_id', 'teams.sow_id'], childQueries: {} },
+  { id: 'expenses', label: 'Expenses', tier: 'standard', tables: ['expenses', 'expense_reports', 'expense_receipts'], cascades: [], nullifies: [], childQueries: {} },
+  { id: 'bugs', label: 'Bug Reports', tier: 'standard', tables: ['bug_reports'], cascades: [], nullifies: [], childQueries: { bug_report_comments: 'SELECT count(*) FROM bug_report_comments' } },
+  { id: 'hiring', label: 'Hiring', tier: 'standard', tables: ['hiring_positions', 'candidates'], cascades: [], nullifies: [], childQueries: {} },
+  { id: 'calendar', label: 'Calendar Events', tier: 'standard', tables: ['calendar_events'], cascades: [], nullifies: [], childQueries: {} },
+  { id: 'finance', label: 'Finance Data', tier: 'standard', tables: ['finance_data'], cascades: [], nullifies: [], childQueries: {} },
+  { id: 'notifications', label: 'Notifications', tier: 'standard', tables: ['notifications'], cascades: [], nullifies: [], childQueries: {} },
+  { id: 'audit_log', label: 'Audit Log', tier: 'standard', tables: ['audit_log'], cascades: [], nullifies: [], childQueries: {} },
+  { id: 'clients', label: 'Clients', tier: 'nuclear', tables: ['clients'], cascades: ['contacts', 'leads', 'client_notes', 'sows'], nullifies: ['tasks.client_id', 'users.client_id', 'hiring_positions.client_id', 'candidates.client_id', 'calendar_events.client_id', 'bug_reports.reporter_client_id'], childQueries: { contacts: 'SELECT count(*) FROM contacts', leads: 'SELECT count(*) FROM leads', lead_resources: 'SELECT count(*) FROM lead_resources', lead_activities: 'SELECT count(*) FROM lead_activities', client_notes: 'SELECT count(*) FROM client_notes', sows: 'SELECT count(*) FROM sows', client_activity_log: 'SELECT count(*) FROM client_activity_log' } },
+];
+
+app.get('/api/admin/cleanse/preview', requireNBI, requireAdmin, async (req, res) => {
+  try {
+    const categories = [];
+    for (const cat of CLEANSE_CATEGORIES) {
+      const countResult = await pool.query(`SELECT count(*)::int AS n FROM ${cat.tables[0]}`);
+      const count = countResult.rows[0].n;
+      const children = {};
+      for (const [key, sql] of Object.entries(cat.childQueries)) {
+        const r = await pool.query(sql);
+        children[key] = r.rows[0].count ? parseInt(r.rows[0].count, 10) : 0;
+      }
+      categories.push({
+        id: cat.id,
+        label: cat.label,
+        tier: cat.tier,
+        count,
+        cascades: cat.cascades,
+        nullifies: cat.nullifies,
+        children,
+      });
+    }
+    res.json({ categories });
+  } catch (e) {
+    log('error', 'Cleanse', 'Preview failed', { error: e.message });
+    res.status(500).json({ error: 'Failed to generate cleanse preview' });
+  }
+});
+
 // ==================== STARTUP ====================
 
 /**
