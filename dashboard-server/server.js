@@ -52,7 +52,7 @@ const multer = require('multer');
 const fs = require('fs');
 
 const { rateLimit } = require('express-rate-limit');
-const XLSX = require('xlsx');
+const ExcelJS = require('exceljs');
 const PDFDocument = require('pdfkit');
 const Tesseract = require('tesseract.js');
 const sharp = require('sharp');
@@ -1077,7 +1077,7 @@ app.post('/api/internal/notifications', async (req, res) => {
     await createNotification(username, type, title, message || '', link || '', dismissable !== false);
     res.json({ ok: true });
   } catch (err) {
-    console.error('[internal/notifications] error:', err);
+    log('error', 'internal/notifications', 'error', err);
     res.status(500).json({ error: 'internal error' });
   }
 });
@@ -1108,7 +1108,7 @@ app.use('/api/news', createProxyMiddleware({
       proxyReq.setHeader('x-nbi-internal-token', NEWS_INTERNAL_TOKEN);
     },
     error: (err, req, res) => {
-      console.error('[news-proxy] error:', err.message);
+      log('error', 'news-proxy', 'error', err.message);
       if (!res.headersSent) res.status(502).json({ error: 'news service unavailable' });
     },
   },
@@ -1476,7 +1476,7 @@ async function getExpenseApprover() {
     const { rows } = await pool.query("SELECT value FROM settings WHERE key = 'expense_approver'");
     if (rows[0]?.value) return rows[0].value;
   } catch (e) {
-    console.error('[getExpenseApprover] settings lookup failed:', e.message);
+    log('error', 'getExpenseApprover', 'settings lookup failed', e.message);
   }
   return process.env.EXPENSE_APPROVER_USERNAME || null;
 }
@@ -2140,21 +2140,33 @@ function detectImportFormat(headers) {
  * @param {boolean} headersOnly - If true, reads only first 5 rows (fast scan for format detection)
  * @returns {{ sheetNames: string[], sheets: Object[] }} Parsed sheet data with headers, row counts, and samples
  */
-function parseExcelFile(filePath, headersOnly) {
-  const opts = { cellDates: true };
-  if (headersOnly) opts.sheetRows = 5;
-  const wb = XLSX.readFile(filePath, opts);
-  const sheets = wb.SheetNames.map(name => {
-    const ws = wb.Sheets[name];
-    const rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: false, dateNF: 'dd/mm/yyyy' });
+async function parseExcelFile(filePath, headersOnly) {
+  const wb = new ExcelJS.Workbook();
+  await wb.xlsx.readFile(filePath);
+  const sheetNames = wb.worksheets.map(ws => ws.name);
+  const sheets = [];
+  for (const ws of wb.worksheets) {
+    const rows = [];
+    const maxRow = headersOnly ? Math.min(ws.rowCount, 5) : ws.rowCount;
+    for (let r = 1; r <= maxRow; r++) {
+      const row = ws.getRow(r);
+      const vals = [];
+      for (let c = 1; c <= row.cellCount; c++) {
+        const cell = row.getCell(c);
+        const v = cell.value;
+        if (v instanceof Date) { const d = v; vals.push(`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`); }
+        else vals.push(v != null ? String(v) : null);
+      }
+      rows.push(vals);
+    }
     const dataRows = rows.filter(r => r.some(c => c != null && String(c).trim() !== ''));
-    if (dataRows.length === 0) return null;
+    if (dataRows.length === 0) continue;
     const headers = dataRows[0].map(x => String(x || '').trim());
-    // When doing headers-only scan, we don't know the real row count
     const rowCount = headersOnly ? -1 : dataRows.length - 1;
-    return { name, headers, rowCount, sample: dataRows.slice(1, 6) };
-  }).filter(Boolean);
-  return { sheetNames: wb.SheetNames, sheets };
+    const allDataRows = headersOnly ? null : dataRows.slice(1);
+    sheets.push({ name: ws.name, headers, rowCount, sample: dataRows.slice(1, 6), rows: allDataRows });
+  }
+  return { sheetNames, sheets };
 }
 
 /**
@@ -2208,7 +2220,7 @@ app.get('/api/import/scan-downloads', requireAdmin, async (req, res) => {
      * @param {string} dir - Absolute path to scan
      * @param {string} prefix - Display prefix for nested paths (e.g. 'subfolder/')
      */
-    function scanDir(dir, prefix) {
+    async function scanDir(dir, prefix) {
       let entries;
       try { entries = fs.readdirSync(dir); } catch(e) { return; }
       for (const name of entries) {
@@ -2217,7 +2229,7 @@ app.get('/api/import/scan-downloads', requireAdmin, async (req, res) => {
         let stat;
         try { stat = fs.statSync(fullPath); } catch(e) { continue; }
         // Recurse into known subdirectories only (one level deep)
-        if (stat.isDirectory() && !prefix && knownSubdirs.includes(name)) { scanDir(fullPath, name); continue; }
+        if (stat.isDirectory() && !prefix && knownSubdirs.includes(name)) { await scanDir(fullPath, name); continue; }
         const ext = path.extname(name).toLowerCase();
         if (!['.csv', '.xlsx', '.xls'].includes(ext)) continue;
         const relPath = prefix ? prefix + '/' + name : name;
@@ -2230,7 +2242,7 @@ app.get('/api/import/scan-downloads', requireAdmin, async (req, res) => {
             const parsed = parseCSVFile(fullPath);
             if (parsed) { format = detectImportFormat(parsed.headers); rowCount = parsed.rowCount; }
           } else {
-            const parsed = parseExcelFile(fullPath, true);
+            const parsed = await parseExcelFile(fullPath, true);
             if (parsed.sheets.length > 0) {
               format = detectImportFormat(parsed.sheets[0].headers);
               sheetCount = parsed.sheetNames.length;
@@ -2257,7 +2269,7 @@ app.get('/api/import/scan-downloads', requireAdmin, async (req, res) => {
       }
     }
 
-    scanDir(downloadsDir, '');
+    await scanDir(downloadsDir, '');
     files.sort((a, b) => new Date(b.modified) - new Date(a.modified));
     res.json({ dir: downloadsDir, files });
   } catch(e) {
@@ -2298,21 +2310,12 @@ app.post('/api/import/parse-file', requireAdmin, async (req, res) => {
         tasks: mapped,
       });
     } else {
-      const parsed = parseExcelFile(fullPath);
+      const parsed = await parseExcelFile(fullPath);
       if (parsed.sheets.length === 0) return res.status(400).json({ error: 'Empty spreadsheet' });
       const targetSheet = sheet ? parsed.sheets.find(s => s.name === sheet) : parsed.sheets[0];
       if (!targetSheet) return res.status(400).json({ error: 'Sheet not found' });
       const format = detectImportFormat(targetSheet.headers);
-      const mapped = mapRowsToTasks(format.format, targetSheet.headers, targetSheet.sample.length < targetSheet.rowCount
-        ? (() => {
-            // Re-read all rows for full import
-            const wb = XLSX.readFile(fullPath, { cellDates: true });
-            const ws = wb.Sheets[targetSheet.name];
-            const allRows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: false, dateNF: 'dd/mm/yyyy' });
-            return allRows.slice(1).filter(r => r.some(c => c != null && String(c).trim() !== ''));
-          })()
-        : targetSheet.sample
-      );
+      const mapped = mapRowsToTasks(format.format, targetSheet.headers, targetSheet.rows || targetSheet.sample);
       res.json({
         filename: safeName, type: 'xlsx',
         format: format.format, formatLabel: format.label,

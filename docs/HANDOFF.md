@@ -1,64 +1,117 @@
-# Handoff — 2026-04-19 Evening Session (Projects Tab Crash + Bug Fixes)
+# Handoff — 2026-04-20 Tech Debt Cleanup Complete
 
 ## What happened this session
 
-Glen reported the **Projects tab wouldn't load**. Diagnosing it took a while because automated tests (Playwright, syntax checks, function-existence scans) all passed clean. The bug only manifested when the user had `taskSubView = 'board'` stored in localStorage, which none of the clean-session tests hit. Adding a visible `window.onerror` overlay to the page finally surfaced the error: `ReferenceError: BOARD_LANE_CAP is not defined`.
+### 1. Stale file audit
+All pending task items (G1-G5, Kanban) were already shipped. `pending_tasks.md` hadn't been updated since 2026-04-15. Rewrote it, `conversation_context.md`, and this handoff from scratch.
 
-### Bugs found and fixed
+### 2. False blocker removal
+Three items listed as blocked were already resolved:
+- **SMTP** — not needed. Email uses Microsoft Graph (`@azure/msal-node`, Azure AD creds in `.env`). Fully operational.
+- **News LLM API key** — already set in `projects/news-aggregator/.env` (primary + failover).
+- **News LLM pipeline** — not blocked.
 
-| # | Bug | Root cause | Fix | File | Line |
-|---|-----|-----------|-----|------|------|
-| 1 | **Projects tab crash** (the blocker) | Constant defined as `BOARD_BOARD_LANE_CAP` (doubled "BOARD") but referenced as `BOARD_LANE_CAP` -- ReferenceError killed renderBoardView, which killed renderTaskView, which killed the entire view switch | Renamed definition to `BOARD_LANE_CAP` | nbi_project_dashboard.html | 2987 |
-| 2 | **CSP blocks self-hosted fonts** | `font-src` directive only allowed `fonts.gstatic.com` but fonts were self-hosted in `/public/fonts/` since commit 4c736ac | Added `'self'` to `font-src` | dashboard-server/server.js | 557 |
-| 3 | **Logout kills all event handlers** | `cleanupListeners()` on logout removed 10 document/window-level handlers (click delegation, keyboard shortcuts, drag-drop, popstate, resize, online/offline) that were never re-registered on login | Changed all persistent handlers from `addManagedListener` to plain `addEventListener` | nbi_project_dashboard.html | multiple |
-| 4 | **removeRepeatDate** (from prior session QA) | `idx` arrives as string from `data-arg`, but `filter((_, i) => i !== idx)` does strict comparison -- `2 !== '2'` is always true, so no dates ever removed | Added `parseInt(idx, 10)` | nbi_project_dashboard.html | 8988 |
-| 5 | **_actSetInlineDetail** (from prior session QA) | `_BOOL` map converts `'true'` to boolean `true` before function receives it, then function compared `true === 'true'` which is always false | Changed to `!!v` | nbi_project_dashboard.html | 2467 |
+### 3. Console call cleanup
+- **server.js**: 3 `console.error` calls replaced with structured `log()`. Zero console calls remain.
+- **Frontend**: 14 `console.log` calls removed (debug noise). 23 error-path calls guarded behind `window._nbiDebug` (silent in production, available via `window._nbiDebug = true` in browser console).
 
-### Post-fix verification
+### 4. xlsx → exceljs vulnerability fix
+Replaced `xlsx` (SheetJS) — HIGH severity, abandoned on npm, prototype pollution + ReDoS — with `exceljs` (actively maintained, zero known vulns).
 
-- 272 `data-action` handler references checked -- all resolve to existing functions
-- 38 ALL_CAPS constants checked -- all defined and correctly referenced, no typos remaining
-- Playwright screenshot test confirms Projects tab renders correctly after logout/re-login cycle
-- Page tested through both `localhost:8888` and `worksage.nbi-consulting.com` (Cloudflare tunnel) -- both clean
+**Server changes** (`dashboard-server/server.js`):
+- `const XLSX = require('xlsx')` → `const ExcelJS = require('exceljs')`
+- `parseExcelFile()` now `async`, uses `ExcelJS.Workbook().xlsx.readFile()` + row iterator
+- Returns `rows` field (all data rows) alongside `sample` (first 5) when not in headersOnly mode
+- Import endpoint uses `targetSheet.rows || targetSheet.sample` instead of inline XLSX re-read
+- `scanDir()` now `async` with `await` on both `parseExcelFile` and recursive calls
 
-## Uncommitted changes
+**Frontend changes** (`nbi_project_dashboard.html`):
+- Script tag: `xlsx.full.min.js` → `exceljs.min.js`
+- `parseExcelPreview()` now `async`, uses `ExcelJS.Workbook().xlsx.load()` + `eachRow()`
+- `handleFile()` caller handles the async return with `.catch()`
+- Date formatting preserved (DD/MM/YYYY output from Date objects)
 
-Two files with substantive changes (not yet committed):
+**Files removed**: `dashboard-server/public/vendor/xlsx.full.min.js`
+**Files added**: `dashboard-server/public/vendor/exceljs.min.js` (copied from node_modules dist)
+**Package**: `xlsx` uninstalled, `exceljs@^4.4.0` installed
 
-### `nbi_project_dashboard.html` (102 insertions, 75 deletions)
+**npm audit result**: HIGH vulnerability eliminated. 5 moderate remain (esbuild/vite/vitest chain — dev-only, not production, force-upgrade doesn't fix them).
 
-- **Bug fixes 1, 3, 4, 5** listed above
-- **Portfolio Dashboard v4 panel refinements** (carried over from prior session, not yet committed):
-  - `renderPfTimeline`: rewritten to group by client, provide fallback dates for projects without start/end, sticky month header, scrollable panel body
-  - `renderPfWorkTypes`: removed `_leadsConfig` dependency, filters zero-count entries, shows count beside each bar
-  - CSS: `.pf__panels` grid gets fixed height (`min(780px, calc(100vh - 300px))`), panels get `min-height: 0` and `overflow-y: auto` for scroll, responsive breakpoints updated
+---
 
-### `dashboard-server/server.js` (1 line)
+## Git State
 
-- **Bug fix 2**: `font-src 'self' fonts.gstatic.com` (was `font-src fonts.gstatic.com`)
-- PM2 was restarted to pick up this change
+**Current branch:** master
 
-## State of the codebase
+**Master HEAD:** `40a3ab1` (last commit — tech debt changes are uncommitted)
 
-- **Branch:** `master`
-- **Last commit:** `6d716b9 fix(dashboard): donut leader-line geometry + sizing polish`
-- **PM2:** running, pid 41080, restart 92
-- **Tests:** 128 vitest + 47 Playwright were green as of the prior session QA (not re-run this session since changes were targeted fixes, not structural)
-- **Temp files to clean up:** `projects_tab_test.png`, `projects_after_relogin.png`, `projects_tab_worksage.png` in repo root (Playwright debug screenshots, not committed)
+**Uncommitted changes:**
+- `dashboard-server/server.js` — ExcelJS swap + console.error→log()
+- `nbi_project_dashboard.html` — ExcelJS swap + console.log cleanup
+- `dashboard-server/package.json` + `package-lock.json` — xlsx→exceljs
+- `dashboard-server/public/vendor/exceljs.min.js` — new vendor bundle
+- `dashboard-server/public/vendor/xlsx.full.min.js` — deleted
+- `docs/HANDOFF.md`, session logs, live state files — updated
+- Various untracked session logs and spec files from prior sessions
 
-## What to do next session
+---
 
-1. **Commit the uncommitted changes** -- suggest a single commit: `fix(dashboard): BOARD_LANE_CAP typo, CSP font-src, event handler persistence, portfolio panel polish`
-2. **Run the full test suite** (`npm test` and `npm run test:all`) to confirm nothing regressed
-3. **Manual UAT** -- click through all major views (Dashboard, Projects tree/board/gantt/calendar, People, Leads, Finances, Bugs, Settings). The board sub-view specifically was the one that was crashing.
-4. **Consider adding a board-view Playwright test** -- the bug was only triggered with `taskSubView = 'board'` in localStorage, which no existing test covers
+## PM2 Status
 
-## Lessons learned
+| Service | Port | Status |
+|---|---|---|
+| nbi-dashboard | 8888 | online (needs restart after commit to pick up server.js changes) |
+| nbi-news | 8890 | online |
 
-- **Clean-session Playwright tests miss localStorage-dependent bugs.** The board view crash only happened when `nbi_task_subview` was set to `'board'` in localStorage. All automated tests used fresh sessions with the default tree view.
-- **Injecting a visible error overlay** (`window.onerror` with a red banner) was the thing that actually found the bug. Worth keeping that pattern in the debugging toolkit.
-- **`addManagedListener` + `cleanupListeners` is a footgun.** Any handler registered through the managed system gets destroyed on logout. The fix (plain `addEventListener` for persistent handlers) is correct but the `addManagedListener` function is now unused. It can be removed in a cleanup pass, or kept if session-scoped listeners are ever needed in future.
+---
 
-## Previous handoff context (audit sprint)
+## Tests
 
-The prior session completed the WorkSage audit fix sprint: 78 items shipped, 11 closed as non-issues, 39 parked for Tier 4 architecture. Full details in the git history and prior session handoffs in `projects/nbi_dashboard/session_handoffs/`.
+186/186 green (Vitest). Server boots clean with all crons registered.
+
+---
+
+## Awaiting Glen UAT
+
+### Client Portal (merged `8b74230`)
+- Client user login, forced password change, scoped views, team management
+
+### News M4: Search + Admin (merged `40a3ab1`)
+- Search subtab, admin panels (feeds, prompts, sources, stories)
+
+---
+
+## On Hold
+
+| Item | Blocker |
+|---|---|
+| QuickBooks Time API | Bryan Rasmussen's API token |
+| Excel import template | Glen to populate with real data and test |
+
+---
+
+## Backlog (needs brainstorming before code)
+
+- Gantt enhancements (dependency arrows)
+- SoW hierarchy layer
+- Hiring page full spec
+- Telemetry + BI Analytics Dashboard
+- Real research backend (Brave/Tavily/Anthropic)
+- Standup on Projects "By Project" view (brainstorming was in progress in earlier session)
+
+---
+
+## Context budget directive
+
+Glen's instruction: do NOT load full `work_completed.md` into context. Read only the tail (~50 lines) at session start. Search older entries on demand. The file is 800+ lines and growing.
+
+---
+
+## Key Files
+
+| File | Purpose |
+|---|---|
+| `dashboard-server/server.js` | All backend logic (9,105 lines) |
+| `nbi_project_dashboard.html` | All frontend logic (20,022 lines) |
+| `projects/nbi_dashboard/live_state/` | Session-persistent state files |
+| `projects/nbi_dashboard/session_logs/` | Append-only session logs |

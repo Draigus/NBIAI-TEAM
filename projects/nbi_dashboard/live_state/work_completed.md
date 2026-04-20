@@ -4,6 +4,64 @@ Append-only. Every feature/fix completed gets logged here immediately.
 
 ---
 
+## 2026-04-20 (State file audit + false blocker resolution)
+
+Glen directed audit of pending_tasks.md. All G1-G5 + Kanban items were already shipped — file hadn't been updated since 2026-04-15.
+
+**Three false blockers removed:**
+- **SMTP** — not needed. Email uses Microsoft Graph via `@azure/msal-node` with Azure AD client credentials. Fully operational: password resets, notifications, PM reports, due date warnings all sending via Graph API.
+- **News LLM API key** — already configured. `ANTHROPIC_API_KEY` and `ANTHROPIC_API_KEY_FAILOVER` both set in `projects/news-aggregator/.env`.
+- **News LLM pipeline** — not blocked. Pipeline is ready to run on cron schedule.
+
+**Files updated:** pending_tasks.md (rewritten), conversation_context.md (rewritten), HANDOFF.md (rewritten).
+
+---
+
+## 2026-04-20 (News Aggregator M4 — Search + Admin)
+
+Branch `feat/news-m4-search-admin`, commit `72e62a0`. 9 files, 433 lines added. 128 tests passing, TypeScript clean.
+
+**Backend (7 new files):**
+- `src/routes/search.ts` — Full-text search with PostgreSQL tsvector, ts_headline snippets, filters (q, source, category, date range, has_video)
+- `src/auth/internal.ts` — Admin auth layer: `authenticateInternal` (timingSafeEqual + user context parsing) + `requireAdmin`
+- `src/routes/admin/feed-health.ts` — Source health dashboard (7-day rolling stats, enable/disable toggle, per-source history)
+- `src/routes/admin/stories.ts` — Story merge (2+ stories into one) and split (subset of articles to new story) with automatic LLM re-summarisation
+- `src/routes/admin/prompts.ts` — Prompt version management (list, create new version, activate/deactivate)
+- `src/routes/admin/sources.ts` — Source CRUD (add, edit, delete)
+- `src/routes/admin/regenerate.ts` — Manual digest and story regeneration via LLM pipeline
+
+**Frontend:**
+- News tab: "Search" subtab with input, category filter, video checkbox, highlighted results
+- Settings > News tab (admin only): feed health table, prompt editor with version history, source management, story merge/regenerate panel
+- 22 CSS rules for search UI and admin tables
+
+---
+
+## 2026-04-20 (Client Portal — Full Implementation)
+
+Branch `feat/client-portal`, 14 commits. 186 tests passing.
+
+### Backend (Tasks 1-8)
+- DB migration: `client_role`, `must_change_password` on users, `source`/`reporter_client_id` on bug_reports, `client_activity_log` table
+- Middleware: extracted `requireAdmin`, renamed `requireInternal` to `requireNBI`, added `requireClientAdmin`, `requireTaskAccess`
+- Auth: extended `requireAuth` with `clientRole`, `isNBI`, `isClientAdmin`, `mustChangePassword`
+- User management: client admin can create/deactivate/reactivate/reset-password for own company users
+- Task endpoints: opened POST/PATCH to all authenticated users with scope checks
+- Bug reports: opened to client users with `reporter_client_id` scoping, auto-tags source
+- Email forwarding: client scope check on inbound email task matching
+
+### Frontend (Tasks 9-12)
+- `isClientUser()` and `isClientAdmin()` helpers
+- Sidebar: Bug Tracker and Settings visible to client users, portfolio locked to own company
+- Client filter locked for scoped users (set on init, guard on filterByClient)
+- Company name shown in header for client users
+- Forced password change modal on first login with temp password
+- Settings: Account for all, Team for admin/client admin, Config/Data/Bugs for NBI only
+- Client admin Team tab: invite, deactivate, reactivate, reset password
+- Bug tracker: Source column for NBI users (Internal/Client name)
+
+---
+
 ## 2026-04-17 (News aggregator M2 COMPLETE — Tasks 14-26)
 
 Full M2 milestone shipped end-to-end. LLM pipeline, prompts, orchestrators,

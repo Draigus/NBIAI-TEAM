@@ -22,7 +22,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NBI Project Dashboard</title>
-<script src="/public/vendor/xlsx.full.min.js"></script>
+<script src="/public/vendor/exceljs.min.js"></script>
 <link href="/public/fonts/fonts.css" rel="stylesheet">
 <style>
 /* ===== RESET & TOKENS ===== */
@@ -279,11 +279,11 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .tactical-metric { flex: 1; text-align: center; padding: 12px 8px; background: var(--bg-card); }
 .tactical-metric__value { display: block; font-size: 1.6rem; font-weight: 700; font-family: var(--font-display); line-height: 1.2; }
 .tactical-metric__label { font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; }
-.tactical-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: var(--space-md); }
+.tactical-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-md); align-items: stretch; }
 .tactical-panel { display: flex; flex-direction: column; gap: var(--space-md); min-width: 0; }
 .tactical-section { min-width: 0; overflow: hidden; }
 .tactical-section .tactical-item { word-break: break-word; }
-.tactical-section { background: color-mix(in srgb, var(--bg-card) 85%, var(--text-muted)); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-md); }
+.tactical-section { background: color-mix(in srgb, var(--bg-card) 85%, var(--text-muted)); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-md); min-height: 300px; max-height: 400px; overflow-y: auto; display: flex; flex-direction: column; }
 .tactical-multi-col { columns: 2 400px; column-gap: 32px; column-rule: 1px solid var(--border-strong); }
 .tactical-multi-col > * { break-inside: avoid; margin-bottom: 2px; }
 .tactical-section__header { margin-bottom: var(--space-sm); }
@@ -1052,11 +1052,15 @@ span.fin-editable { display: inline-block; position: relative; }
 /* ===== REPORT WORKLOAD BARS ===== */
 .report-workload { display: flex; flex-direction: column; gap: var(--space-sm); }
 .rw-row { display: flex; align-items: center; gap: var(--space-md); }
-.rw-name { min-width: 100px; font-size: 0.82rem; color: var(--text-primary); font-weight: 500; }
+.rw-name { width: 160px; min-width: 160px; font-size: 0.82rem; color: var(--text-primary); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .rw-bar-wrap { flex: 1; }
 .rw-bar { display: flex; height: 20px; border-radius: 4px; overflow: hidden; gap: 1px; min-width: 4px; }
 .rw-seg { transition: flex 0.3s; }
-.rw-nums { min-width: 130px; display: flex; gap: var(--space-md); font-size: 0.72rem; font-family: var(--font-mono); color: var(--text-muted); }
+.rw-nums { min-width: 180px; display: flex; gap: var(--space-sm); font-size: 0.72rem; font-family: var(--font-mono); color: var(--text-muted); }
+.rw-nums span { display: inline-block; text-align: right; }
+.rw-nums .rw-n-tasks { width: 32px; }
+.rw-nums .rw-n-spent { width: 52px; }
+.rw-nums .rw-n-est { width: 52px; }
 
 /* ===== CLICKABLE REPORT ROWS ===== */
 .report-table__clickable { cursor: pointer; transition: background 0.15s; }
@@ -3101,7 +3105,7 @@ let _rptProgressSort = { col: 'title', dir: 'asc' }; // Sort state for the "Prog
 // People-tab sort state (G4). Each table on the People view has its own
 // state object. Columns are table-specific; default order matches the
 // previous alphabetical-by-name behaviour.
-let _peopleWorkloadSort = { col: 'name', dir: 'asc' };       // Workload Overview bar chart
+let _peopleWorkloadSort = { col: 'total', dir: 'desc' };      // Workload Overview bar chart — largest first
 let _peopleCapacitySort = { col: 'name', dir: 'asc' };       // Capacity Planning table (cols: name | w0..w3)
 let _peopleClientHoursSort = { col: 'name', dir: 'asc' };    // Hours by Person per Client (cols: name | <client name> | total)
 let _peopleTaskSummarySort = { col: 'name', dir: 'asc' };    // Task Summary by Person (cols: name | total | done | active | blocked | notstarted | spent | estimate)
@@ -3230,19 +3234,18 @@ async function syncToAPI() {
       body: JSON.stringify(payload),
     });
     if (!resp.ok) {
-      console.warn('[Sync] Incremental sync failed:', resp.status);
+      if (window._nbiDebug) console.warn('[Sync] Incremental sync failed:', resp.status);
       dirtyIds.forEach(id => _dirtyTaskIds.add(id));
       deletedIds.forEach(id => _deletedTaskIds.add(id));
       if (sendBriefs) _briefsDirty = true;
       showSyncStatus('error', 'Sync failed — retrying...');
     } else {
-      console.log('[Sync] Synced', changes.length, 'changes');
       _lastLocalSyncTime = Date.now();
       walClear([...dirtyIds, ...deletedIds]);
       showSyncStatus('saving', 'Saved ✓');
     }
   } catch (e) {
-    console.warn('[Sync] Error:', e.message);
+    if (window._nbiDebug) console.warn('[Sync] Error:', e.message);
     dirtyIds.forEach(id => _dirtyTaskIds.add(id));
     deletedIds.forEach(id => _deletedTaskIds.add(id));
     if (sendBriefs) _briefsDirty = true;
@@ -3271,10 +3274,8 @@ async function load() {
       }
       if (data.knownClients) settings.knownClients = data.knownClients;
       _lastPollTime = new Date().toISOString();
-      console.log('[DB] Loaded from database:', tasks.length, 'tasks');
     }
   } catch (e) {
-    console.log('[DB] API unavailable, using localStorage');
   }
 
   // Fall back to localStorage if API had no data
@@ -3319,7 +3320,7 @@ async function load() {
             recovered++;
           }
         } else {
-          console.warn('[WAL] Skipped orphan entry — task', entry.id, 'no longer exists on server');
+          if (window._nbiDebug) console.warn('[WAL] Skipped orphan entry — task', entry.id, 'no longer exists on server');
         }
       } else if (entry.action === 'delete') {
         if (!_deletedTaskIds.has(entry.id)) {
@@ -3386,7 +3387,6 @@ let _syncPollInterval = setInterval(async () => {
     if (changed) {
       localStorage.setItem('nbi_dashboard_tasks', JSON.stringify(tasks));
       if (Date.now() - _lastLocalSyncTime < SELF_ECHO_WINDOW_MS) {
-        console.log('[Sync] Poll: skipping re-render (own changes within cooldown)');
       } else {
         // Changes from another user — re-render content but preserve scroll exactly
         _softReRender();
@@ -4164,8 +4164,8 @@ function renderClientProfileHeader() {
 
 /** Render the main tab bar, filtering out tabs the current user lacks permission to see */
 function renderTabs() {
-  const tabs = ['dashboard', 'tasks', 'people', 'leads', 'expenses', 'finances', 'news', 'settings']; // 'report' removed — old report view, kept for revert
-  const labels = { dashboard: 'Portfolio', tasks: 'Projects', report: 'Report', people: 'People', leads: 'Leads', expenses: 'Expenses', finances: 'Finances', news: 'News', settings: 'Settings' };
+  const tabs = ['dashboard', 'tasks', 'workload', 'people', 'leads', 'expenses', 'finances', 'news', 'settings'];
+  const labels = { dashboard: 'Portfolio', tasks: 'Projects', workload: 'Workload', report: 'Report', people: 'People', leads: 'Leads', expenses: 'Expenses', finances: 'Finances', news: 'News', settings: 'Settings' };
   // Filter tabs based on permissions
   const visibleTabs = tabs.filter(t => {
     if (t === 'finances' || t === 'leads' || t === 'expenses') return hasPageAccess(t);
@@ -4308,6 +4308,7 @@ function _renderMainContent(content) {
   else if (currentView === 'finances') renderFinancesView(content);
   else if (currentView === 'bugs') renderBugTrackerView(content);
   else if (currentView === 'hiring') renderHiringView(content);
+  else if (currentView === 'workload') renderWorkloadView(content);
   else if (currentView === 'news') renderNewsOrLoad(content);
   else if (currentView === 'settings') renderSettings(content);
   if (currentView === 'tasks' && taskSubView === 'gantt') {
@@ -4421,6 +4422,17 @@ function renderDashboard(el) {
   // }
 }
 
+function renderWorkloadView(el) {
+  let html = renderClientProfileHeader();
+  if (currentFilter.client && _profileExpanded[currentFilter.client.replace(/[^a-zA-Z0-9]/g, '_')]) {
+    setTimeout(() => loadClientNotes(currentFilter.client), 50);
+  }
+  html += renderTacticalDashboard();
+  el.innerHTML = html;
+  const standupExpanded = sessionStorage.getItem('nbi_standup_expanded') === '1';
+  if (standupExpanded) _loadStandupContent();
+}
+
 // ===== TACTICAL DASHBOARD — "What needs attention right now?" =====
 /** Build the tactical dashboard HTML: metrics strip, overdue/this-week panels, blocked/at-risk, standup */
 function renderTacticalDashboard() {
@@ -4443,7 +4455,7 @@ function renderTacticalDashboard() {
     const d = safeParseDate(t.dueDate);
     return d >= now && d <= weekEnd;
   }).sort((a,b) => new Date(a.dueDate) - new Date(b.dueDate));
-  const blockedTasks = filtered.filter(t => t.healthState === 'Blocked' && t.status !== 'Done' && t.status !== 'Cancelled');
+  const blockedTasks = filtered.filter(t => (t.healthState === 'Blocked' || t.status === 'Blocked') && t.status !== 'Done' && t.status !== 'Cancelled');
   const redHealth = filtered.filter(t => t.healthState === 'Red' && t.status !== 'Done' && t.status !== 'Cancelled');
   const inProgress = filtered.filter(t => t.status === 'In progress');
   const done = filtered.filter(t => t.status === 'Done').length;
@@ -4477,19 +4489,7 @@ function renderTacticalDashboard() {
     return `<span style="display:block;font-size:0.85rem;font-weight:600;color:${col};margin-top:2px">${up ? '&#9650;' : '&#9660;'}${Math.abs(delta)}</span>`;
   }
 
-  // Project-focused metric strip — clickable, each scrolls to its section or filters
-  const donePct = filtered.length ? Math.round(done / filtered.length * 100) : 0;
-  const metricClick = (section) => `data-action="_actScrollTo" data-arg0="${section}"`;
-  const metricFilter = (status) => `data-action="_actSetFilterStatusAndSwitch" data-arg0="${status}"`;
-  html += `<div class="tactical-metrics">
-    <div class="tactical-metric" style="cursor:pointer" ${metricFilter('In progress')}><span class="tactical-metric__value" style="color:var(--accent)">${inProgress.length}</span><span class="tactical-metric__label">Active</span></div>
-    <div class="tactical-metric" style="cursor:pointer" ${metricClick('tactOverdue')}><span class="tactical-metric__value" style="color:${overdueTasks.length > 0 ? 'var(--danger)' : 'var(--success)'}">${overdueTasks.length}</span>${trendArrow(newlyOverdue, true)}<span class="tactical-metric__label">Overdue</span></div>
-    <div class="tactical-metric" style="cursor:pointer" ${metricClick('tactThisWeek')}><span class="tactical-metric__value" style="color:${dueThisWeek.length > 0 ? '#f59e0b' : 'var(--success)'}">${dueThisWeek.length}</span><span class="tactical-metric__label">This Week</span></div>
-    <div class="tactical-metric" style="cursor:pointer" ${metricClick('tactBlocked')}><span class="tactical-metric__value" style="color:${blockedTasks.length > 0 ? 'var(--purple)' : 'var(--success)'}">${blockedTasks.length}</span><span class="tactical-metric__label">Blocked</span></div>
-    <div class="tactical-metric" style="cursor:pointer" ${metricClick('tactAtRisk')}><span class="tactical-metric__value" style="color:${redHealth.length > 0 ? 'var(--warning)' : 'var(--success)'}">${redHealth.length}</span><span class="tactical-metric__label">At Risk</span></div>
-    <div class="tactical-metric"><span class="tactical-metric__value" style="color:var(--success)">${donePct}%</span>${trendArrow(completedThisWeek, false)}<span class="tactical-metric__label">Complete</span></div>
-    <div class="tactical-metric"><span class="tactical-metric__value">${filtered.length}</span><span class="tactical-metric__label">Total</span></div>
-  </div>`;
+  // KPI metrics strip removed per Glen's direction (2026-04-20)
 
   /** Return severity styling (background, font weight, icon) based on days overdue */
   function lateSeverity(daysLate) {
@@ -4565,10 +4565,12 @@ function renderTacticalDashboard() {
   }
   html += `</div>`; // close This Week section
 
-  // Blocked (inline in the grid row on widescreen)
-  if (blockedTasks.length > 0) {
-    html += `<div class="tactical-section" id="tactBlocked">`;
-    html += `<div class="tactical-section__header"><span class="tactical-section__title" style="color:var(--purple)">&#128721; Blocked (${blockedTasks.length})</span></div>`;
+  // Blocked — always render tile for consistent 4-column layout
+  html += `<div class="tactical-section" id="tactBlocked">`;
+  html += `<div class="tactical-section__header"><span class="tactical-section__title" style="color:var(--purple)">&#128721; Blocked (${blockedTasks.length})</span></div>`;
+  if (blockedTasks.length === 0) {
+    html += `<div class="tactical-empty">No blocked tasks</div>`;
+  } else {
     blockedTasks.forEach(t => {
       const owner = (t.assignees || []).join(', ') || 'Unassigned';
       html += `<div class="tactical-item" data-action="openDetailOverlay" data-arg0="${t.id}" style="border-left:3px solid var(--purple)">
@@ -4577,13 +4579,15 @@ function renderTacticalDashboard() {
         <span class="tactical-item__assignee">${esc(owner)}</span>
       </div>`;
     });
-    html += `</div>`;
   }
+  html += `</div>`;
 
-  // At Risk (inline in the grid row on widescreen)
-  if (redHealth.length > 0) {
-    html += `<div class="tactical-section" id="tactAtRisk">`;
-    html += `<div class="tactical-section__header"><span class="tactical-section__title" style="color:var(--warning)">&#9888; At Risk (${redHealth.length})</span></div>`;
+  // At Risk — always render tile for consistent 4-column layout
+  html += `<div class="tactical-section" id="tactAtRisk">`;
+  html += `<div class="tactical-section__header"><span class="tactical-section__title" style="color:var(--warning)">&#9888; At Risk (${redHealth.length})</span></div>`;
+  if (redHealth.length === 0) {
+    html += `<div class="tactical-empty">No at-risk tasks</div>`;
+  } else {
     redHealth.forEach(t => {
       const owner = (t.assignees || []).join(', ') || 'Unassigned';
       html += `<div class="tactical-item" data-action="openDetailOverlay" data-arg0="${t.id}" style="border-left:3px solid var(--warning)">
@@ -4593,8 +4597,8 @@ function renderTacticalDashboard() {
         ${healthBadgeHtml(t.healthState)}
       </div>`;
     });
-    html += `</div>`;
   }
+  html += `</div>`;
 
   html += `</div>`; // close tactical-grid
 
@@ -4643,7 +4647,7 @@ function renderPortfolioDashboard() {
   const roots = filtered.filter(t => !t.parentId && t.title && t.title.trim() !== 'New Task');
   const activeRoots = roots.filter(r => r.status !== 'Done' && r.status !== 'Cancelled');
   const overdueTasks = filtered.filter(t => t.dueDate && t.status !== 'Done' && t.status !== 'Cancelled' && safeParseDate(t.dueDate) < now);
-  const blockedTasks = filtered.filter(t => t.healthState === 'Blocked' && t.status !== 'Done' && t.status !== 'Cancelled');
+  const blockedTasks = filtered.filter(t => (t.healthState === 'Blocked' || t.status === 'Blocked') && t.status !== 'Done' && t.status !== 'Cancelled');
   const atRiskTasks = filtered.filter(t => t.healthState === 'Red' && t.status !== 'Done' && t.status !== 'Cancelled');
 
   const needsAttentionCount = overdueTasks.length;
@@ -9929,8 +9933,8 @@ function renderPeopleView(el) {
   scopedTasks.forEach(t => { if (t.assignees) t.assignees.forEach(a => assigneeSet.add(a)); });
   // Normalise: merge "Glen" and "Glen Pryer" into one canonical name
   const _assigneeMerge = normaliseAssignees(assigneeSet);
-  // Exclude client staff — these are external people assigned to tasks but not NBI team
-  const CLIENT_STAFF = ['Robin', 'Valeria', 'Lorenza'];
+  // Exclude client staff and hourly contractors not on permanent workload
+  const CLIENT_STAFF = ['Robin', 'Valeria', 'Lorenza', 'Jeff Day', 'Jessica Williams', 'Denise Delahanty', 'Bryan Rasmussen'];
   const allPeople = [...new Set(Object.values(_assigneeMerge))].filter(p => !CLIENT_STAFF.includes(p)).sort();
   // Helper: check if a task is assigned to canonical person (matches any merged variant)
   const mergeKeys = {};
@@ -10076,7 +10080,7 @@ function renderPeopleView(el) {
       if (r.blocked > 0) html += `<div class="rw-seg" style="flex:${r.blocked};background:var(--danger)" title="Blocked: ${r.blocked}"></div>`;
       if (other > 0) html += `<div class="rw-seg" style="flex:${other};background:var(--text-muted)" title="Other: ${other}"></div>`;
       html += `</div></div>`;
-      html += `<div class="rw-nums"><span>${r.pt.length}</span><span>${r.hs.toFixed(1)}h</span></div>`;
+      html += `<div class="rw-nums"><span class="rw-n-tasks">${r.pt.length}</span><span class="rw-n-spent">${r.hs.toFixed(1)}h</span><span class="rw-n-est">${r.he.toFixed(1)}h</span></div>`;
       html += `</div>`;
     });
     html += `</div></div>`;
@@ -10735,7 +10739,7 @@ function saveFinanceData(data) {
   const requiredKeys = ['revenue', 'payroll', 'opex'];
   const missing = requiredKeys.filter(k => !Array.isArray(data[k]));
   if (missing.length > 0) {
-    console.warn('[Finance] Repaired corrupt save — missing keys:', missing.join(', '), '— restored from defaults');
+    if (window._nbiDebug) console.warn('[Finance] Repaired corrupt save — missing keys:', missing.join(', '), '— restored from defaults');
     // Restore missing keys from seed rather than saving broken data
     const defaults = NBI_FINANCE_SEED;
     missing.forEach(k => { data[k] = data[k] || JSON.parse(JSON.stringify(defaults[k] || [])); });
@@ -10748,7 +10752,7 @@ function saveFinanceData(data) {
   // This prevents overwriting another user's finance entries when loading with an empty local cache.
   const totalEntries = (data.revenue || []).length + (data.payroll || []).length + (data.opex || []).length + (data.pipeline || []).length;
   if (totalEntries === 0 && _financeVersion > 0) {
-    console.warn('[Finance] Skipping DB save — data is empty but server has version', _financeVersion);
+    if (window._nbiDebug) console.warn('[Finance] Skipping DB save — data is empty but server has version', _financeVersion);
     renderContent();
     return;
   }
@@ -10765,7 +10769,6 @@ function saveFinanceData(data) {
       if (resp.ok) {
         const result = await resp.json();
         _financeVersion = result.version || _financeVersion;
-        console.log('[Finance] Saved to database, version:', _financeVersion);
       } else if (resp.status === 409) {
         const err = await resp.json();
         const pendingData = JSON.parse(JSON.stringify(data));
@@ -10784,7 +10787,7 @@ function saveFinanceData(data) {
         const err = await resp.json().catch(() => ({}));
         showToast(err.error || 'Failed to save finance data', 'warning');
       }
-    } catch(e) { console.warn('[Finance] DB save failed, data safe in localStorage:', e.message); }
+    } catch(e) { if (window._nbiDebug) console.warn('[Finance] DB save failed, data safe in localStorage:', e.message); }
   }, FINANCE_DEBOUNCE_MS);
   renderContent();
 }
@@ -10800,12 +10803,11 @@ async function loadFinanceFromDB() {
         _financeData = result.data;
         _financeVersion = result.version || 0;
         localStorage.setItem('nbi_finance_data', JSON.stringify(_financeData));
-        console.log('[Finance] Loaded from database, version:', _financeVersion);
         if (currentView === 'finances') renderContent();
         return;
       }
     }
-  } catch(e) { console.warn('[Finance] DB load failed, using localStorage'); }
+  } catch(e) { if (window._nbiDebug) console.warn('[Finance] DB load failed, using localStorage'); }
   // If DB is empty, push localStorage/seed data up
   const data = getFinanceData();
   try {
@@ -10814,7 +10816,6 @@ async function loadFinanceFromDB() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ data })
     });
-    console.log('[Finance] Initial seed pushed to database');
   } catch(e) {}
 }
 /**
@@ -10911,7 +10912,7 @@ async function loadExpenseCategories() {
   try {
     const cats = await apiCall('/api/expenses/categories');
     if (cats) _expenseCategories = cats;
-  } catch(e) { console.error('Failed to load expense categories:', e); }
+  } catch(e) { if (window._nbiDebug) console.error('Failed to load expense categories:', e); }
 }
 
 /** Fetch expenses from the API, applying current status/user filters */
@@ -10922,7 +10923,7 @@ async function loadExpenses() {
   try {
     const data = await apiCall('/api/expenses?' + params.toString());
     if (data) _expensesData = data;
-  } catch(e) { console.error('Failed to load expenses:', e); }
+  } catch(e) { if (window._nbiDebug) console.error('Failed to load expenses:', e); }
 }
 
 /** Fetch expense reports from the API */
@@ -10930,7 +10931,7 @@ async function loadExpenseReports() {
   try {
     const data = await apiCall('/api/expense-reports');
     if (data) _expenseReportsData = data;
-  } catch(e) { console.error('Failed to load expense reports:', e); }
+  } catch(e) { if (window._nbiDebug) console.error('Failed to load expense reports:', e); }
 }
 
 /** Reload all expense data and re-render */
@@ -11788,7 +11789,6 @@ async function deleteExpense(id) {
 /** Upload a receipt, auto-extract fields, create expense, and open detail for review */
 async function processReceiptUpload(file) {
   if (!file) return;
-  console.log('[Receipt] Uploading:', file.name, file.type, (file.size/1024).toFixed(0) + 'KB');
   const formData = new FormData();
   formData.append('file', file);
   try {
@@ -11798,10 +11798,8 @@ async function processReceiptUpload(file) {
       credentials: 'include',
       body: formData
     });
-    console.log('[Receipt] Response status:', resp.status);
     if (resp.ok) {
       const result = await resp.json();
-      console.log('[Receipt] Result:', JSON.stringify(result.extracted));
       const ext = result.extracted;
       const amtStr = ext.amount ? ` ${ext.currency} ${ext.amount}` : '';
       const vendStr = ext.vendor ? ` — ${ext.vendor.substring(0, 40)}` : '';
@@ -11811,7 +11809,7 @@ async function processReceiptUpload(file) {
       openExpenseDetail(result.id);
     } else {
       const errText = await resp.text();
-      console.error('[Receipt] Error response:', errText);
+      if (window._nbiDebug) console.error('[Receipt] Error response:', errText);
       let errMsg = 'Unknown error';
       try { errMsg = JSON.parse(errText).error || errMsg; } catch(e) {}
       toast('Receipt processing failed: ' + errMsg, 'error');
@@ -12867,7 +12865,7 @@ async function loadLeadsConfig() {
   try {
     const data = await apiCall('/api/leads/config');
     if (data) { _leadsConfig = data; }
-  } catch(e) { console.error('Failed to load leads config:', e); }
+  } catch(e) { if (window._nbiDebug) console.error('Failed to load leads config:', e); }
   return _leadsConfig;
 }
 
@@ -12884,7 +12882,7 @@ async function loadLeads() {
   try {
     const data = await apiCall('/api/leads?' + params.toString());
     if (data) { _leadsData = data; }
-  } catch(e) { console.error('Failed to load leads:', e); }
+  } catch(e) { if (window._nbiDebug) console.error('Failed to load leads:', e); }
 }
 
 /** Format ROM (Rough Order of Magnitude) value for a lead — handles min/max ranges, text overrides, and NaN */
@@ -14914,12 +14912,12 @@ async function captureScreenshot() {
           html2canvas(mainEl, opts),
           new Promise(resolve => setTimeout(() => resolve(null), 8000))
         ]);
-      } catch(e2) { console.warn('[BugReport] html2canvas error (non-fatal):', e2.message); }
+      } catch(e2) { if (window._nbiDebug) console.warn('[BugReport] html2canvas error (non-fatal):', e2.message); }
       if (canvas && canvas.toDataURL) return canvas.toDataURL('image/jpeg', 0.65);
     }
     return null;
   } catch(e) {
-    console.warn('[BugReport] Screenshot capture failed:', e.message);
+    if (window._nbiDebug) console.warn('[BugReport] Screenshot capture failed:', e.message);
     return null;
   }
 }
@@ -15042,7 +15040,7 @@ async function loadBugReports() {
   try {
     const data = await apiCall('/api/bug-reports');
     if (data) _bugReportsData = data;
-  } catch(e) { console.error('Failed to load bug reports:', e); }
+  } catch(e) { if (window._nbiDebug) console.error('Failed to load bug reports:', e); }
 }
 
 /**
@@ -15336,7 +15334,7 @@ async function onBugLaneDrop(ev, targetStatus) {
       renderContent();
     }
   } catch (e) {
-    console.error('Bug drop failed', e);
+    if (window._nbiDebug) console.error('Bug drop failed', e);
     toast('Failed to move bug', 'error');
   }
 }
@@ -15794,7 +15792,7 @@ async function loadCandidates() {
   try {
     const data = await apiCall('/api/candidates');
     if (Array.isArray(data)) _candidatesData = data;
-  } catch (e) { console.error('Failed to load candidates:', e); }
+  } catch (e) { if (window._nbiDebug) console.error('Failed to load candidates:', e); }
 }
 
 /** Load all hiring positions from the API into _hiringPositionsData. */
@@ -15802,7 +15800,7 @@ async function loadHiringPositions() {
   try {
     const data = await apiCall('/api/hiring-positions');
     if (Array.isArray(data)) _hiringPositionsData = data;
-  } catch (e) { console.error('Failed to load hiring positions:', e); }
+  } catch (e) { if (window._nbiDebug) console.error('Failed to load hiring positions:', e); }
 }
 
 /**
@@ -15925,7 +15923,7 @@ async function onHiringLaneDrop(ev, newStage) {
     }
     renderContent();
   } catch (e) {
-    console.error('Hiring drop failed', e);
+    if (window._nbiDebug) console.error('Hiring drop failed', e);
     toast('Failed to move candidate', 'error');
   }
 }
@@ -16870,9 +16868,8 @@ async function loadPagePermissions() {
       const perms = typeof settings.page_permissions === 'string' ? JSON.parse(settings.page_permissions) : settings.page_permissions;
       _pagePermissions = perms;
       localStorage.setItem('nbi_page_permissions', JSON.stringify(perms));
-      console.log('[Permissions] Loaded from server:', JSON.stringify(perms));
     }
-  } catch(e) { console.warn('[Permissions] Failed to load from server, using local cache'); }
+  } catch(e) { if (window._nbiDebug) console.warn('[Permissions] Failed to load from server, using local cache'); }
 }
 
 /** Save page permissions to server settings (admin only) */
@@ -16884,8 +16881,7 @@ async function savePagePermissions() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ value: _pagePermissions })
     });
-    console.log('[Permissions] Saved to server');
-  } catch(e) { console.warn('[Permissions] Failed to save to server:', e.message); }
+  } catch(e) { if (window._nbiDebug) console.warn('[Permissions] Failed to save to server:', e.message); }
 }
 
 /** Change the current user's own password via the API */
@@ -17643,7 +17639,7 @@ function handleFile(file) {
   const ext = file.name.split('.').pop().toLowerCase();
   if (ext === 'xlsx' || ext === 'xls') {
     const reader = new FileReader();
-    reader.onload = e => { parseExcelPreview(new Uint8Array(e.target.result), file.name); };
+    reader.onload = e => { parseExcelPreview(new Uint8Array(e.target.result), file.name).catch(err => toast('Failed to parse Excel: ' + err.message, 'error')); };
     reader.readAsArrayBuffer(file);
   } else if (ext === 'csv') {
     const reader = new FileReader();
@@ -17654,30 +17650,43 @@ function handleFile(file) {
   }
 }
 
-/** Parse an Excel workbook (via SheetJS) and render a column-mapping preview with sheet selector */
-function parseExcelPreview(data, filename) {
+/** Parse an Excel workbook (via ExcelJS) and render a column-mapping preview with sheet selector */
+async function parseExcelPreview(data, filename) {
   try {
-    const wb = XLSX.read(data, { type: 'array', cellDates: true });
-    // Use first sheet (typically 'Tasks' in Planner exports)
-    const sheetName = wb.SheetNames.includes('Tasks') ? 'Tasks' : wb.SheetNames[0];
-    const ws = wb.Sheets[sheetName];
-    const rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: false, dateNF: 'dd/mm/yyyy' });
+    const wb = new ExcelJS.Workbook();
+    await wb.xlsx.load(data.buffer);
+    const sheetNames = wb.worksheets.map(ws => ws.name);
+    const sheetName = sheetNames.includes('Tasks') ? 'Tasks' : sheetNames[0];
+    const ws = wb.getWorksheet(sheetName);
+    const rows = [];
+    ws.eachRow({ includeEmpty: false }, (row) => {
+      const vals = [];
+      for (let c = 1; c <= row.cellCount; c++) {
+        const cell = row.getCell(c);
+        const v = cell.value;
+        if (v instanceof Date) { vals.push(`${String(v.getDate()).padStart(2,'0')}/${String(v.getMonth()+1).padStart(2,'0')}/${v.getFullYear()}`); }
+        else vals.push(v != null ? String(v) : null);
+      }
+      rows.push(vals);
+    });
     if (rows.length < 2) { toast('Spreadsheet appears empty', 'error'); return; }
 
     const headers = rows[0].map(h => String(h || '').trim());
     const dataRows = rows.slice(1).filter(r => r.some(c => c != null && String(c).trim() !== ''));
 
-    // Detect if this is a Microsoft Planner export
     const isPlannerExport = headers.includes('Task ID') && headers.includes('Bucket Name') && headers.includes('Progress');
 
-    // Check for Plan name sheet (Planner metadata)
     let planName = '';
-    if (wb.SheetNames.includes('Plan name')) {
-      const planSheet = XLSX.utils.sheet_to_json(wb.Sheets['Plan name'], { header: 1 });
-      if (planSheet.length > 0) {
-        const nameRow = planSheet.find(r => r[0] === 'Plan name');
-        if (nameRow) planName = nameRow[1] || '';
-      }
+    if (sheetNames.includes('Plan name')) {
+      const pnWs = wb.getWorksheet('Plan name');
+      const pnRows = [];
+      pnWs.eachRow({ includeEmpty: false }, (row) => {
+        const vals = [];
+        for (let c = 1; c <= row.cellCount; c++) { const v = row.getCell(c).value; vals.push(v != null ? String(v) : null); }
+        pnRows.push(vals);
+      });
+      const nameRow = pnRows.find(r => r[0] === 'Plan name');
+      if (nameRow) planName = nameRow[1] || '';
     }
 
     // Preview
@@ -19051,7 +19060,7 @@ async function fetchSeedData() {
   try {
     const data = await apiCall('/api/seed-data');
     if (data) return data.csv || null;
-  } catch(e) { console.log('[Seed] Server seed data not available'); }
+  } catch(e) {}
   return null;
 }
 
@@ -19084,7 +19093,6 @@ async function fetchSeedData() {
       return;
     }
   } catch (e) {
-    console.log('[Auth] Server unreachable, loading offline');
     document.getElementById('appContainer').style.display = '';
     document.getElementById('loginScreen').style.display = 'none';
     await openIDB();
@@ -19652,7 +19660,7 @@ async function loadNewsModule() {
     _newsModuleLoaded = true;
     renderNewsView();
   } catch (err) {
-    console.error('[news] initial load failed', err);
+    if (window._nbiDebug) console.error('[news] initial load failed', err);
     const el = document.getElementById('mainContent');
     if (el) el.innerHTML = newsTemplates.errorBanner(err && err.message || 'Unknown error');
   }
