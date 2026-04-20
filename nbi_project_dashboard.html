@@ -25,83 +25,8 @@
 <script src="/public/vendor/exceljs.min.js"></script>
 <link href="/public/fonts/fonts.css" rel="stylesheet">
 <link rel="stylesheet" href="/public/css/tokens.css">
+<link rel="stylesheet" href="/public/css/layout.css">
 <style>
-/* ===== HEADER ===== */
-.g-header { height: var(--header-h); background: var(--bg-raised); border-bottom: 1px solid var(--border-default); display: flex; align-items: center; justify-content: space-between; padding: 0 var(--space-xl); position: relative; z-index: 202; }
-.g-header__brand { display: flex; align-items: center; gap: var(--space-md); }
-.g-header__logo { font-family: var(--font-display); font-size: 0.95rem; font-weight: 700; color: var(--accent); letter-spacing: 1.5px; }
-.g-header__subtitle { font-size: 0.75rem; color: var(--text-muted); border-left: 1px solid var(--border-default); padding-left: var(--space-md); }
-.g-header__actions { display: flex; align-items: center; gap: var(--space-sm); }
-
-/* ===== THEME PICKER ===== */
-.theme-picker { position: relative; }
-.theme-picker__dropdown { display: none; position: absolute; top: calc(100% + 6px); right: 0; width: 200px; background: var(--bg-raised); border: 1px solid var(--border-default); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); z-index: 400; padding: var(--space-xs) 0; }
-.theme-picker__dropdown.open { display: block; }
-.theme-picker__label { padding: 4px var(--space-md); font-size: 0.62rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; }
-.theme-picker__item { display: flex; align-items: center; gap: var(--space-md); padding: 7px var(--space-md); cursor: pointer; font-size: 0.78rem; color: var(--text-secondary); transition: background 0.1s; }
-.theme-picker__item:hover { background: var(--bg-hover); color: var(--text-primary); }
-.theme-picker__item.active { color: var(--accent-text); font-weight: 600; }
-.theme-picker__swatches { display: flex; gap: 3px; margin-left: auto; }
-.theme-picker__swatch { width: 10px; height: 10px; border-radius: 50%; border: 1px solid rgba(128,128,128,0.25); }
-.theme-picker__sep { height: 1px; background: var(--border-default); margin: var(--space-xs) 0; }
-
-/* ===== BUTTONS ===== */
-.btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--bg-surface); color: var(--text-primary); font-family: var(--font-body); font-size: 0.8rem; font-weight: 500; cursor: pointer; transition: all 0.15s; white-space: nowrap; line-height: 1.4; }
-.btn:hover { background: var(--bg-hover); border-color: var(--border-strong); }
-.btn--primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-.btn--primary:hover { background: var(--accent-hover); }
-.btn--ghost { background: transparent; border-color: transparent; }
-.btn--ghost:hover { background: var(--bg-hover); }
-.btn--sm { padding: 4px 10px; font-size: 0.75rem; }
-.btn--danger { border-color: var(--danger-border); color: var(--danger); }
-.btn--danger:hover { background: var(--danger-bg); }
-
-/* ===== LAYOUT ===== */
-.shell { display: flex; height: calc(100dvh - var(--header-h)); }
-.sidebar { width: var(--sidebar-w); min-width: var(--sidebar-w); background: var(--bg-raised); border-right: 1px solid var(--border-default); display: flex; flex-direction: column; overflow: hidden; transition: width 0.15s, min-width 0.15s; }
-.sidebar.collapsed { width: 56px; min-width: 56px; }
-.sidebar.collapsed .sidebar__title, .sidebar.collapsed .sidebar__item__label, .sidebar.collapsed .sidebar__item__count, .sidebar.collapsed .sidebar__dot { display: none; }
-.sidebar.collapsed .sidebar__item { justify-content: center; padding: 9px 0; }
-.sidebar.collapsed .sidebar__item__icon { margin-right: 0; font-size: 1rem; }
-/* Collapsed-sidebar abbreviation chip — used by client and practice items
-   that have no icon and would otherwise show as an empty button (G1). */
-.sidebar__item__abbrev { display: none; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.02em; color: var(--text-secondary); }
-.sidebar.collapsed .sidebar__item__abbrev { display: inline-flex; align-items: center; justify-content: center; min-width: 28px; padding: 2px 4px; border-radius: 3px; background: var(--bg-hover); }
-.sidebar.collapsed .sidebar__item.active .sidebar__item__abbrev { background: var(--accent); color: #fff; }
-.sidebar__toggle { display: flex; align-items: center; justify-content: center; padding: 8px; cursor: pointer; color: var(--text-muted); border-top: 1px solid var(--border-default); font-size: 0.8rem; transition: color 0.12s; flex-shrink: 0; }
-.sidebar__toggle:hover { color: var(--text-primary); background: var(--bg-hover); }
-button.sidebar__item, button.sidebar__toggle { font: inherit; color: inherit; background: none; border: none; text-align: left; width: 100%; }
-.sidebar__nav { flex: 1; overflow-y: auto; padding: var(--space-lg) 0; }
-.sidebar__section { margin-bottom: var(--space-xl); }
-.sidebar__title { font-family: var(--font-display); font-size: 0.6rem; font-weight: 600; color: var(--text-muted); letter-spacing: 1.5px; text-transform: uppercase; padding: 0 var(--space-lg); margin-bottom: var(--space-sm); }
-/* Collapsible section titles (audit H4 sidebar overload).
-   Clicking the title hides the section's items. State persists in localStorage. */
-button.sidebar__title { display: flex; align-items: center; justify-content: space-between; width: 100%; background: none; border: none; font: inherit; color: var(--text-muted); cursor: pointer; text-align: left; padding: 2px var(--space-lg); border-radius: 3px; }
-button.sidebar__title:hover { color: var(--text-primary); background: var(--bg-hover); }
-button.sidebar__title:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
-button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: transform 0.15s; opacity: 0.6; }
-.sidebar__section[data-collapsed="true"] > button.sidebar__title::after { transform: rotate(-90deg); }
-.sidebar__section[data-collapsed="true"] > .sidebar__section__body { display: none; }
-.sidebar__item { display: flex; align-items: center; justify-content: space-between; padding: 7px var(--space-lg); cursor: pointer; color: var(--text-secondary); font-size: 0.85rem; transition: all 0.12s; border-left: 2px solid transparent; }
-.sidebar__item:hover { background: var(--bg-hover); color: var(--text-primary); }
-.sidebar__item.active { background: var(--accent-glow); color: var(--accent-text); border-left-color: var(--accent); }
-.sidebar__item__icon { margin-right: var(--space-sm); font-size: 0.9rem; }
-.sidebar__item__label { flex: 1; }
-.sidebar__item__count { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); }
-.header-alerts-btn--active { animation: header-alert-flash 3s ease-in-out infinite; border-color: #dc2626 !important; }
-@keyframes header-alert-flash { 0%,100% { background: transparent; color: inherit; } 50% { background: #dc2626; color: #fff; } }
-.sidebar__dot { width: 10px; height: 10px; border-radius: 50%; margin-right: var(--space-sm); flex-shrink: 0; }
-
-/* ===== MAIN CONTENT ===== */
-.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-.main__tabs { display: flex; gap: 0; background: var(--bg-raised); border-bottom: 1px solid var(--border-default); padding: 0 var(--space-xl); position: relative; z-index: 201; }
-.main__tabs::after { content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 24px; background: linear-gradient(to right, transparent, var(--bg-raised)); pointer-events: none; opacity: 0; transition: opacity 0.2s; }
-.main__tabs.has-overflow::after { opacity: 1; }
-.main__tab { padding: 10px 20px; cursor: pointer; font-size: 0.85rem; color: var(--text-secondary); border-bottom: 2px solid transparent; transition: all 0.15s; }
-.main__tab:hover { color: var(--text-primary); }
-.main__tab.active { color: var(--accent-text); border-bottom-color: var(--accent); }
-.main__content { flex: 1; overflow-y: auto; overflow-x: hidden; padding: var(--space-xl); width: 100%; }
-
 /* ===== KPI CARDS ===== */
 .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--space-lg); margin-bottom: var(--space-xl); }
 
