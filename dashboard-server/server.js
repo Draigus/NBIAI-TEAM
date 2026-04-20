@@ -8679,6 +8679,31 @@ async function processOneInboundEmail(message, opts = {}) {
     return { matched: false, confidence: 'none', subject };
   }
 
+  if (match.taskId && fromAddr) {
+    const { rows: senderRows } = await pool.query(
+      'SELECT client_id FROM users WHERE email = $1 AND is_active = true',
+      [fromAddr.toLowerCase()]
+    );
+    if (senderRows.length > 0 && senderRows[0].client_id) {
+      let currentId = match.taskId;
+      let depth = 0;
+      let rootClientId = null;
+      while (currentId && depth < 10) {
+        const { rows: t } = await pool.query('SELECT parent_id, client_id FROM tasks WHERE id = $1', [currentId]);
+        if (t.length === 0) break;
+        if (!t[0].parent_id) { rootClientId = t[0].client_id; break; }
+        currentId = t[0].parent_id;
+        depth++;
+      }
+      if (rootClientId && rootClientId !== senderRows[0].client_id) {
+        log('warn', 'InboundEmail', 'Client user email rejected — task belongs to different client', {
+          sender: fromAddr, taskId: match.taskId, senderClient: senderRows[0].client_id, taskClient: rootClientId
+        });
+        return { matched: false, reason: 'client_scope_mismatch' };
+      }
+    }
+  }
+
   const uploadedBy = match.confidence === 'high'
     ? 'nbihub (email)'
     : 'nbihub (email - verify match)';
