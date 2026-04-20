@@ -287,6 +287,7 @@
 <script type="module" src="/public/js/core/helpers.js"></script>
 <script type="module" src="/public/js/core/ui.js"></script>
 <script type="module" src="/public/js/core/state.js"></script>
+<script type="module" src="/public/js/core/router.js"></script>
 <script>
 // ===================================================================
 // NBI PROJECT DASHBOARD v2 — FULL FUNCTIONAL BUILD
@@ -1182,143 +1183,9 @@ function renderClientProfileHeader() {
 }
 
 // ==================== TABS & ROUTING ====================
-
-/** Render the main tab bar, filtering out tabs the current user lacks permission to see */
-function renderTabs() {
-  const tabs = ['dashboard', 'tasks', 'workload', 'people', 'leads', 'expenses', 'finances', 'news', 'settings'];
-  const labels = { dashboard: 'Portfolio', tasks: 'Projects', workload: 'Workload', report: 'Report', people: 'People', leads: 'Leads', expenses: 'Expenses', finances: 'Finances', news: 'News', settings: 'Settings' };
-  // Filter tabs based on permissions
-  const visibleTabs = tabs.filter(t => {
-    if (t === 'finances' || t === 'leads' || t === 'expenses') return hasPageAccess(t);
-    return true;
-  });
-  document.getElementById('mainTabs').setAttribute('role', 'tablist');
-  document.getElementById('mainTabs').innerHTML = visibleTabs.map(t => `<div class="main__tab ${currentView===t?'active':''}" data-action="switchView" data-arg0="${t}" role="tab" aria-selected="${currentView===t}" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchView('${t}')}">${labels[t]}</div>`).join('');
-  checkTabOverflow();
-}
-
-/** Detect if the tab bar is overflowing and show scroll fade indicator */
-function checkTabOverflow() {
-  const tabs = document.getElementById('mainTabs');
-  if (tabs) tabs.classList.toggle('has-overflow', tabs.scrollWidth > tabs.clientWidth);
-}
-
-/** Legacy hash route redirects — map removed views to their replacements */
-const LEGACY_ROUTES = { incomplete: 'tasks', changelog: 'settings', report: 'dashboard' };
-
-/** Switch to a different view and push a history state for browser back/forward */
-function switchView(view) {
-  if (LEGACY_ROUTES[view]) view = LEGACY_ROUTES[view];
-  const prev = currentView;
-  currentView = view;
-  // Re-collapse the tree when entering the Projects page from a different view
-  if (view === 'tasks' && prev !== 'tasks') { _tasksInitialCollapse = true; }
-  if (prev !== view) { history.pushState({ view, filter: { ...currentFilter }, taskSubView }, '', '#' + view); }
-  renderAll();
-}
-window.addEventListener('popstate', e => {
-  if (e.state && e.state.view) {
-    currentView = LEGACY_ROUTES[e.state.view] || e.state.view;
-    if (e.state.filter) {
-      currentFilter = e.state.filter;
-      // Migrate old single-value filters from browser history to arrays
-      if (currentFilter.status && typeof currentFilter.status === 'string') currentFilter.status = [currentFilter.status];
-      if (currentFilter.health && typeof currentFilter.health === 'string') currentFilter.health = [currentFilter.health];
-      if (currentFilter.assignee && typeof currentFilter.assignee === 'string') currentFilter.assignee = [currentFilter.assignee];
-      if (!Array.isArray(currentFilter.status)) currentFilter.status = [];
-      if (!Array.isArray(currentFilter.health)) currentFilter.health = [];
-      if (!Array.isArray(currentFilter.assignee)) currentFilter.assignee = [];
-    }
-    taskSubView = e.state.taskSubView || 'tree';
-    renderAll();
-  }
-});
-// Restore view from URL hash on page load (supports deep-linking e.g. #bugs, #leads)
-(function() {
-  const h = window.location.hash.replace('#', '');
-  const known = ['report','dashboard','tasks','people','leads','expenses','finances','news','bugs','settings','mytasks'];
-  if (h && known.includes(h)) currentView = LEGACY_ROUTES[h] || h;
-})();
-// Set initial history state
-history.replaceState({ view: currentView, filter: { ...currentFilter }, taskSubView }, '', '#' + currentView);
-/** Clear all active filters except sort order, and deselect any bulk-selected tasks */
-function resetFilters() { currentFilter = { client: null, project: null, status: [], health: [], search: '', sort: currentFilter.sort || 'default', assignee: [], incomplete: false, practice: currentFilter.practice || null }; selectedTaskIds.clear(); }
-/** Set the client filter and re-render -- pass null to show all clients */
-function filterByClient(c) { if (isClientUser()) return; currentFilter = { client: c, project: null, status: [], health: [], assignee: [], search: '', sort: currentFilter.sort || 'default', practice: currentFilter.practice || null }; selectedTaskIds.clear(); renderSidebarCounts(); renderContent(); renderBreadcrumbs(); history.replaceState({ view: currentView, filter: { ...currentFilter }, taskSubView }, '', '#' + currentView); }
-// Practice areas (Phase 9 of the NBI WorkSage backlog, a6c82c8c).
-// Stored as `practice_area` on tasks/leads/clients. The legacy "Human
-// Capital" / HC label has been retired in favour of "Organisational"
-// (closes 9a10d8d1) — Glen's call: HC is one piece of organisational
-// performance, not the umbrella. The dot colours match the sidebar
-// styling for consistency.
-// G2 / decision D84: exactly two practices, with "general" removed.
-// Slug is stored in the DB; label is shown in the full sidebar; abbrev is
-// shown in the collapsed sidebar. shortLabel is the terser display name
-// Glen specified ("Org Perf") for space-constrained UIs.
-const PRACTICES = [
-  { value: 'gaming',                label: 'Gaming',                shortLabel: 'Gaming',    abbrev: 'GM', colour: '#22c1c3' },
-  { value: 'organisational_performance', label: 'Organizational Performance', shortLabel: 'Org Perf', abbrev: 'OP', colour: '#7c5cff' },
-];
-function getPracticeLabel(value) {
-  const p = PRACTICES.find(x => x.value === value);
-  return p ? p.label : value || '';
-}
-/** Toggle the practice-area filter that scopes the entire workspace
- *  (dashboard, projects, leads, clients) to a single practice. Pass null
- *  to clear and show All. */
-function filterByPractice(p) {
-  currentFilter = { ...currentFilter, practice: p };
-  selectedTaskIds.clear();
-  renderSidebarCounts();
-  renderContent();
-  renderBreadcrumbs();
-  // Re-render leads/clients views if they're active so the practice
-  // filter takes effect across every page that displays records.
-  if (currentView === 'leads') { try { renderLeadsContent(); } catch(e) {} }
-  history.replaceState({ view: currentView, filter: { ...currentFilter }, taskSubView }, '', '#' + currentView);
-}
-/** Filter by health state and switch to tasks view */
-function filterByHealth(h) { currentFilter = { client: currentFilter.client, project: null, status: [], health: [h], assignee: [], search: '', practice: currentFilter.practice || null }; switchView('tasks'); }
-/** Filter to a specific project, switch to tree view, and scroll to the project row */
-function filterByProject(projectId) {
-  currentFilter = { client: currentFilter.client, project: projectId, status: [], health: [], search: '', sort: 'default', assignee: [], incomplete: false, practice: currentFilter.practice || null };
-  taskSubView = 'tree';
-  // Ensure the project is expanded in the tree
-  if (typeof collapsedTaskIds !== 'undefined') collapsedTaskIds.delete(projectId);
-  switchView('tasks');
-  // Scroll to the project row after render
-  setTimeout(() => {
-    const row = document.querySelector(`[data-task-id="${projectId}"]`);
-    if (row) row.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, 200);
-}
-
-/** Render breadcrumb bar showing active filters */
-function renderBreadcrumbs() {
-  const bar = document.getElementById('breadcrumbBar');
-  if (!bar) return;
-  const hasFilter = currentFilter.client || currentFilter.practice || (currentFilter.assignee && currentFilter.assignee.length > 0) || (currentFilter.health && currentFilter.health.length > 0) || (currentFilter.status && currentFilter.status.length > 0) || currentFilter.incomplete || currentFilter.project;
-  if (!hasFilter) { bar.innerHTML = ''; bar.style.display = 'none'; return; }
-  bar.style.display = 'flex';
-  let html = '<span style="font-size:0.72rem;color:var(--text-muted);margin-right:4px">Filtered:</span>';
-  if (currentFilter.practice) html += `<span class="filter-chip">Practice: ${esc(getPracticeLabel(currentFilter.practice))} <button data-action="filterByPractice" data-arg0="null">&times;</button></span>`;
-  if (currentFilter.client) html += `<span class="filter-chip">${esc(currentFilter.client)} <button data-action="_actClearFilterClientBreadcrumb">&times;</button></span>`;
-  if (currentFilter.assignee && currentFilter.assignee.length > 0) html += `<span class="filter-chip">${currentFilter.assignee.map(a => esc(a)).join(', ')} <button data-action="_actClearFilterAssigneeBreadcrumb">&times;</button></span>`;
-  if (currentFilter.health && currentFilter.health.length > 0) html += `<span class="filter-chip">${currentFilter.health.map(h => esc(h)).join(', ')} <button data-action="_actClearFilterHealthBreadcrumb">&times;</button></span>`;
-  if (currentFilter.status && currentFilter.status.length > 0) html += `<span class="filter-chip">${currentFilter.status.map(s => esc(s)).join(', ')} <button data-action="_actClearFilterStatusBreadcrumb">&times;</button></span>`;
-  if (currentFilter.project) { const pt = tasks.find(t => t.id === currentFilter.project); html += `<span class="filter-chip">${esc(pt ? pt.title : 'Project')} <button data-action="_actClearFilterProjectBreadcrumb">&times;</button></span>`; }
-  if (currentFilter.incomplete) html += `<span class="filter-chip">Incomplete only <button data-action="_actClearFilterIncompleteBreadcrumb">&times;</button></span>`;
-  html += `<button class="filter-chip-clear" data-action="_actResetFiltersBreadcrumb">Clear all</button>`;
-  bar.innerHTML = html;
-}
-
-function _renderMainContent(content) {
-  if (currentView === 'incomplete') { currentView = 'tasks'; currentFilter.incomplete = true; }
-  if (currentView === 'changelog') { currentView = 'settings'; }
-  if (tasks.length === 0 && currentView !== 'settings') {
-    content.innerHTML = `<div class="empty-state"><div class="empty-state__icon">&#128203;</div><div class="empty-state__title">No Tasks Yet</div><div class="empty-state__desc">Import tasks or add them manually to get started.</div><button class="btn btn--primary" data-action="openImportModal">Import</button></div>`;
-    return;
-  }
+// Functions extracted to /public/js/core/router.js
+// This fallback is called by router.js _renderMainContent when no view renderer is registered.
+function _renderMainContent_fallback(content) {
   if (currentView === 'dashboard') renderDashboard(content);
   else if (currentView === 'mytasks') renderMyTasksView(content);
   else if (currentView === 'tasks') renderTaskView(content);
@@ -1332,42 +1199,6 @@ function _renderMainContent(content) {
   else if (currentView === 'workload') renderWorkloadView(content);
   else if (currentView === 'news') renderNewsOrLoad(content);
   else if (currentView === 'settings') renderSettings(content);
-  if (currentView === 'tasks' && taskSubView === 'gantt') {
-    requestAnimationFrame(drawGanttArrows);
-  }
-}
-
-/** Re-render only the main content area (not sidebar/tabs). Preserves scroll position. */
-function renderContent() {
-  const _perfStart = performance.now();
-  const content = document.getElementById('mainContent');
-  if (!content) return;
-  const savedScroll = content.scrollTop;
-  _renderMainContent(content);
-  requestAnimationFrame(() => { content.scrollTop = savedScroll; });
-  const _perfEnd = performance.now();
-  if (_perfEnd - _perfStart > 100) {
-    console.debug('[Perf] renderContent took ' + Math.round(_perfEnd - _perfStart) + 'ms');
-  }
-}
-
-/** Re-render sidebar counts without rebuilding the whole page */
-function renderSidebarCounts() {
-  renderSidebar();
-}
-
-/** Re-render the entire UI: sidebar, tabs, breadcrumbs, and the active view. */
-function renderAll() {
-  const _perfStart = performance.now();
-  renderSidebar();
-  renderTabs();
-  renderBreadcrumbs();
-  const content = document.getElementById('mainContent');
-  _renderMainContent(content);
-  const _perfEnd = performance.now();
-  if (_perfEnd - _perfStart > 100) {
-    console.debug('[Perf] renderAll took ' + Math.round(_perfEnd - _perfStart) + 'ms');
-  }
 }
 
 // ==================== DASHBOARD VIEW ====================
@@ -16045,9 +15876,9 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
-// After each renderAll, patch interactive elements with tabindex
-const _origRenderAll = typeof renderAll === 'function' ? renderAll : null;
-if (_origRenderAll) {
+// After each renderAll, patch interactive elements with tabindex.
+// Uses MutationObserver on mainContent — no dependency on renderAll timing.
+(function() {
   const _patchA11y = () => {
     document.querySelectorAll('.tactical-item[onclick], .task-row[onclick], .board-card[onclick], .mytask-row[onclick], .task-client-header[onclick], .tactical-person__header[onclick], .kpi-card[onclick]').forEach(el => {
       if (!el.hasAttribute('tabindex')) { el.setAttribute('tabindex', '0'); el.setAttribute('role', 'button'); }
@@ -16055,11 +15886,13 @@ if (_origRenderAll) {
     // Patch textareas for auto-resize
     initTextareaAutoResize(document.getElementById('mainContent'));
   };
-  // Use MutationObserver for efficiency instead of monkey-patching renderAll
-  const _a11yObserver = new MutationObserver(() => requestAnimationFrame(_patchA11y));
+  // Use MutationObserver for efficiency — fires whenever mainContent is repainted
   const mc = document.getElementById('mainContent');
-  if (mc) _a11yObserver.observe(mc, { childList: true, subtree: true });
-}
+  if (mc) {
+    const _a11yObserver = new MutationObserver(() => requestAnimationFrame(_patchA11y));
+    _a11yObserver.observe(mc, { childList: true, subtree: true });
+  }
+})();
 
 // ==================== WARNINGS & ALERTS SIDEBAR ====================
 // Right-hand sidebar that surfaces task warnings (imminent, late, blocked)
@@ -16368,16 +16201,18 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
-// Patch renderAll so the trigger button stays current after every render
-(function() {
-  if (typeof renderAll !== 'function') return;
-  const _origRA = renderAll;
+// Patch renderAll so the trigger button stays current after every render.
+// router.js is a module and runs after the inline script, so we defer the
+// wrap until after DOMContentLoaded when window.renderAll is guaranteed set.
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof window.renderAll !== 'function') return;
+  const _origRA = window.renderAll;
   window.renderAll = function() {
     const r = _origRA.apply(this, arguments);
     try { updateWarnAlertButton(); } catch (e) {}
     return r;
   };
-})();
+});
 
 // Refresh the button once a minute so newly-imminent tasks surface promptly
 setInterval(function() { try { updateWarnAlertButton(); } catch (e) {} }, 60000);
