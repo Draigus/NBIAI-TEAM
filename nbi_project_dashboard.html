@@ -10617,6 +10617,13 @@ async function loadCapacityHeatmap() {
     // Auto-select first person if none selected
     if (!_capSelectedPerson && data.users.length > 0) _capSelectedPerson = data.users[0].name;
 
+    const capIsAssigned = (task, personName) => {
+      if (!task.assignees || !Array.isArray(task.assignees)) return false;
+      const pLower = personName.toLowerCase();
+      const pFirst = pLower.split(/\s+/)[0];
+      return task.assignees.some(a => { const al = a.toLowerCase().trim(); return al === pLower || al === pFirst || pLower.startsWith(al) || al.startsWith(pLower); });
+    };
+
     let html = '<div class="cap-split">';
 
     // --- LEFT: Heatmap table ---
@@ -10674,7 +10681,7 @@ async function loadCapacityHeatmap() {
         html += '</div>';
 
         // Task breakdown by client
-        const personTasks = tasks.filter(t => isAssignedTo(t, _capSelectedPerson) && t.status !== 'Done' && t.status !== 'Cancelled');
+        const personTasks = tasks.filter(t => capIsAssigned(t, _capSelectedPerson) && t.status !== 'Done' && t.status !== 'Cancelled');
         const clientMap = {};
         personTasks.forEach(t => {
           const client = getTaskClient(t) || 'Unassigned';
