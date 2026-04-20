@@ -209,6 +209,58 @@ async function createTestAuditEntry(opts) {
   return rows[0];
 }
 
+/**
+ * Create a contact. Optionally linked to a client.
+ */
+async function createTestContact(opts = {}) {
+  const name = opts.name || uniq('TestContact');
+  const { rows } = await pool.query(
+    `INSERT INTO contacts (client_id, name, email, phone, role)
+     VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+    [opts.client_id || null, name, opts.email || `${name}@example.invalid`, opts.phone || null, opts.role || null]
+  );
+  return rows[0];
+}
+
+/**
+ * Create an expense. Requires user_id (the submitter).
+ */
+async function createTestExpense(opts = {}) {
+  const description = opts.description || uniq('TestExpense');
+  const { rows } = await pool.query(
+    `INSERT INTO expenses (user_id, description, amount, currency, category, date)
+     VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+    [opts.user_id, description, opts.amount || 100, opts.currency || 'GBP', opts.category || 'Travel', opts.date || '2026-01-15']
+  );
+  return rows[0];
+}
+
+/**
+ * Create a statement of work. Optionally linked to a client.
+ */
+async function createTestSow(opts = {}) {
+  const title = opts.title || uniq('TestSoW');
+  const { rows } = await pool.query(
+    `INSERT INTO sows (client_id, title, status, value, currency)
+     VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+    [opts.client_id || null, title, opts.status || 'draft', opts.value || 10000, opts.currency || 'GBP']
+  );
+  return rows[0];
+}
+
+/**
+ * Create a client note. Requires client_id.
+ */
+async function createTestClientNote(opts = {}) {
+  if (!opts.client_id) throw new Error('createTestClientNote: client_id required');
+  const { rows } = await pool.query(
+    `INSERT INTO client_notes (client_id, content, author)
+     VALUES ($1, $2, $3) RETURNING *`,
+    [opts.client_id, opts.content || 'Test note content', opts.author || 'test']
+  );
+  return rows[0];
+}
+
 module.exports = {
   uniq,
   createTestUser,
@@ -221,4 +273,8 @@ module.exports = {
   createTestTeam,
   createTestTeamMember,
   createTestAuditEntry,
+  createTestContact,
+  createTestExpense,
+  createTestSow,
+  createTestClientNote,
 };
