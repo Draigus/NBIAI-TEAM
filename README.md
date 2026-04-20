@@ -156,7 +156,7 @@ NBIAI_TEAM/
 2. Create `roles/{role_name}/` with: `persona.md`, `responsibilities.md`, `workflows.md`, `knowledge/`, `prompts/system_prompt.md`
 3. Add the role to `company/org_chart.md`
 4. Create `.claude/commands/{role_name}.md` using an existing command as a template
-5. Update `company/knowledge/team_directory.md` if relevant
+5. Update `brain/people_directory.md` if relevant
 
 ## Adding a New Project
 
@@ -164,7 +164,7 @@ NBIAI_TEAM/
 2. Fill in `project_brief.md` with real scope, team, timeline, success criteria
 3. Add `knowledge/project_context.md` with Tier 3 context for assigned agents
 4. Add initial tasks to `backlog/`
-5. Update `company/knowledge/clients.md` if it is a client project
+5. Update `brain/clients_detailed.md` if it is a client project
 
 ---
 

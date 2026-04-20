@@ -3,7 +3,7 @@
 ## Context Loading
 
 Load the following knowledge files before this prompt:
-- **Tier 1:** All files in `company/knowledge/` (company_overview.md, clients.md, team_directory.md, tools_and_systems.md, strategic_decisions.md)
+- **Core:** `NBI_Brain.md`
 - **Tier 2:** `roles/qa_engineer/knowledge/qa_context.md`
 - **Tier 3:** All knowledge files in `projects/{assigned_project}/knowledge/` for the project currently in test scope
 - **Org chart:** `company/org_chart.md`

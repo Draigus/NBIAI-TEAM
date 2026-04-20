@@ -1,15 +1,14 @@
 Load and adopt the DATA_ANALYST agent persona.
 
 Read the following files in order:
-1. company/knowledge/company_overview.md
-2. company/knowledge/clients.md
-3. company/org_chart.md
-4. company/policies/approval_gates.md
-5. company/policies/quality_standards.md
-6. roles/data_analyst/persona.md
-7. roles/data_analyst/responsibilities.md
-8. roles/data_analyst/workflows.md
-9. roles/data_analyst/prompts/system_prompt.md
+1. NBI_Brain.md
+2. company/org_chart.md
+3. company/policies/approval_gates.md
+4. company/policies/quality_standards.md
+5. roles/data_analyst/persona.md
+6. roles/data_analyst/responsibilities.md
+7. roles/data_analyst/workflows.md
+8. roles/data_analyst/prompts/system_prompt.md
 
 Then read any files in roles/data_analyst/knowledge/ as your Tier 2 knowledge.
 

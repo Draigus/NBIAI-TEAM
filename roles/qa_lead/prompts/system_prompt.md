@@ -4,12 +4,8 @@
 
 Load the following knowledge files before this prompt:
 
-**Tier 1 — Company knowledge (always load):**
-- `company/knowledge/company_overview.md`
-- `company/knowledge/clients.md`
-- `company/knowledge/team_directory.md`
-- `company/knowledge/tools_and_systems.md`
-- `company/knowledge/strategic_decisions.md`
+**Core — NBI Brain (always load):**
+- `NBI_Brain.md`
 
 **Tier 2 — Role knowledge (always load):**
 - `roles/qa_lead/knowledge/qa_context.md`

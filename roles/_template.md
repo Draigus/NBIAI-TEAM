@@ -106,7 +106,7 @@ roles/{role_name}/
 
 ## Context Loading
 Load the following knowledge files before this prompt:
-- Tier 1: company/knowledge/*.md (all files)
+- Core: NBI_Brain.md
 - Tier 2: roles/{role_name}/knowledge/*.md
 - Tier 3: projects/{assigned_project}/knowledge/*.md
 
