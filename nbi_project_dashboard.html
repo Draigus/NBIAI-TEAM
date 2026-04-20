@@ -13231,7 +13231,7 @@ function renderLeadsTable(el, leads) {
     const isComplete = !!lead.completed_at;
     html += `<tr data-action="openLeadDetail" data-arg0="${lead.id}" class="leads-table__row${isComplete ? ' leads-table__row--complete' : ''}">`;
     html += `<td>${lead.priority ? `<span class="leads-card__prio leads-card__prio--${lead.priority}">P${lead.priority}</span>` : ''}</td>`;
-    html += `<td>${lead.client_name ? esc(lead.client_name) : ''}</td>`;
+    html += `<td>${lead.client_name ? esc(lead.client_name) : '<span style="color:var(--text-muted);font-style:italic">(no client)</span>'}</td>`;
     html += `<td><strong>${isComplete ? '\u2713 ' : ''}${esc(lead.title)}</strong></td>`;
     html += `<td>${lead.work_type ? esc(lead.work_type) : ''}</td>`;
     html += `<td><span class="leads-stage-badge" style="background:${safeColour(lead.stage_colour)}20;color:${safeColour(lead.stage_colour)};border:1px solid ${safeColour(lead.stage_colour)}40">${esc(lead.stage_name)}</span></td>`;
@@ -13745,7 +13745,7 @@ async function viewSow(sowId, title) {
           <h2 style="margin:0">${esc(sow.title)}</h2>
           <button class="btn btn--ghost" data-action="_actModalRemove" data-arg0="sowViewModal" aria-label="Close">&times;</button>
         </div>
-        <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:8px">${sow.client_name ? 'Client: ' + esc(sow.client_name) + (range ? ' \u00b7 ' : '') : ''}${range ? esc(range) : ''}</div>
+        <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:8px">${sow.client_name ? 'Client: ' + esc(sow.client_name) + (range ? ' \u00b7 ' : '') : '<span style="font-style:italic">(no client)</span>' + (range ? ' \u00b7 ' : '')}${range ? esc(range) : ''}</div>
         <div style="padding:12px;background:var(--bg-surface);border-radius:var(--radius-md);border:1px solid var(--border-default);font-size:0.82rem;line-height:1.5;overflow-y:auto;flex:1;white-space:pre-wrap">${esc(sow.work_package_text || '(No work package content)')}</div>
         <div style="font-size:0.7rem;color:var(--text-muted);margin-top:8px">Pricing and legal sections were automatically filtered from the source document.</div>
       </div>
@@ -13974,7 +13974,7 @@ async function openTeamDetailModal(teamId) {
         <button class="btn btn--ghost" data-action="_actModalRemove" data-arg0="teamDetailModal" aria-label="Close team detail">&times;</button>
       </div>
       <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:8px">
-        ${team.client_name ? 'Client: ' + esc(team.client_name) : ''}
+        ${team.client_name ? 'Client: ' + esc(team.client_name) : '<span style="font-style:italic">(no client)</span>'}
       </div>
       ${sowRow}
       ${team.description ? `<div style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:12px">${esc(team.description)}</div>` : ''}
