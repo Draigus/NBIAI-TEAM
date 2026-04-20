@@ -5090,7 +5090,7 @@ app.get('/api/sync/poll', async (req, res) => {
       ORDER BY t.updated_at
       LIMIT 501
     `, [sinceDate.toISOString()]);
-    allIds = await pool.query('SELECT id FROM tasks WHERE updated_at > $1', [sinceDate.toISOString()]);
+    allIds = await pool.query('SELECT id FROM tasks');
   } else {
     // Scoped. External users never see null-client tasks.
     const nullClause = isExternal ? '' : ' OR t.client_id IS NULL';
@@ -5103,8 +5103,8 @@ app.get('/api/sync/poll', async (req, res) => {
     `, [sinceDate.toISOString(), scopes]);
     const idNullClause = isExternal ? '' : ' OR client_id IS NULL';
     allIds = await pool.query(
-      `SELECT id FROM tasks WHERE updated_at > $1 AND (client_id = ANY($2)${idNullClause})`,
-      [sinceDate.toISOString(), scopes]
+      `SELECT id FROM tasks WHERE client_id = ANY($1)${idNullClause}`,
+      [scopes]
     );
   }
   const currentIds = allIds.rows.map(r => r.id);
@@ -9151,10 +9151,11 @@ app.post('/api/admin/cleanse', requireNBI, requireAdmin, async (req, res) => {
       nullified['bug_reports.reporter_client_id'] = r.rowCount;
     }
 
-    if (selected.has('tasks') || selected.has('bugs')) {
+    if (selected.has('tasks') || selected.has('bugs') || selected.has('clients')) {
       const types = [];
-      if (selected.has('tasks')) types.push('task');
+      if (selected.has('tasks')) types.push('task', 'project');
       if (selected.has('bugs')) types.push('bug_report');
+      if (selected.has('clients')) types.push('client');
       if (types.length > 0) {
         const r = await conn.query('DELETE FROM attachments WHERE entity_type = ANY($1)', [types]);
         if (r.rowCount > 0) deleted.attachments = (deleted.attachments || 0) + r.rowCount;
@@ -9203,16 +9204,18 @@ app.post('/api/admin/cleanse', requireNBI, requireAdmin, async (req, res) => {
     }
 
     if (selected.has('tasks')) {
-      const rNotes = await conn.query('SELECT count(*)::int AS n FROM task_notes');
-      const rComments = await conn.query('SELECT count(*)::int AS n FROM task_comments');
-      const rAttach = await conn.query('SELECT count(*)::int AS n FROM task_attachments');
-      const rTime = await conn.query('SELECT count(*)::int AS n FROM time_entries');
+      const rNotes = await conn.query('DELETE FROM task_notes');
+      deleted.task_notes = rNotes.rowCount;
+      const rComments = await conn.query('DELETE FROM task_comments');
+      deleted.task_comments = rComments.rowCount;
+      const rAttach = await conn.query('DELETE FROM task_attachments');
+      deleted.task_attachments = rAttach.rowCount;
+      const rTime = await conn.query('DELETE FROM time_entries');
+      deleted.time_entries = rTime.rowCount;
+      const rSnap = await conn.query('DELETE FROM dashboard_snapshots');
+      deleted.dashboard_snapshots = rSnap.rowCount;
       const r = await conn.query('DELETE FROM tasks');
       deleted.tasks = r.rowCount;
-      deleted.task_notes = rNotes.rows[0].n;
-      deleted.task_comments = rComments.rows[0].n;
-      deleted.task_attachments = rAttach.rows[0].n;
-      deleted.time_entries = rTime.rows[0].n;
     }
 
     if (selected.has('clients')) {
@@ -9226,6 +9229,10 @@ app.post('/api/admin/cleanse', requireNBI, requireAdmin, async (req, res) => {
       nullified['candidates.client_id'] = r4.rowCount;
       const r5 = await conn.query('UPDATE calendar_events SET client_id = NULL WHERE client_id IS NOT NULL');
       nullified['calendar_events.client_id'] = r5.rowCount;
+      const r6 = await conn.query('DELETE FROM client_reports');
+      deleted.client_reports = r6.rowCount;
+      const r7 = await conn.query('UPDATE teams SET client_id = NULL WHERE client_id IS NOT NULL');
+      nullified['teams.client_id'] = r7.rowCount;
       const r = await conn.query('DELETE FROM clients');
       deleted.clients = r.rowCount;
     }

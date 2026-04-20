@@ -18961,7 +18961,7 @@ function renderCleanseCategories() {
     const childText = childInfo.length > 0 ? ` <span style="font-size:0.75rem;color:var(--text-muted)">(+ ${childInfo.map(([k, v]) => `${v} ${k.replace(/_/g, ' ')}`).join(', ')})</span>` : '';
     const nullText = cat.nullifies.length > 0 ? `<div style="font-size:0.72rem;color:var(--warning);margin-left:24px">Will nullify: ${cat.nullifies.join(', ')}</div>` : '';
     html += `<label style="display:flex;align-items:center;gap:var(--space-sm);cursor:pointer">
-      <input type="checkbox" class="cleanse-cat-checkbox" data-cat-id="${cat.id}" ${cat._locked ? 'checked disabled' : ''}>
+      <input type="checkbox" class="cleanse-cat-checkbox" data-cat-id="${cat.id}" ${cat._locked || cat._checked ? 'checked' : ''} ${cat._locked ? 'disabled' : ''}>
       <span><strong>${cat.label}</strong> <span style="color:var(--text-muted)">(${cat.count} records)</span>${childText}</span>
     </label>${nullText}`;
     if (cat._locked) {
@@ -18975,7 +18975,7 @@ function renderCleanseCategories() {
     const childInfo = Object.entries(cat.children || {});
     const childText = childInfo.length > 0 ? `<div style="font-size:0.75rem;color:var(--text-muted);margin-left:24px">Cascades: ${childInfo.map(([k, v]) => `${v} ${k.replace(/_/g, ' ')}`).join(', ')}</div>` : '';
     nucHtml += `<label style="display:flex;align-items:center;gap:var(--space-sm);cursor:pointer;color:var(--danger)">
-      <input type="checkbox" class="cleanse-cat-checkbox" data-cat-id="${cat.id}">
+      <input type="checkbox" class="cleanse-cat-checkbox" data-cat-id="${cat.id}" ${cat._checked ? 'checked' : ''}>
       <span><strong>${cat.label}</strong> <span style="color:var(--text-muted)">(${cat.count} records)</span></span>
     </label>${childText}`;
     if (cat.nullifies.length > 0) {
@@ -18995,6 +18995,8 @@ function renderCleanseCategories() {
 function handleCleanseCheckboxChange(e) {
   const catId = e.target.dataset.catId;
   const checked = e.target.checked;
+  const cat = _cleanseData.find(c => c.id === catId);
+  if (cat) cat._checked = checked;
 
   if (catId === 'clients') {
     const cascadeDeps = ['contacts', 'leads', 'client_notes', 'sows'];
@@ -19006,7 +19008,7 @@ function handleCleanseCheckboxChange(e) {
 }
 
 function cleanseSelectAll() {
-  _cleanseData.forEach(c => { c._locked = (c.id !== 'clients' && ['contacts', 'leads', 'client_notes', 'sows'].includes(c.id)); });
+  _cleanseData.forEach(c => { c._checked = true; c._locked = (c.id !== 'clients' && ['contacts', 'leads', 'client_notes', 'sows'].includes(c.id)); });
   document.querySelectorAll('.cleanse-cat-checkbox').forEach(cb => {
     cb.checked = true;
     cb.disabled = ['contacts', 'leads', 'client_notes', 'sows'].includes(cb.dataset.catId);
@@ -19014,7 +19016,7 @@ function cleanseSelectAll() {
 }
 
 function cleanseDeselectAll() {
-  _cleanseData.forEach(c => { c._locked = false; });
+  _cleanseData.forEach(c => { c._locked = false; c._checked = false; });
   document.querySelectorAll('.cleanse-cat-checkbox').forEach(cb => {
     cb.checked = false;
     cb.disabled = false;
