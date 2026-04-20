@@ -18934,7 +18934,7 @@ async function openCleanseModal() {
   document.getElementById('cleanseNuclear').innerHTML = '';
 
   try {
-    const resp = await fetchAPI('/api/admin/cleanse/preview');
+    const resp = await authFetch('/api/admin/cleanse/preview');
     if (!resp.ok) throw new Error('Failed to load preview');
     const json = await resp.json();
     _cleanseData = json.data ? json.data.categories : json.categories;
@@ -19036,7 +19036,7 @@ async function executeDataCleanse() {
   document.querySelectorAll('#cleanseModal button, #cleanseModal input, #cleanseModal .cleanse-cat-checkbox').forEach(el => { el.disabled = true; });
 
   try {
-    const resp = await fetchAPI('/api/admin/cleanse', {
+    const resp = await authFetch('/api/admin/cleanse', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ categories: selected, confirmation }),
