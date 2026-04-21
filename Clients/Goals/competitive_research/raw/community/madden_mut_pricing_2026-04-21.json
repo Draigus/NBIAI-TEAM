@@ -1,0 +1,198 @@
+{
+  "source": "Xbox Store + PlayStation Store + GameStop + Best Buy + gg.deals + EA Help",
+  "scraped_date": "2026-04-21",
+  "scrape_method": "web_search_aggregation",
+  "competitor": "Madden NFL 25",
+  "tier": 1,
+  "urls_cited": [
+    "https://www.xbox.com/en-US/games/store/madden-nfl-25-500-madden-points/9N1PMXGSKL52",
+    "https://www.xbox.com/en-US/games/store/madden-nfl-25-1050-madden-points/9NW9Q0K2KNF5",
+    "https://www.xbox.com/en-US/games/store/madden-nfl-25-2800-madden-points/9PLSK4R54NR0",
+    "https://www.xbox.com/en-US/games/store/madden-nfl-25-5850-madden-points/9N83CDRZ2CL1",
+    "https://www.xbox.com/en-US/games/store/madden-nfl-25-12000-madden-points/9MZ103L0N2NN",
+    "https://www.xbox.com/en-US/games/store/madden-nfl-25-18500-madden-points/9N1N4S2F46D7",
+    "https://store.playstation.com/en-us/product/UP0006-CUSA45434_00-MUT5000000000000",
+    "https://store.playstation.com/en-us/product/UP0006-CUSA45434_00-18500P0000000000",
+    "https://www.gamestop.com/gift-cards/products/madden-nfl-25-madden-points/20015150.html",
+    "https://gg.deals/ingame-currency/ea-sports-madden-nfl-25-8900-madden-points-xbox-one-series/",
+    "https://help.ea.com/en/articles/madden-nfl/madden-nfl-25/madden-ultimate-team/",
+    "https://www.ea.com/games/madden-nfl/madden-nfl-25/news/madden-ultimate-team-25-pack-probability"
+  ],
+  "notes": "Madden Points are purchased in-game or via platform stores (Xbox, PlayStation, EA App). Not available as Steam DLC. Pricing is consistent across Xbox, PlayStation, and PC (EA App). EA Play subscribers receive a 10% discount. Madden 26 has been announced but MUT 26 pricing not yet confirmed - expect identical structure based on EA's history of maintaining point tiers across Madden iterations.",
+
+  "purchase_tiers": {
+    "currency_name": "Madden Points",
+    "currency_code": "MUT Points",
+    "purchase_currency": "USD",
+    "note": "Purchased in-game or via platform digital stores. EA Play members get 10% off. Pricing identical on Xbox, PlayStation, and PC (EA App).",
+    "tiers": [
+      {
+        "amount": 500,
+        "price_usd": 4.99,
+        "price_per_point_usd": 0.00998,
+        "bonus_points": 0,
+        "bonus_pct": 0,
+        "confidence": "high"
+      },
+      {
+        "amount": 1050,
+        "price_usd": 9.99,
+        "price_per_point_usd": 0.00951,
+        "bonus_points": 50,
+        "bonus_pct": 5.0,
+        "confidence": "high"
+      },
+      {
+        "amount": 1600,
+        "price_usd": 14.99,
+        "price_per_point_usd": 0.00937,
+        "bonus_points": 100,
+        "bonus_pct": 6.7,
+        "confidence": "high"
+      },
+      {
+        "amount": 2800,
+        "price_usd": 24.99,
+        "price_per_point_usd": 0.00893,
+        "bonus_points": 300,
+        "bonus_pct": 12.0,
+        "confidence": "high"
+      },
+      {
+        "amount": 5850,
+        "price_usd": 49.99,
+        "price_per_point_usd": 0.00855,
+        "bonus_points": 850,
+        "bonus_pct": 17.0,
+        "confidence": "high"
+      },
+      {
+        "amount": 8900,
+        "price_usd": 74.99,
+        "price_per_point_usd": 0.00843,
+        "bonus_points": 1400,
+        "bonus_pct": 18.7,
+        "confidence": "high"
+      },
+      {
+        "amount": 12000,
+        "price_usd": 99.99,
+        "price_per_point_usd": 0.00833,
+        "bonus_points": 2000,
+        "bonus_pct": 20.0,
+        "confidence": "high"
+      },
+      {
+        "amount": 18500,
+        "price_usd": 149.99,
+        "price_per_point_usd": 0.00811,
+        "bonus_points": 3500,
+        "bonus_pct": 23.3,
+        "confidence": "high"
+      }
+    ],
+    "value_progression_notes": "Bonus structure is implicit - the base rate at 500 points is ~$0.01/point. Higher tiers provide progressively more points per dollar. The 18,500 tier delivers ~18.7% more value per dollar than the 500 tier. EA does not advertise explicit 'bonus points' but the effective discount is built into the tier sizing."
+  },
+
+  "item_pricing": {
+    "note": "Madden Points are spent on packs in the MUT Store. Pack availability rotates frequently with promos. Prices below are representative of common pack types seen in MUT 25.",
+    "representative_packs": [
+      {
+        "name": "Get A Gold Player",
+        "price_points": 500,
+        "price_coins": 25000,
+        "approx_usd": 4.99,
+        "contents": "1 Gold or better player",
+        "confidence": "high"
+      },
+      {
+        "name": "Offensive/Defensive Premium Pack",
+        "price_points": 350,
+        "price_coins": null,
+        "approx_usd": 3.49,
+        "contents": "Position-filtered player pack",
+        "confidence": "medium"
+      },
+      {
+        "name": "Gridiron Bundle (5x)",
+        "price_points": 2000,
+        "price_coins": null,
+        "approx_usd": 19.99,
+        "contents": "5 Gridiron packs",
+        "confidence": "medium"
+      },
+      {
+        "name": "Gridiron Bundle (12x)",
+        "price_points": 5850,
+        "price_coins": null,
+        "approx_usd": 49.99,
+        "contents": "12 Gridiron packs",
+        "confidence": "medium"
+      },
+      {
+        "name": "Gridiron Bundle (24x)",
+        "price_points": 12000,
+        "price_coins": null,
+        "approx_usd": 99.99,
+        "contents": "24 Gridiron packs",
+        "confidence": "medium"
+      },
+      {
+        "name": "Superstars Bundle (9x)",
+        "price_points": 2210,
+        "price_coins": null,
+        "approx_usd": 22.10,
+        "contents": "9 Superstars packs",
+        "confidence": "medium"
+      },
+      {
+        "name": "All-Pro Bundle (15x)",
+        "price_points": 5850,
+        "price_coins": null,
+        "approx_usd": 49.99,
+        "contents": "15 All-Pro packs",
+        "confidence": "medium"
+      },
+      {
+        "name": "Elite Bundle (10x)",
+        "price_points": 8900,
+        "price_coins": null,
+        "approx_usd": 74.99,
+        "contents": "10 Elite packs with guaranteed high-OVR pulls",
+        "confidence": "medium"
+      }
+    ]
+  },
+
+  "regional_pricing": {
+    "note": "No specific UK/EUR regional pricing found for Madden Points via web search. EA typically uses approximate currency parity (e.g. $9.99 USD maps to ~8.99 GBP or ~9.99 EUR) consistent with their FC Points pricing. Madden has a smaller European player base than FIFA/FC so regional pricing data is scarce.",
+    "confidence": "low"
+  },
+
+  "what_currency_buys": [
+    "Packs containing random player cards of varying OVR ratings",
+    "Promotional and limited-time event packs (e.g. Ultimate Legends, Team of the Year)",
+    "Bundle packs offering multiple packs at a slight discount vs singles",
+    "Madden Points CANNOT be used for: direct player purchases from the Auction House (coins only), Training Points, or non-MUT game modes"
+  ],
+
+  "dual_currency_system": {
+    "premium_currency": "Madden Points (paid only, purchased with real money)",
+    "earnable_currency": "MUT Coins (earned through gameplay, challenges, selling cards on Auction House)",
+    "secondary_currency": "Training Points (earned by quickselling cards, used for player upgrades and abilities)",
+    "note": "Packs can be purchased with either Madden Points or MUT Coins, but bundles are typically Points-only. Training cannot be purchased directly."
+  },
+
+  "monetisation_philosophy": "gacha_power",
+  "economy_notes": [
+    "Pack-based gacha system - players buy randomised packs for player cards",
+    "EA discloses pack odds per regulatory requirements (see pack probability link in urls_cited)",
+    "Dual currency: MUT Coins (earnable) and Madden Points (paid only)",
+    "Madden Points never go on sale - EA maintains fixed pricing year-round",
+    "EA Play subscription provides 10% discount on Madden Points purchases",
+    "Bundle packs (points-only) offer best value but require larger spend commitment",
+    "Promotional packs released during NFL season events (playoffs, Super Bowl, draft) with boosted odds",
+    "No direct trading between players - Auction House uses coins only",
+    "Points pricing structure has been consistent across Madden 23, 24, and 25 iterations"
+  ]
+}

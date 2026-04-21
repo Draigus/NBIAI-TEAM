@@ -1,0 +1,184 @@
+{
+  "source": "dotesports.com + operationsports.com + destructoid.com + 2K Support + nba2kw.com + gameskinny.com + nba.2k.com",
+  "scraped_date": "2026-04-21",
+  "scrape_method": "web_search_aggregation",
+  "competitor": "NBA 2K25",
+  "tier": 1,
+  "urls_cited": [
+    "https://dotesports.com/nba-2k/news/all-virtual-currency-vc-prices-in-nba-2k25",
+    "https://www.operationsports.com/all-vc-prices-in-nba-2k25/",
+    "https://www.destructoid.com/all-nba-2k25-virtual-currency-vc-prices/",
+    "https://support.2k.com/hc/en-us/articles/31808981386899--NBA-2K25-VC-Virtual-Currency-AND-MTP-MyTEAM-Points-How-They-Work",
+    "https://nba2kw.com/what-are-the-nba-2k25-vc-prices",
+    "https://www.gameskinny.com/tips/how-much-is-vc-in-nba-2k25-all-prices-explained/",
+    "https://nba.2k.com/2k25/courtside-report/myteam/",
+    "https://nba.2k.com/2k25/the-game/myteam/",
+    "https://nba.2k.com/2k25/season-pass-faq/",
+    "https://x.com/NBA2KMovement/status/1830127769310695469",
+    "https://www.escapistmagazine.com/how-much-is-virtual-currency-vc-in-nba-2k25/",
+    "https://nba2k.fandom.com/wiki/Virtual_Currency",
+    "https://store.steampowered.com/itemstore/2878980/"
+  ],
+  "notes": "VC (Virtual Currency) is the universal premium currency in NBA 2K25, used across ALL game modes - not just MyTEAM. It is purchased in-game or via platform stores. Seven tiers available. Pricing confirmed consistent across multiple independent sources. NBA 2K26 has been announced with identical VC tier structure based on early reports.",
+
+  "purchase_tiers": {
+    "currency_name": "Virtual Currency",
+    "currency_code": "VC",
+    "purchase_currency": "USD",
+    "note": "Purchased in-game or via platform digital stores (Xbox, PlayStation, Steam, Epic). Seven tiers available. VC is shared across all game modes on the same platform/account.",
+    "tiers": [
+      {
+        "amount": 5000,
+        "price_usd": 1.99,
+        "price_per_vc_usd": 0.000398,
+        "bonus_vc": 0,
+        "bonus_pct": 0,
+        "confidence": "high"
+      },
+      {
+        "amount": 15000,
+        "price_usd": 4.99,
+        "price_per_vc_usd": 0.000333,
+        "bonus_vc": 0,
+        "bonus_pct": 0,
+        "confidence": "high"
+      },
+      {
+        "amount": 35000,
+        "price_usd": 9.99,
+        "price_per_vc_usd": 0.000285,
+        "bonus_vc": 0,
+        "bonus_pct": 0,
+        "confidence": "high"
+      },
+      {
+        "amount": 75000,
+        "price_usd": 19.99,
+        "price_per_vc_usd": 0.000266,
+        "bonus_vc": 0,
+        "bonus_pct": 0,
+        "confidence": "high"
+      },
+      {
+        "amount": 200000,
+        "price_usd": 49.99,
+        "price_per_vc_usd": 0.000250,
+        "bonus_vc": 0,
+        "bonus_pct": 0,
+        "confidence": "high"
+      },
+      {
+        "amount": 450000,
+        "price_usd": 99.99,
+        "price_per_vc_usd": 0.000222,
+        "bonus_vc": 0,
+        "bonus_pct": 0,
+        "confidence": "high"
+      },
+      {
+        "amount": 700000,
+        "price_usd": 149.99,
+        "price_per_vc_usd": 0.000214,
+        "bonus_vc": 0,
+        "bonus_pct": 0,
+        "confidence": "high"
+      }
+    ],
+    "value_progression_notes": "NBA 2K uses a pure volume-discount model with no advertised 'bonus' amounts. The value progression is steep: the 700,000 VC tier delivers ~46% more VC per dollar than the 5,000 tier ($1.99 buys 5,000 VC = 2,513 VC/dollar vs $149.99 buys 700,000 VC = 4,667 VC/dollar). This is a more aggressive volume discount curve than EA's Madden Points or FC Points."
+  },
+
+  "item_pricing": {
+    "note": "VC is spent differently depending on game mode. MyTEAM pack prices rotate with seasonal content. MyPlayer attribute upgrades have fixed costs. Specific MyTEAM pack VC prices are not published externally and rotate in-game, but representative ranges are provided below.",
+    "myteam_packs": {
+      "note": "MyTEAM packs can be purchased with either VC or MT (MyTEAM Points). Pack types and prices rotate with each Season. Specific per-pack VC costs not consistently documented externally - they are visible only in the in-game MyTEAM store and pop-up shop.",
+      "representative_ranges": [
+        {
+          "pack_type": "Standard/League Packs",
+          "vc_cost_range": "3750-7500 VC",
+          "mt_cost_range": "3000-5000 MT",
+          "confidence": "medium"
+        },
+        {
+          "pack_type": "Deluxe/Premium Packs",
+          "vc_cost_range": "11250-15000 VC",
+          "mt_cost_range": "8000-12000 MT",
+          "confidence": "medium"
+        },
+        {
+          "pack_type": "Promo/Event Packs",
+          "vc_cost_range": "15000-21000 VC",
+          "mt_cost_range": "15000-21000 MT",
+          "confidence": "low"
+        },
+        {
+          "pack_type": "Box/Bundle (10-20 packs)",
+          "vc_cost_range": "67500-135000 VC",
+          "mt_cost_range": "varies",
+          "confidence": "low"
+        }
+      ]
+    },
+    "myplayer_upgrades": {
+      "note": "VC is used to upgrade MyPlayer attributes in MyCareer. Upgrading a new player from default to competitive online level typically costs 200,000-400,000 VC. Individual attribute point costs escalate as the rating increases.",
+      "representative_costs": [
+        {"item": "Single attribute point (low tier, e.g. 70 to 71)", "vc_cost": "100-500 VC", "confidence": "medium"},
+        {"item": "Single attribute point (high tier, e.g. 90 to 91)", "vc_cost": "2000-5000 VC", "confidence": "medium"},
+        {"item": "Full MyPlayer build (25 to 85+ OVR)", "vc_cost": "200000-400000 VC", "confidence": "medium"},
+        {"item": "Animations and signature moves", "vc_cost": "varies (500-5000 VC each)", "confidence": "medium"},
+        {"item": "Cosmetics (clothing, accessories)", "vc_cost": "varies widely", "confidence": "low"}
+      ]
+    }
+  },
+
+  "regional_pricing": {
+    "note": "Multiple sources indicate that NBA 2K25 VC prices use approximate numeric parity across currencies - i.e. $1.99 USD maps to roughly 1.99 EUR and similar GBP equivalents. This means European and UK players effectively pay more in real terms due to exchange rates. Exact GBP/EUR tiers not confirmed via web search.",
+    "confidence": "low",
+    "parity_model": "approximate_numeric_parity"
+  },
+
+  "what_currency_buys": {
+    "myteam": [
+      "Card packs containing random player cards",
+      "Seasonal and promotional packs in the MyTEAM store",
+      "Pop-up shop items",
+      "VC CANNOT directly buy individual cards on the Auction House (MT only)"
+    ],
+    "mycareer_myplayer": [
+      "Attribute upgrades to improve MyPlayer OVR rating",
+      "Signature animations (dribble moves, jump shots, dunks)",
+      "Apparel and cosmetic items for the Neighbourhood/City",
+      "Badge upgrades and unlock costs"
+    ],
+    "other": [
+      "Cosmetic customisation across modes",
+      "Court designs and team branding in MyTEAM",
+      "VC is NOT used for: Season Pass (separate purchase), MyTEAM Points/MT (earned in-game only)"
+    ]
+  },
+
+  "dual_currency_system": {
+    "premium_currency": "VC - Virtual Currency (purchasable with real money, also earnable through gameplay but at slow rates)",
+    "myteam_currency": "MT - MyTEAM Points (earned only through MyTEAM gameplay, used for Auction House and some packs. Cannot be purchased with real money without violating ToS)",
+    "note": "Unlike EA's MUT system, 2K's VC spans the entire game - not just the card-collecting mode. A player who buys VC for MyPlayer upgrades and then switches to MyTEAM can spend remaining VC there too. This cross-mode fungibility increases the perceived utility of purchasing VC and broadens the spending surface."
+  },
+
+  "season_pass": {
+    "note": "NBA 2K25 offers a Season Pass as a separate purchasable item (not bought with VC). The Season Pass unlocks a premium rewards track across MyTEAM and MyCareer seasons. This is an additional monetisation layer on top of VC.",
+    "confidence": "medium"
+  },
+
+  "monetisation_philosophy": "gacha_power_plus_stat_progression",
+  "economy_notes": [
+    "Dual-mode currency: VC funds both gacha (MyTEAM packs) AND stat progression (MyPlayer upgrades)",
+    "This makes VC more deeply embedded than competitors' premium currencies which only target card modes",
+    "A competitive MyPlayer build costs roughly 200,000-400,000 VC ($49.99-$99.99 if purchased outright)",
+    "MyTEAM uses pack-based gacha - players buy randomised packs for player cards",
+    "MT (MyTEAM Points) earned in-game serve as the earnable secondary currency for MyTEAM only",
+    "VC can be earned through gameplay (MyCareer games, daily bonuses) but at rates that strongly incentivise purchasing",
+    "Community estimates suggest earning VC through gameplay yields roughly 1,000-1,500 VC per hour of active play",
+    "At that rate, a full MyPlayer build would take 130-400 hours of grinding vs ~$50-100 in purchases",
+    "VC prices have been stable across 2K23, 2K24, and 2K25 with identical tier structures",
+    "No EA Play-style subscription discount exists for VC purchases",
+    "2K has faced significant community criticism for aggressive VC pricing, particularly for MyPlayer progression"
+  ]
+}
