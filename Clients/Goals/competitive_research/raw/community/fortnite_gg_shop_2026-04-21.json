@@ -1,0 +1,126 @@
+{
+  "source": "fortnite.gg + fortnite.com + fortniteinsider.com + gamerant.com",
+  "scraped_date": "2026-04-21",
+  "scrape_method": "web_search_aggregation",
+  "competitor": "Fortnite",
+  "tier": 2,
+  "urls_cited": [
+    "https://fortnite.gg/shop",
+    "https://www.fortnite.com/news/fortnite-v-bucks-price-increase",
+    "https://gamerant.com/fortnite-v-buck-pack-prices-pass-costs-march-2026-updates/",
+    "https://fortniteinsider.com/fortnite-item-shop-price-chart-of-all-rarities-for-skins-gliders-pickaxes-emotes-wraps/",
+    "https://lootbar.gg/blog/en/new-fortnite-vbucks-change-battle-pass-repricing.html",
+    "https://www.talkesport.com/news/fortnite-v-bucks-price-increase-march-2026/"
+  ],
+  "notes": "V-Bucks underwent major repricing on 19 March 2026. All prices below reflect POST-repricing values. Item shop rotates daily at 00:00 UTC. Specific items on sale on 21 April 2026 not captured (requires live page scrape).",
+
+  "v_bucks_purchase_tiers": {
+    "currency": "USD",
+    "effective_date": "2026-03-19",
+    "change_type": "Fewer V-Bucks for same dollar price (effective ~20-25% increase in cost-per-V-Buck)",
+    "tiers": [
+      {"v_bucks": 50, "price_usd": 0.99, "old_v_bucks": "~100 (approx)", "notes": "Exact Amount Pack"},
+      {"v_bucks": 800, "price_usd": 8.99, "old_v_bucks": 1000, "notes": "Was the standard 1000 V-Bucks pack"},
+      {"v_bucks": 2400, "price_usd": 22.99, "old_v_bucks": 2800, "notes": "Mid-tier pack"},
+      {"v_bucks": 5000, "price_usd": 44.99, "old_v_bucks": 5000, "notes": "Unchanged at this tier"},
+      {"v_bucks": 12500, "price_usd": 89.99, "old_v_bucks": 13500, "notes": "Largest pack, lost 1000 V-Bucks"}
+    ]
+  },
+
+  "item_shop_pricing_by_rarity_and_type": {
+    "note": "Standard V-Bucks prices for shop items have NOT changed - only the purchase packs give fewer V-Bucks, making items effectively more expensive in real money.",
+    "outfits_skins": {
+      "uncommon": 800,
+      "rare": 1200,
+      "epic": 1500,
+      "legendary": 2000,
+      "note": "Some collaboration/special skins priced differently (e.g. Laufey skin ~1800 V-Bucks)"
+    },
+    "pickaxes": {
+      "uncommon": 500,
+      "rare": 800,
+      "epic": 1200,
+      "legendary": 1500
+    },
+    "gliders": {
+      "uncommon": 500,
+      "rare": 800,
+      "epic": 1200,
+      "legendary": 1500
+    },
+    "emotes": {
+      "uncommon": 200,
+      "rare": 500,
+      "epic": 800
+    },
+    "wraps": {
+      "uncommon": 300,
+      "rare": 500,
+      "epic": 700
+    },
+    "back_blings": {
+      "rare": 400,
+      "epic": 600
+    }
+  },
+
+  "pass_pricing": {
+    "battle_pass": {
+      "cost_v_bucks": 800,
+      "returns_v_bucks": 800,
+      "old_cost": 1000,
+      "old_returns": 1000,
+      "note": "Bonus Rewards V-Bucks removed entirely. Break-even if fully completed."
+    },
+    "og_pass": {
+      "cost_v_bucks": 800,
+      "old_cost": 1000
+    },
+    "music_pass": {
+      "cost_v_bucks": 1200,
+      "old_cost": 1400
+    },
+    "lego_pass": {
+      "cost_v_bucks": 1200,
+      "old_cost": 1400
+    },
+    "fortnite_crew_monthly": {
+      "price_usd": 11.99,
+      "includes": ["Battle Pass", "Current Crew Pack skin + accessories", "800 V-Bucks monthly"],
+      "old_v_bucks_monthly": 1000,
+      "new_v_bucks_monthly": 800,
+      "note": "Subscription. Crew pack skin is exclusive."
+    }
+  },
+
+  "recent_featured_items": [
+    {
+      "name": "Laufey Skin",
+      "date": "2026-04-16",
+      "price_v_bucks": 1800,
+      "type": "outfit",
+      "rarity": "epic/collab",
+      "note": "Released early morning, collaboration item"
+    },
+    {
+      "name": "Sakara Skin",
+      "date": "2026-04-01",
+      "price_v_bucks": null,
+      "type": "outfit",
+      "rarity": "crew_exclusive",
+      "note": "April 2026 Fortnite Crew pack. Aquatic themed. ~$10 standalone value estimate."
+    }
+  ],
+
+  "monetisation_philosophy": "pure_cosmetic",
+  "economy_notes": [
+    "Daily rotating item shop - items cycle in and out, creating urgency/FOMO",
+    "Pure cosmetic - no gameplay advantage from purchases",
+    "V-Bucks are the sole premium currency",
+    "March 2026 repricing was a ~20-25% effective price increase via reduced V-Buck quantities",
+    "Epic justified the increase citing 'escalating operational expenses'",
+    "Collaboration skins (Marvel, music artists, etc.) often priced at premium tiers",
+    "Bundles offer discount vs buying items individually",
+    "Item shop tracks on fortnite.gg provide full historical pricing data"
+  ]
+}

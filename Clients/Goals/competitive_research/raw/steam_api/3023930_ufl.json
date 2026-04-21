@@ -1,0 +1,25 @@
+{
+  "metadata": {
+    "game": "UFL",
+    "steam_appid": 3023930,
+    "capture_date": "2026-04-21",
+    "regions_queried": [
+      "us",
+      "gb",
+      "br",
+      "mx",
+      "fr",
+      "de",
+      "se",
+      "tr",
+      "pl",
+      "jp",
+      "kr",
+      "sg",
+      "id"
+    ],
+    "total_entries": 0,
+    "notes": "UFL (by Strikerz Inc.) is a free-to-play football game on Steam. As of capture date, it has ZERO DLC or purchasable packages on the Steam Store. All microtransactions are handled through the in-game store, not through Steam's DLC/package system. This means Steam API cannot capture UFL's MTX pricing. Alternative data sources needed: in-game store scraping or publisher rate cards."
+  },
+  "pricing": []
+}

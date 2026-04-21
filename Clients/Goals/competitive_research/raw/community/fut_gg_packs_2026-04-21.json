@@ -1,0 +1,148 @@
+{
+  "source": "fut.gg + fifauteam.com + futmind.com",
+  "scraped_date": "2026-04-21",
+  "scrape_method": "web_search_aggregation",
+  "competitor": "EA FC 26",
+  "tier": 1,
+  "urls_cited": [
+    "https://www.fut.gg/store/",
+    "https://fifauteam.com/fc-points-prices-fc-26/",
+    "https://fifauteam.com/fc-26-pack-prices/",
+    "https://futmind.com/eafc-24-packs-ultimate-team",
+    "https://fifauteam.com/fc-26-packs-ultimate-team/"
+  ],
+  "notes": "FUT.gg store page showed no active store packs at time of scrape. Pack catalogue data sourced from fifauteam and futmind. FC Points pricing from fifauteam and Steam/PlayStation stores.",
+
+  "fc_points_purchase_tiers": {
+    "currency": "USD",
+    "note": "FC Points prices unchanged from FC 25 in US/UK markets. EA Play subscribers get 10% discount.",
+    "tiers": [
+      {"points": 100, "price_usd": 0.99},
+      {"points": 200, "price_usd": 1.99},
+      {"points": 500, "price_usd": 4.99},
+      {"points": 750, "price_usd": 7.49},
+      {"points": 1050, "price_usd": 9.99},
+      {"points": 2200, "price_usd": 19.99},
+      {"points": 4600, "price_usd": 39.99},
+      {"points": 5900, "price_usd": 49.99},
+      {"points": 12000, "price_usd": 99.99}
+    ],
+    "gbp_reference_tiers": [
+      {"points": 1050, "price_gbp": 8.99},
+      {"points": 2800, "price_gbp": 21.99},
+      {"points": 5900, "price_gbp": 45.49},
+      {"points": 12000, "price_gbp": 87.99},
+      {"points": 18500, "price_gbp": 129.99}
+    ]
+  },
+
+  "pack_catalogue": [
+    {
+      "name": "Bronze Pack",
+      "price_coins": 750,
+      "price_fc_points": null,
+      "contents": "12 bronze items",
+      "rare_count": 0,
+      "category": "bronze"
+    },
+    {
+      "name": "Silver Pack",
+      "price_coins": 2500,
+      "price_fc_points": null,
+      "contents": "12 silver items",
+      "rare_count": 0,
+      "category": "silver"
+    },
+    {
+      "name": "Gold Pack",
+      "price_coins": 5000,
+      "price_fc_points": 100,
+      "contents": "12 gold items (3 rare)",
+      "rare_count": 3,
+      "category": "gold"
+    },
+    {
+      "name": "Premium Gold Pack",
+      "price_coins": 7500,
+      "price_fc_points": 150,
+      "contents": "12 gold items (3 rare players, 9 items)",
+      "rare_count": 3,
+      "category": "gold"
+    },
+    {
+      "name": "Premium Gold Players Pack",
+      "price_coins": 25000,
+      "price_fc_points": 500,
+      "contents": "12 gold players (6 rare)",
+      "rare_count": 6,
+      "category": "gold"
+    },
+    {
+      "name": "Rare Gold Pack",
+      "price_coins": 25000,
+      "price_fc_points": 500,
+      "contents": "12 rare gold items",
+      "rare_count": 12,
+      "category": "rare_gold"
+    },
+    {
+      "name": "Rare Players Pack",
+      "price_coins": 50000,
+      "price_fc_points": 1000,
+      "contents": "12 rare gold players",
+      "rare_count": 12,
+      "category": "rare_gold"
+    },
+    {
+      "name": "Mega Pack",
+      "price_coins": 35000,
+      "price_fc_points": 700,
+      "contents": "30 gold items (mix of rare and non-rare)",
+      "rare_count": "variable",
+      "category": "mega"
+    },
+    {
+      "name": "Rare Mega Pack",
+      "price_coins": 55000,
+      "price_fc_points": 1100,
+      "contents": "30 rare items (players and consumables)",
+      "rare_count": 30,
+      "category": "mega"
+    },
+    {
+      "name": "Jumbo Rare Players Pack",
+      "price_coins": 100000,
+      "price_fc_points": 2000,
+      "contents": "24 rare gold players",
+      "rare_count": 24,
+      "category": "jumbo"
+    },
+    {
+      "name": "Ultimate Pack",
+      "price_coins": 125000,
+      "price_fc_points": 2500,
+      "contents": "30 rare gold players",
+      "rare_count": 30,
+      "category": "ultimate"
+    }
+  ],
+
+  "additional_items": {
+    "season_premium_pass": {
+      "price_fc_points": 1000,
+      "price_coins": 500000,
+      "note": "Seasonal pass with rewards track"
+    }
+  },
+
+  "monetisation_philosophy": "gacha_power",
+  "economy_notes": [
+    "Pack-based gacha system - players buy packs to get random player cards",
+    "Dual currency: FC Coins (earnable) and FC Points (paid only)",
+    "FC Points never go on sale - EA maintains fixed pricing year-round",
+    "EA Play subscription provides 10% discount on FC Points",
+    "Promotional packs released periodically during events with boosted odds",
+    "SBCs (Squad Building Challenges) provide alternative path to specific rewards",
+    "Pack odds are disclosed per regulatory requirements"
+  ]
+}

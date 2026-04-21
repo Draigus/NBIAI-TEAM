@@ -1,0 +1,191 @@
+{
+  "competitors": [
+    {
+      "name": "EA FC 26",
+      "tier": 1,
+      "publisher": "EA",
+      "platforms": ["steam", "epic", "ps", "xbox"],
+      "steam_appid": "3405690",
+      "monetisation_philosophy": "gacha_power",
+      "sources": {
+        "steamdb": "https://steamdb.info/app/2669320/dlc/",
+        "psprices": "https://psprices.com/region-us/game/ea-sports-fc-26",
+        "community": "https://www.fut.gg/",
+        "official_blog": "https://www.ea.com/games/ea-sports-fc"
+      },
+      "subreddit": "r/EASportsFC",
+      "notes": "Annual release. Correct AppID confirmed via Steam API. Historical: FIFA20=945360, FIFA21=1089860, FIFA22=1313860, FIFA23=1811260, FC24=2195250, FC25=2669320. DLC AppID for FC Points: 3707320"
+    },
+    {
+      "name": "EA FC Mobile",
+      "tier": 1,
+      "publisher": "EA",
+      "platforms": ["ios", "android"],
+      "steam_appid": null,
+      "monetisation_philosophy": "gacha_power",
+      "sources": {
+        "community": "https://www.futbin.com/",
+        "official_blog": "https://www.ea.com/games/ea-sports-fc/fc-mobile"
+      },
+      "subreddit": "r/FUTMobile",
+      "notes": "Separate F2P product from console FC. Different economy and pricing. iOS/Android store research needed."
+    },
+    {
+      "name": "UFL",
+      "tier": 1,
+      "publisher": "Strikerz Inc",
+      "platforms": ["steam", "ps", "xbox"],
+      "steam_appid": "3023930",
+      "monetisation_philosophy": "gacha_power",
+      "sources": {
+        "steamdb": "https://steamdb.info/app/1637320/dlc/",
+        "official_blog": "https://www.ufl.com/news"
+      },
+      "subreddit": "r/UFL",
+      "notes": "Direct F2P football competitor. Weak community tracking. Manual gap-fill prioritised. Zero Steam DLC — all MTX handled in-game. Old incorrect AppID was 1637320 (Dome Keeper)."
+    },
+    {
+      "name": "eFootball",
+      "tier": 1,
+      "publisher": "Konami",
+      "platforms": ["steam", "ps", "xbox", "ios", "android"],
+      "steam_appid": "1665460",
+      "monetisation_philosophy": "gacha_power",
+      "sources": {
+        "steamdb": "https://steamdb.info/app/1665460/dlc/",
+        "official_blog": "https://www.konami.com/efootball/en/"
+      },
+      "subreddit": "r/eFootball",
+      "notes": "F2P football. Has web companion for some store functions."
+    },
+    {
+      "name": "NBA 2K26",
+      "tier": 2,
+      "publisher": "2K Games",
+      "platforms": ["steam", "ps", "xbox"],
+      "steam_appid": "2316480",
+      "monetisation_philosophy": "gacha_power",
+      "sources": {
+        "community": "https://2kdb.net/",
+        "steamdb": "https://steamdb.info/app/2316480/dlc/",
+        "official_blog": "https://nba.2k.com/"
+      },
+      "subreddit": "r/NBA2k",
+      "notes": "Using NBA 2K25 AppID (2316480) as proxy until 2K26 is listed. MyTEAM mode is the relevant comparison."
+    },
+    {
+      "name": "Madden NFL 26",
+      "tier": 2,
+      "publisher": "EA",
+      "platforms": ["steam", "ps", "xbox"],
+      "steam_appid": "2666670",
+      "monetisation_philosophy": "gacha_power",
+      "sources": {
+        "steamdb": "https://steamdb.info/app/2666670/dlc/",
+        "community": "https://www.mut.gg/",
+        "official_blog": "https://www.ea.com/games/madden-nfl"
+      },
+      "subreddit": "r/MaddenUltimateTeam",
+      "notes": "Using Madden 25 AppID (2666670) as proxy. MUT = same EA economy engine as FC."
+    },
+    {
+      "name": "Fortnite",
+      "tier": 2,
+      "publisher": "Epic Games",
+      "platforms": ["epic", "ps", "xbox"],
+      "steam_appid": null,
+      "monetisation_philosophy": "pure_cosmetic",
+      "sources": {
+        "community": "https://fortnite.gg/shop",
+        "official_blog": "https://www.fortnite.com/news"
+      },
+      "subreddit": "r/FortNiteBR",
+      "notes": "Not on Steam. V-Bucks pricing from Epic Store + console stores. Jonas named as audience overlap."
+    },
+    {
+      "name": "Apex Legends",
+      "tier": 2,
+      "publisher": "EA",
+      "platforms": ["steam", "ps", "xbox"],
+      "steam_appid": "1172470",
+      "monetisation_philosophy": "pure_cosmetic",
+      "sources": {
+        "steamdb": "https://steamdb.info/app/1172470/dlc/",
+        "community": "https://apexitemstore.com/",
+        "official_blog": "https://www.ea.com/games/apex-legends/news"
+      },
+      "subreddit": "r/apexlegends",
+      "notes": "Mature F2P cosmetic economy. Extensive community tracking."
+    },
+    {
+      "name": "Rocket League",
+      "tier": 2,
+      "publisher": "Psyonix/Epic",
+      "platforms": ["epic", "ps", "xbox"],
+      "steam_appid": null,
+      "monetisation_philosophy": "pure_cosmetic",
+      "sources": {
+        "community": "https://rocket-league.com/items/shop",
+        "official_blog": "https://www.rocketleague.com/news"
+      },
+      "subreddit": "r/RocketLeague",
+      "notes": "Removed from Steam 2020. Credits pricing from Epic + console stores. Jonas named as comparable."
+    },
+    {
+      "name": "Valorant",
+      "tier": 2,
+      "publisher": "Riot Games",
+      "platforms": ["pc_riot"],
+      "steam_appid": null,
+      "monetisation_philosophy": "pure_cosmetic",
+      "sources": {
+        "community": "https://valorantstore.net/",
+        "official_blog": "https://playvalorant.com/en-us/news/"
+      },
+      "subreddit": "r/VALORANT",
+      "notes": "Own launcher (no Steam/Epic). Known for aggressive cosmetic pricing ($25-75/skin). Ceiling reference."
+    },
+    {
+      "name": "NHL 26",
+      "tier": 3,
+      "publisher": "EA",
+      "platforms": ["steam", "ps", "xbox"],
+      "steam_appid": "2656500",
+      "monetisation_philosophy": "gacha_power",
+      "sources": {
+        "steamdb": "https://steamdb.info/app/2656500/dlc/",
+        "official_blog": "https://www.ea.com/games/nhl"
+      },
+      "subreddit": "r/NHLHUT",
+      "notes": "Using NHL 25 AppID (2656500). HUT = same EA economy engine. Validates cross-sport pricing."
+    },
+    {
+      "name": "F1 24",
+      "tier": 3,
+      "publisher": "EA",
+      "platforms": ["steam", "ps", "xbox"],
+      "steam_appid": "2488620",
+      "monetisation_philosophy": "pure_cosmetic",
+      "sources": {
+        "steamdb": "https://steamdb.info/app/2488620/dlc/"
+      },
+      "subreddit": "r/F1Game",
+      "notes": "EA sports, Pitcoins currency. Third EA data point for pricing philosophy."
+    },
+    {
+      "name": "MLB The Show",
+      "tier": 3,
+      "publisher": "Sony/San Diego Studio",
+      "platforms": ["ps", "xbox", "steam"],
+      "steam_appid": "2680770",
+      "monetisation_philosophy": "gacha_power",
+      "sources": {
+        "steamdb": "https://steamdb.info/app/2680770/dlc/",
+        "community": "https://theshow.com/",
+        "official_blog": "https://theshow.com/news/"
+      },
+      "subreddit": "r/MLBTheShow",
+      "notes": "Using MLB The Show 25 AppID. Sony-published sports. Diamond Dynasty mode."
+    }
+  ]
+}

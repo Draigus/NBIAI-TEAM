@@ -1,0 +1,26 @@
+{
+  "metadata": {
+    "game": "eFootball",
+    "steam_appid": 1665460,
+    "publisher": "Konami",
+    "capture_date": "2026-04-21",
+    "regions_queried": [
+      "us",
+      "gb",
+      "br",
+      "mx",
+      "fr",
+      "de",
+      "se",
+      "tr",
+      "pl",
+      "jp",
+      "kr",
+      "sg",
+      "id"
+    ],
+    "total_entries": 0,
+    "notes": "eFootball (by Konami) is a free-to-play football game on Steam. As of capture date, it has ZERO DLC or purchasable currency packages on the Steam Store. eFootball Coins (the virtual currency) are sold exclusively through Konami's in-game store, not through Steam's DLC/package system. Steam API cannot capture eFootball's MTX pricing. Alternative data sources needed: in-game store scraping, Konami website, or mobile app store listings."
+  },
+  "pricing": []
+}
