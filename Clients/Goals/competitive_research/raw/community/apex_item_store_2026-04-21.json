@@ -1,0 +1,105 @@
+{
+  "source": "apexitemstore.com + apexlegends.fandom.com + apexlegends.wiki.gg",
+  "scraped_date": "2026-04-21",
+  "scrape_method": "web_search_aggregation",
+  "competitor": "Apex Legends",
+  "tier": 2,
+  "urls_cited": [
+    "https://apexitemstore.com/",
+    "https://apexitemstore.com/category/store/",
+    "https://apexlegends.fandom.com/wiki/Store",
+    "https://apexlegends.fandom.com/wiki/Currency",
+    "https://apexlegends.wiki.gg/wiki/Store",
+    "https://droid4x.com/apex-coins-to-usd-calculator/",
+    "https://gameriv.com/apex-legends-golden-week-skins-first-look-price-release-date/"
+  ],
+  "notes": "Apex store rotates regularly. Specific items in shop on 21 April 2026 not captured (requires live scrape). Golden Week event rotation expected ~28 April 2026 per leaker HYPERMYST.",
+
+  "apex_coins_purchase_tiers": {
+    "currency": "USD",
+    "note": "Pricing consistent across Steam, PlayStation, and Xbox. Larger bundles include bonus coins.",
+    "tiers": [
+      {"coins": 500, "price_usd": 4.99, "coins_per_dollar": 100.2},
+      {"coins": 1000, "price_usd": 9.99, "coins_per_dollar": 100.1},
+      {"coins": 2150, "price_usd": 19.99, "coins_per_dollar": 107.6, "bonus_coins": 150},
+      {"coins": 4350, "price_usd": 39.99, "coins_per_dollar": 108.8, "bonus_coins": 350},
+      {"coins": 6700, "price_usd": 59.99, "coins_per_dollar": 111.7, "bonus_coins": 700},
+      {"coins": 11500, "price_usd": 99.99, "coins_per_dollar": 115.0, "bonus_coins": 1500}
+    ],
+    "best_value": "11,500 coin bundle at 115 coins/$, 15% more value vs 1000-coin bundles"
+  },
+
+  "store_item_pricing_by_rarity": {
+    "apex_coins": {
+      "common_skin": {"min": 30, "max": 60},
+      "rare_skin": {"min": 60, "max": 100, "note": "Monochromatic tone with texture variation"},
+      "epic_skin": {"min": 400, "max": 1000, "note": "Dynamic/prominent colour changes"},
+      "legendary_skin": 1800,
+      "legendary_recolor_owned_base": 1800,
+      "legendary_recolor_no_base": {"option_1": 6500, "option_2": 10500},
+      "apex_pack": 100,
+      "weapon_charm": "variable",
+      "holospray": "variable",
+      "banner": "variable"
+    },
+    "crafting_metals": {
+      "common": 30,
+      "rare": 60,
+      "epic": 400,
+      "legendary": 1200
+    }
+  },
+
+  "store_structure": {
+    "featured_section": {
+      "slots": 4,
+      "item_types": ["legendary_skins", "weapon_charms", "holosprays", "bundles"]
+    },
+    "limited_time_section": {
+      "description": "Two legendary skins (otherwise craftable) at 1,800 AC each, plus a recolor for each",
+      "recolor_pricing": "10,500 AC without base skin, 1,800 AC with base skin owned"
+    },
+    "rotation": "Regular rotation, specific schedule varies"
+  },
+
+  "bundle_pricing": {
+    "standalone_legendary": 1800,
+    "small_bundles": {"min": 1950, "max": 3000},
+    "note": "Bundle contents and pricing vary by event"
+  },
+
+  "pass_pricing": {
+    "premium_battle_pass": {
+      "cost_apex_coins": 950,
+      "note": "Seasonal battle pass"
+    },
+    "new_legend_unlock": {
+      "cost_apex_coins": 750,
+      "alternative": "12,000 Legend Tokens (earnable)",
+      "note": "New legends on release"
+    }
+  },
+
+  "upcoming_events": [
+    {
+      "name": "Golden Week 2026",
+      "expected_date": "2026-04-28",
+      "duration": "~1 week",
+      "expected_pricing": "Legendary skins ~1,800 AC, bundles 1,950-3,000 AC",
+      "source": "Leaker HYPERMYST (unconfirmed)",
+      "note": "Historical Golden Week sales featured returning legendary skins"
+    }
+  ],
+
+  "monetisation_philosophy": "pure_cosmetic",
+  "economy_notes": [
+    "Triple currency system: Apex Coins (paid), Crafting Metals (earnable), Legend Tokens (earnable)",
+    "Apex Coins are the primary paid currency - required for direct shop purchases",
+    "Crafting Metals provide F2P path to specific cosmetics at lower tiers",
+    "Legend Tokens used for legend unlocks and recolour purchases (if base owned)",
+    "Apex Packs (loot boxes) available for 100 AC each - gacha element within cosmetic system",
+    "Collection Events require completing full set to unlock Heirloom/Mythic items",
+    "Store features both direct purchase and limited-time rotating items",
+    "Global price adjustment occurred May 2023 affecting some regional pricing"
+  ]
+}
