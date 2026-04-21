@@ -97,6 +97,8 @@ function normaliseCommunityData() {
       || raw.credits_purchase_tiers?.tiers
       || raw.vp_purchase_tiers?.tiers
       || raw.coins_purchase_tiers?.tiers
+      || raw.lp_purchase_tiers?.tiers
+      || raw.purchase_tiers?.tiers
       || raw.currency_packs?.tiers
       || raw.premium_currency_packs?.tiers
       || null;

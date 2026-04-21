@@ -1,0 +1,281 @@
+{
+  "metadata": {
+    "title": "EA FC/FIFA Points Pricing History - Longitudinal Data",
+    "description": "Historical pricing for FIFA Points / FC Points across annual EA football game releases on PC/Steam (USD prices)",
+    "compiled": "2026-04-21",
+    "currency": "USD",
+    "notes": [
+      "USD prices remained stable across FIFA 19-22 (no mid-year USD changes in those years)",
+      "FIFA 23 introduced structural tier changes at launch (Sept 2022) AND a mid-year price increase (June 2023) that affected non-USD currencies but NOT USD",
+      "The 8-tier structure (100/500/1050/1600/2800/5900/12000/18500) started with FC 24 (Sept 2023)",
+      "FC 24, FC 25, and FC 26 share identical USD pricing and tier structure",
+      "EA Play subscribers receive 10% discount on all FC/FIFA Points purchases"
+    ],
+    "source_urls": [
+      "https://fifauteam.com/fifa-points-prices-fifa-19/",
+      "https://fifauteam.com/fifa-points-prices-fifa-20/",
+      "https://fifauteam.com/fifa-points-prices-fifa-21/",
+      "https://fifauteam.com/fifa-points-prices-fifa-22/",
+      "https://fifauteam.com/fifa-points-prices-fifa-23/",
+      "https://fifauteam.com/fc-points-prices-fc-24/",
+      "https://fifauteam.com/fc-points-prices-fc-25/",
+      "https://fifauteam.com/fc-points-prices-fc-26/",
+      "https://www.fifplay.com/fifa-19-points/",
+      "https://www.fifplay.com/fifa-20-points/",
+      "https://www.fifplay.com/fifa-21-points/",
+      "https://www.fifplay.com/fifa-22-points/",
+      "https://www.fifplay.com/fifa-23-points/",
+      "https://www.fifplay.com/fc-24-points/",
+      "https://twinfinite.net/guides/fifa-19-all-fifa-points-prices-microtransactions/",
+      "https://twinfinite.net/guides/fifa-22-all-fifa-points-microtransactions-prices/",
+      "https://www.ea.com/games/fifa/fifa-23/news/fifa-points-pricing-update",
+      "https://www.dexerto.com/gaming/ea-reveals-fifa-23-price-change-for-fifa-points-with-some-tiers-scrapped-1938148/",
+      "https://earlygame.com/fifa/fifa-23-new-fifa-points",
+      "https://store.steampowered.com/app/3707320/EA_SPORTS_FC_26__FC_Points/"
+    ]
+  },
+  "yearly_data": [
+    {
+      "year": 2018,
+      "game_name": "FIFA 19",
+      "app_id": 945360,
+      "release_date": "2018-09-28",
+      "currency_name": "FIFA Points",
+      "tier_count": 8,
+      "tiers": [
+        { "points": 100, "price_usd": 0.99 },
+        { "points": 250, "price_usd": 2.49 },
+        { "points": 500, "price_usd": 4.99 },
+        { "points": 750, "price_usd": 7.49 },
+        { "points": 1050, "price_usd": 9.99 },
+        { "points": 1600, "price_usd": 14.99 },
+        { "points": 2200, "price_usd": 19.99 },
+        { "points": 4600, "price_usd": 39.99 }
+      ],
+      "max_single_purchase": 4600,
+      "max_price_usd": 39.99,
+      "cost_per_point_at_max_tier": 0.00869,
+      "mid_year_changes": false,
+      "structural_changes": "None. This was the standard tier structure used from approximately FIFA 18 onwards.",
+      "notes": "No 12000 tier existed yet. Maximum single purchase was 4600 points for $39.99."
+    },
+    {
+      "year": 2019,
+      "game_name": "FIFA 20",
+      "app_id": 1089860,
+      "release_date": "2019-09-27",
+      "currency_name": "FIFA Points",
+      "tier_count": 9,
+      "tiers": [
+        { "points": 100, "price_usd": 0.99 },
+        { "points": 250, "price_usd": 2.49 },
+        { "points": 500, "price_usd": 4.99 },
+        { "points": 750, "price_usd": 7.49 },
+        { "points": 1050, "price_usd": 9.99 },
+        { "points": 1600, "price_usd": 14.99 },
+        { "points": 2200, "price_usd": 19.99 },
+        { "points": 4600, "price_usd": 39.99 },
+        { "points": 12000, "price_usd": 99.99 }
+      ],
+      "max_single_purchase": 12000,
+      "max_price_usd": 99.99,
+      "cost_per_point_at_max_tier": 0.00833,
+      "mid_year_changes": false,
+      "structural_changes": "Added 12000 tier ($99.99). First year with a $99.99 mega-pack option.",
+      "notes": "The 12000 tier was introduced in FIFA 20, giving heavy spenders a bulk option. All other tiers identical to FIFA 19."
+    },
+    {
+      "year": 2020,
+      "game_name": "FIFA 21",
+      "app_id": 1313860,
+      "release_date": "2020-10-09",
+      "currency_name": "FIFA Points",
+      "tier_count": 9,
+      "tiers": [
+        { "points": 100, "price_usd": 0.99 },
+        { "points": 250, "price_usd": 2.49 },
+        { "points": 500, "price_usd": 4.99 },
+        { "points": 750, "price_usd": 7.49 },
+        { "points": 1050, "price_usd": 9.99 },
+        { "points": 1600, "price_usd": 14.99 },
+        { "points": 2200, "price_usd": 19.99 },
+        { "points": 4600, "price_usd": 39.99 },
+        { "points": 12000, "price_usd": 99.99 }
+      ],
+      "max_single_purchase": 12000,
+      "max_price_usd": 99.99,
+      "cost_per_point_at_max_tier": 0.00833,
+      "mid_year_changes": false,
+      "structural_changes": "None. Identical to FIFA 20.",
+      "notes": "No changes to USD pricing or tier structure from FIFA 20."
+    },
+    {
+      "year": 2021,
+      "game_name": "FIFA 22",
+      "app_id": 1811260,
+      "release_date": "2021-10-01",
+      "currency_name": "FIFA Points",
+      "tier_count": 9,
+      "tiers": [
+        { "points": 100, "price_usd": 0.99 },
+        { "points": 250, "price_usd": 2.49 },
+        { "points": 500, "price_usd": 4.99 },
+        { "points": 750, "price_usd": 7.49 },
+        { "points": 1050, "price_usd": 9.99 },
+        { "points": 1600, "price_usd": 14.99 },
+        { "points": 2200, "price_usd": 19.99 },
+        { "points": 4600, "price_usd": 39.99 },
+        { "points": 12000, "price_usd": 99.99 }
+      ],
+      "max_single_purchase": 12000,
+      "max_price_usd": 99.99,
+      "cost_per_point_at_max_tier": 0.00833,
+      "mid_year_changes": false,
+      "structural_changes": "None. Identical to FIFA 20 and FIFA 21.",
+      "notes": "Third consecutive year with identical tier structure and USD pricing. Last year of the FIFA brand before the FIFA 23 restructure."
+    },
+    {
+      "year": 2022,
+      "game_name": "FIFA 23",
+      "app_id": 1811260,
+      "release_date": "2022-09-30",
+      "currency_name": "FIFA Points",
+      "tier_count": 8,
+      "tiers": [
+        { "points": 100, "price_usd": 0.99 },
+        { "points": 500, "price_usd": 4.99 },
+        { "points": 1050, "price_usd": 9.99 },
+        { "points": 1600, "price_usd": 14.99 },
+        { "points": 2800, "price_usd": 24.99 },
+        { "points": 5900, "price_usd": 49.99 },
+        { "points": 12000, "price_usd": 99.99 },
+        { "points": 18500, "price_usd": 149.99 }
+      ],
+      "max_single_purchase": 18500,
+      "max_price_usd": 149.99,
+      "cost_per_point_at_max_tier": 0.00811,
+      "mid_year_changes": true,
+      "mid_year_change_details": {
+        "date": "2023-06-01",
+        "description": "EA announced a 'FIFA Points Pricing Update' citing 'significant changes in currency valuation'. Prices increased in many regions (UK, Australia, Canada, etc.) but USD prices were NOT affected.",
+        "usd_affected": false,
+        "regions_affected": ["GBP", "AUD", "CAD", "BRL", "and others"],
+        "example_changes": {
+          "AUD_12000_before": 120.00,
+          "AUD_12000_after": 150.00,
+          "GBP_12000_before": 79.99,
+          "GBP_12000_after": 87.99
+        },
+        "source": "https://www.ea.com/games/fifa/fifa-23/news/fifa-points-pricing-update"
+      },
+      "structural_changes": "Major restructure. Removed: 250, 750, 2200, 4600 tiers. Added: 2800, 5900, 18500 tiers. EA stated they were 'simplifying the experience' by removing 'least popular bundles' and adding value to commonly used ones.",
+      "notes": "This was the pivotal year. The tier structure shifted from 9 legacy tiers to the modern 8-tier layout. The $24.99 tier jumped from 2200 to 2800 points (+27% more points for $5 more). The $49.99 tier jumped from 4600 to 5900 points (+28% more points for $10 more). A new $149.99 mega-tier (18500 points) was introduced. Last game under the FIFA brand."
+    },
+    {
+      "year": 2023,
+      "game_name": "EA Sports FC 24",
+      "app_id": 2195250,
+      "release_date": "2023-09-29",
+      "currency_name": "FC Points",
+      "tier_count": 8,
+      "tiers": [
+        { "points": 100, "price_usd": 0.99 },
+        { "points": 500, "price_usd": 4.99 },
+        { "points": 1050, "price_usd": 9.99 },
+        { "points": 1600, "price_usd": 14.99 },
+        { "points": 2800, "price_usd": 24.99 },
+        { "points": 5900, "price_usd": 49.99 },
+        { "points": 12000, "price_usd": 99.99 },
+        { "points": 18500, "price_usd": 149.99 }
+      ],
+      "max_single_purchase": 18500,
+      "max_price_usd": 149.99,
+      "cost_per_point_at_max_tier": 0.00811,
+      "mid_year_changes": false,
+      "structural_changes": "Rebranded from FIFA Points to FC Points. Tier structure and USD pricing identical to post-restructure FIFA 23.",
+      "notes": "First game under the EA Sports FC brand. Currency renamed from 'FIFA Points' to 'FC Points'. No pricing or structural changes from FIFA 23's restructured tiers."
+    },
+    {
+      "year": 2024,
+      "game_name": "EA Sports FC 25",
+      "app_id": 2669320,
+      "release_date": "2024-09-27",
+      "currency_name": "FC Points",
+      "tier_count": 8,
+      "tiers": [
+        { "points": 100, "price_usd": 0.99 },
+        { "points": 500, "price_usd": 4.99 },
+        { "points": 1050, "price_usd": 9.99 },
+        { "points": 1600, "price_usd": 14.99 },
+        { "points": 2800, "price_usd": 24.99 },
+        { "points": 5900, "price_usd": 49.99 },
+        { "points": 12000, "price_usd": 99.99 },
+        { "points": 18500, "price_usd": 149.99 }
+      ],
+      "max_single_purchase": 18500,
+      "max_price_usd": 149.99,
+      "cost_per_point_at_max_tier": 0.00811,
+      "mid_year_changes": false,
+      "structural_changes": "None. Identical to FC 24.",
+      "notes": "No changes to USD pricing or tier structure. Third consecutive year with the 8-tier layout."
+    },
+    {
+      "year": 2025,
+      "game_name": "EA Sports FC 26",
+      "app_id": 3405690,
+      "release_date": "2025-09-26",
+      "currency_name": "FC Points",
+      "tier_count": 8,
+      "tiers": [
+        { "points": 100, "price_usd": 0.99 },
+        { "points": 500, "price_usd": 4.99 },
+        { "points": 1050, "price_usd": 9.99 },
+        { "points": 1600, "price_usd": 14.99 },
+        { "points": 2800, "price_usd": 24.99 },
+        { "points": 5900, "price_usd": 49.99 },
+        { "points": 12000, "price_usd": 99.99 },
+        { "points": 18500, "price_usd": 149.99 }
+      ],
+      "max_single_purchase": 18500,
+      "max_price_usd": 149.99,
+      "cost_per_point_at_max_tier": 0.00811,
+      "mid_year_changes": false,
+      "structural_changes": "None. Identical to FC 24 and FC 25.",
+      "notes": "Fourth consecutive year with the 8-tier layout. USD pricing has been completely stable since the FIFA 23 restructure in 2022."
+    }
+  ],
+  "evolution_summary": {
+    "era_1_legacy": {
+      "years": "FIFA 19 (2018)",
+      "tier_count": 8,
+      "max_purchase": 4600,
+      "max_price": 39.99,
+      "structure": "100/250/500/750/1050/1600/2200/4600"
+    },
+    "era_2_12k_added": {
+      "years": "FIFA 20 - FIFA 22 (2019-2021)",
+      "tier_count": 9,
+      "max_purchase": 12000,
+      "max_price": 99.99,
+      "structure": "100/250/500/750/1050/1600/2200/4600/12000",
+      "change": "Added 12000 tier at $99.99"
+    },
+    "era_3_modern": {
+      "years": "FIFA 23 - FC 26 (2022-2025)",
+      "tier_count": 8,
+      "max_purchase": 18500,
+      "max_price": 149.99,
+      "structure": "100/500/1050/1600/2800/5900/12000/18500",
+      "change": "Removed 250/750/2200/4600 tiers. Added 2800/5900/18500 tiers. Simplified to 8 tiers with higher ceilings."
+    }
+  },
+  "key_findings": [
+    "USD prices have NEVER increased for an existing tier amount. EA has only restructured which tiers exist.",
+    "The FIFA 23 restructure (Sept 2022) was the only major structural change in the 7-year period studied.",
+    "The June 2023 mid-year price increase affected non-USD currencies only (GBP, AUD, CAD, etc.) citing currency valuation changes.",
+    "EA's strategy has been to push spend ceilings higher (from $39.99 max to $149.99 max) rather than raise per-point costs.",
+    "The cost-per-point at the maximum tier has actually decreased over time: $0.00869 (FIFA 19) to $0.00811 (FC 26).",
+    "The 8-tier structure (100/500/1050/1600/2800/5900/12000/18500) started with FIFA 23 in September 2022.",
+    "The rebrand from FIFA Points to FC Points in FC 24 (2023) was cosmetic only - no pricing impact."
+  ]
+}

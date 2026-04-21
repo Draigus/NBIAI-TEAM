@@ -1,0 +1,172 @@
+{
+  "metadata": {
+    "title": "Competitor Virtual Currency Price Changes",
+    "description": "Documented price change events for major game virtual currencies (Fortnite V-Bucks, Apex Legends Coins, and others)",
+    "compiled": "2026-04-21",
+    "currency": "USD",
+    "source_urls": [
+      "https://www.fortnite.com/news/fortnite-v-bucks-price-increase?lang=en-US",
+      "https://www.gameshub.com/news/article/fortnite-v-bucks-price-increase-2026-epic-amazing-things-2861511/",
+      "https://www.talkesport.com/news/fortnite-v-bucks-price-increase-march-2026/",
+      "https://www.vice.com/en/article/fortnite-v-bucks-price-increase-confirmed-by-epic-games-new-prices-explained/",
+      "https://gamerant.com/fortnite-v-buck-pack-prices-pass-costs-march-2026-updates/",
+      "https://fortnitetracker.com/article/2416/fortnite-vbucks-price-increase",
+      "https://www.ea.com/games/apex-legends/news/global-price-adjustment-update",
+      "https://www.dexerto.com/apex-legends/apex-legends-announces-apex-coin-price-adjustments-in-certain-countries-2151381/",
+      "https://apexlegends.fandom.com/wiki/Currency"
+    ]
+  },
+  "price_change_events": [
+    {
+      "game": "Fortnite",
+      "publisher": "Epic Games",
+      "currency_name": "V-Bucks",
+      "event_date": "2026-03-19",
+      "announcement_date": "2026-03-10",
+      "change_type": "effective_price_increase",
+      "mechanism": "Reduced V-Bucks granted per dollar spent (prices stayed the same, quantities decreased)",
+      "usd_affected": true,
+      "stated_reason": "The cost of running Fortnite has gone up a lot and we're raising prices to help pay the bills.",
+      "estimated_increase_pct": "20-25%",
+      "tier_changes": {
+        "before": [
+          { "price_usd": 0.99, "vbucks": 200, "cost_per_100": 0.495 },
+          { "price_usd": 2.99, "vbucks": 500, "cost_per_100": 0.598 },
+          { "price_usd": 4.99, "vbucks": 600, "cost_per_100": 0.832 },
+          { "price_usd": 8.99, "vbucks": 1000, "cost_per_100": 0.899 },
+          { "price_usd": 14.99, "vbucks": 1500, "cost_per_100": 0.999 },
+          { "price_usd": 26.99, "vbucks": 2800, "cost_per_100": 0.964 },
+          { "price_usd": 40.99, "vbucks": 5000, "cost_per_100": 0.820 },
+          { "price_usd": 89.99, "vbucks": 13500, "cost_per_100": 0.667 }
+        ],
+        "after": [
+          { "price_usd": 0.99, "vbucks": 100, "cost_per_100": 0.990 },
+          { "price_usd": 2.99, "vbucks": 300, "cost_per_100": 0.997 },
+          { "price_usd": 4.99, "vbucks": 500, "cost_per_100": 0.998 },
+          { "price_usd": 8.99, "vbucks": 800, "cost_per_100": 1.124 },
+          { "price_usd": 14.99, "vbucks": 1200, "cost_per_100": 1.249 },
+          { "price_usd": 26.99, "vbucks": 2300, "cost_per_100": 1.173 },
+          { "price_usd": 40.99, "vbucks": 4000, "cost_per_100": 1.025 },
+          { "price_usd": 89.99, "vbucks": 12500, "cost_per_100": 0.720 }
+        ],
+        "notes": "Dollar prices unchanged. V-Bucks quantities reduced at every tier. Effective price per V-Buck increased ~20-25% depending on tier."
+      },
+      "battle_pass_changes": {
+        "before": {
+          "cost_vbucks": 1000,
+          "vbucks_earned_on_completion": 1000,
+          "bonus_rewards_vbucks": 500,
+          "net_cost_if_completed": -500
+        },
+        "after": {
+          "cost_vbucks": 800,
+          "vbucks_earned_on_completion": 800,
+          "bonus_rewards_vbucks": 0,
+          "net_cost_if_completed": 0
+        },
+        "notes": "Battle Pass cost lowered from 1000 to 800 V-Bucks. Completion now returns exactly 800 V-Bucks (net zero). Previously returned 1000 + 500 bonus = net +500 V-Bucks. Players can no longer profit V-Bucks from the Battle Pass."
+      },
+      "other_pass_changes": [
+        { "pass": "OG Pass", "before_vbucks": 1000, "after_vbucks": 800 },
+        { "pass": "Music Pass", "before_vbucks": 1400, "after_vbucks": 1200 },
+        { "pass": "LEGO Pass", "before_vbucks": 1400, "after_vbucks": 1200 },
+        { "pass": "Battle Bundle", "before_vbucks": 2800, "after_vbucks": 2600 }
+      ],
+      "crew_subscription_changes": {
+        "monthly_vbucks_before": 1000,
+        "monthly_vbucks_after": 800,
+        "price_usd_unchanged": true,
+        "monthly_price_usd": 11.99
+      },
+      "mitigation_offered": "20% Epic Rewards credit on purchases made through Epic's own storefront/payment system.",
+      "player_reception": "Highly negative. Widely seen as the most significant Fortnite monetisation change since launch.",
+      "significance": "First ever V-Bucks price increase in Fortnite's history (launched 2017). Epic had maintained stable pricing for ~9 years."
+    },
+    {
+      "game": "Apex Legends",
+      "publisher": "Electronic Arts / Respawn Entertainment",
+      "currency_name": "Apex Coins",
+      "event_date": "2023-06-01",
+      "announcement_date": "2023-05-19",
+      "change_type": "regional_currency_adjustment",
+      "mechanism": "Direct price changes in affected currencies",
+      "usd_affected": false,
+      "stated_reason": "Changes in global economic conditions and currency valuations.",
+      "currencies_unaffected": ["USD", "EUR", "JPY", "HKD", "INR", "UAH", "AED", "VND"],
+      "currencies_increased": ["GBP", "AUD", "CAD", "BRL", "and others"],
+      "currencies_decreased": ["Some regions saw decreases to rebalance global pricing"],
+      "current_usd_tiers": [
+        { "coins": 1000, "price_usd": 9.99, "bonus_coins": 0 },
+        { "coins": 2150, "price_usd": 19.99, "bonus_coins": 150 },
+        { "coins": 4350, "price_usd": 39.99, "bonus_coins": 350 },
+        { "coins": 6700, "price_usd": 59.99, "bonus_coins": 700 },
+        { "coins": 11500, "price_usd": 99.99, "bonus_coins": 1500 }
+      ],
+      "cost_per_coin_range": {
+        "worst_tier_1000": 0.00999,
+        "best_tier_11500": 0.00869
+      },
+      "significance": "USD pricing has never changed for Apex Coins. Only non-USD currencies were adjusted.",
+      "additional_change_2024": {
+        "date": "2024 (Season 22)",
+        "description": "Battle Pass could no longer be purchased with Apex Coins, only with real money. EA stated this allowed them to decrease the Premium+ price.",
+        "type": "structural_change_not_price_increase"
+      }
+    },
+    {
+      "game": "Call of Duty (Warzone/MW3/Black Ops 6)",
+      "publisher": "Activision / Microsoft",
+      "currency_name": "COD Points",
+      "event_date": null,
+      "change_type": "no_change",
+      "usd_affected": false,
+      "current_usd_tiers": [
+        { "points": 200, "price_usd": 1.99 },
+        { "points": 500, "price_usd": 4.99 },
+        { "points": 1000, "price_usd": 9.99 },
+        { "points": 2400, "price_usd": 19.99 },
+        { "points": 5000, "price_usd": 39.99 },
+        { "points": 9500, "price_usd": 74.99 },
+        { "points": 13000, "price_usd": 99.99 }
+      ],
+      "notes": "COD Points pricing has remained stable since introduction. No documented USD price increases. Points carry over between annual COD titles."
+    }
+  ],
+  "cross_game_comparison": {
+    "effective_cost_per_dollar_at_100_usd_tier": [
+      {
+        "game": "EA Sports FC 26",
+        "currency": "FC Points",
+        "amount_for_100_usd": 12000,
+        "cost_per_unit": 0.00833
+      },
+      {
+        "game": "Fortnite (post March 2026)",
+        "currency": "V-Bucks",
+        "amount_for_90_usd": 12500,
+        "effective_cost_per_unit": 0.00720,
+        "notes": "Closest tier is $89.99 for 12500 V-Bucks"
+      },
+      {
+        "game": "Apex Legends",
+        "currency": "Apex Coins",
+        "amount_for_100_usd": 11500,
+        "cost_per_unit": 0.00869
+      },
+      {
+        "game": "Call of Duty",
+        "currency": "COD Points",
+        "amount_for_100_usd": 13000,
+        "cost_per_unit": 0.00769
+      }
+    ]
+  },
+  "industry_trends": [
+    "USD virtual currency prices have been remarkably stable across the industry. Most publishers avoid direct USD price increases.",
+    "When price adjustments occur, they typically affect non-USD currencies first, citing exchange rate fluctuations (EA in June 2023, Apex in June 2023).",
+    "Fortnite's March 2026 change was notable as the first major USD-affecting price increase from a top-tier live-service game, using quantity reduction rather than price increases.",
+    "The preferred industry strategy is tier restructuring (adding higher-priced tiers) rather than increasing prices on existing tiers.",
+    "EA's approach from FIFA 19 to FC 26: raised the spending ceiling from $39.99 to $149.99 without ever increasing the per-point cost at any existing price point.",
+    "Battle Pass monetisation is shifting across the industry: both Fortnite and Apex have reduced or eliminated the ability to 'earn back' premium currency through pass completion."
+  ]
+}

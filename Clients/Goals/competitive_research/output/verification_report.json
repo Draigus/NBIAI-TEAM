@@ -1,0 +1,41 @@
+{
+  "run_date": "2026-04-21T03:52:15.808Z",
+  "total_rows": 365,
+  "competitors_found": 14,
+  "competitor_names": [
+    "F1 24 (EA/Codemasters)",
+    "EA SPORTS FC 25",
+    "NBA 2K25 (2K Games)",
+    "EA SPORTS FC 26",
+    "Apex Legends",
+    "EA FC Mobile",
+    "eFootball",
+    "Fortnite",
+    "EA FC 26",
+    "Madden NFL 25",
+    "NBA 2K25",
+    "Rocket League",
+    "UFL",
+    "Valorant"
+  ],
+  "issues": [
+    {
+      "severity": "LOW",
+      "msg": "Missing Tier 3: NHL (console-only, expected gap)"
+    },
+    {
+      "severity": "LOW",
+      "msg": "Missing Tier 3: MLB (console-only, expected gap)"
+    },
+    {
+      "severity": "HIGH",
+      "msg": "60 rows with invalid/extreme USD prices"
+    }
+  ],
+  "summary": {
+    "critical": 0,
+    "high": 1,
+    "medium": 0,
+    "low": 2
+  }
+}

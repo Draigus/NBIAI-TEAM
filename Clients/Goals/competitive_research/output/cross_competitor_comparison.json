@@ -1,0 +1,159 @@
+{
+  "generated": "2026-04-21",
+  "method": "web_search_aggregation",
+  "note": "Normalised MTX pricing comparison across three competitor community tracker sites. All prices USD. Live shop item snapshots not captured (sites render via JS; direct Apify scrape required for daily snapshots).",
+
+  "premium_currency_real_money_conversion": {
+    "description": "What does $10 / $20 / $50 / $100 buy you in each game's premium currency?",
+    "ea_fc_26": {
+      "currency_name": "FC Points",
+      "10_usd": {"amount": 1050, "tier": "$9.99 pack"},
+      "20_usd": {"amount": 2200, "tier": "$19.99 pack"},
+      "50_usd": {"amount": 5900, "tier": "$49.99 pack"},
+      "100_usd": {"amount": 12000, "tier": "$99.99 pack"},
+      "best_value_per_dollar": "120 FP/$ at $99.99 tier",
+      "worst_value_per_dollar": "100 FP/$ at $0.99 tier"
+    },
+    "fortnite": {
+      "currency_name": "V-Bucks",
+      "effective_date": "2026-03-19 (post-repricing)",
+      "10_usd": {"amount": 800, "tier": "$8.99 pack"},
+      "20_usd": {"amount": 800, "tier": "No $19.99 pack; $22.99 gives 2400"},
+      "50_usd": {"amount": 5000, "tier": "$44.99 pack"},
+      "100_usd": {"amount": 12500, "tier": "$89.99 pack"},
+      "best_value_per_dollar": "139 VB/$ at $89.99 tier",
+      "worst_value_per_dollar": "51 VB/$ at $0.99 tier (50 V-Bucks)",
+      "note": "March 2026 repricing reduced V-Bucks quantities ~20-25% at most tiers"
+    },
+    "apex_legends": {
+      "currency_name": "Apex Coins",
+      "10_usd": {"amount": 1000, "tier": "$9.99 pack"},
+      "20_usd": {"amount": 2150, "tier": "$19.99 pack (incl 150 bonus)"},
+      "50_usd": {"amount": 4350, "tier": "$39.99 pack (incl 350 bonus)"},
+      "100_usd": {"amount": 11500, "tier": "$99.99 pack (incl 1500 bonus)"},
+      "best_value_per_dollar": "115 AC/$ at $99.99 tier",
+      "worst_value_per_dollar": "100 AC/$ at $4.99/$9.99 tiers"
+    }
+  },
+
+  "flagship_item_real_money_cost": {
+    "description": "What does one premium skin/item actually cost in real money at the most common purchase tier?",
+    "ea_fc_26": {
+      "item": "Ultimate Pack (30 rare gold players)",
+      "premium_currency_cost": 2500,
+      "real_money_cost_usd": "~$20.83 (at $9.99/1050 FP rate) to ~$23.81 (at $19.99/2200 FP rate)",
+      "note": "This is a gacha pack, not a guaranteed specific item. Individual player values are random."
+    },
+    "fortnite": {
+      "item": "Legendary Outfit/Skin",
+      "premium_currency_cost": 2000,
+      "real_money_cost_usd": "$22.48 (at $8.99/800 VB rate, need to buy 3x $8.99 packs = $26.97 for 2400 VB)",
+      "effective_cost": "$22.50-$26.97 depending on pack combination",
+      "note": "Post March 2026 repricing. Previously ~$20 when $9.99 bought 1000 VB."
+    },
+    "apex_legends": {
+      "item": "Legendary Character Skin",
+      "premium_currency_cost": 1800,
+      "real_money_cost_usd": "$17.99 (at $9.99/1000 AC rate, need 2x packs = $19.98 for 2000 AC)",
+      "effective_cost": "$17.99-$19.98",
+      "note": "Can also craft for 1,200 Crafting Metals (earnable). Recolours cheaper if base owned."
+    }
+  },
+
+  "battle_pass_comparison": {
+    "ea_fc_26": {
+      "name": "Season Premium Pass",
+      "cost_premium_currency": 1000,
+      "cost_usd_approx": 9.52,
+      "returns_premium_currency": "Unknown",
+      "note": "FC Points only. Alternative: 500,000 FC Coins (earnable)."
+    },
+    "fortnite": {
+      "name": "Battle Pass",
+      "cost_premium_currency": 800,
+      "cost_usd_approx": 8.99,
+      "returns_premium_currency": 800,
+      "note": "Break-even if fully completed. Reduced from 1000/1000 in March 2026."
+    },
+    "apex_legends": {
+      "name": "Premium Battle Pass",
+      "cost_premium_currency": 950,
+      "cost_usd_approx": 9.50,
+      "returns_premium_currency": "Variable (includes AC rewards in track)",
+      "note": "Seasonal pass."
+    }
+  },
+
+  "subscription_comparison": {
+    "ea_fc_26": {
+      "name": "EA Play",
+      "price_usd_monthly": 5.99,
+      "price_usd_annual": 39.99,
+      "fc_specific_benefits": "10% discount on FC Points, early access, monthly rewards"
+    },
+    "fortnite": {
+      "name": "Fortnite Crew",
+      "price_usd_monthly": 11.99,
+      "includes": ["Battle Pass access", "Exclusive monthly skin + accessories", "800 V-Bucks monthly (was 1000)"],
+      "value_estimate": "$60+ per month in content"
+    },
+    "apex_legends": {
+      "name": "None",
+      "note": "No subscription offering. EA Play provides minimal Apex benefits."
+    }
+  },
+
+  "monetisation_model_comparison": {
+    "ea_fc_26": {
+      "model": "gacha_power",
+      "description": "Pack-based gacha where purchased items (player cards) directly affect gameplay power",
+      "key_mechanic": "Random packs with variable player quality",
+      "f2p_path": "FC Coins earnable through gameplay; SBCs for specific rewards",
+      "ceiling": "Unlimited - whale spending uncapped via pack purchases"
+    },
+    "fortnite": {
+      "model": "pure_cosmetic",
+      "description": "Direct purchase cosmetics with daily rotating shop",
+      "key_mechanic": "FOMO-driven daily rotation; collaboration skins drive spending",
+      "f2p_path": "Free tier battle pass; some free cosmetics via challenges",
+      "ceiling": "Bounded by shop inventory - each item purchased once"
+    },
+    "apex_legends": {
+      "model": "pure_cosmetic_with_gacha_element",
+      "description": "Mix of direct purchase store and Apex Packs (loot boxes)",
+      "key_mechanic": "Direct store purchases + Collection Events (buy full set for Heirloom)",
+      "f2p_path": "Crafting Metals for specific items; Legend Tokens for unlocks/recolours",
+      "ceiling": "High during Collection Events (all items needed for Heirloom)"
+    }
+  },
+
+  "pricing_trends_2026": [
+    {
+      "competitor": "Fortnite",
+      "trend": "Price increase",
+      "date": "2026-03-19",
+      "detail": "V-Bucks packs give ~20-25% fewer V-Bucks for same USD price. Epic cited rising operational costs."
+    },
+    {
+      "competitor": "EA FC 26",
+      "trend": "Stable",
+      "detail": "FC Points pricing unchanged from FC 25 in US/UK markets. Annual title release resets economy."
+    },
+    {
+      "competitor": "Apex Legends",
+      "trend": "Stable (post-2023 adjustment)",
+      "detail": "No recent price changes. Last global adjustment was May 2023. Golden Week event expected April 28."
+    }
+  ],
+
+  "gaps_and_next_steps": [
+    "LIVE SHOP SNAPSHOTS: All three sites render item shops via JavaScript. WebSearch can find indexed data but cannot capture today's specific rotation. Apify actors (cheerio-scraper or web-scraper with browser rendering) needed for daily automated snapshots.",
+    "FORTNITE DAILY ITEMS: fortnite.gg/shop shows today's exact items + V-Bucks prices. Needs JS-rendered scrape.",
+    "APEX DAILY ROTATION: apexitemstore.com shows current store. Needs JS-rendered scrape.",
+    "FUT.GG STORE PACKS: fut.gg/store had no active store packs at time of research. May need to check during promo periods.",
+    "PACK ODDS: EA FC 26 pack odds are published but not captured in this scrape. Available at futnext.com/pack.",
+    "REGIONAL PRICING: Only USD captured. GBP reference included for FC Points. Full multi-region sweep per regions.json not yet done.",
+    "TIER 1 FOOTBALL COMPETITORS: UFL and eFootball community pricing not yet scraped.",
+    "APIFY PERMISSION: search-actors, call-actor, and rag-web-browser tools were permission-denied. Need tool permissions approved to run automated scraping actors."
+  ]
+}
