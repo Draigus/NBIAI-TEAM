@@ -198,7 +198,25 @@ All affected claims have at least two independent backup citations in the citati
 
 ---
 
-## 9. Data Observations (for deliverable discussion)
+## 9. Cross-Reference: NBI Findings vs Goals' Internal Pricing
+
+Goals' own pricing matrix (`GOALS Pricing Matrix (8).xlsx`) defines a 6-tier HC structure. Cross-referencing against this dataset:
+
+| Dimension | Goals (Internal) | Industry Benchmark (This Dataset) | Assessment |
+|---|---|---|---|
+| Number of tiers | 6 | 6-8 (EA FC: 8, UFL: 6, Madden: 8) | Within range |
+| Entry price | **$5.99** / 380 HC | **$0.99** / 100 HC (EA FC, UFL, eFootball) | **Gap: Goals has no micro-entry tier.** Every football competitor offers $0.99. |
+| Top tier | $99.99 / 7,750 HC | $79.99-$149.99 (UFL: $79.99, EA FC: $149.99) | Within range; between UFL and EA FC |
+| Volume discount | ~22% (63.4 HC/$ entry → 77.5 HC/$ top) | 15-23% cluster | Aligned with industry norm |
+| Regional coverage | 40+ countries (Sony + Xbox pricing) | 12 Steam regions (EA titles) | Goals has broader regional coverage than this dataset |
+| Regional strategy | Benchmarks against EA FC + Arc Raiders per region | EA FC is the industry standard template [S-FC26] | Aligned |
+| HC/$ at entry | 63.4 HC/$ ($5.99/380) | 95-101 HC/$ (EA FC, UFL, Valorant at $4.99-$0.99) | Goals' effective rate is lower, but different price point |
+
+**Key finding from cross-reference:** Goals' pricing aligns with industry norms on volume discount curve (22%) and regional strategy (EA FC template). The notable gap is the absence of a $0.99 micro-entry tier, which every direct football competitor (EA FC [S-FC26], UFL [C-UFL], eFootball [C-EF]) offers as a low-friction first purchase.
+
+---
+
+## 10. Data Observations (for deliverable discussion)
 
 The following observations emerge from the data. They are not pricing recommendations — pricing decisions require additional inputs (willingness-to-pay research, player demographics, Goals' revenue model, regional launch strategy) that are outside this dataset's scope.
 

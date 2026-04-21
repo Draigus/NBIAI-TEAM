@@ -133,9 +133,13 @@ function normaliseCommunityData() {
 
       const canonCompetitor = NAME_CANON[competitor] || competitor;
 
-      // Skip community pricing for competitors with authoritative Steam API data
+      // Skip community HC pricing for competitors with authoritative Steam API data
       const hasSteamPrimary = ['EA FC 26', 'EA FC 25', 'NBA 2K25'].includes(canonCompetitor);
       if (hasSteamPrimary && currencyName.includes('fc_points')) continue;
+
+      // Determine SKU type: soft currency packs are flagged separately
+      const isSoftCurrency = currencyName.includes('cp_purchase') || currencyName.includes('credit_points');
+      const skuType = isSoftCurrency ? 'sc_pack' : 'hc_pack';
 
       for (const tier of tiers) {
         const coins = tier.coins || tier.amount || tier.points || tier.vbucks || tier.fc_points || tier.lp_amount || tier.v_bucks || 0;
@@ -147,7 +151,7 @@ function normaliseCommunityData() {
           tier: config?.tier || raw.tier || null,
           platform: 'multi',
           region: 'us',
-          sku_type: 'hc_pack',
+          sku_type: skuType,
           sku_name: `${coins} ${currencyName.replace(/_/g, ' ')}`,
           hc_amount: coins,
           bonus_amount: bonus,
