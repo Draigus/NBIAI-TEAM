@@ -1,164 +1,170 @@
-# HANDOFF — Goals Studio Plan Integrity Fix (In Progress)
+# HANDOFF — Goals Competitive MTX Pipeline Complete + Red Team Needed
 
-**Date:** 2026-04-21
-**Session:** Fix fabrications in Goals Studio pricing plan, re-estimate hours, update WorkSage + Excel
-**Previous handoff:** Goals Competitive MTX Scraping Pipeline (separate workstream, still valid)
+**Date:** 2026-04-21 ~05:15
+**Session:** Brainstorm → Spec → Plan → Full execution of competitive MTX scraping pipeline
+**Next session task:** Red team and critique the findings, cross-validate sources
 
 ---
 
 ## What Was Done This Session
 
-### 1. Full Audit of Plan Document
+### 1. Brainstormed Pipeline Architecture with Glen
+- Iterated competitive set (started at 15, refined to 13 titles across 3 tiers)
+- Glen challenged LoL inclusion (removed) and NBA 2K exclusion (added back — MyTEAM mode is valid)
+- Added EA FC Mobile, Valorant, F1 as iterations
+- Defined 4-table schema, longitudinal data requirement, verification methodology
 
-Audited `docs/superpowers/plans/2026-04-21-goals-studio-pricing-plan.md` against all client materials (15+ docs in `Clients/Goals/`). Found 5 RED issues (fabricated/wrong), 4 AMBER (unverifiable), 1 YELLOW (data discrepancy).
+### 2. Wrote and Committed Spec
+`docs/superpowers/specs/2026-04-21-goals-competitive-mtx-scraping-pipeline.md`
 
-### 2. Fixes Applied to Plan (Partial — See Remaining Below)
+### 3. Wrote and Committed Implementation Plan
+`docs/superpowers/plans/2026-04-21-goals-competitive-mtx-scraping-pipeline.md`
 
-**Completed fixes:**
-- Removed "NBI's risk framework" — replaced with methodology derived from Goals' own matrix flags
-- Removed ALL "27 game launches" / "NBI portfolio data" references — replaced with specific research methods (EA/Konami quarterly reports, SteamDB, Sensor Tower, GDC publications)
-- Fixed Epic revenue: 40% → ~26% with correct maths ($5.27 vs $4.19)
-- Fixed kit pricing: 16,000 pts/320 coins → 16,625 pts/~333 coins with source (Content Plan sheet)
-- Flagged Mech/Pulse HC pricing as GAP (not in any client doc, needs Julius)
-- Removed "Glen to provide from experience" pattern everywhere — replaced with executable research methods
-- Updated budget table: 50h → ~116h with team split (Glen 45h, Devin 50h, Tom 20h)
-- Updated hours for: T1.0.1 (2→3h), T1.0.2 (2→5h), T1.1.1 (2.5→8h), T1.1.2 (1.5→4h), T1.1.3 (2→5h), T1.1.4 (1→2h), T1.2.1 (3→8h), T1.3.1 (2→5h), T2.1.1 (3→8h), T2.1.2 (3.5→15h)
+### 4. Executed Pipeline (8 background agents dispatched in waves)
 
-### 3. Hour Re-Estimation (Completed in Conversation)
+**Wave 1:**
+- Steam API agent: EA FC 26 + FC 25 + UFL + eFootball
+- Apify agent: FUT.gg, Fortnite.gg, ApexItemStore
 
-Presented full breakdown to Glen with rationale. Total revised estimate: ~116h. Glen confirmed 50h was "ridiculously off."
+**Wave 2:**
+- Steam API Tier 2+3: Apex, NBA 2K, Madden, NHL, F1, MLB
+- UFL deep dive (Reddit, official sources, community)
+- Non-Steam F2P: Rocket League, Valorant, eFootball
 
-### 4. Critical Questions List (Presented to Glen, Not Filed)
+**Wave 3:**
+- Madden MUT Points + NBA 2K VC pricing
+- EA FC Mobile (separate F2P product)
+- SteamDB longitudinal (8 years of EA FC/FIFA pricing history + competitor price changes)
 
-23 questions whose answers are NOT in existing materials. Grouped by: Competitive Intelligence Gaps (Q1-4), Goals Internal Decisions (Q5-9), Economy Design Gaps (Q10-13), Revenue Model Assumptions (Q14-16), Platform/Technical Constraints (Q17-19), Strategic Context (Q20-23). See session log for full list.
+### 5. Built Infrastructure
+- `scripts/steam-api-scraper.js` — queries Steam Store API for DLC pricing across all regions
+- `scripts/normalise.js` — transforms raw data into unified 4-table schema
+- `scripts/verify.js` — cross-reference checks, confidence assignment, gap flagging
+- `scripts/output-export.js` — produces final deliverable files
+- `config/competitors.json` — 13 titles with AppIDs, sources, tier assignments
+- `config/regions.json` — 14 primary + 6 secondary + 25 extended Steam regions
 
----
-
-## What Still Needs Doing (In Priority Order)
-
-### A. Finish Plan Hour Updates (10 edits remaining)
-
-These tasks still show old hour estimates in the plan document:
-- T2.2.1: 1.5h → 3h
-- T2.3.1: 3h → 8h
-- T3.2.1: 2h → 5h
-- T3.3.1: 2.5h → 7h
-- T4.1.1: 1.5h → 3h
-- T4.2.1: 1h → 2h
-- T4.3.1: 1.5h → 3h
-- T5.1.1: 3h → 10h
-- T5.2.1: 1.5h → 4h
-- T5.3.1: 2h → 4h
-
-### B. Rewrite Execution Timeline Section
-
-End of plan doc still shows old 5-day/10h-per-day schedule. Needs rewrite to reflect 116h/team allocation reality.
-
-### C. Validate Plan Against Games/Domain Knowledge
-
-Glen's directive: "validate against the team and games and so on." Use /games skill and gaming industry knowledge to check:
-- Is the competitive set appropriate for a non-seasonal F2P football game?
-- Is the economy analysis approach sound?
-- Are there domain-specific issues not caught in the text audit?
-- Does the seasonal vs non-seasonal distinction get proper treatment?
-
-### D. Flag 50% D1 Retention Discrepancy
-
-In spec (`docs/superpowers/specs/2026-04-21-goals-studio-pricing-engagement.md` line 16): "50% D1 retention on PlayStation." Town Hall data (Goals' own internal data, March 26) shows PS5 at 34%, overall beta at 36%. The 50% originates from the OLD SOW proposal (31 March, written by NBI/Tom). Needs either verification from Jonas or correction.
-
-### E. Update WorkSage Tasks via API
-
-All 43 tasks need PATCH updates at `http://localhost:8888/api/tasks/:id`:
-- Update `estimated_hours` on all 22 leaf tasks
-- Update `description` on tasks with fabricated content (T1.0.1, T1.0.2, T1.1.4, T2.1.1 especially)
-- Update `success_factor` where it references fabricated sources
-
-Client ID: `6975460f-c302-42c5-a586-1d04c5fcb929`
-
-To find task IDs, query: `GET /api/tasks?client_id=6975460f-c302-42c5-a586-1d04c5fcb929`
-
-### F. Regenerate Excel
-
-File: `Clients/Goals/goals_pricing_engagement_plan.xlsx`
-Script: `scripts/update_goals_fields.py` — modify with corrected data and re-run.
-Needs: corrected hours, updated descriptions, revised timeline.
-
-### G. Save Critical Questions to File
-
-Save the 23 questions to `Clients/Goals/critical_questions.md` for tracking. Key blockers for Julius (needed IMMEDIATELY):
-- Q5: Which discount curve proposal is final? (56%, 48%, 30%, or 19%)
-- Q6: When exactly does pricing need to be submitted to Sony/Xbox?
-- Q7: Has any pricing test been submitted previously?
-- Q8: What items are in the Day 1 store?
+### 6. Produced Findings Summary
+`Clients/Goals/competitive_research/output/FINDINGS_SUMMARY.md` — analytical synthesis of all data
 
 ---
 
-## Glen's Directives (This Session — Non-Negotiable)
+## Pipeline Final Status
 
-1. **No fabricated authority.** "NBI's framework", "27-game history", invented credentials = lying to the client.
-2. **No "Glen to provide."** Every data point needs a verifiable source or a specific, executable research method. Not "Glen will know this."
-3. **Hours must be realistic.** 50h for 116h of work is setting the team up to fail.
-4. **All changes flow through.** Plan doc → WorkSage tasks → Excel. All three must be consistent.
-5. **Validate before claiming done.** Use games/team/skills to verify domain accuracy.
+| Metric | Value |
+|---|---|
+| Normalised rows | 365 |
+| Competitors covered | 13 (+ EA FC 25 for YoY) |
+| Citations indexed | 147 |
+| Verification | PASS (0 critical) |
+| Output files | 6 (ready for Google Sheets) |
+| Scripts | 4 (all re-runnable) |
 
 ---
 
-## Key Files
+## What Needs Doing Next Session
+
+### A. Red Team / Critique the Findings (Glen's directive)
+
+Read `Clients/Goals/competitive_research/output/FINDINGS_SUMMARY.md` and critique:
+- Are any conclusions overclaimed given the data quality?
+- Are the "implications for Goals" actually supported by the evidence?
+- Does the competitive set weighting make sense?
+- Are there blind spots or biases in the analysis?
+- Is the "preliminary recommendations" section overstepping the data?
+
+### B. Cross-Validate Sources
+
+For the highest-impact claims in the findings:
+1. "EA has NEVER raised USD prices" — verify via SteamDB historical data in `raw/steamdb/pricing_history_ea_fc_longitudinal.json`
+2. "UFL mirrors EA FC exactly" — verify via `raw/community/ufl_pricing_research_2026-04-21.json`
+3. "Fortnite stealth price increase March 2026" — verify the specific numbers against community sources
+4. "Madden identical to EA FC" — compare `raw/community/madden_mut_pricing_2026-04-21.json` against Steam API FC data
+
+For each claim: check the raw source files, verify the citation URLs are real, confirm the numbers match.
+
+### C. Remaining Data Gaps (Not Blocking But Would Strengthen)
+
+- NHL 25 / MLB The Show: console-only (need PSPrices or manual PS Store browsing)
+- Full regional pricing for community-sourced titles (only USD baseline for most)
+- EA FC Mobile mid-tier exact prices (some interpolated)
+- UFL full GBP/EUR per-tier pricing
+- Madden regional pricing (community data is USD only)
+
+---
+
+## Key Findings (for quick reference)
+
+1. **EA never raises USD prices** — restructures tiers and raises ceiling instead
+2. **UFL deliberately benchmarked against EA FC** — identical tier structure at lower tiers
+3. **Fortnite March 2026 stealth increase** — kept $ price, reduced V-Bucks quantities 20-25%
+4. **EA cross-sport consistency** — FC, Madden, F1 all use near-identical pricing
+5. **Volume discounts cluster 15-23%** — NBA 2K is the outlier at 86%
+6. **Valorant ceiling** — competitive F2P players accept $25-75/skin (pure cosmetic)
+7. **Industry-wide pattern** — nobody raises USD sticker price on currency packs
+
+---
+
+## File Locations
 
 | What | Where |
 |---|---|
-| Plan (being fixed) | `docs/superpowers/plans/2026-04-21-goals-studio-pricing-plan.md` |
-| Spec | `docs/superpowers/specs/2026-04-21-goals-studio-pricing-engagement.md` |
-| Client docs (15+) | `Clients/Goals/` |
-| SOW | `Clients/Goals/sow_proposal.md` |
-| Excel (needs regen) | `Clients/Goals/goals_pricing_engagement_plan.xlsx` |
-| Import script | `scripts/import_goals_project.py` |
-| Update script | `scripts/update_goals_fields.py` |
-| Session log | `projects/nbi_dashboard/session_logs/2026-04-21_session_goals_studio.md` |
-| Competitive research config | `Clients/Goals/competitive_research/config/regions.json` |
+| Design spec | `docs/superpowers/specs/2026-04-21-goals-competitive-mtx-scraping-pipeline.md` |
+| Implementation plan | `docs/superpowers/plans/2026-04-21-goals-competitive-mtx-scraping-pipeline.md` |
+| Findings summary | `Clients/Goals/competitive_research/output/FINDINGS_SUMMARY.md` |
+| Config (competitors) | `Clients/Goals/competitive_research/config/competitors.json` |
+| Config (regions) | `Clients/Goals/competitive_research/config/regions.json` |
+| Scripts | `Clients/Goals/competitive_research/scripts/` |
+| Raw Steam API data | `Clients/Goals/competitive_research/raw/steam_api/` (10 files) |
+| Raw community data | `Clients/Goals/competitive_research/raw/community/` (10 files) |
+| Raw longitudinal | `Clients/Goals/competitive_research/raw/steamdb/` (2 files) |
+| Normalised output | `Clients/Goals/competitive_research/normalised/` |
+| Final export | `Clients/Goals/competitive_research/output/` (7 files) |
+| Goals existing data | `Clients/Goals/pricing_model_fresh.md` (their internal competitive comparison) |
+| Goals pricing matrix | `Clients/Goals/goals_pricing_matrix.md` |
 
 ---
 
-## Parallel Workstream Note
+## Important Context for Next Session
 
-The competitive MTX scraping pipeline is a SEPARATE but RELATED workstream. It provides the data that Tasks T1.1.1, T2.1.2 need.
-
-**STATUS: PIPELINE COMPLETE (Wave 1).** As of 2026-04-21 ~05:00:
-
-- **365 normalised rows** across 13 competitors + EA FC 25 (YoY comparison)
-- **147 citations** indexed with source URLs and capture dates
-- **Verification: PASS** (0 critical issues)
-- **Longitudinal data captured:** 8 years of EA FC/FIFA Points pricing history
-- **All scripts re-runnable** for future data refresh
-
-**Key findings already available for deliverable:**
-1. EA has NEVER raised USD prices on existing FC Points tiers (restructure ceiling instead)
-2. UFL pricing mirrors EA FC Points exactly (deliberate benchmarking)
-3. Fortnite stealth price increase March 2026 via quantity reduction (~20-25%)
-4. Valorant modest volume discount (13.3%) but aggressive per-item pricing ($25-75/skin)
-5. NBA 2K has steepest volume discount in the set (46% at top tier)
-6. Industry pattern: publishers avoid direct USD increases, prefer tier restructuring
-
-**Files:**
-- Spec: `docs/superpowers/specs/2026-04-21-goals-competitive-mtx-scraping-pipeline.md`
-- Plan: `docs/superpowers/plans/2026-04-21-goals-competitive-mtx-scraping-pipeline.md`
-- Data: `Clients/Goals/competitive_research/` (config/, scripts/, raw/, normalised/, output/)
-- Output ready for Google Sheets: `Clients/Goals/competitive_research/output/` (6 files)
-
-**Remaining gaps (not blocking deliverable):**
-- NHL 25 / MLB The Show: console-only, not on Steam (need PSPrices scraping for full regional)
-- Madden MUT Points: confirmed in-game only, community data captured (USD only)
-- EA FC Mobile mid-tier pricing: some interpolated values (need direct store access to confirm)
-- Full regional pricing for community-sourced titles (currently USD baseline + partial GBP/EUR/BRL)
+- **Deadline:** 28 April 2026 (platform cert submission)
+- **Client contact:** Jonas Rundberg (primary), Julius (Live Ops)
+- **Budget:** 100K SEK (~$10K USD)
+- **Goals' internal data in `pricing_model_fresh.md`** already has competitive HC pricing for 7 titles — NBI's job is to VALIDATE and EXTEND, not replace
+- **Monetisation philosophy matters:** Goals is "Cosmetic + Gacha Power" (80/20 skill-to-purchased-advantage). Compare accordingly.
+- **The "start high" philosophy is validated** by every competitor's behaviour
+- **AppID corrections found:** EA FC 26 = 3405690 (not 2669320), UFL = 3023930 (not 1637320)
+- **Console gaps (NHL, MLB) are expected** — flagged LOW severity, not blocking
 
 ---
 
-## PM2 Process List (Current)
+## Parallel Workstream: Goals Plan Integrity Fix
 
-| ID | Name | Status | Port |
-|----|------|--------|------|
-| 0 | nbi-news | online | — |
-| 1 | nbi-dashboard | online | 8888 |
-| 2 | nbi-dashboard-staging | online | 8887 |
-| 3 | context-monitor | online | — |
-| 4 | cloudflare-tunnel | online | — |
+There is ALSO a separate workstream fixing fabrications in the pricing plan document (`docs/superpowers/plans/2026-04-21-goals-studio-pricing-plan.md`). That work includes:
+- Hour re-estimation (50h → 116h)
+- Removing fabricated "NBI framework" references
+- Updating WorkSage tasks via API
+- 10 remaining task hour updates
+- Rewriting execution timeline
+- Filing 23 critical questions for Julius
+
+This is tracked separately but uses the same client data.
+
+---
+
+## Git Log (This Session)
+
+```
+41bbcc2 docs(goals): competitive MTX findings summary for deliverable
+67cae46 docs: update handoff with completed scraping pipeline status
+8bf2d7e feat(goals): complete MTX pipeline — verification + output export
+bc79264 data(goals): EA FC Mobile + longitudinal pricing history
+712f6f0 data(goals): Madden MUT Points + NBA 2K VC pricing
+9f82bb2 data(goals): 336 rows normalised across 10 competitors
+507249a data(goals): Rocket League, Valorant, eFootball pricing data
+00dc82e feat(goals): normalisation script + community pricing data
+cf43e19 feat(goals): Steam API data + configs for MTX pipeline
+d7b8fd7 feat(goals): regions config + handoff for MTX pipeline execution
+7cd1979 docs: Goals MTX scraping pipeline implementation plan
+dc4c33a docs: Goals competitive MTX scraping pipeline spec
+```
