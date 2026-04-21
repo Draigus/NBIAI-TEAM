@@ -94,6 +94,9 @@ function normaliseCommunityData() {
     const tiers = raw.apex_coins_purchase_tiers?.tiers
       || raw.v_bucks_purchase_tiers?.tiers
       || raw.fc_points_purchase_tiers?.tiers
+      || raw.credits_purchase_tiers?.tiers
+      || raw.vp_purchase_tiers?.tiers
+      || raw.coins_purchase_tiers?.tiers
       || raw.currency_packs?.tiers
       || raw.premium_currency_packs?.tiers
       || null;

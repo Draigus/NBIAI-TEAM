@@ -1,0 +1,25 @@
+{
+  "metadata": {
+    "game_name": "NHL 25",
+    "appid": null,
+    "appid_from_brief": 2656500,
+    "platform": "steam",
+    "capture_date": "2026-04-21T03:44:03Z",
+    "regions_queried": [
+      "us",
+      "gb",
+      "br",
+      "mx",
+      "fr",
+      "de",
+      "se",
+      "tr",
+      "pl",
+      "jp",
+      "sg",
+      "id"
+    ],
+    "notes": "NHL 25 is NOT available on Steam. EA NHL franchise has never been released on PC/Steam - console only (PlayStation/Xbox). AppID 2656500 from brief returns success:false. Steam store search for 'NHL 25' returns 0 results."
+  },
+  "pricing": []
+}

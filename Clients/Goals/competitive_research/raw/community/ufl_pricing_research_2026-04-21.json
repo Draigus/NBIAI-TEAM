@@ -1,0 +1,678 @@
+{
+  "source": "multi-source web research (PlayStation Store, Xbox Store, psprices.com, gg.deals, xbox-store-checker.com, uflgame.com, dotesports, gamerant, startselect, gameland.gg, thegamer.com, deltiasgaming.com)",
+  "scraped_date": "2026-04-21",
+  "scrape_method": "web_search_aggregation",
+  "competitor": "UFL",
+  "developer": "Strikerz Inc.",
+  "tier": 1,
+  "steam_app_id": 3023930,
+  "platforms": ["PlayStation 5", "Xbox Series X|S", "Xbox One", "PC (Steam)"],
+  "release_timeline": {
+    "console_early_access": "2024-11 (Xbox), 2024-12 (PS5)",
+    "console_full_launch": "2025-09-12 (Season 25-26 update)",
+    "pc_early_access": "2025-11-07",
+    "pc_full_release": "2025-12-05"
+  },
+  "monetisation_model": "Free-to-play (self-described as 'fair-to-play')",
+  "monetisation_philosophy": "Skill-first approach, zero pay-to-win (developer claim). CEO stated 'players' success should not depend on the number of in-game purchases or the value of donations they make'. Community disputes this claim significantly.",
+  "payment_processor": "Xsolla (Merchant of Record for web shop), platform stores (PlayStation Store, Xbox Store, Steam) for platform purchases",
+
+  "urls_cited": [
+    "https://www.uflgame.com/en-en/blog/in-game-currency-in-ufl-a-complete-guide-to-lp-and-cp",
+    "https://www.uflgame.com/en-en/blog/ufl-starter-packs",
+    "https://www.uflgame.com/en-en/generic/packs-in-ufl",
+    "https://www.uflgame.com/en-en/blog/team-pass",
+    "https://www.uflgame.com/en-en/blog/player-card-skin-system-in-ufl",
+    "https://www.uflgame.com/en-en/blog/enhance-your-team-ufl-currency-packs-now-in-playstation-and-microsoft-stores",
+    "https://www.uflgame.com/en-en/blog/player-cards-in-ufl-what-to-expect-from-the-new-system",
+    "https://webshop.uflgame.com/",
+    "https://store.playstation.com/en-us/concept/10004289",
+    "https://store.playstation.com/en-gb/concept/10004289",
+    "https://www.xbox.com/en-US/games/store/ufl/9NBBQK8PR7D6",
+    "https://xbox-store-checker.com/en/game/compare/UFL/9nbbqk8pr7d6",
+    "https://psprices.com/region-us/game/7767607/ufl-4500-lp",
+    "https://psprices.com/region-gb/game/8899903/ufl-ultimate-bundle",
+    "https://gg.deals/game-points-group/ufl-credit-points-xbox/",
+    "https://gg.deals/ingame-currency/ufl-500-lp-playstation/",
+    "https://startselect.com/gb-en/blog/ufl-currencies-explained",
+    "https://gamerant.com/ufl-cp-rp-lp-sp-currencies-explained/",
+    "https://www.thegamer.com/ufl-cp-how-to-get-fast/",
+    "https://deltiasgaming.com/skins-in-ufl-how-to-unlock-all-skin-packs-and-more/",
+    "https://dotesports.com/ufl/news/all-ufl-bundles-price-contents-and-more",
+    "https://gameland.gg/is-ufl-really-free-to-play-heres-how-its-monetized-how-it-works/",
+    "https://realsport101.com/article/ufl-season-update-2526-an-attempt-at-revolutionizing-the-game",
+    "https://platprices.com/game/146888-ufl-9500-lp",
+    "https://www.destructoid.com/how-to-improve-your-ufl-season-25-26-team-for-free/",
+    "https://www.cdkeysforgames.com/consoles/ufl-basic-pack-xbox-one/",
+    "https://www.thexboxhub.com/valverde-and-raphinha-headline-a-new-wave-of-ufl-content-packs/",
+    "https://store.steampowered.com/app/3023930/UFL/"
+  ],
+
+  "currency_system": {
+    "note": "UFL has four in-game currencies, two purchasable with real money and two earned through gameplay only.",
+    "currencies": [
+      {
+        "name": "Credit Points",
+        "abbreviation": "CP",
+        "type": "soft_currency",
+        "purchasable_with_real_money": true,
+        "description": "Primary soft currency for everyday use. Used to buy base players from the transfer market, purchase basic packs (CP packs cost 49M CP each), customise club appearance with kits/boots/balls/gloves/badges/stadiums, boost player recovery, and general enhancements.",
+        "earn_methods": ["Match rewards (earned after each game)", "Season Pass rewards", "Weekly objectives", "Events", "Boosters"],
+        "confidence": "primary",
+        "source": "https://www.uflgame.com/en-en/blog/in-game-currency-in-ufl-a-complete-guide-to-lp-and-cp"
+      },
+      {
+        "name": "League Points",
+        "abbreviation": "LP",
+        "type": "hard_currency",
+        "purchasable_with_real_money": true,
+        "description": "Premium hard currency. Used to purchase Team Pass / Elite Pass, Player Card Skin Packs (pre-Season 25-26), premium packs (Mythic Packs etc. post-Season 25-26), customisation items (unique kits, stadium upgrades), XP/CP/RP Boosters, and extra player slots.",
+        "earn_methods": ["Team Pass / Season Pass rewards", "Weekly objectives", "Limited free LP from challenges"],
+        "confidence": "primary",
+        "source": "https://www.uflgame.com/en-en/blog/in-game-currency-in-ufl-a-complete-guide-to-lp-and-cp"
+      },
+      {
+        "name": "Reputation Points",
+        "abbreviation": "RP",
+        "type": "progression_currency",
+        "purchasable_with_real_money": false,
+        "description": "Balancing mechanism that limits access to top-tier players. Acts as a squad cap - higher-rated players cost more RP. Cannot be bought, only earned through playing matches. Prevents pay-to-win by gating roster quality behind gameplay time.",
+        "earn_methods": ["Playing ranked matches"],
+        "confidence": "primary",
+        "source": "https://gamerant.com/ufl-cp-rp-lp-sp-currencies-explained/"
+      },
+      {
+        "name": "Star Points",
+        "abbreviation": "SP",
+        "type": "battle_pass_currency",
+        "purchasable_with_real_money": false,
+        "description": "Tied to the Team Pass / Elite Pass (battle pass equivalent). Used to unlock rewards within the pass tiers including cosmetics, CP, LP, packs, and legends.",
+        "earn_methods": ["Weekly in-game challenges", "Team Pass / Elite Pass progression"],
+        "confidence": "primary",
+        "source": "https://gamerant.com/ufl-cp-rp-lp-sp-currencies-explained/"
+      },
+      {
+        "name": "Particles",
+        "abbreviation": null,
+        "type": "recycling_currency",
+        "purchasable_with_real_money": false,
+        "description": "Introduced in Season 25-26. Obtained from discarding Mastery players and older skins. Used to open Particle packs.",
+        "earn_methods": ["Discarding Mastery player cards", "Converting old skins"],
+        "confidence": "secondary",
+        "source": "https://www.destructoid.com/how-to-improve-your-ufl-season-25-26-team-for-free/"
+      }
+    ]
+  },
+
+  "lp_purchase_tiers": {
+    "note": "LP (League Points) is the premium hard currency. Prices sourced from multiple stores. USD prices are from PlayStation Store US and Xbox Store US. GBP prices from PlayStation Store UK. EUR price confirmed for 9500 LP only. Xbox Store Checker showed slightly different prices (possibly regional/converted); official US store prices listed as primary.",
+    "tiers": [
+      {
+        "lp_amount": 100,
+        "price_usd": 0.99,
+        "price_gbp": 0.79,
+        "price_eur": null,
+        "confidence": "primary",
+        "source_usd": "https://store.playstation.com/en-us/product/EP7449-PPSA21422_00-0893656155272282",
+        "source_gbp": "PlayStation Store UK via search results"
+      },
+      {
+        "lp_amount": 500,
+        "price_usd": 4.99,
+        "price_gbp": 3.99,
+        "price_eur": null,
+        "confidence": "primary",
+        "source_usd": "https://store.playstation.com/en-us/product/EP7449-PPSA21422_00-0547165155187915",
+        "source_gbp": "https://gg.deals/gb/ingame-currency/ufl-500-lp-playstation/"
+      },
+      {
+        "lp_amount": 1050,
+        "price_usd": 9.99,
+        "price_gbp": 7.99,
+        "price_eur": null,
+        "note": "Xbox search results showed $8.99 which may be a different region or sale price",
+        "confidence": "primary",
+        "source_usd": "https://www.xbox.com/en-US/games/store/1050-lp/9N3TKZDXXW92",
+        "source_gbp": "PlayStation Store UK via search results"
+      },
+      {
+        "lp_amount": 2150,
+        "price_usd": 19.99,
+        "price_gbp": null,
+        "price_eur": null,
+        "note": "GBP price not confirmed independently; estimated ~£15.99 based on LP/GBP ratio from other tiers",
+        "confidence": "primary",
+        "source": "https://store.playstation.com/en-us/product/EP7449-PPSA21422_00-0554712391577237"
+      },
+      {
+        "lp_amount": 4500,
+        "price_usd": 39.99,
+        "price_gbp": null,
+        "price_eur": null,
+        "note": "GBP price not confirmed; estimated ~£32.99 based on ratio",
+        "confidence": "primary",
+        "source": "https://psprices.com/region-us/game/7767607/ufl-4500-lp"
+      },
+      {
+        "lp_amount": 9500,
+        "price_usd": 79.99,
+        "price_gbp": null,
+        "price_eur": 79.99,
+        "note": "Was discounted to $59.99 at one point. GBP price estimated ~£64.99 based on typical PSN conversion",
+        "confidence": "primary",
+        "source_usd": "https://store.playstation.com/en-us/product/EP7449-PPSA21422_00-0497432716355851",
+        "source_eur": "https://platprices.com/game/146888-ufl-9500-lp"
+      }
+    ],
+    "lp_per_dollar_analysis": {
+      "note": "Value improves with higher tiers (standard volume discount pattern)",
+      "100_lp_tier": "101 LP per dollar",
+      "500_lp_tier": "100 LP per dollar",
+      "1050_lp_tier": "105 LP per dollar",
+      "2150_lp_tier": "108 LP per dollar",
+      "4500_lp_tier": "113 LP per dollar",
+      "9500_lp_tier": "119 LP per dollar",
+      "best_value": "9500 LP pack (119 LP/$)"
+    }
+  },
+
+  "cp_purchase_tiers": {
+    "note": "CP (Credit Points) is the soft currency. Can be purchased but is also earnable through gameplay. Exact USD prices harder to confirm than LP prices; some sourced from gg.deals/xbox-store-checker which may show regional variants. Tiers confirmed via PlayStation Store product pages.",
+    "tiers": [
+      {
+        "cp_amount": 5000000,
+        "cp_display": "5,000,000 CP",
+        "price_usd": 0.99,
+        "confidence": "secondary",
+        "note": "Price from xbox-store-checker ($0.85 shown, likely regional); US store estimated at $0.99 based on pattern",
+        "source": "https://www.xbox.com/en-US/games/store/5000000-cp/9PFGCGFLT4K6"
+      },
+      {
+        "cp_amount": 10000000,
+        "cp_display": "10,000,000 CP",
+        "price_usd": 1.99,
+        "confidence": "primary",
+        "source": "https://gg.deals/ingame-currency/ufl-10000000-cp-xbox-one-series/"
+      },
+      {
+        "cp_amount": 20000000,
+        "cp_display": "20,000,000 CP",
+        "price_usd": 3.99,
+        "confidence": "secondary",
+        "note": "xbox-store-checker showed $3.41 (likely regional); US price estimated at $3.99 based on pricing curve",
+        "source": "https://store.playstation.com/en-us/product/EP7449-PPSA21422_00-0321337950347274"
+      },
+      {
+        "cp_amount": 50000000,
+        "cp_display": "50,000,000 CP",
+        "price_usd": 9.99,
+        "price_gbp": 7.39,
+        "confidence": "secondary",
+        "note": "gg.deals showed historical low of $8.99; US price likely $9.99. GBP confirmed from UK PSN search results",
+        "source_usd": "https://store.playstation.com/en-us/product/EP7449-PPSA21422_00-0498254147702151",
+        "source_gbp": "PlayStation Store UK via search results"
+      },
+      {
+        "cp_amount": 100000000,
+        "cp_display": "100,000,000 CP",
+        "price_usd": 16.99,
+        "confidence": "secondary",
+        "note": "Price from gg.deals search results",
+        "source": "https://store.playstation.com/en-us/product/EP7449-PPSA21422_00-0711411431221870"
+      },
+      {
+        "cp_amount": 250000000,
+        "cp_display": "250,000,000 CP",
+        "price_usd": 39.99,
+        "confidence": "secondary",
+        "note": "xbox-store-checker showed $37.37 (likely regional); US price estimated at $39.99 based on pricing curve",
+        "source": "https://store.playstation.com/en-us/product/EP7449-PPSA21422_00-0659181119136795"
+      }
+    ],
+    "cp_per_dollar_analysis": {
+      "note": "CP value per dollar improves significantly at higher tiers",
+      "5m_tier": "~5M CP per dollar",
+      "10m_tier": "~5M CP per dollar",
+      "250m_tier": "~6.25M CP per dollar",
+      "best_value": "250,000,000 CP pack"
+    }
+  },
+
+  "starter_packs": {
+    "note": "One-time purchase bundles designed for new players. Prices confirmed from PlayStation Store US and key resellers. These are the legacy packs from initial launch; new bundles (Starter Bundle, Special Bundle, Ultimate Bundle) were introduced in Season 25-26.",
+    "legacy_packs": [
+      {
+        "name": "Basic Pack",
+        "price_usd": 14.99,
+        "price_gbp": 12.49,
+        "contents": {
+          "premium_boost": "3-day Premium (XP & CP boost)",
+          "rp_boost": "5 match RP boost",
+          "skin_packs": ["Grand Skin Pack (7 skins)"],
+          "cp": 20000000,
+          "lp": 500
+        },
+        "confidence": "primary",
+        "source": "https://www.uflgame.com/en-en/blog/ufl-starter-packs"
+      },
+      {
+        "name": "Premium Pack",
+        "price_usd": 21.99,
+        "price_gbp": null,
+        "contents": {
+          "premium_boost": "7-day Premium (XP & CP boost)",
+          "rp_boost": "10 match RP boost",
+          "skin_packs": ["Grand Skin Pack", "Super Skin Pack"],
+          "cp": 20000000,
+          "lp": 1050
+        },
+        "confidence": "primary",
+        "source": "https://www.uflgame.com/en-en/blog/ufl-starter-packs"
+      },
+      {
+        "name": "Ultimate Pack",
+        "price_usd": 31.99,
+        "price_gbp": null,
+        "contents": {
+          "premium_boost": "30-day Premium (XP & CP boost)",
+          "rp_boost": "30 match RP boost",
+          "skin_packs": ["Grand Skin Pack (7 skins)", "Super Skin Pack (4 skins)", "Unique Skin Pack (2 skins)"],
+          "cp": 50000000,
+          "lp": 1050
+        },
+        "confidence": "primary",
+        "source": "https://www.uflgame.com/en-en/blog/ufl-starter-packs"
+      }
+    ],
+    "season_25_26_bundles": [
+      {
+        "name": "Starter Bundle",
+        "price_gbp": 3.99,
+        "price_usd": null,
+        "contents": {
+          "cp": 60000000,
+          "packs": ["Premium CP Pack"]
+        },
+        "note": "USD price not confirmed; GBP from PlayStation Store UK",
+        "confidence": "primary",
+        "source": "https://store.playstation.com/en-gb/product/EP7449-PPSA21422_00-52954STARTERDLC0"
+      },
+      {
+        "name": "Special Bundle",
+        "price_gbp": 15.99,
+        "price_usd": null,
+        "contents": {
+          "cp": 150000000,
+          "packs": ["Premium CP Pack", "Enhanced LP Pack", "Premium LP Pack", "Epic LP Pack"]
+        },
+        "confidence": "primary",
+        "source": "https://store.playstation.com/en-us/product/EP7449-PPSA21422_00-52955SPECIALDLC0"
+      },
+      {
+        "name": "Ultimate Bundle",
+        "price_gbp": 32.99,
+        "price_usd": null,
+        "contents": {
+          "premium_access": "Premium 7-day access",
+          "packs": ["Core Pack (30 skin packs)"],
+          "boosters": "CP Boosters (10x)"
+        },
+        "confidence": "primary",
+        "source": "https://psprices.com/region-gb/game/8899903/ufl-ultimate-bundle"
+      }
+    ]
+  },
+
+  "value_packs_bundles": {
+    "note": "Combined currency packs that offer LP + CP together at a bundled price. These represent the higher-spend options.",
+    "packs": [
+      {
+        "name": "Extra Pack",
+        "price_usd": 25.99,
+        "contents": {
+          "lp": 2150,
+          "cp": 50000000
+        },
+        "note": "Buying LP and CP separately would cost ~$29.98 ($19.99 + $9.99), so bundle saves ~$4",
+        "confidence": "secondary",
+        "source": "https://store.playstation.com/en-us/product/EP7449-PPSA21422_00-0269687538105110"
+      },
+      {
+        "name": "Grand Pack",
+        "price_usd": 109.99,
+        "contents": {
+          "lp": 9500,
+          "cp": 250000000
+        },
+        "note": "Buying separately would cost ~$119.98 ($79.99 + $39.99). Premium combined offer.",
+        "confidence": "secondary",
+        "source": "https://www.xbox.com/en-US/games/store/grand-pack/9MTCJDP372V2"
+      },
+      {
+        "name": "Welcome Bundle",
+        "price_usd": null,
+        "price_estimated_usd": 2.99,
+        "contents": "Unknown - likely a small introductory offer",
+        "note": "xbox-store-checker showed $2.24 (regional). Contents not confirmed from search results.",
+        "confidence": "community",
+        "source": "https://xbox-store-checker.com/en/game/compare/UFL/9nbbqk8pr7d6"
+      },
+      {
+        "name": "Performance Pack",
+        "price_usd": null,
+        "price_estimated_usd": 14.99,
+        "contents": "Unknown - likely performance/progression focused",
+        "note": "CDKeysforgames showed PS5 key at $15.28. Contents not confirmed.",
+        "confidence": "community",
+        "source": "https://www.cdkeysforgames.com/consoles/ufl-performance-pack-ps5/"
+      },
+      {
+        "name": "Elite Bundle",
+        "price_usd": null,
+        "price_estimated_usd": 59.99,
+        "contents": {
+          "mythic_packs": 5,
+          "lp": 2150,
+          "premium_access": "10-day Premium (XP & CP)"
+        },
+        "note": "xbox-store-checker showed $60.52 (regional). Contents confirmed from search results.",
+        "confidence": "secondary",
+        "source": "https://store.playstation.com/en-in/product/EP7449-PPSA21422_00-0765434178195298"
+      }
+    ]
+  },
+
+  "themed_edition_packs": {
+    "note": "Limited-time or promotional bundles tied to real players or events",
+    "packs": [
+      {
+        "name": "Federico Valverde Edition",
+        "price_usd": 19.99,
+        "price_gbp": 16.74,
+        "contents": {
+          "player_card": "Federico Valverde Mastery 2 card",
+          "lp": 1050
+        },
+        "confidence": "primary",
+        "source": "https://store.playstation.com/en-us/product/EP7449-PPSA21422_00-VALVERDEEDITION0"
+      },
+      {
+        "name": "Valverde / Raphinha Edition",
+        "price_usd": null,
+        "contents": "Likely similar structure with both player cards + LP",
+        "confidence": "community",
+        "source": "https://www.thexboxhub.com/valverde-and-raphinha-headline-a-new-wave-of-ufl-content-packs/"
+      },
+      {
+        "name": "Red Card Rudolf Pack",
+        "price_usd": null,
+        "contents": {
+          "cp": 100000000,
+          "lp": 1050,
+          "cosmetics": "Exclusive cosmetic items (holiday themed)"
+        },
+        "note": "Seasonal/holiday limited-time pack",
+        "confidence": "secondary",
+        "source": "https://gg.deals/dlc/ufl-red-card-rudolf-pack-xbox-series/"
+      },
+      {
+        "name": "Tricky Leprechaun Pack",
+        "price_usd": null,
+        "contents": "Unknown - seasonal St Patrick's Day pack",
+        "confidence": "community",
+        "source": "https://psprices.com/region-nz/game/8455845/ufl-tricky-leprechaun-pack"
+      },
+      {
+        "name": "Supernova Pack",
+        "price_usd": 19.99,
+        "contents": {
+          "stars": 1500,
+          "note": "Designed to help complete Team Pass; 1500 stars + bonus"
+        },
+        "confidence": "primary",
+        "source": "https://psprices.com/region-us/game/7940408/ufl-supernova"
+      },
+      {
+        "name": "Bonus Pack",
+        "price_usd": null,
+        "contents": {
+          "cp": 50000000,
+          "boosters": "CP, XP, and RP Boosters (30 matches)",
+          "cosmetics": ["Gloves Aculeo", "Kit Vieras"]
+        },
+        "note": "Exclusive PlayStation Plus benefit (free with PS Plus subscription)",
+        "confidence": "secondary",
+        "source": "https://store.playstation.com/en-us/product/EP7449-PPSA21422_00-SUBDLCQ220250000"
+      },
+      {
+        "name": "'25 Supreme Team Pack Bundle",
+        "price_usd": null,
+        "contents": {
+          "packs": 6,
+          "pack_type": "'25 Supreme Team Packs",
+          "note": "Very high chance for Mastery 3 cards (91-94 rated)"
+        },
+        "confidence": "secondary",
+        "source": "https://store.playstation.com/en-us/product/EP7449-PPSA21422_00-65692SUPREME0001"
+      },
+      {
+        "name": "Mega '25 Supreme Team Pack Bundle",
+        "price_usd": null,
+        "contents": {
+          "packs": 13,
+          "pack_type": "'25 Supreme Team Packs",
+          "note": "Very high chance for Mastery 3 cards (91-94 rated). Described as best-value offer."
+        },
+        "confidence": "secondary",
+        "source": "https://store.playstation.com/en-us/product/EP7449-PPSA21422_00-65693SUPREME0002"
+      }
+    ]
+  },
+
+  "team_pass_battle_pass": {
+    "note": "UFL's equivalent of a battle pass / season pass. Two tiers available.",
+    "tiers": [
+      {
+        "name": "Team Pass",
+        "price_lp": 1000,
+        "price_usd_equivalent": "~$9.50-$9.99 (based on 1050 LP = $9.99)",
+        "rewards": "Premium cosmetic rewards + 200 SP",
+        "confidence": "primary",
+        "source": "https://www.uflgame.com/en-en/blog/team-pass"
+      },
+      {
+        "name": "Elite Pass",
+        "price_lp": 2000,
+        "price_usd_equivalent": "~$19.00-$19.99 (based on 2150 LP = $19.99)",
+        "rewards": "All Team Pass rewards + additional premium rewards + 700 SP total (200 base + 500 bonus)",
+        "upgrade_note": "Can upgrade from Team to Elite at reduced cost (difference in LP)",
+        "confidence": "primary",
+        "source": "https://www.uflgame.com/en-en/blog/team-pass"
+      }
+    ],
+    "pass_content": "Monthly rotation - each Team Pass brings a new Legend and themed items (e.g. Adidas Throwback Teampass with retro items). Rewards include cosmetics, CP, LP, packs, and Legend player cards (e.g. Del Piero)."
+  },
+
+  "in_game_store_items": {
+    "note": "Items purchasable within the game using LP or CP. Skin pack pricing is from the pre-Season 25-26 system; the Season 25-26 update replaced skins with a new Mastery card system.",
+    "skin_packs_legacy": [
+      {
+        "name": "Basic Skin Pack",
+        "price_currency": "CP only",
+        "price_lp": null,
+        "note": "Only pack purchasable with CP (soft currency). Exact CP cost not confirmed.",
+        "confidence": "secondary",
+        "source": "https://deltiasgaming.com/skins-in-ufl-how-to-unlock-all-skin-packs-and-more/"
+      },
+      {
+        "name": "Grand Skin Pack",
+        "price_lp": 500,
+        "contents": "7 player skins",
+        "confidence": "primary",
+        "source": "https://deltiasgaming.com/skins-in-ufl-how-to-unlock-all-skin-packs-and-more/"
+      },
+      {
+        "name": "Super Skin Pack",
+        "price_lp": 700,
+        "contents": "2-4 player skins (higher rarity)",
+        "confidence": "primary",
+        "source": "https://deltiasgaming.com/skins-in-ufl-how-to-unlock-all-skin-packs-and-more/"
+      },
+      {
+        "name": "Unique Skin Pack",
+        "price_lp": 1000,
+        "contents": "2-4 player skins (highest rarity)",
+        "confidence": "primary",
+        "source": "https://deltiasgaming.com/skins-in-ufl-how-to-unlock-all-skin-packs-and-more/"
+      }
+    ],
+    "other_store_items": [
+      {
+        "category": "Customisation",
+        "items": ["Custom kits", "Boots", "Balls", "Gloves", "Badges", "Stadiums"],
+        "currency_accepted": "LP and/or CP",
+        "confidence": "primary"
+      },
+      {
+        "category": "Boosters",
+        "items": ["Premium Boosters (XP & CP)", "RP Boosters", "CP Boosters", "XP Boosters"],
+        "currency_accepted": "LP",
+        "confidence": "primary"
+      },
+      {
+        "category": "Squad Management",
+        "items": ["Extra player slots"],
+        "currency_accepted": "LP",
+        "confidence": "primary"
+      },
+      {
+        "category": "Packs (Season 25-26)",
+        "items": ["CP Packs (49M CP each)", "LP Packs (various)", "Mythic Packs", "Particle Packs", "Event Packs (limited-time)"],
+        "note": "Post-Season 25-26 update shifted from skin system to pack-based card acquisition (Basic, Mastery M1/M2/M3, Legendary)",
+        "confidence": "secondary"
+      }
+    ]
+  },
+
+  "season_25_26_economy_changes": {
+    "note": "Major economy overhaul launched September 12, 2025. Significant shift in monetisation model.",
+    "changes": [
+      "Removed old 'Skins' upgrade system (players acquired at fixed prices, upgraded through skins + XP)",
+      "Introduced pack-based card system: Basic, Mastery (M1, M2, M3), and Legendary tiers",
+      "Every card now has fixed attributes - squad progression through acquiring new cards, not upgrading old ones",
+      "New 'Link Up Play' chemistry system (nationality, country of play, special link-up type)",
+      "Introduced Particles currency (from discarding cards) for Particle packs",
+      "Monthly Team Pass rotation with new Legends",
+      "Weekly and monthly content updates tied to real-life football events",
+      "Player ratings now updated based on real-life performances"
+    ],
+    "confidence": "primary",
+    "source": "https://realsport101.com/article/ufl-season-update-2526-an-attempt-at-revolutionizing-the-game"
+  },
+
+  "purchase_channels": {
+    "platforms": [
+      {
+        "name": "PlayStation Store",
+        "url": "https://store.playstation.com/en-us/concept/10004289",
+        "note": "Full range of LP packs, CP packs, starter packs, and themed bundles"
+      },
+      {
+        "name": "Xbox Store / Microsoft Store",
+        "url": "https://www.xbox.com/en-US/games/store/ufl/9NBBQK8PR7D6",
+        "note": "Full range of LP packs, CP packs, starter packs, and themed bundles"
+      },
+      {
+        "name": "Steam",
+        "url": "https://store.steampowered.com/app/3023930/UFL/",
+        "note": "Zero Steam DLC listed - all purchases are in-game only via Xsolla"
+      },
+      {
+        "name": "UFL Web Shop (Xsolla)",
+        "url": "https://webshop.uflgame.com/",
+        "note": "Web-based store powered by Xsolla. Supports 1000+ payment methods. Final price/currency varies by payment method. No companion app identified."
+      }
+    ],
+    "companion_app": "No companion app found. The web shop at webshop.uflgame.com serves as the web-based purchase channel outside platform stores."
+  },
+
+  "community_sentiment": {
+    "note": "Despite 'fair-to-play' branding, community reception of monetisation is mixed to negative.",
+    "key_complaints": [
+      "Pay-to-win concerns: spending real money on CP gives significant advantage in acquiring top players faster",
+      "RP system acts as a time-gate but doesn't fully prevent pay-to-win since CP for players can be bought",
+      "Predatory mechanics cited: RP loss, bad matchmaking, pack odds",
+      "Hundreds of millions of CP needed for best players - either grind hundreds of matches or pay",
+      "Even with spending, RP gate limits how quickly you can build top squad"
+    ],
+    "positive_notes": [
+      "RP cannot be purchased - provides genuine time-gate against pure spending",
+      "Cosmetics are genuinely cosmetic (kits, badges, stadiums)",
+      "Free-to-play model means no upfront cost",
+      "Season 25-26 update attempted to make progression more transparent"
+    ],
+    "confidence": "community",
+    "sources": [
+      "https://gameland.gg/is-ufl-really-free-to-play-heres-how-its-monetized-how-it-works/",
+      "Steam Community discussions",
+      "PSNProfiles forum discussions"
+    ]
+  },
+
+  "data_gaps": [
+    {
+      "gap": "Exact USD prices for Season 25-26 bundles (Starter Bundle, Special Bundle, Ultimate Bundle)",
+      "reason": "Only GBP prices found from UK PlayStation Store; USD not surfaced in search results",
+      "estimated_usd": "Starter ~$4.99, Special ~$19.99, Ultimate ~$39.99"
+    },
+    {
+      "gap": "Complete GBP pricing for all LP tiers (1050, 2150, 4500, 9500)",
+      "reason": "Only 100 LP (£0.79) and 500 LP (£3.99) GBP prices confirmed; others not surfaced",
+      "workaround": "Can estimate from USD using typical PSN conversion (~0.80 GBP per USD)"
+    },
+    {
+      "gap": "EUR pricing for most items",
+      "reason": "Only 9500 LP (€79.99) confirmed; full EUR price list not available from search results",
+      "workaround": "EUR typically matches USD on PSN (1:1 or close)"
+    },
+    {
+      "gap": "Exact CP pack USD prices at official US store rates",
+      "reason": "CP prices mostly sourced from gg.deals/xbox-store-checker which may show regional/converted prices. Official US PSN prices for CP packs not fully confirmed.",
+      "note": "The prices listed are best estimates based on multiple sources and pricing curve analysis"
+    },
+    {
+      "gap": "Web shop (webshop.uflgame.com) specific pricing",
+      "reason": "Web shop uses Xsolla; prices vary by payment method and region. Could not scrape due to tool restrictions.",
+      "workaround": "Web shop prices likely match or slightly undercut platform store prices (Xsolla takes lower cut than platform 30%)"
+    },
+    {
+      "gap": "Contents and pricing for Welcome Bundle, Performance Pack, Champion Bundle",
+      "reason": "These appeared in store listings but contents/prices not fully detailed in search results"
+    },
+    {
+      "gap": "Pricing for Mythic Packs and other Season 25-26 pack types purchased with LP",
+      "reason": "New pack system introduced but individual pack LP costs not surfaced in search results"
+    },
+    {
+      "gap": "Historical pricing changes / whether prices changed at Season 25-26 launch",
+      "reason": "No specific reporting on price changes found. LP/CP tier prices appear stable since launch."
+    },
+    {
+      "gap": "Steam in-game pricing",
+      "reason": "Steam has zero DLC listings. All purchases happen through Xsolla in-game store. Pricing may differ from console stores."
+    }
+  ],
+
+  "comparison_notes_for_goals": {
+    "key_insights": [
+      "UFL uses a dual-currency model (CP soft + LP hard) which is industry standard for F2P games",
+      "LP price range ($0.99 to $79.99) mirrors EA FC Points range almost exactly - clearly benchmarked against EA",
+      "Team Pass at 1000 LP (~$9.99) is comparable to other F2P battle passes",
+      "RP system as a non-purchasable progression gate is a differentiator vs EA FC's fully monetised model",
+      "Web shop via Xsolla provides a platform-independent purchase channel (relevant for Goals if considering web store)",
+      "Season 25-26 shift from skins to card packs brought UFL closer to EA FC's Ultimate Team model",
+      "The 'fair-to-play' branding resonates with some players even if execution is debated - positioning lever for Goals",
+      "No companion app found - opportunity gap if Goals builds one"
+    ]
+  }
+}

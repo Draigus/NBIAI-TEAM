@@ -1,0 +1,40 @@
+{
+  "metadata": {
+    "game_name": "EA SPORTS Madden NFL 25",
+    "appid": 2582560,
+    "platform": "steam",
+    "capture_date": "2026-04-21T03:43:34Z",
+    "regions_queried": [
+      "us",
+      "gb",
+      "br",
+      "mx",
+      "fr",
+      "de",
+      "se",
+      "tr",
+      "pl",
+      "jp",
+      "sg",
+      "id"
+    ],
+    "steam_store_info": {
+      "dlc_count": 0,
+      "dlc_ids": [],
+      "packages": [
+        1583535
+      ],
+      "pkg_groups": [
+        {
+          "name": "default",
+          "title": "Buy EA SPORTS\u2122 Madden NFL 25",
+          "subs": [
+            "EA SPORTS\u2122 Madden NFL 25 - Free"
+          ]
+        }
+      ]
+    },
+    "notes": "Madden NFL 25 available free via EA Play on Steam. No DLC listed. No MUT Point currency packs found as Steam packages. MUT Points likely sold in-game via EA store."
+  },
+  "pricing": []
+}
