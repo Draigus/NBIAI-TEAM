@@ -20,6 +20,22 @@ const FX_RATES = {
   UAH: 0.024, AED: 0.27, VND: 0.000040, ZAR: 0.055, KWD: 3.26
 };
 
+const REGION_CURRENCY = {
+  us: 'USD', gb: 'GBP', br: 'BRL', mx: 'MXN', fr: 'EUR', de: 'EUR',
+  se: 'EUR', tr: 'USD', pl: 'EUR', jp: 'JPY', kr: 'KRW', sg: 'SGD',
+  id: 'IDR', ca: 'CAD', au: 'AUD', nz: 'NZD', ru: 'RUB', cn: 'CNY',
+  hk: 'HKD', tw: 'TWD', th: 'THB', ph: 'PHP', my: 'MYR', in: 'INR',
+  ar: 'ARS', cl: 'CLP', co: 'COP', pe: 'PEN', za: 'ZAR', ae: 'AED',
+  sa: 'SAR', il: 'ILS', ua: 'UAH', cz: 'CZK', hu: 'HUF', ro: 'RON',
+  dk: 'DKK', no: 'NOK', vn: 'VND', kw: 'KWD', pk: 'PKR', qa: 'QAR'
+};
+
+const NAME_CANON = {
+  'EA SPORTS FC 26': 'EA FC 26',
+  'EA SPORTS FC 25': 'EA FC 25',
+  'NBA 2K25 (2K Games)': 'NBA 2K25'
+};
+
 function toUSD(amount, currency) {
   if (currency === 'USD') return amount;
   const rate = FX_RATES[currency];
@@ -49,13 +65,16 @@ function normaliseSteamAPI() {
     for (const item of pricing) {
       if (!item.price_in_cents && item.price_in_cents !== 0) continue;
 
-      const config = getCompetitorConfig(item.competitor || raw.metadata?.game || '');
+      const rawName = item.competitor || raw.metadata?.game || '';
+      const config = getCompetitorConfig(rawName);
       const priceLocal = item.price_in_cents / 100;
-      const priceUSD = toUSD(priceLocal, item.currency);
+      const currency = item.currency || REGION_CURRENCY[item.region] || null;
+      const priceUSD = toUSD(priceLocal, currency);
       const hcAmount = item.points_amount || null;
+      const canonName = NAME_CANON[rawName] || rawName;
 
       rows.push({
-        competitor: item.competitor || raw.metadata?.game,
+        competitor: canonName,
         tier: config?.tier || null,
         platform: 'steam',
         region: item.region,
@@ -65,7 +84,7 @@ function normaliseSteamAPI() {
         bonus_amount: 0,
         bonus_pct: 0,
         price_local: priceLocal,
-        currency_code: item.currency,
+        currency_code: currency,
         price_usd: priceUSD,
         effective_usd_per_hc: hcAmount && priceUSD ? parseFloat((priceUSD / hcAmount).toFixed(6)) : null,
         discount_vs_base: null,
@@ -112,13 +131,19 @@ function normaliseCommunityData() {
       const currencyKey = Object.keys(raw).find(k => k.includes('purchase_tiers'));
       const currencyName = currencyKey?.replace('_purchase_tiers', '') || 'unknown';
 
+      const canonCompetitor = NAME_CANON[competitor] || competitor;
+
+      // Skip community pricing for competitors with authoritative Steam API data
+      const hasSteamPrimary = ['EA FC 26', 'EA FC 25', 'NBA 2K25'].includes(canonCompetitor);
+      if (hasSteamPrimary && currencyName.includes('fc_points')) continue;
+
       for (const tier of tiers) {
-        const coins = tier.coins || tier.amount || tier.points || tier.vbucks || tier.fc_points || 0;
+        const coins = tier.coins || tier.amount || tier.points || tier.vbucks || tier.fc_points || tier.lp_amount || tier.v_bucks || 0;
         const priceUSD = tier.price_usd || tier.price || 0;
         const bonus = tier.bonus_coins || tier.bonus || 0;
 
         rows.push({
-          competitor: competitor,
+          competitor: canonCompetitor,
           tier: config?.tier || raw.tier || null,
           platform: 'multi',
           region: 'us',

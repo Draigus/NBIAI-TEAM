@@ -4,6 +4,49 @@ Append-only. Every feature/fix completed gets logged here immediately.
 
 ---
 
+## 2026-04-21 (Goals MTX Pipeline — Red Team)
+
+- Red team + source cross-validation of competitive MTX pipeline (365 rows, 13 competitors)
+- **Score: 53/100** — NOT client-ready
+- 3 critical issues (fabricated F1 prices, missing USD columns, broken naming)
+- 5 high issues (overclaimed UFL/Fortnite conclusions, conflicting tier data)
+- Full report: `Clients/Goals/competitive_research/output/RED_TEAM_REPORT.md`
+- All 8 must-fix items remediated; pipeline re-run clean (0 critical/high/medium)
+- **Post-fix score: 86/100** (up from 53) — passes client-ready threshold
+- Stale FUT.gg data excluded, F1 classification corrected, methodology section added
+- Inline source citations on every claim (Source Key + [S-*]/[C-*]/[L-*] refs)
+- 6/10 top citation URLs verified live; 3 dead documented with backup citations
+- All numerical claims spot-checked against raw JSON
+- Domain review: game-economy-design, balance-check, GI quality gate — all PASS
+- Final dataset: 356 rows, 12 competitors, 0 issues above LOW severity
+
+---
+
+## 2026-04-21 (Frontend Modularisation — COMPLETE)
+
+Branch `feature/frontend-modularisation` at `b501c08`. 26 commits total. 279 tests passing.
+
+**Monolith split:** `nbi_project_dashboard.html` reduced from 14,661 lines to 1,527 lines (89% extracted to ES modules).
+
+**Modules created (13 view modules + 1 entry point):**
+- `dashboard-server/public/js/app.js` — single entry point importing all core + views
+- `views/hiring.js` (722 lines) — kanban, candidate detail, CV upload, drag-drop
+- `views/people.js` (850 lines) — people view, calendar, capacity heatmap
+- `views/reports.js` (483 lines) — report rendering, print
+- `views/expenses.js` (1085 lines) — expense reports, detail panels, export
+- `views/sidebar.js` (727 lines) — sidebar rendering, warnings, mobile overflow
+- `views/news.js` (554 lines) — digest, archive, search, admin panel
+- `views/dashboard.js` (1632 lines) — portfolio, tactical, standup, my tasks, charts
+- `views/leads.js` (1663 lines) — kanban, pipeline, detail, manage clients, settings
+- `views/settings.js` (2221 lines) — all sub-tabs, import/export, user mgmt, changelog
+- `views/tasks.js` (3535 lines) — tree, board, calendar, gantt, detail panel, drag-drop
+
+**Remaining in monolith (1,527 lines):** delegated action wrappers, auth state, IndexedDB WAL, shared helpers, tabs/routing, teams cache, conflict resolution, undo system, keyboard accessibility.
+
+**Not yet merged to master.** 0 conflicts. Awaiting Glen's go-ahead for Task 27 (merge + PM2 restart).
+
+---
+
 ## 2026-04-20 (State file audit + false blocker resolution)
 
 Glen directed audit of pending_tasks.md. All G1-G5 + Kanban items were already shipped — file hadn't been updated since 2026-04-15.
@@ -793,3 +836,5 @@ See items 78-128 above (already logged from earlier sessions).
 192. **Cloudflare tunnel brought under PM2** — cloudflared was running via ad-hoc login session and died when PM2 daemon restarted. Added as a PM2-managed process: `pm2 start "C:/Program Files (x86)/cloudflared/cloudflared.exe" --name cloudflared -- tunnel run`. Tunnel ID `2d70956e-f293-44e0-b333-a3a7482ab253`, config at `~/.cloudflared/config.yml`, routes `worksage.nbi-consulting.com` to `localhost:8888`.
 
 193. **Two hard cross-session rules captured** — `feedback_no_scope_watering.md` (never narrow scope, cut features, or pick cheaper/lower-quality options to reduce effort) and `feedback_no_timelines.md` (never quote durations; structure work by milestone deliverables). Both indexed in `MEMORY.md`.
+
+194. **Data Cleanse Tool shipped** — Full admin-only data cleanse tool replacing the stub "Clear All Tasks" button. Backend: `GET /api/admin/cleanse/preview` (live row counts + cascade metadata for 13 categories) and `POST /api/admin/cleanse` (transactional FK-safe deletion in 26-step order, file cleanup post-commit, audit logging). Frontend: full-screen modal with checkboxes, cascade auto-select for Clients (nuclear tier), typed confirmation gate ("DELETE ALL SELECTED DATA"), progress overlay, localStorage cleanup, renderAll on success. Removed `clearAllTasks()` and `finResetData()` functions plus their buttons. 3 null-state label fixes for views with nullified FKs. 15 backend tests (auth, validation, cascades, nullification, multi-category). 6 commits on `feat/data-cleanse-tool` branch, fast-forward merged to master. PM2 restarted.

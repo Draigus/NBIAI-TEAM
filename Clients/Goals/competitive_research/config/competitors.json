@@ -165,7 +165,7 @@
       "publisher": "EA",
       "platforms": ["steam", "ps", "xbox"],
       "steam_appid": "2488620",
-      "monetisation_philosophy": "pure_cosmetic",
+      "monetisation_philosophy": "cosmetic_plus_progression",
       "sources": {
         "steamdb": "https://steamdb.info/app/2488620/dlc/"
       },
