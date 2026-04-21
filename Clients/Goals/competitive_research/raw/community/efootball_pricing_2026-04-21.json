@@ -1,0 +1,218 @@
+{
+  "source": "store.steampowered.com + fifplay.com + fifauteam.com + konami.com + efootball.codashop.com + store.playstation.com + lootbar.gg + gamingonphone.com + efootballarena.blog",
+  "scraped_date": "2026-04-21",
+  "scrape_method": "web_search_aggregation",
+  "competitor": "eFootball",
+  "tier": 3,
+  "urls_cited": [
+    "https://store.steampowered.com/itemstore/1665460/",
+    "https://www.fifplay.com/efootball-2026-coins/",
+    "https://www.fifplay.com/efootball-2025-coins/",
+    "https://fifauteam.com/efootball-2024-coins/",
+    "https://www.konami.com/efootball/en/page/pack",
+    "https://www.konami.com/efootball/en/page/dreamteam",
+    "https://efootball.codashop.com/en-us/efootball",
+    "https://store.playstation.com/en-us/product/UP0101-CUSA26997_00-EFC0000000000001",
+    "https://store.playstation.com/en-us/product/UP0101-CUSA26997_00-EFC0000000000002",
+    "https://store.playstation.com/en-us/product/UP0101-CUSA26997_00-EFC0000000000004",
+    "https://lootbar.gg/blog/en/efootball-weekly-update-content-5th-feb.html",
+    "https://gamingonphone.com/guides/efootball-guide-nominating-contracts-and-chance-deals-explained/",
+    "https://efootballarena.blog/how-to-use-your-coins-to-buy-the-best-players/",
+    "https://steamdb.info/app/1665460/"
+  ],
+  "notes": "eFootball (formerly PES) is Konami's F2P football game. eFootball Coins are the premium currency. Pricing is regional and varies by platform (Steam, PS Store, Xbox Store, mobile app stores, Codashop). The tiers below are from the Steam item store (PC). Console and mobile pricing may differ slightly. eFootball versions update annually (2024, 2025, 2026) but the coin system carries over. Prices confirmed from Steam store listings and third-party aggregators.",
+
+  "coins_purchase_tiers": {
+    "currency": "USD",
+    "platform": "Steam / PC",
+    "confidence": "high",
+    "source": "Steam item store (store.steampowered.com/itemstore/1665460/), PlayStation Store product listings, third-party price aggregators",
+    "tiers": [
+      {
+        "coins": 100,
+        "price_usd": 0.99,
+        "cost_per_100_coins_usd": 0.99,
+        "bonus_coins": 0,
+        "confidence": "high",
+        "sources": ["Steam item store", "PlayStation Store listing (EFC0000000000001)"]
+      },
+      {
+        "coins": 520,
+        "price_usd": 4.99,
+        "cost_per_100_coins_usd": 0.96,
+        "bonus_coins": 20,
+        "bonus_note": "20 extra coins vs buying 5x100 (500 coins for $4.95)",
+        "confidence": "high",
+        "sources": ["Steam item store", "PlayStation Store listing (EFC0000000000002)"]
+      },
+      {
+        "coins": 1050,
+        "price_usd": 9.99,
+        "cost_per_100_coins_usd": 0.95,
+        "bonus_coins": 50,
+        "bonus_note": "50 extra coins vs linear pricing",
+        "confidence": "high",
+        "sources": ["Steam item store", "eneba.com third-party listing"]
+      },
+      {
+        "coins": 2150,
+        "price_usd": 19.99,
+        "cost_per_100_coins_usd": 0.93,
+        "bonus_coins": 150,
+        "bonus_note": "150 extra coins vs buying at 100-pack rate",
+        "confidence": "high",
+        "sources": ["Steam item store", "PlayStation Store listing (EFC0000000000004)"]
+      },
+      {
+        "coins": 3300,
+        "price_usd": 29.99,
+        "cost_per_100_coins_usd": 0.91,
+        "bonus_coins": 300,
+        "bonus_note": "300 extra coins vs buying at 100-pack rate",
+        "confidence": "high",
+        "sources": ["Steam item store"]
+      },
+      {
+        "coins": 5800,
+        "price_usd": 49.99,
+        "cost_per_100_coins_usd": 0.86,
+        "bonus_coins": 800,
+        "bonus_note": "800 extra coins vs buying at 100-pack rate",
+        "confidence": "high",
+        "sources": ["Steam item store", "shopto.net (GBP 36.85 equivalent)"]
+      },
+      {
+        "coins": 12000,
+        "price_usd": 99.99,
+        "cost_per_100_coins_usd": 0.83,
+        "bonus_coins": 2000,
+        "bonus_note": "2000 extra coins vs buying at 100-pack rate (10000 coins for $99)",
+        "confidence": "high",
+        "sources": ["Steam item store", "shopto.net (GBP 73.85 equivalent)"]
+      }
+    ],
+    "discount_progression": {
+      "note": "Higher tiers give progressively better value per coin",
+      "savings_vs_smallest_pack": {
+        "520_pack": "3% cheaper per coin vs 100 pack",
+        "1050_pack": "4% cheaper per coin vs 100 pack",
+        "2150_pack": "6% cheaper per coin vs 100 pack",
+        "3300_pack": "8% cheaper per coin vs 100 pack",
+        "5800_pack": "13% cheaper per coin vs 100 pack",
+        "12000_pack": "16% cheaper per coin vs 100 pack"
+      }
+    }
+  },
+
+  "regional_pricing": {
+    "gbp": {
+      "confidence": "medium",
+      "source": "shopto.net Xbox listings, gg.deals aggregator",
+      "partial_data": [
+        {"coins": 5800, "price_gbp": 36.85, "platform": "Xbox", "source": "shopto.net"},
+        {"coins": 12000, "price_gbp": 73.85, "platform": "Xbox", "source": "shopto.net"}
+      ],
+      "note": "Only two GBP data points found via web search. Full GBP tier list not retrievable without direct store access."
+    },
+    "eur": {
+      "confidence": "low",
+      "note": "EUR pricing confirmed to exist on Steam and PS Store but specific per-tier values were not retrievable via web search. Pricing is region-dependent.",
+      "estimated_note": "Steam EUR pricing typically mirrors USD at 1:1 for major titles, so EUR tiers likely match USD values."
+    },
+    "brl": {
+      "confidence": "low",
+      "note": "BRL pricing confirmed to exist but not retrievable. eFootball uses regional pricing on all platforms."
+    },
+    "sek": {
+      "confidence": "low",
+      "note": "SEK pricing not found. Likely follows EUR pricing in the Steam store."
+    }
+  },
+
+  "item_pricing_in_coins": {
+    "note": "eFootball monetisation centres on player acquisition through Chance Deals (gacha/box draw system). Unlike cosmetic-only games, coins buy gameplay-affecting player cards.",
+    "confidence": "high",
+    "source": "konami.com/efootball, gamingonphone.com, efootballarena.blog, lootbar.gg",
+    "player_acquisition": {
+      "standard_chance_deal_single": {
+        "cost_coins": 100,
+        "description": "Single draw from a Special Player List (box draw of ~150 players)",
+        "confidence": "high"
+      },
+      "standard_chance_deal_10x": {
+        "cost_coins": 900,
+        "description": "10 draws at once (1 free draw included, saving 100 coins)",
+        "confidence": "high"
+      },
+      "dream_team_power_pack": {
+        "cost_coins": 1500,
+        "description": "Dream Team Power Pack featuring Big Time and Highlight cards",
+        "confidence": "medium",
+        "source": "konami.com/efootball/en/page/pack"
+      },
+      "national_team_pack_11_highlight": {
+        "cost_coins": 900,
+        "description": "National Team Pack with 11 highlight player cards",
+        "confidence": "medium"
+      },
+      "pity_system": {
+        "description": "After 20 unsuccessful Epic Chance Deals, receive one random Epic player as Objective Reward",
+        "max_cost_coins": 2000,
+        "note": "Guarantees an Epic within 2000 coins worst case",
+        "confidence": "high",
+        "source": "konami.com/efootball promotion pages"
+      }
+    },
+    "real_money_equivalents": {
+      "single_draw": "$0.99 (at best rate) to $0.99 (at worst rate)",
+      "10x_draw": "$7.50-$8.91 depending on coin pack purchased",
+      "guaranteed_epic_worst_case": "$16.66-$19.80 (20 draws at 100 coins each)",
+      "dream_team_power_pack": "$12.50-$14.85",
+      "note": "Real money cost depends on which coin pack tier was purchased"
+    }
+  },
+
+  "player_card_types": [
+    {
+      "type": "Standard",
+      "acquisition": "Free (GP currency or default)",
+      "note": "Base versions of all players, obtainable without coins"
+    },
+    {
+      "type": "Highlight",
+      "acquisition": "Chance Deals (coins) or events",
+      "note": "Improved stats vs standard versions, can be further developed"
+    },
+    {
+      "type": "Big Time",
+      "acquisition": "Special packs (coins)",
+      "note": "Strong promotional cards"
+    },
+    {
+      "type": "Epic",
+      "acquisition": "Chance Deals (coins) with pity system",
+      "note": "Based on standout season performances, unique card designs. Highest tier."
+    },
+    {
+      "type": "Legendary",
+      "acquisition": "Special events and packs (coins)",
+      "note": "Retired legends and all-time greats"
+    }
+  ],
+
+  "monetisation_philosophy": "pay_to_progress",
+  "economy_notes": [
+    "Dual currency: GP (free, earned through gameplay) and Coins (premium, purchased)",
+    "Unlike Fortnite/Valorant/Rocket League, eFootball coins buy GAMEPLAY-AFFECTING content (player cards)",
+    "Gacha/box draw system creates uncertainty in what you get for your money",
+    "Pity system guarantees an Epic card within 20 draws (2000 coins / ~$17-$20)",
+    "10x draw bundles offer a 10% discount (pay for 9, get 10)",
+    "Standard players are obtainable for free with GP - coins are for premium/Epic/Legendary cards",
+    "7 coin tiers from $0.99 to $99.99 - more granular than most competitors",
+    "16% savings at the top tier vs smallest pack - moderate volume discount",
+    "Available on Steam (unlike Rocket League post-2020), PS, Xbox, and mobile",
+    "Mobile versions may have slightly different pricing through app store IAP",
+    "Konami uses Codashop as an official third-party purchase channel",
+    "Coin prices can change between annual eFootball versions (2024, 2025, 2026)"
+  ]
+}

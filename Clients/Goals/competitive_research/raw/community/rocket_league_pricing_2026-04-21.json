@@ -1,0 +1,163 @@
+{
+  "source": "rocketleague.fandom.com + rocketleague.com + op.market + theglobalgaming.com + harmonicode.com",
+  "scraped_date": "2026-04-21",
+  "scrape_method": "web_search_aggregation",
+  "competitor": "Rocket League",
+  "tier": 2,
+  "urls_cited": [
+    "https://rocketleague.fandom.com/wiki/Credits",
+    "https://rocketleague.fandom.com/wiki/Item_Shop",
+    "https://rocketleague.fandom.com/wiki/Rocket_Pass",
+    "https://www.rocketleague.com/en/news/the-item-shop--a-closer-look",
+    "https://www.rocketleague.com/en/news/update-to-item-shop-and-blueprint-pricing",
+    "https://www.rocketleague.com/en/news/upcoming-rocket-league-pricing-alignment-in-africa-asia-oceania-and-south-america-in-october-2024",
+    "https://op.market/blog/rocket-league-credit-prices",
+    "https://theglobalgaming.com/rocket-league/credits-prices-cheap",
+    "https://harmonicode.com/2026/03/25/rocket-league-blueprints-complete-guide-to-unlocking-trading-and-maximizing-value-in-2026/",
+    "https://www.epicgames.com/help/en-US/rocket-league-c-202300000001622/gameplay-c-202300000001682/what-are-credits-in-rocket-league-a202300000010134"
+  ],
+  "notes": "Rocket League went F2P in September 2020 and was removed from Steam (existing owners kept access). All new purchases via Epic Games Store, PS Store, Xbox Store, or Nintendo eShop. Credits replaced Keys as premium currency in December 2019. Psyonix did a regional pricing alignment in October 2024 for Africa, Asia, Oceania, and South America. Psyonix reserves the right to change pricing at any time.",
+
+  "credits_purchase_tiers": {
+    "currency": "USD",
+    "effective_date": "2024-10-14",
+    "tiers": [
+      {
+        "credits": 500,
+        "price_usd": 4.99,
+        "cost_per_100_credits_usd": 1.00,
+        "bonus_credits": 0,
+        "confidence": "high",
+        "sources": ["rocketleague.fandom.com/wiki/Credits", "op.market", "theglobalgaming.com"]
+      },
+      {
+        "credits": 1100,
+        "price_usd": 9.99,
+        "cost_per_100_credits_usd": 0.91,
+        "bonus_credits": 100,
+        "bonus_note": "100 extra credits vs buying 2x500 (1000 credits for $9.98)",
+        "confidence": "high",
+        "sources": ["rocketleague.fandom.com/wiki/Credits", "op.market", "theglobalgaming.com"]
+      },
+      {
+        "credits": 3000,
+        "price_usd": 24.99,
+        "cost_per_100_credits_usd": 0.83,
+        "bonus_credits": 500,
+        "bonus_note": "500 extra credits vs buying at 500-pack rate (2500 credits for $24.95)",
+        "confidence": "high",
+        "sources": ["rocketleague.fandom.com/wiki/Credits", "op.market", "theglobalgaming.com"]
+      },
+      {
+        "credits": 6500,
+        "price_usd": 49.99,
+        "cost_per_100_credits_usd": 0.77,
+        "bonus_credits": 1500,
+        "bonus_note": "1500 extra credits vs buying at 500-pack rate (5000 credits for $49.90)",
+        "confidence": "high",
+        "sources": ["rocketleague.fandom.com/wiki/Credits", "op.market", "theglobalgaming.com"]
+      }
+    ],
+    "discount_progression": {
+      "note": "Higher tiers give progressively better value per credit",
+      "savings_vs_smallest_pack": {
+        "1100_pack": "9% cheaper per credit vs 500 pack",
+        "3000_pack": "17% cheaper per credit vs 500 pack",
+        "6500_pack": "23% cheaper per credit vs 500 pack"
+      }
+    }
+  },
+
+  "regional_pricing": {
+    "gbp": {
+      "note": "GBP pricing confirmed to exist on Epic Games Store and console stores but exact per-tier values were not retrievable via web search. The Fandom wiki lists GBP prices but page content was not accessible.",
+      "estimated_tiers": [
+        {"credits": 500, "price_gbp_estimate": 3.99, "confidence": "medium", "method": "FX-adjusted estimate from USD"},
+        {"credits": 1100, "price_gbp_estimate": 7.99, "confidence": "medium", "method": "FX-adjusted estimate from USD"},
+        {"credits": 3000, "price_gbp_estimate": 19.99, "confidence": "medium", "method": "FX-adjusted estimate from USD"},
+        {"credits": 6500, "price_gbp_estimate": 39.99, "confidence": "medium", "method": "FX-adjusted estimate from USD"}
+      ]
+    },
+    "eur": {
+      "note": "EUR pricing confirmed to exist but exact values not retrievable. Third-party data suggests ~EUR 73.47 per 10,000 credits.",
+      "estimated_tiers": [
+        {"credits": 500, "price_eur_estimate": 4.99, "confidence": "medium", "method": "FX-adjusted estimate from USD"},
+        {"credits": 1100, "price_eur_estimate": 9.99, "confidence": "medium", "method": "FX-adjusted estimate from USD"},
+        {"credits": 3000, "price_eur_estimate": 24.99, "confidence": "medium", "method": "FX-adjusted estimate from USD"},
+        {"credits": 6500, "price_eur_estimate": 49.99, "confidence": "medium", "method": "FX-adjusted estimate from USD"}
+      ]
+    },
+    "regional_alignment_note": "October 2024 pricing alignment affected Africa, Asia, Oceania, South America. US/EU/UK pricing remained stable."
+  },
+
+  "item_shop_pricing": {
+    "note": "Item Shop opened December 2019. Featured items rotate every 48 hours, daily items every 24 hours. All shop purchases are trade-locked.",
+    "blueprint_build_costs_by_rarity": {
+      "source": "rocketleague.com/en/news/update-to-item-shop-and-blueprint-pricing (Patch v1.71 update)",
+      "confidence": "high",
+      "rarities": [
+        {"rarity": "Rare", "credit_range": "50-100", "note": "Lowest tier blueprints"},
+        {"rarity": "Very Rare", "credit_range": "100-200", "note": "Common drops"},
+        {"rarity": "Import", "credit_range": "300-500", "note": "Mid-tier items"},
+        {"rarity": "Exotic", "credit_range": "700-800", "note": "High-tier items"},
+        {"rarity": "Black Market", "credit_range": "2000-2500", "note": "Top-tier universal decals, goal explosions, wheels"}
+      ],
+      "paint_surcharges": {
+        "standard_colours": "50-200 additional credits",
+        "burnt_sienna": "0 additional credits",
+        "titanium_white": "100-500 additional credits",
+        "special_edition": "200-400 additional credits"
+      }
+    },
+    "example_shop_items": [
+      {"item": "NFL Player Decal", "price_credits": 700, "type": "decal", "confidence": "high"},
+      {"item": "NFL Super Bowl LVII Goal Explosion", "price_credits": 500, "type": "goal_explosion", "confidence": "high"},
+      {"item": "NFL Fan Pack", "price_credits": 800, "type": "bundle", "confidence": "high"},
+      {"item": "Ford F-150 RLE", "price_credits": 1500, "type": "car_body", "confidence": "high"},
+      {"item": "Lamborghini Huracan STO", "price_credits": 2000, "type": "car_body", "confidence": "high"}
+    ],
+    "typical_price_ranges_real_money": {
+      "common_decal": "$0.50-$2.00",
+      "import_body": "$3.00-$5.00",
+      "exotic_wheels": "$7.00-$8.00",
+      "black_market_decal_goal_explosion": "$15.00-$20.00",
+      "licensed_car_body": "$15.00-$20.00",
+      "titanium_white_black_market": "$20.00-$25.00+"
+    }
+  },
+
+  "pass_pricing": {
+    "rocket_pass_premium": {
+      "cost_credits": 1000,
+      "cost_usd_approx": 9.99,
+      "returns_credits": 1000,
+      "returns_at_tier": 110,
+      "note": "Self-sustaining if completed to Tier 110. Buy once, earn back enough for next season.",
+      "confidence": "high",
+      "source": "rocketleague.fandom.com/wiki/Rocket_Pass"
+    },
+    "rocket_pass_premium_bundle": {
+      "cost_credits": 2000,
+      "cost_usd_approx": 19.99,
+      "includes": "Premium Pass + 12 bonus tiers",
+      "confidence": "high",
+      "source": "rocketleague.fandom.com/wiki/Rocket_Pass"
+    }
+  },
+
+  "trading_market_note": "Rocket League has a player-to-player trading economy. Credits are the primary trading currency. Items bought from the Item Shop are trade-locked. Credits are trade-locked for 72 hours after purchase, and buying new credits re-locks ALL credits in inventory.",
+
+  "monetisation_philosophy": "pure_cosmetic",
+  "economy_notes": [
+    "Pure cosmetic - no gameplay advantage from purchases",
+    "Credits are the sole premium currency (replaced Keys in Dec 2019)",
+    "Went F2P in Sept 2020, removed from Steam storefront (existing owners kept access)",
+    "Item Shop + Blueprint system are the two monetisation pillars",
+    "Blueprint build costs often exceed market trading prices for the same items - informed players trade instead of building",
+    "Licensed car bodies (Lamborghini, Ford, etc.) are premium-priced at 1500-2000 credits",
+    "Esports Tokens are a separate purchasable currency for esports items",
+    "Rocket Pass is self-sustaining if completed, creating good perceived value",
+    "48-hour featured rotation + 24-hour daily rotation creates FOMO pressure",
+    "October 2024 regional pricing alignment adjusted developing-market prices"
+  ]
+}

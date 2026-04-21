@@ -1,0 +1,251 @@
+{
+  "source": "valorant.fandom.com + playvalorant.com + dexerto.com + dotesports.com + bo3.gg + turbosmurfs.gg + earlygame.com + thespike.gg + pcgamesn.com + beebom.com",
+  "scraped_date": "2026-04-21",
+  "scrape_method": "web_search_aggregation",
+  "competitor": "Valorant",
+  "tier": 1,
+  "urls_cited": [
+    "https://valorant.fandom.com/wiki/VALORANT_Points",
+    "https://valorant.fandom.com/wiki/Weapon_Skins",
+    "https://valorant.fandom.com/wiki/Battle_Pass",
+    "https://valorant.fandom.com/wiki/Radianite_Points",
+    "https://playvalorant.com/en-us/news/game-updates/regional-price-changes-and-global-bonus-currency/",
+    "https://www.dexerto.com/valorant/all-valorant-deluxe-edition-skin-bundles-tiers-weapons-prices-1456863/",
+    "https://www.dexerto.com/valorant/radianite-points-guide-valorant-weapon-upgrades-cost-more-1374342/",
+    "https://dotesports.com/valorant/news/how-much-do-valorant-points-cost",
+    "https://bo3.gg/valorant/articles/prices-for-valorant-points-in-all-regions",
+    "https://turbosmurfs.gg/article/valorant-points-price",
+    "https://earlygame.com/valorant/valorant-points-price-all-regions",
+    "https://www.thespike.gg/valorant/a-complete-guide-to-valorant-skin-prices",
+    "https://www.pcgamesn.com/valorant/skins",
+    "https://beebom.com/valorant-skins-bundles-tiers-prices/",
+    "https://gametyrant.com/news/every-valorant-skin-rarity-tier-explained",
+    "https://esportsrambles.com/blog/valorant-skin-rarity-guide"
+  ],
+  "notes": "Valorant is exclusively on the Riot launcher (no Steam, no Epic). VP (Valorant Points) are purchased through the Riot client. Riot did a regional price update on 18 September 2024 following a 3 September 2024 announcement. US pricing remained stable but many other regions saw increases. Valorant is known industry-wide for having some of the most expensive skins in F2P gaming.",
+
+  "vp_purchase_tiers": {
+    "currency": "USD",
+    "region": "United States",
+    "effective_date": "2024-09-18",
+    "confidence": "high",
+    "tiers": [
+      {
+        "vp": 475,
+        "price_usd": 4.99,
+        "cost_per_100_vp_usd": 1.05,
+        "bonus_vp": 0,
+        "sources": ["valorant.fandom.com", "turbosmurfs.gg", "dotesports.com"]
+      },
+      {
+        "vp": 1000,
+        "price_usd": 9.99,
+        "cost_per_100_vp_usd": 1.00,
+        "bonus_vp": 50,
+        "bonus_note": "50 bonus VP vs buying 2x475 (950 VP for $9.98)",
+        "sources": ["valorant.fandom.com", "turbosmurfs.gg", "dotesports.com"]
+      },
+      {
+        "vp": 2050,
+        "price_usd": 19.99,
+        "cost_per_100_vp_usd": 0.98,
+        "bonus_vp": 100,
+        "bonus_note": "100 bonus VP vs 2x1000 (2000 VP for $19.98)",
+        "sources": ["valorant.fandom.com", "turbosmurfs.gg", "dotesports.com"]
+      },
+      {
+        "vp": 3650,
+        "price_usd": 34.99,
+        "cost_per_100_vp_usd": 0.96,
+        "bonus_vp": 175,
+        "bonus_note": "Increased bonus at this tier",
+        "sources": ["valorant.fandom.com", "turbosmurfs.gg", "dotesports.com"]
+      },
+      {
+        "vp": 5350,
+        "price_usd": 49.99,
+        "cost_per_100_vp_usd": 0.93,
+        "bonus_vp": 250,
+        "bonus_note": "250 bonus VP vs linear pricing",
+        "sources": ["valorant.fandom.com", "turbosmurfs.gg", "dotesports.com"]
+      },
+      {
+        "vp": 11000,
+        "price_usd": 99.99,
+        "cost_per_100_vp_usd": 0.91,
+        "bonus_vp": 1500,
+        "bonus_note": "1500 bonus VP - best value tier, 13.6% more VP per dollar vs smallest pack",
+        "sources": ["valorant.fandom.com", "turbosmurfs.gg", "dotesports.com"]
+      }
+    ],
+    "discount_progression": {
+      "note": "Higher tiers give progressively better value per VP",
+      "savings_vs_smallest_pack": {
+        "1000_pack": "4.8% cheaper per VP vs 475 pack",
+        "2050_pack": "6.7% cheaper per VP vs 475 pack",
+        "3650_pack": "8.6% cheaper per VP vs 475 pack",
+        "5350_pack": "11.4% cheaper per VP vs 475 pack",
+        "11000_pack": "13.3% cheaper per VP vs 475 pack"
+      }
+    }
+  },
+
+  "regional_pricing": {
+    "eur_europe": {
+      "confidence": "high",
+      "source": "bo3.gg, earlygame.com, instant-gaming.com",
+      "tiers": [
+        {"vp": 475, "price_eur": 5.00},
+        {"vp": 1000, "price_eur": 10.00},
+        {"vp": 2050, "price_eur": 17.10},
+        {"vp": 3650, "price_eur": 29.90},
+        {"vp": 5350, "price_eur": 42.70},
+        {"vp": 11000, "price_eur": 85.35}
+      ]
+    },
+    "gbp_united_kingdom": {
+      "confidence": "medium",
+      "note": "UK uses slightly different VP amounts per tier compared to US/EU. Confirmed range is 500 VP at GBP 4.50 to 9450 VP at GBP 90. Full intermediate tier breakdown not confirmed via web search.",
+      "source": "talkesport.com, dotesports.com, valorant.fandom.com",
+      "tiers": [
+        {"vp": 500, "price_gbp": 4.50, "confidence": "high"},
+        {"vp": 1050, "price_gbp": 9.00, "confidence": "medium", "method": "interpolated from range"},
+        {"vp": 2100, "price_gbp": 18.00, "confidence": "medium", "method": "interpolated from range"},
+        {"vp": 3700, "price_gbp": 31.50, "confidence": "medium", "method": "interpolated from range"},
+        {"vp": 5400, "price_gbp": 45.00, "confidence": "medium", "method": "interpolated from range"},
+        {"vp": 9500, "price_gbp": 90.00, "confidence": "high", "note": "Includes ~2050 bonus VP"}
+      ]
+    },
+    "brl_brazil": {
+      "confidence": "high",
+      "source": "codashop.com/pt-br, maisesports.com.br, reidoscoins.com.br",
+      "tiers": [
+        {"vp": 475, "price_brl": 18.90},
+        {"vp": 1000, "price_brl": 38.90},
+        {"vp": 2050, "price_brl": 75.90},
+        {"vp": 3650, "price_brl": 132.90},
+        {"vp": 5350, "price_brl": 189.90},
+        {"vp": 11000, "price_brl": 379.90}
+      ]
+    },
+    "sek_sweden": {
+      "confidence": "low",
+      "note": "Specific SEK pricing not found. Sweden falls under EU region. Likely priced in EUR or SEK equivalent. Norway confirmed to have seen a ~12% price increase in the Sept 2024 update.",
+      "estimated_note": "At current FX (~10.5 SEK/EUR), 475 VP would be approximately 52 SEK."
+    },
+    "regional_update_note": "On 3 September 2024, Riot announced regional price changes effective 18 September 2024. Reasons cited: global economy changes, exchange rate fluctuations, and VPN/server-transfer arbitrage exploitation. Turkey, Brazil, and Vietnam remain among the cheapest regions globally."
+  },
+
+  "skin_pricing_by_tier": {
+    "note": "Valorant skins are organised into 5 edition tiers. Higher tiers include more elaborate VFX, animations, sound effects, and finishers. All skins are purely cosmetic.",
+    "confidence": "high",
+    "source": "dexerto.com, valorant.fandom.com, thespike.gg, pcgamesn.com, beebom.com, gametyrant.com",
+    "tiers": [
+      {
+        "tier_name": "Select Edition",
+        "individual_gun_skin_vp": 875,
+        "individual_gun_skin_usd_approx": 9.23,
+        "melee_skin_vp": 1750,
+        "bundle_vp_range": "2930-3500",
+        "bundle_usd_approx": "30.89-36.91",
+        "features": "Basic remodel, no special VFX/audio/animations"
+      },
+      {
+        "tier_name": "Deluxe Edition",
+        "individual_gun_skin_vp": 1275,
+        "individual_gun_skin_usd_approx": 13.45,
+        "melee_skin_vp": 2550,
+        "bundle_vp_range": "4270-5100",
+        "bundle_usd_approx": "45.03-53.79",
+        "features": "New model + custom ADS reticle, some have VFX"
+      },
+      {
+        "tier_name": "Premium Edition",
+        "individual_gun_skin_vp": 1775,
+        "individual_gun_skin_usd_approx": 18.73,
+        "melee_skin_vp": 3550,
+        "bundle_vp_range": "7100-8855",
+        "bundle_usd_approx": "74.89-93.41",
+        "features": "New model + VFX + audio + finisher + variants. Upgradeable with Radianite."
+      },
+      {
+        "tier_name": "Exclusive Edition",
+        "individual_gun_skin_vp": 2175,
+        "individual_gun_skin_usd_approx": 22.95,
+        "melee_skin_vp": 4350,
+        "bundle_vp_range": "8700-10700",
+        "bundle_usd_approx": "91.79-112.87",
+        "features": "Full premium treatment + unique thematic elements. Upgradeable."
+      },
+      {
+        "tier_name": "Ultra Edition",
+        "individual_gun_skin_vp": 2475,
+        "individual_gun_skin_usd_approx": 26.11,
+        "melee_skin_vp": 4950,
+        "bundle_vp_range": "9900-11900",
+        "bundle_usd_approx": "104.45-125.55",
+        "features": "Top-tier everything. Custom animations, evolving/reactive elements, premium finishers."
+      }
+    ]
+  },
+
+  "radianite_system": {
+    "note": "Radianite Points are a secondary currency used to unlock skin upgrades (VFX, audio, animations, finishers, colour variants) on Premium tier and above skins. Cannot be purchased directly with real money - only obtainable through Battle Pass.",
+    "confidence": "high",
+    "source": "valorant.fandom.com/wiki/Radianite_Points, dexerto.com",
+    "upgrade_cost_per_level": 10,
+    "variant_unlock_cost": 15,
+    "example_full_upgrade": {
+      "skin": "Oni Phantom",
+      "total_radianite_needed": 75,
+      "real_money_equivalent_approx": "$60+",
+      "note": "Requires purchasing and completing Battle Pass to earn enough Radianite"
+    },
+    "radianite_from_battle_pass": "Primary source. Free and premium tracks award Radianite."
+  },
+
+  "pass_pricing": {
+    "battle_pass": {
+      "cost_vp": 1000,
+      "cost_usd_approx": 9.99,
+      "includes": "Premium track with 3 skin collections (2 Select + 1 Deluxe), Radianite, accessories",
+      "confidence": "high",
+      "source": "valorant.fandom.com/wiki/Battle_Pass"
+    }
+  },
+
+  "notable_bundles": [
+    {
+      "name": "Champions 2025 Bundle",
+      "price_vp": 6620,
+      "price_usd_approx": 69.86,
+      "note": "Annual esports celebration bundle with unique Champions Vandal skin",
+      "confidence": "high",
+      "source": "topuplive.com"
+    },
+    {
+      "name": "ORA Bundle",
+      "price_vp": 9900,
+      "price_usd_approx": 104.45,
+      "tier": "Ultra Edition",
+      "confidence": "high",
+      "source": "thespike.gg"
+    }
+  ],
+
+  "monetisation_philosophy": "pure_cosmetic",
+  "economy_notes": [
+    "Pure cosmetic - absolutely no gameplay advantage from purchases",
+    "Valorant is widely regarded as one of the most expensive F2P games for skins",
+    "A single Premium-tier gun skin costs ~$19, roughly the price of an indie game",
+    "Ultra Edition bundles can exceed $100 for a set of weapon skins",
+    "Full skin upgrade (purchase + Radianite) can cost $60+ for a single weapon",
+    "VP and Radianite are two separate currencies - VP for buying, Radianite for upgrading",
+    "Riot's pricing strategy is deliberate: high prices maintain perceived exclusivity and prestige",
+    "Night Market offers random discounts on skins periodically - creates engagement spikes",
+    "Battle Pass at 1000 VP ($10) is the main value entry point",
+    "No trading system - all purchases are final and account-bound",
+    "Regional pricing varies significantly - Brazil/Turkey/Vietnam are cheapest markets",
+    "September 2024 regional price update increased costs in many markets outside US"
+  ]
+}
