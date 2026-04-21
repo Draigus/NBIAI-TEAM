@@ -59,34 +59,34 @@
       "notes": "F2P football. Has web companion for some store functions."
     },
     {
-      "name": "NBA 2K26",
+      "name": "NBA 2K25",
       "tier": 2,
       "publisher": "2K Games",
       "platforms": ["steam", "ps", "xbox"],
-      "steam_appid": "2316480",
+      "steam_appid": "2878980",
       "monetisation_philosophy": "gacha_power",
       "sources": {
         "community": "https://2kdb.net/",
-        "steamdb": "https://steamdb.info/app/2316480/dlc/",
+        "steamdb": "https://steamdb.info/app/2878980/dlc/",
         "official_blog": "https://nba.2k.com/"
       },
       "subreddit": "r/NBA2k",
-      "notes": "Using NBA 2K25 AppID (2316480) as proxy until 2K26 is listed. MyTEAM mode is the relevant comparison."
+      "notes": "NBA 2K25 AppID 2878980. MyTEAM mode is the relevant comparison."
     },
     {
-      "name": "Madden NFL 26",
+      "name": "Madden NFL 25",
       "tier": 2,
       "publisher": "EA",
       "platforms": ["steam", "ps", "xbox"],
-      "steam_appid": "2666670",
+      "steam_appid": "2582560",
       "monetisation_philosophy": "gacha_power",
       "sources": {
-        "steamdb": "https://steamdb.info/app/2666670/dlc/",
+        "steamdb": "https://steamdb.info/app/2582560/dlc/",
         "community": "https://www.mut.gg/",
         "official_blog": "https://www.ea.com/games/madden-nfl"
       },
       "subreddit": "r/MaddenUltimateTeam",
-      "notes": "Using Madden 25 AppID (2666670) as proxy. MUT = same EA economy engine as FC."
+      "notes": "Madden NFL 25 AppID 2582560. MUT = same EA economy engine as FC. No Steam DLC — MUT Points sold in-game."
     },
     {
       "name": "Fortnite",

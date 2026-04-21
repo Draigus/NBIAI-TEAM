@@ -1,14 +1,14 @@
 # Competitive MTX Pricing Research — Key Findings
 
 **Generated:** 2026-04-21 (updated post-red-team review)
-**Data coverage:** 12 competitors, 356 normalised price points, 147 citations
-**Verification:** PASS (0 critical, 0 high, 0 medium issues)
+**Data coverage:** 12 competitors, 315 normalised price points (HC + SC packs; battle passes excluded), 147 citations
+**Verification:** PASS (0 critical, 0 high, 0 medium issues; 0 empty tier/hc_amount/monetisation fields)
 
 ---
 
 ## Methodology
 
-**Data sources:** Steam Store API (primary, 299 rows across 12 regions) and community trackers/store pages (secondary, 57 rows, USD only). All data captured on 2026-04-21 — a single-day snapshot. Longitudinal data (EA FC Points 2018-2026) sourced from fifauteam.com and fifplay.com archives.
+**Data sources:** Steam Store API (primary, 252 rows across 12 regions — currency packs only, battle passes excluded) and community trackers/store pages (secondary, 63 rows, USD only — includes both hard and soft currency packs). All data captured on 2026-04-21 — a single-day snapshot. Longitudinal data (EA FC Points 2018-2026) sourced from fifauteam.com and fifplay.com archives.
 
 **Coverage skew:** EA-published titles (FC 26, FC 25, F1 24, Madden, Apex) account for 74% of rows due to Steam API regional coverage. Non-EA competitors have USD-only community data. This reflects data availability, not analytical weighting — cross-competitor comparisons in this document use USD baseline figures throughout.
 
@@ -216,11 +216,34 @@ Goals' own pricing matrix (`GOALS Pricing Matrix (8).xlsx`) defines a 6-tier HC 
 
 ---
 
-## 10. Data Observations (for deliverable discussion)
+## 10. Soft Currency Benchmark — UFL Credit Points [C-UFL]
+
+UFL is the only competitor in this dataset that sells soft currency (CP) packs alongside its hard currency (LP). This is relevant because Goals may adopt a similar dual-currency model.
+
+| CP Amount | Price (USD) | CP per Dollar | Source |
+|---|---|---|---|
+| 5,000,000 | $0.99 | 5,050,505 | [C-UFL] |
+| 10,000,000 | $1.99 | 5,025,126 | [C-UFL] |
+| 20,000,000 | $3.99 | 5,012,531 | [C-UFL] |
+| 50,000,000 | $9.99 | 5,005,005 | [C-UFL] |
+| 100,000,000 | $16.99 | 5,885,815 | [C-UFL] |
+| 250,000,000 | $39.99 | 6,251,563 | [C-UFL] |
+
+**Key observations:**
+- CP price range ($0.99-$39.99) mirrors the LP (hard currency) range almost exactly
+- Volume discount is modest (~24% from entry to top tier) — in line with the HC industry cluster
+- The CP amounts are enormous (millions) because CP is earned freely through gameplay; the paid packs are a "skip the grind" shortcut, not the primary acquisition path
+- UFL's dual-currency model lets them monetise both the premium-content path (LP → packs, skins, battle pass) and the progression path (CP → players, customisation) without crossing into pure pay-to-win territory, since the RP (reputation) gate remains non-purchasable
+
+**Implication for Goals:** If Goals implements purchasable soft currency alongside HC, UFL's pricing provides a direct benchmark. The $0.99 entry and ~24% volume discount curve apply to both currency types.
+
+---
+
+## 11. Data Observations (for deliverable discussion)
 
 The following observations emerge from the data. They are not pricing recommendations — pricing decisions require additional inputs (willingness-to-pay research, player demographics, Goals' revenue model, regional launch strategy) that are outside this dataset's scope.
 
-**Scope note:** This benchmark covers hard currency (HC) pack pricing only. Two economy design topics are not addressed here but matter for Goals' full monetisation strategy: (a) soft currency purchasing (e.g. UFL's CP packs at $0.99-$8.99 [C-UFL, cp_purchase_tiers]) and (b) the interaction between Goals' "80/20 skill-to-purchased-advantage" positioning and its HC pricing — a unique position between EA FC's full gacha power and Fortnite/Valorant's pure cosmetic models.
+**Scope note:** This benchmark now covers both hard currency (HC) and soft currency (SC) pack pricing. UFL is the only competitor with SC purchasing data in this dataset (see Section 10). One economy design topic remains outside scope: the interaction between Goals' "80/20 skill-to-purchased-advantage" positioning and its HC pricing — a unique position between EA FC's full gacha power and Fortnite/Valorant's pure cosmetic models.
 
 1. **The market anchor for football MTX pricing is EA FC's tier structure.** UFL's entry tiers already match it [C-UFL vs S-FC26]. Other football titles (eFootball) cluster around the same entry points [C-EF].
 2. **Volume discount curves in the genre cluster at 15-23%** at the max tier [Section 1 top-tier table]. NBA 2K (86%) is the outlier [S-NBA]; most titles stay conservative.

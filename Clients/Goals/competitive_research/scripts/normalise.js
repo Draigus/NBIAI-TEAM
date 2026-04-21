@@ -64,14 +64,15 @@ function normaliseSteamAPI() {
 
     for (const item of pricing) {
       if (!item.price_in_cents && item.price_in_cents !== 0) continue;
+      if (!item.points_amount) continue;
 
       const rawName = item.competitor || raw.metadata?.game || '';
-      const config = getCompetitorConfig(rawName);
+      const canonName = NAME_CANON[rawName] || rawName;
+      const config = getCompetitorConfig(canonName);
       const priceLocal = item.price_in_cents / 100;
       const currency = item.currency || REGION_CURRENCY[item.region] || null;
       const priceUSD = toUSD(priceLocal, currency);
       const hcAmount = item.points_amount || null;
-      const canonName = NAME_CANON[rawName] || rawName;
 
       rows.push({
         competitor: canonName,
@@ -106,43 +107,37 @@ function normaliseCommunityData() {
   const rows = [];
   const files = fs.readdirSync(dir).filter(f => f.endsWith('.json'));
 
+  const KNOWN_TIER_KEYS = [
+    'apex_coins_purchase_tiers', 'v_bucks_purchase_tiers', 'fc_points_purchase_tiers',
+    'credits_purchase_tiers', 'vp_purchase_tiers', 'coins_purchase_tiers',
+    'lp_purchase_tiers', 'cp_purchase_tiers', 'purchase_tiers',
+    'currency_packs', 'premium_currency_packs'
+  ];
+
   for (const file of files) {
     const raw = JSON.parse(fs.readFileSync(path.join(dir, file), 'utf8'));
+    const competitor = raw.competitor;
+    const config = getCompetitorConfig(competitor || '');
+    const sourceUrl = raw.urls_cited?.[0] || '';
+    const captureDate = raw.scraped_date;
+    const canonCompetitor = NAME_CANON[competitor] || competitor;
 
-    // Handle different community data formats
-    const tiers = raw.apex_coins_purchase_tiers?.tiers
-      || raw.v_bucks_purchase_tiers?.tiers
-      || raw.fc_points_purchase_tiers?.tiers
-      || raw.credits_purchase_tiers?.tiers
-      || raw.vp_purchase_tiers?.tiers
-      || raw.coins_purchase_tiers?.tiers
-      || raw.lp_purchase_tiers?.tiers
-      || raw.purchase_tiers?.tiers
-      || raw.currency_packs?.tiers
-      || raw.premium_currency_packs?.tiers
-      || null;
+    const tierKeys = KNOWN_TIER_KEYS.filter(k => raw[k]?.tiers && Array.isArray(raw[k].tiers));
 
-    if (tiers && Array.isArray(tiers)) {
-      const competitor = raw.competitor;
-      const config = getCompetitorConfig(competitor || '');
-      const sourceUrl = raw.urls_cited?.[0] || '';
-      const captureDate = raw.scraped_date;
+    for (const currencyKey of tierKeys) {
+      const tiers = raw[currencyKey].tiers;
+      const currencyName = currencyKey.replace('_purchase_tiers', '').replace('_packs', '');
 
-      const currencyKey = Object.keys(raw).find(k => k.includes('purchase_tiers'));
-      const currencyName = currencyKey?.replace('_purchase_tiers', '') || 'unknown';
-
-      const canonCompetitor = NAME_CANON[competitor] || competitor;
-
-      // Skip community HC pricing for competitors with authoritative Steam API data
       const hasSteamPrimary = ['EA FC 26', 'EA FC 25', 'NBA 2K25'].includes(canonCompetitor);
       if (hasSteamPrimary && currencyName.includes('fc_points')) continue;
 
-      // Determine SKU type: soft currency packs are flagged separately
-      const isSoftCurrency = currencyName.includes('cp_purchase') || currencyName.includes('credit_points');
+      const isSoftCurrency = currencyName === 'cp' || currencyName.includes('credit_points');
       const skuType = isSoftCurrency ? 'sc_pack' : 'hc_pack';
 
       for (const tier of tiers) {
-        const coins = tier.coins || tier.amount || tier.points || tier.vbucks || tier.fc_points || tier.lp_amount || tier.v_bucks || 0;
+        const coins = tier.coins || tier.amount || tier.points || tier.vbucks
+          || tier.fc_points || tier.lp_amount || tier.cp_amount || tier.v_bucks
+          || tier.credits || tier.vp || 0;
         const priceUSD = tier.price_usd || tier.price || 0;
         const bonus = tier.bonus_coins || tier.bonus || 0;
 

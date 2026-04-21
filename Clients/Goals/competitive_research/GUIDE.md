@@ -30,7 +30,7 @@ All files live in `Clients/Goals/competitive_research/output/`.
 
 | File | What It Is | How To Use |
 |---|---|---|
-| **current_snapshot.csv** | 356 normalised price points across 12 competitors. One row per SKU per region. | Import into Google Sheets. Filter by `competitor` column to compare titles. Filter by `region` for regional pricing analysis. |
+| **current_snapshot.csv** | 315 normalised price points across 12 competitors (HC + SC packs only; battle passes excluded). One row per SKU per region. | Import into Google Sheets. Filter by `competitor` column to compare titles. Filter by `region` for regional pricing analysis. |
 | **citations.csv** | 147 source URLs indexed by competitor. | Cross-reference if anyone asks "where did this number come from?" |
 | **ea_fc_pricing_history.json** | EA FC/FIFA Points pricing from 2018 to 2026, year by year. | Open in a JSON viewer. Shows exactly how EA evolved their tier structure over 8 years. |
 | **verification_report.json** | Pipeline health check output. | Confirms data quality: 0 critical/high/medium issues. |
@@ -62,7 +62,9 @@ To verify any claim: find the source key, open the referenced file in `raw/`, an
 6. **Industry Pricing Patterns** — How each publisher handles price changes without raising sticker prices.
 7. **Platform Observations** — Regional quirks (Turkey priced in USD, Korea geo-restricted, etc.).
 8. **Gaps and Citation Health** — What's missing and which source URLs are still live.
-9. **Data Observations** — What the data suggests (not recommendations). Includes scope notes on soft currency and power-to-cosmetic ratio gaps.
+9. **Cross-Reference vs Goals' Internal Pricing** — NBI findings compared against Goals' own pricing matrix. Identifies the $0.99 micro-entry gap.
+10. **Soft Currency Benchmark** — UFL Credit Points (CP) pricing. The only competitor with purchasable soft currency in the dataset.
+11. **Data Observations** — What the data suggests (not recommendations). Scope notes on power-to-cosmetic ratio gap.
 
 ---
 
@@ -70,7 +72,7 @@ To verify any claim: find the source key, open the referenced file in `raw/`, an
 
 ### Import
 
-Open `current_snapshot.csv` in Google Sheets or Excel. 356 rows, 18 columns.
+Open `current_snapshot.csv` in Google Sheets or Excel. 315 rows, 18 columns.
 
 ### Key Columns
 
