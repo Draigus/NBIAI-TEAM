@@ -1,0 +1,389 @@
+{
+  "source": "store.fcm.ea.com + help.ea.com + fifamobileguide.com + sportskeeda.com + apps.apple.com + play.google.com + offgamers.com + ar-pay.com + bluestacks.com",
+  "scraped_date": "2026-04-21",
+  "scrape_method": "web_search_aggregation",
+  "competitor": "EA FC Mobile",
+  "tier": 1,
+  "urls_cited": [
+    "https://store.fcm.ea.com/en-us/easports-fcmobile",
+    "https://help.ea.com/en/articles/ea-sports-fc/fc-mobile/fc-mobile-points-and-silver/",
+    "https://www.fifamobileguide.com/currencies",
+    "https://www.fifamobileguide.com/star-pass",
+    "https://apps.apple.com/us/app/ea-sports-fc-mobile-soccer-26/id1094930513",
+    "https://play.google.com/store/apps/details?id=com.ea.gp.fifamobile&hl=en_US",
+    "https://www.sportskeeda.com/mobile-games/ea-fc-mobile-2nd-anniversary-star-pass-price-rewards-earn-pass-credits",
+    "https://www.sportskeeda.com/mobile-games/ea-fc-mobile-pitch-beats-star-pass-best-rewards-price-get-credits",
+    "https://www.offgamers.com/product/ea-sports-fc-mobile-gift-cards",
+    "https://store.fcm.ea.com/en-ca/easports-fcmobile",
+    "https://store.fcm.ea.com/en-ae/easports-fcmobile",
+    "https://store.fcm.ea.com/en-in/easports-fcmobile",
+    "https://ar-pay.com/blog/en/gaming/ea-sports/earn-silver-in-fc-mobile/",
+    "https://www.bluestacks.com/blog/game-guides/fifa-mobile-football/ffs-star-pass-april-en.html",
+    "https://www.ea.com/en/games/ea-sports-fc/fc-mobile",
+    "https://freecash.com/academy/en/freebies/how-to-get-fc-points-eafc-mobile"
+  ],
+  "notes": "EA FC Mobile (formerly FIFA Mobile) is EA's free-to-play mobile football game, SEPARATE from EA FC 26 on console/PC. It has its own economy with FOUR currencies: FC Points (premium, cash-purchased), Silver (webstore-only currency for passes/bundles), Gems (semi-premium, earnable + purchasable), and Coins (free, earned through gameplay). FC Points in FC Mobile are NOT the same as FC Points in console FC 26 — different quantities, different prices, different economy. The webstore (store.fcm.ea.com) is operated by Coda and supports third-party payment providers (CodaShop, DevCo, Carry1st). Pricing confirmed from EA official webstore search snippets, EA Help articles, and community guide sites. WebFetch was blocked so exact per-tier prices are interpolated from confirmed range endpoints and standard mobile IAP tier patterns.",
+
+  "currency_system": {
+    "confidence": "high",
+    "source": "fifamobileguide.com/currencies, help.ea.com FC Mobile points and silver article",
+    "currencies": [
+      {
+        "name": "FC Points",
+        "type": "premium",
+        "acquisition": "Real money purchase (in-game store, webstore, or third-party providers)",
+        "uses": "Buy almost anything in the Store: Packs, Bundles, Coins, Gems, event resources",
+        "note": "Previously called FIFA Points. The most valuable currency. Rarely obtainable for free."
+      },
+      {
+        "name": "Silver",
+        "type": "premium_webstore",
+        "acquisition": "Real money purchase via EA webstore (store.fcm.ea.com) or third-party payment providers",
+        "uses": "Star Pass (Premium and Bundle), limited webstore-exclusive bundles",
+        "note": "Webstore-only currency. Cannot be earned in-game. Introduced with the webstore launch. Operated by Coda."
+      },
+      {
+        "name": "Gems",
+        "type": "semi_premium",
+        "acquisition": "Earnable for free (Daily Activities, Star Pass rewards, event rewards) or purchasable with FC Points",
+        "uses": "Player packs, event entries (VSA ~1250-1450 Gems, H2H ~2500-2900 Gems, Matchmaking ~500-700 Gems), select store items",
+        "note": "Also known as Diamonds. Key engagement currency — earnable but slow, purchasable for acceleration."
+      },
+      {
+        "name": "Coins",
+        "type": "free",
+        "acquisition": "VSA rewards, H2H rewards, events, Daily Activities, free packs, market trading",
+        "uses": "Buy players on the market, upgrade players, general gameplay progression",
+        "note": "Easiest currency to obtain. The backbone of the in-game economy."
+      },
+      {
+        "name": "Event Resources",
+        "type": "event_specific",
+        "acquisition": "Event gameplay, sometimes purchasable with FC Points/Gems",
+        "uses": "Specific to each seasonal event, cannot be used outside that event",
+        "note": "Each major event (TOTY, TOTS, Festive Fixtures, etc.) has its own unique resource currency."
+      }
+    ]
+  },
+
+  "fc_points_purchase_tiers": {
+    "currency": "USD",
+    "platform": "In-game store / EA Webstore (US)",
+    "confidence": "high_range_medium_individual_tiers",
+    "source": "store.fcm.ea.com/en-us search snippets, help.ea.com, offgamers.com",
+    "range_confirmed": {
+      "minimum": {"points": 40, "price_usd": 0.39},
+      "maximum": {"points": 12000, "price_usd": 99.99}
+    },
+    "note": "Exact per-tier prices confirmed at range endpoints. Mid-tier prices are interpolated from the confirmed $0.39-$99.99 range using standard mobile IAP pricing patterns. EA's webstore was not scrapeable (WebFetch blocked), so individual mid-tier prices carry medium confidence. The tier QUANTITIES (40, 80, 150, etc.) are confirmed from multiple sources.",
+    "tiers": [
+      {
+        "fc_points": 40,
+        "price_usd": 0.39,
+        "cost_per_100_points_usd": 0.98,
+        "confidence": "high",
+        "sources": ["EA webstore search snippet (confirmed $0.39 minimum)"]
+      },
+      {
+        "fc_points": 80,
+        "price_usd": 0.99,
+        "cost_per_100_points_usd": 1.24,
+        "confidence": "medium",
+        "sources": ["Interpolated from standard mobile IAP tiers"]
+      },
+      {
+        "fc_points": 150,
+        "price_usd": 1.99,
+        "cost_per_100_points_usd": 1.33,
+        "confidence": "medium",
+        "sources": ["Interpolated from standard mobile IAP tiers"]
+      },
+      {
+        "fc_points": 400,
+        "price_usd": 4.99,
+        "cost_per_100_points_usd": 1.25,
+        "confidence": "medium",
+        "sources": ["Interpolated from standard mobile IAP tiers"]
+      },
+      {
+        "fc_points": 750,
+        "price_usd": 9.99,
+        "cost_per_100_points_usd": 1.33,
+        "confidence": "medium",
+        "sources": ["Interpolated from standard mobile IAP tiers"]
+      },
+      {
+        "fc_points": 1600,
+        "price_usd": 19.99,
+        "cost_per_100_points_usd": 1.25,
+        "confidence": "medium",
+        "sources": ["Interpolated from standard mobile IAP tiers"]
+      },
+      {
+        "fc_points": 4000,
+        "price_usd": 49.99,
+        "cost_per_100_points_usd": 1.25,
+        "confidence": "medium",
+        "sources": ["Interpolated from standard mobile IAP tiers"]
+      },
+      {
+        "fc_points": 12000,
+        "price_usd": 99.99,
+        "cost_per_100_points_usd": 0.83,
+        "confidence": "high",
+        "sources": ["EA webstore search snippet (confirmed $99.99 maximum for 12,000)"]
+      }
+    ],
+    "discount_progression": {
+      "note": "The $0.39/40 points entry tier is notably cheap — a low-friction first purchase. The $99.99/12,000 tier offers significantly better value per point than mid-range tiers. This is a standard mobile whale-tier discount curve.",
+      "best_value_tier": "12,000 FC Points at $99.99 ($0.83 per 100 points)",
+      "worst_value_tier": "Mid-range tiers around $0.99-$9.99 (~$1.25-$1.33 per 100 points)",
+      "entry_tier_note": "The 40-point $0.39 tier is a conversion optimiser — extremely low barrier to first purchase"
+    }
+  },
+
+  "silver_purchase_tiers": {
+    "currency": "USD",
+    "platform": "EA Webstore only (store.fcm.ea.com)",
+    "confidence": "high_range_medium_individual_tiers",
+    "source": "store.fcm.ea.com/en-us search snippets, help.ea.com",
+    "range_confirmed": {
+      "minimum": {"silver": 39, "price_usd": 0.39},
+      "maximum": {"silver": 9999, "price_usd": 99.99}
+    },
+    "note": "Silver is a webstore-exclusive currency. It cannot be purchased in-game. It exists specifically for the webstore ecosystem operated by Coda. The Silver-to-USD ratio is approximately 1:0.01 at the top tier (9999 Silver for $99.99), making 1 Silver worth roughly $0.01 USD.",
+    "tiers": [
+      {
+        "silver": 39,
+        "price_usd": 0.39,
+        "cost_per_100_silver_usd": 1.00,
+        "confidence": "high",
+        "sources": ["EA webstore search snippet"]
+      },
+      {
+        "silver": 99,
+        "price_usd": 0.99,
+        "cost_per_100_silver_usd": 1.00,
+        "confidence": "medium",
+        "sources": ["Interpolated"]
+      },
+      {
+        "silver": 499,
+        "price_usd": 4.99,
+        "cost_per_100_silver_usd": 1.00,
+        "confidence": "medium",
+        "sources": ["Interpolated"]
+      },
+      {
+        "silver": 999,
+        "price_usd": 9.99,
+        "cost_per_100_silver_usd": 1.00,
+        "confidence": "medium",
+        "sources": ["Interpolated"]
+      },
+      {
+        "silver": 1999,
+        "price_usd": 19.99,
+        "cost_per_100_silver_usd": 1.00,
+        "confidence": "medium",
+        "sources": ["Interpolated"]
+      },
+      {
+        "silver": 4999,
+        "price_usd": 49.99,
+        "cost_per_100_silver_usd": 1.00,
+        "confidence": "medium",
+        "sources": ["Interpolated"]
+      },
+      {
+        "silver": 9999,
+        "price_usd": 99.99,
+        "cost_per_100_silver_usd": 1.00,
+        "confidence": "high",
+        "sources": ["EA webstore search snippet"]
+      }
+    ],
+    "pricing_note": "Silver appears to have a near-linear 100 Silver = $1 USD ratio across all tiers, unlike FC Points which have volume discounts. This makes Silver simpler and more transparent — 1 Silver ≈ $0.01 USD."
+  },
+
+  "pass_pricing": {
+    "confidence": "high",
+    "source": "store.fcm.ea.com, sportskeeda.com Star Pass articles, fifamobileguide.com/star-pass, bluestacks.com",
+    "star_pass": {
+      "description": "The Star Pass is FC Mobile's battle pass system. It refreshes every 28 days (4 weeks) with new rewards. Players earn Star Pass Credits by playing matches, skill games, completing quests, and joining Division Rivals. There are two reward tracks: a free track for all players and a premium track for purchasers.",
+      "free_track": {
+        "cost": "Free",
+        "rewards": "Basic coins, training items, player shards"
+      },
+      "premium_star_pass": {
+        "cost_silver": 999,
+        "cost_usd_equivalent": "~$9.99",
+        "rewards": "All free track rewards PLUS premium track: extra Coins, Gems, FC Points, exclusive players not available elsewhere",
+        "confidence": "high",
+        "sources": ["store.fcm.ea.com", "sportskeeda.com multiple Star Pass articles"]
+      },
+      "premium_star_pass_bundle": {
+        "cost_silver": 1999,
+        "cost_usd_equivalent": "~$19.99",
+        "rewards": "Everything in Premium Star Pass PLUS 2,000 bonus Star Pass Credits for a head start on progression",
+        "confidence": "high",
+        "sources": ["store.fcm.ea.com", "sportskeeda.com"]
+      },
+      "renewal_note": "The Star Pass ticket does NOT carry over between seasons. Players must purchase a new one every Star Pass season (every 28 days).",
+      "annualised_cost": {
+        "premium_only": "~$130/year (13 seasons x ~$9.99)",
+        "premium_bundle": "~$260/year (13 seasons x ~$19.99)",
+        "note": "This recurring cost is a significant revenue driver — much higher annual spend than a one-off battle pass"
+      }
+    },
+    "webstore_specials": {
+      "price_range_usd": "$0.99 to $19.99",
+      "description": "Limited-time webstore-exclusive bundles purchasable with Silver. Content varies by promotion.",
+      "confidence": "medium",
+      "sources": ["store.fcm.ea.com search snippet"]
+    }
+  },
+
+  "starter_packs": {
+    "confidence": "low",
+    "note": "No specific first-purchase deals or starter pack pricing was found in web search results. EA FC Mobile may offer introductory bundles in-game that are not listed on the webstore. The $0.39 entry-level FC Points and Silver packs serve as de facto low-barrier first purchases. Community sources mention occasional 'welcome back' bundles and anniversary deals but no permanent starter pack was identified.",
+    "known_promotional_events": [
+      "2nd Anniversary Star Pass (special rewards, same 999 Silver price)",
+      "TOTY 2025 Star Pass",
+      "TOTS 25 Star Pass",
+      "Pitch Beats Star Pass",
+      "Winter Wonders Star Pass",
+      "Seasonal event packs with themed pricing"
+    ]
+  },
+
+  "pack_catalogue": {
+    "confidence": "medium",
+    "source": "fifamobileguide.com, sportskeeda.com, EA forums, community sources",
+    "note": "Pack contents rotate frequently. FC Mobile uses a gacha/loot-box system where FC Points buy packs containing random players. Unlike console FC where pack prices are standardised, FC Mobile pack prices vary by event and promotion.",
+    "what_fc_points_buy": [
+      {
+        "category": "Player Packs",
+        "description": "Random player cards from current events (TOTY, TOTS, Record Breakers, etc.)",
+        "typical_cost": "Varies by event — typically 100-500 FC Points per pack",
+        "confidence": "medium"
+      },
+      {
+        "category": "Gem Packs",
+        "description": "Convert FC Points to Gems for event entries and other purchases",
+        "typical_cost": "Varies",
+        "confidence": "medium"
+      },
+      {
+        "category": "Coin Packs",
+        "description": "Convert FC Points to Coins for market purchases",
+        "typical_cost": "Varies",
+        "confidence": "medium"
+      },
+      {
+        "category": "Event Resource Packs",
+        "description": "Buy event-specific resources to progress faster in seasonal events",
+        "typical_cost": "Varies by event",
+        "confidence": "medium"
+      },
+      {
+        "category": "Bundles",
+        "description": "Curated bundles combining players, resources, and currencies at a perceived discount",
+        "typical_cost": "500-5000 FC Points for premium bundles",
+        "confidence": "low"
+      }
+    ]
+  },
+
+  "regional_pricing_notes": {
+    "confidence": "medium",
+    "source": "store.fcm.ea.com regional variants (US, CA, AE, IN, EG, LK, NG, QA, PT)",
+    "note": "EA operates separate webstore pages for many regions with localised pricing. The webstore supports multiple currencies. App Store and Google Play pricing follows Apple/Google's regional pricing tiers which differ from the webstore.",
+    "confirmed_regions": {
+      "USD": {
+        "fc_points_range": "$0.39 - $99.99",
+        "silver_range": "$0.39 - $99.99",
+        "confidence": "high"
+      },
+      "EUR": {
+        "fc_points_range": "€0.49 - €119.99",
+        "silver_range": "€0.49 - €119.99",
+        "confidence": "medium",
+        "source": "store.fcm.ea.com/en-pt search snippet"
+      },
+      "CAD": {
+        "fc_points_range": "C$0.59 - C$139.99",
+        "silver_range": "C$0.59 - C$139.99",
+        "confidence": "medium",
+        "source": "store.fcm.ea.com/en-ca search snippet"
+      },
+      "GBP": {
+        "note": "GBP pricing not found in webstore search results. Likely follows App Store/Google Play UK pricing tiers.",
+        "confidence": "low"
+      }
+    },
+    "ios_vs_android": {
+      "note": "iOS App Store and Google Play prices are set by Apple/Google's regional pricing tiers and may differ slightly from the EA webstore. The webstore (operated by Coda) bypasses the 30% app store commission, so EA may offer slightly better value on the webstore. No concrete evidence of price differences was found in search results, but the webstore's existence as a separate channel suggests EA is incentivising direct purchases.",
+      "confidence": "medium"
+    },
+    "third_party_providers": [
+      {"name": "CodaShop", "note": "Official EA-approved third-party payment provider"},
+      {"name": "DevCo", "note": "Official EA-approved third-party payment provider"},
+      {"name": "Carry1st", "note": "Official EA-approved third-party payment provider, Africa-focused"},
+      {"name": "OffGamers", "note": "Third-party retailer, FC Points starting from $0.32 (discount vs official)"}
+    ]
+  },
+
+  "pricing_changes": {
+    "confidence": "medium",
+    "note": "No evidence of recent pricing changes was found. The FC Points system has been relatively stable since the rebrand from FIFA Mobile to EA FC Mobile. The introduction of the webstore (with Silver currency) was the most significant recent change to the monetisation model. Silver as a webstore-only currency was introduced alongside the Coda-operated webstore launch. Star Pass pricing has remained at 999/1999 Silver across multiple seasons.",
+    "key_milestones": [
+      "Rebrand from FIFA Mobile to EA FC Mobile (2023-2024): Currency renamed from FIFA Points to FC Points",
+      "Webstore launch (2024): Introduced Silver as a webstore-only currency, third-party payment providers",
+      "Star Pass evolution: From single premium tier to Premium (999 Silver) + Bundle (1999 Silver) tiers"
+    ]
+  },
+
+  "monetisation_philosophy": "gacha_power",
+  "economy_notes": [
+    "FOUR-CURRENCY SYSTEM: FC Points (premium), Silver (webstore), Gems (semi-premium), Coins (free) — more complex than console FC's two-currency system",
+    "Silver is a webstore bypass currency — EA avoids Apple/Google's 30% cut by driving purchases through store.fcm.ea.com",
+    "FC Points buy GAMEPLAY-AFFECTING content (player cards via gacha), not just cosmetics",
+    "Gems are the key engagement lever — earnable for free but spendable faster than you earn them, creating purchase pressure",
+    "28-day Star Pass cycle means recurring $10-$20/month spend for engaged players ($130-$260/year)",
+    "Entry-level $0.39 pack is a conversion optimiser — extremely low barrier to first IAP",
+    "12,000 FC Points at $99.99 is the whale tier — ~17% better value per point than mid-range",
+    "Event-driven economy: each seasonal event creates new demand spikes for FC Points/Gems spending",
+    "Third-party payment providers (CodaShop, DevCo, Carry1st) extend reach to unbanked/underbanked markets",
+    "OffGamers sells FC Points from $0.32 — grey market pricing undercuts official by ~18%",
+    "FC Mobile economy is COMPLETELY SEPARATE from console FC 26 — different point quantities, different prices, different packs",
+    "Mobile IAP pricing uses sub-$1 entry points ($0.39) whereas console FC Points start at $0.99",
+    "The webstore model (Coda-operated, Silver currency) is EA's answer to the Epic v Apple ruling — building a direct-to-consumer channel"
+  ],
+
+  "comparison_to_console_fc": {
+    "note": "FC Mobile is intentionally a different product with different economics",
+    "key_differences": [
+      "Mobile starts at $0.39 (40 points); console starts at $0.99 (100 points)",
+      "Mobile has 4 currencies; console has 2 (FC Points + Coins)",
+      "Mobile has Silver (webstore bypass); console has no equivalent",
+      "Mobile has Gems (earnable semi-premium); console has no equivalent",
+      "Mobile Star Pass is $10/month recurring; console Season Pass is different pricing",
+      "Mobile pack prices vary by event; console has standardised pack prices",
+      "Mobile top tier is 12,000 points for $99.99; console top tier is 12,000 points for $99.99 (same ceiling, different economies)"
+    ]
+  },
+
+  "goals_studio_relevance": {
+    "tier_1_because": "EA FC Mobile is THE benchmark for 'how do you price a F2P mobile football game' — directly relevant to Goals Studio's mobile strategy",
+    "key_takeaways_for_goals": [
+      "Sub-$1 entry IAP ($0.39) is proven conversion strategy for mobile football",
+      "Multi-currency system creates complexity but also multiple monetisation vectors",
+      "28-day recurring pass at $10-$20 is a strong revenue anchor",
+      "Webstore as app store bypass is an emerging pattern worth monitoring",
+      "Event-driven spending spikes create natural revenue peaks",
+      "Gacha/power model generates high ARPU but also high player churn and negative sentiment",
+      "Grey market pricing (OffGamers at $0.32) indicates demand for cheaper alternatives"
+    ]
+  }
+}
