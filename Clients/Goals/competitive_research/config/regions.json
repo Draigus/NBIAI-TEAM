@@ -1,0 +1,31 @@
+{
+  "primary_markets": [
+    {"code": "us", "currency": "USD", "steam_cc": "us", "ps_region": "en-us"},
+    {"code": "mx", "currency": "MXN", "steam_cc": "mx", "ps_region": "es-mx"},
+    {"code": "br", "currency": "BRL", "steam_cc": "br", "ps_region": "pt-br"},
+    {"code": "gb", "currency": "GBP", "steam_cc": "gb", "ps_region": "en-gb"},
+    {"code": "fr", "currency": "EUR", "steam_cc": "fr", "ps_region": "fr-fr"},
+    {"code": "de", "currency": "EUR", "steam_cc": "de", "ps_region": "de-de"},
+    {"code": "es", "currency": "EUR", "steam_cc": "es", "ps_region": "es-es"},
+    {"code": "it", "currency": "EUR", "steam_cc": "it", "ps_region": "it-it"},
+    {"code": "pt", "currency": "EUR", "steam_cc": "pt", "ps_region": "pt-pt"},
+    {"code": "tr", "currency": "TRY", "steam_cc": "tr", "ps_region": "tr-tr"},
+    {"code": "pl", "currency": "PLN", "steam_cc": "pl", "ps_region": "pl-pl"},
+    {"code": "se", "currency": "SEK", "steam_cc": "se", "ps_region": "sv-se"},
+    {"code": "no", "currency": "NOK", "steam_cc": "no", "ps_region": "no-no"},
+    {"code": "dk", "currency": "DKK", "steam_cc": "dk", "ps_region": "da-dk"}
+  ],
+  "secondary_markets": [
+    {"code": "jp", "currency": "JPY", "steam_cc": "jp", "ps_region": "ja-jp"},
+    {"code": "kr", "currency": "KRW", "steam_cc": "kr", "ps_region": "ko-kr"},
+    {"code": "cn", "currency": "CNY", "steam_cc": "cn", "ps_region": null},
+    {"code": "sg", "currency": "SGD", "steam_cc": "sg", "ps_region": "en-sg"},
+    {"code": "hk", "currency": "HKD", "steam_cc": "hk", "ps_region": "zh-hk"},
+    {"code": "id", "currency": "IDR", "steam_cc": "id", "ps_region": "id-id"}
+  ],
+  "extended_steam_regions": [
+    "ar", "au", "ca", "cl", "co", "cz", "hu", "il", "in", "kw", "my",
+    "nz", "pe", "ph", "pk", "qa", "ro", "ru", "sa", "th", "tw", "ua",
+    "ae", "vn", "za"
+  ]
+}

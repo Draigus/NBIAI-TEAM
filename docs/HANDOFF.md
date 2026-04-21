@@ -1,117 +1,113 @@
-# Handoff — 2026-04-20 Tech Debt Cleanup Complete
+# Handoff: Goals Competitive MTX Scraping Pipeline
 
-## What happened this session
+**Date:** 2026-04-21
+**Session:** Brainstorming → Spec → Plan → Execution started
+**Context:** Glen Pryer working on Goals Studio SOW #1 (100K SEK, due 28 April 2026)
 
-### 1. Stale file audit
-All pending task items (G1-G5, Kanban) were already shipped. `pending_tasks.md` hadn't been updated since 2026-04-15. Rewrote it, `conversation_context.md`, and this handoff from scratch.
+---
 
-### 2. False blocker removal
-Three items listed as blocked were already resolved:
-- **SMTP** — not needed. Email uses Microsoft Graph (`@azure/msal-node`, Azure AD creds in `.env`). Fully operational.
-- **News LLM API key** — already set in `projects/news-aggregator/.env` (primary + failover).
-- **News LLM pipeline** — not blocked.
+## What Was Done This Session
 
-### 3. Console call cleanup
-- **server.js**: 3 `console.error` calls replaced with structured `log()`. Zero console calls remain.
-- **Frontend**: 14 `console.log` calls removed (debug noise). 23 error-path calls guarded behind `window._nbiDebug` (silent in production, available via `window._nbiDebug = true` in browser console).
+1. **Brainstormed** the competitive research pipeline architecture with Glen
+2. **Wrote and committed spec:** `docs/superpowers/specs/2026-04-21-goals-competitive-mtx-scraping-pipeline.md`
+3. **Wrote and committed plan:** `docs/superpowers/plans/2026-04-21-goals-competitive-mtx-scraping-pipeline.md`
+4. **Created directory structure:** `Clients/Goals/competitive_research/` with config/, scripts/, raw/, normalised/, output/
+5. **Wrote regions.json config** — 14 primary markets, 6 secondary, 25 extended Steam regions
+6. **Dispatched 2 background agents:**
+   - Steam API agent: querying EA FC 26 (AppID 2669320), UFL (1637320), eFootball (1665460) DLC pricing across 13 regions
+   - Apify agent: scraping FUT.gg, Fortnite.gg, ApexItemStore for item/pack pricing data
 
-### 4. xlsx → exceljs vulnerability fix
-Replaced `xlsx` (SheetJS) — HIGH severity, abandoned on npm, prototype pollution + ReDoS — with `exceljs` (actively maintained, zero known vulns).
+---
 
-**Server changes** (`dashboard-server/server.js`):
-- `const XLSX = require('xlsx')` → `const ExcelJS = require('exceljs')`
-- `parseExcelFile()` now `async`, uses `ExcelJS.Workbook().xlsx.readFile()` + row iterator
-- Returns `rows` field (all data rows) alongside `sample` (first 5) when not in headersOnly mode
-- Import endpoint uses `targetSheet.rows || targetSheet.sample` instead of inline XLSX re-read
-- `scanDir()` now `async` with `await` on both `parseExcelFile` and recursive calls
+## Key Decisions Made
 
-**Frontend changes** (`nbi_project_dashboard.html`):
-- Script tag: `xlsx.full.min.js` → `exceljs.min.js`
-- `parseExcelPreview()` now `async`, uses `ExcelJS.Workbook().xlsx.load()` + `eachRow()`
-- `handleFile()` caller handles the async return with `.catch()`
-- Date formatting preserved (DD/MM/YYYY output from Date objects)
+- **13 titles across 3 tiers** (not the original 15 — removed LoL, OW2, The Finals; added EA FC Mobile, NBA 2K, Valorant, F1, Madden, NHL, MLB)
+- **NBA 2K IS included** (MyTEAM mode, not MyPlayer VC-for-stats). Glen challenged the initial exclusion.
+- **League of Legends removed** — wrong genre/audience for football game comparison
+- **Longitudinal data required** — price history from launch, bundle timelines, sales calendars
+- **4-table schema:** Current Snapshot, Price History, Sales Calendar, Bundle Catalogue + Citation Index
+- **3-layer scraping:** Apify actors (bulk), Steam API (authoritative regional), Manual gap-fill (UFL/eFootball)
+- **All regions if feasible**, fall back to key markets (14 primary + 6 secondary)
+- **Verification:** two-source corroboration, confidence levels (primary/secondary/community/manual)
+- **Reusable tool** — not one-shot, not fully scheduled. Re-runnable on demand.
 
-**Files removed**: `dashboard-server/public/vendor/xlsx.full.min.js`
-**Files added**: `dashboard-server/public/vendor/exceljs.min.js` (copied from node_modules dist)
-**Package**: `xlsx` uninstalled, `exceljs@^4.4.0` installed
+---
 
-**npm audit result**: HIGH vulnerability eliminated. 5 moderate remain (esbuild/vite/vitest chain — dev-only, not production, force-upgrade doesn't fix them).
+## What Needs To Happen Next
+
+### Immediate (check agent results)
+
+- [ ] Check Steam API agent output in `Clients/Goals/competitive_research/raw/steam_api/`
+- [ ] Check Apify agent output — what data was collected, what gaps remain
+- [ ] Write `competitors.json` config (full version from the plan — Task 1 Step 2)
+
+### Phase 2: Continue Data Collection (Days 2-3)
+
+- [ ] Run Steam API scraper for Tier 2 titles (Apex 1172470, F1 2488620, NBA 2K proxy 2316480, Madden proxy 2666670)
+- [ ] Run Apify actors for: Rocket League Insider, Valorant store tracker, 2KDB, MUT.gg
+- [ ] Run SteamDB price history scraper for longitudinal data (all Steam titles)
+- [ ] Run PSPrices scraper for console price history
+- [ ] Run IsThereAnyDeal for PC sale history
+- [ ] EA FC Mobile — needs iOS/Android store research (different from Steam)
+
+### Phase 3: UFL Manual Gap-Fill
+
+UFL has weak community tracking. Needs:
+- Reddit r/UFL mining for store screenshots and pricing posts
+- Official Discord monitoring
+- Direct game capture if needed
+- This is HIGH PRIORITY — UFL is Tier 1
+
+### Phase 4: Normalisation + Verification (Days 5-6)
+
+- [ ] Write and run normalise.js on all collected data
+- [ ] Write and run verify.js — resolve all CRITICAL/HIGH issues
+- [ ] Cross-reference community data against platform API data
+- [ ] Two-source corroboration check
+
+### Phase 5: Output (Days 6-7)
+
+- [ ] Populate Google Sheets workbook (6 tabs)
+- [ ] Build summary dashboard with pre-calculated comparisons
+- [ ] Final freshness audit (all data < 7 days old)
+
+---
+
+## File Locations
+
+| What | Where |
+|---|---|
+| Design spec | `docs/superpowers/specs/2026-04-21-goals-competitive-mtx-scraping-pipeline.md` |
+| Implementation plan | `docs/superpowers/plans/2026-04-21-goals-competitive-mtx-scraping-pipeline.md` |
+| Config | `Clients/Goals/competitive_research/config/` |
+| Scripts | `Clients/Goals/competitive_research/scripts/` |
+| Raw scraped data | `Clients/Goals/competitive_research/raw/` |
+| Normalised output | `Clients/Goals/competitive_research/normalised/` |
+| Final export | `Clients/Goals/competitive_research/output/` |
+| Goals existing pricing data | `Clients/Goals/pricing_model_fresh.md` |
+| Goals monetisation design | `Clients/Goals/gg-monetization.md` |
+| Goals pricing matrix | `Clients/Goals/goals_pricing_matrix.md` |
+
+---
+
+## Important Context
+
+- **Deadline:** 28 April 2026 (platform certification submission deadline drives this)
+- **Client contact:** Jonas Rundberg (primary), Julius (Live Ops)
+- **Goals' existing competitive data** in `pricing_model_fresh.md` covers: EA FC, Fortnite, Apex, LoL, eFootball, The Finals, OW2 — NBI's job is to VALIDATE and EXTEND, not recreate
+- **Monetisation philosophy tags matter:** Goals is "Cosmetic + Gacha Power" (player packs give gameplay-relevant players). Compare appropriately.
+- **EA FC Mobile is separate from EA FC 26** — different economy, different pricing, different product
+- **UFL is the closest direct competitor** — prioritise gap-fill even if manual
+- **Sales calendar note:** Many F2P games NEVER discount HC (Fortnite V-Bucks never officially discounted). This is itself valuable data.
+- **EA FC annual reset:** Build longitudinal curve across FIFA 20→FC 26 using historical AppIDs (945360, 1089860, 1313860, 1811260, 2195250, 2409710, 2669320)
 
 ---
 
 ## Git State
 
-**Current branch:** master
-
-**Master HEAD:** `40a3ab1` (last commit — tech debt changes are uncommitted)
-
-**Uncommitted changes:**
-- `dashboard-server/server.js` — ExcelJS swap + console.error→log()
-- `nbi_project_dashboard.html` — ExcelJS swap + console.log cleanup
-- `dashboard-server/package.json` + `package-lock.json` — xlsx→exceljs
-- `dashboard-server/public/vendor/exceljs.min.js` — new vendor bundle
-- `dashboard-server/public/vendor/xlsx.full.min.js` — deleted
-- `docs/HANDOFF.md`, session logs, live state files — updated
-- Various untracked session logs and spec files from prior sessions
-
----
-
-## PM2 Status
-
-| Service | Port | Status |
-|---|---|---|
-| nbi-dashboard | 8888 | online (needs restart after commit to pick up server.js changes) |
-| nbi-news | 8890 | online |
-
----
-
-## Tests
-
-186/186 green (Vitest). Server boots clean with all crons registered.
-
----
-
-## Awaiting Glen UAT
-
-### Client Portal (merged `8b74230`)
-- Client user login, forced password change, scoped views, team management
-
-### News M4: Search + Admin (merged `40a3ab1`)
-- Search subtab, admin panels (feeds, prompts, sources, stories)
-
----
-
-## On Hold
-
-| Item | Blocker |
-|---|---|
-| QuickBooks Time API | Bryan Rasmussen's API token |
-| Excel import template | Glen to populate with real data and test |
-
----
-
-## Backlog (needs brainstorming before code)
-
-- Gantt enhancements (dependency arrows)
-- SoW hierarchy layer
-- Hiring page full spec
-- Telemetry + BI Analytics Dashboard
-- Real research backend (Brave/Tavily/Anthropic)
-- Standup on Projects "By Project" view (brainstorming was in progress in earlier session)
-
----
-
-## Context budget directive
-
-Glen's instruction: do NOT load full `work_completed.md` into context. Read only the tail (~50 lines) at session start. Search older entries on demand. The file is 800+ lines and growing.
-
----
-
-## Key Files
-
-| File | Purpose |
-|---|---|
-| `dashboard-server/server.js` | All backend logic (9,105 lines) |
-| `nbi_project_dashboard.html` | All frontend logic (20,022 lines) |
-| `projects/nbi_dashboard/live_state/` | Session-persistent state files |
-| `projects/nbi_dashboard/session_logs/` | Append-only session logs |
+- Branch: master
+- Last commits:
+  - `7cd1979` — implementation plan
+  - `dc4c33a` — design spec
+- Uncommitted: regions.json config file, directory structure
+- Background agents still running (Steam API + Apify scraping)
