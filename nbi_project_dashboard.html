@@ -962,7 +962,7 @@ span.fin-editable { display: inline-block; position: relative; }
 .gantt__day-hdr--weekend { background: var(--bg-surface); }
 .gantt__day-hdr--today { color: var(--accent); font-weight: 700; }
 .gantt__body { display: flex; flex-direction: column; }
-.gantt__row { display: flex; min-height: 32px; border-bottom: 1px solid var(--border-subtle); align-items: center; }
+.gantt__row { display: flex; min-height: 38px; border-bottom: 1px solid var(--border-subtle); align-items: center; }
 .gantt__row:hover { background: var(--bg-hover); }
 .gantt__row--group { background: var(--bg-surface); min-height: 32px; }
 .gantt__row-label { min-width: var(--gantt-label-w, 260px); max-width: var(--gantt-label-w, 260px); padding: 2px var(--space-md); font-size: 0.75rem; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; position: sticky; left: 0; background: inherit; z-index: 5; border-right: 1px solid var(--border-default); display: flex; align-items: center; gap: 6px; }
@@ -1001,6 +1001,17 @@ span.fin-editable { display: inline-block; position: relative; }
 .gantt__bar--blocked { background: var(--purple); }
 .gantt__bar--cancelled { background: var(--text-faint); opacity: 0.3; }
 .gantt__bar--nodate { background: var(--warning); opacity: 0.4; width: 4px !important; }
+/* Progress fill inside a Gantt bar — shows percent complete the same way the
+   Portfolio timeline does. pointer-events:none so drag/resize on the bar still
+   works through it. */
+.gantt__bar-progress { position: absolute; top: 0; left: 0; height: 100%; background: rgba(255,255,255,0.32); border-radius: 4px 0 0 4px; pointer-events: none; transition: width 0.18s ease-out; }
+.gantt__bar--notstarted .gantt__bar-progress { background: rgba(34,197,94,0.55); }
+.gantt__bar--done .gantt__bar-progress { display: none; }
+.gantt__bar-pct { position: absolute; top: 50%; right: 4px; transform: translateY(-50%); font-size: 0.58rem; font-weight: 700; color: rgba(255,255,255,0.9); pointer-events: none; letter-spacing: 0.02em; text-shadow: 0 1px 1px rgba(0,0,0,0.3); }
+.gantt__row-sub { font-size: 0.58rem; letter-spacing: 0.04em; color: var(--text-muted); margin-top: 1px; }
+.gantt__row-sub--red { color: #ef4444; }
+.gantt__row-sub--amber { color: #f59e0b; }
+.gantt__row-sub--blocked { color: #94a3b8; }
 .gantt__today-line { position: absolute; top: 0; bottom: 0; background: rgba(34,197,94,0.18); z-index: 1; pointer-events: none; }
 .gantt__day-col { border-right: 1px solid var(--border-subtle); flex-shrink: 0; }
 .gantt__day-col--weekend { background: color-mix(in srgb, var(--bg-surface) 50%, transparent); }
@@ -7359,8 +7370,31 @@ function renderGanttView(filtered) {
       const fontWeight = isParent ? '600' : '400';
       const fontSize = depth === 0 ? '0.78rem' : '0.72rem';
 
+      // Percent complete + days-to-end subtitle, mirroring the Portfolio
+      // timeline. Counts Done leaf-tasks vs total leaf-tasks across the
+      // descendant tree. Leaf rows: own status counts as 0 or 100.
+      let pctVal = 0;
+      const leafDesc = (function collect(node, acc) {
+        const ch = getChildren(node.id);
+        if (ch.length === 0) acc.push(node);
+        else ch.forEach(c => collect(c, acc));
+        return acc;
+      })(t, []);
+      if (leafDesc.length > 0) {
+        const doneLeaves = leafDesc.filter(d => d.status === 'Done').length;
+        pctVal = Math.round(doneLeaves / leafDesc.length * 100);
+      } else if (t.status === 'Done') {
+        pctVal = 100;
+      }
+      const blocked = t.healthState === 'Blocked' || t.status === 'Blocked';
+      const overdue = end && end < now && t.status !== 'Done';
+      const daysToEnd = end ? Math.round((end - now) / 86400000) : null;
+      const subColCls = blocked ? 'gantt__row-sub--blocked' : (overdue ? 'gantt__row-sub--red' : (daysToEnd !== null && daysToEnd >= 0 && daysToEnd <= 14 ? 'gantt__row-sub--amber' : ''));
+      const subText = blocked ? 'BLOCKED' : (daysToEnd === null ? '' : daysToEnd < 0 ? `${Math.abs(daysToEnd)}d OVERDUE` : daysToEnd === 0 ? 'TODAY' : `${daysToEnd}d to close`);
+
       html += `<div class="gantt__row">`;
-      html += `<div class="gantt__row-label" data-action="openDetailOverlay" data-arg0="${t.id}" title="${esc(t.title)}" style="padding-left:${8 + indent}px;font-weight:${fontWeight};font-size:${fontSize}">`;
+      html += `<div class="gantt__row-label" data-action="openDetailOverlay" data-arg0="${t.id}" title="${esc(t.title)}" style="padding-left:${8 + indent}px;font-weight:${fontWeight};font-size:${fontSize};flex-direction:column;align-items:flex-start;justify-content:center">`;
+      html += `<div style="display:flex;align-items:center;gap:6px;width:100%;overflow:hidden">`;
       // Collapse toggle for parent items
       if (isParent) {
         html += `<span class="gantt__collapse-toggle" data-action="toggleGanttCollapse" data-stop data-arg0="${t.id}">${isCollapsed ? '&#9654;' : '&#9660;'}</span>`;
@@ -7371,6 +7405,10 @@ function renderGanttView(filtered) {
       if (isTaskIncomplete(t)) html += `<span style="color:var(--danger);font-size:0.65rem">&#9888;</span>`;
       html += `<span style="overflow:hidden;text-overflow:ellipsis">${esc(t.title)}</span>`;
       if (isParent && isCollapsed) html += `<span style="font-size:0.6rem;color:var(--text-muted);margin-left:4px">(${kids.length})</span>`;
+      html += `</div>`;
+      // Subtitle: "Nd to close · X%"
+      const subParts = [subText, pctVal + '%'].filter(Boolean);
+      if (subParts.length) html += `<div class="gantt__row-sub ${subColCls}" style="padding-left:${22}px">${subParts.join(' · ')}</div>`;
       html += `</div>`;
       html += `<div class="gantt__row-timeline" style="min-width:${timelineW}px">`;
       html += ganttDayCols(totalDays, dayW, minDate, now);
@@ -7393,9 +7431,18 @@ function renderGanttView(filtered) {
         const startISO = start.toISOString().slice(0,10);
         const endISO = end.toISOString().slice(0,10);
         const selCls = _ganttSelectedTaskId === t.id ? ' selected' : '';
-        html += `<div class="gantt__bar ${barClass}${selCls}" style="left:${left}px;width:${width}px" data-task-id="${t.id}" data-start="${startISO}" data-end="${endISO}" data-min-date="${minDate.toISOString().slice(0,10)}" data-day-width="${dayW}" onmousedown="ganttBarDragStart(event,'${t.id}','move')" ondblclick="event.stopPropagation();openDetailOverlay('${t.id}')" title="${esc(t.title)} | ${t.status} | ${startISO} to ${endISO}">`;
+        html += `<div class="gantt__bar ${barClass}${selCls}" style="left:${left}px;width:${width}px" data-task-id="${t.id}" data-start="${startISO}" data-end="${endISO}" data-min-date="${minDate.toISOString().slice(0,10)}" data-day-width="${dayW}" onmousedown="ganttBarDragStart(event,'${t.id}','move')" ondblclick="event.stopPropagation();openDetailOverlay('${t.id}')" title="${esc(t.title)} | ${t.status} | ${startISO} to ${endISO} | ${pctVal}% complete">`;
+        // Progress fill (pointer-events:none so drag/resize still works
+        // through it). Hidden when status is Done — the whole bar is
+        // already success-coloured and a fill would be redundant.
+        if (t.status !== 'Done' && pctVal > 0) {
+          html += `<div class="gantt__bar-progress" style="width:${pctVal}%"></div>`;
+        }
         html += `<div class="gantt__bar-handle gantt__bar-handle--left" onmousedown="event.stopPropagation();ganttBarDragStart(event,'${t.id}','resize-start')"></div>`;
-        if (width > 40) html += `<span style="overflow:hidden;text-overflow:ellipsis;pointer-events:none;flex:1">${esc(t.title)}</span>`;
+        if (width > 40) html += `<span style="overflow:hidden;text-overflow:ellipsis;pointer-events:none;flex:1;position:relative;z-index:1">${esc(t.title)}</span>`;
+        // Percent label at the right edge — readable without depending on
+        // bar width.
+        if (width > 60 && t.status !== 'Done') html += `<span class="gantt__bar-pct">${pctVal}%</span>`;
         html += `<div class="gantt__bar-handle gantt__bar-handle--right" onmousedown="event.stopPropagation();ganttBarDragStart(event,'${t.id}','resize-end')"></div>`;
         html += `</div>`;
         } // close dur > 0
