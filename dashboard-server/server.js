@@ -4739,14 +4739,19 @@ app.post('/api/tasks/bulk', requireAdmin, async (req, res) => {
 
   // Auto-repair orphan parent links for hierarchy imports. The Backlog Builder
   // template uses prefix-based _temp_ids (P1, F1, S1.1, T1.1.1, T2.4.3, etc.).
-  // When a row has a blank _temp_parent_id, derive it from the prefix:
+  // Two cases need rescuing:
+  //   1. _temp_parent_id is BLANK on the row (source CSV omitted it).
+  //   2. _temp_parent_id points at a sibling that is not in the batch — e.g.
+  //      a story row with empty title gets dropped by the mapper, and its
+  //      child tasks then reference a parent the linker can't find.
+  // In both cases we derive the parent from the prefix convention:
   //   "S{X}.{Y}"     -> parent is "F{X}"
-  //   "T{X}.{Y}.{Z}" -> parent is "S{X}.{Y}" (or "F{X}" if that story is missing)
-  // This rescues the LH source CSV's 6 stories with empty parent cells (S6.1-3,
-  // S8.1-3) so they slot under their correct feature instead of becoming roots.
+  //   "T{X}.{Y}.{Z}" -> parent is "S{X}.{Y}", falling back to "F{X}" if the
+  //                     story is also missing.
   const tempIdSet = new Set(taskList.filter(t => t._temp_id).map(t => t._temp_id));
   for (const t of taskList) {
-    if (t._temp_parent_id) continue;
+    const needsRepair = !t._temp_parent_id || !tempIdSet.has(t._temp_parent_id);
+    if (!needsRepair) continue;
     const id = t._temp_id || '';
     let m;
     if ((m = id.match(/^S(\d+)\.\d+$/))) {

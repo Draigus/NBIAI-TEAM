@@ -330,6 +330,31 @@ describe('POST /api/tasks/bulk (hierarchy import path)', () => {
     expect(byTitle['Phase 3 QA Initial Review'].parent_id).toBe(byTitle['Phase 3 QA'].id);
   });
 
+  it('auto-repairs tasks whose parent _temp_id was dropped (e.g. T2.2.1 pointing at empty-title S2.1 falls back to F2)', async () => {
+    // Mirrors the LH source CSV: S2.1 has empty title so the mapper drops it.
+    // Eleven T2.2.X tasks reference S2.1 — they should fall back to feature F2.
+    const tasks = [
+      { _temp_id: 'P1', title: 'Project', item_type: 'project', client_id: lighthouse.id },
+      { _temp_id: 'F2', _temp_parent_id: 'P1', title: 'Alpha Ready Dashboards', item_type: 'feature', client_id: lighthouse.id },
+      // S2.1 deliberately not in the batch — simulating the dropped empty-title row
+      { _temp_id: 'T2.2.1', _temp_parent_id: 'S2.1', title: 'FTUE Dash Initial Concept Exploration', item_type: 'task', client_id: lighthouse.id },
+      { _temp_id: 'T2.2.2', _temp_parent_id: 'S2.1', title: 'FTUE Dash Detailed Plan', item_type: 'task', client_id: lighthouse.id },
+    ];
+    const res = await request(app)
+      .post('/api/tasks/bulk')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ tasks });
+    expect(res.status).toBe(201);
+
+    const { rows } = await pool.query(
+      `SELECT id, title, parent_id FROM tasks WHERE client_id = $1`,
+      [lighthouse.id]
+    );
+    const byTitle = Object.fromEntries(rows.map(r => [r.title, r]));
+    expect(byTitle['FTUE Dash Initial Concept Exploration'].parent_id).toBe(byTitle['Alpha Ready Dashboards'].id);
+    expect(byTitle['FTUE Dash Detailed Plan'].parent_id).toBe(byTitle['Alpha Ready Dashboards'].id);
+  });
+
   it('allows feature/story/task children to inherit client from project parent when client_id omitted on children', async () => {
     const tasks = [
       { _temp_id: 'P1', title: 'Inherit project', item_type: 'project', client_id: lighthouse.id },
