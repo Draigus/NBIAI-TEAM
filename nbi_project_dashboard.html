@@ -7418,17 +7418,19 @@ function renderGanttView(filtered) {
     const totalClientItems = clientGroups[client].reduce((s, r) => s + 1 + getDescendants(r.id).length, 0);
     const cAttr = escAttrJs(client);
     // Depth-quick-select buttons: P / F / S collapse the client's tree to
-    // the chosen level (project / feature / story). A is "show All" — fully
-    // expand. Buttons live on the client header so each client can be set
-    // independently. Click handlers are defined once on window in
-    // renderGanttView so we don't bind in HTML attributes per row.
-    const depthBtns = `<span style="display:inline-flex;gap:3px;margin-left:8px;vertical-align:middle">
+    // the chosen level (project / feature / story). T is "show all the way
+    // down to Tasks". Buttons live on the client header so each client can
+    // be set independently. Compact: 1-char labels and tight padding so all
+    // four fit inside the 260px row label.
+    const depthBtns = `<span style="display:inline-flex;gap:2px;margin-left:6px;vertical-align:middle;flex-shrink:0">
       <button class="gantt__depth-btn" data-stop onclick="event.stopPropagation();_actGanttClientDepth('${cAttr}',0)" title="Show projects only">P</button>
       <button class="gantt__depth-btn" data-stop onclick="event.stopPropagation();_actGanttClientDepth('${cAttr}',1)" title="Show through features">F</button>
       <button class="gantt__depth-btn" data-stop onclick="event.stopPropagation();_actGanttClientDepth('${cAttr}',2)" title="Show through stories">S</button>
-      <button class="gantt__depth-btn" data-stop onclick="event.stopPropagation();_actGanttClientDepth('${cAttr}',9)" title="Expand everything">All</button>
+      <button class="gantt__depth-btn" data-stop onclick="event.stopPropagation();_actGanttClientDepth('${cAttr}',9)" title="Expand everything down to tasks">T</button>
     </span>`;
-    html += `<div class="gantt__row-label">${esc(client)} <span style="font-size:0.68rem;color:var(--text-muted);font-weight:400">(${totalClientItems} items)</span>${depthBtns}</div>`;
+    // Drop the "(N items)" count to free up width for the depth buttons —
+    // the chevron under each project already conveys content existence.
+    html += `<div class="gantt__row-label" style="display:flex;align-items:center;gap:4px"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(client)}</span>${depthBtns}</div>`;
     html += `<div class="gantt__row-timeline" style="min-width:${timelineW}px">`;
     // Day columns for background
     html += ganttDayCols(totalDays, dayW, minDate, now);
@@ -7440,10 +7442,11 @@ function renderGanttView(filtered) {
       const kids = getChildren(t.id).filter(c => !_ganttHideDone || c.status !== 'Done');
       const isParent = kids.length > 0;
       const isCollapsed = collapsedTaskIds.has(t.id);
-      // For collapsed parent rows the bar must span the rolled-up date range
-      // of the hidden descendants, not a phantom createdAt+7d. Leaf rows and
-      // expanded parents continue to use their own dates.
-      const useRolled = isParent && isCollapsed;
+      // Parent rows always use the rolled-up date range — a project with no
+      // explicit start/end of its own should still span its descendant work,
+      // not a phantom createdAt+7d. Leaf rows use their own dates. Glen
+      // 2026-05-02: this applies whether the parent is expanded or collapsed.
+      const useRolled = isParent;
       const start = useRolled ? ganttRolledStart(t) : ganttTaskStart(t);
       const end = useRolled ? ganttRolledEnd(t) : ganttTaskEnd(t);
       const barClass = ganttBarClass(t);
