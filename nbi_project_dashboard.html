@@ -400,6 +400,38 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .pf__content { flex: 1; display: flex; flex-direction: column; gap: 10px; min-width: 0; min-height: 0; }
 .pf__panels { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; flex: 2; min-height: 0; }
 .pf__panel { background: color-mix(in srgb, var(--bg-card) 85%, var(--text-muted)); border: 1px solid var(--border-default); border-radius: var(--radius-lg); overflow: hidden; display: flex; flex-direction: column; min-height: 0; }
+/* ============ REPORTING TAB ============ */
+.reporting { padding: var(--space-md) var(--space-lg); display: flex; flex-direction: column; gap: var(--space-md); }
+.reporting__hdr { display: flex; align-items: center; justify-content: space-between; padding-bottom: var(--space-sm); border-bottom: 1px solid var(--border-subtle); }
+.reporting__hdr-title { font-size: 1.05rem; font-weight: 700; letter-spacing: 0.04em; color: var(--text-primary); }
+.reporting__hdr-pickers { display: flex; align-items: center; gap: 8px; }
+.reporting__lbl { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.08em; color: var(--text-muted); margin-left: 12px; }
+.reporting__select { padding: 4px 8px; background: var(--bg-input); border: 1px solid var(--border-default); border-radius: var(--radius-md); color: var(--text-primary); font-size: 0.78rem; min-width: 180px; }
+.reporting__roadmap { background: var(--bg-card); border: 1px solid var(--border-default); border-radius: var(--radius-lg); overflow: hidden; }
+.reporting__row { display: flex; align-items: stretch; min-height: 36px; border-bottom: 1px solid var(--border-subtle); transition: background 0.12s; }
+.reporting__row:hover { background: rgba(255,255,255,0.025); }
+.reporting__row--hdr { background: rgba(255,255,255,0.025); font-weight: 700; font-size: 0.62rem; letter-spacing: 0.08em; color: var(--text-muted); min-height: 0; }
+.reporting__row--hdr:hover { background: rgba(255,255,255,0.025); }
+.reporting__row--open { background: rgba(56,189,248,0.04); border-left: 2px solid var(--accent); }
+.reporting__cell { padding: 6px 10px; display: flex; align-items: center; font-size: 0.78rem; flex-shrink: 0; box-sizing: border-box; }
+.reporting__cell--title { font-weight: 600; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; gap: 6px; }
+.reporting__type { font-size: 0.55rem; font-weight: 700; color: var(--text-muted); background: var(--bg-input); padding: 1px 4px; border-radius: 3px; flex-shrink: 0; letter-spacing: 0.06em; }
+.reporting__pill { font-size: 0.58rem; font-weight: 700; padding: 2px 8px; border-radius: 10px; letter-spacing: 0.06em; white-space: nowrap; }
+.reporting__timeline { flex: 1; min-width: 0; }
+.reporting__timeline-hdr { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.reporting__drawer { background: var(--bg-card); border: 1px solid var(--accent-border); border-top: 2px solid var(--accent); padding: var(--space-md) var(--space-lg); }
+.reporting__drawer-hdr { display: flex; align-items: center; justify-content: space-between; padding-bottom: var(--space-sm); border-bottom: 1px solid var(--border-subtle); margin-bottom: var(--space-md); }
+.reporting__drawer-title { font-size: 1.05rem; font-weight: 700; color: var(--text-primary); letter-spacing: 0.02em; }
+.reporting__pills { display: flex; gap: 24px; padding-bottom: var(--space-md); border-bottom: 1px dashed var(--border-subtle); margin-bottom: var(--space-md); flex-wrap: wrap; }
+.reporting__pill-block { display: flex; flex-direction: column; gap: 3px; min-width: 80px; }
+.reporting__pill-lbl { font-size: 0.6rem; font-weight: 700; color: var(--text-muted); letter-spacing: 0.08em; }
+.reporting__pill-val { font-size: 0.92rem; font-weight: 700; color: var(--text-primary); }
+.reporting__drawer-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: var(--space-md); }
+.reporting__drawer-side { display: flex; flex-direction: column; gap: var(--space-sm); }
+.reporting__drawer-card { background: rgba(255,255,255,0.02); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); overflow: hidden; }
+.reporting__drawer-card-hdr { padding: 6px 12px; background: rgba(255,255,255,0.04); font-size: 0.62rem; font-weight: 700; letter-spacing: 0.08em; color: var(--text-muted); }
+.reporting__drawer-card-body { padding: 10px 12px; }
+@media (max-width: 900px) { .reporting__drawer-grid { grid-template-columns: 1fr; } }
 .pf__panel-hdr { padding: 10px 16px 6px; flex-shrink: 0; }
 .pf__panel-title { font-size: 0.82rem; font-weight: 600; color: var(--text-primary); }
 .pf__panel-sub { font-size: 0.65rem; color: var(--text-muted); margin-top: 2px; }
@@ -3980,6 +4012,7 @@ function renderSidebar() {
   html += sidebarItem(svgDashboard, 'Portfolio', '', () => switchView('dashboard'), currentView==='dashboard');
   // html += sidebarItem(svgReport, 'Report', '', () => switchView('report'), currentView==='report'); // COMMENTED OUT — old report view, kept for revert
   html += sidebarItem(svgTasks, 'Projects', scopedForHealth.length, () => { currentFilter.priority = []; switchView('tasks'); }, currentView==='tasks');
+  html += sidebarItem(svgReport, 'Reporting', '', () => switchView('reporting'), currentView==='reporting');
   html += sidebarItem(svgPeople, 'People', '', () => switchView('people'), currentView==='people');
   const svgLeads = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 2h12v3H2zM4 5h8v3H4zM6 8h4v3H6zM7 11h2v3H7z"/></svg>';
   if (!isScoped && hasPageAccess('leads')) {
@@ -4436,6 +4469,7 @@ function _renderMainContent(content) {
   if (currentView === 'dashboard') renderDashboard(content);
   else if (currentView === 'mytasks') renderMyTasksView(content);
   else if (currentView === 'tasks') renderTaskView(content);
+  else if (currentView === 'reporting') renderReportingView(content);
   else if (currentView === 'report') renderReport(content);
   else if (currentView === 'people') renderPeopleView(content);
   else if (currentView === 'leads') renderLeadsView(content);
@@ -9798,6 +9832,309 @@ function quickAddTask(title) {
 }
 
 // ==================== REPORT VIEW ====================
+
+// ==================== REPORTING VIEW (v1) ====================
+// Per-project roadmap view modelled on the "Analytics Project status" PPT
+// Glen shared on 2026-05-02. Two levels:
+//   1. Roadmap — features of the selected project as left-side rows, timeline
+//      across the top, Owner / Status / % columns on the right. Stories show
+//      as inner segments within each feature's bar.
+//   2. Initiative drawer — click any feature row to open a deep-dive panel
+//      with status pills, stories mini-timeline, Goals (success_factor),
+//      Dependencies, Risks, Mitigations, Documentation, Key Updates.
+
+let _reportingClient = null;     // selected client name (string)
+let _reportingProjectId = null;  // selected project task id
+let _reportingDrawerId = null;   // open feature id, or null
+
+function _actSetReportingClient(name) {
+  _reportingClient = name || null;
+  // Auto-pick first project under this client
+  const projects = tasks.filter(t => t.itemType === 'project' && getTaskClient(t) === _reportingClient);
+  _reportingProjectId = projects.length ? projects[0].id : null;
+  _reportingDrawerId = null;
+  renderContent();
+}
+function _actSetReportingProject(id) { _reportingProjectId = id || null; _reportingDrawerId = null; renderContent(); }
+function _actOpenReportingDrawer(id) { _reportingDrawerId = id; renderContent(); }
+function _actCloseReportingDrawer() { _reportingDrawerId = null; renderContent(); }
+
+/** Reporting tab — feature roadmap + per-feature initiative drawer */
+function renderReportingView(el) {
+  if (tasks.length === 0 && !window._initialLoadComplete) {
+    el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted)">Loading report data...</div>';
+    return;
+  }
+
+  // Pick a default client / project if nothing selected yet. Prefer
+  // Lighthouse Games (the use case Glen called out), else the first client
+  // with at least one project.
+  if (!_reportingClient) {
+    const allClients = [...new Set(tasks.filter(t => t.itemType === 'project' && getTaskClient(t)).map(t => getTaskClient(t)))].sort();
+    _reportingClient = allClients.includes('Lighthouse Games') ? 'Lighthouse Games' : (allClients[0] || null);
+  }
+  const projectsForClient = tasks.filter(t => t.itemType === 'project' && getTaskClient(t) === _reportingClient);
+  if (!_reportingProjectId || !projectsForClient.find(p => p.id === _reportingProjectId)) {
+    _reportingProjectId = projectsForClient.length ? projectsForClient[0].id : null;
+  }
+  const project = _reportingProjectId ? tasks.find(t => t.id === _reportingProjectId) : null;
+  const features = project ? tasks.filter(t => t.parentId === project.id && t.itemType === 'feature') : [];
+
+  const allClientNames = [...new Set(tasks.filter(t => t.itemType === 'project' && getTaskClient(t)).map(t => getTaskClient(t)))].sort();
+
+  let html = '<div class="reporting">';
+
+  // Header bar — client + project pickers
+  html += '<div class="reporting__hdr">';
+  html += `<div class="reporting__hdr-title">Reporting</div>`;
+  html += `<div class="reporting__hdr-pickers">`;
+  html += `<label class="reporting__lbl">Client</label>`;
+  html += `<select class="reporting__select" onchange="_actSetReportingClient(this.value)">`;
+  allClientNames.forEach(n => { html += `<option value="${esc(n)}" ${n === _reportingClient ? 'selected' : ''}>${esc(n)}</option>`; });
+  html += `</select>`;
+  html += `<label class="reporting__lbl">Project</label>`;
+  html += `<select class="reporting__select" onchange="_actSetReportingProject(this.value)">`;
+  projectsForClient.forEach(p => { html += `<option value="${esc(p.id)}" ${p.id === _reportingProjectId ? 'selected' : ''}>${esc(p.title)}</option>`; });
+  if (projectsForClient.length === 0) html += `<option value="">— no projects —</option>`;
+  html += `</select>`;
+  html += `</div></div>`;
+
+  if (!project || features.length === 0) {
+    html += `<div style="padding:60px;text-align:center;color:var(--text-muted);font-size:0.85rem">${project ? 'This project has no features yet.' : 'Pick a client and project above.'}</div>`;
+    html += '</div>';
+    el.innerHTML = html;
+    return;
+  }
+
+  // Compute timeline range from all feature + story dates (rolled up).
+  const stories = tasks.filter(t => t.itemType === 'story' && features.find(f => f.id === t.parentId));
+  const allRange = [...features, ...stories].map(t => ({
+    s: ganttRolledStart(t), e: ganttRolledEnd(t)
+  })).filter(r => r.s && r.e);
+  const now = new Date(); now.setHours(0,0,0,0);
+  let gMin = allRange.length ? new Date(Math.min(...allRange.map(r => r.s), now)) : new Date(now);
+  let gMax = allRange.length ? new Date(Math.max(...allRange.map(r => r.e), now)) : new Date(now.getFullYear(), now.getMonth() + 3, 1);
+  gMin.setDate(1);
+  gMax.setMonth(gMax.getMonth() + 1, 1);
+  const totalDays = Math.max(1, Math.round((gMax - gMin) / 86400000));
+  const nowPct = ((now - gMin) / 86400000 / totalDays * 100).toFixed(2);
+
+  // Month band
+  const months = [];
+  let md = new Date(gMin);
+  while (md < gMax) {
+    const mEnd = new Date(md.getFullYear(), md.getMonth() + 1, 1);
+    const mDays = Math.round((Math.min(mEnd, gMax) - md) / 86400000);
+    months.push({ label: md.toLocaleDateString('en-GB', { month: 'short' }).toUpperCase(), days: mDays, year: md.getFullYear(), isNow: md.getMonth() === now.getMonth() && md.getFullYear() === now.getFullYear() });
+    md = mEnd;
+  }
+  // Quarter band derived from months
+  const quarters = [];
+  months.forEach(m => {
+    const q = 'Q' + (Math.floor(((new Date(m.label + ' 1, ' + m.year)).getMonth()) / 3) + 1) + ' ' + m.year;
+    if (quarters.length && quarters[quarters.length-1].label === q) quarters[quarters.length-1].days += m.days;
+    else quarters.push({ label: q, days: m.days });
+  });
+
+  // Helpers
+  const featurePct = f => {
+    const leaves = []; (function walk(n) { const ch = tasks.filter(t => t.parentId === n.id); if (ch.length === 0) leaves.push(n); else ch.forEach(walk); })(f);
+    const total = leaves.length; if (total === 0) return f.status === 'Done' ? 100 : 0;
+    return Math.round(leaves.filter(l => l.status === 'Done').length / total * 100);
+  };
+  const featureHealth = f => {
+    if (f.healthState === 'Blocked' || f.status === 'Blocked') return 'blocked';
+    const e = ganttRolledEnd(f);
+    if (e && e < now && f.status !== 'Done') return 'red';
+    const days = e ? Math.round((e - now) / 86400000) : null;
+    if (f.healthState === 'Red') return 'red';
+    if (f.healthState === 'Yellow') return 'amber';
+    if (days !== null && days >= 0 && days <= 14) return 'amber';
+    return 'green';
+  };
+  const ownerOf = t => (t.assignees && t.assignees.length) ? t.assignees[0] : '—';
+  const healthFill = h => h === 'red' ? '#ef4444' : h === 'amber' ? '#f59e0b' : h === 'blocked' ? '#94a3b8' : '#22c55e';
+  const healthLabel = h => h === 'red' ? 'AT RISK' : h === 'amber' ? 'AMBER' : h === 'blocked' ? 'BLOCKED' : 'GREEN';
+
+  const labelW = 220, ownerW = 100, statusW = 90, pctW = 60, rightPanelW = labelW + ownerW + statusW + pctW;
+
+  // Roadmap header row
+  html += '<div class="reporting__roadmap">';
+  html += `<div class="reporting__row reporting__row--hdr">`;
+  html += `<div class="reporting__cell" style="width:${labelW}px">FEATURE</div>`;
+  html += `<div class="reporting__cell" style="width:${ownerW}px">OWNER</div>`;
+  html += `<div class="reporting__cell" style="width:${statusW}px">STATUS</div>`;
+  html += `<div class="reporting__cell" style="width:${pctW}px">% DONE</div>`;
+  html += `<div class="reporting__timeline-hdr" style="position:relative">`;
+  // Quarter row
+  html += `<div style="display:flex;border-bottom:1px solid var(--border-subtle)">`;
+  quarters.forEach(q => { const w = (q.days / totalDays * 100).toFixed(2); html += `<div style="width:${w}%;text-align:center;font-size:0.62rem;color:var(--text-muted);font-weight:700;letter-spacing:0.06em;padding:3px 0;border-right:1px solid var(--border-subtle)">${esc(q.label)}</div>`; });
+  html += `</div>`;
+  // Month row
+  html += `<div style="display:flex">`;
+  months.forEach(m => { const w = (m.days / totalDays * 100).toFixed(2); html += `<div style="width:${w}%;text-align:center;font-size:0.6rem;color:${m.isNow ? 'var(--accent-text)' : 'var(--text-muted)'};font-weight:${m.isNow ? '700' : '500'};padding:2px 0;border-right:1px solid var(--border-subtle)">${esc(m.label)}</div>`; });
+  html += `</div>`;
+  html += `<div style="position:absolute;left:${nowPct}%;top:0;bottom:0;border-left:2px dashed #ef4444;pointer-events:none"></div>`;
+  html += `<div style="position:absolute;left:calc(${nowPct}% - 18px);top:-2px;font-size:0.55rem;color:#ef4444;font-weight:700;letter-spacing:0.06em">TODAY</div>`;
+  html += `</div></div>`;
+
+  // Feature rows
+  features.forEach((f, fi) => {
+    const fStart = ganttRolledStart(f);
+    const fEnd = ganttRolledEnd(f);
+    const left = fStart ? ((fStart - gMin) / 86400000 / totalDays * 100).toFixed(2) : '0';
+    const width = fStart && fEnd ? Math.max(0.5, (fEnd - fStart) / 86400000 / totalDays * 100).toFixed(2) : '1';
+    const pct = featurePct(f);
+    const h = featureHealth(f);
+    const fill = healthFill(h);
+    const fStories = tasks.filter(t => t.parentId === f.id && t.itemType === 'story');
+    const zebra = fi % 2 === 1 ? 'background:rgba(255,255,255,0.015);' : '';
+    const isOpen = _reportingDrawerId === f.id;
+
+    html += `<div class="reporting__row ${isOpen ? 'reporting__row--open' : ''}" style="${zebra}cursor:pointer" onclick="_actOpenReportingDrawer('${escAttrJs(f.id)}')">`;
+    html += `<div class="reporting__cell reporting__cell--title" style="width:${labelW}px"><span class="reporting__type">FT</span> <span title="${esc(f.title)}">${esc(f.title)}</span></div>`;
+    html += `<div class="reporting__cell" style="width:${ownerW}px;color:var(--text-secondary)">${esc(ownerOf(f))}</div>`;
+    html += `<div class="reporting__cell" style="width:${statusW}px"><span class="reporting__pill" style="background:${fill};color:#fff">${healthLabel(h)}</span></div>`;
+    html += `<div class="reporting__cell" style="width:${pctW}px;font-weight:700;color:${fill}">${pct}%</div>`;
+    html += `<div class="reporting__timeline" style="position:relative">`;
+    html += `<div style="position:absolute;left:${nowPct}%;top:0;bottom:0;border-left:1px dashed #ef4444;opacity:0.35;pointer-events:none"></div>`;
+    if (fStart && fEnd) {
+      // Outer feature frame
+      html += `<div style="position:absolute;left:${left}%;width:${width}%;top:8px;bottom:8px;background:rgba(255,255,255,0.04);border:1px solid ${fill};border-radius:4px">`;
+      // Inner story segments coloured by their own health (so the user sees the substructure)
+      fStories.forEach(s => {
+        const sStart = ganttRolledStart(s); const sEnd = ganttRolledEnd(s);
+        if (!sStart || !sEnd || !fStart || !fEnd) return;
+        const featSpan = (fEnd - fStart) / 86400000;
+        if (featSpan <= 0) return;
+        const sLeft = Math.max(0, (sStart - fStart) / 86400000) / featSpan * 100;
+        const sWidth = Math.max(1, (sEnd - sStart) / 86400000) / featSpan * 100;
+        const sH = featureHealth(s);
+        const sLeaves = []; (function walk(n) { const ch = tasks.filter(t => t.parentId === n.id); if (ch.length === 0) sLeaves.push(n); else ch.forEach(walk); })(s);
+        const sPct = sLeaves.length ? Math.round(sLeaves.filter(l => l.status === 'Done').length / sLeaves.length * 100) : 0;
+        html += `<div title="${esc(s.title)} — ${sPct}%" style="position:absolute;left:${sLeft}%;width:${sWidth}%;top:1px;bottom:1px;background:${healthFill(sH)};opacity:0.6;border-radius:3px;overflow:hidden"><div style="height:100%;width:${sPct}%;background:${healthFill(sH)};opacity:1"></div></div>`;
+      });
+      // % chip on right edge
+      html += `<div style="position:absolute;right:-4px;top:50%;transform:translate(100%,-50%);font-size:0.58rem;color:${fill};font-weight:700;letter-spacing:0.04em;padding:0 4px">${pct}%</div>`;
+      html += `</div>`;
+    }
+    html += `</div></div>`;
+
+    // Inline drawer (slides under the row)
+    if (isOpen) {
+      html += renderReportingDrawer(f);
+    }
+  });
+  html += '</div></div>';
+  el.innerHTML = html;
+}
+
+/** Initiative drawer — opens inline under the clicked feature row */
+function renderReportingDrawer(f) {
+  const now = new Date(); now.setHours(0,0,0,0);
+  const stories = tasks.filter(t => t.parentId === f.id && t.itemType === 'story');
+  const fStart = ganttRolledStart(f);
+  const fEnd = ganttRolledEnd(f);
+  const eta = fEnd ? fEnd.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
+  const owner = (f.assignees && f.assignees[0]) || '—';
+  const team = f.assignees && f.assignees.length > 1 ? f.assignees.slice(1).join(', ') : '';
+  const leafFor = id => { const out = []; (function walk(n) { const ch = tasks.filter(t => t.parentId === n.id); if (ch.length === 0) out.push(n); else ch.forEach(walk); })(tasks.find(t => t.id === id) || {id}); return out; };
+  const leaves = leafFor(f.id);
+  const pct = leaves.length ? Math.round(leaves.filter(l => l.status === 'Done').length / leaves.length * 100) : (f.status === 'Done' ? 100 : 0);
+
+  const h = (() => {
+    if (f.healthState === 'Blocked' || f.status === 'Blocked') return 'blocked';
+    if (fEnd && fEnd < now && f.status !== 'Done') return 'red';
+    const days = fEnd ? Math.round((fEnd - now) / 86400000) : null;
+    if (f.healthState === 'Red') return 'red';
+    if (f.healthState === 'Yellow') return 'amber';
+    if (days !== null && days >= 0 && days <= 14) return 'amber';
+    return 'green';
+  })();
+  const fill = h === 'red' ? '#ef4444' : h === 'amber' ? '#f59e0b' : h === 'blocked' ? '#94a3b8' : '#22c55e';
+  const statusLabel = h === 'red' ? 'AT RISK' : h === 'amber' ? 'AMBER' : h === 'blocked' ? 'BLOCKED' : 'GREEN';
+
+  let html = `<div class="reporting__drawer">`;
+  html += `<div class="reporting__drawer-hdr"><div class="reporting__drawer-title">${esc(f.title)}</div><button class="btn btn--sm" onclick="event.stopPropagation();_actCloseReportingDrawer()" style="font-size:0.7rem">Close</button></div>`;
+
+  // Pills row
+  html += `<div class="reporting__pills">`;
+  html += `<div class="reporting__pill-block"><div class="reporting__pill-lbl">STATUS</div><div class="reporting__pill" style="background:${fill};color:#fff;display:inline-block">${statusLabel}</div></div>`;
+  html += `<div class="reporting__pill-block"><div class="reporting__pill-lbl">% DONE</div><div class="reporting__pill-val" style="color:${fill}">${pct}%</div></div>`;
+  html += `<div class="reporting__pill-block"><div class="reporting__pill-lbl">ETA</div><div class="reporting__pill-val">${esc(eta)}</div></div>`;
+  html += `<div class="reporting__pill-block"><div class="reporting__pill-lbl">LEAD</div><div class="reporting__pill-val">${esc(owner)}</div></div>`;
+  html += `<div class="reporting__pill-block"><div class="reporting__pill-lbl">TEAM</div><div class="reporting__pill-val" style="font-size:0.78rem">${esc(team || '—')}</div></div>`;
+  html += `</div>`;
+
+  // Two-column layout: stories mini-timeline left, narrative blocks right
+  html += `<div class="reporting__drawer-grid">`;
+
+  // Stories mini-timeline
+  html += `<div class="reporting__drawer-card"><div class="reporting__drawer-card-hdr">Stories</div><div class="reporting__drawer-card-body">`;
+  if (stories.length === 0) {
+    html += `<div style="color:var(--text-muted);font-size:0.78rem;padding:8px 0">No stories yet.</div>`;
+  } else {
+    const sMin = fStart ? new Date(fStart) : now;
+    const sMax = fEnd ? new Date(fEnd) : new Date(now.getFullYear(), now.getMonth() + 3, 1);
+    const sDays = Math.max(1, Math.round((sMax - sMin) / 86400000));
+    stories.forEach(s => {
+      const ss = ganttRolledStart(s); const se = ganttRolledEnd(s);
+      const sLeaves = leafFor(s.id);
+      const sPct = sLeaves.length ? Math.round(sLeaves.filter(l => l.status === 'Done').length / sLeaves.length * 100) : (s.status === 'Done' ? 100 : 0);
+      const sH = (s.healthState === 'Blocked' || s.status === 'Blocked') ? 'blocked' : (se && se < now && s.status !== 'Done' ? 'red' : (se && Math.round((se - now)/86400000) <= 14 && Math.round((se - now)/86400000) >= 0 ? 'amber' : 'green'));
+      const sFill = sH === 'red' ? '#ef4444' : sH === 'amber' ? '#f59e0b' : sH === 'blocked' ? '#94a3b8' : '#22c55e';
+      const sLeft = ss ? Math.max(0, (ss - sMin) / 86400000 / sDays * 100).toFixed(2) : '0';
+      const sWidth = ss && se ? Math.max(1, (se - ss) / 86400000 / sDays * 100).toFixed(2) : '1';
+      html += `<div style="display:flex;align-items:center;gap:10px;padding:4px 0;font-size:0.74rem">`;
+      html += `<div style="flex:0 0 160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(s.title)}">${esc(s.title)}</div>`;
+      html += `<div style="flex:0 0 48px;text-align:right;color:${sFill};font-weight:700;font-size:0.7rem">${sPct}%</div>`;
+      html += `<div style="flex:1;position:relative;height:14px;background:rgba(255,255,255,0.03);border-radius:3px;overflow:hidden">`;
+      html += `<div style="position:absolute;left:${sLeft}%;width:${sWidth}%;top:0;bottom:0;background:${sFill};opacity:0.45;border-radius:3px"></div>`;
+      html += `<div style="position:absolute;left:${sLeft}%;width:calc(${sWidth}% * ${sPct/100});top:0;bottom:0;background:${sFill};opacity:0.95;border-radius:3px"></div>`;
+      html += `</div></div>`;
+    });
+  }
+  html += `</div></div>`;
+
+  // Right column: narrative blocks
+  html += `<div class="reporting__drawer-side">`;
+  const block = (label, content, opts = {}) => {
+    const text = (content || '').toString().trim();
+    if (!text && !opts.editable) return '';
+    const link = opts.isLink && text;
+    return `<div class="reporting__drawer-card"><div class="reporting__drawer-card-hdr">${label}</div><div class="reporting__drawer-card-body" style="font-size:0.78rem;white-space:pre-wrap;color:var(--text-secondary)">${link ? `<a href="${esc(text)}" target="_blank" rel="noopener" style="color:var(--accent-text);word-break:break-all">${esc(text)}</a>` : (text ? esc(text) : `<span style="color:var(--text-muted);font-style:italic">— add via the detail overlay —</span>`)}</div></div>`;
+  };
+  html += block('Goals', f.success_factor || f.successFactor, { editable: true });
+  html += block('Dependencies', Array.isArray(f.dependencies) ? f.dependencies.join('\n') : f.dependencies, { editable: true });
+  html += block('Risks', f.risks, { editable: true });
+  html += block('Mitigations', f.mitigations, { editable: true });
+  html += block('Documentation', f.documentation_link || f.documentationLink, { editable: true, isLink: true });
+  html += `</div>`;
+
+  html += `</div>`;
+
+  // Key Updates: latest 5 events from notes / status
+  html += `<div class="reporting__drawer-card"><div class="reporting__drawer-card-hdr">Key Updates</div><div class="reporting__drawer-card-body">`;
+  const events = [];
+  [f, ...stories, ...leaves].forEach(t => {
+    (t.notes || []).forEach(n => events.push({ when: n.time, text: n.text, who: t.title }));
+  });
+  events.sort((a, b) => (b.when || '').localeCompare(a.when || ''));
+  if (events.length === 0) {
+    html += `<div style="color:var(--text-muted);font-size:0.78rem;padding:8px 0;font-style:italic">No comments or notes yet on this feature or its children.</div>`;
+  } else {
+    events.slice(0, 5).forEach(ev => {
+      const when = ev.when ? new Date(ev.when).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : '';
+      html += `<div style="padding:6px 0;border-bottom:1px dashed var(--border-subtle);font-size:0.78rem"><div style="display:flex;justify-content:space-between;color:var(--text-muted);font-size:0.66rem;letter-spacing:0.04em"><span>${esc(ev.who)}</span><span>${esc(when)}</span></div><div style="color:var(--text-primary);margin-top:2px">${esc(ev.text)}</div></div>`;
+    });
+  }
+  html += `</div></div>`;
+
+  html += `<div style="margin-top:12px;text-align:right"><button class="btn btn--sm" onclick="event.stopPropagation();openDetailOverlay('${escAttrJs(f.id)}')" style="font-size:0.72rem">Open in detail view to edit</button></div>`;
+
+  html += `</div>`;
+  return html;
+}
 
 /** Render the executive report view: KPI strip, blocked/at-risk, project table, workload, and charts */
 function renderReport(el) {
