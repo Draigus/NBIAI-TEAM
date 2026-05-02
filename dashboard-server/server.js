@@ -2113,6 +2113,11 @@ app.delete('/api/tasks/:id/comments/:commentId', async (req, res) => {
  */
 function detectImportFormat(headers) {
   const h = headers.map(x => String(x || '').toLowerCase().trim());
+  // NBI Backlog Builder (hierarchy preserved via _temp_id linking).
+  // The triple of _temp_id + _temp_parent_id + item_type is the
+  // unambiguous signature of a Project > Feature > Story > Task export.
+  if (h.includes('_temp_id') && h.includes('_temp_parent_id') && h.includes('item_type'))
+    return { format: 'nbi-hierarchy-csv', label: 'NBI Backlog Builder (Hierarchy)' };
   // Microsoft Planner XLSX export
   if (h.includes('task id') && h.includes('bucket name') && h.includes('progress'))
     return { format: 'planner', label: 'Microsoft Planner Export' };
@@ -2365,7 +2370,72 @@ function mapRowsToTasks(format, headers, rows) {
     return map[lower] || p;
   }
 
+  /** Convert dd/mm/yyyy or d/m/yy strings to ISO yyyy-mm-dd. Leaves blanks
+   *  blank and ISO strings unchanged. Used for the hierarchy CSV import
+   *  where the source spreadsheet uses UK date convention. */
+  function parseDdMmYyyy(s) {
+    if (!s) return '';
+    const trimmed = String(s).trim();
+    if (!trimmed) return '';
+    // Already ISO?
+    if (/^\d{4}-\d{2}-\d{2}/.test(trimmed)) return trimmed.slice(0, 10);
+    // dd/mm/yyyy or d/m/yy
+    const m = trimmed.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+    if (!m) return trimmed; // Leave anything weird untouched for downstream review
+    const dd = m[1].padStart(2, '0');
+    const mm = m[2].padStart(2, '0');
+    let yyyy = m[3];
+    if (yyyy.length === 2) yyyy = (parseInt(yyyy, 10) > 50 ? '19' : '20') + yyyy;
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
   switch (format) {
+    case 'nbi-hierarchy-csv': {
+      const iTempId = ci('_temp_id');
+      const iTempParent = ci('_temp_parent_id');
+      const iItemType = ci('item_type');
+      const iTask = ciAny('task', 'task name', 'title');
+      const iDesc = ci('description');
+      const iStatus = ci('status');
+      const iPriority = ci('priority');
+      const iHoursEst = ciAny('hours_estimated', 'hours estimated', 'hours est');
+      const iAssignees = ciAny('assignees', 'assignee', 'assigned to');
+      const iClient = ciAny('client_id', 'client');
+      const iPractice = ci('practice_area');
+      const iStart = ciAny('start_date', 'start date');
+      const iEnd = ciAny('end_date', 'end date');
+      const iDue = ciAny('due_date', 'due date', 'due');
+      const iSuccess = ci('success_factor');
+      const iCollab = ci('collaborations');
+      const iNotes = ci('notes');
+      const validItemTypes = new Set(['project', 'feature', 'story', 'task']);
+      return rows.map(r => {
+        const title = get(r, iTask);
+        if (!title) return null; // Drop empty-title rows (e.g. CSV typos)
+        const itRaw = get(r, iItemType).toLowerCase();
+        const item_type = validItemTypes.has(itRaw) ? itRaw : 'task';
+        return {
+          _temp_id: get(r, iTempId),
+          _temp_parent_id: get(r, iTempParent),
+          item_type,
+          title,
+          description: get(r, iDesc),
+          status: normaliseStatus(get(r, iStatus)),
+          priority: normalisePriority(get(r, iPriority)),
+          hoursEstimated: parseFloat(get(r, iHoursEst)) || 0,
+          assignees: get(r, iAssignees) ? get(r, iAssignees).split(/[,;\/]/).map(s => s.trim()).filter(Boolean) : [],
+          client: get(r, iClient),
+          practice_area: get(r, iPractice),
+          start_date: parseDdMmYyyy(get(r, iStart)),
+          end_date: parseDdMmYyyy(get(r, iEnd)),
+          due_date: parseDdMmYyyy(get(r, iDue)),
+          success_factor: get(r, iSuccess),
+          collaborations: get(r, iCollab),
+          notes: get(r, iNotes),
+        };
+      }).filter(Boolean);
+    }
+
     case 'nbi-csv':
     case 'nbi-export': {
       const iTask = ciAny('task', 'task name', 'title');
@@ -4651,26 +4721,61 @@ app.post('/api/tasks/bulk', requireAdmin, async (req, res) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+
+    // Resolve `client` (free-text name like "Lighthouse Games") -> client_id UUID.
+    // We cache lookups by name so we hit the DB at most once per distinct name.
+    const nameCache = {};
+    for (let i = 0; i < taskList.length; i++) {
+      const t = taskList[i];
+      if (t.client_id) continue;
+      const rawName = t.client && String(t.client).trim();
+      if (!rawName) continue;
+      if (!(rawName in nameCache)) {
+        const { rows } = await client.query('SELECT id FROM clients WHERE LOWER(name) = LOWER($1) LIMIT 1', [rawName]);
+        nameCache[rawName] = rows.length ? rows[0].id : null;
+      }
+      const resolved = nameCache[rawName];
+      if (!resolved) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: `tasks[${i}].client: unknown client name "${rawName}" (no matching row in clients table)` });
+      }
+      t.client_id = resolved;
+    }
+
     const created = [];
     const idMap = {};
+    const rowByTempId = {};
     for (const t of taskList) {
       const status = t.status || 'Not started';
       await shiftForInsert(client, 'tasks', 'status', status);
       const { rows } = await client.query(
-        `INSERT INTO tasks (title, client_id, status, priority, health_state, description, assignees, hours_estimated, hours_spent, due_date, planner_task_id, source, item_type, position)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,0) RETURNING *`,
+        `INSERT INTO tasks (title, client_id, status, priority, health_state, description, assignees,
+                             hours_estimated, hours_spent, due_date, planner_task_id, source, item_type,
+                             start_date, end_date, success_factor, practice_area, collaborations, position)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,0) RETURNING *`,
         [t.title, t.client_id || null, status, t.priority || '', t.health_state || '',
          t.description || '', t.assignees || [], t.hours_estimated || 0, t.hours_spent || 0,
-         t.due_date || '', t.planner_task_id || '', t.source || 'import', t.item_type || 'task']
+         t.due_date || '', t.planner_task_id || '', t.source || 'import', t.item_type || 'task',
+         t.start_date || '', t.end_date || '', t.success_factor || '', t.practice_area || '',
+         t.collaborations || '']
       );
-      if (t._temp_id) idMap[t._temp_id] = rows[0].id;
+      if (t._temp_id) { idMap[t._temp_id] = rows[0].id; rowByTempId[t._temp_id] = rows[0]; }
       created.push(rows[0]);
     }
-    // Second pass: set parent_ids
+
+    // Second pass: set parent_ids and inherit client_id from parents that have one.
+    // Iterate in input order so a deeper child can pick up a client_id that was
+    // resolved on its parent in this same loop.
+    const clientByTempId = Object.fromEntries(taskList.filter(t => t._temp_id).map(t => [t._temp_id, t.client_id || null]));
     for (const t of taskList) {
-      if (t._temp_parent_id && idMap[t._temp_parent_id]) {
-        const realId = idMap[t._temp_id];
-        const realParentId = idMap[t._temp_parent_id];
+      if (!t._temp_parent_id || !idMap[t._temp_parent_id]) continue;
+      const realId = idMap[t._temp_id];
+      const realParentId = idMap[t._temp_parent_id];
+      const inherited = !t.client_id && clientByTempId[t._temp_parent_id] ? clientByTempId[t._temp_parent_id] : null;
+      if (inherited) {
+        await client.query('UPDATE tasks SET parent_id = $1, client_id = $2 WHERE id = $3', [realParentId, inherited, realId]);
+        clientByTempId[t._temp_id] = inherited; // Propagate one level deeper next iteration
+      } else {
         await client.query('UPDATE tasks SET parent_id = $1 WHERE id = $2', [realParentId, realId]);
       }
     }
@@ -9381,3 +9486,5 @@ module.exports.matchSubjectToTask = matchSubjectToTask;
 module.exports.processOneInboundEmail = processOneInboundEmail;
 module.exports.processInboundEmails = processInboundEmails;
 module.exports.extractLinksFromHtml = extractLinksFromHtml;
+module.exports.detectImportFormat = detectImportFormat;
+module.exports.mapRowsToTasks = mapRowsToTasks;
