@@ -4838,6 +4838,15 @@ function renderPfSidebar(filtered, roots, now) {
     if (!clientMap[client]) clientMap[client] = [];
     clientMap[client].push(r);
   });
+  // Seed empty arrays for every client in the server's clients table that
+  // has no root tasks yet — newly-onboarded clients (e.g. Lighthouse Games
+  // before its backlog lands) must still appear in the sidebar so they're
+  // visible even before any work has been logged against them. Sourced from
+  // _apiClientsCache rather than getContractedClients() because the latter
+  // is task-derived and would also exclude empty clients.
+  Object.values(_apiClientsCache || {}).forEach(c => {
+    if (c && c.name && !clientMap[c.name]) clientMap[c.name] = [];
+  });
   const sortedClients = Object.keys(clientMap).sort(clientSortOrder);
 
   const allActive = roots.filter(r => r.status !== 'Done' && r.status !== 'Cancelled');
@@ -12893,17 +12902,31 @@ let _leadsSubView = localStorage.getItem('nbi_leads_subview') || 'kanban';
 let _leadsDetailId = null;
 let _leadsDragId = null;
 
-/** Fetch lead pipeline configuration (stages, resource types, field options) from the API */
+/** Fetch lead pipeline configuration (stages, resource types, field options) from
+ *  the API. Dedupes parallel calls (in-flight Promise cache) and retries once on
+ *  transient null/failure — fixes the "Leads page only works on reload" bug
+ *  (601e39d8) where the first call sometimes lost its race with auth bootstrap. */
+let _leadsConfigInFlight = null;
 async function loadLeadsConfig() {
   if (_leadsConfig) return _leadsConfig;
-  try {
-    const data = await apiCall('/api/leads/config');
-    if (data) { _leadsConfig = data; }
-  } catch(e) { if (window._nbiDebug) console.error('Failed to load leads config:', e); }
-  return _leadsConfig;
+  if (_leadsConfigInFlight) return _leadsConfigInFlight;
+  _leadsConfigInFlight = (async () => {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const data = await apiCall('/api/leads/config');
+        if (data) { _leadsConfig = data; return _leadsConfig; }
+      } catch(e) { if (window._nbiDebug) console.error('Failed to load leads config:', e); }
+      if (attempt === 0) await new Promise(r => setTimeout(r, 250));
+    }
+    return _leadsConfig;
+  })();
+  try { return await _leadsConfigInFlight; }
+  finally { _leadsConfigInFlight = null; }
 }
 
-/** Fetch leads from the API with current filter/sort parameters */
+/** Fetch leads from the API with current filter/sort parameters. Same retry +
+ *  dedupe as loadLeadsConfig. */
+let _leadsDataInFlight = null;
 async function loadLeads() {
   const params = new URLSearchParams();
   if (_leadsFilter.sector) params.set('sector', _leadsFilter.sector);
@@ -12913,10 +12936,19 @@ async function loadLeads() {
   if (_leadsFilter.priority) params.set('priority', _leadsFilter.priority);
   if (_leadsFilter.search) params.set('search', _leadsFilter.search);
   params.set('limit', '500');
-  try {
-    const data = await apiCall('/api/leads?' + params.toString());
-    if (data) { _leadsData = data; }
-  } catch(e) { if (window._nbiDebug) console.error('Failed to load leads:', e); }
+  const url = '/api/leads?' + params.toString();
+  if (_leadsDataInFlight) return _leadsDataInFlight;
+  _leadsDataInFlight = (async () => {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const data = await apiCall(url);
+        if (data) { _leadsData = data; return; }
+      } catch(e) { if (window._nbiDebug) console.error('Failed to load leads:', e); }
+      if (attempt === 0) await new Promise(r => setTimeout(r, 250));
+    }
+  })();
+  try { await _leadsDataInFlight; }
+  finally { _leadsDataInFlight = null; }
 }
 
 /** Format ROM (Rough Order of Magnitude) value for a lead — handles min/max ranges, text overrides, and NaN */
@@ -12952,17 +12984,20 @@ function safeColour(c) { return /^#[0-9a-fA-F]{3,8}$/.test(c) ? c : '#666666'; }
 
 /** Render the leads CRM view: header, filters, sub-views (kanban/table/cards/pipeline/by-client/clients) */
 async function renderLeadsView(el) {
-  // Load config + data in parallel on first render
-  if (!_leadsConfig) {
-    // Skeleton placeholders while leads config + data loads (Phase 12.1)
+  // Load config + data on first render. Skeleton while in-flight; if either
+  // returns null (transient race during auth bootstrap), show a Retry button
+  // instead of a dead-end error message.
+  if (!_leadsConfig || !_leadsData) {
     el.innerHTML = '<div style="padding:24px"><div class="skeleton skeleton-card"></div>' +
       Array(5).fill('<div class="skeleton skeleton-row"></div>').join('') +
       '<span class="visually-hidden">Loading leads</span></div>';
-    await loadLeadsConfig();
-    await loadLeads();
+    await Promise.all([loadLeadsConfig(), loadLeads()]);
   }
   if (!_leadsConfig || !_leadsData) {
-    el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary)">Failed to load leads configuration. Make sure the server is running and the migration has been applied.</div>';
+    el.innerHTML = `<div style="padding:40px;text-align:center;color:var(--text-secondary)">
+      <div style="margin-bottom:12px">Could not load the leads pipeline. The server might be starting or your session may have just refreshed.</div>
+      <button class="btn btn--primary" onclick="_leadsConfig=null;_leadsData=null;renderLeadsView(this.closest('div').parentElement);">Retry</button>
+    </div>`;
     return;
   }
 
