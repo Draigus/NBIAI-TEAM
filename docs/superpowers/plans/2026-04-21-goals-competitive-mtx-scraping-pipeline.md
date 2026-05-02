@@ -10,7 +10,7 @@
 
 **Spec:** `docs/superpowers/specs/2026-04-21-goals-competitive-mtx-scraping-pipeline.md`
 
-**Timeline:** 7 days (21-28 April 2026). Tier 1 current-state data by Day 3. Full dataset by Day 6. Verification + output by Day 7.
+**Timeline:** 6 days (21-27 April 2026). Tier 1 current-state data by Day 3. Full dataset by Day 5. Verification + output by Day 6.
 
 ---
 
@@ -1102,7 +1102,7 @@ All CRITICAL/HIGH issues must be resolved.
 
 - [ ] **Step 2: Check data freshness**
 
-Every data point in the deliverable must be captured within 7 days of submission date (28 April). Any AMBER/RED freshness items need re-scraping.
+Every data point in the deliverable must be captured within 7 days of submission date (27 April). Any AMBER/RED freshness items need re-scraping.
 
 - [ ] **Step 3: Verify citation URLs are still accessible**
 

@@ -26,3 +26,30 @@
 - Removed her as assignee from task `2ef45b8b` ("HiBob HR system -- complete setup and launch") via direct DB update
 - Task remains in the system, unassigned
 - Future plan: recreate her account as a client user under Couch Heroes using the new client portal feature
+
+### People workload default sort changed
+- Default sort now `{ col: 'total', dir: 'desc' }` (largest workload first) instead of alphabetical
+
+### Workload bar alignment fixed
+- `.rw-name` set to fixed 160px width with nowrap/ellipsis so bars start at same horizontal point
+
+### Workload numbers formatting
+- Added hours estimated column alongside task count and hours spent
+- Fixed-width right-aligned columns for proper vertical stacking
+
+### Hourly staff cleaned up
+- Jeff Day: 12 solo tasks cancelled, added to CLIENT_STAFF exclusion
+- Jessica Williams: removed from 4 co-assigned tasks (now Glen only)
+- Denise Delahanty: removed from 1 co-assigned task (now Tom only)
+- Bryan Rasmussen: added to CLIENT_STAFF exclusion (no active tasks)
+- All four now excluded from People workload chart
+
+### People Dashboard Redesign — brainstormed, spec'd, planned
+- Dispatched 3 parallel UX review agents: UI/UX Lead, UI/UX Designer, VP Product
+- All three agreed: capacity should lead, drill-down weak, blocked needs context, visual hierarchy needs work
+- Visual brainstorming session with Glen via browser companion (localhost:54889)
+- Glen chose: Master-Detail split (B), KPI Header + Sections right panel (A), Rich left panel rows (B) with thicker 14px bars
+- Spec written to `docs/superpowers/specs/2026-04-20-people-dashboard-redesign.md`
+- Implementation plan written to `docs/superpowers/plans/2026-04-20-people-dashboard-redesign.md`
+- Plan self-reviewed: fixed toggle bug, maxTasks perf issue, search cursor preservation
+- Handoff written to `docs/HANDOFF.md` — ready for new CLI to execute

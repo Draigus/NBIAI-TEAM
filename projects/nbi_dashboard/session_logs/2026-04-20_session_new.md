@@ -57,3 +57,40 @@ Glen corrected three items that were listed as blocked but aren't:
 
 ---
 
+## Leads view "Failed to load" bug
+
+**Reported:** Glen — "the leads sheet doesn't load" (screenshot showing "Failed to load leads configuration")
+
+**Investigation:** Server and API fully functional (verified with authenticated curl — 9 stages, 20 resource types, 43 leads all returned correctly). Database healthy. HTML syntax valid. ExcelJS bundle serves 200. Only code change to leads was wrapping catch blocks in `window._nbiDebug` guard (error path only).
+
+**Root cause:** Browser cache. When PM2 was restarted after commit `43be5ba`, the browser's in-flight request hit the server during its ~1-2s startup window, failed silently, and `_leadsConfig` stayed null. Stale cached page compounded the issue.
+
+**Fix:** Hard-refresh (Ctrl+Shift+R). No code change needed. Confirmed working by Glen.
+
+---
+
+## Data Cleanse Tool — Brainstorm & Spec
+
+Glen identified that the "Clear All Tasks" button in Settings is a stub that only clears tasks. He wants a proper admin-only Data Cleanse Tool that:
+- Shows all data categories as a tickable checklist with live row counts
+- Displays full dependency/cascade impact (what will be deleted, what will be nullified)
+- Executes deletions in FK-safe order within a single transaction (full rollback on failure)
+- "Clients" is nuclear-tier (auto-selects dependents, full cascade)
+- Config/seed data is always preserved (invisible in UI)
+- All-or-nothing per data type (operational tool, not day-to-day use)
+
+**Design decisions (Glen's):**
+- Clients deletable but nuclear with full blast radius warnings
+- Client deletion cascades all commensurate child records
+- All-or-nothing per data type (no per-user scoping)
+- Config/seed data invisible in UI (never touched)
+- Post-cleanse: redirect to empty states (no summary screen needed)
+- Build the tool, Glen will use it for his one-time cleanup
+
+**Architecture chosen:** Server-driven dependency graph (Approach A). Server owns all relationship knowledge; frontend renders what server returns.
+
+**Spec written:** `docs/superpowers/specs/2026-04-20-data-cleanse-tool-design.md`
+**Status:** Spec approved by Glen. Ready for implementation plan → execution.
+
+---
+

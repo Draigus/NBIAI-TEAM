@@ -12,7 +12,7 @@
 Goals Studio is launching a F2P football game (14 May 2026, Steam/Epic/Xbox/PlayStation). NBI is contracted (SOW #1, 100K SEK) to validate their HC pricing against competitive benchmarks. This spec defines the automated pipeline that gathers, structures, and verifies competitive MTX data at scale with full citations.
 
 The pipeline serves two purposes:
-1. **Immediate:** Feed the contracted pricing deliverable (due ~28 April 2026)
+1. **Immediate:** Feed the contracted pricing deliverable (due ~27 April 2026)
 2. **Ongoing:** Reusable tool for future re-runs (World Cup June 2026, new SKU launches, future client engagements)
 
 ---

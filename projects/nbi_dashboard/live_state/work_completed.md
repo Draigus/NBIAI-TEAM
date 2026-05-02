@@ -838,3 +838,13 @@ See items 78-128 above (already logged from earlier sessions).
 193. **Two hard cross-session rules captured** — `feedback_no_scope_watering.md` (never narrow scope, cut features, or pick cheaper/lower-quality options to reduce effort) and `feedback_no_timelines.md` (never quote durations; structure work by milestone deliverables). Both indexed in `MEMORY.md`.
 
 194. **Data Cleanse Tool shipped** — Full admin-only data cleanse tool replacing the stub "Clear All Tasks" button. Backend: `GET /api/admin/cleanse/preview` (live row counts + cascade metadata for 13 categories) and `POST /api/admin/cleanse` (transactional FK-safe deletion in 26-step order, file cleanup post-commit, audit logging). Frontend: full-screen modal with checkboxes, cascade auto-select for Clients (nuclear tier), typed confirmation gate ("DELETE ALL SELECTED DATA"), progress overlay, localStorage cleanup, renderAll on success. Removed `clearAllTasks()` and `finResetData()` functions plus their buttons. 3 null-state label fixes for views with nullified FKs. 15 backend tests (auth, validation, cascades, nullification, multi-category). 6 commits on `feat/data-cleanse-tool` branch, fast-forward merged to master. PM2 restarted.
+
+## 2026-04-26 (overnight session - Couch Heroes consolidation)
+- Glen answered Q1-Q13 (CTO restart, coaching to HR, Lead Animator Done, Lili separate from Lorenza, HR Ops still interviewing, Dino review delivered, Miro screenshot received, JIRA walk postponed, offsite 4 days, 1:1 programme + 8 tasks, SOW removed)
+- 4 CTO support files staged into Clients/Couch Heroes/
+- UK Company Word doc extracted (CH_Guidance_extracted.md, 355 lines)
+- Discovered Couch Heroes Features.xlsx already contains Miro export (1,142 rows, 421 features)
+- Spec rewritten with locked 7+AI structure
+- Built CH_WorkSage_import_v1.xlsx: 876 items across 8 project sheets, 0 unmapped, 0 validation errors
+- Em dashes stripped from all deliverables
+- Handoff written to docs/HANDOFF.md

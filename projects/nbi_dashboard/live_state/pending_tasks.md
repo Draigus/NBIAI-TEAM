@@ -81,3 +81,10 @@ Items previously listed here that are now shipped on master:
 | Kanban drag-to-reorder | `e9b6166` | 2026-04-15 |
 | Test infrastructure | `e26ed85` | 2026-04-15 |
 | News M1-M4 | `40a3ab1` | 2026-04-20 |
+
+## Couch Heroes (after overnight 2026-04-26)
+- [ ] Glen reviews CH_WorkSage_import_v1.xlsx
+- [ ] Glen decides import method: direct API vs Excel bulk import
+- [ ] Glen confirms / locates the Lead Animator question set physical artifact
+- [ ] After Apr 27-30 offsite: replace org_structure_likely_2026-04-26.md with finalised structure
+- [ ] Optional: commit overnight work to git

@@ -1,3 +1,7 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 # NBIAI Team — AI Company Structure
 
 ## What This Is
@@ -19,6 +23,43 @@ See `NBI_Brain.md` for full business context: Glen's identity, operating style, 
 - `projects/` - Project-specific configurations with project-level knowledge
 - `pipelines/` - Reusable workflow definitions (SDLC, client delivery, BD, reporting)
 - `templates/` - Output templates for common deliverables
+
+## Dashboard Server — The Codebase
+
+The only executable code in this repo lives in `dashboard-server/` (Express + Postgres) plus the SPA `nbi_project_dashboard.html` at the repo root. Everything else (`brain/`, `roles/`, `projects/`, `templates/`, `pipelines/`) is markdown knowledge. Memory shorthand: "NBI Hub" / "WorkSage" = this dashboard.
+
+**Stack:** Node.js + Express 4, PostgreSQL (via `pg`), monolithic `server.js` (~4,950 lines), monolithic `nbi_project_dashboard.html` (~13,100 lines, inline CSS+JS). PM2 for process management, Cloudflare Tunnel for public access at https://worksage.nbi-consulting.com.
+
+**Local URL:** http://localhost:8888/nbi_project_dashboard.html (production), :8887 (staging).
+
+### Common commands (run from `dashboard-server/`)
+
+| Command | Purpose |
+|---|---|
+| `npm start` | Run server.js directly (dev) |
+| `npm test` | Vitest unit tests (run once) |
+| `npm run test:watch` | Vitest watch mode |
+| `npm run test:e2e` | Playwright e2e tests against running server |
+| `npm run test:all` | Vitest then Playwright — required green before claiming "done" on UI changes |
+| `npm run init-db` | Initialise schema from migrations/ |
+| `npx vitest run path/to/file.test.js` | Run a single test file |
+| `npx vitest run -t "test name"` | Run a single test by name |
+| `pm2 restart nbi-dashboard` | Restart prod process after server.js change |
+| `pm2 restart nbi-dashboard-staging` | Restart :8887 staging |
+| `pm2 logs nbi-dashboard --lines 100` | Tail server logs |
+
+### Architecture facts that aren't obvious from a single file
+
+- **Work item hierarchy is fixed at 4 levels:** Client → Project → Feature → Story → Task. The `item_type` field is enforced server-side on create, drag-drop, and reparent. Prerequisite logic blocks "Done" until deps complete; circular deps are detected; deleting a prereq cleans up references. Don't add a 5th level or new item type without re-reading `dashboard-server/README.md` first — the rules are entangled with the kanban, gantt, and tree views.
+- **Multi-user sync model:** incremental change polling every 10 seconds, optimistic concurrency, IndexedDB WAL on the client for crash recovery. Don't replace this with naive full-refresh.
+- **Migrations:** `dashboard-server/migrations/NNN_*.sql`, applied in numeric order by `init-db.js`. Add new migration as next number; never edit a committed migration.
+- **Bug Tracker = `bug_reports` + `bug_report_comments` tables.** This is the queue the Bug Triage Pipeline (below) operates on.
+- **Metrics:** `/metrics` endpoint exposes Prometheus format via `prom-client`.
+- **Auth:** Azure MSAL (`@azure/msal-node`) — env vars `AZURE_TENANT_ID`, `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET` plus `DATABASE_URL`, `ADMIN_DATABASE_URL`, `APP_URL`, `EMAIL_FROM`.
+
+### Verifying UI changes (HARD RULE)
+
+Curl returning 200 ≠ working. For any change to `nbi_project_dashboard.html` or a server route the UI calls, verify through https://worksage.nbi-consulting.com in a real browser via the claude-in-chrome MCP before claiming done. Take a screenshot as evidence.
 
 ## Knowledge Architecture
 

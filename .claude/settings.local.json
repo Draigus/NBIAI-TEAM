@@ -109,13 +109,27 @@
       "Bash(git commit -m ' *)",
       "WebFetch(domain:localhost)",
       "Bash(node convert_onclick.js)",
-      "Bash(grep -oE 'data-arg[0-9]+=\"\\\\$\\\\{escAttrJs\\\\\\([^\\)]+\\\\\\)\\\\}\"' nbi_project_dashboard.html)"
+      "Bash(grep -oE 'data-arg[0-9]+=\"\\\\$\\\\{escAttrJs\\\\\\([^\\)]+\\\\\\)\\\\}\"' nbi_project_dashboard.html)",
+      "WebFetch(domain:api.github.com)",
+      "mcp__telegram__list_chats",
+      "mcp__telegram__get_messages",
+      "WebFetch(domain:status.anthropic.com)",
+      "WebFetch(domain:status.claude.com)",
+      "WebFetch(domain:www.nexusmods.com)"
     ],
     "defaultMode": "dontAsk"
   },
-  "model": "claude-opus-4-6",
+  "model": "claude-opus-4-6[1m]",
   "hooks": {
     "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/context-guard.sh"
+          }
+        ]
+      },
       {
         "matcher": "Edit",
         "hooks": [
@@ -146,5 +160,6 @@
         ]
       }
     ]
-  }
+  },
+  "autoCompactWindow": 1000000
 }
