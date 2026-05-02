@@ -7123,22 +7123,11 @@ function renderGanttView(filtered) {
   const allLeafTasks = filtered.filter(t => !_ganttHideDone || t.status !== 'Done');
   if (allLeafTasks.length === 0) return emptyState('&#128197;', 'No items for timeline', 'Add items with due dates to see the Gantt chart.');
 
-  // Performance guard: cap rendered tasks, prioritise active/upcoming with due dates
+  // No truncation. The previous cap (Show More at 300/328 etc.) hid items
+  // and irritated more than it helped. Modern browsers render hundreds of
+  // bars without trouble; if a workspace ever grows past a few thousand
+  // we'll revisit. Glen 2026-05-02.
   let leafTasks = allLeafTasks;
-  let truncated = false;
-  if (allLeafTasks.length > _ganttLimit) {
-    // Prioritise: tasks with due dates first, then active status, then by date
-    leafTasks = [...allLeafTasks].sort((a, b) => {
-      const aActive = a.status !== 'Done' && a.status !== 'Cancelled' ? 0 : 1;
-      const bActive = b.status !== 'Done' && b.status !== 'Cancelled' ? 0 : 1;
-      if (aActive !== bActive) return aActive - bActive;
-      const aHasDue = a.dueDate ? 0 : 1;
-      const bHasDue = b.dueDate ? 0 : 1;
-      if (aHasDue !== bHasDue) return aHasDue - bHasDue;
-      return (a.dueDate || '9999').localeCompare(b.dueDate || '9999');
-    }).slice(0, _ganttLimit);
-    truncated = true;
-  }
 
   // Determine date range — shifted by _ganttOffsetDays for navigation
   const now = new Date(); now.setHours(0,0,0,0);
@@ -7473,14 +7462,6 @@ function renderGanttView(filtered) {
   html += `</div>`; // close body
   html += `</div>`; // close gantt
 
-  // Truncation banner
-  if (truncated) {
-    html += `<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:0.85rem">
-      Showing ${_ganttLimit} of ${allLeafTasks.length} tasks (active with due dates first).
-      <button class="btn btn--outline" style="margin-left:8px;font-size:0.75rem" data-action="_actGanttShowMore">Show More</button>
-      ${_ganttLimit < allLeafTasks.length ? '' : ''}
-    </div>`;
-  }
   return html;
 }
 
