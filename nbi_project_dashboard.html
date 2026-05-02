@@ -1012,6 +1012,12 @@ span.fin-editable { display: inline-block; position: relative; }
 .gantt__row-sub--red { color: #ef4444; }
 .gantt__row-sub--amber { color: #f59e0b; }
 .gantt__row-sub--blocked { color: #94a3b8; }
+/* Per-client depth-quick-select buttons on Gantt group headers.
+   Compact P / F / S / All — set the entire client's collapse state in one
+   click. Inline with the client name so they're always reachable. */
+.gantt__depth-btn { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.04em; padding: 1px 6px; height: 18px; line-height: 1; border: 1px solid var(--border-default); background: var(--bg-input); color: var(--text-secondary); border-radius: 3px; cursor: pointer; transition: background 0.12s, color 0.12s, border-color 0.12s; }
+.gantt__depth-btn:hover { background: var(--bg-hover); color: var(--text-primary); border-color: var(--accent-border); }
+.gantt__depth-btn:active { transform: translateY(1px); }
 .gantt__today-line { position: absolute; top: 0; bottom: 0; background: rgba(34,197,94,0.18); z-index: 1; pointer-events: none; }
 .gantt__day-col { border-right: 1px solid var(--border-subtle); flex-shrink: 0; }
 .gantt__day-col--weekend { background: color-mix(in srgb, var(--bg-surface) 50%, transparent); }
@@ -2632,6 +2638,22 @@ function _actGanttToday() { _ganttOffsetDays = 0; renderContent(); }
 function _actGanttZoomIn() { ganttDayWidth = Math.min(60, ganttDayWidth + 6); renderContent(); }
 function _actGanttZoomOut() { ganttDayWidth = Math.max(8, ganttDayWidth - 6); renderContent(); }
 function _actGanttShowMore() { _ganttLimit += 100; renderContent(); }
+/** Quick-set the Gantt collapse depth for a single client. depth: 0=project,
+ *  1=feature, 2=story, 9=fully expanded. Items at the target depth get
+ *  collapsed (their children don't render); items at shallower depths get
+ *  expanded so the chosen level is visible. */
+function _actGanttClientDepth(clientName, targetDepth) {
+  const items = tasks.filter(t => (typeof getTaskClient === 'function' ? getTaskClient(t) === clientName : t.client === clientName));
+  items.forEach(item => {
+    const it = item.itemType || 'task';
+    const itemDepth = it === 'project' ? 0 : it === 'feature' ? 1 : it === 'story' ? 2 : 3;
+    if (targetDepth >= 9) { collapsedTaskIds.delete(item.id); return; }
+    if (itemDepth === targetDepth) collapsedTaskIds.add(item.id);
+    else if (itemDepth < targetDepth) collapsedTaskIds.delete(item.id);
+  });
+  try { localStorage.setItem('nbi_collapsed_tasks', JSON.stringify([...collapsedTaskIds])); } catch (e) {}
+  renderContent();
+}
 function _actToggleGanttDepView() { closeGanttDepMenu(); _ganttDepView = !_ganttDepView; renderContent(); }
 function _actToggleGanttHideArrows() { closeGanttDepMenu(); _ganttHideArrows = !_ganttHideArrows; renderContent(); }
 function _actToggleGanttLinkMode() { closeGanttDepMenu(); _ganttLinkMode = !_ganttLinkMode; _ganttLinkFrom = null; renderContent(); }
@@ -7335,7 +7357,19 @@ function renderGanttView(filtered) {
     // Client group header row
     html += `<div class="gantt__row gantt__row--group">`;
     const totalClientItems = clientGroups[client].reduce((s, r) => s + 1 + getDescendants(r.id).length, 0);
-    html += `<div class="gantt__row-label">${esc(client)} <span style="font-size:0.68rem;color:var(--text-muted);font-weight:400">(${totalClientItems} items)</span></div>`;
+    const cAttr = escAttrJs(client);
+    // Depth-quick-select buttons: P / F / S collapse the client's tree to
+    // the chosen level (project / feature / story). A is "show All" — fully
+    // expand. Buttons live on the client header so each client can be set
+    // independently. Click handlers are defined once on window in
+    // renderGanttView so we don't bind in HTML attributes per row.
+    const depthBtns = `<span style="display:inline-flex;gap:3px;margin-left:8px;vertical-align:middle">
+      <button class="gantt__depth-btn" data-stop onclick="event.stopPropagation();_actGanttClientDepth('${cAttr}',0)" title="Show projects only">P</button>
+      <button class="gantt__depth-btn" data-stop onclick="event.stopPropagation();_actGanttClientDepth('${cAttr}',1)" title="Show through features">F</button>
+      <button class="gantt__depth-btn" data-stop onclick="event.stopPropagation();_actGanttClientDepth('${cAttr}',2)" title="Show through stories">S</button>
+      <button class="gantt__depth-btn" data-stop onclick="event.stopPropagation();_actGanttClientDepth('${cAttr}',9)" title="Expand everything">All</button>
+    </span>`;
+    html += `<div class="gantt__row-label">${esc(client)} <span style="font-size:0.68rem;color:var(--text-muted);font-weight:400">(${totalClientItems} items)</span>${depthBtns}</div>`;
     html += `<div class="gantt__row-timeline" style="min-width:${timelineW}px">`;
     // Day columns for background
     html += ganttDayCols(totalDays, dayW, minDate, now);
