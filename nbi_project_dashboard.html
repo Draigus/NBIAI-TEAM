@@ -17482,6 +17482,58 @@ function renderDownloadsPreview(data) {
   if (data.sheets) html += ` &mdash; Sheets: ${data.sheets.join(', ')}`;
   html += `</div>`;
 
+  // Hierarchy CSV stats + data quality warnings (NBI Backlog Builder format).
+  if (data.format === 'nbi-hierarchy-csv' && Array.isArray(data.tasks)) {
+    const counts = { project: 0, feature: 0, story: 0, task: 0 };
+    const titlesByType = { project: {}, feature: {}, story: {} };
+    const tempIds = new Set();
+    let emptyTitle = 0, corruption = 0, withParent = 0;
+    const clientNames = new Set();
+    data.tasks.forEach(t => {
+      const it = t.item_type || 'task';
+      counts[it] = (counts[it] || 0) + 1;
+      if (t._temp_id) tempIds.add(t._temp_id);
+      if (t._temp_parent_id) withParent++;
+      if (!t.title) emptyTitle++;
+      if (titlesByType[it]) {
+        const k = (t.title || '').trim();
+        if (k) titlesByType[it][k] = (titlesByType[it][k] || 0) + 1;
+      }
+      const blob = `${t.title || ''} ${t.success_factor || ''} ${t.description || ''}`;
+      if (/confirMedium|Criticalical/i.test(blob)) corruption++;
+      if (t.client) clientNames.add(t.client);
+    });
+    let orphans = 0;
+    data.tasks.forEach(t => { if (t._temp_parent_id && !tempIds.has(t._temp_parent_id)) orphans++; });
+    const dups = [];
+    Object.entries(titlesByType).forEach(([type, m]) => {
+      Object.entries(m).forEach(([title, n]) => { if (n > 1) dups.push(`${type}: "${title}" (×${n})`); });
+    });
+
+    html += `<div style="margin-bottom:12px;padding:10px 12px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);font-size:0.78rem">`;
+    html += `<div style="font-weight:600;margin-bottom:6px">Hierarchy detected</div>`;
+    html += `<div style="display:flex;gap:14px;flex-wrap:wrap;color:var(--text-secondary)">`;
+    html += `<span><strong style="color:var(--text-primary)">${counts.project}</strong> project(s)</span>`;
+    html += `<span><strong style="color:var(--text-primary)">${counts.feature}</strong> feature(s)</span>`;
+    html += `<span><strong style="color:var(--text-primary)">${counts.story}</strong> stor${counts.story === 1 ? 'y' : 'ies'}</span>`;
+    html += `<span><strong style="color:var(--text-primary)">${counts.task}</strong> task(s)</span>`;
+    if (clientNames.size) html += `<span>Client(s): <strong style="color:var(--text-primary)">${esc([...clientNames].join(', '))}</strong></span>`;
+    html += `</div>`;
+
+    const warnings = [];
+    if (emptyTitle) warnings.push(`${emptyTitle} row(s) with empty title — will be dropped`);
+    if (orphans) warnings.push(`${orphans} row(s) reference a parent _temp_id that is not in the file — will become root tasks`);
+    if (dups.length) warnings.push(`Duplicate titles at the same level: ${dups.join('; ')} — hierarchy is preserved by _temp_id, but rename for clarity`);
+    if (corruption) warnings.push(`${corruption} cell(s) contain "confirMedium" / "Criticalical" autocorrect damage — imported as-is, edit after load`);
+    if (warnings.length) {
+      html += `<div style="margin-top:8px;padding-top:8px;border-top:1px dashed var(--border-default);color:var(--accent-text)">`;
+      html += `<div style="font-weight:600;margin-bottom:4px">⚠ Data quality warnings (non-blocking)</div>`;
+      html += `<ul style="margin:0;padding-left:18px">${warnings.map(w => `<li>${esc(w)}</li>`).join('')}</ul>`;
+      html += `</div>`;
+    }
+    html += `</div>`;
+  }
+
   // Sheet selector for multi-sheet files
   if (data.sheets && data.sheets.length > 1) {
     html += `<div style="margin-bottom:12px"><label style="font-size:0.78rem;color:var(--text-secondary)">Sheet: </label><select id="dlSheetSelect" onchange="reloadDownloadsSheet()" style="padding:4px 8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-size:0.78rem">`;
@@ -17551,6 +17603,15 @@ async function executeDownloadsImport() {
   const mode = document.getElementById('dlModeSelect')?.value || 'append';
 
   if (importTasks.length === 0) { toast('No tasks found in file'); return; }
+
+  // Hierarchy CSV (NBI Backlog Builder format) takes a separate path that
+  // posts straight to /api/tasks/bulk so _temp_id parent linking and
+  // item_type are preserved. The legacy local path below collapses
+  // everything to flat tasks via title-based parent matching, which is
+  // what produced the failed Couch Heroes import (bug df1fb00b).
+  if (_downloadsImportData.format === 'nbi-hierarchy-csv') {
+    return executeHierarchyImport(importTasks, clientOverride, parentId, mode);
+  }
 
   if (mode === 'replace') {
     if (!(await themedConfirm(`This will replace ALL existing tasks with ${importTasks.length} imported tasks. Continue?`))) return;
@@ -17649,6 +17710,100 @@ async function executeDownloadsImport() {
   _downloadsImportData = null;
   document.getElementById('downloadsWizard')?.remove();
   toast(`Imported ${newTasks.length} tasks from ${importedFilename}`);
+  renderAll();
+}
+
+/** Hierarchy-aware import path for NBI Backlog Builder CSVs.
+ *  Posts the parsed rows direct to /api/tasks/bulk where the server
+ *  resolves _temp_id -> real UUID parent links, looks up the client
+ *  name, and persists item_type / dates / success_factor verbatim.
+ *  This is the path that closes bug df1fb00b. */
+async function executeHierarchyImport(importTasks, clientOverride, parentId, mode) {
+  if (mode === 'replace') {
+    const ok = await themedConfirm(`This will REPLACE all existing tasks with ${importTasks.length} imported rows. Continue?`);
+    if (!ok) return;
+    tasks.forEach(t => markDeleted(t.id));
+    tasks = [];
+    save();
+  }
+
+  // When user picked a parent project in the wizard, hang every orphan
+  // (row with no _temp_parent_id) under it. We attach the real UUID via
+  // a synthetic _temp_id so the server's two-pass linker resolves it.
+  const ROOT_TEMP = '__wizard_root__';
+  const parentTask = parentId ? tasks.find(t => t.id === parentId) : null;
+  const useSyntheticRoot = !!parentTask;
+
+  // The override client (if any) wins. Otherwise the client_id text from the
+  // CSV (e.g. "Lighthouse Games") is sent verbatim and the server resolves it.
+  const clientField = clientOverride || '';
+
+  const payload = importTasks.map(t => {
+    const out = {
+      _temp_id: t._temp_id || '',
+      _temp_parent_id: t._temp_parent_id || (useSyntheticRoot ? ROOT_TEMP : ''),
+      item_type: t.item_type || 'task',
+      title: t.title,
+      description: t.description || '',
+      status: t.status || 'Not started',
+      priority: t.priority || '',
+      hours_estimated: t.hoursEstimated || 0,
+      assignees: t.assignees || [],
+      practice_area: t.practice_area || '',
+      start_date: t.start_date || '',
+      end_date: t.end_date || '',
+      due_date: t.due_date || '',
+      success_factor: t.success_factor || '',
+      collaborations: t.collaborations || '',
+      source: 'import',
+    };
+    if (clientField) out.client = clientField;
+    else if (t.client) out.client = t.client;
+    return out;
+  });
+
+  // Bridge row that re-parents the imported tree under an existing project.
+  if (useSyntheticRoot) {
+    payload.unshift({
+      _temp_id: ROOT_TEMP,
+      title: parentTask.title,
+      item_type: parentTask.item_type || 'project',
+      // No client field on the bridge: the server already has a row with
+      // this id and parent_id will be set against it after insert.
+      _bridge: true,
+    });
+  }
+
+  // /api/tasks/bulk caps at 500 rows per call. Chunk if needed.
+  const CHUNK = 450;
+  let totalCreated = 0;
+  try {
+    for (let i = 0; i < payload.length; i += CHUNK) {
+      const slice = payload.slice(i, i + CHUNK);
+      const resp = await authFetch('/api/tasks/bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tasks: slice }),
+      });
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({}));
+        throw new Error(err.error || `Bulk import failed (${resp.status})`);
+      }
+      const data = await resp.json();
+      totalCreated += (data.count || 0);
+    }
+  } catch (e) {
+    toast('Hierarchy import failed: ' + e.message, 'error');
+    return;
+  }
+
+  // Refresh in-memory state so the kanban + tree views reflect the new rows.
+  if (typeof loadAllTasks === 'function') await loadAllTasks();
+
+  const importedFilename = _downloadsImportData?.filename || 'file';
+  _downloadsImportData = null;
+  document.getElementById('downloadsWizard')?.remove();
+  toast(`Imported ${totalCreated} hierarchy rows from ${importedFilename}`, 'success');
   renderAll();
 }
 
