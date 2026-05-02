@@ -7196,27 +7196,41 @@ function renderGanttView(filtered) {
   // we'll revisit. Glen 2026-05-02.
   let leafTasks = allLeafTasks;
 
-  // Determine date range — shifted by _ganttOffsetDays for navigation
+  // Determine date range — span from the earliest start of any item in the
+  // visible set to the latest end / due. Glen 2026-05-02: don't anchor to
+  // "now ± fixed window" because that hides the part of a project that
+  // already happened or extends out beyond the default ceiling. Always
+  // include "today" in the range so the TODAY line stays visible even
+  // when all work is in the past or future.
   const now = new Date(); now.setHours(0,0,0,0);
-  let minDate = new Date(now); minDate.setDate(minDate.getDate() - 14 + _ganttOffsetDays);
-  let maxDate = new Date(now); maxDate.setDate(maxDate.getDate() + 90 + _ganttOffsetDays);
-
-  // Expand range for tasks within a reasonable window around the current view
-  const rangeFloor = new Date(minDate); rangeFloor.setMonth(rangeFloor.getMonth() - 2);
-  const rangeCeiling = new Date(maxDate); rangeCeiling.setMonth(rangeCeiling.getMonth() + 3);
+  let minDate = new Date(now);
+  let maxDate = new Date(now);
+  let firstSeen = false;
   leafTasks.forEach(t => {
     const start = ganttTaskStart(t);
     const end = ganttTaskEnd(t);
-    if (start && start > rangeFloor && start < minDate) minDate = new Date(start);
-    if (end && end < rangeCeiling && end > maxDate) maxDate = new Date(end);
+    if (!firstSeen && (start || end)) { minDate = new Date(start || end); maxDate = new Date(end || start); firstSeen = true; }
+    if (start && start < minDate) minDate = new Date(start);
+    if (end && end > maxDate) maxDate = new Date(end);
   });
-  // Pad by a few days
+  // Always include today so the TODAY line is on screen.
+  if (now < minDate) minDate = new Date(now);
+  if (now > maxDate) maxDate = new Date(now);
+  // Pad by a few days at each end so bars don't kiss the edge of the chart.
   minDate.setDate(minDate.getDate() - 3);
   maxDate.setDate(maxDate.getDate() + 7);
 
-  // Hard cap: never exceed 250 days to prevent DOM explosion
-  // Use round instead of ceil to avoid DST off-by-one errors
-  const totalDays = Math.min(Math.round((maxDate - minDate) / 86400000), 250);
+  // Apply the navigation offset on top of the auto range so the prev /
+  // next buttons still slide the view if Glen wants to see further.
+  if (_ganttOffsetDays) {
+    minDate.setDate(minDate.getDate() + _ganttOffsetDays);
+    maxDate.setDate(maxDate.getDate() + _ganttOffsetDays);
+  }
+
+  // Soft cap at 365 days — projects shouldn't span more than a year on
+  // screen at once; if they do, the user can zoom. Use round instead of
+  // ceil to avoid DST off-by-one errors.
+  const totalDays = Math.max(30, Math.min(Math.round((maxDate - minDate) / 86400000), 365));
   const dayW = ganttDayWidth;
   const timelineW = totalDays * dayW;
 
@@ -9878,7 +9892,12 @@ function _actSetReportingClient(name) {
   renderContent();
 }
 function _actSetReportingProject(id) { _reportingProjectId = id || null; _reportingDrawerId = null; renderContent(); }
-function _actOpenReportingDrawer(id) { _reportingDrawerId = id; renderContent(); }
+function _actOpenReportingDrawer(id) {
+  // Click the same row again to close — same toggle pattern as the Gantt's
+  // collapse chevrons. No separate Close button needed.
+  _reportingDrawerId = (_reportingDrawerId === id) ? null : id;
+  renderContent();
+}
 function _actCloseReportingDrawer() { _reportingDrawerId = null; renderContent(); }
 
 /** Reporting tab — feature roadmap + per-feature initiative drawer */
@@ -10077,7 +10096,9 @@ function renderReportingDrawer(f) {
   const statusLabel = h === 'red' ? 'AT RISK' : h === 'amber' ? 'AMBER' : h === 'blocked' ? 'BLOCKED' : 'GREEN';
 
   let html = `<div class="reporting__drawer">`;
-  html += `<div class="reporting__drawer-hdr"><div class="reporting__drawer-title">${esc(f.title)}</div><button class="btn btn--sm" onclick="event.stopPropagation();_actCloseReportingDrawer()" style="font-size:0.7rem">Close</button></div>`;
+  // No Close button — clicking the parent row again toggles the drawer
+  // shut. Hint shown to the right of the title.
+  html += `<div class="reporting__drawer-hdr"><div class="reporting__drawer-title">${esc(f.title)}</div><span style="font-size:0.66rem;color:var(--text-muted);letter-spacing:0.06em">CLICK ROW TO CLOSE</span></div>`;
 
   // Pills row
   html += `<div class="reporting__pills">`;
