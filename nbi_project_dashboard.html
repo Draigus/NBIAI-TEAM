@@ -18027,13 +18027,30 @@ function parseCSVPreview(text) {
   pendingCSVData = { headers, rows: dataRows, isHierarchy };
 }
 
-/** Confirm and execute a CSV/Excel import -- transforms rows into tasks with parent-child nesting */
+/** Confirm and execute a CSV/Excel import -- transforms rows into tasks with parent-child nesting.
+ *  The Import button is disabled for the duration of this call so a double-click cannot fire two
+ *  imports back-to-back (which previously caused the LH backlog to land twice — see HANDOFF.md). */
+let _importInFlight = false;
 async function confirmImport() {
+  if (_importInFlight) return;
   if (!pendingCSVData) return;
   const { headers, rows, isPlannerExport, planName, isHierarchy } = pendingCSVData;
 
-  if (isHierarchy) { return confirmHierarchyImport(headers, rows); }
-  if (isPlannerExport) { confirmPlannerImport(headers, rows, planName); return; }
+  const btn = document.getElementById('confirmImportBtn');
+  const originalLabel = btn ? btn.textContent : 'Import';
+  _importInFlight = true;
+  if (btn) { btn.disabled = true; btn.textContent = 'Importing...'; }
+  try {
+    if (isHierarchy) { await confirmHierarchyImport(headers, rows); return; }
+    if (isPlannerExport) { confirmPlannerImport(headers, rows, planName); return; }
+    return await _confirmLegacyImport(headers, rows);
+  } finally {
+    _importInFlight = false;
+    if (btn) { btn.disabled = false; btn.textContent = originalLabel; }
+  }
+}
+
+async function _confirmLegacyImport(headers, rows) {
 
   // Column indices
   const col = (name) => { const i = headers.findIndex(h => h.toLowerCase().replace(/[^a-z]/g,'') === name.toLowerCase().replace(/[^a-z]/g,'')); return i; };
