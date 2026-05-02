@@ -4737,6 +4737,29 @@ app.post('/api/tasks/bulk', requireAdmin, async (req, res) => {
     if (t.item_type && !ITEM_TYPES.includes(t.item_type)) return res.status(400).json({ error: `tasks[${i}].item_type: invalid value "${t.item_type}"` });
   }
 
+  // Auto-repair orphan parent links for hierarchy imports. The Backlog Builder
+  // template uses prefix-based _temp_ids (P1, F1, S1.1, T1.1.1, T2.4.3, etc.).
+  // When a row has a blank _temp_parent_id, derive it from the prefix:
+  //   "S{X}.{Y}"     -> parent is "F{X}"
+  //   "T{X}.{Y}.{Z}" -> parent is "S{X}.{Y}" (or "F{X}" if that story is missing)
+  // This rescues the LH source CSV's 6 stories with empty parent cells (S6.1-3,
+  // S8.1-3) so they slot under their correct feature instead of becoming roots.
+  const tempIdSet = new Set(taskList.filter(t => t._temp_id).map(t => t._temp_id));
+  for (const t of taskList) {
+    if (t._temp_parent_id) continue;
+    const id = t._temp_id || '';
+    let m;
+    if ((m = id.match(/^S(\d+)\.\d+$/))) {
+      const feat = `F${m[1]}`;
+      if (tempIdSet.has(feat)) t._temp_parent_id = feat;
+    } else if ((m = id.match(/^T(\d+)\.(\d+)\.\d+$/))) {
+      const story = `S${m[1]}.${m[2]}`;
+      const feat = `F${m[1]}`;
+      if (tempIdSet.has(story)) t._temp_parent_id = story;
+      else if (tempIdSet.has(feat)) t._temp_parent_id = feat;
+    }
+  }
+
   const client = await pool.connect();
   try {
     await client.query('BEGIN');

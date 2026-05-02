@@ -301,6 +301,35 @@ describe('POST /api/tasks/bulk (hierarchy import path)', () => {
     expect(rows[0].item_type).toBe('task');
   });
 
+  it('auto-repairs orphan story parent_ids from the _temp_id prefix (S6.1 with blank parent -> F6)', async () => {
+    // Mirrors the LH Backlog Builder source CSV where S6.1, S6.2, S6.3 etc.
+    // have empty _temp_parent_id cells but should belong to F6.
+    const tasks = [
+      { _temp_id: 'P1', title: 'Project', item_type: 'project', client_id: lighthouse.id },
+      { _temp_id: 'F6', _temp_parent_id: 'P1', title: 'Analytics - Telemetry', item_type: 'feature', client_id: lighthouse.id },
+      { _temp_id: 'S6.0', _temp_parent_id: 'F6', title: 'Phase 1 QA', item_type: 'story', client_id: lighthouse.id },
+      { _temp_id: 'S6.1', /* parent blank */ title: 'Phase 2 QA', item_type: 'story', client_id: lighthouse.id },
+      { _temp_id: 'S6.2', /* parent blank */ title: 'Phase 3 QA', item_type: 'story', client_id: lighthouse.id },
+      { _temp_id: 'T6.2.1', /* parent blank */ title: 'Phase 3 QA Initial Review', item_type: 'task', client_id: lighthouse.id },
+    ];
+    const res = await request(app)
+      .post('/api/tasks/bulk')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ tasks });
+    expect(res.status).toBe(201);
+
+    const { rows } = await pool.query(
+      `SELECT id, title, item_type, parent_id FROM tasks WHERE client_id = $1`,
+      [lighthouse.id]
+    );
+    const byTitle = Object.fromEntries(rows.map(r => [r.title, r]));
+    // S6.1 and S6.2 should now hang under the F6 feature
+    expect(byTitle['Phase 2 QA'].parent_id).toBe(byTitle['Analytics - Telemetry'].id);
+    expect(byTitle['Phase 3 QA'].parent_id).toBe(byTitle['Analytics - Telemetry'].id);
+    // T6.2.1 should hang under S6.2 (the story matching its prefix)
+    expect(byTitle['Phase 3 QA Initial Review'].parent_id).toBe(byTitle['Phase 3 QA'].id);
+  });
+
   it('allows feature/story/task children to inherit client from project parent when client_id omitted on children', async () => {
     const tasks = [
       { _temp_id: 'P1', title: 'Inherit project', item_type: 'project', client_id: lighthouse.id },
