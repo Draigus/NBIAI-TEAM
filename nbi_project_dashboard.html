@@ -18922,6 +18922,27 @@ async function markAllNotificationsRead() {
   } catch(e) {}
 }
 
+async function clearAllNotifications() {
+  try {
+    await authFetch('/api/notifications/clear-all', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
+    window._lastNotificationCount = 0;
+    if (typeof updateWarnAlertButton === 'function') updateWarnAlertButton();
+    toast('All notifications cleared');
+    renderWarnAlertContent();
+  } catch(e) {}
+}
+
+async function clearAllWarnings() {
+  const warnings = computeWarnings();
+  const farFuture = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString();
+  warnings.forEach(w => { _warnAlertSnoozedUntil[w.id] = farFuture; });
+  try { localStorage.setItem('nbi_warn_snoozed', JSON.stringify(_warnAlertSnoozedUntil)); } catch (e) {}
+  try { await authFetch('/api/attachments/verify-matches', { method: 'DELETE' }); } catch (e) {}
+  toast('All warnings cleared');
+  renderWarnAlertContent();
+  updateWarnAlertButton();
+}
+
 /** Convert a date to a human-readable relative time string (e.g. "3h ago", "2d ago") */
 function timeAgo(date) {
   const s = Math.floor((Date.now() - date.getTime()) / 1000);
@@ -19794,6 +19815,7 @@ async function renderWarnAlertContent() {
       list.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:24px;font-size:0.82rem">No warnings. Nice work.</div>';
       return;
     }
+    const warnClearBtn = '<div style="padding:4px 12px;display:flex;justify-content:flex-end"><button class="btn btn--sm" data-action="clearAllWarnings" style="font-size:0.65rem;padding:2px 6px">Clear all</button></div>';
     // Update badge to include verify-match count
     const totalWarnCount = warnings.length + verifyMatches.length;
     if (warnTabCount) warnTabCount.textContent = totalWarnCount > 0 ? String(totalWarnCount) : '';
@@ -19833,7 +19855,7 @@ async function renderWarnAlertContent() {
         </div>`;
       }).join('');
 
-    list.innerHTML = taskWarningsHtml + verifyMatchHtml;
+    list.innerHTML = warnClearBtn + taskWarningsHtml + verifyMatchHtml;
   } else if (_warnAlertTab === 'notifications') {
     // Notifications tab — chronological notification feed
     list.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:24px;font-size:0.82rem">Loading...</div>';
@@ -19848,7 +19870,7 @@ async function renderWarnAlertContent() {
         list.innerHTML = '<div style="color:var(--text-muted);font-size:0.78rem;padding:16px;text-align:center">No notifications</div>';
         return;
       }
-      list.innerHTML = '<div style="padding:4px 12px 4px;display:flex;justify-content:flex-end"><button class="btn btn--sm" data-action="markAllNotificationsRead" style="font-size:0.65rem;padding:2px 6px">Mark all read</button></div>' + notifications.slice(0, 50).map(n => {
+      list.innerHTML = '<div style="padding:4px 12px 4px;display:flex;justify-content:flex-end;gap:6px"><button class="btn btn--sm" data-action="markAllNotificationsRead" style="font-size:0.65rem;padding:2px 6px">Mark all read</button><button class="btn btn--sm" data-action="clearAllNotifications" style="font-size:0.65rem;padding:2px 6px">Clear all</button></div>' + notifications.slice(0, 50).map(n => {
         const ago = timeAgo(new Date(n.created_at));
         const isPersistent = n.dismissable === false;
         const readStyle = n.is_read && !isPersistent ? 'opacity:0.5' : '';

@@ -2769,6 +2769,20 @@ app.post('/api/notifications/read', async (req, res) => {
   res.json({ ok: true });
 });
 
+/** DELETE /api/notifications — Delete all read notifications for the current user. */
+app.delete('/api/notifications', async (req, res) => {
+  const username = req.user?.username || '';
+  await pool.query('DELETE FROM notifications WHERE username = $1 AND is_read = true', [username]);
+  res.json({ ok: true });
+});
+
+/** POST /api/notifications/clear-all — Mark all as read then delete all for the current user. */
+app.post('/api/notifications/clear-all', async (req, res) => {
+  const username = req.user?.username || '';
+  await pool.query('DELETE FROM notifications WHERE username = $1', [username]);
+  res.json({ ok: true });
+});
+
 /**
  * Insert a notification for a specific user.
  * Called internally by other endpoints (e.g. task assignment, status changes).
@@ -2888,24 +2902,6 @@ app.post('/api/tasks/:id/attachments', upload.single('file'), async (req, res) =
   res.status(201).json(rows[0]);
 });
 
-/** GET /api/attachments/:filename — Serve an uploaded file. Path traversal is prevented. */
-app.get('/api/attachments/:filename', (req, res) => {
-  const filePath = path.resolve(uploadDir, req.params.filename);
-  // Security: resolved path must stay within the uploads directory
-  if (!filePath.startsWith(path.resolve(uploadDir) + path.sep)) {
-    return res.status(400).json({ error: 'Invalid filename' });
-  }
-  if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'File not found' });
-  // Security: force download for non-image, non-PDF files to prevent XSS via uploaded HTML/SVG
-  const ext = path.extname(filePath).toLowerCase();
-  const safeInline = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
-  if (!safeInline.includes(ext)) {
-    res.setHeader('Content-Disposition', `attachment; filename="${path.basename(filePath)}"`);
-  }
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.sendFile(filePath);
-});
-
 /** DELETE /api/tasks/:id/attachments/:attachmentId — Remove an attachment and delete the file from disk */
 app.delete('/api/tasks/:id/attachments/:attachmentId', async (req, res) => {
   const allowed = await requireTaskAccess(req, res, req.params.id);
@@ -2969,6 +2965,29 @@ app.get('/api/attachments/download/:filename', (req, res) => {
   if (!filePath.startsWith(path.resolve(uploadDir) + path.sep)) return res.status(403).json({ error: 'Forbidden' });
   if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'File not found' });
   res.download(filePath);
+});
+
+/** GET /api/attachments/:filename — Serve an uploaded file. Path traversal is prevented.
+ *  IMPORTANT: This catch-all must be defined AFTER specific /api/attachments/* routes. */
+app.get('/api/attachments/:filename', (req, res) => {
+  const filePath = path.resolve(uploadDir, req.params.filename);
+  if (!filePath.startsWith(path.resolve(uploadDir) + path.sep)) {
+    return res.status(400).json({ error: 'Invalid filename' });
+  }
+  if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'File not found' });
+  const ext = path.extname(filePath).toLowerCase();
+  const safeInline = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+  if (!safeInline.includes(ext)) {
+    res.setHeader('Content-Disposition', `attachment; filename="${path.basename(filePath)}"`);
+  }
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.sendFile(filePath);
+});
+
+/** DELETE /api/attachments/verify-matches — Bulk-delete all auto-matched email attachments needing verification */
+app.delete('/api/attachments/verify-matches', requireNBI, async (req, res) => {
+  const result = await pool.query("DELETE FROM attachments WHERE uploaded_by LIKE '%verify match%'");
+  res.json({ ok: true, deleted: result.rowCount });
 });
 
 /** PATCH /api/attachments/:id/confirm — Confirm an auto-matched email attachment (remove verify flag) */
