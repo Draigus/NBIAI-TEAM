@@ -16664,8 +16664,7 @@ function renderSettings(el) {
   if (tab === 'data' && !isClientUser()) {
     html += `<div class="settings__group"><h2>Import &amp; Export</h2>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:var(--space-md);margin-bottom:var(--space-lg)">
-        <button class="btn btn--primary" data-action="openDownloadsImport" style="padding:var(--space-md);text-align:center">&#128194;<br>Import from Downloads</button>
-        <button class="btn" data-action="openImportModal" style="padding:var(--space-md);text-align:center">&#128196;<br>Import CSV</button>
+        <button class="btn btn--primary" data-action="openImportModal" style="padding:var(--space-md);text-align:center">&#128196;<br>Import (drag &amp; drop)</button>
         <button class="btn" data-action="openContractImport" style="padding:var(--space-md);text-align:center">&#128196;<br>Import from Contract</button>
         <button class="btn" data-action="exportCSV" style="padding:var(--space-md);text-align:center">&#128196;<br>Export CSV</button>
         <button class="btn" data-action="downloadBackup" style="padding:var(--space-md);text-align:center;background:var(--success);color:#fff">&#128190;<br>Full Backup</button>
@@ -17864,6 +17863,10 @@ async function parseExcelPreview(data, filename) {
     const dataRows = rows.slice(1).filter(r => r.some(c => c != null && String(c).trim() !== ''));
 
     const isPlannerExport = headers.includes('Task ID') && headers.includes('Bucket Name') && headers.includes('Progress');
+    const lowerHeaders = headers.map(h => h.toLowerCase());
+    const isHierarchy = lowerHeaders.includes('_temp_id')
+      && lowerHeaders.includes('_temp_parent_id')
+      && lowerHeaders.includes('item_type');
 
     let planName = '';
     if (sheetNames.includes('Plan name')) {
@@ -17882,6 +17885,7 @@ async function parseExcelPreview(data, filename) {
     let html = `<div class="import-summary"><strong>${dataRows.length} tasks</strong> from ${esc(filename)}`;
     if (planName) html += ` <span style="color:var(--accent-text)">(${esc(planName)})</span>`;
     if (isPlannerExport) html += ` <span style="color:var(--success);font-size:0.8rem">&#10003; Microsoft Planner format detected</span>`;
+    if (isHierarchy) html += ` <span style="color:var(--accent-text);font-size:0.8rem">&#10003; Hierarchy CSV detected — Project / Feature / Story / Task tree will be preserved</span>`;
     html += `</div>`;
 
     // Show column mapping
@@ -17917,7 +17921,7 @@ async function parseExcelPreview(data, filename) {
 
     document.getElementById('importPreview').innerHTML = html;
     document.getElementById('confirmImportBtn').style.display = '';
-    pendingCSVData = { headers, rows: dataRows, isPlannerExport, planName };
+    pendingCSVData = { headers, rows: dataRows, isPlannerExport, planName, isHierarchy };
   } catch (e) {
     toast('Failed to parse Excel file: ' + e.message, 'error');
   }
@@ -17959,8 +17963,23 @@ function parseCSVPreview(text) {
   const headers = rows[0];
   const dataRows = rows.slice(1);
 
+  // Hierarchy detection — same triple of headers the server's
+  // detectImportFormat looks for. When present we route through the
+  // hierarchy-aware confirmHierarchyImport path so the tree, dates,
+  // assignees, success_factor and client name are preserved instead of
+  // being collapsed by the legacy title-based resolver.
+  const lowerHeaders = headers.map(h => String(h || '').toLowerCase().trim());
+  const isHierarchy = lowerHeaders.includes('_temp_id')
+    && lowerHeaders.includes('_temp_parent_id')
+    && lowerHeaders.includes('item_type');
+
   // Preview
   let html = `<div class="import-summary"><strong>${dataRows.length} tasks</strong> found in CSV with columns: ${headers.join(', ')}</div>`;
+  if (isHierarchy) {
+    html += `<div style="margin:6px 0;padding:6px 10px;background:var(--bg-input);border:1px solid var(--accent-text);border-radius:var(--radius-md);color:var(--accent-text);font-size:0.8rem">`;
+    html += `Hierarchy CSV detected — will preserve Project / Feature / Story / Task tree, dates, assignees, success factors, and tag rows to the client named in the <code>client_id</code> column (resolved server-side).`;
+    html += `</div>`;
+  }
   html += '<table class="preview-table"><thead><tr>';
   headers.forEach(h => { html += `<th>${esc(h)}</th>`; });
   html += '</tr></thead><tbody>';
@@ -17970,14 +17989,15 @@ function parseCSVPreview(text) {
 
   document.getElementById('importPreview').innerHTML = html;
   document.getElementById('confirmImportBtn').style.display = '';
-  pendingCSVData = { headers, rows: dataRows };
+  pendingCSVData = { headers, rows: dataRows, isHierarchy };
 }
 
 /** Confirm and execute a CSV/Excel import -- transforms rows into tasks with parent-child nesting */
 async function confirmImport() {
   if (!pendingCSVData) return;
-  const { headers, rows, isPlannerExport, planName } = pendingCSVData;
+  const { headers, rows, isPlannerExport, planName, isHierarchy } = pendingCSVData;
 
+  if (isHierarchy) { return confirmHierarchyImport(headers, rows); }
   if (isPlannerExport) { confirmPlannerImport(headers, rows, planName); return; }
 
   // Column indices
@@ -18055,12 +18075,13 @@ async function confirmImport() {
   };
   newTasks.filter(t => !t.parentId).forEach(t => {
     const lower = t.title.toLowerCase();
-    let matched = false;
     for (const [client, aliases] of Object.entries(clientAliases)) {
-      if (aliases.some(a => lower.includes(a))) { t.client = client; matched = true; break; }
+      if (aliases.some(a => lower.includes(a))) { t.client = client; break; }
     }
-    // Default unmatched root projects to Couch Heroes (Glen's primary engagement)
-    if (!matched && !t.client) t.client = 'Couch Heroes';
+    // No silent default. If no alias matches, leave client unset and let
+    // the user assign it explicitly. The previous "default to Couch
+    // Heroes" caused the failed Lighthouse import that landed under
+    // Couch (bug df1fb00b).
   });
 
   // Mark all existing tasks as deleted, all new tasks as dirty
@@ -18071,6 +18092,116 @@ async function confirmImport() {
   closeImportModal();
   renderAll();
   toast(`Imported ${newTasks.length} tasks` + (warnings > 0 ? ` (${warnings} warnings)` : ''));
+}
+
+/** Hierarchy CSV import — drag-drop path. Mirrors the Downloads-scanner
+ *  hierarchy path: maps every column the Backlog Builder format uses,
+ *  converts dd/mm/yyyy dates, and POSTs straight to /api/tasks/bulk so
+ *  the server does _temp_id linking, client-name resolution and
+ *  client_id inheritance in one transactional batch. No legacy
+ *  title-based parent matching, no "default to Couch Heroes" fallback. */
+async function confirmHierarchyImport(headers, rows) {
+  const ci = name => headers.findIndex(h => String(h || '').toLowerCase().trim() === name);
+  const get = (r, i) => i >= 0 && r[i] != null ? String(r[i]).trim() : '';
+  const iTempId = ci('_temp_id'), iTempParent = ci('_temp_parent_id'), iItemType = ci('item_type');
+  const iTask = ci('task') >= 0 ? ci('task') : ci('title');
+  const iDesc = ci('description'), iStatus = ci('status'), iPriority = ci('priority');
+  const iHours = ci('hours_estimated') >= 0 ? ci('hours_estimated') : ci('hours estimated');
+  const iAssignees = ci('assignees') >= 0 ? ci('assignees') : (ci('assignee') >= 0 ? ci('assignee') : ci('assigned to'));
+  const iClient = ci('client_id') >= 0 ? ci('client_id') : ci('client');
+  const iPractice = ci('practice_area');
+  const iStart = ci('start_date') >= 0 ? ci('start_date') : ci('start date');
+  const iEnd = ci('end_date') >= 0 ? ci('end_date') : ci('end date');
+  const iDue = ci('due_date') >= 0 ? ci('due_date') : ci('due date');
+  const iSuccess = ci('success_factor');
+  const iCollab = ci('collaborations');
+  const iNotes = ci('notes');
+  const validItemTypes = new Set(['project', 'feature', 'story', 'task']);
+
+  function parseDdMmYyyy(s) {
+    if (!s) return '';
+    const t = String(s).trim();
+    if (!t) return '';
+    if (/^\d{4}-\d{2}-\d{2}/.test(t)) return t.slice(0, 10);
+    const m = t.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+    if (!m) return t;
+    const dd = m[1].padStart(2, '0'), mm = m[2].padStart(2, '0');
+    let yyyy = m[3]; if (yyyy.length === 2) yyyy = (parseInt(yyyy, 10) > 50 ? '19' : '20') + yyyy;
+    return `${yyyy}-${mm}-${dd}`;
+  }
+  function normStatus(s) {
+    if (!s) return 'Not started';
+    const m = { 'not started': 'Not started', 'in progress': 'In progress', 'in-progress': 'In progress',
+      planning: 'Planning', drafted: 'Drafted', done: 'Done', completed: 'Done', complete: 'Done',
+      cancelled: 'Cancelled', canceled: 'Cancelled' };
+    return m[s.toLowerCase().trim()] || 'Not started';
+  }
+  function normPriority(p) {
+    if (!p) return '';
+    const m = { p1: 'Critical ACT', critical: 'Critical ACT', urgent: 'Critical ACT',
+      p2: 'High', high: 'High', important: 'High', p3: 'Medium', medium: 'Medium', p4: 'Low', low: 'Low' };
+    return m[p.toLowerCase().trim()] || p;
+  }
+
+  const payload = [];
+  for (const r of rows) {
+    const title = get(r, iTask);
+    if (!title) continue; // drop empty-title rows (e.g. CSV typos)
+    const itRaw = get(r, iItemType).toLowerCase();
+    const item_type = validItemTypes.has(itRaw) ? itRaw : 'task';
+    payload.push({
+      _temp_id: get(r, iTempId),
+      _temp_parent_id: get(r, iTempParent),
+      item_type,
+      title,
+      description: get(r, iDesc),
+      status: normStatus(get(r, iStatus)),
+      priority: normPriority(get(r, iPriority)),
+      hours_estimated: parseFloat(get(r, iHours)) || 0,
+      assignees: get(r, iAssignees) ? get(r, iAssignees).split(/[,;\/]/).map(s => s.trim()).filter(Boolean) : [],
+      client: get(r, iClient),
+      practice_area: get(r, iPractice),
+      start_date: parseDdMmYyyy(get(r, iStart)),
+      end_date: parseDdMmYyyy(get(r, iEnd)),
+      due_date: parseDdMmYyyy(get(r, iDue)),
+      success_factor: get(r, iSuccess),
+      collaborations: get(r, iCollab),
+      notes: get(r, iNotes),
+      source: 'import',
+    });
+  }
+
+  if (payload.length === 0) { toast('No rows to import after filtering empty titles', 'error'); return; }
+
+  const CHUNK = 450;
+  let totalCreated = 0;
+  try {
+    for (let i = 0; i < payload.length; i += CHUNK) {
+      const slice = payload.slice(i, i + CHUNK);
+      const resp = await authFetch('/api/tasks/bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tasks: slice }),
+      });
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({}));
+        throw new Error(err.error || `Bulk import failed (${resp.status})`);
+      }
+      const data = await resp.json();
+      totalCreated += (data.count || 0);
+    }
+  } catch (e) {
+    toast('Hierarchy import failed: ' + e.message, 'error');
+    return;
+  }
+
+  // Replace local in-memory state from the server so the dashboard reflects
+  // exactly what landed (and any pre-import local cruft is dropped).
+  if (typeof loadAllTasks === 'function') await loadAllTasks();
+  pendingCSVData = null;
+  closeImportModal();
+  toast(`Imported ${totalCreated} hierarchy rows`, 'success');
+  renderAll();
 }
 
 /** Normalise a free-text status string to one of the canonical STATUSES values */
