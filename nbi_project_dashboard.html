@@ -10734,14 +10734,11 @@ function renderPeopleView(el) {
   // Calendar sub-view removed in People redesign (2026-04-20).
   // renderPeopleCalendarView() function retained for potential future use.
 
-  // Date range filter (shared across the master-detail view)
-  html += `<div style="display:flex;gap:6px;margin-bottom:var(--space-md);align-items:center;flex-wrap:wrap">`;
-  html += `<div class="task-subview-toggle">`;
-  ['all','week','month','quarter'].forEach(r => {
-    const labels = { all: 'All Time', week: 'This Week', month: 'This Month', quarter: 'This Quarter' };
-    html += `<button class="task-subview-btn ${_peopleFilter.dateRange===r?'active':''}" data-action="_actSetPeopleFilterDateRange" data-arg0="${r}">${labels[r]}</button>`;
-  });
-  html += `</div></div>`;
+  // The All Time / This Week / This Month / This Quarter buttons used to live
+  // here. They filtered the workload table by createdAt / updatedAt, which
+  // told you nothing about FORWARD capacity — only when rows were last
+  // touched. Glen 2026-05-02: replaced with a per-person 3-week capacity
+  // preview rendered inline on each person row below.
 
   if (allPeople.length === 0) {
     html += emptyState('&#128100;', 'No assignees found', 'Assign people to tasks to see workload data here.');
@@ -10753,6 +10750,34 @@ function renderPeopleView(el) {
   // === DATA COMPUTATION ===
   const WEEKLY_CAPACITY = 40;
   const now = new Date(); now.setHours(0,0,0,0);
+
+  // Build the 3-week window — Monday of this week, next, and the following.
+  const previewWeeks = [];
+  for (let w = 0; w < 3; w++) {
+    const wStart = new Date(now); wStart.setDate(wStart.getDate() - wStart.getDay() + 1 + w*7); wStart.setHours(0,0,0,0);
+    const wEnd = new Date(wStart); wEnd.setDate(wEnd.getDate() + 6); wEnd.setHours(23,59,59,0);
+    previewWeeks.push({ start: wStart, end: wEnd, label: w === 0 ? 'THIS WK' : w === 1 ? 'NEXT WK' : '+2 WK' });
+  }
+
+  /** Compute one person's utilisation % for a given week window — sums
+   *  estimated hours across active tasks whose date range overlaps the week,
+   *  divides by 40 hours (less days off × 8). Returns 'OFF' if the week
+   *  is fully covered by absences. */
+  function weekUtilFor(person, weekStart, weekEnd) {
+    const weekTasks = filtered.filter(t => {
+      if (!isAssignedTo(t, person)) return false;
+      if (t.status === 'Done' || t.status === 'Cancelled') return false;
+      const start = t.startDate ? safeParseDate(t.startDate) : null;
+      const end = t.endDate ? safeParseDate(t.endDate) : (t.dueDate ? safeParseDate(t.dueDate) : null);
+      if (!end) return false;
+      return (!start || start <= weekEnd) && end >= weekStart;
+    });
+    const committed = weekTasks.reduce((s, t) => s + (t.hoursEstimated || 0), 0);
+    const daysOff = (typeof computeDaysOff === 'function') ? computeDaysOff(person, weekStart, weekEnd, _capacityEvents) : 0;
+    const effCap = Math.max(0, WEEKLY_CAPACITY - daysOff * 8);
+    if (effCap === 0) return { pct: null, label: 'OFF', daysOff };
+    return { pct: Math.round(committed / effCap * 100), daysOff };
+  }
 
   const workloadRows = allPeople.map(p => {
     const pt = filtered.filter(t => isAssignedTo(t, p));
@@ -10768,6 +10793,7 @@ function renderPeopleView(el) {
       hs: pt.reduce((s,t) => s + (t.hoursSpent||0), 0),
       he: pt.reduce((s,t) => s + (t.hoursEstimated||0), 0),
       util: Math.round((activeTasks.reduce((s,t) => s + (t.hoursEstimated||0), 0)) / WEEKLY_CAPACITY * 100),
+      weeks: previewWeeks.map(wk => weekUtilFor(p, wk.start, wk.end)),
     };
   });
 
@@ -10842,6 +10868,32 @@ function renderPeopleView(el) {
     html += `<div class="people-row__stats">`;
     html += `<span>${r.total} tasks &middot; ${r.hs.toFixed(1)}h spent</span>`;
     html += `<span class="${utilClass}">${r.util}% util</span>`;
+    html += `</div>`;
+    // 3-week capacity preview — this week, next week, +2. Each cell colour-
+    // coded: red >95%, amber >70%, green otherwise. OFF means full week of
+    // logged absences.
+    html += `<div class="people-row__weeks" style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:6px">`;
+    previewWeeks.forEach((wk, wi) => {
+      const w = r.weeks[wi];
+      let bg, fg, valueText;
+      if (w.label === 'OFF') {
+        bg = 'color-mix(in srgb, var(--text-muted) 8%, transparent)';
+        fg = 'var(--text-muted)';
+        valueText = 'OFF';
+      } else {
+        const pct = w.pct;
+        bg = pct > 95 ? 'color-mix(in srgb, var(--danger) 14%, transparent)' :
+             pct > 70 ? 'color-mix(in srgb, var(--warning) 14%, transparent)' :
+             'color-mix(in srgb, var(--success) 12%, transparent)';
+        fg = pct > 95 ? 'var(--danger)' : pct > 70 ? 'var(--warning)' : 'var(--success)';
+        valueText = pct + '%';
+      }
+      const tip = `${wk.label} — ${wk.start.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}${w.daysOff ? ` · ${w.daysOff}d off` : ''}`;
+      html += `<div title="${esc(tip)}" style="background:${bg};border:1px solid color-mix(in srgb, ${fg} 25%, var(--border-default));border-radius:4px;padding:3px 6px;text-align:center">`;
+      html += `<div style="font-size:0.6rem;font-weight:700;letter-spacing:0.06em;color:${fg}">${valueText}</div>`;
+      html += `<div style="font-size:0.55rem;color:var(--text-muted);letter-spacing:0.04em">${wk.label}</div>`;
+      html += `</div>`;
+    });
     html += `</div>`;
     html += `</div>`;
   });
