@@ -5086,50 +5086,83 @@ function renderPfMilestones(panelRoots, now) {
 }
 
 function renderPfTimeline(panelTasks, panelRoots, now) {
-  const activeProjects = panelRoots.filter(r => r.status !== 'Done' && r.status !== 'Cancelled' && r.itemType === 'project');
+  // Collect every feature row that's still open. Falls back to project rows
+  // for clients that don't yet have features (so a brand-new client is still
+  // visible on the timeline). Each row computes:
+  //   - start / end (with sane defaults if dates are missing)
+  //   - percent complete from child task statuses (Done / total)
+  //   - health: red if overdue, amber if <14 days to due, grey if blocked,
+  //     green otherwise.
+  const allItems = panelTasks.concat(panelRoots).filter((v, i, a) => a.indexOf(v) === i);
+  const features = panelTasks.filter(t => t.itemType === 'feature' && t.status !== 'Done' && t.status !== 'Cancelled');
+  const projectFallback = panelRoots.filter(r => r.itemType === 'project' && r.status !== 'Done' && r.status !== 'Cancelled');
+
+  // For each parent (feature or project), compute % complete from descendant
+  // tasks. Walk down via parentId chains. childrenByParent maps each parent's
+  // id to its full descendant set (recursive).
+  const childrenIdx = {};
+  allItems.forEach(t => { if (t.parentId) (childrenIdx[t.parentId] = childrenIdx[t.parentId] || []).push(t); });
+  function descendants(id, acc = []) {
+    const kids = childrenIdx[id] || [];
+    kids.forEach(k => { acc.push(k); descendants(k.id, acc); });
+    return acc;
+  }
+
+  const ROW_H = 24;
+  const labelW = 180;
+
+  function makeRow(item, depth) {
+    let s = item.startDate ? safeParseDate(item.startDate) : null;
+    let e = item.endDate ? safeParseDate(item.endDate) : (item.dueDate ? safeParseDate(item.dueDate) : null);
+    if (!s && item.createdAt) s = safeParseDate(item.createdAt);
+    if (!s) s = new Date(now.getFullYear(), now.getMonth(), 1);
+    if (!e) { e = new Date(s); e.setMonth(e.getMonth() + 2); }
+    if (e <= s) { e = new Date(s); e.setMonth(e.getMonth() + 1); }
+    const desc = descendants(item.id);
+    const tasks = desc.filter(d => d.itemType === 'task' || (!d.itemType && !d.parentId === false));
+    const total = tasks.length || desc.length;
+    const done = (tasks.length ? tasks : desc).filter(d => d.status === 'Done').length;
+    const pct = total > 0 ? Math.round(done / total * 100) : 0;
+    const overdue = e < now && item.status !== 'Done';
+    const daysToEnd = Math.round((e - now) / 86400000);
+    const blocked = item.healthState === 'Blocked' || item.status === 'Blocked';
+    const health = blocked ? 'blocked' : (overdue ? 'red' : (daysToEnd <= 14 && daysToEnd >= 0 ? 'amber' : (item.healthState === 'Red' ? 'red' : (item.healthState === 'Yellow' ? 'amber' : 'green'))));
+    return { id: item.id, title: item.title, client: getTaskClient(item) || 'Other', _start: s, _end: e, pct, health, daysToEnd, depth, itemType: item.itemType };
+  }
+
+  const featureRows = features.map(f => makeRow(f, 1));
+  const projectRows = projectFallback.map(p => makeRow(p, 0));
+
+  // Group rows by client. For each client, show projects (depth 0) above
+  // their child features (depth 1).
+  const byClient = {};
+  [...projectRows, ...featureRows].forEach(r => {
+    (byClient[r.client] = byClient[r.client] || []).push(r);
+  });
 
   let html = '<div class="pf__panel">';
   html += '<div class="pf__panel-hdr"><div class="pf__panel-title">PROJECT TIMELINE</div></div>';
   html += '<div class="pf__panel-body" style="padding:0 14px 10px">';
 
-  if (activeProjects.length === 0) {
-    html += '<div style="display:flex;align-items:center;justify-content:center;height:60px;color:var(--text-muted);font-size:0.82rem">No active projects.</div>';
+  if (Object.keys(byClient).length === 0) {
+    html += '<div style="display:flex;align-items:center;justify-content:center;height:60px;color:var(--text-muted);font-size:0.82rem">No active features or projects with dates yet.</div>';
     html += '</div></div>';
     return html;
   }
 
-  const projects = activeProjects.map(r => {
-    let s = r.startDate ? safeParseDate(r.startDate) : null;
-    let e = r.endDate ? safeParseDate(r.endDate) : (r.dueDate ? safeParseDate(r.dueDate) : null);
-    if (!s && r.createdAt) s = safeParseDate(r.createdAt);
-    if (!s) s = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    if (!e) { e = new Date(s); e.setMonth(e.getMonth() + 3); }
-    if (e <= s) { e = new Date(s); e.setMonth(e.getMonth() + 1); }
-    const client = getTaskClient(r) || 'Other';
-    return { id: r.id, title: r.title, client, _start: s, _end: e };
-  });
-
-  const clientOrder = ['Couch Heroes', 'Lighthouse Studios', 'Sarge Universe', 'Goals Studio', 'Playsage', 'NBI OPS', 'NSI'];
-  const clientGroups = {};
-  projects.forEach(p => {
-    if (!clientGroups[p.client]) clientGroups[p.client] = [];
-    clientGroups[p.client].push(p);
-  });
-  const sortedClients = Object.keys(clientGroups).sort((a, b) => {
+  const clientOrder = ['Couch Heroes', 'Lighthouse Games', 'Lighthouse Studios', 'Sarge Universe', 'Goals Studio', 'Playsage', 'NBI OPS', 'NSI'];
+  const sortedClients = Object.keys(byClient).sort((a, b) => {
     const ai = clientOrder.indexOf(a); const bi = clientOrder.indexOf(b);
     return (ai >= 0 ? ai : 99) - (bi >= 0 ? bi : 99);
   });
-  const clientSummaries = sortedClients.map(name => {
-    const grp = clientGroups[name];
-    grp.sort((a, b) => a._start - b._start);
-    return { name, _start: new Date(Math.min(...grp.map(p => p._start))), _end: new Date(Math.max(...grp.map(p => p._end))), count: grp.length, projects: grp };
-  });
 
-  const globalMin = new Date(Math.min(...projects.map(p => p._start)));
-  const globalMax = new Date(Math.max(...projects.map(p => p._end)));
+  const allRows = sortedClients.flatMap(c => byClient[c]);
+  const globalMin = new Date(Math.min(...allRows.map(r => r._start), now));
+  const globalMax = new Date(Math.max(...allRows.map(r => r._end), now));
   globalMin.setDate(1);
   globalMax.setMonth(globalMax.getMonth() + 1, 1);
-  const totalDays = Math.round((globalMax - globalMin) / 86400000);
+  const totalDays = Math.max(1, Math.round((globalMax - globalMin) / 86400000));
+  const nowPct = ((now - globalMin) / 86400000 / totalDays * 100).toFixed(2);
 
   const months = [];
   let md = new Date(globalMin);
@@ -5140,39 +5173,76 @@ function renderPfTimeline(panelTasks, panelRoots, now) {
     md = mEnd;
   }
 
-  const labelW = 150;
-  html += `<div style="display:flex">`;
+  const healthFill = h => h === 'red' ? '#ef4444' : h === 'amber' ? '#f59e0b' : h === 'blocked' ? '#94a3b8' : '#22c55e';
+  const healthGlow = h => h === 'red' ? 'rgba(239,68,68,0.18)' : h === 'amber' ? 'rgba(245,158,11,0.16)' : h === 'blocked' ? 'rgba(148,163,184,0.16)' : 'rgba(34,197,94,0.14)';
+
+  // Month header
+  html += `<div style="display:flex;position:sticky;top:0;background:var(--bg-card);z-index:1">`;
   html += `<div style="width:${labelW}px;flex-shrink:0"></div>`;
-  html += `<div style="flex:1;display:flex;border-bottom:1px solid var(--border-subtle)">`;
+  html += `<div style="flex:1;display:flex;border-bottom:1px solid var(--border-subtle);position:relative">`;
   months.forEach(m => {
     const widthPct = (m.days / totalDays * 100).toFixed(2);
-    html += `<div style="width:${widthPct}%;text-align:center;font-size:${m.isNow ? '0.82rem' : '0.68rem'};font-weight:${m.isNow ? '700' : '600'};color:${m.isNow ? 'var(--text-primary)' : 'var(--text-muted)'};padding:4px 0;border-right:1px solid var(--border-subtle)">${m.label}</div>`;
+    html += `<div style="width:${widthPct}%;text-align:center;font-size:${m.isNow ? '0.78rem' : '0.66rem'};font-weight:${m.isNow ? '700' : '600'};color:${m.isNow ? 'var(--text-primary)' : 'var(--text-muted)'};padding:4px 0;border-right:1px solid var(--border-subtle);letter-spacing:0.04em">${m.label}</div>`;
   });
+  // Today line in the header (label)
+  html += `<div style="position:absolute;left:${nowPct}%;top:0;bottom:0;border-left:2px dashed #ef4444;pointer-events:none"></div>`;
+  html += `<div style="position:absolute;left:calc(${nowPct}% - 18px);top:-4px;font-size:0.6rem;color:#ef4444;font-weight:700;letter-spacing:0.06em">TODAY</div>`;
   html += '</div></div>';
 
-  clientSummaries.forEach((cs, idx) => {
-    const leftPct = ((cs._start - globalMin) / 86400000 / totalDays * 100).toFixed(2);
-    const widthPct = Math.max(1, ((cs._end - cs._start) / 86400000 / totalDays * 100)).toFixed(2);
-    const zebra = idx % 2 === 1 ? 'background:rgba(255,255,255,0.02);' : '';
-    const groupId = 'tlg_' + idx;
-    html += `<div style="display:flex;align-items:center;min-height:30px;cursor:pointer;border-bottom:1px solid var(--border-subtle);${zebra}" onclick="var el=document.getElementById('${groupId}');if(el.style.display==='none'){el.style.display='block';this.querySelector('.tl-chev').textContent='\\u25BC'}else{el.style.display='none';this.querySelector('.tl-chev').textContent='\\u25B6'}" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='${idx % 2 === 1 ? 'rgba(255,255,255,0.02)' : ''}'">`;
-    html += `<div style="width:${labelW}px;flex-shrink:0;font-size:0.75rem;font-weight:700;color:var(--accent);padding:0 8px 0 4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><span class="tl-chev" style="font-size:0.6rem;margin-right:4px;color:var(--text-muted)">&#9654;</span>${esc(cs.name)} <span style="font-weight:400;color:var(--text-muted)">(${cs.count})</span></div>`;
-    html += `<div style="flex:1;position:relative;height:18px">`;
-    html += `<div style="position:absolute;left:${leftPct}%;width:${widthPct}%;top:2px;bottom:2px;background:#00e5ff;border-radius:3px;opacity:0.85"></div>`;
-    html += '</div></div>';
+  // Rows
+  sortedClients.forEach((clientName, ci) => {
+    const rows = byClient[clientName];
+    const zebra = ci % 2 === 1 ? 'background:rgba(255,255,255,0.015);' : '';
+    // Client header strip
+    html += `<div style="display:flex;align-items:center;min-height:22px;${zebra}padding-top:6px"><div style="width:${labelW}px;flex-shrink:0;font-size:0.7rem;font-weight:700;color:var(--accent);letter-spacing:0.06em;padding:0 8px;text-transform:uppercase">${esc(clientName)}</div><div style="flex:1"></div></div>`;
 
-    html += `<div id="${groupId}" style="display:none">`;
-    cs.projects.forEach(p => {
-      const pLeft = ((p._start - globalMin) / 86400000 / totalDays * 100).toFixed(2);
-      const pWidth = Math.max(0.5, ((p._end - p._start) / 86400000 / totalDays * 100)).toFixed(2);
-      html += `<div style="display:flex;align-items:center;min-height:26px;cursor:pointer;border-bottom:1px solid var(--border-subtle);background:rgba(255,255,255,0.015)" data-action="openDetailOverlay" data-arg0="${p.id}" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='rgba(255,255,255,0.015)'">`;
-      html += `<div style="width:${labelW}px;flex-shrink:0;font-size:0.7rem;font-weight:400;color:var(--text-secondary);padding:0 8px 0 18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.title)}</div>`;
-      html += `<div style="flex:1;position:relative;height:14px">`;
-      html += `<div style="position:absolute;left:${pLeft}%;width:${pWidth}%;top:2px;bottom:2px;background:#00e5ff;border-radius:2px;opacity:0.65"></div>`;
-      html += '</div></div>';
+    rows.forEach(r => {
+      const leftPct = ((r._start - globalMin) / 86400000 / totalDays * 100).toFixed(2);
+      const widthPct = Math.max(0.4, ((r._end - r._start) / 86400000 / totalDays * 100)).toFixed(2);
+      const fill = healthFill(r.health);
+      const glow = healthGlow(r.health);
+      const subtitle = r.health === 'blocked' ? 'BLOCKED' : (r.daysToEnd < 0 ? `${Math.abs(r.daysToEnd)}d OVERDUE` : `${r.daysToEnd}d to close`);
+      const subtitleCol = r.health === 'red' ? '#ef4444' : r.health === 'amber' ? '#f59e0b' : r.health === 'blocked' ? '#94a3b8' : 'var(--text-muted)';
+      const indent = r.depth * 14;
+      const typeBadge = r.itemType === 'project' ? 'PR' : r.itemType === 'feature' ? 'FT' : 'ST';
+      html += `<div style="display:flex;align-items:center;min-height:${ROW_H}px;border-bottom:1px solid var(--border-subtle);${zebra}cursor:pointer" data-action="openDetailOverlay" data-arg0="${r.id}" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='${ci % 2 === 1 ? 'rgba(255,255,255,0.015)' : ''}'">`;
+      html += `<div style="width:${labelW}px;flex-shrink:0;padding:0 8px 0 ${indent + 6}px;display:flex;flex-direction:column;justify-content:center;gap:1px;overflow:hidden">`;
+      html += `<div style="display:flex;align-items:center;gap:6px;font-size:0.72rem;color:var(--text-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r.title)}"><span style="font-size:0.55rem;font-weight:700;letter-spacing:0.06em;color:var(--text-muted);background:var(--bg-input);padding:1px 4px;border-radius:3px;flex-shrink:0">${typeBadge}</span><span style="overflow:hidden;text-overflow:ellipsis">${esc(r.title)}</span></div>`;
+      html += `<div style="font-size:0.6rem;color:${subtitleCol};letter-spacing:0.04em">${subtitle} · ${r.pct}%</div>`;
+      html += `</div>`;
+      // Track
+      html += `<div style="flex:1;position:relative;height:${ROW_H}px">`;
+      // Today line on each row
+      html += `<div style="position:absolute;left:${nowPct}%;top:0;bottom:0;border-left:1px dashed #ef4444;opacity:0.35;pointer-events:none"></div>`;
+      // Outer bar (frame)
+      html += `<div style="position:absolute;left:${leftPct}%;width:${widthPct}%;top:6px;bottom:6px;background:${glow};border:1px solid ${fill};border-radius:4px;box-sizing:border-box">`;
+      // Progress fill
+      html += `<div style="height:100%;width:${r.pct}%;background:${fill};opacity:0.85;border-radius:3px 0 0 3px"></div>`;
+      html += `</div>`;
+      // End-date diamond marker
+      html += `<div style="position:absolute;left:calc(${leftPct}% + ${widthPct}% - 5px);top:50%;transform:translateY(-50%) rotate(45deg);width:8px;height:8px;background:${fill};box-shadow:0 0 0 1px var(--bg-card)"></div>`;
+      html += `</div></div>`;
     });
-    html += '</div>';
   });
+
+  // Closing-soon callout below the chart — top 5 rows by days-to-end (positive only)
+  const closing = allRows.filter(r => r.daysToEnd >= 0).sort((a, b) => a.daysToEnd - b.daysToEnd).slice(0, 5);
+  if (closing.length > 0) {
+    html += `<div style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--border-subtle)">`;
+    html += `<div style="font-size:0.66rem;font-weight:700;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:4px">CLOSING SOON</div>`;
+    closing.forEach(r => {
+      const fill = healthFill(r.health);
+      const subtitleCol = r.health === 'red' ? '#ef4444' : r.health === 'amber' ? '#f59e0b' : r.health === 'blocked' ? '#94a3b8' : 'var(--text-muted)';
+      html += `<div style="display:flex;align-items:center;gap:8px;font-size:0.74rem;padding:3px 0;cursor:pointer" data-action="openDetailOverlay" data-arg0="${r.id}">`;
+      html += `<span style="width:8px;height:8px;border-radius:50%;background:${fill};flex-shrink:0"></span>`;
+      html += `<span style="color:var(--text-secondary);flex-shrink:0;font-weight:600">${esc(r.client)}</span>`;
+      html += `<span style="color:var(--text-muted);flex-shrink:0">/</span>`;
+      html += `<span style="color:var(--text-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1" title="${esc(r.title)}">${esc(r.title)}</span>`;
+      html += `<span style="color:${subtitleCol};font-size:0.68rem;letter-spacing:0.04em;flex-shrink:0">${r.daysToEnd === 0 ? 'TODAY' : `${r.daysToEnd}D`} · ${r.pct}%</span>`;
+      html += `</div>`;
+    });
+    html += `</div>`;
+  }
 
   html += '</div></div>';
   return html;
