@@ -5189,12 +5189,62 @@ function renderPfTimeline(panelTasks, panelRoots, now) {
   html += `<div style="position:absolute;left:calc(${nowPct}% - 18px);top:-4px;font-size:0.6rem;color:#ef4444;font-weight:700;letter-spacing:0.06em">TODAY</div>`;
   html += '</div></div>';
 
+  // Per-client collapse state — persisted in localStorage so refreshes keep
+  // the user's choice. Default: expanded.
+  let _tlCollapsed = {};
+  try { _tlCollapsed = JSON.parse(localStorage.getItem('nbi_pf_timeline_collapsed') || '{}'); } catch (e) {}
+  if (!window._actTlToggleClient) {
+    window._actTlToggleClient = function(clientName) {
+      let s = {};
+      try { s = JSON.parse(localStorage.getItem('nbi_pf_timeline_collapsed') || '{}'); } catch (e) {}
+      s[clientName] = !s[clientName];
+      localStorage.setItem('nbi_pf_timeline_collapsed', JSON.stringify(s));
+      const grp = document.querySelector(`[data-tl-client="${CSS.escape(clientName)}"]`);
+      const chev = document.querySelector(`[data-tl-chev="${CSS.escape(clientName)}"]`);
+      if (grp) grp.style.display = s[clientName] ? 'none' : '';
+      if (chev) chev.textContent = s[clientName] ? '▶' : '▼';
+    };
+    window._actTlExpandAll = function() {
+      localStorage.setItem('nbi_pf_timeline_collapsed', '{}');
+      document.querySelectorAll('[data-tl-client]').forEach(el => el.style.display = '');
+      document.querySelectorAll('[data-tl-chev]').forEach(el => el.textContent = '▼');
+    };
+    window._actTlCollapseAll = function() {
+      const all = {};
+      document.querySelectorAll('[data-tl-client]').forEach(el => { all[el.getAttribute('data-tl-client')] = true; el.style.display = 'none'; });
+      document.querySelectorAll('[data-tl-chev]').forEach(el => el.textContent = '▶');
+      localStorage.setItem('nbi_pf_timeline_collapsed', JSON.stringify(all));
+    };
+  }
+
+  // Top-level Expand-all / Collapse-all controls
+  html += `<div style="display:flex;justify-content:flex-end;gap:6px;margin:4px 0 2px"><button class="btn btn--sm" onclick="_actTlExpandAll()" style="font-size:0.62rem;padding:2px 8px;letter-spacing:0.04em">Expand all</button><button class="btn btn--sm" onclick="_actTlCollapseAll()" style="font-size:0.62rem;padding:2px 8px;letter-spacing:0.04em">Collapse all</button></div>`;
+
   // Rows
   sortedClients.forEach((clientName, ci) => {
     const rows = byClient[clientName];
     const zebra = ci % 2 === 1 ? 'background:rgba(255,255,255,0.015);' : '';
-    // Client header strip
-    html += `<div style="display:flex;align-items:center;min-height:22px;${zebra}padding-top:6px"><div style="width:${labelW}px;flex-shrink:0;font-size:0.7rem;font-weight:700;color:var(--accent);letter-spacing:0.06em;padding:0 8px;text-transform:uppercase">${esc(clientName)}</div><div style="flex:1"></div></div>`;
+    const isCollapsed = !!_tlCollapsed[clientName];
+    const chev = isCollapsed ? '▶' : '▼';
+    // Quick health summary on the right of the client header — a count of
+    // bars in each health bucket so you can see at a glance whether the
+    // client has issues even when collapsed.
+    const buckets = { red: 0, amber: 0, blocked: 0, green: 0 };
+    rows.forEach(r => { buckets[r.health] = (buckets[r.health] || 0) + 1; });
+    const summaryDots = ['red','amber','blocked','green'].map(h => {
+      if (!buckets[h]) return '';
+      const col = h === 'red' ? '#ef4444' : h === 'amber' ? '#f59e0b' : h === 'blocked' ? '#94a3b8' : '#22c55e';
+      return `<span style="display:inline-flex;align-items:center;gap:3px;font-size:0.62rem;color:var(--text-muted);margin-left:8px"><span style="width:6px;height:6px;border-radius:50%;background:${col}"></span>${buckets[h]}</span>`;
+    }).join('');
+    // Client header strip — clickable to toggle the rows underneath
+    const safeName = esc(clientName);
+    html += `<div style="display:flex;align-items:center;min-height:24px;${zebra}padding-top:6px;cursor:pointer;user-select:none" onclick="_actTlToggleClient('${escAttrJs(clientName)}')" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='${ci % 2 === 1 ? 'rgba(255,255,255,0.015)' : ''}'">`;
+    html += `<div style="width:${labelW}px;flex-shrink:0;font-size:0.7rem;font-weight:700;color:var(--accent);letter-spacing:0.06em;padding:0 8px;text-transform:uppercase;display:flex;align-items:center;gap:6px"><span data-tl-chev="${safeName}" style="font-size:0.62rem;width:10px;color:var(--text-muted)">${chev}</span>${safeName} <span style="font-weight:500;color:var(--text-muted);font-size:0.62rem">(${rows.length})</span></div>`;
+    html += `<div style="flex:1;display:flex;align-items:center">${summaryDots}</div>`;
+    html += `</div>`;
+
+    // Wrap the rows in a div we can hide/show
+    html += `<div data-tl-client="${safeName}" style="${isCollapsed ? 'display:none' : ''}">`;
 
     rows.forEach(r => {
       const leftPct = ((r._start - globalMin) / 86400000 / totalDays * 100).toFixed(2);
@@ -5223,6 +5273,8 @@ function renderPfTimeline(panelTasks, panelRoots, now) {
       html += `<div style="position:absolute;left:calc(${leftPct}% + ${widthPct}% - 5px);top:50%;transform:translateY(-50%) rotate(45deg);width:8px;height:8px;background:${fill};box-shadow:0 0 0 1px var(--bg-card)"></div>`;
       html += `</div></div>`;
     });
+    // Close the per-client wrapper div
+    html += `</div>`;
   });
 
   // Closing-soon callout below the chart — top 5 rows by days-to-end (positive only)
