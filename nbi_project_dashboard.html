@@ -1027,18 +1027,27 @@ span.fin-editable { display: inline-block; position: relative; }
 .gantt__arrow { fill: none; stroke-width: 1.5; }
 .gantt__arrow--done { stroke: var(--success); opacity: 0.35; }
 .gantt__arrow--pending { stroke: var(--warning); stroke-dasharray: 4 2; }
+/* Bar background = grey "remaining" by default. Done bars are fully filled
+   so their bg shows the success colour; Blocked / Cancelled bars keep their
+   own status colour because they're a signal in their own right. The
+   progress fill below is what carries the health colour for active bars. */
+.gantt__bar { background: rgba(148,163,184,0.28); }
 .gantt__bar--done { background: var(--success); }
-.gantt__bar--inprogress { background: var(--accent); }
-.gantt__bar--notstarted { background: var(--text-muted); opacity: 0.5; }
+.gantt__bar--inprogress { /* grey by default; health-class fill carries the colour */ }
+.gantt__bar--notstarted { background: rgba(148,163,184,0.28); opacity: 0.85; }
 .gantt__bar--blocked { background: var(--purple); }
 .gantt__bar--cancelled { background: var(--text-faint); opacity: 0.3; }
 .gantt__bar--nodate { background: var(--warning); opacity: 0.4; width: 4px !important; }
-/* Progress fill inside a Gantt bar — shows percent complete the same way the
-   Portfolio timeline does. pointer-events:none so drag/resize on the bar still
-   works through it. */
-.gantt__bar-progress { position: absolute; top: 0; left: 0; height: 100%; background: rgba(255,255,255,0.32); border-radius: 4px 0 0 4px; pointer-events: none; transition: width 0.18s ease-out; }
-.gantt__bar--notstarted .gantt__bar-progress { background: rgba(34,197,94,0.55); }
+/* Progress fill — coloured by the row's health class (red overdue, amber
+   approaching due, green healthy, grey blocked). pointer-events:none so
+   drag/resize on the bar still works through it. */
+.gantt__bar-progress { position: absolute; top: 0; left: 0; height: 100%; background: #22c55e; border-radius: 4px 0 0 4px; pointer-events: none; transition: width 0.18s ease-out; }
+.gantt__bar--health-red > .gantt__bar-progress { background: #ef4444; }
+.gantt__bar--health-amber > .gantt__bar-progress { background: #f59e0b; }
+.gantt__bar--health-green > .gantt__bar-progress { background: #22c55e; }
+.gantt__bar--health-blocked > .gantt__bar-progress { background: #94a3b8; }
 .gantt__bar--done .gantt__bar-progress { display: none; }
+.gantt__bar--cancelled .gantt__bar-progress { display: none; }
 .gantt__bar-pct { position: absolute; top: 50%; right: 4px; transform: translateY(-50%); font-size: 0.58rem; font-weight: 700; color: rgba(255,255,255,0.9); pointer-events: none; letter-spacing: 0.02em; text-shadow: 0 1px 1px rgba(0,0,0,0.3); }
 .gantt__row-sub { font-size: 0.58rem; letter-spacing: 0.04em; color: var(--text-muted); margin-top: 1px; }
 .gantt__row-sub--red { color: #ef4444; }
@@ -5262,7 +5271,9 @@ function renderPfTimeline(panelTasks, panelRoots, now) {
   }
 
   const healthFill = h => h === 'red' ? '#ef4444' : h === 'amber' ? '#f59e0b' : h === 'blocked' ? '#94a3b8' : '#22c55e';
-  const healthGlow = h => h === 'red' ? 'rgba(239,68,68,0.18)' : h === 'amber' ? 'rgba(245,158,11,0.16)' : h === 'blocked' ? 'rgba(148,163,184,0.16)' : 'rgba(34,197,94,0.14)';
+  // Undone portion of every bar: a neutral grey so progress reads as
+  // "completion against the plan" regardless of health colour.
+  const healthGlow = () => 'rgba(148,163,184,0.20)';
 
   // Month header
   html += `<div style="display:flex;position:sticky;top:0;background:var(--bg-card);z-index:1">`;
@@ -7448,6 +7459,17 @@ function renderGanttView(filtered) {
       const daysToEnd = end ? Math.round((end - now) / 86400000) : null;
       const subColCls = blocked ? 'gantt__row-sub--blocked' : (overdue ? 'gantt__row-sub--red' : (daysToEnd !== null && daysToEnd >= 0 && daysToEnd <= 14 ? 'gantt__row-sub--amber' : ''));
       const subText = blocked ? 'BLOCKED' : (daysToEnd === null ? '' : daysToEnd < 0 ? `${Math.abs(daysToEnd)}d OVERDUE` : daysToEnd === 0 ? 'TODAY' : `${daysToEnd}d to close`);
+      // Health class drives the progress-fill colour: red overdue, amber
+      // within 14d, blocked grey, green otherwise. Mirrors Portfolio +
+      // Reporting so the same colour means the same thing everywhere.
+      const healthCls = 'gantt__bar--health-' + (
+        blocked ? 'blocked' :
+        overdue ? 'red' :
+        (t.healthState === 'Red') ? 'red' :
+        (t.healthState === 'Yellow') ? 'amber' :
+        (daysToEnd !== null && daysToEnd >= 0 && daysToEnd <= 14) ? 'amber' :
+        'green'
+      );
 
       html += `<div class="gantt__row">`;
       html += `<div class="gantt__row-label" data-action="openDetailOverlay" data-arg0="${t.id}" title="${esc(t.title)}" style="padding-left:${8 + indent}px;font-weight:${fontWeight};font-size:${fontSize};flex-direction:column;align-items:flex-start;justify-content:center">`;
@@ -7488,7 +7510,7 @@ function renderGanttView(filtered) {
         const startISO = start.toISOString().slice(0,10);
         const endISO = end.toISOString().slice(0,10);
         const selCls = _ganttSelectedTaskId === t.id ? ' selected' : '';
-        html += `<div class="gantt__bar ${barClass}${selCls}" style="left:${left}px;width:${width}px" data-task-id="${t.id}" data-start="${startISO}" data-end="${endISO}" data-min-date="${minDate.toISOString().slice(0,10)}" data-day-width="${dayW}" onmousedown="ganttBarDragStart(event,'${t.id}','move')" ondblclick="event.stopPropagation();openDetailOverlay('${t.id}')" title="${esc(t.title)} | ${t.status} | ${startISO} to ${endISO} | ${pctVal}% complete">`;
+        html += `<div class="gantt__bar ${barClass} ${healthCls}${selCls}" style="left:${left}px;width:${width}px" data-task-id="${t.id}" data-start="${startISO}" data-end="${endISO}" data-min-date="${minDate.toISOString().slice(0,10)}" data-day-width="${dayW}" onmousedown="ganttBarDragStart(event,'${t.id}','move')" ondblclick="event.stopPropagation();openDetailOverlay('${t.id}')" title="${esc(t.title)} | ${t.status} | ${startISO} to ${endISO} | ${pctVal}% complete">`;
         // Progress fill (pointer-events:none so drag/resize still works
         // through it). Hidden when status is Done — the whole bar is
         // already success-coloured and a fill would be redundant.
@@ -10012,7 +10034,7 @@ function renderReportingView(el) {
         const sH = featureHealth(s);
         const sLeaves = []; (function walk(n) { const ch = tasks.filter(t => t.parentId === n.id); if (ch.length === 0) sLeaves.push(n); else ch.forEach(walk); })(s);
         const sPct = sLeaves.length ? Math.round(sLeaves.filter(l => l.status === 'Done').length / sLeaves.length * 100) : 0;
-        html += `<div title="${esc(s.title)} — ${sPct}%" style="position:absolute;left:${sLeft}%;width:${sWidth}%;top:1px;bottom:1px;background:${healthFill(sH)};opacity:0.6;border-radius:3px;overflow:hidden"><div style="height:100%;width:${sPct}%;background:${healthFill(sH)};opacity:1"></div></div>`;
+        html += `<div title="${esc(s.title)} — ${sPct}%" style="position:absolute;left:${sLeft}%;width:${sWidth}%;top:1px;bottom:1px;background:rgba(148,163,184,0.25);border-radius:3px;overflow:hidden"><div style="height:100%;width:${sPct}%;background:${healthFill(sH)};opacity:1"></div></div>`;
       });
       // % chip on right edge
       html += `<div style="position:absolute;right:-4px;top:50%;transform:translate(100%,-50%);font-size:0.58rem;color:${fill};font-weight:700;letter-spacing:0.04em;padding:0 4px">${pct}%</div>`;
@@ -10089,9 +10111,10 @@ function renderReportingDrawer(f) {
       html += `<div style="flex:0 0 160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(s.title)}">${esc(s.title)}</div>`;
       html += `<div style="flex:0 0 48px;text-align:right;color:${sFill};font-weight:700;font-size:0.7rem">${sPct}%</div>`;
       html += `<div style="flex:1;position:relative;height:14px;background:rgba(255,255,255,0.03);border-radius:3px;overflow:hidden">`;
-      html += `<div style="position:absolute;left:${sLeft}%;width:${sWidth}%;top:0;bottom:0;background:${sFill};opacity:0.45;border-radius:3px"></div>`;
-      html += `<div style="position:absolute;left:${sLeft}%;width:calc(${sWidth}% * ${sPct/100});top:0;bottom:0;background:${sFill};opacity:0.95;border-radius:3px"></div>`;
-      html += `</div></div>`;
+      // Story span on the timeline: undone portion grey, done portion = health colour
+      html += `<div style="position:absolute;left:${sLeft}%;width:${sWidth}%;top:0;bottom:0;background:rgba(148,163,184,0.25);border-radius:3px;overflow:hidden">`;
+      html += `<div style="height:100%;width:${sPct}%;background:${sFill};opacity:0.95"></div>`;
+      html += `</div></div></div>`;
     });
   }
   html += `</div></div>`;
