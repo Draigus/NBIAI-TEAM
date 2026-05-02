@@ -5112,16 +5112,37 @@ function renderPfTimeline(panelTasks, panelRoots, now) {
   const labelW = 180;
 
   function makeRow(item, depth) {
+    // Roll up the date range from descendants when the parent has no own
+    // start / end, so the bar spans the actual child work (mirrors the
+    // Gantt view's ganttRolledStart / ganttRolledEnd helpers).
     let s = item.startDate ? safeParseDate(item.startDate) : null;
     let e = item.endDate ? safeParseDate(item.endDate) : (item.dueDate ? safeParseDate(item.dueDate) : null);
+    if (!s || !e) {
+      let minS = s, maxE = e;
+      const stack = [item]; const seen = new Set();
+      while (stack.length) {
+        const n = stack.pop();
+        if (seen.has(n.id)) continue; seen.add(n.id);
+        if (n !== item) {
+          if (n.startDate) { const d = safeParseDate(n.startDate); if (d && (!minS || d < minS)) minS = d; }
+          const cand = n.endDate ? safeParseDate(n.endDate) : (n.dueDate ? safeParseDate(n.dueDate) : null);
+          if (cand && (!maxE || cand > maxE)) maxE = cand;
+        }
+        (childrenIdx[n.id] || []).forEach(c => stack.push(c));
+      }
+      if (!s) s = minS;
+      if (!e) e = maxE;
+    }
     if (!s && item.createdAt) s = safeParseDate(item.createdAt);
     if (!s) s = new Date(now.getFullYear(), now.getMonth(), 1);
     if (!e) { e = new Date(s); e.setMonth(e.getMonth() + 2); }
     if (e <= s) { e = new Date(s); e.setMonth(e.getMonth() + 1); }
+    // Percent complete: count Done leaf tasks vs total leaf tasks across the
+    // descendant subtree. Leaf = item_type 'task' (or unset, treated as task).
     const desc = descendants(item.id);
-    const tasks = desc.filter(d => d.itemType === 'task' || (!d.itemType && !d.parentId === false));
-    const total = tasks.length || desc.length;
-    const done = (tasks.length ? tasks : desc).filter(d => d.status === 'Done').length;
+    const leafTasks = desc.filter(d => (d.itemType || 'task') === 'task');
+    const total = leafTasks.length;
+    const done = leafTasks.filter(d => d.status === 'Done').length;
     const pct = total > 0 ? Math.round(done / total * 100) : 0;
     const overdue = e < now && item.status !== 'Done';
     const daysToEnd = Math.round((e - now) / 86400000);
@@ -7323,14 +7344,18 @@ function renderGanttView(filtered) {
     /** Render a single Gantt row with bar, label, and recursively render child rows */
     function renderGanttRow(t, depth) {
       if (_ganttHideDone && t.status === 'Done') return;
-      const start = ganttTaskStart(t);
-      const end = ganttTaskEnd(t);
-      const barClass = ganttBarClass(t);
-      const indent = depth * 16;
-      const typeMeta = getItemTypeMeta(t);
       const kids = getChildren(t.id).filter(c => !_ganttHideDone || c.status !== 'Done');
       const isParent = kids.length > 0;
       const isCollapsed = collapsedTaskIds.has(t.id);
+      // For collapsed parent rows the bar must span the rolled-up date range
+      // of the hidden descendants, not a phantom createdAt+7d. Leaf rows and
+      // expanded parents continue to use their own dates.
+      const useRolled = isParent && isCollapsed;
+      const start = useRolled ? ganttRolledStart(t) : ganttTaskStart(t);
+      const end = useRolled ? ganttRolledEnd(t) : ganttTaskEnd(t);
+      const barClass = ganttBarClass(t);
+      const indent = depth * 16;
+      const typeMeta = getItemTypeMeta(t);
       const fontWeight = isParent ? '600' : '400';
       const fontSize = depth === 0 ? '0.78rem' : '0.72rem';
 
@@ -7636,6 +7661,48 @@ function ganttTaskEnd(t) {
   if (t.dueDate) { const d = safeParseDate(t.dueDate); if (d) return d; }
   // Fallback: start date + 7 days (or null if no start either)
   const start = ganttTaskStart(t);
+  if (start) { const d = new Date(start); d.setDate(d.getDate() + 7); return d; }
+  return null;
+}
+
+/** "Rolled-up" start: own startDate if set, else the EARLIEST explicit
+ *  startDate found anywhere in the descendant tree. Falls back to createdAt
+ *  only as a last resort. Used by collapsed parent rows so their bar spans
+ *  the actual child work, not a phantom createdAt+7d. */
+function ganttRolledStart(t) {
+  if (t.startDate) { const d = safeParseDate(t.startDate); if (d) return d; }
+  let minS = null;
+  const stack = [t]; const seen = new Set();
+  while (stack.length) {
+    const n = stack.pop();
+    if (seen.has(n.id)) continue; seen.add(n.id);
+    if (n !== t && n.startDate) { const d = safeParseDate(n.startDate); if (d && (!minS || d < minS)) minS = d; }
+    (typeof getChildren === 'function' ? getChildren(n.id) : []).forEach(c => stack.push(c));
+  }
+  if (minS) return minS;
+  if (t.createdAt) { const d = new Date(t.createdAt); if (!isNaN(d.getTime())) { d.setHours(0,0,0,0); return d; } }
+  return null;
+}
+
+/** "Rolled-up" end: own endDate or dueDate if set, else the LATEST explicit
+ *  endDate or dueDate found anywhere in the descendant tree. Falls back to
+ *  rolled start + 7 days. */
+function ganttRolledEnd(t) {
+  if (t.endDate) { const d = safeParseDate(t.endDate); if (d) return d; }
+  if (t.dueDate) { const d = safeParseDate(t.dueDate); if (d) return d; }
+  let maxE = null;
+  const stack = [t]; const seen = new Set();
+  while (stack.length) {
+    const n = stack.pop();
+    if (seen.has(n.id)) continue; seen.add(n.id);
+    if (n !== t) {
+      const candidate = n.endDate ? safeParseDate(n.endDate) : (n.dueDate ? safeParseDate(n.dueDate) : null);
+      if (candidate && (!maxE || candidate > maxE)) maxE = candidate;
+    }
+    (typeof getChildren === 'function' ? getChildren(n.id) : []).forEach(c => stack.push(c));
+  }
+  if (maxE) return maxE;
+  const start = ganttRolledStart(t);
   if (start) { const d = new Date(start); d.setDate(d.getDate() + 7); return d; }
   return null;
 }
