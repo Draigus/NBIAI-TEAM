@@ -13,18 +13,17 @@
 //   - NBI redaction: nbiInternalBlock stripped for client users
 //   - Visibility enforcement: nbi_only docs return 404 to client users
 
-import { describe, it, expect, beforeEach, afterAll } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 
 const request = require('supertest');
-const { pool, truncate, end } = require('../helpers/db.js');
+const { pool, truncate } = require('../helpers/db.js');
 const { mintSession } = require('../helpers/auth.js');
 const { createTestUser, createTestClient } = require('../helpers/fixtures.js');
 const app = require('../../server.js');
 
 beforeEach(async () => { await truncate(); });
-afterAll(async () => { await end(); });
 
 describe('Documents — list/read/create', () => {
   let admin, adminToken, lighthouse;
