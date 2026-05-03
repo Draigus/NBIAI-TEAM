@@ -4155,7 +4155,7 @@ app.delete('/api/notes/:id', requireAdmin, async (req, res) => {
 
 // ==================== DOCUMENTS ====================
 
-const { redactNbiInternal } = require('./lib/redact-nbi-internal');
+const { redactNbiInternal, extractPlainText } = require('./lib/redact-nbi-internal');
 
 /** GET /api/documents?client_id=:uuid
  *  Return the page tree for a client.
@@ -4219,7 +4219,151 @@ app.get('/api/documents/:id', async (req, res) => {
   }
 
   if (isClientUser) doc.body_json = redactNbiInternal(doc.body_json);
+  // D1: emit a weak ETag derived from updated_at so clients can detect concurrent edits
+  res.set('ETag', `W/"${doc.updated_at.toISOString()}"`);
   res.json(doc);
+});
+
+/** PATCH /api/documents/:id
+ *  Update one page. Requires If-Match header (D1 optimistic concurrency).
+ *  Returns 428 if If-Match is missing; 409 (with current doc in body) if stale.
+ *  On body_json change also writes body_text for full-text indexing (B1).
+ *  Client portal users need docsEdit permission; they cannot set visibility='nbi_only'. */
+app.patch('/api/documents/:id', async (req, res) => {
+  if (!req.user) return res.status(401).json({ error: 'Auth required' });
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid id' });
+
+  // D1: If-Match is mandatory — 428 Precondition Required if absent
+  const ifMatch = req.headers['if-match'];
+  if (!ifMatch) return res.status(428).json({ error: 'If-Match header required for optimistic concurrency' });
+
+  // Fetch current doc
+  const { rows } = await pool.query(
+    `SELECT id, client_id, parent_id, task_id, title, body_json, visibility,
+            sort_order, updated_at, updated_by
+       FROM documents WHERE id = $1`,
+    [req.params.id]
+  );
+  if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
+  const current = rows[0];
+
+  // D1: compare If-Match against the current ETag
+  // RFC 7232 specifies 412 for a failed precondition, but we return 409 here
+  // because the frontend conflict modal needs a uniform shape with the current
+  // doc state regardless of whether the mismatch was stale-client or concurrent write.
+  const currentEtag = `W/"${current.updated_at.toISOString()}"`;
+  if (ifMatch !== currentEtag) {
+    return res.status(409).json({ error: 'Conflict', current });
+  }
+
+  const isClientUser = !!req.user.clientId;
+  if (isClientUser && req.user.clientId !== current.client_id) {
+    return res.status(404).json({ error: 'Not found' });
+  }
+  if (isClientUser && current.visibility === 'nbi_only') {
+    return res.status(404).json({ error: 'Not found' });
+  }
+  if (isClientUser && req.user.docsEdit === false) {
+    return res.status(403).json({ error: 'No doc-edit permission' });
+  }
+
+  // Build standard field updates via the shared helper (prevents SQL injection)
+  const allowedFields = isClientUser
+    ? ['title', 'body_json', 'parent_id', 'task_id', 'sort_order']
+    : ['title', 'body_json', 'parent_id', 'task_id', 'sort_order', 'visibility'];
+
+  const { updates, vals, nextIdx } = buildPatchQuery(req.body, allowedFields);
+  let idx = nextIdx;
+
+  // Special handling layered on top of buildPatchQuery output -----------------
+
+  // parent_id: validate uuid and reject self-reference (circular hierarchy)
+  if (req.body.parent_id !== undefined && req.body.parent_id !== null) {
+    if (!isValidUuid(req.body.parent_id)) {
+      return res.status(400).json({ error: 'Invalid parent_id' });
+    }
+    if (req.body.parent_id === req.params.id) {
+      return res.status(400).json({ error: 'circular: a document cannot be its own parent' });
+    }
+  }
+
+  // task_id: validate uuid if provided
+  if (req.body.task_id !== undefined && req.body.task_id !== null) {
+    if (!isValidUuid(req.body.task_id)) {
+      return res.status(400).json({ error: 'Invalid task_id' });
+    }
+  }
+
+  // visibility: NBI users only; must be one of the allowed values
+  if (req.body.visibility !== undefined) {
+    if (!['all', 'nbi_only'].includes(req.body.visibility)) {
+      return res.status(400).json({ error: "visibility must be 'all' or 'nbi_only'" });
+    }
+    if (isClientUser) {
+      return res.status(403).json({ error: 'Client users cannot set visibility' });
+    }
+  }
+
+  // body_json: also compute and write body_text for full-text indexing (B1).
+  // dropNbiInternal: false — write-time indexing keeps NBI-internal content so
+  // NBI users can search across all content including internal sections.
+  if (req.body.body_json !== undefined) {
+    const bodyText = extractPlainText(req.body.body_json, { dropNbiInternal: false });
+    updates.push(`body_text = $${idx}`);
+    vals.push(bodyText);
+    idx++;
+  }
+
+  if (updates.length === 0) {
+    return res.status(400).json({ error: 'No fields to update' });
+  }
+
+  // Append audit columns
+  const author = req.user.username || req.user.displayName || 'unknown';
+  updates.push(`updated_at = now()`);
+  updates.push(`updated_by = $${idx}`);
+  vals.push(author);
+  idx++;
+
+  vals.push(req.params.id);
+  const { rows: updated } = await pool.query(
+    `UPDATE documents SET ${updates.join(', ')} WHERE id = $${idx} RETURNING *`,
+    vals
+  );
+  if (!updated[0]) return res.status(404).json({ error: 'Not found' });
+
+  const doc = updated[0];
+  // D1: emit fresh ETag from the new updated_at so client can track the new version
+  res.set('ETag', `W/"${doc.updated_at.toISOString()}"`);
+  res.json(doc);
+});
+
+/** DELETE /api/documents/:id
+ *  Delete a page. Cascade to child pages is handled by FK ON DELETE CASCADE
+ *  on parent_id. Returns 204 whether the doc existed or not (idempotent). */
+app.delete('/api/documents/:id', async (req, res) => {
+  if (!req.user) return res.status(401).json({ error: 'Auth required' });
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid id' });
+
+  // Fetch to apply scope guards before deleting
+  const { rows } = await pool.query(
+    `SELECT id, client_id FROM documents WHERE id = $1`,
+    [req.params.id]
+  );
+  // Idempotent: missing doc returns 204 (nothing to delete)
+  if (rows.length === 0) return res.status(204).end();
+  const doc = rows[0];
+
+  const isClientUser = !!req.user.clientId;
+  if (isClientUser && req.user.clientId !== doc.client_id) {
+    return res.status(404).json({ error: 'Not found' });
+  }
+  if (isClientUser && req.user.docsEdit === false) {
+    return res.status(403).json({ error: 'No doc-edit permission' });
+  }
+
+  await pool.query('DELETE FROM documents WHERE id = $1', [req.params.id]);
+  res.status(204).end();
 });
 
 /** POST /api/documents
