@@ -52,6 +52,8 @@ const TRUNCATE_TABLES = [
   'client_reports',
   'contacts',
   'clients',
+  'document_attachments',
+  'documents',
   'users',
 ];
 

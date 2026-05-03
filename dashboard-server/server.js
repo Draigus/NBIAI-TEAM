@@ -833,7 +833,8 @@ async function requireAuth(req, res, next) {
     if (cached) { req.user = cached; return next(); }
 
     const { rows } = await pool.query(
-      `SELECT u.id, u.username, u.display_name, u.role, u.client_id, u.client_role, u.must_change_password FROM sessions s
+      `SELECT u.id, u.username, u.display_name, u.role, u.client_id, u.client_role, u.must_change_password,
+              u.docs_view, u.docs_edit, u.docs_create, u.docs_upload FROM sessions s
        JOIN users u ON s.user_id = u.id
        WHERE s.token = $1 AND s.expires_at > NOW() AND u.is_active = true`, [hashedToken]
     );
@@ -843,6 +844,8 @@ async function requireAuth(req, res, next) {
       role: rows[0].role, clientId: rows[0].client_id, clientRole: rows[0].client_role,
       isNBI: !rows[0].client_id, isClientAdmin: !!rows[0].client_id && rows[0].client_role === 'admin',
       mustChangePassword: rows[0].must_change_password,
+      docsView: rows[0].docs_view, docsEdit: rows[0].docs_edit,
+      docsCreate: rows[0].docs_create, docsUpload: rows[0].docs_upload,
     };
     cacheToken(hashedToken, user);
     req.user = user;
@@ -4145,6 +4148,107 @@ app.patch('/api/notes/:id', requireAdmin, async (req, res) => {
 app.delete('/api/notes/:id', requireAdmin, async (req, res) => {
   await pool.query('DELETE FROM client_notes WHERE id = $1', [req.params.id]);
   res.json({ ok: true });
+});
+
+// ==================== DOCUMENTS ====================
+
+const { redactNbiInternal } = require('./lib/redact-nbi-internal');
+
+/** GET /api/documents?client_id=:uuid
+ *  Return the page tree for a client.
+ *  NBI users see all pages; client portal users see only visibility='all' rows.
+ *  nbiInternalBlock content is stripped from body_json before send for client users.
+ *  Client users with docs_view=false receive 403. */
+app.get('/api/documents', async (req, res) => {
+  if (!req.user) return res.status(401).json({ error: 'Auth required' });
+  const clientId = req.query.client_id;
+  if (!clientId || !isValidUuid(clientId)) {
+    return res.status(400).json({ error: 'client_id query param required' });
+  }
+
+  const isClientUser = !!req.user.clientId;
+  if (isClientUser && req.user.clientId !== clientId) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+  if (isClientUser && req.user.docsView === false) {
+    return res.status(403).json({ error: 'No doc-view permission' });
+  }
+
+  const visibilityClause = isClientUser ? `AND visibility = 'all'` : '';
+  const { rows } = await pool.query(
+    `SELECT id, parent_id, task_id, title, body_json, visibility, sort_order, updated_at, updated_by
+       FROM documents WHERE client_id = $1 ${visibilityClause}
+       ORDER BY parent_id NULLS FIRST, sort_order, created_at`,
+    [clientId]
+  );
+  const out = isClientUser
+    ? rows.map(r => ({ ...r, body_json: redactNbiInternal(r.body_json) }))
+    : rows;
+  res.json(out);
+});
+
+/** GET /api/documents/:id
+ *  Return one page. Same redaction and visibility rules as the list endpoint.
+ *  Client users requesting a nbi_only doc receive 404 (not 403) to avoid
+ *  existence disclosure. */
+app.get('/api/documents/:id', async (req, res) => {
+  if (!req.user) return res.status(401).json({ error: 'Auth required' });
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid id' });
+
+  const { rows } = await pool.query('SELECT * FROM documents WHERE id = $1', [req.params.id]);
+  if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
+  const doc = rows[0];
+
+  const isClientUser = !!req.user.clientId;
+  if (isClientUser && req.user.clientId !== doc.client_id) {
+    return res.status(404).json({ error: 'Not found' });
+  }
+  if (isClientUser && doc.visibility === 'nbi_only') {
+    return res.status(404).json({ error: 'Not found' });
+  }
+  if (isClientUser && req.user.docsView === false) {
+    return res.status(403).json({ error: 'No doc-view permission' });
+  }
+
+  if (isClientUser) doc.body_json = redactNbiInternal(doc.body_json);
+  res.json(doc);
+});
+
+/** POST /api/documents
+ *  Create a new page. NBI users create freely; client users need docsCreate=true
+ *  and must target their own client. Client users cannot set visibility='nbi_only'. */
+app.post('/api/documents', async (req, res) => {
+  if (!req.user) return res.status(401).json({ error: 'Auth required' });
+  const { client_id, parent_id, task_id, title, visibility } = req.body || {};
+  if (!client_id || !isValidUuid(client_id)) {
+    return res.status(400).json({ error: 'client_id required' });
+  }
+  if (parent_id && !isValidUuid(parent_id)) {
+    return res.status(400).json({ error: 'Invalid parent_id' });
+  }
+  if (task_id && !isValidUuid(task_id)) {
+    return res.status(400).json({ error: 'Invalid task_id' });
+  }
+
+  const isClientUser = !!req.user.clientId;
+  if (isClientUser && req.user.clientId !== client_id) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+  if (isClientUser && req.user.docsCreate === false) {
+    return res.status(403).json({ error: 'No doc-create permission' });
+  }
+  if (isClientUser && visibility === 'nbi_only') {
+    return res.status(403).json({ error: 'Client users cannot create NBI-only docs' });
+  }
+
+  const safeVis = visibility === 'nbi_only' ? 'nbi_only' : 'all';
+  const author = req.user.username || req.user.displayName || 'unknown';
+  const { rows } = await pool.query(
+    `INSERT INTO documents (client_id, parent_id, task_id, title, visibility, created_by, updated_by)
+     VALUES ($1, $2, $3, $4, $5, $6, $6) RETURNING *`,
+    [client_id, parent_id || null, task_id || null, (title || 'Untitled').slice(0, 255), safeVis, author]
+  );
+  res.status(201).json(rows[0]);
 });
 
 // ==================== TASKS ====================
