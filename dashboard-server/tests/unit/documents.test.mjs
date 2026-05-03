@@ -1199,6 +1199,52 @@ describe('Documents: G1 orphan tracking', () => {
     expect(rows[0].orphaned_at).toBeNull();
   });
 
+  // G1-Critical: 409 path must NOT run reconciliation — live image could be wrongly orphaned
+  it('G1-Critical: 409 on PATCH leaves attachment orphan state untouched', async () => {
+    // Upload an image and embed it
+    const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', 'base64');
+    const up = await request(app)
+      .post(`/api/documents/${doc.id}/attachments`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .attach('file', png, 'pixel.png');
+    expect(up.status).toBe(201);
+    const storedName = up.body.url.split('/').pop();
+
+    // First PATCH embeds the image (clears orphaned_at)
+    const get1 = await request(app).get(`/api/documents/${doc.id}`).set('Authorization', `Bearer ${adminToken}`);
+    const etag1 = get1.headers['etag'];
+    const bodyWithImage = {
+      type: 'doc',
+      content: [{ type: 'image', attrs: { src: `/api/documents/${doc.id}/attachments/${storedName}` } }]
+    };
+    const p1 = await request(app)
+      .patch(`/api/documents/${doc.id}`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .set('If-Match', etag1)
+      .send({ body_json: bodyWithImage });
+    expect(p1.status).toBe(200);
+
+    // Confirm orphaned_at cleared
+    const { rows: r1 } = await pool.query('SELECT orphaned_at FROM document_attachments WHERE document_id = $1', [doc.id]);
+    expect(r1[0].orphaned_at).toBeNull();
+
+    // Bump updated_at so etag1 is now stale
+    await pool.query(`UPDATE documents SET updated_at = now() + interval '1 second' WHERE id = $1`, [doc.id]);
+
+    // Attempt PATCH that removes the image but uses the stale ETag — must 409
+    const bodyWithoutImage = { type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'no image' }] }] };
+    const p2 = await request(app)
+      .patch(`/api/documents/${doc.id}`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .set('If-Match', etag1)
+      .send({ body_json: bodyWithoutImage });
+    expect(p2.status).toBe(409);
+
+    // Reconciliation must NOT have run on the 409 path. orphaned_at must still be NULL.
+    const { rows: r2 } = await pool.query('SELECT orphaned_at FROM document_attachments WHERE document_id = $1', [doc.id]);
+    expect(r2[0].orphaned_at).toBeNull();
+  });
+
   // G1-DeleteCascade: deleting a parent removes attachment files for parent + child
   it('G1-DeleteCascade: DELETE parent removes attachment files for parent and child docs', async () => {
     // Upload image to parent doc
@@ -1245,6 +1291,43 @@ describe('Documents: G1 orphan tracking', () => {
       [[parentFile, childFile]]
     );
     expect(rows.length).toBe(0);
+  });
+
+  // G1-DeleteCascade-Deep: grandchild attachments cleaned up on root delete
+  it('G1-DeleteCascade-Deep: grandchild attachments are also cleaned up on parent delete', async () => {
+    // Insert child under doc, then grandchild under child
+    const child = await pool.query(
+      `INSERT INTO documents (client_id, parent_id, title, created_by, updated_by)
+       VALUES ($1, $2, 'Child', 't', 't') RETURNING id`,
+      [lighthouse.id, doc.id]
+    );
+    const grand = await pool.query(
+      `INSERT INTO documents (client_id, parent_id, title, created_by, updated_by)
+       VALUES ($1, $2, 'Grand', 't', 't') RETURNING id`,
+      [lighthouse.id, child.rows[0].id]
+    );
+
+    // Upload an image to the grandchild
+    const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', 'base64');
+    const up = await request(app)
+      .post(`/api/documents/${grand.rows[0].id}/attachments`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .attach('file', png, 'gc.png');
+    expect(up.status).toBe(201);
+    const storedName = up.body.url.split('/').pop();
+    const fullPath = path.join(uploadDir, storedName);
+    expect(fs.existsSync(fullPath)).toBe(true);
+
+    // Delete the root doc — recursive CTE should collect the grandchild attachment
+    const del = await request(app)
+      .delete(`/api/documents/${doc.id}`)
+      .set('Authorization', `Bearer ${adminToken}`);
+    expect(del.status).toBe(204);
+    expect(fs.existsSync(fullPath)).toBe(false);
+
+    // DB row gone too
+    const { rows: r } = await pool.query('SELECT id FROM document_attachments WHERE stored_name = $1', [storedName]);
+    expect(r.length).toBe(0);
   });
 
   // G1-Sweep-Recent: attachment orphaned 23h ago is NOT swept
@@ -1295,16 +1378,46 @@ describe('Documents: G1 orphan tracking', () => {
     const filePath = path.join(uploadDir, 'g1_sweep_old.png');
     fs.writeFileSync(filePath, 'fake');
 
-    const result = await runAttachmentSweep();
-    expect(result.deleted).toBeGreaterThanOrEqual(1);
+    try {
+      const result = await runAttachmentSweep();
+      expect(result.deleted).toBeGreaterThanOrEqual(1);
 
-    // Row gone
-    const { rows } = await pool.query(
-      'SELECT id FROM document_attachments WHERE id = $1', [attId]
+      // Row gone
+      const { rows } = await pool.query(
+        'SELECT id FROM document_attachments WHERE id = $1', [attId]
+      );
+      expect(rows.length).toBe(0);
+      // File gone
+      expect(fs.existsSync(filePath)).toBe(false);
+    } finally {
+      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+      await pool.query('DELETE FROM document_attachments WHERE id = $1', [attId]);
+    }
+  });
+
+  // G1-Sweep-Race: row preserved if orphaned_at cleared between SELECT and DELETE
+  it('G1-Sweep-Race: row preserved if orphaned_at cleared between SELECT and DELETE', async () => {
+    // Insert an attachment that LOOKS sweepable (orphaned_at = now() - 25h)
+    const { rows: aiRows } = await pool.query(
+      `INSERT INTO document_attachments
+         (document_id, filename, stored_name, mime_type, size_bytes, uploaded_by, orphaned_at)
+       VALUES ($1, 'race.png', $2, 'image/png', 100, 'test', now() - interval '25 hours')
+       RETURNING id, stored_name`,
+      [doc.id, `doc_race_${Date.now()}.png`]
     );
-    expect(rows.length).toBe(0);
-    // File gone
-    expect(fs.existsSync(filePath)).toBe(false);
+    const raceId = aiRows[0].id;
+    // Simulate the race: clear orphaned_at BEFORE the sweep runs.
+    // The WHERE clause on the DELETE is what guards the row.
+    await pool.query(`UPDATE document_attachments SET orphaned_at = NULL WHERE id = $1`, [raceId]);
+
+    await runAttachmentSweep();
+
+    // Row must still exist because orphaned_at was NULL when DELETE ran
+    const { rows: still } = await pool.query('SELECT id FROM document_attachments WHERE id = $1', [raceId]);
+    expect(still.length).toBe(1);
+
+    // Cleanup
+    await pool.query('DELETE FROM document_attachments WHERE id = $1', [raceId]);
   });
 
   // G1-Sweep-Mixed: only the > 24h orphan is removed

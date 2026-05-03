@@ -14,6 +14,8 @@ const ORPHAN_GRACE_MS = 24 * 60 * 60 * 1000;
  * @param {Date} now
  * @param {Array<{ id: string, stored_name: string, orphaned_at: Date | null }>} attachments
  * @returns {Array<{ id: string, stored_name: string }>}
+ * Returns rows where `orphaned_at` is strictly more than ORPHAN_GRACE_MS in
+ * the past (boundary at exactly 24h is excluded — `<`, not `<=`).
  */
 function pickFilesToDelete(now, attachments) {
   if (!(now instanceof Date)) throw new TypeError('now must be a Date');

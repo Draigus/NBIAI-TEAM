@@ -231,6 +231,27 @@ describe('extractImageFilenames', () => {
     expect(names.size).toBe(1);
     expect(names.has('deep.png')).toBe(true);
   });
+
+  it('extractImageFilenames strips query strings', () => {
+    const body = { type: 'doc', content: [
+      { type: 'image', attrs: { src: '/api/documents/abc/attachments/foo.png?v=2' } }
+    ]};
+    expect(extractImageFilenames(body).has('foo.png')).toBe(true);
+  });
+
+  it('extractImageFilenames strips URL fragments', () => {
+    const body = { type: 'doc', content: [
+      { type: 'image', attrs: { src: '/api/documents/abc/attachments/foo.png#anchor' } }
+    ]};
+    expect(extractImageFilenames(body).has('foo.png')).toBe(true);
+  });
+
+  it('extractImageFilenames strips both query and fragment', () => {
+    const body = { type: 'doc', content: [
+      { type: 'image', attrs: { src: '/api/documents/abc/attachments/foo.png?v=2#a' } }
+    ]};
+    expect(extractImageFilenames(body).has('foo.png')).toBe(true);
+  });
 });
 
 // ---------------------------------------------------------------------------

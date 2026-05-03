@@ -154,7 +154,12 @@ function _collectImageNames(node, out) {
   if (!node || typeof node !== 'object') return;
   if (node.type === 'image' && node.attrs && typeof node.attrs.src === 'string') {
     const name = node.attrs.src.split('/').pop();
-    if (name) out.add(name);
+    if (name) {
+      // Strip query string and fragment so '/foo.png?v=2' and '/foo.png#anchor'
+      // both yield 'foo.png' to match the stored filename in the DB.
+      const clean = name.split('?')[0].split('#')[0];
+      if (clean) out.add(clean);
+    }
   }
   if (Array.isArray(node.content)) {
     for (const child of node.content) _collectImageNames(child, out);

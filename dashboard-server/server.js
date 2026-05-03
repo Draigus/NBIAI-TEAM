@@ -4346,35 +4346,6 @@ app.patch('/api/documents/:id', async (req, res) => {
     updates.push(`body_text = $${idx}`);
     vals.push(bodyText);
     idx++;
-
-    // G1: attachment orphan reconciliation. Diff old vs new image set:
-    //   - filenames now in body that were previously orphaned -> clear orphaned_at
-    //   - filenames in DB but not in new body -> set orphaned_at = now() if NULL
-    // Only runs when body_json is being updated. Wrapped in try/catch so an
-    // attachment-side error does not fail the user's PATCH.
-    try {
-      const newFilenames = extractImageFilenames(req.body.body_json);
-      const { rows: existingAtts } = await pool.query(
-        `SELECT id, stored_name, orphaned_at FROM document_attachments WHERE document_id = $1`,
-        [req.params.id]
-      );
-      const referencedIds   = existingAtts.filter(a => newFilenames.has(a.stored_name)).map(a => a.id);
-      const unreferencedIds = existingAtts.filter(a => !newFilenames.has(a.stored_name) && a.orphaned_at === null).map(a => a.id);
-      if (referencedIds.length) {
-        await pool.query(
-          `UPDATE document_attachments SET orphaned_at = NULL WHERE id = ANY($1::uuid[])`,
-          [referencedIds]
-        );
-      }
-      if (unreferencedIds.length) {
-        await pool.query(
-          `UPDATE document_attachments SET orphaned_at = now() WHERE id = ANY($1::uuid[])`,
-          [unreferencedIds]
-        );
-      }
-    } catch (err) {
-      log('warn', 'Documents', 'Attachment reconciliation failed for ' + req.params.id, { err: err.message });
-    }
   }
 
   if (updates.length === 0) {
@@ -4425,6 +4396,41 @@ app.patch('/api/documents/:id', async (req, res) => {
   }
 
   const doc = updated[0];
+
+  // G1: attachment orphan reconciliation. Runs ONLY on a successful UPDATE
+  // (after the I1 atomic-concurrency check has confirmed no concurrent write).
+  // Wrapped in try/catch so reconciliation failure does not break the
+  // already-committed doc edit; the worst case is stale orphan state which
+  // the next legitimate PATCH will repair.
+  if (req.body.body_json !== undefined) {
+    try {
+      const newFilenames = extractImageFilenames(req.body.body_json);
+      const { rows: existingAtts } = await pool.query(
+        `SELECT id, stored_name, orphaned_at FROM document_attachments WHERE document_id = $1`,
+        [req.params.id]
+      );
+      const referencedIds   = existingAtts.filter(a => newFilenames.has(a.stored_name)).map(a => a.id);
+      // Clock-reset semantics: the orphan_at clock starts fresh each time an
+      // image becomes unreferenced. Re-adding a previously-orphaned image clears
+      // it; subsequent removal restarts the 24h grace window. This is intentional.
+      const unreferencedIds = existingAtts.filter(a => !newFilenames.has(a.stored_name) && a.orphaned_at === null).map(a => a.id);
+      if (referencedIds.length) {
+        await pool.query(
+          `UPDATE document_attachments SET orphaned_at = NULL WHERE id = ANY($1::uuid[])`,
+          [referencedIds]
+        );
+      }
+      if (unreferencedIds.length) {
+        await pool.query(
+          `UPDATE document_attachments SET orphaned_at = now() WHERE id = ANY($1::uuid[])`,
+          [unreferencedIds]
+        );
+      }
+    } catch (err) {
+      log('warn', 'Documents', 'Attachment reconciliation failed for ' + req.params.id, { err: err.message });
+    }
+  }
+
   // D1: emit fresh ETag from the new updated_at so client can track the new version
   res.set('ETag', `W/"${doc.updated_at.toISOString()}"`);
   res.json(doc);
@@ -4475,15 +4481,15 @@ app.delete('/api/documents/:id', async (req, res) => {
 
   // G1: unlink files post-DELETE. Best-effort -- log per-file failures but
   // do not fail the request because the DB row is already gone.
-  for (const a of atts) {
+  await Promise.all(atts.map(async a => {
     try {
-      fs.unlinkSync(path.join(uploadDir, a.stored_name));
+      await fs.promises.unlink(path.join(uploadDir, a.stored_name));
     } catch (err) {
       if (err.code !== 'ENOENT') {
         log('warn', 'Documents', `Failed to unlink ${a.stored_name} during doc delete: ${err.message}`);
       }
     }
-  }
+  }));
 
   res.status(204).end();
 });
@@ -9746,18 +9752,29 @@ async function runAttachmentSweep() {
     // Unlink files first; if the unlink fails (other than ENOENT) we still
     // delete the DB row because the row is the source of truth and a
     // missing file just means a manual cleanup happened earlier.
-    for (const f of toDelete) {
-      try { fs.unlinkSync(path.join(uploadDir, f.stored_name)); }
-      catch (err) {
+    await Promise.all(toDelete.map(async f => {
+      try {
+        await fs.promises.unlink(path.join(uploadDir, f.stored_name));
+      } catch (err) {
         if (err.code !== 'ENOENT') {
           log('warn', 'Cron', `Sweep unlink failed for ${f.stored_name}: ${err.message}`);
         }
       }
-    }
+    }));
     const ids = toDelete.map(f => f.id);
-    await pool.query(`DELETE FROM document_attachments WHERE id = ANY($1::uuid[])`, [ids]);
-    log('info', 'Cron', `Attachment sweep deleted ${toDelete.length} orphans`);
-    return { deleted: toDelete.length };
+    const result = await pool.query(
+      `DELETE FROM document_attachments
+         WHERE id = ANY($1::uuid[])
+           AND orphaned_at IS NOT NULL
+           AND orphaned_at < now() - interval '24 hours'`,
+      [ids]
+    );
+    if (result.rowCount !== toDelete.length) {
+      log('warn', 'Cron',
+        `Sweep race detected: ${toDelete.length} candidates, ${result.rowCount} deleted (rest cleared by concurrent PATCH)`);
+    }
+    log('info', 'Cron', `Attachment sweep deleted ${result.rowCount} orphans`);
+    return { deleted: result.rowCount };
   } catch (err) {
     log('error', 'Cron', `Attachment sweep failed: ${err.message}`);
     return { deleted: 0, error: err.message };
