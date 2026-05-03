@@ -1484,6 +1484,100 @@ describe('Documents: G1 orphan tracking', () => {
   });
 });
 
+// =============================================================================
+// Documents: POST /api/documents/:id/move (Task F1 — drag-to-reparent)
+// =============================================================================
+
+describe('Documents: move (F1)', () => {
+  let admin, adminToken, lighthouse;
+
+  beforeEach(async () => {
+    admin = await createTestUser({ role: 'admin' });
+    adminToken = await mintSession(admin.id);
+    lighthouse = await createTestClient({ name: 'Lighthouse Games', sector: 'gaming' });
+  });
+
+  it('F1-Move: moves a root page under another root page', async () => {
+    const a = (await pool.query(`INSERT INTO documents (client_id, title, sort_order, created_by, updated_by) VALUES ($1, 'A', 0, 't', 't') RETURNING *`, [lighthouse.id])).rows[0];
+    const b = (await pool.query(`INSERT INTO documents (client_id, title, sort_order, created_by, updated_by) VALUES ($1, 'B', 1, 't', 't') RETURNING *`, [lighthouse.id])).rows[0];
+
+    const res = await request(app)
+      .post(`/api/documents/${b.id}/move`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ parent_id: a.id, position: 0 });
+    expect(res.status).toBe(200);
+
+    const { rows } = await pool.query('SELECT parent_id, sort_order FROM documents WHERE id = $1', [b.id]);
+    expect(rows[0].parent_id).toBe(a.id);
+    expect(rows[0].sort_order).toBe(0);
+  });
+
+  it('F1-Reorder: reorders siblings under the same parent', async () => {
+    const parent = (await pool.query(`INSERT INTO documents (client_id, title, sort_order, created_by, updated_by) VALUES ($1, 'P', 0, 't', 't') RETURNING *`, [lighthouse.id])).rows[0];
+    const c1 = (await pool.query(`INSERT INTO documents (client_id, parent_id, title, sort_order, created_by, updated_by) VALUES ($1, $2, 'C1', 0, 't', 't') RETURNING *`, [lighthouse.id, parent.id])).rows[0];
+    const c2 = (await pool.query(`INSERT INTO documents (client_id, parent_id, title, sort_order, created_by, updated_by) VALUES ($1, $2, 'C2', 1, 't', 't') RETURNING *`, [lighthouse.id, parent.id])).rows[0];
+    const c3 = (await pool.query(`INSERT INTO documents (client_id, parent_id, title, sort_order, created_by, updated_by) VALUES ($1, $2, 'C3', 2, 't', 't') RETURNING *`, [lighthouse.id, parent.id])).rows[0];
+
+    // Move C3 to position 0 (before C1)
+    const res = await request(app)
+      .post(`/api/documents/${c3.id}/move`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ parent_id: parent.id, position: 0 });
+    expect(res.status).toBe(200);
+
+    const { rows } = await pool.query('SELECT id, sort_order FROM documents WHERE parent_id = $1 ORDER BY sort_order', [parent.id]);
+    expect(rows.map(r => r.id)).toEqual([c3.id, c1.id, c2.id]);
+  });
+
+  it('F1-MoveToRoot: moves a child page to root level', async () => {
+    const parent = (await pool.query(`INSERT INTO documents (client_id, title, sort_order, created_by, updated_by) VALUES ($1, 'P', 0, 't', 't') RETURNING *`, [lighthouse.id])).rows[0];
+    const child = (await pool.query(`INSERT INTO documents (client_id, parent_id, title, sort_order, created_by, updated_by) VALUES ($1, $2, 'Child', 0, 't', 't') RETURNING *`, [lighthouse.id, parent.id])).rows[0];
+
+    const res = await request(app)
+      .post(`/api/documents/${child.id}/move`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ parent_id: null, position: 0 });
+    expect(res.status).toBe(200);
+
+    const { rows } = await pool.query('SELECT parent_id FROM documents WHERE id = $1', [child.id]);
+    expect(rows[0].parent_id).toBeNull();
+  });
+
+  it('F1-Cycle: rejects move into own descendant', async () => {
+    const root = (await pool.query(`INSERT INTO documents (client_id, title, sort_order, created_by, updated_by) VALUES ($1, 'Root', 0, 't', 't') RETURNING *`, [lighthouse.id])).rows[0];
+    const child = (await pool.query(`INSERT INTO documents (client_id, parent_id, title, sort_order, created_by, updated_by) VALUES ($1, $2, 'Child', 0, 't', 't') RETURNING *`, [lighthouse.id, root.id])).rows[0];
+    const grand = (await pool.query(`INSERT INTO documents (client_id, parent_id, title, sort_order, created_by, updated_by) VALUES ($1, $2, 'Grand', 0, 't', 't') RETURNING *`, [lighthouse.id, child.id])).rows[0];
+
+    // Try to move root under its grandchild
+    const res = await request(app)
+      .post(`/api/documents/${root.id}/move`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ parent_id: grand.id, position: 0 });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/circular|cycle|descendant/i);
+  });
+
+  it('F1-SelfParent: rejects move to self as parent', async () => {
+    const doc = (await pool.query(`INSERT INTO documents (client_id, title, sort_order, created_by, updated_by) VALUES ($1, 'Doc', 0, 't', 't') RETURNING *`, [lighthouse.id])).rows[0];
+
+    const res = await request(app)
+      .post(`/api/documents/${doc.id}/move`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ parent_id: doc.id, position: 0 });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/circular|cycle|self/i);
+  });
+
+  it('F1-Auth: returns 401 for unauthenticated request', async () => {
+    const doc = (await pool.query(`INSERT INTO documents (client_id, title, sort_order, created_by, updated_by) VALUES ($1, 'Doc', 0, 't', 't') RETURNING *`, [lighthouse.id])).rows[0];
+
+    const res = await request(app)
+      .post(`/api/documents/${doc.id}/move`)
+      .send({ parent_id: null, position: 0 });
+    expect(res.status).toBe(401);
+  });
+});
+
 describe('Documents — first-open seed', () => {
   it('GET /api/documents?client_id=... seeds 6 default pages on first call', async () => {
     const u = await createTestUser({ role: 'admin' });

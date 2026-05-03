@@ -2341,6 +2341,10 @@ span.fin-editable { display: inline-block; position: relative; }
 .docs__tree-li--selected .docs__tree-row { background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent-text); }
 .docs__tree-add { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 0 6px; font-size: 0.9rem; opacity: 0; transition: opacity 0.12s; }
 .docs__tree-li:hover .docs__tree-add { opacity: 1; }
+.docs__tree-li[data-drop="above"] { box-shadow: 0 -2px 0 0 var(--accent) inset; }
+.docs__tree-li[data-drop="below"] { box-shadow: 0 2px 0 0 var(--accent) inset; }
+.docs__tree-li[data-drop="inside"] { outline: 2px solid var(--accent); outline-offset: -2px; border-radius: var(--radius-sm); }
+.docs__tree-li[data-drop="forbidden"] { outline: 2px solid var(--danger); outline-offset: -2px; border-radius: var(--radius-sm); }
 .docs__tree-add:hover { color: var(--accent-text); }
 .docs__tree-lock { font-size: 0.7rem; }
 .docs__tree-empty { padding: 16px 8px; color: var(--text-muted); font-size: 0.78rem; }
@@ -11562,10 +11566,10 @@ function _docsRenderTreeNodes(nodes, depth) {
   if (nodes.length === 0 && depth === 0) return '<div class="docs__tree-empty">No pages yet</div>';
   if (nodes.length === 0) return '';
   let html = '<ul class="docs__tree-list">';
-  nodes.forEach(n => {
+  nodes.forEach((n, idx) => {
     const sel = n.id === _docsState.selectedDocId;
     const lock = n.visibility === 'nbi_only' ? '<span class="docs__tree-lock" title="NBI internal only">&#x1f512;</span>' : '';
-    html += '<li class="docs__tree-li' + (sel ? ' docs__tree-li--selected' : '') + '" style="padding-left:' + (depth * 12) + 'px">';
+    html += '<li class="docs__tree-li' + (sel ? ' docs__tree-li--selected' : '') + '" style="padding-left:' + (depth * 12) + 'px" draggable="true" data-doc-id="' + escAttrJs(n.id) + '" data-doc-parent="' + escAttrJs(n.parent_id || '') + '" data-doc-idx="' + idx + '" ondragstart="_docsDragStart(event)" ondragover="_docsDragOver(event)" ondragleave="_docsDragLeave(event)" ondrop="_docsDrop(event)">';
     html += '<button class="docs__tree-row" onclick="_actDocsSelectPage(\'' + escAttrJs(n.id) + '\')">' + lock + '<span>' + esc(n.title) + '</span></button>';
     html += '<button class="docs__tree-add" title="Add child page" onclick="event.stopPropagation();_actDocsAddPage(\'' + escAttrJs(n.id) + '\')">+</button>';
     html += '</li>';
@@ -11573,6 +11577,99 @@ function _docsRenderTreeNodes(nodes, depth) {
   });
   html += '</ul>';
   return html;
+}
+
+let _docsDraggedId = null;
+
+function _docsDragStart(e) {
+  _docsDraggedId = e.currentTarget.dataset.docId;
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', _docsDraggedId);
+  e.currentTarget.style.opacity = '0.4';
+}
+
+function _docsDragOver(e) {
+  e.preventDefault();
+  const li = e.currentTarget;
+  if (li.dataset.docId === _docsDraggedId) return;
+  // Determine drop zone: top 25% = above, bottom 25% = below, middle 50% = inside (as child)
+  const rect = li.getBoundingClientRect();
+  const y = e.clientY - rect.top;
+  const pct = y / rect.height;
+  document.querySelectorAll('.docs__tree-li[data-drop]').forEach(el => el.removeAttribute('data-drop'));
+  if (_docsIsDescendant(_docsDraggedId, li.dataset.docId)) {
+    li.setAttribute('data-drop', 'forbidden');
+  } else if (pct < 0.25) {
+    li.setAttribute('data-drop', 'above');
+  } else if (pct > 0.75) {
+    li.setAttribute('data-drop', 'below');
+  } else {
+    li.setAttribute('data-drop', 'inside');
+  }
+  e.dataTransfer.dropEffect = 'move';
+}
+
+function _docsDragLeave(e) {
+  e.currentTarget.removeAttribute('data-drop');
+}
+
+function _docsIsDescendant(draggedId, targetId) {
+  function check(nodes) {
+    for (const n of nodes) {
+      if (n.id === draggedId) return checkChildren(n, targetId);
+      const found = check(n.children);
+      if (found !== undefined) return found;
+    }
+  }
+  function checkChildren(node, tid) {
+    if (node.id === tid) return true;
+    for (const c of node.children) { if (checkChildren(c, tid)) return true; }
+    return false;
+  }
+  const tree = _docsBuildTree(_docsState.tree);
+  return check(tree) || false;
+}
+
+async function _docsDrop(e) {
+  e.preventDefault();
+  document.querySelectorAll('.docs__tree-li[data-drop]').forEach(el => el.removeAttribute('data-drop'));
+  document.querySelectorAll('.docs__tree-li[style*="opacity"]').forEach(el => el.style.opacity = '');
+  const li = e.currentTarget;
+  const targetId = li.dataset.docId;
+  if (!_docsDraggedId || _docsDraggedId === targetId) return;
+  if (_docsIsDescendant(_docsDraggedId, targetId)) { toast('Cannot move a page into its own child', 'error'); return; }
+
+  const rect = li.getBoundingClientRect();
+  const y = e.clientY - rect.top;
+  const pct = y / rect.height;
+
+  let parent_id, position;
+  const targetParent = li.dataset.docParent || null;
+  const targetIdx = parseInt(li.dataset.docIdx, 10);
+
+  if (pct < 0.25) {
+    parent_id = targetParent;
+    position = targetIdx;
+  } else if (pct > 0.75) {
+    parent_id = targetParent;
+    position = targetIdx + 1;
+  } else {
+    parent_id = targetId;
+    position = 0;
+  }
+
+  const resp = await authFetch('/api/documents/' + encodeURIComponent(_docsDraggedId) + '/move', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ parent_id: parent_id || null, position }),
+  });
+  _docsDraggedId = null;
+  if (resp && resp.ok) {
+    await _docsLoadTree();
+    renderContent();
+  } else {
+    toast('Move failed', 'error');
+  }
 }
 
 function _docsSavedLabel() {

@@ -4511,6 +4511,92 @@ app.delete('/api/documents/:id', async (req, res) => {
   res.status(204).end();
 });
 
+/** POST /api/documents/:id/move
+ *  Atomically reparent + reorder a document page (F1: drag-to-reparent).
+ *  Body: { parent_id: uuid|null, position: int }
+ *  Runs in a transaction: cycle detection, set parent_id, renumber siblings. */
+app.post('/api/documents/:id/move', async (req, res) => {
+  if (!req.user) return res.status(401).json({ error: 'Auth required' });
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid id' });
+
+  const { parent_id, position } = req.body || {};
+  if (parent_id !== null && parent_id !== undefined && !isValidUuid(parent_id)) {
+    return res.status(400).json({ error: 'Invalid parent_id' });
+  }
+  const pos = typeof position === 'number' ? Math.max(0, Math.floor(position)) : 0;
+  const newParent = parent_id || null;
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    const { rows: [doc] } = await client.query(
+      'SELECT id, client_id, parent_id FROM documents WHERE id = $1 FOR UPDATE',
+      [req.params.id]
+    );
+    if (!doc) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'Not found' }); }
+
+    const isClientUser = !!req.user.clientId;
+    if (isClientUser && req.user.clientId !== doc.client_id) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Not found' });
+    }
+    if (isClientUser && req.user.docsEdit === false) {
+      await client.query('ROLLBACK');
+      return res.status(403).json({ error: 'No doc-edit permission' });
+    }
+
+    // Cycle detection: self-parent or moving into own descendant
+    if (newParent === doc.id) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'Circular reference: cannot be own parent' });
+    }
+    if (newParent) {
+      const { rows: descs } = await client.query(
+        `WITH RECURSIVE descendants AS (
+           SELECT id FROM documents WHERE parent_id = $1
+           UNION ALL
+           SELECT d.id FROM documents d INNER JOIN descendants ON d.parent_id = descendants.id
+         )
+         SELECT id FROM descendants WHERE id = $2`,
+        [doc.id, newParent]
+      );
+      if (descs.length > 0) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'Circular reference: target is a descendant' });
+      }
+    }
+
+    // Get current siblings at the target parent (excluding the moved doc)
+    const sibQuery = newParent
+      ? `SELECT id FROM documents WHERE client_id = $1 AND parent_id = $2 AND id != $3 ORDER BY sort_order, title`
+      : `SELECT id FROM documents WHERE client_id = $1 AND parent_id IS NULL AND id != $2 ORDER BY sort_order, title`;
+    const sibParams = newParent ? [doc.client_id, newParent, doc.id] : [doc.client_id, doc.id];
+    const { rows: siblings } = await client.query(sibQuery, sibParams);
+
+    // Insert the moved doc at the requested position
+    const clamped = Math.min(pos, siblings.length);
+    siblings.splice(clamped, 0, { id: doc.id });
+
+    // Renumber all siblings
+    for (let i = 0; i < siblings.length; i++) {
+      await client.query(
+        'UPDATE documents SET sort_order = $1, parent_id = CASE WHEN id = $2 THEN $3 ELSE parent_id END WHERE id = $4',
+        [i, doc.id, newParent, siblings[i].id]
+      );
+    }
+
+    await client.query('COMMIT');
+    res.json({ ok: true });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    log('error', 'Documents', `Move failed: ${err.message}`);
+    res.status(500).json({ error: 'Move failed' });
+  } finally {
+    client.release();
+  }
+});
+
 // ==================== DOCUMENT ATTACHMENTS ====================
 
 const ALLOWED_DOC_MIME = new Set(['image/jpeg', 'image/png', 'image/gif', 'image/webp']);
