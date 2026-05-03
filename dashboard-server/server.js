@@ -844,6 +844,9 @@ async function requireAuth(req, res, next) {
       role: rows[0].role, clientId: rows[0].client_id, clientRole: rows[0].client_role,
       isNBI: !rows[0].client_id, isClientAdmin: !!rows[0].client_id && rows[0].client_role === 'admin',
       mustChangePassword: rows[0].must_change_password,
+      // Cached for TOKEN_CACHE_TTL (5 min). Any future admin route that mutates
+      // docs_* on a user MUST evict this user's _tokenCache entries (mirror the
+      // pattern in PATCH /api/users/:id) or revocation lags by up to 5 minutes.
       docsView: rows[0].docs_view, docsEdit: rows[0].docs_edit,
       docsCreate: rows[0].docs_create, docsUpload: rows[0].docs_upload,
     };
@@ -4195,7 +4198,12 @@ app.get('/api/documents/:id', async (req, res) => {
   if (!req.user) return res.status(401).json({ error: 'Auth required' });
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid id' });
 
-  const { rows } = await pool.query('SELECT * FROM documents WHERE id = $1', [req.params.id]);
+  const { rows } = await pool.query(
+    `SELECT id, client_id, parent_id, task_id, title, body_json, visibility,
+            sort_order, updated_at, updated_by
+       FROM documents WHERE id = $1`,
+    [req.params.id]
+  );
   if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
   const doc = rows[0];
 
@@ -4246,7 +4254,7 @@ app.post('/api/documents', async (req, res) => {
   const { rows } = await pool.query(
     `INSERT INTO documents (client_id, parent_id, task_id, title, visibility, created_by, updated_by)
      VALUES ($1, $2, $3, $4, $5, $6, $6) RETURNING *`,
-    [client_id, parent_id || null, task_id || null, (title || 'Untitled').slice(0, 255), safeVis, author]
+    [client_id, parent_id || null, task_id || null, String(title || 'Untitled').slice(0, 255), safeVis, author]
   );
   res.status(201).json(rows[0]);
 });

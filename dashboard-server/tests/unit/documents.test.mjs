@@ -155,4 +155,15 @@ describe('Documents — list/read/create', () => {
       .set('Authorization', `Bearer ${clientToken}`);
     expect(res.status).toBe(403);
   });
+
+  it('POST /api/documents returns 403 for client users with docs_create=false', async () => {
+    const clientUser = await createTestUser({ role: 'member', client_id: lighthouse.id });
+    await pool.query('UPDATE users SET docs_create = false WHERE id = $1', [clientUser.id]);
+    const clientToken = await mintSession(clientUser.id);
+    const res = await request(app)
+      .post('/api/documents')
+      .set('Authorization', `Bearer ${clientToken}`)
+      .send({ client_id: lighthouse.id, title: 'Should fail' });
+    expect(res.status).toBe(403);
+  });
 });
