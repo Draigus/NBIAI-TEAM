@@ -2390,6 +2390,17 @@ span.fin-editable { display: inline-block; position: relative; }
 .docs__loading-bar:nth-child(4) { width: 75%; }
 .docs__loading-bar:nth-child(5) { width: 85%; }
 @keyframes docsPulse { from { opacity: 0.4; } to { opacity: 0.8; } }
+.docs__tree-toggle { display: none; background: none; border: 1px solid var(--border-default); color: var(--text-primary); padding: 4px 8px; border-radius: var(--radius-sm); cursor: pointer; font-size: 1rem; line-height: 1; }
+@media (max-width: 768px) {
+  .docs__tree-toggle { display: block; }
+  .docs__tree { position: fixed; left: 0; top: 60px; bottom: 0; z-index: 50; width: 280px; background: var(--bg-card); border-right: 1px solid var(--border-subtle); transform: translateX(-100%); transition: transform 0.2s ease; }
+  .docs__tree--open { transform: translateX(0); }
+  .docs__pane { padding: var(--space-md); }
+  .docs__title { font-size: 1.2rem; }
+  .docs__tb-btn { min-height: 36px; min-width: 36px; display: inline-flex; align-items: center; justify-content: center; }
+  .docs__hdr { flex-wrap: wrap; gap: 8px; padding: var(--space-sm) var(--space-md); }
+  .docs__client-select { min-width: 0; flex: 1; }
+}
 
 </style>
 </head>
@@ -11537,14 +11548,15 @@ function _docsRender(el) {
   const tree = _docsBuildTree(_docsState.tree);
   let html = '<div class="docs">';
   html += '<div class="docs__hdr">';
+  html += '<button class="docs__tree-toggle" aria-label="Toggle page tree" onclick="_docsToggleTree()">&#9776;</button>';
   html += '<div class="docs__hdr-title">Documentation</div>';
-  html += '<select class="docs__client-select" onchange="_actDocsSelectClient(this.value)">';
+  html += '<select class="docs__client-select" aria-label="Select client" onchange="_actDocsSelectClient(this.value)">';
   clients.forEach(c => { html += '<option value="' + esc(c.id) + '"' + (c.id === _docsState.clientId ? ' selected' : '') + '>' + esc(c.name) + '</option>'; });
   html += '</select>';
-  html += '<div class="docs__hdr-status" id="docsSavedIndicator">' + _docsSavedLabel() + '</div>';
+  html += '<div class="docs__hdr-status" id="docsSavedIndicator" aria-live="polite" role="status">' + _docsSavedLabel() + '</div>';
   html += '</div>';
   html += '<div class="docs__split">';
-  html += '<div class="docs__tree" id="docsTreeCol">';
+  html += '<div class="docs__tree" id="docsTreeCol" role="tree" aria-label="Document pages">';
   html += '<button class="docs__add-root" onclick="_actDocsAddPage(null)">+ New page</button>';
   html += _docsRenderTreeNodes(tree, 0);
   html += '</div>';
@@ -11569,7 +11581,7 @@ function _docsRenderTreeNodes(nodes, depth) {
   nodes.forEach((n, idx) => {
     const sel = n.id === _docsState.selectedDocId;
     const lock = n.visibility === 'nbi_only' ? '<span class="docs__tree-lock" title="NBI internal only">&#x1f512;</span>' : '';
-    html += '<li class="docs__tree-li' + (sel ? ' docs__tree-li--selected' : '') + '" style="padding-left:' + (depth * 12) + 'px" draggable="true" data-doc-id="' + escAttrJs(n.id) + '" data-doc-parent="' + escAttrJs(n.parent_id || '') + '" data-doc-idx="' + idx + '" ondragstart="_docsDragStart(event)" ondragover="_docsDragOver(event)" ondragleave="_docsDragLeave(event)" ondrop="_docsDrop(event)">';
+    html += '<li class="docs__tree-li' + (sel ? ' docs__tree-li--selected' : '') + '" style="padding-left:' + (depth * 12) + 'px" draggable="true" role="treeitem" aria-selected="' + (sel ? 'true' : 'false') + '" data-doc-id="' + escAttrJs(n.id) + '" data-doc-parent="' + escAttrJs(n.parent_id || '') + '" data-doc-idx="' + idx + '" ondragstart="_docsDragStart(event)" ondragover="_docsDragOver(event)" ondragleave="_docsDragLeave(event)" ondrop="_docsDrop(event)">';
     html += '<button class="docs__tree-row" onclick="_actDocsSelectPage(\'' + escAttrJs(n.id) + '\')">' + lock + '<span>' + esc(n.title) + '</span></button>';
     html += '<button class="docs__tree-add" title="Add child page" onclick="event.stopPropagation();_actDocsAddPage(\'' + escAttrJs(n.id) + '\')">+</button>';
     html += '</li>';
@@ -11670,6 +11682,11 @@ async function _docsDrop(e) {
   } else {
     toast('Move failed', 'error');
   }
+}
+
+function _docsToggleTree() {
+  const tree = document.getElementById('docsTreeCol');
+  if (tree) tree.classList.toggle('docs__tree--open');
 }
 
 function _docsSavedLabel() {
@@ -11801,33 +11818,47 @@ async function _docsRenderEditorPane() {
       }
     }
   });
+
+  // Keyboard shortcuts
+  _docsTiptapEditor.view.dom.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key === 's') {
+      e.preventDefault();
+      _docsFlushSave();
+    } else if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key === 'k') {
+      e.preventDefault();
+      _docsTb('link');
+    } else if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'I') {
+      e.preventDefault();
+      _docsTb('nbi');
+    }
+  });
 }
 
 function _docsRenderToolbar() {
   const el = document.getElementById('docsToolbar');
   if (!el || !_docsTiptapEditor) return;
   const E = _docsTiptapEditor;
-  function btn(label, action, isActive) {
-    return '<button class="docs__tb-btn' + (isActive ? ' docs__tb-btn--active' : '') + '" onclick="' + action + '">' + label + '</button>';
+  function btn(label, action, isActive, ariaLabel) {
+    return '<button class="docs__tb-btn' + (isActive ? ' docs__tb-btn--active' : '') + '" aria-label="' + ariaLabel + '" onclick="' + action + '">' + label + '</button>';
   }
   el.innerHTML = [
-    btn('<b>B</b>', '_docsTb(\'bold\')', E.isActive('bold')),
-    btn('<i>I</i>', '_docsTb(\'italic\')', E.isActive('italic')),
-    btn('<u>U</u>', '_docsTb(\'underline\')', E.isActive('underline')),
-    btn('<s>S</s>', '_docsTb(\'strike\')', E.isActive('strike')),
+    btn('<b>B</b>', '_docsTb(\'bold\')', E.isActive('bold'), 'Bold (Ctrl+B)'),
+    btn('<i>I</i>', '_docsTb(\'italic\')', E.isActive('italic'), 'Italic (Ctrl+I)'),
+    btn('<u>U</u>', '_docsTb(\'underline\')', E.isActive('underline'), 'Underline (Ctrl+U)'),
+    btn('<s>S</s>', '_docsTb(\'strike\')', E.isActive('strike'), 'Strikethrough'),
     '<span class="docs__tb-sep"></span>',
-    btn('H1', '_docsTb(\'h1\')', E.isActive('heading', { level: 1 })),
-    btn('H2', '_docsTb(\'h2\')', E.isActive('heading', { level: 2 })),
-    btn('H3', '_docsTb(\'h3\')', E.isActive('heading', { level: 3 })),
-    btn('&bull; List', '_docsTb(\'ul\')', E.isActive('bulletList')),
-    btn('1. List', '_docsTb(\'ol\')', E.isActive('orderedList')),
-    btn('&ldquo;', '_docsTb(\'blockquote\')', E.isActive('blockquote')),
-    btn('&lt;/&gt;', '_docsTb(\'code\')', E.isActive('code')),
+    btn('H1', '_docsTb(\'h1\')', E.isActive('heading', { level: 1 }), 'Heading 1'),
+    btn('H2', '_docsTb(\'h2\')', E.isActive('heading', { level: 2 }), 'Heading 2'),
+    btn('H3', '_docsTb(\'h3\')', E.isActive('heading', { level: 3 }), 'Heading 3'),
+    btn('&bull; List', '_docsTb(\'ul\')', E.isActive('bulletList'), 'Bullet list'),
+    btn('1. List', '_docsTb(\'ol\')', E.isActive('orderedList'), 'Numbered list'),
+    btn('&ldquo;', '_docsTb(\'blockquote\')', E.isActive('blockquote'), 'Blockquote'),
+    btn('&lt;/&gt;', '_docsTb(\'code\')', E.isActive('code'), 'Inline code'),
     '<span class="docs__tb-sep"></span>',
-    btn('Link', '_docsTb(\'link\')'),
-    btn('Image', '_docsTb(\'image\')'),
+    btn('Link', '_docsTb(\'link\')', false, 'Insert link (Ctrl+K)'),
+    btn('Image', '_docsTb(\'image\')', false, 'Insert image'),
     '<span class="docs__tb-sep"></span>',
-    btn('NBI', '_docsTb(\'nbi\')', E.isActive('nbiInternalBlock')),
+    btn('NBI', '_docsTb(\'nbi\')', E.isActive('nbiInternalBlock'), 'NBI internal block (Ctrl+Shift+I)'),
   ].join('');
 }
 
@@ -11880,6 +11911,11 @@ function _docsScheduleSave() {
   clearTimeout(_docsAutosaveTimer);
   const delay = _docsState.retryCount > 0 ? Math.min(800 * Math.pow(2, _docsState.retryCount), 15000) : 800;
   _docsAutosaveTimer = setTimeout(_docsSaveNow, delay);
+}
+
+function _docsFlushSave() {
+  clearTimeout(_docsAutosaveTimer);
+  _docsSaveNow();
 }
 
 async function _docsSaveNow() {
