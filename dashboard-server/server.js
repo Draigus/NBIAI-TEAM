@@ -4155,7 +4155,7 @@ app.delete('/api/notes/:id', requireAdmin, async (req, res) => {
 
 // ==================== DOCUMENTS ====================
 
-const { redactNbiInternal, extractPlainText } = require('./lib/redact-nbi-internal');
+const { redactNbiInternal, extractPlainText, imageInScope } = require('./lib/redact-nbi-internal');
 
 /** GET /api/documents?client_id=:uuid
  *  Return the page tree for a client.
@@ -4429,6 +4429,186 @@ app.delete('/api/documents/:id', async (req, res) => {
 
   await pool.query('DELETE FROM documents WHERE id = $1', [req.params.id]);
   res.status(204).end();
+});
+
+// ==================== DOCUMENT ATTACHMENTS ====================
+
+const ALLOWED_DOC_MIME = new Set(['image/jpeg', 'image/png', 'image/gif', 'image/webp']);
+
+/** Multer instance for document image uploads.
+ *  Images only, 5 MB cap, stored in the shared uploadDir. */
+const docUpload = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => cb(null, uploadDir),
+    filename: (req, file, cb) => {
+      const ext = path.extname(file.originalname).toLowerCase();
+      const suffix = Math.random().toString(36).slice(2, 8);
+      cb(null, `doc_${req.params.id}_${Date.now()}_${suffix}${ext}`);
+    }
+  }),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (ALLOWED_DOC_MIME.has(file.mimetype)) return cb(null, true);
+    cb(new Error('Only jpg/png/gif/webp images are allowed'));
+  }
+});
+
+/** Safely remove a multer-saved file, logging but not throwing on failure. */
+function cleanupDocUpload(filePath) {
+  try { fs.unlinkSync(filePath); } catch (e) { console.error('doc upload cleanup failed:', e.message); }
+}
+
+/** POST /api/documents/:id/attachments
+ *  Upload an image into a document. Returns the new attachment row + url.
+ *
+ *  Scope guards (in order):
+ *    401 -- not authenticated
+ *    400 -- invalid doc UUID
+ *    400 -- no file or unsupported mime type (multer fileFilter rejection)
+ *    404 -- doc not found
+ *    404 -- client user trying to upload to an nbi_only doc
+ *    404 -- client user targeting another client's doc
+ *    403 -- client user with docsUpload=false
+ *
+ *  On any rejection after multer has saved the file to disk, the file is
+ *  deleted before responding so we do not accumulate orphaned uploads.
+ *
+ *  Note: mime type is validated from the client-supplied header only.
+ *  Magic-byte sniffing is deferred to Task G1. */
+app.post('/api/documents/:id/attachments', (req, res, next) => {
+  // Wrap multer to surface fileFilter / size-limit errors as JSON 400/413
+  // rather than letting them propagate to the default error handler (500).
+  docUpload.single('file')(req, res, (err) => {
+    if (err) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(413).json({ error: 'File too large (max 5 MB)' });
+      }
+      return res.status(400).json({ error: err.message || 'Upload failed' });
+    }
+    next();
+  });
+}, async (req, res) => {
+  // 401 -- must be authenticated
+  if (!req.user) {
+    if (req.file) cleanupDocUpload(req.file.path);
+    return res.status(401).json({ error: 'Auth required' });
+  }
+
+  // 400 -- validate doc UUID
+  if (!isValidUuid(req.params.id)) {
+    if (req.file) cleanupDocUpload(req.file.path);
+    return res.status(400).json({ error: 'Invalid id' });
+  }
+
+  // 400 -- multer may not have saved a file if fileFilter rejected it
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file or unsupported type' });
+  }
+
+  // Fetch doc for scope checks
+  const { rows } = await pool.query(
+    'SELECT id, client_id, visibility FROM documents WHERE id = $1',
+    [req.params.id]
+  );
+  if (rows.length === 0) {
+    cleanupDocUpload(req.file.path);
+    return res.status(404).json({ error: 'Not found' });
+  }
+  const doc = rows[0];
+
+  const isClientUser = !!req.user.clientId;
+  if (isClientUser) {
+    // nbi_only docs are invisible to client users
+    if (doc.visibility === 'nbi_only') {
+      cleanupDocUpload(req.file.path);
+      return res.status(404).json({ error: 'Not found' });
+    }
+    // Cross-client access is a 404 (not 403) to avoid client enumeration
+    if (req.user.clientId !== doc.client_id) {
+      cleanupDocUpload(req.file.path);
+      return res.status(404).json({ error: 'Not found' });
+    }
+    // Explicit denial of upload permission
+    if (req.user.docsUpload === false) {
+      cleanupDocUpload(req.file.path);
+      return res.status(403).json({ error: 'No doc-upload permission' });
+    }
+  }
+
+  // Persist the attachment row
+  const { rows: ins } = await pool.query(
+    `INSERT INTO document_attachments
+       (document_id, filename, stored_name, mime_type, size_bytes, uploaded_by)
+     VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+    [
+      req.params.id,
+      req.file.originalname,
+      req.file.filename,
+      req.file.mimetype,
+      req.file.size,
+      req.user.username || 'unknown'
+    ]
+  );
+
+  res.status(201).json({
+    id:         ins[0].id,
+    filename:   ins[0].filename,
+    url:        `/api/documents/${req.params.id}/attachments/${req.file.filename}`,
+    mime_type:  ins[0].mime_type,
+    size_bytes: ins[0].size_bytes
+  });
+});
+
+/** GET /api/documents/:id/attachments/:filename
+ *  Serve a document image file.
+ *
+ *  Scope guards (in order):
+ *    401 -- not authenticated
+ *    400 -- invalid doc UUID
+ *    400 -- path traversal detected (param resolves outside uploadDir)
+ *    404 -- doc not found
+ *    404 -- client user: cross-client or nbi_only doc
+ *    403 -- client user: docsView=false
+ *    H1  -- client user: image only in nbiInternalBlock -> 404
+ *    404 -- file missing on disk */
+app.get('/api/documents/:id/attachments/:filename', async (req, res) => {
+  if (!req.user) return res.status(401).json({ error: 'Auth required' });
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid id' });
+
+  // Path traversal check: resolve the raw param (Express decodes %2F etc.) and
+  // confirm it stays inside uploadDir. Do NOT use path.basename first -- that
+  // strips the traversal and defeats the check.
+  const fullPath = path.resolve(uploadDir, req.params.filename);
+  if (!fullPath.startsWith(path.resolve(uploadDir) + path.sep)) {
+    return res.status(400).json({ error: 'Bad path' });
+  }
+
+  // Fetch doc for scope checks (include body_json for H1 check)
+  const { rows } = await pool.query(
+    'SELECT client_id, visibility, body_json FROM documents WHERE id = $1',
+    [req.params.id]
+  );
+  if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
+  const doc = rows[0];
+
+  const isClientUser = !!req.user.clientId;
+  if (isClientUser) {
+    if (req.user.clientId !== doc.client_id) return res.status(404).json({ error: 'Not found' });
+    if (doc.visibility === 'nbi_only')        return res.status(404).json({ error: 'Not found' });
+    if (req.user.docsView === false)           return res.status(403).json({ error: 'No doc-view permission' });
+
+    // H1: if the image is only referenced inside an nbiInternalBlock, deny it.
+    // Use the stored filename (basename of the resolved path) for the scope check.
+    const storedName = path.basename(fullPath);
+    if (!imageInScope(doc.body_json, storedName, { dropNbiInternal: true })) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+  }
+
+  if (!fs.existsSync(fullPath)) return res.status(404).json({ error: 'File missing' });
+
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.sendFile(fullPath);
 });
 
 /** POST /api/documents

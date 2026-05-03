@@ -638,3 +638,316 @@ describe('Documents: update/delete/move', () => {
     expect(rows.length).toBe(1);
   });
 });
+
+// =============================================================================
+// Documents: attachments (Task 8 + H1)
+// =============================================================================
+
+describe('Documents: attachments', () => {
+  // 1x1 transparent PNG (valid image file)
+  const PIXEL_PNG = Buffer.from(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=',
+    'base64'
+  );
+
+  let admin, adminToken, lighthouse, doc;
+
+  beforeEach(async () => {
+    admin = await createTestUser({ role: 'admin' });
+    adminToken = await mintSession(admin.id);
+    lighthouse = await createTestClient({ name: 'Lighthouse Games', sector: 'gaming' });
+    const ins = await pool.query(
+      `INSERT INTO documents (client_id, title, created_by, updated_by)
+       VALUES ($1, 'Img Doc', 'test', 'test') RETURNING *`,
+      [lighthouse.id]
+    );
+    doc = ins.rows[0];
+  });
+
+  // ---- T8-1: POST accepts a small PNG and returns a URL --------------------
+
+  it('T8-1: POST /api/documents/:id/attachments accepts a 1x1 PNG and returns row + URL', async () => {
+    const res = await request(app)
+      .post(`/api/documents/${doc.id}/attachments`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .attach('file', PIXEL_PNG, { filename: 'pixel.png', contentType: 'image/png' });
+    expect(res.status).toBe(201);
+    expect(res.body.id).toBeTruthy();
+    expect(res.body.filename).toBe('pixel.png');
+    expect(res.body.mime_type).toBe('image/png');
+    expect(res.body.size_bytes).toBeGreaterThan(0);
+    expect(res.body.url).toMatch(new RegExp(`/api/documents/${doc.id}/attachments/.+\\.png$`));
+  });
+
+  // ---- T8-2: POST rejects files over 5 MB ---------------------------------
+
+  it('T8-2: POST rejects files over 5 MB', async () => {
+    const huge = Buffer.alloc(5 * 1024 * 1024 + 1, 0x41);
+    const res = await request(app)
+      .post(`/api/documents/${doc.id}/attachments`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .attach('file', huge, { filename: 'big.png', contentType: 'image/png' });
+    expect([400, 413]).toContain(res.status);
+  });
+
+  // ---- T8-3: POST rejects non-image MIME types ----------------------------
+
+  it('T8-3: POST rejects non-image mime type (application/octet-stream)', async () => {
+    const exe = Buffer.from('MZ-not-an-image');
+    const res = await request(app)
+      .post(`/api/documents/${doc.id}/attachments`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .attach('file', exe, { filename: 'malware.exe', contentType: 'application/octet-stream' });
+    expect(res.status).toBe(400);
+  });
+
+  // ---- T8-4: POST returns 403 for client user with docsUpload=false --------
+  // File must NOT remain on disk after rejection.
+
+  it('T8-4: POST returns 403 for client user with docsUpload=false and leaves no row in DB', async () => {
+    const clientUser = await createTestUser({ role: 'member', client_id: lighthouse.id });
+    await pool.query('UPDATE users SET docs_upload = false WHERE id = $1', [clientUser.id]);
+    const clientToken = await mintSession(clientUser.id);
+
+    const res = await request(app)
+      .post(`/api/documents/${doc.id}/attachments`)
+      .set('Authorization', `Bearer ${clientToken}`)
+      .attach('file', PIXEL_PNG, { filename: 'pixel.png', contentType: 'image/png' });
+    expect(res.status).toBe(403);
+
+    // No rows should have been inserted
+    const { rows } = await pool.query(
+      'SELECT id FROM document_attachments WHERE document_id = $1',
+      [doc.id]
+    );
+    expect(rows.length).toBe(0);
+  });
+
+  // ---- T8-5: POST to doc owned by another client returns 404 ---------------
+  // File must NOT remain on disk after rejection.
+
+  it('T8-5: POST to a doc owned by another client returns 404 and leaves no row in DB', async () => {
+    const goals = await createTestClient({ name: 'Goals', sector: 'gaming' });
+    const goalsUser = await createTestUser({ role: 'member', client_id: goals.id });
+    const goalsToken = await mintSession(goalsUser.id);
+
+    const res = await request(app)
+      .post(`/api/documents/${doc.id}/attachments`)
+      .set('Authorization', `Bearer ${goalsToken}`)
+      .attach('file', PIXEL_PNG, { filename: 'pixel.png', contentType: 'image/png' });
+    expect(res.status).toBe(404);
+
+    const { rows } = await pool.query(
+      'SELECT id FROM document_attachments WHERE document_id = $1',
+      [doc.id]
+    );
+    expect(rows.length).toBe(0);
+  });
+
+  // ---- T8-6: GET serves the uploaded image with correct headers ------------
+
+  it('T8-6: GET serves the uploaded image with Content-Type image/png and nosniff header', async () => {
+    const upRes = await request(app)
+      .post(`/api/documents/${doc.id}/attachments`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .attach('file', PIXEL_PNG, { filename: 'pixel.png', contentType: 'image/png' });
+    expect(upRes.status).toBe(201);
+    const url = upRes.body.url;
+
+    const getRes = await request(app)
+      .get(url)
+      .set('Authorization', `Bearer ${adminToken}`);
+    expect(getRes.status).toBe(200);
+    expect(getRes.headers['content-type']).toMatch(/image\/png/);
+    expect(getRes.headers['x-content-type-options']).toBe('nosniff');
+  });
+
+  // ---- T8-7: GET by cross-client user returns 404 -------------------------
+
+  it('T8-7: GET by cross-client user returns 404', async () => {
+    const upRes = await request(app)
+      .post(`/api/documents/${doc.id}/attachments`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .attach('file', PIXEL_PNG, { filename: 'pixel.png', contentType: 'image/png' });
+    expect(upRes.status).toBe(201);
+    const url = upRes.body.url;
+
+    const goals = await createTestClient({ name: 'Goals3', sector: 'gaming' });
+    const goalsUser = await createTestUser({ role: 'member', client_id: goals.id });
+    const goalsToken = await mintSession(goalsUser.id);
+
+    const getRes = await request(app)
+      .get(url)
+      .set('Authorization', `Bearer ${goalsToken}`);
+    expect(getRes.status).toBe(404);
+  });
+
+  // ---- T8-8: GET by client user on nbi_only doc returns 404 ---------------
+
+  it('T8-8: GET image on nbi_only doc returns 404 for client user', async () => {
+    // Create an nbi_only doc with an attachment
+    const nbiIns = await pool.query(
+      `INSERT INTO documents (client_id, title, visibility, created_by, updated_by)
+       VALUES ($1, 'NBI Internal', 'nbi_only', 'test', 'test') RETURNING *`,
+      [lighthouse.id]
+    );
+    const nbiDoc = nbiIns.rows[0];
+
+    const upRes = await request(app)
+      .post(`/api/documents/${nbiDoc.id}/attachments`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .attach('file', PIXEL_PNG, { filename: 'pixel.png', contentType: 'image/png' });
+    expect(upRes.status).toBe(201);
+    const url = upRes.body.url;
+
+    const clientUser = await createTestUser({ role: 'member', client_id: lighthouse.id });
+    const clientToken = await mintSession(clientUser.id);
+
+    const getRes = await request(app)
+      .get(url)
+      .set('Authorization', `Bearer ${clientToken}`);
+    expect(getRes.status).toBe(404);
+  });
+
+  // ---- T8-9: GET by client user with docsView=false returns 403 -----------
+
+  it('T8-9: GET image returns 403 for client user with docsView=false', async () => {
+    const upRes = await request(app)
+      .post(`/api/documents/${doc.id}/attachments`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .attach('file', PIXEL_PNG, { filename: 'pixel.png', contentType: 'image/png' });
+    expect(upRes.status).toBe(201);
+    const url = upRes.body.url;
+
+    const clientUser = await createTestUser({ role: 'member', client_id: lighthouse.id });
+    await pool.query('UPDATE users SET docs_view = false WHERE id = $1', [clientUser.id]);
+    const clientToken = await mintSession(clientUser.id);
+
+    const getRes = await request(app)
+      .get(url)
+      .set('Authorization', `Bearer ${clientToken}`);
+    expect(getRes.status).toBe(403);
+  });
+
+  // ---- T8-10: GET with URL-encoded path-traversal filename returns 400 -----
+  // Express decodes %2F in route params, so the handler receives '../etc/passwd'
+  // with a slash. path.resolve(uploadDir, '../etc/passwd') escapes uploadDir,
+  // triggering the startsWith guard and returning 400.
+
+  it('T8-10: GET with URL-encoded path-traversal filename returns 400', async () => {
+    const res = await request(app)
+      .get(`/api/documents/${doc.id}/attachments/..%2Fetc%2Fpasswd`)
+      .set('Authorization', `Bearer ${adminToken}`);
+    expect(res.status).toBe(400);
+  });
+
+  // ---- H1-1: image in scope both inside and outside NBI block -> 200 ------
+
+  it('H1-1: client GET returns 200 when image is referenced both inside and outside nbiInternalBlock', async () => {
+    const upRes = await request(app)
+      .post(`/api/documents/${doc.id}/attachments`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .attach('file', PIXEL_PNG, { filename: 'pixel.png', contentType: 'image/png' });
+    expect(upRes.status).toBe(201);
+    const url = upRes.body.url;
+
+    // Body references the image in BOTH a paragraph AND an nbiInternalBlock
+    const body = {
+      type: 'doc',
+      content: [
+        {
+          type: 'paragraph',
+          content: [{ type: 'image', attrs: { src: url } }]
+        },
+        {
+          type: 'nbiInternalBlock',
+          content: [
+            { type: 'paragraph', content: [{ type: 'image', attrs: { src: url } }] }
+          ]
+        }
+      ]
+    };
+    await pool.query(
+      'UPDATE documents SET body_json = $1 WHERE id = $2',
+      [JSON.stringify(body), doc.id]
+    );
+
+    const clientUser = await createTestUser({ role: 'member', client_id: lighthouse.id });
+    const clientToken = await mintSession(clientUser.id);
+
+    const getRes = await request(app)
+      .get(url)
+      .set('Authorization', `Bearer ${clientToken}`);
+    expect(getRes.status).toBe(200);
+  });
+
+  // ---- H1-2: image only inside NBI block -> 404 for client user -----------
+
+  it('H1-2: client GET returns 404 when image is only inside nbiInternalBlock', async () => {
+    const upRes = await request(app)
+      .post(`/api/documents/${doc.id}/attachments`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .attach('file', PIXEL_PNG, { filename: 'pixel.png', contentType: 'image/png' });
+    expect(upRes.status).toBe(201);
+    const url = upRes.body.url;
+
+    // Body references image ONLY inside an nbiInternalBlock
+    const body = {
+      type: 'doc',
+      content: [
+        {
+          type: 'nbiInternalBlock',
+          content: [
+            { type: 'paragraph', content: [{ type: 'image', attrs: { src: url } }] }
+          ]
+        }
+      ]
+    };
+    await pool.query(
+      'UPDATE documents SET body_json = $1 WHERE id = $2',
+      [JSON.stringify(body), doc.id]
+    );
+
+    const clientUser = await createTestUser({ role: 'member', client_id: lighthouse.id });
+    const clientToken = await mintSession(clientUser.id);
+
+    const getRes = await request(app)
+      .get(url)
+      .set('Authorization', `Bearer ${clientToken}`);
+    expect(getRes.status).toBe(404);
+  });
+
+  // ---- H1-3: image only inside NBI block -> 200 for NBI user ---------------
+
+  it('H1-3: NBI user GET returns 200 even when image is only inside nbiInternalBlock', async () => {
+    const upRes = await request(app)
+      .post(`/api/documents/${doc.id}/attachments`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .attach('file', PIXEL_PNG, { filename: 'pixel.png', contentType: 'image/png' });
+    expect(upRes.status).toBe(201);
+    const url = upRes.body.url;
+
+    // Body references image ONLY inside an nbiInternalBlock
+    const body = {
+      type: 'doc',
+      content: [
+        {
+          type: 'nbiInternalBlock',
+          content: [
+            { type: 'paragraph', content: [{ type: 'image', attrs: { src: url } }] }
+          ]
+        }
+      ]
+    };
+    await pool.query(
+      'UPDATE documents SET body_json = $1 WHERE id = $2',
+      [JSON.stringify(body), doc.id]
+    );
+
+    // NBI admin user -- no clientId, so isClientUser = false
+    const getRes = await request(app)
+      .get(url)
+      .set('Authorization', `Bearer ${adminToken}`);
+    expect(getRes.status).toBe(200);
+  });
+});
