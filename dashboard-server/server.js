@@ -4196,15 +4196,38 @@ app.get('/api/documents', async (req, res) => {
     }
   }
 
+  // Determine if this user can see hidden pages
+  const canSeeHidden = !isClientUser || req.user.docsEdit === true;
+
   const { rows } = await pool.query(
-    `SELECT id, parent_id, task_id, title, body_json, visibility, sort_order, updated_at, updated_by
+    `SELECT id, parent_id, task_id, title, body_json, visibility, hidden, sort_order, updated_at, updated_by
        FROM documents WHERE client_id = $1 ${visibilityClause}
        ORDER BY parent_id NULLS FIRST, sort_order, created_at`,
     [clientId]
   );
-  const out = isClientUser
-    ? rows.map(r => ({ ...r, body_json: redactNbiInternal(r.body_json) }))
-    : rows;
+
+  let out;
+  if (!canSeeHidden) {
+    // Build a set of hidden page IDs (explicitly hidden)
+    const hiddenIds = new Set(rows.filter(r => r.hidden).map(r => r.id));
+    // Walk ancestors: if any ancestor is hidden, exclude this row
+    function hasHiddenAncestor(row) {
+      let cur = row;
+      while (cur.parent_id) {
+        if (hiddenIds.has(cur.parent_id)) return true;
+        cur = rows.find(r => r.id === cur.parent_id);
+        if (!cur) break;
+      }
+      return false;
+    }
+    out = rows.filter(r => !r.hidden && !hasHiddenAncestor(r));
+  } else {
+    out = rows;
+  }
+
+  if (isClientUser) {
+    out = out.map(r => ({ ...r, body_json: redactNbiInternal(r.body_json) }));
+  }
   res.json(out);
 });
 
@@ -4217,7 +4240,7 @@ app.get('/api/documents/:id', async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid id' });
 
   const { rows } = await pool.query(
-    `SELECT id, client_id, parent_id, task_id, title, body_json, visibility,
+    `SELECT id, client_id, parent_id, task_id, title, body_json, visibility, hidden,
             sort_order, updated_at, updated_by
        FROM documents WHERE id = $1`,
     [req.params.id]
@@ -4230,6 +4253,10 @@ app.get('/api/documents/:id', async (req, res) => {
     return res.status(404).json({ error: 'Not found' });
   }
   if (isClientUser && doc.visibility === 'nbi_only') {
+    return res.status(404).json({ error: 'Not found' });
+  }
+  // Hidden pages: return 404 to client users without docs_edit (same pattern as nbi_only)
+  if (isClientUser && doc.hidden && req.user.docsEdit !== true) {
     return res.status(404).json({ error: 'Not found' });
   }
   if (isClientUser && req.user.docsView === false) {
@@ -4267,7 +4294,7 @@ app.patch('/api/documents/:id', async (req, res) => {
 
   // Fetch current doc (still needed for scope guards and cycle detection)
   const { rows } = await pool.query(
-    `SELECT id, client_id, parent_id, task_id, title, body_json, visibility,
+    `SELECT id, client_id, parent_id, task_id, title, body_json, visibility, hidden,
             sort_order, updated_at, updated_by
        FROM documents WHERE id = $1`,
     [req.params.id]
@@ -4304,8 +4331,10 @@ app.patch('/api/documents/:id', async (req, res) => {
 
   // Build standard field updates via the shared helper (prevents SQL injection)
   const allowedFields = isClientUser
-    ? ['title', 'body_json', 'parent_id', 'task_id', 'sort_order']
-    : ['title', 'body_json', 'parent_id', 'task_id', 'sort_order', 'visibility'];
+    ? (req.user.docsEdit
+        ? ['title', 'body_json', 'parent_id', 'task_id', 'sort_order', 'hidden']
+        : ['title', 'body_json', 'parent_id', 'task_id', 'sort_order'])
+    : ['title', 'body_json', 'parent_id', 'task_id', 'sort_order', 'visibility', 'hidden'];
 
   const { updates, vals, nextIdx } = buildPatchQuery(req.body, allowedFields);
   let idx = nextIdx;
@@ -4355,6 +4384,13 @@ app.patch('/api/documents/:id', async (req, res) => {
     }
   }
 
+  // hidden: must be boolean
+  if (req.body.hidden !== undefined) {
+    if (typeof req.body.hidden !== 'boolean') {
+      return res.status(400).json({ error: 'hidden must be a boolean' });
+    }
+  }
+
   // body_json: also compute and write body_text for full-text indexing (B1).
   // dropNbiInternal: false. Write-time indexing keeps NBI-internal content so
   // NBI users can search across all content including internal sections.
@@ -4389,7 +4425,7 @@ app.patch('/api/documents/:id', async (req, res) => {
     `UPDATE documents SET ${updates.join(', ')}
       WHERE id = $${idx}
         AND date_trunc('milliseconds', updated_at) = date_trunc('milliseconds', $${idx + 1}::timestamptz)
-      RETURNING id, client_id, parent_id, task_id, title, body_json, visibility,
+      RETURNING id, client_id, parent_id, task_id, title, body_json, visibility, hidden,
                 sort_order, updated_at, updated_by`,
     vals
   );
@@ -4399,7 +4435,7 @@ app.patch('/api/documents/:id', async (req, res) => {
   // and the doc having been deleted between our SELECT and UPDATE.
   if (!updated[0]) {
     const { rows: recheck } = await pool.query(
-      `SELECT id, client_id, parent_id, task_id, title, body_json, visibility,
+      `SELECT id, client_id, parent_id, task_id, title, body_json, visibility, hidden,
               sort_order, updated_at, updated_by
          FROM documents WHERE id = $1`,
       [req.params.id]

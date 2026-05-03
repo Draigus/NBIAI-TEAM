@@ -30,12 +30,17 @@ async function createTestUser(opts = {}) {
   const client_id = opts.client_id || null;
   const client_role = opts.client_role || null;
   const must_change_password = opts.must_change_password || false;
+  // docs_* permissions default to true (matching migration 035)
+  const docs_view = 'docs_view' in opts ? opts.docs_view : true;
+  const docs_edit = 'docs_edit' in opts ? opts.docs_edit : true;
+  const docs_create = 'docs_create' in opts ? opts.docs_create : true;
+  const docs_upload = 'docs_upload' in opts ? opts.docs_upload : true;
 
   const { rows } = await pool.query(
-    `INSERT INTO users (username, display_name, email, role, password_hash, is_active, client_id, client_role, must_change_password)
-     VALUES ($1, $2, $3, $4, $5, true, $6, $7, $8)
-     RETURNING id, username, display_name, email, role, client_id, client_role, must_change_password`,
-    [username, display_name, email, role, password_hash, client_id, client_role, must_change_password]
+    `INSERT INTO users (username, display_name, email, role, password_hash, is_active, client_id, client_role, must_change_password, docs_view, docs_edit, docs_create, docs_upload)
+     VALUES ($1, $2, $3, $4, $5, true, $6, $7, $8, $9, $10, $11, $12)
+     RETURNING id, username, display_name, email, role, client_id, client_role, must_change_password, docs_view, docs_edit, docs_create, docs_upload`,
+    [username, display_name, email, role, password_hash, client_id, client_role, must_change_password, docs_view, docs_edit, docs_create, docs_upload]
   );
   return { ...rows[0], raw_password };
 }

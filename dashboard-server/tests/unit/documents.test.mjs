@@ -178,6 +178,199 @@ describe('Documents — list/read/create', () => {
       .send({ client_id: lighthouse.id, title: 'Should fail' });
     expect(res.status).toBe(403);
   });
+
+  // ---- HIDDEN FILTERING ---------------------------------------------------
+
+  it('GET /api/documents excludes hidden pages for client users without docs_edit', async () => {
+    const page = await pool.query(
+      `INSERT INTO documents (client_id, title, hidden, created_by, updated_by)
+       VALUES ($1, 'Secret Page', true, 'test', 'test') RETURNING id`,
+      [lighthouse.id]
+    );
+    await pool.query(
+      `INSERT INTO documents (client_id, title, hidden, created_by, updated_by)
+       VALUES ($1, 'Public Page', false, 'test', 'test') RETURNING id`,
+      [lighthouse.id]
+    );
+
+    const clientUser = await createTestUser({
+      role: 'member', client_id: lighthouse.id, docs_view: true, docs_edit: false
+    });
+    const clientToken = await mintSession(clientUser.id);
+
+    const res = await request(app)
+      .get(`/api/documents?client_id=${lighthouse.id}`)
+      .set('Authorization', `Bearer ${clientToken}`);
+    expect(res.status).toBe(200);
+    const titles = res.body.map(d => d.title);
+    expect(titles).not.toContain('Secret Page');
+    expect(titles).toContain('Public Page');
+  });
+
+  it('GET /api/documents includes hidden pages (with hidden field) for client users with docs_edit', async () => {
+    await pool.query(
+      `INSERT INTO documents (client_id, title, hidden, created_by, updated_by)
+       VALUES ($1, 'Secret Page', true, 'test', 'test') RETURNING id`,
+      [lighthouse.id]
+    );
+
+    const editUser = await createTestUser({
+      role: 'member', client_id: lighthouse.id, docs_view: true, docs_edit: true
+    });
+    const editToken = await mintSession(editUser.id);
+
+    const res = await request(app)
+      .get(`/api/documents?client_id=${lighthouse.id}`)
+      .set('Authorization', `Bearer ${editToken}`);
+    expect(res.status).toBe(200);
+    const secret = res.body.find(d => d.title === 'Secret Page');
+    expect(secret).toBeDefined();
+    expect(secret.hidden).toBe(true);
+  });
+
+  it('GET /api/documents includes hidden pages for NBI admin users', async () => {
+    await pool.query(
+      `INSERT INTO documents (client_id, title, hidden, created_by, updated_by)
+       VALUES ($1, 'Secret Page', true, 'test', 'test') RETURNING id`,
+      [lighthouse.id]
+    );
+
+    const res = await request(app)
+      .get(`/api/documents?client_id=${lighthouse.id}`)
+      .set('Authorization', `Bearer ${adminToken}`);
+    expect(res.status).toBe(200);
+    const secret = res.body.find(d => d.title === 'Secret Page');
+    expect(secret).toBeDefined();
+    expect(secret.hidden).toBe(true);
+  });
+
+  it('GET /api/documents excludes children of hidden pages for view-only client users', async () => {
+    const parent = await pool.query(
+      `INSERT INTO documents (client_id, title, hidden, created_by, updated_by)
+       VALUES ($1, 'Hidden Parent', true, 'test', 'test') RETURNING id`,
+      [lighthouse.id]
+    );
+    await pool.query(
+      `INSERT INTO documents (client_id, title, parent_id, hidden, created_by, updated_by)
+       VALUES ($1, 'Child of Hidden', $2, false, 'test', 'test')`,
+      [lighthouse.id, parent.rows[0].id]
+    );
+
+    const clientUser = await createTestUser({
+      role: 'member', client_id: lighthouse.id, docs_view: true, docs_edit: false
+    });
+    const clientToken = await mintSession(clientUser.id);
+
+    const res = await request(app)
+      .get(`/api/documents?client_id=${lighthouse.id}`)
+      .set('Authorization', `Bearer ${clientToken}`);
+    expect(res.status).toBe(200);
+    const titles = res.body.map(d => d.title);
+    expect(titles).not.toContain('Hidden Parent');
+    expect(titles).not.toContain('Child of Hidden');
+  });
+
+  // ---- GET SINGLE + HIDDEN --------------------------------------------------
+
+  it('GET /api/documents/:id returns 404 for hidden doc when user lacks docs_edit', async () => {
+    const doc = await pool.query(
+      `INSERT INTO documents (client_id, title, hidden, created_by, updated_by)
+       VALUES ($1, 'Hidden', true, 'test', 'test') RETURNING id`,
+      [lighthouse.id]
+    );
+
+    const clientUser = await createTestUser({
+      role: 'member', client_id: lighthouse.id, docs_view: true, docs_edit: false
+    });
+    const clientToken = await mintSession(clientUser.id);
+
+    const res = await request(app)
+      .get(`/api/documents/${doc.rows[0].id}`)
+      .set('Authorization', `Bearer ${clientToken}`);
+    expect(res.status).toBe(404);
+  });
+
+  it('GET /api/documents/:id returns hidden doc for user with docs_edit', async () => {
+    const doc = await pool.query(
+      `INSERT INTO documents (client_id, title, hidden, created_by, updated_by)
+       VALUES ($1, 'Hidden', true, 'test', 'test') RETURNING id`,
+      [lighthouse.id]
+    );
+
+    const editUser = await createTestUser({
+      role: 'member', client_id: lighthouse.id, docs_view: true, docs_edit: true
+    });
+    const editToken = await mintSession(editUser.id);
+
+    const res = await request(app)
+      .get(`/api/documents/${doc.rows[0].id}`)
+      .set('Authorization', `Bearer ${editToken}`);
+    expect(res.status).toBe(200);
+    expect(res.body.hidden).toBe(true);
+  });
+
+  // ---- PATCH HIDDEN ---------------------------------------------------------
+
+  it('PATCH /api/documents/:id accepts hidden field for NBI admin', async () => {
+    const doc = await pool.query(
+      `INSERT INTO documents (client_id, title, created_by, updated_by)
+       VALUES ($1, 'Page', 'test', 'test') RETURNING id, updated_at`,
+      [lighthouse.id]
+    );
+    const etag = `W/"${doc.rows[0].updated_at.toISOString()}"`;
+
+    const res = await request(app)
+      .patch(`/api/documents/${doc.rows[0].id}`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .set('If-Match', etag)
+      .send({ hidden: true });
+    expect(res.status).toBe(200);
+    expect(res.body.hidden).toBe(true);
+  });
+
+  it('PATCH /api/documents/:id accepts hidden field for client users WITH docs_edit', async () => {
+    const doc = await pool.query(
+      `INSERT INTO documents (client_id, title, created_by, updated_by)
+       VALUES ($1, 'Page', 'test', 'test') RETURNING id, updated_at`,
+      [lighthouse.id]
+    );
+    const etag = `W/"${doc.rows[0].updated_at.toISOString()}"`;
+
+    const editUser = await createTestUser({
+      role: 'member', client_id: lighthouse.id, docs_view: true, docs_edit: true
+    });
+    const editToken = await mintSession(editUser.id);
+
+    const res = await request(app)
+      .patch(`/api/documents/${doc.rows[0].id}`)
+      .set('Authorization', `Bearer ${editToken}`)
+      .set('If-Match', etag)
+      .send({ hidden: true });
+    expect(res.status).toBe(200);
+    expect(res.body.hidden).toBe(true);
+  });
+
+  it('PATCH /api/documents/:id returns 403 for client users WITHOUT docs_edit', async () => {
+    const doc = await pool.query(
+      `INSERT INTO documents (client_id, title, created_by, updated_by)
+       VALUES ($1, 'Page', 'test', 'test') RETURNING id, updated_at`,
+      [lighthouse.id]
+    );
+    const etag = `W/"${doc.rows[0].updated_at.toISOString()}"`;
+
+    const viewUser = await createTestUser({
+      role: 'member', client_id: lighthouse.id, docs_view: true, docs_edit: false
+    });
+    const viewToken = await mintSession(viewUser.id);
+
+    const res = await request(app)
+      .patch(`/api/documents/${doc.rows[0].id}`)
+      .set('Authorization', `Bearer ${viewToken}`)
+      .set('If-Match', etag)
+      .send({ hidden: true });
+    // Non-edit client users are rejected at the permission gate before allowedFields
+    expect(res.status).toBe(403);
+  });
 });
 
 // =============================================================================
@@ -607,7 +800,7 @@ describe('Documents: update/delete/move', () => {
 
   it('T-Shape-M1: 409 body current field has same key set as GET-by-id', async () => {
     const expectedKeys = ['id', 'client_id', 'parent_id', 'task_id', 'title', 'body_json',
-      'visibility', 'sort_order', 'updated_at', 'updated_by'];
+      'visibility', 'hidden', 'sort_order', 'updated_at', 'updated_by'];
 
     const getRes = await request(app)
       .get(`/api/documents/${doc.id}`)
