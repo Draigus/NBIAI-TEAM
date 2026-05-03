@@ -552,11 +552,11 @@ app.use((req, res, next) => {
   // Content-Security-Policy: restrict script/style sources
   res.setHeader('Content-Security-Policy',
     "default-src 'self'; " +
-    "script-src 'self' 'unsafe-inline' cdn.sheetjs.com cdnjs.cloudflare.com; " +
+    "script-src 'self' 'unsafe-inline' cdn.sheetjs.com cdnjs.cloudflare.com cdn.jsdelivr.net; " +
     "style-src 'self' 'unsafe-inline' fonts.googleapis.com; " +
     "font-src 'self' fonts.gstatic.com; " +
     "img-src 'self' data: blob:; " +
-    "connect-src 'self' api.frankfurter.dev open.er-api.com; " +
+    "connect-src 'self' api.frankfurter.dev open.er-api.com cdn.jsdelivr.net; " +
     "frame-src 'self' blob:; " +
     "object-src 'none'"
   );
