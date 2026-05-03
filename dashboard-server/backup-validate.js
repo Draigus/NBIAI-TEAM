@@ -4,7 +4,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const EXPECTED_TABLES = ['tasks', 'clients', 'users', 'settings', 'leads', 'expenses', 'audit_log'];
+const EXPECTED_TABLES = ['tasks', 'clients', 'users', 'settings', 'leads', 'expenses', 'audit_log', 'documents', 'document_attachments'];
 
 async function validateBackup(backupPath, pool, log) {
   const issues = [];

@@ -552,11 +552,11 @@ app.use((req, res, next) => {
   // Content-Security-Policy: restrict script/style sources
   res.setHeader('Content-Security-Policy',
     "default-src 'self'; " +
-    "script-src 'self' 'unsafe-inline' cdn.sheetjs.com cdnjs.cloudflare.com; " +
+    "script-src 'self' 'unsafe-inline' cdn.sheetjs.com cdnjs.cloudflare.com cdn.jsdelivr.net; " +
     "style-src 'self' 'unsafe-inline' fonts.googleapis.com; " +
     "font-src 'self' fonts.gstatic.com; " +
     "img-src 'self' data: blob:; " +
-    "connect-src 'self' api.frankfurter.dev open.er-api.com; " +
+    "connect-src 'self' api.frankfurter.dev open.er-api.com cdn.jsdelivr.net; " +
     "frame-src 'self' blob:; " +
     "object-src 'none'"
   );
@@ -797,7 +797,8 @@ app.get('/api/auth/me', async (req, res) => {
 
   const hashed = hashToken(token);
   const { rows } = await pool.query(
-    `SELECT u.id, u.username, u.display_name, u.role, u.client_id, u.client_role, u.must_change_password FROM sessions s
+    `SELECT u.id, u.username, u.display_name, u.role, u.client_id, u.client_role, u.must_change_password,
+            u.docs_view, u.docs_edit, u.docs_create, u.docs_upload FROM sessions s
      JOIN users u ON s.user_id = u.id
      WHERE s.token = $1 AND s.expires_at > NOW() AND u.is_active = true`, [hashed]
   );
@@ -807,6 +808,8 @@ app.get('/api/auth/me', async (req, res) => {
     role: rows[0].role, clientId: rows[0].client_id, clientRole: rows[0].client_role,
     isNBI: !rows[0].client_id, isClientAdmin: !!rows[0].client_id && rows[0].client_role === 'admin',
     mustChangePassword: rows[0].must_change_password,
+    docsView: rows[0].docs_view, docsEdit: rows[0].docs_edit,
+    docsCreate: rows[0].docs_create, docsUpload: rows[0].docs_upload,
   } });
 });
 
@@ -833,7 +836,8 @@ async function requireAuth(req, res, next) {
     if (cached) { req.user = cached; return next(); }
 
     const { rows } = await pool.query(
-      `SELECT u.id, u.username, u.display_name, u.role, u.client_id, u.client_role, u.must_change_password FROM sessions s
+      `SELECT u.id, u.username, u.display_name, u.role, u.client_id, u.client_role, u.must_change_password,
+              u.docs_view, u.docs_edit, u.docs_create, u.docs_upload FROM sessions s
        JOIN users u ON s.user_id = u.id
        WHERE s.token = $1 AND s.expires_at > NOW() AND u.is_active = true`, [hashedToken]
     );
@@ -843,6 +847,11 @@ async function requireAuth(req, res, next) {
       role: rows[0].role, clientId: rows[0].client_id, clientRole: rows[0].client_role,
       isNBI: !rows[0].client_id, isClientAdmin: !!rows[0].client_id && rows[0].client_role === 'admin',
       mustChangePassword: rows[0].must_change_password,
+      // Cached for TOKEN_CACHE_TTL (5 min). Any future admin route that mutates
+      // docs_* on a user MUST evict this user's _tokenCache entries (mirror the
+      // pattern in PATCH /api/users/:id) or revocation lags by up to 5 minutes.
+      docsView: rows[0].docs_view, docsEdit: rows[0].docs_edit,
+      docsCreate: rows[0].docs_create, docsUpload: rows[0].docs_upload,
     };
     cacheToken(hashedToken, user);
     req.user = user;
@@ -1166,7 +1175,7 @@ app.post('/api/auth/change-password', async (req, res) => {
 /** GET /api/users — List users. Admins see full details; client users see their company; members see names only. */
 app.get('/api/users', async (req, res) => {
   if (req.user.role === 'admin') {
-    const { rows } = await pool.query('SELECT id, username, display_name, email, role, is_active, capacity_hours_per_week, resource_type_ids, created_at, client_id, client_role FROM users ORDER BY display_name');
+    const { rows } = await pool.query('SELECT id, username, display_name, email, role, is_active, capacity_hours_per_week, resource_type_ids, created_at, client_id, client_role, docs_view, docs_edit, docs_create, docs_upload FROM users ORDER BY display_name');
     res.json(rows);
   } else if (req.user.clientId) {
     // Client users see only their company's users
@@ -1311,7 +1320,7 @@ app.patch('/api/users/:id', async (req, res) => {
   }
 
   const allowedFields = isAdmin
-    ? ['role', 'display_name', 'email', 'client_id', 'is_active', 'client_role']
+    ? ['role', 'display_name', 'email', 'client_id', 'is_active', 'client_role', 'docs_view', 'docs_edit', 'docs_create', 'docs_upload']
     : ['display_name', 'client_role', 'is_active'];
 
   const { updates, vals, nextIdx } = buildPatchQuery(req.body, allowedFields);
@@ -1320,7 +1329,7 @@ app.patch('/api/users/:id', async (req, res) => {
   }
   if (updates.length === 0) return res.status(400).json({ error: 'No valid fields to update' });
   vals.push(req.params.id);
-  const { rows } = await pool.query(`UPDATE users SET ${updates.join(', ')} WHERE id = $${nextIdx} RETURNING id, username, display_name, email, role, client_id, client_role, is_active`, vals);
+  const { rows } = await pool.query(`UPDATE users SET ${updates.join(', ')} WHERE id = $${nextIdx} RETURNING id, username, display_name, email, role, client_id, client_role, is_active, docs_view, docs_edit, docs_create, docs_upload`, vals);
   if (!rows[0]) return res.status(404).json({ error: 'User not found' });
   // Invalidate token cache entries for this user so stale role/display_name data is refreshed
   for (const [key, entry] of _tokenCache) {
@@ -4145,6 +4154,683 @@ app.patch('/api/notes/:id', requireAdmin, async (req, res) => {
 app.delete('/api/notes/:id', requireAdmin, async (req, res) => {
   await pool.query('DELETE FROM client_notes WHERE id = $1', [req.params.id]);
   res.json({ ok: true });
+});
+
+// ==================== DOCUMENTS ====================
+
+const { redactNbiInternal, extractPlainText, imageInScope, extractImageFilenames } = require('./lib/redact-nbi-internal');
+const { pickFilesToDelete } = require('./lib/attachment-sweep');
+
+/** GET /api/documents?client_id=:uuid
+ *  Return the page tree for a client.
+ *  NBI users see all pages; client portal users see only visibility='all' rows.
+ *  nbiInternalBlock content is stripped from body_json before send for client users.
+ *  Client users with docs_view=false receive 403. */
+app.get('/api/documents', async (req, res) => {
+  if (!req.user) return res.status(401).json({ error: 'Auth required' });
+  const clientId = req.query.client_id;
+  if (!clientId || !isValidUuid(clientId)) {
+    return res.status(400).json({ error: 'client_id query param required' });
+  }
+
+  const isClientUser = !!req.user.clientId;
+  if (isClientUser && req.user.clientId !== clientId) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+  if (isClientUser && req.user.docsView === false) {
+    return res.status(403).json({ error: 'No doc-view permission' });
+  }
+
+  const visibilityClause = isClientUser ? `AND visibility = 'all'` : '';
+
+  if (!isClientUser) {
+    const existing = await pool.query('SELECT 1 FROM documents WHERE client_id = $1 LIMIT 1', [clientId]);
+    if (existing.rowCount === 0) {
+      const defaults = ['Overview', 'Contacts', 'Risks', 'Decisions', 'Architecture', 'Notes'];
+      for (let i = 0; i < defaults.length; i++) {
+        await pool.query(
+          `INSERT INTO documents (client_id, title, sort_order, created_by, updated_by) VALUES ($1,$2,$3,$4,$4)`,
+          [clientId, defaults[i], i, req.user.username || 'system']
+        );
+      }
+    }
+  }
+
+  const { rows } = await pool.query(
+    `SELECT id, parent_id, task_id, title, body_json, visibility, sort_order, updated_at, updated_by
+       FROM documents WHERE client_id = $1 ${visibilityClause}
+       ORDER BY parent_id NULLS FIRST, sort_order, created_at`,
+    [clientId]
+  );
+  const out = isClientUser
+    ? rows.map(r => ({ ...r, body_json: redactNbiInternal(r.body_json) }))
+    : rows;
+  res.json(out);
+});
+
+/** GET /api/documents/:id
+ *  Return one page. Same redaction and visibility rules as the list endpoint.
+ *  Client users requesting a nbi_only doc receive 404 (not 403) to avoid
+ *  existence disclosure. */
+app.get('/api/documents/:id', async (req, res) => {
+  if (!req.user) return res.status(401).json({ error: 'Auth required' });
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid id' });
+
+  const { rows } = await pool.query(
+    `SELECT id, client_id, parent_id, task_id, title, body_json, visibility,
+            sort_order, updated_at, updated_by
+       FROM documents WHERE id = $1`,
+    [req.params.id]
+  );
+  if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
+  const doc = rows[0];
+
+  const isClientUser = !!req.user.clientId;
+  if (isClientUser && req.user.clientId !== doc.client_id) {
+    return res.status(404).json({ error: 'Not found' });
+  }
+  if (isClientUser && doc.visibility === 'nbi_only') {
+    return res.status(404).json({ error: 'Not found' });
+  }
+  if (isClientUser && req.user.docsView === false) {
+    return res.status(403).json({ error: 'No doc-view permission' });
+  }
+
+  if (isClientUser) doc.body_json = redactNbiInternal(doc.body_json);
+  // D1: emit a weak ETag derived from updated_at so clients can detect concurrent edits
+  res.set('ETag', `W/"${doc.updated_at.toISOString()}"`);
+  res.json(doc);
+});
+
+/** PATCH /api/documents/:id
+ *  Update one page. Requires If-Match header (D1 optimistic concurrency).
+ *  Returns 428 if If-Match is missing; 409 (with current doc in body) if stale.
+ *  On body_json change also writes body_text for full-text indexing (B1).
+ *  Client portal users need docsEdit permission; they cannot set visibility='nbi_only'.
+ *
+ *  Security note: scope guards run BEFORE the ETag comparison so a client-A user
+ *  sending a stale If-Match for client-B's doc gets 404, not a 409 that leaks the
+ *  doc body. */
+app.patch('/api/documents/:id', async (req, res) => {
+  if (!req.user) return res.status(401).json({ error: 'Auth required' });
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid id' });
+
+  // D1: If-Match is mandatory; 428 Precondition Required if absent
+  const ifMatch = req.headers['if-match'];
+  if (!ifMatch) return res.status(428).json({ error: 'If-Match header required for optimistic concurrency' });
+
+  // Parse and validate the If-Match value upfront (I1: used in WHERE clause later)
+  const etagMatch = ifMatch.match(/^W\/"(.+)"$/);
+  if (!etagMatch) return res.status(400).json({ error: 'Malformed If-Match header' });
+  const ifMatchTs = new Date(etagMatch[1]);
+  if (isNaN(ifMatchTs.getTime())) return res.status(400).json({ error: 'Malformed If-Match header' });
+
+  // Fetch current doc (still needed for scope guards and cycle detection)
+  const { rows } = await pool.query(
+    `SELECT id, client_id, parent_id, task_id, title, body_json, visibility,
+            sort_order, updated_at, updated_by
+       FROM documents WHERE id = $1`,
+    [req.params.id]
+  );
+  if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
+  const current = rows[0];
+
+  // C1: Scope guards run BEFORE ETag comparison to prevent existence/content disclosure.
+  // A client user on the wrong client, or requesting an nbi_only doc, gets 404 regardless
+  // of whether their If-Match is fresh or stale.
+  const isClientUser = !!req.user.clientId;
+  if (isClientUser && req.user.clientId !== current.client_id) {
+    return res.status(404).json({ error: 'Not found' });
+  }
+  if (isClientUser && current.visibility === 'nbi_only') {
+    return res.status(404).json({ error: 'Not found' });
+  }
+  if (isClientUser && req.user.docsEdit === false) {
+    return res.status(403).json({ error: 'No doc-edit permission' });
+  }
+
+  // D1: compare If-Match against the current ETag (after scope guards)
+  // RFC 7232 specifies 412 for a failed precondition, but we return 409 here
+  // because the frontend conflict modal needs a uniform shape with the current
+  // doc state regardless of whether the mismatch was stale-client or concurrent write.
+  // C1/I3: redact the body in the 409 response for client portal users.
+  const currentEtag = `W/"${current.updated_at.toISOString()}"`;
+  if (ifMatch !== currentEtag) {
+    const safeCurrentForClient = isClientUser
+      ? { ...current, body_json: redactNbiInternal(current.body_json) }
+      : current;
+    return res.status(409).json({ error: 'Conflict', current: safeCurrentForClient });
+  }
+
+  // Build standard field updates via the shared helper (prevents SQL injection)
+  const allowedFields = isClientUser
+    ? ['title', 'body_json', 'parent_id', 'task_id', 'sort_order']
+    : ['title', 'body_json', 'parent_id', 'task_id', 'sort_order', 'visibility'];
+
+  const { updates, vals, nextIdx } = buildPatchQuery(req.body, allowedFields);
+  let idx = nextIdx;
+
+  // Special handling layered on top of buildPatchQuery output -----------------
+
+  // parent_id: validate uuid, reject self-reference, and reject descendant cycle (I2)
+  if (req.body.parent_id !== undefined && req.body.parent_id !== null) {
+    if (!isValidUuid(req.body.parent_id)) {
+      return res.status(400).json({ error: 'Invalid parent_id' });
+    }
+    if (req.body.parent_id === req.params.id) {
+      return res.status(400).json({ error: 'circular: a document cannot be its own parent' });
+    }
+    // I2: descendant-cycle check. Only run when parent_id is actually changing.
+    if (req.body.parent_id !== current.parent_id) {
+      const cycleCheck = await pool.query(
+        `WITH RECURSIVE descendants AS (
+           SELECT id FROM documents WHERE id = $1
+           UNION ALL
+           SELECT d.id FROM documents d
+           INNER JOIN descendants ON d.parent_id = descendants.id
+         )
+         SELECT 1 FROM descendants WHERE id = $2 LIMIT 1`,
+        [req.params.id, req.body.parent_id]
+      );
+      if (cycleCheck.rows.length > 0) {
+        return res.status(400).json({ error: 'circular: cannot move under a descendant' });
+      }
+    }
+  }
+
+  // task_id: validate uuid if provided
+  if (req.body.task_id !== undefined && req.body.task_id !== null) {
+    if (!isValidUuid(req.body.task_id)) {
+      return res.status(400).json({ error: 'Invalid task_id' });
+    }
+  }
+
+  // visibility: NBI users only; must be one of the allowed values
+  if (req.body.visibility !== undefined) {
+    if (!['all', 'nbi_only'].includes(req.body.visibility)) {
+      return res.status(400).json({ error: "visibility must be 'all' or 'nbi_only'" });
+    }
+    if (isClientUser) {
+      return res.status(403).json({ error: 'Client users cannot set visibility' });
+    }
+  }
+
+  // body_json: also compute and write body_text for full-text indexing (B1).
+  // dropNbiInternal: false. Write-time indexing keeps NBI-internal content so
+  // NBI users can search across all content including internal sections.
+  if (req.body.body_json !== undefined) {
+    const bodyText = extractPlainText(req.body.body_json, { dropNbiInternal: false });
+    updates.push(`body_text = $${idx}`);
+    vals.push(bodyText);
+    idx++;
+  }
+
+  if (updates.length === 0) {
+    return res.status(400).json({ error: 'No fields to update' });
+  }
+
+  // Append audit columns
+  const author = req.user.username || req.user.displayName || 'unknown';
+  updates.push(`updated_at = now()`);
+  updates.push(`updated_by = $${idx}`);
+  vals.push(author);
+  idx++;
+
+  // I1: Atomic optimistic-concurrency check. The WHERE clause includes the
+  // original updated_at so two concurrent PATCHes with the same If-Match
+  // cannot both succeed. The second will match zero rows.
+  // Comparison is truncated to millisecond precision because the ETag is
+  // emitted via Date.toISOString() (3-digit ms), whereas Postgres timestamptz
+  // stores microseconds. Without date_trunc the WHERE never matches its own
+  // freshly-emitted ETag.
+  vals.push(req.params.id);
+  vals.push(ifMatchTs);
+  const { rows: updated } = await pool.query(
+    `UPDATE documents SET ${updates.join(', ')}
+      WHERE id = $${idx}
+        AND date_trunc('milliseconds', updated_at) = date_trunc('milliseconds', $${idx + 1}::timestamptz)
+      RETURNING id, client_id, parent_id, task_id, title, body_json, visibility,
+                sort_order, updated_at, updated_by`,
+    vals
+  );
+
+  // M1: RETURNING uses explicit projection (no body_text, no body_version).
+  // If zero rows were updated, distinguish between a true concurrent-write conflict
+  // and the doc having been deleted between our SELECT and UPDATE.
+  if (!updated[0]) {
+    const { rows: recheck } = await pool.query(
+      `SELECT id, client_id, parent_id, task_id, title, body_json, visibility,
+              sort_order, updated_at, updated_by
+         FROM documents WHERE id = $1`,
+      [req.params.id]
+    );
+    if (recheck.length === 0) return res.status(404).json({ error: 'Not found' });
+    const conflict = recheck[0];
+    const safeConflict = isClientUser
+      ? { ...conflict, body_json: redactNbiInternal(conflict.body_json) }
+      : conflict;
+    return res.status(409).json({ error: 'Conflict', current: safeConflict });
+  }
+
+  const doc = updated[0];
+
+  // G1: attachment orphan reconciliation. Runs ONLY on a successful UPDATE
+  // (after the I1 atomic-concurrency check has confirmed no concurrent write).
+  // Wrapped in try/catch so reconciliation failure does not break the
+  // already-committed doc edit; the worst case is stale orphan state which
+  // the next legitimate PATCH will repair.
+  if (req.body.body_json !== undefined) {
+    try {
+      const newFilenames = extractImageFilenames(req.body.body_json);
+      const { rows: existingAtts } = await pool.query(
+        `SELECT id, stored_name, orphaned_at FROM document_attachments WHERE document_id = $1`,
+        [req.params.id]
+      );
+      const referencedIds   = existingAtts.filter(a => newFilenames.has(a.stored_name)).map(a => a.id);
+      // Clock-reset semantics: the orphan_at clock starts fresh each time an
+      // image becomes unreferenced. Re-adding a previously-orphaned image clears
+      // it; subsequent removal restarts the 24h grace window. This is intentional.
+      const unreferencedIds = existingAtts.filter(a => !newFilenames.has(a.stored_name) && a.orphaned_at === null).map(a => a.id);
+      if (referencedIds.length) {
+        await pool.query(
+          `UPDATE document_attachments SET orphaned_at = NULL WHERE id = ANY($1::uuid[])`,
+          [referencedIds]
+        );
+      }
+      if (unreferencedIds.length) {
+        await pool.query(
+          `UPDATE document_attachments SET orphaned_at = now() WHERE id = ANY($1::uuid[])`,
+          [unreferencedIds]
+        );
+      }
+    } catch (err) {
+      log('warn', 'Documents', 'Attachment reconciliation failed for ' + req.params.id, { err: err.message });
+    }
+  }
+
+  // D1: emit fresh ETag from the new updated_at so client can track the new version
+  res.set('ETag', `W/"${doc.updated_at.toISOString()}"`);
+  res.json(doc);
+});
+
+/** DELETE /api/documents/:id
+ *  Delete a page. Cascade to child pages is handled by FK ON DELETE CASCADE
+ *  on parent_id. Returns 204 whether the doc existed or not (idempotent). */
+app.delete('/api/documents/:id', async (req, res) => {
+  if (!req.user) return res.status(401).json({ error: 'Auth required' });
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid id' });
+
+  // Fetch to apply scope guards before deleting
+  const { rows } = await pool.query(
+    `SELECT id, client_id FROM documents WHERE id = $1`,
+    [req.params.id]
+  );
+  // Idempotent: missing doc returns 204 (nothing to delete)
+  if (rows.length === 0) return res.status(204).end();
+  const doc = rows[0];
+
+  const isClientUser = !!req.user.clientId;
+  // M4: cross-client DELETE is a silent no-op (204) rather than 404.
+  // Returning 404 would let a client enumerate doc existence by sending
+  // DELETE requests against guessed UUIDs. The doc is not deleted.
+  if (isClientUser && req.user.clientId !== doc.client_id) {
+    return res.status(204).end();
+  }
+  if (isClientUser && req.user.docsEdit === false) {
+    return res.status(403).json({ error: 'No doc-edit permission' });
+  }
+
+  // G1: collect attachment filenames for this doc AND all descendants before
+  // the CASCADE wipes the document_attachments rows.
+  const { rows: atts } = await pool.query(
+    `WITH RECURSIVE descendants AS (
+       SELECT id FROM documents WHERE id = $1
+       UNION ALL
+       SELECT d.id FROM documents d
+       INNER JOIN descendants ON d.parent_id = descendants.id
+     )
+     SELECT da.stored_name FROM document_attachments da
+     INNER JOIN descendants ON da.document_id = descendants.id`,
+    [req.params.id]
+  );
+
+  await pool.query('DELETE FROM documents WHERE id = $1', [req.params.id]);
+
+  // G1: unlink files post-DELETE. Best-effort -- log per-file failures but
+  // do not fail the request because the DB row is already gone.
+  await Promise.all(atts.map(async a => {
+    try {
+      await fs.promises.unlink(path.join(uploadDir, a.stored_name));
+    } catch (err) {
+      if (err.code !== 'ENOENT') {
+        log('warn', 'Documents', `Failed to unlink ${a.stored_name} during doc delete: ${err.message}`);
+      }
+    }
+  }));
+
+  res.status(204).end();
+});
+
+/** POST /api/documents/:id/move
+ *  Atomically reparent + reorder a document page (F1: drag-to-reparent).
+ *  Body: { parent_id: uuid|null, position: int }
+ *  Runs in a transaction: cycle detection, set parent_id, renumber siblings. */
+app.post('/api/documents/:id/move', async (req, res) => {
+  if (!req.user) return res.status(401).json({ error: 'Auth required' });
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid id' });
+
+  const { parent_id, position } = req.body || {};
+  if (parent_id !== null && parent_id !== undefined && !isValidUuid(parent_id)) {
+    return res.status(400).json({ error: 'Invalid parent_id' });
+  }
+  const pos = typeof position === 'number' ? Math.max(0, Math.floor(position)) : 0;
+  const newParent = parent_id || null;
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    const { rows: [doc] } = await client.query(
+      'SELECT id, client_id, parent_id FROM documents WHERE id = $1 FOR UPDATE',
+      [req.params.id]
+    );
+    if (!doc) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'Not found' }); }
+
+    const isClientUser = !!req.user.clientId;
+    if (isClientUser && req.user.clientId !== doc.client_id) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Not found' });
+    }
+    if (isClientUser && req.user.docsEdit === false) {
+      await client.query('ROLLBACK');
+      return res.status(403).json({ error: 'No doc-edit permission' });
+    }
+
+    // Cycle detection: self-parent or moving into own descendant
+    if (newParent === doc.id) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'Circular reference: cannot be own parent' });
+    }
+    if (newParent) {
+      const { rows: descs } = await client.query(
+        `WITH RECURSIVE descendants AS (
+           SELECT id FROM documents WHERE parent_id = $1
+           UNION ALL
+           SELECT d.id FROM documents d INNER JOIN descendants ON d.parent_id = descendants.id
+         )
+         SELECT id FROM descendants WHERE id = $2`,
+        [doc.id, newParent]
+      );
+      if (descs.length > 0) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'Circular reference: target is a descendant' });
+      }
+    }
+
+    // Get current siblings at the target parent (excluding the moved doc)
+    const sibQuery = newParent
+      ? `SELECT id FROM documents WHERE client_id = $1 AND parent_id = $2 AND id != $3 ORDER BY sort_order, title`
+      : `SELECT id FROM documents WHERE client_id = $1 AND parent_id IS NULL AND id != $2 ORDER BY sort_order, title`;
+    const sibParams = newParent ? [doc.client_id, newParent, doc.id] : [doc.client_id, doc.id];
+    const { rows: siblings } = await client.query(sibQuery, sibParams);
+
+    // Insert the moved doc at the requested position
+    const clamped = Math.min(pos, siblings.length);
+    siblings.splice(clamped, 0, { id: doc.id });
+
+    // Renumber all siblings
+    for (let i = 0; i < siblings.length; i++) {
+      await client.query(
+        'UPDATE documents SET sort_order = $1, parent_id = CASE WHEN id = $2 THEN $3 ELSE parent_id END WHERE id = $4',
+        [i, doc.id, newParent, siblings[i].id]
+      );
+    }
+
+    await client.query('COMMIT');
+    res.json({ ok: true });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    log('error', 'Documents', `Move failed: ${err.message}`);
+    res.status(500).json({ error: 'Move failed' });
+  } finally {
+    client.release();
+  }
+});
+
+// ==================== DOCUMENT ATTACHMENTS ====================
+
+const ALLOWED_DOC_MIME = new Set(['image/jpeg', 'image/png', 'image/gif', 'image/webp']);
+
+/** Multer instance for document image uploads.
+ *  Images only, 5 MB cap, stored in the shared uploadDir. */
+const docUpload = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => cb(null, uploadDir),
+    filename: (req, file, cb) => {
+      const ext = path.extname(file.originalname).toLowerCase();
+      const suffix = Math.random().toString(36).slice(2, 8);
+      cb(null, `doc_${req.params.id}_${Date.now()}_${suffix}${ext}`);
+    }
+  }),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (ALLOWED_DOC_MIME.has(file.mimetype)) return cb(null, true);
+    cb(new Error('Only jpg/png/gif/webp images are allowed'));
+  }
+});
+
+/** Safely remove a multer-saved file, logging but not throwing on failure. */
+function cleanupDocUpload(filePath) {
+  try { fs.unlinkSync(filePath); } catch (e) { console.error('doc upload cleanup failed:', e.message); }
+}
+
+/** POST /api/documents/:id/attachments
+ *  Upload an image into a document. Returns the new attachment row + url.
+ *
+ *  Scope guards (in order):
+ *    401 -- not authenticated
+ *    400 -- invalid doc UUID
+ *    400 -- no file or unsupported mime type (multer fileFilter rejection)
+ *    404 -- doc not found
+ *    404 -- client user trying to upload to an nbi_only doc
+ *    404 -- client user targeting another client's doc
+ *    403 -- client user with docsUpload=false
+ *
+ *  On any rejection after multer has saved the file to disk, the file is
+ *  deleted before responding so we do not accumulate orphaned uploads.
+ *
+ *  Note: mime type is validated from the client-supplied header only.
+ *  Magic-byte sniffing is deferred to Task G1. */
+app.post('/api/documents/:id/attachments', (req, res, next) => {
+  // Wrap multer to surface fileFilter / size-limit errors as JSON 400/413
+  // rather than letting them propagate to the default error handler (500).
+  docUpload.single('file')(req, res, (err) => {
+    if (err) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(413).json({ error: 'File too large (max 5 MB)' });
+      }
+      return res.status(400).json({ error: err.message || 'Upload failed' });
+    }
+    next();
+  });
+}, async (req, res) => {
+  // 401 -- must be authenticated
+  if (!req.user) {
+    if (req.file) cleanupDocUpload(req.file.path);
+    return res.status(401).json({ error: 'Auth required' });
+  }
+
+  // 400 -- validate doc UUID
+  if (!isValidUuid(req.params.id)) {
+    if (req.file) cleanupDocUpload(req.file.path);
+    return res.status(400).json({ error: 'Invalid id' });
+  }
+
+  // 400 -- multer may not have saved a file if fileFilter rejected it
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file or unsupported type' });
+  }
+
+  // Fetch doc for scope checks
+  let doc;
+  try {
+    const { rows } = await pool.query(
+      'SELECT id, client_id, visibility FROM documents WHERE id = $1',
+      [req.params.id]
+    );
+    if (rows.length === 0) {
+      cleanupDocUpload(req.file.path);
+      return res.status(404).json({ error: 'Not found' });
+    }
+    doc = rows[0];
+  } catch (err) {
+    cleanupDocUpload(req.file.path);
+    log('error', 'Documents', `SELECT failed during upload to ${req.params.id}: ${err.message}`);
+    return res.status(500).json({ error: 'Database error' });
+  }
+
+  const isClientUser = !!req.user.clientId;
+  if (isClientUser) {
+    // nbi_only docs are invisible to client users
+    if (doc.visibility === 'nbi_only') {
+      cleanupDocUpload(req.file.path);
+      return res.status(404).json({ error: 'Not found' });
+    }
+    // Cross-client access is a 404 (not 403) to avoid client enumeration
+    if (req.user.clientId !== doc.client_id) {
+      cleanupDocUpload(req.file.path);
+      return res.status(404).json({ error: 'Not found' });
+    }
+    // Explicit denial of upload permission
+    if (req.user.docsUpload === false) {
+      cleanupDocUpload(req.file.path);
+      return res.status(403).json({ error: 'No doc-upload permission' });
+    }
+  }
+
+  // Persist the attachment row.
+  // G1: orphaned_at is set at upload time so an unembedded attachment
+  // (e.g. user uploads then closes tab without saving) eventually gets
+  // swept by the 03:30 cron after the 24h grace window. PATCH body_json
+  // clears this when the attachment URL is referenced.
+  let ins;
+  try {
+    const result = await pool.query(
+      `INSERT INTO document_attachments
+         (document_id, filename, stored_name, mime_type, size_bytes, uploaded_by, orphaned_at)
+       VALUES ($1, $2, $3, $4, $5, $6, now()) RETURNING *`,
+      [
+        req.params.id,
+        req.file.originalname,
+        req.file.filename,
+        req.file.mimetype,
+        req.file.size,
+        req.user.username || 'unknown'
+      ]
+    );
+    ins = result.rows;
+  } catch (err) {
+    cleanupDocUpload(req.file.path);
+    log('error', 'Documents', `INSERT failed for upload to ${req.params.id}: ${err.message}`);
+    return res.status(500).json({ error: 'Database error' });
+  }
+
+  res.status(201).json({
+    id:         ins[0].id,
+    filename:   ins[0].filename,
+    url:        `/api/documents/${req.params.id}/attachments/${req.file.filename}`,
+    mime_type:  ins[0].mime_type,
+    size_bytes: ins[0].size_bytes
+  });
+});
+
+/** GET /api/documents/:id/attachments/:filename
+ *  Serve a document image file.
+ *
+ *  Scope guards (in order):
+ *    401 -- not authenticated
+ *    400 -- invalid doc UUID
+ *    400 -- path traversal detected (param resolves outside uploadDir)
+ *    404 -- doc not found
+ *    404 -- client user: cross-client or nbi_only doc
+ *    403 -- client user: docsView=false
+ *    H1  -- client user: image only in nbiInternalBlock -> 404
+ *    404 -- file missing on disk */
+app.get('/api/documents/:id/attachments/:filename', async (req, res) => {
+  if (!req.user) return res.status(401).json({ error: 'Auth required' });
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid id' });
+
+  // Path traversal check: resolve the raw param (Express decodes %2F etc.) and
+  // confirm it stays inside uploadDir. Do NOT use path.basename first -- that
+  // strips the traversal and defeats the check.
+  const fullPath = path.resolve(uploadDir, req.params.filename);
+  if (!fullPath.startsWith(path.resolve(uploadDir) + path.sep)) {
+    return res.status(400).json({ error: 'Bad path' });
+  }
+
+  // Fetch doc for scope checks (include body_json for H1 check)
+  const { rows } = await pool.query(
+    'SELECT client_id, visibility, body_json FROM documents WHERE id = $1',
+    [req.params.id]
+  );
+  if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
+  const doc = rows[0];
+
+  const isClientUser = !!req.user.clientId;
+  if (isClientUser) {
+    if (req.user.clientId !== doc.client_id) return res.status(404).json({ error: 'Not found' });
+    if (doc.visibility === 'nbi_only')        return res.status(404).json({ error: 'Not found' });
+    if (req.user.docsView === false)           return res.status(403).json({ error: 'No doc-view permission' });
+
+    // H1: if the image is only referenced inside an nbiInternalBlock, deny it.
+    // Use the stored filename (basename of the resolved path) for the scope check.
+    const storedName = path.basename(fullPath);
+    if (!imageInScope(doc.body_json, storedName, { dropNbiInternal: true })) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+  }
+
+  if (!fs.existsSync(fullPath)) return res.status(404).json({ error: 'File missing' });
+
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.sendFile(fullPath);
+});
+
+/** POST /api/documents
+ *  Create a new page. NBI users create freely; client users need docsCreate=true
+ *  and must target their own client. Client users cannot set visibility='nbi_only'. */
+app.post('/api/documents', async (req, res) => {
+  if (!req.user) return res.status(401).json({ error: 'Auth required' });
+  const { client_id, parent_id, task_id, title, visibility } = req.body || {};
+  if (!client_id || !isValidUuid(client_id)) {
+    return res.status(400).json({ error: 'client_id required' });
+  }
+  if (parent_id && !isValidUuid(parent_id)) {
+    return res.status(400).json({ error: 'Invalid parent_id' });
+  }
+  if (task_id && !isValidUuid(task_id)) {
+    return res.status(400).json({ error: 'Invalid task_id' });
+  }
+
+  const isClientUser = !!req.user.clientId;
+  if (isClientUser && req.user.clientId !== client_id) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+  if (isClientUser && req.user.docsCreate === false) {
+    return res.status(403).json({ error: 'No doc-create permission' });
+  }
+  if (isClientUser && visibility === 'nbi_only') {
+    return res.status(403).json({ error: 'Client users cannot create NBI-only docs' });
+  }
+
+  const safeVis = visibility === 'nbi_only' ? 'nbi_only' : 'all';
+  const author = req.user.username || req.user.displayName || 'unknown';
+  const { rows } = await pool.query(
+    `INSERT INTO documents (client_id, parent_id, task_id, title, visibility, created_by, updated_by)
+     VALUES ($1, $2, $3, $4, $5, $6, $6) RETURNING *`,
+    [client_id, parent_id || null, task_id || null, String(title || 'Untitled').slice(0, 255), safeVis, author]
+  );
+  res.status(201).json(rows[0]);
 });
 
 // ==================== TASKS ====================
@@ -9153,6 +9839,55 @@ if (cron) {
   log('info', 'Cron', 'Dashboard snapshot scheduled for 00:05 daily (Europe/London)');
 }
 
+// G1: Orphaned attachment sweep
+async function runAttachmentSweep() {
+  try {
+    const { rows: candidates } = await pool.query(
+      `SELECT id, stored_name, orphaned_at
+         FROM document_attachments
+         WHERE orphaned_at IS NOT NULL`
+    );
+    const toDelete = pickFilesToDelete(new Date(), candidates);
+    if (toDelete.length === 0) {
+      log('info', 'Cron', 'Attachment sweep: nothing to remove');
+      return { deleted: 0 };
+    }
+    // Unlink files first; if the unlink fails (other than ENOENT) we still
+    // delete the DB row because the row is the source of truth and a
+    // missing file just means a manual cleanup happened earlier.
+    await Promise.all(toDelete.map(async f => {
+      try {
+        await fs.promises.unlink(path.join(uploadDir, f.stored_name));
+      } catch (err) {
+        if (err.code !== 'ENOENT') {
+          log('warn', 'Cron', `Sweep unlink failed for ${f.stored_name}: ${err.message}`);
+        }
+      }
+    }));
+    const ids = toDelete.map(f => f.id);
+    const result = await pool.query(
+      `DELETE FROM document_attachments
+         WHERE id = ANY($1::uuid[])
+           AND orphaned_at IS NOT NULL
+           AND orphaned_at < now() - interval '24 hours'`,
+      [ids]
+    );
+    if (result.rowCount !== toDelete.length) {
+      log('warn', 'Cron',
+        `Sweep race detected: ${toDelete.length} candidates, ${result.rowCount} deleted (rest cleared by concurrent PATCH)`);
+    }
+    log('info', 'Cron', `Attachment sweep deleted ${result.rowCount} orphans`);
+    return { deleted: result.rowCount };
+  } catch (err) {
+    log('error', 'Cron', `Attachment sweep failed: ${err.message}`);
+    return { deleted: 0, error: err.message };
+  }
+}
+if (cron) {
+  cron.schedule('30 3 * * *', runAttachmentSweep, CRON_TZ);
+  log('info', 'Cron', 'Attachment sweep scheduled for 03:30 daily (Europe/London)');
+}
+
 // Bootstrap today's snapshot on startup if it doesn't exist yet
 (async () => {
   try {
@@ -9535,3 +10270,4 @@ module.exports.processInboundEmails = processInboundEmails;
 module.exports.extractLinksFromHtml = extractLinksFromHtml;
 module.exports.detectImportFormat = detectImportFormat;
 module.exports.mapRowsToTasks = mapRowsToTasks;
+module.exports.runAttachmentSweep = runAttachmentSweep;

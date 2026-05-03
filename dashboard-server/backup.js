@@ -76,9 +76,12 @@ function runJsonBackup(stamp) {
     const expenses = await pool.query('SELECT * FROM expenses ORDER BY date DESC');
     const auditLog = await pool.query('SELECT * FROM audit_log ORDER BY created_at DESC LIMIT 10000');
 
+    const documents = await pool.query('SELECT * FROM documents ORDER BY created_at');
+    const docAttachments = await pool.query('SELECT * FROM document_attachments ORDER BY created_at');
+
     const backup = {
       exportedAt: new Date().toISOString(),
-      version: 2,
+      version: 3,
       tables: {
         tasks: tasks.rows,
         clients: clients.rows,
@@ -87,6 +90,8 @@ function runJsonBackup(stamp) {
         leads: leads.rows,
         expenses: expenses.rows,
         audit_log: auditLog.rows,
+        documents: documents.rows,
+        document_attachments: docAttachments.rows,
       }
     };
 

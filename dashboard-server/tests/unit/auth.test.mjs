@@ -50,6 +50,19 @@ describe('auth flow', () => {
     expect(me.body.user.username).toBe(user.username);
   });
 
+  it('GET /api/auth/me returns doc permission flags', async () => {
+    const user = await createTestUser({ role: 'admin' });
+    const token = await mintSession(user.id);
+    const me = await request(app)
+      .get('/api/auth/me')
+      .set('Authorization', `Bearer ${token}`);
+    expect(me.status).toBe(200);
+    expect(me.body.user.docsView).toBe(true);
+    expect(me.body.user.docsEdit).toBe(true);
+    expect(me.body.user.docsCreate).toBe(true);
+    expect(me.body.user.docsUpload).toBe(true);
+  });
+
   it('GET /api/auth/me without a token returns 401', async () => {
     const res = await request(app).get('/api/auth/me');
     expect(res.status).toBe(401);
