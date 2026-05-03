@@ -84,4 +84,49 @@ function _extractNode(node, drop) {
   return parts.join('\n');
 }
 
-module.exports = { redactNbiInternal, extractPlainText };
+/**
+ * Determine whether a given image filename is reachable by a portal user
+ * after NBI-block redaction.
+ *
+ * Walks the ProseMirror JSON tree looking for image nodes whose `attrs.src`
+ * ends with '/<filename>'. When dropNbiInternal is true, any subtree rooted
+ * at an nbiInternalBlock is skipped before the search -- matching the same
+ * redaction applied to body_json before it is sent to client users.
+ *
+ * Use endsWith('/' + filename) rather than includes(filename) to avoid false
+ * positives where the filename appears as a substring of another attachment
+ * name.
+ *
+ * @param {object|null|undefined} body      ProseMirror doc root
+ * @param {string}                filename  Stored filename on disk (no path)
+ * @param {{ dropNbiInternal?: boolean }} [opts]
+ * @returns {boolean}  true if the image is reachable in the (possibly redacted) tree
+ */
+function imageInScope(body, filename, opts) {
+  if (!body || typeof filename !== 'string' || !filename) return false;
+  const drop = opts && opts.dropNbiInternal === true;
+  return _imageInScopeNode(body, filename, drop);
+}
+
+function _imageInScopeNode(node, filename, drop) {
+  if (!node || typeof node !== 'object') return false;
+
+  // When redacting for client users, treat nbiInternalBlock as invisible
+  if (drop && node.type === 'nbiInternalBlock') return false;
+
+  // Image node -- check whether its src points to this filename
+  if (node.type === 'image' && node.attrs && typeof node.attrs.src === 'string') {
+    if (node.attrs.src.endsWith('/' + filename)) return true;
+  }
+
+  // Recurse into content children
+  if (Array.isArray(node.content)) {
+    for (const child of node.content) {
+      if (_imageInScopeNode(child, filename, drop)) return true;
+    }
+  }
+
+  return false;
+}
+
+module.exports = { redactNbiInternal, extractPlainText, imageInScope };

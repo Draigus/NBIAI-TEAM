@@ -147,3 +147,96 @@ describe('extractPlainText', () => {
     expect(JSON.stringify(doc)).toBe(before);
   });
 });
+
+// ---------------------------------------------------------------------------
+// imageInScope -- H1 lib tests
+// ---------------------------------------------------------------------------
+
+describe('imageInScope', () => {
+  const { imageInScope } = require('../../lib/redact-nbi-internal');
+
+  // Helpers: build minimal ProseMirror bodies
+  function paraWithImage(src) {
+    return {
+      type: 'doc',
+      content: [
+        {
+          type: 'paragraph',
+          content: [{ type: 'image', attrs: { src } }]
+        }
+      ]
+    };
+  }
+
+  function nbiBlockWithImage(src) {
+    return {
+      type: 'doc',
+      content: [
+        {
+          type: 'nbiInternalBlock',
+          content: [
+            {
+              type: 'paragraph',
+              content: [{ type: 'image', attrs: { src } }]
+            }
+          ]
+        }
+      ]
+    };
+  }
+
+  const BASE = '/api/documents/abc/attachments/';
+
+  // H1-Lib-1: image in a regular paragraph is in scope
+  it('returns true when image is in a paragraph (dropNbiInternal: true)', () => {
+    const body = paraWithImage(BASE + 'foo.png');
+    expect(imageInScope(body, 'foo.png', { dropNbiInternal: true })).toBe(true);
+  });
+
+  // H1-Lib-2: image only inside nbiInternalBlock is out of scope when dropping
+  it('returns false when image is only inside nbiInternalBlock (dropNbiInternal: true)', () => {
+    const body = nbiBlockWithImage(BASE + 'foo.png');
+    expect(imageInScope(body, 'foo.png', { dropNbiInternal: true })).toBe(false);
+  });
+
+  // H1-Lib-3: same nbiInternalBlock body is in scope when NOT dropping
+  it('returns true when image is inside nbiInternalBlock (dropNbiInternal: false)', () => {
+    const body = nbiBlockWithImage(BASE + 'foo.png');
+    expect(imageInScope(body, 'foo.png', { dropNbiInternal: false })).toBe(true);
+  });
+
+  // H1-Lib-4: filename that does not appear anywhere returns false
+  it('returns false when filename does not appear in the body', () => {
+    const body = paraWithImage(BASE + 'other.png');
+    expect(imageInScope(body, 'foo.png', { dropNbiInternal: true })).toBe(false);
+  });
+
+  // H1-Lib-5: deeply nested image (inside listItem > blockquote) is found
+  it('returns true for a deeply nested image (listItem > blockquote)', () => {
+    const body = {
+      type: 'doc',
+      content: [
+        {
+          type: 'bulletList',
+          content: [
+            {
+              type: 'listItem',
+              content: [
+                {
+                  type: 'blockquote',
+                  content: [
+                    {
+                      type: 'paragraph',
+                      content: [{ type: 'image', attrs: { src: BASE + 'deep.png' } }]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+    expect(imageInScope(body, 'deep.png', { dropNbiInternal: true })).toBe(true);
+  });
+});
