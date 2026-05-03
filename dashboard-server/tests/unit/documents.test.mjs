@@ -450,4 +450,191 @@ describe('Documents: update/delete/move', () => {
     expect(rows[0].body_text).toContain('Version two');
     expect(rows[0].body_text).not.toContain('Version one');
   });
+
+  // ---- T-Sec-C1a: client-A PATCHing client-B's doc with stale ETag -> 404 ---
+
+  it('T-Sec-C1a: client-A user PATCHing client-B doc with stale If-Match gets 404, no leak', async () => {
+    // doc is owned by lighthouse (client-A). Create a separate client and user.
+    const goals = await createTestClient({ name: 'Goals', sector: 'gaming' });
+    const goalsUser = await createTestUser({ role: 'member', client_id: goals.id });
+    const goalsToken = await mintSession(goalsUser.id);
+
+    const res = await request(app)
+      .patch(`/api/documents/${doc.id}`)
+      .set('Authorization', `Bearer ${goalsToken}`)
+      .set('If-Match', 'W/"2000-01-01T00:00:00.000Z"')
+      .send({ title: 'Attempted leak' });
+
+    expect(res.status).toBe(404);
+    expect(res.body.current).toBeUndefined();
+    expect(JSON.stringify(res.body)).not.toContain('Original Title');
+  });
+
+  // ---- T-Sec-C1b: client user PATCHing nbi_only doc with stale ETag -> 404 --
+
+  it('T-Sec-C1b: client user PATCHing nbi_only doc with stale If-Match gets 404, no leak', async () => {
+    const nbiOnlyIns = await pool.query(
+      `INSERT INTO documents (client_id, title, visibility, created_by, updated_by)
+       VALUES ($1, 'NBI Secret', 'nbi_only', 'test', 'test') RETURNING id`,
+      [lighthouse.id]
+    );
+    const clientUser = await createTestUser({ role: 'member', client_id: lighthouse.id });
+    const clientToken = await mintSession(clientUser.id);
+
+    const res = await request(app)
+      .patch(`/api/documents/${nbiOnlyIns.rows[0].id}`)
+      .set('Authorization', `Bearer ${clientToken}`)
+      .set('If-Match', 'W/"2000-01-01T00:00:00.000Z"')
+      .send({ title: 'Attempted' });
+
+    expect(res.status).toBe(404);
+    expect(res.body.current).toBeUndefined();
+    expect(JSON.stringify(res.body)).not.toContain('NBI Secret');
+  });
+
+  // ---- T-Sec-C1c: 409 body for client user has body_json redacted -----------
+
+  it('T-Sec-C1c: 409 body for client user has nbiInternalBlock stripped', async () => {
+    const bodyWithNbi = {
+      type: 'doc',
+      content: [
+        { type: 'paragraph', content: [{ type: 'text', text: 'Public content' }] },
+        { type: 'nbiInternalBlock', content: [
+          { type: 'paragraph', content: [{ type: 'text', text: 'NBI ONLY SECRET' }] }
+        ]}
+      ]
+    };
+    const ins = await pool.query(
+      `INSERT INTO documents (client_id, title, body_json, visibility, created_by, updated_by)
+       VALUES ($1, 'Public Doc', $2, 'all', 'test', 'test') RETURNING id`,
+      [lighthouse.id, JSON.stringify(bodyWithNbi)]
+    );
+    const clientUser = await createTestUser({ role: 'member', client_id: lighthouse.id });
+    const clientToken = await mintSession(clientUser.id);
+
+    // Stale ETag -- scope guards pass (correct client, all visibility) but ETag fails -> 409
+    const res = await request(app)
+      .patch(`/api/documents/${ins.rows[0].id}`)
+      .set('Authorization', `Bearer ${clientToken}`)
+      .set('If-Match', 'W/"2000-01-01T00:00:00.000Z"')
+      .send({ title: 'Conflict attempt' });
+
+    expect(res.status).toBe(409);
+    expect(res.body.current).toBeDefined();
+    expect(JSON.stringify(res.body.current.body_json)).not.toContain('NBI ONLY SECRET');
+  });
+
+  // ---- T-Race-I1: silent lost-update is prevented via WHERE updated_at -------
+
+  it('T-Race-I1: stale updated_at in WHERE clause prevents silent lost-update', async () => {
+    // Capture ETag before the bump
+    const getRes = await request(app)
+      .get(`/api/documents/${doc.id}`)
+      .set('Authorization', `Bearer ${adminToken}`);
+    const etag = getRes.headers['etag'];
+
+    // Simulate a concurrent write by bumping updated_at directly in the DB
+    await pool.query(
+      `UPDATE documents SET updated_at = now() + interval '1 second' WHERE id = $1`,
+      [doc.id]
+    );
+
+    // PATCH with the original (now stale) ETag must return 409
+    const res = await request(app)
+      .patch(`/api/documents/${doc.id}`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .set('If-Match', etag)
+      .send({ title: 'Should conflict' });
+
+    expect(res.status).toBe(409);
+    expect(res.body.current).toBeDefined();
+  });
+
+  // ---- T-Cycle-I2: descendant cycle is rejected -------------------------------
+
+  it('T-Cycle-I2: PATCH parent_id to a descendant returns 400 with circular error', async () => {
+    // doc = root. Create child with parent = doc.
+    const childIns = await pool.query(
+      `INSERT INTO documents (client_id, parent_id, title, created_by, updated_by)
+       VALUES ($1, $2, 'Child', 'test', 'test') RETURNING id`,
+      [lighthouse.id, doc.id]
+    );
+    const childId = childIns.rows[0].id;
+
+    // Get ETag for doc
+    const getRes = await request(app)
+      .get(`/api/documents/${doc.id}`)
+      .set('Authorization', `Bearer ${adminToken}`);
+    const etag = getRes.headers['etag'];
+
+    // Attempt to set doc's parent to its own child -> cycle
+    const res = await request(app)
+      .patch(`/api/documents/${doc.id}`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .set('If-Match', etag)
+      .send({ parent_id: childId });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/circular|cycle|descendant/i);
+  });
+
+  // ---- T-Etag-Malformed: PATCH with bad If-Match -> 400 ----------------------
+
+  it('T-Etag-Malformed: PATCH with malformed If-Match header returns 400', async () => {
+    const res = await request(app)
+      .patch(`/api/documents/${doc.id}`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .set('If-Match', 'not-an-etag')
+      .send({ title: 'Bad header' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/malformed|if-match/i);
+  });
+
+  // ---- T-Shape-M1: 409 current body has same keys as GET-by-id ---------------
+
+  it('T-Shape-M1: 409 body current field has same key set as GET-by-id', async () => {
+    const expectedKeys = ['id', 'client_id', 'parent_id', 'task_id', 'title', 'body_json',
+      'visibility', 'sort_order', 'updated_at', 'updated_by'];
+
+    const getRes = await request(app)
+      .get(`/api/documents/${doc.id}`)
+      .set('Authorization', `Bearer ${adminToken}`);
+    expect(getRes.status).toBe(200);
+    const getKeys = Object.keys(getRes.body).sort();
+
+    const conflictRes = await request(app)
+      .patch(`/api/documents/${doc.id}`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .set('If-Match', 'W/"2000-01-01T00:00:00.000Z"')
+      .send({ title: 'Shape check' });
+    expect(conflictRes.status).toBe(409);
+    const conflictKeys = Object.keys(conflictRes.body.current).sort();
+
+    expect(getKeys).toEqual(expectedKeys.slice().sort());
+    expect(conflictKeys).toEqual(expectedKeys.slice().sort());
+    expect(getKeys).not.toContain('body_text');
+    expect(getKeys).not.toContain('body_version');
+    expect(conflictKeys).not.toContain('body_text');
+    expect(conflictKeys).not.toContain('body_version');
+  });
+
+  // ---- T-Delete-M4: client-A DELETEing client-B doc -> 204 -------------------
+
+  it('T-Delete-M4: client-A user DELETEing a client-B doc returns 204 (silent no-op)', async () => {
+    // doc is owned by lighthouse. Goals user tries to delete it.
+    const goals = await createTestClient({ name: 'Goals2', sector: 'gaming' });
+    const goalsUser = await createTestUser({ role: 'member', client_id: goals.id });
+    const goalsToken = await mintSession(goalsUser.id);
+
+    const res = await request(app)
+      .delete(`/api/documents/${doc.id}`)
+      .set('Authorization', `Bearer ${goalsToken}`);
+
+    expect(res.status).toBe(204);
+
+    // The doc must still exist -- it was NOT deleted
+    const { rows } = await pool.query('SELECT id FROM documents WHERE id = $1', [doc.id]);
+    expect(rows.length).toBe(1);
+  });
 });

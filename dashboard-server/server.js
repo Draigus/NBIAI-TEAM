@@ -4228,7 +4228,11 @@ app.get('/api/documents/:id', async (req, res) => {
  *  Update one page. Requires If-Match header (D1 optimistic concurrency).
  *  Returns 428 if If-Match is missing; 409 (with current doc in body) if stale.
  *  On body_json change also writes body_text for full-text indexing (B1).
- *  Client portal users need docsEdit permission; they cannot set visibility='nbi_only'. */
+ *  Client portal users need docsEdit permission; they cannot set visibility='nbi_only'.
+ *
+ *  Security note: scope guards run BEFORE the ETag comparison so a client-A user
+ *  sending a stale If-Match for client-B's doc gets 404, not a 409 that leaks the
+ *  doc body. */
 app.patch('/api/documents/:id', async (req, res) => {
   if (!req.user) return res.status(401).json({ error: 'Auth required' });
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid id' });
@@ -4237,7 +4241,13 @@ app.patch('/api/documents/:id', async (req, res) => {
   const ifMatch = req.headers['if-match'];
   if (!ifMatch) return res.status(428).json({ error: 'If-Match header required for optimistic concurrency' });
 
-  // Fetch current doc
+  // Parse and validate the If-Match value upfront (I1: used in WHERE clause later)
+  const etagMatch = ifMatch.match(/^W\/"(.+)"$/);
+  if (!etagMatch) return res.status(400).json({ error: 'Malformed If-Match header' });
+  const ifMatchTs = new Date(etagMatch[1]);
+  if (isNaN(ifMatchTs.getTime())) return res.status(400).json({ error: 'Malformed If-Match header' });
+
+  // Fetch current doc (still needed for scope guards and cycle detection)
   const { rows } = await pool.query(
     `SELECT id, client_id, parent_id, task_id, title, body_json, visibility,
             sort_order, updated_at, updated_by
@@ -4247,15 +4257,9 @@ app.patch('/api/documents/:id', async (req, res) => {
   if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
   const current = rows[0];
 
-  // D1: compare If-Match against the current ETag
-  // RFC 7232 specifies 412 for a failed precondition, but we return 409 here
-  // because the frontend conflict modal needs a uniform shape with the current
-  // doc state regardless of whether the mismatch was stale-client or concurrent write.
-  const currentEtag = `W/"${current.updated_at.toISOString()}"`;
-  if (ifMatch !== currentEtag) {
-    return res.status(409).json({ error: 'Conflict', current });
-  }
-
+  // C1: Scope guards run BEFORE ETag comparison to prevent existence/content disclosure.
+  // A client user on the wrong client, or requesting an nbi_only doc, gets 404 regardless
+  // of whether their If-Match is fresh or stale.
   const isClientUser = !!req.user.clientId;
   if (isClientUser && req.user.clientId !== current.client_id) {
     return res.status(404).json({ error: 'Not found' });
@@ -4265,6 +4269,19 @@ app.patch('/api/documents/:id', async (req, res) => {
   }
   if (isClientUser && req.user.docsEdit === false) {
     return res.status(403).json({ error: 'No doc-edit permission' });
+  }
+
+  // D1: compare If-Match against the current ETag (after scope guards)
+  // RFC 7232 specifies 412 for a failed precondition, but we return 409 here
+  // because the frontend conflict modal needs a uniform shape with the current
+  // doc state regardless of whether the mismatch was stale-client or concurrent write.
+  // C1/I3: redact the body in the 409 response for client portal users.
+  const currentEtag = `W/"${current.updated_at.toISOString()}"`;
+  if (ifMatch !== currentEtag) {
+    const safeCurrentForClient = isClientUser
+      ? { ...current, body_json: redactNbiInternal(current.body_json) }
+      : current;
+    return res.status(409).json({ error: 'Conflict', current: safeCurrentForClient });
   }
 
   // Build standard field updates via the shared helper (prevents SQL injection)
@@ -4277,13 +4294,29 @@ app.patch('/api/documents/:id', async (req, res) => {
 
   // Special handling layered on top of buildPatchQuery output -----------------
 
-  // parent_id: validate uuid and reject self-reference (circular hierarchy)
+  // parent_id: validate uuid, reject self-reference, and reject descendant cycle (I2)
   if (req.body.parent_id !== undefined && req.body.parent_id !== null) {
     if (!isValidUuid(req.body.parent_id)) {
       return res.status(400).json({ error: 'Invalid parent_id' });
     }
     if (req.body.parent_id === req.params.id) {
       return res.status(400).json({ error: 'circular: a document cannot be its own parent' });
+    }
+    // I2: descendant-cycle check. Only run when parent_id is actually changing.
+    if (req.body.parent_id !== current.parent_id) {
+      const cycleCheck = await pool.query(
+        `WITH RECURSIVE descendants AS (
+           SELECT id FROM documents WHERE id = $1
+           UNION ALL
+           SELECT d.id FROM documents d
+           INNER JOIN descendants ON d.parent_id = descendants.id
+         )
+         SELECT 1 FROM descendants WHERE id = $2 LIMIT 1`,
+        [req.params.id, req.body.parent_id]
+      );
+      if (cycleCheck.rows.length > 0) {
+        return res.status(400).json({ error: 'circular: cannot move under a descendant' });
+      }
     }
   }
 
@@ -4325,12 +4358,41 @@ app.patch('/api/documents/:id', async (req, res) => {
   vals.push(author);
   idx++;
 
+  // I1: Atomic optimistic-concurrency check. The WHERE clause includes the
+  // original updated_at so two concurrent PATCHes with the same If-Match
+  // cannot both succeed. The second will match zero rows.
+  // Comparison is truncated to millisecond precision because the ETag is
+  // emitted via Date.toISOString() (3-digit ms), whereas Postgres timestamptz
+  // stores microseconds. Without date_trunc the WHERE never matches its own
+  // freshly-emitted ETag.
   vals.push(req.params.id);
+  vals.push(ifMatchTs);
   const { rows: updated } = await pool.query(
-    `UPDATE documents SET ${updates.join(', ')} WHERE id = $${idx} RETURNING *`,
+    `UPDATE documents SET ${updates.join(', ')}
+      WHERE id = $${idx}
+        AND date_trunc('milliseconds', updated_at) = date_trunc('milliseconds', $${idx + 1}::timestamptz)
+      RETURNING id, client_id, parent_id, task_id, title, body_json, visibility,
+                sort_order, updated_at, updated_by`,
     vals
   );
-  if (!updated[0]) return res.status(404).json({ error: 'Not found' });
+
+  // M1: RETURNING uses explicit projection (no body_text, no body_version).
+  // If zero rows were updated, distinguish between a true concurrent-write conflict
+  // and the doc having been deleted between our SELECT and UPDATE.
+  if (!updated[0]) {
+    const { rows: recheck } = await pool.query(
+      `SELECT id, client_id, parent_id, task_id, title, body_json, visibility,
+              sort_order, updated_at, updated_by
+         FROM documents WHERE id = $1`,
+      [req.params.id]
+    );
+    if (recheck.length === 0) return res.status(404).json({ error: 'Not found' });
+    const conflict = recheck[0];
+    const safeConflict = isClientUser
+      ? { ...conflict, body_json: redactNbiInternal(conflict.body_json) }
+      : conflict;
+    return res.status(409).json({ error: 'Conflict', current: safeConflict });
+  }
 
   const doc = updated[0];
   // D1: emit fresh ETag from the new updated_at so client can track the new version
@@ -4355,8 +4417,11 @@ app.delete('/api/documents/:id', async (req, res) => {
   const doc = rows[0];
 
   const isClientUser = !!req.user.clientId;
+  // M4: cross-client DELETE is a silent no-op (204) rather than 404.
+  // Returning 404 would let a client enumerate doc existence by sending
+  // DELETE requests against guessed UUIDs. The doc is not deleted.
   if (isClientUser && req.user.clientId !== doc.client_id) {
-    return res.status(404).json({ error: 'Not found' });
+    return res.status(204).end();
   }
   if (isClientUser && req.user.docsEdit === false) {
     return res.status(403).json({ error: 'No doc-edit permission' });
