@@ -11485,7 +11485,7 @@ async function loadCapacityHeatmap() {
 
 // ==================== DOCUMENTATION VIEW ====================
 
-let _docsState = { clientId: null, tree: [], selectedDocId: null, dirty: false, lastSavedAt: null, lastEtag: null };
+let _docsState = { clientId: null, tree: [], selectedDocId: null, dirty: false, lastSavedAt: null, lastEtag: null, retryCount: 0, saving: false };
 let _docsTiptapEditor = null;
 let _docsAutosaveTimer = null;
 let _docsSavedTimer = null;
@@ -11494,22 +11494,14 @@ let _tiptapPromise = null;
 function _docsLoadTiptap() {
   if (_tiptapPromise) return _tiptapPromise;
   _tiptapPromise = (async () => {
-    const cdn = 'https://cdn.jsdelivr.net/npm/';
-    const [core, starter, underline, link, image, placeholder] = await Promise.all([
-      import(cdn + '@tiptap/core@2.5.9/+esm'),
-      import(cdn + '@tiptap/starter-kit@2.5.9/+esm'),
-      import(cdn + '@tiptap/extension-underline@2.5.9/+esm'),
-      import(cdn + '@tiptap/extension-link@2.5.9/+esm'),
-      import(cdn + '@tiptap/extension-image@2.5.9/+esm'),
-      import(cdn + '@tiptap/extension-placeholder@2.5.9/+esm'),
-    ]);
+    const T = await import('/public/vendor/tiptap-bundle.min.js');
     return {
-      Editor: core.Editor, Node: core.Node, mergeAttributes: core.mergeAttributes,
-      StarterKit: starter.default || starter.StarterKit,
-      Underline: underline.default || underline.Underline,
-      Link: link.default || link.Link,
-      Image: image.default || image.Image,
-      Placeholder: placeholder.default || placeholder.Placeholder,
+      Editor: T.Editor, Node: T.Node, mergeAttributes: T.mergeAttributes,
+      StarterKit: T.StarterKit,
+      Underline: T.Underline,
+      Link: T.Link,
+      Image: T.Image,
+      Placeholder: T.Placeholder,
     };
   })().catch(err => { _tiptapPromise = null; throw err; });
   return _tiptapPromise;
@@ -11584,7 +11576,9 @@ function _docsRenderTreeNodes(nodes, depth) {
 }
 
 function _docsSavedLabel() {
-  if (_docsState.dirty) return '<span style="color:var(--warning)">Saving...</span>';
+  if (_docsState.retryCount >= 3) return '<span style="color:var(--danger)">Save failed — retrying</span>';
+  if (_docsState.saving) return '<span style="color:var(--warning)">Saving...</span>';
+  if (_docsState.dirty) return '<span style="color:var(--warning)">Unsaved</span>';
   if (_docsState.lastSavedAt) {
     const secs = Math.round((Date.now() - _docsState.lastSavedAt) / 1000);
     return '<span style="color:var(--text-muted)">Saved ' + secs + 's ago</span>';
@@ -11610,9 +11604,24 @@ async function _docsRenderEditorPane() {
   const doc = await resp.json();
   _docsState.lastEtag = etag;
 
+  let recoveredContent = null;
+  try {
+    const raw = localStorage.getItem('nbi_docs_unsaved_' + _docsState.selectedDocId);
+    if (raw) {
+      const blob = JSON.parse(raw);
+      const serverTs = doc.updated_at ? new Date(doc.updated_at).getTime() : 0;
+      if (blob.ts > serverTs && blob.body_json) {
+        recoveredContent = blob;
+      } else {
+        localStorage.removeItem('nbi_docs_unsaved_' + _docsState.selectedDocId);
+      }
+    }
+  } catch(e) {}
+
   const isNbiOnly = doc.visibility === 'nbi_only';
   const visBadge = isNbiOnly ? '<span class="docs__vis-badge">NBI ONLY</span>' : '';
-  el.innerHTML = '<div class="docs__title-row">'
+  el.innerHTML = (recoveredContent ? '<div class="docs__recovery-banner" id="docsRecoveryBanner" style="background:var(--warning-bg, #3a2a00);border:1px solid var(--warning);padding:8px 12px;margin-bottom:8px;border-radius:4px;display:flex;align-items:center;gap:8px;font-size:0.82rem"><span>Unsaved changes found from ' + new Date(recoveredContent.ts).toLocaleString() + '.</span><button class="btn btn--sm btn--primary" onclick="_actDocsRecover()">Restore</button><button class="btn btn--sm" onclick="_actDocsDiscardRecovery()">Discard</button></div>' : '')
+    + '<div class="docs__title-row">'
     + '<input class="docs__title" value="' + esc(doc.title) + '" oninput="_actDocsTitleInput(this.value)">'
     + visBadge
     + '<button class="docs__vis-toggle" onclick="_actDocsToggleVis()">' + (isNbiOnly ? 'Make visible to client' : 'Mark as NBI only') + '</button>'
@@ -11648,6 +11657,8 @@ async function _docsRenderEditorPane() {
     },
   });
 
+  window._docsRecoveredContent = recoveredContent;
+
   _docsTiptapEditor = new T.Editor({
     element: document.getElementById('docsEditor'),
     extensions: [
@@ -11660,7 +11671,12 @@ async function _docsRenderEditorPane() {
       SlackCard,
     ],
     content: doc.body_json || { type: 'doc', content: [] },
-    onUpdate: () => { _docsState.dirty = true; _docsScheduleSave(); _docsUpdateSavedIndicator(); },
+    onUpdate: () => {
+      _docsState.dirty = true;
+      try { localStorage.setItem('nbi_docs_unsaved_' + _docsState.selectedDocId, JSON.stringify({ body_json: _docsTiptapEditor.getJSON(), ts: Date.now() })); } catch(e) {}
+      _docsScheduleSave();
+      _docsUpdateSavedIndicator();
+    },
   });
 
   _docsRenderToolbar();
@@ -11765,30 +11781,40 @@ async function _docsUploadAndInsertImage(file) {
 
 function _docsScheduleSave() {
   clearTimeout(_docsAutosaveTimer);
-  _docsAutosaveTimer = setTimeout(_docsSaveNow, 800);
+  const delay = _docsState.retryCount > 0 ? Math.min(800 * Math.pow(2, _docsState.retryCount), 15000) : 800;
+  _docsAutosaveTimer = setTimeout(_docsSaveNow, delay);
 }
 
 async function _docsSaveNow() {
-  if (!_docsTiptapEditor || !_docsState.selectedDocId) return;
+  if (!_docsTiptapEditor || !_docsState.selectedDocId || _docsState.saving) return;
+  _docsState.saving = true;
+  _docsUpdateSavedIndicator();
+  const docId = _docsState.selectedDocId;
   const body = _docsTiptapEditor.getJSON();
   const headers = { 'Content-Type': 'application/json' };
   if (_docsState.lastEtag) headers['If-Match'] = _docsState.lastEtag;
-  const resp = await authFetch('/api/documents/' + encodeURIComponent(_docsState.selectedDocId), {
-    method: 'PATCH', headers: headers,
-    body: JSON.stringify({ body_json: body }),
-  });
-  if (!resp) return;
+  let resp;
+  try {
+    resp = await authFetch('/api/documents/' + encodeURIComponent(docId), {
+      method: 'PATCH', headers: headers,
+      body: JSON.stringify({ body_json: body }),
+    });
+  } catch(e) { resp = null; }
+  _docsState.saving = false;
+  if (!resp || (!resp.ok && resp.status !== 409)) {
+    _docsState.retryCount++;
+    _docsUpdateSavedIndicator();
+    if (_docsState.retryCount <= 5) _docsScheduleSave();
+    return;
+  }
   if (resp.status === 409) {
-    const conflict = await resp.json();
     _docsState.dirty = false;
     const choice = confirm('Another user has edited this page. Click OK to reload their version (your changes will be lost) or Cancel to overwrite with yours.');
     if (choice) {
       await _docsLoadTree();
-      _docsState.selectedDocId = _docsState.selectedDocId;
       _docsRenderEditorPane();
     } else {
-      headers['If-Match'] = '*';
-      const retry = await authFetch('/api/documents/' + encodeURIComponent(_docsState.selectedDocId), {
+      const retry = await authFetch('/api/documents/' + encodeURIComponent(docId), {
         method: 'PATCH', headers: { 'Content-Type': 'application/json', 'If-Match': '*' },
         body: JSON.stringify({ body_json: body }),
       });
@@ -11796,8 +11822,10 @@ async function _docsSaveNow() {
         const etag = retry.headers.get('ETag');
         if (etag) _docsState.lastEtag = etag;
         _docsState.lastSavedAt = Date.now();
+        try { localStorage.removeItem('nbi_docs_unsaved_' + docId); } catch(e) {}
       }
     }
+    _docsState.retryCount = 0;
     _docsUpdateSavedIndicator();
     return;
   }
@@ -11805,10 +11833,10 @@ async function _docsSaveNow() {
     const etag = resp.headers.get('ETag');
     if (etag) _docsState.lastEtag = etag;
     _docsState.dirty = false;
+    _docsState.retryCount = 0;
     _docsState.lastSavedAt = Date.now();
+    try { localStorage.removeItem('nbi_docs_unsaved_' + docId); } catch(e) {}
     _docsUpdateSavedIndicator();
-  } else {
-    toast('Save failed', 'error');
   }
 }
 
@@ -11817,6 +11845,24 @@ function _docsUpdateSavedIndicator() {
   if (el) el.innerHTML = _docsSavedLabel();
   clearTimeout(_docsSavedTimer);
   if (_docsState.lastSavedAt) _docsSavedTimer = setTimeout(_docsUpdateSavedIndicator, 5000);
+}
+
+function _actDocsRecover() {
+  if (window._docsRecoveredContent && _docsTiptapEditor) {
+    _docsTiptapEditor.commands.setContent(window._docsRecoveredContent.body_json);
+    _docsState.dirty = true;
+    _docsScheduleSave();
+    toast('Restored unsaved changes');
+  }
+  const banner = document.getElementById('docsRecoveryBanner');
+  if (banner) banner.remove();
+  window._docsRecoveredContent = null;
+}
+function _actDocsDiscardRecovery() {
+  try { localStorage.removeItem('nbi_docs_unsaved_' + _docsState.selectedDocId); } catch(e) {}
+  const banner = document.getElementById('docsRecoveryBanner');
+  if (banner) banner.remove();
+  window._docsRecoveredContent = null;
 }
 
 async function _actDocsSelectClient(id) { _docsState.clientId = id; _docsState.selectedDocId = null; await _docsLoadTree(); renderContent(); }
