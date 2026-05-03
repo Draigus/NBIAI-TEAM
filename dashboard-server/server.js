@@ -797,7 +797,8 @@ app.get('/api/auth/me', async (req, res) => {
 
   const hashed = hashToken(token);
   const { rows } = await pool.query(
-    `SELECT u.id, u.username, u.display_name, u.role, u.client_id, u.client_role, u.must_change_password FROM sessions s
+    `SELECT u.id, u.username, u.display_name, u.role, u.client_id, u.client_role, u.must_change_password,
+            u.docs_view, u.docs_edit, u.docs_create, u.docs_upload FROM sessions s
      JOIN users u ON s.user_id = u.id
      WHERE s.token = $1 AND s.expires_at > NOW() AND u.is_active = true`, [hashed]
   );
@@ -807,6 +808,8 @@ app.get('/api/auth/me', async (req, res) => {
     role: rows[0].role, clientId: rows[0].client_id, clientRole: rows[0].client_role,
     isNBI: !rows[0].client_id, isClientAdmin: !!rows[0].client_id && rows[0].client_role === 'admin',
     mustChangePassword: rows[0].must_change_password,
+    docsView: rows[0].docs_view, docsEdit: rows[0].docs_edit,
+    docsCreate: rows[0].docs_create, docsUpload: rows[0].docs_upload,
   } });
 });
 
