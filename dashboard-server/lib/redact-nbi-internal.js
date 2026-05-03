@@ -129,4 +129,36 @@ function _imageInScopeNode(node, filename, drop) {
   return false;
 }
 
-module.exports = { redactNbiInternal, extractPlainText, imageInScope };
+/**
+ * Walk a ProseMirror body and collect the filename (basename of the src URL)
+ * for every image node found anywhere in the tree.
+ *
+ * This is used by the G1 attachment orphan reconciliation in the PATCH handler:
+ * filenames returned here are considered "referenced" and should NOT be orphaned.
+ *
+ * Intentionally does NOT skip nbiInternalBlock subtrees. Orphan accounting is
+ * global -- an image inside an NBI-internal section is still embedded in the
+ * document. The nbiInternalBlock skip is only applied when serving content to
+ * client portal users (see imageInScope with dropNbiInternal: true).
+ *
+ * @param {object|null|undefined} body  ProseMirror doc root
+ * @returns {Set<string>}  Set of stored filenames (basename only)
+ */
+function extractImageFilenames(body) {
+  const out = new Set();
+  _collectImageNames(body, out);
+  return out;
+}
+
+function _collectImageNames(node, out) {
+  if (!node || typeof node !== 'object') return;
+  if (node.type === 'image' && node.attrs && typeof node.attrs.src === 'string') {
+    const name = node.attrs.src.split('/').pop();
+    if (name) out.add(name);
+  }
+  if (Array.isArray(node.content)) {
+    for (const child of node.content) _collectImageNames(child, out);
+  }
+}
+
+module.exports = { redactNbiInternal, extractPlainText, imageInScope, extractImageFilenames };

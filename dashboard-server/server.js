@@ -4155,7 +4155,8 @@ app.delete('/api/notes/:id', requireAdmin, async (req, res) => {
 
 // ==================== DOCUMENTS ====================
 
-const { redactNbiInternal, extractPlainText, imageInScope } = require('./lib/redact-nbi-internal');
+const { redactNbiInternal, extractPlainText, imageInScope, extractImageFilenames } = require('./lib/redact-nbi-internal');
+const { pickFilesToDelete } = require('./lib/attachment-sweep');
 
 /** GET /api/documents?client_id=:uuid
  *  Return the page tree for a client.
@@ -4345,6 +4346,35 @@ app.patch('/api/documents/:id', async (req, res) => {
     updates.push(`body_text = $${idx}`);
     vals.push(bodyText);
     idx++;
+
+    // G1: attachment orphan reconciliation. Diff old vs new image set:
+    //   - filenames now in body that were previously orphaned -> clear orphaned_at
+    //   - filenames in DB but not in new body -> set orphaned_at = now() if NULL
+    // Only runs when body_json is being updated. Wrapped in try/catch so an
+    // attachment-side error does not fail the user's PATCH.
+    try {
+      const newFilenames = extractImageFilenames(req.body.body_json);
+      const { rows: existingAtts } = await pool.query(
+        `SELECT id, stored_name, orphaned_at FROM document_attachments WHERE document_id = $1`,
+        [req.params.id]
+      );
+      const referencedIds   = existingAtts.filter(a => newFilenames.has(a.stored_name)).map(a => a.id);
+      const unreferencedIds = existingAtts.filter(a => !newFilenames.has(a.stored_name) && a.orphaned_at === null).map(a => a.id);
+      if (referencedIds.length) {
+        await pool.query(
+          `UPDATE document_attachments SET orphaned_at = NULL WHERE id = ANY($1::uuid[])`,
+          [referencedIds]
+        );
+      }
+      if (unreferencedIds.length) {
+        await pool.query(
+          `UPDATE document_attachments SET orphaned_at = now() WHERE id = ANY($1::uuid[])`,
+          [unreferencedIds]
+        );
+      }
+    } catch (err) {
+      log('warn', 'Documents', 'Attachment reconciliation failed for ' + req.params.id, { err: err.message });
+    }
   }
 
   if (updates.length === 0) {
@@ -4427,7 +4457,34 @@ app.delete('/api/documents/:id', async (req, res) => {
     return res.status(403).json({ error: 'No doc-edit permission' });
   }
 
+  // G1: collect attachment filenames for this doc AND all descendants before
+  // the CASCADE wipes the document_attachments rows.
+  const { rows: atts } = await pool.query(
+    `WITH RECURSIVE descendants AS (
+       SELECT id FROM documents WHERE id = $1
+       UNION ALL
+       SELECT d.id FROM documents d
+       INNER JOIN descendants ON d.parent_id = descendants.id
+     )
+     SELECT da.stored_name FROM document_attachments da
+     INNER JOIN descendants ON da.document_id = descendants.id`,
+    [req.params.id]
+  );
+
   await pool.query('DELETE FROM documents WHERE id = $1', [req.params.id]);
+
+  // G1: unlink files post-DELETE. Best-effort -- log per-file failures but
+  // do not fail the request because the DB row is already gone.
+  for (const a of atts) {
+    try {
+      fs.unlinkSync(path.join(uploadDir, a.stored_name));
+    } catch (err) {
+      if (err.code !== 'ENOENT') {
+        log('warn', 'Documents', `Failed to unlink ${a.stored_name} during doc delete: ${err.message}`);
+      }
+    }
+  }
+
   res.status(204).end();
 });
 
@@ -4542,13 +4599,17 @@ app.post('/api/documents/:id/attachments', (req, res, next) => {
     }
   }
 
-  // Persist the attachment row
+  // Persist the attachment row.
+  // G1: orphaned_at is set at upload time so an unembedded attachment
+  // (e.g. user uploads then closes tab without saving) eventually gets
+  // swept by the 03:30 cron after the 24h grace window. PATCH body_json
+  // clears this when the attachment URL is referenced.
   let ins;
   try {
     const result = await pool.query(
       `INSERT INTO document_attachments
-         (document_id, filename, stored_name, mime_type, size_bytes, uploaded_by)
-       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+         (document_id, filename, stored_name, mime_type, size_bytes, uploaded_by, orphaned_at)
+       VALUES ($1, $2, $3, $4, $5, $6, now()) RETURNING *`,
       [
         req.params.id,
         req.file.originalname,
@@ -9669,6 +9730,44 @@ if (cron) {
   log('info', 'Cron', 'Dashboard snapshot scheduled for 00:05 daily (Europe/London)');
 }
 
+// G1: Orphaned attachment sweep
+async function runAttachmentSweep() {
+  try {
+    const { rows: candidates } = await pool.query(
+      `SELECT id, stored_name, orphaned_at
+         FROM document_attachments
+         WHERE orphaned_at IS NOT NULL`
+    );
+    const toDelete = pickFilesToDelete(new Date(), candidates);
+    if (toDelete.length === 0) {
+      log('info', 'Cron', 'Attachment sweep: nothing to remove');
+      return { deleted: 0 };
+    }
+    // Unlink files first; if the unlink fails (other than ENOENT) we still
+    // delete the DB row because the row is the source of truth and a
+    // missing file just means a manual cleanup happened earlier.
+    for (const f of toDelete) {
+      try { fs.unlinkSync(path.join(uploadDir, f.stored_name)); }
+      catch (err) {
+        if (err.code !== 'ENOENT') {
+          log('warn', 'Cron', `Sweep unlink failed for ${f.stored_name}: ${err.message}`);
+        }
+      }
+    }
+    const ids = toDelete.map(f => f.id);
+    await pool.query(`DELETE FROM document_attachments WHERE id = ANY($1::uuid[])`, [ids]);
+    log('info', 'Cron', `Attachment sweep deleted ${toDelete.length} orphans`);
+    return { deleted: toDelete.length };
+  } catch (err) {
+    log('error', 'Cron', `Attachment sweep failed: ${err.message}`);
+    return { deleted: 0, error: err.message };
+  }
+}
+if (cron) {
+  cron.schedule('30 3 * * *', runAttachmentSweep, CRON_TZ);
+  log('info', 'Cron', 'Attachment sweep scheduled for 03:30 daily (Europe/London)');
+}
+
 // Bootstrap today's snapshot on startup if it doesn't exist yet
 (async () => {
   try {
@@ -10051,3 +10150,4 @@ module.exports.processInboundEmails = processInboundEmails;
 module.exports.extractLinksFromHtml = extractLinksFromHtml;
 module.exports.detectImportFormat = detectImportFormat;
 module.exports.mapRowsToTasks = mapRowsToTasks;
+module.exports.runAttachmentSweep = runAttachmentSweep;

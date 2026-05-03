@@ -1035,3 +1035,336 @@ describe('Documents: attachments', () => {
     expect(after).toEqual(before);
   });
 });
+
+// =============================================================================
+// Documents: G1 orphan tracking
+// =============================================================================
+
+describe('Documents: G1 orphan tracking', () => {
+  // 1x1 transparent PNG
+  const PIXEL_PNG = Buffer.from(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=',
+    'base64'
+  );
+
+  let admin, adminToken, lighthouse, doc;
+
+  const { runAttachmentSweep } = require('../../server.js');
+
+  beforeEach(async () => {
+    admin = await createTestUser({ role: 'admin' });
+    adminToken = await mintSession(admin.id);
+    lighthouse = await createTestClient({ name: 'Lighthouse Games', sector: 'gaming' });
+    const ins = await pool.query(
+      `INSERT INTO documents (client_id, title, created_by, updated_by)
+       VALUES ($1, 'G1 Doc', 'test', 'test') RETURNING *`,
+      [lighthouse.id]
+    );
+    doc = ins.rows[0];
+  });
+
+  // G1-Upload: new attachment row has orphaned_at IS NOT NULL immediately after upload
+  it('G1-Upload: POST sets orphaned_at on the new attachment row', async () => {
+    const res = await request(app)
+      .post(`/api/documents/${doc.id}/attachments`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .attach('file', PIXEL_PNG, { filename: 'pixel.png', contentType: 'image/png' });
+    expect(res.status).toBe(201);
+
+    const { rows } = await pool.query(
+      'SELECT orphaned_at FROM document_attachments WHERE document_id = $1',
+      [doc.id]
+    );
+    expect(rows.length).toBe(1);
+    expect(rows[0].orphaned_at).not.toBeNull();
+  });
+
+  // G1-Embed: PATCH body_json referencing the image clears orphaned_at
+  it('G1-Embed: PATCH body_json that references the image clears orphaned_at', async () => {
+    const up = await request(app)
+      .post(`/api/documents/${doc.id}/attachments`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .attach('file', PIXEL_PNG, { filename: 'pixel.png', contentType: 'image/png' });
+    expect(up.status).toBe(201);
+
+    const storedName = up.body.url.split('/').pop();
+    const body = {
+      type: 'doc',
+      content: [{ type: 'paragraph', content: [
+        { type: 'image', attrs: { src: up.body.url } }
+      ]}]
+    };
+
+    const { rows: before } = await pool.query(
+      'SELECT id, updated_at FROM documents WHERE id = $1', [doc.id]
+    );
+    const etag = `W/"${before[0].updated_at.toISOString()}"`;
+
+    const patch = await request(app)
+      .patch(`/api/documents/${doc.id}`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .set('If-Match', etag)
+      .send({ body_json: body });
+    expect(patch.status).toBe(200);
+
+    const { rows } = await pool.query(
+      'SELECT orphaned_at FROM document_attachments WHERE document_id = $1 AND stored_name = $2',
+      [doc.id, storedName]
+    );
+    expect(rows.length).toBe(1);
+    expect(rows[0].orphaned_at).toBeNull();
+  });
+
+  // G1-Remove: PATCH body_json that no longer references the image sets orphaned_at
+  it('G1-Remove: PATCH body_json that omits the image sets orphaned_at', async () => {
+    const up = await request(app)
+      .post(`/api/documents/${doc.id}/attachments`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .attach('file', PIXEL_PNG, { filename: 'pixel.png', contentType: 'image/png' });
+    expect(up.status).toBe(201);
+    const storedName = up.body.url.split('/').pop();
+
+    // First embed the image so orphaned_at = NULL
+    const embedBody = {
+      type: 'doc',
+      content: [{ type: 'paragraph', content: [
+        { type: 'image', attrs: { src: up.body.url } }
+      ]}]
+    };
+    const { rows: r1 } = await pool.query('SELECT updated_at FROM documents WHERE id = $1', [doc.id]);
+    await request(app)
+      .patch(`/api/documents/${doc.id}`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .set('If-Match', `W/"${r1[0].updated_at.toISOString()}"`)
+      .send({ body_json: embedBody });
+
+    // Confirm orphaned_at is now NULL
+    const { rows: chk1 } = await pool.query(
+      'SELECT orphaned_at FROM document_attachments WHERE document_id = $1 AND stored_name = $2',
+      [doc.id, storedName]
+    );
+    expect(chk1[0].orphaned_at).toBeNull();
+
+    // Now PATCH with empty body (image removed)
+    const { rows: r2 } = await pool.query('SELECT updated_at FROM documents WHERE id = $1', [doc.id]);
+    const patch = await request(app)
+      .patch(`/api/documents/${doc.id}`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .set('If-Match', `W/"${r2[0].updated_at.toISOString()}"`)
+      .send({ body_json: { type: 'doc', content: [] } });
+    expect(patch.status).toBe(200);
+
+    const { rows } = await pool.query(
+      'SELECT orphaned_at FROM document_attachments WHERE document_id = $1 AND stored_name = $2',
+      [doc.id, storedName]
+    );
+    expect(rows[0].orphaned_at).not.toBeNull();
+  });
+
+  // G1-ReAdd: re-referencing an orphaned attachment clears orphaned_at again
+  it('G1-ReAdd: PATCH body_json that re-references an orphaned attachment clears orphaned_at', async () => {
+    const up = await request(app)
+      .post(`/api/documents/${doc.id}/attachments`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .attach('file', PIXEL_PNG, { filename: 'pixel.png', contentType: 'image/png' });
+    expect(up.status).toBe(201);
+    const storedName = up.body.url.split('/').pop();
+
+    // Confirm it starts orphaned
+    const { rows: start } = await pool.query(
+      'SELECT orphaned_at FROM document_attachments WHERE document_id = $1 AND stored_name = $2',
+      [doc.id, storedName]
+    );
+    expect(start[0].orphaned_at).not.toBeNull();
+
+    // PATCH to re-embed the image
+    const { rows: r } = await pool.query('SELECT updated_at FROM documents WHERE id = $1', [doc.id]);
+    const body = {
+      type: 'doc',
+      content: [{ type: 'paragraph', content: [
+        { type: 'image', attrs: { src: up.body.url } }
+      ]}]
+    };
+    const patch = await request(app)
+      .patch(`/api/documents/${doc.id}`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .set('If-Match', `W/"${r[0].updated_at.toISOString()}"`)
+      .send({ body_json: body });
+    expect(patch.status).toBe(200);
+
+    const { rows } = await pool.query(
+      'SELECT orphaned_at FROM document_attachments WHERE document_id = $1 AND stored_name = $2',
+      [doc.id, storedName]
+    );
+    expect(rows[0].orphaned_at).toBeNull();
+  });
+
+  // G1-DeleteCascade: deleting a parent removes attachment files for parent + child
+  it('G1-DeleteCascade: DELETE parent removes attachment files for parent and child docs', async () => {
+    // Upload image to parent doc
+    const parentUp = await request(app)
+      .post(`/api/documents/${doc.id}/attachments`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .attach('file', PIXEL_PNG, { filename: 'parent.png', contentType: 'image/png' });
+    expect(parentUp.status).toBe(201);
+    const parentFile = parentUp.body.url.split('/').pop();
+
+    // Create child doc
+    const childIns = await pool.query(
+      `INSERT INTO documents (client_id, parent_id, title, created_by, updated_by)
+       VALUES ($1, $2, 'Child', 'test', 'test') RETURNING *`,
+      [lighthouse.id, doc.id]
+    );
+    const childDoc = childIns.rows[0];
+
+    // Upload image to child doc
+    const childUp = await request(app)
+      .post(`/api/documents/${childDoc.id}/attachments`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .attach('file', PIXEL_PNG, { filename: 'child.png', contentType: 'image/png' });
+    expect(childUp.status).toBe(201);
+    const childFile = childUp.body.url.split('/').pop();
+
+    // Confirm both files exist on disk
+    expect(fs.existsSync(path.join(uploadDir, parentFile))).toBe(true);
+    expect(fs.existsSync(path.join(uploadDir, childFile))).toBe(true);
+
+    // DELETE the parent
+    const del = await request(app)
+      .delete(`/api/documents/${doc.id}`)
+      .set('Authorization', `Bearer ${adminToken}`);
+    expect(del.status).toBe(204);
+
+    // Both files should be gone
+    expect(fs.existsSync(path.join(uploadDir, parentFile))).toBe(false);
+    expect(fs.existsSync(path.join(uploadDir, childFile))).toBe(false);
+
+    // Both attachment rows should be gone (FK cascade)
+    const { rows } = await pool.query(
+      `SELECT id FROM document_attachments WHERE stored_name = ANY($1::text[])`,
+      [[parentFile, childFile]]
+    );
+    expect(rows.length).toBe(0);
+  });
+
+  // G1-Sweep-Recent: attachment orphaned 23h ago is NOT swept
+  it('G1-Sweep-Recent: sweep leaves attachments orphaned less than 24h ago', async () => {
+    // Insert doc + attachment with orphaned_at = now() - 23 hours
+    const attIns = await pool.query(
+      `INSERT INTO document_attachments
+         (document_id, filename, stored_name, mime_type, size_bytes, uploaded_by, orphaned_at)
+       VALUES ($1, 'recent.png', 'g1_sweep_recent.png', 'image/png', 100, 'test',
+               now() - interval '23 hours')
+       RETURNING id`,
+      [doc.id]
+    );
+    const attId = attIns.rows[0].id;
+    // Create the file on disk so unlink would be attempted if sweep runs
+    const filePath = path.join(uploadDir, 'g1_sweep_recent.png');
+    fs.writeFileSync(filePath, 'fake');
+
+    try {
+      const result = await runAttachmentSweep();
+      expect(result.deleted).toBe(0);
+
+      // Row still present
+      const { rows } = await pool.query(
+        'SELECT id FROM document_attachments WHERE id = $1', [attId]
+      );
+      expect(rows.length).toBe(1);
+      // File still on disk
+      expect(fs.existsSync(filePath)).toBe(true);
+    } finally {
+      // Cleanup
+      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+      await pool.query('DELETE FROM document_attachments WHERE id = $1', [attId]);
+    }
+  });
+
+  // G1-Sweep-Old: attachment orphaned 25h ago IS swept
+  it('G1-Sweep-Old: sweep removes attachments orphaned more than 24h ago', async () => {
+    const attIns = await pool.query(
+      `INSERT INTO document_attachments
+         (document_id, filename, stored_name, mime_type, size_bytes, uploaded_by, orphaned_at)
+       VALUES ($1, 'old.png', 'g1_sweep_old.png', 'image/png', 100, 'test',
+               now() - interval '25 hours')
+       RETURNING id`,
+      [doc.id]
+    );
+    const attId = attIns.rows[0].id;
+    const filePath = path.join(uploadDir, 'g1_sweep_old.png');
+    fs.writeFileSync(filePath, 'fake');
+
+    const result = await runAttachmentSweep();
+    expect(result.deleted).toBeGreaterThanOrEqual(1);
+
+    // Row gone
+    const { rows } = await pool.query(
+      'SELECT id FROM document_attachments WHERE id = $1', [attId]
+    );
+    expect(rows.length).toBe(0);
+    // File gone
+    expect(fs.existsSync(filePath)).toBe(false);
+  });
+
+  // G1-Sweep-Mixed: only the > 24h orphan is removed
+  it('G1-Sweep-Mixed: sweep removes only the attachment past the grace window', async () => {
+    // Attachment 1: not orphaned (orphaned_at = NULL)
+    const ins1 = await pool.query(
+      `INSERT INTO document_attachments
+         (document_id, filename, stored_name, mime_type, size_bytes, uploaded_by)
+       VALUES ($1, 'mix1.png', 'g1_mix_null.png', 'image/png', 100, 'test')
+       RETURNING id`,
+      [doc.id]
+    );
+    // Attachment 2: orphaned 23h ago (within grace)
+    const ins2 = await pool.query(
+      `INSERT INTO document_attachments
+         (document_id, filename, stored_name, mime_type, size_bytes, uploaded_by, orphaned_at)
+       VALUES ($1, 'mix2.png', 'g1_mix_recent.png', 'image/png', 100, 'test',
+               now() - interval '23 hours')
+       RETURNING id`,
+      [doc.id]
+    );
+    // Attachment 3: orphaned 25h ago (past grace)
+    const ins3 = await pool.query(
+      `INSERT INTO document_attachments
+         (document_id, filename, stored_name, mime_type, size_bytes, uploaded_by, orphaned_at)
+       VALUES ($1, 'mix3.png', 'g1_mix_old.png', 'image/png', 100, 'test',
+               now() - interval '25 hours')
+       RETURNING id`,
+      [doc.id]
+    );
+
+    const id1 = ins1.rows[0].id;
+    const id2 = ins2.rows[0].id;
+    const id3 = ins3.rows[0].id;
+
+    const file3 = path.join(uploadDir, 'g1_mix_old.png');
+    fs.writeFileSync(file3, 'fake');
+
+    try {
+      const result = await runAttachmentSweep();
+      expect(result.deleted).toBeGreaterThanOrEqual(1);
+
+      // Attachment 1 (null) still present
+      const { rows: r1 } = await pool.query('SELECT id FROM document_attachments WHERE id = $1', [id1]);
+      expect(r1.length).toBe(1);
+
+      // Attachment 2 (23h) still present
+      const { rows: r2 } = await pool.query('SELECT id FROM document_attachments WHERE id = $1', [id2]);
+      expect(r2.length).toBe(1);
+
+      // Attachment 3 (25h) gone
+      const { rows: r3 } = await pool.query('SELECT id FROM document_attachments WHERE id = $1', [id3]);
+      expect(r3.length).toBe(0);
+      expect(fs.existsSync(file3)).toBe(false);
+    } finally {
+      if (fs.existsSync(file3)) fs.unlinkSync(file3);
+      await pool.query(
+        'DELETE FROM document_attachments WHERE id = ANY($1::uuid[])',
+        [[id1, id2, id3]]
+      );
+    }
+  });
+});

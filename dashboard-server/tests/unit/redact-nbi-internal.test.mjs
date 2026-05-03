@@ -149,6 +149,91 @@ describe('extractPlainText', () => {
 });
 
 // ---------------------------------------------------------------------------
+// extractImageFilenames -- G1 lib tests
+// ---------------------------------------------------------------------------
+
+describe('extractImageFilenames', () => {
+  const { extractImageFilenames } = require('../../lib/redact-nbi-internal');
+
+  // Empty / null body returns empty Set
+  it('returns an empty Set for null input', () => {
+    expect(extractImageFilenames(null).size).toBe(0);
+  });
+
+  it('returns an empty Set for undefined input', () => {
+    expect(extractImageFilenames(undefined).size).toBe(0);
+  });
+
+  it('returns an empty Set for a doc with no image nodes', () => {
+    const doc = { type: 'doc', content: [
+      { type: 'paragraph', content: [{ type: 'text', text: 'hello' }] }
+    ]};
+    expect(extractImageFilenames(doc).size).toBe(0);
+  });
+
+  // Single image
+  it('returns a Set containing the filename of a single image', () => {
+    const doc = { type: 'doc', content: [
+      { type: 'paragraph', content: [
+        { type: 'image', attrs: { src: '/api/documents/abc/attachments/photo.jpg' } }
+      ]}
+    ]};
+    const names = extractImageFilenames(doc);
+    expect(names.size).toBe(1);
+    expect(names.has('photo.jpg')).toBe(true);
+  });
+
+  // Multiple images, including duplicates: Set deduplicates
+  it('returns unique filenames when the same image appears twice', () => {
+    const doc = { type: 'doc', content: [
+      { type: 'paragraph', content: [
+        { type: 'image', attrs: { src: '/api/documents/abc/attachments/photo.jpg' } }
+      ]},
+      { type: 'paragraph', content: [
+        { type: 'image', attrs: { src: '/api/documents/abc/attachments/photo.jpg' } },
+        { type: 'image', attrs: { src: '/api/documents/abc/attachments/other.png' } }
+      ]}
+    ]};
+    const names = extractImageFilenames(doc);
+    expect(names.size).toBe(2);
+    expect(names.has('photo.jpg')).toBe(true);
+    expect(names.has('other.png')).toBe(true);
+  });
+
+  // Image inside an nbiInternalBlock IS included (orphan accounting is global)
+  it('includes images inside nbiInternalBlock (not skipped for orphan accounting)', () => {
+    const doc = { type: 'doc', content: [
+      { type: 'nbiInternalBlock', content: [
+        { type: 'paragraph', content: [
+          { type: 'image', attrs: { src: '/api/documents/abc/attachments/secret.png' } }
+        ]}
+      ]}
+    ]};
+    const names = extractImageFilenames(doc);
+    expect(names.size).toBe(1);
+    expect(names.has('secret.png')).toBe(true);
+  });
+
+  // Deeply nested image is found
+  it('finds an image deeply nested inside listItem > blockquote', () => {
+    const doc = { type: 'doc', content: [
+      { type: 'bulletList', content: [
+        { type: 'listItem', content: [
+          { type: 'blockquote', content: [
+            { type: 'paragraph', content: [
+              { type: 'image', attrs: { src: '/api/documents/abc/attachments/deep.png' } }
+            ]}
+          ]}
+        ]}
+      ]}
+    ]};
+    const names = extractImageFilenames(doc);
+    expect(names.size).toBe(1);
+    expect(names.has('deep.png')).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
 // imageInScope -- H1 lib tests
 // ---------------------------------------------------------------------------
 
