@@ -4506,15 +4506,22 @@ app.post('/api/documents/:id/attachments', (req, res, next) => {
   }
 
   // Fetch doc for scope checks
-  const { rows } = await pool.query(
-    'SELECT id, client_id, visibility FROM documents WHERE id = $1',
-    [req.params.id]
-  );
-  if (rows.length === 0) {
+  let doc;
+  try {
+    const { rows } = await pool.query(
+      'SELECT id, client_id, visibility FROM documents WHERE id = $1',
+      [req.params.id]
+    );
+    if (rows.length === 0) {
+      cleanupDocUpload(req.file.path);
+      return res.status(404).json({ error: 'Not found' });
+    }
+    doc = rows[0];
+  } catch (err) {
     cleanupDocUpload(req.file.path);
-    return res.status(404).json({ error: 'Not found' });
+    log('error', 'Documents', `SELECT failed during upload to ${req.params.id}: ${err.message}`);
+    return res.status(500).json({ error: 'Database error' });
   }
-  const doc = rows[0];
 
   const isClientUser = !!req.user.clientId;
   if (isClientUser) {
@@ -4536,19 +4543,27 @@ app.post('/api/documents/:id/attachments', (req, res, next) => {
   }
 
   // Persist the attachment row
-  const { rows: ins } = await pool.query(
-    `INSERT INTO document_attachments
-       (document_id, filename, stored_name, mime_type, size_bytes, uploaded_by)
-     VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-    [
-      req.params.id,
-      req.file.originalname,
-      req.file.filename,
-      req.file.mimetype,
-      req.file.size,
-      req.user.username || 'unknown'
-    ]
-  );
+  let ins;
+  try {
+    const result = await pool.query(
+      `INSERT INTO document_attachments
+         (document_id, filename, stored_name, mime_type, size_bytes, uploaded_by)
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+      [
+        req.params.id,
+        req.file.originalname,
+        req.file.filename,
+        req.file.mimetype,
+        req.file.size,
+        req.user.username || 'unknown'
+      ]
+    );
+    ins = result.rows;
+  } catch (err) {
+    cleanupDocUpload(req.file.path);
+    log('error', 'Documents', `INSERT failed for upload to ${req.params.id}: ${err.message}`);
+    return res.status(500).json({ error: 'Database error' });
+  }
 
   res.status(201).json({
     id:         ins[0].id,

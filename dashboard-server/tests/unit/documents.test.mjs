@@ -14,7 +14,17 @@
 //   - Visibility enforcement: nbi_only docs return 404 to client users
 
 import { describe, it, expect, beforeEach } from 'vitest';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { createRequire } from 'module';
+
+const _dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// uploadDir mirrors dashboard-server/server.js: path.join(__dirname, 'uploads')
+// From tests/unit/ that is two levels up
+const uploadDir = path.join(_dirname, '..', '..', 'uploads');
+
 const require = createRequire(import.meta.url);
 
 const request = require('supertest');
@@ -677,6 +687,9 @@ describe('Documents: attachments', () => {
     expect(res.body.mime_type).toBe('image/png');
     expect(res.body.size_bytes).toBeGreaterThan(0);
     expect(res.body.url).toMatch(new RegExp(`/api/documents/${doc.id}/attachments/.+\\.png$`));
+    // Fix 2a: verify the file actually landed on disk
+    const storedName = res.body.url.split('/').pop();
+    expect(fs.existsSync(path.join(uploadDir, storedName))).toBe(true);
   });
 
   // ---- T8-2: POST rejects files over 5 MB ---------------------------------
@@ -721,6 +734,11 @@ describe('Documents: attachments', () => {
       [doc.id]
     );
     expect(rows.length).toBe(0);
+
+    // Fix 2b: verify no orphan file was left on disk
+    const dirContents = fs.readdirSync(uploadDir);
+    const docFiles = dirContents.filter(f => f.startsWith(`doc_${doc.id}_`));
+    expect(docFiles).toEqual([]);
   });
 
   // ---- T8-5: POST to doc owned by another client returns 404 ---------------
@@ -742,6 +760,11 @@ describe('Documents: attachments', () => {
       [doc.id]
     );
     expect(rows.length).toBe(0);
+
+    // Fix 2c: verify no orphan file was left on disk
+    const dirContents = fs.readdirSync(uploadDir);
+    const docFiles = dirContents.filter(f => f.startsWith(`doc_${doc.id}_`));
+    expect(docFiles).toEqual([]);
   });
 
   // ---- T8-6: GET serves the uploaded image with correct headers ------------
@@ -949,5 +972,66 @@ describe('Documents: attachments', () => {
       .get(url)
       .set('Authorization', `Bearer ${adminToken}`);
     expect(getRes.status).toBe(200);
+  });
+
+  // ---- H1-4: client GET returns 404 when body_json has no image references --
+
+  it('H1-4: client GET returns 404 when body_json has no image references', async () => {
+    // Insert a doc with an empty body (no image nodes anywhere)
+    const ins = await pool.query(
+      `INSERT INTO documents (client_id, title, body_json, created_by, updated_by)
+       VALUES ($1, 'D', $2, 't', 't') RETURNING *`,
+      [lighthouse.id, JSON.stringify({ type: 'doc', content: [] })]
+    );
+    const docId = ins.rows[0].id;
+
+    // Upload as admin so an attachment row and file exist
+    const up = await request(app)
+      .post(`/api/documents/${docId}/attachments`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .attach('file', PIXEL_PNG, { filename: 'pixel.png', contentType: 'image/png' });
+    expect(up.status).toBe(201);
+
+    // Client portal user requests the image -- body has no img refs so imageInScope returns false
+    const clientUser = await createTestUser({ role: 'member', client_id: lighthouse.id });
+    const clientToken = await mintSession(clientUser.id);
+    const res = await request(app)
+      .get(up.body.url)
+      .set('Authorization', `Bearer ${clientToken}`);
+    expect(res.status).toBe(404);
+  });
+
+  // ---- T8-Insert-Fail: orphan file cleaned up when DB INSERT fails ----------
+
+  it('T8-Insert-Fail: orphan file cleaned up when DB INSERT fails', async () => {
+    // Force the INSERT to fail deterministically by adding a temporary CHECK
+    // constraint that rejects this specific filename. We cannot use vi.spyOn on
+    // pool.query because the test imports a different pool instance from
+    // helpers/db.js; the route handler uses its own pool defined in server.js.
+    // A schema-level constraint affects the actual table both pools share.
+    await pool.query(
+      `ALTER TABLE document_attachments
+         ADD CONSTRAINT _t8_test_block_pixel CHECK (filename <> 'pixel.png')`
+    );
+
+    // Snapshot existing doc_ files before the request
+    const before = fs.readdirSync(uploadDir).filter(f => f.startsWith(`doc_${doc.id}_`));
+
+    try {
+      const res = await request(app)
+        .post(`/api/documents/${doc.id}/attachments`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .attach('file', PIXEL_PNG, { filename: 'pixel.png', contentType: 'image/png' });
+      expect(res.status).toBe(500);
+    } finally {
+      await pool.query(
+        `ALTER TABLE document_attachments DROP CONSTRAINT IF EXISTS _t8_test_block_pixel`
+      );
+    }
+
+    // No new file should have been left behind for this doc -- the orphan
+    // cleanup ran inside the INSERT catch branch in server.js.
+    const after = fs.readdirSync(uploadDir).filter(f => f.startsWith(`doc_${doc.id}_`));
+    expect(after).toEqual(before);
   });
 });
