@@ -19977,7 +19977,7 @@ async function loadUserManagement() {
     const users = await apiCall('/api/users');
     if (!users) return;
     const clientList = Object.values(_apiClientsCache);
-    el.innerHTML = `<table class="report-table" style="font-size:0.8rem"><thead><tr><th>Username</th><th>Display Name</th><th>Email</th><th>Role</th><th>Client Scope</th><th></th></tr></thead><tbody>` +
+    el.innerHTML = `<table class="report-table" style="font-size:0.8rem"><thead><tr><th>Username</th><th>Display Name</th><th>Email</th><th>Role</th><th>Client Scope</th><th>Docs</th><th></th></tr></thead><tbody>` +
       users.map(u => {
         const scopeOpts = `<option value="">None (internal)</option>` + clientList.map(c => `<option value="${esc(c.id)}" ${u.client_id===c.id?'selected':''}>${esc(c.name)}</option>`).join('');
         return `<tr>
@@ -19986,6 +19986,7 @@ async function loadUserManagement() {
         <td><input value="${esc(u.email||'')}" onblur="updateUserField('${u.id}','email',this.value)" onkeydown="if(event.key==='Enter')this.blur()" style="background:transparent;border:1px solid transparent;border-radius:3px;padding:2px 4px;color:var(--text-primary);font-size:0.8rem;width:100%" onfocus="this.style.borderColor='var(--accent)';this.style.background='var(--bg-input)'" onblur="this.style.borderColor='transparent';this.style.background='transparent';updateUserField('${u.id}','email',this.value)"></td>
         <td><select onchange="updateUserRole('${u.id}',this.value)" style="font-size:0.75rem;padding:2px 4px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:3px;color:var(--text-primary)"><option value="user" ${u.role==='user'?'selected':''}>User</option><option value="admin" ${u.role==='admin'?'selected':''}>Admin</option></select></td>
         <td><select onchange="updateUserClientScope('${u.id}',this.value)" style="font-size:0.75rem;padding:2px 4px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:3px;color:var(--text-primary)">${scopeOpts}</select></td>
+        <td style="font-size:0.7rem;white-space:nowrap"><label title="View docs"><input type="checkbox" ${u.docs_view!==false?'checked':''} onchange="updateUserField('${u.id}','docs_view',this.checked)"> V</label> <label title="Edit docs"><input type="checkbox" ${u.docs_edit!==false?'checked':''} onchange="updateUserField('${u.id}','docs_edit',this.checked)"> E</label> <label title="Create docs"><input type="checkbox" ${u.docs_create!==false?'checked':''} onchange="updateUserField('${u.id}','docs_create',this.checked)"> C</label> <label title="Upload images"><input type="checkbox" ${u.docs_upload!==false?'checked':''} onchange="updateUserField('${u.id}','docs_upload',this.checked)"> U</label></td>
         <td>${_currentUser && u.id !== _currentUser.id ? `<button style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:0.75rem" data-action="deleteUser" data-arg0="${u.id}" data-arg1="${esc(u.display_name)}">&times; Remove</button>` : ''}</td>
       </tr>`;
       }).join('') +
@@ -20060,15 +20061,17 @@ async function updateUserClientScope(userId, clientId) {
   } catch(e) { toast('Error: ' + e.message, 'error'); }
 }
 
-/** Update a user field (display_name, email) via PATCH */
+/** Update a user field (display_name, email, docs_* booleans) via PATCH */
 async function updateUserField(userId, field, value) {
   try {
     const resp = await authFetch('/api/users/' + userId, {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ [field]: value })
     });
-    if (resp.ok) toast(field === 'display_name' ? 'Name updated' : 'Email updated');
-    else toast('Update failed', 'error');
+    if (resp.ok) {
+      const labels = { display_name: 'Name', email: 'Email', docs_view: 'View docs', docs_edit: 'Edit docs', docs_create: 'Create docs', docs_upload: 'Upload docs' };
+      toast((labels[field] || field) + ' updated');
+    } else toast('Update failed', 'error');
   } catch(e) { toast('Error: ' + e.message, 'error'); }
 }
 

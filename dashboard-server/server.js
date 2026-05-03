@@ -1175,7 +1175,7 @@ app.post('/api/auth/change-password', async (req, res) => {
 /** GET /api/users — List users. Admins see full details; client users see their company; members see names only. */
 app.get('/api/users', async (req, res) => {
   if (req.user.role === 'admin') {
-    const { rows } = await pool.query('SELECT id, username, display_name, email, role, is_active, capacity_hours_per_week, resource_type_ids, created_at, client_id, client_role FROM users ORDER BY display_name');
+    const { rows } = await pool.query('SELECT id, username, display_name, email, role, is_active, capacity_hours_per_week, resource_type_ids, created_at, client_id, client_role, docs_view, docs_edit, docs_create, docs_upload FROM users ORDER BY display_name');
     res.json(rows);
   } else if (req.user.clientId) {
     // Client users see only their company's users
@@ -1320,7 +1320,7 @@ app.patch('/api/users/:id', async (req, res) => {
   }
 
   const allowedFields = isAdmin
-    ? ['role', 'display_name', 'email', 'client_id', 'is_active', 'client_role']
+    ? ['role', 'display_name', 'email', 'client_id', 'is_active', 'client_role', 'docs_view', 'docs_edit', 'docs_create', 'docs_upload']
     : ['display_name', 'client_role', 'is_active'];
 
   const { updates, vals, nextIdx } = buildPatchQuery(req.body, allowedFields);
@@ -1329,7 +1329,7 @@ app.patch('/api/users/:id', async (req, res) => {
   }
   if (updates.length === 0) return res.status(400).json({ error: 'No valid fields to update' });
   vals.push(req.params.id);
-  const { rows } = await pool.query(`UPDATE users SET ${updates.join(', ')} WHERE id = $${nextIdx} RETURNING id, username, display_name, email, role, client_id, client_role, is_active`, vals);
+  const { rows } = await pool.query(`UPDATE users SET ${updates.join(', ')} WHERE id = $${nextIdx} RETURNING id, username, display_name, email, role, client_id, client_role, is_active, docs_view, docs_edit, docs_create, docs_upload`, vals);
   if (!rows[0]) return res.status(404).json({ error: 'User not found' });
   // Invalidate token cache entries for this user so stale role/display_name data is refreshed
   for (const [key, entry] of _tokenCache) {

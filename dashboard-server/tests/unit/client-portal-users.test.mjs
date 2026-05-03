@@ -573,3 +573,39 @@ describe('PATCH /api/users/:id (client admin constraints)', () => {
     expect(Number(after[0].cnt)).toBe(0);
   });
 });
+
+describe('PATCH /api/users/:id — doc permission fields', () => {
+  it('admin can toggle docs_view on a user', async () => {
+    const { nbiAdminToken, clientMemberA } = await setupClientUsers();
+    const res = await request(app)
+      .patch(`/api/users/${clientMemberA.id}`)
+      .set('Authorization', `Bearer ${nbiAdminToken}`)
+      .send({ docs_view: false });
+    expect(res.status).toBe(200);
+    const { rows } = await pool.query('SELECT docs_view FROM users WHERE id = $1', [clientMemberA.id]);
+    expect(rows[0].docs_view).toBe(false);
+  });
+
+  it('admin can set all four doc permission fields', async () => {
+    const { nbiAdminToken, clientMemberA } = await setupClientUsers();
+    const res = await request(app)
+      .patch(`/api/users/${clientMemberA.id}`)
+      .set('Authorization', `Bearer ${nbiAdminToken}`)
+      .send({ docs_view: false, docs_edit: false, docs_create: false, docs_upload: false });
+    expect(res.status).toBe(200);
+    const { rows } = await pool.query('SELECT docs_view, docs_edit, docs_create, docs_upload FROM users WHERE id = $1', [clientMemberA.id]);
+    expect(rows[0]).toEqual({ docs_view: false, docs_edit: false, docs_create: false, docs_upload: false });
+  });
+
+  it('GET /api/users returns doc permission fields for admin', async () => {
+    const { nbiAdminToken } = await setupClientUsers();
+    const res = await request(app)
+      .get('/api/users')
+      .set('Authorization', `Bearer ${nbiAdminToken}`);
+    expect(res.status).toBe(200);
+    expect(res.body[0]).toHaveProperty('docs_view');
+    expect(res.body[0]).toHaveProperty('docs_edit');
+    expect(res.body[0]).toHaveProperty('docs_create');
+    expect(res.body[0]).toHaveProperty('docs_upload');
+  });
+});
