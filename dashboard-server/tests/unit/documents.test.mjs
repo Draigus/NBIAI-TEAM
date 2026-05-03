@@ -46,12 +46,14 @@ describe('Documents — list/read/create', () => {
 
   // ---- LIST ----------------------------------------------------------------
 
-  it('GET /api/documents?client_id=... returns an empty array initially', async () => {
+  it('GET /api/documents?client_id=... seeds 6 default pages on first call', async () => {
     const res = await request(app)
       .get(`/api/documents?client_id=${lighthouse.id}`)
       .set('Authorization', `Bearer ${adminToken}`);
     expect(res.status).toBe(200);
-    expect(res.body).toEqual([]);
+    expect(res.body.length).toBe(6);
+    const titles = res.body.map(d => d.title);
+    expect(titles).toEqual(expect.arrayContaining(['Overview', 'Contacts', 'Risks', 'Decisions', 'Architecture', 'Notes']));
   });
 
   // ---- CREATE --------------------------------------------------------------
@@ -1479,5 +1481,29 @@ describe('Documents: G1 orphan tracking', () => {
         [[id1, id2, id3]]
       );
     }
+  });
+});
+
+describe('Documents — first-open seed', () => {
+  it('GET /api/documents?client_id=... seeds 6 default pages on first call', async () => {
+    const u = await createTestUser({ role: 'admin' });
+    const t = await mintSession(u.id);
+    const c = await createTestClient({ name: 'Fresh Client', sector: 'gaming' });
+    const res = await request(app)
+      .get(`/api/documents?client_id=${c.id}`)
+      .set('Authorization', `Bearer ${t}`);
+    expect(res.status).toBe(200);
+    const titles = res.body.map(d => d.title);
+    expect(titles).toEqual(expect.arrayContaining(['Overview', 'Contacts', 'Risks', 'Decisions', 'Architecture', 'Notes']));
+    expect(res.body.length).toBe(6);
+  });
+
+  it('Subsequent calls do not re-seed', async () => {
+    const u = await createTestUser({ role: 'admin' });
+    const t = await mintSession(u.id);
+    const c = await createTestClient({ name: 'Fresh Client 2', sector: 'gaming' });
+    await request(app).get(`/api/documents?client_id=${c.id}`).set('Authorization', `Bearer ${t}`);
+    const res = await request(app).get(`/api/documents?client_id=${c.id}`).set('Authorization', `Bearer ${t}`);
+    expect(res.body.length).toBe(6);
   });
 });

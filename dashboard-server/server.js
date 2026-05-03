@@ -4182,6 +4182,20 @@ app.get('/api/documents', async (req, res) => {
   }
 
   const visibilityClause = isClientUser ? `AND visibility = 'all'` : '';
+
+  if (!isClientUser) {
+    const existing = await pool.query('SELECT 1 FROM documents WHERE client_id = $1 LIMIT 1', [clientId]);
+    if (existing.rowCount === 0) {
+      const defaults = ['Overview', 'Contacts', 'Risks', 'Decisions', 'Architecture', 'Notes'];
+      for (let i = 0; i < defaults.length; i++) {
+        await pool.query(
+          `INSERT INTO documents (client_id, title, sort_order, created_by, updated_by) VALUES ($1,$2,$3,$4,$4)`,
+          [clientId, defaults[i], i, req.user.username || 'system']
+        );
+      }
+    }
+  }
+
   const { rows } = await pool.query(
     `SELECT id, parent_id, task_id, title, body_json, visibility, sort_order, updated_at, updated_by
        FROM documents WHERE client_id = $1 ${visibilityClause}
