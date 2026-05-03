@@ -169,10 +169,10 @@ describe('Documents — list/read/create', () => {
 });
 
 // =============================================================================
-// Documents — update / delete (Task 7 + D1 ETag/If-Match + B1 body_text)
+// Documents: update / delete (Task 7 + D1 ETag/If-Match + B1 body_text)
 // =============================================================================
 
-describe('Documents — update/delete/move', () => {
+describe('Documents: update/delete/move', () => {
   let admin, adminToken, lighthouse, doc;
 
   beforeEach(async () => {
@@ -339,7 +339,7 @@ describe('Documents — update/delete/move', () => {
     expect(res.status).toBe(428);
   });
 
-  // ---- D1-3: Two PATCHes with same If-Match — second returns 409 ----------
+  // ---- D1-3: Two PATCHes with same If-Match: second returns 409 ----------
 
   it('D1: second PATCH with same If-Match returns 409 with current doc in body', async () => {
     const getRes = await request(app)
@@ -347,7 +347,7 @@ describe('Documents — update/delete/move', () => {
       .set('Authorization', `Bearer ${adminToken}`);
     const etag = getRes.headers['etag'];
 
-    // First PATCH — updates the doc, bumping updated_at
+    // First PATCH: updates the doc, bumping updated_at
     const first = await request(app)
       .patch(`/api/documents/${doc.id}`)
       .set('Authorization', `Bearer ${adminToken}`)
@@ -412,7 +412,7 @@ describe('Documents — update/delete/move', () => {
       .send({ body_json: bodyWithNbi });
     expect(patchRes.status).toBe(200);
 
-    // Query body_text directly — write-time indexing keeps NBI-internal content
+    // Query body_text directly. Write-time indexing keeps NBI-internal content
     const { rows } = await pool.query('SELECT body_text FROM documents WHERE id = $1', [doc.id]);
     expect(rows[0].body_text).toContain('Public paragraph');
     expect(rows[0].body_text).toContain('NBI secret text');

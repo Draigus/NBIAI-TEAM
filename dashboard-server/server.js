@@ -4233,7 +4233,7 @@ app.patch('/api/documents/:id', async (req, res) => {
   if (!req.user) return res.status(401).json({ error: 'Auth required' });
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid id' });
 
-  // D1: If-Match is mandatory — 428 Precondition Required if absent
+  // D1: If-Match is mandatory; 428 Precondition Required if absent
   const ifMatch = req.headers['if-match'];
   if (!ifMatch) return res.status(428).json({ error: 'If-Match header required for optimistic concurrency' });
 
@@ -4305,7 +4305,7 @@ app.patch('/api/documents/:id', async (req, res) => {
   }
 
   // body_json: also compute and write body_text for full-text indexing (B1).
-  // dropNbiInternal: false — write-time indexing keeps NBI-internal content so
+  // dropNbiInternal: false. Write-time indexing keeps NBI-internal content so
   // NBI users can search across all content including internal sections.
   if (req.body.body_json !== undefined) {
     const bodyText = extractPlainText(req.body.body_json, { dropNbiInternal: false });
