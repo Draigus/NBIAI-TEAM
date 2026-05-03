@@ -104,28 +104,8 @@ test.describe('@mobile-audit iPhone 11 portrait screenshots', () => {
 
     await capture('04-people', () => { if (typeof switchView === 'function') switchView('people'); });
 
-    // Seed a couple of calendar events so the new People → Calendar view
-    // has something to render (D92)
-    await pool.query(
-      `INSERT INTO calendar_events (user_id, title, event_type, start_date, end_date, visibility)
-       VALUES ($1, 'Vacation day',   'vacation',    CURRENT_DATE + 3, CURRENT_DATE + 5,  'team'),
-              ($1, 'Sick',           'sick_leave',  CURRENT_DATE + 1, CURRENT_DATE + 1,  'team'),
-              ($1, 'Xmas shutdown',  'firm_closed', CURRENT_DATE + 10, CURRENT_DATE + 12, 'public')`,
-      [user.id]
-    );
-    // People → Calendar: click the Calendar subview button (let-scoped state)
-    await page.evaluate(() => { if (typeof switchView === 'function') switchView('people'); });
-    await page.locator('.task-subview-btn', { hasText: 'Calendar' }).click();
-    // Wait for the calendar events fetch to complete and the roster to render
-    await page.waitForSelector('.people-cal__roster', { timeout: 10000 });
-    await page.waitForTimeout(600);
-    await page.screenshot({ path: path.join(SHOT_DIR, '04b-people-calendar-roster.png'), fullPage: false });
-
-    // Switch to month view
-    await page.locator('.people-cal__controls .task-subview-btn', { hasText: 'Month' }).click();
-    await page.waitForSelector('.people-cal__grid', { timeout: 5000 });
-    await page.waitForTimeout(400);
-    await page.screenshot({ path: path.join(SHOT_DIR, '04c-people-calendar-month.png'), fullPage: false });
+    // People → Calendar sub-view was removed in the People redesign (2026-04-20).
+    // Screenshots 04b/04c no longer applicable.
 
     await capture('05-reports', async () => {
       if (typeof switchView === 'function') switchView('report');
