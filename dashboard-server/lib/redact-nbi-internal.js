@@ -7,10 +7,13 @@
 /**
  * Recursively walk a ProseMirror node and remove any nbiInternalBlock
  * children. Containers (bulletList, listItem, etc.) are kept even if
- * their nbi-only child was removed — the server doesn't try to "tidy"
+ * their nbi-only child was removed; the server doesn't try to "tidy"
  * empty parents because that can change list numbering.
  *
- * Returns a NEW object — input is never mutated.
+ * Returns a new top-level object on every call. Per-node attrs and
+ * other nested non-content fields are shallow-copied, which is fine
+ * for our usage (JSON-serialise then send) but callers must not
+ * mutate `attrs` or other deep fields on the returned tree.
  *
  * @param {object|null|undefined} node
  * @returns {object|null|undefined}
@@ -72,7 +75,7 @@ function _extractNode(node, drop) {
     return inner.trim().replace(/\s+/g, ' ');
   }
 
-  // Container nodes (doc, bulletList, orderedList, etc.) — join children
+  // Container nodes (doc, bulletList, orderedList, etc.) join children
   // with newlines, filtering empty strings so we don't produce blank lines
   // for containers that had all content redacted.
   const parts = node.content
