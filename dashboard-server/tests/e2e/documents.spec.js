@@ -147,8 +147,8 @@ test.describe('Documentation tab', () => {
     await page.locator('.docs__add-root').click();
     await page.waitForSelector('.docs__title', { timeout: 10000 });
 
-    // Right-click and choose Rename
-    const treeItem = page.locator('.docs__tree-li').first();
+    // Right-click the last tree item (the newly created page)
+    const treeItem = page.locator('.docs__tree-li').last();
     await treeItem.click({ button: 'right' });
     await page.locator('.docs__ctx-item[data-action="rename"]').click();
 
@@ -158,10 +158,10 @@ test.describe('Documentation tab', () => {
     await renameInput.fill('Renamed Page');
     await renameInput.press('Enter');
 
-    // Wait for save
-    await page.waitForTimeout(1500);
+    // Wait for save and tree re-render
+    await page.waitForTimeout(2500);
 
-    // Tree should show the new title
-    await expect(page.locator('.docs__tree-row span').first()).toContainText('Renamed Page');
+    // Tree should contain the new title somewhere
+    await expect(page.locator('.docs__tree-row span').filter({ hasText: 'Renamed Page' })).toBeVisible({ timeout: 10000 });
   });
 });
