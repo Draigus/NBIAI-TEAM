@@ -2369,6 +2369,15 @@ span.fin-editable { display: inline-block; position: relative; }
 .docs__tb-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
 .docs__tb-btn--active { background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent-text); border-color: var(--accent-border); }
 .docs__tb-sep { width: 1px; height: 18px; background: var(--border-subtle); margin: 0 4px; }
+.docs__ctx-menu { position: fixed; z-index: 1000; background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-md); box-shadow: 0 4px 12px rgba(0,0,0,0.3); padding: 4px 0; min-width: 160px; display: none; }
+.docs__ctx-menu--open { display: block; }
+.docs__ctx-item { display: block; width: 100%; padding: 6px 12px; background: none; border: none; text-align: left; color: var(--text-primary); font-size: 0.82rem; cursor: pointer; }
+.docs__ctx-item:hover { background: var(--bg-hover); }
+.docs__ctx-item--danger { color: var(--danger); border-top: 1px solid var(--border-default); margin-top: 4px; padding-top: 10px; }
+.docs__ctx-item--danger:hover { background: color-mix(in srgb, var(--danger) 10%, transparent); }
+.docs__tree-li--hidden > .docs__tree-row { opacity: 0.4; font-style: italic; }
+.docs__tree-li--hidden .docs__tree-hidden-label { font-size: 0.68rem; color: var(--text-muted); margin-left: 4px; }
+.docs__hidden-banner { background: color-mix(in srgb, var(--warning) 12%, transparent); border: 1px solid var(--warning); padding: 8px 12px; margin-bottom: 8px; border-radius: var(--radius-sm); font-size: 0.8rem; color: var(--warning); }
 .docs__editor { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--space-md) var(--space-lg); min-height: 400px; }
 .docs__editor .ProseMirror { outline: none; min-height: 380px; color: var(--text-primary); line-height: 1.6; font-size: 0.92rem; }
 .docs__editor .ProseMirror p { margin: 0.6em 0; }
@@ -11566,12 +11575,19 @@ function _docsRender(el) {
   html += '<div class="docs__split">';
   html += '<div class="docs__tree" id="docsTreeCol" role="tree" aria-label="Document pages">';
   html += '<button class="docs__add-root" onclick="_actDocsAddPage(null)">+ New page</button>';
-  html += _docsRenderTreeNodes(tree, 0);
+  html += _docsRenderTreeNodes(tree, 0, false);
   html += '</div>';
   html += '<div class="docs__pane" id="docsEditorPane"></div>';
   html += '</div></div>';
+  html += '<div class="docs__ctx-menu" id="docsCtxMenu" role="menu">'
+    + '<button class="docs__ctx-item" role="menuitem" data-action="rename">Rename</button>'
+    + '<button class="docs__ctx-item" role="menuitem" data-action="addchild">Add subpage</button>'
+    + '<button class="docs__ctx-item" role="menuitem" data-action="hide">Hide</button>'
+    + '<button class="docs__ctx-item docs__ctx-item--danger" role="menuitem" data-action="delete">Delete</button>'
+    + '</div>';
   el.innerHTML = html;
   _docsRenderEditorPane();
+  _docsBindContextMenu();
 }
 
 function _docsBuildTree(flat) {
@@ -11582,18 +11598,20 @@ function _docsBuildTree(flat) {
   return build(null);
 }
 
-function _docsRenderTreeNodes(nodes, depth) {
+function _docsRenderTreeNodes(nodes, depth, parentHidden) {
   if (nodes.length === 0 && depth === 0) return '<div class="docs__tree-empty">No pages yet</div>';
   if (nodes.length === 0) return '';
   let html = '<ul class="docs__tree-list">';
   nodes.forEach((n, idx) => {
     const sel = n.id === _docsState.selectedDocId;
+    const isHidden = n.hidden || parentHidden;
     const lock = n.visibility === 'nbi_only' ? '<span class="docs__tree-lock" title="NBI internal only">&#x1f512;</span>' : '';
-    html += '<li class="docs__tree-li' + (sel ? ' docs__tree-li--selected' : '') + '" style="padding-left:' + (depth * 12) + 'px" draggable="true" role="treeitem" aria-selected="' + (sel ? 'true' : 'false') + '" data-doc-id="' + escAttrJs(n.id) + '" data-doc-parent="' + escAttrJs(n.parent_id || '') + '" data-doc-idx="' + idx + '" ondragstart="_docsDragStart(event)" ondragover="_docsDragOver(event)" ondragleave="_docsDragLeave(event)" ondrop="_docsDrop(event)">';
-    html += '<button class="docs__tree-row" onclick="_actDocsSelectPage(\'' + escAttrJs(n.id) + '\')">' + lock + '<span>' + esc(n.title) + '</span></button>';
+    const hiddenLabel = n.hidden ? '<span class="docs__tree-hidden-label">&#x1f441; (hidden)</span>' : (parentHidden ? '<span class="docs__tree-hidden-label">(inherited)</span>' : '');
+    html += '<li class="docs__tree-li' + (sel ? ' docs__tree-li--selected' : '') + (isHidden ? ' docs__tree-li--hidden' : '') + '" style="padding-left:' + (depth * 12) + 'px" draggable="true" role="treeitem" aria-selected="' + (sel ? 'true' : 'false') + '" data-doc-id="' + escAttrJs(n.id) + '" data-doc-parent="' + escAttrJs(n.parent_id || '') + '" data-doc-idx="' + idx + '" ondragstart="_docsDragStart(event)" ondragover="_docsDragOver(event)" ondragleave="_docsDragLeave(event)" ondrop="_docsDrop(event)">';
+    html += '<button class="docs__tree-row" onclick="_actDocsSelectPage(\'' + escAttrJs(n.id) + '\')">' + lock + '<span>' + esc(n.title) + '</span>' + hiddenLabel + '</button>';
     html += '<button class="docs__tree-add" title="Add child page" onclick="event.stopPropagation();_actDocsAddPage(\'' + escAttrJs(n.id) + '\')">+</button>';
     html += '</li>';
-    if (n.children.length) html += _docsRenderTreeNodes(n.children, depth + 1);
+    if (n.children.length) html += _docsRenderTreeNodes(n.children, depth + 1, isHidden);
   });
   html += '</ul>';
   return html;
@@ -11697,6 +11715,147 @@ function _docsToggleTree() {
   if (tree) tree.classList.toggle('docs__tree--open');
 }
 
+// ---- Context menu ----
+let _docsCtxTarget = null;
+
+function _docsShowCtxMenu(x, y, docId) {
+  _docsCtxTarget = docId;
+  const menu = document.getElementById('docsCtxMenu');
+  if (!menu) return;
+  const doc = _docsState.tree.find(d => d.id === docId);
+  const hideBtn = menu.querySelector('[data-action="hide"]');
+  if (hideBtn && doc) {
+    hideBtn.textContent = doc.hidden ? 'Unhide' : 'Hide';
+  }
+  menu.style.left = Math.min(x, window.innerWidth - 180) + 'px';
+  menu.style.top = Math.min(y, window.innerHeight - 160) + 'px';
+  menu.classList.add('docs__ctx-menu--open');
+}
+
+function _docsHideCtxMenu() {
+  const menu = document.getElementById('docsCtxMenu');
+  if (menu) menu.classList.remove('docs__ctx-menu--open');
+  _docsCtxTarget = null;
+}
+
+function _docsBindContextMenu() {
+  const treeCol = document.getElementById('docsTreeCol');
+  if (!treeCol) return;
+  treeCol.addEventListener('contextmenu', (e) => {
+    const li = e.target.closest('.docs__tree-li');
+    if (!li) return;
+    e.preventDefault();
+    const docId = li.dataset.docId;
+    _docsShowCtxMenu(e.clientX, e.clientY, docId);
+  });
+}
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.docs__ctx-menu')) _docsHideCtxMenu();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') _docsHideCtxMenu();
+});
+
+document.addEventListener('click', (e) => {
+  const item = e.target.closest('.docs__ctx-item');
+  if (!item) return;
+  const action = item.dataset.action;
+  const docId = _docsCtxTarget;
+  _docsHideCtxMenu();
+  if (!docId) return;
+  switch (action) {
+    case 'rename': _actDocsInlineRename(docId); break;
+    case 'addchild': _actDocsAddPage(docId); break;
+    case 'hide': _actDocsToggleHidden(docId); break;
+    case 'delete': _actDocsDeleteById(docId); break;
+  }
+});
+
+async function _actDocsDeleteById(docId) {
+  if (!confirm('Delete this page and all its sub-pages?')) return;
+  await authFetch('/api/documents/' + encodeURIComponent(docId), { method: 'DELETE' });
+  if (_docsState.selectedDocId === docId) _docsState.selectedDocId = null;
+  await _docsLoadTree(); renderContent();
+}
+
+// ---- Inline rename ----
+function _actDocsInlineRename(docId) {
+  const li = document.querySelector('.docs__tree-li[data-doc-id="' + docId + '"]');
+  if (!li) return;
+  const row = li.querySelector('.docs__tree-row');
+  const span = row.querySelector('span');
+  if (!span) return;
+
+  const currentTitle = span.textContent;
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'docs__tree-rename';
+  input.value = currentTitle;
+  input.style.cssText = 'font-size:inherit;padding:1px 4px;border:1px solid var(--accent);border-radius:3px;background:var(--bg-input);color:var(--text-primary);width:100%;outline:none;';
+  span.replaceWith(input);
+  input.focus();
+  input.select();
+
+  let saved = false;
+  async function save() {
+    if (saved) return;
+    saved = true;
+    const newTitle = input.value.trim() || currentTitle;
+    const newSpan = document.createElement('span');
+    newSpan.textContent = newTitle;
+    input.replaceWith(newSpan);
+    if (newTitle !== currentTitle) {
+      const headers = { 'Content-Type': 'application/json' };
+      const fresh = await authFetch('/api/documents/' + encodeURIComponent(docId));
+      if (fresh && fresh.ok) headers['If-Match'] = fresh.headers.get('ETag');
+      const resp = await authFetch('/api/documents/' + encodeURIComponent(docId), {
+        method: 'PATCH', headers: headers, body: JSON.stringify({ title: newTitle }),
+      });
+      if (resp && resp.ok) {
+        const etag = resp.headers.get('ETag');
+        if (etag && _docsState.selectedDocId === docId) _docsState.lastEtag = etag;
+      }
+      await _docsLoadTree();
+      const treeCol = document.getElementById('docsTreeCol');
+      if (treeCol) {
+        const tree = _docsBuildTree(_docsState.tree);
+        treeCol.innerHTML = '<button class="docs__add-root" onclick="_actDocsAddPage(null)">+ New page</button>' + _docsRenderTreeNodes(tree, 0, false);
+      }
+    }
+  }
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); save(); }
+    if (e.key === 'Escape') { saved = true; const s = document.createElement('span'); s.textContent = currentTitle; input.replaceWith(s); }
+  });
+  input.addEventListener('blur', save);
+}
+
+// ---- Hidden page toggle ----
+async function _actDocsToggleHidden(docId) {
+  const doc = _docsState.tree.find(d => d.id === docId);
+  if (!doc) return;
+  const freshResp = await authFetch('/api/documents/' + encodeURIComponent(docId));
+  if (!freshResp || !freshResp.ok) { toast('Could not load page', 'error'); return; }
+  const etag = freshResp.headers.get('ETag');
+
+  const resp = await authFetch('/api/documents/' + encodeURIComponent(docId), {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', 'If-Match': etag },
+    body: JSON.stringify({ hidden: !doc.hidden }),
+  });
+  if (resp && resp.ok) {
+    if (_docsState.selectedDocId === docId) {
+      _docsState.lastEtag = resp.headers.get('ETag');
+    }
+    await _docsLoadTree();
+    renderContent();
+  } else {
+    toast('Failed to update visibility', 'error');
+  }
+}
+
 function _docsSavedLabel() {
   if (_docsState.retryCount >= 3) return '<span style="color:var(--danger)">Save failed — retrying</span>';
   if (_docsState.saving) return '<span style="color:var(--warning)">Saving...</span>';
@@ -11743,6 +11902,7 @@ async function _docsRenderEditorPane() {
   const isNbiOnly = doc.visibility === 'nbi_only';
   const visBadge = isNbiOnly ? '<span class="docs__vis-badge">NBI ONLY</span>' : '';
   el.innerHTML = (recoveredContent ? '<div class="docs__recovery-banner" id="docsRecoveryBanner" style="background:var(--warning-bg, #3a2a00);border:1px solid var(--warning);padding:8px 12px;margin-bottom:8px;border-radius:4px;display:flex;align-items:center;gap:8px;font-size:0.82rem"><span>Unsaved changes found from ' + new Date(recoveredContent.ts).toLocaleString() + '.</span><button class="btn btn--sm btn--primary" onclick="_actDocsRecover()">Restore</button><button class="btn btn--sm" onclick="_actDocsDiscardRecovery()">Discard</button></div>' : '')
+    + (doc.hidden ? '<div class="docs__hidden-banner">This page is hidden from non-admin users.</div>' : '')
     + '<div class="docs__title-row">'
     + '<input class="docs__title" value="' + esc(doc.title) + '" oninput="_actDocsTitleInput(this.value)">'
     + visBadge
@@ -12020,7 +12180,7 @@ async function _actDocsSelectPage(id) {
   const treeCol = document.getElementById('docsTreeCol');
   if (treeCol) {
     const tree = _docsBuildTree(_docsState.tree);
-    treeCol.innerHTML = '<button class="docs__add-root" onclick="_actDocsAddPage(null)">+ New page</button>' + _docsRenderTreeNodes(tree, 0);
+    treeCol.innerHTML = '<button class="docs__add-root" onclick="_actDocsAddPage(null)">+ New page</button>' + _docsRenderTreeNodes(tree, 0, false);
   }
 }
 async function _actDocsAddPage(parentId) {
@@ -12047,7 +12207,7 @@ async function _actDocsTitleInput(value) {
     const treeCol = document.getElementById('docsTreeCol');
     if (treeCol) {
       const tree = _docsBuildTree(_docsState.tree);
-      treeCol.innerHTML = '<button class="docs__add-root" onclick="_actDocsAddPage(null)">+ New page</button>' + _docsRenderTreeNodes(tree, 0);
+      treeCol.innerHTML = '<button class="docs__add-root" onclick="_actDocsAddPage(null)">+ New page</button>' + _docsRenderTreeNodes(tree, 0, false);
     }
   }, 600);
 }
