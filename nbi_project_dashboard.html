@@ -396,6 +396,8 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .pf__client-bar { height: 5px; background: var(--border-subtle); border-radius: 3px; overflow: hidden; margin-top: 8px; }
 .pf__client-bar-fill { height: 100%; border-radius: 3px; }
 .pf__client-pct { font-size: 0.7rem; color: var(--text-muted); text-align: right; margin-top: 2px; }
+.pf__client-docs { display: block; margin-top: 6px; width: 100%; padding: 3px 8px; background: var(--bg-input); border: 1px solid var(--border-default); border-radius: var(--radius-sm); color: var(--text-secondary); font-size: 0.66rem; cursor: pointer; }
+.pf__client-docs:hover { color: var(--accent-text); border-color: var(--accent-border); }
 
 .pf__content { flex: 1; display: flex; flex-direction: column; gap: 10px; min-width: 0; min-height: 0; }
 .pf__panels { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; flex: 2; min-height: 0; }
@@ -1059,6 +1061,9 @@ span.fin-editable { display: inline-block; position: relative; }
 .gantt__depth-btn { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.04em; padding: 1px 6px; height: 18px; line-height: 1; border: 1px solid var(--border-default); background: var(--bg-input); color: var(--text-secondary); border-radius: 3px; cursor: pointer; transition: background 0.12s, color 0.12s, border-color 0.12s; }
 .gantt__depth-btn:hover { background: var(--bg-hover); color: var(--text-primary); border-color: var(--accent-border); }
 .gantt__depth-btn:active { transform: translateY(1px); }
+.gantt__divider { width: 1px; height: 14px; background: var(--border-subtle); margin: 0 2px; align-self: center; }
+.gantt__depth-btn--docs { background: color-mix(in srgb, var(--accent) 8%, transparent); border-color: var(--accent-border); color: var(--accent-text); }
+.gantt__depth-btn--docs:hover { background: color-mix(in srgb, var(--accent) 16%, transparent); }
 .gantt__today-line { position: absolute; top: 0; bottom: 0; background: rgba(34,197,94,0.18); z-index: 1; pointer-events: none; }
 .gantt__day-col { border-right: 1px solid var(--border-subtle); flex-shrink: 0; }
 .gantt__day-col--weekend { background: color-mix(in srgb, var(--bg-surface) 50%, transparent); }
@@ -5049,6 +5054,7 @@ function renderPfSidebar(filtered, roots, now) {
     html += `</div>`;
     html += `<div class="pf__client-bar"><div class="pf__client-bar-fill" style="width:${pct}%;background:${healthCol}"></div></div>`;
     html += `<div class="pf__client-pct">${pct}%</div>`;
+    html += `<button class="pf__client-docs" onclick="event.stopPropagation();_actDocsOpenForClient('${escAttrJs(clientName)}')" title="Open documentation">Docs</button>`;
     html += `</div>`;
   });
 
@@ -7506,6 +7512,8 @@ function renderGanttView(filtered) {
       <button class="gantt__depth-btn" data-stop onclick="event.stopPropagation();_actGanttClientDepth('${cAttr}',1)" title="Show through features">F</button>
       <button class="gantt__depth-btn" data-stop onclick="event.stopPropagation();_actGanttClientDepth('${cAttr}',2)" title="Show through stories">S</button>
       <button class="gantt__depth-btn" data-stop onclick="event.stopPropagation();_actGanttClientDepth('${cAttr}',9)" title="Expand everything down to tasks">T</button>
+      <span class="gantt__divider"></span>
+      <button class="gantt__depth-btn gantt__depth-btn--docs" data-stop onclick="event.stopPropagation();_actDocsOpenForClient('${cAttr}')" title="Open documentation for this client">Docs</button>
     </span>`;
     // Drop the "(N items)" count to free up width for the depth buttons —
     // the chevron under each project already conveys content existence.
@@ -11999,6 +12007,13 @@ function _actDocsDiscardRecovery() {
 }
 
 async function _actDocsSelectClient(id) { _docsState.clientId = id; _docsState.selectedDocId = null; await _docsLoadTree(); renderContent(); }
+function _actDocsOpenForClient(clientName) {
+  const c = Object.values(_apiClientsCache || {}).find(x => x && x.name === clientName);
+  if (!c) return;
+  _docsState.clientId = c.id;
+  _docsState.selectedDocId = null;
+  switchView('documentation');
+}
 async function _actDocsSelectPage(id) {
   if (_docsState.dirty && _docsTiptapEditor) await _docsSaveNow();
   _docsState.selectedDocId = id; _docsRenderEditorPane();
