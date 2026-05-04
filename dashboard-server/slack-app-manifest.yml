@@ -13,12 +13,14 @@ oauth_config:
     bot:
       - app_mentions:read
       - chat:write
+      - im:history
 
 settings:
   event_subscriptions:
     request_url: https://worksage.nbi-consulting.com/api/slack/events
     bot_events:
       - app_mention
+      - message.im
   org_deploy_enabled: false
   socket_mode_enabled: false
   token_rotation_enabled: false

@@ -7860,7 +7860,8 @@ app.post('/api/slack/events', async (req, res) => {
   res.json({ ok: true });
 
   const event = req.body?.event;
-  if (event?.type !== 'app_mention') return;
+  if (event?.bot_id || event?.subtype === 'bot_message') return;
+  if (event?.type !== 'app_mention' && event?.type !== 'message') return;
 
   try {
     await handleAppMention(event, pool, process.env.SLACK_BOT_TOKEN || '');
