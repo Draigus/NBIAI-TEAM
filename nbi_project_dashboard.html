@@ -1100,6 +1100,14 @@ span.fin-editable { display: inline-block; position: relative; }
 .cal__dep-toggle--active { background: var(--accent); color: #fff; border-color: var(--accent); }
 .cal__dep-banner { display: flex; gap: 8px; padding: 4px 12px; font-size: 0.72rem; color: var(--text-muted); background: var(--bg-surface); border-radius: var(--radius-sm); margin-top: 4px; flex-wrap: wrap; align-items: center; }
 .cal__dep-banner a { color: var(--accent-text); text-decoration: underline; cursor: pointer; }
+.sp-preview { width: 90vw; height: 85vh; background: var(--bg-raised); border: 1px solid var(--border-default); border-radius: var(--radius-lg); display: flex; flex-direction: column; margin: auto; margin-top: 5vh; overflow: hidden; }
+.sp-preview__header { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--border-default); flex-shrink: 0; }
+.sp-preview__title { font-weight: 600; font-size: 0.9rem; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-primary); }
+.sp-preview__open { font-size: 0.78rem; color: var(--accent-text); text-decoration: none; white-space: nowrap; }
+.sp-preview__open:hover { text-decoration: underline; }
+.sp-preview__close { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: var(--text-muted); padding: 0 4px; line-height: 1; }
+.sp-preview__close:hover { color: var(--text-primary); }
+.sp-preview__frame { flex: 1; width: 100%; border: none; }
 .cal__more { font-size: 0.6rem; color: var(--accent); cursor: pointer; padding: 1px 4px; }
 .cal__more:hover { text-decoration: underline; }
 
@@ -18703,6 +18711,44 @@ async function generateClientReportPDF(clientName) {
   } catch(e) { toast('Error generating report: ' + e.message, 'error'); }
 }
 
+// ----- SHAREPOINT EMBED PREVIEW -----
+
+function isSharePointUrl(url) {
+  return /sharepoint\.com|office\.com/i.test(url || '');
+}
+
+function getSharePointEmbedUrl(url) {
+  if (!url) return '';
+  if (/action=embedview|embed\.aspx/i.test(url)) return url;
+  if (/\/:([wxpb]):\//.test(url)) {
+    return url.split('?')[0] + '?action=embedview';
+  }
+  return 'https://view.officeapps.live.com/op/embed.aspx?src=' + encodeURIComponent(url);
+}
+
+function openSpPreview(embedUrl, title, originalUrl) {
+  const html = `<div class="modal-overlay open" id="spPreviewModal" onclick="if(event.target===this)closeSpPreview()" style="z-index:500">
+    <div class="sp-preview">
+      <div class="sp-preview__header">
+        <span class="sp-preview__title">${esc(title)}</span>
+        <a href="${safeUrl(originalUrl)}" target="_blank" rel="noopener noreferrer" class="sp-preview__open">Open in SharePoint &#8599;</a>
+        <button class="sp-preview__close" onclick="closeSpPreview()">&times;</button>
+      </div>
+      <iframe class="sp-preview__frame" src="${esc(embedUrl)}" frameborder="0" allowfullscreen></iframe>
+    </div>
+  </div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+function closeSpPreview() {
+  const modal = document.getElementById('spPreviewModal');
+  if (modal) modal.remove();
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' && document.getElementById('spPreviewModal')) closeSpPreview();
+});
+
 // ----- UNIVERSAL FILE ATTACHMENTS -----
 // Generic attachment system for clients, projects, and tasks (up to 200MB per file)
 
@@ -18725,11 +18771,14 @@ async function loadEntityFiles(entityType, entityId, containerId) {
         // Link attachments: distinct icon, open in new tab, no size
         if (f.link_url) {
           const display = f.link_title || f.link_url;
+          const isSP = isSharePointUrl(f.link_url);
+          const spBtn = isSP ? `<button class="btn btn--ghost btn--sm" onclick="openSpPreview('${escAttrJs(getSharePointEmbedUrl(f.link_url))}','${escAttrJs(display)}','${escAttrJs(f.link_url)}')" title="Preview document" style="font-size:0.65rem;padding:1px 5px">&#128065; Preview</button>` : '';
           return `<div class="attachment-row">
-            <span class="attachment-row__icon" title="Link">&#128279;</span>
+            <span class="attachment-row__icon" title="${isSP ? 'SharePoint' : 'Link'}">${isSP ? '&#128196;' : '&#128279;'}</span>
             <a href="${safeUrl(f.link_url)}" target="_blank" rel="noopener noreferrer" class="attachment-row__name" title="${esc(f.link_url)}">${esc(display)}</a>
+            ${spBtn}
             ${verifyBadge}
-            <span class="attachment-row__size" style="font-size:0.62rem;color:var(--text-muted)">link</span>
+            <span class="attachment-row__size" style="font-size:0.62rem;color:var(--text-muted)">${isSP ? 'SharePoint' : 'link'}</span>
             <button class="attachment-row__delete" data-action="deleteEntityFile" data-arg0="${f.id}" data-arg1="${entityType}" data-arg2="${entityId}" data-arg3="${containerId}" title="Delete">&times;</button>
           </div>`;
         }
