@@ -1086,9 +1086,20 @@ span.fin-editable { display: inline-block; position: relative; }
 .cal__cell--weekend { background: var(--bg-surface); }
 .cal__date { font-size: 0.7rem; font-weight: 600; color: var(--text-muted); margin-bottom: 2px; }
 .cal__cell--today .cal__date { color: var(--accent); font-weight: 700; }
-.cal__task { font-size: 0.62rem; padding: 2px 4px; border-radius: 2px; margin-bottom: 1px; cursor: pointer; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: #fff; line-height: 1.4; }
+.cal__task { font-size: 0.62rem; padding: 2px 4px; border-radius: 2px; margin-bottom: 1px; cursor: pointer; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: #fff; line-height: 1.4; position: relative; }
 .cal__task:hover { filter: brightness(1.2); }
 .cal__task--overdue { border-left: 2px solid var(--danger); }
+.cal__task--dep-selected { box-shadow: 0 0 0 2px var(--accent) !important; z-index: 2; }
+.cal__task--dep-blocks { box-shadow: 0 0 0 2px var(--warning) !important; z-index: 2; }
+.cal__task--dep-needs { box-shadow: 0 0 0 2px var(--success) !important; z-index: 2; }
+.cal__dep-label { position: absolute; top: -12px; right: -2px; font-size: 0.55rem; padding: 1px 5px; border-radius: 8px; color: #fff; white-space: nowrap; pointer-events: none; z-index: 3; line-height: 1.3; }
+.cal__dep-label--blocks { background: var(--warning); }
+.cal__dep-label--needs { background: var(--success); }
+.cal__dep-toggle { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: var(--radius-sm); border: 1px solid var(--border-default); background: var(--bg-input); color: var(--text-muted); font-size: 0.78rem; cursor: pointer; transition: all 0.15s; }
+.cal__dep-toggle:hover { border-color: var(--accent-border); color: var(--text-primary); }
+.cal__dep-toggle--active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.cal__dep-banner { display: flex; gap: 8px; padding: 4px 12px; font-size: 0.72rem; color: var(--text-muted); background: var(--bg-surface); border-radius: var(--radius-sm); margin-top: 4px; flex-wrap: wrap; align-items: center; }
+.cal__dep-banner a { color: var(--accent-text); text-decoration: underline; cursor: pointer; }
 .cal__more { font-size: 0.6rem; color: var(--accent); cursor: pointer; padding: 1px 4px; }
 .cal__more:hover { text-decoration: underline; }
 
@@ -2762,6 +2773,7 @@ function _actSetTaskSubView(v) { taskSubView = v; localStorage.setItem('nbi_task
 function _actCalNext() { _calMonth++; if (_calMonth > 11) { _calMonth = 0; _calYear++; } _calEventsKey = ''; renderContent(); }
 function _actCalPrev() { _calMonth--; if (_calMonth < 0) { _calMonth = 11; _calYear--; } _calEventsKey = ''; renderContent(); }
 function _actCalToday() { _calMonth = new Date().getMonth(); _calYear = new Date().getFullYear(); _calEventsKey = ''; renderContent(); }
+function _actToggleCalDepMode() { _calDepMode = !_calDepMode; if (!_calDepMode) { _calDepSelected = null; } renderContent(); }
 
 function _actGanttFwd() { _ganttOffsetDays += 30; renderContent(); }
 function _actGanttBack() { _ganttOffsetDays -= 30; renderContent(); }
@@ -3350,6 +3362,8 @@ let currentFilter = { client: null, project: null, status: [], health: [], prior
 let selectedTaskIds = new Set();  // Bulk selection for batch operations
 let pendingCSVData = null;        // Staging area for CSV import preview
 let taskSubView = localStorage.getItem('nbi_task_subview') || 'tree'; // 'tree' | 'board' | 'gantt' | 'calendar'
+let _calDepMode = false;
+let _calDepSelected = null;
 let collapsedTaskIds = new Set(); // Tracks which parent tasks are collapsed in tree view
 let _tasksInitialCollapse = true; // Auto-collapse all tasks on first visit (expand is manual)
 let inlineDetailVisible = true;   // Whether the 30% detail panel is shown in tasks view
@@ -7036,6 +7050,7 @@ function renderCalendarView(filtered) {
   html += `<label style="display:flex;align-items:center;gap:6px;font-size:0.78rem;color:var(--text-muted);cursor:pointer;user-select:none">
     <input type="checkbox" ${_calShowOthers ? 'checked' : ''} onchange="_calShowOthers=this.checked;renderContent()" style="accent-color:var(--accent)"> Show events from others
   </label>`;
+  html += `<button class="cal__dep-toggle ${_calDepMode ? 'cal__dep-toggle--active' : ''}" data-action="_actToggleCalDepMode" title="Toggle dependency highlighting">&#128279; Dependencies</button>`;
   html += `<button class="btn btn--sm btn--primary" data-action="openCalendarEventModal">+ Add Event</button>`;
   html += `</div>`;
 
@@ -7105,6 +7120,104 @@ function renderCalendarView(filtered) {
   html += '</div></div>';
   return html;
 }
+
+function calDepClear() {
+  _calDepSelected = null;
+  document.querySelectorAll('.cal__task--dep-selected, .cal__task--dep-blocks, .cal__task--dep-needs').forEach(el => {
+    el.classList.remove('cal__task--dep-selected', 'cal__task--dep-blocks', 'cal__task--dep-needs');
+  });
+  document.querySelectorAll('.cal__dep-label').forEach(el => el.remove());
+  const banner = document.getElementById('calDepBanner');
+  if (banner) banner.remove();
+}
+
+function calDepSelectTask(id) {
+  if (_calDepSelected === id) { calDepClear(); return; }
+  calDepClear();
+  _calDepSelected = id;
+
+  const task = tasks.find(t => t.id === id);
+  if (!task) return;
+
+  const prereqs = task.dependencies || [];
+  const dependents = tasks.filter(t => t.dependencies && t.dependencies.includes(id)).map(t => t.id);
+
+  if (prereqs.length === 0 && dependents.length === 0) {
+    toast('No dependencies for this task');
+    _calDepSelected = null;
+    return;
+  }
+
+  document.querySelectorAll(`.cal__task[data-arg0="${id}"]`).forEach(el => {
+    el.classList.add('cal__task--dep-selected');
+  });
+
+  let offMonthPrereqs = 0;
+  prereqs.forEach(pid => {
+    const els = document.querySelectorAll(`.cal__task[data-arg0="${pid}"]`);
+    if (els.length === 0) { offMonthPrereqs++; return; }
+    els.forEach(el => {
+      el.classList.add('cal__task--dep-blocks');
+      el.insertAdjacentHTML('beforeend', '<span class="cal__dep-label cal__dep-label--blocks">blocks</span>');
+    });
+  });
+
+  let offMonthDeps = 0;
+  dependents.forEach(did => {
+    const els = document.querySelectorAll(`.cal__task[data-arg0="${did}"]`);
+    if (els.length === 0) { offMonthDeps++; return; }
+    els.forEach(el => {
+      el.classList.add('cal__task--dep-needs');
+      el.insertAdjacentHTML('beforeend', '<span class="cal__dep-label cal__dep-label--needs">needs this</span>');
+    });
+  });
+
+  if (offMonthPrereqs > 0 || offMonthDeps > 0) {
+    calDepShowOffMonthBanner(id, prereqs, dependents, offMonthPrereqs, offMonthDeps);
+  }
+}
+
+function calDepShowOffMonthBanner(selectedId, prereqs, dependents, offPrereqCount, offDepCount) {
+  const nav = document.querySelector('.cal__nav');
+  if (!nav) return;
+  let html = '<div class="cal__dep-banner" id="calDepBanner">';
+  if (offPrereqCount > 0) {
+    html += '<span>' + offPrereqCount + ' prerequisite' + (offPrereqCount > 1 ? 's' : '') + ' on other months: ';
+    prereqs.forEach(pid => {
+      if (document.querySelector('.cal__task[data-arg0="' + pid + '"]')) return;
+      const t = tasks.find(x => x.id === pid);
+      if (!t) return;
+      const dateStr = t.dueDate || t.endDate || t.startDate;
+      if (!dateStr) return;
+      const d = safeParseDate(dateStr);
+      if (!d) return;
+      html += '<a onclick="_calYear=' + d.getFullYear() + ';_calMonth=' + d.getMonth() + ';_calEventsKey=\'\';renderContent();setTimeout(function(){calDepSelectTask(\'' + selectedId + '\')},100)">' + esc(t.title) + '</a> ';
+    });
+    html += '</span>';
+  }
+  if (offDepCount > 0) {
+    html += '<span>' + offDepCount + ' dependent' + (offDepCount > 1 ? 's' : '') + ' on other months: ';
+    dependents.forEach(did => {
+      if (document.querySelector('.cal__task[data-arg0="' + did + '"]')) return;
+      const t = tasks.find(x => x.id === did);
+      if (!t) return;
+      const dateStr = t.dueDate || t.endDate || t.startDate;
+      if (!dateStr) return;
+      const d = safeParseDate(dateStr);
+      if (!d) return;
+      html += '<a onclick="_calYear=' + d.getFullYear() + ';_calMonth=' + d.getMonth() + ';_calEventsKey=\'\';renderContent();setTimeout(function(){calDepSelectTask(\'' + selectedId + '\')},100)">' + esc(t.title) + '</a> ';
+    });
+    html += '</span>';
+  }
+  html += '</div>';
+  nav.insertAdjacentHTML('afterend', html);
+}
+
+document.addEventListener('click', function(e) {
+  if (!_calDepMode || !_calDepSelected) return;
+  if (e.target.closest('.cal__task') || e.target.closest('.cal__dep-toggle') || e.target.closest('.cal__dep-banner')) return;
+  if (e.target.closest('.cal')) calDepClear();
+});
 
 /**
  * Open the create/edit modal for a calendar event.
@@ -8968,6 +9081,10 @@ function navigateToTaskInTree(taskId) {
 }
 
 function openDetail(id) {
+  if (_calDepMode && currentView === 'tasks' && taskSubView === 'calendar') {
+    calDepSelectTask(id);
+    return;
+  }
   activeDetailTaskId = id;
   // At ≤1024px the layout is stacked; inline panel is unusable. Use overlay.
   const isWideEnough = window.innerWidth > 1024;
