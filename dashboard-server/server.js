@@ -61,6 +61,7 @@ let archiver;
 try { archiver = require('archiver'); } catch (e) { /* archiver optional — expense report ZIP export disabled */ }
 const { withRetry, CircuitBreaker } = require('./resilience');
 const { validateBackup } = require('./backup-validate');
+const { verifySlackSignature, handleAppMention } = require('./lib/slack-bot');
 const runMigrations = require('./migrations/runner');
 let cron, runBackup;
 try { cron = require('node-cron'); runBackup = require('./backup'); }
@@ -593,7 +594,12 @@ app.use('/api/auth/reset', authLimiter);
 
 app.use(compression({ threshold: 1024 })); // Only compress responses > 1KB
 app.use('/public', express.static(path.join(__dirname, 'public'), { maxAge: '7d' }));
-app.use(express.json({ limit: '10mb' }));   // Allow large payloads for sync/restore
+app.use(express.json({
+  limit: '10mb',
+  verify: (req, _res, buf) => {
+    if (req.path === '/api/slack/events') req.rawBody = buf.toString('utf8');
+  },
+}));   // Allow large payloads for sync/restore
 app.use((req, res, next) => {
   const ms = req.path.startsWith('/api/restore') || req.path.startsWith('/api/backup') ? 120000 : 30000;
   req.setTimeout(ms);
@@ -824,6 +830,8 @@ async function requireAuth(req, res, next) {
   if (req.path.startsWith('/api/auth/forgot') || req.path.startsWith('/api/auth/reset-token')) return next();
   // Public shareable report routes — share tokens are 32 hex chars (B-B1)
   if (/^\/api\/reports\/[0-9a-f]{32}(\/html|\/pdf)?$/.test(req.path)) return next();
+  // Slack Events API — uses its own HMAC signature verification
+  if (req.path === '/api/slack/events') return next();
   if (!req.path.startsWith('/api/')) return next();
 
   const token = getCookieToken(req) || (req.headers.authorization || '').replace('Bearer ', '');
@@ -7824,6 +7832,39 @@ app.get('/api/bug-reports/:id/screenshot', async (req, res) => {
   const buffer = Buffer.from(match[2], 'base64');
   res.setHeader('Content-Type', match[1]);
   res.send(buffer);
+});
+
+// ==================== SLACK BOT ====================
+
+app.post('/api/slack/events', async (req, res) => {
+  const signingSecret = process.env.SLACK_SIGNING_SECRET;
+  const timestamp = req.get('x-slack-request-timestamp');
+  const signature = req.get('x-slack-signature');
+
+  if (!signingSecret) {
+    log('warn', 'Slack', 'SLACK_SIGNING_SECRET not configured');
+    return res.status(503).json({ error: 'Slack integration not configured' });
+  }
+
+  const rawBody = req.rawBody || JSON.stringify(req.body);
+  if (!verifySlackSignature(signingSecret, timestamp, rawBody, signature)) {
+    return res.status(401).json({ error: 'Invalid signature' });
+  }
+
+  if (req.body?.type === 'url_verification') {
+    return res.json({ challenge: req.body.challenge });
+  }
+
+  res.json({ ok: true });
+
+  const event = req.body?.event;
+  if (event?.type !== 'app_mention') return;
+
+  try {
+    await handleAppMention(event, pool, process.env.SLACK_BOT_TOKEN || '');
+  } catch (err) {
+    log('error', 'Slack', 'Failed to handle app_mention', { error: err.message });
+  }
 });
 
 // ==================== TASK QUEUE ====================

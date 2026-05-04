@@ -145,3 +145,70 @@ describe('handleAppMention', () => {
     expect(rows).toHaveLength(0);
   });
 });
+
+const request = require('supertest');
+const app = require('../../server.js');
+
+describe('POST /api/slack/events', () => {
+  const SIGNING_SECRET = process.env.SLACK_SIGNING_SECRET || 'test_slack_signing_secret';
+
+  function buildSignedRequest(body) {
+    const bodyStr = typeof body === 'string' ? body : JSON.stringify(body);
+    const ts = String(Math.floor(Date.now() / 1000));
+    const sig = signPayload(SIGNING_SECRET, ts, bodyStr);
+    return { bodyStr, ts, sig };
+  }
+
+  it('responds to url_verification challenge', async () => {
+    const body = { type: 'url_verification', challenge: 'test_challenge_token' };
+    const { bodyStr, ts, sig } = buildSignedRequest(body);
+    const res = await request(app)
+      .post('/api/slack/events')
+      .set('Content-Type', 'application/json')
+      .set('x-slack-request-timestamp', ts)
+      .set('x-slack-signature', sig)
+      .send(bodyStr);
+    expect(res.status).toBe(200);
+    expect(res.body.challenge).toBe('test_challenge_token');
+  });
+
+  it('rejects requests with invalid signature', async () => {
+    const res = await request(app)
+      .post('/api/slack/events')
+      .set('Content-Type', 'application/json')
+      .set('x-slack-request-timestamp', String(Math.floor(Date.now() / 1000)))
+      .set('x-slack-signature', 'v0=invalid')
+      .send(JSON.stringify({ type: 'event_callback' }));
+    expect(res.status).toBe(401);
+  });
+
+  it('returns 200 and queues item for valid app_mention', async () => {
+    await truncate();
+    const body = {
+      type: 'event_callback',
+      event: {
+        type: 'app_mention',
+        text: '<@UBOTID> New task from Slack\nWith a description',
+        user: 'USENDER',
+        channel: 'CCHANNEL',
+        ts: '111.222',
+      },
+    };
+    const { bodyStr, ts, sig } = buildSignedRequest(body);
+    const res = await request(app)
+      .post('/api/slack/events')
+      .set('Content-Type', 'application/json')
+      .set('x-slack-request-timestamp', ts)
+      .set('x-slack-signature', sig)
+      .send(bodyStr);
+    expect(res.status).toBe(200);
+
+    // Give the async handler a moment
+    await new Promise(r => setTimeout(r, 200));
+
+    const { rows } = await pool.query('SELECT * FROM task_queue');
+    expect(rows).toHaveLength(1);
+    expect(rows[0].title).toBe('New task from Slack');
+    expect(rows[0].slack_user_id).toBe('USENDER');
+  });
+});
