@@ -3700,7 +3700,7 @@ app.post('/api/sows/upload', requireAdmin, (req, res, next) => {
   if (req.file.mimetype !== 'application/pdf') {
     return res.status(400).json({ error: 'Only PDF files are accepted' });
   }
-  const { client_id, title } = req.body || {};
+  const { client_id, title, force } = req.body || {};
   if (!client_id || !isValidUuid(client_id)) {
     return res.status(400).json({ error: 'Valid client_id required' });
   }
@@ -3710,6 +3710,7 @@ app.post('/api/sows/upload', requireAdmin, (req, res, next) => {
   const lenErr = validateLength(title, 'title');
   if (lenErr) return res.status(400).json({ error: lenErr });
 
+  const skipFilter = force === 'true' || force === true;
   let extracted;
   try {
     extracted = await extractWorkPackage(req.file.buffer);
@@ -3719,6 +3720,11 @@ app.post('/api/sows/upload', requireAdmin, (req, res, next) => {
   } finally {
     // Drop the buffer immediately — never keep the original file in memory
     if (req.file) req.file.buffer = null;
+  }
+
+  if (skipFilter && extracted && extracted.rawText) {
+    extracted.text = extracted.rawText;
+    extracted.stats = { ...extracted.stats, forced: true };
   }
 
   if (!extracted || !extracted.text || !extracted.text.trim()) {
@@ -3739,6 +3745,7 @@ app.post('/api/sows/upload', requireAdmin, (req, res, next) => {
     return res.status(400).json({
       error: 'Could not extract any work package content',
       hint,
+      canForce: filteredCount > 0,
       stats: { filteredParagraphs: filteredCount, keptParagraphs: keptCount, reasons: reasons.slice(0, 10) }
     });
   }

@@ -260,6 +260,7 @@ async function extractWorkPackage(pdfBuffer) {
 
   return {
     text: keptParagraphs.join('\n\n'),
+    rawText: paragraphs.join('\n\n'),
     stats,
   };
 }

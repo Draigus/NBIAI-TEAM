@@ -3775,18 +3775,17 @@ function clientSortOrder(a, b) {
   return a.localeCompare(b);
 }
 
-/** Collect all unique client names from tasks, sorted by client priority order */
 function getAllClients() {
-  const s = new Set(); tasks.forEach(t => { const c = getTaskClient(t); if (c) s.add(c); });
+  const s = new Set();
+  tasks.forEach(t => { const c = getTaskClient(t); if (c) s.add(c); });
+  Object.values(_apiClientsCache || {}).forEach(c => { if (c && c.name) s.add(c.name); });
   return [...s].sort(clientSortOrder);
 }
-/** Get only contracted clients (have tasks) plus NBI Ops and NSI.
- *  Used for task dropdowns, filter bars, and reports — excludes leads/prospects.
- *  Leads page uses its own client list from the DB. */
 function getContractedClients() {
   const ALWAYS_INCLUDE = ['NBI Operations', 'NBI OPS', 'NSI'];
   const s = new Set(ALWAYS_INCLUDE.filter(c => settings.knownClients.includes(c)));
   tasks.forEach(t => { const c = getTaskClient(t); if (c) s.add(c); });
+  Object.values(_apiClientsCache || {}).forEach(c => { if (c && c.name) s.add(c.name); });
   return [...s].sort(clientSortOrder);
 }
 /** Return the full client records for the contracted-client set, pulled from
@@ -4563,7 +4562,7 @@ function renderBreadcrumbs() {
 function _renderMainContent(content) {
   if (currentView === 'incomplete') { currentView = 'tasks'; currentFilter.incomplete = true; }
   if (currentView === 'changelog') { currentView = 'settings'; }
-  if (tasks.length === 0 && currentView !== 'settings' && currentView !== 'documentation') {
+  if (tasks.length === 0 && currentView !== 'settings' && currentView !== 'documentation' && currentView !== 'leads' && currentView !== 'bugs' && currentView !== 'hiring' && currentView !== 'news') {
     content.innerHTML = `<div class="empty-state"><div class="empty-state__icon">&#128203;</div><div class="empty-state__title">No Tasks Yet</div><div class="empty-state__desc">Import tasks or add them manually to get started.</div><button class="btn btn--primary" data-action="openImportModal">Import</button></div>`;
     return;
   }
@@ -9880,14 +9879,41 @@ function createTaskObject(overrides) {
 }
 
 /** Create a new project at root level and open its detail panel (header + button default action) */
-function addTask() {
-  const client = currentFilter.client || '';
-  if (!client) { toast('Select a client first — every project must belong to a client.', 'warning'); return; }
+async function addTask() {
+  let client = currentFilter.client || '';
+  if (!client) {
+    client = await _pickClient('Select a client for the new project');
+    if (!client) return;
+  }
   const t = createTaskObject({ title: 'New Project', itemType: 'project', client });
   tasks.push(t);
   markDirty(t.id);
   save(); renderSidebarCounts(); renderContent();
   openDetail(t.id);
+}
+
+function _pickClient(title) {
+  return new Promise(resolve => {
+    const clients = getAllClients();
+    if (clients.length === 0) { toast('No clients configured — add one in Settings first.', 'warning'); resolve(null); return; }
+    _confirmResolve = null;
+    document.getElementById('confirmTitle').textContent = title;
+    document.getElementById('confirmMessage').textContent = '';
+    document.getElementById('confirmOkBtn').textContent = 'Create';
+    const input = document.getElementById('confirmInput');
+    input.style.display = 'none';
+    const msgEl = document.getElementById('confirmMessage');
+    msgEl.innerHTML = '<select id="_pickClientSelect" style="width:100%;padding:8px;margin-top:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-size:0.85rem">' + clients.map(c => '<option value="' + esc(c) + '">' + esc(c) + '</option>').join('') + '</select>';
+    const modal = document.getElementById('confirmModal');
+    const realResolve = resolve;
+    _confirmResolve = (ok) => {
+      const sel = document.getElementById('_pickClientSelect');
+      realResolve(ok && sel ? sel.value : null);
+      msgEl.textContent = '';
+    };
+    modal.classList.add('open');
+    _trapFocus(modal);
+  });
 }
 
 /** Toggle the + New dropdown menu */
@@ -9911,11 +9937,14 @@ function overflowTheme(e) { toggleThemeDropdown(e); toggleHeaderOverflow(); }
 function backToLogin() { window.location.hash = ''; showLoginScreen(); }
 
 /** Create a new item of a given type under an optional parent. Opens its detail panel. */
-function addItem(type, parentId) {
+async function addItem(type, parentId) {
   const meta = ITEM_TYPE_META[type] || ITEM_TYPE_META.task;
   const parent = parentId ? tasks.find(t => t.id === parentId) : null;
-  const client = parent ? getTaskClient(parent) : (currentFilter.client || '');
-  if (!client) { toast('Select a client first — every item must belong to a client.', 'warning'); return; }
+  let client = parent ? getTaskClient(parent) : (currentFilter.client || '');
+  if (!client) {
+    client = await _pickClient(`Select a client for the new ${meta.label.toLowerCase()}`);
+    if (!client) return;
+  }
   const t = createTaskObject({ title: `New ${meta.label}`, parentId: parentId || null, itemType: type, client });
   tasks.push(t);
   markDirty(t.id);
@@ -11922,6 +11951,9 @@ async function _docsRenderEditorPane() {
     },
     addCommands() {
       return { toggleNbiInternal: () => ({ commands }) => commands.wrapIn('nbiInternalBlock') };
+    },
+    addKeyboardShortcuts() {
+      return { 'Mod-Shift-i': () => this.editor.commands.toggleNbiInternal() };
     },
   });
 
@@ -14412,6 +14444,7 @@ let _leadsFilter = { sector: null, stage_id: null, client_id: null, owner: null,
 let _leadsSubView = localStorage.getItem('nbi_leads_subview') || 'kanban';
 let _leadsDetailId = null;
 let _leadsDragId = null;
+const _expandedClientIds = new Set();
 
 /** Fetch lead pipeline configuration (stages, resource types, field options) from
  *  the API. Dedupes parallel calls (in-flight Promise cache) and retries once on
@@ -15079,6 +15112,7 @@ async function renderManageClients(el) {
       const activeCount = clientLeads.length;
       const totalSoWValue = clientLeads.reduce((sum, l) => sum + (parseFloat(l.rom_max) || 0), 0);
       const escName = escAttrJs(c.name);
+      const _isExp = _expandedClientIds.has(c.id);
       html += `<div class="manage-clients__row" data-client-id="${c.id}">
         <div class="manage-clients__info" data-action="_actToggleClientExpand" data-pass-el>
           <span class="manage-clients__name">${esc(c.name)}</span>
@@ -15087,9 +15121,9 @@ async function renderManageClients(el) {
           ${c.studio_size ? `<span style="color:var(--text-secondary);font-size:0.78rem">${c.studio_size} staff</span>` : ''}
           ${c.contract_value ? `<span style="color:var(--success);font-size:0.78rem;font-weight:600">&pound;${Number(c.contract_value).toLocaleString()}</span>` : ''}
           <span class="manage-clients__leads">${count} lead${count !== 1 ? 's' : ''}</span>
-          <span class="manage-clients__arrow">\u25BC</span>
+          <span class="manage-clients__arrow">${_isExp ? '\u25B2' : '\u25BC'}</span>
         </div>
-        <div class="manage-clients__detail" style="display:none">
+        <div class="manage-clients__detail" style="display:${_isExp ? 'block' : 'none'}">
           <div style="display:flex;gap:24px;margin:12px 0;padding:12px;background:var(--bg-surface);border-radius:var(--radius-md);flex-wrap:wrap">
             <div><div style="font-size:0.72rem;color:var(--text-muted)">Active Contracts</div><div style="font-size:1.1rem;font-weight:600"><span style="cursor:pointer;color:var(--accent-text);text-decoration:underline" data-action="_actFilterClientTasks" data-arg0="${escName}" title="View tasks for ${esc(c.name)}">${activeCount}</span></div></div>
             <div><div style="font-size:0.72rem;color:var(--text-muted)">Total SoW Value</div><div style="font-size:1.1rem;font-weight:600">&pound;${totalSoWValue.toLocaleString()}</div></div>
@@ -15149,6 +15183,11 @@ async function renderManageClients(el) {
   html += `</div></div>`;
 
   el.innerHTML = html;
+  _expandedClientIds.forEach(cid => {
+    loadClientContacts(cid);
+    loadClientSows(cid);
+    loadClientTeams(cid);
+  });
 }
 
 /** Toggle expansion of a client row to show/hide contacts */
@@ -15159,9 +15198,10 @@ function toggleClientExpand(row) {
   detail.style.display = isOpen ? 'none' : 'block';
   row.querySelector('.manage-clients__arrow').textContent = isOpen ? '\u25BC' : '\u25B2';
 
-  // Load contacts, SoWs and teams when expanding
-  if (!isOpen) {
-    const clientId = row.getAttribute('data-client-id');
+  const clientId = row.getAttribute('data-client-id');
+  if (isOpen) { _expandedClientIds.delete(clientId); }
+  else {
+    _expandedClientIds.add(clientId);
     loadClientContacts(clientId);
     loadClientSows(clientId);
     loadClientTeams(clientId);
@@ -15254,7 +15294,7 @@ async function loadClientSows(clientId) {
  * before storing — pricing and legal sections are stripped, the original
  * file is never written to disk.
  */
-async function uploadSowFile(clientId) {
+async function uploadSowFile(clientId, force) {
   const fileInput = document.getElementById('sowFileInput_' + clientId);
   const titleInput = document.getElementById('newSowTitle_' + clientId);
   if (!fileInput || !fileInput.files || !fileInput.files[0]) { toast('Select a PDF file first'); return; }
@@ -15265,8 +15305,9 @@ async function uploadSowFile(clientId) {
   formData.append('file', file);
   formData.append('client_id', clientId);
   formData.append('title', title);
+  if (force) formData.append('force', 'true');
   try {
-    toast('Extracting work package content...');
+    toast(force ? 'Uploading without filter...' : 'Extracting work package content...');
     const resp = await fetch('/api/sows/upload', {
       method: 'POST',
       credentials: 'include',
@@ -15274,7 +15315,14 @@ async function uploadSowFile(clientId) {
     });
     if (!resp.ok) {
       const err = await resp.json().catch(() => ({}));
-      toast(err.error || 'Upload failed', 'error');
+      if (err.canForce && !force) {
+        const msg = (err.hint || err.error) + '\n\nUpload anyway without the pricing/legal filter?';
+        if (await themedConfirm(msg, 'Force Upload')) {
+          uploadSowFile(clientId, true);
+        }
+        return;
+      }
+      toast(err.hint || err.error || 'Upload failed', 'error');
       return;
     }
     const result = await resp.json();
