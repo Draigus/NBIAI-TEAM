@@ -7843,6 +7843,8 @@ app.post('/api/queue', async (req, res) => {
   }
   const { title, description, slack_user_id, slack_channel, slack_message_ts } = req.body || {};
   if (!title || !title.trim()) return res.status(400).json({ error: 'title required' });
+  const lenErr = validateLength(title.trim(), 'title') || (description ? validateLength(description, 'description') : null);
+  if (lenErr) return res.status(400).json({ error: lenErr });
   const { rows } = await pool.query(
     `INSERT INTO task_queue (title, description, submitted_by, slack_user_id, slack_channel, slack_message_ts)
      VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,

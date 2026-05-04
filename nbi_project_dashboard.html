@@ -7210,7 +7210,7 @@ function calDepShowOffMonthBanner(selectedId, prereqs, dependents, offPrereqCoun
       if (!dateStr) return;
       const d = safeParseDate(dateStr);
       if (!d) return;
-      html += '<a onclick="_calYear=' + d.getFullYear() + ';_calMonth=' + d.getMonth() + ';_calEventsKey=\'\';renderContent();setTimeout(function(){calDepSelectTask(\'' + selectedId + '\')},100)">' + esc(t.title) + '</a> ';
+      html += '<a onclick="_calYear=' + d.getFullYear() + ';_calMonth=' + d.getMonth() + ';_calEventsKey=\'\';renderContent();setTimeout(function(){calDepSelectTask(\'' + escAttrJs(selectedId) + '\')},100)">' + esc(t.title) + '</a> ';
     });
     html += '</span>';
   }
@@ -7224,7 +7224,7 @@ function calDepShowOffMonthBanner(selectedId, prereqs, dependents, offPrereqCoun
       if (!dateStr) return;
       const d = safeParseDate(dateStr);
       if (!d) return;
-      html += '<a onclick="_calYear=' + d.getFullYear() + ';_calMonth=' + d.getMonth() + ';_calEventsKey=\'\';renderContent();setTimeout(function(){calDepSelectTask(\'' + selectedId + '\')},100)">' + esc(t.title) + '</a> ';
+      html += '<a onclick="_calYear=' + d.getFullYear() + ';_calMonth=' + d.getMonth() + ';_calEventsKey=\'\';renderContent();setTimeout(function(){calDepSelectTask(\'' + escAttrJs(selectedId) + '\')},100)">' + esc(t.title) + '</a> ';
     });
     html += '</span>';
   }
@@ -18746,7 +18746,7 @@ function openSpPreview(embedUrl, title, originalUrl) {
         <a href="${safeUrl(originalUrl)}" target="_blank" rel="noopener noreferrer" class="sp-preview__open">Open in SharePoint &#8599;</a>
         <button class="sp-preview__close" onclick="closeSpPreview()">&times;</button>
       </div>
-      <iframe class="sp-preview__frame" src="${esc(embedUrl)}" frameborder="0" allowfullscreen></iframe>
+      <iframe class="sp-preview__frame" src="${safeUrl(embedUrl)}" frameborder="0" allowfullscreen></iframe>
     </div>
   </div>`;
   document.body.insertAdjacentHTML('beforeend', html);
@@ -18848,8 +18848,8 @@ async function _actPromoteQueueItem(queueId, title, description) {
   markDirty(t.id);
   save();
 
-  await authFetch('/api/queue/' + queueId, { method: 'DELETE' });
-  _queueData = (_queueData || []).filter(q => q.id !== queueId);
+  const delResp = await authFetch('/api/queue/' + queueId, { method: 'DELETE' });
+  if (delResp.ok) _queueData = (_queueData || []).filter(q => q.id !== queueId);
   renderSidebarCounts();
   renderContent();
   openDetail(t.id);
@@ -18858,7 +18858,8 @@ async function _actPromoteQueueItem(queueId, title, description) {
 
 async function _actDismissQueueItem(queueId, title) {
   if (!await themedConfirm('Dismiss "' + title + '" from the queue? This cannot be undone.', 'Dismiss')) return;
-  await authFetch('/api/queue/' + queueId, { method: 'DELETE' });
+  const delResp = await authFetch('/api/queue/' + queueId, { method: 'DELETE' });
+  if (!delResp.ok) { toast('Failed to dismiss', 'error'); return; }
   _queueData = (_queueData || []).filter(q => q.id !== queueId);
   renderSidebarCounts();
   renderContent();
@@ -21444,7 +21445,7 @@ async function fetchSeedData() {
       if (checkForcePasswordChange()) return;
       showApp();
       await openIDB();
-      await Promise.all([load(), loadTeamMembers(), loadPagePermissions(), loadBugReports(), loadAllTeams(), loadAllSows(), apiCall('/api/clients').then(data => { if (data) data.forEach(c => { _apiClientsCache[c.name] = c; }); }).catch(() => {}), apiCall('/api/queue').then(data => { if (data) _queueData = data; }).catch(() => {})]);
+      await Promise.all([load(), loadTeamMembers(), loadPagePermissions(), loadBugReports(), loadAllTeams(), loadAllSows(), apiCall('/api/clients').then(data => { if (data) data.forEach(c => { _apiClientsCache[c.name] = c; }); }).catch(() => {}), (_currentUser && _currentUser.role === 'admin' ? apiCall('/api/queue').then(data => { if (data) _queueData = data; }) : Promise.resolve()).catch(() => {})]);
       await loadFinanceSeedIfEmpty();
       await loadFinanceFromDB();
       checkLeadReminders();
