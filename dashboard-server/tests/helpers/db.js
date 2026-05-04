@@ -37,6 +37,7 @@ const TRUNCATE_TABLES = [
   'notifications',
   'sessions',
   'password_reset_tokens',
+  'task_queue',
   'tasks',
   'lead_resources',
   'lead_activities',
