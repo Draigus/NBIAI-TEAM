@@ -832,6 +832,8 @@ async function requireAuth(req, res, next) {
   if (/^\/api\/reports\/[0-9a-f]{32}(\/html|\/pdf)?$/.test(req.path)) return next();
   // Slack Events API — uses its own HMAC signature verification
   if (req.path === '/api/slack/events') return next();
+  // Queue submission via API key — route handler validates the key itself
+  if (req.method === 'POST' && req.path === '/api/queue' && req.get('x-api-key')) return next();
   if (!req.path.startsWith('/api/')) return next();
 
   const token = getCookieToken(req) || (req.headers.authorization || '').replace('Bearer ', '');
@@ -7877,10 +7879,22 @@ app.get('/api/queue', requireAdmin, async (req, res) => {
 
 /** POST /api/queue — Submit a new item to the queue */
 app.post('/api/queue', async (req, res) => {
-  if (!req.user) return res.status(401).json({ error: 'Auth required' });
-  const isAdmin = req.user.role === 'admin';
-  if (!isAdmin && !req.user.can_submit_queue) {
-    return res.status(403).json({ error: 'Queue submission not enabled for this account' });
+  let submittedBy = null;
+  const apiKey = req.get('x-api-key');
+  const expectedKey = process.env.QUEUE_API_KEY;
+  if (apiKey) {
+    if (!expectedKey || apiKey.length !== expectedKey.length ||
+        !crypto.timingSafeEqual(Buffer.from(apiKey), Buffer.from(expectedKey))) {
+      return res.status(401).json({ error: 'Invalid API key' });
+    }
+    submittedBy = req.body?.submitted_by || 'api-key';
+  } else {
+    if (!req.user) return res.status(401).json({ error: 'Auth required' });
+    const isAdmin = req.user.role === 'admin';
+    if (!isAdmin && !req.user.can_submit_queue) {
+      return res.status(403).json({ error: 'Queue submission not enabled for this account' });
+    }
+    submittedBy = req.user.displayName || 'Unknown';
   }
   const { title, description, slack_user_id, slack_channel, slack_message_ts } = req.body || {};
   if (!title || !title.trim()) return res.status(400).json({ error: 'title required' });
@@ -7889,7 +7903,7 @@ app.post('/api/queue', async (req, res) => {
   const { rows } = await pool.query(
     `INSERT INTO task_queue (title, description, submitted_by, slack_user_id, slack_channel, slack_message_ts)
      VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-    [title.trim(), description || null, req.user.displayName || 'Unknown', slack_user_id || null, slack_channel || null, slack_message_ts || null]
+    [title.trim(), description || null, submittedBy, slack_user_id || null, slack_channel || null, slack_message_ts || null]
   );
   res.status(201).json(rows[0]);
 });

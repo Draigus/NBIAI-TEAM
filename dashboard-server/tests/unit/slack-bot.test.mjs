@@ -212,3 +212,34 @@ describe('POST /api/slack/events', () => {
     expect(rows[0].slack_user_id).toBe('USENDER');
   });
 });
+
+describe('POST /api/queue with API key', () => {
+  const API_KEY = process.env.QUEUE_API_KEY || 'test_queue_api_key_abc123';
+
+  beforeEach(async () => { await truncate(); });
+
+  it('accepts submission with valid API key (no user session)', async () => {
+    const res = await request(app)
+      .post('/api/queue')
+      .set('X-API-Key', API_KEY)
+      .send({ title: 'API key task', description: 'From external tool' });
+    expect(res.status).toBe(201);
+    expect(res.body.title).toBe('API key task');
+    expect(res.body.submitted_by).toBe('api-key');
+  });
+
+  it('rejects submission with invalid API key', async () => {
+    const res = await request(app)
+      .post('/api/queue')
+      .set('X-API-Key', 'wrong_key')
+      .send({ title: 'Should fail' });
+    expect(res.status).toBe(401);
+  });
+
+  it('still rejects unauthenticated requests (no key, no session)', async () => {
+    const res = await request(app)
+      .post('/api/queue')
+      .send({ title: 'Should also fail' });
+    expect(res.status).toBe(401);
+  });
+});
