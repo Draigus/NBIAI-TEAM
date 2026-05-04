@@ -837,7 +837,7 @@ async function requireAuth(req, res, next) {
 
     const { rows } = await pool.query(
       `SELECT u.id, u.username, u.display_name, u.role, u.client_id, u.client_role, u.must_change_password,
-              u.docs_view, u.docs_edit, u.docs_create, u.docs_upload FROM sessions s
+              u.docs_view, u.docs_edit, u.docs_create, u.docs_upload, u.can_submit_queue FROM sessions s
        JOIN users u ON s.user_id = u.id
        WHERE s.token = $1 AND s.expires_at > NOW() AND u.is_active = true`, [hashedToken]
     );
@@ -852,6 +852,7 @@ async function requireAuth(req, res, next) {
       // pattern in PATCH /api/users/:id) or revocation lags by up to 5 minutes.
       docsView: rows[0].docs_view, docsEdit: rows[0].docs_edit,
       docsCreate: rows[0].docs_create, docsUpload: rows[0].docs_upload,
+      can_submit_queue: rows[0].can_submit_queue,
     };
     cacheToken(hashedToken, user);
     req.user = user;
@@ -1175,7 +1176,7 @@ app.post('/api/auth/change-password', async (req, res) => {
 /** GET /api/users — List users. Admins see full details; client users see their company; members see names only. */
 app.get('/api/users', async (req, res) => {
   if (req.user.role === 'admin') {
-    const { rows } = await pool.query('SELECT id, username, display_name, email, role, is_active, capacity_hours_per_week, resource_type_ids, created_at, client_id, client_role, docs_view, docs_edit, docs_create, docs_upload FROM users ORDER BY display_name');
+    const { rows } = await pool.query('SELECT id, username, display_name, email, role, is_active, capacity_hours_per_week, resource_type_ids, created_at, client_id, client_role, docs_view, docs_edit, docs_create, docs_upload, can_submit_queue FROM users ORDER BY display_name');
     res.json(rows);
   } else if (req.user.clientId) {
     // Client users see only their company's users
@@ -1320,7 +1321,7 @@ app.patch('/api/users/:id', async (req, res) => {
   }
 
   const allowedFields = isAdmin
-    ? ['role', 'display_name', 'email', 'client_id', 'is_active', 'client_role', 'docs_view', 'docs_edit', 'docs_create', 'docs_upload']
+    ? ['role', 'display_name', 'email', 'client_id', 'is_active', 'client_role', 'docs_view', 'docs_edit', 'docs_create', 'docs_upload', 'can_submit_queue']
     : ['display_name', 'client_role', 'is_active'];
 
   const { updates, vals, nextIdx } = buildPatchQuery(req.body, allowedFields);
@@ -7823,6 +7824,38 @@ app.get('/api/bug-reports/:id/screenshot', async (req, res) => {
   const buffer = Buffer.from(match[2], 'base64');
   res.setHeader('Content-Type', match[1]);
   res.send(buffer);
+});
+
+// ==================== TASK QUEUE ====================
+
+/** GET /api/queue — List all pending queue items (admin only) */
+app.get('/api/queue', requireAdmin, async (req, res) => {
+  const { rows } = await pool.query('SELECT * FROM task_queue ORDER BY created_at DESC');
+  res.json(rows);
+});
+
+/** POST /api/queue — Submit a new item to the queue */
+app.post('/api/queue', async (req, res) => {
+  if (!req.user) return res.status(401).json({ error: 'Auth required' });
+  const isAdmin = req.user.role === 'admin';
+  if (!isAdmin && !req.user.can_submit_queue) {
+    return res.status(403).json({ error: 'Queue submission not enabled for this account' });
+  }
+  const { title, description, slack_user_id, slack_channel, slack_message_ts } = req.body || {};
+  if (!title || !title.trim()) return res.status(400).json({ error: 'title required' });
+  const { rows } = await pool.query(
+    `INSERT INTO task_queue (title, description, submitted_by, slack_user_id, slack_channel, slack_message_ts)
+     VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+    [title.trim(), description || null, req.user.displayName || 'Unknown', slack_user_id || null, slack_channel || null, slack_message_ts || null]
+  );
+  res.status(201).json(rows[0]);
+});
+
+/** DELETE /api/queue/:id — Remove a queue item (after promote or dismiss) */
+app.delete('/api/queue/:id', requireAdmin, async (req, res) => {
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid ID' });
+  await pool.query('DELETE FROM task_queue WHERE id = $1', [req.params.id]);
+  res.json({ ok: true });
 });
 
 // ==================== HIRING ====================
