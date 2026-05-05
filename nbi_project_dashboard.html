@@ -5673,7 +5673,8 @@ function renderPfTimeline(panelTasks, panelRoots, now) {
     // start / end, so the bar spans the actual child work (mirrors the
     // Gantt view's ganttRolledStart / ganttRolledEnd helpers).
     let s = item.startDate ? safeParseDate(item.startDate) : null;
-    let e = item.endDate ? safeParseDate(item.endDate) : (item.dueDate ? safeParseDate(item.dueDate) : null);
+    const hasChildren = !!(childrenIdx[item.id] && childrenIdx[item.id].length > 0);
+    let e = item.endDate ? safeParseDate(item.endDate) : (!hasChildren && item.dueDate ? safeParseDate(item.dueDate) : null);
     if (!s || !e) {
       let minS = s, maxE = e;
       const stack = [item]; const seen = new Set();
@@ -5694,13 +5695,14 @@ function renderPfTimeline(panelTasks, panelRoots, now) {
     if (!s) s = new Date(now.getFullYear(), now.getMonth(), 1);
     if (!e) { e = new Date(s); e.setMonth(e.getMonth() + 2); }
     if (e <= s) { e = new Date(s); e.setMonth(e.getMonth() + 1); }
-    // Percent complete: count Done leaf tasks vs total leaf tasks across the
-    // descendant subtree. Leaf = item_type 'task' (or unset, treated as task).
-    const desc = descendants(item.id);
-    const leafTasks = desc.filter(d => (d.itemType || 'task') === 'task');
-    const total = leafTasks.length;
-    const done = leafTasks.filter(d => d.status === 'Done').length;
-    const pct = total > 0 ? Math.round(done / total * 100) : 0;
+    const globalDesc = getDescendants(item.id);
+    const subtree = [item, ...globalDesc];
+    const totalEst = subtree.reduce((sum, d) => sum + (d.hoursEstimated || 0), 0);
+    const totalSpent = subtree.reduce((sum, d) => sum + (d.hoursSpent || 0), 0);
+    const leafTasks = globalDesc.filter(d => (d.itemType || 'task') === 'task');
+    const pct = totalEst > 0
+      ? Math.min(100, Math.round(totalSpent / totalEst * 100))
+      : (leafTasks.length > 0 ? Math.round(leafTasks.filter(d => d.status === 'Done').length / leafTasks.length * 100) : 0);
     const overdue = e < now && item.status !== 'Done';
     const daysToEnd = Math.round((e - now) / 86400000);
     const blocked = item.healthState === 'Blocked' || item.status === 'Blocked';
@@ -6175,16 +6177,15 @@ function standupUpdateTask(taskId, field, value, el) {
  *  rebuild + scroll restore happens in one JS block before the browser paints.
  *  On first load (no cache), falls back to _scrollRestoreTarget for the async standup. */
 function _softReRender() {
+  const active = document.activeElement;
+  if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT')) return;
   const scrollEl = document.querySelector('.main__content');
   if (!scrollEl) { renderContent(); return; }
   const savedScroll = scrollEl.scrollTop;
-  // Fallback for async standup (first load only, before cache exists)
   _scrollRestoreTarget = savedScroll > 0 ? savedScroll : null;
   renderContent();
   if (typeof renderSidebar === 'function') renderSidebar();
   if (typeof updateWarnAlertButton === 'function') updateWarnAlertButton();
-  // Restore scroll synchronously — works because standup now renders synchronously
-  // when _cachedTeamMembers exists (which it does after the first render).
   if (scrollEl && savedScroll > 0) {
     scrollEl.scrollTop = savedScroll;
   }
