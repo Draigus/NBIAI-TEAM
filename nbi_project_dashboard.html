@@ -402,6 +402,7 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .pf__content { flex: 1; display: flex; flex-direction: column; gap: 10px; min-width: 0; min-height: 0; }
 .pf__panels { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; flex: 2; min-height: 0; }
 .pf__panel { background: color-mix(in srgb, var(--bg-card) 85%, var(--text-muted)); border: 1px solid var(--border-default); border-radius: var(--radius-lg); overflow: hidden; display: flex; flex-direction: column; min-height: 0; }
+.pf__panel--wide { grid-column: 1 / -1; }
 /* ============ REPORTING TAB ============ */
 .reporting { padding: var(--space-md) var(--space-lg); display: flex; flex-direction: column; gap: var(--space-md); }
 .reporting__hdr { display: flex; align-items: center; justify-content: space-between; padding-bottom: var(--space-sm); border-bottom: 1px solid var(--border-subtle); }
@@ -502,7 +503,7 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 /* === v4 Bottom row — 3 columns, compact, no scroll === */
 .pf__bottom--v4 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; flex: 1; min-height: 0; }
 .pf__bottom--v4 > .pf__panel { min-height: 0; }
-.pf__bottom--v4 > .pf__panel > .pf__panel-body { overflow: hidden; }
+.pf__bottom--v4 > .pf__panel > .pf__panel-body { overflow-y: auto; }
 
 /* === v4 Needs Attention (bottom row version) === */
 .pf__na-item { display: flex; align-items: center; gap: 6px; padding: 5px 0; border-bottom: 1px solid var(--border-subtle); cursor: pointer; }
@@ -4625,8 +4626,14 @@ function renderContent() {
   const content = document.getElementById('mainContent');
   if (!content) return;
   const savedScroll = content.scrollTop;
+  const pfSidebar = content.querySelector('.pf__sidebar');
+  const savedPfSidebarScroll = pfSidebar ? pfSidebar.scrollTop : 0;
   _renderMainContent(content);
-  requestAnimationFrame(() => { content.scrollTop = savedScroll; });
+  requestAnimationFrame(() => {
+    content.scrollTop = savedScroll;
+    const newPfSidebar = content.querySelector('.pf__sidebar');
+    if (newPfSidebar) newPfSidebar.scrollTop = savedPfSidebarScroll;
+  });
   const _perfEnd = performance.now();
   if (_perfEnd - _perfStart > 100) {
     console.debug('[Perf] renderContent took ' + Math.round(_perfEnd - _perfStart) + 'ms');
@@ -4982,7 +4989,6 @@ function renderPortfolioDashboard() {
   html += renderPfProgressStatus(panelTasks);
   html += renderPfMilestones(panelRoots, now);
   html += renderPfTimeline(panelTasks, panelRoots, now);
-  html += renderPfWorkTypes(panelRoots);
   html += '</div>';
 
   html += '<div class="pf__bottom pf__bottom--v4">';
@@ -5311,7 +5317,7 @@ function renderPfTimeline(panelTasks, panelRoots, now) {
   }
 
   const ROW_H = 24;
-  const labelW = 180;
+  const labelW = 280;
 
   function makeRow(item, depth) {
     // Roll up the date range from descendants when the parent has no own
@@ -5350,7 +5356,8 @@ function renderPfTimeline(panelTasks, panelRoots, now) {
     const daysToEnd = Math.round((e - now) / 86400000);
     const blocked = item.healthState === 'Blocked' || item.status === 'Blocked';
     const health = blocked ? 'blocked' : (overdue ? 'red' : (daysToEnd <= 14 && daysToEnd >= 0 ? 'amber' : (item.healthState === 'Red' ? 'red' : (item.healthState === 'Yellow' ? 'amber' : 'green'))));
-    return { id: item.id, title: item.title, client: getTaskClient(item) || 'Other', _start: s, _end: e, pct, health, daysToEnd, depth, itemType: item.itemType };
+    const parentTitle = item.parentId ? (panelTasks.find(t => t.id === item.parentId) || {}).title || '' : '';
+    return { id: item.id, title: item.title, parentTitle, client: getTaskClient(item) || 'Other', _start: s, _end: e, pct, health, daysToEnd, depth, itemType: item.itemType };
   }
 
   const featureRows = features.map(f => makeRow(f, 1));
@@ -5363,7 +5370,7 @@ function renderPfTimeline(panelTasks, panelRoots, now) {
     (byClient[r.client] = byClient[r.client] || []).push(r);
   });
 
-  let html = '<div class="pf__panel">';
+  let html = '<div class="pf__panel pf__panel--wide">';
   html += '<div class="pf__panel-hdr"><div class="pf__panel-title">PROJECT TIMELINE</div></div>';
   html += '<div class="pf__panel-body" style="padding:0 14px 10px">';
 
@@ -5514,6 +5521,7 @@ function renderPfTimeline(panelTasks, panelRoots, now) {
       html += `<span style="width:8px;height:8px;border-radius:50%;background:${fill};flex-shrink:0"></span>`;
       html += `<span style="color:var(--text-secondary);flex-shrink:0;font-weight:600">${esc(r.client)}</span>`;
       html += `<span style="color:var(--text-muted);flex-shrink:0">/</span>`;
+      if (r.parentTitle) html += `<span style="color:var(--text-muted);flex-shrink:0">${esc(r.parentTitle)}</span><span style="color:var(--text-muted);flex-shrink:0">/</span>`;
       html += `<span style="color:var(--text-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1" title="${esc(r.title)}">${esc(r.title)}</span>`;
       html += `<span style="color:${subtitleCol};font-size:0.68rem;letter-spacing:0.04em;flex-shrink:0">${r.daysToEnd === 0 ? 'TODAY' : `${r.daysToEnd}D`} · ${r.pct}%</span>`;
       html += `</div>`;
@@ -5705,11 +5713,15 @@ function renderPfBottomNeedsAttention(panelTasks, now) {
       } else {
         badge = 'AT RISK'; badgeClass = 'pf__na-badge--risk'; borderCol = '#f97316';
       }
+      const owner = (t.assignees || []).join(', ');
       const ctx = [clientName, projectName].filter(Boolean).join(' \u2014 ');
       html += `<div class="pf__na-item" data-action="openDetailOverlay" data-arg0="${t.id}">`;
       html += `<div class="pf__na-border" style="background:${borderCol}"></div>`;
       html += `<span class="pf__na-badge ${badgeClass}">${badge}</span>`;
-      html += `<div style="flex:1;min-width:0"><div style="font-size:0.7rem;color:var(--text-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(t.title)}</div>`;
+      html += `<div style="flex:1;min-width:0">`;
+      html += `<div style="display:flex;align-items:center;gap:6px"><div style="font-size:0.7rem;color:var(--text-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">${esc(t.title)}</div>`;
+      if (owner) html += `<div style="font-size:0.7rem;color:var(--danger);font-weight:600;flex-shrink:0">${esc(owner)}</div>`;
+      html += `</div>`;
       if (ctx) html += `<div style="font-size:0.58rem;color:var(--text-muted)">${esc(ctx)}</div>`;
       html += '</div></div>';
     });
