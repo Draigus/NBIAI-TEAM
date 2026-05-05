@@ -2419,6 +2419,7 @@ function mapRowsToTasks(format, headers, rows) {
       const iStatus = ci('status');
       const iPriority = ci('priority');
       const iHoursEst = ciAny('hours_estimated', 'hours estimated', 'hours est');
+      const iHoursSpent = ciAny('hours_spent', 'hours spent');
       const iAssignees = ciAny('assignees', 'assignee', 'assigned to');
       const iClient = ciAny('client_id', 'client');
       const iPractice = ci('practice_area');
@@ -2443,6 +2444,7 @@ function mapRowsToTasks(format, headers, rows) {
           status: normaliseStatus(get(r, iStatus)),
           priority: normalisePriority(get(r, iPriority)),
           hoursEstimated: parseFloat(get(r, iHoursEst)) || 0,
+          hoursSpent: parseFloat(get(r, iHoursSpent)) || 0,
           assignees: get(r, iAssignees) ? get(r, iAssignees).split(/[,;\/]/).map(s => s.trim()).filter(Boolean) : [],
           client: get(r, iClient),
           practice_area: get(r, iPractice),

@@ -1012,7 +1012,7 @@ span.fin-editable { display: inline-block; position: relative; }
 .gantt__header { display: flex; position: sticky; top: 0; z-index: 10; background: var(--bg-base); border-bottom: 1px solid var(--border-default); }
 .gantt__label-col { min-width: var(--gantt-label-w, 260px); max-width: var(--gantt-label-w, 260px); padding: var(--space-sm) var(--space-md); font-size: 0.7rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.03em; position: sticky; left: 0; background: var(--bg-base); z-index: 11; border-right: 1px solid var(--border-default); }
 .gantt__timeline-header { display: flex; flex: 1; }
-.gantt__month { font-size: 0.68rem; font-weight: 600; color: var(--text-secondary); text-align: center; border-right: 1px solid var(--border-subtle); padding: 2px 0; }
+.gantt__month { font-size: 0.68rem; font-weight: 600; color: var(--text-secondary); text-align: left; padding-left: 4px; border-right: 1px solid var(--border-subtle); padding-top: 2px; padding-bottom: 2px; }
 .gantt__day-headers { display: flex; border-bottom: 1px solid var(--border-subtle); }
 .gantt__day-hdr { font-size: 0.58rem; color: var(--text-muted); text-align: center; border-right: 1px solid var(--border-subtle); }
 .gantt__day-hdr--weekend { background: var(--bg-surface); }
@@ -4844,7 +4844,7 @@ window.addEventListener('popstate', e => {
 // Restore view from URL hash on page load (supports deep-linking e.g. #bugs, #leads)
 (function() {
   const h = window.location.hash.replace('#', '');
-  const known = ['report','dashboard','tasks','people','leads','expenses','finances','news','bugs','settings','mytasks','queue'];
+  const known = ['report','dashboard','tasks','people','leads','expenses','finances','news','bugs','settings','mytasks','queue','reporting','documentation','workload','hiring'];
   if (h && known.includes(h)) currentView = LEGACY_ROUTES[h] || h;
 })();
 // Set initial history state
@@ -5703,7 +5703,6 @@ function renderPfTimeline(panelTasks, panelRoots, now) {
     const pct = totalEst > 0
       ? Math.min(100, Math.round(totalSpent / totalEst * 100))
       : (leafTasks.length > 0 ? Math.round(leafTasks.filter(d => d.status === 'Done').length / leafTasks.length * 100) : 0);
-    if (item.title && item.title.includes('Infrastructure')) console.log('[TL-DEBUG]', item.title, {descCount: globalDesc.length, leafCount: leafTasks.length, totalEst, totalSpent, pct, sampleHrs: globalDesc.slice(0,3).map(d => ({t:d.title,e:d.hoursEstimated,s:d.hoursSpent}))});
     const overdue = e < now && item.status !== 'Done';
     const daysToEnd = Math.round((e - now) / 86400000);
     const blocked = item.healthState === 'Blocked' || item.status === 'Blocked';
@@ -10038,7 +10037,8 @@ async function updateTask(id, field, value) {
   // Non-structural changes get a lightweight update — no scroll flash.
   const structural = (field === 'status' && (
     value === 'Done' || value === 'Cancelled' || oldValue === 'Done' || oldValue === 'Cancelled'
-  )) || field === 'client_id' || field === 'parent_id';
+  )) || field === 'client_id' || field === 'parent_id'
+    || field === 'hoursEstimated' || field === 'hoursSpent';
 
   if (structural) {
     const scrollEl = document.querySelector('.main__content');
@@ -10636,11 +10636,11 @@ function renderReportingView(el) {
   html += `<div class="reporting__timeline-hdr" style="position:relative">`;
   // Quarter row
   html += `<div style="display:flex;border-bottom:1px solid var(--border-subtle)">`;
-  quarters.forEach(q => { const w = (q.days / totalDays * 100).toFixed(2); html += `<div style="width:${w}%;text-align:center;font-size:0.62rem;color:var(--text-muted);font-weight:700;letter-spacing:0.06em;padding:3px 0;border-right:1px solid var(--border-subtle)">${esc(q.label)}</div>`; });
+  quarters.forEach(q => { const w = (q.days / totalDays * 100).toFixed(2); html += `<div style="width:${w}%;text-align:left;padding-left:4px;font-size:0.62rem;color:var(--text-muted);font-weight:700;letter-spacing:0.06em;padding-top:3px;padding-bottom:3px;border-right:1px solid var(--border-subtle)">${esc(q.label)}</div>`; });
   html += `</div>`;
   // Month row
   html += `<div style="display:flex">`;
-  months.forEach(m => { const w = (m.days / totalDays * 100).toFixed(2); html += `<div style="width:${w}%;text-align:center;font-size:0.6rem;color:${m.isNow ? 'var(--accent-text)' : 'var(--text-muted)'};font-weight:${m.isNow ? '700' : '500'};padding:2px 0;border-right:1px solid var(--border-subtle)">${esc(m.label)}</div>`; });
+  months.forEach(m => { const w = (m.days / totalDays * 100).toFixed(2); html += `<div style="width:${w}%;text-align:left;padding-left:4px;font-size:0.6rem;color:${m.isNow ? 'var(--accent-text)' : 'var(--text-muted)'};font-weight:${m.isNow ? '700' : '500'};padding-top:2px;padding-bottom:2px;border-right:1px solid var(--border-subtle)">${esc(m.label)}</div>`; });
   html += `</div>`;
   html += `<div style="position:absolute;left:${nowPct}%;top:0;bottom:0;border-left:2px dashed #ef4444;pointer-events:none"></div>`;
   html += `<div style="position:absolute;left:calc(${nowPct}% - 18px);top:-2px;font-size:0.55rem;color:#ef4444;font-weight:700;letter-spacing:0.06em">TODAY</div>`;
@@ -20561,6 +20561,7 @@ async function confirmHierarchyImport(headers, rows) {
   const iTask = ci('task') >= 0 ? ci('task') : ci('title');
   const iDesc = ci('description'), iStatus = ci('status'), iPriority = ci('priority');
   const iHours = ci('hours_estimated') >= 0 ? ci('hours_estimated') : ci('hours estimated');
+  const iHoursSpent = ci('hours_spent') >= 0 ? ci('hours_spent') : ci('hours spent');
   const iAssignees = ci('assignees') >= 0 ? ci('assignees') : (ci('assignee') >= 0 ? ci('assignee') : ci('assigned to'));
   const iClient = ci('client_id') >= 0 ? ci('client_id') : ci('client');
   const iPractice = ci('practice_area');
@@ -20612,6 +20613,7 @@ async function confirmHierarchyImport(headers, rows) {
       status: normStatus(get(r, iStatus)),
       priority: normPriority(get(r, iPriority)),
       hours_estimated: parseFloat(get(r, iHours)) || 0,
+      hours_spent: parseFloat(get(r, iHoursSpent)) || 0,
       assignees: get(r, iAssignees) ? get(r, iAssignees).split(/[,;\/]/).map(s => s.trim()).filter(Boolean) : [],
       client: get(r, iClient),
       practice_area: get(r, iPractice),

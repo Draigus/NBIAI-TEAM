@@ -164,6 +164,29 @@ describe('mapRowsToTasks (nbi-hierarchy-csv branch)', () => {
     expect(out[0].hoursEstimated).toBe(4);
   });
 
+  it('captures hours_spent alongside hours_estimated', () => {
+    const headersWithSpent = ['_temp_id', '_temp_parent_id', 'item_type', 'task', 'description',
+      'status', 'priority', 'hours_estimated', 'hours_spent', 'assignees', 'client_id', 'practice_area',
+      'start_date', 'end_date', 'due_date', 'success_factor', 'collaborations', 'notes'];
+    const rows = [
+      ['T1', '', 'task', 'My Task', '', 'Not started', '', '8', '3', 'Marie',
+       'Lighthouse Games', 'gaming', '', '', '', '', '', ''],
+    ];
+    const out = mapRowsToTasks('nbi-hierarchy-csv', headersWithSpent, rows);
+    expect(out[0].hoursEstimated).toBe(8);
+    expect(out[0].hoursSpent).toBe(3);
+  });
+
+  it('defaults hoursSpent to 0 when column is absent', () => {
+    const rows = [
+      ['T1', '', 'task', 'My Task', '', 'Not started', '', '4', 'Marie',
+       'Lighthouse Games', 'gaming', '', '', '', '', '', ''],
+    ];
+    const out = mapRowsToTasks('nbi-hierarchy-csv', headers, rows);
+    expect(out[0].hoursEstimated).toBe(4);
+    expect(out[0].hoursSpent).toBe(0);
+  });
+
   it('maps Critical priority through (preserving the upstream "Critical" value)', () => {
     const rows = [
       ['T1', '', 'task', 'T', '', '', 'Critical', '', '', '', '', '', '', '', '', '', ''],
