@@ -1017,7 +1017,7 @@ app.post('/api/auth/forgot-password', async (req, res) => {
     text: `Hi ${user.display_name},\n\nSomeone requested a password reset for your NBI Dashboard account.\n\nClick here to reset your password:\n${resetUrl}\n\nThis link expires in 1 hour. If you did not request this, you can ignore this email.\n\nNBI Dashboard`,
     html: `<p>Hi ${escHtml(user.display_name)},</p><p>Someone requested a password reset for your NBI Dashboard account.</p><p><a href="${escHtml(resetUrl)}" style="display:inline-block;padding:10px 24px;background:#2563eb;color:#fff;text-decoration:none;border-radius:6px;font-weight:600">Reset Password</a></p><p style="color:#666;font-size:0.85em">This link expires in 1 hour. If you did not request this, you can ignore this email.</p><p>NBI Dashboard</p>`
   });
-  if (!_mailTransport) {
+  if (!_msalClient) {
     log('info', 'Auth', `FALLBACK — Reset link for ${user.email}: ${resetUrl}`);
   }
 
@@ -1081,17 +1081,12 @@ app.post('/api/internal/notifications', async (req, res) => {
   if (!type || !title) return res.status(400).json({ error: 'type and title required' });
   try {
     if (targetAdmins) {
-      const admins = await pool.query('SELECT username FROM users WHERE role = \'admin\' AND is_active = true');
-      let sent = 0;
-      for (const a of admins.rows) {
-        try {
-          await createNotification(a.username, type, title, message || '', link || '', dismissable !== false);
-          sent++;
-        } catch (e) {
-          log('warn', 'Notifications', `Internal admin fan-out failed for ${a.username}`, { error: e.message });
-        }
-      }
-      return res.json({ ok: true, recipients: sent });
+      const { rowCount } = await pool.query(
+        `INSERT INTO notifications (username, type, title, message, link, dismissable)
+         SELECT username, $1, $2, $3, $4, $5 FROM users WHERE role = 'admin' AND is_active = true`,
+        [type, title, message || '', link || '', dismissable !== false]
+      );
+      return res.json({ ok: true, recipients: rowCount });
     }
     if (!username) return res.status(400).json({ error: 'username required when targetAdmins not set' });
     await createNotification(username, type, title, message || '', link || '', dismissable !== false);
@@ -2823,18 +2818,13 @@ async function createNotification(username, type, title, message, link, dismissa
 app.post('/api/notifications/system', requireNBI, requireAdmin, async (req, res) => {
   const { title, message } = req.body;
   if (!title || !message) return res.status(400).json({ error: 'Title and message required' });
-  const { rows: users } = await pool.query('SELECT username FROM users WHERE is_active = true');
-  let sent = 0;
-  for (const user of users) {
-    try {
-      await createNotification(user.username, 'system', title, message, null, false);
-      sent++;
-    } catch (e) {
-      log('warn', 'Notifications', `System broadcast failed for ${user.username}`, { error: e.message });
-    }
-  }
-  log('info', 'Notifications', `System message sent to ${sent}/${users.length} users`, { title });
-  res.json({ sent, total: users.length });
+  const { rowCount: sent } = await pool.query(
+    `INSERT INTO notifications (username, type, title, message, link, dismissable)
+     SELECT username, 'system', $1, $2, '', false FROM users WHERE is_active = true`,
+    [title, message]
+  );
+  log('info', 'Notifications', `System message sent to ${sent} users`, { title });
+  res.json({ sent });
 });
 
 // ==================== TASK TEMPLATES ====================
@@ -3447,15 +3437,19 @@ app.get('/api/clients', async (req, res) => {
   const scopes = await getClientScopes(req);
   if (scopes) {
     const { rows } = await pool.query(
-      'SELECT c.*, (SELECT count(*) FROM tasks t WHERE t.client_id = c.id)::int as task_count FROM clients c WHERE c.id = ANY($1) ORDER BY c.name',
+      `SELECT c.*, COALESCE(tc.cnt, 0)::int as task_count
+       FROM clients c
+       LEFT JOIN (SELECT client_id, count(*) as cnt FROM tasks GROUP BY client_id) tc ON tc.client_id = c.id
+       WHERE c.id = ANY($1) ORDER BY c.name`,
       [scopes]
     );
     return res.json(rows);
   }
   const { rows } = await pool.query(`
-    SELECT c.*,
-      (SELECT count(*) FROM tasks t WHERE t.client_id = c.id) as task_count
-    FROM clients c ORDER BY c.name
+    SELECT c.*, COALESCE(tc.cnt, 0)::int as task_count
+    FROM clients c
+    LEFT JOIN (SELECT client_id, count(*) as cnt FROM tasks GROUP BY client_id) tc ON tc.client_id = c.id
+    ORDER BY c.name
   `);
   res.json(rows);
 });
@@ -4199,7 +4193,7 @@ app.delete('/api/teams/:id/members/:user_id', requireAdmin, async (req, res) => 
 // ==================== CONTACTS ====================
 
 /** GET /api/clients/:clientId/contacts — List contacts for a client, sorted by display order */
-app.get('/api/clients/:clientId/contacts', async (req, res) => {
+app.get('/api/clients/:clientId/contacts', requireAuth, async (req, res) => {
   const { rows } = await pool.query('SELECT * FROM contacts WHERE client_id = $1 ORDER BY sort_order', [req.params.clientId]);
   res.json(rows);
 });
@@ -4261,7 +4255,7 @@ app.post('/api/clients/:clientId/notes', requireAdmin, async (req, res) => {
     `INSERT INTO client_notes (client_id, title, content, source, source_id, source_url, meeting_date, author)
      VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
     [req.params.clientId, title, content || '', source || 'manual', source_id || '', source_url || '',
-     meeting_date || null, author || 'Glen']
+     meeting_date || null, author || (req.user && req.user.display_name) || 'Unknown']
   );
   res.status(201).json(rows[0]);
 });
@@ -6297,7 +6291,7 @@ app.post('/api/tasks/:taskId/notes', requireAdmin, async (req, res) => {
   if (!text) return res.status(400).json({ error: 'Text required' });
   const { rows } = await pool.query(
     'INSERT INTO task_notes (task_id, text, author) VALUES ($1, $2, $3) RETURNING *',
-    [req.params.taskId, text, author || 'Glen']
+    [req.params.taskId, text, author || (req.user && req.user.display_name) || 'Unknown']
   );
   // Update task's updated_at
   await pool.query('UPDATE tasks SET updated_at = NOW() WHERE id = $1', [req.params.taskId]);
@@ -6409,27 +6403,26 @@ app.get('/api/dashboard/summary', async (req, res) => {
  */
 async function computeDashboardSnapshot() {
   const today = new Date().toISOString().slice(0, 10);
-  const { rows: taskRows } = await pool.query(`
-    SELECT t.status, t.health_state, t.due_date, t.hours_spent, t.hours_estimated,
-           t.parent_id, t.created_at::date as created_date, t.title
-    FROM tasks t
-  `);
+  const { rows: [snap] } = await pool.query(`
+    SELECT
+      count(*) FILTER (WHERE parent_id IS NULL AND title IS NOT NULL AND trim(title) != 'New Task'
+                        AND status NOT IN ('Done','Cancelled')) as active_projects,
+      count(*) FILTER (WHERE due_date < CURRENT_DATE AND status NOT IN ('Done','Cancelled')) as overdue_count,
+      count(*) FILTER (WHERE health_state = 'Blocked' AND status NOT IN ('Done','Cancelled')) as blocked_count,
+      count(*) FILTER (WHERE health_state = 'Red' AND status NOT IN ('Done','Cancelled')) as at_risk_count,
+      COALESCE(sum(hours_spent) FILTER (WHERE true), 0) as hours_spent,
+      COALESCE(sum(hours_estimated) FILTER (WHERE true), 0) as hours_estimated,
+      count(*) FILTER (WHERE status NOT IN ('Done','Cancelled')) as tasks_planned,
+      count(*) FILTER (WHERE created_at::date = $1::date) as tasks_added,
+      count(*) FILTER (WHERE status = 'Done') as tasks_completed,
+      count(DISTINCT title) FILTER (WHERE (due_date < CURRENT_DATE OR health_state = 'Red')
+                                     AND status NOT IN ('Done','Cancelled')
+                                     AND parent_id IS NULL AND title IS NOT NULL AND trim(title) != 'New Task') as problem_projects
+    FROM tasks
+  `, [today]);
 
-  const now = new Date(); now.setHours(0, 0, 0, 0);
-  const roots = taskRows.filter(r => !r.parent_id && r.title && r.title.trim() !== 'New Task');
-  const activeRoots = roots.filter(r => r.status !== 'Done' && r.status !== 'Cancelled');
-  const overdue = taskRows.filter(r => r.due_date && r.status !== 'Done' && r.status !== 'Cancelled' && new Date(r.due_date) < now);
-  const blocked = taskRows.filter(r => r.health_state === 'Blocked' && r.status !== 'Done' && r.status !== 'Cancelled');
-  const atRisk = taskRows.filter(r => r.health_state === 'Red' && r.status !== 'Done' && r.status !== 'Cancelled');
-  const hrsSpent = taskRows.reduce((s, r) => s + (parseFloat(r.hours_spent) || 0), 0);
-  const hrsEst = taskRows.reduce((s, r) => s + (parseFloat(r.hours_estimated) || 0), 0);
-
-  const activeTasks = taskRows.filter(r => r.status !== 'Done' && r.status !== 'Cancelled');
-  const addedToday = taskRows.filter(r => r.created_date === today);
-  const completedToday = taskRows.filter(r => r.status === 'Done');
-
-  const uniqueProblems = new Set([...overdue.map(r => r.title), ...atRisk.map(r => r.title)]);
-  const onTrackCount = Math.max(0, activeRoots.length - uniqueProblems.size);
+  const activeProjects = parseInt(snap.active_projects) || 0;
+  const problemProjects = parseInt(snap.problem_projects) || 0;
 
   let activeLeadsCount = 0;
   try {
@@ -6443,16 +6436,16 @@ async function computeDashboardSnapshot() {
 
   return {
     snapshot_date: today,
-    active_projects: activeRoots.length,
-    overdue_count: overdue.length,
-    blocked_count: blocked.length,
-    at_risk_count: atRisk.length,
-    hours_spent: hrsSpent.toFixed(1),
-    hours_estimated: hrsEst.toFixed(1),
-    tasks_planned: activeTasks.length,
-    tasks_added: addedToday.length,
-    tasks_completed: completedToday.length,
-    on_track_count: onTrackCount,
+    active_projects: activeProjects,
+    overdue_count: parseInt(snap.overdue_count) || 0,
+    blocked_count: parseInt(snap.blocked_count) || 0,
+    at_risk_count: parseInt(snap.at_risk_count) || 0,
+    hours_spent: parseFloat(snap.hours_spent).toFixed(1),
+    hours_estimated: parseFloat(snap.hours_estimated).toFixed(1),
+    tasks_planned: parseInt(snap.tasks_planned) || 0,
+    tasks_added: parseInt(snap.tasks_added) || 0,
+    tasks_completed: parseInt(snap.tasks_completed) || 0,
+    on_track_count: Math.max(0, activeProjects - problemProjects),
     active_leads_count: activeLeadsCount,
   };
 }
