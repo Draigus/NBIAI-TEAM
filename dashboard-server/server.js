@@ -573,7 +573,7 @@ app.use((req, res, next) => {
 // Cloudflare's cf-connecting-ip (unspoofable), then raw TCP peer (B-B5).
 const apiLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 60,
+  max: 200,
   keyGenerator: (req) => {
     const auth = req.headers.authorization;
     if (auth && auth.startsWith('Bearer ')) return hashToken(auth.slice(7));

@@ -5703,6 +5703,7 @@ function renderPfTimeline(panelTasks, panelRoots, now) {
     const pct = totalEst > 0
       ? Math.min(100, Math.round(totalSpent / totalEst * 100))
       : (leafTasks.length > 0 ? Math.round(leafTasks.filter(d => d.status === 'Done').length / leafTasks.length * 100) : 0);
+    if (item.title && item.title.includes('Infrastructure')) console.log('[TL-DEBUG]', item.title, {descCount: globalDesc.length, leafCount: leafTasks.length, totalEst, totalSpent, pct, sampleHrs: globalDesc.slice(0,3).map(d => ({t:d.title,e:d.hoursEstimated,s:d.hoursSpent}))});
     const overdue = e < now && item.status !== 'Done';
     const daysToEnd = Math.round((e - now) / 86400000);
     const blocked = item.healthState === 'Blocked' || item.status === 'Blocked';
