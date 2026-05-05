@@ -38,6 +38,8 @@ const TRUNCATE_TABLES = [
   'sessions',
   'password_reset_tokens',
   'task_queue',
+  'milestone_items',
+  'milestones',
   'tasks',
   'lead_resources',
   'lead_activities',

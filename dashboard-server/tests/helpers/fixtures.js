@@ -266,6 +266,20 @@ async function createTestClientNote(opts = {}) {
   return rows[0];
 }
 
+/**
+ * Create a milestone. Requires client_id.
+ */
+async function createTestMilestone(opts = {}) {
+  if (!opts.client_id) throw new Error('createTestMilestone: client_id required');
+  const title = opts.title || uniq('TestMilestone');
+  const { rows } = await pool.query(
+    `INSERT INTO milestones (client_id, title, description, target_date)
+     VALUES ($1, $2, $3, $4) RETURNING *`,
+    [opts.client_id, title, opts.description || '', opts.target_date || '2026-12-31']
+  );
+  return rows[0];
+}
+
 module.exports = {
   uniq,
   createTestUser,
@@ -282,4 +296,5 @@ module.exports = {
   createTestExpense,
   createTestSow,
   createTestClientNote,
+  createTestMilestone,
 };
