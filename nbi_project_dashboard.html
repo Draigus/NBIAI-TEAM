@@ -1027,7 +1027,7 @@ span.fin-editable { display: inline-block; position: relative; }
 .gantt__row-label:hover { color: var(--accent); }
 .gantt__row--group .gantt__row-label { font-weight: 600; font-size: 0.78rem; color: var(--text-secondary); cursor: default; }
 .gantt__row--group .gantt__row-label:hover { color: var(--text-secondary); }
-.gantt__row-timeline { display: flex; flex: 1; position: relative; align-items: center; min-height: 32px; }
+.gantt__row-timeline { display: flex; flex: 1; position: relative; align-items: center; min-height: 32px; background: var(--bg-base); }
 .gantt__bar { position: absolute; height: 22px; border-radius: 4px; cursor: pointer; font-size: 0.65rem; color: #fff; display: flex; align-items: center; padding: 0 6px; overflow: visible; white-space: nowrap; text-overflow: ellipsis; z-index: 2; transition: opacity 0.15s, box-shadow 0.15s; min-width: 16px; user-select: none; background: var(--accent); }
 .gantt__bar:hover { opacity: 0.85; filter: brightness(1.15); }
 .gantt__bar.selected { box-shadow: 0 0 0 2px var(--accent), 0 0 8px rgba(0,102,255,0.3); z-index: 5; cursor: grab; }
@@ -1056,10 +1056,10 @@ span.fin-editable { display: inline-block; position: relative; }
    own status colour because they're a signal in their own right. The
    progress fill below is what carries the health colour for active bars. */
 .gantt__bar { background: rgba(148,163,184,0.28); }
-.gantt__bar--done { background: var(--success); }
-.gantt__bar--inprogress { /* grey by default; health-class fill carries the colour */ }
-.gantt__bar--notstarted { background: rgba(148,163,184,0.28); opacity: 0.85; }
-.gantt__bar--blocked { background: var(--purple); }
+.gantt__bar--done { background: var(--accent); }
+.gantt__bar--inprogress { background: rgba(34,197,94,0.22); }
+.gantt__bar--notstarted { background: rgba(148,163,184,0.28); }
+.gantt__bar--blocked { background: var(--danger); }
 .gantt__bar--cancelled { background: var(--text-faint); opacity: 0.3; }
 .gantt__bar--nodate { background: var(--warning); opacity: 0.4; width: 4px !important; }
 /* Progress fill — coloured by the row's health class (red overdue, amber
@@ -1069,7 +1069,7 @@ span.fin-editable { display: inline-block; position: relative; }
 .gantt__bar--health-red > .gantt__bar-progress { background: #ef4444; }
 .gantt__bar--health-amber > .gantt__bar-progress { background: #f59e0b; }
 .gantt__bar--health-green > .gantt__bar-progress { background: #22c55e; }
-.gantt__bar--health-blocked > .gantt__bar-progress { background: #94a3b8; }
+.gantt__bar--health-blocked > .gantt__bar-progress { background: #ef4444; }
 .gantt__bar--done .gantt__bar-progress { display: none; }
 .gantt__bar--cancelled .gantt__bar-progress { display: none; }
 .gantt__bar-pct { position: absolute; top: 50%; right: 4px; transform: translateY(-50%); font-size: 0.58rem; font-weight: 700; color: rgba(255,255,255,0.9); pointer-events: none; letter-spacing: 0.02em; text-shadow: 0 1px 1px rgba(0,0,0,0.3); }
@@ -11372,7 +11372,11 @@ function renderPeopleView(el) {
   }
 
   // === DATA COMPUTATION ===
-  const WEEKLY_CAPACITY = 40;
+  function getCapacity(personName) {
+    if (!Array.isArray(_cachedUsers)) return 40;
+    const u = _cachedUsers.find(x => x.display_name === personName);
+    return (u && u.capacity_hours_per_week) || 40;
+  }
   const now = new Date(); now.setHours(0,0,0,0);
 
   // Build the 3-week window — Monday of this week, next, and the following.
@@ -11398,7 +11402,8 @@ function renderPeopleView(el) {
     });
     const committed = weekTasks.reduce((s, t) => s + (t.hoursEstimated || 0), 0);
     const daysOff = (typeof computeDaysOff === 'function') ? computeDaysOff(person, weekStart, weekEnd, _capacityEvents) : 0;
-    const effCap = Math.max(0, WEEKLY_CAPACITY - daysOff * 8);
+    const cap = getCapacity(person);
+    const effCap = Math.max(0, cap - daysOff * (cap / 5));
     if (effCap === 0) return { pct: null, label: 'OFF', daysOff };
     return { pct: Math.round(committed / effCap * 100), daysOff };
   }
@@ -11416,7 +11421,7 @@ function renderPeopleView(el) {
       overdue: pt.filter(t => t.dueDate && t.status !== 'Done' && t.status !== 'Cancelled' && safeParseDate(t.dueDate) < now).length,
       hs: pt.reduce((s,t) => s + (t.hoursSpent||0), 0),
       he: pt.reduce((s,t) => s + (t.hoursEstimated||0), 0),
-      util: Math.round((activeTasks.reduce((s,t) => s + (t.hoursEstimated||0), 0)) / WEEKLY_CAPACITY * 100),
+      util: Math.round((activeTasks.reduce((s,t) => s + (t.hoursEstimated||0), 0)) / getCapacity(p) * 100),
       weeks: previewWeeks.map(wk => weekUtilFor(p, wk.start, wk.end)),
     };
   });
@@ -11563,7 +11568,8 @@ function renderPeopleView(el) {
         });
         const committedHrs = weekTasks.reduce((s,t) => s + (t.hoursEstimated||0), 0);
         const daysOff = computeDaysOff(selectedPerson, wk.start, wk.end, _capacityEvents);
-        const effCap = Math.max(0, WEEKLY_CAPACITY - daysOff * 8);
+        const pCap = getCapacity(selectedPerson);
+        const effCap = Math.max(0, pCap - daysOff * (pCap / 5));
         if (effCap === 0) {
           html += `<div class="people-capacity-cell" style="background:color-mix(in srgb, var(--text-muted) 8%, transparent);border-color:var(--border-default)"><div class="people-capacity-cell__pct" style="color:var(--text-muted)">OFF</div><div class="people-capacity-cell__date">${wk.label}</div><div class="people-capacity-cell__off">${daysOff}d off</div></div>`;
           return;
@@ -21224,7 +21230,7 @@ async function loadUserManagement() {
     const users = await apiCall('/api/users');
     if (!users) return;
     const clientList = Object.values(_apiClientsCache);
-    el.innerHTML = `<table class="report-table" style="font-size:0.8rem"><thead><tr><th>Username</th><th>Display Name</th><th>Email</th><th>Role</th><th>Client Scope</th><th>Docs / Queue</th><th></th></tr></thead><tbody>` +
+    el.innerHTML = `<table class="report-table" style="font-size:0.8rem"><thead><tr><th>Username</th><th>Display Name</th><th>Email</th><th>Role</th><th>Hrs/wk</th><th>Client Scope</th><th>Docs / Queue</th><th></th></tr></thead><tbody>` +
       users.map(u => {
         const scopeOpts = `<option value="">None (internal)</option>` + clientList.map(c => `<option value="${esc(c.id)}" ${u.client_id===c.id?'selected':''}>${esc(c.name)}</option>`).join('');
         return `<tr>
@@ -21232,6 +21238,7 @@ async function loadUserManagement() {
         <td><input value="${esc(u.display_name)}" onblur="updateUserField('${u.id}','display_name',this.value)" onkeydown="if(event.key==='Enter')this.blur()" style="background:transparent;border:1px solid transparent;border-radius:3px;padding:2px 4px;color:var(--text-primary);font-size:0.8rem;width:100%" onfocus="this.style.borderColor='var(--accent)';this.style.background='var(--bg-input)'" onblur="this.style.borderColor='transparent';this.style.background='transparent';updateUserField('${u.id}','display_name',this.value)"></td>
         <td><input value="${esc(u.email||'')}" onblur="updateUserField('${u.id}','email',this.value)" onkeydown="if(event.key==='Enter')this.blur()" style="background:transparent;border:1px solid transparent;border-radius:3px;padding:2px 4px;color:var(--text-primary);font-size:0.8rem;width:100%" onfocus="this.style.borderColor='var(--accent)';this.style.background='var(--bg-input)'" onblur="this.style.borderColor='transparent';this.style.background='transparent';updateUserField('${u.id}','email',this.value)"></td>
         <td><select onchange="updateUserRole('${u.id}',this.value)" style="font-size:0.75rem;padding:2px 4px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:3px;color:var(--text-primary)"><option value="user" ${u.role==='user'?'selected':''}>User</option><option value="admin" ${u.role==='admin'?'selected':''}>Admin</option></select></td>
+        <td><input type="number" min="1" max="80" step="1" value="${u.capacity_hours_per_week || 40}" onchange="updateUserCapacity('${u.id}',this.value)" style="width:50px;padding:2px 4px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:3px;color:var(--text-primary);font-size:0.8rem;text-align:center"></td>
         <td><select onchange="updateUserClientScope('${u.id}',this.value)" style="font-size:0.75rem;padding:2px 4px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:3px;color:var(--text-primary)">${scopeOpts}</select></td>
         <td style="font-size:0.7rem;white-space:nowrap"><label title="View docs"><input type="checkbox" ${u.docs_view!==false?'checked':''} onchange="updateUserField('${u.id}','docs_view',this.checked)"> V</label> <label title="Edit docs"><input type="checkbox" ${u.docs_edit!==false?'checked':''} onchange="updateUserField('${u.id}','docs_edit',this.checked)"> E</label> <label title="Create docs"><input type="checkbox" ${u.docs_create!==false?'checked':''} onchange="updateUserField('${u.id}','docs_create',this.checked)"> C</label> <label title="Upload images"><input type="checkbox" ${u.docs_upload!==false?'checked':''} onchange="updateUserField('${u.id}','docs_upload',this.checked)"> U</label> <label title="Queue submit"><input type="checkbox" ${u.can_submit_queue?'checked':''} onchange="updateUserField('${u.id}','can_submit_queue',this.checked)" style="accent-color:var(--accent)"> Q</label></td>
         <td>${_currentUser && u.id !== _currentUser.id ? `<button style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:0.75rem" data-action="deleteUser" data-arg0="${u.id}" data-arg1="${esc(u.display_name)}">&times; Remove</button>` : ''}</td>
@@ -21318,6 +21325,22 @@ async function updateUserField(userId, field, value) {
     if (resp.ok) {
       const labels = { display_name: 'Name', email: 'Email', docs_view: 'View docs', docs_edit: 'Edit docs', docs_create: 'Create docs', docs_upload: 'Upload docs', can_submit_queue: 'Queue submit' };
       toast((labels[field] || field) + ' updated');
+    } else toast('Update failed', 'error');
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
+}
+
+async function updateUserCapacity(userId, value) {
+  const hrs = parseInt(value, 10);
+  if (isNaN(hrs) || hrs < 1 || hrs > 80) { toast('Hours must be between 1 and 80', 'error'); return; }
+  try {
+    const resp = await authFetch('/api/users/' + userId, {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ capacity_hours_per_week: hrs })
+    });
+    if (resp.ok) {
+      const cached = _cachedUsers.find(u => u.id === userId);
+      if (cached) cached.capacity_hours_per_week = hrs;
+      toast('Capacity updated to ' + hrs + 'h/wk');
     } else toast('Update failed', 'error');
   } catch(e) { toast('Error: ' + e.message, 'error'); }
 }

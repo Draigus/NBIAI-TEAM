@@ -1331,7 +1331,7 @@ app.patch('/api/users/:id', async (req, res) => {
   }
 
   const allowedFields = isAdmin
-    ? ['role', 'display_name', 'email', 'client_id', 'is_active', 'client_role', 'docs_view', 'docs_edit', 'docs_create', 'docs_upload', 'can_submit_queue']
+    ? ['role', 'display_name', 'email', 'client_id', 'is_active', 'client_role', 'docs_view', 'docs_edit', 'docs_create', 'docs_upload', 'can_submit_queue', 'capacity_hours_per_week']
     : ['display_name', 'client_role', 'is_active'];
 
   const { updates, vals, nextIdx } = buildPatchQuery(req.body, allowedFields);
