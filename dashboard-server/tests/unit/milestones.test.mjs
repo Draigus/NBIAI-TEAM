@@ -25,7 +25,7 @@ describe('Milestones API', () => {
   it('GET /api/clients/:clientId/milestones returns empty array initially', async () => {
     const res = await request(app)
       .get(`/api/clients/${client1.id}/milestones`)
-      .set('Cookie', `sid=${adminToken}`)
+      .set('Authorization', `Bearer ${adminToken}`)
       .expect(200);
     expect(res.body).toEqual([]);
   });
@@ -37,7 +37,7 @@ describe('Milestones API', () => {
 
     const res = await request(app)
       .get(`/api/clients/${client1.id}/milestones`)
-      .set('Cookie', `sid=${adminToken}`)
+      .set('Authorization', `Bearer ${adminToken}`)
       .expect(200);
 
     expect(res.body).toHaveLength(1);
@@ -51,7 +51,7 @@ describe('Milestones API', () => {
 
     const res = await request(app)
       .get(`/api/clients/${client1.id}/milestones`)
-      .set('Cookie', `sid=${adminToken}`)
+      .set('Authorization', `Bearer ${adminToken}`)
       .expect(200);
     expect(res.body).toEqual([]);
   });
@@ -61,7 +61,7 @@ describe('Milestones API', () => {
   it('POST /api/clients/:clientId/milestones creates a milestone', async () => {
     const res = await request(app)
       .post(`/api/clients/${client1.id}/milestones`)
-      .set('Cookie', `sid=${adminToken}`)
+      .set('Authorization', `Bearer ${adminToken}`)
       .send({ title: 'Beta Release', description: 'External beta', target_date: '2026-09-01' })
       .expect(201);
 
@@ -76,7 +76,7 @@ describe('Milestones API', () => {
     const feat = await createTestTask({ client_id: client1.id, title: 'Matchmaking', item_type: 'project' });
     const res = await request(app)
       .post(`/api/clients/${client1.id}/milestones`)
-      .set('Cookie', `sid=${adminToken}`)
+      .set('Authorization', `Bearer ${adminToken}`)
       .send({ title: 'Alpha', target_date: '2026-07-01', linked_item_ids: [feat.id] })
       .expect(201);
 
@@ -86,7 +86,7 @@ describe('Milestones API', () => {
   it('POST rejects missing title', async () => {
     await request(app)
       .post(`/api/clients/${client1.id}/milestones`)
-      .set('Cookie', `sid=${adminToken}`)
+      .set('Authorization', `Bearer ${adminToken}`)
       .send({ target_date: '2026-09-01' })
       .expect(400);
   });
@@ -94,7 +94,7 @@ describe('Milestones API', () => {
   it('POST rejects missing target_date', async () => {
     await request(app)
       .post(`/api/clients/${client1.id}/milestones`)
-      .set('Cookie', `sid=${adminToken}`)
+      .set('Authorization', `Bearer ${adminToken}`)
       .send({ title: 'No Date' })
       .expect(400);
   });
@@ -102,7 +102,7 @@ describe('Milestones API', () => {
   it('POST rejects invalid client ID', async () => {
     await request(app)
       .post('/api/clients/not-a-uuid/milestones')
-      .set('Cookie', `sid=${adminToken}`)
+      .set('Authorization', `Bearer ${adminToken}`)
       .send({ title: 'X', target_date: '2026-09-01' })
       .expect(400);
   });
@@ -114,7 +114,7 @@ describe('Milestones API', () => {
 
     const res = await request(app)
       .put(`/api/milestones/${ms.id}`)
-      .set('Cookie', `sid=${adminToken}`)
+      .set('Authorization', `Bearer ${adminToken}`)
       .send({ title: 'New Title', target_date: '2026-08-01' })
       .expect(200);
 
@@ -130,7 +130,7 @@ describe('Milestones API', () => {
 
     const res = await request(app)
       .put(`/api/milestones/${ms.id}`)
-      .set('Cookie', `sid=${adminToken}`)
+      .set('Authorization', `Bearer ${adminToken}`)
       .send({ linked_item_ids: [feat2.id] })
       .expect(200);
 
@@ -140,7 +140,7 @@ describe('Milestones API', () => {
   it('PUT returns 404 for nonexistent milestone', async () => {
     await request(app)
       .put('/api/milestones/00000000-0000-0000-0000-000000000000')
-      .set('Cookie', `sid=${adminToken}`)
+      .set('Authorization', `Bearer ${adminToken}`)
       .send({ title: 'X' })
       .expect(404);
   });
@@ -152,7 +152,7 @@ describe('Milestones API', () => {
 
     await request(app)
       .delete(`/api/milestones/${ms.id}`)
-      .set('Cookie', `sid=${adminToken}`)
+      .set('Authorization', `Bearer ${adminToken}`)
       .expect(204);
 
     const check = await pool.query('SELECT id FROM milestones WHERE id = $1', [ms.id]);
@@ -166,7 +166,7 @@ describe('Milestones API', () => {
 
     await request(app)
       .delete(`/api/milestones/${ms.id}`)
-      .set('Cookie', `sid=${adminToken}`)
+      .set('Authorization', `Bearer ${adminToken}`)
       .expect(204);
 
     const items = await pool.query('SELECT * FROM milestone_items WHERE milestone_id = $1', [ms.id]);
@@ -176,7 +176,7 @@ describe('Milestones API', () => {
   it('DELETE returns 404 for nonexistent milestone', async () => {
     await request(app)
       .delete('/api/milestones/00000000-0000-0000-0000-000000000000')
-      .set('Cookie', `sid=${adminToken}`)
+      .set('Authorization', `Bearer ${adminToken}`)
       .expect(404);
   });
 
@@ -192,7 +192,7 @@ describe('Milestones API', () => {
     const viewerToken = await mintSession(viewer.id);
     await request(app)
       .post(`/api/clients/${client1.id}/milestones`)
-      .set('Cookie', `sid=${viewerToken}`)
+      .set('Authorization', `Bearer ${viewerToken}`)
       .send({ title: 'X', target_date: '2026-01-01' })
       .expect(403);
   });
