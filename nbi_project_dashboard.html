@@ -2918,6 +2918,7 @@ function _actScrollTo(id) { const el = document.getElementById(id); if (el) el.s
 function _actShowReassignPicker() { document.getElementById('reassignPicker').style.display = 'flex'; }
 function _actDlStepBack() { document.getElementById('dlStep2').style.display = 'none'; document.getElementById('dlStep1').style.display = 'block'; }
 function _actAddItemFromPicker(type, parentId) { const m = document.getElementById('addItemPickerModal'); if (m) m.remove(); addItem(type, parentId); }
+function _actAddProjectForClient(client) { const m = document.getElementById('addItemPickerModal'); if (m) m.remove(); const t = createTaskObject({ title: 'New Project', itemType: 'project', client }); tasks.push(t); markDirty(t.id); save(); renderSidebarCounts(); renderContent(); openDetail(t.id); }
 
 function _actCloseDetailOverlay(el) { const overlay = el.closest('.detail-overlay'); if (overlay) overlay.remove(); }
 function _actToggleCollapsed(el) { el.parentElement.classList.toggle('collapsed'); }
@@ -3146,7 +3147,10 @@ async function loadTeamMembers() {
       _cachedUsers = users.filter(u => u.is_active !== false);
       _cachedTeamMembers = _cachedUsers.map(u => u.display_name).sort();
     }
-  } catch(e) {}
+  } catch(e) {
+    console.error('loadTeamMembers failed:', e);
+    showToast('Could not load team members — assignee dropdowns may be empty', 'warning');
+  }
 }
 
 /** Generate an assignee dropdown/selector HTML for the detail panel */
@@ -10385,18 +10389,10 @@ function createTaskObject(overrides) {
   };
 }
 
-/** Create a new project at root level and open its detail panel (header + button default action) */
-async function addTask() {
-  let client = currentFilter.client || '';
-  if (!client) {
-    client = await _pickClient('Select a client for the new project');
-    if (!client) return;
-  }
-  const t = createTaskObject({ title: 'New Project', itemType: 'project', client });
-  tasks.push(t);
-  markDirty(t.id);
-  save(); renderSidebarCounts(); renderContent();
-  openDetail(t.id);
+/** Open the add-item type menu (header New button default action) */
+function addTask() {
+  const dd = document.getElementById('addItemMenuDropdown');
+  if (dd) dd.style.display = dd.style.display === 'none' ? '' : 'none';
 }
 
 function _pickClient(title) {
@@ -10437,7 +10433,7 @@ function closeAddItemMenu() {
   const dd = document.getElementById('addItemMenuDropdown');
   if (dd) dd.style.display = 'none';
 }
-function addItemFromMenu(type) { closeAddItemMenu(); if (type === 'project') addItem('project'); else showAddItemPicker(type); }
+function addItemFromMenu(type) { closeAddItemMenu(); showAddItemPicker(type); }
 function overflowPrint() { printReport(); toggleHeaderOverflow(); }
 function overflowReport() { openBugReportModal(); toggleHeaderOverflow(); }
 function overflowTheme(e) { toggleThemeDropdown(e); toggleHeaderOverflow(); }
@@ -10461,6 +10457,29 @@ async function addItem(type, parentId) {
 
 /** Show a modal to pick a parent before creating an item of a given type */
 function showAddItemPicker(type) {
+  // Project: pick a client
+  if (type === 'project') {
+    const clients = getAllClients();
+    if (clients.length === 0) { toast('No clients configured — add one in Settings first.', 'warning'); return; }
+    if (currentFilter.client) { addItem('project', null); return; }
+    if (clients.length === 1) { addItem('project', null); return; }
+    let html = `<div class="modal-overlay open" id="addItemPickerModal" role="dialog" aria-modal="true" data-action="_actRemoveIfSelf" data-pass-event data-pass-el>
+      <div class="modal" style="max-width:var(--modal-sm)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <h2 style="margin:0">New Project</h2>
+          <button class="btn btn--ghost" data-action="_actModalRemove" data-arg0="addItemPickerModal">&times;</button>
+        </div>
+        <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:12px">Which client is this project for?</p>
+        <div style="max-height:300px;overflow-y:auto;border:1px solid var(--border-default);border-radius:var(--radius-sm)">`;
+    clients.sort().forEach(c => {
+      html += `<div class="picker-row" data-action="_actAddProjectForClient" data-arg0="${esc(c)}">${clientBadgeHtml(c)} <span>${esc(c)}</span></div>`;
+    });
+    html += `</div></div></div>`;
+    document.body.insertAdjacentHTML('beforeend', html);
+    _activateDynamicModal('addItemPickerModal');
+    return;
+  }
+  // Feature/Story/Task: pick a parent, grouped by hierarchy
   const parentType = VALID_PARENT_TYPE[type];
   if (!parentType) { addItem(type, null); return; }
   const parents = tasks.filter(t => getItemType(t) === parentType).sort((a, b) => a.title.localeCompare(b.title));
@@ -10468,19 +10487,53 @@ function showAddItemPicker(type) {
     toast(`No ${ITEM_TYPE_META[parentType].plural} exist yet. Create a ${ITEM_TYPE_META[parentType].label} first.`, 'warning');
     return;
   }
+  if (parents.length === 1) { addItem(type, parents[0].id); return; }
+  // Group parents by client, then by ancestor chain
+  const grouped = {};
+  parents.forEach(p => {
+    const client = getTaskClient(p) || 'Unassigned';
+    if (!grouped[client]) grouped[client] = [];
+    grouped[client].push(p);
+  });
+  const filterClient = currentFilter.client;
+  const sortedClients = Object.keys(grouped).sort((a, b) => {
+    if (filterClient) { if (a === filterClient) return -1; if (b === filterClient) return 1; }
+    return a.localeCompare(b);
+  });
   let html = `<div class="modal-overlay open" id="addItemPickerModal" role="dialog" aria-modal="true" data-action="_actRemoveIfSelf" data-pass-event data-pass-el>
     <div class="modal" style="max-width:var(--modal-sm)">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
         <h2 style="margin:0">New ${ITEM_TYPE_META[type].label}</h2>
         <button class="btn btn--ghost" data-action="_actModalRemove" data-arg0="addItemPickerModal">&times;</button>
       </div>
-      <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:12px">Select a ${ITEM_TYPE_META[parentType].label} to create this ${ITEM_TYPE_META[type].label} under:</p>
-      <div style="max-height:300px;overflow-y:auto;border:1px solid var(--border-default);border-radius:var(--radius-sm)">`;
-  parents.forEach(p => {
-    const clientBadge = p.client ? clientBadgeHtml(p.client) : '';
-    html += `<div class="picker-row" data-action="_actAddItemFromPicker" data-arg0="${type}" data-arg1="${p.id}">
-      ${clientBadge} ${itemTypeBadgeHtml(p)} <span>${esc(p.title)}</span>
-    </div>`;
+      <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:12px">Select a ${ITEM_TYPE_META[parentType].label} to add this ${ITEM_TYPE_META[type].label} under:</p>
+      <div style="max-height:400px;overflow-y:auto;border:1px solid var(--border-default);border-radius:var(--radius-sm)">`;
+  sortedClients.forEach(client => {
+    html += `<div style="padding:6px 12px;font-size:0.72rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;background:var(--bg-surface);border-bottom:1px solid var(--border-subtle)">${clientBadgeHtml(client)} ${esc(client)}</div>`;
+    // Sub-group by ancestor project if parent type is deeper than project
+    const items = grouped[client];
+    if (parentType === 'project') {
+      items.forEach(p => {
+        html += `<div class="picker-row" data-action="_actAddItemFromPicker" data-arg0="${type}" data-arg1="${p.id}">
+          ${itemTypeBadgeHtml(p)} <span>${esc(p.title)}</span></div>`;
+      });
+    } else {
+      // Group by project ancestor
+      const byProject = {};
+      items.forEach(p => {
+        const root = getRootAncestor(p);
+        const projKey = root.id;
+        if (!byProject[projKey]) byProject[projKey] = { project: root, items: [] };
+        byProject[projKey].items.push(p);
+      });
+      Object.values(byProject).sort((a, b) => a.project.title.localeCompare(b.project.title)).forEach(grp => {
+        html += `<div style="padding:4px 12px 4px 24px;font-size:0.72rem;color:var(--text-secondary);border-bottom:1px solid var(--border-subtle)">&#9656; ${esc(grp.project.title)}</div>`;
+        grp.items.forEach(p => {
+          html += `<div class="picker-row" style="padding-left:36px" data-action="_actAddItemFromPicker" data-arg0="${type}" data-arg1="${p.id}">
+            ${itemTypeBadgeHtml(p)} <span>${esc(p.title)}</span></div>`;
+        });
+      });
+    }
   });
   html += `</div></div></div>`;
   document.body.insertAdjacentHTML('beforeend', html);

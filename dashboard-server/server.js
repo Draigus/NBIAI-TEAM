@@ -158,11 +158,34 @@ function getCookieToken(req) {
   return match ? match[1] : null;
 }
 
-// Brute-force protection: track failed logins in memory (resets on restart)
-const _failedLogins = {}; // { username: { count, lastAttempt } }
+// Brute-force protection: persisted to DB so counters survive PM2 restarts
 const FAILED_LOGIN_THRESHOLD = 3;  // Show "forgot password" link after this many failures
 const FAILED_LOGIN_LOCKOUT = 5;    // Lock account for LOCKOUT_DURATION after this many failures
 const LOCKOUT_DURATION = 15 * 60 * 1000; // 15 minutes
+
+async function getFailedLogins(username) {
+  const { rows } = await pool.query('SELECT fail_count, last_attempt, locked_until FROM login_attempts WHERE username = $1', [username]);
+  if (rows.length === 0) return null;
+  return { count: rows[0].fail_count, lastAttempt: new Date(rows[0].last_attempt).getTime(), lockedUntil: rows[0].locked_until ? new Date(rows[0].locked_until).getTime() : null };
+}
+async function recordFailedLogin(username) {
+  const lockedUntil = new Date(Date.now() + LOCKOUT_DURATION);
+  const { rows } = await pool.query(
+    `INSERT INTO login_attempts (username, fail_count, last_attempt)
+     VALUES ($1, 1, NOW())
+     ON CONFLICT (username) DO UPDATE SET fail_count = login_attempts.fail_count + 1, last_attempt = NOW()
+     RETURNING fail_count`,
+    [username]
+  );
+  const count = rows[0].fail_count;
+  if (count >= FAILED_LOGIN_LOCKOUT) {
+    await pool.query('UPDATE login_attempts SET locked_until = $1 WHERE username = $2', [lockedUntil, username]);
+  }
+  return count;
+}
+async function clearFailedLogins(username) {
+  await pool.query('DELETE FROM login_attempts WHERE username = $1', [username]);
+}
 
 // Email config — Microsoft Graph API (OAuth2 client credentials)
 const AZURE_TENANT_ID = process.env.AZURE_TENANT_ID || '';
@@ -348,11 +371,8 @@ setInterval(() => {
   const now = Date.now();
   for (const [token, entry] of _tokenCache) { if (entry.expiresAt <= now) _tokenCache.delete(token); }
   for (const key of Object.keys(_configCache)) { if (_configCache[key].expiresAt <= now) delete _configCache[key]; }
-  // Evict failed login entries older than 1 hour to prevent unbounded growth
-  const ONE_HOUR = 60 * 60 * 1000;
-  for (const key of Object.keys(_failedLogins)) {
-    if (now - _failedLogins[key].lastAttempt > ONE_HOUR) delete _failedLogins[key];
-  }
+  // Evict stale login attempt rows older than 1 hour
+  pool.query('DELETE FROM login_attempts WHERE last_attempt < NOW() - INTERVAL \'1 hour\'').catch(() => {});
 }, 10 * 60 * 1000).unref(); // unref() allows graceful shutdown without this timer blocking exit
 
 // ==================== HELPERS ====================
@@ -718,8 +738,8 @@ app.post('/api/auth/login', async (req, res) => {
 
   const key = username.toLowerCase().trim();
 
-  // Account lockout: block login after FAILED_LOGIN_LOCKOUT consecutive failures
-  const failEntry = _failedLogins[key];
+  // Account lockout: block login after FAILED_LOGIN_LOCKOUT consecutive failures (persisted to DB)
+  const failEntry = await getFailedLogins(key);
   if (failEntry && failEntry.count >= FAILED_LOGIN_LOCKOUT) {
     const elapsed = Date.now() - failEntry.lastAttempt;
     if (elapsed < LOCKOUT_DURATION) {
@@ -727,19 +747,15 @@ app.post('/api/auth/login', async (req, res) => {
       log('warn', 'Auth', `Account lockout active for "${key}" — ${failEntry.count} failures, ${minsLeft}min remaining`);
       return res.status(429).json({ error: `Account temporarily locked. Try again in ${minsLeft} minute${minsLeft > 1 ? 's' : ''}.`, locked: true, minsLeft });
     }
-    // Lockout expired — reset counter
     log('info', 'Auth', `Lockout expired for "${key}", resetting counter`);
-    delete _failedLogins[key];
+    await clearFailedLogins(key);
   }
 
   // Allow login by either username or email address
   const { rows } = await pool.query('SELECT * FROM users WHERE username = $1 OR email = $1', [key]);
   if (rows.length === 0) {
-      if (Object.keys(_failedLogins).length > 10000) { for (const k of Object.keys(_failedLogins).slice(0, 5000)) delete _failedLogins[k]; }
-    if (!_failedLogins[key]) _failedLogins[key] = { count: 0, lastAttempt: 0 };
-    _failedLogins[key].count++;
-    _failedLogins[key].lastAttempt = Date.now();
-    const showReset = _failedLogins[key].count >= FAILED_LOGIN_THRESHOLD;
+    const count = await recordFailedLogin(key);
+    const showReset = count >= FAILED_LOGIN_THRESHOLD;
     authFailures?.inc();
     return res.status(401).json({ error: 'Invalid username or password', showReset });
   }
@@ -747,16 +763,14 @@ app.post('/api/auth/login', async (req, res) => {
   const user = rows[0];
   const valid = await bcrypt.compare(password, user.password_hash);
   if (!valid) {
-    if (!_failedLogins[key]) _failedLogins[key] = { count: 0, lastAttempt: 0 };
-    _failedLogins[key].count++;
-    _failedLogins[key].lastAttempt = Date.now();
-    const showReset = _failedLogins[key].count >= FAILED_LOGIN_THRESHOLD;
+    const count = await recordFailedLogin(key);
+    const showReset = count >= FAILED_LOGIN_THRESHOLD;
     authFailures?.inc();
     return res.status(401).json({ error: 'Invalid username or password', showReset });
   }
 
   // Successful login — clear failed attempts
-  delete _failedLogins[key];
+  await clearFailedLogins(key);
 
   // Create session — store SHA-256 hash in DB, return plaintext to client
   const token = crypto.randomBytes(32).toString('hex');
@@ -872,16 +886,13 @@ async function requireAuth(req, res, next) {
     res.status(500).json({ error: 'An internal error occurred' });
   }
 }
-/** Exception client names that are always visible to all internal users */
-const ALWAYS_VISIBLE_CLIENTS = ['NBI OPS', 'Playsage'];
-
 /**
  * Return allowed client IDs for the current user, or null if unrestricted.
  *
  * - Admin (role=admin, no client_id): null (sees everything)
  * - External (client_id set): [client_id] (G5 single-client scope)
- * - Internal member with teams: team clients + exception clients + null-client tasks
- * - Internal member with no teams: exception clients only (NBI OPS, Playsage) + null-client tasks
+ * - Internal member with teams: team clients + always_visible clients + null-client tasks
+ * - Internal member with no teams: always_visible clients only + null-client tasks
  *
  * Result is cached on req._clientScopes to avoid re-querying per request.
  */
@@ -900,25 +911,17 @@ async function getClientScopes(req) {
     [req.user?.id]
   );
 
+  const { rows: exceptions } = await pool.query(
+    'SELECT id FROM clients WHERE always_visible = true'
+  );
+  const exceptionIds = exceptions.map(e => e.id);
+
   if (teams.length === 0) {
-    const { rows: exceptions } = await pool.query(
-      'SELECT id FROM clients WHERE name = ANY($1)',
-      [ALWAYS_VISIBLE_CLIENTS]
-    );
-    const exceptionIds = exceptions.map(e => e.id);
     req._clientScopes = exceptionIds.length > 0 ? exceptionIds : ['00000000-0000-0000-0000-000000000000'];
     return req._clientScopes;
   }
 
   const teamClientIds = teams.map(t => t.client_id);
-
-  // Add exception clients
-  const { rows: exceptions } = await pool.query(
-    'SELECT id FROM clients WHERE name = ANY($1)',
-    [ALWAYS_VISIBLE_CLIENTS]
-  );
-  const exceptionIds = exceptions.map(e => e.id);
-
   req._clientScopes = [...new Set([...teamClientIds, ...exceptionIds])];
   return req._clientScopes;
 }
@@ -1141,7 +1144,7 @@ app.post('/api/auth/reset-password', requireAdmin, async (req, res) => {
   await pool.query('DELETE FROM sessions WHERE user_id = $1', [userId]);
   // Also clear any failed login counters for this user
   const { rows: resetUser } = await pool.query('SELECT username FROM users WHERE id = $1', [userId]);
-  if (resetUser.length > 0) delete _failedLogins[resetUser[0].username.toLowerCase()];
+  if (resetUser.length > 0) await clearFailedLogins(resetUser[0].username.toLowerCase());
   res.json({ ok: true });
 });
 
@@ -1150,9 +1153,9 @@ app.post('/api/auth/clear-lockout', requireAdmin, async (req, res) => {
   const { username } = req.body;
   if (!username) return res.status(400).json({ error: 'username required' });
   const key = username.toLowerCase().trim();
-  const had = !!_failedLogins[key];
-  delete _failedLogins[key];
-  res.json({ ok: true, cleared: had });
+  const entry = await getFailedLogins(key);
+  await clearFailedLogins(key);
+  res.json({ ok: true, cleared: !!entry });
 });
 
 /** POST /api/auth/change-password — Change your own password (requires current password) */
@@ -2857,28 +2860,34 @@ app.post('/api/templates/:id/create', requireAdmin, async (req, res) => {
   if (rows.length === 0) return res.status(404).json({ error: 'Template not found' });
   const tmpl = rows[0].template;
   const created = [];
+  const conn = await pool.connect();
+  try {
+    await conn.query('BEGIN');
 
-  /**
-   * Recursively insert a task node and its children from a template tree.
-   * @param {Object} node - Template node with title, status, priority, children, etc.
-   * @param {string|null} parentId - UUID of the parent task (null for root)
-   */
-  async function createFromTemplate(node, parentId) {
-    const taskResult = await pool.query(
-      `INSERT INTO tasks (title, parent_id, status, priority, description, assignees, hours_estimated, source)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, 'template') RETURNING id`,
-      [node.title, parentId, node.status || 'Not started', node.priority || '', node.description || '', node.assignees || [], node.hoursEstimated || 0]
-    );
-    created.push({ id: taskResult.rows[0].id, title: node.title });
-    if (node.children) {
-      for (const child of node.children) {
-        await createFromTemplate(child, taskResult.rows[0].id);
+    async function createFromTemplate(node, parentId) {
+      const taskResult = await conn.query(
+        `INSERT INTO tasks (title, parent_id, status, priority, description, assignees, hours_estimated, source)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, 'template') RETURNING id`,
+        [node.title, parentId, node.status || 'Not started', node.priority || '', node.description || '', node.assignees || [], node.hoursEstimated || 0]
+      );
+      created.push({ id: taskResult.rows[0].id, title: node.title });
+      if (node.children) {
+        for (const child of node.children) {
+          await createFromTemplate(child, taskResult.rows[0].id);
+        }
       }
     }
+    await createFromTemplate(tmpl, null);
+    await conn.query('UPDATE task_templates SET last_created_at = NOW() WHERE id = $1', [req.params.id]);
+    await conn.query('COMMIT');
+    res.json({ ok: true, created });
+  } catch (err) {
+    await conn.query('ROLLBACK');
+    log('error', 'Templates', 'Template instantiation failed, rolled back', { error: err.message });
+    res.status(500).json({ error: 'Template creation failed' });
+  } finally {
+    conn.release();
   }
-  await createFromTemplate(tmpl, null);
-  await pool.query('UPDATE task_templates SET last_created_at = NOW() WHERE id = $1', [req.params.id]);
-  res.json({ ok: true, created });
 });
 
 /** DELETE /api/templates/:id — Remove a saved template (admin only) */
@@ -5864,15 +5873,19 @@ app.post('/api/sync/changes', async (req, res) => {
           existingTaskMap.set(rows[0].id, new Date()); // Register in map for subsequent batch references
         }
 
-        // Sync task notes if present
+        // Sync task notes: append-only to avoid wiping notes added by other users
         if (Array.isArray(t.notes) && t.notes.length > 0) {
           const taskDbId = idMap[t.id] || t.id;
-          // Delete existing notes and re-insert (notes are small, append-only)
-          await conn.query('DELETE FROM task_notes WHERE task_id = $1', [taskDbId]);
+          const existing = await conn.query('SELECT text, created_at FROM task_notes WHERE task_id = $1', [taskDbId]);
+          const existingSet = new Set(existing.rows.map(r => r.text + '|' + new Date(r.created_at).toISOString()));
           for (const n of t.notes) {
             if (n.text || n.time) {
-              await conn.query('INSERT INTO task_notes (task_id, text, created_at) VALUES ($1, $2, $3)',
-                [taskDbId, n.text || '', n.time || n.created_at || new Date().toISOString()]);
+              const ts = n.time || n.created_at || new Date().toISOString();
+              const key = (n.text || '') + '|' + new Date(ts).toISOString();
+              if (!existingSet.has(key)) {
+                await conn.query('INSERT INTO task_notes (task_id, text, created_at) VALUES ($1, $2, $3)',
+                  [taskDbId, n.text || '', ts]);
+              }
             }
           }
         }
@@ -6061,7 +6074,7 @@ app.post('/api/sync/changes', async (req, res) => {
  * plus the full list of current task IDs (so the client can detect deletions).
  *
  * Scoped by getClientScopes: admins and internal-no-team users see everything;
- * internal-with-team users see their team's clients + ALWAYS_VISIBLE_CLIENTS +
+ * internal-with-team users see their team's clients + always_visible clients +
  * null-client tasks (internal work); G5 external users see only their own
  * client's tasks and never null-client tasks.
  */
