@@ -3291,6 +3291,14 @@ async function handleLogin(e) {
 
     resetPrompt.style.display = 'none';
     _currentUser = data.user;
+    const prevUser = localStorage.getItem('nbi_dashboard_user_id');
+    if (prevUser && prevUser !== _currentUser.id) {
+      localStorage.removeItem('nbi_dashboard_tasks');
+      localStorage.removeItem('nbi_dashboard_settings');
+      localStorage.removeItem('nbi_dashboard_briefs');
+      tasks = []; clientBriefs = {};
+    }
+    localStorage.setItem('nbi_dashboard_user_id', _currentUser.id);
     if (checkForcePasswordChange()) { btn.disabled = false; return; }
     showApp();
     await openIDB();
