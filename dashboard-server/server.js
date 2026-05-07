@@ -5061,7 +5061,7 @@ app.get('/api/tasks', async (req, res) => {
         LEFT JOIN clients c ON t.client_id = c.id
         LEFT JOIN sows s ON s.id = t.sow_id
         ${whereClause}
-        ORDER BY t.created_at
+        ORDER BY t.created_at, t.title, t.id
         ${paginationClause}
       `, vals),
       pool.query(`SELECT count(*) FROM tasks t LEFT JOIN clients c ON t.client_id = c.id ${countWhere}`, countVals)
@@ -5090,7 +5090,7 @@ app.get('/api/tasks', async (req, res) => {
       LEFT JOIN clients c ON t.client_id = c.id
       LEFT JOIN sows s ON s.id = t.sow_id
       ${whereClause}
-      ORDER BY t.created_at
+      ORDER BY t.created_at, t.title, t.id
     `, vals);
     res.json(rows);
   }
@@ -5830,6 +5830,15 @@ app.post('/api/sync/changes', async (req, res) => {
         // Validate item_type — sanitise to a known value
         const rawType = t.itemType || t.item_type || 'task';
         const itemType = ITEM_TYPES.includes(rawType) ? rawType : 'task';
+
+        // Clamp out-of-range years on date fields (same rule as PATCH)
+        for (const dk of ['dueDate', 'due_date', 'startDate', 'start_date', 'endDate', 'end_date']) {
+          const dv = t[dk];
+          if (dv) {
+            const ym = String(dv).match(/^(\d+)-/);
+            if (ym && (parseInt(ym[1], 10) < 1900 || parseInt(ym[1], 10) > 2099)) t[dk] = '';
+          }
+        }
 
         // Check if task exists (pre-fetched above, or created within this batch)
         const serverUpdatedAt = existingTaskMap.get(t.id) || null;
@@ -8929,7 +8938,7 @@ app.post('/api/clients/:id/reports', requireAdmin, async (req, res) => {
   const tasksResult = await pool.query(
     `SELECT t.*, c.name as client_name FROM tasks t
      LEFT JOIN clients c ON t.client_id = c.id
-     WHERE t.client_id = $1 ORDER BY t.created_at`, [req.params.id]
+     WHERE t.client_id = $1 ORDER BY t.created_at, t.title, t.id`, [req.params.id]
   );
   const clientTasks = tasksResult.rows;
 

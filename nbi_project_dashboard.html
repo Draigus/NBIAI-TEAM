@@ -9986,6 +9986,7 @@ function closeDetail() {
     document.removeEventListener('keydown', window._detailEscHandler);
     window._detailEscHandler = null;
   }
+  _softReRender();
 }
 
 /** Install Escape-to-close handler when the task detail panel opens. */
