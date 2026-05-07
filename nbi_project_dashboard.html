@@ -6809,7 +6809,7 @@ function buildMultiSelect(filterKey, label, options, currentValues) {
   html += `<button class="multi-select__trigger ${!allSelected ? 'active' : ''}" data-action="_actToggleMultiSelect" data-pass-el>${esc(label)} <span class="multi-select__count">${countLabel}</span></button>`;
   html += `<div class="multi-select__dropdown" style="display:none">`;
   html += `<label class="multi-select__option multi-select__option--all"><input type="checkbox" value="__all__" ${allSelected ? 'checked' : ''} onchange="multiSelectAll(this, '${filterKey}')"> All</label>`;
-  options.forEach(o => {
+  (options || []).forEach(o => {
     const val = typeof o === 'object' ? o.value : o;
     const lbl = typeof o === 'object' ? o.label : o;
     const checked = vals.includes(val) ? 'checked' : '';
