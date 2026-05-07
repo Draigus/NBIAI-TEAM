@@ -4016,8 +4016,8 @@ function computeDateRange(taskId) {
     }
   });
   return {
-    start: earliest ? earliest.toISOString().slice(0, 10) : '',
-    end: latest ? latest.toISOString().slice(0, 10) : ''
+    start: earliest ? `${earliest.getFullYear()}-${String(earliest.getMonth()+1).padStart(2,'0')}-${String(earliest.getDate()).padStart(2,'0')}` : '',
+    end: latest ? `${latest.getFullYear()}-${String(latest.getMonth()+1).padStart(2,'0')}-${String(latest.getDate()).padStart(2,'0')}` : ''
   };
 }
 
@@ -8063,7 +8063,7 @@ function renderGanttView(filtered) {
           const sOff = Math.max(0, rawOff);
           const dur = Math.max(1, Math.ceil((end - start) / 86400000) + 1) - (sOff - rawOff);
           if (dur > 0) {
-            html += `<div class="gantt__bar ${barClass}" style="left:${sOff * dayW}px;width:${dur * dayW}px" data-task-id="${t.id}" data-start="${start.toISOString().slice(0,10)}" data-end="${end.toISOString().slice(0,10)}" data-min-date="${minDate.toISOString().slice(0,10)}" data-day-width="${dayW}" onmousedown="ganttBarDragStart(event,'${t.id}','move')" ondblclick="event.stopPropagation();openDetailOverlay('${t.id}')" title="${esc(t.title)} | ${t.status}">`;
+            html += `<div class="gantt__bar ${barClass}" style="left:${sOff * dayW}px;width:${dur * dayW}px" data-task-id="${t.id}" data-start="${_localISO(start)}" data-end="${_localISO(end)}" data-min-date="${_localISO(minDate)}" data-day-width="${dayW}" onmousedown="ganttBarDragStart(event,'${t.id}','move')" ondblclick="event.stopPropagation();openDetailOverlay('${t.id}')" title="${esc(t.title)} | ${t.status}">`;
             if (dur * dayW > 40) html += `<span style="overflow:hidden;text-overflow:ellipsis;pointer-events:none;flex:1">${esc(t.title)}</span>`;
             html += `</div>`;
           }
@@ -8103,6 +8103,8 @@ function renderGanttView(filtered) {
     html += `</div></div>`;
 
     /** Render a single Gantt row with bar, label, and recursively render child rows */
+    const _pad2 = n => String(n).padStart(2, '0');
+    const _localISO = d => `${d.getFullYear()}-${_pad2(d.getMonth()+1)}-${_pad2(d.getDate())}`;
     function renderGanttRow(t, depth) {
       if (_ganttHideDone && t.status === 'Done') return;
       const kids = getChildren(t.id).filter(c => !_ganttHideDone || c.status !== 'Done');
@@ -8190,10 +8192,10 @@ function renderGanttView(filtered) {
         if (dur <= 0) { /* bar entirely before visible range */ } else {
         const left = startOff * dayW;
         const width = dur * dayW;
-        const startISO = start.toISOString().slice(0,10);
-        const endISO = end.toISOString().slice(0,10);
+        const startISO = _localISO(start);
+        const endISO = _localISO(end);
         const selCls = _ganttSelectedTaskId === t.id ? ' selected' : '';
-        html += `<div class="gantt__bar ${barClass} ${healthCls}${selCls}" style="left:${left}px;width:${width}px" data-task-id="${t.id}" data-start="${startISO}" data-end="${endISO}" data-min-date="${minDate.toISOString().slice(0,10)}" data-day-width="${dayW}" onmousedown="ganttBarDragStart(event,'${t.id}','move')" ondblclick="event.stopPropagation();openDetailOverlay('${t.id}')" title="${esc(t.title)} | ${t.status} | ${startISO} to ${endISO} | ${pctVal}% complete">`;
+        html += `<div class="gantt__bar ${barClass} ${healthCls}${selCls}" style="left:${left}px;width:${width}px" data-task-id="${t.id}" data-start="${startISO}" data-end="${endISO}" data-min-date="${_localISO(minDate)}" data-day-width="${dayW}" onmousedown="ganttBarDragStart(event,'${t.id}','move')" ondblclick="event.stopPropagation();openDetailOverlay('${t.id}')" title="${esc(t.title)} | ${t.status} | ${startISO} to ${endISO} | ${pctVal}% complete">`;
         // Progress fill (pointer-events:none so drag/resize still works
         // through it). Hidden when status is Done — the whole bar is
         // already success-coloured and a fill would be redundant.
@@ -8211,13 +8213,13 @@ function renderGanttView(filtered) {
       } else if (end) {
         // Single-day bar (due date only, no start) — uses status colour
         const endOff = Math.max(0, Math.round((end - minDate) / 86400000));
-        const endISO = end.toISOString().slice(0,10);
-        html += `<div class="gantt__bar ${barClass}" style="left:${endOff * dayW}px;width:${dayW}px" data-task-id="${t.id}" data-start="${endISO}" data-end="${endISO}" data-min-date="${minDate.toISOString().slice(0,10)}" data-day-width="${dayW}" onmousedown="ganttBarDragStart(event, '${t.id}', 'move')" ondblclick="event.stopPropagation();openDetailOverlay('${t.id}')" title="${esc(t.title)} — due ${t.dueDate}"></div>`;
+        const endISO = _localISO(end);
+        html += `<div class="gantt__bar ${barClass}" style="left:${endOff * dayW}px;width:${dayW}px" data-task-id="${t.id}" data-start="${endISO}" data-end="${endISO}" data-min-date="${_localISO(minDate)}" data-day-width="${dayW}" onmousedown="ganttBarDragStart(event, '${t.id}', 'move')" ondblclick="event.stopPropagation();openDetailOverlay('${t.id}')" title="${esc(t.title)} — due ${t.dueDate}"></div>`;
       } else if (start) {
         // Single-day bar (start only, no due date) — uses status colour, dimmed
         const startOff = Math.max(0, Math.round((start - minDate) / 86400000));
-        const startISO = start.toISOString().slice(0,10);
-        html += `<div class="gantt__bar ${barClass}" style="left:${startOff * dayW}px;width:${dayW}px;opacity:0.5" data-task-id="${t.id}" data-start="${startISO}" data-end="${startISO}" data-min-date="${minDate.toISOString().slice(0,10)}" data-day-width="${dayW}" onmousedown="ganttBarDragStart(event, '${t.id}', 'move')" ondblclick="event.stopPropagation();openDetailOverlay('${t.id}')" title="${esc(t.title)} — no due date"></div>`;
+        const startISO = _localISO(start);
+        html += `<div class="gantt__bar ${barClass}" style="left:${startOff * dayW}px;width:${dayW}px;opacity:0.5" data-task-id="${t.id}" data-start="${startISO}" data-end="${startISO}" data-min-date="${_localISO(minDate)}" data-day-width="${dayW}" onmousedown="ganttBarDragStart(event, '${t.id}', 'move')" ondblclick="event.stopPropagation();openDetailOverlay('${t.id}')" title="${esc(t.title)} — no due date"></div>`;
       }
 
       html += `</div></div>`;
