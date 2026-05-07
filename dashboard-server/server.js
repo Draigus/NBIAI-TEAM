@@ -2468,7 +2468,7 @@ function mapRowsToTasks(format, headers, rows) {
       const iClient = ci('client');
       const iHoursEst = ciAny('hours estimated', 'hours est');
       const iHoursSpent = ci('hours spent');
-      const iDue = ciAny('due date', 'due');
+      const iDue = ciAny('due_date', 'due date', 'due', 'deadline');
       return rows.map(r => ({
         title: get(r, iTask),
         parentTitle: get(r, iParent),
@@ -2480,7 +2480,7 @@ function mapRowsToTasks(format, headers, rows) {
         client: get(r, iClient),
         hoursEstimated: parseFloat(get(r, iHoursEst)) || 0,
         hoursSpent: parseFloat(get(r, iHoursSpent)) || 0,
-        dueDate: get(r, iDue),
+        dueDate: parseDdMmYyyy(get(r, iDue)),
       })).filter(t => t.title);
     }
 
@@ -5232,6 +5232,20 @@ app.patch('/api/tasks/:id', async (req, res) => {
     }
     req.body.hours_spent = h;
   }
+  // Reject out-of-range years (e.g. 5-digit years typed into date inputs)
+  const dateFields = ['start_date', 'end_date', 'due_date'];
+  for (const df of dateFields) {
+    const val = req.body[df];
+    if (val !== undefined && val !== null && val !== '') {
+      const yearMatch = String(val).match(/^(\d+)-/);
+      if (yearMatch) {
+        const year = parseInt(yearMatch[1], 10);
+        if (year < 1900 || year > 2099) {
+          return res.status(400).json({ error: `Invalid year in ${df}: ${year}. Must be between 1900 and 2099.` });
+        }
+      }
+    }
+  }
   // Reject start_date > end_date (use both incoming values, or fall back to existing below)
   if (req.body.start_date && req.body.end_date && req.body.start_date > req.body.end_date) {
     return res.status(400).json({ error: 'start_date must be before or equal to end_date' });
@@ -6190,7 +6204,7 @@ app.get('/api/sync/load', async (req, res) => {
         (SELECT json_agg(json_build_object('text', n.text, 'time', n.created_at) ORDER BY n.created_at)
          FROM task_notes n WHERE n.task_id = t.id) as notes
       FROM tasks t LEFT JOIN clients c ON t.client_id = c.id
-      ORDER BY t.created_at
+      ORDER BY t.created_at, t.title, t.id
     `);
   } else {
     const nullClause = isExternal ? '' : ' OR t.client_id IS NULL';
@@ -6200,7 +6214,7 @@ app.get('/api/sync/load', async (req, res) => {
          FROM task_notes n WHERE n.task_id = t.id) as notes
       FROM tasks t LEFT JOIN clients c ON t.client_id = c.id
       WHERE t.client_id = ANY($1)${nullClause}
-      ORDER BY t.created_at
+      ORDER BY t.created_at, t.title, t.id
     `, [scopes]);
   }
 

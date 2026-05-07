@@ -2797,6 +2797,39 @@ function cleanupListeners() {
   _listenerRegistry.length = 0;
 }
 
+// ==================== PASTE NORMALISATION FOR DATE INPUTS ====================
+document.addEventListener('paste', (e) => {
+  const el = e.target;
+  if (el.tagName !== 'INPUT' || el.type !== 'date') return;
+  const text = (e.clipboardData || window.clipboardData).getData('text').trim();
+  if (!text) return;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(text)) return;
+  const ukMatch = text.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})$/);
+  if (ukMatch) {
+    e.preventDefault();
+    let [, dd, mm, yyyy] = ukMatch;
+    if (yyyy.length === 2) yyyy = (parseInt(yyyy) > 50 ? '19' : '20') + yyyy;
+    const iso = `${yyyy.padStart(4, '0')}-${mm.padStart(2, '0')}-${dd.padStart(2, '0')}`;
+    el.value = iso;
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+    return;
+  }
+  const months = { jan:1, feb:2, mar:3, apr:4, may:5, jun:6, jul:7, aug:8, sep:9, oct:10, nov:11, dec:12 };
+  const namedMatch = text.match(/^(\d{1,2})\s+(\w{3,})\s+(\d{4})$/) || text.match(/^(\w{3,})\s+(\d{1,2}),?\s+(\d{4})$/);
+  if (namedMatch) {
+    e.preventDefault();
+    let day, monthName, year;
+    if (/^\d/.test(namedMatch[1])) { day = namedMatch[1]; monthName = namedMatch[2]; year = namedMatch[3]; }
+    else { monthName = namedMatch[1]; day = namedMatch[2]; year = namedMatch[3]; }
+    const monthNum = months[monthName.toLowerCase().slice(0, 3)];
+    if (monthNum) {
+      const iso = `${year}-${String(monthNum).padStart(2, '0')}-${day.padStart(2, '0')}`;
+      el.value = iso;
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  }
+});
+
 // ==================== EVENT DELEGATION ====================
 const _BOOL = { 'true': true, 'false': false, 'null': null };
 document.addEventListener('click', function(e) {
@@ -3957,6 +3990,27 @@ function aggHours(taskId) {
   let est = task ? (task.hoursEstimated || 0) : 0;
   desc.forEach(d => { spent += d.hoursSpent || 0; est += d.hoursEstimated || 0; });
   return { spent, est };
+}
+
+function computeDateRange(taskId) {
+  const children = getDescendants(taskId);
+  if (children.length === 0) return { start: '', end: '' };
+  let earliest = null;
+  let latest = null;
+  children.forEach(c => {
+    if (c.startDate) {
+      const d = safeParseDate(c.startDate);
+      if (d && (!earliest || d < earliest)) earliest = d;
+    }
+    if (c.endDate || c.dueDate) {
+      const d = safeParseDate(c.endDate || c.dueDate);
+      if (d && (!latest || d > latest)) latest = d;
+    }
+  });
+  return {
+    start: earliest ? earliest.toISOString().slice(0, 10) : '',
+    end: latest ? latest.toISOString().slice(0, 10) : ''
+  };
 }
 
 /** Count tasks grouped by status. Returns { statusName: count } map */
@@ -6191,6 +6245,8 @@ function standupUpdateTask(taskId, field, value, el) {
 function _softReRender() {
   const active = document.activeElement;
   if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT')) return;
+  const detailPanel = document.getElementById('detailPanel');
+  if (detailPanel && detailPanel.classList.contains('open')) return;
   const scrollEl = document.querySelector('.main__content');
   if (!scrollEl) { renderContent(); return; }
   const savedScroll = scrollEl.scrollTop;
@@ -6951,7 +7007,8 @@ function renderTreeView(filtered) {
   // plus every ancestor needed to maintain hierarchy. renderTaskRow uses this
   // to skip siblings the user is not assigned to.
   let visibleIds = null;
-  if (currentFilter.sort === 'assignee' && filtered.length < tasks.length) {
+  const hasAssigneeFilter = (currentFilter.sort === 'assignee' || (currentFilter.assignee && currentFilter.assignee.length > 0));
+  if (hasAssigneeFilter && filtered.length < tasks.length) {
     visibleIds = new Set(filtered.map(t => t.id));
     filtered.forEach(t => {
       let cursor = tasks.find(p => p.id === t.parentId);
@@ -8886,8 +8943,16 @@ function renderInlineTaskDetail(id) {
       return `<div class="detail-field"><label class="detail-field__label" for="inline-detail-sow">Statement of Work</label><select id="inline-detail-sow" onchange="updateTask('${id}','sowId',this.value||null)"><option value="">-- No SoW --</option>${scopedSows.map(s => `<option value="${esc(s.id)}" ${curSow === s.id ? 'selected' : ''}>${esc(s.title)}${s.client_name && !clientId ? ' (' + esc(s.client_name) + ')' : ''}</option>`).join('')}</select></div>`;
     })();
   }
-  html += `<div class="detail-field"><label class="detail-field__label" for="inline-detail-startDate">Start Date</label><input id="inline-detail-startDate" type="date" value="${task.startDate||''}" onchange="updateTask('${id}','startDate',this.value)"></div>`;
-  html += `<div class="detail-field"><label class="detail-field__label" for="inline-detail-endDate">End Date</label><input id="inline-detail-endDate" type="date" value="${task.endDate||''}" onchange="updateTask('${id}','endDate',this.value)"></div>`;
+  const _iType = getItemType(task);
+  const _datesAuto = (_iType === 'feature' || _iType === 'story') && getChildren(task.id).length > 0;
+  if (_datesAuto) {
+    const _range = computeDateRange(id);
+    html += `<div class="detail-field"><label class="detail-field__label">Start Date</label><input type="date" value="${_range.start}" disabled title="Auto-calculated from child items"></div>`;
+    html += `<div class="detail-field"><label class="detail-field__label">End Date</label><input type="date" value="${_range.end}" disabled title="Auto-calculated from child items"></div>`;
+  } else {
+    html += `<div class="detail-field"><label class="detail-field__label" for="inline-detail-startDate">Start Date</label><input id="inline-detail-startDate" type="date" value="${task.startDate||''}" onchange="updateTask('${id}','startDate',this.value)"></div>`;
+    html += `<div class="detail-field"><label class="detail-field__label" for="inline-detail-endDate">End Date</label><input id="inline-detail-endDate" type="date" value="${task.endDate||''}" onchange="updateTask('${id}','endDate',this.value)"></div>`;
+  }
   html += `<div class="detail-field"><label class="detail-field__label" for="inline-detail-dueDate">Due Date</label><input id="inline-detail-dueDate" type="date" value="${task.dueDate||''}" onchange="updateTask('${id}','dueDate',this.value)"></div>`;
   html += `</div>`;
 
@@ -9565,8 +9630,16 @@ function openDetailOverlay(id) {
       : [];
     return `<div class="detail-field"><label class="detail-field__label" for="detail-workType">Work Type</label><select id="detail-workType" onchange="updateTask('${id}','workType',this.value||null)"><option value="">-- None --</option>${opts.map(v => `<option value="${esc(v)}" ${cur === v ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select></div>`;
   })();
-  html += `<div class="detail-field"><label class="detail-field__label" for="detail-startDate">Start Date</label><input id="detail-startDate" type="date" value="${task.startDate||''}" onchange="updateTask('${id}','startDate',this.value)"></div>`;
-  html += `<div class="detail-field"><label class="detail-field__label" for="detail-endDate">End Date</label><input id="detail-endDate" type="date" value="${task.endDate||''}" onchange="updateTask('${id}','endDate',this.value)"></div>`;
+  const _iType2 = getItemType(task);
+  const _datesAuto2 = (_iType2 === 'feature' || _iType2 === 'story') && getChildren(task.id).length > 0;
+  if (_datesAuto2) {
+    const _range2 = computeDateRange(id);
+    html += `<div class="detail-field"><label class="detail-field__label">Start Date</label><input type="date" value="${_range2.start}" disabled title="Auto-calculated from child items"></div>`;
+    html += `<div class="detail-field"><label class="detail-field__label">End Date</label><input type="date" value="${_range2.end}" disabled title="Auto-calculated from child items"></div>`;
+  } else {
+    html += `<div class="detail-field"><label class="detail-field__label" for="detail-startDate">Start Date</label><input id="detail-startDate" type="date" value="${task.startDate||''}" onchange="updateTask('${id}','startDate',this.value)"></div>`;
+    html += `<div class="detail-field"><label class="detail-field__label" for="detail-endDate">End Date</label><input id="detail-endDate" type="date" value="${task.endDate||''}" onchange="updateTask('${id}','endDate',this.value)"></div>`;
+  }
   html += `<div class="detail-field"><label class="detail-field__label" for="detail-dueDate">Due Date</label><input id="detail-dueDate" type="date" value="${task.dueDate||''}" onchange="updateTask('${id}','dueDate',this.value)"></div>`;
   html += `</div>`;
 
@@ -9982,6 +10055,15 @@ async function updateTask(id, field, value) {
   const task = tasks.find(t => t.id === id);
   if (!task) return;
 
+  if ((field === 'startDate' || field === 'endDate' || field === 'dueDate') && value) {
+    const yearMatch = value.match(/^(\d+)-/);
+    if (yearMatch && (parseInt(yearMatch[1], 10) < 1900 || parseInt(yearMatch[1], 10) > 2099)) {
+      showToast('Invalid year — must be between 1900 and 2099', 'error');
+      renderContent();
+      return;
+    }
+  }
+
   // Feature 6: Mark As Blocked popup. When the user changes status to "Blocked"
   // we open a popup to capture blocker details and notify internal owners.
   if (field === 'status' && value === 'Blocked' && task.status !== 'Blocked') {
@@ -10044,6 +10126,23 @@ async function updateTask(id, field, value) {
   markDirty(id);
   pushUndo(`${field} change on "${task.title}"`, () => { task[field] = oldValue; task.updatedAt = new Date().toISOString(); markDirty(id); });
   save();
+
+  if (field === 'startDate' || field === 'endDate') {
+    let parent = task.parentId ? tasks.find(t => t.id === task.parentId) : null;
+    while (parent) {
+      const pt = getItemType(parent);
+      if (pt === 'feature' || pt === 'story') {
+        const range = computeDateRange(parent.id);
+        if (parent.startDate !== range.start || parent.endDate !== range.end) {
+          parent.startDate = range.start;
+          parent.endDate = range.end;
+          parent.updatedAt = new Date().toISOString();
+          markDirty(parent.id);
+        }
+      }
+      parent = parent.parentId ? tasks.find(t => t.id === parent.parentId) : null;
+    }
+  }
 
   // Structural changes need a full re-render (task moves between sections).
   // Non-structural changes get a lightweight update — no scroll flash.
@@ -22404,7 +22503,8 @@ function computeWarnings() {
         dueDate: t.dueDate,
         severity: warning.severity,
         type: warning.type,
-        label: warning.label
+        label: warning.label,
+        since: t.updatedAt || t.createdAt || ''
       });
     }
   });
@@ -22503,7 +22603,7 @@ async function renderWarnAlertContent() {
             <div class="warn-item__title">${esc(w.title)}</div>
             <span class="warn-item__sev warn-item__sev--${w.severity}" aria-hidden="true">${esc(w.severity.toUpperCase())}</span>
           </div>
-          <div class="warn-item__meta">${w.client ? esc(w.client) + ' &middot; ' : ''}${esc(w.label)}</div>
+          <div class="warn-item__meta">${w.client ? esc(w.client) + ' &middot; ' : ''}${esc(w.label)}${w.since ? ' &middot; ' + timeAgo(w.since) : ''}</div>
         </button>
         <div class="warn-item__actions">
           <button type="button" class="btn btn--ghost btn--sm" data-action="snoozeWarning" data-arg0="${esc(w.id)}" data-arg1="24">Snooze 1 day</button>
