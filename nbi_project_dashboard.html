@@ -8735,14 +8735,19 @@ function ganttBarDragEnd(e) {
     task.updatedAt = new Date().toISOString();
     markDirty(taskId);
     save();
+    // Update bar data attributes in place (full re-render shifts the timeline grid)
+    barEl.dataset.start = task.startDate || newStartStr;
+    barEl.dataset.end = task.endDate || newEndStr;
+    barEl.title = `${esc(task.title)} | ${task.status} | ${newStartStr} to ${newEndStr}`;
     toast(`${mode === 'move' ? 'Moved' : 'Resized'}: ${newStartStr} to ${newEndStr}`);
-    // Full re-render so parent bars, tooltips, and dependency arrows all update
-    const scrollEl = document.querySelector('.main__content');
-    const savedScroll = scrollEl ? scrollEl.scrollTop : 0;
-    renderContent();
-    if (scrollEl && savedScroll > 0) {
-      requestAnimationFrame(() => { scrollEl.scrollTop = savedScroll; });
-    }
+    requestAnimationFrame(() => drawGanttArrows());
+    // Deferred re-render after a beat so parent bars update without disrupting the drag feel
+    setTimeout(() => {
+      const scrollEl = document.querySelector('.main__content');
+      const savedScroll = scrollEl ? scrollEl.scrollTop : 0;
+      renderContent();
+      if (scrollEl && savedScroll > 0) requestAnimationFrame(() => { scrollEl.scrollTop = savedScroll; });
+    }, 300);
   } else {
     // Snap back to original position
     barEl.style.left = origLeft + 'px';
