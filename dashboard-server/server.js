@@ -5407,24 +5407,70 @@ app.patch('/api/tasks/:id', async (req, res) => {
     await auditLog('task', req.params.id, 'update', req.user?.displayName, changes);
   }
 
-  // Feature 3: cascade Cancelled status from a project to all descendants
-  if (req.body.status === 'Cancelled' && updatedTask.item_type === 'project' && (!oldTask || oldTask.status !== 'Cancelled')) {
+  // Connected Statuses: bidirectional cascade for Done/Cancelled/Blocked
+  // Downward: parent status pushes to all descendants
+  const CASCADE_STATUSES = ['Done', 'Cancelled', 'Blocked'];
+  if (req.body.status && CASCADE_STATUSES.includes(req.body.status) && (!oldTask || oldTask.status !== req.body.status)) {
+    const hasKids = (await pool.query('SELECT 1 FROM tasks WHERE parent_id = $1 LIMIT 1', [req.params.id])).rows.length > 0;
+    if (hasKids) {
+      try {
+        const { rows: cascaded } = await pool.query(`
+          WITH RECURSIVE descendants AS (
+            SELECT id FROM tasks WHERE parent_id = $1
+            UNION ALL
+            SELECT t.id FROM tasks t INNER JOIN descendants d ON t.parent_id = d.id
+          )
+          UPDATE tasks SET status = $2, updated_at = NOW()
+          WHERE id IN (SELECT id FROM descendants) AND status != $2
+          RETURNING id
+        `, [req.params.id, req.body.status]);
+        if (cascaded.length > 0) {
+          await auditLog('task', req.params.id, 'cascade_status_down', req.user?.displayName, { status: req.body.status, count: cascaded.length });
+        }
+      } catch (e) {
+        log('warn', 'Tasks', 'Downward status cascade failed', { error: e.message });
+      }
+    }
+  }
+
+  // Upward: when a task becomes Done/Cancelled, check if ALL siblings are terminal — if so, auto-complete parent
+  if (req.body.status && ['Done', 'Cancelled'].includes(req.body.status) && updatedTask.parent_id) {
     try {
-      const { rows: cascaded } = await pool.query(`
-        WITH RECURSIVE descendants AS (
-          SELECT id FROM tasks WHERE parent_id = $1
-          UNION ALL
-          SELECT t.id FROM tasks t INNER JOIN descendants d ON t.parent_id = d.id
-        )
-        UPDATE tasks SET status = 'Cancelled', updated_at = NOW()
-        WHERE id IN (SELECT id FROM descendants) AND status != 'Cancelled'
-        RETURNING id
-      `, [req.params.id]);
-      if (cascaded.length > 0) {
-        await auditLog('task', req.params.id, 'cascade_cancel', req.user?.displayName, { count: cascaded.length, ids: cascaded.map(r => r.id) });
+      let parentId = updatedTask.parent_id;
+      while (parentId) {
+        const { rows: siblings } = await pool.query(
+          'SELECT id, status FROM tasks WHERE parent_id = $1', [parentId]
+        );
+        const allTerminal = siblings.length > 0 && siblings.every(s => s.status === 'Done' || s.status === 'Cancelled');
+        if (!allTerminal) break;
+        const allDone = siblings.every(s => s.status === 'Done');
+        const newStatus = allDone ? 'Done' : 'Cancelled';
+        const { rows: [parent] } = await pool.query(
+          'UPDATE tasks SET status = $1, updated_at = NOW() WHERE id = $2 AND status != $1 RETURNING id, parent_id',
+          [newStatus, parentId]
+        );
+        if (!parent) break;
+        await auditLog('task', parentId, 'cascade_status_up', req.user?.displayName, { status: newStatus });
+        parentId = parent.parent_id;
       }
     } catch (e) {
-      log('warn', 'Tasks', 'Cascade cancel failed', { error: e.message });
+      log('warn', 'Tasks', 'Upward status cascade failed', { error: e.message });
+    }
+  }
+
+  // Prerequisites cascade: when task becomes Blocked/Cancelled, block its dependants
+  if (req.body.status && ['Blocked', 'Cancelled'].includes(req.body.status) && (!oldTask || oldTask.status !== req.body.status)) {
+    try {
+      const { rows: dependants } = await pool.query(`
+        UPDATE tasks SET status = 'Blocked', updated_at = NOW()
+        WHERE $1 = ANY(dependencies) AND status NOT IN ('Done', 'Cancelled', 'Blocked')
+        RETURNING id
+      `, [req.params.id]);
+      if (dependants.length > 0) {
+        await auditLog('task', req.params.id, 'cascade_block_dependants', req.user?.displayName, { count: dependants.length });
+      }
+    } catch (e) {
+      log('warn', 'Tasks', 'Prerequisite block cascade failed', { error: e.message });
     }
   }
 

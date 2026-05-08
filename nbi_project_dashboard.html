@@ -2877,7 +2877,7 @@ function _actToggleCalDepMode() { _calDepMode = !_calDepMode; if (!_calDepMode) 
 
 function _actGanttFwd() { _ganttOffsetDays += 30; renderContent(); }
 function _actGanttBack() { _ganttOffsetDays -= 30; renderContent(); }
-function _actGanttToday() { _ganttOffsetDays = 0; renderContent(); }
+function _actGanttToday() { _ganttOffsetDays = 0; _ganttScrolledToToday = false; renderContent(); }
 function _actGanttZoomIn() { ganttDayWidth = Math.min(60, ganttDayWidth + 6); renderContent(); }
 function _actGanttZoomOut() { ganttDayWidth = Math.max(8, ganttDayWidth - 6); renderContent(); }
 function _actGanttShowMore() { _ganttLimit += 100; renderContent(); }
@@ -5018,7 +5018,18 @@ function _renderMainContent(content) {
   else if (currentView === 'news') renderNewsOrLoad(content);
   else if (currentView === 'settings') renderSettings(content);
   if (currentView === 'tasks' && taskSubView === 'gantt') {
-    requestAnimationFrame(drawGanttArrows);
+    requestAnimationFrame(() => {
+      drawGanttArrows();
+      if (!_ganttScrolledToToday) {
+        const ganttEl = document.querySelector('.gantt');
+        const todayLine = ganttEl && ganttEl.querySelector('.gantt__today-line');
+        if (ganttEl && todayLine) {
+          const todayLeft = parseInt(todayLine.style.left, 10) || 0;
+          ganttEl.scrollLeft = Math.max(0, todayLeft - ganttEl.clientWidth / 3);
+          _ganttScrolledToToday = true;
+        }
+      }
+    });
   }
 }
 
@@ -5534,98 +5545,78 @@ function renderPfProgressStatus(panelTasks) {
     return '<div class="pf__panel"><div class="pf__panel-hdr"><div class="pf__panel-title">Progress Status</div></div><div class="pf__panel-body"><div style="display:flex;align-items:center;justify-content:center;height:200px;color:var(--text-muted);font-size:0.82rem">No tasks found.</div></div></div>';
   }
 
-  const buckets = [
+  const wipBuckets = [
     { key: 'done', label: 'COMPLETED', colour: '#22c55e', count: 0 },
     { key: 'inprogress', label: 'IN PROGRESS', colour: '#06b6d4', count: 0 },
     { key: 'planning', label: 'PLANNING', colour: '#3b82f6', count: 0 },
-    { key: 'notstarted', label: 'NOT STARTED', colour: '#94a3b8', count: 0 },
-    { key: 'waiting', label: 'WAITING ON CLIENT', colour: '#f59e0b', count: 0 },
+    { key: 'waiting', label: 'WAITING', colour: '#f59e0b', count: 0 },
     { key: 'blocked', label: 'BLOCKED', colour: '#ef4444', count: 0 },
   ];
 
+  let backlogCount = 0;
   active.forEach(t => {
-    if (t.status === 'Blocked') buckets[5].count++;
-    else if (t.healthState === 'Waiting on Client') buckets[4].count++;
-    else if (t.status === 'Done') buckets[0].count++;
-    else if (t.status === 'In progress') buckets[1].count++;
-    else if (t.status === 'Planning') buckets[2].count++;
-    else buckets[3].count++;
+    if (t.status === 'Blocked') wipBuckets[4].count++;
+    else if (t.healthState === 'Waiting on Client') wipBuckets[3].count++;
+    else if (t.status === 'Done') wipBuckets[0].count++;
+    else if (t.status === 'In progress') wipBuckets[1].count++;
+    else if (t.status === 'Planning') wipBuckets[2].count++;
+    else backlogCount++;
   });
 
-  const nonZero = buckets.filter(b => b.count > 0);
-  const cx = 400, cy = 200, r = 150, sw = 50;
-  const circ = 2 * Math.PI * r;
-  const svgW = 800, svgH = 400;
+  const wipTotal = wipBuckets.reduce((s, b) => s + b.count, 0);
+  const backlogPct = total > 0 ? Math.round(backlogCount / total * 100) : 0;
+  const nonZero = wipBuckets.filter(b => b.count > 0);
 
+  const svgW = 800, svgH = 400;
   let svg = `<svg viewBox="0 0 ${svgW} ${svgH}" preserveAspectRatio="xMidYMid meet" width="100%" height="100%" style="display:block">`;
+
+  // === LEFT: Backlog bar ===
+  const barX = 40, barW = 140, barY = 25, barH = 300;
+  const barCx = barX + barW / 2;
+  svg += `<rect x="${barX}" y="${barY}" width="${barW}" height="${barH}" rx="8" fill="rgba(148,163,184,0.12)"/>`;
+  const fillH = total > 0 ? Math.max(barH * (backlogCount / total), backlogCount > 0 ? 40 : 0) : 0;
+  const fillY = barY + barH - fillH;
+  if (backlogCount > 0) {
+    svg += `<rect x="${barX}" y="${fillY}" width="${barW}" height="${fillH}" rx="8" fill="#94a3b8"/>`;
+  }
+  svg += `<text x="${barCx}" y="${barY + barH / 2 - 12}" text-anchor="middle" fill="var(--text-primary, #e2e8f0)" font-size="52" font-weight="700">${backlogCount}</text>`;
+  svg += `<text x="${barCx}" y="${barY + barH / 2 + 16}" text-anchor="middle" fill="var(--text-muted, #94a3b8)" font-size="14" font-weight="600" letter-spacing="1">BACKLOG</text>`;
+  svg += `<text x="${barCx}" y="${barY + barH + 28}" text-anchor="middle" fill="var(--text-muted, #94a3b8)" font-size="12">${backlogPct}% of ${total} items</text>`;
+
+  // === RIGHT: WIP donut ===
+  const cx = 530, cy = 185, r = 125, sw = 46;
+  const circ = 2 * Math.PI * r;
   svg += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="${sw}"/>`;
 
-  let offset = 0;
-  const segments = [];
-  nonZero.forEach(b => {
-    const pct = b.count / total;
-    const dashLen = pct * circ;
-    const gap = nonZero.length > 1 ? 2 : 0;
-    const drawLen = Math.max(0, dashLen - gap);
-    svg += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${b.colour}" stroke-width="${sw}" stroke-dasharray="${drawLen.toFixed(1)} ${(circ - drawLen).toFixed(1)}" stroke-dashoffset="${(-(offset + gap / 2)).toFixed(1)}" transform="rotate(-90 ${cx} ${cy})"/>`;
-    const midFrac = (offset + dashLen / 2) / circ;
-    const midAngle = midFrac * 2 * Math.PI - Math.PI / 2;
-    if (Math.round(pct * 100) > 0) segments.push({ b, midAngle, pct });
-    offset += dashLen;
-  });
-
-  const outerR = r + sw / 2 + 4;
-  const rightLabels = segments.filter(s => Math.cos(s.midAngle) >= 0);
-  const leftLabels = segments.filter(s => Math.cos(s.midAngle) < 0);
-
-  function spaceLabels(group, side) {
-    if (group.length === 0) return;
-    group.sort((a, b) => {
-      const ay = cy + Math.sin(a.midAngle) * outerR;
-      const by = cy + Math.sin(b.midAngle) * outerR;
-      return ay - by;
-    });
-    const minGap = 50;
-    const minY = 30, maxY = svgH - 30;
-    const positions = group.map(seg => cy + Math.sin(seg.midAngle) * outerR);
-    for (let i = 1; i < positions.length; i++) {
-      if (positions[i] - positions[i - 1] < minGap) positions[i] = positions[i - 1] + minGap;
-    }
-    if (positions.length > 0 && positions[positions.length - 1] > maxY) {
-      const shift = positions[positions.length - 1] - maxY;
-      for (let i = 0; i < positions.length; i++) positions[i] -= shift;
-      for (let i = 1; i < positions.length; i++) {
-        if (positions[i] - positions[i - 1] < minGap) positions[i] = positions[i - 1] + minGap;
-      }
-    }
-    if (positions.length > 0 && positions[0] < minY) {
-      const shift = minY - positions[0];
-      for (let i = 0; i < positions.length; i++) positions[i] += shift;
-      for (let i = 1; i < positions.length; i++) {
-        if (positions[i] - positions[i - 1] < minGap) positions[i] = positions[i - 1] + minGap;
-      }
-    }
-    const elbowX = side === 'right' ? cx + outerR + 30 : cx - outerR - 30;
-    const lineEndX = side === 'right' ? elbowX + 30 : elbowX - 30;
-    const textX = side === 'right' ? lineEndX + 6 : lineEndX - 6;
-    const anchor = side === 'right' ? 'start' : 'end';
-
-    group.forEach((seg, i) => {
-      const dotX = cx + Math.cos(seg.midAngle) * outerR;
-      const dotY = cy + Math.sin(seg.midAngle) * outerR;
-      const labelY = positions[i];
-      const pctText = Math.round(seg.pct * 100) + '%';
-
-      svg += `<circle cx="${dotX.toFixed(1)}" cy="${dotY.toFixed(1)}" r="3.5" fill="${seg.b.colour}"/>`;
-      svg += `<line x1="${dotX.toFixed(1)}" y1="${dotY.toFixed(1)}" x2="${elbowX}" y2="${labelY.toFixed(1)}" stroke="#4dd0e1" stroke-width="1.2" fill="none" opacity="0.65"/>`;
-      svg += `<line x1="${elbowX}" y1="${labelY.toFixed(1)}" x2="${lineEndX}" y2="${labelY.toFixed(1)}" stroke="#4dd0e1" stroke-width="1.2" fill="none" opacity="0.65"/>`;
-      svg += `<text x="${textX}" y="${(labelY - 2).toFixed(1)}" text-anchor="${anchor}" fill="${seg.b.colour}" font-size="28" font-weight="700">${pctText}</text>`;
-      svg += `<text x="${textX}" y="${(labelY + 22).toFixed(1)}" text-anchor="${anchor}" fill="#94a3b8" font-size="15" font-weight="700" letter-spacing="0.5">${seg.b.label}</text>`;
+  if (nonZero.length > 0) {
+    let offset = 0;
+    nonZero.forEach(b => {
+      const pct = b.count / wipTotal;
+      const dashLen = pct * circ;
+      const gap = nonZero.length > 1 ? 2.5 : 0;
+      const drawLen = Math.max(0, dashLen - gap);
+      svg += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${b.colour}" stroke-width="${sw}" stroke-dasharray="${drawLen.toFixed(1)} ${(circ - drawLen).toFixed(1)}" stroke-dashoffset="${(-(offset + gap / 2)).toFixed(1)}" transform="rotate(-90 ${cx} ${cy})"/>`;
+      offset += dashLen;
     });
   }
 
-  spaceLabels(rightLabels, 'right');
-  spaceLabels(leftLabels, 'left');
+  svg += `<text x="${cx}" y="${cy - 6}" text-anchor="middle" fill="var(--text-primary, #e2e8f0)" font-size="40" font-weight="700">${wipTotal}</text>`;
+  svg += `<text x="${cx}" y="${cy + 20}" text-anchor="middle" fill="var(--text-muted, #94a3b8)" font-size="13" font-weight="600" letter-spacing="0.5">ACTIVE</text>`;
+
+  // === Legend row below donut ===
+  const vis = nonZero.filter(b => b.count > 0);
+  const legendY = cy + r + sw / 2 + 30;
+  const gap = 12;
+  const items = vis.map(b => ({ ...b, text: `${b.label}  ${b.count}` }));
+  const charW = 7.5;
+  const dotW = 16;
+  const totalLegendW = items.reduce((s, it) => s + dotW + it.text.length * charW + gap, 0) - gap;
+  let lx = cx - totalLegendW / 2;
+  items.forEach(it => {
+    svg += `<circle cx="${lx + 5}" cy="${legendY - 3}" r="4.5" fill="${it.colour}"/>`;
+    svg += `<text x="${lx + dotW}" y="${legendY}" fill="var(--text-muted, #94a3b8)" font-size="11.5" font-weight="600">${it.text}</text>`;
+    lx += dotW + it.text.length * charW + gap;
+  });
 
   svg += '</svg>';
 
@@ -6255,15 +6246,23 @@ function _softReRender() {
   if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT')) return;
   const detailPanel = document.getElementById('detailPanel');
   if (detailPanel && detailPanel.classList.contains('open')) return;
+  const inlineDetail = document.getElementById('inlineDetailPanel');
+  if (inlineDetail && !inlineDetail.classList.contains('tasks-layout__detail--hidden')) return;
   const scrollEl = document.querySelector('.main__content');
   if (!scrollEl) { renderContent(); return; }
   const savedScroll = scrollEl.scrollTop;
-  _scrollRestoreTarget = savedScroll > 0 ? savedScroll : null;
+  const ganttEl = scrollEl.querySelector('.gantt');
+  const savedGanttLeft = ganttEl ? ganttEl.scrollLeft : 0;
+  const savedGanttTop = ganttEl ? ganttEl.scrollTop : 0;
+  _scrollRestoreTarget = savedScroll;
   renderContent();
   if (typeof renderSidebar === 'function') renderSidebar();
   if (typeof updateWarnAlertButton === 'function') updateWarnAlertButton();
-  if (scrollEl && savedScroll > 0) {
-    scrollEl.scrollTop = savedScroll;
+  scrollEl.scrollTop = savedScroll;
+  const newGanttEl = scrollEl.querySelector('.gantt');
+  if (newGanttEl) {
+    newGanttEl.scrollLeft = savedGanttLeft;
+    newGanttEl.scrollTop = savedGanttTop;
   }
 }
 
@@ -7838,6 +7837,7 @@ function calExpandDay(dateStr, el) {
 let ganttDayWidth = 28; // px per day, adjustable via zoom
 let _ganttLabelWidth = 260; // px, draggable column width
 let _ganttOffsetDays = 0; // Shift the timeline window: negative = past, positive = future
+let _ganttScrolledToToday = false;
 let _ganttLinkMode = false;  // Whether dependency link mode is active
 let _ganttLinkFrom = null;   // Source task ID when dragging a dependency arrow
 let _ganttHideArrows = false;  // Toggle dependency arrows visibility
@@ -7988,6 +7988,9 @@ function renderGanttView(filtered) {
   html += `</div>`; // close timeline header column
   html += `</div>`; // close header
 
+  const _pad2 = n => String(n).padStart(2, '0');
+  const _localISO = d => `${d.getFullYear()}-${_pad2(d.getMonth()+1)}-${_pad2(d.getDate())}`;
+
   // Body
   html += `<div class="gantt__body">`;
 
@@ -8103,8 +8106,6 @@ function renderGanttView(filtered) {
     html += `</div></div>`;
 
     /** Render a single Gantt row with bar, label, and recursively render child rows */
-    const _pad2 = n => String(n).padStart(2, '0');
-    const _localISO = d => `${d.getFullYear()}-${_pad2(d.getMonth()+1)}-${_pad2(d.getDate())}`;
     function renderGanttRow(t, depth) {
       if (_ganttHideDone && t.status === 'Done') return;
       const kids = getChildren(t.id).filter(c => !_ganttHideDone || c.status !== 'Done');
