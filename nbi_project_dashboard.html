@@ -7963,13 +7963,20 @@ function renderGanttView(filtered) {
   // Draggable column resize handle
   html += `<div class="gantt__col-resize" style="left:${_ganttLabelWidth - 3}px" onmousedown="ganttColResizeStart(event)"></div>`;
 
-  // Collect milestones for the timeline
+  // Collect milestones for the timeline (trigger load if cache is empty)
   const _ganttMilestones = [];
+  if (Object.keys(_milestonesCache).length === 0 && Object.keys(_apiClientsCache).length > 0) {
+    loadAllMilestones().then(() => { if (currentView === 'tasks' && taskSubView === 'gantt') renderContent(); });
+  }
   const _msClients = currentFilter.client
     ? [_apiClientsCache[currentFilter.client]].filter(Boolean)
     : Object.values(_apiClientsCache || {});
   _msClients.forEach(c => {
-    (_milestonesCache[c.id] || []).forEach(ms => {
+    if (!_milestonesCache[c.id]) {
+      loadMilestones(c.id).then(() => { if (currentView === 'tasks' && taskSubView === 'gantt') renderContent(); });
+      _milestonesCache[c.id] = [];
+    }
+    _milestonesCache[c.id].forEach(ms => {
       if (!ms.target_date) return;
       const md = new Date(ms.target_date);
       const localD = new Date(md.getFullYear(), md.getMonth(), md.getDate());
