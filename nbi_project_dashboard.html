@@ -1018,7 +1018,7 @@ span.fin-editable { display: inline-block; position: relative; }
 .gantt__day-hdr--weekend { background: var(--bg-surface); }
 .gantt__day-hdr--today { color: var(--accent); font-weight: 700; }
 .gantt__body { display: flex; flex-direction: column; }
-.gantt__row { display: flex; min-height: 38px; border-bottom: 1px solid var(--border-subtle); align-items: center; }
+.gantt__row { display: flex; min-height: 38px; border-bottom: 1px solid var(--border-subtle); align-items: center; background: var(--bg-base); }
 .gantt__row:hover { background: var(--bg-hover); }
 .gantt__row--group { background: var(--bg-surface); min-height: 32px; }
 .gantt__row-label { min-width: var(--gantt-label-w, 260px); max-width: var(--gantt-label-w, 260px); padding: 2px var(--space-md); font-size: 0.75rem; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; position: sticky; left: 0; background: inherit; z-index: 5; border-right: 1px solid var(--border-default); display: flex; align-items: center; gap: 6px; }
@@ -4068,7 +4068,7 @@ function getFilteredTasks() {
   if (currentFilter.incomplete) list = list.filter(t => t.status !== 'Done' && t.status !== 'Cancelled' && (!t.hoursEstimated || !t.priority || !t.dueDate || !t.healthState));
   if (currentFilter.search) {
     const q = currentFilter.search.toLowerCase();
-    list = list.filter(t => t.title.toLowerCase().includes(q) || (t.description||'').toLowerCase().includes(q) || (t.notes||[]).some(n => (n.text||'').toLowerCase().includes(q)) || (t.assignees||[]).some(a => a.toLowerCase().includes(q)) || getTaskClient(t).toLowerCase().includes(q));
+    list = list.filter(t => t.title.toLowerCase().includes(q) || (t.description||'').toLowerCase().includes(q) || (t.notes||[]).some(n => (n.text||'').toLowerCase().includes(q)) || (t.assignees||[]).some(a => a.toLowerCase().includes(q)));
   }
   // Sorting
   if (currentFilter.sort && currentFilter.sort !== 'default') {
@@ -4979,6 +4979,8 @@ function filterByProject(projectId) {
 function renderBreadcrumbs() {
   const bar = document.getElementById('breadcrumbBar');
   if (!bar) return;
+  const noFilterViews = ['bugs', 'leads', 'documentation', 'hiring', 'news', 'queue', 'settings', 'expenses', 'finances'];
+  if (noFilterViews.includes(currentView)) { bar.innerHTML = ''; bar.style.display = 'none'; return; }
   const hasFilter = currentFilter.client || currentFilter.practice || (currentFilter.assignee && currentFilter.assignee.length > 0) || (currentFilter.health && currentFilter.health.length > 0) || (currentFilter.status && currentFilter.status.length > 0) || currentFilter.incomplete || currentFilter.project;
   if (!hasFilter) { bar.innerHTML = ''; bar.style.display = 'none'; return; }
   bar.style.display = 'flex';
@@ -8968,7 +8970,7 @@ function renderInlineTaskDetail(id) {
 
   // Time Tracking
   html += `<div class="detail-section"><div class="detail-section__title">Time Tracking</div>`;
-  if (children.length > 0) html += `<div class="detail-agg" style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:8px">${hrs.spent.toFixed(1)}h spent / ${hrs.est.toFixed(1)}h estimated (${hrs.est > 0 ? Math.round(hrs.spent/hrs.est*100) : 0}%)</div>`;
+  if (hrs.est > 0) html += `<div class="detail-agg" style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:8px">${hrs.spent.toFixed(1)}h spent / ${hrs.est.toFixed(1)}h estimated (${Math.round(hrs.spent/hrs.est*100)}%)</div>`;
   html += `<div class="detail-field"><label class="detail-field__label" for="inline-detail-hoursSpent">Hours Spent</label><input id="inline-detail-hoursSpent" type="number" step="0.5" min="0" value="${task.hoursSpent||0}" onchange="updateTask('${id}','hoursSpent',parseFloat(this.value)||0)"></div>`;
   html += `<div class="detail-field"><label class="detail-field__label field-required" for="inline-detail-hoursEstimated">Hours Est.</label><input id="inline-detail-hoursEstimated" type="number" step="0.5" min="0" value="${task.hoursEstimated||0}" onchange="updateTask('${id}','hoursEstimated',parseFloat(this.value)||0)"></div>`;
   html += `</div>`;
@@ -8980,6 +8982,9 @@ function renderInlineTaskDetail(id) {
   html += `<div class="detail-field"><textarea placeholder="If there are multiple people on the task, describe everyone's responsibilities." onchange="updateTask('${id}','collaborations',this.value)" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(task.collaborations||'')}</textarea></div></div>`;
   html += `<div class="detail-section"><div class="detail-section__title">Success Factor</div>`;
   html += `<div class="detail-field"><textarea placeholder="What will we have accomplished or made by the completion of this task?" onchange="updateTask('${id}','successFactor',this.value)" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(task.successFactor||'')}</textarea></div></div>`;
+
+  // Repeat (Feature 2)
+  html += renderRepeatSection(task);
 
   // Notes
   html += `<div class="detail-section"><div class="detail-section__title">Notes</div><div class="note-list">`;
@@ -9655,7 +9660,7 @@ function openDetailOverlay(id) {
 
   // Time Tracking (quick log + entries)
   html += `<div class="detail-section"><div class="detail-section__title">Time Tracking</div>`;
-  if (children.length > 0) html += `<div class="detail-agg">${hrs.spent.toFixed(1)}h spent / ${hrs.est.toFixed(1)}h estimated (${hrs.est > 0 ? Math.round(hrs.spent/hrs.est*100) : 0}%)</div>`;
+  if (hrs.est > 0) html += `<div class="detail-agg">${hrs.spent.toFixed(1)}h spent / ${hrs.est.toFixed(1)}h estimated (${Math.round(hrs.spent/hrs.est*100)}%)</div>`;
   html += `<div class="detail-field"><label class="detail-field__label field-required" for="detail-hoursEstimated">Hours Est.</label><input id="detail-hoursEstimated" type="number" step="0.5" min="0" value="${task.hoursEstimated||0}" onchange="updateTask('${id}','hoursEstimated',parseFloat(this.value)||0)"></div>`;
   // Quick log entry
   html += `<div style="display:flex;gap:4px;align-items:center;margin-bottom:8px"><input id="logHours" type="number" step="0.25" min="0.25" placeholder="Hours" style="width:60px;padding:4px 6px;font-size:0.78rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)"><input id="logDesc" placeholder="What did you work on?" style="flex:1;padding:4px 6px;font-size:0.78rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)"><button class="btn btn--sm" data-action="logTimeEntry" data-arg0="${id}">Log</button></div>`;
@@ -10068,7 +10073,7 @@ async function updateTask(id, field, value) {
 
   if ((field === 'startDate' || field === 'endDate' || field === 'dueDate') && value) {
     const yearMatch = value.match(/^(\d+)-/);
-    if (yearMatch && (parseInt(yearMatch[1], 10) < 1900 || parseInt(yearMatch[1], 10) > 2099)) {
+    if (yearMatch && yearMatch[1].length >= 4 && (parseInt(yearMatch[1], 10) < 1900 || parseInt(yearMatch[1], 10) > 2099)) {
       showToast('Invalid year — must be between 1900 and 2099', 'error');
       renderContent();
       return;
@@ -12638,7 +12643,14 @@ async function _docsRenderEditorPane() {
       return ['div', T.mergeAttributes(HTMLAttributes, { 'data-nbi-internal': 'true', 'class': 'docs-nbi-block' }), 0];
     },
     addCommands() {
-      return { toggleNbiInternal: () => ({ commands }) => commands.wrapIn('nbiInternalBlock') };
+      return { toggleNbiInternal: () => ({ commands, state }) => {
+        const { from } = state.selection;
+        const resolved = state.doc.resolve(from);
+        for (let d = resolved.depth; d > 0; d--) {
+          if (resolved.node(d).type.name === 'nbiInternalBlock') return commands.lift('nbiInternalBlock');
+        }
+        return commands.wrapIn('nbiInternalBlock');
+      } };
     },
     addKeyboardShortcuts() {
       return { 'Mod-Shift-i': () => this.editor.commands.toggleNbiInternal() };
@@ -12666,7 +12678,7 @@ async function _docsRenderEditorPane() {
     extensions: [
       T.StarterKit.configure({ heading: { levels: [1, 2, 3] } }),
       T.Underline,
-      T.Link.configure({ openOnClick: false, autolink: true, HTMLAttributes: { target: '_blank', rel: 'noopener noreferrer' } }),
+      T.Link.configure({ openOnClick: true, autolink: true, HTMLAttributes: { target: '_blank', rel: 'noopener noreferrer' } }),
       T.Image.configure({ inline: false }),
       T.Placeholder.configure({ placeholder: 'Start typing...' }),
       NbiInternalBlock,
