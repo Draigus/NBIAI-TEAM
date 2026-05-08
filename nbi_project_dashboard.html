@@ -4564,7 +4564,13 @@ function toggleContactDetail(cid, ev) {
 // ==================== CLIENT PROFILE HEADER ====================
 
 let _profileExpanded = {};
+let _clientHeaderOpen = {};
 /** Toggle the expandable client profile section (studio info, contacts, meeting notes) */
+function _actToggleClientHeader(clientKey) {
+  _clientHeaderOpen[clientKey] = !_clientHeaderOpen[clientKey];
+  renderContent();
+}
+
 function toggleClientProfile(clientKey) {
   _profileExpanded[clientKey] = !_profileExpanded[clientKey];
   const el = document.getElementById('clientProfile_' + clientKey);
@@ -4592,19 +4598,33 @@ function renderClientProfileHeader() {
   const cost = hrs * settings.hourlyRate;
   const brief = clientBriefs[ct];
   const isExpanded = !!_profileExpanded[clientKey];
+  const isHeaderOpen = !!_clientHeaderOpen[clientKey];
 
-  let html = `<div class="client-header" style="flex-direction:column;align-items:stretch">`;
-  // Top bar: name, links, stats, toggle button
+  let html = `<div class="client-header" style="flex-direction:column;align-items:stretch;${isHeaderOpen ? '' : 'padding:10px var(--space-xl)'}">`;
+  // Collapsed bar: name + compact stats + toggle
+  html += `<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;cursor:pointer" data-action="_actToggleClientHeader" data-arg0="${clientKey}">`;
+  html += `<div style="display:flex;align-items:center;gap:12px">`;
+  html += `<div class="client-header__name">${esc(brief ? brief.name : ct)}</div>`;
+  if (!isHeaderOpen) {
+    html += `<span style="font-size:0.72rem;color:var(--text-muted);font-family:var(--font-mono)">${clientTasks.length} items &middot; ${hrs.toFixed(1)}h spent &middot; ${est.toFixed(1)}h est.</span>`;
+  }
+  html += `</div>`;
+  html += `<button class="btn btn--sm btn--ghost" style="font-size:0.7rem;color:var(--text-muted);padding:2px 8px">${isHeaderOpen ? '&#9650;' : '&#9660;'}</button>`;
+  html += `</div>`;
+
+  if (isHeaderOpen) {
+  // Extended header: links, full stats, profile, milestones
+  html += `<div style="margin-top:12px">`;
   html += `<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">`;
   html += `<div style="display:flex;align-items:center;gap:12px">`;
-  html += `<div class="client-header__name">${esc(brief ? brief.name : ct)}${brief && brief.website ? ` <a href="${safeUrl(brief.website)}" target="_blank" rel="noopener noreferrer" style="font-size:0.7rem;color:var(--accent);font-family:var(--font-body);text-decoration:none">&#8599; website</a>` : ''}${brief && brief.linkedinCompany ? ` <a href="${safeUrl(brief.linkedinCompany)}" target="_blank" rel="noopener noreferrer" style="font-size:0.7rem;color:var(--accent);font-family:var(--font-body);text-decoration:none">&#8599; LinkedIn</a>` : ''}</div>`;
+  if (brief && brief.website) html += `<a href="${safeUrl(brief.website)}" target="_blank" rel="noopener noreferrer" style="font-size:0.72rem;color:var(--accent);text-decoration:none">&#8599; website</a>`;
+  if (brief && brief.linkedinCompany) html += `<a href="${safeUrl(brief.linkedinCompany)}" target="_blank" rel="noopener noreferrer" style="font-size:0.72rem;color:var(--accent);text-decoration:none">&#8599; LinkedIn</a>`;
   html += `<button class="btn btn--sm btn--ghost" data-action="toggleClientProfile" data-stop data-arg0="${clientKey}" style="display:inline-flex;align-items:center;gap:4px;color:var(--text-muted);font-size:0.72rem"><span id="clientProfileArrow_${clientKey}" style="font-size:0.6rem;transition:transform 0.15s;${isExpanded?'transform:rotate(90deg)':''}">&#9654;</span><span id="clientProfileBtn_${clientKey}">${isExpanded ? 'Hide Profile' : 'Studio Profile'}</span></button>`;
   html += `</div>`;
   html += `<div class="client-header__stats">
     <div class="client-stat"><div class="client-stat__value">${clientTasks.length}</div><div class="client-stat__label">Items</div></div>
     <div class="client-stat"><div class="client-stat__value">${hrs.toFixed(1)}</div><div class="client-stat__label">Hours Spent</div></div>
     <div class="client-stat"><div class="client-stat__value">${est.toFixed(1)}</div><div class="client-stat__label">Estimated</div></div>
-    <div class="client-stat"><div class="client-stat__value">&pound;${cost.toLocaleString()}</div><div class="client-stat__label">Cost</div></div>
   </div></div>`;
 
   // Expandable profile section
@@ -4647,6 +4667,8 @@ function renderClientProfileHeader() {
   }
   html += `</div>`; // close expandable
   html += renderClientMilestones(ct);
+  html += `</div>`; // close extended header
+  } // end isHeaderOpen
   html += `</div>`; // close client-header
   return html;
 }
