@@ -9518,16 +9518,19 @@ async function buildPmReportEmails(todayStr, windowStart, windowEnd) {
     if (row.client_id) byUser[row.user_id].clientIds.add(row.client_id);
   }
 
-  // Fallback: if no team leads configured, send to admins covering all clients
-  if (Object.keys(byUser).length === 0) {
-    const { rows: admins } = await pool.query(`
-      SELECT id AS user_id, username, display_name, email
-      FROM users WHERE role = 'admin' AND is_active = true AND email IS NOT NULL AND email != ''
-    `);
-    const { rows: allClients } = await pool.query(`SELECT id FROM clients`);
-    const allClientIds = allClients.map(c => c.id);
-    for (const admin of admins) {
+  // Admins always get a portfolio-wide report (all clients), even when team
+  // leads exist. Team leads still get their client-scoped reports alongside.
+  const { rows: admins } = await pool.query(`
+    SELECT id AS user_id, username, display_name, email
+    FROM users WHERE role = 'admin' AND is_active = true AND email IS NOT NULL AND email != '' AND email LIKE '%@%'
+  `);
+  const { rows: allClients } = await pool.query(`SELECT id FROM clients`);
+  const allClientIds = allClients.map(c => c.id);
+  for (const admin of admins) {
+    if (!byUser[admin.user_id]) {
       byUser[admin.user_id] = { username: admin.username, name: admin.display_name, email: admin.email, clientIds: new Set(allClientIds) };
+    } else {
+      for (const cid of allClientIds) byUser[admin.user_id].clientIds.add(cid);
     }
   }
 

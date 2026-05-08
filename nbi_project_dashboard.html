@@ -16680,6 +16680,17 @@ function renderLeadDetailContent(panel, lead) {
 
   html += `</div></div>`;
 
+  // Primary Contact
+  html += `<div class="lead-detail__section"><h3>Primary Contact</h3><div class="lead-detail__grid">`;
+  if (lead.primary_contact_id) {
+    html += `<label>Name</label><input type="text" value="${esc(lead.primary_contact_name||'')}" onchange="_updateLeadContact('${lead.primary_contact_id}','name',this.value)">`;
+    html += `<label>Email</label><input type="email" value="${esc(lead.primary_contact_email||'')}" onchange="_updateLeadContact('${lead.primary_contact_id}','email',this.value)">`;
+    html += `<label>Phone</label><input type="tel" value="${esc(lead.primary_contact_phone||'')}" onchange="_updateLeadContact('${lead.primary_contact_id}','phone',this.value)">`;
+  } else {
+    html += `<div style="grid-column:1/-1;color:var(--text-muted);font-size:0.78rem">No contact linked. Add one when creating a new lead.</div>`;
+  }
+  html += `</div></div>`;
+
   // Value section
   html += `<div class="lead-detail__section"><h3>Value</h3><div class="lead-detail__grid">`;
   html += `<label>Currency</label><select onchange="updateLead('${lead.id}','currency',this.value)">`;
@@ -16819,6 +16830,18 @@ async function uncompleteLead(id) {
 }
 
 /** Update a single field on a lead via PATCH and refresh the detail panel */
+async function _updateLeadContact(contactId, field, value) {
+  const body = {};
+  body[field] = value;
+  const resp = await authFetch(`/api/contacts/${contactId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (resp.ok) { await refreshLeads(); }
+  else { toast('Failed to update contact', 'error'); }
+}
+
 async function updateLead(id, field, value) {
   // Block edits on a completed lead — admins must Uncomplete first.
   // Allow setting completed_at itself (for complete/uncomplete actions).
