@@ -10126,17 +10126,18 @@ if (cron) {
   log('info', 'Cron', 'Due/late ticket warnings scheduled for 09:00 weekdays');
 }
 
-// Inbound Email Polling — every 10 minutes (reduced from 5 to avoid Graph API 429 throttling)
-if (cron) {
-  cron.schedule('*/10 * * * *', async () => {
-    try {
-      await processInboundEmails();
-    } catch (e) {
-      log('error', 'Cron', 'Inbound email poll failed', { error: e.message });
-    }
-  }, CRON_TZ);
-  log('info', 'Cron', 'Inbound email polling scheduled every 10 minutes');
-}
+// Inbound Email Polling — DISABLED per Glen 2026-05-08: created 64k spam notifications
+// from bounce-back emails. Functions retained in code but cron disabled.
+// if (cron) {
+//   cron.schedule('*/10 * * * *', async () => {
+//     try {
+//       await processInboundEmails();
+//     } catch (e) {
+//       log('error', 'Cron', 'Inbound email poll failed', { error: e.message });
+//     }
+//   }, CRON_TZ);
+//   log('info', 'Cron', 'Inbound email polling scheduled every 10 minutes');
+// }
 
 // Daily dashboard snapshot at 00:05 UTC
 if (cron) {
