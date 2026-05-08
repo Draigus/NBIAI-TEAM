@@ -11004,19 +11004,26 @@ function renderReportingDrawer(f) {
   }
   html += `</div></div>`;
 
-  // Right column: narrative blocks
+  // Right column: editable narrative blocks
   html += `<div class="reporting__drawer-side">`;
-  const block = (label, content, opts = {}) => {
+  const editBlock = (label, field, content) => {
     const text = (content || '').toString().trim();
-    if (!text && !opts.editable) return '';
-    const link = opts.isLink && text;
-    return `<div class="reporting__drawer-card"><div class="reporting__drawer-card-hdr">${label}</div><div class="reporting__drawer-card-body" style="font-size:0.78rem;white-space:pre-wrap;color:var(--text-secondary)">${link ? `<a href="${esc(text)}" target="_blank" rel="noopener" style="color:var(--accent-text);word-break:break-all">${esc(text)}</a>` : (text ? esc(text) : `<span style="color:var(--text-muted);font-style:italic">— add via the detail overlay —</span>`)}</div></div>`;
+    return `<div class="reporting__drawer-card"><div class="reporting__drawer-card-hdr">${label}</div><div class="reporting__drawer-card-body"><textarea style="width:100%;min-height:48px;font-size:0.78rem;background:var(--bg-input);color:var(--text-primary);border:1px solid var(--border-default);border-radius:var(--radius-sm);padding:6px 8px;resize:vertical;font-family:var(--font-body)" placeholder="Add ${label.toLowerCase()}..." onchange="updateTask('${escAttrJs(f.id)}','${field}',this.value)" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(text)}</textarea></div></div>`;
   };
-  html += block('Goals', f.success_factor || f.successFactor, { editable: true });
-  html += block('Dependencies', Array.isArray(f.dependencies) ? f.dependencies.join('\n') : f.dependencies, { editable: true });
-  html += block('Risks', f.risks, { editable: true });
-  html += block('Mitigations', f.mitigations, { editable: true });
-  html += block('Documentation', f.documentation_link || f.documentationLink, { editable: true, isLink: true });
+  const linkBlock = (label, field, content) => {
+    const text = (content || '').toString().trim();
+    return `<div class="reporting__drawer-card"><div class="reporting__drawer-card-hdr">${label}${text ? ` <a href="${esc(text)}" target="_blank" rel="noopener" style="font-size:0.65rem;color:var(--accent);font-weight:400">&#8599; open</a>` : ''}</div><div class="reporting__drawer-card-body"><input type="url" style="width:100%;font-size:0.78rem;background:var(--bg-input);color:var(--text-primary);border:1px solid var(--border-default);border-radius:var(--radius-sm);padding:6px 8px;font-family:var(--font-body)" placeholder="https://..." value="${esc(text)}" onchange="updateTask('${escAttrJs(f.id)}','documentationLink',this.value)"></div></div>`;
+  };
+  // Dependencies: resolve UUIDs to task names
+  const depIds = Array.isArray(f.dependencies) ? f.dependencies : [];
+  const depNames = depIds.map(did => { const dt = tasks.find(t => t.id === did); return dt ? dt.title : did; });
+  const depBlock = `<div class="reporting__drawer-card"><div class="reporting__drawer-card-hdr">Dependencies</div><div class="reporting__drawer-card-body" style="font-size:0.78rem;color:var(--text-secondary)">${depNames.length > 0 ? depNames.map(n => `<div style="padding:2px 0">&#8226; ${esc(n)}</div>`).join('') : `<span style="color:var(--text-muted);font-style:italic">None — add via detail overlay</span>`}</div></div>`;
+
+  html += editBlock('Goals', 'successFactor', f.success_factor || f.successFactor);
+  html += depBlock;
+  html += editBlock('Risks', 'risks', f.risks);
+  html += editBlock('Mitigations', 'mitigations', f.mitigations);
+  html += linkBlock('Documentation', 'documentationLink', f.documentation_link || f.documentationLink);
   html += `</div>`;
 
   html += `</div>`;
