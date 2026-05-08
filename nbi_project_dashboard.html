@@ -12866,6 +12866,7 @@ async function _docsAppendToReport(taskId) {
   await updateTask(taskId, 'documentationLink', newVal);
   toast('Added to ' + (task.title || 'report'), 'success');
   _docsAddToReportText = '';
+}
 
 function _docsRenderToolbar() {
   const el = document.getElementById('docsToolbar');
