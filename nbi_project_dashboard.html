@@ -11012,7 +11012,7 @@ function renderReportingDrawer(f) {
   };
   const linkBlock = (label, field, content) => {
     const text = (content || '').toString().trim();
-    return `<div class="reporting__drawer-card"><div class="reporting__drawer-card-hdr">${label}${text ? ` <a href="${esc(text)}" target="_blank" rel="noopener" style="font-size:0.65rem;color:var(--accent);font-weight:400">&#8599; open</a>` : ''}</div><div class="reporting__drawer-card-body"><input type="url" style="width:100%;font-size:0.78rem;background:var(--bg-input);color:var(--text-primary);border:1px solid var(--border-default);border-radius:var(--radius-sm);padding:6px 8px;font-family:var(--font-body)" placeholder="https://..." value="${esc(text)}" onchange="updateTask('${escAttrJs(f.id)}','documentationLink',this.value)"></div></div>`;
+    return editBlock(label, field, text);
   };
   // Dependencies: resolve UUIDs to task names
   const depIds = Array.isArray(f.dependencies) ? f.dependencies : [];
