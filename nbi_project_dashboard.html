@@ -4605,7 +4605,7 @@ function renderClientProfileHeader() {
   html += `<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;cursor:pointer" data-action="_actToggleClientHeader" data-arg0="${clientKey}">`;
   html += `<div style="display:flex;align-items:center;gap:12px">`;
   html += `<div class="client-header__name">${esc(brief ? brief.name : ct)}</div>`;
-  if (!isHeaderOpen) {
+  if (!isHeaderOpen && !isClientUser()) {
     html += `<span style="font-size:0.72rem;color:var(--text-muted);font-family:var(--font-mono)">${clientTasks.length} items &middot; ${hrs.toFixed(1)}h spent &middot; ${est.toFixed(1)}h est.</span>`;
   }
   html += `</div>`;
@@ -4621,11 +4621,14 @@ function renderClientProfileHeader() {
   if (brief && brief.linkedinCompany) html += `<a href="${safeUrl(brief.linkedinCompany)}" target="_blank" rel="noopener noreferrer" style="font-size:0.72rem;color:var(--accent);text-decoration:none">&#8599; LinkedIn</a>`;
   html += `<button class="btn btn--sm btn--ghost" data-action="toggleClientProfile" data-stop data-arg0="${clientKey}" style="display:inline-flex;align-items:center;gap:4px;color:var(--text-muted);font-size:0.72rem"><span id="clientProfileArrow_${clientKey}" style="font-size:0.6rem;transition:transform 0.15s;${isExpanded?'transform:rotate(90deg)':''}">&#9654;</span><span id="clientProfileBtn_${clientKey}">${isExpanded ? 'Hide Profile' : 'Studio Profile'}</span></button>`;
   html += `</div>`;
-  html += `<div class="client-header__stats">
-    <div class="client-stat"><div class="client-stat__value">${clientTasks.length}</div><div class="client-stat__label">Items</div></div>
-    <div class="client-stat"><div class="client-stat__value">${hrs.toFixed(1)}</div><div class="client-stat__label">Hours Spent</div></div>
-    <div class="client-stat"><div class="client-stat__value">${est.toFixed(1)}</div><div class="client-stat__label">Estimated</div></div>
-  </div></div>`;
+  if (!isClientUser()) {
+    html += `<div class="client-header__stats">
+      <div class="client-stat"><div class="client-stat__value">${clientTasks.length}</div><div class="client-stat__label">Items</div></div>
+      <div class="client-stat"><div class="client-stat__value">${hrs.toFixed(1)}</div><div class="client-stat__label">Hours Spent</div></div>
+      <div class="client-stat"><div class="client-stat__value">${est.toFixed(1)}</div><div class="client-stat__label">Estimated</div></div>
+    </div>`;
+  }
+  html += `</div>`;
 
   // Expandable profile section
   html += `<div id="clientProfile_${clientKey}" style="display:${isExpanded ? 'block' : 'none'}">`;
