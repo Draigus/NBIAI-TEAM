@@ -1087,6 +1087,9 @@ span.fin-editable { display: inline-block; position: relative; }
 .gantt__depth-btn--docs { background: color-mix(in srgb, var(--accent) 8%, transparent); border-color: var(--accent-border); color: var(--accent-text); }
 .gantt__depth-btn--docs:hover { background: color-mix(in srgb, var(--accent) 16%, transparent); }
 .gantt__today-line { position: absolute; top: 0; bottom: 0; background: rgba(34,197,94,0.18); z-index: 1; pointer-events: none; }
+.gantt__milestone-line { position: absolute; top: 0; bottom: 0; background: rgba(245,158,11,0.18); z-index: 1; pointer-events: none; border-left: 2px solid rgba(245,158,11,0.5); }
+.gantt__milestone-label { position: absolute; top: -2px; font-size: 0.5rem; font-weight: 700; color: #f59e0b; white-space: nowrap; pointer-events: auto; cursor: default; letter-spacing: 0.02em; z-index: 6; }
+.gantt__day-hdr--milestone { background: rgba(245,158,11,0.15) !important; color: #f59e0b !important; font-weight: 700 !important; }
 .gantt__day-col { border-right: 1px solid var(--border-subtle); flex-shrink: 0; }
 .gantt__day-col--weekend { background: color-mix(in srgb, var(--bg-surface) 50%, transparent); }
 .gantt__day-col--today { background: color-mix(in srgb, var(--accent) 5%, transparent); }
@@ -7960,6 +7963,21 @@ function renderGanttView(filtered) {
   // Draggable column resize handle
   html += `<div class="gantt__col-resize" style="left:${_ganttLabelWidth - 3}px" onmousedown="ganttColResizeStart(event)"></div>`;
 
+  // Collect milestones for the timeline
+  const _ganttMilestones = [];
+  const _msClients = currentFilter.client
+    ? [_apiClientsCache[currentFilter.client]].filter(Boolean)
+    : Object.values(_apiClientsCache || {});
+  _msClients.forEach(c => {
+    (_milestonesCache[c.id] || []).forEach(ms => {
+      if (!ms.target_date) return;
+      const md = new Date(ms.target_date);
+      const localD = new Date(md.getFullYear(), md.getMonth(), md.getDate());
+      const off = Math.round((localD - minDate) / 86400000);
+      if (off >= 0 && off < totalDays) _ganttMilestones.push({ title: ms.title, offset: off });
+    });
+  });
+
   // Header row: months + day numbers
   html += `<div class="gantt__header">`;
   html += `<div class="gantt__label-col">Item</div>`;
@@ -7984,10 +8002,13 @@ function renderGanttView(filtered) {
   for (let i = 0; i < totalDays; i++) {
     const isWeekend = d.getDay() === 0 || d.getDay() === 6;
     const isToday = d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
+    const msHit = _ganttMilestones.filter(m => m.offset === i);
     let cls = 'gantt__day-hdr';
     if (isWeekend) cls += ' gantt__day-hdr--weekend';
     if (isToday) cls += ' gantt__day-hdr--today';
-    html += `<div class="${cls}" style="width:${dayW}px">${d.getDate()}</div>`;
+    if (msHit.length > 0) cls += ' gantt__day-hdr--milestone';
+    const msTitle = msHit.length > 0 ? ` title="${msHit.map(m => m.title).join(', ')}"` : '';
+    html += `<div class="${cls}" style="width:${dayW}px"${msTitle}>${d.getDate()}</div>`;
     d.setDate(d.getDate() + 1);
   }
   html += `</div>`;
@@ -8067,6 +8088,7 @@ function renderGanttView(filtered) {
         html += ganttDayCols(totalDays, dayW, minDate, now);
         const todayOff = Math.round((now - minDate) / 86400000);
         if (todayOff >= 0 && todayOff < totalDays) html += `<div class="gantt__today-line" style="left:${todayOff * dayW}px;width:${dayW}px"></div>`;
+        _ganttMilestones.forEach(ms => { html += `<div class="gantt__milestone-line" style="left:${ms.offset * dayW}px;width:${dayW}px" title="${esc(ms.title)}"></div>`; });
         if (start && end && end >= start) {
           const rawOff = Math.round((start - minDate) / 86400000);
           const sOff = Math.max(0, rawOff);
@@ -8189,6 +8211,8 @@ function renderGanttView(filtered) {
       if (todayOffset >= 0 && todayOffset < totalDays) {
         html += `<div class="gantt__today-line" style="left:${todayOffset * dayW}px;width:${dayW}px"></div>`;
       }
+      // Milestone lines
+      _ganttMilestones.forEach(ms => { html += `<div class="gantt__milestone-line" style="left:${ms.offset * dayW}px;width:${dayW}px" title="${esc(ms.title)}"></div>`; });
 
       // Bar — clamp left edge so bars never render behind the label column
       if (start && end && end >= start) {
