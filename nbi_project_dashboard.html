@@ -12364,6 +12364,9 @@ function _docsRender(el) {
     + '<button class="docs__ctx-item" role="menuitem" data-action="hide">Hide</button>'
     + '<button class="docs__ctx-item docs__ctx-item--danger" role="menuitem" data-action="delete">Delete</button>'
     + '</div>';
+  html += '<div class="docs__ctx-menu" id="docsEditorCtxMenu" role="menu">'
+    + '<button class="docs__ctx-item" role="menuitem" onclick="_docsAddToReportPick()">&#128196; Add to Report</button>'
+    + '</div>';
   el.innerHTML = html;
   _docsRenderEditorPane();
   _docsBindContextMenu();
@@ -12524,6 +12527,8 @@ function _docsShowCtxMenu(x, y, docId) {
 function _docsHideCtxMenu() {
   const menu = document.getElementById('docsCtxMenu');
   if (menu) menu.classList.remove('docs__ctx-menu--open');
+  const edMenu = document.getElementById('docsEditorCtxMenu');
+  if (edMenu) edMenu.classList.remove('docs__ctx-menu--open');
   _docsCtxTarget = null;
 }
 
@@ -12799,7 +12804,68 @@ async function _docsRenderEditorPane() {
       _docsTb('nbi');
     }
   });
+
+  // Right-click "Add to Report" when text is selected
+  _docsTiptapEditor.view.dom.addEventListener('contextmenu', (e) => {
+    const sel = window.getSelection();
+    const selectedText = sel ? sel.toString().trim() : '';
+    if (!selectedText) return;
+    e.preventDefault();
+    _docsAddToReportText = selectedText;
+    const menu = document.getElementById('docsEditorCtxMenu');
+    if (!menu) return;
+    menu.style.left = Math.min(e.clientX, window.innerWidth - 200) + 'px';
+    menu.style.top = Math.min(e.clientY, window.innerHeight - 60) + 'px';
+    menu.classList.add('docs__ctx-menu--open');
+  });
 }
+
+let _docsAddToReportText = '';
+
+function _docsAddToReportPick() {
+  const menu = document.getElementById('docsEditorCtxMenu');
+  if (menu) menu.classList.remove('docs__ctx-menu--open');
+  if (!_docsAddToReportText) return;
+
+  const clientName = currentFilter.client;
+  const features = tasks.filter(t => {
+    if (clientName && getTaskClient(t) !== clientName) return false;
+    const type = getItemType(t);
+    return type === 'feature' || type === 'project';
+  }).sort((a, b) => a.title.localeCompare(b.title));
+
+  if (features.length === 0) { toast('No features or projects found to add to.', 'warning'); return; }
+
+  let html = `<div class="modal-overlay open" id="addToReportModal" role="dialog" aria-modal="true" data-action="_actRemoveIfSelf" data-pass-event data-pass-el>
+    <div class="modal" style="max-width:var(--modal-sm)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <h2 style="margin:0;font-size:1rem">Add to Report</h2>
+        <button class="btn btn--ghost" data-action="_actModalRemove" data-arg0="addToReportModal">&times;</button>
+      </div>
+      <p style="color:var(--text-muted);font-size:0.78rem;margin-bottom:4px">Selected text will be appended to the Documentation field:</p>
+      <div style="background:var(--bg-input);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:8px;font-size:0.75rem;color:var(--text-secondary);max-height:80px;overflow-y:auto;margin-bottom:12px;white-space:pre-wrap">${esc(_docsAddToReportText.slice(0, 300))}${_docsAddToReportText.length > 300 ? '...' : ''}</div>
+      <p style="color:var(--text-muted);font-size:0.78rem;margin-bottom:8px">Which feature or project?</p>
+      <div style="max-height:300px;overflow-y:auto;border:1px solid var(--border-default);border-radius:var(--radius-sm)">`;
+  features.forEach(f => {
+    const type = getItemType(f);
+    const meta = ITEM_TYPE_META[type] || ITEM_TYPE_META.task;
+    html += `<div class="picker-row" style="padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border-subtle)" onclick="_docsAppendToReport('${escAttrJs(f.id)}')"><span class="item-type-badge" style="background:${meta.colour};font-size:0.5rem;padding:1px 5px">${meta.label.charAt(0)}</span><span style="font-size:0.82rem">${esc(f.title)}</span></div>`;
+  });
+  html += `</div></div></div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+  _activateDynamicModal('addToReportModal');
+}
+
+async function _docsAppendToReport(taskId) {
+  const modal = document.getElementById('addToReportModal');
+  if (modal) modal.remove();
+  const task = tasks.find(t => t.id === taskId);
+  if (!task) return;
+  const existing = (task.documentation_link || task.documentationLink || '').trim();
+  const newVal = existing ? existing + '\n\n' + _docsAddToReportText : _docsAddToReportText;
+  await updateTask(taskId, 'documentationLink', newVal);
+  toast('Added to ' + (task.title || 'report'), 'success');
+  _docsAddToReportText = '';
 
 function _docsRenderToolbar() {
   const el = document.getElementById('docsToolbar');
