@@ -12827,7 +12827,8 @@ function _docsAddToReportPick() {
   if (menu) menu.classList.remove('docs__ctx-menu--open');
   if (!_docsAddToReportText) return;
 
-  const clientName = currentFilter.client;
+  const docClientObj = _docsState.clientId ? Object.values(_apiClientsCache || {}).find(c => c.id === _docsState.clientId) : null;
+  const clientName = docClientObj ? docClientObj.name : currentFilter.client;
   const clients = clientName ? [clientName] : getAllClients();
   if (clients.length === 0) { toast('No clients found.', 'warning'); return; }
 
