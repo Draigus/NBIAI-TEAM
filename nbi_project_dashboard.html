@@ -4651,6 +4651,10 @@ function renderClientProfileHeader() {
 function renderClientMilestones(clientName) {
   const clientObj = _apiClientsCache[clientName];
   if (!clientObj) return '';
+  if (!_milestonesCache[clientObj.id]) {
+    loadMilestones(clientObj.id).then(() => renderContent());
+    _milestonesCache[clientObj.id] = [];
+  }
   const milestones = _milestonesCache[clientObj.id] || [];
 
   let html = '<div style="margin-top:12px;border-top:1px solid var(--border-default);padding-top:12px">';
