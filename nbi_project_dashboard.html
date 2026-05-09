@@ -427,8 +427,15 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .pf__kpi-delta { display: flex; align-items: center; gap: 3px; font-size: 0.72rem; font-weight: 700; }
 .pf__kpi-delta-text { font-size: 0.65rem; font-weight: 500; color: var(--text-muted); }
 
-/* Client table — compact, no scroll */
-.pf__tbl-card { background: var(--bg-card); border: 1px solid var(--border-default); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; flex-shrink: 0; }
+/* Table + Status Overview side-by-side row */
+.pf__row { display: flex; gap: 8px; flex: 1; min-height: 0; }
+
+/* Client table — 2/3 width */
+.pf__tbl-card { background: var(--bg-card); border: 1px solid var(--border-default); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; flex: 2; min-height: 0; display: flex; flex-direction: column; }
+.pf__tbl-card .pf__tbl { flex: 1; overflow-y: auto; }
+
+/* Status Overview in the row — 1/3 width */
+.pf__row > .pf__panel { flex: 1; min-height: 0; }
 .pf__tbl-hdr { padding: 8px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-subtle); }
 .pf__tbl-title { font-size: 0.82rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; }
 .pf__tbl { width: 100%; border-collapse: collapse; }
@@ -460,8 +467,8 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .pf__bar-fill--c { background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 70%, white)); box-shadow: 0 0 10px var(--accent-glow); }
 
 /* Panel grids — flex to fill remaining space */
-.pf__pgrid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; flex: 1; min-height: 0; }
-.pf__pgrid--2 { grid-template-columns: 1fr 1fr; flex: 0.7; min-height: 0; }
+.pf__pgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex: 1; min-height: 0; }
+.pf__pgrid--2 { grid-template-columns: 1fr 1fr; }
 .pf__panel { background: var(--bg-card); border: 1px solid var(--border-default); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; display: flex; flex-direction: column; min-height: 0; }
 .pf__panel-hdr { padding: 8px 16px 6px; display: flex; align-items: center; justify-content: center; gap: 12px; border-bottom: 1px solid var(--border-subtle); flex-shrink: 0; }
 .pf__panel-title { font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
@@ -5467,10 +5474,13 @@ function renderPortfolioDashboard() {
 
   let html = '<div class="pf">';
   html += renderPfStrip(activeRoots.length, onTrackCount, needsAttentionCount, atRiskTasks.length, snap7);
-  html += renderPfClientTable(filtered, roots, now);
 
-  html += '<div class="pf__pgrid">';
+  html += '<div class="pf__row">';
+  html += renderPfClientTable(filtered, roots, now);
   html += renderPfProgressStatus(panelTasks);
+  html += '</div>';
+
+  html += '<div class="pf__pgrid pf__pgrid--2">';
   html += renderPfNeedsAttention(panelTasks, now);
   html += renderPfMilestones(panelRoots, now);
   html += '</div>';
