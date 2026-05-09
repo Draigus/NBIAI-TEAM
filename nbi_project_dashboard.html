@@ -7346,10 +7346,12 @@ function renderBoardView(filtered) {
 function renderBoardCard(task) {
   const hasKids = getChildren(task.id).length > 0;
   const isBlocked = task.healthState === 'Blocked';
+  const isRed = task.healthState === 'Red';
+  const isOverdue = task.dueDate && task.status !== 'Done' && task.status !== 'Cancelled' && safeParseDate(task.dueDate) < ((() => { const n = new Date(); n.setHours(0,0,0,0); return n; })());
   const isCancelled = task.status === 'Cancelled';
   let cls = 'board-card';
-  if (isBlocked) cls += ' board-card--blocked';
-  if (hasKids) cls += ' board-card--parent';
+  if (isBlocked || isRed || isOverdue) cls += ' board-card--blocked';
+  if (hasKids && !isBlocked && !isRed && !isOverdue) cls += ' board-card--parent';
   if (isCancelled) cls += ' board-card--cancelled';
 
   const bcClient = getTaskClient(task);
@@ -8573,9 +8575,15 @@ function ganttBarClass(t) {
   if (t.healthState === 'Blocked') return 'gantt__bar--blocked';
   if (t.status === 'Cancelled') return 'gantt__bar--cancelled';
   if (t.status === 'Done') return 'gantt__bar--done';
+  if (t.healthState === 'Red') return 'gantt__bar--blocked';
+  if (t.status !== 'Done' && t.dueDate) {
+    const due = safeParseDate(t.dueDate);
+    const now = new Date(); now.setHours(0,0,0,0);
+    if (due && due < now) return 'gantt__bar--blocked';
+  }
   if (t.status === 'In progress') return 'gantt__bar--inprogress';
   if (t.status === 'Not started') return 'gantt__bar--notstarted';
-  return 'gantt__bar--inprogress'; // Planning, In Review, etc.
+  return 'gantt__bar--inprogress';
 }
 
 /** Get the effective start date for a Gantt bar -- prefers startDate, falls back to createdAt */
