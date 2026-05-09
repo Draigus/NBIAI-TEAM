@@ -10583,6 +10583,9 @@ function renderReportingView(el) {
     const allClients = [...new Set(tasks.filter(t => t.itemType === 'project' && getTaskClient(t)).map(t => getTaskClient(t)))].sort();
     _reportingClient = allClients.includes('Lighthouse Games') ? 'Lighthouse Games' : (allClients[0] || null);
   }
+  if (Object.keys(_milestonesCache).length === 0) {
+    loadAllMilestones().then(() => { if (currentView === 'reporting') renderContent(); });
+  }
   const projectsForClient = tasks.filter(t => t.itemType === 'project' && getTaskClient(t) === _reportingClient);
   if (!_reportingProjectId || !projectsForClient.find(p => p.id === _reportingProjectId)) {
     _reportingProjectId = projectsForClient.length ? projectsForClient[0].id : null;
