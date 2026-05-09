@@ -443,7 +443,7 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .pf__tbl td { padding: 6px 16px; font-size: 0.82rem; border-bottom: 1px solid var(--border-subtle); vertical-align: middle; }
 .pf__tbl tbody tr { cursor: pointer; transition: background 0.15s; }
 .pf__tbl tbody tr:hover { background: var(--accent-glow); }
-.pf__tbl tbody tr:active { background: color-mix(in srgb, var(--accent-glow) 200%, transparent); }
+.pf__tbl tbody tr:active { background: var(--bg-hover); }
 .pf__tbl-health { width: 10px; height: 10px; border-radius: 2px; transform: rotate(45deg); box-shadow: inset 2px 2px 4px rgba(0,0,0,0.2); }
 .pf__tbl-health--r { background: var(--danger); box-shadow: inset 2px 2px 4px rgba(0,0,0,0.2), 0 0 8px rgba(255,71,87,0.35); }
 .pf__tbl-health--y { background: var(--warning); box-shadow: inset 2px 2px 4px rgba(0,0,0,0.2), 0 0 8px rgba(255,165,2,0.3); }
@@ -481,7 +481,7 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .pf__panel-body::-webkit-scrollbar-thumb:hover { background: rgba(128,128,128,0.35); }
 
 /* Attention items (Needs Attention panel) */
-.pf__attn { display: flex; align-items: center; gap: 14px; padding: 14px 16px; margin: 4px -16px; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s; }
+.pf__attn { display: flex; align-items: center; gap: 14px; padding: 14px 12px; margin: 4px -12px; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s; }
 .pf__attn:hover { background: var(--accent-glow); box-shadow: var(--shadow-sm); transform: translateY(-1px); }
 .pf__attn:active { box-shadow: inset 2px 2px 5px rgba(0,0,0,0.15); transform: translateY(0); }
 .pf__attn-bar { width: 4px; align-self: stretch; border-radius: 2px; flex-shrink: 0; }
@@ -500,7 +500,7 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .pf__wl-ct { font-size: 1.05rem; font-weight: 700; font-family: var(--font-mono); width: 40px; text-align: right; flex-shrink: 0; }
 
 /* Milestone rows */
-.pf__msl { display: flex; align-items: center; gap: 16px; padding: 16px; margin: 4px -16px; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s; }
+.pf__msl { display: flex; align-items: center; gap: 16px; padding: 12px; margin: 4px -12px; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s; }
 .pf__msl:hover { background: var(--accent-glow); box-shadow: var(--shadow-sm); transform: translateY(-1px); }
 .pf__msl:active { box-shadow: inset 2px 2px 5px rgba(0,0,0,0.15); transform: translateY(0); }
 .pf__msl-marker { width: 44px; height: 44px; background: var(--bg-input); border-radius: var(--radius-sm); box-shadow: inset 3px 3px 6px rgba(0,0,0,0.2), inset -1px -1px 3px rgba(255,255,255,0.02); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
@@ -5451,9 +5451,9 @@ function renderPortfolioDashboard() {
   const onTrackCount = Math.max(0, activeRoots.length - uniqueProblemIds.size);
 
   const snap7 = _portfolioSnapshots ? _portfolioSnapshots.find(s => {
-    const d = new Date(s.snapshot_date);
     const ago = new Date(now); ago.setDate(ago.getDate() - 7);
-    return d.toISOString().slice(0,10) === ago.toISOString().slice(0,10);
+    const agoStr = ago.getFullYear() + '-' + String(ago.getMonth()+1).padStart(2,'0') + '-' + String(ago.getDate()).padStart(2,'0');
+    return (s.snapshot_date || '').slice(0,10) === agoStr;
   }) : null;
 
   const panelTasks = _portfolioSelectedClient
@@ -5654,10 +5654,9 @@ function renderPfProgressStatus(panelTasks) {
   const backlogPct = total > 0 ? Math.round(backlogCount / total * 100) : 0;
   const nonZero = buckets.filter(b => b.count > 0);
 
-  const backlogFillPct = total > 0 ? Math.round(backlogCount / total * 100) : 0;
   let backlogHtml = '<div style="flex-shrink:0;text-align:center">';
   backlogHtml += '<div class="pf__well" style="width:56px;height:120px;display:flex;flex-direction:column;justify-content:flex-end;padding:0">';
-  backlogHtml += '<div style="height:' + backlogFillPct + '%;background:rgba(148,163,184,0.18);border-radius:2px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:' + (backlogCount > 0 ? '36px' : '0') + '">';
+  backlogHtml += '<div style="height:' + backlogPct + '%;background:rgba(148,163,184,0.18);border-radius:2px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:' + (backlogCount > 0 ? '36px' : '0') + '">';
   backlogHtml += '<div style="font-family:var(--font-mono);font-size:1.2rem;font-weight:700;color:var(--text-primary)">' + backlogCount + '</div>';
   backlogHtml += '<div style="font-size:0.58rem;font-weight:700;color:var(--text-muted);margin-top:2px;letter-spacing:0.06em">BACKLOG</div>';
   backlogHtml += '</div></div>';
@@ -5799,7 +5798,7 @@ function renderPfMilestones(panelRoots, now) {
       html += '</div>';
     });
 
-    if (filtered.length <= 2) {
+    if (!_portfolioSelectedClient && filtered.length <= 2) {
       html += '<div style="padding:16px;text-align:center;color:var(--text-faint);font-size:0.82rem">No other clients have milestones set</div>';
     }
   }
