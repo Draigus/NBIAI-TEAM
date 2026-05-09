@@ -5490,14 +5490,14 @@ function renderPortfolioDashboard() {
   html += renderPfProgressStatus(panelTasks);
   html += '</div>';
 
-  html += '<div class="pf__pgrid pf__pgrid--fill">';
-  html += renderPfNeedsAttention(panelTasks, now);
+  html += '<div class="pf__pgrid pf__pgrid--auto">';
+  html += renderPfCompletingSoon(panelRoots, now);
   html += renderPfMilestones(panelRoots, now);
   html += '</div>';
 
-  html += '<div class="pf__pgrid pf__pgrid--auto">';
+  html += '<div class="pf__pgrid pf__pgrid--fill">';
+  html += renderPfNeedsAttention(panelTasks, now);
   html += renderPfTeamWorkload(panelTasks);
-  html += renderPfCompletingSoon(panelRoots, now);
   html += '</div>';
 
   html += '</div>';
