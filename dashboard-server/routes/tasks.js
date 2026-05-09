@@ -7,7 +7,7 @@ module.exports = function(ctx) {
   const { pool, log, isValidUuid, validateLength, auditLog, buildPatchQuery,
           createNotification, getClientScopes, reorderInGroup, shiftForInsert,
           requireAdmin, requireTaskAccess, computeNextRepeatDate,
-          ITEM_TYPES, VALID_CHILD_TYPE } = ctx;
+          ITEM_TYPES, VALID_CHILD_TYPE, upload, fs, path, uploadDir } = ctx;
 
 /**
  * GET /api/tasks
@@ -767,6 +767,99 @@ router.post('/api/tasks/:taskId/notes', requireAdmin, async (req, res) => {
   );
   // Update task's updated_at
   await pool.query('UPDATE tasks SET updated_at = NOW() WHERE id = $1', [req.params.taskId]);
+  res.status(201).json(rows[0]);
+});
+
+// Task comments
+router.get('/api/tasks/:id/comments', async (req, res) => {
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid task ID' });
+  const allowed = await requireTaskAccess(req, res, req.params.id);
+  if (!allowed) return;
+  const { rows } = await pool.query('SELECT * FROM task_comments WHERE task_id = $1 ORDER BY created_at ASC', [req.params.id]);
+  res.json(rows);
+});
+
+router.post('/api/tasks/:id/comments', async (req, res) => {
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid task ID' });
+  const allowed = await requireTaskAccess(req, res, req.params.id);
+  if (!allowed) return;
+  const { text } = req.body;
+  if (!text || !text.trim()) return res.status(400).json({ error: 'text required' });
+  const author = req.user?.displayName || 'Unknown';
+  const { rows } = await pool.query(
+    'INSERT INTO task_comments (task_id, author, text) VALUES ($1, $2, $3) RETURNING *',
+    [req.params.id, author, text.trim()]
+  );
+  await auditLog('comment', rows[0].id, 'create', author, { task_id: req.params.id, text: text.trim() });
+  res.status(201).json(rows[0]);
+});
+
+router.delete('/api/tasks/:id/comments/:commentId', async (req, res) => {
+  const allowed = await requireTaskAccess(req, res, req.params.id);
+  if (!allowed) return;
+  const { rows } = await pool.query('SELECT author FROM task_comments WHERE id = $1 AND task_id = $2', [req.params.commentId, req.params.id]);
+  if (rows.length === 0) return res.status(404).json({ error: 'Comment not found' });
+  const isOwner = rows[0].author === (req.user?.displayName || req.user?.display_name);
+  if (!isOwner && req.user.role !== 'admin') return res.status(403).json({ error: 'Can only delete your own comments' });
+  await pool.query('DELETE FROM task_comments WHERE id = $1 AND task_id = $2', [req.params.commentId, req.params.id]);
+  res.json({ ok: true });
+});
+
+// Task file attachments
+router.get('/api/tasks/:id/attachments', async (req, res) => {
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid task ID' });
+  const allowed = await requireTaskAccess(req, res, req.params.id);
+  if (!allowed) return;
+  const { rows } = await pool.query('SELECT * FROM task_attachments WHERE task_id = $1 ORDER BY created_at DESC', [req.params.id]);
+  res.json(rows);
+});
+
+router.post('/api/tasks/:id/attachments', upload.single('file'), async (req, res) => {
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid task ID' });
+  const allowed = await requireTaskAccess(req, res, req.params.id);
+  if (!allowed) return;
+  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+  const author = req.user?.displayName || 'unknown';
+  const { rows } = await pool.query(
+    'INSERT INTO task_attachments (task_id, filename, original_name, size_bytes, mime_type, uploaded_by) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *',
+    [req.params.id, req.file.filename, req.file.originalname, req.file.size, req.file.mimetype, author]
+  );
+  await auditLog('attachment', rows[0].id, 'create', author, { task_id: req.params.id, filename: req.file.originalname });
+  res.status(201).json(rows[0]);
+});
+
+router.delete('/api/tasks/:id/attachments/:attachmentId', async (req, res) => {
+  const allowed = await requireTaskAccess(req, res, req.params.id);
+  if (!allowed) return;
+  const { rows } = await pool.query('SELECT filename FROM task_attachments WHERE id = $1 AND task_id = $2', [req.params.attachmentId, req.params.id]);
+  if (rows.length > 0) {
+    const filePath = path.join(uploadDir, rows[0].filename);
+    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    await pool.query('DELETE FROM task_attachments WHERE id = $1', [req.params.attachmentId]);
+  }
+  res.json({ ok: true });
+});
+
+// Task link attachments
+router.post('/api/tasks/:id/attachments/link', async (req, res) => {
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid task ID' });
+  const allowed = await requireTaskAccess(req, res, req.params.id);
+  if (!allowed) return;
+  const { url, title } = req.body || {};
+  if (!url || typeof url !== 'string') return res.status(400).json({ error: 'url is required' });
+  let parsed;
+  try { parsed = new URL(url.trim()); } catch (e) { return res.status(400).json({ error: 'Invalid URL' }); }
+  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+    return res.status(400).json({ error: 'URL must use http or https' });
+  }
+  const linkUrl = parsed.toString();
+  const linkTitle = (title && typeof title === 'string') ? title.trim().slice(0, 255) : null;
+  const { rows } = await pool.query(
+    `INSERT INTO attachments (entity_type, entity_id, filename, original_name, size_bytes, mime_type, uploaded_by, link_url, link_title)
+     VALUES ('task',$1,NULL,NULL,NULL,'link',$2,$3,$4) RETURNING *`,
+    [req.params.id, req.user?.displayName || 'unknown', linkUrl, linkTitle]
+  );
+  await auditLog('attachment', rows[0].id, 'create_link', req.user?.displayName, { task_id: req.params.id, url: linkUrl });
   res.status(201).json(rows[0]);
 });
 

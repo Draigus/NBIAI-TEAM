@@ -359,7 +359,7 @@ app.use(require('./routes/finance')({ pool, requireNBI, requireAdmin, auditLog, 
 app.use(require('./routes/time-entries')({ pool, isValidUuid, requireTaskAccess }));
 app.use(require('./routes/time-off')({ pool, requireAdmin, isValidUuid }));
 app.use(require('./routes/queue')({ pool, requireAdmin, log, isValidUuid, validateLength }));
-app.use(require('./routes/contacts')({ pool, requireAuth, requireAdmin }));
+app.use(require('./routes/contacts')({ pool, requireAuth, requireAdmin, isValidUuid, buildPatchQuery }));
 app.use(require('./routes/client-notes')({ pool, requireAdmin, getClientScopes, buildPatchQuery }));
 app.use(require('./routes/notifications')({ pool, requireAdmin, requireNBI, createNotification, log }));
 app.use(require('./routes/templates')({ pool, requireAdmin, isValidUuid, log }));
@@ -371,119 +371,13 @@ app.use(require('./routes/slack')({ pool, log, verifySlackSignature, handleAppMe
  * Joins to tasks table to enrich entries with task titles where applicable.
  */
 
+
 const { detectImportFormat, mapRowsToTasks } = require('./lib/import-parser');
-
-// ==================== TASK COMMENTS ====================
-
-/** GET /api/tasks/:id/comments — List all comments on a task, oldest first */
-app.get('/api/tasks/:id/comments', async (req, res) => {
-  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid task ID' });
-  const allowed = await requireTaskAccess(req, res, req.params.id);
-  if (!allowed) return;
-  const { rows } = await pool.query('SELECT * FROM task_comments WHERE task_id = $1 ORDER BY created_at ASC', [req.params.id]);
-  res.json(rows);
-});
-
-/** POST /api/tasks/:id/comments — Add a comment to a task */
-app.post('/api/tasks/:id/comments', async (req, res) => {
-  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid task ID' });
-  const allowed = await requireTaskAccess(req, res, req.params.id);
-  if (!allowed) return;
-  const { text } = req.body;
-  if (!text || !text.trim()) return res.status(400).json({ error: 'text required' });
-  const author = req.user?.displayName || 'Unknown';
-  const { rows } = await pool.query(
-    'INSERT INTO task_comments (task_id, author, text) VALUES ($1, $2, $3) RETURNING *',
-    [req.params.id, author, text.trim()]
-  );
-  await auditLog('comment', rows[0].id, 'create', author, { task_id: req.params.id, text: text.trim() });
-  res.status(201).json(rows[0]);
-});
-
-/** DELETE /api/tasks/:id/comments/:commentId — Remove a comment from a task (owner or admin) */
-app.delete('/api/tasks/:id/comments/:commentId', async (req, res) => {
-  const allowed = await requireTaskAccess(req, res, req.params.id);
-  if (!allowed) return;
-  const { rows } = await pool.query('SELECT author FROM task_comments WHERE id = $1 AND task_id = $2', [req.params.commentId, req.params.id]);
-  if (rows.length === 0) return res.status(404).json({ error: 'Comment not found' });
-  const isOwner = rows[0].author === (req.user?.displayName || req.user?.display_name);
-  if (!isOwner && req.user.role !== 'admin') return res.status(403).json({ error: 'Can only delete your own comments' });
-  await pool.query('DELETE FROM task_comments WHERE id = $1 AND task_id = $2', [req.params.commentId, req.params.id]);
-  res.json({ ok: true });
-});
-
-
-// ==================== TASK ATTACHMENTS ====================
-
-/** GET /api/tasks/:id/attachments — List file attachments for a task */
-app.get('/api/tasks/:id/attachments', async (req, res) => {
-  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid task ID' });
-  const allowed = await requireTaskAccess(req, res, req.params.id);
-  if (!allowed) return;
-  const { rows } = await pool.query('SELECT * FROM task_attachments WHERE task_id = $1 ORDER BY created_at DESC', [req.params.id]);
-  res.json(rows);
-});
-
-/** POST /api/tasks/:id/attachments — Upload a file attachment to a task (max 25MB) */
-app.post('/api/tasks/:id/attachments', upload.single('file'), async (req, res) => {
-  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid task ID' });
-  const allowed = await requireTaskAccess(req, res, req.params.id);
-  if (!allowed) return;
-  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-  const author = req.user?.displayName || 'unknown';
-  const { rows } = await pool.query(
-    'INSERT INTO task_attachments (task_id, filename, original_name, size_bytes, mime_type, uploaded_by) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *',
-    [req.params.id, req.file.filename, req.file.originalname, req.file.size, req.file.mimetype, author]
-  );
-  await auditLog('attachment', rows[0].id, 'create', author, { task_id: req.params.id, filename: req.file.originalname });
-  res.status(201).json(rows[0]);
-});
-
-/** DELETE /api/tasks/:id/attachments/:attachmentId — Remove an attachment and delete the file from disk */
-app.delete('/api/tasks/:id/attachments/:attachmentId', async (req, res) => {
-  const allowed = await requireTaskAccess(req, res, req.params.id);
-  if (!allowed) return;
-  const { rows } = await pool.query('SELECT filename FROM task_attachments WHERE id = $1 AND task_id = $2', [req.params.attachmentId, req.params.id]);
-  if (rows.length > 0) {
-    const filePath = path.join(uploadDir, rows[0].filename);
-    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-    await pool.query('DELETE FROM task_attachments WHERE id = $1', [req.params.attachmentId]);
-  }
-  res.json({ ok: true });
-});
 
 // ==================== UNIVERSAL ATTACHMENTS ====================
 // Generic file attachments for any entity type (client, project, task)
 
 app.use(require('./routes/attachments')({ pool, requireAdmin, requireNBI, upload, log, isValidUuid, auditLog }));
-
-/**
- * POST /api/tasks/:id/attachments/link
- * Convenience alias for adding a link attachment to a task. Mirrors the
- * universal endpoint above so the task detail panel does not need to know the
- * generic /entity/task/:id form.
- */
-app.post('/api/tasks/:id/attachments/link', async (req, res) => {
-  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid task ID' });
-  const allowed = await requireTaskAccess(req, res, req.params.id);
-  if (!allowed) return;
-  const { url, title } = req.body || {};
-  if (!url || typeof url !== 'string') return res.status(400).json({ error: 'url is required' });
-  let parsed;
-  try { parsed = new URL(url.trim()); } catch (e) { return res.status(400).json({ error: 'Invalid URL' }); }
-  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
-    return res.status(400).json({ error: 'URL must use http or https' });
-  }
-  const linkUrl = parsed.toString();
-  const linkTitle = (title && typeof title === 'string') ? title.trim().slice(0, 255) : null;
-  const { rows } = await pool.query(
-    `INSERT INTO attachments (entity_type, entity_id, filename, original_name, size_bytes, mime_type, uploaded_by, link_url, link_title)
-     VALUES ('task',$1,NULL,NULL,NULL,'link',$2,$3,$4) RETURNING *`,
-    [req.params.id, req.user?.displayName || 'unknown', linkUrl, linkTitle]
-  );
-  await auditLog('attachment', rows[0].id, 'create_link', req.user?.displayName, { task_id: req.params.id, url: linkUrl });
-  res.status(201).json(rows[0]);
-});
 
 // ==================== CALENDAR EVENTS ====================
 // Personal/team/business calendar events that show up in the calendar view
@@ -516,32 +410,13 @@ app.use(require('./routes/teams')({ pool, requireAdmin, isValidUuid, auditLog, l
 
 // ==================== CONTACTS ====================
 
-/** PATCH /api/contacts/:id — Update a contact's details */
-app.patch('/api/contacts/:id', requireAdmin, async (req, res) => {
-  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid contact ID' });
-  const { updates, vals, nextIdx } = buildPatchQuery(req.body, ['name', 'role', 'notes', 'background', 'linkedin', 'sort_order', 'email', 'phone']);
-  if (updates.length === 0) return res.status(400).json({ error: 'No valid fields to update' });
-  vals.push(req.params.id);
-  const { rows } = await pool.query(`UPDATE contacts SET ${updates.join(', ')} WHERE id = $${nextIdx} RETURNING *`, vals);
-  if (rows.length === 0) return res.status(404).json({ error: 'Contact not found' });
-  res.json(rows[0]);
-});
-
-/** DELETE /api/contacts/:id — Remove a contact (admin only) */
-app.delete('/api/contacts/:id', requireAdmin, async (req, res) => {
-  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid contact ID' });
-  await pool.query('DELETE FROM contacts WHERE id = $1', [req.params.id]);
-  res.json({ ok: true });
-});
-
-
 // ==================== DOCUMENTS ====================
 const { pickFilesToDelete } = require('./lib/attachment-sweep');
 app.use(require('./routes/documents')({ pool, log, isValidUuid, auditLog, upload, fs, path, getClientScope }));
 
 
 // ==================== TASKS ====================
-app.use(require('./routes/tasks')({ pool, log, isValidUuid, validateLength, auditLog, buildPatchQuery, createNotification, getClientScopes, reorderInGroup, shiftForInsert, requireAdmin, requireTaskAccess, computeNextRepeatDate, ITEM_TYPES, VALID_CHILD_TYPE }));
+app.use(require('./routes/tasks')({ pool, log, isValidUuid, validateLength, auditLog, buildPatchQuery, createNotification, getClientScopes, reorderInGroup, shiftForInsert, requireAdmin, requireTaskAccess, computeNextRepeatDate, ITEM_TYPES, VALID_CHILD_TYPE, upload, fs, path, uploadDir }));
 
 // ==================== DATA SYNC ====================
 app.use(require('./routes/sync')({ pool, log, auditLog, createNotification, getClientScopes, computeNextRepeatDate, ITEM_TYPES }));
