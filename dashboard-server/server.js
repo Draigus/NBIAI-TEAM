@@ -881,6 +881,19 @@ async function getExpenseApprover() {
  */
 // ==================== AUDIT ====================
 const { auditLog, sanitiseAuditData, computeNextRepeatDate } = require('./lib/audit')(pool);
+const { createNotification } = require('./lib/notifications')(pool);
+
+// ==================== MODULAR ROUTES ====================
+app.use(require('./routes/settings')({ pool, requireAdmin }));
+app.use(require('./routes/finance')({ pool, requireNBI, requireAdmin, auditLog, syncConflicts, log }));
+app.use(require('./routes/time-entries')({ pool, isValidUuid, requireTaskAccess }));
+app.use(require('./routes/time-off')({ pool, requireAdmin, isValidUuid }));
+app.use(require('./routes/queue')({ pool, requireAdmin, log, isValidUuid, validateLength }));
+app.use(require('./routes/contacts')({ pool, requireAuth, requireAdmin }));
+app.use(require('./routes/client-notes')({ pool, requireAdmin, getClientScopes, buildPatchQuery }));
+app.use(require('./routes/notifications')({ pool, requireAdmin, requireNBI, createNotification, log }));
+app.use(require('./routes/templates')({ pool, requireAdmin, isValidUuid, log }));
+app.use(require('./routes/slack')({ pool, log, verifySlackSignature, handleAppMention }));
 
 /**
  * GET /api/audit-log
@@ -989,22 +1002,6 @@ app.get('/api/health', async (req, res) => {
     anyFailed = true;
   }
   res.status(anyFailed ? 503 : 200).json({ status: anyFailed ? 'degraded' : 'ok', ...checks });
-});
-
-/** GET /api/finance/seed — Return finance seed data for initial bootstrap (admin only). */
-app.get('/api/finance/seed', requireNBI, requireAdmin, async (req, res) => {
-  try {
-    const seedPath = path.join(__dirname, 'finance-seed.json');
-    if (fs.existsSync(seedPath)) {
-      const data = JSON.parse(fs.readFileSync(seedPath, 'utf-8'));
-      res.json(data);
-    } else {
-      res.json({ revenue: [], pipeline: [], payroll: [], targets: {}, opex: [] });
-    }
-  } catch(e) {
-    log('error', 'Finance', 'Failed to load finance seed data', { error: e.message, stack: e.stack?.split('\n').slice(0,3).join(' | ') });
-    res.status(500).json({ error: 'An internal error occurred' });
-  }
 });
 
 /** GET /api/seed-data — Return seed CSV data for initial bootstrap (admin only).
@@ -1614,205 +1611,6 @@ app.post('/api/contract/extract', upload.single('file'), async (req, res) => {
   });
 });
 
-// ==================== TIME TRACKING ====================
-
-/** GET /api/tasks/:id/time-entries — List time entries for a task, newest first */
-app.get('/api/tasks/:id/time-entries', async (req, res) => {
-  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid task ID' });
-  const allowed = await requireTaskAccess(req, res, req.params.id);
-  if (!allowed) return;
-  const { rows } = await pool.query('SELECT * FROM time_entries WHERE task_id = $1 ORDER BY date DESC, created_at DESC', [req.params.id]);
-  res.json(rows);
-});
-
-/** POST /api/tasks/:id/time-entries — Log time against a task. Also recalculates the task's hours_spent total. */
-app.post('/api/tasks/:id/time-entries', async (req, res) => {
-  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid task ID' });
-  const allowed = await requireTaskAccess(req, res, req.params.id);
-  if (!allowed) return;
-  const { hours, description, date } = req.body;
-  if (!hours || hours <= 0) return res.status(400).json({ error: 'hours required (> 0)' });
-  const userName = req.user?.displayName || 'Unknown';
-  const entryDate = date || new Date().toISOString().slice(0, 10);
-  const { rows } = await pool.query(
-    'INSERT INTO time_entries (task_id, user_name, description, hours, date) VALUES ($1,$2,$3,$4,$5) RETURNING *',
-    [req.params.id, userName, description || '', hours, entryDate]
-  );
-  // Recalculate the parent task's total hours from all time entries
-  await pool.query('UPDATE tasks SET hours_spent = COALESCE((SELECT SUM(hours) FROM time_entries WHERE task_id = $1), 0), updated_at = NOW() WHERE id = $1', [req.params.id]);
-  res.status(201).json(rows[0]);
-});
-
-/** DELETE /api/time-entries/:id — Delete a time entry and recalculate the parent task's hours (owner or admin) */
-app.delete('/api/time-entries/:id', async (req, res) => {
-  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid time entry ID' });
-  const { rows } = await pool.query('SELECT task_id, user_name FROM time_entries WHERE id = $1', [req.params.id]);
-  if (rows.length === 0) return res.status(404).json({ error: 'Time entry not found' });
-  const isOwner = rows[0].user_name === (req.user?.displayName || req.user?.display_name || req.user?.username);
-  if (!isOwner && req.user.role !== 'admin') return res.status(403).json({ error: 'Can only delete your own time entries' });
-  await pool.query('DELETE FROM time_entries WHERE id = $1', [req.params.id]);
-  if (rows.length > 0) {
-    await pool.query('UPDATE tasks SET hours_spent = COALESCE((SELECT SUM(hours) FROM time_entries WHERE task_id = $1), 0), updated_at = NOW() WHERE id = $1', [rows[0].task_id]);
-  }
-  res.json({ ok: true });
-});
-
-/**
- * GET /api/time-entries/summary
- * Aggregate time entries grouped by user and client, with optional date range filter.
- * Used for utilisation reporting.
- */
-app.get('/api/time-entries/summary', async (req, res) => {
-  const { from, to } = req.query;
-  let dateFilter = '';
-  const params = [];
-  if (from) { params.push(from); dateFilter += ` AND te.date >= $${params.length}`; }
-  if (to) { params.push(to); dateFilter += ` AND te.date <= $${params.length}`; }
-  const { rows } = await pool.query(`
-    SELECT te.user_name, t.client_id, c.name as client_name,
-           SUM(te.hours) as total_hours, COUNT(*) as entry_count
-    FROM time_entries te
-    JOIN tasks t ON te.task_id = t.id
-    LEFT JOIN clients c ON t.client_id = c.id
-    WHERE 1=1 ${dateFilter}
-    GROUP BY te.user_name, t.client_id, c.name
-    ORDER BY te.user_name, c.name
-  `, params);
-  res.json(rows);
-});
-
-// ==================== NOTIFICATIONS ====================
-
-/** GET /api/notifications — Fetch the latest 50 notifications for the current user, plus unread count */
-app.get('/api/notifications', async (req, res) => {
-  const username = req.user?.username || '';
-  const { rows } = await pool.query(
-    'SELECT * FROM notifications WHERE username = $1 ORDER BY created_at DESC LIMIT 50', [username]
-  );
-  const unread = rows.filter(n => !n.is_read).length;
-  res.json({ notifications: rows, unread });
-});
-
-/** POST /api/notifications — Create a notification (admin only) */
-app.post('/api/notifications', requireAdmin, async (req, res) => {
-  const { username, type, title, message, link } = req.body;
-  if (!username || !title) return res.status(400).json({ error: 'username and title required' });
-  await createNotification(username, type || 'info', title, message || '', link || '');
-  res.status(201).json({ ok: true });
-});
-
-/** POST /api/notifications/read — Mark specific notifications (by ids array) or all as read.
- *  Non-dismissable notifications (e.g. expense reminders) are skipped unless force=true. */
-app.post('/api/notifications/read', async (req, res) => {
-  const username = req.user?.username || '';
-  const { ids, force } = req.body;
-  const dismissFilter = force ? '' : ' AND (dismissable IS NULL OR dismissable = true)';
-  if (ids && ids.length > 0) {
-    await pool.query(`UPDATE notifications SET is_read = true WHERE id = ANY($1) AND username = $2${dismissFilter}`, [ids, username]);
-  } else {
-    // No ids provided — mark all dismissable as read
-    await pool.query(`UPDATE notifications SET is_read = true WHERE username = $1${dismissFilter}`, [username]);
-  }
-  res.json({ ok: true });
-});
-
-/** DELETE /api/notifications — Delete all read notifications for the current user. */
-app.delete('/api/notifications', async (req, res) => {
-  const username = req.user?.username || '';
-  await pool.query('DELETE FROM notifications WHERE username = $1 AND is_read = true', [username]);
-  res.json({ ok: true });
-});
-
-/** POST /api/notifications/clear-all — Mark all as read then delete all for the current user. */
-app.post('/api/notifications/clear-all', async (req, res) => {
-  const username = req.user?.username || '';
-  await pool.query('DELETE FROM notifications WHERE username = $1', [username]);
-  res.json({ ok: true });
-});
-
-// ==================== NOTIFICATIONS ====================
-const { createNotification } = require('./lib/notifications')(pool);
-
-/** POST /api/notifications/system — Send a system-wide notification to all active users (admin only) */
-app.post('/api/notifications/system', requireNBI, requireAdmin, async (req, res) => {
-  const { title, message } = req.body;
-  if (!title || !message) return res.status(400).json({ error: 'Title and message required' });
-  const { rowCount: sent } = await pool.query(
-    `INSERT INTO notifications (username, type, title, message, link, dismissable)
-     SELECT username, 'system', $1, $2, '', false FROM users WHERE is_active = true`,
-    [title, message]
-  );
-  log('info', 'Notifications', `System message sent to ${sent} users`, { title });
-  res.json({ sent });
-});
-
-// ==================== TASK TEMPLATES ====================
-
-/** GET /api/templates — List all saved task templates */
-app.get('/api/templates', async (req, res) => {
-  const { rows } = await pool.query('SELECT * FROM task_templates ORDER BY name');
-  res.json(rows);
-});
-
-/** POST /api/templates — Save a new task template (template field is a JSON task tree) */
-app.post('/api/templates', requireAdmin, async (req, res) => {
-  const { name, template, recurrence } = req.body;
-  if (!name || !template) return res.status(400).json({ error: 'name and template required' });
-  const { rows } = await pool.query(
-    'INSERT INTO task_templates (name, template, recurrence, created_by) VALUES ($1, $2, $3, $4) RETURNING *',
-    [name, JSON.stringify(template), recurrence || '', req.user?.displayName || 'unknown']
-  );
-  res.status(201).json(rows[0]);
-});
-
-/**
- * POST /api/templates/:id/create
- * Instantiate a template — recursively creates tasks from the template's JSON tree.
- * Each node can have { title, status, priority, description, assignees, hoursEstimated, children }.
- */
-app.post('/api/templates/:id/create', requireAdmin, async (req, res) => {
-  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid template ID' });
-  const { rows } = await pool.query('SELECT * FROM task_templates WHERE id = $1', [req.params.id]);
-  if (rows.length === 0) return res.status(404).json({ error: 'Template not found' });
-  const tmpl = rows[0].template;
-  const created = [];
-  const conn = await pool.connect();
-  try {
-    await conn.query('BEGIN');
-
-    async function createFromTemplate(node, parentId) {
-      const taskResult = await conn.query(
-        `INSERT INTO tasks (title, parent_id, status, priority, description, assignees, hours_estimated, source)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, 'template') RETURNING id`,
-        [node.title, parentId, node.status || 'Not started', node.priority || '', node.description || '', node.assignees || [], node.hoursEstimated || 0]
-      );
-      created.push({ id: taskResult.rows[0].id, title: node.title });
-      if (node.children) {
-        for (const child of node.children) {
-          await createFromTemplate(child, taskResult.rows[0].id);
-        }
-      }
-    }
-    await createFromTemplate(tmpl, null);
-    await conn.query('UPDATE task_templates SET last_created_at = NOW() WHERE id = $1', [req.params.id]);
-    await conn.query('COMMIT');
-    res.json({ ok: true, created });
-  } catch (err) {
-    await conn.query('ROLLBACK');
-    log('error', 'Templates', 'Template instantiation failed, rolled back', { error: err.message });
-    res.status(500).json({ error: 'Template creation failed' });
-  } finally {
-    conn.release();
-  }
-});
-
-/** DELETE /api/templates/:id — Remove a saved template (admin only) */
-app.delete('/api/templates/:id', requireAdmin, async (req, res) => {
-  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid template ID' });
-  await pool.query('DELETE FROM task_templates WHERE id = $1', [req.params.id]);
-  res.json({ ok: true });
-});
-
 // ==================== TASK ATTACHMENTS ====================
 
 /** GET /api/tasks/:id/attachments — List file attachments for a task */
@@ -2306,53 +2104,6 @@ app.delete('/api/calendar-events/:id', async (req, res) => {
   await pool.query('DELETE FROM calendar_events WHERE id = $1', [req.params.id]);
   await auditLog('calendar_event', req.params.id, 'delete', req.user?.displayName);
   res.json({ ok: true });
-});
-
-// ==================== FINANCE DATA ====================
-
-/** GET /api/finance — Return the latest version of the finance data JSON blob with version for conflict detection */
-app.get('/api/finance', requireNBI, async (req, res) => {
-  const { rows } = await pool.query('SELECT id, data, updated_by, updated_at FROM finance_data ORDER BY id DESC LIMIT 1');
-  if (rows.length === 0) return res.json({ data: null, version: 0 });
-  res.json({ data: rows[0].data, updatedBy: rows[0].updated_by, updatedAt: rows[0].updated_at, version: rows[0].id });
-});
-
-/** PUT /api/finance — Save finance data as a new versioned row (append-only for history).
- *  Admin-only: finance data modifications require admin privileges.
- *  Supports optimistic concurrency: pass expectedVersion (the id from GET) to detect conflicts.
- *  If another user saved between your read and write, returns 409 Conflict. */
-app.put('/api/finance', requireNBI, async (req, res) => {
-  if (!req.user) return res.status(401).json({ error: 'Authentication required' });
-  if (req.user.role !== 'admin') return res.status(403).json({ error: 'Admin access required' });
-  const { data, expectedVersion } = req.body;
-  if (!data) return res.status(400).json({ error: 'data required' });
-
-  // Data integrity check: reject saves missing critical arrays (prevents corruption from partial saves)
-  const requiredArrays = ['revenue', 'payroll'];
-  const missing = requiredArrays.filter(k => !Array.isArray(data[k]));
-  if (missing.length > 0) {
-    log('warn', 'Finance', `BLOCKED corrupt save from ${req.user?.displayName}`, { missing: missing.join(', '), keysSent: Object.keys(data).join(', ') });
-    return res.status(400).json({ error: `Finance data integrity check failed: missing ${missing.join(', ')}. This save was blocked to prevent data loss.` });
-  }
-
-  // Optimistic concurrency check
-  if (expectedVersion !== undefined) {
-    const { rows: latest } = await pool.query('SELECT id, updated_by, updated_at FROM finance_data ORDER BY id DESC LIMIT 1');
-    if (latest.length > 0 && latest[0].id !== expectedVersion) {
-      syncConflicts?.inc();
-      return res.status(409).json({
-        error: 'Conflict: finance data was updated by another user. Please reload and try again.',
-        currentVersion: latest[0].id,
-        updatedBy: latest[0].updated_by,
-        updatedAt: latest[0].updated_at
-      });
-    }
-  }
-
-  const updatedBy = req.user?.displayName || 'unknown';
-  const { rows: inserted } = await pool.query('INSERT INTO finance_data (data, updated_by) VALUES ($1, $2) RETURNING id', [JSON.stringify(data), updatedBy]);
-  await auditLog('finance', 'finance_data', 'update', updatedBy, { sections: Object.keys(data) });
-  res.json({ ok: true, version: inserted[0].id });
 });
 
 // ==================== CLIENTS ====================
@@ -3117,22 +2868,6 @@ app.delete('/api/teams/:id/members/:user_id', requireAdmin, async (req, res) => 
 
 // ==================== CONTACTS ====================
 
-/** GET /api/clients/:clientId/contacts — List contacts for a client, sorted by display order */
-app.get('/api/clients/:clientId/contacts', requireAuth, async (req, res) => {
-  const { rows } = await pool.query('SELECT * FROM contacts WHERE client_id = $1 ORDER BY sort_order', [req.params.clientId]);
-  res.json(rows);
-});
-
-/** POST /api/clients/:clientId/contacts — Add a contact person to a client */
-app.post('/api/clients/:clientId/contacts', requireAdmin, async (req, res) => {
-  const { name, role, notes, background, linkedin, sort_order, email, phone } = req.body;
-  const { rows } = await pool.query(
-    `INSERT INTO contacts (client_id, name, role, notes, background, linkedin, sort_order, email, phone) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *`,
-    [req.params.clientId, name || '', role || '', notes || '', background || '', linkedin || '', sort_order || 0, email || '', phone || '']
-  );
-  res.status(201).json(rows[0]);
-});
-
 /** PATCH /api/contacts/:id — Update a contact's details */
 app.patch('/api/contacts/:id', requireAdmin, async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid contact ID' });
@@ -3148,57 +2883,6 @@ app.patch('/api/contacts/:id', requireAdmin, async (req, res) => {
 app.delete('/api/contacts/:id', requireAdmin, async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid contact ID' });
   await pool.query('DELETE FROM contacts WHERE id = $1', [req.params.id]);
-  res.json({ ok: true });
-});
-
-// ==================== CLIENT NOTES ====================
-
-/** GET /api/clients/:clientId/notes — List notes/meeting records for a client, newest meeting first */
-app.get('/api/clients/:clientId/notes', async (req, res) => {
-  const { rows } = await pool.query(
-    'SELECT * FROM client_notes WHERE client_id = $1 ORDER BY meeting_date DESC NULLS LAST, created_at DESC',
-    [req.params.clientId]
-  );
-  res.json(rows);
-});
-
-/** GET /api/notes — List all client notes across all clients (for global notes view) */
-app.get('/api/notes', async (req, res) => {
-  const { rows } = await pool.query(`
-    SELECT n.*, c.name as client_name
-    FROM client_notes n JOIN clients c ON n.client_id = c.id
-    ORDER BY n.meeting_date DESC NULLS LAST, n.created_at DESC
-  `);
-  res.json(rows);
-});
-
-/** POST /api/clients/:clientId/notes — Create a note (meeting record, manual note, or synced from Granola) */
-app.post('/api/clients/:clientId/notes', requireAdmin, async (req, res) => {
-  const { title, content, source, source_id, source_url, meeting_date, author } = req.body;
-  if (!title) return res.status(400).json({ error: 'Title required' });
-  const { rows } = await pool.query(
-    `INSERT INTO client_notes (client_id, title, content, source, source_id, source_url, meeting_date, author)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
-    [req.params.clientId, title, content || '', source || 'manual', source_id || '', source_url || '',
-     meeting_date || null, author || (req.user && req.user.display_name) || 'Unknown']
-  );
-  res.status(201).json(rows[0]);
-});
-
-/** PATCH /api/notes/:id — Update a client note */
-app.patch('/api/notes/:id', requireAdmin, async (req, res) => {
-  const { updates, vals, nextIdx } = buildPatchQuery(req.body, ['title', 'content', 'source', 'meeting_date', 'author']);
-  if (updates.length === 0) return res.status(400).json({ error: 'No valid fields to update' });
-  updates.push('updated_at = NOW()');
-  vals.push(req.params.id);
-  const { rows } = await pool.query(`UPDATE client_notes SET ${updates.join(', ')} WHERE id = $${nextIdx} RETURNING *`, vals);
-  if (rows.length === 0) return res.status(404).json({ error: 'Note not found' });
-  res.json(rows[0]);
-});
-
-/** DELETE /api/notes/:id — Remove a client note (admin only) */
-app.delete('/api/notes/:id', requireAdmin, async (req, res) => {
-  await pool.query('DELETE FROM client_notes WHERE id = $1', [req.params.id]);
   res.json({ ok: true });
 });
 
@@ -5296,41 +4980,6 @@ app.post('/api/tasks/:taskId/notes', requireAdmin, async (req, res) => {
   res.status(201).json(rows[0]);
 });
 
-// ==================== SETTINGS ====================
-
-/** GET /api/settings — Return settings as a key-value object (external users see only safe keys) */
-app.get('/api/settings', async (req, res) => {
-  const SETTINGS_ALLOW = new Set([
-    'currency', 'hourly_rate', 'hourlyRate', 'date_format', 'dateFormat',
-    'timezone', 'client_priority', 'clientPriority',
-  ]);
-  const isExternal = !!req.user?.clientId;
-  const { rows } = await pool.query('SELECT key, value FROM settings');
-  const obj = {};
-  rows.forEach(r => {
-    if (!isExternal || SETTINGS_ALLOW.has(r.key)) obj[r.key] = r.value;
-  });
-  res.json(obj);
-});
-
-/** PUT /api/settings/:key — Upsert a single setting (admin only, stored as JSON) */
-const SETTINGS_ALLOW_LIST = new Set([
-  'page_permissions', 'expense_approver', 'fx_rates', 'theme',
-  'dashboard_layout', 'notification_preferences', 'hourly_rate',
-  'working_hours_per_week', 'currency', 'company_name',
-]);
-app.put('/api/settings/:key', requireAdmin, async (req, res) => {
-  if (!SETTINGS_ALLOW_LIST.has(req.params.key)) {
-    return res.status(400).json({ error: `Setting key '${req.params.key}' is not recognised` });
-  }
-  const { value } = req.body;
-  await pool.query(
-    'INSERT INTO settings (key, value, updated_at) VALUES ($1, $2, NOW()) ON CONFLICT (key) DO UPDATE SET value = $2, updated_at = NOW()',
-    [req.params.key, JSON.stringify(value)]
-  );
-  res.json({ ok: true });
-});
-
 // ==================== DASHBOARD AGGREGATES ====================
 
 /**
@@ -6940,86 +6589,6 @@ app.get('/api/bug-reports/:id/screenshot', async (req, res) => {
   res.send(buffer);
 });
 
-// ==================== SLACK BOT ====================
-
-app.post('/api/slack/events', async (req, res) => {
-  const signingSecret = process.env.SLACK_SIGNING_SECRET;
-  const timestamp = req.get('x-slack-request-timestamp');
-  const signature = req.get('x-slack-signature');
-
-  if (!signingSecret) {
-    log('warn', 'Slack', 'SLACK_SIGNING_SECRET not configured');
-    return res.status(503).json({ error: 'Slack integration not configured' });
-  }
-
-  const rawBody = req.rawBody || JSON.stringify(req.body);
-  if (!verifySlackSignature(signingSecret, timestamp, rawBody, signature)) {
-    return res.status(401).json({ error: 'Invalid signature' });
-  }
-
-  if (req.body?.type === 'url_verification') {
-    return res.json({ challenge: req.body.challenge });
-  }
-
-  res.json({ ok: true });
-
-  const event = req.body?.event;
-  if (event?.bot_id || event?.subtype === 'bot_message') return;
-  if (event?.type !== 'app_mention' && event?.type !== 'message') return;
-
-  try {
-    await handleAppMention(event, pool, process.env.SLACK_BOT_TOKEN || '');
-  } catch (err) {
-    log('error', 'Slack', 'Failed to handle app_mention', { error: err.message });
-  }
-});
-
-// ==================== TASK QUEUE ====================
-
-/** GET /api/queue — List all pending queue items (admin only) */
-app.get('/api/queue', requireAdmin, async (req, res) => {
-  const { rows } = await pool.query('SELECT * FROM task_queue ORDER BY created_at DESC');
-  res.json(rows);
-});
-
-/** POST /api/queue — Submit a new item to the queue */
-app.post('/api/queue', async (req, res) => {
-  let submittedBy = null;
-  const apiKey = req.get('x-api-key');
-  const expectedKey = process.env.QUEUE_API_KEY;
-  if (apiKey) {
-    if (!expectedKey || apiKey.length !== expectedKey.length ||
-        !crypto.timingSafeEqual(Buffer.from(apiKey), Buffer.from(expectedKey))) {
-      return res.status(401).json({ error: 'Invalid API key' });
-    }
-    submittedBy = req.body?.submitted_by || 'api-key';
-  } else {
-    if (!req.user) return res.status(401).json({ error: 'Auth required' });
-    const isAdmin = req.user.role === 'admin';
-    if (!isAdmin && !req.user.can_submit_queue) {
-      return res.status(403).json({ error: 'Queue submission not enabled for this account' });
-    }
-    submittedBy = req.user.displayName || 'Unknown';
-  }
-  const { title, description, slack_user_id, slack_channel, slack_message_ts } = req.body || {};
-  if (!title || !title.trim()) return res.status(400).json({ error: 'title required' });
-  const lenErr = validateLength(title.trim(), 'title') || (description ? validateLength(description, 'description') : null);
-  if (lenErr) return res.status(400).json({ error: lenErr });
-  const { rows } = await pool.query(
-    `INSERT INTO task_queue (title, description, submitted_by, slack_user_id, slack_channel, slack_message_ts)
-     VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-    [title.trim(), description || null, submittedBy, slack_user_id || null, slack_channel || null, slack_message_ts || null]
-  );
-  res.status(201).json(rows[0]);
-});
-
-/** DELETE /api/queue/:id — Remove a queue item (after promote or dismiss) */
-app.delete('/api/queue/:id', requireAdmin, async (req, res) => {
-  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid ID' });
-  await pool.query('DELETE FROM task_queue WHERE id = $1', [req.params.id]);
-  res.json({ ok: true });
-});
-
 // ==================== HIRING ====================
 //
 // The Hiring page tracks job candidates against client hiring positions.
@@ -8316,53 +7885,6 @@ app.patch('/api/users/:id/skills', requireAdmin, async (req, res) => {
   vals.push(req.params.id);
   const { rows } = await pool.query(`UPDATE users SET ${updates.join(', ')} WHERE id = $${nextIdx} RETURNING id, display_name, resource_type_ids, capacity_hours_per_week`, vals);
   res.json(rows[0]);
-});
-
-// ==================== TIME-OFF ====================
-
-/** GET /api/users/:userId/time-off — List time-off entries for a user */
-app.get('/api/users/:userId/time-off', async (req, res) => {
-  if (!isValidUuid(req.params.userId)) return res.status(400).json({ error: 'Invalid user ID' });
-  const { rows } = await pool.query(
-    'SELECT * FROM time_off WHERE user_id = $1 ORDER BY start_date',
-    [req.params.userId]
-  );
-  res.json(rows);
-});
-
-/** GET /api/time-off — All time-off entries (optionally filtered by date window) */
-app.get('/api/time-off', async (req, res) => {
-  const { from, to } = req.query;
-  let where = []; let vals = []; let i = 1;
-  if (from) { where.push(`end_date >= $${i}`); vals.push(from); i++; }
-  if (to) { where.push(`start_date <= $${i}`); vals.push(to); i++; }
-  const whereClause = where.length ? 'WHERE ' + where.join(' AND ') : '';
-  const { rows } = await pool.query(
-    `SELECT t.*, u.display_name FROM time_off t LEFT JOIN users u ON u.id = t.user_id ${whereClause} ORDER BY t.start_date`,
-    vals
-  );
-  res.json(rows);
-});
-
-/** POST /api/users/:userId/time-off — Create a time-off entry */
-app.post('/api/users/:userId/time-off', requireAdmin, async (req, res) => {
-  if (!isValidUuid(req.params.userId)) return res.status(400).json({ error: 'Invalid user ID' });
-  const { start_date, end_date, label } = req.body;
-  if (!start_date || !end_date) return res.status(400).json({ error: 'start_date and end_date are required' });
-  if (new Date(end_date) < new Date(start_date)) return res.status(400).json({ error: 'end_date must be >= start_date' });
-  const { rows } = await pool.query(
-    'INSERT INTO time_off (user_id, start_date, end_date, label) VALUES ($1, $2, $3, $4) RETURNING *',
-    [req.params.userId, start_date, end_date, label || '']
-  );
-  res.status(201).json(rows[0]);
-});
-
-/** DELETE /api/time-off/:id — Delete a time-off entry */
-app.delete('/api/time-off/:id', requireAdmin, async (req, res) => {
-  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid time-off ID' });
-  const { rowCount } = await pool.query('DELETE FROM time_off WHERE id = $1', [req.params.id]);
-  if (rowCount === 0) return res.status(404).json({ error: 'Not found' });
-  res.json({ ok: true });
 });
 
 // ==================== SCHEDULED TASKS ====================
