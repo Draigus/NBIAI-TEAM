@@ -6115,23 +6115,19 @@ function renderPfCompletingSoon(panelRoots, now) {
   }).filter(r => r._pct >= 60 && r._pct < 100).sort((a, b) => b._pct - a._pct).slice(0, 6);
 
   let html = '<div class="pf__panel">';
-  html += '<div class="pf__panel-hdr"><div class="pf__panel-title" style="color:var(--success)">Completing Soon</div><div class="pf__panel-sub">Projects 60-99% done</div></div>';
+  html += '<div class="pf__panel-hdr"><span class="pf__panel-title" style="color:var(--success)">Near Completion</span><span class="pf__panel-badge" style="color:var(--success)">' + nearComplete.length + '</span></div>';
   html += '<div class="pf__panel-body">';
 
   if (nearComplete.length === 0) {
-    html += '<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:0.82rem">No projects near completion.</div>';
+    html += '<div class="pf__empty" style="display:flex;align-items:center;justify-content:center;min-height:100px"><div><div class="pf__empty-title">No projects near completion</div><div class="pf__empty-sub">Most active work is early-stage</div></div></div>';
   } else {
-    html += '<div style="display:flex;flex-direction:column;gap:6px">';
     nearComplete.forEach(r => {
-      const healthCol = HEALTH_COLOURS[r.healthState] || 'var(--success)';
-      html += `<div class="pf__attn-item" data-action="openDetailOverlay" data-arg0="${r.id}">`;
-      html += `<span style="width:6px;height:6px;border-radius:50%;background:${healthCol};flex-shrink:0"></span>`;
-      html += `<div style="flex:1;min-width:0"><div class="pf__attn-title">${esc(r.title)}</div><div class="pf__attn-context">${esc(r._client)}</div></div>`;
-      html += `<div style="width:60px;flex-shrink:0"><div style="height:4px;background:var(--border-subtle);border-radius:2px;overflow:hidden"><div style="width:${r._pct}%;height:100%;background:var(--success);border-radius:2px"></div></div></div>`;
-      html += `<span style="font-size:0.72rem;color:var(--success);font-weight:600;flex-shrink:0;width:32px;text-align:right">${r._pct}%</span>`;
-      html += `</div>`;
+      html += '<div class="pf__wl" style="cursor:pointer" data-action="openDetailOverlay" data-arg0="' + r.id + '">';
+      html += '<span class="pf__wl-name">' + esc(r.title) + '</span>';
+      html += '<div class="pf__wl-trk pf__well"><div class="pf__bar-fill pf__bar-fill--g" style="width:' + r._pct + '%"></div></div>';
+      html += '<span class="pf__wl-ct" style="color:var(--success)">' + r._pct + '%</span>';
+      html += '</div>';
     });
-    html += '</div>';
   }
 
   html += '</div></div>';
@@ -6187,24 +6183,20 @@ function renderPfTeamWorkload(panelTasks) {
   const maxCount = sorted.length > 0 ? sorted[0][1] : 1;
 
   let html = '<div class="pf__panel">';
-  html += '<div class="pf__panel-hdr"><div class="pf__panel-title">Team Workload</div><div class="pf__panel-sub">Active tasks per person</div></div>';
+  html += '<div class="pf__panel-hdr"><span class="pf__panel-title">Team Workload</span><span class="pf__panel-badge" style="color:var(--accent-text)">' + sorted.length + '</span></div>';
   html += '<div class="pf__panel-body">';
 
   if (sorted.length === 0) {
-    html += '<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:0.82rem">No assigned tasks.</div>';
+    html += '<div class="pf__empty"><div class="pf__empty-title">No assigned tasks</div></div>';
   } else {
-    html += '<div style="display:flex;flex-direction:column;gap:4px">';
     sorted.forEach(([name, count]) => {
       const barW = Math.round(count / maxCount * 100);
-      const col = count > 30 ? 'var(--danger)' : count > 15 ? 'var(--warning)' : 'var(--success)';
-      html += `<div class="pf__workload-row" data-action="_actSetFilterAssignee" data-arg0="${esc(name)}">`;
-      html += `<span class="pf__workload-name">${esc(name)}</span>`;
-      html += `<div class="pf__workload-bar"><div class="pf__workload-fill" style="width:${barW}%;background:${col}"></div></div>`;
-      html += `<span class="pf__workload-count" style="color:${col}">${count}</span>`;
-      html += `</div>`;
+      html += '<div class="pf__wl">';
+      html += '<span class="pf__wl-name">' + esc(name) + '</span>';
+      html += '<div class="pf__wl-trk pf__well"><div class="pf__bar-fill pf__bar-fill--c" style="width:' + barW + '%"></div></div>';
+      html += '<span class="pf__wl-ct" style="color:var(--accent-text)">' + count + '</span>';
+      html += '</div>';
     });
-    html += '</div>';
-    html += `<div style="padding:6px 0 0;font-size:0.62rem;color:var(--text-muted)"><span style="color:var(--danger)">\u25CF</span> >30 &nbsp; <span style="color:var(--warning)">\u25CF</span> 15-30 &nbsp; <span style="color:var(--success)">\u25CF</span> <15</div>`;
   }
 
   html += '</div></div>';
