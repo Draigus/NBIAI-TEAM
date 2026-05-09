@@ -10765,8 +10765,13 @@ function renderReportingDrawer(f) {
   const fStart = ganttRolledStart(f);
   const fEnd = ganttRolledEnd(f);
   const eta = fEnd ? fEnd.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
-  const owner = (f.assignees && f.assignees[0]) || '—';
-  const team = f.assignees && f.assignees.length > 1 ? f.assignees.slice(1).join(', ') : '';
+  const owner = ownerOf(f);
+  const descAll = getDescendants(f.id);
+  const teamSet = new Set();
+  descAll.forEach(d => { (d.assignees || []).forEach(a => teamSet.add(a)); });
+  (f.assignees || []).forEach(a => teamSet.add(a));
+  teamSet.delete(owner);
+  const team = [...teamSet].sort().join('; ');
   const leafFor = id => { const out = []; (function walk(n) { const ch = tasks.filter(t => t.parentId === n.id); if (ch.length === 0) out.push(n); else ch.forEach(walk); })(tasks.find(t => t.id === id) || {id}); return out; };
   const leaves = leafFor(f.id);
   const pct = leaves.length ? Math.round(leaves.filter(l => l.status === 'Done').length / leaves.length * 100) : (f.status === 'Done' ? 100 : 0);
