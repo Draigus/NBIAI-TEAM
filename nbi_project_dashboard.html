@@ -5948,6 +5948,10 @@ function renderStandupTaskRow(t, now) {
     const bReason = bInfo ? (bInfo.blockedOn || 'Blocked') : 'Blocked';
     html += `<span class="badge badge--blocked" style="font-size:0.6rem;padding:1px 6px" title="${esc(bReason)}">BLOCKED</span>`;
   }
+  if (isOverdue && !isDone && !isCancelled && t.status !== 'Blocked') {
+    const daysLate = Math.ceil((now - safeParseDate(t.dueDate)) / 86400000);
+    html += `<span style="font-size:0.6rem;padding:1px 6px;border-radius:3px;background:var(--danger-bg);color:var(--danger);font-weight:700">${daysLate}d OVERDUE</span>`;
+  }
   html += `<span class="standup-task__title ${isDone ? 'standup-task__title--done' : ''}" data-action="openDetailOverlay" data-stop data-arg0="${t.id}">${esc(t.title)}</span>`;
   html += standupAssigneeHtml(t.id, t.assignees);
   html += standupSelect(t.id, 'priority', t.priority || '', ['', ...PRIORITIES]);
