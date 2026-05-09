@@ -519,17 +519,26 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 /* Responsive */
 @media (max-width: 1200px) { .pf__kpis { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 900px) {
-  .pf { overflow-y: auto; }
+  .pf { overflow-y: auto; height: auto; }
   .pf__kpis { grid-template-columns: 1fr 1fr; }
-  .pf__row { flex-direction: column; max-height: none; }
+  .pf__row { flex-direction: column; }
   .pf__pgrid { grid-template-columns: 1fr; }
   .pf__pgrid--fill { flex: none; }
+  .pf__pgrid--auto { flex-shrink: unset; }
   .pf__panel { max-height: 300px; }
+  .pf__tbl-card { overflow-x: auto; }
 }
 @media (max-width: 600px) {
   .pf__kpis { grid-template-columns: 1fr; gap: 6px; }
-  .pf__kpi { flex-direction: row; gap: 12px; text-align: left; }
-  .pf__kpi-center { flex-direction: row; align-items: baseline; gap: 8px; }
+  .pf__kpi { flex-direction: row; justify-content: space-between; align-items: center; gap: 12px; text-align: left; padding: 10px 16px; }
+  .pf__kpi-label { order: 0; }
+  .pf__kpi-center { order: 1; flex-direction: row; align-items: baseline; gap: 8px; flex: none; }
+  .pf__kpi-delta-row { display: none; }
+  .pf__kpi-delta-text { display: none; }
+  .pf__tbl td { padding: 6px 10px; font-size: 0.78rem; }
+  .pf__tbl th { padding: 4px 10px; font-size: 0.6rem; }
+  .pf__tbl-name { font-size: 0.78rem; }
+  .pf__tbl-count { font-size: 0.65rem; margin-left: 6px; }
 }
 
 /* ============ REPORTING TAB ============ */
@@ -5532,7 +5541,7 @@ function renderPfStrip(activeCount, onTrackCount, needsAttentionCount, atRiskCou
   html += '<div class="pf__kpi-center">';
   html += '<div class="pf__kpi-val">' + allMs.length + '</div>';
   if (nearestMs) {
-    html += '<div class="pf__kpi-delta-row"><span style="font-size:0.95rem;font-weight:600;color:var(--text-secondary)">Next in ' + nearestMs.days + 'd</span></div>';
+    html += '<div class="pf__kpi-delta-row"><span class="pf__kpi-delta" style="color:var(--text-secondary)">Next in ' + nearestMs.days + 'd</span></div>';
     html += '<div class="pf__kpi-delta-text">' + esc(nearestMs.title) + '</div>';
   }
   html += '</div></div>';
