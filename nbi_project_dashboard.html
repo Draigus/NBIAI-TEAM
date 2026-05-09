@@ -5552,75 +5552,86 @@ function renderPfAlertBanner(blockedTasks) {
   return '<div class="pf__alert"><div class="pf__alert-pill"><div class="pf__alert-dot"></div>' + esc(text) + '</div></div>';
 }
 
-function renderPfSidebar(filtered, roots, now) {
+function renderPfClientTable(filtered, roots, now) {
   const clientMap = {};
   roots.forEach(r => {
     const client = getTaskClient(r);
     if (!client) return;
-    if (!clientMap[client]) clientMap[client] = [];
-    clientMap[client].push(r);
+    if (!clientMap[client]) clientMap[client] = { tasks: [], roots: [] };
+    clientMap[client].roots.push(r);
   });
-  // Seed empty arrays for every client in the server's clients table that
-  // has no root tasks yet — newly-onboarded clients (e.g. Lighthouse Games
-  // before its backlog lands) must still appear in the sidebar so they're
-  // visible even before any work has been logged against them. Sourced from
-  // _apiClientsCache rather than getContractedClients() because the latter
-  // is task-derived and would also exclude empty clients.
   Object.values(_apiClientsCache || {}).forEach(c => {
-    if (c && c.name && !clientMap[c.name]) clientMap[c.name] = [];
+    if (c && c.name && !clientMap[c.name]) clientMap[c.name] = { tasks: [], roots: [] };
   });
-  const sortedClients = Object.keys(clientMap).sort(clientSortOrder);
-
-  const allActive = roots.filter(r => r.status !== 'Done' && r.status !== 'Cancelled');
-  const allOverdue = filtered.filter(t => t.dueDate && t.status !== 'Done' && t.status !== 'Cancelled' && safeParseDate(t.dueDate) < now);
-  const allAtRisk = filtered.filter(t => t.healthState === 'Red' && t.status !== 'Done' && t.status !== 'Cancelled');
-  const allDone = filtered.filter(t => t.status === 'Done').length;
-  const allPct = filtered.length > 0 ? Math.round(allDone / filtered.length * 100) : 0;
-
-  let html = '<div class="pf__sidebar">';
-
-  const pfSelected = !_portfolioSelectedClient;
-  html += `<div class="pf__client pf__client--green ${pfSelected ? 'pf__client--selected' : ''}" data-action="selectPortfolioClient" data-arg0="null">`;
-  html += `<div class="pf__client-name"><span class="pf__client-dot" style="background:var(--accent)"></span>Portfolio</div>`;
-  html += `<div class="pf__client-stats"><span>${allActive.length} active</span>`;
-  if (allOverdue.length > 0) html += `<span class="danger">${allOverdue.length} overdue</span>`;
-  if (allAtRisk.length > 0) html += `<span class="danger">${allAtRisk.length} at risk</span>`;
-  html += `</div>`;
-  html += `<div class="pf__client-bar"><div class="pf__client-bar-fill" style="width:${allPct}%;background:var(--accent)"></div></div>`;
-  html += `<div class="pf__client-pct">${allPct}%</div>`;
-  html += `</div>`;
-
-  sortedClients.forEach(clientName => {
-    const clientTasks = filtered.filter(t => getTaskClient(t) === clientName);
-    const projects = clientMap[clientName];
-    const active = projects.filter(p => p.status !== 'Done' && p.status !== 'Cancelled');
-    const overdue = clientTasks.filter(t => t.dueDate && t.status !== 'Done' && t.status !== 'Cancelled' && safeParseDate(t.dueDate) < now);
-    const blocked = clientTasks.filter(t => t.healthState === 'Blocked' && t.status !== 'Done' && t.status !== 'Cancelled');
-    const atRisk = clientTasks.filter(t => t.healthState === 'Red' && t.status !== 'Done' && t.status !== 'Cancelled');
-    const done = clientTasks.filter(t => t.status === 'Done').length;
-    const pct = clientTasks.length > 0 ? Math.round(done / clientTasks.length * 100) : 0;
-
-    const hasIssues = atRisk.length > 0 || blocked.length > 0;
-    const hasYellow = clientTasks.some(t => t.healthState === 'Yellow' && t.status !== 'Done' && t.status !== 'Cancelled');
-    const health = hasIssues ? 'Red' : hasYellow ? 'Yellow' : 'Green';
-    const healthCol = HEALTH_COLOURS[health] || 'var(--success)';
-    const borderClass = hasIssues ? 'pf__client--red' : hasYellow ? 'pf__client--yellow' : 'pf__client--green';
-    const isSelected = _portfolioSelectedClient === clientName;
-
-    html += `<div class="pf__client ${borderClass} ${isSelected ? 'pf__client--selected' : ''}" data-action="selectPortfolioClient" data-arg0="${esc(clientName)}">`;
-    html += `<div class="pf__client-name"><span class="pf__client-dot" style="background:${healthCol}"></span>${esc(clientName)}</div>`;
-    html += `<div class="pf__client-stats"><span>${active.length} active</span>`;
-    if (overdue.length > 0) html += `<span class="danger">${overdue.length} overdue</span>`;
-    if (blocked.length > 0) html += `<span class="danger">${blocked.length} blocked</span>`;
-    if (atRisk.length > 0) html += `<span class="danger">${atRisk.length} at risk</span>`;
-    html += `</div>`;
-    html += `<div class="pf__client-bar"><div class="pf__client-bar-fill" style="width:${pct}%;background:${healthCol}"></div></div>`;
-    html += `<div class="pf__client-pct">${pct}%</div>`;
-    html += `<button class="pf__client-docs" onclick="event.stopPropagation();_actDocsOpenForClient('${escAttrJs(clientName)}')" title="Open documentation">Docs</button>`;
-    html += `</div>`;
+  Object.keys(clientMap).forEach(name => {
+    clientMap[name].tasks = filtered.filter(t => getTaskClient(t) === name);
   });
 
-  html += '</div>';
+  const rows = Object.entries(clientMap).map(([name, data]) => {
+    const allTasks = data.tasks;
+    const total = allTasks.length;
+    const done = allTasks.filter(t => t.status === 'Done').length;
+    const pct = total > 0 ? Math.round(done / total * 100) : 0;
+    const active = data.roots.filter(r => r.status !== 'Done' && r.status !== 'Cancelled');
+    const blocked = allTasks.filter(t => (t.healthState === 'Blocked' || t.status === 'Blocked') && t.status !== 'Done' && t.status !== 'Cancelled');
+    const overdue = allTasks.filter(t => t.dueDate && t.status !== 'Done' && t.status !== 'Cancelled' && safeParseDate(t.dueDate) < now);
+    const atRisk = allTasks.filter(t => t.healthState === 'Red' && t.status !== 'Done' && t.status !== 'Cancelled');
+    const yellow = allTasks.filter(t => t.healthState === 'Yellow' && t.status !== 'Done' && t.status !== 'Cancelled');
+    const isInactive = active.length === 0;
+    const health = blocked.length > 0 || atRisk.length > 0 ? 'r' : yellow.length > 0 || overdue.length > 0 ? 'y' : 'g';
+
+    let risk = '', riskClass = 'pf__tbl-risk--ok';
+    if (blocked.length > 0 || overdue.length > 0) {
+      const parts = [];
+      if (blocked.length > 0) parts.push(blocked.length + ' blocked');
+      if (overdue.length > 0) parts.push(overdue.length + ' overdue');
+      risk = parts.join(', ');
+      riskClass = 'pf__tbl-risk--bad';
+    } else if (yellow.length > 0) {
+      risk = yellow.length + ' item' + (yellow.length !== 1 ? 's' : '') + ' yellow';
+      riskClass = 'pf__tbl-risk--mid';
+    } else if (isInactive) {
+      risk = 'Complete';
+      riskClass = 'pf__tbl-risk--ok';
+    } else {
+      risk = 'Clear';
+      riskClass = 'pf__tbl-risk--ok';
+    }
+
+    const barClass = pct >= 80 ? 'pf__bar-fill--g' : health === 'r' ? 'pf__bar-fill--r' : health === 'y' ? 'pf__bar-fill--y' : pct > 0 ? 'pf__bar-fill--g' : '';
+    const pctCol = health === 'r' ? 'var(--danger)' : health === 'y' ? 'var(--warning)' : pct > 0 ? 'var(--success)' : 'var(--text-muted)';
+
+    return { name, total, pct, health, isInactive, risk, riskClass, barClass, pctCol, healthSort: health === 'r' ? 0 : health === 'y' ? 1 : 2 };
+  });
+
+  rows.sort((a, b) => {
+    if (a.isInactive !== b.isInactive) return a.isInactive ? 1 : -1;
+    if (a.healthSort !== b.healthSort) return a.healthSort - b.healthSort;
+    return a.name.localeCompare(b.name);
+  });
+
+  let html = '<div class="pf__tbl-card">';
+  html += '<div class="pf__tbl-hdr"><span class="pf__tbl-title">Client Portfolio</span></div>';
+  html += '<table class="pf__tbl"><thead><tr>';
+  html += '<th style="width:60px">Health</th><th>Client</th><th style="min-width:220px">Progress</th><th>Key Risk</th>';
+  html += '</tr></thead><tbody>';
+
+  rows.forEach(r => {
+    const sel = _portfolioSelectedClient === r.name ? 'outline:2px solid var(--accent);outline-offset:-2px;' : '';
+    const inactive = r.isInactive ? ' class="pf__tbl-inactive"' : '';
+    html += '<tr' + inactive + ' style="' + sel + '" data-action="selectPortfolioClient" data-arg0="' + esc(r.name) + '">';
+    html += '<td><div class="pf__tbl-health pf__tbl-health--' + r.health + '"></div></td>';
+    html += '<td><span class="pf__tbl-name">' + esc(r.name) + '</span><span class="pf__tbl-count">' + r.total + ' tasks</span></td>';
+    html += '<td><div style="display:flex;align-items:center;gap:14px">';
+    html += '<div class="pf__well" style="flex:1;height:18px;padding:0;overflow:hidden;border-radius:2px">';
+    html += '<div class="pf__bar-fill ' + r.barClass + '" style="width:' + r.pct + '%"></div></div>';
+    html += '<span style="font-family:var(--font-mono);font-size:1.05rem;font-weight:700;color:' + r.pctCol + ';min-width:44px;text-align:right">' + r.pct + '%</span>';
+    html += '</div></td>';
+    html += '<td><span class="pf__tbl-risk ' + r.riskClass + '">' + esc(r.risk) + '</span></td>';
+    html += '</tr>';
+  });
+
+  html += '</tbody></table></div>';
   return html;
 }
 
