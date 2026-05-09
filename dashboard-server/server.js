@@ -9573,7 +9573,15 @@ async function buildPmReportEmails(todayStr, windowStart, windowEnd) {
       FROM tasks WHERE status = 'Blocked' AND client_id = ANY($1)
     `, [clientIds]);
 
-    // 5. Lead activity updates
+    // 5. Not started (past start date)
+    const { rows: notStarted } = await pool.query(`
+      SELECT id, title, start_date, assignees, priority
+      FROM tasks WHERE start_date != '' AND start_date < $1
+        AND status = 'Not started' AND client_id = ANY($2)
+      ORDER BY start_date ASC
+    `, [today, clientIds]);
+
+    // 6. Lead activity updates
     const { rows: leadUpdates } = await pool.query(`
       SELECT la.activity_type, la.description, la.performed_by, la.created_at,
              l.title AS lead_title
@@ -9585,7 +9593,7 @@ async function buildPmReportEmails(todayStr, windowStart, windowEnd) {
     `, [windowStart, windowEnd, clientIds]);
 
     // If nothing to report, skip
-    if (changes.length === 0 && overdue.length === 0 && dueSoon.length === 0 && blocked.length === 0 && leadUpdates.length === 0) continue;
+    if (changes.length === 0 && overdue.length === 0 && dueSoon.length === 0 && blocked.length === 0 && notStarted.length === 0 && leadUpdates.length === 0) continue;
 
     // Build summary bar
     const summaryParts = [];
@@ -9593,6 +9601,7 @@ async function buildPmReportEmails(todayStr, windowStart, windowEnd) {
     if (dueSoon.length > 0) summaryParts.push(`${dueSoon.length} due this week`);
     if (overdue.length > 0) summaryParts.push(`${overdue.length} overdue`);
     if (blocked.length > 0) summaryParts.push(`${blocked.length} blocked`);
+    if (notStarted.length > 0) summaryParts.push(`${notStarted.length} not started`);
     if (leadUpdates.length > 0) summaryParts.push(`${leadUpdates.length} lead update${leadUpdates.length === 1 ? '' : 's'}`);
     const summaryHtml = `<p style="background:#f1f5f9;padding:12px 16px;border-radius:6px;font-size:14px;color:#475569">${summaryParts.join(' &middot; ')}</p>`;
 
@@ -9622,6 +9631,18 @@ async function buildPmReportEmails(todayStr, windowStart, windowEnd) {
       ];
       const rows = dueSoon.map(tk => ({ ...tk, _assigneeStr: (tk.assignees || []).join(', ') }));
       sectionsHtml += buildEmailSection('Due This Week', '#f59e0b', buildEmailTable(cols, rows));
+    }
+
+    // Not Started (past start date)
+    if (notStarted.length > 0) {
+      const cols = [
+        { label: 'Task', key: 'title' },
+        { label: 'Start Date', key: 'start_date' },
+        { label: 'Priority', key: 'priority' },
+        { label: 'Assignee', key: '_assigneeStr' },
+      ];
+      const rows = notStarted.map(tk => ({ ...tk, priority: tk.priority || '-', _assigneeStr: (tk.assignees || []).join(', ') || 'Unassigned' }));
+      sectionsHtml += buildEmailSection('Not Started (past start date)', '#f59e0b', buildEmailTable(cols, rows));
     }
 
     // Changes
