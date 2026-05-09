@@ -220,10 +220,11 @@ html[data-theme="command"] .g-header__logo { color: var(--accent); text-shadow: 
 html[data-theme="command"] .pf__kpi,
 html[data-theme="command"] .pf__panel,
 html[data-theme="command"] .pf__tbl-card {
-  background: linear-gradient(135deg, rgba(22,26,32,0.82), rgba(26,32,42,0.78) 50%, rgba(0,90,120,0.12));
+  background: radial-gradient(ellipse at bottom right, rgba(0,160,210,0.14) 0%, rgba(0,90,130,0.06) 35%, rgba(18,22,28,0.85) 70%);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border-color: rgba(0,212,255,0.08);
+  border-color: rgba(0,212,255,0.1);
+  box-shadow: var(--shadow-md), inset 0 0 40px rgba(0,212,255,0.03);
 }
 
 html { font-size: 17px; }
