@@ -776,7 +776,7 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .detail-panel__resize { position: absolute; left: -3px; top: 0; bottom: 0; width: 12px; cursor: col-resize; z-index: 10; }
 .detail-panel__resize:hover, .detail-panel__resize.active { background: var(--accent); opacity: 0.4; }
 .detail-panel.open { transform: translateX(0); }
-.detail-panel__header { padding: var(--space-lg); border-bottom: 1px solid var(--border-default); display: flex; justify-content: space-between; align-items: flex-start; flex-shrink: 0; background: var(--bg-raised); }
+.detail-panel__header { padding: var(--space-md) var(--space-lg); border-bottom: 1px solid var(--border-default); display: flex; justify-content: space-between; align-items: flex-start; flex-shrink: 0; background: var(--bg-raised); margin-top: 0; }
 .detail-panel__title { font-size: 1rem; font-weight: 600; flex: 1; margin-right: var(--space-md); }
 .detail-panel__close { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.2rem; padding: 4px; flex-shrink: 0; }
 .detail-panel__close:hover { color: var(--text-primary); }
@@ -5857,13 +5857,10 @@ function renderPfCompletingSoon(panelRoots, now) {
 function renderPfTeamWorkload(panelTasks) {
   const activeTasks = panelTasks.filter(t => t.status !== 'Done' && t.status !== 'Cancelled');
   const activeStaff = new Set(_cachedTeamMembers || []);
-  const clientStaff = new Set((_cachedUsers || []).filter(u => u.client_id).map(u => u.display_name));
-  const atPortfolio = !_portfolioSelectedClient;
   const personMap = {};
   activeTasks.forEach(t => {
     (t.assignees || []).forEach(a => {
       if (activeStaff.size > 0 && !activeStaff.has(a)) return;
-      if (atPortfolio && clientStaff.has(a)) return;
       if (!personMap[a]) personMap[a] = 0;
       personMap[a]++;
     });
