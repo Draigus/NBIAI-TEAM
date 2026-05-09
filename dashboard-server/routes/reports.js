@@ -123,7 +123,7 @@ module.exports = function (ctx) {
     const d = rows[0].report_data;
     const date = new Date(d.generatedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
 
-    const statusColours = { Done: '#22c55e', 'In progress': '#3b82f6', 'Not started': '#6b7280', 'In Review': '#f59e0b', Blocked: '#a855f7', Planning: '#06b6d4', Drafted: '#8b5cf6', Cancelled: '#ef4444' };
+    const statusColours = { Done: '#22c55e', 'In progress': '#3b82f6', 'Not started': '#6b7280', 'In Review': '#f59e0b', Blocked: '#2563eb', Planning: '#06b6d4', Drafted: '#2563eb', Cancelled: '#ef4444' };
 
     // All user-supplied data is escaped via escHtml() to prevent XSS in this public endpoint
     let html = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">

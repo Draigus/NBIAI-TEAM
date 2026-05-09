@@ -94,7 +94,7 @@ function mapRowsToTasks(format, headers, rows) {
   function normalisePriority(p) {
     if (!p) return '';
     const lower = p.toLowerCase().trim();
-    const map = { p1: 'Critical ACT', critical: 'Critical ACT', urgent: 'Critical ACT',
+    const map = { p1: 'Urgent', critical: 'Urgent', urgent: 'Urgent',
       p2: 'High', high: 'High', important: 'High',
       p3: 'Medium', medium: 'Medium', p4: 'Low', low: 'Low' };
     return map[lower] || p;
