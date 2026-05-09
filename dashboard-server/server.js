@@ -246,67 +246,8 @@ app.use((req, res, next) => {
 });
 
 // ==================== PROMETHEUS METRICS ====================
-let promClient;
-try { promClient = require('prom-client'); } catch(e) { log('warn', 'Metrics', 'prom-client not installed, /metrics disabled'); }
-
-if (promClient) {
-  promClient.collectDefaultMetrics({ prefix: 'nbi_' });
-
-  const httpDuration = new promClient.Histogram({
-    name: 'nbi_http_request_duration_seconds',
-    help: 'HTTP request duration in seconds',
-    labelNames: ['method', 'route', 'status'],
-    buckets: [0.01, 0.05, 0.1, 0.5, 1, 5]
-  });
-
-  const httpRequests = new promClient.Counter({
-    name: 'nbi_http_requests_total',
-    help: 'Total HTTP requests',
-    labelNames: ['method', 'route', 'status']
-  });
-
-  const dbPoolGauge = new promClient.Gauge({
-    name: 'nbi_db_pool_connections',
-    help: 'Database connection pool stats',
-    labelNames: ['state']
-  });
-
-  // Request timing middleware
-  app.use((req, res, next) => {
-    const end = httpDuration.startTimer();
-    res.on('finish', () => {
-      const route = req.route?.path || req.path.replace(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi, ':id');
-      end({ method: req.method, route, status: res.statusCode });
-      httpRequests.inc({ method: req.method, route, status: res.statusCode });
-    });
-    next();
-  });
-
-  // Pool stats every 15 seconds
-  setInterval(() => {
-    dbPoolGauge.set({ state: 'total' }, pool.totalCount);
-    dbPoolGauge.set({ state: 'idle' }, pool.idleCount);
-    dbPoolGauge.set({ state: 'waiting' }, pool.waitingCount);
-  }, 15000).unref();
-
-  // Metrics endpoint — restricted to localhost for Prometheus scraping.
-  // Uses req.socket.remoteAddress (raw TCP peer) instead of req.ip so that
-  // trust-proxy / X-Forwarded-For cannot bypass the localhost gate (B-B25).
-  app.get('/metrics', async (req, res) => {
-    const ip = req.socket.remoteAddress;
-    if (!['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(ip)) {
-      return res.status(403).json({ error: 'Metrics available from localhost only' });
-    }
-    res.set('Content-Type', promClient.register.contentType);
-    res.end(await promClient.register.metrics());
-  });
-}
-
-// Custom counters for specific events (only available when promClient is loaded)
-const syncConflicts = promClient ? new promClient.Counter({ name: 'nbi_sync_conflicts_total', help: 'Sync conflict count' }) : null;
-const authFailures = promClient ? new promClient.Counter({ name: 'nbi_auth_failures_total', help: 'Auth failure count' }) : null;
-const ocrRequests = promClient ? new promClient.Counter({ name: 'nbi_ocr_requests_total', help: 'OCR request count', labelNames: ['status'] }) : null;
-const emailSends = promClient ? new promClient.Counter({ name: 'nbi_email_sends_total', help: 'Email send count', labelNames: ['status'] }) : null;
+const { setupMetrics } = require('./lib/metrics');
+const { syncConflicts, authFailures, ocrRequests, emailSends } = setupMetrics(app, pool);
 setEmailCounter(emailSends);
 
 /** GET / -- Serve the dashboard HTML from the parent directory (single-page app entry point) */
