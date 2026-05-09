@@ -5694,9 +5694,10 @@ function renderPfMilestones(panelRoots, now) {
 
   const items = filtered.slice(0, 8);
 
+  const msCollapsed = localStorage.getItem('pf_milestones_collapsed') === '1';
   let html = '<div class="pf__panel">';
-  html += '<div class="pf__panel-hdr"><div class="pf__panel-title">UPCOMING MILESTONES</div></div>';
-  html += '<div class="pf__panel-body">';
+  html += `<div class="pf__panel-hdr" style="cursor:pointer" onclick="const b=this.nextElementSibling;const c=b.style.display==='none';b.style.display=c?'':'none';this.querySelector('.pf__panel-arrow').textContent=c?'\\u25BC':'\\u25B6';localStorage.setItem('pf_milestones_collapsed',c?'0':'1')"><div class="pf__panel-title"><span class="pf__panel-arrow">${msCollapsed ? '▶' : '▼'}</span> UPCOMING MILESTONES (${filtered.length})</div></div>`;
+  html += `<div class="pf__panel-body" style="${msCollapsed ? 'display:none' : ''}">`;
 
   if (items.length === 0) {
     html += '<div style="display:flex;align-items:center;justify-content:center;height:100px;color:var(--text-muted);font-size:0.82rem">No milestones set.</div>';
