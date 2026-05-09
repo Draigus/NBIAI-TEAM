@@ -38,13 +38,10 @@ const { createPool } = require('./lib/db');
 const path = require('path');
 const os = require('os');
 const crypto = require('crypto');
-const bcrypt = require('bcrypt');
 const multer = require('multer');
 const fs = require('fs');
 
 const { rateLimit } = require('express-rate-limit');
-const ExcelJS = require('exceljs');
-const PDFDocument = require('pdfkit');
 const Tesseract = require('tesseract.js');
 const sharp = require('sharp');
 const pdfParse = require('pdf-parse');
@@ -343,13 +340,8 @@ async function getExpenseApprover() {
   return process.env.EXPENSE_APPROVER_USERNAME || null;
 }
 
-/**
- * Strip sensitive fields from audit data before persisting.
- * @param {Object} data - The raw audit data object
- * @returns {Object} Data with password/token fields redacted
- */
 // ==================== AUDIT ====================
-const { auditLog, sanitiseAuditData, computeNextRepeatDate } = require('./lib/audit')(pool);
+const { auditLog, computeNextRepeatDate } = require('./lib/audit')(pool);
 const { createNotification } = require('./lib/notifications')(pool);
 
 // ==================== MODULAR ROUTES ====================
@@ -364,13 +356,6 @@ app.use(require('./routes/client-notes')({ pool, requireAdmin, getClientScopes, 
 app.use(require('./routes/notifications')({ pool, requireAdmin, requireNBI, createNotification, log }));
 app.use(require('./routes/templates')({ pool, requireAdmin, isValidUuid, log }));
 app.use(require('./routes/slack')({ pool, log, verifySlackSignature, handleAppMention }));
-
-/**
- * GET /api/audit-log
- * Paginated audit log with optional filters by entity_type, action, or free-text search.
- * Joins to tasks table to enrich entries with task titles where applicable.
- */
-
 
 const { detectImportFormat, mapRowsToTasks } = require('./lib/import-parser');
 
@@ -407,8 +392,6 @@ app.use(require('./routes/sows')({ pool, requireAdmin, isValidUuid, upload, audi
 
 app.use(require('./routes/teams')({ pool, requireAdmin, isValidUuid, auditLog, log, validateLength, buildPatchQuery }));
 
-
-// ==================== CONTACTS ====================
 
 // ==================== DOCUMENTS ====================
 const { pickFilesToDelete } = require('./lib/attachment-sweep');
