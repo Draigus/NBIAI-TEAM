@@ -197,9 +197,9 @@ html[data-theme="command"] {
   --danger: #ff4757; --danger-bg: rgba(255,71,87,0.12); --danger-border: rgba(255,71,87,0.25);
   --purple: #a78bfa; --purple-bg: rgba(167,139,250,0.12); --purple-bg-subtle: rgba(167,139,250,0.04); --purple-border: rgba(167,139,250,0.25);
   --cyan: #00d4ff; --cyan-bg: rgba(0,212,255,0.1); --cyan-border: rgba(0,212,255,0.25);
-  --shadow-sm: 4px 4px 10px rgba(0,0,0,0.4), -2px -2px 6px rgba(255,255,255,0.03);
-  --shadow-md: 6px 6px 14px rgba(0,0,0,0.45), -3px -3px 10px rgba(255,255,255,0.04);
-  --shadow-lg: 10px 10px 24px rgba(0,0,0,0.5), -5px -5px 16px rgba(255,255,255,0.04);
+  --shadow-sm: 6px 6px 14px rgba(0,0,0,0.5), -3px -3px 8px rgba(255,255,255,0.05);
+  --shadow-md: 8px 8px 20px rgba(0,0,0,0.55), -4px -4px 12px rgba(255,255,255,0.06);
+  --shadow-lg: 12px 12px 30px rgba(0,0,0,0.6), -6px -6px 18px rgba(255,255,255,0.06);
 }
 html[data-theme="command"] body {
   backdrop-filter: none;
@@ -458,15 +458,22 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .pf__tbl-risk--mid { color: var(--warning); }
 .pf__tbl-risk--bad { color: var(--danger); text-shadow: 0 0 10px rgba(255,71,87,0.2); }
 
-/* Inset well (progress bar tracks, backlog bar) */
-.pf__well { background: var(--bg-input); border-radius: var(--radius-sm); box-shadow: inset 3px 3px 6px rgba(0,0,0,0.2), inset -1px -1px 3px rgba(255,255,255,0.02); }
+/* Inset well (progress bar tracks, backlog bar) — stronger neumorphic depth */
+.pf__well { background: var(--bg-input); border-radius: var(--radius-sm); box-shadow: inset 5px 5px 12px rgba(0,0,0,0.35), inset -2px -2px 6px rgba(255,255,255,0.04); }
 
 /* Progress bar fill with glow */
 .pf__bar-fill { height: 100%; border-radius: 2px; transition: width 0.6s ease; }
-.pf__bar-fill--r { background: linear-gradient(90deg, var(--danger), color-mix(in srgb, var(--danger) 70%, white)); box-shadow: 0 0 10px rgba(255,71,87,0.3); }
-.pf__bar-fill--y { background: linear-gradient(90deg, var(--warning), color-mix(in srgb, var(--warning) 70%, white)); box-shadow: 0 0 10px rgba(255,165,2,0.25); }
-.pf__bar-fill--g { background: linear-gradient(90deg, var(--success), color-mix(in srgb, var(--success) 70%, white)); box-shadow: 0 0 10px rgba(46,213,115,0.25); }
-.pf__bar-fill--c { background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 70%, white)); box-shadow: 0 0 10px var(--accent-glow); }
+.pf__bar-fill--r { background: linear-gradient(90deg, var(--danger), color-mix(in srgb, var(--danger) 70%, white)); box-shadow: 0 0 12px rgba(255,71,87,0.4); }
+.pf__bar-fill--y { background: linear-gradient(90deg, var(--warning), color-mix(in srgb, var(--warning) 70%, white)); box-shadow: 0 0 12px rgba(255,165,2,0.35); }
+.pf__bar-fill--g { background: linear-gradient(90deg, var(--success), color-mix(in srgb, var(--success) 70%, white)); box-shadow: 0 0 12px rgba(46,213,115,0.35); }
+.pf__bar-fill--c { background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 70%, white)); box-shadow: 0 0 12px var(--accent-glow); }
+
+/* Status Overview — responsive chart sizing */
+.pf__so-bar { width: 56px; height: 120px; }
+.pf__so-donut { width: 110px; height: 110px; flex-shrink: 0; }
+.pf__row { container-type: size; }
+@container (min-height: 280px) { .pf__so-bar { width: 72px; height: 180px; } .pf__so-donut { width: 160px; height: 160px; } }
+@container (min-height: 380px) { .pf__so-bar { width: 90px; height: 220px; } .pf__so-donut { width: 190px; height: 190px; } }
 
 /* Panel grids — flex to fill remaining space */
 .pf__pgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -487,7 +494,7 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .pf__attn:hover { background: var(--accent-glow); box-shadow: var(--shadow-sm); transform: translateY(-1px); }
 .pf__attn:active { box-shadow: inset 2px 2px 5px rgba(0,0,0,0.15); transform: translateY(0); }
 .pf__attn-bar { width: 4px; align-self: stretch; border-radius: 2px; flex-shrink: 0; }
-.pf__attn-badge { font-size: 0.82rem; font-weight: 700; padding: 6px 12px; border-radius: 3px; letter-spacing: 0.06em; white-space: nowrap; flex-shrink: 0; box-shadow: inset 2px 2px 5px rgba(0,0,0,0.15); }
+.pf__attn-badge { font-size: 0.82rem; font-weight: 700; padding: 6px 12px; border-radius: 3px; letter-spacing: 0.06em; white-space: nowrap; flex-shrink: 0; box-shadow: inset 3px 3px 8px rgba(0,0,0,0.3), inset -1px -1px 4px rgba(255,255,255,0.03); }
 .pf__attn-badge--blk { background: var(--danger-bg); color: var(--danger); }
 .pf__attn-badge--ovd { background: var(--danger-bg); color: var(--danger); }
 .pf__attn-info { flex: 1; min-width: 0; }
@@ -505,7 +512,7 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .pf__msl { display: flex; align-items: center; gap: 16px; padding: 12px; margin: 4px -12px; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s; }
 .pf__msl:hover { background: var(--accent-glow); box-shadow: var(--shadow-sm); transform: translateY(-1px); }
 .pf__msl:active { box-shadow: inset 2px 2px 5px rgba(0,0,0,0.15); transform: translateY(0); }
-.pf__msl-marker { width: 44px; height: 44px; background: var(--bg-input); border-radius: var(--radius-sm); box-shadow: inset 3px 3px 6px rgba(0,0,0,0.2), inset -1px -1px 3px rgba(255,255,255,0.02); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.pf__msl-marker { width: 44px; height: 44px; background: var(--bg-input); border-radius: var(--radius-sm); box-shadow: inset 5px 5px 12px rgba(0,0,0,0.35), inset -2px -2px 6px rgba(255,255,255,0.04); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .pf__msl-dot { width: 12px; height: 12px; border-radius: 50%; }
 .pf__msl-info { flex: 1; min-width: 0; }
 .pf__msl-title { font-size: 1.05rem; font-weight: 700; }
@@ -5665,8 +5672,8 @@ function renderPfProgressStatus(panelTasks) {
   const backlogPct = total > 0 ? Math.round(backlogCount / total * 100) : 0;
   const nonZero = buckets.filter(b => b.count > 0);
 
-  let backlogHtml = '<div style="flex-shrink:0;text-align:center">';
-  backlogHtml += '<div class="pf__well" style="width:56px;height:120px;display:flex;flex-direction:column;justify-content:flex-end;padding:0">';
+  let backlogHtml = '<div class="pf__so-backlog" style="flex-shrink:0;text-align:center">';
+  backlogHtml += '<div class="pf__well pf__so-bar" style="display:flex;flex-direction:column;justify-content:flex-end;padding:0">';
   backlogHtml += '<div style="height:' + backlogPct + '%;background:rgba(148,163,184,0.18);border-radius:2px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:' + (backlogCount > 0 ? '36px' : '0') + '">';
   backlogHtml += '<div style="font-family:var(--font-mono);font-size:1.2rem;font-weight:700;color:var(--text-primary)">' + backlogCount + '</div>';
   backlogHtml += '<div style="font-size:0.58rem;font-weight:700;color:var(--text-muted);margin-top:2px;letter-spacing:0.06em">BACKLOG</div>';
@@ -5675,7 +5682,7 @@ function renderPfProgressStatus(panelTasks) {
   backlogHtml += '</div>';
 
   const r = 50, sw = 16, circ = 2 * Math.PI * r;
-  let donutSvg = '<svg viewBox="0 0 130 130" width="110" height="110" style="flex-shrink:0">';
+  let donutSvg = '<svg viewBox="0 0 130 130" class="pf__so-donut">';
   donutSvg += '<circle cx="65" cy="65" r="' + r + '" fill="none" stroke="rgba(0,0,0,0.25)" stroke-width="' + (sw + 4) + '"/>';
   donutSvg += '<circle cx="65" cy="65" r="' + r + '" fill="none" stroke="var(--bg-input)" stroke-width="' + sw + '"/>';
   donutSvg += '<circle cx="65" cy="65" r="' + r + '" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="' + sw + '" stroke-dasharray="' + (circ/2) + ' ' + (circ/2) + '" transform="rotate(-90 65 65)"/>';
