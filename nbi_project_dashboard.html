@@ -10686,6 +10686,18 @@ function renderReportingView(el) {
   html += `</div>`;
   html += `<div style="position:absolute;left:${nowPct}%;top:0;bottom:0;border-left:2px dashed #ef4444;pointer-events:none"></div>`;
   html += `<div style="position:absolute;left:calc(${nowPct}% - 18px);top:-2px;font-size:0.55rem;color:#ef4444;font-weight:700;letter-spacing:0.06em">TODAY</div>`;
+  // Milestone lines in header
+  const clientObj = Object.values(_apiClientsCache || {}).find(c => c.name === _reportingClient);
+  const clientMilestones = clientObj ? (_milestonesCache[clientObj.id] || []) : [];
+  clientMilestones.forEach(ms => {
+    const mDate = safeParseDate(ms.target_date);
+    if (mDate && mDate >= gMin && mDate <= gMax) {
+      const mPct = ((mDate - gMin) / 86400000 / totalDays * 100).toFixed(2);
+      const mCol = mDate < now ? 'var(--danger)' : 'var(--accent)';
+      html += `<div style="position:absolute;left:${mPct}%;top:0;bottom:0;border-left:2px solid ${mCol};pointer-events:none;opacity:0.7"></div>`;
+      html += `<div style="position:absolute;left:calc(${mPct}% + 4px);bottom:2px;font-size:0.5rem;color:${mCol};font-weight:700;letter-spacing:0.04em;white-space:nowrap">${esc(ms.title)}</div>`;
+    }
+  });
   html += `</div></div>`;
 
   // Feature rows
@@ -10708,6 +10720,7 @@ function renderReportingView(el) {
     html += `<div class="reporting__cell" style="width:${pctW}px;font-weight:700;color:${fill}">${pct}%</div>`;
     html += `<div class="reporting__timeline" style="position:relative">`;
     html += `<div style="position:absolute;left:${nowPct}%;top:0;bottom:0;border-left:1px dashed #ef4444;opacity:0.35;pointer-events:none"></div>`;
+    clientMilestones.forEach(ms => { const mD = safeParseDate(ms.target_date); if (mD && mD >= gMin && mD <= gMax) { const mP = ((mD - gMin) / 86400000 / totalDays * 100).toFixed(2); html += `<div style="position:absolute;left:${mP}%;top:0;bottom:0;border-left:2px solid ${mD < now ? 'var(--danger)' : 'var(--accent)'};opacity:0.4;pointer-events:none"></div>`; } });
     if (fStart && fEnd) {
       // Outer feature frame
       html += `<div style="position:absolute;left:${left}%;width:${width}%;top:8px;bottom:8px;background:rgba(255,255,255,0.04);border:1px solid ${fill};border-radius:4px">`;
