@@ -1,31 +1,38 @@
 # Conversation Context
 
-Updated 2026-04-20
+Updated 2026-05-07
 
 ---
 
-## 2026-04-20 (New session)
+## 2026-05-07
 
 ### What Happened
 
-Glen loaded handoff from earlier 2026-04-20 session (News M4 + Client Portal on master). Directed: audit pending_tasks.md for stale items.
+Glen requested a full bug triage from the WorkSage bug tracker. 15 items found: 6 already at please_review, 9 open. All 9 audited against the codebase to confirm root causes before fixing.
 
-1. Checked all 6 pending items (G1-G5 + Kanban) against current codebase — all already shipped on master.
-2. Rewrote pending_tasks.md to reflect actual current state.
-3. Updated this file (was stale since 2026-04-11).
+**Bug batch (8 fixes):**
+1. Task sort order non-deterministic (ORDER BY tiebreaker)
+2. People filter showing unassigned children (visibleIds extended)
+3. Multi-user sync destroying focus (detail panel guard in _softReRender)
+4. 5-digit years accepted in dates (client + server validation)
+5. CSV import dropping due dates (parseDdMmYyyy + column name variants)
+6. Features/stories can't auto-calculate dates (computeDateRange + disabled inputs)
+7. Date paste not normalised (global paste handler for DD/MM/YYYY)
+8. Warnings not dated (since field from updatedAt)
+
+**Code review caught 3 additional issues:** missing ORDER BY tiebreakers on 3 other endpoints, no refresh on detail panel close, sync/changes endpoint missing year validation. All fixed.
+
+**Gantt timeline bug:** Glen reported bars not landing where dragged. Root cause: toISOString() used UTC dates (off by 1 day in BST), plus deferred re-render caused visible jump. Fixed with local date formatting and removed deferred re-render.
+
+**Client portal bug:** Lorenza (Couch Heroes) couldn't access dashboard. Root cause: client_role was null despite role being admin. Fixed in DB. Also found localStorage cache leak where previous user's data was visible on login switch. Fixed with user-change detection.
+
+**Playwright verification:** agent-browser couldn't handle the SPA, but Playwright works. Created verify-bug-batch.spec.js with visual confirmation of sort order, year validation, auto dates, and no JS errors. Also fixed pre-existing buildMultiSelect null crash that was breaking all e2e tests.
 
 ### Current State
-- Master at `40a3ab1` — Client Portal + News M4 merged
-- 186/186 tests passing
-- PM2 services online: nbi-dashboard (port 8888), nbi-news (port 8890)
-- No active feature branches
-- Awaiting Glen UAT on Client Portal and News M4
-- On hold: QuickBooks (Bryan's token), Excel import (Glen test)
-- Resolved: email uses Microsoft Graph (not SMTP), news LLM API key already configured
-- Backlog: Gantt enhancements, SoW layer, Hiring full spec, Telemetry/BI, research backend
-
-### Previous Session Summary (earlier 2026-04-20)
-- Merged Client Portal (14 commits, `8b74230`) — full client-scoped user system
-- Merged News M4 search + admin (9 files, `40a3ab1`) — search UI, admin panels
-- Both had merge conflicts resolved cleanly
-- Process failure: auto-compaction happened despite CLAUDE.md rule against it
+- Master at commit `2c2ee03`
+- 387/387 unit tests passing (33 files, 3 new)
+- Playwright e2e: smoke + tasks + verification passing
+- PM2: all 5 processes online
+- 1 parked bug: "Hide Done Hides All Tasks" (unreproducible)
+- Gantt drag fixed but needs Glen's visual confirmation
+- 8 bug tracker items set to please_review with fix comments

@@ -192,9 +192,7 @@ describe('mapRowsToTasks (nbi-hierarchy-csv branch)', () => {
       ['T1', '', 'task', 'T', '', '', 'Critical', '', '', '', '', '', '', '', '', '', ''],
     ];
     const out = mapRowsToTasks('nbi-hierarchy-csv', headers, rows);
-    // We accept either 'Critical' or 'Critical ACT' (whatever the existing
-    // priority normaliser picks). Just ensure it's not empty/dropped.
-    expect(out[0].priority).toMatch(/^Critical/);
+    expect(out[0].priority).toBe('Urgent');
   });
 
   it('drops rows with empty title (e.g. CSV typo with empty task field)', () => {

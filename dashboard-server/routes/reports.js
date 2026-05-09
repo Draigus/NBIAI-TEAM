@@ -163,7 +163,7 @@ module.exports = function (ctx) {
     <div class="kpi"><div class="value" style="color:#22c55e">${escHtml(String(d.kpis.completePct))}%</div><div class="label">Complete</div></div>
     <div class="kpi"><div class="value" style="color:#3b82f6">${escHtml(String(d.kpis.inProgress))}</div><div class="label">In Progress</div></div>
     <div class="kpi"><div class="value" style="color:${d.kpis.overdue > 0 ? '#ef4444' : '#22c55e'}">${escHtml(String(d.kpis.overdue))}</div><div class="label">Overdue</div></div>
-    <div class="kpi"><div class="value" style="color:${d.kpis.blocked > 0 ? '#a855f7' : '#22c55e'}">${escHtml(String(d.kpis.blocked))}</div><div class="label">Blocked</div></div>
+    <div class="kpi"><div class="value" style="color:${d.kpis.blocked > 0 ? '#2563eb' : '#22c55e'}">${escHtml(String(d.kpis.blocked))}</div><div class="label">Blocked</div></div>
     <div class="kpi"><div class="value">${escHtml(String(d.kpis.hrsSpent))}h</div><div class="label">Hours Spent</div></div>
   </div>`;
 

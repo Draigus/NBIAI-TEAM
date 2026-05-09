@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reporting Timeline — Reworked Draft</title>
+<style>
+  :root {
+    --bg-base: #0f1729;
+    --bg-card: #1a2332;
+    --bg-surface: #1e293b;
+    --bg-raised: #253347;
+    --bg-input: #1e293b;
+    --bg-hover: rgba(255,255,255,0.04);
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --border-default: #334155;
+    --border-subtle: #1e293b;
+    --accent: #38bdf8;
+    --accent-text: #38bdf8;
+    --accent-border: rgba(56,189,248,0.25);
+    --purple: #2563eb;
+    --danger: #ef4444;
+    --green: #22c55e;
+    --amber: #f59e0b;
+    --grey-bar: #64748b;
+    --radius-md: 8px;
+    --radius-sm: 4px;
+    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg-base); color: var(--text-primary); font-family: var(--font-body); font-size: 14px; padding: 24px 32px; }
+
+  h1 { font-size: 1.4rem; font-weight: 700; margin-bottom: 20px; letter-spacing: -0.01em; }
+
+  /* === SUMMARY STRIP === */
+  .summary-strip {
+    display: flex; gap: 16px; margin-bottom: 24px; padding: 14px 20px;
+    background: var(--bg-card); border: 1px solid var(--border-default); border-radius: var(--radius-md);
+    align-items: center;
+  }
+  .summary-stat {
+    display: flex; align-items: center; gap: 8px; font-size: 0.82rem;
+    padding-right: 16px; border-right: 1px solid var(--border-default);
+  }
+  .summary-stat:last-child { border-right: none; padding-right: 0; }
+  .summary-stat__count { font-size: 1.3rem; font-weight: 800; font-family: var(--font-mono); }
+  .summary-stat__label { color: var(--text-secondary); font-size: 0.78rem; }
+  .summary-stat--on-track .summary-stat__count { color: var(--green); }
+  .summary-stat--at-risk .summary-stat__count { color: var(--amber); }
+  .summary-stat--blocked .summary-stat__count { color: var(--danger); }
+  .summary-stat--not-started .summary-stat__count { color: var(--grey-bar); }
+  .summary-stat--done .summary-stat__count { color: var(--purple); }
+  .summary-next-ms {
+    margin-left: auto; font-size: 0.78rem; color: var(--text-secondary);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .summary-next-ms__label { color: var(--text-muted); font-size: 0.7rem; letter-spacing: 0.06em; font-weight: 600; }
+  .summary-next-ms__value { color: var(--accent-text); font-weight: 600; }
+  .summary-next-ms__days { font-family: var(--font-mono); font-weight: 700; }
+
+  /* === MILESTONE TRACKER === */
+  .ms-tracker {
+    display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;
+  }
+  .ms-card {
+    background: var(--bg-card); border: 1px solid var(--border-default); border-radius: var(--radius-md);
+    padding: 10px 16px; display: flex; align-items: center; gap: 12px; flex: 1; min-width: 260px;
+  }
+  .ms-card__indicator { width: 4px; height: 36px; border-radius: 2px; flex-shrink: 0; }
+  .ms-card__indicator--future { background: var(--accent); }
+  .ms-card__indicator--overdue { background: var(--danger); }
+  .ms-card__info { flex: 1; }
+  .ms-card__name { font-size: 0.82rem; font-weight: 600; }
+  .ms-card__date { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; }
+  .ms-card__days {
+    font-family: var(--font-mono); font-size: 0.82rem; font-weight: 700;
+    padding: 3px 10px; border-radius: 12px; white-space: nowrap;
+  }
+  .ms-card__days--future { background: rgba(56,189,248,0.12); color: var(--accent); }
+  .ms-card__days--overdue { background: rgba(239,68,68,0.12); color: var(--danger); }
+
+  /* === REPORTING TABLE === */
+  .rpt { background: var(--bg-card); border: 1px solid var(--border-default); border-radius: var(--radius-md); overflow: hidden; }
+
+  .rpt__row {
+    display: flex; align-items: stretch; min-height: 44px;
+    border-bottom: 1px solid var(--border-subtle); transition: background 0.12s;
+  }
+  .rpt__row:last-child { border-bottom: none; }
+  .rpt__row:hover { background: rgba(255,255,255,0.025); }
+  .rpt__row--hdr {
+    background: rgba(255,255,255,0.03); min-height: 0;
+    font-weight: 700; font-size: 0.7rem; letter-spacing: 0.08em; color: var(--text-muted);
+  }
+  .rpt__row--hdr:hover { background: rgba(255,255,255,0.03); }
+  .rpt__row--open { background: rgba(56,189,248,0.04); border-left: 3px solid var(--accent); }
+
+  .rpt__cell {
+    padding: 8px 12px; display: flex; align-items: center;
+    font-size: 0.8rem; flex-shrink: 0; box-sizing: border-box;
+  }
+  .rpt__cell--feature { width: 280px; font-weight: 600; white-space: nowrap; gap: 8px; }
+  .rpt__cell--owner { width: 100px; color: var(--text-secondary); }
+  .rpt__cell--status { width: 100px; }
+  .rpt__cell--pct { width: 60px; font-weight: 700; font-family: var(--font-mono); }
+
+  .rpt__type-badge {
+    font-size: 0.68rem; font-weight: 700; color: var(--text-muted);
+    background: var(--bg-input); padding: 2px 5px; border-radius: 3px;
+    letter-spacing: 0.06em; flex-shrink: 0;
+  }
+
+  /* Status pills */
+  .rpt__pill {
+    font-size: 0.68rem; font-weight: 700; padding: 3px 10px;
+    border-radius: 10px; letter-spacing: 0.06em; white-space: nowrap; color: #fff;
+  }
+  .rpt__pill--on-track { background: var(--green); }
+  .rpt__pill--at-risk { background: var(--amber); }
+  .rpt__pill--blocked { background: var(--danger); }
+  .rpt__pill--not-started { background: var(--grey-bar); }
+  .rpt__pill--done { background: var(--purple); }
+
+  /* Timeline area */
+  .rpt__timeline {
+    flex: 1; min-width: 0; position: relative;
+  }
+
+  /* Month gridlines */
+  .rpt__gridline {
+    position: absolute; top: 0; bottom: 0;
+    border-left: 1px dashed rgba(255,255,255,0.06);
+    pointer-events: none; z-index: 1;
+  }
+
+  /* Today marker */
+  .rpt__today {
+    position: absolute; top: 0; bottom: 0;
+    border-left: 2px dashed var(--danger);
+    pointer-events: none; z-index: 3; opacity: 0.6;
+  }
+  .rpt__today-label {
+    position: absolute; top: -2px; font-size: 0.68rem;
+    color: var(--danger); font-weight: 700; letter-spacing: 0.06em;
+    transform: translateX(-50%);
+  }
+
+  /* Milestone lines */
+  .rpt__ms-line {
+    position: absolute; top: 0; bottom: 0;
+    border-left: 2px solid; pointer-events: none; z-index: 2; opacity: 0.6;
+  }
+  .rpt__ms-label {
+    position: absolute; bottom: 4px; font-size: 0.68rem;
+    font-weight: 700; letter-spacing: 0.04em; white-space: nowrap;
+    padding-left: 4px;
+  }
+
+  /* Status bars — THICKER (30px) */
+  .rpt__bar {
+    position: absolute; top: 7px; height: 30px; border-radius: 6px;
+    overflow: hidden; display: flex; z-index: 4;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .rpt__bar-seg { height: 100%; }
+  .rpt__bar-seg--done { background: var(--purple); }
+  .rpt__bar-seg--in-progress { background: var(--green); }
+  .rpt__bar-seg--blocked { background: var(--danger); }
+  .rpt__bar-seg--not-started { background: var(--grey-bar); }
+
+  /* Timeline header */
+  .rpt__timeline-hdr {
+    flex: 1; min-width: 0; display: flex; flex-direction: column;
+    position: relative;
+  }
+  .rpt__quarter-row, .rpt__month-row { display: flex; }
+  .rpt__quarter-cell {
+    text-align: left; padding: 4px 6px; font-size: 0.7rem;
+    color: var(--text-muted); font-weight: 700; letter-spacing: 0.06em;
+    border-right: 1px solid var(--border-default);
+  }
+  .rpt__month-cell {
+    text-align: left; padding: 3px 6px; font-size: 0.72rem;
+    color: var(--text-muted); font-weight: 500;
+    border-right: 1px solid var(--border-subtle);
+  }
+  .rpt__month-cell--now { color: var(--accent-text); font-weight: 700; }
+
+  /* === DRAWER === */
+  .rpt__drawer {
+    background: var(--bg-card); border: 2px solid var(--accent-border);
+    border-top: 3px solid var(--accent); padding: 20px 24px;
+    margin: 0 8px 8px 8px; border-radius: 0 0 var(--radius-md) var(--radius-md);
+  }
+  .rpt__drawer-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 16px; }
+  .rpt__drawer-pills {
+    display: flex; gap: 24px; margin-bottom: 20px; padding-bottom: 14px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .rpt__drawer-pill { display: flex; flex-direction: column; gap: 4px; }
+  .rpt__drawer-pill-label {
+    font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em;
+    color: var(--text-muted);
+  }
+  .rpt__drawer-pill-value { font-size: 0.88rem; font-weight: 600; }
+
+  .rpt__drawer-grid {
+    display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px;
+  }
+  .rpt__drawer-card {
+    background: rgba(255,255,255,0.02); border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md); overflow: hidden;
+  }
+  .rpt__drawer-card-hdr {
+    padding: 8px 14px; background: rgba(255,255,255,0.04);
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; color: var(--text-muted);
+  }
+  .rpt__drawer-card-body { padding: 12px 14px; }
+
+  /* Story grid in drawer — with gridlines */
+  .story-grid {
+    display: grid; grid-template-columns: auto 48px 1fr;
+    gap: 6px 12px; align-items: center; font-size: 0.78rem;
+  }
+  .story-grid__month-hdr {
+    display: flex; border-bottom: 1px solid var(--border-subtle);
+    padding-bottom: 6px; margin-bottom: 2px; position: relative;
+  }
+  .story-grid__month-cell {
+    text-align: left; padding-left: 4px; font-size: 0.7rem;
+    font-weight: 500; color: var(--text-muted);
+    border-right: 1px solid var(--border-subtle);
+  }
+  .story-grid__month-cell--now { color: var(--accent-text); font-weight: 700; }
+
+  .story-grid__bar-wrap {
+    height: 20px; border-radius: 4px; overflow: hidden;
+    display: flex; border: 1px solid var(--border-default);
+    position: relative;
+  }
+  .story-grid__bar-wrap .rpt__gridline {
+    border-left: 1px dashed rgba(255,255,255,0.08);
+  }
+  .story-grid__pct { text-align: right; font-weight: 700; font-size: 0.72rem; }
+
+  /* Key updates */
+  .update-item {
+    padding: 8px 0; border-bottom: 1px dashed var(--border-subtle); font-size: 0.8rem;
+  }
+  .update-item:last-child { border-bottom: none; }
+  .update-item__meta {
+    display: flex; justify-content: space-between;
+    font-size: 0.7rem; color: var(--text-muted); letter-spacing: 0.04em; margin-bottom: 3px;
+  }
+  .update-item__text { color: var(--text-primary); line-height: 1.4; }
+
+  .note-input {
+    display: flex; gap: 8px; margin-top: 10px; padding-top: 10px;
+    border-top: 1px solid var(--border-subtle);
+  }
+  .note-input input {
+    flex: 1; font-size: 0.8rem; padding: 6px 10px;
+    background: var(--bg-input); color: var(--text-primary);
+    border: 1px solid var(--border-default); border-radius: var(--radius-sm);
+    outline: none;
+  }
+  .note-input input:focus { border-color: var(--accent); }
+  .note-input button {
+    padding: 6px 14px; font-size: 0.78rem; font-weight: 600;
+    background: var(--accent); color: #0f1729; border: none;
+    border-radius: var(--radius-sm); cursor: pointer;
+  }
+
+  /* Annotations */
+  .annotation {
+    position: fixed; background: #fbbf24; color: #0f1729; font-size: 0.72rem;
+    padding: 4px 8px; border-radius: 4px; font-weight: 700; z-index: 100;
+    pointer-events: none; box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+
+  /* Before/after label */
+  .version-label {
+    display: inline-block; font-size: 0.7rem; font-weight: 700;
+    letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 12px;
+    padding: 4px 10px; background: var(--bg-surface); border-radius: var(--radius-sm);
+    border: 1px solid var(--border-default);
+  }
+</style>
+</head>
+<body>
+
+<h1>Reporting — Lighthouse Games / Data Systems and Analysis</h1>
+
+<!-- ========== SUMMARY STRIP ========== -->
+<div class="summary-strip">
+  <div class="summary-stat summary-stat--on-track">
+    <span class="summary-stat__count">3</span>
+    <span class="summary-stat__label">On Track</span>
+  </div>
+  <div class="summary-stat summary-stat--at-risk">
+    <span class="summary-stat__count">2</span>
+    <span class="summary-stat__label">At Risk</span>
+  </div>
+  <div class="summary-stat summary-stat--not-started">
+    <span class="summary-stat__count">3</span>
+    <span class="summary-stat__label">Not Started</span>
+  </div>
+  <div class="summary-stat summary-stat--done">
+    <span class="summary-stat__count">0</span>
+    <span class="summary-stat__label">Done</span>
+  </div>
+  <div class="summary-next-ms">
+    <span class="summary-next-ms__label">NEXT MILESTONE</span>
+    <span class="summary-next-ms__value">Pre-Alpha Playtest Build MS30</span>
+    <span class="summary-next-ms__days" style="color:var(--accent)">42d</span>
+  </div>
+</div>
+
+<!-- ========== MILESTONE TRACKER ========== -->
+<div class="ms-tracker">
+  <div class="ms-card">
+    <div class="ms-card__indicator ms-card__indicator--future"></div>
+    <div class="ms-card__info">
+      <div class="ms-card__name">Pre-Alpha Playtest Build MS30</div>
+      <div class="ms-card__date">20 Jun 2026</div>
+    </div>
+    <div class="ms-card__days ms-card__days--future">42d</div>
+  </div>
+  <div class="ms-card">
+    <div class="ms-card__indicator ms-card__indicator--future"></div>
+    <div class="ms-card__info">
+      <div class="ms-card__name">Actually Alpha MS1</div>
+      <div class="ms-card__date">13 Jul 2026</div>
+    </div>
+    <div class="ms-card__days ms-card__days--future">65d</div>
+  </div>
+</div>
+
+<!-- ========== FEATURE TABLE ========== -->
+<div class="rpt">
+  <!-- Header row -->
+  <div class="rpt__row rpt__row--hdr">
+    <div class="rpt__cell rpt__cell--feature">FEATURE</div>
+    <div class="rpt__cell rpt__cell--owner">OWNER</div>
+    <div class="rpt__cell rpt__cell--status">STATUS</div>
+    <div class="rpt__cell rpt__cell--pct">%</div>
+    <div class="rpt__timeline-hdr">
+      <div class="rpt__quarter-row">
+        <div class="rpt__quarter-cell" style="width:50%">Q2 2026</div>
+        <div class="rpt__quarter-cell" style="width:50%">Q3 2026</div>
+      </div>
+      <div class="rpt__month-row">
+        <div class="rpt__month-cell" style="width:16.67%">APR</div>
+        <div class="rpt__month-cell rpt__month-cell--now" style="width:16.67%">MAY</div>
+        <div class="rpt__month-cell" style="width:16.67%">JUN</div>
+        <div class="rpt__month-cell" style="width:16.67%">JUL</div>
+        <div class="rpt__month-cell" style="width:16.67%">AUG</div>
+        <div class="rpt__month-cell" style="width:16.67%;border-right:none">SEP</div>
+      </div>
+      <!-- Today marker in header -->
+      <div class="rpt__today" style="left:27%"></div>
+      <div class="rpt__today-label" style="left:27%">TODAY</div>
+    </div>
+  </div>
+
+  <!-- Row 1: Alpha Ready Dashboards — 18%, in progress -->
+  <div class="rpt__row rpt__row--open" style="cursor:pointer">
+    <div class="rpt__cell rpt__cell--feature">
+      <span class="rpt__type-badge">FT</span>
+      Alpha Ready Dashboards
+    </div>
+    <div class="rpt__cell rpt__cell--owner">Amir Didar</div>
+    <div class="rpt__cell rpt__cell--status"><span class="rpt__pill rpt__pill--on-track">ON TRACK</span></div>
+    <div class="rpt__cell rpt__cell--pct" style="color:var(--green)">18%</div>
+    <div class="rpt__timeline">
+      <!-- Month gridlines -->
+      <div class="rpt__gridline" style="left:16.67%"></div>
+      <div class="rpt__gridline" style="left:33.33%"></div>
+      <div class="rpt__gridline" style="left:50%"></div>
+      <div class="rpt__gridline" style="left:66.67%"></div>
+      <div class="rpt__gridline" style="left:83.33%"></div>
+      <!-- Today -->
+      <div class="rpt__today" style="left:27%"></div>
+      <!-- Milestone lines -->
+      <div class="rpt__ms-line" style="left:44%;border-color:var(--accent);opacity:0.4"></div>
+      <div class="rpt__ms-line" style="left:58%;border-color:var(--accent);opacity:0.4"></div>
+      <!-- Bar: starts Apr, ends Jul -->
+      <div class="rpt__bar" style="left:5%;width:55%">
+        <div class="rpt__bar-seg rpt__bar-seg--done" style="width:18%"></div>
+        <div class="rpt__bar-seg rpt__bar-seg--in-progress" style="width:22%"></div>
+        <div class="rpt__bar-seg rpt__bar-seg--not-started" style="width:60%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DRAWER for Alpha Ready Dashboards -->
+  <div class="rpt__drawer">
+    <div class="rpt__drawer-title">Alpha Ready Dashboards</div>
+
+    <div class="rpt__drawer-pills">
+      <div class="rpt__drawer-pill">
+        <span class="rpt__drawer-pill-label">STATUS</span>
+        <span class="rpt__pill rpt__pill--on-track" style="display:inline-block">ON TRACK</span>
+      </div>
+      <div class="rpt__drawer-pill">
+        <span class="rpt__drawer-pill-label">% DONE</span>
+        <span class="rpt__drawer-pill-value" style="color:var(--green)">18%</span>
+      </div>
+      <div class="rpt__drawer-pill">
+        <span class="rpt__drawer-pill-label">ETA</span>
+        <span class="rpt__drawer-pill-value">13 Jul 2026</span>
+      </div>
+      <div class="rpt__drawer-pill">
+        <span class="rpt__drawer-pill-label">LEAD</span>
+        <span class="rpt__drawer-pill-value">Amir Didar</span>
+      </div>
+      <div class="rpt__drawer-pill">
+        <span class="rpt__drawer-pill-label">TEAM</span>
+        <span class="rpt__drawer-pill-value" style="font-size:0.82rem">Marie; Ruan; Stavros</span>
+      </div>
+    </div>
+
+    <div class="rpt__drawer-grid">
+      <!-- Left: Stories -->
+      <div class="rpt__drawer-card">
+        <div class="rpt__drawer-card-hdr">STORIES</div>
+        <div class="rpt__drawer-card-body">
+          <div class="story-grid">
+            <!-- Month header -->
+            <div></div><div></div>
+            <div class="story-grid__month-hdr">
+              <div class="story-grid__month-cell" style="width:25%">Apr</div>
+              <div class="story-grid__month-cell story-grid__month-cell--now" style="width:25%">May</div>
+              <div class="story-grid__month-cell" style="width:25%">Jun</div>
+              <div class="story-grid__month-cell" style="width:25%;border-right:none">Jul</div>
+            </div>
+
+            <!-- Story 1 -->
+            <div style="white-space:nowrap">California Dash</div>
+            <div class="story-grid__pct" style="color:var(--purple)">18%</div>
+            <div class="story-grid__bar-wrap">
+              <div class="rpt__gridline" style="left:25%"></div>
+              <div class="rpt__gridline" style="left:50%"></div>
+              <div class="rpt__gridline" style="left:75%"></div>
+              <div class="rpt__bar-seg rpt__bar-seg--done" style="width:18%"></div>
+              <div class="rpt__bar-seg rpt__bar-seg--in-progress" style="width:12%"></div>
+              <div class="rpt__bar-seg rpt__bar-seg--not-started" style="width:70%"></div>
+            </div>
+
+            <!-- Story 2 -->
+            <div style="white-space:nowrap">Car Collection Dash</div>
+            <div class="story-grid__pct" style="color:var(--purple)">18%</div>
+            <div class="story-grid__bar-wrap">
+              <div class="rpt__gridline" style="left:25%"></div>
+              <div class="rpt__gridline" style="left:50%"></div>
+              <div class="rpt__gridline" style="left:75%"></div>
+              <div class="rpt__bar-seg rpt__bar-seg--done" style="width:18%"></div>
+              <div class="rpt__bar-seg rpt__bar-seg--in-progress" style="width:22%"></div>
+              <div class="rpt__bar-seg rpt__bar-seg--not-started" style="width:60%"></div>
+            </div>
+
+            <!-- Story 3 -->
+            <div style="white-space:nowrap">Engagement &amp; Retention Dash</div>
+            <div class="story-grid__pct" style="color:var(--danger)">18%</div>
+            <div class="story-grid__bar-wrap">
+              <div class="rpt__gridline" style="left:25%"></div>
+              <div class="rpt__gridline" style="left:50%"></div>
+              <div class="rpt__gridline" style="left:75%"></div>
+              <div class="rpt__bar-seg rpt__bar-seg--done" style="width:18%"></div>
+              <div class="rpt__bar-seg rpt__bar-seg--in-progress" style="width:10%"></div>
+              <div class="rpt__bar-seg rpt__bar-seg--blocked" style="width:15%"></div>
+              <div class="rpt__bar-seg rpt__bar-seg--not-started" style="width:57%"></div>
+            </div>
+
+            <!-- Story 4 -->
+            <div style="white-space:nowrap">Garage &amp; Customisation Dash</div>
+            <div class="story-grid__pct" style="color:var(--purple)">18%</div>
+            <div class="story-grid__bar-wrap">
+              <div class="rpt__gridline" style="left:25%"></div>
+              <div class="rpt__gridline" style="left:50%"></div>
+              <div class="rpt__gridline" style="left:75%"></div>
+              <div class="rpt__bar-seg rpt__bar-seg--done" style="width:18%"></div>
+              <div class="rpt__bar-seg rpt__bar-seg--in-progress" style="width:15%"></div>
+              <div class="rpt__bar-seg rpt__bar-seg--not-started" style="width:67%"></div>
+            </div>
+
+            <!-- Story 5 -->
+            <div style="white-space:nowrap">Initial Power BI Onboarding</div>
+            <div class="story-grid__pct" style="color:var(--grey-bar)">0%</div>
+            <div class="story-grid__bar-wrap">
+              <div class="rpt__gridline" style="left:25%"></div>
+              <div class="rpt__gridline" style="left:50%"></div>
+              <div class="rpt__gridline" style="left:75%"></div>
+              <div class="rpt__bar-seg rpt__bar-seg--not-started" style="width:100%"></div>
+            </div>
+
+            <!-- Story 6 -->
+            <div style="white-space:nowrap">Progression Dash</div>
+            <div class="story-grid__pct" style="color:var(--green)">0%</div>
+            <div class="story-grid__bar-wrap">
+              <div class="rpt__gridline" style="left:25%"></div>
+              <div class="rpt__gridline" style="left:50%"></div>
+              <div class="rpt__gridline" style="left:75%"></div>
+              <div class="rpt__bar-seg rpt__bar-seg--in-progress" style="width:100%"></div>
+            </div>
+
+            <!-- Story 7 -->
+            <div style="white-space:nowrap">SLT Dash</div>
+            <div class="story-grid__pct" style="color:var(--purple)">18%</div>
+            <div class="story-grid__bar-wrap">
+              <div class="rpt__gridline" style="left:25%"></div>
+              <div class="rpt__gridline" style="left:50%"></div>
+              <div class="rpt__gridline" style="left:75%"></div>
+              <div class="rpt__bar-seg rpt__bar-seg--done" style="width:18%"></div>
+              <div class="rpt__bar-seg rpt__bar-seg--in-progress" style="width:32%"></div>
+              <div class="rpt__bar-seg rpt__bar-seg--not-started" style="width:50%"></div>
+            </div>
+
+            <!-- Story 8 -->
+            <div style="white-space:nowrap">Tech Health Dash</div>
+            <div class="story-grid__pct" style="color:var(--purple)">18%</div>
+            <div class="story-grid__bar-wrap">
+              <div class="rpt__gridline" style="left:25%"></div>
+              <div class="rpt__gridline" style="left:50%"></div>
+              <div class="rpt__gridline" style="left:75%"></div>
+              <div class="rpt__bar-seg rpt__bar-seg--done" style="width:18%"></div>
+              <div class="rpt__bar-seg rpt__bar-seg--in-progress" style="width:12%"></div>
+              <div class="rpt__bar-seg rpt__bar-seg--not-started" style="width:70%"></div>
+            </div>
+
+            <!-- Story 9 -->
+            <div style="white-space:nowrap">FTUE Dash</div>
+            <div class="story-grid__pct" style="color:var(--green)">18%</div>
+            <div class="story-grid__bar-wrap">
+              <div class="rpt__gridline" style="left:25%"></div>
+              <div class="rpt__gridline" style="left:50%"></div>
+              <div class="rpt__gridline" style="left:75%"></div>
+              <div class="rpt__bar-seg rpt__bar-seg--done" style="width:18%"></div>
+              <div class="rpt__bar-seg rpt__bar-seg--in-progress" style="width:32%"></div>
+              <div class="rpt__bar-seg rpt__bar-seg--not-started" style="width:50%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Narrative blocks -->
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="rpt__drawer-card">
+          <div class="rpt__drawer-card-hdr">GOALS</div>
+          <div class="rpt__drawer-card-body">
+            <textarea style="width:100%;min-height:44px;font-size:0.8rem;background:var(--bg-input);color:var(--text-primary);border:1px solid var(--border-default);border-radius:var(--radius-sm);padding:8px 10px;resize:vertical;font-family:var(--font-body)" placeholder="Add goals...">Deliver 9 interactive Power BI dashboards covering all core game pillars before Alpha milestone.</textarea>
+          </div>
+        </div>
+        <div class="rpt__drawer-card">
+          <div class="rpt__drawer-card-hdr">DEPENDENCIES</div>
+          <div class="rpt__drawer-card-body" style="font-size:0.8rem;color:var(--text-secondary)">
+            <div style="padding:3px 0">&#8226; Core Data Tables</div>
+            <div style="padding:3px 0">&#8226; Engineering - Infrastructure</div>
+          </div>
+        </div>
+        <div class="rpt__drawer-card">
+          <div class="rpt__drawer-card-hdr">RISKS</div>
+          <div class="rpt__drawer-card-body">
+            <textarea style="width:100%;min-height:44px;font-size:0.8rem;background:var(--bg-input);color:var(--text-primary);border:1px solid var(--border-default);border-radius:var(--radius-sm);padding:8px 10px;resize:vertical;font-family:var(--font-body)" placeholder="Add risks...">Data pipeline delays could cascade to all 9 dashboards. Engagement & Retention blocked on event taxonomy sign-off.</textarea>
+          </div>
+        </div>
+        <div class="rpt__drawer-card">
+          <div class="rpt__drawer-card-hdr">MITIGATIONS</div>
+          <div class="rpt__drawer-card-body">
+            <textarea style="width:100%;min-height:44px;font-size:0.8rem;background:var(--bg-input);color:var(--text-primary);border:1px solid var(--border-default);border-radius:var(--radius-sm);padding:8px 10px;resize:vertical;font-family:var(--font-body)" placeholder="Add mitigations..."></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Key Updates — full width below the grid -->
+    <div class="rpt__drawer-card" style="margin-top:16px">
+      <div class="rpt__drawer-card-hdr">KEY UPDATES</div>
+      <div class="rpt__drawer-card-body">
+        <div class="update-item">
+          <div class="update-item__meta">
+            <span>California Dash</span>
+            <span>07 May</span>
+          </div>
+          <div class="update-item__text">First pass complete. Revenue metrics pulling correctly from BigQuery. Awaiting UX review before adding drill-through.</div>
+        </div>
+        <div class="update-item">
+          <div class="update-item__meta">
+            <span>Engagement &amp; Retention Dash</span>
+            <span>05 May</span>
+          </div>
+          <div class="update-item__text">Blocked — event taxonomy not finalised. Ruan escalated to game design team.</div>
+        </div>
+        <div class="update-item">
+          <div class="update-item__meta">
+            <span>SLT Dash</span>
+            <span>02 May</span>
+          </div>
+          <div class="update-item__text">Wireframe approved by Stavros. Data model ready, starting build next sprint.</div>
+        </div>
+        <div class="note-input">
+          <input placeholder="Add a note...">
+          <button>Add</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 2: Analytics - Telemetry — 0%, in progress but early -->
+  <div class="rpt__row">
+    <div class="rpt__cell rpt__cell--feature">
+      <span class="rpt__type-badge">FT</span>
+      Analytics - Telemetry
+    </div>
+    <div class="rpt__cell rpt__cell--owner">Ruan</div>
+    <div class="rpt__cell rpt__cell--status"><span class="rpt__pill rpt__pill--on-track">ON TRACK</span></div>
+    <div class="rpt__cell rpt__cell--pct" style="color:var(--green)">0%</div>
+    <div class="rpt__timeline">
+      <div class="rpt__gridline" style="left:16.67%"></div>
+      <div class="rpt__gridline" style="left:33.33%"></div>
+      <div class="rpt__gridline" style="left:50%"></div>
+      <div class="rpt__gridline" style="left:66.67%"></div>
+      <div class="rpt__gridline" style="left:83.33%"></div>
+      <div class="rpt__today" style="left:27%"></div>
+      <div class="rpt__ms-line" style="left:44%;border-color:var(--accent);opacity:0.4"></div>
+      <div class="rpt__ms-line" style="left:58%;border-color:var(--accent);opacity:0.4"></div>
+      <div class="rpt__bar" style="left:20%;width:18%">
+        <div class="rpt__bar-seg rpt__bar-seg--blocked" style="width:100%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 3: Core Data Tables — 0%, not started -->
+  <div class="rpt__row">
+    <div class="rpt__cell rpt__cell--feature">
+      <span class="rpt__type-badge">FT</span>
+      Core Data Tables
+    </div>
+    <div class="rpt__cell rpt__cell--owner">Marie</div>
+    <div class="rpt__cell rpt__cell--status"><span class="rpt__pill rpt__pill--not-started">NOT STARTED</span></div>
+    <div class="rpt__cell rpt__cell--pct" style="color:var(--grey-bar)">0%</div>
+    <div class="rpt__timeline">
+      <div class="rpt__gridline" style="left:16.67%"></div>
+      <div class="rpt__gridline" style="left:33.33%"></div>
+      <div class="rpt__gridline" style="left:50%"></div>
+      <div class="rpt__gridline" style="left:66.67%"></div>
+      <div class="rpt__gridline" style="left:83.33%"></div>
+      <div class="rpt__today" style="left:27%"></div>
+      <div class="rpt__ms-line" style="left:44%;border-color:var(--accent);opacity:0.4"></div>
+      <div class="rpt__ms-line" style="left:58%;border-color:var(--accent);opacity:0.4"></div>
+      <div class="rpt__bar" style="left:30%;width:22%">
+        <div class="rpt__bar-seg rpt__bar-seg--not-started" style="width:100%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 4: Engineering - Infrastructure — 0%, in progress -->
+  <div class="rpt__row">
+    <div class="rpt__cell rpt__cell--feature">
+      <span class="rpt__type-badge">FT</span>
+      Engineering - Infrastructure
+    </div>
+    <div class="rpt__cell rpt__cell--owner">Ruan</div>
+    <div class="rpt__cell rpt__cell--status"><span class="rpt__pill rpt__pill--on-track">ON TRACK</span></div>
+    <div class="rpt__cell rpt__cell--pct" style="color:var(--green)">0%</div>
+    <div class="rpt__timeline">
+      <div class="rpt__gridline" style="left:16.67%"></div>
+      <div class="rpt__gridline" style="left:33.33%"></div>
+      <div class="rpt__gridline" style="left:50%"></div>
+      <div class="rpt__gridline" style="left:66.67%"></div>
+      <div class="rpt__gridline" style="left:83.33%"></div>
+      <div class="rpt__today" style="left:27%"></div>
+      <div class="rpt__ms-line" style="left:44%;border-color:var(--accent);opacity:0.4"></div>
+      <div class="rpt__ms-line" style="left:58%;border-color:var(--accent);opacity:0.4"></div>
+      <div class="rpt__bar" style="left:8%;width:42%">
+        <div class="rpt__bar-seg rpt__bar-seg--in-progress" style="width:100%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 5: Game Understanding — 23%, at risk -->
+  <div class="rpt__row">
+    <div class="rpt__cell rpt__cell--feature">
+      <span class="rpt__type-badge">FT</span>
+      Game Understanding
+    </div>
+    <div class="rpt__cell rpt__cell--owner">Ruan</div>
+    <div class="rpt__cell rpt__cell--status"><span class="rpt__pill rpt__pill--at-risk">AT RISK</span></div>
+    <div class="rpt__cell rpt__cell--pct" style="color:var(--amber)">23%</div>
+    <div class="rpt__timeline">
+      <div class="rpt__gridline" style="left:16.67%"></div>
+      <div class="rpt__gridline" style="left:33.33%"></div>
+      <div class="rpt__gridline" style="left:50%"></div>
+      <div class="rpt__gridline" style="left:66.67%"></div>
+      <div class="rpt__gridline" style="left:83.33%"></div>
+      <div class="rpt__today" style="left:27%"></div>
+      <div class="rpt__ms-line" style="left:44%;border-color:var(--accent);opacity:0.4"></div>
+      <div class="rpt__ms-line" style="left:58%;border-color:var(--accent);opacity:0.4"></div>
+      <div class="rpt__bar" style="left:5%;width:40%">
+        <div class="rpt__bar-seg rpt__bar-seg--done" style="width:23%"></div>
+        <div class="rpt__bar-seg rpt__bar-seg--in-progress" style="width:25%"></div>
+        <div class="rpt__bar-seg rpt__bar-seg--blocked" style="width:12%"></div>
+        <div class="rpt__bar-seg rpt__bar-seg--not-started" style="width:40%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 6: Post Alpha Report — 0%, not started -->
+  <div class="rpt__row">
+    <div class="rpt__cell rpt__cell--feature">
+      <span class="rpt__type-badge">FT</span>
+      Post Alpha Report
+    </div>
+    <div class="rpt__cell rpt__cell--owner">Stavros</div>
+    <div class="rpt__cell rpt__cell--status"><span class="rpt__pill rpt__pill--not-started">NOT STARTED</span></div>
+    <div class="rpt__cell rpt__cell--pct" style="color:var(--grey-bar)">0%</div>
+    <div class="rpt__timeline">
+      <div class="rpt__gridline" style="left:16.67%"></div>
+      <div class="rpt__gridline" style="left:33.33%"></div>
+      <div class="rpt__gridline" style="left:50%"></div>
+      <div class="rpt__gridline" style="left:66.67%"></div>
+      <div class="rpt__gridline" style="left:83.33%"></div>
+      <div class="rpt__today" style="left:27%"></div>
+      <div class="rpt__ms-line" style="left:44%;border-color:var(--accent);opacity:0.4"></div>
+      <div class="rpt__ms-line" style="left:58%;border-color:var(--accent);opacity:0.4"></div>
+      <div class="rpt__bar" style="left:72%;width:20%">
+        <div class="rpt__bar-seg rpt__bar-seg--not-started" style="width:100%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 7: Pre-Alpha Planning — 0%, in progress -->
+  <div class="rpt__row">
+    <div class="rpt__cell rpt__cell--feature">
+      <span class="rpt__type-badge">FT</span>
+      Pre-Alpha Planning
+    </div>
+    <div class="rpt__cell rpt__cell--owner">Amir Didar</div>
+    <div class="rpt__cell rpt__cell--status"><span class="rpt__pill rpt__pill--on-track">ON TRACK</span></div>
+    <div class="rpt__cell rpt__cell--pct" style="color:var(--green)">0%</div>
+    <div class="rpt__timeline">
+      <div class="rpt__gridline" style="left:16.67%"></div>
+      <div class="rpt__gridline" style="left:33.33%"></div>
+      <div class="rpt__gridline" style="left:50%"></div>
+      <div class="rpt__gridline" style="left:66.67%"></div>
+      <div class="rpt__gridline" style="left:83.33%"></div>
+      <div class="rpt__today" style="left:27%"></div>
+      <div class="rpt__ms-line" style="left:44%;border-color:var(--accent);opacity:0.4"></div>
+      <div class="rpt__ms-line" style="left:58%;border-color:var(--accent);opacity:0.4"></div>
+      <div class="rpt__bar" style="left:38%;width:12%">
+        <div class="rpt__bar-seg rpt__bar-seg--blocked" style="width:100%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 8: Ad Hoc Analyses — 0%, at risk -->
+  <div class="rpt__row">
+    <div class="rpt__cell rpt__cell--feature">
+      <span class="rpt__type-badge">FT</span>
+      Ad Hoc Analyses
+    </div>
+    <div class="rpt__cell rpt__cell--owner">Amir Didar</div>
+    <div class="rpt__cell rpt__cell--status"><span class="rpt__pill rpt__pill--at-risk">AT RISK</span></div>
+    <div class="rpt__cell rpt__cell--pct" style="color:var(--amber)">0%</div>
+    <div class="rpt__timeline">
+      <div class="rpt__gridline" style="left:16.67%"></div>
+      <div class="rpt__gridline" style="left:33.33%"></div>
+      <div class="rpt__gridline" style="left:50%"></div>
+      <div class="rpt__gridline" style="left:66.67%"></div>
+      <div class="rpt__gridline" style="left:83.33%"></div>
+      <div class="rpt__today" style="left:27%"></div>
+      <div class="rpt__ms-line" style="left:44%;border-color:var(--accent);opacity:0.4"></div>
+      <div class="rpt__ms-line" style="left:58%;border-color:var(--accent);opacity:0.4"></div>
+      <div class="rpt__bar" style="left:22%;width:30%">
+        <div class="rpt__bar-seg rpt__bar-seg--not-started" style="width:100%"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Legend -->
+<div style="display:flex;gap:20px;margin-top:16px;padding:10px 16px;font-size:0.75rem;color:var(--text-muted);align-items:center">
+  <span style="font-weight:600;letter-spacing:0.06em">LEGEND</span>
+  <span style="display:flex;align-items:center;gap:5px"><span style="width:14px;height:14px;border-radius:3px;background:var(--purple)"></span> Done</span>
+  <span style="display:flex;align-items:center;gap:5px"><span style="width:14px;height:14px;border-radius:3px;background:var(--green)"></span> In Progress</span>
+  <span style="display:flex;align-items:center;gap:5px"><span style="width:14px;height:14px;border-radius:3px;background:var(--danger)"></span> Blocked / Overdue</span>
+  <span style="display:flex;align-items:center;gap:5px"><span style="width:14px;height:14px;border-radius:3px;background:var(--grey-bar)"></span> Not Started</span>
+  <span style="display:flex;align-items:center;gap:5px"><span style="border-left:2px dashed var(--danger);height:14px"></span> Today</span>
+  <span style="display:flex;align-items:center;gap:5px"><span style="border-left:2px solid var(--accent);height:14px"></span> Milestone</span>
+</div>
+
+</body>
+</html>

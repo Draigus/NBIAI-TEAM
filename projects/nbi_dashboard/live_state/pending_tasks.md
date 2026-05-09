@@ -1,14 +1,55 @@
 # Pending Tasks
 
-Updated 2026-04-20
+Updated 2026-05-08
 
 ---
 
 ## Awaiting Glen UAT
 
-Both features are merged to master, 186/186 tests green, PM2 running. Glen needs to test at worksage.nbi-consulting.com.
+Features merged to master, tests green (387), PM2 running. Glen needs to test at worksage.nbi-consulting.com.
 
-### Client Portal (merged `8b74230`)
+### Bug Batch (8 items, all set to please_review in Bug Tracker)
+- Sort order deterministic on reload
+- People filter hides unassigned tasks at all levels
+- Detail panel no longer jumps during multi-user sync
+- 5-digit years blocked with toast error
+- CSV import due dates parsed correctly
+- Features/stories show auto-calculated dates (greyed out)
+- Date paste normalises DD/MM/YYYY and named month formats
+- Warning notifications show timestamps
+
+### Gantt Timeline Drag
+- Bars should land exactly where dropped (timezone fix)
+- Dates on bar should match ticket detail panel
+- Glen reported initial fix was still off - latest fix deployed, needs retest
+
+### Connected Statuses (c7e48ddf) — please_review
+- Mark a parent Done/Cancelled/Blocked and all children cascade
+- All siblings terminal → parent auto-completes (Done if all Done, else Cancelled)
+
+### Prerequisites Blocked (f5a6bff2) — please_review
+- Block or cancel a prerequisite → its dependants become Blocked automatically
+
+### Scroll Preservation (9bb9eb1a, 2e005a41, 94b12f59) — please_review
+- Background sync no longer resets scroll position in any view
+- Gantt horizontal/vertical scroll preserved across sync
+- Re-render skipped when inline detail panel is open
+
+### Portfolio Chart Redesign
+- Bar+donut layout: backlog bar on left, WIP donut on right
+
+### Gantt Scroll-to-Today
+- Gantt auto-scrolls to today line on first open (bars no longer off-screen)
+
+### Client Portal (Lorenza / Couch Heroes)
+- Lorenza can now log in and see only Couch Heroes data
+- localStorage cache clears on user switch (no cross-user data leak)
+
+### Queue Detail Panel (merged `3dcb2dc`)
+- Click queue items to open slide-in detail panel
+- Select client + type, fill in fields, Promote or Dismiss
+
+### Client Portal Features (merged `8b74230`)
 - Create a client user, log in, verify force password change
 - Confirm client filter lock, company name in header, scoped views
 - Test client admin team management (invite/deactivate/reset)
@@ -17,7 +58,28 @@ Both features are merged to master, 186/186 tests green, PM2 running. Glen needs
 ### News Aggregator M4: Search + Admin (merged `40a3ab1`)
 - News tab Search subtab: search terms return highlighted results
 - Settings > News: Feed Health, Prompts, Sources, Stories admin panels
-- Merge/split stories, regenerate, add sources
+
+---
+
+### Wave 2 Quick Fixes (9 items, all set to please_review/resolved in Bug Tracker)
+- c057f2f9: Breadcrumb filter bar hidden on non-task views
+- 7cc027e5: Date validation waits for 4-digit year
+- b2628531: Gantt row labels stay visible on horizontal scroll
+- 366d49fd: Search only matches title/description/notes/assignees
+- c52c8027: Assignee on stories confirmed working (resolved)
+- 1e8de733: Percentage shown on all tasks with estimated hours
+- d765b863: Documentation hyperlinks now clickable
+- 544fc78a: NBI Only block toggles off (no nesting)
+- a1ec1a84: Repeat section in both detail panels
+
+---
+
+## Open Bugs
+
+| Bug | Status | Notes |
+|---|---|---|
+| Hide Done Sometimes Hides All Tasks | open | Reported by Amir, unreproducible. Code logic is correct. Monitoring. |
+| Documentation: mobile responsive layout never visually verified | please_review | CSS exists, needs real device or DevTools narrow viewport test |
 
 ---
 
@@ -25,66 +87,15 @@ Both features are merged to master, 186/186 tests green, PM2 running. Glen needs
 
 ### QuickBooks Time API Integration
 - Blocked on Bryan Rasmussen's API token
+- Native `time_entries` table exists for manual logging
 
-### Excel Import Template
-- NBI_Dashboard_Import_Template_v2.xlsx ready
-- Needs Glen to populate with real project data and test import
-
----
-
-## Backlog — Needs Brainstorming Before Implementation
-
-These items are open in the bug tracker or identified in the master workload roadmap. Each needs a dedicated brainstorming session and spec before code.
-
-### L1-L4: Large feature work (from master plan phases 6-10)
-- **Gantt Chart enhancements** (`86be4df5`) — dependency arrows in calendar detail (O6)
-- **SoW layer in hierarchy** (`cb32b7f9`) — Client > SoW > Project > Feature > Story > Task (Z6)
-- **Hiring Page full spec** (`b7a2f97f`) — Glen's detailed spec with stage-specific fields, arrows, auto-archive
-- **Telemetry + BI Analytics Dashboard** — 3-sprint plan saved in `.claude/plans/serialized-hatching-anchor.md`
-- **Real research backend** — Brave/Tavily/Anthropic to replace stub client research
-
-### Semantically ambiguous
-- **c73af494 By Employee Sort Incomplete** — needs Glen to clarify (sort vs filter)
+### Slack App Icon
+- Glen has the image, needs to upload at api.slack.com > Basic Information > Display Information
 
 ---
 
-## UI/UX Audit Backlog (Low Priority)
+## Backlog - Needs Brainstorming Before Implementation
 
-1. **Optimistic updates** for task/expense/finance changes
-2. **Standardise tab component HTML/class** across views
-3. **Split Settings page** into sub-pages (currently 5 tabs, could be routes)
-
----
-
-## Feature Requests (older backlog, not started)
-
-- **Calendar view dependency display**
-- **Warnings & Alerts Sidebar** (right-hand notifications panel)
-- **PM Report System** (daily email summaries) — blocked by SMTP
-- **SoW Upload on leads**
-- **Report Editing post-submission**
-- **Embed files via Sharepoint link**
-
----
-
-## Completed (removed from pending — reference only)
-
-Items previously listed here that are now shipped on master:
-
-| Item | Commit | When |
-|---|---|---|
-| G1 — Collapsible sidebar | `357c542` | 2026-04-15 |
-| G2 — Practice filters | `a99c9c7` | 2026-04-15 |
-| G3 — Mobile UI pass | `1033c1a` | 2026-04-15 |
-| G4 — Sortable People tables | `56231a2` | 2026-04-15 |
-| G5 — Client-scoped users | `8b74230` | 2026-04-20 |
-| Kanban drag-to-reorder | `e9b6166` | 2026-04-15 |
-| Test infrastructure | `e26ed85` | 2026-04-15 |
-| News M1-M4 | `40a3ab1` | 2026-04-20 |
-
-## Couch Heroes (after overnight 2026-04-26)
-- [ ] Glen reviews CH_WorkSage_import_v1.xlsx
-- [ ] Glen decides import method: direct API vs Excel bulk import
-- [ ] Glen confirms / locates the Lead Animator question set physical artifact
-- [ ] After Apr 27-30 offsite: replace org_structure_likely_2026-04-26.md with finalised structure
-- [ ] Optional: commit overnight work to git
+- Frontend modularisation (13,500+ line monolith)
+- People dashboard redesign
+- Data cleanse tool

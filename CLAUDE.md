@@ -28,7 +28,7 @@ See `NBI_Brain.md` for full business context: Glen's identity, operating style, 
 
 The only executable code in this repo lives in `dashboard-server/` (Express + Postgres) plus the SPA `nbi_project_dashboard.html` at the repo root. Everything else (`brain/`, `roles/`, `projects/`, `templates/`, `pipelines/`) is markdown knowledge. Memory shorthand: "NBI Hub" / "WorkSage" = this dashboard.
 
-**Stack:** Node.js + Express 4, PostgreSQL (via `pg`), monolithic `server.js` (~4,950 lines), monolithic `nbi_project_dashboard.html` (~13,100 lines, inline CSS+JS). PM2 for process management, Cloudflare Tunnel for public access at https://worksage.nbi-consulting.com.
+**Stack:** Node.js + Express 4, PostgreSQL (via `pg`), monolithic `server.js` (~9,600 lines), monolithic `nbi_project_dashboard.html` (~21,300 lines, inline CSS+JS). PM2 for process management, Cloudflare Tunnel for public access at https://worksage.nbi-consulting.com.
 
 **Local URL:** http://localhost:8888/nbi_project_dashboard.html (production), :8887 (staging).
 
@@ -59,7 +59,7 @@ The only executable code in this repo lives in `dashboard-server/` (Express + Po
 
 ### Verifying UI changes (HARD RULE)
 
-Curl returning 200 ≠ working. For any change to `nbi_project_dashboard.html` or a server route the UI calls, verify through https://worksage.nbi-consulting.com in a real browser via the claude-in-chrome MCP before claiming done. Take a screenshot as evidence.
+Curl returning 200 ≠ working. For any change to `nbi_project_dashboard.html` or a server route the UI calls, verify visually before claiming done. Preferred method: run `npm run test:e2e` (Playwright) which loads the SPA in Chromium, logs in, and takes screenshots. The `agent-browser` CLI tool cannot handle this SPA (CDP connection dies under the 21k-line page). For production verification, ask Glen to check at https://worksage.nbi-consulting.com.
 
 ## Knowledge Architecture
 
@@ -164,6 +164,24 @@ Auto-compact is ENABLED (default). The conversation will be automatically compac
 - Session logs: `projects/nbi_dashboard/session_logs/`
 - Live state: `projects/nbi_dashboard/live_state/`
 - Handoffs: `projects/nbi_dashboard/session_handoffs/`
+
+## Memory Enhancement (PARA-inspired)
+
+The auto-memory system (system prompt) is the primary memory mechanism. These rules extend it with patterns from Tiago Forte's PARA method:
+
+1. **Supersession over deletion** - Never delete a memory file. When a fact becomes outdated, update the file and add a `superseded: YYYY-MM-DD` line to the frontmatter noting what changed. Future sessions can see the history of what was true when.
+
+2. **Staleness check at session start** - If you load a memory and it references a specific file, function, flag, or state, verify it still holds before acting on it. Memory is a claim about the past, not the present.
+
+3. **Entity-level organisation** - For key recurring subjects (clients, projects, people Glen works with repeatedly), a single memory file per entity is better than scattered mentions across topic files. Use the filename as the entity key (e.g., `project_couch_heroes.md`, `client_goals.md`).
+
+4. **Periodic synthesis** - When memory files accumulate beyond 25 entries in MEMORY.md, consolidate: merge related files, archive stale ones (move content to an `_archived` section within the file, keep the file for history), and tighten the index.
+
+5. **Four-bucket thinking** - When deciding where a memory goes:
+   - **project** type = active work with a goal or deadline (will complete)
+   - **reference** type = ongoing resources, external pointers (no end date)
+   - **user** type = who Glen is and how he works (durable)
+   - **feedback** type = how to approach work (behavioural rules)
 
 ## Mandatory Skill Invocations — No Exceptions
 
