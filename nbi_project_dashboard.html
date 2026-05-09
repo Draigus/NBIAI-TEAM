@@ -5626,7 +5626,11 @@ function renderPfClientTable(filtered, roots, now) {
   });
 
   let html = '<div class="pf__tbl-card">';
-  html += '<div class="pf__tbl-hdr"><span class="pf__tbl-title">Client Portfolio</span></div>';
+  if (_portfolioSelectedClient) {
+    html += '<div class="pf__tbl-hdr" style="cursor:pointer" data-action="selectPortfolioClient" data-arg0="null"><span class="pf__tbl-title" style="color:var(--accent-text)">&larr; All Clients</span></div>';
+  } else {
+    html += '<div class="pf__tbl-hdr"><span class="pf__tbl-title">Client Portfolio</span></div>';
+  }
   html += '<table class="pf__tbl"><thead><tr>';
   html += '<th style="width:60px">Health</th><th>Client</th><th style="min-width:220px">Progress</th><th>Key Risk</th>';
   html += '</tr></thead><tbody>';
