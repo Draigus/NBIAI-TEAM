@@ -10665,7 +10665,14 @@ function renderReportingView(el) {
     if (days !== null && days >= 0 && days <= 14) return 'amber';
     return 'green';
   };
-  const ownerOf = t => (t.assignees && t.assignees.length) ? t.assignees[0] : '—';
+  const ownerOf = t => {
+    if (t.assignees && t.assignees.length) return t.assignees[0];
+    const desc = getDescendants(t.id);
+    const counts = {};
+    desc.forEach(d => { (d.assignees || []).forEach(a => { counts[a] = (counts[a] || 0) + 1; }); });
+    const top = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
+    return top ? top[0] : '—';
+  };
   const healthFill = h => h === 'red' ? '#ef4444' : h === 'amber' ? '#f59e0b' : h === 'blocked' ? '#94a3b8' : '#22c55e';
   const healthLabel = h => h === 'red' ? 'AT RISK' : h === 'amber' ? 'AMBER' : h === 'blocked' ? 'BLOCKED' : 'GREEN';
 
