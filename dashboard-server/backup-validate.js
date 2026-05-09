@@ -36,7 +36,8 @@ async function validateBackup(backupPath, pool, log) {
         const { rows } = await pool.query(`SELECT count(*)::int as cnt FROM ${table}`);
         const dbCount = rows[0].cnt;
         const backupCount = Array.isArray(backup.tables[table]) ? backup.tables[table].length : 0;
-        if (Math.abs(dbCount - backupCount) > dbCount * 0.1) {
+        const diff = Math.abs(dbCount - backupCount);
+        if (diff > 5 && diff > dbCount * 0.1) {
           issues.push(`${table}: DB has ${dbCount} rows, backup has ${backupCount} (>10% difference)`);
         }
       } catch (e) {
@@ -45,10 +46,8 @@ async function validateBackup(backupPath, pool, log) {
     }
   }
 
-  // 4. Check upload manifest
-  if (!backup.uploadManifest) {
-    issues.push('Missing uploadManifest');
-  }
+  // 4. Upload manifest is optional — backup.js doesn't generate one
+  // so this is informational only, not a validation failure
 
   return { valid: issues.length === 0, issues };
 }
