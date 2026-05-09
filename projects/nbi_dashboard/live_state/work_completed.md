@@ -4,6 +4,219 @@ Append-only. Every feature/fix completed gets logged here immediately.
 
 ---
 
+## 2026-05-09 — Portfolio Page v5 Redesign (evening)
+
+**Full portfolio page rewrite** (branch `feature/portfolio-v5-redesign`, 15 commits):
+- 7 render functions rewritten for v5 neumorphic design
+- Layout: KPIs → Client Table + Status Overview (2:1) → Needs Attention + Milestones → Team Workload + Near Completion
+- ~370 lines dead v4 code removed (renderPfTimeline, renderPfSidebar, etc.)
+- Command theme added to theme picker
+- Alert banner removed per Glen directive
+- Viewport-fit: no outer scroll, only Needs Attention scrolls internally
+- QA bugs fixed: invalid color-mix CSS, snapshot timezone, milestone message, margin clips
+- Deleted stale "Lighthouse Studios" client from database
+- 387 unit + 47 e2e tests passing
+- Awaiting Glen UAT
+
+---
+
+## 2026-05-09 — Wave 5 Features (Tasks 3-4)
+
+**SoW on Lead Card** (bug `9b7d31c9`, commit `6e05dec`):
+- New `sow_id` column on leads table (migration 042)
+- GET /api/leads and GET /api/leads/:id JOIN sows for sow_title
+- PATCH /api/leads accepts sow_id in patchFields
+- Lead detail panel: SoW dropdown picker scoped to lead's client
+- Lead kanban cards: SoW title shown below lead name when linked
+
+**Time-off tracking with capacity deduction** (bug `8ce48ae1`, commit `6e05dec`):
+- New `time_off` table (migration 043) with user_id, start_date, end_date, label
+- CRUD: GET /api/users/:id/time-off, GET /api/time-off, POST, DELETE
+- Capacity endpoint deducts business days off from weekly hours per user
+- Heatmap cells show plane icon and tooltip when user has time-off days
+- Capacity detail panel: Time Off section with add/remove entries
+
+---
+
+## 2026-05-08 — Connected Statuses + Portfolio Chart + Scroll Fix
+
+**Connected Statuses cascade** (commit `39ebf25`):
+- Downward cascade: Done/Cancelled/Blocked on parent pushes to all descendants recursively
+- Upward cascade: all siblings terminal → parent auto-completes (Done if all Done, else Cancelled)
+- Prerequisite cascade: Blocked/Cancelled on a prereq → all dependants become Blocked
+- Replaces old Cancelled-only cascade that only worked for projects
+
+**Portfolio chart redesign** (commit `39ebf25`):
+- Replaced single donut with backlog bar (left) + WIP donut (right) layout
+- Backlog count as fill-level bar with percentage; donut shows active item breakdown
+
+**Scroll preservation** (commit `39ebf25`):
+- _softReRender unconditionally restores scroll position (was skipping position 0)
+- Gantt scrollLeft/scrollTop preserved during sync
+- Inline detail panel blocks re-render to prevent edit interruption
+
+**Gantt scroll-to-today** (commit `39ebf25`):
+- Auto-scrolls to today line on first render (fixes bars appearing off-screen)
+- _localISO/_pad2 hoisted to renderGanttView scope (fixes dependency view)
+
+**Bug tracker updates:** c7e48ddf, f5a6bff2, 9bb9eb1a, 2e005a41, 94b12f59 all set to please_review with fix comments.
+
+**Email ingestion disabled + purge** (commit `18c63c6`):
+- Disabled inbound email polling cron (was creating 64k spam notifications from bounce-backs)
+- Purged 63,954 notifications, 17,013 attachments, 9,223 disk files
+
+**Wave 4 fixes** (commit `f27c038`):
+- 68168751: Warning spam resolved (email ingestion disabled + purged)
+- 3a6436a4: PM reports now sent to all admins (was only going to 1 team lead)
+- a8e9ffd3: Lead detail panel now has editable Primary Contact fields (name/email/phone)
+- 08ba7dbf: Milestones visibility confirmed working (Portfolio Dashboard + client profile)
+- e6108a53: SoW upload needs specific error reproduction from Glen
+
+**Wave 2 quick fixes** (commit `3b06eb5`):
+- c057f2f9: Breadcrumb filter bar hidden on Bug Tracker and other non-task views
+- 7cc027e5: Date validation waits for 4-digit year before checking range
+- b2628531: Gantt row labels stay visible on horizontal scroll (solid background)
+- 366d49fd: Search matches task title/description/notes/assignees only (not client name)
+- c52c8027: Assignee on stories confirmed working (closed as by-design)
+- 1e8de733: Percentage shown on all tasks with estimated hours, not just parents
+- d765b863: Documentation hyperlinks now clickable (openOnClick enabled)
+- 544fc78a: NBI Only block toggles off when already inside one (no nesting)
+- a1ec1a84: Repeat section appears in both inline and slide-out detail panels
+
+---
+
+## 2026-05-07 — Bug Batch + Gantt Fix + Client Portal Fix
+
+**Bug batch** (commits `a2c2e52`, `b680d0d`, `6acffa6`):
+- Deterministic task sort order (ORDER BY tiebreaker on all 5 endpoints)
+- People filter now hides unassigned tasks at all hierarchy levels
+- Multi-user sync skips re-render when detail panel is open (prevents field jumping)
+- 5-digit years blocked by client + server validation (1900-2099 range)
+- CSV import due dates parsed consistently with parseDdMmYyyy + more column name variants
+- Features/stories auto-calculate start/end dates from children
+- Date fields accept pasted DD/MM/YYYY and named month formats
+- Warning notifications show relative timestamps
+- Pre-existing buildMultiSelect null crash fixed (was breaking all Playwright e2e tests)
+- Year validation added to sync/changes endpoint (not just PATCH)
+- closeDetail() now triggers _softReRender() on close
+
+**Gantt timeline fix** (commits `284176b`, `d75c448`, `a7bc6e0`):
+- Date changes (startDate/endDate/dueDate) now trigger full view re-render
+- Gantt drag dates use local time formatting instead of UTC toISOString (timezone shift fix)
+- Removed deferred re-render that caused bars to jump after drop
+
+**Client portal fix** (commit `2c2ee03`):
+- Lorenza's client_role set to 'admin' (was null, blocking all access)
+- localStorage cache cleared on user switch to prevent cross-user data leaks
+
+**Tests:** 387/387 unit tests passing. 3 new test files (sort-order, date-validation, import-due-dates). Playwright e2e verification test added. Bug tracker updated with fix comments for all 8 items.
+
+---
+
+## 2026-05-05 (session 4) — Queue Detail Panel
+
+**Queue Detail Panel** (1 commit `69ca352`, merged `3dcb2dc`):
+- Queue items are now clickable — opens slide-in detail panel
+- Panel shows source info (submitted by, timestamp, Slack channel)
+- Client dropdown + item type picker (both required before promote)
+- Full detail form renders once both selected: status, priority, health, assignee, practice, dates, hours, description, success factor
+- Promote creates task with all filled fields, deletes queue item, opens task detail view
+- Dismiss with confirmation dialog
+- Old inline Promote/Dismiss buttons and `_actPromoteQueueItem` removed
+- Responsive: full-width on mobile (<768px)
+- 360 tests passing, PM2 restarted
+- **Awaiting Glen's browser UAT**
+
+---
+
+## 2026-05-04 (session 3) — Slack Bot Integration
+
+**Slack Bot** (5 commits, `7a01fc5..e153740`):
+- `lib/slack-bot.js`: HMAC-SHA256 signature verification, message parsing, Slack API reply, queue handler
+- `POST /api/slack/events`: webhook endpoint with url_verification challenge support
+- `POST /api/queue`: added API key auth path (X-API-Key header) for external integrations
+- `slack-app-manifest.yml`: ready-to-install Slack app config
+- 20 new tests (360 total), all passing
+- PM2 restarted with SLACK_BOT_TOKEN, SLACK_SIGNING_SECRET, QUEUE_API_KEY
+
+---
+
+## 2026-05-04 (session 2) — Bug Blitz + 3 Features
+
+**8 bugs fixed** (all resolved after Glen UAT):
+- Client Not Recognised (critical) — sidebar/dropdowns now include all DB clients
+- Leads Page Only Works on Reload — excluded from tasks-empty guard
+- Updating Client Details Collapses Box — expanded state persists across re-renders
+- No Sector Available — seeded Gaming/Technology/Entertainment options
+- +New Project Unclear / +New Useability — client picker popup
+- SoW Work Package Cannot Be Found — force upload bypass option
+- Docs Ctrl+Shift+I — registered in TipTap keymap
+
+**Calendar Dependency Display** (`9cbadc9`):
+- Toggle-based dependency mode in Calendar sub-view
+- Click any task to see prerequisites (orange) and dependents (green) highlighted
+- Floating labels, off-month banner with navigation links
+
+**SharePoint Embed Preview** (`acae497`):
+- Detects SharePoint URLs in link attachments
+- Preview button opens full-screen lightbox with Office Online iframe
+- Escape/click-outside closes
+
+**Task Submission Queue** (`13251ed`):
+- New task_queue table + can_submit_queue user permission
+- Queue sidebar entry with badge count
+- Triage view: promote (pre-fills creation) or dismiss
+- Settings toggle per user
+- First sub-project of Slack → WorkSage pipeline
+
+---
+
+## 2026-05-04 — Documentation Tab v2 SHIPPED to prod
+
+- 6 commits on `feature/documentation-tab-v2` merged to master (fast-forward to 4641cce)
+- PM2 prod restarted (port 8888)
+- Full test suite green: 340 unit + 18 e2e, zero failures
+- Glen confirmed working in browser
+
+**What shipped:**
+- Right-click context menu on doc tree items (Rename, Add subpage, Hide, Delete)
+- Hidden pages: soft-archive via `hidden` boolean column, greyed-out for admin users, invisible to view-only users
+- Children inherit hidden styling visually (not in DB)
+- Inline rename in tree (input field on Enter/blur saves, Escape cancels)
+- Editor pane shows "hidden from non-admin users" banner
+- `docs_edit` permission gates both visibility and toggle ability
+- Stale mobile-screenshots e2e test fixed (People Calendar removed in April redesign)
+
+**Files changed:** migration 036, server.js (GET filtering + PATCH), nbi_project_dashboard.html (context menu + hidden styling), documents.test.mjs (+9 tests), documents.spec.js (+2 e2e tests), mobile-screenshots.spec.js (stale test removed)
+
+---
+
+## 2026-05-03 — Documentation Tab v1 SHIPPED to prod
+
+- 26 tasks, 32 commits on `feature/documentation-tab` merged to master via no-ff merge (commit 7dd2aa6)
+- PM2 prod restarted (port 8888), Attachment sweep cron registered for 03:30 Europe/London
+- Repo is local-only (no git remote), so the merge into master IS the deployment
+
+**Verification evidence (real, fresh, this session):**
+- `npm test`: **331/331 vitest passing** on merged master
+- `npm run test:e2e`: Playwright 15/16 passing — only failure is `mobile-screenshots.spec.js` Calendar/People test, unrelated to docs (merge did not touch that code path)
+- Live UX walk-through on https://worksage.nbi-consulting.com: created "Untitled" page, typed body text, inserted NBI ONLY block with content, waited for autosave, hard-reloaded — all content persisted; deleted page via DELETE with If-Match ETag → 204
+- API spot checks: `/api/auth/me` exposes `docsView/docsEdit/docsCreate/docsUpload`; admin sees full `body_json` including `nbiInternalBlock` node; 6 default pages auto-seed for each client on first GET
+- Browser console: zero app errors during navigation between pages
+- Schema spot check: `documents`, `document_attachments` (with `orphaned_at`), `users.docs_*`, `clients.doc_default_*` all present
+
+**Migration tracker drift fixed** — `schema_migrations` was missing rows 33/34/35 (tables existed, tracker didn't). Inserted the three rows. Subsequent `pm2 restart` logs "All migrations already applied" cleanly.
+
+**Cleanup:** branch `feature/documentation-tab` deleted, git worktree unregistered. Empty `.worktrees/documentation-tab/` folder left behind (OneDrive file lock; cosmetic only).
+
+Backend additions: documents tree CRUD + ETag concurrency, NBI-internal redactor, image upload with H1 leak prevention, G1 attachment orphan tracking + 03:30 sweep cron, document tables in backup coverage, docs_* permission flags.
+
+Frontend additions: TipTap rich-text editor (self-hosted bundle), autosave + localStorage crash recovery, drag-to-reparent tree, mobile responsive + ARIA + keyboard shortcuts, contextual Docs links on Gantt + Portfolio client headers, per-user doc-permission checkboxes.
+
+Full handoff at `docs/HANDOFF-documentation-tab.md`.
+
+---
+
 ## 2026-04-21 (Goals MTX Pipeline — Red Team)
 
 - Red team + source cross-validation of competitive MTX pipeline (365 rows, 13 competitors)
@@ -854,3 +1067,39 @@ See items 78-128 above (already logged from earlier sessions).
 - Built CH_WorkSage_import_v1.xlsx: 876 items across 8 project sheets, 0 unmapped, 0 validation errors
 - Em dashes stripped from all deliverables
 - Handoff written to docs/HANDOFF.md
+
+## 2026-05-03 (Documentation Tab — Task 7 + D1 + B1 server batch on `feature/documentation-tab` worktree)
+
+197. **Documentation Tab PATCH + DELETE endpoints with optimistic concurrency, full-text indexing, and security hardening** — Closed Task 7 (PATCH/DELETE), D1 (server-side ETag/If-Match), and the deferred B1 integration test from the WorkSage Documentation Tab plan. Three commits on `feature/documentation-tab` (worktree at `.worktrees/documentation-tab`, master untouched):
+
+   - `b96ca5b feat(docs): PATCH + DELETE /api/documents + ETag/If-Match + body_text indexing` — initial implementation. PATCH supports title/body_json/parent_id/task_id/sort_order/visibility (visibility NBI-only); uses `buildPatchQuery` for safe field whitelisting; If-Match required (428 if absent), mismatch returns 409 with current doc; on body_json change writes `body_text = extractPlainText(body, { dropNbiInternal: false })` in same UPDATE so write-time index keeps NBI-internal content for NBI-only search. DELETE is idempotent (204), cascades children via FK. GET-by-id emits weak ETag from `updated_at.toISOString()`. 12 new tests.
+
+   - `4db5124 style(docs): remove em dashes from new doc-tab code per CLAUDE.md` — spec-review pass found 7 em dashes in new comments and test labels. All replaced with colons/semicolons/full stops. No logic change.
+
+   - `e8e2fc7 fix(docs): security + race + cycle fixes on PATCH/DELETE` — code-review pass found Critical (C1: 409 leaked cross-client doc bodies before scope guards ran) and Important (I1: lost-update race because UPDATE WHERE only checked id; I2: circular check only caught self-reference, not descendant cycles; I3: 409 body wasn't redacted for client portal users) plus Minor (M1: RETURNING * leaked body_text/body_version; M4: cross-client DELETE returned 404 enabling existence enumeration). All seven addressed in one commit. Scope guards now run before ETag comparison; UPDATE WHERE clause is `id = $X AND date_trunc('milliseconds', updated_at) = date_trunc('milliseconds', $Y::timestamptz)` (the `date_trunc` was a controller-applied precision fix — Postgres timestamptz is microsecond, Date.toISOString is millisecond, so without truncation the WHERE never matched its own freshly-emitted ETag and 7 fresh-ETag tests failed); recursive CTE rejects descendant cycles; redactNbiInternal applied to 409 bodies for client users; explicit projection on RETURNING; cross-client DELETE returns 204. 8 new tests cover each fix path.
+
+   **Final state: 268/268 vitest passing across 27 test files. Branch tip `e8e2fc7` ready for merge once frontend Tasks 11-13 also land. Master unchanged.**
+
+   Follow-up parked: `updated_at = greatest(now(), updated_at + interval '1 millisecond')` in the SET clause to close the same-millisecond concurrent-write window. Real but theoretical for current usage; flagged in `e8e2fc7` commit message body for the next batch.
+
+   Process notes for the record:
+   - Used `superpowers:subagent-driven-development` end to end. Two-stage review (spec then code-quality) per task batch.
+   - Implementer subagent on `b96ca5b` falsely claimed via plan that `dropNbiInternal: false` meant body_text would NOT contain NBI text; controller caught the contradiction with the lib's documented behaviour and corrected the implementer's brief before dispatch.
+   - Implementer subagent on `e8e2fc7` terminated with uncommitted changes and 7/29 documents tests failing. Controller invoked `superpowers:systematic-debugging`, traced the precision mismatch through the ms/μs round-trip, applied the `date_trunc` fix directly (single-variable change), verified all 29 documents tests pass, then committed.
+   - Code-quality reviewer flagged that T-Race-I1 actually exercises the outer ETag-string comparison rather than the inner atomic-WHERE — accurate. The atomic-WHERE remains as last line of defence at sub-millisecond races; covering that path would require artificial concurrency simulation, deferred.
+
+198. **Documentation Tab — Task 8 + H1: image upload/serve + NBI-block leak prevention** — Closed Task 8 (POST/GET image attachment endpoints) and Task H1 (image-in-NBI-block leak prevention) from the Documentation Tab plan. Three commits on `feature/documentation-tab`:
+
+   - `23c413e feat(docs): add imageInScope to redact-nbi-internal lib + H1-Lib unit tests` — exported `imageInScope(body, filename, { dropNbiInternal })` from the redact lib. Walks ProseMirror JSON, matches via `endsWith('/' + filename)` (not substring), skips `nbiInternalBlock` subtrees when `dropNbiInternal: true`, returns true on first match. 5 lib tests covering paragraph match, NBI-block skip, NBI-block-included case, no-match case, and deeply-nested image.
+
+   - `e6373a5 feat(docs): document image upload + serve + H1 NBI-block leak prevention` — `POST /api/documents/:id/attachments` (multer single-file, 5 MB cap, image-MIME whitelist via fileFilter, dynamic filename `doc_<id>_<ts>_<rnd>.<ext>`, persists to `document_attachments` table, returns raw object with id/filename/url/mime_type/size_bytes). `GET /api/documents/:id/attachments/:filename` (path-traversal check via `path.resolve` + `startsWith` BEFORE doc lookup; 401/400/404/403 scope guards mirroring GET-by-id; H1 `imageInScope` check inside `isClientUser` block; `X-Content-Type-Options: nosniff` set). Multer wrapped to surface `LIMIT_FILE_SIZE` as 413 and fileFilter rejection as 400 instead of leaking 500. Cleanup helper `cleanupDocUpload` called on every rejection path post-multer save. 13 integration tests (T8-1 to T8-10 + H1-1 to H1-3).
+
+   - `a116f76 fix(docs): cleanup orphan files on DB error in attachment upload + test coverage` — code review found that the doc SELECT and document_attachments INSERT were not wrapped in try/catch, leaving orphan files on disk if the DB threw at runtime. Both calls now in try/catch with `cleanupDocUpload` + `log('error', ...)` + 500. Plus disk-existence assertions added to T8-1/T8-4/T8-5, an H1-4 test for empty `body_json`, and a T8-Insert-Fail integration test that uses a temporary CHECK constraint to deterministically force the INSERT to fail (vi.spyOn was tried first but failed because server.js and tests/helpers/db.js each construct their own Pool instance — controller diagnosed via `superpowers:systematic-debugging` and replaced with the constraint approach).
+
+   **Final state: 288/288 vitest passing across 27 files. Branch tip `a116f76`. Master unchanged.**
+
+   Process notes:
+   - Implementer subagent on `e6373a5` correctly deviated from the controller's brief on the path-traversal guard. The brief said "use `path.basename` + `startsWith`" but the implementer noted (with comment in code) that `basename` strips the traversal and defeats the check. They used raw `req.params.filename` → `path.resolve` → `startsWith(uploadDir + path.sep)` which is correct. Good engineering judgement.
+   - Implementer subagent terminated mid-test-run with uncommitted changes on the orphan fix; controller verified, found 1 failing test, traced root cause (two-pool problem), and applied the constraint-based fix directly rather than re-dispatching.
+   - Code reviewer flagged a minor concern that's worth recording as a follow-up: `uploadDir` is shared with the legacy task-attachments endpoint, so the doc-attachment GET handler doesn't constrain `stored_name` to actually belong to the requested doc. Mitigated for client users by H1 (only filenames referenced in `body_json` pass), but NBI users with a doc id can serve any file in `uploadDir` via the doc route. Matches the existing `/api/attachments/:filename` permissiveness for NBI users — not a privilege escalation. Consider adding `WHERE document_id = $1 AND stored_name = $2` in a future hardening pass.
+   - Magic-byte sniffing of uploads is deferred to Task G1 (orphan tracking + file integrity sweep). Currently MIME is validated from the client-supplied header only.
