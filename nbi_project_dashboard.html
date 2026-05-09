@@ -412,13 +412,7 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 @media (min-width: 769px) and (max-width: 1024px) { .people-split { flex-direction: column; } .people-list { width: 100%; max-height: 400px; position: static; } .people-detail { width: 100%; } }
 
 /* ===== PORTFOLIO v5 — Neumorphic layout ===== */
-.pf { max-width: 2200px; margin: 0 auto; padding: 28px 36px 60px; display: flex; flex-direction: column; gap: 24px; }
-
-/* Alert banner */
-.pf__alert { display: flex; align-items: center; justify-content: flex-end; gap: 10px; padding: 0 4px; }
-.pf__alert-pill { display: flex; align-items: center; gap: 10px; padding: 12px 20px; background: var(--bg-card); border: 1px solid var(--border-default); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); font-size: 0.88rem; font-weight: 700; color: var(--danger); }
-.pf__alert-dot { width: 10px; height: 10px; background: var(--danger); border-radius: 50%; box-shadow: 0 0 12px rgba(255,71,87,0.25); animation: pf-pulse 2s infinite; }
-@keyframes pf-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+.pf { width: 100%; margin: 0 auto; padding: 28px 36px 60px; display: flex; flex-direction: column; gap: 24px; }
 
 /* KPI row — 5 cards */
 .pf__kpis { display: grid; grid-template-columns: repeat(5, 1fr); gap: 18px; }
@@ -467,7 +461,7 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 /* Panel grid */
 .pf__pgrid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
 .pf__pgrid--2 { grid-template-columns: 1fr 1fr; }
-.pf__panel { background: var(--bg-card); border: 1px solid var(--border-default); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; display: flex; flex-direction: column; max-height: 420px; }
+.pf__panel { background: var(--bg-card); border: 1px solid var(--border-default); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; display: flex; flex-direction: column; min-height: 200px; }
 .pf__panel-hdr { padding: 18px 24px 14px; display: flex; align-items: center; justify-content: center; gap: 16px; border-bottom: 1px solid var(--border-subtle); flex-shrink: 0; }
 .pf__panel-title { font-size: 1.05rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
 .pf__panel-badge { font-size: 0.82rem; font-weight: 700; font-family: var(--font-mono); padding: 5px 12px; background: var(--bg-input); border-radius: 8px; box-shadow: inset 2px 2px 5px rgba(0,0,0,0.15); }
@@ -517,8 +511,28 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 /* Responsive */
 @media (max-width: 1400px) { .pf__pgrid { grid-template-columns: 1fr 1fr; } .pf__pgrid--2 { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 1200px) { .pf__kpis { grid-template-columns: repeat(3, 1fr); } }
-@media (max-width: 900px) { .pf__pgrid { grid-template-columns: 1fr; } .pf__pgrid--2 { grid-template-columns: 1fr; } .pf__kpis { grid-template-columns: 1fr 1fr; } .pf { padding: 16px 16px 40px; } }
-@media (max-width: 600px) { .pf__kpis { grid-template-columns: 1fr; } }
+@media (max-width: 900px) {
+  .pf { padding: 16px 16px 40px; }
+  .pf__kpis { grid-template-columns: 1fr 1fr; }
+  .pf__pgrid { grid-template-columns: 1fr; } .pf__pgrid--2 { grid-template-columns: 1fr; }
+  .pf__tbl td { padding: 14px 16px; font-size: 0.95rem; }
+  .pf__tbl th { padding: 10px 16px; }
+  .pf__tbl-name { font-size: 0.95rem; }
+  .pf__kpi { min-height: 130px; padding: 14px 18px 18px; }
+  .pf__kpi-val { font-size: 2.5rem; }
+}
+@media (max-width: 600px) {
+  .pf { padding: 12px 12px 32px; gap: 16px; }
+  .pf__kpis { grid-template-columns: 1fr; gap: 12px; }
+  .pf__kpi { min-height: 100px; padding: 12px 16px 14px; flex-direction: row; gap: 16px; text-align: left; }
+  .pf__kpi-center { flex-direction: row; align-items: baseline; gap: 10px; }
+  .pf__kpi-val { font-size: 2rem; }
+  .pf__kpi-label { font-size: 0.75rem; }
+  .pf__pgrid { gap: 12px; } .pf__pgrid--2 { gap: 12px; }
+  .pf__tbl-card { overflow-x: auto; }
+  .pf__panel-body { padding: 12px 16px 16px; }
+  .pf__panel-hdr { padding: 14px 16px 10px; }
+}
 
 /* ============ REPORTING TAB ============ */
 .reporting { padding: var(--space-md) var(--space-lg); display: flex; flex-direction: column; gap: var(--space-md); }
@@ -2870,7 +2884,6 @@ function _actSetBoardTypeFilter(v) { _boardTypeFilter = v; renderContent(); }
 function _actSetMyTasksSort(v) { _myTasksSort = v; renderContent(); }
 function _actSetPeopleSubView(v) { _peopleSubView = v; renderContent(); }
 function _actSetReportSubView(v) { _reportSubView = v; renderContent(); }
-function _actSetPortfolioBottomExpanded() { _portfolioBottomAttentionExpanded = true; renderContent(); }
 function _actClearDetailTask() { activeDetailTaskId = null; renderContent(); }
 function _actSetInlineDetail(v) { inlineDetailVisible = !!v; renderContent(); }
 function _actClearSelectedTasks() { selectedTaskIds.clear(); renderContent(); }
@@ -3021,9 +3034,6 @@ let _portfolioSelectedClient = null;
 let _portfolioSnapshots = null;
 let _portfolioAttentionExpanded = false;
 let _portfolioLeadCount = null;
-let _portfolioBottomAttentionExpanded = false;
-let _pfGanttDayWidth = 12;
-let _pfGanttOffsetDays = 0;
 let _milestonesCache = {}; // keyed by client_id -> array of milestones
 
 async function loadMilestones(clientId) {
@@ -3115,9 +3125,6 @@ function selectPortfolioClient(clientName) {
   renderContent();
 }
 
-function pfGanttZoom(delta) { _pfGanttDayWidth = Math.max(6, Math.min(40, _pfGanttDayWidth + delta)); renderContent(); }
-function pfGanttNav(days) { _pfGanttOffsetDays += days; renderContent(); }
-function pfGanttToday() { _pfGanttOffsetDays = 0; renderContent(); }
 
 let _scrollRestoreTarget = null; // Scroll position to restore after async standup render
 let _lastLocalSyncTime = 0; // Timestamp of last local save — suppresses poll re-render for own changes
@@ -5099,13 +5106,9 @@ function renderContent() {
   const content = document.getElementById('mainContent');
   if (!content) return;
   const savedScroll = content.scrollTop;
-  const pfSidebar = content.querySelector('.pf__sidebar');
-  const savedPfSidebarScroll = pfSidebar ? pfSidebar.scrollTop : 0;
   _renderMainContent(content);
   requestAnimationFrame(() => {
     content.scrollTop = savedScroll;
-    const newPfSidebar = content.querySelector('.pf__sidebar');
-    if (newPfSidebar) newPfSidebar.scrollTop = savedPfSidebarScroll;
   });
   const _perfEnd = performance.now();
   if (_perfEnd - _perfStart > 100) {
@@ -5211,7 +5214,6 @@ function renderDashboard(el) {
     }
   });
 
-  // COMMENTED OUT — standup was part of the tactical dashboard, not used in portfolio view
   // const standupExpanded = sessionStorage.getItem('nbi_standup_expanded') === '1';
   // if (standupExpanded) {
   //   _loadStandupContent();
@@ -5434,7 +5436,6 @@ function getClientAbbreviation(clientName) {
   return clientName.split(/\s+/).map(w => w[0]).join('').toUpperCase().slice(0, 3);
 }
 
-// ===== PORTFOLIO DASHBOARD v4 — Sidebar + panels layout =====
 // ===== PORTFOLIO DASHBOARD v5 — Neumorphic KPI + table + panels =====
 function renderPortfolioDashboard() {
   const filtered = getFilteredTasks();
@@ -5464,7 +5465,6 @@ function renderPortfolioDashboard() {
     : roots;
 
   let html = '<div class="pf">';
-  html += renderPfAlertBanner(blockedTasks);
   html += renderPfStrip(activeRoots.length, onTrackCount, needsAttentionCount, atRiskTasks.length, snap7);
   html += renderPfClientTable(filtered, roots, now);
 
@@ -5540,17 +5540,6 @@ function renderPfStrip(activeCount, onTrackCount, needsAttentionCount, atRiskCou
   return html;
 }
 
-function renderPfAlertBanner(blockedTasks) {
-  if (blockedTasks.length === 0) return '';
-  var byClient = {};
-  blockedTasks.forEach(function(t) {
-    var c = getTaskClient(t) || 'Unknown';
-    byClient[c] = (byClient[c] || 0) + 1;
-  });
-  var worst = Object.entries(byClient).sort(function(a, b) { return b[1] - a[1]; })[0];
-  var text = blockedTasks.length + ' blocked item' + (blockedTasks.length !== 1 ? 's' : '') + ' — ' + worst[0];
-  return '<div class="pf__alert"><div class="pf__alert-pill"><div class="pf__alert-dot"></div>' + esc(text) + '</div></div>';
-}
 
 function renderPfClientTable(filtered, roots, now) {
   const clientMap = {};
@@ -5635,8 +5624,6 @@ function renderPfClientTable(filtered, roots, now) {
   return html;
 }
 
-// COMMENTED OUT — v3 Work Completed (replaced by v4 Progress Status donut)
-// function renderPfWorkCompleted() { /* ... see git history ... */ }
 
 function renderPfProgressStatus(panelTasks) {
   const active = panelTasks.filter(t => t.status !== 'Cancelled');
@@ -5756,8 +5743,6 @@ function renderPfNeedsAttention(panelTasks, now) {
   return html;
 }
 
-// COMMENTED OUT — v3 Client Health Scorecard (replaced by v4 Upcoming Milestones)
-// function renderPfHealthScorecard(filtered, roots, now) { /* ... see git history ... */ }
 
 function renderPfMilestones(panelRoots, now) {
   const allMilestones = [];
@@ -5821,288 +5806,6 @@ function renderPfMilestones(panelRoots, now) {
   return html;
 }
 
-function renderPfTimeline(panelTasks, panelRoots, now) {
-  // Collect every feature row that's still open. Falls back to project rows
-  // for clients that don't yet have features (so a brand-new client is still
-  // visible on the timeline). Each row computes:
-  //   - start / end (with sane defaults if dates are missing)
-  //   - percent complete from child task statuses (Done / total)
-  //   - health: red if overdue, amber if <14 days to due, grey if blocked,
-  //     green otherwise.
-  const allItems = panelTasks.concat(panelRoots).filter((v, i, a) => a.indexOf(v) === i);
-  const features = panelTasks.filter(t => t.itemType === 'feature' && t.status !== 'Done' && t.status !== 'Cancelled');
-  const projectFallback = panelRoots.filter(r => r.itemType === 'project' && r.status !== 'Done' && r.status !== 'Cancelled');
-
-  // For each parent (feature or project), compute % complete from descendant
-  // tasks. Walk down via parentId chains. childrenByParent maps each parent's
-  // id to its full descendant set (recursive).
-  const childrenIdx = {};
-  allItems.forEach(t => { if (t.parentId) (childrenIdx[t.parentId] = childrenIdx[t.parentId] || []).push(t); });
-  function descendants(id, acc = []) {
-    const kids = childrenIdx[id] || [];
-    kids.forEach(k => { acc.push(k); descendants(k.id, acc); });
-    return acc;
-  }
-
-  const ROW_H = 24;
-  const labelW = 280;
-
-  function makeRow(item, depth) {
-    // Roll up the date range from descendants when the parent has no own
-    // start / end, so the bar spans the actual child work (mirrors the
-    // Gantt view's ganttRolledStart / ganttRolledEnd helpers).
-    let s = item.startDate ? safeParseDate(item.startDate) : null;
-    const hasChildren = !!(childrenIdx[item.id] && childrenIdx[item.id].length > 0);
-    let e = item.endDate ? safeParseDate(item.endDate) : (!hasChildren && item.dueDate ? safeParseDate(item.dueDate) : null);
-    if (!s || !e) {
-      let minS = s, maxE = e;
-      const stack = [item]; const seen = new Set();
-      while (stack.length) {
-        const n = stack.pop();
-        if (seen.has(n.id)) continue; seen.add(n.id);
-        if (n !== item) {
-          if (n.startDate) { const d = safeParseDate(n.startDate); if (d && (!minS || d < minS)) minS = d; }
-          const cand = n.endDate ? safeParseDate(n.endDate) : (n.dueDate ? safeParseDate(n.dueDate) : null);
-          if (cand && (!maxE || cand > maxE)) maxE = cand;
-        }
-        (childrenIdx[n.id] || []).forEach(c => stack.push(c));
-      }
-      if (!s) s = minS;
-      if (!e) e = maxE;
-    }
-    if (!s && item.createdAt) s = safeParseDate(item.createdAt);
-    if (!s) s = new Date(now.getFullYear(), now.getMonth(), 1);
-    if (!e) { e = new Date(s); e.setMonth(e.getMonth() + 2); }
-    if (e <= s) { e = new Date(s); e.setMonth(e.getMonth() + 1); }
-    const globalDesc = getDescendants(item.id);
-    const subtree = [item, ...globalDesc];
-    const totalEst = subtree.reduce((sum, d) => sum + (d.hoursEstimated || 0), 0);
-    const totalSpent = subtree.reduce((sum, d) => sum + (d.hoursSpent || 0), 0);
-    const leafTasks = globalDesc.filter(d => (d.itemType || 'task') === 'task');
-    const pct = totalEst > 0
-      ? Math.min(100, Math.round(totalSpent / totalEst * 100))
-      : (leafTasks.length > 0 ? Math.round(leafTasks.filter(d => d.status === 'Done').length / leafTasks.length * 100) : 0);
-    const overdue = e < now && item.status !== 'Done';
-    const daysToEnd = Math.round((e - now) / 86400000);
-    const blocked = item.healthState === 'Blocked' || item.status === 'Blocked';
-    const health = blocked ? 'blocked' : (overdue ? 'red' : (daysToEnd <= 14 && daysToEnd >= 0 ? 'amber' : (item.healthState === 'Red' ? 'red' : (item.healthState === 'Yellow' ? 'amber' : 'green'))));
-    const parentTitle = item.parentId ? (panelTasks.find(t => t.id === item.parentId) || {}).title || '' : '';
-    return { id: item.id, title: item.title, parentTitle, client: getTaskClient(item) || 'Other', _start: s, _end: e, pct, health, daysToEnd, depth, itemType: item.itemType };
-  }
-
-  const featureRows = features.map(f => makeRow(f, 1));
-  const projectRows = projectFallback.map(p => makeRow(p, 0));
-
-  // Group rows by client. For each client, show projects (depth 0) above
-  // their child features (depth 1).
-  const byClient = {};
-  [...projectRows, ...featureRows].forEach(r => {
-    (byClient[r.client] = byClient[r.client] || []).push(r);
-  });
-
-  let html = '<div class="pf__panel pf__panel--wide">';
-  html += '<div class="pf__panel-hdr"><div class="pf__panel-title">PROJECT TIMELINE</div></div>';
-  html += '<div class="pf__panel-body" style="padding:0 14px 10px">';
-
-  if (Object.keys(byClient).length === 0) {
-    html += '<div style="display:flex;align-items:center;justify-content:center;height:60px;color:var(--text-muted);font-size:0.82rem">No active features or projects with dates yet.</div>';
-    html += '</div></div>';
-    return html;
-  }
-
-  const clientOrder = ['Couch Heroes', 'Lighthouse Games', 'Lighthouse Studios', 'Sarge Universe', 'Goals Studio', 'Playsage', 'NBI OPS', 'NSI'];
-  const sortedClients = Object.keys(byClient).sort((a, b) => {
-    const ai = clientOrder.indexOf(a); const bi = clientOrder.indexOf(b);
-    return (ai >= 0 ? ai : 99) - (bi >= 0 ? bi : 99);
-  });
-
-  const allRows = sortedClients.flatMap(c => byClient[c]);
-  const globalMin = new Date(Math.min(...allRows.map(r => r._start), now));
-  const globalMax = new Date(Math.max(...allRows.map(r => r._end), now));
-  globalMin.setDate(1);
-  globalMax.setMonth(globalMax.getMonth() + 1, 1);
-  const totalDays = Math.max(1, Math.round((globalMax - globalMin) / 86400000));
-  const nowPct = ((now - globalMin) / 86400000 / totalDays * 100).toFixed(2);
-
-  const months = [];
-  let md = new Date(globalMin);
-  while (md < globalMax) {
-    const mEnd = new Date(md.getFullYear(), md.getMonth() + 1, 1);
-    const mDays = Math.round((Math.min(mEnd, globalMax) - md) / 86400000);
-    months.push({ label: md.toLocaleDateString('en-GB', { month: 'short' }).toUpperCase(), days: mDays, isNow: md.getMonth() === now.getMonth() && md.getFullYear() === now.getFullYear() });
-    md = mEnd;
-  }
-
-  const healthFill = h => h === 'red' ? '#ef4444' : h === 'amber' ? '#f59e0b' : h === 'blocked' ? '#94a3b8' : '#22c55e';
-  // Undone portion of every bar: a neutral grey so progress reads as
-  // "completion against the plan" regardless of health colour.
-  const healthGlow = () => 'rgba(148,163,184,0.20)';
-
-  // Month header
-  html += `<div style="display:flex;position:sticky;top:0;background:var(--bg-card);z-index:1">`;
-  html += `<div style="width:${labelW}px;flex-shrink:0"></div>`;
-  html += `<div style="flex:1;display:flex;border-bottom:1px solid var(--border-subtle);position:relative">`;
-  months.forEach(m => {
-    const widthPct = (m.days / totalDays * 100).toFixed(2);
-    html += `<div style="width:${widthPct}%;text-align:center;font-size:${m.isNow ? '0.78rem' : '0.66rem'};font-weight:${m.isNow ? '700' : '600'};color:${m.isNow ? 'var(--text-primary)' : 'var(--text-muted)'};padding:4px 0;border-right:1px solid var(--border-subtle);letter-spacing:0.04em">${m.label}</div>`;
-  });
-  // Today line in the header (label)
-  html += `<div style="position:absolute;left:${nowPct}%;top:0;bottom:0;border-left:2px dashed #ef4444;pointer-events:none"></div>`;
-  html += `<div style="position:absolute;left:calc(${nowPct}% - 18px);top:-4px;font-size:0.6rem;color:#ef4444;font-weight:700;letter-spacing:0.06em">TODAY</div>`;
-  html += '</div></div>';
-
-  // Per-client collapse state — persisted in localStorage so refreshes keep
-  // the user's choice. Default: expanded.
-  let _tlCollapsed = {};
-  try { _tlCollapsed = JSON.parse(localStorage.getItem('nbi_pf_timeline_collapsed') || '{}'); } catch (e) {}
-  if (!window._actTlToggleClient) {
-    window._actTlToggleClient = function(clientName) {
-      let s = {};
-      try { s = JSON.parse(localStorage.getItem('nbi_pf_timeline_collapsed') || '{}'); } catch (e) {}
-      s[clientName] = !s[clientName];
-      localStorage.setItem('nbi_pf_timeline_collapsed', JSON.stringify(s));
-      const grp = document.querySelector(`[data-tl-client="${CSS.escape(clientName)}"]`);
-      const chev = document.querySelector(`[data-tl-chev="${CSS.escape(clientName)}"]`);
-      if (grp) grp.style.display = s[clientName] ? 'none' : '';
-      if (chev) chev.textContent = s[clientName] ? '▶' : '▼';
-    };
-    window._actTlExpandAll = function() {
-      localStorage.setItem('nbi_pf_timeline_collapsed', '{}');
-      document.querySelectorAll('[data-tl-client]').forEach(el => el.style.display = '');
-      document.querySelectorAll('[data-tl-chev]').forEach(el => el.textContent = '▼');
-    };
-    window._actTlCollapseAll = function() {
-      const all = {};
-      document.querySelectorAll('[data-tl-client]').forEach(el => { all[el.getAttribute('data-tl-client')] = true; el.style.display = 'none'; });
-      document.querySelectorAll('[data-tl-chev]').forEach(el => el.textContent = '▶');
-      localStorage.setItem('nbi_pf_timeline_collapsed', JSON.stringify(all));
-    };
-  }
-
-  // Top-level Expand-all / Collapse-all controls
-  html += `<div style="display:flex;justify-content:flex-end;gap:6px;margin:4px 0 2px"><button class="btn btn--sm" onclick="_actTlExpandAll()" style="font-size:0.62rem;padding:2px 8px;letter-spacing:0.04em">Expand all</button><button class="btn btn--sm" onclick="_actTlCollapseAll()" style="font-size:0.62rem;padding:2px 8px;letter-spacing:0.04em">Collapse all</button></div>`;
-
-  // Rows
-  sortedClients.forEach((clientName, ci) => {
-    const rows = byClient[clientName];
-    const zebra = ci % 2 === 1 ? 'background:rgba(255,255,255,0.015);' : '';
-    const isCollapsed = !!_tlCollapsed[clientName];
-    const chev = isCollapsed ? '▶' : '▼';
-    // Quick health summary on the right of the client header — a count of
-    // bars in each health bucket so you can see at a glance whether the
-    // client has issues even when collapsed.
-    const buckets = { red: 0, amber: 0, blocked: 0, green: 0 };
-    rows.forEach(r => { buckets[r.health] = (buckets[r.health] || 0) + 1; });
-    const summaryDots = ['red','amber','blocked','green'].map(h => {
-      if (!buckets[h]) return '';
-      const col = h === 'red' ? '#ef4444' : h === 'amber' ? '#f59e0b' : h === 'blocked' ? '#94a3b8' : '#22c55e';
-      return `<span style="display:inline-flex;align-items:center;gap:3px;font-size:0.62rem;color:var(--text-muted);margin-left:8px"><span style="width:6px;height:6px;border-radius:50%;background:${col}"></span>${buckets[h]}</span>`;
-    }).join('');
-    // Client header strip — clickable to toggle the rows underneath
-    const safeName = esc(clientName);
-    html += `<div style="display:flex;align-items:center;min-height:24px;${zebra}padding-top:6px;cursor:pointer;user-select:none" onclick="_actTlToggleClient('${escAttrJs(clientName)}')" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='${ci % 2 === 1 ? 'rgba(255,255,255,0.015)' : ''}'">`;
-    html += `<div style="width:${labelW}px;flex-shrink:0;font-size:0.7rem;font-weight:700;color:var(--accent);letter-spacing:0.06em;padding:0 8px;text-transform:uppercase;display:flex;align-items:center;gap:6px"><span data-tl-chev="${safeName}" style="font-size:0.62rem;width:10px;color:var(--text-muted)">${chev}</span>${safeName} <span style="font-weight:500;color:var(--text-muted);font-size:0.62rem">(${rows.length})</span></div>`;
-    html += `<div style="flex:1;display:flex;align-items:center">${summaryDots}</div>`;
-    html += `</div>`;
-
-    // Wrap the rows in a div we can hide/show
-    html += `<div data-tl-client="${safeName}" style="${isCollapsed ? 'display:none' : ''}">`;
-
-    rows.forEach(r => {
-      const leftPct = ((r._start - globalMin) / 86400000 / totalDays * 100).toFixed(2);
-      const widthPct = Math.max(0.4, ((r._end - r._start) / 86400000 / totalDays * 100)).toFixed(2);
-      const fill = healthFill(r.health);
-      const glow = healthGlow(r.health);
-      const subtitle = r.health === 'blocked' ? 'BLOCKED' : (r.daysToEnd < 0 ? `${Math.abs(r.daysToEnd)}d OVERDUE` : `${r.daysToEnd}d to close`);
-      const subtitleCol = r.health === 'red' ? '#ef4444' : r.health === 'amber' ? '#f59e0b' : r.health === 'blocked' ? '#94a3b8' : 'var(--text-muted)';
-      const indent = r.depth * 14;
-      const typeBadge = r.itemType === 'project' ? 'PR' : r.itemType === 'feature' ? 'FT' : 'ST';
-      html += `<div style="display:flex;align-items:center;min-height:${ROW_H}px;border-bottom:1px solid var(--border-subtle);${zebra}cursor:pointer" data-action="openDetailOverlay" data-arg0="${r.id}" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='${ci % 2 === 1 ? 'rgba(255,255,255,0.015)' : ''}'">`;
-      html += `<div style="width:${labelW}px;flex-shrink:0;padding:0 8px 0 ${indent + 6}px;display:flex;flex-direction:column;justify-content:center;gap:1px;overflow:hidden">`;
-      html += `<div style="display:flex;align-items:center;gap:6px;font-size:0.72rem;color:var(--text-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r.title)}"><span style="font-size:0.55rem;font-weight:700;letter-spacing:0.06em;color:var(--text-muted);background:var(--bg-input);padding:1px 4px;border-radius:3px;flex-shrink:0">${typeBadge}</span><span style="overflow:hidden;text-overflow:ellipsis">${esc(r.title)}</span></div>`;
-      html += `<div style="font-size:0.6rem;color:${subtitleCol};letter-spacing:0.04em">${subtitle} · ${r.pct}%</div>`;
-      html += `</div>`;
-      // Track
-      html += `<div style="flex:1;position:relative;height:${ROW_H}px">`;
-      // Today line on each row
-      html += `<div style="position:absolute;left:${nowPct}%;top:0;bottom:0;border-left:1px dashed #ef4444;opacity:0.35;pointer-events:none"></div>`;
-      // Outer bar (frame)
-      html += `<div style="position:absolute;left:${leftPct}%;width:${widthPct}%;top:6px;bottom:6px;background:${glow};border:1px solid ${fill};border-radius:4px;box-sizing:border-box">`;
-      // Progress fill
-      html += `<div style="height:100%;width:${r.pct}%;background:${fill};opacity:0.85;border-radius:3px 0 0 3px"></div>`;
-      html += `</div>`;
-      // End-date diamond marker
-      html += `<div style="position:absolute;left:calc(${leftPct}% + ${widthPct}% - 5px);top:50%;transform:translateY(-50%) rotate(45deg);width:8px;height:8px;background:${fill};box-shadow:0 0 0 1px var(--bg-card)"></div>`;
-      html += `</div></div>`;
-    });
-    // Close the per-client wrapper div
-    html += `</div>`;
-  });
-
-  // Closing-soon callout below the chart — top 5 rows by days-to-end (positive only)
-  const closing = allRows.filter(r => r.daysToEnd >= 0).sort((a, b) => a.daysToEnd - b.daysToEnd).slice(0, 5);
-  if (closing.length > 0) {
-    html += `<div style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--border-subtle)">`;
-    html += `<div style="font-size:0.66rem;font-weight:700;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:4px">CLOSING SOON</div>`;
-    closing.forEach(r => {
-      const fill = healthFill(r.health);
-      const subtitleCol = r.health === 'red' ? '#ef4444' : r.health === 'amber' ? '#f59e0b' : r.health === 'blocked' ? '#94a3b8' : 'var(--text-muted)';
-      html += `<div style="display:flex;align-items:center;gap:8px;font-size:0.74rem;padding:3px 0;cursor:pointer" data-action="openDetailOverlay" data-arg0="${r.id}">`;
-      html += `<span style="width:8px;height:8px;border-radius:50%;background:${fill};flex-shrink:0"></span>`;
-      html += `<span style="color:var(--text-secondary);flex-shrink:0;font-weight:600">${esc(r.client)}</span>`;
-      html += `<span style="color:var(--text-muted);flex-shrink:0">/</span>`;
-      if (r.parentTitle) html += `<span style="color:var(--text-muted);flex-shrink:0">${esc(r.parentTitle)}</span><span style="color:var(--text-muted);flex-shrink:0">/</span>`;
-      html += `<span style="color:var(--text-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1" title="${esc(r.title)}">${esc(r.title)}</span>`;
-      html += `<span style="color:${subtitleCol};font-size:0.68rem;letter-spacing:0.04em;flex-shrink:0">${r.daysToEnd === 0 ? 'TODAY' : `${r.daysToEnd}D`} · ${r.pct}%</span>`;
-      html += `</div>`;
-    });
-    html += `</div>`;
-  }
-
-  html += '</div></div>';
-  return html;
-}
-
-// COMMENTED OUT — v3 Needs Attention main panel (moved to bottom row in v4)
-// function renderPfNeedsAttention(panelTasks, now) { /* ... see git history ... */ }
-
-function renderPfWorkTypes(panelRoots) {
-  const activeRoots = panelRoots.filter(r => r.status !== 'Done' && r.status !== 'Cancelled');
-  const typeCounts = {};
-  activeRoots.forEach(r => {
-    if (r.workType) {
-      typeCounts[r.workType] = (typeCounts[r.workType] || 0) + 1;
-    }
-  });
-
-  const sorted = Object.entries(typeCounts).filter(([, c]) => c > 0).sort((a, b) => b[1] - a[1]);
-  const maxCount = Math.max(1, sorted.length > 0 ? sorted[0][1] : 1);
-
-  let html = '<div class="pf__panel">';
-  html += '<div class="pf__panel-hdr"><div class="pf__panel-title">WORK TYPES</div></div>';
-  html += '<div class="pf__panel-body">';
-
-  if (sorted.length === 0) {
-    html += '<div style="display:flex;align-items:center;justify-content:center;height:100px;color:var(--text-muted);font-size:0.82rem">No work types assigned to projects.</div>';
-  } else {
-    sorted.forEach(([name, count]) => {
-      const barW = Math.round(count / maxCount * 100);
-      html += '<div class="pf__wt-row">';
-      html += `<div class="pf__wt-label">${esc(name)}</div>`;
-      html += `<div class="pf__wt-bar-track"><div class="pf__wt-bar" style="width:${barW}%"></div></div><span style="min-width:24px;text-align:right;font-size:0.8rem;font-weight:700;color:var(--text-secondary)">${count}</span>`;
-      html += '</div>';
-    });
-    const axisSteps = Math.min(maxCount, 6);
-    html += '<div class="pf__wt-axis">';
-    for (let i = 0; i <= axisSteps; i++) {
-      html += `<span>${Math.round(i * maxCount / axisSteps)}</span>`;
-    }
-    html += '</div>';
-  }
-
-  html += '</div></div>';
-  return html;
-}
 
 function renderPfCompletingSoon(panelRoots, now) {
   const activeRoots = panelRoots.filter(r => r.status !== 'Done' && r.status !== 'Cancelled');
@@ -6128,40 +5831,6 @@ function renderPfCompletingSoon(panelRoots, now) {
       html += '<span class="pf__wl-ct" style="color:var(--success)">' + r._pct + '%</span>';
       html += '</div>';
     });
-  }
-
-  html += '</div></div>';
-  return html;
-}
-
-function renderPfUpcomingMilestones(panelTasks, now, fortnight) {
-  const upcoming = panelTasks.filter(t => {
-    if (!t.dueDate || t.status === 'Done' || t.status === 'Cancelled' || t.parentId) return false;
-    const d = safeParseDate(t.dueDate);
-    return d >= now && d <= fortnight;
-  }).sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate)).slice(0, 6);
-
-  let html = '<div class="pf__panel">';
-  html += '<div class="pf__panel-hdr"><div class="pf__panel-title" style="color:var(--accent)">Upcoming Milestones</div><div class="pf__panel-sub">Due within 14 days</div></div>';
-  html += '<div class="pf__panel-body">';
-
-  if (upcoming.length === 0) {
-    html += '<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:0.82rem">No milestones in the next 14 days.</div>';
-  } else {
-    html += '<div style="display:flex;flex-direction:column;gap:6px">';
-    upcoming.forEach(t => {
-      const d = safeParseDate(t.dueDate);
-      const daysUntil = Math.ceil((d - now) / 86400000);
-      const dayLabel = daysUntil === 0 ? 'Today' : daysUntil === 1 ? 'Tomorrow' : d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
-      const badgeClass = daysUntil <= 2 ? 'pf__attn-badge--overdue' : daysUntil <= 5 ? 'pf__attn-badge--risk' : '';
-      const badgeStyle = !badgeClass ? 'background:rgba(85,85,85,0.2);color:var(--text-muted);border-color:rgba(85,85,85,0.3)' : '';
-
-      html += `<div class="pf__attn-item" data-action="openDetailOverlay" data-arg0="${t.id}">`;
-      html += `<span class="pf__attn-badge ${badgeClass}" ${badgeStyle ? `style="${badgeStyle}"` : ''}>${dayLabel}</span>`;
-      html += `<div style="flex:1;min-width:0"><div class="pf__attn-title">${esc(t.title)}</div><div class="pf__attn-context">${esc(getTaskClient(t) || '')}</div></div>`;
-      html += `</div>`;
-    });
-    html += '</div>';
   }
 
   html += '</div></div>';
@@ -6199,58 +5868,6 @@ function renderPfTeamWorkload(panelTasks) {
     });
   }
 
-  html += '</div></div>';
-  return html;
-}
-
-function renderPfBottomNeedsAttention(panelTasks, now) {
-  const blocked = panelTasks.filter(t => t.healthState === 'Blocked' && t.status !== 'Done' && t.status !== 'Cancelled');
-  const overdue = panelTasks.filter(t => t.dueDate && t.status !== 'Done' && t.status !== 'Cancelled' && safeParseDate(t.dueDate) < now && t.healthState !== 'Blocked');
-  const atRisk = panelTasks.filter(t => t.healthState === 'Red' && t.status !== 'Done' && t.status !== 'Cancelled' && !(t.dueDate && safeParseDate(t.dueDate) < now));
-  overdue.sort((a, b) => safeParseDate(a.dueDate) - safeParseDate(b.dueDate));
-  const items = [...blocked, ...overdue, ...atRisk];
-  const seen = new Set();
-  const unique = items.filter(t => { if (seen.has(t.id)) return false; seen.add(t.id); return true; });
-  const showCount = _portfolioBottomAttentionExpanded ? unique.length : 5;
-  const visible = unique.slice(0, showCount);
-  const remaining = unique.length - visible.length;
-
-  let html = '<div class="pf__panel">';
-  html += `<div class="pf__panel-hdr"><div class="pf__panel-title" style="color:var(--danger)">Needs Attention</div><div class="pf__panel-sub">Blocked, overdue &amp; at risk</div></div>`;
-  html += '<div class="pf__panel-body">';
-
-  if (unique.length === 0) {
-    html += '<div style="display:flex;align-items:center;justify-content:center;height:80px;color:var(--success);font-size:0.82rem">All clear.</div>';
-  } else {
-    visible.forEach(t => {
-      const parent = t.parentId ? tasks.find(p => p.id === t.parentId) : null;
-      const projectName = parent ? parent.title : '';
-      const clientName = getTaskClient(t) || '';
-      let badge = '', badgeClass = '', borderCol = 'var(--danger)';
-      if (t.healthState === 'Blocked') {
-        badge = 'BLOCKED'; badgeClass = 'pf__na-badge--blocked'; borderCol = 'var(--danger)';
-      } else if (t.dueDate && safeParseDate(t.dueDate) < now) {
-        const daysLate = Math.ceil((now - safeParseDate(t.dueDate)) / 86400000);
-        badge = daysLate + 'd late'; badgeClass = 'pf__na-badge--overdue';
-      } else {
-        badge = 'AT RISK'; badgeClass = 'pf__na-badge--risk'; borderCol = '#f97316';
-      }
-      const owner = (t.assignees || []).join(', ');
-      const ctx = [clientName, projectName].filter(Boolean).join(' \u2014 ');
-      html += `<div class="pf__na-item" data-action="openDetailOverlay" data-arg0="${t.id}">`;
-      html += `<div class="pf__na-border" style="background:${borderCol}"></div>`;
-      html += `<span class="pf__na-badge ${badgeClass}">${badge}</span>`;
-      html += `<div style="flex:1;min-width:0">`;
-      html += `<div style="display:flex;align-items:center;gap:6px"><div style="font-size:0.7rem;color:var(--text-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">${esc(t.title)}</div>`;
-      if (owner) html += `<div style="font-size:0.7rem;color:var(--danger);font-weight:600;flex-shrink:0">${esc(owner)}</div>`;
-      html += `</div>`;
-      if (ctx) html += `<div style="font-size:0.58rem;color:var(--text-muted)">${esc(ctx)}</div>`;
-      html += '</div></div>';
-    });
-    if (remaining > 0) {
-      html += `<div style="text-align:center;padding:6px;font-size:0.65rem;color:var(--text-muted);cursor:pointer" data-action="_actSetPortfolioBottomExpanded">+ ${remaining} more</div>`;
-    }
-  }
   html += '</div></div>';
   return html;
 }
@@ -22483,6 +22100,7 @@ const THEMES = [
   { id: 'solarized', label: 'Solarized', group: 'extra',   swatches: ['#002b36','#fdf6e3','#b58900','#1a5c6e'] },
   { id: 'dracula',   label: 'Dracula',   group: 'extra',   swatches: ['#282a36','#f8f8f2','#bd93f9','#44475a'] },
   { id: 'emerald',   label: 'Emerald',   group: 'extra',   swatches: ['#0c1a0f','#e0f0e4','#34d399','#264d33'] },
+  { id: 'command',   label: 'Command',   group: 'extra',   swatches: ['#1c1f24','#e8ecf1','#00d4ff','rgba(255,255,255,0.08)'] },
 ];
 
 /** Get the currently active theme name from the HTML element's data attribute */
