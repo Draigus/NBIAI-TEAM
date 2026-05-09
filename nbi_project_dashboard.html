@@ -10725,9 +10725,9 @@ function renderReportingView(el) {
     html += `<div style="position:absolute;left:${nowPct}%;top:0;bottom:0;border-left:1px dashed #ef4444;opacity:0.35;pointer-events:none"></div>`;
     clientMilestones.forEach(ms => { const mD = safeParseDate(ms.target_date); if (mD && mD >= gMin && mD <= gMax) { const mP = ((mD - gMin) / 86400000 / totalDays * 100).toFixed(2); html += `<div style="position:absolute;left:${mP}%;top:0;bottom:0;border-left:2px solid ${mD < now ? 'var(--danger)' : 'var(--accent)'};opacity:0.4;pointer-events:none"></div>`; } });
     if (fStart && fEnd) {
-      // Outer feature frame
-      html += `<div style="position:absolute;left:${left}%;width:${width}%;top:8px;bottom:8px;background:rgba(255,255,255,0.04);border:1px solid ${fill};border-radius:4px">`;
-      // Inner story segments coloured by their own health (so the user sees the substructure)
+      // Outer feature frame — tinted with health colour
+      html += `<div style="position:absolute;left:${left}%;width:${width}%;top:8px;bottom:8px;background:color-mix(in srgb, ${fill} 8%, var(--bg-card));border:1px solid color-mix(in srgb, ${fill} 40%, transparent);border-radius:4px">`;
+      // Inner story segments — track in health colour at low opacity, fill in solid health colour
       fStories.forEach(s => {
         const sStart = ganttRolledStart(s); const sEnd = ganttRolledEnd(s);
         if (!sStart || !sEnd || !fStart || !fEnd) return;
@@ -10736,9 +10736,10 @@ function renderReportingView(el) {
         const sLeft = Math.max(0, (sStart - fStart) / 86400000) / featSpan * 100;
         const sWidth = Math.max(1, (sEnd - sStart) / 86400000) / featSpan * 100;
         const sH = featureHealth(s);
+        const sFill = healthFill(sH);
         const sLeaves = []; (function walk(n) { const ch = tasks.filter(t => t.parentId === n.id); if (ch.length === 0) sLeaves.push(n); else ch.forEach(walk); })(s);
         const sPct = sLeaves.length ? Math.round(sLeaves.filter(l => l.status === 'Done').length / sLeaves.length * 100) : 0;
-        html += `<div title="${esc(s.title)} — ${sPct}%" style="position:absolute;left:${sLeft}%;width:${sWidth}%;top:1px;bottom:1px;background:rgba(148,163,184,0.25);border-radius:3px;overflow:hidden"><div style="height:100%;width:${sPct}%;background:${healthFill(sH)};opacity:1"></div></div>`;
+        html += `<div title="${esc(s.title)} — ${sPct}%" style="position:absolute;left:${sLeft}%;width:${sWidth}%;top:1px;bottom:1px;background:color-mix(in srgb, ${sFill} 15%, var(--bg-card));border:1px solid color-mix(in srgb, ${sFill} 25%, transparent);border-radius:3px;overflow:hidden"><div style="height:100%;width:${sPct}%;background:${sFill};opacity:0.85"></div></div>`;
       });
       // % chip on right edge
       html += `<div style="position:absolute;right:-4px;top:50%;transform:translate(100%,-50%);font-size:0.58rem;color:${fill};font-weight:700;letter-spacing:0.04em;padding:0 4px">${pct}%</div>`;
