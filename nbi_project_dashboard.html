@@ -6649,9 +6649,35 @@ function priorityBadgeHtml(p) {
 }
 
 /** Render a coloured status badge */
-function statusBadgeHtml(s) {
+function statusBadgeHtml(s, task) {
   const cls = { 'In Review': 'badge--yellow', 'Blocked': 'badge--blocked', 'Done': 'badge--green', 'In progress': 'badge--status' };
+  if (s === 'Blocked' && task) {
+    const info = task.blockerInfo || task.blocker_info;
+    const reason = info ? (info.blockedOn || '') : '';
+    const people = info ? [...(info.internal || []), ...(info.external || [])].join(', ') : '';
+    const deps = getIncompletePrereqs(task);
+    const depNames = deps.map(d => d.title).join(', ');
+    const parts = [reason, people ? 'By: ' + people : '', depNames ? 'Prereqs: ' + depNames : ''].filter(Boolean);
+    const tip = parts.length > 0 ? parts.join(' | ') : 'Blocked';
+    return `<span class="badge badge--blocked" title="${esc(tip)}">${esc(s)}</span>`;
+  }
   return `<span class="badge ${cls[s] || 'badge--status'}">${esc(s)}</span>`;
+}
+
+function blockerContextHtml(task) {
+  if (task.status !== 'Blocked') return '';
+  const info = task.blockerInfo || task.blocker_info;
+  const parts = [];
+  if (info && info.blockedOn) parts.push(info.blockedOn);
+  const deps = getIncompletePrereqs(task);
+  if (deps.length > 0) parts.push(deps.map(d => d.title).join(', '));
+  else if (info) {
+    const people = [...(info.internal || []), ...(info.external || [])];
+    if (people.length > 0) parts.push(people.join(', '));
+  }
+  if (parts.length === 0) return '';
+  const text = parts.join(' — ');
+  return `<span style="font-size:0.65rem;color:var(--purple);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:1" title="${esc(text)}">&#9656; ${esc(text.length > 40 ? text.slice(0,38) + '..' : text)}</span>`;
 }
 
 // ==================== MY TASKS VIEW ====================
@@ -9174,7 +9200,8 @@ function renderTaskRow(task, depth, filtered, visibleIds) {
   html += `<div class="task-row__badges">`;
   if (task.priority) html += priorityBadgeHtml(task.priority);
   if (task.healthState) html += healthBadgeHtml(task.healthState);
-  if (!isDone) html += statusBadgeHtml(task.status);
+  if (!isDone) html += statusBadgeHtml(task.status, task);
+  html += blockerContextHtml(task);
   html += `</div>`;
   if (task.dueDate) {
     const due = safeParseDate(task.dueDate);
