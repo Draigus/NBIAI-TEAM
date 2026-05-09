@@ -22981,7 +22981,7 @@ async function renderWarnAlertContent() {
             <div class="warn-item__title">${esc(w.title)}</div>
             <span class="warn-item__sev warn-item__sev--${w.severity}" aria-hidden="true">${esc(w.severity.toUpperCase())}</span>
           </div>
-          <div class="warn-item__meta">${w.client ? esc(w.client) + ' &middot; ' : ''}${esc(w.label)}${w.since ? ' &middot; ' + timeAgo(w.since) : ''}</div>
+          <div class="warn-item__meta">${w.client ? esc(w.client) + ' &middot; ' : ''}${esc(w.label)}${w.since ? ' &middot; ' + timeAgo(new Date(w.since)) : ''}</div>
         </button>
         <div class="warn-item__actions">
           <button type="button" class="btn btn--ghost btn--sm" data-action="snoozeWarning" data-arg0="${esc(w.id)}" data-arg1="24">Snooze 1 day</button>
