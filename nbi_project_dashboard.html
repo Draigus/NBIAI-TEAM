@@ -447,7 +447,7 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .pf__attn-badge { font-size: 0.6rem; padding: 3px 7px; border-radius: 3px; font-weight: 600; white-space: nowrap; border: 1px solid; }
 .pf__attn-badge--overdue { background: rgba(248,113,113,0.1); color: var(--danger); border-color: rgba(248,113,113,0.2); }
 .pf__attn-badge--risk { background: rgba(248,113,113,0.1); color: var(--danger); border-color: rgba(248,113,113,0.2); }
-.pf__attn-badge--blocked { background: rgba(167,139,250,0.1); color: var(--purple); border-color: rgba(167,139,250,0.2); }
+.pf__attn-badge--blocked { background: var(--danger-bg); color: var(--danger); border-color: var(--danger-border); }
 .pf__attn-title { font-size: 0.78rem; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pf__attn-context { font-size: 0.65rem; color: var(--text-muted); margin-top: 2px; }
 
@@ -532,7 +532,7 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .pf__na-item:hover { background: var(--bg-hover); }
 .pf__na-border { width: 3px; min-height: 28px; border-radius: 1px; flex-shrink: 0; }
 .pf__na-badge { font-size: 0.52rem; padding: 1px 5px; border-radius: 2px; font-weight: 600; flex-shrink: 0; white-space: nowrap; }
-.pf__na-badge--blocked { background: var(--purple); color: white; }
+.pf__na-badge--blocked { background: var(--danger); color: white; }
 .pf__na-badge--overdue { background: var(--danger); color: white; }
 .pf__na-badge--risk { background: #f97316; color: white; }
 
@@ -610,7 +610,8 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .badge--green { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
 .badge--yellow { background: var(--warning-bg); color: var(--warning); border: 1px solid var(--warning-border); }
 .badge--red { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
-.badge--blocked { background: var(--purple-bg); color: var(--purple); border: 1px solid var(--purple-border); }
+.badge--blocked { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+.badge--purple { background: var(--purple-bg); color: var(--purple); border: 1px solid var(--purple-border); }
 .badge--waiting { background: var(--cyan-bg); color: var(--cyan); border: 1px solid var(--cyan-border); }
 .badge--status { background: var(--bg-surface); color: var(--text-secondary); border: 1px solid var(--border-default); }
 .badge--priority-high { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
@@ -626,9 +627,9 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .task-row__checkbox { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
 .task-row__status-icon { width: 20px; height: 20px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.7rem; line-height: 1; cursor: pointer; border: 2px solid var(--border-strong); color: transparent; transition: all 0.15s; }
 .task-row__status-icon:hover { border-color: var(--text-muted); }
-.task-row__status-icon--done { background: var(--success); border-color: var(--success); color: #fff; }
-.task-row__status-icon--inprogress { border-color: var(--accent); background: var(--accent-glow); }
-.task-row__status-icon--blocked { border-color: var(--purple); background: var(--purple-bg); }
+.task-row__status-icon--done { background: var(--purple); border-color: var(--purple); color: #fff; }
+.task-row__status-icon--inprogress { border-color: var(--success); background: var(--success-bg); }
+.task-row__status-icon--blocked { border-color: var(--danger); background: var(--danger-bg); }
 .task-row--done { opacity: 0.55; }
 .task-row--done .task-row__title { text-decoration: line-through; text-decoration-color: var(--text-muted); }
 .task-row--cancelled { opacity: 0.45; filter: grayscale(0.6); }
@@ -1000,7 +1001,7 @@ span.fin-editable { display: inline-block; position: relative; }
 .board-card__badges { display: flex; flex-wrap: wrap; gap: 2px; margin-bottom: 3px; }
 .board-card__meta { display: flex; align-items: center; gap: 6px; font-size: 0.65rem; color: var(--text-muted); }
 .board-card__meta span { white-space: nowrap; }
-.board-card--blocked { border-left: 3px solid var(--purple); }
+.board-card--blocked { border-left: 3px solid var(--danger); }
 .board-card--parent { border-left: 3px solid var(--accent); }
 
 .board__cancelled { margin-top: var(--space-md); }
@@ -1058,7 +1059,7 @@ span.fin-editable { display: inline-block; position: relative; }
    own status colour because they're a signal in their own right. The
    progress fill below is what carries the health colour for active bars. */
 .gantt__bar { background: rgba(148,163,184,0.28); }
-.gantt__bar--done { background: var(--accent); }
+.gantt__bar--done { background: var(--purple); }
 .gantt__bar--inprogress { background: rgba(34,197,94,0.22); }
 .gantt__bar--notstarted { background: rgba(148,163,184,0.28); }
 .gantt__bar--blocked { background: var(--danger); }
@@ -1212,7 +1213,7 @@ span.fin-editable { display: inline-block; position: relative; }
 .people-row__badges { display: flex; gap: 4px; }
 .people-row__badge { font-size: 0.68rem; padding: 2px 6px; border-radius: var(--radius-sm); font-weight: 600; }
 .people-row__badge--overdue { background: color-mix(in srgb, var(--danger) 15%, transparent); color: var(--danger); }
-.people-row__badge--blocked { background: color-mix(in srgb, var(--purple) 15%, transparent); color: var(--purple); }
+.people-row__badge--blocked { background: color-mix(in srgb, var(--danger) 15%, transparent); color: var(--danger); }
 .people-row__bar { height: 14px; background: var(--bg-raised); border-radius: var(--radius-md); overflow: hidden; display: flex; gap: 1px; }
 .people-row__stats { display: flex; justify-content: space-between; margin-top: 5px; font-size: 0.72rem; color: var(--text-muted); }
 .people-row__util--green { color: var(--success); font-weight: 600; }
@@ -1228,9 +1229,9 @@ span.fin-editable { display: inline-block; position: relative; }
 .people-capacity-cell__pct { font-weight: 700; font-family: var(--font-mono); font-size: 1rem; }
 .people-capacity-cell__date { font-size: 0.68rem; color: var(--text-muted); margin-top: 2px; }
 .people-capacity-cell__off { font-size: 0.62rem; color: var(--text-muted); }
-.people-blocked-item { background: color-mix(in srgb, var(--purple) 6%, transparent); border-left: 3px solid var(--purple); padding: 8px 12px; border-radius: 0 var(--radius-md) var(--radius-md) 0; margin-bottom: 6px; }
+.people-blocked-item { background: color-mix(in srgb, var(--danger) 6%, transparent); border-left: 3px solid var(--danger); padding: 8px 12px; border-radius: 0 var(--radius-md) var(--radius-md) 0; margin-bottom: 6px; }
 .people-blocked-item__title { font-size: 0.82rem; color: var(--text-primary); }
-.people-blocked-item__meta { font-size: 0.72rem; color: var(--purple); margin-top: 2px; }
+.people-blocked-item__meta { font-size: 0.72rem; color: var(--danger); margin-top: 2px; }
 .people-client-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-sm); }
 .people-client-card { background: var(--bg-raised); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: 10px 12px; }
 .people-client-card__header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
@@ -3578,17 +3579,17 @@ const STATUSES = ['Not started', 'In progress', 'Planning', 'Drafted', 'In Revie
 const HEALTH_STATES = ['Green', 'Yellow', 'Red', 'Waiting on Client'];
 const PRIORITIES = ['Low', 'Medium', 'High', 'Urgent', 'Critical ACT'];
 
-const HEALTH_COLOURS = { Green: 'var(--success)', Yellow: 'var(--warning)', Red: 'var(--danger)', Blocked: 'var(--purple)', 'Waiting on Client': 'var(--cyan)' };
+const HEALTH_COLOURS = { Green: 'var(--success)', Yellow: 'var(--warning)', Red: 'var(--danger)', Blocked: 'var(--danger)', 'Waiting on Client': 'var(--cyan)' };
 const HEALTH_COLOURS_HEX = { Green: '#22c55e', Yellow: '#f59e0b', Red: '#ef4444', Blocked: '#a855f7', 'Waiting on Client': '#06b6d4' };
-const STATUS_COLOURS_HEX = { 'Not started': '#666666', 'In progress': '#0066FF', Planning: '#f59e0b', Drafted: '#a855f7', 'In Review': '#f59e0b', Blocked: '#a855f7', Done: '#22c55e', Cancelled: '#444444' };
+const STATUS_COLOURS_HEX = { 'Not started': '#666666', 'In progress': '#22c55e', Planning: '#f59e0b', Drafted: '#a855f7', 'In Review': '#f59e0b', Blocked: '#ef4444', Done: '#a855f7', Cancelled: '#444444' };
 
 const BOARD_COLUMNS = [
   { id: 'backlog',    label: 'Backlog',     statuses: ['Not started'], color: 'var(--text-muted)' },
   { id: 'started',    label: 'Started',     statuses: ['Planning'],    color: 'var(--warning)' },
-  { id: 'inprogress', label: 'In Progress', statuses: ['In progress'], color: 'var(--accent)' },
+  { id: 'inprogress', label: 'In Progress', statuses: ['In progress'], color: 'var(--success)' },
   { id: 'review',     label: 'Review',      statuses: ['In Review', 'Drafted'], color: 'var(--warning)' },
-  { id: 'blocked',    label: 'Blocked',     statuses: ['Blocked'],     color: 'var(--purple)' },
-  { id: 'complete',   label: 'Complete',    statuses: ['Done'],        color: 'var(--success)' },
+  { id: 'blocked',    label: 'Blocked',     statuses: ['Blocked'],     color: 'var(--danger)' },
+  { id: 'complete',   label: 'Complete',    statuses: ['Done'],        color: 'var(--purple)' },
 ];
 
 // ----- PERSISTENCE -----
@@ -5341,7 +5342,7 @@ function renderTacticalDashboard() {
 
   // Blocked — always render tile for consistent 4-column layout
   html += `<div class="tactical-section" id="tactBlocked">`;
-  html += `<div class="tactical-section__header"><span class="tactical-section__title" style="color:var(--purple)">&#128721; Blocked (${blockedTasks.length})</span></div>`;
+  html += `<div class="tactical-section__header"><span class="tactical-section__title" style="color:var(--danger)">&#128721; Blocked (${blockedTasks.length})</span></div>`;
   if (blockedTasks.length === 0) {
     html += `<div class="tactical-empty">No blocked tasks</div>`;
   } else {
@@ -5584,7 +5585,7 @@ function renderPfProgressStatus(panelTasks) {
   }
 
   const wipBuckets = [
-    { key: 'done', label: 'COMPLETED', colour: '#22c55e', count: 0 },
+    { key: 'done', label: 'COMPLETED', colour: '#a855f7', count: 0 },
     { key: 'inprogress', label: 'IN PROGRESS', colour: '#06b6d4', count: 0 },
     { key: 'planning', label: 'PLANNING', colour: '#3b82f6', count: 0 },
     { key: 'waiting', label: 'WAITING', colour: '#f59e0b', count: 0 },
@@ -6160,7 +6161,7 @@ function renderPfBottomNeedsAttention(panelTasks, now) {
       const clientName = getTaskClient(t) || '';
       let badge = '', badgeClass = '', borderCol = 'var(--danger)';
       if (t.healthState === 'Blocked') {
-        badge = 'BLOCKED'; badgeClass = 'pf__na-badge--blocked'; borderCol = 'var(--purple)';
+        badge = 'BLOCKED'; badgeClass = 'pf__na-badge--blocked'; borderCol = 'var(--danger)';
       } else if (t.dueDate && safeParseDate(t.dueDate) < now) {
         const daysLate = Math.ceil((now - safeParseDate(t.dueDate)) / 86400000);
         badge = daysLate + 'd late'; badgeClass = 'pf__na-badge--overdue';
@@ -6328,7 +6329,7 @@ function standupRefreshMetrics() {
   if (vals[0]) vals[0].textContent = inProgress;
   if (vals[1]) { vals[1].textContent = overdue; vals[1].style.color = overdue > 0 ? 'var(--danger)' : 'var(--success)'; }
   if (vals[2]) { vals[2].textContent = thisWeek; vals[2].style.color = thisWeek > 0 ? '#f59e0b' : 'var(--success)'; }
-  if (vals[3]) { vals[3].textContent = blocked; vals[3].style.color = blocked > 0 ? 'var(--purple)' : 'var(--success)'; }
+  if (vals[3]) { vals[3].textContent = blocked; vals[3].style.color = blocked > 0 ? 'var(--danger)' : 'var(--success)'; }
   if (vals[4]) { vals[4].textContent = atRisk; vals[4].style.color = atRisk > 0 ? 'var(--warning)' : 'var(--success)'; }
   if (vals[5]) vals[5].textContent = donePct + '%';
   if (vals[6]) vals[6].textContent = filtered.length;
@@ -6496,7 +6497,7 @@ function _renderStandupBody(container, filtered, now, teamMembers) {
     html += `<div class="tactical-person ${isExpanded ? 'expanded' : ''}">`;
     html += `<div class="tactical-person__header" data-action="toggleStandupPerson" data-arg0="${esc(person)}" data-pass-el>
       <span class="tactical-person__name">${esc(person)}</span>
-      <span class="tactical-person__stats">${totalTasks} active${totalBlocked > 0 ? ` &middot; <span style="color:var(--purple)">${totalBlocked} blocked</span>` : ''}${totalOverdue > 0 ? ` &middot; <span style="color:var(--danger)">${totalOverdue} overdue</span>` : ''}</span>
+      <span class="tactical-person__stats">${totalTasks} active${totalBlocked > 0 ? ` &middot; <span style="color:var(--danger)">${totalBlocked} blocked</span>` : ''}${totalOverdue > 0 ? ` &middot; <span style="color:var(--danger)">${totalOverdue} overdue</span>` : ''}</span>
       <span class="tactical-person__arrow">&#9660;</span>
     </div>`;
 
@@ -6527,7 +6528,7 @@ function _renderStandupBody(container, filtered, now, teamMembers) {
         const doneCollapsed = !_standupDoneExpanded.has(person);
         html += `<div class="tactical-client-group standup-done-section" data-person="${esc(person)}">`;
         html += `<div class="tactical-client-group__header" style="cursor:pointer;user-select:none" data-action="toggleStandupDone" data-arg0="${esc(person)}" data-pass-el>`;
-        html += `<span style="color:var(--success);font-size:0.78rem;font-weight:600">${doneCollapsed ? '\u25B6' : '\u25BC'} Completed (${allDone.length})</span>`;
+        html += `<span style="color:var(--purple);font-size:0.78rem;font-weight:600">${doneCollapsed ? '\u25B6' : '\u25BC'} Completed (${allDone.length})</span>`;
         html += `</div>`;
         html += `<div class="standup-done-body"${doneCollapsed ? ' style="display:none"' : ''}>`;
         allDone.forEach(({ task: t, client }) => {
@@ -6673,7 +6674,7 @@ function priorityBadgeHtml(p) {
 
 /** Render a coloured status badge */
 function statusBadgeHtml(s, task) {
-  const cls = { 'In Review': 'badge--yellow', 'Blocked': 'badge--blocked', 'Done': 'badge--green', 'In progress': 'badge--status' };
+  const cls = { 'In Review': 'badge--yellow', 'Blocked': 'badge--blocked', 'Done': 'badge--purple', 'In progress': 'badge--green' };
   if (s === 'Blocked' && task) {
     const info = task.blockerInfo || task.blocker_info;
     const reason = info ? (info.blockedOn || '') : '';
@@ -8364,7 +8365,7 @@ function drawGanttArrows() {
   svg.setAttribute('height', ganttBody.scrollHeight);
   // Arrowhead markers for done (green) and pending (orange)
   svg.innerHTML = `<defs>
-    <marker id="depArrowDone" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="var(--success)"/></marker>
+    <marker id="depArrowDone" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="var(--purple)"/></marker>
     <marker id="depArrowPending" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="var(--warning)"/></marker>
   </defs>`;
 
@@ -8949,7 +8950,7 @@ function renderClientSummary(filtered) {
   html += '<div class="client-summary__subtitle">Status Breakdown</div>';
   if (total > 0) {
     html += '<div class="summary-minibar">';
-    const statusColours = { 'Done': 'var(--success)', 'In progress': 'var(--accent)', 'Planning': 'var(--warning)', 'Drafted': 'var(--purple)', 'In Review': 'var(--warning)', 'Blocked': 'var(--danger)', 'Not started': 'var(--text-muted)', 'Cancelled': '#444' };
+    const statusColours = { 'Done': 'var(--purple)', 'In progress': 'var(--success)', 'Planning': 'var(--warning)', 'Drafted': 'var(--purple)', 'In Review': 'var(--warning)', 'Blocked': 'var(--danger)', 'Not started': 'var(--text-muted)', 'Cancelled': '#444' };
     STATUSES.forEach(s => {
       const cnt = statusC[s] || 0;
       if (cnt > 0) {
@@ -9140,7 +9141,7 @@ function renderInlineTaskDetail(id) {
       html += `<div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:8px">${childDone}/${children.length} complete</div>`;
       children.slice(0, 8).forEach(c => {
         const icon = c.status === 'Done' ? '&#10003;' : c.status === 'In progress' ? '&#9654;' : '&#9675;';
-        const style = c.status === 'Done' ? 'color:var(--success)' : c.status === 'Blocked' ? 'color:var(--danger)' : '';
+        const style = c.status === 'Done' ? 'color:var(--purple)' : c.status === 'Blocked' ? 'color:var(--danger)' : '';
         html += `<div style="font-size:0.78rem;padding:3px 0;cursor:pointer;display:flex;align-items:center;gap:6px;${style}" data-action="openDetail" data-arg0="${c.id}"><span>${icon}</span><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.title)}</span></div>`;
       });
       if (children.length > 8) html += `<div style="font-size:0.72rem;color:var(--text-muted);padding:4px 0">+ ${children.length - 8} more</div>`;
@@ -9842,7 +9843,7 @@ function openDetailOverlay(id) {
       html += `<div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:8px">${ovChildDone}/${children.length} complete</div>`;
       children.forEach(c => {
         const icon = c.status === 'Done' ? '&#10003;' : c.status === 'In progress' ? '&#9654;' : '&#9675;';
-        const cStyle = c.status === 'Done' ? 'color:var(--success)' : c.healthState === 'Blocked' ? 'color:var(--danger)' : '';
+        const cStyle = c.status === 'Done' ? 'color:var(--purple)' : c.healthState === 'Blocked' ? 'color:var(--danger)' : '';
         html += `<div style="font-size:0.78rem;padding:3px 0;cursor:pointer;display:flex;align-items:center;gap:6px;${cStyle}" data-action="openDetailOverlay" data-arg0="${c.id}"><span>${icon}</span>${itemTypeBadgeHtml(c)} <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.title)}</span></div>`;
       });
     }
@@ -11151,7 +11152,7 @@ function renderReport(el) {
   // ===== EXECUTIVE KPI STRIP (all views) =====
   html += `<div class="report__section"><div class="report-exec">
     <div class="kpi-card"><div class="kpi-card__value" style="color:var(--accent)">${scopedTasks.length}</div><div class="kpi-card__label">Total Items</div></div>
-    <div class="kpi-card"><div class="kpi-card__value" style="color:var(--success)">${donePct}%</div><div class="kpi-card__label">Complete</div></div>
+    <div class="kpi-card"><div class="kpi-card__value" style="color:var(--purple)">${donePct}%</div><div class="kpi-card__label">Complete</div></div>
     <div class="kpi-card"><div class="kpi-card__value" style="color:var(--danger)">${atRisk.length}</div><div class="kpi-card__label">At Risk</div></div>
     <div class="kpi-card"><div class="kpi-card__value" style="color:var(--text-primary)">${totalHrs.toFixed(1)}</div><div class="kpi-card__label">Hours Spent</div></div>
     <div class="kpi-card"><div class="kpi-card__value" style="color:var(--text-muted)">${totalEst.toFixed(1)}</div><div class="kpi-card__label">Hours Est.</div></div>
@@ -11227,8 +11228,8 @@ function renderReport(el) {
     html += `<span class="client-summary-card__stat">${cg.projects.length} project${cg.projects.length !== 1 ? 's' : ''}</span>`;
     html += `<div class="client-summary-card__bar-wrap">`;
     html += `<div class="client-summary-card__bar">`;
-    if (overallDonePct > 0) html += `<div class="client-summary-card__seg" style="width:${overallDonePct}%;background:var(--success)"></div>`;
-    if (overallActivePct > 0) html += `<div class="client-summary-card__seg" style="width:${overallActivePct}%;background:var(--accent)"></div>`;
+    if (overallDonePct > 0) html += `<div class="client-summary-card__seg" style="width:${overallDonePct}%;background:var(--purple)"></div>`;
+    if (overallActivePct > 0) html += `<div class="client-summary-card__seg" style="width:${overallActivePct}%;background:var(--success)"></div>`;
     html += `</div>`;
     html += `<span class="client-summary-card__stat" style="color:${clientPct >= 75 ? 'var(--success)' : clientPct >= 25 ? 'var(--accent)' : 'var(--text-muted)'}">${clientPct}%</span>`;
     html += `</div>`;
@@ -11322,7 +11323,7 @@ function renderReport(el) {
   if (dashBlocked.length > 0 || dashAtRisk.length > 0) {
     html += `<div class="report__section" style="display:grid;grid-template-columns:${dashBlocked.length > 0 && dashAtRisk.length > 0 ? '1fr 1fr' : '1fr'};gap:var(--space-lg)">`;
     if (dashBlocked.length > 0) {
-      html += `<div><h2 style="color:var(--purple);margin-bottom:8px">&#128721; Blocked (${dashBlocked.length})</h2>`;
+      html += `<div><h2 style="color:var(--danger);margin-bottom:8px">&#128721; Blocked (${dashBlocked.length})</h2>`;
       html += renderRiskSection(dashBlocked, 'Blocked');
       html += `</div>`;
     }
@@ -11385,7 +11386,7 @@ function renderReport(el) {
     html += `<td><strong>${esc(r.title)}</strong></td>`;
     html += `<td>${clientBadgeHtml(r.client)} <span style="font-size:0.72rem">${esc(r.client)}</span></td>`;
     html += `<td style="text-align:right">${r.tasks}</td>`;
-    html += `<td style="text-align:right;color:var(--success)">${r.done}</td>`;
+    html += `<td style="text-align:right;color:var(--purple)">${r.done}</td>`;
     html += `<td style="text-align:right;color:var(--accent)">${r.active}</td>`;
     html += `<td style="text-align:right;color:${r.blocked > 0 ? 'var(--danger)' : 'var(--text-muted)'};font-weight:${r.blocked > 0 ? '700' : '400'}">${r.blocked}</td>`;
     html += `<td style="text-align:right">${pctBar}</td>`;
@@ -11417,8 +11418,8 @@ function renderReport(el) {
     html += `<div class="rw-name">${esc(a)}</div>`;
     html += `<div class="rw-bar-wrap">`;
     html += `<div class="rw-bar" style="width:${barW}%">`;
-    if (aDone > 0) html += `<div class="rw-seg" style="flex:${aDone};background:var(--success)" title="Done: ${aDone}"></div>`;
-    if (aIp > 0) html += `<div class="rw-seg" style="flex:${aIp};background:var(--accent)" title="In Progress: ${aIp}"></div>`;
+    if (aDone > 0) html += `<div class="rw-seg" style="flex:${aDone};background:var(--purple)" title="Done: ${aDone}"></div>`;
+    if (aIp > 0) html += `<div class="rw-seg" style="flex:${aIp};background:var(--success)" title="In Progress: ${aIp}"></div>`;
     if (aBlocked > 0) html += `<div class="rw-seg" style="flex:${aBlocked};background:var(--danger)" title="Blocked: ${aBlocked}"></div>`;
     if (aOther > 0) html += `<div class="rw-seg" style="flex:${aOther};background:var(--text-muted)" title="Other: ${aOther}"></div>`;
     html += `</div></div>`;
@@ -11498,7 +11499,7 @@ function renderReport(el) {
   html += `</tr></thead><tbody>`;
   progressRows.forEach(r => {
     html += `<tr class="report-table__clickable" data-action="_actFilterClientAndOpenTask" data-arg0="${esc(r.client)}" data-arg1="${r.id}">
-      <td><strong>${esc(r.title)}</strong></td><td>${esc(r.client)}</td><td>${r.tasks}</td><td style="color:var(--success)">${r.done}</td><td style="color:var(--accent)">${r.active}</td><td style="color:${r.blocked>0?'var(--danger)':'inherit'}">${r.blocked}</td>
+      <td><strong>${esc(r.title)}</strong></td><td>${esc(r.client)}</td><td>${r.tasks}</td><td style="color:var(--purple)">${r.done}</td><td style="color:var(--success)">${r.active}</td><td style="color:${r.blocked>0?'var(--danger)':'inherit'}">${r.blocked}</td>
       <td><div style="display:flex;align-items:center;gap:6px"><div style="width:50px;height:6px;background:var(--border-subtle);border-radius:3px;overflow:hidden"><div style="width:${r.pct}%;height:100%;background:var(--success);border-radius:3px"></div></div><span style="font-family:var(--font-mono)">${r.pct}%</span></div></td>
       <td style="font-family:var(--font-mono)">${r.estimate.toFixed(1)}h</td><td style="font-family:var(--font-mono);color:${r.actual>r.estimate&&r.estimate>0?'var(--danger)':'inherit'}">${r.actual.toFixed(1)}h</td></tr>`;
   });
@@ -11748,7 +11749,7 @@ function renderPeopleView(el) {
 
   html += `<div class="people-flags">`;
   html += `<div class="people-flags__item"><span style="color:var(--danger);font-weight:700;">&#9888; ${overCapacity} over capacity</span></div>`;
-  html += `<div class="people-flags__item"><span style="color:var(--purple);font-weight:600;">&#128721; ${totalBlocked} blocked</span></div>`;
+  html += `<div class="people-flags__item"><span style="color:var(--danger);font-weight:600;">&#128721; ${totalBlocked} blocked</span></div>`;
   html += `<div class="people-flags__item"><span style="color:var(--text-muted);">&#128197; ${absentNextWeek} absent next week</span></div>`;
   html += `</div>`;
 
@@ -11787,8 +11788,8 @@ function renderPeopleView(el) {
     if (r.blocked > 0) html += `<span class="people-row__badge people-row__badge--blocked">${r.blocked} blocked</span>`;
     html += `</div></div>`;
     html += `<div class="people-row__bar" style="width:${barW}%">`;
-    if (r.done > 0) html += `<div class="rw-seg" style="flex:${r.done};background:var(--success)" title="Done: ${r.done}"></div>`;
-    if (r.active > 0) html += `<div class="rw-seg" style="flex:${r.active};background:var(--accent)" title="Active: ${r.active}"></div>`;
+    if (r.done > 0) html += `<div class="rw-seg" style="flex:${r.done};background:var(--purple)" title="Done: ${r.done}"></div>`;
+    if (r.active > 0) html += `<div class="rw-seg" style="flex:${r.active};background:var(--success)" title="Active: ${r.active}"></div>`;
     if (r.blocked > 0) html += `<div class="rw-seg" style="flex:${r.blocked};background:var(--danger)" title="Blocked: ${r.blocked}"></div>`;
     if (other > 0) html += `<div class="rw-seg" style="flex:${other};background:var(--border-subtle, var(--text-muted))" title="Other: ${other}"></div>`;
     html += `</div>`;
