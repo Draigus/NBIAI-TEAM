@@ -635,6 +635,8 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .task-row--cancelled .task-row__title { text-decoration: line-through; text-decoration-color: var(--text-muted); color: var(--text-muted); }
 .standup-task--cancelled { opacity: 0.45; filter: grayscale(0.6); }
 .standup-task--cancelled .standup-task__title { text-decoration: line-through; color: var(--text-muted); }
+.standup-inline--overdue { color: var(--danger) !important; border-color: var(--danger) !important; }
+.standup-inline--late-start { color: var(--warning) !important; border-color: var(--warning) !important; }
 .board-card--cancelled { opacity: 0.5; filter: grayscale(0.6); }
 .board-card--cancelled .board-card__title { text-decoration: line-through; color: var(--text-muted); }
 /* My Tasks view */
@@ -4372,9 +4374,11 @@ function renderSidebar() {
 
   // Clients
   html += sidebarSectionOpen('clients', 'Clients');
+  const _noClientFilterViews = ['bugs', 'leads', 'documentation', 'hiring', 'news', 'queue', 'settings', 'expenses', 'finances'];
+  const _clientFilterRelevant = !_noClientFilterViews.includes(currentView);
   if (!isScoped) {
     // Internal users see NBI Portfolio (all clients) option
-    const portfolioActive = !currentFilter.client;
+    const portfolioActive = !currentFilter.client || !_clientFilterRelevant;
     html += `<button class="sidebar__item ${portfolioActive?'active':''}"${portfolioActive?' aria-current="page"':''} aria-label="NBI Portfolio, ${practiceTasks.length} items" data-action="filterByClient" data-arg0="null"><span class="sidebar__dot" aria-hidden="true" style="background:var(--accent)"></span><span class="sidebar__item__abbrev" aria-hidden="true">NBI</span><span class="sidebar__item__label" style="font-weight:600">NBI Portfolio</span><span class="sidebar__item__count" aria-hidden="true">${practiceTasks.length}</span></button>`;
   }
   const sidebarClients = isScoped
@@ -4383,7 +4387,7 @@ function renderSidebar() {
   sidebarClients.forEach(c => {
     const count = practiceTasks.filter(t => getTaskClient(t) === c).length;
     const dotColour = stringToColour(c);
-    const isActive = currentFilter.client===c;
+    const isActive = _clientFilterRelevant && currentFilter.client===c;
     const abbrev = clientPrefix(c);
     html += `<button class="sidebar__item ${isActive?'active':''}"${isActive?' aria-current="page"':''} aria-label="${esc(c)}, ${count} items" data-action="filterByClient" data-arg0="${esc(c)}"><span class="sidebar__dot" aria-hidden="true" style="background:${dotColour}"></span><span class="sidebar__item__abbrev" aria-hidden="true">${esc(abbrev)}</span><span class="sidebar__item__label">${esc(c)}</span><span class="sidebar__item__count" aria-hidden="true">${count}</span></button>`;
   });
@@ -6216,13 +6220,18 @@ function renderStandupTaskRow(t, now) {
   let html = `<div class="standup-task ${isOverdue ? 'standup-task--danger' : ''} ${isDone ? 'standup-task--done' : ''} ${isCancelled ? 'standup-task--cancelled' : ''}">`;
   html += `<div class="standup-task__row">`;
   html += standupSelect(t.id, 'status', t.status, STATUSES);
+  if (t.status === 'Blocked') {
+    const bInfo = t.blockerInfo || t.blocker_info;
+    const bReason = bInfo ? (bInfo.blockedOn || 'Blocked') : 'Blocked';
+    html += `<span class="badge badge--blocked" style="font-size:0.6rem;padding:1px 6px" title="${esc(bReason)}">BLOCKED</span>`;
+  }
   html += `<span class="standup-task__title ${isDone ? 'standup-task__title--done' : ''}" data-action="openDetailOverlay" data-stop data-arg0="${t.id}">${esc(t.title)}</span>`;
   html += standupAssigneeHtml(t.id, t.assignees);
   html += standupSelect(t.id, 'priority', t.priority || '', ['', ...PRIORITIES]);
   html += standupSelect(t.id, 'healthState', t.healthState || '', ['', ...HEALTH_STATES]);
-  html += standupDate(t.id, 'startDate', t.startDate, 'S');
-  html += standupDate(t.id, 'endDate', t.endDate, 'E');
-  html += standupDate(t.id, 'dueDate', t.dueDate, 'D');
+  html += standupDate(t.id, 'startDate', t.startDate, 'S', t);
+  html += standupDate(t.id, 'endDate', t.endDate, 'E', t);
+  html += standupDate(t.id, 'dueDate', t.dueDate, 'D', t);
   html += `<input type="number" class="standup-inline standup-inline--number" step="0.5" min="0" value="${t.hoursEstimated||0}" data-stop onchange="event.stopPropagation();standupUpdateTask('${t.id}','hoursEstimated',parseFloat(this.value)||0,this)" title="Hours Est.">`;
   html += `<span class="standup-label">h</span>`;
   if (depNames.length > 0) {
@@ -6331,8 +6340,17 @@ function standupSelect(taskId, field, currentVal, options) {
 }
 
 /** Build a compact inline date input for the standup row */
-function standupDate(taskId, field, currentVal, label) {
-  return `<span class="standup-label">${label}</span><input type="date" class="standup-inline standup-inline--date" value="${currentVal||''}" onchange="event.stopPropagation();standupUpdateTask('${taskId}','${field}',this.value,this)" data-stop>`;
+function standupDate(taskId, field, currentVal, label, task) {
+  let cls = 'standup-inline standup-inline--date';
+  if (task && currentVal) {
+    const d = safeParseDate(currentVal);
+    const today = new Date(new Date().toDateString());
+    if (d && d < today) {
+      if (field === 'dueDate' && task.status !== 'Done' && task.status !== 'Cancelled') cls += ' standup-inline--overdue';
+      if (field === 'startDate' && task.status === 'Not started') cls += ' standup-inline--late-start';
+    }
+  }
+  return `<span class="standup-label">${label}</span><input type="date" class="${cls}" value="${currentVal||''}" onchange="event.stopPropagation();standupUpdateTask('${taskId}','${field}',this.value,this)" data-stop>`;
 }
 
 /** Add assignee from standup without full re-render */
@@ -6545,13 +6563,18 @@ function _renderStandupBody(container, filtered, now, teamMembers) {
       html += `<div class="standup-task__row">`;
       html += `${clientBadgeHtml(getTaskClient(t))} `;
       html += standupSelect(t.id, 'status', t.status, STATUSES);
+      if (t.status === 'Blocked') {
+        const bInfo = t.blockerInfo || t.blocker_info;
+        const bReason = bInfo ? (bInfo.blockedOn || 'Blocked') : 'Blocked';
+        html += `<span class="badge badge--blocked" style="font-size:0.6rem;padding:1px 6px" title="${esc(bReason)}">BLOCKED</span>`;
+      }
       html += `<span class="standup-task__title ${isDone ? 'standup-task__title--done' : ''}" data-action="openDetailOverlay" data-stop data-arg0="${t.id}">${esc(t.title)}</span>`;
       html += standupAssigneeHtml(t.id, t.assignees);
       html += standupSelect(t.id, 'priority', t.priority || '', ['', ...PRIORITIES]);
       html += standupSelect(t.id, 'healthState', t.healthState || '', ['', ...HEALTH_STATES]);
-      html += standupDate(t.id, 'startDate', t.startDate, 'S');
-      html += standupDate(t.id, 'endDate', t.endDate, 'E');
-      html += standupDate(t.id, 'dueDate', t.dueDate, 'D');
+      html += standupDate(t.id, 'startDate', t.startDate, 'S', t);
+      html += standupDate(t.id, 'endDate', t.endDate, 'E', t);
+      html += standupDate(t.id, 'dueDate', t.dueDate, 'D', t);
       html += `<input type="number" class="standup-inline standup-inline--number" step="0.5" min="0" value="${t.hoursEstimated||0}" data-stop onchange="event.stopPropagation();standupUpdateTask('${t.id}','hoursEstimated',parseFloat(this.value)||0,this)" title="Hours Est.">`;
       html += `<span class="standup-label">h</span>`;
       if (depNames.length > 0) {
@@ -10160,10 +10183,14 @@ async function updateTask(id, field, value) {
 
   if ((field === 'startDate' || field === 'endDate' || field === 'dueDate') && value) {
     const yearMatch = value.match(/^(\d+)-/);
-    if (yearMatch && yearMatch[1].length >= 4 && (parseInt(yearMatch[1], 10) < 1900 || parseInt(yearMatch[1], 10) > 2099)) {
-      showToast('Invalid year — must be between 1900 and 2099', 'error');
-      renderContent();
-      return;
+    if (yearMatch && yearMatch[1].length >= 4) {
+      const yr = parseInt(yearMatch[1], 10);
+      if (yr < 1000) return;
+      if (yr < 1900 || yr > 2099) {
+        showToast('Invalid year — must be between 1900 and 2099', 'error');
+        renderContent();
+        return;
+      }
     }
   }
 
