@@ -6216,8 +6216,8 @@ function _renderStandupBody(container, filtered, now, teamMembers) {
   activePeople.forEach(person => {
     const clients = personClientMap[person];
     const totalTasks = Object.values(clients).reduce((s, arr) => s + arr.length, 0);
-    const totalBlocked = Object.values(clients).flat().filter(t => t.healthState === 'Blocked').length;
-    const totalOverdue = Object.values(clients).flat().filter(t => t.dueDate && safeParseDate(t.dueDate) < now).length;
+    const totalBlocked = Object.values(clients).flat().filter(t => t.healthState === 'Blocked' && t.status !== 'Done' && t.status !== 'Cancelled').length;
+    const totalOverdue = Object.values(clients).flat().filter(t => t.dueDate && t.status !== 'Done' && t.status !== 'Cancelled' && safeParseDate(t.dueDate) < now).length;
     const isExpanded = _expandedStandupPeople.has(person);
 
     html += `<div class="tactical-person ${isExpanded ? 'expanded' : ''}">`;
