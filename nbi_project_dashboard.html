@@ -428,11 +428,10 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .pf__kpi-delta-text { font-size: 0.65rem; font-weight: 500; color: var(--text-muted); }
 
 /* Table + Status Overview side-by-side row — fixed height */
-.pf__row { display: flex; gap: 8px; flex-shrink: 0; max-height: 240px; }
+.pf__row { display: flex; gap: 8px; flex-shrink: 0; }
 
 /* Client table — 2/3 width, scrolls if many clients */
-.pf__tbl-card { background: var(--bg-card); border: 1px solid var(--border-default); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; flex: 2; display: flex; flex-direction: column; }
-.pf__tbl-card .pf__tbl { flex: 1; overflow-y: auto; }
+.pf__tbl-card { background: var(--bg-card); border: 1px solid var(--border-default); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; flex: 2; }
 
 /* Status Overview in the row — 1/3 width */
 .pf__row > .pf__panel { flex: 1; }
@@ -5841,10 +5840,13 @@ function renderPfCompletingSoon(panelRoots, now) {
 function renderPfTeamWorkload(panelTasks) {
   const activeTasks = panelTasks.filter(t => t.status !== 'Done' && t.status !== 'Cancelled');
   const activeStaff = new Set(_cachedTeamMembers || []);
+  const clientStaff = new Set((_cachedUsers || []).filter(u => u.client_id).map(u => u.display_name));
+  const atPortfolio = !_portfolioSelectedClient;
   const personMap = {};
   activeTasks.forEach(t => {
     (t.assignees || []).forEach(a => {
       if (activeStaff.size > 0 && !activeStaff.has(a)) return;
+      if (atPortfolio && clientStaff.has(a)) return;
       if (!personMap[a]) personMap[a] = 0;
       personMap[a]++;
     });
