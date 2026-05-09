@@ -3651,11 +3651,21 @@ function save() {
   }
 }
 
+let _syncRetryCount = 0;
+let _syncRetryTimer = null;
+function _scheduleSyncRetry() {
+  if (_syncRetryTimer) return;
+  _syncRetryCount++;
+  if (_syncRetryCount > 5) { showSyncStatus('error', 'Sync failed after 5 attempts — changes saved locally'); return; }
+  const delay = Math.min(2000 * Math.pow(2, _syncRetryCount - 1), 30000);
+  _syncRetryTimer = setTimeout(() => { _syncRetryTimer = null; syncToAPI(); }, delay);
+}
+
 /**
  * Push local changes to the server via POST /api/sync/changes.
  * Sends only dirty/deleted tasks (not the full array).
  * Includes _serverUpdatedAt for conflict detection — server rejects if another user edited since.
- * On failure, re-queues the changes for the next cycle.
+ * On failure, re-queues the changes for the next cycle with exponential backoff.
  */
 async function syncToAPI() {
   if (_syncInFlight) return;
@@ -3696,7 +3706,9 @@ async function syncToAPI() {
       deletedIds.forEach(id => _deletedTaskIds.add(id));
       if (sendBriefs) _briefsDirty = true;
       showSyncStatus('error', 'Sync failed — retrying...');
+      _scheduleSyncRetry();
     } else {
+      _syncRetryCount = 0;
       _lastLocalSyncTime = Date.now();
       walClear([...dirtyIds, ...deletedIds]);
       showSyncStatus('saving', 'Saved ✓');
@@ -3707,6 +3719,7 @@ async function syncToAPI() {
     deletedIds.forEach(id => _deletedTaskIds.add(id));
     if (sendBriefs) _briefsDirty = true;
     showSyncStatus('error', 'Server unreachable — changes saved locally');
+    _scheduleSyncRetry();
   } finally {
     _syncInFlight = false;
   }
@@ -10309,13 +10322,29 @@ async function updateTask(id, field, value) {
 
 /** Update a task row's visual styling in place without re-rendering the whole page */
 function _updateTaskRowInPlace(taskId, field, value) {
-  // Update any visible select/input that shows this field for this task
-  // (handles the case where the same task appears in multiple views)
+  const row = document.querySelector(`.task-row[data-id="${taskId}"]`);
   if (field === 'status') {
     document.querySelectorAll(`[data-task-id="${taskId}"] .task-status-badge, .task-row[data-id="${taskId}"] .task-row__status`).forEach(el => {
       if (el.tagName === 'SELECT') el.value = value;
       else el.textContent = value;
     });
+  }
+  if (field === 'title' && row) {
+    const titleEl = row.querySelector('.task-row__title');
+    if (titleEl) titleEl.textContent = value;
+  }
+  if (field === 'assignees' && row) {
+    const assigneeEl = row.querySelector('.task-row__assignee');
+    const display = Array.isArray(value) && value.length > 0 ? value[0] : '';
+    if (assigneeEl) assigneeEl.textContent = display;
+    else if (display) {
+      const titleEl = row.querySelector('.task-row__title');
+      if (titleEl) titleEl.insertAdjacentHTML('afterend', `<span class="task-row__assignee">${esc(display)}</span>`);
+    }
+  }
+  if (field === 'priority' && row) {
+    const prioEl = row.querySelector('.task-row__priority');
+    if (prioEl) prioEl.textContent = value || '';
   }
 }
 
