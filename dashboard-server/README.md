@@ -8,7 +8,7 @@ Project management dashboard for NBI Analytics Ltd. Single-page application with
 ## Architecture
 
 - **Frontend:** `nbi_project_dashboard.html` — monolithic SPA with inline CSS and JS (~13,100 lines, 100% JSDoc coverage)
-- **Backend:** `server.js` — Express.js REST API (~4,950 lines)
+- **Backend:** `server.js` (orchestrator, ~550 lines) + `routes/` (29 modules) + `lib/` (13 modules) + `cron/` (1 module)
 - **Database:** PostgreSQL (connection via `DATABASE_URL` env var)
 - **Deployment:** PM2 process manager + Cloudflare Tunnel
 
@@ -210,14 +210,60 @@ Migrations are in `migrations/` and run automatically on server start via `runne
 
 ```
 dashboard-server/
-  server.js              # Main Express server
+  server.js              # Orchestrator (~550 lines): deps, middleware, route mounting, re-exports
   init-db.js             # Database initialisation (CREATE TABLE)
   ecosystem.config.js    # PM2 configuration
   resilience.js          # Retry + circuit breaker utilities
-  backup-validate.js     # Backup integrity checker
+  lib/
+    logger.js            # Structured JSON logger
+    db.js                # Pool creation, pg DATE type config
+    helpers.js           # Item types, business days, buildPatchQuery, UUID validation, escHtml
+    email.js             # MSAL + Graph API, sendEmailAsync, email HTML builders
+    auth-middleware.js    # requireAuth/Admin/NBI, scopes, token cache, brute-force
+    audit.js             # auditLog, sanitiseAuditData, computeNextRepeatDate
+    notifications.js     # createNotification helper
+    import-parser.js     # Excel/CSV parsing, format detection, row-to-task mapping
+    metrics.js           # Prometheus counters, /metrics endpoint
+    slack-bot.js         # Slack event handling
+    sow-extractor.js     # SoW PDF text extraction
+    redact-nbi-internal.js  # Client portal content redaction
+    attachment-sweep.js  # Orphaned attachment cleanup logic
+  routes/
+    auth.js              # Login, logout, password reset, session management
+    users.js             # User CRUD, skills, deactivation
+    tasks.js             # Task CRUD, bulk import, comments, attachments, status cascades
+    sync.js              # Incremental sync, polling, full data load
+    documents.js         # Document CRUD, versioning (ETag), client portal redaction
+    clients.js           # Client CRUD, research
+    milestones.js        # Milestone CRUD per client
+    sows.js              # SoW CRUD + PDF upload
+    teams.js             # Team CRUD + membership
+    contacts.js          # Contact CRUD per client
+    client-notes.js      # Client notes CRUD
+    calendar.js          # Calendar events, visibility model
+    leads.js             # Leads pipeline, stages, forecast, activities
+    expenses.js          # Expenses, OCR receipts, reports, export
+    bugs.js              # Bug reports, comments, screenshots, kanban
+    hiring.js            # Positions, candidates, CV upload
+    reports.js           # Client status reports, HTML/PDF generation
+    resource-planning.js # Capacity, deal-readiness
+    dashboard.js         # Dashboard summary, snapshots
+    admin.js             # Backup/restore, cleanse, import, health, audit log
+    settings.js          # Settings GET/PUT
+    finance.js           # Finance data GET/PUT
+    time-entries.js      # Time entry CRUD + summary
+    time-off.js          # Time-off CRUD
+    queue.js             # Task queue CRUD
+    notifications.js     # Notification CRUD
+    templates.js         # Task template CRUD
+    attachments.js       # Universal attachments (any entity type)
+    slack.js             # Slack events endpoint
+  cron/
+    index.js             # All scheduled jobs + builder functions (PM report, due warnings,
+                         #   inbound email, FX rates, cleanup, dashboard snapshot)
   migrations/
     runner.js            # Migration runner (auto-applies on start)
-    001-008_*.sql        # Numbered migrations
+    001-043_*.sql        # Numbered migrations
   uploads/               # File attachments (auto-created)
 nbi_project_dashboard.html  # Frontend SPA
 ```
