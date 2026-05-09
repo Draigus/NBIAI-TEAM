@@ -412,16 +412,16 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 @media (min-width: 769px) and (max-width: 1024px) { .people-split { flex-direction: column; } .people-list { width: 100%; max-height: 400px; position: static; } .people-detail { width: 100%; } }
 
 /* ===== PORTFOLIO v5 — Neumorphic layout ===== */
-.pf { width: 100%; margin: 0 auto; padding: 28px 36px 60px; display: flex; flex-direction: column; gap: 24px; }
+.pf { width: 100%; margin: 0 auto; padding: 20px 28px 32px; display: flex; flex-direction: column; gap: 16px; height: 100%; min-height: 0; overflow-y: auto; }
 
 /* KPI row — 5 cards */
 .pf__kpis { display: grid; grid-template-columns: repeat(5, 1fr); gap: 18px; }
-.pf__kpi { background: var(--bg-card); border: 1px solid var(--border-default); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); padding: 18px 26px 22px; cursor: pointer; text-align: center; display: flex; flex-direction: column; align-items: center; min-height: 160px; transition: box-shadow 0.25s, transform 0.2s; }
+.pf__kpi { background: var(--bg-card); border: 1px solid var(--border-default); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); padding: 14px 20px 16px; cursor: pointer; text-align: center; display: flex; flex-direction: column; align-items: center; min-height: 120px; transition: box-shadow 0.25s, transform 0.2s; }
 .pf__kpi:hover { box-shadow: var(--shadow-md); transform: translateY(-3px); }
 .pf__kpi:active { box-shadow: inset 3px 3px 8px rgba(0,0,0,0.15); transform: translateY(0); transition-duration: 0.08s; }
 .pf__kpi-label { font-size: 0.82rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
 .pf__kpi-center { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
-.pf__kpi-val { font-size: 3.5rem; font-weight: 700; font-family: var(--font-mono); line-height: 1; letter-spacing: -0.04em; color: var(--text-primary); }
+.pf__kpi-val { font-size: 2.8rem; font-weight: 700; font-family: var(--font-mono); line-height: 1; letter-spacing: -0.04em; color: var(--text-primary); }
 .pf__kpi-delta-row { display: flex; align-items: center; gap: 8px; }
 .pf__kpi-delta { display: flex; align-items: center; gap: 4px; font-size: 1rem; font-weight: 700; }
 .pf__kpi-delta-text { font-size: 0.82rem; font-weight: 500; color: var(--text-muted); }
@@ -432,7 +432,7 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .pf__tbl-title { font-size: 1.05rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; }
 .pf__tbl { width: 100%; border-collapse: collapse; }
 .pf__tbl th { text-align: left; padding: 14px 28px; font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-faint); border-bottom: 1px solid var(--border-subtle); }
-.pf__tbl td { padding: 20px 28px; font-size: 1.05rem; border-bottom: 1px solid var(--border-subtle); vertical-align: middle; }
+.pf__tbl td { padding: 14px 24px; font-size: 1rem; border-bottom: 1px solid var(--border-subtle); vertical-align: middle; }
 .pf__tbl tbody tr { cursor: pointer; transition: background 0.15s; }
 .pf__tbl tbody tr:hover { background: var(--accent-glow); }
 .pf__tbl tbody tr:active { background: color-mix(in srgb, var(--accent-glow) 200%, transparent); }
@@ -461,7 +461,7 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 /* Panel grid */
 .pf__pgrid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
 .pf__pgrid--2 { grid-template-columns: 1fr 1fr; }
-.pf__panel { background: var(--bg-card); border: 1px solid var(--border-default); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; display: flex; flex-direction: column; min-height: 200px; }
+.pf__panel { background: var(--bg-card); border: 1px solid var(--border-default); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; display: flex; flex-direction: column; min-height: 180px; max-height: 380px; }
 .pf__panel-hdr { padding: 18px 24px 14px; display: flex; align-items: center; justify-content: center; gap: 16px; border-bottom: 1px solid var(--border-subtle); flex-shrink: 0; }
 .pf__panel-title { font-size: 1.05rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
 .pf__panel-badge { font-size: 0.82rem; font-weight: 700; font-family: var(--font-mono); padding: 5px 12px; background: var(--bg-input); border-radius: 8px; box-shadow: inset 2px 2px 5px rgba(0,0,0,0.15); }
