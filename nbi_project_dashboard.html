@@ -12269,7 +12269,8 @@ async function loadCapacityHeatmap() {
         else if (util < 90) { bg = 'rgba(245,158,11,0.15)'; fg = 'var(--warning)'; }
         else if (util <= 100) { bg = 'rgba(249,115,22,0.2)'; fg = '#f97316'; }
         else { bg = 'rgba(239,68,68,0.2)'; fg = 'var(--danger)'; }
-        html += `<td style="text-align:center;background:${bg};font-family:var(--font-mono);font-size:0.75rem;font-weight:600;color:${fg}" title="${u.name}: ${w.committed ?? 0}h / ${w.capacity ?? 40}h (${util ?? 0}%)">${w.committed ?? 0}h<div style="font-size:0.58rem;font-weight:400;color:var(--text-muted)">${util ?? 0}%</div></td>`;
+        const offLabel = w.timeOffDays ? ` (${w.timeOffDays}d off)` : '';
+        html += `<td style="text-align:center;background:${bg};font-family:var(--font-mono);font-size:0.75rem;font-weight:600;color:${fg}" title="${u.name}: ${w.committed ?? 0}h / ${w.capacity ?? 40}h (${util ?? 0}%)${offLabel}">${w.committed ?? 0}h<div style="font-size:0.58rem;font-weight:400;color:var(--text-muted)">${util ?? 0}%${w.timeOffDays ? ' ✈' : ''}</div></td>`;
       });
       html += '</tr>';
     });
@@ -12337,6 +12338,22 @@ async function loadCapacityHeatmap() {
           });
         }
         html += '</div>';
+
+        // Time-off management
+        const selUserObj = _cachedUsers ? _cachedUsers.find(x => x.display_name === _capSelectedPerson) : null;
+        if (selUserObj) {
+          html += '<div class="cap-detail__section">';
+          html += `<div class="cap-detail__section-title">Time Off</div>`;
+          html += `<div id="capTimeOffList" data-user-id="${selUserObj.id}"><span style="color:var(--text-muted);font-size:0.78rem">Loading...</span></div>`;
+          html += `<div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:6px;margin-top:8px;align-items:end">
+            <div><label style="font-size:0.68rem;color:var(--text-muted);display:block">From</label><input type="date" id="capTimeOffFrom" style="width:100%;padding:4px 6px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:4px;color:var(--text-primary);font-size:0.78rem"></div>
+            <div><label style="font-size:0.68rem;color:var(--text-muted);display:block">To</label><input type="date" id="capTimeOffTo" style="width:100%;padding:4px 6px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:4px;color:var(--text-primary);font-size:0.78rem"></div>
+            <div><label style="font-size:0.68rem;color:var(--text-muted);display:block">Label</label><input type="text" id="capTimeOffLabel" placeholder="e.g. Holiday" style="width:100%;padding:4px 6px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:4px;color:var(--text-primary);font-size:0.78rem"></div>
+            <button class="btn btn--sm btn--primary" style="padding:4px 10px;font-size:0.72rem" onclick="_addTimeOff()">Add</button>
+          </div>`;
+          html += '</div>';
+        }
+
         html += '</div>';
       }
     }
@@ -12344,7 +12361,65 @@ async function loadCapacityHeatmap() {
 
     html += '</div>'; // close cap-split
     el.innerHTML = html;
+
+    // Load time-off entries for the selected person
+    const timeOffEl = document.getElementById('capTimeOffList');
+    if (timeOffEl) _loadTimeOffList(timeOffEl.dataset.userId, timeOffEl);
   } catch(e) { el.innerHTML = `<div style="color:var(--danger);padding:20px">Error: ${esc(e.message)}</div>`; }
+}
+
+async function _loadTimeOffList(userId, el) {
+  try {
+    const entries = await apiCall(`/api/users/${userId}/time-off`);
+    if (!entries || entries.length === 0) {
+      el.innerHTML = '<div style="color:var(--text-muted);font-size:0.78rem;padding:4px 0">No time off scheduled</div>';
+      return;
+    }
+    let html = '';
+    entries.forEach(e => {
+      const from = e.start_date.slice(0, 10);
+      const to = e.end_date.slice(0, 10);
+      const label = e.label ? ` — ${esc(e.label)}` : '';
+      html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border-subtle);font-size:0.78rem">
+        <span>${from} to ${to}${label}</span>
+        <button class="btn btn--sm btn--ghost" style="font-size:0.68rem;padding:2px 6px;color:var(--danger)" onclick="_deleteTimeOff('${e.id}')">Remove</button>
+      </div>`;
+    });
+    el.innerHTML = html;
+  } catch (err) {
+    el.innerHTML = '<div style="color:var(--danger);font-size:0.78rem">Failed to load</div>';
+  }
+}
+
+async function _addTimeOff() {
+  const el = document.getElementById('capTimeOffList');
+  if (!el) return;
+  const userId = el.dataset.userId;
+  const from = document.getElementById('capTimeOffFrom')?.value;
+  const to = document.getElementById('capTimeOffTo')?.value;
+  const label = document.getElementById('capTimeOffLabel')?.value || '';
+  if (!from || !to) { showToast('Please select both From and To dates', 'error'); return; }
+  if (new Date(to) < new Date(from)) { showToast('To date must be after From date', 'error'); return; }
+  try {
+    await apiCall(`/api/users/${userId}/time-off`, { method: 'POST', body: JSON.stringify({ start_date: from, end_date: to, label }) });
+    await _loadTimeOffList(userId, el);
+    loadCapacityHeatmap();
+    if (document.getElementById('capTimeOffFrom')) document.getElementById('capTimeOffFrom').value = '';
+    if (document.getElementById('capTimeOffTo')) document.getElementById('capTimeOffTo').value = '';
+    if (document.getElementById('capTimeOffLabel')) document.getElementById('capTimeOffLabel').value = '';
+    showToast('Time off added');
+  } catch (err) { showToast('Failed to add time off', 'error'); }
+}
+
+async function _deleteTimeOff(id) {
+  const el = document.getElementById('capTimeOffList');
+  if (!el) return;
+  try {
+    await apiCall(`/api/time-off/${id}`, { method: 'DELETE' });
+    await _loadTimeOffList(el.dataset.userId, el);
+    loadCapacityHeatmap();
+    showToast('Time off removed');
+  } catch (err) { showToast('Failed to remove time off', 'error'); }
 }
 
 // ==================== DOCUMENTATION VIEW ====================
@@ -15591,6 +15666,7 @@ function renderLeadsKanban(el, leads) {
         data-action="openLeadDetail" data-arg0="${lead.id}">`;
       if (lead.client_name) html += `<div class="leads-card__client">${esc(lead.client_name)}</div>`;
       html += `<div class="leads-card__title">${esc(lead.title)}</div>`;
+      if (lead.sow_title) html += `<div style="font-size:0.68rem;color:var(--text-muted);margin-bottom:4px">${esc(lead.sow_title)}</div>`;
       html += `<div class="leads-card__meta">`;
       if (lead.priority) html += `<span class="leads-card__prio leads-card__prio--${lead.priority}">P${lead.priority}</span>`;
       html += `<span class="leads-card__rom">${formatROM(lead)}</span>`;
@@ -16883,6 +16959,14 @@ function renderLeadDetailContent(panel, lead) {
   html += `<label>Practice</label><select onchange="updateLead('${lead.id}','practice_area',this.value||null)"><option value="">-- Unclassified --</option>`;
   PRACTICES.forEach(p => {
     html += `<option value="${esc(p.value)}" ${lead.practice_area === p.value ? 'selected' : ''}>${esc(p.label)}</option>`;
+  });
+  html += `</select>`;
+
+  // SoW picker — scoped to the lead's client so PMs don't see irrelevant SoWs
+  const clientSows = lead.client_id ? _sowsCache.filter(s => s.client_id === lead.client_id) : _sowsCache;
+  html += `<label>Statement of Work</label><select onchange="updateLead('${lead.id}','sow_id',this.value||null)"><option value="">-- None --</option>`;
+  clientSows.forEach(s => {
+    html += `<option value="${esc(s.id)}" ${lead.sow_id === s.id ? 'selected' : ''}>${esc(s.title)}</option>`;
   });
   html += `</select>`;
 

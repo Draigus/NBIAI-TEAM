@@ -6737,6 +6737,7 @@ app.get('/api/leads', async (req, res) => {
       s.name as stage_name, s.colour as stage_colour, s.sort_order as stage_sort_order,
       s.is_closed, s.is_won,
       ct.name as primary_contact_name, ct.email as primary_contact_email, ct.phone as primary_contact_phone,
+      sw.title as sow_title,
       (SELECT json_agg(json_build_object('resource_type_id', lr.resource_type_id, 'quantity', lr.quantity, 'notes', lr.notes,
         'resource_name', rt.name) ORDER BY rt.sort_order)
        FROM lead_resources lr JOIN lead_resource_types rt ON lr.resource_type_id = rt.id WHERE lr.lead_id = l.id) as resources
@@ -6744,6 +6745,7 @@ app.get('/api/leads', async (req, res) => {
     LEFT JOIN clients c ON l.client_id = c.id
     JOIN lead_pipeline_stages s ON l.stage_id = s.id
     LEFT JOIN contacts ct ON l.primary_contact_id = ct.id
+    LEFT JOIN sows sw ON sw.id = l.sow_id
     ${whereClause}
     ORDER BY s.sort_order, l.position, l.created_at DESC
     ${paginationClause}
@@ -6869,6 +6871,7 @@ app.get('/api/leads/:id', async (req, res) => {
       c.nbi_relationship as client_nbi_relationship,
       s.name as stage_name, s.colour as stage_colour, s.is_closed, s.is_won,
       ct.name as primary_contact_name, ct.email as primary_contact_email, ct.phone as primary_contact_phone,
+      sw.title as sow_title,
       COALESCE(
         (SELECT json_agg(json_build_object(
           'id', lr.id, 'lead_id', lr.lead_id, 'resource_type_id', lr.resource_type_id,
@@ -6892,6 +6895,7 @@ app.get('/api/leads/:id', async (req, res) => {
     LEFT JOIN clients c ON l.client_id = c.id
     JOIN lead_pipeline_stages s ON l.stage_id = s.id
     LEFT JOIN contacts ct ON l.primary_contact_id = ct.id
+    LEFT JOIN sows sw ON sw.id = l.sow_id
     WHERE l.id = $1
   `, [req.params.id]);
   if (!rows[0]) return res.status(404).json({ error: 'Lead not found' });
@@ -6986,7 +6990,7 @@ app.patch('/api/leads/:id', requireAdmin, async (req, res) => {
     'primary_contact_id', 'deal_owner', 'lead_source',
     'est_start_date', 'expected_close_date', 'last_contacted',
     'next_followup_date', 'next_action', 'location', 'notes', 'time_estimate',
-    'completed_at', 'practice_area'];
+    'completed_at', 'practice_area', 'sow_id'];
 
   const sanitisedBody = { ...req.body };
   for (const f of patchFields) {
@@ -9280,6 +9284,34 @@ app.get('/api/resource-planning/capacity', async (req, res) => {
     weekRanges.push({ start: wStart, end: wEnd, label: wStart.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) });
   }
 
+  // Fetch time-off entries covering the capacity window
+  const windowStart = weekRanges[0].start.toISOString().slice(0,10);
+  const windowEnd = weekRanges[weekRanges.length - 1].end.toISOString().slice(0,10);
+  const timeOffRows = (await pool.query(
+    'SELECT user_id, start_date, end_date FROM time_off WHERE end_date >= $1 AND start_date <= $2',
+    [windowStart, windowEnd]
+  )).rows;
+  const timeOffByUser = {};
+  timeOffRows.forEach(r => {
+    if (!timeOffByUser[r.user_id]) timeOffByUser[r.user_id] = [];
+    timeOffByUser[r.user_id].push({ start: new Date(r.start_date), end: new Date(r.end_date) });
+  });
+
+  // Count business days (Mon-Fri) of time-off overlapping a given week
+  function countTimeOffDays(entries, weekStart, weekEnd) {
+    if (!entries || entries.length === 0) return 0;
+    let days = 0;
+    for (const e of entries) {
+      const overlapStart = e.start > weekStart ? e.start : weekStart;
+      const overlapEnd = e.end < weekEnd ? e.end : weekEnd;
+      for (let d = new Date(overlapStart); d <= overlapEnd; d.setDate(d.getDate() + 1)) {
+        const dow = d.getDay();
+        if (dow >= 1 && dow <= 5) days++;
+      }
+    }
+    return days;
+  }
+
   // For each user, calculate committed hours per week
   // Build name variants for partial-match (e.g. "Glen" matches "Glen Pryer")
   const userNameVariants = {};
@@ -9290,33 +9322,34 @@ app.get('/api/resource-planning/capacity', async (req, res) => {
   });
   const result = users.map(u => {
     const variants = userNameVariants[u.id] || [];
+    const userTimeOff = timeOffByUser[u.id] || [];
     const userWeeks = weekRanges.map(wr => {
       let committed = 0;
       activeTasks.forEach(t => {
         if (!t.assignees) return;
-        // Match if any assignee string matches this user's display name or first name (case-insensitive)
         const matched = t.assignees.some(a => {
           const al = a.toLowerCase().trim();
           return al === (u.display_name || '').toLowerCase() || variants.includes(al) || al.startsWith(variants[0]) || variants[0].startsWith(al);
         });
         if (!matched) return;
-        // Determine task's active date range
         const taskStart = t.start_date ? new Date(t.start_date + 'T00:00:00') : new Date(t.created_at);
-        const taskEnd = t.end_date ? new Date(t.end_date + 'T00:00:00') : t.due_date ? new Date(t.due_date + 'T00:00:00') : new Date(taskStart.getTime() + 14 * 24 * 60 * 60 * 1000); // default 2 weeks
-        // Check overlap with this week
+        const taskEnd = t.end_date ? new Date(t.end_date + 'T00:00:00') : t.due_date ? new Date(t.due_date + 'T00:00:00') : new Date(taskStart.getTime() + 14 * 24 * 60 * 60 * 1000);
         if (taskEnd < wr.start || taskStart > wr.end) return;
-        // Distribute hours evenly across the task's active weeks
         const taskWeeks = Math.max(1, Math.ceil((taskEnd - taskStart) / (7 * 24 * 60 * 60 * 1000)));
         const hrsPerWeek = (t.hours_estimated || 0) / taskWeeks;
         committed += hrsPerWeek;
       });
-      const capacity = u.capacity_hours_per_week || 40;
+      const baseCapacity = u.capacity_hours_per_week || 40;
+      const offDays = countTimeOffDays(userTimeOff, wr.start, wr.end);
+      const hrsPerDay = baseCapacity / 5;
+      const capacity = Math.max(0, baseCapacity - offDays * hrsPerDay);
       return {
         label: wr.label,
         start: wr.start.toISOString().slice(0,10),
         committed: Math.round(committed * 10) / 10,
-        capacity,
+        capacity: Math.round(capacity * 10) / 10,
         utilisation: capacity > 0 ? Math.round(committed / capacity * 100) : 0,
+        timeOffDays: offDays,
       };
     });
     return {
@@ -9367,6 +9400,53 @@ app.patch('/api/users/:id/skills', requireAdmin, async (req, res) => {
   vals.push(req.params.id);
   const { rows } = await pool.query(`UPDATE users SET ${updates.join(', ')} WHERE id = $${nextIdx} RETURNING id, display_name, resource_type_ids, capacity_hours_per_week`, vals);
   res.json(rows[0]);
+});
+
+// ==================== TIME-OFF ====================
+
+/** GET /api/users/:userId/time-off — List time-off entries for a user */
+app.get('/api/users/:userId/time-off', async (req, res) => {
+  if (!isValidUuid(req.params.userId)) return res.status(400).json({ error: 'Invalid user ID' });
+  const { rows } = await pool.query(
+    'SELECT * FROM time_off WHERE user_id = $1 ORDER BY start_date',
+    [req.params.userId]
+  );
+  res.json(rows);
+});
+
+/** GET /api/time-off — All time-off entries (optionally filtered by date window) */
+app.get('/api/time-off', async (req, res) => {
+  const { from, to } = req.query;
+  let where = []; let vals = []; let i = 1;
+  if (from) { where.push(`end_date >= $${i}`); vals.push(from); i++; }
+  if (to) { where.push(`start_date <= $${i}`); vals.push(to); i++; }
+  const whereClause = where.length ? 'WHERE ' + where.join(' AND ') : '';
+  const { rows } = await pool.query(
+    `SELECT t.*, u.display_name FROM time_off t LEFT JOIN users u ON u.id = t.user_id ${whereClause} ORDER BY t.start_date`,
+    vals
+  );
+  res.json(rows);
+});
+
+/** POST /api/users/:userId/time-off — Create a time-off entry */
+app.post('/api/users/:userId/time-off', requireAdmin, async (req, res) => {
+  if (!isValidUuid(req.params.userId)) return res.status(400).json({ error: 'Invalid user ID' });
+  const { start_date, end_date, label } = req.body;
+  if (!start_date || !end_date) return res.status(400).json({ error: 'start_date and end_date are required' });
+  if (new Date(end_date) < new Date(start_date)) return res.status(400).json({ error: 'end_date must be >= start_date' });
+  const { rows } = await pool.query(
+    'INSERT INTO time_off (user_id, start_date, end_date, label) VALUES ($1, $2, $3, $4) RETURNING *',
+    [req.params.userId, start_date, end_date, label || '']
+  );
+  res.status(201).json(rows[0]);
+});
+
+/** DELETE /api/time-off/:id — Delete a time-off entry */
+app.delete('/api/time-off/:id', requireAdmin, async (req, res) => {
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid time-off ID' });
+  const { rowCount } = await pool.query('DELETE FROM time_off WHERE id = $1', [req.params.id]);
+  if (rowCount === 0) return res.status(404).json({ error: 'Not found' });
+  res.json({ ok: true });
 });
 
 // ==================== SCHEDULED TASKS ====================
