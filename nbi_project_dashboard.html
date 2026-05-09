@@ -5642,88 +5642,117 @@ function renderPfProgressStatus(panelTasks) {
   const active = panelTasks.filter(t => t.status !== 'Cancelled');
   const total = active.length;
   if (total === 0) {
-    return '<div class="pf__panel"><div class="pf__panel-hdr"><div class="pf__panel-title">Progress Status</div></div><div class="pf__panel-body"><div style="display:flex;align-items:center;justify-content:center;height:200px;color:var(--text-muted);font-size:0.82rem">No tasks found.</div></div></div>';
+    return '<div class="pf__panel"><div class="pf__panel-hdr"><span class="pf__panel-title">Status Overview</span></div><div class="pf__panel-body"><div class="pf__empty"><div class="pf__empty-title">No tasks found</div></div></div></div>';
   }
 
-  const wipBuckets = [
-    { key: 'done', label: 'COMPLETED', colour: '#a855f7', count: 0 },
-    { key: 'inprogress', label: 'IN PROGRESS', colour: '#06b6d4', count: 0 },
-    { key: 'planning', label: 'PLANNING', colour: '#3b82f6', count: 0 },
-    { key: 'waiting', label: 'WAITING', colour: '#f59e0b', count: 0 },
-    { key: 'blocked', label: 'BLOCKED', colour: '#ef4444', count: 0 },
+  const buckets = [
+    { key: 'done', label: 'Completed', colour: 'var(--success)', hex: '#2ed573', count: 0 },
+    { key: 'inprogress', label: 'In Progress', colour: 'var(--accent)', hex: '#00d4ff', count: 0 },
+    { key: 'planning', label: 'Planning', colour: 'var(--warning)', hex: '#ffa502', count: 0 },
+    { key: 'blocked', label: 'Blocked', colour: 'var(--danger)', hex: '#ff4757', count: 0 },
   ];
 
   let backlogCount = 0;
   active.forEach(t => {
-    if (t.status === 'Blocked') wipBuckets[4].count++;
-    else if (t.healthState === 'Waiting on Client') wipBuckets[3].count++;
-    else if (t.status === 'Done') wipBuckets[0].count++;
-    else if (t.status === 'In progress') wipBuckets[1].count++;
-    else if (t.status === 'Planning') wipBuckets[2].count++;
+    if (t.status === 'Blocked' || t.healthState === 'Blocked') buckets[3].count++;
+    else if (t.status === 'Done') buckets[0].count++;
+    else if (t.status === 'In progress') buckets[1].count++;
+    else if (t.status === 'Planning') buckets[2].count++;
     else backlogCount++;
   });
 
-  const wipTotal = wipBuckets.reduce((s, b) => s + b.count, 0);
+  const wipTotal = buckets.reduce((s, b) => s + b.count, 0);
   const backlogPct = total > 0 ? Math.round(backlogCount / total * 100) : 0;
-  const nonZero = wipBuckets.filter(b => b.count > 0);
+  const nonZero = buckets.filter(b => b.count > 0);
 
-  const svgW = 800, svgH = 400;
-  let svg = `<svg viewBox="0 0 ${svgW} ${svgH}" preserveAspectRatio="xMidYMid meet" width="100%" height="100%" style="display:block">`;
+  const backlogFillPct = total > 0 ? Math.round(backlogCount / total * 100) : 0;
+  let backlogHtml = '<div style="flex-shrink:0;text-align:center">';
+  backlogHtml += '<div class="pf__well" style="width:90px;height:200px;display:flex;flex-direction:column;justify-content:flex-end;padding:0">';
+  backlogHtml += '<div style="height:' + backlogFillPct + '%;background:rgba(148,163,184,0.18);border-radius:2px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:' + (backlogCount > 0 ? '50px' : '0') + '">';
+  backlogHtml += '<div style="font-family:var(--font-mono);font-size:2rem;font-weight:700;color:var(--text-primary)">' + backlogCount + '</div>';
+  backlogHtml += '<div style="font-size:0.82rem;font-weight:700;color:var(--text-muted);margin-top:8px;letter-spacing:0.08em">BACKLOG</div>';
+  backlogHtml += '</div></div>';
+  backlogHtml += '<div style="font-size:0.82rem;font-weight:500;color:var(--text-muted);margin-top:8px">' + backlogPct + '%</div>';
+  backlogHtml += '</div>';
 
-  // === LEFT: Backlog bar ===
-  const barX = 40, barW = 140, barY = 25, barH = 300;
-  const barCx = barX + barW / 2;
-  svg += `<rect x="${barX}" y="${barY}" width="${barW}" height="${barH}" rx="8" fill="rgba(148,163,184,0.12)"/>`;
-  const fillH = total > 0 ? Math.max(barH * (backlogCount / total), backlogCount > 0 ? 40 : 0) : 0;
-  const fillY = barY + barH - fillH;
-  if (backlogCount > 0) {
-    svg += `<rect x="${barX}" y="${fillY}" width="${barW}" height="${fillH}" rx="8" fill="#94a3b8"/>`;
-  }
-  svg += `<text x="${barCx}" y="${barY + barH / 2 - 12}" text-anchor="middle" fill="var(--text-primary, #e2e8f0)" font-size="52" font-weight="700">${backlogCount}</text>`;
-  svg += `<text x="${barCx}" y="${barY + barH / 2 + 16}" text-anchor="middle" fill="var(--text-muted, #94a3b8)" font-size="14" font-weight="600" letter-spacing="1">BACKLOG</text>`;
-  svg += `<text x="${barCx}" y="${barY + barH + 28}" text-anchor="middle" fill="var(--text-muted, #94a3b8)" font-size="12">${backlogPct}% of ${total} items</text>`;
+  const r = 70, sw = 24, circ = 2 * Math.PI * r;
+  let donutSvg = '<svg viewBox="0 0 180 180" width="160" height="160" style="flex-shrink:0">';
+  donutSvg += '<circle cx="90" cy="90" r="' + r + '" fill="none" stroke="rgba(0,0,0,0.25)" stroke-width="' + (sw + 4) + '"/>';
+  donutSvg += '<circle cx="90" cy="90" r="' + r + '" fill="none" stroke="var(--bg-input)" stroke-width="' + sw + '"/>';
+  donutSvg += '<circle cx="90" cy="90" r="' + r + '" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="' + sw + '" stroke-dasharray="' + (circ/2) + ' ' + (circ/2) + '" transform="rotate(-90 90 90)"/>';
 
-  // === RIGHT: WIP donut ===
-  const cx = 530, cy = 185, r = 125, sw = 46;
-  const circ = 2 * Math.PI * r;
-  svg += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="${sw}"/>`;
-
-  if (nonZero.length > 0) {
+  if (wipTotal > 0) {
     let offset = 0;
     nonZero.forEach(b => {
       const pct = b.count / wipTotal;
       const dashLen = pct * circ;
-      const gap = nonZero.length > 1 ? 2.5 : 0;
+      const gap = nonZero.length > 1 ? 3 : 0;
       const drawLen = Math.max(0, dashLen - gap);
-      svg += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${b.colour}" stroke-width="${sw}" stroke-dasharray="${drawLen.toFixed(1)} ${(circ - drawLen).toFixed(1)}" stroke-dashoffset="${(-(offset + gap / 2)).toFixed(1)}" transform="rotate(-90 ${cx} ${cy})"/>`;
+      const rot = -90 + (offset / circ * 360);
+      donutSvg += '<circle cx="90" cy="90" r="' + r + '" fill="none" stroke="' + b.hex + '" stroke-width="' + sw + '" stroke-dasharray="' + drawLen.toFixed(1) + ' ' + (circ - drawLen).toFixed(1) + '" transform="rotate(' + rot.toFixed(1) + ' 90 90)" style="filter:drop-shadow(0 0 4px ' + b.hex + '40)"/>';
       offset += dashLen;
     });
   }
+  donutSvg += '<text x="90" y="84" text-anchor="middle" fill="var(--text-primary)" font-family="var(--font-mono)" font-weight="700" font-size="30">' + wipTotal + '</text>';
+  donutSvg += '<text x="90" y="106" text-anchor="middle" fill="var(--text-muted)" font-family="var(--font-body)" font-weight="700" font-size="14" letter-spacing="1.5">ACTIVE</text>';
+  donutSvg += '</svg>';
 
-  svg += `<text x="${cx}" y="${cy - 6}" text-anchor="middle" fill="var(--text-primary, #e2e8f0)" font-size="40" font-weight="700">${wipTotal}</text>`;
-  svg += `<text x="${cx}" y="${cy + 20}" text-anchor="middle" fill="var(--text-muted, #94a3b8)" font-size="13" font-weight="600" letter-spacing="0.5">ACTIVE</text>`;
-
-  // === Legend row below donut ===
-  const vis = nonZero.filter(b => b.count > 0);
-  const legendY = cy + r + sw / 2 + 30;
-  const gap = 12;
-  const items = vis.map(b => ({ ...b, text: `${b.label}  ${b.count}` }));
-  const charW = 7.5;
-  const dotW = 16;
-  const totalLegendW = items.reduce((s, it) => s + dotW + it.text.length * charW + gap, 0) - gap;
-  let lx = cx - totalLegendW / 2;
-  items.forEach(it => {
-    svg += `<circle cx="${lx + 5}" cy="${legendY - 3}" r="4.5" fill="${it.colour}"/>`;
-    svg += `<text x="${lx + dotW}" y="${legendY}" fill="var(--text-muted, #94a3b8)" font-size="11.5" font-weight="600">${it.text}</text>`;
-    lx += dotW + it.text.length * charW + gap;
+  let legendHtml = '<div style="display:flex;flex-direction:column;gap:14px">';
+  nonZero.forEach(b => {
+    legendHtml += '<div style="display:flex;align-items:center;gap:12px">';
+    legendHtml += '<div style="width:18px;height:18px;background:' + b.colour + ';border-radius:3px;flex-shrink:0;box-shadow:var(--shadow-sm)"></div>';
+    legendHtml += '<span style="font-family:var(--font-mono);font-size:1.05rem;font-weight:700;min-width:30px">' + b.count + '</span>';
+    legendHtml += '<span style="font-size:0.95rem;font-weight:500;color:var(--text-secondary)">' + b.label + '</span>';
+    legendHtml += '</div>';
   });
-
-  svg += '</svg>';
+  legendHtml += '</div>';
 
   let html = '<div class="pf__panel">';
-  html += '<div class="pf__panel-hdr"><div class="pf__panel-title">PROGRESS STATUS</div></div>';
-  html += `<div class="pf__panel-body" style="padding:0">${svg}</div>`;
-  html += '</div>';
+  html += '<div class="pf__panel-hdr"><span class="pf__panel-title">Status Overview</span><span class="pf__panel-badge" style="color:var(--text-secondary)">' + total + ' items</span></div>';
+  html += '<div class="pf__panel-body" style="display:flex;align-items:center;justify-content:center;gap:72px">';
+  html += backlogHtml;
+  html += '<div style="flex:0 0 auto;display:flex;align-items:center;gap:24px">' + donutSvg + legendHtml + '</div>';
+  html += '</div></div>';
+  return html;
+}
+
+function renderPfNeedsAttention(panelTasks, now) {
+  const blocked = panelTasks.filter(t => (t.healthState === 'Blocked' || t.status === 'Blocked') && t.status !== 'Done' && t.status !== 'Cancelled');
+  const overdue = panelTasks.filter(t => t.dueDate && t.status !== 'Done' && t.status !== 'Cancelled' && safeParseDate(t.dueDate) < now && t.healthState !== 'Blocked' && t.status !== 'Blocked');
+  overdue.sort((a, b) => safeParseDate(a.dueDate) - safeParseDate(b.dueDate));
+  const items = [...blocked, ...overdue];
+  const seen = new Set();
+  const unique = items.filter(t => { if (seen.has(t.id)) return false; seen.add(t.id); return true; });
+
+  let html = '<div class="pf__panel">';
+  html += '<div class="pf__panel-hdr"><span class="pf__panel-title" style="color:var(--danger)">Needs Attention</span><span class="pf__panel-badge" style="color:var(--danger)">' + unique.length + '</span></div>';
+  html += '<div class="pf__panel-body">';
+
+  if (unique.length === 0) {
+    html += '<div class="pf__empty"><div class="pf__empty-title" style="color:var(--success)">All clear</div></div>';
+  } else {
+    unique.forEach(t => {
+      const parent = t.parentId ? tasks.find(p => p.id === t.parentId) : null;
+      const clientName = getTaskClient(t) || '';
+      const projectName = parent ? parent.title : '';
+      const ctx = [clientName, projectName].filter(Boolean).join(' — ');
+      const owner = (t.assignees || []).join(', ');
+      const isBlocked = t.healthState === 'Blocked' || t.status === 'Blocked';
+      const badge = isBlocked ? 'BLOCKED' : 'OVERDUE';
+      const badgeClass = isBlocked ? 'pf__attn-badge--blk' : 'pf__attn-badge--ovd';
+
+      html += '<div class="pf__attn" data-action="openDetailOverlay" data-arg0="' + t.id + '">';
+      html += '<div class="pf__attn-bar" style="background:var(--danger);box-shadow:0 0 6px var(--danger-bg)"></div>';
+      html += '<span class="pf__attn-badge ' + badgeClass + '">' + badge + '</span>';
+      html += '<div class="pf__attn-info"><div class="pf__attn-name">' + esc(t.title) + '</div>';
+      if (ctx) html += '<div class="pf__attn-sub">' + esc(ctx) + '</div>';
+      html += '</div>';
+      if (owner) html += '<span class="pf__attn-who">' + esc(owner) + '</span>';
+      html += '</div>';
+    });
+  }
+
+  html += '</div></div>';
   return html;
 }
 
@@ -5731,7 +5760,6 @@ function renderPfProgressStatus(panelTasks) {
 // function renderPfHealthScorecard(filtered, roots, now) { /* ... see git history ... */ }
 
 function renderPfMilestones(panelRoots, now) {
-  // Collect all milestones across cached clients
   const allMilestones = [];
   Object.entries(_milestonesCache).forEach(([clientId, milestones]) => {
     const clientObj = Object.values(_apiClientsCache || {}).find(c => c.id === clientId);
@@ -5741,67 +5769,52 @@ function renderPfMilestones(panelRoots, now) {
     });
   });
 
-  // Filter to selected client if applicable
   const filtered = _portfolioSelectedClient
     ? allMilestones.filter(ms => ms._clientName === _portfolioSelectedClient)
     : allMilestones;
 
-  // Sort by target_date ascending
   filtered.sort((a, b) => {
     const da = safeParseDate(a.target_date) || new Date(9999, 0);
     const db = safeParseDate(b.target_date) || new Date(9999, 0);
     return da - db;
   });
 
-  const items = filtered.slice(0, 8);
-
-  const msCollapsed = localStorage.getItem('pf_milestones_collapsed') === '1';
   let html = '<div class="pf__panel">';
-  html += `<div class="pf__panel-hdr" style="cursor:pointer" onclick="const b=this.nextElementSibling;const c=b.style.display==='none';b.style.display=c?'':'none';this.querySelector('.pf__panel-arrow').textContent=c?'\\u25BC':'\\u25B6';localStorage.setItem('pf_milestones_collapsed',c?'0':'1')"><div class="pf__panel-title"><span class="pf__panel-arrow">${msCollapsed ? '▶' : '▼'}</span> UPCOMING MILESTONES (${filtered.length})</div></div>`;
-  html += `<div class="pf__panel-body" style="${msCollapsed ? 'display:none' : ''}">`;
+  html += '<div class="pf__panel-hdr"><span class="pf__panel-title">Milestones</span><span class="pf__panel-badge" style="color:var(--accent-text)">' + filtered.length + '</span></div>';
+  html += '<div class="pf__panel-body">';
 
-  if (items.length === 0) {
-    html += '<div style="display:flex;align-items:center;justify-content:center;height:100px;color:var(--text-muted);font-size:0.82rem">No milestones set.</div>';
+  if (filtered.length === 0) {
+    html += '<div class="pf__empty"><div class="pf__empty-title">No milestones set</div></div>';
   } else {
-    items.forEach(ms => {
-      const info = computeMilestoneStatus(ms, tasks);
+    filtered.forEach(ms => {
       const target = safeParseDate(ms.target_date);
       const isOverdue = target && target < now;
       const daysUntil = target ? Math.ceil((target - now) / 86400000) : null;
 
-      const barCol = info.status === 'Complete' ? 'var(--success)' : info.status === 'Overdue' ? 'var(--danger)' : info.status === 'At Risk' ? 'var(--warning)' : 'var(--success)';
-      const abbr = getClientAbbreviation(ms._clientName);
-      const abbrCol = isOverdue ? 'var(--danger)' : 'var(--accent)';
-
-      let statusText, statusCol;
-      if (info.status === 'Complete') {
-        statusText = 'Complete'; statusCol = 'var(--success)';
-      } else if (isOverdue) {
-        statusText = Math.abs(daysUntil) + 'd overdue'; statusCol = 'var(--danger)';
-      } else if (daysUntil === 0) {
-        statusText = 'Due today'; statusCol = 'var(--danger)';
-      } else if (daysUntil === 1) {
-        statusText = 'Due tomorrow'; statusCol = 'var(--warning)';
-      } else if (daysUntil <= 7) {
-        statusText = daysUntil + 'd left'; statusCol = 'var(--warning)';
+      let dotCol, daysCol;
+      if (isOverdue) {
+        dotCol = 'var(--danger)'; daysCol = 'var(--danger)';
+      } else if (daysUntil !== null && daysUntil <= 14) {
+        dotCol = 'var(--warning)'; daysCol = 'var(--warning)';
       } else {
-        statusText = 'On track'; statusCol = 'var(--success)';
+        dotCol = 'var(--success)'; daysCol = 'var(--success)';
       }
+
       const dateStr = target ? target.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '';
+      const daysLabel = isOverdue ? Math.abs(daysUntil) + 'd late' : (daysUntil !== null ? daysUntil + 'd' : '');
       const clientObj = Object.values(_apiClientsCache || {}).find(c => c.name === ms._clientName);
       const clientId = clientObj ? clientObj.id : '';
 
-      html += `<div class="pf__milestone-item" data-action="openMilestoneDetail" data-arg0="${clientId}" data-arg1="${ms.id}">`;
-      html += `<div class="pf__milestone-bar" style="background:${barCol}"></div>`;
-      html += `<div style="flex:1;min-width:0">`;
-      html += `<div class="pf__milestone-title"><span class="pf__milestone-abbr" style="color:${abbrCol}">${esc(abbr)}</span> - ${esc(ms.title)}</div>`;
-      html += `<div class="pf__milestone-sub">${info.done}/${info.total} items \u00B7 ${info.pct}%</div>`;
-      html += `</div>`;
-      html += `<div style="text-align:right">`;
-      html += `<div class="pf__milestone-status" style="color:${statusCol}">${statusText}</div>`;
-      html += `<div class="pf__milestone-date">${dateStr}</div>`;
-      html += `</div></div>`;
+      html += '<div class="pf__msl" data-action="openMilestoneDetail" data-arg0="' + clientId + '" data-arg1="' + ms.id + '">';
+      html += '<div class="pf__msl-marker"><div class="pf__msl-dot" style="background:' + dotCol + ';box-shadow:0 0 10px ' + dotCol + '"></div></div>';
+      html += '<div class="pf__msl-info"><div class="pf__msl-title">' + esc(ms.title) + '</div><div class="pf__msl-sub">' + esc(ms._clientName) + '</div></div>';
+      html += '<div class="pf__msl-r"><div class="pf__msl-days" style="color:' + daysCol + '">' + daysLabel + '</div><div class="pf__msl-dt">' + dateStr + '</div></div>';
+      html += '</div>';
     });
+
+    if (filtered.length <= 2) {
+      html += '<div style="padding:16px;text-align:center;color:var(--text-faint);font-size:0.82rem">No other clients have milestones set</div>';
+    }
   }
 
   html += '</div></div>';
