@@ -220,7 +220,12 @@ html[data-theme="command"] .g-header__logo { color: var(--accent); text-shadow: 
 html[data-theme="command"] .pf__kpi,
 html[data-theme="command"] .pf__panel,
 html[data-theme="command"] .pf__tbl-card {
-  background: radial-gradient(ellipse at bottom right, rgba(0,160,210,0.18) 0%, rgba(0,80,120,0.08) 40%, rgba(12,16,22,0.45) 100%);
+  background:
+    radial-gradient(ellipse at top left, rgba(0,160,210,0.10) 0%, transparent 50%),
+    radial-gradient(ellipse at top right, rgba(0,140,200,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom left, rgba(0,140,200,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom right, rgba(0,160,210,0.14) 0%, transparent 50%),
+    rgba(12,16,22,0.45);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-color: rgba(0,212,255,0.1);
@@ -418,10 +423,10 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 @media (min-width: 769px) and (max-width: 1024px) { .people-split { flex-direction: column; } .people-list { width: 100%; max-height: 400px; position: static; } .people-detail { width: 100%; } }
 
 /* ===== PORTFOLIO v5 — Neumorphic layout ===== */
-.pf { width: 100%; padding: 0; display: flex; flex-direction: column; gap: 8px; height: 100%; min-height: 0; overflow: hidden; }
+.pf { width: 100%; padding: 0; display: flex; flex-direction: column; gap: 12px; height: 100%; min-height: 0; overflow: hidden; }
 
 /* KPI row — 5 compact cards, fixed height */
-.pf__kpis { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; flex-shrink: 0; }
+.pf__kpis { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; flex-shrink: 0; }
 .pf__kpi { background: var(--bg-card); border: 1px solid var(--border-default); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); padding: 8px 12px; cursor: pointer; text-align: center; display: flex; flex-direction: column; align-items: center; transition: box-shadow 0.25s, transform 0.2s; }
 .pf__kpi:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
 .pf__kpi:active { box-shadow: inset 3px 3px 8px rgba(0,0,0,0.15); transform: translateY(0); transition-duration: 0.08s; }
@@ -433,7 +438,7 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .pf__kpi-delta-text { font-size: 0.65rem; font-weight: 500; color: var(--text-muted); }
 
 /* Table + Status Overview side-by-side row — fixed height */
-.pf__row { display: flex; gap: 8px; flex-shrink: 0; }
+.pf__row { display: flex; gap: 12px; flex-shrink: 0; }
 
 /* Client table — 2/3 width, scrolls if many clients */
 .pf__tbl-card { background: var(--bg-card); border: 1px solid var(--border-default); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; flex: 2; }
@@ -477,7 +482,7 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 @media (min-height: 1100px) { .pf__so-bar { width: 90px; height: 220px; } .pf__so-donut { width: 190px; height: 190px; } }
 
 /* Panel grids — flex to fill remaining space */
-.pf__pgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.pf__pgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .pf__pgrid--fill { flex: 1; min-height: 0; }
 .pf__pgrid--auto { flex-shrink: 0; }
 .pf__panel { background: var(--bg-card); border: 1px solid var(--border-default); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; display: flex; flex-direction: column; min-height: 0; }
