@@ -10765,8 +10765,14 @@ function renderReportingDrawer(f) {
   const fStart = ganttRolledStart(f);
   const fEnd = ganttRolledEnd(f);
   const eta = fEnd ? fEnd.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
-  const owner = ownerOf(f);
+  let owner = (f.assignees && f.assignees[0]) || '';
   const descAll = getDescendants(f.id);
+  if (!owner) {
+    const counts = {};
+    descAll.forEach(d => { (d.assignees || []).forEach(a => { counts[a] = (counts[a] || 0) + 1; }); });
+    const top = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
+    owner = top ? top[0] : '—';
+  }
   const teamSet = new Set();
   descAll.forEach(d => { (d.assignees || []).forEach(a => teamSet.add(a)); });
   (f.assignees || []).forEach(a => teamSet.add(a));
