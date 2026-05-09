@@ -5435,10 +5435,10 @@ function getClientAbbreviation(clientName) {
 }
 
 // ===== PORTFOLIO DASHBOARD v4 — Sidebar + panels layout =====
+// ===== PORTFOLIO DASHBOARD v5 — Neumorphic KPI + table + panels =====
 function renderPortfolioDashboard() {
   const filtered = getFilteredTasks();
   const now = new Date(); now.setHours(0,0,0,0);
-  const fortnight = new Date(now); fortnight.setDate(fortnight.getDate() + 14);
 
   const roots = filtered.filter(t => !t.parentId && t.title && t.title.trim() !== 'New Task');
   const activeRoots = roots.filter(r => r.status !== 'Done' && r.status !== 'Cancelled');
@@ -5449,19 +5449,12 @@ function renderPortfolioDashboard() {
   const needsAttentionCount = overdueTasks.length;
   const uniqueProblemIds = new Set([...overdueTasks.map(t => t.id), ...atRiskTasks.map(t => t.id)]);
   const onTrackCount = Math.max(0, activeRoots.length - uniqueProblemIds.size);
-  const workTypesActive = new Set(activeRoots.filter(r => r.workType).map(r => r.workType)).size;
 
   const snap7 = _portfolioSnapshots ? _portfolioSnapshots.find(s => {
     const d = new Date(s.snapshot_date);
     const ago = new Date(now); ago.setDate(ago.getDate() - 7);
     return d.toISOString().slice(0,10) === ago.toISOString().slice(0,10);
   }) : null;
-
-  let html = '<div class="pf">';
-  html += renderPfStrip(activeRoots.length, onTrackCount, needsAttentionCount, atRiskTasks.length, _portfolioLeadCount || 0, workTypesActive, snap7);
-
-  html += '<div class="pf__main">';
-  html += renderPfSidebar(filtered, roots, now);
 
   const panelTasks = _portfolioSelectedClient
     ? filtered.filter(t => getTaskClient(t) === _portfolioSelectedClient)
@@ -5470,57 +5463,93 @@ function renderPortfolioDashboard() {
     ? roots.filter(r => getTaskClient(r) === _portfolioSelectedClient)
     : roots;
 
-  html += '<div class="pf__content">';
-  html += '<div class="pf__panels">';
+  let html = '<div class="pf">';
+  html += renderPfAlertBanner(blockedTasks);
+  html += renderPfStrip(activeRoots.length, onTrackCount, needsAttentionCount, atRiskTasks.length, snap7);
+  html += renderPfClientTable(filtered, roots, now);
+
+  html += '<div class="pf__pgrid">';
   html += renderPfProgressStatus(panelTasks);
+  html += renderPfNeedsAttention(panelTasks, now);
   html += renderPfMilestones(panelRoots, now);
-  html += renderPfTimeline(panelTasks, panelRoots, now);
   html += '</div>';
 
-  html += '<div class="pf__bottom pf__bottom--v4">';
-  html += renderPfCompletingSoon(panelRoots, now);
+  html += '<div class="pf__pgrid pf__pgrid--2">';
   html += renderPfTeamWorkload(panelTasks);
-  html += renderPfBottomNeedsAttention(panelTasks, now);
-  html += '</div>';
+  html += renderPfCompletingSoon(panelRoots, now);
   html += '</div>';
 
-  html += '</div>';
   html += '</div>';
   return html;
 }
 
-// COMMENTED OUT — v3 KPI strip
-// function renderPfStrip_v3(activeCount, overdueCount, blockedCount, atRiskCount, hrsSpent, hrsEst, snap7) { ... }
-
-function renderPfStrip(activeCount, onTrackCount, needsAttentionCount, atRiskCount, leadsCount, workTypesCount, snap7) {
-  function delta(current, field) {
+function renderPfStrip(activeCount, onTrackCount, needsAttentionCount, atRiskCount, snap7) {
+  function delta(current, field, invertGood) {
     if (!snap7) return '';
     const prev = parseFloat(snap7[field]) || 0;
     const diff = current - prev;
     if (diff === 0) return '';
-    const isGood = (field === 'active_projects' || field === 'on_track_count' || field === 'active_leads_count')
-      ? diff > 0 : diff < 0;
-    const arrow = diff > 0 ? '\u25B2' : '\u25BC';
+    const arrow = diff > 0 ? '▲' : '▼';
     const sign = diff > 0 ? '+' : '';
+    const isGood = invertGood ? diff < 0 : diff > 0;
     const col = isGood ? 'var(--success)' : 'var(--danger)';
-    return `<span class="pf__strip-delta-beside" style="color:${col}"><span class="pf__strip-delta-arrow">${arrow}</span> ${sign}${Math.round(diff)}<span class="pf__strip-delta-week">LST WK</span></span>`;
+    return '<span class="pf__kpi-delta" style="color:' + col + '">' + arrow + ' ' + sign + Math.round(diff) + '</span><span class="pf__kpi-delta-text">vs last week</span>';
   }
 
-  const items = [
-    { val: activeCount, label: 'Active Engagements', col: 'var(--success)', d: delta(activeCount, 'active_projects') },
-    { val: onTrackCount, label: 'On Track', col: 'var(--success)', d: delta(onTrackCount, 'on_track_count') },
-    { val: needsAttentionCount, label: 'Needs Attention', col: 'var(--warning)', d: delta(needsAttentionCount, 'overdue_count') },
-    { val: atRiskCount, label: 'At Risk', col: 'var(--danger)', d: delta(atRiskCount, 'at_risk_count') },
-    { val: leadsCount, label: 'Active Leads', col: 'var(--accent)', d: delta(leadsCount, 'active_leads_count') },
-    { val: workTypesCount, label: 'Work Types Active', col: 'var(--purple)', d: '' },
+  const allMs = [];
+  const now = new Date(); now.setHours(0,0,0,0);
+  Object.entries(_milestonesCache).forEach(function(entry) {
+    var milestones = entry[1];
+    milestones.forEach(function(ms) {
+      var d = safeParseDate(ms.target_date);
+      if (d && d >= now) allMs.push({ title: ms.title, days: Math.ceil((d - now) / 86400000) });
+    });
+  });
+  allMs.sort(function(a, b) { return a.days - b.days; });
+  var nearestMs = allMs[0];
+
+  var items = [
+    { val: activeCount, label: 'Active Engagements', style: '', delta: delta(activeCount, 'active_projects', false) },
+    { val: onTrackCount, label: 'On Track', style: '', delta: delta(onTrackCount, 'on_track_count', false) },
+    { val: needsAttentionCount, label: 'Needs Attention', style: 'color:var(--warning)', delta: delta(needsAttentionCount, 'overdue_count', true) },
+    { val: atRiskCount, label: 'At Risk', style: 'color:var(--danger);text-shadow:0 0 20px rgba(255,71,87,0.2)', delta: delta(atRiskCount, 'at_risk_count', true) },
   ];
 
-  return `<div class="pf__strip">${items.map(i => `
-    <div class="pf__strip-item">
-      <div class="pf__strip-top"><span class="pf__strip-val" style="color:${i.col}">${i.val}</span>${i.d}</div>
-      <span class="pf__strip-label">${i.label}</span>
-    </div>`).join('')}
-  </div>`;
+  var html = '<div class="pf__kpis">';
+  items.forEach(function(i) {
+    html += '<div class="pf__kpi">';
+    html += '<div class="pf__kpi-label">' + i.label + '</div>';
+    html += '<div class="pf__kpi-center">';
+    html += '<div class="pf__kpi-val"' + (i.style ? ' style="' + i.style + '"' : '') + '>' + i.val + '</div>';
+    if (i.delta) html += '<div class="pf__kpi-delta-row">' + i.delta + '</div>';
+    html += '</div></div>';
+  });
+
+  // 5th KPI: Upcoming Milestones
+  html += '<div class="pf__kpi">';
+  html += '<div class="pf__kpi-label">Upcoming Milestones</div>';
+  html += '<div class="pf__kpi-center">';
+  html += '<div class="pf__kpi-val">' + allMs.length + '</div>';
+  if (nearestMs) {
+    html += '<div class="pf__kpi-delta-row"><span style="font-size:0.95rem;font-weight:600;color:var(--text-secondary)">Next in ' + nearestMs.days + 'd</span></div>';
+    html += '<div class="pf__kpi-delta-text">' + esc(nearestMs.title) + '</div>';
+  }
+  html += '</div></div>';
+
+  html += '</div>';
+  return html;
+}
+
+function renderPfAlertBanner(blockedTasks) {
+  if (blockedTasks.length === 0) return '';
+  var byClient = {};
+  blockedTasks.forEach(function(t) {
+    var c = getTaskClient(t) || 'Unknown';
+    byClient[c] = (byClient[c] || 0) + 1;
+  });
+  var worst = Object.entries(byClient).sort(function(a, b) { return b[1] - a[1]; })[0];
+  var text = blockedTasks.length + ' blocked item' + (blockedTasks.length !== 1 ? 's' : '') + ' — ' + worst[0];
+  return '<div class="pf__alert"><div class="pf__alert-pill"><div class="pf__alert-dot"></div>' + esc(text) + '</div></div>';
 }
 
 function renderPfSidebar(filtered, roots, now) {
