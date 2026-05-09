@@ -101,51 +101,21 @@ const upload = multer({
 const PORT = process.env.PORT || 8888;
 const DB_URL = process.env.DATABASE_URL;
 if (!DB_URL) { log('error', 'Server', 'FATAL: DATABASE_URL not set. Create a .env file — see .env.example'); process.exit(1); }
-const SESSION_EXPIRY_DAYS = 7;
-
 const pool = createPool(DB_URL);
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Cloudflare tunnel) for correct IP in rate limiter
 
-const SESSION_COOKIE_NAME = 'nbi_session';
-function getSessionCookieOpts(req) {
-  return { httpOnly: true, secure: req.secure, sameSite: 'lax', path: '/', maxAge: SESSION_EXPIRY_DAYS * 24 * 60 * 60 * 1000 };
-}
-function getCookieToken(req) {
-  const raw = req.headers.cookie || '';
-  const match = raw.match(/nbi_session=([^;]+)/);
-  return match ? match[1] : null;
-}
-
-// Brute-force protection: persisted to DB so counters survive PM2 restarts
-const FAILED_LOGIN_THRESHOLD = 3;  // Show "forgot password" link after this many failures
-const FAILED_LOGIN_LOCKOUT = 5;    // Lock account for LOCKOUT_DURATION after this many failures
-const LOCKOUT_DURATION = 15 * 60 * 1000; // 15 minutes
-
-async function getFailedLogins(username) {
-  const { rows } = await pool.query('SELECT fail_count, last_attempt, locked_until FROM login_attempts WHERE username = $1', [username]);
-  if (rows.length === 0) return null;
-  return { count: rows[0].fail_count, lastAttempt: new Date(rows[0].last_attempt).getTime(), lockedUntil: rows[0].locked_until ? new Date(rows[0].locked_until).getTime() : null };
-}
-async function recordFailedLogin(username) {
-  const lockedUntil = new Date(Date.now() + LOCKOUT_DURATION);
-  const { rows } = await pool.query(
-    `INSERT INTO login_attempts (username, fail_count, last_attempt)
-     VALUES ($1, 1, NOW())
-     ON CONFLICT (username) DO UPDATE SET fail_count = login_attempts.fail_count + 1, last_attempt = NOW()
-     RETURNING fail_count`,
-    [username]
-  );
-  const count = rows[0].fail_count;
-  if (count >= FAILED_LOGIN_LOCKOUT) {
-    await pool.query('UPDATE login_attempts SET locked_until = $1 WHERE username = $2', [lockedUntil, username]);
-  }
-  return count;
-}
-async function clearFailedLogins(username) {
-  await pool.query('DELETE FROM login_attempts WHERE username = $1', [username]);
-}
+// ==================== AUTH MIDDLEWARE ====================
+const {
+  SESSION_COOKIE_NAME, SESSION_EXPIRY_DAYS, FAILED_LOGIN_THRESHOLD, FAILED_LOGIN_LOCKOUT, LOCKOUT_DURATION,
+  getSessionCookieOpts, getCookieToken,
+  cacheToken, getCachedToken, invalidateToken,
+  getFailedLogins, recordFailedLogin, clearFailedLogins,
+  requireAuth, getClientScopes, getClientScope,
+  requireNBI, requireAdmin, requireClientAdmin, requireTaskAccess,
+  invalidateUserTokens, clearTokenCache,
+} = require('./lib/auth-middleware')(pool);
 
 // ==================== EMAIL ====================
 const {
@@ -153,35 +123,10 @@ const {
   buildEmailHtml, buildEmailTable, buildEmailSection,
 } = require('./lib/email');
 
-// ==================== CACHING LAYER ====================
-// Auth token cache — avoids DB query on every request
-const _tokenCache = new Map();
-const TOKEN_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
-
-/** Store a user object against their auth token with a TTL */
-function cacheToken(token, user) {
-  _tokenCache.set(token, { user, expiresAt: Date.now() + TOKEN_CACHE_TTL });
-}
-/** Retrieve a cached user by token, returning null if expired or missing */
-function getCachedToken(token) {
-  const entry = _tokenCache.get(token);
-  if (!entry) return null;
-  if (entry.expiresAt < Date.now()) { _tokenCache.delete(token); return null; }
-  return entry.user;
-}
-/** Remove a token from cache (e.g. on logout) */
-function invalidateToken(token) { _tokenCache.delete(token); }
-
-// Config cache — leads config, expense categories, rarely change
+// ==================== CONFIG CACHE ====================
 const _configCache = {};
 const CONFIG_CACHE_TTL = 5 * 60 * 1000;
 
-/**
- * Generic cache-aside helper. Returns cached data if fresh, otherwise calls
- * the fetcher function, stores the result, and returns it.
- * @param {string} key - Cache key
- * @param {Function} fetcher - Async function that produces the data
- */
 async function getCached(key, fetcher) {
   const entry = _configCache[key];
   if (entry && entry.expiresAt > Date.now()) return entry.data;
@@ -189,17 +134,12 @@ async function getCached(key, fetcher) {
   _configCache[key] = { data, expiresAt: Date.now() + CONFIG_CACHE_TTL };
   return data;
 }
-/** Evict a specific key from the config cache (e.g. after admin changes) */
 function invalidateCache(key) { delete _configCache[key]; }
 
-// Cleanup stale cache entries and failed login records every 10 minutes
 setInterval(() => {
   const now = Date.now();
-  for (const [token, entry] of _tokenCache) { if (entry.expiresAt <= now) _tokenCache.delete(token); }
   for (const key of Object.keys(_configCache)) { if (_configCache[key].expiresAt <= now) delete _configCache[key]; }
-  // Evict stale login attempt rows older than 1 hour
-  pool.query('DELETE FROM login_attempts WHERE last_attempt < NOW() - INTERVAL \'1 hour\'').catch(() => {});
-}, 10 * 60 * 1000).unref(); // unref() allows graceful shutdown without this timer blocking exit
+}, 10 * 60 * 1000).unref();
 
 // Circuit breakers for external APIs
 const ocrBreaker = new CircuitBreaker('OCR.space', { failureThreshold: 3, resetTimeout: 60000, log });
@@ -487,159 +427,6 @@ app.get('/api/auth/me', async (req, res) => {
 });
 
 /**
- * Authentication middleware — protects all /api/ routes.
- * Skips login, health check, password reset, and static file routes.
- * Checks the token cache first to avoid a DB query on every request.
- */
-async function requireAuth(req, res, next) {
-  // Public routes that bypass authentication
-  if (req.path === '/api/auth/login' || req.path === '/api/health') return next();
-  if (req.path.startsWith('/api/auth/forgot') || req.path.startsWith('/api/auth/reset-token')) return next();
-  // Public shareable report routes — share tokens are 32 hex chars (B-B1)
-  if (/^\/api\/reports\/[0-9a-f]{32}(\/html|\/pdf)?$/.test(req.path)) return next();
-  // Slack Events API — uses its own HMAC signature verification
-  if (req.path === '/api/slack/events') return next();
-  // Queue submission via API key — route handler validates the key itself
-  if (req.method === 'POST' && req.path === '/api/queue' && req.get('x-api-key')) return next();
-  if (!req.path.startsWith('/api/')) return next();
-
-  const token = getCookieToken(req) || (req.headers.authorization || '').replace('Bearer ', '');
-  if (!token) return res.status(401).json({ error: 'Authentication required' });
-
-  try {
-    const hashedToken = hashToken(token);
-    // Check cache first (keyed by hashed token)
-    const cached = getCachedToken(hashedToken);
-    if (cached) { req.user = cached; return next(); }
-
-    const { rows } = await pool.query(
-      `SELECT u.id, u.username, u.display_name, u.role, u.client_id, u.client_role, u.must_change_password,
-              u.docs_view, u.docs_edit, u.docs_create, u.docs_upload, u.can_submit_queue FROM sessions s
-       JOIN users u ON s.user_id = u.id
-       WHERE s.token = $1 AND s.expires_at > NOW() AND u.is_active = true`, [hashedToken]
-    );
-    if (rows.length === 0) return res.status(401).json({ error: 'Session expired' });
-    const user = {
-      id: rows[0].id, username: rows[0].username, displayName: rows[0].display_name,
-      role: rows[0].role, clientId: rows[0].client_id, clientRole: rows[0].client_role,
-      isNBI: !rows[0].client_id, isClientAdmin: !!rows[0].client_id && rows[0].client_role === 'admin',
-      mustChangePassword: rows[0].must_change_password,
-      // Cached for TOKEN_CACHE_TTL (5 min). Any future admin route that mutates
-      // docs_* on a user MUST evict this user's _tokenCache entries (mirror the
-      // pattern in PATCH /api/users/:id) or revocation lags by up to 5 minutes.
-      docsView: rows[0].docs_view, docsEdit: rows[0].docs_edit,
-      docsCreate: rows[0].docs_create, docsUpload: rows[0].docs_upload,
-      can_submit_queue: rows[0].can_submit_queue,
-    };
-    cacheToken(hashedToken, user);
-    req.user = user;
-    next();
-  } catch(e) {
-    log('error', 'Auth', 'Auth check failed', { error: e.message, stack: e.stack?.split('\n').slice(0,3).join(' | ') });
-    res.status(500).json({ error: 'An internal error occurred' });
-  }
-}
-/**
- * Return allowed client IDs for the current user, or null if unrestricted.
- *
- * - Admin (role=admin, no client_id): null (sees everything)
- * - External (client_id set): [client_id] (G5 single-client scope)
- * - Internal member with teams: team clients + always_visible clients + null-client tasks
- * - Internal member with no teams: always_visible clients only + null-client tasks
- *
- * Result is cached on req._clientScopes to avoid re-querying per request.
- */
-async function getClientScopes(req) {
-  if (req._clientScopes !== undefined) return req._clientScopes;
-
-  // Admin: unrestricted
-  if (req.user?.role === 'admin') { req._clientScopes = null; return null; }
-
-  // External (G5): single client
-  if (req.user?.clientId) { req._clientScopes = [req.user.clientId]; return req._clientScopes; }
-
-  // Internal member: resolve team memberships
-  const { rows: teams } = await pool.query(
-    'SELECT DISTINCT t.client_id FROM team_members tm JOIN teams t ON t.id = tm.team_id WHERE tm.user_id = $1 AND t.client_id IS NOT NULL',
-    [req.user?.id]
-  );
-
-  const { rows: exceptions } = await pool.query(
-    'SELECT id FROM clients WHERE always_visible = true'
-  );
-  const exceptionIds = exceptions.map(e => e.id);
-
-  if (teams.length === 0) {
-    req._clientScopes = exceptionIds.length > 0 ? exceptionIds : ['00000000-0000-0000-0000-000000000000'];
-    return req._clientScopes;
-  }
-
-  const teamClientIds = teams.map(t => t.client_id);
-  req._clientScopes = [...new Set([...teamClientIds, ...exceptionIds])];
-  return req._clientScopes;
-}
-
-/** Synchronous backward-compat wrapper — returns single client_id for G5 users, null otherwise */
-function getClientScope(req) {
-  return req.user?.clientId || null;
-}
-
-/** Middleware: block client-scoped users from internal-only endpoints */
-function requireNBI(req, res, next) {
-  if (req.user?.clientId) return res.status(403).json({ error: 'This feature is not available for client accounts' });
-  next();
-}
-
-/** Middleware: block non-admin users */
-function requireAdmin(req, res, next) {
-  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
-  next();
-}
-
-/** Middleware: block non-client-admin users */
-function requireClientAdmin(req, res, next) {
-  if (!req.user?.clientId || req.user?.clientRole !== 'admin') {
-    return res.status(403).json({ error: 'Client admin access required' });
-  }
-  next();
-}
-
-/**
- * Check whether a client-scoped user may access a task by walking the
- * parent chain to the root and comparing client_id. NBI users always pass.
- * Returns true if access is allowed, false if a response has been sent.
- */
-async function requireTaskAccess(req, res, taskId) {
-  if (!req.user?.clientId) return true; // NBI users always pass
-
-  let currentId = taskId;
-  let depth = 0;
-  const MAX_DEPTH = 10;
-
-  while (currentId && depth < MAX_DEPTH) {
-    const { rows } = await pool.query('SELECT parent_id, client_id FROM tasks WHERE id = $1', [currentId]);
-    if (rows.length === 0) { res.status(404).json({ error: 'Task not found' }); return false; }
-
-    if (!rows[0].parent_id) {
-      if (rows[0].client_id && rows[0].client_id !== req.user.clientId) {
-        res.status(403).json({ error: 'Access denied' });
-        return false;
-      }
-      return true;
-    }
-    currentId = rows[0].parent_id;
-    depth++;
-  }
-
-  const { rows: last } = await pool.query('SELECT client_id FROM tasks WHERE id = $1', [currentId]);
-  if (last.length > 0 && last[0].client_id && last[0].client_id !== req.user.clientId) {
-    res.status(403).json({ error: 'Access denied' });
-    return false;
-  }
-  return true;
-}
-
-/**
  * POST /api/auth/forgot-password
  * Request a password reset email. Always returns success to prevent username enumeration.
  * If Microsoft Graph API email is not configured, the reset link is logged to the console as a fallback.
@@ -827,7 +614,7 @@ app.post('/api/auth/change-password', async (req, res) => {
   await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [hash, req.user.id]);
   await pool.query('UPDATE users SET must_change_password = false WHERE id = $1', [req.user.id]);
   await pool.query('DELETE FROM sessions WHERE user_id = $1', [req.user.id]);
-  _tokenCache.clear();
+  clearTokenCache();
   res.clearCookie(SESSION_COOKIE_NAME, { httpOnly: true, sameSite: 'lax', path: '/' });
   res.json({ ok: true });
 });
@@ -994,9 +781,7 @@ app.patch('/api/users/:id', async (req, res) => {
   const { rows } = await pool.query(`UPDATE users SET ${updates.join(', ')} WHERE id = $${nextIdx} RETURNING id, username, display_name, email, role, client_id, client_role, is_active, docs_view, docs_edit, docs_create, docs_upload`, vals);
   if (!rows[0]) return res.status(404).json({ error: 'User not found' });
   // Invalidate token cache entries for this user so stale role/display_name data is refreshed
-  for (const [key, entry] of _tokenCache) {
-    if (entry.user && entry.user.id === req.params.id) _tokenCache.delete(key);
-  }
+  invalidateUserTokens(req.params.id);
   // When deactivating a user, kill all their sessions immediately (B-B3)
   if (req.body.is_active === false) {
     await pool.query('DELETE FROM sessions WHERE user_id = $1', [req.params.id]);
@@ -1034,9 +819,7 @@ app.post('/api/users/:id/deactivate', async (req, res) => {
   await pool.query('UPDATE users SET is_active = false WHERE id = $1', [req.params.id]);
   await pool.query('DELETE FROM sessions WHERE user_id = $1', [req.params.id]);
   // Clear token cache for this user
-  for (const [key, entry] of _tokenCache) {
-    if (entry.user && entry.user.id === req.params.id) _tokenCache.delete(key);
-  }
+  invalidateUserTokens(req.params.id);
   await auditLog('user', req.params.id, 'deactivate', req.user?.displayName);
   if (isClientAdminUser) {
     await pool.query(
@@ -1105,9 +888,7 @@ app.post('/api/users/:id/reset-password', async (req, res) => {
   await pool.query('UPDATE users SET password_hash = $1, must_change_password = true WHERE id = $2', [hash, req.params.id]);
   await pool.query('DELETE FROM sessions WHERE user_id = $1', [req.params.id]);
   // Clear token cache for this user
-  for (const [key, entry] of _tokenCache) {
-    if (entry.user && entry.user.id === req.params.id) _tokenCache.delete(key);
-  }
+  invalidateUserTokens(req.params.id);
 
   // Send email with new temp password
   const { rows: userRows } = await pool.query('SELECT email, display_name, username FROM users WHERE id = $1', [req.params.id]);
