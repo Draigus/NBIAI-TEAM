@@ -10822,19 +10822,26 @@ function renderReportingDrawer(f) {
     stories.forEach(s => {
       const ss = ganttRolledStart(s); const se = ganttRolledEnd(s);
       const sLeaves = leafFor(s.id);
-      const sPct = sLeaves.length ? Math.round(sLeaves.filter(l => l.status === 'Done').length / sLeaves.length * 100) : (s.status === 'Done' ? 100 : 0);
-      const sH = (s.healthState === 'Blocked' || s.status === 'Blocked') ? 'blocked' : (se && se < now && s.status !== 'Done' ? 'red' : (se && Math.round((se - now)/86400000) <= 14 && Math.round((se - now)/86400000) >= 0 ? 'amber' : 'green'));
-      const sFill = sH === 'red' ? '#ef4444' : sH === 'amber' ? '#f59e0b' : sH === 'blocked' ? '#94a3b8' : '#22c55e';
-      const sLeft = ss ? Math.max(0, (ss - sMin) / 86400000 / sDays * 100).toFixed(2) : '0';
-      const sWidth = ss && se ? Math.max(1, (se - ss) / 86400000 / sDays * 100).toFixed(2) : '1';
+      const sDone = sLeaves.filter(l => l.status === 'Done').length;
+      const sBlocked = sLeaves.filter(l => l.status === 'Blocked' || l.healthState === 'Blocked' || (l.dueDate && l.status !== 'Done' && l.status !== 'Cancelled' && safeParseDate(l.dueDate) < now)).length;
+      const sInProg = sLeaves.filter(l => l.status === 'In progress' && l.healthState !== 'Blocked' && !(l.dueDate && safeParseDate(l.dueDate) < now)).length;
+      const sTotal = sLeaves.length || 1;
+      const sPct = Math.round(sDone / sTotal * 100);
+      const sDonePct = Math.round(sDone / sTotal * 100);
+      const sInProgPct = Math.round(sInProg / sTotal * 100);
+      const sBlockedPct = Math.round(sBlocked / sTotal * 100);
+      const sNotStartedPct = Math.max(0, 100 - sDonePct - sInProgPct - sBlockedPct);
+      const sH = sBlocked > 0 ? 'red' : sInProg > 0 ? 'green' : sDone === sTotal ? 'done' : 'grey';
+      const sLabelCol = sBlocked > 0 ? '#ef4444' : sDone === sTotal ? 'var(--purple)' : '#22c55e';
       html += `<div style="display:flex;align-items:center;gap:10px;padding:4px 0;font-size:0.74rem">`;
       html += `<div style="flex:0 0 160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(s.title)}">${esc(s.title)}</div>`;
-      html += `<div style="flex:0 0 48px;text-align:right;color:${sFill};font-weight:700;font-size:0.7rem">${sPct}%</div>`;
-      html += `<div style="flex:1;position:relative;height:14px;background:rgba(255,255,255,0.03);border-radius:3px;overflow:hidden">`;
-      // Story span on the timeline: undone portion grey, done portion = health colour
-      html += `<div style="position:absolute;left:${sLeft}%;width:${sWidth}%;top:0;bottom:0;background:rgba(148,163,184,0.25);border-radius:3px;overflow:hidden">`;
-      html += `<div style="height:100%;width:${sPct}%;background:${sFill};opacity:0.95"></div>`;
-      html += `</div></div></div>`;
+      html += `<div style="flex:0 0 48px;text-align:right;color:${sLabelCol};font-weight:700;font-size:0.7rem">${sPct}%</div>`;
+      html += `<div style="flex:1;height:14px;border-radius:3px;overflow:hidden;display:flex;border:1px solid var(--border-default)">`;
+      if (sDonePct > 0) html += `<div style="width:${sDonePct}%;background:var(--purple)"></div>`;
+      if (sInProgPct > 0) html += `<div style="width:${sInProgPct}%;background:#22c55e"></div>`;
+      if (sBlockedPct > 0) html += `<div style="width:${sBlockedPct}%;background:#ef4444"></div>`;
+      if (sNotStartedPct > 0) html += `<div style="width:${sNotStartedPct}%;background:var(--border-default)"></div>`;
+      html += `</div></div>`;
     });
   }
   html += `</div></div>`;
