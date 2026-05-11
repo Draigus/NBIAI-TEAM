@@ -428,11 +428,11 @@ module.exports = function (ctx) {
   router.get('/api/command-centre/snapshot', requireNBI, async (req, res) => {
     try {
       const { rows } = await pool.query('SELECT * FROM cc_snapshots ORDER BY snapshot_date DESC LIMIT 1');
-      if (rows.length === 0) return res.status(404).json({ error: 'No snapshot exists. Trigger a refresh.' });
-      res.json({ data: rows[0] });
+      if (rows.length === 0) return res.status(404).json({ data: null, error: 'No snapshot exists. Trigger a refresh.' });
+      res.json({ data: rows[0], error: null });
     } catch (e) {
       log('error', 'CC', 'Failed to read snapshot', { error: e.message });
-      res.status(500).json({ error: e.message });
+      res.status(500).json({ data: null, error: e.message });
     }
   });
 
@@ -440,7 +440,7 @@ module.exports = function (ctx) {
   let _lastRefresh = 0;
   router.post('/api/command-centre/refresh', requireNBI, async (req, res) => {
     const now = Date.now();
-    if (now - _lastRefresh < 30000) return res.status(429).json({ error: 'Refresh rate limited. Wait 30 seconds.' });
+    if (now - _lastRefresh < 30000) return res.status(429).json({ data: null, error: 'Refresh rate limited. Wait 30 seconds.' });
     _lastRefresh = now;
     try {
       const data = await computeSnapshot();
@@ -452,10 +452,10 @@ module.exports = function (ctx) {
         [today, JSON.stringify(data)]
       );
       log('info', 'CC', 'Snapshot refreshed', { date: today });
-      res.json({ data: rows[0] });
+      res.json({ data: rows[0], error: null });
     } catch (e) {
       log('error', 'CC', 'Refresh failed', { error: e.message });
-      res.status(500).json({ error: e.message });
+      res.status(500).json({ data: null, error: e.message });
     }
   });
 
@@ -469,9 +469,9 @@ module.exports = function (ctx) {
          ORDER BY snapshot_date DESC`,
         [days]
       );
-      res.json({ data: rows });
+      res.json({ data: rows, error: null });
     } catch (e) {
-      res.status(500).json({ error: e.message });
+      res.status(500).json({ data: null, error: e.message });
     }
   });
 
@@ -579,10 +579,11 @@ module.exports = function (ctx) {
           client_deliveries: clientDeliveries,
           knowledge_flags: knowledgeFlags,
         },
+        error: null,
       });
     } catch (e) {
       log('error', 'CC', 'Briefing failed', { error: e.message });
-      res.status(500).json({ error: e.message });
+      res.status(500).json({ data: null, error: e.message });
     }
   });
 
@@ -590,7 +591,7 @@ module.exports = function (ctx) {
   router.get('/api/command-centre/skill/:name', requireNBI, async (req, res) => {
     const { name } = req.params;
     const skillDir = path.join(SKILLS_DIR, name);
-    if (!fs.existsSync(skillDir)) return res.status(404).json({ error: 'Skill not found' });
+    if (!fs.existsSync(skillDir)) return res.status(404).json({ data: null, error: 'Skill not found' });
     try {
       const skillMd = safeReadFile(path.join(skillDir, 'SKILL.md')) || '';
       const learnings = safeReadFile(path.join(skillDir, 'learnings.md')) || null;
@@ -598,10 +599,11 @@ module.exports = function (ctx) {
       let files = [];
       try { files = fs.readdirSync(skillDir, { recursive: true }); } catch {}
       res.json({
-        data: { name, frontmatter: fm, content: skillMd, learnings, files, },
+        data: { name, frontmatter: fm, content: skillMd, learnings, files },
+        error: null,
       });
     } catch (e) {
-      res.status(500).json({ error: e.message });
+      res.status(500).json({ data: null, error: e.message });
     }
   });
 
