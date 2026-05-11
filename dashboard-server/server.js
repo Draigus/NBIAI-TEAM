@@ -195,7 +195,12 @@ const apiLimiter = rateLimit({
   validate: { ip: false },
   message: { error: 'Too many requests. Please slow down.' }
 });
-const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 30, message: { error: 'Too many requests. Please try again later.' } });
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, max: 30,
+  keyGenerator: (req) => req.headers['cf-connecting-ip'] || req.ip || '127.0.0.1',
+  standardHeaders: true, legacyHeaders: false, validate: { ip: false },
+  message: { error: 'Too many login attempts. Please try again later.' }
+});
 app.use('/api/', apiLimiter);
 app.use('/api/auth/login', authLimiter);
 app.use('/api/auth/forgot', authLimiter);
@@ -409,6 +414,9 @@ app.use(require('./routes/admin')({ pool, log, fs, path, requireNBI, requireAdmi
 
 // ==================== DASHBOARD AGGREGATES ====================
 app.use(require('./routes/dashboard')({ pool, log, getClientScopes }));
+
+// ==================== COMMAND CENTRE ====================
+app.use(require('./routes/command-centre')({ pool, log, requireNBI, _msalClient }));
 
 
 // ==================== LEADS TRACKER ====================
