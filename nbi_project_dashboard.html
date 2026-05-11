@@ -10383,6 +10383,18 @@ async function updateTask(id, field, value) {
   pushUndo(`${field} change on "${task.title}"`, () => { task[field] = oldValue; task.updatedAt = new Date().toISOString(); markDirty(id); });
   save();
 
+  if (field === 'status' && (value === 'In progress' || value === 'In Review' || value === 'Blocked')) {
+    let parent = task.parentId ? tasks.find(t => t.id === task.parentId) : null;
+    while (parent) {
+      if ((parent.status === 'Not started' || parent.status === 'Planning') && getItemType(parent) !== 'project') {
+        parent.status = 'In progress';
+        parent.updatedAt = new Date().toISOString();
+        markDirty(parent.id);
+      }
+      parent = parent.parentId ? tasks.find(t => t.id === parent.parentId) : null;
+    }
+  }
+
   if (field === 'startDate' || field === 'endDate') {
     let parent = task.parentId ? tasks.find(t => t.id === task.parentId) : null;
     while (parent) {
@@ -19392,40 +19404,48 @@ async function deleteCandidate(id) {
 
 let _ccSnapshot = null;
 let _ccBriefing = null;
+let _ccBriefingFailed = false;
+let _ccLoading = false;
 let _ccTab = localStorage.getItem('ccTab') || 'dashboard';
 
 function renderCommandCentre(el) {
-  if (!_ccSnapshot) {
+  if (!_ccSnapshot && !_ccLoading) {
     el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted)">Loading Command Centre...</div>';
+    _ccLoading = true;
     _ccLoadData();
     return;
   }
-  if (_ccTab === 'briefing' && !_ccBriefing) {
-    el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted)">Loading briefing...</div>';
-    _ccLoadBriefing();
+  if (!_ccSnapshot) {
+    el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted)">Loading Command Centre...</div>';
     return;
+  }
+  if (_ccTab === 'briefing' && !_ccBriefing && !_ccBriefingFailed && !_ccLoading) {
+    _ccLoading = true;
+    _ccLoadBriefing();
   }
   _ccRenderPage(el);
 }
 
 async function _ccLoadData() {
-  const resp = await apiCall('/api/command-centre/snapshot');
-  if (resp) { _ccSnapshot = resp; }
-  else {
-    const refreshResp = await apiCall('/api/command-centre/refresh', { method: 'POST' });
-    if (refreshResp) _ccSnapshot = refreshResp;
-  }
-  if (!_ccSnapshot) {
-    const el = document.getElementById('mainContent');
-    if (el) el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted)">Failed to load Command Centre data.</div>';
-    return;
-  }
-  renderContent();
+  try {
+    const resp = await apiCall('/api/command-centre/snapshot');
+    if (resp) { _ccSnapshot = resp; }
+    else {
+      const refreshResp = await apiCall('/api/command-centre/refresh', { method: 'POST' });
+      if (refreshResp) _ccSnapshot = refreshResp;
+    }
+  } catch (e) {}
+  _ccLoading = false;
+  if (currentView === 'commandcentre') renderContent();
 }
 
 async function _ccLoadBriefing() {
-  _ccBriefing = await apiCall('/api/command-centre/briefing');
-  renderContent();
+  try {
+    _ccBriefing = await apiCall('/api/command-centre/briefing');
+    if (!_ccBriefing) _ccBriefingFailed = true;
+  } catch (e) { _ccBriefingFailed = true; }
+  _ccLoading = false;
+  if (currentView === 'commandcentre') renderContent();
 }
 
 function _ccRenderPage(el) {
@@ -19453,7 +19473,10 @@ function _ccRenderPage(el) {
   if (_ccTab === 'dashboard') {
     html += ccRenderDashboard();
   } else {
-    html += _ccBriefing ? ccRenderBriefingContent() : '<div style="padding:40px;text-align:center;color:var(--text-muted)">No briefing data.</div>';
+    if (_ccBriefing) html += ccRenderBriefingContent();
+    else if (_ccLoading) html += '<div style="padding:40px;text-align:center;color:var(--text-muted)">Loading briefing data...</div>';
+    else if (_ccBriefingFailed) html += '<div style="padding:40px;text-align:center;color:var(--text-muted)">Failed to load briefing. <a href="#" onclick="event.preventDefault();_ccBriefingFailed=false;_ccLoadBriefing();return false" style="color:var(--primary)">Retry</a></div>';
+    else html += '<div style="padding:40px;text-align:center;color:var(--text-muted)">No briefing data.</div>';
   }
 
   html += '</div>';
@@ -19476,7 +19499,7 @@ function ccSwitchTab(tab) {
 async function ccRefresh() {
   toast('Refreshing scan...', 'info');
   const resp = await apiCall('/api/command-centre/refresh', { method: 'POST' });
-  if (resp) { _ccSnapshot = resp; _ccBriefing = null; toast('Scan complete', 'success'); renderContent(); }
+  if (resp) { _ccSnapshot = resp; _ccBriefing = null; _ccBriefingFailed = false; toast('Scan complete', 'success'); renderContent(); }
 }
 
 // ——— HELPERS ———
@@ -23188,20 +23211,74 @@ async function executeDataCleanse() {
 /** Export all tasks as a CSV file download */
 function exportCSV() {
   if (tasks.length === 0) { toast('No tasks to export', 'warning'); return; }
-  const headers = ['Task', 'Parent Task', 'Status', 'Priority', 'Description', 'Assignee', 'Files', 'Health State', 'Client', 'Hours Estimated', 'Hours Spent', 'Due Date'];
-  const rows = tasks.map(t => {
-    const parent = t.parentId ? (tasks.find(p => p.id === t.parentId) || {}).title || '' : '';
-    return [t.title, parent, t.status, t.priority || '', t.description || '', (t.assignees||[]).join(';'), '', t.healthState || '', getTaskClient(t), t.hoursEstimated || 0, t.hoursSpent || 0, t.dueDate || ''];
-  });
+  const allClients = [...new Set(tasks.filter(t => getTaskClient(t)).map(t => getTaskClient(t)))].sort();
+  let overlay = document.getElementById('exportModal');
+  if (overlay) overlay.remove();
+  overlay = document.createElement('div');
+  overlay.id = 'exportModal';
+  overlay.className = 'modal-overlay open';
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+  let html = '<div class="modal" style="max-width:500px">';
+  html += '<div class="modal__title">Export Tasks</div>';
+  html += '<div class="detail-field"><label class="detail-field__label">Client</label><select id="exportClient" onchange="_exportUpdateProjects()"><option value="">All Clients</option>';
+  allClients.forEach(c => { html += '<option value="' + esc(c) + '">' + esc(c) + '</option>'; });
+  html += '</select></div>';
+  html += '<div class="detail-field"><label class="detail-field__label">Project</label><select id="exportProject"><option value="">All Projects</option></select></div>';
+  html += '<div style="display:flex;gap:8px;margin-top:var(--space-lg)">';
+  html += '<button class="btn btn--primary" onclick="_doExport(\'nbi\')">Export NBI CSV</button>';
+  html += '<button class="btn" onclick="_doExport(\'jira\')" style="background:#0052CC;color:#fff">Export for Jira</button>';
+  html += '<button class="btn" onclick="document.getElementById(\'exportModal\').remove()">Cancel</button>';
+  html += '</div></div>';
+  overlay.innerHTML = html;
+  document.body.appendChild(overlay);
+}
 
+function _exportUpdateProjects() {
+  const client = document.getElementById('exportClient').value;
+  const sel = document.getElementById('exportProject');
+  const projects = tasks.filter(t => t.itemType === 'project' && (!client || getTaskClient(t) === client)).sort((a,b) => a.title.localeCompare(b.title));
+  sel.innerHTML = '<option value="">All Projects</option>' + projects.map(p => '<option value="' + escAttrJs(p.id) + '">' + esc(p.title) + '</option>').join('');
+}
+
+function _doExport(format) {
+  const client = document.getElementById('exportClient').value;
+  const projectId = document.getElementById('exportProject').value;
+  let filtered = tasks.filter(t => {
+    if (client && getTaskClient(t) !== client) return false;
+    if (projectId) {
+      if (t.id === projectId) return true;
+      let walker = t.parentId;
+      while (walker) { if (walker === projectId) return true; const p = tasks.find(x => x.id === walker); walker = p ? p.parentId : null; }
+      return false;
+    }
+    return true;
+  });
+  if (filtered.length === 0) { toast('No tasks match the selected filters', 'warning'); return; }
   const csvQ = v => { const s = String(v); return (s.includes(',') || s.includes('"') || s.includes('\n')) ? '"' + s.replace(/"/g, '""') + '"' : s; };
-  const csv = [headers.map(csvQ).join(','), ...rows.map(r => r.map(csvQ).join(','))].join('\n');
+  let csv;
+  if (format === 'jira') {
+    const jiraStatus = s => ({ 'Not started': 'To Do', 'Planning': 'To Do', 'In progress': 'In Progress', 'In Review': 'In Progress', 'Blocked': 'To Do', 'Done': 'Done', 'Cancelled': 'Done' }[s] || 'To Do');
+    const jiraPriority = p => ({ 'Urgent': 'Highest', 'High': 'High', 'Medium': 'Medium', 'Low': 'Low' }[p] || 'Medium');
+    const jiraType = t => { const it = getItemType(t); return it === 'project' ? 'Epic' : it === 'feature' ? 'Epic' : it === 'story' ? 'Story' : 'Task'; };
+    const jiraEpic = t => { let w = t.parentId ? tasks.find(x => x.id === t.parentId) : null; while (w) { const wt = getItemType(w); if (wt === 'feature' || wt === 'project') return w.title; w = w.parentId ? tasks.find(x => x.id === w.parentId) : null; } return ''; };
+    const headers = ['Summary', 'Issue Type', 'Status', 'Priority', 'Description', 'Assignee', 'Due Date', 'Epic Link', 'Labels'];
+    const rows = filtered.map(t => [t.title, jiraType(t), jiraStatus(t.status), jiraPriority(t.priority), t.description || '', (t.assignees||[]).join(';'), t.dueDate || '', jiraEpic(t), getTaskClient(t) || '']);
+    csv = [headers.map(csvQ).join(','), ...rows.map(r => r.map(csvQ).join(','))].join('\n');
+  } else {
+    const headers = ['Task', 'Parent Task', 'Item Type', 'Status', 'Priority', 'Description', 'Assignee', 'Health State', 'Client', 'Hours Estimated', 'Hours Spent', 'Start Date', 'End Date', 'Due Date'];
+    const rows = filtered.map(t => {
+      const parent = t.parentId ? (tasks.find(p => p.id === t.parentId) || {}).title || '' : '';
+      return [t.title, parent, getItemType(t), t.status, t.priority || '', t.description || '', (t.assignees||[]).join(';'), t.healthState || '', getTaskClient(t), t.hoursEstimated || 0, t.hoursSpent || 0, t.startDate || '', t.endDate || '', t.dueDate || ''];
+    });
+    csv = [headers.map(csvQ).join(','), ...rows.map(r => r.map(csvQ).join(','))].join('\n');
+  }
   const blob = new Blob([csv], { type: 'text/csv' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = `nbi_dashboard_export_${new Date().toISOString().slice(0,10)}.csv`;
+  a.href = url; a.download = format === 'jira' ? `jira_import_${new Date().toISOString().slice(0,10)}.csv` : `nbi_export_${new Date().toISOString().slice(0,10)}.csv`;
   a.click(); URL.revokeObjectURL(url);
-  toast('CSV exported');
+  document.getElementById('exportModal').remove();
+  toast(format === 'jira' ? 'Jira CSV exported — import via Jira > System > External System Import > CSV' : 'NBI CSV exported');
 }
 
 // ----- THEME PICKER -----
