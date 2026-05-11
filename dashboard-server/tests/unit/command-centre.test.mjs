@@ -67,5 +67,44 @@ describe('Command Centre', () => {
       expect(snapshot.brain).toHaveProperty('roles');
       expect(Array.isArray(snapshot.brain.roles)).toBe(true);
     });
+
+    it('scanConnections returns buckets object', async () => {
+      const router = makeRouter();
+      const snapshot = await router._computeSnapshot();
+      expect(snapshot.connections).toHaveProperty('buckets');
+      expect(snapshot.connections).toHaveProperty('local_mcp');
+      expect(snapshot.connections).toHaveProperty('cloud_mcp');
+      const buckets = snapshot.connections.buckets;
+      expect(buckets).toHaveProperty('tasks');
+      expect(buckets).toHaveProperty('knowledge');
+    });
+
+    it('scanSessions returns stats and live_state', async () => {
+      const router = makeRouter();
+      const snapshot = await router._computeSnapshot();
+      expect(snapshot.sessions).toHaveProperty('stats');
+      expect(snapshot.sessions).toHaveProperty('live_state');
+      expect(typeof snapshot.sessions.stats.total_this_week).toBe('number');
+    });
+
+    it('scanBugs returns by_status and by_priority', async () => {
+      const router = makeRouter();
+      const snapshot = await router._computeSnapshot();
+      expect(snapshot.bugs).toHaveProperty('by_status');
+      expect(snapshot.bugs).toHaveProperty('by_priority');
+      expect(snapshot.bugs).toHaveProperty('recent_activity');
+    });
+
+    it('four_cs scores are bounded 0-10', async () => {
+      const router = makeRouter();
+      const snapshot = await router._computeSnapshot();
+      ['context', 'connections', 'capabilities', 'cadence'].forEach(key => {
+        const c = snapshot.four_cs[key];
+        expect(c.score).toBeGreaterThanOrEqual(0);
+        expect(c.score).toBeLessThanOrEqual(10);
+        expect(c.max).toBe(10);
+        expect(Array.isArray(c.details)).toBe(true);
+      });
+    });
   });
 });
