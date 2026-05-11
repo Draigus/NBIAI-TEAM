@@ -19465,6 +19465,19 @@ function _ccRenderPage(el) {
   html += '<button class="btn btn--sm" onclick="ccRefresh()">Refresh Scan</button>';
   html += '</div></div>';
 
+  // DEBUG BANNER — remove after verification
+  const _dd = _ccData();
+  const _db = _ccBriefing || {};
+  html += '<div style="background:rgba(255,0,0,0.1);border:1px solid rgba(255,0,0,0.3);border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:0.7rem;font-family:monospace;color:var(--text-muted)">';
+  html += 'v12 | snap keys: ' + Object.keys(_ccSnapshot || {}).join(',') + ' | data keys: ' + Object.keys(_dd).join(',');
+  html += ' | 4cs: ' + (_dd.four_cs?.context?.score ?? 'NONE');
+  html += ' | skills: ' + (_dd.skills?.length ?? 'NONE');
+  html += ' | briefing: ' + (!!_ccBriefing ? Object.keys(_db).join(',') : 'NULL');
+  html += ' | brief.crit: ' + (_db.critical?.length ?? 'N/A');
+  html += ' | brief.overdue: ' + (_db.work_queue?.overdue?.length ?? 'N/A');
+  html += ' | loading: ' + _ccLoading + ' | failed: ' + _ccBriefingFailed;
+  html += '</div>';
+
   html += '<div class="cc-tabs">';
   html += '<div class="cc-tabs__item' + (_ccTab === 'dashboard' ? ' cc-tabs__item--active' : '') + '" onclick="ccSwitchTab(\'dashboard\')">Dashboard</div>';
   html += '<div class="cc-tabs__item' + (_ccTab === 'briefing' ? ' cc-tabs__item--active' : '') + '" onclick="ccSwitchTab(\'briefing\')">Daily Briefing</div>';
