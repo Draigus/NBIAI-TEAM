@@ -7,7 +7,7 @@ module.exports = {
     autorestart: true,
     watch: false,
     max_memory_restart: '500M',
-    env: { NODE_ENV: 'production', LOG_LEVEL: 'info' },
+    env: { NODE_ENV: 'production', LOG_LEVEL: 'info', REPO_ROOT: require('path').resolve(__dirname, '..') },
     log_date_format: 'YYYY-MM-DD HH:mm:ss',
     error_file: './logs/error.log',
     out_file: './logs/out.log',
@@ -30,7 +30,8 @@ module.exports = {
       AZURE_TENANT_ID: '',
       AZURE_CLIENT_ID: '',
       AZURE_CLIENT_SECRET: '',
-      EMAIL_FROM: 'staging@example.invalid'
+      EMAIL_FROM: 'staging@example.invalid',
+      REPO_ROOT: require('path').resolve(__dirname, '..')
     },
     log_date_format: 'YYYY-MM-DD HH:mm:ss',
     error_file: './logs/staging-error.log',
