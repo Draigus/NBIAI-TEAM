@@ -337,6 +337,7 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .main__tab.active { color: var(--accent-text); border-bottom-color: var(--accent); }
 .main__content { flex: 1; overflow-y: auto; overflow-x: hidden; padding: var(--space-xl); width: 100%; -webkit-overflow-scrolling: touch; }
 .main__content:has(.pf) { padding: 8px; }
+.main__content:has(> .docs) { overflow: hidden; display: flex; flex-direction: column; padding: 0; }
 
 /* ===== KPI CARDS ===== */
 .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--space-lg); margin-bottom: var(--space-xl); }
@@ -792,7 +793,7 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .batch-actions { display: flex; gap: var(--space-sm); margin-left: auto; }
 
 /* ===== TASKS MASTER-DETAIL LAYOUT ===== */
-.tasks-layout { display: flex; gap: 0; height: 100%; }
+.tasks-layout { display: flex; gap: 0; }
 .tasks-layout__main { flex: 1; min-width: 0; overflow-y: auto; overflow-x: hidden; }
 .tasks-layout__detail { width: 340px; min-width: 240px; max-width: 70vw; flex-shrink: 0; border-left: 1px solid var(--border-default); background: var(--bg-raised); overflow-y: auto; display: flex; flex-direction: column; position: relative; }
 .tasks-layout__detail-resize { position: absolute; left: -3px; top: 0; bottom: 0; width: 12px; cursor: col-resize; z-index: 10; }
@@ -2513,7 +2514,7 @@ span.fin-editable { display: inline-block; position: relative; }
 .news-admin-toggle { cursor: pointer; font-size: 18px; }
 
 /* ============ DOCUMENTATION TAB ============ */
-.docs { display: flex; flex-direction: column; height: calc(var(--vh-full) - var(--header-h) - 86px); }
+.docs { display: flex; flex-direction: column; flex: 1; min-height: 0; }
 .docs__hdr { display: flex; align-items: center; gap: 12px; padding: var(--space-md) var(--space-lg); border-bottom: 1px solid var(--border-subtle); }
 .docs__hdr-title { font-size: 1.05rem; font-weight: 700; letter-spacing: 0.04em; color: var(--text-primary); }
 .docs__client-select { padding: 4px 10px; background: var(--bg-input); border: 1px solid var(--border-default); border-radius: var(--radius-md); color: var(--text-primary); font-size: 0.82rem; min-width: 200px; }
@@ -7020,6 +7021,7 @@ function renderTaskView(el) {
     .filter(r => r.title && r.title.trim() !== 'New Task')
     .filter(r => !currentFilter.client || getTaskClient(r) === currentFilter.client)
     .sort((a,b) => a.title.localeCompare(b.title));
+  html += '<div class="tasks-view">';
   html += `<div class="filter-bar">
     <input type="text" placeholder="Search items... (Enter)" value="${esc(currentFilter.search)}" onkeydown="if(event.key==='Enter'){currentFilter.search=this.value;renderContent()}" onblur="if(this.value!==currentFilter.search){currentFilter.search=this.value;renderContent()}">
     ${buildMultiSelect('assignee', 'People', _cachedTeamMembers, currentFilter.assignee)}
@@ -7101,7 +7103,16 @@ function renderTaskView(el) {
   html += '</div>';
 
   html += '</div>'; // close tasks-layout
+  html += '</div>'; // close tasks-view
   el.innerHTML = html;
+  // Size the tasks-layout to fill remaining viewport (same pattern as portfolio view)
+  requestAnimationFrame(() => {
+    const layout = el.querySelector('.tasks-layout');
+    if (layout) {
+      const top = layout.getBoundingClientRect().top;
+      layout.style.height = (window.innerHeight - top) + 'px';
+    }
+  });
   // Load notes if profile expanded
   if (currentFilter.client && _profileExpanded[currentFilter.client.replace(/[^a-zA-Z0-9]/g, '_')]) {
     setTimeout(() => loadClientNotes(currentFilter.client), 50);
@@ -19428,7 +19439,8 @@ function _ccRenderPage(el) {
   html += '<div class="cc-header__greeting">' + esc(greeting) + ', <span class="cc-header__name">' + esc(userName) + '</span></div></div>';
   html += '<div class="cc-header__right">';
   if (_ccSnapshot) {
-    html += '<span class="cc-header__ts">Scanned ' + new Date(_ccSnapshot.updated_at || _ccSnapshot.created_at).toLocaleString('en-GB', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) + '</span>';
+    const _ts = _ccSnapshot.updated_at || _ccSnapshot.created_at || _ccSnapshot.snapshot_date;
+    html += '<span class="cc-header__ts">Scanned ' + (_ts ? new Date(_ts).toLocaleString('en-GB', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) : 'just now') + '</span>';
   }
   html += '<button class="btn btn--sm" onclick="ccRefresh()">Refresh Scan</button>';
   html += '</div></div>';
@@ -19467,10 +19479,20 @@ async function ccRefresh() {
   if (resp) { _ccSnapshot = resp; _ccBriefing = null; toast('Scan complete', 'success'); renderContent(); }
 }
 
+// ——— HELPERS ———
+
+function _ccData() {
+  if (!_ccSnapshot) return {};
+  const d = _ccSnapshot.data || _ccSnapshot;
+  if (d.four_cs) return d;
+  if (d.data && d.data.four_cs) return d.data;
+  return d;
+}
+
 // ——— DASHBOARD TAB ———
 
 function ccRenderDashboard() {
-  const d = _ccSnapshot?.data || {};
+  const d = _ccData();
   const fc = d.four_cs || {};
   let html = '';
 
