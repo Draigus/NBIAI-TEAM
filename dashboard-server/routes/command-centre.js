@@ -496,10 +496,10 @@ module.exports = function (ctx) {
       const calWeek = calData.events.filter(e => new Date(e.start) > tomorrow);
 
       // Work queue
-      const overdueQ = await pool.query(`SELECT id, title, status, priority, due_date, client_id FROM tasks WHERE due_date < $1 AND status NOT IN ('Done','Cancelled') AND item_type IN ('story','task') ORDER BY due_date`, [todayStr]);
-      const dueTodayQ = await pool.query(`SELECT id, title, status, priority, due_date, client_id FROM tasks WHERE due_date = $1 AND status NOT IN ('Done','Cancelled') AND item_type IN ('story','task')`, [todayStr]);
+      const overdueQ = await pool.query(`SELECT id, title, status, priority, due_date, client_id FROM tasks WHERE due_date IS NOT NULL AND due_date != '' AND due_date::date < $1::date AND status NOT IN ('Done','Cancelled') AND item_type IN ('story','task') ORDER BY due_date`, [todayStr]);
+      const dueTodayQ = await pool.query(`SELECT id, title, status, priority, due_date, client_id FROM tasks WHERE due_date IS NOT NULL AND due_date != '' AND due_date::date = $1::date AND status NOT IN ('Done','Cancelled') AND item_type IN ('story','task')`, [todayStr]);
       const endOfWeek = new Date(today); endOfWeek.setDate(endOfWeek.getDate() + (5 - endOfWeek.getDay()));
-      const dueWeekQ = await pool.query(`SELECT id, title, status, priority, due_date, client_id FROM tasks WHERE due_date > $1 AND due_date <= $2 AND status NOT IN ('Done','Cancelled') AND item_type IN ('story','task') ORDER BY due_date`, [todayStr, endOfWeek.toISOString().slice(0, 10)]);
+      const dueWeekQ = await pool.query(`SELECT id, title, status, priority, due_date, client_id FROM tasks WHERE due_date IS NOT NULL AND due_date != '' AND due_date::date > $1::date AND due_date::date <= $2::date AND status NOT IN ('Done','Cancelled') AND item_type IN ('story','task') ORDER BY due_date`, [todayStr, endOfWeek.toISOString().slice(0, 10)]);
       const blockedQ = await pool.query(`SELECT id, title, status, priority, due_date, client_id FROM tasks WHERE health_state = 'Blocked' AND status NOT IN ('Done','Cancelled') ORDER BY priority`);
 
       // Bugs
@@ -531,7 +531,7 @@ module.exports = function (ctx) {
       const delivQ = await pool.query(`
         SELECT t.id, t.title, t.status, t.due_date, t.priority, c.name as client_name
         FROM tasks t LEFT JOIN clients c ON t.client_id = c.id
-        WHERE t.due_date BETWEEN $1 AND ($1::date + 14) AND t.status NOT IN ('Done','Cancelled')
+        WHERE t.due_date IS NOT NULL AND t.due_date != '' AND t.due_date::date BETWEEN $1::date AND ($1::date + 14) AND t.status NOT IN ('Done','Cancelled')
           AND t.item_type IN ('story','task','feature') AND t.client_id IS NOT NULL
         ORDER BY t.due_date`, [todayStr]);
       const clientDeliveries = {};
