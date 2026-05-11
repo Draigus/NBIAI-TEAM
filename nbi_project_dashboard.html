@@ -3202,7 +3202,7 @@ function _actSelectCapPerson(name) { _capSelectedPerson = name; loadCapacityHeat
 function _actSetPeopleCalView(v) { _peopleCalView = v; localStorage.setItem('nbi_people_cal_view', v); renderContent(); }
 function _actSetLeadsSector(v) { _leadsFilter.sector = v; refreshLeads(); }
 function _actClearLeadsSector() { _leadsFilter.sector = null; refreshLeads(); }
-function _actSetTaskSubView(v) { taskSubView = v; localStorage.setItem('nbi_task_subview', v); renderContent(); }
+function _actSetTaskSubView(v) { taskSubView = v; localStorage.setItem('nbi_task_subview', v); _tasksInitialCollapse = true; renderContent(); }
 
 function _actCalNext() { _calMonth++; if (_calMonth > 11) { _calMonth = 0; _calYear++; } _calEventsKey = ''; renderContent(); }
 function _actCalPrev() { _calMonth--; if (_calMonth < 0) { _calMonth = 11; _calYear--; } _calEventsKey = ''; renderContent(); }
@@ -5269,8 +5269,8 @@ function switchView(view) {
   if (LEGACY_ROUTES[view]) view = LEGACY_ROUTES[view];
   const prev = currentView;
   currentView = view;
-  // Re-collapse the tree when entering the Projects page from a different view
-  if (view === 'tasks' && prev !== 'tasks') { _tasksInitialCollapse = true; }
+  // Always collapse the tree when entering the Projects page
+  if (view === 'tasks') { _tasksInitialCollapse = true; }
   if (prev !== view) { history.pushState({ view, filter: { ...currentFilter }, taskSubView }, '', '#' + view); }
   renderAll();
 }
@@ -19383,18 +19383,41 @@ let _ccSnapshot = null;
 let _ccBriefing = null;
 let _ccTab = localStorage.getItem('ccTab') || 'dashboard';
 
-async function renderCommandCentre(el) {
+function renderCommandCentre(el) {
   if (!_ccSnapshot) {
     el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted)">Loading Command Centre...</div>';
-    const resp = await apiCall('/api/command-centre/snapshot');
-    if (resp) { _ccSnapshot = resp; }
-    else {
-      const refreshResp = await apiCall('/api/command-centre/refresh', { method: 'POST' });
-      if (refreshResp) _ccSnapshot = refreshResp;
-    }
-    if (!_ccSnapshot) { el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted)">Failed to load Command Centre data.</div>'; return; }
+    _ccLoadData();
+    return;
   }
+  if (_ccTab === 'briefing' && !_ccBriefing) {
+    el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted)">Loading briefing...</div>';
+    _ccLoadBriefing();
+    return;
+  }
+  _ccRenderPage(el);
+}
 
+async function _ccLoadData() {
+  const resp = await apiCall('/api/command-centre/snapshot');
+  if (resp) { _ccSnapshot = resp; }
+  else {
+    const refreshResp = await apiCall('/api/command-centre/refresh', { method: 'POST' });
+    if (refreshResp) _ccSnapshot = refreshResp;
+  }
+  if (!_ccSnapshot) {
+    const el = document.getElementById('mainContent');
+    if (el) el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted)">Failed to load Command Centre data.</div>';
+    return;
+  }
+  renderContent();
+}
+
+async function _ccLoadBriefing() {
+  _ccBriefing = await apiCall('/api/command-centre/briefing');
+  renderContent();
+}
+
+function _ccRenderPage(el) {
   let html = '';
   const now = new Date();
   const greeting = now.getHours() < 12 ? 'Good morning' : now.getHours() < 17 ? 'Good afternoon' : 'Good evening';
@@ -19418,7 +19441,7 @@ async function renderCommandCentre(el) {
   if (_ccTab === 'dashboard') {
     html += ccRenderDashboard();
   } else {
-    html += await ccRenderBriefing();
+    html += _ccBriefing ? ccRenderBriefingContent() : '<div style="padding:40px;text-align:center;color:var(--text-muted)">No briefing data.</div>';
   }
 
   html += '</div>';
@@ -19690,10 +19713,7 @@ function ccCardLevelUp() {
 
 // ——— BRIEFING TAB ———
 
-async function ccRenderBriefing() {
-  if (!_ccBriefing) {
-    _ccBriefing = await apiCall('/api/command-centre/briefing');
-  }
+function ccRenderBriefingContent() {
   if (!_ccBriefing) return '<div style="padding:40px;text-align:center;color:var(--text-muted)">Failed to load briefing data.</div>';
   const b = _ccBriefing;
   let html = '';
