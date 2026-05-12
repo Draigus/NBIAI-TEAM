@@ -4239,10 +4239,11 @@ function save() {
 
 let _syncRetryCount = 0;
 let _syncRetryTimer = null;
+window.addEventListener('beforeunload', (e) => { if (_dirtyTaskIds.size > 0 || _syncInFlight) { e.preventDefault(); } });
 function _scheduleSyncRetry() {
   if (_syncRetryTimer) return;
   _syncRetryCount++;
-  if (_syncRetryCount > 5) { showSyncStatus('error', 'Sync failed after 5 attempts — changes saved locally'); return; }
+  if (_syncRetryCount > 5) { showSyncStatus('error', 'Sync failed after 5 attempts — changes saved locally'); toast('Server sync failed — your changes are saved locally but not yet on the server. They will retry on your next edit.', 'warning'); return; }
   const delay = Math.min(2000 * Math.pow(2, _syncRetryCount - 1), 30000);
   _syncRetryTimer = setTimeout(() => { _syncRetryTimer = null; syncToAPI(); }, delay);
 }
@@ -8275,11 +8276,37 @@ function renderGanttView(filtered) {
   const allLeafTasks = filtered.filter(t => !_ganttHideDone || t.status !== 'Done');
   if (allLeafTasks.length === 0) return emptyState('&#128197;', 'No items for timeline', 'Add items with due dates to see the Gantt chart.');
 
+  // When a search filter is active, build a set of visible IDs so the
+  // hierarchy only shows items that match (or are ancestors/descendants of
+  // matches). Without this, getChildren pulls from the global tasks array
+  // and either matching children are invisible or non-matching children
+  // flood the view. Bug #8 fix. Computed once, used by both mobile and
+  // desktop code paths below.
+  let _ganttSearchVisibleIds = null;
+  if (currentFilter.search) {
+    _ganttSearchVisibleIds = new Set(allLeafTasks.map(t => t.id));
+    allLeafTasks.forEach(t => {
+      let cur = tasks.find(p => p.id === t.parentId);
+      while (cur) { _ganttSearchVisibleIds.add(cur.id); cur = tasks.find(p => p.id === cur.parentId); }
+    });
+    allLeafTasks.forEach(t => { getDescendants(t.id).forEach(d => _ganttSearchVisibleIds.add(d.id)); });
+  }
+
   // Mobile card view — replaces the Gantt chart on narrow screens
   if (window.innerWidth <= 768) {
     const now = new Date(); now.setHours(0,0,0,0);
     const dateFmt = { day: '2-digit', month: 'short', year: 'numeric' };
-    const roots = allLeafTasks.filter(t => !t.parentId);
+    // When searching, include root ancestors of matching children (Bug #8)
+    let roots;
+    if (_ganttSearchVisibleIds) {
+      const rootIds = new Set();
+      allLeafTasks.filter(t => !t.parentId).forEach(t => rootIds.add(t.id));
+      allLeafTasks.forEach(t => { if (t.parentId) { const root = getRootAncestor(t); rootIds.add(root.id); } });
+      roots = tasks.filter(t => rootIds.has(t.id) && !t.parentId);
+      if (_ganttHideDone) roots = roots.filter(t => t.status !== 'Done');
+    } else {
+      roots = allLeafTasks.filter(t => !t.parentId);
+    }
     const clientGrps = {};
     roots.forEach(t => { const c = getTaskClient(t) || 'Uncategorised'; if (!clientGrps[c]) clientGrps[c] = []; clientGrps[c].push(t); });
     let html = '<div style="display:flex;flex-direction:column;gap:16px">';
@@ -8295,7 +8322,9 @@ function renderGanttView(filtered) {
       // Split projects into active vs not-started
       function renderMobileCard(t, depth) {
         if (_ganttHideDone && t.status === 'Done') return;
-        const kids = getChildren(t.id).filter(c => !_ganttHideDone || c.status !== 'Done');
+        let kids = getChildren(t.id).filter(c => !_ganttHideDone || c.status !== 'Done');
+        // When searching, only show children that are in the visible set (Bug #8)
+        if (_ganttSearchVisibleIds) kids = kids.filter(c => _ganttSearchVisibleIds.has(c.id));
         const isParent = kids.length > 0;
         const start = isParent ? ganttRolledStart(t) : ganttTaskStart(t);
         const end = isParent ? ganttRolledEnd(t) : ganttTaskEnd(t);
@@ -8398,8 +8427,21 @@ function renderGanttView(filtered) {
   const dayW = ganttDayWidth;
   const timelineW = totalDays * dayW;
 
-  // Group ROOT tasks (projects) by client — children are rendered recursively
-  const rootTasks = leafTasks.filter(t => !t.parentId);
+  // Group ROOT tasks (projects) by client — children are rendered recursively.
+  // When searching, include root ancestors of matching children (Bug #8).
+  // _ganttSearchVisibleIds was computed above (before the mobile/desktop
+  // branch) and is reused here.
+  let rootTasks;
+  if (_ganttSearchVisibleIds) {
+    const rootIds = new Set();
+    leafTasks.filter(t => !t.parentId).forEach(t => rootIds.add(t.id));
+    leafTasks.forEach(t => { if (t.parentId) { const root = getRootAncestor(t); rootIds.add(root.id); } });
+    rootTasks = tasks.filter(t => rootIds.has(t.id) && !t.parentId);
+    // Also apply _ganttHideDone to root tasks
+    if (_ganttHideDone) rootTasks = rootTasks.filter(t => t.status !== 'Done');
+  } else {
+    rootTasks = leafTasks.filter(t => !t.parentId);
+  }
   const clientGroups = {};
   rootTasks.forEach(t => {
     const client = getTaskClient(t) || 'Uncategorised';
@@ -8634,7 +8676,9 @@ function renderGanttView(filtered) {
     /** Render a single Gantt row with bar, label, and recursively render child rows */
     function renderGanttRow(t, depth) {
       if (_ganttHideDone && t.status === 'Done') return;
-      const kids = getChildren(t.id).filter(c => !_ganttHideDone || c.status !== 'Done');
+      let kids = getChildren(t.id).filter(c => !_ganttHideDone || c.status !== 'Done');
+      // When searching, only show children that are in the visible set (Bug #8)
+      if (_ganttSearchVisibleIds) kids = kids.filter(c => _ganttSearchVisibleIds.has(c.id));
       const isParent = kids.length > 0;
       const isCollapsed = collapsedTaskIds.has(t.id);
       // Parent rows always use the rolled-up date range — a project with no
@@ -9263,6 +9307,16 @@ function ganttBarDragEnd(e) {
   let changed = false;
   if (mode === 'move') {
     if (newStartStr !== origStart || newEndStr !== origEnd) {
+      // Shift dueDate by the same delta as endDate so the business
+      // deadline moves with the bar.
+      if (task.dueDate && origEnd) {
+        const origEndMs = new Date(origEnd + 'T00:00:00').getTime();
+        const newEndMs = newEndDate.getTime();
+        const deltaMs = newEndMs - origEndMs;
+        const oldDue = new Date(task.dueDate + 'T00:00:00');
+        const shiftedDue = new Date(oldDue.getTime() + deltaMs);
+        task.dueDate = localISO(shiftedDue);
+      }
       task.startDate = newStartStr;
       task.endDate = newEndStr;
       changed = true;
@@ -9270,6 +9324,7 @@ function ganttBarDragEnd(e) {
   } else if (mode === 'resize-end') {
     if (newEndStr !== origEnd) {
       task.endDate = newEndStr;
+      task.dueDate = newEndStr;
       changed = true;
     }
   } else if (mode === 'resize-start') {
@@ -11405,7 +11460,7 @@ function renderReportingView(el) {
       const mPct = ((mDate - gMin) / 86400000 / totalDays * 100).toFixed(2);
       const mCol = mDate < now ? 'var(--danger)' : 'var(--accent)';
       html += `<div style="position:absolute;left:${mPct}%;top:0;bottom:0;border-left:2px solid ${mCol};pointer-events:none;opacity:0.7"></div>`;
-      html += `<div style="position:absolute;left:calc(${mPct}% + 4px);bottom:2px;font-size:0.7rem;color:${mCol};font-weight:700;letter-spacing:0.04em;white-space:nowrap">${esc(ms.title)}</div>`;
+      html += `<div style="position:absolute;left:calc(${mPct}% + 4px);top:-2px;font-size:0.65rem;color:${mCol};font-weight:700;letter-spacing:0.04em;white-space:nowrap;text-transform:uppercase">${esc(ms.title)}</div>`;
     }
   });
   html += `</div></div>`;
@@ -19763,9 +19818,6 @@ function _ccRenderPage(el) {
   // ZONE 2: 4Cs METRICS ROW
   html += ccRenderMetrics(fc);
 
-  // ZONE 3: MAIN + RAIL wrapper
-  html += '<div style="display:flex;gap:0;flex:1;min-height:0;overflow:hidden">';
-
   // ZONE 3a: MAIN CONTENT
   html += '<div class="cc-main">';
   html += '<div class="cc-tabs">';
@@ -19790,7 +19842,6 @@ function _ccRenderPage(el) {
   // ZONE 3b: ACTION RAIL
   html += ccRenderRail(d, b);
 
-  html += '</div>'; // end flex wrapper
   html += '</div>'; // end cc-page
   el.innerHTML = html;
 
