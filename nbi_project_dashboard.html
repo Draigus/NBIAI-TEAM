@@ -19472,9 +19472,10 @@ function _ccRenderPage(el) {
   html += 'v12 | snap keys: ' + Object.keys(_ccSnapshot || {}).join(',') + ' | data keys: ' + Object.keys(_dd).join(',');
   html += ' | 4cs: ' + (_dd.four_cs?.context?.score ?? 'NONE');
   html += ' | skills: ' + (_dd.skills?.length ?? 'NONE');
-  html += ' | briefing: ' + (!!_ccBriefing ? Object.keys(_db).join(',') : 'NULL');
-  html += ' | brief.crit: ' + (_db.critical?.length ?? 'N/A');
-  html += ' | brief.overdue: ' + (_db.work_queue?.overdue?.length ?? 'N/A');
+  const _bd = _ccBriefData() || {};
+  html += ' | briefing: ' + (!!_ccBriefing ? 'SET' : 'NULL') + ' norm: ' + (!!_ccBriefData() ? Object.keys(_bd).join(',') : 'NULL');
+  html += ' | brief.crit: ' + (_bd.critical?.length ?? 'N/A');
+  html += ' | brief.overdue: ' + (_bd.work_queue?.overdue?.length ?? 'N/A');
   html += ' | loading: ' + _ccLoading + ' | failed: ' + _ccBriefingFailed;
   html += '</div>';
 
@@ -19486,7 +19487,7 @@ function _ccRenderPage(el) {
   if (_ccTab === 'dashboard') {
     html += ccRenderDashboard();
   } else {
-    if (_ccBriefing) html += ccRenderBriefingContent();
+    if (_ccBriefData()) html += ccRenderBriefingContent();
     else if (_ccLoading) html += '<div style="padding:40px;text-align:center;color:var(--text-muted)">Loading briefing data...</div>';
     else if (_ccBriefingFailed) html += '<div style="padding:40px;text-align:center;color:var(--text-muted)">Failed to load briefing. <a href="#" onclick="event.preventDefault();_ccBriefingFailed=false;_ccLoadBriefing();return false" style="color:var(--primary)">Retry</a></div>';
     else html += '<div style="padding:40px;text-align:center;color:var(--text-muted)">No briefing data.</div>';
@@ -19523,6 +19524,13 @@ function _ccData() {
   if (d.four_cs) return d;
   if (d.data && d.data.four_cs) return d.data;
   return d;
+}
+
+function _ccBriefData() {
+  if (!_ccBriefing) return null;
+  if (_ccBriefing.critical !== undefined) return _ccBriefing;
+  if (_ccBriefing.data && _ccBriefing.data.critical !== undefined) return _ccBriefing.data;
+  return _ccBriefing;
 }
 
 // ——— DASHBOARD TAB ———
@@ -19772,8 +19780,8 @@ function ccCardLevelUp() {
 // ——— BRIEFING TAB ———
 
 function ccRenderBriefingContent() {
-  if (!_ccBriefing) return '<div style="padding:40px;text-align:center;color:var(--text-muted)">Failed to load briefing data.</div>';
-  const b = _ccBriefing;
+  const b = _ccBriefData();
+  if (!b) return '<div style="padding:40px;text-align:center;color:var(--text-muted)">Failed to load briefing data.</div>';
   let html = '';
   html += ccBriefCritical(b.critical || []);
   html += ccBriefCalendar(b.calendar || {});
