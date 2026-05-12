@@ -256,6 +256,10 @@ Internal dashboard at `dashboard-server/` + `nbi_project_dashboard.html`. Runnin
 
 Modular service in `projects/news-aggregator/` feeding the NBI Hub News tab. Current state: generic aggregator (built with Opus 4.7, required significant refactoring due to quality issues). Running on PM2 alongside the Hub. Planned expansion: game launches, DLC releases, dashboard elements alongside news.
 
+### AI Operations Capability
+
+NBI has built a context-engineered AI operations layer that enables a 7-person firm to deliver at the depth of a much larger team. This includes: persistent business context (the Brain), 33-role agent team as depth-skill assets, custom Claude Code skills for domain-specific workflows (/compile-client for client knowledge compilation, /autoresearch for document quality iteration, /gi for investment analysis), session continuity systems, model tier routing (Opus/Sonnet/Haiku), and approval gates. This architecture is now being offered as a service to game studios. See `brain/services_ai_operations.md` for full detail on the capability and client service offering.
+
 ### Astinus
 
 Personal D&D campaign intelligence system at `D:\OneDrive\Claude_code\Astinus`. Named after the chronicler from Dragonlance. Local-first Python system that processes session audio into structured world data, maintains a living world bible, and generates pre-session DM briefs. All 23+ phases complete. Tech stack: Python 3.11+, SQLite + FTS5, Claude API, FastAPI + HTMX, WhisperX + pyannote. Nights/weekends project. See `brain/personal.md` for full details.
@@ -279,6 +283,7 @@ The core Brain (this file) is always loaded. Extended modules in `brain/` provid
 | Personal and Family | `brain/personal.md` | Personal context is relevant (health, family, D&D, Astinus details) |
 | Decisions Log | `brain/decisions_log.md` | Need to check whether something has already been decided |
 | Pending Actions | `brain/pending_actions.md` | Reviewing what's outstanding or stalled |
+| AI Operations | `brain/services_ai_operations.md` | Working on AI service offerings, client proposals involving AI ops, or PlaySage Sage module architecture |
 
 ### Loading Protocol
 
