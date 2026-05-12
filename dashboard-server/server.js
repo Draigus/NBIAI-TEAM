@@ -116,7 +116,7 @@ const {
 
 // ==================== EMAIL ====================
 const {
-  sendEmailAsync, sendEmailReliable, setEmailCounter, EMAIL_FROM, APP_URL, _msalClient,
+  sendEmailAsync, setEmailCounter, EMAIL_FROM, APP_URL, _msalClient,
   buildEmailHtml, buildEmailTable, buildEmailSection,
 } = require('./lib/email');
 
@@ -198,7 +198,7 @@ const apiLimiter = rateLimit({
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, max: 30,
   keyGenerator: (req) => req.headers['cf-connecting-ip'] || req.ip || '127.0.0.1',
-  standardHeaders: true, legacyHeaders: false, validate: { ip: false, default: false },
+  standardHeaders: true, legacyHeaders: false, validate: { ip: false },
   message: { error: 'Too many login attempts. Please try again later.' }
 });
 app.use('/api/', apiLimiter);
@@ -442,7 +442,7 @@ app.use(require('./routes/resource-planning')({ pool, requireAdmin, requireNBI, 
 // ==================== CRON JOBS ====================
 const cronExports = require('./cron')({
   cron, pool, log, fs, path, runBackup, validateBackup, createNotification,
-  invalidateCache, fxBreaker, withRetry, sendEmailAsync, sendEmailReliable, EMAIL_FROM, APP_URL,
+  invalidateCache, fxBreaker, withRetry, sendEmailAsync, EMAIL_FROM, APP_URL,
   buildEmailHtml, buildEmailTable, buildEmailSection, addBusinessDays,
   businessDaysBetween, pickFilesToDelete, uploadDir
 });
