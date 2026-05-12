@@ -328,14 +328,14 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .sidebar__dot { width: 10px; height: 10px; border-radius: 50%; margin-right: var(--space-sm); flex-shrink: 0; }
 
 /* ===== MAIN CONTENT ===== */
-.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; height: 100%; }
 .main__tabs { display: flex; gap: 0; background: var(--bg-raised); border-bottom: 1px solid var(--border-default); padding: 0 var(--space-xl); position: relative; z-index: 201; }
 .main__tabs::after { content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 24px; background: linear-gradient(to right, transparent, var(--bg-raised)); pointer-events: none; opacity: 0; transition: opacity 0.2s; }
 .main__tabs.has-overflow::after { opacity: 1; }
 .main__tab { padding: 10px 20px; cursor: pointer; font-size: 0.85rem; color: var(--text-secondary); border-bottom: 2px solid transparent; transition: all 0.15s; }
 .main__tab:hover { color: var(--text-primary); }
 .main__tab.active { color: var(--accent-text); border-bottom-color: var(--accent); }
-.main__content { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: var(--space-xl); width: 100%; -webkit-overflow-scrolling: touch; }
+.main__content { flex: 1 1 0; min-height: 0; height: 0; overflow-y: auto; overflow-x: hidden; padding: var(--space-xl); width: 100%; -webkit-overflow-scrolling: touch; }
 .main__content:has(.pf) { padding: 8px; }
 .main__content:has(> .docs) { overflow: hidden; display: flex; flex-direction: column; padding: 0; }
 
