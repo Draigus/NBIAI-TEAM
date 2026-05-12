@@ -335,7 +335,7 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .main__tab { padding: 10px 20px; cursor: pointer; font-size: 0.85rem; color: var(--text-secondary); border-bottom: 2px solid transparent; transition: all 0.15s; }
 .main__tab:hover { color: var(--text-primary); }
 .main__tab.active { color: var(--accent-text); border-bottom-color: var(--accent); }
-.main__content { flex: 1; overflow-y: auto; overflow-x: hidden; padding: var(--space-xl); width: 100%; -webkit-overflow-scrolling: touch; }
+.main__content { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: var(--space-xl); width: 100%; -webkit-overflow-scrolling: touch; }
 .main__content:has(.pf) { padding: 8px; }
 .main__content:has(> .docs) { overflow: hidden; display: flex; flex-direction: column; padding: 0; }
 
