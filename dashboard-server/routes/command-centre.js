@@ -11,7 +11,7 @@ module.exports = function (ctx) {
   const SKILLS_DIR = path.join(REPO_ROOT, '.claude', 'skills');
   const MEMORY_DIR = (() => {
     const home = process.env.USERPROFILE || process.env.HOME || '';
-    const projectKey = REPO_ROOT.replace(/[:\\\/]/g, '-').replace(/^-+/, '');
+    const projectKey = REPO_ROOT.replace(/[^a-zA-Z0-9]/g, '-');
     return path.join(home, '.claude', 'projects', projectKey, 'memory');
   })();
   const BRAIN_PATH = path.join(REPO_ROOT, 'NBI_Brain.md');

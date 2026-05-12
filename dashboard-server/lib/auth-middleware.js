@@ -16,9 +16,9 @@ function getCookieToken(req) {
 }
 
 // Brute-force protection constants
-const FAILED_LOGIN_THRESHOLD = 3;
-const FAILED_LOGIN_LOCKOUT = 5;
-const LOCKOUT_DURATION = 15 * 60 * 1000;
+const FAILED_LOGIN_THRESHOLD = 10;
+const FAILED_LOGIN_LOCKOUT = 20;
+const LOCKOUT_DURATION = 5 * 60 * 1000;
 
 module.exports = function createAuthMiddleware(pool) {
   // Token cache — avoids DB query on every request

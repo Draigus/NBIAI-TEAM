@@ -192,13 +192,13 @@ const apiLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  validate: { ip: false },
+  validate: false,
   message: { error: 'Too many requests. Please slow down.' }
 });
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, max: 30,
   keyGenerator: (req) => req.headers['cf-connecting-ip'] || req.ip || '127.0.0.1',
-  standardHeaders: true, legacyHeaders: false, validate: { ip: false },
+  standardHeaders: true, legacyHeaders: false, validate: false,
   message: { error: 'Too many login attempts. Please try again later.' }
 });
 app.use('/api/', apiLimiter);
