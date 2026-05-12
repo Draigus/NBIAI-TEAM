@@ -21,7 +21,7 @@ module.exports = function (ctx) {
    * Return cached pipeline configuration: stages, resource types, and field option dropdowns.
    * Cache is invalidated whenever an admin modifies any config item.
    */
-  router.get('/api/leads/config', async (req, res) => {
+  router.get('/api/leads/config', requireNBI, async (req, res) => {
     const config = await getCached('leads_config', async () => {
       const stages = await pool.query('SELECT * FROM lead_pipeline_stages ORDER BY sort_order');
       const resourceTypes = await pool.query('SELECT * FROM lead_resource_types WHERE is_active = true ORDER BY sort_order');
@@ -145,7 +145,7 @@ module.exports = function (ctx) {
    * Includes joined stage, client, contact, and resource data.
    * Sorted by stage order, then priority, then creation date.
    */
-  router.get('/api/leads', async (req, res) => {
+  router.get('/api/leads', requireNBI, async (req, res) => {
     let { stage_id, client_id, owner, priority, sector, search, sort, limit: qLimit, offset: qOffset, cursor } = req.query;
     const scopes = await getClientScopes(req);
     if (scopes && scopes.length === 1) { client_id = scopes[0]; }
@@ -229,7 +229,7 @@ module.exports = function (ctx) {
   });
 
   /** GET /api/leads/reminders — Return open leads whose follow-up date is today or overdue */
-  router.get('/api/leads/reminders', async (req, res) => {
+  router.get('/api/leads/reminders', requireNBI, async (req, res) => {
     const scopes = await getClientScopes(req);
     let scopeFilter = '';
     let vals = [];
@@ -254,7 +254,7 @@ module.exports = function (ctx) {
    * Aggregate pipeline view: deal count, ROM range, and weighted value per stage.
    * Grouped by currency. Also returns FX rates from settings for GBP conversion.
    */
-  router.get('/api/leads/pipeline/summary', async (req, res) => {
+  router.get('/api/leads/pipeline/summary', requireNBI, async (req, res) => {
     const scopes = await getClientScopes(req);
     const { sector } = req.query;
     let filters = [];
@@ -286,7 +286,7 @@ module.exports = function (ctx) {
   });
 
   /** GET /api/leads/pipeline/forecast — Monthly revenue forecast from open deals with expected close dates */
-  router.get('/api/leads/pipeline/forecast', async (req, res) => {
+  router.get('/api/leads/pipeline/forecast', requireNBI, async (req, res) => {
     const scopes = await getClientScopes(req);
     let scopeFilter = '';
     let vals = [];
@@ -314,7 +314,7 @@ module.exports = function (ctx) {
    * GET /api/leads/:id
    * Full lead detail: includes client info, resources, recent activities, and client contacts.
    */
-  router.get('/api/leads/:id', async (req, res) => {
+  router.get('/api/leads/:id', requireNBI, async (req, res) => {
     if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid lead ID' });
     const { rows } = await pool.query(`
       SELECT l.*, l.weighted_value,
@@ -584,7 +584,7 @@ module.exports = function (ctx) {
   // --- Lead Activities ---
 
   /** GET /api/leads/:id/activities — Activity timeline for a lead, newest first */
-  router.get('/api/leads/:id/activities', async (req, res) => {
+  router.get('/api/leads/:id/activities', requireNBI, async (req, res) => {
     const { rows } = await pool.query(
       'SELECT * FROM lead_activities WHERE lead_id = $1 ORDER BY created_at DESC',
       [req.params.id]

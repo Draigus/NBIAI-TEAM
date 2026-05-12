@@ -2,7 +2,7 @@
 //
 // Tests for client-scoped users:
 //   - data isolation (scoped user only sees their client's data)
-//   - 403 blocks on internal-only endpoints (finance, bug tracker)
+//   - 403 blocks on internal-only endpoints (finance, leads)
 //   - write-path enforcement (cannot create tasks for other clients)
 //   - regression: internal admin still sees everything
 //   - user creation with client_id
@@ -172,24 +172,12 @@ describe('Client-scoped users', () => {
     expect(scopedRes.body).toHaveProperty('currency');
   });
 
-  it('scoped user only sees their client in leads/pipeline/summary', async () => {
-    const { clientA, clientB, scopedToken } = await createScopedSetup();
-
-    const stage = await createTestLeadStage({ name: 'Discovery' });
-    try {
-      await createTestLead({ client_id: clientA.id, stage_id: stage.id, title: 'Lead A' });
-      await createTestLead({ client_id: clientB.id, stage_id: stage.id, title: 'Lead B' });
-
-      const scopedRes = await request(app)
-        .get('/api/leads/pipeline/summary')
-        .set('Authorization', `Bearer ${scopedToken}`);
-      expect(scopedRes.status).toBe(200);
-      const totalDeals = scopedRes.body.byStage.reduce((sum, s) => sum + s.deal_count, 0);
-      expect(totalDeals).toBeLessThanOrEqual(1);
-    } finally {
-      await pool.query('DELETE FROM leads WHERE stage_id = $1', [stage.id]);
-      await pool.query('DELETE FROM lead_pipeline_stages WHERE id = $1', [stage.id]);
-    }
+  it('scoped user gets 403 on leads endpoints', async () => {
+    const { scopedToken } = await createScopedSetup();
+    const res = await request(app)
+      .get('/api/leads/pipeline/summary')
+      .set('Authorization', `Bearer ${scopedToken}`);
+    expect(res.status).toBe(403);
   });
 
   it('dashboard summary is scoped for external users', async () => {
