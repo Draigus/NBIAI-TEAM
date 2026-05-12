@@ -68,6 +68,28 @@ function sendEmailAsync(mailOptions) {
     .catch(err => { log('error', 'Email', 'Failed after retries', { to: mailOptions.to, error: err.message }); _emailSends?.inc({ status: 'failure' }); });
 }
 
+/**
+ * Send an email reliably — awaitable, with extended retries and stagger-friendly.
+ * Designed for cron batch sends where we need to avoid Graph API 429 throttling.
+ * Returns { success: boolean, error?: string }.
+ */
+async function sendEmailReliable(mailOptions) {
+  if (!_msalClient) {
+    log('info', 'Email', 'Graph API not configured, logging email', { to: mailOptions.to, subject: mailOptions.subject });
+    return { success: false, error: 'Graph API not configured' };
+  }
+  try {
+    await withRetry(() => _sendViaGraph(mailOptions), { maxAttempts: 4, backoffMs: 3000, backoffMultiplier: 2, log });
+    log('info', 'Email', 'Email sent via Graph API', { to: mailOptions.to });
+    _emailSends?.inc({ status: 'success' });
+    return { success: true };
+  } catch (err) {
+    log('error', 'Email', 'Failed after retries', { to: mailOptions.to, error: err.message });
+    _emailSends?.inc({ status: 'failure' });
+    return { success: false, error: err.message };
+  }
+}
+
 function buildEmailHtml(title, bodyHtml) {
   return `<!DOCTYPE html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"></head>
@@ -103,6 +125,6 @@ function buildEmailSection(title, colour, contentHtml) {
 }
 
 module.exports = {
-  sendEmailAsync, setEmailCounter, EMAIL_FROM, APP_URL, _msalClient,
+  sendEmailAsync, sendEmailReliable, setEmailCounter, EMAIL_FROM, APP_URL, _msalClient,
   buildEmailHtml, buildEmailTable, buildEmailSection,
 };

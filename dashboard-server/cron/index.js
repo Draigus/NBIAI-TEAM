@@ -11,7 +11,7 @@ const crypto = require('crypto');
  */
 module.exports = function(ctx) {
   const { cron, pool, log, fs, path, runBackup, validateBackup, createNotification,
-          invalidateCache, fxBreaker, withRetry, sendEmailAsync, EMAIL_FROM, APP_URL,
+          invalidateCache, fxBreaker, withRetry, sendEmailAsync, sendEmailReliable, EMAIL_FROM, APP_URL,
           buildEmailHtml, buildEmailTable, buildEmailSection, addBusinessDays,
           businessDaysBetween, pickFilesToDelete, uploadDir } = ctx;
   const CRON_TZ = { timezone: 'Europe/London' };
@@ -22,7 +22,7 @@ async function computeDashboardSnapshot() {
     SELECT
       count(*) FILTER (WHERE parent_id IS NULL AND title IS NOT NULL AND trim(title) != 'New Task'
                         AND status NOT IN ('Done','Cancelled')) as active_projects,
-      count(*) FILTER (WHERE due_date < CURRENT_DATE AND status NOT IN ('Done','Cancelled')) as overdue_count,
+      count(*) FILTER (WHERE due_date != '' AND due_date::date < CURRENT_DATE AND status NOT IN ('Done','Cancelled')) as overdue_count,
       count(*) FILTER (WHERE health_state = 'Blocked' AND status NOT IN ('Done','Cancelled')) as blocked_count,
       count(*) FILTER (WHERE health_state = 'Red' AND status NOT IN ('Done','Cancelled')) as at_risk_count,
       COALESCE(sum(hours_spent) FILTER (WHERE true), 0) as hours_spent,
@@ -30,7 +30,7 @@ async function computeDashboardSnapshot() {
       count(*) FILTER (WHERE status NOT IN ('Done','Cancelled')) as tasks_planned,
       count(*) FILTER (WHERE created_at::date = $1::date) as tasks_added,
       count(*) FILTER (WHERE status = 'Done') as tasks_completed,
-      count(DISTINCT title) FILTER (WHERE (due_date < CURRENT_DATE OR health_state = 'Red')
+      count(DISTINCT title) FILTER (WHERE ((due_date != '' AND due_date::date < CURRENT_DATE) OR health_state = 'Red')
                                      AND status NOT IN ('Done','Cancelled')
                                      AND parent_id IS NULL AND title IS NOT NULL AND trim(title) != 'New Task') as problem_projects
     FROM tasks
@@ -286,8 +286,14 @@ if (cron) {
     log('info', 'Cron', 'Running PM daily report emails');
     try {
       const emails = await buildPmReportEmails();
-      for (const mail of emails) sendEmailAsync(mail);
-      log('info', 'Cron', `PM reports: ${emails.length} email(s) queued`);
+      log('info', 'Cron', `PM reports: ${emails.length} email(s) to send`);
+      let sent = 0, failed = 0;
+      for (let i = 0; i < emails.length; i++) {
+        if (i > 0) await new Promise(r => setTimeout(r, 1500));
+        const result = await sendEmailReliable(emails[i]);
+        if (result.success) sent++; else failed++;
+      }
+      log('info', 'Cron', `PM reports complete: ${sent} sent, ${failed} failed of ${emails.length}`);
     } catch (e) {
       log('error', 'Cron', 'PM report job failed', { error: e.message });
     }
@@ -716,8 +722,14 @@ if (cron) {
     log('info', 'Cron', 'Running due/late ticket warning emails');
     try {
       const emails = await buildDueWarningEmails();
-      for (const mail of emails) sendEmailAsync(mail);
-      log('info', 'Cron', `Due/late warnings: ${emails.length} email(s) queued`);
+      log('info', 'Cron', `Due/late warnings: ${emails.length} email(s) to send`);
+      let sent = 0, failed = 0;
+      for (let i = 0; i < emails.length; i++) {
+        if (i > 0) await new Promise(r => setTimeout(r, 1500));
+        const result = await sendEmailReliable(emails[i]);
+        if (result.success) sent++; else failed++;
+      }
+      log('info', 'Cron', `Due/late warnings complete: ${sent} sent, ${failed} failed of ${emails.length}`);
     } catch (e) {
       log('error', 'Cron', 'Due/late warning job failed', { error: e.message });
     }
