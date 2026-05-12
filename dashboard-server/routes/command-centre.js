@@ -279,7 +279,7 @@ module.exports = function (ctx) {
 
       const recentQ = await pool.query(`
         SELECT b.id, b.title, b.status, b.priority, c.text as comment, c.created_at
-        FROM bug_report_comments c JOIN bug_reports b ON b.id = c.bug_report_id
+        FROM bug_report_comments c JOIN bug_reports b ON b.id = c.report_id
         ORDER BY c.created_at DESC LIMIT 10
       `);
 
