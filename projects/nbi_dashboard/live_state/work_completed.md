@@ -4,6 +4,36 @@ Append-only. Every feature/fix completed gets logged here immediately.
 
 ---
 
+## 2026-05-12 — Client Portal Security + Bug Batch
+
+### Client Access Restrictions (72f6b00 + HTML commits)
+- `isClientAllowedView()` whitelist: Portfolio, Projects, People, Reporting, News, Settings, My Tasks
+- All navigation paths gated (tab bar, sidebar, switchView, popstate, _renderMainContent)
+- Server: `requireNBI` on all 7 leads GET routes
+- Client filter locked: guards on resetFilters, breadcrumb clear, sidebar filter clicks
+- Startup: skip loadCandidates, loadFinanceFromDB, leads polling for client users
+- 403 toast silenced for background GETs; only fires on failed write operations
+
+### Global Scroll Fix
+- JS-based fixScrollHeights(): explicit pixel heights via getBoundingClientRect + flex:none override
+- Runs on renderAll, renderContent, window resize; skips mobile
+- Fixes sidebar scroll, task list, bug tracker, workload, finance — all views
+
+### Bug Fixes (11 bugs moved to please_review)
+- Scroll bugs x4 (tasks, project view, bug tracker, general)
+- View access x2 (Finances/Leads visible to clients, full nav visible)
+- critPriorities JS error (closure lost via toString)
+- Client filter removable by client users
+- Non-team-members on client People tab
+- 403 toast spam on page reload
+- Teams settings scoping (investigated — server-side already correct)
+
+### Process Improvements
+- Skill gate hook: removed per-Edit firing, now Write-only + pm2 restart pre-deploy check
+- Hook messages changed from generic reminders to diagnostic questions
+
+---
+
 ## 2026-05-09 — Portfolio Page v5 Redesign (evening)
 
 **Full portfolio page rewrite** (branch `feature/portfolio-v5-redesign`, 15 commits):

@@ -4,6 +4,31 @@ Append-only. Every decision Glen makes gets logged here immediately.
 
 ---
 
+## 2026-05-11 (Command Centre design)
+
+### D1: Incremental build phasing
+Phase 1 = dashboard + scanners. Phase 2 = nightly cron/Dreaming engine. Phase 3 = autonomous execution engine (Ralph pattern). Each ships independently.
+
+### D2: Architecture — single route + snapshot
+One route module `routes/command-centre.js`. One `cc_snapshots` table (JSONB, date-keyed like `dashboard_snapshots`). Cached with manual refresh button; Phase 2 cron auto-refreshes.
+
+### D3: Server reads repo root
+Full read-only access to NBI_TEAM root for scanning .claude/skills/, memory files, Brain, roles, .mcp.json. Never writes. Paths resolved from REPO_ROOT env var.
+
+### D4: Phase 3 autonomy scope — code only, worktree only
+Autonomous execution engine (when built) may only make code changes. Always to a worktree branch, never master. Glen reviews and merges manually.
+
+### D5: Skill learnings in skill directory
+Per-skill feedback stored as `learnings.md` alongside SKILL.md. Not in DB. Command Centre scanner indexes them for analytics.
+
+### D6: 3-column widescreen layout
+Mission Control Grid. 3 columns on widescreen, responsive fallback to 2-col and 1-col. Glen's feedback: 2-column "looks like shit" on widescreen.
+
+### D7: Intelligence over inventory
+Cards must show actionable insights and recommendations, not just file/count summaries. v2 mockup was rejected for being "underwhelming in value." v3 redesigned with insight-driven content.
+
+---
+
 ## 2026-04-17 (News aggregator M1)
 
 No new directives from Glen this session; executed the plan from

@@ -1,6 +1,6 @@
 # Pending Tasks
 
-Updated 2026-05-08
+Updated 2026-05-11
 
 ---
 
@@ -93,6 +93,15 @@ Features merged to master, tests green (387), PM2 running. Glen needs to test at
 - Glen has the image, needs to upload at api.slack.com > Basic Information > Display Information
 
 ---
+
+## In Design — Command Centre (Phase 1)
+
+New WorkSage page: AI OS intelligence dashboard combining Four Cs scoring, skill/memory/brain health, connection coverage, bug intelligence, agent team heatmap, session patterns, test health, and Level-Up insights feed.
+
+- **Brainstorm status**: 2 of ~7 design sections approved (data model, scanner functions). v3 visual mockup pushed to companion, awaiting Glen's review.
+- **Architecture**: Single route module (`routes/command-centre.js`) + `cc_snapshots` table (JSONB). Cached with manual refresh.
+- **Remaining design sections**: API endpoints, SPA view, CSS/theme integration, Phase 2 hooks, Phase 3 hooks.
+- **Next step**: Glen reviews v3 mockup, then continue design sections, write spec doc, transition to implementation plan.
 
 ## Backlog - Needs Brainstorming Before Implementation
 
