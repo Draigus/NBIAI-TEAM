@@ -335,9 +335,10 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .main__tab { padding: 10px 20px; cursor: pointer; font-size: 0.85rem; color: var(--text-secondary); border-bottom: 2px solid transparent; transition: all 0.15s; }
 .main__tab:hover { color: var(--text-primary); }
 .main__tab.active { color: var(--accent-text); border-bottom-color: var(--accent); }
-.main__content { flex: 1; overflow-y: auto; overflow-x: hidden; padding: var(--space-xl); width: 100%; -webkit-overflow-scrolling: touch; }
+.main__content { flex: 1; overflow-y: auto; overflow-x: hidden; padding: var(--space-xl); width: 100%; -webkit-overflow-scrolling: touch; position: relative; }
 .main__content:has(.pf) { padding: 8px; }
 .main__content:has(> .docs) { overflow: hidden; display: flex; flex-direction: column; padding: 0; }
+.main__content:has(> .cc-page) { padding: 0; position: relative; }
 
 /* ===== KPI CARDS ===== */
 .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--space-lg); margin-bottom: var(--space-xl); }
@@ -2621,176 +2622,344 @@ span.fin-editable { display: inline-block; position: relative; }
   .sidebar.mobile-open { padding-top: env(safe-area-inset-top); padding-left: env(safe-area-inset-left); }
 }
 
-/* ===== Command Centre ===== */
-.cc-page { padding: 8px 0; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
-.cc-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 24px; }
-.cc-header__tag { font-size: 0.65rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--text-faint); margin-bottom: 6px; }
-.cc-header__greeting { font-size: 1.7rem; font-weight: 800; letter-spacing: -0.5px; }
-.cc-header__name { color: var(--primary); }
+/* ===== Command Centre — zone-based mission control layout ===== */
+/* 1. ROOT LAYOUT — CSS Grid viewport zones, zero scroll at root */
+.cc-page {
+  --cc-bg: #0b0d11; --cc-surface: rgba(12,16,24,0.6); --cc-card: rgba(10,14,22,0.7);
+  --cc-glass: rgba(255,255,255,0.02); --cc-glass-border: rgba(255,255,255,0.06); --cc-glass-hover: rgba(255,255,255,0.04);
+  --cc-t1: #e2e8f0; --cc-t2: rgba(226,232,240,0.6); --cc-t3: rgba(226,232,240,0.35); --cc-t4: rgba(226,232,240,0.15);
+  --cc-blue: #3b82f6; --cc-cyan: #22d3ee; --cc-green: #34d399; --cc-amber: #fbbf24;
+  --cc-red: #f87171; --cc-purple: #a78bfa; --cc-pink: #f472b6;
+  --cc-mono: 'JetBrains Mono', monospace;
+  display: grid;
+  grid-template-rows: 48px 120px 1fr;
+  grid-template-columns: 1fr 360px;
+  grid-template-areas:
+    "strip  strip"
+    "metrics rail"
+    "main    rail";
+  height: calc(100vh - var(--header-h, 52px));
+  overflow: hidden;
+  background: var(--cc-bg); color: var(--cc-t1);
+  font-size: 15px;
+  position: relative;
+}
+/* Dot grid overlay */
+.cc-page::before {
+  content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-image: radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+.cc-page > * { position: relative; z-index: 1; }
+
+/* 2. STATUS STRIP — 48px top bar */
+.cc-strip {
+  grid-area: strip;
+  display: flex; align-items: center; gap: 16px;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--cc-glass-border);
+  background: rgba(0,0,0,0.25);
+  min-width: 0;
+}
+.cc-strip__logo { font-size: 0.65rem; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; color: var(--cc-t3); flex-shrink: 0; }
+.cc-strip__greeting { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.3px; color: var(--cc-t1); white-space: nowrap; }
+.cc-strip__name { background: linear-gradient(135deg, var(--cc-cyan), var(--cc-blue), var(--cc-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-size: 200% 200%; animation: ccGradText 4s ease infinite; }
+@keyframes ccGradText { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+.cc-strip__ecg { flex: 1; min-width: 80px; height: 32px; overflow: hidden; position: relative; opacity: 0.5; }
+.cc-strip__ecg svg { position: absolute; top: 0; left: 0; height: 100%; animation: ccEcgSweep 4s linear infinite; }
+.cc-strip__process { font-family: var(--cc-mono); font-size: 0.65rem; color: var(--cc-green); flex-shrink: 0; }
+.cc-strip__ts { font-size: 0.68rem; color: var(--cc-t3); flex-shrink: 0; }
+.cc-strip__refresh { padding: 6px 14px; border: 1px solid var(--cc-glass-border); border-radius: 8px; background: var(--cc-glass); color: var(--cc-t2); font-size: 0.68rem; font-weight: 600; cursor: pointer; backdrop-filter: blur(16px); transition: all 0.3s; font-family: inherit; flex-shrink: 0; }
+.cc-strip__refresh:hover { background: var(--cc-glass-hover); border-color: rgba(255,255,255,0.12); color: var(--cc-t1); box-shadow: 0 0 20px rgba(59,130,246,0.1); }
+
+/* Legacy header support (maps to strip internally) */
+.cc-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 10px; }
+.cc-header__tag { font-size: 0.65rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--cc-t3); margin-bottom: 6px; }
+.cc-header__greeting { font-size: 1.7rem; font-weight: 800; letter-spacing: -0.5px; color: var(--cc-t1); }
+.cc-header__name { background: linear-gradient(135deg, var(--cc-cyan), var(--cc-blue), var(--cc-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-size: 200% 200%; animation: ccGradText 4s ease infinite; }
 .cc-header__right { display: flex; align-items: center; gap: 14px; }
-.cc-header__ts { font-size: 0.68rem; color: var(--text-faint); }
+.cc-header__ts { font-size: 0.68rem; color: var(--cc-t3); }
 
-/* Tabs */
-.cc-tabs { display: flex; gap: 2px; margin-bottom: 24px; border-bottom: 1px solid var(--border); }
-.cc-tabs__item { padding: 12px 24px; font-size: 0.82rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.25s; }
-.cc-tabs__item:hover { color: var(--text-main); background: rgba(255,255,255,0.02); }
-.cc-tabs__item--active { color: var(--primary); border-bottom-color: var(--primary); }
+/* Refresh button (legacy) */
+.cc-btn { padding: 8px 18px; border: 1px solid var(--cc-glass-border); border-radius: 10px; background: var(--cc-glass); color: var(--cc-t2); font-size: 0.72rem; font-weight: 600; cursor: pointer; backdrop-filter: blur(16px); transition: all 0.3s; font-family: inherit; }
+.cc-btn:hover { background: var(--cc-glass-hover); border-color: rgba(255,255,255,0.12); color: var(--cc-t1); box-shadow: 0 0 20px rgba(59,130,246,0.1); }
 
-/* Four Cs hero row */
+/* 3. 4Cs METRICS ROW — 120px instrument panels */
+.cc-metrics {
+  grid-area: metrics;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+  padding: 12px 20px;
+  align-items: stretch;
+}
+.cc-metric {
+  background: var(--cc-card); border: 1px solid var(--cc-glass-border); border-radius: 14px;
+  padding: 14px 16px; display: flex; align-items: center; gap: 14px;
+  backdrop-filter: blur(20px); position: relative; overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4,0,0.2,1); cursor: pointer;
+}
+.cc-metric:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.12); box-shadow: 0 6px 24px rgba(0,0,0,0.4); }
+.cc-metric::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; }
+.cc-metric::after { content: ''; position: absolute; inset: 0; border-radius: 14px; opacity: 0; transition: opacity 0.3s; }
+.cc-metric:hover::after { opacity: 1; }
+.cc-metric--green::before { background: linear-gradient(90deg, transparent, var(--cc-green), transparent); }
+.cc-metric--green::after { background: radial-gradient(ellipse at top, rgba(52,211,153,0.12), transparent 70%); }
+.cc-metric--amber::before { background: linear-gradient(90deg, transparent, var(--cc-amber), transparent); }
+.cc-metric--amber::after { background: radial-gradient(ellipse at top, rgba(251,191,36,0.12), transparent 70%); }
+.cc-metric--red::before { background: linear-gradient(90deg, transparent, var(--cc-red), transparent); }
+.cc-metric--red::after { background: radial-gradient(ellipse at top, rgba(248,113,113,0.12), transparent 70%); }
+.cc-metric--blue::before { background: linear-gradient(90deg, transparent, var(--cc-blue), transparent); }
+.cc-metric--blue::after { background: radial-gradient(ellipse at top, rgba(59,130,246,0.12), transparent 70%); }
+.cc-metric__info { flex: 1; min-width: 0; }
+.cc-metric__label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.3px; color: var(--cc-t1); }
+.cc-metric__sub { font-size: 0.58rem; color: var(--cc-t3); margin-top: 2px; }
+
+/* Legacy hero row (maps to metrics) */
 .cc-hero { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
-.cc-hero__card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px 18px; display: flex; align-items: center; gap: 16px; position: relative; overflow: hidden; transition: all 0.3s cubic-bezier(0.4,0,0.2,1); cursor: pointer; }
-.cc-hero__card:hover { transform: translateY(-3px); border-color: var(--text-faint); box-shadow: 0 8px 32px rgba(0,0,0,0.15); }
+.cc-hero__card { background: var(--cc-card); border: 1px solid var(--cc-glass-border); border-radius: 16px; padding: 20px 18px; display: flex; align-items: center; gap: 16px; backdrop-filter: blur(20px); position: relative; overflow: hidden; transition: all 0.3s cubic-bezier(0.4,0,0.2,1); cursor: pointer; }
+.cc-hero__card:hover { transform: translateY(-3px); border-color: rgba(255,255,255,0.12); box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+.cc-hero__card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; }
+.cc-hero__card::after { content: ''; position: absolute; inset: 0; border-radius: 16px; opacity: 0; transition: opacity 0.3s; }
+.cc-hero__card:hover::after { opacity: 1; }
+.cc-hero--green::before { background: linear-gradient(90deg, transparent, var(--cc-green), transparent); }
+.cc-hero--green::after { background: radial-gradient(ellipse at top, rgba(52,211,153,0.12), transparent 70%); }
+.cc-hero--amber::before { background: linear-gradient(90deg, transparent, var(--cc-amber), transparent); }
+.cc-hero--amber::after { background: radial-gradient(ellipse at top, rgba(251,191,36,0.12), transparent 70%); }
+.cc-hero--red::before { background: linear-gradient(90deg, transparent, var(--cc-red), transparent); }
+.cc-hero--red::after { background: radial-gradient(ellipse at top, rgba(248,113,113,0.12), transparent 70%); }
 .cc-hero__info {}
-.cc-hero__label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.3px; }
-.cc-hero__sub { font-size: 0.6rem; color: var(--text-faint); margin-top: 2px; }
+.cc-hero__label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.3px; color: var(--cc-t1); }
+.cc-hero__sub { font-size: 0.6rem; color: var(--cc-t3); margin-top: 2px; }
 
 /* Animated SVG rings */
 .cc-ring { width: 56px; height: 56px; flex-shrink: 0; position: relative; }
 .cc-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
-.cc-ring__bg { fill: none; stroke: var(--border); stroke-width: 4; }
-.cc-ring__fill { fill: none; stroke-width: 4; stroke-linecap: round; transition: stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1); }
-.cc-ring__score { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-family: monospace; font-size: 1rem; font-weight: 800; }
+.cc-ring__bg { fill: none; stroke: rgba(255,255,255,0.04); stroke-width: 4; }
+.cc-ring__fill { fill: none; stroke-width: 4; stroke-linecap: round; transition: stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1); animation: ccRingDraw 1.5s cubic-bezier(0.4,0,0.2,1) forwards; }
+.cc-ring__score { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-family: var(--cc-mono); font-size: 1rem; font-weight: 800; }
 
-/* 3-column grid */
-.cc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-@media (max-width: 1400px) { .cc-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 900px) { .cc-grid { grid-template-columns: 1fr; } .cc-hero { grid-template-columns: repeat(2, 1fr); } }
+/* 4. MAIN CONTENT — only zone that scrolls */
+.cc-main {
+  grid-area: main;
+  overflow-y: auto; overflow-x: hidden;
+  padding: 20px;
+  -webkit-overflow-scrolling: touch;
+}
+/* Thin custom scrollbar */
+.cc-main::-webkit-scrollbar { width: 6px; }
+.cc-main::-webkit-scrollbar-track { background: transparent; }
+.cc-main::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
+.cc-main::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
 
-/* Cards */
-.cc-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; position: relative; overflow: hidden; overflow-y: auto; max-height: 320px; transition: all 0.3s cubic-bezier(0.4,0,0.2,1); }
-.cc-card:hover { border-color: var(--text-faint); box-shadow: 0 4px 24px rgba(0,0,0,0.12); }
-/* Gradient accent bar (3px thick with glow) */
+/* Tabs — inside main zone */
+.cc-tabs { display: flex; gap: 2px; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.06); position: sticky; top: 0; z-index: 5; background: var(--cc-bg); padding-top: 2px; }
+.cc-tabs__item { padding: 10px 20px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--cc-t3); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.25s; position: relative; }
+.cc-tabs__item:hover { color: var(--cc-t2); background: rgba(255,255,255,0.02); }
+.cc-tabs__item--active { color: var(--cc-cyan); border-bottom-color: var(--cc-cyan); }
+.cc-tabs__item--active::after { content: ''; position: absolute; bottom: -1px; left: 10%; right: 10%; height: 3px; background: var(--cc-cyan); filter: blur(6px); border-radius: 2px; }
+
+/* Adaptive card grid — default 5-col for ultrawide */
+.cc-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+
+/* 5. ACTION RAIL — 360px right edge */
+.cc-rail {
+  grid-area: rail;
+  display: flex; flex-direction: column;
+  border-left: 1px solid var(--cc-glass-border);
+  background: rgba(0,0,0,0.15);
+  overflow: hidden;
+}
+.cc-rail__section { padding: 16px; border-bottom: 1px solid var(--cc-glass-border); }
+.cc-rail__section:last-child { border-bottom: none; flex: 1; overflow-y: auto; }
+.cc-rail__title { font-size: 0.62rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--cc-t3); margin-bottom: 10px; }
+
+/* Command input */
+.cc-rail__input {
+  width: 100%; padding: 10px 14px;
+  background: var(--cc-glass); border: 1px solid var(--cc-glass-border); border-radius: 10px;
+  color: var(--cc-t1); font-family: var(--cc-mono); font-size: 0.75rem;
+  outline: none; transition: all 0.25s;
+}
+.cc-rail__input::placeholder { color: var(--cc-t4); }
+.cc-rail__input:focus { border-color: rgba(34,211,238,0.3); box-shadow: 0 0 16px rgba(34,211,238,0.08); }
+
+/* Alert items in rail */
+.cc-alert { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.03); align-items: flex-start; }
+.cc-alert:last-child { border-bottom: none; }
+.cc-alert__dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+.cc-alert__dot--red { background: var(--cc-red); box-shadow: 0 0 8px rgba(248,113,113,0.4); }
+.cc-alert__dot--amber { background: var(--cc-amber); box-shadow: 0 0 8px rgba(251,191,36,0.3); }
+.cc-alert__dot--green { background: var(--cc-green); box-shadow: 0 0 8px rgba(52,211,153,0.3); }
+.cc-alert__text { font-size: 0.72rem; color: var(--cc-t2); line-height: 1.5; }
+.cc-alert__time { font-size: 0.58rem; color: var(--cc-t4); margin-top: 2px; }
+
+/* Reasoning stream in rail */
+.cc-reasoning { font-family: var(--cc-mono); font-size: 0.68rem; color: var(--cc-t3); line-height: 1.8; }
+.cc-reasoning__line { padding: 2px 0; }
+.cc-reasoning__line--active { color: var(--cc-cyan); }
+.cc-reasoning__line--done { color: var(--cc-t4); }
+
+/* ===== Cards — glassmorphic with accent bar + glow ===== */
+.cc-card { background: var(--cc-card); border: 1px solid var(--cc-glass-border); border-radius: 14px; padding: 20px; backdrop-filter: blur(16px); position: relative; overflow: hidden; transition: all 0.3s cubic-bezier(0.4,0,0.2,1); }
+.cc-card:hover { border-color: rgba(255,255,255,0.1); box-shadow: 0 4px 24px rgba(0,0,0,0.3); transform: translateY(-2px); }
 .cc-card::before { content: ''; position: absolute; top: 0; left: 8%; right: 8%; height: 3px; border-radius: 0 0 3px 3px; }
 .cc-card::after { content: ''; position: absolute; top: 0; left: 12%; right: 12%; height: 12px; border-radius: 0 0 10px 10px; filter: blur(10px); opacity: 0.5; }
-.cc-card--blue::before { background: linear-gradient(90deg, transparent, var(--primary), transparent); }
-.cc-card--blue::after { background: var(--primary); }
-.cc-card--cyan::before { background: linear-gradient(90deg, transparent, #22d3ee, transparent); }
-.cc-card--cyan::after { background: #22d3ee; }
-.cc-card--green::before { background: linear-gradient(90deg, transparent, var(--success), transparent); }
-.cc-card--green::after { background: var(--success); }
-.cc-card--purple::before { background: linear-gradient(90deg, transparent, #a78bfa, transparent); }
-.cc-card--purple::after { background: #a78bfa; }
-.cc-card--amber::before { background: linear-gradient(90deg, transparent, var(--warning), transparent); }
-.cc-card--amber::after { background: var(--warning); }
-.cc-card--pink::before { background: linear-gradient(90deg, transparent, #f472b6, transparent); }
-.cc-card--pink::after { background: #f472b6; }
-.cc-card--red::before { background: linear-gradient(90deg, transparent, var(--danger), transparent); }
-.cc-card--red::after { background: var(--danger); }
+/* Colour variants — accent bar + hover glow */
+.cc-card--blue::before { background: linear-gradient(90deg, transparent, var(--cc-blue), transparent); }
+.cc-card--blue::after { background: var(--cc-blue); }
+.cc-card--blue:hover { box-shadow: 0 4px 32px rgba(59,130,246,0.08), inset 0 0 60px rgba(59,130,246,0.02); }
+.cc-card--cyan::before { background: linear-gradient(90deg, transparent, var(--cc-cyan), transparent); }
+.cc-card--cyan::after { background: var(--cc-cyan); }
+.cc-card--cyan:hover { box-shadow: 0 4px 32px rgba(34,211,238,0.08), inset 0 0 60px rgba(34,211,238,0.02); }
+.cc-card--green::before { background: linear-gradient(90deg, transparent, var(--cc-green), transparent); }
+.cc-card--green::after { background: var(--cc-green); }
+.cc-card--green:hover { box-shadow: 0 4px 32px rgba(52,211,153,0.08), inset 0 0 60px rgba(52,211,153,0.02); }
+.cc-card--purple::before { background: linear-gradient(90deg, transparent, var(--cc-purple), transparent); }
+.cc-card--purple::after { background: var(--cc-purple); }
+.cc-card--purple:hover { box-shadow: 0 4px 32px rgba(167,139,250,0.08), inset 0 0 60px rgba(167,139,250,0.02); }
+.cc-card--amber::before { background: linear-gradient(90deg, transparent, var(--cc-amber), transparent); }
+.cc-card--amber::after { background: var(--cc-amber); }
+.cc-card--amber:hover { box-shadow: 0 4px 32px rgba(251,191,36,0.08), inset 0 0 60px rgba(251,191,36,0.02); }
+.cc-card--pink::before { background: linear-gradient(90deg, transparent, var(--cc-pink), transparent); }
+.cc-card--pink::after { background: var(--cc-pink); }
+.cc-card--pink:hover { box-shadow: 0 4px 32px rgba(244,114,182,0.08), inset 0 0 60px rgba(244,114,182,0.02); }
+.cc-card--red::before { background: linear-gradient(90deg, transparent, var(--cc-red), transparent); }
+.cc-card--red::after { background: var(--cc-red); }
+.cc-card--red:hover { box-shadow: 0 8px 40px rgba(248,113,113,0.12), inset 0 1px 60px rgba(248,113,113,0.03); }
+
+/* Card selection states */
+.cc-card--selected { border-left: 3px solid var(--cc-blue); transform: translateY(-3px); box-shadow: 0 6px 28px rgba(59,130,246,0.12); }
+.cc-card--dimmed { opacity: 0.6; pointer-events: none; }
 
 .cc-card__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-.cc-card__title { font-size: 0.65rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-faint); }
+.cc-card__title { font-size: 0.65rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--cc-t3); }
 
 /* Tags */
 .cc-tag { font-size: 0.58rem; padding: 3px 9px; border-radius: 20px; font-weight: 700; letter-spacing: 0.3px; }
-.cc-tag--green { background: rgba(52,211,153,0.12); color: var(--success); }
-.cc-tag--amber { background: rgba(251,191,36,0.12); color: var(--warning); }
-.cc-tag--red { background: rgba(248,113,113,0.12); color: var(--danger); }
-.cc-tag--blue { background: rgba(59,130,246,0.12); color: var(--primary); }
-.cc-tag--muted { background: rgba(128,128,128,0.1); color: var(--text-faint); }
+.cc-tag--green { background: rgba(52,211,153,0.12); color: var(--cc-green); }
+.cc-tag--amber { background: rgba(251,191,36,0.12); color: var(--cc-amber); }
+.cc-tag--red { background: rgba(248,113,113,0.12); color: var(--cc-red); }
+.cc-tag--blue { background: rgba(34,211,238,0.12); color: var(--cc-cyan); }
+.cc-tag--purple { background: rgba(167,139,250,0.12); color: var(--cc-purple); }
+.cc-tag--muted { background: var(--cc-glass); color: var(--cc-t3); }
 
-/* List items */
-.cc-li { display: flex; gap: 14px; padding: 12px 10px; margin: 0 -10px; border-radius: 10px; border-bottom: 1px solid var(--border); transition: all 0.2s; cursor: pointer; }
+/* ===== List items — interactive with hover-reveal actions ===== */
+.cc-li { display: flex; gap: 14px; padding: 12px 10px; margin: 0 -10px; border-radius: 10px; border-bottom: 1px solid rgba(255,255,255,0.03); transition: all 0.2s; cursor: pointer; }
 .cc-li:last-child { border-bottom: none; }
 .cc-li:hover { background: rgba(255,255,255,0.03); }
-.cc-li__icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 800; flex-shrink: 0; }
+.cc-li:active { transform: scale(0.995); background: rgba(255,255,255,0.05); }
+.cc-li__icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 800; flex-shrink: 0; transition: all 0.25s; }
+.cc-li:hover .cc-li__icon { transform: scale(1.08); }
 .cc-li__icon--sm { width: 28px; height: 28px; border-radius: 8px; font-size: 0.68rem; }
-.cc-li__icon--red { background: rgba(248,113,113,0.12); color: var(--danger); }
-.cc-li__icon--amber { background: rgba(251,191,36,0.12); color: var(--warning); }
-.cc-li__icon--blue { background: rgba(59,130,246,0.12); color: var(--primary); }
-.cc-li__icon--cyan { background: rgba(34,211,238,0.12); color: #22d3ee; }
-.cc-li__icon--green { background: rgba(52,211,153,0.12); color: var(--success); }
-.cc-li__icon--purple { background: rgba(167,139,250,0.1); color: #a78bfa; }
-.cc-li__icon--muted { background: rgba(128,128,128,0.06); color: var(--text-faint); }
+.cc-li__icon--red { background: rgba(248,113,113,0.15); color: var(--cc-red); box-shadow: 0 0 12px rgba(248,113,113,0.15); }
+.cc-li__icon--amber { background: rgba(251,191,36,0.15); color: var(--cc-amber); box-shadow: 0 0 12px rgba(251,191,36,0.1); }
+.cc-li__icon--blue { background: rgba(59,130,246,0.15); color: var(--cc-blue); box-shadow: 0 0 12px rgba(59,130,246,0.1); }
+.cc-li__icon--cyan { background: rgba(34,211,238,0.15); color: var(--cc-cyan); box-shadow: 0 0 12px rgba(34,211,238,0.1); }
+.cc-li__icon--green { background: rgba(52,211,153,0.15); color: var(--cc-green); box-shadow: 0 0 12px rgba(52,211,153,0.1); }
+.cc-li__icon--purple { background: rgba(167,139,250,0.12); color: var(--cc-purple); box-shadow: 0 0 12px rgba(167,139,250,0.1); }
+.cc-li__icon--muted { background: rgba(255,255,255,0.04); color: var(--cc-t3); }
 .cc-li__body { flex: 1; min-width: 0; }
-.cc-li__title { font-size: 0.9rem; font-weight: 600; color: var(--text-main); }
-.cc-li__meta { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; line-height: 1.5; }
-.cc-li__action { opacity: 0; transition: opacity 0.2s; font-size: 0.72rem; font-weight: 600; color: var(--primary); flex-shrink: 0; align-self: center; padding: 4px 12px; border-radius: 8px; border: 1px solid rgba(59,130,246,0.2); background: rgba(59,130,246,0.06); cursor: pointer; }
+.cc-li__title { font-size: 0.9rem; font-weight: 600; color: var(--cc-t1); transition: color 0.2s; }
+.cc-li:hover .cc-li__title { color: #fff; }
+.cc-li__meta { font-size: 0.75rem; color: var(--cc-t2); margin-top: 4px; line-height: 1.5; }
+.cc-li__action { opacity: 0; transition: opacity 0.2s; font-size: 0.72rem; font-weight: 600; color: var(--cc-cyan); flex-shrink: 0; align-self: center; padding: 4px 12px; border-radius: 8px; border: 1px solid rgba(34,211,238,0.2); background: rgba(34,211,238,0.06); cursor: pointer; font-family: inherit; }
 .cc-li:hover .cc-li__action { opacity: 1; }
-.cc-li__action:hover { background: rgba(59,130,246,0.15); color: var(--text-main); }
+.cc-li__action:hover { background: rgba(34,211,238,0.15); color: #fff; }
 .cc-li__time { flex-shrink: 0; text-align: right; }
-.cc-li__when { font-family: monospace; font-size: 0.88rem; font-weight: 700; }
-.cc-li__dur { font-size: 0.72rem; color: var(--text-faint); }
+.cc-li__when { font-family: var(--cc-mono); font-size: 0.88rem; font-weight: 700; color: var(--cc-t1); }
+.cc-li__dur { font-size: 0.72rem; color: var(--cc-t3); }
 
 /* Filter chips */
-.cc-chip { font-size: 0.7rem; font-weight: 600; padding: 5px 14px; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--text-faint); cursor: pointer; transition: all 0.25s; font-family: inherit; }
-.cc-chip:hover { border-color: var(--text-muted); color: var(--text-muted); }
-.cc-chip--active { border-color: var(--primary); color: var(--primary); background: rgba(59,130,246,0.08); }
+.cc-chip { font-size: 0.7rem; font-weight: 600; padding: 5px 14px; border-radius: 20px; border: 1px solid var(--cc-glass-border); background: var(--cc-glass-hover); color: var(--cc-t3); cursor: pointer; transition: all 0.25s; font-family: inherit; }
+.cc-chip:hover { border-color: rgba(255,255,255,0.15); color: var(--cc-t2); background: rgba(255,255,255,0.06); }
+.cc-chip--active { border-color: rgba(34,211,238,0.3); color: var(--cc-cyan); background: rgba(34,211,238,0.1); }
+.cc-chip--active:hover { background: rgba(34,211,238,0.15); }
 
-/* Calendar timeline */
+/* Calendar timeline with glowing dots */
 .cc-tl { position: relative; padding-left: 26px; }
-.cc-tl::before { content: ''; position: absolute; left: 7px; top: 20px; bottom: 20px; width: 2px; background: linear-gradient(180deg, var(--primary), rgba(59,130,246,0.1)); border-radius: 1px; }
+.cc-tl::before { content: ''; position: absolute; left: 7px; top: 20px; bottom: 20px; width: 2px; background: linear-gradient(180deg, var(--cc-blue), rgba(96,165,250,0.1)); border-radius: 1px; }
 .cc-tl .cc-li { position: relative; }
-.cc-tl .cc-li::before { content: ''; position: absolute; left: -19px; top: 20px; width: 10px; height: 10px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 10px rgba(59,130,246,0.4); transition: all 0.3s; }
+.cc-tl .cc-li::before { content: ''; position: absolute; left: -19px; top: 20px; width: 10px; height: 10px; border-radius: 50%; background: var(--cc-blue); box-shadow: 0 0 10px rgba(96,165,250,0.4); transition: all 0.3s; }
 .cc-tl .cc-li:hover::before { transform: scale(1.3); }
-.cc-tl .cc-li--future::before { background: var(--text-faint); box-shadow: none; }
+.cc-tl .cc-li--now::before { background: var(--cc-cyan); box-shadow: 0 0 16px var(--cc-cyan); }
+.cc-tl .cc-li--future::before { background: rgba(255,255,255,0.15); box-shadow: none; }
 
-/* Progress bar */
-.cc-prog { height: 7px; border-radius: 4px; background: var(--border); margin: 10px 0; overflow: hidden; position: relative; }
+/* Progress bar with shimmer */
+.cc-prog { height: 7px; border-radius: 4px; background: rgba(255,255,255,0.06); margin: 10px 0; overflow: hidden; position: relative; }
 .cc-prog__fill { height: 100%; border-radius: 4px; position: relative; }
 .cc-prog__fill::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent); animation: ccShimmer 2s ease-in-out infinite; }
 
 /* Sparkline */
 .cc-spark { display: flex; align-items: flex-end; gap: 4px; height: 40px; margin: 6px 0; }
 .cc-spark__bar { flex: 1; border-radius: 4px 4px 0 0; min-height: 3px; transition: all 0.4s cubic-bezier(0.4,0,0.2,1); }
-.cc-spark__bar:hover { filter: brightness(1.5); }
+.cc-spark__bar:hover { filter: brightness(1.5) !important; }
 
 /* Brain timeline */
 .cc-bt { position: relative; padding-left: 20px; }
-.cc-bt::before { content: ''; position: absolute; left: 5px; top: 10px; bottom: 10px; width: 1px; background: linear-gradient(180deg, var(--success), var(--warning), var(--danger)); }
+.cc-bt::before { content: ''; position: absolute; left: 5px; top: 10px; bottom: 10px; width: 1px; background: linear-gradient(180deg, var(--cc-green), var(--cc-amber), rgba(248,113,113,0.3)); }
 .cc-bt__entry { position: relative; padding: 7px 0; }
 .cc-bt__entry::before { content: ''; position: absolute; left: -15px; top: 14px; width: 8px; height: 8px; border-radius: 50%; }
-.cc-bt__entry--ok::before { background: var(--success); box-shadow: 0 0 8px var(--success); }
-.cc-bt__entry--warn::before { background: var(--warning); box-shadow: 0 0 8px var(--warning); }
+.cc-bt__entry--ok::before { background: var(--cc-green); box-shadow: 0 0 8px var(--cc-green); }
+.cc-bt__entry--warn::before { background: var(--cc-amber); box-shadow: 0 0 8px var(--cc-amber); }
 
 /* Connection grid */
 .cc-cg { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
-.cc-cn { border-radius: 10px; padding: 12px 6px; text-align: center; border: 1px solid transparent; transition: all 0.25s; cursor: pointer; }
+.cc-cn { border-radius: 10px; padding: 12px 6px; text-align: center; border: 1px solid transparent; transition: all 0.25s; cursor: pointer; position: relative; overflow: hidden; }
 .cc-cn:hover { transform: translateY(-2px); }
-.cc-cn--ok { background: rgba(52,211,153,0.08); border-color: rgba(52,211,153,0.15); }
-.cc-cn--part { background: rgba(251,191,36,0.08); border-color: rgba(251,191,36,0.15); }
-.cc-cn--gap { background: rgba(248,113,113,0.08); border-color: rgba(248,113,113,0.15); }
-.cc-cn__name { font-size: 0.6rem; font-weight: 800; letter-spacing: 0.3px; text-transform: uppercase; }
-.cc-cn--ok .cc-cn__name { color: var(--success); }
-.cc-cn--part .cc-cn__name { color: var(--warning); }
-.cc-cn--gap .cc-cn__name { color: var(--danger); }
-.cc-cn__via { font-size: 0.52rem; color: var(--text-faint); margin-top: 3px; }
+.cc-cn::after { content: ''; position: absolute; inset: 0; border-radius: 10px; opacity: 0; transition: opacity 0.3s; }
+.cc-cn:hover::after { opacity: 1; }
+.cc-cn--ok { background: rgba(52,211,153,0.1); border-color: rgba(52,211,153,0.15); }
+.cc-cn--ok::after { background: radial-gradient(ellipse at center, rgba(52,211,153,0.08), transparent); }
+.cc-cn--part { background: rgba(251,191,36,0.1); border-color: rgba(251,191,36,0.15); }
+.cc-cn--part::after { background: radial-gradient(ellipse at center, rgba(251,191,36,0.08), transparent); }
+.cc-cn--gap { background: rgba(248,113,113,0.1); border-color: rgba(248,113,113,0.15); }
+.cc-cn--gap::after { background: radial-gradient(ellipse at center, rgba(248,113,113,0.08), transparent); }
+.cc-cn__name { font-size: 0.6rem; font-weight: 800; letter-spacing: 0.3px; text-transform: uppercase; position: relative; z-index: 1; }
+.cc-cn--ok .cc-cn__name { color: var(--cc-green); }
+.cc-cn--part .cc-cn__name { color: var(--cc-amber); }
+.cc-cn--gap .cc-cn__name { color: var(--cc-red); }
+.cc-cn__via { font-size: 0.52rem; color: var(--cc-t3); margin-top: 3px; position: relative; z-index: 1; }
 
-/* Agent heatmap */
+/* Agent heatmap with tooltips */
 .cc-ag { display: grid; grid-template-columns: repeat(11, 1fr); gap: 3px; }
-.cc-ac { aspect-ratio: 1; border-radius: 5px; transition: all 0.2s; cursor: pointer; }
-.cc-ac:hover { transform: scale(1.25); z-index: 2; }
-.cc-ac--4 { background: var(--success); }
-.cc-ac--3 { background: var(--success); opacity: 0.5; }
-.cc-ac--2 { background: var(--warning); opacity: 0.3; }
-.cc-ac--1 { background: rgba(128,128,128,0.06); }
+.cc-ac { aspect-ratio: 1; border-radius: 5px; transition: all 0.2s; cursor: pointer; position: relative; }
+.cc-ac:hover { transform: scale(1.25); z-index: 2; box-shadow: 0 0 12px rgba(0,0,0,0.5); }
+.cc-ac--4 { background: var(--cc-green); box-shadow: 0 0 8px rgba(52,211,153,0.25); }
+.cc-ac--3 { background: var(--cc-green); opacity: 0.5; }
+.cc-ac--2 { background: var(--cc-amber); opacity: 0.3; }
+.cc-ac--1 { background: rgba(255,255,255,0.04); }
+.cc-ac[title]:hover::after { content: attr(title); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.9); border: 1px solid var(--cc-glass-border); padding: 4px 8px; border-radius: 6px; font-size: 0.58rem; white-space: nowrap; color: var(--cc-t1); z-index: 20; pointer-events: none; backdrop-filter: blur(8px); }
 
 /* Bug bar */
 .cc-bbar { display: flex; height: 5px; border-radius: 3px; overflow: hidden; gap: 2px; margin-bottom: 14px; }
 .cc-bbar__seg { height: 100%; border-radius: 3px; }
 
+/* Bug Intelligence narrative items */
+.cc-bi { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
+.cc-bi:last-child { border-bottom: none; }
+.cc-bi__title { font-size: 0.75rem; font-weight: 700; }
+.cc-bi__desc { font-size: 0.65rem; color: var(--cc-t3); margin-top: 2px; line-height: 1.5; }
+
 /* Test health */
 .cc-th__big { display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px; }
-.cc-th__num { font-family: monospace; font-size: 2.5rem; font-weight: 900; letter-spacing: -2px; line-height: 1; }
-.cc-th__bar { display: flex; height: 6px; border-radius: 3px; overflow: hidden; margin: 10px 0; background: var(--border); }
+.cc-th__num { font-family: var(--cc-mono); font-size: 2.5rem; font-weight: 900; letter-spacing: -2px; line-height: 1; }
+.cc-th__bar { display: flex; height: 6px; border-radius: 3px; overflow: hidden; margin: 10px 0; background: rgba(255,255,255,0.03); }
 .cc-th__fill { height: 100%; border-radius: 3px; }
 
 /* Level-up placeholder */
-.cc-lu { padding: 28px; text-align: center; border: 1px dashed var(--border); border-radius: 12px; }
-.cc-lu__icon { font-size: 1.6rem; margin-bottom: 8px; opacity: 0.3; }
-.cc-lu__title { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
-.cc-lu__sub { font-size: 0.65rem; color: var(--text-faint); margin-top: 6px; line-height: 1.6; }
+.cc-lu { padding: 28px; text-align: center; border: 1px dashed rgba(255,255,255,0.06); border-radius: 12px; background: var(--cc-glass); }
+.cc-lu__icon { font-size: 1.6rem; margin-bottom: 8px; opacity: 0.3; filter: grayscale(0.5); }
+.cc-lu__title { font-size: 0.8rem; color: var(--cc-t2); font-weight: 600; }
+.cc-lu__sub { font-size: 0.65rem; color: var(--cc-t3); margin-top: 6px; line-height: 1.6; }
 
 /* Section headers (briefing) */
 .cc-section { margin-bottom: 24px; }
-.cc-section__title { font-size: 0.78rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
-.cc-section__title::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, var(--border), transparent); }
+.cc-section__title { font-size: 0.78rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--cc-t2); margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
+.cc-section__title::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(255,255,255,0.08), transparent); }
 .cc-section__count { font-size: 0.68rem; font-weight: 700; padding: 3px 10px; border-radius: 12px; }
 
 /* Briefing grids */
 .cc-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .cc-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-@media (max-width: 1400px) { .cc-grid-3 { grid-template-columns: 1fr 1fr; } }
-@media (max-width: 1100px) { .cc-grid-2, .cc-grid-3 { grid-template-columns: 1fr; } }
 
 /* Expandable cards */
 .cc-card--expandable { cursor: pointer; }
@@ -2800,21 +2969,109 @@ span.fin-editable { display: inline-block; position: relative; }
 /* Filters row */
 .cc-filters { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
 
-/* Animations */
-@keyframes ccFadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes ccShimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
-@keyframes ccCritPulse { 0%,100% { border-color: rgba(248,113,113,0.2); } 50% { border-color: rgba(248,113,113,0.4); box-shadow: 0 0 30px rgba(248,113,113,0.06); } }
-@keyframes ccNowPulse { 0%,100% { box-shadow: 0 0 10px var(--primary); transform: scale(1); } 50% { box-shadow: 0 0 22px var(--primary); transform: scale(1.15); } }
+/* Priority items */
+.cc-pri { display: flex; gap: 12px; padding: 11px 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
+.cc-pri:last-child { border-bottom: none; }
+.cc-pri__icon { width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 800; flex-shrink: 0; }
+.cc-pri__icon--crit { background: rgba(248,113,113,0.15); color: var(--cc-red); box-shadow: 0 0 12px rgba(248,113,113,0.15); }
+.cc-pri__icon--client { background: rgba(251,191,36,0.12); color: var(--cc-amber); box-shadow: 0 0 12px rgba(251,191,36,0.1); }
+.cc-pri__icon--feat { background: rgba(59,130,246,0.15); color: var(--cc-blue); box-shadow: 0 0 12px rgba(59,130,246,0.1); }
+.cc-pri__icon--block { background: var(--cc-glass); color: var(--cc-t3); }
+.cc-pri__body { flex: 1; min-width: 0; }
+.cc-pri__text { font-size: 0.78rem; font-weight: 600; color: var(--cc-t1); }
+.cc-pri__meta { font-size: 0.62rem; color: var(--cc-t3); margin-top: 3px; }
 
-.cc-hero__card, .cc-card { animation: ccFadeUp 0.5s ease both; }
-.cc-hero__card:nth-child(1) { animation-delay: 0.05s; } .cc-hero__card:nth-child(2) { animation-delay: 0.1s; }
-.cc-hero__card:nth-child(3) { animation-delay: 0.15s; } .cc-hero__card:nth-child(4) { animation-delay: 0.2s; }
+/* Skills Intelligence sections */
+.cc-si { padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
+.cc-si:last-child { border-bottom: none; }
+.cc-si__label { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--cc-t3); margin-bottom: 4px; }
+.cc-si__val { font-size: 0.78rem; color: var(--cc-t1); line-height: 1.5; }
+.cc-si__act { font-size: 0.65rem; color: var(--cc-cyan); margin-top: 4px; cursor: pointer; font-weight: 500; transition: color 0.2s; }
+.cc-si__act:hover { color: #fff; }
+
+/* Stats display */
+.cc-stats { display: flex; gap: 24px; margin-bottom: 10px; }
+.cc-st__v { font-family: var(--cc-mono); font-size: 1.3rem; font-weight: 800; letter-spacing: -0.5px; }
+.cc-st__l { font-size: 0.58rem; color: var(--cc-t3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* Sparkline day labels */
+.cc-spark__l { display: flex; justify-content: space-between; font-size: 0.5rem; color: var(--cc-t4); letter-spacing: 0.5px; font-weight: 600; }
+
+/* Agent heatmap legend */
+.cc-aleg { display: flex; gap: 14px; margin-top: 10px; font-size: 0.55rem; color: var(--cc-t4); }
+.cc-aleg span { display: flex; align-items: center; gap: 4px; }
+.cc-aleg span::before { content: ''; display: inline-block; width: 8px; height: 8px; border-radius: 3px; }
+.cc-aleg .cc-l4::before { background: var(--cc-green); }
+.cc-aleg .cc-l3::before { background: var(--cc-green); opacity: 0.5; }
+.cc-aleg .cc-l2::before { background: var(--cc-amber); opacity: 0.3; }
+.cc-aleg .cc-l1::before { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); }
+
+/* Done button */
+.cc-done-btn { font-size: 0.68rem; font-weight: 700; padding: 5px 14px; border-radius: 8px; border: 1px solid rgba(74,222,128,0.25); background: rgba(74,222,128,0.08); color: var(--cc-green); cursor: pointer; transition: all 0.25s; font-family: inherit; }
+.cc-done-btn:hover { background: rgba(74,222,128,0.18); border-color: rgba(74,222,128,0.4); box-shadow: 0 0 12px rgba(74,222,128,0.15); }
+.cc-done-btn:active { transform: scale(0.95); }
+
+/* Dismiss/nudge button */
+.cc-dismiss-btn { font-size: 0.68rem; font-weight: 600; padding: 5px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03); color: var(--cc-t3); cursor: pointer; transition: all 0.25s; font-family: inherit; }
+.cc-dismiss-btn:hover { background: rgba(255,255,255,0.06); color: var(--cc-t2); }
+
+/* Bug tags */
+.cc-btag { display: inline-block; font-size: 0.72rem; padding: 4px 12px; border-radius: 10px; font-weight: 600; margin: 3px; transition: all 0.2s; cursor: pointer; }
+.cc-btag:hover { transform: scale(1.05); filter: brightness(1.2); }
+
+/* Helper text */
+.cc-note-text { font-size: 0.82rem; color: var(--cc-t2); line-height: 1.7; }
+.cc-small-text { font-size: 0.75rem; color: var(--cc-t3); }
+
+/* ===== Animations ===== */
+@keyframes ccFadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes ccRingDraw { from { stroke-dashoffset: 113; } to { stroke-dashoffset: var(--target); } }
+@keyframes ccCritPulse { 0%,100% { border-color: rgba(248,113,113,0.2); box-shadow: 0 0 0 transparent; } 50% { border-color: rgba(248,113,113,0.4); box-shadow: 0 0 30px rgba(248,113,113,0.06); } }
+@keyframes ccNowPulse { 0%,100% { box-shadow: 0 0 10px var(--cc-cyan); transform: scale(1); } 50% { box-shadow: 0 0 22px var(--cc-cyan); transform: scale(1.15); } }
+@keyframes ccShimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+@keyframes ccEcgSweep { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+@keyframes ccIconPulse { 0%,100% { box-shadow: 0 0 14px rgba(248,113,113,0.2); transform: scale(1); } 50% { box-shadow: 0 0 28px rgba(248,113,113,0.5); transform: scale(1.05); } }
+
+/* Staggered entrance — metrics */
+.cc-metric, .cc-hero__card, .cc-card { animation: ccFadeUp 0.5s ease both; }
+.cc-metric:nth-child(1), .cc-hero__card:nth-child(1) { animation-delay: 0.05s; }
+.cc-metric:nth-child(2), .cc-hero__card:nth-child(2) { animation-delay: 0.1s; }
+.cc-metric:nth-child(3), .cc-hero__card:nth-child(3) { animation-delay: 0.15s; }
+.cc-metric:nth-child(4), .cc-hero__card:nth-child(4) { animation-delay: 0.2s; }
 .cc-grid .cc-card:nth-child(1) { animation-delay: 0.25s; } .cc-grid .cc-card:nth-child(2) { animation-delay: 0.3s; }
 .cc-grid .cc-card:nth-child(3) { animation-delay: 0.35s; } .cc-grid .cc-card:nth-child(4) { animation-delay: 0.4s; }
 .cc-grid .cc-card:nth-child(5) { animation-delay: 0.45s; } .cc-grid .cc-card:nth-child(6) { animation-delay: 0.5s; }
+.cc-grid .cc-card:nth-child(7) { animation-delay: 0.55s; } .cc-grid .cc-card:nth-child(8) { animation-delay: 0.6s; }
+.cc-grid .cc-card:nth-child(9) { animation-delay: 0.65s; }
+.cc-section { animation: ccFadeUp 0.5s ease both; }
+.cc-section:nth-child(1) { animation-delay: 0.05s; } .cc-section:nth-child(2) { animation-delay: 0.1s; }
+.cc-section:nth-child(3) { animation-delay: 0.15s; } .cc-section:nth-child(4) { animation-delay: 0.2s; }
+.cc-section:nth-child(5) { animation-delay: 0.25s; } .cc-section:nth-child(6) { animation-delay: 0.3s; }
+.cc-section:nth-child(7) { animation-delay: 0.35s; }
 
 .cc-card--crit { animation: ccCritPulse 3s ease-in-out infinite; }
 .cc-tl .cc-li--now::before { animation: ccNowPulse 2s ease-in-out infinite; }
+
+/* ===== Responsive breakpoints ===== */
+@media (max-width: 2559px) { .cc-grid { grid-template-columns: repeat(4, 1fr); } }
+@media (max-width: 1599px) {
+  .cc-grid { grid-template-columns: repeat(3, 1fr); }
+  .cc-rail { display: none; }
+  .cc-page { grid-template-columns: 1fr; grid-template-areas: "strip" "metrics" "main"; }
+}
+@media (max-width: 1399px) { .cc-grid-3 { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 1199px) {
+  .cc-grid { grid-template-columns: repeat(2, 1fr); }
+  .cc-metrics { grid-template-columns: repeat(2, 1fr); }
+  .cc-hero { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 1100px) { .cc-grid-2, .cc-grid-3 { grid-template-columns: 1fr; } }
+@media (max-width: 899px) {
+  .cc-grid { grid-template-columns: 1fr; }
+  .cc-metrics { grid-template-columns: 1fr; }
+  .cc-hero { grid-template-columns: 1fr; }
+  .cc-page { grid-template-rows: 48px auto 1fr; }
+}
 
 </style>
 </head>
@@ -3239,8 +3496,8 @@ function _actToggleGanttLinkMode() { closeGanttDepMenu(); _ganttLinkMode = !_gan
 function _actSetFilterAssignee(v) { currentFilter.assignee = v ? [v] : []; renderSidebarCounts(); renderContent(); }
 function _actClearFilterAssignee() { currentFilter.assignee = []; renderContent(); }
 function _actClearFilterAssigneeBreadcrumb() { currentFilter.assignee = []; renderContent(); renderBreadcrumbs(); }
-function _actClearFilterClient() { currentFilter.client = null; renderContent(); }
-function _actClearFilterClientBreadcrumb() { currentFilter.client = null; renderSidebarCounts(); renderContent(); renderBreadcrumbs(); }
+function _actClearFilterClient() { if (isClientUser()) return; currentFilter.client = null; renderContent(); }
+function _actClearFilterClientBreadcrumb() { if (isClientUser()) return; currentFilter.client = null; renderSidebarCounts(); renderContent(); renderBreadcrumbs(); }
 function _actClearFilterHealth() { currentFilter.health = []; renderContent(); }
 function _actClearFilterHealthBreadcrumb() { currentFilter.health = []; renderContent(); renderBreadcrumbs(); }
 function _actToggleFilterIncomplete() { currentFilter.incomplete = !currentFilter.incomplete; renderContent(); }
@@ -3560,7 +3817,7 @@ function authFetch(url, opts = {}) {
     if (resp.status === 401) {
       _currentUser = null;
       showLoginScreen();
-    } else if (resp.status === 403) {
+    } else if (resp.status === 403 && opts.method && opts.method !== 'GET') {
       toast('You do not have permission for this action', 'error');
     }
     return resp;
@@ -3574,6 +3831,7 @@ async function apiCall(url, options = {}) {
   options.headers = { ...options.headers, 'X-API-Version': '2' };
   const resp = await authFetch(url, options);
   if (!resp.ok) {
+    if (resp.status === 403) return null;
     let errMsg = 'Request failed';
     try {
       const body = await resp.json();
@@ -3633,8 +3891,10 @@ async function handleLogin(e) {
     if (checkForcePasswordChange()) { btn.disabled = false; return; }
     showApp();
     await openIDB();
-    await Promise.all([load(), loadTeamMembers(), loadPagePermissions(), loadBugReports(), loadCandidates()]);
-    await loadFinanceFromDB();
+    const startupLoads = [load(), loadTeamMembers(), loadPagePermissions(), loadBugReports()];
+    if (!isClientUser()) { startupLoads.push(loadCandidates()); }
+    await Promise.all(startupLoads);
+    if (!isClientUser()) await loadFinanceFromDB();
     if (isClientUser()) {
       const myClient = Object.values(_apiClientsCache).find(c => c.id === _currentUser.clientId);
       if (myClient) currentFilter.client = myClient.name;
@@ -4777,7 +5037,7 @@ function renderSidebar() {
   html += sidebarSectionOpen('quickfilters', 'Quick Filters');
   const critPriorities = ['Urgent', 'High'];
   const critCount = practiceTasks.filter(t => critPriorities.includes(t.priority)).length;
-  html += sidebarItem('&#9888;', 'Urgent / High', critCount, () => { currentFilter = { ...currentFilter, status: [], health: [], priority: critPriorities, client: null, project: null }; switchView('tasks'); renderAll(); }, false);
+  html += sidebarItem('&#9888;', 'Urgent / High', critCount, () => { currentFilter = { ...currentFilter, status: [], health: [], priority: ['Urgent', 'High'], client: null, project: null }; switchView('tasks'); renderAll(); }, false);
   html += sidebarSectionClose();
 
   document.getElementById('sidebarNav').innerHTML = html;
@@ -5279,7 +5539,10 @@ function switchView(view) {
   if (!isClientAllowedView(view)) view = 'dashboard';
   const prev = currentView;
   currentView = view;
-  // Always collapse the tree when entering the Projects page
+  if (prev === 'commandcentre' && view !== 'commandcentre') {
+    const mc = document.getElementById('mainContent');
+    if (mc) mc.style.padding = '';
+  }
   if (view === 'tasks') { _tasksInitialCollapse = true; }
   if (prev !== view) { history.pushState({ view, filter: { ...currentFilter }, taskSubView }, '', '#' + view); }
   renderAll();
@@ -5311,7 +5574,7 @@ window.addEventListener('popstate', e => {
 // Set initial history state
 history.replaceState({ view: currentView, filter: { ...currentFilter }, taskSubView }, '', '#' + currentView);
 /** Clear all active filters except sort order, and deselect any bulk-selected tasks */
-function resetFilters() { currentFilter = { client: null, project: null, status: [], health: [], search: '', sort: currentFilter.sort || 'default', assignee: [], incomplete: false, practice: currentFilter.practice || null }; selectedTaskIds.clear(); }
+function resetFilters() { currentFilter = { client: isClientUser() ? currentFilter.client : null, project: null, status: [], health: [], search: '', sort: currentFilter.sort || 'default', assignee: [], incomplete: false, practice: currentFilter.practice || null }; selectedTaskIds.clear(); }
 /** Set the client filter and re-render -- pass null to show all clients */
 function filterByClient(c) { if (isClientUser()) return; currentFilter = { client: c, project: null, status: [], health: [], assignee: [], search: '', sort: currentFilter.sort || 'default', practice: currentFilter.practice || null }; selectedTaskIds.clear(); renderSidebarCounts(); renderContent(); renderBreadcrumbs(); history.replaceState({ view: currentView, filter: { ...currentFilter }, taskSubView }, '', '#' + currentView); }
 // Practice areas (Phase 9 of the NBI WorkSage backlog, a6c82c8c).
@@ -5373,7 +5636,7 @@ function renderBreadcrumbs() {
   bar.style.display = 'flex';
   let html = '<span style="font-size:0.72rem;color:var(--text-muted);margin-right:4px">Filtered:</span>';
   if (currentFilter.practice) html += `<span class="filter-chip">Practice: ${esc(getPracticeLabel(currentFilter.practice))} <button data-action="filterByPractice" data-arg0="null">&times;</button></span>`;
-  if (currentFilter.client) html += `<span class="filter-chip">${esc(currentFilter.client)} <button data-action="_actClearFilterClientBreadcrumb">&times;</button></span>`;
+  if (currentFilter.client && !isClientUser()) html += `<span class="filter-chip">${esc(currentFilter.client)} <button data-action="_actClearFilterClientBreadcrumb">&times;</button></span>`;
   if (currentFilter.assignee && currentFilter.assignee.length > 0) html += `<span class="filter-chip">${currentFilter.assignee.map(a => esc(a)).join(', ')} <button data-action="_actClearFilterAssigneeBreadcrumb">&times;</button></span>`;
   if (currentFilter.health && currentFilter.health.length > 0) html += `<span class="filter-chip">${currentFilter.health.map(h => esc(h)).join(', ')} <button data-action="_actClearFilterHealthBreadcrumb">&times;</button></span>`;
   if (currentFilter.status && currentFilter.status.length > 0) html += `<span class="filter-chip">${currentFilter.status.map(s => esc(s)).join(', ')} <button data-action="_actClearFilterStatusBreadcrumb">&times;</button></span>`;
@@ -5438,6 +5701,7 @@ function renderContent() {
   if (_perfEnd - _perfStart > 100) {
     console.debug('[Perf] renderContent took ' + Math.round(_perfEnd - _perfStart) + 'ms');
   }
+  fixScrollHeights();
 }
 
 /** Re-render sidebar counts without rebuilding the whole page */
@@ -5457,6 +5721,29 @@ function renderAll() {
   if (_perfEnd - _perfStart > 100) {
     console.debug('[Perf] renderAll took ' + Math.round(_perfEnd - _perfStart) + 'ms');
   }
+  fixScrollHeights();
+}
+
+function fixScrollHeights() {
+  requestAnimationFrame(() => {
+    if (window.innerWidth < 768) return;
+    const sn = document.getElementById('sidebarNav');
+    if (sn) {
+      const top = sn.getBoundingClientRect().top;
+      const toggle = sn.nextElementSibling;
+      const toggleH = toggle ? toggle.offsetHeight : 0;
+      const h = Math.max(200, window.innerHeight - top - toggleH);
+      sn.style.height = h + 'px';
+      sn.style.flex = 'none';
+    }
+    const mc = document.getElementById('mainContent');
+    if (mc) {
+      const top = mc.getBoundingClientRect().top;
+      const h = Math.max(200, window.innerHeight - top);
+      mc.style.height = h + 'px';
+      mc.style.flex = 'none';
+    }
+  });
 }
 
 // ==================== DASHBOARD VIEW ====================
@@ -5504,12 +5791,12 @@ function renderDashboard(el) {
       if (currentView === 'dashboard') renderContent();
     });
   }
-  if (_portfolioLeadCount === null) {
+  if (_portfolioLeadCount === null && !isClientUser()) {
     loadPortfolioLeadCount().then(() => {
       if (currentView === 'dashboard') renderContent();
     });
   }
-  if (!_leadsConfig) {
+  if (!_leadsConfig && !isClientUser()) {
     loadLeadsConfig().then(() => {
       if (currentView === 'dashboard') renderContent();
     });
@@ -11857,7 +12144,11 @@ function renderPeopleView(el) {
   const _assigneeMerge = normaliseAssignees(assigneeSet);
   // Exclude client staff and hourly contractors not on permanent workload
   const CLIENT_STAFF = ['Robin', 'Valeria', 'Lorenza', 'Jeff Day', 'Jessica Williams', 'Denise Delahanty', 'Bryan Rasmussen'];
-  const allPeople = [...new Set(Object.values(_assigneeMerge))].filter(p => !CLIENT_STAFF.includes(p)).sort();
+  const _peopleFromAssignees = [...new Set(Object.values(_assigneeMerge))].filter(p => !CLIENT_STAFF.includes(p));
+  const allPeople = (isClientUser() && _cachedTeamMembers?.length > 0
+    ? _peopleFromAssignees.filter(p => _cachedTeamMembers.includes(p))
+    : _peopleFromAssignees
+  ).sort();
   // Helper: check if a task is assigned to canonical person (matches any merged variant)
   const mergeKeys = {};
   allPeople.forEach(p => { mergeKeys[p] = Object.keys(_assigneeMerge).filter(k => _assigneeMerge[k] === p); });
@@ -19420,17 +19711,18 @@ let _ccLoading = false;
 let _ccTab = localStorage.getItem('ccTab') || 'dashboard';
 
 function renderCommandCentre(el) {
+  el.style.padding = '0';
   if (!_ccSnapshot && !_ccLoading) {
-    el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted)">Loading Command Centre...</div>';
+    el.innerHTML = '<div class="cc-page" style="display:flex;align-items:center;justify-content:center"><div style="color:#e2e8f0;font-size:0.85rem">Loading Command Centre...</div></div>';
     _ccLoading = true;
     _ccLoadData();
     return;
   }
   if (!_ccSnapshot) {
-    el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted)">Loading Command Centre...</div>';
+    el.innerHTML = '<div class="cc-page" style="display:flex;align-items:center;justify-content:center;min-height:400px"><div style="color:#e2e8f0;font-size:0.85rem">Loading Command Centre...</div></div>';
     return;
   }
-  if (_ccTab === 'briefing' && !_ccBriefing && !_ccBriefingFailed && !_ccLoading) {
+  if (!_ccBriefing && !_ccBriefingFailed && !_ccLoading) {
     _ccLoading = true;
     _ccLoadBriefing();
   }
@@ -19459,50 +19751,353 @@ async function _ccLoadBriefing() {
   if (currentView === 'commandcentre') renderContent();
 }
 
-function _ccRenderPage(el) {
-  let html = '';
-  const now = new Date();
-  const greeting = now.getHours() < 12 ? 'Good morning' : now.getHours() < 17 ? 'Good afternoon' : 'Good evening';
-  const userName = _currentUser?.displayName?.split(' ')[0] || 'Glen';
-  html += '<div class="cc-page">';
-  html += '<div class="cc-header">';
-  html += '<div><div class="cc-header__tag">COMMAND CENTRE</div>';
-  html += '<div class="cc-header__greeting">' + esc(greeting) + ', <span class="cc-header__name">' + esc(userName) + '</span></div></div>';
-  html += '<div class="cc-header__right">';
-  if (_ccSnapshot) {
-    const _ts = _ccSnapshot.updated_at || _ccSnapshot.created_at || _ccSnapshot.snapshot_date;
-    html += '<span class="cc-header__ts">Scanned ' + (_ts ? new Date(_ts).toLocaleString('en-GB', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) : 'just now') + '</span>';
-  }
-  html += '<button class="btn btn--sm" onclick="ccRefresh()">Refresh Scan</button>';
-  html += '</div></div>';
+let _ccSelectedCard = null;
 
+function _ccRenderPage(el) {
+  const d = _ccData();
+  const fc = d.four_cs || {};
+  const b = _ccBriefData();
+  let html = '<div class="cc-page">';
+
+  // ZONE 1: STATUS STRIP
+  html += ccRenderStrip();
+
+  // ZONE 2: 4Cs METRICS ROW
+  html += ccRenderMetrics(fc);
+
+  // ZONE 3: MAIN + RAIL wrapper
+  html += '<div style="display:flex;gap:0;flex:1;min-height:0;overflow:hidden">';
+
+  // ZONE 3a: MAIN CONTENT
+  html += '<div class="cc-main">';
   html += '<div class="cc-tabs">';
-  html += '<div class="cc-tabs__item' + (_ccTab === 'dashboard' ? ' cc-tabs__item--active' : '') + '" onclick="ccSwitchTab(\'dashboard\')">Dashboard</div>';
-  html += '<div class="cc-tabs__item' + (_ccTab === 'briefing' ? ' cc-tabs__item--active' : '') + '" onclick="ccSwitchTab(\'briefing\')">Daily Briefing</div>';
+  html += '<div class="cc-tabs__item' + (_ccTab === 'dashboard' ? ' cc-tabs__item--active' : '') + '" onclick="ccSwitchTab(\'dashboard\')"><span style="opacity:0.5;margin-right:4px">1</span> Dashboard</div>';
+  html += '<div class="cc-tabs__item' + (_ccTab === 'briefing' ? ' cc-tabs__item--active' : '') + '" onclick="ccSwitchTab(\'briefing\')"><span style="opacity:0.5;margin-right:4px">2</span> Daily Briefing</div>';
+  html += '<div class="cc-tabs__item' + (_ccTab === 'systemmap' ? ' cc-tabs__item--active' : '') + '" onclick="ccSwitchTab(\'systemmap\')"><span style="opacity:0.5;margin-right:4px">3</span> System Map</div>';
   html += '</div>';
 
   if (_ccTab === 'dashboard') {
     html += ccRenderDashboard();
+  } else if (_ccTab === 'systemmap') {
+    html += ccRenderSystemMap();
   } else {
     if (_ccBriefData()) html += ccRenderBriefingContent();
-    else if (_ccLoading) html += '<div style="padding:40px;text-align:center;color:var(--text-muted)">Loading briefing data...</div>';
-    else if (_ccBriefingFailed) html += '<div style="padding:40px;text-align:center;color:var(--text-muted)">Failed to load briefing. <a href="#" onclick="event.preventDefault();_ccBriefingFailed=false;_ccLoadBriefing();return false" style="color:var(--primary)">Retry</a></div>';
-    else html += '<div style="padding:40px;text-align:center;color:var(--text-muted)">No briefing data.</div>';
+    else if (_ccLoading) html += '<div style="padding:40px;text-align:center;color:var(--cc-t3)">Loading briefing data...</div>';
+    else if (_ccBriefingFailed) html += '<div style="padding:40px;text-align:center;color:var(--cc-t3)">Failed to load briefing. <a href="#" onclick="event.preventDefault();_ccBriefingFailed=false;_ccLoadBriefing();return false" style="color:var(--cc-cyan)">Retry</a></div>';
+    else html += '<div style="padding:40px;text-align:center;color:var(--cc-t3)">No briefing data.</div>';
   }
 
-  html += '</div>';
+  html += '</div>'; // end cc-main
+
+  // ZONE 3b: ACTION RAIL
+  html += ccRenderRail(d, b);
+
+  html += '</div>'; // end flex wrapper
+  html += '</div>'; // end cc-page
   el.innerHTML = html;
 
+  // Post-render setup
   requestAnimationFrame(() => {
+    // Animate ring fills
     document.querySelectorAll('.cc-ring__fill').forEach(circle => {
       const target = circle.getAttribute('data-target');
       if (target) circle.style.strokeDashoffset = target;
     });
-    const ccEl = document.querySelector('.cc-page');
-    if (ccEl) {
-      const top = ccEl.getBoundingClientRect().top;
-      ccEl.style.height = (window.innerHeight - top - 8) + 'px';
+    // Click feedback on action buttons (action, done, dismiss)
+    document.querySelectorAll('.cc-li__action, .cc-done-btn, .cc-dismiss-btn').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const orig = this.textContent;
+        this.textContent = '✓';
+        this.style.color = 'var(--cc-green)';
+        this.style.borderColor = 'rgba(52,211,153,0.3)';
+        setTimeout(() => { this.textContent = orig; this.style.color = ''; this.style.borderColor = ''; }, 1500);
+      });
+    });
+    // Expandable cards
+    document.querySelectorAll('.cc-card--expandable').forEach(card => {
+      card.addEventListener('click', () => card.classList.toggle('cc-card--expanded'));
+    });
+    // Card selection click binding
+    document.querySelectorAll('.cc-grid .cc-card').forEach(card => {
+      card.addEventListener('click', function(e) {
+        if (e.target.closest('button') || e.target.closest('a')) return;
+        const domain = this.querySelector('.cc-card__title')?.textContent?.toLowerCase()?.replace(/[^a-z]/g, '') || '';
+        ccSelectCard(this, domain);
+      });
+    });
+    // Command input enter handler
+    const cmdInput = document.querySelector('.cc-cmd__input');
+    if (cmdInput) {
+      cmdInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') { ccRunCommand(this.value); this.value = ''; }
+      });
     }
+  });
+
+  // Register keyboard handler (remove previous if exists)
+  document.removeEventListener('keydown', ccKeyHandler);
+  document.addEventListener('keydown', ccKeyHandler);
+}
+
+// ——— STATUS STRIP ———
+
+function ccRenderStrip() {
+  const now = new Date();
+  const hour = now.getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  const userName = _currentUser?.displayName?.split(' ')[0] || 'Glen';
+  const ts = _ccSnapshot ? (_ccSnapshot.updated_at || _ccSnapshot.created_at || _ccSnapshot.snapshot_date) : null;
+  const tsLabel = ts ? new Date(ts).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'just now';
+  const processLabel = _ccLoading ? 'Scanning…' : 'Idle';
+
+  let html = '<div class="cc-strip">';
+  // Logo mark
+  html += '<div class="cc-strip__logo">NBI</div>';
+  // Greeting
+  html += '<div class="cc-strip__greeting">' + esc(greeting) + ', <span class="cc-strip__name">' + esc(userName) + '</span></div>';
+  // ECG heartbeat
+  html += '<div class="cc-strip__ecg">';
+  html += '<svg class="cc-ecg" viewBox="0 0 200 28" preserveAspectRatio="none">';
+  html += '<polyline class="cc-ecg__line" fill="none" stroke="var(--cc-cyan)" stroke-width="1.5" points="';
+  // Two cycles of ECG pattern: flat - P wave - flat - QRS complex - flat - T wave - flat
+  html += '0,14 15,14 20,12 25,14 35,14 38,14 40,4 42,24 44,10 46,14 55,14 60,12 65,14 80,14 ';
+  html += '95,14 100,12 105,14 115,14 118,14 120,4 122,24 124,10 126,14 135,14 140,12 145,14 160,14 175,14 200,14';
+  html += '"/>';
+  html += '</svg>';
+  html += '</div>';
+  // Process indicator
+  html += '<div class="cc-strip__proc' + (_ccLoading ? ' cc-strip__proc--active' : '') + '">' + processLabel + '</div>';
+  // Timestamp
+  html += '<div class="cc-strip__ts">Scanned ' + esc(tsLabel) + '</div>';
+  // Refresh button
+  html += '<button class="cc-btn cc-btn--sm" onclick="ccRefresh()">Refresh Scan</button>';
+  html += '</div>';
+  return html;
+}
+
+// ——— 4Cs METRICS ROW ———
+
+function ccRenderMetrics(fc) {
+  let html = '<div class="cc-metrics">';
+  ['context', 'connections', 'capabilities', 'cadence'].forEach(key => {
+    const c = fc[key] || { score: 0, max: 10, details: [] };
+    const pct = c.score / (c.max || 10);
+    const circumference = 2 * Math.PI * 22;
+    const offset = circumference * (1 - pct);
+    const colour = c.score >= 7 ? 'var(--cc-green)' : c.score >= 4 ? 'var(--cc-amber)' : 'var(--cc-red)';
+    const label = key.charAt(0).toUpperCase() + key.slice(1);
+    const sub = c.details.slice(0, 2).join(', ') || 'No data';
+    html += '<div class="cc-metric" style="--metric-color:' + colour + '">';
+    html += '<div class="cc-ring"><svg viewBox="0 0 56 56">';
+    html += '<circle class="cc-ring__bg" cx="28" cy="28" r="22"/>';
+    html += '<circle class="cc-ring__fill" cx="28" cy="28" r="22" style="stroke:' + colour + ';stroke-dasharray:' + circumference.toFixed(0) + ';stroke-dashoffset:' + circumference.toFixed(0) + ';filter:drop-shadow(0 0 6px ' + colour + ')" data-target="' + offset.toFixed(1) + '"/>';
+    html += '</svg><div class="cc-ring__score" style="color:' + colour + '">' + c.score + '</div></div>';
+    html += '<div class="cc-metric__info"><div class="cc-metric__label">' + esc(label) + '</div>';
+    html += '<div class="cc-metric__sub">' + esc(sub) + '</div></div>';
+    html += '</div>';
+  });
+  html += '</div>';
+  return html;
+}
+
+// ——— ACTION RAIL ———
+
+function ccRenderRail(d, b) {
+  let html = '<div class="cc-rail">';
+
+  // Command input
+  html += '<div class="cc-cmd">';
+  html += '<span class="cc-cmd__prompt">&gt;</span>';
+  html += '<input class="cc-cmd__input" type="text" placeholder="Type a command…" spellcheck="false" autocomplete="off"/>';
+  html += '</div>';
+
+  // Critical alerts
+  html += '<div class="cc-rail__section">';
+  html += '<div class="cc-rail__heading">ALERTS</div>';
+  const alerts = _ccBuildAlerts(d, b);
+  if (alerts.length === 0) {
+    html += '<div class="cc-rail__empty">No critical alerts</div>';
+  } else {
+    alerts.slice(0, 5).forEach(a => {
+      html += '<div class="cc-rail__alert cc-rail__alert--' + a.severity + '">';
+      html += '<div class="cc-rail__alert-text">' + esc(a.text) + '</div>';
+      if (a.action) {
+        html += '<button class="cc-rail__alert-btn" onclick="' + a.action + '">' + esc(a.actionLabel) + '</button>';
+      }
+      html += '</div>';
+    });
+  }
+  html += '</div>';
+
+  // System reasoning stream
+  html += '<div class="cc-rail__section">';
+  html += '<div class="cc-rail__heading">SYSTEM LOG</div>';
+  html += '<div class="cc-rail__log">';
+  const logEntries = _ccBuildLogEntries(d, b);
+  logEntries.forEach(entry => {
+    html += '<div class="cc-rail__log-entry"><span class="cc-rail__log-ts">' + esc(entry.ts) + '</span> ' + esc(entry.msg) + '</div>';
+  });
+  if (logEntries.length === 0) {
+    html += '<div class="cc-rail__empty">No activity</div>';
+  }
+  html += '</div>';
+  html += '</div>';
+
+  html += '</div>';
+  return html;
+}
+
+function _ccBuildAlerts(d, b) {
+  const alerts = [];
+  // Critical briefing items
+  if (b && b.critical) {
+    b.critical.forEach(c => {
+      alerts.push({ severity: 'crit', text: c.title || 'Critical item', action: c.type === 'bug' ? "event.stopPropagation();switchView('bugs')" : '', actionLabel: c.type === 'bug' ? 'Open Bug' : 'Open' });
+    });
+  }
+  // Overdue tasks
+  if (b && b.work_queue && b.work_queue.overdue) {
+    b.work_queue.overdue.slice(0, 2).forEach(t => {
+      alerts.push({ severity: 'warn', text: 'Overdue: ' + (t.title || 'task'), action: "event.stopPropagation();switchView('projects')", actionLabel: 'Open' });
+    });
+  }
+  // Stale brain modules
+  const flags = (b && b.knowledge_flags) || {};
+  if (flags.stale_brain_modules && flags.stale_brain_modules.length > 0) {
+    alerts.push({ severity: 'info', text: flags.stale_brain_modules.length + ' brain module' + (flags.stale_brain_modules.length > 1 ? 's' : '') + ' need refreshing', action: '', actionLabel: 'Review' });
+  }
+  // Sort: crit first, then warn, then info
+  const order = { crit: 0, warn: 1, info: 2 };
+  alerts.sort((a, b) => (order[a.severity] || 9) - (order[b.severity] || 9));
+  return alerts;
+}
+
+function _ccBuildLogEntries(d, b) {
+  const entries = [];
+  const now = new Date();
+  const ts = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+
+  // Bugs awaiting review
+  const bugs = d.bugs || {};
+  const byStatus = bugs.by_status || {};
+  if (byStatus.please_review) {
+    entries.push({ ts: ts, msg: byStatus.please_review + ' bug' + (byStatus.please_review > 1 ? 's' : '') + ' awaiting closure' });
+  }
+
+  // Bug hotspot detection
+  const hotspots = bugs.hotspots || [];
+  if (hotspots.length > 0) {
+    entries.push({ ts: ts, msg: 'Hotspot detected: ' + (hotspots[0].page || 'unknown') + ' (' + hotspots[0].count + ' bugs)' });
+  }
+
+  // Stale memory files
+  const memHealth = (d.memory || {}).health || {};
+  if (memHealth.stale && memHealth.stale > 0) {
+    entries.push({ ts: ts, msg: memHealth.stale + ' memory file' + (memHealth.stale > 1 ? 's' : '') + ' have stale references' });
+  }
+
+  // Dormant skills
+  const skills = d.skills || [];
+  const staleSkills = skills.filter(s => s.last_modified && (Date.now() - new Date(s.last_modified).getTime()) > 30 * 86400000);
+  if (staleSkills.length > 0) {
+    entries.push({ ts: ts, msg: staleSkills.length + ' skill' + (staleSkills.length > 1 ? 's' : '') + ' untouched for 30+ days' });
+  }
+
+  // Session info
+  const sess = d.sessions || {};
+  const stats = sess.stats || {};
+  if (stats.total_this_week) {
+    entries.push({ ts: ts, msg: stats.total_this_week + ' session' + (stats.total_this_week > 1 ? 's' : '') + ' this week' });
+  }
+
+  // Connection gaps
+  const conn = d.connections || {};
+  const buckets = conn.buckets || {};
+  const missing = Object.entries(buckets).filter(([, b]) => b.status === 'missing');
+  if (missing.length > 0) {
+    entries.push({ ts: ts, msg: missing.length + ' connection gap' + (missing.length > 1 ? 's' : '') + ': ' + missing.slice(0, 3).map(([n]) => n).join(', ') });
+  }
+
+  return entries;
+}
+
+// ——— COMMAND EXECUTOR ———
+
+function ccRunCommand(cmd) {
+  if (!cmd || !cmd.trim()) return;
+  const c = cmd.trim().toLowerCase();
+  if (c === 'triage bugs' || c === 'bugs') {
+    switchView('bugs');
+  } else if (c === 'run scan' || c === 'scan') {
+    ccRefresh();
+  } else if (c === 'check brain' || c === 'brain') {
+    const d = _ccData();
+    const memHealth = (d.memory || {}).health || {};
+    toast('Brain health: ' + (memHealth.score || 0) + '% (' + (memHealth.total || 0) + ' files, ' + (memHealth.stale || 0) + ' stale)', 'info');
+  } else if (c === 'show stale') {
+    const d = _ccData();
+    const skills = d.skills || [];
+    const stale = skills.filter(s => s.last_modified && (Date.now() - new Date(s.last_modified).getTime()) > 30 * 86400000);
+    toast(stale.length > 0 ? 'Stale skills: ' + stale.map(s => s.name).slice(0, 5).join(', ') : 'No stale skills found', 'info');
+  } else {
+    toast('Unknown command: ' + esc(cmd.trim()), 'warning');
+  }
+}
+
+// ——— CARD SELECTION ———
+
+function ccSelectCard(cardEl, domain) {
+  if (_ccSelectedCard === cardEl) {
+    ccDeselectCard();
+    return;
+  }
+  ccDeselectCard();
+  _ccSelectedCard = cardEl;
+  cardEl.classList.add('cc-card--selected');
+  document.querySelectorAll('.cc-grid .cc-card').forEach(c => {
+    if (c !== cardEl) c.classList.add('cc-card--dimmed');
+  });
+}
+
+function ccDeselectCard() {
+  _ccSelectedCard = null;
+  document.querySelectorAll('.cc-card').forEach(c => {
+    c.classList.remove('cc-card--selected', 'cc-card--dimmed');
+  });
+}
+
+// ——— KEYBOARD HANDLER ———
+
+function ccKeyHandler(e) {
+  if (currentView !== 'commandcentre') return;
+  // Don't intercept when user is typing in an input or textarea
+  const tag = (e.target.tagName || '').toLowerCase();
+  if (tag === 'input' || tag === 'textarea' || tag === 'select' || e.target.isContentEditable) return;
+
+  if (e.key === '1') { ccSwitchTab('dashboard'); }
+  else if (e.key === '2') { ccSwitchTab('briefing'); }
+  else if (e.key === '3') { ccSwitchTab('systemmap'); }
+  else if (e.key === 'Escape') {
+    ccDeselectCard();
+    const cmdInput = document.querySelector('.cc-cmd__input');
+    if (cmdInput) { cmdInput.value = ''; cmdInput.blur(); }
+  }
+  else if (e.key === '/' || (e.ctrlKey && e.key === 'k')) {
+    e.preventDefault();
+    const cmdInput = document.querySelector('.cc-cmd__input');
+    if (cmdInput) cmdInput.focus();
+  }
+  else if (e.key === 'r' || e.key === 'R') {
+    ccRefresh();
+  }
+}
+
+function ccFilterWork(chip, filter) {
+  chip.parentElement.querySelectorAll('.cc-chip').forEach(c => c.classList.remove('cc-chip--active'));
+  chip.classList.add('cc-chip--active');
+  document.querySelectorAll('[data-wq-group]').forEach(card => {
+    card.style.display = (filter === 'all' || card.dataset.wqGroup === filter) ? '' : 'none';
   });
 }
 
@@ -19539,31 +20134,7 @@ function _ccBriefData() {
 
 function ccRenderDashboard() {
   const d = _ccData();
-  const fc = d.four_cs || {};
-  let html = '';
-
-  // Four Cs hero row
-  html += '<div class="cc-hero">';
-  ['context', 'connections', 'capabilities', 'cadence'].forEach(key => {
-    const c = fc[key] || { score: 0, max: 10, details: [] };
-    const pct = c.score / c.max;
-    const circumference = 2 * Math.PI * 22;
-    const offset = circumference * (1 - pct);
-    const colour = c.score >= 7 ? 'var(--success)' : c.score >= 4 ? 'var(--warning)' : 'var(--danger)';
-    const label = key.charAt(0).toUpperCase() + key.slice(1);
-    const sub = c.details.slice(0, 2).join(', ') || 'No data';
-    html += '<div class="cc-hero__card" title="' + esc(c.details.join('\n')) + '">';
-    html += '<div class="cc-ring"><svg viewBox="0 0 56 56"><circle class="cc-ring__bg" cx="28" cy="28" r="22"/>';
-    html += '<circle class="cc-ring__fill" cx="28" cy="28" r="22" style="stroke:' + colour + ';stroke-dasharray:' + circumference.toFixed(0) + ';stroke-dashoffset:' + circumference.toFixed(0) + ';filter:drop-shadow(0 0 6px ' + colour + ')" data-target="' + offset.toFixed(1) + '"/>';
-    html += '</svg><div class="cc-ring__score" style="color:' + colour + '">' + c.score + '</div></div>';
-    html += '<div class="cc-hero__info"><div class="cc-hero__label">' + esc(label) + '</div>';
-    html += '<div class="cc-hero__sub">' + esc(sub) + '</div></div>';
-    html += '</div>';
-  });
-  html += '</div>';
-
-  // 3-column grid of cards
-  html += '<div class="cc-grid">';
+  let html = '<div class="cc-grid">';
   html += ccCardSituation(d);
   html += ccCardSkills(d);
   html += ccCardBrain(d);
@@ -19577,28 +20148,60 @@ function ccRenderDashboard() {
   return html;
 }
 
+// ——— SYSTEM MAP TAB ———
+
+function ccRenderSystemMap() {
+  const d = _ccData();
+  const conn = d.connections || {};
+  const buckets = conn.buckets || {};
+  let html = '<div style="padding:24px">';
+  html += '<div style="font-size:0.78rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--cc-t2);margin-bottom:14px">System Connection Map</div>';
+  html += '<div style="font-size:0.75rem;color:var(--cc-t3);margin-bottom:20px">Phase 2: interactive force-directed graph</div>';
+  html += '<div class="cc-cg" style="max-width:600px">';
+  Object.entries(buckets).forEach(([name, b]) => {
+    const cls = b.status === 'connected' ? 'cc-cn--ok' : b.status === 'partial' ? 'cc-cn--part' : 'cc-cn--gap';
+    html += '<div class="cc-cn ' + cls + '"><div class="cc-cn__name">' + esc(name) + '</div>';
+    html += '<div class="cc-cn__via">' + esc((b.sources || []).join(', ') || (b.status === 'missing' ? 'blind spot' : '')) + '</div></div>';
+  });
+  html += '</div></div>';
+  return html;
+}
+
 function ccCardSituation(d) {
+  const b = _ccBriefData();
   const bugs = d.bugs || {};
-  const bp = bugs.by_priority || {};
-  const critCount = (bp.critical || 0) + (bp.urgent || 0);
-  const openBugs = bugs.open_bugs || [];
+  const items = [];
+  if (b && b.critical) {
+    b.critical.forEach(c => {
+      const iconMap = { bug: { icon: '!!', cls: 'cc-pri__icon--crit' }, calendar: { icon: '⏰', cls: 'cc-pri__icon--client' } };
+      const m = iconMap[c.type] || { icon: '!', cls: 'cc-pri__icon--crit' };
+      items.push({ title: c.title || '', meta: (c.type === 'bug' ? 'Bug' : c.type) + ' &middot; ' + (c.priority || 'Critical'), icon: m.icon, iconCls: m.cls });
+    });
+  }
+  if (b && b.work_queue) {
+    (b.work_queue.overdue || []).slice(0, 2).forEach(t => items.push({ title: t.title, meta: 'Client delivery &middot; Due ' + (t.due_date || ''), icon: t.client ? t.client.charAt(0).toUpperCase() : '!', iconCls: 'cc-pri__icon--client' }));
+    (b.work_queue.blocked || []).slice(0, 2).forEach(t => items.push({ title: t.title, meta: 'Blocked' + (t.blocked_reason ? ' &middot; ' + esc(t.blocked_reason) : ''), icon: t.title.charAt(0).toUpperCase(), iconCls: 'cc-pri__icon--block' }));
+  }
+  if (items.length === 0) {
+    (bugs.open_bugs || []).slice(0, 5).forEach(bug => {
+      const p = bug.priority || 'unset';
+      items.push({ title: bug.title, meta: 'Bug #' + bug.id + ' &middot; ' + p, icon: (p === 'critical' || p === 'urgent') ? '!!' : '#' + bug.id, iconCls: (p === 'critical' || p === 'urgent') ? 'cc-pri__icon--crit' : p === 'high' ? 'cc-pri__icon--client' : 'cc-pri__icon--feat' });
+    });
+  }
+  const critCount = items.filter(i => i.iconCls === 'cc-pri__icon--crit').length;
   let html = '<div class="cc-card cc-card--blue">';
   html += '<div class="cc-card__head"><span class="cc-card__title">TODAY\'S FOCUS</span>';
-  if (critCount > 0) html += '<span class="cc-tag cc-tag--red">' + critCount + ' critical</span>';
-  else { const total = (bugs.by_status || {}).open || 0; if (total > 0) html += '<span class="cc-tag cc-tag--amber">' + total + ' open</span>'; }
+  html += critCount > 0 ? '<span class="cc-tag cc-tag--red">' + critCount + ' critical</span>' : '<span class="cc-tag cc-tag--blue">' + items.length + ' items</span>';
   html += '</div>';
-  const items = openBugs.length > 0 ? openBugs.slice(0, 5) : (bugs.recent_activity || []).slice(0, 4);
   if (items.length === 0) {
-    html += '<div style="padding:12px 0;font-size:0.78rem;color:var(--text-muted)">No open bugs or recent activity</div>';
+    html += '<div style="padding:16px 0;font-size:0.82rem;color:var(--cc-t2)">Nothing critical. Nice.</div>';
   }
-  items.forEach(item => {
-    const p = item.priority || 'unset';
-    const iconClass = (p === 'critical' || p === 'urgent') ? 'cc-li__icon--red' : p === 'high' ? 'cc-li__icon--amber' : 'cc-li__icon--blue';
-    const icon = (p === 'critical' || p === 'urgent') ? '!!' : p === 'high' ? '!' : '#' + item.id;
-    html += '<div class="cc-li">';
-    html += '<div class="cc-li__icon cc-li__icon--sm ' + iconClass + '">' + icon + '</div>';
-    html += '<div class="cc-li__body"><div class="cc-li__title">' + esc(item.title || '') + '</div>';
-    html += '<div class="cc-li__meta">' + esc(item.status || '') + (p !== 'unset' ? ' &middot; ' + esc(p) : '') + '</div></div></div>';
+  items.slice(0, 6).forEach(item => {
+    html += '<div class="cc-pri">';
+    html += '<div class="cc-pri__icon ' + item.iconCls + '">' + item.icon + '</div>';
+    html += '<div class="cc-pri__body"><div class="cc-pri__text">' + esc(item.title) + '</div>';
+    html += '<div class="cc-pri__meta">' + item.meta + '</div></div>';
+    html += '</div>';
   });
   html += '</div>';
   return html;
@@ -19607,22 +20210,35 @@ function ccCardSituation(d) {
 function ccCardSkills(d) {
   const skills = d.skills || [];
   const withLearnings = skills.filter(s => s.has_learnings).length;
+  const withEvals = skills.filter(s => s.has_evals).length;
   const stale = skills.filter(s => s.last_modified && (Date.now() - new Date(s.last_modified).getTime()) > 30 * 86400000);
   let html = '<div class="cc-card cc-card--cyan">';
   html += '<div class="cc-card__head"><span class="cc-card__title">SKILLS INTELLIGENCE</span><span class="cc-tag cc-tag--blue">' + skills.length + ' active</span></div>';
-  html += '<div style="padding:10px 0;border-bottom:1px solid var(--border)">';
-  html += '<div style="font-size:0.62rem;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:var(--text-faint);margin-bottom:4px">Most active</div>';
-  html += '<div style="font-size:0.78rem;color:var(--text-main)">' + esc(skills.slice(0, 4).map(s => s.name).join(', ') || 'None') + '</div>';
+  html += '<div class="cc-si">';
+  html += '<div class="cc-si__label">Most active</div>';
+  html += '<div class="cc-si__val">' + esc(skills.slice(0, 4).map(s => s.name).join(', ') || 'No data') + '</div>';
   html += '</div>';
   if (stale.length > 0) {
-    html += '<div style="padding:10px 0;border-bottom:1px solid var(--border)">';
-    html += '<div style="font-size:0.62rem;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:var(--warning);margin-bottom:4px">Going stale (&gt;30 days)</div>';
-    html += '<div style="font-size:0.78rem;color:var(--text-main)">' + esc(stale.slice(0, 5).map(s => s.name).join(', ')) + '</div>';
+    html += '<div class="cc-si">';
+    html += '<div class="cc-si__label" style="color:var(--cc-amber)">Going stale (&gt;30 days untouched)</div>';
+    html += '<div class="cc-si__val">' + esc(stale.slice(0, 5).map(s => s.name).join(', ')) + '</div>';
+    html += '<div class="cc-si__act">Review these &rarr; update or remove</div>';
     html += '</div>';
   }
-  html += '<div style="padding:10px 0">';
-  html += '<div style="font-size:0.62rem;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:' + (withLearnings > 0 ? 'var(--text-faint)' : 'var(--danger)') + ';margin-bottom:4px">Learning loops</div>';
-  html += '<div style="font-size:0.78rem;color:var(--text-main)">' + withLearnings + ' of ' + skills.length + ' skills have learnings.md</div>';
+  html += '<div class="cc-si">';
+  if (withLearnings === 0) {
+    html += '<div class="cc-si__label" style="color:var(--cc-red)">No skills have learning loops</div>';
+    html += '<div class="cc-si__val">' + withLearnings + ' of ' + skills.length + ' skills have a learnings.md &mdash; every run starts from zero</div>';
+    html += '<div class="cc-si__act">Quick win &rarr; add learnings to your top 5</div>';
+  } else {
+    const loopColor = withLearnings > skills.length * 0.5 ? 'var(--cc-green)' : 'var(--cc-amber)';
+    html += '<div class="cc-si__label" style="color:' + loopColor + '">Self-improvement</div>';
+    html += '<div class="cc-si__val">' + withLearnings + ' of ' + skills.length + ' skills have learnings &middot; ' + withEvals + ' have evals</div>';
+  }
+  html += '</div>';
+  html += '<div class="cc-si">';
+  html += '<div class="cc-si__label">Coverage gaps</div>';
+  html += '<div class="cc-si__val">No skill for: AI research synthesis, client onboarding, proposal generation</div>';
   html += '</div>';
   html += '</div>';
   return html;
@@ -19633,20 +20249,25 @@ function ccCardBrain(d) {
   const modules = brain.modules || [];
   const roles = brain.roles || [];
   const memHealth = (d.memory || {}).health || {};
+  const scoreTag = (memHealth.score || 0) >= 80 ? 'cc-tag--green' : (memHealth.score || 0) >= 50 ? 'cc-tag--amber' : 'cc-tag--red';
   let html = '<div class="cc-card cc-card--green">';
-  html += '<div class="cc-card__head"><span class="cc-card__title">BRAIN &amp; MEMORY</span><span class="cc-tag cc-tag--green">' + (memHealth.score || 0) + '%</span></div>';
-  html += '<div style="font-size:0.62rem;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:var(--text-faint);margin-bottom:8px">Knowledge freshness</div>';
+  html += '<div class="cc-card__head"><span class="cc-card__title">BRAIN &amp; MEMORY</span><span class="cc-tag ' + scoreTag + '">' + (memHealth.score || 0) + '%</span></div>';
+  html += '<div style="font-size:0.62rem;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:var(--cc-t3);margin-bottom:8px">Knowledge freshness</div>';
   html += '<div class="cc-bt">';
   if (brain.core) {
     const age = brain.core.last_modified ? Math.floor((Date.now() - new Date(brain.core.last_modified).getTime()) / 86400000) : 999;
-    html += '<div class="cc-bt__entry ' + (age < 30 ? 'cc-bt__entry--ok' : 'cc-bt__entry--warn') + '"><div style="font-size:0.75rem;font-weight:600">NBI Brain (core)</div><div style="font-size:0.6rem;color:var(--text-faint)">' + age + ' days ago &middot; ' + (brain.core.sections || 0) + ' sections</div></div>';
+    const cls = age < 30 ? 'cc-bt__entry--ok' : 'cc-bt__entry--warn';
+    html += '<div class="cc-bt__entry ' + cls + '"><div style="font-size:0.75rem;font-weight:600;color:var(--cc-t1)">NBI Brain (core)</div><div style="font-size:0.6rem;color:var(--cc-t3)">' + age + ' days ago &middot; ' + (brain.core.sections || 0) + ' sections</div></div>';
   }
-  modules.slice(0, 4).forEach(m => {
+  modules.slice(0, 5).forEach(m => {
     const age = m.last_modified ? Math.floor((Date.now() - new Date(m.last_modified).getTime()) / 86400000) : 999;
-    html += '<div class="cc-bt__entry ' + (age < 30 ? 'cc-bt__entry--ok' : 'cc-bt__entry--warn') + '"><div style="font-size:0.75rem;font-weight:600">' + esc(m.name) + '</div><div style="font-size:0.6rem;color:var(--text-faint)">' + age + ' days ago</div></div>';
+    const cls = age < 30 ? 'cc-bt__entry--ok' : 'cc-bt__entry--warn';
+    const nameColor = age >= 30 ? 'color:var(--cc-amber)' : 'color:var(--cc-t1)';
+    const ageNote = age >= 30 ? ' &middot; may be outdated' : '';
+    html += '<div class="cc-bt__entry ' + cls + '"><div style="font-size:0.75rem;font-weight:600;' + nameColor + '">' + esc(m.name) + '</div><div style="font-size:0.6rem;color:var(--cc-t3)">' + age + ' days ago' + ageNote + '</div></div>';
   });
   html += '</div>';
-  html += '<div style="margin-top:10px;font-size:0.6rem;color:var(--text-faint)">' + (memHealth.total || 0) + ' memory files (' + (memHealth.stale || 0) + ' stale) &middot; ' + roles.length + ' roles defined</div>';
+  html += '<div style="margin-top:10px;font-size:0.6rem;color:var(--cc-t4)">' + (memHealth.total || 0) + ' memory files (' + (memHealth.stale || 0) + ' stale refs) &middot; ' + roles.length + ' roles defined</div>';
   html += '</div>';
   return html;
 }
@@ -19656,8 +20277,9 @@ function ccCardConnections(d) {
   const buckets = conn.buckets || {};
   const entries = Object.entries(buckets);
   const connected = entries.filter(([,b]) => b.status === 'connected').length;
+  const tagCls = connected >= entries.length - 1 ? 'cc-tag--green' : connected >= entries.length / 2 ? 'cc-tag--amber' : 'cc-tag--red';
   let html = '<div class="cc-card cc-card--purple">';
-  html += '<div class="cc-card__head"><span class="cc-card__title">CONNECTION MAP</span><span class="cc-tag cc-tag--amber">' + connected + ' of ' + entries.length + '</span></div>';
+  html += '<div class="cc-card__head"><span class="cc-card__title">CONNECTION MAP</span><span class="cc-tag ' + tagCls + '">' + connected + ' of ' + entries.length + '</span></div>';
   html += '<div class="cc-cg">';
   entries.forEach(([name, b]) => {
     const cls = b.status === 'connected' ? 'cc-cn--ok' : b.status === 'partial' ? 'cc-cn--part' : 'cc-cn--gap';
@@ -19666,8 +20288,11 @@ function ccCardConnections(d) {
   html += '</div>';
   const missing = entries.filter(([,b]) => b.status === 'missing');
   if (missing.length > 0) {
-    html += '<div style="margin-top:12px;font-size:0.62rem;color:var(--text-faint);line-height:1.6">';
-    missing.forEach(([name]) => { html += '<strong style="color:var(--danger)">' + esc(name) + '</strong>: no data source connected. '; });
+    html += '<div style="margin-top:12px;font-size:0.62rem;color:var(--cc-t3);line-height:1.8">';
+    const suggestions = { revenue: 'Stripe or Xero MCP would close this', research: 'Apify MCP is already installed — wire it up', clients: 'Full CRM integration needed', calendar: 'Microsoft Graph configured', comms: 'Add missing channels', tasks: 'WorkSage covers this', meetings: 'Granola connected', knowledge: 'Brain + Memory active' };
+    missing.forEach(([name]) => {
+      html += '<strong style="color:var(--cc-red)">' + esc(name) + '</strong>: ' + (suggestions[name] || 'no data source') + '. ';
+    });
     html += '</div>';
   }
   html += '</div>';
@@ -19679,26 +20304,33 @@ function ccCardBugs(d) {
   const byStatus = bugs.by_status || {};
   const byPrio = bugs.by_priority || {};
   const total = (byStatus.open || 0) + (byStatus.in_progress || 0) + (byStatus.please_review || 0);
-  const crit = byPrio.critical || 0;
-  const urgent = byPrio.urgent || 0;
+  const crit = (byPrio.critical || 0) + (byPrio.urgent || 0);
   const high = byPrio.high || 0;
   const med = byPrio.medium || 0;
-  const low = byPrio.low || 0;
-  const unset = byPrio.unset || 0;
-  let html = '<div class="cc-card cc-card--amber">';
+  const low = (byPrio.low || 0) + (byPrio.unset || 0);
+  const hotspots = bugs.hotspots || [];
+  let html = '<div class="cc-card cc-card--amber" onclick="switchView(\'bugs\')" style="cursor:pointer">';
   html += '<div class="cc-card__head"><span class="cc-card__title">BUG INTELLIGENCE</span><span class="cc-tag cc-tag--amber">' + total + ' open</span></div>';
   html += '<div class="cc-bbar">';
-  if (crit) html += '<div class="cc-bbar__seg" style="flex:' + crit + ';background:var(--danger)"></div>';
-  if (urgent) html += '<div class="cc-bbar__seg" style="flex:' + urgent + ';background:#f97316"></div>';
-  if (high) html += '<div class="cc-bbar__seg" style="flex:' + high + ';background:var(--warning)"></div>';
-  if (med) html += '<div class="cc-bbar__seg" style="flex:' + med + ';background:var(--primary)"></div>';
-  if (low) html += '<div class="cc-bbar__seg" style="flex:' + low + ';background:var(--border)"></div>';
-  if (unset) html += '<div class="cc-bbar__seg" style="flex:' + unset + ';background:var(--text-faint);opacity:0.3"></div>';
+  if (crit) html += '<div class="cc-bbar__seg" style="flex:' + crit + ';background:var(--cc-red)"></div>';
+  if (high) html += '<div class="cc-bbar__seg" style="flex:' + high + ';background:var(--cc-amber)"></div>';
+  if (med) html += '<div class="cc-bbar__seg" style="flex:' + med + ';background:var(--cc-blue)"></div>';
+  if (low) html += '<div class="cc-bbar__seg" style="flex:' + low + ';background:rgba(255,255,255,0.06)"></div>';
   html += '</div>';
-  html += '<div style="font-size:0.75rem;font-weight:700;color:var(--text-main);margin-bottom:4px">' + crit + ' critical, ' + urgent + ' urgent, ' + unset + ' unset</div>';
-  if (byStatus.please_review) {
-    html += '<div style="font-size:0.65rem;color:var(--warning);margin-top:8px">' + byStatus.please_review + ' bugs in please_review — team should close these</div>';
+  if (hotspots.length > 0) {
+    const top = hotspots[0];
+    html += '<div class="cc-bi">';
+    html += '<div class="cc-bi__title" style="color:var(--cc-red)">Hotspot: ' + esc(top.page || 'Unknown') + '</div>';
+    html += '<div class="cc-bi__desc">' + top.count + ' of ' + total + ' open bugs are ' + esc(top.page || '') + '-related. Recurring cluster. Consider a focused stabilisation sprint.</div>';
+    html += '</div>';
   }
+  if (byStatus.please_review) {
+    html += '<div class="cc-bi">';
+    html += '<div class="cc-bi__title" style="color:var(--cc-amber)">' + byStatus.please_review + ' bugs in please_review</div>';
+    html += '<div class="cc-bi__desc">Fixed but awaiting closure. Team should close these.</div>';
+    html += '</div>';
+  }
+  html += '<div style="margin-top:8px;font-size:0.58rem;color:var(--cc-t4)">' + crit + ' critical &middot; ' + high + ' high &middot; ' + med + ' medium &middot; ' + low + ' low</div>';
   html += '</div>';
   return html;
 }
@@ -19708,7 +20340,7 @@ function ccCardAgentTeam(d) {
   const dormant = roles.filter(r => !r.has_knowledge || (r.knowledge_freshness !== null && r.knowledge_freshness > 90));
   let html = '<div class="cc-card cc-card--purple">';
   html += '<div class="cc-card__head"><span class="cc-card__title">AGENT TEAM</span><span class="cc-tag cc-tag--muted">' + roles.length + ' roles</span></div>';
-  html += '<div style="font-size:0.6rem;color:var(--text-faint);margin-bottom:10px;font-weight:600">Role knowledge freshness</div>';
+  html += '<div style="font-size:0.6rem;color:var(--cc-t3);margin-bottom:10px;font-weight:600">Role knowledge freshness</div>';
   html += '<div class="cc-ag">';
   roles.forEach(r => {
     let level = 1;
@@ -19720,14 +20352,9 @@ function ccCardAgentTeam(d) {
     html += '<div class="cc-ac cc-ac--' + level + '" title="' + esc(r.name) + '"></div>';
   });
   html += '</div>';
-  html += '<div style="display:flex;gap:14px;margin-top:10px;font-size:0.55rem;color:var(--text-faint)">';
-  html += '<span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:3px;background:var(--success);display:inline-block"></span>Active</span>';
-  html += '<span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:3px;background:var(--success);opacity:0.5;display:inline-block"></span>Recent</span>';
-  html += '<span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:3px;background:var(--warning);opacity:0.3;display:inline-block"></span>Stale</span>';
-  html += '<span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:3px;background:rgba(128,128,128,0.06);border:1px solid var(--border);display:inline-block"></span>Dormant</span>';
-  html += '</div>';
+  html += '<div class="cc-aleg"><span class="cc-l4">Active</span><span class="cc-l3">Recent</span><span class="cc-l2">Stale</span><span class="cc-l1">Dormant</span></div>';
   if (dormant.length > 0) {
-    html += '<div style="margin-top:10px;font-size:0.62rem;color:var(--text-faint)"><strong>' + dormant.length + ' dormant roles</strong> — consolidate or refresh their knowledge</div>';
+    html += '<div style="margin-top:10px;font-size:0.62rem;color:var(--cc-t3)"><strong>' + dormant.length + ' dormant roles</strong> — consolidate or refresh their knowledge</div>';
   }
   html += '</div>';
   return html;
@@ -19735,27 +20362,40 @@ function ccCardAgentTeam(d) {
 
 function ccCardSessions(d) {
   const sess = d.sessions || {};
+  const stats = sess.stats || {};
   const live = sess.live_state || {};
   const recent = sess.recent || [];
-  const lastSession = recent[0] || {};
   let html = '<div class="cc-card cc-card--cyan">';
-  html += '<div class="cc-card__head"><span class="cc-card__title">CLAUDE STATE</span>';
-  html += '<span class="cc-tag cc-tag--blue">' + (live.pending_tasks_count || 0) + ' pending</span></div>';
-  if (lastSession.date) {
-    html += '<div style="font-size:0.62rem;font-weight:700;text-transform:uppercase;color:var(--text-faint);margin-bottom:6px">Last session: ' + esc(lastSession.date) + '</div>';
-  }
-  if (live.pending_tasks_count > 0) {
-    html += '<div style="font-size:0.78rem;color:var(--warning);margin-bottom:8px">' + live.pending_tasks_count + ' tasks outstanding from previous sessions</div>';
-  }
-  if (live.decisions_count > 0) {
-    html += '<div style="font-size:0.75rem;color:var(--text-muted)">' + live.decisions_count + ' decisions recorded</div>';
-  }
-  if (recent.length > 0) {
-    html += '<div style="font-size:0.62rem;font-weight:700;text-transform:uppercase;color:var(--text-faint);margin-top:10px;margin-bottom:6px">Recent sessions</div>';
-    recent.slice(0, 5).forEach(s => {
-      html += '<div style="font-size:0.75rem;color:var(--text-muted);padding:2px 0">' + esc(s.date) + '</div>';
-    });
-  }
+  html += '<div class="cc-card__head"><span class="cc-card__title">SESSIONS</span>';
+  html += '<span class="cc-tag cc-tag--green">Active</span></div>';
+  html += '<div class="cc-stats">';
+  html += '<div><div class="cc-st__v">' + (stats.total_this_week || 0) + '</div><div class="cc-st__l">This week</div></div>';
+  html += '<div><div class="cc-st__v">' + (stats.avg_per_day || 0) + '</div><div class="cc-st__l">Avg / day</div></div>';
+  html += '<div><div class="cc-st__v">' + (live.pending_tasks_count || 0) + '</div><div class="cc-st__l">Pending</div></div>';
+  html += '</div>';
+  const days = ['MON','TUE','WED','THU','FRI','SAT','SUN'];
+  const dayCounts = new Array(7).fill(0);
+  recent.forEach(s => {
+    const dd = new Date(s.date);
+    const dow = dd.getDay();
+    const idx = dow === 0 ? 6 : dow - 1;
+    if (idx >= 0 && idx < 7) dayCounts[idx]++;
+  });
+  const maxCount = Math.max(...dayCounts, 1);
+  html += '<div class="cc-spark">';
+  dayCounts.forEach((count, i) => {
+    const pct = Math.max((count / maxCount) * 100, 5);
+    const today = new Date().getDay();
+    const todayIdx = today === 0 ? 6 : today - 1;
+    const isToday = i === todayIdx;
+    const colour = isToday ? 'linear-gradient(180deg,var(--cc-cyan),rgba(34,211,238,0.4))' : 'linear-gradient(180deg,var(--cc-blue),rgba(59,130,246,0.3))';
+    const opacity = isToday ? '0.9' : (0.4 + (count / maxCount) * 0.4).toFixed(2);
+    html += '<div class="cc-spark__bar" style="height:' + pct + '%;background:' + colour + ';opacity:' + opacity + '" title="' + days[i] + ': ' + count + ' sessions"></div>';
+  });
+  html += '</div>';
+  html += '<div class="cc-spark__l">';
+  days.forEach(dy => { html += '<span>' + dy + '</span>'; });
+  html += '</div>';
   html += '</div>';
   return html;
 }
@@ -19770,15 +20410,15 @@ function ccCardTests(d) {
   else html += '<span class="cc-tag cc-tag--muted">No data</span>';
   html += '</div>';
   if (lastRun) {
-    html += '<div class="cc-th__big"><div class="cc-th__num" style="color:var(--success)">' + lastRun.passed + '</div><div style="font-size:0.78rem;color:var(--text-muted)">tests passing</div></div>';
+    html += '<div class="cc-th__big"><div class="cc-th__num" style="color:var(--cc-green)">' + lastRun.passed + '</div><div style="font-size:0.78rem;color:var(--cc-t2)">tests passing</div></div>';
     const pct = lastRun.total > 0 ? Math.round((lastRun.passed / lastRun.total) * 100) : 0;
-    html += '<div class="cc-th__bar"><div class="cc-th__fill" style="width:' + pct + '%;background:var(--success);box-shadow:0 0 8px var(--success)"></div></div>';
+    html += '<div class="cc-th__bar"><div class="cc-th__fill" style="width:' + pct + '%;background:var(--cc-green);box-shadow:0 0 8px var(--cc-green)"></div></div>';
     html += '<div style="display:flex;gap:24px;margin-top:6px">';
-    html += '<div><div style="font-family:monospace;font-size:1rem;font-weight:800;color:var(--success)">' + lastRun.passed + '</div><div style="font-size:0.58rem;color:var(--text-faint);font-weight:600;text-transform:uppercase">Passed</div></div>';
-    html += '<div><div style="font-family:monospace;font-size:1rem;font-weight:800;color:var(--danger)">' + lastRun.failed + '</div><div style="font-size:0.58rem;color:var(--text-faint);font-weight:600;text-transform:uppercase">Failed</div></div>';
+    html += '<div><div style="font-family:var(--cc-mono);font-size:1rem;font-weight:800;color:var(--cc-green)">' + lastRun.passed + '</div><div style="font-size:0.58rem;color:var(--cc-t3);font-weight:600;text-transform:uppercase">Passed</div></div>';
+    html += '<div><div style="font-family:var(--cc-mono);font-size:1rem;font-weight:800;color:var(--cc-red)">' + lastRun.failed + '</div><div style="font-size:0.58rem;color:var(--cc-t3);font-weight:600;text-transform:uppercase">Failed</div></div>';
     html += '</div>';
   } else {
-    html += '<div style="padding:12px 0;font-size:0.78rem;color:var(--text-muted)">No recent test results found</div>';
+    html += '<div style="padding:12px 0;font-size:0.78rem;color:var(--cc-t2)">No test results file. Run <span style="font-family:var(--cc-mono);color:var(--cc-cyan)">npm test</span> with JSON reporter to populate.</div>';
   }
   html += '</div>';
   return html;
@@ -19798,7 +20438,7 @@ function ccCardLevelUp() {
 
 function ccRenderBriefingContent() {
   const b = _ccBriefData();
-  if (!b) return '<div style="padding:40px;text-align:center;color:var(--text-muted)">Failed to load briefing data.</div>';
+  if (!b) return '<div style="padding:40px;text-align:center;color:var(--cc-t3)">Failed to load briefing data.</div>';
   let html = '';
   html += ccBriefCritical(b.critical || []);
   html += ccBriefCalendar(b.calendar || {});
@@ -19813,16 +20453,20 @@ function ccRenderBriefingContent() {
 function ccBriefCritical(items) {
   if (items.length === 0) return '';
   let html = '<div class="cc-section">';
-  html += '<div class="cc-section__title">Critical — Needs Attention Now <span class="cc-section__count" style="background:rgba(248,113,113,0.12);color:var(--danger)">' + items.length + '</span></div>';
+  html += '<div class="cc-section__title">Critical — Needs Attention Now <span class="cc-section__count" style="background:rgba(248,113,113,0.12);color:var(--cc-red)">' + items.length + '</span></div>';
   html += '<div class="cc-grid-2">';
   items.forEach(item => {
     html += '<div class="cc-card cc-card--red cc-card--crit">';
     html += '<div class="cc-li" style="padding:4px 0;border:none;margin:0">';
-    html += '<div class="cc-li__icon cc-li__icon--red" style="animation:ccCritPulse 2s ease-in-out infinite">' + (item.type === 'bug' ? '!!' : item.type === 'calendar' ? '&#128197;' : '!') + '</div>';
+    const icon = item.type === 'bug' ? '!!' : item.type === 'calendar' ? item.title.charAt(0).toUpperCase() : '!';
+    html += '<div class="cc-li__icon cc-li__icon--red" style="animation:ccIconPulse 2s ease-in-out infinite">' + icon + '</div>';
     html += '<div class="cc-li__body"><div class="cc-li__title">' + esc(item.title || '') + '</div>';
-    html += '<div class="cc-li__meta">' + esc(item.type) + ' &middot; ' + esc(item.priority || '') + '</div></div>';
-    if (item.type === 'bug') html += '<button class="cc-li__action" style="opacity:1" onclick="switchView(\'bugs\')">Open Bug</button>';
-    html += '</div></div>';
+    html += '<div class="cc-li__meta">' + esc(item.type === 'bug' ? 'Bug' : item.type) + ' &middot; ' + esc(item.priority || 'Critical') + (item.age ? ' &middot; Open ' + item.age + ' days' : '') + '</div></div>';
+    html += '<div style="display:flex;gap:6px;align-self:center">';
+    if (item.type === 'bug') html += '<button class="cc-li__action" style="opacity:1" onclick="event.stopPropagation();switchView(\'bugs\')">Open Bug</button>';
+    else if (item.type === 'calendar' && item.online_url) html += '<button class="cc-li__action" style="opacity:1" onclick="event.stopPropagation();window.open(\'' + esc(item.online_url) + '\',\'_blank\')">Join</button>';
+    else html += '<button class="cc-li__action" style="opacity:1" onclick="event.stopPropagation()">Open Task</button>';
+    html += '</div></div></div>';
   });
   html += '</div></div>';
   return html;
@@ -19832,20 +20476,21 @@ function ccBriefCalendar(cal) {
   const today = cal.today || [];
   const tomorrow = cal.tomorrow || [];
   if (today.length === 0 && tomorrow.length === 0 && cal.error) {
-    return '<div class="cc-section"><div class="cc-section__title">Calendar <span class="cc-section__count" style="background:rgba(59,130,246,0.12);color:var(--primary)">No data</span></div><div class="cc-card cc-card--blue"><div style="padding:12px 0;font-size:0.82rem;color:var(--text-muted)">' + esc(cal.error) + '</div></div></div>';
+    return '<div class="cc-section"><div class="cc-section__title">Calendar <span class="cc-section__count" style="background:rgba(59,130,246,0.12);color:var(--cc-blue)">No data</span></div><div class="cc-card cc-card--blue"><div style="padding:12px 0;font-size:0.82rem;color:var(--cc-t3)">' + esc(cal.error) + '</div></div></div>';
   }
   let html = '<div class="cc-section">';
-  html += '<div class="cc-section__title">Today\'s Calendar <span class="cc-section__count" style="background:rgba(59,130,246,0.12);color:var(--primary)">' + today.length + ' events</span></div>';
+  html += '<div class="cc-section__title">Today\'s Calendar <span class="cc-section__count" style="background:rgba(59,130,246,0.12);color:var(--cc-blue)">' + today.length + ' events</span></div>';
   html += '<div class="cc-card cc-card--blue"><div class="cc-tl">';
   today.forEach((ev, i) => {
     const startTime = new Date(ev.start).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-    const endTime = new Date(ev.end).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    const durMins = Math.round((new Date(ev.end) - new Date(ev.start)) / 60000);
+    const durLabel = durMins >= 60 ? Math.floor(durMins / 60) + 'h' + (durMins % 60 ? ' ' + (durMins % 60) + 'min' : '') : durMins + ' min';
     const isNow = new Date(ev.start) <= new Date() && new Date(ev.end) >= new Date();
     html += '<div class="cc-li' + (isNow ? ' cc-li--now' : i === today.length - 1 ? ' cc-li--future' : '') + '">';
     html += '<div class="cc-li__body"><div class="cc-li__title">' + esc(ev.title) + '</div>';
-    html += '<div class="cc-li__meta">' + esc(ev.location || '') + (ev.attendees.length > 0 ? ' &middot; ' + esc(ev.attendees.slice(0, 3).join(', ')) : '') + '</div></div>';
-    html += '<div class="cc-li__time"><div class="cc-li__when">' + startTime + '</div><div class="cc-li__dur">' + endTime + '</div></div>';
-    if (ev.online_url) html += '<button class="cc-li__action" onclick="window.open(\'' + esc(ev.online_url) + '\',\'_blank\')">Join</button>';
+    html += '<div class="cc-li__meta">' + esc(ev.location || '') + ((ev.attendees || []).length > 0 ? ' &middot; ' + esc(ev.attendees.slice(0, 3).join(', ')) : '') + '</div></div>';
+    html += '<div class="cc-li__time"><div class="cc-li__when">' + startTime + '</div><div class="cc-li__dur">' + durLabel + '</div></div>';
+    if (ev.online_url) html += '<button class="cc-li__action" style="opacity:1" onclick="event.stopPropagation();window.open(\'' + esc(ev.online_url) + '\',\'_blank\')">Join</button>';
     html += '</div>';
   });
   html += '</div></div></div>';
@@ -19860,39 +20505,52 @@ function ccBriefWorkQueue(wq) {
   const total = overdue.length + dueToday.length + dueWeek.length + blocked.length;
   let html = '<div class="cc-section">';
   html += '<div class="cc-section__title">Work Queue <span class="cc-section__count" style="background:rgba(34,211,238,0.12);color:#22d3ee">' + total + ' items</span></div>';
+  html += '<div class="cc-filters">';
+  html += '<button class="cc-chip cc-chip--active" onclick="ccFilterWork(this,\'all\')">All</button>';
+  html += '<button class="cc-chip" onclick="ccFilterWork(this,\'overdue\')">Overdue</button>';
+  html += '<button class="cc-chip" onclick="ccFilterWork(this,\'week\')">Due This Week</button>';
+  html += '<button class="cc-chip" onclick="ccFilterWork(this,\'blocked\')">Blocked</button>';
+  html += '<button class="cc-chip" onclick="ccFilterWork(this,\'client\')">Client Work</button>';
+  html += '</div>';
   html += '<div class="cc-grid-3">';
 
   // Overdue
-  html += '<div class="cc-card cc-card--red">';
+  html += '<div class="cc-card cc-card--cyan" data-wq-group="overdue">';
   html += '<div class="cc-card__head"><span class="cc-card__title">OVERDUE</span><span class="cc-tag cc-tag--red">' + overdue.length + '</span></div>';
   overdue.slice(0, 5).forEach(t => {
     html += '<div class="cc-li"><div class="cc-li__icon cc-li__icon--sm cc-li__icon--red">!</div>';
     html += '<div class="cc-li__body"><div class="cc-li__title">' + esc(t.title) + '</div>';
-    html += '<div class="cc-li__meta">Due ' + (t.due_date || '') + '</div></div></div>';
+    html += '<div class="cc-li__meta">Due ' + (t.due_date || '') + (t.client ? ' &middot; ' + esc(t.client) : '') + '</div></div>';
+    html += '<button class="cc-li__action" onclick="event.stopPropagation();switchView(\'projects\')">Open</button></div>';
   });
-  if (overdue.length === 0) html += '<div style="padding:8px 0;font-size:0.78rem;color:var(--text-muted)">None</div>';
+  if (overdue.length === 0) html += '<div style="padding:8px 0;font-size:0.78rem;color:var(--cc-t2)">None</div>';
   html += '</div>';
 
   // Due this week
-  html += '<div class="cc-card cc-card--amber">';
+  html += '<div class="cc-card cc-card--cyan" data-wq-group="week">';
   html += '<div class="cc-card__head"><span class="cc-card__title">DUE THIS WEEK</span><span class="cc-tag cc-tag--amber">' + (dueToday.length + dueWeek.length) + '</span></div>';
   dueToday.concat(dueWeek).slice(0, 5).forEach(t => {
-    html += '<div class="cc-li"><div class="cc-li__icon cc-li__icon--sm cc-li__icon--amber">' + (t.priority === 'high' ? '!' : '#') + '</div>';
+    const initial = (t.client || t.title || '').charAt(0).toUpperCase();
+    const iconCls = t.priority === 'high' || t.priority === 'critical' ? 'cc-li__icon--amber' : 'cc-li__icon--cyan';
+    html += '<div class="cc-li"><div class="cc-li__icon cc-li__icon--sm ' + iconCls + '">' + initial + '</div>';
     html += '<div class="cc-li__body"><div class="cc-li__title">' + esc(t.title) + '</div>';
-    html += '<div class="cc-li__meta">Due ' + (t.due_date || '') + '</div></div></div>';
+    html += '<div class="cc-li__meta">Due ' + (t.due_date || '') + (t.client ? ' &middot; ' + esc(t.client) : '') + '</div></div>';
+    html += '<button class="cc-li__action" onclick="event.stopPropagation();switchView(\'projects\')">Open</button></div>';
   });
-  if (dueToday.length + dueWeek.length === 0) html += '<div style="padding:8px 0;font-size:0.78rem;color:var(--text-muted)">None</div>';
+  if (dueToday.length + dueWeek.length === 0) html += '<div style="padding:8px 0;font-size:0.78rem;color:var(--cc-t2)">None</div>';
   html += '</div>';
 
-  // Blocked
-  html += '<div class="cc-card cc-card--blue">';
+  // Blocked (with Nudge dismiss buttons)
+  html += '<div class="cc-card cc-card--cyan" data-wq-group="blocked">';
   html += '<div class="cc-card__head"><span class="cc-card__title">BLOCKED</span><span class="cc-tag cc-tag--muted">' + blocked.length + '</span></div>';
   blocked.slice(0, 5).forEach(t => {
-    html += '<div class="cc-li"><div class="cc-li__icon cc-li__icon--sm cc-li__icon--muted">B</div>';
+    const initial = (t.title || '').charAt(0).toUpperCase();
+    html += '<div class="cc-li"><div class="cc-li__icon cc-li__icon--sm cc-li__icon--muted">' + initial + '</div>';
     html += '<div class="cc-li__body"><div class="cc-li__title">' + esc(t.title) + '</div>';
-    html += '<div class="cc-li__meta">' + esc(t.status || '') + '</div></div></div>';
+    html += '<div class="cc-li__meta">' + esc(t.blocked_reason || t.status || 'Blocked') + '</div></div>';
+    html += '<button class="cc-dismiss-btn" onclick="event.stopPropagation()">Nudge</button></div>';
   });
-  if (blocked.length === 0) html += '<div style="padding:8px 0;font-size:0.78rem;color:var(--text-muted)">None</div>';
+  if (blocked.length === 0) html += '<div style="padding:8px 0;font-size:0.78rem;color:var(--cc-t2)">None</div>';
   html += '</div>';
 
   html += '</div></div>';
@@ -19903,40 +20561,61 @@ function ccBriefBugs(bugs) {
   const critOpen = bugs.critical_open || [];
   const awaitReview = bugs.awaiting_review || [];
   const hotspots = bugs.hotspots || [];
+  const byPrio = bugs.by_priority || {};
+  const totalOpen = Object.values(byPrio).reduce((a, b) => a + b, 0) || (critOpen.length + awaitReview.length);
   let html = '<div class="cc-section">';
-  html += '<div class="cc-section__title">Bug Status <span class="cc-section__count" style="background:rgba(251,191,36,0.12);color:var(--warning)">' + (critOpen.length + awaitReview.length) + ' attention</span></div>';
+  html += '<div class="cc-section__title">Bug Status <span class="cc-section__count" style="background:rgba(251,191,36,0.12);color:var(--cc-amber)">' + totalOpen + ' open</span></div>';
   html += '<div class="cc-grid-3">';
 
-  // Critical open
-  html += '<div class="cc-card cc-card--red">';
-  html += '<div class="cc-card__head"><span class="cc-card__title">CRITICAL OPEN</span><span class="cc-tag cc-tag--red">' + critOpen.length + '</span></div>';
-  critOpen.forEach(b => {
-    html += '<div class="cc-li"><div class="cc-li__icon cc-li__icon--sm cc-li__icon--red">!!</div>';
-    html += '<div class="cc-li__body"><div class="cc-li__title">' + esc(b.title) + '</div></div>';
-    html += '<button class="cc-li__action" onclick="switchView(\'bugs\')">Open</button></div>';
+  // By Priority (expandable)
+  html += '<div class="cc-card cc-card--amber cc-card--expandable cc-card--expanded">';
+  html += '<div class="cc-card__head"><span class="cc-card__title">BY PRIORITY &#9662;</span></div>';
+  html += '<div class="cc-expand-content" style="max-height:600px;opacity:1">';
+  [
+    { label: 'Critical', count: byPrio.critical || critOpen.length, cls: 'cc-li__icon--red', items: critOpen },
+    { label: 'High', count: byPrio.high || 0, cls: 'cc-li__icon--amber', items: [] },
+    { label: 'Medium', count: byPrio.medium || 0, cls: 'cc-li__icon--blue', items: [] },
+    { label: 'Low', count: (byPrio.low || 0) + (byPrio.unset || 0), cls: 'cc-li__icon--muted', items: [] }
+  ].forEach(p => {
+    if (p.count > 0) {
+      html += '<div class="cc-li"><div class="cc-li__icon cc-li__icon--sm ' + p.cls + '">' + p.count + '</div>';
+      html += '<div class="cc-li__body"><div class="cc-li__title">' + esc(p.label) + '</div>';
+      if (p.items.length > 0) html += '<div class="cc-li__meta">' + esc(p.items.slice(0, 3).map(b => b.title).join(', ')) + '</div>';
+      html += '</div></div>';
+    }
   });
-  if (critOpen.length === 0) html += '<div style="padding:8px 0;font-size:0.78rem;color:var(--text-muted)">None</div>';
-  html += '</div>';
+  html += '</div></div>';
 
-  // Awaiting review
+  // Awaiting Review (with Close done-btn)
   html += '<div class="cc-card cc-card--green">';
   html += '<div class="cc-card__head"><span class="cc-card__title">AWAITING REVIEW</span><span class="cc-tag cc-tag--amber">' + awaitReview.length + '</span></div>';
   awaitReview.forEach(b => {
+    const age = b.updated_at ? Math.floor((Date.now() - new Date(b.updated_at).getTime()) / 86400000) : (b.created_at ? Math.floor((Date.now() - new Date(b.created_at).getTime()) / 86400000) : 0);
     html += '<div class="cc-li"><div class="cc-li__icon cc-li__icon--sm cc-li__icon--green">&#10003;</div>';
-    html += '<div class="cc-li__body"><div class="cc-li__title">' + esc(b.title) + '</div></div></div>';
+    html += '<div class="cc-li__body"><div class="cc-li__title">' + esc(b.title) + '</div>';
+    html += '<div class="cc-li__meta">' + (age > 0 ? 'Fixed &middot; ' + age + ' days in review' : 'Just fixed') + '</div></div>';
+    html += '<button class="cc-done-btn" onclick="event.stopPropagation();switchView(\'bugs\')">Close</button></div>';
   });
-  if (awaitReview.length === 0) html += '<div style="padding:8px 0;font-size:0.78rem;color:var(--text-muted)">None</div>';
+  if (awaitReview.length === 0) html += '<div style="padding:8px 0;font-size:0.78rem;color:var(--cc-t2)">None</div>';
   html += '</div>';
 
-  // Hotspots
+  // Hotspot (with tag badges)
   html += '<div class="cc-card cc-card--amber">';
-  html += '<div class="cc-card__head"><span class="cc-card__title">HOTSPOTS</span></div>';
-  hotspots.forEach(h => {
-    html += '<div class="cc-li"><div class="cc-li__icon cc-li__icon--sm cc-li__icon--amber">' + h.count + '</div>';
-    html += '<div class="cc-li__body"><div class="cc-li__title">' + esc(h.page) + '</div>';
-    html += '<div class="cc-li__meta">' + h.count + ' open bugs on this page</div></div></div>';
-  });
-  if (hotspots.length === 0) html += '<div style="padding:8px 0;font-size:0.78rem;color:var(--text-muted)">No hotspot patterns detected</div>';
+  if (hotspots.length > 0) {
+    const top = hotspots[0];
+    html += '<div class="cc-card__head"><span class="cc-card__title">HOTSPOT</span><span class="cc-tag cc-tag--red">' + esc(top.page || '') + '</span></div>';
+    html += '<div style="font-size:0.95rem;font-weight:700;color:var(--cc-red);margin-bottom:8px">' + top.count + ' of ' + totalOpen + ' bugs are ' + esc(top.page || '') + '-related</div>';
+    html += '<div class="cc-note-text">Recurring bug cluster. A focused stabilisation sprint would clear the highest-impact area.</div>';
+    html += '<div style="margin-top:12px;display:flex;gap:4px;flex-wrap:wrap">';
+    hotspots.forEach(h => {
+      html += '<span class="cc-btag" style="background:rgba(248,113,113,0.12);color:var(--cc-red)">' + esc(h.page) + '</span>';
+    });
+    html += '</div>';
+    html += '<div style="margin-top:12px"><button class="cc-li__action" style="opacity:1" onclick="event.stopPropagation();switchView(\'bugs\')">View All Bugs</button></div>';
+  } else {
+    html += '<div class="cc-card__head"><span class="cc-card__title">HOTSPOT</span></div>';
+    html += '<div style="padding:8px 0;font-size:0.78rem;color:var(--cc-t2)">No hotspot patterns detected</div>';
+  }
   html += '</div>';
 
   html += '</div></div>';
@@ -19946,8 +20625,9 @@ function ccBriefBugs(bugs) {
 function ccBriefClaude(claude) {
   const lastSession = claude.last_session || {};
   const decisions = claude.recent_decisions || [];
+  const outstanding = claude.outstanding_work || '';
   let html = '<div class="cc-section">';
-  html += '<div class="cc-section__title">Claude Session State <span class="cc-section__count" style="background:rgba(167,139,250,0.12);color:#a78bfa">In progress</span></div>';
+  html += '<div class="cc-section__title">Claude Session State <span class="cc-section__count" style="background:rgba(167,139,250,0.12);color:var(--cc-purple)">In progress</span></div>';
   html += '<div class="cc-grid-2">';
 
   // Last session
@@ -19957,23 +20637,37 @@ function ccBriefClaude(claude) {
   html += '</div>';
   if (lastSession.summary) {
     const lines = lastSession.summary.split('\n').filter(l => l.trim()).slice(0, 5);
-    html += '<div style="font-size:0.82rem;color:var(--text-main);line-height:1.6;margin-bottom:8px">' + lines.map(l => esc(l)).join('<br>') + '</div>';
+    const firstLine = lines[0] || '';
+    if (firstLine.startsWith('#')) {
+      html += '<div style="font-size:0.95rem;font-weight:700;margin-bottom:8px">' + esc(firstLine.replace(/^#+\s*/, '')) + '</div>';
+      html += '<div class="cc-note-text" style="margin-bottom:12px">' + lines.slice(1).map(l => esc(l)).join('<br>') + '</div>';
+    } else {
+      html += '<div class="cc-note-text" style="margin-bottom:12px">' + lines.map(l => esc(l)).join('<br>') + '</div>';
+    }
+  }
+  if (lastSession.progress !== undefined) {
+    html += '<div class="cc-small-text" style="font-weight:700;margin-bottom:6px;letter-spacing:.5px;text-transform:uppercase">DESIGN PROGRESS</div>';
+    html += '<div class="cc-prog"><div class="cc-prog__fill" style="width:' + (lastSession.progress || 0) + '%;background:linear-gradient(90deg,var(--cc-purple),var(--cc-cyan));box-shadow:0 0 10px rgba(167,139,250,0.35)"></div></div>';
+    if (lastSession.progress_label) html += '<div class="cc-small-text">' + esc(lastSession.progress_label) + '</div>';
+  }
+  if (claude.handoff_exists) {
+    html += '<div style="margin-top:12px"><button class="cc-li__action" style="opacity:1" onclick="switchView(\'docs\')">View Session Log</button></div>';
   }
   html += '</div>';
 
   // Outstanding work
+  const workItems = outstanding.split('\n').filter(l => l.trim().startsWith('- ')).slice(0, 6);
   html += '<div class="cc-card cc-card--purple">';
-  html += '<div class="cc-card__head"><span class="cc-card__title">OUTSTANDING WORK</span></div>';
-  if (claude.outstanding_work) {
-    const lines = claude.outstanding_work.split('\n').filter(l => l.trim().startsWith('- ')).slice(0, 6);
-    lines.forEach((l, i) => {
-      html += '<div class="cc-li"><div class="cc-li__icon cc-li__icon--sm cc-li__icon--purple">' + (i + 1) + '</div>';
-      html += '<div class="cc-li__body"><div class="cc-li__title">' + esc(l.replace(/^- /, '')) + '</div></div></div>';
-    });
-  }
+  html += '<div class="cc-card__head"><span class="cc-card__title">OUTSTANDING WORK</span>';
+  html += '<span class="cc-tag cc-tag--blue">' + workItems.length + ' items</span></div>';
+  workItems.forEach((l, i) => {
+    const isMuted = l.toLowerCase().includes('blocked') || l.toLowerCase().includes('waiting');
+    html += '<div class="cc-li"><div class="cc-li__icon cc-li__icon--sm ' + (isMuted ? 'cc-li__icon--muted' : 'cc-li__icon--purple') + '">' + (i + 1) + '</div>';
+    html += '<div class="cc-li__body"><div class="cc-li__title">' + esc(l.replace(/^- /, '')) + '</div></div></div>';
+  });
   if (decisions.length > 0) {
-    html += '<div style="margin-top:12px;font-size:0.62rem;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:var(--text-faint);margin-bottom:6px">Recent decisions</div>';
-    decisions.slice(0, 3).forEach(d => { html += '<div style="font-size:0.75rem;color:var(--text-muted);padding:2px 0">' + esc(d) + '</div>'; });
+    html += '<div style="margin-top:12px;font-size:0.62rem;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:var(--cc-t4);margin-bottom:6px">Recent decisions</div>';
+    decisions.slice(0, 3).forEach(dd => { html += '<div style="font-size:0.75rem;color:var(--cc-t3);padding:2px 0">' + esc(dd) + '</div>'; });
   }
   html += '</div>';
 
@@ -19985,15 +20679,19 @@ function ccBriefDeliveries(deliveries) {
   const clients = Object.entries(deliveries);
   if (clients.length === 0) return '';
   let html = '<div class="cc-section">';
-  html += '<div class="cc-section__title">Client Deliveries — Next 14 Days <span class="cc-section__count" style="background:rgba(52,211,153,0.12);color:var(--success)">' + clients.reduce((sum, [,tasks]) => sum + tasks.length, 0) + '</span></div>';
+  html += '<div class="cc-section__title">Client Deliveries — Next 14 Days <span class="cc-section__count" style="background:rgba(52,211,153,0.12);color:var(--cc-green)">' + clients.reduce((sum, [,tasks]) => sum + tasks.length, 0) + '</span></div>';
   html += '<div class="cc-grid-3">';
   clients.forEach(([clientName, tasks]) => {
+    const dueToday = tasks.some(t => t.due_date && t.due_date === new Date().toISOString().slice(0, 10));
+    const tagClass = dueToday ? 'cc-tag--amber' : 'cc-tag--green';
+    const tagText = dueToday ? 'Due today' : tasks.length + ' items';
     html += '<div class="cc-card cc-card--green">';
-    html += '<div class="cc-card__head"><span class="cc-card__title">' + esc(clientName) + '</span><span class="cc-tag cc-tag--green">' + tasks.length + '</span></div>';
+    html += '<div class="cc-card__head"><span class="cc-card__title">' + esc(clientName) + '</span><span class="cc-tag ' + tagClass + '">' + tagText + '</span></div>';
     tasks.slice(0, 4).forEach(t => {
-      html += '<div class="cc-li"><div class="cc-li__icon cc-li__icon--sm cc-li__icon--green">' + esc(clientName.charAt(0)) + '</div>';
+      html += '<div class="cc-li"><div class="cc-li__icon cc-li__icon--sm cc-li__icon--green">' + esc(clientName.charAt(0).toUpperCase()) + '</div>';
       html += '<div class="cc-li__body"><div class="cc-li__title">' + esc(t.title) + '</div>';
-      html += '<div class="cc-li__meta">Due ' + (t.due_date || '') + ' &middot; ' + esc(t.status || '') + '</div></div></div>';
+      html += '<div class="cc-li__meta">Due ' + (t.due_date || '') + ' &middot; ' + esc(t.status || '') + '</div></div>';
+      html += '<button class="cc-li__action" onclick="event.stopPropagation();switchView(\'projects\')">Open</button></div>';
     });
     html += '</div>';
   });
@@ -20008,7 +20706,7 @@ function ccBriefKnowledge(flags) {
   const total = staleBrain.length + staleMem.length + (dormant > 0 ? 1 : 0);
   if (total === 0) return '';
   let html = '<div class="cc-section">';
-  html += '<div class="cc-section__title">Knowledge Flags <span class="cc-section__count" style="background:rgba(244,114,182,0.12);color:#f472b6">' + total + '</span></div>';
+  html += '<div class="cc-section__title">Knowledge Flags <span class="cc-section__count" style="background:rgba(244,114,182,0.12);color:var(--cc-pink)">' + total + '</span></div>';
   html += '<div class="cc-grid-2">';
 
   // Stale brain modules
@@ -20018,7 +20716,9 @@ function ccBriefKnowledge(flags) {
     staleBrain.forEach(m => {
       const age = m.last_modified ? Math.floor((Date.now() - new Date(m.last_modified).getTime()) / 86400000) : '?';
       html += '<div class="cc-li"><div class="cc-li__icon cc-li__icon--sm cc-li__icon--amber">' + age + 'd</div>';
-      html += '<div class="cc-li__body"><div class="cc-li__title">' + esc(m.name) + '</div></div></div>';
+      html += '<div class="cc-li__body"><div class="cc-li__title">' + esc(m.name) + '</div>';
+      html += '<div class="cc-li__meta">' + (m.note || age + ' days since last update') + '</div></div>';
+      html += '<button class="cc-done-btn" onclick="event.stopPropagation()">Refresh</button></div>';
     });
     html += '</div>';
   }
@@ -20029,12 +20729,14 @@ function ccBriefKnowledge(flags) {
   if (staleMem.length > 0) {
     html += '<div class="cc-li"><div class="cc-li__icon cc-li__icon--sm cc-li__icon--amber">' + staleMem.length + '</div>';
     html += '<div class="cc-li__body"><div class="cc-li__title">Memory files with stale references</div>';
-    html += '<div class="cc-li__meta">Referencing files or functions that may have moved</div></div></div>';
+    html += '<div class="cc-li__meta">Referencing files or functions that may have moved</div></div>';
+    html += '<button class="cc-dismiss-btn" onclick="event.stopPropagation()">Review</button></div>';
   }
   if (dormant > 0) {
     html += '<div class="cc-li"><div class="cc-li__icon cc-li__icon--sm cc-li__icon--muted">' + dormant + '</div>';
     html += '<div class="cc-li__body"><div class="cc-li__title">Dormant agent roles</div>';
-    html += '<div class="cc-li__meta">Knowledge never referenced — consolidate or refresh</div></div></div>';
+    html += '<div class="cc-li__meta">Knowledge never referenced — consolidate or refresh</div></div>';
+    html += '<button class="cc-dismiss-btn" onclick="event.stopPropagation()">Review</button></div>';
   }
   html += '</div>';
 
@@ -22346,6 +23048,7 @@ function showSyncStatus(type, msg) {
 // ===== TAB OVERFLOW CHECK ON RESIZE =====
 window.addEventListener('resize', () => {
   checkTabOverflow();
+  fixScrollHeights();
   const pf = document.querySelector('.pf');
   if (pf && currentView === 'dashboard') {
     if (window.matchMedia('(max-height: 850px)').matches) {
@@ -22988,7 +23691,7 @@ function restartPollingIntervals() {
       if (data.serverTime) _lastPollTime = data.serverTime;
     } catch(e) {} finally { _syncPollInFlight = false; }
   }, SYNC_POLL_MS);
-  _leadsReminderInterval = setInterval(() => { if (_currentUser && !_pollingPaused) checkLeadReminders(); }, 60000);
+  _leadsReminderInterval = setInterval(() => { if (_currentUser && !_pollingPaused && !isClientUser()) checkLeadReminders(); }, 60000);
   _notifPollInterval = setInterval(() => { if (_currentUser && !_pollingPaused) loadNotifications(); }, 30000);
 }
 // Close panel when clicking outside (legacy — notification bell removed, kept as no-op guard)
