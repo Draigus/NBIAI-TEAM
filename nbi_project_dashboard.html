@@ -19969,7 +19969,7 @@ function ccRenderRail(d, b) {
     html += '<div class="cc-rail__empty">No critical alerts</div>';
   } else {
     alerts.slice(0, 5).forEach(a => {
-      html += '<div class="cc-rail__alert cc-rail__alert--' + a.severity + '">';
+      html += '<div class="cc-rail__alert cc-rail__alert--' + a.severity + '"' + (a.action ? ' onclick="' + a.action + '" style="cursor:pointer"' : '') + '>';
       html += '<div class="cc-rail__alert-text">' + esc(a.text) + '</div>';
       if (a.action) {
         html += '<button class="cc-rail__alert-btn" onclick="' + a.action + '">' + esc(a.actionLabel) + '</button>';
@@ -20507,7 +20507,8 @@ function ccBriefCritical(items) {
   html += '<div class="cc-section__title">Critical — Needs Attention Now <span class="cc-section__count" style="background:rgba(248,113,113,0.12);color:var(--cc-red)">' + items.length + '</span></div>';
   html += '<div class="cc-grid-2">';
   items.forEach(item => {
-    html += '<div class="cc-card cc-card--red cc-card--crit">';
+    const cardClick = item.type === 'bug' ? ' onclick="switchView(\'bugs\')" style="cursor:pointer"' : '';
+    html += '<div class="cc-card cc-card--red cc-card--crit"' + cardClick + '>';
     html += '<div class="cc-li" style="padding:4px 0;border:none;margin:0">';
     const icon = item.type === 'bug' ? '!!' : item.type === 'calendar' ? (item.title || '').charAt(0).toUpperCase() : '!';
     const pulseStyle = item.type === 'bug' ? ' style="animation:ccIconPulse 2s ease-in-out infinite"' : '';
@@ -24777,7 +24778,10 @@ async function renderWarnAlertContent() {
         const readStyle = n.is_read && !isPersistent ? 'opacity:0.5' : '';
         const persistBadge = isPersistent && !n.is_read ? '<span style="display:inline-block;font-size:0.7rem;padding:1px 5px;border-radius:3px;background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger-border);margin-left:6px">Action required</span>' : '';
         const bgStyle = isPersistent && !n.is_read ? 'background:color-mix(in srgb, var(--danger) 6%, var(--bg-surface));border-left:3px solid var(--danger);' : '';
-        return `<div style="padding:8px 12px;border-bottom:1px solid var(--border-subtle);font-size:0.78rem;${readStyle};${bgStyle};cursor:pointer" data-action="handleNotificationClick" data-arg0="${esc(n.link || '')}" data-arg1="${esc(n.id || '')}">
+        // Derive effective link: use stored link, or fall back to bugs view for bug-related notifications
+        const isBugNotif = /\breport\b|bug|priority updated/i.test(n.title || '');
+        const effectiveLink = n.link || (isBugNotif ? '#bugs' : '');
+        return `<div style="padding:8px 12px;border-bottom:1px solid var(--border-subtle);font-size:0.78rem;${readStyle};${bgStyle};cursor:pointer" data-action="handleNotificationClick" data-arg0="${esc(effectiveLink)}" data-arg1="${esc(n.id || '')}">
           <div style="font-weight:${n.is_read && !isPersistent ? '400' : '600'};color:var(--text-primary)">${esc(n.title)}${persistBadge}</div>
           <div style="color:var(--text-muted);font-size:0.7rem;margin-top:2px">${esc(n.message)} &middot; ${ago}</div>
         </div>`;
