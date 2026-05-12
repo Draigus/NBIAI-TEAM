@@ -2622,7 +2622,7 @@ span.fin-editable { display: inline-block; position: relative; }
 }
 
 /* ===== Command Centre ===== */
-.cc-page { padding: 8px 0; }
+.cc-page { padding: 8px 0; max-height: calc(100vh - var(--header-h) - 24px); overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
 .cc-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 24px; }
 .cc-header__tag { font-size: 0.65rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--text-faint); margin-bottom: 6px; }
 .cc-header__greeting { font-size: 1.7rem; font-weight: 800; letter-spacing: -0.5px; }
@@ -19563,21 +19563,26 @@ function ccRenderDashboard() {
 
 function ccCardSituation(d) {
   const bugs = d.bugs || {};
-  const critCount = (bugs.by_priority || {}).critical || 0;
+  const bp = bugs.by_priority || {};
+  const critCount = (bp.critical || 0) + (bp.urgent || 0);
+  const openBugs = bugs.open_bugs || [];
   let html = '<div class="cc-card cc-card--blue">';
   html += '<div class="cc-card__head"><span class="cc-card__title">TODAY\'S FOCUS</span>';
   if (critCount > 0) html += '<span class="cc-tag cc-tag--red">' + critCount + ' critical</span>';
+  else { const total = (bugs.by_status || {}).open || 0; if (total > 0) html += '<span class="cc-tag cc-tag--amber">' + total + ' open</span>'; }
   html += '</div>';
-  const recent = (bugs.recent_activity || []).slice(0, 4);
-  if (recent.length === 0) {
-    html += '<div style="padding:12px 0;font-size:0.78rem;color:var(--text-muted)">No recent activity</div>';
+  const items = openBugs.length > 0 ? openBugs.slice(0, 5) : (bugs.recent_activity || []).slice(0, 4);
+  if (items.length === 0) {
+    html += '<div style="padding:12px 0;font-size:0.78rem;color:var(--text-muted)">No open bugs or recent activity</div>';
   }
-  recent.forEach(item => {
-    const iconClass = item.priority === 'critical' ? 'cc-li__icon--red' : item.priority === 'high' ? 'cc-li__icon--amber' : 'cc-li__icon--blue';
+  items.forEach(item => {
+    const p = item.priority || 'unset';
+    const iconClass = (p === 'critical' || p === 'urgent') ? 'cc-li__icon--red' : p === 'high' ? 'cc-li__icon--amber' : 'cc-li__icon--blue';
+    const icon = (p === 'critical' || p === 'urgent') ? '!!' : p === 'high' ? '!' : '#' + item.id;
     html += '<div class="cc-li">';
-    html += '<div class="cc-li__icon cc-li__icon--sm ' + iconClass + '">' + (item.priority === 'critical' ? '!!' : item.priority === 'high' ? '!' : '#' + item.id) + '</div>';
+    html += '<div class="cc-li__icon cc-li__icon--sm ' + iconClass + '">' + icon + '</div>';
     html += '<div class="cc-li__body"><div class="cc-li__title">' + esc(item.title || '') + '</div>';
-    html += '<div class="cc-li__meta">' + esc(item.status || '') + ' &middot; ' + esc(item.priority || '') + '</div></div></div>';
+    html += '<div class="cc-li__meta">' + esc(item.status || '') + (p !== 'unset' ? ' &middot; ' + esc(p) : '') + '</div></div></div>';
   });
   html += '</div>';
   return html;
@@ -19658,16 +19663,23 @@ function ccCardBugs(d) {
   const byStatus = bugs.by_status || {};
   const byPrio = bugs.by_priority || {};
   const total = (byStatus.open || 0) + (byStatus.in_progress || 0) + (byStatus.please_review || 0);
+  const crit = byPrio.critical || 0;
+  const urgent = byPrio.urgent || 0;
+  const high = byPrio.high || 0;
+  const med = byPrio.medium || 0;
+  const low = byPrio.low || 0;
+  const unset = byPrio.unset || 0;
   let html = '<div class="cc-card cc-card--amber">';
   html += '<div class="cc-card__head"><span class="cc-card__title">BUG INTELLIGENCE</span><span class="cc-tag cc-tag--amber">' + total + ' open</span></div>';
-  const maxBar = Math.max(byPrio.critical || 0, byPrio.high || 0, byPrio.medium || 0, byPrio.low || 0, 1);
   html += '<div class="cc-bbar">';
-  if (byPrio.critical) html += '<div class="cc-bbar__seg" style="flex:' + byPrio.critical + ';background:var(--danger)"></div>';
-  if (byPrio.high) html += '<div class="cc-bbar__seg" style="flex:' + byPrio.high + ';background:var(--warning)"></div>';
-  if (byPrio.medium) html += '<div class="cc-bbar__seg" style="flex:' + byPrio.medium + ';background:var(--primary)"></div>';
-  if (byPrio.low) html += '<div class="cc-bbar__seg" style="flex:' + byPrio.low + ';background:var(--border)"></div>';
+  if (crit) html += '<div class="cc-bbar__seg" style="flex:' + crit + ';background:var(--danger)"></div>';
+  if (urgent) html += '<div class="cc-bbar__seg" style="flex:' + urgent + ';background:#f97316"></div>';
+  if (high) html += '<div class="cc-bbar__seg" style="flex:' + high + ';background:var(--warning)"></div>';
+  if (med) html += '<div class="cc-bbar__seg" style="flex:' + med + ';background:var(--primary)"></div>';
+  if (low) html += '<div class="cc-bbar__seg" style="flex:' + low + ';background:var(--border)"></div>';
+  if (unset) html += '<div class="cc-bbar__seg" style="flex:' + unset + ';background:var(--text-faint);opacity:0.3"></div>';
   html += '</div>';
-  html += '<div style="font-size:0.75rem;font-weight:700;color:var(--text-main);margin-bottom:4px">' + (byPrio.critical || 0) + ' critical, ' + (byPrio.high || 0) + ' high</div>';
+  html += '<div style="font-size:0.75rem;font-weight:700;color:var(--text-main);margin-bottom:4px">' + crit + ' critical, ' + urgent + ' urgent, ' + unset + ' unset</div>';
   if (byStatus.please_review) {
     html += '<div style="font-size:0.65rem;color:var(--warning);margin-top:8px">' + byStatus.please_review + ' bugs in please_review — team should close these</div>';
   }

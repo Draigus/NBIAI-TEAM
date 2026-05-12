@@ -272,9 +272,9 @@ module.exports = function (ctx) {
       statusQ.rows.forEach(r => { byStatus[r.status] = r.count; });
 
       const prioQ = await pool.query(`
-        SELECT priority, count(*)::int as count FROM bug_reports WHERE status NOT IN ('resolved', 'closed', 'wont_fix') GROUP BY priority
+        SELECT COALESCE(priority, 'unset') as priority, count(*)::int as count FROM bug_reports WHERE status NOT IN ('resolved', 'closed', 'wont_fix') GROUP BY priority
       `);
-      const byPriority = { critical: 0, high: 0, medium: 0, low: 0 };
+      const byPriority = { critical: 0, urgent: 0, high: 0, medium: 0, low: 0, unset: 0 };
       prioQ.rows.forEach(r => { byPriority[r.priority] = r.count; });
 
       const recentQ = await pool.query(`
@@ -283,7 +283,14 @@ module.exports = function (ctx) {
         ORDER BY c.created_at DESC LIMIT 10
       `);
 
-      return { by_status: byStatus, by_priority: byPriority, recent_activity: recentQ.rows };
+      const openBugsQ = await pool.query(`
+        SELECT id, title, status, priority, created_at FROM bug_reports
+        WHERE status IN ('open', 'in_progress') ORDER BY
+          CASE priority WHEN 'critical' THEN 0 WHEN 'urgent' THEN 1 WHEN 'high' THEN 2 WHEN 'medium' THEN 3 WHEN 'low' THEN 4 ELSE 5 END,
+          created_at DESC LIMIT 10
+      `);
+
+      return { by_status: byStatus, by_priority: byPriority, recent_activity: recentQ.rows, open_bugs: openBugsQ.rows };
     } catch (e) {
       return { by_status: {}, by_priority: {}, recent_activity: [], error: e.message };
     }
