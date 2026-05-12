@@ -390,7 +390,7 @@ module.exports = function (ctx) {
       });
       if (!tokenResult || !tokenResult.accessToken) return { events: [], error: 'Token acquisition failed' };
 
-      const userEmail = process.env.EMAIL_FROM || '';
+      const userEmail = process.env.CC_CALENDAR_USER || 'gpryer@nbi-consulting.com';
       const url = `https://graph.microsoft.com/v1.0/users/${encodeURIComponent(userEmail)}/calendarView?startDateTime=${startDate.toISOString()}&endDateTime=${endDate.toISOString()}&$orderby=start/dateTime&$top=50&$select=subject,start,end,location,attendees,onlineMeeting,webLink`;
 
       const resp = await fetch(url, {
