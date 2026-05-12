@@ -2657,7 +2657,7 @@ span.fin-editable { display: inline-block; position: relative; }
 @media (max-width: 900px) { .cc-grid { grid-template-columns: 1fr; } .cc-hero { grid-template-columns: repeat(2, 1fr); } }
 
 /* Cards */
-.cc-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; position: relative; overflow: hidden; transition: all 0.3s cubic-bezier(0.4,0,0.2,1); }
+.cc-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; position: relative; overflow: hidden; overflow-y: auto; max-height: 320px; transition: all 0.3s cubic-bezier(0.4,0,0.2,1); }
 .cc-card:hover { border-color: var(--text-faint); box-shadow: 0 4px 24px rgba(0,0,0,0.12); }
 /* Gradient accent bar (3px thick with glow) */
 .cc-card::before { content: ''; position: absolute; top: 0; left: 8%; right: 8%; height: 3px; border-radius: 0 0 3px 3px; }
@@ -3334,6 +3334,8 @@ function _actOpenCalEventForPerson(dateStr, userId, displayName) { openCalendarE
 let _currentUser = null;
 function isClientUser() { return !!(_currentUser && _currentUser.clientId); }
 function isClientAdmin() { return _currentUser?.clientRole === 'admin'; }
+const _clientAllowedViews = new Set(['dashboard', 'tasks', 'people', 'news', 'settings', 'mytasks']);
+function isClientAllowedView(view) { return !isClientUser() || _clientAllowedViews.has(view); }
 let _cachedUsers = [];       // Cached full user records (id, username, display_name, role, is_active) for ID lookups
 const _expandedStandupPeople = new Set(); // Track which person sections are expanded in standup
 const _standupDoneExpanded = new Set(); // Per-person: track which standup Done sections are expanded (default collapsed)
@@ -3636,6 +3638,7 @@ async function handleLogin(e) {
     if (isClientUser()) {
       const myClient = Object.values(_apiClientsCache).find(c => c.id === _currentUser.clientId);
       if (myClient) currentFilter.client = myClient.name;
+      if (!isClientAllowedView(currentView)) currentView = 'dashboard';
     }
     renderAll();
     restartPollingIntervals();
@@ -4670,9 +4673,13 @@ function renderSidebar() {
   }
   // html += sidebarItem(svgReport, 'Report', '', () => switchView('report'), currentView==='report'); // COMMENTED OUT — old report view, kept for revert
   html += sidebarItem(svgTasks, 'Projects', scopedForHealth.length, () => { currentFilter.priority = []; switchView('tasks'); }, currentView==='tasks');
-  html += sidebarItem(svgReport, 'Reporting', '', () => switchView('reporting'), currentView==='reporting');
+  if (!isScoped) {
+    html += sidebarItem(svgReport, 'Reporting', '', () => switchView('reporting'), currentView==='reporting');
+  }
   const svgDocs = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 1h6l4 4v10H4z"/><path d="M10 1v4h4"/><path d="M6 8h6M6 11h4"/></svg>';
-  html += sidebarItem(svgDocs, 'Documentation', '', () => switchView('documentation'), currentView==='documentation');
+  if (!isScoped) {
+    html += sidebarItem(svgDocs, 'Documentation', '', () => switchView('documentation'), currentView==='documentation');
+  }
   html += sidebarItem(svgPeople, 'People', '', () => switchView('people'), currentView==='people');
   const svgLeads = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 2h12v3H2zM4 5h8v3H4zM6 8h4v3H6zM7 11h2v3H7z"/></svg>';
   if (!isScoped && hasPageAccess('leads')) {
@@ -4691,7 +4698,7 @@ function renderSidebar() {
     html += sidebarItem(svgExpenses, 'Expenses', '', () => switchView('expenses'), currentView==='expenses');
   }
   const svgBugs = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="9" r="4"/><path d="M6 5.5C6 4.1 6.9 3 8 3s2 1.1 2 2.5M1 7h3M12 7h3M2 12l2.5-1.5M14 12l-2.5-1.5M4 5L2 3.5M12 5l2-1.5"/></svg>';
-  {
+  if (!isScoped) {
     const bugOpenCount = ((_bugReportsData && _bugReportsData.reports) || []).filter(r => r.status === 'open' || r.status === 'in_progress').length;
     html += sidebarItem(svgBugs, 'Bug Tracker', bugOpenCount || '', () => switchView('bugs'), currentView==='bugs');
   }
@@ -5248,6 +5255,7 @@ function renderTabs() {
   const labels = { dashboard: 'Portfolio', tasks: 'Projects', workload: 'Workload', report: 'Report', people: 'People', leads: 'Leads', expenses: 'Expenses', finances: 'Finances', news: 'News', settings: 'Settings' };
   // Filter tabs based on permissions
   const visibleTabs = tabs.filter(t => {
+    if (!isClientAllowedView(t)) return false;
     if (t === 'finances' || t === 'leads' || t === 'expenses') return hasPageAccess(t);
     return true;
   });
@@ -5268,6 +5276,7 @@ const LEGACY_ROUTES = { incomplete: 'tasks', changelog: 'settings', report: 'das
 /** Switch to a different view and push a history state for browser back/forward */
 function switchView(view) {
   if (LEGACY_ROUTES[view]) view = LEGACY_ROUTES[view];
+  if (!isClientAllowedView(view)) view = 'dashboard';
   const prev = currentView;
   currentView = view;
   // Always collapse the tree when entering the Projects page
@@ -5278,6 +5287,7 @@ function switchView(view) {
 window.addEventListener('popstate', e => {
   if (e.state && e.state.view) {
     currentView = LEGACY_ROUTES[e.state.view] || e.state.view;
+    if (!isClientAllowedView(currentView)) currentView = 'dashboard';
     if (e.state.filter) {
       currentFilter = e.state.filter;
       // Migrate old single-value filters from browser history to arrays
@@ -5374,6 +5384,7 @@ function renderBreadcrumbs() {
 }
 
 function _renderMainContent(content) {
+  if (!isClientAllowedView(currentView)) { currentView = 'dashboard'; }
   if (currentView === 'incomplete') { currentView = 'tasks'; currentFilter.incomplete = true; }
   if (currentView === 'changelog') { currentView = 'settings'; }
   if (tasks.length === 0 && currentView !== 'settings' && currentView !== 'documentation' && currentView !== 'leads' && currentView !== 'bugs' && currentView !== 'hiring' && currentView !== 'news' && currentView !== 'queue' && currentView !== 'commandcentre') {
@@ -19719,24 +19730,27 @@ function ccCardAgentTeam(d) {
 
 function ccCardSessions(d) {
   const sess = d.sessions || {};
-  const stats = sess.stats || {};
   const live = sess.live_state || {};
   const recent = sess.recent || [];
+  const lastSession = recent[0] || {};
   let html = '<div class="cc-card cc-card--cyan">';
-  html += '<div class="cc-card__head"><span class="cc-card__title">SESSIONS</span><span class="cc-tag cc-tag--green">Active</span></div>';
-  html += '<div style="display:flex;gap:24px;margin-bottom:10px">';
-  html += '<div><div style="font-family:monospace;font-size:1.3rem;font-weight:800">' + (stats.total_this_week || 0) + '</div><div style="font-size:0.58rem;color:var(--text-faint);font-weight:600;text-transform:uppercase;letter-spacing:0.5px">This week</div></div>';
-  html += '<div><div style="font-family:monospace;font-size:1.3rem;font-weight:800">' + (stats.avg_per_day || 0) + '</div><div style="font-size:0.58rem;color:var(--text-faint);font-weight:600;text-transform:uppercase;letter-spacing:0.5px">Avg / day</div></div>';
-  html += '<div><div style="font-family:monospace;font-size:1.3rem;font-weight:800">' + (live.pending_tasks_count || 0) + '</div><div style="font-size:0.58rem;color:var(--text-faint);font-weight:600;text-transform:uppercase;letter-spacing:0.5px">Pending</div></div>';
-  html += '</div>';
-  // Sparkline from recent sessions
-  html += '<div class="cc-spark">';
-  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-  recent.slice(0, 7).reverse().forEach((s, i) => {
-    const h = Math.max(10, Math.min(100, (s.size / 5000) * 100));
-    html += '<div class="cc-spark__bar" style="height:' + h + '%;background:linear-gradient(180deg,var(--primary),rgba(59,130,246,0.3));opacity:' + (0.4 + i * 0.08) + '" title="' + esc(s.date) + '"></div>';
-  });
-  html += '</div>';
+  html += '<div class="cc-card__head"><span class="cc-card__title">CLAUDE STATE</span>';
+  html += '<span class="cc-tag cc-tag--blue">' + (live.pending_tasks_count || 0) + ' pending</span></div>';
+  if (lastSession.date) {
+    html += '<div style="font-size:0.62rem;font-weight:700;text-transform:uppercase;color:var(--text-faint);margin-bottom:6px">Last session: ' + esc(lastSession.date) + '</div>';
+  }
+  if (live.pending_tasks_count > 0) {
+    html += '<div style="font-size:0.78rem;color:var(--warning);margin-bottom:8px">' + live.pending_tasks_count + ' tasks outstanding from previous sessions</div>';
+  }
+  if (live.decisions_count > 0) {
+    html += '<div style="font-size:0.75rem;color:var(--text-muted)">' + live.decisions_count + ' decisions recorded</div>';
+  }
+  if (recent.length > 0) {
+    html += '<div style="font-size:0.62rem;font-weight:700;text-transform:uppercase;color:var(--text-faint);margin-top:10px;margin-bottom:6px">Recent sessions</div>';
+    recent.slice(0, 5).forEach(s => {
+      html += '<div style="font-size:0.75rem;color:var(--text-muted);padding:2px 0">' + esc(s.date) + '</div>';
+    });
+  }
   html += '</div>';
   return html;
 }

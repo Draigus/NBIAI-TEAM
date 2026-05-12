@@ -507,7 +507,7 @@ module.exports = function (ctx) {
       const dueTodayQ = await pool.query(`SELECT id, title, status, priority, due_date, client_id FROM tasks WHERE due_date IS NOT NULL AND due_date != '' AND due_date::date = $1::date AND status NOT IN ('Done','Cancelled') AND item_type IN ('story','task')`, [todayStr]);
       const endOfWeek = new Date(today); endOfWeek.setDate(endOfWeek.getDate() + (5 - endOfWeek.getDay()));
       const dueWeekQ = await pool.query(`SELECT id, title, status, priority, due_date, client_id FROM tasks WHERE due_date IS NOT NULL AND due_date != '' AND due_date::date > $1::date AND due_date::date <= $2::date AND status NOT IN ('Done','Cancelled') AND item_type IN ('story','task') ORDER BY due_date`, [todayStr, endOfWeek.toISOString().slice(0, 10)]);
-      const blockedQ = await pool.query(`SELECT id, title, status, priority, due_date, client_id FROM tasks WHERE health_state = 'Blocked' AND status NOT IN ('Done','Cancelled') ORDER BY priority`);
+      const blockedQ = await pool.query(`SELECT id, title, status, priority, due_date, client_id FROM tasks WHERE status = 'Blocked' AND status NOT IN ('Done','Cancelled') ORDER BY priority`);
 
       // Bugs
       const critBugsQ = await pool.query(`SELECT id, title, priority, created_at FROM bug_reports WHERE status = 'open' AND priority = 'critical' ORDER BY created_at`);
