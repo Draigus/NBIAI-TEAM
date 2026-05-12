@@ -39,7 +39,7 @@ module.exports = defineConfig({
     command: 'node ' + JSON.stringify(path.join(__dirname, '..', '..', 'server.js')),
     url: BASE_URL + '/api/health',
     timeout: 30000,
-    reuseExistingServer: false,
+    reuseExistingServer: !process.env.CI,
     env: {
       ...process.env,
       PORT: String(TEST_PORT),
@@ -47,8 +47,8 @@ module.exports = defineConfig({
       NODE_ENV: 'test',
     },
     cwd: path.join(__dirname, '..', '..'),
-    stdout: 'pipe',
-    stderr: 'pipe',
+    stdout: 'ignore',
+    stderr: 'ignore',
   },
   projects: [
     { name: 'chromium', use: { browserName: 'chromium' } },
