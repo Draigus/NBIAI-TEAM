@@ -584,6 +584,9 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .reporting__hdr-pickers { display: flex; align-items: center; gap: 8px; }
 .reporting__lbl { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; color: var(--text-muted); margin-left: 12px; }
 .reporting__select { padding: 4px 8px; background: var(--bg-input); border: 1px solid var(--border-default); border-radius: var(--radius-md); color: var(--text-primary); font-size: 0.78rem; min-width: 180px; }
+.reporting__legend { display: flex; align-items: center; gap: 16px; padding: 6px 0 8px; }
+.reporting__legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.72rem; color: var(--text-muted); letter-spacing: 0.03em; }
+.reporting__legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 .reporting__roadmap { background: var(--bg-card); border: 1px solid var(--border-default); border-radius: var(--radius-lg); overflow: hidden; }
 .reporting__row { display: flex; align-items: stretch; min-height: 36px; border-bottom: 1px solid var(--border-subtle); transition: background 0.12s; }
 .reporting__row:hover { background: rgba(255,255,255,0.025); }
@@ -7013,24 +7016,31 @@ function blockerDetailBoxHtml(task, id) {
   const eid = escAttrJs(id);
   // Helper: ensures blockerInfo object exists before setting a sub-field
   const ensureBi = `if(!tasks.find(t=>t.id==='${eid}').blockerInfo)tasks.find(t=>t.id==='${eid}').blockerInfo={};`;
+  const stampUpdated = `tasks.find(t=>t.id==='${eid}').blockerInfo.lastUpdated=new Date().toISOString().slice(0,10);`;
   const dirty = `tasks.find(t=>t.id==='${eid}').updatedAt=new Date().toISOString();markDirty('${eid}');save()`;
 
   let h = `<div style="border:1px solid var(--danger);border-radius:var(--radius-md);padding:var(--space-sm) var(--space-md);margin-top:-4px;margin-bottom:var(--space-md);background:color-mix(in srgb, var(--danger) 6%, transparent)">`;
 
   // Blocked on (description textarea)
-  h += `<div class="detail-field" style="margin-bottom:var(--space-sm)"><label class="detail-field__label" style="color:var(--danger)">Blocked on</label><textarea style="flex:1;border:1px solid var(--danger);border-radius:var(--radius-sm);padding:6px 8px;font-size:0.78rem;color:var(--danger);line-height:1.4;resize:vertical;min-height:28px;max-height:300px;background:var(--bg-input);font-family:var(--font-body)" placeholder="What is this blocked on?" onchange="${ensureBi}tasks.find(t=>t.id==='${eid}').blockerInfo.blockedOn=this.value;${dirty}">${esc(bi.blockedOn || '')}</textarea></div>`;
+  h += `<div class="detail-field" style="margin-bottom:var(--space-sm)"><label class="detail-field__label" style="color:var(--danger)">Blocked on</label><textarea style="flex:1;border:1px solid var(--danger);border-radius:var(--radius-sm);padding:6px 8px;font-size:0.78rem;color:var(--danger);line-height:1.4;resize:vertical;min-height:28px;max-height:300px;background:var(--bg-input);font-family:var(--font-body)" placeholder="What is this blocked on?" onchange="${ensureBi}tasks.find(t=>t.id==='${eid}').blockerInfo.blockedOn=this.value;${stampUpdated}${dirty}">${esc(bi.blockedOn || '')}</textarea></div>`;
 
   // Internal blockers
-  h += `<div class="detail-field" style="margin-bottom:var(--space-sm)"><label class="detail-field__label">Internal</label><input style="flex:1" value="${esc((bi.internal || []).join(', '))}" placeholder="Internal people (comma-separated)" onchange="${ensureBi}tasks.find(t=>t.id==='${eid}').blockerInfo.internal=this.value.split(',').map(s=>s.trim()).filter(Boolean);${dirty}"></div>`;
+  h += `<div class="detail-field" style="margin-bottom:var(--space-sm)"><label class="detail-field__label">Internal</label><input style="flex:1" value="${esc((bi.internal || []).join(', '))}" placeholder="Internal people (comma-separated)" onchange="${ensureBi}tasks.find(t=>t.id==='${eid}').blockerInfo.internal=this.value.split(',').map(s=>s.trim()).filter(Boolean);${stampUpdated}${dirty}"></div>`;
 
   // External blockers
-  h += `<div class="detail-field" style="margin-bottom:var(--space-sm)"><label class="detail-field__label">External</label><input style="flex:1" value="${esc((bi.external || []).join(', '))}" placeholder="External parties (comma-separated)" onchange="${ensureBi}tasks.find(t=>t.id==='${eid}').blockerInfo.external=this.value.split(',').map(s=>s.trim()).filter(Boolean);${dirty}"></div>`;
+  h += `<div class="detail-field" style="margin-bottom:var(--space-sm)"><label class="detail-field__label">External</label><input style="flex:1" value="${esc((bi.external || []).join(', '))}" placeholder="External parties (comma-separated)" onchange="${ensureBi}tasks.find(t=>t.id==='${eid}').blockerInfo.external=this.value.split(',').map(s=>s.trim()).filter(Boolean);${stampUpdated}${dirty}"></div>`;
 
   // To unblock
-  h += `<div class="detail-field" style="margin-bottom:var(--space-sm)"><label class="detail-field__label">To unblock</label><input style="flex:1" value="${esc(bi.toUnblock || '')}" placeholder="What needs to happen to unblock?" onchange="${ensureBi}tasks.find(t=>t.id==='${eid}').blockerInfo.toUnblock=this.value;${dirty}"></div>`;
+  h += `<div class="detail-field" style="margin-bottom:var(--space-sm)"><label class="detail-field__label">To unblock</label><input style="flex:1" value="${esc(bi.toUnblock || '')}" placeholder="What needs to happen to unblock?" onchange="${ensureBi}tasks.find(t=>t.id==='${eid}').blockerInfo.toUnblock=this.value;${stampUpdated}${dirty}"></div>`;
 
   // Date blocked
-  h += `<div class="detail-field" style="margin-bottom:var(--space-sm)"><label class="detail-field__label">Date blocked</label><input type="date" style="flex:1" value="${esc(bi.dateBlocked || '')}" onchange="${ensureBi}tasks.find(t=>t.id==='${eid}').blockerInfo.dateBlocked=this.value;${dirty}"></div>`;
+  h += `<div class="detail-field" style="margin-bottom:var(--space-sm)"><label class="detail-field__label">Date blocked</label><input type="date" style="flex:1" value="${esc(bi.dateBlocked || '')}" onchange="${ensureBi}tasks.find(t=>t.id==='${eid}').blockerInfo.dateBlocked=this.value;${stampUpdated}${dirty}"></div>`;
+
+  // Last updated (read-only, auto-set when any blocker field changes)
+  if (bi.lastUpdated) {
+    const updFmt = new Date(bi.lastUpdated + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    h += `<div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px;line-height:1.4">Last updated: ${esc(updFmt)}</div>`;
+  }
 
   // Incomplete prerequisites (read-only info)
   if (deps.length) {
@@ -11065,7 +11075,7 @@ function saveMarkAsBlocked() {
   if (externalChk && external.length === 0) { errEl.textContent = 'Enter the external party.'; errEl.style.display = 'block'; return; }
   if (!toUnblock) { errEl.textContent = 'Please describe what is needed to unblock.'; errEl.style.display = 'block'; return; }
 
-  const blockerInfo = { blockedOn, internal, external, toUnblock, dateBlocked };
+  const blockerInfo = { blockedOn, internal, external, toUnblock, dateBlocked, lastUpdated: new Date().toISOString().slice(0, 10) };
 
   // Apply locally and queue for sync (server picks this up via sync/changes and sends notifications)
   const oldStatus = task.status;
@@ -11418,6 +11428,14 @@ function renderReportingView(el) {
   html += `</select>`;
   html += `</div></div>`;
 
+  // Health status colour legend
+  html += `<div class="reporting__legend">`;
+  html += `<span class="reporting__legend-item"><span class="reporting__legend-dot" style="background:#22c55e"></span>On Track</span>`;
+  html += `<span class="reporting__legend-item"><span class="reporting__legend-dot" style="background:#f59e0b"></span>Needs Attention</span>`;
+  html += `<span class="reporting__legend-item"><span class="reporting__legend-dot" style="background:#ef4444"></span>At Risk</span>`;
+  html += `<span class="reporting__legend-item"><span class="reporting__legend-dot" style="background:#94a3b8"></span>Blocked</span>`;
+  html += `</div>`;
+
   if (!project || features.length === 0) {
     html += `<div style="padding:60px;text-align:center;color:var(--text-muted);font-size:0.85rem">${project ? 'This project has no features yet.' : 'Pick a client and project above.'}</div>`;
     html += '</div>';
@@ -11680,11 +11698,13 @@ function renderReportingDrawer(f) {
       const reason = bi ? (bi.blockedOn || '') : '';
       const people = bi ? [...(bi.internal || []), ...(bi.external || [])].join(', ') : '';
       const since = bi && bi.dateBlocked ? new Date(bi.dateBlocked).toLocaleDateString('en-GB', {day:'numeric',month:'short'}) : '';
+      const updatedAt = bi && bi.lastUpdated ? new Date(bi.lastUpdated + 'T00:00:00').toLocaleDateString('en-GB', {day:'numeric',month:'short'}) : '';
       html += `<div style="padding:6px 0;border-bottom:1px dashed var(--border-subtle);font-size:0.78rem;cursor:pointer" onclick="event.stopPropagation();openDetailOverlay('${escAttrJs(bt.id)}')">`;
       html += `<div style="font-weight:600;color:var(--text-primary)">${esc(bt.title)}</div>`;
       if (reason) html += `<div style="color:var(--danger);margin-top:2px">${esc(reason)}</div>`;
       if (people) html += `<div style="color:var(--text-muted);font-size:0.7rem;margin-top:1px">By: ${esc(people)}</div>`;
       if (since) html += `<div style="color:var(--text-muted);font-size:0.7rem">Since ${esc(since)}</div>`;
+      if (updatedAt) html += `<div style="color:var(--text-muted);font-size:0.7rem">Updated ${esc(updatedAt)}</div>`;
       html += `</div>`;
     });
     html += `</div></div>`;
