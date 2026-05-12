@@ -3591,7 +3591,7 @@ function _actOpenCalEventForPerson(dateStr, userId, displayName) { openCalendarE
 let _currentUser = null;
 function isClientUser() { return !!(_currentUser && _currentUser.clientId); }
 function isClientAdmin() { return _currentUser?.clientRole === 'admin'; }
-const _clientAllowedViews = new Set(['dashboard', 'tasks', 'people', 'news', 'settings', 'mytasks']);
+const _clientAllowedViews = new Set(['dashboard', 'tasks', 'people', 'reporting', 'news', 'settings', 'mytasks']);
 function isClientAllowedView(view) { return !isClientUser() || _clientAllowedViews.has(view); }
 let _cachedUsers = [];       // Cached full user records (id, username, display_name, role, is_active) for ID lookups
 const _expandedStandupPeople = new Set(); // Track which person sections are expanded in standup
@@ -3902,7 +3902,7 @@ async function handleLogin(e) {
     }
     renderAll();
     restartPollingIntervals();
-    checkExpenseReportDeepLink();
+    if (!isClientUser()) checkExpenseReportDeepLink();
   } catch (err) {
     errEl.textContent = 'Connection error. Is the server running?';
   }
@@ -4933,9 +4933,7 @@ function renderSidebar() {
   }
   // html += sidebarItem(svgReport, 'Report', '', () => switchView('report'), currentView==='report'); // COMMENTED OUT — old report view, kept for revert
   html += sidebarItem(svgTasks, 'Projects', scopedForHealth.length, () => { currentFilter.priority = []; switchView('tasks'); }, currentView==='tasks');
-  if (!isScoped) {
-    html += sidebarItem(svgReport, 'Reporting', '', () => switchView('reporting'), currentView==='reporting');
-  }
+  html += sidebarItem(svgReport, 'Reporting', '', () => switchView('reporting'), currentView==='reporting');
   const svgDocs = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 1h6l4 4v10H4z"/><path d="M10 1v4h4"/><path d="M6 8h6M6 11h4"/></svg>';
   if (!isScoped) {
     html += sidebarItem(svgDocs, 'Documentation', '', () => switchView('documentation'), currentView==='documentation');
@@ -20413,10 +20411,12 @@ function ccCardTests(d) {
     html += '<div class="cc-th__big"><div class="cc-th__num" style="color:var(--cc-green)">' + lastRun.passed + '</div><div style="font-size:0.78rem;color:var(--cc-t2)">tests passing</div></div>';
     const pct = lastRun.total > 0 ? Math.round((lastRun.passed / lastRun.total) * 100) : 0;
     html += '<div class="cc-th__bar"><div class="cc-th__fill" style="width:' + pct + '%;background:var(--cc-green);box-shadow:0 0 8px var(--cc-green)"></div></div>';
-    html += '<div style="display:flex;gap:24px;margin-top:6px">';
-    html += '<div><div style="font-family:var(--cc-mono);font-size:1rem;font-weight:800;color:var(--cc-green)">' + lastRun.passed + '</div><div style="font-size:0.58rem;color:var(--cc-t3);font-weight:600;text-transform:uppercase">Passed</div></div>';
-    html += '<div><div style="font-family:var(--cc-mono);font-size:1rem;font-weight:800;color:var(--cc-red)">' + lastRun.failed + '</div><div style="font-size:0.58rem;color:var(--cc-t3);font-weight:600;text-transform:uppercase">Failed</div></div>';
+    html += '<div class="cc-stats" style="margin-top:6px">';
+    html += '<div><div class="cc-st__v" style="color:var(--cc-green);font-size:1rem">' + lastRun.passed + '</div><div class="cc-st__l">Passed</div></div>';
+    html += '<div><div class="cc-st__v" style="color:var(--cc-red);font-size:1rem">' + lastRun.failed + '</div><div class="cc-st__l">Failed</div></div>';
+    html += '<div><div class="cc-st__v" style="color:var(--cc-amber);font-size:1rem">' + ((lastRun.total || 0) - (lastRun.passed || 0) - (lastRun.failed || 0)) + '</div><div class="cc-st__l">Skipped</div></div>';
     html += '</div>';
+    html += '<div style="font-size:0.58rem;color:var(--cc-t4);margin-top:8px">Last run: ' + esc(lastRun.source || 'manual') + ' &middot; Vitest + Playwright &middot; Phase 2 adds nightly</div>';
   } else {
     html += '<div style="padding:12px 0;font-size:0.78rem;color:var(--cc-t2)">No test results file. Run <span style="font-family:var(--cc-mono);color:var(--cc-cyan)">npm test</span> with JSON reporter to populate.</div>';
   }
@@ -20458,10 +20458,21 @@ function ccBriefCritical(items) {
   items.forEach(item => {
     html += '<div class="cc-card cc-card--red cc-card--crit">';
     html += '<div class="cc-li" style="padding:4px 0;border:none;margin:0">';
-    const icon = item.type === 'bug' ? '!!' : item.type === 'calendar' ? item.title.charAt(0).toUpperCase() : '!';
-    html += '<div class="cc-li__icon cc-li__icon--red" style="animation:ccIconPulse 2s ease-in-out infinite">' + icon + '</div>';
+    const icon = item.type === 'bug' ? '!!' : item.type === 'calendar' ? (item.title || '').charAt(0).toUpperCase() : '!';
+    const pulseStyle = item.type === 'bug' ? ' style="animation:ccIconPulse 2s ease-in-out infinite"' : '';
+    html += '<div class="cc-li__icon cc-li__icon--red"' + pulseStyle + '>' + icon + '</div>';
     html += '<div class="cc-li__body"><div class="cc-li__title">' + esc(item.title || '') + '</div>';
-    html += '<div class="cc-li__meta">' + esc(item.type === 'bug' ? 'Bug' : item.type) + ' &middot; ' + esc(item.priority || 'Critical') + (item.age ? ' &middot; Open ' + item.age + ' days' : '') + '</div></div>';
+    html += '<div class="cc-li__meta">';
+    const metaParts = [];
+    if (item.type === 'bug') metaParts.push('Bug #' + (item.id || ''));
+    else if (item.type === 'calendar') metaParts.push('Client delivery');
+    else metaParts.push(esc(item.type || 'Critical'));
+    metaParts.push(esc(item.priority || 'Critical'));
+    if (item.age) metaParts.push('Open ' + item.age + ' days');
+    if (item.blocks) metaParts.push(esc(item.blocks));
+    if (item.note) metaParts.push('<span style="color:var(--cc-amber)">' + esc(item.note) + '</span>');
+    html += metaParts.join(' &middot; ');
+    html += '</div></div>';
     html += '<div style="display:flex;gap:6px;align-self:center">';
     if (item.type === 'bug') html += '<button class="cc-li__action" style="opacity:1" onclick="event.stopPropagation();switchView(\'bugs\')">Open Bug</button>';
     else if (item.type === 'calendar' && item.online_url) html += '<button class="cc-li__action" style="opacity:1" onclick="event.stopPropagation();window.open(\'' + esc(item.online_url) + '\',\'_blank\')">Join</button>';
@@ -20485,14 +20496,34 @@ function ccBriefCalendar(cal) {
     const startTime = new Date(ev.start).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
     const durMins = Math.round((new Date(ev.end) - new Date(ev.start)) / 60000);
     const durLabel = durMins >= 60 ? Math.floor(durMins / 60) + 'h' + (durMins % 60 ? ' ' + (durMins % 60) + 'min' : '') : durMins + ' min';
-    const isNow = new Date(ev.start) <= new Date() && new Date(ev.end) >= new Date();
-    html += '<div class="cc-li' + (isNow ? ' cc-li--now' : i === today.length - 1 ? ' cc-li--future' : '') + '">';
+    const now = new Date();
+    const isNow = new Date(ev.start) <= now && new Date(ev.end) >= now;
+    const isFuture = new Date(ev.start) > now;
+    html += '<div class="cc-li' + (isNow ? ' cc-li--now' : isFuture ? ' cc-li--future' : '') + '">';
     html += '<div class="cc-li__body"><div class="cc-li__title">' + esc(ev.title) + '</div>';
     html += '<div class="cc-li__meta">' + esc(ev.location || '') + ((ev.attendees || []).length > 0 ? ' &middot; ' + esc(ev.attendees.slice(0, 3).join(', ')) : '') + '</div></div>';
     html += '<div class="cc-li__time"><div class="cc-li__when">' + startTime + '</div><div class="cc-li__dur">' + durLabel + '</div></div>';
-    if (ev.online_url) html += '<button class="cc-li__action" style="opacity:1" onclick="event.stopPropagation();window.open(\'' + esc(ev.online_url) + '\',\'_blank\')">Join</button>';
+    if (ev.online_url) {
+      html += '<button class="cc-li__action" style="opacity:1" onclick="event.stopPropagation();window.open(\'' + esc(ev.online_url) + '\',\'_blank\')">' + (isNow ? 'Open in Outlook' : 'Join') + '</button>';
+    } else {
+      html += '<button class="cc-li__action" onclick="event.stopPropagation()">Details</button>';
+    }
     html += '</div>';
   });
+  if (tomorrow.length > 0) {
+    html += '<div style="margin-top:12px;font-size:0.62rem;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:var(--cc-t4);margin-bottom:6px">Tomorrow</div>';
+    tomorrow.forEach(ev => {
+      const startTime = new Date(ev.start).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+      const durMins = Math.round((new Date(ev.end) - new Date(ev.start)) / 60000);
+      const durLabel = durMins >= 60 ? Math.floor(durMins / 60) + 'h' + (durMins % 60 ? ' ' + (durMins % 60) + 'min' : '') : durMins + ' min';
+      html += '<div class="cc-li cc-li--future">';
+      html += '<div class="cc-li__body"><div class="cc-li__title">' + esc(ev.title) + '</div>';
+      html += '<div class="cc-li__meta">' + esc(ev.location || '') + ((ev.attendees || []).length > 0 ? ' &middot; ' + esc(ev.attendees.slice(0, 3).join(', ')) : '') + '</div></div>';
+      html += '<div class="cc-li__time"><div class="cc-li__when">' + startTime + '</div><div class="cc-li__dur">' + durLabel + '</div></div>';
+      html += '<button class="cc-li__action" onclick="event.stopPropagation()">Details</button>';
+      html += '</div>';
+    });
+  }
   html += '</div></div></div>';
   return html;
 }
@@ -20504,23 +20535,28 @@ function ccBriefWorkQueue(wq) {
   const blocked = wq.blocked || [];
   const total = overdue.length + dueToday.length + dueWeek.length + blocked.length;
   let html = '<div class="cc-section">';
-  html += '<div class="cc-section__title">Work Queue <span class="cc-section__count" style="background:rgba(34,211,238,0.12);color:#22d3ee">' + total + ' items</span></div>';
+  html += '<div class="cc-section__title">Work Queue <span class="cc-section__count" style="background:rgba(34,211,238,0.12);color:var(--cc-cyan)">' + total + ' items</span></div>';
   html += '<div class="cc-filters">';
   html += '<button class="cc-chip cc-chip--active" onclick="ccFilterWork(this,\'all\')">All</button>';
   html += '<button class="cc-chip" onclick="ccFilterWork(this,\'overdue\')">Overdue</button>';
   html += '<button class="cc-chip" onclick="ccFilterWork(this,\'week\')">Due This Week</button>';
   html += '<button class="cc-chip" onclick="ccFilterWork(this,\'blocked\')">Blocked</button>';
   html += '<button class="cc-chip" onclick="ccFilterWork(this,\'client\')">Client Work</button>';
+  html += '<button class="cc-chip" onclick="ccFilterWork(this,\'infra\')">AI Infrastructure</button>';
   html += '</div>';
   html += '<div class="cc-grid-3">';
 
   // Overdue
   html += '<div class="cc-card cc-card--cyan" data-wq-group="overdue">';
-  html += '<div class="cc-card__head"><span class="cc-card__title">OVERDUE</span><span class="cc-tag cc-tag--red">' + overdue.length + '</span></div>';
+  html += '<div class="cc-card__head"><span class="cc-card__title">Overdue</span><span class="cc-tag cc-tag--red">' + overdue.length + '</span></div>';
   overdue.slice(0, 5).forEach(t => {
     html += '<div class="cc-li"><div class="cc-li__icon cc-li__icon--sm cc-li__icon--red">!</div>';
     html += '<div class="cc-li__body"><div class="cc-li__title">' + esc(t.title) + '</div>';
-    html += '<div class="cc-li__meta">Due ' + (t.due_date || '') + (t.client ? ' &middot; ' + esc(t.client) : '') + '</div></div>';
+    const overdueMeta = [];
+    if (t.due_date) overdueMeta.push('Due ' + t.due_date);
+    if (t.age) overdueMeta.push(t.age + ' days overdue');
+    if (t.client) overdueMeta.push(esc(t.client));
+    html += '<div class="cc-li__meta">' + overdueMeta.join(' &middot; ') + '</div></div>';
     html += '<button class="cc-li__action" onclick="event.stopPropagation();switchView(\'projects\')">Open</button></div>';
   });
   if (overdue.length === 0) html += '<div style="padding:8px 0;font-size:0.78rem;color:var(--cc-t2)">None</div>';
@@ -20528,13 +20564,17 @@ function ccBriefWorkQueue(wq) {
 
   // Due this week
   html += '<div class="cc-card cc-card--cyan" data-wq-group="week">';
-  html += '<div class="cc-card__head"><span class="cc-card__title">DUE THIS WEEK</span><span class="cc-tag cc-tag--amber">' + (dueToday.length + dueWeek.length) + '</span></div>';
+  html += '<div class="cc-card__head"><span class="cc-card__title">Due This Week</span><span class="cc-tag cc-tag--amber">' + (dueToday.length + dueWeek.length) + '</span></div>';
   dueToday.concat(dueWeek).slice(0, 5).forEach(t => {
     const initial = (t.client || t.title || '').charAt(0).toUpperCase();
     const iconCls = t.priority === 'high' || t.priority === 'critical' ? 'cc-li__icon--amber' : 'cc-li__icon--cyan';
     html += '<div class="cc-li"><div class="cc-li__icon cc-li__icon--sm ' + iconCls + '">' + initial + '</div>';
     html += '<div class="cc-li__body"><div class="cc-li__title">' + esc(t.title) + '</div>';
-    html += '<div class="cc-li__meta">Due ' + (t.due_date || '') + (t.client ? ' &middot; ' + esc(t.client) : '') + '</div></div>';
+    const weekMeta = [];
+    if (t.due_date) weekMeta.push('Due ' + t.due_date);
+    if (t.client) weekMeta.push(esc(t.client));
+    else if (t.category) weekMeta.push(esc(t.category));
+    html += '<div class="cc-li__meta">' + weekMeta.join(' &middot; ') + '</div></div>';
     html += '<button class="cc-li__action" onclick="event.stopPropagation();switchView(\'projects\')">Open</button></div>';
   });
   if (dueToday.length + dueWeek.length === 0) html += '<div style="padding:8px 0;font-size:0.78rem;color:var(--cc-t2)">None</div>';
@@ -20542,7 +20582,7 @@ function ccBriefWorkQueue(wq) {
 
   // Blocked (with Nudge dismiss buttons)
   html += '<div class="cc-card cc-card--cyan" data-wq-group="blocked">';
-  html += '<div class="cc-card__head"><span class="cc-card__title">BLOCKED</span><span class="cc-tag cc-tag--muted">' + blocked.length + '</span></div>';
+  html += '<div class="cc-card__head"><span class="cc-card__title">Blocked</span><span class="cc-tag cc-tag--muted">' + blocked.length + '</span></div>';
   blocked.slice(0, 5).forEach(t => {
     const initial = (t.title || '').charAt(0).toUpperCase();
     html += '<div class="cc-li"><div class="cc-li__icon cc-li__icon--sm cc-li__icon--muted">' + initial + '</div>';
@@ -20567,9 +20607,9 @@ function ccBriefBugs(bugs) {
   html += '<div class="cc-section__title">Bug Status <span class="cc-section__count" style="background:rgba(251,191,36,0.12);color:var(--cc-amber)">' + totalOpen + ' open</span></div>';
   html += '<div class="cc-grid-3">';
 
-  // By Priority (expandable)
+  // By Priority (expandable, starts expanded)
   html += '<div class="cc-card cc-card--amber cc-card--expandable cc-card--expanded">';
-  html += '<div class="cc-card__head"><span class="cc-card__title">BY PRIORITY &#9662;</span></div>';
+  html += '<div class="cc-card__head"><span class="cc-card__title">By Priority &#9662;</span></div>';
   html += '<div class="cc-expand-content" style="max-height:600px;opacity:1">';
   [
     { label: 'Critical', count: byPrio.critical || critOpen.length, cls: 'cc-li__icon--red', items: critOpen },
@@ -20586,34 +20626,34 @@ function ccBriefBugs(bugs) {
   });
   html += '</div></div>';
 
-  // Awaiting Review (with Close done-btn)
-  html += '<div class="cc-card cc-card--green">';
-  html += '<div class="cc-card__head"><span class="cc-card__title">AWAITING REVIEW</span><span class="cc-tag cc-tag--amber">' + awaitReview.length + '</span></div>';
+  // Awaiting Review (with Close done-btn) — c--bug in mockup = cc-card--amber
+  html += '<div class="cc-card cc-card--amber">';
+  html += '<div class="cc-card__head"><span class="cc-card__title">Awaiting Review</span><span class="cc-tag cc-tag--amber">' + awaitReview.length + '</span></div>';
   awaitReview.forEach(b => {
     const age = b.updated_at ? Math.floor((Date.now() - new Date(b.updated_at).getTime()) / 86400000) : (b.created_at ? Math.floor((Date.now() - new Date(b.created_at).getTime()) / 86400000) : 0);
     html += '<div class="cc-li"><div class="cc-li__icon cc-li__icon--sm cc-li__icon--green">&#10003;</div>';
     html += '<div class="cc-li__body"><div class="cc-li__title">' + esc(b.title) + '</div>';
-    html += '<div class="cc-li__meta">' + (age > 0 ? 'Fixed &middot; ' + age + ' days in review' : 'Just fixed') + '</div></div>';
+    html += '<div class="cc-li__meta">' + (b.fixed_date ? 'Fixed ' + esc(b.fixed_date) + ' &middot; ' : '') + (age > 0 ? age + ' days in review' : 'Just fixed') + '</div></div>';
     html += '<button class="cc-done-btn" onclick="event.stopPropagation();switchView(\'bugs\')">Close</button></div>';
   });
   if (awaitReview.length === 0) html += '<div style="padding:8px 0;font-size:0.78rem;color:var(--cc-t2)">None</div>';
   html += '</div>';
 
-  // Hotspot (with tag badges)
+  // Hotspot (with btag badges and narrative text)
   html += '<div class="cc-card cc-card--amber">';
   if (hotspots.length > 0) {
     const top = hotspots[0];
-    html += '<div class="cc-card__head"><span class="cc-card__title">HOTSPOT</span><span class="cc-tag cc-tag--red">' + esc(top.page || '') + '</span></div>';
-    html += '<div style="font-size:0.95rem;font-weight:700;color:var(--cc-red);margin-bottom:8px">' + top.count + ' of ' + totalOpen + ' bugs are ' + esc(top.page || '') + '-related</div>';
-    html += '<div class="cc-note-text">Recurring bug cluster. A focused stabilisation sprint would clear the highest-impact area.</div>';
+    html += '<div class="cc-card__head"><span class="cc-card__title">Hotspot</span><span class="cc-tag cc-tag--red">' + esc(top.page || '') + '</span></div>';
+    html += '<div style="font-size:.95rem;font-weight:700;color:var(--cc-red);margin-bottom:8px">' + top.count + ' of ' + totalOpen + ' bugs are ' + esc(top.page || '') + '-related</div>';
+    html += '<div class="cc-note-text">' + esc(top.narrative || 'Recurring bug cluster. A focused stabilisation sprint would clear the highest-impact area.') + '</div>';
     html += '<div style="margin-top:12px;display:flex;gap:4px;flex-wrap:wrap">';
-    hotspots.forEach(h => {
-      html += '<span class="cc-btag" style="background:rgba(248,113,113,0.12);color:var(--cc-red)">' + esc(h.page) + '</span>';
+    (top.tags || hotspots.map(h => h.page)).forEach(tag => {
+      html += '<span class="cc-btag" style="background:rgba(248,113,113,0.12);color:var(--cc-red)">' + esc(tag) + '</span>';
     });
     html += '</div>';
-    html += '<div style="margin-top:12px"><button class="cc-li__action" style="opacity:1" onclick="event.stopPropagation();switchView(\'bugs\')">View All Bugs</button></div>';
+    html += '<div style="margin-top:12px"><button class="cc-li__action" style="opacity:1" onclick="event.stopPropagation();switchView(\'bugs\')">View All ' + esc(top.page || '') + ' Bugs</button></div>';
   } else {
-    html += '<div class="cc-card__head"><span class="cc-card__title">HOTSPOT</span></div>';
+    html += '<div class="cc-card__head"><span class="cc-card__title">Hotspot</span></div>';
     html += '<div style="padding:8px 0;font-size:0.78rem;color:var(--cc-t2)">No hotspot patterns detected</div>';
   }
   html += '</div>';
@@ -20632,33 +20672,37 @@ function ccBriefClaude(claude) {
 
   // Last session
   html += '<div class="cc-card cc-card--purple">';
-  html += '<div class="cc-card__head"><span class="cc-card__title">LAST SESSION</span>';
-  if (lastSession.date) html += '<span class="cc-tag cc-tag--blue">' + esc(lastSession.date) + '</span>';
+  html += '<div class="cc-card__head"><span class="cc-card__title">Last Session</span>';
+  if (lastSession.date) html += '<span class="cc-tag cc-tag--purple">' + esc(lastSession.date) + '</span>';
   html += '</div>';
+  if (lastSession.title) {
+    html += '<div style="font-size:.95rem;font-weight:700;margin-bottom:8px">' + esc(lastSession.title) + '</div>';
+  }
   if (lastSession.summary) {
     const lines = lastSession.summary.split('\n').filter(l => l.trim()).slice(0, 5);
     const firstLine = lines[0] || '';
-    if (firstLine.startsWith('#')) {
-      html += '<div style="font-size:0.95rem;font-weight:700;margin-bottom:8px">' + esc(firstLine.replace(/^#+\s*/, '')) + '</div>';
+    if (firstLine.startsWith('#') && !lastSession.title) {
+      html += '<div style="font-size:.95rem;font-weight:700;margin-bottom:8px">' + esc(firstLine.replace(/^#+\s*/, '')) + '</div>';
       html += '<div class="cc-note-text" style="margin-bottom:12px">' + lines.slice(1).map(l => esc(l)).join('<br>') + '</div>';
     } else {
-      html += '<div class="cc-note-text" style="margin-bottom:12px">' + lines.map(l => esc(l)).join('<br>') + '</div>';
+      const displayLines = lastSession.title ? lines : lines;
+      html += '<div class="cc-note-text" style="margin-bottom:12px">' + displayLines.map(l => esc(l.replace(/^#+\s*/, ''))).join('<br>') + '</div>';
     }
   }
   if (lastSession.progress !== undefined) {
-    html += '<div class="cc-small-text" style="font-weight:700;margin-bottom:6px;letter-spacing:.5px;text-transform:uppercase">DESIGN PROGRESS</div>';
-    html += '<div class="cc-prog"><div class="cc-prog__fill" style="width:' + (lastSession.progress || 0) + '%;background:linear-gradient(90deg,var(--cc-purple),var(--cc-cyan));box-shadow:0 0 10px rgba(167,139,250,0.35)"></div></div>';
+    html += '<div class="cc-small-text" style="font-weight:700;margin-bottom:6px;letter-spacing:.5px">DESIGN PROGRESS</div>';
+    html += '<div class="cc-prog"><div class="cc-prog__fill" style="width:' + (lastSession.progress || 0) + '%;background:linear-gradient(90deg,var(--cc-purple),var(--cc-cyan));box-shadow:0 0 10px rgba(192,132,252,0.35)"></div></div>';
     if (lastSession.progress_label) html += '<div class="cc-small-text">' + esc(lastSession.progress_label) + '</div>';
   }
   if (claude.handoff_exists) {
-    html += '<div style="margin-top:12px"><button class="cc-li__action" style="opacity:1" onclick="switchView(\'docs\')">View Session Log</button></div>';
+    html += '<div style="margin-top:12px"><button class="cc-li__action" style="opacity:1" onclick="event.stopPropagation();switchView(\'docs\')">View Session Log</button></div>';
   }
   html += '</div>';
 
   // Outstanding work
   const workItems = outstanding.split('\n').filter(l => l.trim().startsWith('- ')).slice(0, 6);
   html += '<div class="cc-card cc-card--purple">';
-  html += '<div class="cc-card__head"><span class="cc-card__title">OUTSTANDING WORK</span>';
+  html += '<div class="cc-card__head"><span class="cc-card__title">Outstanding Work</span>';
   html += '<span class="cc-tag cc-tag--blue">' + workItems.length + ' items</span></div>';
   workItems.forEach((l, i) => {
     const isMuted = l.toLowerCase().includes('blocked') || l.toLowerCase().includes('waiting');
@@ -20678,21 +20722,40 @@ function ccBriefClaude(claude) {
 function ccBriefDeliveries(deliveries) {
   const clients = Object.entries(deliveries);
   if (clients.length === 0) return '';
+  const totalItems = clients.reduce((sum, [,tasks]) => sum + tasks.length, 0);
   let html = '<div class="cc-section">';
-  html += '<div class="cc-section__title">Client Deliveries — Next 14 Days <span class="cc-section__count" style="background:rgba(52,211,153,0.12);color:var(--cc-green)">' + clients.reduce((sum, [,tasks]) => sum + tasks.length, 0) + '</span></div>';
+  html += '<div class="cc-section__title">Client Deliveries — Next 14 Days <span class="cc-section__count" style="background:rgba(52,211,153,0.12);color:var(--cc-green)">' + totalItems + '</span></div>';
   html += '<div class="cc-grid-3">';
   clients.forEach(([clientName, tasks]) => {
-    const dueToday = tasks.some(t => t.due_date && t.due_date === new Date().toISOString().slice(0, 10));
-    const tagClass = dueToday ? 'cc-tag--amber' : 'cc-tag--green';
-    const tagText = dueToday ? 'Due today' : tasks.length + ' items';
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const hasDueThisWeek = tasks.some(t => {
+      if (!t.due_date) return false;
+      const d = new Date(t.due_date);
+      const now = new Date();
+      const weekEnd = new Date(now);
+      weekEnd.setDate(weekEnd.getDate() + (7 - weekEnd.getDay()));
+      return d <= weekEnd;
+    });
+    const hasDueToday = tasks.some(t => t.due_date && t.due_date === todayStr);
+    let tagClass, tagText;
+    if (tasks.length === 0) { tagClass = 'cc-tag--muted'; tagText = 'No deliveries'; }
+    else if (hasDueToday) { tagClass = 'cc-tag--amber'; tagText = 'Due today'; }
+    else if (hasDueThisWeek) { tagClass = 'cc-tag--amber'; tagText = 'Due this week'; }
+    else { tagClass = 'cc-tag--green'; tagText = 'On track'; }
     html += '<div class="cc-card cc-card--green">';
     html += '<div class="cc-card__head"><span class="cc-card__title">' + esc(clientName) + '</span><span class="cc-tag ' + tagClass + '">' + tagText + '</span></div>';
-    tasks.slice(0, 4).forEach(t => {
-      html += '<div class="cc-li"><div class="cc-li__icon cc-li__icon--sm cc-li__icon--green">' + esc(clientName.charAt(0).toUpperCase()) + '</div>';
-      html += '<div class="cc-li__body"><div class="cc-li__title">' + esc(t.title) + '</div>';
-      html += '<div class="cc-li__meta">Due ' + (t.due_date || '') + ' &middot; ' + esc(t.status || '') + '</div></div>';
-      html += '<button class="cc-li__action" onclick="event.stopPropagation();switchView(\'projects\')">Open</button></div>';
-    });
+    if (tasks.length === 0) {
+      html += '<div class="cc-li"><div class="cc-li__icon cc-li__icon--sm cc-li__icon--muted">?</div>';
+      html += '<div class="cc-li__body"><div class="cc-li__title">No deliveries in next 14 days</div></div></div>';
+    } else {
+      tasks.slice(0, 4).forEach(t => {
+        const iconColor = t.status === 'on_track' || t.status === 'Prepared' ? 'cc-li__icon--green' : 'cc-li__icon--amber';
+        html += '<div class="cc-li"><div class="cc-li__icon cc-li__icon--sm ' + iconColor + '">' + esc(clientName.charAt(0).toUpperCase()) + '</div>';
+        html += '<div class="cc-li__body"><div class="cc-li__title">' + esc(t.title) + '</div>';
+        html += '<div class="cc-li__meta">' + (t.due_date ? 'Due ' + t.due_date : '') + (t.status ? ' &middot; ' + esc(t.status) : '') + '</div></div>';
+        html += '<button class="cc-li__action" onclick="event.stopPropagation();switchView(\'projects\')">Open</button></div>';
+      });
+    }
     html += '</div>';
   });
   html += '</div></div>';
@@ -20703,29 +20766,31 @@ function ccBriefKnowledge(flags) {
   const staleBrain = flags.stale_brain_modules || [];
   const staleMem = flags.stale_memory_files || [];
   const dormant = flags.dormant_roles_count || 0;
-  const total = staleBrain.length + staleMem.length + (dormant > 0 ? 1 : 0);
+  const total = staleBrain.length + (staleMem.length > 0 ? 1 : 0) + (dormant > 0 ? 1 : 0);
   if (total === 0) return '';
   let html = '<div class="cc-section">';
   html += '<div class="cc-section__title">Knowledge Flags <span class="cc-section__count" style="background:rgba(244,114,182,0.12);color:var(--cc-pink)">' + total + '</span></div>';
   html += '<div class="cc-grid-2">';
 
   // Stale brain modules
+  html += '<div class="cc-card cc-card--pink">';
+  html += '<div class="cc-card__head"><span class="cc-card__title">Stale Brain Modules</span><span class="cc-tag cc-tag--amber">' + staleBrain.length + '</span></div>';
   if (staleBrain.length > 0) {
-    html += '<div class="cc-card cc-card--pink">';
-    html += '<div class="cc-card__head"><span class="cc-card__title">STALE BRAIN MODULES</span><span class="cc-tag cc-tag--amber">' + staleBrain.length + '</span></div>';
     staleBrain.forEach(m => {
       const age = m.last_modified ? Math.floor((Date.now() - new Date(m.last_modified).getTime()) / 86400000) : '?';
       html += '<div class="cc-li"><div class="cc-li__icon cc-li__icon--sm cc-li__icon--amber">' + age + 'd</div>';
       html += '<div class="cc-li__body"><div class="cc-li__title">' + esc(m.name) + '</div>';
-      html += '<div class="cc-li__meta">' + (m.note || age + ' days since last update') + '</div></div>';
+      html += '<div class="cc-li__meta">' + esc(m.note || 'May be outdated') + '</div></div>';
       html += '<button class="cc-done-btn" onclick="event.stopPropagation()">Refresh</button></div>';
     });
-    html += '</div>';
+  } else {
+    html += '<div style="padding:8px 0;font-size:0.78rem;color:var(--cc-t2)">All modules current</div>';
   }
+  html += '</div>';
 
   // Memory + roles
   html += '<div class="cc-card cc-card--pink">';
-  html += '<div class="cc-card__head"><span class="cc-card__title">MEMORY &amp; ROLES</span><span class="cc-tag cc-tag--muted">Maintenance</span></div>';
+  html += '<div class="cc-card__head"><span class="cc-card__title">Memory &amp; Roles</span><span class="cc-tag cc-tag--muted">Maintenance</span></div>';
   if (staleMem.length > 0) {
     html += '<div class="cc-li"><div class="cc-li__icon cc-li__icon--sm cc-li__icon--amber">' + staleMem.length + '</div>';
     html += '<div class="cc-li__body"><div class="cc-li__title">Memory files with stale references</div>';
@@ -20737,6 +20802,9 @@ function ccBriefKnowledge(flags) {
     html += '<div class="cc-li__body"><div class="cc-li__title">Dormant agent roles</div>';
     html += '<div class="cc-li__meta">Knowledge never referenced — consolidate or refresh</div></div>';
     html += '<button class="cc-dismiss-btn" onclick="event.stopPropagation()">Review</button></div>';
+  }
+  if (staleMem.length === 0 && dormant === 0) {
+    html += '<div style="padding:8px 0;font-size:0.78rem;color:var(--cc-t2)">All clean</div>';
   }
   html += '</div>';
 
