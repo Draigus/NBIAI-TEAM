@@ -338,7 +338,6 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .main__content { flex: 1; overflow-y: auto; overflow-x: hidden; padding: var(--space-xl); width: 100%; -webkit-overflow-scrolling: touch; }
 .main__content:has(.pf) { padding: 8px; }
 .main__content:has(> .docs) { overflow: hidden; display: flex; flex-direction: column; padding: 0; }
-.main__content:has(> .cc-page) { overflow: hidden; display: flex; flex-direction: column; }
 
 /* ===== KPI CARDS ===== */
 .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--space-lg); margin-bottom: var(--space-xl); }
@@ -2623,7 +2622,7 @@ span.fin-editable { display: inline-block; position: relative; }
 }
 
 /* ===== Command Centre ===== */
-.cc-page { padding: 8px 0; flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
+.cc-page { padding: 8px 0; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
 .cc-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 24px; }
 .cc-header__tag { font-size: 0.65rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--text-faint); margin-bottom: 6px; }
 .cc-header__greeting { font-size: 1.7rem; font-weight: 800; letter-spacing: -0.5px; }
@@ -19499,6 +19498,11 @@ function _ccRenderPage(el) {
       const target = circle.getAttribute('data-target');
       if (target) circle.style.strokeDashoffset = target;
     });
+    const ccEl = document.querySelector('.cc-page');
+    if (ccEl) {
+      const top = ccEl.getBoundingClientRect().top;
+      ccEl.style.height = (window.innerHeight - top - 8) + 'px';
+    }
   });
 }
 
