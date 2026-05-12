@@ -9584,6 +9584,8 @@ function renderInlineTaskDetail(id) {
     html += `<div class="detail-field"><label class="detail-field__label" for="inline-detail-endDate">End Date</label><input id="inline-detail-endDate" type="date" value="${task.endDate||''}" onchange="updateTask('${id}','endDate',this.value)"></div>`;
   }
   html += `<div class="detail-field"><label class="detail-field__label" for="inline-detail-dueDate">Due Date</label><input id="inline-detail-dueDate" type="date" value="${task.dueDate||''}" onchange="updateTask('${id}','dueDate',this.value)"></div>`;
+  // Repeat (Feature 2) — placed immediately after Due Date for visibility
+  html += renderRepeatSection(task);
   html += `</div>`;
 
   // Time Tracking
@@ -9600,9 +9602,6 @@ function renderInlineTaskDetail(id) {
   html += `<div class="detail-field"><textarea placeholder="If there are multiple people on the task, describe everyone's responsibilities." onchange="updateTask('${id}','collaborations',this.value)" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(task.collaborations||'')}</textarea></div></div>`;
   html += `<div class="detail-section"><div class="detail-section__title">Success Factor</div>`;
   html += `<div class="detail-field"><textarea placeholder="What will we have accomplished or made by the completion of this task?" onchange="updateTask('${id}','successFactor',this.value)" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(task.successFactor||'')}</textarea></div></div>`;
-
-  // Repeat (Feature 2)
-  html += renderRepeatSection(task);
 
   // Notes
   html += `<div class="detail-section"><div class="detail-section__title">Notes</div><div class="note-list">`;
@@ -10300,6 +10299,8 @@ function openDetailOverlay(id) {
     html += `<div class="detail-field"><label class="detail-field__label" for="detail-endDate">End Date</label><input id="detail-endDate" type="date" value="${task.endDate||''}" onchange="updateTask('${id}','endDate',this.value)"></div>`;
   }
   html += `<div class="detail-field"><label class="detail-field__label" for="detail-dueDate">Due Date</label><input id="detail-dueDate" type="date" value="${task.dueDate||''}" onchange="updateTask('${id}','dueDate',this.value)"></div>`;
+  // Repeat (Feature 2) — placed immediately after Due Date for visibility
+  html += renderRepeatSection(task);
   html += `</div>`;
 
   // Time Tracking (quick log + entries)
@@ -10319,9 +10320,6 @@ function openDetailOverlay(id) {
   html += `<div class="detail-field"><textarea placeholder="If there are multiple people on the task, describe everyone's responsibilities." onchange="updateTask('${id}','collaborations',this.value)" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(task.collaborations||'')}</textarea></div></div>`;
   html += `<div class="detail-section"><div class="detail-section__title">Success Factor</div>`;
   html += `<div class="detail-field"><textarea placeholder="What will we have accomplished or made by the completion of this task?" onchange="updateTask('${id}','successFactor',this.value)" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(task.successFactor||'')}</textarea></div></div>`;
-
-  // Repeat (Feature 2)
-  html += renderRepeatSection(task);
 
   // Notes
   html += `<div class="detail-section"><div class="detail-section__title">Notes</div><div class="note-list">`;
