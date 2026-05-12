@@ -5650,6 +5650,12 @@ function _renderMainContent(content) {
   if (currentView === 'incomplete') { currentView = 'tasks'; currentFilter.incomplete = true; }
   if (currentView === 'changelog') { currentView = 'settings'; }
   if (tasks.length === 0 && currentView !== 'settings' && currentView !== 'documentation' && currentView !== 'leads' && currentView !== 'bugs' && currentView !== 'hiring' && currentView !== 'news' && currentView !== 'queue' && currentView !== 'commandcentre') {
+    if (!window._initialLoadComplete) {
+      content.innerHTML = '<div style="padding:24px"><div class="skeleton skeleton-card"></div>' +
+        Array(5).fill('<div class="skeleton skeleton-row"></div>').join('') +
+        '<span class="visually-hidden">Loading tasks</span></div>';
+      return;
+    }
     content.innerHTML = `<div class="empty-state"><div class="empty-state__icon">&#128203;</div><div class="empty-state__title">No Tasks Yet</div><div class="empty-state__desc">Import tasks or add them manually to get started.</div><button class="btn btn--primary" data-action="openImportModal">Import</button></div>`;
     return;
   }
@@ -7004,14 +7010,34 @@ function blockerTooltip(task) {
 function blockerDetailBoxHtml(task, id) {
   const bi = task.blockerInfo || task.blocker_info || {};
   const deps = getIncompletePrereqs(task);
-  const people = [...(bi.internal || []), ...(bi.external || [])];
-  let extra = [];
-  if (people.length) extra.push('By: ' + people.join(', '));
-  if (deps.length) extra.push('Prereqs: ' + deps.map(d => d.title).join(', '));
-  if (bi.toUnblock) extra.push('To unblock: ' + bi.toUnblock);
-  if (bi.dateBlocked) extra.push('Since ' + new Date(bi.dateBlocked).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'}));
-  let h = `<textarea style="width:100%;border:1px solid var(--danger);border-radius:var(--radius-sm);padding:6px 8px;margin-top:-4px;margin-bottom:${extra.length ? '2' : '4'}px;font-size:0.78rem;color:var(--danger);line-height:1.4;resize:vertical;min-height:28px;max-height:300px;background:var(--bg-input);font-family:var(--font-body)" placeholder="What is this blocked on?" onchange="if(!tasks.find(t=>t.id==='${escAttrJs(id)}').blockerInfo)tasks.find(t=>t.id==='${escAttrJs(id)}').blockerInfo={};tasks.find(t=>t.id==='${escAttrJs(id)}').blockerInfo.blockedOn=this.value;tasks.find(t=>t.id==='${escAttrJs(id)}').updatedAt=new Date().toISOString();markDirty('${escAttrJs(id)}');save()">${esc(bi.blockedOn || '')}</textarea>`;
-  if (extra.length) h += `<div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:4px;line-height:1.3">${esc(extra.join(' · '))}</div>`;
+  const eid = escAttrJs(id);
+  // Helper: ensures blockerInfo object exists before setting a sub-field
+  const ensureBi = `if(!tasks.find(t=>t.id==='${eid}').blockerInfo)tasks.find(t=>t.id==='${eid}').blockerInfo={};`;
+  const dirty = `tasks.find(t=>t.id==='${eid}').updatedAt=new Date().toISOString();markDirty('${eid}');save()`;
+
+  let h = `<div style="border:1px solid var(--danger);border-radius:var(--radius-md);padding:var(--space-sm) var(--space-md);margin-top:-4px;margin-bottom:var(--space-md);background:color-mix(in srgb, var(--danger) 6%, transparent)">`;
+
+  // Blocked on (description textarea)
+  h += `<div class="detail-field" style="margin-bottom:var(--space-sm)"><label class="detail-field__label" style="color:var(--danger)">Blocked on</label><textarea style="flex:1;border:1px solid var(--danger);border-radius:var(--radius-sm);padding:6px 8px;font-size:0.78rem;color:var(--danger);line-height:1.4;resize:vertical;min-height:28px;max-height:300px;background:var(--bg-input);font-family:var(--font-body)" placeholder="What is this blocked on?" onchange="${ensureBi}tasks.find(t=>t.id==='${eid}').blockerInfo.blockedOn=this.value;${dirty}">${esc(bi.blockedOn || '')}</textarea></div>`;
+
+  // Internal blockers
+  h += `<div class="detail-field" style="margin-bottom:var(--space-sm)"><label class="detail-field__label">Internal</label><input style="flex:1" value="${esc((bi.internal || []).join(', '))}" placeholder="Internal people (comma-separated)" onchange="${ensureBi}tasks.find(t=>t.id==='${eid}').blockerInfo.internal=this.value.split(',').map(s=>s.trim()).filter(Boolean);${dirty}"></div>`;
+
+  // External blockers
+  h += `<div class="detail-field" style="margin-bottom:var(--space-sm)"><label class="detail-field__label">External</label><input style="flex:1" value="${esc((bi.external || []).join(', '))}" placeholder="External parties (comma-separated)" onchange="${ensureBi}tasks.find(t=>t.id==='${eid}').blockerInfo.external=this.value.split(',').map(s=>s.trim()).filter(Boolean);${dirty}"></div>`;
+
+  // To unblock
+  h += `<div class="detail-field" style="margin-bottom:var(--space-sm)"><label class="detail-field__label">To unblock</label><input style="flex:1" value="${esc(bi.toUnblock || '')}" placeholder="What needs to happen to unblock?" onchange="${ensureBi}tasks.find(t=>t.id==='${eid}').blockerInfo.toUnblock=this.value;${dirty}"></div>`;
+
+  // Date blocked
+  h += `<div class="detail-field" style="margin-bottom:var(--space-sm)"><label class="detail-field__label">Date blocked</label><input type="date" style="flex:1" value="${esc(bi.dateBlocked || '')}" onchange="${ensureBi}tasks.find(t=>t.id==='${eid}').blockerInfo.dateBlocked=this.value;${dirty}"></div>`;
+
+  // Incomplete prerequisites (read-only info)
+  if (deps.length) {
+    h += `<div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px;line-height:1.4">Prereqs: ${esc(deps.map(d => d.title).join(', '))}</div>`;
+  }
+
+  h += `</div>`;
   return h;
 }
 
@@ -8274,7 +8300,10 @@ let _ganttHideDone = true; // Hide completed tasks by default on timeline
 function renderGanttView(filtered) {
   // Show all items in hierarchy (not just leaves), optionally excluding Done
   const allLeafTasks = filtered.filter(t => !_ganttHideDone || t.status !== 'Done');
-  if (allLeafTasks.length === 0) return emptyState('&#128197;', 'No items for timeline', 'Add items with due dates to see the Gantt chart.');
+  if (allLeafTasks.length === 0) {
+    if (!window._initialLoadComplete) return '<div style="padding:24px">' + Array(5).fill('<div class="skeleton skeleton-row"></div>').join('') + '<span class="visually-hidden">Loading timeline</span></div>';
+    return emptyState('&#128197;', 'No items for timeline', 'Add items with due dates to see the Gantt chart.');
+  }
 
   // When a search filter is active, build a set of visible IDs so the
   // hierarchy only shows items that match (or are ancestors/descendants of
@@ -10113,31 +10142,56 @@ async function _patchBoardPosition(taskId, position) {
  *  at every size).
  *  Preserves scroll position of the actual scrolling element (.tasks-layout__main)
  *  which gets destroyed and recreated by renderContent. */
-/** Jump from My Work → Projects tree view, expanding ancestors and scrolling
- *  the target task into view (bug 1d3d811e). Without this, clicking a My Work
- *  item would land on Projects with everything collapsed. */
+/** Jump from My Work / Warnings → Projects tree view, expanding all ancestor
+ *  folders (client group, SoW bucket, parent tasks) and scrolling the target
+ *  into view. Fixes bug 1d3d811e (My Work) and bug #4 (warnings panel).
+ *  Key insight: switchView('tasks') sets _tasksInitialCollapse=true which
+ *  re-collapses everything, so expansion must happen AFTER the view switch. */
 function navigateToTaskInTree(taskId) {
-  // Expand every ancestor so the target row is actually rendered
-  let cursor = tasks.find(t => t.id === taskId);
-  while (cursor && cursor.parentId) {
-    collapsedTaskIds.delete(cursor.parentId);
-    cursor = tasks.find(t => t.id === cursor.parentId);
-  }
-  // Also expand the client group header (it's keyed by clientGroupKey)
-  if (cursor) {
-    try { collapsedTaskIds.delete(clientGroupKey(cursor)); } catch (e) {}
-  }
   // Force "By Project" (tree) sub-view so the hierarchical rows exist in the
   // DOM — board/gantt/calendar views don't render .task-row elements.
   taskSubView = 'tree';
   localStorage.setItem('nbi_task_subview', 'tree');
+  // Switch view first — this triggers _tasksInitialCollapse which collapses
+  // all nodes during renderAll(). We expand the target path AFTER this.
   switchView('tasks');
+
+  // Now expand every ancestor so the target row is visible
+  let cursor = tasks.find(t => t.id === taskId);
+  const root = cursor ? getRootAncestor(cursor) : null;
+  while (cursor && cursor.parentId) {
+    collapsedTaskIds.delete(cursor.parentId);
+    cursor = tasks.find(t => t.id === cursor.parentId);
+  }
+  // Expand the client group header (keyed by clientGroupKey)
+  if (cursor) {
+    try { collapsedTaskIds.delete(clientGroupKey(cursor)); } catch (e) {}
+  }
+  // Expand the SoW group bucket if the root project has a SoW assignment.
+  // The SoW key format is: sow_${clientKey}_${sowId}
+  if (root) {
+    const sowId = root.sowId || root.sow_id;
+    if (sowId) {
+      try {
+        const cKey = clientGroupKey(root);
+        collapsedTaskIds.delete('sow_' + cKey + '_' + sowId);
+      } catch (e) {}
+    }
+  }
+  // Re-render the tree with the expanded state (after switchView collapsed it)
+  renderContent();
   openDetail(taskId);
   // Two frames: first lets renderContent rebuild the DOM, second scrolls.
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       const row = document.querySelector(`.task-row[data-task-id="${taskId}"]`);
-      if (row) row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if (row) {
+        row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Brief highlight so the target is obvious in the tree
+        row.style.outline = '2px solid var(--accent)';
+        row.style.outlineOffset = '-1px';
+        setTimeout(() => { row.style.outline = ''; row.style.outlineOffset = ''; }, 2500);
+      }
     });
   });
 }
