@@ -748,7 +748,7 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .task-children { border-left: 3px solid var(--accent-border); margin-left: 32px; padding-left: 4px; background: rgba(0,102,255,0.02); }
 
 /* ===== FILTER BAR ===== */
-.filter-bar { display: flex; gap: var(--space-sm); align-items: center; margin-bottom: var(--space-lg); flex-wrap: wrap; }
+.filter-bar { display: flex; gap: var(--space-sm); align-items: center; margin-bottom: var(--space-sm); flex-wrap: wrap; }
 .filter-bar select, .filter-bar input { background: var(--bg-input); border: 1px solid var(--border-default); border-radius: var(--radius-md); color: var(--text-primary); padding: 6px 10px; font-family: var(--font-body); font-size: 0.8rem; line-height: 1.3; min-height: 32px; }
 .filter-bar select:focus, .filter-bar input:focus { border-color: var(--accent-border); }
 .filter-bar input { flex: 1; min-width: 140px; max-width: 320px; }
@@ -7094,31 +7094,16 @@ function renderTaskView(el) {
       <button class="btn btn--sm btn--danger" data-action="bulkDelete">Delete</button>
       <button class="btn btn--sm" data-action="_actClearSelectedTasks">Clear</button>
     ` : ''}</div>
+    <div class="quick-add-bar" style="display:flex;gap:4px;align-items:center">
+      <select id="quickAddType" style="padding:4px 6px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.72rem">
+        ${ITEM_TYPE_ORDER.map(t => `<option value="${t}">${ITEM_TYPE_META[t].label}</option>`).join('')}
+      </select>
+      <input type="text" id="quickAddInput" placeholder="Quick add... (Enter)" style="width:180px;flex:none;padding:4px 8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.72rem;min-width:0" onkeydown="if(event.key==='Enter'&&this.value.trim()){quickAddTask(this.value.trim());this.value=''}">
+      <select id="quickAddClient" style="padding:4px 6px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.72rem">
+        <option value="">No Client</option>${getContractedClients().map(c => `<option value="${esc(c)}" ${currentFilter.client===c?'selected':''}>${esc(c)}</option>`).join('')}
+      </select>
+    </div>
   </div>`;
-
-  // Active filter breadcrumbs + quick-add (share one row)
-  const hasActiveFilters = currentFilter.client || (currentFilter.status && currentFilter.status.length > 0) || (currentFilter.health && currentFilter.health.length > 0) || currentFilter.project || (currentFilter.assignee && currentFilter.assignee.length > 0);
-  html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:var(--space-sm);flex-wrap:wrap">`;
-  if (hasActiveFilters) {
-    html += `<div class="filter-chips" style="margin-bottom:0">`;
-    if (currentFilter.client) html += `<span class="filter-chip">Client: ${esc(currentFilter.client)} <button data-action="_actClearFilterClient" title="Clear filter">&times;</button></span>`;
-    if (currentFilter.project) { const pTask = tasks.find(t => t.id === currentFilter.project); html += `<span class="filter-chip">Project: ${esc(pTask ? pTask.title : 'Unknown')} <button data-action="_actClearFilterProject" title="Clear filter">&times;</button></span>`; }
-    if (currentFilter.status && currentFilter.status.length > 0) html += `<span class="filter-chip">Status: ${currentFilter.status.map(s => esc(s)).join(', ')} <button data-action="_actClearFilterStatus" title="Clear filter">&times;</button></span>`;
-    if (currentFilter.health && currentFilter.health.length > 0) html += `<span class="filter-chip">Health: ${currentFilter.health.map(h => esc(h)).join(', ')} <button data-action="_actClearFilterHealth" title="Clear filter">&times;</button></span>`;
-    if (currentFilter.assignee && currentFilter.assignee.length > 0) html += `<span class="filter-chip">People: ${currentFilter.assignee.map(a => esc(a)).join(', ')} <button data-action="_actClearFilterAssignee" title="Clear filter">&times;</button></span>`;
-    html += `<button class="filter-chip-clear" data-action="_actResetFilters">Clear all</button>`;
-    html += `</div>`;
-  }
-  html += `<div class="quick-add-bar" style="display:flex;gap:6px;align-items:center;margin:0 auto;width:50%;min-width:320px;max-width:600px">
-    <select id="quickAddType" style="padding:6px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.78rem">
-      ${ITEM_TYPE_ORDER.map(t => `<option value="${t}">${ITEM_TYPE_META[t].label}</option>`).join('')}
-    </select>
-    <input type="text" id="quickAddInput" placeholder="Quick add... (Enter)" style="flex:1;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.78rem" onkeydown="if(event.key==='Enter'&&this.value.trim()){quickAddTask(this.value.trim());this.value=''}">
-    <select id="quickAddClient" style="padding:6px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.78rem">
-      <option value="">No Client</option>${getContractedClients().map(c => `<option value="${esc(c)}" ${currentFilter.client===c?'selected':''}>${esc(c)}</option>`).join('')}
-    </select>
-  </div>`;
-  html += `</div>`;
 
   html += '<div class="tasks-layout">';
   html += '<div class="tasks-layout__main">';
