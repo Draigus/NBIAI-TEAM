@@ -2626,9 +2626,10 @@ span.fin-editable { display: inline-block; position: relative; }
 
 /* ===== Command Centre ===== */
 .cc-page { padding: 8px 0; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
-.cc-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 24px; }
-.cc-header__tag { font-size: 0.65rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--text-faint); margin-bottom: 6px; }
-.cc-header__greeting { font-size: 1.7rem; font-weight: 800; letter-spacing: -0.5px; }
+.cc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; gap: 16px; flex-wrap: wrap; }
+.cc-header__left { display: flex; align-items: baseline; gap: 10px; }
+.cc-header__tag { font-size: 0.6rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text-faint); }
+.cc-header__greeting { font-size: 1rem; font-weight: 700; }
 .cc-header__name { color: var(--primary); }
 .cc-header__right { display: flex; align-items: center; gap: 14px; }
 .cc-header__ts { font-size: 0.68rem; color: var(--text-faint); }
@@ -19568,8 +19569,13 @@ function _ccRenderPage(el) {
   const userName = _currentUser?.displayName?.split(' ')[0] || 'Glen';
   html += '<div class="cc-page">';
   html += '<div class="cc-header">';
-  html += '<div><div class="cc-header__tag">COMMAND CENTRE</div>';
-  html += '<div class="cc-header__greeting">' + esc(greeting) + ', <span class="cc-header__name">' + esc(userName) + '</span></div></div>';
+  html += '<div class="cc-header__left">';
+  html += '<span class="cc-header__tag">COMMAND CENTRE</span>';
+  html += '<span class="cc-header__greeting">' + esc(greeting) + ', <span class="cc-header__name">' + esc(userName) + '</span></span>';
+  html += '<div class="cc-tabs" style="margin:0;border:0">';
+  html += '<div class="cc-tabs__item' + (_ccTab === 'dashboard' ? ' cc-tabs__item--active' : '') + '" onclick="ccSwitchTab(\'dashboard\')">Dashboard</div>';
+  html += '<div class="cc-tabs__item' + (_ccTab === 'briefing' ? ' cc-tabs__item--active' : '') + '" onclick="ccSwitchTab(\'briefing\')">Daily Briefing</div>';
+  html += '</div></div>';
   html += '<div class="cc-header__right">';
   if (_ccSnapshot) {
     const _ts = _ccSnapshot.updated_at || _ccSnapshot.created_at || _ccSnapshot.snapshot_date;
@@ -19577,11 +19583,6 @@ function _ccRenderPage(el) {
   }
   html += '<button class="btn btn--sm" onclick="ccRefresh()">Refresh Scan</button>';
   html += '</div></div>';
-
-  html += '<div class="cc-tabs">';
-  html += '<div class="cc-tabs__item' + (_ccTab === 'dashboard' ? ' cc-tabs__item--active' : '') + '" onclick="ccSwitchTab(\'dashboard\')">Dashboard</div>';
-  html += '<div class="cc-tabs__item' + (_ccTab === 'briefing' ? ' cc-tabs__item--active' : '') + '" onclick="ccSwitchTab(\'briefing\')">Daily Briefing</div>';
-  html += '</div>';
 
   if (_ccTab === 'dashboard') {
     html += ccRenderDashboard();
