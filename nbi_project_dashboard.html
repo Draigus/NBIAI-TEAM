@@ -3565,7 +3565,8 @@ function authFetch(url, opts = {}) {
       _currentUser = null;
       showLoginScreen();
     } else if (resp.status === 403) {
-      toast('You do not have permission for this action', 'error');
+      const method = (opts.method || 'GET').toUpperCase();
+      if (method !== 'GET') toast('You do not have permission for this action', 'error');
     }
     return resp;
   });
@@ -19519,14 +19520,19 @@ async function deleteCandidate(id) {
 let _ccSnapshot = null;
 let _ccBriefing = null;
 let _ccBriefingFailed = false;
+let _ccLoadFailed = false;
 let _ccLoading = false;
 let _ccTab = localStorage.getItem('ccTab') || 'dashboard';
 
 function renderCommandCentre(el) {
-  if (!_ccSnapshot && !_ccLoading) {
+  if (!_ccSnapshot && !_ccLoading && !_ccLoadFailed) {
     el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted)">Loading Command Centre...</div>';
     _ccLoading = true;
     _ccLoadData();
+    return;
+  }
+  if (_ccLoadFailed && !_ccSnapshot) {
+    el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted)">Failed to load Command Centre. <a href="#" onclick="event.preventDefault();_ccLoadFailed=false;_ccLoading=true;_ccLoadData();return false" style="color:var(--primary)">Retry</a></div>';
     return;
   }
   if (!_ccSnapshot) {
@@ -19542,13 +19548,19 @@ function renderCommandCentre(el) {
 
 async function _ccLoadData() {
   try {
-    const resp = await apiCall('/api/command-centre/snapshot');
-    if (resp) { _ccSnapshot = resp; }
-    else {
-      const refreshResp = await apiCall('/api/command-centre/refresh', { method: 'POST' });
-      if (refreshResp) _ccSnapshot = refreshResp;
+    const resp = await authFetch('/api/command-centre/snapshot');
+    if (resp.ok) {
+      const body = await resp.json();
+      _ccSnapshot = body.data || body;
+    } else {
+      const refreshResp = await authFetch('/api/command-centre/refresh', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+      if (refreshResp.ok) {
+        const body = await refreshResp.json();
+        _ccSnapshot = body.data || body;
+      }
     }
   } catch (e) {}
+  if (!_ccSnapshot) _ccLoadFailed = true;
   _ccLoading = false;
   if (currentView === 'commandcentre') renderContent();
 }
@@ -19618,7 +19630,7 @@ function ccSwitchTab(tab) {
 async function ccRefresh() {
   toast('Refreshing scan...', 'info');
   const resp = await apiCall('/api/command-centre/refresh', { method: 'POST' });
-  if (resp) { _ccSnapshot = resp; _ccBriefing = null; _ccBriefingFailed = false; toast('Scan complete', 'success'); renderContent(); }
+  if (resp) { _ccSnapshot = resp; _ccBriefing = null; _ccBriefingFailed = false; _ccLoadFailed = false; toast('Scan complete', 'success'); renderContent(); }
 }
 
 // ——— HELPERS ———
