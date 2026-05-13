@@ -22,7 +22,7 @@ async function computeDashboardSnapshot() {
     SELECT
       count(*) FILTER (WHERE parent_id IS NULL AND title IS NOT NULL AND trim(title) != 'New Task'
                         AND status NOT IN ('Done','Cancelled')) as active_projects,
-      count(*) FILTER (WHERE due_date < CURRENT_DATE AND status NOT IN ('Done','Cancelled')) as overdue_count,
+      count(*) FILTER (WHERE due_date != '' AND due_date::date < CURRENT_DATE AND status NOT IN ('Done','Cancelled')) as overdue_count,
       count(*) FILTER (WHERE health_state = 'Blocked' AND status NOT IN ('Done','Cancelled')) as blocked_count,
       count(*) FILTER (WHERE health_state = 'Red' AND status NOT IN ('Done','Cancelled')) as at_risk_count,
       COALESCE(sum(hours_spent) FILTER (WHERE true), 0) as hours_spent,
@@ -30,7 +30,7 @@ async function computeDashboardSnapshot() {
       count(*) FILTER (WHERE status NOT IN ('Done','Cancelled')) as tasks_planned,
       count(*) FILTER (WHERE created_at::date = $1::date) as tasks_added,
       count(*) FILTER (WHERE status = 'Done') as tasks_completed,
-      count(DISTINCT title) FILTER (WHERE (due_date < CURRENT_DATE OR health_state = 'Red')
+      count(DISTINCT title) FILTER (WHERE (due_date != '' AND due_date::date < CURRENT_DATE OR health_state = 'Red')
                                      AND status NOT IN ('Done','Cancelled')
                                      AND parent_id IS NULL AND title IS NOT NULL AND trim(title) != 'New Task') as problem_projects
     FROM tasks
