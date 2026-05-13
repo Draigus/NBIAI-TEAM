@@ -1798,7 +1798,7 @@ span.fin-editable { display: inline-block; position: relative; }
   z-index: 501; transform: translateX(100%); transition: transform 0.2s;
   overflow: hidden; display: flex; flex-direction: column; }
 .lead-detail-panel.open { transform: translateX(0); }
-.lead-detail { padding: var(--space-xl); flex: 1; overflow-y: auto; min-height: 0; }
+.lead-detail { padding: var(--space-xl); flex: 1 !important; overflow-y: auto !important; min-height: 0 !important; }
 .lead-detail__header { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 20px;
   padding: var(--space-xl) 0 16px; border-bottom: 1px solid var(--border-subtle);
   position: sticky; top: 0; background: var(--bg-raised); z-index: 2;
@@ -17664,23 +17664,30 @@ async function submitNewLead() {
     return;
   }
 
-  // Create new client if specified
+  // Create new client or find existing match
   if (!client_id && newClientName) {
     try {
-      const resp = await authFetch('/api/clients', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: newClientName, practice_area: 'gaming' })
-      });
-      if (resp.ok) {
-        const c = await resp.json();
-        client_id = c.id;
+      const existingClients = await apiCall('/api/clients');
+      const match = (existingClients || []).find(c => c.name.toLowerCase() === newClientName.toLowerCase());
+      if (match) {
+        client_id = match.id;
       } else {
-        toast('Failed to create client. Please try again.', 'error');
-        return;
+        const resp = await authFetch('/api/clients', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: newClientName, practice_area: 'gaming' })
+        });
+        if (resp.ok) {
+          const c = await resp.json();
+          client_id = c.id;
+        } else {
+          const err = await resp.json().catch(() => ({}));
+          toast('Failed to create client: ' + (err.error || 'Unknown error'), 'error');
+          return;
+        }
       }
     } catch(e) {
-      toast('Failed to create client. Please try again.', 'error');
+      toast('Failed to create client: ' + e.message, 'error');
       return;
     }
   }
