@@ -6162,24 +6162,31 @@ function renderPfMilestones(panelRoots, now) {
 
 
 function renderPfCompletingSoon(panelRoots, now) {
-  const activeRoots = panelRoots.filter(r => r.status !== 'Done' && r.status !== 'Cancelled');
-  const nearComplete = activeRoots.map(r => {
-    const kids = getDescendants(r.id);
-    const all = [r, ...kids];
-    const d = all.filter(t => t.status === 'Done').length;
-    const pct = all.length > 0 ? Math.round(d / all.length * 100) : 0;
-    return { ...r, _pct: pct, _client: getTaskClient(r) || '' };
-  }).filter(r => r._pct >= 60 && r._pct < 100).sort((a, b) => b._pct - a._pct).slice(0, 6);
+  const features = [];
+  panelRoots.forEach(r => {
+    getChildren(r.id).forEach(f => {
+      if (getItemType(f) !== 'feature') return;
+      if (f.status === 'Done' || f.status === 'Cancelled') return;
+      const kids = getDescendants(f.id);
+      const all = [f, ...kids];
+      const d = all.filter(t => t.status === 'Done').length;
+      const pct = all.length > 1 ? Math.round(d / all.length * 100) : 0;
+      if (pct >= 60 && pct < 100) features.push({ ...f, _pct: pct, _client: getTaskClient(f) || '' });
+    });
+  });
+  features.sort((a, b) => b._pct - a._pct);
+  const nearComplete = features.slice(0, 8);
 
   let html = '<div class="pf__panel">';
   html += '<div class="pf__panel-hdr"><span class="pf__panel-title" style="color:var(--success)">Near Completion</span><span class="pf__panel-badge" style="color:var(--success)">' + nearComplete.length + '</span></div>';
   html += '<div class="pf__panel-body">';
 
   if (nearComplete.length === 0) {
-    html += '<div class="pf__empty" style="display:flex;align-items:center;justify-content:center;min-height:100px"><div><div class="pf__empty-title">No projects near completion</div><div class="pf__empty-sub">Most active work is early-stage</div></div></div>';
+    html += '<div class="pf__empty" style="display:flex;align-items:center;justify-content:center;min-height:100px"><div><div class="pf__empty-title">No features near completion</div><div class="pf__empty-sub">Most active work is early-stage</div></div></div>';
   } else {
     nearComplete.forEach(r => {
       html += '<div class="pf__wl" style="cursor:pointer" data-action="openDetailOverlay" data-arg0="' + r.id + '">';
+      html += '<span style="font-size:0.65rem;color:var(--text-muted);display:block;margin-bottom:1px">' + esc(r._client) + '</span>';
       html += '<span class="pf__wl-name">' + esc(r.title) + '</span>';
       html += '<div class="pf__wl-trk pf__well"><div class="pf__bar-fill pf__bar-fill--g" style="width:' + r._pct + '%"></div></div>';
       html += '<span class="pf__wl-ct" style="color:var(--success)">' + r._pct + '%</span>';
