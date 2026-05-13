@@ -248,7 +248,7 @@ html[data-theme="command"] .expense-card {
 html[data-theme="command"] .detail-panel,
 html[data-theme="command"] .ms-detail-panel { background: #1c1f24; }
 
-html { font-size: 17px; }
+html { font-size: 17px; color-scheme: dark light; }
 body { font-family: var(--font-body); background: var(--bg-base); color: var(--text-primary); line-height: 1.5; min-height: var(--vh-full); overflow: hidden; }
 /* Accessible focus rings — replaces outline:none throughout */
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -4270,12 +4270,11 @@ function clientGroupKey(task) {
   const cn = (task.client || getTaskClient(task) || 'Unassigned').replace(/[^a-zA-Z0-9]/g, '_');
   return 'client_' + cn;
 }
-/** Check if a leaf task is missing required fields (hours, priority, assignee, due date, client, description) */
+/** Check if a leaf task is missing required fields (hours, priority, assignee, due date, client) */
 function isTaskIncomplete(task) {
   if (getChildren(task.id).length > 0) return false;
   if (task.status === 'Done' || task.status === 'Cancelled' || task.status === 'Not started') return false;
-  const descLen = (task.description || '').trim().length;
-  return !task.hoursEstimated || !task.priority || !task.assignees || task.assignees.length === 0 || !task.dueDate || !task.client || descLen < 15;
+  return !task.hoursEstimated || !task.priority || !task.assignees || task.assignees.length === 0 || !task.dueDate || !task.client;
 }
 
 // ==================== ITEM TYPE HIERARCHY ====================
@@ -9911,7 +9910,7 @@ function openDetailOverlay(id) {
 
   // Incomplete marker for detail panel
   const dpIncomplete = isTaskIncomplete(task);
-  const dpMissingFields = dpIncomplete ? [!task.hoursEstimated?'Hours estimated':'', !task.priority?'Priority':'', !task.assignees||task.assignees.length===0?'Assignee':'', !task.dueDate?'Due date':'', !task.client?'Client':'', (task.description||'').trim().length < 15 ? 'Description (min 15 chars)' : ''].filter(Boolean) : [];
+  const dpMissingFields = dpIncomplete ? [!task.hoursEstimated?'Hours estimated':'', !task.priority?'Priority':'', !task.assignees||task.assignees.length===0?'Assignee':'', !task.dueDate?'Due date':'', !task.client?'Client':''].filter(Boolean) : [];
 
   let html = `<div class="detail-panel__resize" onmousedown="startPanelResize(event,'detailPanel')"></div>`;
   html += `<div class="detail-panel__header"><input class="detail-panel__title-input" value="${esc(task.title)}" onchange="updateTask('${id}','title',this.value);this.closest('.detail-panel__header').querySelector('.detail-panel__title-input').value=this.value" onkeydown="if(event.key==='Enter')this.blur()"><button class="detail-panel__close" data-action="closeDetail" aria-label="Close detail panel">&times;</button></div>`;
