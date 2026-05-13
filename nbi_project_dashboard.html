@@ -5369,7 +5369,7 @@ function filterByProject(projectId) {
 function renderBreadcrumbs() {
   const bar = document.getElementById('breadcrumbBar');
   if (!bar) return;
-  const noFilterViews = ['bugs', 'leads', 'documentation', 'hiring', 'news', 'queue', 'settings', 'expenses', 'finances'];
+  const noFilterViews = ['bugs', 'leads', 'documentation', 'hiring', 'news', 'queue', 'settings', 'expenses', 'finances', 'tasks'];
   if (noFilterViews.includes(currentView)) { bar.innerHTML = ''; bar.style.display = 'none'; return; }
   const hasFilter = currentFilter.client || currentFilter.practice || (currentFilter.assignee && currentFilter.assignee.length > 0) || (currentFilter.health && currentFilter.health.length > 0) || (currentFilter.status && currentFilter.status.length > 0) || currentFilter.incomplete || currentFilter.project;
   if (!hasFilter) { bar.innerHTML = ''; bar.style.display = 'none'; return; }
@@ -7094,16 +7094,38 @@ function renderTaskView(el) {
       <button class="btn btn--sm btn--danger" data-action="bulkDelete">Delete</button>
       <button class="btn btn--sm" data-action="_actClearSelectedTasks">Clear</button>
     ` : ''}</div>
-    <div class="quick-add-bar" style="display:flex;gap:4px;align-items:center">
-      <select id="quickAddType" style="padding:4px 6px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.72rem">
-        ${ITEM_TYPE_ORDER.map(t => `<option value="${t}">${ITEM_TYPE_META[t].label}</option>`).join('')}
-      </select>
-      <input type="text" id="quickAddInput" placeholder="Quick add... (Enter)" style="width:180px;flex:none;padding:4px 8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.72rem;min-width:0" onkeydown="if(event.key==='Enter'&&this.value.trim()){quickAddTask(this.value.trim());this.value=''}">
-      <select id="quickAddClient" style="padding:4px 6px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.72rem">
-        <option value="">No Client</option>${getContractedClients().map(c => `<option value="${esc(c)}" ${currentFilter.client===c?'selected':''}>${esc(c)}</option>`).join('')}
-      </select>
-    </div>
   </div>`;
+
+  // Combined sub-controls row: Show buttons (board only) + quick-add + filter pills
+  const hasFilter = currentFilter.client || (currentFilter.status && currentFilter.status.length > 0) || (currentFilter.health && currentFilter.health.length > 0) || currentFilter.project || (currentFilter.assignee && currentFilter.assignee.length > 0) || currentFilter.incomplete;
+  html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:var(--space-sm);flex-wrap:wrap">`;
+  if (taskSubView === 'board') {
+    html += `<div style="display:flex;align-items:center;gap:4px;flex-shrink:0">
+      <span style="font-size:0.75rem;color:var(--text-muted)">Show:</span>
+      <button class="btn btn--sm ${!_boardTypeFilter?'btn--primary':''}" data-action="_actSetBoardTypeFilter" data-arg0="null" style="font-size:0.7rem;padding:2px 8px">All</button>
+      ${ITEM_TYPE_ORDER.map(type => '<button class="btn btn--sm '+(_boardTypeFilter===type?'btn--primary':'')+'" data-action="_actSetBoardTypeFilter" data-arg0="'+type+'" style="font-size:0.7rem;padding:2px 8px">'+ITEM_TYPE_META[type].plural+'</button>').join('')}
+    </div>`;
+  }
+  html += `<div class="quick-add-bar" style="display:flex;gap:4px;align-items:center;flex-shrink:0">
+    <select id="quickAddType" style="padding:3px 6px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.72rem">
+      ${ITEM_TYPE_ORDER.map(t => '<option value="'+t+'">'+ITEM_TYPE_META[t].label+'</option>').join('')}
+    </select>
+    <input type="text" id="quickAddInput" placeholder="Quick add... (Enter)" style="width:160px;flex:none;padding:3px 8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.72rem;min-width:0" onkeydown="if(event.key==='Enter'&&this.value.trim()){quickAddTask(this.value.trim());this.value=''}">
+    <select id="quickAddClient" style="padding:3px 6px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.72rem">
+      <option value="">No Client</option>${getContractedClients().map(c => '<option value="'+esc(c)+'" '+(currentFilter.client===c?'selected':'')+'>'+esc(c)+'</option>').join('')}
+    </select>
+  </div>`;
+  if (hasFilter) {
+    html += `<div style="display:flex;align-items:center;gap:4px;margin-left:auto;flex-shrink:0">`;
+    if (currentFilter.client) html += `<span class="filter-chip" style="font-size:0.72rem;margin:0">${esc(currentFilter.client)} <button data-action="_actClearFilterClientBreadcrumb">&times;</button></span>`;
+    if (currentFilter.project) { const pt = tasks.find(t => t.id === currentFilter.project); html += `<span class="filter-chip" style="font-size:0.72rem;margin:0">${esc(pt ? pt.title : 'Project')} <button data-action="_actClearFilterProjectBreadcrumb">&times;</button></span>`; }
+    if (currentFilter.status && currentFilter.status.length > 0) html += `<span class="filter-chip" style="font-size:0.72rem;margin:0">${currentFilter.status.join(', ')} <button data-action="_actClearFilterStatusBreadcrumb">&times;</button></span>`;
+    if (currentFilter.health && currentFilter.health.length > 0) html += `<span class="filter-chip" style="font-size:0.72rem;margin:0">${currentFilter.health.join(', ')} <button data-action="_actClearFilterHealthBreadcrumb">&times;</button></span>`;
+    if (currentFilter.incomplete) html += `<span class="filter-chip" style="font-size:0.72rem;margin:0">Incomplete <button data-action="_actClearFilterIncompleteBreadcrumb">&times;</button></span>`;
+    html += `<button class="filter-chip-clear" style="font-size:0.68rem" data-action="_actResetFiltersBreadcrumb">Clear all</button>`;
+    html += `</div>`;
+  }
+  html += `</div>`;
 
   html += '<div class="tasks-layout">';
   html += '<div class="tasks-layout__main">';
@@ -7350,11 +7372,7 @@ function renderBoardView(filtered) {
   const notBlockedByHealth = active.filter(t => t.healthState !== 'Blocked');
 
   // BOARD_LANE_CAP defined in config constants
-  let html = `<div style="display:flex;gap:6px;margin-bottom:10px;align-items:center;flex-wrap:wrap">
-    <span style="font-size:0.75rem;color:var(--text-muted)">Show:</span>
-    <button class="btn btn--sm ${!_boardTypeFilter?'btn--primary':''}" data-action="_actSetBoardTypeFilter" data-arg0="null" style="font-size:0.7rem;padding:2px 8px">All</button>
-    ${ITEM_TYPE_ORDER.map(type => `<button class="btn btn--sm ${_boardTypeFilter===type?'btn--primary':''}" data-action="_actSetBoardTypeFilter" data-arg0="${type}" style="font-size:0.7rem;padding:2px 8px">${ITEM_TYPE_META[type].plural}</button>`).join('')}
-  </div>`;
+  let html = '';
   html += '<div class="board">';
   BOARD_COLUMNS.forEach(col => {
     const laneTasks = (col.id === 'blocked'
