@@ -27,7 +27,6 @@
 <style>
 /* ===== RESET & TOKENS ===== */
 :root { --vh-full: 100vh; }
-@supports (height: var(--vh-full)) { :root { --vh-full: var(--vh-full); } }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
   --bg-base: #0a0a0a; --bg-raised: #111111; --bg-surface: #161616;
@@ -338,7 +337,10 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .main__tab.active { color: var(--accent-text); border-bottom-color: var(--accent); }
 .main__content { flex: 1; overflow-y: auto; overflow-x: hidden; padding: var(--space-xl); width: 100%; -webkit-overflow-scrolling: touch; }
 .main__content:has(.pf) { padding: 8px; }
-.main__content:has(> .docs) { overflow: hidden; display: flex; flex-direction: column; padding: 0; }
+.main__content:has(> .docs),
+.main__content:has(> .tasks-view),
+.main__content:has(> .cc-page) { overflow: hidden; display: flex; flex-direction: column; padding: 0; }
+.main__content:has(> .pf) { overflow: hidden; display: flex; flex-direction: column; }
 
 /* ===== KPI CARDS ===== */
 .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--space-lg); margin-bottom: var(--space-xl); }
@@ -439,7 +441,7 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 @media (min-width: 769px) and (max-width: 1024px) { .people-split { flex-direction: column; } .people-list { width: 100%; max-height: 400px; position: static; } .people-detail { width: 100%; } }
 
 /* ===== PORTFOLIO v5 — Neumorphic layout ===== */
-.pf { width: 100%; padding: 0; display: flex; flex-direction: column; gap: 12px; height: 100%; min-height: 0; overflow: hidden; }
+.pf { width: 100%; padding: 0; display: flex; flex-direction: column; gap: 12px; flex: 1; min-height: 0; overflow: hidden; }
 
 /* KPI row — 5 compact cards, fixed height */
 .pf__kpis { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; flex-shrink: 0; }
@@ -551,7 +553,7 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 /* Responsive */
 @media (max-width: 1200px) { .pf__kpis { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 900px) {
-  .pf { overflow-y: auto; height: auto; }
+  .pf { overflow-y: auto; flex: none; }
   .pf__kpis { grid-template-columns: 1fr 1fr; }
   .pf__row { flex-direction: column; }
   .pf__pgrid { grid-template-columns: 1fr; }
@@ -794,7 +796,7 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .batch-actions { display: flex; gap: var(--space-sm); margin-left: auto; }
 
 /* ===== TASKS MASTER-DETAIL LAYOUT ===== */
-.tasks-view { display: flex; flex-direction: column; height: 100%; }
+.tasks-view { display: flex; flex-direction: column; flex: 1; min-height: 0; }
 .tasks-layout { display: flex; gap: 0; flex: 1; min-height: 0; }
 .tasks-layout__main { flex: 1; min-width: 0; overflow-y: auto; overflow-x: hidden; }
 .tasks-layout__detail { width: 340px; min-width: 240px; max-width: 70vw; flex-shrink: 0; border-left: 1px solid var(--border-default); background: var(--bg-raised); overflow-y: auto; display: flex; flex-direction: column; position: relative; }
@@ -2627,7 +2629,7 @@ span.fin-editable { display: inline-block; position: relative; }
 }
 
 /* ===== Command Centre ===== */
-.cc-page { padding: 8px 0; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
+.cc-page { padding: 8px 0; flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
 .cc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; gap: 16px; flex-wrap: wrap; }
 .cc-header__left { display: flex; align-items: baseline; gap: 10px; }
 .cc-header__tag { font-size: 0.6rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text-faint); }
@@ -5448,7 +5450,6 @@ function renderContent() {
   if (_perfEnd - _perfStart > 100) {
     console.debug('[Perf] renderContent took ' + Math.round(_perfEnd - _perfStart) + 'ms');
   }
-  fixScrollHeights();
 }
 
 /** Re-render sidebar counts without rebuilding the whole page */
@@ -5468,47 +5469,8 @@ function renderAll() {
   if (_perfEnd - _perfStart > 100) {
     console.debug('[Perf] renderAll took ' + Math.round(_perfEnd - _perfStart) + 'ms');
   }
-  fixScrollHeights();
 }
 
-function fixScrollHeights() {
-  requestAnimationFrame(() => {
-    if (window.innerWidth < 768) return;
-    const sn = document.getElementById('sidebarNav');
-    if (sn) {
-      const top = sn.getBoundingClientRect().top;
-      const toggle = sn.nextElementSibling;
-      const toggleH = toggle ? toggle.offsetHeight : 0;
-      const h = Math.max(200, window.innerHeight - top - toggleH);
-      sn.style.height = h + 'px';
-      sn.style.flex = 'none';
-      sn.style.overflowY = 'auto';
-    }
-    const mc = document.getElementById('mainContent');
-    if (mc) {
-      const top = mc.getBoundingClientRect().top;
-      const mcH = Math.max(200, window.innerHeight - top);
-      mc.style.height = mcH + 'px';
-      mc.style.flex = 'none';
-      mc.style.overflowY = 'auto';
-      // Fix inner scroll panels: tasks-layout and its children need
-      // explicit heights to scroll independently within mainContent.
-      const tl = mc.querySelector('.tasks-layout');
-      if (tl) {
-        const tlTop = tl.getBoundingClientRect().top;
-        const tlH = Math.max(100, window.innerHeight - tlTop);
-        tl.style.height = tlH + 'px';
-        tl.style.flex = 'none';
-        // Main content area (tree/board/gantt)
-        const tlMain = tl.querySelector('.tasks-layout__main');
-        if (tlMain) { tlMain.style.height = tlH + 'px'; tlMain.style.overflowY = 'auto'; }
-        // Inline detail panel
-        const tlDetail = tl.querySelector('.tasks-layout__detail');
-        if (tlDetail) { tlDetail.style.height = tlH + 'px'; tlDetail.style.overflowY = 'auto'; }
-      }
-    }
-  });
-}
 
 // ==================== DASHBOARD VIEW ====================
 
@@ -5574,20 +5536,6 @@ function renderDashboard(el) {
   // html += renderTacticalDashboard(); // COMMENTED OUT — old tactical/ops view, kept for revert
   html += renderPortfolioDashboard();
   el.innerHTML = html;
-
-  requestAnimationFrame(() => {
-    const pf = el.querySelector('.pf');
-    if (pf) {
-      if (window.matchMedia('(max-height: 850px)').matches) {
-        pf.style.height = '';
-        return;
-      }
-      const top = pf.getBoundingClientRect().top;
-      const contentEl = document.getElementById('mainContent');
-      const padBot = contentEl ? parseFloat(getComputedStyle(contentEl).paddingBottom) || 0 : 0;
-      pf.style.height = (window.innerHeight - top - padBot) + 'px';
-    }
-  });
 
   // const standupExpanded = sessionStorage.getItem('nbi_standup_expanded') === '1';
   // if (standupExpanded) {
@@ -7184,14 +7132,6 @@ function renderTaskView(el) {
   html += '</div>'; // close tasks-layout
   html += '</div>'; // close tasks-view
   el.innerHTML = html;
-  // Size the tasks-layout to fill remaining viewport (same pattern as portfolio view)
-  requestAnimationFrame(() => {
-    const layout = el.querySelector('.tasks-layout');
-    if (layout) {
-      const top = layout.getBoundingClientRect().top;
-      layout.style.height = (window.innerHeight - top) + 'px';
-    }
-  });
   // Load notes if profile expanded
   if (currentFilter.client && _profileExpanded[currentFilter.client.replace(/[^a-zA-Z0-9]/g, '_')]) {
     setTimeout(() => loadClientNotes(currentFilter.client), 50);
@@ -19681,11 +19621,6 @@ function _ccRenderPage(el) {
       const target = circle.getAttribute('data-target');
       if (target) circle.style.strokeDashoffset = target;
     });
-    const ccEl = document.querySelector('.cc-page');
-    if (ccEl) {
-      const top = ccEl.getBoundingClientRect().top;
-      ccEl.style.height = (window.innerHeight - top - 8) + 'px';
-    }
   });
 }
 
@@ -22529,18 +22464,6 @@ function showSyncStatus(type, msg) {
 // ===== TAB OVERFLOW CHECK ON RESIZE =====
 window.addEventListener('resize', () => {
   checkTabOverflow();
-  fixScrollHeights();
-  const pf = document.querySelector('.pf');
-  if (pf && currentView === 'dashboard') {
-    if (window.matchMedia('(max-height: 850px)').matches) {
-      pf.style.height = '';
-    } else {
-      const top = pf.getBoundingClientRect().top;
-      const contentEl = document.getElementById('mainContent');
-      const padBot = contentEl ? parseFloat(getComputedStyle(contentEl).paddingBottom) || 0 : 0;
-      pf.style.height = (window.innerHeight - top - padBot) + 'px';
-    }
-  }
 });
 
 // ===== OFFLINE INDICATOR =====
