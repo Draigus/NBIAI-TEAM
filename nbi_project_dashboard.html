@@ -5478,6 +5478,7 @@ function fixScrollHeights() {
       const h = Math.max(200, window.innerHeight - top - toggleH);
       sn.style.height = h + 'px';
       sn.style.flex = 'none';
+      sn.style.overflowY = 'auto';
     }
     const mc = document.getElementById('mainContent');
     if (mc) {
@@ -5485,6 +5486,7 @@ function fixScrollHeights() {
       const h = Math.max(200, window.innerHeight - top);
       mc.style.height = h + 'px';
       mc.style.flex = 'none';
+      mc.style.overflowY = 'auto';
     }
   });
 }
