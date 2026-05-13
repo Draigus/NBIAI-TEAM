@@ -993,8 +993,8 @@ span.fin-editable { display: inline-block; position: relative; }
 .settings__group h2 { font-family: var(--font-display); font-size: 0.75rem; font-weight: 600; color: var(--text-muted); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: var(--space-lg); }
 
 /* ===== CSV IMPORT MODAL ===== */
-.modal-overlay { position: fixed; inset: 0; background: var(--bg-overlay); z-index: 300; display: none; justify-content: center; align-items: center; }
-.modal-overlay.open { display: flex; }
+.modal-overlay { position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; background: var(--bg-overlay); z-index: 9999 !important; display: none; justify-content: center; align-items: center; }
+.modal-overlay.open { display: flex !important; }
 .modal { background: var(--bg-raised); border: 1px solid var(--border-default); border-radius: var(--radius-xl); width: min(600px, calc(100vw - 32px)); max-height: 85vh; overflow-y: auto; padding: var(--space-2xl); box-shadow: var(--shadow-lg); }
 /* Modal titles are sticky so they stay visible when body content scrolls.
  * Catches both the .modal__title class and first-child <h2>/<h3> (some modals
@@ -17933,7 +17933,7 @@ async function openBugReportModal() {
   const screenshotPromise = captureScreenshot();
   const currentPage = currentView || 'unknown';
 
-  let html = `<div class="modal-overlay open" id="bugReportModal" role="dialog" aria-modal="true" style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;display:flex;justify-content:center;align-items:center;background:rgba(0,0,0,0.5)">
+  let html = `<div class="modal-overlay open" id="bugReportModal" role="dialog" aria-modal="true">
     <div class="modal bug-report-modal">
       <h2>&#128030; Report a Bug or Feature Request</h2>
       <div style="margin-bottom:12px">
