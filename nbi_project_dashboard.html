@@ -8045,8 +8045,24 @@ function renderGanttView(filtered) {
     else {
       const descIds = new Set();
       (function collect(pid) { descIds.add(pid); filtered.filter(t => t.parentId === pid).forEach(t => collect(t.id)); })(_ganttScopeId);
-      filtered = filtered.filter(t => descIds.has(t.id));
+      filtered = filtered.filter(t => descIds.has(t.id)).map(t => t.id === _ganttScopeId ? { ...t, parentId: null } : t);
     }
+  }
+  // Inject missing ancestors so the tree structure is complete for rendering
+  if (currentFilter.search) {
+    const idSet = new Set(filtered.map(t => t.id));
+    const toAdd = [];
+    filtered.forEach(t => {
+      let cur = t;
+      while (cur.parentId && !idSet.has(cur.parentId)) {
+        const parent = tasks.find(p => p.id === cur.parentId);
+        if (!parent) break;
+        idSet.add(parent.id);
+        toAdd.push(parent);
+        cur = parent;
+      }
+    });
+    if (toAdd.length > 0) filtered = [...filtered, ...toAdd];
   }
   // Show all items in hierarchy (not just leaves), optionally excluding Done
   const allLeafTasks = filtered.filter(t => !_ganttHideDone || t.status !== 'Done');
