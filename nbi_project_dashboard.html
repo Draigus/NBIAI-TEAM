@@ -17183,6 +17183,19 @@ function closeLeadDetail() {
   document.getElementById('leadDetailPanel')?.classList.remove('open');
 }
 
+async function deleteLead(id) {
+  if (!confirm('Delete this lead? This cannot be undone.')) return;
+  const resp = await authFetch('/api/leads/' + id, { method: 'DELETE' });
+  if (resp.ok) {
+    toast('Lead deleted');
+    closeLeadDetail();
+    await refreshLeads();
+  } else {
+    const err = await resp.json().catch(() => ({}));
+    toast('Failed to delete lead: ' + (err.error || 'Unknown error'), 'error');
+  }
+}
+
 /** Render lead detail content: properties, ROM, resources, activities, attachments, and staffing check */
 function renderLeadDetailContent(panel, lead) {
   const config = _leadsConfig;
@@ -17198,6 +17211,7 @@ function renderLeadDetailContent(panel, lead) {
       <h2 style="margin:0">${esc(lead.title)}${isComplete ? ' <span style="color:var(--success);font-size:0.8em" title="Completed">\u2713</span>' : ''}</h2>
     </div>
     <span class="leads-stage-badge" style="background:${safeColour(lead.stage_colour)}20;color:${safeColour(lead.stage_colour)};border:1px solid ${safeColour(lead.stage_colour)}40;font-size:0.85rem;padding:4px 12px">${esc(lead.stage_name)}</span>
+    ${isAdmin ? `<button class="btn btn--danger btn--sm" data-action="deleteLead" data-arg0="${lead.id}" style="margin-left:8px;font-size:0.7rem" title="Delete this lead">Delete</button>` : ''}
   </div>`;
 
   // Won-stage Mark Complete button (or Uncomplete for completed leads, admin only)
