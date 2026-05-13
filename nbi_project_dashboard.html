@@ -7096,10 +7096,11 @@ function renderTaskView(el) {
     ` : ''}</div>
   </div>`;
 
-  // Active filter breadcrumbs
+  // Active filter breadcrumbs + quick-add (share one row)
   const hasActiveFilters = currentFilter.client || (currentFilter.status && currentFilter.status.length > 0) || (currentFilter.health && currentFilter.health.length > 0) || currentFilter.project || (currentFilter.assignee && currentFilter.assignee.length > 0);
+  html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:var(--space-sm);flex-wrap:wrap">`;
   if (hasActiveFilters) {
-    html += `<div class="filter-chips">`;
+    html += `<div class="filter-chips" style="margin-bottom:0">`;
     if (currentFilter.client) html += `<span class="filter-chip">Client: ${esc(currentFilter.client)} <button data-action="_actClearFilterClient" title="Clear filter">&times;</button></span>`;
     if (currentFilter.project) { const pTask = tasks.find(t => t.id === currentFilter.project); html += `<span class="filter-chip">Project: ${esc(pTask ? pTask.title : 'Unknown')} <button data-action="_actClearFilterProject" title="Clear filter">&times;</button></span>`; }
     if (currentFilter.status && currentFilter.status.length > 0) html += `<span class="filter-chip">Status: ${currentFilter.status.map(s => esc(s)).join(', ')} <button data-action="_actClearFilterStatus" title="Clear filter">&times;</button></span>`;
@@ -7108,14 +7109,13 @@ function renderTaskView(el) {
     html += `<button class="filter-chip-clear" data-action="_actResetFilters">Clear all</button>`;
     html += `</div>`;
   }
-
-  // Quick-add task bar
-  html += `<div class="quick-add-bar" style="display:flex;gap:8px;margin-bottom:var(--space-md);align-items:center">
-    <input type="text" id="quickAddInput" placeholder="Quick add project... (press Enter)" style="flex:1;padding:8px 12px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-size:0.85rem" onkeydown="if(event.key==='Enter'&&this.value.trim()){quickAddTask(this.value.trim());this.value=''}">
-    <select id="quickAddClient" style="padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-size:0.78rem">
+  html += `<div class="quick-add-bar" style="display:flex;gap:6px;align-items:center;margin-left:auto;max-width:420px;flex:1">
+    <input type="text" id="quickAddInput" placeholder="Quick add project... (Enter)" style="flex:1;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.78rem" onkeydown="if(event.key==='Enter'&&this.value.trim()){quickAddTask(this.value.trim());this.value=''}">
+    <select id="quickAddClient" style="padding:6px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.72rem">
       <option value="">No Client</option>${getContractedClients().map(c => `<option value="${esc(c)}" ${currentFilter.client===c?'selected':''}>${esc(c)}</option>`).join('')}
     </select>
   </div>`;
+  html += `</div>`;
 
   html += '<div class="tasks-layout">';
   html += '<div class="tasks-layout__main">';
