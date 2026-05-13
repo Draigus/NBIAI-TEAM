@@ -7109,9 +7109,12 @@ function renderTaskView(el) {
     html += `<button class="filter-chip-clear" data-action="_actResetFilters">Clear all</button>`;
     html += `</div>`;
   }
-  html += `<div class="quick-add-bar" style="display:flex;gap:6px;align-items:center;margin-left:auto;max-width:420px;flex:1">
-    <input type="text" id="quickAddInput" placeholder="Quick add project... (Enter)" style="flex:1;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.78rem" onkeydown="if(event.key==='Enter'&&this.value.trim()){quickAddTask(this.value.trim());this.value=''}">
-    <select id="quickAddClient" style="padding:6px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.72rem">
+  html += `<div class="quick-add-bar" style="display:flex;gap:6px;align-items:center;margin:0 auto;width:50%;min-width:320px;max-width:600px">
+    <select id="quickAddType" style="padding:6px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.78rem">
+      ${ITEM_TYPE_ORDER.map(t => `<option value="${t}">${ITEM_TYPE_META[t].label}</option>`).join('')}
+    </select>
+    <input type="text" id="quickAddInput" placeholder="Quick add... (Enter)" style="flex:1;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.78rem" onkeydown="if(event.key==='Enter'&&this.value.trim()){quickAddTask(this.value.trim());this.value=''}">
+    <select id="quickAddClient" style="padding:6px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.78rem">
       <option value="">No Client</option>${getContractedClients().map(c => `<option value="${esc(c)}" ${currentFilter.client===c?'selected':''}>${esc(c)}</option>`).join('')}
     </select>
   </div>`;
@@ -11004,16 +11007,21 @@ function showAddItemPicker(type) {
 
 /** Quick-add a project by title from the inline input bar */
 function quickAddTask(title) {
+  const itemType = document.getElementById('quickAddType')?.value || 'project';
   const client = document.getElementById('quickAddClient')?.value || currentFilter.client || '';
-  if (!client) { toast('Select a client first — every project must belong to a client.', 'warning'); return; }
+  if (!client) { toast('Select a client first.', 'warning'); return; }
+  const parentType = VALID_PARENT_TYPE[itemType];
+  if (parentType) {
+    showAddItemPicker(itemType);
+    return;
+  }
   const assignees = currentFilter.assignee ? [currentFilter.assignee] : [];
-  const t = createTaskObject({ title, itemType: 'project', client, assignees });
+  const t = createTaskObject({ title, itemType, client, assignees });
   tasks.push(t);
   markDirty(t.id);
   save();
-  toast(`Project "${title}" created`);
+  toast(`${ITEM_TYPE_META[itemType].label} "${title}" created`);
   renderSidebarCounts(); renderContent();
-  // Re-focus the quick-add input
   setTimeout(() => { const input = document.getElementById('quickAddInput'); if (input) input.focus(); }, 100);
 }
 
