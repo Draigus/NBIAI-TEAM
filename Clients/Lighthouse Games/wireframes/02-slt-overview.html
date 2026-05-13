@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SLT Executive Health -- Lighthouse Analytics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.js"></script>
+  <style>
+/* === DESIGN SYSTEM === */
+:root {
+  --primary: #A93DA1;
+  --primary-hover: #8E3488;
+  --primary-light: #C75ABF;
+  --primary-faint: #2A1629;
+  --primary-deep: #7030A0;
+  --secondary: #3152FF;
+  --secondary-light: #5A75FF;
+  --secondary-deep: #2240CC;
+  --accent-pink: #E4347A;
+  --accent-coral: #FF5528;
+  --lavender: #9A8FED;
+  --surface-base: #0F032B;
+  --surface-card: #1A0E30;
+  --surface-elevated: #251842;
+  --surface-hover: #30204F;
+  --border-default: #2D1B4A;
+  --text-primary: #F0F0F5;
+  --text-secondary: #9CA3BF;
+  --text-muted: #6B7194;
+  --success: #22C55E;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+  --rounded-sm: 6px;
+  --rounded-md: 10px;
+  --rounded-lg: 16px;
+  --rounded-full: 9999px;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { font-size: 14px; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+body {
+  background: var(--surface-base);
+  color: var(--text-primary);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* === LAYOUT === */
+.page-wrapper {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 24px 32px;
+}
+
+/* === NAV HEADER === */
+.nav-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 16px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--border-default);
+}
+.logo {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+.logo .brand { color: var(--primary); }
+.nav-links {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.nav-links a {
+  padding: 8px 14px;
+  border-radius: var(--rounded-sm);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.15s, color 0.15s;
+}
+.nav-links a:hover { background: var(--surface-card); color: var(--text-primary); }
+.nav-links a.active { background: var(--primary-faint); color: var(--primary-light); }
+.pill {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: var(--rounded-full);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.pill-a { background: rgba(49,82,255,0.2); color: var(--secondary-light); }
+.pill-e { background: rgba(169,61,161,0.2); color: var(--primary-light); }
+.pill-r { background: rgba(154,143,237,0.2); color: var(--lavender); }
+.pill-m { background: rgba(255,85,40,0.2); color: var(--accent-coral); }
+.pill-all {
+  background: linear-gradient(90deg, rgba(49,82,255,0.2), rgba(169,61,161,0.2), rgba(154,143,237,0.2), rgba(255,85,40,0.2));
+  color: var(--text-primary);
+}
+
+/* === PAGE TITLE === */
+.page-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+.page-title {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+.title-badges {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.aerm-gradient-pill {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 14px;
+  border-radius: var(--rounded-full);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: linear-gradient(90deg, #3152FF, #A93DA1, #9A8FED, #FF5528);
+  color: #fff;
+}
+.audience-badge {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  border-radius: var(--rounded-full);
+  background: var(--primary-faint);
+  color: var(--primary-light);
+  border: 1px solid rgba(169,61,161,0.2);
+}
+.page-subtitle {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+/* === FILTER BAR === */
+.filter-bar {
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--rounded-md);
+  padding: 12px 16px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+.filter-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.filter-bar select {
+  background: var(--surface-elevated);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--rounded-sm);
+  padding: 7px 28px 7px 10px;
+  font-size: 13px;
+  font-family: Inter, sans-serif;
+  appearance: none;
+  cursor: pointer;
+  transition: border-color 0.15s;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%236B7194' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+}
+.filter-bar select:hover { border-color: var(--primary); }
+.filter-bar select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(169,61,161,0.2); }
+
+/* === SCORECARDS === */
+.scorecard-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+@media (max-width: 1000px) {
+  .scorecard-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 540px) {
+  .scorecard-grid { grid-template-columns: 1fr; }
+}
+.scorecard {
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--rounded-md);
+  padding: 20px 20px 18px 20px;
+  position: relative;
+  box-shadow: 0 0 20px rgba(169,61,161,0.05);
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+.scorecard:hover {
+  box-shadow: 0 0 30px rgba(169,61,161,0.1);
+  border-color: rgba(45,27,74,0.8);
+}
+.scorecard.accent-blue { border-left: 3px solid var(--secondary); }
+.scorecard.accent-magenta { border-left: 3px solid var(--primary); }
+.scorecard.accent-lavender { border-left: 3px solid var(--lavender); }
+.scorecard.accent-coral { border-left: 3px solid var(--accent-coral); }
+.scorecard .sc-pillar {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: var(--rounded-full);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  display: inline-block;
+  margin-bottom: 10px;
+}
+.scorecard .sc-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  letter-spacing: 0.01em;
+}
+.scorecard .sc-value {
+  font-size: 32px;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+.scorecard .sc-trend {
+  font-size: 13px;
+  font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.trend-up { color: var(--success); }
+.trend-down { color: var(--danger); }
+
+/* === SECTION LABELS === */
+.section-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 32px 0 16px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-default);
+}
+
+/* === CHART CARDS === */
+.charts-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+@media (max-width: 900px) {
+  .charts-grid-2 { grid-template-columns: 1fr; }
+}
+.chart-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--rounded-md);
+  padding: 24px;
+  position: relative;
+  box-shadow: 0 0 20px rgba(169,61,161,0.05);
+}
+.chart-card.border-top-magenta { border-top: 2px solid var(--primary); }
+.chart-card.border-top-lavender { border-top: 2px solid var(--lavender); }
+.chart-card.border-top-coral { border-top: 2px solid var(--accent-coral); }
+.chart-card .chart-title {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.3;
+  margin-bottom: 2px;
+  color: var(--text-primary);
+}
+.chart-card .chart-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+.chart-card-full {
+  margin-bottom: 16px;
+}
+
+/* === DASHBOARD DIRECTORY === */
+.directory-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--rounded-md);
+  padding: 0;
+  overflow: hidden;
+}
+.directory-card .dir-header {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border-default);
+}
+.directory-card .dir-header h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+.directory-card .dir-header p {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.dir-table-wrap {
+  overflow-x: auto;
+}
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.data-table thead th {
+  background: var(--surface-elevated);
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 12px 16px;
+  text-align: left;
+  height: 44px;
+  border-bottom: 1px solid var(--border-default);
+  position: sticky;
+  top: 0;
+  white-space: nowrap;
+}
+.data-table .group-header td {
+  background: var(--surface-elevated);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border-default);
+}
+.data-table tbody td {
+  background: var(--surface-card);
+  color: var(--text-primary);
+  font-size: 13px;
+  padding: 10px 16px;
+  height: 44px;
+  border-bottom: 1px solid rgba(45,27,74,0.4);
+  vertical-align: middle;
+}
+.data-table tbody tr:hover td { background: var(--surface-hover); }
+.data-table tbody td a {
+  color: var(--primary-light);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.15s;
+}
+.data-table tbody td a:hover { color: var(--primary); text-decoration: underline; }
+.pillar-pill {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: var(--rounded-full);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  display: inline-block;
+}
+.status-live {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: var(--rounded-full);
+  background: rgba(34,197,94,0.12);
+  color: var(--success);
+  border: 1px solid rgba(34,197,94,0.25);
+}
+.status-soon {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+/* === DASHBOARD SIDEBAR NAV === */
+.dash-menu-btn {
+  position: fixed; bottom: 24px; left: 24px; z-index: 100;
+  background: var(--secondary); color: #fff; border: none;
+  padding: 10px 20px; border-radius: var(--rounded-full);
+  font-size: 13px; font-weight: 600; font-family: Inter, sans-serif;
+  cursor: pointer; box-shadow: 0 4px 20px rgba(49,82,255,0.4);
+  display: flex; align-items: center; gap: 8px; transition: background 0.15s;
+}
+.dash-menu-btn:hover { background: var(--secondary-deep); }
+.dash-sidebar {
+  position: fixed; top: 0; left: -360px; width: 340px; height: 100vh;
+  background: var(--surface-card); border-right: 1px solid var(--border-default);
+  z-index: 300; overflow-y: auto; transition: left 0.25s ease;
+  box-shadow: 8px 0 40px rgba(0,0,0,0.5); padding: 0;
+}
+.dash-sidebar.open { left: 0; }
+.dash-sidebar-overlay {
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.5); z-index: 250; display: none;
+}
+.dash-sidebar-overlay.open { display: block; }
+.dash-sidebar-header {
+  padding: 20px 20px 16px; border-bottom: 1px solid var(--border-default);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.dash-sidebar-header h3 { font-size: 16px; font-weight: 700; color: var(--text-primary); }
+.dash-sidebar-close {
+  background: none; border: none; color: var(--text-muted); font-size: 22px;
+  cursor: pointer; line-height: 1; padding: 4px;
+}
+.dash-sidebar-close:hover { color: var(--text-primary); }
+.dash-group { padding: 12px 0; }
+.dash-group-title {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text-muted); padding: 0 20px 8px; display: flex; align-items: center; gap: 8px;
+}
+.dash-group-title .gpill {
+  font-size: 8px; padding: 2px 6px; border-radius: var(--rounded-full);
+  font-weight: 700; letter-spacing: 0.04em;
+}
+.dash-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 20px; font-size: 13px; text-decoration: none;
+  color: var(--text-secondary); transition: background 0.12s, color 0.12s;
+  border-left: 3px solid transparent;
+}
+.dash-item:hover { background: var(--surface-hover); color: var(--text-primary); }
+.dash-item.active {
+  background: var(--primary-faint); color: var(--primary-light);
+  border-left-color: var(--primary);
+}
+.dash-item.live { color: var(--text-primary); cursor: pointer; }
+.dash-item.live .dash-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--success); flex-shrink: 0; }
+.dash-item.disabled { color: var(--text-muted); opacity: 0.5; cursor: default; pointer-events: none; }
+.dash-item .dash-desc { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+.dash-item-inner { display: flex; flex-direction: column; }
+
+/* === ANNOTATION SYSTEM === */
+.annotation-toggle {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 100;
+  background: var(--accent-pink);
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: var(--rounded-full);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: Inter, sans-serif;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(228,52,122,0.4);
+  transition: background 0.15s, box-shadow 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.annotation-toggle:hover { background: #d12a6a; }
+.annotation-toggle.active {
+  background: var(--primary-deep);
+  box-shadow: 0 4px 20px rgba(112,48,160,0.4);
+}
+.callout-badge {
+  display: none;
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--accent-pink);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: transform 0.15s;
+}
+.callout-badge:hover { transform: scale(1.15); }
+body.annotations-on .callout-badge { display: flex; }
+.annotation-panel {
+  display: none;
+  position: fixed;
+  top: 50%;
+  right: 80px;
+  transform: translateY(-50%);
+  width: 380px;
+  max-height: 80vh;
+  overflow-y: auto;
+  background: var(--surface-elevated);
+  border: 1px solid var(--accent-pink);
+  border-radius: var(--rounded-md);
+  padding: 24px;
+  z-index: 200;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.5), 0 0 30px rgba(228,52,122,0.1);
+}
+.annotation-panel.visible { display: block; }
+.annotation-panel h4 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+.annotation-panel .ann-pillar { margin-bottom: 10px; }
+.annotation-panel .ann-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: 14px;
+}
+.annotation-panel .ann-audience {
+  font-size: 12px;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border-default);
+  padding-top: 10px;
+}
+.annotation-panel .close-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 22px;
+  cursor: pointer;
+  line-height: 1;
+  transition: color 0.15s;
+}
+.annotation-panel .close-btn:hover { color: var(--text-primary); }
+
+/* === FOOTER === */
+.page-footer {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 12px;
+  padding: 20px 0;
+  margin-top: 48px;
+  border-top: 1px solid var(--border-default);
+  letter-spacing: 0.02em;
+}
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+
+  <!-- ===== NAV HEADER ===== -->
+  <nav class="nav-header">
+    <div class="logo"><span class="brand">Lighthouse</span> Analytics</div>
+    <div class="nav-links">
+      <a href="01-progression-summary.html">Progression <span class="pill pill-e">E</span></a>
+      <a href="02-slt-overview.html" class="active">SLT Overview <span class="pill pill-all">AERM</span></a>
+      <a href="03-ftue-executive.html">FTUE: Health <span class="pill pill-a">A</span></a>
+      <a href="04-ftue-dropoff-funnel.html">FTUE: Drop-off <span class="pill pill-a">A</span></a>
+      <a href="05-ftue-quest-timing.html">FTUE: Timing <span class="pill pill-a">A</span><span class="pill pill-e">E</span></a>
+    </div>
+  </nav>
+
+  <!-- ===== PAGE TITLE ===== -->
+  <div class="page-title-row">
+    <h1 class="page-title">SLT Executive Health</h1>
+    <div class="title-badges">
+      <span class="aerm-gradient-pill">AERM</span>
+      <span class="audience-badge">Senior Leadership Team</span>
+    </div>
+  </div>
+  <p class="page-subtitle">At-a-glance health overview across all four AERM pillars with trends and dashboard directory</p>
+
+  <!-- ===== FILTER BAR ===== -->
+  <div class="filter-bar">
+    <span class="filter-label">Filters</span>
+    <select>
+      <option>Last 30 Days</option>
+      <option>Last 7 Days</option>
+      <option>Last 90 Days</option>
+      <option>Custom Range</option>
+    </select>
+    <select>
+      <option>All Platforms</option>
+      <option>iOS</option>
+      <option>Android</option>
+      <option>PC</option>
+      <option>Console</option>
+    </select>
+    <select>
+      <option>All Countries</option>
+      <option>United States</option>
+      <option>United Kingdom</option>
+      <option>Germany</option>
+      <option>Japan</option>
+      <option>Brazil</option>
+    </select>
+    <select>
+      <option>All Builds</option>
+      <option>v0.9.4 (Latest)</option>
+      <option>v0.9.3</option>
+      <option>v0.9.2</option>
+      <option>v0.9.1</option>
+    </select>
+  </div>
+
+  <!-- ===== SCORECARD ROW 1: Acquisition + Engagement ===== -->
+  <div class="scorecard-grid" style="position:relative;">
+    <span class="callout-badge" onclick="showAnnotation(1)" style="top:-10px;right:-10px;">1</span>
+
+    <div class="scorecard accent-blue">
+      <span class="sc-pillar pill-a">Acquisition</span>
+      <div class="sc-label">New Unique Users</div>
+      <div class="sc-value" style="color: var(--secondary-light);">2,847</div>
+      <div class="sc-trend trend-up">&#9650; +12.0%</div>
+    </div>
+
+    <div class="scorecard accent-magenta">
+      <span class="sc-pillar pill-e">Engagement</span>
+      <div class="sc-label">DAU</div>
+      <div class="sc-value" style="color: var(--primary-light);">12,847</div>
+      <div class="sc-trend trend-up">&#9650; +8.3%</div>
+    </div>
+
+    <div class="scorecard accent-magenta">
+      <span class="sc-pillar pill-e">Engagement</span>
+      <div class="sc-label">WAU</div>
+      <div class="sc-value" style="color: var(--primary-light);">38,420</div>
+      <div class="sc-trend trend-up">&#9650; +5.1%</div>
+    </div>
+
+    <div class="scorecard accent-magenta">
+      <span class="sc-pillar pill-e">Engagement</span>
+      <div class="sc-label">MAU</div>
+      <div class="sc-value" style="color: var(--primary-light);">69,840</div>
+      <div class="sc-trend trend-up">&#9650; +2.4%</div>
+    </div>
+  </div>
+
+  <!-- ===== SCORECARD ROW 2: Retention + Monetisation ===== -->
+  <div class="scorecard-grid">
+    <div class="scorecard accent-lavender">
+      <span class="sc-pillar pill-r">Retention</span>
+      <div class="sc-label">D1 Retention</div>
+      <div class="sc-value" style="color: var(--lavender);">34.2%</div>
+      <div class="sc-trend trend-down">&#9660; -1.1pp</div>
+    </div>
+
+    <div class="scorecard accent-lavender">
+      <span class="sc-pillar pill-r">Retention</span>
+      <div class="sc-label">D7 Retention</div>
+      <div class="sc-value" style="color: var(--lavender);">14.8%</div>
+      <div class="sc-trend trend-up">&#9650; +0.6pp</div>
+    </div>
+
+    <div class="scorecard accent-coral">
+      <span class="sc-pillar pill-m">Monetisation</span>
+      <div class="sc-label">ARPDAU</div>
+      <div class="sc-value" style="color: var(--accent-coral);">$0.42</div>
+      <div class="sc-trend trend-up">&#9650; +3.7%</div>
+    </div>
+
+    <div class="scorecard accent-coral">
+      <span class="sc-pillar pill-m">Monetisation</span>
+      <div class="sc-label">Daily Revenue</div>
+      <div class="sc-value" style="color: var(--accent-coral);">$5,396</div>
+      <div class="sc-trend trend-up">&#9650; +6.1%</div>
+    </div>
+  </div>
+
+  <!-- ===== TRENDS SECTION ===== -->
+  <div class="section-label" style="position:relative;">
+    Trends Over Time
+    <span class="callout-badge" onclick="showAnnotation(2)" style="position:relative;top:0;right:0;">2</span>
+  </div>
+
+  <!-- Row 1: Users + Retention side by side -->
+  <div class="charts-grid-2">
+    <div class="chart-card border-top-magenta">
+      <div class="chart-title">Users Over Time</div>
+      <div class="chart-subtitle">DAU, WAU, and MAU -- last 30 days</div>
+      <div style="position:relative; width:100%; height:320px;">
+        <canvas id="usersChart"></canvas>
+      </div>
+    </div>
+    <div class="chart-card border-top-lavender">
+      <div class="chart-title">Retention Over Time</div>
+      <div class="chart-subtitle">D1 and D7 retention with D1 benchmark at 40%</div>
+      <div style="position:relative; width:100%; height:320px;">
+        <canvas id="retentionChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 2: Revenue full width -->
+  <div class="chart-card border-top-coral chart-card-full">
+    <div class="chart-title">Revenue Over Time</div>
+    <div class="chart-subtitle">Daily revenue with 7-day moving average</div>
+    <div style="position:relative; width:100%; height:300px;">
+      <canvas id="revenueChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Directory replaced by sidebar nav -->
+
+  <!-- ===== FOOTER ===== -->
+  <div class="page-footer">Lighthouse Games Analytics &middot; Wonderland &middot; Wireframe v1 &middot; NBI Analytics</div>
+
+</div>
+
+<!-- ===== DASHBOARD SIDEBAR NAV ===== -->
+<div class="dash-sidebar-overlay" onclick="closeDashMenu()"></div>
+<div class="dash-sidebar">
+  <div class="dash-sidebar-header">
+    <h3>Dashboards</h3>
+    <button class="dash-sidebar-close" onclick="closeDashMenu()">&times;</button>
+  </div>
+
+  <div class="dash-group">
+    <div class="dash-group-title"><span class="gpill pill-all">AERM</span> Executive</div>
+    <a class="dash-item active" href="02-slt-overview.html"><div class="dash-item-inner">SLT Executive Health</div></a>
+  </div>
+
+  <div class="dash-group" style="border-top:1px solid var(--border-default)">
+    <div class="dash-group-title"><span class="gpill pill-a">A</span> Acquisition &amp; FTUE</div>
+    <a class="dash-item live" href="03-ftue-executive.html"><span class="dash-dot"></span><div class="dash-item-inner">FTUE Executive Health</div></a>
+    <a class="dash-item live" href="04-ftue-dropoff-funnel.html"><span class="dash-dot"></span><div class="dash-item-inner">FTUE Drop-off &amp; Pacing</div></a>
+    <a class="dash-item live" href="05-ftue-quest-timing.html"><span class="dash-dot"></span><div class="dash-item-inner">FTUE Quest Timing</div></a>
+  </div>
+
+  <div class="dash-group" style="border-top:1px solid var(--border-default)">
+    <div class="dash-group-title"><span class="gpill pill-e">E</span> Engagement</div>
+    <a class="dash-item live" href="01-progression-summary.html"><span class="dash-dot"></span><div class="dash-item-inner">Progression Summary</div></a>
+    <a class="dash-item disabled"><div class="dash-item-inner">Core Gameplay Engagement</div></a>
+    <a class="dash-item disabled"><div class="dash-item-inner">Discovery &amp; Content</div></a>
+    <a class="dash-item disabled"><div class="dash-item-inner">Garage &amp; Vehicle Engagement</div></a>
+    <a class="dash-item disabled"><div class="dash-item-inner">Car Collection &amp; Usage</div></a>
+    <a class="dash-item disabled"><div class="dash-item-inner">Upgrade Parts &amp; Loot</div></a>
+    <a class="dash-item disabled"><div class="dash-item-inner">Car Tuning Engagement</div></a>
+    <a class="dash-item disabled"><div class="dash-item-inner">Vehicle Handling Balance</div></a>
+    <a class="dash-item disabled"><div class="dash-item-inner">UX Friction &amp; Flow</div></a>
+  </div>
+
+  <div class="dash-group" style="border-top:1px solid var(--border-default)">
+    <div class="dash-group-title"><span class="gpill pill-r">R</span> Retention</div>
+    <a class="dash-item disabled"><div class="dash-item-inner">Retention Overview &amp; Cohorts</div></a>
+    <a class="dash-item disabled"><div class="dash-item-inner">Retention Drivers &amp; Segmentation</div></a>
+  </div>
+
+  <div class="dash-group" style="border-top:1px solid var(--border-default)">
+    <div class="dash-group-title"><span class="gpill pill-m">M</span> Monetisation &amp; Economy</div>
+    <a class="dash-item disabled"><div class="dash-item-inner">Economy Health Summary</div></a>
+    <a class="dash-item disabled"><div class="dash-item-inner">Economy Progression</div></a>
+    <a class="dash-item disabled"><div class="dash-item-inner">Economy Drilldown</div></a>
+    <a class="dash-item disabled"><div class="dash-item-inner">Economy Wallets</div></a>
+    <a class="dash-item disabled"><div class="dash-item-inner">Revenue Executive Summary</div></a>
+    <a class="dash-item disabled"><div class="dash-item-inner">Revenue Extended Health</div></a>
+    <a class="dash-item disabled"><div class="dash-item-inner">Revenue Breakdown</div></a>
+    <a class="dash-item disabled"><div class="dash-item-inner">First Time Conversion</div></a>
+    <a class="dash-item disabled"><div class="dash-item-inner">Premium Economy (3 dashboards)</div></a>
+    <a class="dash-item disabled"><div class="dash-item-inner">Scrap Economy</div></a>
+    <a class="dash-item disabled"><div class="dash-item-inner">Driving Mastery Economy</div></a>
+    <a class="dash-item disabled"><div class="dash-item-inner">Customisation Overview</div></a>
+    <a class="dash-item disabled"><div class="dash-item-inner">Vanity Deep Dive</div></a>
+  </div>
+
+  <div class="dash-group" style="border-top:1px solid var(--border-default)">
+    <div class="dash-group-title"><span class="gpill pill-e">E</span> Tech &amp; Tools</div>
+    <a class="dash-item disabled"><div class="dash-item-inner">Tech Health Summary</div></a>
+    <a class="dash-item disabled"><div class="dash-item-inner">Shared World Health</div></a>
+    <a class="dash-item disabled"><div class="dash-item-inner">California Heatmap</div></a>
+    <a class="dash-item disabled"><div class="dash-item-inner">California Progression</div></a>
+    <a class="dash-item disabled"><div class="dash-item-inner">Activity Mix</div></a>
+    <a class="dash-item disabled"><div class="dash-item-inner">Collection Overview</div></a>
+    <a class="dash-item disabled"><div class="dash-item-inner">Platform Exploration / UX</div></a>
+  </div>
+</div>
+
+<button class="dash-menu-btn" onclick="openDashMenu()">
+  <svg width="16" height="12" viewBox="0 0 16 12" fill="none"><rect width="16" height="2" rx="1" fill="currentColor"/><rect y="5" width="16" height="2" rx="1" fill="currentColor"/><rect y="10" width="16" height="2" rx="1" fill="currentColor"/></svg>
+  Dashboards
+</button>
+
+<!-- ===== ANNOTATION UI ===== -->
+<button class="annotation-toggle" onclick="toggleAnnotations()">
+  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0;">
+    <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/>
+    <path d="M7 4v3M7 9v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  </svg>
+  Annotations
+</button>
+<div class="annotation-panel">
+  <button class="close-btn" onclick="closeAnnotation()">&times;</button>
+  <h4 id="ann-title"></h4>
+  <div class="ann-pillar" id="ann-pillar"></div>
+  <div class="ann-text" id="ann-text"></div>
+  <div class="ann-audience" id="ann-audience"></div>
+</div>
+
+<script>
+// =====================================================================
+// ANNOTATION SYSTEM
+// =====================================================================
+var annotations = {
+  1: {
+    title: 'Top-Line KPIs',
+    pillarHtml: '<span class="pill pill-all" style="font-size:10px;padding:3px 10px;">AERM</span>',
+    text: 'Top-line health metrics across all four AERM pillars. Designed for a 5-second scan: are things trending up, down, or flat? New Unique Users covers Acquisition. DAU/WAU/MAU covers Engagement. D1/D7 covers Retention. ARPDAU and Revenue cover Monetisation. Left border colours match the AERM pillar.',
+    audience: 'Senior Leadership Team -- executive health check'
+  },
+  2: {
+    title: 'Trends Over Time',
+    pillarHtml: '<span class="pill pill-all" style="font-size:10px;padding:3px 10px;">AERM</span>',
+    text: 'Same KPIs tracked over 30 days. Users chart shows the three engagement tiers. Retention chart includes a dashed D1 benchmark at 40%. Revenue chart overlays daily bars with a 7-day moving average line to smooth out variance.',
+    audience: 'Senior Leadership Team -- trend analysis, build comparison'
+  },
+  3: {
+    title: 'Dashboard Navigation',
+    pillarHtml: '<span class="pill pill-all" style="font-size:10px;padding:3px 10px;">AERM</span>',
+    text: 'Navigation hub for the full analytics suite. 34+ dashboards across FTUE, retention, engagement, economy, revenue, customisation, UX, and tech health. Each linked to its wireframe when available. Grouped by functional area.',
+    audience: 'All teams -- navigation and discovery'
+  }
+};
+
+var panelOpen = null;
+
+// Dashboard sidebar
+function openDashMenu() {
+  document.querySelector('.dash-sidebar').classList.add('open');
+  document.querySelector('.dash-sidebar-overlay').classList.add('open');
+}
+function closeDashMenu() {
+  document.querySelector('.dash-sidebar').classList.remove('open');
+  document.querySelector('.dash-sidebar-overlay').classList.remove('open');
+}
+
+function toggleAnnotations() {
+  document.body.classList.toggle('annotations-on');
+  document.querySelector('.annotation-toggle').classList.toggle('active');
+  var panel = document.querySelector('.annotation-panel');
+  if (panel) { panel.classList.remove('visible'); panelOpen = null; }
+}
+
+function showAnnotation(num) {
+  var panel = document.querySelector('.annotation-panel');
+  var a = annotations[num];
+  if (!a) return;
+  document.getElementById('ann-title').textContent = a.title;
+  document.getElementById('ann-pillar').innerHTML = a.pillarHtml;
+  document.getElementById('ann-text').textContent = a.text;
+  document.getElementById('ann-audience').textContent = 'Audience: ' + a.audience;
+  panel.classList.add('visible');
+  panelOpen = num;
+}
+
+function closeAnnotation() {
+  var panel = document.querySelector('.annotation-panel');
+  if (panel) { panel.classList.remove('visible'); panelOpen = null; }
+}
+
+// =====================================================================
+// MOCK DATA
+// =====================================================================
+var days = [];
+for (var i = 0; i < 30; i++) {
+  var d = new Date(2026, 3, 8 + i); // April 8 to May 7, 2026
+  days.push(d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }));
+}
+
+var dauTrend = [10200,10480,10750,11100,10870,11340,11580,11210,11790,12040,
+                11520,11870,12190,12380,11830,12080,12470,12310,12690,12870,
+                12140,12410,12580,12760,12950,12530,12720,12880,13060,12847];
+
+var wauTrend = [];
+for (var i = 0; i < 30; i++) {
+  wauTrend.push(Math.round(dauTrend[i] * (2.85 + Math.sin(i / 4.5) * 0.25)));
+}
+
+var mauTrend = [];
+for (var i = 0; i < 30; i++) {
+  mauTrend.push(Math.round(dauTrend[i] * (5.3 + Math.sin(i / 7) * 0.35)));
+}
+
+var d1Trend = [35.1,34.8,34.5,35.2,34.0,33.8,34.5,35.0,34.2,33.9,
+               34.8,35.1,34.3,33.7,34.6,35.0,34.1,33.5,34.8,35.2,
+               34.0,33.8,34.5,34.9,34.1,33.6,34.3,34.7,34.0,34.2];
+
+var d7Trend = [13.8,14.0,14.2,14.1,14.5,14.3,14.6,14.8,14.2,14.5,
+               14.7,14.4,14.9,15.0,14.6,14.3,14.8,15.1,14.5,14.7,
+               15.0,14.8,14.6,15.2,14.9,14.7,15.1,14.8,15.0,14.8];
+
+var revenueTrend = [4820,5080,4970,5210,5380,5130,4740,5290,5470,5220,
+                    5010,5370,5580,5310,4920,5180,5490,5680,5410,5120,
+                    5310,5580,5770,5490,5230,5410,5690,5870,5580,5396];
+
+var revenueMA = [];
+for (var i = 0; i < 30; i++) {
+  if (i < 6) {
+    revenueMA.push(null);
+  } else {
+    var sum = 0;
+    for (var j = i - 6; j <= i; j++) { sum += revenueTrend[j]; }
+    revenueMA.push(Math.round(sum / 7));
+  }
+}
+
+// Chart axis/legend/tooltip styling (inline per chart, no globals)
+var axisColor = '#6B7194';
+var gridColor = 'rgba(45,27,74,0.5)';
+
+// =====================================================================
+// CHARTS
+// =====================================================================
+document.addEventListener('DOMContentLoaded', function() {
+
+  // --- Users Over Time ---
+  new Chart(document.getElementById('usersChart'), {
+    type: 'line',
+    data: {
+      labels: days,
+      datasets: [
+        {
+          label: 'DAU',
+          data: dauTrend,
+          borderColor: '#A93DA1',
+          backgroundColor: 'rgba(169,61,161,0.10)',
+          borderWidth: 2.5,
+          pointRadius: 2,
+          pointHoverRadius: 5,
+          pointBackgroundColor: '#A93DA1',
+          pointBorderColor: '#A93DA1',
+          fill: true,
+          tension: 0.3,
+          order: 1
+        },
+        {
+          label: 'WAU',
+          data: wauTrend,
+          borderColor: '#3152FF',
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          pointBackgroundColor: '#3152FF',
+          fill: false,
+          tension: 0.3,
+          order: 2
+        },
+        {
+          label: 'MAU',
+          data: mauTrend,
+          borderColor: '#9A8FED',
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          pointBackgroundColor: '#9A8FED',
+          fill: false,
+          tension: 0.3,
+          order: 3
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          position: 'top',
+          align: 'end',
+          labels: {
+            color: '#9CA3BF',
+            font: { family: 'Inter', size: 12 },
+            usePointStyle: true,
+            pointStyle: 'circle',
+            padding: 16
+          }
+        },
+        tooltip: {
+          backgroundColor: '#251842',
+          titleColor: '#F0F0F5',
+          bodyColor: '#9CA3BF',
+          borderColor: '#2D1B4A',
+          borderWidth: 1,
+          padding: 12,
+          titleFont: { family: 'Inter', size: 13, weight: '600' },
+          bodyFont: { family: 'JetBrains Mono', size: 12 },
+          callbacks: {
+            label: function(ctx) { return ctx.dataset.label + ': ' + ctx.parsed.y.toLocaleString(); }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: false,
+          grid: { color: gridColor },
+          border: { color: 'transparent' },
+          ticks: {
+            color: axisColor,
+            font: { family: 'Inter', size: 11 },
+            callback: function(v) { return v >= 1000 ? (v / 1000).toFixed(0) + 'k' : v; }
+          }
+        },
+        x: {
+          grid: { display: false },
+          border: { color: 'transparent' },
+          ticks: {
+            color: axisColor,
+            font: { family: 'Inter', size: 11 },
+            maxRotation: 0,
+            autoSkip: true,
+            maxTicksLimit: 10
+          }
+        }
+      }
+    }
+  });
+
+  // --- Retention Over Time ---
+  new Chart(document.getElementById('retentionChart'), {
+    type: 'line',
+    data: {
+      labels: days,
+      datasets: [
+        {
+          label: 'D1 Retention',
+          data: d1Trend,
+          borderColor: '#9A8FED',
+          backgroundColor: 'rgba(154,143,237,0.10)',
+          borderWidth: 2.5,
+          pointRadius: 2,
+          pointHoverRadius: 5,
+          pointBackgroundColor: '#9A8FED',
+          pointBorderColor: '#9A8FED',
+          fill: true,
+          tension: 0.3
+        },
+        {
+          label: 'D7 Retention',
+          data: d7Trend,
+          borderColor: '#7030A0',
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          pointBackgroundColor: '#7030A0',
+          fill: false,
+          tension: 0.3
+        },
+        {
+          label: 'D1 Benchmark (40%)',
+          data: Array(30).fill(40),
+          borderColor: 'rgba(154,143,237,0.35)',
+          borderWidth: 1.5,
+          borderDash: [8, 4],
+          pointRadius: 0,
+          pointHoverRadius: 0,
+          fill: false,
+          tension: 0
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          position: 'top',
+          align: 'end',
+          labels: {
+            color: '#9CA3BF',
+            font: { family: 'Inter', size: 12 },
+            usePointStyle: true,
+            pointStyle: 'circle',
+            padding: 16
+          }
+        },
+        tooltip: {
+          backgroundColor: '#251842',
+          titleColor: '#F0F0F5',
+          bodyColor: '#9CA3BF',
+          borderColor: '#2D1B4A',
+          borderWidth: 1,
+          padding: 12,
+          titleFont: { family: 'Inter', size: 13, weight: '600' },
+          bodyFont: { family: 'JetBrains Mono', size: 12 },
+          callbacks: {
+            label: function(ctx) { return ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(1) + '%'; }
+          }
+        }
+      },
+      scales: {
+        y: {
+          min: 0,
+          max: 50,
+          grid: { color: gridColor },
+          border: { color: 'transparent' },
+          ticks: {
+            color: axisColor,
+            font: { family: 'Inter', size: 11 },
+            callback: function(v) { return v + '%'; },
+            stepSize: 10
+          }
+        },
+        x: {
+          grid: { display: false },
+          border: { color: 'transparent' },
+          ticks: {
+            color: axisColor,
+            font: { family: 'Inter', size: 11 },
+            maxRotation: 0,
+            autoSkip: true,
+            maxTicksLimit: 10
+          }
+        }
+      }
+    }
+  });
+
+  // --- Revenue Over Time (mixed bar + line) ---
+  new Chart(document.getElementById('revenueChart'), {
+    type: 'bar',
+    data: {
+      labels: days,
+      datasets: [
+        {
+          label: 'Daily Revenue',
+          data: revenueTrend,
+          backgroundColor: 'rgba(255,85,40,0.30)',
+          borderColor: 'rgba(255,85,40,0.45)',
+          borderWidth: 1,
+          borderRadius: 3,
+          order: 2
+        },
+        {
+          label: '7-Day Moving Avg',
+          data: revenueMA,
+          type: 'line',
+          borderColor: '#FF5528',
+          borderWidth: 2.5,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          pointBackgroundColor: '#FF5528',
+          fill: false,
+          tension: 0.3,
+          spanGaps: true,
+          order: 1
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          position: 'top',
+          align: 'end',
+          labels: {
+            color: '#9CA3BF',
+            font: { family: 'Inter', size: 12 },
+            usePointStyle: true,
+            pointStyle: 'circle',
+            padding: 16
+          }
+        },
+        tooltip: {
+          backgroundColor: '#251842',
+          titleColor: '#F0F0F5',
+          bodyColor: '#9CA3BF',
+          borderColor: '#2D1B4A',
+          borderWidth: 1,
+          padding: 12,
+          titleFont: { family: 'Inter', size: 13, weight: '600' },
+          bodyFont: { family: 'JetBrains Mono', size: 12 },
+          callbacks: {
+            label: function(ctx) { return ctx.dataset.label + ': $' + ctx.parsed.y.toLocaleString(); }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: false,
+          grid: { color: gridColor },
+          border: { color: 'transparent' },
+          ticks: {
+            color: axisColor,
+            font: { family: 'Inter', size: 11 },
+            callback: function(v) { return '$' + (v >= 1000 ? (v / 1000).toFixed(1) + 'k' : v); }
+          }
+        },
+        x: {
+          grid: { display: false },
+          border: { color: 'transparent' },
+          ticks: {
+            color: axisColor,
+            font: { family: 'Inter', size: 11 },
+            maxRotation: 0,
+            autoSkip: true,
+            maxTicksLimit: 10
+          }
+        }
+      }
+    }
+  });
+
+  // Directory replaced by sidebar nav
+});
+</script>
+</body>
+</html>

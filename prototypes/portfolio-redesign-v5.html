@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WorkSage — Portfolio v5</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;800;900&display=swap');
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root {
+  /* Surface palette — gunmetal */
+  --bg: #1c1f24;
+  --surface: rgba(38,42,50,0.72);
+  --surface-up: rgba(46,50,60,0.75);
+  --surface-down: rgba(22,24,30,0.85);
+  --inset: rgba(28,30,36,0.8);
+
+  /* Neumorphic shadows */
+  --neo-up: 6px 6px 14px rgba(0,0,0,0.45), -3px -3px 10px rgba(255,255,255,0.04);
+  --neo-up-lg: 10px 10px 24px rgba(0,0,0,0.5), -5px -5px 16px rgba(255,255,255,0.04);
+  --neo-up-hover: 12px 12px 28px rgba(0,0,0,0.55), -6px -6px 18px rgba(255,255,255,0.05);
+  --neo-inset: inset 4px 4px 10px rgba(0,0,0,0.35), inset -2px -2px 6px rgba(255,255,255,0.03);
+  --neo-pressed: inset 3px 3px 8px rgba(0,0,0,0.4), inset -1px -1px 4px rgba(255,255,255,0.02);
+
+  /* Accent — single cyan */
+  --cyan: #00d4ff;
+  --cyan-50: rgba(0,212,255,0.5);
+  --cyan-30: rgba(0,212,255,0.3);
+  --cyan-15: rgba(0,212,255,0.15);
+  --cyan-08: rgba(0,212,255,0.08);
+  --cyan-glow: 0 0 20px rgba(0,212,255,0.3), 0 0 60px rgba(0,212,255,0.1);
+
+  /* Status — muted until needed */
+  --red: #ff4757;
+  --red-g: rgba(255,71,87,0.15);
+  --red-glow: 0 0 12px rgba(255,71,87,0.25);
+  --amber: #ffa502;
+  --amber-g: rgba(255,165,2,0.12);
+  --green: #2ed573;
+  --green-g: rgba(46,213,115,0.12);
+  --purple: #a78bfa;
+  --purple-g: rgba(167,139,250,0.15);
+
+  /* Text */
+  --tx: #e8ecf1;
+  --tx2: rgba(232,236,241,0.6);
+  --tx3: rgba(232,236,241,0.32);
+  --tx4: rgba(232,236,241,0.15);
+
+  --r: 14px;
+  --r-sm: 10px;
+  --f: 'Inter', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+
+body {
+  font-family: var(--f);
+  background: var(--bg);
+  color: var(--tx);
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  font-size: 16px;
+  position: relative;
+}
+/* Hex grid pattern overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.07;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100' fill='none' stroke='%2390a4ae' stroke-width='0.8'/%3E%3Cpath d='M28 0L28 34L0 50L0 84L28 100L56 84L56 50L28 34' fill='none' stroke='%2390a4ae' stroke-width='0.4'/%3E%3C/svg%3E");
+  background-size: 56px 100px;
+}
+body > * { position: relative; z-index: 1; }
+
+/* ===== NEUMORPHIC CARD ===== */
+.card {
+  background: var(--surface);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--r);
+  box-shadow: var(--neo-up);
+  transition: box-shadow 0.25s, transform 0.2s;
+}
+.card--lift:hover {
+  box-shadow: var(--neo-up-hover);
+  transform: translateY(-3px);
+}
+.card--lift:active {
+  box-shadow: var(--neo-inset);
+  transform: translateY(0);
+  transition-duration: 0.08s;
+}
+
+/* Inset well */
+.well {
+  background: var(--inset);
+  border-radius: var(--r-sm);
+  box-shadow: var(--neo-inset);
+}
+
+/* ===== HEADER ===== */
+.hdr {
+  padding: 16px 36px;
+  display: flex;
+  align-items: center;
+  background: var(--surface-down);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.hdr__logo {
+  font: 900 28px/1 'Orbitron', var(--f);
+  color: var(--cyan);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-shadow: var(--cyan-glow);
+}
+.hdr__sp { flex: 1; }
+.hdr__nav { display: flex; gap: 4px; }
+.hdr__tab {
+  padding: 10px 18px;
+  font: 600 13px/1 var(--f);
+  letter-spacing: 0.04em;
+  color: var(--tx3);
+  border: none;
+  background: transparent;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.hdr__tab:hover { color: var(--tx2); background: rgba(255,255,255,0.04); }
+.hdr__tab--on {
+  color: var(--cyan);
+  background: var(--inset);
+  box-shadow: var(--neo-pressed);
+}
+
+/* ===== LAYOUT ===== */
+.page { max-width: 2200px; margin: 0 auto; padding: 28px 36px 60px; display: flex; flex-direction: column; gap: 24px; }
+
+/* ===== TITLE ===== */
+.ttl { display: flex; align-items: flex-end; justify-content: space-between; }
+.ttl__name { font: 900 32px/1.1 var(--f); letter-spacing: -0.02em; }
+.ttl__date { font: 500 14px/1 var(--f); color: var(--tx3); margin-top: 6px; letter-spacing: 0.08em; text-transform: uppercase; }
+.ttl__alert {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 20px;
+  background: var(--surface);
+  border-radius: var(--r-sm);
+  box-shadow: var(--neo-up);
+  font: 700 14px/1.2 var(--f);
+  color: var(--red);
+}
+.ttl__alert-dot {
+  width: 10px; height: 10px;
+  background: var(--red);
+  border-radius: 50%;
+  box-shadow: var(--red-glow);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* ===== KPI ROW ===== */
+.kpis { display: grid; grid-template-columns: repeat(5, 1fr); gap: 18px; }
+
+.kpi {
+  padding: 18px 26px 22px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 180px;
+}
+/* Top edge removed — colour has meaning, don't use it for decoration */
+.kpi__label {
+  font: 700 14px/1 var(--f);
+  color: var(--tx3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0;
+}
+.kpi__center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.kpi__val {
+  font: 900 64px/1 var(--mono);
+  letter-spacing: -0.04em;
+  color: var(--tx);
+}
+.kpi__delta-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.kpi__delta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font: 700 18px/1 var(--f);
+}
+.kpi__delta-text {
+  font: 500 14px/1 var(--f);
+  color: var(--tx3);
+}
+
+/* ===== HERO AREA CHART ===== */
+.hero-chart {
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+.hero-chart__title {
+  font: 700 14px/1 var(--f);
+  color: var(--tx3);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 20px;
+}
+.hero-chart__svg {
+  width: 100%;
+  height: 180px;
+  display: block;
+}
+.hero-glow { filter: drop-shadow(0 0 8px var(--cyan-30)); }
+.hero-dot {
+  fill: var(--cyan);
+  opacity: 0;
+  transition: opacity 0.15s, r 0.15s;
+  cursor: pointer;
+}
+.hero-chart:hover .hero-dot { opacity: 0.5; }
+.hero-chart:hover .hero-dot:hover { opacity: 1; }
+/* Grid lines */
+.hero-grid { stroke: rgba(255,255,255,0.04); stroke-width: 1; }
+/* Axis labels */
+.hero-axis { font: 500 11px/1 var(--f); fill: var(--tx3); }
+
+/* ===== CLIENT TABLE ===== */
+.tbl-card { padding: 0; overflow: hidden; }
+.tbl-card__hdr {
+  padding: 18px 28px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.tbl-card__title { font: 800 18px/1 var(--f); color: var(--tx3); text-transform: uppercase; letter-spacing: 0.1em; }
+
+.ct { width: 100%; border-collapse: collapse; }
+.ct th {
+  text-align: left; padding: 14px 28px;
+  font: 700 14px/1 var(--f); text-transform: uppercase; letter-spacing: 0.1em; color: var(--tx4);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.ct td { padding: 20px 28px; font-size: 18px; border-bottom: 1px solid rgba(255,255,255,0.03); vertical-align: middle; }
+.ct tbody tr { cursor: pointer; transition: background 0.15s; }
+.ct tbody tr:hover { background: rgba(0,212,255,0.03); }
+.ct tbody tr:active { background: rgba(0,212,255,0.06); }
+
+/* Health block in table */
+.health-block {
+  width: 14px; height: 14px;
+  border-radius: 2px;
+  transform: rotate(45deg);
+  box-shadow: var(--neo-pressed), 0 0 8px var(--hb-glow, transparent);
+}
+.health-block--r { background: var(--red); --hb-glow: rgba(255,71,87,0.35); }
+.health-block--y { background: var(--amber); --hb-glow: rgba(255,165,2,0.3); }
+.health-block--g { background: var(--green); --hb-glow: rgba(46,213,115,0.25); }
+
+/* Client name */
+.cl-name { font: 700 18px/1.2 var(--f); }
+.cl-count { font: 500 14px/1 var(--f); color: var(--tx3); margin-left: 12px; }
+
+/* Team */
+.team { display: flex; gap: 5px; flex-wrap: wrap; }
+.team__t {
+  font: 600 14px/1 var(--f); padding: 5px 10px;
+  background: var(--inset); border-radius: 8px;
+  box-shadow: var(--neo-pressed);
+  color: var(--tx2);
+}
+
+/* Risk */
+.rk { font: 600 16px/1.3 var(--f); }
+.rk--ok { color: var(--tx3); }
+.rk--mid { color: var(--amber); }
+.rk--bad { color: var(--red); text-shadow: 0 0 10px rgba(255,71,87,0.2); }
+
+/* ===== PANEL GRID ===== */
+.pgrid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
+.pgrid--2 { grid-template-columns: 1fr 1fr; }
+.panel { padding: 0; overflow: hidden; display: flex; flex-direction: column; max-height: 420px; }
+.panel__body { overflow-y: auto; }
+.panel__body::-webkit-scrollbar { width: 6px; }
+.panel__body::-webkit-scrollbar-track { background: transparent; }
+.panel__body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+.panel__body::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+.panel__hdr {
+  padding: 18px 24px 14px; display: flex; align-items: center; justify-content: center; gap: 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.panel__title { font: 800 18px/1 var(--f); text-transform: uppercase; letter-spacing: 0.08em; }
+.panel__badge {
+  font: 700 14px/1 var(--mono); padding: 5px 12px;
+  background: var(--inset); border-radius: 8px;
+  box-shadow: var(--neo-pressed);
+}
+.panel__body { padding: 16px 24px 22px; flex: 1; }
+
+/* ===== ATTENTION ITEMS ===== */
+.attn {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px; margin: 4px -16px;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.attn:hover { background: rgba(0,212,255,0.04); box-shadow: var(--neo-up); transform: translateY(-1px); }
+.attn:active { box-shadow: var(--neo-pressed); transform: translateY(0); }
+.attn__bar { width: 4px; align-self: stretch; border-radius: 2px; flex-shrink: 0; }
+.attn__badge {
+  font: 800 14px/1 var(--f); padding: 6px 12px; border-radius: 3px;
+  letter-spacing: 0.06em; white-space: nowrap; flex-shrink: 0;
+  box-shadow: var(--neo-pressed);
+}
+.attn__badge--blk { background: var(--red-g); color: var(--red); }
+.attn__badge--ovd { background: var(--red-g); color: var(--red); }
+.attn__info { flex: 1; min-width: 0; }
+.attn__name { font: 600 16px/1.3 var(--f); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.attn__sub { font: 400 14px/1.3 var(--f); color: var(--tx3); margin-top: 3px; }
+.attn__who { font: 600 14px/1 var(--f); color: var(--cyan); flex-shrink: 0; }
+
+/* ===== WORKLOAD — GLOWING BARS ===== */
+.wl { display: flex; align-items: center; gap: 14px; padding: 9px 0; }
+.wl__n { font: 500 16px/1 var(--f); width: 120px; flex-shrink: 0; color: var(--tx2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wl__trk {
+  flex: 1; height: 18px;
+  background: var(--inset);
+  border-radius: 3px;
+  box-shadow: var(--neo-pressed);
+  overflow: hidden;
+  position: relative;
+}
+.wl__fl {
+  height: 100%; border-radius: 3px;
+  transition: width 0.6s ease;
+  position: relative;
+}
+/* Glow on bar fill */
+.wl__fl--red { background: linear-gradient(90deg, #ff4757, #ff6b81); box-shadow: 0 0 10px rgba(255,71,87,0.3); }
+.wl__fl--amber { background: linear-gradient(90deg, #ffa502, #ffc048); box-shadow: 0 0 10px rgba(255,165,2,0.25); }
+.wl__fl--green { background: linear-gradient(90deg, #2ed573, #7bed9f); box-shadow: 0 0 10px rgba(46,213,115,0.25); }
+.wl__fl--cyan { background: linear-gradient(90deg, #00d4ff, #48dbfb); box-shadow: 0 0 10px var(--cyan-30); }
+.wl__ct { font: 800 18px/1 var(--mono); width: 40px; text-align: right; flex-shrink: 0; }
+
+/* ===== MILESTONE ===== */
+.msl {
+  display: flex; align-items: center; gap: 16px;
+  padding: 16px; margin: 4px -16px;
+  border-radius: var(--r-sm);
+  cursor: pointer; transition: all 0.2s;
+}
+.msl:hover { background: rgba(0,212,255,0.04); box-shadow: var(--neo-up); transform: translateY(-1px); }
+.msl:active { box-shadow: var(--neo-pressed); transform: translateY(0); }
+.msl__marker {
+  width: 44px; height: 44px;
+  background: var(--inset);
+  border-radius: var(--r-sm);
+  box-shadow: var(--neo-pressed);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.msl__marker-inner {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+}
+.msl__info { flex: 1; min-width: 0; }
+.msl__title { font: 700 18px/1.3 var(--f); }
+.msl__sub { font: 400 14px/1.3 var(--f); color: var(--tx3); margin-top: 3px; }
+.msl__r { text-align: right; flex-shrink: 0; }
+.msl__days { font: 800 24px/1 var(--mono); }
+.msl__dt { font: 400 14px/1 var(--f); color: var(--tx3); margin-top: 4px; }
+
+/* ===== RADIAL BURST CHART ===== */
+.burst-wrap { display: flex; align-items: center; justify-content: center; padding: 16px; }
+.burst-label { text-align: center; margin-top: 12px; }
+.burst-label__val { font: 800 24px/1 var(--mono); color: var(--cyan); text-shadow: var(--cyan-glow); }
+.burst-label__sub { font: 500 13px/1 var(--f); color: var(--tx3); margin-top: 6px; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1400px) { .pgrid { grid-template-columns: 1fr 1fr; } .pgrid--2 { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 1200px) { .kpis { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 900px) { .pgrid { grid-template-columns: 1fr; } .pgrid--2 { grid-template-columns: 1fr; } .kpis { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 600px) { .kpis { grid-template-columns: 1fr; } .page { padding: 16px 16px 40px; } }
+</style>
+</head>
+<body>
+
+<!-- SVG filter for inset shadow on rings -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <filter id="insetShadow">
+      <feFlood flood-color="rgba(0,0,0,0.3)" result="flood"/>
+      <feComposite in="flood" in2="SourceGraphic" operator="in" result="shadow"/>
+      <feGaussianBlur in="shadow" stdDeviation="2" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+</svg>
+
+<header class="hdr">
+  <div class="hdr__logo">NBI</div>
+  <div class="hdr__sp"></div>
+  <nav class="hdr__nav">
+    <button class="hdr__tab hdr__tab--on">Portfolio</button>
+    <button class="hdr__tab">Projects</button>
+    <button class="hdr__tab">Workload</button>
+    <button class="hdr__tab">Reports</button>
+  </nav>
+</header>
+
+<main class="page">
+
+  <div class="ttl">
+    <div></div>
+    <div class="ttl__alert">
+      <div class="ttl__alert-dot"></div>
+      11 blocked items &mdash; Lighthouse Games
+    </div>
+  </div>
+
+  <!-- KPIs with ring gauges -->
+  <div class="kpis">
+    <!-- Active Engagements -->
+    <div class="card card--lift kpi">
+      <div class="kpi__label">Active Engagements</div>
+      <div class="kpi__center">
+        <div class="kpi__val">5</div>
+        <div class="kpi__delta-row">
+          <span class="kpi__delta" style="color:var(--green)">&#9650; +1</span>
+          <span class="kpi__delta-text">vs last week</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- On Track -->
+    <div class="card card--lift kpi">
+      <div class="kpi__label">On Track</div>
+      <div class="kpi__center">
+        <div class="kpi__val">3</div>
+        <div class="kpi__delta-row">
+          <span class="kpi__delta" style="color:var(--red)">&#9660; -1</span>
+          <span class="kpi__delta-text">vs last week</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Needs Attention -->
+    <div class="card card--lift kpi">
+      <div class="kpi__label">Needs Attention</div>
+      <div class="kpi__center">
+        <div class="kpi__val" style="color:var(--amber)">5</div>
+        <div class="kpi__delta-row">
+          <span class="kpi__delta" style="color:var(--red)">&#9650; +2</span>
+          <span class="kpi__delta-text">vs last week</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- At Risk -->
+    <div class="card card--lift kpi">
+      <div class="kpi__label">At Risk</div>
+      <div class="kpi__center">
+        <div class="kpi__val" style="color:var(--red);text-shadow:0 0 20px rgba(255,71,87,0.2)">1</div>
+        <div class="kpi__delta-row">
+          <span class="kpi__delta" style="color:var(--green)">&#9660; -1</span>
+          <span class="kpi__delta-text">vs last week</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upcoming Milestones -->
+    <div class="card card--lift kpi">
+      <div class="kpi__label">Upcoming Milestones</div>
+      <div class="kpi__center">
+        <div class="kpi__val">2</div>
+        <div class="kpi__delta-row">
+          <span style="font:600 16px/1 var(--f);color:var(--tx2)">Next in 21d</span>
+        </div>
+        <div class="kpi__delta-text">Pre-Alpha Playtest</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Client Table -->
+  <div class="card tbl-card">
+    <div class="tbl-card__hdr">
+      <span class="tbl-card__title">Client Portfolio</span>
+    </div>
+    <table class="ct">
+      <thead><tr>
+        <th style="width:60px">Health</th>
+        <th>Client</th>
+        <th style="min-width:220px">Progress</th>
+        <th>Key Risk</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td><div class="health-block health-block--r"></div></td>
+          <td><span class="cl-name">Lighthouse Games</span><span class="cl-count">338 tasks</span></td>
+          <td>
+            <div style="display:flex;align-items:center;gap:14px">
+              <div class="well" style="flex:1;height:18px;padding:0;overflow:hidden;border-radius:2px"><div style="width:6%;height:100%;background:linear-gradient(90deg,#ff4757,#ff6b81);border-radius:2px;box-shadow:0 0 8px rgba(255,71,87,0.3);transition:width 0.6s" class="anim-bar"></div></div>
+              <span style="font:800 18px/1 var(--mono);color:var(--red);min-width:44px;text-align:right">6%</span>
+            </div>
+          </td>
+          <td><span class="rk rk--bad">11 blocked, 4 overdue</span></td>
+        </tr>
+        <tr>
+          <td><div class="health-block health-block--y"></div></td>
+          <td><span class="cl-name">Couch Heroes</span><span class="cl-count">15 tasks</span></td>
+          <td>
+            <div style="display:flex;align-items:center;gap:14px">
+              <div class="well" style="flex:1;height:18px;padding:0;overflow:hidden;border-radius:2px"><div style="width:0%;height:100%;border-radius:2px" class="anim-bar"></div></div>
+              <span style="font:800 18px/1 var(--mono);color:var(--tx3);min-width:44px;text-align:right">0%</span>
+            </div>
+          </td>
+          <td><span class="rk rk--mid">1 overdue, 1 yellow</span></td>
+        </tr>
+        <tr>
+          <td><div class="health-block health-block--y"></div></td>
+          <td><span class="cl-name">NBI Operations</span><span class="cl-count">9 tasks</span></td>
+          <td>
+            <div style="display:flex;align-items:center;gap:14px">
+              <div class="well" style="flex:1;height:18px;padding:0;overflow:hidden;border-radius:2px"><div style="width:22%;height:100%;background:linear-gradient(90deg,#ffa502,#ffc048);border-radius:2px;box-shadow:0 0 8px rgba(255,165,2,0.25);transition:width 0.6s" class="anim-bar"></div></div>
+              <span style="font:800 18px/1 var(--mono);color:var(--amber);min-width:44px;text-align:right">22%</span>
+            </div>
+          </td>
+          <td><span class="rk rk--mid">2 items yellow</span></td>
+        </tr>
+        <tr>
+          <td><div class="health-block health-block--g"></div></td>
+          <td><span class="cl-name">The Insight Collective</span><span class="cl-count">20 tasks</span></td>
+          <td>
+            <div style="display:flex;align-items:center;gap:14px">
+              <div class="well" style="flex:1;height:18px;padding:0;overflow:hidden;border-radius:2px"><div style="width:0%;height:100%" class="anim-bar"></div></div>
+              <span style="font:800 18px/1 var(--mono);color:var(--tx3);min-width:44px;text-align:right">0%</span>
+            </div>
+          </td>
+          <td><span class="rk rk--ok">Clear</span></td>
+        </tr>
+        <tr>
+          <td><div class="health-block health-block--g"></div></td>
+          <td><span class="cl-name">Playsage</span><span class="cl-count">7 tasks</span></td>
+          <td>
+            <div style="display:flex;align-items:center;gap:14px">
+              <div class="well" style="flex:1;height:18px;padding:0;overflow:hidden;border-radius:2px"><div style="width:0%;height:100%" class="anim-bar"></div></div>
+              <span style="font:800 18px/1 var(--mono);color:var(--tx3);min-width:44px;text-align:right">0%</span>
+            </div>
+          </td>
+          <td><span class="rk rk--ok">Clear</span></td>
+        </tr>
+        <tr style="opacity:0.35">
+          <td><div class="health-block health-block--g"></div></td>
+          <td><span class="cl-name">Goals Studio</span><span class="cl-count">43 tasks</span></td>
+          <td>
+            <div style="display:flex;align-items:center;gap:14px">
+              <div class="well" style="flex:1;height:18px;padding:0;overflow:hidden;border-radius:2px"><div style="width:91%;height:100%;background:linear-gradient(90deg,#2ed573,#7bed9f);border-radius:2px;box-shadow:0 0 8px rgba(46,213,115,0.25);transition:width 0.6s" class="anim-bar"></div></div>
+              <span style="font:800 18px/1 var(--mono);color:var(--green);min-width:44px;text-align:right">91%</span>
+            </div>
+          </td>
+          <td><span class="rk rk--ok">Complete</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 3-column panels -->
+  <div class="pgrid">
+    <!-- Status Overview — Backlog bar + Donut -->
+    <div class="card panel">
+      <div class="panel__hdr">
+        <span class="panel__title">Status Overview</span>
+        <span class="panel__badge" style="color:var(--tx2)">432 items</span>
+      </div>
+      <div class="panel__body" style="display:flex;align-items:center;justify-content:center;gap:72px">
+        <!-- Backlog bar -->
+        <div style="flex-shrink:0;text-align:center">
+          <div class="well" style="width:90px;height:200px;display:flex;flex-direction:column;justify-content:flex-end;padding:0">
+            <div style="height:77%;background:rgba(148,163,184,0.18);border-radius:2px;display:flex;flex-direction:column;align-items:center;justify-content:center">
+              <div style="font:900 36px/1 var(--mono);color:var(--tx)">330</div>
+              <div style="font:700 14px/1 var(--f);color:var(--tx3);margin-top:8px;letter-spacing:0.08em">BACKLOG</div>
+            </div>
+          </div>
+          <div style="font:500 14px/1 var(--f);color:var(--tx3);margin-top:8px">77%</div>
+        </div>
+
+        <!-- Donut + labels -->
+        <div style="flex:0 0 auto;display:flex;align-items:center;gap:24px">
+          <svg viewBox="0 0 180 180" width="160" height="160" style="flex-shrink:0">
+            <!-- Neumorphic ring track — dark inner shadow -->
+            <circle cx="90" cy="90" r="70" fill="none" stroke="rgba(0,0,0,0.25)" stroke-width="28"/>
+            <circle cx="90" cy="90" r="70" fill="none" stroke="var(--inset)" stroke-width="24"/>
+            <!-- Subtle highlight on top edge -->
+            <circle cx="90" cy="90" r="70" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="24" stroke-dasharray="220 220" transform="rotate(-90 90 90)"/>
+            <!-- Completed: 60/102 = 58.8% -->
+            <circle cx="90" cy="90" r="70" fill="none" stroke="var(--green)" stroke-width="24"
+              stroke-dasharray="258.7 181.1" stroke-dashoffset="0"
+              transform="rotate(-90 90 90)"
+              style="filter:drop-shadow(0 0 4px rgba(46,213,115,0.3))"/>
+            <!-- In Progress: 24/102 = 23.5% -->
+            <circle cx="90" cy="90" r="70" fill="none" stroke="var(--cyan)" stroke-width="24"
+              stroke-dasharray="103.5 336.3" stroke-dashoffset="0"
+              transform="rotate(122 90 90)"
+              style="filter:drop-shadow(0 0 4px var(--cyan-30))"/>
+            <!-- Planning: 7/102 = 6.9% -->
+            <circle cx="90" cy="90" r="70" fill="none" stroke="var(--amber)" stroke-width="24"
+              stroke-dasharray="30.2 409.6" stroke-dashoffset="0"
+              transform="rotate(207 90 90)"
+              style="filter:drop-shadow(0 0 4px rgba(255,165,2,0.2))"/>
+            <!-- Blocked: 11/102 = 10.8% -->
+            <circle cx="90" cy="90" r="70" fill="none" stroke="var(--red)" stroke-width="24"
+              stroke-dasharray="47.4 392.4" stroke-dashoffset="0"
+              transform="rotate(231 90 90)"
+              style="filter:drop-shadow(0 0 4px rgba(255,71,87,0.3))"/>
+            <!-- Center text -->
+            <text x="90" y="84" text-anchor="middle" fill="var(--tx)" font-family="var(--mono)" font-weight="900" font-size="30">98</text>
+            <text x="90" y="106" text-anchor="middle" fill="var(--tx3)" font-family="var(--f)" font-weight="700" font-size="14" letter-spacing="1.5">ACTIVE</text>
+          </svg>
+
+          <!-- Legend -->
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div style="display:flex;align-items:center;gap:12px">
+              <div style="width:18px;height:18px;background:var(--green);border-radius:3px;flex-shrink:0;box-shadow:var(--neo-up), 0 0 8px rgba(46,213,115,0.3)"></div>
+              <span style="font:800 18px/1 var(--mono);color:var(--tx);min-width:30px">60</span>
+              <span style="font:500 16px/1 var(--f);color:var(--tx2)">Completed</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px">
+              <div style="width:18px;height:18px;background:var(--cyan);border-radius:3px;flex-shrink:0;box-shadow:var(--neo-up), 0 0 8px var(--cyan-30)"></div>
+              <span style="font:800 18px/1 var(--mono);color:var(--tx);min-width:30px">24</span>
+              <span style="font:500 16px/1 var(--f);color:var(--tx2)">In Progress</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px">
+              <div style="width:18px;height:18px;background:var(--amber);border-radius:3px;flex-shrink:0;box-shadow:var(--neo-up), 0 0 8px rgba(255,165,2,0.2)"></div>
+              <span style="font:800 18px/1 var(--mono);color:var(--tx);min-width:30px">7</span>
+              <span style="font:500 16px/1 var(--f);color:var(--tx2)">Planning</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px">
+              <div style="width:18px;height:18px;background:var(--red);border-radius:3px;flex-shrink:0;box-shadow:var(--neo-up), 0 0 8px rgba(255,71,87,0.3)"></div>
+              <span style="font:800 18px/1 var(--mono);color:var(--tx);min-width:30px">11</span>
+              <span style="font:500 16px/1 var(--f);color:var(--tx2)">Blocked</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Needs Attention -->
+    <div class="card panel">
+      <div class="panel__hdr">
+        <span class="panel__title" style="color:var(--red)">Needs Attention</span>
+        <span class="panel__badge" style="color:var(--red)">16</span>
+      </div>
+      <div class="panel__body">
+        <div class="attn"><div class="attn__bar" style="background:var(--red);box-shadow:0 0 6px var(--red-g)"></div><span class="attn__badge attn__badge--blk">BLOCKED</span><div class="attn__info"><div class="attn__name">Phase 1 Telemetry QA</div><div class="attn__sub">Lighthouse Games &mdash; Analytics</div></div></div>
+        <div class="attn"><div class="attn__bar" style="background:var(--red);box-shadow:0 0 6px var(--red-g)"></div><span class="attn__badge attn__badge--blk">BLOCKED</span><div class="attn__info"><div class="attn__name">Pre Alpha Telemetry Testing</div><div class="attn__sub">Lighthouse Games &mdash; Pre-Alpha Prep</div></div><span class="attn__who">Amir</span></div>
+        <div class="attn"><div class="attn__bar" style="background:var(--red);box-shadow:0 0 6px var(--red-g)"></div><span class="attn__badge attn__badge--blk">BLOCKED</span><div class="attn__info"><div class="attn__name">Telemetry Final Review / QA</div><div class="attn__sub">Lighthouse Games &mdash; 4 assigned</div></div></div>
+        <div class="attn"><div class="attn__bar" style="background:var(--red);box-shadow:0 0 6px var(--red-g)"></div><span class="attn__badge attn__badge--blk">BLOCKED</span><div class="attn__info"><div class="attn__name">Game access follow up: Data</div><div class="attn__sub">Lighthouse Games</div></div><span class="attn__who">Amir</span></div>
+        <div class="attn"><div class="attn__bar" style="background:var(--red);box-shadow:0 0 6px var(--red-g)"></div><span class="attn__badge attn__badge--blk">BLOCKED</span><div class="attn__info"><div class="attn__name">Play game and test</div><div class="attn__sub">Lighthouse Games &mdash; 3 blocked</div></div></div>
+        <div class="attn"><div class="attn__bar" style="background:var(--red);box-shadow:0 0 6px var(--red-g)"></div><span class="attn__badge attn__badge--blk">BLOCKED</span><div class="attn__info"><div class="attn__name">Phase 1 Telemetry Final Review</div><div class="attn__sub">Lighthouse Games &mdash; Stavros</div></div></div>
+        <div class="attn"><div class="attn__bar" style="background:var(--red);box-shadow:0 0 6px var(--red-g)"></div><span class="attn__badge attn__badge--blk">BLOCKED</span><div class="attn__info"><div class="attn__name">Phase 1 Telemetry Final Review</div><div class="attn__sub">Lighthouse Games &mdash; Marie</div></div></div>
+        <div class="attn"><div class="attn__bar" style="background:var(--red);box-shadow:0 0 6px var(--red-g)"></div><span class="attn__badge attn__badge--blk">BLOCKED</span><div class="attn__info"><div class="attn__name">Phase 1 Telemetry Final Review</div><div class="attn__sub">Lighthouse Games &mdash; Ruan</div></div></div>
+        <div class="attn"><div class="attn__bar" style="background:var(--red);box-shadow:0 0 6px var(--red-g)"></div><span class="attn__badge attn__badge--blk">BLOCKED</span><div class="attn__info"><div class="attn__name">Play game and test</div><div class="attn__sub">Lighthouse Games &mdash; Amir</div></div></div>
+        <div class="attn"><div class="attn__bar" style="background:var(--red);box-shadow:0 0 6px var(--red-g)"></div><span class="attn__badge attn__badge--blk">BLOCKED</span><div class="attn__info"><div class="attn__name">Play game and test</div><div class="attn__sub">Lighthouse Games &mdash; Ruan</div></div></div>
+      </div>
+    </div>
+
+    <!-- Milestones -->
+    <div class="card panel">
+      <div class="panel__hdr">
+        <span class="panel__title">Milestones</span>
+        <span class="panel__badge" style="color:var(--cyan)">2</span>
+      </div>
+      <div class="panel__body">
+        <div class="msl">
+          <div class="msl__marker"><div class="msl__marker-inner" style="background:var(--amber);box-shadow:0 0 10px rgba(255,165,2,0.4)"></div></div>
+          <div class="msl__info"><div class="msl__title">Pre-Alpha Playtest Build MS30</div><div class="msl__sub">Lighthouse Games</div></div>
+          <div class="msl__r"><div class="msl__days" style="color:var(--amber)">21d</div><div class="msl__dt">29 May</div></div>
+        </div>
+        <div class="msl">
+          <div class="msl__marker"><div class="msl__marker-inner" style="background:var(--green);box-shadow:0 0 10px rgba(46,213,115,0.4)"></div></div>
+          <div class="msl__info"><div class="msl__title">Actually Alpha M31</div><div class="msl__sub">Lighthouse Games</div></div>
+          <div class="msl__r"><div class="msl__days" style="color:var(--green)">63d</div><div class="msl__dt">10 Jul</div></div>
+        </div>
+        <div style="padding:16px;text-align:center;color:var(--tx4);font:400 14px/1.4 var(--f)">No other clients have milestones set</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Second row -->
+  <div class="pgrid pgrid--2">
+    <!-- Team Workload -->
+    <div class="card panel">
+      <div class="panel__hdr">
+        <span class="panel__title">Team Workload</span>
+        <span class="panel__badge" style="color:var(--cyan)">6</span>
+      </div>
+      <div class="panel__body">
+        <div class="wl"><span class="wl__n">Marie</span><div class="wl__trk"><div class="wl__fl wl__fl--cyan anim-bar" style="width:100%"></div></div><span class="wl__ct" style="color:var(--cyan)">60</span></div>
+        <div class="wl"><span class="wl__n">Devin</span><div class="wl__trk"><div class="wl__fl wl__fl--cyan anim-bar" style="width:13%"></div></div><span class="wl__ct" style="color:var(--cyan)">8</span></div>
+        <div class="wl"><span class="wl__n">Glen</span><div class="wl__trk"><div class="wl__fl wl__fl--cyan anim-bar" style="width:8%"></div></div><span class="wl__ct" style="color:var(--cyan)">5</span></div>
+        <div class="wl"><span class="wl__n">Lorenza</span><div class="wl__trk"><div class="wl__fl wl__fl--cyan anim-bar" style="width:5%"></div></div><span class="wl__ct" style="color:var(--cyan)">3</span></div>
+        <div class="wl"><span class="wl__n">Magnus</span><div class="wl__trk"><div class="wl__fl wl__fl--cyan anim-bar" style="width:5%"></div></div><span class="wl__ct" style="color:var(--cyan)">3</span></div>
+        <div class="wl"><span class="wl__n">Tom</span><div class="wl__trk"><div class="wl__fl wl__fl--cyan anim-bar" style="width:2%"></div></div><span class="wl__ct" style="color:var(--cyan)">1</span></div>
+      </div>
+    </div>
+
+    <!-- Near Completion -->
+    <div class="card panel" style="display:flex;align-items:center;justify-content:center;min-height:140px">
+      <div style="text-align:center;color:var(--tx4);padding:24px">
+        <div style="font:600 16px/1.3 var(--f);color:var(--tx3);margin-bottom:6px">No projects near completion</div>
+        <div style="font:400 14px/1.4 var(--f)">Most active work is early-stage</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// Animate bars and rings on load
+window.addEventListener('DOMContentLoaded', () => {
+  // Progress bars
+  document.querySelectorAll('.anim-bar').forEach(el => {
+    const w = el.style.width;
+    el.style.width = '0%';
+    requestAnimationFrame(() => requestAnimationFrame(() => { el.style.width = w; }));
+  });
+
+  // KPI rings
+  document.querySelectorAll('.kpi__ring-fill').forEach(el => {
+    const target = el.getAttribute('stroke-dashoffset');
+    el.setAttribute('stroke-dashoffset', '264');
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      el.style.transition = 'stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1)';
+      el.style.strokeDashoffset = target;
+    }));
+  });
+
+  // Mini rings in table
+  document.querySelectorAll('.mini-ring circle:nth-child(2)').forEach(el => {
+    const target = el.getAttribute('stroke-dashoffset');
+    el.setAttribute('stroke-dashoffset', '100.5');
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      el.style.transition = 'stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1) 0.3s';
+      el.style.strokeDashoffset = target;
+    }));
+  });
+
+  // Hero chart polyline — draw-in animation
+  const heroLine = document.querySelector('.hero-glow');
+  if (heroLine) {
+    const len = heroLine.getTotalLength ? heroLine.getTotalLength() : 900;
+    heroLine.style.strokeDasharray = len;
+    heroLine.style.strokeDashoffset = len;
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      heroLine.style.transition = 'stroke-dashoffset 1.5s ease';
+      heroLine.style.strokeDashoffset = '0';
+    }));
+  }
+});
+</script>
+
+</body>
+</html>

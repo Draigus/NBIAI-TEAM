@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="midnight" data-bg="gradient-dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WorkSage — Portfolio v2</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ===== THEME TOKENS ===== */
+:root {
+  --glass-bg: rgba(255,255,255,0.06);
+  --glass-border: rgba(255,255,255,0.1);
+  --glass-hover: rgba(255,255,255,0.1);
+  --glass-active: rgba(255,255,255,0.14);
+  --glass-blur: 20px;
+  --glass-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.2);
+  --glass-shadow-hover: 0 12px 40px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.3);
+  --text-primary: #f0f0f0;
+  --text-secondary: rgba(255,255,255,0.7);
+  --text-muted: rgba(255,255,255,0.45);
+  --text-faint: rgba(255,255,255,0.25);
+  --accent: #60a5fa;
+  --accent-glow: rgba(96,165,250,0.2);
+  --success: #4ade80;
+  --success-glow: rgba(74,222,128,0.15);
+  --warning: #fbbf24;
+  --warning-glow: rgba(251,191,36,0.15);
+  --danger: #f87171;
+  --danger-glow: rgba(248,113,113,0.15);
+  --purple: #c084fc;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Midnight theme (default) */
+[data-theme="midnight"] {
+  --glass-bg: rgba(255,255,255,0.06);
+  --glass-border: rgba(255,255,255,0.1);
+  --glass-hover: rgba(255,255,255,0.1);
+  --glass-active: rgba(255,255,255,0.14);
+  --glass-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.2);
+  --text-primary: #f0f0f0;
+  --text-secondary: rgba(255,255,255,0.7);
+  --text-muted: rgba(255,255,255,0.45);
+  --text-faint: rgba(255,255,255,0.25);
+  --accent: #60a5fa;
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --purple: #c084fc;
+}
+
+/* Arctic theme */
+[data-theme="arctic"] {
+  --glass-bg: rgba(255,255,255,0.25);
+  --glass-border: rgba(255,255,255,0.4);
+  --glass-hover: rgba(255,255,255,0.35);
+  --glass-active: rgba(255,255,255,0.45);
+  --glass-shadow: 0 8px 32px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04);
+  --text-primary: #1e293b;
+  --text-secondary: rgba(30,41,59,0.7);
+  --text-muted: rgba(30,41,59,0.45);
+  --text-faint: rgba(30,41,59,0.25);
+  --accent: #2563eb;
+  --success: #16a34a;
+  --warning: #d97706;
+  --danger: #dc2626;
+  --purple: #9333ea;
+}
+
+/* Ember theme */
+[data-theme="ember"] {
+  --glass-bg: rgba(255,255,255,0.07);
+  --glass-border: rgba(255,200,150,0.12);
+  --glass-hover: rgba(255,200,150,0.1);
+  --glass-active: rgba(255,200,150,0.15);
+  --glass-shadow: 0 8px 32px rgba(0,0,0,0.35), 0 2px 8px rgba(0,0,0,0.2);
+  --text-primary: #fef3c7;
+  --text-secondary: rgba(254,243,199,0.7);
+  --text-muted: rgba(254,243,199,0.4);
+  --text-faint: rgba(254,243,199,0.2);
+  --accent: #fb923c;
+  --success: #86efac;
+  --warning: #fde047;
+  --danger: #fca5a5;
+  --purple: #d8b4fe;
+}
+
+/* Nordic theme */
+[data-theme="nordic"] {
+  --glass-bg: rgba(255,255,255,0.08);
+  --glass-border: rgba(136,192,208,0.15);
+  --glass-hover: rgba(136,192,208,0.12);
+  --glass-active: rgba(136,192,208,0.18);
+  --glass-shadow: 0 8px 32px rgba(0,0,0,0.25), 0 2px 8px rgba(0,0,0,0.15);
+  --text-primary: #eceff4;
+  --text-secondary: rgba(236,239,244,0.7);
+  --text-muted: rgba(236,239,244,0.4);
+  --text-faint: rgba(236,239,244,0.2);
+  --accent: #88c0d0;
+  --success: #a3be8c;
+  --warning: #ebcb8b;
+  --danger: #bf616a;
+  --purple: #b48ead;
+}
+
+/* ===== BACKGROUNDS ===== */
+body {
+  font-family: var(--font);
+  color: var(--text-primary);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  transition: background 0.6s ease;
+}
+
+[data-bg="gradient-dark"] body { background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 40%, #0f172a 100%); }
+[data-bg="gradient-ocean"] body { background: linear-gradient(135deg, #0c4a6e 0%, #164e63 40%, #1e3a5f 100%); }
+[data-bg="gradient-purple"] body { background: linear-gradient(135deg, #2e1065 0%, #1e1b4b 50%, #0f172a 100%); }
+[data-bg="gradient-charcoal"] body { background: linear-gradient(145deg, #18181b 0%, #27272a 50%, #1c1917 100%); }
+[data-bg="gradient-forest"] body { background: linear-gradient(135deg, #052e16 0%, #14532d 40%, #0a1628 100%); }
+[data-bg="gradient-arctic"] body { background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 40%, #f0f9ff 100%); }
+[data-bg="gradient-ember"] body { background: linear-gradient(135deg, #1c1917 0%, #451a03 40%, #1c1917 100%); }
+[data-bg="gradient-nordic"] body { background: linear-gradient(135deg, #2e3440 0%, #3b4252 40%, #2e3440 100%); }
+
+/* ===== GLASS CARD ===== */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  box-shadow: var(--glass-shadow);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.glass:hover {
+  background: var(--glass-hover);
+  box-shadow: var(--glass-shadow-hover);
+  transform: translateY(-2px);
+}
+.glass:active {
+  background: var(--glass-active);
+  transform: translateY(0px);
+  transition-duration: 0.1s;
+}
+.glass--static:hover { transform: none; }
+.glass--static:active { transform: none; }
+
+/* ===== HEADER ===== */
+.header {
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.header__logo {
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: var(--accent);
+  letter-spacing: -0.03em;
+}
+.header__spacer { flex: 1; }
+.header__controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.header__btn {
+  padding: 8px 14px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: var(--font);
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 10px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.header__btn:hover { color: var(--text-primary); background: var(--glass-hover); transform: translateY(-1px); }
+.header__btn--active { color: var(--accent); border-color: var(--accent); background: rgba(96,165,250,0.1); }
+
+/* ===== LAYOUT ===== */
+.portfolio {
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 8px 32px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ===== PAGE TITLE ===== */
+.page-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px;
+}
+.page-title__text {
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.page-title__sub {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+.page-title__alert {
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  font-weight: 600;
+  background: var(--danger-glow);
+  color: var(--danger);
+  border: 1px solid rgba(248,113,113,0.2);
+}
+
+/* ===== KPI STRIP ===== */
+.kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+}
+.kpi {
+  padding: 22px 24px 18px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.kpi__label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 10px;
+}
+.kpi__value {
+  font-size: 2.8rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  margin-bottom: 8px;
+}
+.kpi__sparkline {
+  height: 36px;
+  margin-top: 6px;
+}
+.kpi__sparkline svg { width: 100%; height: 100%; }
+
+/* Sparkline interactivity */
+.spark-dot {
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.kpi:hover .spark-dot { opacity: 1; }
+.spark-tooltip {
+  opacity: 0;
+  transition: opacity 0.15s;
+  pointer-events: none;
+}
+.kpi:hover .spark-tooltip { opacity: 1; }
+
+/* ===== PORTFOLIO TABLE ===== */
+.table-card {
+  padding: 0;
+  overflow: hidden;
+}
+.table-card__header {
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--glass-border);
+}
+.table-card__title {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.ptable {
+  width: 100%;
+  border-collapse: collapse;
+}
+.ptable th {
+  text-align: left;
+  padding: 14px 20px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--glass-border);
+}
+.ptable td {
+  padding: 16px 20px;
+  font-size: 0.92rem;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  vertical-align: middle;
+}
+.ptable tbody tr {
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.ptable tbody tr:hover {
+  background: var(--glass-hover);
+}
+.ptable tbody tr:active {
+  background: var(--glass-active);
+}
+
+/* Health dot */
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.dot--green { background: var(--success); box-shadow: 0 0 8px var(--success-glow), 0 0 2px var(--success); }
+.dot--yellow { background: var(--warning); box-shadow: 0 0 8px var(--warning-glow), 0 0 2px var(--warning); }
+.dot--red { background: var(--danger); box-shadow: 0 0 8px var(--danger-glow), 0 0 2px var(--danger); }
+
+/* Client name */
+.client-cell {
+  font-weight: 700;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.client-cell__tasks {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+/* Progress bar */
+.prog {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.prog__track {
+  flex: 1;
+  height: 8px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 4px;
+  overflow: hidden;
+  min-width: 100px;
+}
+.prog__fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.4s ease;
+}
+.prog__pct {
+  font-size: 0.88rem;
+  font-weight: 700;
+  min-width: 40px;
+  text-align: right;
+}
+
+/* Risk text */
+.risk { font-size: 0.85rem; }
+.risk--none { color: var(--text-muted); }
+.risk--warn { color: var(--warning); font-weight: 600; }
+.risk--bad { color: var(--danger); font-weight: 700; }
+
+/* Team pills */
+.team-pills { display: flex; gap: 4px; flex-wrap: wrap; }
+.team-pill {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.08);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+/* ===== PANELS ROW ===== */
+.panels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.panel-card {
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.panel-card__header {
+  padding: 16px 22px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--glass-border);
+  flex-shrink: 0;
+}
+.panel-card__title {
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+.panel-card__badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 8px;
+}
+.panel-card__body {
+  padding: 16px 22px 20px;
+  flex: 1;
+}
+
+/* Attention items */
+.attn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  margin: 0 -14px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.attn:hover { background: var(--glass-hover); }
+.attn:active { background: var(--glass-active); }
+.attn__bar {
+  width: 4px;
+  min-height: 36px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.attn__badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.attn__badge--blocked { background: rgba(192,132,252,0.2); color: var(--purple); }
+.attn__badge--overdue { background: var(--danger-glow); color: var(--danger); }
+.attn__badge--risk { background: rgba(251,191,36,0.15); color: var(--warning); }
+.attn__info { flex: 1; min-width: 0; }
+.attn__title { font-size: 0.88rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.attn__sub { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+.attn__owner { font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); flex-shrink: 0; }
+
+/* Workload bars */
+.wl-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 0;
+}
+.wl-name { font-size: 0.85rem; font-weight: 500; width: 110px; flex-shrink: 0; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wl-track { flex: 1; height: 12px; background: rgba(255,255,255,0.06); border-radius: 6px; overflow: hidden; }
+.wl-fill { height: 100%; border-radius: 6px; transition: width 0.4s ease; }
+.wl-count { font-size: 0.85rem; font-weight: 700; width: 36px; text-align: right; flex-shrink: 0; }
+
+/* Milestone items */
+.ms-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  margin: 0 -14px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.ms-row:hover { background: var(--glass-hover); }
+.ms-row:active { background: var(--glass-active); }
+.ms-row__bar { width: 4px; min-height: 40px; border-radius: 2px; flex-shrink: 0; }
+.ms-row__info { flex: 1; min-width: 0; }
+.ms-row__title { font-size: 0.88rem; font-weight: 700; }
+.ms-row__sub { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+.ms-row__right { text-align: right; flex-shrink: 0; }
+.ms-row__status { font-size: 0.88rem; font-weight: 700; }
+.ms-row__date { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+
+/* ===== AREA CHART ===== */
+.area-chart { position: relative; }
+.area-chart svg { width: 100%; display: block; }
+.chart-dot {
+  opacity: 0;
+  transition: opacity 0.15s, r 0.15s;
+  cursor: pointer;
+}
+.area-chart:hover .chart-dot { opacity: 0.6; }
+.area-chart:hover .chart-dot:hover { opacity: 1; r: 6; }
+
+/* ===== SETTINGS PANEL ===== */
+.settings-panel {
+  position: fixed;
+  top: 0;
+  right: -380px;
+  width: 380px;
+  height: 100vh;
+  background: rgba(15,23,42,0.95);
+  backdrop-filter: blur(24px);
+  border-left: 1px solid var(--glass-border);
+  z-index: 300;
+  transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  box-shadow: -8px 0 32px rgba(0,0,0,0.3);
+}
+.settings-panel.open { right: 0; }
+.settings-panel__header {
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--glass-border);
+}
+.settings-panel__title { font-size: 1.05rem; font-weight: 700; color: var(--text-primary); }
+.settings-panel__close {
+  width: 32px; height: 32px;
+  border: none; background: rgba(255,255,255,0.08);
+  border-radius: 8px; color: var(--text-secondary);
+  font-size: 1.1rem; cursor: pointer;
+  transition: background 0.15s;
+}
+.settings-panel__close:hover { background: rgba(255,255,255,0.15); }
+.settings-panel__body { padding: 24px; flex: 1; overflow-y: auto; }
+.settings-panel__section { margin-bottom: 28px; }
+.settings-panel__label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+.settings-panel__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.swatch {
+  height: 48px;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.swatch:hover { transform: scale(1.05); }
+.swatch.active { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-glow); }
+.swatch__label {
+  position: absolute;
+  bottom: 6px;
+  left: 8px;
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.7);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
+
+.theme-btn {
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background: var(--glass-bg);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  font-family: var(--font);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+.theme-btn:hover { background: var(--glass-hover); color: var(--text-primary); }
+.theme-btn.active { border-color: var(--accent); color: var(--accent); }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1200px) {
+  .kpi-strip { grid-template-columns: repeat(3, 1fr); }
+  .panels { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  .kpi-strip { grid-template-columns: 1fr 1fr; }
+  .portfolio { padding: 8px 16px 32px; }
+  .header { padding: 12px 16px; }
+}
+
+/* ===== GAUGE CHART ===== */
+.gauge-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.gauge-container svg { display: block; }
+.gauge-label {
+  position: absolute;
+  text-align: center;
+}
+.gauge-label__value {
+  font-size: 2.2rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+.gauge-label__text {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header__logo">WorkSage</div>
+  <div class="header__spacer"></div>
+  <div class="header__controls">
+    <button class="header__btn" onclick="toggleSettings()">Customise</button>
+  </div>
+</header>
+
+<!-- PORTFOLIO -->
+<main class="portfolio">
+
+  <!-- Title -->
+  <div class="page-title">
+    <div>
+      <div class="page-title__text">NBI Portfolio</div>
+      <div class="page-title__sub">8 May 2026</div>
+    </div>
+    <div class="page-title__alert">11 blocked items across Lighthouse Games</div>
+  </div>
+
+  <!-- KPI Strip -->
+  <div class="kpi-strip">
+
+    <!-- Active Clients -->
+    <div class="glass kpi">
+      <div class="kpi__label">Active Clients</div>
+      <div class="kpi__value" style="color:var(--accent)">5</div>
+      <div class="kpi__sparkline">
+        <svg viewBox="0 0 140 36" preserveAspectRatio="none">
+          <defs><linearGradient id="gAcc" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--accent)" stop-opacity="0.3"/><stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/></linearGradient></defs>
+          <path d="M0,28 L23,26 L46,26 L69,24 L92,20 L115,18 L140,14 L140,36 L0,36Z" fill="url(#gAcc)"/>
+          <path d="M0,28 L23,26 L46,26 L69,24 L92,20 L115,18 L140,14" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle class="spark-dot" cx="140" cy="14" r="4" fill="var(--accent)"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Active Tasks -->
+    <div class="glass kpi">
+      <div class="kpi__label">Active Tasks</div>
+      <div class="kpi__value" style="color:var(--text-primary)">368</div>
+      <div class="kpi__sparkline">
+        <svg viewBox="0 0 140 36" preserveAspectRatio="none">
+          <defs><linearGradient id="gTask" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--text-secondary)" stop-opacity="0.2"/><stop offset="100%" stop-color="var(--text-secondary)" stop-opacity="0"/></linearGradient></defs>
+          <path d="M0,30 L23,28 L46,24 L69,20 L92,16 L115,12 L140,8 L140,36 L0,36Z" fill="url(#gTask)"/>
+          <path d="M0,30 L23,28 L46,24 L69,20 L92,16 L115,12 L140,8" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle class="spark-dot" cx="140" cy="8" r="4" fill="var(--text-secondary)"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Blocked -->
+    <div class="glass kpi">
+      <div class="kpi__label">Blocked</div>
+      <div class="kpi__value" style="color:var(--danger)">11</div>
+      <div class="kpi__sparkline">
+        <svg viewBox="0 0 140 36" preserveAspectRatio="none">
+          <defs><linearGradient id="gDng" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--danger)" stop-opacity="0.25"/><stop offset="100%" stop-color="var(--danger)" stop-opacity="0"/></linearGradient></defs>
+          <path d="M0,30 L23,28 L46,24 L69,18 L92,14 L115,10 L140,6 L140,36 L0,36Z" fill="url(#gDng)"/>
+          <path d="M0,30 L23,28 L46,24 L69,18 L92,14 L115,10 L140,6" fill="none" stroke="var(--danger)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle class="spark-dot" cx="140" cy="6" r="4" fill="var(--danger)"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Overdue -->
+    <div class="glass kpi">
+      <div class="kpi__label">Overdue</div>
+      <div class="kpi__value" style="color:var(--warning)">5</div>
+      <div class="kpi__sparkline">
+        <svg viewBox="0 0 140 36" preserveAspectRatio="none">
+          <defs><linearGradient id="gWrn" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--warning)" stop-opacity="0.2"/><stop offset="100%" stop-color="var(--warning)" stop-opacity="0"/></linearGradient></defs>
+          <path d="M0,26 L23,22 L46,20 L69,24 L92,20 L115,16 L140,14 L140,36 L0,36Z" fill="url(#gWrn)"/>
+          <path d="M0,26 L23,22 L46,20 L69,24 L92,20 L115,16 L140,14" fill="none" stroke="var(--warning)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle class="spark-dot" cx="140" cy="14" r="4" fill="var(--warning)"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Overall Progress — gauge -->
+    <div class="glass kpi" style="padding-bottom:14px">
+      <div class="kpi__label">Overall Progress</div>
+      <div class="gauge-container" style="height:100px">
+        <svg viewBox="0 0 120 75" width="120" height="75">
+          <path d="M15,65 A45,45 0 0,1 105,65" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="10" stroke-linecap="round"/>
+          <path d="M15,65 A45,45 0 0,1 105,65" fill="none" stroke="var(--purple)" stroke-width="10" stroke-linecap="round" stroke-dasharray="141.4" stroke-dashoffset="121.6" style="transition:stroke-dashoffset 1s ease"/>
+        </svg>
+        <div class="gauge-label">
+          <div class="gauge-label__value" style="color:var(--purple)">14%</div>
+          <div class="gauge-label__text">60 / 432</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Portfolio Table -->
+  <div class="glass glass--static table-card">
+    <div class="table-card__header">
+      <span class="table-card__title">Client Portfolio</span>
+    </div>
+    <table class="ptable">
+      <thead>
+        <tr>
+          <th style="width:36px">Health</th>
+          <th>Client</th>
+          <th style="min-width:200px">Progress</th>
+          <th>Team</th>
+          <th>Key Risk</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Lighthouse Games — RED -->
+        <tr>
+          <td><span class="dot dot--red"></span></td>
+          <td><div class="client-cell">Lighthouse Games <span class="client-cell__tasks">338 tasks</span></div></td>
+          <td>
+            <div class="prog">
+              <div class="prog__track"><div class="prog__fill" style="width:6%;background:var(--danger)"></div></div>
+              <span class="prog__pct" style="color:var(--danger)">6%</span>
+            </div>
+          </td>
+          <td>
+            <div class="team-pills">
+              <span class="team-pill">Amir</span>
+              <span class="team-pill">Stavros</span>
+              <span class="team-pill">Marie</span>
+              <span class="team-pill">Ruan</span>
+              <span class="team-pill" style="color:var(--text-faint)">+2</span>
+            </div>
+          </td>
+          <td><span class="risk risk--bad">11 blocked, 4 overdue</span></td>
+        </tr>
+
+        <!-- Couch Heroes — YELLOW -->
+        <tr>
+          <td><span class="dot dot--yellow"></span></td>
+          <td><div class="client-cell">Couch Heroes <span class="client-cell__tasks">15 tasks</span></div></td>
+          <td>
+            <div class="prog">
+              <div class="prog__track"><div class="prog__fill" style="width:0%;background:var(--warning)"></div></div>
+              <span class="prog__pct" style="color:var(--text-muted)">0%</span>
+            </div>
+          </td>
+          <td>
+            <div class="team-pills">
+              <span class="team-pill">Glen</span>
+              <span class="team-pill">Lorenza</span>
+            </div>
+          </td>
+          <td><span class="risk risk--warn">1 overdue, 1 yellow</span></td>
+        </tr>
+
+        <!-- NBI Operations — YELLOW -->
+        <tr>
+          <td><span class="dot dot--yellow"></span></td>
+          <td><div class="client-cell">NBI Operations <span class="client-cell__tasks">9 tasks</span></div></td>
+          <td>
+            <div class="prog">
+              <div class="prog__track"><div class="prog__fill" style="width:22%;background:var(--warning)"></div></div>
+              <span class="prog__pct" style="color:var(--warning)">22%</span>
+            </div>
+          </td>
+          <td>
+            <div class="team-pills">
+              <span class="team-pill">Glen</span>
+              <span class="team-pill">Magnus</span>
+            </div>
+          </td>
+          <td><span class="risk risk--warn">2 items yellow</span></td>
+        </tr>
+
+        <!-- The Insight Collective — GREEN -->
+        <tr>
+          <td><span class="dot dot--green"></span></td>
+          <td><div class="client-cell">The Insight Collective <span class="client-cell__tasks">20 tasks</span></div></td>
+          <td>
+            <div class="prog">
+              <div class="prog__track"><div class="prog__fill" style="width:0%;background:var(--success)"></div></div>
+              <span class="prog__pct" style="color:var(--text-muted)">0%</span>
+            </div>
+          </td>
+          <td>
+            <div class="team-pills">
+              <span class="team-pill">Devin</span>
+            </div>
+          </td>
+          <td><span class="risk risk--none">Clear</span></td>
+        </tr>
+
+        <!-- Playsage — GREEN -->
+        <tr>
+          <td><span class="dot dot--green"></span></td>
+          <td><div class="client-cell">Playsage <span class="client-cell__tasks">7 tasks</span></div></td>
+          <td>
+            <div class="prog">
+              <div class="prog__track"><div class="prog__fill" style="width:0%;background:var(--success)"></div></div>
+              <span class="prog__pct" style="color:var(--text-muted)">0%</span>
+            </div>
+          </td>
+          <td>
+            <div class="team-pills">
+              <span class="team-pill">Devin</span>
+            </div>
+          </td>
+          <td><span class="risk risk--none">Clear</span></td>
+        </tr>
+
+        <!-- Goals Studio — COMPLETE -->
+        <tr style="opacity:0.5">
+          <td><span class="dot dot--green"></span></td>
+          <td><div class="client-cell">Goals Studio <span class="client-cell__tasks">43 tasks</span></div></td>
+          <td>
+            <div class="prog">
+              <div class="prog__track"><div class="prog__fill" style="width:91%;background:var(--success)"></div></div>
+              <span class="prog__pct" style="color:var(--success)">91%</span>
+            </div>
+          </td>
+          <td><span style="font-size:0.82rem;color:var(--text-faint)">Inactive</span></td>
+          <td><span class="risk risk--none">Complete</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Panels Row -->
+  <div class="panels">
+    <!-- Needs Attention -->
+    <div class="glass glass--static panel-card">
+      <div class="panel-card__header">
+        <span class="panel-card__title" style="color:var(--danger)">Needs Attention</span>
+        <span class="panel-card__badge" style="background:var(--danger-glow);color:var(--danger)">16 items</span>
+      </div>
+      <div class="panel-card__body">
+        <div class="attn">
+          <div class="attn__bar" style="background:var(--purple)"></div>
+          <span class="attn__badge attn__badge--blocked">BLOCKED</span>
+          <div class="attn__info">
+            <div class="attn__title">Phase 1 Telemetry QA</div>
+            <div class="attn__sub">Lighthouse Games &mdash; Analytics - Telemetry</div>
+          </div>
+        </div>
+        <div class="attn">
+          <div class="attn__bar" style="background:var(--purple)"></div>
+          <span class="attn__badge attn__badge--blocked">BLOCKED</span>
+          <div class="attn__info">
+            <div class="attn__title">Pre Alpha Telemetry Testing</div>
+            <div class="attn__sub">Lighthouse Games &mdash; Pre-Alpha Prep</div>
+          </div>
+          <span class="attn__owner">Amir</span>
+        </div>
+        <div class="attn">
+          <div class="attn__bar" style="background:var(--purple)"></div>
+          <span class="attn__badge attn__badge--blocked">BLOCKED</span>
+          <div class="attn__info">
+            <div class="attn__title">Phase 1 Telemetry Final Review / QA</div>
+            <div class="attn__sub">Lighthouse Games &mdash; 4 people assigned</div>
+          </div>
+        </div>
+        <div class="attn">
+          <div class="attn__bar" style="background:var(--purple)"></div>
+          <span class="attn__badge attn__badge--blocked">BLOCKED</span>
+          <div class="attn__info">
+            <div class="attn__title">Game access follow up: Data</div>
+            <div class="attn__sub">Lighthouse Games &mdash; Game Understanding</div>
+          </div>
+          <span class="attn__owner">Amir</span>
+        </div>
+        <div class="attn">
+          <div class="attn__bar" style="background:var(--purple)"></div>
+          <span class="attn__badge attn__badge--blocked">BLOCKED</span>
+          <div class="attn__info">
+            <div class="attn__title">Play game and test</div>
+            <div class="attn__sub">Lighthouse Games &mdash; 3 people blocked</div>
+          </div>
+        </div>
+        <div style="text-align:center;padding:12px;font-size:0.78rem;color:var(--text-faint)">+ 11 more blocked/overdue items</div>
+      </div>
+    </div>
+
+    <!-- Team Workload -->
+    <div class="glass glass--static panel-card">
+      <div class="panel-card__header">
+        <span class="panel-card__title">Team Workload</span>
+        <span class="panel-card__badge" style="background:rgba(255,255,255,0.06);color:var(--text-muted)">9 people</span>
+      </div>
+      <div class="panel-card__body">
+        <div class="wl-row">
+          <span class="wl-name">Amir Didar</span>
+          <div class="wl-track"><div class="wl-fill" style="width:100%;background:var(--danger)"></div></div>
+          <span class="wl-count" style="color:var(--danger)">76</span>
+        </div>
+        <div class="wl-row">
+          <span class="wl-name">Stavros</span>
+          <div class="wl-track"><div class="wl-fill" style="width:100%;background:var(--danger)"></div></div>
+          <span class="wl-count" style="color:var(--danger)">76</span>
+        </div>
+        <div class="wl-row">
+          <span class="wl-name">Marie</span>
+          <div class="wl-track"><div class="wl-fill" style="width:79%;background:var(--danger)"></div></div>
+          <span class="wl-count" style="color:var(--danger)">60</span>
+        </div>
+        <div class="wl-row">
+          <span class="wl-name">Ruan</span>
+          <div class="wl-track"><div class="wl-fill" style="width:61%;background:var(--warning)"></div></div>
+          <span class="wl-count" style="color:var(--warning)">46</span>
+        </div>
+        <div class="wl-row">
+          <span class="wl-name">Devin Rieger</span>
+          <div class="wl-track"><div class="wl-fill" style="width:11%;background:var(--success)"></div></div>
+          <span class="wl-count" style="color:var(--success)">8</span>
+        </div>
+        <div class="wl-row">
+          <span class="wl-name">Glen Pryer</span>
+          <div class="wl-track"><div class="wl-fill" style="width:7%;background:var(--success)"></div></div>
+          <span class="wl-count" style="color:var(--success)">5</span>
+        </div>
+        <div class="wl-row">
+          <span class="wl-name">Lorenza</span>
+          <div class="wl-track"><div class="wl-fill" style="width:4%;background:var(--success)"></div></div>
+          <span class="wl-count" style="color:var(--success)">3</span>
+        </div>
+        <div class="wl-row">
+          <span class="wl-name">Magnus</span>
+          <div class="wl-track"><div class="wl-fill" style="width:4%;background:var(--success)"></div></div>
+          <span class="wl-count" style="color:var(--success)">3</span>
+        </div>
+        <div class="wl-row">
+          <span class="wl-name">Tom Rieger</span>
+          <div class="wl-track"><div class="wl-fill" style="width:1%;background:var(--success)"></div></div>
+          <span class="wl-count" style="color:var(--success)">1</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Milestones -->
+  <div class="panels">
+    <div class="glass glass--static panel-card">
+      <div class="panel-card__header">
+        <span class="panel-card__title">Upcoming Milestones</span>
+        <span class="panel-card__badge" style="background:rgba(255,255,255,0.06);color:var(--text-muted)">2 set</span>
+      </div>
+      <div class="panel-card__body">
+        <div class="ms-row">
+          <div class="ms-row__bar" style="background:var(--warning)"></div>
+          <div class="ms-row__info">
+            <div class="ms-row__title">Pre-Alpha Playtest Build MS30</div>
+            <div class="ms-row__sub">Lighthouse Games</div>
+          </div>
+          <div class="ms-row__right">
+            <div class="ms-row__status" style="color:var(--warning)">21d left</div>
+            <div class="ms-row__date">29 May</div>
+          </div>
+        </div>
+        <div class="ms-row">
+          <div class="ms-row__bar" style="background:var(--success)"></div>
+          <div class="ms-row__info">
+            <div class="ms-row__title">Actually Alpha M31</div>
+            <div class="ms-row__sub">Lighthouse Games</div>
+          </div>
+          <div class="ms-row__right">
+            <div class="ms-row__status" style="color:var(--success)">63d left</div>
+            <div class="ms-row__date">10 Jul</div>
+          </div>
+        </div>
+        <div style="padding:16px;text-align:center;color:var(--text-faint);font-size:0.82rem">No other clients have milestones set.</div>
+      </div>
+    </div>
+
+    <div class="glass glass--static panel-card" style="display:flex;align-items:center;justify-content:center;min-height:160px">
+      <div style="text-align:center;padding:24px;color:var(--text-faint)">
+        <div style="font-size:1.8rem;margin-bottom:8px">&#128202;</div>
+        <div style="font-size:0.88rem;font-weight:600;color:var(--text-muted);margin-bottom:4px">No projects near completion</div>
+        <div style="font-size:0.78rem">Most active work is early-stage</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- Settings Panel -->
+<div class="settings-panel" id="settingsPanel">
+  <div class="settings-panel__header">
+    <span class="settings-panel__title">Customise</span>
+    <button class="settings-panel__close" onclick="toggleSettings()">&times;</button>
+  </div>
+  <div class="settings-panel__body">
+    <div class="settings-panel__section">
+      <div class="settings-panel__label">Background</div>
+      <div class="settings-panel__grid">
+        <div class="swatch active" style="background:linear-gradient(135deg,#0f172a,#1e1b4b)" onclick="setBg('gradient-dark',this)" data-bg="gradient-dark"><span class="swatch__label">Deep Space</span></div>
+        <div class="swatch" style="background:linear-gradient(135deg,#0c4a6e,#164e63)" onclick="setBg('gradient-ocean',this)" data-bg="gradient-ocean"><span class="swatch__label">Ocean</span></div>
+        <div class="swatch" style="background:linear-gradient(135deg,#2e1065,#1e1b4b)" onclick="setBg('gradient-purple',this)" data-bg="gradient-purple"><span class="swatch__label">Nebula</span></div>
+        <div class="swatch" style="background:linear-gradient(145deg,#18181b,#27272a)" onclick="setBg('gradient-charcoal',this)" data-bg="gradient-charcoal"><span class="swatch__label">Charcoal</span></div>
+        <div class="swatch" style="background:linear-gradient(135deg,#052e16,#14532d)" onclick="setBg('gradient-forest',this)" data-bg="gradient-forest"><span class="swatch__label">Forest</span></div>
+        <div class="swatch" style="background:linear-gradient(135deg,#dbeafe,#e0e7ff)" onclick="setBg('gradient-arctic',this)" data-bg="gradient-arctic"><span class="swatch__label" style="color:rgba(0,0,0,0.5)">Arctic</span></div>
+        <div class="swatch" style="background:linear-gradient(135deg,#1c1917,#451a03)" onclick="setBg('gradient-ember',this)" data-bg="gradient-ember"><span class="swatch__label">Ember</span></div>
+        <div class="swatch" style="background:linear-gradient(135deg,#2e3440,#3b4252)" onclick="setBg('gradient-nordic',this)" data-bg="gradient-nordic"><span class="swatch__label">Nordic</span></div>
+      </div>
+    </div>
+    <div class="settings-panel__section">
+      <div class="settings-panel__label">Theme</div>
+      <div class="settings-panel__grid">
+        <button class="theme-btn active" onclick="setTheme('midnight',this)" data-theme="midnight">Midnight</button>
+        <button class="theme-btn" onclick="setTheme('arctic',this)" data-theme="arctic">Arctic</button>
+        <button class="theme-btn" onclick="setTheme('ember',this)" data-theme="ember">Ember</button>
+        <button class="theme-btn" onclick="setTheme('nordic',this)" data-theme="nordic">Nordic</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleSettings() {
+  document.getElementById('settingsPanel').classList.toggle('open');
+}
+
+function setBg(bg, el) {
+  document.documentElement.setAttribute('data-bg', bg);
+  document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function setTheme(theme, el) {
+  document.documentElement.setAttribute('data-theme', theme);
+  document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+
+  // Auto-pair background with theme
+  const pairs = {
+    'midnight': 'gradient-dark',
+    'arctic': 'gradient-arctic',
+    'ember': 'gradient-ember',
+    'nordic': 'gradient-nordic'
+  };
+  if (pairs[theme]) {
+    document.documentElement.setAttribute('data-bg', pairs[theme]);
+    document.querySelectorAll('.swatch').forEach(s => {
+      s.classList.toggle('active', s.getAttribute('data-bg') === pairs[theme]);
+    });
+  }
+}
+
+// Animate progress bars on load
+window.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.prog__fill, .wl-fill').forEach(el => {
+    const w = el.style.width;
+    el.style.width = '0%';
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => { el.style.width = w; });
+    });
+  });
+
+  // Animate gauge
+  const gauge = document.querySelector('[stroke-dashoffset]');
+  if (gauge) {
+    const target = gauge.getAttribute('stroke-dashoffset');
+    gauge.setAttribute('stroke-dashoffset', '141.4');
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => { gauge.style.strokeDashoffset = target; });
+    });
+  }
+});
+</script>
+
+</body>
+</html>

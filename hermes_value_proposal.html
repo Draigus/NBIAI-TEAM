@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hermes Agent Value Proposal — NBI Gaming</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', -apple-system, sans-serif;
+            background: #0a0e17;
+            color: #e2e8f0;
+            line-height: 1.6;
+            padding: 2rem;
+        }
+        .container { max-width: 1500px; margin: 0 auto; }
+
+        h1 { font-size: 2.2rem; color: #f8fafc; margin-bottom: 0.5rem; letter-spacing: -0.5px; }
+        h2 { font-size: 1.5rem; color: #94a3b8; margin-bottom: 1.5rem; font-weight: 400; }
+        h3 { font-size: 1.3rem; color: #f1f5f9; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid #1e293b; }
+        h4 { font-size: 1.05rem; color: #e2e8f0; margin-bottom: 0.5rem; }
+
+        .header {
+            text-align: center;
+            padding: 3rem 0;
+            border-bottom: 1px solid #1e293b;
+            margin-bottom: 3rem;
+        }
+        .header .subtitle { color: #64748b; font-size: 1rem; margin-top: 0.5rem; }
+
+        .tldr {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+        }
+        .tldr h3 { border: none; margin-bottom: 0.75rem; }
+        .tldr p { color: #cbd5e1; font-size: 1.05rem; }
+        .tldr .cost-line {
+            margin-top: 1rem;
+            padding: 0.75rem 1rem;
+            background: #064e3b;
+            border-radius: 8px;
+            color: #6ee7b7;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .section { margin-bottom: 3rem; }
+
+        /* Architecture diagram */
+        .arch-diagram {
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+        .arch-boxes {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .arch-box {
+            padding: 1.25rem 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+            min-width: 180px;
+        }
+        .arch-box.hermes { background: linear-gradient(135deg, #7c3aed, #4f46e5); border: 1px solid #8b5cf6; }
+        .arch-box.claude { background: linear-gradient(135deg, #d97706, #b45309); border: 1px solid #f59e0b; }
+        .arch-box.delivery { background: linear-gradient(135deg, #0891b2, #0e7490); border: 1px solid #22d3ee; }
+        .arch-box .label { font-size: 0.75rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; }
+        .arch-box .name { font-size: 1.1rem; font-weight: 600; margin-top: 0.25rem; }
+        .arch-box .detail { font-size: 0.8rem; opacity: 0.7; margin-top: 0.25rem; }
+        .arch-arrow { font-size: 1.5rem; color: #475569; }
+
+        /* Cards grid */
+        .value-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .value-grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        @media (max-width: 1100px) { .value-grid-3 { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 900px) { .value-grid, .value-grid-3 { grid-template-columns: 1fr; } }
+
+        .value-card {
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: border-color 0.2s;
+        }
+        .value-card:hover { border-color: #334155; }
+        .value-card .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        .value-card .card-header .icon {
+            width: 36px; height: 36px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; flex-shrink: 0;
+        }
+        .value-card .card-title { font-weight: 600; color: #f1f5f9; }
+        .value-card .card-body { color: #94a3b8; font-size: 0.9rem; }
+        .value-card .card-body ul { padding-left: 1.2rem; margin-top: 0.5rem; }
+        .value-card .card-body li { margin-bottom: 0.3rem; }
+
+        .badge {
+            display: inline-block; padding: 0.2rem 0.6rem; border-radius: 4px;
+            font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .badge-critical { background: #7f1d1d; color: #fca5a5; }
+        .badge-high { background: #78350f; color: #fcd34d; }
+        .badge-medium { background: #1e3a5f; color: #7dd3fc; }
+
+        /* Tables */
+        .workflow-table {
+            width: 100%; border-collapse: collapse; margin-bottom: 2rem; font-size: 0.85rem;
+        }
+        .workflow-table th {
+            background: #1e293b; padding: 0.75rem 0.85rem; text-align: left;
+            color: #e2e8f0; font-weight: 600; position: sticky; top: 0;
+        }
+        .workflow-table td {
+            padding: 0.7rem 0.85rem; border-bottom: 1px solid #1e293b;
+            color: #cbd5e1; vertical-align: top;
+        }
+        .workflow-table tr:hover td { background: #0f172a; }
+
+        .verdict {
+            display: inline-block; padding: 0.15rem 0.5rem; border-radius: 4px;
+            font-size: 0.75rem; font-weight: 600; white-space: nowrap;
+        }
+        .verdict-hermes { background: #2e1065; color: #c4b5fd; }
+        .verdict-claude { background: #451a03; color: #fed7aa; }
+        .verdict-combo { background: #042f2e; color: #99f6e4; }
+
+        .comparison-table {
+            width: 100%; border-collapse: collapse; margin-bottom: 2rem; font-size: 0.9rem;
+        }
+        .comparison-table th {
+            background: #1e293b; padding: 0.85rem 1rem; text-align: left;
+            color: #e2e8f0; font-weight: 600;
+        }
+        .comparison-table td {
+            padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1;
+        }
+        .comparison-table tr:hover td { background: #0f172a; }
+        .winner-hermes { color: #a78bfa; font-weight: 500; }
+        .winner-claude { color: #fbbf24; font-weight: 500; }
+
+        /* Friction section */
+        .friction-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;
+        }
+        @media (max-width: 900px) { .friction-grid { grid-template-columns: 1fr; } }
+        .friction-card {
+            background: #1c1917; border: 1px solid #44403c; border-radius: 12px; padding: 1.5rem;
+        }
+        .friction-card h4 { color: #fbbf24; margin-bottom: 0.75rem; }
+        .friction-card p { color: #a8a29e; font-size: 0.9rem; }
+        .friction-card ul { padding-left: 1.2rem; color: #a8a29e; font-size: 0.85rem; margin-top: 0.5rem; }
+        .friction-card li { margin-bottom: 0.3rem; }
+
+        /* Not valuable section */
+        .not-valuable {
+            background: #1c1917; border: 1px solid #292524; border-radius: 12px;
+            padding: 1.5rem; margin-bottom: 3rem;
+        }
+        .not-valuable h3 { color: #a8a29e; border-color: #292524; }
+        .not-valuable ul { padding-left: 1.5rem; color: #78716c; }
+        .not-valuable li { margin-bottom: 0.5rem; }
+        .not-valuable strong { color: #a8a29e; }
+
+        /* Risks */
+        .risks {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 3rem;
+        }
+        @media (max-width: 900px) { .risks { grid-template-columns: 1fr; } }
+        .risk-card {
+            background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 1.5rem;
+        }
+        .risk-card.risk-warn { border-color: #78350f; }
+        .risk-card.risk-ok { border-color: #064e3b; }
+        .risk-card h4 { margin-bottom: 0.5rem; }
+        .risk-card p { color: #94a3b8; font-size: 0.9rem; }
+
+        /* Implementation path */
+        .impl-path {
+            background: linear-gradient(135deg, #0f172a, #1e1b4b);
+            border: 1px solid #312e81; border-radius: 12px;
+            padding: 2rem; margin-bottom: 3rem;
+        }
+        .impl-steps {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem; margin-top: 1.5rem;
+        }
+        .impl-step {
+            background: rgba(255,255,255,0.03); border: 1px solid #374151;
+            border-radius: 8px; padding: 1.25rem;
+        }
+        .impl-step .step-num { font-size: 2rem; font-weight: 700; color: #4f46e5; margin-bottom: 0.5rem; }
+        .impl-step .step-title { font-weight: 600; color: #e2e8f0; margin-bottom: 0.5rem; }
+        .impl-step .step-detail { font-size: 0.85rem; color: #94a3b8; }
+
+        .footer {
+            text-align: center; padding: 2rem 0; border-top: 1px solid #1e293b;
+            color: #475569; font-size: 0.85rem;
+        }
+
+        /* Domain section styling */
+        .domain-section {
+            background: #0f172a; border: 1px solid #1e293b; border-radius: 12px;
+            padding: 1.5rem; margin-bottom: 1.5rem;
+        }
+        .domain-section h4 {
+            color: #f1f5f9; margin-bottom: 0.75rem; font-size: 1rem;
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+        .domain-section .subsections {
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;
+        }
+        @media (max-width: 1100px) { .domain-section .subsections { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 700px) { .domain-section .subsections { grid-template-columns: 1fr; } }
+        .domain-section .subsection h5 {
+            color: #94a3b8; font-size: 0.8rem; text-transform: uppercase;
+            letter-spacing: 0.5px; margin-bottom: 0.4rem;
+        }
+        .domain-section .subsection ul {
+            padding-left: 1rem; color: #cbd5e1; font-size: 0.85rem;
+        }
+        .domain-section .subsection li { margin-bottom: 0.2rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <div class="header">
+            <h1>Hermes Agent Value Proposal</h1>
+            <h2>Persistent Autonomous Agent Infrastructure for NBI Gaming</h2>
+            <div class="subtitle">Prepared 10 May 2026 — Full analysis of Glen Pryer's consulting, advisory, product, and operational work</div>
+        </div>
+
+        <!-- TL;DR -->
+        <div class="tldr">
+            <h3>Executive Summary</h3>
+            <p>
+                You run a fractional C-level practice, investment advisory, game economy consultancy, and a product studio simultaneously.
+                All of this work generates compounding knowledge that currently resets every session. Hermes fills the architectural gap
+                Claude Code cannot: <strong>persistent memory that compounds across every engagement</strong>, always-on monitoring,
+                scheduled autonomous execution, and proactive intelligence delivery.
+            </p>
+            <p style="margin-top: 1rem;">
+                The value isn't just operational (BD alerts, briefings). It's structural: your competitive pricing data stays fresh,
+                your client context persists, your benchmarks auto-verify, your investor pipeline tracks itself, and your industry
+                knowledge accumulates without you having to re-brief a new session every morning.
+            </p>
+            <div class="cost-line">Additional cost: £0/month — Hermes orchestrates via Claude Code CLI on your existing Max subscription</div>
+        </div>
+
+        <!-- Architecture -->
+        <div class="section">
+            <h3>Architecture — Zero Additional Cost</h3>
+            <div class="arch-diagram">
+                <div class="arch-boxes">
+                    <div class="arch-box hermes">
+                        <div class="label">Always-On Scheduler + Memory</div>
+                        <div class="name">Hermes Agent</div>
+                        <div class="detail">WSL2, cron jobs, persistent state, routing</div>
+                    </div>
+                    <div class="arch-arrow">→</div>
+                    <div class="arch-box claude">
+                        <div class="label">The Brain (All Thinking)</div>
+                        <div class="name">Claude Code CLI</div>
+                        <div class="detail">claude -p | Max subscription — £0 extra</div>
+                    </div>
+                    <div class="arch-arrow">→</div>
+                    <div class="arch-box delivery">
+                        <div class="label">Delivery</div>
+                        <div class="name">Discord / Telegram / Email</div>
+                        <div class="detail">Chat interface + alert channel</div>
+                    </div>
+                </div>
+                <p style="margin-top: 1.5rem; color: #64748b; font-size: 0.85rem;">
+                    Hermes = infrastructure (when to think, where to send results, what to remember).<br>
+                    Claude Code = intelligence (all actual reasoning uses Opus 4.6 via your subscription).<br>
+                    You chat with it in Discord. It chats back with Claude-quality thinking.
+                </p>
+            </div>
+        </div>
+
+        <!-- THE FUNDAMENTAL PROBLEM -->
+        <div class="section">
+            <h3>The Fundamental Problem Hermes Solves</h3>
+            <div class="friction-grid">
+                <div class="friction-card">
+                    <h4>Context Resets Kill Momentum</h4>
+                    <p>Every session starts with "what's the state of X" rather than building on known ground. Multi-session projects (5-10 sessions) lose threading between decisions.</p>
+                    <ul>
+                        <li>Couch Heroes org structure evolves weekly — lost between sessions</li>
+                        <li>Goals competitive data captured once, stales immediately</li>
+                        <li>Investor pipeline state (who responded, what's next) not tracked</li>
+                        <li>Decision cascades (A constrains B, C, D) too complex to hold without persistence</li>
+                    </ul>
+                </div>
+                <div class="friction-card">
+                    <h4>No Proactive Intelligence</h4>
+                    <p>You come TO the tool with questions. Nothing surfaces relevant information before you ask. Opportunities and risks are invisible until you manually check.</p>
+                    <ul>
+                        <li>BD leads go cold — nobody alerts you</li>
+                        <li>Competitor pricing changes go unnoticed for weeks</li>
+                        <li>Approaching deadlines not anticipated</li>
+                        <li>Industry moves (layoffs, funding, launches) only visible when you search</li>
+                    </ul>
+                </div>
+                <div class="friction-card">
+                    <h4>Benchmark Data Stales Instantly</h4>
+                    <p>Your competitive intelligence, pricing data, market sizing, and AERM benchmarks are point-in-time snapshots. The moment you capture them, they're ageing.</p>
+                    <ul>
+                        <li>315-row Goals MTX dataset: snapshot from 21 April, already stale</li>
+                        <li>AERM benchmarks require freshness verification every invocation</li>
+                        <li>Revenue multiples shift quarterly with public earnings</li>
+                        <li>No automated pipeline to refresh — it's all manual session work</li>
+                    </ul>
+                </div>
+                <div class="friction-card">
+                    <h4>Compounding Knowledge Doesn't Compound</h4>
+                    <p>20 years of gaming expertise lives in your head. The AI gets fragments of it per session. There's no mechanism for your institutional knowledge to accumulate in a usable form.</p>
+                    <ul>
+                        <li>Salary benchmarks (5MB SalarySage) reloaded from scratch each time</li>
+                        <li>Previous engagement patterns (what worked for which client type) not retrievable</li>
+                        <li>Pipeline design templates not accumulating from real usage</li>
+                        <li>Gaming practice context (557 lines) = big context load every session</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- FULL WORK DOMAIN MAPPING -->
+        <div class="section">
+            <h3>Your Complete Work — Domain by Domain Value Mapping</h3>
+            <p style="color: #94a3b8; margin-bottom: 1.5rem;">For each domain: what Hermes adds (autonomous prep, monitoring, persistent memory) vs what Claude Code already handles well (interactive analysis, deliverable creation, real-time decisions).</p>
+
+            <!-- 1. Fractional C-Level -->
+            <div class="domain-section">
+                <h4><span style="color: #fbbf24;">01</span> Fractional C-Level Leadership (Couch Heroes)</h4>
+                <div class="subsections">
+                    <div class="subsection">
+                        <h5>Hermes Adds</h5>
+                        <ul>
+                            <li>Persistent org structure state (who's in which role, what changed)</li>
+                            <li>Staff coaching history across sessions</li>
+                            <li>Competitive MMORPG monitoring (Pax Dei, Light No Fire progress)</li>
+                            <li>Steam Next Fest timing alerts</li>
+                            <li>Slack thread summaries while you're focused elsewhere</li>
+                            <li>Meeting action item tracking to completion</li>
+                        </ul>
+                    </div>
+                    <div class="subsection">
+                        <h5>Claude Code Stays Optimal</h5>
+                        <ul>
+                            <li>Offsite pre-decision documents (complex reasoning)</li>
+                            <li>Roadmap design (1,194 features into 8 gates)</li>
+                            <li>Hiring scorecard and interview framework creation</li>
+                            <li>AMA response drafting</li>
+                            <li>Sprint structure design</li>
+                            <li>Live interactive strategy sessions with Glen</li>
+                        </ul>
+                    </div>
+                    <div class="subsection">
+                        <h5>Combination Wins</h5>
+                        <ul>
+                            <li>Hermes monitors competitor launches; CC drafts positioning response</li>
+                            <li>Hermes tracks roadmap gate movement; CC analyses blockers</li>
+                            <li>Hermes surfaces "CTO candidate replied"; CC preps interview</li>
+                            <li>Hermes maintains decision threading across 20+ sessions</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Game Economy -->
+            <div class="domain-section">
+                <h4><span style="color: #fbbf24;">02</span> Game Economy and Monetisation Consulting</h4>
+                <div class="subsections">
+                    <div class="subsection">
+                        <h5>Hermes Adds</h5>
+                        <ul>
+                            <li>Automated competitive pricing monitoring (detect EA FC price changes)</li>
+                            <li>Steam/PS Store/Xbox regional pricing checks on schedule</li>
+                            <li>Loot box regulation tracking across markets</li>
+                            <li>FX rate monitoring for regional pricing models</li>
+                            <li>Competitor content update cadence tracking</li>
+                            <li>Benchmark data freshness verification</li>
+                        </ul>
+                    </div>
+                    <div class="subsection">
+                        <h5>Claude Code Stays Optimal</h5>
+                        <ul>
+                            <li>Full pricing architecture design</li>
+                            <li>Normalisation pipeline building</li>
+                            <li>Red team review of research quality</li>
+                            <li>SOW scoping and deliverable structuring</li>
+                            <li>Revenue modelling with sensitivity analysis</li>
+                            <li>Critical question identification</li>
+                        </ul>
+                    </div>
+                    <div class="subsection">
+                        <h5>Combination Wins</h5>
+                        <ul>
+                            <li>Hermes detects Fortnite price change; CC updates comp analysis</li>
+                            <li>Hermes verifies benchmarks weekly; CC uses fresh data for models</li>
+                            <li>Hermes tracks Jonas's answers to critical Qs; CC adjusts deliverables</li>
+                            <li>Cross-engagement data accumulation (reuse across clients)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Investment Analysis -->
+            <div class="domain-section">
+                <h4><span style="color: #fbbf24;">03</span> Investment Analysis and Fundraising</h4>
+                <div class="subsections">
+                    <div class="subsection">
+                        <h5>Hermes Adds</h5>
+                        <ul>
+                            <li>M&A deal monitoring (Drake Star, InvestGame, new transactions)</li>
+                            <li>Revenue multiple tracking as earnings release quarterly</li>
+                            <li>Competitor funding round alerts (who raised, what valuation)</li>
+                            <li>AERM benchmark auto-verification (>15% drift detection)</li>
+                            <li>Investor portfolio tracking (who invested recently, dry powder)</li>
+                            <li>Investor response tracking (Sarge Universe pipeline)</li>
+                        </ul>
+                    </div>
+                    <div class="subsection">
+                        <h5>Claude Code Stays Optimal</h5>
+                        <ul>
+                            <li>Pitch deck construction (narrative + data synthesis)</li>
+                            <li>Financial plan modelling (P&L, sensitivity, scenarios)</li>
+                            <li>DD deck production (AERM scoring, red flags, recommendation)</li>
+                            <li>Comp table analysis (implied multiples, valuation ranges)</li>
+                            <li>TAM/SAM/SOM methodology</li>
+                            <li>Data room assembly</li>
+                        </ul>
+                    </div>
+                    <div class="subsection">
+                        <h5>Combination Wins</h5>
+                        <ul>
+                            <li>Hermes flags new comp transaction; CC recalculates multiples</li>
+                            <li>Hermes tracks investor responses; CC drafts follow-ups</li>
+                            <li>Hermes monitors gaming VC recovery signals; CC updates market brief</li>
+                            <li>Persistent comp table grows automatically over months</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Production Management -->
+            <div class="domain-section">
+                <h4><span style="color: #fbbf24;">04</span> Production Management and Operations</h4>
+                <div class="subsections">
+                    <div class="subsection">
+                        <h5>Hermes Adds</h5>
+                        <ul>
+                            <li>Sprint velocity tracking over time (persistent trend data)</li>
+                            <li>Gate criteria completion monitoring per client</li>
+                            <li>JIRA/PM tool feature monitoring (new integrations, plugins)</li>
+                            <li>Production health baselines that accumulate per engagement</li>
+                            <li>Template library tracking (which templates used, client feedback)</li>
+                        </ul>
+                    </div>
+                    <div class="subsection">
+                        <h5>Claude Code Stays Optimal</h5>
+                        <ul>
+                            <li>Sprint structure design for cross-discipline teams</li>
+                            <li>Pipeline mapping (art/audio/code/design/QA)</li>
+                            <li>GDD/TDD assessment and gap identification</li>
+                            <li>RACI definition and maintenance cadence design</li>
+                            <li>Greenlight/stage-gate artifact preparation</li>
+                        </ul>
+                    </div>
+                    <div class="subsection">
+                        <h5>Combination Wins</h5>
+                        <ul>
+                            <li>Hermes tracks which production patterns worked; CC recommends for new clients</li>
+                            <li>Hermes monitors GDC postmortems for fresh benchmark data; CC integrates</li>
+                            <li>Production templates evolve as Hermes tracks real usage outcomes</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Org Design -->
+            <div class="domain-section">
+                <h4><span style="color: #fbbf24;">05</span> Organisational Design and People Strategy</h4>
+                <div class="subsections">
+                    <div class="subsection">
+                        <h5>Hermes Adds</h5>
+                        <ul>
+                            <li>Gaming job market monitoring (LinkedIn postings, salary shifts)</li>
+                            <li>SalarySage data freshness checks against market</li>
+                            <li>Candidate pipeline tracking (who was interviewed, outcome, follow-ups)</li>
+                            <li>Industry layoff/hiring cycle tracking (market timing advice)</li>
+                            <li>Staff assessment history persistence (coaching progress per individual)</li>
+                        </ul>
+                    </div>
+                    <div class="subsection">
+                        <h5>Claude Code Stays Optimal</h5>
+                        <ul>
+                            <li>Org structure design (team topology, scaling paths)</li>
+                            <li>Role definition writing</li>
+                            <li>Interview question banks and scoring rubrics</li>
+                            <li>Skills matrix creation</li>
+                            <li>Onboarding programme design</li>
+                            <li>Compensation benchmarking analysis</li>
+                        </ul>
+                    </div>
+                    <div class="subsection">
+                        <h5>Combination Wins</h5>
+                        <ul>
+                            <li>Hermes detects relevant candidate post; CC assesses fit for open role</li>
+                            <li>Hermes tracks salary market shifts; CC updates compensation recommendations</li>
+                            <li>Persistent hiring history informs future searches (pattern learning)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. LiveOps -->
+            <div class="domain-section">
+                <h4><span style="color: #fbbf24;">06</span> Live Operations Strategy</h4>
+                <div class="subsections">
+                    <div class="subsection">
+                        <h5>Hermes Adds</h5>
+                        <ul>
+                            <li>Competitor live ops calendar monitoring (event timing, content cadence)</li>
+                            <li>Battle pass structure tracking across industry</li>
+                            <li>Seasonal event timing research per launch market</li>
+                            <li>Community sentiment monitoring for client games</li>
+                            <li>Content cadence benchmark freshness (genre-specific)</li>
+                        </ul>
+                    </div>
+                    <div class="subsection">
+                        <h5>Claude Code Stays Optimal</h5>
+                        <ul>
+                            <li>End-to-end live ops strategy design</li>
+                            <li>Beta event matrix planning</li>
+                            <li>KPI framework definition</li>
+                            <li>Battle pass progression tuning</li>
+                            <li>Content pipeline capacity assessment</li>
+                            <li>Retention mechanic design</li>
+                        </ul>
+                    </div>
+                    <div class="subsection">
+                        <h5>Combination Wins</h5>
+                        <ul>
+                            <li>Hermes tracks competitor seasonal calendars; CC plans counter-programming</li>
+                            <li>Hermes monitors community sentiment; CC recommends live ops pivots</li>
+                            <li>Event framework templates accumulate from real engagement outcomes</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7. Competitive Intelligence -->
+            <div class="domain-section">
+                <h4><span style="color: #fbbf24;">07</span> Competitive Intelligence and Market Research</h4>
+                <div class="subsections">
+                    <div class="subsection">
+                        <h5>Hermes Adds</h5>
+                        <ul>
+                            <li>Continuous competitor pricing monitoring (price change detection)</li>
+                            <li>New game launch tracking per genre/platform</li>
+                            <li>Industry report digestion (Sensor Tower, Newzoo, GameAnalytics)</li>
+                            <li>App store chart monitoring for relevant segments</li>
+                            <li>Source reliability scoring (which data sources stay accurate)</li>
+                            <li>Cross-engagement dataset reuse (pricing data serves multiple clients)</li>
+                        </ul>
+                    </div>
+                    <div class="subsection">
+                        <h5>Claude Code Stays Optimal</h5>
+                        <ul>
+                            <li>Automated scraping pipeline construction</li>
+                            <li>Data normalisation and confidence scoring</li>
+                            <li>Red team review and quality assessment</li>
+                            <li>Market sizing methodology (TAM/SAM/SOM)</li>
+                            <li>Competitive landscape mapping and positioning</li>
+                            <li>Executive summary synthesis</li>
+                        </ul>
+                    </div>
+                    <div class="subsection">
+                        <h5>Combination Wins</h5>
+                        <ul>
+                            <li>Hermes runs pricing checks weekly; CC analyses patterns when needed</li>
+                            <li>Hermes builds longitudinal dataset over months; CC mines it for insights</li>
+                            <li>Benchmark library grows passively — ready when next client needs it</li>
+                            <li>New engagement ramp-up drops from hours to minutes (data already fresh)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 8. BD and Client Management -->
+            <div class="domain-section">
+                <h4><span style="color: #fbbf24;">08</span> Business Development and Client Relationships</h4>
+                <div class="subsections">
+                    <div class="subsection">
+                        <h5>Hermes Adds</h5>
+                        <ul>
+                            <li>Lead staleness monitoring (daily check, alert when cold)</li>
+                            <li>Follow-up draft preparation when contacts go quiet</li>
+                            <li>Pipeline stage tracking (who's where, what's next)</li>
+                            <li>Industry event proximity alerts (GDC prep, Gamescom timing)</li>
+                            <li>Contract renewal approaching alerts</li>
+                            <li>Referral network monitoring (Jen MacLean recommendation tracking)</li>
+                        </ul>
+                    </div>
+                    <div class="subsection">
+                        <h5>Claude Code Stays Optimal</h5>
+                        <ul>
+                            <li>Personalised outreach drafting</li>
+                            <li>Discovery call preparation (briefs, questions, proof points)</li>
+                            <li>Proposal and SOW creation</li>
+                            <li>Lead qualification research</li>
+                            <li>Revenue forecasting</li>
+                        </ul>
+                    </div>
+                    <div class="subsection">
+                        <h5>Combination Wins</h5>
+                        <ul>
+                            <li>Hermes flags "lead cold 7 days"; CC drafts personalised follow-up</li>
+                            <li>Hermes surfaces "GDC in 6 weeks"; CC builds networking prep pack</li>
+                            <li>Persistent CRM: every contact, every interaction, every outcome</li>
+                            <li>Engagement history informs pricing for similar future clients</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 9. Financial Modelling -->
+            <div class="domain-section">
+                <h4><span style="color: #fbbf24;">09</span> Financial Modelling and Business Planning</h4>
+                <div class="subsections">
+                    <div class="subsection">
+                        <h5>Hermes Adds</h5>
+                        <ul>
+                            <li>NSI wind-down timing signal monitoring (existential £620K risk)</li>
+                            <li>Invoice aging tracking (when QuickBooks access resolved)</li>
+                            <li>Revenue vs cost monitoring (contracted + pipeline)</li>
+                            <li>FX rate tracking for multi-currency client contracts</li>
+                            <li>Public gaming company earnings tracking (multiples data)</li>
+                        </ul>
+                    </div>
+                    <div class="subsection">
+                        <h5>Claude Code Stays Optimal</h5>
+                        <ul>
+                            <li>Revenue projection modelling</li>
+                            <li>Cost scenario analysis</li>
+                            <li>Client revenue modelling for fundraising</li>
+                            <li>Sensitivity analysis construction</li>
+                            <li>Unit economics calculation</li>
+                        </ul>
+                    </div>
+                    <div class="subsection">
+                        <h5>Combination Wins</h5>
+                        <ul>
+                            <li>Hermes detects NSI signal; CC models financial impact scenarios</li>
+                            <li>Hermes tracks actual vs projected revenue; CC flags divergence</li>
+                            <li>Financial state persists — no re-briefing needed each quarter</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 10. Product Development -->
+            <div class="domain-section">
+                <h4><span style="color: #fbbf24;">10</span> Product Development (WorkSage / PlaySage / SalarySage)</h4>
+                <div class="subsections">
+                    <div class="subsection">
+                        <h5>Hermes Adds</h5>
+                        <ul>
+                            <li>WorkSage uptime monitoring + PM2 health alerts</li>
+                            <li>Overnight multi-session workflow orchestration</li>
+                            <li>Rate-limited API tasks (Miro: 10 sessions patiently)</li>
+                            <li>Bug regression monitoring after deploys</li>
+                            <li>Test suite health tracking over time</li>
+                        </ul>
+                    </div>
+                    <div class="subsection">
+                        <h5>Claude Code Stays Optimal</h5>
+                        <ul>
+                            <li>Feature development (interactive, creative)</li>
+                            <li>Bug triage (7-step pipeline, well-calibrated)</li>
+                            <li>Architecture decisions</li>
+                            <li>Test writing and infrastructure</li>
+                            <li>Database migrations</li>
+                            <li>UI/UX iterations with Glen's feedback</li>
+                        </ul>
+                    </div>
+                    <div class="subsection">
+                        <h5>Combination Wins</h5>
+                        <ul>
+                            <li>Hermes orchestrates overnight builds; CC does the coding work</li>
+                            <li>Hermes chains CC sessions for multi-day refactors</li>
+                            <li>Hermes monitors deploy health; escalates to CC if regression detected</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 11. Strategic Advisory -->
+            <div class="domain-section">
+                <h4><span style="color: #fbbf24;">11</span> Strategic Advisory and Go-to-Market</h4>
+                <div class="subsections">
+                    <div class="subsection">
+                        <h5>Hermes Adds</h5>
+                        <ul>
+                            <li>Competitor launch announcement tracking</li>
+                            <li>Platform policy change monitoring (cert requirements, fee changes)</li>
+                            <li>Safe launch window analysis (collision alerts with competing releases)</li>
+                            <li>Wishlist tracking for comparable titles on Steam</li>
+                            <li>Regional market regulation changes (loot box, age rating)</li>
+                        </ul>
+                    </div>
+                    <div class="subsection">
+                        <h5>Claude Code Stays Optimal</h5>
+                        <ul>
+                            <li>Market positioning strategy</li>
+                            <li>Platform strategy analysis</li>
+                            <li>Publishing decision frameworks</li>
+                            <li>Business model selection with reasoning</li>
+                            <li>GTM timing recommendations</li>
+                        </ul>
+                    </div>
+                    <div class="subsection">
+                        <h5>Combination Wins</h5>
+                        <ul>
+                            <li>Hermes detects competitor launch announcement; CC reassesses timing strategy</li>
+                            <li>Hermes tracks Steam wishlist trends; CC evaluates marketing effectiveness</li>
+                            <li>Market intelligence accumulates — strategic advice gets sharper over time</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 12. Analytics -->
+            <div class="domain-section">
+                <h4><span style="color: #fbbf24;">12</span> Data Analytics and Player Intelligence (Lighthouse)</h4>
+                <div class="subsections">
+                    <div class="subsection">
+                        <h5>Hermes Adds</h5>
+                        <ul>
+                            <li>Racing/car game genre benchmark monitoring</li>
+                            <li>Relationship dynamics context persistence (political landscape)</li>
+                            <li>Embedded team deliverable tracking (what shipped, what's queued)</li>
+                            <li>Industry analytics methodology papers (GDC talks, new tools)</li>
+                            <li>Contract milestone approach alerts</li>
+                        </ul>
+                    </div>
+                    <div class="subsection">
+                        <h5>Claude Code Stays Optimal</h5>
+                        <ul>
+                            <li>Dashboard design (wireframes, branded systems)</li>
+                            <li>Analytics framework definition</li>
+                            <li>FTUE flow optimisation analysis</li>
+                            <li>Retention analysis methodology</li>
+                        </ul>
+                    </div>
+                    <div class="subsection">
+                        <h5>Combination Wins</h5>
+                        <ul>
+                            <li>Hermes persists the political dynamics; CC navigates them in deliverables</li>
+                            <li>Meeting context carries forward without manual re-briefing</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary table -->
+        <div class="section">
+            <h3>Quick Reference — Optimal Tool by Activity Type</h3>
+            <div style="overflow-x: auto;">
+                <table class="workflow-table">
+                    <thead>
+                        <tr>
+                            <th>Activity Type</th>
+                            <th>Examples</th>
+                            <th>Optimal</th>
+                            <th>Why</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Deep creative/analytical work</strong></td>
+                            <td>Pitch decks, pricing architecture, org design, feature dev</td>
+                            <td><span class="verdict verdict-claude">Claude Code</span></td>
+                            <td>Interactive, iterative, needs Glen's real-time direction</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Research with immediate synthesis</strong></td>
+                            <td>Competitive analysis, market sizing, /gi invocations</td>
+                            <td><span class="verdict verdict-claude">Claude Code</span></td>
+                            <td>Parallel agents + verification + skill ecosystem works excellently</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Real-time decision-making</strong></td>
+                            <td>Strategy calls, hiring decisions, client pivots</td>
+                            <td><span class="verdict verdict-claude">Claude Code</span></td>
+                            <td>Fundamentally requires human in the loop</td>
+                        </tr>
+                        <tr style="background: #0f172a;">
+                            <td><strong>Monitoring and alerting</strong></td>
+                            <td>BD pipeline, competitor prices, benchmarks, uptime</td>
+                            <td><span class="verdict verdict-hermes">Hermes</span></td>
+                            <td>Always-on, no session needed, alert only when material</td>
+                        </tr>
+                        <tr style="background: #0f172a;">
+                            <td><strong>Scheduled intelligence delivery</strong></td>
+                            <td>Monday briefing, weekly scans, industry digest</td>
+                            <td><span class="verdict verdict-hermes">Hermes</span></td>
+                            <td>Cron + delivery routing + silent suppression</td>
+                        </tr>
+                        <tr style="background: #0f172a;">
+                            <td><strong>Persistent relationship/state tracking</strong></td>
+                            <td>Investor responses, candidate pipelines, action items</td>
+                            <td><span class="verdict verdict-hermes">Hermes</span></td>
+                            <td>Memory compounds; no briefing needed; tracks over weeks/months</td>
+                        </tr>
+                        <tr style="background: #0f172a;">
+                            <td><strong>Data freshness verification</strong></td>
+                            <td>AERM benchmarks, pricing datasets, salary data</td>
+                            <td><span class="verdict verdict-hermes">Hermes</span></td>
+                            <td>Scheduled checks; flags drift; keeps datasets current</td>
+                        </tr>
+                        <tr style="background: #0a1628;">
+                            <td><strong>Multi-session workflows</strong></td>
+                            <td>Overnight coding, Miro deploys, multi-day refactors</td>
+                            <td><span class="verdict verdict-combo">Both</span></td>
+                            <td>Hermes orchestrates sessions; CC does the work</td>
+                        </tr>
+                        <tr style="background: #0a1628;">
+                            <td><strong>Proactive preparation</strong></td>
+                            <td>Meeting prep, engagement ramp-up, client context assembly</td>
+                            <td><span class="verdict verdict-combo">Both</span></td>
+                            <td>Hermes triggers prep autonomously; CC thinks with full quality</td>
+                        </tr>
+                        <tr style="background: #0a1628;">
+                            <td><strong>Reactive intelligence</strong></td>
+                            <td>Competitor move detected → analysis → recommendation</td>
+                            <td><span class="verdict verdict-combo">Both</span></td>
+                            <td>Hermes detects trigger; CC analyses and drafts response</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- What it's NOT good for -->
+        <div class="not-valuable">
+            <h3>Where Hermes Does NOT Add Value</h3>
+            <ul>
+                <li><strong>Any work that requires Glen present in real-time</strong> — Interactive strategy sessions, decision-making, UAT, client calls. Hermes can prepare for these but cannot replace the human loop.</li>
+                <li><strong>Deep coding sessions</strong> — Feature builds, bug batches, architecture work. Claude Code's skill ecosystem (TDD, writing-plans, parallel agents, 7-step pipeline) is calibrated. Hermes isn't a copilot.</li>
+                <li><strong>Creative deliverable production</strong> — Pitch decks, pricing models, org charts, SOWs. These need iterative refinement with Glen's feedback. Claude Code handles them well.</li>
+                <li><strong>One-off research you need right now</strong> — When you ask a question and want an answer in 30 seconds, Claude Code is already there. Hermes adds value to recurring/scheduled research, not ad-hoc queries.</li>
+                <li><strong>Visual IDE integration</strong> — No inline autocomplete, no VS Code panel, no diff viewer. It's a background agent and chat interface, not a coding assistant.</li>
+                <li><strong>Anything that needs to run while both PCs are off</strong> — Hermes on your hardware requires at least one machine running. If both are down, jobs don't fire. (For you: irrelevant since both are always on.)</li>
+            </ul>
+        </div>
+
+        <!-- Hermes vs CC scheduling -->
+        <div class="section">
+            <h3>Hermes vs Claude Code Native Routines (/schedule)</h3>
+            <table class="comparison-table">
+                <thead>
+                    <tr><th>Dimension</th><th>Claude Code Routines</th><th>Hermes Cron</th><th>For Your Use Case</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Runs where</td><td>Anthropic cloud</td><td>Your PC (WSL2)</td><td class="winner-hermes">Hermes — your data, your control</td></tr>
+                    <tr><td>Minimum interval</td><td>1 hour</td><td>60 seconds</td><td class="winner-hermes">Hermes — flexible</td></tr>
+                    <tr><td>Daily cap</td><td>15/day (Max)</td><td>Unlimited</td><td class="winner-hermes">Hermes — no limits</td></tr>
+                    <tr><td>Memory across runs</td><td>None</td><td>Full persistent memory</td><td class="winner-hermes">Hermes — this is the whole point</td></tr>
+                    <tr><td>Result delivery</td><td>Transcript on claude.ai</td><td>Discord, Telegram, Slack, email, 20+</td><td class="winner-hermes">Hermes — meets you in Discord</td></tr>
+                    <tr><td>Job chaining</td><td>No</td><td>Output feeds next job</td><td class="winner-hermes">Hermes — multi-step workflows</td></tr>
+                    <tr><td>Silent mode</td><td>No — always outputs</td><td>Yes — only alerts when noteworthy</td><td class="winner-hermes">Hermes — no noise</td></tr>
+                    <tr><td>Chat interface</td><td>No (transcript only)</td><td>Yes — Discord/Telegram conversation</td><td class="winner-hermes">Hermes — you can ask follow-ups</td></tr>
+                    <tr><td>Works when PC off</td><td>Yes</td><td>No</td><td class="winner-claude">Routines — but irrelevant for you</td></tr>
+                    <tr><td>GitHub triggers</td><td>Native, rich</td><td>Webhook adapter</td><td class="winner-claude">Routines — if you need GitHub CI</td></tr>
+                    <tr><td>Zero setup</td><td>Yes</td><td>No — WSL2 required</td><td class="winner-claude">Routines — for one-off quick things</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Specialised Agents -->
+        <div class="section">
+            <h3>Specialised Agent Profiles for NBI</h3>
+            <div class="value-grid">
+                <div class="value-card">
+                    <div class="card-header">
+                        <div class="icon" style="background: #312e81;">B</div>
+                        <div class="card-title">BD & Pipeline Agent</div>
+                    </div>
+                    <div class="card-body">
+                        <ul>
+                            <li>Daily lead staleness detection + follow-up drafting</li>
+                            <li>Investor response tracking (Sarge Universe)</li>
+                            <li>Contract renewal monitoring</li>
+                            <li>Industry event timing (GDC, Gamescom prep alerts)</li>
+                            <li>Pipeline revenue projection maintenance</li>
+                        </ul>
+                        <p style="margin-top: 0.5rem; color: #6ee7b7; font-size: 0.8rem;">Delivers to: Discord #bd-alerts</p>
+                    </div>
+                </div>
+                <div class="value-card">
+                    <div class="card-header">
+                        <div class="icon" style="background: #312e81;">I</div>
+                        <div class="card-title">Intelligence Agent</div>
+                    </div>
+                    <div class="card-body">
+                        <ul>
+                            <li>Competitive pricing change detection</li>
+                            <li>Gaming industry news (layoffs, funding, launches)</li>
+                            <li>M&A transaction monitoring</li>
+                            <li>Tech/AI tooling updates (model releases, MCP ecosystem)</li>
+                            <li>AERM benchmark freshness verification</li>
+                        </ul>
+                        <p style="margin-top: 0.5rem; color: #6ee7b7; font-size: 0.8rem;">Delivers to: Discord #intel (silent when quiet)</p>
+                    </div>
+                </div>
+                <div class="value-card">
+                    <div class="card-header">
+                        <div class="icon" style="background: #312e81;">O</div>
+                        <div class="card-title">Operations Agent</div>
+                    </div>
+                    <div class="card-body">
+                        <ul>
+                            <li>Monday morning briefing (all clients, pipeline, risks)</li>
+                            <li>NSI wind-down signal monitoring</li>
+                            <li>WorkSage uptime + PM2 health</li>
+                            <li>Meeting action item tracking to completion</li>
+                            <li>State file staleness detection and ground truth maintenance</li>
+                        </ul>
+                        <p style="margin-top: 0.5rem; color: #6ee7b7; font-size: 0.8rem;">Delivers to: Discord #ops-briefing</p>
+                    </div>
+                </div>
+                <div class="value-card">
+                    <div class="card-header">
+                        <div class="icon" style="background: #312e81;">C</div>
+                        <div class="card-title">Comms Agent</div>
+                    </div>
+                    <div class="card-body">
+                        <ul>
+                            <li>Slack (Couch Heroes) thread summarisation</li>
+                            <li>Teams (Lighthouse) signal monitoring</li>
+                            <li>Email triage and urgent flagging</li>
+                            <li>"Someone's waiting on you" alerts (>24h response debt)</li>
+                            <li>Granola meeting note auto-processing</li>
+                        </ul>
+                        <p style="margin-top: 0.5rem; color: #6ee7b7; font-size: 0.8rem;">Delivers to: Discord #comms-digest</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Risks -->
+        <div class="section">
+            <h3>Honest Trade-offs</h3>
+            <div class="risks">
+                <div class="risk-card risk-warn">
+                    <h4 style="color: #fbbf24;">One-Time Setup Effort</h4>
+                    <p>WSL2 configuration, systemd services, Task Scheduler persistence, Discord bot setup, Hermes install and profile configuration. One afternoon with a detailed implementation plan.</p>
+                </div>
+                <div class="risk-card risk-warn">
+                    <h4 style="color: #fbbf24;">Maintenance Burden</h4>
+                    <p>Low but non-zero. WSL clock drift after sleep, Windows Defender exclusions, periodic Hermes updates. Less than an hour per month once running.</p>
+                </div>
+                <div class="risk-card risk-warn">
+                    <h4 style="color: #fbbf24;">Security Configuration</h4>
+                    <p>Default Hermes config is allow-all. Needs hardening: Discord bot token management, channel permissions, credential storage for any comms monitoring (Slack/Teams tokens).</p>
+                </div>
+                <div class="risk-card risk-warn">
+                    <h4 style="color: #fbbf24;">Max Plan Daily Limits</h4>
+                    <p>Each Hermes→Claude Code CLI call counts against your Max daily usage. For 5-15 scheduled jobs/day plus Discord chat, you'd need to monitor whether you hit caps. If so, reduce cron frequency.</p>
+                </div>
+                <div class="risk-card risk-ok">
+                    <h4 style="color: #6ee7b7;">Both PCs Always On</h4>
+                    <p>The #1 reason people pay for VPS is uptime. Your machines are already always-on. Zero hosting cost.</p>
+                </div>
+                <div class="risk-card risk-ok">
+                    <h4 style="color: #6ee7b7;">Existing Max Subscription</h4>
+                    <p>The expensive part (Claude 4.6 inference) is covered. No new LLM spending required.</p>
+                </div>
+                <div class="risk-card risk-ok">
+                    <h4 style="color: #6ee7b7;">Complementary, Not Replacement</h4>
+                    <p>Your entire Claude Code workflow stays untouched. Every skill, pipeline, and process you've built continues working. Hermes fills gaps around it.</p>
+                </div>
+                <div class="risk-card risk-ok">
+                    <h4 style="color: #6ee7b7;">MIT Licensed, No Lock-in</h4>
+                    <p>Fully open source. No vendor dependency, no surprise pricing, no feature gates. If it stops being useful, uninstall it.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Implementation path -->
+        <div class="impl-path">
+            <h3 style="border: none; color: #e2e8f0;">Implementation Path (If Approved)</h3>
+            <p style="color: #94a3b8;">Progressive rollout. Prove value at each stage before expanding.</p>
+            <div class="impl-steps">
+                <div class="impl-step">
+                    <div class="step-num">1</div>
+                    <div class="step-title">Foundation</div>
+                    <div class="step-detail">WSL2 + Hermes install + Discord bot + Claude Code CLI integration. One test job: the weekly Opus 4.7 check. Prove the pipeline works end-to-end.</div>
+                </div>
+                <div class="impl-step">
+                    <div class="step-num">2</div>
+                    <div class="step-title">Intelligence Agent</div>
+                    <div class="step-detail">Competitive pricing monitoring, gaming industry scans, AERM benchmark verification. Prove the "silent unless noteworthy" pattern works. Data freshness automation.</div>
+                </div>
+                <div class="impl-step">
+                    <div class="step-num">3</div>
+                    <div class="step-title">BD + Operations Agent</div>
+                    <div class="step-detail">Pipeline staleness alerts, Monday briefing, NSI monitoring, meeting action tracking. Prove proactive alerting delivers value without noise.</div>
+                </div>
+                <div class="impl-step">
+                    <div class="step-num">4</div>
+                    <div class="step-title">Comms + Full Orchestration</div>
+                    <div class="step-detail">Multi-channel monitoring (Slack/Teams/Email), overnight workflow orchestration, persistent context layer. The full compound-knowledge system.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom line -->
+        <div class="tldr" style="border-color: #4f46e5;">
+            <h3>Bottom Line</h3>
+            <p>
+                You're a fractional C-level exec, game economy consultant, investment analyst, and product builder operating across
+                5 clients, 4 communication channels, and 12 work domains simultaneously. Your institutional knowledge is worth more
+                the longer it accumulates — but right now it resets every session.
+            </p>
+            <p style="margin-top: 1rem; color: #94a3b8;">
+                Hermes doesn't replace Claude Code. It makes Claude Code's output <strong>compound over time</strong> instead of
+                evaporating at session boundaries. It monitors the things you're too stretched to watch manually. It surfaces
+                intelligence before you ask for it. And it costs you nothing beyond what you're already paying.
+            </p>
+            <p style="margin-top: 1rem; color: #94a3b8;">
+                The highest-impact wins: BD pipeline monitoring (leads = revenue), benchmark data freshness (client deliverable quality),
+                cross-session context persistence (no more re-briefing), and proactive intelligence (competitor moves, market shifts, approaching deadlines).
+            </p>
+        </div>
+
+        <div class="footer">
+            NBI Gaming — Hermes Agent Value Assessment v2 — 10 May 2026<br>
+            Full analysis of 12 work domains across fractional leadership, consulting, investment advisory, product development, and operations
+        </div>
+
+    </div>
+</body>
+</html>

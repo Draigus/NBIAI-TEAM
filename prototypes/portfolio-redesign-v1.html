@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WorkSage — Portfolio Redesign v1</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-app: #0a0a0a;
+  --bg-card: #141414;
+  --bg-hover: #1e1e1e;
+  --bg-input: #1c1c1c;
+  --bg-raised: #1a1a1a;
+  --border-subtle: #1f1f1f;
+  --border-default: #2a2a2a;
+  --border-strong: #3a3a3a;
+  --text-primary: #e8e8e8;
+  --text-secondary: #999;
+  --text-muted: #888;
+  --text-faint: #666;
+  --accent: #0066FF;
+  --accent-hover: #0055dd;
+  --accent-dim: #0044aa;
+  --accent-glow: rgba(0,102,255,0.12);
+  --accent-border: rgba(0,102,255,0.3);
+  --accent-text: #4d9aff;
+  --success: #22c55e;
+  --success-bg: rgba(34,197,94,0.08);
+  --success-border: rgba(34,197,94,0.25);
+  --warning: #f59e0b;
+  --warning-bg: rgba(245,158,11,0.08);
+  --warning-border: rgba(245,158,11,0.25);
+  --danger: #ef4444;
+  --danger-bg: rgba(239,68,68,0.08);
+  --danger-border: rgba(239,68,68,0.25);
+  --purple: #a855f7;
+  --purple-bg: rgba(168,85,247,0.08);
+  --purple-border: rgba(168,85,247,0.25);
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --header-h: 52px;
+}
+
+html[data-theme="light"] {
+  --bg-app: #f5f5f7;
+  --bg-card: #ffffff;
+  --bg-hover: #e8e8ec;
+  --bg-input: #f0f0f2;
+  --bg-raised: #fafafa;
+  --border-subtle: #e5e5ea;
+  --border-default: #d1d1d6;
+  --border-strong: #b0b0b8;
+  --text-primary: #1a1a1a;
+  --text-secondary: #555;
+  --text-muted: #666;
+  --text-faint: #999;
+  --accent: #0055dd;
+  --accent-hover: #0044bb;
+  --accent-text: #0055dd;
+  --accent-glow: rgba(0,85,221,0.08);
+  --accent-border: rgba(0,85,221,0.2);
+  --success: #166534;
+  --success-bg: rgba(22,163,74,0.08);
+  --warning: #92400e;
+  --warning-bg: rgba(217,119,6,0.08);
+  --danger: #991b1b;
+  --danger-bg: rgba(220,38,38,0.08);
+  --purple: #6b21a8;
+  --purple-bg: rgba(147,51,234,0.08);
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg-app);
+  color: var(--text-primary);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== HEADER (mimics WorkSage) ===== */
+.header {
+  height: var(--header-h);
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header__logo {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--accent);
+  letter-spacing: -0.02em;
+}
+.header__nav {
+  display: flex;
+  gap: 4px;
+  margin-left: 24px;
+}
+.header__tab {
+  padding: 6px 14px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s;
+  border: none;
+  background: none;
+}
+.header__tab:hover { color: var(--text-primary); background: var(--bg-hover); }
+.header__tab--active { color: var(--accent-text); background: var(--accent-glow); }
+.header__spacer { flex: 1; }
+.header__theme-toggle {
+  padding: 4px 10px;
+  font-size: 0.7rem;
+  background: var(--bg-input);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+/* ===== MAIN LAYOUT ===== */
+.portfolio {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 20px 24px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ===== TIER 0: EXECUTIVE HEADLINE ===== */
+.exec-headline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px;
+}
+.exec-headline__title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+.exec-headline__subtitle {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+.exec-headline__actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.exec-headline__badge {
+  font-size: 0.62rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.04em;
+}
+.exec-headline__badge--ok { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
+.exec-headline__badge--warn { background: var(--warning-bg); color: var(--warning); border: 1px solid var(--warning-border); }
+.exec-headline__badge--danger { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+
+/* ===== TIER 1: KPI STRIP ===== */
+.kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+}
+.kpi-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: 16px 18px 14px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  cursor: default;
+}
+.kpi-card:hover {
+  border-color: var(--border-strong);
+}
+.kpi-card__label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+.kpi-card__row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.kpi-card__value {
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+  font-family: var(--font-display);
+}
+.kpi-card__delta {
+  font-size: 0.72rem;
+  font-weight: 600;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.kpi-card__delta-week {
+  font-size: 0.5rem;
+  font-weight: 400;
+  color: var(--text-faint);
+  letter-spacing: 0.06em;
+}
+.kpi-card__sparkline {
+  margin-top: 10px;
+  height: 28px;
+}
+.kpi-card__sparkline svg {
+  width: 100%;
+  height: 100%;
+}
+.kpi-card--accent .kpi-card__value { color: var(--accent-text); }
+.kpi-card--success .kpi-card__value { color: var(--success); }
+.kpi-card--warning .kpi-card__value { color: var(--warning); }
+.kpi-card--danger .kpi-card__value { color: var(--danger); }
+.kpi-card--purple .kpi-card__value { color: var(--purple); }
+
+/* ===== TIER 2: PORTFOLIO TABLE ===== */
+.table-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.table-section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border-default);
+}
+.table-section__title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+.table-section__controls {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.table-section__btn {
+  padding: 4px 10px;
+  font-size: 0.66rem;
+  font-weight: 600;
+  background: var(--bg-input);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.table-section__btn:hover { color: var(--text-primary); border-color: var(--border-strong); }
+.table-section__btn--active { color: var(--accent-text); background: var(--accent-glow); border-color: var(--accent-border); }
+
+.pf-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.pf-table th {
+  text-align: left;
+  padding: 10px 14px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-faint);
+  border-bottom: 1px solid var(--border-default);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+.pf-table th:hover { color: var(--text-muted); }
+.pf-table th.sorted { color: var(--accent-text); }
+.pf-table th .sort-arrow { margin-left: 4px; font-size: 0.55rem; }
+
+.pf-table td {
+  padding: 12px 14px;
+  font-size: 0.8rem;
+  border-bottom: 1px solid var(--border-subtle);
+  vertical-align: middle;
+}
+.pf-table tr { transition: background 0.1s; cursor: pointer; }
+.pf-table tbody tr:hover { background: var(--bg-hover); }
+
+/* Client row */
+.client-row { }
+.client-row--expanded { background: var(--accent-glow); }
+.client-name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+}
+.client-chevron {
+  font-size: 0.6rem;
+  color: var(--text-faint);
+  width: 12px;
+  transition: transform 0.2s;
+}
+.client-chevron--open { transform: rotate(90deg); }
+
+/* Health dot */
+.health-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  position: relative;
+}
+.health-dot--green { background: var(--success); box-shadow: 0 0 6px rgba(34,197,94,0.3); }
+.health-dot--yellow { background: var(--warning); box-shadow: 0 0 6px rgba(245,158,11,0.3); }
+.health-dot--red { background: var(--danger); box-shadow: 0 0 6px rgba(239,68,68,0.3); }
+
+/* Progress bar in table */
+.progress-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.progress-bar {
+  flex: 1;
+  height: 6px;
+  background: var(--border-subtle);
+  border-radius: 3px;
+  overflow: hidden;
+  min-width: 80px;
+}
+.progress-bar__fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s;
+}
+.progress-pct {
+  font-size: 0.72rem;
+  font-weight: 700;
+  width: 36px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* Active projects pill */
+.count-pill {
+  font-size: 0.78rem;
+  font-weight: 700;
+  min-width: 28px;
+  text-align: center;
+}
+
+/* Milestone badges */
+.ms-badges {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.ms-badge {
+  font-size: 0.58rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+.ms-badge--ok { background: var(--success-bg); color: var(--success); }
+.ms-badge--warn { background: var(--warning-bg); color: var(--warning); }
+.ms-badge--danger { background: var(--danger-bg); color: var(--danger); }
+.ms-badge--done { background: rgba(148,163,184,0.1); color: var(--text-muted); text-decoration: line-through; }
+
+/* Risk indicator */
+.risk-text { font-size: 0.72rem; }
+.risk-text--clear { color: var(--success); }
+.risk-text--warn { color: var(--warning); }
+.risk-text--danger { color: var(--danger); font-weight: 600; }
+
+/* Team avatars */
+.team-avatars {
+  display: flex;
+  gap: 0;
+}
+.team-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--accent-dim);
+  color: white;
+  font-size: 0.52rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: -4px;
+  border: 2px solid var(--bg-card);
+  text-transform: uppercase;
+}
+.team-avatar:first-child { margin-left: 0; }
+.team-avatar--more { background: var(--border-default); color: var(--text-muted); }
+
+/* Project sub-rows */
+.project-row td {
+  padding: 8px 14px 8px 52px;
+  font-size: 0.75rem;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+}
+.project-row:last-child td { border-bottom: 1px solid var(--border-default); }
+.project-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.project-type-badge {
+  font-size: 0.5rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: var(--bg-input);
+  color: var(--text-faint);
+  letter-spacing: 0.06em;
+  flex-shrink: 0;
+}
+
+/* ===== TIER 3: SUPPORTING PANELS ===== */
+.panels-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 12px;
+}
+.panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px 8px;
+  flex-shrink: 0;
+}
+.panel__title {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+.panel__badge {
+  font-size: 0.58rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+.panel__body {
+  padding: 4px 16px 14px;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+/* Timeline (mini-Gantt) */
+.timeline {
+  position: relative;
+}
+.timeline__months {
+  display: flex;
+  border-bottom: 1px solid var(--border-default);
+  margin-bottom: 8px;
+  position: sticky;
+  top: 0;
+  background: var(--bg-card);
+  z-index: 1;
+}
+.timeline__month {
+  font-size: 0.58rem;
+  font-weight: 600;
+  color: var(--text-faint);
+  text-align: center;
+  padding: 4px 0;
+  letter-spacing: 0.06em;
+  border-right: 1px solid var(--border-subtle);
+}
+.timeline__month--current { color: var(--text-primary); font-weight: 700; font-size: 0.66rem; }
+
+.timeline__row {
+  display: flex;
+  align-items: center;
+  height: 28px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.timeline__row:hover { background: var(--bg-hover); }
+.timeline__label {
+  width: 200px;
+  flex-shrink: 0;
+  font-size: 0.68rem;
+  padding: 0 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-secondary);
+}
+.timeline__label strong { color: var(--text-primary); font-weight: 600; }
+.timeline__track {
+  flex: 1;
+  position: relative;
+  height: 100%;
+}
+.timeline__bar {
+  position: absolute;
+  top: 7px;
+  height: 14px;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid;
+  box-sizing: border-box;
+}
+.timeline__bar-fill {
+  height: 100%;
+  border-radius: 3px 0 0 3px;
+  opacity: 0.9;
+}
+.timeline__today {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--danger);
+  opacity: 0.4;
+  z-index: 1;
+}
+.timeline__today-label {
+  position: absolute;
+  top: -16px;
+  font-size: 0.52rem;
+  font-weight: 700;
+  color: var(--danger);
+  letter-spacing: 0.08em;
+  transform: translateX(-50%);
+}
+
+/* Needs Attention panel */
+.attn-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-subtle);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.attn-item:last-child { border-bottom: none; }
+.attn-item:hover { background: var(--bg-hover); margin: 0 -16px; padding: 8px 16px; border-radius: 6px; }
+.attn-border {
+  width: 3px;
+  min-height: 32px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.attn-badge {
+  font-size: 0.52rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 3px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.attn-badge--blocked { background: var(--purple); color: white; }
+.attn-badge--overdue { background: var(--danger); color: white; }
+.attn-badge--risk { background: #f97316; color: white; }
+.attn-content { flex: 1; min-width: 0; }
+.attn-title { font-size: 0.72rem; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.attn-context { font-size: 0.58rem; color: var(--text-muted); margin-top: 1px; }
+.attn-owner { font-size: 0.62rem; color: var(--danger); font-weight: 600; flex-shrink: 0; }
+
+/* Secondary panels row */
+.panels-secondary {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+}
+
+/* Team workload bars */
+.workload-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+}
+.workload-name { font-size: 0.72rem; width: 80px; flex-shrink: 0; color: var(--text-secondary); }
+.workload-bar { flex: 1; height: 10px; background: var(--border-subtle); border-radius: 4px; overflow: hidden; }
+.workload-fill { height: 100%; border-radius: 4px; }
+.workload-count { font-size: 0.68rem; font-weight: 700; width: 28px; text-align: right; flex-shrink: 0; }
+
+/* Milestones list */
+.ms-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.ms-item:last-child { border-bottom: none; }
+.ms-bar { width: 3px; min-height: 32px; border-radius: 2px; flex-shrink: 0; }
+.ms-info { flex: 1; min-width: 0; }
+.ms-title { font-size: 0.75rem; font-weight: 600; color: var(--text-primary); }
+.ms-sub { font-size: 0.62rem; color: var(--text-muted); margin-top: 1px; }
+.ms-status { text-align: right; flex-shrink: 0; }
+.ms-status-text { font-size: 0.72rem; font-weight: 700; }
+.ms-status-date { font-size: 0.62rem; color: var(--text-muted); }
+
+/* Completing soon items */
+.completing-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.completing-item:last-child { border-bottom: none; }
+.completing-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.completing-info { flex: 1; min-width: 0; }
+.completing-title { font-size: 0.72rem; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.completing-client { font-size: 0.58rem; color: var(--text-muted); }
+.completing-progress {
+  width: 60px;
+  flex-shrink: 0;
+}
+.completing-bar { height: 4px; background: var(--border-subtle); border-radius: 2px; overflow: hidden; }
+.completing-fill { height: 100%; background: var(--success); border-radius: 2px; }
+.completing-pct { font-size: 0.68rem; font-weight: 700; color: var(--success); width: 32px; text-align: right; flex-shrink: 0; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1200px) {
+  .kpi-strip { grid-template-columns: repeat(3, 1fr); }
+  .panels-row { grid-template-columns: 1fr; }
+  .panels-secondary { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 900px) {
+  .kpi-strip { grid-template-columns: repeat(2, 1fr); }
+  .panels-secondary { grid-template-columns: 1fr; }
+  .pf-table { font-size: 0.72rem; }
+}
+@media (max-width: 600px) {
+  .kpi-strip { grid-template-columns: 1fr 1fr; }
+  .portfolio { padding: 12px 12px 24px; }
+}
+
+/* ===== SPARKLINE PATHS ===== */
+.sparkline-path { fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.sparkline-area { opacity: 0.1; }
+
+/* ===== ANNOTATION OVERLAY (design notes) ===== */
+.design-notes {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  z-index: 200;
+}
+.design-notes__toggle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: white;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.design-notes__panel {
+  display: none;
+  position: fixed;
+  bottom: 68px;
+  right: 16px;
+  width: 380px;
+  max-height: 60vh;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+.design-notes__panel.open { display: block; }
+.design-notes__panel h3 {
+  font-size: 0.82rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: var(--accent-text);
+}
+.design-notes__panel ul {
+  list-style: none;
+  padding: 0;
+}
+.design-notes__panel li {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border-subtle);
+  line-height: 1.5;
+}
+.design-notes__panel li:last-child { border-bottom: none; }
+.design-notes__panel li strong { color: var(--text-primary); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header__logo">WorkSage</div>
+  <nav class="header__nav">
+    <button class="header__tab header__tab--active">Portfolio</button>
+    <button class="header__tab">Projects</button>
+    <button class="header__tab">Workload</button>
+    <button class="header__tab">People</button>
+    <button class="header__tab">Reports</button>
+    <button class="header__tab">Leads</button>
+  </nav>
+  <div class="header__spacer"></div>
+  <button class="header__theme-toggle" onclick="toggleTheme()">Toggle Light/Dark</button>
+</header>
+
+<!-- PORTFOLIO CONTENT -->
+<main class="portfolio">
+
+  <!-- TIER 0: Executive headline -->
+  <div class="exec-headline">
+    <div>
+      <div class="exec-headline__title">NBI Portfolio</div>
+      <div class="exec-headline__subtitle">8 May 2026 &middot; Live from WorkSage</div>
+    </div>
+    <div class="exec-headline__actions">
+      <span class="exec-headline__badge exec-headline__badge--danger">11 blocked items &middot; Lighthouse Games</span>
+    </div>
+  </div>
+
+  <!-- TIER 1: KPI Strip -->
+  <div class="kpi-strip">
+    <!-- Card 1: Active Clients -->
+    <div class="kpi-card kpi-card--accent">
+      <div class="kpi-card__label">Active Clients</div>
+      <div class="kpi-card__row">
+        <span class="kpi-card__value">5</span>
+      </div>
+      <div class="kpi-card__sparkline">
+        <svg viewBox="0 0 120 28" preserveAspectRatio="none">
+          <path class="sparkline-area" d="M0,28 L0,16 L20,16 L40,16 L60,16 L80,12 L100,12 L120,8 L120,28Z" fill="var(--accent)"/>
+          <path class="sparkline-path" d="M0,16 L20,16 L40,16 L60,16 L80,12 L100,12 L120,8" stroke="var(--accent)"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Card 2: Active Tasks -->
+    <div class="kpi-card kpi-card--success">
+      <div class="kpi-card__label">Active Tasks</div>
+      <div class="kpi-card__row">
+        <span class="kpi-card__value">368</span>
+      </div>
+      <div class="kpi-card__sparkline">
+        <svg viewBox="0 0 120 28" preserveAspectRatio="none">
+          <path class="sparkline-area" d="M0,28 L0,22 L20,20 L40,18 L60,14 L80,10 L100,8 L120,6 L120,28Z" fill="var(--success)"/>
+          <path class="sparkline-path" d="M0,22 L20,20 L40,18 L60,14 L80,10 L100,8 L120,6" stroke="var(--success)"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Card 3: Blocked -->
+    <div class="kpi-card kpi-card--danger">
+      <div class="kpi-card__label">Blocked</div>
+      <div class="kpi-card__row">
+        <span class="kpi-card__value">11</span>
+      </div>
+      <div class="kpi-card__sparkline">
+        <svg viewBox="0 0 120 28" preserveAspectRatio="none">
+          <path class="sparkline-area" d="M0,28 L0,22 L20,20 L40,18 L60,16 L80,12 L100,10 L120,6 L120,28Z" fill="var(--danger)"/>
+          <path class="sparkline-path" d="M0,22 L20,20 L40,18 L60,16 L80,12 L100,10 L120,6" stroke="var(--danger)"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Card 4: Overdue -->
+    <div class="kpi-card kpi-card--warning">
+      <div class="kpi-card__label">Overdue</div>
+      <div class="kpi-card__row">
+        <span class="kpi-card__value">5</span>
+      </div>
+      <div class="kpi-card__sparkline">
+        <svg viewBox="0 0 120 28" preserveAspectRatio="none">
+          <path class="sparkline-area" d="M0,28 L0,20 L20,18 L40,16 L60,18 L80,16 L100,14 L120,12 L120,28Z" fill="var(--warning)"/>
+          <path class="sparkline-path" d="M0,20 L20,18 L40,16 L60,18 L80,16 L100,14 L120,12" stroke="var(--warning)"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Card 5: Overall Progress -->
+    <div class="kpi-card kpi-card--purple">
+      <div class="kpi-card__label">Overall Progress</div>
+      <div class="kpi-card__row">
+        <span class="kpi-card__value">14%</span>
+      </div>
+      <div class="kpi-card__sparkline">
+        <svg viewBox="0 0 120 28" preserveAspectRatio="none">
+          <path class="sparkline-area" d="M0,28 L0,26 L20,26 L40,24 L60,24 L80,22 L100,22 L120,20 L120,28Z" fill="var(--purple)"/>
+          <path class="sparkline-path" d="M0,26 L20,26 L40,24 L60,24 L80,22 L100,22 L120,20" stroke="var(--purple)"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIER 2: Portfolio Table -->
+  <div class="table-section">
+    <div class="table-section__header">
+      <span class="table-section__title">Client Portfolio</span>
+      <div class="table-section__controls">
+        <button class="table-section__btn table-section__btn--active">All Clients</button>
+        <button class="table-section__btn">Active Only</button>
+        <button class="table-section__btn">At Risk</button>
+      </div>
+    </div>
+    <table class="pf-table">
+      <thead>
+        <tr>
+          <th style="width:26px"></th>
+          <th style="width:24px">Health</th>
+          <th class="sorted">Client <span class="sort-arrow">&#9660;</span></th>
+          <th>Active Projects</th>
+          <th style="min-width:180px">Progress</th>
+          <th>Milestones</th>
+          <th>Team</th>
+          <th>Key Risk</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Lighthouse Games — RED: 11 blocked, 4 overdue, 1 at-risk -->
+        <tr class="client-row" onclick="toggleClient(this)">
+          <td><span class="client-chevron">&#9654;</span></td>
+          <td><div class="health-dot health-dot--red"></div></td>
+          <td><div class="client-name">Lighthouse Games</div></td>
+          <td><span class="count-pill" style="color:var(--danger)">2</span></td>
+          <td>
+            <div class="progress-cell">
+              <div class="progress-bar"><div class="progress-bar__fill" style="width:6%;background:var(--danger)"></div></div>
+              <span class="progress-pct" style="color:var(--danger)">6%</span>
+            </div>
+          </td>
+          <td>
+            <div class="ms-badges">
+              <span class="ms-badge ms-badge--warn">Pre-Alpha 29 May</span>
+              <span class="ms-badge ms-badge--ok">Alpha 10 Jul</span>
+            </div>
+          </td>
+          <td>
+            <div class="team-avatars">
+              <div class="team-avatar" style="background:#7c3aed">AD</div>
+              <div class="team-avatar" style="background:#0891b2">ST</div>
+              <div class="team-avatar" style="background:#dc2626">MA</div>
+              <div class="team-avatar" style="background:#059669">RU</div>
+              <div class="team-avatar team-avatar--more">+2</div>
+            </div>
+          </td>
+          <td><span class="risk-text risk-text--danger">11 blocked, 4 overdue</span></td>
+        </tr>
+
+        <!-- Couch Heroes — YELLOW: 1 overdue, 1 yellow health -->
+        <tr class="client-row" onclick="toggleClient(this)">
+          <td><span class="client-chevron">&#9654;</span></td>
+          <td><div class="health-dot health-dot--yellow"></div></td>
+          <td><div class="client-name">Couch Heroes</div></td>
+          <td><span class="count-pill" style="color:var(--warning)">2</span></td>
+          <td>
+            <div class="progress-cell">
+              <div class="progress-bar"><div class="progress-bar__fill" style="width:0%;background:var(--warning)"></div></div>
+              <span class="progress-pct" style="color:var(--warning)">0%</span>
+            </div>
+          </td>
+          <td>
+            <div class="ms-badges">
+              <span style="font-size:0.62rem;color:var(--text-faint)">No milestones</span>
+            </div>
+          </td>
+          <td>
+            <div class="team-avatars">
+              <div class="team-avatar" style="background:#2563eb">GP</div>
+              <div class="team-avatar" style="background:#f59e0b">LO</div>
+            </div>
+          </td>
+          <td><span class="risk-text risk-text--warn">1 overdue, 1 yellow</span></td>
+        </tr>
+
+        <!-- NBI Operations — YELLOW: 2 yellow health -->
+        <tr class="client-row" onclick="toggleClient(this)">
+          <td><span class="client-chevron">&#9654;</span></td>
+          <td><div class="health-dot health-dot--yellow"></div></td>
+          <td><div class="client-name">NBI Operations</div></td>
+          <td><span class="count-pill" style="color:var(--text-muted)">1</span></td>
+          <td>
+            <div class="progress-cell">
+              <div class="progress-bar"><div class="progress-bar__fill" style="width:22%;background:var(--warning)"></div></div>
+              <span class="progress-pct" style="color:var(--warning)">22%</span>
+            </div>
+          </td>
+          <td>
+            <div class="ms-badges">
+              <span style="font-size:0.62rem;color:var(--text-faint)">No milestones</span>
+            </div>
+          </td>
+          <td>
+            <div class="team-avatars">
+              <div class="team-avatar" style="background:#2563eb">GP</div>
+              <div class="team-avatar" style="background:#6366f1">MP</div>
+            </div>
+          </td>
+          <td><span class="risk-text risk-text--warn">2 items yellow</span></td>
+        </tr>
+
+        <!-- The Insight Collective — GREEN: no issues -->
+        <tr class="client-row" onclick="toggleClient(this)">
+          <td><span class="client-chevron">&#9654;</span></td>
+          <td><div class="health-dot health-dot--green"></div></td>
+          <td><div class="client-name">The Insight Collective</div></td>
+          <td><span class="count-pill" style="color:var(--success)">1</span></td>
+          <td>
+            <div class="progress-cell">
+              <div class="progress-bar"><div class="progress-bar__fill" style="width:0%;background:var(--success)"></div></div>
+              <span class="progress-pct" style="color:var(--text-muted)">0%</span>
+            </div>
+          </td>
+          <td>
+            <div class="ms-badges">
+              <span style="font-size:0.62rem;color:var(--text-faint)">No milestones</span>
+            </div>
+          </td>
+          <td>
+            <div class="team-avatars">
+              <div class="team-avatar" style="background:#0d9488">DR</div>
+            </div>
+          </td>
+          <td><span class="risk-text risk-text--clear">None</span></td>
+        </tr>
+
+        <!-- Playsage — GREEN: no issues -->
+        <tr class="client-row" onclick="toggleClient(this)">
+          <td><span class="client-chevron">&#9654;</span></td>
+          <td><div class="health-dot health-dot--green"></div></td>
+          <td><div class="client-name">Playsage</div></td>
+          <td><span class="count-pill" style="color:var(--success)">1</span></td>
+          <td>
+            <div class="progress-cell">
+              <div class="progress-bar"><div class="progress-bar__fill" style="width:0%;background:var(--success)"></div></div>
+              <span class="progress-pct" style="color:var(--text-muted)">0%</span>
+            </div>
+          </td>
+          <td>
+            <div class="ms-badges">
+              <span style="font-size:0.62rem;color:var(--text-faint)">No milestones</span>
+            </div>
+          </td>
+          <td>
+            <div class="team-avatars">
+              <div class="team-avatar" style="background:#0d9488">DR</div>
+            </div>
+          </td>
+          <td><span class="risk-text risk-text--clear">None</span></td>
+        </tr>
+
+        <!-- Goals Studio — COMPLETE: all work done -->
+        <tr class="client-row" onclick="toggleClient(this)">
+          <td><span class="client-chevron">&#9654;</span></td>
+          <td><div class="health-dot health-dot--green"></div></td>
+          <td><div class="client-name" style="color:var(--text-muted)">Goals Studio</div></td>
+          <td><span class="count-pill" style="color:var(--text-faint)">0</span></td>
+          <td>
+            <div class="progress-cell">
+              <div class="progress-bar"><div class="progress-bar__fill" style="width:91%;background:var(--success)"></div></div>
+              <span class="progress-pct" style="color:var(--success)">91%</span>
+            </div>
+          </td>
+          <td>
+            <div class="ms-badges">
+              <span style="font-size:0.62rem;color:var(--text-faint)">Inactive</span>
+            </div>
+          </td>
+          <td>
+            <div class="team-avatars">
+              <span style="font-size:0.62rem;color:var(--text-faint)">&mdash;</span>
+            </div>
+          </td>
+          <td><span class="risk-text risk-text--clear">Complete</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- TIER 3: Supporting Panels -->
+  <div class="panels-row">
+    <!-- Timeline -->
+    <div class="panel">
+      <div class="panel__header">
+        <span class="panel__title">Project Timeline</span>
+        <span class="panel__badge" style="background:var(--accent-glow);color:var(--accent-text)">Next 3 months</span>
+      </div>
+      <div class="panel__body">
+        <div class="timeline">
+          <!-- Month headers -->
+          <div class="timeline__months">
+            <div class="timeline__month" style="width:10%">APR</div>
+            <div class="timeline__month timeline__month--current" style="width:30%">MAY</div>
+            <div class="timeline__month" style="width:30%">JUN</div>
+            <div class="timeline__month" style="width:30%">JUL</div>
+          </div>
+          <!-- Today marker -->
+          <div style="position:relative;height:0">
+            <div class="timeline__today" style="left:18%;height:240px;top:0"></div>
+            <div class="timeline__today-label" style="left:18%;top:-2px">TODAY</div>
+          </div>
+
+          <!-- Lighthouse Games — 338 tasks, 6% done, milestones at 29 May + 10 Jul -->
+          <div class="timeline__row">
+            <div class="timeline__label"><strong>LG</strong> Lighthouse Games</div>
+            <div class="timeline__track">
+              <div class="timeline__bar" style="left:2%;width:72%;background:rgba(239,68,68,0.15);border-color:rgba(239,68,68,0.4)">
+                <div class="timeline__bar-fill" style="width:6%;background:var(--danger)"></div>
+              </div>
+            </div>
+          </div>
+          <!-- Couch Heroes — 15 tasks, 0% done -->
+          <div class="timeline__row">
+            <div class="timeline__label"><strong>CH</strong> Couch Heroes</div>
+            <div class="timeline__track">
+              <div class="timeline__bar" style="left:5%;width:40%;background:rgba(245,158,11,0.15);border-color:rgba(245,158,11,0.4)">
+                <div class="timeline__bar-fill" style="width:0%;background:var(--warning)"></div>
+              </div>
+            </div>
+          </div>
+          <!-- The Insight Collective — 20 tasks, 0% done -->
+          <div class="timeline__row">
+            <div class="timeline__label"><strong>TIC</strong> Insight Collective</div>
+            <div class="timeline__track">
+              <div class="timeline__bar" style="left:8%;width:45%;background:rgba(34,197,94,0.15);border-color:rgba(34,197,94,0.4)">
+                <div class="timeline__bar-fill" style="width:0%;background:var(--success)"></div>
+              </div>
+            </div>
+          </div>
+          <!-- NBI Operations — 9 tasks, 22% done -->
+          <div class="timeline__row">
+            <div class="timeline__label"><strong>NBI</strong> NBI Operations</div>
+            <div class="timeline__track">
+              <div class="timeline__bar" style="left:3%;width:55%;background:rgba(245,158,11,0.15);border-color:rgba(245,158,11,0.4)">
+                <div class="timeline__bar-fill" style="width:22%;background:var(--warning)"></div>
+              </div>
+            </div>
+          </div>
+          <!-- Playsage — 7 tasks, 0% done -->
+          <div class="timeline__row">
+            <div class="timeline__label"><strong>PS</strong> Playsage</div>
+            <div class="timeline__track">
+              <div class="timeline__bar" style="left:10%;width:30%;background:rgba(34,197,94,0.15);border-color:rgba(34,197,94,0.4)">
+                <div class="timeline__bar-fill" style="width:0%;background:var(--success)"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Needs Attention -->
+    <div class="panel">
+      <div class="panel__header">
+        <span class="panel__title" style="color:var(--danger)">Needs Attention</span>
+        <span class="panel__badge" style="background:var(--danger-bg);color:var(--danger)">16 items</span>
+      </div>
+      <div class="panel__body">
+        <div class="attn-item">
+          <div class="attn-border" style="background:var(--purple)"></div>
+          <span class="attn-badge attn-badge--blocked">BLOCKED</span>
+          <div class="attn-content">
+            <div class="attn-title">Phase 1 Telemetry QA</div>
+            <div class="attn-context">Lighthouse Games &mdash; Analytics - Telemetry</div>
+          </div>
+        </div>
+        <div class="attn-item">
+          <div class="attn-border" style="background:var(--purple)"></div>
+          <span class="attn-badge attn-badge--blocked">BLOCKED</span>
+          <div class="attn-content">
+            <div class="attn-title">Pre Alpha Telemetry Testing</div>
+            <div class="attn-context">Lighthouse Games &mdash; Pre-Alpha Prep</div>
+          </div>
+          <span class="attn-owner">Amir</span>
+        </div>
+        <div class="attn-item">
+          <div class="attn-border" style="background:var(--purple)"></div>
+          <span class="attn-badge attn-badge--blocked">BLOCKED</span>
+          <div class="attn-content">
+            <div class="attn-title">Phase 1 Telemetry Final Review / QA</div>
+            <div class="attn-context">Lighthouse Games &mdash; assigned to Stavros, Marie, Amir, Ruan</div>
+          </div>
+          <span class="attn-owner">4 people</span>
+        </div>
+        <div class="attn-item">
+          <div class="attn-border" style="background:var(--purple)"></div>
+          <span class="attn-badge attn-badge--blocked">BLOCKED</span>
+          <div class="attn-content">
+            <div class="attn-title">Game access follow up: Data</div>
+            <div class="attn-context">Lighthouse Games &mdash; Game Understanding</div>
+          </div>
+          <span class="attn-owner">Amir</span>
+        </div>
+        <div class="attn-item">
+          <div class="attn-border" style="background:var(--purple)"></div>
+          <span class="attn-badge attn-badge--blocked">BLOCKED</span>
+          <div class="attn-content">
+            <div class="attn-title">Play game and test</div>
+            <div class="attn-context">Lighthouse Games &mdash; Stavros, Amir, Ruan</div>
+          </div>
+          <span class="attn-owner">3 people</span>
+        </div>
+        <div style="text-align:center;padding:8px;font-size:0.62rem;color:var(--text-faint)">+ 11 more blocked/overdue items (all Lighthouse Games)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Secondary panels -->
+  <div class="panels-secondary">
+    <!-- Upcoming Milestones -->
+    <div class="panel">
+      <div class="panel__header">
+        <span class="panel__title">Upcoming Milestones</span>
+      </div>
+      <div class="panel__body">
+        <div class="ms-item">
+          <div class="ms-bar" style="background:var(--warning)"></div>
+          <div class="ms-info">
+            <div class="ms-title"><span style="color:var(--accent-text);font-weight:700">LG</span> — Pre-Alpha Playtest Build MS30</div>
+            <div class="ms-sub">Lighthouse Games</div>
+          </div>
+          <div class="ms-status">
+            <div class="ms-status-text" style="color:var(--warning)">21d left</div>
+            <div class="ms-status-date">29 May</div>
+          </div>
+        </div>
+        <div class="ms-item">
+          <div class="ms-bar" style="background:var(--success)"></div>
+          <div class="ms-info">
+            <div class="ms-title"><span style="color:var(--accent-text);font-weight:700">LG</span> — Actually Alpha M31</div>
+            <div class="ms-sub">Lighthouse Games</div>
+          </div>
+          <div class="ms-status">
+            <div class="ms-status-text" style="color:var(--success)">63d left</div>
+            <div class="ms-status-date">10 Jul</div>
+          </div>
+        </div>
+        <div style="padding:16px;text-align:center;color:var(--text-faint);font-size:0.72rem">Only 2 milestones set across all clients.<br>Other clients have no milestones defined.</div>
+      </div>
+    </div>
+
+    <!-- Team Workload -->
+    <div class="panel">
+      <div class="panel__header">
+        <span class="panel__title">Team Workload</span>
+      </div>
+      <div class="panel__body">
+        <div class="workload-row">
+          <span class="workload-name">Amir Didar</span>
+          <div class="workload-bar"><div class="workload-fill" style="width:100%;background:var(--danger)"></div></div>
+          <span class="workload-count" style="color:var(--danger)">76</span>
+        </div>
+        <div class="workload-row">
+          <span class="workload-name">Stavros</span>
+          <div class="workload-bar"><div class="workload-fill" style="width:100%;background:var(--danger)"></div></div>
+          <span class="workload-count" style="color:var(--danger)">76</span>
+        </div>
+        <div class="workload-row">
+          <span class="workload-name">Marie</span>
+          <div class="workload-bar"><div class="workload-fill" style="width:79%;background:var(--danger)"></div></div>
+          <span class="workload-count" style="color:var(--danger)">60</span>
+        </div>
+        <div class="workload-row">
+          <span class="workload-name">Ruan</span>
+          <div class="workload-bar"><div class="workload-fill" style="width:61%;background:var(--danger)"></div></div>
+          <span class="workload-count" style="color:var(--danger)">46</span>
+        </div>
+        <div class="workload-row">
+          <span class="workload-name">Devin Rieger</span>
+          <div class="workload-bar"><div class="workload-fill" style="width:11%;background:var(--success)"></div></div>
+          <span class="workload-count" style="color:var(--success)">8</span>
+        </div>
+        <div class="workload-row">
+          <span class="workload-name">Glen Pryer</span>
+          <div class="workload-bar"><div class="workload-fill" style="width:7%;background:var(--success)"></div></div>
+          <span class="workload-count" style="color:var(--success)">5</span>
+        </div>
+        <div class="workload-row">
+          <span class="workload-name">Lorenza</span>
+          <div class="workload-bar"><div class="workload-fill" style="width:4%;background:var(--success)"></div></div>
+          <span class="workload-count" style="color:var(--success)">3</span>
+        </div>
+        <div class="workload-row">
+          <span class="workload-name">Magnus</span>
+          <div class="workload-bar"><div class="workload-fill" style="width:4%;background:var(--success)"></div></div>
+          <span class="workload-count" style="color:var(--success)">3</span>
+        </div>
+        <div class="workload-row">
+          <span class="workload-name">Tom Rieger</span>
+          <div class="workload-bar"><div class="workload-fill" style="width:1%;background:var(--success)"></div></div>
+          <span class="workload-count" style="color:var(--success)">1</span>
+        </div>
+        <div style="padding:6px 0 0;font-size:0.58rem;color:var(--text-faint)">
+          <span style="color:var(--danger)">&#9679;</span> >30 &nbsp;
+          <span style="color:var(--warning)">&#9679;</span> 15-30 &nbsp;
+          <span style="color:var(--success)">&#9679;</span> <15
+        </div>
+      </div>
+    </div>
+
+    <!-- Completing Soon -->
+    <div class="panel">
+      <div class="panel__header">
+        <span class="panel__title" style="color:var(--success)">Completing Soon</span>
+      </div>
+      <div class="panel__body">
+        <div style="display:flex;align-items:center;justify-content:center;height:100%;min-height:80px;color:var(--text-faint);font-size:0.78rem;text-align:center;padding:16px">
+          No projects or features at 60-99% completion.<br>
+          <span style="font-size:0.66rem;margin-top:4px;display:block">Most active work is early-stage (Lighthouse Games at 6%).</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Design Notes Overlay -->
+<div class="design-notes">
+  <button class="design-notes__toggle" onclick="toggleNotes()">?</button>
+  <div class="design-notes__panel" id="notesPanel">
+    <h3>Design Rationale</h3>
+    <ul>
+      <li><strong>Three-tier hierarchy</strong> replaces the current 7-panel scatter. KPI strip for the 5-second scan, table for the 15-second deep read, supporting panels for the 30-second detail pass.</li>
+      <li><strong>Portfolio table is the hero.</strong> Every best-in-class PPM tool (Monday, Asana, Smartsheet) centres on a sortable table with one row per client. The current sidebar + 2x2 grid forces the eye to jump between 7 competing zones.</li>
+      <li><strong>Sparklines in KPI cards</strong> add trend context. A bare number ("4 needs attention") is less useful than seeing it was 2 last week and trending up. The sparkline communicates direction without requiring the user to read the delta text.</li>
+      <li><strong>RAG dots in a scannable column.</strong> The eye processes colour 200ms before text. A vertical column of green/yellow/red dots gives portfolio health in under 2 seconds. The current page uses sidebar cards with coloured left borders, which require 6x more visual space for the same information.</li>
+      <li><strong>Expandable client rows</strong> replace the fixed sidebar. Click a client to see their projects inline. This is progressive disclosure: the default view is clean, the detail is one click away.</li>
+      <li><strong>Milestones shown inline</strong> as badges in the table, not in a separate panel. This answers "what's coming up for this client?" without leaving the row.</li>
+      <li><strong>"Needs Attention" panel is ranked worst-first.</strong> Blocked items above overdue, overdue above at-risk. This is the "what do I act on first?" answer.</li>
+      <li><strong>Timeline below the table</strong>, not competing with it. The current page puts the Gantt in a 2x2 grid quadrant where it's too small to be useful. Here it gets full width in a dedicated section.</li>
+      <li><strong>Same CSS variables</strong> as WorkSage. Dark and light themes both work. Colours, fonts, spacing are all from the existing design system.</li>
+      <li><strong>Removed: Progress Status donut.</strong> A full panel with a backlog bar + donut chart uses enormous space for 5 numbers. Those 5 numbers are now in the KPI strip. Saved ~25% of viewport.</li>
+      <li><strong>Removed: Work Types panel.</strong> Low signal-to-noise. "How many active work types" is not actionable. If needed, it could be a filter dropdown.</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  html.setAttribute('data-theme', html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+}
+
+function toggleClient(row) {
+  const chevron = row.querySelector('.client-chevron');
+  const isOpen = chevron.classList.toggle('client-chevron--open');
+  row.classList.toggle('client-row--expanded', isOpen);
+  let next = row.nextElementSibling;
+  while (next && next.classList.contains('project-row')) {
+    next.style.display = isOpen ? '' : 'none';
+    next = next.nextElementSibling;
+  }
+}
+
+function toggleNotes() {
+  document.getElementById('notesPanel').classList.toggle('open');
+}
+</script>
+
+</body>
+</html>

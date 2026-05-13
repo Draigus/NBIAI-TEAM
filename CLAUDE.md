@@ -85,7 +85,7 @@ Curl returning 200 ≠ working. For any change to `nbi_project_dashboard.html` o
 **Requires Glen's approval:** External communications, client-facing deliverables, financial decisions, hiring real people, strategic pivots, spending money, publishing publicly, anything that commits NBI externally
 
 ## Communication Style
-
+Read brain/glen-working-profile.md for working style and communication context.
 - British English only — no American spellings
 - Never use em dashes
 - Direct, no-fluff communication

@@ -9,11 +9,12 @@ queue/failed/*.json
 
 # Environment files (contain secrets)
 .env
+.env.*
 .env.local
 .env.production
 .env.test
 .env.bak-*
-dashboard-server/.env.test
+dashboard-server/.env.*
 
 # Test infrastructure
 dashboard-server/tests/.tmp/
@@ -43,6 +44,23 @@ dashboard-server/seed-data.csv
 
 # Archive / migration backups
 _archive/
+
+# Claude Code installed skills and local config
+.agents/skills/
+.claude/skills/
+.claude/reference-skills/
+.claude/settings.json
+.superpowers/
+.mcp.json
+
+# Debug and temp artifacts
+_temp/
+dashboard-server/cookies.txt
+dashboard-server/cc-debug-screenshot.png
+dashboard-server/cc-scroll-test-*.png
+dashboard-server/cc-scroll-test.html
+dashboard-server/public/cc-scroll-test.html
+dashboard-server/_check_users.js
 
 # OS files
 .DS_Store

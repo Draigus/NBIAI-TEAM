@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chart Test</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.js"></script>
+  <style>
+    body { background: #0F032B; color: #F0F0F5; font-family: sans-serif; padding: 40px; }
+    .chart-box { background: #1A0E30; border-radius: 10px; padding: 24px; margin-bottom: 24px; }
+    .chart-box h2 { margin-bottom: 16px; }
+  </style>
+</head>
+<body>
+  <h1>Chart.js Bar Test</h1>
+
+  <div class="chart-box">
+    <h2>Test 1: Simple vertical bar</h2>
+    <canvas id="test1" width="800" height="300"></canvas>
+  </div>
+
+  <div class="chart-box">
+    <h2>Test 2: Funnel-style descending bars</h2>
+    <canvas id="test2" width="800" height="300"></canvas>
+  </div>
+
+  <div class="chart-box">
+    <h2>Test 3: With container div (responsive)</h2>
+    <div style="position:relative; width:100%; height:300px;">
+      <canvas id="test3"></canvas>
+    </div>
+  </div>
+
+<script>
+// Test 1: Minimal — explicit canvas size, no responsive
+new Chart(document.getElementById('test1'), {
+  type: 'bar',
+  data: {
+    labels: ['A','B','C','D','E'],
+    datasets: [{ data: [100,80,60,40,20], backgroundColor: ['#C75ABF','#A93DA1','#8E3488','#7030A0','#5A2680'] }]
+  },
+  options: {
+    responsive: false,
+    plugins: { legend: { display: false } }
+  }
+});
+
+// Test 2: Funnel data, responsive false, explicit size
+new Chart(document.getElementById('test2'), {
+  type: 'bar',
+  data: {
+    labels: ['Download','First Boot','Account Creation','Initial Drive','Wonderland Home','California','Semi-Pro','Alpha Wall'],
+    datasets: [{
+      data: [100,94,88,80,70,62,54,45],
+      backgroundColor: ['#C75ABF','#B84DB3','#A93DA1','#8E3488','#7030A0','#5A2680','#4A2470','#3D1A5C'],
+      borderRadius: 4
+    }]
+  },
+  options: {
+    responsive: false,
+    plugins: { legend: { display: false } },
+    scales: { y: { max: 105, ticks: { callback: function(v){ return v+'%'; } } } }
+  }
+});
+
+// Test 3: Responsive mode with container
+new Chart(document.getElementById('test3'), {
+  type: 'bar',
+  data: {
+    labels: ['Download','First Boot','Account Creation','Initial Drive','Wonderland Home','California','Semi-Pro','Alpha Wall'],
+    datasets: [{
+      data: [100,94,88,80,70,62,54,45],
+      backgroundColor: '#A93DA1',
+      borderRadius: 4
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: { y: { max: 105 } }
+  }
+});
+</script>
+</body>
+</html>

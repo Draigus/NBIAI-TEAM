@@ -1,0 +1,1585 @@
+{
+  "Roles": [
+    [
+      "Role",
+      "Discipline",
+      "Notes"
+    ],
+    [
+      "CEO",
+      "Leadership",
+      null
+    ],
+    [
+      "Creative Director",
+      "Leadership",
+      null
+    ],
+    [
+      "Head of Legal",
+      "Leadership",
+      null
+    ],
+    [
+      "COO",
+      "Leadership",
+      null
+    ],
+    [
+      "HR Manager",
+      "Leadership",
+      null
+    ],
+    [
+      "Executive Producer",
+      "Production",
+      null
+    ],
+    [
+      "Producer",
+      "Production",
+      null
+    ],
+    [
+      "Game Producer",
+      "Production",
+      null
+    ],
+    [
+      "Tech Producer",
+      "Production",
+      null
+    ],
+    [
+      "Art Producer",
+      "Production",
+      null
+    ],
+    [
+      "Game Director",
+      "Design",
+      null
+    ],
+    [
+      "Game Design Lead",
+      "Design",
+      null
+    ],
+    [
+      "Level Design Lead",
+      "Design",
+      null
+    ],
+    [
+      "Game Designer",
+      "Design",
+      null
+    ],
+    [
+      "Combat Designer",
+      "Design",
+      null
+    ],
+    [
+      "Level Designer",
+      "Design",
+      null
+    ],
+    [
+      "Technical Designer",
+      "Design",
+      null
+    ],
+    [
+      "Writer",
+      "Design",
+      null
+    ],
+    [
+      "Art Director",
+      "Art",
+      null
+    ],
+    [
+      "Concept Artist",
+      "Art",
+      null
+    ],
+    [
+      "UI/UX Designer",
+      "Art",
+      null
+    ],
+    [
+      "Graphic Designer",
+      "Art",
+      null
+    ],
+    [
+      "Character Artist",
+      "Art",
+      null
+    ],
+    [
+      "Environment Artist",
+      "Art",
+      null
+    ],
+    [
+      "Prop Artist",
+      "Art",
+      null
+    ],
+    [
+      "Animator",
+      "Art",
+      null
+    ],
+    [
+      "Character Rigger",
+      "Art",
+      null
+    ],
+    [
+      "VFX Artist",
+      "Art",
+      null
+    ],
+    [
+      "Technical Artist",
+      "Art",
+      null
+    ],
+    [
+      "CTO",
+      "Engineering",
+      null
+    ],
+    [
+      "Tech Lead",
+      "Engineering",
+      null
+    ],
+    [
+      "Gameplay Developer",
+      "Engineering",
+      null
+    ],
+    [
+      "Full Stack Developer",
+      "Engineering",
+      null
+    ],
+    [
+      "Backend Developer",
+      "Engineering",
+      null
+    ],
+    [
+      "Network Engineer",
+      "Engineering",
+      null
+    ],
+    [
+      "QA",
+      "QA",
+      null
+    ],
+    [
+      "Sound Designer",
+      "Audio",
+      null
+    ],
+    [
+      "Platform Team",
+      "Platform",
+      null
+    ]
+  ],
+  "Gates": [
+    [
+      "Gate",
+      "Phase",
+      null,
+      "Target Tier",
+      "Tier Name",
+      "Notes"
+    ],
+    [
+      "0",
+      "Concept",
+      null,
+      "T0",
+      "Ideation",
+      "Y-doc, pitch, vision lock; all features captured at T0"
+    ],
+    [
+      "1",
+      "Pre-production",
+      null,
+      "T1-T2",
+      "R&D / GDD-TDD-Brief",
+      "GDD/TDD/Art briefs for all greenlit features (T2)"
+    ],
+    [
+      "2",
+      "Early Prod",
+      null,
+      "T3",
+      "Prototype",
+      "Prototype every feature; many bugs allowed (T3)"
+    ],
+    [
+      "3",
+      "Mid Prod",
+      null,
+      "T4",
+      "MVP",
+      "Full MVP scope - heaviest production gate (T4)"
+    ],
+    [
+      "4",
+      "End Prod",
+      null,
+      "T5",
+      "Feature Complete",
+      "Feature complete, polish to ship quality (T5)"
+    ],
+    [
+      "5",
+      "Alpha",
+      null,
+      "T6",
+      "Player Tested",
+      "Playtest, telemetry, balance pass; gating bugs only"
+    ],
+    [
+      "6",
+      "Beta",
+      null,
+      "T6",
+      "Player Tested",
+      "External player feedback, cert prep, content lock"
+    ],
+    [
+      "7",
+      "Launch",
+      null,
+      "T6",
+      "Player Ready",
+      "Day-0 readiness, marketing, store, support"
+    ],
+    [
+      "8",
+      "First Release",
+      null,
+      "T6-T7",
+      "Player Ready / Expand",
+      "Live monitoring, hotfixes, day-1/7/30 patches"
+    ],
+    [
+      "9",
+      "LS 1",
+      null,
+      "T7",
+      "Expand",
+      "Expansions, new content drops, season cadence (T7)"
+    ],
+    [
+      "10",
+      "LS 2",
+      null,
+      "T8",
+      "Scale",
+      "Optimize / scale post-load, sustain plan (T8)"
+    ]
+  ],
+  "Tiers": [
+    [
+      "Tier",
+      "Name",
+      "Definition"
+    ],
+    [
+      "T0",
+      "Ideation",
+      "Idea captured, no commitment"
+    ],
+    [
+      "T1",
+      "R&D",
+      "Research, prototyping intent, technical feasibility"
+    ],
+    [
+      "T2",
+      "GDD / TDD / Brief ready",
+      "GDD done, TDD done, art brief done"
+    ],
+    [
+      "T3",
+      "Prototype",
+      "Functional with no skins, can be bugged"
+    ],
+    [
+      "T4",
+      "MVP",
+      "Limited quality, but full-featured"
+    ],
+    [
+      "T5",
+      "Feature Complete (at quality)",
+      "Final assets, polished, no scope cuts left"
+    ],
+    [
+      "T6",
+      "Player Ready / Tested",
+      "Playtest, alpha, beta, telemetry feedback applied"
+    ],
+    [
+      "T7",
+      "Expand",
+      "Add to feature / content"
+    ],
+    [
+      "T8",
+      "Scale",
+      "Productional optimization post-load"
+    ]
+  ],
+  "Legend": [
+    [
+      "Cell Color / Section",
+      "Meaning"
+    ],
+    [
+      null,
+      "Phase super-headers (row 1 of Plan)"
+    ],
+    [
+      "Concept",
+      "Concept gate (T0 Ideation)"
+    ],
+    [
+      "Pre-production",
+      "Pre-production gate (T1-T2)"
+    ],
+    [
+      "Production",
+      "Early / Mid / End Prod gates (T3-T5)"
+    ],
+    [
+      "Release",
+      "Alpha / Beta / Launch / First Release"
+    ],
+    [
+      "Live Service",
+      "LS 1 / LS 2"
+    ],
+    [
+      null,
+      null
+    ],
+    [
+      "Discipline",
+      "Role group color (row 3 of Plan)"
+    ],
+    [
+      "Leadership",
+      "CEO, Head of Legal, Head of Finance & Ops, HR Manager"
+    ],
+    [
+      "Production",
+      "Executive / Producer / Game / Tech / Art Producer"
+    ],
+    [
+      "Design",
+      "Game Director, Design Leads, Designers, Writer"
+    ],
+    [
+      "Art",
+      "Art Director, Concept, UI/UX, Character/Env/Prop, Anim, Rig, VFX, TA"
+    ],
+    [
+      "Engineering",
+      "CTO, Tech Lead, Gameplay/Full Stack/Backend/Network"
+    ],
+    [
+      "QA",
+      "QA"
+    ],
+    [
+      "Audio",
+      "Sound Designer"
+    ],
+    [
+      "Platform",
+      "Platform Team"
+    ],
+    [
+      null,
+      null
+    ],
+    [
+      "Sizing key (col C)",
+      null
+    ],
+    [
+      "S",
+      "Small feature"
+    ],
+    [
+      "M",
+      "Medium feature"
+    ],
+    [
+      "L",
+      "Large feature"
+    ],
+    [
+      null,
+      null
+    ],
+    [
+      "How to use",
+      null
+    ],
+    [
+      "Plan sheet",
+      "Fill in man-days per (feature, gate, role). Cells are blank by default."
+    ],
+    [
+      "Totals row",
+      "Bottom of Plan: SUMs each role column per gate."
+    ],
+    [
+      "Headcount row",
+      "Total PW / (gate months * 20 working days). Edit GATE_MONTHS in the script if your durations change."
+    ],
+    [
+      "Summary sheet",
+      "Auto-rolls up Plan totals per epic per gate."
+    ],
+    [
+      "Adding rows",
+      "Insert rows inside an epic block on Plan. Update Total PW SUM ranges if you extend past the current last data row."
+    ]
+  ],
+  "Summary": [
+    [
+      "Epic",
+      "Features",
+      "Concept\n~2 months\nT0",
+      "Pre-production\n~4 months\nT1-T2",
+      "Early Prod\n~4 months\nT3",
+      "Mid Prod\n~6 months\nT4",
+      "End Prod\n~4 months\nT5",
+      "Alpha\n~2 months\nT6",
+      "Beta\n~1.5 months\nT6",
+      "Launch\n~1 month\nT6",
+      "First Release\n~1.5 months\nT6-T7",
+      "LS 1\nLive\nT7",
+      "LS 2\nLive\nT8",
+      "Total PW"
+    ],
+    [
+      "Player Build",
+      "11",
+      "=SUM(Plan!G6:AR16)",
+      "=SUM(Plan!AT6:CE16)",
+      "=SUM(Plan!CG6:DR16)",
+      "=SUM(Plan!DT6:FE16)",
+      "=SUM(Plan!FG6:GR16)",
+      "=SUM(Plan!GT6:IE16)",
+      "=SUM(Plan!IG6:JR16)",
+      "=SUM(Plan!JT6:LE16)",
+      "=SUM(Plan!LG6:MR16)",
+      "=SUM(Plan!MT6:OE16)",
+      "=SUM(Plan!OG6:PR16)",
+      "=SUM(C2:M2)"
+    ],
+    [
+      "World Systems",
+      "29",
+      "=SUM(Plan!G18:AR46)",
+      "=SUM(Plan!AT18:CE46)",
+      "=SUM(Plan!CG18:DR46)",
+      "=SUM(Plan!DT18:FE46)",
+      "=SUM(Plan!FG18:GR46)",
+      "=SUM(Plan!GT18:IE46)",
+      "=SUM(Plan!IG18:JR46)",
+      "=SUM(Plan!JT18:LE46)",
+      "=SUM(Plan!LG18:MR46)",
+      "=SUM(Plan!MT18:OE46)",
+      "=SUM(Plan!OG18:PR46)",
+      "=SUM(C3:M3)"
+    ],
+    [
+      "Combat",
+      "9",
+      "=SUM(Plan!G48:AR56)",
+      "=SUM(Plan!AT48:CE56)",
+      "=SUM(Plan!CG48:DR56)",
+      "=SUM(Plan!DT48:FE56)",
+      "=SUM(Plan!FG48:GR56)",
+      "=SUM(Plan!GT48:IE56)",
+      "=SUM(Plan!IG48:JR56)",
+      "=SUM(Plan!JT48:LE56)",
+      "=SUM(Plan!LG48:MR56)",
+      "=SUM(Plan!MT48:OE56)",
+      "=SUM(Plan!OG48:PR56)",
+      "=SUM(C4:M4)"
+    ],
+    [
+      "User Space",
+      "8",
+      "=SUM(Plan!G58:AR65)",
+      "=SUM(Plan!AT58:CE65)",
+      "=SUM(Plan!CG58:DR65)",
+      "=SUM(Plan!DT58:FE65)",
+      "=SUM(Plan!FG58:GR65)",
+      "=SUM(Plan!GT58:IE65)",
+      "=SUM(Plan!IG58:JR65)",
+      "=SUM(Plan!JT58:LE65)",
+      "=SUM(Plan!LG58:MR65)",
+      "=SUM(Plan!MT58:OE65)",
+      "=SUM(Plan!OG58:PR65)",
+      "=SUM(C5:M5)"
+    ],
+    [
+      "Items & Inventory",
+      "9",
+      "=SUM(Plan!G67:AR75)",
+      "=SUM(Plan!AT67:CE75)",
+      "=SUM(Plan!CG67:DR75)",
+      "=SUM(Plan!DT67:FE75)",
+      "=SUM(Plan!FG67:GR75)",
+      "=SUM(Plan!GT67:IE75)",
+      "=SUM(Plan!IG67:JR75)",
+      "=SUM(Plan!JT67:LE75)",
+      "=SUM(Plan!LG67:MR75)",
+      "=SUM(Plan!MT67:OE75)",
+      "=SUM(Plan!OG67:PR75)",
+      "=SUM(C6:M6)"
+    ],
+    [
+      "Player Economy",
+      "7",
+      "=SUM(Plan!G77:AR83)",
+      "=SUM(Plan!AT77:CE83)",
+      "=SUM(Plan!CG77:DR83)",
+      "=SUM(Plan!DT77:FE83)",
+      "=SUM(Plan!FG77:GR83)",
+      "=SUM(Plan!GT77:IE83)",
+      "=SUM(Plan!IG77:JR83)",
+      "=SUM(Plan!JT77:LE83)",
+      "=SUM(Plan!LG77:MR83)",
+      "=SUM(Plan!MT77:OE83)",
+      "=SUM(Plan!OG77:PR83)",
+      "=SUM(C7:M7)"
+    ],
+    [
+      "Quest System",
+      "12",
+      "=SUM(Plan!G85:AR96)",
+      "=SUM(Plan!AT85:CE96)",
+      "=SUM(Plan!CG85:DR96)",
+      "=SUM(Plan!DT85:FE96)",
+      "=SUM(Plan!FG85:GR96)",
+      "=SUM(Plan!GT85:IE96)",
+      "=SUM(Plan!IG85:JR96)",
+      "=SUM(Plan!JT85:LE96)",
+      "=SUM(Plan!LG85:MR96)",
+      "=SUM(Plan!MT85:OE96)",
+      "=SUM(Plan!OG85:PR96)",
+      "=SUM(C8:M8)"
+    ],
+    [
+      "Social & Multiplayer",
+      "10",
+      "=SUM(Plan!G98:AR107)",
+      "=SUM(Plan!AT98:CE107)",
+      "=SUM(Plan!CG98:DR107)",
+      "=SUM(Plan!DT98:FE107)",
+      "=SUM(Plan!FG98:GR107)",
+      "=SUM(Plan!GT98:IE107)",
+      "=SUM(Plan!IG98:JR107)",
+      "=SUM(Plan!JT98:LE107)",
+      "=SUM(Plan!LG98:MR107)",
+      "=SUM(Plan!MT98:OE107)",
+      "=SUM(Plan!OG98:PR107)",
+      "=SUM(C9:M9)"
+    ],
+    [
+      "Game Bibles",
+      "6",
+      "=SUM(Plan!G109:AR114)",
+      "=SUM(Plan!AT109:CE114)",
+      "=SUM(Plan!CG109:DR114)",
+      "=SUM(Plan!DT109:FE114)",
+      "=SUM(Plan!FG109:GR114)",
+      "=SUM(Plan!GT109:IE114)",
+      "=SUM(Plan!IG109:JR114)",
+      "=SUM(Plan!JT109:LE114)",
+      "=SUM(Plan!LG109:MR114)",
+      "=SUM(Plan!MT109:OE114)",
+      "=SUM(Plan!OG109:PR114)",
+      "=SUM(C10:M10)"
+    ],
+    [
+      "Platform",
+      "19",
+      "=SUM(Plan!G116:AR134)",
+      "=SUM(Plan!AT116:CE134)",
+      "=SUM(Plan!CG116:DR134)",
+      "=SUM(Plan!DT116:FE134)",
+      "=SUM(Plan!FG116:GR134)",
+      "=SUM(Plan!GT116:IE134)",
+      "=SUM(Plan!IG116:JR134)",
+      "=SUM(Plan!JT116:LE134)",
+      "=SUM(Plan!LG116:MR134)",
+      "=SUM(Plan!MT116:OE134)",
+      "=SUM(Plan!OG116:PR134)",
+      "=SUM(C11:M11)"
+    ],
+    [
+      "Live Game",
+      "7",
+      "=SUM(Plan!G136:AR142)",
+      "=SUM(Plan!AT136:CE142)",
+      "=SUM(Plan!CG136:DR142)",
+      "=SUM(Plan!DT136:FE142)",
+      "=SUM(Plan!FG136:GR142)",
+      "=SUM(Plan!GT136:IE142)",
+      "=SUM(Plan!IG136:JR142)",
+      "=SUM(Plan!JT136:LE142)",
+      "=SUM(Plan!LG136:MR142)",
+      "=SUM(Plan!MT136:OE142)",
+      "=SUM(Plan!OG136:PR142)",
+      "=SUM(C12:M12)"
+    ],
+    [
+      "Partner Build",
+      "8",
+      "=SUM(Plan!G144:AR151)",
+      "=SUM(Plan!AT144:CE151)",
+      "=SUM(Plan!CG144:DR151)",
+      "=SUM(Plan!DT144:FE151)",
+      "=SUM(Plan!FG144:GR151)",
+      "=SUM(Plan!GT144:IE151)",
+      "=SUM(Plan!IG144:JR151)",
+      "=SUM(Plan!JT144:LE151)",
+      "=SUM(Plan!LG144:MR151)",
+      "=SUM(Plan!MT144:OE151)",
+      "=SUM(Plan!OG144:PR151)",
+      "=SUM(C13:M13)"
+    ],
+    [
+      "Product Publishing",
+      "7",
+      "=SUM(Plan!G153:AR159)",
+      "=SUM(Plan!AT153:CE159)",
+      "=SUM(Plan!CG153:DR159)",
+      "=SUM(Plan!DT153:FE159)",
+      "=SUM(Plan!FG153:GR159)",
+      "=SUM(Plan!GT153:IE159)",
+      "=SUM(Plan!IG153:JR159)",
+      "=SUM(Plan!JT153:LE159)",
+      "=SUM(Plan!LG153:MR159)",
+      "=SUM(Plan!MT153:OE159)",
+      "=SUM(Plan!OG153:PR159)",
+      "=SUM(C14:M14)"
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      "GRAND TOTAL",
+      null,
+      "=SUM(C2:C15)",
+      "=SUM(D2:D15)",
+      "=SUM(E2:E15)",
+      "=SUM(F2:F15)",
+      "=SUM(G2:G15)",
+      "=SUM(H2:H15)",
+      "=SUM(I2:I15)",
+      "=SUM(J2:J15)",
+      "=SUM(K2:K15)",
+      "=SUM(L2:L15)",
+      "=SUM(M2:M15)",
+      "=SUM(N2:N15)"
+    ]
+  ],
+  "Epics & Features": [
+    [
+      "Epic",
+      "Feature",
+      "Sizing",
+      "Current Tier"
+    ],
+    [
+      "Player Build",
+      "Player Progression",
+      "L",
+      "T1: R&D"
+    ],
+    [
+      "Player Build",
+      "Skill System",
+      "L",
+      "T1: R&D"
+    ],
+    [
+      "Player Build",
+      "Achievements & Trophies",
+      "M",
+      "T1: R&D"
+    ],
+    [
+      "Player Build",
+      "Factions / Reputation",
+      "M",
+      "T1: R&D"
+    ],
+    [
+      "Player Build",
+      "FTUE",
+      "M",
+      "T2: GDD/TDD/Brief"
+    ],
+    [
+      "Player Build",
+      "Professions",
+      "L",
+      "T1: R&D"
+    ],
+    [
+      "Player Build",
+      "Character Management",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "Player Build",
+      "Character Creation & Customization",
+      "L",
+      "T1: R&D"
+    ],
+    [
+      "Player Build",
+      "Garment System",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "Player Build",
+      "Persona System",
+      "M",
+      "T1: R&D"
+    ],
+    [
+      "Player Build",
+      "Emote System",
+      "S",
+      "T0: Ideation"
+    ],
+    [
+      "World Systems",
+      "Foam Corruption",
+      "M",
+      "T2: GDD/TDD/Brief"
+    ],
+    [
+      "World Systems",
+      "Miasma Corruption",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "World Systems",
+      "Water Corruption",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "World Systems",
+      "Crystal Corruption",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "World Systems",
+      "Time Corruption",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "World Systems",
+      "Enemy Corruption",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "World Systems",
+      "Oil Corruption",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "World Systems",
+      "Texture Corruption",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "World Systems",
+      "Environmental Elemental Effects (combination states)",
+      "L",
+      "T2: GDD/TDD/Brief"
+    ],
+    [
+      "World Systems",
+      "Basic Movement System",
+      "L",
+      "T1: R&D"
+    ],
+    [
+      "World Systems",
+      "Advanced Traversal",
+      "L",
+      "T1: R&D"
+    ],
+    [
+      "World Systems",
+      "Navigation",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "World Systems",
+      "Day/Night Cycle",
+      "M",
+      "T1: R&D"
+    ],
+    [
+      "World Systems",
+      "Dynamic Weather",
+      "M",
+      "T1: R&D"
+    ],
+    [
+      "World Systems",
+      "Instancing",
+      "L",
+      "T0: Ideation"
+    ],
+    [
+      "World Systems",
+      "Dungeon Mechanics",
+      "L",
+      "T0: Ideation"
+    ],
+    [
+      "World Systems",
+      "The Dungeon",
+      "L",
+      "T0: Ideation"
+    ],
+    [
+      "World Systems",
+      "Partner Portal",
+      "M",
+      "T1: R&D"
+    ],
+    [
+      "World Systems",
+      "World Bosses",
+      "L",
+      "T0: Ideation"
+    ],
+    [
+      "World Systems",
+      "Corruption Heatmap",
+      "M",
+      "T1: R&D"
+    ],
+    [
+      "World Systems",
+      "Biome - Portal Peak",
+      "M",
+      "T4: MVP"
+    ],
+    [
+      "World Systems",
+      "Biome - Hidden Hills",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "World Systems",
+      "Biome - Farmlands",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "World Systems",
+      "Biome - Mistrun Shore",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "World Systems",
+      "Biome - Whispering Woods",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "World Systems",
+      "Biome - Tranquil Sands",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "World Systems",
+      "Biome - Torrential Vale",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "World Systems",
+      "Biome - Clockwork",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "World Systems",
+      "Biome - Downtime",
+      "M",
+      "T4: MVP"
+    ],
+    [
+      "Combat",
+      "Combat Framework",
+      "L",
+      "T2: GDD/TDD/Brief"
+    ],
+    [
+      "Combat",
+      "Ranged Combat",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "Combat",
+      "Combat AI Behavior",
+      "L",
+      "T0: Ideation"
+    ],
+    [
+      "Combat",
+      "Enemies Art",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "Combat",
+      "PvP Combat",
+      "L",
+      "T0: Ideation"
+    ],
+    [
+      "Combat",
+      "Combat Balance & Telemetry",
+      "M",
+      "T2: GDD/TDD/Brief"
+    ],
+    [
+      "Combat",
+      "Combat Abilities",
+      "L",
+      "T1: R&D"
+    ],
+    [
+      "Combat",
+      "Magic",
+      "L",
+      "T0: Ideation"
+    ],
+    [
+      "Combat",
+      "Full Motion Video (FMV)",
+      "M",
+      "T1: R&D"
+    ],
+    [
+      "User Space",
+      "User Space Server & Instance",
+      "L",
+      "T2: GDD/TDD/Brief"
+    ],
+    [
+      "User Space",
+      "User Space Decoration",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "User Space",
+      "P2P / P2G User Space Connection",
+      "M",
+      "T2: GDD/TDD/Brief"
+    ],
+    [
+      "User Space",
+      "Building Houses",
+      "L",
+      "T1: R&D"
+    ],
+    [
+      "User Space",
+      "Saving House Layouts",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "User Space",
+      "Partner Portal System (player house)",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "User Space",
+      "Arcade Cabinet",
+      "M",
+      "T1: R&D"
+    ],
+    [
+      "User Space",
+      "Anywhere Door Placement",
+      "S",
+      "T0: Ideation"
+    ],
+    [
+      "Items & Inventory",
+      "Item Core System",
+      "L",
+      "T2: GDD/TDD/Brief"
+    ],
+    [
+      "Items & Inventory",
+      "Inventory System",
+      "M",
+      "T2: GDD/TDD/Brief"
+    ],
+    [
+      "Items & Inventory",
+      "Equipment System",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "Items & Inventory",
+      "Loot Distribution",
+      "M",
+      "T2: GDD/TDD/Brief"
+    ],
+    [
+      "Items & Inventory",
+      "Mounts / Pets",
+      "L",
+      "T1: R&D"
+    ],
+    [
+      "Items & Inventory",
+      "Banks",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "Items & Inventory",
+      "P2P Item Transfer",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "Items & Inventory",
+      "Consumables",
+      "S",
+      "T2: GDD/TDD/Brief"
+    ],
+    [
+      "Items & Inventory",
+      "Durable Items",
+      "S",
+      "T0: Ideation"
+    ],
+    [
+      "Player Economy",
+      "Trading System",
+      "L",
+      "T0: Ideation"
+    ],
+    [
+      "Player Economy",
+      "Currency System",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "Player Economy",
+      "Auction House",
+      "L",
+      "T0: Ideation"
+    ],
+    [
+      "Player Economy",
+      "In-game Store",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "Player Economy",
+      "In-game Economy",
+      "L",
+      "T0: Ideation"
+    ],
+    [
+      "Player Economy",
+      "RMT Game Economy",
+      "L",
+      "T0: Ideation"
+    ],
+    [
+      "Player Economy",
+      "IG / RMT Monitoring System",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "Quest System",
+      "Quests Backend / Tooling",
+      "L",
+      "T2: GDD/TDD/Brief"
+    ],
+    [
+      "Quest System",
+      "Quests as Events",
+      "M",
+      "T1: R&D"
+    ],
+    [
+      "Quest System",
+      "Quest Multiplayer",
+      "L",
+      "T1: R&D"
+    ],
+    [
+      "Quest System",
+      "Quest Types - Courier / Escort / Kill / Collect / Mystery / Time / Partner / Lockpicking",
+      "L",
+      "T2: GDD/TDD/Brief"
+    ],
+    [
+      "Quest System",
+      "Quest Reward System",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "Quest System",
+      "Quest Log",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "Quest System",
+      "Quest Dialog GUI",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "Quest System",
+      "Quest Narrative Content",
+      "L",
+      "T2: GDD/TDD/Brief"
+    ],
+    [
+      "Quest System",
+      "In Game Cinematic (IGC)",
+      "L",
+      "T2: GDD/TDD/Brief"
+    ],
+    [
+      "Quest System",
+      "Meta Quest System",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "Quest System",
+      "Quest Generator System",
+      "L",
+      "T0: Ideation"
+    ],
+    [
+      "Quest System",
+      "Targeted VO",
+      "M",
+      "T2: GDD/TDD/Brief"
+    ],
+    [
+      "Social & Multiplayer",
+      "Game Chat System",
+      "M",
+      "T1: R&D"
+    ],
+    [
+      "Social & Multiplayer",
+      "Friends",
+      "M",
+      "T1: R&D"
+    ],
+    [
+      "Social & Multiplayer",
+      "Guilds",
+      "L",
+      "T1: R&D"
+    ],
+    [
+      "Social & Multiplayer",
+      "Co-op / Party",
+      "M",
+      "T1: R&D"
+    ],
+    [
+      "Social & Multiplayer",
+      "Co-op / Raids",
+      "L",
+      "T1: R&D"
+    ],
+    [
+      "Social & Multiplayer",
+      "Dueling",
+      "M",
+      "T1: R&D"
+    ],
+    [
+      "Social & Multiplayer",
+      "In-game Mail",
+      "S",
+      "T2: GDD/TDD/Brief"
+    ],
+    [
+      "Social & Multiplayer",
+      "Notifications",
+      "S",
+      "T1: R&D"
+    ],
+    [
+      "Social & Multiplayer",
+      "Player Config PvP Server",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "Social & Multiplayer",
+      "LFG / Pick-up Groups",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "Game Bibles",
+      "UX/UI Bible",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "Game Bibles",
+      "Accessibility Guidelines",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "Game Bibles",
+      "Brand Bible",
+      "M",
+      "T2: GDD/TDD/Brief"
+    ],
+    [
+      "Game Bibles",
+      "Art Bible",
+      "L",
+      "T3: Prototype"
+    ],
+    [
+      "Game Bibles",
+      "Monetization Bible",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "Game Bibles",
+      "Red Books (Live Service emergency guidelines)",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "Platform",
+      "Player Account Creation / Deletion",
+      "M",
+      "T2: GDD/TDD/Brief"
+    ],
+    [
+      "Platform",
+      "Player Account Authentication",
+      "M",
+      "T2: GDD/TDD/Brief"
+    ],
+    [
+      "Platform",
+      "Player Account Privacy Settings & Legal",
+      "M",
+      "T1: R&D"
+    ],
+    [
+      "Platform",
+      "Player Dashboard - Account Features",
+      "M",
+      "T1: R&D"
+    ],
+    [
+      "Platform",
+      "Player Dashboard - Game Dashboard",
+      "M",
+      "T1: R&D"
+    ],
+    [
+      "Platform",
+      "Player Dashboard - Friends",
+      "M",
+      "T1: R&D"
+    ],
+    [
+      "Platform",
+      "Player Dashboard - Search & Notifications",
+      "M",
+      "T1: R&D"
+    ],
+    [
+      "Platform",
+      "Player Dashboard - Marketplace",
+      "L",
+      "T1: R&D"
+    ],
+    [
+      "Platform",
+      "Developer Dashboard - Developer Account",
+      "M",
+      "T1: R&D"
+    ],
+    [
+      "Platform",
+      "Developer Dashboard - Game Dashboard",
+      "M",
+      "T1: R&D"
+    ],
+    [
+      "Platform",
+      "Developer Dashboard - Settings & Support",
+      "M",
+      "T1: R&D"
+    ],
+    [
+      "Platform",
+      "Quest Tracking",
+      "M",
+      "T1: R&D"
+    ],
+    [
+      "Platform",
+      "Payment Processing (incl. Refunds)",
+      "L",
+      "T0: Ideation"
+    ],
+    [
+      "Platform",
+      "Online Services & Backend",
+      "L",
+      "T0: Ideation"
+    ],
+    [
+      "Platform",
+      "Launcher & Distribution",
+      "L",
+      "T2: GDD/TDD/Brief"
+    ],
+    [
+      "Platform",
+      "Partner Loop",
+      "M",
+      "T1: R&D"
+    ],
+    [
+      "Platform",
+      "Game Tool Integration (incl. Game Key Generation)",
+      "M",
+      "T1: R&D"
+    ],
+    [
+      "Platform",
+      "Account Level Settings",
+      "S",
+      "T0: Ideation"
+    ],
+    [
+      "Platform",
+      "Social Media Support",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "Live Game",
+      "Live GDD",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "Live Game",
+      "Content",
+      "L",
+      "T0: Ideation"
+    ],
+    [
+      "Live Game",
+      "Forecast",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "Live Game",
+      "Analytics & BI",
+      "L",
+      "T0: Ideation"
+    ],
+    [
+      "Live Game",
+      "Sales Dashboard",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "Live Game",
+      "Telemetry",
+      "L",
+      "T0: Ideation"
+    ],
+    [
+      "Live Game",
+      "Live Service Event Plan",
+      "L",
+      "T0: Ideation"
+    ],
+    [
+      "Partner Build",
+      "Partner = Feature definition",
+      "S",
+      "T0: Ideation"
+    ],
+    [
+      "Partner Build",
+      "Sign Partner",
+      "S",
+      "T0: Ideation"
+    ],
+    [
+      "Partner Build",
+      "Partner Brief",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "Partner Build",
+      "Partner Design Doc",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "Partner Build",
+      "Partner TDD",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "Partner Build",
+      "Partner Art Brief",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "Partner Build",
+      "Partner Build",
+      "L",
+      "T0: Ideation"
+    ],
+    [
+      "Partner Build",
+      "Partner Integration",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "Product Publishing",
+      "Web Presence",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "Product Publishing",
+      "Website",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "Product Publishing",
+      "Community Persona",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "Product Publishing",
+      "Title Identity",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "Product Publishing",
+      "Player Support",
+      "M",
+      "T0: Ideation"
+    ],
+    [
+      "Product Publishing",
+      "Go-To-Market Strategy & Implementation",
+      "L",
+      "T0: Ideation"
+    ],
+    [
+      "Product Publishing",
+      "3rd-party Store Publishing",
+      "M",
+      "T0: Ideation"
+    ]
+  ]
+}

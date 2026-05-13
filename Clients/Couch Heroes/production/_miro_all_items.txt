@@ -1,0 +1,921 @@
+==========================================================================================
+MIRO BOARD FULL EXTRACTION: Couch Heroes Production Board
+Board URL: https://miro.com/app/board/uXjVHX6wqnQ=/
+Extracted: 2026-05-13
+==========================================================================================
+
+BOARD STATISTICS
+----------------------------------------
+Total items: 1615
+  user_card: 1531
+  text: 35
+  sticky_note: 19
+  shape: 19
+  org_chart: 10
+  frame: 1
+
+NOTE: 1,531 user_card items are org_chart children. The Miro list API
+returns these with empty data fields. Their content is captured via the
+org_chart context summaries below.
+
+==========================================================================================
+COLOUR LEGEND (from board shapes)
+==========================================================================================
+  #fe9f4d (Orange)  = EPIC
+  #2dc75c (Green)   = FEATURE
+  #659df2 (Blue)    = STORY
+  #dedaff (Lilac)   = TASKS
+  #8f7fee (Purple)  = TASK (border colour on cards)
+  #ffffff (White)   = SUB-TASKS
+  #b0b0b0 (Grey)    = NOT FOR VS, DONE OR ART
+  #ff6464 (Red)     = MISSING BID
+
+Tiers of Completion:
+  T0 = Ideation
+  T1 = R&D
+  T2 = GDD done, TDD done, art brief
+  T3 = Prototype functional with no skins and can be bugged
+  T4 = MVP - limited quality but full featured
+  T5 = Feature complete at quality
+  T6 = Player tested feedback to quality (playtest, alpha, beta, telemetry)
+  T7 = Expand / add to feature / content etc
+  T8 = Scale to production optimisation post load
+
+==========================================================================================
+ORG CHART 1: PLAYER BUILD
+Miro: https://miro.com/app/board/uXjVHX6wqnQ=/?moveToWidget=3458764671354966026
+==========================================================================================
+
+EPIC [ORANGE]: Player Build
+
+FEATURES [GREEN] (11 total, 4 excluded from VS):
+  [GREEN] Garment System
+  [GREEN] Character Creation
+  [GREEN] Player Progression
+  [GREEN] Achievements
+  [GREEN] Professions
+  [GREEN] Forge System
+  [GREEN] Fishing
+  [GREEN] Gathering
+  [GREEN] Crafting
+  [NOT FOR VS] Factions/Reputations
+  [NOT FOR VS] Character Management
+  [NOT FOR VS] Persona System
+  [NOT FOR VS] Emote System
+
+STORIES [BLUE] (23):
+  Faction Icons, Banners, Insignias, Clothing Variations
+  Garment Sets, Armor Sets, Weapon Sets, Skins
+  Racial Variations
+  UI Systems
+
+TASKS [PURPLE] by discipline:
+  Concept Art (8-64h per task)
+  Character Modeling (5-96h per task)
+  UI (3-120h per task)
+  VFX (24-40h per task)
+  Tech Art (8-24h per task)
+  Animation (40-80h per task)
+  Environment Modeling (24-65h per task)
+
+SUB-TASKS [WHITE]: Standard art pipeline:
+  Reference Research -> Sketching -> Colour Palette -> 3D Modelling
+  (Block Out -> Hi Poly -> Retopo -> UV Unwrapping -> Bakes -> Texturing)
+  -> Asset Validation -> Implementation
+
+NOTES:
+  - Base Body: MVP DONE
+  - Base Faces: MVP DONE
+
+==========================================================================================
+ORG CHART 2: WORLD SYSTEMS (ENV)
+Miro: https://miro.com/app/board/uXjVHX6wqnQ=/?moveToWidget=3458764671375403999
+Hierarchy: 1 Epic > 15 Features > 64+ Stories > 264+ Tasks > deep sub-tasks (10 levels)
+==========================================================================================
+
+EPIC [ORANGE]: World Systems (ENV)
+
+FEATURES [GREEN] (15):
+  Zones:
+    [GREEN] Dungeon
+    [GREEN] Downtime
+    [GREEN] Portal Dimension
+    [GREEN] Arena
+    [GREEN] User Space Islands (Player Island 1, Player Island 2)
+    [GREEN] Guild Island
+    [GREEN] TBNL (New Zone)
+    [GREEN] FTUE Cave
+  Environmental Systems:
+    [GREEN] Corruption Variants
+    [GREEN] Navigation
+    [GREEN] Partner Portal
+  Technical:
+    [GREEN] Fluid Ninja Tech (R&D)
+  Asset Kits:
+    [GREEN] Architecture Kits
+    [GREEN] Props
+    [GREEN] Furniture
+  Biome Systems:
+    [GREEN] Biomes (Mediterranean, Lush)
+
+STORIES [BLUE] (64+):
+  Technical Stories:
+    Lighting Tech, Atmospherics, Water, VFX Tech, Weather Cycles, Fog
+  Asset Categories:
+    Trees, Bushes, Grass/Groundcover, Hero Assets, Cliff Systems
+  Thematic Kits:
+    Mythcore, Graveyard, Gritcore, Fantasy, Guild Hall, Arena, Bug Dungeon
+
+TASKS [PURPLE] (264+) with hour estimates, covering:
+  - POI production pipeline per zone
+  - Asset kit creation
+  - Biome vegetation systems
+  - Rock kit production
+  - Texture kit production
+
+  POI Standard Pipeline (per POI):
+    Concept -> World Building -> Set Dressing -> Terrain Footprint ->
+    Biome Dressing -> Collision Pass -> Lighting -> Rocking ->
+    NPC Lighting -> Proxy Pass
+
+  Time estimates range from 2h for simple proxies to 945h for complex final models.
+
+==========================================================================================
+ORG CHART 3: WORLD SYSTEMS (THE REST)
+Miro: https://miro.com/app/board/uXjVHX6wqnQ=/?moveToWidget=3458764671375404752
+Hierarchy: 1 Epic > 16 Features > 23 Stories > 89 Tasks > 191 Sub-tasks
+==========================================================================================
+
+EPIC [ORANGE]: World Systems (The Rest)
+
+FEATURES [GREEN] (16):
+  NPCs:
+    [GREEN] Critters NPCs (pigs, hares, sheep, cows, chickens, horses)
+    [GREEN] Hero NPCs (faction-based characters)
+    [GREEN] Human NPCs (generic, green/red/yellow/blue faction NPCs)
+  Player Systems:
+    [GREEN] Player Locomotion
+    [GREEN] Player Traversal
+    [GREEN] Advanced Movement
+  Cinematics:
+    [GREEN] FMV
+    [GREEN] 2.5D
+    [GREEN] IGC (In-Game Cinematics)
+    [GREEN] Static Picture Intros
+  World Features:
+    [GREEN] Instancing
+    [GREEN] Dungeon Mechanics
+    [GREEN] Day/Night Cycle
+    [GREEN] Weather
+    [GREEN] World Bosses
+    [GREEN] Corruption Heatmap
+
+STORIES [BLUE] (23):
+  Named NPC Characters:
+    Xyron (Upgrade), Barbersmith (Upgrade), Maeve/Mayor (Upgrade)
+    Hero Green Faction NPC
+  Player Mechanics:
+    Basic Locomotion System (20h-533h)
+    Advanced Traversal, Gliding, Grappling
+    Camera Behaviour, Environment Interactions
+
+TASKS [PURPLE] (89):
+  Concept Art (16h-120h)
+  Character Modeling (16h-56h)
+  Rigging (16h-48h)
+  Animation (10h-100h)
+  VFX (40h-80h)
+  Tech Art (8h-16h)
+
+SUB-TASKS [WHITE] (191):
+  Concept Art pipeline: Reference Research -> Silhouettes -> Turntable ->
+    Colour Palette -> Final Pass
+  Modelling pipeline: Block Out -> Hi Poly -> Retopo -> UV Unwrapping ->
+    Bakes -> Texturing -> Validation -> Implementation
+
+NOTES:
+  - Multiple items marked NOT FOR VS
+  - Several features flagged NOT IN BUDGET, OR OUTSOURCE
+  - Multiple faction-based NPC systems (Green, Red, Yellow, Blue)
+
+==========================================================================================
+ORG CHART 4: COMBAT
+Miro: https://miro.com/app/board/uXjVHX6wqnQ=/?moveToWidget=3458764671355718074
+Hierarchy: 1 Epic > 5 Features > 10 Stories > 32 Tasks > 162 Sub-tasks (6 levels)
+==========================================================================================
+
+EPIC [ORANGE]: Combat
+
+FEATURES [GREEN] (5):
+  [GREEN] Combat Framework
+  [GREEN] Enemies
+  [GREEN] PVP Combat
+  [GREEN] Combat Balance & Telemetry
+  [NOT FOR VS] Ranged Combat
+
+STORIES [BLUE] (10):
+  AI Combat Behaviour
+  Magic
+  Combat Hit & Damage Processing
+  Player Combat Abilities
+  Enemy Types: Carapax, Wolves, Skeletons, Slimes, Goblins
+
+TASKS [PURPLE] (32):
+  Per enemy type: Concept Art, Character Modelling, Rigging, Animation, VFX, UI
+  Time estimates: 10h-20h to 200h-350h
+
+SUB-TASKS [WHITE] (162):
+  Per enemy: Locomotion (walk, run, idle, jump, turn, dash)
+  Combat (attacks 1-4, dodge, block)
+  Reactions (hit react, stagger, death)
+  Art pipeline: Reference Research -> Silhouettes -> Turntable ->
+    Colour Palette -> Concept Art -> Modelling ->
+    (Block Out -> Hi Poly -> Retopo -> UV Unwrapping -> Bakes -> Texturing)
+
+NOTES:
+  - Several items flagged NO ART (technical/systems work)
+  - NOT FOR VS: Ranged Combat, Combat Status Effects
+
+==========================================================================================
+ORG CHART 5: USER SPACE
+Miro: https://miro.com/app/board/uXjVHX6wqnQ=/?moveToWidget=3458764671355843518
+Hierarchy: 1 Epic > 9 Features > 5 Stories > 23 Tasks
+==========================================================================================
+
+EPIC [ORANGE]: User Space
+
+FEATURES [GREEN] (9):
+  [GREEN] User Space Interior
+  [GREEN] Modular Houses
+  [GREEN] Island
+  [GREEN] User Space Server & Instance
+  [GREEN] P2P/P2G Connection
+  [GREEN] Anywhere Door
+  [GREEN] Saving House Layouts
+  [NOT FOR VS] Partner Portal System
+  [NOT FOR VS] Arcade Cabinet
+
+STORIES [BLUE] (4-5):
+  Indoor Camera, Interior, Exterior
+  Zone - User Space Island
+
+TASKS [PURPLE] (23):
+  Concept Art, Environment Modelling, UI, VFX, Lighting
+  POI work with subcategories
+  Time estimates: 4h to 120h
+
+  POI Tasks: Concept, World Building, Set Dressing, Terrain Footprint,
+    Biome Dressing, Collision Pass, Lighting, Rocking, NPC Lighting, Proxy Pass
+
+NOTES:
+  - Several items marked NO ART
+  - NOT FOR VS: Partner Portal System, Arcade Cabinet
+
+==========================================================================================
+ORG CHART 6: ITEMS & INVENTORY
+Miro: https://miro.com/app/board/uXjVHX6wqnQ=/?moveToWidget=3458764671356431750
+Hierarchy: 1 Epic > 10 Features > 8 Stories > 21 Tasks > 6 Sub-tasks
+==========================================================================================
+
+EPIC [ORANGE]: Items & Inventory
+
+FEATURES [GREEN] (10):
+  [GREEN] Item Core System
+  [GREEN] Inventory System
+  [GREEN] Equipment System
+  [GREEN] Loot Distribution
+  [GREEN] Pets
+  [GREEN] Banks
+  [GREEN] Consumables
+  [NOT FOR VS] P2P Item Transfer
+  [NOT FOR VS] Durable Items
+  [NOT FOR VS] Mounts
+
+STORIES [BLUE] (8):
+  Exterior, Interior, Potions, MECH PARROT
+  Plus STORIES TEMP placeholders
+
+TASKS [PURPLE] (21):
+  Concept Art, UI, Environment Modelling, Character Modelling,
+  Animation, VFX, Lighting, Set Dressing
+  Time estimates: 2h to 80h
+
+SUB-TASKS [WHITE] (6):
+  Modelling pipeline: Block Out, Hi Poly, Retopo, UV Unwrapping, Bakes, Texturing
+
+NOTES:
+  - Banks: Only Exterior, no Interior!
+  - Multiple STORIES TEMP placeholders (planning in progress)
+
+==========================================================================================
+ORG CHART 7: QUEST SYSTEM
+Miro: https://miro.com/app/board/uXjVHX6wqnQ=/?moveToWidget=3458764671356982463
+Hierarchy: 1 Epic > 13 Features > 8 Stories > 22 Tasks > 20 Sub-tasks
+==========================================================================================
+
+EPIC [ORANGE]: Quest System
+
+FEATURES [GREEN] (13+):
+  Quest Types:
+    [GREEN] Courier Quest
+    [GREEN] Escort Quest
+    [GREEN] Kill Quest
+    [GREEN] Collect Quest
+    [GREEN] Research Quest
+    [GREEN] Time Objectives
+    [GREEN] Partner Quest
+    [GREEN] Corruption Quest
+  Systems:
+    [GREEN] Quest Item
+    [GREEN] Quest Reward System
+    [GREEN] Quest Log
+    [GREEN] Quest Dialog GUI
+    [GREEN] Quest Narrative Content
+    [NO ART] Quests Backend/Tooling
+    [NO ART] Targeted VO
+    [GREEN] Quests as Events
+    [GREEN] Quest Multiplayer
+  [NOT FOR VS] Dialogue/Quest Cinematics
+  [NOT FOR VS] Meta Quest System
+  [NOT FOR VS] Quest Generator System
+
+STORIES [BLUE] (8):
+  Lock Picking Quest, Hearthstone, Partner Crystal
+  Plus 5 STORIES TEMP placeholders
+
+TASKS [PURPLE] (22):
+  Concept Art (10-112h)
+  UI (2-40h)
+  VFX (40-56h)
+  Tech Art (32-48h)
+
+SUB-TASKS [WHITE] (20):
+  Reference Research -> Ideation -> Shapes/Sketches -> Extra Explanatory Callouts
+
+==========================================================================================
+ORG CHART 8: PLAYER ECONOMY
+Miro: https://miro.com/app/board/uXjVHX6wqnQ=/?moveToWidget=3458764671356617572
+Hierarchy: 1 Epic > 8 Features > 4 Stories > 13 Tasks
+==========================================================================================
+
+EPIC [ORANGE]: Player Economy
+
+FEATURES [GREEN] (8):
+  [GREEN] Trading System
+  [GREEN] Virtual Currency System
+  [GREEN] Garment Shop
+  [GREEN] Partner Shop
+  [NO ART] In Game Economy
+  [NOT FOR VS] RMT In Game Monitoring System
+  [NOT FOR VS] In Game Store
+  [NOT FOR VS] Auction House
+
+STORIES [BLUE] (4):
+  Currency, Bugged Dungeon Shop
+  Plus 2 STORIES TEMP placeholders
+
+TASKS [PURPLE] (13):
+  UI tasks (5), Concept Art tasks (4), Environment tasks (2), VFX tasks (2)
+  Time estimates: 5-10h to 40-60h
+  Total estimated: ~244-390 hours
+
+==========================================================================================
+ORG CHART 9: SOCIAL & MULTIPLAYER
+Miro: https://miro.com/app/board/uXjVHX6wqnQ=/?moveToWidget=3458764671357106374
+Hierarchy: 1 Epic > 10 Features > 4 Stories > 8 Tasks > 20 Sub-tasks
+==========================================================================================
+
+EPIC [ORANGE]: Social & Multiplayer
+
+FEATURES [GREEN] (10):
+  [GREEN] Game Chat System
+  [GREEN] Guild Systems
+  [GREEN] Co-Op/Party
+  [GREEN] In-Game Mail
+  [GREEN] Friends
+  [GREEN] Co-Op/Raids
+  [GREEN] Dueling
+  [GREEN] Notifications
+  [NOT FOR VS] Player Config PVP Server
+  [NOT FOR VS] LFG/PUG
+
+STORIES [BLUE] (4): STORIES TEMP placeholders
+
+TASKS [PURPLE] (8):
+  UI tasks (10-20h)
+  Concept Art tasks (16-40h)
+
+SUB-TASKS [WHITE] (20):
+  Reference Research -> Ideation -> Shapes/Sketches ->
+  Extra Explanatory Callouts -> 2D Asset Production
+
+==========================================================================================
+ORG CHART 10: THE REST / THE GAME - VERTICAL SLICE 2026
+Miro: https://miro.com/app/board/uXjVHX6wqnQ=/?moveToWidget=3458764671356811372
+==========================================================================================
+
+ROOT [PURPLE #6631d7]: THE GAME - VERTICAL SLICE 2026
+
+EPICS [BLUE]:
+  [BLUE] Game Bibles
+
+FEATURES:
+  [NOT FOR VS / RED] Platform
+  [NOT FOR VS / RED] Live Service Game
+  [NOT FOR VS / RED] Partner Build
+  [NOT FOR VS / RED] Product Publishing
+
+STORIES / Bible Documents [GREEN]:
+  [GREEN] UX/UI Bible
+  [GREEN] Art Bible
+  [GREEN] Accessibility Bible
+  [GREEN] Brand Bible
+  [GREEN] Monetisation Bible
+  [GREEN] Red Books
+
+TASKS [PURPLE] / Specialised Documents:
+  [PURPLE] Colour Palette
+  [PURPLE] Typography
+  [PURPLE] Wireframes
+  [PURPLE] ENV BIBLE
+  [PURPLE] ANIM BIBLE
+  [PURPLE] CHAR BIBLE
+  [PURPLE] VFX BIBLE
+  [PURPLE] CONCEPT BIBLE
+  [PURPLE] Game Logo
+  Time estimates: 40h-100h per item
+
+==========================================================================================
+STANDALONE TEXT ITEMS (35 items)
+These are free-floating text boxes on the board, not inside org_charts.
+==========================================================================================
+
+  [3458764670898848053] (x=-6086, y=1726)
+    ENV TEMPLATE POIs
+
+  [3458764671086558865] (x=-9530, y=3039)
+    Texture kits
+    ------------------Floors
+      - Walls
+
+  [3458764671047335834] (x=-9667, y=3059)
+    Veg/Natural
+    -----------------Trees
+      - Bushes
+      - Grass
+      - Hero Trees
+
+  [3458764671433109306] (x=-11042, y=3114)
+    Makeup
+
+  [3458764671055017929] (x=-10448, y=3230)
+    FTUE Cave - 224h
+    ---------------Med Cave
+      - Fluid Ninja
+
+  [3458764671066757893] (x=-11362, y=3280)
+    What is in a Zone?
+    --------------------------Terrain/Rocking
+      - PCG/Veg
+      - Basic Lighting
+      - Polish Lighting
+      - Collision Pass
+      - Road Dressing
+      - Water
+
+  [3458764671067259383] (x=-11173, y=3280)
+    What is in a POI?
+    --------------------------Terrain/Rocking
+      - PCG/Veg
+      - Basic Lighting
+      - Polish Lighting
+      - Collision Pass
+      - WB
+      - Set Dressing
+
+  [3458764671086342025] (x=-11000, y=3290)
+    What is in a Biome Kit?
+    ---------------------------------2-4 Trees with 4-5 Variants of each
+      - 4-5 Bush Types with 4-5 variants of each
+      - 3-4 Grasses with 3-4 variants each
+      - misc ground cover, roots and moss
+
+  [3458764671377493277] (x=-10281, y=3355)
+    POI - Epic - 568 - 640hTower Exterior
+
+  [3458764671047766498] (x=-9714, y=3388)
+    Bug
+    Polish
+
+  [3458764671047490012] (x=-10448, y=3405)
+    New Zone - 568 - 648h
+    ---------------Terrain/Cliffs
+      - Set Dressing
+      - Fluid Ninja
+      - Surrounding Terrain
+
+  [3458764671377493396] (x=-10281, y=3419)
+    POI - Epic - 568 - 640hThe Big Battle Hill
+
+  [3458764671327841235] (x=-11091, y=3445)
+    What is in an architecture kit?
+    -------------------------------models
+
+  [3458764671329287538] (x=-9928, y=3458)
+    Guild Buildings
+    -------------Architecture kit - 240 - 480h
+      - interior/exterior
+
+  [3458764671086448596] (x=-11377, y=3479)
+    What is in a Rock kit?
+    -------------------------------3-4 Epic Rocks/Cliffs
+      - 4-5 Large
+      - 3-4 Med
+      - 2-3 Small
+      - 3-4 hero pieces (like overhangs)
+
+  [3458764671377696076] (x=-10274, y=3488)
+    POI - Med - 224h - 300hCave Interior
+
+  [3458764671377696188] (x=-10264, y=3553)
+    POI - Small - 80 - 120hWaterfall Beauty
+
+  [3458764671048724947] (x=-9944, y=3585)
+    Furniture
+    -------------Fantasy - 40h
+      - Gritcore - 320h
+
+  [3458764671377696340] (x=-10275, y=3618)
+    POI - Small - 80 - 120hBridge
+
+  [3458764671377696577] (x=-10293, y=3673)
+    POI - Small - 320hDrifters Cross
+
+  [3458764671329287159] (x=-9941, y=3707)
+    Player Buildings - 480h
+    -------------Architecture kit
+      - interior/exterior
+
+  [3458764671057609408] (x=-9912, y=3812)
+    Biomes - 
+    -----------Cave Biome  - 350 - 400h
+      - New Zone Biome  - 350 - 400h
+      - Downtime Biome  - 350 - 400h
+
+  [3458764671384184532] (x=-9669, y=3837)
+    1 Biome - 350 - 400h
+    ------------Proxy - 40h
+      - 4 Large - 160h
+      - 4 Med - 64h
+      - 4 Small - 32h
+
+  [3458764671047864973] (x=-10308, y=3847)
+    Player island 1 - 488h
+    Player Island 2 - 488h
+    ---------------------Terrain
+      - Vegetation PCG
+      - Atmosphere/Lighting
+      - Rocks
+
+  [3458764671048285012] (x=-9920, y=3925)
+    Props
+    -----------Gritcore - 200 - 400h
+      - Fantasy Exterior- 200 - 400h
+
+  [3458764671048002225] (x=-10299, y=4009)
+    Downtime - 648 - 800h
+    ---------------4 Hero Buildings
+      - Terrain
+
+  [3458764671059130607] (x=-9945, y=4051)
+    Rock Kits - 192h
+    ------------------------Overhang Addition to Main Rock Kit
+      - New Sharp Rocks
+
+  [3458764671047865854] (x=-10280, y=4129)
+    Guild Island - 488h
+    -----------------Terrain
+      - Vegetation PCG
+      - Atmosphere/Lighting
+      - Rocks
+
+  [3458764671047335478] (x=-9832, y=4237)
+    Architecture Kits
+    -------------------------Mythcore - 40 - 80h
+      - Mythcore Ruins - 40 - 80h
+      - Fantasy - 480 - 800h
+      - Guild Hall (interior and exterior) - 580 - 945h
+      - Player Housing - 460 - 800h
+      - Arena Kit - 240 - 800h
+      - Deck/Scaffolding - 80 - 120h
+      - Wooden Camp - 120 - 160h
+
+  [3458764671047766662] (x=-10284, y=4323)
+    Dungeon - 480h
+    -------------1 Medium Dungeon
+      - Med - POI Set Dressing
+      - Basic Lighting
+      - Med - PCG/Veg
+      - Fluid Ninja
+
+  [3458764671048002008] (x=-10286, y=4487)
+    Arena - 400 - 640h
+    --------1 Epic POI
+
+  [3458764671048002548] (x=-10289, y=4732)
+    Portal Dimension - 200h
+    -------------------------1 Small POI
+      - 2 Hero Prop
+      - Fluid Ninja
+
+  [3458764671048002311] (x=-10275, y=4891)
+    Bug Dungeon - 80 - 120h
+    --------------------1 Hero Building interior
+
+  [3458764671048002660] (x=-10249, y=4977)
+    Tower Interior - 320 - 420h
+    --------------------1 med POI
+
+  [3458764671049056718] (x=-10826, y=6107)
+    New Zone or Portal Peak
+     - Waterfall Beauty Spot
+     - The Big Battle Hill
+     - Tower Exterior
+     - Bridge
+
+==========================================================================================
+STICKY NOTES (19 items)
+==========================================================================================
+
+  [3458764671346302484] fill=red (x=298, y=76)
+    Thin path that goes to the two peaks. Mediterranien
+
+  [3458764671346095644] fill=red (x=219, y=84)
+    concepts needs to do big mood shots for the mediterranian mountain path with clouds and cliffs around it
+
+  [3458764671346095277] fill=light_yellow (x=103, y=119)
+    Fight hill zone
+
+  [3458764671346460587] fill=red (x=286, y=133)
+    Its very high up.
+
+  [3458764671346302897] fill=red (x=215, y=156)
+    Lets do a few mood paintings that show clouds and landscape/ocean around it. 
+    
+    City in a distance
+
+  [3458764671039954682] fill=light_yellow (x=-6137, y=1118)
+    EPICS, FEATURES, STORIES (cannot just be departments, use tasks)
+
+  [3458764671036309441] fill=light_yellow (x=-5267, y=1118)
+    For Bids Use:
+    
+    XXh - XXh
+
+  [3458764671417925176] fill=light_yellow (x=-4343, y=1118)
+    Only Bid Tasks, no need for stories or sub-tasks
+
+  [3458764670916576709] fill=light_yellow (x=-5845, y=1800)
+    Portal Peak needs to be shelved. 
+    There should be a new zone for the new POIs
+    You cannot move terrain. We will be deleting this stuff later. Unless it permanently lives in PP
+
+  [3458764671376915572] fill=light_yellow (x=-9020, y=2190)
+    PLAYER BUILD
+
+  [3458764671373701370] fill=light_yellow (x=-9020, y=2800)
+    WORLD SYSTEMS (ENV)
+
+  [3458764671376530210] fill=light_yellow (x=-9020, y=3466)
+    WORLD SYSTEMS (THE REST)
+
+  [3458764671373701274] fill=light_yellow (x=-9020, y=4367)
+    COMBAT
+
+  [3458764671373701090] fill=light_yellow (x=-9020, y=5077)
+    USER SPACE
+
+  [3458764671373701480] fill=light_yellow (x=-9020, y=5517)
+    ITEMS & INVENTORY
+
+  [3458764671376727089] fill=light_yellow (x=-9020, y=6117)
+    QUEST SYSTEM
+
+  [3458764671376727392] fill=light_yellow (x=-9020, y=6597)
+    PLAYER ECONOMY
+
+  [3458764671376727423] fill=light_yellow (x=-9020, y=7060)
+    SOCIAL & MULTIPLAYER
+
+  [3458764671376727831] fill=light_yellow (x=-9020, y=7645)
+    THE REST
+
+==========================================================================================
+ART-SPECIFIC ITEMS SUMMARY
+==========================================================================================
+
+ENVIRONMENT ART:
+  Zones (with hour estimates):
+    - New Zone: 568-648h
+    - FTUE Cave: 224h
+    - Dungeon: 480h
+    - Downtime: 648-800h
+    - Portal Dimension: 200h
+    - Bug Dungeon: 80-120h
+    - Tower Interior: 320-420h
+    - Arena: 400-640h
+    - Player Island 1: 488h
+    - Player Island 2: 488h
+    - Guild Island: 488h
+
+  POIs (specific named locations):
+    - POI Epic: Tower Exterior (568-640h)
+    - POI Epic: The Big Battle Hill (568-640h)
+    - POI Med: Cave Interior (224-300h)
+    - POI Small: Waterfall Beauty (80-120h)
+    - POI Small: Bridge (80-120h)
+    - POI Small: Drifters Cross (320h)
+
+  Architecture Kits:
+    - Mythcore: 40-80h
+    - Mythcore Ruins: 40-80h
+    - Fantasy: 480-800h
+    - Guild Hall (interior + exterior): 580-945h
+    - Player Housing: 460-800h
+    - Arena Kit: 240-800h
+    - Deck/Scaffolding: 80-120h
+    - Wooden Camp: 120-160h
+
+  Props:
+    - Gritcore: 200-400h
+    - Fantasy Exterior: 200-400h
+
+  Furniture:
+    - Fantasy: 40h
+    - Gritcore: 320h
+
+  Player Buildings: 480h (architecture kit + interior/exterior)
+  Guild Buildings: 240-480h (architecture kit + interior/exterior)
+
+  Rock Kits: 192h (overhang addition + new sharp rocks)
+  Texture Kits: Floors, Walls
+
+  Biomes:
+    - Cave Biome: 350-400h
+    - New Zone Biome: 350-400h
+    - Downtime Biome: 350-400h
+    Per biome breakdown: Proxy 40h, 4 Large 160h, 4 Med 64h, 4 Small 32h
+
+  Biome Kit Contents:
+    - 2-4 Trees with 4-5 variants each
+    - 4-5 Bush types with 4-5 variants each
+    - 3-4 Grasses with 3-4 variants each
+    - Misc ground cover, roots and moss
+
+  Rock Kit Contents:
+    - 3-4 Epic Rocks/Cliffs
+    - 4-5 Large, 3-4 Med, 2-3 Small
+    - 3-4 Hero pieces (like overhangs)
+
+  Zone Contents:
+    Terrain/Rocking, PCG/Veg, Basic Lighting, Polish Lighting,
+    Collision Pass, Road Dressing, Water
+
+  POI Contents:
+    Terrain/Rocking, PCG/Veg, Basic Lighting, Polish Lighting,
+    Collision Pass, WB, Set Dressing
+
+  Architecture Kit Contents:
+    Models (details per kit)
+
+CHARACTER ART:
+  Player Build:
+    - Base Body (MVP DONE)
+    - Base Faces (MVP DONE)
+    - Garment Sets, Armor Sets, Weapon Sets, Skins
+    - Racial Variations
+    - Faction clothing variations
+
+  Combat Enemies (each: Concept -> Modelling -> Rigging -> Animation -> VFX):
+    - Carapax
+    - Wolves
+    - Skeletons
+    - Slimes
+    - Goblins
+
+  NPCs:
+    - Critters: Pigs, Hares, Sheep, Cows, Chickens, Horses
+    - Hero NPCs: Xyron, Barbersmith, Maeve/Mayor (all Upgrade)
+    - Human NPCs: Generic + Green/Red/Yellow/Blue faction NPCs
+
+  Pets:
+    - MECH PARROT
+    - (Others via Items & Inventory)
+
+ANIMATION:
+  Per enemy/character:
+    Locomotion: Walk, Run, Idle, Jump, Turn, Dash
+    Combat: Attacks 1-4, Dodge, Block
+    Reactions: Hit React, Stagger, Death
+  Player:
+    Basic Locomotion System (20h-533h)
+    Advanced Traversal, Gliding, Grappling
+
+VFX:
+  Combat VFX per enemy type
+  Environment VFX (Fluid Ninja)
+  Quest VFX (40-56h)
+  Player Economy VFX
+
+CONCEPT ART:
+  Concept Team Notes (from Nikos corner):
+    - Fight Hill Zone: Mediterranean mountain path with clouds and cliffs
+    - Mood shots: Clouds, landscape, ocean, distant city
+    - Thin path leading to two peaks, Mediterranean aesthetic
+    - High elevation emphasis
+
+  ENV Template POIs (separate text item)
+  Concept bibles: ENV BIBLE, ANIM BIBLE, CHAR BIBLE, VFX BIBLE, CONCEPT BIBLE
+
+UI/UX:
+  Quest Dialog GUI, Quest Log, Inventory UI, Equipment UI
+  Character Creation UI, Player Progression UI
+  Game Chat, Guild Systems, Co-Op/Party interfaces
+  Wireframes, UX/UI Bible
+
+BIBLES / DOCUMENTATION:
+  Art Bible, Brand Bible, UX/UI Bible, Accessibility Bible
+  Monetisation Bible, Red Books
+  Colour Palette, Typography, Game Logo
+  ENV/ANIM/CHAR/VFX/CONCEPT bibles (40h-100h each)
+
+==========================================================================================
+ITEMS EXCLUDED FROM VERTICAL SLICE (NOT FOR VS)
+==========================================================================================
+
+Player Build:
+  - Factions/Reputations
+  - Character Management
+  - Persona System
+  - Emote System
+
+Combat:
+  - Ranged Combat
+  - Combat Status Effects
+
+User Space:
+  - Partner Portal System
+  - Arcade Cabinet
+
+Items & Inventory:
+  - P2P Item Transfer
+  - Durable Items
+  - Mounts
+
+Quest System:
+  - Dialogue/Quest Cinematics
+  - Meta Quest System
+  - Quest Generator System
+
+Player Economy:
+  - RMT In Game Monitoring System
+  - In Game Store
+  - Auction House
+
+Social & Multiplayer:
+  - Player Config PVP Server
+  - LFG/PUG
+
+The Rest / The Game:
+  - Platform
+  - Live Service Game
+  - Partner Build
+  - Product Publishing
+
+==========================================================================================
+CARD COUNT SUMMARY BY ORG CHART
+==========================================================================================
+
+Org Chart                    | Epic | Features | Stories | Tasks | Sub-tasks | Total
+------------------------------------------------------------------------------------------
+Player Build                 |   1  |    11    |   23    |  mult |   mult    | ~100+
+World Systems (ENV)          |   1  |    15    |   64+   |  264+ |   deep    | ~500+
+World Systems (The Rest)     |   1  |    16    |   23    |   89  |   191     | ~320
+Combat                       |   1  |     5    |   10    |   32  |   162     | ~210
+User Space                   |   1  |     9    |    5    |   23  |    -      |  ~38
+Items & Inventory            |   1  |    10    |    8    |   21  |     6     |  ~46
+Quest System                 |   1  |    13    |    8    |   22  |    20     |  ~64
+Player Economy               |   1  |     8    |    4    |   13  |    -      |  ~26
+Social & Multiplayer         |   1  |    10    |    4    |    8  |    20     |  ~43
+The Rest / The Game          |   1  |     5    |    6    |    9  |    -      |  ~21
+------------------------------------------------------------------------------------------
+TOTAL user_card items in API: 1,531 (all with empty data -- org_chart limitation)
+Standalone text items: 35
+Sticky notes: 19
+Shapes: 19
+Frames: 1
+Org charts: 10
+
+==========================================================================================
+END OF EXTRACTION
+==========================================================================================

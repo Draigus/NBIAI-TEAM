@@ -1,0 +1,1222 @@
+======================================================================
+MIRO BOARD CARD EXTRACTION
+Board: https://miro.com/app/board/uXjVHX6wqnQ=/
+Extracted: 2026-05-13
+Total user_card items on board: 1,544
+Cards individually verified via API: 103
+Remaining cards covered by org_chart summaries below
+======================================================================
+
+======================================================================
+PART A: INDIVIDUALLY VERIFIED CARDS (103 cards)
+Each card fetched via Miro context_get API
+======================================================================
+
+ID: 3458764670894469141
+Title: Set Dressing
+Type: TASK
+Parent: Orphan (standalone)
+Fill: #1a1a1a | Border: #8f7fee
+---
+ID: 3458764670894652275
+Title: Lighting
+Type: TASK
+Parent: Orphan (standalone)
+Fill: #1a1a1a | Border: #8f7fee
+---
+ID: 3458764670894652381
+Title: World Building
+Type: TASK
+Parent: Orphan (standalone)
+Fill: #1a1a1a | Border: #8f7fee
+---
+ID: 3458764670894652524
+Title: Collision
+Type: TASK
+Parent: Orphan (standalone)
+Fill: #1a1a1a | Border: #8f7fee
+---
+ID: 3458764670894652760
+Title: NPC Beautification
+Type: TASK
+Note: Light, Set Dress, Curate NPC Location
+Parent: Orphan (standalone)
+Fill: #1a1a1a | Border: #8f7fee
+---
+ID: 3458764670898552434
+Title: Concept Art
+Type: TASK
+Parent: Orphan (standalone)
+Fill: #1a1a1a | Border: #8f7fee
+---
+ID: 3458764670900214640
+Title: Vegging Out
+Type: TASK
+Parent: Orphan (standalone)
+Fill: #1a1a1a | Border: #8f7fee
+---
+ID: 3458764670900214751
+Title: Rocking
+Type: TASK
+Parent: Orphan (standalone)
+Fill: #1a1a1a | Border: #8f7fee
+---
+ID: 3458764671028733365
+Title: STORIES TEMP
+Type: STORY
+Parent: Orphan (standalone)
+Fill: #659df2 | Border: #659df2
+---
+ID: 3458764671038866297
+Title: Animation
+Type: TASK
+Parent: Orphan (standalone)
+Fill: #659df2 | Border: #8f7fee
+---
+ID: 3458764671047335458
+Title: UI
+Type: TASK
+Parent: Orphan (standalone)
+Fill: #1a1a1a | Border: #8f7fee
+---
+ID: 3458764671049724388
+Title: CONCEPT ART
+Type: TASK
+Hours: 16-24h
+Parent: Orphan (standalone)
+Fill: #659df2 | Border: #8f7fee
+---
+ID: 3458764671066127737
+Title: TECH ART
+Type: TASK
+Parent: Orphan (standalone)
+Fill: #659df2 | Border: #8f7fee
+---
+ID: 3458764671066885819
+Title: Concept Art
+Type: TASK
+Parent: Orphan (standalone)
+Fill: #659df2 | Border: #8f7fee
+---
+ID: 3458764671066885820
+Title: Modeling
+Type: TASK
+Parent: Orphan (standalone)
+Fill: #659df2 | Border: #8f7fee
+---
+ID: 3458764671066885821
+Title: Rigging
+Type: TASK
+Parent: Orphan (standalone)
+Fill: #659df2 | Border: #8f7fee
+---
+ID: 3458764671354966028
+Title: Player Build
+Type: EPIC
+Parent: Player Build
+Fill: #659df2 | Border: #fe9f4d
+---
+ID: 3458764671354966029
+Title: Player Progression
+Type: FEATURE
+Parent: Player Build
+Fill: #659df2 | Border: #2dc75c
+---
+ID: 3458764671354966042
+Title: Achievements & Trophies
+Type: FEATURE
+Parent: Player Build
+Fill: #659df2 | Border: #2dc75c
+---
+ID: 3458764671354966043
+Title: Professions
+Type: FEATURE
+Parent: Player Build
+Fill: #659df2 | Border: #2dc75c
+---
+ID: 3458764671354966044
+Title: Char Creation & Customization
+Type: FEATURE
+Parent: Player Build
+Fill: #659df2 | Border: #2dc75c
+---
+ID: 3458764671354966045
+Title: Garment System
+Type: FEATURE
+Parent: Player Build
+Fill: #659df2 | Border: #2dc75c
+---
+ID: 3458764671354966046
+Title: Fishing
+Type: STORY
+Parent: Player Build
+Fill: #659df2 | Border: #659df2
+---
+ID: 3458764671354966047
+Title: Gathering
+Type: STORY
+Parent: Player Build
+Fill: #659df2 | Border: #659df2
+---
+ID: 3458764671354966048
+Title: Forge System
+Type: FEATURE
+Parent: Player Build
+Fill: #659df2 | Border: #2dc75c
+---
+ID: 3458764671354966049
+Title: Crafting
+Type: STORY
+Parent: Player Build
+Fill: #659df2 | Border: #659df2
+---
+ID: 3458764671354966076
+Title: Factions/Reputations
+Type: NOT FOR VS
+Note: NOT FOR VS
+Parent: Player Build
+Fill: #1a1a1a | Border: #595959
+---
+ID: 3458764671354966077
+Title: Character Management
+Type: NOT FOR VS
+Note: NOT FOR VS
+Parent: Player Build
+Fill: #1a1a1a | Border: #595959
+---
+ID: 3458764671354966078
+Title: Persona System
+Type: NOT FOR VS
+Note: NOT FOR VS
+Parent: Player Build
+Fill: #1a1a1a | Border: #595959
+---
+ID: 3458764671354966079
+Title: Emote System
+Type: NOT FOR VS
+Note: NOT FOR VS
+Parent: Player Build
+Fill: #1a1a1a | Border: #595959
+---
+ID: 3458764671354966144
+Title: Colored Faction NPCs
+Type: FEATURE
+Parent: Player Build
+Fill: #659df2 | Border: #2dc75c
+---
+ID: 3458764671354966152
+Title: Faction: Clothing Variations
+Type: STORY
+Parent: Player Build
+Fill: #659df2 | Border: #659df2
+---
+ID: 3458764671354966153
+Title: Faction: Banners
+Type: STORY
+Parent: Player Build
+Fill: #659df2 | Border: #659df2
+---
+ID: 3458764671354966154
+Title: Faction: Icons
+Type: STORY
+Parent: Player Build
+Fill: #659df2 | Border: #659df2
+---
+ID: 3458764671354966155
+Title: Garment System Options
+Type: STORY
+Parent: Player Build
+Fill: #659df2 | Border: #659df2
+---
+ID: 3458764671354966156
+Title: Base Body
+Type: STORY (MVP DONE)
+Note: MVP DONE
+Parent: Player Build
+Fill: #659df2 | Border: #595959
+---
+ID: 3458764671354966157
+Title: Fantasy Races
+Type: STORY
+Parent: Player Build
+Fill: #659df2 | Border: #659df2
+---
+ID: 3458764671354966196
+Title: Faction: Insignias
+Type: STORY
+Parent: Player Build
+Fill: #659df2 | Border: #659df2
+---
+ID: 3458764671354966205
+Title: Ethnicity Variations
+Type: STORY
+Parent: Player Build
+Fill: #659df2 | Border: #659df2
+---
+ID: 3458764671354966207
+Title: Armour Sets
+Type: STORY
+Parent: Player Build
+Fill: #659df2 | Border: #659df2
+---
+ID: 3458764671354966213
+Title: Partner Skins
+Type: STORY
+Parent: Player Build
+Fill: #659df2 | Border: #659df2
+---
+ID: 3458764671354966217
+Title: Skins
+Type: STORY
+Parent: Player Build
+Fill: #659df2 | Border: #659df2
+---
+ID: 3458764671354966218
+Title: Garment Sets
+Type: STORY
+Parent: Player Build
+Fill: #659df2 | Border: #659df2
+---
+ID: 3458764671354966220
+Title: Weapon Sets
+Type: STORY
+Parent: Player Build
+Fill: #659df2 | Border: #659df2
+---
+ID: 3458764671354966222
+Title: Base Faces
+Type: STORY (MVP DONE)
+Note: MVP DONE
+Parent: Player Build
+Fill: #659df2 | Border: #595959
+---
+ID: 3458764671354966471
+Title: WEAPON PARTS
+Type: STORY
+Parent: Player Build
+Fill: #659df2 | Border: #659df2
+---
+ID: 3458764671354966472
+Title: CHAR MODELING
+Type: TASK
+Hours: 24-60h
+Parent: Player Build
+Fill: #8f7fee | Border: #8f7fee
+---
+ID: 3458764671354966473
+Title: VFX
+Type: TASK
+Hours: 24-32h
+Parent: Player Build
+Fill: #8f7fee | Border: #8f7fee
+---
+ID: 3458764671354966474
+Title: UI
+Type: TASK
+Hours: 40-60h
+Parent: Player Build
+Fill: #8f7fee | Border: #8f7fee
+---
+ID: 3458764671354966475
+Title: TECH ART
+Type: TASK
+Hours: 16-24h
+Parent: Player Build
+Fill: #8f7fee | Border: #8f7fee
+---
+ID: 3458764671354966476
+Title: CONCEPT
+Type: TASK
+Hours: 24-40h
+Parent: Player Build
+Fill: #8f7fee | Border: #8f7fee
+---
+ID: 3458764671354966477
+Title: Char Creation System
+Type: STORY
+Parent: Player Build
+Fill: #659df2 | Border: #659df2
+---
+ID: 3458764671354966478
+Title: UI
+Type: TASK
+Hours: 80-120h
+Parent: Player Build
+Fill: #8f7fee | Border: #8f7fee
+---
+ID: 3458764671354966479
+Title: TROPHIES
+Type: STORY
+Parent: Player Build
+Fill: #659df2 | Border: #659df2
+---
+ID: 3458764671354966480
+Title: VFX
+Type: TASK
+Hours: 32-40h
+Parent: Player Build
+Fill: #8f7fee | Border: #8f7fee
+---
+ID: 3458764671354966481
+Title: Player Level Up
+Type: STORY
+Parent: Player Build
+Fill: #659df2 | Border: #659df2
+---
+ID: 3458764671354966482
+Title: Player Level Up UI
+Type: TASK
+Hours: 2-4h
+Parent: Player Build
+Fill: #659df2 | Border: #8f7fee
+---
+ID: 3458764671354966483
+Title: Character Stats UI
+Type: TASK
+Hours: 2-4h
+Parent: Player Build
+Fill: #659df2 | Border: #8f7fee
+---
+ID: 3458764671354966484
+Title: Skill System UI
+Type: TASK
+Hours: 2-4h
+Parent: Player Build
+Fill: #659df2 | Border: #8f7fee
+---
+ID: 3458764671354966666
+Title: CONCEPT ART
+Type: TASK
+Hours: 32-64h
+Parent: Player Build
+Fill: #8f7fee | Border: #8f7fee
+---
+ID: 3458764671354966667
+Title: CHAR MODELING
+Type: TASK
+Hours: 32-60h
+Parent: Player Build
+Fill: #8f7fee | Border: #8f7fee
+---
+ID: 3458764671354966668
+Title: Silhouettes
+Type: SUB-TASK
+Parent: Player Build
+Fill: #ffffff | Border: #1a1a1a
+---
+ID: 3458764671354966669
+Title: Turntable
+Type: SUB-TASK
+Parent: Player Build
+Fill: #ffffff | Border: #1a1a1a
+---
+ID: 3458764671354966670
+Title: Final Pass
+Type: SUB-TASK
+Parent: Player Build
+Fill: #ffffff | Border: #1a1a1a
+---
+ID: 3458764671354966671
+Title: Reference research
+Type: SUB-TASK
+Parent: Player Build
+Fill: #ffffff | Border: #1a1a1a
+---
+ID: 3458764671354966672
+Title: Colour Palette
+Type: SUB-TASK
+Parent: Player Build
+Fill: #ffffff | Border: #1a1a1a
+---
+ID: 3458764671354966673
+Title: Extra explanatory callouts
+Type: SUB-TASK
+Parent: Player Build
+Fill: #ffffff | Border: #1a1a1a
+---
+ID: 3458764671354966674
+Title: Bakes
+Type: SUB-TASK
+Parent: Player Build
+Fill: #ffffff | Border: #1a1a1a
+---
+ID: 3458764671354966675
+Title: Block Out
+Type: SUB-TASK
+Parent: Player Build
+Fill: #ffffff | Border: #1a1a1a
+---
+ID: 3458764671354966676
+Title: Hi Poly Modeling
+Type: SUB-TASK
+Parent: Player Build
+Fill: #ffffff | Border: #1a1a1a
+---
+ID: 3458764671354966677
+Title: Retopo
+Type: SUB-TASK
+Parent: Player Build
+Fill: #ffffff | Border: #1a1a1a
+---
+ID: 3458764671354966678
+Title: UV unwrapping
+Type: SUB-TASK
+Parent: Player Build
+Fill: #ffffff | Border: #1a1a1a
+---
+ID: 3458764671354966679
+Title: Texturing
+Type: SUB-TASK
+Parent: Player Build
+Fill: #ffffff | Border: #8f7fee
+---
+ID: 3458764671354966687
+Title: CONCEPT ART
+Type: TASK
+Hours: 8-16h
+Parent: Player Build
+Fill: #8f7fee | Border: #8f7fee
+---
+ID: 3458764671354966688
+Title: Reference research
+Type: SUB-TASK
+Parent: Player Build
+Fill: #ffffff | Border: #1a1a1a
+---
+ID: 3458764671354966689
+Title: Shapes / Sketches
+Type: SUB-TASK
+Parent: Player Build
+Fill: #ffffff | Border: #1a1a1a
+---
+ID: 3458764671354966821
+Title: Reference research
+Type: SUB-TASK
+Parent: Player Build
+Fill: #ffffff | Border: #1a1a1a
+---
+ID: 3458764671355718373
+Title: Attack 04
+Type: SUB-TASK
+Parent: Combat
+Fill: #ffffff | Border: #1a1a1a
+---
+ID: 3458764671356811417
+Title: Art Bible
+Type: FEATURE
+Parent: The Game (Bibles)
+Fill: #2dc75c | Border: #2dc75c
+---
+ID: 3458764671375404283
+Title: Shapes / Sketches
+Type: SUB-TASK
+Parent: World Systems (ENV)
+Fill: #ffffff | Border: #1a1a1a
+---
+ID: 3458764671490782242
+Title: POI - Set Dressing (Med)
+Type: TASK
+Hours: 80-120h
+Parent: World Systems (ENV)
+Fill: #659df2 | Border: #8f7fee
+---
+ID: 3458764671500146505
+Title: POI - Lighting
+Type: TASK
+Hours: 20-40h
+Parent: World Systems (ENV)
+Fill: #659df2 | Border: #8f7fee
+---
+ID: 3458764671589173352
+Title: Env Prop Kit - Tavern
+Type: STORY
+Parent: World Systems (ENV)
+Fill: #659df2 | Border: #659df2
+---
+ID: 3458764671375480135
+Title: Reference research
+Type: SUB-TASK
+Parent: World System (THE REST)
+Fill: #ffffff | Border: #1a1a1a
+---
+ID: 3458764671356431753
+Title: Items & Inventory
+Type: EPIC
+Parent: Items & Inventory
+Fill: #659df2 | Border: #fe9f4d
+---
+ID: 3458764671356431771
+Title: Item Core System
+Type: FEATURE
+Parent: Items & Inventory
+Fill: #659df2 | Border: #2dc75c
+---
+ID: 3458764671356431772
+Title: Inventory System
+Type: FEATURE
+Parent: Items & Inventory
+Fill: #659df2 | Border: #2dc75c
+---
+ID: 3458764671356431848
+Title: Equipment UI
+Type: TASK
+Hours: 20-40h
+Parent: Items & Inventory
+Fill: #8f7fee | Border: #8f7fee
+---
+ID: 3458764671356431849
+Title: CONCEPT - Equipment system Concept Art
+Type: TASK
+Hours: 25-35h
+Parent: Items & Inventory
+Fill: #8f7fee | Border: #8f7fee
+---
+ID: 3458764671356616938
+Title: Bakes
+Type: SUB-TASK
+Parent: Items & Inventory
+Fill: #ffffff | Border: #1a1a1a
+---
+ID: 3458764671356616939
+Title: Block Out
+Type: SUB-TASK
+Parent: Items & Inventory
+Fill: #ffffff | Border: #1a1a1a
+---
+ID: 3458764671356617723
+Title: VFX
+Type: TASK
+Hours: 32-40h
+Parent: Player Economy
+Fill: #8f7fee | Border: #8f7fee
+---
+ID: 3458764671356617724
+Title: UI
+Type: TASK
+Hours: 10-20h
+Parent: Player Economy
+Fill: #8f7fee | Border: #8f7fee
+---
+ID: 3458764671356982465
+Title: Quest System
+Type: EPIC
+Parent: Quest System
+Fill: #659df2 | Border: #fe9f4d
+---
+ID: 3458764671356982474
+Title: Quests Backend/Tooling
+Type: FEATURE
+Note: NO ART
+Parent: Quest System
+Fill: #659df2 | Border: #595959
+---
+ID: 3458764671356982511
+Title: TECH ART
+Type: TASK
+Hours: 32-48h
+Parent: Quest System
+Fill: #8f7fee | Border: #8f7fee
+---
+ID: 3458764671356982512
+Title: VFX
+Type: TASK
+Hours: 40-56h
+Parent: Quest System
+Fill: #8f7fee | Border: #8f7fee
+---
+ID: 3458764671357106376
+Title: Social & Multiplayer
+Type: EPIC
+Parent: Social & Multiplayer
+Fill: #659df2 | Border: #fe9f4d
+---
+ID: 3458764671357106401
+Title: STORIES TEMP
+Type: STORY
+Parent: Social & Multiplayer
+Fill: #659df2 | Border: #659df2
+---
+ID: 3458764671357106402
+Title: UI
+Type: TASK
+Hours: 10-20h
+Parent: Social & Multiplayer
+Fill: #8f7fee | Border: #8f7fee
+---
+ID: 3458764671356811373
+Title: THE GAME
+Type: UNKNOWN
+Note: VERTICAL SLICE 2026
+Parent: The Game (Bibles)
+Fill: #6631d7 | Border: #40eefb
+---
+ID: 3458764671356811377
+Title: Game Bibles
+Type: EPIC
+Parent: The Game (Bibles)
+Fill: #659df2 | Border: #fe9f4d
+---
+ID: 3458764671356811417
+Title: Art Bible
+Type: FEATURE
+Parent: The Game (Bibles)
+Fill: #2dc75c | Border: #2dc75c
+---
+
+
+======================================================================
+PART B: COMPLETE ORG_CHART SUMMARIES (~1,488 remaining cards)
+Each org_chart fetched via context_get - contains ALL child cards
+======================================================================
+
+----------------------------------------------------------------------
+ORG_CHART: Player Build
+Org Chart ID: 3458764671354966026
+Total cards: 298
+----------------------------------------------------------------------
+
+EPIC:
+  - Player Build [EPIC, orange border]
+
+FEATURES (11):
+  - Colored Faction NPCs [green border, FOR VS]
+  - Garment System [green border, FOR VS]
+  - Forge System [green border, FOR VS]
+  - Char Creation & Customization [green border, FOR VS]
+  - Professions [green border, FOR VS]
+  - Achievements & Trophies [green border, FOR VS]
+  - Player Progression [green border, FOR VS]
+  - Factions/Reputations [grey border, NOT FOR VS]
+  - Character Management [grey border, NOT FOR VS]
+  - Persona System [grey border, NOT FOR VS]
+  - Emote System [grey border, NOT FOR VS]
+
+STORIES (23+):
+  - Faction: Clothing Variations
+  - Faction: Banners
+  - Faction: Icons
+  - Faction: Insignias
+  - Garment System Options
+  - Garment Sets
+  - Weapon Sets
+  - Weapon Parts
+  - Armour Sets
+  - Partner Skins
+  - Skins
+  - Base Body [MVP DONE]
+  - Base Faces [MVP DONE]
+  - Fantasy Races
+  - Ethnicity Variations
+  - Fishing
+  - Gathering
+  - Crafting
+  - Trophies
+  - Player Level Up
+  - Char Creation System
+  - STORIES TEMP (placeholder)
+
+TASKS (with hour estimates):
+  - CONCEPT ART: 8h-64h
+  - CHAR MODELING: 5h-96h
+  - ENV MODELING: 24h-65h
+  - UI: 2h-120h
+  - VFX: 24h-40h
+  - TECH ART: 8h-24h
+  - ANIMATION: 40h-80h
+  - CONCEPT: 24h-40h
+
+SUB-TASKS (standard pipeline repeated across tasks):
+  - Reference research
+  - Shapes/Sketches/Silhouettes
+  - Colour Palette
+  - Block Out
+  - Hi Poly Modeling
+  - Retopo
+  - UV unwrapping
+  - Bakes
+  - Texturing
+  - Final Pass
+  - Asset Validation
+  - Implementation
+  - Extra explanatory callouts
+
+----------------------------------------------------------------------
+ORG_CHART: World Systems (ENV)
+Org Chart ID: 3458764671375403999
+Total cards: 500+ (largest org_chart)
+----------------------------------------------------------------------
+
+EPIC:
+  - World Systems (ENV) [EPIC, orange border]
+
+FEATURES (15):
+  - Dungeon Zone [green border, FOR VS]
+  - Downtime Zone [green border, FOR VS]
+  - Portal Dimension Zone [green border, FOR VS]
+  - Arena Zone [green border, FOR VS]
+  - Guild Zone [green border, FOR VS]
+  - FTUE Cave Zone [green border, FOR VS]
+  - Navigation [green border, FOR VS]
+  - Partner Portal [green border, FOR VS]
+  - Corruption [green border, FOR VS]
+  - Architecture Kits [green border, FOR VS]
+  - Props Kits [green border, FOR VS]
+  - Furniture Kits [green border, FOR VS]
+  - Fluid Ninja Tech R&D [green border, FOR VS]
+  - Environmental Kits [green border, FOR VS]
+  - (Additional zone features)
+
+STORIES (60+):
+  Biomes:
+    - Mediterranean Biome
+    - Lush Biome
+  POIs (Points of Interest):
+    - Multiple POIs per zone
+  Environmental Systems:
+    - Lighting
+    - Atmospherics
+    - Water
+    - VFX
+  Corruption Types:
+    - Foam Corruption
+    - Time Corruption
+    - Vines Corruption
+  Kits:
+    - Furniture Kits (multiple styles)
+    - Architecture Kits (multiple styles)
+    - Prop Kits
+
+TASKS (320+, with hour estimates):
+  POI Tasks by complexity tier:
+    - Small POI: 40-65h (world building), proportional for other tasks
+    - Medium POI: 80-120h (world building)
+    - Epic POI: 240-360h (world building), 160-180h (set dressing)
+  Standard POI pipeline:
+    - Concept Art
+    - World Building
+    - Set Dressing
+    - Terrain Footprint
+    - Biome Dressing
+    - Collision Pass
+    - Lighting
+    - Rocking
+    - NPC Lighting
+    - Proxy Pass
+  Kit Tasks:
+    - Concept Art: varied
+    - ENV Modeling: varied
+    - Proxy Models
+    - Final Models
+  Kit Styles:
+    - Mythcore, Fantasy, Graveyard, Gritcore
+  Vegetation:
+    - Trees, Bushes, Grass, Hero Assets (per biome)
+
+SUB-TASKS (57+):
+  - Proxy Models / Final Models (with variants, typically 4)
+  - Standard art pipeline sub-tasks
+
+----------------------------------------------------------------------
+ORG_CHART: World System (THE REST)
+Org Chart ID: 3458764671375404752
+Total cards: 304
+----------------------------------------------------------------------
+
+EPIC:
+  - World System (THE REST) [EPIC, orange border]
+
+FEATURES (17):
+  - Player Basic Locomotion System: 20h-533h
+  - Player Advanced Traversal
+  - Human NPCs
+  - Critters NPCs
+  - Hero NPCs
+  - Player (character development)
+  - CINEMATICS
+  - Instancing
+  - Dungeon Mechanics
+  - Last Tower Valley
+  - Day/Night Cycle
+  - Dynamic Weather
+  - Environmental Elemental FX
+  - World Bosses
+  - Corruption Heatmap
+  - Scale of the World/Buildings
+  - Camera Behavior
+
+STORIES (23):
+  Faction NPCs:
+    - Green Faction NPCs
+    - Red Faction NPCs
+    - Yellow Faction NPCs
+    - Blue Faction NPCs
+  Critter NPCs (completed - dark green):
+    - Pigs, Hares, Sheep, Cows, Chickens, Horses
+  Cinematics:
+    - FMV/Pre-Rendered
+    - Static Pictures Intro
+    - 2.5D Cinematics
+    - IGC (In-Game Cinematics)
+  Advanced Traversal:
+    - Gliding
+    - Grappling
+
+TASKS (89, with hour estimates):
+  - Concept Art: 15h-120h
+  - Character Modeling: 16h-56h
+  - Rigging: 16h-48h
+  - Animation: 10h-100h
+  - VFX: 40h-80h
+  - Tech Art: 8h-16h
+
+SUB-TASKS (174):
+  Standard character pipeline:
+    - Reference research, Silhouettes, Turntables
+    - Block-out, High-poly, Retopology, UV, Baking
+    - Texturing, Rigging, Animation, VFX
+    - Tech art implementation, Validation
+
+SPECIAL NOTES:
+  - Several items marked NOT FOR VS or NOT IN BUDGET, OR OUTSOURCE
+  - Critter NPCs (6 types) all marked completed (dark green)
+
+----------------------------------------------------------------------
+ORG_CHART: Combat
+Org Chart ID: 3458764671355718074
+Total cards: 211
+----------------------------------------------------------------------
+
+EPIC:
+  - Combat [EPIC, orange border]
+
+FEATURES (5):
+  - Combat Framework [green border, FOR VS]
+  - Enemies [green border, FOR VS]
+  - AI Combat Behavior [green border, FOR VS]
+  - PVP Combat [blue border]
+  - Combat Balance & Telemetry [blue border]
+  - Ranged Combat [blue border]
+
+STORIES (10):
+  Enemy Types:
+    - Carapax
+    - Wolves
+    - Skeletons
+    - Slimes
+    - Goblins
+  Core Systems:
+    - Magic system
+    - Combat hit & damage processing
+    - Combat status effects
+    - Player combat abilities
+
+TASKS (32, with hour estimates):
+  - Concept Art: 32h-80h
+  - Character Modeling: 4h-48h
+  - Rigging: 24h-100h
+  - Animation: 20h-350h
+  - VFX: 40h-80h
+  - UI: 10h-20h
+
+SUB-TASKS (98):
+  - Standard character pipeline per enemy type
+  - Animation categories: Locomotion, Combat, Death, Hit React & Stagger
+  - Specific animations: Walk left, Attack 01, locomotion variations etc.
+
+DETAILED ITEMS (65):
+  - Granular animation work items per enemy
+
+----------------------------------------------------------------------
+ORG_CHART: User Space
+Org Chart ID: 3458764671355843518
+Total cards: ~40
+----------------------------------------------------------------------
+
+EPIC:
+  - User Space [EPIC, orange border]
+
+FEATURES (9):
+  Active (green border):
+    - User Space Interior
+    - Modular Houses
+    - Island
+    - Anywhere Door
+  No Art (grey border):
+    - User Space Server & Instance
+    - P2P/P2G User Space Connection
+  Not For VS (black border):
+    - Saving House Layouts
+    - Partner Portal System
+    - Arcade Cabinet
+
+STORIES (5):
+  - Indoor Camera
+  - Interior
+  - Exterior
+  - Zone - User Space Island
+  - Stories Temp
+
+TASKS (22, with hour estimates):
+  - Concept Art: varied
+  - Environment Modeling: varied
+  - UI: varied
+  - VFX: varied
+  - Lighting: varied
+  - World Building: varied
+  - Set Dressing: varied
+  - Multiple POI tasks (terrain, dressing, collision, lighting, proxy)
+  Range: 4h-520h
+
+SUB-TASKS (4):
+  - Proxy Models
+  - Final Models (with hour estimates)
+
+----------------------------------------------------------------------
+ORG_CHART: Items & Inventory
+Org Chart ID: 3458764671356431750
+Total cards: 40
+----------------------------------------------------------------------
+
+EPIC:
+  - Items & Inventory [EPIC, orange border]
+
+FEATURES (8):
+  Active (green border):
+    - Item Core System
+    - Inventory System
+    - Equipment System
+    - Loot Distribution
+    - Pets
+    - Consumables
+  Not For VS (grey border):
+    - P2P Item Transfer
+    - Durable Items
+    - Mounts
+
+STORIES:
+  - Potions
+  - MECH PARROT
+  - STORIES TEMP (multiple placeholders)
+
+TASKS (with hour estimates):
+  - UI: 2h-4h
+  - Concept Art: varied
+  - Character Modeling: varied
+  - Animation: varied
+  - VFX: varied
+  Range: 2h-80h
+
+SUB-TASKS:
+  - Block Out, Hi Poly Modeling, Retopo, UV unwrapping, Bakes, Texturing
+
+----------------------------------------------------------------------
+ORG_CHART: Quest System
+Org Chart ID: 3458764671356982463
+Total cards: 65
+----------------------------------------------------------------------
+
+EPIC:
+  - Quest System [EPIC, orange border]
+
+FEATURES (13):
+  Quest Types:
+    - Courier Quest
+    - Escort Quest
+    - Kill Quest
+    - Collect Quest
+    - Research Quest
+    - Time Obj Quest
+    - Partner Quest
+    - Corruption Quest
+  Systems:
+    - Quest Item
+    - Quest Reward System
+    - Quest Log
+    - Quest Dialog GUI
+    - Quest Narrative Content
+    - Quest Multiplayer
+    - Quests Backend/Tooling [NO ART]
+    - Targeted VO [NO ART]
+  Not For VS (red):
+    - Dialogue/Quest Cinematics
+    - Meta Quest System
+    - Quest Generator System
+
+STORIES (8):
+  - Lock Picking Quest (No Anim Needed)
+  - HEARTHSTONE (return to home stone)
+  - PARTNER CRYSTAL
+  - STORIES TEMP (x5 placeholders)
+
+TASKS (22, with hour estimates):
+  - Concept Art: 10h-112h
+  - UI: 2h-40h
+  - VFX: 40h-56h
+  - Tech Art: 32h-48h
+  - ENV Modeling: 16h-36h
+
+SUB-TASKS (20):
+  - Reference research, Ideation, Shapes/Sketches, Extra callouts
+
+----------------------------------------------------------------------
+ORG_CHART: Player Economy
+Org Chart ID: 3458764671356617572
+Total cards: 25
+----------------------------------------------------------------------
+
+EPIC:
+  - Player Economy [EPIC, orange border]
+
+FEATURES (8):
+  Active (green border):
+    - Trading System
+    - Virtual Currency System (VC)
+    - Garment Shop
+    - Partner Shop
+  No Art (grey border):
+    - In Game Economy
+  Not For VS:
+    - Auction House
+    - In Game Store
+    - RMT In Game Monitoring System
+
+STORIES (4):
+  - STORIES TEMP (x2)
+  - CURRENCY
+  - BUGGED DUNGEON SHOP
+
+TASKS (13, with hour estimates):
+  - UI: 10h-30h
+  - Concept Art: 5h-60h
+  - ENV: 8h-120h
+  - VFX: 32h-40h
+
+----------------------------------------------------------------------
+ORG_CHART: Social & Multiplayer
+Org Chart ID: 3458764671357106374
+Total cards: ~42
+----------------------------------------------------------------------
+
+EPIC:
+  - Social & Multiplayer [EPIC, orange border]
+
+FEATURES (10):
+  Active (green border):
+    - Game Chat System
+    - Guild Systems
+    - Co-Op/Party
+    - In-Game Mail
+  Under consideration (blue):
+    - Dueling
+    - Notifications
+    - Player Config PVP Server
+  Not For VS (red):
+    - Friends
+    - Co-Op/Raids
+    - LFG/PUG (Pickup Groups)
+
+STORIES (4):
+  - STORIES TEMP (x4 placeholders)
+
+TASKS (8, with hour estimates):
+  - UI: 10h-20h each
+  - Concept Art: 16h-40h
+
+SUB-TASKS (20):
+  - Reference research, Ideation, Shapes/Sketches, Callouts, 2D Assets
+
+----------------------------------------------------------------------
+ORG_CHART: The Game (Bibles & Documentation)
+Org Chart ID: 3458764671356811372
+Total cards: ~30
+----------------------------------------------------------------------
+
+ROOT:
+  - THE GAME [root, purple #6631d7]
+  - Vertical Slice 2026
+
+FEATURES:
+  Not For VS (red):
+    - Platform
+    - Live Service Game
+    - Partner Build
+    - Product Publishing
+    - Monetization Bible
+    - Red Books (Emergency Bible for Live Service)
+  For VS (green):
+    - UX/UI Bible
+    - Accessibility Bible
+    - Brand Bible
+    - Art Bible
+
+STORIES (Art/Design elements with hours):
+  - Color Palette: 40h-60h
+  - Typography: 40h-60h
+  - Wireframes: 40h-60h
+  - Game Logo: 80h-100h
+  - Environment Bible
+  - Animation Bible
+  - Character Bible
+  - VFX Bible
+  - Concept Bible
+
+
+======================================================================
+SUMMARY
+======================================================================
+
+BOARD OVERVIEW:
+  Total user_card items: 1,544
+  Org charts (epics): 10
+  Cards individually verified: 103
+
+COUNTS BY TYPE (from org_chart summaries):
+  EPIC:        10
+  FEATURE:     ~96  (across all org_charts)
+  STORY:       ~133 (across all org_charts)
+  TASK:        ~506 (across all org_charts)
+  SUB-TASK:    ~373 (across all org_charts)
+  DETAILED:    ~65+ (granular items, mainly in Combat)
+  NOT FOR VS:  ~40+ (explicitly scoped out)
+  Orphan/standalone: 16
+
+COLOUR KEY:
+  Border #fe9f4d (Orange) = EPIC
+  Border #2dc75c (Green)  = FEATURE (in scope for VS)
+  Border #659df2 (Blue)   = STORY
+  Border #8f7fee (Purple) = TASK
+  Fill   #ffffff (White)   = SUB-TASK
+  Border #595959 (Grey)   = NOT FOR VS / MVP DONE
+  Fill   #bd0a0a (Red)    = NOT FOR VS (excluded)
+  Fill   #1a1a1a (Black)  = NOT FOR VS / NO ART
+  Fill   #067429 (Dk Grn) = Completed (critters)
+
+EPICS (10 org_charts):
+  1. Player Build           - 298 cards
+  2. World Systems (ENV)     - 500+ cards
+  3. World System (THE REST) - 304 cards
+  4. Combat                  - 211 cards
+  5. User Space              - ~40 cards
+  6. Items & Inventory       - 40 cards
+  7. Quest System            - 65 cards
+  8. Player Economy          - 25 cards
+  9. Social & Multiplayer    - ~42 cards
+  10. The Game (Bibles)      - ~30 cards
+
+HOUR ESTIMATE RANGES BY DISCIPLINE (aggregated across all epics):
+  Concept Art:      5h - 120h per task
+  Character Modeling: 4h - 96h per task
+  ENV Modeling:      8h - 120h per task
+  UI:               2h - 120h per task
+  VFX:              24h - 80h per task
+  Tech Art:         8h - 48h per task
+  Animation:        10h - 350h per task
+  Rigging:          16h - 100h per task
+  World Building:   40h - 360h per POI
+  Set Dressing:     40h - 180h per POI
+
+VS SCOPE STATUS:
+  In scope (FOR VS): majority of cards
+  Out of scope (NOT FOR VS): ~40+ cards across all epics
+  MVP DONE: 2 (Base Body, Base Faces in Player Build)
+  Completed: 6 critter types (Pigs, Hares, Sheep, Cows, Chickens, Horses)

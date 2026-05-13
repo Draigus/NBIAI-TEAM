@@ -127,20 +127,21 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"additionalContext\":\"SKILL GATE: Before changing code, have you invoked the right skill for this task? Bug/test failure → systematic-debugging. New feature/creative work → brainstorming. Multi-step task → writing-plans. 2+ independent tasks → dispatching-parallel-agents. About to claim done → verification-before-completion. If a matching skill exists and you have not invoked it yet this session, STOP and invoke it NOW before proceeding.\"}}'"
-          }
-        ]
-      },
-      {
         "matcher": "Write",
         "hooks": [
           {
             "type": "command",
-            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"additionalContext\":\"SKILL GATE: Before changing code, have you invoked the right skill for this task? Bug/test failure → systematic-debugging. New feature/creative work → brainstorming. Multi-step task → writing-plans. 2+ independent tasks → dispatching-parallel-agents. About to claim done → verification-before-completion. If a matching skill exists and you have not invoked it yet this session, STOP and invoke it NOW before proceeding.\"}}'"
+            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"additionalContext\":\"NEW WORK CHECK: You are creating a new file. Answer before proceeding: (1) What specific bug or feature is this for? (2) Did you READ the relevant code thoroughly, or just grep for a keyword? (3) What could go wrong with this change and what other code paths does it touch? If you cannot answer all three, STOP and investigate before writing.\"}}'"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Bash(pm2 restart*)",
+            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"additionalContext\":\"PRE-DEPLOY CHECK: You are about to deploy. STOP and answer: (1) What changed since the last deploy? (2) Have you traced every code path this change affects, not just the one you edited? (3) Can you verify this works, or do you need to tell Glen you cannot verify and ask him to check? (4) What will a CLIENT USER experience when they reload? Do NOT deploy without answering these.\"}}'"
           }
         ]
       }

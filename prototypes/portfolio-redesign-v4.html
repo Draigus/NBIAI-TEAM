@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="midnight" data-bg="gradient-dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WorkSage — Portfolio v4</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700;800&display=swap');
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root {
+  --glass: rgba(255,255,255,0.05);
+  --glass-b: rgba(255,255,255,0.08);
+  --glass-h: rgba(255,255,255,0.09);
+  --glass-a: rgba(255,255,255,0.13);
+  --blur: 28px;
+  --shadow: 0 6px 30px rgba(0,0,0,0.45);
+  --shadow-h: 0 10px 40px rgba(0,0,0,0.55);
+  --tx: #eef0f4;
+  --tx2: rgba(238,240,244,0.62);
+  --tx3: rgba(238,240,244,0.35);
+  --tx4: rgba(238,240,244,0.16);
+  --acc: #4d9fff;
+  --acc-g: rgba(77,159,255,0.25);
+  --grn: #00e676;
+  --grn-g: rgba(0,230,118,0.14);
+  --ylw: #ffab00;
+  --ylw-g: rgba(255,171,0,0.14);
+  --red: #ff5252;
+  --red-g: rgba(255,82,82,0.14);
+  --pur: #b388ff;
+  --pur-g: rgba(179,136,255,0.14);
+  --r: 4px;
+  --f: 'Inter', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+
+[data-theme="arctic"] {
+  --glass: rgba(255,255,255,0.5);
+  --glass-b: rgba(255,255,255,0.65);
+  --glass-h: rgba(255,255,255,0.6);
+  --glass-a: rgba(255,255,255,0.7);
+  --shadow: 0 6px 30px rgba(0,0,0,0.06);
+  --shadow-h: 0 10px 40px rgba(0,0,0,0.1);
+  --tx: #0f172a;
+  --tx2: rgba(15,23,42,0.6);
+  --tx3: rgba(15,23,42,0.35);
+  --tx4: rgba(15,23,42,0.15);
+  --acc: #1d4ed8;
+  --acc-g: rgba(29,78,216,0.15);
+  --grn: #15803d;
+  --grn-g: rgba(21,128,61,0.1);
+  --ylw: #b45309;
+  --ylw-g: rgba(180,83,9,0.1);
+  --red: #b91c1c;
+  --red-g: rgba(185,28,28,0.1);
+  --pur: #7c3aed;
+  --pur-g: rgba(124,58,237,0.1);
+}
+
+[data-theme="ember"] {
+  --glass: rgba(255,220,180,0.05);
+  --glass-b: rgba(255,180,120,0.1);
+  --glass-h: rgba(255,180,120,0.08);
+  --glass-a: rgba(255,180,120,0.14);
+  --tx: #fef3c7;
+  --tx2: rgba(254,243,199,0.62);
+  --tx3: rgba(254,243,199,0.32);
+  --tx4: rgba(254,243,199,0.14);
+  --acc: #f97316;
+  --acc-g: rgba(249,115,22,0.2);
+  --grn: #86efac; --ylw: #fde047; --red: #fca5a5; --pur: #d8b4fe;
+}
+
+[data-theme="nordic"] {
+  --glass: rgba(200,220,240,0.05);
+  --glass-b: rgba(136,192,208,0.1);
+  --glass-h: rgba(136,192,208,0.08);
+  --glass-a: rgba(136,192,208,0.14);
+  --tx: #eceff4;
+  --tx2: rgba(236,239,244,0.62);
+  --tx3: rgba(236,239,244,0.32);
+  --tx4: rgba(236,239,244,0.14);
+  --acc: #88c0d0;
+  --acc-g: rgba(136,192,208,0.2);
+  --grn: #a3be8c; --ylw: #ebcb8b; --red: #bf616a; --pur: #b48ead;
+}
+
+body {
+  font-family: var(--f);
+  color: var(--tx);
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  font-size: 16px;
+  transition: background 0.5s;
+}
+[data-bg="gradient-dark"] body { background: linear-gradient(160deg, #06090f 0%, #0d1117 35%, #161b22 100%); }
+[data-bg="gradient-ocean"] body { background: linear-gradient(160deg, #081e2e 0%, #0d2847 40%, #0f2b4a 100%); }
+[data-bg="gradient-purple"] body { background: linear-gradient(160deg, #0a0118 0%, #13082a 40%, #1a0e3a 100%); }
+[data-bg="gradient-charcoal"] body { background: linear-gradient(160deg, #0e0e0e 0%, #171717 50%, #121212 100%); }
+[data-bg="gradient-forest"] body { background: linear-gradient(160deg, #020d06 0%, #05170d 40%, #081f12 100%); }
+[data-bg="gradient-arctic"] body { background: linear-gradient(160deg, #e2e8f0 0%, #dbeafe 40%, #eff6ff 100%); }
+[data-bg="gradient-ember"] body { background: linear-gradient(160deg, #150c06 0%, #251208 40%, #150c06 100%); }
+[data-bg="gradient-nordic"] body { background: linear-gradient(160deg, #1e222a 0%, #2e3440 40%, #2e3440 100%); }
+
+/* GLASS */
+.g {
+  background: var(--glass);
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+  border: 1px solid var(--glass-b);
+  border-radius: var(--r);
+  box-shadow: var(--shadow);
+  transition: box-shadow 0.2s, background 0.2s, transform 0.18s;
+}
+.g--lift:hover { box-shadow: var(--shadow-h); background: var(--glass-h); transform: translateY(-2px); }
+.g--lift:active { background: var(--glass-a); transform: translateY(0); transition-duration: 0.06s; }
+
+/* HEADER */
+.hdr {
+  padding: 14px 32px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--glass-b);
+}
+.hdr__logo { font: 900 15px/1 var(--f); color: var(--acc); letter-spacing: 0.15em; text-transform: uppercase; }
+.hdr__sp { flex: 1; }
+.hdr__btn {
+  padding: 8px 16px; font: 700 13px/1 var(--f); letter-spacing: 0.08em;
+  text-transform: uppercase; background: var(--glass); backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-b); border-radius: var(--r); color: var(--tx3);
+  cursor: pointer; transition: all 0.15s;
+}
+.hdr__btn:hover { color: var(--tx); border-color: var(--acc); }
+
+/* LAYOUT */
+.port { max-width: 1480px; margin: 0 auto; padding: 24px 32px 56px; display: flex; flex-direction: column; gap: 20px; }
+
+/* TITLE */
+.ttl { display: flex; align-items: flex-end; justify-content: space-between; padding: 0 4px; }
+.ttl__name { font: 900 28px/1.1 var(--f); letter-spacing: -0.02em; }
+.ttl__date { font: 500 14px/1 var(--f); color: var(--tx3); margin-top: 6px; letter-spacing: 0.06em; }
+.ttl__alert { padding: 10px 18px; border-radius: var(--r); font: 700 14px/1.2 var(--f); background: var(--red-g); color: var(--red); border: 1px solid rgba(255,82,82,0.18); }
+
+/* ===== KPI CARDS ===== */
+.kpis { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+
+.kc {
+  padding: 0;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+}
+/* Accent top edge */
+.kc::before {
+  content: '';
+  display: block;
+  height: 3px;
+  background: var(--kc-color, var(--acc));
+}
+.kc__body { padding: 22px 24px 18px; }
+.kc__label {
+  font: 700 13px/1 var(--f);
+  color: var(--tx3);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 14px;
+}
+.kc__val {
+  font: 900 52px/1 var(--mono);
+  letter-spacing: -0.04em;
+  color: var(--kc-color, var(--tx));
+  text-shadow: 0 0 30px var(--kc-glow, transparent);
+}
+.kc__chart { margin-top: 16px; height: 48px; position: relative; }
+.kc__chart svg { width: 100%; height: 100%; display: block; }
+
+/* Chart interactivity */
+.kc__chart .hd { opacity: 0; transition: opacity 0.12s; }
+.kc:hover .hd { opacity: 1; }
+.kc__chart .tooltip-line { opacity: 0; transition: opacity 0.15s; }
+.kc:hover .tooltip-line { opacity: 0.5; }
+
+/* ===== TABLE ===== */
+.tw { padding: 0; overflow: hidden; }
+.tw__top {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--glass-b);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.tw__title { font: 700 14px/1 var(--f); letter-spacing: 0.1em; text-transform: uppercase; color: var(--tx3); }
+
+.tb2 { width: 100%; border-collapse: collapse; }
+.tb2 th {
+  text-align: left;
+  padding: 14px 24px;
+  font: 700 12px/1 var(--f);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--tx4);
+  border-bottom: 1px solid var(--glass-b);
+}
+.tb2 td {
+  padding: 18px 24px;
+  font-size: 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  vertical-align: middle;
+}
+.tb2 tbody tr { cursor: pointer; transition: background 0.12s; }
+.tb2 tbody tr:hover { background: var(--glass-h); }
+.tb2 tbody tr:active { background: var(--glass-a); }
+
+/* Health — angular diamond */
+.hp {
+  width: 12px; height: 12px;
+  display: inline-block;
+  transform: rotate(45deg);
+  border-radius: 2px;
+}
+.hp--g { background: var(--grn); box-shadow: 0 0 10px var(--grn-g); }
+.hp--y { background: var(--ylw); box-shadow: 0 0 10px var(--ylw-g); }
+.hp--r { background: var(--red); box-shadow: 0 0 10px var(--red-g); }
+
+/* Client */
+.cn { font: 700 17px/1.2 var(--f); letter-spacing: -0.01em; }
+.cn__ct { font: 500 13px/1 var(--f); color: var(--tx3); margin-left: 12px; }
+
+/* Progress */
+.prg { display: flex; align-items: center; gap: 14px; }
+.prg__trk { flex: 1; height: 8px; background: rgba(255,255,255,0.05); border-radius: 2px; overflow: hidden; min-width: 130px; position: relative; }
+.prg__fill { height: 100%; border-radius: 2px; transition: width 0.6s ease; position: relative; }
+/* Shimmer on progress fill */
+.prg__fill::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%);
+  animation: shimmer 2s infinite;
+}
+@keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+.prg__pct { font: 800 17px/1 var(--mono); min-width: 48px; text-align: right; }
+
+/* Team tags */
+.tm { display: flex; gap: 5px; flex-wrap: wrap; }
+.tm__t { font: 600 13px/1 var(--f); padding: 4px 10px; border-radius: 3px; background: rgba(255,255,255,0.06); color: var(--tx2); }
+
+/* Risk */
+.rk { font: 600 15px/1.3 var(--f); }
+.rk--ok { color: var(--tx3); }
+.rk--mid { color: var(--ylw); }
+.rk--bad { color: var(--red); font-weight: 700; }
+
+/* ===== PANELS ===== */
+.p2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.pn { padding: 0; overflow: hidden; display: flex; flex-direction: column; }
+.pn__hd {
+  padding: 16px 22px 12px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--glass-b);
+}
+.pn__t { font: 700 14px/1 var(--f); letter-spacing: 0.08em; text-transform: uppercase; }
+.pn__b { font: 700 13px/1 var(--f); padding: 4px 10px; border-radius: 3px; }
+.pn__bd { padding: 14px 22px 20px; flex: 1; }
+
+/* Attention */
+.at {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px; margin: 0 -14px; border-radius: var(--r);
+  cursor: pointer; transition: background 0.12s;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.at:last-of-type { border-bottom: none; }
+.at:hover { background: var(--glass-h); }
+.at:active { background: var(--glass-a); }
+.at__bar { width: 4px; align-self: stretch; border-radius: 1px; flex-shrink: 0; }
+.at__bdg { font: 800 12px/1 var(--f); padding: 5px 10px; border-radius: 3px; letter-spacing: 0.06em; white-space: nowrap; flex-shrink: 0; }
+.at__bdg--blk { background: var(--pur-g); color: var(--pur); }
+.at__bdg--ovd { background: var(--red-g); color: var(--red); }
+.at__i { flex: 1; min-width: 0; }
+.at__nm { font: 600 15px/1.3 var(--f); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.at__sb { font: 400 13px/1.3 var(--f); color: var(--tx3); margin-top: 3px; }
+.at__wh { font: 600 14px/1 var(--f); color: var(--tx2); flex-shrink: 0; }
+
+/* Workload */
+.wk { display: flex; align-items: center; gap: 12px; padding: 8px 0; }
+.wk__n { font: 500 15px/1 var(--f); width: 120px; flex-shrink: 0; color: var(--tx2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wk__tr { flex: 1; height: 10px; background: rgba(255,255,255,0.04); border-radius: 2px; overflow: hidden; }
+.wk__fl { height: 100%; border-radius: 2px; transition: width 0.5s ease; }
+.wk__ct { font: 800 15px/1 var(--mono); width: 40px; text-align: right; flex-shrink: 0; }
+
+/* Milestones */
+.ml {
+  display: flex; align-items: center; gap: 16px;
+  padding: 14px; margin: 0 -14px; border-radius: var(--r);
+  cursor: pointer; transition: background 0.12s;
+}
+.ml:hover { background: var(--glass-h); }
+.ml:active { background: var(--glass-a); }
+.ml__bar { width: 4px; align-self: stretch; border-radius: 1px; flex-shrink: 0; }
+.ml__i { flex: 1; min-width: 0; }
+.ml__t { font: 700 16px/1.3 var(--f); }
+.ml__s { font: 400 13px/1.3 var(--f); color: var(--tx3); margin-top: 3px; }
+.ml__r { text-align: right; flex-shrink: 0; }
+.ml__d { font: 800 18px/1 var(--mono); }
+.ml__dt { font: 400 13px/1 var(--f); color: var(--tx3); margin-top: 4px; }
+
+/* ===== PROGRESS COMPOSITION BAR ===== */
+.comp-bar { display: flex; height: 10px; border-radius: 2px; overflow: hidden; gap: 2px; margin-top: 8px; }
+.comp-bar__seg { height: 100%; transition: width 0.5s ease; }
+
+/* ===== SETTINGS ===== */
+.cfg {
+  position: fixed; top: 0; right: -380px; width: 380px; height: 100vh;
+  background: rgba(6,9,15,0.94); backdrop-filter: blur(32px);
+  border-left: 1px solid var(--glass-b); z-index: 300;
+  transition: right 0.3s cubic-bezier(0.4,0,0.2,1);
+  display: flex; flex-direction: column;
+}
+.cfg.open { right: 0; }
+.cfg__hd { padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--glass-b); }
+.cfg__tt { font: 700 13px/1 var(--f); text-transform: uppercase; letter-spacing: 0.14em; color: var(--tx2); }
+.cfg__x { width: 30px; height: 30px; border: none; background: rgba(255,255,255,0.06); border-radius: 3px; color: var(--tx3); font-size: 18px; cursor: pointer; transition: background 0.12s; }
+.cfg__x:hover { background: rgba(255,255,255,0.12); color: var(--tx); }
+.cfg__bd { padding: 24px; flex: 1; overflow-y: auto; }
+.cfg__sec { margin-bottom: 28px; }
+.cfg__lb { font: 700 11px/1 var(--f); text-transform: uppercase; letter-spacing: 0.16em; color: var(--tx3); margin-bottom: 12px; }
+.cfg__gr { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.sw { height: 50px; border-radius: 3px; border: 2px solid transparent; cursor: pointer; transition: all 0.15s; position: relative; overflow: hidden; }
+.sw:hover { border-color: var(--tx4); transform: scale(1.03); }
+.sw.on { border-color: var(--acc); }
+.sw__l { position: absolute; bottom: 5px; left: 7px; font: 700 10px/1 var(--f); letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.55); text-shadow: 0 1px 4px rgba(0,0,0,0.7); }
+.thb { padding: 12px 16px; border-radius: 3px; border: 2px solid transparent; background: var(--glass); color: var(--tx3); font: 700 13px/1 var(--f); letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: all 0.15s; text-align: center; }
+.thb:hover { color: var(--tx); border-color: var(--tx4); }
+.thb.on { color: var(--acc); border-color: var(--acc); }
+
+@media (max-width: 1200px) { .kpis { grid-template-columns: repeat(3, 1fr); } .p2 { grid-template-columns: 1fr; } }
+@media (max-width: 768px) { .kpis { grid-template-columns: 1fr 1fr; } .port { padding: 16px 16px 40px; } }
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr__logo">WorkSage</div>
+  <div class="hdr__sp"></div>
+  <button class="hdr__btn" onclick="toggleCfg()">Customise</button>
+</header>
+
+<main class="port">
+
+  <div class="ttl">
+    <div>
+      <div class="ttl__name">NBI Portfolio</div>
+      <div class="ttl__date">8 MAY 2026</div>
+    </div>
+    <div class="ttl__alert">11 blocked &mdash; Lighthouse Games</div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpis">
+    <div class="g g--lift kc" style="--kc-color:var(--acc);--kc-glow:var(--acc-g)">
+      <div class="kc__body">
+        <div class="kc__label">Active Clients</div>
+        <div class="kc__val">5</div>
+        <div class="kc__chart">
+          <svg viewBox="0 0 180 48" preserveAspectRatio="none">
+            <defs><linearGradient id="a1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--acc)" stop-opacity="0.2"/><stop offset="100%" stop-color="var(--acc)" stop-opacity="0"/></linearGradient></defs>
+            <polygon points="0,38 30,36 60,36 90,34 120,28 150,24 180,16 180,48 0,48" fill="url(#a1)"/>
+            <polyline points="0,38 30,36 60,36 90,34 120,28 150,24 180,16" fill="none" stroke="var(--acc)" stroke-width="2.5" stroke-linejoin="bevel"/>
+            <rect class="hd" x="176" y="12" width="7" height="7" fill="var(--acc)"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="g g--lift kc" style="--kc-color:var(--tx);--kc-glow:transparent">
+      <div class="kc__body">
+        <div class="kc__label">Active Tasks</div>
+        <div class="kc__val">368</div>
+        <div class="kc__chart">
+          <svg viewBox="0 0 180 48" preserveAspectRatio="none">
+            <defs><linearGradient id="a2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--tx2)" stop-opacity="0.1"/><stop offset="100%" stop-color="var(--tx2)" stop-opacity="0"/></linearGradient></defs>
+            <polygon points="0,40 30,38 60,34 90,26 120,20 150,14 180,10 180,48 0,48" fill="url(#a2)"/>
+            <polyline points="0,40 30,38 60,34 90,26 120,20 150,14 180,10" fill="none" stroke="var(--tx3)" stroke-width="2" stroke-linejoin="bevel"/>
+            <rect class="hd" x="176" y="7" width="7" height="7" fill="var(--tx2)"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="g g--lift kc" style="--kc-color:var(--red);--kc-glow:var(--red-g)">
+      <div class="kc__body">
+        <div class="kc__label">Blocked</div>
+        <div class="kc__val">11</div>
+        <div class="kc__chart">
+          <svg viewBox="0 0 180 48" preserveAspectRatio="none">
+            <defs><linearGradient id="a3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--red)" stop-opacity="0.2"/><stop offset="100%" stop-color="var(--red)" stop-opacity="0"/></linearGradient></defs>
+            <polygon points="0,40 30,36 60,30 90,22 120,16 150,12 180,6 180,48 0,48" fill="url(#a3)"/>
+            <polyline points="0,40 30,36 60,30 90,22 120,16 150,12 180,6" fill="none" stroke="var(--red)" stroke-width="2.5" stroke-linejoin="bevel"/>
+            <rect class="hd" x="176" y="3" width="7" height="7" fill="var(--red)"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="g g--lift kc" style="--kc-color:var(--ylw);--kc-glow:var(--ylw-g)">
+      <div class="kc__body">
+        <div class="kc__label">Overdue</div>
+        <div class="kc__val">5</div>
+        <div class="kc__chart">
+          <svg viewBox="0 0 180 48" preserveAspectRatio="none">
+            <defs><linearGradient id="a4" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--ylw)" stop-opacity="0.15"/><stop offset="100%" stop-color="var(--ylw)" stop-opacity="0"/></linearGradient></defs>
+            <polygon points="0,32 30,26 60,24 90,30 120,24 150,20 180,16 180,48 0,48" fill="url(#a4)"/>
+            <polyline points="0,32 30,26 60,24 90,30 120,24 150,20 180,16" fill="none" stroke="var(--ylw)" stroke-width="2.5" stroke-linejoin="bevel"/>
+            <rect class="hd" x="176" y="13" width="7" height="7" fill="var(--ylw)"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="g g--lift kc" style="--kc-color:var(--pur);--kc-glow:var(--pur-g)">
+      <div class="kc__body">
+        <div class="kc__label">Overall Progress</div>
+        <div class="kc__val" style="margin-bottom:4px">14<span style="font-size:32px;opacity:0.6">%</span></div>
+        <div class="comp-bar">
+          <div class="comp-bar__seg" style="width:14%;background:var(--grn)" title="Done: 60"></div>
+          <div class="comp-bar__seg" style="width:83%;background:rgba(255,255,255,0.06)" title="Active: 368"></div>
+          <div class="comp-bar__seg" style="width:3%;background:var(--red)" title="Blocked: 11"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:8px;font:500 12px/1 var(--f);color:var(--tx3)">
+          <span><span style="color:var(--grn)">&#9646;</span> 60 done</span>
+          <span><span style="color:var(--red)">&#9646;</span> 11 blocked</span>
+          <span>432 total</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="g tw">
+    <div class="tw__top"><span class="tw__title">Client Portfolio</span></div>
+    <table class="tb2">
+      <thead><tr>
+        <th style="width:44px"></th>
+        <th>Client</th>
+        <th style="min-width:220px">Progress</th>
+        <th>Team</th>
+        <th>Key Risk</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="hp hp--r"></span></td>
+          <td><span class="cn">Lighthouse Games</span><span class="cn__ct">338 tasks</span></td>
+          <td><div class="prg"><div class="prg__trk"><div class="prg__fill" style="width:6%;background:var(--red)"></div></div><span class="prg__pct" style="color:var(--red)">6%</span></div></td>
+          <td><div class="tm"><span class="tm__t">Amir</span><span class="tm__t">Stavros</span><span class="tm__t">Marie</span><span class="tm__t">Ruan</span><span class="tm__t" style="color:var(--tx4)">+2</span></div></td>
+          <td><span class="rk rk--bad">11 blocked, 4 overdue</span></td>
+        </tr>
+        <tr>
+          <td><span class="hp hp--y"></span></td>
+          <td><span class="cn">Couch Heroes</span><span class="cn__ct">15 tasks</span></td>
+          <td><div class="prg"><div class="prg__trk"><div class="prg__fill" style="width:0%;background:var(--ylw)"></div></div><span class="prg__pct" style="color:var(--tx3)">0%</span></div></td>
+          <td><div class="tm"><span class="tm__t">Glen</span><span class="tm__t">Lorenza</span></div></td>
+          <td><span class="rk rk--mid">1 overdue, 1 yellow</span></td>
+        </tr>
+        <tr>
+          <td><span class="hp hp--y"></span></td>
+          <td><span class="cn">NBI Operations</span><span class="cn__ct">9 tasks</span></td>
+          <td><div class="prg"><div class="prg__trk"><div class="prg__fill" style="width:22%;background:var(--ylw)"></div></div><span class="prg__pct" style="color:var(--ylw)">22%</span></div></td>
+          <td><div class="tm"><span class="tm__t">Glen</span><span class="tm__t">Magnus</span></div></td>
+          <td><span class="rk rk--mid">2 items yellow</span></td>
+        </tr>
+        <tr>
+          <td><span class="hp hp--g"></span></td>
+          <td><span class="cn">The Insight Collective</span><span class="cn__ct">20 tasks</span></td>
+          <td><div class="prg"><div class="prg__trk"><div class="prg__fill" style="width:0%;background:var(--grn)"></div></div><span class="prg__pct" style="color:var(--tx3)">0%</span></div></td>
+          <td><div class="tm"><span class="tm__t">Devin</span></div></td>
+          <td><span class="rk rk--ok">Clear</span></td>
+        </tr>
+        <tr>
+          <td><span class="hp hp--g"></span></td>
+          <td><span class="cn">Playsage</span><span class="cn__ct">7 tasks</span></td>
+          <td><div class="prg"><div class="prg__trk"><div class="prg__fill" style="width:0%;background:var(--grn)"></div></div><span class="prg__pct" style="color:var(--tx3)">0%</span></div></td>
+          <td><div class="tm"><span class="tm__t">Devin</span></div></td>
+          <td><span class="rk rk--ok">Clear</span></td>
+        </tr>
+        <tr style="opacity:0.35">
+          <td><span class="hp hp--g"></span></td>
+          <td><span class="cn">Goals Studio</span><span class="cn__ct">43 tasks</span></td>
+          <td><div class="prg"><div class="prg__trk"><div class="prg__fill" style="width:91%;background:var(--grn)"></div></div><span class="prg__pct" style="color:var(--grn)">91%</span></div></td>
+          <td><span style="font:400 14px/1 var(--f);color:var(--tx4)">Inactive</span></td>
+          <td><span class="rk rk--ok">Complete</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Panels -->
+  <div class="p2">
+    <div class="g pn">
+      <div class="pn__hd">
+        <span class="pn__t" style="color:var(--red)">Needs Attention</span>
+        <span class="pn__b" style="background:var(--red-g);color:var(--red)">16</span>
+      </div>
+      <div class="pn__bd">
+        <div class="at"><div class="at__bar" style="background:var(--pur)"></div><span class="at__bdg at__bdg--blk">BLOCKED</span><div class="at__i"><div class="at__nm">Phase 1 Telemetry QA</div><div class="at__sb">Lighthouse Games &mdash; Analytics</div></div></div>
+        <div class="at"><div class="at__bar" style="background:var(--pur)"></div><span class="at__bdg at__bdg--blk">BLOCKED</span><div class="at__i"><div class="at__nm">Pre Alpha Telemetry Testing</div><div class="at__sb">Lighthouse Games &mdash; Pre-Alpha Prep</div></div><span class="at__wh">Amir</span></div>
+        <div class="at"><div class="at__bar" style="background:var(--pur)"></div><span class="at__bdg at__bdg--blk">BLOCKED</span><div class="at__i"><div class="at__nm">Phase 1 Telemetry Final Review / QA</div><div class="at__sb">Lighthouse Games &mdash; 4 people assigned</div></div></div>
+        <div class="at"><div class="at__bar" style="background:var(--pur)"></div><span class="at__bdg at__bdg--blk">BLOCKED</span><div class="at__i"><div class="at__nm">Game access follow up: Data</div><div class="at__sb">Lighthouse Games &mdash; Game Understanding</div></div><span class="at__wh">Amir</span></div>
+        <div class="at"><div class="at__bar" style="background:var(--pur)"></div><span class="at__bdg at__bdg--blk">BLOCKED</span><div class="at__i"><div class="at__nm">Play game and test</div><div class="at__sb">Lighthouse Games &mdash; 3 people blocked</div></div></div>
+        <div style="text-align:center;padding:12px;font:600 14px/1 var(--f);color:var(--tx4);letter-spacing:0.06em;cursor:pointer" onmouseover="this.style.color='var(--tx2)'" onmouseout="this.style.color='var(--tx4)'">+ 11 MORE</div>
+      </div>
+    </div>
+
+    <div class="g pn">
+      <div class="pn__hd">
+        <span class="pn__t">Team Workload</span>
+        <span class="pn__b" style="background:rgba(255,255,255,0.04);color:var(--tx3)">9</span>
+      </div>
+      <div class="pn__bd">
+        <div class="wk"><span class="wk__n">Amir Didar</span><div class="wk__tr"><div class="wk__fl" style="width:100%;background:var(--red)"></div></div><span class="wk__ct" style="color:var(--red)">76</span></div>
+        <div class="wk"><span class="wk__n">Stavros</span><div class="wk__tr"><div class="wk__fl" style="width:100%;background:var(--red)"></div></div><span class="wk__ct" style="color:var(--red)">76</span></div>
+        <div class="wk"><span class="wk__n">Marie</span><div class="wk__tr"><div class="wk__fl" style="width:79%;background:var(--red)"></div></div><span class="wk__ct" style="color:var(--red)">60</span></div>
+        <div class="wk"><span class="wk__n">Ruan</span><div class="wk__tr"><div class="wk__fl" style="width:61%;background:var(--ylw)"></div></div><span class="wk__ct" style="color:var(--ylw)">46</span></div>
+        <div class="wk"><span class="wk__n">Devin Rieger</span><div class="wk__tr"><div class="wk__fl" style="width:11%;background:var(--grn)"></div></div><span class="wk__ct" style="color:var(--grn)">8</span></div>
+        <div class="wk"><span class="wk__n">Glen Pryer</span><div class="wk__tr"><div class="wk__fl" style="width:7%;background:var(--grn)"></div></div><span class="wk__ct" style="color:var(--grn)">5</span></div>
+        <div class="wk"><span class="wk__n">Lorenza</span><div class="wk__tr"><div class="wk__fl" style="width:4%;background:var(--grn)"></div></div><span class="wk__ct" style="color:var(--grn)">3</span></div>
+        <div class="wk"><span class="wk__n">Magnus</span><div class="wk__tr"><div class="wk__fl" style="width:4%;background:var(--grn)"></div></div><span class="wk__ct" style="color:var(--grn)">3</span></div>
+        <div class="wk"><span class="wk__n">Tom Rieger</span><div class="wk__tr"><div class="wk__fl" style="width:1%;background:var(--grn)"></div></div><span class="wk__ct" style="color:var(--grn)">1</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="p2">
+    <div class="g pn">
+      <div class="pn__hd"><span class="pn__t">Milestones</span><span class="pn__b" style="background:rgba(255,255,255,0.04);color:var(--tx3)">2</span></div>
+      <div class="pn__bd">
+        <div class="ml"><div class="ml__bar" style="background:var(--ylw)"></div><div class="ml__i"><div class="ml__t">Pre-Alpha Playtest Build MS30</div><div class="ml__s">Lighthouse Games</div></div><div class="ml__r"><div class="ml__d" style="color:var(--ylw)">21d</div><div class="ml__dt">29 May</div></div></div>
+        <div class="ml"><div class="ml__bar" style="background:var(--grn)"></div><div class="ml__i"><div class="ml__t">Actually Alpha M31</div><div class="ml__s">Lighthouse Games</div></div><div class="ml__r"><div class="ml__d" style="color:var(--grn)">63d</div><div class="ml__dt">10 Jul</div></div></div>
+        <div style="padding:16px;text-align:center;color:var(--tx4);font:400 14px/1.4 var(--f)">No other clients have milestones set</div>
+      </div>
+    </div>
+    <div class="g pn" style="display:flex;align-items:center;justify-content:center;min-height:140px">
+      <div style="text-align:center;color:var(--tx4)">
+        <div style="font:600 16px/1.3 var(--f);color:var(--tx3);margin-bottom:4px">No projects near completion</div>
+        <div style="font:400 14px/1.3 var(--f)">Most active work is early-stage</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<div class="cfg" id="cfgPanel">
+  <div class="cfg__hd"><span class="cfg__tt">Customise</span><button class="cfg__x" onclick="toggleCfg()">&times;</button></div>
+  <div class="cfg__bd">
+    <div class="cfg__sec">
+      <div class="cfg__lb">Background</div>
+      <div class="cfg__gr">
+        <div class="sw on" style="background:linear-gradient(135deg,#06090f,#161b22)" onclick="setBg('gradient-dark',this)" data-bg="gradient-dark"><span class="sw__l">Deep Space</span></div>
+        <div class="sw" style="background:linear-gradient(135deg,#081e2e,#0f2b4a)" onclick="setBg('gradient-ocean',this)" data-bg="gradient-ocean"><span class="sw__l">Ocean</span></div>
+        <div class="sw" style="background:linear-gradient(135deg,#0a0118,#1a0e3a)" onclick="setBg('gradient-purple',this)" data-bg="gradient-purple"><span class="sw__l">Nebula</span></div>
+        <div class="sw" style="background:linear-gradient(145deg,#0e0e0e,#171717)" onclick="setBg('gradient-charcoal',this)" data-bg="gradient-charcoal"><span class="sw__l">Charcoal</span></div>
+        <div class="sw" style="background:linear-gradient(135deg,#020d06,#081f12)" onclick="setBg('gradient-forest',this)" data-bg="gradient-forest"><span class="sw__l">Forest</span></div>
+        <div class="sw" style="background:linear-gradient(135deg,#e2e8f0,#eff6ff)" onclick="setBg('gradient-arctic',this)" data-bg="gradient-arctic"><span class="sw__l" style="color:rgba(0,0,0,0.4)">Arctic</span></div>
+        <div class="sw" style="background:linear-gradient(135deg,#150c06,#251208)" onclick="setBg('gradient-ember',this)" data-bg="gradient-ember"><span class="sw__l">Ember</span></div>
+        <div class="sw" style="background:linear-gradient(135deg,#1e222a,#2e3440)" onclick="setBg('gradient-nordic',this)" data-bg="gradient-nordic"><span class="sw__l">Nordic</span></div>
+      </div>
+    </div>
+    <div class="cfg__sec">
+      <div class="cfg__lb">Theme</div>
+      <div class="cfg__gr">
+        <button class="thb on" onclick="setTheme('midnight',this)">Midnight</button>
+        <button class="thb" onclick="setTheme('arctic',this)">Arctic</button>
+        <button class="thb" onclick="setTheme('ember',this)">Ember</button>
+        <button class="thb" onclick="setTheme('nordic',this)">Nordic</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleCfg(){document.getElementById('cfgPanel').classList.toggle('open')}
+function setBg(b,el){document.documentElement.setAttribute('data-bg',b);document.querySelectorAll('.sw').forEach(s=>s.classList.remove('on'));el.classList.add('on')}
+function setTheme(t,el){
+  document.documentElement.setAttribute('data-theme',t);
+  document.querySelectorAll('.thb').forEach(b=>b.classList.remove('on'));el.classList.add('on');
+  const p={midnight:'gradient-dark',arctic:'gradient-arctic',ember:'gradient-ember',nordic:'gradient-nordic'};
+  if(p[t]){document.documentElement.setAttribute('data-bg',p[t]);document.querySelectorAll('.sw').forEach(s=>s.classList.toggle('on',s.getAttribute('data-bg')===p[t]))}
+}
+window.addEventListener('DOMContentLoaded',()=>{
+  document.querySelectorAll('.prg__fill,.wk__fl,.comp-bar__seg').forEach(el=>{const w=el.style.width;el.style.width='0%';requestAnimationFrame(()=>requestAnimationFrame(()=>{el.style.width=w}))});
+});
+</script>
+</body>
+</html>

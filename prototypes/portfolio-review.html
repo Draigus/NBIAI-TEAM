@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WorkSage Portfolio — Design Review &amp; Proposal</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&display=swap');
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root {
+  --bg: #1c1f24;
+  --surface: rgba(38,42,50,0.72);
+  --surface-solid: #262a32;
+  --surface-down: rgba(22,24,30,0.85);
+  --inset: rgba(28,30,36,0.8);
+  --neo-up: 6px 6px 14px rgba(0,0,0,0.45), -3px -3px 10px rgba(255,255,255,0.04);
+  --neo-up-lg: 10px 10px 24px rgba(0,0,0,0.5), -5px -5px 16px rgba(255,255,255,0.04);
+  --neo-inset: inset 4px 4px 10px rgba(0,0,0,0.35), inset -2px -2px 6px rgba(255,255,255,0.03);
+  --neo-pressed: inset 3px 3px 8px rgba(0,0,0,0.4), inset -1px -1px 4px rgba(255,255,255,0.02);
+  --cyan: #00d4ff;
+  --cyan-30: rgba(0,212,255,0.3);
+  --cyan-15: rgba(0,212,255,0.15);
+  --cyan-08: rgba(0,212,255,0.08);
+  --cyan-glow: 0 0 20px rgba(0,212,255,0.3), 0 0 60px rgba(0,212,255,0.1);
+  --red: #ff4757;
+  --red-g: rgba(255,71,87,0.15);
+  --amber: #ffa502;
+  --amber-g: rgba(255,165,2,0.12);
+  --green: #2ed573;
+  --green-g: rgba(46,213,115,0.12);
+  --purple: #a78bfa;
+  --purple-g: rgba(167,139,250,0.15);
+  --tx: #e8ecf1;
+  --tx2: rgba(232,236,241,0.6);
+  --tx3: rgba(232,236,241,0.32);
+  --tx4: rgba(232,236,241,0.15);
+  --r: 14px;
+  --r-sm: 10px;
+  --f: 'Inter', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+
+body {
+  font-family: var(--f);
+  background: var(--bg);
+  color: var(--tx);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  font-size: 16px;
+  position: relative;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.07;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100' fill='none' stroke='%2390a4ae' stroke-width='0.8'/%3E%3Cpath d='M28 0L28 34L0 50L0 84L28 100L56 84L56 50L28 34' fill='none' stroke='%2390a4ae' stroke-width='0.4'/%3E%3C/svg%3E");
+  background-size: 56px 100px;
+}
+body > * { position: relative; z-index: 1; }
+
+.card {
+  background: var(--surface);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--r);
+  box-shadow: var(--neo-up);
+}
+.well {
+  background: var(--inset);
+  border-radius: var(--r-sm);
+  box-shadow: var(--neo-inset);
+}
+
+/* Header */
+.hdr {
+  padding: 16px 36px;
+  display: flex; align-items: center;
+  background: var(--surface-down);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+  position: sticky; top: 0; z-index: 50;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.hdr__logo { font: 900 14px/1 var(--f); color: var(--cyan); letter-spacing: 0.18em; text-transform: uppercase; text-shadow: var(--cyan-glow); }
+.hdr__sp { flex: 1; }
+.hdr__tag { font: 600 12px/1 var(--f); color: var(--tx3); letter-spacing: 0.08em; text-transform: uppercase; padding: 6px 14px; background: var(--inset); border-radius: 8px; box-shadow: var(--neo-pressed); }
+
+/* Layout */
+.page { max-width: 1200px; margin: 0 auto; padding: 40px 36px 80px; display: flex; flex-direction: column; gap: 28px; }
+
+/* ===== HERO SECTION ===== */
+.hero { padding: 48px 40px; text-align: center; position: relative; overflow: hidden; }
+.hero__label { font: 800 12px/1 var(--f); color: var(--cyan); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 16px; }
+.hero__title { font: 900 42px/1.15 var(--f); letter-spacing: -0.03em; margin-bottom: 12px; }
+.hero__sub { font: 400 17px/1.5 var(--f); color: var(--tx2); max-width: 680px; margin: 0 auto; }
+.hero__date { font: 500 13px/1 var(--f); color: var(--tx3); margin-top: 20px; letter-spacing: 0.08em; text-transform: uppercase; }
+/* Decorative accent line */
+.hero__line { width: 60px; height: 3px; background: var(--cyan); margin: 20px auto 0; box-shadow: 0 0 12px var(--cyan-30); }
+
+/* ===== SCORE STRIP ===== */
+.scores { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.score { padding: 28px 24px; text-align: center; cursor: default; }
+.score__ring { position: relative; width: 90px; height: 90px; margin: 0 auto 14px; }
+.score__ring svg { width: 90px; height: 90px; }
+.score__ring-bg { fill: none; stroke: var(--inset); stroke-width: 7; }
+.score__ring-fill { fill: none; stroke-width: 7; stroke-linecap: butt; transition: stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1); }
+.score__ring-val { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font: 800 22px/1 var(--mono); }
+.score__label { font: 700 13px/1.3 var(--f); color: var(--tx2); text-transform: uppercase; letter-spacing: 0.08em; }
+.score__sub { font: 400 12px/1.3 var(--f); color: var(--tx3); margin-top: 4px; }
+
+/* ===== REVIEW SECTIONS ===== */
+.review { padding: 0; overflow: hidden; }
+.review__header {
+  padding: 24px 32px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  display: flex; align-items: center; gap: 16px;
+}
+.review__icon {
+  width: 48px; height: 48px;
+  background: var(--inset);
+  border-radius: var(--r-sm);
+  box-shadow: var(--neo-pressed);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+.review__title-wrap { flex: 1; }
+.review__title { font: 800 20px/1.2 var(--f); letter-spacing: -0.01em; }
+.review__role { font: 600 12px/1 var(--f); color: var(--cyan); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 4px; }
+.review__grade {
+  font: 800 16px/1 var(--mono);
+  padding: 8px 16px;
+  border-radius: 8px;
+  box-shadow: var(--neo-pressed);
+  flex-shrink: 0;
+}
+.review__body { padding: 28px 32px 32px; }
+
+/* Finding items */
+.finding {
+  padding: 20px;
+  margin-bottom: 14px;
+  border-radius: var(--r-sm);
+  background: rgba(255,255,255,0.02);
+  border-left: 4px solid var(--cyan);
+  transition: background 0.15s;
+}
+.finding:hover { background: rgba(0,212,255,0.03); }
+.finding--red { border-left-color: var(--red); }
+.finding--amber { border-left-color: var(--amber); }
+.finding--green { border-left-color: var(--green); }
+.finding__title { font: 700 16px/1.3 var(--f); margin-bottom: 6px; }
+.finding__text { font: 400 15px/1.6 var(--f); color: var(--tx2); }
+.finding__severity {
+  display: inline-block;
+  font: 700 11px/1 var(--f);
+  padding: 3px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
+}
+.finding__severity--critical { background: var(--red-g); color: var(--red); }
+.finding__severity--major { background: var(--amber-g); color: var(--amber); }
+.finding__severity--minor { background: var(--green-g); color: var(--green); }
+.finding__severity--info { background: var(--cyan-08); color: var(--cyan); }
+
+/* ===== COMPARISON TABLE ===== */
+.compare { padding: 0; overflow: hidden; }
+.compare__hdr {
+  padding: 20px 32px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.compare__title { font: 800 18px/1 var(--f); }
+.compare__sub { font: 400 14px/1 var(--f); color: var(--tx3); margin-top: 6px; }
+
+.ctbl { width: 100%; border-collapse: collapse; }
+.ctbl th {
+  text-align: left; padding: 14px 24px;
+  font: 700 11px/1 var(--f); text-transform: uppercase; letter-spacing: 0.14em; color: var(--tx4);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.ctbl td {
+  padding: 16px 24px; font: 400 15px/1.5 var(--f); color: var(--tx2);
+  border-bottom: 1px solid rgba(255,255,255,0.03); vertical-align: top;
+}
+.ctbl td:first-child { font: 600 15px/1.5 var(--f); color: var(--tx); width: 200px; }
+.ctbl .old { color: var(--red); }
+.ctbl .new { color: var(--green); }
+
+/* ===== PROPOSAL SECTION ===== */
+.proposal { padding: 32px; }
+.proposal__title { font: 900 24px/1.2 var(--f); margin-bottom: 8px; letter-spacing: -0.02em; }
+.proposal__sub { font: 400 15px/1.5 var(--f); color: var(--tx2); margin-bottom: 28px; }
+
+.principle {
+  display: flex; gap: 18px; padding: 20px;
+  margin-bottom: 12px; border-radius: var(--r-sm);
+  background: rgba(255,255,255,0.02);
+  transition: background 0.15s;
+}
+.principle:hover { background: rgba(0,212,255,0.03); }
+.principle__num {
+  font: 800 28px/1 var(--mono);
+  color: var(--cyan);
+  text-shadow: 0 0 16px var(--cyan-30);
+  flex-shrink: 0;
+  width: 44px;
+}
+.principle__body { flex: 1; }
+.principle__title { font: 700 17px/1.3 var(--f); margin-bottom: 4px; }
+.principle__text { font: 400 15px/1.6 var(--f); color: var(--tx2); }
+
+/* ===== RESEARCH PANEL ===== */
+.research { padding: 0; overflow: hidden; }
+.research__hdr { padding: 20px 32px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.research__title { font: 800 18px/1 var(--f); }
+.research__body { padding: 24px 32px; }
+.research__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.research__item {
+  padding: 18px;
+  background: rgba(255,255,255,0.02);
+  border-radius: var(--r-sm);
+  border: 1px solid rgba(255,255,255,0.04);
+}
+.research__item-name { font: 700 15px/1 var(--f); margin-bottom: 6px; }
+.research__item-detail { font: 400 13px/1.5 var(--f); color: var(--tx3); }
+.research__item-tag {
+  display: inline-block;
+  font: 700 10px/1 var(--f);
+  padding: 3px 7px;
+  border-radius: 4px;
+  letter-spacing: 0.06em;
+  margin-top: 8px;
+  box-shadow: var(--neo-pressed);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .scores { grid-template-columns: 1fr 1fr; }
+  .research__grid { grid-template-columns: 1fr; }
+  .page { padding: 24px 16px 60px; }
+  .hero { padding: 32px 24px; }
+  .hero__title { font-size: 28px; }
+}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr__logo">WorkSage</div>
+  <div class="hdr__sp"></div>
+  <div class="hdr__tag">Design Review &amp; Proposal</div>
+</header>
+
+<main class="page">
+
+  <!-- HERO -->
+  <div class="card hero">
+    <div class="hero__label">Portfolio Page Audit</div>
+    <div class="hero__title">Design Review &amp; Redesign Proposal</div>
+    <div class="hero__sub">A multi-perspective assessment of the WorkSage portfolio dashboard, covering product management, UX research, and application design. Based on competitive analysis of Monday.com, Asana, Smartsheet, Productive.io, Teamwork, and Harvest.</div>
+    <div class="hero__date">8 May 2026</div>
+    <div class="hero__line"></div>
+  </div>
+
+  <!-- OVERALL SCORES -->
+  <div class="scores">
+    <div class="card score">
+      <div class="score__ring">
+        <svg viewBox="0 0 80 80">
+          <circle class="score__ring-bg" cx="40" cy="40" r="33"/>
+          <circle class="score__ring-fill" cx="40" cy="40" r="33" stroke="var(--amber)" stroke-dasharray="207" stroke-dashoffset="83" transform="rotate(-90 40 40)" style="filter:drop-shadow(0 0 4px rgba(255,165,2,0.3))"/>
+        </svg>
+        <div class="score__ring-val" style="color:var(--amber)">6</div>
+      </div>
+      <div class="score__label">Information Architecture</div>
+      <div class="score__sub">out of 10</div>
+    </div>
+    <div class="card score">
+      <div class="score__ring">
+        <svg viewBox="0 0 80 80">
+          <circle class="score__ring-bg" cx="40" cy="40" r="33"/>
+          <circle class="score__ring-fill" cx="40" cy="40" r="33" stroke="var(--red)" stroke-dasharray="207" stroke-dashoffset="104" transform="rotate(-90 40 40)" style="filter:drop-shadow(0 0 4px rgba(255,71,87,0.3))"/>
+        </svg>
+        <div class="score__ring-val" style="color:var(--red)">5</div>
+      </div>
+      <div class="score__label">Visual Hierarchy</div>
+      <div class="score__sub">out of 10</div>
+    </div>
+    <div class="card score">
+      <div class="score__ring">
+        <svg viewBox="0 0 80 80">
+          <circle class="score__ring-bg" cx="40" cy="40" r="33"/>
+          <circle class="score__ring-fill" cx="40" cy="40" r="33" stroke="var(--red)" stroke-dasharray="207" stroke-dashoffset="124" transform="rotate(-90 40 40)" style="filter:drop-shadow(0 0 4px rgba(255,71,87,0.3))"/>
+        </svg>
+        <div class="score__ring-val" style="color:var(--red)">4</div>
+      </div>
+      <div class="score__label">30-Second Readability</div>
+      <div class="score__sub">out of 10</div>
+    </div>
+    <div class="card score">
+      <div class="score__ring">
+        <svg viewBox="0 0 80 80">
+          <circle class="score__ring-bg" cx="40" cy="40" r="33"/>
+          <circle class="score__ring-fill" cx="40" cy="40" r="33" stroke="var(--amber)" stroke-dasharray="207" stroke-dashoffset="62" transform="rotate(-90 40 40)" style="filter:drop-shadow(0 0 4px rgba(255,165,2,0.3))"/>
+        </svg>
+        <div class="score__ring-val" style="color:var(--amber)">7</div>
+      </div>
+      <div class="score__label">Data Completeness</div>
+      <div class="score__sub">out of 10</div>
+    </div>
+  </div>
+
+  <!-- ===== PRODUCT MANAGEMENT REVIEW ===== -->
+  <div class="card review">
+    <div class="review__header">
+      <div class="review__icon">&#128202;</div>
+      <div class="review__title-wrap">
+        <div class="review__title">Product Management Review</div>
+        <div class="review__role">Strategic value &amp; decision support</div>
+      </div>
+      <div class="review__grade" style="background:var(--amber-g);color:var(--amber)">6/10</div>
+    </div>
+    <div class="review__body">
+      <div class="finding finding--red">
+        <span class="finding__severity finding__severity--critical">CRITICAL</span>
+        <div class="finding__title">The page answers "what's the status?" but not "what should I do?"</div>
+        <div class="finding__text">The current layout is descriptive but not prescriptive. A portfolio page for an MD running 6 client engagements needs to answer three questions in order: (1) Is anything on fire? (2) Which client needs me right now? (3) Am I on track overall? Currently, answering question 2 requires scanning the sidebar cards and then cross-referencing with the Needs Attention panel at the bottom. Two separate zones for one question.</div>
+      </div>
+      <div class="finding finding--red">
+        <span class="finding__severity finding__severity--critical">CRITICAL</span>
+        <div class="finding__title">No sortable portfolio table</div>
+        <div class="finding__text">Every best-in-class tool (Monday.com, Asana, Smartsheet) centres on a table with one row per client, sortable by health, progress, or risk. WorkSage uses client cards in a sidebar. This means you cannot rank clients by severity, cannot scan a column of health indicators, and cannot see team allocation per client without clicking into each one.</div>
+      </div>
+      <div class="finding finding--amber">
+        <span class="finding__severity finding__severity--major">MAJOR</span>
+        <div class="finding__title">Milestones disconnected from client context</div>
+        <div class="finding__text">Milestones appear in a separate panel. To answer "what's due for Lighthouse Games?" you look at the sidebar card, then scan the milestones panel to find matching entries. Monday.com and Productive.io show milestones inline per client row, answering the question without leaving the row.</div>
+      </div>
+      <div class="finding finding--amber">
+        <span class="finding__severity finding__severity--major">MAJOR</span>
+        <div class="finding__title">No "key risk" indicator per client</div>
+        <div class="finding__text">The sidebar cards show counts (active, overdue, blocked) but there is no single-line risk summary. Productive.io's "budgets with lowest profit" widget pattern works because it answers "what's the one thing I should know about this client?" in a glance. The current page requires reading multiple stats and mentally computing risk.</div>
+      </div>
+      <div class="finding finding--green">
+        <span class="finding__severity finding__severity--info">STRENGTH</span>
+        <div class="finding__title">KPI strip with week-over-week deltas exists</div>
+        <div class="finding__text">The 6-card KPI strip at the top with comparison to last week's snapshot is genuinely useful and ahead of several competitors. This should be kept and refined with sparkline trends.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== UX RESEARCH REVIEW ===== -->
+  <div class="card review">
+    <div class="review__header">
+      <div class="review__icon">&#128269;</div>
+      <div class="review__title-wrap">
+        <div class="review__title">UX Research Assessment</div>
+        <div class="review__role">Scan patterns, cognitive load &amp; readability</div>
+      </div>
+      <div class="review__grade" style="background:var(--red-g);color:var(--red)">4/10</div>
+    </div>
+    <div class="review__body">
+      <div class="finding finding--red">
+        <span class="finding__severity finding__severity--critical">CRITICAL</span>
+        <div class="finding__title">7 competing zones break the F-pattern</div>
+        <div class="finding__text">Research shows users scan dashboards in an F-pattern: left-to-right across the top (KPI strip), then down the left column (client names), then selectively right (status columns). The current page's left column is a sidebar of cards which works for the downward scan, but the content to the right is a 2&times;2 panel grid. The eye cannot do the selective rightward scan that the F-pattern depends on. Result: users bounce between zones rather than flowing through the data.</div>
+      </div>
+      <div class="finding finding--red">
+        <span class="finding__severity finding__severity--critical">CRITICAL</span>
+        <div class="finding__title">RAG signal is buried</div>
+        <div class="finding__text">Every best-in-class tool puts a coloured health indicator in a vertical column so you can scan client health in under 2 seconds. The current page uses coloured left-borders on sidebar cards (4px wide, easy to miss) and requires reading text labels ("overdue", "at risk", "blocked") to understand the status. That's reading, not scanning. The eye processes colour 200ms before it reads text &mdash; the current design wastes that advantage.</div>
+      </div>
+      <div class="finding finding--red">
+        <span class="finding__severity finding__severity--critical">CRITICAL</span>
+        <div class="finding__title">Progress Status donut wastes 25% of viewport</div>
+        <div class="finding__text">The Progress Status panel uses a full 2&times;2 grid quadrant for a hand-rolled SVG with a backlog bar and a donut chart. It displays 5 numbers (backlog, completed, in progress, planning, waiting). Those 5 numbers could be a single KPI card or an inline legend, freeing 25% of the main content area for actionable information. Information density: approximately 5 data points per 400&times;400px. That is extremely low.</div>
+      </div>
+      <div class="finding finding--amber">
+        <span class="finding__severity finding__severity--major">MAJOR</span>
+        <div class="finding__title">KPI cards lack trend context</div>
+        <div class="finding__text">The current strip shows numbers with week-over-week deltas (e.g., "+2 vs last week"), which is good. But there is no sparkline or micro-chart showing the trajectory. A number going up from 1 to 3 feels different from a number that has been oscillating between 2&ndash;4 for weeks. Nielsen Norman Group research confirms that numbers without visual trend context force users to rely on memory, which degrades decision quality.</div>
+      </div>
+      <div class="finding finding--amber">
+        <span class="finding__severity finding__severity--major">MAJOR</span>
+        <div class="finding__title">Sidebar locks 240px permanently</div>
+        <div class="finding__text">The client sidebar takes 240px of horizontal space on every screen size. This forces the content panels into a narrow area and creates a two-axis reading pattern: scan down the sidebar, then scan across the panels. Every competitor uses a table or card grid instead, which gives full-width rows and a single-axis scan pattern.</div>
+      </div>
+      <div class="finding finding--green">
+        <span class="finding__severity finding__severity--info">STRENGTH</span>
+        <div class="finding__title">Project Timeline (mini-Gantt) is well-built</div>
+        <div class="finding__text">The timeline panel with collapsible client groups, health-coloured bars, progress fills, and a TODAY marker is a strong implementation. The client collapse/expand with summary dots in the header is a good progressive disclosure pattern. This should be preserved and given more visual prominence.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== APPLICATION DESIGN REVIEW ===== -->
+  <div class="card review">
+    <div class="review__header">
+      <div class="review__icon">&#127912;</div>
+      <div class="review__title-wrap">
+        <div class="review__title">Application Design Review</div>
+        <div class="review__role">Visual quality, consistency &amp; craft</div>
+      </div>
+      <div class="review__grade" style="background:var(--amber-g);color:var(--amber)">5/10</div>
+    </div>
+    <div class="review__body">
+      <div class="finding finding--red">
+        <span class="finding__severity finding__severity--critical">CRITICAL</span>
+        <div class="finding__title">No visual hierarchy between panels</div>
+        <div class="finding__text">All panels share the same background colour, border treatment, and padding. The Progress Status donut, the Milestones list, the Timeline, and the Needs Attention panel all look equally important. When everything has equal visual weight, nothing is the hero. The most critical information (blocked items, client health) gets the same visual treatment as supporting context (work types, completing soon).</div>
+      </div>
+      <div class="finding finding--amber">
+        <span class="finding__severity finding__severity--major">MAJOR</span>
+        <div class="finding__title">Chart variety is low</div>
+        <div class="finding__text">The page uses a donut chart, horizontal bars, and a Gantt timeline. All three reference dashboards that score well visually use a mix of ring gauges, area charts, bar charts, and at least one unique/distinctive visualisation. The current donut is functional but generic. There is no visual element that makes this dashboard feel premium or distinctive.</div>
+      </div>
+      <div class="finding finding--amber">
+        <span class="finding__severity finding__severity--major">MAJOR</span>
+        <div class="finding__title">Text sizing too small across the board</div>
+        <div class="finding__text">Panel titles at 0.82rem (13px), stat labels at 0.65rem (10px), attention badges at 0.52rem (8px). For a dashboard that needs to be read in 30 seconds by someone scanning across a desk, minimum readable size should be 13px with body content at 15&ndash;16px. Several elements fall below the threshold for comfortable reading at arm's length.</div>
+      </div>
+      <div class="finding finding--amber">
+        <span class="finding__severity finding__severity--major">MAJOR</span>
+        <div class="finding__title">No depth or elevation system</div>
+        <div class="finding__text">Cards are flat rectangles with 1px borders on a flat background. There is no shadow, no layering, no sense that panels are physically present on the surface. Best-in-class dashboards (reference: Neumorphism UI pattern, Shutterstock dashboard concepts) use elevation through shadows and semi-transparency to create a tactile, premium feel.</div>
+      </div>
+      <div class="finding finding--green">
+        <span class="finding__severity finding__severity--info">STRENGTH</span>
+        <div class="finding__title">Colour system is correct</div>
+        <div class="finding__text">Green/yellow/red/purple for health states, blue accent for interactive elements, consistent across all components. The CSS variable system supports 5 themes and the colour semantics are universally understood. This is a solid foundation to build visual polish on top of.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== COMPETITIVE BENCHMARKS ===== -->
+  <div class="card research">
+    <div class="research__hdr">
+      <div class="research__title">Competitive Benchmark</div>
+    </div>
+    <div class="research__body">
+      <div class="research__grid">
+        <div class="research__item">
+          <div class="research__item-name">Monday.com</div>
+          <div class="research__item-detail">Portfolio table as the hero. Owner, Health, Progress columns locked (cannot remove). AI-powered Risk Insights. 50+ widget types.</div>
+          <span class="research__item-tag" style="color:var(--green);background:var(--green-g)">KEY PATTERN: LOCKED COLUMNS</span>
+        </div>
+        <div class="research__item">
+          <div class="research__item-name">Asana</div>
+          <div class="research__item-detail">Status dots in a scannable column. Written narrative updates per project. Timeline view alongside list view. Universal Reporting for cross-portfolio.</div>
+          <span class="research__item-tag" style="color:var(--cyan);background:var(--cyan-08)">KEY PATTERN: NARRATIVE STATUS</span>
+        </div>
+        <div class="research__item">
+          <div class="research__item-name">Smartsheet</div>
+          <div class="research__item-detail">Executive vs operational dashboard templates. Widget-based freeform layout. Portfolio rollups auto-include new projects. Quick links for drill-down.</div>
+          <span class="research__item-tag" style="color:var(--amber);background:var(--amber-g)">KEY PATTERN: AUDIENCE-SPECIFIC VIEWS</span>
+        </div>
+        <div class="research__item">
+          <div class="research__item-name">Productive.io</div>
+          <div class="research__item-detail">"Budgets with lowest profit" widget answers "where am I losing money?" instantly. Forecasting charts. Margin by client as a first-class view.</div>
+          <span class="research__item-tag" style="color:var(--red);background:var(--red-g)">KEY PATTERN: WORST-FIRST RANKING</span>
+        </div>
+        <div class="research__item">
+          <div class="research__item-name">Teamwork.com</div>
+          <div class="research__item-detail">Retainer view for agencies: monthly scope, hour budgets, deliverables. Profitability integrates with time tracking. "Scan and act" design.</div>
+          <span class="research__item-tag" style="color:var(--purple);background:var(--purple-g)">KEY PATTERN: SCAN AND ACT</span>
+        </div>
+        <div class="research__item">
+          <div class="research__item-name">Harvest Forecast</div>
+          <div class="research__item-detail">Single horizontal timeline with colour blocks per person. Gaps = availability. Over-allocation shown as overlap. One thing done exceptionally well.</div>
+          <span class="research__item-tag" style="color:var(--green);background:var(--green-g)">KEY PATTERN: VISUAL SIMPLICITY</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CURRENT vs PROPOSED ===== -->
+  <div class="card compare">
+    <div class="compare__hdr">
+      <div class="compare__title">Current vs Proposed Architecture</div>
+      <div class="compare__sub">What changes and why</div>
+    </div>
+    <table class="ctbl">
+      <thead><tr>
+        <th>Element</th>
+        <th>Current</th>
+        <th>Proposed</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td>Layout</td>
+          <td class="old">7 competing zones (KPI strip + sidebar + 2&times;2 grid + 3-col bottom)</td>
+          <td class="new">3 tiers: KPI rings, hero chart, portfolio table. Panels below.</td>
+        </tr>
+        <tr>
+          <td>Client navigation</td>
+          <td class="old">240px sidebar with stacked cards, permanently visible</td>
+          <td class="new">Full-width table with one row per client, mini health rings, sortable</td>
+        </tr>
+        <tr>
+          <td>Health scanning</td>
+          <td class="old">4px coloured left-border on cards, requires reading text stats</td>
+          <td class="new">Colour-coded ring gauge per row, scannable in 2 seconds</td>
+        </tr>
+        <tr>
+          <td>Progress Status</td>
+          <td class="old">Full-panel donut + backlog bar (25% of viewport for 5 numbers)</td>
+          <td class="new">KPI ring gauge + inline progress bars per client row</td>
+        </tr>
+        <tr>
+          <td>Visual style</td>
+          <td class="old">Flat cards with 1px borders, no depth, no elevation</td>
+          <td class="new">Neumorphic cards with dual shadows, semi-transparency, hex grid background</td>
+        </tr>
+        <tr>
+          <td>Charts</td>
+          <td class="old">Donut, horizontal bars, Gantt only</td>
+          <td class="new">Ring gauges, glowing area chart, gradient bar fills, animated on load</td>
+        </tr>
+        <tr>
+          <td>Text sizing</td>
+          <td class="old">8&ndash;13px across most elements</td>
+          <td class="new">13px minimum, 15&ndash;17px for body content, 22&ndash;28px for KPI values</td>
+        </tr>
+        <tr>
+          <td>Milestones</td>
+          <td class="old">Separate panel, disconnected from client context</td>
+          <td class="new">Inline in table row + dedicated panel with neumorphic markers</td>
+        </tr>
+        <tr>
+          <td>Needs Attention</td>
+          <td class="old">Bottom-right panel, truncated to 5 items, small text</td>
+          <td class="new">Half-width panel, ranked worst-first, 15px text, glowing severity bars</td>
+        </tr>
+        <tr>
+          <td>Work Types panel</td>
+          <td class="old">Full panel showing count of active work types</td>
+          <td class="new">Removed. Not actionable information. Zero competitors show this.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ===== DESIGN PRINCIPLES ===== -->
+  <div class="card proposal">
+    <div class="proposal__title">Design Principles for the Rebuild</div>
+    <div class="proposal__sub">These principles guided the v5 prototype and should carry forward into production implementation.</div>
+
+    <div class="principle">
+      <div class="principle__num">01</div>
+      <div class="principle__body">
+        <div class="principle__title">Neutral by default, colour only for exceptions</div>
+        <div class="principle__text">The page should feel calm. Green means no colour needed &mdash; it is the absence of a problem. Only amber and red carry colour. When everything is coloured, nothing stands out. The accent cyan is for interactive elements and data, not status.</div>
+      </div>
+    </div>
+    <div class="principle">
+      <div class="principle__num">02</div>
+      <div class="principle__body">
+        <div class="principle__title">Table is the hero, charts are supporting cast</div>
+        <div class="principle__text">The portfolio table answers "which client, what status, what risk" in one scannable structure. Charts provide trend context and visual interest but do not compete with the table for primacy. Progressive disclosure: click a client row to expand detail.</div>
+      </div>
+    </div>
+    <div class="principle">
+      <div class="principle__num">03</div>
+      <div class="principle__body">
+        <div class="principle__title">Physical presence through neumorphic depth</div>
+        <div class="principle__text">Cards are raised objects on a surface, not flat rectangles. Dual shadows (dark bottom-right, subtle light top-left) create tactile depth. Inset wells for inputs and tracks. Press animation on click. The dashboard should feel like something you could touch.</div>
+      </div>
+    </div>
+    <div class="principle">
+      <div class="principle__num">04</div>
+      <div class="principle__body">
+        <div class="principle__title">30-second comprehension or it has failed</div>
+        <div class="principle__text">The entire portfolio state must be graspable in 30 seconds of scanning. 5 seconds for the KPIs. 15 seconds for the client table. 10 seconds for the attention items. If it takes longer, the hierarchy is wrong. Text minimum 13px, KPI values at 22px+.</div>
+      </div>
+    </div>
+    <div class="principle">
+      <div class="principle__num">05</div>
+      <div class="principle__body">
+        <div class="principle__title">Worst-first, always</div>
+        <div class="principle__text">The client table is sorted by health (red first, then amber, then green). The Needs Attention panel ranks blocked above overdue, overdue above at-risk. The dashboard exists to surface problems, not celebrate the status quo. Inactive/complete clients are greyed out at the bottom.</div>
+      </div>
+    </div>
+    <div class="principle">
+      <div class="principle__num">06</div>
+      <div class="principle__body">
+        <div class="principle__title">Every interaction has feedback</div>
+        <div class="principle__text">Hover lifts cards with shadow intensification. Click compresses with inset shadow. Progress bars animate on load. Ring gauges fill on load. The hero chart draws its line on load. Hover on data points reveals values. The dashboard feels alive, not static.</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// Animate score rings on load
+window.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.score__ring-fill').forEach(el => {
+    const target = el.getAttribute('stroke-dashoffset');
+    el.setAttribute('stroke-dashoffset', '207');
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      el.style.strokeDashoffset = target;
+    }));
+  });
+});
+</script>
+
+</body>
+</html>

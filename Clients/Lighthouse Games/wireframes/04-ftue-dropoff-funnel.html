@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FTUE Step-by-Step Drop-off &amp; Pacing -- Lighthouse Analytics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.js"></script>
+  <style>
+/* === DESIGN SYSTEM === */
+:root {
+  --primary: #A93DA1;
+  --primary-hover: #8E3488;
+  --primary-light: #C75ABF;
+  --primary-faint: #2A1629;
+  --primary-deep: #7030A0;
+  --secondary: #3152FF;
+  --secondary-light: #5A75FF;
+  --secondary-deep: #2240CC;
+  --accent-pink: #E4347A;
+  --accent-coral: #FF5528;
+  --lavender: #9A8FED;
+  --surface-base: #0F032B;
+  --surface-card: #1A0E30;
+  --surface-elevated: #251842;
+  --surface-hover: #30204F;
+  --border-default: #2D1B4A;
+  --text-primary: #F0F0F5;
+  --text-secondary: #9CA3BF;
+  --text-muted: #6B7194;
+  --success: #22C55E;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+  --rounded-sm: 6px;
+  --rounded-md: 10px;
+  --rounded-lg: 16px;
+  --rounded-full: 9999px;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { font-size: 14px; }
+body {
+  background: var(--surface-base);
+  color: var(--text-primary);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 14px; font-weight: 400; line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* === NAV HEADER === */
+.page-wrapper { max-width: 1440px; margin: 0 auto; padding: 24px; }
+
+.nav-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 0; margin-bottom: 8px;
+  border-bottom: 1px solid var(--border-default);
+}
+.nav-header .logo {
+  font-size: 15px; font-weight: 700; color: var(--text-primary);
+  display: flex; align-items: center; gap: 8px;
+}
+.nav-header .logo .brand { color: var(--primary); }
+.nav-links { display: flex; gap: 4px; flex-wrap: wrap; }
+.nav-links a {
+  padding: 8px 14px; border-radius: var(--rounded-sm);
+  font-size: 13px; color: var(--text-secondary); text-decoration: none;
+  display: flex; align-items: center; gap: 6px; transition: background 0.15s;
+}
+.nav-links a:hover { background: var(--surface-card); }
+.nav-links a.active { background: var(--primary-faint); color: var(--primary-light); }
+.pill {
+  font-size: 9px; font-weight: 700; padding: 2px 6px;
+  border-radius: var(--rounded-full); letter-spacing: 0.05em;
+}
+.pill-a { background: rgba(49,82,255,0.2); color: var(--secondary-light); }
+.pill-e { background: rgba(169,61,161,0.2); color: var(--primary-light); }
+.pill-all {
+  background: linear-gradient(90deg,rgba(49,82,255,0.2),rgba(169,61,161,0.2),rgba(154,143,237,0.2),rgba(255,85,40,0.2));
+  color: var(--text-primary);
+}
+
+/* === PAGE TITLE === */
+.page-title-row {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 4px;
+}
+.audience-badge {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; padding: 6px 14px;
+  border-radius: var(--rounded-full);
+  background: var(--primary-faint); color: var(--primary-light);
+}
+.page-subtitle { color: var(--text-secondary); margin-bottom: 24px; }
+h1 { font-size: 28px; font-weight: 700; line-height: 1.2; }
+
+/* === FILTER BAR === */
+.filter-bar {
+  background: var(--surface-card); border: 1px solid var(--border-default);
+  border-radius: var(--rounded-md); padding: 12px 16px;
+  display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+.filter-bar .filter-label {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--text-muted);
+}
+.filter-bar select {
+  background: var(--surface-elevated); color: var(--text-secondary);
+  border: 1px solid var(--border-default); border-radius: var(--rounded-sm);
+  padding: 6px 10px; font-size: 12px; font-family: Inter, sans-serif;
+  appearance: none; cursor: pointer;
+}
+
+/* === SCORECARDS === */
+.scorecard-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 16px; margin-bottom: 16px;
+}
+.scorecard {
+  background: var(--surface-card); border: 1px solid var(--border-default);
+  border-radius: var(--rounded-md); padding: 20px 24px;
+  position: relative; overflow: hidden;
+  box-shadow: 0 0 20px rgba(169, 61, 161, 0.06);
+}
+.scorecard::before {
+  content: ''; position: absolute; top: 0; left: 0;
+  width: 3px; height: 100%; border-radius: 3px 0 0 3px;
+}
+.scorecard.accent-blue::before { background: var(--secondary); }
+.scorecard.accent-pink::before { background: var(--accent-pink); }
+.scorecard.accent-purple::before { background: var(--primary-light); }
+.scorecard.accent-coral::before { background: var(--accent-coral); }
+.scorecard.accent-red::before { background: var(--danger); }
+.scorecard .sc-label {
+  font-size: 12px; font-weight: 500; color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+.scorecard .sc-value {
+  font-size: 28px; font-weight: 700;
+  font-family: 'JetBrains Mono', monospace; margin-bottom: 6px;
+}
+.scorecard .sc-trend {
+  font-size: 13px; font-family: 'JetBrains Mono', monospace;
+  display: flex; align-items: center; gap: 4px;
+}
+.trend-up { color: var(--success); }
+.trend-down { color: var(--danger); }
+
+/* === SECTION LABEL === */
+.section-label {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--text-muted);
+  margin-bottom: 16px; margin-top: 8px;
+  display: flex; align-items: center; gap: 8px;
+}
+.section-label::after {
+  content: ''; flex: 1; height: 1px;
+  background: var(--border-default);
+}
+
+/* === CHART CARDS === */
+.chart-card {
+  background: var(--surface-card); border: 1px solid var(--border-default);
+  border-radius: var(--rounded-md); padding: 24px;
+  position: relative;
+  box-shadow: 0 0 20px rgba(169, 61, 161, 0.06);
+}
+.chart-card .chart-title { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+.chart-card .chart-subtitle { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
+
+/* === TWO-COLUMN GRID === */
+.two-col-grid {
+  display: grid; grid-template-columns: 3fr 2fr;
+  gap: 16px; margin-bottom: 24px;
+}
+
+/* === FULL WIDTH CHART === */
+.full-width-chart { margin-bottom: 24px; }
+
+/* === AERM PILL === */
+.aerm-pill {
+  position: absolute; top: 16px; right: 16px;
+  font-size: 10px; font-weight: 700; padding: 3px 10px;
+  border-radius: var(--rounded-full); letter-spacing: 0.05em; text-transform: uppercase;
+}
+.aerm-pill.acquisition {
+  background: rgba(49,82,255,0.15); color: var(--secondary-light);
+  border: 1px solid rgba(49,82,255,0.3);
+}
+
+/* === ANNOTATION SYSTEM === */
+.annotation-toggle {
+  position: fixed; bottom: 24px; right: 24px; z-index: 100;
+  background: var(--accent-pink); color: #fff; border: none;
+  padding: 10px 20px; border-radius: var(--rounded-full);
+  font-size: 13px; font-weight: 600; font-family: Inter, sans-serif;
+  cursor: pointer; box-shadow: 0 4px 20px rgba(228,52,122,0.4);
+  transition: background 0.15s;
+}
+.annotation-toggle:hover { background: #d12a6a; }
+.annotation-toggle.active { background: var(--primary-deep); box-shadow: 0 4px 20px rgba(112,48,160,0.4); }
+.callout-badge {
+  display: none; position: absolute;
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--accent-pink); color: #fff;
+  font-size: 11px; font-weight: 700;
+  align-items: center; justify-content: center; cursor: pointer; z-index: 10;
+}
+body.annotations-on .callout-badge { display: flex; }
+.annotation-panel {
+  display: none; position: fixed; top: 50%; right: 80px;
+  transform: translateY(-50%); width: 360px; max-height: 80vh; overflow-y: auto;
+  background: var(--surface-elevated); border: 1px solid var(--accent-pink);
+  border-radius: var(--rounded-md); padding: 24px;
+  z-index: 200; box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+}
+.annotation-panel.visible { display: block; }
+.annotation-panel h4 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+.annotation-panel .ann-pillar { margin-bottom: 8px; }
+.annotation-panel .ann-text { font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 12px; }
+.annotation-panel .ann-audience { font-size: 12px; color: var(--text-muted); border-top: 1px solid var(--border-default); padding-top: 8px; }
+.annotation-panel .close-btn {
+  position: absolute; top: 12px; right: 12px;
+  background: none; border: none; color: var(--text-muted);
+  font-size: 20px; cursor: pointer; line-height: 1;
+}
+.annotation-panel .close-btn:hover { color: var(--text-primary); }
+
+/* === DRILLDOWN === */
+.drilldown-row { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+.drilldown-select {
+  background: var(--surface-elevated); color: var(--text-secondary);
+  border: 1px solid var(--border-default); border-radius: var(--rounded-sm);
+  padding: 8px 14px; font-size: 13px; font-family: Inter, sans-serif;
+  appearance: none; cursor: pointer; min-width: 280px;
+}
+.drilldown-hint {
+  font-size: 12px; color: var(--text-muted); font-style: italic;
+}
+.placeholder-msg {
+  background: var(--surface-card); border: 1px solid var(--border-default);
+  border-radius: var(--rounded-md); padding: 32px;
+  text-align: center; color: var(--text-muted); font-size: 14px;
+}
+
+/* === CSS FUNNEL === */
+.funnel { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 12px 0; }
+.funnel-bar {
+  height: 34px; border-radius: 4px; display: flex; align-items: center;
+  justify-content: space-between; padding: 0 14px; transition: opacity 0.15s;
+  min-width: 100px;
+}
+.funnel-bar:hover { opacity: 0.85; }
+.funnel-bar .step-name { font-size: 12px; font-weight: 500; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.funnel-bar .step-stats { font-size: 11px; font-family: 'JetBrains Mono', monospace; color: rgba(255,255,255,0.8); white-space: nowrap; }
+
+/* === FOOTER === */
+.page-footer {
+  text-align: center; color: var(--text-muted); font-size: 12px;
+  padding: 16px 0; margin-top: 48px;
+  border-top: 1px solid var(--border-default);
+}
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+
+  <!-- ===== NAV HEADER ===== -->
+  <nav class="nav-header">
+    <div class="logo"><span class="brand">Lighthouse</span> Analytics</div>
+    <div class="nav-links">
+      <a href="01-progression-summary.html">Progression <span class="pill pill-e">E</span></a>
+      <a href="02-slt-overview.html">SLT Overview <span class="pill pill-all">AERM</span></a>
+      <a href="03-ftue-executive.html">FTUE: Health <span class="pill pill-a">A</span></a>
+      <a href="04-ftue-dropoff-funnel.html" class="active">FTUE: Drop-off <span class="pill pill-a">A</span></a>
+      <a href="05-ftue-quest-timing.html">FTUE: Timing <span class="pill pill-a">A</span><span class="pill pill-e">E</span></a>
+    </div>
+  </nav>
+
+  <!-- ===== PAGE TITLE ===== -->
+  <div class="page-title-row">
+    <h1>FTUE Step-by-Step Drop-off &amp; Pacing</h1>
+    <span class="audience-badge">Game Designers</span>
+  </div>
+  <p class="page-subtitle">Pinpoint exactly where players quit the opening experience and how long each step takes</p>
+
+  <!-- ===== FILTER BAR ===== -->
+  <div class="filter-bar">
+    <span class="filter-label">Filters</span>
+    <select><option>Date Range: Last 30 Days</option><option>Last 7 Days</option><option>Last 14 Days</option><option>Last 90 Days</option></select>
+    <select><option>Build Version: All</option><option>0.9.1</option><option>0.9.2</option><option>0.9.3</option></select>
+    <select><option>Platform: All</option><option>iOS</option><option>Android</option><option>PC</option><option>Console</option></select>
+    <select><option>Country: All</option><option>Tier 1</option><option>Tier 2</option><option>Tier 3</option><option>US</option><option>UK</option><option>DE</option><option>JP</option></select>
+    <select><option>Player Type: All</option><option>Free</option><option>Paid</option></select>
+    <select><option>Device Tier: All</option><option>High</option><option>Medium</option><option>Low</option></select>
+    <select><option>Language: All</option><option>English</option><option>German</option><option>French</option><option>Japanese</option></select>
+    <select><option>Session Number: All</option><option>Session 1</option><option>Session 2</option><option>Session 3</option><option>Sessions 1-3</option></select>
+  </div>
+
+  <!-- ===== SCORECARDS: ROW 1 ===== -->
+  <div class="scorecard-grid" style="position: relative;">
+    <span class="callout-badge" onclick="showAnnotation(1)" style="top: -10px; right: -10px;">1</span>
+    <div class="scorecard accent-blue">
+      <div class="sc-label">Installs</div>
+      <div class="sc-value" style="color: var(--secondary-light);">4,200</div>
+      <div class="sc-trend trend-up">&#9650; +14.2%</div>
+    </div>
+    <div class="scorecard accent-purple">
+      <div class="sc-label">Step Conversion Rate</div>
+      <div class="sc-value" style="color: var(--primary-light);">45.0%</div>
+      <div class="sc-trend trend-up">&#9650; +1.2pp</div>
+    </div>
+    <div class="scorecard accent-pink">
+      <div class="sc-label">Step Drop-Off Rate</div>
+      <div class="sc-value" style="color: var(--accent-pink);">8.4%</div>
+      <div class="sc-trend trend-up">&#9660; -0.3pp</div>
+    </div>
+  </div>
+
+  <!-- ===== SCORECARDS: ROW 2 ===== -->
+  <div class="scorecard-grid" style="margin-bottom: 32px;">
+    <div class="scorecard accent-purple">
+      <div class="sc-label">Avg Time per Step</div>
+      <div class="sc-value" style="color: var(--primary-light);">4.2 min</div>
+      <div class="sc-trend trend-up">&#9660; -0.5%</div>
+    </div>
+    <div class="scorecard accent-coral">
+      <div class="sc-label">Friction Rate</div>
+      <div class="sc-value" style="color: var(--accent-coral);">12.3%</div>
+      <div class="sc-trend trend-up">&#9660; -1.1pp</div>
+    </div>
+    <div class="scorecard accent-red">
+      <div class="sc-label">Crash Rate during FTUE</div>
+      <div class="sc-value" style="color: var(--danger);">2.1%</div>
+      <div class="sc-trend trend-up">&#9660; -0.8pp</div>
+    </div>
+  </div>
+
+  <!-- ===== MAJOR STEP ANALYSIS ===== -->
+  <div class="section-label">Major Step Analysis</div>
+
+  <div class="two-col-grid">
+    <!-- LEFT: Step Conversion Rate (CSS Funnel) -->
+    <div class="chart-card" style="position: relative;">
+      <span class="aerm-pill acquisition">Acquisition</span>
+      <span class="callout-badge" onclick="showAnnotation(2)" style="top: -10px; right: 40px;">2</span>
+      <div class="chart-title">Step Conversion Rate</div>
+      <div class="chart-subtitle">% of installs reaching each milestone -- funnel colour ramp</div>
+      <div id="majorConvFunnel" class="funnel"></div>
+    </div>
+
+    <!-- RIGHT: Step Drop-Off Rate -->
+    <div class="chart-card" style="position: relative;">
+      <span class="aerm-pill acquisition">Acquisition</span>
+      <span class="callout-badge" onclick="showAnnotation(3)" style="top: -10px; right: 40px;">3</span>
+      <div class="chart-title">Step Drop-Off Rate</div>
+      <div class="chart-subtitle">Relative % lost between consecutive steps -- red = &gt;5%</div>
+      <div style="position:relative; width:100%; height:420px;">
+        <canvas id="majorDropChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== AVERAGE TIME PER STEP ===== -->
+  <div class="chart-card full-width-chart" style="position: relative;">
+    <span class="aerm-pill acquisition">Acquisition</span>
+    <span class="callout-badge" onclick="showAnnotation(4)" style="top: -10px; right: 40px;">4</span>
+    <div class="chart-title">Average Time per Step</div>
+    <div class="chart-subtitle">Median minutes spent on each FTUE step</div>
+    <div style="position:relative; width:100%; height:340px;">
+      <canvas id="majorTimeChart"></canvas>
+    </div>
+  </div>
+
+  <!-- ===== MINOR STEP DRILLDOWN ===== -->
+  <div class="section-label">Minor Step Drilldown</div>
+
+  <div class="drilldown-row">
+    <select class="drilldown-select" id="drilldownSelect" onchange="onDrilldownChange()">
+      <option value="Download">Download</option>
+      <option value="First Boot">First Boot</option>
+      <option value="Account Creation">Account Creation</option>
+      <option value="EULA">EULA</option>
+      <option value="Initial Drive">Initial Drive</option>
+      <option value="WH Quests 1-3">WH Quests 1-3</option>
+      <option value="WH Quest 3 (First Car)" selected>WH Quest 3 (First Car)</option>
+      <option value="WH Quests 4-6">WH Quests 4-6</option>
+      <option value="WH Quests 7-9">WH Quests 7-9</option>
+      <option value="WH Quest 10">WH Quest 10</option>
+      <option value="California">California</option>
+      <option value="GP Mission 1">GP Mission 1</option>
+      <option value="GP Mission 2-3">GP Mission 2-3</option>
+      <option value="Semi-Pro License">Semi-Pro License</option>
+      <option value="Alpha Wall">Alpha Wall</option>
+    </select>
+    <span class="drilldown-hint">Select a major step to view sub-step breakdown</span>
+  </div>
+
+  <div id="drilldownContent" style="position: relative;">
+    <span class="callout-badge" onclick="showAnnotation(5)" style="top: -10px; right: -10px;">5</span>
+  </div>
+
+  <!-- ===== FOOTER ===== -->
+  <div class="page-footer">Lighthouse Games Analytics &middot; Wonderland &middot; Wireframe v1 &middot; NBI Analytics</div>
+</div>
+
+<!-- ===== ANNOTATION UI ===== -->
+<button class="annotation-toggle" onclick="toggleAnnotations()">Annotations</button>
+<div class="annotation-panel">
+  <button class="close-btn" onclick="closeAnnotation()">&times;</button>
+  <h4></h4>
+  <div class="ann-pillar"></div>
+  <div class="ann-text"></div>
+  <div class="ann-audience"></div>
+</div>
+
+<script>
+/* ================================================================
+   ANNOTATION SYSTEM
+   ================================================================ */
+var annotations = {
+  1: {
+    title: 'Diagnostic KPIs',
+    pillarHtml: '<span class="pill pill-a" style="font-size:10px;">ACQUISITION</span>',
+    text: 'Six diagnostic KPIs for FTUE friction. Friction Rate = % of players taking >2 standard deviations longer than median for a step, flagging confusion or difficulty. Crash Rate during FTUE = technical friction invisible in conversion data alone. Drop-off direction arrows are inverted: down is good (less loss).',
+    audience: 'Game Designers -- FTUE diagnostics'
+  },
+  2: {
+    title: 'Major Step Conversion Funnel',
+    pillarHtml: '<span class="pill pill-a" style="font-size:10px;">ACQUISITION</span>',
+    text: 'Step-by-step funnel with WH quests grouped into readable clusters. Funnel colour ramp (light magenta to deep purple) gives an instant visual sense of how far players penetrate. Each bar = % of installs reaching that milestone. 42% reach Alpha Wall from 4,200 installs.',
+    audience: 'Game Designers -- granular funnel analysis'
+  },
+  3: {
+    title: 'Step Drop-Off Rate',
+    pillarHtml: '<span class="pill pill-a" style="font-size:10px;">ACQUISITION</span>',
+    text: 'Relative drop-off between consecutive steps. Spikes here identify specific "quit moments" in the experience. Red bars highlight any step where >5% of the entering cohort is lost, drawing immediate attention to the worst transitions.',
+    audience: 'Game Designers -- friction point identification'
+  },
+  4: {
+    title: 'Time per Step',
+    pillarHtml: '<span class="pill pill-a" style="font-size:10px;">ACQUISITION</span>',
+    text: 'Median time on each step. Disproportionately long steps may indicate confusion, difficulty spikes, or poor signposting. Compare these against designed target durations on the Quest Timing dashboard (page 05).',
+    audience: 'Game Designers -- pacing analysis'
+  },
+  5: {
+    title: 'Minor Step Drilldown',
+    pillarHtml: '<span class="pill pill-a" style="font-size:10px;">ACQUISITION</span>',
+    text: 'Sub-step analysis within a selected major step. Quest 3 (First Car) has heartbeat telemetry giving 8 sub-step data points. Other steps show a placeholder until engineering ships heartbeat events at <30s intervals for those quests.',
+    audience: 'Game Designers -- sub-step diagnostics'
+  }
+};
+
+var panelOpen = null;
+
+function toggleAnnotations() {
+  document.body.classList.toggle('annotations-on');
+  document.querySelector('.annotation-toggle').classList.toggle('active');
+  var panel = document.querySelector('.annotation-panel');
+  if (panel) { panel.classList.remove('visible'); panelOpen = null; }
+}
+
+function showAnnotation(num) {
+  var panel = document.querySelector('.annotation-panel');
+  var a = annotations[num];
+  if (!a) return;
+  panel.querySelector('h4').textContent = a.title;
+  panel.querySelector('.ann-pillar').innerHTML = a.pillarHtml;
+  panel.querySelector('.ann-text').textContent = a.text;
+  panel.querySelector('.ann-audience').textContent = 'Audience: ' + a.audience;
+  panel.classList.add('visible');
+  panelOpen = num;
+}
+
+function closeAnnotation() {
+  var panel = document.querySelector('.annotation-panel');
+  if (panel) { panel.classList.remove('visible'); panelOpen = null; }
+}
+
+/* ================================================================
+   MOCK DATA -- 15 major steps (collapsed WH quests)
+   ================================================================ */
+var stepLabels = [
+  'Download', 'First Boot', 'Account Creation', 'EULA', 'Initial Drive',
+  'WH Quests 1-3', 'WH Quest 3 (First Car)', 'WH Quests 4-6', 'WH Quests 7-9',
+  'WH Quest 10', 'California', 'GP Mission 1', 'GP Mission 2-3',
+  'Semi-Pro License', 'Alpha Wall'
+];
+
+var conversionPct = [100, 94, 88, 86.5, 80, 74, 72, 65, 59, 55, 52, 49, 46, 44, 42];
+
+var dropOffRates = conversionPct.map(function(v, i) {
+  if (i === 0) return 0;
+  var prev = conversionPct[i - 1];
+  return parseFloat(((prev - v) / prev * 100).toFixed(1));
+});
+
+var timePerStep = [0, 2, 3, 1.5, 7, 9, 4, 8, 9, 4, 8, 5, 9.5, 3, 2];
+
+// Chart.js step labels (with line breaks for axis)
+var chartStepLabels = [
+  'Download', 'First Boot', 'Account\nCreation', 'EULA', 'Initial Drive',
+  'WH Quests\n1-3', 'WH Quest 3\n(First Car)', 'WH Quests\n4-6', 'WH Quests\n7-9',
+  'WH Quest 10', 'California', 'GP\nMission 1', 'GP\nMission 2-3',
+  'Semi-Pro\nLicense', 'Alpha Wall'
+];
+
+// Quest 3 sub-steps
+var q3Labels = [
+  'Quest Started', 'Walked to Garage', 'Spoke to Mechanic', 'Selected Car (MX-5)',
+  'Cinematic 2.1', 'First Drive Start', 'Completed First Lap', 'Quest Complete'
+];
+var q3Conv = [100, 96, 92, 88, 85, 82, 78, 72];
+
+/* ================================================================
+   FUNNEL COLOUR RAMP
+   ================================================================ */
+var funnelRamp = ['#C75ABF','#B84DB3','#A93DA1','#9A35A1','#8E3488','#7030A0','#5A2680','#4A2470','#3D1A5C','#351550','#2A1140'];
+
+function funnelColor(i, total) {
+  var idx = Math.floor((i / Math.max(total - 1, 1)) * (funnelRamp.length - 1));
+  return funnelRamp[Math.min(idx, funnelRamp.length - 1)];
+}
+
+/* ================================================================
+   CSS FUNNEL BUILDER
+   ================================================================ */
+function buildFunnel(container, labels, pctValues, totalPlayers, maxWidthPct) {
+  maxWidthPct = maxWidthPct || 95;
+  var html = '';
+  for (var i = 0; i < labels.length; i++) {
+    var pct = pctValues[i];
+    var widthPct = (pct / 100) * maxWidthPct;
+    var players = Math.round(totalPlayers * pct / 100);
+    var bg = funnelColor(i, labels.length);
+    html += '<div class="funnel-bar" style="width:' + widthPct + '%; background:' + bg + ';">' +
+      '<span class="step-name">' + labels[i] + '</span>' +
+      '<span class="step-stats">' + pct + '% &middot; ' + players.toLocaleString() + '</span>' +
+      '</div>';
+  }
+  container.innerHTML = html;
+}
+
+/* ================================================================
+   SHARED CHART HELPERS
+   ================================================================ */
+var gridColor = 'rgba(45, 27, 74, 0.6)';
+var tickColor = '#6B7194';
+
+function makeYAxis(opts) {
+  return {
+    grid: { color: gridColor, drawBorder: false },
+    ticks: { color: tickColor, font: { size: 11 }, callback: opts.callback || undefined },
+    max: opts.max || undefined,
+    beginAtZero: opts.beginAtZero !== false
+  };
+}
+
+function makeXAxis(opts) {
+  return {
+    grid: { display: false },
+    ticks: {
+      color: tickColor,
+      font: { size: opts.fontSize || 10 },
+      maxRotation: opts.maxRotation || 45,
+      minRotation: opts.minRotation || 30,
+      autoSkip: false
+    }
+  };
+}
+
+/* ================================================================
+   RENDER ON DOM READY
+   ================================================================ */
+document.addEventListener('DOMContentLoaded', function() {
+
+  // ---------- 1. STEP CONVERSION RATE (CSS FUNNEL) ----------
+  buildFunnel(
+    document.getElementById('majorConvFunnel'),
+    stepLabels,
+    conversionPct,
+    4200,
+    95
+  );
+
+  // ---------- 2. STEP DROP-OFF RATE (RIGHT) ----------
+  var dropColors = dropOffRates.map(function(v) {
+    return v > 5 ? '#EF4444' : '#E4347A';
+  });
+
+  new Chart(document.getElementById('majorDropChart'), {
+    type: 'bar',
+    data: {
+      labels: chartStepLabels,
+      datasets: [{
+        data: dropOffRates,
+        backgroundColor: dropColors,
+        borderRadius: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#251842',
+          titleColor: '#F0F0F5',
+          bodyColor: '#9CA3BF',
+          borderColor: '#2D1B4A',
+          borderWidth: 1,
+          callbacks: {
+            label: function(ctx) {
+              return ctx.parsed.y.toFixed(1) + '% relative drop-off' + (ctx.parsed.y > 5 ? '  (!)' : '');
+            }
+          }
+        }
+      },
+      scales: {
+        y: makeYAxis({ callback: function(v) { return v + '%'; } }),
+        x: makeXAxis({ maxRotation: 55, minRotation: 40, fontSize: 9 })
+      }
+    }
+  });
+
+  // ---------- 3. AVERAGE TIME PER STEP (FULL WIDTH) ----------
+  new Chart(document.getElementById('majorTimeChart'), {
+    type: 'bar',
+    data: {
+      labels: chartStepLabels,
+      datasets: [{
+        data: timePerStep,
+        backgroundColor: '#A93DA1',
+        borderRadius: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#251842',
+          titleColor: '#F0F0F5',
+          bodyColor: '#9CA3BF',
+          borderColor: '#2D1B4A',
+          borderWidth: 1,
+          callbacks: {
+            label: function(ctx) { return ctx.parsed.y + ' min median'; }
+          }
+        }
+      },
+      scales: {
+        y: makeYAxis({ callback: function(v) { return v + 'm'; } }),
+        x: makeXAxis({ maxRotation: 45, minRotation: 25, fontSize: 10 })
+      }
+    }
+  });
+
+  // ---------- INITIAL DRILLDOWN ----------
+  renderDrilldown();
+});
+
+/* ================================================================
+   MINOR STEP DRILLDOWN
+   ================================================================ */
+var drilldownCharts = [];
+
+function destroyDrilldownCharts() {
+  for (var i = 0; i < drilldownCharts.length; i++) {
+    drilldownCharts[i].destroy();
+  }
+  drilldownCharts = [];
+}
+
+function onDrilldownChange() { renderDrilldown(); }
+
+function renderDrilldown() {
+  var sel = document.getElementById('drilldownSelect');
+  var container = document.getElementById('drilldownContent');
+  var step = sel.value;
+
+  destroyDrilldownCharts();
+
+  // Keep the callout badge
+  var badgeHtml = '<span class="callout-badge" onclick="showAnnotation(5)" style="top: -10px; right: -10px;">5</span>';
+
+  if (step !== 'WH Quest 3 (First Car)') {
+    container.innerHTML = badgeHtml +
+      '<div class="placeholder-msg">Sub-step data for <strong>' + step +
+      '</strong> requires heartbeat telemetry at &lt;30s intervals. ' +
+      'Contact engineering to enable sub-step tracking for this milestone.</div>';
+    return;
+  }
+
+  // Quest 3 sub-step funnel (CSS funnel)
+  // Base player count: 72% of 4200 = 3024 players entered Quest 3
+  var q3BasePlayers = Math.round(4200 * 72 / 100);
+
+  container.innerHTML = badgeHtml +
+    '<div class="chart-card" style="position:relative;">' +
+      '<span class="aerm-pill acquisition">Acquisition</span>' +
+      '<div class="chart-title">Quest 3 (First Car) -- Sub-Step Conversion</div>' +
+      '<div class="chart-subtitle">% of quest starters reaching each sub-step. Funnel colour ramp shows progression depth.</div>' +
+      '<div id="subConvFunnel" class="funnel"></div>' +
+    '</div>';
+
+  buildFunnel(
+    document.getElementById('subConvFunnel'),
+    q3Labels,
+    q3Conv,
+    q3BasePlayers,
+    95
+  );
+}
+</script>
+</body>
+</html>
