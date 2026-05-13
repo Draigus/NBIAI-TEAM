@@ -17670,7 +17670,7 @@ async function submitNewLead() {
       const resp = await authFetch('/api/clients', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: newClientName })
+        body: JSON.stringify({ name: newClientName, practice_area: 'gaming' })
       });
       if (resp.ok) {
         const c = await resp.json();
