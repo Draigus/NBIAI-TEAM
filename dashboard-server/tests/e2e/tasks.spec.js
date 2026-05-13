@@ -20,7 +20,8 @@ test('newly created project task appears on the dashboard after login', async ({
     client_id: client.id,
   });
 
-  await page.goto('/nbi_project_dashboard.html');
+  // Use #tasks to avoid dashboard infinite milestone loop on empty DB
+  await page.goto('/nbi_project_dashboard.html#tasks');
   await page.waitForSelector('#loginScreen', { state: 'visible', timeout: 10000 });
   await page.locator('#loginUser').fill(user.username);
   await page.locator('#loginPass').fill(user.raw_password);
@@ -29,6 +30,10 @@ test('newly created project task appears on the dashboard after login', async ({
   // wait for network idle after login completes.
   await page.locator('#loginBtn').click();
   await page.waitForSelector('#loginScreen', { state: 'hidden', timeout: 10000 });
+
+  // Wait for post-login renderAll() to complete before switching views.
+  // The sidebar items appearing proves the async load chain finished.
+  await page.waitForSelector('.sidebar__item', { state: 'attached', timeout: 15000 });
 
   // Switch to the tasks view explicitly so the task is rendered.
   // Don't waitForLoadState('networkidle') — the dashboard polls and

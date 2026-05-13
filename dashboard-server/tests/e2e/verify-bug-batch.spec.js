@@ -24,12 +24,16 @@ test('bug batch: sort order + auto dates + year validation + warnings', async ({
   await createTestTask({ title: 'ChildStory', item_type: 'story', client_id: client.id, parent_id: feature.id, due_date: '2026-06-30' });
   await createTestTask({ title: 'OverdueTask', item_type: 'task', client_id: client.id, status: 'In progress', due_date: '2026-01-01', assignees: [user.display_name] });
 
-  await page.goto('/nbi_project_dashboard.html');
+  // Use #tasks to avoid dashboard infinite milestone loop on empty DB
+  await page.goto('/nbi_project_dashboard.html#tasks');
   await page.waitForSelector('#loginScreen', { state: 'visible', timeout: 10000 });
   await page.locator('#loginUser').fill(user.username);
   await page.locator('#loginPass').fill(user.raw_password);
   await page.locator('#loginBtn').click();
   await page.waitForSelector('#loginScreen', { state: 'hidden', timeout: 10000 });
+
+  // Wait for post-login renderAll() to complete before switching views.
+  await page.waitForSelector('.sidebar__item', { state: 'attached', timeout: 15000 });
 
   await page.evaluate(() => { if (typeof switchView === 'function') switchView('tasks'); });
 

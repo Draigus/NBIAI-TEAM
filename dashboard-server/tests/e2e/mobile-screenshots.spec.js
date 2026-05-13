@@ -16,15 +16,17 @@ const IPHONE_11 = { width: 414, height: 896 };
 const SHOT_DIR = path.resolve(__dirname, '../../../projects/nbi_dashboard/deliverables/2026-04-15-mobile-screenshots');
 
 async function loginAs(page, username, rawPassword) {
-  await page.goto('/nbi_project_dashboard.html');
+  // Use #tasks to avoid dashboard infinite milestone loop on empty DB
+  await page.goto('/nbi_project_dashboard.html#tasks');
   await page.waitForSelector('#loginScreen', { state: 'visible', timeout: 10000 });
   await page.locator('#loginUser').fill(username);
   await page.locator('#loginPass').fill(rawPassword);
   await page.locator('#loginBtn').click();
   await page.waitForSelector('#loginScreen', { state: 'hidden', timeout: 10000 });
-  await page.waitForFunction(() => {
-    return typeof switchView === 'function' && document.querySelectorAll('.sidebar button, [role="navigation"] button').length >= 8;
-  }, { timeout: 15000 });
+  // NOTE: page.waitForFunction's explicit timeout param is ignored in
+  // Playwright 1.59 (always uses actionTimeout from config), so we use
+  // waitForSelector which correctly respects its timeout parameter.
+  await page.waitForSelector('.sidebar__item', { state: 'attached', timeout: 15000 });
 }
 
 test.describe('@mobile-audit iPhone 11 portrait screenshots', () => {
@@ -69,7 +71,7 @@ test.describe('@mobile-audit iPhone 11 portrait screenshots', () => {
     );
 
     // Leads for Leads kanban
-    const stage = await createTestLeadStage({ name: 'Mobile Active' });
+    const stage = await createTestLeadStage({ name: `Mobile Active ${Date.now()}` });
     await pool.query(
       `INSERT INTO leads (title, stage_id, priority, currency, position, created_by)
        VALUES ('Mobile Lead A', $1, 1, 'GBP', 0, 'test'),

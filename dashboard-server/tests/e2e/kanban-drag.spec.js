@@ -25,20 +25,24 @@ async function seedDummyTaskForEmptyStateBypass() {
 }
 
 async function loginAs(page, username, rawPassword) {
-  await page.goto('/nbi_project_dashboard.html');
+  // Navigate with #tasks hash to avoid the dashboard view's infinite milestone
+  // reload loop (when _apiClientsCache is empty, loadAllMilestones resolves
+  // immediately but _milestonesCache stays empty, causing renderContent to
+  // re-trigger loadAllMilestones in a tight microtask loop that starves the
+  // macrotask queue and prevents page.evaluate/waitForSelector from running).
+  await page.goto('/nbi_project_dashboard.html#tasks');
   await page.waitForSelector('#loginScreen', { state: 'visible', timeout: 10000 });
   await page.locator('#loginUser').fill(username);
   await page.locator('#loginPass').fill(rawPassword);
   await page.locator('#loginBtn').click();
   await page.waitForSelector('#loginScreen', { state: 'hidden', timeout: 10000 });
   // Wait for the post-login renderAll() to complete — signalled by the
-  // sidebar nav buttons being fully rendered. The Hiring button gets a
-  // "Hiring, N items" aria-label once renderSidebar runs, which happens
-  // inside renderAll, which runs AFTER the Promise.all load finishes.
-  await page.waitForFunction(() => {
-    return typeof switchView === 'function'
-      && document.querySelectorAll('.sidebar button, [role="navigation"] button').length >= 8;
-  }, { timeout: 15000 });
+  // sidebar nav buttons being fully rendered. We wait for a sidebar__item
+  // element to exist, which proves renderSidebar() ran inside renderAll().
+  // NOTE: page.waitForFunction's explicit timeout param is ignored in
+  // Playwright 1.59 (always uses actionTimeout from config), so we use
+  // waitForSelector which correctly respects its timeout parameter.
+  await page.waitForSelector('.sidebar__item', { state: 'attached', timeout: 15000 });
 }
 
 // -----------------------------------------------------------------------------
@@ -191,7 +195,9 @@ test.describe('Tasks kanban drag', () => {
     // Set localStorage BEFORE the script initialises taskSubView. The let
     // binding reads localStorage once at parse time, so we must navigate,
     // write to localStorage, then reload so the script sees 'board'.
-    await page.goto('/nbi_project_dashboard.html');
+    // Navigate, set localStorage, then reload so the script reads 'board'
+    // at parse time. Use #tasks hash to avoid dashboard infinite loop.
+    await page.goto('/nbi_project_dashboard.html#tasks');
     await page.evaluate(() => localStorage.setItem('nbi_task_subview', 'board'));
     await page.reload();
     await page.waitForSelector('#loginScreen', { state: 'visible', timeout: 10000 });
@@ -201,8 +207,9 @@ test.describe('Tasks kanban drag', () => {
     await page.locator('#loginBtn').click();
     await page.waitForSelector('#loginScreen', { state: 'hidden', timeout: 10000 });
 
-    // Navigate to Projects — board sub-view should render from localStorage
-    await page.waitForFunction(() => typeof switchView === 'function', { timeout: 15000 });
+    // Navigate to Projects — board sub-view should render from localStorage.
+    // Wait for sidebar items to prove renderAll() completed (switchView is defined).
+    await page.waitForSelector('.sidebar__item', { state: 'attached', timeout: 15000 });
     await page.evaluate(() => switchView('tasks'));
     await page.waitForSelector('.board-card', { timeout: 15000 });
 
