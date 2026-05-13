@@ -17933,7 +17933,7 @@ async function openBugReportModal() {
   const screenshotPromise = captureScreenshot();
   const currentPage = currentView || 'unknown';
 
-  let html = `<div class="modal-overlay open" id="bugReportModal" role="dialog" aria-modal="true">
+  let html = `<div class="modal-overlay open" id="bugReportModal" role="dialog" aria-modal="true" style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;display:flex;justify-content:center;align-items:center;background:rgba(0,0,0,0.5)">
     <div class="modal bug-report-modal">
       <h2>&#128030; Report a Bug or Feature Request</h2>
       <div style="margin-bottom:12px">
