@@ -1,85 +1,82 @@
 # Pending Tasks
 
-Updated 2026-05-11
+Updated 2026-05-13
 
 ---
 
 ## Awaiting Glen UAT
 
-Features merged to master, tests green (387), PM2 running. Glen needs to test at worksage.nbi-consulting.com.
+All deployed on :8888 via PM2. Glen needs to test at worksage.nbi-consulting.com.
+Unit tests: 396/396 green. Branch: `feature/command-centre` (46 commits ahead of master).
 
-### Bug Batch (8 items, all set to please_review in Bug Tracker)
-- Sort order deterministic on reload
-- People filter hides unassigned tasks at all levels
-- Detail panel no longer jumps during multi-user sync
-- 5-digit years blocked with toast error
-- CSV import due dates parsed correctly
-- Features/stories show auto-calculated dates (greyed out)
-- Date paste normalises DD/MM/YYYY and named month formats
-- Warning notifications show timestamps
+### Command Centre v2 — Zone-Based Layout
+- Three-zone cockpit: status strip (48px), 4Cs metrics row (120px), main+rail grid
+- Tabs: Dashboard (adaptive grid), Daily Briefing, System Map
+- Action rail: command input, critical alerts, reasoning stream
+- Keyboard shortcuts: 1/2/3 tabs, / or Ctrl+K command input, R refresh, Escape deselect
+- Card selection with dim/highlight
+- Responsive: 5→4→3→2→1 columns, rail collapses at <1600px
 
-### Gantt Timeline Drag
-- Bars should land exactly where dropped (timezone fix)
-- Dates on bar should match ticket detail panel
-- Glen reported initial fix was still off - latest fix deployed, needs retest
+### Bug Batch — 14 Bugs (all `please_review`)
+| Bug ID | Title | Fix Summary |
+|--------|-------|-------------|
+| caf58563 | Input Information Not Saving | Sync failure toast + beforeunload guard |
+| a1ec1a84 | Mark As Repeating inconsistent | Moved checkbox to after Due Date |
+| 9893cedc | Dragging end of task bar changes wrong date | ganttBarDragEnd sets both endDate and dueDate |
+| a12b9c49 | Clicking Warning partially redirects | switchView runs first, then ancestor expansion |
+| 3ab421ed | Clicking Alerts for Bug Fixes fails to redirect | CC rail + briefing + notification links patched |
+| 1c89b060 | No Data Issue (empty pages on load) | Loading skeleton gate on initial load |
+| 442e1b50 | Blocked Description incomplete | 5 editable blocker fields in both detail panels |
+| a8e144aa | Search Bar doesn't work on timeline | Gantt search with ancestor/descendant visibility |
+| 57b7f1e3 | Client Filter not working | Could not reproduce — needs Glen's specific steps |
+| 2ecb924d | Repeating Task Checkbox position | Same fix as a1ec1a84 |
+| 76f88a2a | No Email Reports | sendEmailAsync already retries; cron SQL cast fixed |
+| f8eb57f6 | Reporting Page Colour Legend | Inline legend row added |
+| f9f52392 | Blocker Update tracking | lastUpdated field on all 5 blocker onchange handlers |
+| 82904fb3 | Milestone Text Misplacement | Label repositioned above header row |
 
-### Connected Statuses (c7e48ddf) — please_review
-- Mark a parent Done/Cancelled/Blocked and all children cascade
-- All siblings terminal → parent auto-completes (Done if all Done, else Cancelled)
+### Previously Shipped (still awaiting UAT)
 
-### Prerequisites Blocked (f5a6bff2) — please_review
-- Block or cancel a prerequisite → its dependants become Blocked automatically
+**Gantt Timeline Drag** — Bars land where dropped (timezone fix), dueDate synced. Glen reported initial fix still off — latest fix deployed.
 
-### Scroll Preservation (9bb9eb1a, 2e005a41, 94b12f59) — please_review
-- Background sync no longer resets scroll position in any view
-- Gantt horizontal/vertical scroll preserved across sync
-- Re-render skipped when inline detail panel is open
+**Connected Statuses** (c7e48ddf) — Parent Done/Cancelled/Blocked cascades to children. Siblings terminal → parent auto-completes.
 
-### Portfolio Chart Redesign
-- Bar+donut layout: backlog bar on left, WIP donut on right
+**Prerequisites Blocked** (f5a6bff2) — Block/cancel prerequisite → dependants auto-blocked.
 
-### Gantt Scroll-to-Today
-- Gantt auto-scrolls to today line on first open (bars no longer off-screen)
+**Scroll Preservation** (9bb9eb1a, 2e005a41, 94b12f59) — Sync no longer resets scroll in any view. Gantt scroll preserved. Re-render skipped when detail panel open.
 
-### Client Portal (Lorenza / Couch Heroes)
-- Lorenza can now log in and see only Couch Heroes data
-- localStorage cache clears on user switch (no cross-user data leak)
+**Portfolio Chart Redesign** — Bar+donut layout.
 
-### Queue Detail Panel (merged `3dcb2dc`)
-- Click queue items to open slide-in detail panel
-- Select client + type, fill in fields, Promote or Dismiss
+**Gantt Scroll-to-Today** — Auto-scrolls to today line on first open.
 
-### Client Portal Features (merged `8b74230`)
-- Create a client user, log in, verify force password change
-- Confirm client filter lock, company name in header, scoped views
-- Test client admin team management (invite/deactivate/reset)
-- Verify NBI admin sees Source column in Bug Tracker
+**Client Portal** — Lorenza login, client filter lock, scoped views, localStorage isolation.
 
-### News Aggregator M4: Search + Admin (merged `40a3ab1`)
-- News tab Search subtab: search terms return highlighted results
-- Settings > News: Feed Health, Prompts, Sources, Stories admin panels
+**Queue Detail Panel** (3dcb2dc) — Click queue items for slide-in panel.
 
----
+**Client Portal Features** (8b74230) — Force password change, client admin team management, NBI admin Source column.
 
-### Wave 2 Quick Fixes (9 items, all set to please_review/resolved in Bug Tracker)
-- c057f2f9: Breadcrumb filter bar hidden on non-task views
-- 7cc027e5: Date validation waits for 4-digit year
-- b2628531: Gantt row labels stay visible on horizontal scroll
-- 366d49fd: Search only matches title/description/notes/assignees
-- c52c8027: Assignee on stories confirmed working (resolved)
-- 1e8de733: Percentage shown on all tasks with estimated hours
-- d765b863: Documentation hyperlinks now clickable
-- 544fc78a: NBI Only block toggles off (no nesting)
-- a1ec1a84: Repeat section in both detail panels
+**News Aggregator M4** (40a3ab1) — Search subtab, Feed Health/Prompts/Sources/Stories admin panels.
+
+**Wave 2 Quick Fixes** (9 items) — Breadcrumb hiding, date validation, Gantt label scroll, search scope, assignees, percentages, doc hyperlinks, NBI Only toggle, repeat section.
+
+**Email Reports** — Sequential sends with retry. First live test was this morning's 08:00/09:00 cron runs.
 
 ---
 
-## Open Bugs
+## Open Bugs (not yet fixed)
 
-| Bug | Status | Notes |
-|---|---|---|
-| Hide Done Sometimes Hides All Tasks | open | Reported by Amir, unreproducible. Code logic is correct. Monitoring. |
-| Documentation: mobile responsive layout never visually verified | please_review | CSS exists, needs real device or DevTools narrow viewport test |
+| Bug ID | Priority | Title | Notes |
+|--------|----------|-------|-------|
+| 0b50308b | high | Lighthouse Filter Not Working | Client filter shows no work despite registered client + projects |
+| 551b8601 | unset | "+New" Useability | Needs sorting by client/project hierarchy at scale |
+| 39ef99de | unset | Scoped view in timeline view | Feature request: isolate a feature/story as temporary root |
+| 1cf2a501 | unset | Bug Tracker Page Scrolling Issue | Can't scroll bug report detail in right-hand panel |
+
+---
+
+## Branch Merge
+
+`feature/command-centre` is 46 commits ahead of `master`. Needs merge after UAT pass. Includes CC v2 + all bug fixes + email + infrastructure fixes.
 
 ---
 
@@ -94,17 +91,19 @@ Features merged to master, tests green (387), PM2 running. Glen needs to test at
 
 ---
 
-## In Design — Command Centre (Phase 1)
+## E2E Test Health
 
-New WorkSage page: AI OS intelligence dashboard combining Four Cs scoring, skill/memory/brain health, connection coverage, bug intelligence, agent team heatmap, session patterns, test health, and Level-Up insights feed.
+15 Playwright failures from last investigation:
+- 5 from untracked `scroll.spec.js` (never committed — delete or commit separately)
+- 10 timeouts in complex interaction tests (baseline not established — may be pre-existing)
+- Unit tests (vitest) are stable at 396/396
 
-- **Brainstorm status**: 2 of ~7 design sections approved (data model, scanner functions). v3 visual mockup pushed to companion, awaiting Glen's review.
-- **Architecture**: Single route module (`routes/command-centre.js`) + `cc_snapshots` table (JSONB). Cached with manual refresh.
-- **Remaining design sections**: API endpoints, SPA view, CSS/theme integration, Phase 2 hooks, Phase 3 hooks.
-- **Next step**: Glen reviews v3 mockup, then continue design sections, write spec doc, transition to implementation plan.
+---
 
-## Backlog - Needs Brainstorming Before Implementation
+## Backlog — Needs Brainstorming Before Implementation
 
-- Frontend modularisation (13,500+ line monolith)
+- Frontend modularisation (21,000+ line HTML monolith)
 - People dashboard redesign
 - Data cleanse tool
+- Command Centre Phase 2 (nightly cron/Dreaming engine)
+- Command Centre Phase 3 (autonomous execution engine)
