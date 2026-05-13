@@ -4565,6 +4565,7 @@ async function withButtonLoading(btn, asyncFn) {
   btn.disabled = true;
   btn.innerHTML = '<span class="loading-spinner" style="width:14px;height:14px;border-width:2px;display:inline-block;vertical-align:middle"></span> ' + btn.textContent.trim();
   try { return await asyncFn(); }
+  catch(e) { console.error('[withButtonLoading]', e); toast(e.message || 'An error occurred', 'error'); }
   finally { btn.disabled = false; btn.innerHTML = originalHtml; }
 }
 
@@ -17654,8 +17655,14 @@ async function submitNewLead() {
   const title = titleEl.value.trim();
   if (!title) { showFieldError(titleEl, 'Title is required'); return; }
 
-  let client_id = document.getElementById('newLeadClient').value || null;
-  const newClientName = document.getElementById('newLeadNewClient').value.trim();
+  let client_id = document.getElementById('newLeadClient')?.value || null;
+  const newClientName = document.getElementById('newLeadNewClient')?.value?.trim() || '';
+
+  if (!client_id && !newClientName) {
+    const clientEl = document.getElementById('newLeadClient');
+    showFieldError(clientEl, 'Select a client or enter a new client name');
+    return;
+  }
 
   // Create new client if specified
   if (!client_id && newClientName) {
