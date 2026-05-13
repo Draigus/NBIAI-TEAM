@@ -3422,6 +3422,7 @@ async function loadDashboardSnapshots() {
 }
 
 async function loadPortfolioLeadCount() {
+  if (isClientUser()) { _portfolioLeadCount = 0; return; }
   try {
     const resp = await authFetch('/api/leads/pipeline/summary');
     if (resp.ok) {
@@ -15797,6 +15798,7 @@ const _expandedClientIds = new Set();
 let _leadsConfigInFlight = null;
 async function loadLeadsConfig() {
   if (_leadsConfig) return _leadsConfig;
+  if (isClientUser()) { _leadsConfig = { stages: [], resourceTypes: [], fieldOptions: {} }; return _leadsConfig; }
   if (_leadsConfigInFlight) return _leadsConfigInFlight;
   _leadsConfigInFlight = (async () => {
     for (let attempt = 0; attempt < 2; attempt++) {
@@ -15806,6 +15808,7 @@ async function loadLeadsConfig() {
       } catch(e) { if (window._nbiDebug) console.error('Failed to load leads config:', e); }
       if (attempt === 0) await new Promise(r => setTimeout(r, 250));
     }
+    if (!_leadsConfig) _leadsConfig = { stages: [], resourceTypes: [], fieldOptions: {} };
     return _leadsConfig;
   })();
   try { return await _leadsConfigInFlight; }
