@@ -4677,7 +4677,7 @@ function renderSidebar() {
 
   html += sidebarSectionOpen('views', 'Views');
   html += sidebarItem(svgDashboard, 'Portfolio', '', () => switchView('dashboard'), currentView==='dashboard');
-  if (!isScoped) {
+  if (!isScoped && hasPageAccess('commandcentre')) {
     html += sidebarItem(svgCommandCentre, 'Command Centre', '', () => switchView('commandcentre'), currentView==='commandcentre');
   }
   // html += sidebarItem(svgReport, 'Report', '', () => switchView('report'), currentView==='report'); // COMMENTED OUT — old report view, kept for revert
