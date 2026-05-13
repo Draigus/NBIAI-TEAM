@@ -12022,15 +12022,24 @@ function renderPeopleView(el) {
    *  divides by 40 hours (less days off × 8). Returns 'OFF' if the week
    *  is fully covered by absences. */
   function weekUtilFor(person, weekStart, weekEnd) {
-    const weekTasks = filtered.filter(t => {
-      if (!isAssignedTo(t, person)) return false;
-      if (t.status === 'Done' || t.status === 'Cancelled') return false;
-      const start = t.startDate ? safeParseDate(t.startDate) : null;
-      const end = t.endDate ? safeParseDate(t.endDate) : (t.dueDate ? safeParseDate(t.dueDate) : null);
-      if (!end) return false;
-      return (!start || start <= weekEnd) && end >= weekStart;
+    const weekMs = 7 * 86400000;
+    let committed = 0;
+    filtered.forEach(t => {
+      if (!isAssignedTo(t, person)) return;
+      if (t.status === 'Done' || t.status === 'Cancelled') return;
+      const est = t.hoursEstimated || 0;
+      if (!est) return;
+      const tStart = t.startDate ? safeParseDate(t.startDate) : null;
+      const tEnd = t.endDate ? safeParseDate(t.endDate) : (t.dueDate ? safeParseDate(t.dueDate) : null);
+      if (!tEnd) return;
+      const effectiveStart = tStart || tEnd;
+      if (effectiveStart > weekEnd || tEnd < weekStart) return;
+      const taskDays = Math.max(1, Math.round((tEnd - effectiveStart) / 86400000) + 1);
+      const overlapStart = effectiveStart > weekStart ? effectiveStart : weekStart;
+      const overlapEnd = tEnd < weekEnd ? tEnd : weekEnd;
+      const overlapDays = Math.max(1, Math.round((overlapEnd - overlapStart) / 86400000) + 1);
+      committed += est * (overlapDays / taskDays);
     });
-    const committed = weekTasks.reduce((s, t) => s + (t.hoursEstimated || 0), 0);
     const daysOff = (typeof computeDaysOff === 'function') ? computeDaysOff(person, weekStart, weekEnd, _capacityEvents) : 0;
     const cap = getCapacity(person);
     const effCap = Math.max(0, cap - daysOff * (cap / 5));
@@ -12051,7 +12060,7 @@ function renderPeopleView(el) {
       overdue: pt.filter(t => t.dueDate && t.status !== 'Done' && t.status !== 'Cancelled' && safeParseDate(t.dueDate) < now).length,
       hs: pt.reduce((s,t) => s + (t.hoursSpent||0), 0),
       he: pt.reduce((s,t) => s + (t.hoursEstimated||0), 0),
-      util: Math.round((activeTasks.reduce((s,t) => s + (t.hoursEstimated||0), 0)) / getCapacity(p) * 100),
+      util: (() => { const wk0 = previewWeeks[0]; const u = weekUtilFor(p, wk0.start, wk0.end); return u.pct !== null ? u.pct : 0; })(),
       weeks: previewWeeks.map(wk => weekUtilFor(p, wk.start, wk.end)),
     };
   });
@@ -12188,15 +12197,23 @@ function renderPeopleView(el) {
       }
       html += `<div class="people-capacity-row">`;
       capWeeks.forEach(wk => {
-        const weekTasks = tasks.filter(t => {
-          if (!isAssignedTo(t, selectedPerson)) return false;
-          if (t.status === 'Done' || t.status === 'Cancelled') return false;
-          const start = t.startDate ? safeParseDate(t.startDate) : null;
-          const end = t.endDate ? safeParseDate(t.endDate) : (t.dueDate ? safeParseDate(t.dueDate) : null);
-          if (!end) return false;
-          return (!start || start <= wk.end) && end >= wk.start;
+        let committedHrs = 0;
+        tasks.forEach(t => {
+          if (!isAssignedTo(t, selectedPerson)) return;
+          if (t.status === 'Done' || t.status === 'Cancelled') return;
+          const est = t.hoursEstimated || 0;
+          if (!est) return;
+          const tStart = t.startDate ? safeParseDate(t.startDate) : null;
+          const tEnd = t.endDate ? safeParseDate(t.endDate) : (t.dueDate ? safeParseDate(t.dueDate) : null);
+          if (!tEnd) return;
+          const effectiveStart = tStart || tEnd;
+          if (effectiveStart > wk.end || tEnd < wk.start) return;
+          const taskDays = Math.max(1, Math.round((tEnd - effectiveStart) / 86400000) + 1);
+          const overlapStart = effectiveStart > wk.start ? effectiveStart : wk.start;
+          const overlapEnd = tEnd < wk.end ? tEnd : wk.end;
+          const overlapDays = Math.max(1, Math.round((overlapEnd - overlapStart) / 86400000) + 1);
+          committedHrs += est * (overlapDays / taskDays);
         });
-        const committedHrs = weekTasks.reduce((s,t) => s + (t.hoursEstimated||0), 0);
         const daysOff = computeDaysOff(selectedPerson, wk.start, wk.end, _capacityEvents);
         const pCap = getCapacity(selectedPerson);
         const effCap = Math.max(0, pCap - daysOff * (pCap / 5));
