@@ -3415,6 +3415,8 @@ async function loadDashboardSnapshots() {
     if (resp.ok) {
       const data = await resp.json();
       _portfolioSnapshots = data.snapshots || [];
+    } else {
+      _portfolioSnapshots = [];
     }
   } catch (e) {
     _portfolioSnapshots = [];
@@ -15837,6 +15839,7 @@ async function loadLeads() {
       } catch(e) { if (window._nbiDebug) console.error('Failed to load leads:', e); }
       if (attempt === 0) await new Promise(r => setTimeout(r, 250));
     }
+    if (!_leadsData) _leadsData = { leads: [], total: 0 };
   })();
   try { await _leadsDataInFlight; }
   finally { _leadsDataInFlight = null; }
