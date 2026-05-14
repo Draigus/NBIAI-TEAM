@@ -216,6 +216,7 @@ html[data-theme="command"] body::before {
   filter: brightness(0.6) contrast(1.2);
 }
 html[data-theme="command"] body > * { position: relative; z-index: 1; }
+html[data-theme="command"] #warnAlertPanel { position: fixed; z-index: 10001; }
 html[data-theme="command"] .g-header { backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
 html[data-theme="command"] .g-header__logo { color: var(--accent); text-shadow: 0 0 20px rgba(0,212,255,0.3), 0 0 60px rgba(0,212,255,0.1); }
 html[data-theme="command"] .pf__kpi,
@@ -739,7 +740,9 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 /* Drag and drop */
 .task-row[draggable="true"] { cursor: grab; }
 .task-row.dragging { opacity: 0.3; }
-.task-row.drag-over { border-top: 2px solid var(--accent); }
+.task-row.drag-over { background: var(--bg-hover); outline: 2px solid var(--accent); outline-offset: -2px; }
+.task-row.tree-drop-before { border-top: 2px solid var(--accent); }
+.task-row.tree-drop-after { border-bottom: 2px solid var(--accent); }
 .task-row__title--parent.drag-target { background: var(--accent-glow); border-radius: var(--radius-sm); padding: 0 4px; }
 .drop-indicator { height: 2px; background: var(--accent); margin: 0; transition: opacity 0.1s; }
 .task-row__title { flex: 1; font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -2324,7 +2327,7 @@ span.fin-editable { display: inline-block; position: relative; }
   height: var(--vh-full); background: var(--bg-raised);
   border-left: 1px solid var(--border-default);
   box-shadow: var(--shadow-lg);
-  z-index: 250; display: none; flex-direction: column;
+  z-index: 10000; display: none; flex-direction: column;
 }
 .warn-alert-panel.open { display: flex; }
 .warn-alert-panel__header {
@@ -2909,7 +2912,7 @@ span.fin-editable { display: inline-block; position: relative; }
     </div>
     <button class="btn header-desktop-only" data-action="printReport"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="1" width="8" height="4" rx="1"/><rect x="1" y="5" width="12" height="6" rx="1.5"/><rect x="4" y="9" width="6" height="4" rx="0.5"/></svg> Print</button>
     <button class="btn header-desktop-only" data-action="openBugReportModal" id="bugReportBtn" title="Report Bug or Feature Request" style="background:#f59e0b;color:#000;font-weight:600;font-size:0.75rem;padding:4px 10px;border-radius:var(--radius-sm)">&#128030; Report</button>
-    <button class="btn header-alerts-btn" id="headerAlertsBtn" data-action="toggleWarnAlertSidebar" title="Warnings, Alerts & Notifications" style="position:relative;font-weight:600;font-size:0.75rem;padding:4px 12px;border-radius:var(--radius-sm);border:1px solid var(--border-default)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span class="header-desktop-only">Alerts</span><span id="headerAlertsBadge" style="display:none;margin-left:6px;background:#fff;color:#dc2626;font-size:0.7rem;font-weight:700;border-radius:8px;padding:0 5px;min-width:16px;text-align:center">0</span></button>
+    <button class="btn header-alerts-btn" id="headerAlertsBtn" title="Alerts: Blocked, Overdue & Incomplete" onclick="window.toggleWarnAlertSidebar()" style="position:relative;z-index:9999;font-weight:600;font-size:0.75rem;padding:4px 12px;border-radius:var(--radius-sm);border:1px solid var(--border-default);cursor:pointer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span class="header-desktop-only">Alerts</span><span id="headerAlertsBadge" style="display:none;margin-left:6px;background:#fff;color:#dc2626;font-size:0.7rem;font-weight:700;border-radius:8px;padding:0 5px;min-width:16px;text-align:center">0</span></button>
     <div class="theme-picker header-desktop-only" id="themePicker">
       <button class="btn btn--ghost" data-action="toggleThemeDropdown" data-pass-event id="themeBtn" title="Choose theme"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="4" cy="8" r="2.5"/><circle cx="12" cy="5" r="2"/><circle cx="11" cy="12" r="1.5"/></svg></button>
       <div class="theme-picker__dropdown" id="themeDropdown"></div>
@@ -3083,14 +3086,14 @@ span.fin-editable { display: inline-block; position: relative; }
 <!-- Alerts button is now in the sidebar (see renderSidebar) -->
 
 <!-- Sidebar panel -->
-<div id="warnAlertPanel" class="warn-alert-panel" role="dialog" aria-modal="false" aria-label="Warnings and notifications">
+<div id="warnAlertPanel" class="warn-alert-panel" role="dialog" aria-modal="false" aria-label="Alerts">
   <div class="warn-alert-panel__header">
-    <h3>Warnings &amp; Notifications</h3>
-    <button class="btn btn--ghost btn--sm" data-action="toggleWarnAlertSidebar" aria-label="Close">&times;</button>
+    <h3>My Alerts</h3>
+    <button class="btn btn--ghost btn--sm" id="warnAlertCloseBtn" aria-label="Close">&times;</button>
   </div>
   <div class="warn-alert-panel__tabs" role="tablist">
     <button role="tab" class="warn-alert-panel__tab warn-alert-panel__tab--active" data-tab="warnings" data-action="switchWarnAlertTab" data-arg0="warnings">
-      Warnings <span id="warnTabCount" class="warn-alert-panel__tab-count"></span>
+      Blocked &amp; Overdue <span id="warnTabCount" class="warn-alert-panel__tab-count"></span>
     </button>
     <button role="tab" class="warn-alert-panel__tab" data-tab="notifications" data-action="switchWarnAlertTab" data-arg0="notifications">
       Notifications <span id="notifTabCount" class="warn-alert-panel__tab-count"></span>
@@ -3100,6 +3103,25 @@ span.fin-editable { display: inline-block; position: relative; }
     <div id="warnAlertList"></div>
   </div>
 </div>
+
+<script>
+// Standalone fallback toggle — works even if main script fails to load.
+// Uses classList only; CSS handles position/z-index per theme.
+window.toggleWarnAlertSidebar = function() {
+  var panel = document.getElementById('warnAlertPanel');
+  if (!panel) return;
+  if (panel.classList.contains('open')) {
+    panel.classList.remove('open');
+  } else {
+    panel.classList.add('open');
+    if (typeof renderWarnAlertContent === 'function') renderWarnAlertContent();
+  }
+};
+document.getElementById('warnAlertCloseBtn')?.addEventListener('click', function(e) {
+  e.stopPropagation();
+  window.toggleWarnAlertSidebar();
+});
+</script>
 
 <script>
 window.onerror = function(msg, src, line, col) {
@@ -3365,7 +3387,7 @@ async function loadMilestones(clientId) {
 }
 
 async function loadAllMilestones() {
-  const clients = Object.values(_apiClientsCache || {});
+  const clients = Object.values(_apiClientsCache || {}).filter(c => c.has_active_work);
   const promises = clients.map(c => loadMilestones(c.id));
   await Promise.all(promises);
 }
@@ -4222,8 +4244,12 @@ function uid() {
     return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
   });
 }
+/** Generic debounce utility — returns a wrapper that delays fn by ms milliseconds */
+function _debounce(fn, ms) { let t; return function() { clearTimeout(t); t = setTimeout(fn, ms); }; }
+const _debouncedLeadsSearch = _debounce(() => refreshLeads(), 300);
+const _debouncedBtSearch = _debounce(() => renderContent(), 300);
 /** Get direct children of a task by parent ID */
-function getChildren(parentId) { return tasks.filter(t => t.parentId === parentId); }
+function getChildren(parentId) { return tasks.filter(t => t.parentId === parentId).sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)); }
 /** Walk up the task tree to find the root ancestor (the project-level task) */
 function getRootAncestor(task) { const visited = new Set(); let cur = task; while (cur && cur.parentId) { if (visited.has(cur.id)) return cur; visited.add(cur.id); const p = tasks.find(t => t.id === cur.parentId); if (!p) return cur; cur = p; } return cur || task; }
 /** Get all descendants of a task (children, grandchildren, etc.) — O(n) recursive */
@@ -4327,14 +4353,14 @@ function clientSortOrder(a, b) {
 function getAllClients() {
   const s = new Set();
   tasks.forEach(t => { const c = getTaskClient(t); if (c) s.add(c); });
-  Object.values(_apiClientsCache || {}).forEach(c => { if (c && c.name) s.add(c.name); });
+  Object.values(_apiClientsCache || {}).forEach(c => { if (c && c.name && c.has_active_work) s.add(c.name); });
   return [...s].sort(clientSortOrder);
 }
 function getContractedClients() {
   const ALWAYS_INCLUDE = ['NBI Operations', 'NBI OPS', 'NSI'];
   const s = new Set(ALWAYS_INCLUDE.filter(c => settings.knownClients.includes(c)));
   tasks.forEach(t => { const c = getTaskClient(t); if (c) s.add(c); });
-  Object.values(_apiClientsCache || {}).forEach(c => { if (c && c.name) s.add(c.name); });
+  Object.values(_apiClientsCache || {}).forEach(c => { if (c && c.name && c.has_active_work) s.add(c.name); });
   return [...s].sort(clientSortOrder);
 }
 /** Return the full client records for the contracted-client set, pulled from
@@ -5355,7 +5381,7 @@ function filterByPractice(p) {
   renderBreadcrumbs();
   // Re-render leads/clients views if they're active so the practice
   // filter takes effect across every page that displays records.
-  if (currentView === 'leads') { try { renderLeadsContent(); } catch(e) {} }
+  if (currentView === 'leads') { try { renderLeadsContent(); } catch(e) { console.warn('[Leads] render error:', e.message || e); } }
   history.replaceState({ view: currentView, filter: { ...currentFilter }, taskSubView }, '', '#' + currentView);
 }
 /** Filter by health state and switch to tasks view */
@@ -5876,7 +5902,7 @@ function renderPfClientTable(filtered, roots, now) {
     clientMap[client].roots.push(r);
   });
   Object.values(_apiClientsCache || {}).forEach(c => {
-    if (c && c.name && !clientMap[c.name]) clientMap[c.name] = { tasks: [], roots: [] };
+    if (c && c.name && c.has_active_work && !clientMap[c.name]) clientMap[c.name] = { tasks: [], roots: [] };
   });
   Object.keys(clientMap).forEach(name => {
     clientMap[name].tasks = filtered.filter(t => getTaskClient(t) === name);
@@ -6436,7 +6462,7 @@ async function renderStandupSection(filtered, now) {
     if (users) {
       teamMembers = users.filter(u => u.is_active !== false).map(u => u.display_name).sort();
     }
-  } catch(e) {}
+  } catch(e) { console.warn('[Tasks] users fetch error:', e.message || e); }
 
   // If fetch failed, fall back to assignees
   if (teamMembers.length === 0) {
@@ -8222,7 +8248,7 @@ function renderGanttView(filtered) {
   }
   const _msClients = currentFilter.client
     ? [_apiClientsCache[currentFilter.client]].filter(Boolean)
-    : Object.values(_apiClientsCache || {});
+    : Object.values(_apiClientsCache || {}).filter(c => c.has_active_work);
   _msClients.forEach(c => {
     if (!_milestonesCache[c.id]) {
       loadMilestones(c.id).then(() => { if (currentView === 'tasks' && taskSubView === 'gantt') renderContent(); });
@@ -8316,12 +8342,15 @@ function renderGanttView(filtered) {
 
       // Compute chain depth for indentation (0 = no prerequisites, deeper = more prereqs above)
       const depthMemo = {};
-      /** Calculate the dependency chain depth of a task (memoised) for indentation */
+      const _depVisiting = new Set();
       function depChainDepth(t) {
         if (depthMemo[t.id] !== undefined) return depthMemo[t.id];
+        if (_depVisiting.has(t.id)) { depthMemo[t.id] = 0; return 0; }
         if (!t.dependencies || t.dependencies.length === 0) { depthMemo[t.id] = 0; return 0; }
+        _depVisiting.add(t.id);
         let maxD = 0;
         t.dependencies.forEach(depId => { const dep = tasks.find(x => x.id === depId); if (dep) maxD = Math.max(maxD, depChainDepth(dep) + 1); });
+        _depVisiting.delete(t.id);
         depthMemo[t.id] = maxD;
         return maxD;
       }
@@ -8411,22 +8440,10 @@ function renderGanttView(filtered) {
       const fontWeight = isParent ? '600' : '400';
       const fontSize = depth === 0 ? '0.78rem' : '0.72rem';
 
-      // Percent complete + days-to-end subtitle, mirroring the Portfolio
-      // timeline. Counts Done leaf-tasks vs total leaf-tasks across the
-      // descendant tree. Leaf rows: own status counts as 0 or 100.
-      let pctVal = 0;
-      const leafDesc = (function collect(node, acc) {
-        const ch = getChildren(node.id);
-        if (ch.length === 0) acc.push(node);
-        else ch.forEach(c => collect(c, acc));
-        return acc;
-      })(t, []);
-      if (leafDesc.length > 0) {
-        const doneLeaves = leafDesc.filter(d => d.status === 'Done').length;
-        pctVal = Math.round(doneLeaves / leafDesc.length * 100);
-      } else if (t.status === 'Done') {
-        pctVal = 100;
-      }
+      // Percent complete: hours spent ÷ hours estimated across descendants.
+      // Falls back to status (Done=100%) when no hours are estimated.
+      const hrs = aggHours(t.id);
+      let pctVal = hrs.est > 0 ? Math.round(hrs.spent / hrs.est * 100) : (t.status === 'Done' ? 100 : 0);
       const blocked = t.healthState === 'Blocked' || t.status === 'Blocked';
       const overdue = end && end < now && t.status !== 'Done';
       const daysToEnd = end ? Math.round((end - now) / 86400000) : null;
@@ -9343,6 +9360,7 @@ function renderInlineTaskDetail(id) {
   html += `<div class="detail-section"><div class="detail-section__title">Actions</div>`;
   html += `<div style="display:flex;gap:8px">`;
   html += `<button class="btn btn--outline" data-action="openDetailOverlay" data-arg0="${id}" style="font-size:0.72rem">Expand</button>`;
+  html += `<button class="btn btn--outline" data-action="duplicateTask" data-arg0="${id}" style="font-size:0.72rem">Duplicate</button>`;
   html += `<button class="btn btn--danger" data-action="deleteTask" data-arg0="${id}" style="font-size:0.72rem">Delete</button>`;
   html += `</div></div>`;
 
@@ -9588,6 +9606,8 @@ function onDragEnd(e) {
   document.querySelectorAll('.dragging').forEach(el => el.classList.remove('dragging'));
   document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
   document.querySelectorAll('.drag-target').forEach(el => el.classList.remove('drag-target'));
+  document.querySelectorAll('.tree-drop-before, .tree-drop-after').forEach(el => { el.classList.remove('tree-drop-before', 'tree-drop-after'); });
+  _treeDragZone = null;
   draggedTaskId = null;
 }
 
@@ -9646,7 +9666,10 @@ function onDrop(e, targetParentId) {
   draggedTaskId = null;
 }
 
-// Also allow dropping on parent task rows directly (not just their children container)
+// Tree view drag: supports reordering siblings (top/bottom edge) and reparenting (middle zone).
+// Drop zone detection: top 25% = insert before, bottom 25% = insert after, middle 50% = reparent.
+let _treeDragZone = null; // 'before' | 'after' | 'reparent'
+
 document.addEventListener('dragover', function(e) {
   if (!draggedTaskId) return;
   const row = e.target.closest('.task-row');
@@ -9657,9 +9680,22 @@ document.addEventListener('dragover', function(e) {
   if (desc.some(d => d.id === targetId)) return;
   e.preventDefault();
   e.dataTransfer.dropEffect = 'move';
-  // Highlight
+
+  // Detect drop zone from cursor position
+  const rect = row.getBoundingClientRect();
+  const y = e.clientY - rect.top;
+  const pct = y / rect.height;
+  const zone = pct < 0.25 ? 'before' : pct > 0.75 ? 'after' : 'reparent';
+  _treeDragZone = zone;
+
+  // Visual feedback
   document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
-  row.classList.add('drag-over');
+  document.querySelectorAll('.tree-drop-before, .tree-drop-after').forEach(el => { el.classList.remove('tree-drop-before', 'tree-drop-after'); });
+  if (zone === 'reparent') {
+    row.classList.add('drag-over');
+  } else {
+    row.classList.add(zone === 'before' ? 'tree-drop-before' : 'tree-drop-after');
+  }
 });
 
 document.addEventListener('drop', function(e) {
@@ -9671,16 +9707,60 @@ document.addEventListener('drop', function(e) {
   const desc = getDescendants(draggedTaskId);
   if (desc.some(d => d.id === targetId)) return;
   e.preventDefault();
-  row.classList.remove('drag-over');
+  row.classList.remove('drag-over', 'tree-drop-before', 'tree-drop-after');
 
   const task = tasks.find(t => t.id === draggedTaskId);
-  if (!task) return;
-  task.parentId = targetId;
-  task.updatedAt = new Date().toISOString();
-  markDirty(draggedTaskId);
-  save(); renderSidebarCounts(); renderContent();
-  const targetTask = tasks.find(t => t.id === targetId);
-  toast(`Moved "${task.title}" under "${targetTask ? targetTask.title : 'root'}"`);
+  const target = tasks.find(t => t.id === targetId);
+  if (!task || !target) return;
+  const zone = _treeDragZone || 'reparent';
+  _treeDragZone = null;
+
+  if (zone === 'reparent') {
+    // Existing reparent behaviour
+    const targetTask = tasks.find(t => t.id === targetId);
+    if (targetTask) {
+      const allowedChild = VALID_CHILD_TYPE[getItemType(targetTask)];
+      if (!allowedChild) { toast(`A ${getItemTypeLabel(targetTask)} cannot have children`, 'warning'); draggedTaskId = null; return; }
+      if (getItemType(task) !== allowedChild) { toast(`A ${getItemTypeLabel(task)} cannot be placed under a ${getItemTypeLabel(targetTask)}. Expected: ${ITEM_TYPE_META[allowedChild].label}`, 'warning'); draggedTaskId = null; return; }
+    }
+    task.parentId = targetId;
+    task.updatedAt = new Date().toISOString();
+    markDirty(draggedTaskId);
+    save(); renderSidebarCounts(); renderContent();
+    toast(`Moved "${task.title}" under "${target.title}"`);
+  } else {
+    // Reorder: insert before/after the target within the same parent
+    const newParent = target.parentId;
+    // Validate type hierarchy if moving to a different parent
+    if (task.parentId !== newParent) {
+      if (newParent) {
+        const parentTask = tasks.find(t => t.id === newParent);
+        if (parentTask) {
+          const allowedChild = VALID_CHILD_TYPE[getItemType(parentTask)];
+          if (!allowedChild || getItemType(task) !== allowedChild) { toast(`Cannot place a ${getItemTypeLabel(task)} at this level`, 'warning'); draggedTaskId = null; return; }
+        }
+      } else {
+        if (getItemType(task) !== 'project') { toast('Only Projects can exist at the root level', 'warning'); draggedTaskId = null; return; }
+      }
+      task.parentId = newParent;
+    }
+    // Get siblings sorted by current sortOrder, remove dragged task
+    const siblings = getChildren(newParent).filter(t => t.id !== task.id);
+    // Find target's index and insert before or after
+    const targetIdx = siblings.findIndex(t => t.id === targetId);
+    const insertIdx = zone === 'before' ? targetIdx : targetIdx + 1;
+    siblings.splice(insertIdx, 0, task);
+    // Reassign sequential sortOrder
+    siblings.forEach((s, i) => {
+      if (s.sortOrder !== i) {
+        s.sortOrder = i;
+        s.updatedAt = new Date().toISOString();
+        markDirty(s.id);
+      }
+    });
+    save(); renderSidebarCounts(); renderContent();
+    toast(`Reordered "${task.title}"`);
+  }
   draggedTaskId = null;
 });
 
@@ -10064,7 +10144,8 @@ function openDetailOverlay(id) {
 
   // Actions
   html += `<div class="detail-section"><div class="detail-section__title">Actions</div>`;
-  html += `<button class="btn btn--danger" data-action="deleteTask" data-arg0="${id}" style="margin-top:12px">Delete ${getItemTypeLabel(task)}</button>`;
+  html += `<div style="display:flex;gap:8px;margin-top:12px"><button class="btn btn--outline" data-action="duplicateTask" data-arg0="${id}">Duplicate ${getItemTypeLabel(task)}</button>`;
+  html += `<button class="btn btn--danger" data-action="deleteTask" data-arg0="${id}">Delete ${getItemTypeLabel(task)}</button></div>`;
   html += `</div>`;
 
   html += `</div>`;
@@ -10385,6 +10466,14 @@ async function updateTask(id, field, value) {
   // Details are entered inline via the detail panel text box.
   if (field === 'status' && value === 'Blocked' && task.status !== 'Blocked') {
     if (!task.blockerInfo) task.blockerInfo = { blockedOn: '', internal: [], external: [], toUnblock: '', dateBlocked: new Date().toISOString().slice(0, 10) };
+  }
+
+  // Blocked cascade: when any parent is blocked, cascade to all descendants
+  if (field === 'status' && value === 'Blocked') {
+    const descendants = getDescendants(id).filter(d => d.status !== 'Blocked' && d.status !== 'Done' && d.status !== 'Cancelled');
+    if (descendants.length > 0) {
+      descendants.forEach(d => { d.status = 'Blocked'; d.updatedAt = new Date().toISOString(); markDirty(d.id); });
+    }
   }
 
   // Feature 3: Cancelled cascade for projects
@@ -10729,7 +10818,9 @@ function saveMarkAsBlocked() {
   task.blockerInfo = blockerInfo;
   task.updatedAt = new Date().toISOString();
   markDirty(taskId);
-  pushUndo(`Mark "${task.title}" as Blocked`, () => { task.status = oldStatus; task.blockerInfo = oldInfo; task.updatedAt = new Date().toISOString(); markDirty(taskId); });
+  const blockedDescendants = getDescendants(taskId).filter(d => d.status !== 'Blocked' && d.status !== 'Done' && d.status !== 'Cancelled');
+  blockedDescendants.forEach(d => { d.status = 'Blocked'; d.updatedAt = new Date().toISOString(); markDirty(d.id); });
+  pushUndo(`Mark "${task.title}" as Blocked`, () => { task.status = oldStatus; task.blockerInfo = oldInfo; task.updatedAt = new Date().toISOString(); markDirty(taskId); blockedDescendants.forEach(d => { d.status = 'In progress'; d.updatedAt = new Date().toISOString(); markDirty(d.id); }); });
   save();
   document.getElementById('blockerModal').classList.remove('open');
   _markAsBlockedTaskId = null;
@@ -10816,6 +10907,36 @@ async function deleteTask(id) {
   });
   save(); closeDetail(); renderSidebarCounts(); renderContent();
   toast(`${typeLabel} deleted`);
+}
+
+function duplicateTask(id) {
+  const task = tasks.find(t => t.id === id);
+  if (!task) return;
+  const now = new Date().toISOString();
+  const clone = createTaskObject({
+    title: task.title + ' (copy)',
+    parentId: task.parentId,
+    itemType: task.itemType || 'task',
+    client: task.client || '',
+    clientId: task.clientId || task.client_id || null,
+    status: 'Not started',
+    priority: task.priority || '',
+    description: task.description || '',
+    assignees: [...(task.assignees || [])],
+    hoursEstimated: task.hoursEstimated || 0,
+    dueDate: task.dueDate || '',
+    startDate: task.startDate || '',
+    endDate: task.endDate || '',
+    practiceArea: task.practiceArea || task.practice_area || null,
+    sowId: task.sowId || task.sow_id || null,
+    workType: task.workType || task.work_type || null,
+    sortOrder: (task.sortOrder || 0) + 1,
+  });
+  tasks.push(clone);
+  markDirty(clone.id);
+  save(); renderSidebarCounts(); renderContent();
+  toast(`Duplicated "${task.title}"`);
+  openDetailOverlay(clone.id);
 }
 
 /** Create a new task/item object with all default fields. Shared factory for addTask, addItem, quickAddTask. */
@@ -12804,7 +12925,7 @@ async function _docsLoadTree() {
 }
 
 function _docsRender(el) {
-  const clients = Object.values(_apiClientsCache || {}).filter(c => c && c.id && c.name).sort((a,b) => a.name.localeCompare(b.name));
+  const clients = Object.values(_apiClientsCache || {}).filter(c => c && c.id && c.name && c.has_active_work).sort((a,b) => a.name.localeCompare(b.name));
   const tree = _docsBuildTree(_docsState.tree);
   let html = '<div class="docs">';
   html += '<div class="docs__hdr">';
@@ -13732,7 +13853,7 @@ async function loadFinanceFromDB() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ data })
     });
-  } catch(e) {}
+  } catch(e) { console.warn('[Finance] API save error:', e.message || e); }
 }
 /**
  * Start inline editing of a finance table cell -- replaces cell content with an input.
@@ -15895,7 +16016,7 @@ async function renderLeadsView(el) {
 
   // Filter bar
   html += `<div class="leads-filter-bar">`;
-  html += `<input type="text" class="leads-search" placeholder="Search leads..." value="${esc(_leadsFilter.search)}" oninput="_leadsFilter.search=this.value;clearTimeout(_leadsSearchTimer);_leadsSearchTimer=setTimeout(()=>refreshLeads(),300)">`;
+  html += `<input type="text" class="leads-search" placeholder="Search leads..." value="${esc(_leadsFilter.search)}" oninput="_leadsFilter.search=this.value;_debouncedLeadsSearch()">`;
 
   // Stage filter
   html += `<select class="leads-select" onchange="_leadsFilter.stage_id=this.value||null;refreshLeads()"><option value="">All Stages</option>`;
@@ -15937,8 +16058,6 @@ async function renderLeadsView(el) {
   el.innerHTML = html;
   renderLeadsContent();
 }
-
-let _leadsSearchTimer = null;
 
 /** Switch between leads sub-views (kanban/table/cards/pipeline/byClient/clients) */
 function switchLeadsView(viewId) {
@@ -16385,9 +16504,8 @@ async function renderManageClients(el) {
   try {
     const data = await apiCall('/api/clients');
     if (data) {
-      clients = data;
-      // Cache clients by name for use in profile headers
-      clients.forEach(c => { _apiClientsCache[c.name] = c; });
+      data.forEach(c => { _apiClientsCache[c.name] = c; });
+      clients = data.filter(c => c.has_active_work);
     }
   } catch(e) {}
 
@@ -16481,7 +16599,7 @@ async function renderManageClients(el) {
             <h4 style="margin:12px 0 6px;font-size:0.82rem;color:var(--text-secondary)">Statements of Work</h4>
             <div id="sowsList_${c.id}"><span style="color:var(--text-muted);font-size:0.78rem">Loading...</span></div>
             ${(_currentUser && _currentUser.role === 'admin') ? `<div style="display:flex;gap:6px;margin-top:6px;align-items:center;flex-wrap:wrap">
-              <input type="file" id="sowFileInput_${c.id}" accept=".pdf,application/pdf" style="font-size:0.78rem">
+              <input type="file" id="sowFileInput_${c.id}" accept=".pdf,.txt,application/pdf,text/plain" style="font-size:0.78rem">
               <input type="text" id="newSowTitle_${c.id}" placeholder="SoW title" style="flex:1;min-width:120px">
               <button class="btn btn--sm btn--primary" data-action="uploadSowFile" data-arg0="${c.id}">Upload SoW</button>
             </div>
@@ -16622,7 +16740,8 @@ async function uploadSowFile(clientId, force) {
   const titleInput = document.getElementById('newSowTitle_' + clientId);
   if (!fileInput || !fileInput.files || !fileInput.files[0]) { toast('Select a PDF file first'); return; }
   const file = fileInput.files[0];
-  if (file.type && file.type !== 'application/pdf') { toast('Only PDF files are accepted', 'error'); return; }
+  const ACCEPTED_TYPES = ['application/pdf', 'text/plain'];
+  if (file.type && !ACCEPTED_TYPES.includes(file.type) && !file.name.endsWith('.txt')) { toast('Only PDF and plain text (.txt) files are accepted', 'error'); return; }
   const title = (titleInput && titleInput.value.trim()) || file.name.replace(/\.pdf$/i, '');
   const formData = new FormData();
   formData.append('file', file);
@@ -16778,7 +16897,7 @@ async function openCreateTeamModal(clientId, clientName) {
   if (!_currentUser || _currentUser.role !== 'admin') { toast('Admin only', 'error'); return; }
   // Fetch SoWs for the client to populate the optional dropdown
   let sows = [];
-  try { sows = (await apiCall('/api/sows?client_id=' + clientId)) || []; } catch (e) {}
+  try { sows = (await apiCall('/api/sows?client_id=' + clientId)) || []; } catch (e) { console.warn('[Teams] SOW fetch error:', e.message || e); }
   const sowOpts = `<option value="">-- None --</option>` + sows.map(s =>
     `<option value="${esc(s.id)}">${esc(s.title)}</option>`
   ).join('');
@@ -16842,10 +16961,10 @@ async function openTeamDetailModal(teamId) {
   let allUsers = [];
   let clientSows = [];
   if (isAdmin) {
-    try { allUsers = (await apiCall('/api/users')) || []; } catch (e) {}
+    try { allUsers = (await apiCall('/api/users')) || []; } catch (e) { console.warn('[Teams] users fetch error:', e.message || e); }
     // Fetch SoWs scoped to this team's client so the SoW picker is relevant
     if (team.client_id) {
-      try { clientSows = (await apiCall('/api/sows?client_id=' + team.client_id)) || []; } catch (e) {}
+      try { clientSows = (await apiCall('/api/sows?client_id=' + team.client_id)) || []; } catch (e) { console.warn('[Teams] client SOW fetch error:', e.message || e); }
     } else {
       // No client set — offer all SoWs as a fallback
       clientSows = Array.isArray(_sowsCache) ? _sowsCache : [];
@@ -17598,7 +17717,7 @@ async function openNewLeadModal() {
   try {
     const data = await apiCall('/api/clients');
     if (data) clientsList = data;
-  } catch(e) {}
+  } catch(e) { console.warn('[Leads] clients fetch error:', e.message || e); }
 
   const defaultStage = config.stages.find(s => !s.is_closed) || config.stages[0];
 
@@ -18145,7 +18264,7 @@ function renderBugTrackerView(container) {
         </select>
         <input type="text" class="bug-tracker__search" placeholder="Search title or reporter..."
                value="${esc(window._btSearchQuery || '')}"
-               oninput="window._btSearchQuery=this.value;clearTimeout(window._btSearchDebounce);window._btSearchDebounce=setTimeout(()=>renderContent(),300)">
+               oninput="window._btSearchQuery=this.value;_debouncedBtSearch()">
         <span style="font-size:0.75rem;color:var(--text-muted)">${filtered.length} of ${reports.length} reports</span>
       </div>
       ${btViewMode === 'kanban' ? renderBugTrackerKanban(filtered) : renderBugTrackerList(filtered, sortIcon, sortClick)}
@@ -19567,7 +19686,7 @@ async function _ccLoadData() {
         _ccSnapshot = body.data || body;
       }
     }
-  } catch (e) {}
+  } catch (e) { console.warn('[CommandCentre] API error:', e.message || e); }
   if (!_ccSnapshot) _ccLoadFailed = true;
   _ccLoading = false;
   if (currentView === 'commandcentre') renderContent();
@@ -22736,7 +22855,7 @@ async function loadUserManagement() {
       </tr>`;
       }).join('') +
       `</tbody></table>`;
-  } catch(e) {}
+  } catch(e) { console.warn('[UserManagement] render error:', e.message || e); }
 }
 
 /** Create a new user account via prompt dialogs (admin only) */
@@ -22932,7 +23051,7 @@ async function loadTimeEntries(taskId) {
     if (!entries) { el.innerHTML = '<div style="color:var(--text-muted);font-size:0.7rem">Could not load</div>'; return; }
     if (entries.length === 0) { el.innerHTML = '<div style="color:var(--text-muted);font-size:0.7rem">No time logged yet</div>'; return; }
     el.innerHTML = entries.map(e => `<div style="display:flex;align-items:center;gap:6px;font-size:0.72rem;padding:3px 0;border-bottom:1px solid var(--border-subtle)"><span style="font-weight:600;font-family:var(--font-mono);color:var(--accent);min-width:40px">${(parseFloat(e.hours) || 0).toFixed(2)}h</span><span style="flex:1;color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(e.description || '-')}</span><span style="color:var(--text-muted);font-size:0.7rem">${esc(e.user_name)} &middot; ${e.date}</span></div>`).join('');
-  } catch(e) {}
+  } catch(e) { console.warn('[TimeEntries] API error:', e.message || e); }
 }
 
 // ===== NOTIFICATIONS =====
@@ -22990,7 +23109,7 @@ async function loadNotifications() {
     const { unread } = result;
     window._lastNotificationCount = unread || 0;
     if (typeof updateWarnAlertButton === 'function') updateWarnAlertButton();
-  } catch(e) {}
+  } catch(e) { console.warn('[Notifications] fetch error:', e.message || e); }
 }
 
 // Check lead follow-up reminders
@@ -23011,7 +23130,7 @@ async function checkLeadReminders() {
         if (countEl) { countEl.textContent = ''; countEl.style.color = ''; }
       }
     }
-  } catch(e) {}
+  } catch(e) { console.warn('[LeadReminders] API error:', e.message || e); }
 }
 // Run reminders check every 60 seconds
 let _leadsReminderInterval = setInterval(() => { if (_currentUser && !_pollingPaused) checkLeadReminders(); }, 60000);
@@ -23023,7 +23142,7 @@ async function markAllNotificationsRead() {
     window._lastNotificationCount = 0;
     if (typeof updateWarnAlertButton === 'function') updateWarnAlertButton();
     renderWarnAlertContent();
-  } catch(e) {}
+  } catch(e) { console.warn('[Notifications] mark-read error:', e.message || e); }
 }
 
 async function clearAllNotifications() {
@@ -23033,7 +23152,7 @@ async function clearAllNotifications() {
     if (typeof updateWarnAlertButton === 'function') updateWarnAlertButton();
     toast('All notifications cleared');
     renderWarnAlertContent();
-  } catch(e) {}
+  } catch(e) { console.warn('[Notifications] clear-all error:', e.message || e); }
 }
 
 async function clearAllWarnings() {
@@ -23892,16 +24011,27 @@ function computeWarnings() {
 
     // Blocked tasks always count as a warning, even if not late
     if (!warning && t.status === 'Blocked') {
-      warning = { severity: 'high', type: 'blocked', label: 'Blocked' };
+      const bi = t.blockerInfo || t.blocker_info || {};
+      const parts = [];
+      if (bi.blockedOn) parts.push(bi.blockedOn);
+      const people = [...(bi.internal || []), ...(bi.external || [])];
+      if (people.length) parts.push('By: ' + people.join(', '));
+      const deps = getIncompletePrereqs(t);
+      if (deps.length) parts.push('Prereqs: ' + deps.map(d => d.title).join(', '));
+      const label = parts.length > 0 ? 'Blocked — ' + parts.join(' · ') : 'Blocked';
+      warning = { severity: 'high', type: 'blocked', label };
     }
 
-    // Missing fields on directly-assigned active tasks
-    if (!warning && isAssigned) {
-      if (t.status === 'In progress' && (!t.dueDate || t.dueDate === '')) {
-        warning = { severity: 'medium', type: 'missing_field', label: 'No due date set' };
-      } else if ((t.status === 'In progress' || t.status === 'Not started') &&
-                 (!Array.isArray(t.assignees) || t.assignees.length === 0)) {
-        warning = { severity: 'medium', type: 'missing_field', label: 'No assignee' };
+    // Incomplete tasks: missing required fields on active leaf tasks assigned to this user
+    if (!warning && isAssigned && isTaskIncomplete(t)) {
+      const missing = [];
+      if (!t.hoursEstimated) missing.push('hours estimate');
+      if (!t.priority) missing.push('priority');
+      if (!t.assignees || t.assignees.length === 0) missing.push('assignee');
+      if (!t.dueDate) missing.push('due date');
+      if (!t.client) missing.push('client');
+      if (missing.length > 0) {
+        warning = { severity: 'medium', type: 'incomplete', label: 'Missing: ' + missing.join(', ') };
       }
     }
 
@@ -23957,16 +24087,18 @@ function updateWarnAlertButton() {
   if (panel && panel.classList.contains('open')) renderWarnAlertContent();
 }
 
-/** Toggle the right-hand sidebar panel open or closed. */
+/** Toggle the right-hand sidebar panel open or closed.
+ *  Primary definition is in the standalone script block above the main script
+ *  so it works even if main script evaluation fails. This re-definition
+ *  upgrades it with renderWarnAlertContent support once the main script loads. */
 function toggleWarnAlertSidebar() {
   const panel = document.getElementById('warnAlertPanel');
   if (!panel) return;
-  const open = panel.classList.contains('open');
-  if (open) {
+  if (panel.classList.contains('open')) {
     panel.classList.remove('open');
   } else {
-    renderWarnAlertContent();
     panel.classList.add('open');
+    renderWarnAlertContent();
   }
 }
 
@@ -23994,11 +24126,12 @@ async function renderWarnAlertContent() {
     // Fetch verify-match items from the server alongside the computed warnings
     let verifyMatches = [];
     try {
-      verifyMatches = await apiCall('/api/attachments/verify-matches') || [];
+      const resp = await authFetch('/api/attachments/verify-matches');
+      if (resp.ok) verifyMatches = await resp.json() || [];
     } catch (e) { /* non-fatal */ }
 
     if (warnings.length === 0 && verifyMatches.length === 0) {
-      list.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:24px;font-size:0.82rem">No warnings. Nice work.</div>';
+      list.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:24px;font-size:0.82rem">No blocked, overdue, or incomplete items. Nice work.</div>';
       return;
     }
     const warnClearBtn = '<div style="padding:4px 12px;display:flex;justify-content:flex-end"><button class="btn btn--sm" data-action="clearAllWarnings" style="font-size:0.7rem;padding:2px 6px">Clear all</button></div>';
@@ -24110,6 +24243,8 @@ setInterval(function() { try { updateWarnAlertButton(); } catch (e) {} }, 60000)
 
 // Initial paint after the page settles (tasks may load asynchronously)
 setTimeout(function() { try { updateWarnAlertButton(); } catch (e) {} }, 1500);
+
+// Alert button listeners are in the standalone script block before the main script.
 
 // ==================== FOCUS TRAP ON DETAIL PANEL ====================
 const _detailOverlay = document.getElementById('detailOverlay');

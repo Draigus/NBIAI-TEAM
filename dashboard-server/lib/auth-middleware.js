@@ -46,7 +46,7 @@ module.exports = function createAuthMiddleware(pool) {
   setInterval(() => {
     const now = Date.now();
     for (const [token, entry] of _tokenCache) { if (entry.expiresAt <= now) _tokenCache.delete(token); }
-    pool.query('DELETE FROM login_attempts WHERE last_attempt < NOW() - INTERVAL \'1 hour\'').catch(() => {});
+    pool.query('DELETE FROM login_attempts WHERE last_attempt < NOW() - INTERVAL \'1 hour\'').catch(err => { log('warn', 'auth', 'login_attempts cleanup failed', err.message); });
   }, 10 * 60 * 1000).unref();
 
   // Brute-force protection: persisted to DB so counters survive PM2 restarts
