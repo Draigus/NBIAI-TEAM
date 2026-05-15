@@ -170,7 +170,7 @@ module.exports = function(ctx) {
       const keptCount = Number(stats.keptParagraphs || 0);
       let hint;
       if (filteredCount > 0 && keptCount === 0) {
-        hint = `All ${filteredCount} paragraph${filteredCount === 1 ? '' : 's'} were filtered out by the pricing/legal filter. If this PDF only contains pricing or legal content, upload a scope-only variant.`;
+        hint = `All ${filteredCount} paragraph${filteredCount === 1 ? '' : 's'} were filtered out by the pricing/legal filter. Try uploading again with force, or export to a .txt file and upload that instead.`;
       } else if (filteredCount === 0 && keptCount === 0) {
         hint = 'The PDF parsed but contained no extractable text. It may be a scanned image — try exporting to text first.';
       } else {

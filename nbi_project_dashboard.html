@@ -1195,7 +1195,7 @@ span.fin-editable { display: inline-block; position: relative; }
 .gantt__depth-btn--docs:hover { background: color-mix(in srgb, var(--accent) 16%, transparent); }
 .gantt__today-line { position: absolute; top: 0; bottom: 0; background: rgba(34,197,94,0.18); z-index: 1; pointer-events: none; }
 .gantt__milestone-line { position: absolute; top: 0; bottom: 0; background: rgba(245,158,11,0.18); z-index: 1; pointer-events: none; border-left: 2px solid rgba(245,158,11,0.5); }
-.gantt__milestone-label { position: absolute; top: -2px; font-size: 0.7rem; font-weight: 700; color: #f59e0b; white-space: nowrap; pointer-events: auto; cursor: default; letter-spacing: 0.02em; z-index: 6; }
+.gantt__milestone-label { position: absolute; top: 4px; font-size: 0.65rem; font-weight: 700; color: #f59e0b; white-space: nowrap; pointer-events: auto; cursor: default; letter-spacing: 0.02em; z-index: 6; }
 .gantt__day-hdr--milestone { background: rgba(245,158,11,0.15) !important; color: #f59e0b !important; font-weight: 700 !important; }
 .gantt__day-col { border-right: 1px solid var(--border-subtle); flex-shrink: 0; }
 .gantt__day-col--weekend { background: color-mix(in srgb, var(--bg-surface) 50%, transparent); }
@@ -3983,6 +3983,50 @@ function markDirty(taskId) { _dirtyTaskIds.add(taskId); _recentlyEditedIds.add(t
 /** Flag a task as deleted locally — removes it from the dirty set and queues it for server deletion */
 function markDeleted(taskId) { _deletedTaskIds.add(taskId); _dirtyTaskIds.delete(taskId); }
 
+/** Write a field value to the in-memory task immediately (every keystroke).
+ *  Does NOT trigger localStorage/API sync — that happens on blur via onchange.
+ *  This ensures the in-memory task always has the latest text, even if the
+ *  DOM element is destroyed before onchange/blur fires. */
+let _liveWriteSaveTimer = null;
+function _liveWrite(taskId, field, value) {
+  const task = tasks.find(t => t.id === taskId);
+  if (!task) return;
+  if (task[field] === value) return;
+  task[field] = value;
+  task.updatedAt = new Date().toISOString();
+  markDirty(taskId);
+  clearTimeout(_liveWriteSaveTimer);
+  _liveWriteSaveTimer = setTimeout(save, 1500);
+}
+function _liveWriteBlocker(taskId, subField, value) {
+  const task = tasks.find(t => t.id === taskId);
+  if (!task) return;
+  if (!task.blockerInfo) task.blockerInfo = {};
+  if (task.blockerInfo[subField] === value) return;
+  task.blockerInfo[subField] = value;
+  task.blockerInfo.lastUpdated = new Date().toISOString();
+  task.updatedAt = new Date().toISOString();
+  markDirty(taskId);
+  clearTimeout(_liveWriteSaveTimer);
+  _liveWriteSaveTimer = setTimeout(save, 1500);
+}
+
+let _flushing = false;
+/** Flush any text the user has typed into a focused input/textarea before the DOM is rebuilt.
+ *  Called at the top of renderContent() so re-renders never destroy unsaved keystrokes. */
+function _flushActiveEdits() {
+  if (_flushing) return;
+  const el = document.activeElement;
+  if (!el || (el.tagName !== 'INPUT' && el.tagName !== 'TEXTAREA')) return;
+  if (el.type === 'date' || el.type === 'number' || el.type === 'checkbox') return;
+  _flushing = true;
+  try {
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+  } finally {
+    _flushing = false;
+  }
+}
+
 /** Save to localStorage immediately, then debounce an API sync (500ms) */
 function save() {
   // Always save to localStorage as local cache
@@ -4071,6 +4115,16 @@ async function syncToAPI() {
       _syncRetryCount = 0;
       _lastLocalSyncTime = Date.now();
       walClear([...dirtyIds, ...deletedIds]);
+      // Update _serverUpdatedAt from the response so the next sync won't conflict
+      try {
+        const syncResult = await resp.json();
+        if (syncResult.updatedTimestamps) {
+          for (const [tid, ts] of Object.entries(syncResult.updatedTimestamps)) {
+            const task = tasks.find(t => t.id === tid);
+            if (task) task._serverUpdatedAt = new Date(ts).toISOString();
+          }
+        }
+      } catch (_) { /* response already consumed or no timestamps */ }
       showSyncStatus('saving', 'Saved ✓');
     }
   } catch (e) {
@@ -4172,6 +4226,33 @@ async function load() {
 let _pollingPaused = false;
 document.addEventListener('visibilitychange', () => {
   _pollingPaused = document.hidden;
+});
+
+// Flush pending edits and sync before tab/window close
+window.addEventListener('beforeunload', (e) => {
+  _flushActiveEdits();
+  if (_dirtyTaskIds.size > 0 || _deletedTaskIds.size > 0) {
+    save();
+    const dirtyIds = [..._dirtyTaskIds];
+    const deletedIds = [..._deletedTaskIds];
+    const changes = [];
+    for (const id of dirtyIds) {
+      const t = tasks.find(x => x.id === id);
+      if (t) changes.push({ action: 'upsert', entity: 'task', data: { ...t, _serverUpdatedAt: t._serverUpdatedAt || t.updatedAt } });
+    }
+    for (const id of deletedIds) {
+      changes.push({ action: 'delete', entity: 'task', id });
+    }
+    if (changes.length > 0) {
+      fetch('/api/sync/changes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ changes }),
+        keepalive: true,
+        credentials: 'include'
+      });
+    }
+  }
 });
 
 // Poll for other users' changes every 10 seconds (incremental)
@@ -5464,6 +5545,7 @@ function _renderMainContent(content) {
 
 /** Re-render only the main content area (not sidebar/tabs). Preserves scroll position. */
 function renderContent() {
+  _flushActiveEdits();
   const _perfStart = performance.now();
   const content = document.getElementById('mainContent');
   if (!content) return;
@@ -5485,6 +5567,7 @@ function renderSidebarCounts() {
 
 /** Re-render the entire UI: sidebar, tabs, breadcrumbs, and the active view. */
 function renderAll() {
+  _flushActiveEdits();
   const _perfStart = performance.now();
   renderSidebar();
   renderTabs();
@@ -6756,8 +6839,10 @@ function blockerDetailBoxHtml(task, id) {
   if (deps.length) extra.push('Prereqs: ' + deps.map(d => d.title).join(', '));
   if (bi.toUnblock) extra.push('To unblock: ' + bi.toUnblock);
   if (bi.dateBlocked) extra.push('Since ' + new Date(bi.dateBlocked).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'}));
-  let h = `<textarea style="width:100%;border:1px solid var(--danger);border-radius:var(--radius-sm);padding:6px 8px;margin-top:-4px;margin-bottom:${extra.length ? '2' : '4'}px;font-size:0.78rem;color:var(--danger);line-height:1.4;resize:vertical;min-height:28px;max-height:300px;background:var(--bg-input);font-family:var(--font-body)" placeholder="What is this blocked on?" onchange="if(!tasks.find(t=>t.id==='${escAttrJs(id)}').blockerInfo)tasks.find(t=>t.id==='${escAttrJs(id)}').blockerInfo={};tasks.find(t=>t.id==='${escAttrJs(id)}').blockerInfo.blockedOn=this.value;tasks.find(t=>t.id==='${escAttrJs(id)}').updatedAt=new Date().toISOString();markDirty('${escAttrJs(id)}');save()">${esc(bi.blockedOn || '')}</textarea>`;
-  if (extra.length) h += `<div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:4px;line-height:1.3">${esc(extra.join(' · '))}</div>`;
+  if (bi.lastUpdated) extra.push('Updated ' + new Date(bi.lastUpdated).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}));
+  let h = `<textarea style="width:100%;border:1px solid var(--danger);border-radius:var(--radius-sm);padding:6px 8px;margin-top:-4px;margin-bottom:${extra.length ? '2' : '4'}px;font-size:0.78rem;color:var(--danger);line-height:1.4;resize:vertical;min-height:28px;max-height:300px;background:var(--bg-input);font-family:var(--font-body)" placeholder="What is this blocked on?" oninput="_liveWriteBlocker('${escAttrJs(id)}','blockedOn',this.value)" onchange="if(!tasks.find(t=>t.id==='${escAttrJs(id)}').blockerInfo)tasks.find(t=>t.id==='${escAttrJs(id)}').blockerInfo={};tasks.find(t=>t.id==='${escAttrJs(id)}').blockerInfo.blockedOn=this.value;tasks.find(t=>t.id==='${escAttrJs(id)}').blockerInfo.lastUpdated=new Date().toISOString();tasks.find(t=>t.id==='${escAttrJs(id)}').updatedAt=new Date().toISOString();markDirty('${escAttrJs(id)}');save()">${esc(bi.blockedOn || '')}</textarea>`;
+  if (extra.length) h += `<div style="font-size:0.72rem;color:var(--text-secondary);margin-bottom:4px;line-height:1.4;padding:4px 0">${extra.map(e => esc(e)).join('<br>')}</div>`;
+  h += `<button class="btn btn--ghost btn--xs" style="font-size:0.7rem;padding:2px 8px;margin-bottom:4px" onclick="openMarkAsBlockedPopup('${escAttrJs(id)}')">Edit blocker details</button>`;
   return h;
 }
 
@@ -7063,7 +7148,7 @@ function renderTaskView(el) {
   const projectOptions = getRootTasks()
     .filter(r => r.title && r.title.trim() !== 'New Task')
     .filter(r => !currentFilter.client || getTaskClient(r) === currentFilter.client)
-    .sort((a,b) => a.title.localeCompare(b.title));
+    .sort((a,b) => (a.sortOrder || 0) - (b.sortOrder || 0) || a.title.localeCompare(b.title));
   html += '<div class="tasks-view">';
   html += `<div class="filter-bar">
     <input type="text" placeholder="Search items... (Enter)" value="${esc(currentFilter.search)}" onkeydown="if(event.key==='Enter'){currentFilter.search=this.value;renderContent()}" onblur="if(this.value!==currentFilter.search){currentFilter.search=this.value;renderContent()}">
@@ -7183,7 +7268,8 @@ function renderTreeView(filtered) {
   // to skip siblings the user is not assigned to.
   let visibleIds = null;
   const hasAssigneeFilter = (currentFilter.sort === 'assignee' || (currentFilter.assignee && currentFilter.assignee.length > 0));
-  if (hasAssigneeFilter && filtered.length < tasks.length) {
+  const hasSearchFilter = !!currentFilter.search;
+  if ((hasAssigneeFilter || hasSearchFilter) && filtered.length < tasks.length) {
     visibleIds = new Set(filtered.map(t => t.id));
     filtered.forEach(t => {
       let cursor = tasks.find(p => p.id === t.parentId);
@@ -8376,7 +8462,7 @@ function renderGanttView(filtered) {
         html += ganttDayCols(totalDays, dayW, minDate, now);
         const todayOff = Math.round((now - minDate) / 86400000);
         if (todayOff >= 0 && todayOff < totalDays) html += `<div class="gantt__today-line" style="left:${todayOff * dayW}px;width:${dayW}px"></div>`;
-        _ganttMilestones.forEach(ms => { html += `<div class="gantt__milestone-line" style="left:${ms.offset * dayW}px;width:${dayW}px" title="${esc(ms.title)}"></div>`; });
+        _ganttMilestones.forEach(ms => { html += `<div class="gantt__milestone-line" style="left:${ms.offset * dayW}px;width:${dayW}px" title="${esc(ms.title)}"></div><div class="gantt__milestone-label" style="left:${ms.offset * dayW + 6}px">${esc(ms.title)}</div>`; });
         if (start && end && end >= start) {
           const rawOff = Math.round((start - minDate) / 86400000);
           const sOff = Math.max(0, rawOff);
@@ -8489,7 +8575,7 @@ function renderGanttView(filtered) {
         html += `<div class="gantt__today-line" style="left:${todayOffset * dayW}px;width:${dayW}px"></div>`;
       }
       // Milestone lines
-      _ganttMilestones.forEach(ms => { html += `<div class="gantt__milestone-line" style="left:${ms.offset * dayW}px;width:${dayW}px" title="${esc(ms.title)}"></div>`; });
+      _ganttMilestones.forEach(ms => { html += `<div class="gantt__milestone-line" style="left:${ms.offset * dayW}px;width:${dayW}px" title="${esc(ms.title)}"></div><div class="gantt__milestone-label" style="left:${ms.offset * dayW + 6}px">${esc(ms.title)}</div>`; });
 
       // Bar — clamp left edge so bars never render behind the label column
       if (start && end && end >= start) {
@@ -9048,7 +9134,7 @@ function ganttBarDragEnd(e) {
     }
   } else if (mode === 'resize-end') {
     if (newEndStr !== origEnd) {
-      task.endDate = newEndStr;
+      task.dueDate = newEndStr;
       changed = true;
     }
   } else if (mode === 'resize-start') {
@@ -9221,14 +9307,14 @@ function renderInlineTaskDetail(id) {
   const isRoot = !task.parentId;
 
   let html = '<div class="inline-detail">';
-  html += `<div class="inline-detail__header"><input class="inline-detail__title-input" value="${esc(task.title)}" onchange="updateTask('${id}','title',this.value)" onkeydown="if(event.key==='Enter')this.blur()"><button class="inline-detail__close" data-action="_actClearDetailTask" title="Back to summary">&larr;</button></div>`;
+  html += `<div class="inline-detail__header"><input class="inline-detail__title-input" value="${esc(task.title)}" oninput="_liveWrite('${id}','title',this.value)" onchange="updateTask('${id}','title',this.value)" onkeydown="if(event.key==='Enter')this.blur()"><button class="inline-detail__close" data-action="_actClearDetailTask" title="Back to summary">&larr;</button></div>`;
 
   // Properties
   // Properties — Name first, then Client, editable on all tasks
   const ilClient = getTaskClient(task);
   html += `<div class="detail-section"><div class="detail-section__title">Properties</div>`;
   html += `<div class="detail-field"><span class="detail-field__label">Type</span><div style="display:flex;align-items:center;gap:6px">${itemTypeBadgeHtml(task)} <span style="font-size:0.82rem;color:var(--text-primary)">${getItemTypeLabel(task)}</span></div></div>`;
-  html += `<div class="detail-field"><label class="detail-field__label field-required" for="inline-detail-title">Name</label><input id="inline-detail-title" value="${esc(task.title)}" onchange="updateTask('${id}','title',this.value)" onkeydown="if(event.key==='Enter')this.blur()"></div>`;
+  html += `<div class="detail-field"><label class="detail-field__label field-required" for="inline-detail-title">Name</label><input id="inline-detail-title" value="${esc(task.title)}" oninput="_liveWrite('${id}','title',this.value)" onchange="updateTask('${id}','title',this.value)" onkeydown="if(event.key==='Enter')this.blur()"></div>`;
   if (ilClient) {
     html += `<div class="detail-field"><span class="detail-field__label field-required">Client</span><div style="display:flex;align-items:center;gap:6px">${clientBadgeHtml(ilClient)} <span style="font-size:0.82rem;color:var(--text-primary)">${esc(ilClient)}</span></div></div>`;
   } else {
@@ -9279,6 +9365,7 @@ function renderInlineTaskDetail(id) {
     html += `<div class="detail-field"><label class="detail-field__label" for="inline-detail-endDate">End Date</label><input id="inline-detail-endDate" type="date" value="${task.endDate||''}" onchange="updateTask('${id}','endDate',this.value)"></div>`;
   }
   html += `<div class="detail-field"><label class="detail-field__label" for="inline-detail-dueDate">Due Date</label><input id="inline-detail-dueDate" type="date" value="${task.dueDate||''}" onchange="updateTask('${id}','dueDate',this.value)"></div>`;
+  html += renderRepeatSection(task);
   html += `</div>`;
 
   // Time Tracking
@@ -9290,14 +9377,11 @@ function renderInlineTaskDetail(id) {
 
   // Description (split into three fields — Feature 5)
   html += `<div class="detail-section"><div class="detail-section__title field-required">Description of Work <span style="font-size:0.7rem;font-weight:400;color:var(--text-muted)">(min 15 characters)</span></div>`;
-  html += `<div class="detail-field"><textarea placeholder="A clear, concise description of the work needed to complete this task." onchange="updateTask('${id}','description',this.value)" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(task.description||'')}</textarea></div></div>`;
+  html += `<div class="detail-field"><textarea placeholder="A clear, concise description of the work needed to complete this task." onchange="updateTask('${id}','description',this.value)" oninput="_liveWrite('${id}','description',this.value);this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(task.description||'')}</textarea></div></div>`;
   html += `<div class="detail-section"><div class="detail-section__title">Collaborations</div>`;
-  html += `<div class="detail-field"><textarea placeholder="If there are multiple people on the task, describe everyone's responsibilities." onchange="updateTask('${id}','collaborations',this.value)" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(task.collaborations||'')}</textarea></div></div>`;
+  html += `<div class="detail-field"><textarea placeholder="If there are multiple people on the task, describe everyone's responsibilities." onchange="updateTask('${id}','collaborations',this.value)" oninput="_liveWrite('${id}','collaborations',this.value);this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(task.collaborations||'')}</textarea></div></div>`;
   html += `<div class="detail-section"><div class="detail-section__title">Success Factor</div>`;
-  html += `<div class="detail-field"><textarea placeholder="What will we have accomplished or made by the completion of this task?" onchange="updateTask('${id}','successFactor',this.value)" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(task.successFactor||'')}</textarea></div></div>`;
-
-  // Repeat (Feature 2)
-  html += renderRepeatSection(task);
+  html += `<div class="detail-field"><textarea placeholder="What will we have accomplished or made by the completion of this task?" onchange="updateTask('${id}','successFactor',this.value)" oninput="_liveWrite('${id}','successFactor',this.value);this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(task.successFactor||'')}</textarea></div></div>`;
 
   // Notes
   html += `<div class="detail-section"><div class="detail-section__title">Notes</div><div class="note-list">`;
@@ -9971,7 +10055,7 @@ function openDetailOverlay(id) {
   const dpMissingFields = dpIncomplete ? [!task.hoursEstimated?'Hours estimated':'', !task.priority?'Priority':'', !task.assignees||task.assignees.length===0?'Assignee':'', !task.dueDate?'Due date':'', !task.client?'Client':''].filter(Boolean) : [];
 
   let html = `<div class="detail-panel__resize" onmousedown="startPanelResize(event,'detailPanel')"></div>`;
-  html += `<div class="detail-panel__header"><input class="detail-panel__title-input" value="${esc(task.title)}" onchange="updateTask('${id}','title',this.value);this.closest('.detail-panel__header').querySelector('.detail-panel__title-input').value=this.value" onkeydown="if(event.key==='Enter')this.blur()"><button class="detail-panel__close" data-action="closeDetail" aria-label="Close detail panel">&times;</button></div>`;
+  html += `<div class="detail-panel__header"><input class="detail-panel__title-input" value="${esc(task.title)}" oninput="_liveWrite('${id}','title',this.value)" onchange="updateTask('${id}','title',this.value);this.closest('.detail-panel__header').querySelector('.detail-panel__title-input').value=this.value" onkeydown="if(event.key==='Enter')this.blur()"><button class="detail-panel__close" data-action="closeDetail" aria-label="Close detail panel">&times;</button></div>`;
   html += `<div class="detail-panel__body">`;
 
   // Incomplete warning banner
@@ -9986,7 +10070,7 @@ function openDetailOverlay(id) {
   const dpClient = getTaskClient(task);
   html += `<div class="detail-section"><div class="detail-section__title">Properties</div>`;
   html += `<div class="detail-field"><span class="detail-field__label">Type</span><div style="display:flex;align-items:center;gap:6px">${itemTypeBadgeHtml(task)} <span style="font-size:0.82rem;color:var(--text-primary)">${getItemTypeLabel(task)}</span></div></div>`;
-  html += `<div class="detail-field"><label class="detail-field__label field-required" for="detail-title">Name</label><input id="detail-title" value="${esc(task.title)}" onchange="updateTask('${id}','title',this.value)" onkeydown="if(event.key==='Enter')this.blur()"></div>`;
+  html += `<div class="detail-field"><label class="detail-field__label field-required" for="detail-title">Name</label><input id="detail-title" value="${esc(task.title)}" oninput="_liveWrite('${id}','title',this.value)" onchange="updateTask('${id}','title',this.value)" onkeydown="if(event.key==='Enter')this.blur()"></div>`;
   if (dpClient) {
     html += `<div class="detail-field"><span class="detail-field__label field-required">Client</span><div style="display:flex;align-items:center;gap:6px">${clientBadgeHtml(dpClient)} <span style="font-size:0.82rem;color:var(--text-primary)">${esc(dpClient)}</span></div></div>`;
   } else {
@@ -10033,6 +10117,7 @@ function openDetailOverlay(id) {
     html += `<div class="detail-field"><label class="detail-field__label" for="detail-endDate">End Date</label><input id="detail-endDate" type="date" value="${task.endDate||''}" onchange="updateTask('${id}','endDate',this.value)"></div>`;
   }
   html += `<div class="detail-field"><label class="detail-field__label" for="detail-dueDate">Due Date</label><input id="detail-dueDate" type="date" value="${task.dueDate||''}" onchange="updateTask('${id}','dueDate',this.value)"></div>`;
+  html += renderRepeatSection(task);
   html += `</div>`;
 
   // Time Tracking (quick log + entries)
@@ -10047,14 +10132,11 @@ function openDetailOverlay(id) {
 
   // Description (split into three fields — Feature 5)
   html += `<div class="detail-section"><div class="detail-section__title field-required">Description of Work <span style="font-size:0.7rem;font-weight:400;color:var(--text-muted)">(min 15 characters)</span></div>`;
-  html += `<div class="detail-field"><textarea placeholder="A clear, concise description of the work needed to complete this task." onchange="updateTask('${id}','description',this.value)" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(task.description||'')}</textarea></div></div>`;
+  html += `<div class="detail-field"><textarea placeholder="A clear, concise description of the work needed to complete this task." onchange="updateTask('${id}','description',this.value)" oninput="_liveWrite('${id}','description',this.value);this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(task.description||'')}</textarea></div></div>`;
   html += `<div class="detail-section"><div class="detail-section__title">Collaborations</div>`;
-  html += `<div class="detail-field"><textarea placeholder="If there are multiple people on the task, describe everyone's responsibilities." onchange="updateTask('${id}','collaborations',this.value)" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(task.collaborations||'')}</textarea></div></div>`;
+  html += `<div class="detail-field"><textarea placeholder="If there are multiple people on the task, describe everyone's responsibilities." onchange="updateTask('${id}','collaborations',this.value)" oninput="_liveWrite('${id}','collaborations',this.value);this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(task.collaborations||'')}</textarea></div></div>`;
   html += `<div class="detail-section"><div class="detail-section__title">Success Factor</div>`;
-  html += `<div class="detail-field"><textarea placeholder="What will we have accomplished or made by the completion of this task?" onchange="updateTask('${id}','successFactor',this.value)" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(task.successFactor||'')}</textarea></div></div>`;
-
-  // Repeat (Feature 2)
-  html += renderRepeatSection(task);
+  html += `<div class="detail-field"><textarea placeholder="What will we have accomplished or made by the completion of this task?" onchange="updateTask('${id}','successFactor',this.value)" oninput="_liveWrite('${id}','successFactor',this.value);this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(task.successFactor||'')}</textarea></div></div>`;
 
   // Notes
   html += `<div class="detail-section"><div class="detail-section__title">Notes</div><div class="note-list">`;
@@ -10450,30 +10532,29 @@ async function updateTask(id, field, value) {
   if (!task) return;
 
   if ((field === 'startDate' || field === 'endDate' || field === 'dueDate') && value) {
-    const yearMatch = value.match(/^(\d+)-/);
-    if (yearMatch && yearMatch[1].length >= 4) {
-      const yr = parseInt(yearMatch[1], 10);
-      if (yr < 1000) return;
-      if (yr < 1900 || yr > 2099) {
-        showToast('Invalid year — must be between 1900 and 2099', 'error');
-        renderContent();
-        return;
-      }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return;
+    const yr = parseInt(value.slice(0, 4), 10);
+    if (yr < 1900 || yr > 2099) {
+      showToast('Invalid year — must be between 1900 and 2099', 'error');
+      renderContent();
+      return;
     }
   }
 
-  // When status changes to Blocked, initialise blockerInfo with today's date.
-  // Details are entered inline via the detail panel text box.
+  // When status changes to Blocked, show the blocker details popup first.
+  // The popup's confirm handler calls updateTask again with the filled-in blockerInfo.
   if (field === 'status' && value === 'Blocked' && task.status !== 'Blocked') {
     if (!task.blockerInfo) task.blockerInfo = { blockedOn: '', internal: [], external: [], toUnblock: '', dateBlocked: new Date().toISOString().slice(0, 10) };
+    openMarkAsBlockedPopup(id);
+    return;
   }
 
-  // Blocked cascade: when any parent is blocked, cascade to all descendants
+  // Blocked cascade: when blocked, cascade to descendants AND dependants (prerequisite chain)
   if (field === 'status' && value === 'Blocked') {
     const descendants = getDescendants(id).filter(d => d.status !== 'Blocked' && d.status !== 'Done' && d.status !== 'Cancelled');
-    if (descendants.length > 0) {
-      descendants.forEach(d => { d.status = 'Blocked'; d.updatedAt = new Date().toISOString(); markDirty(d.id); });
-    }
+    descendants.forEach(d => { d.status = 'Blocked'; d.updatedAt = new Date().toISOString(); markDirty(d.id); });
+    const dependants = tasks.filter(t => Array.isArray(t.dependencies) && t.dependencies.includes(id) && t.status !== 'Blocked' && t.status !== 'Done' && t.status !== 'Cancelled');
+    dependants.forEach(d => { d.status = 'Blocked'; d.updatedAt = new Date().toISOString(); markDirty(d.id); });
   }
 
   // Feature 3: Cancelled cascade for projects
@@ -10820,7 +10901,10 @@ function saveMarkAsBlocked() {
   markDirty(taskId);
   const blockedDescendants = getDescendants(taskId).filter(d => d.status !== 'Blocked' && d.status !== 'Done' && d.status !== 'Cancelled');
   blockedDescendants.forEach(d => { d.status = 'Blocked'; d.updatedAt = new Date().toISOString(); markDirty(d.id); });
-  pushUndo(`Mark "${task.title}" as Blocked`, () => { task.status = oldStatus; task.blockerInfo = oldInfo; task.updatedAt = new Date().toISOString(); markDirty(taskId); blockedDescendants.forEach(d => { d.status = 'In progress'; d.updatedAt = new Date().toISOString(); markDirty(d.id); }); });
+  const blockedDependants = tasks.filter(t => Array.isArray(t.dependencies) && t.dependencies.includes(taskId) && t.status !== 'Blocked' && t.status !== 'Done' && t.status !== 'Cancelled');
+  blockedDependants.forEach(d => { d.status = 'Blocked'; d.updatedAt = new Date().toISOString(); markDirty(d.id); });
+  const allCascaded = [...blockedDescendants, ...blockedDependants];
+  pushUndo(`Mark "${task.title}" as Blocked`, () => { task.status = oldStatus; task.blockerInfo = oldInfo; task.updatedAt = new Date().toISOString(); markDirty(taskId); allCascaded.forEach(d => { d.status = 'In progress'; d.updatedAt = new Date().toISOString(); markDirty(d.id); }); });
   save();
   document.getElementById('blockerModal').classList.remove('open');
   _markAsBlockedTaskId = null;
@@ -10947,7 +11031,7 @@ function createTaskObject(overrides) {
     status: 'Not started', priority: '', healthState: '', description: '',
     assignees: [], hoursEstimated: 0, hoursSpent: 0,
     dueDate: '', startDate: '', endDate: '', dependencies: [],
-    notes: [], createdAt: now, updatedAt: now,
+    notes: [], createdAt: now, updatedAt: now, sortOrder: 0,
     ...overrides,
   };
 }
@@ -11071,8 +11155,9 @@ function showAddItemPicker(type) {
       </div>
       <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:12px">Select a ${ITEM_TYPE_META[parentType].label} to add this ${ITEM_TYPE_META[type].label} under:</p>
       <div style="max-height:400px;overflow-y:auto;border:1px solid var(--border-default);border-radius:var(--radius-sm)">`;
-  sortedClients.forEach(client => {
-    html += `<div style="padding:6px 12px;font-size:0.72rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;background:var(--bg-surface);border-bottom:1px solid var(--border-subtle)">${clientBadgeHtml(client)} ${esc(client)}</div>`;
+  sortedClients.forEach((client, ci) => {
+    const isActive = client === filterClient;
+    html += `<div style="padding:6px 12px;font-size:0.72rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;background:var(--bg-surface);border-bottom:1px solid var(--border-subtle);cursor:pointer;user-select:none" onclick="const g=this.nextElementSibling;const open=g.style.display!=='none';g.style.display=open?'none':'block';this.querySelector('.picker-arrow').textContent=open?'\\u25B6':'\\u25BC'"><span class="picker-arrow">${isActive ? '▼' : '▶'}</span> ${clientBadgeHtml(client)} ${esc(client)}</div><div style="display:${isActive ? 'block' : 'none'}">`;
     // Sub-group by ancestor project if parent type is deeper than project
     const items = grouped[client];
     if (parentType === 'project') {
@@ -11110,6 +11195,7 @@ function showAddItemPicker(type) {
         });
       });
     }
+    html += `</div>`;
   });
   html += `</div></div></div>`;
   document.body.insertAdjacentHTML('beforeend', html);
@@ -11252,8 +11338,9 @@ function renderReportingView(el) {
   // Helpers
   const featurePct = f => {
     const leaves = []; (function walk(n) { const ch = tasks.filter(t => t.parentId === n.id); if (ch.length === 0) leaves.push(n); else ch.forEach(walk); })(f);
-    const total = leaves.length; if (total === 0) return f.status === 'Done' ? 100 : 0;
-    return Math.round(leaves.filter(l => l.status === 'Done').length / total * 100);
+    const active = leaves.filter(l => l.status !== 'Cancelled');
+    const total = active.length; if (total === 0) return f.status === 'Done' ? 100 : 0;
+    return Math.round(active.filter(l => l.status === 'Done').length / total * 100);
   };
   const featureHealth = f => {
     if (f.healthState === 'Blocked' || f.status === 'Blocked') return 'blocked';
@@ -11381,7 +11468,8 @@ function renderReportingDrawer(f) {
   const team = [...teamSet].sort().join('; ');
   const leafFor = id => { const out = []; (function walk(n) { const ch = tasks.filter(t => t.parentId === n.id); if (ch.length === 0) out.push(n); else ch.forEach(walk); })(tasks.find(t => t.id === id) || {id}); return out; };
   const leaves = leafFor(f.id);
-  const pct = leaves.length ? Math.round(leaves.filter(l => l.status === 'Done').length / leaves.length * 100) : (f.status === 'Done' ? 100 : 0);
+  const activeLeaves = leaves.filter(l => l.status !== 'Cancelled');
+  const pct = activeLeaves.length ? Math.round(activeLeaves.filter(l => l.status === 'Done').length / activeLeaves.length * 100) : (f.status === 'Done' ? 100 : 0);
 
   const h = (() => {
     if (f.healthState === 'Blocked' || f.status === 'Blocked') return 'blocked';
@@ -11488,7 +11576,7 @@ function renderReportingDrawer(f) {
   html += `<div class="reporting__drawer-side">`;
   const editBlock = (label, field, content) => {
     const text = (content || '').toString().trim();
-    return `<div class="reporting__drawer-card"><div class="reporting__drawer-card-hdr">${label}</div><div class="reporting__drawer-card-body"><textarea style="width:100%;min-height:48px;font-size:0.78rem;background:var(--bg-input);color:var(--text-primary);border:1px solid var(--border-default);border-radius:var(--radius-sm);padding:6px 8px;resize:vertical;font-family:var(--font-body)" placeholder="Add ${label.toLowerCase()}..." onchange="updateTask('${escAttrJs(f.id)}','${field}',this.value)" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(text)}</textarea></div></div>`;
+    return `<div class="reporting__drawer-card"><div class="reporting__drawer-card-hdr">${label}</div><div class="reporting__drawer-card-body"><textarea style="width:100%;min-height:48px;font-size:0.78rem;background:var(--bg-input);color:var(--text-primary);border:1px solid var(--border-default);border-radius:var(--radius-sm);padding:6px 8px;resize:vertical;font-family:var(--font-body)" placeholder="Add ${label.toLowerCase()}..." onchange="updateTask('${escAttrJs(f.id)}','${field}',this.value)" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'" oninput="_liveWrite('${escAttrJs(f.id)}','${field}',this.value);this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(text)}</textarea></div></div>`;
   };
   const linkBlock = (label, field, content) => {
     const text = (content || '').toString().trim();
@@ -16603,7 +16691,7 @@ async function renderManageClients(el) {
               <input type="text" id="newSowTitle_${c.id}" placeholder="SoW title" style="flex:1;min-width:120px">
               <button class="btn btn--sm btn--primary" data-action="uploadSowFile" data-arg0="${c.id}">Upload SoW</button>
             </div>
-            <div style="font-size:0.7rem;color:var(--text-muted);margin-top:4px">PDF only. Pricing and legal sections are automatically stripped. Only the work package is stored.</div>` : ''}
+            <div style="font-size:0.7rem;color:var(--text-muted);margin-top:4px">PDF or .txt. Pricing and legal sections are automatically stripped. Only the work package is stored.</div>` : ''}
           </div>
           <div class="manage-clients__teams" id="clientTeams_${c.id}">
             <h4 style="margin:12px 0 6px;font-size:0.82rem;color:var(--text-secondary)">Teams</h4>
