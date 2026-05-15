@@ -1,5 +1,9 @@
 # Decisions Log
 
+**Scope:** Dashboard project (WorkSage/NBI Hub) operational decisions made during development sessions. These are tactical, not strategic.
+
+**For company-wide canon decisions, see:** `brain/decisions_log.md`
+
 Append-only. Every decision Glen makes gets logged here immediately.
 
 ---

@@ -1,10 +1,13 @@
 # Decisions Log
 
 **Last Updated:** 2026-04-20
+**Scope:** Company-wide canon decisions. Append-only. Entries are never edited, only added. This is the authoritative source for all NBI strategic and structural decisions.
+
+**For dashboard-specific operational decisions, see:** `projects/nbi_dashboard/live_state/decisions.md`
 
 ---
 
-Canon decisions that should not be revisited unless Glen explicitly reopens them. This log is append-only - entries are never edited, only added.
+Canon decisions that should not be revisited unless Glen explicitly reopens them.
 
 | Date | Decision | Context |
 |---|---|---|
