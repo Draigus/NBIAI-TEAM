@@ -158,9 +158,9 @@ router.post('/api/sync/changes', async (req, res) => {
              health_state=$7, description=$8, assignees=$9, hours_estimated=$10, hours_spent=$11,
              due_date=$12, start_date=$13, end_date=$14, dependencies=$15,
              collaborations=$16, success_factor=$17, repeat_rule=$18, blocker_info=$19,
-             practice_area=$20, sow_id=$21, work_type=$22,
+             practice_area=$20, sow_id=$21, work_type=$22, sort_order=$23,
              updated_at=NOW()
-             WHERE id=$23`,
+             WHERE id=$24`,
             [t.title, parentId, clientId, itemType, t.status || 'Not started', t.priority || '',
              t.healthState || t.health_state || '', t.description || '', t.assignees || [],
              t.hoursEstimated || t.hours_estimated || 0, t.hoursSpent || t.hours_spent || 0,
@@ -171,6 +171,7 @@ router.post('/api/sync/changes', async (req, res) => {
              t.practiceArea || t.practice_area || null,
              t.sowId || t.sow_id || null,
              t.workType || t.work_type || null,
+             t.sortOrder ?? t.sort_order ?? 0,
              t.id]
           );
         } else {
@@ -178,8 +179,8 @@ router.post('/api/sync/changes', async (req, res) => {
           const { rows } = await conn.query(
             `INSERT INTO tasks (id, title, parent_id, client_id, item_type, status, priority, health_state,
              description, assignees, hours_estimated, hours_spent, due_date, start_date, end_date, dependencies, source, created_at,
-             collaborations, success_factor, repeat_rule, blocker_info, practice_area, sow_id, work_type, updated_at)
-             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,NOW()) RETURNING id`,
+             collaborations, success_factor, repeat_rule, blocker_info, practice_area, sow_id, work_type, sort_order, updated_at)
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,NOW()) RETURNING id`,
             [t.id, t.title, parentId, clientId, itemType, t.status || 'Not started', t.priority || '',
              t.healthState || t.health_state || '', t.description || '', t.assignees || [],
              t.hoursEstimated || t.hours_estimated || 0, t.hoursSpent || t.hours_spent || 0,
@@ -190,7 +191,8 @@ router.post('/api/sync/changes', async (req, res) => {
              t.repeatRule || t.repeat_rule || null, t.blockerInfo || t.blocker_info || null,
              t.practiceArea || t.practice_area || null,
              t.sowId || t.sow_id || null,
-             t.workType || t.work_type || null]
+             t.workType || t.work_type || null,
+             t.sortOrder ?? t.sort_order ?? 0]
           );
           idMap[t.id] = rows[0].id;
           existingTaskMap.set(rows[0].id, new Date()); // Register in map for subsequent batch references
@@ -584,6 +586,7 @@ router.get('/api/sync/load', async (req, res) => {
     itemType: r.item_type || 'task',
     practiceArea: r.practice_area || null,
     position: r.position || 0,
+    sortOrder: r.sort_order || 0,
     notes: r.notes || [],
     createdAt: r.created_at,
     updatedAt: r.updated_at,

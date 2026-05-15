@@ -254,10 +254,16 @@ setEmailCounter(emailSends);
 
 /** GET / -- Serve the dashboard HTML from the parent directory (single-page app entry point) */
 app.get('/', (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
   res.sendFile(path.join(__dirname, '..', 'nbi_project_dashboard.html'));
 });
 /** GET /nbi_project_dashboard.html -- Alias for the dashboard entry point */
 app.get('/nbi_project_dashboard.html', (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
   res.sendFile(path.join(__dirname, '..', 'nbi_project_dashboard.html'));
 });
 

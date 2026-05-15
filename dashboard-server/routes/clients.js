@@ -5,12 +5,17 @@ module.exports = function(ctx) {
     validateLength, buildPatchQuery,
   } = ctx;
 
-  /** GET /api/clients — List all clients with their task count (used for client selector and CRM list) */
+  /** GET /api/clients — List all clients with task count and active-work flag.
+   *  has_active_work is true when the client has tasks OR at least one won lead. */
   router.get('/api/clients', async (req, res) => {
     const scopes = await getClientScopes(req);
     if (scopes) {
       const { rows } = await pool.query(
-        `SELECT c.*, COALESCE(tc.cnt, 0)::int as task_count
+        `SELECT c.*, COALESCE(tc.cnt, 0)::int as task_count,
+                (COALESCE(tc.cnt, 0) > 0 OR EXISTS (
+                  SELECT 1 FROM leads l JOIN lead_pipeline_stages s ON l.stage_id = s.id
+                  WHERE l.client_id = c.id AND s.is_won = true
+                )) as has_active_work
          FROM clients c
          LEFT JOIN (SELECT client_id, count(*) as cnt FROM tasks GROUP BY client_id) tc ON tc.client_id = c.id
          WHERE c.id = ANY($1) ORDER BY c.name`,
@@ -19,7 +24,11 @@ module.exports = function(ctx) {
       return res.json(rows);
     }
     const { rows } = await pool.query(`
-      SELECT c.*, COALESCE(tc.cnt, 0)::int as task_count
+      SELECT c.*, COALESCE(tc.cnt, 0)::int as task_count,
+             (COALESCE(tc.cnt, 0) > 0 OR EXISTS (
+               SELECT 1 FROM leads l JOIN lead_pipeline_stages s ON l.stage_id = s.id
+               WHERE l.client_id = c.id AND s.is_won = true
+             )) as has_active_work
       FROM clients c
       LEFT JOIN (SELECT client_id, count(*) as cnt FROM tasks GROUP BY client_id) tc ON tc.client_id = c.id
       ORDER BY c.name

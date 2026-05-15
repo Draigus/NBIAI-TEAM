@@ -20,12 +20,14 @@ module.exports = function(ctx) {
   const multer = require('multer');
 
   /** Memory-only multer instance for SoW uploads — buffer never touches disk */
+  const ACCEPTED_MIMES = new Set(['application/pdf', 'text/plain']);
   const sowUpload = multer({
     storage: multer.memoryStorage(),
-    limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB cap
+    limits: { fileSize: 10 * 1024 * 1024 },
     fileFilter: (req, file, cb) => {
-      if (file.mimetype === 'application/pdf') return cb(null, true);
-      cb(new Error('Only PDF files are accepted for SoW upload'));
+      if (ACCEPTED_MIMES.has(file.mimetype)) return cb(null, true);
+      if (file.originalname && file.originalname.endsWith('.txt')) return cb(null, true);
+      cb(new Error('Only PDF and plain text (.txt) files are accepted for SoW upload'));
     }
   });
 
@@ -115,8 +117,10 @@ module.exports = function(ctx) {
     });
   }, async (req, res) => {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-    if (req.file.mimetype !== 'application/pdf') {
-      return res.status(400).json({ error: 'Only PDF files are accepted' });
+    const isPdf = req.file.mimetype === 'application/pdf';
+    const isTxt = req.file.mimetype === 'text/plain' || (req.file.originalname && req.file.originalname.endsWith('.txt'));
+    if (!isPdf && !isTxt) {
+      return res.status(400).json({ error: 'Only PDF and plain text (.txt) files are accepted' });
     }
     const { client_id, title, force } = req.body || {};
     if (!client_id || !isValidUuid(client_id)) {
@@ -131,12 +135,26 @@ module.exports = function(ctx) {
     const skipFilter = force === 'true' || force === true;
     let extracted;
     try {
-      extracted = await extractWorkPackage(req.file.buffer);
+      if (isTxt) {
+        const { _internal } = require('../lib/sow-extractor');
+        const rawText = req.file.buffer.toString('utf-8');
+        const paragraphs = _internal.splitIntoParagraphs(rawText);
+        const kept = []; const stats = { totalParagraphs: paragraphs.length, kept: 0, filtered: 0, filteredReasons: {} };
+        for (const p of paragraphs) {
+          if (!skipFilter && (_internal.isUnsafeParagraph(p) || _internal.isSkipSectionHeader(p))) { stats.filtered++; continue; }
+          kept.push(p); stats.kept++;
+        }
+        extracted = { text: kept.join('\n\n'), rawText: paragraphs.join('\n\n'), stats };
+      } else {
+        extracted = await extractWorkPackage(req.file.buffer);
+      }
     } catch (e) {
       log('error', 'SoW', 'Extraction failed', { error: e.message, client_id, title: title.trim() });
-      return res.status(400).json({ error: 'Failed to parse PDF: ' + e.message });
+      return res.status(400).json({
+        error: 'Failed to parse PDF: ' + e.message,
+        hint: 'If the PDF cannot be parsed, try exporting the document to a plain text (.txt) file and uploading that instead.'
+      });
     } finally {
-      // Drop the buffer immediately — never keep the original file in memory
       if (req.file) req.file.buffer = null;
     }
 
