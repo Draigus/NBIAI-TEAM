@@ -1,3 +1,7 @@
+# Large binary files (exceed GitHub 100MB limit)
+*.pptx
+*.xlsx
+
 # Queue task files (contain session prompts and agent output)
 # The folder structure is tracked via .gitkeep files
 # scripts/ and schedules/ subdirectories are version-controlled
