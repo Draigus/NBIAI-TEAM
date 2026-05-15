@@ -2,7 +2,9 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-# NBIAI Team — AI Company Structure
+---
+
+# Section A — Universal Rules (all work, any project)
 
 ## What This Is
 
@@ -12,79 +14,29 @@ This repository contains NBI's business knowledge, AI infrastructure, and active
 
 ## Business Context
 
-See `NBI_Brain.md` for full business context: Glen's identity, operating style, AI working preferences, current clients, pipeline, team roster, and internal AI infrastructure. Extended modules in `brain/` provide deep-dive detail on specific topics - consult the index in Section 9 of the Brain.
+Read `NBI_Brain.md` at session start. It provides business context, client state, team information, and Glen's detailed working preferences. Only skip for pure isolated coding tasks where no business context is needed.
+
+Extended modules in `brain/` provide deep-dive detail on specific topics — consult the index in Section 9 of the Brain.
 
 ## Repository Structure
 
-- `NBI_Brain.md` - Core business context (always loaded, ~300 lines)
+- `NBI_Brain.md` - Core business context (~300 lines, read at session start)
 - `brain/` - Extended Brain modules (loaded on demand by topic)
 - `company/` - Company-wide configuration: org chart, policies, domain reference knowledge
-- `roles/` - Agent role definitions used as depth-skill assets (persona, responsibilities, workflows, knowledge)
+- `roles/` - Agent role definitions with composite AGENT.md files for dispatch
 - `projects/` - Project-specific configurations with project-level knowledge
 - `pipelines/` - Reusable workflow definitions (SDLC, client delivery, BD, reporting)
 - `templates/` - Output templates for common deliverables
 
-## Dashboard Server — The Codebase
-
-The only executable code in this repo lives in `dashboard-server/` (Express + Postgres) plus the SPA `nbi_project_dashboard.html` at the repo root. Everything else (`brain/`, `roles/`, `projects/`, `templates/`, `pipelines/`) is markdown knowledge. Memory shorthand: "NBI Hub" / "WorkSage" = this dashboard.
-
-**Stack:** Node.js + Express 4, PostgreSQL (via `pg`), monolithic `server.js` (~9,600 lines), monolithic `nbi_project_dashboard.html` (~21,300 lines, inline CSS+JS). PM2 for process management, Cloudflare Tunnel for public access at https://worksage.nbi-consulting.com.
-
-**Local URL:** http://localhost:8888/nbi_project_dashboard.html (production), :8887 (staging).
-
-### Common commands (run from `dashboard-server/`)
-
-| Command | Purpose |
-|---|---|
-| `npm start` | Run server.js directly (dev) |
-| `npm test` | Vitest unit tests (run once) |
-| `npm run test:watch` | Vitest watch mode |
-| `npm run test:e2e` | Playwright e2e tests against running server |
-| `npm run test:all` | Vitest then Playwright — required green before claiming "done" on UI changes |
-| `npm run init-db` | Initialise schema from migrations/ |
-| `npx vitest run path/to/file.test.js` | Run a single test file |
-| `npx vitest run -t "test name"` | Run a single test by name |
-| `pm2 restart nbi-dashboard` | Restart prod process after server.js change |
-| `pm2 restart nbi-dashboard-staging` | Restart :8887 staging |
-| `pm2 logs nbi-dashboard --lines 100` | Tail server logs |
-
-### Architecture facts that aren't obvious from a single file
-
-- **Work item hierarchy is fixed at 4 levels:** Client → Project → Feature → Story → Task. The `item_type` field is enforced server-side on create, drag-drop, and reparent. Prerequisite logic blocks "Done" until deps complete; circular deps are detected; deleting a prereq cleans up references. Don't add a 5th level or new item type without re-reading `dashboard-server/README.md` first — the rules are entangled with the kanban, gantt, and tree views.
-- **Multi-user sync model:** incremental change polling every 10 seconds, optimistic concurrency, IndexedDB WAL on the client for crash recovery. Don't replace this with naive full-refresh.
-- **Migrations:** `dashboard-server/migrations/NNN_*.sql`, applied in numeric order by `init-db.js`. Add new migration as next number; never edit a committed migration.
-- **Bug Tracker = `bug_reports` + `bug_report_comments` tables.** This is the queue the Bug Triage Pipeline (below) operates on.
-- **Metrics:** `/metrics` endpoint exposes Prometheus format via `prom-client`.
-- **Auth:** Azure MSAL (`@azure/msal-node`) — env vars `AZURE_TENANT_ID`, `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET` plus `DATABASE_URL`, `ADMIN_DATABASE_URL`, `APP_URL`, `EMAIL_FROM`.
-
-### Verifying UI changes (HARD RULE)
-
-Curl returning 200 ≠ working. For any change to `nbi_project_dashboard.html` or a server route the UI calls, verify visually before claiming done. Preferred method: run `npm run test:e2e` (Playwright) which loads the SPA in Chromium, logs in, and takes screenshots. The `agent-browser` CLI tool cannot handle this SPA (CDP connection dies under the 21k-line page). For production verification, ask Glen to check at https://worksage.nbi-consulting.com.
-
 ## Knowledge Architecture
 
-1. **Core - NBI Brain** (`NBI_Brain.md` + `brain/`): Glen's identity, how he works, business state, clients, team, AI infrastructure. The Brain is the single source of truth for all NBI business information. Core is always loaded; extended modules loaded on demand
-2. **Domain Reference** (`company/knowledge/gaming_industry_context.md`): Gaming industry platforms, genres, business models, terminology. Standalone reference file
-3. **Role Knowledge** (`roles/{role}/knowledge/`): Deep domain knowledge per role. These serve as expert knowledge banks that Claude Code can consult when domain depth is needed
-4. **Project Knowledge** (`projects/{project}/knowledge/`): Project-specific context - briefs, requirements, status
-
-## Model Tier Strategy
-
-| Tier | Model | Roles |
-|---|---|---|
-| Leadership | Opus | CEO, COO, CFO, CTO, CMO, VP Eng, VP Product |
-| PM Review | Opus | VP Product (quality gate on deliverables) |
-| Final QA | Opus | QA Lead (final validation pass) |
-| IC Work | Sonnet | All engineers, designers, analysts, QA engineers, Producer, Head of People |
-| Routine | Haiku | Status checks, simple formatting, data extraction |
-
-## Approval Gates
-
-**Auto-approve:** Internal research, code writing, document drafting, test execution, architecture proposals, status reports, cross-agent task requests
-
-**Requires Glen's approval:** External communications, client-facing deliverables, financial decisions, hiring real people, strategic pivots, spending money, publishing publicly, anything that commits NBI externally
+1. **Core — NBI Brain** (`NBI_Brain.md` + `brain/`): Glen's identity, how he works, business state, clients, team, AI infrastructure. The Brain is the single source of truth for all NBI business information
+2. **Domain Reference** (`company/knowledge/gaming_industry_context.md`): Gaming industry platforms, genres, business models, terminology
+3. **Role Knowledge** (`roles/{role}/AGENT.md`): Composite domain expertise files loaded via dispatch. These are the expert knowledge banks that Claude Code loads when domain depth is needed
+4. **Project Knowledge** (`projects/{project}/knowledge/`): Project-specific context — briefs, requirements, status
 
 ## Communication Style
+
 Read brain/glen-working-profile.md for working style and communication context.
 - British English only — no American spellings
 - Never use em dashes
@@ -93,54 +45,41 @@ Read brain/glen-working-profile.md for working style and communication context.
 - Everything tailored to NBI's specific situation — no generic/template output
 - If uncertain about a fact, say so — never fabricate
 
-## Bug Triage Pipeline (MANDATORY for every bug_reports item)
+## Approval Gates
 
-Glen's directive 2026-04-15: every item from the dashboard's Bug Tracker that I work on must follow this 7-step pipeline in order. No skipping, no shortcuts.
+See `company/policies/approval_gates.md` for the full list. In short: auto-approve all internal work; Glen approves anything external-facing or that commits NBI financially.
 
-1. **Receive** — Read the full title and description from the bug_reports row. If there are existing comments, read those too. Capture the exact wording.
-2. **Review** — Find the relevant code. Read enough of it to understand what's happening. If anything is ambiguous, ask Glen via AskUserQuestion BEFORE planning. Don't guess.
-3. **Plan** — Write down (in the response or a TodoWrite list) what files will change, what the fix is, and what could go wrong. For multi-step bugs use the writing-plans skill.
-4. **Prioritise** — If working a batch, slot this item against the others. Quick wins go first; big features go last; blocked items get parked. The current bug's priority field (`critical`/`high`/`medium`/`low`) is the input, my judgement about effort is the multiplier.
-5. **Fix** — Implement the change. Test-first if there's logic worth testing (server endpoints especially). Frontend-only visual fixes can skip the unit test but should still get a Playwright screenshot if the change is non-trivial.
-6. **Test** — Run `npm test` (vitest) and, if frontend was touched, `npm run test:all` (vitest + playwright). Both must be green before moving on.
-7. **Update bug list + add comment** — Set the bug's `status` to `please_review` (or `resolved` if Glen has already signed off in chat). Insert a `bug_report_comments` row authored as 'Glen Pryer' (or whoever ran the fix). The comment MUST:
-   - Start with "Fixed." or "Done."
-   - Explain the root cause in plain English (no jargon: no "memoization", "regex", "scroll-snap-type", "stale closure", etc.)
-   - Explain what changed at a behavioural level (what Glen will see now)
-   - End with "Please test by..." and a one-line reproduction step Glen can click through
+## Role Dispatch
 
-After ALL items in a batch are done, commit them as a single feat/fix commit with a multi-bullet message that references each bug ID, then restart PM2 if a server file changed, then update `live_state/work_completed.md` and `live_state/decisions.md` if a meaningful decision was made.
+Before dispatching a subagent or starting domain-specific work, check the routing tables below. Load the relevant role's `roles/{role}/AGENT.md` into the subagent prompt or your own context. For organic topic detection, proactively load role context when the conversation clearly enters a listed domain. You do not need Glen's permission to bring expertise into the conversation — that is the purpose of the role system.
 
-The pipeline applies regardless of who reported the bug or how it arrived (Bug Tracker item, Glen verbal, screenshot in chat, etc). For chat-reported issues that don't yet have a bug_reports row, create one as the first step (status `open`, then go through the pipeline and end at `please_review`).
+### Skill-triggered routing
 
-## Agent Communication Protocol
+| Skill | Load role |
+|---|---|
+| brainstorming | vp_product |
+| writing-plans | vp_product + senior_engineer |
+| code-review / requesting-code-review | senior_engineer |
+| systematic-debugging | senior_engineer |
+| test-driven-development | qa_lead |
+| frontend-design | ui_ux_lead |
+| game-economy-design | game_economy_consultant |
+| gi (game investment) | gaming_practice_lead |
 
-1. Direct reports: Agents assign tasks directly to their reports
-2. Peer requests: Route through shared manager
-3. Cross-department: Escalate to CEO for routing
-4. Escalation: Report to manager with context when blocked
-5. @mentions: Reference other agents by role to flag cross-functional needs
+### Topic-detected routing
 
-## Adding a New Role
-
-1. Copy `roles/_template.md` structure
-2. Create the role directory under `roles/`
-3. Write persona.md, responsibilities.md, workflows.md
-4. Add role-specific knowledge files in `knowledge/`
-5. Write the system prompt in `prompts/system_prompt.md`
-6. Update `company/org_chart.md` with the new role and reporting line
-
-## Adding a New Project
-
-1. Copy `projects/_template/` to `projects/{project_name}/`
-2. Write the project brief
-3. Add project-specific knowledge files
-4. Populate the initial backlog
-5. Assign agents to the project
+| Conversation involves... | Load role |
+|---|---|
+| Legal, contracts, IP, GDPR, compliance | general_counsel |
+| Game economy, monetisation, loot, currencies | game_economy_consultant |
+| UI/UX, layout, design system, accessibility | ui_ux_lead |
+| Client delivery, milestones, reporting | producer |
+| Hiring, compensation, team structure | head_of_people |
+| Data, analytics, dashboards, pipelines | data_analyst |
+| Marketing, positioning, brand, content | cmo |
+| Production processes, studio ops, scheduling | production_consultant |
 
 ## Session Continuity — MANDATORY
-
-Auto-compact is ENABLED (default). The conversation will be automatically compacted when context gets heavy. This is safe because all critical state is written to disk in real-time via the mechanical rules below. Compaction compresses the conversation but cannot touch files on the filesystem.
 
 ### Mechanical Rules (not judgement calls)
 
@@ -169,23 +108,19 @@ Auto-compact is ENABLED (default). The conversation will be automatically compac
 
 The auto-memory system (system prompt) is the primary memory mechanism. These rules extend it with patterns from Tiago Forte's PARA method:
 
-1. **Supersession over deletion** - Never delete a memory file. When a fact becomes outdated, update the file and add a `superseded: YYYY-MM-DD` line to the frontmatter noting what changed. Future sessions can see the history of what was true when.
+1. **Supersession over deletion** - Never delete a memory file. When a fact becomes outdated, update the file and add a `superseded: YYYY-MM-DD` line to the frontmatter noting what changed.
 
 2. **Staleness check at session start** - If you load a memory and it references a specific file, function, flag, or state, verify it still holds before acting on it. Memory is a claim about the past, not the present.
 
-3. **Entity-level organisation** - For key recurring subjects (clients, projects, people Glen works with repeatedly), a single memory file per entity is better than scattered mentions across topic files. Use the filename as the entity key (e.g., `project_couch_heroes.md`, `client_goals.md`).
+3. **Entity-level organisation** - For key recurring subjects, a single memory file per entity is better than scattered mentions across topic files.
 
-4. **Periodic synthesis** - When memory files accumulate beyond 25 entries in MEMORY.md, consolidate: merge related files, archive stale ones (move content to an `_archived` section within the file, keep the file for history), and tighten the index.
+4. **Periodic synthesis** - When memory files accumulate beyond 25 entries in MEMORY.md, consolidate.
 
-5. **Four-bucket thinking** - When deciding where a memory goes:
-   - **project** type = active work with a goal or deadline (will complete)
-   - **reference** type = ongoing resources, external pointers (no end date)
-   - **user** type = who Glen is and how he works (durable)
-   - **feedback** type = how to approach work (behavioural rules)
+5. **Four-bucket thinking** - project (active work), reference (ongoing resources), user (who Glen is), feedback (behavioural rules).
 
 ## Mandatory Skill Invocations — No Exceptions
 
-Before making code changes, check this list. If the scenario matches, invoke the skill BEFORE writing any code. Not after. Not "I'll do it informally." Invoke the actual skill via the Skill tool.
+Before making code changes, check this list. If the scenario matches, invoke the skill BEFORE writing any code.
 
 | Scenario | Required Skill | When it applies |
 |---|---|---|
@@ -200,10 +135,67 @@ Before making code changes, check this list. If the scenario matches, invoke the
 | Received code review feedback | `receiving-code-review` | Before implementing any review suggestion. Verify it first. |
 | Risky or multi-file changes | `using-git-worktrees` | See "Risky Edits" section below. |
 
-If you catch yourself thinking "this is simple enough to skip the skill" — that is exactly when you need it most. The skill isn't overhead; it's the process that stops you from shipping broken work.
+If you catch yourself thinking "this is simple enough to skip the skill" — that is exactly when you need it most.
 
 ## Risky Edits — Worktree First
 
-- Any change touching >3 files in `dashboard-server/` or `nbi_project_dashboard.html`: create a worktree first via the using-git-worktrees skill. Master branch stays clean; if the change goes sideways, drop the worktree.
-- Any change where the agent has low confidence or is working with incomplete information: worktree first. State the uncertainty before starting.
+- Any change touching >3 files in `dashboard-server/` or `nbi_project_dashboard.html`: create a worktree first via the using-git-worktrees skill.
+- Any change where the agent has low confidence or is working with incomplete information: worktree first.
 - Experimental refactors: always worktree.
+
+## Freshness Check
+
+If a brain/ module or role AGENT.md has a `last_verified` date older than 30 days, flag it to Glen at session start: "brain/clients_detailed.md hasn't been verified since [date] — should I check if it's still current?" Do not silently trust stale context.
+
+---
+
+# Section B — Dashboard Server (WorkSage/NBI Hub coding only)
+
+The only executable code in this repo lives in `dashboard-server/` (Express + Postgres) plus the SPA `nbi_project_dashboard.html` at the repo root. Everything else is markdown knowledge. Memory shorthand: "NBI Hub" / "WorkSage" = this dashboard.
+
+**Stack:** Node.js + Express 4, PostgreSQL (via `pg`), monolithic `server.js` (~9,600 lines), monolithic `nbi_project_dashboard.html` (~21,300 lines, inline CSS+JS). PM2 for process management, Cloudflare Tunnel for public access at https://worksage.nbi-consulting.com.
+
+**Local URL:** http://localhost:8888/nbi_project_dashboard.html (production), :8887 (staging).
+
+### Common commands (run from `dashboard-server/`)
+
+| Command | Purpose |
+|---|---|
+| `npm start` | Run server.js directly (dev) |
+| `npm test` | Vitest unit tests (run once) |
+| `npm run test:watch` | Vitest watch mode |
+| `npm run test:e2e` | Playwright e2e tests against running server |
+| `npm run test:all` | Vitest then Playwright — required green before claiming "done" on UI changes |
+| `npm run init-db` | Initialise schema from migrations/ |
+| `npx vitest run path/to/file.test.js` | Run a single test file |
+| `npx vitest run -t "test name"` | Run a single test by name |
+| `pm2 restart nbi-dashboard` | Restart prod process after server.js change |
+| `pm2 restart nbi-dashboard-staging` | Restart :8887 staging |
+| `pm2 logs nbi-dashboard --lines 100` | Tail server logs |
+
+### Architecture facts
+
+- **Work item hierarchy is fixed at 4 levels:** Client > Project > Feature > Story > Task. The `item_type` field is enforced server-side on create, drag-drop, and reparent. Prerequisite logic blocks "Done" until deps complete; circular deps are detected; deleting a prereq cleans up references. Don't add a 5th level or new item type without re-reading `dashboard-server/README.md` first.
+- **Multi-user sync model:** incremental change polling every 10 seconds, optimistic concurrency, IndexedDB WAL on the client for crash recovery. Don't replace this with naive full-refresh.
+- **Migrations:** `dashboard-server/migrations/NNN_*.sql`, applied in numeric order by `init-db.js`. Add new migration as next number; never edit a committed migration.
+- **Bug Tracker = `bug_reports` + `bug_report_comments` tables.** This is the queue the Bug Triage Pipeline operates on.
+- **Metrics:** `/metrics` endpoint exposes Prometheus format via `prom-client`.
+- **Auth:** Azure MSAL (`@azure/msal-node`) — env vars `AZURE_TENANT_ID`, `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET` plus `DATABASE_URL`, `ADMIN_DATABASE_URL`, `APP_URL`, `EMAIL_FROM`.
+
+### Verifying UI changes (HARD RULE)
+
+Curl returning 200 ≠ working. For any change to `nbi_project_dashboard.html` or a server route the UI calls, verify visually before claiming done. Preferred method: run `npm run test:e2e` (Playwright). The `agent-browser` CLI tool cannot handle this SPA. For production verification, ask Glen to check at https://worksage.nbi-consulting.com.
+
+### Bug Triage Pipeline (MANDATORY for every bug_reports item)
+
+Glen's directive 2026-04-15: every item from the dashboard's Bug Tracker must follow this 7-step pipeline in order. No skipping, no shortcuts.
+
+1. **Receive** — Read the full title and description from the bug_reports row. If there are existing comments, read those too.
+2. **Review** — Find the relevant code. Read enough to understand what's happening. If ambiguous, ask Glen BEFORE planning.
+3. **Plan** — Write down what files will change, what the fix is, and what could go wrong.
+4. **Prioritise** — Quick wins first; big features last; blocked items parked.
+5. **Fix** — Implement the change. Test-first for server endpoints.
+6. **Test** — Run `npm test` and `npm run test:all` if frontend was touched. Both must be green.
+7. **Update bug list + add comment** — Set status to `please_review`. Comment MUST: start with "Fixed." or "Done.", explain root cause in plain English, explain what changed behaviourally, end with "Please test by..." and a reproduction step.
+
+After ALL items in a batch: commit as a single feat/fix commit referencing each bug ID, restart PM2 if server files changed, update `live_state/work_completed.md`.
