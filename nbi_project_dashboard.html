@@ -6840,9 +6840,9 @@ function blockerDetailBoxHtml(task, id) {
   if (bi.toUnblock) extra.push('To unblock: ' + bi.toUnblock);
   if (bi.dateBlocked) extra.push('Since ' + new Date(bi.dateBlocked).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'}));
   if (bi.lastUpdated) extra.push('Updated ' + new Date(bi.lastUpdated).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}));
-  let h = `<textarea style="width:100%;border:1px solid var(--danger);border-radius:var(--radius-sm);padding:6px 8px;margin-top:-4px;margin-bottom:${extra.length ? '2' : '4'}px;font-size:0.78rem;color:var(--danger);line-height:1.4;resize:vertical;min-height:28px;max-height:300px;background:var(--bg-input);font-family:var(--font-body)" placeholder="What is this blocked on?" oninput="_liveWriteBlocker('${escAttrJs(id)}','blockedOn',this.value)" onchange="if(!tasks.find(t=>t.id==='${escAttrJs(id)}').blockerInfo)tasks.find(t=>t.id==='${escAttrJs(id)}').blockerInfo={};tasks.find(t=>t.id==='${escAttrJs(id)}').blockerInfo.blockedOn=this.value;tasks.find(t=>t.id==='${escAttrJs(id)}').blockerInfo.lastUpdated=new Date().toISOString();tasks.find(t=>t.id==='${escAttrJs(id)}').updatedAt=new Date().toISOString();markDirty('${escAttrJs(id)}');save()">${esc(bi.blockedOn || '')}</textarea>`;
+  let h = `<textarea style="width:100%;border:1px solid var(--danger);border-radius:var(--radius-sm);padding:6px 8px;margin-top:-4px;margin-bottom:${extra.length ? '2' : '4'}px;font-size:0.78rem;color:var(--danger);line-height:1.4;resize:vertical;min-height:28px;max-height:300px;background:var(--bg-input);font-family:var(--font-body)" placeholder="What is this blocked on?" oninput="_liveWriteBlocker('${escAttrJs(id)}','blockedOn',this.value)" onchange="_liveWriteBlocker('${escAttrJs(id)}','blockedOn',this.value);save()">${esc(bi.blockedOn || '')}</textarea>`;
   if (extra.length) h += `<div style="font-size:0.72rem;color:var(--text-secondary);margin-bottom:4px;line-height:1.4;padding:4px 0">${extra.map(e => esc(e)).join('<br>')}</div>`;
-  h += `<button class="btn btn--ghost btn--xs" style="font-size:0.7rem;padding:2px 8px;margin-bottom:4px" onclick="openMarkAsBlockedPopup('${escAttrJs(id)}')">Edit blocker details</button>`;
+  h += `<button class="btn btn--ghost btn--sm" style="font-size:0.7rem;padding:2px 8px;margin-bottom:4px" onclick="openMarkAsBlockedPopup('${escAttrJs(id)}')">Edit blocker details</button>`;
   return h;
 }
 
@@ -8163,10 +8163,11 @@ function renderGanttView(filtered) {
         const startStr = start ? start.toLocaleDateString('en-GB', dateFmt) : '';
         const endStr = end ? end.toLocaleDateString('en-GB', dateFmt) : '';
         const dateRange = startStr && endStr ? startStr + ' — ' + endStr : startStr || endStr || '—';
-        const leafDesc = []; (function collect(n) { const ch = getChildren(n.id); if (ch.length === 0) leafDesc.push(n); else ch.forEach(collect); })(t);
+        const leafDescAll = []; (function collect(n) { const ch = getChildren(n.id); if (ch.length === 0) leafDescAll.push(n); else ch.forEach(collect); })(t);
+        const leafDesc = leafDescAll.filter(l => l.status !== 'Cancelled');
         const total = leafDesc.length || 1;
         const donePct = Math.round(leafDesc.filter(l => l.status === 'Done').length / total * 100);
-        const blockedPct = Math.round(leafDesc.filter(l => l.status === 'Blocked' || l.healthState === 'Blocked' || (l.dueDate && l.status !== 'Done' && l.status !== 'Cancelled' && safeParseDate(l.dueDate) < now)).length / total * 100);
+        const blockedPct = Math.round(leafDesc.filter(l => l.status === 'Blocked' || l.healthState === 'Blocked' || (l.dueDate && l.status !== 'Done' && safeParseDate(l.dueDate) < now)).length / total * 100);
         const inProgPct = Math.round(leafDesc.filter(l => l.status === 'In progress' && l.healthState !== 'Blocked' && !(l.dueDate && safeParseDate(l.dueDate) < now)).length / total * 100);
         const notStartedPct = Math.max(0, 100 - donePct - blockedPct - inProgPct);
         const blocked = t.healthState === 'Blocked' || t.status === 'Blocked';
@@ -8861,8 +8862,8 @@ function ganttTaskStart(t) {
 
 /** Get the effective end date for a Gantt bar -- prefers endDate, then dueDate, falls back to start + 7 days */
 function ganttTaskEnd(t) {
-  if (t.endDate) { const d = safeParseDate(t.endDate); if (d) return d; }
   if (t.dueDate) { const d = safeParseDate(t.dueDate); if (d) return d; }
+  if (t.endDate) { const d = safeParseDate(t.endDate); if (d) return d; }
   // Fallback: start date + 7 days (or null if no start either)
   const start = ganttTaskStart(t);
   if (start) { const d = new Date(start); d.setDate(d.getDate() + 7); return d; }
@@ -11422,10 +11423,11 @@ function renderReportingView(el) {
     clientMilestones.forEach(ms => { const mD = safeParseDate(ms.target_date); if (mD && mD >= gMin && mD <= gMax) { const mP = ((mD - gMin) / 86400000 / totalDays * 100).toFixed(2); html += `<div style="position:absolute;left:${mP}%;top:0;bottom:0;border-left:2px solid ${mD < now ? 'var(--danger)' : 'var(--accent)'};opacity:0.4;pointer-events:none"></div>`; } });
     if (fStart && fEnd) {
       // Stacked status bar: purple=done, green=in progress, grey=not started, red=blocked/overdue
-      const allLeaves = []; (function walk(n) { const ch = tasks.filter(t => t.parentId === n.id); if (ch.length === 0) allLeaves.push(n); else ch.forEach(walk); })(f);
+      const allLeavesRaw = []; (function walk(n) { const ch = tasks.filter(t => t.parentId === n.id); if (ch.length === 0) allLeavesRaw.push(n); else ch.forEach(walk); })(f);
+      const allLeaves = allLeavesRaw.filter(l => l.status !== 'Cancelled');
       const total = allLeaves.length || 1;
       const donePct = Math.round(allLeaves.filter(l => l.status === 'Done').length / total * 100);
-      const blockedPct = Math.round(allLeaves.filter(l => (l.status === 'Blocked' || l.healthState === 'Blocked' || (l.dueDate && l.status !== 'Done' && l.status !== 'Cancelled' && safeParseDate(l.dueDate) < now))).length / total * 100);
+      const blockedPct = Math.round(allLeaves.filter(l => (l.status === 'Blocked' || l.healthState === 'Blocked' || (l.dueDate && l.status !== 'Done' && safeParseDate(l.dueDate) < now))).length / total * 100);
       const inProgressPct = Math.round(allLeaves.filter(l => l.status === 'In progress' && l.healthState !== 'Blocked' && !(l.dueDate && safeParseDate(l.dueDate) < now)).length / total * 100);
       const notStartedPct = Math.max(0, 100 - donePct - blockedPct - inProgressPct);
       html += `<div style="position:absolute;left:${left}%;width:${width}%;top:8px;bottom:8px;border-radius:4px;overflow:hidden;display:flex;border:1px solid var(--border-default)">`;
@@ -11529,9 +11531,9 @@ function renderReportingDrawer(f) {
     html += `</div>`;
     stories.forEach(s => {
       const ss = ganttRolledStart(s); const se = ganttRolledEnd(s);
-      const sLeaves = leafFor(s.id);
+      const sLeaves = leafFor(s.id).filter(l => l.status !== 'Cancelled');
       const sDone = sLeaves.filter(l => l.status === 'Done').length;
-      const sBlocked = sLeaves.filter(l => l.status === 'Blocked' || l.healthState === 'Blocked' || (l.dueDate && l.status !== 'Done' && l.status !== 'Cancelled' && safeParseDate(l.dueDate) < now)).length;
+      const sBlocked = sLeaves.filter(l => l.status === 'Blocked' || l.healthState === 'Blocked' || (l.dueDate && l.status !== 'Done' && safeParseDate(l.dueDate) < now)).length;
       const sInProg = sLeaves.filter(l => l.status === 'In progress' && l.healthState !== 'Blocked' && !(l.dueDate && safeParseDate(l.dueDate) < now)).length;
       const sTotal = sLeaves.length || 1;
       const sPct = Math.round(sDone / sTotal * 100);
