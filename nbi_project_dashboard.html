@@ -10865,6 +10865,7 @@ function cancelMarkAsBlocked() {
   document.getElementById('blockerModal').classList.remove('open');
   _pendingBoardDropPosition = null;
   _markAsBlockedTaskId = null;
+  renderContent();
 }
 
 /** Save the popup data, set status=Blocked, and notify internal owners (server-side) */
