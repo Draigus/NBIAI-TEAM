@@ -1,3 +1,7 @@
+---
+last_verified: 2026-05-16
+---
+
 # Decisions Log
 
 **Last Updated:** 2026-04-20

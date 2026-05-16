@@ -1,3 +1,7 @@
+---
+last_verified: 2026-05-16
+---
+
 # AI Operations — Service Capability
 
 **Last Updated:** 2026-05-12

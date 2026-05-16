@@ -1,3 +1,7 @@
+---
+last_verified: 2026-05-16
+---
+
 # Glen - Working Profile & Psychological Context
 
 This document is a reference for any AI system (Claude Code, Claude chat, or other tooling) working with Glen. It captures verified truths about how he thinks, works, communicates, and what he needs from tools. Everything here is Glen-confirmed.

@@ -1,3 +1,7 @@
+---
+last_verified: 2026-05-16
+---
+
 # EAD Framework — Process Optimisation Methodology
 
 **Last Updated:** 2026-05-15

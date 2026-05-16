@@ -1,8 +1,6 @@
-# CLAUDE.md
+# CLAUDE.md — Universal Rules + Dashboard Server
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
----
 
 # Section A — Universal Rules (all work, any project)
 
