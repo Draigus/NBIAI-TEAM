@@ -77,6 +77,31 @@ Before dispatching a subagent or starting domain-specific work, check the routin
 | Marketing, positioning, brand, content | cmo |
 | Production processes, studio ops, scheduling | production_consultant |
 
+### Role attribution
+
+When loading a role's AGENT.md into your own context or a subagent prompt, announce it briefly: "Loading [role] context for this." One line, no ceremony. This lets Glen see which perspective is active and judge the output accordingly.
+
+### Brain module routing
+
+When the conversation enters a listed topic, load the corresponding `brain/` module into context. Same principle as role dispatch — deterministic, not ad hoc.
+
+| Topic | Load module |
+|---|---|
+| Clients, client state, engagements | clients_detailed.md |
+| Playsage product, modules, pricing | playsage.md |
+| SalarySage product, salary data | salarysage.md |
+| NBI people, team, contractors | people_directory.md |
+| Strategic decisions, canon | decisions_log.md |
+| Glen's working style, preferences | glen-working-profile.md |
+| Dashboard/WorkSage architecture | nbi_hub.md |
+| Services, consulting offerings | services_ai_operations.md |
+| AI operations, EAD framework | ead_framework.md |
+| Tools, processes, infrastructure | processes_tools.md |
+| Website, brand, online presence | brand_website.md |
+| Pending actions, follow-ups | pending_actions.md |
+| Glen's career, background | career_history.md |
+| Glen's personal context | personal.md |
+
 ## Session Continuity — MANDATORY
 
 ### Mechanical Rules (not judgement calls)
