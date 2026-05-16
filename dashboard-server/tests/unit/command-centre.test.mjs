@@ -458,3 +458,120 @@ describe('Command Centre — Pipeline endpoint', () => {
     expect(a.avg_deal_days).toBe(18.5);
   });
 });
+
+describe('Command Centre — AIOS-detail endpoint', () => {
+  it('GET /api/command-centre/aios-detail returns correct shape', async () => {
+    const pool = makeMockPool({
+      snapshots: [{
+        data: {
+          four_cs: {
+            context: { score: 7, max: 10, details: ['Brain core fresh'] },
+            connections: { score: 6, max: 10, details: ['comms: connected'] },
+            capabilities: { score: 8, max: 10, details: ['30 skills'] },
+            cadence: { score: 2, max: 10, details: ['WorkSage cron active'] },
+          },
+          brain: { modules: [], roles: [] },
+          skills: [],
+          memory: { files: [], health: { total: 0, fresh: 0, stale: 0 } },
+          connections: { buckets: {} },
+        },
+        snapshot_date: '2026-05-16',
+        updated_at: '2026-05-16T10:00:00Z',
+      }],
+    });
+    const { app } = makeApp(pool);
+    const res = await request(app).get('/api/command-centre/aios-detail');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('four_cs');
+    expect(res.body.data).toHaveProperty('recommendations');
+    expect(res.body.data).toHaveProperty('history');
+    expect(Array.isArray(res.body.data.recommendations)).toBe(true);
+    expect(res.body.error).toBeNull();
+  });
+
+  it('returns 404 when no snapshot exists', async () => {
+    const pool = makeMockPool({ snapshots: [] });
+    const { app } = makeApp(pool);
+    const res = await request(app).get('/api/command-centre/aios-detail');
+    expect(res.status).toBe(404);
+  });
+
+  it('returns snapshot_date and last_updated fields', async () => {
+    const pool = makeMockPool({
+      snapshots: [{
+        data: {
+          four_cs: {
+            context: { score: 5, max: 10, details: [] },
+            connections: { score: 5, max: 10, details: [] },
+            capabilities: { score: 5, max: 10, details: [] },
+            cadence: { score: 5, max: 10, details: [] },
+          },
+          brain: { modules: [], roles: [] },
+          skills: [],
+          memory: { files: [], health: { total: 0, fresh: 0, stale: 0 } },
+          connections: { buckets: {} },
+        },
+        snapshot_date: '2026-05-16',
+        updated_at: '2026-05-16T09:00:00Z',
+      }],
+    });
+    const { app } = makeApp(pool);
+    const res = await request(app).get('/api/command-centre/aios-detail');
+    expect(res.status).toBe(200);
+    expect(res.body.data.snapshot_date).toBe('2026-05-16');
+    expect(res.body.data.last_updated).toBe('2026-05-16T09:00:00Z');
+  });
+
+  it('generates cadence recommendation when cadence score is low', async () => {
+    const pool = makeMockPool({
+      snapshots: [{
+        data: {
+          four_cs: {
+            context: { score: 7, max: 10, details: [] },
+            connections: { score: 6, max: 10, details: [] },
+            capabilities: { score: 8, max: 10, details: [] },
+            cadence: { score: 3, max: 10, details: [] },
+          },
+          brain: { modules: [], roles: [] },
+          skills: [],
+          memory: { files: [], health: { total: 0, fresh: 0, stale: 0 } },
+          connections: { buckets: {} },
+        },
+        snapshot_date: '2026-05-16',
+        updated_at: '2026-05-16T10:00:00Z',
+      }],
+    });
+    const { app } = makeApp(pool);
+    const res = await request(app).get('/api/command-centre/aios-detail');
+    expect(res.status).toBe(200);
+    const cadenceRec = res.body.data.recommendations.find(r => r.category === 'cadence');
+    expect(cadenceRec).toBeDefined();
+    expect(cadenceRec.severity).toBe('info');
+    expect(cadenceRec.action).toBe('plan');
+  });
+
+  it('history is an array', async () => {
+    const pool = makeMockPool({
+      snapshots: [{
+        data: {
+          four_cs: {
+            context: { score: 7, max: 10, details: [] },
+            connections: { score: 6, max: 10, details: [] },
+            capabilities: { score: 8, max: 10, details: [] },
+            cadence: { score: 2, max: 10, details: [] },
+          },
+          brain: { modules: [], roles: [] },
+          skills: [],
+          memory: { files: [], health: { total: 0, fresh: 0, stale: 0 } },
+          connections: { buckets: {} },
+        },
+        snapshot_date: '2026-05-16',
+        updated_at: '2026-05-16T10:00:00Z',
+      }],
+    });
+    const { app } = makeApp(pool);
+    const res = await request(app).get('/api/command-centre/aios-detail');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.history)).toBe(true);
+  });
+});

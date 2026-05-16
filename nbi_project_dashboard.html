@@ -20393,7 +20393,96 @@ function _ccRenderPipelineContent(p) {
 }
 
 function _ccRenderAiosContent(a) {
-  return '<div class="cc-panel-empty">AIOS detail loading...</div>';
+  var four_cs = a.four_cs || {};
+  var recs = a.recommendations || [];
+  var history = a.history || [];
+  var snapDate = a.snapshot_date || '';
+  var html = '';
+
+  // === ROW 1: Four Cs Detail Cards (4 equal columns) ===
+  html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:14px;">';
+  var csLabels = { context: 'Context', connections: 'Connections', capabilities: 'Capabilities', cadence: 'Cadence' };
+  var csIcons = { context: '&#128220;', connections: '&#128279;', capabilities: '&#9889;', cadence: '&#128197;' };
+  ['context', 'connections', 'capabilities', 'cadence'].forEach(function(key) {
+    var c = four_cs[key] || { score: 0, max: 10, details: [] };
+    var details = c.details || [];
+    var scoreColour = c.score >= 7 ? '#3fb950' : c.score >= 4 ? '#d29922' : '#f85149';
+    html += '<div class="cc-card" style="text-align:center;">';
+    html += '<div style="display:flex;justify-content:center;margin-bottom:8px;">' + _ccRingSvg(c.score, c.max, 56) + '</div>';
+    html += '<div style="font-size:0.72rem;font-weight:700;color:#e6edf3;margin-bottom:2px;">' + esc(csLabels[key]) + '</div>';
+    html += '<div style="font-size:0.65rem;color:' + scoreColour + ';margin-bottom:8px;font-weight:600;">' + c.score + '/' + c.max + '</div>';
+    html += '<div style="text-align:left;">';
+    details.slice(0, 4).forEach(function(d) {
+      html += '<div style="font-size:0.65rem;color:#8b949e;padding:2px 0;border-bottom:1px solid #21262d;">' + csIcons[key] + ' ' + esc(d) + '</div>';
+    });
+    if (details.length === 0) {
+      html += '<div style="font-size:0.65rem;color:#484f58;">No data</div>';
+    }
+    html += '</div>';
+    html += '</div>';
+  });
+  html += '</div>';
+
+  // === ROW 2: Recommendations (left) + 30-Day Trend (right) ===
+  html += '<div class="cc-grid-2">';
+
+  // — Recommendations card —
+  var sevColours = { red: '#f85149', amber: '#d29922', info: '#58a6ff' };
+  var sevBgs = { red: 'rgba(248,81,73,.1)', amber: 'rgba(210,153,34,.1)', info: 'rgba(88,166,255,.1)' };
+  var catInitials = { context: 'Cx', connections: 'Co', capabilities: 'Ca', cadence: 'Cd' };
+  html += '<div class="cc-card">';
+  html += '<h3><span>&#128073; Recommendations</span> <span class="ct">' + recs.length + ' items</span></h3>';
+  if (recs.length === 0) {
+    html += '<div style="padding:12px 0;font-size:0.85rem;color:#8b949e;">All systems healthy &#10003;</div>';
+  } else {
+    recs.forEach(function(r) {
+      var col = sevColours[r.severity] || '#8b949e';
+      var bg = sevBgs[r.severity] || 'rgba(139,148,158,.1)';
+      var init = catInitials[r.category] || r.category.charAt(0).toUpperCase();
+      html += '<div class="cc-row">';
+      html += '<div class="cc-row-icon" style="background:' + bg + ';color:' + col + ';font-size:0.6rem;font-weight:700;">' + esc(init) + '</div>';
+      html += '<div class="cc-row-b">';
+      html += '<div class="cc-row-t">' + esc(r.title) + '</div>';
+      html += '<div class="cc-row-m">' + esc(r.detail || '') + '</div>';
+      html += '</div>';
+      html += '<div class="cc-row-a"><button class="cc-btn" style="font-size:.6rem;border-color:' + col + ';color:' + col + ';">' + esc(r.action || 'view') + '</button></div>';
+      html += '</div>';
+    });
+  }
+  html += '</div>';
+
+  // — 30-Day Trend card —
+  html += '<div class="cc-card">';
+  html += '<h3><span>&#128200; 30-Day Score Trend</span></h3>';
+  if (history.length === 0) {
+    html += '<div style="padding:12px 0;font-size:0.85rem;color:#8b949e;">No historical data yet. Check back after multiple snapshots.</div>';
+  } else {
+    var maxBarHeight = 60;
+    var maxPossibleScore = 40;
+    html += '<div style="display:flex;align-items:flex-end;gap:3px;height:' + maxBarHeight + 'px;padding-bottom:4px;">';
+    history.forEach(function(h) {
+      var fc2 = h.four_cs || {};
+      var total = 0;
+      ['context', 'connections', 'capabilities', 'cadence'].forEach(function(k) {
+        total += (fc2[k] && fc2[k].score) ? fc2[k].score : 0;
+      });
+      var barH = Math.max(2, Math.round((total / maxPossibleScore) * maxBarHeight));
+      var barCol = total >= 28 ? '#3fb950' : total >= 18 ? '#d29922' : '#f85149';
+      html += '<div title="' + esc(h.date) + ': ' + total + '/40" style="flex:1;height:' + barH + 'px;background:' + barCol + ';border-radius:2px 2px 0 0;opacity:0.85;"></div>';
+    });
+    html += '</div>';
+    html += '<div style="display:flex;justify-content:space-between;margin-top:2px;">';
+    html += '<span style="font-size:0.6rem;color:#484f58;">30d ago</span>';
+    html += '<span style="font-size:0.6rem;color:#484f58;">today</span>';
+    html += '</div>';
+  }
+  if (snapDate) {
+    html += '<div style="margin-top:10px;font-size:0.65rem;color:#484f58;">Last snapshot: ' + esc(snapDate) + '</div>';
+  }
+  html += '</div>';
+
+  html += '</div>'; // end cc-grid-2
+  return html;
 }
 
 // ==================== SETTINGS VIEW ====================

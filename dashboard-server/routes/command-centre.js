@@ -884,6 +884,126 @@ module.exports = function (ctx) {
     }
   });
 
+  /** GET /api/command-centre/aios-detail — expanded Four Cs data, recommendations, 30-day history */
+  router.get('/api/command-centre/aios-detail', requireNBI, async (req, res) => {
+    try {
+      // 1. Latest snapshot
+      const { rows } = await pool.query(
+        'SELECT data, snapshot_date, updated_at FROM cc_snapshots ORDER BY snapshot_date DESC LIMIT 1'
+      );
+      if (rows.length === 0) {
+        return res.status(404).json({ data: null, error: 'No snapshot exists. Trigger a refresh first.' });
+      }
+      const snap = rows[0];
+      const snapData = snap.data;
+      const four_cs = snapData.four_cs || {};
+
+      // 2. Generate recommendations from snapshot data
+      const recommendations = [];
+
+      // Brain modules stale > 30 days
+      const modules = (snapData.brain && snapData.brain.modules) ? snapData.brain.modules : [];
+      modules.forEach(m => {
+        if (m.last_modified && daysSince(m.last_modified) > STALE_DAYS) {
+          recommendations.push({
+            category: 'context',
+            severity: 'amber',
+            title: 'Verify brain/' + m.name + '.md',
+            detail: 'Last modified ' + daysSince(m.last_modified) + ' days ago',
+            action: 'refresh',
+          });
+        }
+      });
+
+      // Skills without learnings (if >5 such skills)
+      const skillsList = Array.isArray(snapData.skills) ? snapData.skills : (snapData.skills && snapData.skills.skills ? snapData.skills.skills : []);
+      const skillsNoLearnings = skillsList.filter(s => !s.has_learnings);
+      if (skillsNoLearnings.length > 5) {
+        recommendations.push({
+          category: 'capabilities',
+          severity: 'info',
+          title: skillsNoLearnings.length + ' skills have no learnings captured',
+          detail: 'Run evals or capture learnings to improve skill quality',
+          action: 'improve',
+        });
+      }
+
+      // Missing connection buckets
+      const buckets = (snapData.connections && snapData.connections.buckets) ? snapData.connections.buckets : {};
+      Object.entries(buckets).forEach(([name, b]) => {
+        if (b.status === 'missing') {
+          recommendations.push({
+            category: 'connections',
+            severity: 'red',
+            title: 'Connect ' + name + ' data source',
+            detail: 'No sources configured for ' + name + ' bucket',
+            action: 'connect',
+          });
+        }
+      });
+
+      // Stale memory files
+      const memFiles = (snapData.memory && snapData.memory.files) ? snapData.memory.files : [];
+      const staleMemFiles = memFiles.filter(f => f.is_stale);
+      if (staleMemFiles.length > 0) {
+        recommendations.push({
+          category: 'context',
+          severity: 'amber',
+          title: staleMemFiles.length + ' memory files reference moved targets',
+          detail: staleMemFiles.map(f => f.name).join(', '),
+          action: 'review',
+        });
+      }
+
+      // Dormant roles (no knowledge or freshness > 90 days)
+      const roles = (snapData.brain && snapData.brain.roles) ? snapData.brain.roles : [];
+      const dormantRoles = roles.filter(r => !r.has_knowledge || (r.knowledge_freshness !== null && r.knowledge_freshness > 90));
+      if (dormantRoles.length > 0) {
+        recommendations.push({
+          category: 'capabilities',
+          severity: 'amber',
+          title: dormantRoles.length + ' roles have stale or missing knowledge',
+          detail: dormantRoles.map(r => r.name).join(', '),
+          action: 'refresh',
+        });
+      }
+
+      // Low cadence score
+      if (four_cs.cadence && four_cs.cadence.score < 5) {
+        recommendations.push({
+          category: 'cadence',
+          severity: 'info',
+          title: 'Cadence score is low (' + four_cs.cadence.score + '/10)',
+          detail: 'Consider setting up analysis crons and automated reporting',
+          action: 'plan',
+        });
+      }
+
+      // 3. 30-day history
+      const { rows: histRows } = await pool.query(
+        `SELECT snapshot_date, data->'four_cs' as four_cs
+         FROM cc_snapshots
+         WHERE snapshot_date >= CURRENT_DATE - 30
+         ORDER BY snapshot_date`
+      );
+      const history = histRows.map(r => ({ date: r.snapshot_date, four_cs: r.four_cs }));
+
+      res.json({
+        data: {
+          four_cs,
+          snapshot_date: snap.snapshot_date,
+          last_updated: snap.updated_at,
+          recommendations,
+          history,
+        },
+        error: null,
+      });
+    } catch (e) {
+      log('error', 'CC', 'aios-detail failed', { error: e.message });
+      res.status(500).json({ data: null, error: e.message });
+    }
+  });
+
   // Export computeSnapshot for Phase 2 cron
   router._computeSnapshot = computeSnapshot;
 
