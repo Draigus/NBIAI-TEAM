@@ -575,3 +575,108 @@ describe('Command Centre — AIOS-detail endpoint', () => {
     expect(Array.isArray(res.body.data.history)).toBe(true);
   });
 });
+
+// ——— Project Health endpoint tests ———
+
+describe('Command Centre — Project-health endpoint', () => {
+  function makeHealthMockPool(overrides = {}) {
+    return {
+      query: vi.fn().mockImplementation((sql) => {
+        if (sql.includes('milestones') && sql.includes('target_date')) {
+          return { rows: overrides.milestones || [] };
+        }
+        if (sql.includes('sows') && sql.includes('end_date')) {
+          return { rows: overrides.sows || [] };
+        }
+        if (sql.includes('MAX') && sql.includes('updated_at') && sql.includes('client_id')) {
+          return { rows: overrides.health || [] };
+        }
+        return { rows: [] };
+      }),
+    };
+  }
+
+  it('GET /api/command-centre/project-health returns correct shape', async () => {
+    const pool = makeHealthMockPool();
+    const { app } = makeApp(pool);
+    const res = await request(app).get('/api/command-centre/project-health');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('client_health');
+    expect(res.body.data).toHaveProperty('milestones');
+    expect(res.body.data).toHaveProperty('sow_status');
+    expect(res.body.error).toBeNull();
+  });
+
+  it('returns client health with risk indicators', async () => {
+    const pool = makeHealthMockPool({
+      health: [{
+        client_id: 'c1', client_name: 'Acme', total: '20', done: '10', overdue: '3',
+        blocked: '1', last_activity: '2026-05-10T00:00:00Z',
+      }],
+    });
+    const { app } = makeApp(pool);
+    const res = await request(app).get('/api/command-centre/project-health');
+    const clients = res.body.data.client_health;
+    expect(clients).toHaveLength(1);
+    expect(clients[0].client_name).toBe('Acme');
+    expect(clients[0]).toHaveProperty('risk');
+    expect(clients[0]).toHaveProperty('pct_complete');
+    expect(clients[0]).toHaveProperty('days_since_activity');
+  });
+
+  it('returns upcoming milestones', async () => {
+    const pool = makeHealthMockPool({
+      milestones: [{
+        id: 'm1', title: 'Beta launch', client_name: 'Acme',
+        target_date: '2026-06-01', total_items: '5', done_items: '2',
+      }],
+    });
+    const { app } = makeApp(pool);
+    const res = await request(app).get('/api/command-centre/project-health');
+    expect(res.body.data.milestones).toHaveLength(1);
+    expect(res.body.data.milestones[0].title).toBe('Beta launch');
+  });
+
+  it('flags SOWs expiring within 60 days', async () => {
+    const soon = new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0];
+    const pool = makeHealthMockPool({
+      sows: [{
+        id: 's1', title: 'Master Services Agreement', client_name: 'Acme',
+        start_date: '2026-01-01', end_date: soon, status: 'active',
+      }],
+    });
+    const { app } = makeApp(pool);
+    const res = await request(app).get('/api/command-centre/project-health');
+    const sows = res.body.data.sow_status;
+    expect(sows).toHaveLength(1);
+    expect(sows[0].expiring_soon).toBe(true);
+    expect(typeof sows[0].days_remaining).toBe('number');
+  });
+
+  it('marks low-overdue client as green risk', async () => {
+    const recentActivity = new Date(Date.now() - 2 * 86400000).toISOString();
+    const pool = makeHealthMockPool({
+      health: [{
+        client_id: 'c2', client_name: 'Healthy Co', total: '10', done: '8', overdue: '0',
+        blocked: '0', last_activity: recentActivity,
+      }],
+    });
+    const { app } = makeApp(pool);
+    const res = await request(app).get('/api/command-centre/project-health');
+    expect(res.body.data.client_health[0].risk).toBe('green');
+    expect(res.body.data.client_health[0].pct_complete).toBe(80);
+  });
+
+  it('marks high-overdue client as red risk', async () => {
+    const oldActivity = new Date(Date.now() - 20 * 86400000).toISOString();
+    const pool = makeHealthMockPool({
+      health: [{
+        client_id: 'c3', client_name: 'At Risk Co', total: '10', done: '2', overdue: '4',
+        blocked: '3', last_activity: oldActivity,
+      }],
+    });
+    const { app } = makeApp(pool);
+    const res = await request(app).get('/api/command-centre/project-health');
+    expect(res.body.data.client_health[0].risk).toBe('red');
+  });
+});

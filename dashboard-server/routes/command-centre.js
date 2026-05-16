@@ -1004,6 +1004,96 @@ module.exports = function (ctx) {
     }
   });
 
+  // ——— Project Health + Client Signals (F6 + F8) ———
+  router.get('/api/command-centre/project-health', requireNBI, async (req, res) => {
+    try {
+      // 1. Per-client task health
+      const healthQ = await pool.query(
+        `SELECT
+          c.id as client_id, c.name as client_name,
+          COUNT(t.id)::int as total,
+          COUNT(t.id) FILTER (WHERE t.status = 'Done')::int as done,
+          COUNT(t.id) FILTER (WHERE t.due_date IS NOT NULL AND t.due_date != '' AND t.due_date::date < CURRENT_DATE AND t.status NOT IN ('Done','Cancelled'))::int as overdue,
+          COUNT(t.id) FILTER (WHERE t.status = 'Blocked')::int as blocked,
+          MAX(t.updated_at) as last_activity
+        FROM clients c
+        LEFT JOIN tasks t ON t.client_id = c.id AND t.item_type IN ('story','task') AND t.status != 'Cancelled'
+        GROUP BY c.id, c.name
+        HAVING COUNT(t.id) > 0
+        ORDER BY c.name`
+      );
+
+      // 2. Upcoming milestones (next 90 days)
+      const milestonesQ = await pool.query(
+        `SELECT
+          m.id, m.title, m.target_date, c.name as client_name,
+          COUNT(mi.task_id)::int as total_items,
+          COUNT(mi.task_id) FILTER (WHERE t.status = 'Done')::int as done_items
+        FROM milestones m
+        JOIN clients c ON m.client_id = c.id
+        LEFT JOIN milestone_items mi ON mi.milestone_id = m.id
+        LEFT JOIN tasks t ON t.id = mi.task_id
+        WHERE m.target_date >= CURRENT_DATE
+          AND m.target_date <= CURRENT_DATE + 90
+        GROUP BY m.id, m.title, m.target_date, c.name
+        ORDER BY m.target_date`
+      );
+
+      // 3. Active SOWs
+      const sowsQ = await pool.query(
+        `SELECT s.id, s.title, s.start_date, s.end_date, s.status, c.name as client_name
+        FROM sows s
+        JOIN clients c ON s.client_id = c.id
+        WHERE s.status = 'active'
+        ORDER BY s.end_date`
+      );
+
+      // Compute risk per client
+      const clientHealth = healthQ.rows.map(r => {
+        const total = parseInt(r.total, 10) || 1;
+        const done = parseInt(r.done, 10) || 0;
+        const overdue = parseInt(r.overdue, 10) || 0;
+        const blocked = parseInt(r.blocked, 10) || 0;
+        const overduePct = overdue / total;
+        const blockedPct = blocked / total;
+        const daysSinceActivity = r.last_activity ? daysSince(r.last_activity) : 999;
+        let risk = 'green';
+        if (overduePct > 0.3 || blockedPct > 0.2 || daysSinceActivity > 14) risk = 'red';
+        else if (overduePct > 0.15 || blockedPct > 0.1 || daysSinceActivity > 7) risk = 'amber';
+        return {
+          client_id: r.client_id,
+          client_name: r.client_name,
+          total: parseInt(r.total, 10),
+          done,
+          overdue,
+          blocked,
+          pct_complete: Math.round((done / total) * 100),
+          days_since_activity: daysSinceActivity,
+          risk,
+        };
+      });
+
+      // Flag SOWs expiring within 60 days
+      const sowStatus = sowsQ.rows.map(s => ({
+        ...s,
+        days_remaining: s.end_date ? Math.ceil((new Date(s.end_date) - Date.now()) / 86400000) : null,
+        expiring_soon: s.end_date ? (new Date(s.end_date) - Date.now()) / 86400000 <= 60 : false,
+      }));
+
+      res.json({
+        data: {
+          client_health: clientHealth,
+          milestones: milestonesQ.rows,
+          sow_status: sowStatus,
+        },
+        error: null,
+      });
+    } catch (e) {
+      log('error', 'CC', 'project-health failed', { error: e.message });
+      res.status(500).json({ data: null, error: e.message });
+    }
+  });
+
   // Export computeSnapshot for Phase 2 cron
   router._computeSnapshot = computeSnapshot;
 

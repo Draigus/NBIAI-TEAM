@@ -20036,6 +20036,96 @@ function _ccRenderWorkTab(b, w, s, fc) {
   html += '</div>';
   html += '</div>';
 
+  // === ROW 2b: Project Health + Client Signals (F6 + F8) ===
+  var ph = _ccProjectHealth || {};
+  var ch = ph.client_health || [];
+  var miles = ph.milestones || [];
+  var sows = ph.sow_status || [];
+  if (ch.length > 0 || miles.length > 0) {
+    html += '<div class="cc-grid-2" style="margin-bottom:14px">';
+
+    // Left: Client Health card
+    html += '<div class="cc-card"><h3><span>&#128202; Client Health</span> <span class="ct">risk signals</span></h3>';
+    ch.forEach(function(client) {
+      var riskColour = client.risk === 'red' ? '#f85149' : client.risk === 'amber' ? '#d29922' : '#3fb950';
+      var riskBg = client.risk === 'red' ? 'rgba(248,81,73,.12)' : client.risk === 'amber' ? 'rgba(210,153,34,.12)' : 'rgba(63,185,80,.12)';
+      var daysCol = client.days_since_activity > 14 ? '#f85149' : client.days_since_activity > 7 ? '#d29922' : '#8b949e';
+      html += '<div class="cc-row">';
+      html += '<div class="cc-row-icon" style="background:' + riskBg + ';color:' + riskColour + ';font-size:.65rem;font-weight:700;">' + client.pct_complete + '%</div>';
+      html += '<div class="cc-row-b">';
+      html += '<div class="cc-row-t">' + esc(client.client_name) + '</div>';
+      html += '<div class="cc-row-m">';
+      html += '<span style="color:#8b949e;">' + client.done + '/' + client.total + ' done</span>';
+      if (client.overdue > 0) html += ' <span class="cc-tag r">' + client.overdue + ' overdue</span>';
+      if (client.blocked > 0) html += ' <span class="cc-tag a">' + client.blocked + ' blocked</span>';
+      html += '</div>';
+      html += '</div>';
+      html += '<div style="font-size:0.62rem;color:' + daysCol + ';white-space:nowrap;text-align:right;">' + client.days_since_activity + 'd ago</div>';
+      html += '</div>';
+    });
+    if (ch.length === 0) {
+      html += '<div style="padding:8px 0;font-size:0.82rem;color:#8b949e">No active client work</div>';
+    }
+    html += '</div>';
+
+    // Right: Milestones & Contracts card
+    html += '<div class="cc-card"><h3><span>&#127937; Milestones &amp; Contracts</span> <span class="ct">upcoming</span></h3>';
+
+    // Upcoming Milestones subsection
+    if (miles.length > 0) {
+      html += '<div class="cc-section-hdr">Upcoming Milestones</div>';
+      miles.slice(0, 5).forEach(function(m) {
+        var daysUntil = m.target_date ? Math.ceil((new Date(m.target_date) - Date.now()) / 86400000) : null;
+        var urgCol = daysUntil !== null && daysUntil <= 7 ? '#f85149' : daysUntil !== null && daysUntil <= 21 ? '#d29922' : '#8b949e';
+        var totalItems = parseInt(m.total_items, 10) || 0;
+        var doneItems = parseInt(m.done_items, 10) || 0;
+        var pct = totalItems > 0 ? Math.round((doneItems / totalItems) * 100) : 0;
+        var pctBg = pct >= 80 ? 'rgba(63,185,80,.12)' : pct >= 40 ? 'rgba(210,153,34,.12)' : 'rgba(88,166,255,.12)';
+        var pctCol = pct >= 80 ? '#3fb950' : pct >= 40 ? '#d29922' : '#58a6ff';
+        html += '<div class="cc-row">';
+        html += '<div class="cc-row-icon" style="background:' + pctBg + ';color:' + pctCol + ';font-size:.6rem;font-weight:700;">' + pct + '%</div>';
+        html += '<div class="cc-row-b">';
+        html += '<div class="cc-row-t">' + esc(m.title) + '</div>';
+        html += '<div class="cc-row-m"><span style="color:#8b949e;">' + esc(m.client_name) + '</span>';
+        if (totalItems > 0) html += ' <span style="color:#484f58;">' + doneItems + '/' + totalItems + ' items</span>';
+        html += '</div>';
+        html += '</div>';
+        if (daysUntil !== null) {
+          html += '<div style="font-size:0.62rem;color:' + urgCol + ';white-space:nowrap;text-align:right;">' + daysUntil + 'd</div>';
+        }
+        html += '</div>';
+      });
+    }
+
+    // Active SOWs subsection
+    if (sows.length > 0) {
+      html += '<div class="cc-section-hdr" style="margin-top:8px;">Active Contracts / SOWs</div>';
+      sows.slice(0, 4).forEach(function(s2) {
+        var daysRem = s2.days_remaining;
+        var remCol = daysRem !== null && daysRem <= 14 ? '#f85149' : daysRem !== null && daysRem <= 30 ? '#d29922' : '#8b949e';
+        html += '<div class="cc-row">';
+        html += '<div class="cc-row-icon" style="background:rgba(88,166,255,.1);color:#58a6ff;">&#128196;</div>';
+        html += '<div class="cc-row-b">';
+        html += '<div class="cc-row-t">' + esc(s2.title) + '</div>';
+        html += '<div class="cc-row-m"><span style="color:#8b949e;">' + esc(s2.client_name) + '</span>';
+        if (s2.expiring_soon) html += ' <span class="cc-tag r">expiring</span>';
+        html += '</div>';
+        html += '</div>';
+        if (daysRem !== null) {
+          html += '<div style="font-size:0.62rem;color:' + remCol + ';white-space:nowrap;text-align:right;">' + daysRem + 'd left</div>';
+        }
+        html += '</div>';
+      });
+    }
+
+    if (miles.length === 0 && sows.length === 0) {
+      html += '<div style="padding:8px 0;font-size:0.82rem;color:#8b949e">No upcoming milestones or active contracts</div>';
+    }
+    html += '</div>';
+
+    html += '</div>';
+  }
+
   // === ROW 3: Calendar + Work Queue + Improvements (3 columns with rich rows) ===
   html += '<div class="cc-grid-3" style="margin-bottom:14px">';
 
