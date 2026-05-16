@@ -258,6 +258,26 @@ CREATE TABLE comms_queue (
 
 ---
 
+### F12. Handoff Hub (Work tab, section)
+
+**Data source:** File system scan of `projects/*/session_handoffs/` directories. Each handoff is a markdown file with structured content: what was done, what's next, branch state, critical files.
+
+**Panel layout:**
+- **Per-project cards** — one card per project that has handoff files, showing:
+  - Project name (derived from directory)
+  - Last handoff date + title
+  - "What's next" summary (extracted from the handoff's next-steps section)
+  - Branch name if mentioned
+  - "Resume" button → could trigger a prompt template or just navigate to the handoff file
+- Sorted by most recent handoff first
+- Collapsed by default, expand to see full handoff content
+
+**New endpoint:** `GET /api/command-centre/handoffs` — scans the repo's project directories for handoff files, parses frontmatter/headers, returns structured summaries.
+
+**Why this matters:** Glen works across multiple projects (NBI Hub, Couch Heroes, Playsage, etc.) and each has its own Claude Code session context. The handoff hub shows exactly where each project was left off, eliminating the "where was I?" friction when switching contexts.
+
+---
+
 ## Infrastructure Requirements
 
 ### Shared: Scheduled Routine Pattern (CTO recommendation)
@@ -298,6 +318,7 @@ Add a scheduled job to prune cc_snapshots older than 90 days. Current growth: 1 
 - F8: Client health signals (extend client work bars)
 - F9: Team workload (new section in Work tab)
 - F11: Pipeline analytics (extend F1 endpoint)
+- F12: Handoff hub (file scan + Work tab section)
 - **UX:** Implement the tabbed panel layout (persistent header + 5 tabs)
 
 ### Phase 2: Financial Integration
