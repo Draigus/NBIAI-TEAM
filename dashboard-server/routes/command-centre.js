@@ -677,6 +677,79 @@ module.exports = function (ctx) {
     }
   });
 
+  /** GET /api/command-centre/client-work — per-client task balance + velocity */
+  router.get('/api/command-centre/client-work', requireNBI, async (req, res) => {
+    try {
+      // Per-client task counts
+      const clientsQ = await pool.query(`
+        SELECT c.name as client_name, c.id as client_id,
+          COUNT(*) FILTER (WHERE t.status = 'Done') as done,
+          COUNT(*) FILTER (WHERE t.status IN ('In Progress','In Review')) as in_progress,
+          COUNT(*) FILTER (WHERE t.status NOT IN ('Done','Cancelled','In Progress','In Review')) as todo,
+          COUNT(*) as total
+        FROM tasks t
+        JOIN clients c ON t.client_id = c.id
+        WHERE t.item_type IN ('story','task')
+          AND t.status != 'Cancelled'
+        GROUP BY c.name, c.id
+        ORDER BY total DESC
+      `);
+
+      // Weekly velocity (last 4 weeks)
+      const velocityQ = await pool.query(`
+        SELECT
+          DATE_TRUNC('week', updated_at)::date as week_start,
+          COUNT(*) as completed
+        FROM tasks
+        WHERE status = 'Done'
+          AND updated_at >= NOW() - INTERVAL '28 days'
+          AND item_type IN ('story','task')
+        GROUP BY DATE_TRUNC('week', updated_at)
+        ORDER BY week_start
+      `);
+
+      // Summary stats
+      const statsQ = await pool.query(`
+        SELECT
+          COUNT(*) FILTER (WHERE status NOT IN ('Done','Cancelled')) as open_tasks,
+          COUNT(*) FILTER (WHERE due_date IS NOT NULL AND due_date != '' AND due_date::date < CURRENT_DATE AND status NOT IN ('Done','Cancelled')) as overdue,
+          COUNT(*) FILTER (WHERE status = 'Blocked') as blocked,
+          COUNT(*) FILTER (WHERE due_date IS NOT NULL AND due_date != '' AND due_date::date = CURRENT_DATE AND status NOT IN ('Done','Cancelled')) as due_today,
+          COUNT(*) FILTER (WHERE due_date IS NOT NULL AND due_date != '' AND due_date::date BETWEEN CURRENT_DATE AND CURRENT_DATE + 7 AND status NOT IN ('Done','Cancelled')) as due_this_week
+        FROM tasks
+        WHERE item_type IN ('story','task')
+      `);
+
+      res.json({
+        data: {
+          clients: clientsQ.rows.map(r => ({
+            name: r.client_name,
+            id: r.client_id,
+            done: parseInt(r.done),
+            in_progress: parseInt(r.in_progress),
+            todo: parseInt(r.todo),
+            total: parseInt(r.total),
+          })),
+          velocity: velocityQ.rows.map(r => ({
+            week_start: r.week_start,
+            completed: parseInt(r.completed),
+          })),
+          stats: statsQ.rows[0] ? {
+            open_tasks: parseInt(statsQ.rows[0].open_tasks),
+            overdue: parseInt(statsQ.rows[0].overdue),
+            blocked: parseInt(statsQ.rows[0].blocked),
+            due_today: parseInt(statsQ.rows[0].due_today),
+            due_this_week: parseInt(statsQ.rows[0].due_this_week),
+          } : {},
+        },
+        error: null,
+      });
+    } catch (e) {
+      log('error', 'CC', 'client-work failed', { error: e.message });
+      res.status(500).json({ data: null, error: e.message });
+    }
+  });
+
   // Export computeSnapshot for Phase 2 cron
   router._computeSnapshot = computeSnapshot;
 
