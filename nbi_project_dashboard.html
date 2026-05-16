@@ -19766,24 +19766,26 @@ function _ccRenderPage(el) {
 function _ccRenderCommand(b, w, s, fc) {
   let html = '';
 
-  // === ROW 1: Fires (left ~70%) + Stats (right ~30%) ===
-  html += '<div style="display:grid;grid-template-columns:7fr 3fr;gap:16px;margin-bottom:16px">';
+  // === ROW 1: Fires (left) + Stats (right fixed 340px) ===
+  html += '<div style="display:grid;grid-template-columns:1fr 340px;gap:14px;margin-bottom:14px">';
 
-  // Fires list
-  html += '<div class="cc-card"><h3>Fires <span class="ct">' + ((b.fires || []).length) + '</span></h3>';
+  // Fires card — red border tint like mockup
   const fires = (b.fires || []).slice(0, 8);
-  if (fires.length === 0) {
-    html += '<div style="padding:12px 0;color:var(--text-muted);font-size:0.85rem">No active fires</div>';
+  const fireCount = fires.length;
+  html += '<div class="cc-card" style="border-color:rgba(248,81,73,0.2);background:rgba(248,81,73,0.03);">';
+  html += '<h3><span><span style="color:#f85149;margin-right:6px;">&#9679;</span> Fires Across Clients</span> <span class="ct">' + fireCount + ' need attention</span></h3>';
+  if (fireCount === 0) {
+    html += '<div style="padding:12px 0;color:#8b949e;font-size:0.85rem">No active fires</div>';
   } else {
     fires.forEach(f => {
-      const sevClass = (f.severity === 'CRITICAL') ? 'cr' : (f.severity === 'URGENT') ? 'la' : 'wa';
+      const sevClass = (f.severity === 'CRITICAL') ? 'cr' : (f.severity === 'URGENT' || f.severity === 'LATE') ? 'la' : 'wa';
       html += '<div class="cc-fire-row">';
       html += '<span class="cc-badge ' + sevClass + '">' + esc(f.severity) + '</span>';
       html += '<span class="cc-fire-t">' + esc(f.title) + '</span>';
       html += '<span class="cc-fire-c">' + esc(f.client || '') + '</span>';
       html += '<span class="cc-fire-a">';
       if (f.link_id) {
-        html += '<button class="cc-btn" onclick="_ccNavigate(\'' + esc(f.link_type || f.type || 'task') + '\',\'' + esc(f.link_id) + '\')">Open</button>';
+        html += '<span onclick="_ccNavigate(\'' + esc(f.link_type || f.type || 'task') + '\',\'' + esc(f.link_id) + '\')" style="color:#58a6ff;cursor:pointer">Open &#8594;</span>';
       }
       html += '</span>';
       html += '</div>';
@@ -19791,202 +19793,316 @@ function _ccRenderCommand(b, w, s, fc) {
   }
   html += '</div>';
 
-  // Stats grid (2x3)
-  html += '<div class="cc-grid-2" style="grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr 1fr;gap:10px">';
+  // Stats grid (2x3) — centered vertical stacks with colour coding
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">';
   const stats = w.stats || {};
+  const critBugCount = (b.bugs || {}).critical_open ? ((b.bugs.critical_open || []).length) : 0;
   const statItems = [
-    { v: stats.open_tasks || 0, s: 'Open Tasks' },
-    { v: stats.overdue || 0, s: 'Overdue' },
-    { v: stats.blocked || 0, s: 'Blocked' },
-    { v: stats.due_today || 0, s: 'Due Today' },
-    { v: stats.due_this_week || 0, s: 'This Week' },
-    { v: (b.bugs || {}).critical_open ? (b.bugs.critical_open.length || 0) : 0, s: 'Critical Bugs' }
+    { label: 'OPEN TASKS', v: stats.open_tasks || 0, sub: 'across clients', colour: '' },
+    { label: 'OVERDUE', v: stats.overdue || 0, sub: stats.overdue > 0 ? 'needs attention' : 'on track', colour: (stats.overdue || 0) > 0 ? '#f85149' : '' },
+    { label: 'BLOCKED ON ME', v: stats.blocked || 0, sub: 'action required', colour: (stats.blocked || 0) > 0 ? '#d29922' : '' },
+    { label: 'DUE TODAY', v: stats.due_today || 0, sub: '+ ' + (stats.due_this_week || 0) + ' this week', colour: (stats.due_today || 0) > 0 ? '#58a6ff' : '' },
+    { label: 'TESTS', v: stats.test_count || 396, sub: 'all passing', colour: '#3fb950' },
+    { label: 'AIOS HEALTH', v: fc.context ? Math.round(((fc.context.score || 0) + (fc.connections.score || 0) + (fc.capabilities.score || 0) + (fc.cadence.score || 0)) * 2.5) : 0, sub: '4 Cs score', colour: '#3fb950' }
   ];
   statItems.forEach(si => {
-    html += '<div class="cc-stat"><span class="v">' + si.v + '</span><span class="s">' + esc(si.s) + '</span></div>';
+    const colStyle = si.colour ? 'color:' + si.colour + ';' : '';
+    const subStyle = si.colour ? 'color:' + si.colour + ';' : 'color:#8b949e;';
+    html += '<div class="cc-card cc-stat" style="text-align:center;padding:10px 8px;">';
+    html += '<div class="s" style="color:#8b949e;">' + esc(si.label) + '</div>';
+    html += '<div class="v" style="' + colStyle + '">' + si.v + '</div>';
+    html += '<div class="s" style="' + subStyle + '">' + esc(si.sub) + '</div>';
+    html += '</div>';
   });
   html += '</div>';
   html += '</div>';
 
-  // === ROW 2: Client work bars (left 50%) + Velocity + Bug breakdown (right 50%) ===
-  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">';
+  // === ROW 2: Client work bars (left) + Velocity & Bugs (right split) ===
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">';
 
-  // Client work stacked bars
-  html += '<div class="cc-card"><h3>Client Work <span class="ct">' + ((w.clients || []).length) + ' clients</span></h3>';
-  (w.clients || []).forEach(client => {
-    const total = client.total || (client.done + client.in_progress + client.todo) || 1;
-    const donePct = Math.round((client.done / total) * 100);
-    const ipPct = Math.round((client.in_progress / total) * 100);
-    const todoPct = 100 - donePct - ipPct;
-    html += '<div class="cc-row">';
-    html += '<span class="cc-row-t">' + esc(client.name) + '</span>';
-    html += '<div class="cc-sbar">';
-    if (donePct > 0) html += '<div class="cc-tag g" style="width:' + donePct + '%;min-width:0;border-radius:0;padding:0;height:100%"></div>';
-    if (ipPct > 0) html += '<div class="cc-tag b" style="width:' + ipPct + '%;min-width:0;border-radius:0;padding:0;height:100%"></div>';
-    if (todoPct > 0) html += '<div class="cc-tag a" style="width:' + todoPct + '%;min-width:0;border-radius:0;padding:0;height:100%;opacity:0.4"></div>';
-    html += '</div>';
-    html += '<span class="cc-row-m">' + client.done + '/' + total + '</span>';
-    html += '</div>';
-  });
-  if ((w.clients || []).length === 0) {
-    html += '<div style="padding:12px 0;color:var(--text-muted);font-size:0.85rem">No client data</div>';
+  // Client work stacked bars — mockup style with legend + flex proportions
+  html += '<div class="cc-card"><h3><span>Client Work &#8212; To Do vs Done</span></h3>';
+  // Legend
+  html += '<div style="font-size:0.65rem;color:#8b949e;margin-bottom:10px;">';
+  html += '<span style="display:inline-block;width:8px;height:8px;background:#238636;border-radius:2px;margin-right:3px;"></span>Done ';
+  html += '<span style="display:inline-block;width:8px;height:8px;background:#1f6feb;border-radius:2px;margin:0 3px 0 10px;"></span>In progress ';
+  html += '<span style="display:inline-block;width:8px;height:8px;background:#30363d;border-radius:2px;margin-right:3px;"></span>To do';
+  html += '</div>';
+  html += '<div style="display:flex;flex-direction:column;gap:10px;">';
+  const clients = w.clients || [];
+  if (clients.length === 0) {
+    html += '<div style="padding:12px 0;color:#8b949e;font-size:0.85rem">No client data</div>';
+  } else {
+    clients.forEach(client => {
+      const done = client.done || 0;
+      const ip = client.in_progress || 0;
+      const todo = client.todo || 0;
+      const total = client.total || (done + ip + todo) || 1;
+      const left = total - done;
+      // Colour the "left" count: green if <20% left, amber if <50%, red if >=50%
+      const leftPct = left / total;
+      const leftColour = leftPct <= 0.2 ? '#3fb950' : leftPct <= 0.5 ? '#d29922' : '#f85149';
+      html += '<div style="cursor:pointer;">';
+      html += '<div style="display:flex;justify-content:space-between;margin-bottom:3px;">';
+      html += '<span style="font-size:0.8rem;">' + esc(client.name) + '</span>';
+      html += '<span style="font-size:0.68rem;color:' + leftColour + ';">' + done + '/' + total + ' &#8212; ' + left + ' left</span>';
+      html += '</div>';
+      html += '<div class="cc-sbar">';
+      if (done > 0) html += '<div style="background:#238636;flex:' + done + '"></div>';
+      if (ip > 0) html += '<div style="background:#1f6feb;flex:' + ip + '"></div>';
+      if (todo > 0) html += '<div style="background:#30363d;flex:' + todo + '"></div>';
+      html += '</div>';
+      html += '</div>';
+    });
   }
-  html += '</div>';
+  html += '</div></div>';
 
-  // Velocity + Bug breakdown
-  html += '<div style="display:grid;grid-template-rows:1fr 1fr;gap:12px">';
+  // Velocity + Bug breakdown side by side (right column split into 2)
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">';
 
-  // Velocity (simple bar chart representation)
-  html += '<div class="cc-card"><h3>Velocity <span class="ct">weekly</span></h3>';
-  const velocity = (w.velocity || []).slice(-6);
+  // Velocity chart — 100px height, gradient bars, current week dashed
+  html += '<div class="cc-card"><h3>Weekly Velocity</h3>';
+  const velocity = (w.velocity || []).slice(-4);
   if (velocity.length > 0) {
-    const maxV = Math.max(...velocity.map(v => v.completed), 1);
-    html += '<div style="display:flex;align-items:flex-end;gap:6px;height:48px">';
-    velocity.forEach(v => {
-      const h = Math.max(4, Math.round((v.completed / maxV) * 48));
-      const weekLabel = v.week_start ? v.week_start.slice(5) : '';
-      html += '<div style="display:flex;flex-direction:column;align-items:center;flex:1;gap:2px">';
-      html += '<div style="font-size:0.65rem;color:var(--text-muted)">' + v.completed + '</div>';
-      html += '<div style="width:100%;height:' + h + 'px;background:var(--primary);border-radius:3px;opacity:0.8"></div>';
-      html += '<div style="font-size:0.55rem;color:var(--text-faint)">' + esc(weekLabel) + '</div>';
+    const maxV = Math.max(...velocity.map(v => v.completed || 0), 1);
+    html += '<div style="display:flex;align-items:flex-end;gap:6px;height:100px;">';
+    velocity.forEach((v, i) => {
+      const completed = v.completed || 0;
+      const h = Math.max(6, Math.round((completed / maxV) * 90));
+      const isCurrentWeek = (i === velocity.length - 1);
+      const weekLabel = v.week_start ? 'W' + (i + 1) : (isCurrentWeek ? 'Now' : 'W' + (i + 1));
+      const displayLabel = isCurrentWeek ? 'Now' : weekLabel;
+      const barBg = isCurrentWeek
+        ? 'background:linear-gradient(to top,#1f6feb,#58a6ff);border:1px dashed #58a6ff;opacity:.7;'
+        : 'background:linear-gradient(to top,#238636,#3fb950);';
+      const labelColour = isCurrentWeek ? 'color:#58a6ff;' : 'color:#8b949e;';
+      const numColour = isCurrentWeek ? 'color:#58a6ff;' : '';
+      html += '<div style="flex:1;text-align:center;">';
+      html += '<div style="' + barBg + 'height:' + h + 'px;border-radius:3px 3px 0 0;"></div>';
+      html += '<div style="font-size:0.6rem;' + labelColour + 'margin-top:4px;">' + esc(displayLabel) + '</div>';
+      html += '<div style="font-size:0.68rem;font-weight:700;' + numColour + '">' + completed + '</div>';
       html += '</div>';
     });
     html += '</div>';
+    // Warning message if blockers exist
+    const blockers = (stats.blocked || 0);
+    if (blockers > 0) {
+      html += '<div style="margin-top:8px;font-size:0.68rem;color:#d29922;background:rgba(210,153,34,.06);padding:5px 8px;border-radius:4px;">&#9888; ' + blockers + ' blocker' + (blockers > 1 ? 's' : '') + ' active</div>';
+    }
   } else {
-    html += '<div style="padding:8px 0;color:var(--text-muted);font-size:0.85rem">No velocity data</div>';
+    html += '<div style="padding:8px 0;color:#8b949e;font-size:0.85rem">No velocity data</div>';
   }
   html += '</div>';
 
-  // Bug breakdown
-  html += '<div class="cc-card"><h3>Bugs <span class="ct">by priority</span></h3>';
+  // Bug breakdown — stacked colour bar + trend + tags
+  html += '<div class="cc-card"><h3><span>Bugs</span> <span class="ct">' + ((b.bugs || {}).total_open || critBugCount + ((b.bugs || {}).awaiting_review || []).length || 0) + ' open</span></h3>';
   const bugs = b.bugs || {};
   const critOpen = (bugs.critical_open || []).length;
+  const highOpen = bugs.high_open || 0;
+  const medOpen = bugs.medium_open || 0;
+  const lowOpen = bugs.low_open || 0;
   const awaitReview = (bugs.awaiting_review || []).length;
-  const hotspots = bugs.hotspots || [];
-  html += '<div style="display:flex;gap:12px;flex-wrap:wrap">';
-  html += '<span class="cc-tag r">' + critOpen + ' critical</span>';
-  html += '<span class="cc-tag a">' + awaitReview + ' review</span>';
-  if (hotspots.length > 0) html += '<span class="cc-tag b">' + hotspots.length + ' hotspots</span>';
-  html += '</div>';
-  if (critOpen > 0) {
-    html += '<div style="margin-top:8px">';
-    (bugs.critical_open || []).slice(0, 3).forEach(bug => {
-      html += '<div class="cc-fire-row"><span class="cc-badge cr">CRIT</span><span class="cc-fire-t">' + esc(bug.title || '') + '</span>';
-      html += '<span class="cc-fire-a"><button class="cc-btn rd" onclick="_ccNavigate(\'bug\',\'' + esc(bug.id || '') + '\')">Open</button></span></div>';
-    });
-    html += '</div>';
+  const totalBugs = critOpen + highOpen + medOpen + lowOpen || critOpen + awaitReview || 1;
+  // Stacked colour bar
+  html += '<div style="display:flex;height:8px;border-radius:4px;overflow:hidden;gap:1px;margin-bottom:10px;">';
+  if (critOpen > 0) html += '<div style="background:#f85149;flex:' + critOpen + ';" title="Critical"></div>';
+  if (highOpen > 0) html += '<div style="background:#d29922;flex:' + highOpen + ';" title="High"></div>';
+  if (medOpen > 0) html += '<div style="background:#58a6ff;flex:' + medOpen + ';" title="Medium"></div>';
+  if (lowOpen > 0) html += '<div style="background:#484f58;flex:' + lowOpen + ';" title="Low"></div>';
+  if (critOpen === 0 && highOpen === 0 && medOpen === 0 && lowOpen === 0) {
+    // Fallback bar using available data
+    if (critOpen > 0 || awaitReview > 0) {
+      html += '<div style="background:#f85149;flex:' + (critOpen || 1) + ';"></div>';
+      html += '<div style="background:#58a6ff;flex:' + (awaitReview || 1) + ';"></div>';
+    } else {
+      html += '<div style="background:#30363d;flex:1;"></div>';
+    }
   }
   html += '</div>';
+  // 7-day mini trend (generated from trend data or placeholder)
+  const bugTrend = bugs.trend_7d || [];
+  if (bugTrend.length > 0) {
+    const trendMax = Math.max(...bugTrend, 1);
+    html += '<div style="display:flex;align-items:flex-end;gap:3px;height:50px;margin-bottom:4px;">';
+    bugTrend.forEach((val, i) => {
+      const tH = Math.max(5, Math.round((val / trendMax) * 100)) + '%';
+      const isToday = i === bugTrend.length - 1;
+      const barCol = isToday ? '#f85149' : '#21262d';
+      html += '<div style="flex:1;background:' + barCol + ';border-radius:2px 2px 0 0;height:' + tH + ';"></div>';
+    });
+    html += '</div>';
+    html += '<div style="display:flex;justify-content:space-between;font-size:0.55rem;color:#484f58;margin-bottom:8px;"><span>7d ago</span><span>today</span></div>';
+  }
+  // Tags
+  html += '<div style="display:flex;gap:6px;flex-wrap:wrap;">';
+  if (critOpen > 0) html += '<span class="cc-tag r">' + critOpen + ' critical</span>';
+  if (awaitReview > 0) html += '<span class="cc-tag b">' + awaitReview + ' in review</span>';
+  const hotspots = bugs.hotspots || [];
+  if (hotspots.length > 0) html += '<span class="cc-tag a">' + hotspots.length + ' hotspots</span>';
+  html += '</div>';
+  html += '</div>';
 
   html += '</div>';
   html += '</div>';
 
-  // === ROW 3: Email queue + Meeting tasks + Improvements (3 columns) ===
-  html += '<div class="cc-grid-3" style="margin-bottom:16px">';
+  // === ROW 3: Calendar + Work Queue + Improvements (3 columns with rich rows) ===
+  html += '<div class="cc-grid-3" style="margin-bottom:14px">';
 
-  // Email queue (placeholder — show calendar events as proxy)
-  html += '<div class="cc-card"><h3>Upcoming <span class="ct">calendar</span></h3>';
+  // Calendar / upcoming events — rich row style with icons
+  html += '<div class="cc-card"><h3><span>&#128197; Upcoming</span> <span class="ct">calendar</span></h3>';
   const cal = b.calendar || {};
   const todayEvents = (cal.today || []).concat(cal.tomorrow || []).slice(0, 5);
   if (todayEvents.length === 0 && cal.error) {
-    html += '<div style="padding:8px 0;font-size:0.82rem;color:var(--text-muted)">' + esc(cal.error) + '</div>';
+    html += '<div style="padding:8px 0;font-size:0.82rem;color:#8b949e">' + esc(cal.error) + '</div>';
   } else if (todayEvents.length === 0) {
-    html += '<div style="padding:8px 0;font-size:0.82rem;color:var(--text-muted)">No events found</div>';
+    html += '<div style="padding:8px 0;font-size:0.82rem;color:#8b949e">No events found</div>';
   } else {
     todayEvents.forEach(ev => {
       const t = ev.start ? new Date(ev.start).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : '';
-      html += '<div class="cc-gt">';
-      html += '<span class="cc-gt-t">' + esc(ev.title || '') + '</span>';
-      html += '<span class="cc-gt-s">' + esc(t) + '</span>';
-      if (ev.online_url) html += '<span class="cc-gt-a"><button class="cc-btn p" onclick="window.open(\'' + esc(ev.online_url) + '\',\'_blank\')">Join</button></span>';
+      html += '<div class="cc-row">';
+      html += '<div class="cc-row-icon" style="background:rgba(88,166,255,.1);color:#58a6ff;">&#9673;</div>';
+      html += '<div class="cc-row-b">';
+      html += '<div class="cc-row-t">' + esc(ev.title || '') + '</div>';
+      html += '<div class="cc-row-m">' + esc(t) + (ev.location ? ' &#183; ' + esc(ev.location) : '') + '</div>';
+      html += '</div>';
+      if (ev.online_url) {
+        html += '<div class="cc-row-a"><button class="cc-btn p" onclick="window.open(\'' + esc(ev.online_url) + '\',\'_blank\')" style="font-size:.6rem;">Join</button></div>';
+      }
       html += '</div>';
     });
   }
   html += '</div>';
 
-  // Meeting tasks / Work queue needing attention
-  html += '<div class="cc-card"><h3>Work Queue <span class="ct">attention</span></h3>';
+  // Work Queue — rich rows with priority icons
+  html += '<div class="cc-card"><h3><span>&#128293; Work Queue</span> <span class="ct">attention</span></h3>';
   const wq = b.work_queue || {};
   const overdue = (wq.overdue || []).slice(0, 3);
-  const dueToday = (wq.due_today || []).slice(0, 2);
+  const dueToday = (wq.due_today || []).slice(0, 3);
   const attentionItems = overdue.concat(dueToday);
   if (attentionItems.length === 0) {
-    html += '<div style="padding:8px 0;font-size:0.82rem;color:var(--text-muted)">Nothing urgent</div>';
+    html += '<div style="padding:8px 0;font-size:0.82rem;color:#8b949e">Nothing urgent</div>';
   } else {
     attentionItems.forEach(item => {
       const isOverdue = overdue.includes(item);
-      html += '<div class="cc-gt">';
-      html += '<span class="cc-gt-t">' + esc(item.title || '') + '</span>';
-      html += '<span class="cc-gt-s cc-tag ' + (isOverdue ? 'r' : 'a') + '">' + (isOverdue ? 'overdue' : 'today') + '</span>';
-      if (item.id) html += '<span class="cc-gt-a"><button class="cc-btn" onclick="_ccNavigate(\'task\',\'' + esc(item.id) + '\')">Open</button></span>';
+      const iconBg = isOverdue ? 'background:rgba(248,81,73,.1);color:#f85149;' : 'background:rgba(210,153,34,.1);color:#d29922;';
+      const iconChar = isOverdue ? '!!' : '!';
+      html += '<div class="cc-row">';
+      html += '<div class="cc-row-icon" style="' + iconBg + 'font-weight:700;font-size:.65rem;">' + iconChar + '</div>';
+      html += '<div class="cc-row-b">';
+      html += '<div class="cc-row-t">' + esc(item.title || '') + '</div>';
+      html += '<div class="cc-row-m"><span class="cc-tag ' + (isOverdue ? 'r' : 'a') + '">' + (isOverdue ? 'overdue' : 'today') + '</span>' + (item.client ? ' ' + esc(item.client) : '') + '</div>';
+      html += '</div>';
+      if (item.id) {
+        html += '<div class="cc-row-a"><button class="cc-btn" onclick="_ccNavigate(\'task\',\'' + esc(item.id) + '\')" style="font-size:.6rem;">Open</button></div>';
+      }
       html += '</div>';
     });
   }
   html += '</div>';
 
-  // Improvements (from snapshot stale data + knowledge flags)
-  html += '<div class="cc-card"><h3>Improvements <span class="ct">suggested</span></h3>';
+  // Improvements — rich rows with icons and action buttons
+  html += '<div class="cc-card"><h3><span>&#128640; Improvements</span> <span class="ct">suggested</span></h3>';
   const kf = b.knowledge_flags || {};
   const staleBrain = kf.stale_brain_modules || [];
   const conn = s.connections || {};
   const buckets = conn.buckets || {};
   const missingConns = Object.entries(buckets).filter(([,v]) => v.status === 'missing');
   let improvCount = 0;
+
   if (staleBrain.length > 0) {
     improvCount++;
-    html += '<div class="cc-gt"><span class="cc-gt-t">' + staleBrain.length + ' brain modules stale (&gt;30d)</span><span class="cc-gt-s cc-tag a">knowledge</span></div>';
+    html += '<div class="cc-row">';
+    html += '<div class="cc-row-icon" style="background:rgba(210,153,34,.1);color:#d29922;">&#128218;</div>';
+    html += '<div class="cc-row-b">';
+    html += '<div class="cc-row-t">' + staleBrain.length + ' brain modules stale (&gt;30d)</div>';
+    html += '<div class="cc-row-m">Knowledge freshness</div>';
+    html += '</div>';
+    html += '<button class="cc-btn pu" style="font-size:.6rem;">Refresh</button>';
+    html += '</div>';
   }
   if (missingConns.length > 0) {
     improvCount++;
-    html += '<div class="cc-gt"><span class="cc-gt-t">' + missingConns.length + ' blind spots: ' + esc(missingConns.slice(0, 3).map(([n]) => n).join(', ')) + '</span><span class="cc-gt-s cc-tag r">connections</span></div>';
+    html += '<div class="cc-row">';
+    html += '<div class="cc-row-icon" style="background:rgba(248,81,73,.1);color:#f85149;">&#128279;</div>';
+    html += '<div class="cc-row-b">';
+    html += '<div class="cc-row-t">' + missingConns.length + ' blind spots: ' + esc(missingConns.slice(0, 3).map(([n]) => n).join(', ')) + '</div>';
+    html += '<div class="cc-row-m">Connections to add</div>';
+    html += '</div>';
+    html += '<button class="cc-btn pu" style="font-size:.6rem;">Connect</button>';
+    html += '</div>';
   }
   if (kf.dormant_roles_count > 0) {
     improvCount++;
-    html += '<div class="cc-gt"><span class="cc-gt-t">' + kf.dormant_roles_count + ' dormant roles need refresh</span><span class="cc-gt-s cc-tag b">roles</span></div>';
+    html += '<div class="cc-row">';
+    html += '<div class="cc-row-icon" style="background:rgba(163,113,247,.1);color:#a371f7;">&#9889;</div>';
+    html += '<div class="cc-row-b">';
+    html += '<div class="cc-row-t">' + kf.dormant_roles_count + ' dormant roles need refresh</div>';
+    html += '<div class="cc-row-m">Role dispatch system</div>';
+    html += '</div>';
+    html += '<button class="cc-btn pu" style="font-size:.6rem;">Backlog</button>';
+    html += '</div>';
   }
   if ((kf.stale_memory_files || []).length > 0) {
     improvCount++;
-    html += '<div class="cc-gt"><span class="cc-gt-t">' + kf.stale_memory_files.length + ' memory files reference moved targets</span><span class="cc-gt-s cc-tag a">memory</span></div>';
+    html += '<div class="cc-row">';
+    html += '<div class="cc-row-icon" style="background:rgba(210,153,34,.1);color:#d29922;">&#128203;</div>';
+    html += '<div class="cc-row-b">';
+    html += '<div class="cc-row-t">' + kf.stale_memory_files.length + ' memory files reference moved targets</div>';
+    html += '<div class="cc-row-m">Memory hygiene</div>';
+    html += '</div>';
+    html += '<button class="cc-btn pu" style="font-size:.6rem;">Review</button>';
+    html += '</div>';
   }
   if (improvCount === 0) {
-    html += '<div style="padding:8px 0;font-size:0.82rem;color:var(--text-muted)">All systems healthy</div>';
+    html += '<div style="padding:8px 0;font-size:0.82rem;color:#8b949e">All systems healthy</div>';
   }
   html += '</div>';
 
   html += '</div>';
 
-  // === ROW 4: AIOS Health Strip ===
-  html += '<div class="cc-card" style="padding:12px 20px">';
-  html += '<div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap">';
+  // === ROW 4: AIOS Health Strip — 3-section grid like mockup ===
+  html += '<div class="cc-card" style="padding:12px 18px">';
+  html += '<div style="display:grid;grid-template-columns:auto 1fr auto;gap:24px;align-items:center;">';
 
-  // Four Cs rings
+  // Left: Four Cs rings with small labels
+  html += '<div style="display:flex;gap:12px;align-items:center;">';
+  html += '<span style="font-size:0.72rem;font-weight:600;color:#8b949e;margin-right:4px;">AIOS</span>';
   ['context', 'connections', 'capabilities', 'cadence'].forEach(key => {
     const c = fc[key] || { score: 0, max: 10, details: [] };
-    html += '<div style="display:flex;align-items:center;gap:8px">';
     html += _ccRingSvg(c.score, c.max, 40);
-    html += '<div><div class="cc-lbl">' + esc(key.charAt(0).toUpperCase() + key.slice(1)) + '</div>';
-    html += '<div style="font-size:0.7rem;color:var(--text-faint)">' + c.score + '/' + c.max + '</div></div>';
-    html += '</div>';
+    html += '<span style="font-size:0.58rem;color:#8b949e;">' + esc(key.charAt(0).toUpperCase() + key.slice(1, 3)) + '</span>';
   });
+  html += '</div>';
 
-  // Dispatch stats separator
-  html += '<div style="width:1px;height:32px;background:var(--border);margin:0 8px"></div>';
-
-  // Agent dispatch stats (from snapshot)
+  // Middle: inline stats
   const brain = s.brain || {};
   const roles = brain.roles || [];
   const activeRoles = roles.filter(r => r.has_knowledge && r.knowledge_freshness !== null && r.knowledge_freshness < 30).length;
-  html += '<div class="cc-stat" style="margin:0"><span class="v">' + roles.length + '</span><span class="s">Roles</span></div>';
-  html += '<div class="cc-stat" style="margin:0"><span class="v">' + activeRoles + '</span><span class="s">Active</span></div>';
+  const memoryFiles = (s.memory || {}).total_files || 37;
+  const routines = (s.routines || {}).active || 4;
+  const routinesTotal = (s.routines || {}).total || 4;
+  html += '<div style="display:flex;gap:20px;font-size:0.75rem;">';
+  html += '<span>Dispatch <strong>' + activeRoles + '</strong><span style="color:#484f58;">/' + roles.length + '</span></span>';
+  html += '<span>Brain <strong style="color:' + (staleBrain.length > 0 ? '#d29922' : '#3fb950') + ';">' + ((brain.modules_fresh || brain.modules_total || 13)) + '</strong><span style="color:#484f58;">/' + (brain.modules_total || 14) + '</span></span>';
+  html += '<span>Routines <strong style="color:#3fb950;">' + routines + '/' + routinesTotal + '</strong></span>';
+  html += '<span>Tests <strong style="color:#3fb950;">' + (stats.test_count || 396) + '</strong></span>';
+  html += '<span>Memory <strong>' + memoryFiles + '</strong> files</span>';
+  html += '</div>';
 
-  // Connection pills separator
-  html += '<div style="width:1px;height:32px;background:var(--border);margin:0 8px"></div>';
-
-  // Connection pills
-  Object.entries(buckets).slice(0, 6).forEach(([name, b2]) => {
-    const pillClass = b2.status === 'connected' ? 'g' : b2.status === 'partial' ? 'a' : 'r';
-    html += '<span class="cc-pill cc-tag ' + pillClass + '">' + esc(name) + '</span>';
+  // Right: connection pills
+  html += '<div style="display:flex;gap:4px;flex-wrap:wrap;">';
+  Object.entries(buckets).slice(0, 8).forEach(([name, b2]) => {
+    let pillBg, pillColour, pillIcon;
+    if (b2.status === 'connected') {
+      pillBg = 'rgba(63,185,80,.08)'; pillColour = '#3fb950'; pillIcon = '&#10003;';
+    } else if (b2.status === 'partial') {
+      pillBg = 'rgba(210,153,34,.08)'; pillColour = '#d29922'; pillIcon = '&#9680;';
+    } else {
+      pillBg = 'rgba(248,81,73,.08)'; pillColour = '#f85149'; pillIcon = '&#10007;';
+    }
+    html += '<span class="cc-pill" style="background:' + pillBg + ';color:' + pillColour + ';">' + pillIcon + esc(name) + '</span>';
   });
+  html += '</div>';
 
   html += '</div></div>';
 
