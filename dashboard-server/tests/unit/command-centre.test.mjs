@@ -375,3 +375,86 @@ describe('Command Centre — Client-work endpoint', () => {
     expect(res.body.data).toBeNull();
   });
 });
+
+describe('Command Centre — Pipeline endpoint', () => {
+  function makePipelineMockPool(overrides = {}) {
+    return {
+      query: vi.fn().mockImplementation((sql) => {
+        if (sql.includes('lead_pipeline_stages') && sql.includes('GROUP BY')) {
+          return { rows: overrides.stages || [] };
+        }
+        if (sql.includes('last_contacted') && sql.includes('14')) {
+          return { rows: overrides.stale || [] };
+        }
+        if (sql.includes('next_followup_date')) {
+          return { rows: overrides.followups || [] };
+        }
+        if (sql.includes('is_won') && sql.includes('90 days')) {
+          return { rows: overrides.conversion || [{ won: '0', total: '0' }] };
+        }
+        if (sql.includes('completed_at') && sql.includes('avg_days')) {
+          return { rows: overrides.velocity || [{ avg_days: null }] };
+        }
+        if (sql.includes('DATE_TRUNC') && sql.includes('generate_series')) {
+          return { rows: overrides.trend || [] };
+        }
+        if (sql.includes('total_weighted')) {
+          return { rows: overrides.totalPipeline || [{ total_weighted: '0' }] };
+        }
+        return { rows: [] };
+      }),
+    };
+  }
+
+  it('GET /api/command-centre/pipeline returns correct shape', async () => {
+    const pool = makePipelineMockPool();
+    const { app } = makeApp(pool);
+    const res = await request(app).get('/api/command-centre/pipeline');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('stages');
+    expect(res.body.data).toHaveProperty('stale_leads');
+    expect(res.body.data).toHaveProperty('upcoming_followups');
+    expect(res.body.data).toHaveProperty('analytics');
+    expect(res.body.error).toBeNull();
+  });
+
+  it('returns pipeline stages with counts and weighted values', async () => {
+    const pool = makePipelineMockPool({
+      stages: [
+        { name: 'Lead', sort_order: 1, colour: '#6b7280', count: '3', weighted_total: '15000' },
+        { name: 'Proposal', sort_order: 4, colour: '#f59e0b', count: '2', weighted_total: '50000' },
+      ],
+    });
+    const { app } = makeApp(pool);
+    const res = await request(app).get('/api/command-centre/pipeline');
+    expect(res.body.data.stages).toHaveLength(2);
+    expect(res.body.data.stages[0]).toEqual({
+      name: 'Lead', sort_order: 1, colour: '#6b7280', count: 3, weighted_total: 15000,
+    });
+  });
+
+  it('returns stale leads with contact name', async () => {
+    const pool = makePipelineMockPool({
+      stale: [
+        { id: 'abc', title: 'Stale deal', last_contacted: '2026-04-01', contact_name: 'John' },
+      ],
+    });
+    const { app } = makeApp(pool);
+    const res = await request(app).get('/api/command-centre/pipeline');
+    expect(res.body.data.stale_leads).toHaveLength(1);
+    expect(res.body.data.stale_leads[0].title).toBe('Stale deal');
+    expect(res.body.data.stale_leads[0].contact_name).toBe('John');
+  });
+
+  it('returns analytics with conversion rate and velocity', async () => {
+    const pool = makePipelineMockPool({
+      conversion: [{ won: '5', total: '20' }],
+      velocity: [{ avg_days: '18.5' }],
+    });
+    const { app } = makeApp(pool);
+    const res = await request(app).get('/api/command-centre/pipeline');
+    const a = res.body.data.analytics;
+    expect(a.conversion_rate).toBe(25);
+    expect(a.avg_deal_days).toBe(18.5);
+  });
+});

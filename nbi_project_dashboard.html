@@ -20223,7 +20223,173 @@ function _ccRenderCommsTab() {
 }
 
 function _ccRenderPipelineContent(p) {
-  return '<div class="cc-panel-empty">Pipeline view loading...</div>';
+  var html = '';
+  var stages = p.stages || [];
+  var staleLeads = p.stale_leads || [];
+  var followups = p.upcoming_followups || [];
+  var analytics = p.analytics || {};
+  var trend = analytics.trend || [];
+
+  // === ROW 1: Pipeline Funnel (left) + Analytics Summary (right) ===
+  html += '<div class="cc-grid-2" style="margin-bottom:14px">';
+
+  // — Pipeline Funnel card —
+  var totalCount = stages.reduce(function(sum, s) { return sum + (s.count || 0); }, 0) || 1;
+  html += '<div class="cc-card">';
+  html += '<h3><span>&#9654; Pipeline Funnel</span> <span class="ct">' + stages.length + ' stages &bull; ' + totalCount + ' active leads</span></h3>';
+  if (stages.length === 0) {
+    html += '<div style="padding:12px 0;color:#8b949e;font-size:0.85rem">No pipeline stage data</div>';
+  } else {
+    stages.forEach(function(s) {
+      var count = s.count || 0;
+      var widthPct = Math.max(8, Math.round((count / totalCount) * 100));
+      var colour = s.colour || '#484f58';
+      var weightedFmt = s.weighted_total ? '&#163;' + Number(s.weighted_total).toLocaleString('en-GB', { maximumFractionDigits: 0 }) : '&#163;0';
+      html += '<div style="margin-bottom:10px;">';
+      html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">';
+      html += '<span style="font-size:0.82rem;font-weight:600;">' + esc(s.name) + '</span>';
+      html += '<span style="font-size:0.72rem;color:#8b949e;">' + count + ' lead' + (count !== 1 ? 's' : '') + ' &bull; ' + weightedFmt + '</span>';
+      html += '</div>';
+      html += '<div style="background:#21262d;border-radius:3px;height:10px;overflow:hidden;">';
+      html += '<div style="background:' + esc(colour) + ';width:' + widthPct + '%;height:100%;border-radius:3px;transition:width .3s;"></div>';
+      html += '</div>';
+      html += '</div>';
+    });
+  }
+  html += '</div>';
+
+  // — Analytics Summary card —
+  var totalWeighted = analytics.total_weighted_pipeline || 0;
+  var convRate = analytics.conversion_rate != null ? analytics.conversion_rate : null;
+  var avgDays = analytics.avg_deal_days;
+  var activeLeads = stages.reduce(function(sum, s) { return sum + (s.count || 0); }, 0);
+
+  html += '<div class="cc-card">';
+  html += '<h3><span>&#9654; Analytics</span> <span class="ct">last 90 days</span></h3>';
+
+  // 4 stat tiles in 2x2 grid
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">';
+
+  // Pipeline Value
+  var pipeValFmt = '&#163;' + Number(totalWeighted).toLocaleString('en-GB', { maximumFractionDigits: 0 });
+  html += '<div class="cc-card cc-stat" style="padding:10px 8px;">';
+  html += '<div class="s">PIPELINE VALUE</div>';
+  html += '<div class="v" style="font-size:1.1rem;color:#3fb950;">' + pipeValFmt + '</div>';
+  html += '<div class="s">weighted open</div>';
+  html += '</div>';
+
+  // Conversion %
+  var convColour = convRate != null && convRate >= 30 ? '#3fb950' : convRate != null && convRate >= 15 ? '#d29922' : '#f85149';
+  html += '<div class="cc-card cc-stat" style="padding:10px 8px;">';
+  html += '<div class="s">CONVERSION</div>';
+  html += '<div class="v" style="color:' + convColour + ';">' + (convRate != null ? convRate + '%' : 'N/A') + '</div>';
+  html += '<div class="s">win rate 90d</div>';
+  html += '</div>';
+
+  // Avg Deal Velocity
+  html += '<div class="cc-card cc-stat" style="padding:10px 8px;">';
+  html += '<div class="s">AVG VELOCITY</div>';
+  html += '<div class="v" style="color:#58a6ff;">' + (avgDays != null ? avgDays + 'd' : 'N/A') + '</div>';
+  html += '<div class="s">avg days to close</div>';
+  html += '</div>';
+
+  // Active Leads
+  html += '<div class="cc-card cc-stat" style="padding:10px 8px;">';
+  html += '<div class="s">ACTIVE LEADS</div>';
+  html += '<div class="v">' + activeLeads + '</div>';
+  html += '<div class="s">open in funnel</div>';
+  html += '</div>';
+
+  html += '</div>';
+
+  // Weekly trend mini bar chart — blue=new, green=closed
+  if (trend.length > 0) {
+    var maxTrend = Math.max.apply(null, trend.map(function(t) { return Math.max(t.new_leads || 0, t.closed_leads || 0); }).concat([1]));
+    html += '<div style="font-size:0.65rem;color:#8b949e;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">8-week trend</div>';
+    html += '<div style="display:flex;gap:3px;align-items:flex-end;height:48px;">';
+    trend.forEach(function(t) {
+      var newH = Math.max(4, Math.round(((t.new_leads || 0) / maxTrend) * 44));
+      var closedH = Math.max(4, Math.round(((t.closed_leads || 0) / maxTrend) * 44));
+      html += '<div style="flex:1;display:flex;align-items:flex-end;gap:1px;">';
+      html += '<div style="flex:1;background:#1f6feb;height:' + newH + 'px;border-radius:2px 2px 0 0;" title="New: ' + (t.new_leads || 0) + '"></div>';
+      html += '<div style="flex:1;background:#238636;height:' + closedH + 'px;border-radius:2px 2px 0 0;" title="Closed: ' + (t.closed_leads || 0) + '"></div>';
+      html += '</div>';
+    });
+    html += '</div>';
+    html += '<div style="display:flex;gap:10px;margin-top:5px;font-size:0.6rem;color:#8b949e;">';
+    html += '<span><span style="display:inline-block;width:8px;height:8px;background:#1f6feb;border-radius:2px;margin-right:3px;"></span>New</span>';
+    html += '<span><span style="display:inline-block;width:8px;height:8px;background:#238636;border-radius:2px;margin-right:3px;"></span>Closed</span>';
+    html += '</div>';
+  } else {
+    html += '<div style="padding:8px 0;color:#8b949e;font-size:0.82rem">No trend data</div>';
+  }
+
+  html += '</div>';
+  html += '</div>'; // end ROW 1 grid
+
+  // === ROW 2: Stale Leads (left) + Follow-ups Due (right) ===
+  html += '<div class="cc-grid-2">';
+
+  // — Stale Leads card —
+  html += '<div class="cc-card" style="border-color:rgba(248,81,73,0.2);background:rgba(248,81,73,0.03);">';
+  html += '<h3><span><span style="color:#f85149;margin-right:6px;">&#9888;</span> Stale Leads</span> <span class="ct">' + staleLeads.length + ' not contacted 14d+</span></h3>';
+  if (staleLeads.length === 0) {
+    html += '<div style="padding:12px 0;color:#8b949e;font-size:0.85rem">No stale leads &mdash; pipeline is active</div>';
+  } else {
+    staleLeads.forEach(function(lead) {
+      var daysSince = lead.last_contacted
+        ? Math.floor((Date.now() - new Date(lead.last_contacted).getTime()) / 86400000)
+        : null;
+      var daysLabel = daysSince != null ? daysSince + 'd ago' : 'Never contacted';
+      var stageColour = lead.stage_colour || '#484f58';
+      html += '<div class="cc-row">';
+      html += '<div class="cc-row-icon" style="background:rgba(248,81,73,.1);color:#f85149;">&#9888;</div>';
+      html += '<div class="cc-row-b">';
+      html += '<div class="cc-row-t">' + esc(lead.title || '') + '</div>';
+      html += '<div class="cc-row-m">' + esc(lead.contact_name || 'No contact') + ' &bull; <span style="color:' + esc(stageColour) + ';">' + esc(lead.stage_name || '') + '</span></div>';
+      html += '</div>';
+      html += '<div class="cc-row-a">';
+      html += '<span class="cc-tag r">' + esc(daysLabel) + '</span>';
+      html += '<button class="cc-btn" onclick="switchView(\'leads\')" style="margin-left:4px;">Open</button>';
+      html += '</div>';
+      html += '</div>';
+    });
+  }
+  html += '</div>';
+
+  // — Follow-ups Due card —
+  html += '<div class="cc-card" style="border-color:rgba(88,166,255,0.2);background:rgba(88,166,255,0.03);">';
+  html += '<h3><span><span style="color:#58a6ff;margin-right:6px;">&#128197;</span> Follow-ups Due</span> <span class="ct">' + followups.length + ' in next 7 days</span></h3>';
+  if (followups.length === 0) {
+    html += '<div style="padding:12px 0;color:#8b949e;font-size:0.85rem">No follow-ups due this week</div>';
+  } else {
+    followups.forEach(function(lead) {
+      var dueDateLabel = lead.next_followup_date
+        ? new Date(lead.next_followup_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+        : '';
+      var isOverdue = lead.next_followup_date && new Date(lead.next_followup_date) < new Date();
+      var dateTagClass = isOverdue ? 'r' : 'b';
+      var stageColour = lead.stage_colour || '#484f58';
+      html += '<div class="cc-row">';
+      html += '<div class="cc-row-icon" style="background:rgba(88,166,255,.1);color:#58a6ff;">&#128197;</div>';
+      html += '<div class="cc-row-b">';
+      html += '<div class="cc-row-t">' + esc(lead.title || '') + '</div>';
+      html += '<div class="cc-row-m">' + esc(lead.contact_name || 'No contact') + ' &bull; <span style="color:' + esc(stageColour) + ';">' + esc(lead.stage_name || '') + '</span></div>';
+      if (lead.next_action) {
+        html += '<div class="cc-row-m" style="margin-top:2px;font-style:italic;">' + esc(lead.next_action) + '</div>';
+      }
+      html += '</div>';
+      html += '<div class="cc-row-a">';
+      html += '<span class="cc-tag ' + dateTagClass + '">' + esc(dueDateLabel) + '</span>';
+      html += '<button class="cc-btn" onclick="switchView(\'leads\')" style="margin-left:4px;">Open</button>';
+      html += '</div>';
+      html += '</div>';
+    });
+  }
+  html += '</div>';
+
+  html += '</div>'; // end ROW 2 grid
+  return html;
 }
 
 function _ccRenderAiosContent(a) {

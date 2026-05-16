@@ -750,6 +750,140 @@ module.exports = function (ctx) {
     }
   });
 
+  /** GET /api/command-centre/pipeline — leads funnel, stale leads, follow-ups, analytics */
+  router.get('/api/command-centre/pipeline', requireNBI, async (req, res) => {
+    try {
+      // 1. Pipeline by stage
+      const stagesQ = await pool.query(`
+        SELECT s.name, s.sort_order, s.colour,
+          COUNT(l.id)::int as count,
+          COALESCE(SUM(l.weighted_value), 0)::numeric as weighted_total
+        FROM lead_pipeline_stages s
+        LEFT JOIN leads l ON l.stage_id = s.id AND l.completed_at IS NULL
+        WHERE s.is_closed = false
+        GROUP BY s.name, s.sort_order, s.colour
+        ORDER BY s.sort_order
+      `);
+
+      // 2. Stale leads — not contacted in 14+ days
+      const staleQ = await pool.query(`
+        SELECT l.id, l.title, l.last_contacted, l.weighted_value,
+          c.name as contact_name, s.name as stage_name, s.colour as stage_colour
+        FROM leads l
+        LEFT JOIN contacts c ON l.primary_contact_id = c.id
+        JOIN lead_pipeline_stages s ON l.stage_id = s.id
+        WHERE l.completed_at IS NULL
+          AND (l.last_contacted IS NULL OR l.last_contacted < CURRENT_DATE - 14)
+        ORDER BY l.last_contacted NULLS FIRST
+        LIMIT 20
+      `);
+
+      // 3. Upcoming follow-ups — next 7 days
+      const followupsQ = await pool.query(`
+        SELECT l.id, l.title, l.next_followup_date, l.next_action, l.weighted_value,
+          c.name as contact_name, s.name as stage_name, s.colour as stage_colour
+        FROM leads l
+        LEFT JOIN contacts c ON l.primary_contact_id = c.id
+        JOIN lead_pipeline_stages s ON l.stage_id = s.id
+        WHERE l.next_followup_date IS NOT NULL
+          AND l.next_followup_date <= CURRENT_DATE + 7
+          AND l.completed_at IS NULL
+        ORDER BY l.next_followup_date
+        LIMIT 20
+      `);
+
+      // 4. Conversion rate (90 days)
+      const conversionQ = await pool.query(`
+        SELECT
+          COUNT(*) FILTER (WHERE s.is_won)::int as won,
+          COUNT(*)::int as total
+        FROM leads l
+        JOIN lead_pipeline_stages s ON l.stage_id = s.id
+        WHERE l.created_at >= NOW() - INTERVAL '90 days'
+      `);
+
+      // 5. Deal velocity
+      const velocityQ = await pool.query(`
+        SELECT AVG(EXTRACT(EPOCH FROM (l.completed_at - l.created_at)) / 86400)::numeric(10,1) as avg_days
+        FROM leads l
+        WHERE l.completed_at IS NOT NULL
+          AND l.created_at >= NOW() - INTERVAL '90 days'
+      `);
+
+      // 6. Weekly trend (8 weeks)
+      const trendQ = await pool.query(`
+        SELECT
+          DATE_TRUNC('week', d.week)::date as week,
+          COALESCE(n.count, 0)::int as new_leads,
+          COALESCE(c.count, 0)::int as closed_leads
+        FROM generate_series(
+          DATE_TRUNC('week', NOW() - INTERVAL '56 days'),
+          DATE_TRUNC('week', NOW()),
+          '1 week'
+        ) d(week)
+        LEFT JOIN (
+          SELECT DATE_TRUNC('week', created_at)::date as week, COUNT(*) as count
+          FROM leads WHERE created_at >= NOW() - INTERVAL '56 days'
+          GROUP BY 1
+        ) n ON n.week = d.week::date
+        LEFT JOIN (
+          SELECT DATE_TRUNC('week', completed_at)::date as week, COUNT(*) as count
+          FROM leads WHERE completed_at IS NOT NULL AND completed_at >= NOW() - INTERVAL '56 days'
+          GROUP BY 1
+        ) c ON c.week = d.week::date
+        ORDER BY d.week
+      `);
+
+      // 7. Total weighted pipeline
+      const totalQ = await pool.query(`
+        SELECT COALESCE(SUM(weighted_value), 0)::numeric as total_weighted
+        FROM leads WHERE completed_at IS NULL
+      `);
+
+      // Compute conversion rate
+      const convRow = conversionQ.rows[0] || { won: '0', total: '0' };
+      const won = parseInt(convRow.won) || 0;
+      const total = parseInt(convRow.total) || 0;
+      const conversion_rate = total > 0 ? Math.round((won / total) * 100) : 0;
+
+      // Deal velocity
+      const velRow = velocityQ.rows[0] || { avg_days: null };
+      const avg_deal_days = velRow.avg_days != null ? parseFloat(velRow.avg_days) : null;
+
+      // Total pipeline
+      const totalRow = totalQ.rows[0] || { total_weighted: '0' };
+      const total_weighted_pipeline = parseFloat(totalRow.total_weighted) || 0;
+
+      res.json({
+        data: {
+          stages: stagesQ.rows.map(r => ({
+            name: r.name,
+            sort_order: r.sort_order,
+            colour: r.colour,
+            count: parseInt(r.count),
+            weighted_total: parseFloat(r.weighted_total),
+          })),
+          stale_leads: staleQ.rows,
+          upcoming_followups: followupsQ.rows,
+          analytics: {
+            total_weighted_pipeline,
+            conversion_rate,
+            avg_deal_days,
+            trend: trendQ.rows.map(r => ({
+              week: r.week,
+              new_leads: parseInt(r.new_leads),
+              closed_leads: parseInt(r.closed_leads),
+            })),
+          },
+        },
+        error: null,
+      });
+    } catch (e) {
+      log('error', 'CC', 'pipeline failed', { error: e.message });
+      res.status(500).json({ data: null, error: e.message });
+    }
+  });
+
   // Export computeSnapshot for Phase 2 cron
   router._computeSnapshot = computeSnapshot;
 
