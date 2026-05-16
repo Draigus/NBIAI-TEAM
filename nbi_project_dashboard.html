@@ -304,9 +304,9 @@ body { font-family: var(--font-body); background: var(--bg-base); color: var(--t
 .sidebar__item__abbrev { display: none; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.02em; color: var(--text-secondary); }
 .sidebar.collapsed .sidebar__item__abbrev { display: inline-flex; align-items: center; justify-content: center; min-width: 28px; padding: 2px 4px; border-radius: 3px; background: var(--bg-hover); }
 .sidebar.collapsed .sidebar__item.active .sidebar__item__abbrev { background: var(--accent); color: #fff; }
-.sidebar__toggle { display: flex; align-items: center; justify-content: center; padding: 8px; cursor: pointer; color: var(--text-muted); border-top: 1px solid var(--border-default); font-size: 0.8rem; transition: color 0.12s; flex-shrink: 0; background: var(--bg-raised); }
+.sidebar__toggle { display: flex; align-items: center; justify-content: center; padding: 8px; cursor: pointer; color: var(--text-muted); border-top: 1px solid var(--border-default); font: inherit; font-size: 0.8rem; transition: color 0.12s; flex-shrink: 0; background: var(--bg-raised); width: 100%; }
 .sidebar__toggle:hover { color: var(--text-primary); background: var(--bg-hover); }
-button.sidebar__item, button.sidebar__toggle { font: inherit; color: inherit; background: none; border: none; text-align: left; width: 100%; }
+button.sidebar__item { font: inherit; color: inherit; background: none; border: none; text-align: left; width: 100%; }
 .sidebar__nav { flex: 1; min-height: 0; overflow-y: auto; padding: var(--space-lg) 0; }
 .sidebar__section { margin-bottom: var(--space-xl); }
 .sidebar__title { font-family: var(--font-display); font-size: 0.7rem; font-weight: 600; color: var(--text-muted); letter-spacing: 1.5px; text-transform: uppercase; padding: 0 var(--space-lg); margin-bottom: var(--space-sm); }
@@ -2643,8 +2643,36 @@ span.fin-editable { display: inline-block; position: relative; }
 .cc-live-dot { width: 6px; height: 6px; border-radius: 50%; background: #3fb950; animation: ccPulse 2s infinite; }
 @keyframes ccPulse { 0%,100%{box-shadow:0 0 0 0 rgba(63,185,80,.4)}50%{box-shadow:0 0 0 5px rgba(63,185,80,0)} }
 
-/* Tabs */
-.cc-tabs { display: flex; gap: 2px; margin-bottom: 24px; border-bottom: 1px solid var(--border); }
+/* v2 Persistent header stats */
+.cc-header-stats { display: flex; gap: 16px; align-items: center; }
+.cc-hstat { text-align: center; line-height: 1.1; }
+.cc-hstat .v { font-size: 1.1rem; font-weight: 800; color: #e6edf3; }
+.cc-hstat .l { font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.6px; color: #8b949e; display: block; }
+.cc-hstat.danger .v { color: #f85149; }
+.cc-hstat.warn .v { color: #d29922; }
+.cc-hstat.info .v { color: #58a6ff; }
+.cc-hstat.ok .v { color: #3fb950; }
+
+/* v2 Collapsed fires in header */
+.cc-fires-inline { display: flex; align-items: center; gap: 8px; margin-left: 14px; max-width: 500px; overflow: hidden; }
+.cc-fire-count { font-size: 0.72rem; font-weight: 700; color: #f85149; background: rgba(248,81,73,.12); padding: 2px 8px; border-radius: 10px; white-space: nowrap; }
+.cc-fire-preview { font-size: 0.68rem; color: #8b949e; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* v2 Tab bar */
+.cc-tab-bar { display: flex; gap: 0; background: #161b22; border-bottom: 1px solid #30363d; padding: 0 24px; position: sticky; top: 45px; z-index: 99; }
+.cc-tab-bar .cc-tab { padding: 8px 20px; font-size: 0.78rem; font-weight: 500; color: #8b949e; cursor: pointer; border-bottom: 2px solid transparent; transition: all .15s; background: none; border-top: none; border-left: none; border-right: none; font-family: inherit; }
+.cc-tab-bar .cc-tab:hover { color: #e6edf3; }
+.cc-tab-bar .cc-tab.on { color: #e6edf3; font-weight: 600; border-bottom-color: #58a6ff; }
+
+/* v2 Panel area */
+.cc-panel { flex: 1; min-height: 0; overflow-y: auto; }
+.cc-panel-empty { padding: 60px 24px; text-align: center; color: #8b949e; font-size: 0.9rem; }
+
+/* v2 Section headers inside tabs */
+.cc-section-hdr { font-size: 0.78rem; font-weight: 600; color: #e6edf3; margin: 18px 0 10px 0; padding-bottom: 6px; border-bottom: 1px solid #21262d; display: flex; justify-content: space-between; align-items: center; }
+.cc-section-hdr:first-child { margin-top: 0; }
+.cc-section-hdr .ct { font-size: 0.62rem; color: #8b949e; font-weight: 400; }
+
 .cc-body { padding: 14px 24px; display: flex; flex-direction: column; gap: 14px; }
 
 .cc-section { margin-bottom: 0; }
@@ -19635,9 +19663,15 @@ async function deleteCandidate(id) {
 let _ccBriefing = null;
 let _ccClientWork = null;
 let _ccSnapshot = null;
+let _ccPipeline = null;
+let _ccAiosDetail = null;
+let _ccTeamWorkload = null;
+let _ccHandoffs = null;
+let _ccProjectHealth = null;
 let _ccLoading = false;
 let _ccLoadFailed = false;
-let _ccTab = (() => { const v = localStorage.getItem('ccTab'); return (v === 'command' || v === 'brief') ? v : 'command'; })();
+const _ccValidTabs = ['work', 'pipeline', 'money', 'aios', 'comms'];
+let _ccTab = (() => { const v = localStorage.getItem('ccTab'); return _ccValidTabs.includes(v) ? v : 'work'; })();
 let _ccPollTimer = null;
 
 function renderCommandCentre(el) {
@@ -19664,10 +19698,15 @@ function renderCommandCentre(el) {
 async function _ccFetchAll() {
   _ccLoading = true;
   try {
-    const [briefRes, workRes, snapRes] = await Promise.allSettled([
+    const [briefRes, workRes, snapRes, pipeRes, aiosRes, teamRes, handoffRes, healthRes] = await Promise.allSettled([
       apiCall('/api/command-centre/briefing'),
       apiCall('/api/command-centre/client-work'),
-      apiCall('/api/command-centre/snapshot')
+      apiCall('/api/command-centre/snapshot'),
+      apiCall('/api/command-centre/pipeline'),
+      apiCall('/api/command-centre/aios-detail'),
+      apiCall('/api/command-centre/team-workload'),
+      apiCall('/api/command-centre/handoffs'),
+      apiCall('/api/command-centre/project-health')
     ]);
     if (briefRes.status === 'fulfilled' && briefRes.value) {
       _ccBriefing = briefRes.value.data || briefRes.value;
@@ -19678,6 +19717,21 @@ async function _ccFetchAll() {
     if (snapRes.status === 'fulfilled' && snapRes.value) {
       const raw = snapRes.value.data || snapRes.value;
       _ccSnapshot = raw.data || raw;
+    }
+    if (pipeRes.status === 'fulfilled' && pipeRes.value) {
+      _ccPipeline = pipeRes.value.data || pipeRes.value;
+    }
+    if (aiosRes.status === 'fulfilled' && aiosRes.value) {
+      _ccAiosDetail = aiosRes.value.data || aiosRes.value;
+    }
+    if (teamRes.status === 'fulfilled' && teamRes.value) {
+      _ccTeamWorkload = teamRes.value.data || teamRes.value;
+    }
+    if (handoffRes.status === 'fulfilled' && handoffRes.value) {
+      _ccHandoffs = handoffRes.value.data || handoffRes.value;
+    }
+    if (healthRes.status === 'fulfilled' && healthRes.value) {
+      _ccProjectHealth = healthRes.value.data || healthRes.value;
     }
   } catch (e) {
     console.warn('[CC] fetch error:', e);
@@ -19710,7 +19764,10 @@ function _ccNavigate(type, id) {
 function _ccSwitchTab(tab) {
   _ccTab = tab;
   localStorage.setItem('ccTab', tab);
-  renderContent();
+  if (currentView === 'commandcentre') {
+    var el = document.getElementById('mainContent');
+    if (el) renderCommandCentre(el);
+  }
 }
 
 // ——— SVG RING HELPER ———
@@ -19737,36 +19794,67 @@ function _ccRenderPage(el) {
   const w = _ccClientWork || {};
   const s = _ccSnapshot || {};
   const fc = s.four_cs || {};
+  const stats = w.stats || {};
+  const fires = b.fires || [];
 
   let html = '<div class="cc-page">';
 
-  // Header with tabs and live indicator
+  // === Persistent header: fires summary + stats ===
   html += '<div class="cc-header">';
-  html += '<div style="display:flex;align-items:center">';
+  html += '<div style="display:flex;align-items:center;flex:1;min-width:0;">';
   html += '<h1>Command Centre</h1>';
-  html += '<div class="cc-tabs">';
-  html += '<div class="cc-tab' + (_ccTab === 'command' ? ' on' : '') + '" onclick="_ccSwitchTab(\'command\')">Command</div>';
-  html += '<div class="cc-tab' + (_ccTab === 'brief' ? ' on' : '') + '" onclick="_ccSwitchTab(\'brief\')">Brief</div>';
-  html += '</div></div>';
+
+  // Collapsed fires
+  if (fires.length > 0) {
+    html += '<div class="cc-fires-inline">';
+    html += '<span class="cc-fire-count">' + fires.length + ' fires</span>';
+    var top2 = fires.slice(0, 2).map(function(f) { return esc(f.title); }).join(' · ');
+    html += '<span class="cc-fire-preview">' + top2 + '</span>';
+    html += '</div>';
+  }
+  html += '</div>';
+
+  // Header stats
+  html += '<div class="cc-header-stats">';
+  html += '<div class="cc-hstat"><span class="v">' + (stats.open_tasks || 0) + '</span><span class="l">Open</span></div>';
+  html += '<div class="cc-hstat' + ((stats.overdue || 0) > 0 ? ' danger' : '') + '"><span class="v">' + (stats.overdue || 0) + '</span><span class="l">Overdue</span></div>';
+  html += '<div class="cc-hstat' + ((stats.blocked || 0) > 0 ? ' warn' : '') + '"><span class="v">' + (stats.blocked || 0) + '</span><span class="l">Blocked</span></div>';
+  html += '<div class="cc-hstat info"><span class="v">' + (stats.due_today || 0) + '</span><span class="l">Today</span></div>';
+  html += '</div>';
+
   html += '<div class="cc-live"><div class="cc-live-dot"></div>Live</div>';
   html += '</div>';
 
-  // Body
+  // === Tab bar ===
+  html += '<div class="cc-tab-bar">';
+  var tabs = [
+    { id: 'work', label: 'Work' },
+    { id: 'pipeline', label: 'Pipeline' },
+    { id: 'money', label: 'Money' },
+    { id: 'aios', label: 'AIOS' },
+    { id: 'comms', label: 'Comms' }
+  ];
+  tabs.forEach(function(t) {
+    html += '<div class="cc-tab' + (_ccTab === t.id ? ' on' : '') + '" onclick="_ccSwitchTab(\'' + t.id + '\')">' + t.label + '</div>';
+  });
+  html += '</div>';
+
+  // === Active panel ===
   html += '<div class="cc-body">';
+  if (_ccTab === 'work') html += _ccRenderWorkTab(b, w, s, fc);
+  else if (_ccTab === 'pipeline') html += _ccRenderPipelineTab();
+  else if (_ccTab === 'money') html += _ccRenderMoneyTab();
+  else if (_ccTab === 'aios') html += _ccRenderAiosTab();
+  else if (_ccTab === 'comms') html += _ccRenderCommsTab();
+  html += '</div>';
 
-  if (_ccTab === 'command') {
-    html += _ccRenderCommand(b, w, s, fc);
-  } else {
-    html += _ccRenderBrief();
-  }
-
-  html += '</div></div>';
+  html += '</div>';
   el.innerHTML = html;
 }
 
-// ——— COMMAND TAB (4-row layout) ———
+// ——— WORK TAB (4-row layout) ———
 
-function _ccRenderCommand(b, w, s, fc) {
+function _ccRenderWorkTab(b, w, s, fc) {
   let html = '';
 
   // === ROW 1: Fires (left) + Stats (right fixed 340px) ===
@@ -20112,14 +20200,34 @@ function _ccRenderCommand(b, w, s, fc) {
   return html;
 }
 
-// ——— BRIEF TAB (placeholder) ———
+// ——— PIPELINE / AIOS / COMMS / MONEY TAB RENDERERS ———
 
-function _ccRenderBrief() {
-  let html = '<div class="cc-card" style="padding:24px">';
-  html += '<h3>Daily Briefing</h3>';
-  html += '<div style="padding:16px 0;font-size:0.9rem;color:var(--text-muted)">Briefing view coming soon. Use the Command tab for the live dashboard.</div>';
-  html += '</div>';
-  return html;
+function _ccRenderPipelineTab() {
+  var p = _ccPipeline;
+  if (!p) return '<div class="cc-panel-empty">Loading pipeline data...</div>';
+  return _ccRenderPipelineContent(p);
+}
+
+function _ccRenderMoneyTab() {
+  return '<div class="cc-panel-empty">Financial Pulse &mdash; coming in Phase 2.<br><span style="font-size:0.75rem;color:#484f58;">Revenue tracking, invoice status, contract values.</span></div>';
+}
+
+function _ccRenderAiosTab() {
+  var a = _ccAiosDetail;
+  if (!a) return '<div class="cc-panel-empty">Loading AIOS data...</div>';
+  return _ccRenderAiosContent(a);
+}
+
+function _ccRenderCommsTab() {
+  return '<div class="cc-panel-empty">Comms Debt &mdash; coming in Phase 3.<br><span style="font-size:0.75rem;color:#484f58;">Email backlog, meeting actions, follow-ups.</span></div>';
+}
+
+function _ccRenderPipelineContent(p) {
+  return '<div class="cc-panel-empty">Pipeline view loading...</div>';
+}
+
+function _ccRenderAiosContent(a) {
+  return '<div class="cc-panel-empty">AIOS detail loading...</div>';
 }
 
 // ==================== SETTINGS VIEW ====================
