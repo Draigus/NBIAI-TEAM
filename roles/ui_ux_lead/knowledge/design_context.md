@@ -1,3 +1,5 @@
+> **Note:** This file contains legacy role knowledge that has been consolidated into the composite `AGENT.md` file in the parent role directory. The AGENT.md file is the operational version used by the dispatch system. This file is retained as the design record.
+
 # UI/UX Lead — Design Context
 
 ## NBI Brand Identity
