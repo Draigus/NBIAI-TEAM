@@ -1094,6 +1094,100 @@ module.exports = function (ctx) {
     }
   });
 
+  // ——— Team Workload (F9) ———
+  router.get('/api/command-centre/team-workload', requireNBI, async (req, res) => {
+    try {
+      // 1. Per-assignee active tasks grouped by client
+      const workloadQ = await pool.query(
+        `SELECT
+          t.assignee, c.name as client_name,
+          COUNT(*)::int as active_count
+        FROM tasks t
+        LEFT JOIN clients c ON t.client_id = c.id
+        WHERE t.assignee IS NOT NULL AND t.assignee != ''
+          AND t.status NOT IN ('Done', 'Cancelled')
+          AND t.item_type IN ('story', 'task')
+        GROUP BY t.assignee, c.name
+        ORDER BY t.assignee, active_count DESC`
+      );
+
+      // 2. Time logged this week
+      const weekStart = new Date();
+      weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1);
+      const weekStartStr = weekStart.toISOString().slice(0, 10);
+      const timeQ = await pool.query(
+        `SELECT user_name, SUM(hours)::numeric(10,1) as total_hours
+        FROM time_entries
+        WHERE date >= $1
+        GROUP BY user_name
+        ORDER BY total_hours DESC`,
+        [weekStartStr]
+      );
+
+      // 3. SPOF detection (>80% of a client's active tasks assigned to one person)
+      const spofQ = await pool.query(
+        `WITH client_totals AS (
+          SELECT client_id, COUNT(*)::int as total
+          FROM tasks
+          WHERE status NOT IN ('Done','Cancelled') AND item_type IN ('story','task')
+            AND assignee IS NOT NULL AND assignee != ''
+          GROUP BY client_id
+        ),
+        assignee_counts AS (
+          SELECT client_id, assignee, COUNT(*)::int as cnt
+          FROM tasks
+          WHERE status NOT IN ('Done','Cancelled') AND item_type IN ('story','task')
+            AND assignee IS NOT NULL AND assignee != ''
+          GROUP BY client_id, assignee
+        )
+        SELECT
+          ac.assignee, c.name as client_name,
+          ac.cnt as assignee_count, ct.total as client_total,
+          ROUND(ac.cnt::numeric / ct.total * 100)::int as pct
+        FROM assignee_counts ac
+        JOIN client_totals ct ON ct.client_id = ac.client_id
+        JOIN clients c ON c.id = ac.client_id
+        WHERE ct.total >= 3 AND ac.cnt::numeric / ct.total > 0.8
+        ORDER BY pct DESC`
+      );
+
+      // 4. Group workload by assignee (server-side)
+      const assigneeMap = {};
+      workloadQ.rows.forEach(r => {
+        if (!assigneeMap[r.assignee]) assigneeMap[r.assignee] = { name: r.assignee, total: 0, clients: [] };
+        assigneeMap[r.assignee].total += parseInt(r.active_count, 10) || 0;
+        assigneeMap[r.assignee].clients.push({ client: r.client_name || 'Unassigned', count: parseInt(r.active_count, 10) || 0 });
+      });
+      const assignees = Object.values(assigneeMap).sort((a, b) => b.total - a.total);
+
+      // 5. Capacity alerts
+      const alerts = [];
+      assignees.forEach(a => {
+        if (a.total > 15) alerts.push({ type: 'overloaded', name: a.name, count: a.total });
+        else if (a.total === 0) alerts.push({ type: 'idle', name: a.name, count: 0 });
+      });
+
+      // 6. Parse time_logged hours as numbers
+      const timeLogged = timeQ.rows.map(r => ({
+        user_name: r.user_name,
+        hours: parseFloat(r.total_hours) || 0,
+      }));
+
+      res.json({
+        data: {
+          assignees,
+          time_logged: timeLogged,
+          spof: spofQ.rows,
+          alerts,
+        },
+        error: null,
+      });
+    } catch (e) {
+      log('error', 'CC', 'team-workload failed', { error: e.message });
+      res.status(500).json({ data: null, error: e.message });
+    }
+  });
+
   // Export computeSnapshot for Phase 2 cron
   router._computeSnapshot = computeSnapshot;
 

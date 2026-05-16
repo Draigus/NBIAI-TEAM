@@ -680,3 +680,108 @@ describe('Command Centre — Project-health endpoint', () => {
     expect(res.body.data.client_health[0].risk).toBe('red');
   });
 });
+
+describe('Command Centre — Team-workload endpoint', () => {
+  function makeTeamMockPool(overrides = {}) {
+    return {
+      query: vi.fn().mockImplementation((sql) => {
+        // SPOF must be checked before workload — SPOF SQL also contains assignee/GROUP BY/client_name
+        if (sql.includes('client_totals') && sql.includes('0.8')) {
+          return { rows: overrides.spof || [] };
+        }
+        if (sql.includes('assignee') && sql.includes('GROUP BY') && sql.includes('client_name')) {
+          return { rows: overrides.workload || [] };
+        }
+        if (sql.includes('time_entries') && sql.includes('SUM')) {
+          return { rows: overrides.time || [] };
+        }
+        return { rows: [] };
+      }),
+    };
+  }
+
+  it('GET /api/command-centre/team-workload returns correct shape', async () => {
+    const pool = makeTeamMockPool();
+    const { app } = makeApp(pool);
+    const res = await request(app).get('/api/command-centre/team-workload');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('assignees');
+    expect(res.body.data).toHaveProperty('time_logged');
+    expect(res.body.data).toHaveProperty('spof');
+    expect(res.body.data).toHaveProperty('alerts');
+    expect(res.body.error).toBeNull();
+  });
+
+  it('returns assignee workload grouped by client', async () => {
+    const pool = makeTeamMockPool({
+      workload: [
+        { assignee: 'Glen', client_name: 'NBI', active_count: '5' },
+        { assignee: 'Glen', client_name: 'CH', active_count: '3' },
+        { assignee: 'Claude', client_name: 'NBI', active_count: '12' },
+      ],
+    });
+    const { app } = makeApp(pool);
+    const res = await request(app).get('/api/command-centre/team-workload');
+    const assignees = res.body.data.assignees;
+    expect(assignees.length).toBeGreaterThanOrEqual(2);
+    var glen = assignees.find(function(a) { return a.name === 'Glen'; });
+    expect(glen).toBeDefined();
+    expect(glen.total).toBe(8);
+    expect(glen.clients).toHaveLength(2);
+  });
+
+  it('returns time_logged per user', async () => {
+    const pool = makeTeamMockPool({
+      time: [
+        { user_name: 'Glen', total_hours: '14.5' },
+        { user_name: 'Claude', total_hours: '8.0' },
+      ],
+    });
+    const { app } = makeApp(pool);
+    const res = await request(app).get('/api/command-centre/team-workload');
+    expect(res.status).toBe(200);
+    const timeLogged = res.body.data.time_logged;
+    expect(timeLogged).toHaveLength(2);
+    expect(timeLogged[0].user_name).toBe('Glen');
+    expect(typeof timeLogged[0].hours).toBe('number');
+    expect(timeLogged[0].hours).toBe(14.5);
+  });
+
+  it('returns spof rows correctly', async () => {
+    const pool = makeTeamMockPool({
+      spof: [
+        { assignee: 'Glen', client_name: 'Couch Heroes', assignee_count: 9, client_total: 10, pct: 90 },
+      ],
+    });
+    const { app } = makeApp(pool);
+    const res = await request(app).get('/api/command-centre/team-workload');
+    expect(res.status).toBe(200);
+    expect(res.body.data.spof).toHaveLength(1);
+    expect(res.body.data.spof[0].pct).toBe(90);
+  });
+
+  it('generates overloaded alert when assignee has >15 tasks', async () => {
+    const pool = makeTeamMockPool({
+      workload: [
+        { assignee: 'Glen', client_name: 'NBI', active_count: '16' },
+      ],
+    });
+    const { app } = makeApp(pool);
+    const res = await request(app).get('/api/command-centre/team-workload');
+    expect(res.status).toBe(200);
+    const alerts = res.body.data.alerts;
+    expect(alerts.length).toBeGreaterThanOrEqual(1);
+    var overloaded = alerts.find(function(a) { return a.type === 'overloaded'; });
+    expect(overloaded).toBeDefined();
+    expect(overloaded.name).toBe('Glen');
+  });
+
+  it('returns 500 with error message on pool failure', async () => {
+    const pool = { query: vi.fn().mockRejectedValue(new Error('DB connection lost')) };
+    const { app } = makeApp(pool);
+    const res = await request(app).get('/api/command-centre/team-workload');
+    expect(res.status).toBe(500);
+    expect(res.body.error).toBe('DB connection lost');
+    expect(res.body.data).toBeNull();
+  });
+});

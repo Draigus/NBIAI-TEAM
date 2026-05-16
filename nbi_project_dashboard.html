@@ -20126,6 +20126,99 @@ function _ccRenderWorkTab(b, w, s, fc) {
     html += '</div>';
   }
 
+  // === ROW 2c: Team Workload (F9) ===
+  var tw = _ccTeamWorkload || {};
+  var assignees = tw.assignees || [];
+  var timeLogged = tw.time_logged || [];
+  var spof = tw.spof || [];
+  var twAlerts = tw.alerts || [];
+  if (assignees.length > 0) {
+    html += '<div class="cc-grid-2" style="margin-bottom:14px">';
+    var barColours = ['#238636', '#1f6feb', '#8b5cf6', '#f59e0b', '#f85149', '#06b6d4'];
+
+    // Left: Team Workload card — per-person stacked segment bars
+    html += '<div class="cc-card"><h3><span>&#128101; Team Workload</span> <span class="ct">active tasks per person</span></h3>';
+    assignees.forEach(function(a) {
+      var countCol = a.total > 15 ? '#f85149' : a.total > 10 ? '#d29922' : '#3fb950';
+      html += '<div style="margin-bottom:10px;">';
+      html += '<div style="display:flex;justify-content:space-between;margin-bottom:3px;">';
+      html += '<span style="font-size:0.8rem;">' + esc(a.name) + '</span>';
+      html += '<span style="font-size:0.72rem;font-weight:700;color:' + countCol + ';">' + a.total + '</span>';
+      html += '</div>';
+      // Stacked segment bar
+      html += '<div class="cc-sbar">';
+      a.clients.forEach(function(cl, i) {
+        var col = barColours[i % barColours.length];
+        if (cl.count > 0) {
+          html += '<div style="background:' + col + ';flex:' + cl.count + ';" title="' + esc(cl.client) + ': ' + cl.count + '"></div>';
+        }
+      });
+      html += '</div>';
+      // Client legend pills
+      html += '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;">';
+      a.clients.forEach(function(cl, i) {
+        var col = barColours[i % barColours.length];
+        html += '<span style="font-size:0.58rem;color:' + col + ';background:rgba(0,0,0,.2);border:1px solid ' + col + ';border-radius:3px;padding:1px 4px;">' + esc(cl.client) + ' ' + cl.count + '</span>';
+      });
+      html += '</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+
+    // Right: Time & Alerts card
+    html += '<div class="cc-card"><h3><span>&#9201; Time &amp; Alerts</span> <span class="ct">this week</span></h3>';
+
+    // Hours This Week subsection
+    if (timeLogged.length > 0) {
+      html += '<div class="cc-section-hdr">Hours This Week</div>';
+      timeLogged.forEach(function(t) {
+        html += '<div class="cc-row">';
+        html += '<div class="cc-row-icon" style="background:rgba(88,166,255,.1);color:#58a6ff;">&#9202;</div>';
+        html += '<div class="cc-row-b"><div class="cc-row-t">' + esc(t.user_name) + '</div></div>';
+        html += '<div style="font-size:0.72rem;font-weight:700;color:#58a6ff;white-space:nowrap;">' + t.hours + 'h</div>';
+        html += '</div>';
+      });
+    } else {
+      html += '<div class="cc-section-hdr">Hours This Week</div>';
+      html += '<div style="padding:6px 0;font-size:0.8rem;color:#8b949e;">No time entries this week</div>';
+    }
+
+    // Capacity Alerts subsection
+    if (twAlerts.length > 0) {
+      html += '<div class="cc-section-hdr" style="margin-top:8px;">Capacity Alerts</div>';
+      twAlerts.forEach(function(al) {
+        var alCol = al.type === 'overloaded' ? '#f85149' : '#8b949e';
+        var alBg = al.type === 'overloaded' ? 'rgba(248,81,73,.1)' : 'rgba(139,148,158,.1)';
+        html += '<div class="cc-row">';
+        html += '<div class="cc-row-icon" style="background:' + alBg + ';color:' + alCol + ';font-weight:700;font-size:.65rem;">&#9888;</div>';
+        html += '<div class="cc-row-b">';
+        html += '<div class="cc-row-t">' + esc(al.name) + '</div>';
+        html += '<div class="cc-row-m"><span class="cc-tag ' + (al.type === 'overloaded' ? 'r' : '') + '">' + esc(al.type) + '</span></div>';
+        html += '</div>';
+        html += '<div style="font-size:0.72rem;font-weight:700;color:' + alCol + ';white-space:nowrap;">' + al.count + '</div>';
+        html += '</div>';
+      });
+    }
+
+    // Single Points of Failure subsection
+    if (spof.length > 0) {
+      html += '<div class="cc-section-hdr" style="margin-top:8px;color:#f85149;">Single Points of Failure</div>';
+      spof.forEach(function(sp) {
+        html += '<div class="cc-row">';
+        html += '<div class="cc-row-icon" style="background:rgba(248,81,73,.15);color:#f85149;font-weight:700;font-size:.65rem;">!!</div>';
+        html += '<div class="cc-row-b">';
+        html += '<div class="cc-row-t">' + esc(sp.assignee) + ' owns ' + sp.pct + '% of ' + esc(sp.client_name) + '</div>';
+        html += '<div class="cc-row-m"><span style="color:#8b949e;">' + sp.assignee_count + '/' + sp.client_total + ' tasks</span></div>';
+        html += '</div>';
+        html += '<div style="font-size:0.72rem;font-weight:700;color:#f85149;white-space:nowrap;">' + sp.pct + '%</div>';
+        html += '</div>';
+      });
+    }
+
+    html += '</div>';
+    html += '</div>';
+  }
+
   // === ROW 3: Calendar + Work Queue + Improvements (3 columns with rich rows) ===
   html += '<div class="cc-grid-3" style="margin-bottom:14px">';
 
