@@ -294,7 +294,7 @@ body { font-family: var(--font-body); background: var(--bg-base); color: var(--t
 
 /* ===== LAYOUT ===== */
 .shell { display: flex; height: calc(var(--vh-full) - var(--header-h)); }
-.sidebar { width: var(--sidebar-w); min-width: var(--sidebar-w); background: var(--bg-raised); border-right: 1px solid var(--border-default); display: flex; flex-direction: column; overflow: hidden; transition: width 0.15s, min-width 0.15s; position: relative; }
+.sidebar { width: var(--sidebar-w); min-width: var(--sidebar-w); height: calc(var(--vh-full) - var(--header-h)); background: var(--bg-raised); border-right: 1px solid var(--border-default); display: flex; flex-direction: column; overflow: hidden; transition: width 0.15s, min-width 0.15s; }
 .sidebar.collapsed { width: 56px; min-width: 56px; }
 .sidebar.collapsed .sidebar__title, .sidebar.collapsed .sidebar__item__label, .sidebar.collapsed .sidebar__item__count, .sidebar.collapsed .sidebar__dot { display: none; }
 .sidebar.collapsed .sidebar__item { justify-content: center; padding: 9px 0; }
@@ -304,11 +304,10 @@ body { font-family: var(--font-body); background: var(--bg-base); color: var(--t
 .sidebar__item__abbrev { display: none; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.02em; color: var(--text-secondary); }
 .sidebar.collapsed .sidebar__item__abbrev { display: inline-flex; align-items: center; justify-content: center; min-width: 28px; padding: 2px 4px; border-radius: 3px; background: var(--bg-hover); }
 .sidebar.collapsed .sidebar__item.active .sidebar__item__abbrev { background: var(--accent); color: #fff; }
-.sidebar__toggle { display: flex; align-items: center; justify-content: center; padding: 8px; cursor: pointer; color: var(--text-muted); border-top: 1px solid var(--border-default); font-size: 0.8rem; transition: color 0.12s; position: absolute; bottom: 0; left: 0; right: 0; z-index: 5; background: var(--bg-raised); }
+.sidebar__toggle { display: flex; align-items: center; justify-content: center; padding: 8px; cursor: pointer; color: var(--text-muted); border-top: 1px solid var(--border-default); font-size: 0.8rem; transition: color 0.12s; flex-shrink: 0; background: var(--bg-raised); }
 .sidebar__toggle:hover { color: var(--text-primary); background: var(--bg-hover); }
-button.sidebar__item { font: inherit; color: inherit; background: none; border: none; text-align: left; width: 100%; }
-button.sidebar__toggle { font: inherit; border: none; }
-.sidebar__nav { flex: 1; min-height: 0; overflow-y: auto; padding: var(--space-lg) 0 36px 0; }
+button.sidebar__item, button.sidebar__toggle { font: inherit; color: inherit; background: none; border: none; text-align: left; width: 100%; }
+.sidebar__nav { flex: 1; min-height: 0; overflow-y: auto; padding: var(--space-lg) 0; }
 .sidebar__section { margin-bottom: var(--space-xl); }
 .sidebar__title { font-family: var(--font-display); font-size: 0.7rem; font-weight: 600; color: var(--text-muted); letter-spacing: 1.5px; text-transform: uppercase; padding: 0 var(--space-lg); margin-bottom: var(--space-sm); }
 /* Collapsible section titles (audit H4 sidebar overload).
@@ -19638,7 +19637,7 @@ let _ccClientWork = null;
 let _ccSnapshot = null;
 let _ccLoading = false;
 let _ccLoadFailed = false;
-let _ccTab = localStorage.getItem('ccTab') || 'command';
+let _ccTab = (() => { const v = localStorage.getItem('ccTab'); return (v === 'command' || v === 'brief') ? v : 'command'; })();
 let _ccPollTimer = null;
 
 function renderCommandCentre(el) {
@@ -19740,11 +19739,13 @@ function _ccRenderPage(el) {
 
   // Header with tabs and live indicator
   html += '<div class="cc-header">';
+  html += '<div style="display:flex;align-items:center">';
+  html += '<h1>Command Centre</h1>';
   html += '<div class="cc-tabs">';
   html += '<div class="cc-tab' + (_ccTab === 'command' ? ' on' : '') + '" onclick="_ccSwitchTab(\'command\')">Command</div>';
   html += '<div class="cc-tab' + (_ccTab === 'brief' ? ' on' : '') + '" onclick="_ccSwitchTab(\'brief\')">Brief</div>';
-  html += '</div>';
-  html += '<div class="cc-live"><span class="cc-live-dot"></span> Live</div>';
+  html += '</div></div>';
+  html += '<div class="cc-live"><div class="cc-live-dot"></div>Live</div>';
   html += '</div>';
 
   // Body
