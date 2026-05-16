@@ -321,8 +321,9 @@ Add a scheduled job to prune cc_snapshots older than 90 days. Current growth: 1 
 - F12: Handoff hub (file scan + Work tab section)
 - **UX:** Implement the tabbed panel layout (persistent header + 5 tabs)
 
-### Phase 2: Financial Integration
+### Phase 2: Financial Integration + Embedded Chat
 - F7: Financial pulse (parse finance_data JSONB + Money tab)
+- F13: Embedded Claude chat — floating chat panel in WorkSage, powered by `@anthropic-ai/claude-code` SDK. Server spawns Claude Code session via SDK (uses existing Max Pro subscription, no API costs). WebSocket connection pipes messages between browser chat panel and Claude Code. System prompt injected with live dashboard context (current fires, client state, active tab data). Same pattern as VS Code extension — just running inside WorkSage.
 
 ### Phase 3: Cloud Routine Infrastructure
 - Build the routine_runs table + routine health monitoring
