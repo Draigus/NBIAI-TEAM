@@ -1,3 +1,5 @@
+> **Canonical product context:** See `brain/playsage.md`. This file contains project-specific operational state only — sprint progress, blockers, deliverables, and session-specific decisions.
+
 # Playsage — Project Context (Tier 3 Knowledge)
 
 > This file is the deep knowledge base for any agent working on Playsage. It contains all technical, product, financial, competitive, and strategic detail needed to continue work without re-briefing Glen.

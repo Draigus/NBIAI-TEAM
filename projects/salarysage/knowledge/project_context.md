@@ -1,3 +1,5 @@
+> **Canonical product context:** See `brain/salarysage.md`. This file contains project-specific operational state only — sprint progress, blockers, deliverables, and session-specific decisions.
+
 # SalarySage — Project Context (Tier 3 Knowledge)
 
 > This file is the deep knowledge base for any agent working on SalarySage. It contains all technical, personnel, security, data, and integration detail needed to continue work without re-briefing Glen.
