@@ -6,6 +6,8 @@
 
 import { describe, it, expect, vi } from 'vitest';
 import { createRequire } from 'module';
+import express from 'express';
+import request from 'supertest';
 const require = createRequire(import.meta.url);
 
 const routeFactory = require('../../routes/command-centre.js');
@@ -106,5 +108,270 @@ describe('Command Centre', () => {
         expect(Array.isArray(c.details)).toBe(true);
       });
     });
+  });
+});
+
+// ——— HTTP endpoint tests via supertest ———
+
+function makeApp(poolOverride) {
+  const app = express();
+  const mockPool = poolOverride || { query: vi.fn().mockResolvedValue({ rows: [] }) };
+  const router = routeFactory({
+    pool: mockPool,
+    log: vi.fn(),
+    requireNBI: (req, res, next) => next(),
+    _msalClient: null,
+  });
+  app.use(router);
+  return { app, mockPool };
+}
+
+function makeMockPool(overrides = {}) {
+  return {
+    query: vi.fn().mockImplementation((sql) => {
+      // Stats query (client-work) — must be checked before 'Blocked' pattern
+      // since stats SQL contains "status = 'Blocked'" as a FILTER clause
+      if (sql.includes('FILTER') && sql.includes('open_tasks')) {
+        return { rows: overrides.stats || [{ open_tasks: '0', overdue: '0', blocked: '0', due_today: '0', due_this_week: '0' }] };
+      }
+      // Critical bugs query
+      if (sql.includes('bug_reports') && sql.includes('critical')) {
+        return { rows: overrides.criticalBugs || [] };
+      }
+      // Review bugs query
+      if (sql.includes('bug_reports') && sql.includes('please_review')) {
+        return { rows: overrides.reviewBugs || [] };
+      }
+      // Recent fixes query
+      if (sql.includes('bug_reports') && sql.includes('resolved')) {
+        return { rows: overrides.recentFixes || [] };
+      }
+      // Bug hotspots
+      if (sql.includes('bug_reports') && sql.includes('page')) {
+        return { rows: overrides.hotspots || [] };
+      }
+      // Overdue with clients (fires)
+      if (sql.includes('due_date::date <') && sql.includes('client_name')) {
+        return { rows: overrides.overdueWithClients || [] };
+      }
+      // Blocked items (briefing query — simple "status = 'Blocked'" without FILTER)
+      if (sql.includes("status = 'Blocked'") && !sql.includes('FILTER')) {
+        return { rows: overrides.blocked || [] };
+      }
+      // CC snapshots
+      if (sql.includes('cc_snapshots')) {
+        return { rows: overrides.snapshots || [] };
+      }
+      // Client-work: per-client counts (GROUP BY c.name, c.id)
+      if (sql.includes('GROUP BY c.name')) {
+        return { rows: overrides.clients || [] };
+      }
+      // Velocity (DATE_TRUNC)
+      if (sql.includes('DATE_TRUNC')) {
+        return { rows: overrides.velocity || [] };
+      }
+      return { rows: [] };
+    }),
+  };
+}
+
+describe('Command Centre — Briefing endpoint', () => {
+  it('GET /api/command-centre/briefing returns fires array in response', async () => {
+    const { app } = makeApp();
+    const res = await request(app).get('/api/command-centre/briefing');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('fires');
+    expect(Array.isArray(res.body.data.fires)).toBe(true);
+  });
+
+  it('fires array is empty when no critical items exist', async () => {
+    const pool = makeMockPool({});
+    const { app } = makeApp(pool);
+    const res = await request(app).get('/api/command-centre/briefing');
+    expect(res.status).toBe(200);
+    expect(res.body.data.fires).toEqual([]);
+  });
+
+  it('fires contain correct shape when critical bugs exist', async () => {
+    const pool = makeMockPool({
+      criticalBugs: [
+        { id: 101, title: 'Server crash on login', priority: 'critical', created_at: '2026-05-10T00:00:00Z' },
+      ],
+    });
+    const { app } = makeApp(pool);
+    const res = await request(app).get('/api/command-centre/briefing');
+    expect(res.status).toBe(200);
+
+    const fires = res.body.data.fires;
+    expect(fires.length).toBeGreaterThanOrEqual(1);
+
+    const fire = fires[0];
+    expect(fire).toHaveProperty('severity');
+    expect(fire).toHaveProperty('title');
+    expect(fire).toHaveProperty('client');
+    expect(fire).toHaveProperty('link_type');
+    expect(fire).toHaveProperty('link_id');
+    expect(fire).toHaveProperty('age_days');
+    expect(fire.severity).toBe('CRITICAL');
+    expect(fire.title).toBe('Server crash on login');
+    expect(fire.client).toBe('WorkSage');
+    expect(fire.link_type).toBe('bug');
+    expect(fire.link_id).toBe(101);
+    expect(typeof fire.age_days).toBe('number');
+  });
+
+  it('fires include overdue tasks with client names', async () => {
+    const pool = makeMockPool({
+      overdueWithClients: [
+        { id: 55, title: 'Overdue delivery', due_date: '2026-05-01', priority: 'high', client_name: 'Couch Heroes' },
+      ],
+    });
+    const { app } = makeApp(pool);
+    const res = await request(app).get('/api/command-centre/briefing');
+    expect(res.status).toBe(200);
+
+    const overdueFire = res.body.data.fires.find(f => f.link_id === 55);
+    expect(overdueFire).toBeDefined();
+    expect(overdueFire.client).toBe('Couch Heroes');
+    expect(overdueFire.link_type).toBe('task');
+    expect(overdueFire.severity).toContain('LATE');
+  });
+
+  it('fires include blocked items', async () => {
+    const pool = makeMockPool({
+      blocked: [
+        { id: 77, title: 'Blocked feature', status: 'Blocked', priority: 'medium', due_date: null, client_id: null },
+      ],
+    });
+    const { app } = makeApp(pool);
+    const res = await request(app).get('/api/command-centre/briefing');
+    expect(res.status).toBe(200);
+
+    const blockedFire = res.body.data.fires.find(f => f.link_id === 77);
+    expect(blockedFire).toBeDefined();
+    expect(blockedFire.severity).toBe('BLOCKED');
+  });
+
+  it('briefing response includes all expected top-level keys', async () => {
+    const { app } = makeApp();
+    const res = await request(app).get('/api/command-centre/briefing');
+    expect(res.status).toBe(200);
+
+    const data = res.body.data;
+    expect(data).toHaveProperty('date');
+    expect(data).toHaveProperty('critical');
+    expect(data).toHaveProperty('fires');
+    expect(data).toHaveProperty('calendar');
+    expect(data).toHaveProperty('work_queue');
+    expect(data).toHaveProperty('bugs');
+    expect(data).toHaveProperty('claude_state');
+    expect(data).toHaveProperty('client_deliveries');
+    expect(data).toHaveProperty('knowledge_flags');
+    expect(res.body.error).toBeNull();
+  });
+});
+
+describe('Command Centre — Client-work endpoint', () => {
+  it('GET /api/command-centre/client-work returns correct response shape', async () => {
+    const pool = makeMockPool({
+      clients: [
+        { client_name: 'Couch Heroes', client_id: 1, done: '10', in_progress: '3', todo: '5', total: '18' },
+        { client_name: 'NBI Internal', client_id: 2, done: '20', in_progress: '2', todo: '8', total: '30' },
+      ],
+      velocity: [
+        { week_start: '2026-05-05', completed: '7' },
+        { week_start: '2026-05-12', completed: '12' },
+      ],
+      stats: [{ open_tasks: '15', overdue: '3', blocked: '1', due_today: '2', due_this_week: '6' }],
+    });
+    const { app } = makeApp(pool);
+    const res = await request(app).get('/api/command-centre/client-work');
+    expect(res.status).toBe(200);
+
+    const data = res.body.data;
+    expect(data).toHaveProperty('clients');
+    expect(data).toHaveProperty('velocity');
+    expect(data).toHaveProperty('stats');
+    expect(res.body.error).toBeNull();
+  });
+
+  it('clients array has correct object shape', async () => {
+    const pool = makeMockPool({
+      clients: [
+        { client_name: 'Couch Heroes', client_id: 1, done: '10', in_progress: '3', todo: '5', total: '18' },
+      ],
+      stats: [{ open_tasks: '5', overdue: '2', blocked: '1', due_today: '3', due_this_week: '4' }],
+    });
+    const { app } = makeApp(pool);
+    const res = await request(app).get('/api/command-centre/client-work');
+    expect(res.status).toBe(200);
+
+    const client = res.body.data.clients[0];
+    expect(client).toHaveProperty('name', 'Couch Heroes');
+    expect(client).toHaveProperty('id', 1);
+    expect(client).toHaveProperty('done', 10);
+    expect(client).toHaveProperty('in_progress', 3);
+    expect(client).toHaveProperty('todo', 5);
+    expect(client).toHaveProperty('total', 18);
+    // All numeric, not strings
+    expect(typeof client.done).toBe('number');
+    expect(typeof client.in_progress).toBe('number');
+    expect(typeof client.todo).toBe('number');
+    expect(typeof client.total).toBe('number');
+  });
+
+  it('velocity array has correct object shape', async () => {
+    const pool = makeMockPool({
+      velocity: [
+        { week_start: '2026-05-05', completed: '7' },
+      ],
+      stats: [{ open_tasks: '5', overdue: '2', blocked: '1', due_today: '3', due_this_week: '4' }],
+    });
+    const { app } = makeApp(pool);
+    const res = await request(app).get('/api/command-centre/client-work');
+    expect(res.status).toBe(200);
+
+    const vel = res.body.data.velocity[0];
+    expect(vel).toHaveProperty('week_start', '2026-05-05');
+    expect(vel).toHaveProperty('completed', 7);
+    expect(typeof vel.completed).toBe('number');
+  });
+
+  it('stats object has all expected fields', async () => {
+    const pool = makeMockPool({
+      stats: [{ open_tasks: '15', overdue: '3', blocked: '1', due_today: '2', due_this_week: '6' }],
+    });
+    const { app } = makeApp(pool);
+    const res = await request(app).get('/api/command-centre/client-work');
+    expect(res.status).toBe(200);
+
+    const stats = res.body.data.stats;
+    expect(stats).toHaveProperty('open_tasks', 15);
+    expect(stats).toHaveProperty('overdue', 3);
+    expect(stats).toHaveProperty('blocked', 1);
+    expect(stats).toHaveProperty('due_today', 2);
+    expect(stats).toHaveProperty('due_this_week', 6);
+  });
+
+  it('handles empty database gracefully', async () => {
+    const pool = { query: vi.fn().mockResolvedValue({ rows: [] }) };
+    const { app } = makeApp(pool);
+    const res = await request(app).get('/api/command-centre/client-work');
+    expect(res.status).toBe(200);
+
+    const data = res.body.data;
+    expect(data.clients).toEqual([]);
+    expect(data.velocity).toEqual([]);
+    expect(data.stats).toEqual({});
+    expect(res.body.error).toBeNull();
+  });
+
+  it('returns 500 with error message on pool failure', async () => {
+    const pool = { query: vi.fn().mockRejectedValue(new Error('Connection refused')) };
+    const { app } = makeApp(pool);
+    const res = await request(app).get('/api/command-centre/client-work');
+    expect(res.status).toBe(500);
+    expect(res.body.error).toBe('Connection refused');
+    expect(res.body.data).toBeNull();
   });
 });
