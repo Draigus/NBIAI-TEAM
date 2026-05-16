@@ -19633,638 +19633,372 @@ async function deleteCandidate(id) {
 
 // ==================== COMMAND CENTRE ====================
 
-let _ccSnapshot = null;
 let _ccBriefing = null;
-let _ccBriefingFailed = false;
-let _ccLoadFailed = false;
+let _ccClientWork = null;
+let _ccSnapshot = null;
 let _ccLoading = false;
-let _ccTab = localStorage.getItem('ccTab') || 'dashboard';
+let _ccLoadFailed = false;
+let _ccTab = localStorage.getItem('ccTab') || 'command';
+let _ccPollTimer = null;
 
 function renderCommandCentre(el) {
-  if (!_ccSnapshot && !_ccLoading && !_ccLoadFailed) {
+  // Start polling when visible
+  _ccStartPoll();
+
+  if (!_ccBriefing && !_ccLoading && !_ccLoadFailed) {
     el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted)">Loading Command Centre...</div>';
     _ccLoading = true;
-    _ccLoadData();
+    _ccFetchAll();
     return;
   }
-  if (_ccLoadFailed && !_ccSnapshot) {
-    el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted)">Failed to load Command Centre. <a href="#" onclick="event.preventDefault();_ccLoadFailed=false;_ccLoading=true;_ccLoadData();return false" style="color:var(--primary)">Retry</a></div>';
+  if (_ccLoadFailed && !_ccBriefing) {
+    el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted)">Failed to load Command Centre. <a href="#" onclick="event.preventDefault();_ccLoadFailed=false;_ccLoading=false;_ccFetchAll();return false" style="color:var(--primary)">Retry</a></div>';
     return;
   }
-  if (!_ccSnapshot) {
+  if (_ccLoading && !_ccBriefing) {
     el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted)">Loading Command Centre...</div>';
     return;
-  }
-  if (_ccTab === 'briefing' && !_ccBriefing && !_ccBriefingFailed && !_ccLoading) {
-    _ccLoading = true;
-    _ccLoadBriefing();
   }
   _ccRenderPage(el);
 }
 
-async function _ccLoadData() {
+async function _ccFetchAll() {
+  _ccLoading = true;
   try {
-    const resp = await authFetch('/api/command-centre/snapshot');
-    if (resp.ok) {
-      const body = await resp.json();
-      _ccSnapshot = body.data || body;
-    } else {
-      const refreshResp = await authFetch('/api/command-centre/refresh', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
-      if (refreshResp.ok) {
-        const body = await refreshResp.json();
-        _ccSnapshot = body.data || body;
-      }
+    const [briefRes, workRes, snapRes] = await Promise.allSettled([
+      apiCall('/api/command-centre/briefing'),
+      apiCall('/api/command-centre/client-work'),
+      apiCall('/api/command-centre/snapshot')
+    ]);
+    if (briefRes.status === 'fulfilled' && briefRes.value) {
+      _ccBriefing = briefRes.value.data || briefRes.value;
     }
-  } catch (e) { console.warn('[CommandCentre] API error:', e.message || e); }
-  if (!_ccSnapshot) _ccLoadFailed = true;
+    if (workRes.status === 'fulfilled' && workRes.value) {
+      _ccClientWork = workRes.value.data || workRes.value;
+    }
+    if (snapRes.status === 'fulfilled' && snapRes.value) {
+      const raw = snapRes.value.data || snapRes.value;
+      _ccSnapshot = raw.data || raw;
+    }
+  } catch (e) {
+    console.warn('[CC] fetch error:', e);
+  }
+  if (!_ccBriefing && !_ccClientWork) _ccLoadFailed = true;
   _ccLoading = false;
   if (currentView === 'commandcentre') renderContent();
 }
 
-async function _ccLoadBriefing() {
-  try {
-    _ccBriefing = await apiCall('/api/command-centre/briefing');
-    if (!_ccBriefing) _ccBriefingFailed = true;
-  } catch (e) { _ccBriefingFailed = true; }
-  _ccLoading = false;
-  if (currentView === 'commandcentre') renderContent();
+function _ccStartPoll() {
+  _ccStopPoll();
+  _ccPollTimer = setInterval(() => {
+    if (currentView !== 'commandcentre') { _ccStopPoll(); return; }
+    _ccFetchAll();
+  }, 30000);
 }
 
-function _ccRenderPage(el) {
-  let html = '';
-  const now = new Date();
-  const greeting = now.getHours() < 12 ? 'Good morning' : now.getHours() < 17 ? 'Good afternoon' : 'Good evening';
-  const userName = _currentUser?.displayName?.split(' ')[0] || 'Glen';
-  html += '<div class="cc-page">';
-  html += '<div class="cc-header">';
-  html += '<div class="cc-header__left">';
-  html += '<span class="cc-header__tag">COMMAND CENTRE</span>';
-  html += '<span class="cc-header__greeting">' + esc(greeting) + ', <span class="cc-header__name">' + esc(userName) + '</span></span>';
-  html += '<div class="cc-tabs" style="margin:0;border:0">';
-  html += '<div class="cc-tabs__item' + (_ccTab === 'dashboard' ? ' cc-tabs__item--active' : '') + '" onclick="ccSwitchTab(\'dashboard\')">Dashboard</div>';
-  html += '<div class="cc-tabs__item' + (_ccTab === 'briefing' ? ' cc-tabs__item--active' : '') + '" onclick="ccSwitchTab(\'briefing\')">Daily Briefing</div>';
-  html += '</div></div>';
-  html += '<div class="cc-header__right">';
-  if (_ccSnapshot) {
-    const _ts = _ccSnapshot.updated_at || _ccSnapshot.created_at || _ccSnapshot.snapshot_date;
-    html += '<span class="cc-header__ts">Scanned ' + (_ts ? new Date(_ts).toLocaleString('en-GB', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) : 'just now') + '</span>';
-  }
-  html += '<button class="btn btn--sm" onclick="ccRefresh()">Refresh Scan</button>';
-  html += '</div></div>';
-
-  if (_ccTab === 'dashboard') {
-    html += ccRenderDashboard();
-  } else {
-    if (_ccBriefData()) html += ccRenderBriefingContent();
-    else if (_ccLoading) html += '<div style="padding:40px;text-align:center;color:var(--text-muted)">Loading briefing data...</div>';
-    else if (_ccBriefingFailed) html += '<div style="padding:40px;text-align:center;color:var(--text-muted)">Failed to load briefing. <a href="#" onclick="event.preventDefault();_ccBriefingFailed=false;_ccLoadBriefing();return false" style="color:var(--primary)">Retry</a></div>';
-    else html += '<div style="padding:40px;text-align:center;color:var(--text-muted)">No briefing data.</div>';
-  }
-
-  html += '</div>';
-  el.innerHTML = html;
-
-  requestAnimationFrame(() => {
-    document.querySelectorAll('.cc-ring__fill').forEach(circle => {
-      const target = circle.getAttribute('data-target');
-      if (target) circle.style.strokeDashoffset = target;
-    });
-  });
+function _ccStopPoll() {
+  if (_ccPollTimer) { clearInterval(_ccPollTimer); _ccPollTimer = null; }
 }
 
-function ccSwitchTab(tab) {
+function _ccNavigate(type, id) {
+  if (type === 'bug') { switchView('bugs'); }
+  else if (type === 'task') { selectWorkItem(id); }
+}
+
+function _ccSwitchTab(tab) {
   _ccTab = tab;
   localStorage.setItem('ccTab', tab);
   renderContent();
 }
 
-async function ccRefresh() {
-  toast('Refreshing scan...', 'info');
-  const resp = await apiCall('/api/command-centre/refresh', { method: 'POST' });
-  if (resp) { _ccSnapshot = resp; _ccBriefing = null; _ccBriefingFailed = false; _ccLoadFailed = false; toast('Scan complete', 'success'); renderContent(); }
+// ——— SVG RING HELPER ———
+
+function _ccRingSvg(score, max, size) {
+  const sz = size || 44;
+  const r = (sz / 2) - 5;
+  const circ = 2 * Math.PI * r;
+  const pct = max > 0 ? score / max : 0;
+  const offset = circ * (1 - pct);
+  const colour = score >= 7 ? 'var(--success)' : score >= 4 ? 'var(--warning)' : 'var(--danger)';
+  return '<svg width="' + sz + '" height="' + sz + '" viewBox="0 0 ' + sz + ' ' + sz + '">' +
+    '<circle cx="' + (sz/2) + '" cy="' + (sz/2) + '" r="' + r + '" fill="none" stroke="var(--border)" stroke-width="3" opacity="0.3"/>' +
+    '<circle cx="' + (sz/2) + '" cy="' + (sz/2) + '" r="' + r + '" fill="none" stroke="' + colour + '" stroke-width="3.5" ' +
+    'stroke-dasharray="' + circ.toFixed(1) + '" stroke-dashoffset="' + offset.toFixed(1) + '" ' +
+    'stroke-linecap="round" transform="rotate(-90 ' + (sz/2) + ' ' + (sz/2) + ')" style="filter:drop-shadow(0 0 4px ' + colour + ')"/>' +
+    '<text x="' + (sz/2) + '" y="' + (sz/2 + 4) + '" text-anchor="middle" fill="' + colour + '" font-size="' + (sz * 0.3) + '" font-weight="800">' + score + '</text></svg>';
 }
 
-// ——— HELPERS ———
+// ——— MAIN RENDER ———
 
-function _ccData() {
-  if (!_ccSnapshot) return {};
-  const d = _ccSnapshot.data || _ccSnapshot;
-  if (d.four_cs) return d;
-  if (d.data && d.data.four_cs) return d.data;
-  return d;
+function _ccRenderPage(el) {
+  const b = _ccBriefing || {};
+  const w = _ccClientWork || {};
+  const s = _ccSnapshot || {};
+  const fc = s.four_cs || {};
+
+  let html = '<div class="cc-page">';
+
+  // Header with tabs and live indicator
+  html += '<div class="cc-header">';
+  html += '<div class="cc-tabs">';
+  html += '<div class="cc-tab' + (_ccTab === 'command' ? ' on' : '') + '" onclick="_ccSwitchTab(\'command\')">Command</div>';
+  html += '<div class="cc-tab' + (_ccTab === 'brief' ? ' on' : '') + '" onclick="_ccSwitchTab(\'brief\')">Brief</div>';
+  html += '</div>';
+  html += '<div class="cc-live"><span class="cc-live-dot"></span> Live</div>';
+  html += '</div>';
+
+  // Body
+  html += '<div class="cc-body">';
+
+  if (_ccTab === 'command') {
+    html += _ccRenderCommand(b, w, s, fc);
+  } else {
+    html += _ccRenderBrief();
+  }
+
+  html += '</div></div>';
+  el.innerHTML = html;
 }
 
-function _ccBriefData() {
-  if (!_ccBriefing) return null;
-  if (_ccBriefing.critical !== undefined) return _ccBriefing;
-  if (_ccBriefing.data && _ccBriefing.data.critical !== undefined) return _ccBriefing.data;
-  return _ccBriefing;
-}
+// ——— COMMAND TAB (4-row layout) ———
 
-// ——— DASHBOARD TAB ———
-
-function ccRenderDashboard() {
-  const d = _ccData();
-  const fc = d.four_cs || {};
+function _ccRenderCommand(b, w, s, fc) {
   let html = '';
 
-  // Four Cs hero row
-  html += '<div class="cc-hero">';
-  ['context', 'connections', 'capabilities', 'cadence'].forEach(key => {
-    const c = fc[key] || { score: 0, max: 10, details: [] };
-    const pct = c.score / c.max;
-    const circumference = 2 * Math.PI * 22;
-    const offset = circumference * (1 - pct);
-    const colour = c.score >= 7 ? 'var(--success)' : c.score >= 4 ? 'var(--warning)' : 'var(--danger)';
-    const label = key.charAt(0).toUpperCase() + key.slice(1);
-    const sub = c.details.slice(0, 2).join(', ') || 'No data';
-    html += '<div class="cc-hero__card" title="' + esc(c.details.join('\n')) + '">';
-    html += '<div class="cc-ring"><svg viewBox="0 0 56 56"><circle class="cc-ring__bg" cx="28" cy="28" r="22"/>';
-    html += '<circle class="cc-ring__fill" cx="28" cy="28" r="22" style="stroke:' + colour + ';stroke-dasharray:' + circumference.toFixed(0) + ';stroke-dashoffset:' + circumference.toFixed(0) + ';filter:drop-shadow(0 0 6px ' + colour + ')" data-target="' + offset.toFixed(1) + '"/>';
-    html += '</svg><div class="cc-ring__score" style="color:' + colour + '">' + c.score + '</div></div>';
-    html += '<div class="cc-hero__info"><div class="cc-hero__label">' + esc(label) + '</div>';
-    html += '<div class="cc-hero__sub">' + esc(sub) + '</div></div>';
-    html += '</div>';
-  });
-  html += '</div>';
+  // === ROW 1: Fires (left ~70%) + Stats (right ~30%) ===
+  html += '<div style="display:grid;grid-template-columns:7fr 3fr;gap:16px;margin-bottom:16px">';
 
-  // 3-column grid of cards
-  html += '<div class="cc-grid">';
-  html += ccCardSituation(d);
-  html += ccCardSkills(d);
-  html += ccCardBrain(d);
-  html += ccCardConnections(d);
-  html += ccCardBugs(d);
-  html += ccCardAgentTeam(d);
-  html += ccCardSessions(d);
-  html += ccCardTests(d);
-  html += ccCardLevelUp();
-  html += '</div>';
-  return html;
-}
-
-function ccCardSituation(d) {
-  const bugs = d.bugs || {};
-  const bp = bugs.by_priority || {};
-  const critCount = (bp.critical || 0) + (bp.urgent || 0);
-  const openBugs = bugs.open_bugs || [];
-  let html = '<div class="cc-card cc-card--blue">';
-  html += '<div class="cc-card__head"><span class="cc-card__title">TODAY\'S FOCUS</span>';
-  if (critCount > 0) html += '<span class="cc-tag cc-tag--red">' + critCount + ' critical</span>';
-  else { const total = (bugs.by_status || {}).open || 0; if (total > 0) html += '<span class="cc-tag cc-tag--amber">' + total + ' open</span>'; }
-  html += '</div>';
-  const items = openBugs.length > 0 ? openBugs.slice(0, 5) : (bugs.recent_activity || []).slice(0, 4);
-  if (items.length === 0) {
-    html += '<div style="padding:12px 0;font-size:0.78rem;color:var(--text-muted)">No open bugs or recent activity</div>';
-  }
-  items.forEach(item => {
-    const p = item.priority || 'unset';
-    const iconClass = (p === 'critical' || p === 'urgent') ? 'cc-li__icon--red' : p === 'high' ? 'cc-li__icon--amber' : 'cc-li__icon--blue';
-    const icon = (p === 'critical' || p === 'urgent') ? '!!' : p === 'high' ? '!' : '#' + item.id;
-    html += '<div class="cc-li">';
-    html += '<div class="cc-li__icon cc-li__icon--sm ' + iconClass + '">' + icon + '</div>';
-    html += '<div class="cc-li__body"><div class="cc-li__title">' + esc(item.title || '') + '</div>';
-    html += '<div class="cc-li__meta">' + esc(item.status || '') + (p !== 'unset' ? ' &middot; ' + esc(p) : '') + '</div></div></div>';
-  });
-  html += '</div>';
-  return html;
-}
-
-function ccCardSkills(d) {
-  const skills = d.skills || [];
-  const withLearnings = skills.filter(s => s.has_learnings).length;
-  const stale = skills.filter(s => s.last_modified && (Date.now() - new Date(s.last_modified).getTime()) > 30 * 86400000);
-  let html = '<div class="cc-card cc-card--cyan">';
-  html += '<div class="cc-card__head"><span class="cc-card__title">SKILLS INTELLIGENCE</span><span class="cc-tag cc-tag--blue">' + skills.length + ' active</span></div>';
-  html += '<div style="padding:10px 0;border-bottom:1px solid var(--border)">';
-  html += '<div style="font-size:0.62rem;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:var(--text-faint);margin-bottom:4px">Most active</div>';
-  html += '<div style="font-size:0.78rem;color:var(--text-main)">' + esc(skills.slice(0, 4).map(s => s.name).join(', ') || 'None') + '</div>';
-  html += '</div>';
-  if (stale.length > 0) {
-    html += '<div style="padding:10px 0;border-bottom:1px solid var(--border)">';
-    html += '<div style="font-size:0.62rem;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:var(--warning);margin-bottom:4px">Going stale (&gt;30 days)</div>';
-    html += '<div style="font-size:0.78rem;color:var(--text-main)">' + esc(stale.slice(0, 5).map(s => s.name).join(', ')) + '</div>';
-    html += '</div>';
-  }
-  html += '<div style="padding:10px 0">';
-  html += '<div style="font-size:0.62rem;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:' + (withLearnings > 0 ? 'var(--text-faint)' : 'var(--danger)') + ';margin-bottom:4px">Learning loops</div>';
-  html += '<div style="font-size:0.78rem;color:var(--text-main)">' + withLearnings + ' of ' + skills.length + ' skills have learnings.md</div>';
-  html += '</div>';
-  html += '</div>';
-  return html;
-}
-
-function ccCardBrain(d) {
-  const brain = d.brain || {};
-  const modules = brain.modules || [];
-  const roles = brain.roles || [];
-  const memHealth = (d.memory || {}).health || {};
-  let html = '<div class="cc-card cc-card--green">';
-  html += '<div class="cc-card__head"><span class="cc-card__title">BRAIN &amp; MEMORY</span><span class="cc-tag cc-tag--green">' + (memHealth.score || 0) + '%</span></div>';
-  html += '<div style="font-size:0.62rem;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:var(--text-faint);margin-bottom:8px">Knowledge freshness</div>';
-  html += '<div class="cc-bt">';
-  if (brain.core) {
-    const age = brain.core.last_modified ? Math.floor((Date.now() - new Date(brain.core.last_modified).getTime()) / 86400000) : 999;
-    html += '<div class="cc-bt__entry ' + (age < 30 ? 'cc-bt__entry--ok' : 'cc-bt__entry--warn') + '"><div style="font-size:0.75rem;font-weight:600">NBI Brain (core)</div><div style="font-size:0.6rem;color:var(--text-faint)">' + age + ' days ago &middot; ' + (brain.core.sections || 0) + ' sections</div></div>';
-  }
-  modules.slice(0, 4).forEach(m => {
-    const age = m.last_modified ? Math.floor((Date.now() - new Date(m.last_modified).getTime()) / 86400000) : 999;
-    html += '<div class="cc-bt__entry ' + (age < 30 ? 'cc-bt__entry--ok' : 'cc-bt__entry--warn') + '"><div style="font-size:0.75rem;font-weight:600">' + esc(m.name) + '</div><div style="font-size:0.6rem;color:var(--text-faint)">' + age + ' days ago</div></div>';
-  });
-  html += '</div>';
-  html += '<div style="margin-top:10px;font-size:0.6rem;color:var(--text-faint)">' + (memHealth.total || 0) + ' memory files (' + (memHealth.stale || 0) + ' stale) &middot; ' + roles.length + ' roles defined</div>';
-  html += '</div>';
-  return html;
-}
-
-function ccCardConnections(d) {
-  const conn = d.connections || {};
-  const buckets = conn.buckets || {};
-  const entries = Object.entries(buckets);
-  const connected = entries.filter(([,b]) => b.status === 'connected').length;
-  let html = '<div class="cc-card cc-card--purple">';
-  html += '<div class="cc-card__head"><span class="cc-card__title">CONNECTION MAP</span><span class="cc-tag cc-tag--amber">' + connected + ' of ' + entries.length + '</span></div>';
-  html += '<div class="cc-cg">';
-  entries.forEach(([name, b]) => {
-    const cls = b.status === 'connected' ? 'cc-cn--ok' : b.status === 'partial' ? 'cc-cn--part' : 'cc-cn--gap';
-    html += '<div class="cc-cn ' + cls + '"><div class="cc-cn__name">' + esc(name) + '</div><div class="cc-cn__via">' + esc((b.sources || []).join(', ') || (b.status === 'missing' ? 'blind spot' : '')) + '</div></div>';
-  });
-  html += '</div>';
-  const missing = entries.filter(([,b]) => b.status === 'missing');
-  if (missing.length > 0) {
-    html += '<div style="margin-top:12px;font-size:0.62rem;color:var(--text-faint);line-height:1.6">';
-    missing.forEach(([name]) => { html += '<strong style="color:var(--danger)">' + esc(name) + '</strong>: no data source connected. '; });
-    html += '</div>';
-  }
-  html += '</div>';
-  return html;
-}
-
-function ccCardBugs(d) {
-  const bugs = d.bugs || {};
-  const byStatus = bugs.by_status || {};
-  const byPrio = bugs.by_priority || {};
-  const total = (byStatus.open || 0) + (byStatus.in_progress || 0) + (byStatus.please_review || 0);
-  const crit = byPrio.critical || 0;
-  const urgent = byPrio.urgent || 0;
-  const high = byPrio.high || 0;
-  const med = byPrio.medium || 0;
-  const low = byPrio.low || 0;
-  const unset = byPrio.unset || 0;
-  let html = '<div class="cc-card cc-card--amber">';
-  html += '<div class="cc-card__head"><span class="cc-card__title">BUG INTELLIGENCE</span><span class="cc-tag cc-tag--amber">' + total + ' open</span></div>';
-  html += '<div class="cc-bbar">';
-  if (crit) html += '<div class="cc-bbar__seg" style="flex:' + crit + ';background:var(--danger)"></div>';
-  if (urgent) html += '<div class="cc-bbar__seg" style="flex:' + urgent + ';background:#f97316"></div>';
-  if (high) html += '<div class="cc-bbar__seg" style="flex:' + high + ';background:var(--warning)"></div>';
-  if (med) html += '<div class="cc-bbar__seg" style="flex:' + med + ';background:var(--primary)"></div>';
-  if (low) html += '<div class="cc-bbar__seg" style="flex:' + low + ';background:var(--border)"></div>';
-  if (unset) html += '<div class="cc-bbar__seg" style="flex:' + unset + ';background:var(--text-faint);opacity:0.3"></div>';
-  html += '</div>';
-  html += '<div style="font-size:0.75rem;font-weight:700;color:var(--text-main);margin-bottom:4px">' + crit + ' critical, ' + urgent + ' urgent, ' + unset + ' unset</div>';
-  if (byStatus.please_review) {
-    html += '<div style="font-size:0.65rem;color:var(--warning);margin-top:8px">' + byStatus.please_review + ' bugs in please_review — team should close these</div>';
-  }
-  html += '</div>';
-  return html;
-}
-
-function ccCardAgentTeam(d) {
-  const roles = (d.brain || {}).roles || [];
-  const dormant = roles.filter(r => !r.has_knowledge || (r.knowledge_freshness !== null && r.knowledge_freshness > 90));
-  let html = '<div class="cc-card cc-card--purple">';
-  html += '<div class="cc-card__head"><span class="cc-card__title">AGENT TEAM</span><span class="cc-tag cc-tag--muted">' + roles.length + ' roles</span></div>';
-  html += '<div style="font-size:0.6rem;color:var(--text-faint);margin-bottom:10px;font-weight:600">Role knowledge freshness</div>';
-  html += '<div class="cc-ag">';
-  roles.forEach(r => {
-    let level = 1;
-    if (r.has_knowledge && r.knowledge_freshness !== null) {
-      if (r.knowledge_freshness < 14) level = 4;
-      else if (r.knowledge_freshness < 30) level = 3;
-      else if (r.knowledge_freshness < 90) level = 2;
-    } else if (r.has_knowledge) { level = 2; }
-    html += '<div class="cc-ac cc-ac--' + level + '" title="' + esc(r.name) + '"></div>';
-  });
-  html += '</div>';
-  html += '<div style="display:flex;gap:14px;margin-top:10px;font-size:0.55rem;color:var(--text-faint)">';
-  html += '<span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:3px;background:var(--success);display:inline-block"></span>Active</span>';
-  html += '<span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:3px;background:var(--success);opacity:0.5;display:inline-block"></span>Recent</span>';
-  html += '<span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:3px;background:var(--warning);opacity:0.3;display:inline-block"></span>Stale</span>';
-  html += '<span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:3px;background:rgba(128,128,128,0.06);border:1px solid var(--border);display:inline-block"></span>Dormant</span>';
-  html += '</div>';
-  if (dormant.length > 0) {
-    html += '<div style="margin-top:10px;font-size:0.62rem;color:var(--text-faint)"><strong>' + dormant.length + ' dormant roles</strong> — consolidate or refresh their knowledge</div>';
-  }
-  html += '</div>';
-  return html;
-}
-
-function ccCardSessions(d) {
-  const sess = d.sessions || {};
-  const live = sess.live_state || {};
-  const recent = sess.recent || [];
-  const lastSession = recent[0] || {};
-  let html = '<div class="cc-card cc-card--cyan">';
-  html += '<div class="cc-card__head"><span class="cc-card__title">CLAUDE STATE</span>';
-  html += '<span class="cc-tag cc-tag--blue">' + (live.pending_tasks_count || 0) + ' pending</span></div>';
-  if (lastSession.date) {
-    html += '<div style="font-size:0.62rem;font-weight:700;text-transform:uppercase;color:var(--text-faint);margin-bottom:6px">Last session: ' + esc(lastSession.date) + '</div>';
-  }
-  if (live.pending_tasks_count > 0) {
-    html += '<div style="font-size:0.78rem;color:var(--warning);margin-bottom:8px">' + live.pending_tasks_count + ' tasks outstanding from previous sessions</div>';
-  }
-  if (live.decisions_count > 0) {
-    html += '<div style="font-size:0.75rem;color:var(--text-muted)">' + live.decisions_count + ' decisions recorded</div>';
-  }
-  if (recent.length > 0) {
-    html += '<div style="font-size:0.62rem;font-weight:700;text-transform:uppercase;color:var(--text-faint);margin-top:10px;margin-bottom:6px">Recent sessions</div>';
-    recent.slice(0, 5).forEach(s => {
-      html += '<div style="font-size:0.75rem;color:var(--text-muted);padding:2px 0">' + esc(s.date) + '</div>';
+  // Fires list
+  html += '<div class="cc-card"><h3>Fires <span class="ct">' + ((b.fires || []).length) + '</span></h3>';
+  const fires = (b.fires || []).slice(0, 8);
+  if (fires.length === 0) {
+    html += '<div style="padding:12px 0;color:var(--text-muted);font-size:0.85rem">No active fires</div>';
+  } else {
+    fires.forEach(f => {
+      const sevClass = (f.severity === 'CRITICAL') ? 'cr' : (f.severity === 'URGENT') ? 'la' : 'wa';
+      html += '<div class="cc-fire-row">';
+      html += '<span class="cc-badge ' + sevClass + '">' + esc(f.severity) + '</span>';
+      html += '<span class="cc-fire-t">' + esc(f.title) + '</span>';
+      html += '<span class="cc-fire-c">' + esc(f.client || '') + '</span>';
+      html += '<span class="cc-fire-a">';
+      if (f.link_id) {
+        html += '<button class="cc-btn" onclick="_ccNavigate(\'' + esc(f.link_type || f.type || 'task') + '\',\'' + esc(f.link_id) + '\')">Open</button>';
+      }
+      html += '</span>';
+      html += '</div>';
     });
   }
   html += '</div>';
-  return html;
-}
 
-function ccCardTests(d) {
-  const tests = d.tests || {};
-  const lastRun = tests.last_run;
-  let html = '<div class="cc-card cc-card--green">';
-  html += '<div class="cc-card__head"><span class="cc-card__title">TEST HEALTH</span>';
-  if (lastRun && lastRun.failed === 0) html += '<span class="cc-tag cc-tag--green">All passing</span>';
-  else if (lastRun) html += '<span class="cc-tag cc-tag--red">' + lastRun.failed + ' failed</span>';
-  else html += '<span class="cc-tag cc-tag--muted">No data</span>';
+  // Stats grid (2x3)
+  html += '<div class="cc-grid-2" style="grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr 1fr;gap:10px">';
+  const stats = w.stats || {};
+  const statItems = [
+    { v: stats.open_tasks || 0, s: 'Open Tasks' },
+    { v: stats.overdue || 0, s: 'Overdue' },
+    { v: stats.blocked || 0, s: 'Blocked' },
+    { v: stats.due_today || 0, s: 'Due Today' },
+    { v: stats.due_this_week || 0, s: 'This Week' },
+    { v: (b.bugs || {}).critical_open ? (b.bugs.critical_open.length || 0) : 0, s: 'Critical Bugs' }
+  ];
+  statItems.forEach(si => {
+    html += '<div class="cc-stat"><span class="v">' + si.v + '</span><span class="s">' + esc(si.s) + '</span></div>';
+  });
   html += '</div>';
-  if (lastRun) {
-    html += '<div class="cc-th__big"><div class="cc-th__num" style="color:var(--success)">' + lastRun.passed + '</div><div style="font-size:0.78rem;color:var(--text-muted)">tests passing</div></div>';
-    const pct = lastRun.total > 0 ? Math.round((lastRun.passed / lastRun.total) * 100) : 0;
-    html += '<div class="cc-th__bar"><div class="cc-th__fill" style="width:' + pct + '%;background:var(--success);box-shadow:0 0 8px var(--success)"></div></div>';
-    html += '<div style="display:flex;gap:24px;margin-top:6px">';
-    html += '<div><div style="font-family:monospace;font-size:1rem;font-weight:800;color:var(--success)">' + lastRun.passed + '</div><div style="font-size:0.58rem;color:var(--text-faint);font-weight:600;text-transform:uppercase">Passed</div></div>';
-    html += '<div><div style="font-family:monospace;font-size:1rem;font-weight:800;color:var(--danger)">' + lastRun.failed + '</div><div style="font-size:0.58rem;color:var(--text-faint);font-weight:600;text-transform:uppercase">Failed</div></div>';
+  html += '</div>';
+
+  // === ROW 2: Client work bars (left 50%) + Velocity + Bug breakdown (right 50%) ===
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">';
+
+  // Client work stacked bars
+  html += '<div class="cc-card"><h3>Client Work <span class="ct">' + ((w.clients || []).length) + ' clients</span></h3>';
+  (w.clients || []).forEach(client => {
+    const total = client.total || (client.done + client.in_progress + client.todo) || 1;
+    const donePct = Math.round((client.done / total) * 100);
+    const ipPct = Math.round((client.in_progress / total) * 100);
+    const todoPct = 100 - donePct - ipPct;
+    html += '<div class="cc-row">';
+    html += '<span class="cc-row-t">' + esc(client.name) + '</span>';
+    html += '<div class="cc-sbar">';
+    if (donePct > 0) html += '<div class="cc-tag g" style="width:' + donePct + '%;min-width:0;border-radius:0;padding:0;height:100%"></div>';
+    if (ipPct > 0) html += '<div class="cc-tag b" style="width:' + ipPct + '%;min-width:0;border-radius:0;padding:0;height:100%"></div>';
+    if (todoPct > 0) html += '<div class="cc-tag a" style="width:' + todoPct + '%;min-width:0;border-radius:0;padding:0;height:100%;opacity:0.4"></div>';
+    html += '</div>';
+    html += '<span class="cc-row-m">' + client.done + '/' + total + '</span>';
+    html += '</div>';
+  });
+  if ((w.clients || []).length === 0) {
+    html += '<div style="padding:12px 0;color:var(--text-muted);font-size:0.85rem">No client data</div>';
+  }
+  html += '</div>';
+
+  // Velocity + Bug breakdown
+  html += '<div style="display:grid;grid-template-rows:1fr 1fr;gap:12px">';
+
+  // Velocity (simple bar chart representation)
+  html += '<div class="cc-card"><h3>Velocity <span class="ct">weekly</span></h3>';
+  const velocity = (w.velocity || []).slice(-6);
+  if (velocity.length > 0) {
+    const maxV = Math.max(...velocity.map(v => v.completed), 1);
+    html += '<div style="display:flex;align-items:flex-end;gap:6px;height:48px">';
+    velocity.forEach(v => {
+      const h = Math.max(4, Math.round((v.completed / maxV) * 48));
+      const weekLabel = v.week_start ? v.week_start.slice(5) : '';
+      html += '<div style="display:flex;flex-direction:column;align-items:center;flex:1;gap:2px">';
+      html += '<div style="font-size:0.65rem;color:var(--text-muted)">' + v.completed + '</div>';
+      html += '<div style="width:100%;height:' + h + 'px;background:var(--primary);border-radius:3px;opacity:0.8"></div>';
+      html += '<div style="font-size:0.55rem;color:var(--text-faint)">' + esc(weekLabel) + '</div>';
+      html += '</div>';
+    });
     html += '</div>';
   } else {
-    html += '<div style="padding:12px 0;font-size:0.78rem;color:var(--text-muted)">No recent test results found</div>';
+    html += '<div style="padding:8px 0;color:var(--text-muted);font-size:0.85rem">No velocity data</div>';
   }
   html += '</div>';
-  return html;
-}
 
-function ccCardLevelUp() {
-  let html = '<div class="cc-card cc-card--pink">';
-  html += '<div class="cc-card__head"><span class="cc-card__title">LEVEL-UP INSIGHTS</span><span class="cc-tag cc-tag--muted">Phase 2</span></div>';
-  html += '<div class="cc-lu"><div class="cc-lu__icon">&#9883;</div>';
-  html += '<div class="cc-lu__title">Dreaming Engine Not Yet Active</div>';
-  html += '<div class="cc-lu__sub">Phase 2 nightly analysis will surface: repeated manual patterns, skill gaps, cost savings, workflow improvements, knowledge decay.</div>';
-  html += '</div></div>';
-  return html;
-}
-
-// ——— BRIEFING TAB ———
-
-function ccRenderBriefingContent() {
-  const b = _ccBriefData();
-  if (!b) return '<div style="padding:40px;text-align:center;color:var(--text-muted)">Failed to load briefing data.</div>';
-  let html = '';
-  html += ccBriefCritical(b.critical || []);
-  html += ccBriefCalendar(b.calendar || {});
-  html += ccBriefWorkQueue(b.work_queue || {});
-  html += ccBriefBugs(b.bugs || {});
-  html += ccBriefClaude(b.claude_state || {});
-  html += ccBriefDeliveries(b.client_deliveries || {});
-  html += ccBriefKnowledge(b.knowledge_flags || {});
-  return html;
-}
-
-function ccBriefCritical(items) {
-  if (items.length === 0) return '';
-  let html = '<div class="cc-section">';
-  html += '<div class="cc-section__title">Critical — Needs Attention Now <span class="cc-section__count" style="background:rgba(248,113,113,0.12);color:var(--danger)">' + items.length + '</span></div>';
-  html += '<div class="cc-grid-2">';
-  items.forEach(item => {
-    html += '<div class="cc-card cc-card--red cc-card--crit">';
-    html += '<div class="cc-li" style="padding:4px 0;border:none;margin:0">';
-    html += '<div class="cc-li__icon cc-li__icon--red" style="animation:ccCritPulse 2s ease-in-out infinite">' + (item.type === 'bug' ? '!!' : item.type === 'calendar' ? '&#128197;' : '!') + '</div>';
-    html += '<div class="cc-li__body"><div class="cc-li__title">' + esc(item.title || '') + '</div>';
-    html += '<div class="cc-li__meta">' + esc(item.type) + ' &middot; ' + esc(item.priority || '') + '</div></div>';
-    if (item.type === 'bug') html += '<button class="cc-li__action" style="opacity:1" onclick="switchView(\'bugs\')">Open Bug</button>';
-    html += '</div></div>';
-  });
-  html += '</div></div>';
-  return html;
-}
-
-function ccBriefCalendar(cal) {
-  const today = cal.today || [];
-  const tomorrow = cal.tomorrow || [];
-  if (today.length === 0 && tomorrow.length === 0 && cal.error) {
-    return '<div class="cc-section"><div class="cc-section__title">Calendar <span class="cc-section__count" style="background:rgba(59,130,246,0.12);color:var(--primary)">No data</span></div><div class="cc-card cc-card--blue"><div style="padding:12px 0;font-size:0.82rem;color:var(--text-muted)">' + esc(cal.error) + '</div></div></div>';
-  }
-  let html = '<div class="cc-section">';
-  html += '<div class="cc-section__title">Today\'s Calendar <span class="cc-section__count" style="background:rgba(59,130,246,0.12);color:var(--primary)">' + today.length + ' events</span></div>';
-  html += '<div class="cc-card cc-card--blue"><div class="cc-tl">';
-  today.forEach((ev, i) => {
-    const startTime = new Date(ev.start).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-    const endTime = new Date(ev.end).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-    const isNow = new Date(ev.start) <= new Date() && new Date(ev.end) >= new Date();
-    html += '<div class="cc-li' + (isNow ? ' cc-li--now' : i === today.length - 1 ? ' cc-li--future' : '') + '">';
-    html += '<div class="cc-li__body"><div class="cc-li__title">' + esc(ev.title) + '</div>';
-    html += '<div class="cc-li__meta">' + esc(ev.location || '') + (ev.attendees.length > 0 ? ' &middot; ' + esc(ev.attendees.slice(0, 3).join(', ')) : '') + '</div></div>';
-    html += '<div class="cc-li__time"><div class="cc-li__when">' + startTime + '</div><div class="cc-li__dur">' + endTime + '</div></div>';
-    if (ev.online_url) html += '<button class="cc-li__action" onclick="window.open(\'' + esc(ev.online_url) + '\',\'_blank\')">Join</button>';
-    html += '</div>';
-  });
-  html += '</div></div></div>';
-  return html;
-}
-
-function ccBriefWorkQueue(wq) {
-  const overdue = wq.overdue || [];
-  const dueToday = wq.due_today || [];
-  const dueWeek = wq.due_this_week || [];
-  const blocked = wq.blocked || [];
-  const total = overdue.length + dueToday.length + dueWeek.length + blocked.length;
-  let html = '<div class="cc-section">';
-  html += '<div class="cc-section__title">Work Queue <span class="cc-section__count" style="background:rgba(34,211,238,0.12);color:#22d3ee">' + total + ' items</span></div>';
-  html += '<div class="cc-grid-3">';
-
-  // Overdue
-  html += '<div class="cc-card cc-card--red">';
-  html += '<div class="cc-card__head"><span class="cc-card__title">OVERDUE</span><span class="cc-tag cc-tag--red">' + overdue.length + '</span></div>';
-  overdue.slice(0, 5).forEach(t => {
-    html += '<div class="cc-li"><div class="cc-li__icon cc-li__icon--sm cc-li__icon--red">!</div>';
-    html += '<div class="cc-li__body"><div class="cc-li__title">' + esc(t.title) + '</div>';
-    html += '<div class="cc-li__meta">Due ' + (t.due_date || '') + '</div></div></div>';
-  });
-  if (overdue.length === 0) html += '<div style="padding:8px 0;font-size:0.78rem;color:var(--text-muted)">None</div>';
-  html += '</div>';
-
-  // Due this week
-  html += '<div class="cc-card cc-card--amber">';
-  html += '<div class="cc-card__head"><span class="cc-card__title">DUE THIS WEEK</span><span class="cc-tag cc-tag--amber">' + (dueToday.length + dueWeek.length) + '</span></div>';
-  dueToday.concat(dueWeek).slice(0, 5).forEach(t => {
-    html += '<div class="cc-li"><div class="cc-li__icon cc-li__icon--sm cc-li__icon--amber">' + (t.priority === 'high' ? '!' : '#') + '</div>';
-    html += '<div class="cc-li__body"><div class="cc-li__title">' + esc(t.title) + '</div>';
-    html += '<div class="cc-li__meta">Due ' + (t.due_date || '') + '</div></div></div>';
-  });
-  if (dueToday.length + dueWeek.length === 0) html += '<div style="padding:8px 0;font-size:0.78rem;color:var(--text-muted)">None</div>';
-  html += '</div>';
-
-  // Blocked
-  html += '<div class="cc-card cc-card--blue">';
-  html += '<div class="cc-card__head"><span class="cc-card__title">BLOCKED</span><span class="cc-tag cc-tag--muted">' + blocked.length + '</span></div>';
-  blocked.slice(0, 5).forEach(t => {
-    html += '<div class="cc-li"><div class="cc-li__icon cc-li__icon--sm cc-li__icon--muted">B</div>';
-    html += '<div class="cc-li__body"><div class="cc-li__title">' + esc(t.title) + '</div>';
-    html += '<div class="cc-li__meta">' + esc(t.status || '') + '</div></div></div>';
-  });
-  if (blocked.length === 0) html += '<div style="padding:8px 0;font-size:0.78rem;color:var(--text-muted)">None</div>';
-  html += '</div>';
-
-  html += '</div></div>';
-  return html;
-}
-
-function ccBriefBugs(bugs) {
-  const critOpen = bugs.critical_open || [];
-  const awaitReview = bugs.awaiting_review || [];
+  // Bug breakdown
+  html += '<div class="cc-card"><h3>Bugs <span class="ct">by priority</span></h3>';
+  const bugs = b.bugs || {};
+  const critOpen = (bugs.critical_open || []).length;
+  const awaitReview = (bugs.awaiting_review || []).length;
   const hotspots = bugs.hotspots || [];
-  let html = '<div class="cc-section">';
-  html += '<div class="cc-section__title">Bug Status <span class="cc-section__count" style="background:rgba(251,191,36,0.12);color:var(--warning)">' + (critOpen.length + awaitReview.length) + ' attention</span></div>';
-  html += '<div class="cc-grid-3">';
-
-  // Critical open
-  html += '<div class="cc-card cc-card--red">';
-  html += '<div class="cc-card__head"><span class="cc-card__title">CRITICAL OPEN</span><span class="cc-tag cc-tag--red">' + critOpen.length + '</span></div>';
-  critOpen.forEach(b => {
-    html += '<div class="cc-li"><div class="cc-li__icon cc-li__icon--sm cc-li__icon--red">!!</div>';
-    html += '<div class="cc-li__body"><div class="cc-li__title">' + esc(b.title) + '</div></div>';
-    html += '<button class="cc-li__action" onclick="switchView(\'bugs\')">Open</button></div>';
-  });
-  if (critOpen.length === 0) html += '<div style="padding:8px 0;font-size:0.78rem;color:var(--text-muted)">None</div>';
+  html += '<div style="display:flex;gap:12px;flex-wrap:wrap">';
+  html += '<span class="cc-tag r">' + critOpen + ' critical</span>';
+  html += '<span class="cc-tag a">' + awaitReview + ' review</span>';
+  if (hotspots.length > 0) html += '<span class="cc-tag b">' + hotspots.length + ' hotspots</span>';
   html += '</div>';
-
-  // Awaiting review
-  html += '<div class="cc-card cc-card--green">';
-  html += '<div class="cc-card__head"><span class="cc-card__title">AWAITING REVIEW</span><span class="cc-tag cc-tag--amber">' + awaitReview.length + '</span></div>';
-  awaitReview.forEach(b => {
-    html += '<div class="cc-li"><div class="cc-li__icon cc-li__icon--sm cc-li__icon--green">&#10003;</div>';
-    html += '<div class="cc-li__body"><div class="cc-li__title">' + esc(b.title) + '</div></div></div>';
-  });
-  if (awaitReview.length === 0) html += '<div style="padding:8px 0;font-size:0.78rem;color:var(--text-muted)">None</div>';
-  html += '</div>';
-
-  // Hotspots
-  html += '<div class="cc-card cc-card--amber">';
-  html += '<div class="cc-card__head"><span class="cc-card__title">HOTSPOTS</span></div>';
-  hotspots.forEach(h => {
-    html += '<div class="cc-li"><div class="cc-li__icon cc-li__icon--sm cc-li__icon--amber">' + h.count + '</div>';
-    html += '<div class="cc-li__body"><div class="cc-li__title">' + esc(h.page) + '</div>';
-    html += '<div class="cc-li__meta">' + h.count + ' open bugs on this page</div></div></div>';
-  });
-  if (hotspots.length === 0) html += '<div style="padding:8px 0;font-size:0.78rem;color:var(--text-muted)">No hotspot patterns detected</div>';
-  html += '</div>';
-
-  html += '</div></div>';
-  return html;
-}
-
-function ccBriefClaude(claude) {
-  const lastSession = claude.last_session || {};
-  const decisions = claude.recent_decisions || [];
-  let html = '<div class="cc-section">';
-  html += '<div class="cc-section__title">Claude Session State <span class="cc-section__count" style="background:rgba(167,139,250,0.12);color:#a78bfa">In progress</span></div>';
-  html += '<div class="cc-grid-2">';
-
-  // Last session
-  html += '<div class="cc-card cc-card--purple">';
-  html += '<div class="cc-card__head"><span class="cc-card__title">LAST SESSION</span>';
-  if (lastSession.date) html += '<span class="cc-tag cc-tag--blue">' + esc(lastSession.date) + '</span>';
-  html += '</div>';
-  if (lastSession.summary) {
-    const lines = lastSession.summary.split('\n').filter(l => l.trim()).slice(0, 5);
-    html += '<div style="font-size:0.82rem;color:var(--text-main);line-height:1.6;margin-bottom:8px">' + lines.map(l => esc(l)).join('<br>') + '</div>';
-  }
-  html += '</div>';
-
-  // Outstanding work
-  html += '<div class="cc-card cc-card--purple">';
-  html += '<div class="cc-card__head"><span class="cc-card__title">OUTSTANDING WORK</span></div>';
-  if (claude.outstanding_work) {
-    const lines = claude.outstanding_work.split('\n').filter(l => l.trim().startsWith('- ')).slice(0, 6);
-    lines.forEach((l, i) => {
-      html += '<div class="cc-li"><div class="cc-li__icon cc-li__icon--sm cc-li__icon--purple">' + (i + 1) + '</div>';
-      html += '<div class="cc-li__body"><div class="cc-li__title">' + esc(l.replace(/^- /, '')) + '</div></div></div>';
-    });
-  }
-  if (decisions.length > 0) {
-    html += '<div style="margin-top:12px;font-size:0.62rem;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:var(--text-faint);margin-bottom:6px">Recent decisions</div>';
-    decisions.slice(0, 3).forEach(d => { html += '<div style="font-size:0.75rem;color:var(--text-muted);padding:2px 0">' + esc(d) + '</div>'; });
-  }
-  html += '</div>';
-
-  html += '</div></div>';
-  return html;
-}
-
-function ccBriefDeliveries(deliveries) {
-  const clients = Object.entries(deliveries);
-  if (clients.length === 0) return '';
-  let html = '<div class="cc-section">';
-  html += '<div class="cc-section__title">Client Deliveries — Next 14 Days <span class="cc-section__count" style="background:rgba(52,211,153,0.12);color:var(--success)">' + clients.reduce((sum, [,tasks]) => sum + tasks.length, 0) + '</span></div>';
-  html += '<div class="cc-grid-3">';
-  clients.forEach(([clientName, tasks]) => {
-    html += '<div class="cc-card cc-card--green">';
-    html += '<div class="cc-card__head"><span class="cc-card__title">' + esc(clientName) + '</span><span class="cc-tag cc-tag--green">' + tasks.length + '</span></div>';
-    tasks.slice(0, 4).forEach(t => {
-      html += '<div class="cc-li"><div class="cc-li__icon cc-li__icon--sm cc-li__icon--green">' + esc(clientName.charAt(0)) + '</div>';
-      html += '<div class="cc-li__body"><div class="cc-li__title">' + esc(t.title) + '</div>';
-      html += '<div class="cc-li__meta">Due ' + (t.due_date || '') + ' &middot; ' + esc(t.status || '') + '</div></div></div>';
+  if (critOpen > 0) {
+    html += '<div style="margin-top:8px">';
+    (bugs.critical_open || []).slice(0, 3).forEach(bug => {
+      html += '<div class="cc-fire-row"><span class="cc-badge cr">CRIT</span><span class="cc-fire-t">' + esc(bug.title || '') + '</span>';
+      html += '<span class="cc-fire-a"><button class="cc-btn rd" onclick="_ccNavigate(\'bug\',\'' + esc(bug.id || '') + '\')">Open</button></span></div>';
     });
     html += '</div>';
-  });
-  html += '</div></div>';
-  return html;
-}
+  }
+  html += '</div>';
 
-function ccBriefKnowledge(flags) {
-  const staleBrain = flags.stale_brain_modules || [];
-  const staleMem = flags.stale_memory_files || [];
-  const dormant = flags.dormant_roles_count || 0;
-  const total = staleBrain.length + staleMem.length + (dormant > 0 ? 1 : 0);
-  if (total === 0) return '';
-  let html = '<div class="cc-section">';
-  html += '<div class="cc-section__title">Knowledge Flags <span class="cc-section__count" style="background:rgba(244,114,182,0.12);color:#f472b6">' + total + '</span></div>';
-  html += '<div class="cc-grid-2">';
+  html += '</div>';
+  html += '</div>';
 
-  // Stale brain modules
+  // === ROW 3: Email queue + Meeting tasks + Improvements (3 columns) ===
+  html += '<div class="cc-grid-3" style="margin-bottom:16px">';
+
+  // Email queue (placeholder — show calendar events as proxy)
+  html += '<div class="cc-card"><h3>Upcoming <span class="ct">calendar</span></h3>';
+  const cal = b.calendar || {};
+  const todayEvents = (cal.today || []).concat(cal.tomorrow || []).slice(0, 5);
+  if (todayEvents.length === 0 && cal.error) {
+    html += '<div style="padding:8px 0;font-size:0.82rem;color:var(--text-muted)">' + esc(cal.error) + '</div>';
+  } else if (todayEvents.length === 0) {
+    html += '<div style="padding:8px 0;font-size:0.82rem;color:var(--text-muted)">No events found</div>';
+  } else {
+    todayEvents.forEach(ev => {
+      const t = ev.start ? new Date(ev.start).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : '';
+      html += '<div class="cc-gt">';
+      html += '<span class="cc-gt-t">' + esc(ev.title || '') + '</span>';
+      html += '<span class="cc-gt-s">' + esc(t) + '</span>';
+      if (ev.online_url) html += '<span class="cc-gt-a"><button class="cc-btn p" onclick="window.open(\'' + esc(ev.online_url) + '\',\'_blank\')">Join</button></span>';
+      html += '</div>';
+    });
+  }
+  html += '</div>';
+
+  // Meeting tasks / Work queue needing attention
+  html += '<div class="cc-card"><h3>Work Queue <span class="ct">attention</span></h3>';
+  const wq = b.work_queue || {};
+  const overdue = (wq.overdue || []).slice(0, 3);
+  const dueToday = (wq.due_today || []).slice(0, 2);
+  const attentionItems = overdue.concat(dueToday);
+  if (attentionItems.length === 0) {
+    html += '<div style="padding:8px 0;font-size:0.82rem;color:var(--text-muted)">Nothing urgent</div>';
+  } else {
+    attentionItems.forEach(item => {
+      const isOverdue = overdue.includes(item);
+      html += '<div class="cc-gt">';
+      html += '<span class="cc-gt-t">' + esc(item.title || '') + '</span>';
+      html += '<span class="cc-gt-s cc-tag ' + (isOverdue ? 'r' : 'a') + '">' + (isOverdue ? 'overdue' : 'today') + '</span>';
+      if (item.id) html += '<span class="cc-gt-a"><button class="cc-btn" onclick="_ccNavigate(\'task\',\'' + esc(item.id) + '\')">Open</button></span>';
+      html += '</div>';
+    });
+  }
+  html += '</div>';
+
+  // Improvements (from snapshot stale data + knowledge flags)
+  html += '<div class="cc-card"><h3>Improvements <span class="ct">suggested</span></h3>';
+  const kf = b.knowledge_flags || {};
+  const staleBrain = kf.stale_brain_modules || [];
+  const conn = s.connections || {};
+  const buckets = conn.buckets || {};
+  const missingConns = Object.entries(buckets).filter(([,v]) => v.status === 'missing');
+  let improvCount = 0;
   if (staleBrain.length > 0) {
-    html += '<div class="cc-card cc-card--pink">';
-    html += '<div class="cc-card__head"><span class="cc-card__title">STALE BRAIN MODULES</span><span class="cc-tag cc-tag--amber">' + staleBrain.length + '</span></div>';
-    staleBrain.forEach(m => {
-      const age = m.last_modified ? Math.floor((Date.now() - new Date(m.last_modified).getTime()) / 86400000) : '?';
-      html += '<div class="cc-li"><div class="cc-li__icon cc-li__icon--sm cc-li__icon--amber">' + age + 'd</div>';
-      html += '<div class="cc-li__body"><div class="cc-li__title">' + esc(m.name) + '</div></div></div>';
-    });
-    html += '</div>';
+    improvCount++;
+    html += '<div class="cc-gt"><span class="cc-gt-t">' + staleBrain.length + ' brain modules stale (&gt;30d)</span><span class="cc-gt-s cc-tag a">knowledge</span></div>';
   }
-
-  // Memory + roles
-  html += '<div class="cc-card cc-card--pink">';
-  html += '<div class="cc-card__head"><span class="cc-card__title">MEMORY &amp; ROLES</span><span class="cc-tag cc-tag--muted">Maintenance</span></div>';
-  if (staleMem.length > 0) {
-    html += '<div class="cc-li"><div class="cc-li__icon cc-li__icon--sm cc-li__icon--amber">' + staleMem.length + '</div>';
-    html += '<div class="cc-li__body"><div class="cc-li__title">Memory files with stale references</div>';
-    html += '<div class="cc-li__meta">Referencing files or functions that may have moved</div></div></div>';
+  if (missingConns.length > 0) {
+    improvCount++;
+    html += '<div class="cc-gt"><span class="cc-gt-t">' + missingConns.length + ' blind spots: ' + esc(missingConns.slice(0, 3).map(([n]) => n).join(', ')) + '</span><span class="cc-gt-s cc-tag r">connections</span></div>';
   }
-  if (dormant > 0) {
-    html += '<div class="cc-li"><div class="cc-li__icon cc-li__icon--sm cc-li__icon--muted">' + dormant + '</div>';
-    html += '<div class="cc-li__body"><div class="cc-li__title">Dormant agent roles</div>';
-    html += '<div class="cc-li__meta">Knowledge never referenced — consolidate or refresh</div></div></div>';
+  if (kf.dormant_roles_count > 0) {
+    improvCount++;
+    html += '<div class="cc-gt"><span class="cc-gt-t">' + kf.dormant_roles_count + ' dormant roles need refresh</span><span class="cc-gt-s cc-tag b">roles</span></div>';
+  }
+  if ((kf.stale_memory_files || []).length > 0) {
+    improvCount++;
+    html += '<div class="cc-gt"><span class="cc-gt-t">' + kf.stale_memory_files.length + ' memory files reference moved targets</span><span class="cc-gt-s cc-tag a">memory</span></div>';
+  }
+  if (improvCount === 0) {
+    html += '<div style="padding:8px 0;font-size:0.82rem;color:var(--text-muted)">All systems healthy</div>';
   }
   html += '</div>';
 
+  html += '</div>';
+
+  // === ROW 4: AIOS Health Strip ===
+  html += '<div class="cc-card" style="padding:12px 20px">';
+  html += '<div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap">';
+
+  // Four Cs rings
+  ['context', 'connections', 'capabilities', 'cadence'].forEach(key => {
+    const c = fc[key] || { score: 0, max: 10, details: [] };
+    html += '<div style="display:flex;align-items:center;gap:8px">';
+    html += _ccRingSvg(c.score, c.max, 40);
+    html += '<div><div class="cc-lbl">' + esc(key.charAt(0).toUpperCase() + key.slice(1)) + '</div>';
+    html += '<div style="font-size:0.7rem;color:var(--text-faint)">' + c.score + '/' + c.max + '</div></div>';
+    html += '</div>';
+  });
+
+  // Dispatch stats separator
+  html += '<div style="width:1px;height:32px;background:var(--border);margin:0 8px"></div>';
+
+  // Agent dispatch stats (from snapshot)
+  const brain = s.brain || {};
+  const roles = brain.roles || [];
+  const activeRoles = roles.filter(r => r.has_knowledge && r.knowledge_freshness !== null && r.knowledge_freshness < 30).length;
+  html += '<div class="cc-stat" style="margin:0"><span class="v">' + roles.length + '</span><span class="s">Roles</span></div>';
+  html += '<div class="cc-stat" style="margin:0"><span class="v">' + activeRoles + '</span><span class="s">Active</span></div>';
+
+  // Connection pills separator
+  html += '<div style="width:1px;height:32px;background:var(--border);margin:0 8px"></div>';
+
+  // Connection pills
+  Object.entries(buckets).slice(0, 6).forEach(([name, b2]) => {
+    const pillClass = b2.status === 'connected' ? 'g' : b2.status === 'partial' ? 'a' : 'r';
+    html += '<span class="cc-pill cc-tag ' + pillClass + '">' + esc(name) + '</span>';
+  });
+
   html += '</div></div>';
+
+  return html;
+}
+
+// ——— BRIEF TAB (placeholder) ———
+
+function _ccRenderBrief() {
+  let html = '<div class="cc-card" style="padding:24px">';
+  html += '<h3>Daily Briefing</h3>';
+  html += '<div style="padding:16px 0;font-size:0.9rem;color:var(--text-muted)">Briefing view coming soon. Use the Command tab for the live dashboard.</div>';
+  html += '</div>';
   return html;
 }
 
