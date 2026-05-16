@@ -785,3 +785,30 @@ describe('Command Centre — Team-workload endpoint', () => {
     expect(res.body.data).toBeNull();
   });
 });
+
+describe('Command Centre — Handoffs endpoint', () => {
+  it('GET /api/command-centre/handoffs returns correct shape', async () => {
+    const { app } = makeApp();
+    const res = await request(app).get('/api/command-centre/handoffs');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('projects');
+    expect(Array.isArray(res.body.data.projects)).toBe(true);
+    expect(res.body.error).toBeNull();
+  });
+
+  it('returns project entries with handoff metadata', async () => {
+    const { app } = makeApp();
+    const res = await request(app).get('/api/command-centre/handoffs');
+    // The test repo has projects/nbi_dashboard/session_handoffs/ with real files
+    const projects = res.body.data.projects;
+    if (projects.length > 0) {
+      const p = projects[0];
+      expect(p).toHaveProperty('project');
+      expect(p).toHaveProperty('handoff_count');
+      expect(p).toHaveProperty('latest_handoff');
+      expect(p.latest_handoff).toHaveProperty('filename');
+      expect(p.latest_handoff).toHaveProperty('title');
+      expect(p.latest_handoff).toHaveProperty('date');
+    }
+  });
+});

@@ -20219,6 +20219,38 @@ function _ccRenderWorkTab(b, w, s, fc) {
     html += '</div>';
   }
 
+  // === Handoff Hub (F12) ===
+  var hf = _ccHandoffs || {};
+  var handoffProjects = hf.projects || [];
+
+  if (handoffProjects.length > 0) {
+    html += '<div class="cc-card" style="margin-bottom:14px;"><h3><span>&#128221; Handoff Hub</span> <span class="ct">' + handoffProjects.length + ' projects</span></h3>';
+    handoffProjects.forEach(function(p) {
+      var h = p.latest_handoff || {};
+      var age = h.date ? Math.floor((Date.now() - new Date(h.date).getTime()) / 86400000) : 999;
+      var ageColour = age <= 1 ? '#3fb950' : age <= 3 ? '#d29922' : '#8b949e';
+      var ageLabel = age === 0 ? 'today' : age === 1 ? 'yesterday' : age + 'd ago';
+
+      html += '<div class="cc-row">';
+      html += '<div class="cc-row-icon" style="background:rgba(163,113,247,.1);color:#a371f7;font-size:.55rem;">&#128196;</div>';
+      html += '<div class="cc-row-b">';
+      html += '<div class="cc-row-t">' + esc(p.project.replace(/_/g, ' ')) + '</div>';
+      html += '<div class="cc-row-m">';
+      html += '<span style="color:' + ageColour + ';">' + esc(ageLabel) + '</span>';
+      if (h.branch) html += ' &middot; <span style="font-family:monospace;font-size:.62rem;color:#8b949e;">' + esc(h.branch) + '</span>';
+      html += ' &middot; ' + p.handoff_count + ' handoff' + (p.handoff_count > 1 ? 's' : '');
+      html += '</div>';
+      if (h.whats_next) {
+        var nextLine = h.whats_next.split('\\n')[0] || h.whats_next.split('\n')[0] || '';
+        html += '<div style="font-size:0.72rem;color:#8b949e;margin-top:4px;max-height:3em;overflow:hidden;">' + esc(nextLine) + '</div>';
+      }
+      html += '</div>';
+      html += '<div class="cc-row-a"><button class="cc-btn pu" style="font-size:.6rem;">Resume</button></div>';
+      html += '</div>';
+    });
+    html += '</div>';
+  }
+
   // === ROW 3: Calendar + Work Queue + Improvements (3 columns with rich rows) ===
   html += '<div class="cc-grid-3" style="margin-bottom:14px">';
 

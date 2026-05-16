@@ -1188,6 +1188,82 @@ module.exports = function (ctx) {
     }
   });
 
+  // ——— Handoff Hub (F12) ———
+  router.get('/api/command-centre/handoffs', requireNBI, (req, res) => {
+    try {
+      const projectsDir = path.join(REPO_ROOT, 'projects');
+      const projects = [];
+
+      if (!fs.existsSync(projectsDir)) {
+        return res.json({ data: { projects: [] }, error: null });
+      }
+
+      const projectDirs = fs.readdirSync(projectsDir, { withFileTypes: true })
+        .filter(d => d.isDirectory());
+
+      projectDirs.forEach(pd => {
+        const handoffsDir = path.join(projectsDir, pd.name, 'session_handoffs');
+        if (!fs.existsSync(handoffsDir)) return;
+
+        const handoffFiles = fs.readdirSync(handoffsDir)
+          .filter(f => f.endsWith('.md'))
+          .sort()
+          .reverse();
+
+        if (handoffFiles.length === 0) return;
+
+        const latestFile = handoffFiles[0];
+        const latestPath = path.join(handoffsDir, latestFile);
+        const stat = safeStat(latestPath);
+        const content = safeReadFile(latestPath) || '';
+
+        // Parse title from first H1
+        const titleMatch = content.match(/^#\s+(.+)/m);
+        const title = titleMatch ? titleMatch[1].trim() : latestFile.replace('.md', '');
+
+        // Extract "What's Next" section
+        let whatsNext = '';
+        const nextMatch = content.match(/##\s+(?:What.*?Next|Next Session|What the Next).+?\n([\s\S]*?)(?=\n##\s|$)/i);
+        if (nextMatch) {
+          whatsNext = nextMatch[1].trim().split('\n').slice(0, 5).join('\n');
+        }
+
+        // Extract branch name if mentioned
+        const branchMatch = content.match(/(?:branch|Branch)[:\s]+`?([^\s`\n]+)`?/i);
+        const branch = branchMatch ? branchMatch[1] : null;
+
+        // Extract date from filename (handoff_YYYY-MM-DD_...)
+        const dateMatch = latestFile.match(/(\d{4}-\d{2}-\d{2})/);
+        const date = dateMatch ? dateMatch[1] : (stat ? stat.mtime.toISOString().slice(0, 10) : null);
+
+        projects.push({
+          project: pd.name,
+          handoff_count: handoffFiles.length,
+          latest_handoff: {
+            filename: latestFile,
+            title,
+            date,
+            branch,
+            whats_next: whatsNext,
+            path: 'projects/' + pd.name + '/session_handoffs/' + latestFile,
+          },
+        });
+      });
+
+      // Sort by most recent handoff first
+      projects.sort((a, b) => {
+        const aDate = a.latest_handoff.date || '';
+        const bDate = b.latest_handoff.date || '';
+        return bDate.localeCompare(aDate);
+      });
+
+      res.json({ data: { projects }, error: null });
+    } catch (e) {
+      log('error', 'CC', 'handoffs scan failed', { error: e.message });
+      res.status(500).json({ data: null, error: e.message });
+    }
+  });
+
   // Export computeSnapshot for Phase 2 cron
   router._computeSnapshot = computeSnapshot;
 
