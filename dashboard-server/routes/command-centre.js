@@ -570,10 +570,73 @@ module.exports = function (ctx) {
       overdueQ.rows.filter(t => t.priority === 'critical' || t.priority === 'high').forEach(t => { critical.push({ type: 'task', ...t }); });
       calToday.filter(e => new Date(e.start) <= new Date(Date.now() + 3600000)).forEach(e => { critical.push({ type: 'calendar', ...e }); });
 
+      // Fires: cross-client problems, prioritised
+      const fires = [];
+
+      // Critical/urgent bugs
+      critBugsQ.rows.forEach(b => {
+        fires.push({
+          severity: b.priority === 'critical' ? 'CRITICAL' : 'URGENT',
+          title: b.title,
+          client: 'WorkSage',
+          type: 'bug',
+          link_type: 'bug',
+          link_id: b.id,
+          age_days: daysSince(b.created_at),
+        });
+      });
+
+      // Overdue tasks with client names
+      const overdueWithClients = await pool.query(`
+        SELECT t.id, t.title, t.due_date, t.priority, c.name as client_name
+        FROM tasks t LEFT JOIN clients c ON t.client_id = c.id
+        WHERE t.due_date IS NOT NULL AND t.due_date != ''
+          AND t.due_date::date < $1::date
+          AND t.status NOT IN ('Done','Cancelled')
+          AND t.item_type IN ('story','task','feature')
+        ORDER BY t.due_date
+      `, [todayStr]);
+
+      overdueWithClients.rows.forEach(t => {
+        const daysLate = daysSince(t.due_date);
+        fires.push({
+          severity: daysLate + 'D LATE',
+          title: t.title,
+          client: t.client_name || 'Unassigned',
+          type: 'task',
+          link_type: 'task',
+          link_id: t.id,
+          age_days: daysLate,
+        });
+      });
+
+      // Blocked items
+      blockedQ.rows.forEach(t => {
+        fires.push({
+          severity: 'BLOCKED',
+          title: t.title,
+          client: 'WorkSage',
+          type: 'task',
+          link_type: 'task',
+          link_id: t.id,
+          age_days: t.due_date ? daysSince(t.due_date) : 0,
+        });
+      });
+
+      // Sort: CRITICAL first, then by age descending
+      fires.sort((a, b) => {
+        const sev = { CRITICAL: 0, URGENT: 1, BLOCKED: 2 };
+        const aS = sev[a.severity] ?? 3;
+        const bS = sev[b.severity] ?? 3;
+        if (aS !== bS) return aS - bS;
+        return b.age_days - a.age_days;
+      });
+
       res.json({
         data: {
           date: todayStr,
           critical,
+          fires,
           calendar: { today: calToday, tomorrow: calTomorrow, this_week: calWeek, error: calData.error || null },
           work_queue: { overdue: overdueQ.rows, due_today: dueTodayQ.rows, due_this_week: dueWeekQ.rows, blocked: blockedQ.rows },
           bugs: { critical_open: critBugsQ.rows, awaiting_review: reviewBugsQ.rows, hotspots: hotspotsQ.rows, recent_fixes: recentFixesQ.rows },
