@@ -2673,7 +2673,7 @@ span.fin-editable { display: inline-block; position: relative; }
 .cc-section-hdr:first-child { margin-top: 0; }
 .cc-section-hdr .ct { font-size: 0.75rem; color: #8b949e; font-weight: 400; }
 
-.cc-body { padding: 18px 24px; display: flex; flex-direction: column; gap: 16px; max-width: 1600px; }
+.cc-body { padding: 18px 24px; display: flex; flex-direction: column; gap: 16px; }
 
 .cc-section { margin-bottom: 0; }
 
@@ -2747,7 +2747,7 @@ span.fin-editable { display: inline-block; position: relative; }
 .cc-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 @media (max-width: 1400px) { .cc-grid-3 { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 1100px) { .cc-grid-2, .cc-grid-3 { grid-template-columns: 1fr; } }
-@media (min-width: 1800px) { .cc-grid-2 { grid-template-columns: 1fr 1fr; max-width: 1500px; } .cc-grid-3 { max-width: 1500px; } }
+@media (min-width: 1600px) { .cc-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; } }
 
 /* Animations */
 @keyframes ccFadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
@@ -19866,81 +19866,15 @@ function _ccRenderWorkTab(b, w, s, fc) {
   const hotspots = bugs.hotspots || [];
   const clients = w.clients || [];
   const velocity = (w.velocity || []).slice(-4);
+  const cal = b.calendar || {};
+  const todayEvents = (cal.today || []).concat(cal.tomorrow || []).slice(0, 6);
 
-  // === TOP ROW: Fires + Velocity + Bugs (3 columns) ===
-  html += '<div class="cc-grid-3">';
+  // === ROW 1: Client Work (wide) + Fires (medium) + Velocity/Bugs/Calendar stacked (narrow) ===
+  html += '<div style="display:grid;grid-template-columns:2fr 1.5fr 1fr;gap:16px;">';
 
-  // Fires card
-  html += '<div class="cc-card" style="border-color:rgba(248,81,73,0.15);background:rgba(248,81,73,0.02);">';
-  html += '<h3><span style="color:#f85149;">&#9679;</span> Fires <span class="ct">' + fireCount + '</span></h3>';
-  if (fireCount === 0) {
-    html += '<div style="padding:12px 0;color:#8b949e">No active fires</div>';
-  } else {
-    fires.slice(0, 5).forEach(f => {
-      const sevClass = (f.severity === 'CRITICAL') ? 'cr' : (f.severity === 'URGENT' || f.severity === 'LATE') ? 'la' : 'wa';
-      html += '<div class="cc-fire-row">';
-      html += '<span class="cc-badge ' + sevClass + '">' + esc(f.severity) + '</span>';
-      html += '<span class="cc-fire-t">' + esc(f.title) + '</span>';
-      html += '<span class="cc-fire-c">' + esc(f.client || '') + '</span>';
-      if (f.link_id) {
-        html += '<span class="cc-fire-a" onclick="_ccNavigate(\'' + esc(f.link_type || f.type || 'task') + '\',\'' + esc(f.link_id) + '\')">Open &#8594;</span>';
-      }
-      html += '</div>';
-    });
-  }
-  html += '</div>';
-
-  // Velocity card
-  html += '<div class="cc-card"><h3>Weekly Velocity</h3>';
-  if (velocity.length > 0) {
-    const maxV = Math.max(...velocity.map(v => v.completed || 0), 1);
-    html += '<div style="display:flex;align-items:flex-end;gap:8px;height:120px;padding-top:8px;">';
-    velocity.forEach((v, i) => {
-      const completed = v.completed || 0;
-      const h = Math.max(8, Math.round((completed / maxV) * 100));
-      const isCurrentWeek = (i === velocity.length - 1);
-      const barBg = isCurrentWeek
-        ? 'background:linear-gradient(to top,#1f6feb,#58a6ff);border:1px dashed #58a6ff;opacity:.7;'
-        : 'background:linear-gradient(to top,#238636,#3fb950);';
-      const labelCol = isCurrentWeek ? '#58a6ff' : '#8b949e';
-      html += '<div style="flex:1;text-align:center;">';
-      html += '<div style="font-size:0.9rem;font-weight:700;color:' + labelCol + ';margin-bottom:4px;">' + completed + '</div>';
-      html += '<div style="' + barBg + 'height:' + h + 'px;border-radius:4px 4px 0 0;"></div>';
-      html += '<div style="font-size:0.75rem;color:' + labelCol + ';margin-top:6px;">' + (isCurrentWeek ? 'Now' : 'W' + (i + 1)) + '</div>';
-      html += '</div>';
-    });
-    html += '</div>';
-    if ((stats.blocked || 0) > 0) {
-      html += '<div style="margin-top:10px;font-size:0.82rem;color:#d29922;background:rgba(210,153,34,.06);padding:6px 10px;border-radius:4px;">&#9888; ' + stats.blocked + ' blocker' + (stats.blocked > 1 ? 's' : '') + ' active</div>';
-    }
-  } else {
-    html += '<div style="padding:12px 0;color:#8b949e">No velocity data</div>';
-  }
-  html += '</div>';
-
-  // Bugs card — compact
-  html += '<div class="cc-card"><h3><span>Bugs</span> <span class="ct">' + (critOpen + awaitReview) + ' open</span></h3>';
-  html += '<div style="display:flex;height:10px;border-radius:5px;overflow:hidden;gap:1px;margin-bottom:12px;">';
-  if (critOpen > 0) html += '<div style="background:#f85149;flex:' + critOpen + ';" title="Critical"></div>';
-  if (awaitReview > 0) html += '<div style="background:#58a6ff;flex:' + awaitReview + ';" title="In review"></div>';
-  if (critOpen === 0 && awaitReview === 0) html += '<div style="background:#30363d;flex:1;"></div>';
-  html += '</div>';
-  html += '<div style="display:flex;gap:8px;flex-wrap:wrap;">';
-  if (critOpen > 0) html += '<span class="cc-tag r">' + critOpen + ' critical</span>';
-  if (awaitReview > 0) html += '<span class="cc-tag b">' + awaitReview + ' in review</span>';
-  if (hotspots.length > 0) html += '<span class="cc-tag a">' + hotspots.length + ' hotspots</span>';
-  if (critOpen === 0 && awaitReview === 0) html += '<span style="color:#3fb950;font-size:0.9rem;">All clear</span>';
-  html += '</div>';
-  html += '</div>';
-
-  html += '</div>';
-
-  // === ROW 2: Client work bars (2/3) + Calendar (1/3) ===
-  html += '<div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;">';
-
-  // Client work bars
+  // Client work bars — takes widest column
   html += '<div class="cc-card"><h3><span>Client Work</span></h3>';
-  html += '<div style="font-size:0.78rem;color:#8b949e;margin-bottom:12px;">';
+  html += '<div style="font-size:0.78rem;color:#8b949e;margin-bottom:10px;">';
   html += '<span style="display:inline-block;width:10px;height:10px;background:#238636;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Done ';
   html += '<span style="display:inline-block;width:10px;height:10px;background:#1f6feb;border-radius:2px;margin:0 4px 0 12px;vertical-align:middle;"></span>In progress ';
   html += '<span style="display:inline-block;width:10px;height:10px;background:#30363d;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>To do';
@@ -19948,7 +19882,7 @@ function _ccRenderWorkTab(b, w, s, fc) {
   if (clients.length === 0) {
     html += '<div style="padding:12px 0;color:#8b949e">No client data</div>';
   } else {
-    html += '<div style="display:flex;flex-direction:column;gap:12px;">';
+    html += '<div style="display:flex;flex-direction:column;gap:10px;">';
     clients.forEach(client => {
       const done = client.done || 0;
       const ip = client.in_progress || 0;
@@ -19958,7 +19892,7 @@ function _ccRenderWorkTab(b, w, s, fc) {
       const leftPct = left / total;
       const leftColour = leftPct <= 0.2 ? '#3fb950' : leftPct <= 0.5 ? '#d29922' : '#f85149';
       html += '<div>';
-      html += '<div style="display:flex;justify-content:space-between;margin-bottom:4px;">';
+      html += '<div style="display:flex;justify-content:space-between;margin-bottom:3px;">';
       html += '<span style="font-size:0.9rem;">' + esc(client.name) + '</span>';
       html += '<span style="font-size:0.82rem;color:' + leftColour + ';">' + done + '/' + total + ' &mdash; ' + left + ' left</span>';
       html += '</div>';
@@ -19966,29 +19900,80 @@ function _ccRenderWorkTab(b, w, s, fc) {
       if (done > 0) html += '<div style="background:#238636;flex:' + done + '"></div>';
       if (ip > 0) html += '<div style="background:#1f6feb;flex:' + ip + '"></div>';
       if (todo > 0) html += '<div style="background:#30363d;flex:' + todo + '"></div>';
-      html += '</div>';
-      html += '</div>';
+      html += '</div></div>';
     });
     html += '</div>';
   }
   html += '</div>';
 
-  // Calendar
-  html += '<div class="cc-card"><h3><span>&#128197; Upcoming</span> <span class="ct">calendar</span></h3>';
-  const cal = b.calendar || {};
-  const todayEvents = (cal.today || []).concat(cal.tomorrow || []).slice(0, 6);
-  if (todayEvents.length === 0 && cal.error) {
-    html += '<div style="padding:8px 0;color:#8b949e">' + esc(cal.error) + '</div>';
-  } else if (todayEvents.length === 0) {
-    html += '<div style="padding:8px 0;color:#8b949e">No events found</div>';
+  // Fires card — middle column
+  html += '<div class="cc-card" style="border-color:rgba(248,81,73,0.15);background:rgba(248,81,73,0.02);">';
+  html += '<h3><span style="color:#f85149;">&#9679;</span> Fires <span class="ct">' + fireCount + '</span></h3>';
+  if (fireCount === 0) {
+    html += '<div style="padding:12px 0;color:#8b949e">No active fires</div>';
   } else {
-    todayEvents.forEach(ev => {
+    fires.slice(0, 6).forEach(f => {
+      const sevClass = (f.severity === 'CRITICAL') ? 'cr' : (f.severity === 'URGENT' || f.severity === 'LATE') ? 'la' : 'wa';
+      html += '<div class="cc-fire-row">';
+      html += '<span class="cc-badge ' + sevClass + '">' + esc(f.severity) + '</span>';
+      html += '<span class="cc-fire-t">' + esc(f.title) + '</span>';
+      if (f.link_id) {
+        html += '<span class="cc-fire-a" onclick="_ccNavigate(\'' + esc(f.link_type || f.type || 'task') + '\',\'' + esc(f.link_id) + '\')">Open</span>';
+      }
+      html += '</div>';
+    });
+  }
+  html += '</div>';
+
+  // Right column — Velocity, Bugs, Calendar stacked vertically
+  html += '<div style="display:flex;flex-direction:column;gap:16px;">';
+
+  // Velocity — compact
+  html += '<div class="cc-card"><h3>Velocity</h3>';
+  if (velocity.length > 0) {
+    const maxV = Math.max(...velocity.map(v => v.completed || 0), 1);
+    html += '<div style="display:flex;align-items:flex-end;gap:6px;height:70px;">';
+    velocity.forEach((v, i) => {
+      const completed = v.completed || 0;
+      const h = Math.max(6, Math.round((completed / maxV) * 60));
+      const isCurrentWeek = (i === velocity.length - 1);
+      const barBg = isCurrentWeek
+        ? 'background:linear-gradient(to top,#1f6feb,#58a6ff);opacity:.7;'
+        : 'background:linear-gradient(to top,#238636,#3fb950);';
+      const labelCol = isCurrentWeek ? '#58a6ff' : '#8b949e';
+      html += '<div style="flex:1;text-align:center;">';
+      html += '<div style="font-size:0.82rem;font-weight:700;color:' + labelCol + ';">' + completed + '</div>';
+      html += '<div style="' + barBg + 'height:' + h + 'px;border-radius:3px 3px 0 0;margin-top:2px;"></div>';
+      html += '<div style="font-size:0.72rem;color:' + labelCol + ';margin-top:3px;">' + (isCurrentWeek ? 'Now' : 'W' + (i + 1)) + '</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+  } else {
+    html += '<div style="color:#8b949e">No data</div>';
+  }
+  html += '</div>';
+
+  // Bugs — compact
+  html += '<div class="cc-card"><h3><span>Bugs</span> <span class="ct">' + (critOpen + awaitReview) + '</span></h3>';
+  html += '<div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  if (critOpen > 0) html += '<span class="cc-tag r">' + critOpen + ' critical</span>';
+  if (awaitReview > 0) html += '<span class="cc-tag b">' + awaitReview + ' in review</span>';
+  if (hotspots.length > 0) html += '<span class="cc-tag a">' + hotspots.length + ' hotspots</span>';
+  if (critOpen === 0 && awaitReview === 0) html += '<span style="color:#3fb950;">&#10003; All clear</span>';
+  html += '</div>';
+  html += '</div>';
+
+  // Calendar — compact
+  html += '<div class="cc-card"><h3><span>&#128197; Today</span> <span class="ct">' + todayEvents.length + '</span></h3>';
+  if (todayEvents.length === 0) {
+    html += '<div style="color:#8b949e">' + (cal.error ? esc(cal.error) : 'No events') + '</div>';
+  } else {
+    todayEvents.slice(0, 4).forEach(ev => {
       const t = ev.start ? new Date(ev.start).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : '';
       html += '<div class="cc-row">';
-      html += '<div class="cc-row-icon" style="background:rgba(88,166,255,.1);color:#58a6ff;">&#9673;</div>';
       html += '<div class="cc-row-b">';
       html += '<div class="cc-row-t">' + esc(ev.title || '') + '</div>';
-      html += '<div class="cc-row-m">' + esc(t) + (ev.location ? ' &#183; ' + esc(ev.location) : '') + '</div>';
+      html += '<div class="cc-row-m">' + esc(t) + (ev.location ? ' · ' + esc(ev.location) : '') + '</div>';
       html += '</div>';
       if (ev.online_url) {
         html += '<div class="cc-row-a"><button class="cc-btn p" onclick="window.open(\'' + esc(ev.online_url) + '\',\'_blank\')">Join</button></div>';
@@ -19998,15 +19983,20 @@ function _ccRenderWorkTab(b, w, s, fc) {
   }
   html += '</div>';
 
-  html += '</div>';
+  html += '</div>'; // end right column stack
+  html += '</div>'; // end row 1
 
-  // === ROW 2b: Project Health + Client Signals (F6 + F8) ===
+  // === ROW 2: Client Health + Milestones + Team Workload (3 columns) ===
   var ph = _ccProjectHealth || {};
   var ch = ph.client_health || [];
   var miles = ph.milestones || [];
   var sows = ph.sow_status || [];
-  if (ch.length > 0 || miles.length > 0) {
-    html += '<div class="cc-grid-2" style="margin-bottom:14px">';
+  var tw = _ccTeamWorkload || {};
+  var assignees = tw.assignees || [];
+  var timeLogged = tw.time_logged || [];
+  var spof = tw.spof || [];
+
+  html += '<div class="cc-grid-3">';
 
     // Left: Client Health card
     html += '<div class="cc-card"><h3><span>&#128202; Client Health</span> <span class="ct">risk signals</span></h3>';
@@ -20083,140 +20073,67 @@ function _ccRenderWorkTab(b, w, s, fc) {
     }
 
     if (miles.length === 0 && sows.length === 0) {
-      html += '<div style="padding:8px 0;font-size:0.82rem;color:#8b949e">No upcoming milestones or active contracts</div>';
+      html += '<div style="padding:8px 0;color:#8b949e">No upcoming milestones or active contracts</div>';
     }
     html += '</div>';
 
-    html += '</div>';
-  }
-
-  // === ROW 2c: Team Workload (F9) ===
-  var tw = _ccTeamWorkload || {};
-  var assignees = tw.assignees || [];
-  var timeLogged = tw.time_logged || [];
-  var spof = tw.spof || [];
-  var twAlerts = tw.alerts || [];
-  if (assignees.length > 0) {
-    html += '<div class="cc-grid-2" style="margin-bottom:14px">';
+    // Team Workload — third column
+    html += '<div class="cc-card"><h3><span>&#128101; Team</span> <span class="ct">' + assignees.length + ' people</span></h3>';
     var barColours = ['#238636', '#1f6feb', '#8b5cf6', '#f59e0b', '#f85149', '#06b6d4'];
-
-    // Left: Team Workload card — per-person stacked segment bars
-    html += '<div class="cc-card"><h3><span>&#128101; Team Workload</span> <span class="ct">active tasks per person</span></h3>';
-    assignees.forEach(function(a) {
-      var countCol = a.total > 15 ? '#f85149' : a.total > 10 ? '#d29922' : '#3fb950';
-      html += '<div style="margin-bottom:10px;">';
-      html += '<div style="display:flex;justify-content:space-between;margin-bottom:3px;">';
-      html += '<span style="font-size:0.8rem;">' + esc(a.name) + '</span>';
-      html += '<span style="font-size:0.72rem;font-weight:700;color:' + countCol + ';">' + a.total + '</span>';
-      html += '</div>';
-      // Stacked segment bar
-      html += '<div class="cc-sbar">';
-      a.clients.forEach(function(cl, i) {
-        var col = barColours[i % barColours.length];
-        if (cl.count > 0) {
-          html += '<div style="background:' + col + ';flex:' + cl.count + ';" title="' + esc(cl.client) + ': ' + cl.count + '"></div>';
-        }
-      });
-      html += '</div>';
-      // Client legend pills
-      html += '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;">';
-      a.clients.forEach(function(cl, i) {
-        var col = barColours[i % barColours.length];
-        html += '<span style="font-size:0.58rem;color:' + col + ';background:rgba(0,0,0,.2);border:1px solid ' + col + ';border-radius:3px;padding:1px 4px;">' + esc(cl.client) + ' ' + cl.count + '</span>';
-      });
-      html += '</div>';
-      html += '</div>';
-    });
-    html += '</div>';
-
-    // Right: Time & Alerts card
-    html += '<div class="cc-card"><h3><span>&#9201; Time &amp; Alerts</span> <span class="ct">this week</span></h3>';
-
-    // Hours This Week subsection
-    if (timeLogged.length > 0) {
-      html += '<div class="cc-section-hdr">Hours This Week</div>';
-      timeLogged.forEach(function(t) {
-        html += '<div class="cc-row">';
-        html += '<div class="cc-row-icon" style="background:rgba(88,166,255,.1);color:#58a6ff;">&#9202;</div>';
-        html += '<div class="cc-row-b"><div class="cc-row-t">' + esc(t.user_name) + '</div></div>';
-        html += '<div style="font-size:0.72rem;font-weight:700;color:#58a6ff;white-space:nowrap;">' + t.hours + 'h</div>';
-        html += '</div>';
-      });
+    if (assignees.length === 0) {
+      html += '<div style="color:#8b949e">No assignee data</div>';
     } else {
-      html += '<div class="cc-section-hdr">Hours This Week</div>';
-      html += '<div style="padding:6px 0;font-size:0.8rem;color:#8b949e;">No time entries this week</div>';
-    }
-
-    // Capacity Alerts subsection
-    if (twAlerts.length > 0) {
-      html += '<div class="cc-section-hdr" style="margin-top:8px;">Capacity Alerts</div>';
-      twAlerts.forEach(function(al) {
-        var alCol = al.type === 'overloaded' ? '#f85149' : '#8b949e';
-        var alBg = al.type === 'overloaded' ? 'rgba(248,81,73,.1)' : 'rgba(139,148,158,.1)';
-        html += '<div class="cc-row">';
-        html += '<div class="cc-row-icon" style="background:' + alBg + ';color:' + alCol + ';font-weight:700;font-size:.65rem;">&#9888;</div>';
-        html += '<div class="cc-row-b">';
-        html += '<div class="cc-row-t">' + esc(al.name) + '</div>';
-        html += '<div class="cc-row-m"><span class="cc-tag ' + (al.type === 'overloaded' ? 'r' : '') + '">' + esc(al.type) + '</span></div>';
+      assignees.slice(0, 8).forEach(function(a) {
+        var countCol = a.total > 15 ? '#f85149' : a.total > 10 ? '#d29922' : '#3fb950';
+        html += '<div style="margin-bottom:8px;">';
+        html += '<div style="display:flex;justify-content:space-between;margin-bottom:2px;">';
+        html += '<span style="font-size:0.85rem;">' + esc(a.name) + '</span>';
+        html += '<span style="font-size:0.82rem;font-weight:700;color:' + countCol + ';">' + a.total + '</span>';
         html += '</div>';
-        html += '<div style="font-size:0.72rem;font-weight:700;color:' + alCol + ';white-space:nowrap;">' + al.count + '</div>';
-        html += '</div>';
+        html += '<div class="cc-sbar">';
+        a.clients.forEach(function(cl, i) {
+          if (cl.count > 0) html += '<div style="background:' + barColours[i % barColours.length] + ';flex:' + cl.count + ';" title="' + esc(cl.client) + ': ' + cl.count + '"></div>';
+        });
+        html += '</div></div>';
       });
     }
-
-    // Single Points of Failure subsection
     if (spof.length > 0) {
-      html += '<div class="cc-section-hdr" style="margin-top:8px;color:#f85149;">Single Points of Failure</div>';
+      html += '<div class="cc-section-hdr" style="color:#f85149;margin-top:12px;">SPOF</div>';
       spof.forEach(function(sp) {
-        html += '<div class="cc-row">';
-        html += '<div class="cc-row-icon" style="background:rgba(248,81,73,.15);color:#f85149;font-weight:700;font-size:.65rem;">!!</div>';
-        html += '<div class="cc-row-b">';
-        html += '<div class="cc-row-t">' + esc(sp.assignee) + ' owns ' + sp.pct + '% of ' + esc(sp.client_name) + '</div>';
-        html += '<div class="cc-row-m"><span style="color:#8b949e;">' + sp.assignee_count + '/' + sp.client_total + ' tasks</span></div>';
-        html += '</div>';
-        html += '<div style="font-size:0.72rem;font-weight:700;color:#f85149;white-space:nowrap;">' + sp.pct + '%</div>';
-        html += '</div>';
+        html += '<div style="font-size:0.82rem;color:#f85149;padding:3px 0;">' + esc(sp.assignee) + ' owns ' + sp.pct + '% of ' + esc(sp.client_name) + '</div>';
       });
     }
-
     html += '</div>';
-    html += '</div>';
-  }
 
-  // === Handoff Hub (F12) ===
+  html += '</div>'; // end row 2
+
+  // === ROW 3: Handoff Hub + Work Queue + Improvements (3 columns) ===
+  html += '<div class="cc-grid-3">';
+
+  // Handoff Hub
   var hf = _ccHandoffs || {};
   var handoffProjects = hf.projects || [];
-
-  if (handoffProjects.length > 0) {
-    html += '<div class="cc-card" style="margin-bottom:14px;"><h3><span>&#128221; Handoff Hub</span> <span class="ct">' + handoffProjects.length + ' projects</span></h3>';
+  html += '<div class="cc-card"><h3><span>&#128221; Handoffs</span> <span class="ct">' + handoffProjects.length + '</span></h3>';
+  if (handoffProjects.length === 0) {
+    html += '<div style="color:#8b949e">No handoff files found</div>';
+  } else {
     handoffProjects.forEach(function(p) {
       var h = p.latest_handoff || {};
       var age = h.date ? Math.floor((Date.now() - new Date(h.date).getTime()) / 86400000) : 999;
       var ageColour = age <= 1 ? '#3fb950' : age <= 3 ? '#d29922' : '#8b949e';
       var ageLabel = age === 0 ? 'today' : age === 1 ? 'yesterday' : age + 'd ago';
-
       html += '<div class="cc-row">';
-      html += '<div class="cc-row-icon" style="background:rgba(163,113,247,.1);color:#a371f7;font-size:.55rem;">&#128196;</div>';
+      html += '<div class="cc-row-icon" style="background:rgba(163,113,247,.1);color:#a371f7;">&#128196;</div>';
       html += '<div class="cc-row-b">';
       html += '<div class="cc-row-t">' + esc(p.project.replace(/_/g, ' ')) + '</div>';
-      html += '<div class="cc-row-m">';
-      html += '<span style="color:' + ageColour + ';">' + esc(ageLabel) + '</span>';
-      if (h.branch) html += ' &middot; <span style="font-family:monospace;font-size:.62rem;color:#8b949e;">' + esc(h.branch) + '</span>';
-      html += ' &middot; ' + p.handoff_count + ' handoff' + (p.handoff_count > 1 ? 's' : '');
-      html += '</div>';
-      if (h.whats_next) {
-        var nextLine = h.whats_next.split('\\n')[0] || h.whats_next.split('\n')[0] || '';
-        html += '<div style="font-size:0.72rem;color:#8b949e;margin-top:4px;max-height:3em;overflow:hidden;">' + esc(nextLine) + '</div>';
-      }
-      html += '</div>';
-      html += '<div class="cc-row-a"><button class="cc-btn pu" style="font-size:.6rem;">Resume</button></div>';
+      html += '<div class="cc-row-m"><span style="color:' + ageColour + ';">' + esc(ageLabel) + '</span>';
+      if (h.branch) html += ' &middot; <span style="font-family:monospace;font-size:0.75rem;color:#8b949e;">' + esc(h.branch) + '</span>';
+      html += '</div></div>';
+      html += '<div class="cc-row-a"><button class="cc-btn pu">Resume</button></div>';
       html += '</div>';
     });
-    html += '</div>';
   }
-
-  // === ROW 3: Work Queue + Improvements (2 columns) ===
-  html += '<div class="cc-grid-2">';
+  html += '</div>';
 
   // Work Queue
   html += '<div class="cc-card"><h3><span>&#128293; Work Queue</span> <span class="ct">attention needed</span></h3>';
