@@ -19684,7 +19684,10 @@ async function _ccFetchAll() {
   }
   if (!_ccBriefing && !_ccClientWork) _ccLoadFailed = true;
   _ccLoading = false;
-  if (currentView === 'commandcentre') renderContent();
+  if (currentView === 'commandcentre') {
+    const el = document.getElementById('mainContent');
+    if (el) renderCommandCentre(el);
+  }
 }
 
 function _ccStartPoll() {
