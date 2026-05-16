@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Command Centre — Widescreen Mockup</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0d1117; color: #e6edf3; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif; font-size: 15px; line-height: 1.5; }
+
+  /* Header */
+  .cc-header { background: #161b22; border-bottom: 1px solid #30363d; padding: 10px 32px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+  .cc-header h1 { font-size: 1rem; font-weight: 700; letter-spacing: 0.3px; }
+  .cc-tabs { display: flex; gap: 1px; background: #21262d; border-radius: 6px; padding: 2px; margin-left: 16px; }
+  .cc-tab { padding: 5px 16px; font-size: 0.78rem; border-radius: 4px; cursor: pointer; color: #8b949e; transition: all 0.15s; }
+  .cc-tab:hover { color: #e6edf3; }
+  .cc-tab.active { background: #30363d; color: #e6edf3; font-weight: 600; }
+  .cc-live { display: flex; align-items: center; gap: 8px; font-size: 0.74rem; color: #8b949e; }
+  .cc-live-dot { width: 7px; height: 7px; border-radius: 50%; background: #3fb950; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(63,185,80,0.4); } 50% { box-shadow: 0 0 0 6px rgba(63,185,80,0); } }
+
+  .cc-body { padding: 24px 32px; }
+
+  /* Section */
+  .cc-section { margin-bottom: 28px; }
+  .cc-section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .cc-section-title { font-size: 0.74rem; text-transform: uppercase; letter-spacing: 1.2px; color: #484f58; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .cc-section-count { font-size: 0.7rem; color: #8b949e; background: #21262d; padding: 3px 12px; border-radius: 12px; }
+
+  /* Grids */
+  .cc-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .cc-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .cc-grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 16px; }
+  .cc-grid-wide { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; }
+
+  /* Card */
+  .cc-card { background: #161b22; border: 1px solid #30363d; border-radius: 10px; padding: 20px; }
+  .cc-card h3 { font-size: 0.9rem; font-weight: 600; }
+  .cc-card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+
+  /* Alert banner */
+  .cc-fires { background: rgba(248,81,73,0.06); border: 1px solid rgba(248,81,73,0.2); border-radius: 10px; padding: 4px; }
+  .cc-fire-row { display: flex; align-items: center; gap: 14px; padding: 10px 16px; border-radius: 8px; cursor: pointer; transition: background 0.15s; }
+  .cc-fire-row:hover { background: rgba(248,81,73,0.06); }
+  .cc-badge { font-size: 0.6rem; font-weight: 700; padding: 3px 10px; border-radius: 4px; white-space: nowrap; min-width: 70px; text-align: center; }
+  .cc-badge.crit { background: #da3633; color: white; }
+  .cc-badge.late { background: #9e6a03; color: white; }
+  .cc-badge.warn { background: rgba(210,153,34,0.2); color: #d29922; border: 1px solid rgba(210,153,34,0.3); }
+  .cc-fire-text { font-size: 0.84rem; flex: 1; }
+  .cc-fire-client { font-size: 0.7rem; color: #8b949e; min-width: 110px; text-align: right; }
+  .cc-fire-action { font-size: 0.72rem; color: #58a6ff; cursor: pointer; min-width: 60px; text-align: right; }
+  .cc-fire-action:hover { text-decoration: underline; }
+
+  /* Row items */
+  .cc-row { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: #0d1117; border-radius: 8px; margin-bottom: 6px; border: 1px solid transparent; cursor: pointer; transition: all 0.15s; }
+  .cc-row:hover { border-color: #30363d; background: #0f151c; }
+  .cc-row-icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; flex-shrink: 0; }
+  .cc-row-body { flex: 1; min-width: 0; }
+  .cc-row-title { font-size: 0.84rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cc-row-meta { font-size: 0.7rem; color: #8b949e; margin-top: 1px; }
+  .cc-row-actions { display: flex; gap: 6px; flex-shrink: 0; opacity: 0.7; transition: opacity 0.15s; }
+  .cc-row:hover .cc-row-actions { opacity: 1; }
+
+  /* Buttons */
+  .btn { font-size: 0.7rem; font-weight: 600; padding: 5px 14px; border-radius: 6px; border: 1px solid #30363d; background: #21262d; color: #e6edf3; cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; gap: 4px; }
+  .btn:hover { background: #30363d; border-color: #484f58; }
+  .btn.green { border-color: rgba(63,185,80,0.4); color: #3fb950; }
+  .btn.green:hover { background: rgba(63,185,80,0.12); }
+  .btn.red { border-color: rgba(248,81,73,0.4); color: #f85149; }
+  .btn.red:hover { background: rgba(248,81,73,0.12); }
+  .btn.primary { background: #238636; border-color: #238636; color: white; }
+  .btn.primary:hover { background: #2ea043; }
+  .btn.purple { border-color: rgba(163,113,247,0.4); color: #a371f7; }
+  .btn.purple:hover { background: rgba(163,113,247,0.12); }
+
+  /* Tags */
+  .tag { font-size: 0.62rem; font-weight: 600; padding: 2px 8px; border-radius: 4px; display: inline-block; }
+  .tag.red { background: rgba(248,81,73,0.15); color: #f85149; }
+  .tag.amber { background: rgba(210,153,34,0.15); color: #d29922; }
+  .tag.green { background: rgba(63,185,80,0.15); color: #3fb950; }
+  .tag.blue { background: rgba(88,166,255,0.15); color: #58a6ff; }
+  .tag.purple { background: rgba(163,113,247,0.15); color: #a371f7; }
+
+  /* Granola task card */
+  .granola-task { background: #0d1117; border-radius: 8px; padding: 14px; margin-bottom: 8px; border: 1px solid transparent; transition: border 0.15s; }
+  .granola-task:hover { border-color: #30363d; }
+  .granola-task-title { font-size: 0.84rem; margin-bottom: 4px; }
+  .granola-task-source { font-size: 0.68rem; color: #8b949e; margin-bottom: 8px; }
+  .granola-task-actions { display: flex; gap: 6px; justify-content: flex-end; }
+
+  /* Stacked bar */
+  .stack-bar { display: flex; height: 14px; border-radius: 7px; overflow: hidden; gap: 2px; }
+
+  /* Stat tile */
+  .stat-tile { background: #0d1117; border-radius: 8px; padding: 14px 16px; text-align: center; }
+  .stat-tile .label { font-size: 0.62rem; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .stat-tile .value { font-size: 1.4rem; font-weight: 800; }
+  .stat-tile .sub { font-size: 0.62rem; margin-top: 2px; }
+
+  /* Connection pills */
+  .conn-pill { font-size: 0.62rem; padding: 4px 10px; border-radius: 5px; display: inline-flex; align-items: center; gap: 4px; }
+
+  /* Responsive */
+  @media (max-width: 1200px) {
+    .cc-grid-2 { grid-template-columns: 1fr; }
+    .cc-grid-wide { grid-template-columns: 1fr; }
+    .cc-grid-4 { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ▬▬▬ HEADER ▬▬▬ -->
+<div class="cc-header">
+  <div style="display: flex; align-items: center;">
+    <h1>Command Centre</h1>
+    <div class="cc-tabs">
+      <div class="cc-tab active">Command</div>
+      <div class="cc-tab">Morning Brief</div>
+    </div>
+  </div>
+  <div class="cc-live">
+    <div class="cc-live-dot"></div>
+    Live — refreshed 12s ago
+  </div>
+</div>
+
+<div class="cc-body">
+
+<!-- ▬▬▬ SECTION 1: FIRES ▬▬▬ -->
+<div class="cc-section">
+  <div class="cc-section-head">
+    <div class="cc-section-title"><span style="color:#f85149; font-size: 1rem;">●</span> Fires Across Clients</div>
+    <div class="cc-section-count">4 need attention now</div>
+  </div>
+  <div class="cc-fires">
+    <div class="cc-fire-row">
+      <span class="cc-badge crit">CRITICAL</span>
+      <span class="cc-fire-text">Client portal login crash — 3 users locked out since yesterday 14:00</span>
+      <span class="cc-fire-client">WorkSage</span>
+      <span class="cc-fire-action">Open bug →</span>
+    </div>
+    <div class="cc-fire-row">
+      <span class="cc-badge late">3 DAYS LATE</span>
+      <span class="cc-fire-text">Org structure v2 deliverable not submitted — Dino asked twice</span>
+      <span class="cc-fire-client">Couch Heroes</span>
+      <span class="cc-fire-action">Open task →</span>
+    </div>
+    <div class="cc-fire-row">
+      <span class="cc-badge warn">STALE LEAD</span>
+      <span class="cc-fire-text">Goals Studio — 5 days since last contact, follow-up call not scheduled</span>
+      <span class="cc-fire-client">Goals Studio</span>
+      <span class="cc-fire-action">Open client →</span>
+    </div>
+    <div class="cc-fire-row">
+      <span class="cc-badge crit">BLOCKS DEMOS</span>
+      <span class="cc-fire-text">SalarySage API key still exposed in HTML source — no client demos until fixed</span>
+      <span class="cc-fire-client">SalarySage</span>
+      <span class="cc-fire-action">Open issue →</span>
+    </div>
+  </div>
+</div>
+
+<!-- ▬▬▬ SECTION 2: CLIENT WORK BALANCE ▬▬▬ -->
+<div class="cc-section">
+  <div class="cc-section-head">
+    <div class="cc-section-title">Client Work — To Do vs Done</div>
+    <div class="cc-section-count">56 tasks done last 30 days</div>
+  </div>
+  <div class="cc-card">
+    <div style="display: grid; grid-template-columns: 1fr 1fr 300px; gap: 32px; align-items: start;">
+
+      <!-- Stacked bars per client -->
+      <div>
+        <div style="font-size: 0.72rem; color: #8b949e; margin-bottom: 16px;">
+          <span style="display:inline-block; width:10px; height:10px; background:#238636; border-radius:2px; margin-right:4px;"></span> Done
+          <span style="display:inline-block; width:10px; height:10px; background:#1f6feb; border-radius:2px; margin: 0 4px 0 12px;"></span> In Progress
+          <span style="display:inline-block; width:10px; height:10px; background:#30363d; border-radius:2px; margin-right:4px;"></span> To Do
+        </div>
+
+        <div style="margin-bottom: 14px; cursor: pointer;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+            <span style="font-size: 0.84rem; font-weight: 500;">Couch Heroes</span>
+            <span style="font-size: 0.72rem; color: #d29922;">18/32 — <strong>14 remaining</strong></span>
+          </div>
+          <div class="stack-bar">
+            <div style="background: #238636; flex: 18;"></div>
+            <div style="background: #1f6feb; flex: 6;"></div>
+            <div style="background: #30363d; flex: 8;"></div>
+          </div>
+        </div>
+        <div style="margin-bottom: 14px; cursor: pointer;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+            <span style="font-size: 0.84rem; font-weight: 500;">Lighthouse Studios</span>
+            <span style="font-size: 0.72rem; color: #3fb950;">24/28 — <strong>4 remaining</strong></span>
+          </div>
+          <div class="stack-bar">
+            <div style="background: #238636; flex: 24;"></div>
+            <div style="background: #1f6feb; flex: 3;"></div>
+            <div style="background: #30363d; flex: 1;"></div>
+          </div>
+        </div>
+        <div style="margin-bottom: 14px; cursor: pointer;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+            <span style="font-size: 0.84rem; font-weight: 500;">Sarge Universe</span>
+            <span style="font-size: 0.72rem; color: #f85149;">4/12 — <strong>8 remaining</strong></span>
+          </div>
+          <div class="stack-bar">
+            <div style="background: #238636; flex: 4;"></div>
+            <div style="background: #1f6feb; flex: 2;"></div>
+            <div style="background: #30363d; flex: 6;"></div>
+          </div>
+        </div>
+        <div style="margin-bottom: 14px; cursor: pointer;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+            <span style="font-size: 0.84rem; font-weight: 500;">Goals Studio</span>
+            <span style="font-size: 0.72rem; color: #f85149;">1/5 — <strong>4 remaining</strong></span>
+          </div>
+          <div class="stack-bar">
+            <div style="background: #238636; flex: 1;"></div>
+            <div style="background: #30363d; flex: 4;"></div>
+          </div>
+        </div>
+        <div style="cursor: pointer;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+            <span style="font-size: 0.84rem; font-weight: 500;">Blizzard</span>
+            <span style="font-size: 0.72rem; color: #3fb950;">9/10 — <strong>1 remaining</strong></span>
+          </div>
+          <div class="stack-bar">
+            <div style="background: #238636; flex: 9;"></div>
+            <div style="background: #1f6feb; flex: 1;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Velocity chart -->
+      <div>
+        <div style="font-size: 0.72rem; color: #8b949e; margin-bottom: 16px;">Weekly completion velocity</div>
+        <div style="display: flex; align-items: flex-end; gap: 8px; height: 130px;">
+          <div style="flex:1; display:flex; flex-direction:column; align-items:center;">
+            <div style="width:100%; background: linear-gradient(to top, #238636, #3fb950); height: 65px; border-radius: 4px 4px 0 0;"></div>
+            <span style="font-size:0.62rem; color:#8b949e; margin-top:6px;">W1</span>
+            <span style="font-size:0.68rem; font-weight:600; color:#e6edf3;">14</span>
+          </div>
+          <div style="flex:1; display:flex; flex-direction:column; align-items:center;">
+            <div style="width:100%; background: linear-gradient(to top, #238636, #3fb950); height: 90px; border-radius: 4px 4px 0 0;"></div>
+            <span style="font-size:0.62rem; color:#8b949e; margin-top:6px;">W2</span>
+            <span style="font-size:0.68rem; font-weight:600; color:#e6edf3;">19</span>
+          </div>
+          <div style="flex:1; display:flex; flex-direction:column; align-items:center;">
+            <div style="width:100%; background: linear-gradient(to top, #238636, #3fb950); height: 110px; border-radius: 4px 4px 0 0;"></div>
+            <span style="font-size:0.62rem; color:#8b949e; margin-top:6px;">W3</span>
+            <span style="font-size:0.68rem; font-weight:600; color:#e6edf3;">15</span>
+          </div>
+          <div style="flex:1; display:flex; flex-direction:column; align-items:center;">
+            <div style="width:100%; background: linear-gradient(to top, #1f6feb, #58a6ff); height: 50px; border-radius: 4px 4px 0 0; border: 1px dashed #58a6ff; opacity: 0.7;"></div>
+            <span style="font-size:0.62rem; color:#58a6ff; margin-top:6px;">This wk</span>
+            <span style="font-size:0.68rem; font-weight:600; color:#58a6ff;">8</span>
+          </div>
+        </div>
+        <div style="margin-top: 12px; font-size: 0.74rem; color: #d29922; background: rgba(210,153,34,0.08); padding: 8px 12px; border-radius: 6px;">
+          ⚠ Velocity dipped — 3 blockers active across Couch Heroes and Sarge
+        </div>
+      </div>
+
+      <!-- Summary stats column -->
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <div class="stat-tile">
+          <div class="label">Total Open</div>
+          <div class="value" style="color: #e6edf3;">31</div>
+          <div class="sub" style="color: #8b949e;">across 5 clients</div>
+        </div>
+        <div class="stat-tile">
+          <div class="label">Overdue</div>
+          <div class="value" style="color: #f85149;">4</div>
+          <div class="sub" style="color: #f85149;">oldest: 3 days</div>
+        </div>
+        <div class="stat-tile">
+          <div class="label">Blocked</div>
+          <div class="value" style="color: #d29922;">3</div>
+          <div class="sub" style="color: #d29922;">2 on Glen</div>
+        </div>
+        <div class="stat-tile">
+          <div class="label">Due This Week</div>
+          <div class="value" style="color: #58a6ff;">7</div>
+          <div class="sub" style="color: #8b949e;">3 today</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ▬▬▬ SECTION 3: EMAIL + GRANOLA ▬▬▬ -->
+<div class="cc-section">
+  <div class="cc-grid-2">
+
+    <!-- EMAILS -->
+    <div class="cc-card">
+      <div class="cc-card-head">
+        <h3>📧 Emails Needing Response</h3>
+        <span class="cc-section-count">6 unactioned</span>
+      </div>
+      <div class="cc-row">
+        <div class="cc-row-icon" style="background: rgba(248,81,73,0.12); color: #f85149; font-weight: 700;">!!</div>
+        <div class="cc-row-body">
+          <div class="cc-row-title">Jen MacLean — Re: NBI sweet spots + publisher/VC angle</div>
+          <div class="cc-row-meta"><span class="tag red">57 days</span> &nbsp;jen@macleangames.com</div>
+        </div>
+        <div class="cc-row-actions">
+          <button class="btn">Snooze 7d</button>
+          <button class="btn primary">Reply →</button>
+        </div>
+      </div>
+      <div class="cc-row">
+        <div class="cc-row-icon" style="background: rgba(210,153,34,0.12); color: #d29922; font-weight: 700;">!</div>
+        <div class="cc-row-body">
+          <div class="cc-row-title">Mike Palan (Enoma Capital) — Follow-up from GDC intro</div>
+          <div class="cc-row-meta"><span class="tag amber">12 days</span> &nbsp;mike@enomacapital.com</div>
+        </div>
+        <div class="cc-row-actions">
+          <button class="btn">Snooze 7d</button>
+          <button class="btn primary">Reply →</button>
+        </div>
+      </div>
+      <div class="cc-row">
+        <div class="cc-row-icon" style="background: rgba(88,166,255,0.12); color: #58a6ff;">✉</div>
+        <div class="cc-row-body">
+          <div class="cc-row-title">Dino (Couch Heroes) — Roadmap v15 sign-off needed</div>
+          <div class="cc-row-meta"><span class="tag blue">2 days</span> &nbsp;dino@couchheroes.com</div>
+        </div>
+        <div class="cc-row-actions">
+          <button class="btn">Snooze 7d</button>
+          <button class="btn primary">Reply →</button>
+        </div>
+      </div>
+      <div class="cc-row">
+        <div class="cc-row-icon" style="background: rgba(88,166,255,0.12); color: #58a6ff;">✉</div>
+        <div class="cc-row-body">
+          <div class="cc-row-title">Bryan Rasmussen — QuickBooks Time API token refresh</div>
+          <div class="cc-row-meta"><span class="tag blue">1 day</span> &nbsp;bryan@nbi-consulting.com</div>
+        </div>
+        <div class="cc-row-actions">
+          <button class="btn">Snooze 7d</button>
+          <button class="btn primary">Reply →</button>
+        </div>
+      </div>
+      <div style="text-align: center; padding-top: 10px;">
+        <span style="font-size: 0.74rem; color: #58a6ff; cursor: pointer;">+2 more emails in queue →</span>
+      </div>
+    </div>
+
+    <!-- GRANOLA NOTES -->
+    <div class="cc-card">
+      <div class="cc-card-head">
+        <h3>🎙 Meeting Notes → Tasks</h3>
+        <span class="cc-section-count">5 for review</span>
+      </div>
+      <div style="background:#0d1117; padding: 8px 12px; border-radius: 6px; margin-bottom: 12px; font-size: 0.74rem; color: #8b949e; display: flex; justify-content: space-between;">
+        <span>From: <strong style="color:#e6edf3">Couch Heroes Standup</strong> — 15 May, 09:30</span>
+        <span style="color: #58a6ff; cursor: pointer;">Full notes →</span>
+      </div>
+
+      <div class="granola-task">
+        <div class="granola-task-title">Create job description for Graeme Monk — Senior Producer role</div>
+        <div class="granola-task-source">"Glen to draft JD for Graeme by Friday" · <span class="tag blue">Story</span></div>
+        <div class="granola-task-actions">
+          <button class="btn">✏ Edit</button>
+          <button class="btn red">✗ Reject</button>
+          <button class="btn green">✓ Approve → WorkSage</button>
+        </div>
+      </div>
+      <div class="granola-task">
+        <div class="granola-task-title">Schedule salary benchmarking review with Lorenza next week</div>
+        <div class="granola-task-source">"Lorenza wants salary bands before hiring round" · <span class="tag blue">Task</span></div>
+        <div class="granola-task-actions">
+          <button class="btn">✏ Edit</button>
+          <button class="btn red">✗ Reject</button>
+          <button class="btn green">✓ Approve → WorkSage</button>
+        </div>
+      </div>
+      <div class="granola-task">
+        <div class="granola-task-title">Investigate 40% gap between Design and Engineering estimates</div>
+        <div class="granola-task-source">"Big gap between Miro hours and eng estimates" · <span class="tag amber">Investigation</span></div>
+        <div class="granola-task-actions">
+          <button class="btn">✏ Edit</button>
+          <button class="btn red">✗ Reject</button>
+          <button class="btn green">✓ Approve → WorkSage</button>
+        </div>
+      </div>
+
+      <div style="border-top: 1px solid #21262d; margin-top: 10px; padding-top: 10px; font-size: 0.74rem; color: #8b949e; display: flex; justify-content: space-between;">
+        <span>From: <strong style="color:#e6edf3">Lighthouse Weekly</strong> — 15 May, 14:00</span>
+        <span style="color: #58a6ff; cursor: pointer;">+2 tasks — Expand →</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ▬▬▬ SECTION 4: IMPROVEMENTS + AIOS ▬▬▬ -->
+<div class="cc-section">
+  <div class="cc-grid-wide">
+
+    <!-- IMPROVEMENTS -->
+    <div class="cc-card">
+      <div class="cc-card-head">
+        <h3>🚀 Suggested Improvements</h3>
+      </div>
+
+      <div style="font-size: 0.68rem; text-transform: uppercase; color: #484f58; letter-spacing: 0.5px; margin-bottom: 8px;">WorkSage Platform</div>
+      <div class="cc-row">
+        <div class="cc-row-icon" style="background: rgba(163,113,247,0.12); color: #a371f7;">⚡</div>
+        <div class="cc-row-body">
+          <div class="cc-row-title">Native Gmail queue in CC — eliminate manual email checking</div>
+          <div class="cc-row-meta">Medium effort · High daily impact · Needs Gmail API endpoint</div>
+        </div>
+        <button class="btn purple">Add to backlog</button>
+      </div>
+      <div class="cc-row">
+        <div class="cc-row-icon" style="background: rgba(163,113,247,0.12); color: #a371f7;">⚡</div>
+        <div class="cc-row-body">
+          <div class="cc-row-title">Granola webhook — auto-import meeting notes as draft tasks</div>
+          <div class="cc-row-meta">High effort · Eliminates manual extraction · Needs Granola MCP</div>
+        </div>
+        <button class="btn purple">Add to backlog</button>
+      </div>
+
+      <div style="font-size: 0.68rem; text-transform: uppercase; color: #484f58; letter-spacing: 0.5px; margin: 16px 0 8px;">Client Opportunities</div>
+      <div class="cc-row">
+        <div class="cc-row-icon" style="background: rgba(210,153,34,0.12); color: #d29922;">💡</div>
+        <div class="cc-row-body">
+          <div class="cc-row-title">Couch Heroes sprint velocity report — Dino asked for data visibility</div>
+          <div class="cc-row-meta">Low effort · High client value · Source: yesterday's standup</div>
+        </div>
+        <button class="btn green">Create task</button>
+      </div>
+      <div class="cc-row">
+        <div class="cc-row-icon" style="background: rgba(210,153,34,0.12); color: #d29922;">💡</div>
+        <div class="cc-row-body">
+          <div class="cc-row-title">Sarge Universe pitch deck — competitor slide 6 weeks stale</div>
+          <div class="cc-row-meta">Needs AppMagic PC launch data · Investor-facing · Risk: outdated claims</div>
+        </div>
+        <button class="btn green">Create task</button>
+      </div>
+    </div>
+
+    <!-- AIOS HEALTH (compact) -->
+    <div class="cc-card">
+      <div class="cc-card-head">
+        <h3>🤖 AIOS Health</h3>
+        <div style="font-size: 1.6rem; font-weight: 800; color: #3fb950;">92<span style="font-size: 0.7rem; color: #484f58;">/100</span></div>
+      </div>
+
+      <!-- Four Cs -->
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 16px; text-align: center;">
+        <div>
+          <svg width="56" height="56" viewBox="0 0 56 56">
+            <circle cx="28" cy="28" r="23" fill="none" stroke="#21262d" stroke-width="4"/>
+            <circle cx="28" cy="28" r="23" fill="none" stroke="#3fb950" stroke-width="4" stroke-dasharray="115.6 144.5" stroke-linecap="round" transform="rotate(-90 28 28)"/>
+            <text x="28" y="32" text-anchor="middle" fill="#e6edf3" font-size="15" font-weight="800">8</text>
+          </svg>
+          <div style="font-size: 0.62rem; color: #8b949e;">Context</div>
+        </div>
+        <div>
+          <svg width="56" height="56" viewBox="0 0 56 56">
+            <circle cx="28" cy="28" r="23" fill="none" stroke="#21262d" stroke-width="4"/>
+            <circle cx="28" cy="28" r="23" fill="none" stroke="#3fb950" stroke-width="4" stroke-dasharray="130.1 144.5" stroke-linecap="round" transform="rotate(-90 28 28)"/>
+            <text x="28" y="32" text-anchor="middle" fill="#e6edf3" font-size="15" font-weight="800">9</text>
+          </svg>
+          <div style="font-size: 0.62rem; color: #8b949e;">Connect</div>
+        </div>
+        <div>
+          <svg width="56" height="56" viewBox="0 0 56 56">
+            <circle cx="28" cy="28" r="23" fill="none" stroke="#21262d" stroke-width="4"/>
+            <circle cx="28" cy="28" r="23" fill="none" stroke="#d29922" stroke-width="4" stroke-dasharray="86.7 144.5" stroke-linecap="round" transform="rotate(-90 28 28)"/>
+            <text x="28" y="32" text-anchor="middle" fill="#e6edf3" font-size="15" font-weight="800">6</text>
+          </svg>
+          <div style="font-size: 0.62rem; color: #8b949e;">Capable</div>
+        </div>
+        <div>
+          <svg width="56" height="56" viewBox="0 0 56 56">
+            <circle cx="28" cy="28" r="23" fill="none" stroke="#21262d" stroke-width="4"/>
+            <circle cx="28" cy="28" r="23" fill="none" stroke="#3fb950" stroke-width="4" stroke-dasharray="115.6 144.5" stroke-linecap="round" transform="rotate(-90 28 28)"/>
+            <text x="28" y="32" text-anchor="middle" fill="#e6edf3" font-size="15" font-weight="800">8</text>
+          </svg>
+          <div style="font-size: 0.62rem; color: #8b949e;">Cadence</div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
+        <div class="stat-tile" style="text-align: left;">
+          <div class="label">Dispatch Roles</div>
+          <div class="value" style="font-size: 1.1rem;">13<span style="color:#484f58; font-size:0.8rem;">/33</span></div>
+        </div>
+        <div class="stat-tile" style="text-align: left;">
+          <div class="label">Brain Fresh</div>
+          <div class="value" style="font-size: 1.1rem; color: #d29922;">13<span style="color:#484f58; font-size:0.8rem;">/14</span></div>
+        </div>
+        <div class="stat-tile" style="text-align: left;">
+          <div class="label">Cloud Routines</div>
+          <div class="value" style="font-size: 1.1rem; color: #3fb950;">4/4</div>
+        </div>
+        <div class="stat-tile" style="text-align: left;">
+          <div class="label">Tests Passing</div>
+          <div class="value" style="font-size: 1.1rem; color: #3fb950;">396</div>
+        </div>
+      </div>
+
+      <!-- Connections as pills -->
+      <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+        <span class="conn-pill" style="background: rgba(63,185,80,0.1); color: #3fb950;">✓ Gmail</span>
+        <span class="conn-pill" style="background: rgba(63,185,80,0.1); color: #3fb950;">✓ GCal</span>
+        <span class="conn-pill" style="background: rgba(63,185,80,0.1); color: #3fb950;">✓ Slack</span>
+        <span class="conn-pill" style="background: rgba(63,185,80,0.1); color: #3fb950;">✓ GitHub</span>
+        <span class="conn-pill" style="background: rgba(63,185,80,0.1); color: #3fb950;">✓ Drive</span>
+        <span class="conn-pill" style="background: rgba(63,185,80,0.1); color: #3fb950;">✓ Granola</span>
+        <span class="conn-pill" style="background: rgba(210,153,34,0.1); color: #d29922;">◐ Miro</span>
+        <span class="conn-pill" style="background: rgba(248,81,73,0.1); color: #f85149;">✗ Telegram</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+</body>
+</html>
