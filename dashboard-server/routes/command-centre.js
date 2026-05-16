@@ -1100,15 +1100,16 @@ module.exports = function (ctx) {
       // 1. Per-assignee active tasks grouped by client
       const workloadQ = await pool.query(
         `SELECT
-          t.assignee, c.name as client_name,
+          a as assignee, c.name as client_name,
           COUNT(*)::int as active_count
         FROM tasks t
         LEFT JOIN clients c ON t.client_id = c.id
-        WHERE t.assignee IS NOT NULL AND t.assignee != ''
+        CROSS JOIN LATERAL unnest(t.assignees) AS a
+        WHERE t.assignees IS NOT NULL AND array_length(t.assignees, 1) > 0
           AND t.status NOT IN ('Done', 'Cancelled')
           AND t.item_type IN ('story', 'task')
-        GROUP BY t.assignee, c.name
-        ORDER BY t.assignee, active_count DESC`
+        GROUP BY a, c.name
+        ORDER BY a, active_count DESC`
       );
 
       // 2. Time logged this week
@@ -1126,19 +1127,17 @@ module.exports = function (ctx) {
 
       // 3. SPOF detection (>80% of a client's active tasks assigned to one person)
       const spofQ = await pool.query(
-        `WITH client_totals AS (
-          SELECT client_id, COUNT(*)::int as total
+        `WITH expanded AS (
+          SELECT client_id, unnest(assignees) as assignee
           FROM tasks
           WHERE status NOT IN ('Done','Cancelled') AND item_type IN ('story','task')
-            AND assignee IS NOT NULL AND assignee != ''
-          GROUP BY client_id
+            AND assignees IS NOT NULL AND array_length(assignees, 1) > 0
+        ),
+        client_totals AS (
+          SELECT client_id, COUNT(*)::int as total FROM expanded GROUP BY client_id
         ),
         assignee_counts AS (
-          SELECT client_id, assignee, COUNT(*)::int as cnt
-          FROM tasks
-          WHERE status NOT IN ('Done','Cancelled') AND item_type IN ('story','task')
-            AND assignee IS NOT NULL AND assignee != ''
-          GROUP BY client_id, assignee
+          SELECT client_id, assignee, COUNT(*)::int as cnt FROM expanded GROUP BY client_id, assignee
         )
         SELECT
           ac.assignee, c.name as client_name,

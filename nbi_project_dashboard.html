@@ -215,7 +215,7 @@ html[data-theme="command"] body::before {
   opacity: 0.12;
   filter: brightness(0.6) contrast(1.2);
 }
-html[data-theme="command"] body > * { position: relative; z-index: 1; }
+html[data-theme="command"] body > *:not(.skip-link) { position: relative; z-index: 1; }
 html[data-theme="command"] #warnAlertPanel { position: fixed; z-index: 10001; }
 html[data-theme="command"] .g-header { backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
 html[data-theme="command"] .g-header__logo { color: var(--accent); text-shadow: 0 0 20px rgba(0,212,255,0.3), 0 0 60px rgba(0,212,255,0.1); }
@@ -2632,10 +2632,10 @@ span.fin-editable { display: inline-block; position: relative; }
 }
 
 /* ===== Command Centre — Dense Widescreen Dark ===== */
-.cc-page { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; background: #0d1117; color: #e6edf3; font-size: 14px; line-height: 1.4; }
+.cc-page { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; background: #0d1117; color: #e6edf3; font-size: 15px; line-height: 1.5; }
 
-.cc-header { background: #161b22; border-bottom: 1px solid #30363d; padding: 8px 24px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-.cc-header h1 { font-size: 0.95rem; font-weight: 700; margin: 0; color: #e6edf3; }
+.cc-header { background: #161b22; border-bottom: 1px solid #30363d; padding: 10px 24px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+.cc-header h1 { font-size: 1.05rem; font-weight: 700; margin: 0; color: #e6edf3; }
 .cc-tabs { display: flex; gap: 1px; background: #21262d; border-radius: 5px; padding: 2px; margin-left: 14px; }
 .cc-tab { padding: 3px 14px; font-size: 0.72rem; border-radius: 3px; cursor: pointer; color: #8b949e; border: none; background: none; font-family: inherit; }
 .cc-tab.on { background: #30363d; color: #e6edf3; font-weight: 600; }
@@ -2646,8 +2646,8 @@ span.fin-editable { display: inline-block; position: relative; }
 /* v2 Persistent header stats */
 .cc-header-stats { display: flex; gap: 16px; align-items: center; }
 .cc-hstat { text-align: center; line-height: 1.1; }
-.cc-hstat .v { font-size: 1.1rem; font-weight: 800; color: #e6edf3; }
-.cc-hstat .l { font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.6px; color: #8b949e; display: block; }
+.cc-hstat .v { font-size: 1.3rem; font-weight: 800; color: #e6edf3; }
+.cc-hstat .l { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.6px; color: #8b949e; display: block; }
 .cc-hstat.danger .v { color: #f85149; }
 .cc-hstat.warn .v { color: #d29922; }
 .cc-hstat.info .v { color: #58a6ff; }
@@ -2655,12 +2655,12 @@ span.fin-editable { display: inline-block; position: relative; }
 
 /* v2 Collapsed fires in header */
 .cc-fires-inline { display: flex; align-items: center; gap: 8px; margin-left: 14px; max-width: 500px; overflow: hidden; }
-.cc-fire-count { font-size: 0.72rem; font-weight: 700; color: #f85149; background: rgba(248,81,73,.12); padding: 2px 8px; border-radius: 10px; white-space: nowrap; }
-.cc-fire-preview { font-size: 0.68rem; color: #8b949e; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cc-fire-count { font-size: 0.82rem; font-weight: 700; color: #f85149; background: rgba(248,81,73,.12); padding: 3px 10px; border-radius: 10px; white-space: nowrap; }
+.cc-fire-preview { font-size: 0.78rem; color: #8b949e; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* v2 Tab bar */
-.cc-tab-bar { display: flex; gap: 0; background: #161b22; border-bottom: 1px solid #30363d; padding: 0 24px; position: sticky; top: 45px; z-index: 99; }
-.cc-tab-bar .cc-tab { padding: 8px 20px; font-size: 0.78rem; font-weight: 500; color: #8b949e; cursor: pointer; border-bottom: 2px solid transparent; transition: all .15s; background: none; border-top: none; border-left: none; border-right: none; font-family: inherit; }
+.cc-tab-bar { display: flex; gap: 0; background: #161b22; border-bottom: 1px solid #30363d; padding: 0 24px; position: sticky; top: 49px; z-index: 99; }
+.cc-tab-bar .cc-tab { padding: 10px 24px; font-size: 0.9rem; font-weight: 500; color: #8b949e; cursor: pointer; border-bottom: 2px solid transparent; transition: all .15s; background: none; border-top: none; border-left: none; border-right: none; font-family: inherit; }
 .cc-tab-bar .cc-tab:hover { color: #e6edf3; }
 .cc-tab-bar .cc-tab.on { color: #e6edf3; font-weight: 600; border-bottom-color: #58a6ff; }
 
@@ -2669,35 +2669,35 @@ span.fin-editable { display: inline-block; position: relative; }
 .cc-panel-empty { padding: 60px 24px; text-align: center; color: #8b949e; font-size: 0.9rem; }
 
 /* v2 Section headers inside tabs */
-.cc-section-hdr { font-size: 0.78rem; font-weight: 600; color: #e6edf3; margin: 18px 0 10px 0; padding-bottom: 6px; border-bottom: 1px solid #21262d; display: flex; justify-content: space-between; align-items: center; }
+.cc-section-hdr { font-size: 0.9rem; font-weight: 600; color: #e6edf3; margin: 18px 0 10px 0; padding-bottom: 6px; border-bottom: 1px solid #21262d; display: flex; justify-content: space-between; align-items: center; }
 .cc-section-hdr:first-child { margin-top: 0; }
-.cc-section-hdr .ct { font-size: 0.62rem; color: #8b949e; font-weight: 400; }
+.cc-section-hdr .ct { font-size: 0.75rem; color: #8b949e; font-weight: 400; }
 
-.cc-body { padding: 14px 24px; display: flex; flex-direction: column; gap: 14px; }
+.cc-body { padding: 18px 24px; display: flex; flex-direction: column; gap: 16px; max-width: 1600px; }
 
 .cc-section { margin-bottom: 0; }
 
 /* Cards */
-.cc-card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 14px; min-width: 0; }
-.cc-card h3 { font-size: 0.82rem; font-weight: 600; margin: 0 0 10px 0; display: flex; justify-content: space-between; align-items: center; color: #e6edf3; }
-.cc-card h3 .ct { font-size: 0.65rem; color: #8b949e; font-weight: 400; background: #21262d; padding: 2px 8px; border-radius: 8px; }
+.cc-card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 16px 18px; min-width: 0; }
+.cc-card h3 { font-size: 0.95rem; font-weight: 600; margin: 0 0 12px 0; display: flex; justify-content: space-between; align-items: center; color: #e6edf3; }
+.cc-card h3 .ct { font-size: 0.75rem; color: #8b949e; font-weight: 400; background: #21262d; padding: 2px 8px; border-radius: 8px; }
 
 /* Labels & Tags */
-.cc-lbl { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.8px; color: #484f58; font-weight: 600; margin-bottom: 6px; }
-.cc-tag { font-size: 0.58rem; font-weight: 600; padding: 1px 7px; border-radius: 3px; display: inline-block; }
+.cc-lbl { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.8px; color: #484f58; font-weight: 600; margin-bottom: 6px; }
+.cc-tag { font-size: 0.72rem; font-weight: 600; padding: 2px 8px; border-radius: 3px; display: inline-block; }
 .cc-tag.r { background: rgba(248,81,73,0.15); color: #f85149; }
 .cc-tag.a { background: rgba(210,153,34,0.15); color: #d29922; }
 .cc-tag.g { background: rgba(63,185,80,0.15); color: #3fb950; }
 .cc-tag.b { background: rgba(88,166,255,0.15); color: #58a6ff; }
 
 /* Badges */
-.cc-badge { font-size: 0.65rem; font-weight: 700; padding: 3px 9px; border-radius: 3px; white-space: nowrap; }
+.cc-badge { font-size: 0.78rem; font-weight: 700; padding: 4px 10px; border-radius: 4px; white-space: nowrap; }
 .cc-badge.cr { background: #da3633; color: white; }
 .cc-badge.la { background: #9e6a03; color: white; }
 .cc-badge.wa { background: rgba(210,153,34,0.2); color: #d29922; border: 1px solid rgba(210,153,34,0.3); }
 
 /* Buttons */
-.cc-btn { font-size: 0.65rem; font-weight: 600; padding: 3px 10px; border-radius: 5px; border: 1px solid #30363d; background: #21262d; color: #e6edf3; cursor: pointer; transition: all .12s; white-space: nowrap; font-family: inherit; }
+.cc-btn { font-size: 0.78rem; font-weight: 600; padding: 5px 12px; border-radius: 5px; border: 1px solid #30363d; background: #21262d; color: #e6edf3; cursor: pointer; transition: all .12s; white-space: nowrap; font-family: inherit; }
 .cc-btn:hover { background: #30363d; }
 .cc-btn.g { border-color: rgba(63,185,80,.4); color: #3fb950; }
 .cc-btn.g:hover { background: rgba(63,185,80,.1); }
@@ -2707,30 +2707,30 @@ span.fin-editable { display: inline-block; position: relative; }
 .cc-btn.pu { border-color: rgba(163,113,247,.4); color: #a371f7; }
 
 /* Row items */
-.cc-row { display: flex; align-items: center; gap: 10px; padding: 6px 10px; background: #0d1117; border-radius: 6px; margin-bottom: 4px; border: 1px solid transparent; cursor: pointer; transition: border .12s; }
+.cc-row { display: flex; align-items: center; gap: 12px; padding: 8px 12px; background: #0d1117; border-radius: 6px; margin-bottom: 5px; border: 1px solid transparent; cursor: pointer; transition: border .12s; }
 .cc-row:hover { border-color: #30363d; }
 .cc-row:last-child { margin-bottom: 0; }
-.cc-row-icon { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; flex-shrink: 0; }
+.cc-row-icon { width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.82rem; flex-shrink: 0; }
 .cc-row-b { flex: 1; min-width: 0; }
-.cc-row-t { font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.cc-row-m { font-size: 0.72rem; color: #8b949e; }
-.cc-row-a { display: flex; gap: 4px; flex-shrink: 0; opacity: .6; transition: opacity .12s; }
+.cc-row-t { font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cc-row-m { font-size: 0.82rem; color: #8b949e; }
+.cc-row-a { display: flex; gap: 6px; flex-shrink: 0; opacity: .6; transition: opacity .12s; }
 .cc-row:hover .cc-row-a { opacity: 1; }
 
 /* Stacked bar */
 .cc-sbar { display: flex; height: 11px; border-radius: 6px; overflow: hidden; gap: 1px; }
 
 /* Stat tiles */
-.cc-stat { background: #0d1117; border-radius: 6px; padding: 10px 12px; text-align: center; }
-.cc-stat .v { font-size: 1.4rem; font-weight: 800; line-height: 1.2; }
-.cc-stat .s { font-size: 0.7rem; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px; }
+.cc-stat { background: #0d1117; border-radius: 6px; padding: 12px 14px; text-align: center; }
+.cc-stat .v { font-size: 1.6rem; font-weight: 800; line-height: 1.2; }
+.cc-stat .s { font-size: 0.78rem; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px; }
 
 /* Fire rows */
-.cc-fire-row { display: flex; align-items: center; gap: 12px; padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: background .12s; }
+.cc-fire-row { display: flex; align-items: center; gap: 12px; padding: 7px 12px; border-radius: 6px; cursor: pointer; transition: background .12s; }
 .cc-fire-row:hover { background: rgba(248,81,73,.05); }
-.cc-fire-t { font-size: 0.85rem; flex: 1; }
-.cc-fire-c { font-size: 0.72rem; color: #8b949e; min-width: 90px; text-align: right; }
-.cc-fire-a { font-size: 0.72rem; color: #58a6ff; cursor: pointer; min-width: 55px; text-align: right; }
+.cc-fire-t { font-size: 0.95rem; flex: 1; }
+.cc-fire-c { font-size: 0.82rem; color: #8b949e; min-width: 100px; text-align: right; }
+.cc-fire-a { font-size: 0.82rem; color: #58a6ff; cursor: pointer; min-width: 55px; text-align: right; }
 
 /* Granola task items */
 .cc-gt { background: #0d1117; border-radius: 6px; padding: 8px 10px; margin-bottom: 4px; border: 1px solid transparent; transition: border .12s; }
@@ -2743,10 +2743,11 @@ span.fin-editable { display: inline-block; position: relative; }
 .cc-pill { font-size: 0.56rem; padding: 2px 7px; border-radius: 4px; display: inline-flex; align-items: center; gap: 3px; }
 
 /* Grid layouts */
-.cc-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.cc-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.cc-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.cc-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 @media (max-width: 1400px) { .cc-grid-3 { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 1100px) { .cc-grid-2, .cc-grid-3 { grid-template-columns: 1fr; } }
+@media (min-width: 1800px) { .cc-grid-2 { grid-template-columns: 1fr 1fr; max-width: 1500px; } .cc-grid-3 { max-width: 1500px; } }
 
 /* Animations */
 @keyframes ccFadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
@@ -19856,87 +19857,110 @@ function _ccRenderPage(el) {
 
 function _ccRenderWorkTab(b, w, s, fc) {
   let html = '';
-
-  // === ROW 1: Fires (left) + Stats (right fixed 340px) ===
-  html += '<div style="display:grid;grid-template-columns:1fr 340px;gap:14px;margin-bottom:14px">';
-
-  // Fires card — red border tint like mockup
+  const stats = w.stats || {};
   const fires = (b.fires || []).slice(0, 8);
   const fireCount = fires.length;
-  html += '<div class="cc-card" style="border-color:rgba(248,81,73,0.2);background:rgba(248,81,73,0.03);">';
-  html += '<h3><span><span style="color:#f85149;margin-right:6px;">&#9679;</span> Fires Across Clients</span> <span class="ct">' + fireCount + ' need attention</span></h3>';
+  const bugs = b.bugs || {};
+  const critOpen = (bugs.critical_open || []).length;
+  const awaitReview = (bugs.awaiting_review || []).length;
+  const hotspots = bugs.hotspots || [];
+  const clients = w.clients || [];
+  const velocity = (w.velocity || []).slice(-4);
+
+  // === TOP ROW: Fires + Velocity + Bugs (3 columns) ===
+  html += '<div class="cc-grid-3">';
+
+  // Fires card
+  html += '<div class="cc-card" style="border-color:rgba(248,81,73,0.15);background:rgba(248,81,73,0.02);">';
+  html += '<h3><span style="color:#f85149;">&#9679;</span> Fires <span class="ct">' + fireCount + '</span></h3>';
   if (fireCount === 0) {
-    html += '<div style="padding:12px 0;color:#8b949e;font-size:0.85rem">No active fires</div>';
+    html += '<div style="padding:12px 0;color:#8b949e">No active fires</div>';
   } else {
-    fires.forEach(f => {
+    fires.slice(0, 5).forEach(f => {
       const sevClass = (f.severity === 'CRITICAL') ? 'cr' : (f.severity === 'URGENT' || f.severity === 'LATE') ? 'la' : 'wa';
       html += '<div class="cc-fire-row">';
       html += '<span class="cc-badge ' + sevClass + '">' + esc(f.severity) + '</span>';
       html += '<span class="cc-fire-t">' + esc(f.title) + '</span>';
       html += '<span class="cc-fire-c">' + esc(f.client || '') + '</span>';
-      html += '<span class="cc-fire-a">';
       if (f.link_id) {
-        html += '<span onclick="_ccNavigate(\'' + esc(f.link_type || f.type || 'task') + '\',\'' + esc(f.link_id) + '\')" style="color:#58a6ff;cursor:pointer">Open &#8594;</span>';
+        html += '<span class="cc-fire-a" onclick="_ccNavigate(\'' + esc(f.link_type || f.type || 'task') + '\',\'' + esc(f.link_id) + '\')">Open &#8594;</span>';
       }
-      html += '</span>';
       html += '</div>';
     });
   }
   html += '</div>';
 
-  // Stats grid (2x3) — centered vertical stacks with colour coding
-  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">';
-  const stats = w.stats || {};
-  const critBugCount = (b.bugs || {}).critical_open ? ((b.bugs.critical_open || []).length) : 0;
-  const statItems = [
-    { label: 'OPEN TASKS', v: stats.open_tasks || 0, sub: 'across clients', colour: '' },
-    { label: 'OVERDUE', v: stats.overdue || 0, sub: stats.overdue > 0 ? 'needs attention' : 'on track', colour: (stats.overdue || 0) > 0 ? '#f85149' : '' },
-    { label: 'BLOCKED ON ME', v: stats.blocked || 0, sub: 'action required', colour: (stats.blocked || 0) > 0 ? '#d29922' : '' },
-    { label: 'DUE TODAY', v: stats.due_today || 0, sub: '+ ' + (stats.due_this_week || 0) + ' this week', colour: (stats.due_today || 0) > 0 ? '#58a6ff' : '' },
-    { label: 'TESTS', v: stats.test_count || 396, sub: 'all passing', colour: '#3fb950' },
-    { label: 'AIOS HEALTH', v: fc.context ? Math.round(((fc.context.score || 0) + (fc.connections.score || 0) + (fc.capabilities.score || 0) + (fc.cadence.score || 0)) * 2.5) : 0, sub: '4 Cs score', colour: '#3fb950' }
-  ];
-  statItems.forEach(si => {
-    const colStyle = si.colour ? 'color:' + si.colour + ';' : '';
-    const subStyle = si.colour ? 'color:' + si.colour + ';' : 'color:#8b949e;';
-    html += '<div class="cc-card cc-stat" style="text-align:center;padding:10px 8px;">';
-    html += '<div class="s" style="color:#8b949e;">' + esc(si.label) + '</div>';
-    html += '<div class="v" style="' + colStyle + '">' + si.v + '</div>';
-    html += '<div class="s" style="' + subStyle + '">' + esc(si.sub) + '</div>';
+  // Velocity card
+  html += '<div class="cc-card"><h3>Weekly Velocity</h3>';
+  if (velocity.length > 0) {
+    const maxV = Math.max(...velocity.map(v => v.completed || 0), 1);
+    html += '<div style="display:flex;align-items:flex-end;gap:8px;height:120px;padding-top:8px;">';
+    velocity.forEach((v, i) => {
+      const completed = v.completed || 0;
+      const h = Math.max(8, Math.round((completed / maxV) * 100));
+      const isCurrentWeek = (i === velocity.length - 1);
+      const barBg = isCurrentWeek
+        ? 'background:linear-gradient(to top,#1f6feb,#58a6ff);border:1px dashed #58a6ff;opacity:.7;'
+        : 'background:linear-gradient(to top,#238636,#3fb950);';
+      const labelCol = isCurrentWeek ? '#58a6ff' : '#8b949e';
+      html += '<div style="flex:1;text-align:center;">';
+      html += '<div style="font-size:0.9rem;font-weight:700;color:' + labelCol + ';margin-bottom:4px;">' + completed + '</div>';
+      html += '<div style="' + barBg + 'height:' + h + 'px;border-radius:4px 4px 0 0;"></div>';
+      html += '<div style="font-size:0.75rem;color:' + labelCol + ';margin-top:6px;">' + (isCurrentWeek ? 'Now' : 'W' + (i + 1)) + '</div>';
+      html += '</div>';
+    });
     html += '</div>';
-  });
-  html += '</div>';
-  html += '</div>';
-
-  // === ROW 2: Client work bars (left) + Velocity & Bugs (right split) ===
-  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">';
-
-  // Client work stacked bars — mockup style with legend + flex proportions
-  html += '<div class="cc-card"><h3><span>Client Work &#8212; To Do vs Done</span></h3>';
-  // Legend
-  html += '<div style="font-size:0.65rem;color:#8b949e;margin-bottom:10px;">';
-  html += '<span style="display:inline-block;width:8px;height:8px;background:#238636;border-radius:2px;margin-right:3px;"></span>Done ';
-  html += '<span style="display:inline-block;width:8px;height:8px;background:#1f6feb;border-radius:2px;margin:0 3px 0 10px;"></span>In progress ';
-  html += '<span style="display:inline-block;width:8px;height:8px;background:#30363d;border-radius:2px;margin-right:3px;"></span>To do';
-  html += '</div>';
-  html += '<div style="display:flex;flex-direction:column;gap:10px;">';
-  const clients = w.clients || [];
-  if (clients.length === 0) {
-    html += '<div style="padding:12px 0;color:#8b949e;font-size:0.85rem">No client data</div>';
+    if ((stats.blocked || 0) > 0) {
+      html += '<div style="margin-top:10px;font-size:0.82rem;color:#d29922;background:rgba(210,153,34,.06);padding:6px 10px;border-radius:4px;">&#9888; ' + stats.blocked + ' blocker' + (stats.blocked > 1 ? 's' : '') + ' active</div>';
+    }
   } else {
+    html += '<div style="padding:12px 0;color:#8b949e">No velocity data</div>';
+  }
+  html += '</div>';
+
+  // Bugs card — compact
+  html += '<div class="cc-card"><h3><span>Bugs</span> <span class="ct">' + (critOpen + awaitReview) + ' open</span></h3>';
+  html += '<div style="display:flex;height:10px;border-radius:5px;overflow:hidden;gap:1px;margin-bottom:12px;">';
+  if (critOpen > 0) html += '<div style="background:#f85149;flex:' + critOpen + ';" title="Critical"></div>';
+  if (awaitReview > 0) html += '<div style="background:#58a6ff;flex:' + awaitReview + ';" title="In review"></div>';
+  if (critOpen === 0 && awaitReview === 0) html += '<div style="background:#30363d;flex:1;"></div>';
+  html += '</div>';
+  html += '<div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  if (critOpen > 0) html += '<span class="cc-tag r">' + critOpen + ' critical</span>';
+  if (awaitReview > 0) html += '<span class="cc-tag b">' + awaitReview + ' in review</span>';
+  if (hotspots.length > 0) html += '<span class="cc-tag a">' + hotspots.length + ' hotspots</span>';
+  if (critOpen === 0 && awaitReview === 0) html += '<span style="color:#3fb950;font-size:0.9rem;">All clear</span>';
+  html += '</div>';
+  html += '</div>';
+
+  html += '</div>';
+
+  // === ROW 2: Client work bars (2/3) + Calendar (1/3) ===
+  html += '<div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;">';
+
+  // Client work bars
+  html += '<div class="cc-card"><h3><span>Client Work</span></h3>';
+  html += '<div style="font-size:0.78rem;color:#8b949e;margin-bottom:12px;">';
+  html += '<span style="display:inline-block;width:10px;height:10px;background:#238636;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Done ';
+  html += '<span style="display:inline-block;width:10px;height:10px;background:#1f6feb;border-radius:2px;margin:0 4px 0 12px;vertical-align:middle;"></span>In progress ';
+  html += '<span style="display:inline-block;width:10px;height:10px;background:#30363d;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>To do';
+  html += '</div>';
+  if (clients.length === 0) {
+    html += '<div style="padding:12px 0;color:#8b949e">No client data</div>';
+  } else {
+    html += '<div style="display:flex;flex-direction:column;gap:12px;">';
     clients.forEach(client => {
       const done = client.done || 0;
       const ip = client.in_progress || 0;
       const todo = client.todo || 0;
       const total = client.total || (done + ip + todo) || 1;
       const left = total - done;
-      // Colour the "left" count: green if <20% left, amber if <50%, red if >=50%
       const leftPct = left / total;
       const leftColour = leftPct <= 0.2 ? '#3fb950' : leftPct <= 0.5 ? '#d29922' : '#f85149';
-      html += '<div style="cursor:pointer;">';
-      html += '<div style="display:flex;justify-content:space-between;margin-bottom:3px;">';
-      html += '<span style="font-size:0.8rem;">' + esc(client.name) + '</span>';
-      html += '<span style="font-size:0.68rem;color:' + leftColour + ';">' + done + '/' + total + ' &#8212; ' + left + ' left</span>';
+      html += '<div>';
+      html += '<div style="display:flex;justify-content:space-between;margin-bottom:4px;">';
+      html += '<span style="font-size:0.9rem;">' + esc(client.name) + '</span>';
+      html += '<span style="font-size:0.82rem;color:' + leftColour + ';">' + done + '/' + total + ' &mdash; ' + left + ' left</span>';
       html += '</div>';
       html += '<div class="cc-sbar">';
       if (done > 0) html += '<div style="background:#238636;flex:' + done + '"></div>';
@@ -19945,95 +19969,35 @@ function _ccRenderWorkTab(b, w, s, fc) {
       html += '</div>';
       html += '</div>';
     });
+    html += '</div>';
   }
-  html += '</div></div>';
+  html += '</div>';
 
-  // Velocity + Bug breakdown side by side (right column split into 2)
-  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">';
-
-  // Velocity chart — 100px height, gradient bars, current week dashed
-  html += '<div class="cc-card"><h3>Weekly Velocity</h3>';
-  const velocity = (w.velocity || []).slice(-4);
-  if (velocity.length > 0) {
-    const maxV = Math.max(...velocity.map(v => v.completed || 0), 1);
-    html += '<div style="display:flex;align-items:flex-end;gap:6px;height:100px;">';
-    velocity.forEach((v, i) => {
-      const completed = v.completed || 0;
-      const h = Math.max(6, Math.round((completed / maxV) * 90));
-      const isCurrentWeek = (i === velocity.length - 1);
-      const weekLabel = v.week_start ? 'W' + (i + 1) : (isCurrentWeek ? 'Now' : 'W' + (i + 1));
-      const displayLabel = isCurrentWeek ? 'Now' : weekLabel;
-      const barBg = isCurrentWeek
-        ? 'background:linear-gradient(to top,#1f6feb,#58a6ff);border:1px dashed #58a6ff;opacity:.7;'
-        : 'background:linear-gradient(to top,#238636,#3fb950);';
-      const labelColour = isCurrentWeek ? 'color:#58a6ff;' : 'color:#8b949e;';
-      const numColour = isCurrentWeek ? 'color:#58a6ff;' : '';
-      html += '<div style="flex:1;text-align:center;">';
-      html += '<div style="' + barBg + 'height:' + h + 'px;border-radius:3px 3px 0 0;"></div>';
-      html += '<div style="font-size:0.6rem;' + labelColour + 'margin-top:4px;">' + esc(displayLabel) + '</div>';
-      html += '<div style="font-size:0.68rem;font-weight:700;' + numColour + '">' + completed + '</div>';
+  // Calendar
+  html += '<div class="cc-card"><h3><span>&#128197; Upcoming</span> <span class="ct">calendar</span></h3>';
+  const cal = b.calendar || {};
+  const todayEvents = (cal.today || []).concat(cal.tomorrow || []).slice(0, 6);
+  if (todayEvents.length === 0 && cal.error) {
+    html += '<div style="padding:8px 0;color:#8b949e">' + esc(cal.error) + '</div>';
+  } else if (todayEvents.length === 0) {
+    html += '<div style="padding:8px 0;color:#8b949e">No events found</div>';
+  } else {
+    todayEvents.forEach(ev => {
+      const t = ev.start ? new Date(ev.start).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : '';
+      html += '<div class="cc-row">';
+      html += '<div class="cc-row-icon" style="background:rgba(88,166,255,.1);color:#58a6ff;">&#9673;</div>';
+      html += '<div class="cc-row-b">';
+      html += '<div class="cc-row-t">' + esc(ev.title || '') + '</div>';
+      html += '<div class="cc-row-m">' + esc(t) + (ev.location ? ' &#183; ' + esc(ev.location) : '') + '</div>';
+      html += '</div>';
+      if (ev.online_url) {
+        html += '<div class="cc-row-a"><button class="cc-btn p" onclick="window.open(\'' + esc(ev.online_url) + '\',\'_blank\')">Join</button></div>';
+      }
       html += '</div>';
     });
-    html += '</div>';
-    // Warning message if blockers exist
-    const blockers = (stats.blocked || 0);
-    if (blockers > 0) {
-      html += '<div style="margin-top:8px;font-size:0.68rem;color:#d29922;background:rgba(210,153,34,.06);padding:5px 8px;border-radius:4px;">&#9888; ' + blockers + ' blocker' + (blockers > 1 ? 's' : '') + ' active</div>';
-    }
-  } else {
-    html += '<div style="padding:8px 0;color:#8b949e;font-size:0.85rem">No velocity data</div>';
   }
   html += '</div>';
 
-  // Bug breakdown — stacked colour bar + trend + tags
-  html += '<div class="cc-card"><h3><span>Bugs</span> <span class="ct">' + ((b.bugs || {}).total_open || critBugCount + ((b.bugs || {}).awaiting_review || []).length || 0) + ' open</span></h3>';
-  const bugs = b.bugs || {};
-  const critOpen = (bugs.critical_open || []).length;
-  const highOpen = bugs.high_open || 0;
-  const medOpen = bugs.medium_open || 0;
-  const lowOpen = bugs.low_open || 0;
-  const awaitReview = (bugs.awaiting_review || []).length;
-  const totalBugs = critOpen + highOpen + medOpen + lowOpen || critOpen + awaitReview || 1;
-  // Stacked colour bar
-  html += '<div style="display:flex;height:8px;border-radius:4px;overflow:hidden;gap:1px;margin-bottom:10px;">';
-  if (critOpen > 0) html += '<div style="background:#f85149;flex:' + critOpen + ';" title="Critical"></div>';
-  if (highOpen > 0) html += '<div style="background:#d29922;flex:' + highOpen + ';" title="High"></div>';
-  if (medOpen > 0) html += '<div style="background:#58a6ff;flex:' + medOpen + ';" title="Medium"></div>';
-  if (lowOpen > 0) html += '<div style="background:#484f58;flex:' + lowOpen + ';" title="Low"></div>';
-  if (critOpen === 0 && highOpen === 0 && medOpen === 0 && lowOpen === 0) {
-    // Fallback bar using available data
-    if (critOpen > 0 || awaitReview > 0) {
-      html += '<div style="background:#f85149;flex:' + (critOpen || 1) + ';"></div>';
-      html += '<div style="background:#58a6ff;flex:' + (awaitReview || 1) + ';"></div>';
-    } else {
-      html += '<div style="background:#30363d;flex:1;"></div>';
-    }
-  }
-  html += '</div>';
-  // 7-day mini trend (generated from trend data or placeholder)
-  const bugTrend = bugs.trend_7d || [];
-  if (bugTrend.length > 0) {
-    const trendMax = Math.max(...bugTrend, 1);
-    html += '<div style="display:flex;align-items:flex-end;gap:3px;height:50px;margin-bottom:4px;">';
-    bugTrend.forEach((val, i) => {
-      const tH = Math.max(5, Math.round((val / trendMax) * 100)) + '%';
-      const isToday = i === bugTrend.length - 1;
-      const barCol = isToday ? '#f85149' : '#21262d';
-      html += '<div style="flex:1;background:' + barCol + ';border-radius:2px 2px 0 0;height:' + tH + ';"></div>';
-    });
-    html += '</div>';
-    html += '<div style="display:flex;justify-content:space-between;font-size:0.55rem;color:#484f58;margin-bottom:8px;"><span>7d ago</span><span>today</span></div>';
-  }
-  // Tags
-  html += '<div style="display:flex;gap:6px;flex-wrap:wrap;">';
-  if (critOpen > 0) html += '<span class="cc-tag r">' + critOpen + ' critical</span>';
-  if (awaitReview > 0) html += '<span class="cc-tag b">' + awaitReview + ' in review</span>';
-  const hotspots = bugs.hotspots || [];
-  if (hotspots.length > 0) html += '<span class="cc-tag a">' + hotspots.length + ' hotspots</span>';
-  html += '</div>';
-  html += '</div>';
-
-  html += '</div>';
   html += '</div>';
 
   // === ROW 2b: Project Health + Client Signals (F6 + F8) ===
@@ -20251,62 +20215,37 @@ function _ccRenderWorkTab(b, w, s, fc) {
     html += '</div>';
   }
 
-  // === ROW 3: Calendar + Work Queue + Improvements (3 columns with rich rows) ===
-  html += '<div class="cc-grid-3" style="margin-bottom:14px">';
+  // === ROW 3: Work Queue + Improvements (2 columns) ===
+  html += '<div class="cc-grid-2">';
 
-  // Calendar / upcoming events — rich row style with icons
-  html += '<div class="cc-card"><h3><span>&#128197; Upcoming</span> <span class="ct">calendar</span></h3>';
-  const cal = b.calendar || {};
-  const todayEvents = (cal.today || []).concat(cal.tomorrow || []).slice(0, 5);
-  if (todayEvents.length === 0 && cal.error) {
-    html += '<div style="padding:8px 0;font-size:0.82rem;color:#8b949e">' + esc(cal.error) + '</div>';
-  } else if (todayEvents.length === 0) {
-    html += '<div style="padding:8px 0;font-size:0.82rem;color:#8b949e">No events found</div>';
-  } else {
-    todayEvents.forEach(ev => {
-      const t = ev.start ? new Date(ev.start).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : '';
-      html += '<div class="cc-row">';
-      html += '<div class="cc-row-icon" style="background:rgba(88,166,255,.1);color:#58a6ff;">&#9673;</div>';
-      html += '<div class="cc-row-b">';
-      html += '<div class="cc-row-t">' + esc(ev.title || '') + '</div>';
-      html += '<div class="cc-row-m">' + esc(t) + (ev.location ? ' &#183; ' + esc(ev.location) : '') + '</div>';
-      html += '</div>';
-      if (ev.online_url) {
-        html += '<div class="cc-row-a"><button class="cc-btn p" onclick="window.open(\'' + esc(ev.online_url) + '\',\'_blank\')" style="font-size:.6rem;">Join</button></div>';
-      }
-      html += '</div>';
-    });
-  }
-  html += '</div>';
-
-  // Work Queue — rich rows with priority icons
-  html += '<div class="cc-card"><h3><span>&#128293; Work Queue</span> <span class="ct">attention</span></h3>';
+  // Work Queue
+  html += '<div class="cc-card"><h3><span>&#128293; Work Queue</span> <span class="ct">attention needed</span></h3>';
   const wq = b.work_queue || {};
-  const overdue = (wq.overdue || []).slice(0, 3);
+  const overdue = (wq.overdue || []).slice(0, 4);
   const dueToday = (wq.due_today || []).slice(0, 3);
   const attentionItems = overdue.concat(dueToday);
   if (attentionItems.length === 0) {
-    html += '<div style="padding:8px 0;font-size:0.82rem;color:#8b949e">Nothing urgent</div>';
+    html += '<div style="padding:8px 0;color:#8b949e">Nothing urgent</div>';
   } else {
     attentionItems.forEach(item => {
       const isOverdue = overdue.includes(item);
       const iconBg = isOverdue ? 'background:rgba(248,81,73,.1);color:#f85149;' : 'background:rgba(210,153,34,.1);color:#d29922;';
       const iconChar = isOverdue ? '!!' : '!';
       html += '<div class="cc-row">';
-      html += '<div class="cc-row-icon" style="' + iconBg + 'font-weight:700;font-size:.65rem;">' + iconChar + '</div>';
+      html += '<div class="cc-row-icon" style="' + iconBg + 'font-weight:700;">' + iconChar + '</div>';
       html += '<div class="cc-row-b">';
       html += '<div class="cc-row-t">' + esc(item.title || '') + '</div>';
-      html += '<div class="cc-row-m"><span class="cc-tag ' + (isOverdue ? 'r' : 'a') + '">' + (isOverdue ? 'overdue' : 'today') + '</span>' + (item.client ? ' ' + esc(item.client) : '') + '</div>';
+      html += '<div class="cc-row-m"><span class="cc-tag ' + (isOverdue ? 'r' : 'a') + '">' + (isOverdue ? 'overdue' : 'today') + '</span></div>';
       html += '</div>';
       if (item.id) {
-        html += '<div class="cc-row-a"><button class="cc-btn" onclick="_ccNavigate(\'task\',\'' + esc(item.id) + '\')" style="font-size:.6rem;">Open</button></div>';
+        html += '<div class="cc-row-a"><button class="cc-btn" onclick="_ccNavigate(\'task\',\'' + esc(item.id) + '\')">Open</button></div>';
       }
       html += '</div>';
     });
   }
   html += '</div>';
 
-  // Improvements — rich rows with icons and action buttons
+  // Improvements
   html += '<div class="cc-card"><h3><span>&#128640; Improvements</span> <span class="ct">suggested</span></h3>';
   const kf = b.knowledge_flags || {};
   const staleBrain = kf.stale_brain_modules || [];
@@ -20314,103 +20253,14 @@ function _ccRenderWorkTab(b, w, s, fc) {
   const buckets = conn.buckets || {};
   const missingConns = Object.entries(buckets).filter(([,v]) => v.status === 'missing');
   let improvCount = 0;
-
-  if (staleBrain.length > 0) {
-    improvCount++;
-    html += '<div class="cc-row">';
-    html += '<div class="cc-row-icon" style="background:rgba(210,153,34,.1);color:#d29922;">&#128218;</div>';
-    html += '<div class="cc-row-b">';
-    html += '<div class="cc-row-t">' + staleBrain.length + ' brain modules stale (&gt;30d)</div>';
-    html += '<div class="cc-row-m">Knowledge freshness</div>';
-    html += '</div>';
-    html += '<button class="cc-btn pu" style="font-size:.6rem;">Refresh</button>';
-    html += '</div>';
-  }
-  if (missingConns.length > 0) {
-    improvCount++;
-    html += '<div class="cc-row">';
-    html += '<div class="cc-row-icon" style="background:rgba(248,81,73,.1);color:#f85149;">&#128279;</div>';
-    html += '<div class="cc-row-b">';
-    html += '<div class="cc-row-t">' + missingConns.length + ' blind spots: ' + esc(missingConns.slice(0, 3).map(([n]) => n).join(', ')) + '</div>';
-    html += '<div class="cc-row-m">Connections to add</div>';
-    html += '</div>';
-    html += '<button class="cc-btn pu" style="font-size:.6rem;">Connect</button>';
-    html += '</div>';
-  }
-  if (kf.dormant_roles_count > 0) {
-    improvCount++;
-    html += '<div class="cc-row">';
-    html += '<div class="cc-row-icon" style="background:rgba(163,113,247,.1);color:#a371f7;">&#9889;</div>';
-    html += '<div class="cc-row-b">';
-    html += '<div class="cc-row-t">' + kf.dormant_roles_count + ' dormant roles need refresh</div>';
-    html += '<div class="cc-row-m">Role dispatch system</div>';
-    html += '</div>';
-    html += '<button class="cc-btn pu" style="font-size:.6rem;">Backlog</button>';
-    html += '</div>';
-  }
-  if ((kf.stale_memory_files || []).length > 0) {
-    improvCount++;
-    html += '<div class="cc-row">';
-    html += '<div class="cc-row-icon" style="background:rgba(210,153,34,.1);color:#d29922;">&#128203;</div>';
-    html += '<div class="cc-row-b">';
-    html += '<div class="cc-row-t">' + kf.stale_memory_files.length + ' memory files reference moved targets</div>';
-    html += '<div class="cc-row-m">Memory hygiene</div>';
-    html += '</div>';
-    html += '<button class="cc-btn pu" style="font-size:.6rem;">Review</button>';
-    html += '</div>';
-  }
-  if (improvCount === 0) {
-    html += '<div style="padding:8px 0;font-size:0.82rem;color:#8b949e">All systems healthy</div>';
-  }
+  if (staleBrain.length > 0) { improvCount++; html += '<div class="cc-row"><div class="cc-row-icon" style="background:rgba(210,153,34,.1);color:#d29922;">&#128218;</div><div class="cc-row-b"><div class="cc-row-t">' + staleBrain.length + ' brain modules stale (&gt;30d)</div><div class="cc-row-m">Knowledge freshness</div></div><button class="cc-btn pu">Refresh</button></div>'; }
+  if (missingConns.length > 0) { improvCount++; html += '<div class="cc-row"><div class="cc-row-icon" style="background:rgba(248,81,73,.1);color:#f85149;">&#128279;</div><div class="cc-row-b"><div class="cc-row-t">' + missingConns.length + ' blind spots</div><div class="cc-row-m">' + esc(missingConns.slice(0,3).map(([n]) => n).join(', ')) + '</div></div><button class="cc-btn pu">Connect</button></div>'; }
+  if (kf.dormant_roles_count > 0) { improvCount++; html += '<div class="cc-row"><div class="cc-row-icon" style="background:rgba(163,113,247,.1);color:#a371f7;">&#9889;</div><div class="cc-row-b"><div class="cc-row-t">' + kf.dormant_roles_count + ' dormant roles</div><div class="cc-row-m">Role dispatch system</div></div><button class="cc-btn pu">Backlog</button></div>'; }
+  if ((kf.stale_memory_files || []).length > 0) { improvCount++; html += '<div class="cc-row"><div class="cc-row-icon" style="background:rgba(210,153,34,.1);color:#d29922;">&#128203;</div><div class="cc-row-b"><div class="cc-row-t">' + kf.stale_memory_files.length + ' stale memory files</div><div class="cc-row-m">Reference moved targets</div></div><button class="cc-btn pu">Review</button></div>'; }
+  if (improvCount === 0) { html += '<div style="padding:8px 0;color:#3fb950">&#10003; All systems healthy</div>'; }
   html += '</div>';
 
   html += '</div>';
-
-  // === ROW 4: AIOS Health Strip — 3-section grid like mockup ===
-  html += '<div class="cc-card" style="padding:12px 18px">';
-  html += '<div style="display:grid;grid-template-columns:auto 1fr auto;gap:24px;align-items:center;">';
-
-  // Left: Four Cs rings with small labels
-  html += '<div style="display:flex;gap:12px;align-items:center;">';
-  html += '<span style="font-size:0.72rem;font-weight:600;color:#8b949e;margin-right:4px;">AIOS</span>';
-  ['context', 'connections', 'capabilities', 'cadence'].forEach(key => {
-    const c = fc[key] || { score: 0, max: 10, details: [] };
-    html += _ccRingSvg(c.score, c.max, 40);
-    html += '<span style="font-size:0.58rem;color:#8b949e;">' + esc(key.charAt(0).toUpperCase() + key.slice(1, 3)) + '</span>';
-  });
-  html += '</div>';
-
-  // Middle: inline stats
-  const brain = s.brain || {};
-  const roles = brain.roles || [];
-  const activeRoles = roles.filter(r => r.has_knowledge && r.knowledge_freshness !== null && r.knowledge_freshness < 30).length;
-  const memoryFiles = (s.memory || {}).total_files || 37;
-  const routines = (s.routines || {}).active || 4;
-  const routinesTotal = (s.routines || {}).total || 4;
-  html += '<div style="display:flex;gap:20px;font-size:0.75rem;">';
-  html += '<span>Dispatch <strong>' + activeRoles + '</strong><span style="color:#484f58;">/' + roles.length + '</span></span>';
-  html += '<span>Brain <strong style="color:' + (staleBrain.length > 0 ? '#d29922' : '#3fb950') + ';">' + ((brain.modules_fresh || brain.modules_total || 13)) + '</strong><span style="color:#484f58;">/' + (brain.modules_total || 14) + '</span></span>';
-  html += '<span>Routines <strong style="color:#3fb950;">' + routines + '/' + routinesTotal + '</strong></span>';
-  html += '<span>Tests <strong style="color:#3fb950;">' + (stats.test_count || 396) + '</strong></span>';
-  html += '<span>Memory <strong>' + memoryFiles + '</strong> files</span>';
-  html += '</div>';
-
-  // Right: connection pills
-  html += '<div style="display:flex;gap:4px;flex-wrap:wrap;">';
-  Object.entries(buckets).slice(0, 8).forEach(([name, b2]) => {
-    let pillBg, pillColour, pillIcon;
-    if (b2.status === 'connected') {
-      pillBg = 'rgba(63,185,80,.08)'; pillColour = '#3fb950'; pillIcon = '&#10003;';
-    } else if (b2.status === 'partial') {
-      pillBg = 'rgba(210,153,34,.08)'; pillColour = '#d29922'; pillIcon = '&#9680;';
-    } else {
-      pillBg = 'rgba(248,81,73,.08)'; pillColour = '#f85149'; pillIcon = '&#10007;';
-    }
-    html += '<span class="cc-pill" style="background:' + pillBg + ';color:' + pillColour + ';">' + pillIcon + esc(name) + '</span>';
-  });
-  html += '</div>';
-
-  html += '</div></div>';
 
   return html;
 }
