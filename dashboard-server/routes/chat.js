@@ -39,6 +39,7 @@ module.exports = function attachChat(server, ctx) {
   wss.on('connection', (ws) => {
     let claudeProc = null;
     let buffer = '';
+    let sessionId = null;
 
     ws.on('message', async (raw) => {
       let msg;
@@ -53,7 +54,10 @@ module.exports = function attachChat(server, ctx) {
         let systemPrompt = 'You are PlaySage, Glen Pryer\'s AI assistant embedded in the WorkSage dashboard (NBI Hub) at worksage.nbi-consulting.com.\n';
         systemPrompt += 'You have COMPLETE knowledge of the NBI business (loaded from the NBI Brain below) and LIVE data from the WorkSage PostgreSQL database (queried at this moment).\n';
         systemPrompt += 'Never claim you cannot access WorkSage, the dashboard, tasks, clients, or business data — you already have it all.\n';
-        systemPrompt += 'Answer using this data. Be concise and actionable. British English only.\n\n';
+        systemPrompt += 'IMPORTANT: Answer questions using the data already in this prompt FIRST. Only use tools (Read, Grep, Bash) when the question requires information not present below — such as reading a specific file, checking git history, or running a command.\n';
+        systemPrompt += 'For questions about tasks, bugs, clients, expenses, hiring, milestones — the data is already here. Do not waste turns re-querying what you already have.\n';
+        systemPrompt += 'You DO have skills and tools available for complex requests that need them (code changes, file analysis, research). Use them when genuinely needed.\n';
+        systemPrompt += 'Be concise and actionable. British English only.\n\n';
 
         // Append NBI Brain context
         systemPrompt += '# PART 1: NBI BUSINESS KNOWLEDGE\n\n' + brainContext + '\n\n';
@@ -202,28 +206,34 @@ module.exports = function attachChat(server, ctx) {
           log('warn', 'Chat', 'Failed to build context', { error: e.message });
         }
 
-        // Write system prompt to temp file to avoid Windows command line length limit
-        const promptFile = join(os.tmpdir(), 'playsage-prompt-' + Date.now() + '.txt');
-        writeFileSync(promptFile, systemPrompt, 'utf8');
-        log('info', 'Chat', 'Prompt file written', { chars: systemPrompt.length, file: promptFile });
+        // Write system prompt to temp file (only for first message; resumes use session)
+        let promptFile = null;
+        if (!sessionId) {
+          promptFile = join(os.tmpdir(), 'playsage-prompt-' + Date.now() + '.txt');
+          writeFileSync(promptFile, systemPrompt, 'utf8');
+          log('info', 'Chat', 'Prompt file written', { chars: systemPrompt.length, file: promptFile });
+        } else {
+          log('info', 'Chat', 'Resuming session', { sessionId });
+        }
 
         const args = [
           '-p',
           '--verbose',
           '--output-format', 'stream-json',
           '--include-partial-messages',
-          '--max-turns', '1',
-          '--model', 'opus',
-          '--system-prompt-file', promptFile,
-          '--no-session-persistence',
-          '--disable-slash-commands',
-          '--setting-sources', 'local',
+          '--max-turns', '30',
+          '--model', 'claude-opus-4-6',
         ];
+        if (sessionId) {
+          args.push('--resume', sessionId);
+        } else {
+          args.push('--system-prompt-file', promptFile);
+        }
 
         claudeProc = spawn('claude', args, {
           stdio: ['pipe', 'pipe', 'pipe'],
           shell: true,
-          cwd: os.tmpdir(),
+          cwd: join(__dirname, '..', '..'),
         });
 
         let sentLength = 0;
@@ -235,6 +245,9 @@ module.exports = function attachChat(server, ctx) {
             if (!line.trim()) continue;
             try {
               const parsed = JSON.parse(line);
+              if (parsed.type === 'system' && parsed.session_id && !sessionId) {
+                sessionId = parsed.session_id;
+              }
               if (parsed.type === 'assistant' && parsed.message?.content) {
                 let fullText = '';
                 for (const block of parsed.message.content) {
@@ -246,6 +259,7 @@ module.exports = function attachChat(server, ctx) {
                   ws.send(JSON.stringify({ type: 'chunk', text: delta }));
                 }
               } else if (parsed.type === 'result') {
+                if (parsed.session_id) sessionId = parsed.session_id;
                 ws.send(JSON.stringify({
                   type: 'done',
                   text: parsed.result || '',
@@ -275,10 +289,12 @@ module.exports = function attachChat(server, ctx) {
         });
 
         claudeProc.on('close', (code) => {
-          log('info', 'Chat', 'Claude process closed', { code, stderr: stderrBuf.slice(0, 500) });
-          try { unlinkSync(promptFile); } catch {}
-          if (code !== 0 && ws.readyState === WebSocket.OPEN) {
+          log('info', 'Chat', 'Claude process closed', { code, sentLength, stderr: stderrBuf.slice(0, 500) });
+          if (promptFile) try { unlinkSync(promptFile); } catch {}
+          if (code !== 0 && sentLength === 0 && ws.readyState === WebSocket.OPEN) {
             ws.send(JSON.stringify({ type: 'error', text: 'Claude process exited with code ' + code }));
+          } else if (code !== 0 && sentLength > 0 && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ type: 'done', text: '', note: 'Reached turn limit — response may be partial' }));
           }
           claudeProc = null;
         });
