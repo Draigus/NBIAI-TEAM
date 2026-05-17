@@ -1263,6 +1263,97 @@ module.exports = function (ctx) {
     }
   });
 
+  // ——— Financial Pulse (F7) ———
+  router.get('/api/command-centre/financial-pulse', requireNBI, async (req, res) => {
+    try {
+      // 1. Fetch latest finance_data row
+      const fdResult = await pool.query(
+        'SELECT data, updated_at FROM finance_data ORDER BY id DESC LIMIT 1'
+      );
+      if (!fdResult.rows.length) {
+        return res.status(404).json({ data: null, error: 'No finance data available' });
+      }
+
+      const S = fdResult.rows[0].data || {};
+      const lastUpdated = fdResult.rows[0].updated_at;
+
+      const revenueItems = S.revenue || [];
+      const payrollItems = S.payroll || [];
+      const pipelineItems = S.pipeline || [];
+      const opexItems = S.opex || [];
+
+      // 2. KPI calculations (mirrors Finances view logic)
+      const contractedRevenue = revenueItems.reduce((s, r) => s + (r.annual || 0), 0);
+      const annualPayroll = payrollItems.reduce((s, p) => s + (p.annual || 0), 0);
+      const employerCostPct = parseFloat(S.employerCostPct != null ? S.employerCostPct : 15) / 100;
+      const billableStaffCost = payrollItems.filter(p => p.billable).reduce((s, p) => s + (p.annual || 0), 0);
+      const billableFullCost = Math.round(billableStaffCost * (1 + employerCostPct));
+      const totalStaffFullCost = Math.round(annualPayroll * (1 + employerCostPct));
+      const grossProfit = contractedRevenue - billableFullCost;
+      const grossMarginPct = contractedRevenue > 0 ? Math.round(grossProfit / contractedRevenue * 100) : 0;
+      const annualOpex = opexItems.reduce((s, e) => s + ((e.amount || 0) * 12), 0);
+      const totalOverheads = (totalStaffFullCost - billableFullCost) + annualOpex;
+      const netProfit = grossProfit - totalOverheads;
+      const netMarginPct = contractedRevenue > 0 ? Math.round(netProfit / contractedRevenue * 100) : 0;
+      const monthlyBurn = Math.round((totalStaffFullCost / 12) + (annualOpex / 12));
+      const pipelineTotal = pipelineItems.reduce((s, p) => s + ((p.low || 0) + (p.high || 0)) / 2, 0);
+      const currentYear = new Date().getFullYear();
+      const annualTarget = (S.targets || {})['y' + currentYear] || 0;
+      const targetPct = annualTarget > 0 ? Math.round(contractedRevenue / annualTarget * 100) : 0;
+
+      // 3. Additional DB queries
+      const clientsResult = await pool.query(
+        'SELECT name, contract_value FROM clients WHERE contract_value IS NOT NULL AND contract_value > 0 ORDER BY contract_value DESC'
+      );
+      const sowsResult = await pool.query(
+        "SELECT title, client_id, end_date FROM sows WHERE status = 'active' AND end_date IS NOT NULL AND end_date <= CURRENT_DATE + 60 ORDER BY end_date"
+      );
+
+      const byClient = clientsResult.rows.map(r => ({ name: r.name, value: Number(r.contract_value) }));
+      const contractsTotal = byClient.reduce((s, r) => s + r.value, 0);
+
+      res.json({
+        data: {
+          revenue: {
+            annual_contracted: contractedRevenue,
+            monthly: Math.round(contractedRevenue / 12),
+            by_client: revenueItems.map(r => ({ client: r.client, annual: r.annual || 0, type: r.type || '', status: r.status || '' })),
+            target: annualTarget,
+            target_pct: targetPct,
+          },
+          costs: {
+            annual_payroll: annualPayroll,
+            annual_full_cost: totalStaffFullCost,
+            annual_opex: annualOpex,
+            monthly_burn: monthlyBurn,
+            headcount: payrollItems.length,
+            billable_count: payrollItems.filter(p => p.billable).length,
+          },
+          margins: {
+            gross_profit: grossProfit,
+            gross_margin_pct: grossMarginPct,
+            net_profit: netProfit,
+            net_margin_pct: netMarginPct,
+          },
+          pipeline: {
+            total_value: Math.round(pipelineTotal),
+            count: pipelineItems.length,
+          },
+          contracts: {
+            total_value: contractsTotal,
+            by_client: byClient,
+            expiring_sows: sowsResult.rows,
+          },
+          last_updated: lastUpdated,
+        },
+        error: null,
+      });
+    } catch (e) {
+      log('error', 'CC', 'financial-pulse failed', { error: e.message });
+      res.status(500).json({ data: null, error: e.message });
+    }
+  });
+
   // Export computeSnapshot for Phase 2 cron
   router._computeSnapshot = computeSnapshot;
 

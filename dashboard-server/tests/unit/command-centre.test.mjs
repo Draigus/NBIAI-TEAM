@@ -170,6 +170,9 @@ function makeMockPool(overrides = {}) {
       if (sql.includes('DATE_TRUNC')) {
         return { rows: overrides.velocity || [] };
       }
+      if (sql.includes('finance_data')) {
+        return { rows: overrides.financeData || [] };
+      }
       return { rows: [] };
     }),
   };
@@ -810,5 +813,55 @@ describe('Command Centre — Handoffs endpoint', () => {
       expect(p.latest_handoff).toHaveProperty('title');
       expect(p.latest_handoff).toHaveProperty('date');
     }
+  });
+});
+
+describe('Command Centre — Financial-pulse endpoint', () => {
+  it('GET /api/command-centre/financial-pulse returns correct shape', async () => {
+    const pool = makeMockPool({
+      financeData: [{
+        data: {
+          revenue: [{ client: 'Acme', annual: 120000, type: 'Retainer', status: 'Active', startMonth: 1 }],
+          payroll: [{ name: 'Glen', role: 'MD', monthly: 5000, annual: 60000, billable: true }],
+          pipeline: [],
+          opex: [{ name: 'Office', amount: 500, tag: 'Premises', type: 'recurring' }],
+          targets: { y2026: 500000, y2027: 700000 },
+          employerCostPct: 15,
+        },
+        updated_at: '2026-05-16T10:00:00Z',
+      }],
+    });
+    const { app } = makeApp(pool);
+    const res = await request(app).get('/api/command-centre/financial-pulse');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('revenue');
+    expect(res.body.data).toHaveProperty('costs');
+    expect(res.body.data).toHaveProperty('margins');
+    expect(res.body.data).toHaveProperty('contracts');
+    expect(res.body.data).toHaveProperty('last_updated');
+    expect(res.body.error).toBeNull();
+  });
+
+  it('returns 404 when no finance data exists', async () => {
+    const pool = makeMockPool({ financeData: [] });
+    const { app } = makeApp(pool);
+    const res = await request(app).get('/api/command-centre/financial-pulse');
+    expect(res.status).toBe(404);
+  });
+
+  it('computes gross margin correctly', async () => {
+    const pool = makeMockPool({
+      financeData: [{
+        data: {
+          revenue: [{ client: 'A', annual: 200000 }],
+          payroll: [{ name: 'X', annual: 80000, billable: true }],
+          pipeline: [], opex: [], targets: {}, employerCostPct: 0,
+        },
+        updated_at: '2026-05-16T10:00:00Z',
+      }],
+    });
+    const { app } = makeApp(pool);
+    const res = await request(app).get('/api/command-centre/financial-pulse');
+    expect(res.body.data.margins.gross_margin_pct).toBe(60);
   });
 });
