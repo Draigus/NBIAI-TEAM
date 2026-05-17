@@ -519,6 +519,10 @@ if (require.main === module) {
       db: maskedUrl
     });
   });
+
+  // WebSocket: Claude chat (F13)
+  const attachChat = require('./routes/chat');
+  attachChat(server, { pool, log });
 }
 
 // Export the Express app so supertest/Playwright can import it without
