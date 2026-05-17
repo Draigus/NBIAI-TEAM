@@ -2753,6 +2753,29 @@ span.fin-editable { display: inline-block; position: relative; }
 @keyframes ccFadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 .cc-card { animation: ccFadeUp 0.3s ease both; }
 
+/* v2 Floating chat panel */
+.cc-chat { position: fixed; bottom: 20px; right: 20px; width: 420px; max-height: 520px; background: #161b22; border: 1px solid #30363d; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,.5); display: flex; flex-direction: column; z-index: 500; font-size: 15px; }
+.cc-chat.hidden { display: none; }
+.cc-chat-hdr { padding: 10px 16px; border-bottom: 1px solid #30363d; display: flex; justify-content: space-between; align-items: center; background: #0d1117; border-radius: 12px 12px 0 0; }
+.cc-chat-hdr h4 { margin: 0; font-size: 0.9rem; color: #e6edf3; }
+.cc-chat-close { background: none; border: none; color: #8b949e; cursor: pointer; font-size: 1.1rem; padding: 4px; }
+.cc-chat-close:hover { color: #e6edf3; }
+.cc-chat-msgs { flex: 1; overflow-y: auto; padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; min-height: 200px; max-height: 380px; }
+.cc-chat-msg { padding: 8px 12px; border-radius: 8px; font-size: 0.9rem; line-height: 1.5; max-width: 90%; word-wrap: break-word; white-space: pre-wrap; }
+.cc-chat-msg.user { background: #1f6feb; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
+.cc-chat-msg.assistant { background: #21262d; color: #e6edf3; align-self: flex-start; border-bottom-left-radius: 2px; }
+.cc-chat-msg.error { background: rgba(248,81,73,.1); color: #f85149; align-self: center; font-size: 0.82rem; }
+.cc-chat-msg.typing { color: #8b949e; font-style: italic; }
+.cc-chat-input { display: flex; gap: 8px; padding: 10px 16px; border-top: 1px solid #30363d; background: #0d1117; border-radius: 0 0 12px 12px; }
+.cc-chat-input input { flex: 1; background: #21262d; border: 1px solid #30363d; border-radius: 6px; padding: 8px 12px; color: #e6edf3; font-size: 0.9rem; font-family: inherit; outline: none; }
+.cc-chat-input input:focus { border-color: #58a6ff; }
+.cc-chat-input button { background: #238636; border: none; border-radius: 6px; padding: 8px 14px; color: white; font-weight: 600; cursor: pointer; font-family: inherit; font-size: 0.85rem; }
+.cc-chat-input button:hover { background: #2ea043; }
+.cc-chat-input button:disabled { opacity: .5; cursor: not-allowed; }
+.cc-chat-fab { position: fixed; bottom: 20px; right: 20px; width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #238636, #1f6feb); border: none; color: white; font-size: 1.4rem; cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,.4); z-index: 499; display: flex; align-items: center; justify-content: center; transition: transform .2s; }
+.cc-chat-fab:hover { transform: scale(1.1); }
+.cc-chat-fab.hidden { display: none; }
+
 </style>
 </head>
 <body>
@@ -19855,6 +19878,15 @@ function _ccRenderPage(el) {
   html += '</div>';
 
   html += '</div>';
+
+  // Floating chat panel + FAB (only on CC view)
+  html += '<div id="ccChatPanel" class="cc-chat hidden">';
+  html += '<div class="cc-chat-hdr"><h4>&#9889; Claude</h4><button class="cc-chat-close" onclick="_chatToggle()">&#10005;</button></div>';
+  html += '<div class="cc-chat-msgs" id="ccChatMsgs"></div>';
+  html += '<div class="cc-chat-input"><input id="ccChatInput" placeholder="Ask Claude anything..." onkeydown="_chatKeydown(event)"><button id="ccChatSend" onclick="_chatSend()">Send</button></div>';
+  html += '</div>';
+  html += '<button id="ccChatFab" class="cc-chat-fab" onclick="_chatToggle()" title="Chat with Claude">&#9889;</button>';
+
   el.innerHTML = html;
 }
 
@@ -20679,6 +20711,92 @@ function _ccRenderAiosContent(a) {
 
   html += '</div>'; // end cc-grid-2
   return html;
+}
+
+// ==================== EMBEDDED CLAUDE CHAT ====================
+
+var _chatWs = null;
+var _chatOpen = false;
+var _chatMessages = [];
+var _chatStreaming = false;
+
+function _chatToggle() {
+  _chatOpen = !_chatOpen;
+  var panel = document.getElementById('ccChatPanel');
+  var fab = document.getElementById('ccChatFab');
+  if (panel) panel.className = 'cc-chat' + (_chatOpen ? '' : ' hidden');
+  if (fab) fab.className = 'cc-chat-fab' + (_chatOpen ? ' hidden' : '');
+  if (_chatOpen && !_chatWs) _chatConnect();
+}
+
+function _chatConnect() {
+  var proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  _chatWs = new WebSocket(proto + '//' + location.host + '/ws/chat');
+  _chatWs.onmessage = function(ev) {
+    var msg;
+    try { msg = JSON.parse(ev.data); } catch { return; }
+    if (msg.type === 'chunk') {
+      if (_chatMessages.length > 0 && _chatMessages[_chatMessages.length - 1].role === 'typing') {
+        _chatMessages[_chatMessages.length - 1].text += msg.text;
+      } else {
+        _chatMessages.push({ role: 'typing', text: msg.text });
+      }
+      _chatRenderMsgs();
+    } else if (msg.type === 'done') {
+      if (_chatMessages.length > 0 && _chatMessages[_chatMessages.length - 1].role === 'typing') {
+        _chatMessages[_chatMessages.length - 1].role = 'assistant';
+        _chatMessages[_chatMessages.length - 1].text = msg.text;
+      }
+      _chatStreaming = false;
+      _chatRenderMsgs();
+      var btn = document.getElementById('ccChatSend');
+      if (btn) btn.disabled = false;
+    } else if (msg.type === 'error') {
+      _chatMessages.push({ role: 'error', text: msg.text });
+      _chatStreaming = false;
+      _chatRenderMsgs();
+      var btn2 = document.getElementById('ccChatSend');
+      if (btn2) btn2.disabled = false;
+    }
+  };
+  _chatWs.onclose = function() { _chatWs = null; };
+}
+
+function _chatSend() {
+  var input = document.getElementById('ccChatInput');
+  if (!input || !input.value.trim()) return;
+  var text = input.value.trim();
+  input.value = '';
+  _chatMessages.push({ role: 'user', text: text });
+  _chatStreaming = true;
+  _chatRenderMsgs();
+  var btn = document.getElementById('ccChatSend');
+  if (btn) btn.disabled = true;
+  if (!_chatWs || _chatWs.readyState !== WebSocket.OPEN) _chatConnect();
+  setTimeout(function() {
+    if (_chatWs && _chatWs.readyState === WebSocket.OPEN) {
+      _chatWs.send(JSON.stringify({ type: 'chat', text: text }));
+    }
+  }, 100);
+}
+
+function _chatRenderMsgs() {
+  var container = document.getElementById('ccChatMsgs');
+  if (!container) return;
+  var html = '';
+  _chatMessages.forEach(function(m) {
+    var cls = m.role === 'user' ? 'user' : m.role === 'error' ? 'error' : m.role === 'typing' ? 'assistant typing' : 'assistant';
+    html += '<div class="cc-chat-msg ' + cls + '">' + esc(m.text) + '</div>';
+  });
+  if (_chatStreaming && (_chatMessages.length === 0 || _chatMessages[_chatMessages.length - 1].role !== 'typing')) {
+    html += '<div class="cc-chat-msg assistant typing">Thinking...</div>';
+  }
+  container.innerHTML = html;
+  container.scrollTop = container.scrollHeight;
+}
+
+function _chatKeydown(ev) {
+  if (ev.key === 'Enter' && !ev.shiftKey) { ev.preventDefault(); _chatSend(); }
 }
 
 // ==================== SETTINGS VIEW ====================
