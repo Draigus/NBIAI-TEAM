@@ -2772,9 +2772,11 @@ span.fin-editable { display: inline-block; position: relative; }
 .cc-chat-input button { background: #238636; border: none; border-radius: 6px; padding: 8px 14px; color: white; font-weight: 600; cursor: pointer; font-family: inherit; font-size: 0.85rem; }
 .cc-chat-input button:hover { background: #2ea043; }
 .cc-chat-input button:disabled { opacity: .5; cursor: not-allowed; }
-.cc-chat-fab { position: fixed; bottom: 20px; right: 20px; width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #238636, #1f6feb); border: none; color: white; font-size: 1.4rem; cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,.4); z-index: 499; display: flex; align-items: center; justify-content: center; transition: transform .2s; }
+.cc-chat-fab { position: fixed; bottom: 20px; right: 20px; width: 52px; height: 52px; border-radius: 50%; background: none; border: none; padding: 0; cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,.4); z-index: 499; display: flex; align-items: center; justify-content: center; transition: transform .2s; overflow: hidden; }
 .cc-chat-fab:hover { transform: scale(1.1); }
 .cc-chat-fab.hidden { display: none; }
+.cc-chat-fab.has-alert { animation: chatPulse 2s ease-in-out infinite; box-shadow: 0 0 0 0 rgba(35, 134, 54, 0.7); }
+@keyframes chatPulse { 0% { box-shadow: 0 0 0 0 rgba(35, 134, 54, 0.7); } 50% { box-shadow: 0 0 0 12px rgba(35, 134, 54, 0); } 100% { box-shadow: 0 0 0 0 rgba(35, 134, 54, 0); } }
 
 </style>
 </head>
@@ -19881,11 +19883,11 @@ function _ccRenderPage(el) {
 
   // Floating chat panel + FAB (only on CC view)
   html += '<div id="ccChatPanel" class="cc-chat hidden">';
-  html += '<div class="cc-chat-hdr"><h4><img src="/public/img/playsage-icon.png" style="width:20px;height:20px;vertical-align:middle;margin-right:6px;border-radius:4px;">Claude</h4><button class="cc-chat-close" onclick="_chatToggle()">&#10005;</button></div>';
+  html += '<div class="cc-chat-hdr"><h4><img src="/public/img/playsage-icon.png" style="width:20px;height:20px;vertical-align:middle;margin-right:6px;border-radius:4px;">WorkSage</h4><button class="cc-chat-close" onclick="_chatToggle()">&#10005;</button></div>';
   html += '<div class="cc-chat-msgs" id="ccChatMsgs"></div>';
-  html += '<div class="cc-chat-input"><input id="ccChatInput" placeholder="Ask Claude anything..." onkeydown="_chatKeydown(event)"><button id="ccChatSend" onclick="_chatSend()">Send</button></div>';
+  html += '<div class="cc-chat-input"><input id="ccChatInput" placeholder="Ask WorkSage anything..." onkeydown="_chatKeydown(event)"><button id="ccChatSend" onclick="_chatSend()">Send</button></div>';
   html += '</div>';
-  html += '<button id="ccChatFab" class="cc-chat-fab" onclick="_chatToggle()" title="Chat with Claude"><img src="/public/img/playsage-icon.png" style="width:28px;height:28px;border-radius:50%;"></button>';
+  html += '<button id="ccChatFab" class="cc-chat-fab" onclick="_chatToggle()" title="Chat with WorkSage"><img src="/public/img/playsage-icon.png" style="width:52px;height:52px;border-radius:50%;object-fit:cover;"></button>';
 
   el.innerHTML = html;
 }
@@ -20726,7 +20728,18 @@ function _chatToggle() {
   var fab = document.getElementById('ccChatFab');
   if (panel) panel.className = 'cc-chat' + (_chatOpen ? '' : ' hidden');
   if (fab) fab.className = 'cc-chat-fab' + (_chatOpen ? ' hidden' : '');
+  if (_chatOpen) _chatClearAlert();
   if (_chatOpen && !_chatWs) _chatConnect();
+}
+
+function _chatAlert() {
+  var fab = document.getElementById('ccChatFab');
+  if (fab && !_chatOpen) fab.classList.add('has-alert');
+}
+
+function _chatClearAlert() {
+  var fab = document.getElementById('ccChatFab');
+  if (fab) fab.classList.remove('has-alert');
 }
 
 function _chatConnect() {
