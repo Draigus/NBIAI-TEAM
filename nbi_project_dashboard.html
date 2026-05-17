@@ -2761,9 +2761,11 @@ span.fin-editable { display: inline-block; position: relative; }
 .cc-chat-close { background: none; border: none; color: #8b949e; cursor: pointer; font-size: 1.1rem; padding: 4px; }
 .cc-chat-close:hover { color: #e6edf3; }
 .cc-chat-msgs { flex: 1; overflow-y: auto; padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; min-height: 200px; max-height: 380px; }
-.cc-chat-msg { padding: 8px 12px; border-radius: 8px; font-size: 0.9rem; line-height: 1.5; max-width: 90%; word-wrap: break-word; white-space: pre-wrap; }
-.cc-chat-msg.user { background: #1f6feb; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
+.cc-chat-msg { padding: 8px 12px; border-radius: 8px; font-size: 0.9rem; line-height: 1.5; max-width: 90%; word-wrap: break-word; }
+.cc-chat-msg.user { background: #1f6feb; color: white; align-self: flex-end; border-bottom-right-radius: 2px; white-space: pre-wrap; }
 .cc-chat-msg.assistant { background: #21262d; color: #e6edf3; align-self: flex-start; border-bottom-left-radius: 2px; }
+.cc-chat-msg.assistant code { background: rgba(110,118,129,.2); padding: 1px 4px; border-radius: 3px; font-size: 0.85em; }
+.cc-chat-msg.assistant strong { color: #58a6ff; }
 .cc-chat-msg.error { background: rgba(248,81,73,.1); color: #f85149; align-self: center; font-size: 0.82rem; }
 .cc-chat-msg.typing { color: #8b949e; font-style: italic; }
 .cc-chat-input { display: flex; gap: 8px; padding: 10px 16px; border-top: 1px solid #30363d; background: #0d1117; border-radius: 0 0 12px 12px; }
@@ -2776,6 +2778,7 @@ span.fin-editable { display: inline-block; position: relative; }
 .cc-chat-fab:hover { transform: scale(1.1); }
 .cc-chat-fab.hidden { display: none; }
 .cc-chat-fab.has-alert { animation: chatPulse 2s ease-in-out infinite; box-shadow: 0 0 0 0 rgba(35, 134, 54, 0.7); }
+.cc-chat-fab.has-alert img { content: url('/public/img/playsage-notify.gif'); }
 @keyframes chatPulse { 0% { box-shadow: 0 0 0 0 rgba(35, 134, 54, 0.7); } 50% { box-shadow: 0 0 0 12px rgba(35, 134, 54, 0); } 100% { box-shadow: 0 0 0 0 rgba(35, 134, 54, 0); } }
 
 </style>
@@ -5352,6 +5355,9 @@ function switchView(view) {
   // Always collapse the tree when entering the Projects page
   if (view === 'tasks') { _tasksInitialCollapse = true; }
   if (prev !== view) { history.pushState({ view, filter: { ...currentFilter }, taskSubView }, '', '#' + view); }
+  // Show/hide PlaySage chat root when entering/leaving CC
+  var chatRoot = document.getElementById('ccChatRoot');
+  if (chatRoot) chatRoot.style.display = (view === 'commandcentre') ? '' : 'none';
   renderAll();
 }
 window.addEventListener('popstate', e => {
@@ -19881,15 +19887,22 @@ function _ccRenderPage(el) {
 
   html += '</div>';
 
-  // Floating chat panel + FAB (only on CC view)
-  html += '<div id="ccChatPanel" class="cc-chat hidden">';
-  html += '<div class="cc-chat-hdr"><h4><img src="/public/img/playsage-icon.png" style="width:20px;height:20px;vertical-align:middle;margin-right:6px;border-radius:4px;">WorkSage</h4><button class="cc-chat-close" onclick="_chatToggle()">&#10005;</button></div>';
-  html += '<div class="cc-chat-msgs" id="ccChatMsgs"></div>';
-  html += '<div class="cc-chat-input"><input id="ccChatInput" placeholder="Ask WorkSage anything..." onkeydown="_chatKeydown(event)"><button id="ccChatSend" onclick="_chatSend()">Send</button></div>';
-  html += '</div>';
-  html += '<button id="ccChatFab" class="cc-chat-fab" onclick="_chatToggle()" title="Chat with WorkSage"><img src="/public/img/playsage-icon.png" style="width:52px;height:52px;border-radius:50%;object-fit:cover;"></button>';
-
   el.innerHTML = html;
+
+  // Floating chat panel + FAB — rendered into body once, survives CC re-renders
+  if (!document.getElementById('ccChatPanel')) {
+    var chatHtml = '<div id="ccChatPanel" class="cc-chat hidden">';
+    chatHtml += '<div class="cc-chat-hdr"><h4><img src="/public/img/playsage-icon.png" style="width:20px;height:20px;vertical-align:middle;margin-right:6px;border-radius:4px;">PlaySage</h4><button class="cc-chat-close" onclick="_chatToggle()">&#10005;</button></div>';
+    chatHtml += '<div class="cc-chat-msgs" id="ccChatMsgs"></div>';
+    chatHtml += '<div class="cc-chat-input"><input id="ccChatInput" placeholder="Ask PlaySage anything..." onkeydown="_chatKeydown(event)"><button id="ccChatSend" onclick="_chatSend()">Send</button></div>';
+    chatHtml += '</div>';
+    chatHtml += '<button id="ccChatFab" class="cc-chat-fab" onclick="_chatToggle()" title="Chat with PlaySage"><img src="/public/img/playsage-icon.png" style="width:52px;height:52px;border-radius:50%;object-fit:cover;"></button>';
+    var chatContainer = document.createElement('div');
+    chatContainer.id = 'ccChatRoot';
+    chatContainer.innerHTML = chatHtml;
+    document.body.appendChild(chatContainer);
+    new Image().src = '/public/img/playsage-notify.gif';
+  }
 }
 
 // ——— WORK TAB (4-row layout) ———
@@ -20734,12 +20747,20 @@ function _chatToggle() {
 
 function _chatAlert() {
   var fab = document.getElementById('ccChatFab');
-  if (fab && !_chatOpen) fab.classList.add('has-alert');
+  if (fab && !_chatOpen) {
+    fab.classList.add('has-alert');
+    var img = fab.querySelector('img');
+    if (img) img.src = '/public/img/playsage-notify.gif';
+  }
 }
 
 function _chatClearAlert() {
   var fab = document.getElementById('ccChatFab');
-  if (fab) fab.classList.remove('has-alert');
+  if (fab) {
+    fab.classList.remove('has-alert');
+    var img = fab.querySelector('img');
+    if (img) img.src = '/public/img/playsage-icon.png';
+  }
 }
 
 function _chatConnect() {
@@ -20799,13 +20820,29 @@ function _chatRenderMsgs() {
   var html = '';
   _chatMessages.forEach(function(m) {
     var cls = m.role === 'user' ? 'user' : m.role === 'error' ? 'error' : m.role === 'typing' ? 'assistant typing' : 'assistant';
-    html += '<div class="cc-chat-msg ' + cls + '">' + esc(m.text) + '</div>';
+    var content = m.role === 'user' || m.role === 'error' ? esc(m.text) : _chatMd(m.text);
+    html += '<div class="cc-chat-msg ' + cls + '">' + content + '</div>';
   });
   if (_chatStreaming && (_chatMessages.length === 0 || _chatMessages[_chatMessages.length - 1].role !== 'typing')) {
     html += '<div class="cc-chat-msg assistant typing">Thinking...</div>';
   }
   container.innerHTML = html;
   container.scrollTop = container.scrollHeight;
+}
+
+function _chatMd(text) {
+  if (!text) return '';
+  var s = esc(text);
+  s = s.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  s = s.replace(/\*(.*?)\*/g, '<em>$1</em>');
+  s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
+  s = s.replace(/^### (.*$)/gm, '<strong style="font-size:0.9em;">$1</strong>');
+  s = s.replace(/^## (.*$)/gm, '<strong style="font-size:0.95em;">$1</strong>');
+  s = s.replace(/^# (.*$)/gm, '<strong style="font-size:1em;">$1</strong>');
+  s = s.replace(/^- (.*$)/gm, '&bull; $1');
+  s = s.replace(/^\d+\. (.*$)/gm, function(m, p1) { return '&bull; ' + p1; });
+  s = s.replace(/\n/g, '<br>');
+  return s;
 }
 
 function _chatKeydown(ev) {
