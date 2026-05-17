@@ -62,6 +62,7 @@ module.exports = function attachChat(server, ctx) {
           '--system-prompt', systemPrompt,
           '--no-session-persistence',
           '--disable-slash-commands',
+          '--setting-sources', 'local',
         ];
 
         claudeProc = spawn('claude', args, {
