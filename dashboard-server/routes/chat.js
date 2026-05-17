@@ -54,17 +54,23 @@ module.exports = function attachChat(server, ctx) {
 
         const args = [
           '-p',
+          '--verbose',
           '--output-format', 'stream-json',
+          '--include-partial-messages',
           '--max-turns', '1',
+          '--model', 'sonnet',
           '--system-prompt', systemPrompt,
           '--no-session-persistence',
-          '--bare',
+          '--disable-slash-commands',
         ];
 
         claudeProc = spawn('claude', args, {
           stdio: ['pipe', 'pipe', 'pipe'],
           shell: true,
+          cwd: require('os').tmpdir(),
         });
+
+        let sentLength = 0;
 
         claudeProc.stdout.on('data', (chunk) => {
           const lines = (buffer + chunk.toString()).split('\n');
@@ -74,10 +80,14 @@ module.exports = function attachChat(server, ctx) {
             try {
               const parsed = JSON.parse(line);
               if (parsed.type === 'assistant' && parsed.message?.content) {
+                let fullText = '';
                 for (const block of parsed.message.content) {
-                  if (block.type === 'text' && block.text) {
-                    ws.send(JSON.stringify({ type: 'chunk', text: block.text }));
-                  }
+                  if (block.type === 'text') fullText += block.text;
+                }
+                if (fullText.length > sentLength) {
+                  const delta = fullText.slice(sentLength);
+                  sentLength = fullText.length;
+                  ws.send(JSON.stringify({ type: 'chunk', text: delta }));
                 }
               } else if (parsed.type === 'result') {
                 ws.send(JSON.stringify({
