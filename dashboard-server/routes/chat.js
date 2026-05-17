@@ -58,7 +58,7 @@ module.exports = function attachChat(server, ctx) {
           '--output-format', 'stream-json',
           '--include-partial-messages',
           '--max-turns', '1',
-          '--model', 'sonnet',
+          '--model', 'opus',
           '--system-prompt', systemPrompt,
           '--no-session-persistence',
           '--disable-slash-commands',
