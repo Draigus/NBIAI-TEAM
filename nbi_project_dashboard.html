@@ -19669,6 +19669,7 @@ let _ccAiosDetail = null;
 let _ccTeamWorkload = null;
 let _ccHandoffs = null;
 let _ccProjectHealth = null;
+let _ccFinancialPulse = null;
 let _ccLoading = false;
 let _ccLoadFailed = false;
 const _ccValidTabs = ['work', 'pipeline', 'money', 'aios', 'comms'];
@@ -19699,7 +19700,7 @@ function renderCommandCentre(el) {
 async function _ccFetchAll() {
   _ccLoading = true;
   try {
-    const [briefRes, workRes, snapRes, pipeRes, aiosRes, teamRes, handoffRes, healthRes] = await Promise.allSettled([
+    const [briefRes, workRes, snapRes, pipeRes, aiosRes, teamRes, handoffRes, healthRes, finRes] = await Promise.allSettled([
       apiCall('/api/command-centre/briefing'),
       apiCall('/api/command-centre/client-work'),
       apiCall('/api/command-centre/snapshot'),
@@ -19707,7 +19708,8 @@ async function _ccFetchAll() {
       apiCall('/api/command-centre/aios-detail'),
       apiCall('/api/command-centre/team-workload'),
       apiCall('/api/command-centre/handoffs'),
-      apiCall('/api/command-centre/project-health')
+      apiCall('/api/command-centre/project-health'),
+      apiCall('/api/command-centre/financial-pulse')
     ]);
     if (briefRes.status === 'fulfilled' && briefRes.value) {
       _ccBriefing = briefRes.value.data || briefRes.value;
@@ -19733,6 +19735,9 @@ async function _ccFetchAll() {
     }
     if (healthRes.status === 'fulfilled' && healthRes.value) {
       _ccProjectHealth = healthRes.value.data || healthRes.value;
+    }
+    if (finRes.status === 'fulfilled' && finRes.value) {
+      _ccFinancialPulse = finRes.value.data || finRes.value;
     }
   } catch (e) {
     console.warn('[CC] fetch error:', e);
@@ -20191,7 +20196,216 @@ function _ccRenderPipelineTab() {
 }
 
 function _ccRenderMoneyTab() {
-  return '<div class="cc-panel-empty">Financial Pulse &mdash; coming in Phase 2.<br><span style="font-size:0.75rem;color:#484f58;">Revenue tracking, invoice status, contract values.</span></div>';
+  if (!_ccFinancialPulse) return '<div class="cc-panel-empty">Loading financial data...</div>';
+
+  var f = _ccFinancialPulse;
+  var rev = f.revenue || {};
+  var costs = f.costs || {};
+  var margins = f.margins || {};
+  var pipe = f.pipeline || {};
+  var contracts = f.contracts || {};
+
+  // helper: format money as £Xk
+  function fmtK(v) { return '&pound;' + Math.round((v || 0) / 1000) + 'k'; }
+  function fmtPct(v) { return Math.round(v || 0) + '%'; }
+
+  // colour helpers
+  function grossMarginColour(pct) {
+    if (pct >= 40) return '#3fb950';
+    if (pct >= 20) return '#d29922';
+    return '#f85149';
+  }
+  function netMarginColour(pct) {
+    if (pct >= 15) return '#3fb950';
+    if (pct >= 0) return '#d29922';
+    return '#f85149';
+  }
+  function targetColour(pct) {
+    if (pct >= 80) return '#3fb950';
+    if (pct >= 50) return '#d29922';
+    return '#f85149';
+  }
+
+  var gm = margins.gross_margin_pct || 0;
+  var nm = margins.net_margin_pct || 0;
+  var tp = rev.target_pct || 0;
+
+  var html = '';
+
+  // ——— TOP ROW: 6 KPI STAT TILES ———
+  html += '<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:16px;">';
+
+  // Annual Revenue
+  html += '<div class="cc-stat">';
+  html += '<div class="v" style="color:#3fb950;">' + fmtK(rev.annual_contracted) + '</div>';
+  html += '<div class="s">Annual Revenue</div>';
+  html += '</div>';
+
+  // Monthly Burn
+  html += '<div class="cc-stat">';
+  html += '<div class="v" style="color:#f85149;">' + fmtK(costs.monthly_burn) + '</div>';
+  html += '<div class="s">Monthly Burn</div>';
+  html += '</div>';
+
+  // Gross Margin
+  html += '<div class="cc-stat">';
+  html += '<div class="v" style="color:' + grossMarginColour(gm) + ';">' + fmtPct(gm) + '</div>';
+  html += '<div class="s">Gross Margin</div>';
+  html += '</div>';
+
+  // Net Margin
+  html += '<div class="cc-stat">';
+  html += '<div class="v" style="color:' + netMarginColour(nm) + ';">' + fmtPct(nm) + '</div>';
+  html += '<div class="s">Net Margin</div>';
+  html += '</div>';
+
+  // Pipeline
+  html += '<div class="cc-stat">';
+  html += '<div class="v" style="color:#58a6ff;">' + fmtK(pipe.total_value) + '</div>';
+  html += '<div class="s">Pipeline</div>';
+  html += '</div>';
+
+  // Revenue vs Target
+  html += '<div class="cc-stat">';
+  html += '<div class="v" style="color:' + targetColour(tp) + ';">' + fmtPct(tp) + '</div>';
+  html += '<div class="s">vs Target</div>';
+  html += '</div>';
+
+  html += '</div>'; // end KPI grid
+
+  // ——— ROW 2: 3-COLUMN GRID ———
+  html += '<div class="cc-grid-3">';
+
+  // —— CARD 1: Revenue by Client ——
+  html += '<div class="cc-card">';
+  html += '<h3><span>&#128200; Revenue by Client</span></h3>';
+  var byClient = rev.by_client || [];
+  var maxVal = 0;
+  for (var bi = 0; bi < byClient.length; bi++) {
+    if ((byClient[bi].annual || 0) > maxVal) maxVal = byClient[bi].annual;
+  }
+  if (byClient.length === 0) {
+    html += '<div style="color:#8b949e;font-size:0.85rem;">No client revenue data.</div>';
+  } else {
+    for (var ci = 0; ci < byClient.length; ci++) {
+      var cl = byClient[ci];
+      var pct = maxVal > 0 ? Math.round((cl.annual || 0) / maxVal * 100) : 0;
+      html += '<div style="margin-bottom:10px;">';
+      html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">';
+      html += '<span style="font-size:0.85rem;color:#e6edf3;">' + esc(cl.client || '') + '</span>';
+      html += '<span style="font-size:0.9rem;font-weight:700;color:#3fb950;">' + fmtK(cl.annual) + '</span>';
+      html += '</div>';
+      html += '<div style="height:6px;background:#21262d;border-radius:3px;overflow:hidden;">';
+      html += '<div style="height:100%;width:' + pct + '%;background:linear-gradient(90deg,#238636,#3fb950);border-radius:3px;"></div>';
+      html += '</div>';
+      html += '</div>';
+    }
+  }
+  html += '</div>'; // end revenue card
+
+  // —— CARD 2: Cost Structure ——
+  html += '<div class="cc-card">';
+  html += '<h3><span>&#128182; Cost Structure</span></h3>';
+
+  var payroll = costs.annual_payroll || 0;
+  var opex = costs.annual_opex || 0;
+  var totalCost = payroll + opex;
+  var payrollPct = totalCost > 0 ? Math.round(payroll / totalCost * 100) : 0;
+  var opexPct = totalCost > 0 ? 100 - payrollPct : 0;
+
+  // stacked bar
+  html += '<div style="height:12px;background:#21262d;border-radius:6px;overflow:hidden;margin-bottom:12px;display:flex;">';
+  if (payrollPct > 0) {
+    html += '<div style="width:' + payrollPct + '%;background:#f85149;" title="Staff ' + payrollPct + '%"></div>';
+  }
+  if (opexPct > 0) {
+    html += '<div style="width:' + opexPct + '%;background:#d29922;" title="OpEx ' + opexPct + '%"></div>';
+  }
+  html += '</div>';
+
+  // legend + rows
+  html += '<div style="display:flex;gap:12px;margin-bottom:12px;">';
+  html += '<span style="font-size:0.78rem;color:#f85149;">&#9632; Staff</span>';
+  html += '<span style="font-size:0.78rem;color:#d29922;">&#9632; OpEx</span>';
+  html += '</div>';
+
+  html += '<div class="cc-row">';
+  html += '<div class="cc-row-b"><div class="cc-row-t">Annual Payroll</div></div>';
+  html += '<div style="font-size:0.9rem;font-weight:700;color:#f85149;">' + fmtK(payroll) + '</div>';
+  html += '</div>';
+
+  html += '<div class="cc-row">';
+  html += '<div class="cc-row-b"><div class="cc-row-t">Annual OpEx</div></div>';
+  html += '<div style="font-size:0.9rem;font-weight:700;color:#d29922;">' + fmtK(opex) + '</div>';
+  html += '</div>';
+
+  html += '<div class="cc-row">';
+  html += '<div class="cc-row-b"><div class="cc-row-t">Total Cost Base</div></div>';
+  html += '<div style="font-size:0.9rem;font-weight:700;color:#8b949e;">' + fmtK(costs.annual_full_cost) + '</div>';
+  html += '</div>';
+
+  html += '<div style="margin-top:10px;display:flex;gap:16px;">';
+  html += '<div style="text-align:center;">';
+  html += '<div style="font-size:1.1rem;font-weight:800;color:#e6edf3;">' + (costs.headcount || 0) + '</div>';
+  html += '<div style="font-size:0.75rem;color:#8b949e;text-transform:uppercase;letter-spacing:.4px;">Headcount</div>';
+  html += '</div>';
+  html += '<div style="text-align:center;">';
+  html += '<div style="font-size:1.1rem;font-weight:800;color:#e6edf3;">' + (costs.billable_count || 0) + '</div>';
+  html += '<div style="font-size:0.75rem;color:#8b949e;text-transform:uppercase;letter-spacing:.4px;">Billable</div>';
+  html += '</div>';
+  html += '</div>';
+
+  html += '</div>'; // end cost card
+
+  // —— CARD 3: Contracts ——
+  html += '<div class="cc-card">';
+  html += '<h3><span>&#128196; Contracts</span> <span class="ct">' + fmtK(contracts.total_value) + '</span></h3>';
+
+  var byContractClient = contracts.by_client || [];
+  if (byContractClient.length > 0) {
+    html += '<div class="cc-section-hdr">Contract Values</div>';
+    for (var ki = 0; ki < byContractClient.length; ki++) {
+      var kc = byContractClient[ki];
+      html += '<div class="cc-row">';
+      html += '<div class="cc-row-icon" style="background:rgba(88,166,255,.1);color:#58a6ff;">&#128196;</div>';
+      html += '<div class="cc-row-b">';
+      html += '<div class="cc-row-t">' + esc(kc.name || '') + '</div>';
+      html += '</div>';
+      html += '<div style="font-size:0.9rem;font-weight:700;color:#58a6ff;">' + fmtK(kc.value) + '</div>';
+      html += '</div>';
+    }
+  }
+
+  var expiringSows = contracts.expiring_sows || [];
+  if (expiringSows.length > 0) {
+    html += '<div class="cc-section-hdr" style="margin-top:12px;">Expiring Soon</div>';
+    for (var ei = 0; ei < expiringSows.length; ei++) {
+      var sow = expiringSows[ei];
+      var sowDate = sow.end_date ? sow.end_date.substring(0, 10) : '';
+      html += '<div class="cc-row">';
+      html += '<div class="cc-row-icon" style="background:rgba(248,81,73,.1);color:#f85149;">&#9888;</div>';
+      html += '<div class="cc-row-b">';
+      html += '<div class="cc-row-t">' + esc(sow.title || '') + '</div>';
+      if (sowDate) html += '<div class="cc-row-m">Expires ' + esc(sowDate) + '</div>';
+      html += '</div>';
+      html += '</div>';
+    }
+  }
+
+  if (byContractClient.length === 0 && expiringSows.length === 0) {
+    html += '<div style="color:#8b949e;font-size:0.85rem;padding:8px 0;">No contract data available.</div>';
+  }
+
+  html += '</div>'; // end contracts card
+
+  html += '</div>'; // end cc-grid-3
+
+  // ——— FOOTER ———
+  if (f.last_updated) {
+    html += '<div style="margin-top:14px;text-align:right;font-size:0.78rem;color:#484f58;">Finance data last updated: ' + esc(f.last_updated) + '</div>';
+  }
+
+  return html;
 }
 
 function _ccRenderAiosTab() {
