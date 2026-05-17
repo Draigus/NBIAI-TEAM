@@ -19881,11 +19881,11 @@ function _ccRenderPage(el) {
 
   // Floating chat panel + FAB (only on CC view)
   html += '<div id="ccChatPanel" class="cc-chat hidden">';
-  html += '<div class="cc-chat-hdr"><h4>&#9889; Claude</h4><button class="cc-chat-close" onclick="_chatToggle()">&#10005;</button></div>';
+  html += '<div class="cc-chat-hdr"><h4><img src="/public/img/playsage-icon.png" style="width:20px;height:20px;vertical-align:middle;margin-right:6px;border-radius:4px;">Claude</h4><button class="cc-chat-close" onclick="_chatToggle()">&#10005;</button></div>';
   html += '<div class="cc-chat-msgs" id="ccChatMsgs"></div>';
   html += '<div class="cc-chat-input"><input id="ccChatInput" placeholder="Ask Claude anything..." onkeydown="_chatKeydown(event)"><button id="ccChatSend" onclick="_chatSend()">Send</button></div>';
   html += '</div>';
-  html += '<button id="ccChatFab" class="cc-chat-fab" onclick="_chatToggle()" title="Chat with Claude">&#9889;</button>';
+  html += '<button id="ccChatFab" class="cc-chat-fab" onclick="_chatToggle()" title="Chat with Claude"><img src="/public/img/playsage-icon.png" style="width:28px;height:28px;border-radius:50%;"></button>';
 
   el.innerHTML = html;
 }
