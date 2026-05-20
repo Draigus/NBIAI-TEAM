@@ -311,6 +311,47 @@ async function createTestHiringPosition(opts = {}) {
   return rows[0];
 }
 
+async function createTestInterviewRound(opts = {}) {
+  if (!opts.candidate_id) throw new Error('createTestInterviewRound: candidate_id required');
+  const { rows } = await pool.query(
+    `INSERT INTO interview_rounds (candidate_id, round_number, title, scheduled_at, duration_minutes, location, status, outcome, outcome_notes)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+    [
+      opts.candidate_id,
+      opts.round_number || 1,
+      opts.title || 'Phone Screen',
+      opts.scheduled_at || null,
+      opts.duration_minutes || null,
+      opts.location || null,
+      opts.status || 'scheduled',
+      opts.outcome || null,
+      opts.outcome_notes || null,
+    ]
+  );
+  return rows[0];
+}
+
+async function createTestScorecard(opts = {}) {
+  if (!opts.round_id) throw new Error('createTestScorecard: round_id required');
+  if (!opts.interviewer_user_id) throw new Error('createTestScorecard: interviewer_user_id required');
+  const { rows } = await pool.query(
+    `INSERT INTO interview_scorecards (round_id, interviewer_name, interviewer_user_id, overall_rating, recommendation, strengths, concerns, criteria, submitted_at)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+    [
+      opts.round_id,
+      opts.interviewer_name || 'Test Interviewer',
+      opts.interviewer_user_id,
+      opts.overall_rating || null,
+      opts.recommendation || null,
+      opts.strengths || null,
+      opts.concerns || null,
+      opts.criteria ? JSON.stringify(opts.criteria) : '[]',
+      opts.submitted_at || null,
+    ]
+  );
+  return rows[0];
+}
+
 module.exports = {
   uniq,
   createTestUser,
@@ -329,4 +370,6 @@ module.exports = {
   createTestClientNote,
   createTestMilestone,
   createTestHiringPosition,
+  createTestInterviewRound,
+  createTestScorecard,
 };
