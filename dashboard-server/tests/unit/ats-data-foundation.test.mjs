@@ -509,7 +509,6 @@ describe('Enriched hiring positions', () => {
         salary_range: '£45,000-£55,000',
         employment_type: 'permanent',
         location: 'Remote',
-        requirements: ['React', 'Node.js', 'PostgreSQL'],
         interview_panel: [{ user_id: admin.id, name: admin.display_name, role: 'Final interview' }],
       })
       .expect(201);
@@ -517,7 +516,6 @@ describe('Enriched hiring positions', () => {
     expect(res.body.salary_range).toBe('£45,000-£55,000');
     expect(res.body.employment_type).toBe('permanent');
     expect(res.body.location).toBe('Remote');
-    expect(res.body.requirements).toEqual(['React', 'Node.js', 'PostgreSQL']);
     expect(res.body.interview_panel[0].user_id).toBe(admin.id);
   });
 
@@ -555,11 +553,10 @@ describe('Enriched hiring positions', () => {
     const res = await request(app)
       .patch(`/api/hiring-positions/${pos.id}`)
       .set('Cookie', `nbi_session=${token}`)
-      .send({ salary_range: '£50k-£65k', requirements: ['Playwright', 'CI/CD'] })
+      .send({ salary_range: '£50k-£65k' })
       .expect(200);
 
     expect(res.body.salary_range).toBe('£50k-£65k');
-    expect(res.body.requirements).toEqual(['Playwright', 'CI/CD']);
   });
 });
 

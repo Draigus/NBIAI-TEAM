@@ -293,8 +293,8 @@ async function createTestMilestone(opts = {}) {
 async function createTestHiringPosition(opts = {}) {
   const title = opts.title || uniq('TestPosition');
   const { rows } = await pool.query(
-    `INSERT INTO hiring_positions (client_id, sow_id, title, description, seniority, status, salary_range, employment_type, location, requirements, interview_panel)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`,
+    `INSERT INTO hiring_positions (client_id, sow_id, title, description, seniority, status, salary_range, employment_type, location, interview_panel)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
     [
       opts.client_id || null,
       opts.sow_id || null,
@@ -305,7 +305,6 @@ async function createTestHiringPosition(opts = {}) {
       opts.salary_range || null,
       opts.employment_type || 'permanent',
       opts.location || null,
-      opts.requirements ? JSON.stringify(opts.requirements) : '[]',
       opts.interview_panel ? JSON.stringify(opts.interview_panel) : '[]',
     ]
   );

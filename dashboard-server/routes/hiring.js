@@ -71,7 +71,8 @@ module.exports = function (ctx) {
       const { rows } = await pool.query(`
         SELECT p.id, p.client_id, p.sow_id, p.title, p.description, p.seniority,
                p.status, p.created_at, p.updated_at,
-               p.salary_range, p.employment_type, p.location, p.requirements, p.interview_panel,
+               p.salary_range, p.employment_type, p.location, p.interview_panel,
+               p.jd_filename, p.jd_original_name,
                c.name AS client_name,
                s.title AS sow_title,
                (SELECT COUNT(*)::int FROM candidates ca WHERE ca.position_id = p.id) AS candidate_count
@@ -101,15 +102,14 @@ module.exports = function (ctx) {
     }
     try {
       const { rows } = await pool.query(
-        `INSERT INTO hiring_positions (client_id, sow_id, title, description, seniority, status, salary_range, employment_type, location, requirements, interview_panel)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *`,
+        `INSERT INTO hiring_positions (client_id, sow_id, title, description, seniority, status, salary_range, employment_type, location, interview_panel)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,
         [
           client_id || null, sow_id || null, title.trim(), description || null,
           seniority || null, status || 'open',
           req.body.salary_range || null,
           req.body.employment_type || 'permanent',
           req.body.location || null,
-          req.body.requirements ? JSON.stringify(req.body.requirements) : '[]',
           req.body.interview_panel ? JSON.stringify(req.body.interview_panel) : '[]',
         ]
       );
@@ -129,9 +129,8 @@ module.exports = function (ctx) {
     }
     // Stringify JSONB fields so pg driver passes them as valid jsonb parameters
     const patchBody = { ...req.body };
-    if (patchBody.requirements !== undefined) patchBody.requirements = JSON.stringify(patchBody.requirements);
     if (patchBody.interview_panel !== undefined) patchBody.interview_panel = JSON.stringify(patchBody.interview_panel);
-    const { updates, vals, nextIdx } = buildPatchQuery(patchBody, ['client_id', 'sow_id', 'title', 'description', 'seniority', 'status', 'salary_range', 'employment_type', 'location', 'requirements', 'interview_panel']);
+    const { updates, vals, nextIdx } = buildPatchQuery(patchBody, ['client_id', 'sow_id', 'title', 'description', 'seniority', 'status', 'salary_range', 'employment_type', 'location', 'interview_panel']);
     if (req.body.title !== undefined && !String(req.body.title).trim()) {
       return res.status(400).json({ error: 'title cannot be empty' });
     }
