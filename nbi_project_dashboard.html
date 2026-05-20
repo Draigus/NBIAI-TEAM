@@ -4388,6 +4388,26 @@ let _syncPollInterval = setInterval(async () => {
         _softReRender();
       }
     }
+
+    // Candidate sync for multi-user hiring updates
+    if (typeof _candidatesData !== 'undefined' && _candidatesData.length > 0 && typeof window._lastCandidatePollTime !== 'undefined' && window._lastCandidatePollTime) {
+      try {
+        const candResp = await authFetch('/api/candidates/poll?since=' + encodeURIComponent(window._lastCandidatePollTime));
+        if (candResp.ok) {
+          const { updated, allIds } = await candResp.json();
+          if (updated.length > 0 || allIds.length !== _candidatesData.length) {
+            for (const u of updated) {
+              const idx = _candidatesData.findIndex(c => c.id === u.id);
+              if (idx >= 0) _candidatesData[idx] = u;
+              else _candidatesData.push(u);
+            }
+            _candidatesData = _candidatesData.filter(c => allIds.includes(c.id));
+            if (currentView === 'hiring') renderContent();
+          }
+          window._lastCandidatePollTime = new Date().toISOString();
+        }
+      } catch (e) { /* silent — retry next cycle */ }
+    }
   } catch (e) { /* silent */ } finally { _syncPollInFlight = false; }
 }, SYNC_POLL_MS);
 
@@ -19112,7 +19132,10 @@ function hiringPrevStage(stage) {
 async function loadCandidates() {
   try {
     const data = await apiCall('/api/candidates');
-    if (Array.isArray(data)) _candidatesData = data;
+    if (Array.isArray(data)) {
+      _candidatesData = data;
+      window._lastCandidatePollTime = new Date().toISOString();
+    }
   } catch (e) { if (window._nbiDebug) console.error('Failed to load candidates:', e); }
 }
 
@@ -19312,7 +19335,7 @@ function renderPositionCard(p, candidates) {
 
   let minibar = '';
   if (linked.length > 0) {
-    const stageColors = { sourcing: 'var(--text-muted)', interviews: '#f59e0b', offer: '#2563eb', onboarding: '#10b981', hired: 'var(--success)' };
+    const stageColors = { sourcing: 'var(--text-muted)', interviews: '#f59e0b', offer: '#2563eb', onboarding: '#10b981', onboarded: 'var(--success)' };
     const stageCounts = {};
     linked.forEach(c => { stageCounts[c.stage] = (stageCounts[c.stage] || 0) + 1; });
     const total = linked.length;
@@ -19337,7 +19360,8 @@ function renderPositionCard(p, candidates) {
       ${d.recruitStatus ? `<span class="position-card__chip">${esc(d.recruitStatus)}</span>` : ''}
     </div>
     <div class="position-card__meta">
-      ${d.startMonth ? `<span>Start: ${esc(d.startMonth)}</span>` : ''}
+      ${p.salary_range ? `<span>${esc(p.salary_range)}</span>` : d.startMonth ? `<span>Start: ${esc(d.startMonth)}</span>` : ''}
+      ${p.location ? `<span>${esc(p.location)}</span>` : ''}
       <span class="${_daysOpenClass(days)}">${days}d open</span>
     </div>
     <div class="position-card__candidates">
@@ -19631,6 +19655,55 @@ async function openPositionDetail(id) {
         </div>
       </div>
 
+      ${isAdmin ? `<div style="display:flex;gap:12px;margin-bottom:var(--space-lg);flex-wrap:wrap">
+        <div style="flex:1;min-width:140px">
+          <div class="position-detail__info-label" style="margin-bottom:4px">Salary Range</div>
+          <input type="text" value="${esc(p.salary_range || '')}" placeholder="e.g. £45,000-£55,000" style="${inputStyle}" onchange="updatePositionField('${p.id}','salary_range',this.value||null)">
+        </div>
+        <div style="flex:1;min-width:120px">
+          <div class="position-detail__info-label" style="margin-bottom:4px">Employment Type</div>
+          <select style="${inputStyle}" onchange="updatePositionField('${p.id}','employment_type',this.value)">
+            ${['permanent','contract','freelance'].map(t => `<option value="${t}" ${p.employment_type===t?'selected':''}>${t.charAt(0).toUpperCase()+t.slice(1)}</option>`).join('')}
+          </select>
+        </div>
+        <div style="flex:1;min-width:140px">
+          <div class="position-detail__info-label" style="margin-bottom:4px">Location</div>
+          <input type="text" value="${esc(p.location || '')}" placeholder="e.g. Remote, London" style="${inputStyle}" onchange="updatePositionField('${p.id}','location',this.value||null)">
+        </div>
+      </div>` : `<div class="position-detail__info-grid" style="margin-bottom:var(--space-lg)">
+        ${p.salary_range ? `<div class="position-detail__info-item"><span class="position-detail__info-label">Salary</span><span class="position-detail__info-value">${esc(p.salary_range)}</span></div>` : ''}
+        ${p.employment_type ? `<div class="position-detail__info-item"><span class="position-detail__info-label">Type</span><span class="position-detail__info-value">${esc(p.employment_type.charAt(0).toUpperCase()+p.employment_type.slice(1))}</span></div>` : ''}
+        ${p.location ? `<div class="position-detail__info-item"><span class="position-detail__info-label">Location</span><span class="position-detail__info-value">${esc(p.location)}</span></div>` : ''}
+      </div>`}
+
+      ${isAdmin ? `<div style="margin-bottom:var(--space-lg)">
+        <div class="position-detail__info-label" style="margin-bottom:4px">Requirements</div>
+        <div id="pdRequirements">
+          ${(Array.isArray(p.requirements) ? p.requirements : []).map((r, i) => `<div style="display:flex;align-items:center;gap:6px;padding:3px 0;font-size:0.82rem"><span style="flex:1">${esc(r)}</span><button class="btn btn--ghost btn--sm" style="color:var(--danger);font-size:0.7rem" onclick="positionRemoveRequirement('${p.id}',${i})">&times;</button></div>`).join('')}
+          ${(Array.isArray(p.requirements) ? p.requirements : []).length === 0 ? '<div style="color:var(--text-muted);font-size:0.78rem">No requirements set</div>' : ''}
+        </div>
+        <div style="display:flex;gap:6px;margin-top:4px"><input type="text" id="pdReqInput" placeholder="Add requirement" style="${inputStyle};flex:1" onkeydown="if(event.key==='Enter'){event.preventDefault();positionAddRequirement('${p.id}',this.value);this.value='';}"><button class="btn btn--sm" onclick="positionAddRequirement('${p.id}',document.getElementById('pdReqInput').value);document.getElementById('pdReqInput').value='';">Add</button></div>
+      </div>` : (Array.isArray(p.requirements) && p.requirements.length > 0 ? `<div style="margin-bottom:var(--space-lg)">
+        <div class="position-detail__info-label" style="margin-bottom:4px">Requirements</div>
+        <ul style="margin:0;padding-left:18px;font-size:0.82rem">${p.requirements.map(r => `<li>${esc(r)}</li>`).join('')}</ul>
+      </div>` : '')}
+
+      ${isAdmin ? `<div style="margin-bottom:var(--space-lg)">
+        <div class="position-detail__info-label" style="margin-bottom:4px">Interview Panel</div>
+        <div id="pdPanel">
+          ${(Array.isArray(p.interview_panel) ? p.interview_panel : []).map((m, i) => `<div style="display:flex;align-items:center;gap:6px;padding:3px 0;font-size:0.82rem"><span style="flex:1;font-weight:500">${esc(m.name || 'Unknown')}</span><span style="color:var(--text-muted)">${esc(m.role || '')}</span><button class="btn btn--ghost btn--sm" style="color:var(--danger);font-size:0.7rem" onclick="positionRemovePanelMember('${p.id}',${i})">&times;</button></div>`).join('')}
+          ${(Array.isArray(p.interview_panel) ? p.interview_panel : []).length === 0 ? '<div style="color:var(--text-muted);font-size:0.78rem">No panel members</div>' : ''}
+        </div>
+        <div style="display:flex;gap:6px;margin-top:4px">
+          <select id="pdPanelUser" style="${inputStyle};flex:1"><option value="">+ Add panel member…</option>${(_cachedUsers || []).map(u => `<option value="${u.id}" data-name="${esc(u.display_name)}">${esc(u.display_name)}</option>`).join('')}</select>
+          <input type="text" id="pdPanelRole" placeholder="Role (e.g. Technical)" style="${inputStyle};flex:1">
+          <button class="btn btn--sm" onclick="positionAddPanelMember('${p.id}')">Add</button>
+        </div>
+      </div>` : (Array.isArray(p.interview_panel) && p.interview_panel.length > 0 ? `<div style="margin-bottom:var(--space-lg)">
+        <div class="position-detail__info-label" style="margin-bottom:4px">Interview Panel</div>
+        ${p.interview_panel.map(m => `<div style="font-size:0.82rem;padding:2px 0"><span style="font-weight:500">${esc(m.name || 'Unknown')}</span> <span style="color:var(--text-muted)">— ${esc(m.role || '')}</span></div>`).join('')}
+      </div>` : '')}
+
       ${isAdmin ? `<div style="margin-bottom:var(--space-lg)">
         <div class="position-detail__info-label" style="margin-bottom:4px">Description</div>
         <textarea rows="4" style="${inputStyle};resize:vertical;min-height:80px" onchange="updatePositionField('${p.id}','description',this.value)">${esc(p.description || '')}</textarea>
@@ -19676,6 +19749,47 @@ async function updatePositionField(id, field, value) {
     const panel = document.getElementById('positionDetailPanel');
     if (panel && panel.classList.contains('open')) openPositionDetail(id);
   }
+}
+
+async function positionAddRequirement(positionId, text) {
+  if (!text || !text.trim()) return;
+  const p = (_hiringPositionsData || []).find(x => x.id === positionId);
+  if (!p) return;
+  const reqs = Array.isArray(p.requirements) ? [...p.requirements] : [];
+  reqs.push(text.trim());
+  await updatePositionField(positionId, 'requirements', reqs);
+}
+
+async function positionRemoveRequirement(positionId, idx) {
+  const p = (_hiringPositionsData || []).find(x => x.id === positionId);
+  if (!p) return;
+  const reqs = Array.isArray(p.requirements) ? [...p.requirements] : [];
+  reqs.splice(idx, 1);
+  await updatePositionField(positionId, 'requirements', reqs);
+}
+
+async function positionAddPanelMember(positionId) {
+  const userSel = document.getElementById('pdPanelUser');
+  const roleInput = document.getElementById('pdPanelRole');
+  if (!userSel || !userSel.value) return;
+  const selectedOption = userSel.selectedOptions[0];
+  const userId = userSel.value;
+  const userName = selectedOption ? selectedOption.getAttribute('data-name') || selectedOption.textContent : '';
+  const role = roleInput ? roleInput.value.trim() : '';
+
+  const p = (_hiringPositionsData || []).find(x => x.id === positionId);
+  if (!p) return;
+  const panel = Array.isArray(p.interview_panel) ? [...p.interview_panel] : [];
+  panel.push({ user_id: userId, name: userName, role: role });
+  await updatePositionField(positionId, 'interview_panel', panel);
+}
+
+async function positionRemovePanelMember(positionId, idx) {
+  const p = (_hiringPositionsData || []).find(x => x.id === positionId);
+  if (!p) return;
+  const panel = Array.isArray(p.interview_panel) ? [...p.interview_panel] : [];
+  panel.splice(idx, 1);
+  await updatePositionField(positionId, 'interview_panel', panel);
 }
 
 async function createCandidateForPosition(positionId, role, clientId) {
@@ -20150,19 +20264,19 @@ async function updateCandidateField(id, field, value) {
 
 // ===== HIRING — Glen spec helpers (bug b7a2f97f) =====
 
-/** Handle stage dropdown change — intercepts 'hired' to show the confirm flow. */
+/** Handle stage dropdown change — intercepts 'onboarded' to show the confirm flow. */
 async function hiringStageSelectChange(id, newStage) {
-  if (newStage === 'hired') {
+  if (newStage === 'onboarded') {
     const c = _candidatesData.find(x => x.id === id);
-    if (!c || c.stage === 'hired') return;
+    if (!c || c.stage === 'onboarded') return;
     await hiringConfirmHire(id);
     return;
   }
   await updateCandidateField(id, 'stage', newStage);
 }
 
-/** Show the "Close Candidate Card?" confirmation for moving a candidate to Hired.
- *  On confirm: sets stage=hired + archived_at=now. On cancel: reverts to the previous stage. */
+/** Show the "Close Candidate Card?" confirmation for moving a candidate to Onboarded.
+ *  On confirm: sets stage=onboarded + archived_at=now. On cancel: reverts to the previous stage. */
 async function hiringConfirmHire(id) {
   const c = _candidatesData.find(x => x.id === id);
   if (!c) return;
