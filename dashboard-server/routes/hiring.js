@@ -41,6 +41,36 @@ module.exports = function (ctx) {
   const STAGE_LABELS = { sourcing: 'Sourcing', interviews: 'Interviews', offer: 'Offer', onboarding: 'Onboarding', onboarded: 'Onboarded' };
   const VALID_REJECTION_CATEGORIES = ['unqualified', 'culture-mismatch', 'compensation', 'candidate-withdrew', 'position-filled', 'no-response', 'failed-interview', 'other'];
 
+  // Default stage objects derived from the global HIRING_STAGES array.
+  // The `is_onboarding` flag drives the onboarding checklist auto-populate.
+  // This replaces hardcoded string comparisons like `stage === 'onboarding'`.
+  const DEFAULT_STAGES = HIRING_STAGES.map(key => ({
+    key,
+    label: STAGE_LABELS[key] || key,
+    ...(key === 'onboarding' ? { is_onboarding: true } : {}),
+  }));
+
+  // Slug format: lowercase alphanumeric words separated by hyphens
+  const STAGE_KEY_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+
+  /**
+   * Resolve the hiring stages for a given client.
+   * Returns { stages: Array<{key, label, is_onboarding?}>, isCustom: boolean }.
+   * Falls back to global DEFAULT_STAGES if the client has no custom config or clientId is null.
+   */
+  async function getStagesForClient(clientId) {
+    if (!clientId) return { stages: DEFAULT_STAGES, isCustom: false };
+    try {
+      const { rows: [client] } = await pool.query('SELECT hiring_stages FROM clients WHERE id = $1', [clientId]);
+      if (client && client.hiring_stages && Array.isArray(client.hiring_stages) && client.hiring_stages.length > 0) {
+        return { stages: client.hiring_stages, isCustom: true };
+      }
+    } catch (e) {
+      log('error', 'Hiring', 'Failed to get stages for client', { clientId, error: e.message });
+    }
+    return { stages: DEFAULT_STAGES, isCustom: false };
+  }
+
   const VALID_SOURCES = ['referral', 'linkedin', 'inbound', 'agency', 'job-board', 'internal', 'other'];
   const VALID_EMPLOYMENT_TYPES = ['permanent', 'contract', 'freelance'];
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -76,6 +106,119 @@ module.exports = function (ctx) {
       log('error', 'Hiring', 'Failed to send stage-change notifications', { error: e.message });
     }
   }
+
+  // ==================== PER-CLIENT HIRING STAGES ====================
+
+  /** GET /api/clients/:id/hiring-stages — Return stages for a client.
+   *  NBI users can access any client. Client users are scoped to their own client. */
+  router.get('/api/clients/:id/hiring-stages', async (req, res) => {
+    if (!req.user) return res.status(401).json({ error: 'Auth required' });
+    if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid client ID' });
+    // Client users may only view their own client's stages
+    if (req.user.clientId && req.user.clientId !== req.params.id) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+    try {
+      const result = await getStagesForClient(req.params.id);
+      res.json(result);
+    } catch (e) {
+      log('error', 'Hiring', 'Failed to get hiring stages', { error: e.message });
+      res.status(500).json({ error: 'An internal error occurred' });
+    }
+  });
+
+  /** PUT /api/clients/:id/hiring-stages — Save custom stages for a client (NBI admin only).
+   *  Validates: ≥2 stages, last key must be 'onboarded', keys unique + valid slug format, labels non-empty.
+   *  Moves candidates from any removed stage keys to the first stage of the new config. */
+  router.put('/api/clients/:id/hiring-stages', requireNBI, requireAdmin, async (req, res) => {
+    if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid client ID' });
+    const { stages } = req.body || {};
+    if (!Array.isArray(stages)) return res.status(400).json({ error: 'stages must be an array' });
+    if (stages.length < 2) return res.status(400).json({ error: 'At least 2 stages are required' });
+
+    // Validate each stage object
+    for (let idx = 0; idx < stages.length; idx++) {
+      const s = stages[idx];
+      if (!s || typeof s !== 'object') return res.status(400).json({ error: `Stage at index ${idx} is not an object` });
+      if (!s.key || typeof s.key !== 'string' || !STAGE_KEY_RE.test(s.key)) {
+        return res.status(400).json({ error: `Stage at index ${idx} has an invalid key. Keys must be lowercase alphanumeric words separated by hyphens` });
+      }
+      if (!s.label || typeof s.label !== 'string' || !s.label.trim()) {
+        return res.status(400).json({ error: `Stage at index ${idx} must have a non-empty label` });
+      }
+    }
+
+    // Last stage must be 'onboarded'
+    if (stages[stages.length - 1].key !== 'onboarded') {
+      return res.status(400).json({ error: 'The last stage key must be "onboarded"' });
+    }
+
+    // Keys must be unique
+    const keys = stages.map(s => s.key);
+    const uniqueKeys = new Set(keys);
+    if (uniqueKeys.size !== keys.length) {
+      return res.status(400).json({ error: 'Duplicate stage keys are not allowed' });
+    }
+
+    // Normalise: trim labels, preserve is_onboarding flag
+    const normalised = stages.map(s => ({
+      key: s.key,
+      label: s.label.trim(),
+      ...(s.is_onboarding ? { is_onboarding: true } : {}),
+    }));
+
+    const firstKey = normalised[0].key;
+
+    try {
+      // Verify client exists
+      const { rows: [client] } = await pool.query('SELECT id, hiring_stages FROM clients WHERE id = $1', [req.params.id]);
+      if (!client) return res.status(404).json({ error: 'Client not found' });
+
+      // Determine which stage keys are being removed
+      const oldStages = (client.hiring_stages && Array.isArray(client.hiring_stages))
+        ? client.hiring_stages
+        : DEFAULT_STAGES;
+      const oldKeys = new Set(oldStages.map(s => s.key));
+      const newKeySet = new Set(keys);
+      const removedKeys = [...oldKeys].filter(k => !newKeySet.has(k));
+
+      // Move candidates from removed stages to the first stage of the new config
+      if (removedKeys.length > 0) {
+        await pool.query(
+          `UPDATE candidates SET stage = $1, updated_at = NOW() WHERE client_id = $2 AND stage = ANY($3::text[])`,
+          [firstKey, req.params.id, removedKeys]
+        );
+      }
+
+      // Save the new custom stages
+      await pool.query(
+        'UPDATE clients SET hiring_stages = $1 WHERE id = $2',
+        [JSON.stringify(normalised), req.params.id]
+      );
+
+      await auditLog('client', req.params.id, 'update_hiring_stages', req.user.displayName || 'unknown', { stages: keys });
+      res.json({ ok: true, stages: normalised, isCustom: true });
+    } catch (e) {
+      log('error', 'Hiring', 'Failed to save hiring stages', { error: e.message });
+      res.status(500).json({ error: 'An internal error occurred' });
+    }
+  });
+
+  /** DELETE /api/clients/:id/hiring-stages — Reset to global default (NBI admin only). */
+  router.delete('/api/clients/:id/hiring-stages', requireNBI, requireAdmin, async (req, res) => {
+    if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid client ID' });
+    try {
+      const { rows: [client] } = await pool.query('SELECT id FROM clients WHERE id = $1', [req.params.id]);
+      if (!client) return res.status(404).json({ error: 'Client not found' });
+
+      await pool.query('UPDATE clients SET hiring_stages = NULL WHERE id = $1', [req.params.id]);
+      await auditLog('client', req.params.id, 'reset_hiring_stages', req.user.displayName || 'unknown');
+      res.json({ ok: true, isCustom: false, stages: DEFAULT_STAGES });
+    } catch (e) {
+      log('error', 'Hiring', 'Failed to reset hiring stages', { error: e.message });
+      res.status(500).json({ error: 'An internal error occurred' });
+    }
+  });
 
   /** GET /api/hiring-positions — List hiring positions, optionally filtered by client.
    *  Client users are auto-scoped to their own client_id. */
@@ -304,7 +447,9 @@ module.exports = function (ctx) {
       where.push(`ca.position_id = $${i++}`); vals.push(position_id);
     }
     if (stage) {
-      if (!HIRING_STAGES.includes(stage)) return res.status(400).json({ error: `Invalid stage. Must be one of: ${HIRING_STAGES.join(', ')}` });
+      const resolved = await getStagesForClient(filterClientId);
+      const validKeys = resolved.stages.map(s => s.key);
+      if (!validKeys.includes(stage)) return res.status(400).json({ error: `Invalid stage for this client. Must be one of: ${validKeys.join(', ')}` });
       where.push(`ca.stage = $${i++}`); vals.push(stage);
     }
     if (req.query.retention === 'expiring') {
@@ -423,8 +568,12 @@ module.exports = function (ctx) {
     if (lenErr) return res.status(400).json({ error: lenErr });
     if (client_id && !isValidUuid(client_id)) return res.status(400).json({ error: 'Invalid client_id' });
     if (position_id && !isValidUuid(position_id)) return res.status(400).json({ error: 'Invalid position_id' });
-    if (stage && !HIRING_STAGES.includes(stage)) {
-      return res.status(400).json({ error: `Invalid stage. Must be one of: ${HIRING_STAGES.join(', ')}` });
+    if (stage) {
+      const resolved = await getStagesForClient(client_id || null);
+      const validKeys = resolved.stages.map(s => s.key);
+      if (!validKeys.includes(stage)) {
+        return res.status(400).json({ error: `Invalid stage for this client. Must be one of: ${validKeys.join(', ')}` });
+      }
     }
     if (notes !== undefined) {
       const ne = validateLength(notes, 'notes');
@@ -498,6 +647,8 @@ module.exports = function (ctx) {
   router.patch('/api/candidates/:id', async (req, res) => {
     if (!req.user) return res.status(401).json({ error: 'Auth required' });
     if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid candidate ID' });
+    // For client users: ownership check (already fetches client_id, reuse it below)
+    let candidateClientId = req.user.clientId || null;
     if (req.user.clientId) {
       const { rows: check } = await pool.query('SELECT client_id FROM candidates WHERE id = $1', [req.params.id]);
       if (check.length === 0) return res.status(404).json({ error: 'Not found' });
@@ -505,10 +656,18 @@ module.exports = function (ctx) {
       if (req.body.client_id !== undefined && req.body.client_id !== req.user.clientId) {
         return res.status(403).json({ error: 'Cannot reassign candidate to another client' });
       }
+    } else {
+      // NBI user: fetch client_id from the candidate row for stage resolution
+      const { rows: [cRow] } = await pool.query('SELECT client_id FROM candidates WHERE id = $1', [req.params.id]);
+      if (cRow) candidateClientId = cRow.client_id;
     }
-    // Validate stage if present
-    if (req.body.stage !== undefined && !HIRING_STAGES.includes(req.body.stage)) {
-      return res.status(400).json({ error: `Invalid stage. Must be one of: ${HIRING_STAGES.join(', ')}` });
+    // Validate stage if present — resolve against the candidate's client stages
+    if (req.body.stage !== undefined) {
+      const resolved = await getStagesForClient(candidateClientId);
+      const validKeys = resolved.stages.map(s => s.key);
+      if (!validKeys.includes(req.body.stage)) {
+        return res.status(400).json({ error: `Invalid stage for this client. Must be one of: ${validKeys.join(', ')}` });
+      }
     }
     // Validate FKs if present
     if (req.body.client_id !== undefined && req.body.client_id !== null && !isValidUuid(req.body.client_id)) {
@@ -567,9 +726,11 @@ module.exports = function (ctx) {
       }
     }
 
-    // Rejection enforcement: archiving a non-terminal candidate requires a rejection_category
+    // Rejection enforcement: archiving a non-terminal candidate requires a rejection_category.
+    // Use the dynamic terminal stage for this client (or global default if no client).
     if (body.archived_at && body.archived_at !== null) {
-      const terminalStage = HIRING_STAGES[HIRING_STAGES.length - 1];
+      const stagesForRejection = await getStagesForClient(candidateClientId);
+      const terminalStage = stagesForRejection.stages[stagesForRejection.stages.length - 1].key;
       const targetStage = body.stage || null;
       if (targetStage !== terminalStage) {
         if (!targetStage) {
@@ -612,8 +773,13 @@ module.exports = function (ctx) {
           );
         }
 
-        // Auto-populate onboarding checklist from position template
-        if (body.stage !== undefined && body.stage === 'onboarding' && body.stage !== oldStage) {
+        // Auto-populate onboarding checklist from position template.
+        // Use is_onboarding flag from stage config rather than hardcoded 'onboarding' key,
+        // so custom pipelines with a differently-named onboarding stage still trigger this.
+        const stageForOnboarding = body.stage !== undefined
+          ? (await getStagesForClient(candidateClientId)).stages.find(s => s.key === body.stage)
+          : null;
+        if (body.stage !== undefined && stageForOnboarding && stageForOnboarding.is_onboarding && body.stage !== oldStage) {
           const { rows: [checkCount] } = await dbClient.query(
             'SELECT COUNT(*)::int AS cnt FROM onboarding_checklist_items WHERE candidate_id = $1',
             [req.params.id]
