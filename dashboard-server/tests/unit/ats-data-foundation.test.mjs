@@ -420,3 +420,76 @@ describe('Candidate comments', () => {
     expect(res.body[0].comment_count).toBe(1);
   });
 });
+
+describe('GDPR retention fields', () => {
+  it('POST auto-sets retention_expires_at to 12 months from now', async () => {
+    const admin = await createTestUser({ role: 'admin' });
+    const token = await mintSession(admin.id);
+
+    const res = await request(app)
+      .post('/api/candidates')
+      .set('Cookie', `nbi_session=${token}`)
+      .send({ name: 'Ava' })
+      .expect(201);
+
+    expect(res.body.retention_expires_at).toBeTruthy();
+    const expiry = new Date(res.body.retention_expires_at);
+    const now = new Date();
+    const diffMonths = (expiry.getFullYear() - now.getFullYear()) * 12 + (expiry.getMonth() - now.getMonth());
+    expect(diffMonths).toBeGreaterThanOrEqual(11);
+    expect(diffMonths).toBeLessThanOrEqual(12);
+  });
+
+  it('PATCH auto-stamps consent_date when consent_given set to true', async () => {
+    const admin = await createTestUser({ role: 'admin' });
+    const token = await mintSession(admin.id);
+    const candidate = await createTestCandidate({ name: 'Ben' });
+
+    const res = await request(app)
+      .patch(`/api/candidates/${candidate.id}`)
+      .set('Cookie', `nbi_session=${token}`)
+      .send({ consent_given: true })
+      .expect(200);
+
+    expect(res.body.consent_given).toBe(true);
+    expect(res.body.consent_date).toBeTruthy();
+  });
+
+  it('PATCH does not overwrite explicit consent_date', async () => {
+    const admin = await createTestUser({ role: 'admin' });
+    const token = await mintSession(admin.id);
+    const candidate = await createTestCandidate({ name: 'Chloe' });
+    const explicitDate = '2026-01-15T12:00:00.000Z';
+
+    const res = await request(app)
+      .patch(`/api/candidates/${candidate.id}`)
+      .set('Cookie', `nbi_session=${token}`)
+      .send({ consent_given: true, consent_date: explicitDate })
+      .expect(200);
+
+    expect(new Date(res.body.consent_date).toISOString()).toBe(explicitDate);
+  });
+
+  it('GET with retention=expiring returns only candidates near/past expiry', async () => {
+    const admin = await createTestUser({ role: 'admin' });
+    const token = await mintSession(admin.id);
+
+    const past = new Date(Date.now() - 86400000).toISOString();
+    const future = new Date(Date.now() + 86400000 * 90).toISOString();
+    const within30 = new Date(Date.now() + 86400000 * 15).toISOString();
+
+    await createTestCandidate({ name: 'Expired', retention_expires_at: past });
+    await createTestCandidate({ name: 'FarFuture', retention_expires_at: future });
+    await createTestCandidate({ name: 'SoonExpiring', retention_expires_at: within30 });
+
+    const res = await request(app)
+      .get('/api/candidates?retention=expiring')
+      .set('Cookie', `nbi_session=${token}`)
+      .expect(200);
+
+    const names = res.body.map(c => c.name);
+    expect(names).toContain('Expired');
+    expect(names).toContain('SoonExpiring');
+    expect(names).not.toContain('FarFuture');
+  });
+});

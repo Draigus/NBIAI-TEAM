@@ -168,6 +168,10 @@ module.exports = function (ctx) {
       if (!HIRING_STAGES.includes(stage)) return res.status(400).json({ error: `Invalid stage. Must be one of: ${HIRING_STAGES.join(', ')}` });
       where.push(`ca.stage = $${i++}`); vals.push(stage);
     }
+    if (req.query.retention === 'expiring') {
+      if (req.user.clientId) return res.status(403).json({ error: 'Retention filter is NBI-only' });
+      where.push(`ca.retention_expires_at <= NOW() + INTERVAL '30 days'`);
+    }
     const whereClause = where.length ? 'WHERE ' + where.join(' AND ') : '';
     const commentCountSql = req.user.clientId
       ? '(SELECT COUNT(*)::int FROM candidate_comments cc WHERE cc.candidate_id = ca.id AND cc.internal = false) AS comment_count'
@@ -269,8 +273,8 @@ module.exports = function (ctx) {
       await dbClient.query('BEGIN');
       await shiftForInsert(dbClient, 'candidates', 'stage', targetStage);
       const { rows } = await dbClient.query(
-        `INSERT INTO candidates (client_id, position_id, name, role, linkedin_url, due_date, stage, notes, position, email, source, source_detail, tags)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,0,$9,$10,$11,$12) RETURNING *`,
+        `INSERT INTO candidates (client_id, position_id, name, role, linkedin_url, due_date, stage, notes, position, email, source, source_detail, tags, consent_given, consent_date, retention_expires_at)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,0,$9,$10,$11,$12,$13,$14, COALESCE($15, NOW() + INTERVAL '12 months')) RETURNING *`,
         [
           client_id || null,
           position_id || null,
@@ -284,6 +288,9 @@ module.exports = function (ctx) {
           source || null,
           source_detail || null,
           req.body.tags ? JSON.stringify(req.body.tags) : '[]',
+          req.body.consent_given || false,
+          req.body.consent_date || null,
+          req.body.retention_expires_at || null,
         ]
       );
       createdRow = rows[0];
@@ -362,11 +369,16 @@ module.exports = function (ctx) {
     const body = { ...req.body };
     if (body.name !== undefined && body.name !== null) body.name = String(body.name).trim();
 
+    // Auto-stamp consent_date when consent_given is set to true without an explicit date
+    if (body.consent_given === true && body.consent_date === undefined) {
+      body.consent_date = new Date().toISOString();
+    }
+
     // Stage is routed through reorderInGroup below — NOT in allowedFields here.
     // stage_assignees / onboarding_links / start_date / archived_at were added
     // by migration 024 for Glen's hiring rewrite (bug b7a2f97f). JSONB columns
     // are passed through as JS objects — pg handles the serialisation.
-    const { updates, vals, nextIdx } = buildPatchQuery(body, ['client_id', 'position_id', 'name', 'role', 'linkedin_url', 'due_date', 'notes', 'stage_assignees', 'start_date', 'onboarding_links', 'archived_at', 'email', 'source', 'source_detail', 'tags']);
+    const { updates, vals, nextIdx } = buildPatchQuery(body, ['client_id', 'position_id', 'name', 'role', 'linkedin_url', 'due_date', 'notes', 'stage_assignees', 'start_date', 'onboarding_links', 'archived_at', 'email', 'source', 'source_detail', 'tags', 'consent_given', 'consent_date', 'retention_expires_at']);
     const wantsReorder = (body.stage !== undefined) || (req.body.position !== undefined);
     if (updates.length === 0 && !wantsReorder) return res.status(400).json({ error: 'No valid fields to update' });
 
