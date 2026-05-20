@@ -1,13 +1,13 @@
 # Pending Tasks
 
-Updated 2026-05-13
+Updated 2026-05-18
 
 ---
 
 ## Awaiting Glen UAT
 
 All deployed on :8888 via PM2. Glen needs to test at worksage.nbi-consulting.com.
-Unit tests: 396/396 green. Branch: `feature/command-centre` (46 commits ahead of master).
+Unit tests: 434/434 green (34 test files). 9 Playwright E2E specs committed. Branch: `feature/command-centre` (46+ commits ahead of master).
 
 ### Command Centre v2 — Zone-Based Layout
 - Three-zone cockpit: status strip (48px), 4Cs metrics row (120px), main+rail grid
@@ -34,6 +34,13 @@ Unit tests: 396/396 green. Branch: `feature/command-centre` (46 commits ahead of
 | f8eb57f6 | Reporting Page Colour Legend | Inline legend row added |
 | f9f52392 | Blocker Update tracking | lastUpdated field on all 5 blocker onchange handlers |
 | 82904fb3 | Milestone Text Misplacement | Label repositioned above header row |
+
+### Bug Batch 2 — 3 Bugs (all `please_review` as of 2026-05-20)
+| Bug ID | Title | Fix Summary |
+|--------|-------|-------------|
+| 1e6a4dfe | Ability to Delete Ticket Comments | Delete button added to task comments (author + admin) |
+| 114530a5 | Dates Defaulting to First of Month | Date format validation added to standup + server sync |
+| d550fd70 | Stories in Standup List | Standup filtered to item_type=task only |
 
 ### Previously Shipped (still awaiting UAT)
 
@@ -67,10 +74,10 @@ Unit tests: 396/396 green. Branch: `feature/command-centre` (46 commits ahead of
 
 | Bug ID | Priority | Title | Notes |
 |--------|----------|-------|-------|
-| 0b50308b | high | Lighthouse Filter Not Working | Client filter shows no work despite registered client + projects |
+| ~~0b50308b~~ | ~~high~~ | ~~Lighthouse Filter Not Working~~ | RESOLVED 2026-05-13 — duplicate client record deleted by Glen |
 | 551b8601 | unset | "+New" Useability | Needs sorting by client/project hierarchy at scale |
 | 39ef99de | unset | Scoped view in timeline view | Feature request: isolate a feature/story as temporary root |
-| 1cf2a501 | unset | Bug Tracker Page Scrolling Issue | Can't scroll bug report detail in right-hand panel |
+| 1cf2a501 | unset | Bug Tracker Page Scrolling Issue | FIXED — comment input moved to pinned footer, overscroll-behavior:contain added. Awaiting UAT |
 
 ---
 
@@ -93,10 +100,7 @@ Unit tests: 396/396 green. Branch: `feature/command-centre` (46 commits ahead of
 
 ## E2E Test Health
 
-15 Playwright failures from last investigation:
-- 5 from untracked `scroll.spec.js` (never committed — delete or commit separately)
-- 10 timeouts in complex interaction tests (baseline not established — may be pre-existing)
-- Unit tests (vitest) are stable at 396/396
+9 committed Playwright spec files: auth, bugs, smoke, documents, kanban-drag, mobile-screenshots, tasks, verify-bug-batch, warnings-light-theme. One untracked diagnostic script (`scroll-verify.js`, not a test). Unit tests (vitest) stable at 434/434 across 34 test files.
 
 ---
 

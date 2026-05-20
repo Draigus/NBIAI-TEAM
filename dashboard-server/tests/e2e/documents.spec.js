@@ -33,7 +33,7 @@ test.describe('Documentation tab', () => {
     // Seed the clients cache and switch to Documentation view
     const clientId = client.id;
     await page.evaluate((cid) => {
-      _apiClientsCache['E2E Client'] = { id: cid, name: 'E2E Client' };
+      _apiClientsCache['E2E Client'] = { id: cid, name: 'E2E Client', has_active_work: true };
       _docsState.clientId = cid;
       switchView('documentation');
     }, clientId);
@@ -65,6 +65,8 @@ test.describe('Documentation tab', () => {
     await page.keyboard.press('End');
     await page.keyboard.press('Enter');
     await page.locator('.docs__tb-btn[aria-label*="NBI"]').click();
+    await page.waitForSelector('.docs-nbi-block', { timeout: 5000 });
+    await page.locator('.docs-nbi-block').click();
     await page.keyboard.type('secret content');
     await expect(page.locator('.docs-nbi-block')).toContainText('secret content');
   });
@@ -82,7 +84,7 @@ test.describe('Documentation tab', () => {
 
     const clientId = client.id;
     await page.evaluate((cid) => {
-      _apiClientsCache['E2E Client'] = { id: cid, name: 'E2E Client' };
+      _apiClientsCache['E2E Client'] = { id: cid, name: 'E2E Client', has_active_work: true };
       _docsState.clientId = cid;
       switchView('documentation');
     }, clientId);
@@ -136,7 +138,7 @@ test.describe('Documentation tab', () => {
 
     const clientId = client.id;
     await page.evaluate((cid) => {
-      _apiClientsCache['E2E Client'] = { id: cid, name: 'E2E Client' };
+      _apiClientsCache['E2E Client'] = { id: cid, name: 'E2E Client', has_active_work: true };
       _docsState.clientId = cid;
       switchView('documentation');
     }, clientId);

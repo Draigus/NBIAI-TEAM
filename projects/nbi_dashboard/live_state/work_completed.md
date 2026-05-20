@@ -4,6 +4,83 @@ Append-only. Every feature/fix completed gets logged here immediately.
 
 ---
 
+## 2026-05-20 — Bug Fixes: 3 Open Bugs + Sync Parity Fix
+
+**Bug 1: Delete Ticket Comments** (1e6a4dfe)
+- Backend DELETE endpoint already existed. Added delete button to frontend loadComments() with author/admin permission check.
+- Added deleteTaskComment() function using same data-action delegation pattern as bug report comments.
+
+**Bug 2: Dates Defaulting to First of Month** (114530a5)
+- Added YYYY-MM-DD format validation to standupUpdateTask() (was missing — bypassed updateTask's validation).
+- Strengthened server-side sync date validation to reject any malformed date format (previously only checked year range).
+
+**Bug 3: Stories in Standup List** (d550fd70)
+- Added `.filter(t => getItemType(t) === 'task')` to _loadStandupContent(). Standup now only shows tasks.
+
+**Bonus Fix: Sync Poll Response Missing Fields**
+- Poll response (GET /api/sync/poll) was missing itemType, sortOrder, sowId, workType, plannerTaskId vs the load response.
+- Since poll replaces the entire local task object, these fields were being lost on every 10-second poll cycle.
+- Added all missing fields to the poll response mapping in sync.js.
+
+Files changed: nbi_project_dashboard.html, dashboard-server/routes/sync.js
+Tests: 508/536 unit (28 pre-existing), 15/19 e2e (4 pre-existing). No new regressions.
+PM2 restarted. All 3 bugs set to please_review with comments.
+
+---
+
+## 2026-05-20 — Couch Heroes: Health and Safety Policy
+
+**Deliverable:** UK Health and Safety Policy for CH Game Development UK Ltd (fully remote studio)
+- Policy document: `Clients/Couch Heroes/legal_compliance/CH_Health_and_Safety_Policy.md` (v3.0)
+- Word document: `Clients/Couch Heroes/legal_compliance/CH_Health_and_Safety_Policy.docx`
+- Instructions for Lorenza: `Clients/Couch Heroes/legal_compliance/LORENZA_INSTRUCTIONS_HS_Policy.md`
+- Build script: `Clients/Couch Heroes/legal_compliance/build_hs_docx.py`
+- Covers all 15 UK statutory requirements for a remote employer. No voluntary extras. Verified against live HSE.gov.uk pages.
+- Needs: Vardis (CEO) signature, competent person named, then live.
+- DSE self-assessments required for UK-based employees only. Non-UK employees not covered by UK H&S law.
+- Memory updated: client_couch_heroes.md corrected (Vardis=CEO, Aris=COO, Dino=General Counsel, 100% remote)
+
+---
+
+## 2026-05-19 — Bug Tracker Batch (4 open bugs)
+
+### Bug Fix: Can't Unblock (c645f3c3)
+- **Root cause:** `blockerInfo` never cleared when status changed away from "Blocked"
+- **Fix:** Client clears `blockerInfo` on status change from Blocked; server (PATCH route in tasks.js + sync route) also clears `blocker_info` as safety net
+- **Files:** `nbi_project_dashboard.html` (line ~10562), `routes/tasks.js`, `routes/sync.js`
+
+### Bug Fix: Milestone Text Misplacement (cc50cd22)
+- **Root cause:** Milestone labels rendered on every Gantt row, creating overlapping orange text
+- **Fix:** Removed per-row label divs; milestones now show as vertical lines with hover-only labels via CSS `::after` pseudo-element
+- **Files:** `nbi_project_dashboard.html` (CSS + lines 8479, 8592)
+
+### Bug Fix: Repeating Ticket Dates (7116fa9a)
+- **Root cause:** Cloned repeating tasks had hardcoded empty start_date and end_date
+- **Fix:** Clone logic now computes start_date and end_date from the original task's duration relative to the new due_date
+- **Files:** `routes/tasks.js` (repeat clone), `routes/sync.js` (repeat clone)
+
+### Bug Fix: Task Progress Not Saving (bb6a4264)
+- **Root cause:** Sync conflict detection silently dropped changes (returned 200 OK but skipped the update)
+- **Fix:** Server now returns `conflicted` array in sync response; client detects it, shows a warning toast, updates `_serverUpdatedAt`, and retries the sync
+- **Files:** `routes/sync.js` (conflict tracking + response), `nbi_project_dashboard.html` (conflict handling in syncToAPI)
+
+### Test Fix: Documents e2e (TipTap keystroke race)
+- **Root cause:** NBI block not yet rendered when `keyboard.type()` fired, swallowing the first character
+- **Fix:** Added `waitForSelector('.docs-nbi-block')` + explicit click into block before typing
+- **File:** `tests/e2e/documents.spec.js`
+
+### Test Fix: Mobile Screenshots e2e (dashboard infinite loop)
+- **Root cause:** `renderDashboard()` infinite loop when milestone cache is empty (empty DB, no clients)
+- **Fix:** Added `_milestonesLoaded` flag to prevent re-fetching after first attempt; increased test timeout
+- **Files:** `nbi_project_dashboard.html` (milestone guard), `tests/e2e/mobile-screenshots.spec.js` (timeout)
+
+### Verification
+- 434/434 unit tests pass
+- 19/19 e2e tests pass (all green — both pre-existing failures fixed)
+- Visual verification via Playwright: Portfolio, Projects, Timeline, Reporting, Leads, People, Workload, Documentation, Bug Tracker — all clean, no regressions
+
+---
+
 ## 2026-05-12 — Client Portal Security + Bug Batch
 
 ### Client Access Restrictions (72f6b00 + HTML commits)

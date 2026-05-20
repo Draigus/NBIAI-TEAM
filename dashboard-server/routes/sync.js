@@ -69,6 +69,7 @@ router.post('/api/sync/changes', async (req, res) => {
     }
     // Track per-task transitions to process after the main upsert loop (cascade cancel, repeat clones, blocker notifications)
     const postProcessTransitions = [];
+    const conflicted = [];
 
     for (const ch of changes) {
       const t = ch.data || {};
@@ -132,12 +133,13 @@ router.post('/api/sync/changes', async (req, res) => {
         const rawType = t.itemType || t.item_type || 'task';
         const itemType = ITEM_TYPES.includes(rawType) ? rawType : 'task';
 
-        // Clamp out-of-range years on date fields (same rule as PATCH)
+        // Validate date fields: must be empty or YYYY-MM-DD with year in 1900-2099
         for (const dk of ['dueDate', 'due_date', 'startDate', 'start_date', 'endDate', 'end_date']) {
           const dv = t[dk];
           if (dv) {
-            const ym = String(dv).match(/^(\d+)-/);
-            if (ym && (parseInt(ym[1], 10) < 1900 || parseInt(ym[1], 10) > 2099)) t[dk] = '';
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(String(dv))) { t[dk] = ''; continue; }
+            const yr = parseInt(String(dv).slice(0, 4), 10);
+            if (yr < 1900 || yr > 2099) t[dk] = '';
           }
         }
 
@@ -150,6 +152,7 @@ router.post('/api/sync/changes', async (req, res) => {
           // skip this update to avoid overwriting their changes. Client picks up the newer version on next poll.
           const clientKnownAt = t._serverUpdatedAt;
           if (clientKnownAt && serverUpdatedAt && new Date(clientKnownAt) < new Date(serverUpdatedAt)) {
+            conflicted.push({ id: t.id, title: t.title || '', serverUpdatedAt });
             continue;
           }
 
@@ -326,23 +329,47 @@ router.post('/api/sync/changes', async (req, res) => {
         }
       }
 
+      // Clear blocker_info when unblocking (status moves away from Blocked)
+      if (tr.oldStatus === 'Blocked' && tr.newStatus !== 'Blocked') {
+        try {
+          await conn.query('UPDATE tasks SET blocker_info = NULL WHERE id = $1', [tr.id]);
+        } catch (e) {
+          log('warn', 'Sync', 'Clear blocker_info on unblock failed', { error: e.message });
+        }
+      }
+
       // Repeat clone when transitioning into Done or Cancelled
       if (TERMINAL.includes(tr.newStatus) && !TERMINAL.includes(tr.oldStatus) && tr.repeatRule) {
         try {
           const nextDate = computeNextRepeatDate(tr.repeatRule, new Date());
           if (nextDate) {
             const snap = tr.snapshot;
+            let newStart = '';
+            let newEnd = '';
+            if (snap.start_date && snap.due_date) {
+              const origDuration = Math.round((new Date(snap.due_date) - new Date(snap.start_date)) / 86400000);
+              const nd = new Date(nextDate + 'T00:00:00');
+              const ns = new Date(nd); ns.setDate(ns.getDate() - origDuration);
+              newStart = ns.toISOString().slice(0, 10);
+            }
+            if (snap.end_date && snap.due_date) {
+              const endOffset = Math.round((new Date(snap.end_date) - new Date(snap.due_date)) / 86400000);
+              const nd = new Date(nextDate + 'T00:00:00');
+              const ne = new Date(nd); ne.setDate(ne.getDate() + endOffset);
+              newEnd = ne.toISOString().slice(0, 10);
+            }
             const cloneRes = await conn.query(
               `INSERT INTO tasks
                 (title, parent_id, client_id, item_type, status, priority, health_state, description, assignees,
                  hours_estimated, hours_spent, due_date, start_date, end_date, dependencies, source,
                  collaborations, success_factor, repeat_rule)
-                VALUES ($1,$2,$3,$4,'Not started',$5,$6,$7,$8,$9,0,$10,'','',$11,'repeat',$12,$13,$14)
+                VALUES ($1,$2,$3,$4,'Not started',$5,$6,$7,$8,$9,0,$10,$15,$16,$11,'repeat',$12,$13,$14)
                 RETURNING id`,
               [snap.title, snap.parent_id, snap.client_id, snap.item_type, snap.priority || '',
                snap.health_state || '', snap.description || '', snap.assignees || [],
                snap.hours_estimated || 0, nextDate, snap.dependencies || [],
-               snap.collaborations || null, snap.success_factor || null, tr.repeatRule]
+               snap.collaborations || null, snap.success_factor || null, tr.repeatRule,
+               newStart, newEnd]
             );
             await auditLog('task', cloneRes.rows[0].id, 'repeat_clone', req.user?.displayName || 'system', { source_task_id: tr.id, due_date: nextDate }, conn);
           }
@@ -386,7 +413,7 @@ router.post('/api/sync/changes', async (req, res) => {
       }
     }
 
-    res.json({ ok: true, applied, idMap, rejectedOutOfScope, notificationsSent, updatedTimestamps });
+    res.json({ ok: true, applied, idMap, rejectedOutOfScope, notificationsSent, updatedTimestamps, conflicted });
   } catch (e) {
     await conn.query('ROLLBACK');
     log('error', 'Sync', 'Incremental sync failed', { error: e.message, stack: e.stack?.split('\n').slice(0,3).join(' | ') });
@@ -468,10 +495,15 @@ router.get('/api/sync/poll', async (req, res) => {
     startDate: r.start_date || '',
     endDate: r.end_date || '',
     dependencies: r.dependencies || [],
+    itemType: r.item_type || 'task',
     practiceArea: r.practice_area || null,
     position: r.position || 0,
+    sortOrder: r.sort_order || 0,
     createdAt: r.created_at,
     updatedAt: r.updated_at,
+    plannerTaskId: r.planner_task_id || '',
+    sowId: r.sow_id || null,
+    workType: r.work_type || null,
   }));
 
   res.json({
