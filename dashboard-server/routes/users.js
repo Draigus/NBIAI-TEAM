@@ -12,15 +12,16 @@ module.exports = function(ctx) {
 
   /** GET /api/users — List users. Admins see full details; client users see their company; members see names only. */
   router.get('/api/users', async (req, res) => {
-    if (req.user.role === 'admin') {
-      const { rows } = await pool.query('SELECT id, username, display_name, email, role, is_active, capacity_hours_per_week, resource_type_ids, created_at, client_id, client_role, docs_view, docs_edit, docs_create, docs_upload, can_submit_queue FROM users ORDER BY display_name');
-      res.json(rows);
-    } else if (req.user.clientId) {
-      // Client users see only their company's users
+    if (req.user.clientId) {
+      // Client users see only their company's users — checked before role so
+      // client accounts with role=admin are still scoped to their client.
       const { rows } = await pool.query(
         'SELECT id, username, display_name, email, client_role, is_active FROM users WHERE client_id = $1 ORDER BY display_name',
         [req.user.clientId]
       );
+      res.json(rows);
+    } else if (req.user.role === 'admin') {
+      const { rows } = await pool.query('SELECT id, username, display_name, email, role, is_active, capacity_hours_per_week, resource_type_ids, created_at, client_id, client_role, docs_view, docs_edit, docs_create, docs_upload, can_submit_queue FROM users ORDER BY display_name');
       res.json(rows);
     } else {
       // Non-admins only get names (for assignee dropdowns) — no emails, roles, or capacity

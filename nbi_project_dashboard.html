@@ -20104,11 +20104,12 @@ async function openStageEditor(clientId) {
       ${stages.map((s, i) => {
         const isTerminal = i === stages.length - 1 && s.key === 'onboarded';
         const isOnboarding = !!s.is_onboarding;
-        return `<div class="stage-editor-row" style="display:flex;gap:6px;align-items:center">
-          <input type="text" value="${esc(s.key)}" class="se-key" style="width:120px;padding:4px 6px;font-size:0.82rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)" ${isTerminal ? 'disabled' : ''} placeholder="key">
-          <input type="text" value="${esc(s.label)}" class="se-label" style="flex:1;padding:4px 6px;font-size:0.82rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)" placeholder="Label">
-          <label style="display:flex;align-items:center;gap:3px;font-size:0.68rem;color:var(--text-muted);white-space:nowrap" title="Onboarding stage"><input type="checkbox" class="se-onboarding" ${isOnboarding ? 'checked' : ''}> Onboard</label>
-          ${isTerminal ? '' : `<button class="btn btn--ghost btn--sm" style="color:var(--danger)" onclick="this.closest('.stage-editor-row').remove()">×</button>`}
+        return `<div class="stage-editor-row" draggable="${isTerminal ? 'false' : 'true'}" style="display:flex;gap:6px;align-items:center">
+          ${isTerminal ? '<span style="width:24px"></span>' : '<span class="se-drag-handle" title="Drag to reorder">&#10303;</span>'}
+          <input type="text" value="${esc(s.key)}" class="se-key" style="width:120px;padding:5px 8px;font-size:0.85rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)" ${isTerminal ? 'disabled' : ''} placeholder="key">
+          <input type="text" value="${esc(s.label)}" class="se-label" style="flex:1;padding:5px 8px;font-size:0.85rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)" placeholder="Label">
+          <label style="display:flex;align-items:center;gap:3px;font-size:0.72rem;color:var(--text-muted);white-space:nowrap" title="Onboarding stage"><input type="checkbox" class="se-onboarding" ${isOnboarding ? 'checked' : ''}> Onboard</label>
+          ${isTerminal ? '' : '<button class="btn btn--ghost btn--sm" style="color:var(--danger)" onclick="this.closest(\'.stage-editor-row\').remove()">×</button>'}
         </div>`;
       }).join('')}
     </div>
@@ -20120,6 +20121,36 @@ async function openStageEditor(clientId) {
     </div>
   </div>`;
   document.body.appendChild(overlay);
+
+  // Drag reorder for stage rows
+  const list = overlay.querySelector('#stageEditorList');
+  let dragRow = null;
+  list.addEventListener('dragstart', (e) => {
+    dragRow = e.target.closest('.stage-editor-row');
+    if (!dragRow || dragRow.getAttribute('draggable') === 'false') { e.preventDefault(); return; }
+    dragRow.classList.add('se-dragging');
+    e.dataTransfer.effectAllowed = 'move';
+  });
+  list.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    const target = e.target.closest('.stage-editor-row');
+    if (!target || target === dragRow || target.getAttribute('draggable') === 'false') return;
+    const rect = target.getBoundingClientRect();
+    const midY = rect.top + rect.height / 2;
+    if (e.clientY < midY) {
+      list.insertBefore(dragRow, target);
+    } else {
+      list.insertBefore(dragRow, target.nextSibling);
+    }
+  });
+  list.addEventListener('dragend', () => {
+    if (dragRow) dragRow.classList.remove('se-dragging');
+    dragRow = null;
+    // Ensure terminal row stays last
+    const rows = list.querySelectorAll('.stage-editor-row');
+    const terminal = Array.from(rows).find(r => r.getAttribute('draggable') === 'false');
+    if (terminal && terminal !== rows[rows.length - 1]) list.appendChild(terminal);
+  });
 
   const close = () => { try { document.body.removeChild(overlay); } catch(e){} };
   overlay.querySelector('#seCancel').onclick = close;
@@ -20161,10 +20192,12 @@ function addStageEditorRow() {
   const terminalRow = list.querySelector('.stage-editor-row:last-child');
   const newRow = document.createElement('div');
   newRow.className = 'stage-editor-row';
+  newRow.draggable = true;
   newRow.style.cssText = 'display:flex;gap:6px;align-items:center';
-  newRow.innerHTML = `<input type="text" class="se-key" style="width:120px;padding:4px 6px;font-size:0.82rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)" placeholder="key">
-    <input type="text" class="se-label" style="flex:1;padding:4px 6px;font-size:0.82rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)" placeholder="Label">
-    <label style="display:flex;align-items:center;gap:3px;font-size:0.68rem;color:var(--text-muted);white-space:nowrap"><input type="checkbox" class="se-onboarding"> Onboard</label>
+  newRow.innerHTML = `<span class="se-drag-handle" title="Drag to reorder">&#10303;</span>
+    <input type="text" class="se-key" style="width:120px;padding:5px 8px;font-size:0.85rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)" placeholder="key">
+    <input type="text" class="se-label" style="flex:1;padding:5px 8px;font-size:0.85rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)" placeholder="Label">
+    <label style="display:flex;align-items:center;gap:3px;font-size:0.72rem;color:var(--text-muted);white-space:nowrap"><input type="checkbox" class="se-onboarding"> Onboard</label>
     <button class="btn btn--ghost btn--sm" style="color:var(--danger)" onclick="this.closest('.stage-editor-row').remove()">×</button>`;
   list.insertBefore(newRow, terminalRow);
 }
@@ -20295,6 +20328,38 @@ function buildCandidateHeaderHtml(c, isArchived) {
     </div>
     <button class="btn btn--ghost btn--sm" data-action="closeCandidateDetail" aria-label="Close" style="flex-shrink:0">&times;</button>
   </div>`;
+}
+
+function buildCandidateStageBarHtml(c, isArchived, disabledStyle, candidateStages) {
+  const resolvedStages = candidateStages || HIRING_STAGES.map(k => ({ key: k, label: HIRING_STAGE_LABELS[k] || k }));
+  const stageIdx = resolvedStages.findIndex(s => s.key === c.stage);
+  const prev = stageIdx > 0 ? resolvedStages[stageIdx - 1] : null;
+  const next = stageIdx < resolvedStages.length - 1 ? resolvedStages[stageIdx + 1] : null;
+  const stageAssignees = (c.stage_assignees && typeof c.stage_assignees === 'object') ? c.stage_assignees : {};
+  const currentStageAssignees = Array.isArray(stageAssignees[c.stage]) ? stageAssignees[c.stage] : [];
+  const unassigned = !isArchived && currentStageAssignees.length === 0;
+
+  return `<div style="display:flex;align-items:center;gap:8px;${disabledStyle}">
+    <button class="btn btn--sm" style="min-width:36px;background:var(--bg-surface);color:${prev ? 'var(--text-secondary)' : 'var(--text-faint)'};border:1px solid var(--border-default)" ${prev ? `data-action="updateCandidateField" data-arg0="${c.id}" data-arg1="stage" data-arg2="${prev.key}" title="Previous: ${esc(prev.label)}"` : 'disabled'}>&larr;</button>
+    <select id="cdStageSel" onchange="hiringStageSelectChange('${c.id}',this.value)" style="flex:1;font-weight:600;text-align:center;padding:8px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.9rem">
+      ${resolvedStages.map(s => `<option value="${s.key}" ${c.stage===s.key?'selected':''}>${esc(s.label)}</option>`).join('')}
+    </select>
+    <button class="btn btn--sm" style="min-width:36px;background:color-mix(in srgb, var(--success) 30%, var(--bg-surface));color:#fff;border:1px solid var(--success)" ${next ? `data-action="updateCandidateField" data-arg0="${c.id}" data-arg1="stage" data-arg2="${next.key}" title="Next: ${esc(next.label)}"` : `data-action="hiringConfirmHire" data-arg0="${c.id}" title="Confirm Onboarded"`}>&rarr;</button>
+  </div>
+  <div style="display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap;${disabledStyle}">
+    ${currentStageAssignees.map((name, i) => `<span style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:10px;padding:3px 10px;font-size:0.78rem;display:inline-flex;align-items:center;gap:4px">${esc(name)} <button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.78rem" data-action="hiringRemoveStageAssignee" data-arg0="${c.id}" data-arg1="${esc(c.stage)}" data-arg2="${i}">&times;</button></span>`).join('')}
+    ${unassigned ? '<span style="color:var(--danger);font-size:0.78rem">&#9888; No assignee</span>' : ''}
+    <select id="cdStageAssigneeAdd" style="font-size:0.78rem;padding:3px 8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)" onchange="if(this.value){hiringAddStageAssignee('${c.id}','${esc(c.stage)}');this.value=''}"><option value="">+ Assign…</option>${(_cachedTeamMembers || []).map(m => `<option value="${esc(m)}">${esc(m)}</option>`).join('')}</select>
+  </div>`;
+}
+
+function switchCandidateTab(btn, tabId) {
+  const panel = btn.closest('.candidate-detail-panel');
+  panel.querySelectorAll('.candidate-detail__tab').forEach(t => t.classList.remove('candidate-detail__tab--active'));
+  panel.querySelectorAll('.candidate-detail__tab-content').forEach(t => t.classList.remove('candidate-detail__tab-content--active'));
+  btn.classList.add('candidate-detail__tab--active');
+  const target = document.getElementById('cdTab' + tabId.charAt(0).toUpperCase() + tabId.slice(1));
+  if (target) target.classList.add('candidate-detail__tab-content--active');
 }
 
 function buildCandidateProfileHtml(c, isDetailScoped, clientList, positions, disabledStyle) {

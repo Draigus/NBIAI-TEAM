@@ -415,6 +415,16 @@ router.patch('/api/tasks/:id', async (req, res) => {
     await auditLog('task', req.params.id, 'update', req.user?.displayName, changes);
   }
 
+  // Clear blocker_info when unblocking (status moves away from Blocked)
+  if (req.body.status && req.body.status !== 'Blocked' && oldTask && oldTask.status === 'Blocked') {
+    try {
+      await pool.query('UPDATE tasks SET blocker_info = NULL WHERE id = $1', [req.params.id]);
+      updatedTask.blocker_info = null;
+    } catch (e) {
+      log('warn', 'Tasks', 'Clear blocker_info on unblock failed', { error: e.message });
+    }
+  }
+
   // Connected Statuses: bidirectional cascade for Done/Cancelled/Blocked
   // Downward: parent status pushes to all descendants
   const CASCADE_STATUSES = ['Done', 'Cancelled', 'Blocked'];
@@ -490,17 +500,32 @@ router.patch('/api/tasks/:id', async (req, res) => {
     if (newTerminal && !wasTerminal && updatedTask.repeat_rule) {
       const nextDate = computeNextRepeatDate(updatedTask.repeat_rule, new Date());
       if (nextDate) {
+        let newStart = '';
+        let newEnd = '';
+        if (updatedTask.start_date && updatedTask.due_date) {
+          const origDuration = Math.round((new Date(updatedTask.due_date) - new Date(updatedTask.start_date)) / 86400000);
+          const nd = new Date(nextDate + 'T00:00:00');
+          const ns = new Date(nd); ns.setDate(ns.getDate() - origDuration);
+          newStart = ns.toISOString().slice(0, 10);
+        }
+        if (updatedTask.end_date && updatedTask.due_date) {
+          const endOffset = Math.round((new Date(updatedTask.end_date) - new Date(updatedTask.due_date)) / 86400000);
+          const nd = new Date(nextDate + 'T00:00:00');
+          const ne = new Date(nd); ne.setDate(ne.getDate() + endOffset);
+          newEnd = ne.toISOString().slice(0, 10);
+        }
         const cloneSql = `INSERT INTO tasks
           (title, parent_id, client_id, item_type, status, priority, health_state, description, assignees,
            hours_estimated, hours_spent, due_date, start_date, end_date, dependencies, planner_task_id, source,
            collaborations, success_factor, repeat_rule)
-          VALUES ($1,$2,$3,$4,'Not started',$5,$6,$7,$8,$9,0,$10,'','',$11,'','repeat',$12,$13,$14)
+          VALUES ($1,$2,$3,$4,'Not started',$5,$6,$7,$8,$9,0,$10,$15,$16,$11,'','repeat',$12,$13,$14)
           RETURNING id`;
         const cloneVals = [
           updatedTask.title, updatedTask.parent_id, updatedTask.client_id, updatedTask.item_type,
           updatedTask.priority || '', updatedTask.health_state || '', updatedTask.description || '',
           updatedTask.assignees || [], updatedTask.hours_estimated || 0, nextDate, updatedTask.dependencies || [],
-          updatedTask.collaborations || null, updatedTask.success_factor || null, updatedTask.repeat_rule
+          updatedTask.collaborations || null, updatedTask.success_factor || null, updatedTask.repeat_rule,
+          newStart, newEnd
         ];
         const cloneRes = await pool.query(cloneSql, cloneVals);
         await auditLog('task', cloneRes.rows[0].id, 'repeat_clone', req.user?.displayName, { source_task_id: req.params.id, due_date: nextDate });

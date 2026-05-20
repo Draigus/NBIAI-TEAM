@@ -119,8 +119,8 @@ module.exports = function createAuthMiddleware(pool) {
   // Client scope helpers
   async function getClientScopes(req) {
     if (req._clientScopes !== undefined) return req._clientScopes;
-    if (req.user?.role === 'admin') { req._clientScopes = null; return null; }
     if (req.user?.clientId) { req._clientScopes = [req.user.clientId]; return req._clientScopes; }
+    if (req.user?.role === 'admin') { req._clientScopes = null; return null; }
 
     const { rows: teams } = await pool.query(
       'SELECT DISTINCT t.client_id FROM team_members tm JOIN teams t ON t.id = tm.team_id WHERE tm.user_id = $1 AND t.client_id IS NOT NULL',

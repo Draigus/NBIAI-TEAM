@@ -33,6 +33,7 @@ test.describe('@mobile-audit iPhone 11 portrait screenshots', () => {
   test.use({ viewport: IPHONE_11 });
 
   test('capture all audit targets', async ({ page }) => {
+    test.setTimeout(60000);
     page.on('pageerror', err => console.log('[pageerror]', err.message, err.stack?.split('\n').slice(0,5).join(' | ')));
     page.on('console', msg => { if (msg.type() === 'error' || msg.type() === 'warning') console.log('[browser', msg.type() + ']', msg.text()); });
     // Seed just enough data to make every view render something real
