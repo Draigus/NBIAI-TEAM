@@ -124,3 +124,109 @@ describe('GET /api/candidates/:id/history', () => {
       .expect(403);
   });
 });
+
+const VALID_SOURCES = ['referral', 'linkedin', 'inbound', 'agency', 'job-board', 'internal', 'other'];
+
+describe('Candidate new fields — email, source, tags', () => {
+  it('POST accepts email, source, source_detail', async () => {
+    const admin = await createTestUser({ role: 'admin' });
+    const token = await mintSession(admin.id);
+
+    const res = await request(app)
+      .post('/api/candidates')
+      .set('Cookie', `nbi_session=${token}`)
+      .send({ name: 'Grace', email: 'grace@example.com', source: 'referral', source_detail: 'From Glen' })
+      .expect(201);
+
+    expect(res.body.email).toBe('grace@example.com');
+    expect(res.body.source).toBe('referral');
+    expect(res.body.source_detail).toBe('From Glen');
+  });
+
+  it('rejects invalid source value', async () => {
+    const admin = await createTestUser({ role: 'admin' });
+    const token = await mintSession(admin.id);
+
+    await request(app)
+      .post('/api/candidates')
+      .set('Cookie', `nbi_session=${token}`)
+      .send({ name: 'Hank', source: 'invalid-source' })
+      .expect(400);
+  });
+
+  it('rejects malformed email', async () => {
+    const admin = await createTestUser({ role: 'admin' });
+    const token = await mintSession(admin.id);
+
+    await request(app)
+      .post('/api/candidates')
+      .set('Cookie', `nbi_session=${token}`)
+      .send({ name: 'Ivan', email: 'not-an-email' })
+      .expect(400);
+  });
+
+  it('PATCH updates tags — normalises to lowercase, deduplicates', async () => {
+    const admin = await createTestUser({ role: 'admin' });
+    const token = await mintSession(admin.id);
+    const candidate = await createTestCandidate({ name: 'Jill' });
+
+    const res = await request(app)
+      .patch(`/api/candidates/${candidate.id}`)
+      .set('Cookie', `nbi_session=${token}`)
+      .send({ tags: ['Senior', ' SENIOR ', 'greek-speaking', ''] })
+      .expect(200);
+
+    expect(res.body.tags).toEqual(['senior', 'greek-speaking']);
+  });
+
+  it('rejects tags exceeding 20 items', async () => {
+    const admin = await createTestUser({ role: 'admin' });
+    const token = await mintSession(admin.id);
+    const candidate = await createTestCandidate({ name: 'Karl' });
+    const tooMany = Array.from({ length: 21 }, (_, i) => `tag-${i}`);
+
+    await request(app)
+      .patch(`/api/candidates/${candidate.id}`)
+      .set('Cookie', `nbi_session=${token}`)
+      .send({ tags: tooMany })
+      .expect(400);
+  });
+
+  it('rejects tag longer than 50 characters', async () => {
+    const admin = await createTestUser({ role: 'admin' });
+    const token = await mintSession(admin.id);
+    const candidate = await createTestCandidate({ name: 'Lara' });
+
+    await request(app)
+      .patch(`/api/candidates/${candidate.id}`)
+      .set('Cookie', `nbi_session=${token}`)
+      .send({ tags: ['a'.repeat(51)] })
+      .expect(400);
+  });
+
+  it('GET candidates list includes new fields', async () => {
+    const admin = await createTestUser({ role: 'admin' });
+    const token = await mintSession(admin.id);
+    await createTestCandidate({ name: 'Mona', email: 'm@test.com', source: 'linkedin', tags: ['senior'] });
+
+    const res = await request(app)
+      .get('/api/candidates')
+      .set('Cookie', `nbi_session=${token}`)
+      .expect(200);
+
+    expect(res.body[0].email).toBe('m@test.com');
+    expect(res.body[0].source).toBe('linkedin');
+    expect(res.body[0].tags).toEqual(['senior']);
+  });
+
+  it('rejects source_detail exceeding 500 characters', async () => {
+    const admin = await createTestUser({ role: 'admin' });
+    const token = await mintSession(admin.id);
+
+    await request(app)
+      .post('/api/candidates')
+      .set('Cookie', `nbi_session=${token}`)
+      .send({ name: 'Ned', source: 'referral', source_detail: 'x'.repeat(501) })
+      .expect(400);
+  });
+});

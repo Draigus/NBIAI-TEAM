@@ -37,6 +37,21 @@ module.exports = function (ctx) {
     'onboarded',
   ];
 
+  const VALID_SOURCES = ['referral', 'linkedin', 'inbound', 'agency', 'job-board', 'internal', 'other'];
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  function validateAndNormaliseTags(tags) {
+    if (!Array.isArray(tags)) return { error: 'tags must be an array' };
+    const normalised = [...new Set(
+      tags.map(t => typeof t === 'string' ? t.trim().toLowerCase() : '')
+          .filter(t => t.length > 0)
+    )];
+    if (normalised.length > 20) return { error: 'Maximum 20 tags allowed' };
+    const tooLong = normalised.find(t => t.length > 50);
+    if (tooLong) return { error: 'Each tag must be 50 characters or fewer' };
+    return { value: normalised };
+  }
+
   /** GET /api/hiring-positions — List hiring positions, optionally filtered by client.
    *  Client users are auto-scoped to their own client_id. */
   router.get('/api/hiring-positions', async (req, res) => {
@@ -159,6 +174,8 @@ module.exports = function (ctx) {
         SELECT ca.id, ca.position_id, ca.client_id, ca.name, ca.role, ca.linkedin_url,
                ca.cv_filename, ca.due_date, ca.stage, ca.notes, ca.position, ca.created_at, ca.updated_at,
                ca.archived_at, ca.stage_assignees,
+               ca.email, ca.source, ca.source_detail, ca.tags,
+               ca.consent_given, ca.consent_date, ca.retention_expires_at,
                c.name AS client_name,
                p.title AS position_title,
                (ca.cv_filename IS NOT NULL) AS has_cv
@@ -223,6 +240,24 @@ module.exports = function (ctx) {
       const ne = validateLength(notes, 'notes');
       if (ne) return res.status(400).json({ error: ne });
     }
+    const { email, source, source_detail, tags } = req.body || {};
+    if (email !== undefined && email !== null && email !== '') {
+      if (!EMAIL_RE.test(email)) return res.status(400).json({ error: 'Invalid email format' });
+      const emailErr = validateLength(email, 'email');
+      if (emailErr) return res.status(400).json({ error: emailErr });
+    }
+    if (source !== undefined && source !== null && source !== '') {
+      if (!VALID_SOURCES.includes(source)) return res.status(400).json({ error: `Invalid source. Must be one of: ${VALID_SOURCES.join(', ')}` });
+    }
+    if (source_detail !== undefined) {
+      const sdErr = validateLength(source_detail, 'source_detail');
+      if (sdErr) return res.status(400).json({ error: sdErr });
+    }
+    if (tags !== undefined) {
+      const tagResult = validateAndNormaliseTags(tags);
+      if (tagResult.error) return res.status(400).json({ error: tagResult.error });
+      req.body.tags = tagResult.value;
+    }
     const targetStage = stage || 'sourcing';
     const dbClient = await pool.connect();
     let createdRow;
@@ -230,8 +265,8 @@ module.exports = function (ctx) {
       await dbClient.query('BEGIN');
       await shiftForInsert(dbClient, 'candidates', 'stage', targetStage);
       const { rows } = await dbClient.query(
-        `INSERT INTO candidates (client_id, position_id, name, role, linkedin_url, due_date, stage, notes, position)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,0) RETURNING *`,
+        `INSERT INTO candidates (client_id, position_id, name, role, linkedin_url, due_date, stage, notes, position, email, source, source_detail, tags)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,0,$9,$10,$11,$12) RETURNING *`,
         [
           client_id || null,
           position_id || null,
@@ -240,7 +275,11 @@ module.exports = function (ctx) {
           linkedin_url || null,
           due_date || null,
           targetStage,
-          notes || null
+          notes || null,
+          email || null,
+          source || null,
+          source_detail || null,
+          req.body.tags ? JSON.stringify(req.body.tags) : '[]',
         ]
       );
       createdRow = rows[0];
@@ -295,6 +334,25 @@ module.exports = function (ctx) {
       const ne = validateLength(req.body.notes, 'notes');
       if (ne) return res.status(400).json({ error: ne });
     }
+    // Validate new candidate fields
+    if (req.body.email !== undefined && req.body.email !== null && req.body.email !== '') {
+      if (!EMAIL_RE.test(req.body.email)) return res.status(400).json({ error: 'Invalid email format' });
+      const emailErr = validateLength(req.body.email, 'email');
+      if (emailErr) return res.status(400).json({ error: emailErr });
+    }
+    if (req.body.source !== undefined && req.body.source !== null && req.body.source !== '') {
+      if (!VALID_SOURCES.includes(req.body.source)) return res.status(400).json({ error: `Invalid source. Must be one of: ${VALID_SOURCES.join(', ')}` });
+    }
+    if (req.body.source_detail !== undefined) {
+      const sdErr = validateLength(req.body.source_detail, 'source_detail');
+      if (sdErr) return res.status(400).json({ error: sdErr });
+    }
+    if (req.body.tags !== undefined) {
+      const tagResult = validateAndNormaliseTags(req.body.tags);
+      if (tagResult.error) return res.status(400).json({ error: tagResult.error });
+      // pg does not auto-cast JS arrays to jsonb — stringify so the driver sends a valid JSON string
+      req.body.tags = JSON.stringify(tagResult.value);
+    }
     // Text fields are stored raw; escaping happens at render time in the frontend (esc()).
     // Name is trimmed here because the POST path also trims it.
     const body = { ...req.body };
@@ -304,7 +362,7 @@ module.exports = function (ctx) {
     // stage_assignees / onboarding_links / start_date / archived_at were added
     // by migration 024 for Glen's hiring rewrite (bug b7a2f97f). JSONB columns
     // are passed through as JS objects — pg handles the serialisation.
-    const { updates, vals, nextIdx } = buildPatchQuery(body, ['client_id', 'position_id', 'name', 'role', 'linkedin_url', 'due_date', 'notes', 'stage_assignees', 'start_date', 'onboarding_links', 'archived_at']);
+    const { updates, vals, nextIdx } = buildPatchQuery(body, ['client_id', 'position_id', 'name', 'role', 'linkedin_url', 'due_date', 'notes', 'stage_assignees', 'start_date', 'onboarding_links', 'archived_at', 'email', 'source', 'source_detail', 'tags']);
     const wantsReorder = (body.stage !== undefined) || (req.body.position !== undefined);
     if (updates.length === 0 && !wantsReorder) return res.status(400).json({ error: 'No valid fields to update' });
 
