@@ -927,6 +927,71 @@ if (cron) {
 }
 
 
+// ==================== HIRING STALL REMINDERS ====================
+
+const STALL_THRESHOLDS = { sourcing: 7, interviews: 10, offer: 5, onboarding: 14 };
+const DEFAULT_STALL_DAYS = 10;
+
+async function checkHiringStalls() {
+  try {
+    const { rows: candidates } = await pool.query(`
+      SELECT ca.id, ca.name, ca.stage, ca.stage_assignees, ca.client_id,
+             c.name AS client_name,
+             latest.moved_at AS stage_entered_at,
+             EXTRACT(EPOCH FROM (NOW() - latest.moved_at)) / 86400 AS days_in_stage
+      FROM candidates ca
+      JOIN clients c ON ca.client_id = c.id
+      LEFT JOIN LATERAL (
+        SELECT moved_at FROM candidate_stage_history
+        WHERE candidate_id = ca.id ORDER BY moved_at DESC LIMIT 1
+      ) latest ON true
+      WHERE ca.archived_at IS NULL
+        AND latest.moved_at IS NOT NULL
+    `);
+
+    let sent = 0;
+    for (const cand of candidates) {
+      const threshold = STALL_THRESHOLDS[cand.stage] || DEFAULT_STALL_DAYS;
+      if (cand.days_in_stage < threshold) continue;
+
+      const { rows: existing } = await pool.query(
+        `SELECT id FROM notifications
+         WHERE type = 'hiring_stall_reminder'
+           AND link LIKE $1
+           AND created_at > NOW() - INTERVAL '1 day' * $2`,
+        [`%${cand.id}%`, threshold]
+      );
+      if (existing.length > 0) continue;
+
+      const assignees = cand.stage_assignees ? cand.stage_assignees[cand.stage] : null;
+      if (!Array.isArray(assignees) || assignees.length === 0) continue;
+
+      const days = Math.floor(cand.days_in_stage);
+      const title = `${cand.name || 'Candidate'} stalled in ${cand.stage} for ${days} days (${cand.client_name})`;
+      const link = `#hiring/candidate/${cand.id}`;
+
+      for (const displayName of assignees) {
+        const { rows: [user] } = await pool.query(
+          'SELECT username FROM users WHERE display_name = $1 AND is_active = true LIMIT 1',
+          [displayName]
+        );
+        if (user) {
+          await createNotification(user.username, 'hiring_stall_reminder', title, '', link);
+          sent++;
+        }
+      }
+    }
+    log('info', 'Cron', `Hiring stall check: ${sent} reminder(s) sent for ${candidates.length} active candidates`);
+  } catch (e) {
+    log('error', 'Cron', 'Hiring stall check failed', { error: e.message });
+  }
+}
+
+if (cron) {
+  cron.schedule('0 8 * * 1-5', checkHiringStalls, CRON_TZ);
+  log('info', 'Cron', 'Hiring stall reminders scheduled for weekdays at 08:00');
+}
+
   return {
     computeDashboardSnapshot,
     buildPmReportEmails,
@@ -936,5 +1001,6 @@ if (cron) {
     processInboundEmails,
     buildDueWarningEmails,
     runAttachmentSweep,
+    checkHiringStalls,
   };
 };
