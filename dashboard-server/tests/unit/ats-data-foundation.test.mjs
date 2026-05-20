@@ -5,7 +5,7 @@ const require = createRequire(import.meta.url);
 const request = require('supertest');
 const { pool, truncate } = require('../helpers/db.js');
 const { mintSession } = require('../helpers/auth.js');
-const { createTestUser, createTestClient, createTestCandidate } = require('../helpers/fixtures.js');
+const { createTestUser, createTestClient, createTestCandidate, createTestHiringPosition } = require('../helpers/fixtures.js');
 const app = require('../../server.js');
 
 beforeEach(async () => { await truncate(); });
@@ -491,5 +491,74 @@ describe('GDPR retention fields', () => {
     expect(names).toContain('Expired');
     expect(names).toContain('SoonExpiring');
     expect(names).not.toContain('FarFuture');
+  });
+});
+
+describe('Enriched hiring positions', () => {
+  it('POST creates position with new fields', async () => {
+    const admin = await createTestUser({ role: 'admin' });
+    const token = await mintSession(admin.id);
+    const client = await createTestClient({ name: 'Acme' });
+
+    const res = await request(app)
+      .post('/api/hiring-positions')
+      .set('Cookie', `nbi_session=${token}`)
+      .send({
+        client_id: client.id,
+        title: 'Senior Dev',
+        salary_range: '£45,000-£55,000',
+        employment_type: 'permanent',
+        location: 'Remote',
+        requirements: ['React', 'Node.js', 'PostgreSQL'],
+        interview_panel: [{ user_id: admin.id, name: admin.display_name, role: 'Final interview' }],
+      })
+      .expect(201);
+
+    expect(res.body.salary_range).toBe('£45,000-£55,000');
+    expect(res.body.employment_type).toBe('permanent');
+    expect(res.body.location).toBe('Remote');
+    expect(res.body.requirements).toEqual(['React', 'Node.js', 'PostgreSQL']);
+    expect(res.body.interview_panel[0].user_id).toBe(admin.id);
+  });
+
+  it('rejects invalid employment_type', async () => {
+    const admin = await createTestUser({ role: 'admin' });
+    const token = await mintSession(admin.id);
+
+    await request(app)
+      .post('/api/hiring-positions')
+      .set('Cookie', `nbi_session=${token}`)
+      .send({ title: 'Bad Type', employment_type: 'intern' })
+      .expect(400);
+  });
+
+  it('GET includes new position fields', async () => {
+    const admin = await createTestUser({ role: 'admin' });
+    const token = await mintSession(admin.id);
+    await createTestHiringPosition({ title: 'PM', salary_range: '£60k', location: 'London' });
+
+    const res = await request(app)
+      .get('/api/hiring-positions')
+      .set('Cookie', `nbi_session=${token}`)
+      .expect(200);
+
+    const p = res.body.find(x => x.title === 'PM');
+    expect(p.salary_range).toBe('£60k');
+    expect(p.location).toBe('London');
+  });
+
+  it('PATCH updates position fields', async () => {
+    const admin = await createTestUser({ role: 'admin' });
+    const token = await mintSession(admin.id);
+    const pos = await createTestHiringPosition({ title: 'QA Lead' });
+
+    const res = await request(app)
+      .patch(`/api/hiring-positions/${pos.id}`)
+      .set('Cookie', `nbi_session=${token}`)
+      .send({ salary_range: '£50k-£65k', requirements: ['Playwright', 'CI/CD'] })
+      .expect(200);
+
+    expect(res.body.salary_range).toBe('£50k-£65k');
+    expect(res.body.requirements).toEqual(['Playwright', 'CI/CD']);
   });
 });
