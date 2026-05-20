@@ -11,6 +11,7 @@ module.exports = function (ctx) {
     upload, uploadDir,
     shiftForInsert, reorderInGroup,
     buildPatchQuery,
+    createNotification,
   } = ctx;
 
   // ==================== HIRING ====================
@@ -37,6 +38,9 @@ module.exports = function (ctx) {
     'onboarded',
   ];
 
+  const STAGE_LABELS = { sourcing: 'Sourcing', interviews: 'Interviews', offer: 'Offer', onboarding: 'Onboarding', onboarded: 'Onboarded' };
+  const VALID_REJECTION_CATEGORIES = ['unqualified', 'culture-mismatch', 'compensation', 'candidate-withdrew', 'position-filled', 'no-response', 'failed-interview', 'other'];
+
   const VALID_SOURCES = ['referral', 'linkedin', 'inbound', 'agency', 'job-board', 'internal', 'other'];
   const VALID_EMPLOYMENT_TYPES = ['permanent', 'contract', 'freelance'];
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -51,6 +55,26 @@ module.exports = function (ctx) {
     const tooLong = normalised.find(t => t.length > 50);
     if (tooLong) return { error: 'Each tag must be 50 characters or fewer' };
     return { value: normalised };
+  }
+
+  async function notifyStageAssignees(candidateId, candidateName, newStage, clientName) {
+    try {
+      const { rows: [candidate] } = await pool.query('SELECT stage_assignees FROM candidates WHERE id = $1', [candidateId]);
+      if (!candidate || !candidate.stage_assignees) return;
+      const assignees = candidate.stage_assignees[newStage];
+      if (!Array.isArray(assignees) || assignees.length === 0) return;
+      const stageLabel = STAGE_LABELS[newStage] || newStage;
+      const title = `${candidateName} moved to ${stageLabel}${clientName ? ` (${clientName})` : ''}`;
+      const link = `#hiring/candidate/${candidateId}`;
+      for (const displayName of assignees) {
+        const { rows: [user] } = await pool.query('SELECT username FROM users WHERE display_name = $1 AND is_active = true LIMIT 1', [displayName]);
+        if (user) {
+          await createNotification(user.username, 'hiring_stage_change', title, '', link);
+        }
+      }
+    } catch (e) {
+      log('error', 'Hiring', 'Failed to send stage-change notifications', { error: e.message });
+    }
   }
 
   /** GET /api/hiring-positions — List hiring positions, optionally filtered by client.
@@ -298,6 +322,7 @@ module.exports = function (ctx) {
                ca.archived_at, ca.stage_assignees,
                ca.email, ca.source, ca.source_detail, ca.tags,
                ca.consent_given, ca.consent_date, ca.retention_expires_at,
+               ca.rejection_reason, ca.rejection_category,
                c.name AS client_name,
                p.title AS position_title,
                (ca.cv_filename IS NOT NULL) AS has_cv,
@@ -535,7 +560,30 @@ module.exports = function (ctx) {
     // stage_assignees / onboarding_links / start_date / archived_at were added
     // by migration 024 for Glen's hiring rewrite (bug b7a2f97f). JSONB columns
     // are passed through as JS objects — pg handles the serialisation.
-    const { updates, vals, nextIdx } = buildPatchQuery(body, ['client_id', 'position_id', 'name', 'role', 'linkedin_url', 'due_date', 'notes', 'stage_assignees', 'start_date', 'onboarding_links', 'archived_at', 'email', 'source', 'source_detail', 'tags', 'consent_given', 'consent_date', 'retention_expires_at']);
+    // Validate rejection_category if provided
+    if (body.rejection_category !== undefined && body.rejection_category !== null) {
+      if (!VALID_REJECTION_CATEGORIES.includes(body.rejection_category)) {
+        return res.status(400).json({ error: `Invalid rejection_category. Must be one of: ${VALID_REJECTION_CATEGORIES.join(', ')}` });
+      }
+    }
+
+    // Rejection enforcement: archiving a non-terminal candidate requires a rejection_category
+    if (body.archived_at && body.archived_at !== null) {
+      const terminalStage = HIRING_STAGES[HIRING_STAGES.length - 1];
+      const targetStage = body.stage || null;
+      if (targetStage !== terminalStage) {
+        if (!targetStage) {
+          const { rows: [current] } = await pool.query('SELECT stage FROM candidates WHERE id = $1', [req.params.id]);
+          if (current && current.stage !== terminalStage && !body.rejection_category) {
+            return res.status(400).json({ error: 'Rejection category required when archiving a candidate' });
+          }
+        } else if (!body.rejection_category) {
+          return res.status(400).json({ error: 'Rejection category required when archiving a candidate' });
+        }
+      }
+    }
+
+    const { updates, vals, nextIdx } = buildPatchQuery(body, ['client_id', 'position_id', 'name', 'role', 'linkedin_url', 'due_date', 'notes', 'stage_assignees', 'start_date', 'onboarding_links', 'archived_at', 'email', 'source', 'source_detail', 'tags', 'consent_given', 'consent_date', 'retention_expires_at', 'rejection_reason', 'rejection_category']);
     const wantsReorder = (body.stage !== undefined) || (req.body.position !== undefined);
     if (updates.length === 0 && !wantsReorder) return res.status(400).json({ error: 'No valid fields to update' });
 
@@ -587,6 +635,18 @@ module.exports = function (ctx) {
       return res.status(500).json({ error: 'An internal error occurred' });
     } finally {
       dbClient.release();
+    }
+
+    if (wantsReorder && body.stage !== undefined) {
+      const { rows: [freshCandidate] } = await pool.query('SELECT name, client_id FROM candidates WHERE id = $1', [req.params.id]);
+      if (freshCandidate) {
+        let clientName = null;
+        if (freshCandidate.client_id) {
+          const { rows: [client] } = await pool.query('SELECT name FROM clients WHERE id = $1', [freshCandidate.client_id]);
+          if (client) clientName = client.name;
+        }
+        notifyStageAssignees(req.params.id, freshCandidate.name || 'Candidate', body.stage, clientName);
+      }
     }
 
     await auditLog('candidate', req.params.id, 'update', req.user.displayName || 'unknown', { fields: Object.keys(req.body) });
