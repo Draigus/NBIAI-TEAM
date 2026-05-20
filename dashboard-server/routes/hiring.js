@@ -34,19 +34,22 @@ module.exports = function (ctx) {
     'interviews',
     'offer',
     'onboarding',
-    'hired',
+    'onboarded',
   ];
 
-  /** GET /api/hiring-positions — List hiring positions, optionally filtered by client */
-  router.get('/api/hiring-positions', requireNBI, async (req, res) => {
+  /** GET /api/hiring-positions — List hiring positions, optionally filtered by client.
+   *  Client users are auto-scoped to their own client_id. */
+  router.get('/api/hiring-positions', async (req, res) => {
     if (!req.user) return res.status(401).json({ error: 'Auth required' });
+    const scopedClientId = req.user.clientId || null;
     const { client_id } = req.query;
+    const filterClientId = scopedClientId || client_id || null;
     let where = '';
     let vals = [];
-    if (client_id) {
-      if (!isValidUuid(client_id)) return res.status(400).json({ error: 'Invalid client_id' });
+    if (filterClientId) {
+      if (!isValidUuid(filterClientId)) return res.status(400).json({ error: 'Invalid client_id' });
       where = 'WHERE p.client_id = $1';
-      vals = [client_id];
+      vals = [filterClientId];
     }
     try {
       const { rows } = await pool.query(`
@@ -128,16 +131,19 @@ module.exports = function (ctx) {
     }
   });
 
-  /** GET /api/candidates — List candidates with optional filters */
-  router.get('/api/candidates', requireNBI, async (req, res) => {
+  /** GET /api/candidates — List candidates with optional filters.
+   *  Client users are auto-scoped to their own client_id. */
+  router.get('/api/candidates', async (req, res) => {
     if (!req.user) return res.status(401).json({ error: 'Auth required' });
+    const scopedClientId = req.user.clientId || null;
     const { client_id, stage, position_id } = req.query;
+    const filterClientId = scopedClientId || client_id || null;
     const where = [];
     const vals = [];
     let i = 1;
-    if (client_id) {
-      if (!isValidUuid(client_id)) return res.status(400).json({ error: 'Invalid client_id' });
-      where.push(`ca.client_id = $${i++}`); vals.push(client_id);
+    if (filterClientId) {
+      if (!isValidUuid(filterClientId)) return res.status(400).json({ error: 'Invalid client_id' });
+      where.push(`ca.client_id = $${i++}`); vals.push(filterClientId);
     }
     if (position_id) {
       if (!isValidUuid(position_id)) return res.status(400).json({ error: 'Invalid position_id' });
@@ -152,6 +158,7 @@ module.exports = function (ctx) {
       const { rows } = await pool.query(`
         SELECT ca.id, ca.position_id, ca.client_id, ca.name, ca.role, ca.linkedin_url,
                ca.cv_filename, ca.due_date, ca.stage, ca.notes, ca.position, ca.created_at, ca.updated_at,
+               ca.archived_at, ca.stage_assignees,
                c.name AS client_name,
                p.title AS position_title,
                (ca.cv_filename IS NOT NULL) AS has_cv
@@ -168,8 +175,9 @@ module.exports = function (ctx) {
     }
   });
 
-  /** GET /api/candidates/:id — Single candidate */
-  router.get('/api/candidates/:id', requireNBI, async (req, res) => {
+  /** GET /api/candidates/:id — Single candidate.
+   *  Client users can only view candidates belonging to their client. */
+  router.get('/api/candidates/:id', async (req, res) => {
     if (!req.user) return res.status(401).json({ error: 'Auth required' });
     if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid candidate ID' });
     try {
@@ -182,6 +190,9 @@ module.exports = function (ctx) {
         WHERE ca.id = $1
       `, [req.params.id]);
       if (!rows[0]) return res.status(404).json({ error: 'Not found' });
+      if (req.user.clientId && rows[0].client_id !== req.user.clientId) {
+        return res.status(403).json({ error: 'Access denied' });
+      }
       res.json(rows[0]);
     } catch (e) {
       log('error', 'Hiring', 'Failed to fetch candidate', { error: e.message });
@@ -189,10 +200,17 @@ module.exports = function (ctx) {
     }
   });
 
-  /** POST /api/candidates — Create a candidate (any authenticated user) */
-  router.post('/api/candidates', requireNBI, async (req, res) => {
+  /** POST /api/candidates — Create a candidate.
+   *  Client users can only create candidates under their own client. */
+  router.post('/api/candidates', async (req, res) => {
     if (!req.user) return res.status(401).json({ error: 'Auth required' });
-    const { client_id, position_id, name, role, linkedin_url, due_date, stage, notes } = req.body || {};
+    let { client_id, position_id, name, role, linkedin_url, due_date, stage, notes } = req.body || {};
+    if (req.user.clientId) {
+      if (client_id && client_id !== req.user.clientId) {
+        return res.status(403).json({ error: 'You can only create candidates for your own client' });
+      }
+      client_id = req.user.clientId;
+    }
     if (!name || !name.trim()) return res.status(400).json({ error: 'name required' });
     const lenErr = validateLength(name, 'name');
     if (lenErr) return res.status(400).json({ error: lenErr });
@@ -226,6 +244,11 @@ module.exports = function (ctx) {
         ]
       );
       createdRow = rows[0];
+      // Record initial stage entry in transition history
+      await dbClient.query(
+        'INSERT INTO candidate_stage_history (candidate_id, from_stage, to_stage, moved_by) VALUES ($1, $2, $3, $4)',
+        [createdRow.id, null, targetStage, req.user.displayName || 'unknown']
+      );
       await dbClient.query('COMMIT');
     } catch (e) {
       await dbClient.query('ROLLBACK');
@@ -238,10 +261,19 @@ module.exports = function (ctx) {
     res.status(201).json(createdRow);
   });
 
-  /** PATCH /api/candidates/:id — Update a candidate (any authenticated user) */
-  router.patch('/api/candidates/:id', requireNBI, async (req, res) => {
+  /** PATCH /api/candidates/:id — Update a candidate.
+   *  Client users can only update candidates belonging to their own client. */
+  router.patch('/api/candidates/:id', async (req, res) => {
     if (!req.user) return res.status(401).json({ error: 'Auth required' });
     if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid candidate ID' });
+    if (req.user.clientId) {
+      const { rows: check } = await pool.query('SELECT client_id FROM candidates WHERE id = $1', [req.params.id]);
+      if (check.length === 0) return res.status(404).json({ error: 'Not found' });
+      if (check[0].client_id !== req.user.clientId) return res.status(403).json({ error: 'Access denied' });
+      if (req.body.client_id !== undefined && req.body.client_id !== req.user.clientId) {
+        return res.status(403).json({ error: 'Cannot reassign candidate to another client' });
+      }
+    }
     // Validate stage if present
     if (req.body.stage !== undefined && !HIRING_STAGES.includes(req.body.stage)) {
       return res.status(400).json({ error: `Invalid stage. Must be one of: ${HIRING_STAGES.join(', ')}` });
@@ -292,6 +324,14 @@ module.exports = function (ctx) {
           ? req.body.position
           : 0;
         await reorderInGroup(dbClient, 'candidates', 'stage', req.params.id, targetStage, targetPos);
+        // Record stage transition if stage actually changed
+        const oldStage = oldRow.rows[0].stage;
+        if (body.stage !== undefined && body.stage !== oldStage) {
+          await dbClient.query(
+            'INSERT INTO candidate_stage_history (candidate_id, from_stage, to_stage, moved_by) VALUES ($1, $2, $3, $4)',
+            [req.params.id, oldStage, body.stage, req.user.displayName || 'unknown']
+          );
+        }
       }
 
       if (updates.length > 0) {
@@ -351,7 +391,7 @@ module.exports = function (ctx) {
    *  arbitrary binary that happens to satisfy the generic allowlist).
    *  If the candidate already has a CV, the previous file is deleted from disk
    *  before the new one replaces it. */
-  router.post('/api/candidates/:id/cv', requireNBI, upload.single('file'), async (req, res) => {
+  router.post('/api/candidates/:id/cv', upload.single('file'), async (req, res) => {
     if (!req.user) return res.status(401).json({ error: 'Auth required' });
     if (!isValidUuid(req.params.id)) {
       if (req.file) { try { fs.unlinkSync(req.file.path); } catch (e) {} }
@@ -366,10 +406,14 @@ module.exports = function (ctx) {
       return res.status(400).json({ error: 'Only PDF CVs are accepted' });
     }
     try {
-      const { rows: existing } = await pool.query('SELECT cv_filename FROM candidates WHERE id = $1', [req.params.id]);
+      const { rows: existing } = await pool.query('SELECT cv_filename, client_id FROM candidates WHERE id = $1', [req.params.id]);
       if (existing.length === 0) {
         try { fs.unlinkSync(req.file.path); } catch (e) {}
         return res.status(404).json({ error: 'Candidate not found' });
+      }
+      if (req.user.clientId && existing[0].client_id !== req.user.clientId) {
+        try { fs.unlinkSync(req.file.path); } catch (e) {}
+        return res.status(403).json({ error: 'Access denied' });
       }
       // Delete old CV file if present
       if (existing[0].cv_filename) {
@@ -390,13 +434,17 @@ module.exports = function (ctx) {
     }
   });
 
-  /** GET /api/candidates/:id/cv — Download the candidate's CV file */
-  router.get('/api/candidates/:id/cv', requireNBI, async (req, res) => {
+  /** GET /api/candidates/:id/cv — Download the candidate's CV file.
+   *  Client users can only download CVs for candidates belonging to their client. */
+  router.get('/api/candidates/:id/cv', async (req, res) => {
     if (!req.user) return res.status(401).json({ error: 'Auth required' });
     if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid candidate ID' });
     try {
-      const { rows } = await pool.query('SELECT cv_filename, name FROM candidates WHERE id = $1', [req.params.id]);
+      const { rows } = await pool.query('SELECT cv_filename, name, client_id FROM candidates WHERE id = $1', [req.params.id]);
       if (rows.length === 0 || !rows[0].cv_filename) return res.status(404).json({ error: 'No CV uploaded' });
+      if (req.user.clientId && rows[0].client_id !== req.user.clientId) {
+        return res.status(403).json({ error: 'Access denied' });
+      }
       // Defensive: strip path components, never trust the DB value to be a bare filename
       const safe = path.basename(rows[0].cv_filename);
       const filePath = path.join(uploadDir, safe);

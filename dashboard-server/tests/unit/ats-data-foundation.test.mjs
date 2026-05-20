@@ -1,0 +1,86 @@
+import { describe, it, expect, beforeEach } from 'vitest';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+
+const request = require('supertest');
+const { pool, truncate } = require('../helpers/db.js');
+const { mintSession } = require('../helpers/auth.js');
+const { createTestUser, createTestClient, createTestCandidate } = require('../helpers/fixtures.js');
+const app = require('../../server.js');
+
+beforeEach(async () => { await truncate(); });
+
+describe('Stage transition history', () => {
+  it('records history on candidate creation (from_stage = NULL)', async () => {
+    const admin = await createTestUser({ role: 'admin' });
+    const token = await mintSession(admin.id);
+    const client = await createTestClient({ name: 'TestCo' });
+
+    const res = await request(app)
+      .post('/api/candidates')
+      .set('Cookie', `nbi_session=${token}`)
+      .send({ name: 'Alice', client_id: client.id, stage: 'sourcing' })
+      .expect(201);
+
+    const { rows } = await pool.query(
+      'SELECT * FROM candidate_stage_history WHERE candidate_id = $1 ORDER BY moved_at',
+      [res.body.id]
+    );
+    expect(rows).toHaveLength(1);
+    expect(rows[0].from_stage).toBeNull();
+    expect(rows[0].to_stage).toBe('sourcing');
+    expect(rows[0].moved_by).toBe(admin.display_name);
+  });
+
+  it('records history on stage change via PATCH', async () => {
+    const admin = await createTestUser({ role: 'admin' });
+    const token = await mintSession(admin.id);
+    const candidate = await createTestCandidate({ name: 'Bob', stage: 'sourcing' });
+
+    await request(app)
+      .patch(`/api/candidates/${candidate.id}`)
+      .set('Cookie', `nbi_session=${token}`)
+      .send({ stage: 'interviews' })
+      .expect(200);
+
+    const { rows } = await pool.query(
+      'SELECT * FROM candidate_stage_history WHERE candidate_id = $1 ORDER BY moved_at',
+      [candidate.id]
+    );
+    expect(rows).toHaveLength(1);
+    expect(rows[0].from_stage).toBe('sourcing');
+    expect(rows[0].to_stage).toBe('interviews');
+  });
+
+  it('does NOT record history when stage is unchanged', async () => {
+    const admin = await createTestUser({ role: 'admin' });
+    const token = await mintSession(admin.id);
+    const candidate = await createTestCandidate({ name: 'Carla', stage: 'sourcing' });
+
+    await request(app)
+      .patch(`/api/candidates/${candidate.id}`)
+      .set('Cookie', `nbi_session=${token}`)
+      .send({ stage: 'sourcing', role: 'Engineer' })
+      .expect(200);
+
+    const { rows } = await pool.query(
+      'SELECT * FROM candidate_stage_history WHERE candidate_id = $1',
+      [candidate.id]
+    );
+    expect(rows).toHaveLength(0);
+  });
+
+  it('accepts onboarded as a valid stage', async () => {
+    const admin = await createTestUser({ role: 'admin' });
+    const token = await mintSession(admin.id);
+    const candidate = await createTestCandidate({ name: 'Dan', stage: 'offer' });
+
+    const res = await request(app)
+      .patch(`/api/candidates/${candidate.id}`)
+      .set('Cookie', `nbi_session=${token}`)
+      .send({ stage: 'onboarded' })
+      .expect(200);
+
+    expect(res.body.stage).toBe('onboarded');
+  });
+});
