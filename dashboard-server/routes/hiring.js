@@ -72,7 +72,7 @@ module.exports = function (ctx) {
         SELECT p.id, p.client_id, p.sow_id, p.title, p.description, p.seniority,
                p.status, p.created_at, p.updated_at,
                p.salary_range, p.employment_type, p.location, p.interview_panel,
-               p.jd_filename, p.jd_original_name,
+               p.scorecard_criteria, p.jd_filename, p.jd_original_name,
                c.name AS client_name,
                s.title AS sow_title,
                (SELECT COUNT(*)::int FROM candidates ca WHERE ca.position_id = p.id) AS candidate_count
@@ -130,7 +130,8 @@ module.exports = function (ctx) {
     // Stringify JSONB fields so pg driver passes them as valid jsonb parameters
     const patchBody = { ...req.body };
     if (patchBody.interview_panel !== undefined) patchBody.interview_panel = JSON.stringify(patchBody.interview_panel);
-    const { updates, vals, nextIdx } = buildPatchQuery(patchBody, ['client_id', 'sow_id', 'title', 'description', 'seniority', 'status', 'salary_range', 'employment_type', 'location', 'interview_panel']);
+    if (patchBody.scorecard_criteria !== undefined) patchBody.scorecard_criteria = JSON.stringify(patchBody.scorecard_criteria);
+    const { updates, vals, nextIdx } = buildPatchQuery(patchBody, ['client_id', 'sow_id', 'title', 'description', 'seniority', 'status', 'salary_range', 'employment_type', 'location', 'interview_panel', 'scorecard_criteria']);
     if (req.body.title !== undefined && !String(req.body.title).trim()) {
       return res.status(400).json({ error: 'title cannot be empty' });
     }
