@@ -160,16 +160,19 @@ app.use((req, res, next) => {
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
   // Content-Security-Policy: restrict script/style sources
-  res.setHeader('Content-Security-Policy',
-    "default-src 'self'; " +
-    "script-src 'self' 'unsafe-inline' cdn.sheetjs.com cdnjs.cloudflare.com cdn.jsdelivr.net; " +
-    "style-src 'self' 'unsafe-inline' fonts.googleapis.com; " +
-    "font-src 'self' fonts.gstatic.com; " +
-    "img-src 'self' data: blob:; " +
-    "connect-src 'self' api.frankfurter.dev open.er-api.com cdn.jsdelivr.net; " +
-    "frame-src 'self' blob:; " +
-    "object-src 'none'"
-  );
+  // Skip CSP for standalone static pages (e.g. travel guide with external map tiles)
+  if (!req.path.startsWith('/public/athens-guide')) {
+    res.setHeader('Content-Security-Policy',
+      "default-src 'self'; " +
+      "script-src 'self' 'unsafe-inline' cdn.sheetjs.com cdnjs.cloudflare.com cdn.jsdelivr.net; " +
+      "style-src 'self' 'unsafe-inline' fonts.googleapis.com; " +
+      "font-src 'self' fonts.gstatic.com; " +
+      "img-src 'self' data: blob:; " +
+      "connect-src 'self' api.frankfurter.dev open.er-api.com cdn.jsdelivr.net; " +
+      "frame-src 'self' blob:; " +
+      "object-src 'none'"
+    );
+  }
   // Cache-Control: no caching for API responses, static files use Express defaults
   if (req.path.startsWith('/api/')) {
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
@@ -436,6 +439,7 @@ app.use(require('./routes/bugs')({ pool, log, requireAdmin, requireNBI, isValidU
 
 // ==================== HIRING ====================
 app.use(require('./routes/hiring')({ pool, log, requireAdmin, requireNBI, isValidUuid, validateLength, auditLog, upload, uploadDir, shiftForInsert, reorderInGroup, buildPatchQuery }));
+app.use(require('./routes/candidate-history')({ pool, log, isValidUuid }));
 
 // ==================== CLIENT STATUS REPORTS ====================
 app.use(require('./routes/reports')({ pool, log, requireAdmin, requireNBI, isValidUuid, auditLog, escHtml }));

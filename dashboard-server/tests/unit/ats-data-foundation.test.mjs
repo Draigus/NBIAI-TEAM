@@ -84,3 +84,43 @@ describe('Stage transition history', () => {
     expect(res.body.stage).toBe('onboarded');
   });
 });
+
+describe('GET /api/candidates/:id/history', () => {
+  it('returns transition history ordered by moved_at ASC', async () => {
+    const admin = await createTestUser({ role: 'admin' });
+    const token = await mintSession(admin.id);
+    const candidate = await createTestCandidate({ name: 'Eve', stage: 'sourcing' });
+
+    // Create two history entries
+    await pool.query(
+      "INSERT INTO candidate_stage_history (candidate_id, from_stage, to_stage, moved_by, moved_at) VALUES ($1, NULL, 'sourcing', 'Admin', NOW() - INTERVAL '2 days')",
+      [candidate.id]
+    );
+    await pool.query(
+      "INSERT INTO candidate_stage_history (candidate_id, from_stage, to_stage, moved_by, moved_at) VALUES ($1, 'sourcing', 'interviews', 'Admin', NOW() - INTERVAL '1 day')",
+      [candidate.id]
+    );
+
+    const res = await request(app)
+      .get(`/api/candidates/${candidate.id}/history`)
+      .set('Cookie', `nbi_session=${token}`)
+      .expect(200);
+
+    expect(res.body).toHaveLength(2);
+    expect(res.body[0].to_stage).toBe('sourcing');
+    expect(res.body[1].to_stage).toBe('interviews');
+  });
+
+  it('client user can only view history for their own candidates', async () => {
+    const clientA = await createTestClient({ name: 'ClientA' });
+    const clientB = await createTestClient({ name: 'ClientB' });
+    const userA = await createTestUser({ role: 'member', client_id: clientA.id, client_role: 'member' });
+    const candidateB = await createTestCandidate({ name: 'Fiona', client_id: clientB.id });
+
+    const token = await mintSession(userA.id);
+    await request(app)
+      .get(`/api/candidates/${candidateB.id}/history`)
+      .set('Cookie', `nbi_session=${token}`)
+      .expect(403);
+  });
+});
