@@ -6482,6 +6482,11 @@ function standupUpdateTask(taskId, field, value, el) {
   if (el) el.blur();
   const task = tasks.find(t => t.id === taskId);
   if (!task) return;
+  if ((field === 'startDate' || field === 'endDate' || field === 'dueDate') && value) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return;
+    const yr = parseInt(value.slice(0, 4), 10);
+    if (yr < 1900 || yr > 2099) { showToast('Invalid year', 'error'); return; }
+  }
   const oldValue = task[field];
   if (oldValue === value) return;
   task[field] = value;
@@ -6623,7 +6628,7 @@ function standupAssigneeHtml(taskId, assignees) {
 function _loadStandupContent() {
   const container = document.getElementById('standupContainer');
   if (!container) return;
-  const filtered = getFilteredTasks();
+  const filtered = getFilteredTasks().filter(t => getItemType(t) === 'task');
   const now = new Date(); now.setHours(0,0,0,0);
   if (_cachedTeamMembers && _cachedTeamMembers.length > 0) {
     _renderStandupBody(container, filtered, now, _cachedTeamMembers);
@@ -10528,7 +10533,13 @@ async function loadComments(taskId) {
       el.innerHTML = '<div style="color:var(--text-muted);font-size:0.78rem;padding:4px 0">No comments yet</div>';
       return;
     }
-    el.innerHTML = comments.map(c => `<div class="note-item" style="border-left:2px solid var(--accent);padding-left:8px;margin-bottom:8px"><div class="note-item__time" style="display:flex;justify-content:space-between;align-items:center"><span><strong style="color:var(--text-primary)">${esc(c.author)}</strong> &middot; ${new Date(c.created_at).toLocaleString('en-GB', {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</span></div><div style="font-size:0.82rem;margin-top:2px">${esc(c.text)}</div></div>`).join('');
+    const myName = _currentUser?.displayName || _currentUser?.display_name || '';
+    const isAdmin = _currentUser?.role === 'admin';
+    el.innerHTML = comments.map(c => {
+      const canDelete = (c.author === myName || isAdmin);
+      const deleteBtn = canDelete ? ` <a href="#" data-action="deleteTaskComment" data-prevent data-arg0="${taskId}" data-arg1="${c.id}" style="color:var(--danger);font-size:0.7rem">delete</a>` : '';
+      return `<div class="note-item" style="border-left:2px solid var(--accent);padding-left:8px;margin-bottom:8px"><div class="note-item__time" style="display:flex;justify-content:space-between;align-items:center"><span><strong style="color:var(--text-primary)">${esc(c.author)}</strong> &middot; ${new Date(c.created_at).toLocaleString('en-GB', {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</span>${deleteBtn}</div><div style="font-size:0.82rem;margin-top:2px">${esc(c.text)}</div></div>`;
+    }).join('');
     el.scrollTop = el.scrollHeight;
   } catch(e) { el.innerHTML = '<div style="color:var(--text-muted);font-size:0.78rem">Comments unavailable</div>'; }
 }
@@ -10553,6 +10564,17 @@ async function postComment(taskId) {
   } catch(e) { toast('Failed to post comment'); }
   input.disabled = false;
   input.focus();
+}
+
+async function deleteTaskComment(taskId, commentId) {
+  if (!(await themedConfirm('Delete this comment?'))) return;
+  const resp = await authFetch('/api/tasks/' + taskId + '/comments/' + commentId, { method: 'DELETE' });
+  if (resp.ok) {
+    loadComments(taskId);
+    toast('Comment deleted');
+  } else {
+    toast('Failed to delete comment', 'error');
+  }
 }
 
 /** Generate a labelled select dropdown for the overlay detail panel. Pass required=true to mark the label as mandatory. */
@@ -19147,6 +19169,85 @@ async function loadHiringPositions() {
   } catch (e) { if (window._nbiDebug) console.error('Failed to load hiring positions:', e); }
 }
 
+/** Load and render hiring metrics for the selected client in the Metrics tab. */
+async function loadHiringMetrics() {
+  const clientId = document.getElementById('metricsClientFilter')?.value;
+  const container = document.getElementById('metricsContent');
+  if (!container) return;
+  if (!clientId) { container.innerHTML = '<div style="color:var(--text-muted)">Select a client to view metrics</div>'; return; }
+
+  container.innerHTML = '<div style="color:var(--text-muted)">Loading metrics…</div>';
+
+  try {
+    const [timeInStage, timeToHire, pipeline] = await Promise.all([
+      apiCall(`/api/hiring/metrics/time-in-stage?client_id=${clientId}`).catch(() => null),
+      apiCall(`/api/hiring/metrics/time-to-hire?client_id=${clientId}`).catch(() => null),
+      apiCall(`/api/hiring/metrics/pipeline?client_id=${clientId}`).catch(() => null),
+    ]);
+
+    let html = '';
+
+    // Pipeline snapshot — funnel bars
+    if (pipeline && pipeline.snapshot && pipeline.snapshot.length > 0) {
+      const maxCount = Math.max(...pipeline.snapshot.map(s => s.count));
+      html += `<div style="margin-bottom:var(--space-xl)">
+        <div style="font-size:0.85rem;font-weight:600;margin-bottom:var(--space-md)">Pipeline Snapshot</div>
+        ${pipeline.snapshot.map(s => {
+          const pct = maxCount > 0 ? (s.count / maxCount * 100) : 0;
+          return `<div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">
+            <span style="width:100px;font-size:0.78rem;color:var(--text-muted);text-align:right">${s.stage}</span>
+            <div style="flex:1;height:24px;background:var(--bg-surface);border-radius:4px;overflow:hidden">
+              <div style="width:${pct}%;height:100%;background:var(--accent);border-radius:4px;display:flex;align-items:center;padding-left:8px;font-size:0.72rem;color:#fff;font-weight:600;min-width:fit-content">${s.count}</div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>`;
+    }
+
+    // Time to hire — stat cards
+    if (timeToHire) {
+      html += `<div style="display:flex;gap:16px;margin-bottom:var(--space-xl);flex-wrap:wrap">
+        <div style="background:var(--bg-surface);padding:16px 24px;border-radius:var(--radius-sm);text-align:center;min-width:120px">
+          <div style="font-size:1.8rem;font-weight:700;color:var(--text-primary)">${timeToHire.avg_days || 0}</div>
+          <div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px">Avg days to hire</div>
+        </div>
+        <div style="background:var(--bg-surface);padding:16px 24px;border-radius:var(--radius-sm);text-align:center;min-width:120px">
+          <div style="font-size:1.8rem;font-weight:700;color:var(--text-primary)">${timeToHire.median_days || 0}</div>
+          <div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px">Median days</div>
+        </div>
+        <div style="background:var(--bg-surface);padding:16px 24px;border-radius:var(--radius-sm);text-align:center;min-width:120px">
+          <div style="font-size:1.8rem;font-weight:700;color:var(--text-primary)">${timeToHire.candidates ? timeToHire.candidates.length : 0}</div>
+          <div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px">Total hires</div>
+        </div>
+      </div>`;
+    }
+
+    // Time in stage — bar chart
+    if (timeInStage && timeInStage.stages && timeInStage.stages.length > 0) {
+      html += `<div style="margin-bottom:var(--space-xl)">
+        <div style="font-size:0.85rem;font-weight:600;margin-bottom:var(--space-md)">Average Time in Stage (days)</div>
+        ${timeInStage.stages.map(s => {
+          const days = Number(s.avg_days) || 0;
+          const color = days < 7 ? 'var(--success)' : days < 14 ? '#f59e0b' : 'var(--danger)';
+          const maxDays = Math.max(...timeInStage.stages.map(x => Number(x.avg_days) || 0));
+          const pct = maxDays > 0 ? (days / maxDays * 100) : 0;
+          return `<div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">
+            <span style="width:100px;font-size:0.78rem;color:var(--text-muted);text-align:right">${s.stage}</span>
+            <div style="flex:1;height:20px;background:var(--bg-surface);border-radius:4px;overflow:hidden">
+              <div style="width:${pct}%;height:100%;background:${color};border-radius:4px;display:flex;align-items:center;padding-left:8px;font-size:0.72rem;color:#fff;font-weight:600;min-width:fit-content">${days}d</div>
+            </div>
+            <span style="font-size:0.72rem;color:var(--text-muted);width:60px">${s.candidate_count} cand.</span>
+          </div>`;
+        }).join('')}
+      </div>`;
+    }
+
+    container.innerHTML = html || '<div style="color:var(--text-muted)">No metrics data available for this client</div>';
+  } catch (e) {
+    container.innerHTML = '<div style="color:var(--danger)">Failed to load metrics</div>';
+  }
+}
+
 /**
  * Render the Hiring view: filters at the top, candidates grouped by client
  * with thumbnail cards. Click a card to open the slide-in detail panel.
@@ -19391,6 +19492,7 @@ function renderHiringView(container) {
   const isScopedUser = isClientUser();
   const viewMode = isScopedUser ? 'kanban' : (window._hiringViewMode || 'kanban');
   const isPositionsView = viewMode === 'positions';
+  const isMetricsView = viewMode === 'metrics';
 
   // Filter candidates (for kanban/client views)
   let filtered = [...candidates];
@@ -19425,16 +19527,17 @@ function renderHiringView(container) {
         <button type="button" class="${viewMode==='kanban'?'active':''}" role="tab" aria-selected="${viewMode==='kanban'}" data-action="_actSetHiringViewMode" data-arg0="kanban">Kanban</button>
         <button type="button" class="${viewMode==='client'?'active':''}" role="tab" aria-selected="${viewMode==='client'}" data-action="_actSetHiringViewMode" data-arg0="client">By Client</button>
         <button type="button" class="${viewMode==='positions'?'active':''}" role="tab" aria-selected="${viewMode==='positions'}" data-action="_actSetHiringViewMode" data-arg0="positions">Positions</button>
+        <button type="button" class="${viewMode==='metrics'?'active':''}" role="tab" aria-selected="${viewMode==='metrics'}" data-action="_actSetHiringViewMode" data-arg0="metrics">Metrics</button>
       </div>`;
   }
-  if (!isPositionsView) {
+  if (!isPositionsView && !isMetricsView) {
     html += `<button class="btn btn--primary" data-action="openCreateCandidateModal">+ Create Candidate Card</button>`;
   }
   html += `</div></div>`;
 
   // Filters adapt to view mode
   html += `<div class="hiring__filters">`;
-  if (!isScopedUser) {
+  if (!isScopedUser && !isMetricsView) {
     html += `<select class="leads-select" onchange="window._hiringFilterClient=this.value||null;renderContent()">
       <option value="">All Clients</option>
       ${clientOptions.map(c => `<option value="${c.id}" ${window._hiringFilterClient===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}
@@ -19449,7 +19552,7 @@ function renderHiringView(container) {
         <option value="filled" ${window._hiringFilterPosStatus==='filled'?'selected':''}>Filled (${filledCount})</option>
       </select>`;
     html += `<span style="font-size:0.75rem;color:var(--text-muted)">${openCount} open, ${filledCount} filled — ${filteredPositions.length} positions</span>`;
-  } else {
+  } else if (!isMetricsView) {
     html += `<select class="leads-select" onchange="window._hiringFilterStage=this.value||null;renderContent()">
         <option value="">All Stages</option>
         ${HIRING_STAGES.map(s => `<option value="${s}" ${window._hiringFilterStage===s?'selected':''}>${HIRING_STAGE_LABELS[s]}</option>`).join('')}
@@ -19459,7 +19562,17 @@ function renderHiringView(container) {
   }
   html += `</div>`;
 
-  if (isPositionsView) {
+  if (isMetricsView) {
+    html += `<div id="hiringMetricsContainer" style="padding:var(--space-lg)">
+      <div style="display:flex;gap:12px;margin-bottom:var(--space-lg);flex-wrap:wrap">
+        <select id="metricsClientFilter" onchange="loadHiringMetrics()" style="padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem">
+          <option value="">Select a client…</option>
+          ${(getContractedClientRecords() || []).map(c => `<option value="${c.id}" ${window._hiringFilterClient===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}
+        </select>
+      </div>
+      <div id="metricsContent" style="color:var(--text-muted)">Select a client to view metrics</div>
+    </div>`;
+  } else if (isPositionsView) {
     const posSort = window._hiringPositionSort || 'priority';
     html += `<div style="display:flex;gap:6px;margin-bottom:var(--space-md)">
       <div class="hiring-view-toggle" role="tablist" aria-label="Position sort order" style="font-size:0.75rem">
@@ -20135,13 +20248,69 @@ function buildCandidateStageSubHtml(c) {
   if (c.stage === 'offer') {
     return `<div class="candidate-detail__section"><div class="candidate-detail__section-title">Offer details</div><div class="candidate-detail__field"><label>Start date</label><input type="date" id="cdStartDate" value="${c.start_date ? String(c.start_date).slice(0,10) : ''}" onchange="updateCandidateField('${c.id}','start_date',this.value||null)"></div></div>`;
   } else if (c.stage === 'onboarding') {
-    const links = Array.isArray(c.onboarding_links) ? c.onboarding_links : [];
-    const linksHtml = links.length > 0
-      ? links.map((l, i) => `<div style="display:flex;align-items:center;gap:6px;font-size:0.78rem;padding:4px 0"><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${l.type === 'file' ? '&#128196;' : '&#128279;'} <a href="${safeUrl(l.value)}" target="_blank" rel="noopener noreferrer" style="color:var(--accent-text)">${esc(l.value)}</a></span><button class="btn btn--sm btn--ghost" data-action="removeOnboardingLink" data-arg0="${c.id}" data-arg1="${i}" title="Remove">&times;</button></div>`).join('')
-      : '<div style="color:var(--text-muted);font-size:0.78rem;padding:4px 0">No onboarding docs yet</div>';
-    return `<div class="candidate-detail__section"><div class="candidate-detail__section-title">Onboarding documents</div>${linksHtml}<div style="display:flex;gap:6px;margin-top:6px"><input type="text" id="cdOnboardLink" placeholder="Paste a link (Google Doc, Drive, etc.)" style="flex:1"><button class="btn btn--sm" data-action="addOnboardingLink" data-arg0="${c.id}">Add link</button></div></div>`;
+    return `<div class="candidate-detail__section" id="cdOnboardingSection">
+      <div class="candidate-detail__section-title">Onboarding Checklist</div>
+      <div style="color:var(--text-muted);font-size:0.78rem;padding:8px 0">Loading checklist…</div>
+    </div>`;
   }
   return '';
+}
+
+async function loadOnboardingChecklist(candidateId) {
+  const container = document.getElementById('cdOnboardingSection');
+  if (!container) return;
+  try {
+    const items = await apiCall(`/api/candidates/${candidateId}/onboarding`);
+    const total = items ? items.length : 0;
+    const done = items ? items.filter(i => i.completed).length : 0;
+
+    let html = `<div class="candidate-detail__section-title">Onboarding Checklist${total > 0 ? ` <span style="font-size:0.72rem;color:var(--text-muted)">(${done}/${total})</span>` : ''}</div>`;
+
+    if (total > 0) {
+      html += `<div style="height:4px;background:var(--bg-surface);border-radius:2px;margin-bottom:8px;overflow:hidden"><div style="width:${total > 0 ? (done/total*100) : 0}%;height:100%;background:var(--success);border-radius:2px"></div></div>`;
+      items.forEach(item => {
+        html += `<div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:0.82rem">
+          <input type="checkbox" ${item.completed ? 'checked' : ''} onchange="toggleOnboardingItem('${candidateId}','${item.id}',this.checked)" style="accent-color:var(--success)">
+          <span style="flex:1;${item.completed ? 'text-decoration:line-through;color:var(--text-muted)' : ''}">${esc(item.title)}</span>
+          ${item.completed_by ? `<span style="font-size:0.68rem;color:var(--text-muted)">${esc(item.completed_by)}</span>` : ''}
+          <button class="btn btn--ghost btn--sm" style="font-size:0.68rem;color:var(--danger)" onclick="deleteOnboardingItem('${candidateId}','${item.id}')">&times;</button>
+        </div>`;
+      });
+    } else {
+      html += '<div style="color:var(--text-muted);font-size:0.78rem;padding:8px 0">No checklist items yet</div>';
+    }
+
+    html += `<div style="display:flex;gap:6px;margin-top:6px">
+      <input type="text" id="cdOnboardInput" placeholder="Add item…" style="flex:1;font-size:0.78rem;padding:4px 8px" onkeydown="if(event.key==='Enter'){event.preventDefault();addOnboardingItem('${candidateId}',this.value);this.value='';}">
+      <button class="btn btn--sm" onclick="addOnboardingItem('${candidateId}',document.getElementById('cdOnboardInput').value);document.getElementById('cdOnboardInput').value='';">Add</button>
+    </div>`;
+
+    container.innerHTML = html;
+  } catch (e) {
+    container.innerHTML = '<div class="candidate-detail__section-title">Onboarding Checklist</div><div style="color:var(--text-muted);font-size:0.78rem">Failed to load checklist</div>';
+  }
+}
+
+async function toggleOnboardingItem(candidateId, itemId, completed) {
+  await authFetch(`/api/candidates/${candidateId}/onboarding/${itemId}`, {
+    method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ completed }),
+  });
+  loadOnboardingChecklist(candidateId);
+}
+
+async function addOnboardingItem(candidateId, title) {
+  if (!title || !title.trim()) return;
+  await authFetch(`/api/candidates/${candidateId}/onboarding`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title: title.trim() }),
+  });
+  loadOnboardingChecklist(candidateId);
+}
+
+async function deleteOnboardingItem(candidateId, itemId) {
+  await authFetch(`/api/candidates/${candidateId}/onboarding/${itemId}`, { method: 'DELETE' });
+  loadOnboardingChecklist(candidateId);
 }
 
 function buildCandidateGdprHtml(c, disabledStyle) {
@@ -20380,6 +20549,11 @@ async function openCandidateDetail(id) {
   if (roundsData && roundsData.length > 0) {
     roundsData.forEach(r => loadAndRenderScorecards(id, r.id));
   }
+
+  // Load onboarding checklist if in onboarding stage
+  if (c.stage === 'onboarding') {
+    loadOnboardingChecklist(id);
+  }
 }
 
 /** Render the comments section of the candidate detail panel. */
@@ -20574,21 +20748,70 @@ async function hiringReopen(id) {
 /** Clear the candidate identity — voids name, CV, linkedin, but keeps role/client
  *  so the slot can be refilled. Per Glen spec. */
 async function hiringClearCandidate(id) {
-  const ok = await themedConfirm('Clear this candidate?\nName, LinkedIn and CV will be wiped so the slot can be reused. Role and client are kept.', 'Clear Candidate', 'Clear');
-  if (!ok) return;
-  const resp = await authFetch('/api/candidates/' + id, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name: '(vacant)', linkedin_url: null, cv_filename: null, stage: 'sourcing', stage_assignees: {} })
-  });
-  if (resp.ok) {
-    toast('Candidate cleared');
-    await loadCandidates();
-    if (currentView === 'hiring') renderContent();
-    if (document.getElementById('candidateDetailPanel')?.classList.contains('open')) openCandidateDetail(id);
-  } else {
-    toast('Failed to clear', 'error');
+  const c = _candidatesData.find(x => x.id === id);
+  if (!c) return;
+  const terminalStage = HIRING_STAGES[HIRING_STAGES.length - 1];
+  if (c.stage === terminalStage) {
+    // Terminal stage — no rejection needed, just archive
+    const ok = await themedConfirm('Archive this candidate?', 'Archive', 'Confirm');
+    if (!ok) return;
+    const resp = await authFetch('/api/candidates/' + id, {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ archived_at: new Date().toISOString() }),
+    });
+    if (resp.ok) { toast('Candidate archived'); await loadCandidates(); if (currentView === 'hiring') renderContent(); renderSidebar(); }
+    else toast('Failed to archive', 'error');
+    return;
   }
+
+  // Non-terminal — show rejection modal
+  const categories = ['unqualified','culture-mismatch','compensation','candidate-withdrew','position-filled','no-response','failed-interview','other'];
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.style.display = 'flex';
+  overlay.innerHTML = `<div class="modal" style="min-width:360px;max-width:480px">
+    <div class="modal__title">Archive Candidate</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <label style="font-size:0.78rem;color:var(--text-muted)">Rejection category *
+        <select id="rejCategory" style="width:100%;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;margin-top:4px">
+          <option value="">— Select —</option>
+          ${categories.map(cat => `<option value="${cat}">${cat.replace(/-/g, ' ').replace(/^./, s => s.toUpperCase())}</option>`).join('')}
+        </select>
+      </label>
+      <label style="font-size:0.78rem;color:var(--text-muted)">Reason (optional)
+        <textarea id="rejReason" rows="3" style="width:100%;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;margin-top:4px;resize:vertical" placeholder="Why is this candidate being archived?"></textarea>
+      </label>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+      <button class="btn" id="rejCancel">Cancel</button>
+      <button class="btn btn--danger" id="rejConfirm">Archive</button>
+    </div>
+  </div>`;
+  document.body.appendChild(overlay);
+
+  const close = () => { try { document.body.removeChild(overlay); } catch(e){} };
+  overlay.querySelector('#rejCancel').onclick = close;
+  overlay.onclick = (e) => { if (e.target === overlay) close(); };
+  overlay.querySelector('#rejConfirm').onclick = async () => {
+    const category = overlay.querySelector('#rejCategory').value;
+    if (!category) { toast('Please select a rejection category', 'error'); return; }
+    const reason = overlay.querySelector('#rejReason').value.trim();
+    close();
+    const resp = await authFetch('/api/candidates/' + id, {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ archived_at: new Date().toISOString(), rejection_category: category, rejection_reason: reason || null }),
+    });
+    if (resp.ok) {
+      toast('Candidate archived');
+      await loadCandidates();
+      if (currentView === 'hiring') renderContent();
+      renderSidebar();
+      if (document.getElementById('candidateDetailPanel')?.classList.contains('open')) openCandidateDetail(id);
+    } else {
+      const err = await resp.json().catch(() => ({}));
+      toast(err.error || 'Failed to archive', 'error');
+    }
+  };
 }
 
 /** Add a team member to the assignee list for a specific stage. */
@@ -24171,6 +24394,20 @@ window.addEventListener('resize', () => {
 // ===== OFFLINE INDICATOR =====
 window.addEventListener('online', () => { document.getElementById('offlineBanner')?.classList.remove('visible'); syncToAPI(); });
 window.addEventListener('offline', () => { document.getElementById('offlineBanner')?.classList.add('visible'); });
+
+// ===== NOTIFICATION DEEP LINKS =====
+window.addEventListener('hashchange', () => {
+  const hash = window.location.hash;
+  if (hash.startsWith('#hiring/candidate/')) {
+    const candidateId = hash.replace('#hiring/candidate/', '');
+    if (currentView !== 'hiring') {
+      window._hiringViewMode = 'kanban';
+      switchView('hiring');
+    }
+    setTimeout(() => openCandidateDetail(candidateId), 300);
+    window.location.hash = '';
+  }
+});
 
 // ===== CONFLICT RESOLUTION =====
 let _conflictData = null;
