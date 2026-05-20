@@ -230,3 +230,178 @@ describe('Candidate new fields — email, source, tags', () => {
       .expect(400);
   });
 });
+
+describe('Candidate comments', () => {
+  it('POST creates a comment', async () => {
+    const admin = await createTestUser({ role: 'admin' });
+    const token = await mintSession(admin.id);
+    const candidate = await createTestCandidate({ name: 'Olive' });
+
+    const res = await request(app)
+      .post(`/api/candidates/${candidate.id}/comments`)
+      .set('Cookie', `nbi_session=${token}`)
+      .send({ body: 'Great candidate, strong React skills.' })
+      .expect(201);
+
+    expect(res.body.body).toBe('Great candidate, strong React skills.');
+    expect(res.body.author).toBe(admin.display_name);
+    expect(res.body.author_user_id).toBe(admin.id);
+    expect(res.body.internal).toBe(false);
+  });
+
+  it('GET returns comments ordered by created_at ASC', async () => {
+    const admin = await createTestUser({ role: 'admin' });
+    const token = await mintSession(admin.id);
+    const candidate = await createTestCandidate({ name: 'Pat' });
+
+    await pool.query(
+      "INSERT INTO candidate_comments (candidate_id, author, author_user_id, body, created_at) VALUES ($1, 'A', $2, 'First', NOW() - INTERVAL '1 hour')",
+      [candidate.id, admin.id]
+    );
+    await pool.query(
+      "INSERT INTO candidate_comments (candidate_id, author, author_user_id, body, created_at) VALUES ($1, 'A', $2, 'Second', NOW())",
+      [candidate.id, admin.id]
+    );
+
+    const res = await request(app)
+      .get(`/api/candidates/${candidate.id}/comments`)
+      .set('Cookie', `nbi_session=${token}`)
+      .expect(200);
+
+    expect(res.body).toHaveLength(2);
+    expect(res.body[0].body).toBe('First');
+    expect(res.body[1].body).toBe('Second');
+  });
+
+  it('client user cannot see internal comments', async () => {
+    const client = await createTestClient({ name: 'ClientX' });
+    const clientUser = await createTestUser({ role: 'member', client_id: client.id, client_role: 'member' });
+    const candidate = await createTestCandidate({ name: 'Quinn', client_id: client.id });
+
+    await pool.query(
+      "INSERT INTO candidate_comments (candidate_id, author, body, internal) VALUES ($1, 'NBI', 'Internal note', true)",
+      [candidate.id]
+    );
+    await pool.query(
+      "INSERT INTO candidate_comments (candidate_id, author, body, internal) VALUES ($1, 'NBI', 'Public note', false)",
+      [candidate.id]
+    );
+
+    const token = await mintSession(clientUser.id);
+    const res = await request(app)
+      .get(`/api/candidates/${candidate.id}/comments`)
+      .set('Cookie', `nbi_session=${token}`)
+      .expect(200);
+
+    expect(res.body).toHaveLength(1);
+    expect(res.body[0].body).toBe('Public note');
+  });
+
+  it('client user comments are always public (internal ignored)', async () => {
+    const client = await createTestClient({ name: 'ClientY' });
+    const clientUser = await createTestUser({ role: 'member', client_id: client.id, client_role: 'member' });
+    const candidate = await createTestCandidate({ name: 'Rosa', client_id: client.id });
+    const token = await mintSession(clientUser.id);
+
+    const res = await request(app)
+      .post(`/api/candidates/${candidate.id}/comments`)
+      .set('Cookie', `nbi_session=${token}`)
+      .send({ body: 'Client comment', internal: true })
+      .expect(201);
+
+    expect(res.body.internal).toBe(false);
+  });
+
+  it('DELETE only allowed by comment author', async () => {
+    const admin1 = await createTestUser({ role: 'admin', display_name: 'Admin1' });
+    const admin2 = await createTestUser({ role: 'admin', display_name: 'Admin2' });
+    const candidate = await createTestCandidate({ name: 'Sam' });
+
+    const { rows: [comment] } = await pool.query(
+      'INSERT INTO candidate_comments (candidate_id, author, author_user_id, body) VALUES ($1, $2, $3, $4) RETURNING *',
+      [candidate.id, admin1.display_name, admin1.id, 'My comment']
+    );
+
+    const token2 = await mintSession(admin2.id);
+    await request(app)
+      .delete(`/api/candidates/${candidate.id}/comments/${comment.id}`)
+      .set('Cookie', `nbi_session=${token2}`)
+      .expect(403);
+
+    const token1 = await mintSession(admin1.id);
+    await request(app)
+      .delete(`/api/candidates/${candidate.id}/comments/${comment.id}`)
+      .set('Cookie', `nbi_session=${token1}`)
+      .expect(200);
+  });
+
+  it('rejects empty comment body', async () => {
+    const admin = await createTestUser({ role: 'admin' });
+    const token = await mintSession(admin.id);
+    const candidate = await createTestCandidate({ name: 'Tina' });
+
+    await request(app)
+      .post(`/api/candidates/${candidate.id}/comments`)
+      .set('Cookie', `nbi_session=${token}`)
+      .send({ body: '' })
+      .expect(400);
+  });
+
+  it('rejects comment body exceeding 5000 characters', async () => {
+    const admin = await createTestUser({ role: 'admin' });
+    const token = await mintSession(admin.id);
+    const candidate = await createTestCandidate({ name: 'Uma' });
+
+    await request(app)
+      .post(`/api/candidates/${candidate.id}/comments`)
+      .set('Cookie', `nbi_session=${token}`)
+      .send({ body: 'x'.repeat(5001) })
+      .expect(400);
+  });
+
+  it('comment_count appears in GET /api/candidates list', async () => {
+    const admin = await createTestUser({ role: 'admin' });
+    const token = await mintSession(admin.id);
+    const candidate = await createTestCandidate({ name: 'Vera' });
+
+    await pool.query(
+      "INSERT INTO candidate_comments (candidate_id, author, body) VALUES ($1, 'A', 'Note 1')",
+      [candidate.id]
+    );
+    await pool.query(
+      "INSERT INTO candidate_comments (candidate_id, author, body) VALUES ($1, 'A', 'Note 2')",
+      [candidate.id]
+    );
+
+    const res = await request(app)
+      .get('/api/candidates')
+      .set('Cookie', `nbi_session=${token}`)
+      .expect(200);
+
+    const c = res.body.find(x => x.id === candidate.id);
+    expect(c.comment_count).toBe(2);
+  });
+
+  it('client user comment_count excludes internal comments', async () => {
+    const client = await createTestClient({ name: 'ClientZ' });
+    const clientUser = await createTestUser({ role: 'member', client_id: client.id, client_role: 'member' });
+    const candidate = await createTestCandidate({ name: 'Walt', client_id: client.id });
+
+    await pool.query(
+      "INSERT INTO candidate_comments (candidate_id, author, body, internal) VALUES ($1, 'A', 'Internal', true)",
+      [candidate.id]
+    );
+    await pool.query(
+      "INSERT INTO candidate_comments (candidate_id, author, body, internal) VALUES ($1, 'A', 'Public', false)",
+      [candidate.id]
+    );
+
+    const token = await mintSession(clientUser.id);
+    const res = await request(app)
+      .get('/api/candidates')
+      .set('Cookie', `nbi_session=${token}`)
+      .expect(200);
+
+    expect(res.body[0].comment_count).toBe(1);
+  });
+});

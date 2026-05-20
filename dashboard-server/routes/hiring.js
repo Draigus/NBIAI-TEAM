@@ -169,6 +169,9 @@ module.exports = function (ctx) {
       where.push(`ca.stage = $${i++}`); vals.push(stage);
     }
     const whereClause = where.length ? 'WHERE ' + where.join(' AND ') : '';
+    const commentCountSql = req.user.clientId
+      ? '(SELECT COUNT(*)::int FROM candidate_comments cc WHERE cc.candidate_id = ca.id AND cc.internal = false) AS comment_count'
+      : '(SELECT COUNT(*)::int FROM candidate_comments cc WHERE cc.candidate_id = ca.id) AS comment_count';
     try {
       const { rows } = await pool.query(`
         SELECT ca.id, ca.position_id, ca.client_id, ca.name, ca.role, ca.linkedin_url,
@@ -178,7 +181,8 @@ module.exports = function (ctx) {
                ca.consent_given, ca.consent_date, ca.retention_expires_at,
                c.name AS client_name,
                p.title AS position_title,
-               (ca.cv_filename IS NOT NULL) AS has_cv
+               (ca.cv_filename IS NOT NULL) AS has_cv,
+               ${commentCountSql}
         FROM candidates ca
         LEFT JOIN clients c ON ca.client_id = c.id
         LEFT JOIN hiring_positions p ON ca.position_id = p.id
