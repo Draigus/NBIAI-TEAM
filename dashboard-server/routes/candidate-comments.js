@@ -75,8 +75,9 @@ module.exports = function (ctx) {
       );
       if (!comment) return res.status(404).json({ error: 'Comment not found' });
 
-      if (comment.author_user_id !== req.user.id) {
-        return res.status(403).json({ error: 'Only the author can delete this comment' });
+      const isAdmin = req.user.role === 'admin';
+      if (comment.author_user_id !== req.user.id && !isAdmin) {
+        return res.status(403).json({ error: 'Only the author or admin can delete this comment' });
       }
 
       await pool.query('DELETE FROM candidate_comments WHERE id = $1', [req.params.commentId]);

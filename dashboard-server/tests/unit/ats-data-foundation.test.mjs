@@ -312,26 +312,41 @@ describe('Candidate comments', () => {
     expect(res.body.internal).toBe(false);
   });
 
-  it('DELETE only allowed by comment author', async () => {
+  it('DELETE allowed by comment author or admin', async () => {
     const admin1 = await createTestUser({ role: 'admin', display_name: 'Admin1' });
-    const admin2 = await createTestUser({ role: 'admin', display_name: 'Admin2' });
+    const member = await createTestUser({ role: 'member', display_name: 'Member1' });
     const candidate = await createTestCandidate({ name: 'Sam' });
 
-    const { rows: [comment] } = await pool.query(
+    // Create comment by admin1
+    const { rows: [comment1] } = await pool.query(
       'INSERT INTO candidate_comments (candidate_id, author, author_user_id, body) VALUES ($1, $2, $3, $4) RETURNING *',
-      [candidate.id, admin1.display_name, admin1.id, 'My comment']
+      [candidate.id, admin1.display_name, admin1.id, 'Admin comment']
     );
 
-    const token2 = await mintSession(admin2.id);
+    // Non-admin member cannot delete someone else's comment
+    const memberToken = await mintSession(member.id);
     await request(app)
-      .delete(`/api/candidates/${candidate.id}/comments/${comment.id}`)
-      .set('Cookie', `nbi_session=${token2}`)
+      .delete(`/api/candidates/${candidate.id}/comments/${comment1.id}`)
+      .set('Cookie', `nbi_session=${memberToken}`)
       .expect(403);
 
+    // Author can delete their own comment
     const token1 = await mintSession(admin1.id);
     await request(app)
-      .delete(`/api/candidates/${candidate.id}/comments/${comment.id}`)
+      .delete(`/api/candidates/${candidate.id}/comments/${comment1.id}`)
       .set('Cookie', `nbi_session=${token1}`)
+      .expect(200);
+
+    // Admin can delete anyone's comment
+    const { rows: [comment2] } = await pool.query(
+      'INSERT INTO candidate_comments (candidate_id, author, author_user_id, body) VALUES ($1, $2, $3, $4) RETURNING *',
+      [candidate.id, member.display_name, member.id, 'Member comment']
+    );
+    const admin2 = await createTestUser({ role: 'admin', display_name: 'Admin2' });
+    const token2 = await mintSession(admin2.id);
+    await request(app)
+      .delete(`/api/candidates/${candidate.id}/comments/${comment2.id}`)
+      .set('Cookie', `nbi_session=${token2}`)
       .expect(200);
   });
 
