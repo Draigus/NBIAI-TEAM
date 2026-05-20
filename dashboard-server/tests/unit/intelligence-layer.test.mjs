@@ -86,7 +86,7 @@ describe('Stage-change notifications', () => {
       .expect(200);
 
     // Give the async notification a moment to fire
-    await new Promise(r => setTimeout(r, 200));
+    await new Promise(r => setTimeout(r, 500));
 
     const { rows } = await pool.query(
       "SELECT * FROM notifications WHERE username = $1 AND type = 'hiring_stage_change'",

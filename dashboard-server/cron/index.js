@@ -951,7 +951,16 @@ async function checkHiringStalls() {
 
     let sent = 0;
     for (const cand of candidates) {
-      const threshold = STALL_THRESHOLDS[cand.stage] || DEFAULT_STALL_DAYS;
+      let threshold = STALL_THRESHOLDS[cand.stage] || DEFAULT_STALL_DAYS;
+      if (cand.client_id) {
+        try {
+          const { rows: [clientRow] } = await pool.query('SELECT hiring_stages FROM clients WHERE id = $1', [cand.client_id]);
+          if (clientRow && clientRow.hiring_stages && Array.isArray(clientRow.hiring_stages)) {
+            const stageObj = clientRow.hiring_stages.find(s => s.key === cand.stage);
+            if (stageObj && typeof stageObj.stall_days === 'number') threshold = stageObj.stall_days;
+          }
+        } catch (e) { /* use default threshold */ }
+      }
       if (cand.days_in_stage < threshold) continue;
 
       const { rows: existing } = await pool.query(
