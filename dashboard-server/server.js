@@ -442,6 +442,9 @@ app.use(require('./routes/hiring')({ pool, log, requireAdmin, requireNBI, isVali
 app.use(require('./routes/candidate-history')({ pool, log, isValidUuid }));
 app.use(require('./routes/candidate-comments')({ pool, log, isValidUuid, validateLength }));
 app.use(require('./routes/interview-rounds')({ pool, log, requireAdmin, requireNBI, isValidUuid, auditLog, buildPatchQuery }));
+app.use(require('./routes/hiring-metrics')({ pool, log, isValidUuid }));
+app.use(require('./routes/onboarding-checklist')({ pool, log, isValidUuid }));
+app.use(require('./routes/hiring-templates')({ pool, log, requireAdmin, requireNBI, isValidUuid, validateLength, sendEmailAsync, EMAIL_FROM, buildPatchQuery }));
 
 // ==================== CLIENT STATUS REPORTS ====================
 app.use(require('./routes/reports')({ pool, log, requireAdmin, requireNBI, isValidUuid, auditLog, escHtml }));

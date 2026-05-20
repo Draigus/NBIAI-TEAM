@@ -611,6 +611,29 @@ module.exports = function (ctx) {
             [req.params.id, oldStage, body.stage, req.user.displayName || 'unknown']
           );
         }
+
+        // Auto-populate onboarding checklist from position template
+        if (body.stage !== undefined && body.stage === 'onboarding' && body.stage !== oldStage) {
+          const { rows: [checkCount] } = await dbClient.query(
+            'SELECT COUNT(*)::int AS cnt FROM onboarding_checklist_items WHERE candidate_id = $1',
+            [req.params.id]
+          );
+          if (checkCount.cnt === 0) {
+            const { rows: [cand] } = await dbClient.query('SELECT position_id FROM candidates WHERE id = $1', [req.params.id]);
+            if (cand && cand.position_id) {
+              const { rows: [pos] } = await dbClient.query('SELECT onboarding_template FROM hiring_positions WHERE id = $1', [cand.position_id]);
+              if (pos && pos.onboarding_template && Array.isArray(pos.onboarding_template)) {
+                for (let idx = 0; idx < pos.onboarding_template.length; idx++) {
+                  const item = pos.onboarding_template[idx];
+                  await dbClient.query(
+                    'INSERT INTO onboarding_checklist_items (candidate_id, title, sort_order) VALUES ($1, $2, $3)',
+                    [req.params.id, item.title, idx]
+                  );
+                }
+              }
+            }
+          }
+        }
       }
 
       if (updates.length > 0) {
