@@ -151,6 +151,101 @@ module.exports = function (ctx) {
     }
   });
 
+  /** POST /api/hiring-positions/:id/jd — Upload a Job Description (DOCX or PDF). Admin only.
+   *  If a JD already exists for this position the old file is deleted from disk before
+   *  the new one is stored. */
+  router.post('/api/hiring-positions/:id/jd', requireNBI, requireAdmin, upload.single('file'), async (req, res) => {
+    if (!isValidUuid(req.params.id)) {
+      if (req.file) { try { fs.unlinkSync(req.file.path); } catch (e) {} }
+      return res.status(400).json({ error: 'Invalid position ID' });
+    }
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+
+    const allowedMimes = [
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/pdf'
+    ];
+    const allowedExts = ['.docx', '.pdf'];
+    const ext = path.extname(req.file.originalname || '').toLowerCase();
+    if (!allowedMimes.includes(req.file.mimetype) || !allowedExts.includes(ext)) {
+      try { fs.unlinkSync(req.file.path); } catch (e) {}
+      return res.status(400).json({ error: 'Only DOCX and PDF files are accepted' });
+    }
+
+    try {
+      const { rows: existing } = await pool.query('SELECT jd_filename FROM hiring_positions WHERE id = $1', [req.params.id]);
+      if (existing.length === 0) {
+        try { fs.unlinkSync(req.file.path); } catch (e) {}
+        return res.status(404).json({ error: 'Position not found' });
+      }
+
+      if (existing[0].jd_filename) {
+        const safe = path.basename(existing[0].jd_filename);
+        const oldPath = path.join(uploadDir, safe);
+        try { if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath); } catch (e) {}
+      }
+
+      const { rows } = await pool.query(
+        'UPDATE hiring_positions SET jd_filename = $1, jd_original_name = $2, updated_at = NOW() WHERE id = $3 RETURNING *',
+        [req.file.filename, req.file.originalname, req.params.id]
+      );
+      await auditLog('hiring_position', req.params.id, 'jd_upload', req.user.displayName || 'unknown', { filename: req.file.originalname, size: req.file.size });
+      res.json(rows[0]);
+    } catch (e) {
+      if (req.file) { try { fs.unlinkSync(req.file.path); } catch (err) {} }
+      log('error', 'Hiring', 'Failed to upload JD', { error: e.message });
+      res.status(500).json({ error: 'An internal error occurred' });
+    }
+  });
+
+  /** GET /api/hiring-positions/:id/jd/preview — Serve the JD inline in the browser.
+   *  IMPORTANT: This route MUST be declared before /jd (the download route) so Express
+   *  does not match "preview" as the :id segment of a nested resource. */
+  router.get('/api/hiring-positions/:id/jd/preview', async (req, res) => {
+    if (!req.user) return res.status(401).json({ error: 'Auth required' });
+    if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid position ID' });
+    try {
+      const { rows } = await pool.query('SELECT jd_filename, jd_original_name, client_id FROM hiring_positions WHERE id = $1', [req.params.id]);
+      if (rows.length === 0 || !rows[0].jd_filename) return res.status(404).json({ error: 'No job description attached' });
+      if (req.user.clientId && rows[0].client_id !== req.user.clientId) {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+      const safe = path.basename(rows[0].jd_filename);
+      const filePath = path.join(uploadDir, safe);
+      if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'JD file missing on disk' });
+      const fileExt = path.extname(safe).toLowerCase();
+      const mimeMap = { '.pdf': 'application/pdf', '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' };
+      res.setHeader('Content-Type', mimeMap[fileExt] || 'application/octet-stream');
+      res.setHeader('Content-Disposition', `inline; filename="${rows[0].jd_original_name || safe}"`);
+      fs.createReadStream(filePath).pipe(res);
+    } catch (e) {
+      log('error', 'Hiring', 'Failed to preview JD', { error: e.message });
+      res.status(500).json({ error: 'An internal error occurred' });
+    }
+  });
+
+  /** GET /api/hiring-positions/:id/jd — Download the JD file (attachment).
+   *  Client users can only download JDs for positions belonging to their client. */
+  router.get('/api/hiring-positions/:id/jd', async (req, res) => {
+    if (!req.user) return res.status(401).json({ error: 'Auth required' });
+    if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid position ID' });
+    try {
+      const { rows } = await pool.query('SELECT jd_filename, jd_original_name, client_id FROM hiring_positions WHERE id = $1', [req.params.id]);
+      if (rows.length === 0 || !rows[0].jd_filename) return res.status(404).json({ error: 'No job description attached' });
+      if (req.user.clientId && rows[0].client_id !== req.user.clientId) {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+      const safe = path.basename(rows[0].jd_filename);
+      const filePath = path.join(uploadDir, safe);
+      if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'JD file missing on disk' });
+      const friendly = rows[0].jd_original_name || safe;
+      res.download(filePath, friendly);
+    } catch (e) {
+      log('error', 'Hiring', 'Failed to download JD', { error: e.message });
+      res.status(500).json({ error: 'An internal error occurred' });
+    }
+  });
+
   /** DELETE /api/hiring-positions/:id — Remove a hiring position (admin only) */
   router.delete('/api/hiring-positions/:id', requireNBI, requireAdmin, async (req, res) => {
     if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid position ID' });
@@ -590,6 +685,34 @@ module.exports = function (ctx) {
       res.download(filePath, friendly);
     } catch (e) {
       log('error', 'Hiring', 'Failed to download CV', { error: e.message });
+      res.status(500).json({ error: 'An internal error occurred' });
+    }
+  });
+
+  /** GET /api/candidates/:id/cv/preview — Serve the candidate's CV inline in the browser.
+   *  Client users can only preview CVs for candidates belonging to their client.
+   *  NOTE: declared AFTER /cv (the download route) — no routing ambiguity as /preview
+   *  is a distinct literal segment, not a parameter. */
+  router.get('/api/candidates/:id/cv/preview', async (req, res) => {
+    if (!req.user) return res.status(401).json({ error: 'Auth required' });
+    if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid candidate ID' });
+    try {
+      const { rows } = await pool.query('SELECT cv_filename, name, client_id FROM candidates WHERE id = $1', [req.params.id]);
+      if (rows.length === 0 || !rows[0].cv_filename) return res.status(404).json({ error: 'No CV uploaded' });
+      if (req.user.clientId && rows[0].client_id !== req.user.clientId) {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+      const safe = path.basename(rows[0].cv_filename);
+      const filePath = path.join(uploadDir, safe);
+      if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'CV file missing on disk' });
+      const fileExt = path.extname(safe).toLowerCase();
+      const mimeMap = { '.pdf': 'application/pdf', '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' };
+      res.setHeader('Content-Type', mimeMap[fileExt] || 'application/octet-stream');
+      const friendlyName = `${rows[0].name || 'candidate'}-CV${fileExt}`.replace(/[^a-zA-Z0-9_.\- ]/g, '_');
+      res.setHeader('Content-Disposition', `inline; filename="${friendlyName}"`);
+      fs.createReadStream(filePath).pipe(res);
+    } catch (e) {
+      log('error', 'Hiring', 'Failed to preview CV', { error: e.message });
       res.status(500).json({ error: 'An internal error occurred' });
     }
   });
