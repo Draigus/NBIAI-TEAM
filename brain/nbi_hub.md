@@ -1,10 +1,10 @@
 ---
-last_verified: 2026-05-16
+last_verified: 2026-05-18
 ---
 
 # NBI Hub and News Aggregator
 
-**Last Updated:** 2026-04-20
+**Last Updated:** 2026-05-18
 
 ---
 
@@ -26,7 +26,7 @@ NBI Hub is an internal project management dashboard being actively built to repl
 
 | Component | Detail |
 |---|---|
-| Frontend | `nbi_project_dashboard.html` - single-page HTML with inline JS/CSS (~8k lines) |
+| Frontend | `nbi_project_dashboard.html` - single-page HTML with inline JS/CSS (~21,000 lines) |
 | Backend | `dashboard-server/server.js` - Express on Node.js |
 | Database | PostgreSQL (`nbi_dashboard` on port 5432) |
 | PM2 process name | `nbi-dashboard` |
@@ -60,7 +60,7 @@ NBI Hub is an internal project management dashboard being actively built to repl
 | Supertest 7.x | HTTP endpoint testing |
 | Combined run | `npm run test:all` runs Vitest then Playwright |
 
-23+ tests currently in place. Test infrastructure was landed on 15 April 2026.
+434 tests across 34 test files (unit + integration via Vitest). 9 Playwright E2E spec files. Test infrastructure landed 15 April 2026.
 
 ### Features Built
 
@@ -70,21 +70,32 @@ NBI Hub is an internal project management dashboard being actively built to repl
 | Workload | Chart/grid | Team workload visualisation showing task distribution |
 | Projects | Board (kanban) | Kanban-style project board with drag-and-drop |
 | Projects | Tree | Hierarchical tree view of projects and sub-tasks |
+| Projects | Timeline (Gantt) | Gantt chart with drag-to-reschedule, search, scroll-to-today |
+| Portfolio | Chart | Bar+donut portfolio overview with client breakdown |
 | People | Calendar/roster | Team calendar showing availability, leave, and roster |
 | People | Monthly calendar | Month-view calendar for scheduling |
-| Reports | Dashboard | Reporting and analytics views |
-| Bug Tracker | Kanban | Bug tracking with kanban columns for status workflow |
+| Reports | Dashboard | Reporting and analytics views with colour legends |
+| Bug Tracker | Kanban + detail | Bug tracking with kanban columns, slide-in detail panel with comments |
 | Hiring | Kanban | Recruitment pipeline with kanban stages |
 | Leads | Kanban | Sales/client lead pipeline with kanban columns |
 | News | Feed | News aggregation tab (powered by the news-aggregator sidecar) |
+| Command Centre | Tabbed cockpit | Zone-based layout: status strip, 4Cs metrics, tabs (Dashboard/Briefing/System Map), action rail |
+| Client Portal | Scoped views | External client login (e.g. Lorenza/Lighthouse), client-filtered data, force password change, team management |
+| Email Reports | Cron | Automated email reports via node-cron with retry logic |
+| WorkSage Chat | Panel | Embedded AI chat panel (PlaySage-branded) with conversation memory, skills, auto-expanding panel |
 
 ### Current State
 
-The dashboard is actively being built and is functional but contains mock/test data that needs replacing with real NBI projects and tasks. The current focus has been on building out all the views and interaction patterns. The next phase is populating with real data and making it the actual daily driver for NBI project management.
+The dashboard is live on real project data and in daily use. Branch `feature/command-centre` is the active development branch (46+ commits ahead of master, awaiting UAT before merge). Multi-user sync model with incremental polling every 10s, optimistic concurrency, and IndexedDB WAL for crash recovery. Connected status cascading (parent/child), prerequisite blocking, and scroll preservation are all shipped.
 
 ### Access
 
-Available at `worksage.nbi-consulting.com` via Tailscale/Cloudflare tunnel. Requires authentication.
+| Environment | URL | Port |
+|---|---|---|
+| Production | `worksage.nbi-consulting.com` (Cloudflare tunnel) | 8888 |
+| Staging | localhost only | 8887 |
+
+Requires Azure AD authentication. Client portal users authenticate via local credentials with force-password-change on first login.
 
 ---
 

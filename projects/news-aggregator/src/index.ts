@@ -1,7 +1,10 @@
 // Force-override any ambient process.env values — PM2's saved dump
 // occasionally ships empty strings for ANTHROPIC_API_KEY.
 import dotenv from 'dotenv'
-dotenv.config({ override: true })
+import { fileURLToPath } from 'node:url'
+import { dirname, resolve } from 'node:path'
+const __dirname = dirname(fileURLToPath(import.meta.url))
+dotenv.config({ override: true, path: resolve(__dirname, '..', '.env') })
 
 import Fastify from 'fastify'
 import { timingSafeEqual } from 'node:crypto'

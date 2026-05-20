@@ -19218,7 +19218,7 @@ async function loadHiringMetrics() {
   const clientId = document.getElementById('metricsClientFilter')?.value;
   const container = document.getElementById('metricsContent');
   if (!container) return;
-  if (!clientId) { container.innerHTML = '<div style="color:var(--text-muted)">Select a client to view metrics</div>'; return; }
+  if (!clientId) { container.innerHTML = '<div style="color:var(--text-muted);font-size:0.9rem">Select a client to view metrics</div>'; return; }
 
   container.innerHTML = '<div style="color:var(--text-muted)">Loading metrics…</div>';
 
@@ -19231,56 +19231,73 @@ async function loadHiringMetrics() {
 
     let html = '';
 
-    // Pipeline snapshot — funnel bars
+    // Summary stat cards (always show)
+    const totalActive = pipeline && pipeline.snapshot ? pipeline.snapshot.reduce((s, x) => s + x.count, 0) : 0;
+    const totalHires = timeToHire && timeToHire.candidates ? timeToHire.candidates.length : 0;
+    const avgDays = timeToHire ? (timeToHire.avg_days || 0) : 0;
+    const medianDays = timeToHire ? (timeToHire.median_days || 0) : 0;
+
+    html += `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px;margin-bottom:var(--space-xl)">
+      <div style="background:var(--bg-surface);padding:18px 20px;border-radius:var(--radius-md);border:1px solid var(--border-default)">
+        <div style="font-size:2rem;font-weight:700;color:var(--text-primary);line-height:1">${totalActive}</div>
+        <div style="font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-top:4px">Active candidates</div>
+      </div>
+      <div style="background:var(--bg-surface);padding:18px 20px;border-radius:var(--radius-md);border:1px solid var(--border-default)">
+        <div style="font-size:2rem;font-weight:700;color:var(--success);line-height:1">${totalHires}</div>
+        <div style="font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-top:4px">Total hires</div>
+      </div>
+      <div style="background:var(--bg-surface);padding:18px 20px;border-radius:var(--radius-md);border:1px solid var(--border-default)">
+        <div style="font-size:2rem;font-weight:700;color:var(--text-primary);line-height:1">${avgDays}</div>
+        <div style="font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-top:4px">Avg days to hire</div>
+      </div>
+      <div style="background:var(--bg-surface);padding:18px 20px;border-radius:var(--radius-md);border:1px solid var(--border-default)">
+        <div style="font-size:2rem;font-weight:700;color:var(--text-primary);line-height:1">${medianDays}</div>
+        <div style="font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-top:4px">Median days</div>
+      </div>
+    </div>`;
+
+    // Pipeline funnel with conversion rates (Ashby pattern)
     if (pipeline && pipeline.snapshot && pipeline.snapshot.length > 0) {
       const maxCount = Math.max(...pipeline.snapshot.map(s => s.count));
       html += `<div style="margin-bottom:var(--space-xl)">
-        <div style="font-size:0.85rem;font-weight:600;margin-bottom:var(--space-md)">Pipeline Snapshot</div>
-        ${pipeline.snapshot.map(s => {
-          const pct = maxCount > 0 ? (s.count / maxCount * 100) : 0;
-          return `<div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">
-            <span style="width:100px;font-size:0.78rem;color:var(--text-muted);text-align:right">${s.stage}</span>
-            <div style="flex:1;height:24px;background:var(--bg-surface);border-radius:4px;overflow:hidden">
-              <div style="width:${pct}%;height:100%;background:var(--accent);border-radius:4px;display:flex;align-items:center;padding-left:8px;font-size:0.72rem;color:#fff;font-weight:600;min-width:fit-content">${s.count}</div>
-            </div>
+        <div style="font-size:0.9rem;font-weight:600;margin-bottom:var(--space-md)">Pipeline Funnel</div>`;
+      pipeline.snapshot.forEach((s, idx) => {
+        const pct = maxCount > 0 ? (s.count / maxCount * 100) : 0;
+        const prevCount = idx > 0 ? pipeline.snapshot[idx - 1].count : null;
+        const conversionRate = prevCount && prevCount > 0 ? Math.round((s.count / prevCount) * 100) : null;
+
+        if (idx > 0 && conversionRate !== null) {
+          html += `<div style="display:flex;align-items:center;gap:12px;margin-bottom:2px;margin-top:-2px">
+            <span style="width:110px"></span>
+            <span style="font-size:0.72rem;color:${conversionRate < 30 ? 'var(--danger)' : conversionRate < 60 ? '#f59e0b' : 'var(--success)'};font-weight:600">↓ ${conversionRate}%</span>
           </div>`;
-        }).join('')}
-      </div>`;
+        }
+
+        html += `<div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">
+          <span style="width:110px;font-size:0.82rem;color:var(--text-muted);text-align:right;flex-shrink:0">${s.stage}</span>
+          <div style="flex:1;height:28px;background:var(--bg-surface);border-radius:4px;overflow:hidden">
+            <div style="width:${pct}%;height:100%;background:var(--accent);border-radius:4px;display:flex;align-items:center;padding-left:10px;font-size:0.78rem;color:#fff;font-weight:600;min-width:fit-content">${s.count}</div>
+          </div>
+        </div>`;
+      });
+      html += '</div>';
     }
 
-    // Time to hire — stat cards
-    if (timeToHire) {
-      html += `<div style="display:flex;gap:16px;margin-bottom:var(--space-xl);flex-wrap:wrap">
-        <div style="background:var(--bg-surface);padding:16px 24px;border-radius:var(--radius-sm);text-align:center;min-width:120px">
-          <div style="font-size:1.8rem;font-weight:700;color:var(--text-primary)">${timeToHire.avg_days || 0}</div>
-          <div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px">Avg days to hire</div>
-        </div>
-        <div style="background:var(--bg-surface);padding:16px 24px;border-radius:var(--radius-sm);text-align:center;min-width:120px">
-          <div style="font-size:1.8rem;font-weight:700;color:var(--text-primary)">${timeToHire.median_days || 0}</div>
-          <div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px">Median days</div>
-        </div>
-        <div style="background:var(--bg-surface);padding:16px 24px;border-radius:var(--radius-sm);text-align:center;min-width:120px">
-          <div style="font-size:1.8rem;font-weight:700;color:var(--text-primary)">${timeToHire.candidates ? timeToHire.candidates.length : 0}</div>
-          <div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px">Total hires</div>
-        </div>
-      </div>`;
-    }
-
-    // Time in stage — bar chart
+    // Time in stage bar chart
     if (timeInStage && timeInStage.stages && timeInStage.stages.length > 0) {
       html += `<div style="margin-bottom:var(--space-xl)">
-        <div style="font-size:0.85rem;font-weight:600;margin-bottom:var(--space-md)">Average Time in Stage (days)</div>
+        <div style="font-size:0.9rem;font-weight:600;margin-bottom:var(--space-md)">Average Time in Stage (days)</div>
         ${timeInStage.stages.map(s => {
           const days = Number(s.avg_days) || 0;
           const color = days < 7 ? 'var(--success)' : days < 14 ? '#f59e0b' : 'var(--danger)';
           const maxDays = Math.max(...timeInStage.stages.map(x => Number(x.avg_days) || 0));
           const pct = maxDays > 0 ? (days / maxDays * 100) : 0;
           return `<div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">
-            <span style="width:100px;font-size:0.78rem;color:var(--text-muted);text-align:right">${s.stage}</span>
-            <div style="flex:1;height:20px;background:var(--bg-surface);border-radius:4px;overflow:hidden">
-              <div style="width:${pct}%;height:100%;background:${color};border-radius:4px;display:flex;align-items:center;padding-left:8px;font-size:0.72rem;color:#fff;font-weight:600;min-width:fit-content">${days}d</div>
+            <span style="width:110px;font-size:0.82rem;color:var(--text-muted);text-align:right;flex-shrink:0">${s.stage}</span>
+            <div style="flex:1;height:24px;background:var(--bg-surface);border-radius:4px;overflow:hidden">
+              <div style="width:${pct}%;height:100%;background:${color};border-radius:4px;display:flex;align-items:center;padding-left:10px;font-size:0.78rem;color:#fff;font-weight:600;min-width:fit-content">${days}d</div>
             </div>
-            <span style="font-size:0.72rem;color:var(--text-muted);width:60px">${s.candidate_count} cand.</span>
+            <span style="font-size:0.78rem;color:var(--text-muted);width:70px">${s.candidate_count} cand.</span>
           </div>`;
         }).join('')}
       </div>`;
@@ -20684,25 +20701,36 @@ async function openCandidateDetail(id) {
 
   panel.innerHTML = `
     ${buildCandidateHeaderHtml(c, isArchived)}
+    <div class="candidate-detail__stage-bar">${buildCandidateStageBarHtml(c, isArchived, disabledStyle, candidateStages)}</div>
+    <div class="candidate-detail__tabs">
+      <button class="candidate-detail__tab candidate-detail__tab--active" data-tab="profile" onclick="switchCandidateTab(this,'profile')">Profile</button>
+      <button class="candidate-detail__tab" data-tab="interviews" onclick="switchCandidateTab(this,'interviews')">Interviews${roundsData && roundsData.length > 0 ? ' (' + roundsData.length + ')' : ''}</button>
+      <button class="candidate-detail__tab" data-tab="activity" onclick="switchCandidateTab(this,'activity')">Activity</button>
+      <button class="candidate-detail__tab" data-tab="settings" onclick="switchCandidateTab(this,'settings')">Settings</button>
+    </div>
     <div class="candidate-detail__body">
-      ${buildCandidateProfileHtml(c, isDetailScoped, clientList, positions, disabledStyle)}
-      ${buildCandidateStageHtml(c, isArchived, disabledStyle, candidateStages)}
-      ${buildCandidateTagsHtml(c, disabledStyle)}
-      ${buildCandidateStageSubHtml(c)}
-      ${buildCandidateInterviewsHtml(id, roundsData, disabledStyle)}
-
-      <div class="candidate-detail__section" id="cdTimelineSection">
-        <div class="candidate-detail__section-title">Timeline</div>
-        <div style="color:var(--text-muted);font-size:0.78rem;padding:8px 0">Loading history…</div>
+      <div id="cdTabProfile" class="candidate-detail__tab-content candidate-detail__tab-content--active">
+        ${buildCandidateProfileHtml(c, isDetailScoped, clientList, positions, disabledStyle)}
+        ${buildCandidateTagsHtml(c, disabledStyle)}
       </div>
-
-      <div class="candidate-detail__section" id="cdCommentsSection" style="${disabledStyle}">
-        <div class="candidate-detail__section-title">Comments <span id="cdCommentCount" style="font-size:0.72rem;color:var(--text-muted)">(${c.comment_count || 0})</span></div>
-        <div style="color:var(--text-muted);font-size:0.78rem;padding:8px 0">Loading comments…</div>
+      <div id="cdTabInterviews" class="candidate-detail__tab-content">
+        ${buildCandidateStageSubHtml(c)}
+        ${buildCandidateInterviewsHtml(id, roundsData, disabledStyle)}
       </div>
-
-      ${buildCandidateGdprHtml(c, disabledStyle)}
-      ${buildCandidateActionsHtml(c, isArchived, isAdmin)}
+      <div id="cdTabActivity" class="candidate-detail__tab-content">
+        <div class="candidate-detail__section" id="cdTimelineSection">
+          <div class="candidate-detail__section-title">Timeline</div>
+          <div style="color:var(--text-muted);font-size:0.82rem;padding:8px 0">Loading history…</div>
+        </div>
+        <div class="candidate-detail__section" id="cdCommentsSection" style="${disabledStyle}">
+          <div class="candidate-detail__section-title">Comments <span id="cdCommentCount" style="font-size:0.78rem;color:var(--text-muted)">(${c.comment_count || 0})</span></div>
+          <div style="color:var(--text-muted);font-size:0.82rem;padding:8px 0">Loading comments…</div>
+        </div>
+      </div>
+      <div id="cdTabSettings" class="candidate-detail__tab-content">
+        ${buildCandidateGdprHtml(c, disabledStyle)}
+        ${buildCandidateActionsHtml(c, isArchived, isAdmin)}
+      </div>
     </div>`;
 
   overlay.style.display = 'block';
@@ -20721,15 +20749,15 @@ async function openCandidateDetail(id) {
   const timelineEl = document.getElementById('cdTimelineSection');
   if (timelineEl) {
     if (!historyData || historyData.length === 0) {
-      timelineEl.innerHTML = `<div class="candidate-detail__section-title">Timeline</div><div style="color:var(--text-muted);font-size:0.78rem;padding:8px 0">No stage transitions recorded</div>`;
+      timelineEl.innerHTML = `<div class="candidate-detail__section-title">Timeline</div><div style="color:var(--text-muted);font-size:0.82rem;padding:8px 0">No stage transitions recorded</div>`;
     } else {
       timelineEl.innerHTML = `<div class="candidate-detail__section-title">Timeline</div>
         ${historyData.map(h => {
           const ago = _relativeTime(new Date(h.moved_at));
           const fromLabel = h.from_stage ? (HIRING_STAGE_LABELS[h.from_stage] || h.from_stage) : 'New';
           const toLabel = HIRING_STAGE_LABELS[h.to_stage] || h.to_stage;
-          return `<div style="display:flex;gap:8px;padding:4px 0;font-size:0.78rem;border-left:2px solid var(--border-default);padding-left:12px;margin-left:4px">
-            <div style="flex:1"><span class="hiring-stage-badge hiring-stage-badge--${h.to_stage}" style="font-size:0.65rem;padding:1px 6px">${fromLabel} → ${toLabel}</span> <span style="color:var(--text-muted)">by ${esc(h.moved_by)}</span></div>
+          return `<div style="display:flex;gap:10px;padding:6px 0;font-size:0.82rem;border-left:2px solid var(--border-default);padding-left:14px;margin-left:4px">
+            <div style="flex:1"><span class="hiring-stage-badge hiring-stage-badge--${h.to_stage}" style="font-size:0.7rem;padding:2px 7px">${fromLabel} → ${toLabel}</span> <span style="color:var(--text-muted)">by ${esc(h.moved_by)}</span></div>
             <div style="color:var(--text-muted);white-space:nowrap">${ago}</div>
           </div>`;
         }).join('')}`;
@@ -20738,12 +20766,10 @@ async function openCandidateDetail(id) {
 
   renderCandidateComments(id, commentsData, disabledStyle);
 
-  // Load scorecards for each interview round
   if (roundsData && roundsData.length > 0) {
     roundsData.forEach(r => loadAndRenderScorecards(id, r.id));
   }
 
-  // Load onboarding checklist if in onboarding stage
   if (c.stage === 'onboarding') {
     loadOnboardingChecklist(id);
   }
