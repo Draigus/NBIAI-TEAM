@@ -562,3 +562,55 @@ describe('Enriched hiring positions', () => {
     expect(res.body.requirements).toEqual(['Playwright', 'CI/CD']);
   });
 });
+
+describe('Candidate polling', () => {
+  it('returns candidates updated after the since timestamp', async () => {
+    const admin = await createTestUser({ role: 'admin' });
+    const token = await mintSession(admin.id);
+
+    const old = await createTestCandidate({ name: 'Old' });
+    // Manually set updated_at to the past
+    await pool.query("UPDATE candidates SET updated_at = NOW() - INTERVAL '1 hour' WHERE id = $1", [old.id]);
+
+    const recent = await createTestCandidate({ name: 'Recent' });
+
+    const since = new Date(Date.now() - 30000).toISOString(); // 30 seconds ago
+    const res = await request(app)
+      .get(`/api/candidates/poll?since=${since}`)
+      .set('Cookie', `nbi_session=${token}`)
+      .expect(200);
+
+    expect(res.body.updated.some(c => c.name === 'Recent')).toBe(true);
+    expect(res.body.updated.some(c => c.name === 'Old')).toBe(false);
+    expect(Array.isArray(res.body.allIds)).toBe(true);
+  });
+
+  it('client user poll is scoped to their client', async () => {
+    const clientA = await createTestClient({ name: 'PollClientA' });
+    const clientB = await createTestClient({ name: 'PollClientB' });
+    const userA = await createTestUser({ role: 'member', client_id: clientA.id, client_role: 'member' });
+
+    await createTestCandidate({ name: 'MyCandidate', client_id: clientA.id });
+    await createTestCandidate({ name: 'OtherCandidate', client_id: clientB.id });
+
+    const since = new Date(Date.now() - 60000).toISOString();
+    const token = await mintSession(userA.id);
+    const res = await request(app)
+      .get(`/api/candidates/poll?since=${since}`)
+      .set('Cookie', `nbi_session=${token}`)
+      .expect(200);
+
+    expect(res.body.updated.every(c => c.client_id === clientA.id)).toBe(true);
+    expect(res.body.allIds.length).toBe(1);
+  });
+
+  it('rejects missing since parameter', async () => {
+    const admin = await createTestUser({ role: 'admin' });
+    const token = await mintSession(admin.id);
+
+    await request(app)
+      .get('/api/candidates/poll')
+      .set('Cookie', `nbi_session=${token}`)
+      .expect(400);
+  });
+});

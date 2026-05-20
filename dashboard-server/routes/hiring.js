@@ -220,6 +220,48 @@ module.exports = function (ctx) {
     }
   });
 
+  /** GET /api/candidates/poll?since=<ISO> — Lightweight polling for multi-user sync.
+   *  Returns candidates updated after the given timestamp + full ID list for deletion detection. */
+  router.get('/api/candidates/poll', async (req, res) => {
+    if (!req.user) return res.status(401).json({ error: 'Auth required' });
+    const since = req.query.since;
+    if (!since) return res.status(400).json({ error: 'since parameter required' });
+    const sinceDate = new Date(since);
+    if (isNaN(sinceDate.getTime())) return res.status(400).json({ error: 'Invalid timestamp' });
+
+    const scopedClientId = req.user.clientId || null;
+    try {
+      let updatedQuery, idQuery;
+      const vals = [sinceDate.toISOString()];
+
+      if (scopedClientId) {
+        vals.push(scopedClientId);
+        updatedQuery = `SELECT ca.*, c.name AS client_name, p.title AS position_title, (ca.cv_filename IS NOT NULL) AS has_cv
+          FROM candidates ca LEFT JOIN clients c ON ca.client_id = c.id LEFT JOIN hiring_positions p ON ca.position_id = p.id
+          WHERE ca.updated_at > $1 AND ca.client_id = $2`;
+        idQuery = 'SELECT id FROM candidates WHERE client_id = $1';
+      } else {
+        updatedQuery = `SELECT ca.*, c.name AS client_name, p.title AS position_title, (ca.cv_filename IS NOT NULL) AS has_cv
+          FROM candidates ca LEFT JOIN clients c ON ca.client_id = c.id LEFT JOIN hiring_positions p ON ca.position_id = p.id
+          WHERE ca.updated_at > $1`;
+        idQuery = 'SELECT id FROM candidates';
+      }
+
+      const [updated, allIdRows] = await Promise.all([
+        pool.query(updatedQuery, vals),
+        pool.query(idQuery, scopedClientId ? [scopedClientId] : []),
+      ]);
+
+      res.json({
+        updated: updated.rows,
+        allIds: allIdRows.rows.map(r => r.id),
+      });
+    } catch (e) {
+      log('error', 'Hiring', 'Failed to poll candidates', { error: e.message });
+      res.status(500).json({ error: 'An internal error occurred' });
+    }
+  });
+
   /** GET /api/candidates/:id — Single candidate.
    *  Client users can only view candidates belonging to their client. */
   router.get('/api/candidates/:id', async (req, res) => {
