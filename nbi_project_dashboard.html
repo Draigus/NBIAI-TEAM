@@ -22,6 +22,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>NBI Project Dashboard</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%232563eb'/><text x='16' y='23' text-anchor='middle' fill='white' font-family='system-ui' font-weight='700' font-size='18'>N</text></svg>">
 <script src="/public/vendor/exceljs.min.js"></script>
 <link href="/public/fonts/fonts.css" rel="stylesheet">
 <style>
@@ -585,8 +586,8 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .reporting__hdr { display: flex; align-items: center; justify-content: space-between; padding-bottom: var(--space-sm); border-bottom: 1px solid var(--border-subtle); }
 .reporting__hdr-title { font-size: 1.05rem; font-weight: 700; letter-spacing: 0.04em; color: var(--text-primary); }
 .reporting__hdr-pickers { display: flex; align-items: center; gap: 8px; }
-.reporting__lbl { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; color: var(--text-muted); margin-left: 12px; }
-.reporting__select { padding: 4px 8px; background: var(--bg-input); border: 1px solid var(--border-default); border-radius: var(--radius-md); color: var(--text-primary); font-size: 0.78rem; min-width: 180px; }
+.reporting__lbl { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; color: var(--text-muted); margin-left: 12px; }
+.reporting__select { padding: 6px 10px; background: var(--bg-input); border: 1px solid var(--accent); border-radius: var(--radius-md); color: var(--text-primary); font-size: 0.82rem; min-width: 180px; font-weight: 600; }
 .reporting__roadmap { background: var(--bg-card); border: 1px solid var(--border-default); border-radius: var(--radius-lg); overflow: hidden; }
 .reporting__row { display: flex; align-items: stretch; min-height: 36px; border-bottom: 1px solid var(--border-subtle); transition: background 0.12s; }
 .reporting__row:hover { background: rgba(255,255,255,0.025); }
@@ -710,6 +711,8 @@ button.sidebar__title::after { content: "▾"; font-size: 0.7rem; transition: tr
 .task-row__status-icon--done { background: var(--purple); border-color: var(--purple); color: #fff; }
 .task-row__status-icon--inprogress { border-color: var(--success); background: var(--success-bg); }
 .task-row__status-icon--blocked { border-color: var(--danger); background: var(--danger-bg); }
+.task-row__status-icon--review { border-color: var(--warning); background: color-mix(in srgb, var(--warning) 15%, transparent); }
+.task-row__status-icon--planning { border-color: var(--warning); border-style: dashed; }
 .task-row--done { opacity: 0.55; }
 .task-row--done .task-row__title { text-decoration: line-through; text-decoration-color: var(--text-muted); }
 .task-row--cancelled { opacity: 0.45; filter: grayscale(0.6); }
@@ -1194,8 +1197,8 @@ span.fin-editable { display: inline-block; position: relative; }
 .gantt__depth-btn--docs { background: color-mix(in srgb, var(--accent) 8%, transparent); border-color: var(--accent-border); color: var(--accent-text); }
 .gantt__depth-btn--docs:hover { background: color-mix(in srgb, var(--accent) 16%, transparent); }
 .gantt__today-line { position: absolute; top: 0; bottom: 0; background: rgba(34,197,94,0.18); z-index: 1; pointer-events: none; }
-.gantt__milestone-line { position: absolute; top: 0; bottom: 0; background: rgba(245,158,11,0.18); z-index: 1; pointer-events: none; border-left: 2px solid rgba(245,158,11,0.5); }
-.gantt__milestone-label { position: absolute; top: 4px; font-size: 0.65rem; font-weight: 700; color: #f59e0b; white-space: nowrap; pointer-events: auto; cursor: default; letter-spacing: 0.02em; z-index: 6; }
+.gantt__milestone-line { position: absolute; top: 0; bottom: 0; background: rgba(245,158,11,0.18); z-index: 1; pointer-events: auto; border-left: 2px solid rgba(245,158,11,0.5); cursor: default; }
+.gantt__milestone-line:hover::after { content: attr(data-ms-title); position: absolute; top: 2px; left: 6px; font-size: 0.65rem; font-weight: 700; color: #f59e0b; white-space: nowrap; letter-spacing: 0.02em; z-index: 20; background: var(--bg-base); padding: 1px 6px; border-radius: var(--radius-sm); box-shadow: 0 1px 4px rgba(0,0,0,0.15); }
 .gantt__day-hdr--milestone { background: rgba(245,158,11,0.15) !important; color: #f59e0b !important; font-weight: 700 !important; }
 .gantt__day-col { border-right: 1px solid var(--border-subtle); flex-shrink: 0; }
 .gantt__day-col--weekend { background: color-mix(in srgb, var(--bg-surface) 50%, transparent); }
@@ -1212,7 +1215,7 @@ span.fin-editable { display: inline-block; position: relative; }
 .cal__month-title { font-size: 1rem; font-weight: 600; color: var(--text-primary); min-width: 160px; text-align: center; }
 .cal__grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: var(--border-subtle); border: 1px solid var(--border-default); border-radius: var(--radius-md); overflow: hidden; }
 .cal__day-header { background: var(--bg-surface); padding: 6px; font-size: 0.7rem; font-weight: 600; color: var(--text-muted); text-align: center; text-transform: uppercase; letter-spacing: 0.05em; }
-.cal__cell { background: var(--bg-raised); min-height: 90px; padding: 4px; position: relative; vertical-align: top; }
+.cal__cell { background: var(--bg-raised); min-height: 90px; max-height: 140px; overflow-y: auto; padding: 4px; position: relative; vertical-align: top; }
 .cal__cell--other { background: var(--bg-base); opacity: 0.4; }
 .cal__cell--today { background: color-mix(in srgb, var(--accent) 8%, var(--bg-raised)); }
 .cal__cell--weekend { background: var(--bg-surface); }
@@ -2073,7 +2076,7 @@ span.fin-editable { display: inline-block; position: relative; }
 .bug-detail-panel { position: fixed; top: var(--header-h); right: 0; width: 520px; min-width: 320px; max-width: 80vw; height: calc(var(--vh-full) - var(--header-h)); background: var(--bg-raised); border-left: 1px solid var(--border-default); z-index: 201; overflow: hidden; display: flex; flex-direction: column; transform: translateX(100%); transition: transform 0.2s; }
 .bug-detail-panel.open { transform: translateX(0); }
 .bug-detail__header { padding: var(--space-md) var(--space-lg); border-bottom: 1px solid var(--border-default); display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-md); flex-shrink: 0; background: var(--bg-raised); }
-.bug-detail__body { padding: var(--space-lg); flex: 1; overflow-y: auto; min-height: 0; }
+.bug-detail__body { padding: var(--space-lg); flex: 1; overflow-y: auto; min-height: 0; overscroll-behavior: contain; }
 .bug-detail__section { margin-bottom: var(--space-lg); }
 .bug-detail__section-title { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: var(--space-sm); font-weight: 600; }
 .bug-detail__props { display: grid; grid-template-columns: 100px 1fr; gap: 6px var(--space-md); font-size: 0.82rem; align-items: center; }
@@ -2086,8 +2089,8 @@ span.fin-editable { display: inline-block; position: relative; }
 .bug-detail__comment-date { font-size: 0.7rem; color: var(--text-muted); margin-left: var(--space-sm); }
 .bug-detail__comment-text { font-size: 0.82rem; margin-top: 4px; line-height: 1.4; }
 .bug-detail__comment-actions { font-size: 0.7rem; margin-top: 2px; }
-.bug-detail__comment-input { display: flex; gap: var(--space-sm); margin-top: var(--space-sm); }
-.bug-detail__comment-input textarea { flex: 1; resize: vertical; min-height: 60px; padding: var(--space-sm); border: 1px solid var(--border-default); border-radius: var(--radius-sm); background: var(--bg-input); color: var(--text-primary); font-size: 0.82rem; font-family: var(--font-body); }
+.bug-detail__comment-input { display: flex; gap: var(--space-sm); padding: var(--space-md) var(--space-lg); border-top: 1px solid var(--border-default); background: var(--bg-raised); flex-shrink: 0; }
+.bug-detail__comment-input textarea { flex: 1; resize: none; min-height: 40px; max-height: 120px; padding: var(--space-sm); border: 1px solid var(--border-default); border-radius: var(--radius-sm); background: var(--bg-input); color: var(--text-primary); font-size: 0.82rem; font-family: var(--font-body); }
 
 @media (max-width: 768px) {
   .bug-tracker__row { grid-template-columns: 60px 1fr 80px; }
@@ -2106,19 +2109,19 @@ span.fin-editable { display: inline-block; position: relative; }
 .hiring__filters { display: flex; gap: var(--space-sm); align-items: center; flex-wrap: wrap; margin-bottom: var(--space-md); }
 
 .hiring-card {
-  display: flex; flex-direction: column; gap: 3px;
-  padding: 7px 9px; background: var(--bg-card);
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 10px 12px; background: var(--bg-card);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-sm);
   cursor: pointer; transition: all 0.15s;
-  width: 150px; min-height: 78px;
+  width: auto; min-height: 78px;
 }
 .hiring-card:hover { border-color: var(--accent-border); box-shadow: var(--shadow-md); transform: translateY(-1px); }
-.hiring-card__name { font-weight: 600; font-size: 0.78rem; }
-.hiring-card__role { font-size: 0.7rem; color: var(--text-muted); }
-.hiring-card__meta { font-size: 0.7rem; color: var(--text-muted); display: flex; justify-content: space-between; margin-top: auto; align-items: center; gap: 5px; }
+.hiring-card__name { font-weight: 600; font-size: 0.85rem; }
+.hiring-card__role { font-size: 0.78rem; color: var(--text-muted); }
+.hiring-card__meta { font-size: 0.78rem; color: var(--text-muted); display: flex; justify-content: space-between; margin-top: auto; align-items: center; gap: 5px; }
 .hiring-card__due--late { color: var(--danger); font-weight: 600; }
-.hiring-stage-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; }
+.hiring-stage-badge { display: inline-block; padding: 3px 9px; border-radius: 10px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
 .hiring-stage-badge--sourced { background: var(--bg-surface); color: var(--text-muted); }
 .hiring-stage-badge--screening { background: color-mix(in srgb, #3b82f6 15%, var(--bg-card)); color: #3b82f6; }
 .hiring-stage-badge--interview { background: color-mix(in srgb, #f59e0b 15%, var(--bg-card)); color: #f59e0b; }
@@ -2146,20 +2149,20 @@ span.fin-editable { display: inline-block; position: relative; }
 .hiring-client-group__header { font-size: 1rem; font-weight: 600; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid var(--border-default); }
 
 /* Kanban view — visible stage lanes */
-.hiring-kanban { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; align-items: flex-start; }
-.hiring-lane { flex: 0 0 180px; background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-md); display: flex; flex-direction: column; min-height: 300px; max-height: calc(var(--vh-full) - 240px); transition: border-color 0.15s, background 0.15s; }
+.hiring-kanban { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 6px; align-items: flex-start; }
+.hiring-lane { flex: 1 1 200px; min-width: 180px; background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-md); display: flex; flex-direction: column; min-height: 300px; max-height: calc(var(--vh-full) - 240px); transition: border-color 0.15s, background 0.15s; }
 .hiring-lane.drag-over { border-color: var(--accent); background: var(--accent-glow); }
-.hiring-lane__header { padding: 7px 10px; border-bottom: 1px solid var(--border-default); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
-.hiring-lane__count { background: var(--bg-raised); color: var(--text-muted); font-size: 0.7rem; padding: 1px 6px; border-radius: 9px; font-weight: 600; }
+.hiring-lane__header { padding: 8px 12px; border-bottom: 1px solid var(--border-default); font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.hiring-lane__count { background: var(--bg-raised); color: var(--text-muted); font-size: 0.75rem; padding: 2px 7px; border-radius: 9px; font-weight: 600; }
 .hiring-lane__header--sourced { color: var(--text-secondary); }
 .hiring-lane__header--screening { color: #3b82f6; }
 .hiring-lane__header--interview { color: #f59e0b; }
 .hiring-lane__header--offer { color: #2563eb; }
 .hiring-lane__header--hired { color: var(--success); }
 .hiring-lane__header--rejected { color: var(--danger); }
-.hiring-lane__body { padding: 6px; display: flex; flex-direction: column; gap: 5px; overflow-y: auto; flex: 1; }
+.hiring-lane__body { padding: 8px; display: flex; flex-direction: column; gap: 6px; overflow-y: auto; flex: 1; }
 .hiring-lane__body .hiring-card { width: auto; min-height: 64px; }
-.hiring-lane__empty { text-align: center; color: var(--text-faint); font-size: 0.7rem; padding: 16px 8px; font-style: italic; }
+.hiring-lane__empty { text-align: center; color: var(--text-faint); font-size: 0.78rem; padding: 16px 8px; font-style: italic; }
 /* Drag states for hiring cards */
 .hiring-card[draggable="true"] { cursor: grab; }
 .hiring-card[draggable="true"]:active { cursor: grabbing; }
@@ -2170,6 +2173,56 @@ span.fin-editable { display: inline-block; position: relative; }
 .hiring-view-toggle button { background: var(--bg-raised); color: var(--text-secondary); border: none; padding: 5px 12px; font-size: 0.78rem; cursor: pointer; font-family: inherit; }
 .hiring-view-toggle button.active { background: var(--accent); color: #fff; }
 .hiring-view-toggle button:hover:not(.active) { background: var(--bg-hover); color: var(--text-primary); }
+
+/* Position cards */
+.position-card {
+  display: flex; flex-direction: column; gap: 8px;
+  padding: 14px 16px; background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  cursor: pointer; transition: all 0.15s;
+  min-height: 110px; position: relative;
+}
+.position-card:hover { border-color: var(--accent-border); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.position-card__row { display: flex; align-items: center; gap: 8px; }
+.position-card__title { font-weight: 600; font-size: 0.95rem; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.position-card__dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.position-card__dot--open { background: var(--success); }
+.position-card__dot--filled { background: var(--text-muted); }
+.position-card__priority { font-size: 0.65rem; font-weight: 700; padding: 1px 6px; border-radius: 8px; text-transform: uppercase; flex-shrink: 0; }
+.position-card__priority--0 { background: var(--danger-bg); color: var(--danger); }
+.position-card__priority--1 { background: color-mix(in srgb, #f59e0b 15%, var(--bg-card)); color: #f59e0b; }
+.position-card__priority--2 { background: color-mix(in srgb, #3b82f6 15%, var(--bg-card)); color: #3b82f6; }
+.position-card__priority--3 { background: var(--bg-surface); color: var(--text-muted); }
+.position-card__priority--4 { background: var(--bg-surface); color: var(--text-faint); }
+.position-card__chip { font-size: 0.75rem; padding: 2px 8px; border-radius: 8px; background: var(--bg-surface); color: var(--text-muted); font-weight: 500; }
+.position-card__salary { font-size: 0.82rem; color: var(--text-secondary); }
+.position-card__meta { font-size: 0.78rem; color: var(--text-muted); display: flex; gap: 10px; align-items: center; margin-top: auto; }
+.position-card__candidates { font-size: 0.78rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+.position-card__days--green { color: var(--success); }
+.position-card__days--amber { color: #f59e0b; }
+.position-card__days--red { color: var(--danger); font-weight: 600; }
+.position-card__minibar { display: flex; height: 4px; border-radius: 2px; overflow: hidden; flex: 1; max-width: 80px; background: var(--bg-surface); }
+.position-card__minibar span { display: block; height: 100%; }
+
+/* Position detail panel (reuses candidate-detail- structure) */
+.position-detail-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; display: none; }
+.position-detail-panel { position: fixed; top: var(--header-h); right: 0; width: 560px; min-width: 320px; max-width: 80vw; height: calc(var(--vh-full) - var(--header-h)); background: var(--bg-card, var(--bg-raised)); border-left: 1px solid var(--border-default); z-index: 201; overflow: hidden; display: none; flex-direction: column; box-shadow: -4px 0 20px rgba(0,0,0,0.3); }
+.position-detail-panel.open { display: flex; }
+.position-detail__header { padding: var(--space-md) var(--space-lg); border-bottom: 1px solid var(--border-default); display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-md); flex-shrink: 0; background: var(--bg-card, var(--bg-raised)); }
+.position-detail__body { padding: var(--space-lg); flex: 1; overflow-y: auto; min-height: 0; }
+.position-detail__info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; margin-bottom: var(--space-lg); }
+.position-detail__info-item { display: flex; flex-direction: column; gap: 2px; }
+.position-detail__info-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); font-weight: 600; }
+.position-detail__info-value { font-size: 0.85rem; color: var(--text-primary); font-weight: 500; }
+.position-detail__candidates-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+.position-detail__candidates-table th { text-align: left; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); font-weight: 600; padding: 6px 8px; border-bottom: 1px solid var(--border-default); }
+.position-detail__candidates-table td { padding: 8px; border-bottom: 1px solid var(--border-subtle, var(--border-default)); cursor: pointer; }
+.position-detail__candidates-table tr:hover td { background: var(--bg-hover); }
+@media (max-width: 700px) {
+  .position-detail-panel { width: 100vw; max-width: 100vw; }
+  .position-detail__info-grid { grid-template-columns: 1fr; }
+}
 
 /* Slide-in detail panel — reuses bug-detail layout but scoped */
 .candidate-detail-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; display: none; }
@@ -2743,11 +2796,17 @@ span.fin-editable { display: inline-block; position: relative; }
 .cc-pill { font-size: 0.56rem; padding: 2px 7px; border-radius: 4px; display: inline-flex; align-items: center; gap: 3px; }
 
 /* Grid layouts */
+.cc-row1-grid { display: grid; grid-template-columns: 2fr 1.5fr 1fr; gap: 16px; }
 .cc-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .cc-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-@media (max-width: 1400px) { .cc-grid-3 { grid-template-columns: 1fr 1fr; } }
-@media (max-width: 1100px) { .cc-grid-2, .cc-grid-3 { grid-template-columns: 1fr; } }
+.cc-kpi-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 16px; }
+.cc-money-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+.cc-aios-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 14px; }
+@media (max-width: 1400px) { .cc-grid-3 { grid-template-columns: 1fr 1fr; } .cc-row1-grid { grid-template-columns: 1.5fr 1fr; } .cc-aios-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 1100px) { .cc-grid-2, .cc-grid-3, .cc-row1-grid { grid-template-columns: 1fr; } .cc-kpi-grid { grid-template-columns: repeat(3, 1fr); } .cc-aios-grid { grid-template-columns: 1fr 1fr; } }
 @media (min-width: 1600px) { .cc-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; } }
+@media (max-width: 768px) { .cc-kpi-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; } .cc-aios-grid { grid-template-columns: 1fr; } }
+@media (max-width: 480px) { .cc-kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; } }
 
 /* Animations */
 @keyframes ccFadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
@@ -2780,6 +2839,49 @@ span.fin-editable { display: inline-block; position: relative; }
 .cc-chat-fab.has-alert { animation: chatPulse 2s ease-in-out infinite; box-shadow: 0 0 0 0 rgba(35, 134, 54, 0.7); }
 .cc-chat-fab.has-alert img { content: url('/public/img/playsage-notify.gif'); }
 @keyframes chatPulse { 0% { box-shadow: 0 0 0 0 rgba(35, 134, 54, 0.7); } 50% { box-shadow: 0 0 0 20px rgba(35, 134, 54, 0); } 100% { box-shadow: 0 0 0 0 rgba(35, 134, 54, 0); } }
+
+/* ——— CC + PlaySage Mobile Breakpoints ——— */
+@media (max-width: 768px) {
+  .cc-header { padding: 8px 12px; flex-wrap: wrap; gap: 8px; }
+  .cc-header h1 { font-size: 0.95rem; }
+  .cc-tabs { margin-left: 0; }
+  .cc-header-stats { gap: 10px; width: 100%; justify-content: space-around; order: 3; }
+  .cc-hstat .v { font-size: 1rem; }
+  .cc-hstat .l { font-size: 0.6rem; }
+  .cc-fires-inline { display: none; }
+  .cc-tab-bar { padding: 0 8px; top: auto; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .cc-tab-bar .cc-tab { padding: 8px 14px; font-size: 0.82rem; white-space: nowrap; flex-shrink: 0; }
+  .cc-body { padding: 12px; gap: 12px; }
+  .cc-card { padding: 12px 14px; }
+  .cc-card h3 { font-size: 0.88rem; }
+  .cc-row { padding: 8px 10px; gap: 8px; }
+  .cc-row-icon { width: 28px; height: 28px; font-size: 0.75rem; }
+  .cc-row-t { font-size: 0.88rem; white-space: normal; }
+  .cc-fire-row { flex-wrap: wrap; gap: 6px; }
+  .cc-fire-c { min-width: auto; text-align: left; }
+  .cc-fire-a { min-width: auto; text-align: left; }
+  .cc-stat .v { font-size: 1.2rem; }
+  .cc-grid-2, .cc-grid-3, .cc-grid-4, .cc-row1-grid, .cc-money-stats { grid-template-columns: 1fr !important; }
+  /* PlaySage chat — full screen on mobile */
+  .cc-chat { bottom: 0; right: 0; left: 0; width: 100%; max-height: 100vh; border-radius: 12px 12px 0 0; }
+  .cc-chat-hdr { border-radius: 12px 12px 0 0; }
+  .cc-chat-input { border-radius: 0; }
+  .cc-chat-msg { max-width: 95%; font-size: 0.88rem; }
+  .cc-chat-fab { width: 72px; height: 72px; bottom: 14px; right: 14px; }
+  .cc-chat-fab img { width: 72px !important; height: 72px !important; }
+}
+@media (max-width: 480px) {
+  .cc-header { padding: 6px 10px; }
+  .cc-header-stats { gap: 6px; }
+  .cc-hstat .v { font-size: 0.9rem; }
+  .cc-tab-bar .cc-tab { padding: 7px 10px; font-size: 0.78rem; }
+  .cc-body { padding: 8px; gap: 10px; }
+  .cc-card { padding: 10px 12px; }
+  .cc-row-t { font-size: 0.82rem; }
+  .cc-stat .v { font-size: 1rem; }
+  .cc-chat-fab { width: 60px; height: 60px; bottom: 10px; right: 10px; }
+  .cc-chat-fab img { width: 60px !important; height: 60px !important; }
+}
 
 </style>
 </head>
@@ -2835,11 +2937,14 @@ span.fin-editable { display: inline-block; position: relative; }
   <div style="background:var(--bg-card);border:1px solid var(--border-default);border-radius:var(--radius-lg);padding:32px;max-width:400px;width:90%">
     <h2 style="margin:0 0 8px;font-size:1.2rem;color:var(--text-primary)">Change Your Password</h2>
     <p style="margin:0 0 20px;font-size:0.85rem;color:var(--text-muted)">You must change your temporary password before continuing.</p>
-    <input type="password" id="fpwCurrent" placeholder="Current (temporary) password" style="display:block;width:100%;box-sizing:border-box;padding:8px 12px;margin-bottom:10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-size:0.9rem">
-    <input type="password" id="fpwNew" placeholder="New password (min 6 characters)" style="display:block;width:100%;box-sizing:border-box;padding:8px 12px;margin-bottom:10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-size:0.9rem">
-    <input type="password" id="fpwConfirm" placeholder="Confirm new password" style="display:block;width:100%;box-sizing:border-box;padding:8px 12px;margin-bottom:16px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-size:0.9rem">
+    <form id="fpwForm" onsubmit="event.preventDefault();document.getElementById('fpwSubmit').click()">
+    <input type="hidden" autocomplete="username" value="">
+    <input type="password" id="fpwCurrent" placeholder="Current (temporary) password" autocomplete="current-password" style="display:block;width:100%;box-sizing:border-box;padding:8px 12px;margin-bottom:10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-size:0.9rem">
+    <input type="password" id="fpwNew" placeholder="New password (min 6 characters)" autocomplete="new-password" style="display:block;width:100%;box-sizing:border-box;padding:8px 12px;margin-bottom:10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-size:0.9rem">
+    <input type="password" id="fpwConfirm" placeholder="Confirm new password" autocomplete="new-password" style="display:block;width:100%;box-sizing:border-box;padding:8px 12px;margin-bottom:16px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-size:0.9rem">
     <div id="fpwError" style="color:var(--status-overdue);font-size:0.82rem;margin-bottom:10px;display:none"></div>
-    <button id="fpwSubmit" class="btn btn--primary" style="width:100%">Change Password</button>
+    <button id="fpwSubmit" type="button" class="btn btn--primary" style="width:100%">Change Password</button>
+    </form>
   </div>
 </div>
 
@@ -2916,6 +3021,8 @@ span.fin-editable { display: inline-block; position: relative; }
 <!-- CANDIDATE DETAIL PANEL -->
 <div class="candidate-detail-overlay" id="candidateDetailOverlay"></div>
 <div class="candidate-detail-panel" id="candidateDetailPanel" role="dialog" aria-modal="true" aria-label="Candidate detail"></div>
+<div class="position-detail-overlay" id="positionDetailOverlay"></div>
+<div class="position-detail-panel" id="positionDetailPanel" role="dialog" aria-modal="true" aria-label="Position detail"></div>
 
 <!-- QUEUE DETAIL PANEL -->
 <div class="queue-detail-overlay" id="queueDetailOverlay" data-action="closeQueueDetail"></div>
@@ -3318,7 +3425,7 @@ function _actOpenCalEventForPerson(dateStr, userId, displayName) { openCalendarE
 let _currentUser = null;
 function isClientUser() { return !!(_currentUser && _currentUser.clientId); }
 function isClientAdmin() { return _currentUser?.clientRole === 'admin'; }
-const _clientAllowedViews = new Set(['dashboard', 'tasks', 'people', 'news', 'settings', 'mytasks']);
+const _clientAllowedViews = new Set(['dashboard', 'tasks', 'people', 'news', 'settings', 'mytasks', 'hiring']);
 function isClientAllowedView(view) { return !isClientUser() || _clientAllowedViews.has(view); }
 let _cachedUsers = [];       // Cached full user records (id, username, display_name, role, is_active) for ID lookups
 const _expandedStandupPeople = new Set(); // Track which person sections are expanded in standup
@@ -3329,6 +3436,7 @@ let _portfolioSnapshots = null;
 let _portfolioAttentionExpanded = false;
 let _portfolioLeadCount = null;
 let _milestonesCache = {}; // keyed by client_id -> array of milestones
+let _milestonesLoaded = false;
 
 async function loadMilestones(clientId) {
   try {
@@ -3341,6 +3449,7 @@ async function loadMilestones(clientId) {
 }
 
 async function loadAllMilestones() {
+  _milestonesLoaded = true;
   const clients = Object.values(_apiClientsCache || {}).filter(c => c.has_active_work);
   const promises = clients.map(c => loadMilestones(c.id));
   await Promise.all(promises);
@@ -3621,8 +3730,12 @@ async function handleLogin(e) {
     if (checkForcePasswordChange()) { btn.disabled = false; return; }
     showApp();
     await openIDB();
-    await Promise.all([load(), loadTeamMembers(), loadPagePermissions(), loadBugReports(), loadCandidates()]);
-    await loadFinanceFromDB();
+    await Promise.all([load(), loadTeamMembers(), loadPagePermissions(), loadBugReports(), loadCandidates(), apiCall('/api/clients').then(data => { if (data) data.forEach(c => { _apiClientsCache[c.name] = c; }); }).catch(() => {})]);
+    if (!isClientUser() && !window._hiringFilterClient) {
+      const nbiClient = Object.values(_apiClientsCache || {}).find(c => c.name === 'NBI Operations' || c.name === 'NBI OPS');
+      if (nbiClient) window._hiringFilterClient = nbiClient.id;
+    }
+    if (!isClientUser()) await loadFinanceFromDB();
     if (isClientUser()) {
       const myClient = Object.values(_apiClientsCache).find(c => c.id === _currentUser.clientId);
       if (myClient) currentFilter.client = myClient.name;
@@ -4077,6 +4190,16 @@ async function syncToAPI() {
             const task = tasks.find(t => t.id === tid);
             if (task) task._serverUpdatedAt = new Date(ts).toISOString();
           }
+        }
+        if (syncResult.conflicted && syncResult.conflicted.length > 0) {
+          syncResult.conflicted.forEach(c => {
+            _dirtyTaskIds.add(c.id);
+            const task = tasks.find(t => t.id === c.id);
+            if (task && c.serverUpdatedAt) task._serverUpdatedAt = new Date(c.serverUpdatedAt).toISOString();
+          });
+          const names = syncResult.conflicted.map(c => c.title).filter(Boolean).slice(0, 3).join(', ');
+          showToast(`${syncResult.conflicted.length} change${syncResult.conflicted.length > 1 ? 's' : ''} conflicted (${names || 'untitled'}) — retrying`, 'warning');
+          _scheduleSyncRetry();
         }
       } catch (_) { /* response already consumed or no timestamps */ }
       showSyncStatus('saving', 'Saved ✓');
@@ -4759,9 +4882,12 @@ function renderSidebar() {
     html += sidebarItem(svgLeads, 'Leads', '', () => switchView('leads'), currentView==='leads');
   }
   const svgHiring = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="5" r="2.5"/><path d="M1 14c0-3 2.5-5 5-5 1.3 0 2.5.4 3.4 1.1"/><circle cx="12" cy="11" r="3"/><path d="M12 9.5v3M10.5 11h3"/></svg>';
-  if (!isScoped) {
-    const hiringActiveCount = (_candidatesData || []).filter(c => !c.archived_at).length;
-    html += sidebarItem(svgHiring, 'Hiring', hiringActiveCount || '', () => switchView('hiring'), currentView==='hiring');
+  {
+    let hiringList = (_candidatesData || []).filter(c => !c.archived_at);
+    if (!isScoped && window._hiringFilterClient) {
+      hiringList = hiringList.filter(c => c.client_id === window._hiringFilterClient);
+    }
+    html += sidebarItem(svgHiring, 'Hiring', hiringList.length || '', () => switchView('hiring'), currentView==='hiring');
   }
   if (!isScoped && hasPageAccess('finances')) {
     html += sidebarItem(svgFinances, 'Finances', '', () => switchView('finances'), currentView==='finances');
@@ -4810,7 +4936,7 @@ function renderSidebar() {
     const dotColour = stringToColour(c);
     const isActive = _clientFilterRelevant && currentFilter.client===c;
     const abbrev = clientPrefix(c);
-    html += `<button class="sidebar__item ${isActive?'active':''}"${isActive?' aria-current="page"':''} aria-label="${esc(c)}, ${count} items" data-action="filterByClient" data-arg0="${esc(c)}"><span class="sidebar__dot" aria-hidden="true" style="background:${dotColour}"></span><span class="sidebar__item__abbrev" aria-hidden="true">${esc(abbrev)}</span><span class="sidebar__item__label">${esc(c)}</span><span class="sidebar__item__count" aria-hidden="true">${count}</span></button>`;
+    html += `<button class="sidebar__item ${isActive?'active':''}"${isActive?' aria-current="page"':''} aria-label="${esc(c)}, ${count} items" title="${esc(c)}" data-action="filterByClient" data-arg0="${esc(c)}"><span class="sidebar__dot" aria-hidden="true" style="background:${dotColour}"></span><span class="sidebar__item__abbrev" aria-hidden="true">${esc(abbrev)}</span><span class="sidebar__item__label">${esc(c)}</span><span class="sidebar__item__count" aria-hidden="true">${count}</span></button>`;
   });
   html += sidebarSectionClose();
 
@@ -5381,7 +5507,7 @@ window.addEventListener('popstate', e => {
 // Restore view from URL hash on page load (supports deep-linking e.g. #bugs, #leads)
 (function() {
   const h = window.location.hash.replace('#', '');
-  const known = ['report','dashboard','tasks','people','leads','expenses','finances','news','bugs','settings','mytasks','queue','reporting','documentation','workload','hiring'];
+  const known = ['report','dashboard','tasks','people','leads','expenses','finances','news','bugs','settings','mytasks','queue','reporting','documentation','workload','hiring','commandcentre'];
   if (h && known.includes(h)) currentView = LEGACY_ROUTES[h] || h;
 })();
 // Set initial history state
@@ -5502,6 +5628,7 @@ function _renderMainContent(content) {
 
 /** Re-render only the main content area (not sidebar/tabs). Preserves scroll position. */
 function renderContent() {
+  if (!isClientAllowedView(currentView)) { currentView = 'dashboard'; renderAll(); return; }
   _flushActiveEdits();
   const _perfStart = performance.now();
   const content = document.getElementById('mainContent');
@@ -5593,7 +5720,7 @@ function renderDashboard(el) {
       if (currentView === 'dashboard') renderContent();
     });
   }
-  if (Object.keys(_milestonesCache).length === 0) {
+  if (!_milestonesLoaded) {
     loadAllMilestones().then(() => {
       if (currentView === 'dashboard') renderContent();
     });
@@ -7328,7 +7455,7 @@ function renderTreeView(filtered) {
       // exactly like before — avoids clutter when the feature isn't being used.
       const skipSowHeader = orderedSowIds.length === 1 && orderedSowIds[0] === '__nosow__';
       orderedSowIds.forEach(sid => {
-        const bucketRoots = sowBuckets.get(sid);
+        const bucketRoots = sowBuckets.get(sid).sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
         const sow = sid !== '__nosow__' ? _sowsCache.find(s => s.id === sid) : null;
         const sowLabel = sow ? sow.title : 'No Statement of Work';
         const sowKey = `sow_${clientKey}_${sid}`;
@@ -8420,7 +8547,7 @@ function renderGanttView(filtered) {
         html += ganttDayCols(totalDays, dayW, minDate, now);
         const todayOff = Math.round((now - minDate) / 86400000);
         if (todayOff >= 0 && todayOff < totalDays) html += `<div class="gantt__today-line" style="left:${todayOff * dayW}px;width:${dayW}px"></div>`;
-        _ganttMilestones.forEach(ms => { html += `<div class="gantt__milestone-line" style="left:${ms.offset * dayW}px;width:${dayW}px" title="${esc(ms.title)}"></div><div class="gantt__milestone-label" style="left:${ms.offset * dayW + 6}px">${esc(ms.title)}</div>`; });
+        _ganttMilestones.forEach(ms => { html += `<div class="gantt__milestone-line" style="left:${ms.offset * dayW}px;width:${dayW}px" title="${esc(ms.title)}" data-ms-title="${esc(ms.title)}"></div>`; });
         if (start && end && end >= start) {
           const rawOff = Math.round((start - minDate) / 86400000);
           const sOff = Math.max(0, rawOff);
@@ -8533,7 +8660,7 @@ function renderGanttView(filtered) {
         html += `<div class="gantt__today-line" style="left:${todayOffset * dayW}px;width:${dayW}px"></div>`;
       }
       // Milestone lines
-      _ganttMilestones.forEach(ms => { html += `<div class="gantt__milestone-line" style="left:${ms.offset * dayW}px;width:${dayW}px" title="${esc(ms.title)}"></div><div class="gantt__milestone-label" style="left:${ms.offset * dayW + 6}px">${esc(ms.title)}</div>`; });
+      _ganttMilestones.forEach(ms => { html += `<div class="gantt__milestone-line" style="left:${ms.offset * dayW}px;width:${dayW}px" title="${esc(ms.title)}" data-ms-title="${esc(ms.title)}"></div>`; });
 
       // Bar — clamp left edge so bars never render behind the label column
       if (start && end && end >= start) {
@@ -9446,12 +9573,16 @@ function renderTaskRow(task, depth, filtered, visibleIds) {
   const isDone = task.status === 'Done';
   const isCancelled = task.status === 'Cancelled';
   const isInProgress = task.status === 'In progress';
+  const isInReview = task.status === 'In Review' || task.status === 'Drafted';
+  const isPlanning = task.status === 'Planning';
   const isBlocked = task.healthState === 'Blocked';
   let iconClass = 'task-row__status-icon';
   let iconContent = '';
   if (isDone) { iconClass += ' task-row__status-icon--done'; iconContent = '&#10003;'; }
   else if (isCancelled) { iconContent = '&times;'; }
   else if (isBlocked) { iconClass += ' task-row__status-icon--blocked'; }
+  else if (isInReview) { iconClass += ' task-row__status-icon--review'; }
+  else if (isPlanning) { iconClass += ' task-row__status-icon--planning'; }
   else if (isInProgress) { iconClass += ' task-row__status-icon--inprogress'; }
   const rowClass = 'task-row' + (isDone ? ' task-row--done' : '') + (isCancelled ? ' task-row--cancelled' : '');
 
@@ -9557,7 +9688,8 @@ function toggleClientGroup(clientKey) {
     // Lazy render: populate children if empty
     if (wrap.innerHTML.trim() === '') {
       const clientName = wrap.getAttribute('data-client-name') || clientKey.replace('client_', '');
-      const rootTasks = tasks.filter(t => !t.parentId && (t.client || getTaskClient(t) || 'Unassigned') === clientName);
+      const rootTasks = tasks.filter(t => !t.parentId && (t.client || getTaskClient(t) || 'Unassigned') === clientName)
+        .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
       let childHtml = '';
       rootTasks.forEach(r => { childHtml += renderTaskRow(r, 1, tasks); });
       wrap.innerHTML = childHtml;
@@ -10499,6 +10631,11 @@ async function updateTask(id, field, value) {
     }
   }
 
+  // When status changes away from Blocked, clear blocker details
+  if (field === 'status' && task.status === 'Blocked' && value !== 'Blocked') {
+    task.blockerInfo = null;
+  }
+
   // When status changes to Blocked, show the blocker details popup first.
   // The popup's confirm handler calls updateTask again with the filled-in blockerInfo.
   if (field === 'status' && value === 'Blocked' && task.status !== 'Blocked') {
@@ -10600,9 +10737,8 @@ async function updateTask(id, field, value) {
 
   // Structural changes need a full re-render (task moves between sections).
   // Non-structural changes get a lightweight update — no scroll flash.
-  const structural = (field === 'status' && (
-    value === 'Done' || value === 'Cancelled' || oldValue === 'Done' || oldValue === 'Cancelled'
-  )) || field === 'client_id' || field === 'parent_id'
+  const structural = field === 'status'
+    || field === 'client_id' || field === 'parent_id'
     || field === 'hoursEstimated' || field === 'hoursSpent'
     || field === 'startDate' || field === 'endDate' || field === 'dueDate';
 
@@ -10998,7 +11134,10 @@ function createTaskObject(overrides) {
 /** Open the add-item type menu (header New button default action) */
 function addTask() {
   const dd = document.getElementById('addItemMenuDropdown');
-  if (dd) dd.style.display = dd.style.display === 'none' ? '' : 'none';
+  if (!dd) return;
+  const open = dd.style.display !== 'none';
+  dd.style.display = open ? 'none' : '';
+  if (!open) document.addEventListener('click', closeAddItemMenu, { once: true });
 }
 
 function _pickClient(title) {
@@ -12230,7 +12369,9 @@ function renderPeopleView(el) {
   });
 
   // Auto-select first person if none selected
-  const selectedPerson = _peopleFilter.person || (workloadRows.length > 0 ? workloadRows[0].name : null);
+  const myName = _currentUser?.displayName || _currentUser?.display_name || '';
+  const defaultPerson = (myName && workloadRows.some(r => r.name === myName)) ? myName : (workloadRows.length > 0 ? workloadRows[0].name : null);
+  const selectedPerson = _peopleFilter.person || defaultPerson;
   if (!_peopleFilter.person && selectedPerson) _peopleFilter.person = selectedPerson;
 
   // === RED FLAGS STRIP ===
@@ -18242,7 +18383,9 @@ function renderBugTrackerView(container) {
   // Apply filters
   let filtered = [...reports];
   if (window._btFilterType) filtered = filtered.filter(r => r.type === window._btFilterType);
-  if (window._btFilterStatus) filtered = filtered.filter(r => r.status === window._btFilterStatus);
+  const btStatus = window._btFilterStatus || 'active';
+  if (btStatus === 'active') filtered = filtered.filter(r => r.status !== 'resolved' && r.status !== 'wontfix');
+  else if (btStatus) filtered = filtered.filter(r => r.status === btStatus);
   if (window._btFilterPriority === 'none') filtered = filtered.filter(r => !r.priority);
   else if (window._btFilterPriority) filtered = filtered.filter(r => r.priority === window._btFilterPriority);
   if (window._btSearchQuery) {
@@ -18295,6 +18438,7 @@ function renderBugTrackerView(container) {
           <option value="feature" ${window._btFilterType==='feature'?'selected':''}>Features</option>
         </select>
         <select class="leads-select" onchange="window._btFilterStatus=this.value||null;renderContent()">
+          <option value="active" ${(window._btFilterStatus||'active')==='active'?'selected':''}>Active</option>
           <option value="">All Statuses</option>
           <option value="open" ${window._btFilterStatus==='open'?'selected':''}>Open</option>
           <option value="in_progress" ${window._btFilterStatus==='in_progress'?'selected':''}>In Progress</option>
@@ -18732,16 +18876,16 @@ async function openBugDetail(id) {
       <div class="bug-detail__section">
         <div class="bug-detail__section-title">Comments</div>
         <div id="bugCommentsContainer"><div style="color:var(--text-muted);font-size:0.78rem">Loading comments...</div></div>
-        <div class="bug-detail__comment-input">
-          <textarea id="bugCommentText" placeholder="Add a comment..." rows="2"></textarea>
-          <button class="btn btn--primary btn--sm" style="align-self:flex-end" data-action="postBugComment" data-arg0="${r.id}">Post</button>
-        </div>
       </div>
 
       <div style="display:flex;gap:var(--space-sm);margin-top:var(--space-lg);padding-top:var(--space-md);border-top:1px solid var(--border-default)">
         ${isReporter && r.status !== 'resolved' ? `<button class="btn btn--sm" data-action="updateBugField" data-arg0="${r.id}" data-arg1="status" data-arg2="resolved">Mark Resolved</button>` : ''}
         ${isAdmin ? `<button class="btn btn--danger btn--sm" data-action="_actDeleteBugAndClose" data-arg0="${r.id}">Delete</button>` : ''}
       </div>
+    </div>
+    <div class="bug-detail__comment-input">
+      <textarea id="bugCommentText" placeholder="Add a comment..." rows="2"></textarea>
+      <button class="btn btn--primary btn--sm" style="align-self:flex-end" data-action="postBugComment" data-arg0="${r.id}">Post</button>
     </div>`;
 
   overlay.style.display = 'block';
@@ -18939,14 +19083,14 @@ const HIRING_STAGES = [
   'interviews',
   'offer',
   'onboarding',
-  'hired',
+  'onboarded',
 ];
 const HIRING_STAGE_LABELS = {
-  sourcing:   'Sourcing',
-  interviews: 'Interviews',
-  offer:      'Offer',
-  onboarding: 'Onboarding',
-  hired:      'Hired',
+  sourcing:    'Sourcing',
+  interviews:  'Interviews',
+  offer:       'Offer',
+  onboarding:  'Onboarding',
+  onboarded:   'Onboarded',
 };
 /** Return the index of a stage in the linear process, or 0 if unknown. */
 function hiringStageIndex(stage) {
@@ -18990,7 +19134,7 @@ async function loadHiringPositions() {
 function renderHiringCard(c, draggable) {
   const due = c.due_date ? new Date(c.due_date) : null;
   const isArchived = !!c.archived_at;
-  const isLate = due && due < new Date() && c.stage !== 'hired' && !isArchived;
+  const isLate = due && due < new Date() && c.stage !== 'onboarded' && !isArchived;
   const dueText = due ? due.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '';
   const clientChip = c.client_name ? `<span style="color:var(--text-muted);font-size:0.7rem">${esc(c.client_name)}</span>` : '';
   // Glen's spec (bug b7a2f97f):
@@ -19003,21 +19147,45 @@ function renderHiringCard(c, draggable) {
   const currentStageAssignees = Array.isArray(stageAssignees[c.stage]) ? stageAssignees[c.stage] : [];
   const unassigned = !isArchived && currentStageAssignees.length === 0;
   const warnMarker = unassigned ? '<span style="position:absolute;top:4px;right:4px;color:var(--danger);font-size:0.8rem" title="No assignee on the current stage">&#9888;</span>' : '';
-  const archivedMarker = (isArchived || c.stage === 'hired') ? '<span style="position:absolute;bottom:4px;left:4px;color:var(--success);font-size:0.9rem;font-weight:bold" title="Hired">&#10003;</span>' : '';
+  const archivedMarker = (isArchived || c.stage === 'onboarded') ? '<span style="position:absolute;bottom:4px;left:4px;color:var(--success);font-size:0.9rem;font-weight:bold" title="Onboarded">&#10003;</span>' : '';
   const archivedStyle = isArchived ? 'opacity:0.55;filter:grayscale(0.4);' : '';
   const dragAttrs = draggable && !isArchived
     ? ` draggable="true" ondragstart="onHiringCardDragStart(event, '${c.id}')" ondragend="onHiringCardDragEnd(event)"`
     : '';
+
+  // Tags (up to 2 shown, remainder as +N)
+  const tags = Array.isArray(c.tags) ? c.tags : [];
+  const tagChips = tags.length > 0
+    ? `<div style="display:flex;flex-wrap:wrap;gap:2px;margin-top:4px">${tags.slice(0,2).map(t => `<span style="background:var(--accent-muted);color:var(--accent-text);border-radius:8px;padding:1px 6px;font-size:0.65rem">${esc(t)}</span>`).join('')}${tags.length > 2 ? `<span style="color:var(--text-muted);font-size:0.65rem">+${tags.length-2}</span>` : ''}</div>`
+    : '';
+
+  // GDPR retention warning
+  const retExpiry = c.retention_expires_at ? new Date(c.retention_expires_at) : null;
+  const retWarning = retExpiry && (retExpiry.getTime() - Date.now()) < 30 * 86400000
+    ? '<span style="color:var(--danger);font-size:0.65rem" title="Data retention expiring">&#9888; GDPR</span>'
+    : '';
+
+  // Comment count badge
+  const commentBadge = c.comment_count > 0
+    ? `<span style="font-size:0.65rem;color:var(--text-muted)" title="${c.comment_count} comment${c.comment_count !== 1 ? 's' : ''}">&#128172; ${c.comment_count}</span>`
+    : '';
+
+  const metaRow2 = (retWarning || commentBadge)
+    ? `<div style="display:flex;gap:6px;align-items:center;margin-top:3px">${retWarning}${commentBadge}</div>`
+    : '';
+
   return `<div class="hiring-card" data-candidate-id="${c.id}" style="position:relative;${archivedStyle}"${dragAttrs} data-action="_actOpenCandidateDetailIfNotDrag" data-arg0="${c.id}" tabindex="0" role="button"
               aria-label="${esc(header)}${subheader ? ', ' + esc(subheader) : ''}${c.client_name ? ', ' + esc(c.client_name) : ''}, stage ${esc(HIRING_STAGE_LABELS[c.stage] || c.stage)}${unassigned ? ', no assignee' : ''}${isArchived ? ', archived' : ''}"
               onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openCandidateDetail('${c.id}')}">
     ${warnMarker}${archivedMarker}
-    <div class="hiring-card__name" ${c.stage === 'hired' ? 'style="text-decoration:line-through"' : ''}>${esc(header)}</div>
+    <div class="hiring-card__name" ${c.stage === 'onboarded' ? 'style="text-decoration:line-through"' : ''}>${esc(header)}</div>
     ${subheader ? `<div class="hiring-card__role">${esc(subheader)}</div>` : ''}
+    ${tagChips}
     <div class="hiring-card__meta">
       ${clientChip || `<span class="${isLate ? 'hiring-card__due--late' : ''}">${dueText || '\u2014'}</span>`}
       <span class="hiring-stage-badge hiring-stage-badge--${c.stage}" aria-hidden="true">${HIRING_STAGE_LABELS[c.stage] || c.stage}</span>
     </div>
+    ${metaRow2}
   </div>`;
 }
 
@@ -19105,9 +19273,81 @@ async function onHiringLaneDrop(ev, newStage) {
   }
 }
 
+function _parsePositionDesc(desc) {
+  const d = { salary: null, monthly: null, origCurrency: null, startMonth: null, priority: null, recruitStatus: null, type: 'Permanent' };
+  if (!desc) return d;
+  const lines = desc.split('\n');
+  for (const line of lines) {
+    const l = line.trim();
+    if (l.startsWith('Annual Salary:')) d.salary = l.replace('Annual Salary:', '').trim();
+    else if (l.startsWith('Monthly:')) d.monthly = l.replace('Monthly:', '').trim();
+    else if (l.startsWith('Original Currency:')) d.origCurrency = l.replace('Original Currency:', '').trim();
+    else if (l.startsWith('Planned Start:')) d.startMonth = l.replace('Planned Start:', '').trim();
+    else if (l.startsWith('Priority:')) { const v = l.replace('Priority:', '').trim(); if (v !== 'None') d.priority = v; }
+    else if (l.startsWith('Recruitment Status:')) d.recruitStatus = l.replace('Recruitment Status:', '').trim();
+    else if (l.startsWith('Type: Contract')) d.type = 'Contract';
+  }
+  return d;
+}
+
+function _positionDaysOpen(p) {
+  if (!p.created_at) return 0;
+  return Math.floor((Date.now() - new Date(p.created_at).getTime()) / 86400000);
+}
+
+function _daysOpenClass(days) {
+  if (days < 30) return 'position-card__days--green';
+  if (days < 60) return 'position-card__days--amber';
+  return 'position-card__days--red';
+}
+
+function renderPositionCard(p, candidates) {
+  const d = _parsePositionDesc(p.description);
+  const days = _positionDaysOpen(p);
+  const linked = candidates.filter(c => c.position_id === p.id && !c.archived_at);
+  const dotClass = p.status === 'filled' ? 'position-card__dot--filled' : 'position-card__dot--open';
+  const prioClass = d.priority !== null ? 'position-card__priority--' + d.priority : '';
+  const seniorityChip = p.seniority ? `<span class="position-card__chip">${esc(p.seniority.charAt(0).toUpperCase() + p.seniority.slice(1))}</span>` : '';
+  const isAdmin = _currentUser && _currentUser.role === 'admin';
+
+  let minibar = '';
+  if (linked.length > 0) {
+    const stageColors = { sourcing: 'var(--text-muted)', interviews: '#f59e0b', offer: '#2563eb', onboarding: '#10b981', hired: 'var(--success)' };
+    const stageCounts = {};
+    linked.forEach(c => { stageCounts[c.stage] = (stageCounts[c.stage] || 0) + 1; });
+    const total = linked.length;
+    const segments = Object.entries(stageCounts).map(([stage, count]) =>
+      `<span style="width:${(count/total)*100}%;background:${stageColors[stage] || 'var(--text-muted)'}" title="${count} ${stage}"></span>`
+    ).join('');
+    minibar = `<div class="position-card__minibar">${segments}</div>`;
+  }
+
+  const candidateLabel = linked.length === 1 ? '1 candidate' : linked.length + ' candidates';
+
+  return `<div class="position-card" data-position-id="${p.id}" data-action="openPositionDetail" data-arg0="${p.id}" tabindex="0" role="button"
+              aria-label="${esc(p.title)}, ${p.status}, ${candidateLabel}"
+              onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openPositionDetail('${p.id}')}">
+    <div class="position-card__row">
+      <span class="position-card__dot ${dotClass}"></span>
+      <span class="position-card__title">${esc(p.title)}</span>
+      ${d.priority !== null ? `<span class="position-card__priority ${prioClass}">P${esc(String(d.priority))}</span>` : ''}
+    </div>
+    <div class="position-card__row">
+      ${seniorityChip}
+      ${d.recruitStatus ? `<span class="position-card__chip">${esc(d.recruitStatus)}</span>` : ''}
+    </div>
+    <div class="position-card__meta">
+      ${d.startMonth ? `<span>Start: ${esc(d.startMonth)}</span>` : ''}
+      <span class="${_daysOpenClass(days)}">${days}d open</span>
+    </div>
+    <div class="position-card__candidates">
+      ${minibar}
+      <span>${candidateLabel}</span>
+    </div>
+  </div>`;
+}
+
 function renderHiringView(container) {
-  // First render: kick off async loads then re-render once data is in.
-  // Skeleton placeholders match the Leads / Expenses pattern (O4, 2026-04-15).
   if (!window._hiringLoaded) {
     container.innerHTML = '<div class="hiring" style="padding:24px"><div class="skeleton skeleton-card"></div>' +
       Array(5).fill('<div class="skeleton skeleton-row"></div>').join('') +
@@ -19122,64 +19362,112 @@ function renderHiringView(container) {
   const candidates = _candidatesData || [];
   const positions = _hiringPositionsData || [];
   const isAdmin = _currentUser && _currentUser.role === 'admin';
+  const isScopedUser = isClientUser();
+  const viewMode = isScopedUser ? 'kanban' : (window._hiringViewMode || 'kanban');
+  const isPositionsView = viewMode === 'positions';
 
-  // Apply filters
+  // Filter candidates (for kanban/client views)
   let filtered = [...candidates];
   if (window._hiringFilterClient) filtered = filtered.filter(c => c.client_id === window._hiringFilterClient);
   if (window._hiringFilterStage) filtered = filtered.filter(c => c.stage === window._hiringFilterStage);
-  // Archived filter — default hides archived cards. Glen spec: archived thumbnails
-  // sort off to the right-hand side when shown (bug b7a2f97f). Per-view toggle
-  // lives below on window._hiringShowArchived.
   const showArchived = !!window._hiringShowArchived;
   if (!showArchived) {
     filtered = filtered.filter(c => !c.archived_at);
   } else {
-    // Sort archived to the end
-    filtered = filtered.sort((a, b) => {
-      const aArch = a.archived_at ? 1 : 0;
-      const bArch = b.archived_at ? 1 : 0;
-      return aArch - bArch;
-    });
+    filtered = filtered.sort((a, b) => (a.archived_at ? 1 : 0) - (b.archived_at ? 1 : 0));
   }
 
-  // Only list active/contracted clients (those with tasks, plus NBI Ops/NSI).
-  // Avoids polluting the Hiring dropdown with the full leads/prospects list.
-  const clientOptions = getContractedClientRecords();
+  // Filter positions (for positions view)
+  let filteredPositions = [...positions];
+  if (window._hiringFilterClient) filteredPositions = filteredPositions.filter(p => p.client_id === window._hiringFilterClient);
+  if (window._hiringFilterPosStatus) filteredPositions = filteredPositions.filter(p => p.status === window._hiringFilterPosStatus);
 
-  // View mode: kanban (by stage, default) or client (grouped by client)
-  const viewMode = window._hiringViewMode || 'kanban';
+  // Client options: include clients that have positions OR active work
+  let clientOptions = getContractedClientRecords();
+  if (isPositionsView) {
+    const posClientIds = new Set(positions.map(p => p.client_id).filter(Boolean));
+    const extra = Object.values(_apiClientsCache || {}).filter(c => c && c.id && posClientIds.has(c.id) && !clientOptions.some(co => co.id === c.id));
+    if (extra.length) clientOptions = [...clientOptions, ...extra].sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+  }
 
   let html = '<div class="hiring">';
   html += `<div class="hiring__header">
     <h2 style="font-size:1.1rem;font-weight:600;margin:0">Hiring</h2>
-    <div style="display:flex;gap:8px;align-items:center">
-      <div class="hiring-view-toggle" role="tablist" aria-label="Hiring view mode">
+    <div style="display:flex;gap:8px;align-items:center">`;
+  if (!isScopedUser) {
+    html += `<div class="hiring-view-toggle" role="tablist" aria-label="Hiring view mode">
         <button type="button" class="${viewMode==='kanban'?'active':''}" role="tab" aria-selected="${viewMode==='kanban'}" data-action="_actSetHiringViewMode" data-arg0="kanban">Kanban</button>
         <button type="button" class="${viewMode==='client'?'active':''}" role="tab" aria-selected="${viewMode==='client'}" data-action="_actSetHiringViewMode" data-arg0="client">By Client</button>
-      </div>
-      <button class="btn btn--primary" data-action="openCreateCandidateModal">+ Create Candidate Card</button>
-    </div>
-  </div>`;
+        <button type="button" class="${viewMode==='positions'?'active':''}" role="tab" aria-selected="${viewMode==='positions'}" data-action="_actSetHiringViewMode" data-arg0="positions">Positions</button>
+      </div>`;
+  }
+  if (!isPositionsView) {
+    html += `<button class="btn btn--primary" data-action="openCreateCandidateModal">+ Create Candidate Card</button>`;
+  }
+  html += `</div></div>`;
 
-  html += `<div class="hiring__filters">
-    <select class="leads-select" onchange="window._hiringFilterClient=this.value||null;renderContent()">
+  // Filters adapt to view mode
+  html += `<div class="hiring__filters">`;
+  if (!isScopedUser) {
+    html += `<select class="leads-select" onchange="window._hiringFilterClient=this.value||null;renderContent()">
       <option value="">All Clients</option>
       ${clientOptions.map(c => `<option value="${c.id}" ${window._hiringFilterClient===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}
-    </select>
-    <select class="leads-select" onchange="window._hiringFilterStage=this.value||null;renderContent()">
-      <option value="">All Stages</option>
-      ${HIRING_STAGES.map(s => `<option value="${s}" ${window._hiringFilterStage===s?'selected':''}>${HIRING_STAGE_LABELS[s]}</option>`).join('')}
-    </select>
-    <label style="display:flex;align-items:center;gap:4px;font-size:0.75rem;color:var(--text-muted);cursor:pointer;user-select:none"><input type="checkbox" ${showArchived ? 'checked' : ''} onchange="window._hiringShowArchived=this.checked;renderContent()" style="accent-color:var(--accent)"> Show archived</label>
-    <span style="font-size:0.75rem;color:var(--text-muted)">${filtered.length} of ${candidates.length} candidates</span>
-  </div>`;
+    </select>`;
+  }
+  if (isPositionsView) {
+    const openCount = filteredPositions.filter(p => p.status === 'open').length;
+    const filledCount = filteredPositions.filter(p => p.status === 'filled').length;
+    html += `<select class="leads-select" onchange="window._hiringFilterPosStatus=this.value||null;renderContent()">
+        <option value="">All Statuses</option>
+        <option value="open" ${window._hiringFilterPosStatus==='open'?'selected':''}>Open (${openCount})</option>
+        <option value="filled" ${window._hiringFilterPosStatus==='filled'?'selected':''}>Filled (${filledCount})</option>
+      </select>`;
+    html += `<span style="font-size:0.75rem;color:var(--text-muted)">${openCount} open, ${filledCount} filled — ${filteredPositions.length} positions</span>`;
+  } else {
+    html += `<select class="leads-select" onchange="window._hiringFilterStage=this.value||null;renderContent()">
+        <option value="">All Stages</option>
+        ${HIRING_STAGES.map(s => `<option value="${s}" ${window._hiringFilterStage===s?'selected':''}>${HIRING_STAGE_LABELS[s]}</option>`).join('')}
+      </select>
+      <label style="display:flex;align-items:center;gap:4px;font-size:0.75rem;color:var(--text-muted);cursor:pointer;user-select:none"><input type="checkbox" ${showArchived ? 'checked' : ''} onchange="window._hiringShowArchived=this.checked;renderContent()" style="accent-color:var(--accent)"> Show archived</label>
+      <span style="font-size:0.75rem;color:var(--text-muted)">${filtered.length} of ${candidates.length} candidates</span>`;
+  }
+  html += `</div>`;
 
-  if (filtered.length === 0) {
-    html += `<div style="padding:var(--space-xl);text-align:center;color:var(--text-muted)">No candidates yet. Click "Create Candidate Card" to add one.</div>`;
+  if (isPositionsView) {
+    // Positions view: group by client
+    if (filteredPositions.length === 0) {
+      html += `<div style="padding:var(--space-xl);text-align:center;color:var(--text-muted)">No positions found.</div>`;
+    } else {
+      const groups = {};
+      filteredPositions.forEach(p => {
+        const key = p.client_id || '__unassigned__';
+        const label = p.client_name || 'Unassigned';
+        if (!groups[key]) groups[key] = { label, items: [] };
+        groups[key].items.push(p);
+      });
+      const monthOrder = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+      Object.values(groups).forEach(g => {
+        g.items.sort((a, b) => {
+          const da = _parsePositionDesc(a.description);
+          const db = _parsePositionDesc(b.description);
+          const ma = da.startMonth ? monthOrder.indexOf(da.startMonth.split(' ')[0]) : 99;
+          const mb = db.startMonth ? monthOrder.indexOf(db.startMonth.split(' ')[0]) : 99;
+          return ma - mb;
+        });
+      });
+      const groupKeys = Object.keys(groups).sort((a, b) => groups[a].label.localeCompare(groups[b].label));
+      groupKeys.forEach(k => {
+        const g = groups[k];
+        html += `<div class="hiring-client-group">
+          <div class="hiring-client-group__header">${esc(g.label)} <span style="color:var(--text-muted);font-weight:400;font-size:0.82rem">(${g.items.length})</span></div>
+          <div class="hiring-grid">`;
+        g.items.forEach(p => { html += renderPositionCard(p, candidates); });
+        html += `</div></div>`;
+      });
+    }
+  } else if (filtered.length === 0) {
+    html += `<div style="padding:var(--space-xl);text-align:center;color:var(--text-muted)">No candidates yet. Click "+ Create Candidate Card" to add one.</div>`;
   } else if (viewMode === 'kanban') {
-    // Kanban: one lane per hiring stage, candidates fall into their current stage.
-    // Drag-and-drop: cards are draggable, lane bodies accept the drop and call
-    // updateCandidateField('stage', newStage).
     html += `<div class="hiring-kanban" role="list" aria-label="Hiring pipeline">`;
     HIRING_STAGES.forEach(stage => {
       const stageCandidates = filtered.filter(c => c.stage === stage)
@@ -19202,7 +19490,6 @@ function renderHiringView(container) {
     });
     html += `</div>`;
   } else {
-    // By Client: original grouping, now using the shared card renderer
     const groups = {};
     filtered.forEach(c => {
       const key = c.client_id || '__unassigned__';
@@ -19223,6 +19510,191 @@ function renderHiringView(container) {
 
   html += '</div>';
   container.innerHTML = html;
+}
+
+/** Open position detail slide-in panel */
+async function openPositionDetail(id) {
+  const overlay = document.getElementById('positionDetailOverlay');
+  const panel = document.getElementById('positionDetailPanel');
+  if (!overlay || !panel) return;
+
+  const positions = _hiringPositionsData || [];
+  const p = positions.find(pos => pos.id === id);
+  if (!p) return;
+
+  const d = _parsePositionDesc(p.description);
+  const days = _positionDaysOpen(p);
+  const candidates = (_candidatesData || []).filter(c => c.position_id === id);
+  const activeCandidates = candidates.filter(c => !c.archived_at);
+  const isAdmin = _currentUser && _currentUser.role === 'admin';
+  const canSeeSalary = isAdmin;
+
+  const statusBadge = p.status === 'filled'
+    ? '<span style="background:var(--text-muted);color:#fff;padding:2px 10px;border-radius:10px;font-size:0.72rem;font-weight:600;text-transform:uppercase">Filled</span>'
+    : '<span style="background:var(--success);color:#fff;padding:2px 10px;border-radius:10px;font-size:0.72rem;font-weight:600;text-transform:uppercase">Open</span>';
+
+  const seniorityLabel = p.seniority ? p.seniority.charAt(0).toUpperCase() + p.seniority.slice(1) : '—';
+  const seniorityOptions = ['executive','lead','senior','mid','junior'];
+  const inputStyle = 'font-size:0.85rem;padding:5px 8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);width:100%';
+
+  // Candidate listing table
+  let candidateTableHtml = '';
+  if (activeCandidates.length > 0) {
+    candidateTableHtml = `<table class="position-detail__candidates-table">
+      <thead><tr><th>Name</th><th>Stage</th><th>Days in Stage</th><th>Last Activity</th></tr></thead><tbody>`;
+    activeCandidates.forEach(c => {
+      const name = c.name && c.name.trim() ? c.name : (c.role || 'Unnamed');
+      const stageLabel = (typeof HIRING_STAGE_LABELS !== 'undefined' && HIRING_STAGE_LABELS[c.stage]) || c.stage;
+      const updated = c.updated_at ? new Date(c.updated_at) : null;
+      const daysInStage = updated ? Math.floor((Date.now() - updated.getTime()) / 86400000) : 0;
+      const disClass = daysInStage > 14 ? 'position-card__days--red' : daysInStage > 7 ? 'position-card__days--amber' : 'position-card__days--green';
+      const lastAct = updated ? updated.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '—';
+      candidateTableHtml += `<tr data-action="openCandidateFromPosition" data-arg0="${c.id}" title="Open candidate detail" style="cursor:pointer">
+        <td style="font-weight:500">${esc(name)}</td>
+        <td><span class="hiring-stage-badge hiring-stage-badge--${c.stage}" style="font-size:0.68rem;padding:2px 7px">${esc(stageLabel)}</span></td>
+        <td><span class="${disClass}">${daysInStage}d</span></td>
+        <td style="color:var(--text-muted)">${lastAct}</td>
+      </tr>`;
+    });
+    candidateTableHtml += '</tbody></table>';
+  } else {
+    candidateTableHtml = '<div style="color:var(--text-muted);font-size:0.82rem;padding:8px 0;font-style:italic">No candidates linked to this position yet</div>';
+  }
+
+  panel.innerHTML = `
+    <div class="position-detail__header">
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;gap:var(--space-sm);align-items:center;margin-bottom:6px;flex-wrap:wrap">
+          ${statusBadge}
+          ${p.client_name ? `<span style="font-size:0.78rem;color:var(--text-muted)">${esc(p.client_name)}</span>` : ''}
+        </div>
+        ${isAdmin
+          ? `<input type="text" value="${esc(p.title)}" style="font-size:1.1rem;font-weight:600;border:none;background:transparent;color:var(--text-primary);width:100%;padding:0;outline:none;border-bottom:1px solid transparent" onfocus="this.style.borderBottomColor='var(--accent)'" onblur="this.style.borderBottomColor='transparent';if(this.value.trim()&&this.value!=='${esc(p.title)}')updatePositionField('${p.id}','title',this.value.trim())">`
+          : `<h3 style="font-size:1.1rem;font-weight:600;margin:0;word-break:break-word">${esc(p.title)}</h3>`
+        }
+        ${p.seniority && !isAdmin ? `<div style="font-size:0.82rem;color:var(--text-muted);margin-top:2px">${esc(seniorityLabel)} level</div>` : ''}
+      </div>
+      <button class="btn btn--ghost btn--sm" data-action="closePositionDetail" aria-label="Close" style="flex-shrink:0;font-size:1.2rem">&times;</button>
+    </div>
+    <div class="position-detail__body">
+
+      ${isAdmin ? `<div style="display:flex;gap:12px;margin-bottom:var(--space-lg);flex-wrap:wrap">
+        <div style="flex:1;min-width:120px">
+          <div class="position-detail__info-label" style="margin-bottom:4px">Status</div>
+          <select style="${inputStyle}" onchange="updatePositionField('${p.id}','status',this.value)">
+            <option value="open" ${p.status==='open'?'selected':''}>Open</option>
+            <option value="filled" ${p.status==='filled'?'selected':''}>Filled</option>
+          </select>
+        </div>
+        <div style="flex:1;min-width:120px">
+          <div class="position-detail__info-label" style="margin-bottom:4px">Seniority</div>
+          <select style="${inputStyle}" onchange="updatePositionField('${p.id}','seniority',this.value||null)">
+            <option value="">— None —</option>
+            ${seniorityOptions.map(s => `<option value="${s}" ${p.seniority===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}
+          </select>
+        </div>
+      </div>` : ''}
+
+      <div class="position-detail__info-grid">
+        ${canSeeSalary ? `
+        <div class="position-detail__info-item">
+          <span class="position-detail__info-label">Annual Salary</span>
+          <span class="position-detail__info-value">${d.salary ? esc(d.salary) : 'TBD'}</span>
+        </div>
+        <div class="position-detail__info-item">
+          <span class="position-detail__info-label">Monthly</span>
+          <span class="position-detail__info-value">${d.monthly ? esc(d.monthly) : '—'}</span>
+        </div>
+        <div class="position-detail__info-item">
+          <span class="position-detail__info-label">Original Currency</span>
+          <span class="position-detail__info-value">${d.origCurrency ? esc(d.origCurrency) : '—'}</span>
+        </div>` : ''}
+        <div class="position-detail__info-item">
+          <span class="position-detail__info-label">Planned Start</span>
+          <span class="position-detail__info-value">${d.startMonth ? esc(d.startMonth) : '—'}</span>
+        </div>
+        <div class="position-detail__info-item">
+          <span class="position-detail__info-label">Days Open</span>
+          <span class="position-detail__info-value ${_daysOpenClass(days)}">${days} days</span>
+        </div>
+        <div class="position-detail__info-item">
+          <span class="position-detail__info-label">Priority</span>
+          <span class="position-detail__info-value">${d.priority !== null ? 'P' + d.priority : '—'}</span>
+        </div>
+        <div class="position-detail__info-item">
+          <span class="position-detail__info-label">Recruitment Status</span>
+          <span class="position-detail__info-value">${d.recruitStatus ? esc(d.recruitStatus) : '—'}</span>
+        </div>
+        <div class="position-detail__info-item">
+          <span class="position-detail__info-label">Type</span>
+          <span class="position-detail__info-value">${esc(d.type)}</span>
+        </div>
+      </div>
+
+      ${isAdmin ? `<div style="margin-bottom:var(--space-lg)">
+        <div class="position-detail__info-label" style="margin-bottom:4px">Description</div>
+        <textarea rows="4" style="${inputStyle};resize:vertical;min-height:80px" onchange="updatePositionField('${p.id}','description',this.value)">${esc(p.description || '')}</textarea>
+      </div>` : ''}
+
+      <div style="margin-bottom:var(--space-lg)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-sm)">
+          <span style="font-size:0.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);font-weight:600">Candidates (${activeCandidates.length})</span>
+          <button class="btn btn--sm btn--primary" data-action="createCandidateForPosition" data-arg0="${p.id}" data-arg1="${esc(p.title)}" data-arg2="${p.client_id || ''}">+ Add Candidate</button>
+        </div>
+        ${candidateTableHtml}
+      </div>
+    </div>`;
+
+  overlay.style.display = 'block';
+  overlay.onclick = (e) => { if (e.target === overlay) closePositionDetail(); };
+  panel.classList.add('open');
+  window._positionDetailPreviousFocus = document.activeElement;
+  window._positionDetailEscHandler = (e) => { if (e.key === 'Escape') closePositionDetail(); };
+  document.addEventListener('keydown', window._positionDetailEscHandler);
+}
+
+function closePositionDetail() {
+  if (window._positionDetailPreviousFocus) { window._positionDetailPreviousFocus.focus(); window._positionDetailPreviousFocus = null; }
+  if (window._positionDetailEscHandler) { document.removeEventListener('keydown', window._positionDetailEscHandler); window._positionDetailEscHandler = null; }
+  const overlay = document.getElementById('positionDetailOverlay');
+  const panel = document.getElementById('positionDetailPanel');
+  if (panel) panel.classList.remove('open');
+  if (overlay) overlay.style.display = 'none';
+}
+
+async function updatePositionField(id, field, value) {
+  const body = {};
+  body[field] = value === '' ? null : value;
+  const resp = await authFetch('/api/hiring-positions/' + id, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (resp.ok) {
+    await loadHiringPositions();
+    if (currentView === 'hiring') renderContent();
+    const panel = document.getElementById('positionDetailPanel');
+    if (panel && panel.classList.contains('open')) openPositionDetail(id);
+  }
+}
+
+async function createCandidateForPosition(positionId, role, clientId) {
+  try {
+    const body = { name: '', role: role || '', position_id: positionId, stage: 'sourcing' };
+    if (clientId) body.client_id = clientId;
+    const resp = await authFetch('/api/candidates', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    if (resp.ok) {
+      const created = await resp.json();
+      await loadCandidates();
+      closePositionDetail();
+      if (created && created.id) openCandidateDetail(created.id);
+    }
+  } catch (e) { toast('Failed to create candidate', 'error'); }
+}
+
+function openCandidateFromPosition(candidateId) {
+  closePositionDetail();
+  setTimeout(() => openCandidateDetail(candidateId), 100);
 }
 
 /**
@@ -19257,13 +19729,20 @@ async function openCreateCandidateModal() {
       <div style="display:flex;flex-direction:column;gap:10px">
         <label style="font-size:0.78rem;color:var(--text-muted)">Name *
           <input type="text" id="ccName" style="width:100%;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;margin-top:4px" autofocus></label>
-        <label style="font-size:0.78rem;color:var(--text-muted)">Client
+        ${isClientUser() ? '' : `<label style="font-size:0.78rem;color:var(--text-muted)">Client
           <select id="ccClient" style="width:100%;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;margin-top:4px">
             <option value="">— None —</option>
-            ${clientList.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('')}
-          </select></label>
+            ${clientList.map(c => `<option value="${c.id}" ${window._hiringFilterClient === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}
+          </select></label>`}
         <label style="font-size:0.78rem;color:var(--text-muted)">Role
           <input type="text" id="ccRole" placeholder="e.g. Senior Backend Engineer" style="width:100%;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;margin-top:4px"></label>
+        <label style="font-size:0.78rem;color:var(--text-muted)">Email
+          <input type="email" id="ccEmail" placeholder="candidate@example.com" style="width:100%;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;margin-top:4px"></label>
+        <label style="font-size:0.78rem;color:var(--text-muted)">Source
+          <select id="ccSource" style="width:100%;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;margin-top:4px">
+            <option value="">— None —</option>
+            ${['referral','linkedin','inbound','agency','job-board','internal','other'].map(s => `<option value="${s}">${s.charAt(0).toUpperCase()+s.slice(1).replace('-',' ')}</option>`).join('')}
+          </select></label>
         <label style="font-size:0.78rem;color:var(--text-muted)">Due date
           <input type="date" id="ccDue" style="width:100%;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;margin-top:4px"></label>
       </div>
@@ -19299,9 +19778,11 @@ async function openCreateCandidateModal() {
     }
     const body = {
       name: name || '(vacant)',
-      client_id: overlay.querySelector('#ccClient').value || null,
+      client_id: (overlay.querySelector('#ccClient') || {}).value || null,
       role: role || null,
       due_date: overlay.querySelector('#ccDue').value || null,
+      email: (overlay.querySelector('#ccEmail') || {}).value?.trim() || null,
+      source: (overlay.querySelector('#ccSource') || {}).value || null,
       stage: 'sourcing'
     };
     const resp = await authFetch('/api/candidates', {
@@ -19325,10 +19806,141 @@ async function openCreateCandidateModal() {
   };
 }
 
+// ---- Candidate detail panel — helper builders (Steps 3–7) ----
+
+function buildCandidateHeaderHtml(c, isArchived) {
+  const header = c.name && c.name.trim() ? c.name : (c.role || 'Unnamed candidate');
+  const subheader = c.name && c.name.trim() && c.role ? c.role : '';
+  return `<div class="candidate-detail__header">
+    <div style="flex:1;min-width:0">
+      <div style="display:flex;gap:var(--space-sm);align-items:center;margin-bottom:6px;flex-wrap:wrap">
+        <span class="hiring-stage-badge hiring-stage-badge--${c.stage}">${HIRING_STAGE_LABELS[c.stage] || c.stage}</span>
+        ${c.client_name ? `<span style="font-size:0.78rem;color:var(--text-muted)">${esc(c.client_name)}</span>` : ''}
+        ${isArchived ? '<span style="background:var(--success);color:#fff;padding:2px 8px;border-radius:10px;font-size:0.7rem;font-weight:700">ARCHIVED &#10003;</span>' : ''}
+      </div>
+      <h3 style="font-size:1rem;font-weight:600;margin:0;word-break:break-word">${esc(header)}</h3>
+      ${subheader ? `<div style="font-size:0.8rem;color:var(--text-muted);margin-top:2px">${esc(subheader)}</div>` : ''}
+    </div>
+    <button class="btn btn--ghost btn--sm" data-action="closeCandidateDetail" aria-label="Close" style="flex-shrink:0">&times;</button>
+  </div>`;
+}
+
+function buildCandidateProfileHtml(c, isDetailScoped, clientList, positions, disabledStyle) {
+  return `<div class="candidate-detail__section" style="${disabledStyle}">
+    <div class="candidate-detail__section-title">Profile</div>
+    <div class="candidate-detail__field"><label>Name</label><input type="text" id="cdName" value="${esc(c.name || '')}" placeholder="Leave blank to show role as header" onchange="updateCandidateField('${c.id}','name',this.value)"></div>
+    <div class="candidate-detail__field"><label>Role</label><input type="text" id="cdRole" value="${esc(c.role || '')}" placeholder="e.g. Senior Backend Engineer" onchange="updateCandidateField('${c.id}','role',this.value)"></div>
+    <div class="candidate-detail__field"><label>Email</label><input type="email" id="cdEmail" value="${esc(c.email || '')}" placeholder="candidate@example.com" onchange="updateCandidateField('${c.id}','email',this.value||null)"></div>
+    <div class="candidate-detail__field"><label>LinkedIn URL</label><input type="url" id="cdLinkedIn" value="${esc(c.linkedin_url || '')}" placeholder="https://linkedin.com/in/..." onchange="updateCandidateField('${c.id}','linkedin_url',this.value)"></div>
+    <div class="candidate-detail__field"><label>Due date</label><input type="date" id="cdDue" value="${c.due_date ? c.due_date.slice(0,10) : ''}" onchange="updateCandidateField('${c.id}','due_date',this.value||null)"></div>
+    <div class="candidate-detail__field">
+      <label>Source</label>
+      <select id="cdSource" onchange="updateCandidateField('${c.id}','source',this.value||null)">
+        <option value="">— None —</option>
+        ${['referral','linkedin','inbound','agency','job-board','internal','other'].map(s => `<option value="${s}" ${c.source===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1).replace('-',' ')}</option>`).join('')}
+      </select>
+    </div>
+    <div class="candidate-detail__field"><label>Source detail</label><input type="text" id="cdSourceDetail" value="${esc(c.source_detail || '')}" placeholder="${c.source==='referral'?'Referrer name':c.source==='agency'?'Agency name':'Details'}" onchange="updateCandidateField('${c.id}','source_detail',this.value||null)"></div>
+    ${!isDetailScoped ? `<div class="candidate-detail__field"><label>Client</label><select id="cdClient" onchange="updateCandidateField('${c.id}','client_id',this.value||null)"><option value="">— None —</option>${clientList.map(cl => `<option value="${cl.id}" ${c.client_id===cl.id?'selected':''}>${esc(cl.name)}</option>`).join('')}</select></div>` : ''}
+    <div class="candidate-detail__field">
+      <label>CV</label>
+      <div class="candidate-cv">
+        ${c.cv_filename ? `<span class="candidate-cv__name">${esc(c.cv_filename)}</span><button class="btn btn--sm" data-action="downloadCandidateCV" data-arg0="${c.id}">Download</button>` : '<span style="color:var(--text-muted);font-size:0.78rem">No CV uploaded</span>'}
+        <input type="file" id="cdCvFile" style="display:none" onchange="uploadCandidateCV('${c.id}',this)">
+        <button class="btn btn--sm" data-action="_actModalClick" data-arg0="cdCvFile">${c.cv_filename ? 'Replace' : 'Upload'}</button>
+      </div>
+    </div>
+    ${positions.length > 0 ? `<div class="candidate-detail__field"><label>Hiring Position (template)</label><select id="cdPosition" onchange="updateCandidateField('${c.id}','position_id',this.value||null)"><option value="">— None —</option>${positions.filter(p => !c.client_id || p.client_id === c.client_id).map(p => `<option value="${p.id}" ${c.position_id===p.id?'selected':''}>${esc(p.title)}</option>`).join('')}</select></div>` : ''}
+  </div>`;
+}
+
+function buildCandidateStageHtml(c, isArchived, disabledStyle) {
+  const prev = hiringPrevStage(c.stage);
+  const next = hiringNextStage(c.stage);
+  const stageAssignees = (c.stage_assignees && typeof c.stage_assignees === 'object') ? c.stage_assignees : {};
+  const currentStageAssignees = Array.isArray(stageAssignees[c.stage]) ? stageAssignees[c.stage] : [];
+  const unassigned = !isArchived && currentStageAssignees.length === 0;
+
+  return `<div class="candidate-detail__section" style="${disabledStyle}">
+    <div class="candidate-detail__section-title">Stage</div>
+    <div style="display:flex;align-items:center;gap:6px">
+      <button class="btn btn--sm" style="min-width:36px;background:var(--bg-surface);color:${prev ? 'var(--text-secondary)' : 'var(--text-faint)'};border:1px solid var(--border-default)" ${prev ? `data-action="updateCandidateField" data-arg0="${c.id}" data-arg1="stage" data-arg2="${prev}" title="Previous: ${HIRING_STAGE_LABELS[prev]}"` : 'disabled'}>&larr;</button>
+      <select id="cdStageSel" onchange="hiringStageSelectChange('${c.id}',this.value)" style="flex:1;font-weight:600;text-align:center;padding:6px 8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)">
+        ${HIRING_STAGES.map(s => `<option value="${s}" ${c.stage===s?'selected':''}>${HIRING_STAGE_LABELS[s]}</option>`).join('')}
+      </select>
+      <button class="btn btn--sm" style="min-width:36px;background:color-mix(in srgb, var(--success) 30%, var(--bg-surface));color:#fff;border:1px solid var(--success)" ${next ? `data-action="updateCandidateField" data-arg0="${c.id}" data-arg1="stage" data-arg2="${next}" title="Next: ${HIRING_STAGE_LABELS[next]}"` : `data-action="hiringConfirmHire" data-arg0="${c.id}" title="Confirm Onboarded"`}>&rarr;</button>
+    </div>
+    ${unassigned ? '<div style="color:var(--danger);font-size:0.72rem;margin-top:6px">&#9888; No assignee on this stage</div>' : ''}
+  </div>
+
+  <div class="candidate-detail__section" style="${disabledStyle}">
+    <div class="candidate-detail__section-title">Assigned to this stage</div>
+    <div id="cdStageAssignees" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px">
+      ${currentStageAssignees.map((name, i) => `<span style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:10px;padding:2px 8px;font-size:0.72rem;display:inline-flex;align-items:center;gap:4px">${esc(name)} <button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.75rem" data-action="hiringRemoveStageAssignee" data-arg0="${c.id}" data-arg1="${esc(c.stage)}" data-arg2="${i}">&times;</button></span>`).join('')}
+      ${currentStageAssignees.length === 0 ? '<span style="color:var(--danger);font-size:0.72rem;padding:2px 0">Unassigned — add someone</span>' : ''}
+    </div>
+    <div style="display:flex;gap:4px"><select id="cdStageAssigneeAdd" style="flex:1;font-size:0.78rem;padding:3px 6px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)"><option value="">+ Add assignee…</option>${(_cachedTeamMembers || []).map(m => `<option value="${esc(m)}">${esc(m)}</option>`).join('')}</select><button class="btn btn--sm" data-action="hiringAddStageAssignee" data-arg0="${c.id}" data-arg1="${esc(c.stage)}">Add</button></div>
+  </div>`;
+}
+
+function buildCandidateTagsHtml(c, disabledStyle) {
+  const tags = Array.isArray(c.tags) ? c.tags : [];
+  return `<div class="candidate-detail__section" style="${disabledStyle}">
+    <div class="candidate-detail__section-title">Tags</div>
+    <div id="cdTagsContainer" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px">
+      ${tags.map(t => `<span style="background:var(--accent-muted);color:var(--accent-text);border-radius:10px;padding:2px 8px;font-size:0.72rem;display:inline-flex;align-items:center;gap:4px">${esc(t)} <button style="background:none;border:none;color:var(--accent-text);cursor:pointer;font-size:0.75rem" onclick="hiringRemoveTag('${c.id}','${esc(t)}')">&times;</button></span>`).join('')}
+      ${tags.length === 0 ? '<span style="color:var(--text-muted);font-size:0.72rem">No tags</span>' : ''}
+    </div>
+    <div style="display:flex;gap:4px"><input type="text" id="cdTagInput" placeholder="Add tag (Enter or comma)" style="flex:1;font-size:0.78rem;padding:3px 6px" onkeydown="if(event.key==='Enter'||event.key===','){event.preventDefault();hiringAddTag('${c.id}',this.value);this.value='';}"><button class="btn btn--sm" onclick="hiringAddTag('${c.id}',document.getElementById('cdTagInput').value);document.getElementById('cdTagInput').value='';">Add</button></div>
+  </div>`;
+}
+
+function buildCandidateStageSubHtml(c) {
+  if (c.stage === 'offer') {
+    return `<div class="candidate-detail__section"><div class="candidate-detail__section-title">Offer details</div><div class="candidate-detail__field"><label>Start date</label><input type="date" id="cdStartDate" value="${c.start_date ? String(c.start_date).slice(0,10) : ''}" onchange="updateCandidateField('${c.id}','start_date',this.value||null)"></div></div>`;
+  } else if (c.stage === 'onboarding') {
+    const links = Array.isArray(c.onboarding_links) ? c.onboarding_links : [];
+    const linksHtml = links.length > 0
+      ? links.map((l, i) => `<div style="display:flex;align-items:center;gap:6px;font-size:0.78rem;padding:4px 0"><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${l.type === 'file' ? '&#128196;' : '&#128279;'} <a href="${safeUrl(l.value)}" target="_blank" rel="noopener noreferrer" style="color:var(--accent-text)">${esc(l.value)}</a></span><button class="btn btn--sm btn--ghost" data-action="removeOnboardingLink" data-arg0="${c.id}" data-arg1="${i}" title="Remove">&times;</button></div>`).join('')
+      : '<div style="color:var(--text-muted);font-size:0.78rem;padding:4px 0">No onboarding docs yet</div>';
+    return `<div class="candidate-detail__section"><div class="candidate-detail__section-title">Onboarding documents</div>${linksHtml}<div style="display:flex;gap:6px;margin-top:6px"><input type="text" id="cdOnboardLink" placeholder="Paste a link (Google Doc, Drive, etc.)" style="flex:1"><button class="btn btn--sm" data-action="addOnboardingLink" data-arg0="${c.id}">Add link</button></div></div>`;
+  }
+  return '';
+}
+
+function buildCandidateGdprHtml(c, disabledStyle) {
+  const expiresAt = c.retention_expires_at ? new Date(c.retention_expires_at) : null;
+  const isExpiring = expiresAt && (expiresAt.getTime() - Date.now()) < 30 * 86400000;
+  const isPast = expiresAt && expiresAt.getTime() < Date.now();
+  return `<div class="candidate-detail__section" style="${disabledStyle}">
+    <div class="candidate-detail__section-title">Data Consent</div>
+    <div class="candidate-detail__field" style="display:flex;align-items:center;gap:8px">
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+        <input type="checkbox" id="cdConsent" ${c.consent_given ? 'checked' : ''} onchange="updateCandidateField('${c.id}','consent_given',this.checked)">
+        Consent given
+      </label>
+      ${c.consent_date ? `<span style="font-size:0.72rem;color:var(--text-muted)">${new Date(c.consent_date).toLocaleDateString()}</span>` : ''}
+    </div>
+    <div class="candidate-detail__field">
+      <label>Retention expires${isPast ? ' <span style="color:var(--danger);font-weight:600">EXPIRED</span>' : isExpiring ? ' <span style="color:var(--warning);font-weight:600">EXPIRING SOON</span>' : ''}</label>
+      <input type="date" id="cdRetention" value="${expiresAt ? expiresAt.toISOString().slice(0,10) : ''}" onchange="updateCandidateField('${c.id}','retention_expires_at',this.value||null)" style="${isPast ? 'border-color:var(--danger)' : isExpiring ? 'border-color:var(--warning)' : ''}">
+    </div>
+  </div>`;
+}
+
+function buildCandidateActionsHtml(c, isArchived, isAdmin) {
+  return `<div style="display:flex;gap:var(--space-sm);margin-top:var(--space-lg);padding-top:var(--space-md);border-top:1px solid var(--border-default);flex-wrap:wrap">
+    ${isArchived
+      ? `<button class="btn btn--sm" style="background:var(--accent);color:#fff" data-action="hiringReopen" data-arg0="${c.id}">Reopen Card</button>`
+      : `<button class="btn btn--sm" style="background:transparent;color:var(--danger);border:1px solid var(--danger)" data-action="hiringClearCandidate" data-arg0="${c.id}" title="Void candidate fields but keep the role">Clear Candidate</button>`
+    }
+    ${isAdmin ? `<button class="btn btn--danger btn--sm" data-action="deleteCandidate" data-arg0="${c.id}">Delete</button>` : ''}
+  </div>`;
+}
+
 /**
- * Open the slide-in detail panel for a candidate. Shows all editable fields
- * plus stage progression pills, CV upload/download, and (for admins) a delete
- * button.
+ * Open the slide-in detail panel for a candidate. Builds the panel synchronously
+ * then skeleton-loads timeline and comments in parallel.
  * @param {string} id - The candidate UUID
  */
 async function openCandidateDetail(id) {
@@ -19336,120 +19948,40 @@ async function openCandidateDetail(id) {
   const panel = document.getElementById('candidateDetailPanel');
   if (!overlay || !panel) return;
 
-  // Always fetch fresh — list may be stale after a mutation
   const c = await apiCall('/api/candidates/' + id);
   if (!c) return;
 
   const isAdmin = _currentUser && _currentUser.role === 'admin';
-  // Only contracted/active clients in the dropdown (excludes leads/prospects).
-  // If the candidate is already assigned to a non-contracted client, include that
-  // client in the list so the existing selection still appears and is editable.
+  const isDetailScoped = isClientUser();
   let clientList = getContractedClientRecords();
   if (c.client_id && !clientList.some(cl => cl.id === c.client_id)) {
     const existing = Object.values(_apiClientsCache || {}).find(cl => cl && cl.id === c.client_id);
     if (existing) clientList = [...clientList, existing].sort((a, b) => (a.name || '').localeCompare(b.name || ''));
   }
   const positions = _hiringPositionsData || [];
-
-  // Glen's spec (bug b7a2f97f): header, stage arrows, per-stage assignees,
-  // stage-scoped sub-section, Clear Candidate + Hire confirm + Reopen flow.
   const isArchived = !!c.archived_at;
-  const header = c.name && c.name.trim() ? c.name : (c.role || 'Unnamed candidate');
-  const subheader = c.name && c.name.trim() && c.role ? c.role : '';
-  const stageAssignees = (c.stage_assignees && typeof c.stage_assignees === 'object') ? c.stage_assignees : {};
-  const currentStageAssignees = Array.isArray(stageAssignees[c.stage]) ? stageAssignees[c.stage] : [];
-  const unassigned = !isArchived && currentStageAssignees.length === 0;
-  const prev = hiringPrevStage(c.stage);
-  const next = hiringNextStage(c.stage);
   const disabledStyle = isArchived ? 'pointer-events:none;opacity:0.55' : '';
 
-  // Stage-scoped sub-section below the arrows (bottom half of the card per Glen's spec)
-  let stageSubHtml = '';
-  if (c.stage === 'offer') {
-    stageSubHtml = `<div class="candidate-detail__field"><label>Start date</label><input type="date" id="cdStartDate" value="${c.start_date ? String(c.start_date).slice(0,10) : ''}" onchange="updateCandidateField('${c.id}','start_date',this.value||null)"></div>`;
-  } else if (c.stage === 'onboarding') {
-    const links = Array.isArray(c.onboarding_links) ? c.onboarding_links : [];
-    const linksHtml = links.length > 0
-      ? links.map((l, i) => `<div style="display:flex;align-items:center;gap:6px;font-size:0.78rem;padding:4px 0"><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${l.type === 'file' ? '&#128196;' : '&#128279;'} <a href="${safeUrl(l.value)}" target="_blank" rel="noopener noreferrer" style="color:var(--accent-text)">${esc(l.value)}</a></span><button class="btn btn--sm btn--ghost" data-action="removeOnboardingLink" data-arg0="${c.id}" data-arg1="${i}" title="Remove">&times;</button></div>`).join('')
-      : '<div style="color:var(--text-muted);font-size:0.78rem;padding:4px 0">No onboarding docs yet</div>';
-    stageSubHtml = `<div class="candidate-detail__field"><label>Onboarding documents</label>${linksHtml}<div style="display:flex;gap:6px;margin-top:6px"><input type="text" id="cdOnboardLink" placeholder="Paste a link (Google Doc, Drive, etc.)" style="flex:1"><button class="btn btn--sm" data-action="addOnboardingLink" data-arg0="${c.id}">Add link</button></div></div>`;
-  } else if (c.stage === 'interviews') {
-    stageSubHtml = `<div class="candidate-detail__field"><label>Interview rounds</label><textarea rows="3" placeholder="e.g. Round 1: Glen + Magnus on Mon, Round 2: Stavros on Wed" onchange="updateCandidateField('${c.id}','notes',(c.notes||'')+'\\n'+this.value)">${esc(c.notes || '')}</textarea></div>`;
-  }
-
   panel.innerHTML = `
-    <div class="candidate-detail__header">
-      <div style="flex:1;min-width:0">
-        <div style="display:flex;gap:var(--space-sm);align-items:center;margin-bottom:6px;flex-wrap:wrap">
-          <span class="hiring-stage-badge hiring-stage-badge--${c.stage}">${HIRING_STAGE_LABELS[c.stage] || c.stage}</span>
-          ${c.client_name ? `<span style="font-size:0.78rem;color:var(--text-muted)">${esc(c.client_name)}</span>` : ''}
-          ${isArchived ? '<span style="background:var(--success);color:#fff;padding:2px 8px;border-radius:10px;font-size:0.7rem;font-weight:700">ARCHIVED &#10003;</span>' : ''}
-        </div>
-        <h3 style="font-size:1rem;font-weight:600;margin:0;word-break:break-word">${esc(header)}</h3>
-        ${subheader ? `<div style="font-size:0.8rem;color:var(--text-muted);margin-top:2px">${esc(subheader)}</div>` : ''}
-      </div>
-      <button class="btn btn--ghost btn--sm" data-action="closeCandidateDetail" aria-label="Close" style="flex-shrink:0">&times;</button>
-    </div>
+    ${buildCandidateHeaderHtml(c, isArchived)}
     <div class="candidate-detail__body">
+      ${buildCandidateProfileHtml(c, isDetailScoped, clientList, positions, disabledStyle)}
+      ${buildCandidateStageHtml(c, isArchived, disabledStyle)}
+      ${buildCandidateTagsHtml(c, disabledStyle)}
+      ${buildCandidateStageSubHtml(c)}
 
-      <!-- TOP THIRD: candidate profile fields (per Glen spec) -->
-      <div class="candidate-detail__section" style="${disabledStyle}">
-        <div class="candidate-detail__section-title">Profile</div>
-        <div class="candidate-detail__field"><label>Name</label><input type="text" id="cdName" value="${esc(c.name || '')}" placeholder="Leave blank to show role as header" onchange="updateCandidateField('${c.id}','name',this.value)"></div>
-        <div class="candidate-detail__field"><label>Role</label><input type="text" id="cdRole" value="${esc(c.role || '')}" placeholder="e.g. Senior Backend Engineer" onchange="updateCandidateField('${c.id}','role',this.value)"></div>
-        <div class="candidate-detail__field"><label>LinkedIn URL</label><input type="url" id="cdLinkedIn" value="${esc(c.linkedin_url || '')}" placeholder="https://linkedin.com/in/..." onchange="updateCandidateField('${c.id}','linkedin_url',this.value)"></div>
-        <div class="candidate-detail__field"><label>Due date</label><input type="date" id="cdDue" value="${c.due_date ? c.due_date.slice(0,10) : ''}" onchange="updateCandidateField('${c.id}','due_date',this.value||null)"></div>
-        <div class="candidate-detail__field"><label>Client</label><select id="cdClient" onchange="updateCandidateField('${c.id}','client_id',this.value||null)"><option value="">— None —</option>${clientList.map(cl => `<option value="${cl.id}" ${c.client_id===cl.id?'selected':''}>${esc(cl.name)}</option>`).join('')}</select></div>
-        <div class="candidate-detail__field">
-          <label>CV</label>
-          <div class="candidate-cv">
-            ${c.cv_filename ? `<span class="candidate-cv__name">${esc(c.cv_filename)}</span><button class="btn btn--sm" data-action="downloadCandidateCV" data-arg0="${c.id}">Download</button>` : '<span style="color:var(--text-muted);font-size:0.78rem">No CV uploaded</span>'}
-            <input type="file" id="cdCvFile" style="display:none" onchange="uploadCandidateCV('${c.id}',this)">
-            <button class="btn btn--sm" data-action="_actModalClick" data-arg0="cdCvFile">${c.cv_filename ? 'Replace' : 'Upload'}</button>
-          </div>
-        </div>
-        ${positions.length > 0 ? `<div class="candidate-detail__field"><label>Hiring Position (template)</label><select id="cdPosition" onchange="updateCandidateField('${c.id}','position_id',this.value||null)"><option value="">— None —</option>${positions.filter(p => !c.client_id || p.client_id === c.client_id).map(p => `<option value="${p.id}" ${c.position_id===p.id?'selected':''}>${esc(p.title)}</option>`).join('')}</select></div>` : ''}
+      <div class="candidate-detail__section" id="cdTimelineSection">
+        <div class="candidate-detail__section-title">Timeline</div>
+        <div style="color:var(--text-muted);font-size:0.78rem;padding:8px 0">Loading history…</div>
       </div>
 
-      <!-- STAGE NAVIGATION: arrows + dropdown per Glen spec -->
-      <div class="candidate-detail__section" style="${disabledStyle}">
-        <div class="candidate-detail__section-title">Stage</div>
-        <div style="display:flex;align-items:center;gap:6px">
-          <button class="btn btn--sm" style="min-width:36px;background:var(--bg-surface);color:${prev ? 'var(--text-secondary)' : 'var(--text-faint)'};border:1px solid var(--border-default)" ${prev ? `data-action="updateCandidateField" data-arg0="${c.id}" data-arg1="stage" data-arg2="${prev}" title="Previous: ${HIRING_STAGE_LABELS[prev]}"` : 'disabled'}>&larr;</button>
-          <select id="cdStageSel" onchange="hiringStageSelectChange('${c.id}',this.value)" style="flex:1;font-weight:600;text-align:center;padding:6px 8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)">
-            ${HIRING_STAGES.map(s => `<option value="${s}" ${c.stage===s?'selected':''}>${HIRING_STAGE_LABELS[s]}</option>`).join('')}
-          </select>
-          <button class="btn btn--sm" style="min-width:36px;background:color-mix(in srgb, var(--success) 30%, var(--bg-surface));color:#fff;border:1px solid var(--success)" ${next ? `data-action="updateCandidateField" data-arg0="${c.id}" data-arg1="stage" data-arg2="${next}" title="Next: ${HIRING_STAGE_LABELS[next]}"` : `data-action="hiringConfirmHire" data-arg0="${c.id}" title="Confirm Hired"`}>&rarr;</button>
-        </div>
-        ${unassigned ? '<div style="color:var(--danger);font-size:0.72rem;margin-top:6px">&#9888; No assignee on this stage</div>' : ''}
+      <div class="candidate-detail__section" id="cdCommentsSection" style="${disabledStyle}">
+        <div class="candidate-detail__section-title">Comments <span id="cdCommentCount" style="font-size:0.72rem;color:var(--text-muted)">(${c.comment_count || 0})</span></div>
+        <div style="color:var(--text-muted);font-size:0.78rem;padding:8px 0">Loading comments…</div>
       </div>
 
-      <!-- PER-STAGE ASSIGNEE FIELD per Glen spec -->
-      <div class="candidate-detail__section" style="${disabledStyle}">
-        <div class="candidate-detail__section-title">Assigned to this stage</div>
-        <div id="cdStageAssignees" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px">
-          ${currentStageAssignees.map((name, i) => `<span style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:10px;padding:2px 8px;font-size:0.72rem;display:inline-flex;align-items:center;gap:4px">${esc(name)} <button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.75rem" data-action="hiringRemoveStageAssignee" data-arg0="${c.id}" data-arg1="${esc(c.stage)}" data-arg2="${i}">&times;</button></span>`).join('')}
-          ${currentStageAssignees.length === 0 ? '<span style="color:var(--danger);font-size:0.72rem;padding:2px 0">Unassigned — add someone</span>' : ''}
-        </div>
-        <div style="display:flex;gap:4px"><select id="cdStageAssigneeAdd" style="flex:1;font-size:0.78rem;padding:3px 6px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)"><option value="">+ Add assignee…</option>${(_cachedTeamMembers || []).map(m => `<option value="${esc(m)}">${esc(m)}</option>`).join('')}</select><button class="btn btn--sm" data-action="hiringAddStageAssignee" data-arg0="${c.id}" data-arg1="${esc(c.stage)}">Add</button></div>
-      </div>
-
-      <!-- STAGE-SPECIFIC FIELD (bottom half per spec) -->
-      ${stageSubHtml ? `<div class="candidate-detail__section" style="${disabledStyle}"><div class="candidate-detail__section-title">${esc(HIRING_STAGE_LABELS[c.stage])} details</div>${stageSubHtml}</div>` : ''}
-
-      <div class="candidate-detail__section" style="${disabledStyle}">
-        <div class="candidate-detail__section-title">Notes</div>
-        <div class="candidate-detail__field"><textarea id="cdNotes" rows="3" onchange="updateCandidateField('${c.id}','notes',this.value)">${esc(c.notes || '')}</textarea></div>
-      </div>
-
-      <!-- BOTTOM ACTIONS: Clear Candidate / Reopen / Delete -->
-      <div style="display:flex;gap:var(--space-sm);margin-top:var(--space-lg);padding-top:var(--space-md);border-top:1px solid var(--border-default);flex-wrap:wrap">
-        ${isArchived
-          ? `<button class="btn btn--sm" style="background:var(--accent);color:#fff" data-action="hiringReopen" data-arg0="${c.id}">Reopen Card</button>`
-          : `<button class="btn btn--sm" style="background:transparent;color:var(--danger);border:1px solid var(--danger)" data-action="hiringClearCandidate" data-arg0="${c.id}" title="Void candidate fields but keep the role">Clear Candidate</button>`
-        }
-        ${isAdmin ? `<button class="btn btn--danger btn--sm" data-action="deleteCandidate" data-arg0="${c.id}">Delete</button>` : ''}
-      </div>
+      ${buildCandidateGdprHtml(c, disabledStyle)}
+      ${buildCandidateActionsHtml(c, isArchived, isAdmin)}
     </div>`;
 
   overlay.style.display = 'block';
@@ -19459,6 +19991,124 @@ async function openCandidateDetail(id) {
   if (typeof _trapFocus === 'function') _trapFocus(panel);
   window._candidateDetailEscHandler = (e) => { if (e.key === 'Escape') closeCandidateDetail(); };
   document.addEventListener('keydown', window._candidateDetailEscHandler);
+
+  const [historyData, commentsData] = await Promise.all([
+    apiCall(`/api/candidates/${id}/history`).catch(() => []),
+    apiCall(`/api/candidates/${id}/comments`).catch(() => []),
+  ]);
+
+  const timelineEl = document.getElementById('cdTimelineSection');
+  if (timelineEl) {
+    if (!historyData || historyData.length === 0) {
+      timelineEl.innerHTML = `<div class="candidate-detail__section-title">Timeline</div><div style="color:var(--text-muted);font-size:0.78rem;padding:8px 0">No stage transitions recorded</div>`;
+    } else {
+      timelineEl.innerHTML = `<div class="candidate-detail__section-title">Timeline</div>
+        ${historyData.map(h => {
+          const ago = _relativeTime(new Date(h.moved_at));
+          const fromLabel = h.from_stage ? (HIRING_STAGE_LABELS[h.from_stage] || h.from_stage) : 'New';
+          const toLabel = HIRING_STAGE_LABELS[h.to_stage] || h.to_stage;
+          return `<div style="display:flex;gap:8px;padding:4px 0;font-size:0.78rem;border-left:2px solid var(--border-default);padding-left:12px;margin-left:4px">
+            <div style="flex:1"><span class="hiring-stage-badge hiring-stage-badge--${h.to_stage}" style="font-size:0.65rem;padding:1px 6px">${fromLabel} → ${toLabel}</span> <span style="color:var(--text-muted)">by ${esc(h.moved_by)}</span></div>
+            <div style="color:var(--text-muted);white-space:nowrap">${ago}</div>
+          </div>`;
+        }).join('')}`;
+    }
+  }
+
+  renderCandidateComments(id, commentsData, disabledStyle);
+}
+
+/** Render the comments section of the candidate detail panel. */
+function renderCandidateComments(candidateId, comments, disabledStyle) {
+  const section = document.getElementById('cdCommentsSection');
+  if (!section) return;
+  const isNBI = !isClientUser();
+
+  const commentsHtml = (comments && comments.length > 0)
+    ? comments.map(cm => {
+        const ago = _relativeTime(new Date(cm.created_at));
+        const canDelete = cm.author_user_id === (_currentUser && _currentUser.id) || (_currentUser && _currentUser.role === 'admin');
+        const migrated = cm.author === 'System Migration';
+        return `<div style="padding:8px 0;border-bottom:1px solid var(--border-default);font-size:0.78rem">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <span style="font-weight:600">${esc(cm.author)}${cm.internal ? ' <span style="font-size:0.65rem;background:var(--warning);color:#000;padding:1px 4px;border-radius:4px">INTERNAL</span>' : ''}${migrated ? ' <span style="font-size:0.65rem;color:var(--text-muted)">(migrated from notes)</span>' : ''}</span>
+            <span style="color:var(--text-muted);font-size:0.72rem">${ago}</span>
+          </div>
+          <div style="white-space:pre-wrap;word-break:break-word">${esc(cm.body)}</div>
+          ${canDelete ? `<button class="btn btn--ghost btn--sm" style="font-size:0.68rem;color:var(--danger);margin-top:4px" onclick="deleteCandidateComment('${candidateId}','${cm.id}')">Delete</button>` : ''}
+        </div>`;
+      }).join('')
+    : '<div style="color:var(--text-muted);font-size:0.78rem;padding:8px 0">No comments yet</div>';
+
+  section.innerHTML = `<div class="candidate-detail__section-title">Comments <span id="cdCommentCount" style="font-size:0.72rem;color:var(--text-muted)">(${comments ? comments.length : 0})</span></div>
+    ${commentsHtml}
+    <div style="display:flex;gap:6px;margin-top:8px;${disabledStyle}">
+      ${isNBI ? '<label style="display:flex;align-items:center;gap:4px;font-size:0.72rem;color:var(--text-muted)"><input type="checkbox" id="cdCommentInternal"> Internal</label>' : ''}
+      <input type="text" id="cdCommentBody" placeholder="Add a comment…" style="flex:1;font-size:0.78rem;padding:4px 8px" onkeydown="if(event.key==='Enter'){event.preventDefault();postCandidateComment('${candidateId}');}">
+      <button class="btn btn--sm" onclick="postCandidateComment('${candidateId}')">Post</button>
+    </div>`;
+}
+
+/** Add a tag to a candidate (deduplicates, lowercases). */
+async function hiringAddTag(candidateId, tagInput) {
+  if (!tagInput || !tagInput.trim()) return;
+  const c = _candidatesData.find(x => x.id === candidateId);
+  if (!c) return;
+  const current = Array.isArray(c.tags) ? [...c.tags] : [];
+  const newTag = tagInput.trim().toLowerCase();
+  if (current.includes(newTag)) return;
+  current.push(newTag);
+  await updateCandidateField(candidateId, 'tags', current);
+}
+
+/** Remove a tag from a candidate. */
+async function hiringRemoveTag(candidateId, tag) {
+  const c = _candidatesData.find(x => x.id === candidateId);
+  if (!c) return;
+  const current = Array.isArray(c.tags) ? c.tags.filter(t => t !== tag) : [];
+  await updateCandidateField(candidateId, 'tags', current);
+}
+
+/** Post a new comment on a candidate. */
+async function postCandidateComment(candidateId) {
+  const bodyEl = document.getElementById('cdCommentBody');
+  const internalEl = document.getElementById('cdCommentInternal');
+  if (!bodyEl || !bodyEl.value.trim()) return;
+
+  const resp = await authFetch(`/api/candidates/${candidateId}/comments`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ body: bodyEl.value.trim(), internal: internalEl ? internalEl.checked : false }),
+  });
+  if (resp.ok) {
+    const idx = _candidatesData.findIndex(x => x.id === candidateId);
+    if (idx >= 0 && typeof _candidatesData[idx].comment_count === 'number') {
+      _candidatesData[idx].comment_count++;
+    }
+    const comments = await apiCall(`/api/candidates/${candidateId}/comments`).catch(() => []);
+    const isArchived = _candidatesData[idx] && !!_candidatesData[idx].archived_at;
+    renderCandidateComments(candidateId, comments, isArchived ? 'pointer-events:none;opacity:0.55' : '');
+    if (currentView === 'hiring') renderContent();
+  } else {
+    toast('Failed to post comment', 'error');
+  }
+}
+
+/** Delete a comment from a candidate. */
+async function deleteCandidateComment(candidateId, commentId) {
+  const resp = await authFetch(`/api/candidates/${candidateId}/comments/${commentId}`, { method: 'DELETE' });
+  if (resp.ok) {
+    const idx = _candidatesData.findIndex(x => x.id === candidateId);
+    if (idx >= 0 && typeof _candidatesData[idx].comment_count === 'number' && _candidatesData[idx].comment_count > 0) {
+      _candidatesData[idx].comment_count--;
+    }
+    const comments = await apiCall(`/api/candidates/${candidateId}/comments`).catch(() => []);
+    const isArchived = _candidatesData[idx] && !!_candidatesData[idx].archived_at;
+    renderCandidateComments(candidateId, comments, isArchived ? 'pointer-events:none;opacity:0.55' : '');
+    if (currentView === 'hiring') renderContent();
+  } else {
+    toast('Failed to delete comment', 'error');
+  }
 }
 
 /** Close the candidate detail slide-in panel and restore focus. */
@@ -19517,16 +20167,15 @@ async function hiringConfirmHire(id) {
   const c = _candidatesData.find(x => x.id === id);
   if (!c) return;
   const prev = c.stage;
-  const ok = await themedConfirm('Close Candidate Card?\nThis will mark the candidate as Hired and archive the card.', 'Close Candidate Card', 'Confirm');
+  const ok = await themedConfirm('Close Candidate Card?\nThis will mark the candidate as Onboarded and archive the card.', 'Close Candidate Card', 'Confirm');
   if (!ok) {
-    // Revert — just re-render with the previous stage still in place
     if (document.getElementById('candidateDetailPanel')?.classList.contains('open')) openCandidateDetail(id);
     return;
   }
   const resp = await authFetch('/api/candidates/' + id, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ stage: 'hired', archived_at: new Date().toISOString() })
+    body: JSON.stringify({ stage: 'onboarded', archived_at: new Date().toISOString() })
   });
   if (resp.ok) {
     toast('Candidate archived');
@@ -19795,7 +20444,7 @@ function _ccStopPoll() {
 
 function _ccNavigate(type, id) {
   if (type === 'bug') { switchView('bugs'); }
-  else if (type === 'task') { selectWorkItem(id); }
+  else if (type === 'task') { switchView('tasks'); openDetail(id); }
 }
 
 function _ccSwitchTab(tab) {
@@ -19922,7 +20571,7 @@ function _ccRenderWorkTab(b, w, s, fc) {
   const todayEvents = (cal.today || []).concat(cal.tomorrow || []).slice(0, 6);
 
   // === ROW 1: Client Work (wide) + Fires (medium) + Velocity/Bugs/Calendar stacked (narrow) ===
-  html += '<div style="display:grid;grid-template-columns:2fr 1.5fr 1fr;gap:16px;">';
+  html += '<div class="cc-row1-grid">';
 
   // Client work bars — takes widest column
   html += '<div class="cc-card"><h3><span>Client Work</span></h3>';
@@ -20280,7 +20929,7 @@ function _ccRenderMoneyTab() {
   var html = '';
 
   // ——— TOP ROW: 6 KPI STAT TILES ———
-  html += '<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:16px;">';
+  html += '<div class="cc-kpi-grid">';
 
   // Annual Revenue
   html += '<div class="cc-stat">';
@@ -20511,7 +21160,7 @@ function _ccRenderPipelineContent(p) {
   html += '<h3><span>&#9654; Analytics</span> <span class="ct">last 90 days</span></h3>';
 
   // 4 stat tiles in 2x2 grid
-  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">';
+  html += '<div class="cc-money-stats">';
 
   // Pipeline Value
   var pipeValFmt = '&#163;' + Number(totalWeighted).toLocaleString('en-GB', { maximumFractionDigits: 0 });
@@ -20643,7 +21292,7 @@ function _ccRenderAiosContent(a) {
   var html = '';
 
   // === ROW 1: Four Cs Detail Cards (4 equal columns) ===
-  html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:14px;">';
+  html += '<div class="cc-aios-grid">';
   var csLabels = { context: 'Context', connections: 'Connections', capabilities: 'Capabilities', cadence: 'Cadence' };
   var csIcons = { context: '&#128220;', connections: '&#128279;', capabilities: '&#9889;', cadence: '&#128197;' };
   ['context', 'connections', 'capabilities', 'cadence'].forEach(function(key) {
@@ -20874,11 +21523,6 @@ function renderSettings(el) {
 
   // === ACCOUNT TAB ===
   if (tab === 'account') {
-    if (isAdmin) {
-      html += `<div class="settings__group"><h2>General</h2>
-        <div class="detail-field"><span class="detail-field__label">Hourly Rate (&pound;)</span><input type="number" value="${settings.hourlyRate}" onchange="settings.hourlyRate=parseFloat(this.value)||150;save();renderContent()"></div>
-      </div>`;
-    }
     html += `<div class="settings__group"><h2>Account</h2>
       <div style="margin-bottom:12px;color:var(--text-secondary)">Signed in as <strong>${_currentUser ? esc(_currentUser.displayName) : 'Unknown'}</strong> (${_currentUser ? esc(_currentUser.role) : ''})</div>
       <div class="detail-field"><span class="detail-field__label">Change Password</span></div>
@@ -20944,6 +21588,11 @@ function renderSettings(el) {
 
   // === CONFIGURATION TAB (NBI only) ===
   if (tab === 'config' && !isClientUser()) {
+    if (isAdmin) {
+      html += `<div class="settings__group"><h2>General</h2>
+        <div class="detail-field"><span class="detail-field__label">Hourly Rate (&pound;)</span><input type="number" value="${settings.hourlyRate}" onchange="settings.hourlyRate=parseFloat(this.value)||150;save();renderContent()"></div>
+      </div>`;
+    }
     html += `<div class="settings__group"><h2>Known Clients</h2>
       <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">${settings.knownClients.map(c => `<span class="badge badge--status">${esc(c)} <span style="cursor:pointer;margin-left:4px" data-action="removeClient" data-arg0="${esc(c)}">&times;</span></span>`).join('')}</div>
       <div class="detail-field"><input id="newClientInput" placeholder="Add client..."><button class="btn btn--sm" data-action="addClient">Add</button></div>
@@ -24291,7 +24940,11 @@ async function fetchSeedData() {
       if (checkForcePasswordChange()) return;
       showApp();
       await openIDB();
-      await Promise.all([load(), loadTeamMembers(), loadPagePermissions(), loadBugReports(), loadAllTeams(), loadAllSows(), apiCall('/api/clients').then(data => { if (data) data.forEach(c => { _apiClientsCache[c.name] = c; }); }).catch(() => {}), (_currentUser && _currentUser.role === 'admin' ? apiCall('/api/queue').then(data => { if (data) _queueData = data; }) : Promise.resolve()).catch(() => {})]);
+      await Promise.all([load(), loadTeamMembers(), loadPagePermissions(), loadBugReports(), loadCandidates(), loadAllTeams(), loadAllSows(), apiCall('/api/clients').then(data => { if (data) data.forEach(c => { _apiClientsCache[c.name] = c; }); }).catch(() => {}), (_currentUser && _currentUser.role === 'admin' ? apiCall('/api/queue').then(data => { if (data) _queueData = data; }) : Promise.resolve()).catch(() => {})]);
+      if (!isClientUser() && !window._hiringFilterClient) {
+        const nbiClient = Object.values(_apiClientsCache || {}).find(c => c.name === 'NBI Operations' || c.name === 'NBI OPS');
+        if (nbiClient) window._hiringFilterClient = nbiClient.id;
+      }
       await loadFinanceSeedIfEmpty();
       await loadFinanceFromDB();
       checkLeadReminders();
@@ -24302,6 +24955,7 @@ async function fetchSeedData() {
       if (isClientUser()) {
         const myClient = Object.values(_apiClientsCache).find(c => c.id === _currentUser.clientId);
         if (myClient) currentFilter.client = myClient.name;
+        if (!isClientAllowedView(currentView)) currentView = 'dashboard';
       }
       renderAll();
       restartPollingIntervals();
@@ -24639,14 +25293,19 @@ function updateWarnAlertButton() {
   const badge = document.getElementById('headerAlertsBadge');
   if (!btn || !badge) return;
 
-  const warnings = typeof computeWarnings === 'function' ? computeWarnings().length : 0;
+  const allWarnings = typeof computeWarnings === 'function' ? computeWarnings() : [];
+  const urgent = allWarnings.filter(w => w.severity === 'critical' || w.severity === 'high').length;
   const alertCount = window._lastNotificationCount || 0;
-  const total = warnings + alertCount;
+  const total = urgent + alertCount;
 
   if (total > 0) {
     badge.textContent = total > 99 ? '99+' : String(total);
     badge.style.display = 'inline-block';
     btn.classList.add('header-alerts-btn--active');
+  } else if (allWarnings.length > 0) {
+    badge.textContent = String(allWarnings.length);
+    badge.style.display = 'inline-block';
+    btn.classList.remove('header-alerts-btn--active');
   } else {
     badge.style.display = 'none';
     btn.classList.remove('header-alerts-btn--active');
