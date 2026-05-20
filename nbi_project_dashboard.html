@@ -20174,6 +20174,127 @@ function buildCandidateActionsHtml(c, isArchived, isAdmin) {
   </div>`;
 }
 
+function buildCandidateInterviewsHtml(candidateId, rounds, disabledStyle) {
+  const isNBI = !isClientUser();
+  if (!rounds || rounds.length === 0) {
+    return `<div class="candidate-detail__section" id="cdInterviewsSection" style="${disabledStyle}">
+      <div class="candidate-detail__section-title">Interviews</div>
+      <div style="color:var(--text-muted);font-size:0.78rem;padding:8px 0">No interview rounds yet</div>
+      ${isNBI ? `<button class="btn btn--sm" onclick="addInterviewRound('${candidateId}')">+ Add Round</button>` : ''}
+    </div>`;
+  }
+
+  const statusColors = { scheduled: 'var(--accent)', completed: 'var(--success)', cancelled: 'var(--text-muted)', 'no-show': 'var(--danger)' };
+  const outcomeColors = { pass: 'var(--success)', fail: 'var(--danger)', 'on-hold': '#f59e0b' };
+
+  const roundsHtml = rounds.map(r => {
+    const schedStr = r.scheduled_at ? new Date(r.scheduled_at).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Not scheduled';
+    const durStr = r.duration_minutes ? `${r.duration_minutes}min` : '';
+
+    return `<div style="border:1px solid var(--border-default);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <div style="font-weight:600;font-size:0.85rem">Round ${r.round_number}: ${esc(r.title)}</div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <span style="font-size:0.68rem;padding:2px 6px;border-radius:8px;background:color-mix(in srgb, ${statusColors[r.status] || 'var(--text-muted)'} 20%, var(--bg-surface));color:${statusColors[r.status] || 'var(--text-muted)'}">${r.status}</span>
+          ${r.outcome ? `<span style="font-size:0.68rem;padding:2px 6px;border-radius:8px;background:color-mix(in srgb, ${outcomeColors[r.outcome] || 'var(--text-muted)'} 20%, var(--bg-surface));color:${outcomeColors[r.outcome] || 'var(--text-muted)'};font-weight:600">${r.outcome}</span>` : ''}
+        </div>
+      </div>
+      <div style="font-size:0.75rem;color:var(--text-muted);display:flex;gap:12px;flex-wrap:wrap">
+        <span>${schedStr}</span>
+        ${durStr ? `<span>${durStr}</span>` : ''}
+        ${r.location ? `<span>${esc(r.location)}</span>` : ''}
+      </div>
+      ${r.outcome_notes ? `<div style="font-size:0.78rem;margin-top:6px;color:var(--text-secondary)">${esc(r.outcome_notes)}</div>` : ''}
+      <div style="margin-top:8px" id="cdScorecardsFor_${r.id}">
+        <div style="color:var(--text-muted);font-size:0.72rem">Loading scorecards…</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  return `<div class="candidate-detail__section" id="cdInterviewsSection" style="${disabledStyle}">
+    <div class="candidate-detail__section-title">Interviews</div>
+    ${roundsHtml}
+    ${isNBI ? `<button class="btn btn--sm" onclick="addInterviewRound('${candidateId}')">+ Add Round</button>` : ''}
+  </div>`;
+}
+
+async function addInterviewRound(candidateId) {
+  const title = prompt('Interview round title (e.g. Phone Screen, Technical Interview):');
+  if (!title || !title.trim()) return;
+  const resp = await authFetch(`/api/candidates/${candidateId}/interviews`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title: title.trim() }),
+  });
+  if (resp.ok) {
+    toast('Interview round added');
+    openCandidateDetail(candidateId);
+  } else {
+    const err = await resp.json().catch(() => ({}));
+    toast(err.error || 'Failed to add round', 'error');
+  }
+}
+
+async function loadAndRenderScorecards(candidateId, roundId) {
+  const container = document.getElementById(`cdScorecardsFor_${roundId}`);
+  if (!container) return;
+  try {
+    const cards = await apiCall(`/api/candidates/${candidateId}/interviews/${roundId}/scorecards`);
+    if (!cards || cards.length === 0) {
+      const isNBI = !isClientUser();
+      container.innerHTML = isNBI
+        ? `<button class="btn btn--sm" onclick="createScorecard('${candidateId}','${roundId}')">Start Evaluation</button>`
+        : '<div style="font-size:0.72rem;color:var(--text-muted)">No evaluations yet</div>';
+      return;
+    }
+
+    const myCard = cards.find(c => c.interviewer_user_id === (_currentUser && _currentUser.id));
+    const submitted = cards.filter(c => c.submitted_at);
+    const isNBI = !isClientUser();
+
+    let html = '';
+    if (isNBI && !myCard) {
+      html += `<button class="btn btn--sm" style="margin-bottom:8px" onclick="createScorecard('${candidateId}','${roundId}')">Add Your Assessment</button>`;
+    }
+
+    if (submitted.length > 0) {
+      const avgRating = (submitted.reduce((s, c) => s + (c.overall_rating || 0), 0) / submitted.length).toFixed(1);
+      const recCounts = {};
+      submitted.forEach(c => { if (c.recommendation) recCounts[c.recommendation] = (recCounts[c.recommendation] || 0) + 1; });
+      const recSummary = Object.entries(recCounts).map(([k, v]) => `${v} ${k.replace(/-/g, ' ')}`).join(', ');
+
+      html += `<div style="font-size:0.72rem;color:var(--text-muted);margin-bottom:6px">Avg rating: <strong>${avgRating}/5</strong> | ${recSummary}</div>`;
+      submitted.forEach(c => {
+        html += `<div style="font-size:0.75rem;padding:6px 0;border-top:1px solid var(--border-default)">
+          <span style="font-weight:600">${esc(c.interviewer_name)}</span>
+          <span style="color:var(--text-muted)"> — ${c.overall_rating}/5, ${(c.recommendation || '').replace(/-/g, ' ')}</span>
+          ${c.strengths ? `<div style="color:var(--success);font-size:0.72rem;margin-top:2px">+ ${esc(c.strengths)}</div>` : ''}
+          ${c.concerns ? `<div style="color:var(--danger);font-size:0.72rem">- ${esc(c.concerns)}</div>` : ''}
+        </div>`;
+      });
+    }
+
+    container.innerHTML = html || '<div style="font-size:0.72rem;color:var(--text-muted)">Evaluations in progress</div>';
+  } catch (e) {
+    container.innerHTML = '<div style="font-size:0.72rem;color:var(--text-muted)">Failed to load scorecards</div>';
+  }
+}
+
+async function createScorecard(candidateId, roundId) {
+  const resp = await authFetch(`/api/candidates/${candidateId}/interviews/${roundId}/scorecards`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({}),
+  });
+  if (resp.ok) {
+    toast('Scorecard created');
+    openCandidateDetail(candidateId);
+  } else {
+    const err = await resp.json().catch(() => ({}));
+    toast(err.error || 'Failed to create scorecard', 'error');
+  }
+}
+
 /**
  * Open the slide-in detail panel for a candidate. Builds the panel synchronously
  * then skeleton-loads timeline and comments in parallel.
@@ -20197,6 +20318,7 @@ async function openCandidateDetail(id) {
   const positions = _hiringPositionsData || [];
   const isArchived = !!c.archived_at;
   const disabledStyle = isArchived ? 'pointer-events:none;opacity:0.55' : '';
+  const roundsData = await apiCall(`/api/candidates/${id}/interviews`).catch(() => []);
 
   panel.innerHTML = `
     ${buildCandidateHeaderHtml(c, isArchived)}
@@ -20205,6 +20327,7 @@ async function openCandidateDetail(id) {
       ${buildCandidateStageHtml(c, isArchived, disabledStyle)}
       ${buildCandidateTagsHtml(c, disabledStyle)}
       ${buildCandidateStageSubHtml(c)}
+      ${buildCandidateInterviewsHtml(id, roundsData, disabledStyle)}
 
       <div class="candidate-detail__section" id="cdTimelineSection">
         <div class="candidate-detail__section-title">Timeline</div>
@@ -20252,6 +20375,11 @@ async function openCandidateDetail(id) {
   }
 
   renderCandidateComments(id, commentsData, disabledStyle);
+
+  // Load scorecards for each interview round
+  if (roundsData && roundsData.length > 0) {
+    roundsData.forEach(r => loadAndRenderScorecards(id, r.id));
+  }
 }
 
 /** Render the comments section of the candidate detail panel. */
