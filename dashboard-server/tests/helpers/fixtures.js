@@ -109,8 +109,8 @@ async function createTestCandidate(opts = {}) {
   const name = opts.name || uniq('TestCandidate');
   const stage = opts.stage || 'sourcing';
   const { rows } = await pool.query(
-    `INSERT INTO candidates (client_id, position_id, name, role, linkedin_url, due_date, stage, notes)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+    `INSERT INTO candidates (client_id, position_id, name, role, linkedin_url, due_date, stage, notes, email, source, source_detail, tags, consent_given, consent_date, retention_expires_at)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) RETURNING *`,
     [
       opts.client_id || null,
       opts.position_id || null,
@@ -120,6 +120,13 @@ async function createTestCandidate(opts = {}) {
       opts.due_date || null,
       stage,
       opts.notes || null,
+      opts.email || null,
+      opts.source || null,
+      opts.source_detail || null,
+      opts.tags ? JSON.stringify(opts.tags) : '[]',
+      opts.consent_given || false,
+      opts.consent_date || null,
+      opts.retention_expires_at || null,
     ]
   );
   return rows[0];
@@ -280,6 +287,31 @@ async function createTestMilestone(opts = {}) {
   return rows[0];
 }
 
+/**
+ * Create a hiring position row.
+ */
+async function createTestHiringPosition(opts = {}) {
+  const title = opts.title || uniq('TestPosition');
+  const { rows } = await pool.query(
+    `INSERT INTO hiring_positions (client_id, sow_id, title, description, seniority, status, salary_range, employment_type, location, requirements, interview_panel)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`,
+    [
+      opts.client_id || null,
+      opts.sow_id || null,
+      title,
+      opts.description || null,
+      opts.seniority || null,
+      opts.status || 'open',
+      opts.salary_range || null,
+      opts.employment_type || 'permanent',
+      opts.location || null,
+      opts.requirements ? JSON.stringify(opts.requirements) : '[]',
+      opts.interview_panel ? JSON.stringify(opts.interview_panel) : '[]',
+    ]
+  );
+  return rows[0];
+}
+
 module.exports = {
   uniq,
   createTestUser,
@@ -297,4 +329,5 @@ module.exports = {
   createTestSow,
   createTestClientNote,
   createTestMilestone,
+  createTestHiringPosition,
 };

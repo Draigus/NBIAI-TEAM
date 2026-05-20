@@ -195,7 +195,7 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 function isValidUuid(s) { return typeof s === 'string' && UUID_RE.test(s); }
 
 /** Input length limits — prevents oversized payloads reaching the DB */
-const MAX_LENGTHS = { title: 500, description: 10000, notes: 5000, name: 200, email: 254, body: 50000 };
+const MAX_LENGTHS = { title: 500, description: 10000, notes: 5000, name: 200, email: 254, body: 50000, source_detail: 500, linkedin_url: 2000 };
 
 /**
  * Validate that a string does not exceed the maximum allowed length.
