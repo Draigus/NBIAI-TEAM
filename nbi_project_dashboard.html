@@ -19495,7 +19495,7 @@ function renderPositionCard(p, candidates) {
       ${d.recruitStatus ? `<span class="position-card__chip">${esc(d.recruitStatus)}</span>` : ''}
     </div>
     <div class="position-card__meta">
-      ${p.salary_range ? `<span>${esc(p.salary_range)}</span>` : d.startMonth ? `<span>Start: ${esc(d.startMonth)}</span>` : ''}
+      ${!isClientUser() && p.salary_range ? `<span>${esc(p.salary_range)}</span>` : !isClientUser() && d.startMonth ? `<span>Start: ${esc(d.startMonth)}</span>` : ''}
       ${p.location ? `<span>${esc(p.location)}</span>` : ''}
       <span class="${_daysOpenClass(days)}">${days}d open</span>
     </div>
@@ -19861,7 +19861,7 @@ async function openPositionDetail(id) {
           <input type="text" value="${esc(p.location || '')}" placeholder="e.g. Remote, London" style="${inputStyle}" onchange="updatePositionField('${p.id}','location',this.value||null)">
         </div>
       </div>` : `<div class="position-detail__info-grid" style="margin-bottom:var(--space-lg)">
-        ${p.salary_range ? `<div class="position-detail__info-item"><span class="position-detail__info-label">Salary</span><span class="position-detail__info-value">${esc(p.salary_range)}</span></div>` : ''}
+        ${!isClientUser() && p.salary_range ? `<div class="position-detail__info-item"><span class="position-detail__info-label">Salary</span><span class="position-detail__info-value">${esc(p.salary_range)}</span></div>` : ''}
         ${p.employment_type ? `<div class="position-detail__info-item"><span class="position-detail__info-label">Type</span><span class="position-detail__info-value">${esc(p.employment_type.charAt(0).toUpperCase()+p.employment_type.slice(1))}</span></div>` : ''}
         ${p.location ? `<div class="position-detail__info-item"><span class="position-detail__info-label">Location</span><span class="position-detail__info-value">${esc(p.location)}</span></div>` : ''}
       </div>`}
