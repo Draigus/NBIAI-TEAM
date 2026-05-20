@@ -35,14 +35,15 @@ async function _sendViaGraph(mailOptions) {
   const token = await _getGraphToken();
   const toRecipients = (Array.isArray(mailOptions.to) ? mailOptions.to : [mailOptions.to])
     .map(addr => ({ emailAddress: { address: addr } }));
-  const body = {
-    message: {
-      subject: mailOptions.subject,
-      body: { contentType: mailOptions.html ? 'HTML' : 'Text', content: mailOptions.html || mailOptions.text || '' },
-      toRecipients
-    },
-    saveToSentItems: false
+  const message = {
+    subject: mailOptions.subject,
+    body: { contentType: mailOptions.html ? 'HTML' : 'Text', content: mailOptions.html || mailOptions.text || '' },
+    toRecipients,
   };
+  if (mailOptions.replyTo) {
+    message.replyTo = [{ emailAddress: { address: mailOptions.replyTo } }];
+  }
+  const body = { message, saveToSentItems: false };
   const sender = mailOptions.from || EMAIL_FROM;
   const res = await fetch(`https://graph.microsoft.com/v1.0/users/${sender}/sendMail`, {
     method: 'POST',

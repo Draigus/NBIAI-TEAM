@@ -372,4 +372,38 @@ module.exports = {
   createTestHiringPosition,
   createTestInterviewRound,
   createTestScorecard,
+  createTestEmailTemplate,
+  createTestOnboardingItem,
 };
+
+async function createTestEmailTemplate(opts = {}) {
+  const { rows } = await pool.query(
+    `INSERT INTO hiring_email_templates (client_id, name, subject, body, trigger_stage)
+     VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+    [
+      opts.client_id || null,
+      opts.name || 'Test Template',
+      opts.subject || 'Test Subject',
+      opts.body || 'Hello {{candidate_name}}',
+      opts.trigger_stage || null,
+    ]
+  );
+  return rows[0];
+}
+
+async function createTestOnboardingItem(opts = {}) {
+  if (!opts.candidate_id) throw new Error('createTestOnboardingItem: candidate_id required');
+  const { rows } = await pool.query(
+    `INSERT INTO onboarding_checklist_items (candidate_id, title, completed, completed_at, completed_by, sort_order)
+     VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+    [
+      opts.candidate_id,
+      opts.title || 'Test item',
+      opts.completed || false,
+      opts.completed_at || null,
+      opts.completed_by || null,
+      opts.sort_order || 0,
+    ]
+  );
+  return rows[0];
+}

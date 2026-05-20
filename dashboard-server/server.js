@@ -438,7 +438,7 @@ app.use(require('./routes/expenses')({ pool, log, requireAdmin, requireNBI, isVa
 app.use(require('./routes/bugs')({ pool, log, requireAdmin, requireNBI, isValidUuid, validateLength, auditLog, createNotification, upload, shiftForInsert, reorderInGroup }));
 
 // ==================== HIRING ====================
-app.use(require('./routes/hiring')({ pool, log, requireAdmin, requireNBI, isValidUuid, validateLength, auditLog, upload, uploadDir, shiftForInsert, reorderInGroup, buildPatchQuery }));
+app.use(require('./routes/hiring')({ pool, log, requireAdmin, requireNBI, isValidUuid, validateLength, auditLog, upload, uploadDir, shiftForInsert, reorderInGroup, buildPatchQuery, createNotification, sendEmailAsync, EMAIL_FROM }));
 app.use(require('./routes/candidate-history')({ pool, log, isValidUuid }));
 app.use(require('./routes/candidate-comments')({ pool, log, isValidUuid, validateLength }));
 app.use(require('./routes/interview-rounds')({ pool, log, requireAdmin, requireNBI, isValidUuid, auditLog, buildPatchQuery }));
