@@ -19134,6 +19134,38 @@ const HIRING_STAGE_LABELS = {
   onboarding:  'Onboarding',
   onboarded:   'Onboarded',
 };
+
+const _hiringStagesCache = {};
+
+async function getHiringStagesForClient(clientId) {
+  if (!clientId) return HIRING_STAGES.map(key => ({ key, label: HIRING_STAGE_LABELS[key] || key, ...(key === 'onboarding' ? { is_onboarding: true } : {}) }));
+  if (_hiringStagesCache[clientId]) return _hiringStagesCache[clientId];
+  try {
+    const data = await apiCall(`/api/clients/${clientId}/hiring-stages`);
+    if (data && data.stages) {
+      _hiringStagesCache[clientId] = data.stages;
+      return data.stages;
+    }
+  } catch (e) { /* fallback to default */ }
+  return HIRING_STAGES.map(key => ({ key, label: HIRING_STAGE_LABELS[key] || key, ...(key === 'onboarding' ? { is_onboarding: true } : {}) }));
+}
+
+function getResolvedStageLabel(stages, key) {
+  const s = stages.find(st => st.key === key);
+  return s ? s.label : key;
+}
+
+function invalidateStagesCache(clientId) {
+  if (clientId) delete _hiringStagesCache[clientId];
+  else Object.keys(_hiringStagesCache).forEach(k => delete _hiringStagesCache[k]);
+}
+
+let _resolvedHiringStages = null;
+async function resolveAndCacheHiringStages() {
+  const clientId = window._hiringFilterClient || null;
+  _resolvedHiringStages = await getHiringStagesForClient(clientId);
+}
+
 /** Return the index of a stage in the linear process, or 0 if unknown. */
 function hiringStageIndex(stage) {
   const i = HIRING_STAGES.indexOf(stage);
@@ -19479,7 +19511,8 @@ function renderHiringView(container) {
     container.innerHTML = '<div class="hiring" style="padding:24px"><div class="skeleton skeleton-card"></div>' +
       Array(5).fill('<div class="skeleton skeleton-row"></div>').join('') +
       '<span class="visually-hidden">Loading hiring data</span></div>';
-    Promise.all([loadCandidates(), loadHiringPositions()]).then(() => {
+    Promise.all([loadCandidates(), loadHiringPositions()]).then(async () => {
+      await resolveAndCacheHiringStages();
       window._hiringLoaded = true;
       if (currentView === 'hiring') renderContent();
     });
@@ -19538,10 +19571,14 @@ function renderHiringView(container) {
   // Filters adapt to view mode
   html += `<div class="hiring__filters">`;
   if (!isScopedUser && !isMetricsView) {
-    html += `<select class="leads-select" onchange="window._hiringFilterClient=this.value||null;renderContent()">
+    const activeClientId = window._hiringFilterClient || null;
+    html += `<select class="leads-select" onchange="(async(v)=>{window._hiringFilterClient=v||null;await resolveAndCacheHiringStages();renderContent();})(this.value)">
       <option value="">All Clients</option>
       ${clientOptions.map(c => `<option value="${c.id}" ${window._hiringFilterClient===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}
     </select>`;
+    if (isAdmin && activeClientId) {
+      html += `<button class="btn btn--ghost btn--sm" onclick="openStageEditor('${activeClientId}')" title="Configure stages" style="font-size:1rem">&#9881;</button>`;
+    }
   }
   if (isPositionsView) {
     const openCount = filteredPositions.filter(p => p.status === 'open').length;
@@ -19664,12 +19701,15 @@ function renderHiringView(container) {
     html += `<div style="padding:var(--space-xl);text-align:center;color:var(--text-muted)">No candidates yet. Click "+ Create Candidate Card" to add one.</div>`;
   } else if (viewMode === 'kanban') {
     html += `<div class="hiring-kanban" role="list" aria-label="Hiring pipeline">`;
-    HIRING_STAGES.forEach(stage => {
+    const kanbanStages = _resolvedHiringStages || HIRING_STAGES.map(k => ({ key: k, label: HIRING_STAGE_LABELS[k] || k }));
+    kanbanStages.forEach(stageObj => {
+      const stage = stageObj.key;
+      const stageLabel = stageObj.label;
       const stageCandidates = filtered.filter(c => c.stage === stage)
         .sort((a, b) => (a.position || 0) - (b.position || 0));
-      html += `<section class="hiring-lane" data-stage="${stage}" role="listitem" aria-label="${esc(HIRING_STAGE_LABELS[stage])} lane, ${stageCandidates.length} candidates">
+      html += `<section class="hiring-lane" data-stage="${stage}" role="listitem" aria-label="${esc(stageLabel)} lane, ${stageCandidates.length} candidates">
         <div class="hiring-lane__header hiring-lane__header--${stage}">
-          <span>${esc(HIRING_STAGE_LABELS[stage] || stage)}</span>
+          <span>${esc(stageLabel)}</span>
           <span class="hiring-lane__count">${stageCandidates.length}</span>
         </div>
         <div class="hiring-lane__body"
@@ -20046,6 +20086,85 @@ async function uploadPositionJD(positionId, input) {
   }
 }
 
+async function openStageEditor(clientId) {
+  if (!clientId) { toast('Select a client first', 'error'); return; }
+  const data = await apiCall(`/api/clients/${clientId}/hiring-stages`);
+  const stages = data.stages || [];
+
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.style.display = 'flex';
+  overlay.innerHTML = `<div class="modal" style="min-width:400px;max-width:560px">
+    <div class="modal__title">Configure Hiring Stages</div>
+    <div id="stageEditorList" style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px">
+      ${stages.map((s, i) => {
+        const isTerminal = i === stages.length - 1 && s.key === 'onboarded';
+        const isOnboarding = !!s.is_onboarding;
+        return `<div class="stage-editor-row" style="display:flex;gap:6px;align-items:center">
+          <input type="text" value="${esc(s.key)}" class="se-key" style="width:120px;padding:4px 6px;font-size:0.82rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)" ${isTerminal ? 'disabled' : ''} placeholder="key">
+          <input type="text" value="${esc(s.label)}" class="se-label" style="flex:1;padding:4px 6px;font-size:0.82rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)" placeholder="Label">
+          <label style="display:flex;align-items:center;gap:3px;font-size:0.68rem;color:var(--text-muted);white-space:nowrap" title="Onboarding stage"><input type="checkbox" class="se-onboarding" ${isOnboarding ? 'checked' : ''}> Onboard</label>
+          ${isTerminal ? '' : `<button class="btn btn--ghost btn--sm" style="color:var(--danger)" onclick="this.closest('.stage-editor-row').remove()">×</button>`}
+        </div>`;
+      }).join('')}
+    </div>
+    <button class="btn btn--sm" onclick="addStageEditorRow()" style="margin-bottom:12px">+ Add Stage</button>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn" id="seCancel">Cancel</button>
+      ${data.isCustom ? '<button class="btn" id="seReset">Reset to Default</button>' : ''}
+      <button class="btn btn--primary" id="seSave">Save</button>
+    </div>
+  </div>`;
+  document.body.appendChild(overlay);
+
+  const close = () => { try { document.body.removeChild(overlay); } catch(e){} };
+  overlay.querySelector('#seCancel').onclick = close;
+  overlay.onclick = (e) => { if (e.target === overlay) close(); };
+
+  if (overlay.querySelector('#seReset')) {
+    overlay.querySelector('#seReset').onclick = async () => {
+      const resp = await authFetch(`/api/clients/${clientId}/hiring-stages`, { method: 'DELETE' });
+      if (resp.ok) { toast('Stages reset to default'); invalidateStagesCache(clientId); close(); await resolveAndCacheHiringStages(); renderContent(); }
+      else toast('Failed to reset', 'error');
+    };
+  }
+
+  overlay.querySelector('#seSave').onclick = async () => {
+    const rows = overlay.querySelectorAll('.stage-editor-row');
+    const newStages = [];
+    for (const row of rows) {
+      const key = row.querySelector('.se-key').value.trim();
+      const label = row.querySelector('.se-label').value.trim();
+      const isOnboarding = row.querySelector('.se-onboarding')?.checked || false;
+      if (!key || !label) { toast('All stages need a key and label', 'error'); return; }
+      const entry = { key, label };
+      if (isOnboarding) entry.is_onboarding = true;
+      newStages.push(entry);
+    }
+    const resp = await authFetch(`/api/clients/${clientId}/hiring-stages`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ stages: newStages }),
+    });
+    if (resp.ok) { toast('Stages saved'); invalidateStagesCache(clientId); close(); await resolveAndCacheHiringStages(); renderContent(); }
+    else { const err = await resp.json().catch(() => ({})); toast(err.error || 'Failed to save', 'error'); }
+  };
+}
+
+function addStageEditorRow() {
+  const list = document.getElementById('stageEditorList');
+  if (!list) return;
+  const terminalRow = list.querySelector('.stage-editor-row:last-child');
+  const newRow = document.createElement('div');
+  newRow.className = 'stage-editor-row';
+  newRow.style.cssText = 'display:flex;gap:6px;align-items:center';
+  newRow.innerHTML = `<input type="text" class="se-key" style="width:120px;padding:4px 6px;font-size:0.82rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)" placeholder="key">
+    <input type="text" class="se-label" style="flex:1;padding:4px 6px;font-size:0.82rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)" placeholder="Label">
+    <label style="display:flex;align-items:center;gap:3px;font-size:0.68rem;color:var(--text-muted);white-space:nowrap"><input type="checkbox" class="se-onboarding"> Onboard</label>
+    <button class="btn btn--ghost btn--sm" style="color:var(--danger)" onclick="this.closest('.stage-editor-row').remove()">×</button>`;
+  list.insertBefore(newRow, terminalRow);
+}
+
 /**
  * Open the "Create Candidate" modal — uses themedPrompt-style series of inputs
  * via a small inline modal so we can collect name + client + role in one go.
@@ -20203,9 +20322,11 @@ function buildCandidateProfileHtml(c, isDetailScoped, clientList, positions, dis
   </div>`;
 }
 
-function buildCandidateStageHtml(c, isArchived, disabledStyle) {
-  const prev = hiringPrevStage(c.stage);
-  const next = hiringNextStage(c.stage);
+function buildCandidateStageHtml(c, isArchived, disabledStyle, candidateStages) {
+  const resolvedStages = candidateStages || HIRING_STAGES.map(k => ({ key: k, label: HIRING_STAGE_LABELS[k] || k }));
+  const stageIdx = resolvedStages.findIndex(s => s.key === c.stage);
+  const prev = stageIdx > 0 ? resolvedStages[stageIdx - 1] : null;
+  const next = stageIdx < resolvedStages.length - 1 ? resolvedStages[stageIdx + 1] : null;
   const stageAssignees = (c.stage_assignees && typeof c.stage_assignees === 'object') ? c.stage_assignees : {};
   const currentStageAssignees = Array.isArray(stageAssignees[c.stage]) ? stageAssignees[c.stage] : [];
   const unassigned = !isArchived && currentStageAssignees.length === 0;
@@ -20213,11 +20334,11 @@ function buildCandidateStageHtml(c, isArchived, disabledStyle) {
   return `<div class="candidate-detail__section" style="${disabledStyle}">
     <div class="candidate-detail__section-title">Stage</div>
     <div style="display:flex;align-items:center;gap:6px">
-      <button class="btn btn--sm" style="min-width:36px;background:var(--bg-surface);color:${prev ? 'var(--text-secondary)' : 'var(--text-faint)'};border:1px solid var(--border-default)" ${prev ? `data-action="updateCandidateField" data-arg0="${c.id}" data-arg1="stage" data-arg2="${prev}" title="Previous: ${HIRING_STAGE_LABELS[prev]}"` : 'disabled'}>&larr;</button>
+      <button class="btn btn--sm" style="min-width:36px;background:var(--bg-surface);color:${prev ? 'var(--text-secondary)' : 'var(--text-faint)'};border:1px solid var(--border-default)" ${prev ? `data-action="updateCandidateField" data-arg0="${c.id}" data-arg1="stage" data-arg2="${prev.key}" title="Previous: ${esc(prev.label)}"` : 'disabled'}>&larr;</button>
       <select id="cdStageSel" onchange="hiringStageSelectChange('${c.id}',this.value)" style="flex:1;font-weight:600;text-align:center;padding:6px 8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)">
-        ${HIRING_STAGES.map(s => `<option value="${s}" ${c.stage===s?'selected':''}>${HIRING_STAGE_LABELS[s]}</option>`).join('')}
+        ${resolvedStages.map(s => `<option value="${s.key}" ${c.stage===s.key?'selected':''}>${esc(s.label)}</option>`).join('')}
       </select>
-      <button class="btn btn--sm" style="min-width:36px;background:color-mix(in srgb, var(--success) 30%, var(--bg-surface));color:#fff;border:1px solid var(--success)" ${next ? `data-action="updateCandidateField" data-arg0="${c.id}" data-arg1="stage" data-arg2="${next}" title="Next: ${HIRING_STAGE_LABELS[next]}"` : `data-action="hiringConfirmHire" data-arg0="${c.id}" title="Confirm Onboarded"`}>&rarr;</button>
+      <button class="btn btn--sm" style="min-width:36px;background:color-mix(in srgb, var(--success) 30%, var(--bg-surface));color:#fff;border:1px solid var(--success)" ${next ? `data-action="updateCandidateField" data-arg0="${c.id}" data-arg1="stage" data-arg2="${next.key}" title="Next: ${esc(next.label)}"` : `data-action="hiringConfirmHire" data-arg0="${c.id}" title="Confirm Onboarded"`}>&rarr;</button>
     </div>
     ${unassigned ? '<div style="color:var(--danger);font-size:0.72rem;margin-top:6px">&#9888; No assignee on this stage</div>' : ''}
   </div>
@@ -20487,13 +20608,16 @@ async function openCandidateDetail(id) {
   const positions = _hiringPositionsData || [];
   const isArchived = !!c.archived_at;
   const disabledStyle = isArchived ? 'pointer-events:none;opacity:0.55' : '';
-  const roundsData = await apiCall(`/api/candidates/${id}/interviews`).catch(() => []);
+  const [roundsData, candidateStages] = await Promise.all([
+    apiCall(`/api/candidates/${id}/interviews`).catch(() => []),
+    getHiringStagesForClient(c.client_id),
+  ]);
 
   panel.innerHTML = `
     ${buildCandidateHeaderHtml(c, isArchived)}
     <div class="candidate-detail__body">
       ${buildCandidateProfileHtml(c, isDetailScoped, clientList, positions, disabledStyle)}
-      ${buildCandidateStageHtml(c, isArchived, disabledStyle)}
+      ${buildCandidateStageHtml(c, isArchived, disabledStyle, candidateStages)}
       ${buildCandidateTagsHtml(c, disabledStyle)}
       ${buildCandidateStageSubHtml(c)}
       ${buildCandidateInterviewsHtml(id, roundsData, disabledStyle)}
