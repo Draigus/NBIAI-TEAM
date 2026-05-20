@@ -249,7 +249,11 @@ module.exports = function (ctx) {
         ${where}
         ORDER BY c.name NULLS LAST, p.created_at DESC
       `, vals);
-      res.json(rows);
+      // Strip salary data from client-scoped users
+      const results = req.user.clientId
+        ? rows.map(({ salary_range, ...rest }) => rest)
+        : rows;
+      res.json(results);
     } catch (e) {
       log('error', 'Hiring', 'Failed to list positions', { error: e.message });
       res.status(500).json({ error: 'An internal error occurred' });
