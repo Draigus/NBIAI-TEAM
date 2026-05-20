@@ -441,6 +441,7 @@ app.use(require('./routes/bugs')({ pool, log, requireAdmin, requireNBI, isValidU
 app.use(require('./routes/hiring')({ pool, log, requireAdmin, requireNBI, isValidUuid, validateLength, auditLog, upload, uploadDir, shiftForInsert, reorderInGroup, buildPatchQuery }));
 app.use(require('./routes/candidate-history')({ pool, log, isValidUuid }));
 app.use(require('./routes/candidate-comments')({ pool, log, isValidUuid, validateLength }));
+app.use(require('./routes/interview-rounds')({ pool, log, requireAdmin, requireNBI, isValidUuid, auditLog, buildPatchQuery }));
 
 // ==================== CLIENT STATUS REPORTS ====================
 app.use(require('./routes/reports')({ pool, log, requireAdmin, requireNBI, isValidUuid, auditLog, escHtml }));
