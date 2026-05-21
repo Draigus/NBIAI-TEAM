@@ -471,7 +471,7 @@ module.exports = function (ctx) {
                ca.archived_at, ca.stage_assignees,
                ca.email, ca.source, ca.source_detail, ca.tags,
                ca.consent_given, ca.consent_date, ca.retention_expires_at,
-               ca.rejection_reason, ca.rejection_category,
+               ca.rejection_reason, ca.rejection_category, ca.stage_changed_at,
                c.name AS client_name,
                p.title AS position_title,
                (ca.cv_filename IS NOT NULL) AS has_cv,
@@ -774,6 +774,10 @@ module.exports = function (ctx) {
           await dbClient.query(
             'INSERT INTO candidate_stage_history (candidate_id, from_stage, to_stage, moved_by) VALUES ($1, $2, $3, $4)',
             [req.params.id, oldStage, body.stage, req.user.displayName || 'unknown']
+          );
+          await dbClient.query(
+            'UPDATE candidates SET stage_changed_at = NOW() WHERE id = $1',
+            [req.params.id]
           );
         }
 
