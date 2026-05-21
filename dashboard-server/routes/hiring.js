@@ -913,6 +913,11 @@ module.exports = function (ctx) {
         'UPDATE candidates SET cv_filename = $1, updated_at = NOW() WHERE id = $2 RETURNING *',
         [req.file.filename, req.params.id]
       );
+      await pool.query(
+        `INSERT INTO candidate_activity (candidate_id, event_type, detail, actor)
+         VALUES ($1, 'cv_uploaded', $2, $3)`,
+        [req.params.id, req.file.originalname, req.user.displayName || 'unknown']
+      );
       await auditLog('candidate', req.params.id, 'cv_upload', req.user.displayName || 'unknown', { filename: req.file.originalname, size: req.file.size });
       res.json({ ...rows[0], original_name: req.file.originalname, size: req.file.size });
     } catch (e) {
@@ -971,6 +976,315 @@ module.exports = function (ctx) {
       fs.createReadStream(filePath).pipe(res);
     } catch (e) {
       log('error', 'Hiring', 'Failed to preview CV', { error: e.message });
+      res.status(500).json({ error: 'An internal error occurred' });
+    }
+  });
+
+  // ==================== CANDIDATE COMMENTS ====================
+
+  /** GET /api/candidates/:id/comments — List comments for a candidate.
+   *  NBI users see all comments; client users see only non-internal ones. */
+  router.get('/api/candidates/:id/comments', async (req, res) => {
+    if (!req.user) return res.status(401).json({ error: 'Auth required' });
+    if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid candidate ID' });
+    try {
+      const internalFilter = req.user.clientId ? 'AND internal = false' : '';
+      const { rows } = await pool.query(
+        `SELECT * FROM candidate_comments
+         WHERE candidate_id = $1 ${internalFilter}
+         ORDER BY created_at DESC`,
+        [req.params.id]
+      );
+      res.json(rows);
+    } catch (e) {
+      log('error', 'Hiring', 'Failed to list comments', { error: e.message });
+      res.status(500).json({ error: 'An internal error occurred' });
+    }
+  });
+
+  /** POST /api/candidates/:id/comments — Add a comment to a candidate. */
+  router.post('/api/candidates/:id/comments', async (req, res) => {
+    if (!req.user) return res.status(401).json({ error: 'Auth required' });
+    if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid candidate ID' });
+    const commentBody = (req.body.body || '').trim();
+    if (!commentBody) return res.status(400).json({ error: 'body is required' });
+    const lenErr = validateLength(commentBody, 'body');
+    if (lenErr) return res.status(400).json({ error: lenErr });
+    const internal = req.user.clientId ? false : (req.body.internal === true || req.body.internal === 'true');
+    const author = req.user.displayName || 'unknown';
+    const authorUserId = req.user.id || null;
+    try {
+      const { rows } = await pool.query(
+        `INSERT INTO candidate_comments (candidate_id, author, author_user_id, body, internal)
+         VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+        [req.params.id, author, authorUserId, commentBody, internal]
+      );
+      await pool.query(
+        `INSERT INTO candidate_activity (candidate_id, event_type, detail, actor)
+         VALUES ($1, 'comment_added', $2, $3)`,
+        [req.params.id, commentBody.slice(0, 80), author]
+      );
+      res.status(201).json(rows[0]);
+    } catch (e) {
+      log('error', 'Hiring', 'Failed to add comment', { error: e.message });
+      res.status(500).json({ error: 'An internal error occurred' });
+    }
+  });
+
+  /** DELETE /api/candidates/:id/comments/:commentId — Delete a comment (admin only). */
+  router.delete('/api/candidates/:id/comments/:commentId', requireNBI, requireAdmin, async (req, res) => {
+    if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid candidate ID' });
+    if (!isValidUuid(req.params.commentId)) return res.status(400).json({ error: 'Invalid comment ID' });
+    try {
+      const { rowCount } = await pool.query(
+        'DELETE FROM candidate_comments WHERE id = $1 AND candidate_id = $2',
+        [req.params.commentId, req.params.id]
+      );
+      if (rowCount === 0) return res.status(404).json({ error: 'Comment not found' });
+      res.json({ ok: true });
+    } catch (e) {
+      log('error', 'Hiring', 'Failed to delete comment', { error: e.message });
+      res.status(500).json({ error: 'An internal error occurred' });
+    }
+  });
+
+  // ==================== INTERVIEW ROUNDS ====================
+
+  /** GET /api/interview-rounds — List interview rounds with optional filters.
+   *  NOTE: check-conflict route is declared before :id to prevent Express matching
+   *  the literal "check-conflict" as an :id parameter. */
+
+  /** GET /api/interview-rounds/check-conflict — Check if an interviewer has a scheduling conflict. */
+  router.get('/api/interview-rounds/check-conflict', async (req, res) => {
+    if (!req.user) return res.status(401).json({ error: 'Auth required' });
+    const { interviewer_name, scheduled_at, duration_minutes, exclude_id } = req.query;
+    if (!interviewer_name || !scheduled_at || !duration_minutes) {
+      return res.status(400).json({ error: 'interviewer_name, scheduled_at, and duration_minutes are required' });
+    }
+    const dur = parseInt(duration_minutes, 10);
+    if (isNaN(dur) || dur <= 0) return res.status(400).json({ error: 'Invalid duration_minutes' });
+    try {
+      const conditions = [
+        `irs.interviewer_name ILIKE $1`,
+        `ir.status != 'cancelled'`,
+        `ir.scheduled_at < ($2::timestamptz + ($3 || ' minutes')::interval)`,
+        `(ir.scheduled_at + (ir.duration_minutes || ' minutes')::interval) > $2::timestamptz`,
+      ];
+      const vals = [interviewer_name, scheduled_at, String(dur)];
+      let nextIdx = 4;
+      if (exclude_id && isValidUuid(exclude_id)) {
+        conditions.push(`ir.id != $${nextIdx}`);
+        vals.push(exclude_id);
+        nextIdx++;
+      }
+      const { rows } = await pool.query(
+        `SELECT ir.* FROM interview_rounds ir
+         JOIN interview_scorecards irs ON irs.round_id = ir.id
+         WHERE ${conditions.join(' AND ')}
+         LIMIT 1`,
+        vals
+      );
+      if (rows.length > 0) {
+        res.json({ conflict: true, conflicting_interview: rows[0] });
+      } else {
+        res.json({ conflict: false });
+      }
+    } catch (e) {
+      log('error', 'Hiring', 'Failed to check interview conflict', { error: e.message });
+      res.status(500).json({ error: 'An internal error occurred' });
+    }
+  });
+
+  router.get('/api/interview-rounds', async (req, res) => {
+    if (!req.user) return res.status(401).json({ error: 'Auth required' });
+    try {
+      const conditions = [];
+      const vals = [];
+      let nextIdx = 1;
+
+      if (req.query.candidate_id) {
+        if (!isValidUuid(req.query.candidate_id)) return res.status(400).json({ error: 'Invalid candidate_id' });
+        conditions.push(`ir.candidate_id = $${nextIdx}`);
+        vals.push(req.query.candidate_id);
+        nextIdx++;
+      }
+      if (req.query.from) {
+        conditions.push(`ir.scheduled_at >= $${nextIdx}::timestamptz`);
+        vals.push(req.query.from);
+        nextIdx++;
+      }
+      if (req.query.to) {
+        conditions.push(`ir.scheduled_at < ($${nextIdx}::date + INTERVAL '1 day')`);
+        vals.push(req.query.to);
+        nextIdx++;
+      }
+      if (req.query.interviewer) {
+        conditions.push(
+          `EXISTS (SELECT 1 FROM interview_scorecards irs2 WHERE irs2.round_id = ir.id AND irs2.interviewer_name ILIKE $${nextIdx})`
+        );
+        vals.push(`%${req.query.interviewer}%`);
+        nextIdx++;
+      }
+      if (req.user.clientId) {
+        conditions.push(`ca.client_id = $${nextIdx}`);
+        vals.push(req.user.clientId);
+        nextIdx++;
+      }
+
+      const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+      const { rows } = await pool.query(
+        `SELECT ir.*,
+                ca.name AS candidate_name, ca.client_id AS candidate_client_id,
+                c.name AS client_name,
+                (SELECT json_agg(s ORDER BY s.created_at)
+                 FROM interview_scorecards s WHERE s.round_id = ir.id) AS scorecards
+         FROM interview_rounds ir
+         JOIN candidates ca ON ca.id = ir.candidate_id
+         LEFT JOIN clients c ON c.id = ca.client_id
+         ${whereClause}
+         ORDER BY ir.scheduled_at ASC`,
+        vals
+      );
+      res.json(rows);
+    } catch (e) {
+      log('error', 'Hiring', 'Failed to list interview rounds', { error: e.message });
+      res.status(500).json({ error: 'An internal error occurred' });
+    }
+  });
+
+  /** POST /api/interview-rounds — Create a new interview round (NBI only). */
+  router.post('/api/interview-rounds', requireNBI, async (req, res) => {
+    const { candidate_id, title, scheduled_at, duration_minutes, location, interviewer_name } = req.body;
+    if (!candidate_id || !isValidUuid(candidate_id)) return res.status(400).json({ error: 'Valid candidate_id is required' });
+    if (!title || !String(title).trim()) return res.status(400).json({ error: 'title is required' });
+    try {
+      const { rows: maxRows } = await pool.query(
+        'SELECT COALESCE(MAX(round_number), 0) AS max_round FROM interview_rounds WHERE candidate_id = $1',
+        [candidate_id]
+      );
+      const roundNumber = (maxRows[0]?.max_round || 0) + 1;
+
+      const { rows } = await pool.query(
+        `INSERT INTO interview_rounds (candidate_id, round_number, title, scheduled_at, duration_minutes, location, status)
+         VALUES ($1, $2, $3, $4, $5, $6, 'scheduled') RETURNING *`,
+        [candidate_id, roundNumber, String(title).trim(), scheduled_at || null, duration_minutes || null, location || null]
+      );
+      const round = rows[0];
+
+      if (interviewer_name && String(interviewer_name).trim()) {
+        await pool.query(
+          `INSERT INTO interview_scorecards (round_id, interviewer_name, interviewer_user_id)
+           VALUES ($1, $2, $3)`,
+          [round.id, String(interviewer_name).trim(), req.user.id || null]
+        );
+      }
+
+      const actor = req.user.displayName || 'unknown';
+      await pool.query(
+        `INSERT INTO candidate_activity (candidate_id, event_type, detail, actor)
+         VALUES ($1, 'interview_scheduled', $2, $3)`,
+        [candidate_id, `Round ${roundNumber}: ${String(title).trim()}`, actor]
+      );
+
+      const { rows: fullRows } = await pool.query(
+        `SELECT ir.*,
+                (SELECT json_agg(s ORDER BY s.created_at) FROM interview_scorecards s WHERE s.round_id = ir.id) AS scorecards
+         FROM interview_rounds ir WHERE ir.id = $1`,
+        [round.id]
+      );
+      res.status(201).json(fullRows[0]);
+    } catch (e) {
+      log('error', 'Hiring', 'Failed to create interview round', { error: e.message });
+      res.status(500).json({ error: 'An internal error occurred' });
+    }
+  });
+
+  /** PATCH /api/interview-rounds/:id — Update an interview round (NBI only). */
+  router.patch('/api/interview-rounds/:id', requireNBI, async (req, res) => {
+    if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid round ID' });
+    const allowed = ['title', 'scheduled_at', 'duration_minutes', 'location', 'status', 'outcome', 'outcome_notes'];
+    const { updates, vals, nextIdx } = buildPatchQuery(req.body, allowed);
+    if (updates.length === 0) return res.status(400).json({ error: 'No valid fields to update' });
+    updates.push('updated_at = NOW()');
+    vals.push(req.params.id);
+    try {
+      const { rows } = await pool.query(
+        `UPDATE interview_rounds SET ${updates.join(', ')} WHERE id = $${nextIdx} RETURNING *`,
+        vals
+      );
+      if (rows.length === 0) return res.status(404).json({ error: 'Interview round not found' });
+      const round = rows[0];
+
+      if (req.body.outcome && req.body.outcome !== 'pending') {
+        const actor = req.user.displayName || 'unknown';
+        await pool.query(
+          `INSERT INTO candidate_activity (candidate_id, event_type, detail, actor)
+           VALUES ($1, 'interview_outcome', $2, $3)`,
+          [round.candidate_id, `Round ${round.round_number}: ${req.body.outcome}`, actor]
+        );
+      }
+      res.json(round);
+    } catch (e) {
+      log('error', 'Hiring', 'Failed to update interview round', { error: e.message });
+      res.status(500).json({ error: 'An internal error occurred' });
+    }
+  });
+
+  /** DELETE /api/interview-rounds/:id — Delete an interview round (admin only). */
+  router.delete('/api/interview-rounds/:id', requireNBI, requireAdmin, async (req, res) => {
+    if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid round ID' });
+    try {
+      const { rowCount } = await pool.query('DELETE FROM interview_rounds WHERE id = $1', [req.params.id]);
+      if (rowCount === 0) return res.status(404).json({ error: 'Interview round not found' });
+      res.json({ ok: true });
+    } catch (e) {
+      log('error', 'Hiring', 'Failed to delete interview round', { error: e.message });
+      res.status(500).json({ error: 'An internal error occurred' });
+    }
+  });
+
+  // ==================== ACTIVITY TIMELINE ====================
+
+  /** GET /api/candidates/:id/activity — Unified activity timeline for a candidate.
+   *  Merges stage_history, activity events, and comments into a single feed. */
+  router.get('/api/candidates/:id/activity', async (req, res) => {
+    if (!req.user) return res.status(401).json({ error: 'Auth required' });
+    if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid candidate ID' });
+    const limitRaw = parseInt(req.query.limit, 10);
+    const limit = (!isNaN(limitRaw) && limitRaw > 0) ? Math.min(limitRaw, 200) : 50;
+    const commentInternalFilter = req.user.clientId ? 'AND internal = false' : '';
+    try {
+      const { rows } = await pool.query(
+        `SELECT event_type, detail, actor, created_at FROM (
+           SELECT 'stage_change' AS event_type,
+                  ('Stage: ' || COALESCE(from_stage, '—') || ' → ' || to_stage) AS detail,
+                  moved_by AS actor,
+                  moved_at AS created_at
+           FROM candidate_stage_history
+           WHERE candidate_id = $1
+
+           UNION ALL
+
+           SELECT event_type, detail, actor, created_at
+           FROM candidate_activity
+           WHERE candidate_id = $1
+
+           UNION ALL
+
+           SELECT 'comment' AS event_type,
+                  body AS detail,
+                  author AS actor,
+                  created_at
+           FROM candidate_comments
+           WHERE candidate_id = $1 ${commentInternalFilter}
+         ) timeline
+         ORDER BY created_at DESC
+         LIMIT $2`,
+        [req.params.id, limit]
+      );
+      res.json(rows);
+    } catch (e) {
+      log('error', 'Hiring', 'Failed to load activity timeline', { error: e.message });
       res.status(500).json({ error: 'An internal error occurred' });
     }
   });
