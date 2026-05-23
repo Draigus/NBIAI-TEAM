@@ -2213,6 +2213,120 @@ span.fin-editable { display: inline-block; position: relative; }
 .position-card__minibar { display: flex; height: 8px; border-radius: 4px; overflow: hidden; flex: 1; max-width: 140px; background: var(--bg-surface); }
 .position-card__minibar span { display: block; height: 100%; }
 
+/* --- ATS Tab Navigation --- */
+.ats-tabs { display: flex; gap: 2px; border-bottom: 2px solid rgba(255,255,255,0.06); margin-bottom: 16px; }
+.ats-tab { padding: 10px 20px; font-size: 13px; color: #888; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: color 0.15s, border-color 0.15s; user-select: none; }
+.ats-tab:hover { color: #ccc; }
+.ats-tab.active { color: #7c3aed; border-bottom-color: #7c3aed; font-weight: 600; }
+
+/* --- ATS Summary Banner --- */
+.ats-summary { display: flex; gap: 24px; padding: 10px 16px; background: rgba(124,58,237,0.06); border-radius: 8px; margin-bottom: 14px; font-size: 13px; flex-wrap: wrap; }
+.ats-summary-item { display: flex; align-items: center; gap: 6px; color: #aaa; cursor: pointer; transition: color 0.15s; }
+.ats-summary-item:hover { color: #fff; }
+.ats-summary-item .ats-summary-count { font-weight: 700; font-size: 15px; color: #e0e0e0; }
+.ats-summary-item .ats-summary-count.warn { color: #f59e0b; }
+.ats-summary-item .ats-summary-count.danger { color: #ef4444; }
+
+/* --- ATS Controls Bar --- */
+.ats-controls { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+.ats-search { flex: 1; min-width: 200px; background: var(--bg-input, #23234a); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 7px 12px; color: #e0e0e0; font-size: 13px; outline: none; font-family: inherit; }
+.ats-search:focus { border-color: #7c3aed; }
+.ats-filter-btn { background: var(--bg-input, #23234a); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 7px 12px; color: #60a5fa; font-size: 12px; cursor: pointer; font-family: inherit; }
+.ats-filter-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.ats-chip { background: rgba(245,158,11,0.12); color: #f59e0b; padding: 3px 10px; border-radius: 12px; font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+.ats-chip .remove { opacity: 0.6; }
+.ats-chip .remove:hover { opacity: 1; }
+
+/* --- ATS Candidate Card (220px redesign) --- */
+.ats-card { background: var(--bg-card, #23234a); border: 1px solid var(--border-default); border-radius: 10px; padding: 14px; cursor: pointer; transition: transform 0.1s, box-shadow 0.15s; position: relative; }
+.ats-card:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+.ats-card.dragging { opacity: 0.5; }
+.ats-card.archived { opacity: 0.45; filter: grayscale(0.5); }
+.ats-card--border-red { border-left: 3px solid #ef4444; }
+.ats-card--border-amber { border-left: 3px solid #f59e0b; }
+.ats-card--border-default { border-left: 3px solid rgba(255,255,255,0.08); }
+.ats-card-identity { display: flex; gap: 10px; margin-bottom: 10px; }
+.ats-card-name { font-size: 14px; font-weight: 600; color: #e0e0e0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ats-card-role { font-size: 12px; color: #999; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ats-card-badges { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.ats-source-badge { font-size: 10px; background: rgba(59,130,246,0.12); color: #60a5fa; padding: 2px 7px; border-radius: 4px; }
+.ats-card-meta { display: flex; justify-content: space-between; align-items: center; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.04); }
+.ats-assignee-faces { display: flex; }
+.ats-assignee-face { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 700; color: white; border: 2px solid var(--bg-card, #23234a); }
+.ats-assignee-face + .ats-assignee-face { margin-left: -6px; }
+.ats-card-indicators { display: flex; align-items: center; gap: 8px; font-size: 11px; color: #888; }
+
+/* --- ATS Kanban lanes (responsive, fill available width) --- */
+.ats-kanban { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; align-items: stretch; width: 100%; }
+.ats-lane { flex: 1 1 0; min-width: 180px; display: flex; flex-direction: column; background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-md); min-height: 300px; max-height: calc(var(--vh-full) - 280px); transition: border-color 0.15s, background 0.15s; }
+.ats-lane.drag-over { border-color: var(--accent); background: var(--accent-glow); }
+.ats-lane-header { padding: 10px 14px; border-bottom: 1px solid var(--border-default); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; display: flex; justify-content: space-between; color: #aaa; user-select: none; }
+.ats-lane[draggable="true"] .ats-lane-header:active { cursor: grabbing; }
+.ats-lane-count { font-weight: 400; color: #666; }
+.ats-lane-body { padding: 8px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; flex: 1; }
+.ats-lane-body .ats-card { width: auto; }
+.ats-lane-empty { text-align: center; color: var(--text-faint); font-size: 12px; padding: 20px 12px; font-style: italic; }
+@media (max-width: 768px) { .ats-kanban { flex-direction: column; } .ats-lane { min-width: 100%; max-height: none; } .ats-card .ats-mobile-move { display: block; } }
+.ats-card .ats-mobile-move { display: none; margin-top: 6px; }
+.ats-card .ats-mobile-move select { width: 100%; padding: 4px 8px; font-size: 11px; background: var(--bg-input); border: 1px solid var(--border-default); border-radius: 4px; color: var(--text-primary); font-family: inherit; }
+
+/* --- ATS Calendar --- */
+.ats-calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.ats-calendar-nav { display: flex; align-items: center; gap: 10px; }
+.ats-calendar-nav-title { font-size: 16px; font-weight: 600; color: #e0e0e0; }
+.ats-calendar-nav-btn { background: none; border: none; color: #888; font-size: 16px; cursor: pointer; padding: 4px 8px; }
+.ats-calendar-nav-btn:hover { color: #fff; }
+.ats-calendar-toggle { display: flex; gap: 2px; }
+.ats-calendar-toggle span { padding: 5px 14px; font-size: 11px; border-radius: 5px; cursor: pointer; }
+.ats-calendar-toggle .active { background: #7c3aed; color: white; }
+.ats-calendar-toggle .inactive { background: var(--bg-input, #23234a); color: #888; }
+.ats-week-grid { display: grid; grid-template-columns: 54px repeat(5, 1fr); gap: 1px; background: rgba(255,255,255,0.03); border-radius: 8px; overflow: hidden; }
+.ats-week-time { background: var(--bg-surface, #1a1a2e); padding: 6px 4px; text-align: right; color: #555; font-size: 10px; height: 32px; display: flex; align-items: center; justify-content: flex-end; }
+.ats-week-day-header { background: var(--bg-surface, #1a1a2e); padding: 8px; text-align: center; color: #888; font-size: 12px; font-weight: 500; }
+.ats-week-day-header.today { color: #60a5fa; font-weight: 600; }
+.ats-week-cell { background: var(--bg-card, #23234a); min-height: 32px; position: relative; border-bottom: 1px solid rgba(255,255,255,0.02); }
+.ats-interview-block { position: absolute; left: 2px; right: 2px; border-radius: 4px; padding: 4px 6px; overflow: hidden; cursor: pointer; z-index: 1; transition: opacity 0.15s; }
+.ats-interview-block:hover { opacity: 0.85; }
+.ats-interview-block .name { font-weight: 600; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ats-interview-block .meta { font-size: 9px; color: rgba(255,255,255,0.6); }
+.ats-interview-block.compact .name { font-size: 10px; }
+.ats-calendar-legend { display: flex; gap: 16px; margin-top: 10px; font-size: 11px; color: #888; align-items: center; }
+.ats-calendar-legend-dot { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 4px; vertical-align: middle; }
+
+/* --- ATS Database Table --- */
+.ats-db-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.ats-db-table thead th { padding: 8px 12px; color: #888; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); font-weight: 500; font-size: 12px; }
+.ats-db-table thead th.sortable { cursor: pointer; user-select: none; }
+.ats-db-table thead th.sortable:hover { color: #ccc; }
+.ats-db-table tbody tr { border-bottom: 1px solid rgba(255,255,255,0.04); cursor: pointer; transition: background 0.1s; }
+.ats-db-table tbody tr:hover { background: rgba(124,58,237,0.06); }
+.ats-db-table tbody td { padding: 8px 12px; vertical-align: middle; }
+.ats-db-table select.ats-inline-select { background: transparent; border: 1px solid transparent; color: inherit; font-size: inherit; font-family: inherit; cursor: pointer; padding: 3px 18px 3px 6px; border-radius: 4px; appearance: auto; -webkit-appearance: auto; transition: border-color 0.15s; }
+.ats-db-table select.ats-inline-select:hover { border-color: rgba(124,58,237,0.4); }
+.ats-db-table select.ats-inline-select:focus { border-color: #7c3aed; outline: none; }
+.ats-contract-pill { font-size: 10px; background: rgba(124,58,237,0.2); color: #c4b5fd; padding: 2px 7px; border-radius: 3px; }
+.ats-calendar-legend-dot { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: middle; }
+@media (max-width: 1024px) {
+  .ats-summary { gap: 12px; font-size: 12px; }
+  .ats-tabs { overflow-x: auto; }
+  .ats-controls { gap: 6px; }
+  .ats-search { min-width: 140px; }
+  .ats-db-table { font-size: 12px; }
+  .ats-db-table thead th, .ats-db-table tbody td { padding: 6px 8px; }
+  .ats-week-grid { grid-template-columns: 40px repeat(5, 1fr); }
+}
+@media (max-width: 600px) {
+  .ats-summary { flex-direction: column; gap: 6px; }
+  .ats-tabs { gap: 0; }
+  .ats-tab { padding: 8px 12px; font-size: 12px; }
+  .ats-controls { flex-direction: column; align-items: stretch; }
+  .ats-search { min-width: 100%; }
+  .ats-filter-btn { width: 100%; }
+  .ats-db-table thead th:nth-child(n+5), .ats-db-table tbody td:nth-child(n+5) { display: none; }
+  .ats-week-grid { grid-template-columns: 30px repeat(5, 1fr); font-size: 9px; }
+  .ats-calendar-header { flex-direction: column; gap: 8px; }
+}
+
 /* --- Position detail panel --- */
 .position-detail-overlay { position: fixed; inset: 0; background: var(--bg-overlay, rgba(0,0,0,0.85)); z-index: 200; display: none; }
 .position-detail-panel { position: fixed; top: var(--header-h); right: 0; width: 600px; min-width: 320px; max-width: 80vw; height: calc(var(--vh-full) - var(--header-h)); background: var(--bg-card, var(--bg-raised)); border-left: 1px solid var(--border-default); z-index: 201; overflow: hidden; display: none; flex-direction: column; box-shadow: -4px 0 20px rgba(0,0,0,0.3); }
@@ -2972,8 +3086,7 @@ span.fin-editable { display: inline-block; position: relative; }
   <div class="g-header__actions">
     <span id="userBadge" class="header-desktop-only" style="color:var(--text-secondary);font-size:0.82rem;margin-right:4px;"></span>
     <div class="add-item-menu" style="position:relative;display:inline-flex">
-      <button class="btn btn--primary" data-action="addTask" style="border-radius:var(--radius-sm) 0 0 var(--radius-sm);font-weight:700;font-size:0.85rem;letter-spacing:0.3px;padding:6px 12px"><svg width="16" height="16" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 1v12M1 7h12"/></svg><span class="header-desktop-only">New</span></button>
-      <button class="btn btn--primary" data-action="toggleAddItemMenu" data-pass-event style="padding:4px 6px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;border-left:1px solid rgba(255,255,255,0.25)">&#9660;</button>
+      <button class="btn btn--primary" data-action="addTask" style="border-radius:var(--radius-sm);font-weight:700;font-size:0.85rem;letter-spacing:0.3px;padding:6px 12px"><svg width="16" height="16" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 1v12M1 7h12"/></svg><span class="header-desktop-only">New</span></button>
       <div id="addItemMenuDropdown" style="display:none;position:absolute;top:100%;right:0;margin-top:4px;background:var(--bg-raised);border:1px solid var(--border-default);border-radius:var(--radius-sm);box-shadow:var(--shadow-lg);z-index:400;min-width:160px;overflow:hidden">
         <div class="hover-item" role="button" tabindex="0" style="padding:6px 12px;cursor:pointer;font-size:0.82rem;display:flex;gap:8px;align-items:center" data-action="addItemFromMenu" data-arg0="project" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}"><span style="width:18px;text-align:center">&#128193;</span> New Project</div>
         <div class="hover-item" role="button" tabindex="0" style="padding:6px 12px;cursor:pointer;font-size:0.82rem;display:flex;gap:8px;align-items:center" data-action="addItemFromMenu" data-arg0="feature" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}"><span style="width:18px;text-align:center">&#9733;</span> New Feature</div>
@@ -3668,7 +3781,7 @@ function authFetch(url, opts = {}) {
     if (resp.status === 401) {
       _currentUser = null;
       showLoginScreen();
-    } else if (resp.status === 403) {
+    } else if (resp.status === 403 && !isClientUser()) {
       const method = (opts.method || 'GET').toUpperCase();
       if (method !== 'GET') toast('You do not have permission for this action', 'error');
     }
@@ -3688,6 +3801,7 @@ async function apiCall(url, options = {}) {
       const body = await resp.json();
       errMsg = body?.error?.message || body?.error || errMsg;
     } catch(e) {}
+    if (resp.status === 403 && isClientUser()) return null;
     toast(errMsg, 'error');
     return null;
   }
@@ -3982,6 +4096,7 @@ let _calDepMode = false;
 let _calDepSelected = null;
 let collapsedTaskIds = new Set(); // Tracks which parent tasks are collapsed in tree view
 let _tasksInitialCollapse = true; // Auto-collapse all tasks on first visit (expand is manual)
+let _treeVisibleIds = null; // Set of task IDs visible under current assignee/search filter (null = show all)
 let inlineDetailVisible = true;   // Whether the 30% detail panel is shown in tasks view
 let _pagePermissions = {};        // Role-based page access: { finances: 'admin'|'all'|['user1','user2'], ... }
 let _apiClientsCache = {};        // Cached client records from API (keyed by name)
@@ -4920,6 +5035,10 @@ function renderSidebar() {
       hiringList = hiringList.filter(c => c.client_id === window._hiringFilterClient);
     }
     html += sidebarItem(svgHiring, 'Hiring', hiringList.length || '', () => switchView('hiring'), currentView==='hiring');
+    const onboardingCount = hiringList.filter(c => c.stage === 'onboarding').length;
+    if (onboardingCount > 0) {
+      html += sidebarItem('<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5" r="3"/><path d="M3 14c0-3 2-5 5-5s5 2 5 5"/><path d="M11 3l2 2-2 2"/></svg>', 'Onboarding', onboardingCount, () => { window._hiringFilterStage = 'onboarding'; switchView('hiring'); }, currentView==='hiring' && window._hiringFilterStage === 'onboarding');
+    }
   }
   if (!isScoped && hasPageAccess('finances')) {
     html += sidebarItem(svgFinances, 'Finances', '', () => switchView('finances'), currentView==='finances');
@@ -6497,6 +6616,7 @@ function standupUpdateTask(taskId, field, value, el) {
   if ((field === 'startDate' || field === 'endDate' || field === 'dueDate') && value) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return;
     const yr = parseInt(value.slice(0, 4), 10);
+    if (yr < 1000) return;
     if (yr < 1900 || yr > 2099) { showToast('Invalid year', 'error'); return; }
   }
   const oldValue = task[field];
@@ -6504,7 +6624,24 @@ function standupUpdateTask(taskId, field, value, el) {
   task[field] = value;
   task.updatedAt = new Date().toISOString();
   markDirty(taskId);
-  pushUndo(`${field} change on "${task.title}"`, () => { task[field] = oldValue; task.updatedAt = new Date().toISOString(); markDirty(taskId); });
+
+  // Auto-set endDate when marking Done; clear when un-Done
+  let _prevEndDate;
+  if (field === 'status') {
+    _prevEndDate = task.endDate || '';
+    if (value === 'Done') {
+      task.endDate = new Date().toISOString().slice(0, 10);
+    } else if (oldValue === 'Done') {
+      task.endDate = '';
+    }
+  }
+
+  pushUndo(`${field} change on "${task.title}"`, () => {
+    task[field] = oldValue;
+    if (_prevEndDate !== undefined) task.endDate = _prevEndDate;
+    task.updatedAt = new Date().toISOString();
+    markDirty(taskId);
+  });
   save();
 
   // Structural changes (status to/from Done/Cancelled) need a full re-render
@@ -7323,7 +7460,7 @@ function renderTaskView(el) {
     </select>
     <input type="text" id="quickAddInput" placeholder="Quick add... (Enter)" style="width:160px;flex:none;padding:3px 8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.72rem;min-width:0" onkeydown="if(event.key==='Enter'&&this.value.trim()){quickAddTask(this.value.trim());this.value=''}">
     <select id="quickAddClient" style="padding:3px 6px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.72rem">
-      <option value="">No Client</option>${getContractedClients().map(c => '<option value="'+esc(c)+'" '+(currentFilter.client===c?'selected':'')+'>'+esc(c)+'</option>').join('')}
+      <option value="" style="color:var(--danger)">Select Client…</option>${getContractedClients().map(c => '<option value="'+esc(c)+'" '+(currentFilter.client===c?'selected':'')+'>'+esc(c)+'</option>').join('')}
     </select>
   </div>`;
   if (hasFilter) {
@@ -7364,6 +7501,7 @@ function renderTaskView(el) {
   html += '</div>'; // close tasks-layout
   html += '</div>'; // close tasks-view
   el.innerHTML = html;
+  if (activeDetailTaskId) setTimeout(() => loadTimeEntriesInline(activeDetailTaskId), 50);
   // Load notes if profile expanded
   if (currentFilter.client && _profileExpanded[currentFilter.client.replace(/[^a-zA-Z0-9]/g, '_')]) {
     setTimeout(() => loadClientNotes(currentFilter.client), 50);
@@ -7400,6 +7538,7 @@ function renderTreeView(filtered) {
       }
     });
   }
+  _treeVisibleIds = visibleIds;
 
   // Default collapsed to client level: client groups are collapsed, items inside expanded.
   // _tasksInitialCollapse is set true on page load and when navigating TO the Projects page.
@@ -7589,10 +7728,10 @@ function renderBoardView(filtered) {
     html += `<div class="board__lane-header"><span class="board__lane-title" style="color:${col.color}">${col.label}</span><span class="board__lane-count">${laneTotal}</span></div>`;
     html += `<div class="board__lane-body ${laneTasks.length === 0 ? 'board__lane-body--empty' : ''}" data-lane-statuses="${col.statuses.join(',')}" ondragover="onBoardDragOver(event)" ondragleave="onBoardDragLeave(event)" ondrop="onBoardDrop(event)">`;
     if (laneTasks.length === 0) {
-      html += 'No items';
+      html += '<div style="text-align:center;padding:20px;color:var(--text-faint);font-size:0.82rem;font-style:italic">No items</div>';
     } else {
       cappedTasks.forEach(t => { html += renderBoardCard(t); });
-      if (laneTotal > BOARD_LANE_CAP) html += `<div style="text-align:center;padding:8px;color:var(--text-muted);font-size:0.75rem">+${laneTotal - BOARD_LANE_CAP} more</div>`;
+      if (laneTotal > BOARD_LANE_CAP) html += `<div style="text-align:center;padding:8px;cursor:pointer" onclick="currentFilter.status='${col.statuses[0]}';switchView('tasks');setSubView('tree')"><span style="color:var(--accent-text);font-size:0.78rem;text-decoration:underline">+${laneTotal - BOARD_LANE_CAP} more — view in tree</span></div>`;
     }
     html += '</div></div>';
   });
@@ -9493,8 +9632,14 @@ function renderInlineTaskDetail(id) {
   // Time Tracking
   html += `<div class="detail-section"><div class="detail-section__title">Time Tracking</div>`;
   if (hrs.est > 0) html += `<div class="detail-agg" style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:8px">${hrs.spent.toFixed(1)}h spent / ${hrs.est.toFixed(1)}h estimated (${Math.round(hrs.spent/hrs.est*100)}%)</div>`;
-  html += `<div class="detail-field"><label class="detail-field__label" for="inline-detail-hoursSpent">Hours Spent</label><input id="inline-detail-hoursSpent" type="number" step="0.5" min="0" value="${task.hoursSpent||0}" onchange="updateTask('${id}','hoursSpent',parseFloat(this.value)||0)"></div>`;
-  html += `<div class="detail-field"><label class="detail-field__label field-required" for="inline-detail-hoursEstimated">Hours Est.</label><input id="inline-detail-hoursEstimated" type="number" step="0.5" min="0" value="${task.hoursEstimated||0}" onchange="updateTask('${id}','hoursEstimated',parseFloat(this.value)||0)"></div>`;
+  if (children.length > 0) {
+    html += `<div class="detail-field"><label class="detail-field__label">Hours Spent</label><input type="number" value="${hrs.spent}" disabled title="Aggregated from ${children.length} child items"></div>`;
+    html += `<div class="detail-field"><label class="detail-field__label">Hours Est.</label><input type="number" value="${hrs.est}" disabled title="Aggregated from ${children.length} child items"></div>`;
+  } else {
+    html += `<div class="detail-field"><label class="detail-field__label field-required" for="inline-detail-hoursEstimated">Hours Est.</label><input id="inline-detail-hoursEstimated" type="number" step="0.5" min="0" value="${task.hoursEstimated||0}" onchange="updateTask('${id}','hoursEstimated',parseFloat(this.value)||0)"></div>`;
+  }
+  html += `<div style="display:flex;gap:4px;align-items:center;margin-bottom:8px"><input id="inlineLogHours" type="number" step="0.25" min="0.25" placeholder="Hours" style="width:60px;padding:4px 6px;font-size:0.78rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)"><input id="inlineLogDesc" placeholder="What did you work on?" style="flex:1;padding:4px 6px;font-size:0.78rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)"><button class="btn btn--sm" data-action="logTimeEntryInline" data-arg0="${id}">Log</button></div>`;
+  html += `<div id="inlineTimeEntriesList" style="max-height:120px;overflow-y:auto"><div style="color:var(--text-muted);font-size:0.7rem">Loading time entries...</div></div>`;
   html += `</div>`;
 
   // Description (split into three fields — Feature 5)
@@ -9507,7 +9652,7 @@ function renderInlineTaskDetail(id) {
 
   // Notes
   html += `<div class="detail-section"><div class="detail-section__title">Notes</div><div class="note-list">`;
-  (task.notes||[]).forEach(n => { html += `<div class="note-item"><div class="note-item__time">${new Date(n.time).toLocaleString()}</div><div>${esc(n.text)}</div></div>`; });
+  (task.notes||[]).forEach((n, idx) => { html += `<div class="note-item"><div class="note-item__time" style="display:flex;justify-content:space-between;align-items:center"><span>${new Date(n.time).toLocaleString()}</span><a href="#" data-action="deleteNote" data-prevent data-arg0="${id}" data-arg1="${idx}" style="color:var(--danger);font-size:0.7rem">delete</a></div><div>${esc(n.text)}</div></div>`; });
   html += `</div><div class="note-input"><input id="inlineNoteInput" placeholder="Add a note..." onkeydown="if(event.key==='Enter'){addNoteInline('${id}')}"><button class="btn btn--sm btn--primary" data-action="addNoteInline" data-arg0="${id}">Add</button></div></div>`;
 
   // Attachments
@@ -9579,6 +9724,21 @@ function inlineDetailSelect(label, field, value, options, taskId, required) {
   const cls = 'detail-field__label' + (required ? ' field-required' : '');
   const selId = `inline-detail-${field}`;
   return `<div class="detail-field"><label class="${cls}" for="${selId}">${label}</label><select id="${selId}" onchange="updateTask('${taskId}','${field}',this.value)">${options.map(o => `<option value="${esc(o)}" ${o===value?'selected':''}>${esc(o||'-- None --')}</option>`).join('')}</select></div>`;
+}
+
+/** Delete a note from a task by index */
+async function deleteNote(id, noteIndex) {
+  if (!(await themedConfirm('Delete this note?'))) return;
+  const task = tasks.find(t => t.id === id);
+  if (!task || !task.notes || noteIndex < 0 || noteIndex >= task.notes.length) return;
+  task.notes.splice(noteIndex, 1);
+  task.updatedAt = new Date().toISOString();
+  markDirty(id);
+  save();
+  renderContent();
+  if (activeDetailTaskId === id && document.getElementById('detailPanel')?.classList.contains('open')) {
+    openDetailOverlay(id);
+  }
 }
 
 /** Add a timestamped note to a task from the inline detail panel input */
@@ -9701,7 +9861,7 @@ function toggleChildren(id, el) {
         const children = getChildren(task.id);
         const depth = getDepth(task);
         let childHtml = '';
-        children.forEach(c => { childHtml += renderTaskRow(c, depth + 1, tasks); });
+        children.forEach(c => { childHtml += renderTaskRow(c, depth + 1, tasks, _treeVisibleIds); });
         wrap.innerHTML = childHtml;
       }
     }
@@ -9728,7 +9888,7 @@ function toggleClientGroup(clientKey) {
       const rootTasks = tasks.filter(t => !t.parentId && (t.client || getTaskClient(t) || 'Unassigned') === clientName)
         .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
       let childHtml = '';
-      rootTasks.forEach(r => { childHtml += renderTaskRow(r, 1, tasks); });
+      rootTasks.forEach(r => { childHtml += renderTaskRow(r, 1, tasks, _treeVisibleIds); });
       wrap.innerHTML = childHtml;
     }
   }
@@ -9840,10 +10000,12 @@ function onDragLeave(e) {
   e.currentTarget.classList.remove('drag-over');
 }
 
-/** Handle drop -- reparent the dragged task under the target, inherit client from new root */
+/** Handle drop -- reparent the dragged task under the target, inherit client from new root.
+ *  Skips if the drop landed on a .task-row — the document-level zone handler handles those. */
 function onDrop(e, targetParentId) {
-  e.preventDefault();
   e.currentTarget.classList.remove('drag-over');
+  if (e.target.closest('.task-row')) return;
+  e.preventDefault();
   if (!draggedTaskId || draggedTaskId === targetParentId) return;
   // Don't allow dropping onto own descendants
   const desc = getDescendants(draggedTaskId);
@@ -10116,7 +10278,8 @@ async function _patchBoardPosition(taskId, position) {
  *  item would land on Projects with everything collapsed. */
 function navigateToTaskInTree(taskId) {
   // Expand every ancestor so the target row is actually rendered
-  let cursor = tasks.find(t => t.id === taskId);
+  const target = tasks.find(t => t.id === taskId);
+  let cursor = target;
   while (cursor && cursor.parentId) {
     collapsedTaskIds.delete(cursor.parentId);
     cursor = tasks.find(t => t.id === cursor.parentId);
@@ -10124,6 +10287,16 @@ function navigateToTaskInTree(taskId) {
   // Also expand the client group header (it's keyed by clientGroupKey)
   if (cursor) {
     try { collapsedTaskIds.delete(clientGroupKey(cursor)); } catch (e) {}
+  }
+  // Clear filters that might hide the target task — set client to the task's
+  // client so the tree shows the right scope, clear restrictive filters
+  if (target) {
+    const taskClient = getTaskClient(target);
+    if (taskClient) currentFilter.client = taskClient;
+    currentFilter.assignee = [];
+    currentFilter.search = '';
+    currentFilter.status = [];
+    currentFilter.health = [];
   }
   // Force "By Project" (tree) sub-view so the hierarchical rows exist in the
   // DOM — board/gantt/calendar views don't render .task-row elements.
@@ -10250,7 +10423,11 @@ function openDetailOverlay(id) {
   // Time Tracking (quick log + entries)
   html += `<div class="detail-section"><div class="detail-section__title">Time Tracking</div>`;
   if (hrs.est > 0) html += `<div class="detail-agg">${hrs.spent.toFixed(1)}h spent / ${hrs.est.toFixed(1)}h estimated (${Math.round(hrs.spent/hrs.est*100)}%)</div>`;
-  html += `<div class="detail-field"><label class="detail-field__label field-required" for="detail-hoursEstimated">Hours Est.</label><input id="detail-hoursEstimated" type="number" step="0.5" min="0" value="${task.hoursEstimated||0}" onchange="updateTask('${id}','hoursEstimated',parseFloat(this.value)||0)"></div>`;
+  if (children.length > 0) {
+    html += `<div class="detail-field"><label class="detail-field__label">Hours Est.</label><input type="number" value="${hrs.est}" disabled title="Aggregated from ${children.length} child items"></div>`;
+  } else {
+    html += `<div class="detail-field"><label class="detail-field__label field-required" for="detail-hoursEstimated">Hours Est.</label><input id="detail-hoursEstimated" type="number" step="0.5" min="0" value="${task.hoursEstimated||0}" onchange="updateTask('${id}','hoursEstimated',parseFloat(this.value)||0)"></div>`;
+  }
   // Quick log entry
   html += `<div style="display:flex;gap:4px;align-items:center;margin-bottom:8px"><input id="logHours" type="number" step="0.25" min="0.25" placeholder="Hours" style="width:60px;padding:4px 6px;font-size:0.78rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)"><input id="logDesc" placeholder="What did you work on?" style="flex:1;padding:4px 6px;font-size:0.78rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)"><button class="btn btn--sm" data-action="logTimeEntry" data-arg0="${id}">Log</button></div>`;
   // Time entries list
@@ -10267,7 +10444,7 @@ function openDetailOverlay(id) {
 
   // Notes
   html += `<div class="detail-section"><div class="detail-section__title">Notes</div><div class="note-list">`;
-  (task.notes||[]).forEach(n => { html += `<div class="note-item"><div class="note-item__time">${new Date(n.time).toLocaleString()}</div><div>${esc(n.text)}</div></div>`; });
+  (task.notes||[]).forEach((n, idx) => { html += `<div class="note-item"><div class="note-item__time" style="display:flex;justify-content:space-between;align-items:center"><span>${new Date(n.time).toLocaleString()}</span><a href="#" data-action="deleteNote" data-prevent data-arg0="${id}" data-arg1="${idx}" style="color:var(--danger);font-size:0.7rem">delete</a></div><div>${esc(n.text)}</div></div>`; });
   html += `</div><div class="note-input"><input id="noteInput" placeholder="Add a note..."><button class="btn btn--sm btn--primary" data-action="addNote" data-arg0="${id}">Add</button></div></div>`;
 
   // Attachments (universal system — works for tasks, projects, clients)
@@ -10678,9 +10855,9 @@ async function updateTask(id, field, value) {
   if ((field === 'startDate' || field === 'endDate' || field === 'dueDate') && value) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return;
     const yr = parseInt(value.slice(0, 4), 10);
+    if (yr < 1000) return;
     if (yr < 1900 || yr > 2099) {
       showToast('Invalid year — must be between 1900 and 2099', 'error');
-      renderContent();
       return;
     }
   }
@@ -10757,7 +10934,24 @@ async function updateTask(id, field, value) {
   task[field] = value;
   task.updatedAt = new Date().toISOString();
   markDirty(id);
-  pushUndo(`${field} change on "${task.title}"`, () => { task[field] = oldValue; task.updatedAt = new Date().toISOString(); markDirty(id); });
+
+  // Auto-set endDate when marking Done; clear when un-Done
+  let _prevEndDate;
+  if (field === 'status') {
+    _prevEndDate = task.endDate || '';
+    if (value === 'Done') {
+      task.endDate = new Date().toISOString().slice(0, 10);
+    } else if (oldValue === 'Done') {
+      task.endDate = '';
+    }
+  }
+
+  pushUndo(`${field} change on "${task.title}"`, () => {
+    task[field] = oldValue;
+    if (_prevEndDate !== undefined) task.endDate = _prevEndDate;
+    task.updatedAt = new Date().toISOString();
+    markDirty(id);
+  });
   save();
 
   if (field === 'status' && (value === 'In progress' || value === 'In Review' || value === 'Blocked')) {
@@ -10772,7 +10966,8 @@ async function updateTask(id, field, value) {
     }
   }
 
-  if (field === 'startDate' || field === 'endDate') {
+  const _endDateChanged = field === 'status' && (value === 'Done' || oldValue === 'Done');
+  if (field === 'startDate' || field === 'endDate' || _endDateChanged) {
     let parent = task.parentId ? tasks.find(t => t.id === task.parentId) : null;
     while (parent) {
       const pt = getItemType(parent);
@@ -10821,9 +11016,9 @@ async function updateTask(id, field, value) {
 
 /** Update a task row's visual styling in place without re-rendering the whole page */
 function _updateTaskRowInPlace(taskId, field, value) {
-  const row = document.querySelector(`.task-row[data-id="${taskId}"]`);
+  const row = document.querySelector(`.task-row[data-task-id="${taskId}"]`);
   if (field === 'status') {
-    document.querySelectorAll(`[data-task-id="${taskId}"] .task-status-badge, .task-row[data-id="${taskId}"] .task-row__status`).forEach(el => {
+    document.querySelectorAll(`[data-task-id="${taskId}"] .task-status-badge, .task-row[data-task-id="${taskId}"] .task-row__status`).forEach(el => {
       if (el.tagName === 'SELECT') el.value = value;
       else el.textContent = value;
     });
@@ -10857,9 +11052,11 @@ function renderRepeatSection(task) {
   html += `<label style="display:inline-flex;align-items:center;gap:6px;font-size:0.82rem;margin-bottom:8px"><input type="checkbox" ${enabled ? 'checked' : ''} onchange="toggleRepeat('${task.id}', this.checked)"> Make this task repeating</label>`;
   if (enabled) {
     const ruleType = rule.type || 'daily';
-    html += `<div class="detail-field"><label class="detail-field__label" for="detail-repeatFrequency">Frequency</label><select id="detail-repeatFrequency" onchange="setRepeatType('${task.id}', this.value)">`;
-    ['daily', 'weekly', 'yearly'].forEach(t => {
-      html += `<option value="${t}" ${ruleType === t ? 'selected' : ''}>${t.charAt(0).toUpperCase() + t.slice(1)}</option>`;
+    const interval = rule.interval || 1;
+    const unitLabels = { daily: 'Day(s)', weekly: 'Week(s)', monthly: 'Month(s)', yearly: 'Year(s)' };
+    html += `<div class="detail-field" style="display:flex;gap:6px;align-items:center"><label class="detail-field__label" style="white-space:nowrap">Every</label><input type="number" min="1" max="365" value="${interval}" style="width:50px;padding:4px 6px;font-size:0.82rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)" onchange="setRepeatInterval('${task.id}',parseInt(this.value)||1)"><select id="detail-repeatFrequency" onchange="setRepeatType('${task.id}', this.value)" style="flex:1">`;
+    ['daily', 'weekly', 'monthly', 'yearly'].forEach(t => {
+      html += `<option value="${t}" ${ruleType === t ? 'selected' : ''}>${unitLabels[t]}</option>`;
     });
     html += `</select></div>`;
 
@@ -10893,7 +11090,7 @@ function toggleRepeat(taskId, on) {
   const task = tasks.find(t => t.id === taskId);
   if (!task) return;
   if (on) {
-    task.repeatRule = task.repeatRule || { type: 'daily' };
+    task.repeatRule = task.repeatRule || { type: 'daily', interval: 1 };
   } else {
     task.repeatRule = null;
   }
@@ -10904,18 +11101,30 @@ function toggleRepeat(taskId, on) {
   else renderContent();
 }
 
-/** Set the repeat rule type (daily/weekly/yearly), preserving existing day/date config where possible */
+/** Set the repeat rule type, preserving interval and existing config where possible */
 function setRepeatType(taskId, type) {
   const task = tasks.find(t => t.id === taskId);
   if (!task) return;
   const existing = task.repeatRule || {};
-  if (type === 'daily') task.repeatRule = { type: 'daily' };
-  else if (type === 'weekly') task.repeatRule = { type: 'weekly', daysOfWeek: existing.daysOfWeek || [] };
-  else if (type === 'yearly') task.repeatRule = { type: 'yearly', dates: existing.dates || [] };
+  const interval = existing.interval || 1;
+  if (type === 'daily') task.repeatRule = { type: 'daily', interval };
+  else if (type === 'weekly') task.repeatRule = { type: 'weekly', interval, daysOfWeek: existing.daysOfWeek || [] };
+  else if (type === 'monthly') task.repeatRule = { type: 'monthly', interval };
+  else if (type === 'yearly') task.repeatRule = { type: 'yearly', interval, dates: existing.dates || [] };
   task.updatedAt = new Date().toISOString();
   markDirty(taskId);
   save();
   if (activeDetailTaskId === taskId && document.getElementById('detailPanel')?.classList.contains('open')) openDetailOverlay(taskId);
+  else renderContent();
+}
+
+function setRepeatInterval(taskId, interval) {
+  const task = tasks.find(t => t.id === taskId);
+  if (!task || !task.repeatRule) return;
+  task.repeatRule.interval = Math.max(1, Math.min(365, interval));
+  task.updatedAt = new Date().toISOString();
+  markDirty(taskId);
+  save();
 }
 
 /** Toggle a single day-of-week in a weekly repeat rule */
@@ -11333,18 +11542,20 @@ function showAddItemPicker(type) {
         }
       });
       Object.values(byProject).sort((a, b) => a.project.title.localeCompare(b.project.title)).forEach(grp => {
-        html += `<div style="padding:4px 12px 4px 24px;font-size:0.72rem;color:var(--text-secondary);border-bottom:1px solid var(--border-subtle)">&#9656; ${esc(grp.project.title)}</div>`;
+        html += `<div style="padding:4px 12px 4px 24px;font-size:0.72rem;color:var(--text-secondary);border-bottom:1px solid var(--border-subtle);cursor:pointer;user-select:none" onclick="var g=this.nextElementSibling;var o=g.style.display!=='none';g.style.display=o?'none':'block';this.querySelector('.picker-arrow').textContent=o?'\\u25B6':'\\u25BC'"><span class="picker-arrow">&#9654;</span> ${esc(grp.project.title)}</div><div style="display:none">`;
         grp.direct.forEach(p => {
           html += `<div class="picker-row" style="padding-left:36px" data-action="_actAddItemFromPicker" data-arg0="${type}" data-arg1="${p.id}">
             ${itemTypeBadgeHtml(p)} <span>${esc(p.title)}</span></div>`;
         });
         Object.values(grp.byIntermediate).sort((a, b) => a.parent.title.localeCompare(b.parent.title)).forEach(sub => {
-          html += `<div style="padding:4px 12px 4px 36px;font-size:0.68rem;color:var(--text-muted);border-bottom:1px solid var(--border-subtle)">${itemTypeBadgeHtml(sub.parent)} ${esc(sub.parent.title)}</div>`;
+          html += `<div style="padding:4px 12px 4px 36px;font-size:0.68rem;color:var(--text-muted);border-bottom:1px solid var(--border-subtle);cursor:pointer;user-select:none" onclick="var g=this.nextElementSibling;var o=g.style.display!=='none';g.style.display=o?'none':'block';this.querySelector('.picker-arrow').textContent=o?'\\u25B6':'\\u25BC'"><span class="picker-arrow">&#9654;</span> ${itemTypeBadgeHtml(sub.parent)} ${esc(sub.parent.title)}</div><div style="display:none">`;
           sub.items.forEach(p => {
             html += `<div class="picker-row" style="padding-left:48px" data-action="_actAddItemFromPicker" data-arg0="${type}" data-arg1="${p.id}">
               ${itemTypeBadgeHtml(p)} <span>${esc(p.title)}</span></div>`;
           });
+          html += `</div>`;
         });
+        html += `</div>`;
       });
     }
     html += `</div>`;
@@ -11358,7 +11569,7 @@ function showAddItemPicker(type) {
 function quickAddTask(title) {
   const itemType = document.getElementById('quickAddType')?.value || 'project';
   const client = document.getElementById('quickAddClient')?.value || currentFilter.client || '';
-  if (!client) { toast('Select a client first.', 'warning'); return; }
+  if (!client) { toast('Select a client first.', 'warning'); var sel = document.getElementById('quickAddClient'); if (sel) { sel.style.borderColor = 'var(--danger)'; sel.focus(); setTimeout(function() { sel.style.borderColor = ''; }, 3000); } return; }
   const parentType = VALID_PARENT_TYPE[itemType];
   if (parentType) {
     showAddItemPicker(itemType);
@@ -11675,8 +11886,8 @@ function renderReportingDrawer(f) {
     }
     const dTotalDays = dMonths.reduce((s, m) => s + m.days, 0) || 1;
     html += `<div style="display:grid;grid-template-columns:auto 48px 1fr;gap:4px 10px;align-items:center;font-size:0.74rem">`;
-    // Month header row (spans name+pct columns empty, bar column gets months)
-    html += `<div></div><div></div><div style="display:flex;border-bottom:1px solid var(--border-subtle);padding-bottom:4px;margin-bottom:2px">`;
+    // Month header row
+    html += `<div style="font-size:0.68rem;color:var(--text-muted);font-weight:600;letter-spacing:0.04em">STORY</div><div style="font-size:0.68rem;color:var(--text-muted);font-weight:600;letter-spacing:0.04em;text-align:right">% DONE</div><div style="display:flex;border-bottom:1px solid var(--border-subtle);padding-bottom:4px;margin-bottom:2px">`;
     dMonths.forEach(m => { const w = (m.days / dTotalDays * 100).toFixed(2); html += `<div style="width:${w}%;text-align:left;padding-left:3px;font-size:0.7rem;color:${m.isNow ? 'var(--accent-text)' : 'var(--text-muted)'};font-weight:${m.isNow ? '700' : '500'};border-right:1px solid var(--border-subtle)">${esc(m.label)}</div>`; });
     html += `</div>`;
     stories.forEach(s => {
@@ -11692,9 +11903,8 @@ function renderReportingDrawer(f) {
       const sBlockedPct = Math.round(sBlocked / sTotal * 100);
       const sNotStartedPct = Math.max(0, 100 - sDonePct - sInProgPct - sBlockedPct);
       const sH = sBlocked > 0 ? 'red' : sInProg > 0 ? 'green' : sDone === sTotal ? 'done' : 'grey';
-      const sLabelCol = sBlocked > 0 ? '#ef4444' : sDone === sTotal ? 'var(--purple)' : '#22c55e';
       html += `<div style="white-space:nowrap" title="${esc(s.title)}">${esc(s.title)}</div>`;
-      html += `<div style="text-align:right;color:${sLabelCol};font-weight:700;font-size:0.7rem">${sPct}%</div>`;
+      html += `<div style="text-align:right;color:var(--purple);font-weight:700;font-size:0.7rem">${sPct}%</div>`;
       html += `<div style="height:14px;border-radius:3px;overflow:hidden;display:flex;border:1px solid var(--border-default)">`;
       if (sDonePct > 0) html += `<div style="width:${sDonePct}%;background:var(--purple)"></div>`;
       if (sInProgPct > 0) html += `<div style="width:${sInProgPct}%;background:#22c55e"></div>`;
@@ -19314,56 +19524,79 @@ async function loadHiringMetrics() {
  * with thumbnail cards. Click a card to open the slide-in detail panel.
  * @param {HTMLElement} container - The DOM element to render into
  */
-/** Render a single candidate card (reused by Kanban and By Client modes).
- *  In Kanban mode the card is draggable so users can move candidates between stage lanes. */
+const CANDIDATE_SOURCES = ['referral', 'linkedin', 'inbound', 'agency', 'job-board', 'internal', 'other'];
+const ATS_STAGE_COLORS = { sourcing: '#6b7280', sourced: '#6b7280', screening: '#3b82f6', interviews: '#f59e0b', interview: '#f59e0b', offer: '#a855f7', onboarding: '#10b981', onboarded: '#22c55e', hired: '#22c55e', rejected: '#ef4444' };
+
+function candidateAvatarHtml(name, size) {
+  size = size || 38;
+  const initials = (name || '??').split(/\s+/).map(function(w) { return w[0]; }).join('').slice(0, 2).toUpperCase();
+  const hues = [262, 220, 340, 160, 30, 200, 280, 120, 0, 50];
+  var hash = 0;
+  for (var i = 0; i < (name || '').length; i++) hash = ((hash << 5) - hash + (name || '').charCodeAt(i)) | 0;
+  var hue = hues[Math.abs(hash) % hues.length];
+  return '<div style="width:' + size + 'px;height:' + size + 'px;border-radius:50%;background:hsl(' + hue + ',55%,45%);display:flex;align-items:center;justify-content:center;font-size:' + Math.round(size * 0.37) + 'px;font-weight:700;color:white;flex-shrink:0">' + esc(initials) + '</div>';
+}
+
+function daysInStageHtml(stageChangedAt) {
+  if (!stageChangedAt) return '';
+  var days = Math.floor((Date.now() - new Date(stageChangedAt).getTime()) / 86400000);
+  var label = days >= 14 ? Math.floor(days / 7) + 'w' : days + 'd';
+  var cls = days > 14 ? 'color:#ef4444;font-weight:600' : days > 7 ? 'color:#f59e0b;font-weight:600' : 'color:var(--text-muted)';
+  return '<span style="font-size:11px;' + cls + '" title="' + days + ' days in stage">' + label + '</span>';
+}
+
 function renderHiringCard(c, draggable) {
-  const due = c.due_date ? new Date(c.due_date) : null;
-  const isArchived = !!c.archived_at;
-  const isLate = due && due < new Date() && c.stage !== 'onboarded' && !isArchived;
-  const dueText = due ? due.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '';
+  var isArchived = !!c.archived_at;
+  var days = c.stage_changed_at ? Math.floor((Date.now() - new Date(c.stage_changed_at).getTime()) / 86400000) : 0;
+  var assignees = c.stage_assignees && c.stage_assignees[c.stage] ? c.stage_assignees[c.stage] : [];
+  var hasAssignee = assignees.length > 0;
+  var borderClass = isArchived ? 'ats-card--border-default' : days > 14 ? 'ats-card--border-red' : days > 7 ? 'ats-card--border-amber' : (!hasAssignee && days > 2) ? 'ats-card--border-amber' : 'ats-card--border-default';
 
-  const header = c.name && c.name.trim() ? c.name : (c.role || 'Unnamed candidate');
-  const subheader = c.name && c.name.trim() && c.role ? c.role : '';
-  const stageAssignees = (c.stage_assignees && typeof c.stage_assignees === 'object') ? c.stage_assignees : {};
-  const currentStageAssignees = Array.isArray(stageAssignees[c.stage]) ? stageAssignees[c.stage] : [];
-  const unassigned = !isArchived && currentStageAssignees.length === 0;
+  var stageKey = c.stage || 'sourcing';
+  var stageLabel = (HIRING_STAGE_LABELS[stageKey] || stageKey).toUpperCase();
+  var stageColor = ATS_STAGE_COLORS[stageKey] || '#6b7280';
+  var sourceLabel = c.source ? c.source.replace(/-/g, ' ').replace(/\b\w/g, function(l) { return l.toUpperCase(); }) : '';
 
-  // Action-state border colour (Greenhouse pattern)
-  let actionClass = '';
-  if (isArchived || c.stage === 'onboarded') {
-    actionClass = 'hiring-card--action-grey';
-  } else if (unassigned || isLate) {
-    actionClass = 'hiring-card--action-red';
-  }
+  var facesHtml = '';
+  var shown = assignees.slice(0, 3);
+  shown.forEach(function(name) { facesHtml += candidateAvatarHtml(name, 22); });
+  if (assignees.length > 3) facesHtml += '<div class="ats-assignee-face" style="background:#555">+' + (assignees.length - 3) + '</div>';
 
-  // Days in current stage (from updated_at as proxy)
-  const updatedAt = c.updated_at ? new Date(c.updated_at) : null;
-  const daysInStage = updatedAt ? Math.floor((Date.now() - updatedAt.getTime()) / 86400000) : 0;
-  const daysStale = daysInStage > 7;
-  const daysLabel = daysInStage > 0 ? `${daysInStage}d` : 'new';
-
-  const archivedClass = isArchived ? ' hiring-card--archived' : '';
-  const dragAttrs = draggable && !isArchived
-    ? ` draggable="true" ondragstart="onHiringCardDragStart(event, '${c.id}')" ondragend="onHiringCardDragEnd(event)"`
+  var dragAttrs = draggable && !isArchived
+    ? ' draggable="true" ondragstart="onHiringCardDragStart(event,\'' + c.id + '\')" ondragend="onHiringCardDragEnd(event)"'
     : '';
 
-  const clientChip = c.client_name ? `<span style="color:var(--text-muted);font-size:0.75rem">${esc(c.client_name)}</span>` : '';
-
-  return `<div class="hiring-card ${actionClass}${archivedClass}" data-candidate-id="${c.id}"${dragAttrs} data-action="_actOpenCandidateDetailIfNotDrag" data-arg0="${c.id}" tabindex="0" role="button"
-              aria-label="${esc(header)}${subheader ? ', ' + esc(subheader) : ''}${c.client_name ? ', ' + esc(c.client_name) : ''}, stage ${esc(HIRING_STAGE_LABELS[c.stage] || c.stage)}${unassigned ? ', no assignee' : ''}${isArchived ? ', archived' : ''}"
-              onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openCandidateDetail('${c.id}')}">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px">
-      <div style="flex:1;min-width:0">
-        <div class="hiring-card__name" ${c.stage === 'onboarded' ? 'style="text-decoration:line-through"' : ''}>${esc(header)}</div>
-        ${subheader ? `<div class="hiring-card__role">${esc(subheader)}</div>` : ''}
-      </div>
-      <span class="hiring-card__days${daysStale ? ' hiring-card__days--stale' : ''}" title="${daysInStage} days in stage">${daysLabel}</span>
-    </div>
-    <div class="hiring-card__meta">
-      ${clientChip || `<span class="${isLate ? 'hiring-card__due--late' : ''}">${dueText || '\u2014'}</span>`}
-      <span class="hiring-stage-badge hiring-stage-badge--${c.stage}" aria-hidden="true">${HIRING_STAGE_LABELS[c.stage] || c.stage}</span>
-    </div>
-  </div>`;
+  return '<div class="ats-card ' + borderClass + (isArchived ? ' archived' : '') + '"' + dragAttrs +
+    ' data-action="_actOpenCandidateDetailIfNotDrag" data-arg0="' + c.id + '" tabindex="0" role="button"' +
+    ' aria-label="' + esc(c.name || c.role || 'Unnamed') + ', ' + esc(stageKey) + '"' +
+    ' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();openCandidateDetail(\'' + c.id + '\')}">' +
+    '<div class="ats-card-identity">' +
+      candidateAvatarHtml(c.name || c.role || '?', 38) +
+      '<div style="min-width:0;flex:1">' +
+        '<div class="ats-card-name">' + esc(c.name || c.role || 'Unnamed') + '</div>' +
+        (c.name && c.role ? '<div class="ats-card-role">' + esc(c.role) + '</div>' : '') +
+      '</div>' +
+    '</div>' +
+    (c.client_name ? '<div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(c.client_name) + '</div>' : '') +
+    '<div class="ats-card-badges">' +
+      (sourceLabel ? '<span class="ats-source-badge">' + esc(sourceLabel) + '</span>' : '<span></span>') +
+      '<span style="font-size:10px;background:' + stageColor + '20;color:' + stageColor + ';padding:2px 7px;border-radius:4px">' + stageLabel + '</span>' +
+    '</div>' +
+    '<div class="ats-card-meta">' +
+      '<div class="ats-assignee-faces">' + (facesHtml || '<span style="font-size:10px;color:var(--text-faint)">No assignee</span>') + '</div>' +
+      '<div class="ats-card-indicators">' +
+        (c.has_cv ? '<span title="Has CV">&#128196;</span>' : '') +
+        (c.comment_count > 0 ? '<span title="' + c.comment_count + ' comments">&#128172;' + c.comment_count + '</span>' : '') +
+        daysInStageHtml(c.stage_changed_at) +
+      '</div>' +
+    '</div>' +
+    (c.contract_status ? '<div style="margin-top:6px"><span class="ats-contract-pill">' + esc(c.contract_status.replace(/-/g, ' ').replace(/\b\w/g, function(l){return l.toUpperCase();})) + '</span></div>' : '') +
+    (c.rejection_category ? '<div style="margin-top:6px"><span style="font-size:9px;background:rgba(239,68,68,0.15);color:#ef4444;padding:2px 6px;border-radius:3px">Rejected</span></div>' : '') +
+    '<div class="ats-mobile-move"><select aria-label="Move stage" onchange="event.stopPropagation();if(this.value)updateCandidateField(\'' + c.id + '\',\'stage\',this.value)">' +
+      '<option value="">Move to…</option>' +
+      ((_resolvedHiringStages || HIRING_STAGES.map(function(k){return {key:k,label:HIRING_STAGE_LABELS[k]||k};})).map(function(s){return '<option value="' + s.key + '"' + (s.key === (c.stage||'') ? ' disabled' : '') + '>' + esc(s.label) + '</option>';}).join('')) +
+    '</select></div>' +
+  '</div>';
 }
 
 // ---- Hiring Kanban drag-and-drop ----
@@ -19371,9 +19604,77 @@ function renderHiringCard(c, draggable) {
 // updateCandidateField('stage', newStage) path so the server is the source of truth
 // and audit logging / notifications still fire.
 
+// ---- Lane (column) drag-to-reorder ----
+var _dragLane = null;
+function onLaneDragStart(ev) {
+  var lane = ev.target.closest('.ats-lane');
+  if (!lane) return;
+  // Only drag from header, not from cards inside the lane
+  if (ev.target.closest('.ats-card') || ev.target.closest('.ats-lane-body')) { ev.preventDefault(); return; }
+  _dragLane = lane;
+  ev.dataTransfer.effectAllowed = 'move';
+  ev.dataTransfer.setData('text/x-lane', lane.dataset.stage);
+  lane.style.opacity = '0.4';
+  window._laneDragActive = true;
+}
+function onLaneDragEnd(ev) {
+  if (_dragLane) _dragLane.style.opacity = '';
+  _dragLane = null;
+  setTimeout(function() { window._laneDragActive = false; }, 50);
+}
+
+(function() {
+  document.addEventListener('dragover', function(ev) {
+    if (!_dragLane) return;
+    var target = ev.target.closest('.ats-lane');
+    if (!target || target === _dragLane || target.dataset.stage === 'onboarded') return;
+    ev.preventDefault();
+    ev.dataTransfer.dropEffect = 'move';
+    var kanban = target.closest('.ats-kanban');
+    if (!kanban) return;
+    var rect = target.getBoundingClientRect();
+    var midX = rect.left + rect.width / 2;
+    if (ev.clientX < midX) {
+      kanban.insertBefore(_dragLane, target);
+    } else if (target.nextSibling) {
+      kanban.insertBefore(_dragLane, target.nextSibling);
+    }
+  });
+
+  document.addEventListener('drop', function(ev) {
+    if (!_dragLane) return;
+    ev.preventDefault();
+    var kanban = _dragLane.closest('.ats-kanban');
+    if (!kanban) return;
+    var lanes = kanban.querySelectorAll('.ats-lane');
+    var newOrder = [];
+    var stages = _resolvedHiringStages || HIRING_STAGES.map(function(k) { return { key: k, label: HIRING_STAGE_LABELS[k] || k }; });
+    var stageMap = {};
+    stages.forEach(function(s) { stageMap[s.key] = s; });
+    lanes.forEach(function(lane) {
+      var key = lane.dataset.stage;
+      if (stageMap[key]) newOrder.push(stageMap[key]);
+    });
+    if (newOrder.length === stages.length) {
+      _resolvedHiringStages = newOrder;
+      var clientId = window._hiringFilterClient;
+      if (clientId) {
+        authFetch('/api/clients/' + clientId + '/hiring-stages', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ stages: newOrder }),
+        }).then(function(resp) {
+          if (resp.ok) { toast('Column order saved'); invalidateStagesCache(clientId); }
+        });
+      }
+    }
+  });
+})();
+
 /** Start dragging a candidate card — stash the id on the dataTransfer payload. */
 function onHiringCardDragStart(ev, candidateId) {
   if (!ev.dataTransfer) return;
+  ev.stopPropagation();
   ev.dataTransfer.effectAllowed = 'move';
   ev.dataTransfer.setData('text/plain', candidateId);
   ev.currentTarget.classList.add('dragging');
@@ -19384,7 +19685,7 @@ function onHiringCardDragStart(ev, candidateId) {
 /** End of drag (whether dropped or cancelled) — clean up visual state. */
 function onHiringCardDragEnd(ev) {
   ev.currentTarget.classList.remove('dragging');
-  document.querySelectorAll('.hiring-lane.drag-over').forEach(el => el.classList.remove('drag-over'));
+  document.querySelectorAll('.hiring-lane.drag-over,.ats-lane.drag-over').forEach(el => el.classList.remove('drag-over'));
   // Defer clearing the flag so the click that would otherwise fire on drop is suppressed
   setTimeout(() => { window._hiringDragActive = false; }, 50);
 }
@@ -19393,15 +19694,14 @@ function onHiringCardDragEnd(ev) {
 function onHiringLaneDragOver(ev) {
   ev.preventDefault();
   if (ev.dataTransfer) ev.dataTransfer.dropEffect = 'move';
-  const lane = ev.currentTarget.closest('.hiring-lane');
+  const lane = ev.currentTarget.closest('.hiring-lane,.ats-lane');
   if (lane) lane.classList.add('drag-over');
 }
 
 /** Remove the drag-over highlight when the cursor leaves the lane. */
 function onHiringLaneDragLeave(ev) {
-  const lane = ev.currentTarget.closest('.hiring-lane');
+  const lane = ev.currentTarget.closest('.hiring-lane,.ats-lane');
   if (!lane) return;
-  // Only clear if we actually left the lane (dragleave fires on child enter too)
   const related = ev.relatedTarget;
   if (!related || !lane.contains(related)) lane.classList.remove('drag-over');
 }
@@ -19409,7 +19709,7 @@ function onHiringLaneDragLeave(ev) {
 /** Handle the drop — compute drop index in the target lane and PATCH stage + position. */
 async function onHiringLaneDrop(ev, newStage) {
   ev.preventDefault();
-  const lane = ev.currentTarget.closest('.hiring-lane');
+  const lane = ev.currentTarget.closest('.hiring-lane,.ats-lane');
   if (lane) lane.classList.remove('drag-over');
   const candidateId = ev.dataTransfer ? ev.dataTransfer.getData('text/plain') : '';
   if (!candidateId) return;
@@ -19418,7 +19718,7 @@ async function onHiringLaneDrop(ev, newStage) {
 
   // Compute the drop index against visible cards in the target lane body
   const body = ev.currentTarget;
-  const cards = [...body.querySelectorAll('.hiring-card:not(.dragging)')];
+  const cards = [...body.querySelectorAll('.hiring-card:not(.dragging),.ats-card:not(.dragging)')];
   const afterCard = cards.reduce((closest, card) => {
     const box = card.getBoundingClientRect();
     const offset = ev.clientY - box.top - box.height / 2;
@@ -19514,6 +19814,7 @@ function renderPositionCard(p, candidates) {
     <div class="position-card__row">
       ${seniorityChip}
       ${d.recruitStatus ? `<span class="position-card__chip">${esc(d.recruitStatus)}</span>` : ''}
+      ${p.client_name ? `<span class="position-card__chip" style="color:#60a5fa;background:rgba(59,130,246,0.1)">${esc(p.client_name)}</span>` : ''}
     </div>
     <div class="position-card__meta">
       ${!isClientUser() && p.salary_range ? `<span>${esc(p.salary_range)}</span>` : !isClientUser() && d.startMonth ? `<span>Start: ${esc(d.startMonth)}</span>` : ''}
@@ -19529,240 +19830,848 @@ function renderPositionCard(p, candidates) {
 
 function renderHiringView(container) {
   if (!window._hiringLoaded) {
+    if (!isClientUser()) window._hiringFilterClient = null;
     container.innerHTML = '<div class="hiring" style="padding:24px"><div class="skeleton skeleton-card"></div>' +
       Array(5).fill('<div class="skeleton skeleton-row"></div>').join('') +
       '<span class="visually-hidden">Loading hiring data</span></div>';
     Promise.all([loadCandidates(), loadHiringPositions()]).then(async () => {
       await resolveAndCacheHiringStages();
+      var todayStr = new Date().toISOString().slice(0, 10);
+      try {
+        var resp = await authFetch('/api/interview-rounds?from=' + todayStr + '&to=' + todayStr);
+        if (resp.ok) { var ivs = await resp.json(); window._interviewsTodayCount = ivs.length; }
+      } catch (e) { /* non-fatal */ }
       window._hiringLoaded = true;
       if (currentView === 'hiring') renderContent();
     });
     return;
   }
 
-  const candidates = _candidatesData || [];
-  const positions = _hiringPositionsData || [];
-  const isAdmin = _currentUser && _currentUser.role === 'admin';
-  const isScopedUser = isClientUser();
-  const viewMode = isScopedUser ? 'kanban' : (window._hiringViewMode || 'kanban');
-  const isPositionsView = viewMode === 'positions';
-  const isMetricsView = viewMode === 'metrics';
+  var candidates = _candidatesData || [];
+  var active = candidates.filter(function(c) { return !c.archived_at; });
+  var canSeeTabs = !isClientUser() || isClientAdmin();
+  var activeTab = canSeeTabs ? (window._hiringActiveTab || 'pipeline') : 'pipeline';
+  var positions = _hiringPositionsData || [];
 
-  // Filter candidates (for kanban/client views)
-  let filtered = [...candidates];
-  if (window._hiringFilterClient) filtered = filtered.filter(c => c.client_id === window._hiringFilterClient);
-  if (window._hiringFilterStage) filtered = filtered.filter(c => c.stage === window._hiringFilterStage);
-  const showArchived = !!window._hiringShowArchived;
-  if (!showArchived) {
-    filtered = filtered.filter(c => !c.archived_at);
-  } else {
-    filtered = filtered.sort((a, b) => (a.archived_at ? 1 : 0) - (b.archived_at ? 1 : 0));
-  }
+  var needsAction = active.filter(function(c) {
+    var assignees = c.stage_assignees && c.stage_assignees[c.stage] ? c.stage_assignees[c.stage] : [];
+    if (assignees.length === 0) return true;
+    if (!c.stage_changed_at) return false;
+    return Math.floor((Date.now() - new Date(c.stage_changed_at).getTime()) / 86400000) > 14;
+  }).length;
+  var offersCount = active.filter(function(c) { return c.stage === 'offer'; }).length;
+  var openPositions = positions.filter(function(p) { return p.status === 'open'; }).length;
 
-  // Filter positions (for positions view)
-  let filteredPositions = [...positions];
-  if (window._hiringFilterClient) filteredPositions = filteredPositions.filter(p => p.client_id === window._hiringFilterClient);
-  if (window._hiringFilterPosStatus) filteredPositions = filteredPositions.filter(p => p.status === window._hiringFilterPosStatus);
+  var tabNames = ['pipeline', 'positions', 'database', 'calendar', 'metrics'];
+  var tabLabels = { pipeline: 'Pipeline', positions: 'Positions', database: 'Database', calendar: 'Calendar', metrics: 'Metrics' };
 
-  // Client options: include clients that have positions OR active work
-  let clientOptions = getContractedClientRecords();
-  if (isPositionsView) {
-    const posClientIds = new Set(positions.map(p => p.client_id).filter(Boolean));
-    const extra = Object.values(_apiClientsCache || {}).filter(c => c && c.id && posClientIds.has(c.id) && !clientOptions.some(co => co.id === c.id));
-    if (extra.length) clientOptions = [...clientOptions, ...extra].sort((a, b) => (a.name || '').localeCompare(b.name || ''));
-  }
+  var html = '<div class="hiring">';
+  html += '<div class="ats-summary">' +
+    '<div class="ats-summary-item" onclick="window._hiringActiveTab=\'calendar\';renderContent()">' +
+      '<span class="ats-summary-count">' + (window._interviewsTodayCount || 0) + '</span> interviews today</div>' +
+    '<div class="ats-summary-item" onclick="window._hiringActiveTab=\'database\';window._hiringDbSort=\'days_desc\';renderContent()">' +
+      '<span class="ats-summary-count' + (needsAction > 0 ? ' danger' : '') + '">' + needsAction + '</span> needs action</div>' +
+    '<div class="ats-summary-item" onclick="window._hiringActiveTab=\'pipeline\';window._hiringFilterStage=\'offer\';renderContent()">' +
+      '<span class="ats-summary-count' + (offersCount > 0 ? ' warn' : '') + '">' + offersCount + '</span> offers pending</div>' +
+    '<div class="ats-summary-item" onclick="window._hiringActiveTab=\'positions\';renderContent()">' +
+      '<span class="ats-summary-count">' + openPositions + '</span> open positions</div>' +
+  '</div>';
 
-  let html = '<div class="hiring">';
-  html += `<div class="hiring__header">
-    <h2 style="font-size:1.1rem;font-weight:600;margin:0">Hiring</h2>
-    <div style="display:flex;gap:8px;align-items:center">`;
-  if (!isScopedUser) {
-    html += `<div class="hiring-view-toggle" role="tablist" aria-label="Hiring view mode">
-        <button type="button" class="${viewMode==='kanban'?'active':''}" role="tab" aria-selected="${viewMode==='kanban'}" data-action="_actSetHiringViewMode" data-arg0="kanban">Kanban</button>
-        <button type="button" class="${viewMode==='client'?'active':''}" role="tab" aria-selected="${viewMode==='client'}" data-action="_actSetHiringViewMode" data-arg0="client">By Client</button>
-        <button type="button" class="${viewMode==='positions'?'active':''}" role="tab" aria-selected="${viewMode==='positions'}" data-action="_actSetHiringViewMode" data-arg0="positions">Positions</button>
-        <button type="button" class="${viewMode==='metrics'?'active':''}" role="tab" aria-selected="${viewMode==='metrics'}" data-action="_actSetHiringViewMode" data-arg0="metrics">Metrics</button>
-      </div>`;
-  }
-  if (!isPositionsView && !isMetricsView) {
-    html += `<button class="btn btn--primary" data-action="openCreateCandidateModal">+ Create Candidate Card</button>`;
-  }
-  html += `</div></div>`;
-
-  // Filters adapt to view mode
-  html += `<div class="hiring__filters">`;
-  if (!isScopedUser && !isMetricsView) {
-    const activeClientId = window._hiringFilterClient || null;
-    html += `<select class="leads-select" onchange="(async(v)=>{window._hiringFilterClient=v||null;await resolveAndCacheHiringStages();renderContent();})(this.value)">
-      <option value="">All Clients</option>
-      ${clientOptions.map(c => `<option value="${c.id}" ${window._hiringFilterClient===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}
-    </select>`;
-    if (isAdmin && activeClientId) {
-      html += `<button class="btn btn--ghost btn--sm" onclick="openStageEditor('${activeClientId}')" title="Configure stages" style="font-size:1rem">&#9881;</button>`;
-    }
-  }
-  if (isPositionsView) {
-    const openCount = filteredPositions.filter(p => p.status === 'open').length;
-    const filledCount = filteredPositions.filter(p => p.status === 'filled').length;
-    html += `<select class="leads-select" onchange="window._hiringFilterPosStatus=this.value||null;renderContent()">
-        <option value="">All Statuses</option>
-        <option value="open" ${window._hiringFilterPosStatus==='open'?'selected':''}>Open (${openCount})</option>
-        <option value="filled" ${window._hiringFilterPosStatus==='filled'?'selected':''}>Filled (${filledCount})</option>
-      </select>`;
-    html += `<span style="font-size:0.75rem;color:var(--text-muted)">${openCount} open, ${filledCount} filled — ${filteredPositions.length} positions</span>`;
-  } else if (!isMetricsView) {
-    html += `<select class="leads-select" onchange="window._hiringFilterStage=this.value||null;renderContent()">
-        <option value="">All Stages</option>
-        ${HIRING_STAGES.map(s => `<option value="${s}" ${window._hiringFilterStage===s?'selected':''}>${HIRING_STAGE_LABELS[s]}</option>`).join('')}
-      </select>
-      <label style="display:flex;align-items:center;gap:4px;font-size:0.75rem;color:var(--text-muted);cursor:pointer;user-select:none"><input type="checkbox" ${showArchived ? 'checked' : ''} onchange="window._hiringShowArchived=this.checked;renderContent()" style="accent-color:var(--accent)"> Show archived</label>
-      <span style="font-size:0.75rem;color:var(--text-muted)">${filtered.length} of ${candidates.length} candidates</span>`;
-  }
-  html += `</div>`;
-
-  if (isMetricsView) {
-    html += `<div id="hiringMetricsContainer" style="padding:var(--space-lg)">
-      <div style="display:flex;gap:12px;margin-bottom:var(--space-lg);flex-wrap:wrap">
-        <select id="metricsClientFilter" onchange="loadHiringMetrics()" style="padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem">
-          <option value="">Select a client…</option>
-          ${(getContractedClientRecords() || []).map(c => `<option value="${c.id}" ${window._hiringFilterClient===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}
-        </select>
-      </div>
-      <div id="metricsContent" style="color:var(--text-muted)">Select a client to view metrics</div>
-    </div>`;
-  } else if (isPositionsView) {
-    const posSort = window._hiringPositionSort || 'priority';
-    html += `<div style="display:flex;gap:6px;margin-bottom:var(--space-md)">
-      <div class="hiring-view-toggle" role="tablist" aria-label="Position sort order" style="font-size:0.75rem">
-        <button type="button" class="${posSort==='priority'?'active':''}" onclick="window._hiringPositionSort='priority';renderContent()">By Priority</button>
-        <button type="button" class="${posSort==='start'?'active':''}" onclick="window._hiringPositionSort='start';renderContent()">By Start Date</button>
-        <button type="button" class="${posSort==='status'?'active':''}" onclick="window._hiringPositionSort='status';renderContent()">By Status</button>
-        <button type="button" class="${posSort==='client'?'active':''}" onclick="window._hiringPositionSort='client';renderContent()">By Client</button>
-      </div>
-    </div>`;
-
-    if (filteredPositions.length === 0) {
-      html += `<div style="padding:var(--space-xl);text-align:center;color:var(--text-muted)">No positions found.</div>`;
-    } else {
-      const groups = {};
-      const monthOrder = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-
-      if (posSort === 'priority') {
-        const prioLabels = { '0': 'P0 — Critical', '1': 'P1 — High', '2': 'P2 — Medium', '3': 'P3 — Low', '4': 'P4 — Backlog', 'none': 'No Priority' };
-        filteredPositions.forEach(p => {
-          const d = _parsePositionDesc(p.description);
-          const key = d.priority !== null ? String(d.priority) : 'none';
-          if (!groups[key]) groups[key] = { label: prioLabels[key] || key, items: [], order: d.priority !== null ? d.priority : 99 };
-          groups[key].items.push(p);
-        });
-        const groupKeys = Object.keys(groups).sort((a, b) => groups[a].order - groups[b].order);
-        groupKeys.forEach(k => {
-          const g = groups[k];
-          html += `<div class="hiring-client-group">
-            <div class="hiring-client-group__header">${esc(g.label)} <span style="color:var(--text-muted);font-weight:400;font-size:0.82rem">(${g.items.length})</span></div>
-            <div class="hiring-grid">`;
-          g.items.forEach(p => { html += renderPositionCard(p, candidates); });
-          html += `</div></div>`;
-        });
-      } else if (posSort === 'start') {
-        filteredPositions.sort((a, b) => {
-          const da = _parsePositionDesc(a.description);
-          const db = _parsePositionDesc(b.description);
-          const ma = da.startMonth ? monthOrder.indexOf(da.startMonth.split(' ')[0]) : 99;
-          const mb = db.startMonth ? monthOrder.indexOf(db.startMonth.split(' ')[0]) : 99;
-          return ma - mb;
-        });
-        html += `<div class="hiring-grid">`;
-        filteredPositions.forEach(p => { html += renderPositionCard(p, candidates); });
-        html += `</div>`;
-      } else if (posSort === 'status') {
-        const statusLabels = { 'open': 'Open', 'filled': 'Filled' };
-        filteredPositions.forEach(p => {
-          const key = p.status || 'open';
-          if (!groups[key]) groups[key] = { label: statusLabels[key] || key, items: [], order: key === 'open' ? 0 : 1 };
-          groups[key].items.push(p);
-        });
-        const groupKeys = Object.keys(groups).sort((a, b) => groups[a].order - groups[b].order);
-        groupKeys.forEach(k => {
-          const g = groups[k];
-          html += `<div class="hiring-client-group">
-            <div class="hiring-client-group__header">${esc(g.label)} <span style="color:var(--text-muted);font-weight:400;font-size:0.82rem">(${g.items.length})</span></div>
-            <div class="hiring-grid">`;
-          g.items.forEach(p => { html += renderPositionCard(p, candidates); });
-          html += `</div></div>`;
-        });
-      } else {
-        filteredPositions.forEach(p => {
-          const key = p.client_id || '__unassigned__';
-          const label = p.client_name || 'Unassigned';
-          if (!groups[key]) groups[key] = { label, items: [] };
-          groups[key].items.push(p);
-        });
-        Object.values(groups).forEach(g => {
-          g.items.sort((a, b) => {
-            const da = _parsePositionDesc(a.description);
-            const db = _parsePositionDesc(b.description);
-            const ma = da.startMonth ? monthOrder.indexOf(da.startMonth.split(' ')[0]) : 99;
-            const mb = db.startMonth ? monthOrder.indexOf(db.startMonth.split(' ')[0]) : 99;
-            return ma - mb;
-          });
-        });
-        const groupKeys = Object.keys(groups).sort((a, b) => groups[a].label.localeCompare(groups[b].label));
-        groupKeys.forEach(k => {
-          const g = groups[k];
-          html += `<div class="hiring-client-group">
-            <div class="hiring-client-group__header">${esc(g.label)} <span style="color:var(--text-muted);font-weight:400;font-size:0.82rem">(${g.items.length})</span></div>
-            <div class="hiring-grid">`;
-          g.items.forEach(p => { html += renderPositionCard(p, candidates); });
-          html += `</div></div>`;
-        });
-      }
-    }
-  } else if (filtered.length === 0) {
-    html += `<div style="padding:var(--space-xl);text-align:center;color:var(--text-muted)">No candidates yet. Click "+ Create Candidate Card" to add one.</div>`;
-  } else if (viewMode === 'kanban') {
-    html += `<div class="hiring-kanban" role="list" aria-label="Hiring pipeline">`;
-    const kanbanStages = _resolvedHiringStages || HIRING_STAGES.map(k => ({ key: k, label: HIRING_STAGE_LABELS[k] || k }));
-    kanbanStages.forEach(stageObj => {
-      const stage = stageObj.key;
-      const stageLabel = stageObj.label;
-      const stageCandidates = filtered.filter(c => c.stage === stage)
-        .sort((a, b) => (a.position || 0) - (b.position || 0));
-      html += `<section class="hiring-lane" data-stage="${stage}" role="listitem" aria-label="${esc(stageLabel)} lane, ${stageCandidates.length} candidates">
-        <div class="hiring-lane__header hiring-lane__header--${stage}">
-          <span>${esc(stageLabel)}</span>
-          <span class="hiring-lane__count">${stageCandidates.length}</span>
-        </div>
-        <div class="hiring-lane__body"
-             ondragover="onHiringLaneDragOver(event)"
-             ondragleave="onHiringLaneDragLeave(event)"
-             ondrop="onHiringLaneDrop(event, '${stage}')">`;
-      if (stageCandidates.length === 0) {
-        html += `<div class="hiring-lane__empty">Drop candidate here</div>`;
-      } else {
-        stageCandidates.forEach(c => { html += renderHiringCard(c, true); });
-      }
-      html += `</div></section>`;
+  if (canSeeTabs) {
+    html += '<div class="ats-tabs" role="tablist">';
+    tabNames.forEach(function(t) {
+      html += '<div class="ats-tab' + (activeTab === t ? ' active' : '') + '" role="tab" onclick="window._hiringActiveTab=\'' + t + '\';renderContent()">' + tabLabels[t] + '</div>';
     });
-    html += `</div>`;
+    html += '</div>';
+  }
+
+  html += '<div id="ats-tab-content" role="tabpanel"></div></div>';
+  container.innerHTML = html;
+
+  var tabEl = container.querySelector('#ats-tab-content');
+  switch (activeTab) {
+    case 'pipeline': renderPipelineTab(tabEl); break;
+    case 'positions': renderPositionsTab(tabEl); break;
+    case 'database': renderDatabaseTab(tabEl); break;
+    case 'calendar': renderCalendarTab(tabEl); break;
+    case 'metrics': renderMetricsTab(tabEl); break;
+  }
+}
+
+function renderPipelineTab(container) {
+  var candidates = _candidatesData || [];
+  var isAdmin = _currentUser && _currentUser.role === 'admin';
+  var isScopedUser = isClientUser();
+  var isClientAdm = isClientAdmin();
+  var showControls = !isScopedUser || isClientAdm;
+  var viewMode = showControls ? (window._hiringViewMode || 'kanban') : 'kanban';
+
+  var positions = _hiringPositionsData || [];
+  var filtered = candidates.slice();
+  if (window._hiringFilterClient) filtered = filtered.filter(function(c) { return c.client_id === window._hiringFilterClient; });
+  if (window._hiringFilterStage) filtered = filtered.filter(function(c) { return c.stage === window._hiringFilterStage; });
+  if (window._hiringFilterPosition) filtered = filtered.filter(function(c) { return c.position_id === window._hiringFilterPosition; });
+  var showArchived = !!window._hiringShowArchived;
+  if (!showArchived) {
+    filtered = filtered.filter(function(c) { return !c.archived_at; });
   } else {
-    const groups = {};
-    filtered.forEach(c => {
-      const key = c.client_id || '__unassigned__';
-      const label = c.client_name || 'Unassigned';
-      if (!groups[key]) groups[key] = { label, items: [] };
+    filtered.sort(function(a, b) { return (a.archived_at ? 1 : 0) - (b.archived_at ? 1 : 0); });
+  }
+
+  var clientOptions = getContractedClientRecords();
+  var html = '<div class="ats-controls">';
+  if (showControls) {
+    if (!isScopedUser) {
+      html += '<div class="hiring-view-toggle"><button type="button" class="' + (viewMode === 'kanban' ? 'active' : '') + '" onclick="window._hiringViewMode=\'kanban\';renderContent()">Kanban</button>' +
+        '<button type="button" class="' + (viewMode === 'client' ? 'active' : '') + '" onclick="window._hiringViewMode=\'client\';renderContent()">By Client</button></div>';
+      html += '<select class="ats-filter-btn" onchange="(async function(v){window._hiringFilterClient=v||null;await resolveAndCacheHiringStages();renderContent();})(this.value)">' +
+        '<option value="">All Clients</option>' +
+        clientOptions.map(function(c) { return '<option value="' + c.id + '"' + (window._hiringFilterClient === c.id ? ' selected' : '') + '>' + esc(c.name) + '</option>'; }).join('') + '</select>';
+    }
+    if (isAdmin && window._hiringFilterClient) {
+      html += '<button class="ats-filter-btn" onclick="openStageEditor(\'' + window._hiringFilterClient + '\')" title="Configure stages">&#9881;</button>';
+    }
+    html += '<select class="ats-filter-btn" onchange="window._hiringFilterStage=this.value||null;renderContent()">' +
+      '<option value="">All Stages</option>' +
+      HIRING_STAGES.map(function(s) { return '<option value="' + s + '"' + (window._hiringFilterStage === s ? ' selected' : '') + '>' + HIRING_STAGE_LABELS[s] + '</option>'; }).join('') + '</select>';
+    html += '<select class="ats-filter-btn" onchange="window._hiringFilterPosition=this.value||null;renderContent()">' +
+      '<option value="">All Positions</option>' +
+      positions.map(function(p) { return '<option value="' + p.id + '"' + (window._hiringFilterPosition === p.id ? ' selected' : '') + '>' + esc(p.title) + '</option>'; }).join('') + '</select>';
+    html += '<label style="display:flex;align-items:center;gap:4px;font-size:12px;color:var(--text-muted);cursor:pointer;user-select:none"><input type="checkbox"' + (showArchived ? ' checked' : '') + ' onchange="window._hiringShowArchived=this.checked;renderContent()" style="accent-color:#7c3aed"> Show archived</label>';
+  }
+  html += '<button class="btn btn--primary" data-action="openCreateCandidateModal" style="margin-left:auto">+ Candidate</button>';
+  html += '<span style="font-size:12px;color:var(--text-muted)">' + filtered.length + ' of ' + candidates.length + '</span>';
+  html += '</div>';
+
+  if (filtered.length === 0) {
+    html += '<div style="padding:40px;text-align:center;color:var(--text-muted)">No candidates yet. Click "+ Candidate" to add one.</div>';
+  } else if (viewMode === 'kanban') {
+    html += '<div class="ats-kanban" role="list" aria-label="Hiring pipeline">';
+    var kanbanStages = _resolvedHiringStages || HIRING_STAGES.map(function(k) { return { key: k, label: HIRING_STAGE_LABELS[k] || k }; });
+    kanbanStages.forEach(function(stageObj) {
+      var stage = stageObj.key;
+      var stageLabel = stageObj.label;
+      var stageColor = ATS_STAGE_COLORS[stage] || '#6b7280';
+      var stageCandidates = filtered.filter(function(c) { return c.stage === stage; })
+        .sort(function(a, b) { return (a.position || 0) - (b.position || 0); });
+      var isTerminalStage = stage === 'onboarded';
+      html += '<section class="ats-lane" data-stage="' + stage + '" ' + (isTerminalStage ? '' : 'draggable="true" ondragstart="onLaneDragStart(event)" ondragend="onLaneDragEnd(event)"') + '>' +
+        '<div class="ats-lane-header" style="color:' + stageColor + ';' + (isTerminalStage ? '' : 'cursor:grab') + '">' +
+          '<span>' + esc(stageLabel) + '</span><span class="ats-lane-count">' + stageCandidates.length + '</span></div>' +
+        '<div class="ats-lane-body" ondragover="onHiringLaneDragOver(event)" ondragleave="onHiringLaneDragLeave(event)" ondrop="onHiringLaneDrop(event,\'' + stage + '\')">';
+      if (stageCandidates.length === 0) {
+        html += '<div class="ats-lane-empty">Drop candidate here</div>';
+      } else {
+        stageCandidates.forEach(function(c) { html += renderHiringCard(c, true); });
+      }
+      html += '</div></section>';
+    });
+    html += '</div>';
+  } else {
+    var groups = {};
+    filtered.forEach(function(c) {
+      var key = c.client_id || '__unassigned__';
+      var label = c.client_name || 'Unassigned';
+      if (!groups[key]) groups[key] = { label: label, items: [] };
       groups[key].items.push(c);
     });
-    const groupKeys = Object.keys(groups).sort((a, b) => groups[a].label.localeCompare(groups[b].label));
-    groupKeys.forEach(k => {
-      const g = groups[k];
-      html += `<div class="hiring-client-group">
-        <div class="hiring-client-group__header">${esc(g.label)} <span style="color:var(--text-muted);font-weight:400;font-size:0.82rem">(${g.items.length})</span></div>
-        <div class="hiring-grid">`;
-      g.items.forEach(c => { html += renderHiringCard(c); });
-      html += `</div></div>`;
+    var groupKeys = Object.keys(groups).sort(function(a, b) { return groups[a].label.localeCompare(groups[b].label); });
+    groupKeys.forEach(function(k) {
+      var g = groups[k];
+      html += '<div class="hiring-client-group">' +
+        '<div class="hiring-client-group__header">' + esc(g.label) + ' <span style="color:var(--text-muted);font-weight:400;font-size:0.82rem">(' + g.items.length + ')</span></div>' +
+        '<div class="hiring-grid">';
+      g.items.forEach(function(c) { html += renderHiringCard(c); });
+      html += '</div></div>';
     });
   }
+  container.innerHTML = html;
+}
+
+function renderPositionsTab(container) {
+  var positions = _hiringPositionsData || [];
+  var candidates = _candidatesData || [];
+  var isClient = isClientUser();
+
+  var filteredPositions = positions.slice();
+  if (window._hiringFilterClient) filteredPositions = filteredPositions.filter(function(p) { return p.client_id === window._hiringFilterClient; });
+  if (window._hiringFilterPosStatus) filteredPositions = filteredPositions.filter(function(p) { return p.status === window._hiringFilterPosStatus; });
+
+  var openCount = filteredPositions.filter(function(p) { return p.status === 'open'; }).length;
+  var filledCount = filteredPositions.filter(function(p) { return p.status === 'filled'; }).length;
+  var posSort = window._hiringPositionSort || 'priority';
+
+  var html = '<div class="ats-controls">' +
+    '<div class="hiring-view-toggle" style="font-size:0.75rem">' +
+      '<button type="button" class="' + (posSort === 'priority' ? 'active' : '') + '" onclick="window._hiringPositionSort=\'priority\';renderContent()">Priority</button>' +
+      '<button type="button" class="' + (posSort === 'start' ? 'active' : '') + '" onclick="window._hiringPositionSort=\'start\';renderContent()">Start Date</button>' +
+      '<button type="button" class="' + (posSort === 'status' ? 'active' : '') + '" onclick="window._hiringPositionSort=\'status\';renderContent()">Status</button>' +
+      '<button type="button" class="' + (posSort === 'client' ? 'active' : '') + '" onclick="window._hiringPositionSort=\'client\';renderContent()">Client</button>' +
+    '</div>' +
+    '<select class="ats-filter-btn" onchange="window._hiringFilterPosStatus=this.value||null;renderContent()">' +
+      '<option value="">All Statuses</option>' +
+      '<option value="open"' + (window._hiringFilterPosStatus === 'open' ? ' selected' : '') + '>Open (' + openCount + ')</option>' +
+      '<option value="filled"' + (window._hiringFilterPosStatus === 'filled' ? ' selected' : '') + '>Filled (' + filledCount + ')</option>' +
+    '</select>' +
+    '<span style="font-size:12px;color:var(--text-muted)">' + openCount + ' open, ' + filledCount + ' filled</span>' +
+    (!isClient ? '<button class="btn btn--primary" style="margin-left:auto" onclick="openCreatePositionModal()">+ Position</button>' : '') +
+  '</div>';
+
+  if (filteredPositions.length === 0) {
+    html += '<div style="padding:40px;text-align:center;color:var(--text-muted)">No positions found.</div>';
+  } else {
+    var groups = {};
+    var monthOrder = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+    if (posSort === 'priority') {
+      var prioLabels = { '0': 'P0 — Critical', '1': 'P1 — High', '2': 'P2 — Medium', '3': 'P3 — Low', '4': 'P4 — Backlog', 'none': 'No Priority' };
+      filteredPositions.forEach(function(p) {
+        var d = _parsePositionDesc(p.description);
+        var key = d.priority !== null ? String(d.priority) : 'none';
+        if (!groups[key]) groups[key] = { label: prioLabels[key] || key, items: [], order: d.priority !== null ? d.priority : 99 };
+        groups[key].items.push(p);
+      });
+      Object.keys(groups).sort(function(a, b) { return groups[a].order - groups[b].order; }).forEach(function(k) {
+        var g = groups[k];
+        html += '<div class="hiring-client-group"><div class="hiring-client-group__header">' + esc(g.label) + ' <span style="color:var(--text-muted);font-weight:400;font-size:0.82rem">(' + g.items.length + ')</span></div><div class="hiring-grid">';
+        g.items.forEach(function(p) { html += renderPositionCard(p, candidates); });
+        html += '</div></div>';
+      });
+    } else if (posSort === 'start') {
+      filteredPositions.sort(function(a, b) {
+        var da = _parsePositionDesc(a.description);
+        var db = _parsePositionDesc(b.description);
+        var ma = da.startMonth ? monthOrder.indexOf(da.startMonth.split(' ')[0]) : 99;
+        var mb = db.startMonth ? monthOrder.indexOf(db.startMonth.split(' ')[0]) : 99;
+        return ma - mb;
+      });
+      html += '<div class="hiring-grid">';
+      filteredPositions.forEach(function(p) { html += renderPositionCard(p, candidates); });
+      html += '</div>';
+    } else if (posSort === 'status') {
+      var statusLabels = { 'open': 'Open', 'filled': 'Filled' };
+      filteredPositions.forEach(function(p) {
+        var key = p.status || 'open';
+        if (!groups[key]) groups[key] = { label: statusLabels[key] || key, items: [], order: key === 'open' ? 0 : 1 };
+        groups[key].items.push(p);
+      });
+      Object.keys(groups).sort(function(a, b) { return groups[a].order - groups[b].order; }).forEach(function(k) {
+        var g = groups[k];
+        html += '<div class="hiring-client-group"><div class="hiring-client-group__header">' + esc(g.label) + ' <span style="color:var(--text-muted);font-weight:400;font-size:0.82rem">(' + g.items.length + ')</span></div><div class="hiring-grid">';
+        g.items.forEach(function(p) { html += renderPositionCard(p, candidates); });
+        html += '</div></div>';
+      });
+    } else {
+      filteredPositions.forEach(function(p) {
+        var key = p.client_id || '__unassigned__';
+        var label = p.client_name || 'Unassigned';
+        if (!groups[key]) groups[key] = { label: label, items: [] };
+        groups[key].items.push(p);
+      });
+      Object.keys(groups).sort(function(a, b) { return groups[a].label.localeCompare(groups[b].label); }).forEach(function(k) {
+        var g = groups[k];
+        html += '<div class="hiring-client-group"><div class="hiring-client-group__header">' + esc(g.label) + ' <span style="color:var(--text-muted);font-weight:400;font-size:0.82rem">(' + g.items.length + ')</span></div><div class="hiring-grid">';
+        g.items.forEach(function(p) { html += renderPositionCard(p, candidates); });
+        html += '</div></div>';
+      });
+    }
+  }
+  container.innerHTML = html;
+}
+
+function openCreatePositionModal() {
+  var clientOptions = getContractedClientRecords();
+  var modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.style.display = 'flex';
+  modal.setAttribute('role', 'dialog');
+  modal.innerHTML = '<div class="modal" style="min-width:360px;max-width:480px">' +
+    '<div class="modal__title">Create Position</div>' +
+    '<div style="display:flex;flex-direction:column;gap:10px">' +
+      '<label style="font-size:0.78rem;color:var(--text-muted)">Title *<input type="text" id="cpTitle" style="width:100%;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;margin-top:4px" autofocus></label>' +
+      '<label style="font-size:0.78rem;color:var(--text-muted)">Client<select id="cpClient" style="width:100%;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;margin-top:4px">' +
+        '<option value="">— None —</option>' + clientOptions.map(function(c) { return '<option value="' + c.id + '"' + (window._hiringFilterClient === c.id ? ' selected' : '') + '>' + esc(c.name) + '</option>'; }).join('') +
+      '</select></label>' +
+      '<div style="display:flex;gap:8px">' +
+        '<label style="flex:1;font-size:0.78rem;color:var(--text-muted)">Seniority<select id="cpSeniority" style="width:100%;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;margin-top:4px">' +
+          '<option value="">—</option><option value="junior">Junior</option><option value="mid">Mid</option><option value="senior">Senior</option><option value="lead">Lead</option><option value="executive">Executive</option></select></label>' +
+        '<label style="flex:1;font-size:0.78rem;color:var(--text-muted)">Type<select id="cpType" style="width:100%;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;margin-top:4px">' +
+          '<option value="permanent">Permanent</option><option value="contract">Contract</option><option value="freelance">Freelance</option></select></label>' +
+      '</div>' +
+      '<label style="font-size:0.78rem;color:var(--text-muted)">Salary Range<input type="text" id="cpSalary" placeholder="e.g. £50,000 - £70,000" style="width:100%;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;margin-top:4px"></label>' +
+      '<label style="font-size:0.78rem;color:var(--text-muted)">Location<input type="text" id="cpLocation" placeholder="e.g. Remote, London" style="width:100%;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;margin-top:4px"></label>' +
+    '</div>' +
+    '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">' +
+      '<button class="btn" onclick="this.closest(\'.modal-overlay\').remove()">Cancel</button>' +
+      '<button class="btn btn--primary" onclick="submitCreatePosition()">Create</button>' +
+    '</div></div>';
+  document.body.appendChild(modal);
+  if (typeof _trapFocus === 'function') _trapFocus(modal.querySelector('.modal'));
+  modal.onclick = function(e) { if (e.target === modal) modal.remove(); };
+  var escHandler = function(e) { if (e.key === 'Escape') { modal.remove(); document.removeEventListener('keydown', escHandler); } };
+  document.addEventListener('keydown', escHandler);
+  setTimeout(function() { var el = modal.querySelector('#cpTitle'); if (el) el.focus(); }, 0);
+}
+
+async function submitCreatePosition() {
+  var title = (document.getElementById('cpTitle') || {}).value;
+  if (!title || !title.trim()) { toast('Title is required', 'error'); return; }
+  var body = {
+    title: title.trim(),
+    client_id: (document.getElementById('cpClient') || {}).value || null,
+    seniority: (document.getElementById('cpSeniority') || {}).value || null,
+    employment_type: (document.getElementById('cpType') || {}).value || 'permanent',
+    salary_range: (document.getElementById('cpSalary') || {}).value || null,
+    location: (document.getElementById('cpLocation') || {}).value || null,
+  };
+  var resp = await authFetch('/api/hiring-positions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (resp.ok) {
+    toast('Position created');
+    document.querySelector('.modal-overlay').remove();
+    await loadHiringPositions();
+    renderContent();
+  } else {
+    var err = await resp.json().catch(function() { return {}; });
+    toast(err.error || 'Failed to create position', 'error');
+  }
+}
+
+function renderDatabaseTab(container) {
+  var candidates = _candidatesData || [];
+  var positions = _hiringPositionsData || [];
+  var clients = [];
+  var clientSet = {};
+  candidates.forEach(function(c) { if (c.client_name && !clientSet[c.client_name]) { clientSet[c.client_name] = true; clients.push(c.client_name); } });
+  clients.sort();
+  var sources = [];
+  var srcSet = {};
+  candidates.forEach(function(c) { if (c.source && !srcSet[c.source]) { srcSet[c.source] = true; sources.push(c.source); } });
+  sources.sort();
+  var stageKeys = (_resolvedHiringStages || HIRING_STAGES.map(function(k) { return { key: k }; })).map(function(s) { return s.key; });
+
+  var filters = window._hiringDbFilters || {};
+  var searchTerm = (filters.search || '').toLowerCase();
+
+  var filtered = candidates.slice();
+  if (searchTerm) filtered = filtered.filter(function(c) { return [c.name, c.role, c.client_name, c.source].some(function(f) { return (f || '').toLowerCase().indexOf(searchTerm) >= 0; }); });
+  if (filters.stage) filtered = filtered.filter(function(c) { return c.stage === filters.stage; });
+  if (filters.client) filtered = filtered.filter(function(c) { return c.client_name === filters.client; });
+  if (filters.source) filtered = filtered.filter(function(c) { return c.source === filters.source; });
+  if (filters.position_id) filtered = filtered.filter(function(c) { return c.position_id === filters.position_id; });
+  if (!filters.showArchived) filtered = filtered.filter(function(c) { return !c.archived_at; });
+
+  var sort = window._hiringDbSort || 'days_desc';
+  filtered.sort(function(a, b) {
+    switch (sort) {
+      case 'name_asc': return (a.name || '').localeCompare(b.name || '');
+      case 'name_desc': return (b.name || '').localeCompare(a.name || '');
+      case 'days_desc': return ((b.stage_changed_at ? Date.now() - new Date(b.stage_changed_at).getTime() : 0) - (a.stage_changed_at ? Date.now() - new Date(a.stage_changed_at).getTime() : 0));
+      case 'days_asc': return ((a.stage_changed_at ? Date.now() - new Date(a.stage_changed_at).getTime() : 0) - (b.stage_changed_at ? Date.now() - new Date(b.stage_changed_at).getTime() : 0));
+      case 'stage_asc': return stageKeys.indexOf(a.stage) - stageKeys.indexOf(b.stage);
+      case 'stage_desc': return stageKeys.indexOf(b.stage) - stageKeys.indexOf(a.stage);
+      default: return 0;
+    }
+  });
+
+  var chipsHtml = '';
+  if (filters.stage) chipsHtml += '<span class="ats-chip" onclick="delete window._hiringDbFilters.stage;renderContent()">' + esc(HIRING_STAGE_LABELS[filters.stage] || filters.stage) + ' <span class="remove">&#10005;</span></span>';
+  if (filters.client) chipsHtml += '<span class="ats-chip" onclick="delete window._hiringDbFilters.client;renderContent()">' + esc(filters.client) + ' <span class="remove">&#10005;</span></span>';
+  if (filters.source) chipsHtml += '<span class="ats-chip" onclick="delete window._hiringDbFilters.source;renderContent()">' + esc(filters.source) + ' <span class="remove">&#10005;</span></span>';
+
+  function sortIcon(col) { return sort.indexOf(col) === 0 ? (sort.indexOf('desc') > 0 ? ' &#9660;' : ' &#9650;') : ''; }
+  function toggleSort(col) { return 'window._hiringDbSort=window._hiringDbSort===\'' + col + '_asc\'?\'' + col + '_desc\':\'' + col + '_asc\';renderContent()'; }
+
+  var html = '<div class="ats-controls">' +
+    '<input class="ats-search" type="text" placeholder="Search candidates..." value="' + esc(filters.search || '') + '" oninput="window._hiringDbFilters=window._hiringDbFilters||{};window._hiringDbFilters.search=this.value;renderContent()">' +
+    '<select class="ats-filter-btn" onchange="window._hiringDbFilters=window._hiringDbFilters||{};window._hiringDbFilters.stage=this.value||undefined;renderContent()">' +
+      '<option value="">Stage</option>' + stageKeys.map(function(s) { return '<option value="' + s + '"' + (filters.stage === s ? ' selected' : '') + '>' + (HIRING_STAGE_LABELS[s] || s) + '</option>'; }).join('') + '</select>' +
+    '<select class="ats-filter-btn" onchange="window._hiringDbFilters=window._hiringDbFilters||{};window._hiringDbFilters.client=this.value||undefined;renderContent()">' +
+      '<option value="">Client</option>' + clients.map(function(c) { return '<option value="' + esc(c) + '"' + (filters.client === c ? ' selected' : '') + '>' + esc(c) + '</option>'; }).join('') + '</select>' +
+    '<select class="ats-filter-btn" onchange="window._hiringDbFilters=window._hiringDbFilters||{};window._hiringDbFilters.source=this.value||undefined;renderContent()">' +
+      '<option value="">Source</option>' + sources.map(function(s) { return '<option value="' + esc(s) + '"' + (filters.source === s ? ' selected' : '') + '>' + esc(s.replace(/-/g, ' ')) + '</option>'; }).join('') + '</select>' +
+    '<select class="ats-filter-btn" onchange="window._hiringDbFilters=window._hiringDbFilters||{};window._hiringDbFilters.position_id=this.value||undefined;renderContent()">' +
+      '<option value="">Position</option>' + positions.map(function(p) { return '<option value="' + p.id + '"' + (filters.position_id === p.id ? ' selected' : '') + '>' + esc(p.title) + '</option>'; }).join('') + '</select>' +
+    '<button class="btn btn--primary" data-action="openCreateCandidateModal" style="margin-left:auto">+ Candidate</button>' +
+  '</div>';
+  if (chipsHtml) html += '<div class="ats-filter-chips">' + chipsHtml + '</div>';
+
+  html += '<table class="ats-db-table"><thead><tr>' +
+    '<th class="sortable" onclick="' + toggleSort('name') + '">Candidate' + sortIcon('name') + '</th>' +
+    '<th>Role</th>' +
+    '<th class="sortable" onclick="' + toggleSort('stage') + '">Stage' + sortIcon('stage') + '</th>' +
+    '<th>Source</th>' +
+    '<th class="sortable" onclick="' + toggleSort('days') + '">Days' + sortIcon('days') + '</th>' +
+    '<th>Assignee</th>' +
+  '</tr></thead><tbody>';
+
+  var teamMembers = _cachedTeamMembers || [];
+  var resolvedStages = _resolvedHiringStages || HIRING_STAGES.map(function(k) { return { key: k, label: HIRING_STAGE_LABELS[k] || k }; });
+
+  filtered.forEach(function(c) {
+    var stageColor = ATS_STAGE_COLORS[c.stage] || '#6b7280';
+    var assignees = c.stage_assignees && c.stage_assignees[c.stage] ? c.stage_assignees[c.stage] : [];
+    var assigneeDisplay = assignees.length > 0 ? assignees.join(', ') : '';
+
+    var stageOpts = resolvedStages.map(function(s) {
+      return '<option value="' + s.key + '"' + (c.stage === s.key ? ' selected' : '') + '>' + esc(s.label) + '</option>';
+    }).join('');
+
+    var sourceOpts = '<option value="">—</option>' + CANDIDATE_SOURCES.map(function(s) {
+      return '<option value="' + s + '"' + (c.source === s ? ' selected' : '') + '>' + esc(s.replace(/-/g, ' ')) + '</option>';
+    }).join('');
+
+    var assigneeOpts = '<option value="">' + (assigneeDisplay || '—') + '</option>' + teamMembers.map(function(m) {
+      return '<option value="' + esc(m) + '">' + esc(m) + '</option>';
+    }).join('');
+
+    var assigneeChips = assignees.map(function(name, idx) {
+      return '<span style="display:inline-flex;align-items:center;gap:2px;background:var(--bg-surface);border-radius:8px;padding:1px 6px;font-size:10px;color:#ccc;margin-right:2px">' + esc(name.split(' ')[0]) +
+        '<span style="cursor:pointer;color:var(--text-muted);font-size:9px" onclick="event.stopPropagation();dbRemoveAssignee(\'' + c.id + '\',\'' + esc(c.stage) + '\',' + idx + ')">&times;</span></span>';
+    }).join('');
+
+    html += '<tr' + (c.archived_at ? ' style="opacity:0.5"' : '') + '>' +
+      '<td style="display:flex;align-items:center;gap:8px;cursor:pointer" onclick="openCandidateDetail(\'' + c.id + '\')">' + candidateAvatarHtml(c.name || c.role, 28) + '<span style="font-weight:500">' + esc(c.name || 'Unnamed') + '</span></td>' +
+      '<td style="color:#999;cursor:pointer" onclick="openCandidateDetail(\'' + c.id + '\')">' + esc(c.role || '—') + '</td>' +
+      '<td><select class="ats-inline-select" aria-label="Stage for ' + esc(c.name || 'candidate') + '" onchange="event.stopPropagation();updateCandidateField(\'' + c.id + '\',\'stage\',this.value)" style="color:' + stageColor + ';font-weight:600">' + stageOpts + '</select></td>' +
+      '<td><select class="ats-inline-select" aria-label="Source for ' + esc(c.name || 'candidate') + '" onchange="event.stopPropagation();updateCandidateField(\'' + c.id + '\',\'source\',this.value||null)" style="color:#60a5fa">' + sourceOpts + '</select></td>' +
+      '<td>' + daysInStageHtml(c.stage_changed_at) + '</td>' +
+      '<td><div style="display:flex;flex-wrap:wrap;align-items:center;gap:2px">' + assigneeChips +
+        '<select class="ats-inline-select" aria-label="Add assignee for ' + esc(c.name || 'candidate') + '" onchange="event.stopPropagation();dbAddAssignee(\'' + c.id + '\',\'' + esc(c.stage) + '\',this.value);this.selectedIndex=0" style="color:var(--text-muted);width:auto;min-width:30px"><option value="">+</option>' +
+        teamMembers.map(function(m) { return '<option value="' + esc(m) + '">' + esc(m) + '</option>'; }).join('') + '</select></div></td>' +
+    '</tr>';
+  });
+
+  html += '</tbody></table>';
+  html += '<div style="text-align:right;color:var(--text-faint);font-size:11px;padding:8px 12px">Showing ' + filtered.length + ' of ' + candidates.length + ' candidates</div>';
+  container.innerHTML = html;
+}
+
+async function dbAddAssignee(candidateId, stage, name) {
+  if (!name) return;
+  var c = (_candidatesData || []).find(function(x) { return x.id === candidateId; });
+  if (!c) return;
+  var current = (c.stage_assignees && typeof c.stage_assignees === 'object') ? JSON.parse(JSON.stringify(c.stage_assignees)) : {};
+  var list = Array.isArray(current[stage]) ? current[stage].slice() : [];
+  if (list.indexOf(name) >= 0) { toast(name + ' already assigned', 'warning'); return; }
+  list.push(name);
+  current[stage] = list;
+  await updateCandidateField(candidateId, 'stage_assignees', current);
+}
+
+async function dbRemoveAssignee(candidateId, stage, idx) {
+  var c = (_candidatesData || []).find(function(x) { return x.id === candidateId; });
+  if (!c) return;
+  var current = (c.stage_assignees && typeof c.stage_assignees === 'object') ? JSON.parse(JSON.stringify(c.stage_assignees)) : {};
+  var list = Array.isArray(current[stage]) ? current[stage].slice() : [];
+  list.splice(idx, 1);
+  current[stage] = list;
+  await updateCandidateField(candidateId, 'stage_assignees', current);
+}
+
+async function renderCalendarTab(container) {
+  var weekOffset = window._calendarWeekOffset || 0;
+  var viewMode = window._calendarViewMode || 'week';
+
+  var now = new Date();
+  var dayOfWeek = now.getDay() || 7;
+  var monday = new Date(now);
+  monday.setDate(now.getDate() - dayOfWeek + 1 + weekOffset * 7);
+  monday.setHours(0, 0, 0, 0);
+  var friday = new Date(monday);
+  friday.setDate(monday.getDate() + 4);
+
+  var fromStr, toStr;
+  if (viewMode === 'month') {
+    var mStart = new Date(now.getFullYear(), now.getMonth() + (window._calendarMonthOffset || 0), 1);
+    var mEnd = new Date(mStart.getFullYear(), mStart.getMonth() + 1, 0);
+    fromStr = mStart.toISOString().slice(0, 10);
+    toStr = new Date(mEnd.getTime() + 86400000).toISOString().slice(0, 10);
+  } else {
+    fromStr = monday.toISOString().slice(0, 10);
+    toStr = new Date(friday.getTime() + 86400000).toISOString().slice(0, 10);
+  }
+
+  container.innerHTML = '<div style="padding:20px;color:var(--text-muted)">Loading interviews…</div>';
+
+  var interviews = [];
+  try {
+    var resp = await authFetch('/api/interview-rounds?from=' + fromStr + '&to=' + toStr);
+    if (resp.ok) interviews = await resp.json();
+  } catch (e) { /* empty */ }
+
+  var todayStr = new Date().toISOString().slice(0, 10);
+  window._interviewsTodayCount = interviews.filter(function(iv) { return iv.scheduled_at && iv.scheduled_at.slice(0, 10) === todayStr; }).length;
+
+  if (window._calendarFilterPosition) {
+    var posCandIds = {};
+    (_candidatesData || []).forEach(function(c) { if (c.position_id === window._calendarFilterPosition) posCandIds[c.id] = true; });
+    interviews = interviews.filter(function(iv) { return posCandIds[iv.candidate_id]; });
+  }
+
+  var positions = _hiringPositionsData || [];
+  var dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+  var monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var monthYear = monthNames[monday.getMonth()] + ' ' + monday.getFullYear();
+
+  var startHour = 8, endHour = 18;
+  var totalSlots = (endHour - startHour) * 2;
+  var typeColors = { 'Phone Screen': '#3b82f6', 'Technical': '#7c3aed', 'Cultural': '#f59e0b', 'Final': '#10b981' };
+
+  var prevAction = viewMode === 'month'
+    ? 'window._calendarMonthOffset=(window._calendarMonthOffset||0)-1;renderContent()'
+    : 'window._calendarWeekOffset=(window._calendarWeekOffset||0)-1;renderContent()';
+  var nextAction = viewMode === 'month'
+    ? 'window._calendarMonthOffset=(window._calendarMonthOffset||0)+1;renderContent()'
+    : 'window._calendarWeekOffset=(window._calendarWeekOffset||0)+1;renderContent()';
+  var todayAction = viewMode === 'month'
+    ? 'window._calendarMonthOffset=0;renderContent()'
+    : 'window._calendarWeekOffset=0;renderContent()';
+
+  var html = '<div class="ats-calendar-header">' +
+    '<div class="ats-calendar-nav">' +
+      '<span class="ats-calendar-nav-title">' + monthYear + '</span>' +
+      '<button class="ats-calendar-nav-btn" onclick="' + prevAction + '">&#9664;</button>' +
+      '<button class="ats-calendar-nav-btn" onclick="' + todayAction + '">Today</button>' +
+      '<button class="ats-calendar-nav-btn" onclick="' + nextAction + '">&#9654;</button>' +
+    '</div>' +
+    '<div style="display:flex;gap:8px;align-items:center">' +
+      '<div class="ats-calendar-toggle">' +
+        '<span class="' + (viewMode === 'week' ? 'active' : 'inactive') + '" onclick="window._calendarViewMode=\'week\';renderContent()">Week</span>' +
+        '<span class="' + (viewMode === 'month' ? 'active' : 'inactive') + '" onclick="window._calendarViewMode=\'month\';renderContent()">Month</span>' +
+      '</div>' +
+      '<select class="ats-filter-btn" onchange="window._calendarFilterPosition=this.value||null;renderContent()">' +
+        '<option value="">All Positions</option>' +
+        positions.map(function(p) { return '<option value="' + p.id + '"' + (window._calendarFilterPosition === p.id ? ' selected' : '') + '>' + esc(p.title) + '</option>'; }).join('') +
+      '</select>' +
+      '<button class="ats-filter-btn" style="background:#7c3aed;color:white;border:none" onclick="openScheduleInterviewModal()">+ Schedule</button>' +
+    '</div>' +
+  '</div>';
+
+  if (viewMode === 'week') {
+  html += '<div class="ats-week-grid" style="grid-template-rows:auto repeat(' + totalSlots + ',32px)">';
+  html += '<div></div>';
+  for (var d = 0; d < 5; d++) {
+    var dayDate = new Date(monday);
+    dayDate.setDate(monday.getDate() + d);
+    var isToday = dayDate.toISOString().slice(0, 10) === todayStr;
+    html += '<div class="ats-week-day-header' + (isToday ? ' today' : '') + '">' + dayNames[d] + ' ' + dayDate.getDate() + '</div>';
+  }
+
+  for (var slot = 0; slot < totalSlots; slot++) {
+    var slotHour = startHour + Math.floor(slot / 2);
+    var slotMin = (slot % 2) * 30;
+    if (slotMin === 0) {
+      html += '<div class="ats-week-time">' + slotHour + ':00</div>';
+    } else {
+      html += '<div class="ats-week-time"></div>';
+    }
+
+    for (var dd = 0; dd < 5; dd++) {
+      var cellDate = new Date(monday);
+      cellDate.setDate(monday.getDate() + dd);
+      var cellStr = cellDate.toISOString().slice(0, 10);
+      var slotInterviews = interviews.filter(function(iv) {
+        if (!iv.scheduled_at || iv.scheduled_at.slice(0, 10) !== cellStr) return false;
+        var t = new Date(iv.scheduled_at);
+        var ivSlot = (t.getHours() - startHour) * 2 + (t.getMinutes() >= 30 ? 1 : 0);
+        return ivSlot === slot;
+      });
+
+      var blocksHtml = '';
+      slotInterviews.forEach(function(iv) {
+        var duration = iv.duration_minutes || 60;
+        var spans = Math.max(1, Math.round(duration / 30));
+        var heightPx = spans * 32 - 4;
+        var color = typeColors[iv.title] || '#7c3aed';
+        var t = new Date(iv.scheduled_at);
+        var endT = new Date(t.getTime() + duration * 60000);
+        var timeStr = t.getHours() + ':' + String(t.getMinutes()).padStart(2, '0') + ' – ' + endT.getHours() + ':' + String(endT.getMinutes()).padStart(2, '0');
+        var isCompact = duration <= 30;
+        var interviewer = iv.scorecards && iv.scorecards[0] ? iv.scorecards[0].interviewer_name : '';
+
+        blocksHtml += '<div class="ats-interview-block' + (isCompact ? ' compact' : '') + '"' +
+          ' style="top:0;height:' + heightPx + 'px;background:' + color + '20;border-left:3px solid ' + color + '"' +
+          ' onclick="event.stopPropagation();openCandidateDetail(\'' + iv.candidate_id + '\')"' +
+          ' title="' + esc(iv.candidate_name || '') + ' · ' + esc(iv.title) + ' · ' + timeStr + '">' +
+          '<div style="display:flex;align-items:center;gap:4px">' +
+            candidateAvatarHtml(iv.candidate_name, isCompact ? 14 : 18) +
+            '<span class="name" style="color:' + color + 'cc">' + esc(iv.candidate_name || 'Unknown') + '</span>' +
+          '</div>' +
+          (!isCompact ? '<div class="meta">' + esc(iv.title) + '</div><div class="meta">' + timeStr + (iv.location ? ' · ' + esc(iv.location) : '') + '</div>' : '') +
+          (interviewer && !isCompact ? '<div style="position:absolute;bottom:3px;right:3px">' + candidateAvatarHtml(interviewer, 16) + '</div>' : '') +
+        '</div>';
+      });
+
+      var slotTime = String(slotHour).padStart(2,'0') + ':' + String(slotMin).padStart(2,'0');
+      html += '<div class="ats-week-cell" onclick="openScheduleInterviewModal(null,\'' + cellStr + '\',\'' + slotTime + '\')">' + blocksHtml + '</div>';
+    }
+  }
+  html += '</div>';
+
+  html += '<div class="ats-calendar-legend">' +
+    '<span><span class="ats-calendar-legend-dot" style="background:#7c3aed"></span>Technical</span>' +
+    '<span><span class="ats-calendar-legend-dot" style="background:#3b82f6"></span>Phone Screen</span>' +
+    '<span><span class="ats-calendar-legend-dot" style="background:#10b981"></span>Final</span>' +
+    '<span><span class="ats-calendar-legend-dot" style="background:#f59e0b"></span>Cultural</span>' +
+    '<span style="margin-left:auto">' + interviews.length + ' interview' + (interviews.length !== 1 ? 's' : '') + ' this week</span>' +
+  '</div>';
+  } else {
+    // Month view
+    var monthStart = new Date(monday.getFullYear(), monday.getMonth() + (window._calendarMonthOffset || 0), 1);
+    var monthEnd = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0);
+    var firstDay = (monthStart.getDay() || 7) - 1; // Mon=0
+    var daysInMonth = monthEnd.getDate();
+    var mMonthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+    html += '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:rgba(255,255,255,0.03);border-radius:8px;overflow:hidden">';
+    ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].forEach(function(d) {
+      html += '<div style="background:var(--bg-surface);padding:8px;text-align:center;color:var(--text-muted);font-size:11px;font-weight:500">' + d + '</div>';
+    });
+    for (var blank = 0; blank < firstDay; blank++) {
+      html += '<div style="background:var(--bg-card);min-height:80px;padding:4px"></div>';
+    }
+    for (var day = 1; day <= daysInMonth; day++) {
+      var cellDate = new Date(monthStart.getFullYear(), monthStart.getMonth(), day);
+      var cellStr = cellDate.toISOString().slice(0, 10);
+      var isToday = cellStr === todayStr;
+      var dayIvs = interviews.filter(function(iv) { return iv.scheduled_at && iv.scheduled_at.slice(0, 10) === cellStr; });
+      var dots = '';
+      dayIvs.slice(0, 4).forEach(function(iv) {
+        var color = typeColors[iv.title] || '#7c3aed';
+        dots += '<div style="display:flex;align-items:center;gap:3px;font-size:9px;color:' + color + ';white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' +
+          '<span style="width:6px;height:6px;border-radius:50%;background:' + color + ';flex-shrink:0"></span>' +
+          esc((iv.candidate_name || '').split(' ')[0]) + '</div>';
+      });
+      if (dayIvs.length > 4) dots += '<div style="font-size:8px;color:var(--text-muted)">+' + (dayIvs.length - 4) + ' more</div>';
+      html += '<div style="background:var(--bg-card);min-height:80px;padding:4px;' + (isToday ? 'border:1px solid #60a5fa;' : '') + 'cursor:pointer" onclick="(function(){var d=new Date(' + cellDate.getTime() + ');var now=new Date();var dayNow=now.getDay()||7;var monNow=new Date(now);monNow.setDate(now.getDate()-dayNow+1);monNow.setHours(0,0,0,0);var dayD=d.getDay()||7;var monD=new Date(d);monD.setDate(d.getDate()-dayD+1);monD.setHours(0,0,0,0);window._calendarViewMode=\'week\';window._calendarWeekOffset=Math.round((monD-monNow)/604800000);renderContent();})()">' +
+        '<div style="font-size:12px;font-weight:' + (isToday ? '700;color:#60a5fa' : '400;color:var(--text-muted)') + ';margin-bottom:2px">' + day + '</div>' +
+        dots + '</div>';
+    }
+    var totalCells = firstDay + daysInMonth;
+    var remaining = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+    for (var r = 0; r < remaining; r++) {
+      html += '<div style="background:var(--bg-card);min-height:80px;padding:4px"></div>';
+    }
+    html += '</div>';
+
+    html += '<div style="text-align:center;margin-top:8px;font-size:12px;color:var(--text-muted)">' + mMonthNames[monthStart.getMonth()] + ' ' + monthStart.getFullYear() + ' · ' + interviews.length + ' interview' + (interviews.length !== 1 ? 's' : '') + '</div>';
+  }
+
+  container.innerHTML = html;
+}
+
+function openScheduleInterviewModal(prefillCandidateId, prefillDate, prefillTime) {
+  var candidates = (_candidatesData || []).filter(function(c) { return !c.archived_at; });
+  var modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.style.display = 'flex';
+  modal.innerHTML = '<div class="modal" style="max-width:500px">' +
+    '<div class="modal-header"><h3>Schedule Interview</h3><button onclick="this.closest(\'.modal-overlay\').remove()">&#10005;</button></div>' +
+    '<div class="modal-body">' +
+      '<div id="schedule-conflict-warn" style="display:none;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:6px;padding:8px 12px;margin-bottom:12px;font-size:12px;color:#ef4444"></div>' +
+      '<label style="display:block;margin-bottom:10px">Candidate<br><select id="sched-candidate" class="ats-search" style="width:100%;margin-top:4px;min-width:0">' +
+        candidates.map(function(c) { return '<option value="' + c.id + '"' + (c.id === prefillCandidateId ? ' selected' : '') + '>' + esc(c.name || c.role) + ' — ' + esc(c.client_name || '') + '</option>'; }).join('') +
+      '</select></label>' +
+      '<label style="display:block;margin-bottom:10px">Interview Type<br><select id="sched-type" class="ats-search" style="width:100%;margin-top:4px;min-width:0">' +
+        '<option value="Phone Screen">Phone Screen</option><option value="Technical">Technical</option><option value="Cultural">Cultural</option><option value="Final">Final</option></select></label>' +
+      '<div style="display:flex;gap:8px;margin-bottom:10px">' +
+        '<label style="flex:1">Date<br><input id="sched-date" type="date" class="ats-search" style="width:100%;margin-top:4px;min-width:0" value="' + (prefillDate || new Date().toISOString().slice(0, 10)) + '"></label>' +
+        '<label style="flex:1">Time<br><input id="sched-time" type="time" class="ats-search" style="width:100%;margin-top:4px;min-width:0" value="' + (prefillTime || '09:00') + '"></label>' +
+      '</div>' +
+      '<div style="display:flex;gap:8px;margin-bottom:10px">' +
+        '<label style="flex:1">Duration<br><select id="sched-duration" class="ats-search" style="width:100%;margin-top:4px;min-width:0">' +
+          '<option value="30">30 min</option><option value="45">45 min</option><option value="60" selected>60 min</option><option value="90">90 min</option></select></label>' +
+        '<label style="flex:1">Interviewer<br><input id="sched-interviewer" type="text" class="ats-search" style="width:100%;margin-top:4px;min-width:0" placeholder="Name"></label>' +
+      '</div>' +
+      '<label style="display:block;margin-bottom:10px">Location<br><input id="sched-location" type="text" class="ats-search" style="width:100%;margin-top:4px;min-width:0" placeholder="Zoom link, Office, etc."></label>' +
+    '</div>' +
+    '<div class="modal-footer" style="display:flex;justify-content:flex-end;gap:8px">' +
+      '<button onclick="this.closest(\'.modal-overlay\').remove()" style="padding:8px 16px;background:#333;color:#ccc;border:none;border-radius:6px;cursor:pointer">Cancel</button>' +
+      '<button onclick="submitScheduleInterview()" style="padding:8px 16px;background:#7c3aed;color:white;border:none;border-radius:6px;cursor:pointer">Schedule</button>' +
+    '</div></div>';
+  document.body.appendChild(modal);
+}
+
+async function submitScheduleInterview() {
+  var candidateId = document.getElementById('sched-candidate').value;
+  var title = document.getElementById('sched-type').value;
+  var date = document.getElementById('sched-date').value;
+  var time = document.getElementById('sched-time').value;
+  var duration = parseInt(document.getElementById('sched-duration').value);
+  var interviewer = document.getElementById('sched-interviewer').value.trim();
+  var location = document.getElementById('sched-location').value.trim();
+  if (!candidateId || !date || !time) return;
+  var scheduledAt = new Date(date + 'T' + time).toISOString();
+
+  if (interviewer) {
+    try {
+      var checkResp = await authFetch('/api/interview-rounds/check-conflict?interviewer_name=' + encodeURIComponent(interviewer) + '&scheduled_at=' + encodeURIComponent(scheduledAt) + '&duration_minutes=' + duration);
+      var check = await checkResp.json();
+      if (check.conflict) {
+        var warn = document.getElementById('schedule-conflict-warn');
+        warn.style.display = 'block';
+        warn.textContent = interviewer + ' already has "' + check.conflicting_interview.title + '" with ' + (check.conflicting_interview.candidate_name || 'someone') + ' at that time.';
+        var btn = warn.closest('.modal').querySelector('.modal-footer button:last-child');
+        btn.textContent = 'Schedule Anyway';
+        btn.onclick = function() { doCreateInterview(candidateId, title, scheduledAt, duration, interviewer, location); };
+        return;
+      }
+    } catch (e) { /* proceed */ }
+  }
+  await doCreateInterview(candidateId, title, scheduledAt, duration, interviewer, location);
+}
+
+async function doCreateInterview(candidateId, title, scheduledAt, duration, interviewer, location) {
+  try {
+    var resp = await authFetch('/api/interview-rounds', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ candidate_id: candidateId, title: title, scheduled_at: scheduledAt, duration_minutes: duration, interviewer_name: interviewer || undefined, location: location || undefined }),
+    });
+    if (resp.ok) {
+      var overlay = document.querySelector('.modal-overlay');
+      if (overlay) overlay.remove();
+      toast('Interview scheduled');
+      renderContent();
+    } else {
+      var err = await resp.json().catch(function() { return {}; });
+      toast(err.error || 'Failed to schedule', 'error');
+    }
+  } catch (e) { toast('Network error', 'error'); }
+}
+
+function renderMetricsTab(container) {
+  var candidates = _candidatesData || [];
+  var active = candidates.filter(function(c) { return !c.archived_at; });
+  var clientOptions = getContractedClientRecords() || [];
+  var stageKeys = (_resolvedHiringStages || HIRING_STAGES.map(function(k) { return { key: k, label: HIRING_STAGE_LABELS[k] || k }; }));
+
+  // Source effectiveness: count candidates per source, show conversion (non-sourcing = progressed)
+  var sourceCounts = {};
+  var sourceProgressed = {};
+  candidates.forEach(function(c) {
+    var src = c.source || 'unknown';
+    sourceCounts[src] = (sourceCounts[src] || 0) + 1;
+    if (c.stage !== 'sourcing') sourceProgressed[src] = (sourceProgressed[src] || 0) + 1;
+  });
+  var sourceKeys = Object.keys(sourceCounts).sort(function(a, b) { return sourceCounts[b] - sourceCounts[a]; });
+  var maxSourceCount = Math.max.apply(null, sourceKeys.map(function(s) { return sourceCounts[s]; }).concat([1]));
+
+  // Time in stage distribution
+  var stageTimeBuckets = {};
+  stageKeys.forEach(function(s) { stageTimeBuckets[s.key] = { total: 0, count: 0 }; });
+  active.forEach(function(c) {
+    if (c.stage && c.stage_changed_at && stageTimeBuckets[c.stage]) {
+      stageTimeBuckets[c.stage].total += Math.floor((Date.now() - new Date(c.stage_changed_at).getTime()) / 86400000);
+      stageTimeBuckets[c.stage].count++;
+    }
+  });
+
+  // Pipeline summary stats
+  var totalActive = active.length;
+  var totalArchived = candidates.length - totalActive;
+  var avgDaysAll = 0;
+  if (active.length > 0) {
+    var sumDays = 0;
+    active.forEach(function(c) {
+      if (c.stage_changed_at) sumDays += Math.floor((Date.now() - new Date(c.stage_changed_at).getTime()) / 86400000);
+    });
+    avgDaysAll = Math.round(sumDays / active.length);
+  }
+
+  var html = '<div style="padding:var(--space-lg)">';
+
+  // Summary stat cards
+  html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:24px">';
+  var stats = [
+    { label: 'Active candidates', value: totalActive, color: '#7c3aed' },
+    { label: 'Archived / rejected', value: totalArchived, color: '#6b7280' },
+    { label: 'Avg days in stage', value: avgDaysAll + 'd', color: avgDaysAll > 10 ? '#ef4444' : '#10b981' },
+    { label: 'Sources used', value: sourceKeys.length, color: '#3b82f6' },
+  ];
+  stats.forEach(function(s) {
+    html += '<div style="background:var(--bg-surface);border-radius:8px;padding:16px;border-left:3px solid ' + s.color + '">' +
+      '<div style="font-size:24px;font-weight:700;color:#e0e0e0">' + s.value + '</div>' +
+      '<div style="font-size:12px;color:var(--text-muted);margin-top:4px">' + s.label + '</div></div>';
+  });
+  html += '</div>';
+
+  // Pipeline funnel
+  html += '<div style="margin-bottom:28px"><div style="font-size:14px;font-weight:600;color:#e0e0e0;margin-bottom:12px">Pipeline</div>';
+  stageKeys.forEach(function(s) {
+    var count = active.filter(function(c) { return c.stage === s.key; }).length;
+    var pct = totalActive > 0 ? Math.round(count / totalActive * 100) : 0;
+    var stageColor = ATS_STAGE_COLORS[s.key] || '#6b7280';
+    html += '<div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">' +
+      '<span style="width:100px;font-size:12px;color:var(--text-muted);text-align:right;flex-shrink:0">' + esc(s.label) + '</span>' +
+      '<div style="flex:1;height:24px;background:var(--bg-surface);border-radius:4px;overflow:hidden">' +
+        '<div style="width:' + pct + '%;min-width:' + (count > 0 ? '30px' : '0') + ';height:100%;background:' + stageColor + ';border-radius:4px;display:flex;align-items:center;padding-left:8px;font-size:12px;color:white;font-weight:600">' + count + '</div>' +
+      '</div>' +
+      '<span style="font-size:11px;color:var(--text-faint);width:40px">' + pct + '%</span>' +
+    '</div>';
+  });
+  html += '</div>';
+
+  // Source effectiveness
+  html += '<div style="margin-bottom:28px"><div style="font-size:14px;font-weight:600;color:#e0e0e0;margin-bottom:12px">Source Effectiveness</div>';
+  if (sourceKeys.length === 0) {
+    html += '<div style="color:var(--text-muted);font-size:12px;padding:8px 0">No source data — set sources on candidates</div>';
+  } else {
+    sourceKeys.forEach(function(src) {
+      var count = sourceCounts[src];
+      var prog = sourceProgressed[src] || 0;
+      var convRate = count > 0 ? Math.round(prog / count * 100) : 0;
+      var barW = Math.round(count / maxSourceCount * 100);
+      var label = src === 'unknown' ? 'No source' : src.replace(/-/g, ' ').replace(/\b\w/g, function(l) { return l.toUpperCase(); });
+      html += '<div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">' +
+        '<span style="width:100px;font-size:12px;color:var(--text-muted);text-align:right;flex-shrink:0">' + esc(label) + '</span>' +
+        '<div style="flex:1;height:20px;background:var(--bg-surface);border-radius:4px;overflow:hidden;position:relative">' +
+          '<div style="width:' + barW + '%;height:100%;background:#3b82f630;border-radius:4px"></div>' +
+          '<div style="position:absolute;top:0;left:0;width:' + Math.round(barW * convRate / 100) + '%;height:100%;background:#3b82f6;border-radius:4px"></div>' +
+        '</div>' +
+        '<span style="font-size:11px;color:#60a5fa;width:30px;text-align:right">' + count + '</span>' +
+        '<span style="font-size:10px;color:' + (convRate >= 50 ? '#10b981' : '#888') + ';width:40px">' + convRate + '% adv</span>' +
+      '</div>';
+    });
+    html += '<div style="font-size:10px;color:var(--text-faint);margin-top:4px">Dark bar = total candidates from source · Bright bar = advanced past sourcing</div>';
+  }
+  html += '</div>';
+
+  // Time in stage distribution
+  html += '<div style="margin-bottom:28px"><div style="font-size:14px;font-weight:600;color:#e0e0e0;margin-bottom:12px">Average Time in Stage</div>';
+  var maxAvgDays = 1;
+  stageKeys.forEach(function(s) { var b = stageTimeBuckets[s.key]; if (b.count > 0) { var avg = Math.round(b.total / b.count); if (avg > maxAvgDays) maxAvgDays = avg; } });
+  stageKeys.forEach(function(s) {
+    var b = stageTimeBuckets[s.key];
+    var avg = b.count > 0 ? Math.round(b.total / b.count) : 0;
+    var barW = maxAvgDays > 0 ? Math.round(avg / maxAvgDays * 100) : 0;
+    var stageColor = ATS_STAGE_COLORS[s.key] || '#6b7280';
+    var daysColor = avg > 14 ? '#ef4444' : avg > 7 ? '#f59e0b' : '#888';
+    html += '<div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">' +
+      '<span style="width:100px;font-size:12px;color:var(--text-muted);text-align:right;flex-shrink:0">' + esc(s.label) + '</span>' +
+      '<div style="flex:1;height:20px;background:var(--bg-surface);border-radius:4px;overflow:hidden">' +
+        '<div style="width:' + barW + '%;min-width:' + (avg > 0 ? '20px' : '0') + ';height:100%;background:' + stageColor + ';border-radius:4px;display:flex;align-items:center;padding-left:6px;font-size:10px;color:white;font-weight:600">' + (avg > 0 ? avg + 'd' : '') + '</div>' +
+      '</div>' +
+      '<span style="font-size:11px;color:' + daysColor + ';width:40px">' + b.count + ' cand</span>' +
+    '</div>';
+  });
+  html += '</div>';
+
+  // Per-client detailed metrics (existing loadHiringMetrics)
+  html += '<div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:20px">' +
+    '<div style="font-size:14px;font-weight:600;color:#e0e0e0;margin-bottom:12px">Client Metrics</div>' +
+    '<div class="ats-controls">' +
+      '<select id="metricsClientFilter" onchange="loadHiringMetrics()" class="ats-filter-btn" style="min-width:200px">' +
+        '<option value="">Select a client…</option>' +
+        clientOptions.map(function(c) { return '<option value="' + c.id + '"' + (window._hiringFilterClient === c.id ? ' selected' : '') + '>' + esc(c.name) + '</option>'; }).join('') +
+      '</select>' +
+    '</div>' +
+    '<div id="metricsContent" style="color:var(--text-muted);padding:12px 0">Select a client for detailed pipeline and time-to-hire metrics</div>' +
+  '</div>';
 
   html += '</div>';
   container.innerHTML = html;
@@ -20123,7 +21032,7 @@ async function openStageEditor(clientId) {
         const isOnboarding = !!s.is_onboarding;
         return `<div class="stage-editor-row" draggable="${isTerminal ? 'false' : 'true'}" style="display:flex;gap:6px;align-items:center">
           ${isTerminal ? '<span style="width:24px"></span>' : '<span class="se-drag-handle" title="Drag to reorder">&#10303;</span>'}
-          <input type="text" value="${esc(s.key)}" class="se-key" style="width:120px;padding:5px 8px;font-size:0.85rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)" ${isTerminal ? 'disabled' : ''} placeholder="key">
+          <input type="text" value="${esc(s.key)}" class="se-key" style="width:120px;padding:5px 8px;font-size:0.85rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)" onblur="this.value=this.value.toLowerCase().replace(/\\s+/g,'-').replace(/[^a-z0-9-]/g,'')" ${isTerminal ? 'disabled' : ''} placeholder="key">
           <input type="text" value="${esc(s.label)}" class="se-label" style="flex:1;padding:5px 8px;font-size:0.85rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)" placeholder="Label">
           <label style="display:flex;align-items:center;gap:3px;font-size:0.72rem;color:var(--text-muted);white-space:nowrap" title="Onboarding stage"><input type="checkbox" class="se-onboarding" ${isOnboarding ? 'checked' : ''}> Onboard</label>
           ${isTerminal ? '' : '<button class="btn btn--ghost btn--sm" style="color:var(--danger)" onclick="this.closest(\'.stage-editor-row\').remove()">×</button>'}
@@ -20185,7 +21094,8 @@ async function openStageEditor(clientId) {
     const rows = overlay.querySelectorAll('.stage-editor-row');
     const newStages = [];
     for (const row of rows) {
-      const key = row.querySelector('.se-key').value.trim();
+      const rawKey = row.querySelector('.se-key').value.trim();
+      const key = rawKey.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
       const label = row.querySelector('.se-label').value.trim();
       const isOnboarding = row.querySelector('.se-onboarding')?.checked || false;
       if (!key || !label) { toast('All stages need a key and label', 'error'); return; }
@@ -20212,7 +21122,7 @@ function addStageEditorRow() {
   newRow.draggable = true;
   newRow.style.cssText = 'display:flex;gap:6px;align-items:center';
   newRow.innerHTML = `<span class="se-drag-handle" title="Drag to reorder">&#10303;</span>
-    <input type="text" class="se-key" style="width:120px;padding:5px 8px;font-size:0.85rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)" placeholder="key">
+    <input type="text" class="se-key" style="width:120px;padding:5px 8px;font-size:0.85rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)" onblur="this.value=this.value.toLowerCase().replace(/\\s+/g,'-').replace(/[^a-z0-9-]/g,'')" placeholder="key">
     <input type="text" class="se-label" style="flex:1;padding:5px 8px;font-size:0.85rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)" placeholder="Label">
     <label style="display:flex;align-items:center;gap:3px;font-size:0.72rem;color:var(--text-muted);white-space:nowrap"><input type="checkbox" class="se-onboarding"> Onboard</label>
     <button class="btn btn--ghost btn--sm" style="color:var(--danger)" onclick="this.closest('.stage-editor-row').remove()">×</button>`;
@@ -20265,6 +21175,11 @@ async function openCreateCandidateModal() {
             <option value="">— None —</option>
             ${['referral','linkedin','inbound','agency','job-board','internal','other'].map(s => `<option value="${s}">${s.charAt(0).toUpperCase()+s.slice(1).replace('-',' ')}</option>`).join('')}
           </select></label>
+        <label style="font-size:0.78rem;color:var(--text-muted)">Position
+          <select id="ccPosition" style="width:100%;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;margin-top:4px">
+            <option value="">— None —</option>
+            ${(_hiringPositionsData || []).map(p => `<option value="${p.id}">${esc(p.title)}${p.client_name ? ' — ' + esc(p.client_name) : ''}</option>`).join('')}
+          </select></label>
         <label style="font-size:0.78rem;color:var(--text-muted)">Due date
           <input type="date" id="ccDue" style="width:100%;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;margin-top:4px"></label>
       </div>
@@ -20305,6 +21220,7 @@ async function openCreateCandidateModal() {
       due_date: overlay.querySelector('#ccDue').value || null,
       email: (overlay.querySelector('#ccEmail') || {}).value?.trim() || null,
       source: (overlay.querySelector('#ccSource') || {}).value || null,
+      position_id: (overlay.querySelector('#ccPosition') || {}).value || null,
       stage: 'sourcing'
     };
     const resp = await authFetch('/api/candidates', {
@@ -20541,7 +21457,34 @@ function buildCandidateGdprHtml(c, disabledStyle) {
 }
 
 function buildCandidateActionsHtml(c, isArchived, isAdmin) {
-  return `<div style="display:flex;gap:var(--space-sm);margin-top:var(--space-lg);padding-top:var(--space-md);border-top:1px solid var(--border-default);flex-wrap:wrap">
+  const REJECTION_CATEGORIES = ['unqualified','culture-mismatch','compensation','candidate-withdrew','position-filled','no-response','failed-interview','other'];
+  const rejCatLabels = { 'unqualified': 'Unqualified', 'culture-mismatch': 'Culture mismatch', 'compensation': 'Compensation', 'candidate-withdrew': 'Candidate withdrew', 'position-filled': 'Position filled', 'no-response': 'No response', 'failed-interview': 'Failed interview', 'other': 'Other' };
+
+  let rejectSection = '';
+  if (!isArchived) {
+    rejectSection = `<div style="margin-top:var(--space-md);padding-top:var(--space-md);border-top:1px solid rgba(255,255,255,0.06)">
+      <div style="font-size:0.82rem;font-weight:600;color:var(--danger);margin-bottom:8px">Actions</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn--sm" style="background:rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.3)" onclick="document.getElementById('cdRejectForm').style.display='block'">Reject</button>
+        <button class="btn btn--sm" style="background:rgba(107,114,128,0.12);color:#9ca3af;border:1px solid rgba(107,114,128,0.3)" onclick="hiringArchiveWithReason('${c.id}','candidate-withdrew')">Candidate Declined</button>
+      </div>
+      <div id="cdRejectForm" style="display:none;margin-top:10px;padding:12px;background:var(--bg-surface);border-radius:var(--radius-sm)">
+        <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:6px">Rejection category</label>
+        <select id="cdRejectCategory" style="width:100%;margin-bottom:8px;font-size:0.82rem;padding:5px 8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)">
+          ${REJECTION_CATEGORIES.map(cat => `<option value="${cat}">${rejCatLabels[cat]}</option>`).join('')}
+        </select>
+        <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:6px">Reason (optional)</label>
+        <textarea id="cdRejectReason" placeholder="Brief reason..." style="width:100%;min-height:50px;font-size:0.82rem;padding:5px 8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);resize:vertical;font-family:inherit"></textarea>
+        <div style="display:flex;gap:6px;margin-top:8px;justify-content:flex-end">
+          <button class="btn btn--sm" onclick="document.getElementById('cdRejectForm').style.display='none'">Cancel</button>
+          <button class="btn btn--sm" style="background:var(--danger);color:white;border:none" onclick="hiringRejectCandidate('${c.id}')">Confirm Reject</button>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  return `${rejectSection}
+  <div style="display:flex;gap:var(--space-sm);margin-top:var(--space-lg);padding-top:var(--space-md);border-top:1px solid var(--border-default);flex-wrap:wrap">
     ${isArchived
       ? `<button class="btn btn--sm" style="background:var(--accent);color:#fff" data-action="hiringReopen" data-arg0="${c.id}">Reopen Card</button>`
       : `<button class="btn btn--sm" style="background:transparent;color:var(--danger);border:1px solid var(--danger)" data-action="hiringClearCandidate" data-arg0="${c.id}" title="Void candidate fields but keep the role">Clear Candidate</button>`
@@ -20555,30 +21498,37 @@ function buildCandidateInterviewsHtml(candidateId, rounds, disabledStyle) {
   if (!rounds || rounds.length === 0) {
     return `<div class="candidate-detail__section" id="cdInterviewsSection" style="${disabledStyle}">
       <div class="candidate-detail__section-title">Interviews</div>
-      <div style="color:var(--text-muted);font-size:0.78rem;padding:8px 0">No interview rounds yet</div>
-      ${isNBI ? `<button class="btn btn--sm" onclick="addInterviewRound('${candidateId}')">+ Add Round</button>` : ''}
+      <div style="text-align:center;padding:20px;color:var(--text-muted);font-size:0.82rem">
+        <p>No interviews scheduled</p>
+        ${isNBI ? `<button class="btn btn--sm" style="margin-top:8px;background:#7c3aed;color:white;border:none" onclick="openScheduleInterviewModal('${candidateId}')">Schedule first interview</button>` : ''}
+      </div>
     </div>`;
   }
 
+  const typeColors = { 'Phone Screen': '#3b82f6', 'Technical': '#7c3aed', 'Cultural': '#f59e0b', 'Final': '#10b981' };
   const statusColors = { scheduled: 'var(--accent)', completed: 'var(--success)', cancelled: 'var(--text-muted)', 'no-show': 'var(--danger)' };
-  const outcomeColors = { pass: 'var(--success)', fail: 'var(--danger)', 'on-hold': '#f59e0b' };
 
   const roundsHtml = rounds.map(r => {
     const schedStr = r.scheduled_at ? new Date(r.scheduled_at).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Not scheduled';
     const durStr = r.duration_minutes ? `${r.duration_minutes}min` : '';
+    const color = typeColors[r.title] || '#7c3aed';
 
-    return `<div style="border:1px solid var(--border-default);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:8px">
+    return `<div style="border-left:3px solid ${color};background:var(--bg-surface);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:8px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-        <div style="font-weight:600;font-size:0.85rem">Round ${r.round_number}: ${esc(r.title)}</div>
-        <div style="display:flex;gap:6px;align-items:center">
-          <span style="font-size:0.68rem;padding:2px 6px;border-radius:8px;background:color-mix(in srgb, ${statusColors[r.status] || 'var(--text-muted)'} 20%, var(--bg-surface));color:${statusColors[r.status] || 'var(--text-muted)'}">${r.status}</span>
-          ${r.outcome ? `<span style="font-size:0.68rem;padding:2px 6px;border-radius:8px;background:color-mix(in srgb, ${outcomeColors[r.outcome] || 'var(--text-muted)'} 20%, var(--bg-surface));color:${outcomeColors[r.outcome] || 'var(--text-muted)'};font-weight:600">${r.outcome}</span>` : ''}
-        </div>
+        <div style="font-weight:600;font-size:0.85rem;color:${color}">Round ${r.round_number}: ${esc(r.title)}</div>
+        <select onchange="updateInterviewOutcome('${r.id}',this.value)" style="background:var(--bg-input);border:1px solid var(--border-default);border-radius:4px;color:var(--text-primary);padding:2px 8px;font-size:0.72rem;font-family:inherit">
+          <option value="pending" ${!r.outcome || r.outcome === 'pending' ? 'selected' : ''}>Pending</option>
+          <option value="passed" ${r.outcome === 'passed' ? 'selected' : ''}>Passed</option>
+          <option value="failed" ${r.outcome === 'failed' ? 'selected' : ''}>Failed</option>
+          <option value="rescheduled" ${r.outcome === 'rescheduled' ? 'selected' : ''}>Rescheduled</option>
+          <option value="no_show" ${r.outcome === 'no_show' ? 'selected' : ''}>No-show</option>
+        </select>
       </div>
       <div style="font-size:0.75rem;color:var(--text-muted);display:flex;gap:12px;flex-wrap:wrap">
         <span>${schedStr}</span>
         ${durStr ? `<span>${durStr}</span>` : ''}
         ${r.location ? `<span>${esc(r.location)}</span>` : ''}
+        <span style="font-size:0.68rem;padding:2px 6px;border-radius:8px;background:color-mix(in srgb, ${statusColors[r.status] || 'var(--text-muted)'} 20%, var(--bg-surface));color:${statusColors[r.status] || 'var(--text-muted)'}">${r.status}</span>
       </div>
       ${r.outcome_notes ? `<div style="font-size:0.78rem;margin-top:6px;color:var(--text-secondary)">${esc(r.outcome_notes)}</div>` : ''}
       <div style="margin-top:8px" id="cdScorecardsFor_${r.id}">
@@ -20588,9 +21538,11 @@ function buildCandidateInterviewsHtml(candidateId, rounds, disabledStyle) {
   }).join('');
 
   return `<div class="candidate-detail__section" id="cdInterviewsSection" style="${disabledStyle}">
-    <div class="candidate-detail__section-title">Interviews</div>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div class="candidate-detail__section-title">Interviews</div>
+      ${isNBI ? `<button class="btn btn--sm" style="background:#7c3aed;color:white;border:none;font-size:0.72rem" onclick="openScheduleInterviewModal('${candidateId}')">+ Schedule</button>` : ''}
+    </div>
     ${roundsHtml}
-    ${isNBI ? `<button class="btn btn--sm" onclick="addInterviewRound('${candidateId}')">+ Add Round</button>` : ''}
   </div>`;
 }
 
@@ -20609,6 +21561,18 @@ async function addInterviewRound(candidateId) {
     const err = await resp.json().catch(() => ({}));
     toast(err.error || 'Failed to add round', 'error');
   }
+}
+
+async function updateInterviewOutcome(interviewId, outcome) {
+  try {
+    const resp = await authFetch('/api/interview-rounds/' + interviewId, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ outcome: outcome }),
+    });
+    if (resp.ok) toast('Outcome updated');
+    else toast('Failed to update outcome', 'error');
+  } catch (e) { toast('Network error', 'error'); }
 }
 
 async function loadAndRenderScorecards(candidateId, roundId) {
@@ -20718,6 +21682,17 @@ async function openCandidateDetail(id) {
         ${buildCandidateInterviewsHtml(id, roundsData, disabledStyle)}
       </div>
       <div id="cdTabActivity" class="candidate-detail__tab-content">
+        <div class="candidate-detail__section" style="${disabledStyle}">
+          <div class="candidate-detail__section-title">Contract Status</div>
+          <select onchange="updateCandidateField('${id}','contract_status',this.value||null)" style="width:100%;padding:6px 8px;font-size:0.85rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)">
+            <option value="">— Not started —</option>
+            <option value="creation-of-contract" ${c.contract_status==='creation-of-contract'?'selected':''}>Creation of Contract</option>
+            <option value="contract-sent" ${c.contract_status==='contract-sent'?'selected':''}>Contract Sent</option>
+            <option value="edits-on-contract" ${c.contract_status==='edits-on-contract'?'selected':''}>Edits on Contract</option>
+            <option value="contract-in-review" ${c.contract_status==='contract-in-review'?'selected':''}>Contract in Review</option>
+            <option value="contract-signed" ${c.contract_status==='contract-signed'?'selected':''}>Contract Signed</option>
+          </select>
+        </div>
         <div class="candidate-detail__section" id="cdTimelineSection">
           <div class="candidate-detail__section-title">Timeline</div>
           <div style="color:var(--text-muted);font-size:0.82rem;padding:8px 0">Loading history…</div>
@@ -20741,24 +21716,29 @@ async function openCandidateDetail(id) {
   window._candidateDetailEscHandler = (e) => { if (e.key === 'Escape') closeCandidateDetail(); };
   document.addEventListener('keydown', window._candidateDetailEscHandler);
 
-  const [historyData, commentsData] = await Promise.all([
-    apiCall(`/api/candidates/${id}/history`).catch(() => []),
+  const [activityData, commentsData] = await Promise.all([
+    apiCall(`/api/candidates/${id}/activity`).catch(() => []),
     apiCall(`/api/candidates/${id}/comments`).catch(() => []),
   ]);
 
   const timelineEl = document.getElementById('cdTimelineSection');
   if (timelineEl) {
-    if (!historyData || historyData.length === 0) {
-      timelineEl.innerHTML = `<div class="candidate-detail__section-title">Timeline</div><div style="color:var(--text-muted);font-size:0.82rem;padding:8px 0">No stage transitions recorded</div>`;
+    const actIcons = { stage_change: '&#128260;', comment: '&#128172;', comment_added: '&#128172;', interview_scheduled: '&#128197;', interview_outcome: '&#9989;', cv_uploaded: '&#128196;', cv_removed: '&#128465;', source_set: '&#128279;', created: '&#10024;', archived: '&#128230;', reopened: '&#128275;' };
+    if (!activityData || activityData.length === 0) {
+      timelineEl.innerHTML = `<div class="candidate-detail__section-title">Activity</div><div style="color:var(--text-muted);font-size:0.82rem;padding:8px 0">No activity recorded</div>`;
     } else {
-      timelineEl.innerHTML = `<div class="candidate-detail__section-title">Timeline</div>
-        ${historyData.map(h => {
-          const ago = _relativeTime(new Date(h.moved_at));
-          const fromLabel = h.from_stage ? (HIRING_STAGE_LABELS[h.from_stage] || h.from_stage) : 'New';
-          const toLabel = HIRING_STAGE_LABELS[h.to_stage] || h.to_stage;
-          return `<div style="display:flex;gap:10px;padding:6px 0;font-size:0.82rem;border-left:2px solid var(--border-default);padding-left:14px;margin-left:4px">
-            <div style="flex:1"><span class="hiring-stage-badge hiring-stage-badge--${h.to_stage}" style="font-size:0.7rem;padding:2px 7px">${fromLabel} → ${toLabel}</span> <span style="color:var(--text-muted)">by ${esc(h.moved_by)}</span></div>
-            <div style="color:var(--text-muted);white-space:nowrap">${ago}</div>
+      timelineEl.innerHTML = `<div class="candidate-detail__section-title">Activity</div>
+        ${activityData.map(ev => {
+          const ago = _relativeTime(new Date(ev.created_at));
+          const icon = actIcons[ev.event_type] || '&#128204;';
+          const isComment = ev.event_type === 'comment' || ev.event_type === 'comment_added';
+          const isStage = ev.event_type === 'stage_change';
+          return `<div style="display:flex;gap:10px;padding:6px 0;font-size:0.82rem;border-left:2px solid ${isStage ? 'var(--accent)' : isComment ? '#7c3aed33' : 'var(--border-default)'};padding-left:14px;margin-left:4px;${isComment ? 'background:var(--bg-surface);border-radius:0 6px 6px 0;padding:8px 14px;margin-bottom:4px' : ''}">
+            <span style="font-size:14px;flex-shrink:0">${icon}</span>
+            <div style="flex:1;min-width:0">
+              <div style="color:${isComment ? 'var(--text-primary)' : 'var(--text-muted)'}">${esc(ev.detail || ev.event_type)}</div>
+              <div style="font-size:0.7rem;color:var(--text-faint);margin-top:2px">${esc(ev.actor)} · ${ago}</div>
+            </div>
           </div>`;
         }).join('')}`;
     }
@@ -20962,6 +21942,42 @@ async function hiringReopen(id) {
   } else {
     toast('Failed to reopen', 'error');
   }
+}
+
+async function hiringRejectCandidate(id) {
+  var category = document.getElementById('cdRejectCategory').value;
+  var reason = document.getElementById('cdRejectReason').value.trim();
+  try {
+    var resp = await authFetch('/api/candidates/' + id, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rejection_category: category, rejection_reason: reason || null, archived_at: new Date().toISOString() })
+    });
+    if (resp.ok) {
+      toast('Candidate rejected');
+      await loadCandidates();
+      if (currentView === 'hiring') renderContent();
+      if (document.getElementById('candidateDetailPanel') && document.getElementById('candidateDetailPanel').classList.contains('open')) openCandidateDetail(id);
+    } else { toast('Failed to reject', 'error'); }
+  } catch (e) { toast('Network error', 'error'); }
+}
+
+async function hiringArchiveWithReason(id, category) {
+  var ok = await themedConfirm('Record this candidate as having declined?', 'Candidate Declined', 'Confirm');
+  if (!ok) return;
+  try {
+    var resp = await authFetch('/api/candidates/' + id, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rejection_category: category, archived_at: new Date().toISOString() })
+    });
+    if (resp.ok) {
+      toast('Candidate archived');
+      await loadCandidates();
+      if (currentView === 'hiring') renderContent();
+      if (document.getElementById('candidateDetailPanel') && document.getElementById('candidateDetailPanel').classList.contains('open')) openCandidateDetail(id);
+    } else { toast('Failed to archive', 'error'); }
+  } catch (e) { toast('Network error', 'error'); }
 }
 
 /** Clear the candidate identity — voids name, CV, linkedin, but keeps role/client
@@ -21173,7 +22189,7 @@ function renderCommandCentre(el) {
     return;
   }
   if (_ccLoadFailed && !_ccBriefing) {
-    el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted)">Failed to load Command Centre. <a href="#" onclick="event.preventDefault();_ccLoadFailed=false;_ccLoading=false;_ccFetchAll();return false" style="color:var(--primary)">Retry</a></div>';
+    el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted)">Failed to load Command Centre. <a href="#" onclick="event.preventDefault();_ccLoadFailed=false;_ccLoading=false;_ccFetchAll();return false" style="color:var(--accent-text)">Retry</a></div>';
     return;
   }
   if (_ccLoading && !_ccBriefing) {
@@ -21381,13 +22397,13 @@ function _ccRenderWorkTab(b, w, s, fc) {
 
   // Client work bars — takes widest column
   html += '<div class="cc-card"><h3><span>Client Work</span></h3>';
-  html += '<div style="font-size:0.78rem;color:#8b949e;margin-bottom:10px;">';
+  html += '<div style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:10px;">';
   html += '<span style="display:inline-block;width:10px;height:10px;background:#238636;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Done ';
   html += '<span style="display:inline-block;width:10px;height:10px;background:#1f6feb;border-radius:2px;margin:0 4px 0 12px;vertical-align:middle;"></span>In progress ';
   html += '<span style="display:inline-block;width:10px;height:10px;background:#30363d;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>To do';
   html += '</div>';
   if (clients.length === 0) {
-    html += '<div style="padding:12px 0;color:#8b949e">No client data</div>';
+    html += '<div style="padding:12px 0;color:var(--text-secondary)">No client data</div>';
   } else {
     html += '<div style="display:flex;flex-direction:column;gap:10px;">';
     clients.forEach(client => {
@@ -21417,7 +22433,7 @@ function _ccRenderWorkTab(b, w, s, fc) {
   html += '<div class="cc-card" style="border-color:rgba(248,81,73,0.15);background:rgba(248,81,73,0.02);">';
   html += '<h3><span style="color:#f85149;">&#9679;</span> Fires <span class="ct">' + fireCount + '</span></h3>';
   if (fireCount === 0) {
-    html += '<div style="padding:12px 0;color:#8b949e">No active fires</div>';
+    html += '<div style="padding:12px 0;color:var(--text-secondary)">No active fires</div>';
   } else {
     fires.slice(0, 6).forEach(f => {
       const sevClass = (f.severity === 'CRITICAL') ? 'cr' : (f.severity === 'URGENT' || f.severity === 'LATE') ? 'la' : 'wa';
@@ -21456,7 +22472,7 @@ function _ccRenderWorkTab(b, w, s, fc) {
     });
     html += '</div>';
   } else {
-    html += '<div style="color:#8b949e">No data</div>';
+    html += '<div style="color:var(--text-secondary)">No data</div>';
   }
   html += '</div>';
 
@@ -21473,7 +22489,7 @@ function _ccRenderWorkTab(b, w, s, fc) {
   // Calendar — compact
   html += '<div class="cc-card"><h3><span>&#128197; Today</span> <span class="ct">' + todayEvents.length + '</span></h3>';
   if (todayEvents.length === 0) {
-    html += '<div style="color:#8b949e">' + (cal.error ? esc(cal.error) : 'No events') + '</div>';
+    html += '<div style="color:var(--text-secondary)">' + (cal.error ? esc(cal.error) : 'No events') + '</div>';
   } else {
     todayEvents.slice(0, 4).forEach(ev => {
       const t = ev.start ? new Date(ev.start).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : '';
@@ -21516,7 +22532,7 @@ function _ccRenderWorkTab(b, w, s, fc) {
       html += '<div class="cc-row-b">';
       html += '<div class="cc-row-t">' + esc(client.client_name) + '</div>';
       html += '<div class="cc-row-m">';
-      html += '<span style="color:#8b949e;">' + client.done + '/' + client.total + ' done</span>';
+      html += '<span style="color:var(--text-secondary);">' + client.done + '/' + client.total + ' done</span>';
       if (client.overdue > 0) html += ' <span class="cc-tag r">' + client.overdue + ' overdue</span>';
       if (client.blocked > 0) html += ' <span class="cc-tag a">' + client.blocked + ' blocked</span>';
       html += '</div>';
@@ -21525,7 +22541,7 @@ function _ccRenderWorkTab(b, w, s, fc) {
       html += '</div>';
     });
     if (ch.length === 0) {
-      html += '<div style="padding:8px 0;font-size:0.82rem;color:#8b949e">No active client work</div>';
+      html += '<div style="padding:8px 0;font-size:0.82rem;color:var(--text-secondary)">No active client work</div>';
     }
     html += '</div>';
 
@@ -21547,7 +22563,7 @@ function _ccRenderWorkTab(b, w, s, fc) {
         html += '<div class="cc-row-icon" style="background:' + pctBg + ';color:' + pctCol + ';font-size:.6rem;font-weight:700;">' + pct + '%</div>';
         html += '<div class="cc-row-b">';
         html += '<div class="cc-row-t">' + esc(m.title) + '</div>';
-        html += '<div class="cc-row-m"><span style="color:#8b949e;">' + esc(m.client_name) + '</span>';
+        html += '<div class="cc-row-m"><span style="color:var(--text-secondary);">' + esc(m.client_name) + '</span>';
         if (totalItems > 0) html += ' <span style="color:#484f58;">' + doneItems + '/' + totalItems + ' items</span>';
         html += '</div>';
         html += '</div>';
@@ -21568,7 +22584,7 @@ function _ccRenderWorkTab(b, w, s, fc) {
         html += '<div class="cc-row-icon" style="background:rgba(88,166,255,.1);color:#58a6ff;">&#128196;</div>';
         html += '<div class="cc-row-b">';
         html += '<div class="cc-row-t">' + esc(s2.title) + '</div>';
-        html += '<div class="cc-row-m"><span style="color:#8b949e;">' + esc(s2.client_name) + '</span>';
+        html += '<div class="cc-row-m"><span style="color:var(--text-secondary);">' + esc(s2.client_name) + '</span>';
         if (s2.expiring_soon) html += ' <span class="cc-tag r">expiring</span>';
         html += '</div>';
         html += '</div>';
@@ -21580,7 +22596,7 @@ function _ccRenderWorkTab(b, w, s, fc) {
     }
 
     if (miles.length === 0 && sows.length === 0) {
-      html += '<div style="padding:8px 0;color:#8b949e">No upcoming milestones or active contracts</div>';
+      html += '<div style="padding:8px 0;color:var(--text-secondary)">No upcoming milestones or active contracts</div>';
     }
     html += '</div>';
 
@@ -21588,7 +22604,7 @@ function _ccRenderWorkTab(b, w, s, fc) {
     html += '<div class="cc-card"><h3><span>&#128101; Team</span> <span class="ct">' + assignees.length + ' people</span></h3>';
     var barColours = ['#238636', '#1f6feb', '#8b5cf6', '#f59e0b', '#f85149', '#06b6d4'];
     if (assignees.length === 0) {
-      html += '<div style="color:#8b949e">No assignee data</div>';
+      html += '<div style="color:var(--text-secondary)">No assignee data</div>';
     } else {
       assignees.slice(0, 8).forEach(function(a) {
         var countCol = a.total > 15 ? '#f85149' : a.total > 10 ? '#d29922' : '#3fb950';
@@ -21622,7 +22638,7 @@ function _ccRenderWorkTab(b, w, s, fc) {
   var handoffProjects = hf.projects || [];
   html += '<div class="cc-card"><h3><span>&#128221; Handoffs</span> <span class="ct">' + handoffProjects.length + '</span></h3>';
   if (handoffProjects.length === 0) {
-    html += '<div style="color:#8b949e">No handoff files found</div>';
+    html += '<div style="color:var(--text-secondary)">No handoff files found</div>';
   } else {
     handoffProjects.forEach(function(p) {
       var h = p.latest_handoff || {};
@@ -21634,7 +22650,7 @@ function _ccRenderWorkTab(b, w, s, fc) {
       html += '<div class="cc-row-b">';
       html += '<div class="cc-row-t">' + esc(p.project.replace(/_/g, ' ')) + '</div>';
       html += '<div class="cc-row-m"><span style="color:' + ageColour + ';">' + esc(ageLabel) + '</span>';
-      if (h.branch) html += ' &middot; <span style="font-family:monospace;font-size:0.75rem;color:#8b949e;">' + esc(h.branch) + '</span>';
+      if (h.branch) html += ' &middot; <span style="font-family:monospace;font-size:0.75rem;color:var(--text-secondary);">' + esc(h.branch) + '</span>';
       html += '</div></div>';
       html += '<div class="cc-row-a"><button class="cc-btn pu">Resume</button></div>';
       html += '</div>';
@@ -21649,7 +22665,7 @@ function _ccRenderWorkTab(b, w, s, fc) {
   const dueToday = (wq.due_today || []).slice(0, 3);
   const attentionItems = overdue.concat(dueToday);
   if (attentionItems.length === 0) {
-    html += '<div style="padding:8px 0;color:#8b949e">Nothing urgent</div>';
+    html += '<div style="padding:8px 0;color:var(--text-secondary)">Nothing urgent</div>';
   } else {
     attentionItems.forEach(item => {
       const isOverdue = overdue.includes(item);
@@ -21787,7 +22803,7 @@ function _ccRenderMoneyTab() {
     if ((byClient[bi].annual || 0) > maxVal) maxVal = byClient[bi].annual;
   }
   if (byClient.length === 0) {
-    html += '<div style="color:#8b949e;font-size:0.85rem;">No client revenue data.</div>';
+    html += '<div style="color:var(--text-secondary);font-size:0.85rem;">No client revenue data.</div>';
   } else {
     for (var ci = 0; ci < byClient.length; ci++) {
       var cl = byClient[ci];
@@ -21843,17 +22859,17 @@ function _ccRenderMoneyTab() {
 
   html += '<div class="cc-row">';
   html += '<div class="cc-row-b"><div class="cc-row-t">Total Cost Base</div></div>';
-  html += '<div style="font-size:0.9rem;font-weight:700;color:#8b949e;">' + fmtK(costs.annual_full_cost) + '</div>';
+  html += '<div style="font-size:0.9rem;font-weight:700;color:var(--text-secondary);">' + fmtK(costs.annual_full_cost) + '</div>';
   html += '</div>';
 
   html += '<div style="margin-top:10px;display:flex;gap:16px;">';
   html += '<div style="text-align:center;">';
   html += '<div style="font-size:1.1rem;font-weight:800;color:#e6edf3;">' + (costs.headcount || 0) + '</div>';
-  html += '<div style="font-size:0.75rem;color:#8b949e;text-transform:uppercase;letter-spacing:.4px;">Headcount</div>';
+  html += '<div style="font-size:0.75rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.4px;">Headcount</div>';
   html += '</div>';
   html += '<div style="text-align:center;">';
   html += '<div style="font-size:1.1rem;font-weight:800;color:#e6edf3;">' + (costs.billable_count || 0) + '</div>';
-  html += '<div style="font-size:0.75rem;color:#8b949e;text-transform:uppercase;letter-spacing:.4px;">Billable</div>';
+  html += '<div style="font-size:0.75rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.4px;">Billable</div>';
   html += '</div>';
   html += '</div>';
 
@@ -21895,7 +22911,7 @@ function _ccRenderMoneyTab() {
   }
 
   if (byContractClient.length === 0 && expiringSows.length === 0) {
-    html += '<div style="color:#8b949e;font-size:0.85rem;padding:8px 0;">No contract data available.</div>';
+    html += '<div style="color:var(--text-secondary);font-size:0.85rem;padding:8px 0;">No contract data available.</div>';
   }
 
   html += '</div>'; // end contracts card
@@ -21936,7 +22952,7 @@ function _ccRenderPipelineContent(p) {
   html += '<div class="cc-card">';
   html += '<h3><span>&#9654; Pipeline Funnel</span> <span class="ct">' + stages.length + ' stages &bull; ' + totalCount + ' active leads</span></h3>';
   if (stages.length === 0) {
-    html += '<div style="padding:12px 0;color:#8b949e;font-size:0.85rem">No pipeline stage data</div>';
+    html += '<div style="padding:12px 0;color:var(--text-secondary);font-size:0.85rem">No pipeline stage data</div>';
   } else {
     stages.forEach(function(s) {
       var count = s.count || 0;
@@ -21946,7 +22962,7 @@ function _ccRenderPipelineContent(p) {
       html += '<div style="margin-bottom:10px;">';
       html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">';
       html += '<span style="font-size:0.82rem;font-weight:600;">' + esc(s.name) + '</span>';
-      html += '<span style="font-size:0.72rem;color:#8b949e;">' + count + ' lead' + (count !== 1 ? 's' : '') + ' &bull; ' + weightedFmt + '</span>';
+      html += '<span style="font-size:0.72rem;color:var(--text-secondary);">' + count + ' lead' + (count !== 1 ? 's' : '') + ' &bull; ' + weightedFmt + '</span>';
       html += '</div>';
       html += '<div style="background:#21262d;border-radius:3px;height:10px;overflow:hidden;">';
       html += '<div style="background:' + esc(colour) + ';width:' + widthPct + '%;height:100%;border-radius:3px;transition:width .3s;"></div>';
@@ -22003,7 +23019,7 @@ function _ccRenderPipelineContent(p) {
   // Weekly trend mini bar chart — blue=new, green=closed
   if (trend.length > 0) {
     var maxTrend = Math.max.apply(null, trend.map(function(t) { return Math.max(t.new_leads || 0, t.closed_leads || 0); }).concat([1]));
-    html += '<div style="font-size:0.65rem;color:#8b949e;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">8-week trend</div>';
+    html += '<div style="font-size:0.65rem;color:var(--text-secondary);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">8-week trend</div>';
     html += '<div style="display:flex;gap:3px;align-items:flex-end;height:48px;">';
     trend.forEach(function(t) {
       var newH = Math.max(4, Math.round(((t.new_leads || 0) / maxTrend) * 44));
@@ -22014,12 +23030,12 @@ function _ccRenderPipelineContent(p) {
       html += '</div>';
     });
     html += '</div>';
-    html += '<div style="display:flex;gap:10px;margin-top:5px;font-size:0.6rem;color:#8b949e;">';
+    html += '<div style="display:flex;gap:10px;margin-top:5px;font-size:0.6rem;color:var(--text-secondary);">';
     html += '<span><span style="display:inline-block;width:8px;height:8px;background:#1f6feb;border-radius:2px;margin-right:3px;"></span>New</span>';
     html += '<span><span style="display:inline-block;width:8px;height:8px;background:#238636;border-radius:2px;margin-right:3px;"></span>Closed</span>';
     html += '</div>';
   } else {
-    html += '<div style="padding:8px 0;color:#8b949e;font-size:0.82rem">No trend data</div>';
+    html += '<div style="padding:8px 0;color:var(--text-secondary);font-size:0.82rem">No trend data</div>';
   }
 
   html += '</div>';
@@ -22032,7 +23048,7 @@ function _ccRenderPipelineContent(p) {
   html += '<div class="cc-card" style="border-color:rgba(248,81,73,0.2);background:rgba(248,81,73,0.03);">';
   html += '<h3><span><span style="color:#f85149;margin-right:6px;">&#9888;</span> Stale Leads</span> <span class="ct">' + staleLeads.length + ' not contacted 14d+</span></h3>';
   if (staleLeads.length === 0) {
-    html += '<div style="padding:12px 0;color:#8b949e;font-size:0.85rem">No stale leads &mdash; pipeline is active</div>';
+    html += '<div style="padding:12px 0;color:var(--text-secondary);font-size:0.85rem">No stale leads &mdash; pipeline is active</div>';
   } else {
     staleLeads.forEach(function(lead) {
       var daysSince = lead.last_contacted
@@ -22059,7 +23075,7 @@ function _ccRenderPipelineContent(p) {
   html += '<div class="cc-card" style="border-color:rgba(88,166,255,0.2);background:rgba(88,166,255,0.03);">';
   html += '<h3><span><span style="color:#58a6ff;margin-right:6px;">&#128197;</span> Follow-ups Due</span> <span class="ct">' + followups.length + ' in next 7 days</span></h3>';
   if (followups.length === 0) {
-    html += '<div style="padding:12px 0;color:#8b949e;font-size:0.85rem">No follow-ups due this week</div>';
+    html += '<div style="padding:12px 0;color:var(--text-secondary);font-size:0.85rem">No follow-ups due this week</div>';
   } else {
     followups.forEach(function(lead) {
       var dueDateLabel = lead.next_followup_date
@@ -22111,7 +23127,7 @@ function _ccRenderAiosContent(a) {
     html += '<div style="font-size:0.65rem;color:' + scoreColour + ';margin-bottom:8px;font-weight:600;">' + c.score + '/' + c.max + '</div>';
     html += '<div style="text-align:left;">';
     details.slice(0, 4).forEach(function(d) {
-      html += '<div style="font-size:0.65rem;color:#8b949e;padding:2px 0;border-bottom:1px solid #21262d;">' + csIcons[key] + ' ' + esc(d) + '</div>';
+      html += '<div style="font-size:0.65rem;color:var(--text-secondary);padding:2px 0;border-bottom:1px solid #21262d;">' + csIcons[key] + ' ' + esc(d) + '</div>';
     });
     if (details.length === 0) {
       html += '<div style="font-size:0.65rem;color:#484f58;">No data</div>';
@@ -22131,7 +23147,7 @@ function _ccRenderAiosContent(a) {
   html += '<div class="cc-card">';
   html += '<h3><span>&#128073; Recommendations</span> <span class="ct">' + recs.length + ' items</span></h3>';
   if (recs.length === 0) {
-    html += '<div style="padding:12px 0;font-size:0.85rem;color:#8b949e;">All systems healthy &#10003;</div>';
+    html += '<div style="padding:12px 0;font-size:0.85rem;color:var(--text-secondary);">All systems healthy &#10003;</div>';
   } else {
     recs.forEach(function(r) {
       var col = sevColours[r.severity] || '#8b949e';
@@ -22153,7 +23169,7 @@ function _ccRenderAiosContent(a) {
   html += '<div class="cc-card">';
   html += '<h3><span>&#128200; 30-Day Score Trend</span></h3>';
   if (history.length === 0) {
-    html += '<div style="padding:12px 0;font-size:0.85rem;color:#8b949e;">No historical data yet. Check back after multiple snapshots.</div>';
+    html += '<div style="padding:12px 0;font-size:0.85rem;color:var(--text-secondary);">No historical data yet. Check back after multiple snapshots.</div>';
   } else {
     var maxBarHeight = 60;
     var maxPossibleScore = 40;
@@ -22335,6 +23351,7 @@ function renderSettings(el) {
       <div style="display:flex;gap:8px;align-items:flex-end;margin-bottom:12px">
         <input type="password" id="settingsCurPw" placeholder="Current password" style="padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-size:0.9rem">
         <input type="password" id="settingsNewPw" placeholder="New password" style="padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-size:0.9rem">
+        <input type="password" id="settingsConfirmPw" placeholder="Confirm new password" style="padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-size:0.9rem">
         <button class="btn btn--sm" data-action="changeOwnPassword">Update</button>
       </div>
       ${isAdmin ? `
@@ -22678,14 +23695,16 @@ async function savePagePermissions() {
 async function changeOwnPassword() {
   const cur = document.getElementById('settingsCurPw').value;
   const newPw = document.getElementById('settingsNewPw').value;
+  const confirmPw = document.getElementById('settingsConfirmPw').value;
   if (!cur || !newPw) { toast('Both fields required', 'warning'); return; }
+  if (newPw !== confirmPw) { toast('New passwords do not match', 'error'); document.getElementById('settingsConfirmPw').style.borderColor = 'var(--danger)'; return; }
   try {
     const resp = await authFetch('/api/auth/change-password', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ currentPassword: cur, newPassword: newPw }),
     });
     const data = await resp.json();
-    if (resp.ok) { toast('Password updated'); document.getElementById('settingsCurPw').value = ''; document.getElementById('settingsNewPw').value = ''; }
+    if (resp.ok) { toast('Password updated'); document.getElementById('settingsCurPw').value = ''; document.getElementById('settingsNewPw').value = ''; document.getElementById('settingsConfirmPw').value = ''; }
     else toast(data.error || 'Failed', 'error');
   } catch(e) { toast('Error: ' + e.message, 'error'); }
 }
@@ -25030,7 +26049,13 @@ async function inviteClientUser() {
       body: JSON.stringify({ username, display_name, email, client_role }),
     });
     if (res.ok) {
-      toast('User created. Invite email sent to ' + email);
+      const created = await res.json().catch(() => ({}));
+      const tempPw = created.temporaryPassword || created.password || null;
+      if (tempPw) {
+        await themedConfirm('User created successfully.\\n\\nUsername: ' + username + '\\nTemporary password: ' + tempPw + '\\n\\nPlease share these credentials securely.', 'Credentials', 'OK');
+      } else {
+        toast('User created. Invite email sent to ' + email);
+      }
       const dnEl = document.getElementById('inviteDisplayName'); if (dnEl) dnEl.value = '';
       const emEl = document.getElementById('inviteEmail'); if (emEl) emEl.value = '';
       loadClientTeamList();
@@ -25060,6 +26085,37 @@ async function resetClientUserPassword(userId) {
 }
 
 // ===== TIME TRACKING =====
+
+async function logTimeEntryInline(taskId) {
+  const hoursInput = document.getElementById('inlineLogHours');
+  const descInput = document.getElementById('inlineLogDesc');
+  const hours = parseFloat(hoursInput?.value);
+  if (!hours || hours <= 0) { toast('Enter hours > 0'); return; }
+  try {
+    await authFetch('/api/tasks/' + taskId + '/time-entries', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ hours, description: descInput?.value || '' })
+    });
+    const task = tasks.find(t => t.id === taskId);
+    if (task) { task.hoursSpent = (task.hoursSpent || 0) + hours; }
+    toast(hours + 'h logged');
+    if (hoursInput) hoursInput.value = '';
+    if (descInput) descInput.value = '';
+    loadTimeEntriesInline(taskId);
+    renderContent();
+  } catch(e) { toast('Failed to log time', 'error'); }
+}
+
+async function loadTimeEntriesInline(taskId) {
+  const el = document.getElementById('inlineTimeEntriesList');
+  if (!el) return;
+  try {
+    const entries = await apiCall('/api/tasks/' + taskId + '/time-entries');
+    if (!entries) { el.innerHTML = '<div style="color:var(--text-muted);font-size:0.7rem">Could not load</div>'; return; }
+    if (entries.length === 0) { el.innerHTML = '<div style="color:var(--text-muted);font-size:0.7rem">No time logged yet</div>'; return; }
+    el.innerHTML = entries.map(e => `<div style="display:flex;align-items:center;gap:6px;font-size:0.72rem;padding:3px 0;border-bottom:1px solid var(--border-subtle)"><span style="font-weight:600;font-family:var(--font-mono);color:var(--accent);min-width:40px">${(parseFloat(e.hours) || 0).toFixed(2)}h</span><span style="flex:1;color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(e.description || '-')}</span><span style="color:var(--text-muted);font-size:0.7rem">${esc(e.user_name)} &middot; ${e.date}</span></div>`).join('');
+  } catch(e) { console.warn('[TimeEntries] inline error:', e.message || e); }
+}
 
 /** Manually log a time entry from the detail panel's quick-log fields */
 async function logTimeEntry(taskId) {
@@ -25836,6 +26892,39 @@ document.addEventListener('keydown', function(e) {
   patchClickable(document.body);
 })();
 
+function showKeyboardShortcutHelp() {
+  var existing = document.getElementById('kbShortcutOverlay');
+  if (existing) { existing.remove(); return; }
+  var overlay = document.createElement('div');
+  overlay.id = 'kbShortcutOverlay';
+  overlay.className = 'modal-overlay';
+  overlay.style.display = 'flex';
+  overlay.innerHTML = '<div class="modal" style="max-width:520px;max-height:80vh;overflow-y:auto">' +
+    '<div class="modal__title" style="display:flex;justify-content:space-between;align-items:center">Keyboard Shortcuts <button class="btn btn--ghost btn--sm" onclick="this.closest(\'.modal-overlay\').remove()" style="font-size:1.2rem">&times;</button></div>' +
+    '<table style="width:100%;border-collapse:collapse;font-size:13px">' +
+    '<tr><td style="padding:6px 12px;color:var(--text-muted)"><kbd style="background:var(--bg-surface);padding:2px 6px;border-radius:3px;font-size:11px">?</kbd></td><td>Show this help</td></tr>' +
+    '<tr><td style="padding:6px 12px;color:var(--text-muted)"><kbd style="background:var(--bg-surface);padding:2px 6px;border-radius:3px;font-size:11px">/</kbd></td><td>Focus search</td></tr>' +
+    '<tr><td style="padding:6px 12px;color:var(--text-muted)"><kbd style="background:var(--bg-surface);padding:2px 6px;border-radius:3px;font-size:11px">n</kbd></td><td>New task (Projects view)</td></tr>' +
+    '<tr><td style="padding:6px 12px;color:var(--text-muted)"><kbd style="background:var(--bg-surface);padding:2px 6px;border-radius:3px;font-size:11px">[</kbd></td><td>Toggle sidebar</td></tr>' +
+    '<tr><td style="padding:6px 12px;color:var(--text-muted)"><kbd style="background:var(--bg-surface);padding:2px 6px;border-radius:3px;font-size:11px">Esc</kbd></td><td>Close panel / deselect</td></tr>' +
+    '<tr><td style="padding:6px 12px;color:var(--text-muted)"><kbd style="background:var(--bg-surface);padding:2px 6px;border-radius:3px;font-size:11px">1-4</kbd></td><td>Set task status (when detail open)</td></tr>' +
+    '<tr><td colspan="2" style="padding:10px 12px 4px;font-weight:600;color:var(--text-primary);border-top:1px solid var(--border-default)">Navigation (g then...)</td></tr>' +
+    '<tr><td style="padding:6px 12px;color:var(--text-muted)"><kbd style="background:var(--bg-surface);padding:2px 6px;border-radius:3px;font-size:11px">g d</kbd></td><td>Dashboard</td></tr>' +
+    '<tr><td style="padding:6px 12px;color:var(--text-muted)"><kbd style="background:var(--bg-surface);padding:2px 6px;border-radius:3px;font-size:11px">g t</kbd></td><td>Projects (tasks)</td></tr>' +
+    '<tr><td style="padding:6px 12px;color:var(--text-muted)"><kbd style="background:var(--bg-surface);padding:2px 6px;border-radius:3px;font-size:11px">g r</kbd></td><td>Reporting</td></tr>' +
+    '<tr><td style="padding:6px 12px;color:var(--text-muted)"><kbd style="background:var(--bg-surface);padding:2px 6px;border-radius:3px;font-size:11px">g p</kbd></td><td>People</td></tr>' +
+    '<tr><td style="padding:6px 12px;color:var(--text-muted)"><kbd style="background:var(--bg-surface);padding:2px 6px;border-radius:3px;font-size:11px">g l</kbd></td><td>Leads</td></tr>' +
+    '<tr><td style="padding:6px 12px;color:var(--text-muted)"><kbd style="background:var(--bg-surface);padding:2px 6px;border-radius:3px;font-size:11px">g f</kbd></td><td>Finances</td></tr>' +
+    '<tr><td style="padding:6px 12px;color:var(--text-muted)"><kbd style="background:var(--bg-surface);padding:2px 6px;border-radius:3px;font-size:11px">g e</kbd></td><td>Expenses</td></tr>' +
+    '<tr><td style="padding:6px 12px;color:var(--text-muted)"><kbd style="background:var(--bg-surface);padding:2px 6px;border-radius:3px;font-size:11px">g s</kbd></td><td>Settings</td></tr>' +
+    '<tr><td style="padding:6px 12px;color:var(--text-muted)"><kbd style="background:var(--bg-surface);padding:2px 6px;border-radius:3px;font-size:11px">g m</kbd></td><td>My Work</td></tr>' +
+    '<tr><td colspan="2" style="padding:10px 12px 4px;font-weight:600;color:var(--text-primary);border-top:1px solid var(--border-default)">Gantt</td></tr>' +
+    '<tr><td style="padding:6px 12px;color:var(--text-muted)"><kbd style="background:var(--bg-surface);padding:2px 6px;border-radius:3px;font-size:11px">Del</kbd></td><td>Remove selected dependency</td></tr>' +
+    '</table></div>';
+  document.body.appendChild(overlay);
+  overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
+}
+
 // ===== KEYBOARD SHORTCUTS =====
 document.addEventListener('keydown', function(e) {
   // Skip if typing in an input/select/textarea
@@ -25874,6 +26963,11 @@ document.addEventListener('keydown', function(e) {
     return;
   }
 
+  if (e.key === '?' && !e.ctrlKey && !e.metaKey) {
+    e.preventDefault();
+    showKeyboardShortcutHelp();
+    return;
+  }
   if (e.key === '/' && !e.ctrlKey && !e.metaKey) {
     e.preventDefault();
     const search = document.querySelector('.search-input') || document.querySelector('input[placeholder*="Search"]');

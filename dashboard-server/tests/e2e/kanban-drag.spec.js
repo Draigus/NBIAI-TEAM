@@ -316,11 +316,11 @@ test.describe('Hiring kanban drag', () => {
       window._hiringLoaded = true;
       if (typeof switchView === 'function') switchView('hiring');
     });
-    await page.waitForSelector('.hiring-card', { timeout: 15000 });
-    await expect(page.locator('.hiring-card')).toHaveCount(3);
+    await page.waitForSelector('.ats-card', { timeout: 15000 });
+    await expect(page.locator('.ats-card')).toHaveCount(3);
 
-    const carol = page.locator('.hiring-card', { hasText: 'Carol' });
-    const alice = page.locator('.hiring-card', { hasText: 'Alice' });
+    const carol = page.locator('.ats-card', { hasText: 'Carol' });
+    const alice = page.locator('.ats-card', { hasText: 'Alice' });
 
     const patchPromise = page.waitForResponse(resp =>
       resp.url().includes('/api/candidates/') && resp.request().method() === 'PATCH'

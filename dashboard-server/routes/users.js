@@ -13,11 +13,21 @@ module.exports = function(ctx) {
   /** GET /api/users — List users. Admins see full details; client users see their company; members see names only. */
   router.get('/api/users', async (req, res) => {
     if (req.user.clientId) {
-      // Client users see only their company's users — checked before role so
-      // client accounts with role=admin are still scoped to their client.
+      // Client users see their own staff + specific NBI contacts assigned to their account
+      const NBI_CONTACTS_BY_CLIENT = {
+        '21be0772-73e5-4cca-8795-8b1a66f89ec2': ['Glen Pryer', 'Magnus Pryer'],                                    // Couch Heroes
+        'f6fe27d8-307d-4121-b204-6a0971e88de7': ['Glen Pryer', 'Magnus Pryer', 'Ruan', 'Stavros', 'Amir Didar'],   // Lighthouse Games
+        '239262e3-584c-4825-9f63-ba5882326dc6': ['Glen Pryer', 'Magnus Pryer', 'Ruan', 'Stavros', 'Amir Didar'],   // Lighthouse Studios
+      };
+      const nbiNames = NBI_CONTACTS_BY_CLIENT[req.user.clientId] || ['Glen Pryer', 'Magnus Pryer'];
+      const placeholders = nbiNames.map((_, i) => `$${i + 2}`).join(', ');
       const { rows } = await pool.query(
-        'SELECT id, username, display_name, email, client_role, is_active FROM users WHERE client_id = $1 ORDER BY display_name',
-        [req.user.clientId]
+        `SELECT id, username, display_name, email, client_role, is_active FROM users WHERE client_id = $1
+         UNION ALL
+         SELECT id, username, display_name, email, NULL AS client_role, is_active FROM users
+           WHERE client_id IS NULL AND display_name IN (${placeholders}) AND is_active = TRUE
+         ORDER BY display_name`,
+        [req.user.clientId, ...nbiNames]
       );
       res.json(rows);
     } else if (req.user.role === 'admin') {

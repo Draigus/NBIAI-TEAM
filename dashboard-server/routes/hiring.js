@@ -136,12 +136,14 @@ module.exports = function (ctx) {
     if (!Array.isArray(stages)) return res.status(400).json({ error: 'stages must be an array' });
     if (stages.length < 2) return res.status(400).json({ error: 'At least 2 stages are required' });
 
-    // Validate each stage object
+    // Validate each stage object (auto-normalise keys)
     for (let idx = 0; idx < stages.length; idx++) {
       const s = stages[idx];
       if (!s || typeof s !== 'object') return res.status(400).json({ error: `Stage at index ${idx} is not an object` });
-      if (!s.key || typeof s.key !== 'string' || !STAGE_KEY_RE.test(s.key)) {
-        return res.status(400).json({ error: `Stage at index ${idx} has an invalid key. Keys must be lowercase alphanumeric words separated by hyphens` });
+      if (!s.key || typeof s.key !== 'string') return res.status(400).json({ error: `Stage at index ${idx} must have a key` });
+      s.key = s.key.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+      if (!STAGE_KEY_RE.test(s.key)) {
+        return res.status(400).json({ error: `Stage at index ${idx} has an invalid key after normalisation. Keys must be lowercase alphanumeric words separated by hyphens` });
       }
       if (!s.label || typeof s.label !== 'string' || !s.label.trim()) {
         return res.status(400).json({ error: `Stage at index ${idx} must have a non-empty label` });
@@ -471,7 +473,7 @@ module.exports = function (ctx) {
                ca.archived_at, ca.stage_assignees,
                ca.email, ca.source, ca.source_detail, ca.tags,
                ca.consent_given, ca.consent_date, ca.retention_expires_at,
-               ca.rejection_reason, ca.rejection_category, ca.stage_changed_at,
+               ca.rejection_reason, ca.rejection_category, ca.stage_changed_at, ca.contract_status,
                c.name AS client_name,
                p.title AS position_title,
                (ca.cv_filename IS NOT NULL) AS has_cv,
@@ -730,6 +732,14 @@ module.exports = function (ctx) {
       }
     }
 
+    // Validate contract_status if provided
+    const VALID_CONTRACT_STATUSES = ['creation-of-contract', 'contract-sent', 'edits-on-contract', 'contract-in-review', 'contract-signed'];
+    if (body.contract_status !== undefined && body.contract_status !== null && body.contract_status !== '') {
+      if (!VALID_CONTRACT_STATUSES.includes(body.contract_status)) {
+        return res.status(400).json({ error: `Invalid contract_status. Must be one of: ${VALID_CONTRACT_STATUSES.join(', ')}` });
+      }
+    }
+
     // Rejection enforcement: archiving a non-terminal candidate requires a rejection_category.
     // Use the dynamic terminal stage for this client (or global default if no client).
     if (body.archived_at && body.archived_at !== null) {
@@ -748,7 +758,7 @@ module.exports = function (ctx) {
       }
     }
 
-    const { updates, vals, nextIdx } = buildPatchQuery(body, ['client_id', 'position_id', 'name', 'role', 'linkedin_url', 'due_date', 'notes', 'stage_assignees', 'start_date', 'onboarding_links', 'archived_at', 'email', 'source', 'source_detail', 'tags', 'consent_given', 'consent_date', 'retention_expires_at', 'rejection_reason', 'rejection_category']);
+    const { updates, vals, nextIdx } = buildPatchQuery(body, ['client_id', 'position_id', 'name', 'role', 'linkedin_url', 'due_date', 'notes', 'stage_assignees', 'start_date', 'onboarding_links', 'archived_at', 'email', 'source', 'source_detail', 'tags', 'consent_given', 'consent_date', 'retention_expires_at', 'rejection_reason', 'rejection_category', 'contract_status']);
     const wantsReorder = (body.stage !== undefined) || (req.body.position !== undefined);
     if (updates.length === 0 && !wantsReorder) return res.status(400).json({ error: 'No valid fields to update' });
 
@@ -992,7 +1002,7 @@ module.exports = function (ctx) {
       const { rows } = await pool.query(
         `SELECT * FROM candidate_comments
          WHERE candidate_id = $1 ${internalFilter}
-         ORDER BY created_at DESC`,
+         ORDER BY created_at ASC`,
         [req.params.id]
       );
       res.json(rows);
@@ -1008,7 +1018,7 @@ module.exports = function (ctx) {
     if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid candidate ID' });
     const commentBody = (req.body.body || '').trim();
     if (!commentBody) return res.status(400).json({ error: 'body is required' });
-    const lenErr = validateLength(commentBody, 'body');
+    const lenErr = validateLength(commentBody, 'body', 5000);
     if (lenErr) return res.status(400).json({ error: lenErr });
     const internal = req.user.clientId ? false : (req.body.internal === true || req.body.internal === 'true');
     const author = req.user.displayName || 'unknown';

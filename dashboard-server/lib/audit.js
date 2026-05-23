@@ -17,9 +17,10 @@ function computeNextRepeatDate(rule, from) {
   const base = new Date(from);
   base.setHours(0, 0, 0, 0);
   const toIso = d => d.toISOString().slice(0, 10);
+  const interval = Math.max(1, parseInt(rule.interval, 10) || 1);
 
   if (rule.type === 'daily') {
-    base.setDate(base.getDate() + 1);
+    base.setDate(base.getDate() + interval);
     return toIso(base);
   }
 
@@ -28,15 +29,20 @@ function computeNextRepeatDate(rule, from) {
       ? rule.daysOfWeek.map(Number).filter(n => !isNaN(n) && n >= 0 && n <= 6).sort((a, b) => a - b)
       : [];
     if (days.length === 0) {
-      base.setDate(base.getDate() + 7);
+      base.setDate(base.getDate() + 7 * interval);
       return toIso(base);
     }
-    for (let i = 1; i <= 14; i++) {
+    for (let i = 1; i <= 14 * interval; i++) {
       const cand = new Date(base);
       cand.setDate(cand.getDate() + i);
       if (days.includes(cand.getDay())) return toIso(cand);
     }
     return null;
+  }
+
+  if (rule.type === 'monthly') {
+    base.setMonth(base.getMonth() + interval);
+    return toIso(base);
   }
 
   if (rule.type === 'yearly') {

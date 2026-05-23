@@ -4,6 +4,112 @@ Append-only. Every feature/fix completed gets logged here immediately.
 
 ---
 
+## 2026-05-23 — 10 Bug Fixes + Features
+
+1. **8f8c2a3c**: Removed redundant +New dropdown arrow button
+2. **9c21224b**: Fixed tree row in-place update selector (data-id → data-task-id)
+3. **a12b9c49**: Warning clicks now clear filters before navigating to target task
+4. **1218420b**: Report detail percentages use consistent purple colour + column headers
+5. **84273f41**: People filter lazy-expand paths now pass visibility set (was showing all siblings)
+6. **9ad19ce0**: Inline panel now has quick-log time entry UI matching overlay panel
+7. **551b8601**: +New picker project/feature folders start collapsed with toggle arrows
+8. **421bd26e**: Drag-to-reorder: container handler now skips row drops, zone-based system handles reorder vs reparent
+9. **f00d7ead**: Repeat section: "Every X Day(s)/Week(s)/Month(s)/Year(s)" picker with interval. Server updated.
+10. **720ccebf**: Onboarding sidebar shortcut — opens Hiring filtered to onboarding stage
+
+Files: nbi_project_dashboard.html, dashboard-server/lib/audit.js
+PM2 restarted. Tests pending.
+
+---
+
+## 2026-05-21 — ATS Frontend Build (Tasks 6-12)
+
+**Task 6: Tab Navigation + Summary Banner**
+- Replaced 4-button toggle with 5-tab system (Pipeline | Positions | Database | Calendar | Metrics)
+- Clickable summary banner: interviews today, needs action, offers pending, open positions
+- `renderHiringView` refactored into tab dispatcher, code extracted into per-tab functions
+
+**Task 7: Candidate Card Redesign**
+- 220px cards with coloured initials avatar (deterministic hue from name hash)
+- Source badge, stage badge, assignee faces (max 3 + overflow), CV indicator, comment count, days-in-stage
+- Action-state left border: red if unassigned or >14d, amber if >7d
+
+**Task 8: Database/Search View**
+- Full-width sortable table with search, 4 filter dropdowns (Stage, Client, Source, Position)
+- Removable filter chips, 3 sort modes (name, stage, days), click-to-detail
+
+**Task 9: Calendar View**
+- Week grid (Mon-Fri, 8am-6pm, 30-min slots) with interview blocks from API
+- Colour-coded by type, avatar/name/time/location per block, legend
+- Schedule Interview modal with conflict pre-check, week navigation
+
+**Task 10: Detail Panel Enrichment**
+- Interviews tab: colour-coded round cards, inline outcome selector, "Schedule" button
+- Activity tab: unified timeline from /api/candidates/:id/activity (stage+comments+events)
+- Settings tab: Reject/Decline buttons with category dropdown and reason form
+- Added updateInterviewOutcome, hiringRejectCandidate, hiringArchiveWithReason functions
+
+**Task 12: Metrics Tab**
+- Wrapped existing loadHiringMetrics in new tab container structure
+
+**Infra fixes:** baseline-schema.sql FK ordering for candidate_activity, CREATE OR REPLACE FUNCTION for decode_html_entities
+
+**Gap fixes (spec completeness pass):**
+- Position filter dropdown on Pipeline and Calendar tabs (cross-tab filtering per spec)
+- Interviews-today count preloaded on initial data fetch (not just Calendar tab visit)
+- Client name shown on candidate cards
+- Metrics: source effectiveness chart, pipeline funnel, time-in-stage distribution, summary stat cards
+- Calendar month view: full month grid with interview dots, click day to jump to week view
+- Comment endpoint: ORDER BY ASC (was DESC), body length cap 5000 (was 50000)
+
+Files: nbi_project_dashboard.html, dashboard-server/routes/hiring.js, dashboard-server/tests/fixtures/baseline-schema.sql
+Tests: 553/553 green. PM2 restarted.
+
+---
+
+## 2026-05-21 — Bug Fixes: 3 Open Bugs
+
+**Bug 817d084c: Date input year validation fires too early**
+- Chrome fires change events with intermediate year values (0002, 0020, etc.) while typing. Added `yr < 1000` guard to silently ignore partial years. Removed `renderContent()` from error path so invalid years no longer boot user out of field.
+
+**Bug c0e9c8e8: Est/spent hours label vs input mismatch**
+- Parent items showed aggregate hours in label but own hours (0) in input. Now parent items with children show aggregate values in disabled inputs (matching date auto-calculation pattern). Leaf tasks unchanged.
+
+**Bug 7456e671: Marking task done sets end date**
+- Status to Done auto-sets endDate to today. Status away from Done clears endDate. Manual override allowed. Undo restores previous endDate. Parent date range propagation fires on status-triggered endDate changes.
+
+**Bug 1e6a4dfe: Ability to Delete Ticket Comments**
+- Notes on task detail panels had no delete buttons. Added `deleteNote()` function with confirm prompt and red "delete" link on every note in both inline and overlay panels. Database-backed comments already had delete buttons (working).
+
+Files: nbi_project_dashboard.html
+Tests: 487/553 unit green (66 pre-existing), 18/19 e2e green (1 pre-existing). PM2 restarted.
+
+---
+
+## 2026-05-20 — ATS Visual Polish + Salary Backfill + Client Access Control
+
+**Client Access Control (Security)**
+- Backend: salary_range stripped from GET /api/hiring-positions for client-scoped users
+- Frontend: salary hidden from position cards + position detail for client users
+- 3 new tests in salary-access-control.test.mjs
+
+**Salary Backfill**
+- Script `scripts/backfill-salaries.js` populated salary_range on 29/30 Couch Heroes positions from Excel
+- UI/UX Lead skipped (salary 0 in source data)
+
+**Visual Polish (Greenhouse/Ashby-inspired)**
+- Kanban cards: action-state left borders (red = unassigned/overdue, grey = archived), days-in-stage counter, cleaned card surface
+- Candidate detail panel: tabbed layout (Profile | Interviews | Activity | Settings), stage controls pinned
+- Metrics: summary stat cards row, pipeline funnel with conversion rates between stages
+- Position cards: larger minibar (8px, 140px), bumped font sizes
+- Stage editor: drag-to-reorder handles with terminal row protection
+- CSS: all hiring fonts bumped (names 0.95rem, labels 0.78rem, inputs 0.9rem), panels widened to 600px
+
+Files: nbi_project_dashboard.html, routes/hiring.js, scripts/backfill-salaries.js, tests/unit/salary-access-control.test.mjs
+Tests: 553/553 green (41 files). PM2 restarted.
+
+---
+
 ## 2026-05-20 — Bug Fixes: 3 Open Bugs + Sync Parity Fix
 
 **Bug 1: Delete Ticket Comments** (1e6a4dfe)

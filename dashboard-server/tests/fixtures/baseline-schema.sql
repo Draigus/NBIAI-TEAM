@@ -50,7 +50,7 @@ COMMENT ON EXTENSION pg_trgm IS 'text similarity measurement and index searching
 -- Name: decode_html_entities(text); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.decode_html_entities(s text) RETURNS text
+CREATE OR REPLACE FUNCTION public.decode_html_entities(s text) RETURNS text
     LANGUAGE plpgsql IMMUTABLE
     AS $$
 DECLARE
@@ -245,8 +245,30 @@ CREATE TABLE public.candidates (
     consent_date timestamp with time zone,
     retention_expires_at timestamp with time zone,
     rejection_reason text,
-    rejection_category text
+    rejection_category text,
+    stage_changed_at timestamp with time zone DEFAULT now(),
+    contract_status text
 );
+
+
+--
+-- Name: candidate_activity; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.candidate_activity (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    candidate_id uuid NOT NULL,
+    event_type text NOT NULL,
+    detail text,
+    actor text NOT NULL,
+    created_at timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE ONLY public.candidate_activity
+    ADD CONSTRAINT candidate_activity_pkey PRIMARY KEY (id);
+
+CREATE INDEX idx_candidate_activity_candidate ON public.candidate_activity USING btree (candidate_id);
+CREATE INDEX idx_candidate_activity_created ON public.candidate_activity USING btree (created_at);
 
 
 --
@@ -1294,7 +1316,10 @@ COPY public.candidate_stage_history (id, candidate_id, from_stage, to_stage, mov
 -- Data for Name: candidates; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY public.candidates (id, position_id, client_id, name, role, linkedin_url, cv_filename, due_date, stage, notes, created_at, updated_at, "position", stage_assignees, start_date, onboarding_links, archived_at, email, source, source_detail, tags, consent_given, consent_date, retention_expires_at, rejection_reason, rejection_category) FROM stdin;
+COPY public.candidates (id, position_id, client_id, name, role, linkedin_url, cv_filename, due_date, stage, notes, created_at, updated_at, "position", stage_assignees, start_date, onboarding_links, archived_at, email, source, source_detail, tags, consent_given, consent_date, retention_expires_at, rejection_reason, rejection_category, stage_changed_at) FROM stdin;
+\.
+
+COPY public.candidate_activity (id, candidate_id, event_type, detail, actor, created_at) FROM stdin;
 \.
 
 
@@ -1826,6 +1851,9 @@ ALTER TABLE ONLY public.candidate_stage_history
 
 ALTER TABLE ONLY public.candidates
     ADD CONSTRAINT candidates_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.candidate_activity
+    ADD CONSTRAINT candidate_activity_candidate_id_fkey FOREIGN KEY (candidate_id) REFERENCES public.candidates(id) ON DELETE CASCADE;
 
 
 --

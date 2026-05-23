@@ -34,13 +34,20 @@ async function resetTestDb() {
   execSync('node ' + path.join(__dirname, 'create-test-db.js'), { stdio: 'inherit' });
 
   const { Pool } = require('pg');
-  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  const pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 1 });
+  const client = await pool.connect();
 
   try {
-    // 2. Wipe public schema
-    await pool.query('DROP SCHEMA IF EXISTS public CASCADE');
-    await pool.query('CREATE SCHEMA public');
+    // 2. Kill other connections to avoid deadlocks, then wipe public schema
+    //    Single client so pg_backend_pid() is consistent across all queries
+    await client.query(
+      `SELECT pg_terminate_backend(pid) FROM pg_stat_activity
+       WHERE datname = current_database() AND pid != pg_backend_pid()`
+    );
+    await client.query('DROP SCHEMA IF EXISTS public CASCADE');
+    await client.query('CREATE SCHEMA public');
   } finally {
+    client.release();
     await pool.end();
   }
 
