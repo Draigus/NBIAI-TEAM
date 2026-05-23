@@ -106,7 +106,7 @@ module.exports = function (ctx) {
       const scores = [];
       for (const client of clients) {
         const { rows: tasks } = await pool.query(
-          `SELECT status, health, due_date, updated_at, assignees
+          `SELECT status, health_state, due_date, updated_at, assignees
            FROM tasks WHERE client_id = $1 AND status NOT IN ('Done', 'Cancelled')`,
           [client.id]
         );
@@ -129,7 +129,7 @@ module.exports = function (ctx) {
           factors.push({ label: 'Overdue tasks', count: overdue.length, penalty: overdueP });
         }
 
-        const blocked = tasks.filter(t => t.status === 'Blocked' || t.health === 'blocked');
+        const blocked = tasks.filter(t => t.status === 'Blocked' || t.health_state === 'blocked' || t.health_state === 'Blocked');
         if (blocked.length > 0) {
           const blockedP = Math.min(blocked.length * 5, 20);
           penalty += blockedP;

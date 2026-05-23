@@ -18,7 +18,7 @@ module.exports = function (ctx) {
       const [clientR, tasksR, positionsR, candidatesR, bugsR] = await Promise.all([
         pool.query('SELECT id, name FROM clients WHERE id = $1', [req.params.id]),
         pool.query(
-          `SELECT id, title, status, health, due_date, updated_at, item_type, assignees
+          `SELECT id, title, status, health_state, due_date, updated_at, item_type, assignees
            FROM tasks WHERE client_id = $1 AND status != 'Cancelled'
            ORDER BY due_date ASC NULLS LAST`, [req.params.id]),
         pool.query(
@@ -31,7 +31,7 @@ module.exports = function (ctx) {
            ORDER BY c.stage, c.name`, [req.params.id]),
         pool.query(
           `SELECT id, title, status, priority
-           FROM bug_reports WHERE client_id = $1 AND status NOT IN ('resolved', 'closed')
+           FROM bug_reports WHERE reporter_client_id = $1 AND status NOT IN ('resolved', 'closed')
            ORDER BY priority DESC, created_at`, [req.params.id]),
       ]);
       if (clientR.rows.length === 0) return res.status(404).json({ error: 'Client not found' });
@@ -40,7 +40,7 @@ module.exports = function (ctx) {
       const now = new Date();
       const completed = tasks.filter(t => t.status === 'Done' && t.updated_at >= new Date(sinceDate));
       const overdue = tasks.filter(t => t.status !== 'Done' && t.due_date && new Date(t.due_date) < now);
-      const blocked = tasks.filter(t => t.status === 'Blocked' || t.health === 'blocked');
+      const blocked = tasks.filter(t => t.status === 'Blocked' || t.health_state === 'blocked' || t.health_state === 'Blocked');
       const inProgress = tasks.filter(t => t.status === 'In Progress');
       const notStarted = tasks.filter(t => t.status === 'Not Started');
 
@@ -67,7 +67,7 @@ module.exports = function (ctx) {
         },
         completed: completed.map(t => ({ id: t.id, title: t.title, type: t.item_type, completed_at: t.updated_at })),
         overdue: overdue.map(t => ({ id: t.id, title: t.title, type: t.item_type, due_date: t.due_date, assignees: t.assignees })),
-        blocked: blocked.map(t => ({ id: t.id, title: t.title, type: t.item_type, status: t.status, health: t.health })),
+        blocked: blocked.map(t => ({ id: t.id, title: t.title, type: t.item_type, status: t.status, health: t.health_state })),
         in_progress: inProgress.map(t => ({ id: t.id, title: t.title, type: t.item_type, assignees: t.assignees })),
         positions: openPositions.map(p => ({ id: p.id, title: p.title, seniority: p.seniority, type: p.employment_type })),
         pipeline: pipelineByStage,
