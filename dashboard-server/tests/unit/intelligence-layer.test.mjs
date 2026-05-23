@@ -85,13 +85,17 @@ describe('Stage-change notifications', () => {
       .send({ stage: 'interviews' })
       .expect(200);
 
-    // Give the async notification a moment to fire
-    await new Promise(r => setTimeout(r, 500));
-
-    const { rows } = await pool.query(
-      "SELECT * FROM notifications WHERE username = $1 AND type = 'hiring_stage_change'",
-      [assignee.username]
-    );
+    // Poll for the async notification (fire-and-forget in the route handler)
+    let rows = [];
+    for (let attempt = 0; attempt < 20; attempt++) {
+      await new Promise(r => setTimeout(r, 250));
+      const result = await pool.query(
+        "SELECT * FROM notifications WHERE username = $1 AND type = 'hiring_stage_change'",
+        [assignee.username]
+      );
+      rows = result.rows;
+      if (rows.length > 0) break;
+    }
     expect(rows.length).toBeGreaterThanOrEqual(1);
     expect(rows[0].link).toContain(candidate.id);
   });
