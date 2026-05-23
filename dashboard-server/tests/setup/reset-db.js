@@ -34,20 +34,25 @@ async function resetTestDb() {
   execSync('node ' + path.join(__dirname, 'create-test-db.js'), { stdio: 'inherit' });
 
   const { Pool } = require('pg');
-  const pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 1 });
-  const client = await pool.connect();
 
+  // Kill stale connections from prior runs via the admin DB (avoids killing our own pool)
+  const adminUrl = process.env.ADMIN_DATABASE_URL || process.env.DATABASE_URL.replace(/\/[^/]+$/, '/postgres');
+  const adminPool = new Pool({ connectionString: adminUrl, max: 1 });
   try {
-    // 2. Kill other connections to avoid deadlocks, then wipe public schema
-    //    Single client so pg_backend_pid() is consistent across all queries
-    await client.query(
+    await adminPool.query(
       `SELECT pg_terminate_backend(pid) FROM pg_stat_activity
-       WHERE datname = current_database() AND pid != pg_backend_pid()`
+       WHERE datname = 'nbi_dashboard_test' AND pid != pg_backend_pid()`
     );
-    await client.query('DROP SCHEMA IF EXISTS public CASCADE');
-    await client.query('CREATE SCHEMA public');
   } finally {
-    client.release();
+    await adminPool.end();
+  }
+
+  // 2. Wipe public schema and recreate
+  const pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 1 });
+  try {
+    await pool.query('DROP SCHEMA IF EXISTS public CASCADE');
+    await pool.query('CREATE SCHEMA public');
+  } finally {
     await pool.end();
   }
 
