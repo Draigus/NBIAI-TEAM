@@ -1079,9 +1079,9 @@ span.fin-editable { display: inline-block; position: relative; }
 
 /* ===== TASK SUB-VIEW TOGGLE ===== */
 .task-subview-toggle { display: inline-flex; background: var(--bg-surface); border-radius: var(--radius-md); padding: 2px; gap: 2px; }
-.task-subview-btn { padding: 5px 14px; border-radius: var(--radius-sm); font-size: 0.78rem; font-family: var(--font-display); letter-spacing: 0.5px; cursor: pointer; border: none; background: none; color: var(--text-muted); transition: all 0.15s ease; }
-.task-subview-btn.active { background: var(--accent); color: #fff; }
-.task-subview-btn:hover:not(.active) { color: var(--text-primary); }
+.task-subview-btn { padding: 6px 16px; border-radius: var(--radius-sm); font-size: 0.8rem; font-weight: 500; font-family: var(--font-display); letter-spacing: 0.3px; cursor: pointer; border: 1px solid transparent; background: none; color: var(--text-muted); transition: all 0.15s ease; }
+.task-subview-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.task-subview-btn:hover:not(.active) { color: var(--text-primary); background: var(--bg-surface); border-color: var(--border-subtle); }
 
 .tree-controls { display: flex; gap: var(--space-sm); margin-bottom: var(--space-sm); }
 .tree-controls .btn { font-size: 0.75rem; padding: 3px 10px; }
@@ -3008,6 +3008,29 @@ span.fin-editable { display: inline-block; position: relative; }
   .cc-chat-fab { width: 60px; height: 60px; bottom: 10px; right: 10px; }
   .cc-chat-fab img { width: 60px !important; height: 60px !important; }
 }
+
+/* ===== TOOLTIPS ===== */
+[data-tooltip] { position: relative; }
+[data-tooltip]::after,
+[data-tooltip]::before { opacity: 0; visibility: hidden; transition: opacity 0.15s ease-out 0.3s, visibility 0s linear 0.45s; pointer-events: none; }
+[data-tooltip]:hover::after,
+[data-tooltip]:hover::before { opacity: 1; visibility: visible; transition: opacity 0.15s ease-out 0.3s, visibility 0s linear 0s; }
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+  padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: 400; line-height: 1.4;
+  max-width: 280px; width: max-content; white-space: normal; text-align: center;
+  z-index: 10000; background: #1a1a2e; color: #fff;
+}
+[data-tooltip]::before {
+  content: ''; position: absolute; bottom: calc(100% + 2px); left: 50%; transform: translateX(-50%);
+  border: 5px solid transparent; border-top-color: #1a1a2e; z-index: 10000;
+}
+[data-tooltip-pos="below"]::after { bottom: auto; top: calc(100% + 8px); }
+[data-tooltip-pos="below"]::before { bottom: auto; top: calc(100% + 2px); border-top-color: transparent; border-bottom-color: #1a1a2e; }
+body.dark-mode [data-tooltip]::after { background: #e8e8f0; color: #1a1a2e; }
+body.dark-mode [data-tooltip]::before { border-top-color: #e8e8f0; }
+body.dark-mode [data-tooltip-pos="below"]::before { border-top-color: transparent; border-bottom-color: #e8e8f0; }
 
 </style>
 </head>
@@ -6173,9 +6196,15 @@ async function loadActivityFeed() {
       const action = actionLabels[a.action] || a.action;
       const title = a.entity_title ? ' "' + esc(a.entity_title.substring(0, 40)) + '"' : '';
       const ago = timeAgo(new Date(a.created_at));
+      let detail = '';
+      if (a.changes && typeof a.changes === 'object') {
+        if (a.changes.stage) detail = ' → ' + esc(a.changes.stage);
+        else if (a.changes.status) detail = ' → ' + esc(a.changes.status);
+        else if (a.changes.fields) detail = ' (' + esc(String(a.changes.fields).substring(0, 30)) + ')';
+      }
       return '<div style="display:flex;align-items:center;gap:8px;padding:5px 8px;border-bottom:1px solid var(--border-subtle)">' +
         '<span style="font-size:14px;width:20px;text-align:center">' + icon + '</span>' +
-        '<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><strong>' + esc(a.changed_by || 'System') + '</strong> ' + action + ' ' + a.entity_type + title + '</span>' +
+        '<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><strong>' + esc(a.changed_by || 'System') + '</strong> ' + action + ' ' + a.entity_type + title + '<span style="color:var(--text-muted)">' + detail + '</span></span>' +
         '<span style="font-size:0.75rem;color:var(--text-muted);white-space:nowrap">' + ago + '</span></div>';
     }).join('');
   } catch (e) { container.textContent = 'Error loading feed'; }
@@ -6193,7 +6222,7 @@ async function loadHealthScores() {
       const gradeColour = s.grade === 'green' ? 'var(--success)' : s.grade === 'amber' ? 'var(--warning)' : 'var(--danger)';
       const factors = s.factors.length > 0 ? s.factors.map(f => f.label + ' (' + f.count + ')').join(', ') : 'All clear';
       return '<div style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-bottom:1px solid var(--border-subtle);cursor:pointer" onclick="switchView(\'tasks\');setFilter({client:\'' + esc(s.name) + '\'})">' +
-        '<div style="width:36px;height:36px;border-radius:50%;background:' + gradeColour + ';display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:0.78rem">' + s.score + '</div>' +
+        '<div style="width:44px;height:44px;border-radius:50%;background:' + gradeColour + ';display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:0.95rem">' + s.score + '</div>' +
         '<div style="flex:1;min-width:0"><div style="font-weight:600;font-size:0.85rem">' + esc(s.name) + '</div>' +
         '<div style="font-size:0.75rem;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(factors) + '</div></div></div>';
     }).join('');
@@ -7230,8 +7259,8 @@ function _myTaskRow(t) {
       </div>
     </div>
     <div class="mytask-row__right">
-      ${hrsStr ? `<span class="mytask-row__hours">${hrsStr}</span>` : ''}
-      ${dueLabel ? `<span style="font-family:var(--font-mono);font-size:0.75rem;${dueClass}">${isOverdue?'&#9888; ':''}${dueLabel}</span>` : ''}
+      ${hrsStr ? `<span class="mytask-row__hours" data-tooltip="Hours spent / estimated">${hrsStr}</span>` : ''}
+      ${dueLabel ? `<span style="font-family:var(--font-mono);font-size:0.75rem;${dueClass}" data-tooltip="${isOverdue ? 'Past due date' : dueSoon ? 'Due within 3 days' : 'Due date'}">${isOverdue?'&#9888; ':''}${dueLabel}</span>` : ''}
     </div>
   </div>`;
 }
@@ -7297,26 +7326,26 @@ function renderMyTasksView(el) {
     <h1 style="margin:0">${esc(myName)}'s Work</h1>
     <div style="display:flex;gap:8px;align-items:center">
       <span style="font-size:0.78rem;color:var(--text-muted)">Sort:</span>
-      <button class="btn btn--outline ${_myTasksSort==='priority'?'btn--primary':''}" data-action="_actSetMyTasksSort" data-arg0="priority" style="font-size:0.75rem;padding:4px 10px">Priority</button>
-      <button class="btn btn--outline ${_myTasksSort==='dueDate'?'btn--primary':''}" data-action="_actSetMyTasksSort" data-arg0="dueDate" style="font-size:0.75rem;padding:4px 10px">Due Date</button>
-      <button class="btn btn--outline ${_myTasksSort==='client'?'btn--primary':''}" data-action="_actSetMyTasksSort" data-arg0="client" style="font-size:0.75rem;padding:4px 10px">Client</button>
-      <button class="btn btn--outline ${_myTasksSort==='status'?'btn--primary':''}" data-action="_actSetMyTasksSort" data-arg0="status" style="font-size:0.75rem;padding:4px 10px">Status</button>
+      <button class="btn btn--outline ${_myTasksSort==='priority'?'btn--primary':''}" data-action="_actSetMyTasksSort" data-arg0="priority" style="font-size:0.75rem;padding:4px 10px" data-tooltip="Sort by urgency and health state" data-tooltip-pos="below">Priority</button>
+      <button class="btn btn--outline ${_myTasksSort==='dueDate'?'btn--primary':''}" data-action="_actSetMyTasksSort" data-arg0="dueDate" style="font-size:0.75rem;padding:4px 10px" data-tooltip="Sort by due date, soonest first" data-tooltip-pos="below">Due Date</button>
+      <button class="btn btn--outline ${_myTasksSort==='client'?'btn--primary':''}" data-action="_actSetMyTasksSort" data-arg0="client" style="font-size:0.75rem;padding:4px 10px" data-tooltip="Group tasks alphabetically by client" data-tooltip-pos="below">Client</button>
+      <button class="btn btn--outline ${_myTasksSort==='status'?'btn--primary':''}" data-action="_actSetMyTasksSort" data-arg0="status" style="font-size:0.75rem;padding:4px 10px" data-tooltip="Sort by workflow status" data-tooltip-pos="below">Status</button>
     </div>
   </div>`;
 
   // KPI row
   html += `<div class="leads-pipeline__metrics" style="margin-bottom:24px">
-    <div class="kpi-card"><div class="kpi-card__value">${active.length}</div><div class="kpi-card__label">Active</div></div>
-    <div class="kpi-card"><div class="kpi-card__value" style="color:var(--danger)">${critical.length + overdue.length}</div><div class="kpi-card__label">Need Attention</div></div>
-    <div class="kpi-card"><div class="kpi-card__value">${inProgress.length}</div><div class="kpi-card__label">In Progress</div></div>
-    <div class="kpi-card"><div class="kpi-card__value">${completionPct}%</div><div class="kpi-card__label">Complete (${done.length}/${myTasks.length})</div></div>
-    <div class="kpi-card"><div class="kpi-card__value" style="font-size:1rem">${totalHrsSpent.toFixed(0)}h / ${totalHrsEst.toFixed(0)}h</div><div class="kpi-card__label">Hours Tracked</div></div>
+    <div class="kpi-card" data-tooltip="All tasks not yet marked Done"><div class="kpi-card__value">${active.length}</div><div class="kpi-card__label">Active</div></div>
+    <div class="kpi-card" data-tooltip="Blocked, red health, urgent, or overdue tasks"><div class="kpi-card__value" style="color:var(--danger)">${critical.length + overdue.length}</div><div class="kpi-card__label">Need Attention</div></div>
+    <div class="kpi-card" data-tooltip="Tasks with status set to In Progress"><div class="kpi-card__value">${inProgress.length}</div><div class="kpi-card__label">In Progress</div></div>
+    <div class="kpi-card" data-tooltip="Percentage of your tasks marked Done"><div class="kpi-card__value">${completionPct}%</div><div class="kpi-card__label">Complete (${done.length}/${myTasks.length})</div></div>
+    <div class="kpi-card" data-tooltip="Hours spent vs estimated across active tasks"><div class="kpi-card__value" style="font-size:1rem">${totalHrsSpent.toFixed(0)}h / ${totalHrsEst.toFixed(0)}h</div><div class="kpi-card__label">Hours Tracked</div></div>
   </div>`;
 
   // Section: Critical & Blocked
   if (critical.length > 0) {
     html += `<div class="mytasks-section mytasks-section--critical">
-      <h2 class="mytasks-section__header" style="color:var(--danger)">&#9888; Critical &amp; Blocked <span class="mytasks-section__count">${critical.length}</span></h2>
+      <h2 class="mytasks-section__header" style="color:var(--danger)" data-tooltip="Urgent priority, blocked, or red health tasks">&#9888; Critical &amp; Blocked <span class="mytasks-section__count">${critical.length}</span></h2>
       <div class="mytasks-section__list">${sortTasks(critical).map(_myTaskRow).join('')}</div>
     </div>`;
   }
@@ -7324,7 +7353,7 @@ function renderMyTasksView(el) {
   // Section: Overdue
   if (overdue.length > 0) {
     html += `<div class="mytasks-section mytasks-section--overdue">
-      <h2 class="mytasks-section__header" style="color:var(--warning)">&#128337; Overdue <span class="mytasks-section__count">${overdue.length}</span></h2>
+      <h2 class="mytasks-section__header" style="color:var(--warning)" data-tooltip="Tasks past their due date">&#128337; Overdue <span class="mytasks-section__count">${overdue.length}</span></h2>
       <div class="mytasks-section__list">${sortTasks(overdue).map(_myTaskRow).join('')}</div>
     </div>`;
   }
@@ -7332,7 +7361,7 @@ function renderMyTasksView(el) {
   // Section: In Progress
   if (inProgress.length > 0) {
     html += `<div class="mytasks-section">
-      <h2 class="mytasks-section__header" style="color:var(--accent)">&#9654; In Progress <span class="mytasks-section__count">${inProgress.length}</span></h2>
+      <h2 class="mytasks-section__header" style="color:var(--accent)" data-tooltip="Tasks you are actively working on">&#9654; In Progress <span class="mytasks-section__count">${inProgress.length}</span></h2>
       <div class="mytasks-section__list">${sortTasks(inProgress).map(_myTaskRow).join('')}</div>
     </div>`;
   }
@@ -7340,7 +7369,7 @@ function renderMyTasksView(el) {
   // Section: Upcoming / Not Started
   if (upcoming.length > 0) {
     html += `<div class="mytasks-section">
-      <h2 class="mytasks-section__header">&#128203; Upcoming <span class="mytasks-section__count">${upcoming.length}</span></h2>
+      <h2 class="mytasks-section__header" data-tooltip="Not started or planned tasks waiting to begin">&#128203; Upcoming <span class="mytasks-section__count">${upcoming.length}</span></h2>
       <div class="mytasks-section__list">${sortTasks(upcoming).map(_myTaskRow).join('')}</div>
     </div>`;
   }
@@ -7348,7 +7377,7 @@ function renderMyTasksView(el) {
   // Section: Done (collapsible)
   if (done.length > 0) {
     html += `<div class="mytasks-section">
-      <h2 class="mytasks-section__header" style="cursor:pointer;color:var(--text-muted)" data-action="_actToggleMyTasksSection" data-pass-el>
+      <h2 class="mytasks-section__header" style="cursor:pointer;color:var(--text-muted)" data-action="_actToggleMyTasksSection" data-pass-el data-tooltip="Click to show or hide finished tasks">
         <span class="mytasks-toggle">&#9654;</span> Completed <span class="mytasks-section__count">${done.length}</span>
       </h2>
       <div class="mytasks-section__list hidden">${done.slice(0, 50).map(_myTaskRow).join('')}${done.length > 50 ? `<div style="color:var(--text-muted);font-size:0.8rem;padding:8px 16px">...and ${done.length - 50} more</div>` : ''}</div>
@@ -9518,7 +9547,7 @@ function ganttColResizeEnd(e) {
 
 /** Render the 30% right-side summary panel showing portfolio/client stats, progress ring, and team breakdown */
 function renderClientSummary(filtered) {
-  const clientName = currentFilter.assignee ? currentFilter.assignee + "'s Tasks" : currentFilter.client || 'NBI Portfolio';
+  const clientName = currentFilter.assignee ? currentFilter.assignee + "'s Tasks" : currentFilter.client || (_currentUser?.display_name ? _currentUser.display_name + "'s Tasks" : 'NBI Portfolio');
   const scopedTasks = filtered;
   const total = scopedTasks.length;
   const roots = scopedTasks.filter(t => !t.parentId);
@@ -19613,8 +19642,9 @@ function candidateAvatarHtml(name, size) {
   return '<div style="width:' + size + 'px;height:' + size + 'px;border-radius:50%;background:hsl(' + hue + ',55%,45%);display:flex;align-items:center;justify-content:center;font-size:' + Math.round(size * 0.37) + 'px;font-weight:700;color:white;flex-shrink:0">' + esc(initials) + '</div>';
 }
 
-function daysInStageHtml(stageChangedAt) {
+function daysInStageHtml(stageChangedAt, createdAt) {
   if (!stageChangedAt) return '';
+  if (createdAt && Math.abs(new Date(stageChangedAt).getTime() - new Date(createdAt).getTime()) < 60000) return '<span style="font-size:12px;color:var(--text-muted)">—</span>';
   var days = Math.floor((Date.now() - new Date(stageChangedAt).getTime()) / 86400000);
   var label = days >= 14 ? Math.floor(days / 7) + 'w' : days + 'd';
   var cls = days > 14 ? 'color:#ef4444;font-weight:600' : days > 7 ? 'color:#f59e0b;font-weight:600' : 'color:var(--text-muted)';
@@ -19663,7 +19693,7 @@ function renderHiringCard(c, draggable) {
       '<div class="ats-card-indicators">' +
         (c.has_cv ? '<span title="Has CV">&#128196;</span>' : '') +
         (c.comment_count > 0 ? '<span title="' + c.comment_count + ' comments">&#128172;' + c.comment_count + '</span>' : '') +
-        daysInStageHtml(c.stage_changed_at) +
+        daysInStageHtml(c.stage_changed_at, c.created_at) +
       '</div>' +
     '</div>' +
     (c.contract_status ? '<div style="margin-top:6px"><span class="ats-contract-pill">' + esc(c.contract_status.replace(/-/g, ' ').replace(/\b\w/g, function(l){return l.toUpperCase();})) + '</span></div>' : '') +
@@ -19945,7 +19975,7 @@ function renderHiringView(container) {
   html += '<div class="ats-summary">' +
     '<div class="ats-summary-item" onclick="window._hiringActiveTab=\'calendar\';renderContent()">' +
       '<span class="ats-summary-count">' + (window._interviewsTodayCount || 0) + '</span> interviews today</div>' +
-    '<div class="ats-summary-item" onclick="window._hiringActiveTab=\'database\';window._hiringDbSort=\'days_desc\';renderContent()">' +
+    '<div class="ats-summary-item" style="cursor:pointer" onclick="window._hiringActiveTab=\'database\';window._hiringDbSort=\'days_desc\';window._hiringDbNeedsAction=true;renderContent()">' +
       '<span class="ats-summary-count' + (needsAction > 0 ? ' danger' : '') + '">' + needsAction + '</span> needs action</div>' +
     '<div class="ats-summary-item" onclick="window._hiringActiveTab=\'pipeline\';window._hiringFilterStage=\'offer\';renderContent()">' +
       '<span class="ats-summary-count' + (offersCount > 0 ? ' warn' : '') + '">' + offersCount + '</span> offers pending</div>' +
@@ -20242,6 +20272,15 @@ function renderDatabaseTab(container) {
   if (filters.source) filtered = filtered.filter(function(c) { return c.source === filters.source; });
   if (filters.position_id) filtered = filtered.filter(function(c) { return c.position_id === filters.position_id; });
   if (!filters.showArchived) filtered = filtered.filter(function(c) { return !c.archived_at; });
+  if (window._hiringDbNeedsAction) {
+    filtered = filtered.filter(function(c) {
+      var assignees = c.stage_assignees && c.stage_assignees[c.stage] ? c.stage_assignees[c.stage] : [];
+      if (assignees.length === 0) return true;
+      if (!c.stage_changed_at) return false;
+      return Math.floor((Date.now() - new Date(c.stage_changed_at).getTime()) / 86400000) > 14;
+    });
+    window._hiringDbNeedsAction = false;
+  }
 
   var sort = window._hiringDbSort || 'days_desc';
   filtered.sort(function(a, b) {
@@ -20322,8 +20361,8 @@ function renderDatabaseTab(container) {
       '<td style="color:var(--text-secondary);cursor:pointer" onclick="openCandidateDetail(\'' + c.id + '\')">' + esc(c.role || '—') + '</td>' +
       '<td><select class="ats-inline-select" aria-label="Stage for ' + esc(c.name || 'candidate') + '" onchange="event.stopPropagation();dbStageChange(\'' + c.id + '\',this.value,this)" style="color:' + (isRejected ? '#ef4444' : isDeclined ? '#f59e0b' : stageColor) + ';font-weight:600">' + stageOpts + '</select></td>' +
       '<td><select class="ats-inline-select" aria-label="Source for ' + esc(c.name || 'candidate') + '" onchange="event.stopPropagation();updateCandidateField(\'' + c.id + '\',\'source\',this.value||null)" style="color:#60a5fa">' + sourceOpts + '</select></td>' +
-      '<td>' + daysInStageHtml(c.stage_changed_at) + '</td>' +
-      '<td><div style="display:flex;flex-wrap:wrap;align-items:center;gap:2px">' + assigneeChips +
+      '<td>' + daysInStageHtml(c.stage_changed_at, c.created_at) + '</td>' +
+      '<td><div style="display:flex;flex-wrap:wrap;align-items:center;gap:2px">' + (assigneeChips || '<span style="font-size:12px;color:var(--text-muted);font-style:italic">Unassigned</span>') +
         '<select class="ats-inline-select" aria-label="Add assignee for ' + esc(c.name || 'candidate') + '" onchange="event.stopPropagation();dbAddAssignee(\'' + c.id + '\',\'' + esc(c.stage) + '\',this.value);this.selectedIndex=0" style="color:var(--text-muted);width:auto;min-width:30px"><option value="">+</option>' +
         teamMembers.map(function(m) { return '<option value="' + esc(m) + '">' + esc(m) + '</option>'; }).join('') + '</select></div></td>' +
     '</tr>';
@@ -20458,7 +20497,7 @@ async function renderCalendarTab(container) {
     '<div class="ats-calendar-nav">' +
       '<span class="ats-calendar-nav-title">' + monthYear + '</span>' +
       '<button class="ats-calendar-nav-btn" onclick="' + prevAction + '">&#9664;</button>' +
-      '<button class="ats-calendar-nav-btn" onclick="' + todayAction + '">Today</button>' +
+      '<button class="ats-calendar-nav-btn" onclick="' + todayAction + '">Today (' + dayNames[(now.getDay() || 7) - 1] + ' ' + now.getDate() + ')</button>' +
       '<button class="ats-calendar-nav-btn" onclick="' + nextAction + '">&#9654;</button>' +
     '</div>' +
     '<div style="display:flex;gap:8px;align-items:center">' +
@@ -20542,6 +20581,12 @@ async function renderCalendarTab(container) {
     '<span><span class="ats-calendar-legend-dot" style="background:#f59e0b"></span>Cultural</span>' +
     '<span style="margin-left:auto">' + interviews.length + ' interview' + (interviews.length !== 1 ? 's' : '') + ' this week</span>' +
   '</div>';
+  if (interviews.length === 0) {
+    html += '<div style="text-align:center;padding:40px 20px;color:var(--text-muted)">' +
+      '<div style="font-size:2rem;margin-bottom:8px">📅</div>' +
+      '<div style="font-size:0.9rem;margin-bottom:12px">No interviews scheduled this week</div>' +
+      '<button class="btn btn--primary btn--sm" onclick="openScheduleInterviewModal()">Schedule an Interview</button></div>';
+  }
   } else {
     // Month view
     var monthStart = new Date(monday.getFullYear(), monday.getMonth() + (window._calendarMonthOffset || 0), 1);
@@ -20776,15 +20821,15 @@ function renderMetricsTab(container) {
           '<div style="position:absolute;top:0;left:0;width:' + Math.round(barW * convRate / 100) + '%;height:100%;background:#3b82f6;border-radius:4px"></div>' +
         '</div>' +
         '<span style="font-size:12px;color:#60a5fa;width:30px;text-align:right">' + count + '</span>' +
-        '<span style="font-size:12px;color:' + (convRate >= 50 ? '#10b981' : '#888') + ';width:40px">' + convRate + '% adv</span>' +
+        '<span style="font-size:12px;color:' + (convRate >= 50 ? '#10b981' : 'var(--text-muted)') + ';width:60px" title="Progressed past sourcing">' + convRate + '%</span>' +
       '</div>';
     });
-    html += '<div style="font-size:12px;color:var(--text-faint);margin-top:4px">Dark bar = total candidates from source · Bright bar = advanced past sourcing</div>';
+    html += '<div style="font-size:12px;color:var(--text-faint);margin-top:4px">Dark bar = total candidates from source · Bright bar = progressed past sourcing</div>';
   }
   html += '</div>';
 
   // Time in stage distribution
-  html += '<div style="margin-bottom:28px"><div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:12px">Average Time in Stage</div>';
+  html += '<div style="margin-bottom:28px"><div style="display:flex;align-items:baseline;gap:12px;margin-bottom:12px"><span style="font-size:14px;font-weight:600;color:var(--text-primary)">Average Time in Stage</span><span style="font-size:11px;color:var(--text-muted)">Green &lt;7d · Amber 7-14d · Red &gt;14d</span></div>';
   var maxAvgDays = 1;
   stageKeys.forEach(function(s) { var b = stageTimeBuckets[s.key]; if (b.count > 0) { var avg = Math.round(b.total / b.count); if (avg > maxAvgDays) maxAvgDays = avg; } });
   stageKeys.forEach(function(s) {

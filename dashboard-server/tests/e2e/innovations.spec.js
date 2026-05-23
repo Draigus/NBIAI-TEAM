@@ -181,6 +181,26 @@ test.describe('Innovation items', () => {
     expect(allCount).toBe('4');
   });
 
+  test('hiring calendar shows empty state when no interviews', async ({ page }) => {
+    await truncate();
+    const user = await createTestUser({ role: 'admin' });
+
+    await page.goto('/nbi_project_dashboard.html');
+    await page.waitForSelector('#loginScreen', { state: 'visible', timeout: 10000 });
+    await page.locator('#loginUser').fill(user.username);
+    await page.locator('#loginPass').fill(user.raw_password);
+    await page.locator('#loginBtn').click();
+    await page.waitForSelector('#loginScreen', { state: 'hidden', timeout: 10000 });
+
+    await page.click('#si_Hiring');
+    await page.waitForTimeout(2000);
+    await page.evaluate(() => { document.querySelectorAll('.ats-tab').forEach(t => { if (t.textContent.trim() === 'Calendar') t.click(); }); });
+    await page.waitForTimeout(1500);
+
+    const emptyMsg = await page.textContent('body');
+    expect(emptyMsg).toContain('No interviews scheduled this week');
+  });
+
   test('database tab stage dropdown includes rejected and declined options', async ({ page }) => {
     await truncate();
     const user = await createTestUser({ role: 'admin' });
