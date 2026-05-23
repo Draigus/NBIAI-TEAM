@@ -8,7 +8,7 @@
 // - Dashboard UI rendering
 
 const { test, expect } = require('@playwright/test');
-const { createTestUser, createTestClient } = require('../helpers/fixtures');
+const { createTestUser, createTestClient, createTestCandidate } = require('../helpers/fixtures');
 const { mintSession } = require('../helpers/auth');
 const { truncate } = require('../helpers/db');
 
@@ -109,5 +109,75 @@ test.describe('Innovation items', () => {
     const result = await resp.json();
     expect(result.count).toBe(2);
     expect(result.entries.length).toBe(2);
+  });
+
+  test('metrics role filter dropdown filters candidates by role', async ({ page }) => {
+    await truncate();
+    const user = await createTestUser({ role: 'admin' });
+    const client = await createTestClient({ name: 'Metrics Filter Co' });
+
+    // Create candidates with different roles
+    await createTestCandidate({ client_id: client.id, name: 'Alice Engineer', role: 'Senior Engineer', stage: 'interviews' });
+    await createTestCandidate({ client_id: client.id, name: 'Bob Engineer', role: 'Senior Engineer', stage: 'sourcing' });
+    await createTestCandidate({ client_id: client.id, name: 'Carol Designer', role: 'UI Designer', stage: 'offer' });
+    await createTestCandidate({ client_id: client.id, name: 'Dave PM', role: 'Product Manager', stage: 'sourcing' });
+
+    // Login
+    await page.goto('/nbi_project_dashboard.html');
+    await page.waitForSelector('#loginScreen', { state: 'visible', timeout: 10000 });
+    await page.locator('#loginUser').fill(user.username);
+    await page.locator('#loginPass').fill(user.raw_password);
+    await page.locator('#loginBtn').click();
+    await page.waitForSelector('#loginScreen', { state: 'hidden', timeout: 10000 });
+
+    // Navigate to Hiring view via sidebar
+    await page.click('#si_Hiring');
+    await page.waitForTimeout(2000);
+
+    // Click the Metrics tab
+    await page.click('.ats-tab:has-text("Metrics")');
+    await page.waitForTimeout(1000);
+
+    // Verify role filter dropdown exists with the 3 roles
+    const roleDropdown = page.locator('select').filter({ hasText: 'All roles' });
+    await expect(roleDropdown).toBeVisible({ timeout: 5000 });
+
+    // Verify "Senior Engineer (2)" option exists
+    const engineerOption = roleDropdown.locator('option:has-text("Senior Engineer")');
+    await expect(engineerOption).toHaveCount(1);
+
+    // Select "Senior Engineer" — should filter to 2 candidates
+    await roleDropdown.selectOption('Senior Engineer');
+    await page.waitForTimeout(1500);
+
+    // After filtering, the "Active candidates" stat should show 2
+    const filteredCount = await page.evaluate(() => {
+      const cards = document.querySelectorAll('div[style*="border-left:3px"]');
+      for (const card of cards) {
+        if (card.textContent.includes('Active candidates')) {
+          return card.querySelector('div[style*="font-size:24px"]')?.textContent?.trim();
+        }
+      }
+      return null;
+    });
+    expect(filteredCount).toBe('2');
+
+    // Clear filter button should be visible and work
+    const clearBtn = page.locator('button:has-text("Clear")');
+    await expect(clearBtn).toBeVisible();
+    await clearBtn.click();
+    await page.waitForTimeout(1500);
+
+    // After clearing, should show all 4 again
+    const allCount = await page.evaluate(() => {
+      const cards = document.querySelectorAll('div[style*="border-left:3px"]');
+      for (const card of cards) {
+        if (card.textContent.includes('Active candidates')) {
+          return card.querySelector('div[style*="font-size:24px"]')?.textContent?.trim();
+        }
+      }
+      return null;
+    });
+    expect(allCount).toBe('4');
   });
 });
