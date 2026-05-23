@@ -20624,10 +20624,17 @@ async function doCreateInterview(candidateId, title, scheduledAt, duration, inte
 }
 
 function renderMetricsTab(container) {
-  var candidates = _candidatesData || [];
+  var allCandidates = _candidatesData || [];
+  var selectedRole = window._metricsRoleFilter || '';
+  var candidates = selectedRole ? allCandidates.filter(function(c) { return c.role === selectedRole; }) : allCandidates;
   var active = candidates.filter(function(c) { return !c.archived_at; });
   var clientOptions = getContractedClientRecords() || [];
   var stageKeys = (_resolvedHiringStages || HIRING_STAGES.map(function(k) { return { key: k, label: HIRING_STAGE_LABELS[k] || k }; }));
+
+  // Collect unique active roles for the filter dropdown
+  var roleSet = {};
+  allCandidates.forEach(function(c) { if (c.role && !c.archived_at) roleSet[c.role] = (roleSet[c.role] || 0) + 1; });
+  var roles = Object.keys(roleSet).sort();
 
   // Source effectiveness: count candidates per source, show conversion (non-sourcing = progressed)
   var sourceCounts = {};
@@ -20664,6 +20671,18 @@ function renderMetricsTab(container) {
 
   var html = '<div style="padding:var(--space-lg)">';
 
+  // Role filter dropdown
+  if (roles.length > 1) {
+    html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">' +
+      '<label style="font-size:12px;color:var(--text-muted)">Filter by role</label>' +
+      '<select class="ats-filter-btn" style="min-width:200px" onchange="window._metricsRoleFilter=this.value;renderHiringView()">' +
+        '<option value="">All roles</option>' +
+        roles.map(function(r) { return '<option value="' + esc(r) + '"' + (selectedRole === r ? ' selected' : '') + '>' + esc(r) + ' (' + roleSet[r] + ')</option>'; }).join('') +
+      '</select>' +
+      (selectedRole ? '<button class="btn btn--sm btn--ghost" onclick="window._metricsRoleFilter=\'\';renderHiringView()">Clear</button>' : '') +
+    '</div>';
+  }
+
   // Summary stat cards
   html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:24px">';
   var stats = [
@@ -20674,13 +20693,13 @@ function renderMetricsTab(container) {
   ];
   stats.forEach(function(s) {
     html += '<div style="background:var(--bg-surface);border-radius:8px;padding:16px;border-left:3px solid ' + s.color + '">' +
-      '<div style="font-size:24px;font-weight:700;color:#e0e0e0">' + s.value + '</div>' +
+      '<div style="font-size:24px;font-weight:700;color:var(--text-primary)">' + s.value + '</div>' +
       '<div style="font-size:12px;color:var(--text-muted);margin-top:4px">' + s.label + '</div></div>';
   });
   html += '</div>';
 
   // Pipeline funnel
-  html += '<div style="margin-bottom:28px"><div style="font-size:14px;font-weight:600;color:#e0e0e0;margin-bottom:12px">Pipeline</div>';
+  html += '<div style="margin-bottom:28px"><div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:12px">Pipeline</div>';
   stageKeys.forEach(function(s) {
     var count = active.filter(function(c) { return c.stage === s.key; }).length;
     var pct = totalActive > 0 ? Math.round(count / totalActive * 100) : 0;
@@ -20696,7 +20715,7 @@ function renderMetricsTab(container) {
   html += '</div>';
 
   // Source effectiveness
-  html += '<div style="margin-bottom:28px"><div style="font-size:14px;font-weight:600;color:#e0e0e0;margin-bottom:12px">Source Effectiveness</div>';
+  html += '<div style="margin-bottom:28px"><div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:12px">Source Effectiveness</div>';
   if (sourceKeys.length === 0) {
     html += '<div style="color:var(--text-muted);font-size:12px;padding:8px 0">No source data — set sources on candidates</div>';
   } else {
@@ -20721,7 +20740,7 @@ function renderMetricsTab(container) {
   html += '</div>';
 
   // Time in stage distribution
-  html += '<div style="margin-bottom:28px"><div style="font-size:14px;font-weight:600;color:#e0e0e0;margin-bottom:12px">Average Time in Stage</div>';
+  html += '<div style="margin-bottom:28px"><div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:12px">Average Time in Stage</div>';
   var maxAvgDays = 1;
   stageKeys.forEach(function(s) { var b = stageTimeBuckets[s.key]; if (b.count > 0) { var avg = Math.round(b.total / b.count); if (avg > maxAvgDays) maxAvgDays = avg; } });
   stageKeys.forEach(function(s) {
@@ -20742,7 +20761,7 @@ function renderMetricsTab(container) {
 
   // Per-client detailed metrics (existing loadHiringMetrics)
   html += '<div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:20px">' +
-    '<div style="font-size:14px;font-weight:600;color:#e0e0e0;margin-bottom:12px">Client Metrics</div>' +
+    '<div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:12px">Client Metrics</div>' +
     '<div class="ats-controls">' +
       '<select id="metricsClientFilter" onchange="loadHiringMetrics()" class="ats-filter-btn" style="min-width:200px">' +
         '<option value="">Select a client…</option>' +
