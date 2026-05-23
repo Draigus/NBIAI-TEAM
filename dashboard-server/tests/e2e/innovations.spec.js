@@ -180,4 +180,40 @@ test.describe('Innovation items', () => {
     });
     expect(allCount).toBe('4');
   });
+
+  test('database tab stage dropdown includes rejected and declined options', async ({ page }) => {
+    await truncate();
+    const user = await createTestUser({ role: 'admin' });
+    const client = await createTestClient({ name: 'Stage Dropdown Co' });
+    await createTestCandidate({ client_id: client.id, name: 'Test Candidate', role: 'Engineer', stage: 'interviews' });
+
+    await page.goto('/nbi_project_dashboard.html');
+    await page.waitForSelector('#loginScreen', { state: 'visible', timeout: 10000 });
+    await page.locator('#loginUser').fill(user.username);
+    await page.locator('#loginPass').fill(user.raw_password);
+    await page.locator('#loginBtn').click();
+    await page.waitForSelector('#loginScreen', { state: 'hidden', timeout: 10000 });
+
+    await page.click('#si_Hiring');
+    await page.waitForTimeout(2000);
+    await page.click('.ats-tab:has-text("Database")');
+    await page.waitForTimeout(1000);
+
+    // Find the stage dropdown for the candidate
+    const stageSelect = page.locator('select.ats-inline-select').first();
+    await expect(stageSelect).toBeVisible({ timeout: 5000 });
+
+    // Verify it has Rejected and Declined options
+    const options = await stageSelect.locator('option').allTextContents();
+    expect(options).toContain('Rejected');
+    expect(options).toContain('Declined');
+
+    // Select "Declined" — should show confirmation dialog
+    await stageSelect.selectOption('_declined');
+    await page.waitForTimeout(500);
+
+    // Themed confirm dialog should appear
+    const confirmDialog = page.locator('#confirmModal, .modal-overlay:has-text("declined")');
+    await expect(confirmDialog).toBeVisible({ timeout: 3000 });
+  });
 });
