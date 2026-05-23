@@ -17,8 +17,23 @@ Append-only. Every feature/fix completed gets logged here immediately.
 9. **f00d7ead**: Repeat section: "Every X Day(s)/Week(s)/Month(s)/Year(s)" picker with interval. Server updated.
 10. **720ccebf**: Onboarding sidebar shortcut — opens Hiring filtered to onboarding stage
 
-Files: nbi_project_dashboard.html, dashboard-server/lib/audit.js
-PM2 restarted. Tests pending.
+Files: nbi_project_dashboard.html, dashboard-server/lib/audit.js, reset-db.js
+PM2 restarted (#73). 553/553 unit tests green. Committed as `96ac8b7`.
+
+## 2026-05-23 (Session 2) — 6 Innovation Items
+
+1. **Finance entries server migration** — migration 054, GET/POST/DELETE /api/finance/entries, frontend async + localStorage→server migration
+2. **Client invite password display** — server returns generated_password, both admin and client-admin flows show it
+3. **Position modal focus trap** — proper _trapFocus with prevFocus restoration
+4. **Hardcoded colours → theme tokens** — ~40 instances replaced (#888, #8b949e, #666, #999, #aaa, #ccc, #555, #333, #21262d, #30363d, #e6edf3)
+5. **Auto-generated client status reports** — GET /api/clients/:id/status-report + rich modal with KPI cards, sections
+6. **Client health score** — GET /api/dashboard/health-scores (0-100, R/A/G) + portfolio dashboard badges
+7. **Hiring-to-onboarding bridge** — DEFAULT_ONBOARDING_TEMPLATE fallback (7 items)
+8. **Version-based sync conflict detection** — migration 055, sync.js version check + increment, frontend sends _version
+9. **Activity feed** — GET /api/dashboard/activity + dashboard timeline panel
+
+Files: nbi_project_dashboard.html, routes/finance.js, routes/reports.js, routes/dashboard.js, routes/hiring.js, routes/users.js, routes/sync.js, migrations/054+055, reset-db.js, baseline-schema.sql
+PM2 restarted (#74). Migrations 054+055 applied. Tests running.
 
 ---
 

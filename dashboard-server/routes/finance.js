@@ -58,5 +58,71 @@ module.exports = function(ctx) {
     res.json({ ok: true, version: inserted[0].id });
   });
 
+  // --- Finance Entries (ad-hoc income/expense items) ---
+
+  router.get('/api/finance/entries', requireNBI, async (req, res) => {
+    try {
+      const { rows } = await pool.query(
+        'SELECT id, name, amount, category, type, tag, entry_date AS date, created_by, created_at AS "createdAt" FROM finance_entries ORDER BY created_at DESC'
+      );
+      res.json(rows);
+    } catch (e) {
+      log('error', 'Finance', 'Failed to list entries', { error: e.message });
+      res.status(500).json({ error: 'An internal error occurred' });
+    }
+  });
+
+  router.post('/api/finance/entries', requireNBI, async (req, res) => {
+    try {
+      const { name, amount, category, type, tag, date } = req.body;
+      if (!name || amount === undefined || amount === null) return res.status(400).json({ error: 'name and amount required' });
+      const { rows } = await pool.query(
+        `INSERT INTO finance_entries (name, amount, category, type, tag, entry_date, created_by)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)
+         RETURNING id, name, amount, category, type, tag, entry_date AS date, created_by, created_at AS "createdAt"`,
+        [name, parseFloat(amount), category || 'expense', type || 'one-off', tag || null, date || null, req.user?.displayName || 'unknown']
+      );
+      await auditLog('finance', rows[0].id, 'create', req.user?.displayName, { name, amount, category });
+      res.status(201).json(rows[0]);
+    } catch (e) {
+      log('error', 'Finance', 'Failed to create entry', { error: e.message });
+      res.status(500).json({ error: 'An internal error occurred' });
+    }
+  });
+
+  router.post('/api/finance/entries/bulk', requireNBI, async (req, res) => {
+    try {
+      const { entries } = req.body;
+      if (!Array.isArray(entries) || entries.length === 0) return res.status(400).json({ error: 'entries array required' });
+      const inserted = [];
+      for (const e of entries) {
+        if (!e.name || e.amount === undefined) continue;
+        const { rows } = await pool.query(
+          `INSERT INTO finance_entries (name, amount, category, type, tag, entry_date, created_by)
+           VALUES ($1, $2, $3, $4, $5, $6, $7)
+           RETURNING id, name, amount, category, type, tag, entry_date AS date, created_by, created_at AS "createdAt"`,
+          [e.name, parseFloat(e.amount), e.category || 'expense', e.type || 'one-off', e.tag || null, e.date || null, req.user?.displayName || 'unknown']
+        );
+        inserted.push(rows[0]);
+      }
+      res.status(201).json({ ok: true, count: inserted.length, entries: inserted });
+    } catch (e) {
+      log('error', 'Finance', 'Failed to bulk create entries', { error: e.message });
+      res.status(500).json({ error: 'An internal error occurred' });
+    }
+  });
+
+  router.delete('/api/finance/entries/:id', requireNBI, async (req, res) => {
+    try {
+      const { rowCount } = await pool.query('DELETE FROM finance_entries WHERE id = $1', [req.params.id]);
+      if (rowCount === 0) return res.status(404).json({ error: 'Entry not found' });
+      await auditLog('finance', req.params.id, 'delete', req.user?.displayName, {});
+      res.json({ ok: true });
+    } catch (e) {
+      log('error', 'Finance', 'Failed to delete entry', { error: e.message });
+      res.status(500).json({ error: 'An internal error occurred' });
+    }
+  });
+
   return router;
 };

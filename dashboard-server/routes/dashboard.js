@@ -91,5 +91,106 @@ module.exports = function (ctx) {
     }
   });
 
+  /** GET /api/dashboard/health-scores — Per-client health score (0-100, Red/Amber/Green) */
+  router.get('/api/dashboard/health-scores', async (req, res) => {
+    try {
+      const { rows: clients } = await pool.query(
+        `SELECT c.id, c.name FROM clients c
+         WHERE EXISTS (SELECT 1 FROM tasks t WHERE t.client_id = c.id)
+         ORDER BY c.name`
+      );
+      const now = new Date();
+      const sevenDaysAgo = new Date(now - 7 * 86400000);
+      const fourteenDaysAgo = new Date(now - 14 * 86400000);
+
+      const scores = [];
+      for (const client of clients) {
+        const { rows: tasks } = await pool.query(
+          `SELECT status, health, due_date, updated_at, assignees
+           FROM tasks WHERE client_id = $1 AND status NOT IN ('Done', 'Cancelled')`,
+          [client.id]
+        );
+        const { rows: completions } = await pool.query(
+          `SELECT updated_at FROM tasks
+           WHERE client_id = $1 AND status = 'Done'
+           ORDER BY updated_at DESC LIMIT 1`,
+          [client.id]
+        );
+
+        let penalty = 0;
+        const total = tasks.length;
+        if (total === 0) { scores.push({ ...client, score: 100, grade: 'green', factors: [] }); continue; }
+
+        const factors = [];
+        const overdue = tasks.filter(t => t.due_date && new Date(t.due_date) < now);
+        if (overdue.length > 0) {
+          const overdueP = Math.round((overdue.length / total) * 30);
+          penalty += overdueP;
+          factors.push({ label: 'Overdue tasks', count: overdue.length, penalty: overdueP });
+        }
+
+        const blocked = tasks.filter(t => t.status === 'Blocked' || t.health === 'blocked');
+        if (blocked.length > 0) {
+          const blockedP = Math.min(blocked.length * 5, 20);
+          penalty += blockedP;
+          factors.push({ label: 'Blocked tasks', count: blocked.length, penalty: blockedP });
+        }
+
+        const stale = tasks.filter(t => t.updated_at && new Date(t.updated_at) < sevenDaysAgo);
+        if (stale.length > 0) {
+          const staleP = Math.min(stale.length * 3, 15);
+          penalty += staleP;
+          factors.push({ label: 'Stale tasks (>7d)', count: stale.length, penalty: staleP });
+        }
+
+        if (completions.length === 0 || new Date(completions[0].updated_at) < fourteenDaysAgo) {
+          penalty += 10;
+          factors.push({ label: 'No recent completions (>14d)', count: 1, penalty: 10 });
+        }
+
+        const unassigned = tasks.filter(t => !t.assignees || t.assignees.length === 0);
+        if (unassigned.length > 0) {
+          const unassP = Math.min(unassigned.length * 2, 10);
+          penalty += unassP;
+          factors.push({ label: 'Unassigned tasks', count: unassigned.length, penalty: unassP });
+        }
+
+        const score = Math.max(0, 100 - penalty);
+        const grade = score >= 70 ? 'green' : score >= 40 ? 'amber' : 'red';
+        scores.push({ ...client, score, grade, factors });
+      }
+      res.json(scores);
+    } catch (e) {
+      log('error', 'API', 'Health scores failed', { error: e.message });
+      res.status(500).json({ error: 'An internal error occurred' });
+    }
+  });
+
+  /** GET /api/dashboard/activity — Recent audit log entries for the activity feed */
+  router.get('/api/dashboard/activity', async (req, res) => {
+    try {
+      const limit = Math.min(parseInt(req.query.limit) || 20, 50);
+      const { rows } = await pool.query(
+        `SELECT a.entity_type, a.entity_id, a.action, a.changed_by, a.changes, a.created_at,
+                CASE
+                  WHEN a.entity_type = 'task' THEN (SELECT title FROM tasks WHERE id = a.entity_id)
+                  WHEN a.entity_type = 'client' THEN (SELECT name FROM clients WHERE id = a.entity_id)
+                  WHEN a.entity_type IN ('candidate', 'hiring') THEN (SELECT name FROM candidates WHERE id = a.entity_id)
+                  WHEN a.entity_type = 'lead' THEN (SELECT title FROM leads WHERE id = a.entity_id)
+                  WHEN a.entity_type = 'bug' THEN (SELECT title FROM bug_reports WHERE id = a.entity_id)
+                  ELSE NULL
+                END AS entity_title
+         FROM audit_log a
+         WHERE a.entity_type IN ('task', 'client', 'candidate', 'hiring', 'lead', 'bug', 'finance')
+         ORDER BY a.created_at DESC LIMIT $1`,
+        [limit]
+      );
+      res.json(rows);
+    } catch (e) {
+      log('error', 'API', 'Activity feed failed', { error: e.message });
+      res.status(500).json({ error: 'An internal error occurred' });
+    }
+  });
+
   return router;
 };

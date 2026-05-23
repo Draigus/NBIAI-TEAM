@@ -7,6 +7,78 @@ module.exports = function (ctx) {
   const router = require('express').Router();
   const { pool, log, requireAdmin, requireNBI, isValidUuid, auditLog, escHtml } = ctx;
 
+  // ==================== LIVE CLIENT STATUS ====================
+
+  /** GET /api/clients/:id/status-report — Live status aggregation for a client.
+   *  Returns completed tasks (since date), overdue, blocked, in-progress, open positions, pipeline stats. */
+  router.get('/api/clients/:id/status-report', requireNBI, async (req, res) => {
+    if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid client ID' });
+    const sinceDate = req.query.since || new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10);
+    try {
+      const [clientR, tasksR, positionsR, candidatesR, bugsR] = await Promise.all([
+        pool.query('SELECT id, name FROM clients WHERE id = $1', [req.params.id]),
+        pool.query(
+          `SELECT id, title, status, health, due_date, updated_at, item_type, assignees
+           FROM tasks WHERE client_id = $1 AND status != 'Cancelled'
+           ORDER BY due_date ASC NULLS LAST`, [req.params.id]),
+        pool.query(
+          `SELECT id, title, status, seniority, employment_type
+           FROM hiring_positions WHERE client_id = $1
+           ORDER BY status, title`, [req.params.id]),
+        pool.query(
+          `SELECT c.id, c.name, c.stage, c.updated_at
+           FROM candidates c WHERE c.client_id = $1 AND c.archived_at IS NULL
+           ORDER BY c.stage, c.name`, [req.params.id]),
+        pool.query(
+          `SELECT id, title, status, priority
+           FROM bug_reports WHERE client_id = $1 AND status NOT IN ('resolved', 'closed')
+           ORDER BY priority DESC, created_at`, [req.params.id]),
+      ]);
+      if (clientR.rows.length === 0) return res.status(404).json({ error: 'Client not found' });
+
+      const tasks = tasksR.rows;
+      const now = new Date();
+      const completed = tasks.filter(t => t.status === 'Done' && t.updated_at >= new Date(sinceDate));
+      const overdue = tasks.filter(t => t.status !== 'Done' && t.due_date && new Date(t.due_date) < now);
+      const blocked = tasks.filter(t => t.status === 'Blocked' || t.health === 'blocked');
+      const inProgress = tasks.filter(t => t.status === 'In Progress');
+      const notStarted = tasks.filter(t => t.status === 'Not Started');
+
+      const positions = positionsR.rows;
+      const openPositions = positions.filter(p => p.status === 'open' || p.status === 'active');
+
+      const candidates = candidatesR.rows;
+      const pipelineByStage = {};
+      candidates.forEach(c => { pipelineByStage[c.stage] = (pipelineByStage[c.stage] || 0) + 1; });
+
+      res.json({
+        client: clientR.rows[0],
+        since: sinceDate,
+        summary: {
+          total_tasks: tasks.length,
+          completed_count: completed.length,
+          overdue_count: overdue.length,
+          blocked_count: blocked.length,
+          in_progress_count: inProgress.length,
+          not_started_count: notStarted.length,
+          open_positions: openPositions.length,
+          active_candidates: candidates.length,
+          open_bugs: bugsR.rows.length,
+        },
+        completed: completed.map(t => ({ id: t.id, title: t.title, type: t.item_type, completed_at: t.updated_at })),
+        overdue: overdue.map(t => ({ id: t.id, title: t.title, type: t.item_type, due_date: t.due_date, assignees: t.assignees })),
+        blocked: blocked.map(t => ({ id: t.id, title: t.title, type: t.item_type, status: t.status, health: t.health })),
+        in_progress: inProgress.map(t => ({ id: t.id, title: t.title, type: t.item_type, assignees: t.assignees })),
+        positions: openPositions.map(p => ({ id: p.id, title: p.title, seniority: p.seniority, type: p.employment_type })),
+        pipeline: pipelineByStage,
+        bugs: bugsR.rows.map(b => ({ id: b.id, title: b.title, status: b.status, priority: b.priority })),
+      });
+    } catch (e) {
+      log('error', 'Reports', 'Status report failed', { error: e.message });
+      res.status(500).json({ error: 'An internal error occurred' });
+    }
+  });
+
   // ==================== CLIENT STATUS REPORTS ====================
 
   /** POST /api/clients/:id/reports -- Generate a client status report snapshot.

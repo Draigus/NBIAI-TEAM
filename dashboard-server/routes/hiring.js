@@ -14,6 +14,16 @@ module.exports = function (ctx) {
     createNotification,
   } = ctx;
 
+  const DEFAULT_ONBOARDING_TEMPLATE = [
+    'Set up email and communication accounts',
+    'Order equipment (laptop, peripherals)',
+    'Complete right-to-work documentation',
+    'Add to team communication channels',
+    'Schedule week-1 introductory meetings',
+    'Share company handbook and policies',
+    'Set up project access and permissions',
+  ];
+
   // ==================== HIRING ====================
   //
   // The Hiring page tracks job candidates against client hiring positions.
@@ -806,14 +816,23 @@ module.exports = function (ctx) {
             const { rows: [cand] } = await dbClient.query('SELECT position_id FROM candidates WHERE id = $1', [req.params.id]);
             if (cand && cand.position_id) {
               const { rows: [pos] } = await dbClient.query('SELECT onboarding_template FROM hiring_positions WHERE id = $1', [cand.position_id]);
-              if (pos && pos.onboarding_template && Array.isArray(pos.onboarding_template)) {
-                for (let idx = 0; idx < pos.onboarding_template.length; idx++) {
-                  const item = pos.onboarding_template[idx];
-                  await dbClient.query(
-                    'INSERT INTO onboarding_checklist_items (candidate_id, title, sort_order) VALUES ($1, $2, $3)',
-                    [req.params.id, item.title, idx]
-                  );
-                }
+              const template = (pos && pos.onboarding_template && Array.isArray(pos.onboarding_template) && pos.onboarding_template.length > 0)
+                ? pos.onboarding_template
+                : DEFAULT_ONBOARDING_TEMPLATE;
+              for (let idx = 0; idx < template.length; idx++) {
+                const item = template[idx];
+                await dbClient.query(
+                  'INSERT INTO onboarding_checklist_items (candidate_id, title, sort_order) VALUES ($1, $2, $3)',
+                  [req.params.id, typeof item === 'string' ? item : item.title, idx]
+                );
+              }
+            } else {
+              // No position linked — use default template
+              for (let idx = 0; idx < DEFAULT_ONBOARDING_TEMPLATE.length; idx++) {
+                await dbClient.query(
+                  'INSERT INTO onboarding_checklist_items (candidate_id, title, sort_order) VALUES ($1, $2, $3)',
+                  [req.params.id, DEFAULT_ONBOARDING_TEMPLATE[idx], idx]
+                );
               }
             }
           }

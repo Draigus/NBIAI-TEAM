@@ -112,7 +112,9 @@ module.exports = function(ctx) {
       }
     }
 
-    res.status(201).json(rows[0]);
+    const result = { ...rows[0] };
+    if (must_change_password) result.generated_password = password;
+    res.status(201).json(result);
   });
 
   /** DELETE /api/users/:id — Delete a user and their sessions (admin only, cannot delete self) */

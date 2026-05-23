@@ -1,8 +1,8 @@
---
+﻿--
 -- PostgreSQL database dump
 --
 
-\restrict NQTbdgXihTtaI6whq4bw9xng9zYCM9lXfIzhm4pobK8cbW8fua4GeSpu0tlbSpI
+\restrict iR59ZfbkfhEgm4q93MPD3hEOCDnzjhktnVRdZPIScCcV8jfhc7q78h7tfQU58oN
 
 -- Dumped from database version 16.13
 -- Dumped by pg_dump version 16.13
@@ -22,14 +22,16 @@ SET row_security = off;
 -- Name: public; Type: SCHEMA; Schema: -; Owner: -
 --
 
--- *not* creating schema, since initdb creates it
+CREATE SCHEMA IF NOT EXISTS public;
+
+CREATE EXTENSION IF NOT EXISTS pg_trgm SCHEMA public;
 
 
 --
 -- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: -
 --
 
-COMMENT ON SCHEMA public IS '';
+COMMENT ON SCHEMA public IS 'standard public schema';
 
 
 --
@@ -40,17 +42,10 @@ CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public;
 
 
 --
--- Name: EXTENSION pg_trgm; Type: COMMENT; Schema: -; Owner: -
---
-
-COMMENT ON EXTENSION pg_trgm IS 'text similarity measurement and index searching based on trigrams';
-
-
---
 -- Name: decode_html_entities(text); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE OR REPLACE FUNCTION public.decode_html_entities(s text) RETURNS text
+CREATE FUNCTION public.decode_html_entities(s text) RETURNS text
     LANGUAGE plpgsql IMMUTABLE
     AS $$
 DECLARE
@@ -185,6 +180,20 @@ CREATE TABLE public.calendar_events (
 
 
 --
+-- Name: candidate_activity; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.candidate_activity (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    candidate_id uuid NOT NULL,
+    event_type text NOT NULL,
+    detail text,
+    actor text NOT NULL,
+    created_at timestamp with time zone DEFAULT now()
+);
+
+
+--
 -- Name: candidate_comments; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -249,26 +258,6 @@ CREATE TABLE public.candidates (
     stage_changed_at timestamp with time zone DEFAULT now(),
     contract_status text
 );
-
-
---
--- Name: candidate_activity; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.candidate_activity (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
-    candidate_id uuid NOT NULL,
-    event_type text NOT NULL,
-    detail text,
-    actor text NOT NULL,
-    created_at timestamp with time zone DEFAULT now()
-);
-
-ALTER TABLE ONLY public.candidate_activity
-    ADD CONSTRAINT candidate_activity_pkey PRIMARY KEY (id);
-
-CREATE INDEX idx_candidate_activity_candidate ON public.candidate_activity USING btree (candidate_id);
-CREATE INDEX idx_candidate_activity_created ON public.candidate_activity USING btree (created_at);
 
 
 --
@@ -1257,539 +1246,6 @@ ALTER TABLE ONLY public.time_entries ALTER COLUMN id SET DEFAULT nextval('public
 
 
 --
--- Data for Name: attachments; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.attachments (id, entity_type, entity_id, filename, original_name, size_bytes, mime_type, uploaded_by, created_at, link_url, link_title) FROM stdin;
-\.
-
-
---
--- Data for Name: audit_log; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.audit_log (id, entity_type, entity_id, action, changed_by, changes, created_at) FROM stdin;
-\.
-
-
---
--- Data for Name: bug_report_comments; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.bug_report_comments (id, report_id, author, text, created_at) FROM stdin;
-\.
-
-
---
--- Data for Name: bug_reports; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.bug_reports (id, user_id, type, title, description, page, screenshot, status, created_at, priority, updated_at, "position", source, reporter_client_id) FROM stdin;
-\.
-
-
---
--- Data for Name: calendar_events; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.calendar_events (id, user_id, title, event_type, start_date, end_date, client_id, visibility, description, created_at, updated_at, team_id) FROM stdin;
-\.
-
-
---
--- Data for Name: candidate_comments; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.candidate_comments (id, candidate_id, author, author_user_id, body, internal, created_at, updated_at) FROM stdin;
-\.
-
-
---
--- Data for Name: candidate_stage_history; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.candidate_stage_history (id, candidate_id, from_stage, to_stage, moved_by, moved_at, notes) FROM stdin;
-\.
-
-
---
--- Data for Name: candidates; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.candidates (id, position_id, client_id, name, role, linkedin_url, cv_filename, due_date, stage, notes, created_at, updated_at, "position", stage_assignees, start_date, onboarding_links, archived_at, email, source, source_detail, tags, consent_given, consent_date, retention_expires_at, rejection_reason, rejection_category, stage_changed_at) FROM stdin;
-\.
-
-COPY public.candidate_activity (id, candidate_id, event_type, detail, actor, created_at) FROM stdin;
-\.
-
-
---
--- Data for Name: cc_snapshots; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.cc_snapshots (id, snapshot_date, data, created_at, updated_at) FROM stdin;
-\.
-
-
---
--- Data for Name: client_activity_log; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.client_activity_log (id, user_id, client_id, action, target_type, target_id, details, created_at) FROM stdin;
-\.
-
-
---
--- Data for Name: client_notes; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.client_notes (id, client_id, title, content, source, source_id, source_url, meeting_date, author, created_at, updated_at) FROM stdin;
-\.
-
-
---
--- Data for Name: client_reports; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.client_reports (id, client_id, client_name, share_token, report_data, generated_by, expires_at, created_at) FROM stdin;
-\.
-
-
---
--- Data for Name: clients; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.clients (id, name, description, founded, headquarters, employees, revenue, website, linkedin_company, nbi_relationship, created_at, updated_at, sector, studio_size, contract_value, current_studio_project, research_data, research_updated_at, practice_area, abbreviation, doc_default_view, doc_default_edit, doc_default_create, doc_default_upload, always_visible, hiring_stages) FROM stdin;
-\.
-
-
---
--- Data for Name: contacts; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.contacts (id, client_id, name, role, notes, background, linkedin, sort_order, created_at, email, phone) FROM stdin;
-\.
-
-
---
--- Data for Name: dashboard_snapshots; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.dashboard_snapshots (id, snapshot_date, active_projects, overdue_count, blocked_count, at_risk_count, hours_spent, hours_estimated, tasks_planned, tasks_added, tasks_completed, created_at, on_track_count, active_leads_count) FROM stdin;
-\.
-
-
---
--- Data for Name: document_attachments; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.document_attachments (id, document_id, filename, stored_name, mime_type, size_bytes, uploaded_by, orphaned_at, created_at) FROM stdin;
-\.
-
-
---
--- Data for Name: documents; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.documents (id, client_id, parent_id, task_id, title, body_json, body_text, body_version, visibility, sort_order, created_by, updated_by, created_at, updated_at, hidden) FROM stdin;
-\.
-
-
---
--- Data for Name: expense_categories; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.expense_categories (id, name, sort_order, is_active, created_at) FROM stdin;
-\.
-
-
---
--- Data for Name: expense_receipts; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.expense_receipts (id, expense_id, filename, original_name, size_bytes, mime_type, uploaded_by, created_at) FROM stdin;
-\.
-
-
---
--- Data for Name: expense_reports; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.expense_reports (id, user_id, title, status, submitted_at, reviewed_by, reviewed_at, notes, created_at, updated_at, review_notes) FROM stdin;
-\.
-
-
---
--- Data for Name: expenses; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.expenses (id, user_id, date, amount, currency, category_id, description, status, reviewed_by, reviewed_at, notes, created_at, updated_at, report_id, vat_amount) FROM stdin;
-\.
-
-
---
--- Data for Name: finance_data; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.finance_data (id, data, updated_by, updated_at) FROM stdin;
-\.
-
-
---
--- Data for Name: hiring_email_templates; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.hiring_email_templates (id, client_id, name, subject, body, trigger_stage, created_at, updated_at) FROM stdin;
-\.
-
-
---
--- Data for Name: hiring_positions; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.hiring_positions (id, client_id, sow_id, title, description, seniority, status, created_at, updated_at, salary_range, employment_type, location, interview_panel, jd_filename, jd_original_name, scorecard_criteria, onboarding_template) FROM stdin;
-\.
-
-
---
--- Data for Name: interview_rounds; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.interview_rounds (id, candidate_id, round_number, title, scheduled_at, duration_minutes, location, status, outcome, outcome_notes, created_at, updated_at) FROM stdin;
-\.
-
-
---
--- Data for Name: interview_scorecards; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.interview_scorecards (id, round_id, interviewer_name, interviewer_user_id, overall_rating, recommendation, strengths, concerns, criteria, submitted_at, created_at, updated_at) FROM stdin;
-\.
-
-
---
--- Data for Name: lead_activities; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.lead_activities (id, lead_id, activity_type, description, performed_by, created_at) FROM stdin;
-\.
-
-
---
--- Data for Name: lead_field_options; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.lead_field_options (id, field_name, value, sort_order, is_active, created_at) FROM stdin;
-\.
-
-
---
--- Data for Name: lead_pipeline_stages; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.lead_pipeline_stages (id, name, sort_order, colour, is_closed, is_won, created_at) FROM stdin;
-\.
-
-
---
--- Data for Name: lead_resource_types; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.lead_resource_types (id, name, sort_order, is_active, created_at) FROM stdin;
-\.
-
-
---
--- Data for Name: lead_resources; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.lead_resources (id, lead_id, resource_type_id, quantity, notes) FROM stdin;
-\.
-
-
---
--- Data for Name: leads; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.leads (id, client_id, title, work_type, service_line, stage_id, priority, currency, rom_min, rom_max, rom_text, win_probability, primary_contact_id, deal_owner, lead_source, est_start_date, expected_close_date, last_contacted, next_followup_date, next_action, location, notes, time_estimate, created_by, created_at, updated_at, completed_at, practice_area, "position", sow_id) FROM stdin;
-\.
-
-
---
--- Data for Name: login_attempts; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.login_attempts (username, fail_count, last_attempt, locked_until) FROM stdin;
-\.
-
-
---
--- Data for Name: milestone_items; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.milestone_items (milestone_id, task_id) FROM stdin;
-\.
-
-
---
--- Data for Name: milestones; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.milestones (id, client_id, title, description, target_date, created_at, updated_at) FROM stdin;
-\.
-
-
---
--- Data for Name: notifications; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.notifications (id, username, type, title, message, link, is_read, created_at, dismissable) FROM stdin;
-\.
-
-
---
--- Data for Name: onboarding_checklist_items; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.onboarding_checklist_items (id, candidate_id, title, completed, completed_at, completed_by, sort_order, created_at) FROM stdin;
-\.
-
-
---
--- Data for Name: password_reset_tokens; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.password_reset_tokens (id, user_id, token, expires_at, used, created_at) FROM stdin;
-\.
-
-
---
--- Data for Name: schema_migrations; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.schema_migrations (version, name, applied_at) FROM stdin;
-1	001_initial_schema.sql	2026-04-20 01:10:48.161566+01
-2	002_contacts_columns.sql	2026-04-20 01:10:48.163303+01
-3	003_expense_reports.sql	2026-04-20 01:10:48.163993+01
-4	004_bug_reports.sql	2026-04-20 01:10:48.164555+01
-5	005_performance_indexes.sql	2026-04-20 01:10:48.165056+01
-6	006_expense_approver_setting.sql	2026-04-20 01:10:48.165665+01
-7	007_notifications_index.sql	2026-04-20 01:10:48.166217+01
-8	008_item_type_hierarchy.sql	2026-04-20 01:10:48.166861+01
-9	009_client_studio_contract.sql	2026-04-20 01:10:48.174806+01
-10	010_bug_tracker_upgrade.sql	2026-04-20 01:10:48.176553+01
-11	011_client_page_fields.sql	2026-04-20 01:10:48.179868+01
-12	012_sow_layer.sql	2026-04-20 01:10:48.181096+01
-13	013_phase4_features.sql	2026-04-20 01:10:48.184661+01
-14	014_calendar_events.sql	2026-04-20 01:10:48.18633+01
-15	015_attachment_links.sql	2026-04-20 01:10:48.188151+01
-16	016_teams.sql	2026-04-20 01:10:48.189483+01
-17	017_hiring.sql	2026-04-20 01:10:48.191121+01
-18	018_practice_areas.sql	2026-04-20 01:10:48.193226+01
-19	019_client_abbreviation.sql	2026-04-20 01:10:48.198357+01
-20	020_decode_double_escape.sql	2026-04-20 01:10:48.200121+01
-21	021_kanban_position.sql	2026-04-20 01:10:48.222383+01
-22	022_practice_rename_and_backfill.sql	2026-04-20 01:10:48.226671+01
-23	023_calendar_team_events.sql	2026-04-20 01:10:48.229418+01
-24	024_hiring_rewrite.sql	2026-04-20 01:10:48.23374+01
-25	025_rename_practice_to_organisational_performance.sql	2026-04-20 01:10:48.235782+01
-26	026_client_scoped_users.sql	2026-04-20 01:10:48.237698+01
-27	027_audit_fixes.sql	2026-04-20 01:10:48.239131+01
-28	028_dashboard_snapshots.sql	2026-04-20 01:10:48.240611+01
-29	029_work_type.sql	2026-04-20 01:10:48.241877+01
-30	030_hiring_stage_streamline.sql	2026-04-20 01:10:48.243108+01
-31	031_client_portal.sql	2026-04-20 01:12:26.711215+01
-32	032_reporting_fields.sql	2026-05-20 22:27:13.563505+01
-33	033_documents.sql	2026-05-20 22:27:13.571924+01
-34	034_document_attachments.sql	2026-05-20 22:27:13.7319+01
-35	035_documentation_perms.sql	2026-05-20 22:27:13.746352+01
-36	036_document_hidden.sql	2026-05-20 22:27:13.75284+01
-37	037_task_queue.sql	2026-05-20 22:27:13.75394+01
-38	038_milestones.sql	2026-05-20 22:27:13.770981+01
-39	039_add_indexes.sql	2026-05-20 22:27:13.786498+01
-40	040_scalability_indexes.sql	2026-05-20 22:27:13.810026+01
-41	041_tier2_fixes.sql	2026-05-20 22:27:13.823047+01
-42	042_leads_sow_id.sql	2026-05-20 22:27:13.832081+01
-43	043_user_time_off.sql	2026-05-20 22:27:13.836208+01
-44	044_command_centre.sql	2026-05-20 22:27:13.850366+01
-45	045_tree_sort_order.sql	2026-05-20 22:27:13.860083+01
-46	046_ats_data_foundation.sql	2026-05-20 22:27:13.868721+01
-47	047_jd_attachment.sql	2026-05-20 22:27:13.891359+01
-48	048_interview_management.sql	2026-05-20 22:27:13.892913+01
-49	049_intelligence_layer.sql	2026-05-20 22:27:13.914063+01
-50	050_per_client_stages.sql	2026-05-20 22:27:13.931168+01
-\.
-
-
---
--- Data for Name: sessions; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.sessions (id, user_id, token, expires_at, created_at) FROM stdin;
-\.
-
-
---
--- Data for Name: settings; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.settings (key, value, updated_at) FROM stdin;
-\.
-
-
---
--- Data for Name: sows; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.sows (id, client_id, title, start_date, end_date, status, work_package_text, extraction_stats, uploaded_by, created_at, updated_at) FROM stdin;
-\.
-
-
---
--- Data for Name: task_attachments; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.task_attachments (id, task_id, filename, original_name, size_bytes, mime_type, uploaded_by, created_at) FROM stdin;
-\.
-
-
---
--- Data for Name: task_comments; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.task_comments (id, task_id, author, text, created_at) FROM stdin;
-\.
-
-
---
--- Data for Name: task_notes; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.task_notes (id, task_id, text, author, created_at) FROM stdin;
-\.
-
-
---
--- Data for Name: task_queue; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.task_queue (id, title, description, submitted_by, slack_user_id, slack_channel, slack_message_ts, created_at) FROM stdin;
-\.
-
-
---
--- Data for Name: task_templates; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.task_templates (id, name, template, recurrence, last_created_at, created_by, created_at) FROM stdin;
-\.
-
-
---
--- Data for Name: tasks; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.tasks (id, title, parent_id, client_id, status, priority, health_state, description, assignees, hours_estimated, hours_spent, due_date, planner_task_id, source, created_at, updated_at, start_date, end_date, dependencies, item_type, sow_id, repeat_rule, collaborations, success_factor, blocker_info, practice_area, "position", work_type, risks, mitigations, documentation_link, sort_order) FROM stdin;
-\.
-
-
---
--- Data for Name: team_members; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.team_members (id, team_id, user_id, role, created_at) FROM stdin;
-\.
-
-
---
--- Data for Name: teams; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.teams (id, name, description, client_id, sow_id, colour, created_at, updated_at) FROM stdin;
-\.
-
-
---
--- Data for Name: time_entries; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.time_entries (id, task_id, user_name, description, hours, date, created_at) FROM stdin;
-\.
-
-
---
--- Data for Name: time_off; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.time_off (id, user_id, start_date, end_date, label, created_at) FROM stdin;
-\.
-
-
---
--- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.users (id, username, display_name, email, password_hash, role, created_at, capacity_hours_per_week, resource_type_ids, is_active, client_id, client_role, must_change_password, docs_view, docs_edit, docs_create, docs_upload, can_submit_queue) FROM stdin;
-\.
-
-
---
--- Name: audit_log_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
---
-
-SELECT pg_catalog.setval('public.audit_log_id_seq', 1, false);
-
-
---
--- Name: cc_snapshots_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
---
-
-SELECT pg_catalog.setval('public.cc_snapshots_id_seq', 1, false);
-
-
---
--- Name: finance_data_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
---
-
-SELECT pg_catalog.setval('public.finance_data_id_seq', 1, false);
-
-
---
--- Name: notifications_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
---
-
-SELECT pg_catalog.setval('public.notifications_id_seq', 1, false);
-
-
---
--- Name: task_attachments_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
---
-
-SELECT pg_catalog.setval('public.task_attachments_id_seq', 1, false);
-
-
---
--- Name: task_comments_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
---
-
-SELECT pg_catalog.setval('public.task_comments_id_seq', 1, false);
-
-
---
--- Name: task_templates_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
---
-
-SELECT pg_catalog.setval('public.task_templates_id_seq', 1, false);
-
-
---
--- Name: time_entries_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
---
-
-SELECT pg_catalog.setval('public.time_entries_id_seq', 1, false);
-
-
---
 -- Name: attachments attachments_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1830,6 +1286,14 @@ ALTER TABLE ONLY public.calendar_events
 
 
 --
+-- Name: candidate_activity candidate_activity_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.candidate_activity
+    ADD CONSTRAINT candidate_activity_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: candidate_comments candidate_comments_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1851,9 +1315,6 @@ ALTER TABLE ONLY public.candidate_stage_history
 
 ALTER TABLE ONLY public.candidates
     ADD CONSTRAINT candidates_pkey PRIMARY KEY (id);
-
-ALTER TABLE ONLY public.candidate_activity
-    ADD CONSTRAINT candidate_activity_candidate_id_fkey FOREIGN KEY (candidate_id) REFERENCES public.candidates(id) ON DELETE CASCADE;
 
 
 --
@@ -2358,6 +1819,13 @@ CREATE INDEX idx_audit_entity ON public.audit_log USING btree (entity_type, enti
 
 
 --
+-- Name: idx_audit_log_entity; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_audit_log_entity ON public.audit_log USING btree (entity_type, entity_id);
+
+
+--
 -- Name: idx_audit_log_time; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2418,6 +1886,20 @@ CREATE INDEX idx_calendar_events_team ON public.calendar_events USING btree (tea
 --
 
 CREATE INDEX idx_calendar_events_user ON public.calendar_events USING btree (user_id);
+
+
+--
+-- Name: idx_candidate_activity_candidate; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_candidate_activity_candidate ON public.candidate_activity USING btree (candidate_id);
+
+
+--
+-- Name: idx_candidate_activity_created; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_candidate_activity_created ON public.candidate_activity USING btree (created_at);
 
 
 --
@@ -3155,6 +2637,14 @@ ALTER TABLE ONLY public.calendar_events
 
 
 --
+-- Name: candidate_activity candidate_activity_candidate_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.candidate_activity
+    ADD CONSTRAINT candidate_activity_candidate_id_fkey FOREIGN KEY (candidate_id) REFERENCES public.candidates(id) ON DELETE CASCADE;
+
+
+--
 -- Name: candidate_comments candidate_comments_author_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3582,5 +3072,92 @@ ALTER TABLE ONLY public.users
 -- PostgreSQL database dump complete
 --
 
-\unrestrict NQTbdgXihTtaI6whq4bw9xng9zYCM9lXfIzhm4pobK8cbW8fua4GeSpu0tlbSpI
+\unrestrict iR59ZfbkfhEgm4q93MPD3hEOCDnzjhktnVRdZPIScCcV8jfhc7q78h7tfQU58oN
+
+--
+-- PostgreSQL database dump
+--
+
+\restrict xxfDHZ2ijFlgu0KHSi4yrigYN5wkebUFJKCd7uiiI0tns4Ayl9uh6EN3EprQ3Hc
+
+-- Dumped from database version 16.13
+-- Dumped by pg_dump version 16.13
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Data for Name: schema_migrations; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.schema_migrations (version, name, applied_at) FROM stdin;
+1	001_initial_schema.sql	2026-04-08 23:35:39.676764+01
+2	002_contacts_columns.sql	2026-04-08 23:35:39.678175+01
+3	003_expense_reports.sql	2026-04-08 23:35:39.67894+01
+4	004_bug_reports.sql	2026-04-08 23:35:39.679728+01
+5	005_performance_indexes.sql	2026-04-08 23:35:39.680347+01
+6	006_expense_approver_setting.sql	2026-04-08 23:35:39.680984+01
+7	007_notifications_index.sql	2026-04-08 23:35:39.681554+01
+8	008_item_type_hierarchy.sql	2026-04-11 12:55:08.981205+01
+9	009_client_studio_contract.sql	2026-04-13 04:11:52.287656+01
+10	010_bug_tracker_upgrade.sql	2026-04-13 22:52:30.61454+01
+11	011_client_page_fields.sql	2026-04-14 03:22:27.268189+01
+12	012_sow_layer.sql	2026-04-14 03:36:20.243047+01
+13	013_phase4_features.sql	2026-04-14 03:50:41.257986+01
+14	014_calendar_events.sql	2026-04-14 04:07:18.986891+01
+15	015_attachment_links.sql	2026-04-14 04:07:19.013671+01
+16	016_teams.sql	2026-04-14 04:25:56.174425+01
+17	017_hiring.sql	2026-04-14 04:39:33.767842+01
+18	018_practice_areas.sql	2026-04-14 04:54:52.827505+01
+19	019_client_abbreviation.sql	2026-04-15 00:08:51.787293+01
+20	020_decode_double_escape.sql	2026-04-15 03:25:25.210274+01
+21	021_kanban_position.sql	2026-04-15 11:34:55.867741+01
+22	022_practice_rename_and_backfill.sql	2026-04-15 12:32:53.433468+01
+23	023_calendar_team_events.sql	2026-04-15 22:42:17.246844+01
+24	024_hiring_rewrite.sql	2026-04-16 00:05:39.637471+01
+25	025_rename_practice_to_organisational_performance.sql	2026-04-16 01:51:37.78965+01
+26	026_client_scoped_users.sql	2026-04-16 17:19:44.078023+01
+27	027_audit_fixes	2026-04-18 16:08:34.84713+01
+28	028_dashboard_snapshots.sql	2026-04-19 00:46:59.26154+01
+29	029_work_type.sql	2026-04-19 15:47:43.103721+01
+30	030_hiring_stage_streamline.sql	2026-04-20 00:50:20.415785+01
+31	031_client_portal.sql	2026-04-20 01:09:43.833329+01
+32	032_reporting_fields.sql	2026-05-02 17:14:54.207985+01
+33	033_documents.sql	2026-05-03 14:59:43.886051+01
+34	034_document_attachments.sql	2026-05-03 14:59:43.886051+01
+35	035_documentation_perms.sql	2026-05-03 14:59:43.886051+01
+36	036_document_hidden.sql	2026-05-03 23:35:41.281857+01
+37	037_task_queue.sql	2026-05-04 05:29:15.763912+01
+38	038_milestones.sql	2026-05-05 05:21:25.647857+01
+39	039_add_indexes.sql	2026-05-05 22:33:50.446672+01
+40	040_scalability_indexes.sql	2026-05-05 22:33:50.626671+01
+41	041_tier2_fixes.sql	2026-05-06 05:14:43.8641+01
+42	042_leads_sow_id.sql	2026-05-09 02:27:42.11914+01
+43	043_user_time_off.sql	2026-05-09 02:31:38.093906+01
+44	044_command_centre.sql	2026-05-11 13:58:55.951949+01
+45	045_tree_sort_order.sql	2026-05-14 02:20:22.990472+01
+46	046_ats_data_foundation.sql	2026-05-20 05:10:44.354493+01
+47	047_jd_attachment.sql	2026-05-20 13:27:03.401145+01
+48	048_interview_management.sql	2026-05-20 16:50:24.957039+01
+49	049_intelligence_layer.sql	2026-05-20 17:42:36.48649+01
+50	050_per_client_stages.sql	2026-05-20 18:48:31.934883+01
+51	051_stage_changed_at.sql	2026-05-21 15:33:12.493284+01
+52	052_candidate_activity.sql	2026-05-21 15:34:11.52324+01
+53	053_contract_status.sql	2026-05-22 17:10:01.34238+01
+\.
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+\unrestrict xxfDHZ2ijFlgu0KHSi4yrigYN5wkebUFJKCd7uiiI0tns4Ayl9uh6EN3EprQ3Hc
 

@@ -148,23 +148,29 @@ router.post('/api/sync/changes', async (req, res) => {
         const taskExists = serverUpdatedAt !== null;
 
         if (taskExists) {
-          // Conflict detection: if another user updated this task after the client last loaded it,
-          // skip this update to avoid overwriting their changes. Client picks up the newer version on next poll.
+          // Conflict detection: version-based (preferred) or timestamp fallback
+          const clientVersion = t._version;
           const clientKnownAt = t._serverUpdatedAt;
-          if (clientKnownAt && serverUpdatedAt && new Date(clientKnownAt) < new Date(serverUpdatedAt)) {
+          if (clientVersion !== undefined) {
+            const { rows: verRows } = await conn.query('SELECT version FROM tasks WHERE id = $1', [t.id]);
+            if (verRows.length > 0 && verRows[0].version !== clientVersion) {
+              conflicted.push({ id: t.id, title: t.title || '', serverUpdatedAt, serverVersion: verRows[0].version });
+              continue;
+            }
+          } else if (clientKnownAt && serverUpdatedAt && new Date(clientKnownAt) < new Date(serverUpdatedAt)) {
             conflicted.push({ id: t.id, title: t.title || '', serverUpdatedAt });
             continue;
           }
 
-          // Update existing task
+          // Update existing task, increment version
           const updRes = await conn.query(
             `UPDATE tasks SET title=$1, parent_id=$2, client_id=$3, item_type=$4, status=$5, priority=$6,
              health_state=$7, description=$8, assignees=$9, hours_estimated=$10, hours_spent=$11,
              due_date=$12, start_date=$13, end_date=$14, dependencies=$15,
              collaborations=$16, success_factor=$17, repeat_rule=$18, blocker_info=$19,
              practice_area=$20, sow_id=$21, work_type=$22, sort_order=$23,
-             updated_at=NOW()
-             WHERE id=$24 RETURNING updated_at`,
+             updated_at=NOW(), version=version+1
+             WHERE id=$24 RETURNING updated_at, version`,
             [t.title, parentId, clientId, itemType, t.status || 'Not started', t.priority || '',
              t.healthState || t.health_state || '', t.description || '', t.assignees || [],
              t.hoursEstimated || t.hours_estimated || 0, t.hoursSpent || t.hours_spent || 0,

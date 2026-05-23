@@ -7,7 +7,18 @@ Updated 2026-05-23
 ## Awaiting Glen UAT
 
 All deployed on :8888 via PM2. Glen needs to test at worksage.nbi-consulting.com.
-Unit tests: 434/434 green (34 test files). 9 Playwright E2E specs committed. Branch: `feature/command-centre` (46+ commits ahead of master).
+Unit tests: running (41 files). 9 Playwright E2E specs committed. Branch: `feature/command-centre` (48+ commits ahead of master).
+
+### Innovation Items (deployed, awaiting UAT)
+- **Finance entries server migration** — ad-hoc entries now persisted in PostgreSQL (was localStorage-only)
+- **Client invite password display** — generated passwords shown after user creation
+- **Theme token colours** — ~40 hardcoded hex values replaced with CSS custom properties
+- **Client status reports** — "Generate Client Report" button shows rich modal with KPI cards and sections
+- **Client health scores** — R/A/G score per client on Portfolio dashboard
+- **Onboarding bridge** — default 7-item checklist created when candidate reaches onboarding stage
+- **Version-based sync conflicts** — tasks track version counter; concurrent edits detected and rejected
+- **Activity feed** — recent changes timeline on Portfolio dashboard
+- **Position modal focus trap** — proper focus management with restoration
 
 ### Command Centre v2 — Zone-Based Layout
 - Three-zone cockpit: status strip (48px), 4Cs metrics row (120px), main+rail grid
