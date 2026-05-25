@@ -30,19 +30,7 @@ The server reads `intelligence/synthesis/intelligence_brief.md`, parses it, and 
 
 ### Layout
 
-Sits in the bottom panel row (3-column grid). Replaces nothing — added as a 4th column on wide screens, or stacks below on narrower viewports.
-
-```
-┌─────────────────────────────────────────────────────────┐
-│  KPI Strip (existing)                                   │
-├─────────────┬──────────────┬────────────┬───────────────┤
-│  Progress   │  Milestones  │  Timeline  │  Work Types   │
-│  Status     │              │            │               │
-├─────────────┼──────────────┼────────────┼───────────────┤
-│  Completing │  Team        │  Needs     │  Intelligence │
-│  Soon       │  Workload    │  Attention │  Brief        │
-└─────────────┴──────────────┴────────────┴───────────────┘
-```
+Sits in the Command Centre view as a panel alongside existing CC content (Work, Money, Pipeline, AIOS sections). Not in the Portfolio Dashboard.
 
 ### Card Design
 

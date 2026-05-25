@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WorkSage — Intelligence Dashboard Mockup</title>
+<style>
+  :root {
+    --bg-primary: #0f1117;
+    --bg-secondary: #161922;
+    --bg-tertiary: #1c1f2e;
+    --bg-hover: #242838;
+    --border: #2a2e3d;
+    --text-primary: #e4e6ed;
+    --text-secondary: #9498a8;
+    --text-muted: #6b6f80;
+    --accent: #4f8cff;
+    --accent-dim: rgba(79,140,255,0.15);
+    --success: #34d399;
+    --success-dim: rgba(52,211,153,0.15);
+    --warning: #fbbf24;
+    --warning-dim: rgba(251,191,36,0.15);
+    --danger: #f87171;
+    --danger-dim: rgba(248,113,113,0.15);
+    --purple: #a78bfa;
+    --purple-dim: rgba(167,139,250,0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 14px;
+    line-height: 1.5;
+    padding: 20px;
+  }
+
+  h1 { font-size: 20px; font-weight: 600; margin-bottom: 6px; }
+  h2 { font-size: 15px; font-weight: 600; margin-bottom: 12px; color: var(--text-primary); }
+  h3 { font-size: 13px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+
+  .mockup-label {
+    background: var(--accent);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 4px 12px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 16px;
+  }
+
+  .section-divider {
+    border: none;
+    border-top: 2px solid var(--accent);
+    margin: 40px 0 24px;
+    opacity: 0.3;
+  }
+
+  /* === TAB BAR === */
+  .tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+  }
+  .tab {
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+  }
+  .tab:hover { color: var(--text-primary); }
+  .tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  /* === PANELS === */
+  .panel {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .panel-hdr {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .panel-hdr h2 { margin: 0; }
+  .panel-body { padding: 16px; }
+  .panel-badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+
+  /* === BRIEF CARD (Component 1) === */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .existing-panel {
+    background: var(--bg-tertiary);
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 24px 16px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 13px;
+    min-height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .brief-card { position: relative; }
+  .brief-card .panel-hdr {
+    background: linear-gradient(135deg, rgba(79,140,255,0.08), rgba(167,139,250,0.06));
+  }
+  .brief-date {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+  .brief-section {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .brief-section:last-child { border-bottom: none; }
+  .brief-section-hdr {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  .brief-section-hdr .arrow {
+    font-size: 10px;
+    color: var(--text-muted);
+    transition: transform 0.15s;
+  }
+  .brief-section-hdr .count {
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-weight: 400;
+  }
+  .brief-items {
+    margin-top: 8px;
+    padding-left: 18px;
+  }
+  .brief-item {
+    font-size: 13px;
+    color: var(--text-secondary);
+    padding: 3px 0;
+    line-height: 1.4;
+  }
+  .brief-item .bank-tag {
+    font-size: 11px;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .brief-health {
+    display: flex;
+    gap: 16px;
+    margin-top: 8px;
+    font-size: 13px;
+  }
+  .brief-health span { color: var(--text-secondary); }
+  .brief-health strong { color: var(--text-primary); font-weight: 600; }
+  .brief-footer {
+    padding: 8px 16px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: right;
+  }
+  .action-dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--warning);
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+
+  /* === INTELLIGENCE TAB (Component 2) === */
+  .intel-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .intel-two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .intel-three-col {
+    display: grid;
+    grid-template-columns: 2fr 1.2fr 1fr;
+    gap: 16px;
+  }
+
+  /* Bank Health Table */
+  .bank-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .bank-table th {
+    text-align: left;
+    padding: 8px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+  }
+  .bank-table th:hover { color: var(--text-secondary); }
+  .bank-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(42,46,61,0.5);
+    vertical-align: middle;
+  }
+  .bank-table tr:hover { background: var(--bg-hover); }
+  .bank-table tr:last-child td { border-bottom: none; }
+
+  .bank-name {
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  .bank-slug {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: 'SF Mono', Consolas, monospace;
+  }
+
+  .capacity-bar {
+    width: 80px;
+    height: 6px;
+    background: var(--bg-primary);
+    border-radius: 3px;
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+  .capacity-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s;
+  }
+
+  .status-badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+    display: inline-block;
+  }
+  .status-fresh { background: var(--success-dim); color: var(--success); }
+  .status-stale { background: var(--danger-dim); color: var(--danger); }
+  .status-pending { background: var(--warning-dim); color: var(--warning); }
+
+  .bank-total {
+    padding: 12px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    border-top: 1px solid var(--border);
+  }
+  .bank-total strong { color: var(--text-primary); }
+
+  /* Research Findings */
+  .research-group {
+    margin-bottom: 16px;
+  }
+  .research-date {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .research-domain {
+    font-size: 11px;
+    background: var(--accent-dim);
+    color: var(--accent);
+    padding: 1px 8px;
+    border-radius: 8px;
+    font-weight: 500;
+  }
+  .finding {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(42,46,61,0.4);
+  }
+  .finding:last-child { border-bottom: none; }
+  .finding-score {
+    font-size: 11px;
+    font-weight: 700;
+    min-width: 28px;
+    height: 20px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .score-high { background: var(--success-dim); color: var(--success); }
+  .score-mid { background: var(--accent-dim); color: var(--accent); }
+  .finding-text {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+  }
+  .finding-text strong { color: var(--text-primary); font-weight: 500; }
+  .show-more {
+    font-size: 12px;
+    color: var(--accent);
+    cursor: pointer;
+    padding: 8px 0;
+  }
+  .show-more:hover { text-decoration: underline; }
+
+  /* Pipeline Activity */
+  .source-list { list-style: none; }
+  .source-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(42,46,61,0.4);
+    font-size: 13px;
+  }
+  .source-item:last-child { border-bottom: none; }
+  .source-name { color: var(--text-primary); font-weight: 500; }
+  .source-status { font-size: 12px; }
+  .source-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  .dot-green { background: var(--success); }
+  .dot-amber { background: var(--warning); }
+
+  .next-runs {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+  .next-run {
+    font-size: 12px;
+    color: var(--text-muted);
+    padding: 3px 0;
+  }
+  .next-run .time { color: var(--text-secondary); font-weight: 500; font-family: 'SF Mono', Consolas, monospace; }
+
+  /* Pending Actions */
+  .pending-item {
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(42,46,61,0.4);
+  }
+  .pending-item:last-child { border-bottom: none; }
+  .pending-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+  .pending-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+  .pending-actions {
+    display: flex;
+    gap: 8px;
+  }
+  .btn {
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: opacity 0.15s;
+  }
+  .btn:hover { opacity: 0.85; }
+  .btn-approve { background: var(--success-dim); color: var(--success); }
+  .btn-dismiss { background: var(--bg-tertiary); color: var(--text-muted); }
+
+  .info-block {
+    background: var(--bg-tertiary);
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-top: 8px;
+  }
+  .info-block-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+  }
+  .info-block-text {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  /* KPI strip for the brief context */
+  .kpi-strip {
+    display: flex;
+    gap: 20px;
+    padding: 12px 0;
+  }
+  .kpi {
+    text-align: center;
+  }
+  .kpi-value {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  .kpi-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================ -->
+<!-- COMPONENT 1: MORNING BRIEF CARD              -->
+<!-- ============================================ -->
+
+<div class="mockup-label">Component 1 — Morning Brief Card (in Portfolio Dashboard bottom row)</div>
+
+<p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+  The brief card sits alongside existing panels. Dashed borders = existing panels (not part of this build).
+</p>
+
+<div class="dashboard-grid">
+  <div class="existing-panel">Completing Soon<br><span style="font-size:11px">(existing panel)</span></div>
+  <div class="existing-panel">Team Workload<br><span style="font-size:11px">(existing panel)</span></div>
+  <div class="existing-panel">Needs Attention<br><span style="font-size:11px">(existing panel)</span></div>
+
+  <!-- THE NEW BRIEF CARD -->
+  <div class="panel brief-card">
+    <div class="panel-hdr">
+      <h2>Intelligence Brief</h2>
+      <span class="brief-date">25 May 2026</span>
+    </div>
+    <div class="panel-body">
+      <div class="brief-section">
+        <div class="brief-section-hdr">
+          <span class="arrow">&#9662;</span>
+          What's New
+          <span class="count">(6 items)</span>
+        </div>
+        <div class="brief-items">
+          <div class="brief-item"><span class="bank-tag">industry_current</span> Google/Epic drops Play Store commission to 20% by 30 June</div>
+          <div class="brief-item"><span class="bank-tag">industry_current</span> UK ASA loot box enforcement started 26 May</div>
+          <div class="brief-item"><span class="bank-tag">industry_current</span> Morgan Stanley: AI could cut dev costs 44%</div>
+          <div class="brief-item"><span class="bank-tag">pitch_decks</span> 5 new research findings — Homa $50M, Games Fund template</div>
+          <div class="brief-item"><span class="bank-tag">local</span> 27 extracts from OneDrive — Goals + CH client data</div>
+          <div class="brief-item"><span class="bank-tag">chatgpt</span> 34 extracts from ChatGPT history — forecasts, pitch decks, client work</div>
+        </div>
+      </div>
+
+      <div class="brief-section">
+        <div class="brief-section-hdr">
+          <span class="arrow">&#9656;</span>
+          Pipeline Health
+        </div>
+        <div class="brief-health" style="display:flex;">
+          <span><strong>7</strong> banks</span>
+          <span><strong>104</strong> extracts</span>
+          <span><strong>0</strong> stale</span>
+        </div>
+      </div>
+
+      <div class="brief-section">
+        <div class="brief-section-hdr">
+          <span class="arrow">&#9662;</span>
+          <span class="action-dot"></span>
+          Actions Needed
+          <span class="count">(2)</span>
+        </div>
+        <div class="brief-items">
+          <div class="brief-item">4 new bank suggestions pending approval</div>
+          <div class="brief-item">~50 binary files need conversion tooling</div>
+        </div>
+      </div>
+    </div>
+    <div class="brief-footer">Last updated 06:57</div>
+  </div>
+</div>
+
+<hr class="section-divider">
+
+<!-- ============================================ -->
+<!-- COMPONENT 2: INTELLIGENCE TAB                -->
+<!-- ============================================ -->
+
+<div class="mockup-label">Component 2 — Intelligence Tab (full dedicated view)</div>
+
+<div class="tabs">
+  <div class="tab">Dashboard</div>
+  <div class="tab">Workload</div>
+  <div class="tab">Projects</div>
+  <div class="tab">People</div>
+  <div class="tab">Reports</div>
+  <div class="tab">Hiring</div>
+  <div class="tab">Leads</div>
+  <div class="tab">Finances</div>
+  <div class="tab active">Intelligence</div>
+</div>
+
+<!-- KPI STRIP -->
+<div class="panel" style="margin-bottom: 16px;">
+  <div class="panel-body">
+    <div class="kpi-strip">
+      <div class="kpi">
+        <div class="kpi-value">7</div>
+        <div class="kpi-label">Active Banks</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-value" style="color:var(--success)">1,097</div>
+        <div class="kpi-label">Total Lines</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-value">104</div>
+        <div class="kpi-label">Raw Extracts</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-value">142</div>
+        <div class="kpi-label">Source Refs</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-value" style="color:var(--success)">0</div>
+        <div class="kpi-label">Stale Banks</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-value">9</div>
+        <div class="kpi-label">Cloud Routines</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-value" style="color:var(--warning)">4</div>
+        <div class="kpi-label">Pending Suggestions</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="intel-layout">
+
+  <!-- BANK HEALTH TABLE -->
+  <div class="panel">
+    <div class="panel-hdr">
+      <h2>Bank Health</h2>
+      <span class="panel-badge" style="background:var(--success-dim);color:var(--success);">All Fresh</span>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="bank-table">
+        <thead>
+          <tr>
+            <th>Bank</th>
+            <th>Lines</th>
+            <th>Capacity</th>
+            <th>Sources</th>
+            <th>Last Compiled</th>
+            <th>Shelf Life</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="bank-name">Industry Current</span><br><span class="bank-slug">industry_current</span></td>
+            <td>207</td>
+            <td><div class="capacity-bar"><div class="capacity-fill" style="width:41%;background:var(--success)"></div></div><span style="font-size:12px;color:var(--text-muted)">41%</span></td>
+            <td>18</td>
+            <td>Today</td>
+            <td style="color:var(--text-muted)">7d</td>
+            <td><span class="status-badge status-fresh">Fresh</span></td>
+          </tr>
+          <tr>
+            <td><span class="bank-name">Game Pitch Decks</span><br><span class="bank-slug">games_pitch_decks</span></td>
+            <td>183</td>
+            <td><div class="capacity-bar"><div class="capacity-fill" style="width:37%;background:var(--success)"></div></div><span style="font-size:12px;color:var(--text-muted)">37%</span></td>
+            <td>15</td>
+            <td>Today</td>
+            <td style="color:var(--text-muted)">30d</td>
+            <td><span class="status-badge status-fresh">Fresh</span></td>
+          </tr>
+          <tr>
+            <td><span class="bank-name">Production Methods</span><br><span class="bank-slug">production_methods</span></td>
+            <td>174</td>
+            <td><div class="capacity-bar"><div class="capacity-fill" style="width:35%;background:var(--success)"></div></div><span style="font-size:12px;color:var(--text-muted)">35%</span></td>
+            <td>35</td>
+            <td>Today</td>
+            <td style="color:var(--text-muted)">60d</td>
+            <td><span class="status-badge status-fresh">Fresh</span></td>
+          </tr>
+          <tr>
+            <td><span class="bank-name">Client: Couch Heroes</span><br><span class="bank-slug">client_couch_heroes</span></td>
+            <td>139</td>
+            <td><div class="capacity-bar"><div class="capacity-fill" style="width:28%;background:var(--success)"></div></div><span style="font-size:12px;color:var(--text-muted)">28%</span></td>
+            <td>19</td>
+            <td>Today</td>
+            <td style="color:var(--text-muted)">&#8734;</td>
+            <td><span class="status-badge status-fresh">Fresh</span></td>
+          </tr>
+          <tr>
+            <td><span class="bank-name">Forecast Models</span><br><span class="bank-slug">forecast_models</span></td>
+            <td>136</td>
+            <td><div class="capacity-bar"><div class="capacity-fill" style="width:27%;background:var(--success)"></div></div><span style="font-size:12px;color:var(--text-muted)">27%</span></td>
+            <td>18</td>
+            <td>Today</td>
+            <td style="color:var(--text-muted)">30d</td>
+            <td><span class="status-badge status-fresh">Fresh</span></td>
+          </tr>
+          <tr>
+            <td><span class="bank-name">Personal Insights</span><br><span class="bank-slug">personal_insights</span></td>
+            <td>131</td>
+            <td><div class="capacity-bar"><div class="capacity-fill" style="width:26%;background:var(--success)"></div></div><span style="font-size:12px;color:var(--text-muted)">26%</span></td>
+            <td>20</td>
+            <td>Today</td>
+            <td style="color:var(--text-muted)">&#8734;</td>
+            <td><span class="status-badge status-fresh">Fresh</span></td>
+          </tr>
+          <tr>
+            <td><span class="bank-name">Client Patterns</span><br><span class="bank-slug">client_patterns</span></td>
+            <td>127</td>
+            <td><div class="capacity-bar"><div class="capacity-fill" style="width:25%;background:var(--success)"></div></div><span style="font-size:12px;color:var(--text-muted)">25%</span></td>
+            <td>17</td>
+            <td>Today</td>
+            <td style="color:var(--text-muted)">14d</td>
+            <td><span class="status-badge status-fresh">Fresh</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="bank-total">
+      <strong>1,097</strong> total lines across <strong>142</strong> source references &middot; All banks within 500-line limit
+    </div>
+  </div>
+
+  <!-- RESEARCH + PIPELINE + PENDING -->
+  <div class="intel-three-col">
+
+    <!-- Recent Research -->
+    <div class="panel">
+      <div class="panel-hdr">
+        <h2>Recent Research</h2>
+        <span class="panel-badge" style="background:var(--accent-dim);color:var(--accent);">17 findings today</span>
+      </div>
+      <div class="panel-body">
+        <div class="research-group">
+          <div class="research-date">
+            Today
+            <span class="research-domain">industry_current</span>
+            <span style="font-size:11px;color:var(--text-muted)">cycle 2</span>
+          </div>
+          <div class="finding">
+            <span class="finding-score score-high">9</span>
+            <span class="finding-text"><strong>Google/Epic settlement</strong> — Play Store commission drops to 20% by 30 June 2026</span>
+          </div>
+          <div class="finding">
+            <span class="finding-score score-high">9</span>
+            <span class="finding-text"><strong>Morgan Stanley AI gaming</strong> — AI could cut dev costs 44%, $275B market</span>
+          </div>
+          <div class="finding">
+            <span class="finding-score score-high">8</span>
+            <span class="finding-text"><strong>UK ASA loot box enforcement</strong> — active monitoring started 26 May</span>
+          </div>
+          <div class="finding">
+            <span class="finding-score score-mid">8</span>
+            <span class="finding-text"><strong>Grand Games $70M Series B</strong> — Istanbul hybridcasual, 6x valuation jump</span>
+          </div>
+          <div class="finding">
+            <span class="finding-score score-mid">7</span>
+            <span class="finding-text"><strong>Midsummer Studios closure</strong> — $6M VC, never shipped. Structural mismatch.</span>
+          </div>
+        </div>
+
+        <div class="research-group">
+          <div class="research-date">
+            Today
+            <span class="research-domain">games_pitch_decks</span>
+            <span style="font-size:11px;color:var(--text-muted)">week 1 mobile</span>
+          </div>
+          <div class="finding">
+            <span class="finding-score score-high">9</span>
+            <span class="finding-text"><strong>Homa Games $50M</strong> — 13-slide mobile platform deck. Process over product.</span>
+          </div>
+          <div class="finding">
+            <span class="finding-score score-high">8</span>
+            <span class="finding-text"><strong>The Games Fund template</strong> — publicly available VC pitch structure + P&L sheet</span>
+          </div>
+          <div class="finding">
+            <span class="finding-score score-mid">8</span>
+            <span class="finding-text"><strong>a16z Games Fund LP deck</strong> — $660M fund. Narrative architecture analysis.</span>
+          </div>
+          <div class="finding">
+            <span class="finding-score score-mid">8</span>
+            <span class="finding-text"><strong>Voodoo fundraising</strong> — $200M Goldman Sachs. D1>55%, CPI&lt;$0.25 thresholds.</span>
+          </div>
+        </div>
+
+        <div class="show-more">&#9662; Show 8 more findings from today...</div>
+      </div>
+    </div>
+
+    <!-- Pipeline Activity -->
+    <div class="panel">
+      <div class="panel-hdr">
+        <h2>Pipeline Activity</h2>
+      </div>
+      <div class="panel-body">
+        <h3>Sources</h3>
+        <ul class="source-list">
+          <li class="source-item">
+            <span class="source-name">Claude Sessions</span>
+            <span class="source-status"><span class="source-dot dot-green"></span>Today</span>
+          </li>
+          <li class="source-item">
+            <span class="source-name">ChatGPT Export</span>
+            <span class="source-status"><span class="source-dot dot-green"></span>Today</span>
+          </li>
+          <li class="source-item">
+            <span class="source-name">OneDrive</span>
+            <span class="source-status"><span class="source-dot dot-green"></span>Today</span>
+          </li>
+          <li class="source-item">
+            <span class="source-name">Downloads</span>
+            <span class="source-status"><span class="source-dot dot-green"></span>Today</span>
+          </li>
+          <li class="source-item">
+            <span class="source-name">Web Research</span>
+            <span class="source-status"><span class="source-dot dot-green"></span>Today</span>
+          </li>
+          <li class="source-item">
+            <span class="source-name">Granola</span>
+            <span class="source-status"><span class="source-dot dot-amber"></span>Pending</span>
+          </li>
+          <li class="source-item">
+            <span class="source-name">Gmail</span>
+            <span class="source-status"><span class="source-dot dot-amber"></span>Pending</span>
+          </li>
+          <li class="source-item">
+            <span class="source-name">Slack</span>
+            <span class="source-status"><span class="source-dot dot-amber"></span>Pending</span>
+          </li>
+        </ul>
+
+        <div class="next-runs">
+          <h3>Next Scheduled</h3>
+          <div class="next-run"><span class="time">20:03</span> — Granola ingestion</div>
+          <div class="next-run"><span class="time">20:07</span> — Gmail ingestion</div>
+          <div class="next-run"><span class="time">20:12</span> — Slack ingestion</div>
+          <div class="next-run"><span class="time">06:03</span> — Industry research</div>
+          <div class="next-run"><span class="time">06:57</span> — Morning brief</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pending Actions -->
+    <div class="panel">
+      <div class="panel-hdr">
+        <h2>Pending</h2>
+        <span class="panel-badge" style="background:var(--warning-dim);color:var(--warning);">4 items</span>
+      </div>
+      <div class="panel-body">
+        <h3>Bank Suggestions</h3>
+        <div class="pending-item">
+          <div class="pending-title">consulting_frameworks</div>
+          <div class="pending-desc">SoW structures, coaching, audit methodologies</div>
+          <div class="pending-actions">
+            <button class="btn btn-approve">Approve</button>
+            <button class="btn btn-dismiss">Dismiss</button>
+          </div>
+        </div>
+        <div class="pending-item">
+          <div class="pending-title">studio_staffing_models</div>
+          <div class="pending-desc">Headcount plans, org design patterns</div>
+          <div class="pending-actions">
+            <button class="btn btn-approve">Approve</button>
+            <button class="btn btn-dismiss">Dismiss</button>
+          </div>
+        </div>
+        <div class="pending-item">
+          <div class="pending-title">salary_benchmarks</div>
+          <div class="pending-desc">UK/Greece executive compensation data</div>
+          <div class="pending-actions">
+            <button class="btn btn-approve">Approve</button>
+            <button class="btn btn-dismiss">Dismiss</button>
+          </div>
+        </div>
+        <div class="pending-item">
+          <div class="pending-title">investor_database</div>
+          <div class="pending-desc">Named funds, check sizes, preferences</div>
+          <div class="pending-actions">
+            <button class="btn btn-approve">Approve</button>
+            <button class="btn btn-dismiss">Dismiss</button>
+          </div>
+        </div>
+
+        <div class="info-block">
+          <div class="info-block-title">Binary Files</div>
+          <div class="info-block-text">~50 files (.docx, .xlsx, .pptx) on OneDrive could not be read. Document conversion needed to unlock.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>
