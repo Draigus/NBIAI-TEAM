@@ -92,22 +92,24 @@ const TRUNCATE_TABLES = [
 ];
 
 async function truncate() {
-  const sql = `TRUNCATE ${TRUNCATE_TABLES.join(', ')} RESTART IDENTITY CASCADE`;
-  for (let attempt = 0; attempt < 3; attempt++) {
-    try {
-      await pool.query('SET lock_timeout = \'3s\'');
-      await pool.query(sql);
-      await pool.query('SET lock_timeout = 0');
-      return;
-    } catch (e) {
-      await pool.query('SET lock_timeout = 0').catch(() => {});
-      if (attempt < 2) {
-        await new Promise(r => setTimeout(r, 300 * (attempt + 1)));
-      } else {
-        console.error('[truncate] failed after 3 attempts:', e.message);
-        throw e;
-      }
-    }
+  // Filter to tables that actually exist — if a migration didn't run (e.g.
+  // baseline is stale), truncating a missing table would crash every test.
+  if (!truncate._resolved) {
+    const { rows } = await pool.query(
+      "SELECT tablename FROM pg_tables WHERE schemaname = 'public'"
+    );
+    const existing = new Set(rows.map(r => r.tablename));
+    truncate._tables = TRUNCATE_TABLES.filter(t => existing.has(t));
+    truncate._resolved = true;
+  }
+  if (truncate._tables.length === 0) return;
+  const sql = `TRUNCATE ${truncate._tables.join(', ')} RESTART IDENTITY CASCADE`;
+  try {
+    await pool.query(sql);
+  } catch (e) {
+    // Retry once — fire-and-forget ops from a prior test may hold locks.
+    await new Promise(r => setTimeout(r, 200));
+    await pool.query(sql);
   }
 }
 
