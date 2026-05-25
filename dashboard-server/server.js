@@ -61,7 +61,7 @@ const {
   buildPatchQuery,
   POSITION_TABLES, shiftForInsert, reorderInGroup,
   isValidUuid, UUID_RE, validateLength, MAX_LENGTHS,
-  hashToken, escHtml,
+  hashToken, escHtml, validatePassword,
 } = require('./lib/helpers');
 
 // Log deferred optional-deps warning now that logger is available
@@ -151,6 +151,15 @@ process.on('unhandledRejection', (reason, promise) => {
 
 // Security: disable X-Powered-By header (reveals server technology)
 app.disable('x-powered-by');
+
+// Request correlation ID — enables tracing a request through logs.
+// Placed before security headers so every response carries the ID.
+app.use((req, res, next) => {
+  const id = req.headers['x-request-id'] || crypto.randomUUID();
+  req.requestId = id;
+  res.setHeader('X-Request-Id', id);
+  next();
+});
 
 // Security headers
 app.use((req, res, next) => {
@@ -271,7 +280,7 @@ app.get('/nbi_project_dashboard.html', (req, res) => {
 });
 
 // ==================== AUTH (modular) ====================
-app.use(require('./routes/auth')({ pool, log, hashToken, escHtml, cacheToken, invalidateToken, clearTokenCache, SESSION_COOKIE_NAME, SESSION_EXPIRY_DAYS, getSessionCookieOpts, getCookieToken, FAILED_LOGIN_THRESHOLD, FAILED_LOGIN_LOCKOUT, LOCKOUT_DURATION, getFailedLogins, recordFailedLogin, clearFailedLogins, sendEmailAsync, EMAIL_FROM, APP_URL, _msalClient, authFailures, requireAdmin, requireAuth }));
+app.use(require('./routes/auth')({ pool, log, hashToken, escHtml, cacheToken, invalidateToken, clearTokenCache, SESSION_COOKIE_NAME, SESSION_EXPIRY_DAYS, getSessionCookieOpts, getCookieToken, FAILED_LOGIN_THRESHOLD, FAILED_LOGIN_LOCKOUT, LOCKOUT_DURATION, getFailedLogins, recordFailedLogin, clearFailedLogins, sendEmailAsync, EMAIL_FROM, APP_URL, _msalClient, authFailures, requireAdmin, requireAuth, validatePassword }));
 
 // Internal endpoint for services (e.g. nbi-news) to create admin notifications.
 // Authenticated via x-nbi-internal-token matching DASHBOARD_NOTIFICATION_TOKEN
@@ -359,7 +368,7 @@ const { auditLog, computeNextRepeatDate } = require('./lib/audit')(pool);
 const { createNotification } = require('./lib/notifications')(pool);
 
 // ==================== MODULAR ROUTES ====================
-app.use(require('./routes/users')({ pool, log, requireAdmin, requireNBI, requireClientAdmin, isValidUuid, auditLog, invalidateUserTokens, getClientScope, sendEmailAsync, EMAIL_FROM, APP_URL, _msalClient, cacheToken, validateLength, buildPatchQuery }));
+app.use(require('./routes/users')({ pool, log, requireAdmin, requireNBI, requireClientAdmin, isValidUuid, auditLog, invalidateUserTokens, getClientScope, sendEmailAsync, EMAIL_FROM, APP_URL, _msalClient, cacheToken, validateLength, buildPatchQuery, validatePassword }));
 app.use(require('./routes/settings')({ pool, requireAdmin }));
 app.use(require('./routes/finance')({ pool, requireNBI, requireAdmin, auditLog, syncConflicts, log }));
 app.use(require('./routes/time-entries')({ pool, isValidUuid, requireTaskAccess }));
@@ -369,6 +378,7 @@ app.use(require('./routes/contacts')({ pool, requireAuth, requireAdmin, isValidU
 app.use(require('./routes/client-notes')({ pool, requireAdmin, getClientScopes, buildPatchQuery }));
 app.use(require('./routes/notifications')({ pool, requireAdmin, requireNBI, createNotification, log }));
 app.use(require('./routes/templates')({ pool, requireAdmin, isValidUuid, log }));
+app.use(require('./routes/activity')({ pool, requireAuth, requireNBI }));
 app.use(require('./routes/slack')({ pool, log, verifySlackSignature, handleAppMention }));
 
 const { detectImportFormat, mapRowsToTasks } = require('./lib/import-parser');
@@ -426,6 +436,9 @@ app.use(require('./routes/dashboard')({ pool, log, getClientScopes }));
 
 // ==================== COMMAND CENTRE ====================
 app.use(require('./routes/command-centre')({ pool, log, requireNBI, _msalClient }));
+
+// ==================== INTELLIGENCE PIPELINE ====================
+app.use(require('./routes/intelligence')({ requireNBI }));
 
 
 // ==================== LEADS TRACKER ====================
