@@ -1,7 +1,7 @@
-# Industry Current — Knowledge Bank
+# Industry Current -- Knowledge Bank
 
 **Last compiled:** 2026-05-25
-**Sources:** 7 (5 web research, 2 ChatGPT extracts)
+**Sources:** 11 extracts (5 web research, 2 ChatGPT, 4 OneDrive)
 **Shelf life:** Primary entries 7 days; archive after 30 days
 **Role associations:** gaming_practice_lead, cmo, general_counsel, producer
 
@@ -9,7 +9,7 @@
 
 ## Executive Summary
 
-The gaming industry is generating record revenue ($195.6B in 2025, projected $205B in 2026) while simultaneously shedding tens of thousands of jobs, a structural paradox now in its fourth consecutive year [source: web_2026-05-25_gaming-layoffs-q2-paradox]. Capital is flowing overwhelmingly to AI-native gaming companies rather than traditional studios, with Astrocade's $56M raise from Sequoia/NVIDIA/Google signalling institutional conviction in AI game creation as a category [source: web_2026-05-25_astrocade-56m-series-b]. Regulatory pressure on monetisation is converging globally: the FTC's $20M Genshin Impact loot box settlement establishes a US baseline while Brazil, Germany, and the EU layer additional requirements effective in 2026 [source: web_2026-05-25_ftc-genshin-lootbox-settlement]. Platform policy is catching up too, with Steam's two-tier AI disclosure system resolving years of developer confusion and signalling mainstream acceptance of AI tools in production [source: web_2026-05-25_steam-ai-disclosure-policy]. Consolidation continues at the mid-tier, exemplified by Supercell's full acquisition of Metacore with a 57% workforce cut [source: web_2026-05-25_supercell-metacore-acquisition].
+The gaming industry is generating record revenue ($195.6B in 2025, projected $205B in 2026) while simultaneously shedding tens of thousands of jobs, a structural paradox now in its fourth consecutive year [source: web_2026-05-25_gaming-layoffs-q2-paradox]. Capital flows overwhelmingly to AI-native gaming companies rather than traditional studios, with Astrocade's $56M raise from Sequoia/NVIDIA/Google signalling institutional conviction in AI game creation [source: web_2026-05-25_astrocade-56m-series-b]. Regulatory pressure on monetisation is converging globally: the FTC's $20M Genshin Impact settlement establishes a US baseline while Brazil, Germany, and the EU layer additional requirements [source: web_2026-05-25_ftc-genshin-lootbox-settlement]. Platform policy is catching up, with Steam's two-tier AI disclosure system resolving developer confusion [source: web_2026-05-25_steam-ai-disclosure-policy]. Real-world F2P beta data from the Goals engagement provides concrete benchmarks: 36% D1 retention for a F2P football game is strong (industry average ~25-30%), and anti-P2W sentiment is the hardest community red line across 509 respondents [source: goals_town_hall_beta_metrics_2026-03-26, goals_beta_community_sentiment].
 
 ---
 
@@ -17,17 +17,15 @@ The gaming industry is generating record revenue ($195.6B in 2025, projected $20
 
 ### Supercell / Metacore Full Acquisition (May 2026)
 
-Supercell completed full acquisition of Metacore (Helsinki, Merge Mansion) on 5 May 2026. Supercell was already the largest shareholder after investing EUR 180M across multiple rounds since 2018 ($5.9M initial). Deal terms undisclosed. Metacore simultaneously initiated change negotiations that could cut up to 160 of its 280+ roles (57% of workforce), with operations in Germany and Sweden also under review. [source: web_2026-05-25_supercell-metacore-acquisition]
+Supercell completed full acquisition of Metacore (Helsinki, Merge Mansion) on 5 May 2026. Supercell was already largest shareholder after investing EUR 180M across multiple rounds since 2018. Metacore simultaneously initiated change negotiations cutting up to 160 of 280+ roles (57%). [source: web_2026-05-25_supercell-metacore-acquisition]
 
-**What it signals:** Single-hit mobile studios face existential risk when growth plateaus and second titles fail. Supercell's playbook is clear: invest early, acquire fully when the studio stumbles, fold the IP into live ops alongside titles like Hay Day. As Tencent's subsidiary, this extends Tencent's casual gaming footprint further. The EUR 180M total invested before full acquisition illustrates the cost of ownership for a single mobile IP.
+**What it signals:** Single-hit mobile studios face existential risk when growth plateaus and second titles fail. Supercell's playbook: invest early, acquire fully when the studio stumbles. As Tencent's subsidiary, this extends Tencent's casual gaming footprint.
 
 ### Astrocade $56M Series A + B (May 2026)
 
-Los Altos-based Astrocade raised $56M in combined Series A (led by Sea) and Series B (led by Sequoia Capital) on 5 May 2026. Additional investors: Google's AI Futures Fund, NVIDIA, LG Technology Ventures, Dentsu Ventures, Conviction Embed, Chaac Ventures, Rogue VC. [source: web_2026-05-25_astrocade-56m-series-b]
+Los Altos-based Astrocade raised $56M (Series A led by Sea, Series B led by Sequoia). Additional investors: Google AI Futures Fund, NVIDIA, LG Technology Ventures, Dentsu Ventures. Platform enables game creation via natural language prompts. Traction in eight months: 20M+ engaged users, ~5M MAU, ~140M monthly game plays, 75,000+ games built by creators from 80 countries. $10M creator fund announced. [source: web_2026-05-25_astrocade-56m-series-b]
 
-The platform enables game creation via natural language prompts with no coding. Traction in eight months since launch: 20M+ engaged users, ~5M MAU, ~140M monthly game plays, 75,000+ games built by creators from 80 countries. Leadership includes Fei-Fei Li (Stanford, CSO). Funds earmarked for engineering/product growth, AI model improvements, and a $10M creator fund.
-
-**What it signals:** $1.8B has been invested in AI x Gaming over the past five years, with in-game content generation comprising 65% of deal value. Gaming startup funding hit a decade low in 2025 even as the broader industry boomed. The money that does flow goes overwhelmingly to AI-native companies; traditional studios are largely shut out of VC unless they have an AI angle.
+**What it signals:** $1.8B invested in AI x Gaming over five years, 65% in content generation. Gaming startup funding hit decade low in 2025; capital flows almost exclusively to AI-native companies.
 
 ### Funding Landscape Summary
 
@@ -42,20 +40,15 @@ The platform enables game creation via natural language prompts with no coding. 
 
 ### Steam AI Disclosure Policy Rewrite (January 2026)
 
-Valve rewrote its AI disclosure policy on 17 January 2026, replacing the previous binary checkbox with a two-tier classification system: [source: web_2026-05-25_steam-ai-disclosure-policy]
+Two-tier classification replacing previous binary checkbox: [source: web_2026-05-25_steam-ai-disclosure-policy]
 
-**Tier 1 -- Development tools (no disclosure needed):** AI tools used during development (code completion, asset generation in production, testing) are explicitly exempted. Valve stated: "Efficiency gains through the use of AI powered tools is not the focus."
+**Tier 1 -- Development tools (no disclosure):** AI tools used during development (code completion, asset generation in production, testing) explicitly exempted.
 
-**Tier 2 -- Player-facing AI content (disclosure required):** Games shipping AI-generated art, sound, or story, or using live AI generation at runtime, must disclose. A new player reporting system via Steam Overlay lets users flag illegal AI content.
+**Tier 2 -- Player-facing AI content (disclosure required):** Games shipping AI-generated art, sound, or story, or using live AI generation at runtime, must disclose. New player reporting system via Steam Overlay.
 
-**Enforcement:** Games failing to disclose accurately or lacking safeguards for live-generation tools risk removal from Steam.
+**Enforcement:** Games failing to disclose or lacking safeguards risk removal. As of March 2026, 7,300+ games disclose AI content -- mainstream adoption.
 
-**Adoption scale:** As of March 2026, over 7,300 games on Steam have disclosed AI content -- signalling mainstream adoption, not niche experimentation.
-
-**Practical impact for NBI clients:**
-- Studios using AI development tools (Copilot, Midjourney for concepting, AI testing) can do so without Steam disclosure friction
-- Studios building AI-native features (procedural narrative, AI NPCs, runtime generation) face the strictest requirements including content safeguards
-- The player reporting mechanism creates community enforcement and reputational risk for studios that hide AI use
+**Impact for NBI clients:** Studios using AI dev tools face no friction. Studios building AI-native features face strictest requirements. Player reporting creates community enforcement and reputational risk.
 
 ---
 
@@ -63,44 +56,60 @@ Valve rewrote its AI disclosure policy on 17 January 2026, replacing the previou
 
 ### Global Industry Revenue
 
-- 2025 global content revenue: **$195.6B** (highest annual total on record) [source: web_2026-05-25_gaming-layoffs-q2-paradox]
-- 2026 projected: **$205B** (up 4.6%) [source: web_2026-05-25_gaming-layoffs-q2-paradox]
-- Mobile: ~$107B (52% share) [source: web_2026-05-25_gaming-layoffs-q2-paradox]
-- Asia-Pacific leads regionally: $87.6B (46% share) [source: web_2026-05-25_gaming-layoffs-q2-paradox]
-- Global player base: **3.6 billion** [source: web_2026-05-25_gaming-layoffs-q2-paradox]
+- 2025 global content revenue: **$195.6B** (highest on record) [source: web_2026-05-25_gaming-layoffs-q2-paradox]
+- 2026 projected: **$205B** (up 4.6%)
+- Mobile: ~$107B (52% share)
+- Asia-Pacific: $87.6B (46% share)
+- Global player base: **3.6 billion**
+
+### F2P Beta Performance Benchmarks (Goals, March 2026)
+
+Real beta data from a F2P competitive football game provides actionable benchmarks: [source: goals_town_hall_beta_metrics_2026-03-26, goals_client_brain_2026-05-12]
+
+| Metric | Value | Context |
+|---|---|---|
+| Total installs | 220K | Multi-platform (Steam, Epic, PlayStation) |
+| D1 retention (overall) | 36% | Strong vs industry ~25-30% for F2P sports |
+| D1 retention (PS5) | 34% | Below Steam's 37% |
+| D1 retention (Steam) | 37% | Highest platform |
+| Avg daily playtime | 57 min | Peak ~66 min weekends |
+| Matches/day | 4.6 | Healthy session frequency |
+| CPI reduction | $3.61 to $0.43 | 88% reduction during beta |
+| Discord growth | 77.4% | 15,044 to 26,688 |
+| NPS | +24.6 | 40% promoters, 15.5% detractors |
+| Top 3 packs revenue share | 66.7% | Despite 14.2% of volume -- heavy concentration |
+
+### F2P Hard Currency Pricing Benchmarks (2026)
+
+315 normalised price points across 12 competitors. Entry-level standard: $0.99/100 HC. Volume discount curves cluster at 15-23% industry-wide. EA has never raised USD prices on existing tiers across 8 years. UFL mirrors EA FC on first 3 tiers but caps lower ($79.99 vs $149.99). [source: goals_competitive_mtx_findings_2026-04-21]
 
 ### Mobile ARPU Benchmarks (2024 data)
 
-| Title | Annual Revenue | MAU | Annual ARPU | Monthly ARPU | Monetisation Style |
-|---|---|---|---|---|---|
-| Clash of Clans | $359.9M | ~97-98M | ~$3.70 | ~$0.31 | Battle-pass, massive casual base |
-| Boom Beach | $16.2M | ~12M | ~$1.35 | ~$0.11 | Light spend, older title |
-| Last War: Survival | $1.15B | 12-15M | $77-96 | $6.40-8.00 | Aggressive time-limited packs, whale-focused |
+| Title | Annual Revenue | MAU | Annual ARPU | Monetisation Style |
+|---|---|---|---|---|
+| Clash of Clans | $359.9M | ~97-98M | ~$3.70 | Battle-pass, massive casual base |
+| Boom Beach | $16.2M | ~12M | ~$1.35 | Light spend, older title |
+| Last War: Survival | $1.15B | 12-15M | $77-96 | Aggressive time-limited packs |
 
-[source: chatgpt_6894b46a-d684-832f-a0ea-5a83de57d310]
-
-The 25x ARPU spread between Clash of Clans and Last War is explained by fundamentally different monetisation strategies: Clash's massive casual base drags the average down, while Last War uses aggressive pack monetisation targeting fewer but heavier-spending users. All figures exclude ad revenue, web-shop spend, and third-party Android stores. Sensor Tower data shows Last War iOS US ARPDAU of $2.47. Last War MAU is the least certain data point in this set.
+The 25x ARPU spread is explained by fundamentally different monetisation strategies. All figures exclude ad revenue, web-shop, third-party stores. [source: chatgpt_6894b46a]
 
 ### AI Gaming Investment
 
-- $1.8B invested in AI x Gaming over the past five years [source: web_2026-05-25_astrocade-56m-series-b]
-- In-game content generation comprises 65% of deal value [source: web_2026-05-25_astrocade-56m-series-b]
-- Gaming startup funding hit a decade low in 2025; capital now flows almost exclusively to AI-native companies [source: web_2026-05-25_astrocade-56m-series-b]
-- Astrocade traction: 5M MAU, 140M monthly plays, 75K+ games created in 8 months [source: web_2026-05-25_astrocade-56m-series-b]
+- $1.8B in AI x Gaming over five years; 65% in content generation [source: web_2026-05-25_astrocade-56m-series-b]
+- Gaming startup funding at decade low in 2025; capital flows to AI-native only
+- Astrocade: 5M MAU, 140M monthly plays, 75K+ games in 8 months
 
 ### Game Analytics Competitive Data
 
-Five main competitors in the game analytics/intelligence space as of mid-2025: [source: chatgpt_685b1bcc-2538-800b-803a-9023a0101e71]
-
 | Tool | Coverage | Refresh Rate | Revenue Data | Key Limitation |
 |---|---|---|---|---|
-| Steam Spy | Steam only | 24h | Owners only, no revenue | Free but narrow |
+| Steam Spy | Steam only | 24h | Owners only | Free but narrow |
 | Newzoo GPM | 4 platforms | Daily-monthly | Full revenue + retention | Enterprise pricing |
-| Sensor Tower VGI | 3 platforms | 12h | UA linkage | No console coverage |
-| VG Insights | Steam only | Daily | +/-15% accuracy for 84% of games | Steam-only |
+| Sensor Tower VGI | 3 platforms | 12h | UA linkage | No console |
+| VG Insights | Steam only | Daily | +/-15% for 84% | Steam-only |
 | GameAnalytics | SDK-based | Real-time | Opt-in only | Selection bias |
 
-**Key market gap:** No tool unifies Steam + Epic + Switch + PlayStation + Xbox. Sub-hour refresh is absent from all competitors. Behavioural/psychographic segmentation is surface-level across the board. Scenario modelling remains manual everywhere.
+**Key gap:** No tool unifies Steam + Epic + Switch + PlayStation + Xbox. Sub-hour refresh absent. Behavioural segmentation surface-level. Scenario modelling manual. [source: chatgpt_685b1bcc]
 
 ---
 
@@ -108,19 +117,19 @@ Five main competitors in the game analytics/intelligence space as of mid-2025: [
 
 ### AI in Game Development: From Experimental to Institutional
 
-The combination of Astrocade's $56M raise and Steam's AI disclosure policy tells a coherent story: AI in game development has crossed from experimental to institutional in early 2026. [source: web_2026-05-25_astrocade-56m-series-b] [source: web_2026-05-25_steam-ai-disclosure-policy]
+AI in game development crossed from experimental to institutional in early 2026. [source: web_2026-05-25_astrocade-56m-series-b, web_2026-05-25_steam-ai-disclosure-policy]
 
 Key markers:
-- **Funding:** Sequoia, NVIDIA, and Google's AI Futures Fund are backing AI-native game creation platforms, not dabbling -- making category-level bets
-- **Platform policy:** Steam explicitly exempts AI development tools from disclosure, removing regulatory friction for studios adopting AI workflows
-- **Scale:** 7,300+ games on Steam disclose AI content; 75,000+ games created on Astrocade's AI platform in 8 months
-- **Creator economy overlap:** Astrocade's $10M creator fund mirrors the Roblox/Epic playbook for bootstrapping a creator ecosystem, but with AI-native creation tools
+- **Funding:** Sequoia, NVIDIA, Google backing AI-native game creation -- category-level bets
+- **Platform policy:** Steam exempts AI dev tools from disclosure, removing friction
+- **Scale:** 7,300+ games disclose AI content; 75,000+ games on Astrocade in 8 months
+- **Creator economy:** Astrocade's $10M creator fund mirrors Roblox/Epic playbook
 
-**Implication for mid-tier studios (NBI's client base):** AI tools for development (code, art, testing) are now table stakes. The competitive question has shifted from "should we use AI?" to "are we using it effectively enough?" Studios seeking funding need an AI narrative in their pitch.
+**Implication for mid-tier studios:** AI tools for development are now table stakes. The question is "are we using it effectively enough?" Studios seeking funding need an AI narrative.
 
 ### AI-Native Game Creation Platforms
 
-Astrocade represents a potential disruption model: natural language game creation + UGC + creator economy. If this model scales, it compresses the advantage of traditional development expertise. For NBI's advisory work, this creates a dual message: help traditional studios adopt AI tools *and* help them understand the platforms that could disintermediate them. [source: web_2026-05-25_astrocade-56m-series-b]
+Astrocade's natural language game creation + UGC + creator economy is a potential disruption model. For NBI's advisory: help traditional studios adopt AI tools AND help them understand platforms that could disintermediate them. [source: web_2026-05-25_astrocade-56m-series-b]
 
 ---
 
@@ -128,34 +137,28 @@ Astrocade represents a potential disruption model: natural language game creatio
 
 ### FTC Genshin Impact Loot Box Settlement ($20M, 2026)
 
-The FTC secured a $20M settlement with Cognosphere/Hoyoverse (Genshin Impact) over deceptive gacha loot box practices. [source: web_2026-05-25_ftc-genshin-lootbox-settlement]
+$20M settlement with Cognosphere/Hoyoverse over deceptive gacha practices. Requirements: ban on under-16 loot box sales without parental consent, mandatory odds disclosure, age verification. FTC referred to DOJ, signalling escalation. [source: web_2026-05-25_ftc-genshin-lootbox-settlement]
 
-Settlement requirements:
-- **Ban** on selling loot boxes to under-16s without parental consent
-- **Mandatory odds disclosure** for all randomised purchases
-- **Age verification** requirements
-- FTC referred the complaint to the **DOJ**, signalling escalation beyond administrative action
-
-This sets a US baseline: odds disclosure, age gating, and parental consent are now the minimum standard.
-
-### Global Regulatory Convergence (Active as of May 2026)
+### Global Regulatory Convergence (Active May 2026)
 
 | Jurisdiction | Measure | Effective | Impact |
 |---|---|---|---|
-| US (FTC) | $20M settlement; odds disclosure, age gating, parental consent | 2026 | Baseline for US market |
-| Brazil | Loot box sales banned for under-18s | March 2026 | Affects LATAM launches |
-| EU | Visible cancellation button for distance contracts (incl. apps/games) | 19 June 2026 | Every game with subscriptions |
-| Germany (Bundesrat) | Pushing gambling classification for loot boxes (potential 18+ rating) | Pending | Could restrict distribution |
-| Australia | Chance-based purchases rated minimum 15+ | Active | Age rating impact |
-| Belgium/Netherlands | Paid loot boxes classified as gambling, effectively banned | Active (since 2018-19) | Full ban in these markets |
+| US (FTC) | $20M settlement; odds disclosure, age gating | 2026 | US baseline |
+| Brazil | Under-18 loot box ban | March 2026 | LATAM launches |
+| EU | Visible cancellation button (distance contracts) | 19 June 2026 | All subscription games |
+| Germany | Gambling classification push for loot boxes | Pending | Potential 18+ rating |
+| Australia | Chance-based purchases minimum 15+ | Active | Age rating impact |
+| Belgium/Netherlands | Paid loot boxes classified as gambling | Active (2018-19) | Full ban |
 
-[source: web_2026-05-25_ftc-genshin-lootbox-settlement]
+**Assessment:** Regulatory direction is one-way: tighter. Design monetisation for the strictest jurisdiction shipped to. 2026 is the year governments treat in-game currency as real money.
 
-**Assessment:** Regulatory direction is one-way: tighter, not looser. Studios should design monetisation for the strictest jurisdiction they ship to. 2026 is the year governments, courts, and market forces are converging to treat in-game currency as real money with real consequences. This is no longer a "maybe someday" regulatory risk -- it is active enforcement across multiple jurisdictions.
+### Community Monetisation Red Lines
 
-**Immediate action items for NBI clients:**
-1. Any client with loot box, gacha, or randomised purchase mechanics needs a compliance audit now
-2. The EU June 2026 cancellation button requirement affects every game with in-app subscriptions or recurring purchases
+509 beta respondents confirmed anti-P2W as the hardest community red line: any move toward paid competitive advantage triggers immediate churn. This aligns with the regulatory direction and should be treated as a binding constraint, not a preference. [source: goals_beta_community_sentiment]
+
+**Immediate actions for NBI clients:**
+1. Any client with loot box/gacha/randomised mechanics needs compliance audit now
+2. EU June 2026 cancellation button affects every game with subscriptions
 3. Studios should audit monetisation UX against dark-pattern risks proactively
 
 ---
@@ -164,51 +167,46 @@ This sets a US baseline: odds disclosure, age gating, and parental consent are n
 
 ### Workforce Restructuring: The Profit-Layoff Paradox
 
-The gaming industry is in its fourth consecutive year of mass layoffs despite record revenue. Over 44,000 video game development jobs have been cut globally since 2022. 28% of developers worldwide lost their jobs over the past two years; 33% in the US specifically. [source: web_2026-05-25_gaming-layoffs-q2-paradox]
+Fourth consecutive year of mass layoffs despite record revenue. 44,000+ jobs cut globally since 2022. 28% of developers worldwide lost jobs in two years; 33% in the US. [source: web_2026-05-25_gaming-layoffs-q2-paradox]
 
 **May 2026 layoffs:**
 
 | Studio | Cuts | Date | Context |
 |---|---|---|---|
-| Metacore | Up to 160 roles (57% of 280+) | 5 May | Supercell acquisition restructuring |
-| MercurySteam | Undisclosed | 12 May | Post-Blades of Fire underperformance |
+| Metacore | Up to 160 (57%) | 5 May | Supercell acquisition |
+| MercurySteam | Undisclosed | 12 May | Post-Blades of Fire |
 | 31st Union / 2K | Undisclosed | 8 May | -- |
 | Iron Galaxy Studios | Undisclosed | 1 May | -- |
 | Night Street Games | Undisclosed | 13 May | -- |
 
-**The paradox explained:** EA cut staff at all four Battlefield studios in March 2026, less than five months after Battlefield 6 sold seven million copies in three days. Studios are optimising for profit margin, not headcount -- fewer people, same or higher revenue.
+**The paradox:** EA cut staff at all Battlefield studios in March 2026, five months after Battlefield 6 sold 7M copies in three days. Studios optimise for margin, not headcount.
 
-**Structural pattern:** Studios hire for production peaks, shed after launch, and increasingly use AI/outsourcing to avoid rehiring. This creates a permanent reduction in full-time roles industry-wide. Mid-tier studios (100-300 people) face the highest restructuring risk. The "post-project layoff" remains the dominant trigger.
+**Structural pattern:** Hire for production peaks, shed after launch, use AI/outsourcing to avoid rehiring. Permanent reduction in full-time roles. Mid-tier studios (100-300) face highest restructuring risk.
 
 ### Mobile Studio Consolidation Pattern
 
-Single-hit mobile studios face existential risk when their flagship title plateaus and follow-up games fail to launch successfully. Metacore is the latest example: despite EUR 180M in investment from Supercell, Merge Mansion's growth plateau and failed follow-up titles led to full acquisition with a 57% workforce cut. This pattern (single-hit studios plateauing then being acquired or shut) has repeated across mobile gaming since 2023. [source: web_2026-05-25_supercell-metacore-acquisition]
-
-### Game Analytics Market Structure
-
-The game analytics market has five established players but significant gaps in coverage. No existing tool provides unified cross-platform data (Steam + Epic + Switch + PlayStation + Xbox), sub-hour refresh rates, meaningful behavioural segmentation, or automated scenario modelling. This creates a clear competitive opening for Playsage. [source: chatgpt_685b1bcc-2538-800b-803a-9023a0101e71]
-
-VG Insights' accuracy benchmark (+/-15% for 84% of Steam games) sets the bar Playsage must beat to be credible. Sensor Tower and Newzoo serve enterprise clients; the indie/mid-tier segment is underserved on analytics depth.
+Single-hit studios face existential risk when flagship plateaus and follow-ups fail. Metacore: EUR 180M invested, Merge Mansion plateaued, follow-ups failed, full acquisition with 57% cuts. Pattern has repeated across mobile gaming since 2023. [source: web_2026-05-25_supercell-metacore-acquisition]
 
 ### Monetisation Strategy Divergence
 
-The 25x ARPU gap between Clash of Clans ($3.70/year) and Last War: Survival ($77-96/year) illustrates a fundamental strategic divergence in mobile gaming: mass-market accessibility vs. whale-focused aggressive monetisation. Both models generate billion-dollar revenue, but with radically different user bases and regulatory risk profiles. Last War's aggressive pack monetisation is exactly the type of mechanic attracting regulatory scrutiny. [source: chatgpt_6894b46a-d684-832f-a0ea-5a83de57d310]
+The 25x ARPU gap (Clash $3.70/yr vs Last War $77-96/yr) illustrates a strategic fork: mass-market accessibility vs whale-focused aggressive monetisation. Both generate billion-dollar revenue with radically different user bases and regulatory risk profiles. Last War's approach is exactly what attracts regulatory scrutiny. [source: chatgpt_6894b46a]
+
+### F2P Pricing Structure Stability
+
+USD prices on F2P currency packs are functionally permanent across all competitors studied. EA's 8-year price stability suggests the industry treats entry-level pricing ($0.99/100 HC) as infrastructure, not strategy. Competition happens through volume discount curves and SKU ceiling heights, not base prices. [source: goals_competitive_mtx_findings_2026-04-21]
 
 ---
 
 ## Open Questions
 
-1. **Tencent's consolidation roadmap:** With Metacore absorbed, which other Supercell investments are next for full acquisition? What does this mean for Tencent's overall Western portfolio strategy?
-
-2. **AI displacement timeline:** If platforms like Astrocade scale to 50M+ MAU, at what point does AI-native game creation meaningfully reduce demand for traditional development services? What is the impact horizon for NBI's consulting clients?
-
-3. **EU cancellation button implementation:** The 19 June 2026 deadline for visible cancellation buttons is imminent. How many studios have compliant implementations? Is there an enforcement grace period?
-
-4. **Last War sustainability:** Is Last War's aggressive monetisation sustainable long-term, or will regulatory pressure (particularly FTC and EU) force a shift? What happens to studios that have built around whale-focused ARPU when regulations tighten?
-
-5. **Post-layoff talent market:** With 44,000+ jobs cut since 2022, where is the talent going? Is there a measurable shift to indie/contractor/AI-augmented solo development?
-
-6. **Console market data gap:** Current intelligence is weighted toward mobile and PC/Steam. Console-specific market data (PlayStation, Xbox, Switch successor) is thin. Need targeted research on console market dynamics.
+1. **Tencent consolidation roadmap:** Beyond Metacore, which Supercell investments are next? What does this mean for Tencent's Western portfolio?
+2. **AI displacement timeline:** At what point does AI-native game creation reduce demand for traditional development services?
+3. **EU cancellation button compliance:** 19 June 2026 deadline imminent. Enforcement grace period unknown.
+4. **Last War sustainability:** Will regulatory pressure force a shift from whale-focused ARPU?
+5. **Post-layoff talent market:** Where are 44,000+ cut developers going? Measurable shift to indie/contractor/AI-augmented?
+6. **Console market data gap:** Current intelligence weighted toward mobile and PC/Steam.
+7. **Goals post-launch performance:** Game launched 14 May 2026. Actual data would validate or challenge beta benchmarks.
+8. **Regional pricing impact:** Goals' purchasing-power-adjusted pricing matrix covers 40+ countries. Post-launch conversion data would validate the approach.
 
 ---
 
@@ -216,10 +214,14 @@ The 25x ARPU gap between Clash of Clans ($3.70/year) and Last War: Survival ($77
 
 | ID | Type | Title | Date | Relevance |
 |---|---|---|---|---|
-| web_2026-05-25_supercell-metacore-acquisition | Web Research | Supercell Fully Acquires Metacore Amid 160-Job Restructuring | 2026-05-25 | 8/10 |
-| web_2026-05-25_astrocade-56m-series-b | Web Research | Astrocade Raises $56M for AI-Powered Game Creation Platform | 2026-05-25 | 8/10 |
-| web_2026-05-25_ftc-genshin-lootbox-settlement | Web Research | FTC Secures $20M Genshin Impact Loot Box Settlement | 2026-05-25 | 8/10 |
-| web_2026-05-25_steam-ai-disclosure-policy | Web Research | Steam AI Disclosure Policy Rewrite: Two-Tier System | 2026-05-25 | 7/10 |
-| web_2026-05-25_gaming-layoffs-q2-paradox | Web Research | Gaming Industry Layoffs Continue: Profit-Layoff Paradox | 2026-05-25 | 7/10 |
-| chatgpt_685b1bcc-2538-800b-803a-9023a0101e71 | ChatGPT | Playsage Competitive Analysis: Feature Benchmark Matrix | 2025-06-24 | 9/10 |
-| chatgpt_6894b46a-d684-832f-a0ea-5a83de57d310 | ChatGPT | ARPU Benchmarks for Mobile RTS Games (2024) | 2025-08-07 | 8/10 |
+| web_2026-05-25_supercell-metacore-acquisition | Web | Supercell Fully Acquires Metacore | 2026-05-25 | 8/10 |
+| web_2026-05-25_astrocade-56m-series-b | Web | Astrocade $56M AI Gaming Raise | 2026-05-25 | 8/10 |
+| web_2026-05-25_ftc-genshin-lootbox-settlement | Web | FTC $20M Genshin Settlement | 2026-05-25 | 8/10 |
+| web_2026-05-25_steam-ai-disclosure-policy | Web | Steam AI Two-Tier Disclosure | 2026-05-25 | 7/10 |
+| web_2026-05-25_gaming-layoffs-q2-paradox | Web | Gaming Layoffs Profit-Layoff Paradox | 2026-05-25 | 7/10 |
+| chatgpt_685b1bcc | ChatGPT | Playsage Competitive Analysis | 2025-06-24 | 9/10 |
+| chatgpt_6894b46a | ChatGPT | ARPU Benchmarks Mobile RTS | 2025-08-07 | 8/10 |
+| goals_town_hall_beta_metrics_2026-03-26 | OneDrive | Goals Beta Metrics (220K installs) | 2026-03-26 | 9/10 |
+| goals_client_brain_2026-05-12 | OneDrive | Goals Client Brain (economy, personas) | 2026-05-12 | 9/10 |
+| goals_competitive_mtx_findings_2026-04-21 | OneDrive | F2P Pricing Benchmarks (315 data points) | 2026-04-21 | 9/10 |
+| goals_beta_community_sentiment | OneDrive | Community Sentiment (509 respondents) | 2026-03-26 | 8/10 |

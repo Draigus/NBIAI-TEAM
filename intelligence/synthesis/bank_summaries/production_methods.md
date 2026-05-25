@@ -1,38 +1,44 @@
 # Production Methods -- Summary
 
-**Last compiled:** 2026-05-25 | **Entries:** 31 | **Sources:** 30
+**Last compiled:** 2026-05-25 | **Entries:** 35 | **Sources:** 35 (23 Claude, 7 ChatGPT, 5 OneDrive)
 **Role associations:** producer, production_consultant
 
 ## What This Bank Knows (top 5)
-- Agilefall (hybrid Agile + stage-gate) as NBI standard framework for client studios with gate criteria and sprint cadences
-- Audit-driven improvement cycles with 19-dimension scoring, themed sprint grouping, and measurable outcomes (+0.7 in one session)
-- 50-100 person studio production patterns: org design alternatives, production risk assessment methodology, CTO hiring profiles
-- Consulting delivery: 15-section SoW report structure with evidence tables, milestone staging validation, salary audit methodology
-- Technology selection discipline: evaluate by source code not star counts; React and Agent SDK both rejected on evidence
+- Agilefall (hybrid stage-gate + sprints) as NBI standard for client studios, plus audit-driven sprints for internal work
+- 3-day leadership offsite methodology with pre-decisions, facilitation playbook, feature sweep, gate criteria, pipeline RACI
+- Feature classification framework (type x layer matrix) proven at 1,203 items; GTM/BD backlog template (60+ items)
+- Multi-source production data consolidation (3 tools to 1 plan) with source naming preservation
+- 15-section SoW report standard, production risk assessment methodology, CTO hiring framework, salary audit methodology
 
-## Most Recent Additions
-- [2026-05-25] ChatGPT harvest -- 7 new extracts added: AAA Agilefall guide, 50-person studio production risks, SoW report structure, milestone staging, CTO profile, org design alternatives, salary audit methodology. New "Consulting Delivery Methodology" section created.
+## Most Recent Additions (this compilation)
+- [2026-05-25] 6 new OneDrive extracts: 3-day offsite methodology (agenda, facilitation, pre-read, pre-decisions), feature classification framework (1,203 items), GTM/BD backlog template, production data consolidation methodology
+
+## Key New Intelligence Integrated
+- Complete leadership offsite framework with reusable components (pre-decisions, facilitation playbook, pre-read template, daily energy scoring)
+- Feature classification at MMORPG scale using type x layer taxonomy with confidence scoring
+- Production data consolidation from multiple studio tools (xlsx, Miro) with zero-data-loss requirement
+- GTM backlog structuring: 4 ICPs, publisher longlist methodology (40 to 10), term sheet red lines
+- Pre-decision format: position, alternatives, reasoning, downstream constraints, burden-of-proof shift
 
 ## Coverage by Schema Section
-- **Framework Comparison:** 8 frameworks documented (was 6), now includes Agilefall and SoW report structure
-- **By Team Scale:** Strong at 10-25 (principal-led), moderate at 25-50 (multi-tenancy), now significantly improved at 50-100 with real studio data (Couch Heroes risks, org design alternatives)
-- **By Working Model:** Strong on fully remote, still no data on hybrid or co-located
-- **Sprint/Cycle Length:** Agilefall now documented as NBI standard for client studios; audit-driven cycles for internal work
-- **Pre-Production to Production:** Agilefall gate criteria added alongside existing approval/migration/security gates
-- **Live Ops Cadence:** Internal tooling cadence only; no game-specific live ops data
-- **Consulting Delivery Methodology:** NEW section -- SoW reports, milestone staging, risk assessment, CTO hiring, salary audits
+- **Framework Comparison:** 10 frameworks documented (was 8), now includes offsite and feature classification
+- **By Team Scale:** Strong at all tiers; 50-100 now has feature classification and data consolidation
+- **By Working Model:** Strong on remote, still no data on hybrid or co-located
+- **Sprint/Cycle Length:** Agilefall for clients, audit-driven for internal, autonomous sessions for backlogs
+- **Pre-Production to Production:** Gate criteria session added from offsite methodology
+- **Live Ops Cadence:** Internal tooling only; no game-specific data
+- **Leadership Offsite Methodology:** NEW section -- complete 3-day framework
+- **Consulting Delivery:** GTM backlog template added alongside existing SoW/risk/CTO/salary methods
 
 ## Gaps & Open Questions
 - No client studio sprint outcome data from Agilefall implementations
 - No hybrid or co-located working model adaptations
-- No genre-specific live ops cadence (update scheduling, events, seasonal content)
-- No data on scale transition pain points (25 to 50, 50 to 100 people)
-- No multi-stakeholder production gate framework
-- MTX consulting delivery patterns exist but no outcome data
-- Estimation/velocity tension unresolved
+- No genre-specific live ops cadence data
+- Offsite outcomes not yet tracked (did the roadmap hold? did gates work?)
+- Feature classification behaviour at 5,000+ items unknown
 
 ## Bank Health
-- **Coherence:** High -- synthesised by theme, new consulting delivery section cleanly integrated
-- **Provenance:** Every factual claim tagged with [source: extract_id]
-- **Line count:** ~370 of 500 max -- room for client outcome data when available
-- **Staleness risk:** Low (Claude sources April-May 2026, ChatGPT sources October 2025 - January 2026)
+- **Line count:** ~430 of 500 max -- approaching limit
+- **Coherence:** High -- offsite and classification material integrated cleanly
+- **Staleness risk:** Low (most recent sources May 2026)
+- **Split warning:** If more client delivery patterns arrive, consider splitting "Consulting Delivery Methodology" into its own bank
