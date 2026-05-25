@@ -1,278 +1,144 @@
 # Production Methods -- Knowledge Bank
 
-**Last compiled:** 2026-05-25
-**Sources:** 35 extracts (23 Claude sessions, 7 ChatGPT, 5 OneDrive) -- April 2025 to May 2026
+**Last compiled:** 2026-05-25 (full rebuild)
+**Sources:** 45+ extracts (26 Claude sessions, 8 ChatGPT, 8 OneDrive, 2 Granola, 1 Slack)
 **Role associations:** producer, production_consultant
-
----
 
 ## Executive Summary
 
-This bank captures production methodology patterns from NBI's own dashboard development (WorkSage), client delivery work, and external game studio advisory. The patterns span audit-driven improvement cycles, fixed work item hierarchies with prerequisite enforcement, test infrastructure architecture, three-artifact client delivery, hybrid Agile+stage-gate (Agilefall) methodology for AAA studios, org design for 50-100 person studios, salary audit methodology, SoW report structuring, leadership offsite design, feature classification frameworks, production data consolidation from multiple tools, and GTM backlog structuring. The strongest signal remains that structured numeric audits drive faster improvement than ad hoc bug fixing. New material adds significant depth on studio-scale production: 3-day offsite methodology with pre-decisions and facilitation playbooks, 1,200+ item feature classification using type x layer matrices, and multi-source production data consolidation methodology.
-
----
+This bank covers how game studios organise and deliver work, combining NBI's direct experience building WorkSage with advisory work at Couch Heroes and other clients. The strongest evidence comes from the CH offsite (production framework, gate system, estimation methodology), NBI's own dashboard development (audit-driven improvement, test infrastructure, deployment patterns), and the AAA Agilefall operating guide. New additions include the production council decision process, blind estimation methodology, offsite facilitation framework, and art escalation patterns.
 
 ## Framework Comparison
 
-| Framework | Team Size Sweet Spot | Remote-Friendly | Game-Specific Adaptations | Known Outcomes |
+| Framework | Team Size | Remote-Friendly | Game Adaptations | Evidence |
 |---|---|---|---|---|
-| Audit-driven sprints (scored dimensions) | 5-50 | Y | Themed sprint grouping by concern area | +0.7 points (6.6 to 7.3) across 19 dimensions [source: handoff_2026-04-08b_comprehensive_improvement] |
-| Bug triage pipeline (7-step) | Any | Y | Mandatory comment with root cause + repro steps | 33 items cleared in single session [source: handoff_2026-04-14a_full_backlog_clearance] |
-| Bulk feature approval | 1-10 (principal-led) | Y | Present complete audit, not piecemeal proposals | 15 features + 13 UI changes in one session [source: handoff_2026-04-04_finances_and_features] |
-| Tech debt ordering (risk-first) | Any | Y | Data-loss risk > architectural drift > CSP > state | All 20 critical items resolved before features [source: handoff_2026-04-19_tech_debt_sprint] |
-| Three-artifact delivery | Client teams | Y | Excel (planning) + Word (execution) + WorkSage (tracking) | Goals engagement delivered on time [source: handoff_2026-04-21_goals_deliverables] |
-| AutoResearch iteration loop | Any (AI-assisted) | Y | Score > improve > score > converge | Applicable to consulting deliverables [source: handoff_2026-05-13_karpathy_capabilities] |
-| Agilefall (hybrid stage-gate + sprints) | 25-100 | Y | Gates on top, sprints underneath | NBI standard for client studios [source: chatgpt_68fb7b4a] |
-| SoW report (15-section, evidence-based) | Client engagements | Y | Evidence Table appendix, multi-role red teaming | Reusable for all NBI deliverables [source: chatgpt_6907ec33] |
-| Leadership offsite (3-day) | 50-100 (leadership) | N (in-person) | Pre-decisions, feature sweep, gate criteria, pipeline RACI | CH offsite delivered [source: ch_offsite_agenda_2026-04-27] |
-| Feature classification (type x layer) | Any with 500+ items | Y | System/Feature/Content/Platform/LiveService taxonomy | 1,203 items classified for CH [source: ch_game_classification_2026-04] |
-
----
+| Agilefall (Agile + stage-gate) | 30-100 | Y | Gates on top, sprints underneath; playable vertical slice exits pre-prod | NBI standard for client studios [source: chatgpt_68fb7b4a] |
+| 6-Stage Pipeline | 40-70 | Y | Ideation > R&D > GDD > Prototype > MVP > Player Ready with tier gates | CH offsite, adopted by 55-person studio [source: granola_5fdd8c18] |
+| Shape Up (6-week cycles) | 10-30 | Y | Untested at game studio scale in NBI's experience | No direct evidence |
+| Classic Functional + EP Hub | <60 | Y | Best for early-stage teams needing speed | Recommended for CH [source: chatgpt_6967809b] |
+| Pod/Strike Team | 40-100 | Partial | Best for parallel workstreams with clear boundaries | Alternative 2 for CH [source: chatgpt_6967809b] |
 
 ## By Team Scale
 
-### 10-25 People
-
-At this scale, the principal can review and approve work in bulk. NBI's pattern: Glen reviews complete feature audits and approves or rejects in a single session. No sprint planning ceremonies needed. [source: handoff_2026-04-04_finances_and_features]
-
-Key patterns:
-- **Autonomous execution with pre-approved plans.** Once approved, the builder executes without check-ins. Escalate only decisions and architectural choices. [source: handoff_2026-04-19_tech_debt_sprint]
-- **Bug triage pipeline.** Even at small scale, every bug needs a formal 7-step pipeline. [source: handoff_2026-04-14a_full_backlog_clearance]
-- **Live UAT with the principal.** Expect 5+ iterations on UX issues. [source: handoff_2026-04-06c_glen_uat]
-
 ### 25-50 People
 
-At this scale, client-scoped multi-tenancy becomes necessary. Role-based data scoping: external users see only their client's data. 40+ endpoints scoped via centralised function. [source: handoff_2026-04-16b_full_day]
-
-Work item hierarchy must be enforced: Project > Feature > Story > Task at database, server, and frontend levels. Prerequisite enforcement uses hard-block on completion, soft-warn on starting. [source: handoff_2026-04-11b_hierarchy_dependencies_timeline]
-
-Three-artifact delivery pattern for client work: Excel tracker, Word guide, live dashboard. [source: handoff_2026-04-21_goals_deliverables]
+Single-producer bottleneck is the dominant risk. At ~50 people with one producer, decision latency and missed handoffs become systemic [source: chatgpt_69034e5d]. Product-platform scope coupling where game and platform compete for same capacity without hard slice boundaries compounds this [source: chatgpt_69034e5d]. The remediation is an EP overseeing four discipline tracks (QA, Audio, Art, Design) each with embedded producer [source: ch_org_structure_2026-04-26].
 
 ### 50-100 People
 
-Infrastructure investment required:
-- **Migration frameworks:** Numbered SQL files with version tracking, never edit committed migrations. [source: handoff_2026-04-09a_move_to_nine]
-- **Test infrastructure:** CJS/ESM interop, separate test databases, fixture factories. Test suites grew from 23 to 400+ over six weeks. [source: handoff_2026-04-15b_test_infra_and_kanban_next]
-- **Data-driven configuration:** Pipeline stages, field options, resource types all in database, never in code. [source: handoff_2026-04-05a_leads_expenses_qa]
-
-**Studio-specific data:** A ~55-person studio showed 15 production risks, most critical being single-producer bottleneck, product-platform scope coupling, and integration instability across UE5 client, servers, patcher, and microservices. [source: chatgpt_69034e5d]
-
-**Org design at this scale:** Five structural anti-patterns identified. Three alternatives: Classic Functional with strong EP hub (best under 60), Pod/Strike Team (parallel workstreams), Platform+Game dual-track (when platform is genuinely strategic). [source: chatgpt_6967809b]
-
-**Feature classification for large backlogs:** At 1,200+ items, classification using type (System/Feature/Content/Platform/LiveService) x layer (Foundation/Core/Feature/Presentation/Polish) enables prioritisation and gate assignment. Expect ~15% of items to have low-confidence classifications needing human review. TDD items map 1:1 to feature-level Game items but at System type. [source: ch_game_classification_2026-04]
-
-**Production data consolidation:** Studios using multiple planning tools (xlsx, Miro, etc.) need consolidation methodology. Source data naming is sacrosanct -- merge new data into existing names, never rewrite. Miro boards require multiple extraction passes. Zero data loss requirement. [source: ch_production_consolidation_spec]
-
----
+The CH model: 14 agreed epics, domain-based work hierarchy (Epic > Feature > Story > Task), blind estimation sessions, and a canonical decision process (CD > design > team feedback > GD+EP+GC approval) [source: granola_5fdd8c18, slack_production-council_2026-05-25_process]. Key lesson: content and feature epics must be merged -- separate tracking creates misleading completion percentages [source: granola_5fdd8c18].
 
 ## By Working Model
 
 ### Fully Remote
 
-NBI operates fully remote. Couch Heroes (~55 employees UK+Greece) is 100% remote. Key adaptations:
+Decision process must be formalised and written. CH's canonical process: "CD say we want X > design designs > team feeds back > feedback considered by game director > proposals approved with GD+EP+GC > decision made" [source: slack_production-council_2026-05-25_process]. Estimation sessions require structured blind approach -- teams estimate independently before seeing leadership figures [source: granola_e5678c68].
 
-- **Async approval cycles.** Principal reviews finished products, not intermediate drafts. [source: handoff_2026-04-04_finances_and_features]
-- **Screenshot/video-based UAT.** Verify visually (Playwright e2e), not just HTTP status codes. [source: handoff_2026-04-06c_glen_uat]
-- **Self-hosted infrastructure at zero cost.** Cloudflare Tunnel + PM2 on personal PC. [source: handoff_2026-04-09a_move_to_nine]
-- **Multi-user sync.** Incremental polling every 10 seconds with optimistic concurrency and IndexedDB WAL. [source: handoff_2026-04-06c_glen_uat]
-
-### Hybrid / Co-located
-
-No direct outcome data from hybrid or co-located studios. Agilefall guide specifies hybrid London/Cambridge for leadership with remote UK for others. [source: chatgpt_68fb7b4a] [See Open Questions]
-
----
+Chain-of-command bypass is a critical remote-team failure mode: art leads going directly to CEO rather than through production chain undermines authority and creates conflicting directives [source: slack_production-council_2026-05-25_escalation].
 
 ## Sprint/Cycle Length Evidence
 
-### Agilefall: Hybrid Stage-Gate + Sprints (NBI Standard for Client Studios)
+NBI's WorkSage development demonstrates rapid iteration: 22 UX decisions in one session [source: handoff_2026-04-06a], 33 bug tracker items + 7 features in one autonomous session [source: handoff_2026-04-14a]. This velocity is enabled by pre-approved bulk plans rather than incremental proposals [source: handoff_2026-04-04].
 
-Milestone gates on top (Discovery, Pre-production, Production, Alpha, Beta, Gold) with iterative sprints underneath. Pre-production exits with playable vertical slice. Two planning horizons: quarterly PI planning (8-12 weeks) plus sprint planning (1-2 weeks). [source: chatgpt_68fb7b4a]
+Two-horizon planning is the standard: quarterly PI planning (8-12 weeks) plus sprint planning (1-2 weeks). Weekly rhythm: daily standup 15min, backlog refinement 60-90min, sprint planning 2-4h, sprint review 60-120min, retrospective 60min [source: chatgpt_68fb7b4a].
 
-**Weekly rhythm:** daily standup 15min, backlog refinement 60-90min, sprint planning 2-4h, sprint review 60-120min, retrospective 60min. Backlog hierarchy: Epics > Features > User Stories > Tasks. Definition of Ready: clear problem, acceptance criteria, dependencies mapped, assets identified, team agreement. Definition of Done: criteria met, code reviewed, assets integrated, tests pass, docs updated, build green. [source: chatgpt_68fb7b4a]
+## Gate System and Feature Tiering
 
-### Audit-Driven Sprints (Variable Length)
+Feature completion tiering (from CH offsite):
+- **T0-T2** (ideation to prototype): cheap to cut ("orange zone")
+- **T3** (MVP): functional but rough
+- **Post-T3**: cuts become expensive
+- **T4-T7**: release-ready through production-scale
 
-Numeric audit scores the system across multiple dimensions (19 in initial audit), themed sprints work through gaps. Cycle length determined by work, not calendar. Sprint grouping by concern area: Foundation > Security > Performance > Frontend > UX > Ops. [source: handoff_2026-04-08b_comprehensive_improvement]
+Gates use this tier system. Key finding: "the single most leveraged hour of the offsite" is gate-passing criteria definition [source: ch_offsite_agenda_2026-04-27].
 
-### Autonomous Execution Sessions
+Production phases: Pre-production > Early Production > Mid Production > Late Production > Alpha [source: granola_5fdd8c18].
 
-Large backlogs cleared in single sessions when plan is pre-approved. One session: 33 bugs + 7 features. Enabling conditions: approved plan, autonomous authority, established test infrastructure. [source: handoff_2026-04-14a_full_backlog_clearance]
+## Offsite Facilitation Methodology
 
-### No Fixed-Length Sprints (Internal)
+Glen designed a reusable 3-day offsite framework for studio leadership (8-9 senior attendees):
 
-NBI does not use 1-week or 2-week sprints internally. Work structured by milestone deliverables, never by duration. However, Agilefall recommends 1-2 week sprints for client studios. [source: handoff_2026-04-17a_news_aggregator_m1_start, chatgpt_68fb7b4a]
+**Day 1 (Foundation):** Rules commitment (6 rules, verbal commitment from each individual), goal statement, workbook walkthrough, feature sweep at 2-minute-per-row discipline with "L by default" sizing [source: ch_offsite_agenda_2026-04-27].
 
----
+**Day 2 (Gates/GTM):** Gate-passing criteria, live services planning, GTM lane, community strategy, goals cascade [source: ch_offsite_agenda_2026-04-27].
 
-## Pre-Production to Production Transitions
+**Day 3 (Pipelines/Staff):** 9 pipeline RACI maps, maintenance cadence, staff assessment (C-level only for candour), decisions log walkthrough [source: ch_offsite_agenda_2026-04-27].
 
-### The Approval Gate Pattern
+**Facilitation patterns:** Person-specific watch-fors (who defaults to silence, who converges too fast), scripted standard responses for common derails, move-on criteria per session, pre-read pack limited to 15 minutes reading [source: ch_offsite_working_doc_2026-04-27, ch_offsite_pre_read_2026-04-27].
 
-Glen reviews comprehensive audits and makes binary decisions: "build now" or "discuss approach first." [source: handoff_2026-04-04_finances_and_features]
+**Pre-decisions pattern:** Binding strategic decisions laid down before the offsite to prevent relitigating. Burden of proof shifts onto anyone disagreeing [source: ch_offsite_pre_decisions_2026-04-27].
 
-### Agilefall Gate Criteria
+## Estimation Methodology
 
-Pre-production exits with playable vertical slice. Each gate has explicit entry/exit criteria and funding/risk review. The offsite methodology includes a dedicated gate-passing criteria session -- "the single most leveraged hour of the offsite" -- covering 8 production gates (Concept through Launch). [source: chatgpt_68fb7b4a, ch_offsite_agenda_2026-04-27]
+**Blind estimation:** Teams estimate independently before seeing leadership figures. Art leads only participating (not full art team) [source: granola_e5678c68].
 
-### Data Migration as a Gate
+**Environment art sizing:** Framework needed based on density + size categories (small/medium/large). Downtown classified as medium [source: granola_e5678c68].
 
-Double-escape migration required fixpoint loop processing and correct ordering. Principle: escape at render, never at storage. [source: handoff_2026-04-15a_double_escape_migration]
+**Benchmark estimates (CH MMORPG):**
+- Player progression: 60 days designer / 20 days engineer / 20 days UI to MVP
+- Skill system: 90 days designer / 30 days engineer / 25 days UI
+[source: granola_5fdd8c18]
 
-### Security as a Gate
+## Production Data Consolidation
 
-Security reviews after every major feature build. Patterns: safeUrl() for user-controlled href, timingSafeEqual for internal auth, failover latches with auto-reset. [source: handoff_2026-04-05a_leads_expenses_qa, handoff_2026-04-18_worksage_audit_sprint]
+NBI's proven methodology for consolidating multi-source production data: extract from each source preserving original naming (HARD RULE: never rename stories/features from source materials), map estimates across sources, detect duplicates, reconcile conflicts, produce unified plan with zero data loss [source: ch_production_consolidation_spec].
 
----
+Miro boards require multiple extraction strategies; no single pass captures everything [source: ch_production_consolidation_spec].
 
-## Live Ops Cadence
+## Audit-Driven Improvement
 
-### Automated Communication Cadence
+Numeric audit scoring drives focused improvement: a 19-dimension code audit rated WorkSage 6.6/10, Glen approved a 6-sprint improvement plan, re-audit scored 7.3/10 (+0.7). Sprints grouped by concern: foundation, security, performance, frontend, UX, ops [source: handoff_2026-04-08b].
 
-Three automated email cadences: PM daily report (08:00 weekdays), due/late ticket warnings (09:00 weekdays), inbound email-to-task matching (polls every 10 minutes). Microsoft Graph API. [source: handoff_2026-04-16b_full_day]
+The pattern is reusable: structured audit > numeric score > sprint plan > re-score. Glen approves plans, not individual fixes [source: handoff_2026-04-08b].
 
-### Monitoring and Recovery
+## Quality Methodology
 
-Circuit breaker (3 failures, 60-second reset). 10-second incremental sync with cooldown. Prometheus metrics on /metrics. [source: handoff_2026-04-09a_move_to_nine, handoff_2026-04-06c_glen_uat]
+**Red team validation:** Five scoring dimensions (data collection 25%, normalisation 20%, claim accuracy 30%, citation verifiability 15%, analytical rigour 10%). Original score 53/100 remediated to 93/100 over three passes [source: goals_red_team_report_2026-04-21].
 
-### No Genre-Specific Live Ops Data
+**SoW report structure:** 15-section C-level-consumable format with Evidence Table appendix mapping every claim to source, date, confidence, and gap. Multi-role red teaming (Production + Engineering) embedded in the process [source: chatgpt_6907ec33].
 
-Live ops data limited to internal tooling. No game-specific update scheduling or seasonal content cadence yet. [See Open Questions]
+**Build antipatterns (from post-mortem):** (1) No visual verification, (2) Context rot causing wrong column names, (3) Shotgun debugging, (4) Workaround normalisers instead of root cause, (5) Visual quality abandoned vs mockups, (6) Too many small commits [source: handoff_2026-05-12].
 
----
+## Production Architecture (WorkSage)
 
-## Design and Iteration Methodology
+**Stack:** Express.js + PostgreSQL on Glen's PC, PM2 for process management, Cloudflare Tunnel for public access at zero cost. 396+ tests (Vitest + Playwright) [source: handoff_2026-04-09a].
 
-### Visual Design Requires Multiple Iterations
+**Key patterns:** Migration framework (numbered SQL files + version table), circuit breaker (3 failures, 60s reset) on external APIs, IndexedDB write-ahead log for crash recovery, escape at render never at storage [source: handoff_2026-04-09a, handoff_2026-04-15a].
 
-5-7 mockup iterations for Glen. Command Centre went through 7 versions before approval. Design for large monitors first. [source: handoff_2026-05-11_command_centre]
+**Test infrastructure:** .mjs files for ESM/CJS interop, separate test database with baseline schema, polling SPAs break networkidle -- use explicit waits [source: handoff_2026-04-15b].
 
-### Build Antipatterns (Post-Mortem Evidence)
+## AI-Assisted Production
 
-Six antipatterns: (1) No visual verification, (2) Context rot, (3) Shotgun debugging, (4) Workaround normalisers, (5) Visual quality abandonment, (6) Commit noise. [source: handoff_2026-05-12_command_centre_build]
+**Agent SDK vs Raw SDK:** Agent SDK adds ~13K tokens overhead per call -- unusable for batch workloads. Raw @anthropic-ai/sdk with streaming is correct for programmatic Claude usage. Actual cost of 30-day news curation: $0.79 [source: handoff_2026-04-17c].
 
-### The LLM Wiki and AutoResearch Patterns
+**AIOS dispatch architecture:** Role dispatch via skill-triggered and topic-detected routing tables. 12 composite AGENT.md files. CLAUDE.md kept under 225 lines [source: handoff_2026-05-15].
 
-Compile-client: compile document folder into structured knowledge base. AutoResearch: score > improve > score > converge. Both applicable to consulting deliverables. [source: handoff_2026-05-13_karpathy_capabilities]
-
----
-
-## Leadership Offsite Methodology
-
-### 3-Day Studio Offsite Framework
-
-Glen designed a reusable 3-day offsite for studio leadership (8-9 senior attendees). [source: ch_offsite_agenda_2026-04-27, ch_offsite_working_doc_2026-04-27, ch_offsite_pre_read_2026-04-27]
-
-**Day 1 (Foundation):** Rules commitment (6 rules, verbal from each attendee individually), goal statement, workbook walkthrough (2,216 items), feature sweep at 2 minutes per row with "L by default" sizing.
-
-**Day 2 (Gates/GTM):** Gate-passing criteria for 8 production gates, live services planning, GTM lane, community strategy, studio-down goals cascade.
-
-**Day 3 (Pipelines/Staff):** 9 pipeline RACI maps, maintenance cadence, staff assessment (C-level only for candour), decisions log walkthrough, Confluence rollout.
-
-**Standing items:** Parking lot wall, decisions log wall, risks log wall, daily energy check (1-10 score). North star printed on wall.
-
-**Pre-decisions format:** Binding strategic decisions laid down before the offsite to prevent relitigating. Each includes position, alternatives considered, reasoning, and downstream constraints. Burden of proof shifts onto anyone disagreeing. [source: ch_offsite_pre_decisions_2026-04-27]
-
-**Facilitation playbook (private):** Per-session structure with opening line (verbatim), outcome target, person-specific watch-fors, scripted standard responses for common deflections, and move-on criteria. [source: ch_offsite_working_doc_2026-04-27]
-
-**Pre-read design:** Exactly 15 minutes to read. Names the failure mode ("silent disagreement that surfaces later"). No homework framing removes the escape hatch. [source: ch_offsite_pre_read_2026-04-27]
-
-**Fallback:** If behind by end of Day 2, Day 3 pipelines collapse to "frame + assign owners." [source: ch_offsite_agenda_2026-04-27]
-
----
-
-## Consulting Delivery Methodology
-
-### SoW Report Structure (15-Section Standard)
-
-NBI's standard C-level report: (1) Executive Summary with top 8 risks, (2) Background/Intent, (3) Scope with in/out anchored to clauses, (4) Deliverables/Acceptance with measurable tests, (5) Delivery Plan with entry/exit criteria, (6) Technical Architecture, (7) Cross-Play Readiness, (8) Design/Product Readiness, (9) KPI Tree, (10) Risk Register top 20, (11) Staffing/RACI, (12) Commercials/Change Control, (13) Governance/Communication, (14) Assumptions/Dependencies, (15) Appendices with Evidence Table. [source: chatgpt_6907ec33]
-
-### Production Risk Assessment
-
-Diagnose before prescribing: problems only, no mitigations initially. Diagnostic-first approach builds trust and leads to multi-workstream engagements. [source: chatgpt_69034e5d]
-
-### Milestone Staging Validation
-
-Tasks tagged to milestones, counted per epic to identify front-loading, back-loading, or unrealistic clustering. Client priority drives sequencing. [source: chatgpt_69395da6]
-
-### CTO Hiring for Game Studios
-
-When a studio has non-games C-level and junior engineering: CTO must be hybrid Live-Service + Platform, not general web or pure engine. Must-haves: shipped online sessioned game, live economy experience, service contracts with schema versioning, junior team uplift. [source: chatgpt_69437062]
-
-### Salary Data Quality Assurance
-
-Two-track audit: file structure and salary accuracy. Common failures: monthly/annual mixups, currency mismatches, hub/non-hub reversed, grade progression broken. Every benchmark requires real citation. [source: chatgpt_69698081]
-
-### GTM Backlog Structuring
-
-Comprehensive GTM and BD backlog template: 4 player segment ICPs, 2-wave audience research, 14-title competitor map, positioning matrix, anti-positioning statement, 3 message pillars, influencer tiering (40 creators across 3 tiers), wishlist targets at 6/3/1 month, publisher longlist (40 publishers scored to shortlist of 10), term sheet red lines. [source: ch_studio_business_items_2026-04]
-
----
-
-## Knowledge Architecture as Production Infrastructure
-
-### Role Dispatch System
-
-Deterministic role dispatch: skill-triggered and topic-detected routing. Transferable to studios using structured knowledge architecture. [source: handoff_2026-05-15_aios_audit_phase1]
-
-### Technology Selection Discipline
-
-Evaluate tools by reading source code, not star counts. React rejected for WorkSage. Agent SDK rejected for batch workloads (~13K tokens overhead per call). [source: handoff_2026-04-17c_news_m2_m3_complete, handoff_2026-04-18_desktop_migration_complete]
-
----
+**Salary audit methodology:** Two-track approach (file structure + salary accuracy). Common failures: monthly/annual confusion, currency mismatches, hub vs non-hub pay reversal [source: chatgpt_69698081].
 
 ## Open Questions
 
-- **Studio-specific sprint data.** Need data from client studios on actual sprint/cycle patterns and outcomes beyond NBI's own development.
-- **Hybrid and co-located adaptations.** No data on what changes when teams are not fully remote.
-- **Genre-specific live ops cadence.** No data on update scheduling or seasonal content by genre.
-- **Scale transition pain points.** No data on what breaks growing from 25 to 50 or 50 to 100.
-- **Multi-stakeholder production gates.** NBI's implicit gate (Glen's approval) does not generalise.
-- **Estimation and velocity tension.** Glen rejects timeline estimates; client studios need predictability.
-- **Agilefall outcomes data.** Framework is NBI standard but no client implementation outcomes yet.
-- **Offsite outcomes data.** 3-day methodology documented but post-offsite delivery outcomes not tracked.
-- **Feature classification at scale.** Works at 1,200 items; behaviour at 5,000+ unknown.
-
----
+- How does the 6-stage pipeline perform at 80-100 person scale with multiple simultaneous epics?
+- What is the optimal producer-to-team ratio for remote MMORPG development?
+- How should estimation methodology adapt when outsourced art partners (Room8 Studios) are integrated?
 
 ## Source Index
 
-| Extract ID | Date | Key Topics |
+| ID | Source Type | Date |
 |---|---|---|
-| handoff_2026-04-04_finances_and_features | 2026-04-04 | Feature approval in bulk |
-| handoff_2026-04-05a_leads_expenses_qa | 2026-04-05 | Data-driven configuration, security |
-| handoff_2026-04-06a_ux_overhaul | 2026-04-06 | 22 UX decisions |
-| handoff_2026-04-06c_glen_uat | 2026-04-06 | Scroll preservation, live UAT, sync |
-| handoff_2026-04-07b_expenses_finance_qa | 2026-04-07 | Consulting P&L structure |
-| handoff_2026-04-08b_comprehensive_improvement | 2026-04-08 | 19-dimension audit, themed sprints |
-| handoff_2026-04-09a_move_to_nine | 2026-04-09 | Production hosting, migrations |
-| handoff_2026-04-11b_hierarchy_dependencies_timeline | 2026-04-11 | 4-level hierarchy, prerequisites |
-| handoff_2026-04-14a_full_backlog_clearance | 2026-04-14 | Autonomous session, SoW extraction |
-| handoff_2026-04-15a_double_escape_migration | 2026-04-15 | XSS model, fixpoint migration |
-| handoff_2026-04-15b_test_infra_and_kanban_next | 2026-04-15 | Vitest + Playwright, CJS/ESM |
-| handoff_2026-04-16b_full_day | 2026-04-16 | Email integration, multi-tenancy |
-| handoff_2026-04-17a_news_aggregator_m1_start | 2026-04-17 | No scope-watering, no timelines |
-| handoff_2026-04-17c_news_m2_m3_complete | 2026-04-17 | Agent SDK overhead |
-| handoff_2026-04-18_desktop_migration_complete | 2026-04-18 | React rejection, CLI migration |
-| handoff_2026-04-18_worksage_audit_sprint | 2026-04-18 | Security patterns |
-| handoff_2026-04-18_portfolio_dashboard_v2 | 2026-04-18 | Executive dashboard design |
-| handoff_2026-04-19_tech_debt_sprint | 2026-04-19 | Risk-first tech debt ordering |
-| handoff_2026-04-19_settings_overhaul | 2026-04-19 | Context efficiency |
-| handoff_2026-04-21_goals_deliverables | 2026-04-21 | Three-artifact delivery |
-| handoff_2026-05-11_command_centre | 2026-05-11 | 7 mockup iterations |
-| handoff_2026-05-12_command_centre_build | 2026-05-12 | 6 build antipatterns |
-| handoff_2026-05-13_karpathy_capabilities | 2026-05-13 | LLM Wiki, AutoResearch |
-| handoff_2026-05-15_aios_audit_phase1 | 2026-05-15 | Role dispatch, AIOS |
-| chatgpt_68fb7b4a | 2025-10-24 | AAA Agilefall production guide |
-| chatgpt_69034e5d | 2025-10-30 | 50-person studio production risks |
-| chatgpt_6907ec33 | 2025-11-02 | 15-section SoW report structure |
-| chatgpt_69395da6 | 2025-12-10 | Milestone staging validation |
-| chatgpt_69437062 | 2025-12-18 | CTO profile |
-| chatgpt_6967809b | 2026-01-14 | Org design alternatives |
-| chatgpt_69698081 | 2026-01-16 | Salary audit methodology |
-| ch_offsite_agenda_2026-04-27 | 2026-04-27 | 3-day offsite methodology |
-| ch_offsite_working_doc_2026-04-27 | 2026-04-27 | Facilitation playbook |
-| ch_offsite_pre_read_2026-04-27 | 2026-04-27 | Pre-read communication template |
-| ch_offsite_pre_decisions_2026-04-27 | 2026-04-27 | Pre-decision format |
-| ch_game_classification_2026-04 | 2026-04 | 1,203-item feature classification |
-| ch_studio_business_items_2026-04 | 2026-04 | GTM/BD backlog template |
-| ch_production_consolidation_spec | 2026-05 | Multi-source data consolidation |
+| chatgpt_68fb7b4a | ChatGPT | 2025-10-24 |
+| chatgpt_69034e5d | ChatGPT | 2025-10-30 |
+| chatgpt_6907ec33 | ChatGPT | 2025-11-02 |
+| chatgpt_69437062 | ChatGPT | 2025-12-18 |
+| chatgpt_6967809b | ChatGPT | 2026-01-14 |
+| chatgpt_69698081 | ChatGPT | 2026-01-16 |
+| granola_5fdd8c18 | Granola | 2026-04-28 |
+| granola_e5678c68 | Granola | 2026-05-05 |
+| ch_offsite_agenda_2026-04-27 | OneDrive | 2026-04-27 |
+| ch_offsite_working_doc_2026-04-27 | OneDrive | 2026-04-27 |
+| ch_offsite_pre_decisions_2026-04-27 | OneDrive | 2026-04-27 |
+| ch_offsite_pre_read_2026-04-27 | OneDrive | 2026-04-27 |
+| ch_production_consolidation_spec | OneDrive | 2026-05 |
+| slack_production-council_2026-05-25_process | Slack | 2026-05-25 |
+| slack_production-council_2026-05-25_escalation | Slack | 2026-05-25 |
+| goals_red_team_report_2026-04-21 | OneDrive | 2026-04-21 |
+| 26 Claude session extracts | Claude | 2026-04 to 2026-05 |

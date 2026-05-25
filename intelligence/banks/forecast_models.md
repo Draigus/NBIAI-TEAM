@@ -1,207 +1,128 @@
 # Forecast Models -- Knowledge Bank
 
-**Last compiled:** 2026-05-25
-**Sources:** 18 extracts (11 ChatGPT, 7 OneDrive/Downloads) -- June 2025 to May 2026
+**Last compiled:** 2026-05-25 (full rebuild)
+**Sources:** 25+ extracts (11 ChatGPT, 10 OneDrive, 2 Downloads, 1 Granola)
 **Role associations:** data_analyst, gaming_practice_lead
-
----
 
 ## Executive Summary
 
-This bank captures NBI's accumulated methodology for building revenue and player forecasting models for F2P games, with depth across Telegram mini-app, mobile RTS, and F2P football genres. The strongest assets are: a complete cohort-based daily forecast blueprint with exact Excel formulas, a dual-approach valuation workbook (DCF + revenue multiples), 315 normalised F2P pricing data points across 12 competitors, a purchasing-power-adjusted regional pricing matrix covering 40+ countries and 4 platforms, real beta performance data from a F2P football launch (220K installs, 36% D1 retention), and a 5-month LiveOps roadmap with monthly KPI escalation targets. New material from the Goals engagement adds the first real-world validation data for NBI's forecasting work: actual beta metrics that can be compared against model assumptions, and a concrete LiveOps revenue curve showing ARPPU progression from $2.21 to $34.62 over five months.
-
----
+NBI's forecast modelling capability spans F2P revenue projection (AERM framework applied to Sarge Universe), player retention curves, regional pricing matrices, production cost estimation, and consulting revenue forecasting. The strongest methodologies are the cohort-based daily forecast model, the AERM forecast simulator, and the 40-country regional pricing matrix. New additions include Q2 cash flow data, Sarge pitch deck economics (CPI 7-12 cents on Telegram), PlayGOALS beta metrics (36% D1 retention, CPI reduced 88%), and the 5-month LiveOps roadmap with escalating ARPPU targets.
 
 ## Methodology Comparison
 
-| Model | What It Predicts | Inputs Required | Scale | Source |
+| Model | Predicts | Inputs | Scale | Source |
 |---|---|---|---|---|
-| Cohort-based daily forecast (Sarge) | DAU, revenue, ARPDAU by day | D1/D7/D30 anchors, UA budget, CPI, ARPDAU, events | Any F2P | [source: chatgpt_68efb4be] |
-| AERM enhanced simulator | Revenue by SKU family, event impact, scenarios | Baseline metrics + event timeline + modifiers | Mid-core F2P | [source: chatgpt_6899e32a] |
-| Valuation workbook (DCF + multiples) | Company valuation, investor return | 60-month forecast, WACC, terminal growth, comps | Any studio | [source: chatgpt_690c8b4f] |
-| Revenue forecast (premium vs hybrid) | 60-month recognised revenue by path | Cohorted acquisition, segment behaviour, deferrals | Premium + F2P hybrid | [source: chatgpt_68ede5cf] |
-| Headcount cost model (phased) | People cost by phase | Role list, UK salaries, loaded factor, phase gates | 18-26 roles | [source: chatgpt_691f13cd, chatgpt_6891db64] |
-| Three-persona revenue model (Goals) | Revenue by player segment | MAU, payer rate, ARPPU by segment | F2P sports | [source: goals_client_brain_2026-05-12] |
-| LiveOps KPI escalation model | Monthly ARPDAU/ARPPU targets | Launch date, event calendar, monetisation schedule | F2P live service | [source: goals_release_liveops_2026-04] |
-
----
+| AERM Forecast | Revenue, DAU, ARPDAU | Retention curves, UA spend, ARPDAU, event uplifts | F2P mobile/Telegram | [source: chatgpt_6899e32a] |
+| Cohort-Based Daily | DAU, revenue by day | D1/D7/D30 retention, CPI by channel, ARPDAU | Any F2P | [source: chatgpt_68efb4be] |
+| Dual-Path 60-Month | Revenue recognition | Cohort sources, segment spend, deferral schedules | Premium + F2P hybrid | [source: chatgpt_68ede5cf] |
+| Regional Pricing Matrix | Platform-specific pricing | FX rates, PPP adjustments, competitor indices | 40+ countries, 4 platforms | [source: goals_pricing_matrix] |
+| Consulting Revenue | NBI monthly revenue | Client contracts, pipeline probability, payback | NBI operations | [source: granola_53aa4eef] |
 
 ## Revenue Projection Models
 
 ### F2P Conversion Funnels
 
-The core F2P forecast uses cohort summation via SUMPRODUCT. Each daily cohort's remaining users are computed from the retention curve, then multiplied by ARPDAU (adjusted for events and holidays) to produce daily revenue. [source: chatgpt_68efb4be]
+**Sarge Universe baseline assumptions:** 200k starting MAU, 300k Month 1 installs, 5% monthly install growth, 25% monthly churn, 24% DAU/MAU ratio, 5.5% payer conversion, GBP 8 ARPPU, GBP 4.99 battle pass at 20% attach, GBP 19.99 Commander Pass from Month 3 at 2% attach [source: chatgpt_690c8b4f].
 
-Key parameters from the Sarge blueprint:
-- **Payer conversion:** 5.5% baseline [source: chatgpt_690c8b4f]
-- **ARPPU:** GBP8 baseline [source: chatgpt_690c8b4f]
-- **Battle pass:** GBP4.99 at 20% attach rate; Commander Pass GBP19.99 from Month 3 at 2% attach [source: chatgpt_690c8b4f]
-- **Event uplift:** bi-weekly weekend events drive 15-20% ARPDAU uplift; holiday bumps 30% [source: chatgpt_68efb4be]
-- **Platform fee netting:** weighted blend across channels (45% Telegram / 35% Web / 20% Other) [source: chatgpt_68efb4be]
+**Telegram-specific economics:** CPI of 7-12 cents (extremely low vs App Store), no 30% platform overhead. Revenue flow split: 45% Telegram / 35% Web / 20% Other for platform fee netting. Frictionless start justifies modelling higher viral k-factor [source: granola_beef5f26, chatgpt_68efb4be].
 
-Tournament GMV modelled separately from IAP with a 15% take rate. [source: chatgpt_690c8b4f]
+**PlayGOALS beta metrics (March 2026):** 220K installs, 832K 1v1 matches, 36% D1 retention overall (34% PS5, 37% Steam), 57 min avg daily playtime, 4.6 matches/day, CPI reduced $3.61 to $0.43 (88% reduction). Revenue model: 805K MAU, 10.4% payer rate, ARPU $3.38, ARPPU $32.48, projected $2.72M total [source: goals_town_hall_beta_metrics_2026-03-26].
 
-### Three-Persona Revenue Model (Goals, Real Data)
+**Three-persona segmentation (PlayGOALS):** Core FUT (20% pop, 30% paying, $46 ARPPU), Dedicated FUT (35%, 10%, $15.81), Casual FUT (45%, 2%, $7.24) [source: goals_client_brain_2026-05-12].
 
-The Goals engagement produced a three-persona segmentation with actual beta-derived parameters: [source: goals_client_brain_2026-05-12]
+### Premium Revenue Forecasting
 
-| Persona | Population % | Paying % | ARPPU | Revenue Share |
-|---|---|---|---|---|
-| Core FUT | 20% | 30% | $46.00 | Dominant |
-| Dedicated FUT | 35% | 10% | $15.81 | Mid-tier |
-| Casual FUT | 45% | 2% | $7.24 | Long tail |
-
-Projected totals at 805K MAU (3.6x beta): 10.4% blended payer rate, $3.38 ARPU, $32.48 blended ARPPU, $2.72M total revenue. Critical finding: top 3 packs = 66.7% of revenue despite 14.2% of volume (heavy SKU concentration). [source: goals_client_brain_2026-05-12]
-
-### Hybrid Monetisation
-
-A 60-month dual-path model compares Premium Sequel vs Hybrid (F2P + Subscription + Premium). Requires modelling cross-path migration (F2P to Premium, F2P to Subscription) and three player segments: Bingers, Grazers, Long-Haulers. Revenue recognition must distinguish bookings vs recognised revenue vs cash receipts, with deferral schedules by type. The key question: "at what thresholds does Hybrid beat Sequel on recognised revenue?" [source: chatgpt_68ede5cf]
+**Dual-path model specification:** 60-month comparison of Premium Sequel vs Hybrid (F2P + Subscription + Premium). Key question: at what thresholds does Hybrid beat Sequel on recognised revenue? Requires distinguishing bookings vs recognised revenue vs cash receipts with full deferral schedules [source: chatgpt_68ede5cf].
 
 ### Live Service Event Revenue
 
-Event-driven ARPDAU modelling uses a dedicated timeline with date, uplift value, and on/off toggle. The AERM model's feature control panel with index/lookup-driven event scheduling is the gold standard. Sarge parameters: 28-day seasons, flash sales on 5-7 day cycles with 7-day cooldown per SKU group. [source: chatgpt_6899e32a]
+**Event-driven ARPDAU uplifts:** Fortnightly weekend events with 15-20% ARPDAU uplift as standard. Holiday bumps at 30%. Event flags in forecast model toggle these on/off [source: chatgpt_68efb4be].
 
----
+**LiveOps roadmap (PlayGOALS):** Monthly escalating ARPPU targets: May $2.21 > June $13.19 > July $26.94 > August $31.73 (explicit "Sink" month) > September $34.62. Real-world football calendar (World Cup, Champions League) drives the entire rhythm [source: goals_release_liveops_2026-04].
 
-## LiveOps Revenue Modelling (New: Real Engagement Data)
+### F2P Pricing Benchmarks
 
-### Monthly KPI Escalation Model
+**Hard currency pack pricing (315 normalised price points, 12 competitors):** $0.99/100 HC is the football genre entry-level standard. Volume discount curves cluster at 15-23% industry-wide. EA has never raised USD prices on existing tiers across 8 years. USD prices on F2P currency packs are functionally permanent [source: goals_competitive_mtx_findings_2026-04-21].
 
-The Goals engagement produced a 5-month LiveOps roadmap (May-Sep 2026) with concrete monthly targets: [source: goals_release_liveops_2026-04]
-
-| Month | Theme | ARPDAU | ARPPU | Key Mechanic |
-|---|---|---|---|---|
-| May (Kickoff) | Launch | -- | $2.21 | $1.99 starter pack, Founder's Season |
-| June (Scale-Up) | Growth | $0.40 | $13.19 | 10 core market kits, World Cup warm-up |
-| July (Peak) | Maximise | $0.50 | $26.94 | World Cup matchup packs |
-| August (Sink) | Drain | $0.55 | $31.73 | 30-40% End of Summer Sale (currency drain) |
-| September (Maturation) | Stabilise | $0.60 | $34.62 | Ultra-premium content, whale targeting |
-
-Key pattern: August is explicitly designed as a "Sink" month to drain hoarded soft currency before September maturation. Real-world sports calendar (World Cup, Champions League, Europa League, Transfer Deadline Day) drives the entire LiveOps rhythm. [source: goals_release_liveops_2026-04]
-
-### Dual-Currency Economy Design
-
-Goals uses hard currency (coins, real money only) and soft currency (points, gameplay earned). Marketplace 10% tax as sink. 7-tier player rarity (Basic 40-59 OVR through Mythic 95-99). Aging system: players enter at 18, age one year per two real-life weeks, retire 32-41. The aging system is the primary demand sink, driving replacement purchasing. Non-seasonal philosophy is a fixed design constraint. [source: goals_client_brain_2026-05-12]
-
----
-
-## F2P Pricing Benchmarks (New: 315 Data Points)
-
-### Hard Currency Pack Pricing (2026)
-
-315 normalised price points across 12 competitors with 147 citations. [source: goals_competitive_mtx_findings_2026-04-21]
-
-Key findings:
-- **Entry-level standard:** $0.99/100 HC is the football genre floor (EA FC, UFL, eFootball all match)
-- **Volume discount curves:** 15-23% industry-wide is the safe zone; steeper curves signal different audience economics (NBA 2K outlier at 86%)
-- **Price permanence:** EA has NEVER raised USD prices on existing tiers across 8 years of FIFA/FC history; strategy is adding higher ceiling tiers and restructuring mid-range
-- **Cross-sport consistency:** EA FC and Madden use near-identical pricing structures (same price points, same amounts within 50 points), suggesting deliberate portfolio strategy
-- **Competitor positioning:** UFL (closest F2P football competitor) mirrors EA FC on first 3 tiers, caps at $79.99 vs EA FC's $149.99
-
-### Regional Pricing Matrix
-
-Global pricing matrix covering 40+ countries across Sony, Xbox, Steam, and Epic. Goes beyond simple FX conversion to purchasing-power-adjusted pricing. [source: goals_pricing_matrix]
-
-Regional adjustment patterns:
-- **Upward adjustment (~-5%):** Japan, South Korea can sustain higher prices relative to FX
-- **Downward adjustment (~5%):** Poland, South Africa, UAE, Kuwait, Saudi Arabia, Qatar, Hungary, Singapore
-- **Further review (~-15%):** Brazil, Malaysia, Thailand
-- **Intentional below-FX (accessibility):** Ukraine, India, Indonesia
-- **Arbitrage risk:** Platform-specific pricing (Sony vs Xbox vs Steam vs Epic) creates arbitrage if not aligned
-
----
+**Regional pricing (40+ countries):** Goes beyond FX conversion to purchasing-power-adjusted pricing. Gulf states typically overprice relative to purchasing power. Japan/South Korea sustain higher prices. Ukraine/India/Indonesia intentionally priced below FX rate (accessibility decision) [source: goals_pricing_matrix].
 
 ## Player Forecasting
 
-### Cohort-Based Retention (D1/D7/D30)
+### Cohort-Based Retention
 
-Retention uses a piecewise power model with three anchor points. Base assumptions: D1 45%, D7 22%, D30 13%. [source: chatgpt_68efb4be]
+**Retention model:** Piecewise power model with D1/D7/D30 anchors. Sarge base case: 45%/22%/13%. PlayGOALS actual: 36% D1 overall (strong for F2P sports, industry average ~25-30%) [source: chatgpt_68efb4be, goals_town_hall_beta_metrics_2026-03-26].
 
-**Real-world validation (Goals beta, March 2026):** 220K installs, 36% D1 overall (34% PS5, 37% Steam). NBI assessed 36% D1 as strong for F2P sports (industry average ~25-30%). Key discrepancy: SOW cited 50% D1 on PlayStation; actual data showed 34%. Engagement metrics: 57 min avg daily playtime, 4.6 matches/day, 832K 1v1 matches. CPI reduced from $3.61 to $0.43 (88% reduction during beta). [source: goals_town_hall_beta_metrics_2026-03-26, goals_client_brain_2026-05-12]
+**UA plan structure:** Tiered daily budgets declining over time (GBP 15k day 1 > GBP 8k days 2-7 > GBP 4k days 8-30 > GBP 2.5k day 31+). Organic viral K-factor 0.15 with 14-day half-life decay [source: chatgpt_68efb4be].
 
-Go/no-go gates should anchor hiring waves to retention and payer conversion, not timeline milestones. [source: chatgpt_690dcbec]
+### ARPU Benchmarks (Mobile Strategy)
 
-### LTV Curve Modelling
+| Title | Annual Revenue | MAU | Annual ARPU | Monthly ARPU |
+|---|---|---|---|---|
+| Clash of Clans | $359.9M | ~97-98M | ~$3.7 | ~$0.31 |
+| Boom Beach | $16.2M | ~12M | ~$1.35 | ~$0.11 |
+| Last War: Survival | $1.15B | 12-15M | $77-96 | $6.4-8.0 |
 
-LTV aggregates from five forecast engine modules: (1) Acquisition with viral k-factor, (2) Retention with cohort curves per channel/geo, (3) Monetisation per SKU family, (4) Economy sinks/sources, (5) Aggregation to MAU/ARPDAU/ARPPU/LTV. [source: chatgpt_68d3feee]
-
-### Growth Projection from Soft Launch Data
-
-UA plan uses tiered daily budgets: GBP15k day 1, GBP8k days 2-7, GBP4k days 8-30, GBP2.5k day 31+. CPI targets: Telegram GBP0.60, Influencer GBP1.20, Web Ads GBP1.80. CPI guardrail USD2.50. Organic viral K-factor 0.15 with 14-day half-life decay. Monthly install growth 5% baseline with 300k Month 1 installs. DAU/MAU ratio 24%. [source: chatgpt_68efb4be, chatgpt_690c8b4f]
-
-### Community Sentiment as Forecast Input
-
-509 beta respondents provided sentiment data. NPS +24.6 (40% promoters, 15.5% detractors). Anti-P2W sentiment is the hardest community red line. Defensive AI (2.54/5, lowest metric) and passing system (40% cited as top disappointment) are critical friction points. 5v5 ranked mode demand is overwhelming across all signal types. Revenue concentration in top 3 packs (66.7%) suggests SKU rationalisation opportunity. [source: goals_beta_community_sentiment]
-
----
+25x ARPU spread explained by monetisation strategy: Clash uses battle-pass style with massive casual base dragging average down; Last War uses aggressive time-limited packs and whale-focused spend [source: chatgpt_6894b46a].
 
 ## Production Cost Estimation
 
 ### By Team Size
 
-**GBP10M raise (26 roles, 18 months):** Three 6-month phases. 1.3x loaded factor. Key UK salaries: CEO/Game Producer GBP120k, CTO GBP110k, COO GBP95k, Head of Product GBP90k, Economy Designer GBP65k, Lead Backend GBP80k, DevOps GBP75k. [source: chatgpt_691f13cd]
+**Sarge Universe (GBP 10M raise):** 26 roles across three 6-month phases, 1.3x loaded factor on base salaries. Key salaries: CEO GBP 120k, CTO GBP 110k, COO GBP 95k, Lead Backend GBP 80k, Economy Designer GBP 65k. Total 18-month people cost must leave budget for UA, infrastructure, content [source: chatgpt_691f13cd].
 
-**Budget-fitted (18 roles, year 1):** Fits GBP271k monthly burn. Total payroll circa GBP933k year 1. Replacing outsource contracts (PixelPlex USD82k/m, half of AAA Game Art USD46k/m) with in-house hires saved circa GBP840k. [source: chatgpt_6891db64]
+**Budget-fitted model (GBP 271k/month ceiling):** 18 roles at UK market rates. Replacing expensive outsource contracts (PixelPlex USD 82k/month) with in-house saves ~40-50% on equivalent FTE cost [source: chatgpt_6891db64].
 
-**SaaS/data platform (Playsage):** Two scenarios at USD1M and USD10M with 10% reserve. Lean GTM. 18-month runway to market. [source: chatgpt_690b386f]
+**PlaySage (SaaS platform):** USD 1M scenario vs USD 10M scenario with 18-month runway. 10% reserve for data/infra/legal at both levels. Buy data from Newzoo, Sensor Tower (up to 8 sources). Lean GTM: 1 sales + 1 marketing head [source: chatgpt_690b386f].
 
-### By Development Phase
+## NBI Revenue Forecasting
 
-Phase-gating follows milestone triggers, not calendar dates. Hiring waves gate on D1/D7/D30 retention and payer conversion. Core engineering must be in-house for code ownership and investor optics. UK game dev salaries at 2024-25 market benchmarks, not generic web dev rates. [source: chatgpt_690dcbec, chatgpt_6891db64]
+**Current state (Q2 2026):** Monthly revenue GBP 55k (Couch GBP 30k, Lighthouse GBP 25k, Activision GBP 5k). Operating target GBP 75-80k/month. Cash flow trajectory: GBP 0 (Feb) > GBP 17k (Mar) > GBP 25k (Apr) [source: granola_53aa4eef].
 
----
+**High-confidence pipeline:** UXR/data science expansion GBP 150-250k/year, Lighthouse data manager GBP 130-150k/year, Greek fund auditing GBP 50-100k initial [source: granola_53aa4eef].
+
+**Consulting revenue forecast model:** NBI can deliver 60-month dual-path forecast models that distinguish bookings vs recognised revenue vs cash receipts as a consulting engagement [source: chatgpt_68ede5cf].
+
+## Valuation Models
+
+**Data room valuation workbook:** 12-tab structure: Summary, Assumptions, Historical Financials, Normalisations, Forecast, DCF, Multiples, EV to Equity Bridge, KPIs, Evidence, Checks, Change Log. Display standards: inputs blue, outputs black, links green, checks red. Common red flag: valuing on gross receipts while collecting net [source: chatgpt_6908ac7d].
+
+**Sarge valuation:** Formula-driven Excel with Base/Upside/Downside scenarios, 60-month horizon, DCF and multiples, sensitivity grids on exit multiple vs discount rate. Tournament GMV modelled separately from IAP with 15% take rate [source: chatgpt_690c8b4f].
 
 ## Market Sizing
 
-### ARPU Benchmarks (Mobile RTS/Strategy, 2024)
+**Sarge Universe TAM:** 200M on Telegram, USD 4 ARPU, CPI on Telegram USD 0.08, raising GBP 10M [source: chatgpt_690dcbec].
 
-| Title | Annual Revenue | MAU | Annual ARPU | Monetisation Style |
-|---|---|---|---|---|
-| Clash of Clans | USD359.9M | ~97-98M | ~USD3.70 | Battle-pass, massive casual base |
-| Boom Beach | USD16.2M | ~12M | ~USD1.35 | Light spend, older title |
-| Last War: Survival | USD1.15B | 12-15M | USD77-96 | Aggressive time-limited packs |
+**Global gaming market:** $195.6B content revenue in 2025 (record high), projected $205B in 2026 (+4.6%). Mobile leads at ~$107B (52% share). Asia-Pacific leads regionally at $87.6B (46% share). Global player base: 3.6 billion [source: web_2026-05-25_gaming-layoffs-q2-paradox].
 
-The 25x ARPU spread between Clash and Last War is explained by different monetisation levers. Last War iOS US ARPDAU: USD2.47 (Sensor Tower). [source: chatgpt_6894b46a]
-
-Bottom-up market sizing for Telegram: 200M TAM, USD4 ARPU, CPI USD0.08. [source: chatgpt_690dcbec]
-
-### Sarge Universe Document Inventory
-
-40+ documents spanning the full investment lifecycle: pitch decks, financial models (AERM Forecast, MVP cost analysis, cashflow), game design (GDD, TDD, feature lists), legal (signed agreements), operational (VDR, data room, 40-step roadmap), and BD (1,350-entry investor list). AERM framework was applied to this prospect. Many binary files need future extraction. [source: sarge_telegram_export_2026-05-17]
-
----
+**Google Play commission reduction:** From 30% to 20% on IAP (20% + 5% only if using Google billing). For a developer generating $1M/year, an extra $100,000 stays in-house [source: web_2026-05-25b_google-epic-settlement-commission-drop].
 
 ## Open Questions
 
-- **Forecast accuracy validation.** No model has been run against actuals. The Goals beta data provides the first opportunity to validate retention and CPI assumptions. [source: chatgpt_6899e32a]
-- **Subscription vs IAP crossover thresholds.** At what F2P-to-premium conversion rate does hybrid beat sequel? [source: chatgpt_68ede5cf]
-- **D1 retention discrepancy.** SOW cited 50% D1 on PlayStation; actual was 34%. Need process to verify metrics before embedding in proposals. [source: goals_client_brain_2026-05-12]
-- **Genre-specific cost benchmarks.** All production cost data from RTS/strategy and data platform contexts. Need RPG, casual, simulation. 
-- **Non-UK salary benchmarks.** Headcount plans are UK-anchored. Need US, EU, MENA equivalents.
-- **In-game currency sinks/sources modelling.** Identified as distinctive but no worked example beyond Goals aging system. [source: chatgpt_6899e32a]
-- **Goals post-launch validation.** Game launched 14 May 2026. Actual post-launch data would validate or challenge the LiveOps KPI escalation model.
-
----
+- How should forecast models account for the Google/Apple commission reduction timeline?
+- What retention benchmarks are appropriate for cosy MMORPGs vs competitive F2P?
+- How does Telegram's viral k-factor compare to mobile app store organic uplift in practice?
 
 ## Source Index
 
-| Extract ID | Date | Key Topics |
+| ID | Source Type | Date |
 |---|---|---|
-| chatgpt_68efb4be | 2025-10-15 | Cohort-based daily forecast blueprint |
-| chatgpt_6894b46a | 2025-08-07 | ARPU benchmarks mobile RTS |
-| chatgpt_6899e32a | 2025-08-11 | AERM vs Sarge model comparison |
-| chatgpt_68d3feee | 2025-09-24 | Firebase/Lovable build blueprint |
-| chatgpt_691f13cd | 2025-11-20 | 26-role headcount plan GBP10M |
-| chatgpt_6891db64 | 2025-08-05 | Budget-fitted headcount |
-| chatgpt_68ede5cf | 2025-10-14 | Hybrid monetisation model |
-| chatgpt_690b386f | 2025-11-05 | Playsage headcount plans |
-| chatgpt_690c8b4f | 2025-11-06 | Valuation workbook DCF + multiples |
-| chatgpt_690dcbec | 2025-11-07 | Sarge data room, go/no-go gates |
-| chatgpt_6908ac7d | 2025-11-03 | 12-tab valuation model structure |
-| goals_client_brain_2026-05-12 | 2026-05-12 | Beta metrics, three-persona model, economy |
-| goals_competitive_mtx_findings_2026-04-21 | 2026-04-21 | 315 pricing data points, 12 competitors |
-| goals_pricing_matrix | 2026-04 | Regional pricing 40+ countries, 4 platforms |
-| goals_release_liveops_2026-04 | 2026-04 | 5-month LiveOps KPI roadmap |
-| goals_town_hall_beta_metrics_2026-03-26 | 2026-03-26 | Beta metrics (220K installs, 36% D1) |
-| goals_beta_community_sentiment | 2026-03-26 | Community sentiment (509 respondents) |
-| sarge_telegram_export_2026-05-17 | 2026-05-17 | Sarge Universe document inventory |
+| chatgpt_68efb4be | ChatGPT | 2025-10-15 |
+| chatgpt_6899e32a | ChatGPT | 2025-08-11 |
+| chatgpt_68d3feee | ChatGPT | 2025-09-24 |
+| chatgpt_690c8b4f | ChatGPT | 2025-11-06 |
+| chatgpt_690dcbec | ChatGPT | 2025-11-07 |
+| chatgpt_691f13cd | ChatGPT | 2025-11-20 |
+| chatgpt_6891db64 | ChatGPT | 2025-08-05 |
+| chatgpt_690b386f | ChatGPT | 2025-11-05 |
+| chatgpt_6908ac7d | ChatGPT | 2025-11-03 |
+| chatgpt_68ede5cf | ChatGPT | 2025-10-14 |
+| chatgpt_6894b46a | ChatGPT | 2025-08-07 |
+| granola_53aa4eef | Granola | 2026-05-04 |
+| granola_beef5f26 | Granola | 2026-03-26 |
+| goals_town_hall_beta_metrics_2026-03-26 | OneDrive | 2026-03-26 |
+| goals_client_brain_2026-05-12 | OneDrive | 2026-05-12 |
+| goals_competitive_mtx_findings_2026-04-21 | OneDrive | 2026-04-21 |
+| goals_pricing_matrix | OneDrive | 2026-04 |
+| goals_release_liveops_2026-04 | OneDrive | 2026-04 |
+| goals_sow_proposal_2026-03-31 | OneDrive | 2026-03-31 |
+| sarge_telegram_export_2026-05-17 | Downloads | 2026-05-17 |

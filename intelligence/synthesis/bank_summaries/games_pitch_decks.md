@@ -1,35 +1,23 @@
 # Games Pitch Decks -- Summary
 
-**Last compiled:** 2026-05-25 | **Entries:** 15 | **Sources:** 15 (10 ChatGPT, 5 web research)
+**Last compiled:** 2026-05-25 (full rebuild) | **Sources:** 20+ (10 ChatGPT, 5 web research, 2 Granola, 2 Downloads, 1 OneDrive)
 **Role associations:** gaming_practice_lead, cmo
 
-## What This Bank Knows (top 5)
-- 16-section data room checklist applicable from Seed to Series C with games-specific round definitions
-- Seven-role data room audit methodology with cross-document reconciliation and diligence trap detection
-- Six annotated exemplars: a16z LP deck ($660M), Homa 13-slide ($50M), Voodoo unicorn trajectory, The Games Fund VC template, Playsage seed deck, Sarge data room -- plus Little Polygon failure post-mortem
-- The Games Fund's publicly accessible pitch template, P&L spreadsheet, and budget calculator (VC-published, directly usable)
-- Fundraising climate analysis: $500K-$3M dead zone documented, process-over-product thesis dominant, VC structurally wrong for most studios
+## What Changed This Rebuild
 
-## Most Recent Additions (this compilation)
-- [2026-05-25] 5 web research extracts: a16z $660M LP deck (AI thesis pivot, operator hires), Homa $50M 13-slide deck (platform-over-game), Little Polygon 50+ pitches zero deals (indie funding gap), The Games Fund VC template (downloadable tools), Voodoo unicorn trajectory (process-over-hit, D1/D7/CPI benchmarks)
+- **Sarge Telegram pitch data added:** CPI 7-12 cents, USD 1-2M "goldilocks zone" raise, max 30% equity ceiling, GDC dinner VC contacts (SpyFox, RMT, Behold)
+- **5 web research exemplars added:** a16z Games Fund One ($660M LP deck), The Games Fund VC template, Homa Games ($50M/13 slides), Little Polygon (50+ pitches, zero funding), Voodoo (Goldman $200M, Tencent $1.4B)
+- **VC contact profiles expanded:** LVP, Konvoy, Play Ventures, BITKRAFT, Hiro Capital, Makers Fund, Griffin Gaming, Savvy Games Group with check sizes and preferences
+- **Anti-patterns section added:** Funding dead zone ($500K-$3M), Midsummer Studios VC failure case, Metacore single-hit risk, cherry-picked comps
+- **Data room audit methodology added:** 7-role investor committee simulation with cross-document reconciliation
 
-## Key New Intelligence Integrated
-- LP-facing deck narrative architecture transfers to studio pitches (a16z "Marvel Moment" framing)
-- Concise decks outperform: successful raises are 10-15 slides; 30-slide decks fail
-- Indie funding gap documented with primary data: $500K-$3M is a dead zone, 50+ pitches yielding zero term sheets
-- VC as wrong capital structure for most studios (Midsummer closure, Solomon's exit-event observation)
-- Hypercasual benchmarks from Voodoo: D1 >55%, D7 >22%, CPI <$0.25 as kill/continue gates
-- New anti-pattern: ignoring post-IDFA reality in mobile pitches
+## Key Intelligence
 
-## Gaps & Open Questions
-- No pre-seed deck template exists
-- Publisher pitch requirements vs VC pitch not documented
-- Console premium indie pitch examples still missing
-- Investor database data is from mid-2025 and may be stale (a16z thesis pivoted 80% to AI in one year)
-- Post-deck investor follow-up process not documented
-- Apple commission trajectory should be scenario-planned in revenue models
-
-## Bank Health
-- **Line count:** ~280 of 500 max
-- **Coherence:** High -- new exemplars and climate data woven into existing structure with new Fundraising Climate section
-- **Staleness risk:** ChatGPT extracts are durable methodology; web research exemplars are durable reference (company histories, not time-sensitive news)
+- "Process over single hit" is the dominant investor thesis (Voodoo, Homa, Play Ventures converge)
+- 13 slides for $50M raise (Homa) confirms less-is-more principle
+- The Games Fund published their actual preferred pitch deck template (publicly accessible Google Slides)
+- Funding has bifurcated: proven performers raise at premium; $500K-$3M is a dead zone
+- VC is wrong capital structure for most game studios (exit events too rare)
+- Telegram CPI (7-12 cents) is a strong pitch differentiator vs App Store ($2+)
+- Data room must distinguish Premium vs F2P traction sections with different evidence standards
+- Common red flags: missing IP chain, ambiguous KPI definitions, valuing on gross not net

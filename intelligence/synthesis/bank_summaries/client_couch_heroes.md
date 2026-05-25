@@ -1,35 +1,23 @@
 # Client: Couch Heroes -- Summary
 
-**Last compiled:** 2026-05-25 | **Entries:** 19 | **Sources:** 19 (8 ChatGPT, 1 Downloads, 10 OneDrive)
-**Role associations:** producer, production_consultant, head_of_people
+**Last compiled:** 2026-05-25 (full rebuild) | **Sources:** 40+ (12 Granola, 7 Gmail, 6 Slack, 10 OneDrive, 9 ChatGPT, 1 Downloads)
+**Role associations:** producer, production_consultant, head_of_people, gaming_practice_lead
 
-## What This Bank Knows (top 5)
-- Glen is embedded as fractional CPO overseeing product and production; designed and facilitated 3-day leadership offsite (Apr 2026)
-- Six binding strategic pre-decisions: F2P cosmetic, self-publish, closed beta, separate studio/game names, unified cross-play, 12-month funding+VS goal
-- Partner Portals are the core game differentiator: 6 portal types, diegetic cross-game integration, partner-themed cosmetics revenue model
-- Complete feature classification (1,203 items, type x layer matrix) plus 60+ item GTM/BD backlog with publisher longlist
-- Active fundraising preparation: VDR, due diligence checklist, Saybrook Legal engaged, CTO search restarted Q1 2026
+## What Changed This Rebuild
 
-## Most Recent Additions (this compilation)
-- [2026-05-25] 10 new OneDrive + 1 Downloads extracts: strategic pre-decisions (offsite), offsite agenda/facilitation/pre-read, Partner Portals creative brief, org structure (pre-offsite), game classification framework, GTM/BD backlog, UK company compliance, production consolidation, downloads inventory
+- **Granola meetings added (12):** CTO candidate interviews (Neil Jones, Maurizio de Pascale, Per-Olof Romell), Nia Kiigan external validation, offsite Days 1-2, executive meetings (May 5, May 12), game direction session, Simon Woodroffe contract negotiation, Q2 business strategy
+- **Gmail threads added (7):** Full May 2026 hiring wave -- Charlie Todd salary gap, Gary Platner freelancer contract, Tanya Pehlivanova declined, Simon Woodroffe offer, VFX Lead pipeline, Graeme Monk onboarding, composite hiring overview
+- **Slack channels added (6):** Lorenza compensation increase, Stephen Bain interview scorecard, contract flexibility decision, art escalation to CEO, production decision process codified, game design direction with Robin
+- **OneDrive documents added (10):** Partner portals creative brief, org structure, game classification (1,203 items), production consolidation spec, GTM backlog (60+ items), offsite agenda/facilitation/pre-decisions/pre-read, UK company setup
 
-## Key New Intelligence Integrated
-- Game reclassified from "MMO-lite platform game" to "byte-punk cosy MMORPG"
-- Glen's role clarified as fractional CPO with product + production oversight
-- Named leadership team expanded (Graham EP, Robin GD, Valeria HoP, Mustafa HoT, David DoA)
-- Person-specific facilitation strategies documented per attendee
-- Publisher outreach methodology with 40-publisher longlist scored to shortlist of 10
-- Fundraising confirmed active (VDR, Saybrook Legal, CTO search)
-- UK compliance deliverables (EL insurance, pensions) documented
+## Key Intelligence
 
-## Gaps & Open Questions
-- Offsite outcomes not yet documented (gate criteria adopted, pipeline RACI completed?)
-- CTO search active but no candidate pipeline data
-- Coaching programme outcome metrics not available
-- Partner Portal creative questions (7) unresolved
-- Fundraising close date not documented
-
-## Bank Health
-- **Line count:** ~280 of 500 max
-- **Coherence:** High -- synthesised by relationship area
-- **Staleness risk:** Low (most recent sources May 2026)
+- ~55 employees, GBP 30k/month to NBI, vertical slice deadline end of August 2026
+- CTO vacancy is highest-pain leadership gap; 4 candidates assessed, none hired yet
+- Studio is in early production (not mid-production); art ahead of systems creating false perception
+- Canonical decision process codified: GD+EP+GC alignment required
+- Art leads bypassed production chain directly to CEO -- escalation pattern needs addressing
+- May 2026 hiring wave: 10+ candidates in pipeline, Lorenza (solo HR) potentially overwhelmed
+- 6 binding pre-decisions set before offsite (F2P cosmetic, self-publish, closed beta, etc.)
+- Partner Portals system is the key differentiator: diegetic cross-game integration
+- Series B (USD 8-10M) dependent on vertical slice delivery

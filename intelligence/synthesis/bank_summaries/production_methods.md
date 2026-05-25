@@ -1,44 +1,24 @@
 # Production Methods -- Summary
 
-**Last compiled:** 2026-05-25 | **Entries:** 35 | **Sources:** 35 (23 Claude, 7 ChatGPT, 5 OneDrive)
+**Last compiled:** 2026-05-25 (full rebuild) | **Sources:** 45+ (26 Claude, 8 ChatGPT, 8 OneDrive, 2 Granola, 1 Slack)
 **Role associations:** producer, production_consultant
 
-## What This Bank Knows (top 5)
-- Agilefall (hybrid stage-gate + sprints) as NBI standard for client studios, plus audit-driven sprints for internal work
-- 3-day leadership offsite methodology with pre-decisions, facilitation playbook, feature sweep, gate criteria, pipeline RACI
-- Feature classification framework (type x layer matrix) proven at 1,203 items; GTM/BD backlog template (60+ items)
-- Multi-source production data consolidation (3 tools to 1 plan) with source naming preservation
-- 15-section SoW report standard, production risk assessment methodology, CTO hiring framework, salary audit methodology
+## What Changed This Rebuild
 
-## Most Recent Additions (this compilation)
-- [2026-05-25] 6 new OneDrive extracts: 3-day offsite methodology (agenda, facilitation, pre-read, pre-decisions), feature classification framework (1,203 items), GTM/BD backlog template, production data consolidation methodology
+- **Offsite facilitation framework added:** 3-day methodology with person-specific watch-fors, scripted rebuttals, pre-decision format, feature sweep at 2-minute-per-row discipline
+- **Production council process added:** Canonical decision chain (CD > design > team feedback > GD+EP+GC approval), blind estimation methodology, vacation planning integration
+- **Art escalation pattern documented:** Chain-of-command bypass as critical remote-team failure mode
+- **Estimation benchmarks added:** Player progression 60d/20d/20d, Skill system 90d/30d/25d to MVP
+- **6-stage pipeline codified:** Ideation > R&D > GDD > Prototype > MVP > Player Ready with T0-T3+ tier gates
+- **Data consolidation methodology expanded:** 3-source merge (Design xlsx, Engineering xlsx, Miro) with zero data loss requirement
 
-## Key New Intelligence Integrated
-- Complete leadership offsite framework with reusable components (pre-decisions, facilitation playbook, pre-read template, daily energy scoring)
-- Feature classification at MMORPG scale using type x layer taxonomy with confidence scoring
-- Production data consolidation from multiple studio tools (xlsx, Miro) with zero-data-loss requirement
-- GTM backlog structuring: 4 ICPs, publisher longlist methodology (40 to 10), term sheet red lines
-- Pre-decision format: position, alternatives, reasoning, downstream constraints, burden-of-proof shift
+## Key Intelligence
 
-## Coverage by Schema Section
-- **Framework Comparison:** 10 frameworks documented (was 8), now includes offsite and feature classification
-- **By Team Scale:** Strong at all tiers; 50-100 now has feature classification and data consolidation
-- **By Working Model:** Strong on remote, still no data on hybrid or co-located
-- **Sprint/Cycle Length:** Agilefall for clients, audit-driven for internal, autonomous sessions for backlogs
-- **Pre-Production to Production:** Gate criteria session added from offsite methodology
-- **Live Ops Cadence:** Internal tooling only; no game-specific data
-- **Leadership Offsite Methodology:** NEW section -- complete 3-day framework
-- **Consulting Delivery:** GTM backlog template added alongside existing SoW/risk/CTO/salary methods
-
-## Gaps & Open Questions
-- No client studio sprint outcome data from Agilefall implementations
-- No hybrid or co-located working model adaptations
-- No genre-specific live ops cadence data
-- Offsite outcomes not yet tracked (did the roadmap hold? did gates work?)
-- Feature classification behaviour at 5,000+ items unknown
-
-## Bank Health
-- **Line count:** ~430 of 500 max -- approaching limit
-- **Coherence:** High -- offsite and classification material integrated cleanly
-- **Staleness risk:** Low (most recent sources May 2026)
-- **Split warning:** If more client delivery patterns arrive, consider splitting "Consulting Delivery Methodology" into its own bank
+- Agilefall (gates on top, sprints underneath) is NBI's standard for 30-100 person studios
+- Single-producer bottleneck is the dominant risk at 50-person scale
+- Feature tiering (T0-T2 cheap to cut, post-T3 expensive) enables rational scope decisions
+- Blind estimation (teams estimate independently before seeing leadership figures) reduces anchoring bias
+- Offsite facilitation: pre-decisions prevent relitigating, 15-minute pre-read pack ensures compliance
+- Audit-driven improvement: numeric scoring (6.6 to 7.3 in one session) drives focused improvement
+- Build antipatterns identified: no visual verification, context rot, shotgun debugging
+- Red team validation mandatory for research deliverables (53/100 to 93/100 over three passes)

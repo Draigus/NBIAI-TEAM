@@ -1,35 +1,26 @@
 # Client Patterns -- Summary
 
-**Last compiled:** 2026-05-25 | **Entries:** 17 | **Sources:** 17 (5 ChatGPT, 1 Claude, 11 OneDrive)
-**Role associations:** producer, gaming_practice_lead
+**Last compiled:** 2026-05-25 (full rebuild) | **Sources:** 30+ (6 ChatGPT, 5 Claude, 12 OneDrive, 5 Gmail, 3 Slack, 2 Granola)
+**Role associations:** producer, gaming_practice_lead, cmo
 
-## What This Bank Knows (top 5)
-- NBI hourly rates USD250-400 by service area; fixed-fee audit tasks GBP7.5k-9.2k for 2-3 weeks; major engagements at 100K SEK
-- Three-artifact delivery standard (Excel + Word + WorkSage) with red team validation scoring deliverables to 93/100
-- Blended hard+soft consulting wins: technical audit plus organisational advisory in single engagements
-- Leadership offsite facilitation: 3-day methodology with pre-decisions, person-specific facilitation, daily energy scoring
-- EAD (Eliminate, Automate, Delegate) framework as NBI's core consulting methodology for AI operations
+## What Changed This Rebuild
 
-## Most Recent Additions (this compilation)
-- [2026-05-25] 11 new OneDrive extracts integrated: Goals SoW proposal (urgency framing, partial buy-in), red team validation methodology (5-dimension scoring), competitive MTX benchmarks, offsite facilitation playbook (3-day methodology, pre-decisions, person-specific watch-fors), pre-read communication template, EAD framework, LiveOps roadmap, community sentiment analysis, Lighthouse design system
+- **Hiring scorecard methodology added:** Structured interview scoring shared with client leadership (Stephen Bain 8/10 example)
+- **Contract flexibility pattern added:** Glen rejected Dino's over-prescriptive contract templates; early-stage hires need general terms
+- **Art escalation as advisory pattern:** Chain-of-command bypass requires direct intervention, not passive observation
+- **Salary expectation gap pattern:** Interview expectations vs offer letter discrepancy (Charlie Todd case)
+- **Solo HR overload pattern:** Lorenza managing 7+ concurrent pipelines as sole HR person
+- **EAD Framework expanded:** Eliminate > Automate > Delegate in strict order; key anti-pattern documented
+- **Red team methodology deepened:** 5 scoring dimensions with claim accuracy weighted highest (30%)
+- **AI adoption for regulated environments:** Two-lane model with explicit merge controls (NSI engagement)
 
-## Key New Patterns Integrated
-- Urgency-window proposal framing (tied to platform submission deadlines)
-- Separate workstreams enabling partial client buy-in
-- Red team validation pipeline (53 to 93/100 scoring trajectory)
-- Studio offsite facilitation as reusable NBI service offering
-- Community sentiment data as direct input to advisory recommendations
-- Anti-P2W sentiment as binding constraint, not design preference
+## Key Intelligence
 
-## Gaps & Open Questions
-- No retainer pricing model documented
-- Win rate data on proposals not tracked
-- Offsite facilitation outcome data not yet available
-- Non-gaming vertical expansion opportunities not systematically mapped
-- Multi-currency pricing framework needed (USD rates, GBP/SEK engagements)
-- LiveOps consulting delivery patterns offered but not yet delivered
-
-## Bank Health
-- **Line count:** ~210 of 500 max
-- **Coherence:** High -- new material integrated by theme
-- **Staleness risk:** Low (most recent sources May 2026)
+- Separate workstreams for partial buy-in (Goals took pricing SOW only, not live service)
+- Frame proposals around client urgency windows, not NBI capability
+- Three-artifact delivery pattern: Excel + Word + WorkSage
+- NBI hourly rates: $250-$400/hr by service area
+- Fractional C-suite model works at GBP 30k/month
+- Audit-first engagement builds trust that converts to ongoing advisory
+- "Embed and Align" positioning differentiates from report-only consultancies
+- Contract flexibility beats over-prescription for early-stage studios

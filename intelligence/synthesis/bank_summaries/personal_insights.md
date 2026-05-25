@@ -1,39 +1,24 @@
 # Personal Insights -- Summary
 
-**Last compiled:** 2026-05-25 | **Entries:** 42 | **Sources:** 21
-**Role associations:** all roles -- loaded on request (quality standards and decision patterns apply universally)
+**Last compiled:** 2026-05-25 (full rebuild) | **Sources:** 30+ (20 Claude, 5 OneDrive, 3 Granola, 2 Slack)
+**Role associations:** all roles
 
-## What This Bank Knows (top 5)
-- Glen's five interlocking decision principles: quality absolutism, full-scope commitment, manual control over judgement calls, data-driven infrastructure, exception-based management
-- Strategic architecture decisions: vanilla JS over React, PC as production server, AIOS project-agnostic, Agent SDK rejected for batch workloads
-- Rejected approaches catalogue: scope reduction, duration estimates, auto-calculated health/probability, cheaper model alternatives, text-heavy dashboards, white elements in dark theme
-- Working patterns: bulk approval from complete audits, 5-7 visual design iterations, reference-image communication, autonomous delegation for mechanical work
-- Client relationship approaches: paying clients first, three-artifact delivery, principals-only deal ownership, manual lead entry, SoW extraction with pricing/legal filtering
+## What Changed This Rebuild
 
-## Most Recent Additions
-- [2026-05-25] No new ChatGPT extracts qualified for this bank. All ChatGPT extracts mapped to domain-specific banks (forecast_models, games_pitch_decks, client_couch_heroes, client_patterns, production_methods) rather than personal insights. Bank unchanged from initial compilation.
+- **Q2 business strategy added:** Revenue GBP 55k/month vs GBP 75-80k target; pipeline detail; investor debt GBP 600k with payback plan
+- **Decision process patterns from Slack:** Glen codifies decision chains for client production; prefers general/flexible contracts over prescriptive ones
+- **Facilitation philosophy added:** Person-specific watch-fors, scripted rebuttals, pre-decisions before offsites
+- **AI operations as service:** "7-person firm delivering at 3-4x team depth" -- positioned as sellable client offering
+- **EAD Framework:** Eliminate > Automate > Delegate in strict order; "automating before eliminating" is the key anti-pattern
+- **PlaySage status:** ON HOLD, tech stack locked, GBP 2.5M seed ask, SalarySage is a module not separate product
 
-## Section Coverage
-| Section | Entries | Depth |
-|---|---|---|
-| Strategic Decisions | 9 | Strong -- architecture, AI, finance, hierarchy all covered |
-| Rejected Approaches | 10 | Strong -- clear "never do this" patterns with verbatim quotes |
-| Business Philosophy | 8 | Strong -- core principles well-evidenced across sessions |
-| Working Patterns | 9 | Strong -- decision style, UAT, delegation, tooling documented |
-| Client Relationship Approaches | 5 | Moderate -- ordering, ownership, deliverables covered |
-| Open Questions | 4 | Identified scaling and threshold questions |
+## Key Intelligence
 
-## Gaps & Open Questions
-- How quality absolutism scales as client count grows
-- What triggers revisiting rejected approaches (e.g. React threshold)
-- At what scale manual control philosophy requires delegation
-- Whether 50/50 business ops / AIOS health split holds as business grows
-- Glen's consulting delivery philosophy beyond three-artifact pattern under-documented
-- Competitive positioning preferences (how Glen talks about NBI vs competitors) need more data
-- No data on Glen's approach to hiring decisions, team growth, or contractor management philosophy
-
-## Bank Health
-- **Coherence:** High -- synthesised by theme, not by source chronology
-- **Provenance:** Every factual claim tagged with [source: extract_id]
-- **Line count:** ~201 of 500 max -- significant room for growth
-- **Staleness risk:** Low (all sources from April-May 2026, compiled same month)
+- Quality over speed: CFO-grade or nothing; reference images for design intent; 7+ mockup iterations expected
+- No scope-watering: "Hacky code corner cutting watering down my intention is completely unacceptable"
+- No time estimates: structure by milestone deliverables, never by duration
+- Manual control: never auto-derive health states, probabilities, or deal scoring
+- Full dark theme, no white elements, charts/bars/rings over text walls, widescreen-first design
+- Autonomous execution trusted for mechanical fixes; decisions and architecture require Glen
+- Tech debt ordered by user-facing data-loss risk, not code aesthetics
+- Innovation within constraints: "no gold-plating and no just ship it"
