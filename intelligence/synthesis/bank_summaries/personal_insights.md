@@ -1,26 +1,17 @@
 # Personal Insights -- Summary
 
-**Last compiled:** 2026-05-25 | **Entries:** 42 | **Sources:** 20
+**Last compiled:** 2026-05-25 | **Entries:** 42 | **Sources:** 21
 **Role associations:** all roles -- loaded on request (quality standards and decision patterns apply universally)
 
 ## What This Bank Knows (top 5)
-- Glen's quality bar is commercial SaaS, not "good for an internal tool" -- CFO-grade or rejected
-- Scope reduction is read as laziness: build the full version first, trim only with real cost data
-- Duration estimates are permanently banned -- structure by milestone deliverables only
-- Manual control over judgement calls (health state, probability, client ordering) is non-negotiable
-- Decisions happen fast in bulk when presented with complete structured audits, not piecemeal proposals
-
-## Key Themes
-- **Quality absolutism:** reference images as design intent, 7+ mockup iterations, widescreen-first
-- **Full-scope commitment:** never suggest cheaper models or narrower scope without being asked
-- **Exception-based management:** show problems not status, 3-5 actionable numbers not 30-40 metrics
-- **Data-driven infrastructure:** everything configurable from DB, nothing hardcoded
-- **Autonomous trust for mechanical work:** Glen reviews finished products, not phase gates
-- **Vocabulary precision:** NBI Hub = WorkSage, Prerequisites not Dependencies, Fee Income not Revenue
-- **Visual richness:** text walls rejected, charts/rings/bars required, no white in dark theme
+- Glen's five interlocking decision principles: quality absolutism, full-scope commitment, manual control over judgement calls, data-driven infrastructure, exception-based management
+- Strategic architecture decisions: vanilla JS over React, PC as production server, AIOS project-agnostic, Agent SDK rejected for batch workloads
+- Rejected approaches catalogue: scope reduction, duration estimates, auto-calculated health/probability, cheaper model alternatives, text-heavy dashboards, white elements in dark theme
+- Working patterns: bulk approval from complete audits, 5-7 visual design iterations, reference-image communication, autonomous delegation for mechanical work
+- Client relationship approaches: paying clients first, three-artifact delivery, principals-only deal ownership, manual lead entry, SoW extraction with pricing/legal filtering
 
 ## Most Recent Additions
-- [2026-05-25] Initial compilation from 20 Claude session handoffs (2026-04-01 to 2026-05-16)
+- [2026-05-25] No new ChatGPT extracts qualified for this bank. All ChatGPT extracts mapped to domain-specific banks (forecast_models, games_pitch_decks, client_couch_heroes, client_patterns, production_methods) rather than personal insights. Bank unchanged from initial compilation.
 
 ## Section Coverage
 | Section | Entries | Depth |
@@ -33,8 +24,16 @@
 | Open Questions | 4 | Identified scaling and threshold questions |
 
 ## Gaps & Open Questions
-- No extracts yet from client-facing interactions (only internal WorkSage development sessions)
-- Glen's consulting delivery philosophy beyond the three-artifact pattern is under-documented
+- How quality absolutism scales as client count grows
+- What triggers revisiting rejected approaches (e.g. React threshold)
+- At what scale manual control philosophy requires delegation
+- Whether 50/50 business ops / AIOS health split holds as business grows
+- Glen's consulting delivery philosophy beyond three-artifact pattern under-documented
 - Competitive positioning preferences (how Glen talks about NBI vs competitors) need more data
-- Financial decision-making beyond "zero-cost when viable" lacks depth (investment thresholds, ROI thinking)
 - No data on Glen's approach to hiring decisions, team growth, or contractor management philosophy
+
+## Bank Health
+- **Coherence:** High -- synthesised by theme, not by source chronology
+- **Provenance:** Every factual claim tagged with [source: extract_id]
+- **Line count:** ~201 of 500 max -- significant room for growth
+- **Staleness risk:** Low (all sources from April-May 2026, compiled same month)

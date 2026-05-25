@@ -1,14 +1,14 @@
-# Production Methods — Knowledge Bank
+# Production Methods -- Knowledge Bank
 
 **Last compiled:** 2026-05-25
-**Sources:** 23 extracts from Claude session handoffs (April-May 2026)
+**Sources:** 23 Claude session extracts (April-May 2026) + 7 ChatGPT extracts (October 2025 -- January 2026)
 **Role associations:** producer, production_consultant
 
 ---
 
 ## Executive Summary
 
-This bank captures production methodology patterns observed during NBI's own dashboard development (WorkSage) and client delivery work. The patterns are transferable to game studio advisory: audit-driven improvement cycles, fixed work item hierarchies with prerequisite enforcement, test infrastructure architecture for CJS/ESM hybrid stacks, and a three-artifact client delivery model. The strongest signal is that structured numeric audits drive faster improvement than ad hoc bug fixing, and that work ordering by data-loss risk outperforms ordering by code aesthetics. These patterns apply directly to studios of 20-100 people building internal tools and live service games.
+This bank captures production methodology patterns from NBI's own dashboard development (WorkSage), client delivery work, and external game studio advisory. The patterns span audit-driven improvement cycles, fixed work item hierarchies with prerequisite enforcement, test infrastructure architecture, three-artifact client delivery, hybrid Agile+stage-gate (Agilefall) methodology for AAA studios, org design for 50-100 person studios, salary audit methodology, and SoW report structuring. The strongest signal remains that structured numeric audits drive faster improvement than ad hoc bug fixing, and that work ordering by data-loss risk outperforms ordering by code aesthetics. New material from ChatGPT extracts adds significant depth on studio-scale production: Agilefall as the NBI standard framework for teaching client studios, org design patterns for dual-track (game + platform) studios, and reusable methodologies for production risk assessment, CTO hiring, and consulting report quality assurance.
 
 ---
 
@@ -22,6 +22,8 @@ This bank captures production methodology patterns observed during NBI's own das
 | Tech debt ordering (risk-first) | Any | Y | Data-loss risk > architectural drift > CSP > state management | All 20 critical audit items resolved before features [source: handoff_2026-04-19_tech_debt_sprint] |
 | Three-artifact delivery | Client teams | Y | Excel (planning) + Word (execution) + live tracker (WorkSage) | Goals Studio engagement delivered on time [source: handoff_2026-04-21_goals_deliverables] |
 | AutoResearch iteration loop | Any (AI-assisted) | Y | Score > improve > score > converge on quality criteria | Applicable to consulting deliverables, pricing models, pitch decks [source: handoff_2026-05-13_karpathy_capabilities] |
+| Agilefall (hybrid Agile + stage-gate) | 25-100 | Y | Gates on top (Discovery through Gold), sprints underneath | NBI standard for teaching production to client studios [source: chatgpt_68fb7b4a] |
+| SoW report (15-section, evidence-based) | Client engagements | Y | Evidence Table appendix, multi-role red teaming | Reusable for all NBI consulting deliverables [source: chatgpt_6907ec33] |
 
 ---
 
@@ -51,7 +53,9 @@ At this scale, the patterns above still apply but require infrastructure investm
 - **Test infrastructure** must handle CJS/ESM interop, separate test databases, and fixture factories for consistent test data. Test suites grew from 23 to 400+ tests over six weeks. [source: handoff_2026-04-15b_test_infra_and_kanban_next]
 - **Data-driven configuration** replaces hardcoded values. Pipeline stages, field options, resource types, and sectors all stored in the database, never in code. [source: handoff_2026-04-05a_leads_expenses_qa]
 
-No direct studio data at 50-100 scale beyond NBI's own tooling observations. This is a gap area. [See Open Questions]
+**Studio-specific data (new):** A ~55-person studio (Couch Heroes) building an MMO-lite with a single producer showed 15 production risks, the most critical being single-producer bottleneck, product-platform scope coupling (game and platform competing for same capacity without hard slice boundaries), and integration instability across UE5 client, dedicated servers, patcher, and microservices. One producer cannot sustainably coordinate game content, platform work, backend services, build pipelines, playtests, partners, and vendors simultaneously. [source: chatgpt_69034e5d]
+
+**Org design at this scale:** Five structural anti-patterns identified: producer mis-parented through Finance/Ops instead of studio delivery leader; platform treated as ops subteam when it needs GM-style ownership; CTO span too flat with no engineering managers; Tech Art/VFX in grey zone between Art and Engineering; content disciplines not grouped under Game Director. Three alternatives proposed: Classic Functional with strong EP hub (best under 60), Pod/Strike Team (best for parallel workstreams), Platform+Game dual-track with shared services (best when platform is genuinely strategic). [source: chatgpt_6967809b]
 
 ---
 
@@ -68,7 +72,7 @@ NBI operates fully remote. Couch Heroes (client, ~55 employees UK+Greece) is 100
 
 ### Hybrid
 
-No direct data from hybrid studios yet. [See Open Questions]
+No direct data from hybrid studios yet. The AAA Agilefall guide specifies hybrid London/Cambridge for leadership roles with remote UK for others, but no outcome data on this model. [source: chatgpt_68fb7b4a] [See Open Questions]
 
 ### Co-located
 
@@ -78,27 +82,25 @@ No direct data from co-located studios yet. [See Open Questions]
 
 ## Sprint/Cycle Length Evidence
 
+### Agilefall: Hybrid Stage-Gate + Sprints (NBI Standard for Client Studios)
+
+The NBI standard framework for teaching production to client studios is Agilefall: milestone gates on top (Discovery, Pre-production, Production, Alpha, Beta, Gold) with iterative sprints underneath. Pre-production exits with a playable vertical slice. Two planning horizons: quarterly PI planning (8-12 weeks) plus sprint planning (1-2 weeks). AAA needs clear funding/risk approval gates but also iterative delivery; hybrid is the only practical model. [source: chatgpt_68fb7b4a]
+
+**Weekly rhythm:** daily standup 15min, backlog refinement 60-90min, sprint planning 2-4h, sprint review 60-120min, retrospective 60min. Backlog hierarchy: Epics > Features > User Stories > Tasks. Definition of Ready: clear problem, acceptance criteria, dependencies mapped, assets identified, team agreement. Definition of Done: criteria met, code reviewed, assets integrated, tests pass, docs updated, build green. [source: chatgpt_68fb7b4a]
+
 ### Audit-Driven Sprints (Variable Length)
 
-Rather than fixed-length sprints, NBI uses audit-driven improvement cycles. A numeric audit scores the system across multiple dimensions (19 dimensions in the initial audit), identifies gaps, and the team works through themed sprints until the score improves. The cycle length is determined by the work, not by a calendar. [source: handoff_2026-04-08b_comprehensive_improvement]
+Rather than fixed-length sprints, NBI uses audit-driven improvement cycles internally. A numeric audit scores the system across multiple dimensions (19 dimensions in the initial audit), identifies gaps, and the team works through themed sprints until the score improves. The cycle length is determined by the work, not by a calendar. [source: handoff_2026-04-08b_comprehensive_improvement]
 
-Sprint grouping by concern area prevents context-switching:
-1. Foundation (logging, timeouts, validation, indexes, process config)
-2. Security (session handling, XSS, audit logging, RBAC)
-3. Performance (query consolidation, N+1 fixes, pagination, caching)
-4. Frontend architecture (render decomposition, event listeners, undo)
-5. UX (conflict resolution, offline support, responsive)
-6. Operations (backup, validation, monitoring, dead code)
-
-This ordering (foundation > security > performance > frontend > UX > ops) reflects the principle that infrastructure must be solid before features are polished. [source: handoff_2026-04-08b_comprehensive_improvement]
+Sprint grouping by concern area prevents context-switching: (1) Foundation, (2) Security, (3) Performance, (4) Frontend architecture, (5) UX, (6) Operations. This ordering (foundation > security > performance > frontend > UX > ops) reflects the principle that infrastructure must be solid before features are polished. [source: handoff_2026-04-08b_comprehensive_improvement]
 
 ### Autonomous Execution Sessions
 
-Large backlogs can be cleared in single autonomous sessions when a plan is pre-approved. One session cleared 33 bug tracker items and built 7 features. The enabling conditions: (1) approved plan with clear scope, (2) autonomous execution authority, (3) established test infrastructure. [source: handoff_2026-04-14a_full_backlog_clearance]
+Large backlogs can be cleared in single autonomous sessions when a plan is pre-approved. One session cleared 33 bug tracker items and built 7 features. Enabling conditions: (1) approved plan with clear scope, (2) autonomous execution authority, (3) established test infrastructure. [source: handoff_2026-04-14a_full_backlog_clearance]
 
-### No Evidence for Fixed-Length Sprints
+### No Evidence for Fixed-Length Sprints (Internal)
 
-NBI does not use 1-week or 2-week sprints internally. Work is structured by milestone deliverables, never by duration. Glen explicitly rejects timeline estimates: "Stop quoting timelines; you're terrible at them." [source: handoff_2026-04-17a_news_aggregator_m1_start]
+NBI does not use 1-week or 2-week sprints internally. Work is structured by milestone deliverables, never by duration. Glen explicitly rejects timeline estimates. However, Agilefall recommends 1-2 week sprints for client studios. [source: handoff_2026-04-17a_news_aggregator_m1_start, chatgpt_68fb7b4a]
 
 ---
 
@@ -106,23 +108,19 @@ NBI does not use 1-week or 2-week sprints internally. Work is structured by mile
 
 ### The Approval Gate Pattern
 
-Glen's approval style creates a natural pre-production/production boundary. He reviews comprehensive audits and makes binary decisions: "build now" or "discuss approach first." There is no "park it for later" category. Features approved as "build now" move immediately to execution. Features needing approach discussion stay in pre-production until the approach is agreed. [source: handoff_2026-04-04_finances_and_features]
+Glen's approval style creates a natural pre-production/production boundary. He reviews comprehensive audits and makes binary decisions: "build now" or "discuss approach first." Features approved as "build now" move immediately to execution. [source: handoff_2026-04-04_finances_and_features]
+
+### Agilefall Gate Criteria
+
+In the Agilefall framework, pre-production exits with a playable vertical slice. Each gate has explicit entry/exit criteria and funding/risk review. [source: chatgpt_68fb7b4a]
 
 ### Data Migration as a Gate
 
-Major data migrations serve as production gates. The double-escape migration (fixing HTML entities compounded across every text field) required:
-- Fixpoint loop processing (multiple passes until no change)
-- Correct ordering (decode &amp; before other entities)
-- Full database backup before execution
-- Verification that post-migration backups are safe but pre-migration backups will re-corrupt
-
-The principle: escape at render, never at storage. Raw text in the database is the correct state. [source: handoff_2026-04-15a_double_escape_migration]
+The double-escape migration (fixing HTML entities) required fixpoint loop processing, correct ordering, and full database backup. Principle: escape at render, never at storage. [source: handoff_2026-04-15a_double_escape_migration]
 
 ### Security as a Gate
 
-Security reviews must happen after every major feature build, not as a separate phase. NBI discovered critical issues (static middleware exposing the entire parent directory, path traversal on attachments, missing RBAC on admin endpoints) only through post-feature security passes. [source: handoff_2026-04-05a_leads_expenses_qa]
-
-Additional security patterns established as production prerequisites: safeUrl() for user-controlled href contexts, timingSafeEqual for internal service authentication, failover latches with auto-reset (6-hour cooldown). [source: handoff_2026-04-18_worksage_audit_sprint]
+Security reviews must happen after every major feature build. Additional patterns: safeUrl() for user-controlled href, timingSafeEqual for internal service auth, failover latches with auto-reset. [source: handoff_2026-04-05a_leads_expenses_qa, handoff_2026-04-18_worksage_audit_sprint]
 
 ---
 
@@ -130,22 +128,15 @@ Additional security patterns established as production prerequisites: safeUrl() 
 
 ### Automated Communication Cadence
 
-NBI's live operations use three automated email cadences:
-- **PM daily report:** 08:00 weekdays
-- **Due/late ticket warnings:** 09:00 weekdays
-- **Inbound email-to-task matching:** polls every 10 minutes, fuzzy matches subject to client/task
-
-All email goes through Microsoft Graph API (not SMTP -- Azure Security Defaults block SMTP AUTH). [source: handoff_2026-04-16b_full_day]
+NBI's live operations use three automated email cadences: PM daily report (08:00 weekdays), due/late ticket warnings (09:00 weekdays), inbound email-to-task matching (polls every 10 minutes). All email through Microsoft Graph API. [source: handoff_2026-04-16b_full_day]
 
 ### Monitoring and Recovery
 
-- **Circuit breaker pattern:** 3 failures trigger open state, 60-second reset period. Applied to all external API integrations (OCR, FX rates, email). [source: handoff_2026-04-09a_move_to_nine]
-- **Sync poll architecture:** 10-second incremental polling with cooldown to suppress re-renders of the user's own changes. The sync poll detecting its own changes bouncing from the server was the root cause of scroll reset issues. [source: handoff_2026-04-06c_glen_uat]
-- **Prometheus metrics:** exposed on /metrics endpoint for operational monitoring. [source: handoff_2026-04-09a_move_to_nine]
+Circuit breaker pattern (3 failures, 60-second reset). 10-second incremental sync polling with cooldown. Prometheus metrics on /metrics. [source: handoff_2026-04-09a_move_to_nine, handoff_2026-04-06c_glen_uat]
 
 ### No Genre-Specific Live Ops Data
 
-Live ops cadence data is currently limited to internal tooling operations. No game-specific update scheduling, event planning, or seasonal content cadence data yet. [See Open Questions]
+Live ops cadence data is limited to internal tooling. No game-specific update scheduling or seasonal content cadence data yet. [See Open Questions]
 
 ---
 
@@ -153,25 +144,39 @@ Live ops cadence data is currently limited to internal tooling operations. No ga
 
 ### Visual Design Requires Multiple Iterations
 
-Visual design for Glen requires 5-7 mockup iterations. The Command Centre went through 7 versions before approval. Common rejection patterns: "looks like shit on widescreen" (must design for large monitors first), "underwhelming value" (must show intelligence not inventory), text-heavy views rejected in favour of charts/rings/bars/gauges. [source: handoff_2026-05-11_command_centre]
+Visual design for Glen requires 5-7 mockup iterations. The Command Centre went through 7 versions before approval. Design for large monitors first. [source: handoff_2026-05-11_command_centre]
 
 ### Build Antipatterns (Post-Mortem Evidence)
 
-Six antipatterns identified from a failed build session [source: handoff_2026-05-12_command_centre_build]:
-
-1. **No visual verification.** Claiming "fixed" without testing. The builder must verify visually or explicitly state they cannot and ask the principal to check.
-2. **Context rot.** Late in a session, basic schema lookups are missed. Always check actual schema before writing queries.
-3. **Shotgun debugging.** Trying random CSS approaches without diagnosing first. Use computed styles inspection, then fix once.
-4. **Workaround normalisers.** Adding data transformation layers instead of finding the root cause. Multiplies maintenance burden.
-5. **Visual quality abandonment.** Approved mockups were glassmorphic and animated; implementation was flat boxes with text. Subagents need full HTML structure, not just CSS class names.
-6. **Commit noise.** 24 small commits for what should have been a focused build-then-fix cycle.
+Six antipatterns from a failed build session: (1) No visual verification, (2) Context rot, (3) Shotgun debugging, (4) Workaround normalisers, (5) Visual quality abandonment, (6) Commit noise. [source: handoff_2026-05-12_command_centre_build]
 
 ### The LLM Wiki and AutoResearch Patterns
 
-Two patterns from Karpathy's work applied to production methodology [source: handoff_2026-05-13_karpathy_capabilities]:
+Compile-client pattern: compile client document folder into structured knowledge base. AutoResearch: score > improve > score > converge. Both applicable to consulting deliverables. [source: handoff_2026-05-13_karpathy_capabilities]
 
-- **LLM Wiki (compile-client):** Compile a client's document folder into a structured knowledge base with source provenance. Compile once, load the artefact, never re-read raw sources every session.
-- **AutoResearch:** Score documents against weighted criteria, make atomic improvements, re-score until convergence. Applicable to consulting deliverables, pricing models, and pitch decks.
+---
+
+## Consulting Delivery Methodology
+
+### SoW Report Structure (15-Section Standard)
+
+NBI's standard C-level consulting report: (1) Executive Summary with top 8 risks, (2) Background and Intent, (3) Scope of Work with in/out boundaries anchored to contract clause references, (4) Deliverables and Acceptance with measurable tests, (5) Delivery Plan with entry/exit criteria, (6) Technical Architecture, (7) Cross-Play Readiness, (8) Design/Product Readiness, (9) KPI Tree with target bands and owners, (10) Risk Register top 20 ranked by impact x likelihood, (11) Staffing Plan and RACI, (12) Commercials and Change Control, (13) Governance and Communication, (14) Assumptions/Dependencies/Open Questions, (15) Appendices with Evidence Table. Multi-role red teaming embedded in the process. [source: chatgpt_6907ec33]
+
+### Milestone Staging Validation
+
+Work plans must be validated against actual consultant capacity. Tasks are tagged to milestones and counted per epic to identify front-loading, back-loading, or unrealistic clustering. Client priority drives sequencing (hiring and org chart work first for CH). [source: chatgpt_69395da6]
+
+### Production Risk Assessment Methodology
+
+Diagnose before prescribing: problems only, no mitigations in the initial assessment. A ~50-person studio assessment yielded 15 prioritised risks covering bottlenecks, scope coupling, integration instability, topology uncertainty, pipeline fragility, dependency blindness, QA gaps, telemetry gaps, partner volatility, and compliance deferral. This diagnostic-first approach built trust and led to a multi-workstream engagement. [source: chatgpt_69034e5d]
+
+### CTO Hiring for Game Studios
+
+When a studio has non-games C-level leadership and junior engineering staff, the CTO must be a hybrid Live-Service Game + Platform CTO -- not a general web CTO or pure engine CTO. Must-haves: shipped online sessioned game, live economy with audit trails, service contracts with schema versioning, ability to uplift junior teams. Output is leads, standards, and predictable delivery -- not hero coding. Interview screening: incident postmortems, perf testing specifics, auditable entitlement design, multi-mode containment, standards that stuck on junior teams. [source: chatgpt_69437062]
+
+### Salary Data Quality Assurance
+
+Two-track audit for salary data: Track 1 (file structure) assesses encoding, consistency, and analysis readiness. Track 2 (salary accuracy) validates by role, grade, country, hub status, currency, and year. Common failures: monthly values in annual columns, currency mismatches, mixed year basis, hub vs non-hub reversed, grade progression broken. Each issue gets Issue_ID, Severity, Dimension, Symptom, Evidence, Proposed fix, and Confidence score. Every benchmark requires a real citation. [source: chatgpt_69698081]
 
 ---
 
@@ -179,33 +184,28 @@ Two patterns from Karpathy's work applied to production methodology [source: han
 
 ### Role Dispatch System
 
-NBI's AI operating system uses deterministic role dispatch: when conversation enters a domain topic, the corresponding role's expert knowledge (AGENT.md, 150-250 lines) loads automatically. Two routing mechanisms: skill-triggered (e.g., brainstorming loads VP Product context) and topic-detected (e.g., legal conversation loads General Counsel context). [source: handoff_2026-05-15_aios_audit_phase1]
-
-This is transferable to studios: instead of hiring full-time specialists in every domain, a structured knowledge architecture can route expertise on demand.
+NBI's AI operating system uses deterministic role dispatch: skill-triggered and topic-detected routing. Transferable to studios using structured knowledge architecture for on-demand expertise. [source: handoff_2026-05-15_aios_audit_phase1]
 
 ### Configuration as Production Pattern
 
-Context efficiency directly impacts production velocity. Three patterns [source: handoff_2026-04-19_settings_overhaul]:
-- Permission management: wildcard permissions eliminate friction from granular allow-lists
-- Context window management: proper sizing prevents premature context loss
-- Information density: skill descriptions trimmed from ~1536 chars to 200 chars each saved ~125K chars per turn
+Permission management, context window management, and information density all directly impact velocity. [source: handoff_2026-04-19_settings_overhaul]
 
 ### Technology Selection Discipline
 
-Evaluate tools by reading source code and architecture, not by star counts and READMEs. The Agent SDK discovery illustrates this: it adds ~13K tokens overhead per call, making it unusable for batch workloads despite being the "official" tool. The correct choice (raw SDK with streaming) was only discovered by investigating the actual token usage. [source: handoff_2026-04-17c_news_m2_m3_complete]
-
-Similarly, React was explicitly rejected for WorkSage because it does not earn its keep for a single-page internal dashboard. Technology selection must match the actual complexity of the use case, not industry convention. [source: handoff_2026-04-18_desktop_migration_complete]
+Evaluate tools by reading source code, not star counts. React rejected for WorkSage. Agent SDK rejected for batch workloads (~13K tokens overhead per call). [source: handoff_2026-04-17c_news_m2_m3_complete, handoff_2026-04-18_desktop_migration_complete]
 
 ---
 
 ## Open Questions
 
-- **Studio-specific sprint data.** All current evidence comes from NBI's own development. Need data from client studios (Couch Heroes, Goals, Lighthouse) on their actual sprint/cycle patterns and outcomes.
-- **Hybrid and co-located adaptations.** No data on what changes when teams are not fully remote. Couch Heroes (100% remote) and NBI (remote) are the only data points.
-- **Genre-specific live ops cadence.** No data on update scheduling, event planning, or seasonal content cadence by game genre. This is critical for production consulting.
-- **Scale transition pain points.** No data on what breaks when studios grow from 25 to 50 or 50 to 100 people. The hierarchy and prerequisite patterns may need different enforcement at larger scales.
-- **Pre-production gate criteria.** NBI's implicit gate (Glen's approval) does not generalise to studios with multiple stakeholders. Need a framework for multi-stakeholder production gates.
-- **Estimation and velocity.** Glen explicitly rejects timeline estimates, but client studios need some form of predictability. How to reconcile milestone-based structuring with client expectations for delivery dates.
+- **Studio-specific sprint data.** Need data from client studios on actual sprint/cycle patterns and outcomes beyond NBI's own development.
+- **Hybrid and co-located adaptations.** No data on what changes when teams are not fully remote.
+- **Genre-specific live ops cadence.** No data on update scheduling or seasonal content cadence by game genre.
+- **Scale transition pain points.** No data on what breaks when studios grow from 25 to 50 or 50 to 100 people.
+- **Multi-stakeholder production gates.** NBI's implicit gate (Glen's approval) does not generalise. Need a framework for multi-stakeholder gates.
+- **Estimation and velocity.** Glen rejects timeline estimates, but client studios need some predictability. How to reconcile milestone-based structuring with client expectations.
+- **Agilefall outcomes data.** The framework is the NBI standard but no client implementation outcome data exists yet.
+- **MTX consulting delivery patterns.** The 8-workstream MTX SoW structure exists but no delivery outcome data. [source: chatgpt_68e3cfc8]
 
 ---
 
@@ -213,27 +213,34 @@ Similarly, React was explicitly rejected for WorkSage because it does not earn i
 
 | Extract ID | Date | Key Topics |
 |---|---|---|
-| handoff_2026-04-04_finances_and_features | 2026-04-04 | Feature approval in bulk, "build now" vs "discuss approach" |
-| handoff_2026-04-05a_leads_expenses_qa | 2026-04-05 | Data-driven configuration, security review cadence |
-| handoff_2026-04-06a_ux_overhaul | 2026-04-06 | 22 UX decisions, tab naming, client ordering, manual health state |
-| handoff_2026-04-06c_glen_uat | 2026-04-06 | Scroll preservation, live UAT methodology, sync poll patterns |
-| handoff_2026-04-07b_expenses_finance_qa | 2026-04-07 | Consulting P&L structure, expense workflow |
-| handoff_2026-04-08b_comprehensive_improvement | 2026-04-08 | 19-dimension audit, themed sprint grouping, 6.6 to 7.3 score |
-| handoff_2026-04-09a_move_to_nine | 2026-04-09 | Production hosting, migration framework, circuit breaker |
-| handoff_2026-04-11b_hierarchy_dependencies_timeline | 2026-04-11 | 4-level hierarchy, prerequisite enforcement, terminology |
-| handoff_2026-04-14a_full_backlog_clearance | 2026-04-14 | SoW extraction, 33+7 autonomous session velocity |
-| handoff_2026-04-15a_double_escape_migration | 2026-04-15 | XSS model, fixpoint migration, escape-at-render |
-| handoff_2026-04-15b_test_infra_and_kanban_next | 2026-04-15 | Vitest + Playwright, CJS/ESM interop, fixture factories |
-| handoff_2026-04-16b_full_day | 2026-04-16 | Email integration, client-scoped multi-tenancy |
-| handoff_2026-04-17a_news_aggregator_m1_start | 2026-04-17 | No scope-watering rule, no timelines rule |
-| handoff_2026-04-17c_news_m2_m3_complete | 2026-04-17 | Agent SDK overhead, raw SDK pattern, actual cost data |
-| handoff_2026-04-18_desktop_migration_complete | 2026-04-18 | React rejection, CLI migration, worktree discipline |
-| handoff_2026-04-18_worksage_audit_sprint | 2026-04-18 | Security patterns, safeUrl, timingSafeEqual, failover latch |
-| handoff_2026-04-18_portfolio_dashboard_v2 | 2026-04-18 | Executive dashboard design, progressive disclosure, RAG cards |
-| handoff_2026-04-19_tech_debt_sprint | 2026-04-19 | Risk-first tech debt ordering, autonomous execution trust |
-| handoff_2026-04-19_settings_overhaul | 2026-04-19 | Context efficiency, permission management, information density |
-| handoff_2026-04-21_goals_deliverables | 2026-04-21 | Three-artifact delivery, Excel + Word + WorkSage |
-| handoff_2026-05-11_command_centre | 2026-05-11 | 7 mockup iterations, visual design process |
-| handoff_2026-05-12_command_centre_build | 2026-05-12 | 6 build antipatterns, visual verification, context rot |
-| handoff_2026-05-13_karpathy_capabilities | 2026-05-13 | LLM Wiki, AutoResearch, compile-client pattern |
-| handoff_2026-05-15_aios_audit_phase1 | 2026-05-15 | Role dispatch, knowledge architecture, CLAUDE.md design |
+| handoff_2026-04-04_finances_and_features | 2026-04-04 | Feature approval in bulk |
+| handoff_2026-04-05a_leads_expenses_qa | 2026-04-05 | Data-driven configuration, security review |
+| handoff_2026-04-06a_ux_overhaul | 2026-04-06 | 22 UX decisions |
+| handoff_2026-04-06c_glen_uat | 2026-04-06 | Scroll preservation, live UAT, sync poll |
+| handoff_2026-04-07b_expenses_finance_qa | 2026-04-07 | Consulting P&L structure |
+| handoff_2026-04-08b_comprehensive_improvement | 2026-04-08 | 19-dimension audit, themed sprints |
+| handoff_2026-04-09a_move_to_nine | 2026-04-09 | Production hosting, migration framework |
+| handoff_2026-04-11b_hierarchy_dependencies_timeline | 2026-04-11 | 4-level hierarchy, prerequisites |
+| handoff_2026-04-14a_full_backlog_clearance | 2026-04-14 | SoW extraction, autonomous session |
+| handoff_2026-04-15a_double_escape_migration | 2026-04-15 | XSS model, fixpoint migration |
+| handoff_2026-04-15b_test_infra_and_kanban_next | 2026-04-15 | Vitest + Playwright, CJS/ESM |
+| handoff_2026-04-16b_full_day | 2026-04-16 | Email integration, multi-tenancy |
+| handoff_2026-04-17a_news_aggregator_m1_start | 2026-04-17 | No scope-watering, no timelines |
+| handoff_2026-04-17c_news_m2_m3_complete | 2026-04-17 | Agent SDK overhead, raw SDK |
+| handoff_2026-04-18_desktop_migration_complete | 2026-04-18 | React rejection, CLI migration |
+| handoff_2026-04-18_worksage_audit_sprint | 2026-04-18 | Security patterns |
+| handoff_2026-04-18_portfolio_dashboard_v2 | 2026-04-18 | Executive dashboard design |
+| handoff_2026-04-19_tech_debt_sprint | 2026-04-19 | Risk-first tech debt ordering |
+| handoff_2026-04-19_settings_overhaul | 2026-04-19 | Context efficiency |
+| handoff_2026-04-21_goals_deliverables | 2026-04-21 | Three-artifact delivery |
+| handoff_2026-05-11_command_centre | 2026-05-11 | 7 mockup iterations |
+| handoff_2026-05-12_command_centre_build | 2026-05-12 | 6 build antipatterns |
+| handoff_2026-05-13_karpathy_capabilities | 2026-05-13 | LLM Wiki, AutoResearch |
+| handoff_2026-05-15_aios_audit_phase1 | 2026-05-15 | Role dispatch, AIOS |
+| chatgpt_68fb7b4a | 2025-10-24 | AAA Agilefall production guide |
+| chatgpt_69034e5d | 2025-10-30 | 50-person studio production risks |
+| chatgpt_6907ec33 | 2025-11-02 | 15-section SoW report structure |
+| chatgpt_69395da6 | 2025-12-10 | Milestone staging validation |
+| chatgpt_69437062 | 2025-12-18 | CTO profile for MMO-lite studio |
+| chatgpt_6967809b | 2026-01-14 | Org design alternatives |
+| chatgpt_69698081 | 2026-01-16 | Salary audit methodology |
