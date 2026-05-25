@@ -14,8 +14,9 @@
 - Size filter: skip > 50MB
 
 ### ChatGPT Export
-- Path: TBD — ask Glen for exact location on OneDrive
-- Format: conversations.json (OpenAI export format)
+- Path: D:\OneDrive\CHATGPT HISTORY\conversations.json
+- Format: conversations.json (OpenAI export format, ~664MB)
+- Titles list: D:\OneDrive\CHATGPT HISTORY\conversation_titles.txt (for fast filtering)
 
 ## MCP Sources
 
@@ -35,7 +36,13 @@
 
 ### Slack
 - Tools: mcp__claude_ai_Slack__slack_read_channel, mcp__claude_ai_Slack__slack_search_public_and_private
-- Channels: TBD — configure on first run (list channels, ask Glen which to monitor)
+- Channels:
+  - DM: Lorenza (ongoing)
+  - DM: Valeria (ongoing)
+  - DM: Robin (ongoing)
+  - DM: Vardis (Couch Heroes CEO)
+  - DM: Aris (Couch Heroes COO)
+  - Channel: Product Council
 - Filter: substantive exchanges only (>50 words, threaded discussions 3+ replies, shared links with context)
 
 ## Ignore Rules (Local Files)
