@@ -2,28 +2,37 @@
 
 ## What's New
 
-- **ChatGPT harvest complete:** 34 extracts from 505 filtered conversations (45 read, 34 qualifying). Covers Oct 2024 — Jan 2026.
-- **4 new banks compiled:** forecast_models (93 lines), games_pitch_decks (113 lines), client_couch_heroes (110 lines), client_patterns (91 lines)
-- **2 existing banks updated:** production_methods (153 lines, +7 ChatGPT extracts), personal_insights (131 lines, unchanged content but summary refreshed)
-- **6 of 7 banks now populated.** Only industry_current remains empty (2 extracts, needs 1 more).
-- **9 cloud routines live:** daily brief, 3 ingestion (Granola/Gmail/Slack at 20:00 UK), 5 research (industry daily, pitch/production/competitors weekly, forecasts fortnightly)
+- **Pipeline fully operational.** 104 raw extracts across 5 sources. 7 banks compiled (970 total lines). 9 cloud routines scheduled.
+- **Industry intelligence (12 findings today):**
+  - Google/Epic settlement drops Play Store commission to 20% by 30 June — directly affects mobile client economics
+  - UK ASA loot box enforcement started 26 May — compliance advisory opportunity for CH and future clients
+  - Morgan Stanley: AI could cut dev costs 44%, $275B market by 2028
+  - Grand Games raised $70M Series B (Istanbul hybridcasual, 6x valuation jump)
+  - Midsummer Studios closure — $6M VC-funded, never shipped. Structural VC-gaming mismatch case study.
+  - GTA 6 confirmed 19 Nov 2026 launch
+- **Pitch deck research (5 findings):**
+  - The Games Fund VC template publicly available — highest-actionability starting point for client decks
+  - Homa Games $50M Series A with 13 slides — "sell the company not the game" thesis
+  - $500K-$3M indie funding dead zone documented via Little Polygon 50+ pitch failure post-mortem
+- **Local file harvest (27 extracts):** Goals engagement data (beta metrics, competitive MTX, pricing matrix), CH strategic pre-decisions and facilitation playbook, NBI brain modules indexed
 
 ## Today's Context
 
-Intelligence pipeline fully operational. All scheduled routines will begin firing today.
+Intelligence pipeline bootstrap session. All infrastructure built, all sources ingested, all banks compiled.
 Most relevant banks:
-- **forecast_models** — cohort-based F2P forecast blueprint, AERM simulator spec, valuation workbooks
-- **games_pitch_decks** — data room checklists, investor database, pitch structure guides
-- **client_couch_heroes** — production risks, compensation benchmarks, coaching framework, org design
+- **industry_current** — 12 fresh findings from today's gaming news
+- **games_pitch_decks** — 5 new research findings plus existing client deck work
+- **client_couch_heroes** — deepest client knowledge bank (19 sources)
 
 ## Pipeline Health
 
-- Banks: 6 active, 1 empty (industry_current)
-- Pending: 0 extracts awaiting promotion, 0 sensitive awaiting review
-- Research: first cycles fire today (industry 06:03, brief 06:57)
-- New bank suggestions: 4 noted (consulting_frameworks, studio_staffing_models, salary_benchmarks, investor_database) — not yet at 3-extract threshold
+- Banks: 7 active, 0 stale
+- Total extracts: 104 across 5 sources (Granola, Gmail, Slack not yet ingested — first runs tonight at 20:00)
+- Research: 2 industry cycles + 1 pitch deck cycle completed today
+- 2 banks need recompilation to integrate latest research (games_pitch_decks, industry_current)
+- ~50 binary files on OneDrive could not be read — need document conversion for .docx/.xlsx/.pptx/.pdf
 
 ## Actions Needed
 
-- **ChatGPT export path:** provide path if you want to re-run with updated export in future
-- **Calibration review:** when ready, review sample extracts across both sources to tune scoring
+- **4 new bank suggestions** from ChatGPT harvest: consulting_frameworks, studio_staffing_models, salary_benchmarks, investor_database. Approve any to create?
+- **Binary file access:** ~50 client deliverables (.docx, .xlsx, .pptx) couldn't be read. Worth setting up document conversion to unlock them?
