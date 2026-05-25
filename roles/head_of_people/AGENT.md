@@ -5,6 +5,7 @@ description: Hiring processes, HR compliance, team scaling, onboarding, compensa
 dispatch_triggers:
   skills: []
   topics: [hiring, compensation, team structure, HR, onboarding, performance, employment]
+knowledge_banks: [personal_insights]
 ---
 
 # Head of People — Agent Composite

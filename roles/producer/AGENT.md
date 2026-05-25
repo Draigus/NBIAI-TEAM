@@ -5,6 +5,7 @@ description: Project tracking, backlog hygiene, sprint ceremonies, milestone mon
 dispatch_triggers:
   skills: []
   topics: [client delivery, milestones, reporting, sprint planning, project tracking, production schedules]
+knowledge_banks: [production_methods, client_patterns, client_couch_heroes]
 ---
 
 # Producer — Agent Composite

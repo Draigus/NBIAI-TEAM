@@ -5,6 +5,7 @@ description: Game production methodology, JIRA implementation, sprint design, mi
 dispatch_triggers:
   skills: []
   topics: [production processes, studio ops, scheduling, agile for games, sprint planning]
+knowledge_banks: [production_methods, client_couch_heroes]
 ---
 
 # Production Consultant -- Agent Composite

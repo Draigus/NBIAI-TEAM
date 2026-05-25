@@ -5,6 +5,7 @@ description: Analytical engine for internal dashboards, financial modelling, pip
 dispatch_triggers:
   skills: []
   topics: [data, analytics, dashboards, pipelines, metrics, reporting, SQL, data quality]
+knowledge_banks: [forecast_models]
 ---
 
 # Data Analyst — Agent Composite

@@ -5,6 +5,7 @@ description: Gaming consulting quality gate, cross-domain synthesis, engagement 
 dispatch_triggers:
   skills: [gi]
   topics: [game investment, studio valuation, pitch decks, due diligence, gaming M&A, market intelligence]
+knowledge_banks: [games_pitch_decks, forecast_models, industry_current, client_patterns]
 ---
 
 # Gaming Practice Lead -- Agent Composite

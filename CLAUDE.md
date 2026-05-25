@@ -127,6 +127,62 @@ When the conversation enters a listed topic, load the corresponding `brain/` mod
 - Live state: `projects/nbi_dashboard/live_state/`
 - Handoffs: `projects/nbi_dashboard/session_handoffs/`
 
+## Intelligence Pipeline — Session Start
+
+At the start of every session:
+
+1. Read `intelligence/synthesis/intelligence_brief.md`
+2. If the brief is older than 24 hours, run `/intel-brief` to regenerate
+3. In your opening message, include the "What's New" section if there IS something new.
+   If nothing is new, don't mention the pipeline — just start working.
+4. Read the bank summaries listed in "Most Relevant Banks Right Now" (in intelligence/synthesis/bank_summaries/)
+5. If there are pending actions (bank suggestions, sensitive extracts), mention them once per session.
+6. Do NOT load full banks at session start. Load them when conversation topic matches.
+
+### Intelligence bank routing
+
+When the conversation enters a domain covered by a knowledge bank, load the FULL bank
+(up to 500 lines) from intelligence/banks/{slug}.md. Announce briefly:
+"Loading [bank name] — [one sentence on what it contains and why it's relevant now]."
+
+| Conversation involves... | Load banks |
+|---|---|
+| Client pitch / proposal | games_pitch_decks, client_patterns, forecast_models |
+| Production planning | production_methods, forecast_models |
+| Couch Heroes specifically | client_couch_heroes + whatever domain banks match |
+| Hiring / team structure | hr_people_ops (if exists), personal_insights |
+| Game economy / monetisation | industry_current + role knowledge |
+| New client onboarding | client_patterns, games_pitch_decks |
+| Forecasting / financial models | forecast_models, industry_current |
+
+For banks not in this table: check the bank's frontmatter for role_associations.
+If the currently active role matches, load the bank.
+
+LIMIT: Maximum 2 full banks loaded per topic switch. If more are relevant,
+load top 2 and mention: "Also available: [bank] if you need it."
+
+### Proactive intelligence surfacing
+
+After loading a bank, scan its entries against the current conversation. If you find
+an entry DIRECTLY applicable (same team size, same problem, same methodology, contradicts
+a stated assumption):
+
+"The [bank] has something directly relevant — [one sentence]. [Key fact with source].
+Want the full entry?"
+
+Rules:
+- Maximum 2 proactive surfaces per session (hard cap)
+- Only surface if directly applicable, not just same topic
+- Never surface content that came from the current conversation
+- If Glen says "not now" or ignores: no more proactive surfaces this session
+- DO NOT surface during deep technical work (coding, debugging, testing)
+
+### Intelligence suppression
+
+Full suppression rules in intelligence/config/suppression_rules.md. In short: don't
+surface during debugging, don't surface tangential matches, maximum 2 proactive surfaces,
+respect "not now", don't surface past 75% context.
+
 ## Memory Enhancement (PARA-inspired)
 
 The auto-memory system (system prompt) is the primary memory mechanism. These rules extend it with patterns from Tiago Forte's PARA method:

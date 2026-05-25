@@ -5,6 +5,7 @@ description: Marketing strategy, BD pipeline management, brand, content, lead ge
 dispatch_triggers:
   skills: []
   topics: [marketing, positioning, brand, content, GTM, lead generation, competitive messaging]
+knowledge_banks: [games_pitch_decks, industry_current]
 ---
 
 # CMO / Head of Business Development -- Agent Composite
