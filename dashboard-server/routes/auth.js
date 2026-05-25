@@ -10,7 +10,7 @@ module.exports = function(ctx) {
     FAILED_LOGIN_THRESHOLD, FAILED_LOGIN_LOCKOUT, LOCKOUT_DURATION,
     getFailedLogins, recordFailedLogin, clearFailedLogins,
     sendEmailAsync, EMAIL_FROM, APP_URL, _msalClient,
-    authFailures, requireAdmin, requireAuth,
+    authFailures, requireAdmin, requireAuth, validatePassword,
   } = ctx;
 
   const SESSION_EXPIRY_DAYS = ctx.SESSION_EXPIRY_DAYS;
@@ -154,7 +154,9 @@ module.exports = function(ctx) {
 
   router.post('/api/auth/reset-token/:token', async (req, res) => {
     const { newPassword } = req.body;
-    if (!newPassword || newPassword.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    if (!newPassword) return res.status(400).json({ error: 'Password is required' });
+    const pwCheck = validatePassword(newPassword);
+    if (!pwCheck.valid) return res.status(400).json({ error: pwCheck.message });
 
     const hashedResetToken = hashToken(req.params.token);
     const { rows } = await pool.query(
@@ -175,7 +177,8 @@ module.exports = function(ctx) {
   router.post('/api/auth/reset-password', requireAuth, requireAdmin, async (req, res) => {
     const { userId, newPassword } = req.body;
     if (!userId || !newPassword) return res.status(400).json({ error: 'userId and newPassword required' });
-    if (newPassword.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    const adminPwCheck = validatePassword(newPassword);
+    if (!adminPwCheck.valid) return res.status(400).json({ error: adminPwCheck.message });
 
     const hash = await bcrypt.hash(newPassword, 10);
     await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [hash, userId]);
@@ -197,7 +200,8 @@ module.exports = function(ctx) {
   router.post('/api/auth/change-password', requireAuth, async (req, res) => {
     const { currentPassword, newPassword } = req.body;
     if (!currentPassword || !newPassword) return res.status(400).json({ error: 'Both passwords required' });
-    if (newPassword.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    const changePwCheck = validatePassword(newPassword);
+    if (!changePwCheck.valid) return res.status(400).json({ error: changePwCheck.message });
 
     const { rows } = await pool.query('SELECT password_hash FROM users WHERE id = $1', [req.user.id]);
     if (rows.length === 0) return res.status(404).json({ error: 'User not found' });

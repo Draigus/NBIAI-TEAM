@@ -9,6 +9,32 @@ module.exports = function (ctx) {
     shiftForInsert, reorderInGroup,
   } = ctx;
 
+  // Email utilities — imported directly so we don't need to change server.js ctx.
+  // Keep as module reference (not destructured) so test spies can replace the function.
+  const emailLib = require('../lib/email');
+  const { escHtml } = require('../lib/helpers');
+
+  /**
+   * Notify all active NBI admin users by email when a client portal user
+   * creates a bug report or posts a comment. Fire-and-forget — failures
+   * are logged but never surface to the caller.
+   */
+  async function notifyAdminsOfClientActivity(subject, bodyHtml) {
+    try {
+      const { rows: admins } = await pool.query(
+        "SELECT email, display_name FROM users WHERE role = 'admin' AND is_active = true AND client_id IS NULL"
+      );
+      const recipients = admins.filter(a => a.email);
+      if (recipients.length === 0) return;
+      const html = emailLib.buildEmailHtml('Client Portal Notification', bodyHtml);
+      for (const admin of recipients) {
+        emailLib.sendEmailAsync({ to: admin.email, subject, html, from: emailLib.EMAIL_FROM });
+      }
+    } catch (err) {
+      log('error', 'BugReports', 'Failed to send client activity email notification', { error: err.message });
+    }
+  }
+
   // ==================== BUG / FEATURE REPORTS ====================
 
   /** GET /api/bug-reports — List all bug/feature reports (visible to all authenticated users) */
@@ -71,6 +97,7 @@ module.exports = function (ctx) {
     const reporter_client_id = req.user?.clientId || null;
 
     const client = await pool.connect();
+    let createdReport = null;
     try {
       await client.query('BEGIN');
       // Shift everything in the target column ('open' is the default for new bugs) down by 1
@@ -81,13 +108,42 @@ module.exports = function (ctx) {
         [req.user.id, rType, title.trim(), description || null, page || null, safeScreenshot, safePriority, source, reporter_client_id]
       );
       await client.query('COMMIT');
-      res.status(201).json(rows[0]);
+      createdReport = rows[0];
+      res.status(201).json(createdReport);
     } catch (err) {
       await client.query('ROLLBACK');
       log('error', 'BugReports', 'POST failed', { error: err.message });
       res.status(500).json({ error: 'Failed to create bug report' });
     } finally {
       client.release();
+    }
+
+    // Email NBI admins when a client portal user submits a bug report
+    if (createdReport && req.user?.clientId) {
+      const reporterName = req.user.displayName || req.user.display_name || 'Unknown';
+      // Look up the client name — clientName isn't on req.user
+      let clientName = 'Client';
+      try {
+        const { rows: cl } = await pool.query('SELECT name FROM clients WHERE id = $1', [req.user.clientId]);
+        if (cl.length > 0) clientName = cl[0].name;
+      } catch (_) { /* use fallback */ }
+      const truncDesc = (createdReport.description || '').slice(0, 500);
+      const bugUrl = `${emailLib.APP_URL}/nbi_project_dashboard.html#bugs`;
+      const priorityLabel = createdReport.priority
+        ? `<strong>Priority:</strong> ${escHtml(createdReport.priority)}<br>`
+        : '';
+      const bodyHtml = `
+        <p><strong>${escHtml(reporterName)}</strong> from <strong>${escHtml(clientName)}</strong> submitted a new ${escHtml(rType)} report.</p>
+        <div style="margin:16px 0;padding:12px 16px;background:#f8fafc;border-left:4px solid #3b82f6;border-radius:4px">
+          <h3 style="margin:0 0 8px;font-size:15px;color:#1e293b">${escHtml(createdReport.title)}</h3>
+          ${priorityLabel}
+          <p style="margin:0;color:#475569;font-size:13px">${escHtml(truncDesc)}${(createdReport.description || '').length > 500 ? '...' : ''}</p>
+        </div>
+        <p><a href="${escHtml(bugUrl)}" style="color:#3b82f6;text-decoration:underline">View in Bug Tracker</a></p>`;
+      notifyAdminsOfClientActivity(
+        `[WorkSage] New bug report from ${clientName}: ${createdReport.title}`,
+        bodyHtml
+      );
     }
   });
 
@@ -321,6 +377,26 @@ module.exports = function (ctx) {
         }
       }
     } catch (e) { log('error', 'BugComments', 'Failed to send comment notification', { error: e.message }); }
+
+    // Email NBI admins when a client portal user posts a comment
+    if (req.user?.clientId) {
+      try {
+        const { rows: bugRow } = await pool.query('SELECT title FROM bug_reports WHERE id = $1', [req.params.id]);
+        const bugTitle = bugRow.length > 0 ? bugRow[0].title : `#${req.params.id}`;
+        const truncComment = text.trim().slice(0, 500);
+        const bugUrl = `${emailLib.APP_URL}/nbi_project_dashboard.html#bugs`;
+        const bodyHtml = `
+          <p><strong>${escHtml(author)}</strong> posted a comment on bug report <strong>${escHtml(bugTitle)}</strong>.</p>
+          <div style="margin:16px 0;padding:12px 16px;background:#f8fafc;border-left:4px solid #f59e0b;border-radius:4px">
+            <p style="margin:0;color:#475569;font-size:13px">${escHtml(truncComment)}${text.trim().length > 500 ? '...' : ''}</p>
+          </div>
+          <p><a href="${escHtml(bugUrl)}" style="color:#3b82f6;text-decoration:underline">View in Bug Tracker</a></p>`;
+        notifyAdminsOfClientActivity(
+          `[WorkSage] New comment on bug #${req.params.id.slice(0, 8)} from ${author}`,
+          bodyHtml
+        );
+      } catch (e) { log('error', 'BugComments', 'Failed to send client comment email notification', { error: e.message }); }
+    }
 
     res.status(201).json(rows[0]);
   });

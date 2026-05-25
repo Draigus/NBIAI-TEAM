@@ -13,10 +13,12 @@ const LOG_LEVEL = LOG_LEVELS[process.env.LOG_LEVEL || 'info'];
  * @param {string} prefix - Module/section tag (e.g. 'Auth', 'Sync', 'Tasks')
  * @param {string} message - Human-readable log message
  * @param {Object} [data] - Optional structured data to include in the log entry
+ * @param {string} [requestId] - Optional correlation ID to trace the request through logs
  */
-function log(level, prefix, message, data) {
+function log(level, prefix, message, data, requestId) {
   if (LOG_LEVELS[level] > LOG_LEVEL) return;
   const entry = { ts: new Date().toISOString(), level, prefix, message };
+  if (requestId) entry.requestId = requestId;
   if (data) entry.data = data;
   const line = JSON.stringify(entry);
   if (level === 'error') process.stderr.write(line + '\n');

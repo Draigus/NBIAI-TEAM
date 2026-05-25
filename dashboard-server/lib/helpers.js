@@ -211,6 +211,26 @@ function validateLength(value, field, max) {
   return null;
 }
 
+/**
+ * Validate a new password against the complexity policy.
+ * Requires 12+ characters, at least one uppercase, one lowercase, and one digit.
+ * @param {string} password - The password to validate
+ * @returns {{ valid: true } | { valid: false, message: string }}
+ */
+function validatePassword(password) {
+  if (typeof password !== 'string' || password.length < 12) {
+    return { valid: false, message: 'Password must be at least 12 characters and include uppercase, lowercase, and a digit' };
+  }
+  const missing = [];
+  if (!/[A-Z]/.test(password)) missing.push('uppercase letter');
+  if (!/[a-z]/.test(password)) missing.push('lowercase letter');
+  if (!/[0-9]/.test(password)) missing.push('digit');
+  if (missing.length > 0) {
+    return { valid: false, message: `Password must include at least one ${missing.join(', one ')}` };
+  }
+  return { valid: true };
+}
+
 /** Hash a session token with SHA-256 before storing or looking up in the DB */
 function hashToken(token) {
   return crypto.createHash('sha256').update(token).digest('hex');
@@ -244,4 +264,5 @@ module.exports = {
   MAX_LENGTHS,
   hashToken,
   escHtml,
+  validatePassword,
 };

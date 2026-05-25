@@ -5718,7 +5718,7 @@ function renderTabs() {
   const visibleTabs = tabs.filter(t => {
     if (!isClientAllowedView(t)) return false;
     if (t === 'finances' || t === 'leads' || t === 'expenses') return hasPageAccess(t);
-    if (t === 'intelligence') return currentUser && currentUser.role === 'admin';
+    if (t === 'intelligence') return _currentUser && _currentUser.role === 'admin';
     return true;
   });
   document.getElementById('mainTabs').setAttribute('role', 'tablist');
@@ -23242,7 +23242,7 @@ function _ccRenderIntelTab() {
     var el = document.getElementById('ccIntelContent');
     if (!el) return;
     Promise.all([
-      fetch('/api/intelligence/brief').then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; }),
+      authFetch('/api/intelligence/brief').then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; }),
       fetch('/api/intelligence/banks').then(function(r) { return r.ok ? r.json() : []; }).catch(function() { return []; }),
       fetch('/api/intelligence/research?limit=5').then(function(r) { return r.ok ? r.json() : []; }).catch(function() { return []; }),
       fetch('/api/intelligence/pipeline').then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; })
@@ -27956,7 +27956,7 @@ const newsApi = {
 function renderIntelligenceView(container) {
   container.innerHTML = '<div style="padding:20px;color:var(--text-muted)">Loading intelligence...</div>';
   Promise.all([
-    fetch('/api/intelligence/brief').then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; }),
+    authFetch('/api/intelligence/brief').then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; }),
     fetch('/api/intelligence/banks').then(function(r) { return r.ok ? r.json() : []; }).catch(function() { return []; }),
     fetch('/api/intelligence/research?limit=10').then(function(r) { return r.ok ? r.json() : []; }).catch(function() { return []; }),
     fetch('/api/intelligence/pipeline').then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; })

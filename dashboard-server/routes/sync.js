@@ -5,6 +5,8 @@ module.exports = function(ctx) {
   const { pool, log, auditLog, createNotification, getClientScopes,
           computeNextRepeatDate, ITEM_TYPES } = ctx;
 
+  const MAX_BATCH_SIZE = 500;
+
 /**
  * POST /api/sync/changes
  * Incremental sync: apply a list of change operations (upsert/delete) to tasks.
@@ -23,6 +25,10 @@ router.post('/api/sync/changes', async (req, res) => {
   // Silently drop client-brief updates from non-admins instead of rejecting the whole sync
   const briefList = isAdmin ? req.body.client_briefs : null;
   if ((!Array.isArray(changes) || changes.length === 0) && !briefList) return res.json({ ok: true, applied: 0 });
+
+  if (Array.isArray(changes) && changes.length > MAX_BATCH_SIZE) {
+    return res.status(400).json({ error: `Batch size exceeds maximum of ${MAX_BATCH_SIZE} items. Split into smaller batches.` });
+  }
 
   const conn = await pool.connect();
   try {

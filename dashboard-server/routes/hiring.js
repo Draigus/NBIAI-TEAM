@@ -871,7 +871,7 @@ module.exports = function (ctx) {
           const { rows: [client] } = await pool.query('SELECT name FROM clients WHERE id = $1', [freshCandidate.client_id]);
           if (client) clientName = client.name;
         }
-        notifyStageAssignees(req.params.id, freshCandidate.name || 'Candidate', body.stage, clientName);
+        await notifyStageAssignees(req.params.id, freshCandidate.name || 'Candidate', body.stage, clientName);
       }
     }
 

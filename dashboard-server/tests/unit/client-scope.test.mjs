@@ -132,7 +132,7 @@ describe('Client-scoped users', () => {
       .send({
         username: 'newclientuser',
         display_name: 'New Client User',
-        password: 'Test1234!',
+        password: 'TestClient1234!',
         role: 'member',
         client_id: clientA.id,
       });

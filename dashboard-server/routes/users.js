@@ -7,27 +7,21 @@ module.exports = function(ctx) {
     pool, log, requireAdmin, requireNBI, requireClientAdmin,
     isValidUuid, auditLog, invalidateUserTokens, getClientScope,
     sendEmailAsync, EMAIL_FROM, APP_URL, _msalClient,
-    cacheToken, validateLength, buildPatchQuery,
+    cacheToken, validateLength, buildPatchQuery, validatePassword,
   } = ctx;
 
   /** GET /api/users — List users. Admins see full details; client users see their company; members see names only. */
   router.get('/api/users', async (req, res) => {
     if (req.user.clientId) {
-      // Client users see their own staff + specific NBI contacts assigned to their account
-      const NBI_CONTACTS_BY_CLIENT = {
-        '21be0772-73e5-4cca-8795-8b1a66f89ec2': ['Glen Pryer', 'Magnus Pryer'],                                    // Couch Heroes
-        'f6fe27d8-307d-4121-b204-6a0971e88de7': ['Glen Pryer', 'Magnus Pryer', 'Ruan', 'Stavros', 'Amir Didar'],   // Lighthouse Games
-        '239262e3-584c-4825-9f63-ba5882326dc6': ['Glen Pryer', 'Magnus Pryer', 'Ruan', 'Stavros', 'Amir Didar'],   // Lighthouse Studios
-      };
-      const nbiNames = NBI_CONTACTS_BY_CLIENT[req.user.clientId] || ['Glen Pryer', 'Magnus Pryer'];
-      const placeholders = nbiNames.map((_, i) => `$${i + 2}`).join(', ');
+      // Client users see their own staff + NBI contacts assigned via client_nbi_contacts table
       const { rows } = await pool.query(
         `SELECT id, username, display_name, email, client_role, is_active FROM users WHERE client_id = $1
          UNION ALL
-         SELECT id, username, display_name, email, NULL AS client_role, is_active FROM users
-           WHERE client_id IS NULL AND display_name IN (${placeholders}) AND is_active = TRUE
+         SELECT u.id, u.username, u.display_name, u.email, NULL AS client_role, u.is_active
+           FROM client_nbi_contacts cnc JOIN users u ON u.id = cnc.user_id
+           WHERE cnc.client_id = $1 AND u.is_active = TRUE
          ORDER BY display_name`,
-        [req.user.clientId, ...nbiNames]
+        [req.user.clientId]
       );
       res.json(rows);
     } else if (req.user.role === 'admin') {
@@ -76,6 +70,11 @@ module.exports = function(ctx) {
     if (!username || !password) return res.status(400).json({ error: 'Username and password required' });
     const lenErr = validateLength(username, 'name', 200) || validateLength(display_name, 'name') || validateLength(email, 'email');
     if (lenErr) return res.status(400).json({ error: lenErr });
+    // Validate password complexity unless it was auto-generated (must_change_password flag)
+    if (!must_change_password) {
+      const pwCheck = validatePassword(password);
+      if (!pwCheck.valid) return res.status(400).json({ error: pwCheck.message });
+    }
     const hash = await bcrypt.hash(password, 10);
     const cleanEmail = email && email.trim() ? email.trim() : null;
     // Check for duplicate email before insert
@@ -313,6 +312,58 @@ module.exports = function(ctx) {
       );
     }
     res.json({ ok: true, tempPassword });
+  });
+
+  // ==================== Client NBI Contacts (admin only) ====================
+
+  /** GET /api/clients/:id/nbi-contacts — List NBI contacts assigned to a client */
+  router.get('/api/clients/:id/nbi-contacts', requireAdmin, async (req, res) => {
+    if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid client ID' });
+    const { rows } = await pool.query(
+      `SELECT u.id, u.display_name, u.email
+       FROM client_nbi_contacts cnc JOIN users u ON u.id = cnc.user_id
+       WHERE cnc.client_id = $1
+       ORDER BY u.display_name`,
+      [req.params.id]
+    );
+    res.json(rows);
+  });
+
+  /** POST /api/clients/:id/nbi-contacts — Add an NBI contact to a client */
+  router.post('/api/clients/:id/nbi-contacts', requireAdmin, async (req, res) => {
+    if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid client ID' });
+    const { user_id } = req.body;
+    if (!user_id || !isValidUuid(user_id)) return res.status(400).json({ error: 'Valid user_id required' });
+    try {
+      const { rows } = await pool.query(
+        `INSERT INTO client_nbi_contacts (client_id, user_id)
+         VALUES ($1, $2)
+         ON CONFLICT (client_id, user_id) DO NOTHING
+         RETURNING id, client_id, user_id, created_at`,
+        [req.params.id, user_id]
+      );
+      if (rows.length === 0) {
+        return res.status(409).json({ error: 'Contact already assigned to this client' });
+      }
+      res.status(201).json(rows[0]);
+    } catch (err) {
+      if (err.code === '23503') {
+        return res.status(400).json({ error: 'Client or user not found' });
+      }
+      throw err;
+    }
+  });
+
+  /** DELETE /api/clients/:id/nbi-contacts/:userId — Remove an NBI contact from a client */
+  router.delete('/api/clients/:id/nbi-contacts/:userId', requireAdmin, async (req, res) => {
+    if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid client ID' });
+    if (!isValidUuid(req.params.userId)) return res.status(400).json({ error: 'Invalid user ID' });
+    const { rowCount } = await pool.query(
+      'DELETE FROM client_nbi_contacts WHERE client_id = $1 AND user_id = $2',
+      [req.params.id, req.params.userId]
+    );
+    if (rowCount === 0) return res.status(404).json({ error: 'Contact mapping not found' });
+    res.json({ ok: true });
   });
 
   /** PATCH /api/users/:id/skills — Update a user's resource type skills (admin only) */

@@ -114,7 +114,7 @@ describe('auth flow', () => {
     await request(app)
       .post('/api/auth/change-password')
       .set('Authorization', `Bearer ${token1}`)
-      .send({ currentPassword: user.raw_password, newPassword: 'NewPass123!' });
+      .send({ currentPassword: user.raw_password, newPassword: 'NewPassw0rd!!' });
 
     const res = await request(app)
       .get('/api/auth/me')
