@@ -23243,9 +23243,9 @@ function _ccRenderIntelTab() {
     if (!el) return;
     Promise.all([
       authFetch('/api/intelligence/brief').then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; }),
-      fetch('/api/intelligence/banks').then(function(r) { return r.ok ? r.json() : []; }).catch(function() { return []; }),
-      fetch('/api/intelligence/research?limit=5').then(function(r) { return r.ok ? r.json() : []; }).catch(function() { return []; }),
-      fetch('/api/intelligence/pipeline').then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; })
+      authFetch('/api/intelligence/banks').then(function(r) { return r.ok ? r.json() : []; }).catch(function() { return []; }),
+      authFetch('/api/intelligence/research?limit=5').then(function(r) { return r.ok ? r.json() : []; }).catch(function() { return []; }),
+      authFetch('/api/intelligence/pipeline').then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; })
     ]).then(function(results) {
       var brief = results[0], banks = results[1], research = results[2], pipeline = results[3];
       var h = '';
@@ -27957,9 +27957,9 @@ function renderIntelligenceView(container) {
   container.innerHTML = '<div style="padding:20px;color:var(--text-muted)">Loading intelligence...</div>';
   Promise.all([
     authFetch('/api/intelligence/brief').then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; }),
-    fetch('/api/intelligence/banks').then(function(r) { return r.ok ? r.json() : []; }).catch(function() { return []; }),
-    fetch('/api/intelligence/research?limit=10').then(function(r) { return r.ok ? r.json() : []; }).catch(function() { return []; }),
-    fetch('/api/intelligence/pipeline').then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; })
+    authFetch('/api/intelligence/banks').then(function(r) { return r.ok ? r.json() : []; }).catch(function() { return []; }),
+    authFetch('/api/intelligence/research?limit=10').then(function(r) { return r.ok ? r.json() : []; }).catch(function() { return []; }),
+    authFetch('/api/intelligence/pipeline').then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; })
   ]).then(function(results) {
     var brief = results[0], banks = results[1], research = results[2], pipeline = results[3];
     var h = '<div class="intel-view">';
