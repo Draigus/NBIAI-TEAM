@@ -443,7 +443,7 @@ button.sidebar__title::after { content: "▾"; font-size: 0.75rem; transition: t
 @media (min-width: 769px) and (max-width: 1024px) { .people-split { flex-direction: column; } .people-list { width: 100%; max-height: 400px; position: static; } .people-detail { width: 100%; } }
 
 /* ===== PORTFOLIO v5 — Neumorphic layout ===== */
-.pf { width: 100%; padding: 0; display: flex; flex-direction: column; gap: 12px; flex: 1; min-height: 0; overflow: hidden; }
+.pf { width: 100%; padding: 0; display: flex; flex-direction: column; gap: 12px; }
 
 /* KPI row — 5 compact cards, fixed height */
 .pf__kpis { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; flex-shrink: 0; }
@@ -503,13 +503,13 @@ button.sidebar__title::after { content: "▾"; font-size: 0.75rem; transition: t
 
 /* Panel grids — flex to fill remaining space */
 .pf__pgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.pf__pgrid--fill { flex: 1; min-height: 0; }
-.pf__pgrid--auto { flex-shrink: 0; }
-.pf__panel { background: var(--bg-card); border: 1px solid var(--border-default); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; display: flex; flex-direction: column; min-height: 0; }
+.pf__pgrid--fill { }
+.pf__pgrid--auto { }
+.pf__panel { background: var(--bg-card); border: 1px solid var(--border-default); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; display: flex; flex-direction: column; }
 .pf__panel-hdr { padding: 8px 16px 6px; display: flex; align-items: center; justify-content: center; gap: 12px; border-bottom: 1px solid var(--border-subtle); flex-shrink: 0; }
 .pf__panel-title { font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
 .pf__panel-badge { font-size: 0.75rem; font-weight: 700; font-family: var(--font-mono); padding: 3px 8px; background: var(--bg-input); border-radius: 6px; box-shadow: inset 2px 2px 5px rgba(0,0,0,0.15); }
-.pf__panel-body { padding: 8px 12px 10px; flex: 1; overflow-y: auto; min-height: 0; }
+.pf__panel-body { padding: 8px 12px 10px; overflow-y: auto; max-height: 360px; }
 .pf__panel-body::-webkit-scrollbar { width: 6px; }
 .pf__panel-body::-webkit-scrollbar-track { background: transparent; }
 .pf__panel-body::-webkit-scrollbar-thumb { background: rgba(128,128,128,0.2); border-radius: 3px; }
@@ -862,6 +862,14 @@ button.sidebar__title::after { content: "▾"; font-size: 0.75rem; transition: t
 .summary-minibar__seg { height: 100%; }
 .detail-section { margin-bottom: var(--space-xl); }
 .detail-section__title { font-family: var(--font-display); font-size: 0.75rem; font-weight: 600; color: var(--text-muted); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: var(--space-md); }
+.detail-accordion { margin-bottom: var(--space-sm); border-bottom: 1px solid var(--border-subtle); }
+.detail-accordion:last-of-type { border-bottom: none; }
+.detail-accordion__header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-sm) 0; cursor: pointer; user-select: none; font-weight: 600; font-size: 0.75rem; color: var(--text-muted); letter-spacing: 1.5px; text-transform: uppercase; }
+.detail-accordion__header:hover { color: var(--text-primary); }
+.detail-accordion__chevron { transition: transform 0.2s; font-size: 11px; flex-shrink: 0; margin-left: var(--space-sm); }
+.detail-accordion--collapsed .detail-accordion__chevron { transform: rotate(-90deg); }
+.detail-accordion__body { overflow: hidden; transition: max-height 0.3s ease, opacity 0.2s ease; padding-bottom: var(--space-sm); max-height: 2000px; }
+.detail-accordion--collapsed .detail-accordion__body { max-height: 0 !important; opacity: 0; padding: 0; }
 .detail-field { display: flex; align-items: center; gap: var(--space-sm); margin-bottom: var(--space-md); }
 .detail-field__label { font-size: 0.8rem; color: var(--text-secondary); min-width: 110px; }
 .detail-field select, .detail-field input, .detail-field textarea { background: var(--bg-input); border: 1px solid var(--border-default); border-radius: var(--radius-md); color: var(--text-primary); padding: 6px 10px; font-family: var(--font-body); font-size: 0.8rem; flex: 1; }
@@ -3032,6 +3040,84 @@ body.dark-mode [data-tooltip]::after { background: #e8e8f0; color: #1a1a2e; }
 body.dark-mode [data-tooltip]::before { border-top-color: #e8e8f0; }
 body.dark-mode [data-tooltip-pos="below"]::before { border-top-color: transparent; border-bottom-color: #e8e8f0; }
 
+/* ===== INTELLIGENCE ===== */
+.cc-intel { padding: 16px; }
+.cc-intel-brief, .cc-intel-banks, .cc-intel-research, .cc-intel-pipeline { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 12px; overflow: hidden; }
+.cc-intel-hdr { padding: 12px 16px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+.cc-intel-title { font-size: 15px; font-weight: 600; }
+.cc-intel-date { font-size: 12px; color: var(--text-muted); }
+.cc-intel-stale { color: var(--warning); font-weight: 600; }
+.cc-intel-section { padding: 10px 16px; border-bottom: 1px solid var(--border-color); }
+.cc-intel-section:last-child { border-bottom: none; }
+.cc-intel-section.collapsed .cc-intel-section-body { display: none; }
+.cc-intel-section.collapsed .cc-intel-arrow { transform: rotate(-90deg); }
+.cc-intel-section-hdr { cursor: pointer; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.cc-intel-arrow { font-size: 10px; color: var(--text-muted); transition: transform 0.15s; display: inline-block; }
+.cc-intel-count { font-size: 11px; color: var(--text-secondary); font-weight: 400; }
+.cc-intel-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--warning); display: inline-block; }
+.cc-intel-section-body ul { list-style: none; padding: 8px 0 0 18px; }
+.cc-intel-section-body li { font-size: 13px; color: var(--text-secondary); padding: 3px 0; line-height: 1.4; }
+.cc-intel-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.cc-intel-table th { text-align: left; padding: 8px 12px; font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border-color); }
+.cc-intel-table td { padding: 8px 12px; border-bottom: 1px solid rgba(42,46,61,0.5); }
+.cc-intel-table tr:hover { background: var(--hover-bg); }
+.cc-intel-bar { width: 60px; height: 5px; background: var(--bg-primary); border-radius: 3px; overflow: hidden; display: inline-block; vertical-align: middle; margin-right: 4px; }
+.cc-intel-bar-fill { height: 100%; border-radius: 3px; }
+.cc-intel-status--fresh { color: var(--success); font-weight: 600; font-size: 12px; }
+.cc-intel-status--stale { color: var(--danger); font-weight: 600; font-size: 12px; }
+.cc-intel-status--approaching { color: var(--warning); font-weight: 600; font-size: 12px; }
+.cc-intel-total { padding: 10px 16px; font-size: 13px; color: var(--text-secondary); border-top: 1px solid var(--border-color); }
+.cc-intel-research-group { margin-bottom: 12px; }
+.cc-intel-research-date { font-size: 12px; font-weight: 600; color: var(--accent); margin-bottom: 6px; }
+.cc-intel-domain { font-size: 11px; background: rgba(79,140,255,0.15); color: var(--accent); padding: 1px 8px; border-radius: 8px; margin-left: 6px; }
+.cc-intel-finding { display: flex; align-items: center; gap: 8px; padding: 5px 0; font-size: 13px; color: var(--text-secondary); }
+.cc-intel-score { font-size: 11px; font-weight: 700; min-width: 24px; height: 18px; border-radius: 3px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.cc-intel-score--high { background: rgba(52,211,153,0.15); color: var(--success); }
+.cc-intel-score--mid { background: rgba(79,140,255,0.15); color: var(--accent); }
+.cc-intel-source { display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px; border-bottom: 1px solid rgba(42,46,61,0.4); }
+.cc-intel-source:last-child { border-bottom: none; }
+.cc-intel-source-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+.cc-intel-dot--green { background: var(--success); }
+.cc-intel-dot--amber { background: var(--warning); }
+.intel-view { padding: 0; }
+.intel-kpis { display: flex; gap: 20px; padding: 16px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 16px; }
+.intel-kpi { text-align: center; flex: 1; }
+.intel-kpi-value { font-size: 22px; font-weight: 700; }
+.intel-kpi-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px; }
+.intel-bank-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.intel-bank-table th { text-align: left; padding: 10px 14px; font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border-color); }
+.intel-bank-table td { padding: 10px 14px; border-bottom: 1px solid rgba(42,46,61,0.5); }
+.intel-bank-table tr:hover { background: var(--hover-bg); }
+.intel-bank-name { color: var(--text-primary); }
+.intel-bank-slug { font-size: 11px; color: var(--text-muted); font-family: 'SF Mono', Consolas, monospace; }
+.intel-cap-bar { width: 80px; height: 6px; background: var(--bg-primary); border-radius: 3px; overflow: hidden; display: inline-block; vertical-align: middle; margin-right: 6px; }
+.intel-cap-fill { height: 100%; border-radius: 3px; }
+.intel-status { font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 600; }
+.intel-status--fresh { background: rgba(52,211,153,0.15); color: var(--success); }
+.intel-status--stale { background: rgba(248,113,113,0.15); color: var(--danger); }
+.intel-status--approaching { background: rgba(251,191,36,0.15); color: var(--warning); }
+.intel-columns { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
+.intel-right-col { display: flex; flex-direction: column; gap: 16px; }
+.intel-research-group { margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--border-color); }
+.intel-research-group:last-child { border-bottom: none; }
+.intel-research-date { font-size: 12px; font-weight: 600; color: var(--accent); margin-bottom: 6px; }
+.intel-domain-badge { font-size: 11px; background: rgba(79,140,255,0.15); color: var(--accent); padding: 1px 8px; border-radius: 8px; margin-left: 6px; }
+.intel-finding { display: flex; align-items: flex-start; gap: 8px; padding: 6px 0; }
+.intel-score { font-size: 11px; font-weight: 700; min-width: 26px; height: 20px; border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.intel-score--high { background: rgba(52,211,153,0.15); color: var(--success); }
+.intel-score--mid { background: rgba(79,140,255,0.15); color: var(--accent); }
+.intel-finding-text { font-size: 13px; color: var(--text-secondary); }
+.intel-source-row { display: flex; justify-content: space-between; padding: 7px 0; font-size: 13px; border-bottom: 1px solid rgba(42,46,61,0.4); }
+.intel-source-row:last-child { border-bottom: none; }
+.intel-source-name { font-weight: 500; }
+.intel-source-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+.intel-dot--green { background: var(--success); }
+.intel-dot--amber { background: var(--warning); }
+.intel-pending-badge { font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 600; background: rgba(251,191,36,0.15); color: var(--warning); }
+.intel-pending-item { padding: 8px 0; font-size: 13px; color: var(--text-secondary); border-bottom: 1px solid rgba(42,46,61,0.4); }
+.intel-pending-item:last-child { border-bottom: none; }
+@media (max-width: 900px) { .intel-columns { grid-template-columns: 1fr; } }
+
 </style>
 </head>
 <body>
@@ -5075,21 +5161,23 @@ function renderSidebar() {
     const bugOpenCount = ((_bugReportsData && _bugReportsData.reports) || []).filter(r => r.status === 'open' || r.status === 'in_progress').length;
     html += sidebarItem(svgBugs, 'Bug Tracker', bugOpenCount || '', () => switchView('bugs'), currentView==='bugs');
   }
-  if (!isScoped) {
-    const queueCount = (_queueData || []).length;
-    const svgQueue = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M2 8h12M2 12h12"/><circle cx="14" cy="4" r="1.5" fill="currentColor" stroke="none"/></svg>';
-    html += sidebarItem(svgQueue, 'Queue', queueCount || '', () => switchView('queue'), currentView==='queue');
-  }
-  html += sidebarItem(svgSettings, 'Settings', '', () => switchView('settings'), currentView==='settings');
   html += sidebarSectionClose();
 
-  // My Tasks shortcut
+  // My Work + secondary views
   const myName = _currentUser?.displayName || '';
   if (myName) {
     const myActiveTasks = practiceTasks.filter(t => t.assignees?.some(a => a === myName) && t.status !== 'Done' && t.status !== 'Cancelled');
     const svgMyTasks = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>';
     html += sidebarSectionOpen('mywork', 'My Work');
     html += sidebarItem(svgMyTasks, 'My Work', myActiveTasks.length, () => switchView('mytasks'), currentView === 'mytasks');
+    if (!isScoped) {
+      const queueCount = (_queueData || []).length;
+      const svgQueue = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M2 8h12M2 12h12"/><circle cx="14" cy="4" r="1.5" fill="currentColor" stroke="none"/></svg>';
+      html += sidebarItem(svgQueue, 'Queue', queueCount || '', () => switchView('queue'), currentView==='queue');
+      const svgActivity = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1v14M1 8h3l2-4 4 8 2-4h3"/></svg>';
+      html += sidebarItem(svgActivity, 'Activity', '', () => switchView('activity'), currentView==='activity');
+    }
+    html += sidebarItem(svgSettings, 'Settings', '', () => switchView('settings'), currentView==='settings');
     html += sidebarSectionClose();
   }
 
@@ -5624,12 +5712,13 @@ async function _msDelete() {
 
 /** Render the main tab bar, filtering out tabs the current user lacks permission to see */
 function renderTabs() {
-  const tabs = ['dashboard', 'tasks', 'workload', 'people', 'leads', 'expenses', 'finances', 'news', 'settings'];
-  const labels = { dashboard: 'Portfolio', tasks: 'Projects', workload: 'Workload', report: 'Report', people: 'People', leads: 'Leads', expenses: 'Expenses', finances: 'Finances', news: 'News', settings: 'Settings' };
+  const tabs = ['dashboard', 'tasks', 'workload', 'people', 'leads', 'expenses', 'finances', 'news', 'intelligence', 'settings'];
+  const labels = { dashboard: 'Portfolio', tasks: 'Projects', workload: 'Workload', report: 'Report', people: 'People', leads: 'Leads', expenses: 'Expenses', finances: 'Finances', news: 'News', intelligence: 'Intelligence', settings: 'Settings' };
   // Filter tabs based on permissions
   const visibleTabs = tabs.filter(t => {
     if (!isClientAllowedView(t)) return false;
     if (t === 'finances' || t === 'leads' || t === 'expenses') return hasPageAccess(t);
+    if (t === 'intelligence') return currentUser && currentUser.role === 'admin';
     return true;
   });
   document.getElementById('mainTabs').setAttribute('role', 'tablist');
@@ -5763,7 +5852,7 @@ function _renderMainContent(content) {
   if (!isClientAllowedView(currentView)) { currentView = 'dashboard'; }
   if (currentView === 'incomplete') { currentView = 'tasks'; currentFilter.incomplete = true; }
   if (currentView === 'changelog') { currentView = 'settings'; }
-  if (tasks.length === 0 && currentView !== 'settings' && currentView !== 'documentation' && currentView !== 'leads' && currentView !== 'bugs' && currentView !== 'hiring' && currentView !== 'news' && currentView !== 'queue' && currentView !== 'commandcentre') {
+  if (tasks.length === 0 && currentView !== 'settings' && currentView !== 'documentation' && currentView !== 'leads' && currentView !== 'bugs' && currentView !== 'hiring' && currentView !== 'news' && currentView !== 'queue' && currentView !== 'commandcentre' && currentView !== 'activity') {
     content.innerHTML = `<div class="empty-state"><div class="empty-state__icon">&#128203;</div><div class="empty-state__title">No Tasks Yet</div><div class="empty-state__desc">Import tasks or add them manually to get started.</div><button class="btn btn--primary" data-action="openImportModal">Import</button></div>`;
     return;
   }
@@ -5783,6 +5872,8 @@ function _renderMainContent(content) {
   else if (currentView === 'workload') renderWorkloadView(content);
   else if (currentView === 'news') renderNewsOrLoad(content);
   else if (currentView === 'commandcentre') renderCommandCentre(content);
+  else if (currentView === 'intelligence') renderIntelligenceView(content);
+  else if (currentView === 'activity') renderActivityFeedView(content);
   else if (currentView === 'settings') renderSettings(content);
   if (currentView === 'tasks' && taskSubView === 'gantt') {
     requestAnimationFrame(() => {
@@ -6187,9 +6278,10 @@ async function loadActivityFeed() {
   try {
     const resp = await authFetch('/api/dashboard/activity?limit=15');
     if (!resp.ok) { container.textContent = 'Failed to load'; return; }
-    const items = await resp.json();
+    const rawItems = await resp.json();
+    const items = rawItems.filter(a => a.action !== 'delete' && a.action !== 'cascade_cancel');
     if (items.length === 0) { container.innerHTML = '<div style="padding:12px;color:var(--text-muted)">No recent activity</div>'; return; }
-    const actionLabels = { create: 'created', update: 'updated', delete: 'deleted', cascade_cancel: 'cancelled' };
+    const actionLabels = { create: 'created', update: 'updated' };
     const typeIcons = { task: '☑', client: '🏢', candidate: '👤', lead: '💼', bug: '🐛', finance: '💰' };
     container.innerHTML = items.map(a => {
       const icon = typeIcons[a.entity_type] || '•';
@@ -9643,6 +9735,23 @@ function renderProgressRing(pct, size) {
   </svg>`;
 }
 
+/** Toggle a collapsible accordion section in the task detail panel */
+let _accordionState = {};
+let _accordionTaskId = null;
+function toggleDetailSection(sectionId) {
+  const el = document.getElementById(sectionId);
+  if (!el) return;
+  el.classList.toggle('detail-accordion--collapsed');
+  _accordionState[sectionId.replace('acc-', '')] = el.classList.contains('detail-accordion--collapsed');
+}
+function _accWrap(key, title, body, defaultCollapsed) {
+  if (_accordionTaskId !== _accordionState._tid) { _accordionState = { _tid: _accordionTaskId }; }
+  const collapsed = _accordionState[key] !== undefined ? _accordionState[key] : defaultCollapsed;
+  const cls = collapsed ? ' detail-accordion--collapsed' : '';
+  const chevron = '&#9662;';
+  return '<div id="acc-' + key + '" class="detail-accordion' + cls + '"><div class="detail-accordion__header" onclick="toggleDetailSection(\'acc-' + key + '\')"><span>' + title + '</span><span class="detail-accordion__chevron">' + chevron + '</span></div><div class="detail-accordion__body">' + body + '</div></div>';
+}
+
 /** Render the inline task detail panel (30% right side in tasks view) -- properties, time, notes, children */
 function renderInlineTaskDetail(id) {
   const task = tasks.find(t => t.id === id);
@@ -9651,11 +9760,12 @@ function renderInlineTaskDetail(id) {
   const hrs = aggHours(id);
   const isRoot = !task.parentId;
 
+  _accordionTaskId = id;
+
   let html = '<div class="inline-detail">';
   html += `<div class="inline-detail__header"><input class="inline-detail__title-input" value="${esc(task.title)}" oninput="_liveWrite('${id}','title',this.value)" onchange="updateTask('${id}','title',this.value)" onkeydown="if(event.key==='Enter')this.blur()"><button class="inline-detail__close" data-action="_actClearDetailTask" title="Back to summary">&larr;</button></div>`;
 
-  // Properties
-  // Properties — Name first, then Client, editable on all tasks
+  // Properties — always visible, not collapsible
   const ilClient = getTaskClient(task);
   html += `<div class="detail-section"><div class="detail-section__title">Properties</div>`;
   html += `<div class="detail-field"><span class="detail-field__label">Type</span><div style="display:flex;align-items:center;gap:6px">${itemTypeBadgeHtml(task)} <span style="font-size:0.82rem;color:var(--text-primary)">${getItemTypeLabel(task)}</span></div></div>`;
@@ -9713,82 +9823,83 @@ function renderInlineTaskDetail(id) {
   html += renderRepeatSection(task);
   html += `</div>`;
 
-  // Time Tracking
-  html += `<div class="detail-section"><div class="detail-section__title">Time Tracking</div>`;
-  if (hrs.est > 0) html += `<div class="detail-agg" style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:8px">${hrs.spent.toFixed(1)}h spent / ${hrs.est.toFixed(1)}h estimated (${Math.round(hrs.spent/hrs.est*100)}%)</div>`;
+  // Time Tracking (collapsible, collapsed by default)
+  { let timeBody = '';
+  if (hrs.est > 0) timeBody += `<div class="detail-agg" style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:8px">${hrs.spent.toFixed(1)}h spent / ${hrs.est.toFixed(1)}h estimated (${Math.round(hrs.spent/hrs.est*100)}%)</div>`;
   if (children.length > 0) {
-    html += `<div class="detail-field"><label class="detail-field__label">Hours Spent</label><input type="number" value="${hrs.spent}" disabled title="Aggregated from ${children.length} child items"></div>`;
-    html += `<div class="detail-field"><label class="detail-field__label">Hours Est.</label><input type="number" value="${hrs.est}" disabled title="Aggregated from ${children.length} child items"></div>`;
+    timeBody += `<div class="detail-field"><label class="detail-field__label">Hours Spent</label><input type="number" value="${hrs.spent}" disabled title="Aggregated from ${children.length} child items"></div>`;
+    timeBody += `<div class="detail-field"><label class="detail-field__label">Hours Est.</label><input type="number" value="${hrs.est}" disabled title="Aggregated from ${children.length} child items"></div>`;
   } else {
-    html += `<div class="detail-field"><label class="detail-field__label field-required" for="inline-detail-hoursEstimated">Hours Est.</label><input id="inline-detail-hoursEstimated" type="number" step="0.5" min="0" value="${task.hoursEstimated||0}" onchange="updateTask('${id}','hoursEstimated',parseFloat(this.value)||0)"></div>`;
+    timeBody += `<div class="detail-field"><label class="detail-field__label field-required" for="inline-detail-hoursEstimated">Hours Est.</label><input id="inline-detail-hoursEstimated" type="number" step="0.5" min="0" value="${task.hoursEstimated||0}" onchange="updateTask('${id}','hoursEstimated',parseFloat(this.value)||0)"></div>`;
   }
-  html += `<div style="display:flex;gap:4px;align-items:center;margin-bottom:8px"><input id="inlineLogHours" type="number" step="0.25" min="0.25" placeholder="Hours" style="width:60px;padding:4px 6px;font-size:0.78rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)"><input id="inlineLogDesc" placeholder="What did you work on?" style="flex:1;padding:4px 6px;font-size:0.78rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)"><button class="btn btn--sm" data-action="logTimeEntryInline" data-arg0="${id}">Log</button></div>`;
-  html += `<div id="inlineTimeEntriesList" style="max-height:120px;overflow-y:auto"><div style="color:var(--text-muted);font-size:0.75rem">Loading time entries...</div></div>`;
-  html += `</div>`;
+  timeBody += `<div style="display:flex;gap:4px;align-items:center;margin-bottom:8px"><input id="inlineLogHours" type="number" step="0.25" min="0.25" placeholder="Hours" style="width:60px;padding:4px 6px;font-size:0.78rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)"><input id="inlineLogDesc" placeholder="What did you work on?" style="flex:1;padding:4px 6px;font-size:0.78rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)"><button class="btn btn--sm" data-action="logTimeEntryInline" data-arg0="${id}">Log</button></div>`;
+  timeBody += `<div id="inlineTimeEntriesList" style="max-height:120px;overflow-y:auto"><div style="color:var(--text-muted);font-size:0.75rem">Loading time entries...</div></div>`;
+  html += _accWrap('time', 'Time Tracking', timeBody, true); }
 
-  // Description (split into three fields — Feature 5)
-  html += `<div class="detail-section"><div class="detail-section__title field-required">Description of Work <span style="font-size:0.75rem;font-weight:400;color:var(--text-muted)">(min 15 characters)</span></div>`;
-  html += `<div class="detail-field"><textarea placeholder="A clear, concise description of the work needed to complete this task." onchange="updateTask('${id}','description',this.value)" oninput="_liveWrite('${id}','description',this.value);this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(task.description||'')}</textarea></div></div>`;
-  html += `<div class="detail-section"><div class="detail-section__title">Collaborations</div>`;
-  html += `<div class="detail-field"><textarea placeholder="If there are multiple people on the task, describe everyone's responsibilities." onchange="updateTask('${id}','collaborations',this.value)" oninput="_liveWrite('${id}','collaborations',this.value);this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(task.collaborations||'')}</textarea></div></div>`;
-  html += `<div class="detail-section"><div class="detail-section__title">Success Factor</div>`;
-  html += `<div class="detail-field"><textarea placeholder="What will we have accomplished or made by the completion of this task?" onchange="updateTask('${id}','successFactor',this.value)" oninput="_liveWrite('${id}','successFactor',this.value);this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(task.successFactor||'')}</textarea></div></div>`;
+  // Description (collapsible, open by default)
+  { let descBody = '';
+  descBody += `<div class="detail-section"><div class="detail-section__title field-required">Description of Work <span style="font-size:0.75rem;font-weight:400;color:var(--text-muted)">(min 15 characters)</span></div>`;
+  descBody += `<div class="detail-field"><textarea placeholder="A clear, concise description of the work needed to complete this task." onchange="updateTask('${id}','description',this.value)" oninput="_liveWrite('${id}','description',this.value);this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(task.description||'')}</textarea></div></div>`;
+  descBody += `<div class="detail-section"><div class="detail-section__title">Collaborations</div>`;
+  descBody += `<div class="detail-field"><textarea placeholder="If there are multiple people on the task, describe everyone's responsibilities." onchange="updateTask('${id}','collaborations',this.value)" oninput="_liveWrite('${id}','collaborations',this.value);this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(task.collaborations||'')}</textarea></div></div>`;
+  descBody += `<div class="detail-section"><div class="detail-section__title">Success Factor</div>`;
+  descBody += `<div class="detail-field"><textarea placeholder="What will we have accomplished or made by the completion of this task?" onchange="updateTask('${id}','successFactor',this.value)" oninput="_liveWrite('${id}','successFactor',this.value);this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(task.successFactor||'')}</textarea></div></div>`;
+  html += _accWrap('desc', 'Description', descBody, false); }
 
-  // Notes
-  html += `<div class="detail-section"><div class="detail-section__title">Notes</div><div class="note-list">`;
-  (task.notes||[]).forEach((n, idx) => { html += `<div class="note-item"><div class="note-item__time" style="display:flex;justify-content:space-between;align-items:center"><span>${new Date(n.time).toLocaleString()}</span><a href="#" data-action="deleteNote" data-prevent data-arg0="${id}" data-arg1="${idx}" style="color:var(--danger);font-size:0.75rem">delete</a></div><div>${esc(n.text)}</div></div>`; });
-  html += `</div><div class="note-input"><input id="inlineNoteInput" placeholder="Add a note..." onkeydown="if(event.key==='Enter'){addNoteInline('${id}')}"><button class="btn btn--sm btn--primary" data-action="addNoteInline" data-arg0="${id}">Add</button></div></div>`;
+  // Notes (collapsible, open by default)
+  { let notesBody = '<div class="note-list">';
+  (task.notes||[]).forEach((n, idx) => { notesBody += `<div class="note-item"><div class="note-item__time" style="display:flex;justify-content:space-between;align-items:center"><span>${new Date(n.time).toLocaleString()}</span><a href="#" data-action="deleteNote" data-prevent data-arg0="${id}" data-arg1="${idx}" style="color:var(--danger);font-size:0.75rem">delete</a></div><div>${esc(n.text)}</div></div>`; });
+  notesBody += `</div><div class="note-input"><input id="inlineNoteInput" placeholder="Add a note..." onkeydown="if(event.key==='Enter'){addNoteInline('${id}')}"><button class="btn btn--sm btn--primary" data-action="addNoteInline" data-arg0="${id}">Add</button></div>`;
+  html += _accWrap('notes', 'Notes' + ((task.notes||[]).length ? ' (' + (task.notes||[]).length + ')' : ''), notesBody, false); }
 
-  // Attachments
-  html += renderAttachmentsSection(isRoot ? 'project' : 'task', id);
+  // Attachments (collapsible, collapsed by default)
+  html += _accWrap('attach', 'Attachments', renderAttachmentsSection(isRoot ? 'project' : 'task', id), true);
 
-  // Prerequisites (compact version for inline panel)
-  const inlineDeps = task.dependencies || [];
+  // Prerequisites + Dependents (collapsible, collapsed by default)
+  { const inlineDeps = task.dependencies || [];
   const inlineDepTasks = inlineDeps.map(did => tasks.find(t => t.id === did)).filter(Boolean);
   const inlineBlockers = inlineDepTasks.filter(d => d.status !== 'Done');
-  html += `<div class="detail-section"><div class="detail-section__title">Prerequisites ${inlineBlockers.length > 0 ? `<span style="color:var(--warning);font-size:0.75rem;font-weight:400">(${inlineBlockers.length} incomplete)</span>` : inlineDeps.length > 0 ? '<span style="color:var(--success);font-size:0.75rem;font-weight:400">All met</span>' : ''}</div>`;
+  let prereqBody = '';
   if (inlineDepTasks.length > 0) {
     inlineDepTasks.forEach(d => {
       const dIcon = d.status === 'Done' ? '<span style="color:var(--success)">&#10003;</span>' : '<span style="color:var(--warning)">&#9679;</span>';
-      html += `<div style="display:flex;align-items:center;gap:6px;font-size:0.75rem;padding:2px 0">${dIcon} ${itemTypeBadgeHtml(d)} <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;color:var(--accent-text)" data-action="openDetailOverlay" data-arg0="${d.id}">${esc(d.title)}</span><button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.75rem" data-action="_actStopRemoveDepAndRender" data-stop data-arg0="${id}" data-arg1="${d.id}" title="Remove">&times;</button></div>`;
+      prereqBody += `<div style="display:flex;align-items:center;gap:6px;font-size:0.75rem;padding:2px 0">${dIcon} ${itemTypeBadgeHtml(d)} <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;color:var(--accent-text)" data-action="openDetailOverlay" data-arg0="${d.id}">${esc(d.title)}</span><button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.75rem" data-action="_actStopRemoveDepAndRender" data-stop data-arg0="${id}" data-arg1="${d.id}" title="Remove">&times;</button></div>`;
     });
   } else {
-    html += `<div style="color:var(--text-muted);font-size:0.75rem;padding:2px 0">None</div>`;
+    prereqBody += `<div style="color:var(--text-muted);font-size:0.75rem;padding:2px 0">None</div>`;
   }
-  html += `</div>`;
-
-  // Dependents (compact, read-only)
   const inlineDependents = getDependents(id);
   if (inlineDependents.length > 0) {
-    html += `<div class="detail-section"><div class="detail-section__title">Dependents <span style="font-size:0.75rem;font-weight:400;color:var(--text-muted)">(${inlineDependents.length} waiting)</span></div>`;
+    prereqBody += `<div style="margin-top:var(--space-md);font-weight:600;font-size:0.75rem;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:var(--space-xs)">Dependents (${inlineDependents.length} waiting)</div>`;
     inlineDependents.forEach(d => {
-      html += `<div style="display:flex;align-items:center;gap:6px;font-size:0.75rem;padding:2px 0">${itemTypeBadgeHtml(d)} <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;color:var(--accent-text)" data-action="openDetailOverlay" data-arg0="${d.id}">${esc(d.title)}</span><span style="font-size:0.75rem;color:var(--text-muted)">${d.status}</span></div>`;
+      prereqBody += `<div style="display:flex;align-items:center;gap:6px;font-size:0.75rem;padding:2px 0">${itemTypeBadgeHtml(d)} <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;color:var(--accent-text)" data-action="openDetailOverlay" data-arg0="${d.id}">${esc(d.title)}</span><span style="font-size:0.75rem;color:var(--text-muted)">${d.status}</span></div>`;
     });
-    html += `</div>`;
   }
+  const prereqTitle = 'Prerequisites' + (inlineBlockers.length > 0 ? ' <span style="color:var(--warning);font-size:0.7rem;font-weight:400;text-transform:none;letter-spacing:0">(' + inlineBlockers.length + ' incomplete)</span>' : inlineDeps.length > 0 ? ' <span style="color:var(--success);font-size:0.7rem;font-weight:400;text-transform:none;letter-spacing:0">All met</span>' : '');
+  html += _accWrap('prereq', prereqTitle, prereqBody, true); }
 
-  // Children summary + add child button
+  // Children (collapsible, collapsed by default)
   const childType = getAllowedChildType(task);
   if (children.length > 0 || childType) {
     const childLabel = getChildTypeLabel(task) || 'Children';
-    html += `<div class="detail-section"><div class="detail-section__title">${childLabel} (${children.length})</div>`;
+    let childBody = '';
     if (children.length > 0) {
       const childDone = children.filter(c => c.status === 'Done').length;
       const childPct = Math.round(childDone / children.length * 100);
-      html += `<div class="summary-progress"><div class="summary-progress__bar"><div class="summary-progress__fill" style="width:${childPct}%;background:var(--success)"></div></div></div>`;
-      html += `<div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:8px">${childDone}/${children.length} complete</div>`;
+      childBody += `<div class="summary-progress"><div class="summary-progress__bar"><div class="summary-progress__fill" style="width:${childPct}%;background:var(--success)"></div></div></div>`;
+      childBody += `<div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:8px">${childDone}/${children.length} complete</div>`;
       children.slice(0, 8).forEach(c => {
         const icon = c.status === 'Done' ? '&#10003;' : c.status === 'In progress' ? '&#9654;' : '&#9675;';
         const style = c.status === 'Done' ? 'color:var(--purple)' : c.status === 'Blocked' ? 'color:var(--danger)' : '';
-        html += `<div style="font-size:0.78rem;padding:3px 0;cursor:pointer;display:flex;align-items:center;gap:6px;${style}" data-action="openDetail" data-arg0="${c.id}"><span>${icon}</span><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.title)}</span></div>`;
+        childBody += `<div style="font-size:0.78rem;padding:3px 0;cursor:pointer;display:flex;align-items:center;gap:6px;${style}" data-action="openDetail" data-arg0="${c.id}"><span>${icon}</span><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.title)}</span></div>`;
       });
-      if (children.length > 8) html += `<div style="font-size:0.75rem;color:var(--text-muted);padding:4px 0">+ ${children.length - 8} more</div>`;
+      if (children.length > 8) childBody += `<div style="font-size:0.75rem;color:var(--text-muted);padding:4px 0">+ ${children.length - 8} more</div>`;
     }
     if (childType) {
       const childMeta = ITEM_TYPE_META[childType];
-      html += `<button class="btn btn--sm btn--outline" data-action="addItem" data-arg0="${childType}" data-arg1="${id}" style="margin-top:8px;font-size:0.75rem">+ Add ${childMeta.label}</button>`;
+      childBody += `<button class="btn btn--sm btn--outline" data-action="addItem" data-arg0="${childType}" data-arg1="${id}" style="margin-top:8px;font-size:0.75rem">+ Add ${childMeta.label}</button>`;
     }
-    html += '</div>';
+    html += _accWrap('children', childLabel + ' (' + children.length + ')', childBody, true);
   }
 
   // Actions
@@ -22527,7 +22638,8 @@ function _ccRenderPage(el) {
     { id: 'pipeline', label: 'Pipeline' },
     { id: 'money', label: 'Money' },
     { id: 'aios', label: 'AIOS' },
-    { id: 'comms', label: 'Comms' }
+    { id: 'comms', label: 'Comms' },
+    { id: 'intel', label: 'Intel' }
   ];
   tabs.forEach(function(t) {
     html += '<div class="cc-tab' + (_ccTab === t.id ? ' on' : '') + '" onclick="_ccSwitchTab(\'' + t.id + '\')">' + t.label + '</div>';
@@ -22541,6 +22653,7 @@ function _ccRenderPage(el) {
   else if (_ccTab === 'money') html += _ccRenderMoneyTab();
   else if (_ccTab === 'aios') html += _ccRenderAiosTab();
   else if (_ccTab === 'comms') html += _ccRenderCommsTab();
+  else if (_ccTab === 'intel') html += _ccRenderIntelTab();
   html += '</div>';
 
   html += '</div>';
@@ -23123,6 +23236,87 @@ function _ccRenderCommsTab() {
   return '<div class="cc-panel-empty">Comms Debt &mdash; coming in Phase 3.<br><span style="font-size:0.75rem;color:#484f58;">Email backlog, meeting actions, follow-ups.</span></div>';
 }
 
+function _ccRenderIntelTab() {
+  var html = '<div class="cc-intel" id="ccIntelContent"><div class="cc-panel-empty">Loading intelligence...</div></div>';
+  setTimeout(function() {
+    var el = document.getElementById('ccIntelContent');
+    if (!el) return;
+    Promise.all([
+      fetch('/api/intelligence/brief').then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; }),
+      fetch('/api/intelligence/banks').then(function(r) { return r.ok ? r.json() : []; }).catch(function() { return []; }),
+      fetch('/api/intelligence/research?limit=5').then(function(r) { return r.ok ? r.json() : []; }).catch(function() { return []; }),
+      fetch('/api/intelligence/pipeline').then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; })
+    ]).then(function(results) {
+      var brief = results[0], banks = results[1], research = results[2], pipeline = results[3];
+      var h = '';
+      // Brief card
+      if (brief) {
+        h += '<div class="cc-intel-brief">';
+        h += '<div class="cc-intel-hdr"><span class="cc-intel-title">Intelligence Brief</span>';
+        h += '<span class="cc-intel-date">' + (brief.generated || '') + (brief.stale ? ' <span class="cc-intel-stale">(stale)</span>' : '') + '</span></div>';
+        var sKeys = Object.keys(brief.sections || {});
+        sKeys.forEach(function(key) {
+          var items = brief.sections[key];
+          if (!items || !items.length) return;
+          var isAction = key.toLowerCase().indexOf('action') >= 0;
+          h += '<div class="cc-intel-section">';
+          h += '<div class="cc-intel-section-hdr" onclick="this.parentElement.classList.toggle(\'collapsed\')">';
+          if (isAction) h += '<span class="cc-intel-dot"></span>';
+          h += '<span class="cc-intel-arrow">&#9662;</span> ' + key + ' <span class="cc-intel-count">(' + items.length + ')</span></div>';
+          h += '<div class="cc-intel-section-body"><ul>';
+          items.forEach(function(item) { h += '<li>' + item + '</li>'; });
+          h += '</ul></div></div>';
+        });
+        h += '</div>';
+      }
+      // Bank health
+      if (banks.length) {
+        h += '<div class="cc-intel-banks"><div class="cc-intel-hdr"><span class="cc-intel-title">Bank Health</span></div>';
+        h += '<table class="cc-intel-table"><thead><tr><th>Bank</th><th>Lines</th><th>Capacity</th><th>Sources</th><th>Status</th></tr></thead><tbody>';
+        var tl = 0, ts = 0;
+        banks.forEach(function(b) {
+          tl += b.lines; ts += b.sources;
+          var bc = b.status === 'fresh' ? 'var(--success)' : b.status === 'stale' ? 'var(--danger)' : 'var(--warning)';
+          h += '<tr><td><strong>' + b.slug.replace(/_/g, ' ') + '</strong></td>';
+          h += '<td>' + b.lines + '</td>';
+          h += '<td><div class="cc-intel-bar"><div class="cc-intel-bar-fill" style="width:' + b.capacity + '%;background:' + bc + '"></div></div>' + b.capacity + '%</td>';
+          h += '<td>' + b.sources + '</td>';
+          h += '<td><span class="cc-intel-status--' + b.status + '">' + b.status.charAt(0).toUpperCase() + b.status.slice(1) + '</span></td></tr>';
+        });
+        h += '</tbody></table>';
+        h += '<div class="cc-intel-total">' + tl + ' lines &middot; ' + ts + ' source refs</div></div>';
+      }
+      // Research
+      if (research.length) {
+        h += '<div class="cc-intel-research"><div class="cc-intel-hdr"><span class="cc-intel-title">Recent Research</span></div><div style="padding:12px 16px">';
+        research.forEach(function(entry) {
+          h += '<div class="cc-intel-research-group"><div class="cc-intel-research-date">' + (entry.date || '') + ' <span class="cc-intel-domain">' + (entry.domain || '') + '</span></div>';
+          entry.findings.forEach(function(f) {
+            var cls = f.relevance >= 8 ? 'cc-intel-score--high' : 'cc-intel-score--mid';
+            h += '<div class="cc-intel-finding"><span class="cc-intel-score ' + cls + '">' + f.relevance + '</span><span>' + f.title + '</span></div>';
+          });
+          h += '</div>';
+        });
+        h += '</div></div>';
+      }
+      // Pipeline
+      if (pipeline && pipeline.sources) {
+        h += '<div class="cc-intel-pipeline"><div class="cc-intel-hdr"><span class="cc-intel-title">Pipeline Activity</span></div><div style="padding:12px 16px">';
+        pipeline.sources.forEach(function(s) {
+          var dc = s.lastRun === 'never' ? 'cc-intel-dot--amber' : 'cc-intel-dot--green';
+          h += '<div class="cc-intel-source"><span>' + s.name + '</span><span><span class="cc-intel-source-dot ' + dc + '"></span>' + s.lastRun + '</span></div>';
+        });
+        h += '</div></div>';
+      }
+      if (!h) h = '<div class="cc-panel-empty">No intelligence data yet. Run /intel-brief to generate.</div>';
+      el.innerHTML = h;
+    }).catch(function() {
+      el.innerHTML = '<div class="cc-panel-empty">Intelligence brief not available.</div>';
+    });
+  }, 0);
+  return html;
+}
+
 function _ccRenderPipelineContent(p) {
   var html = '';
   var stages = p.stages || [];
@@ -23508,6 +23702,74 @@ function _chatKeydown(ev) {
 }
 
 // ==================== SETTINGS VIEW ====================
+
+/** Activity feed view state — uses unique names to avoid colliding with dashboard's loadActivityFeed */
+let _actViewData = null, _actViewCursor = null, _actViewLoading = false, _actViewFilter = '';
+
+async function _loadActViewData(append) {
+  if (_actViewLoading) return;
+  _actViewLoading = true;
+  try {
+    const params = new URLSearchParams({ limit: '30' });
+    if (append && _actViewCursor) params.set('cursor', _actViewCursor);
+    if (_actViewFilter) params.set('entity_type', _actViewFilter);
+    const resp = await authFetch('/api/activity?' + params.toString());
+    if (!resp.ok) throw new Error('Failed to load activity');
+    const data = await resp.json();
+    if (append && _actViewData) { _actViewData.entries = _actViewData.entries.concat(data.entries); }
+    else { _actViewData = data; }
+    _actViewCursor = data.nextCursor;
+  } catch (e) { console.warn('[Activity] load error:', e.message); }
+  finally { _actViewLoading = false; }
+}
+
+function renderActivityFeedView(el) {
+  if (!_actViewData) {
+    el.innerHTML = '<div style="padding:var(--space-xl);text-align:center;color:var(--text-muted)">Loading activity...</div>';
+    _loadActViewData(false).then(function() { renderActivityFeedView(el); });
+    return;
+  }
+  const entries = _actViewData.entries || [];
+  const filterOptions = ['', 'task', 'lead', 'bug_report', 'candidate', 'client', 'document'];
+  const filterLabels = { '': 'All', task: 'Tasks', lead: 'Leads', bug_report: 'Bugs', candidate: 'Hiring', client: 'Clients', document: 'Docs' };
+  let html = '<div style="max-width:800px;margin:0 auto;padding:var(--space-xl)">';
+  html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-xl)">';
+  html += '<h2 style="font-size:1.25rem;font-weight:700;color:var(--text-primary);margin:0">Activity Feed</h2>';
+  html += '<div style="display:flex;gap:var(--space-xs)">';
+  for (const f of filterOptions) {
+    const active = _actViewFilter === f;
+    html += '<button class="btn btn--sm' + (active ? ' btn--primary' : '') + '" style="font-size:12px;padding:4px 10px" onclick="_actViewFilter=\'' + f + '\';_actViewData=null;_actViewCursor=null;renderContent()">' + esc(filterLabels[f]) + '</button>';
+  }
+  html += '</div></div>';
+  if (entries.length === 0) {
+    html += '<div style="text-align:center;padding:var(--space-2xl);color:var(--text-muted)">No activity found.</div>';
+  } else {
+    let lastDate = '';
+    for (const e of entries) {
+      const d = new Date(e.createdAt);
+      const dateStr = d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+      if (dateStr !== lastDate) {
+        lastDate = dateStr;
+        html += '<div style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;padding:var(--space-md) 0 var(--space-xs);border-bottom:1px solid var(--border-subtle);margin-top:var(--space-md)">' + esc(dateStr) + '</div>';
+      }
+      const time = d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+      const clickAttr = e.entityType === 'task' && e.entityId ? ' style="cursor:pointer" onclick="navigateToTaskInTree(\'' + esc(e.entityId) + '\')"' : '';
+      html += '<div style="display:flex;gap:var(--space-md);padding:var(--space-sm) 0;border-bottom:1px solid var(--border-subtle);align-items:flex-start"' + clickAttr + '>';
+      html += '<span style="flex-shrink:0;font-size:12px;color:var(--text-muted);width:50px;padding-top:2px">' + esc(time) + '</span>';
+      html += '<div style="flex:1;min-width:0">';
+      html += '<div style="font-size:14px;color:var(--text-primary)">' + esc(e.summary) + '</div>';
+      if (e.detail) html += '<div style="font-size:12px;color:var(--text-secondary);margin-top:2px">' + esc(e.detail) + '</div>';
+      html += '</div>';
+      html += '<span style="flex-shrink:0;font-size:11px;padding:2px 6px;border-radius:var(--radius-sm);background:var(--bg-hover);color:var(--text-muted)">' + esc(e.entityType) + '</span>';
+      html += '</div>';
+    }
+  }
+  if (_actViewCursor) {
+    html += '<div style="text-align:center;padding:var(--space-xl)"><button class="btn btn--sm" onclick="_loadActViewData(true).then(function(){renderContent()})">Load more</button></div>';
+  }
+  html += '</div>';
+  el.innerHTML = html;
+}
 
 /** Render the settings view with tabbed navigation */
 function renderSettings(el) {
@@ -27691,6 +27953,66 @@ const newsApi = {
 
 /** Dispatch helper called from renderContent(). Shows a loading state on cold
  *  start, then lazy-loads the module and the current digest on first visit. */
+function renderIntelligenceView(container) {
+  container.innerHTML = '<div style="padding:20px;color:var(--text-muted)">Loading intelligence...</div>';
+  Promise.all([
+    fetch('/api/intelligence/brief').then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; }),
+    fetch('/api/intelligence/banks').then(function(r) { return r.ok ? r.json() : []; }).catch(function() { return []; }),
+    fetch('/api/intelligence/research?limit=10').then(function(r) { return r.ok ? r.json() : []; }).catch(function() { return []; }),
+    fetch('/api/intelligence/pipeline').then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; })
+  ]).then(function(results) {
+    var brief = results[0], banks = results[1], research = results[2], pipeline = results[3];
+    var h = '<div class="intel-view">';
+    var totalLines = 0, totalSources = 0, totalExtracts = 0, staleCount = 0;
+    banks.forEach(function(b) { totalLines += b.lines; totalSources += b.sources; if (b.status === 'stale') staleCount++; });
+    if (pipeline) pipeline.sources.forEach(function(s) { totalExtracts += s.produced; });
+    h += '<div class="intel-kpis">';
+    [{v:banks.length,l:'Active Banks'},{v:totalLines.toLocaleString(),l:'Total Lines',c:'var(--success)'},{v:totalExtracts,l:'Raw Extracts'},{v:totalSources,l:'Source Refs'},{v:staleCount,l:'Stale Banks',c:staleCount>0?'var(--danger)':'var(--success)'}].forEach(function(k) {
+      h += '<div class="intel-kpi"><div class="intel-kpi-value"' + (k.c ? ' style="color:'+k.c+'"' : '') + '>' + k.v + '</div><div class="intel-kpi-label">' + k.l + '</div></div>';
+    });
+    h += '</div>';
+    h += '<div class="pf__panel" style="margin-bottom:16px"><div class="pf__panel-hdr"><h2 style="margin:0;font-size:15px">Bank Health</h2></div>';
+    h += '<div style="padding:0;overflow-x:auto"><table class="intel-bank-table"><thead><tr><th>Bank</th><th>Lines</th><th>Capacity</th><th>Sources</th><th>Last Compiled</th><th>Shelf Life</th><th>Status</th></tr></thead><tbody>';
+    banks.forEach(function(b) {
+      var bc = b.capacity > 80 ? 'var(--warning)' : 'var(--success)';
+      if (b.status === 'stale') bc = 'var(--danger)';
+      h += '<tr><td><strong class="intel-bank-name">' + b.slug.replace(/_/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();}) + '</strong><br><span class="intel-bank-slug">' + b.slug + '</span></td>';
+      h += '<td>' + b.lines + '</td>';
+      h += '<td><div class="intel-cap-bar"><div class="intel-cap-fill" style="width:'+b.capacity+'%;background:'+bc+'"></div></div>'+b.capacity+'%</td>';
+      h += '<td>' + b.sources + '</td><td>' + (b.lastCompiled||'never') + '</td><td>' + b.shelfLife + '</td>';
+      h += '<td><span class="intel-status intel-status--'+b.status+'">' + b.status.charAt(0).toUpperCase()+b.status.slice(1) + '</span></td></tr>';
+    });
+    h += '</tbody></table><div style="padding:12px 16px;font-size:13px;color:var(--text-secondary);border-top:1px solid var(--border)"><strong>'+totalLines.toLocaleString()+'</strong> total lines across <strong>'+totalSources+'</strong> source references</div></div></div>';
+    h += '<div class="intel-columns">';
+    h += '<div class="pf__panel"><div class="pf__panel-hdr"><h2 style="margin:0;font-size:15px">Recent Research</h2></div><div class="pf__panel-body">';
+    if (research.length) {
+      research.forEach(function(entry) {
+        h += '<div class="intel-research-group"><div class="intel-research-date">' + (entry.date||'') + ' <span class="intel-domain-badge">' + (entry.domain||'') + '</span></div>';
+        entry.findings.forEach(function(f) {
+          h += '<div class="intel-finding"><span class="intel-score ' + (f.relevance>=8?'intel-score--high':'intel-score--mid') + '">' + f.relevance + '</span><span class="intel-finding-text">' + f.title + '</span></div>';
+        });
+        h += '</div>';
+      });
+    } else { h += '<div style="color:var(--text-muted)">No research runs yet.</div>'; }
+    h += '</div></div>';
+    h += '<div class="intel-right-col">';
+    h += '<div class="pf__panel" style="margin-bottom:16px"><div class="pf__panel-hdr"><h2 style="margin:0;font-size:15px">Pipeline Activity</h2></div><div class="pf__panel-body">';
+    if (pipeline && pipeline.sources) {
+      pipeline.sources.forEach(function(s) {
+        h += '<div class="intel-source-row"><span class="intel-source-name">' + s.name + '</span><span><span class="intel-source-dot ' + (s.lastRun==='never'?'intel-dot--amber':'intel-dot--green') + '"></span>' + s.lastRun + '</span></div>';
+      });
+    }
+    h += '</div></div>';
+    if (pipeline && pipeline.pending && pipeline.pending.length) {
+      h += '<div class="pf__panel"><div class="pf__panel-hdr"><h2 style="margin:0;font-size:15px">Pending</h2><span class="intel-pending-badge">'+pipeline.pending.length+'</span></div><div class="pf__panel-body">';
+      pipeline.pending.forEach(function(p) { h += '<div class="intel-pending-item">' + p + '</div>'; });
+      h += '</div></div>';
+    }
+    h += '</div></div></div>';
+    container.innerHTML = h;
+  });
+}
+
 function renderNewsOrLoad(el) {
   if (_newsModuleLoaded) { renderNewsView(); return; }
   el.innerHTML = '<div class="news-loading"><span class="news-loading__spinner"></span>Loading news…</div>';
