@@ -197,3 +197,65 @@ Audit trail of all research activity. Each entry records what was searched, what
 - Monitor Apple's response to Fortnite global return and whether commission concessions follow
 - Look for Newzoo or Sensor Tower Q1 2026 market data with segment breakdowns
 - Track Nintendo Switch 2 launch impact on indie sales (cannibalisation vs platform growth)
+
+---
+
+## 2026-05-26 | forecast_models | Web Research Cycle (Week 1)
+
+**Agent:** research_agent (manual invocation)
+**Bank:** forecast_models
+**Brief:** Revenue and player forecasting methodologies with documented, replicable methodology. Sub-domains: revenue projection (F2P funnels, ARPDAU, whale economics), player growth/retention forecasting (cohort analysis, LTV curves, D1/D7/D30), production cost estimation, market sizing, live service event revenue modelling.
+
+### Searches Executed
+
+1. "mobile game LTV prediction model methodology cohort analysis D1 D7 D30 retention forecasting 2024 2025 2026" -- multiple Medium articles, AppsFlyer guide, arxiv paper
+2. "ARPDAU revenue forecasting model free-to-play mobile game conversion funnel whale economics methodology 2024 2025 2026" -- Tenjin, Radoff, GameAnalytics, Beamable
+3. "Eric Seufert Mobile Dev Memo LTV model attribution monetisation forecasting methodology" -- two key Seufert articles (LTV spreadsheet, marketing P&L)
+4. "game development cost estimation model production budget team size genre platform methodology 2024 2025 2026" -- multiple generic guides, no replicable models
+5. "GameAnalytics retention benchmarks 2025 2026 mobile game D1 D7 D30 genre methodology report" -- 2025 and 2026 reports found, investgame.net summaries
+6. "live service game event revenue model battle pass seasonal event ARPDAU spike methodology forecasting 2024 2025" -- GameRefinery, Games Alchemy, Singular
+7. "Deconstructor of Fun mobile game revenue model unit economics methodology ARPDAU LTV framework 2024 2025 2026" -- marketing predictions article, no standalone model
+8. "Sensor Tower data.ai mobile game revenue forecast methodology bottom-up model genre ARPDAU retention benchmarks 2025 2026" -- State of Gaming data, methodology overview
+9. "mobile game market sizing methodology TAM SAM SOM genre platform intersection indie developer forecast framework 2024 2025 2026" -- generic TAM/SAM/SOM guides, market size reports
+
+**Deep fetches:** mobiledevmemo.com (Seufert LTV spreadsheet, marketing P&L), medium.com (Valeev retention model, Radoff F2P economics), tenjin.com (unit economics), beamable.com (F2P financial model), gamerefinery.com (seasonal events), gamesalchemy.substack.com (Meta Pass), gameanalytics.com (2026 benchmarks -- gated), gamedevreports.substack.com (2025 benchmarks summary), byyd.me (Sensor Tower summary), investgame.net (GameAnalytics 2026 PDF -- binary, unreadable)
+
+**Note:** gamesindustry.biz blocked by WebSearch crawler. GameAnalytics 2026 full report behind registration gate. investgame.net PDF was binary/image-based carousel, not extractable.
+
+### Findings Kept (5 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---|---|---|---|---|
+| Retention curve LTV model (Valeev) | 8 | 6 | 9 | Replicable power-curve methodology. Exact formulas for retention fitting + trapezoidal LTV calculation. Works with D1/D3/D7 soft-launch data. |
+| F2P unit economics framework (Tenjin) | 9 | 6 | 9 | Complete bottom-up financial model with worked example ($1.2M scenario). Backward-from-revenue approach ideal for investor decks. Google Sheets template available. |
+| Marketing P&L / ROAS framework (Seufert) | 8 | 7 | 8 | Cash-at-risk and projected receivables methodology. Cohort stacking model. Answers "how much capital do I need for UA?" -- critical for indie studios. |
+| F2P whale economics + economic voltage (Radoff) | 7 | 6 | 7 | Operational data: top 20% = 75% revenue, top 1% = 24%. Event ARPDAU multiplier of 2-3x. Multi-currency design framework. |
+| GameAnalytics 2025 retention benchmarks | 8 | 5 | 8 | 11,600 games, 1.48B MAU. D1/D7/D28 by genre, platform, region, percentile. Industry-standard reference for calibrating LTV models. |
+
+### Findings Rejected
+
+- **Beamable F2P Financial Model:** Google Sheets template exists and is referenced frequently, but the blog post exposes zero methodology. It is a black-box spreadsheet with no documentation of formulas or assumptions. Excluded per brief (no black-box tools).
+- **GameRefinery seasonal events article:** Two case studies (Whiteout Survival +50% daily revenue, Clash of Clans +300%) but no modelling framework, no systematic methodology. Anecdotal only.
+- **Games Alchemy Meta Pass (Substack):** Design philosophy for progression systems. No quantitative data, no revenue modelling, no forecasting methodology. Purely conceptual.
+- **Seufert "Two Methods for Modeling LTV with a Spreadsheet":** The page is a teaser/announcement for a SlideShare presentation and downloadable spreadsheet from Slush 2013. No methodology exposed on the page itself. The underlying methodology is captured in the Valeev extract (same approach).
+- **Generic TAM/SAM/SOM guides (Adapty, CharliA, HG Insights):** Standard market sizing frameworks with no gaming-specific methodology. The approach is well-known; what NBI needs is gaming-specific market data to feed into it, not the framework itself.
+- **Production cost estimation articles (Oski, Juego Studios, Koderspedia, WhimsyGames):** All are "how much does game development cost" listicles with broad ranges ($50K-$400M). No replicable estimation model, no formula, no methodology. Just ranges by genre/complexity. Excluded per brief (no generic advice).
+- **Sensor Tower State of Gaming / State of Mobile:** Market-level revenue data ($82B IAP, $94B total gaming) but no methodology documentation. Their panel-based estimation approach is described at a high level but the actual model is proprietary.
+- **Funmetric "Predicting Players LTV in F2P" (Medium):** Referenced CALTV deep learning approach. Excluded -- requires large datasets (10M+ events) and ML infrastructure that NBI's indie-to-mid-tier clients will not have.
+- **AppQuantum "Using Predictive Analytics in Mobile Gaming":** Generic overview of prediction approaches without replicable methodology. Marketing content.
+
+### Key Themes Emerging
+
+1. **Three models form a complete forecasting stack.** Valeev (retention curve -> LTV), Tenjin (unit economics -> revenue target validation), Seufert (cash flow -> UA capital requirements). Used together, these go from "I have D1/D7 data" to "here's how much capital I need and when it comes back."
+2. **Retention benchmarks are declining industry-wide.** D1 top quartile dropped 1-2pp from 2023 to 2025. Models built on older benchmarks will overestimate LTV. NBI should use 2025 data as baseline with conservative haircut.
+3. **Production cost estimation has no good public models.** Every source found was a listicle with ranges. This sub-domain needs a different research approach -- perhaps GDC talks or consulting frameworks rather than blog posts.
+4. **Live service event modelling is poorly documented.** The Radoff 2-3x ARPDAU multiplier is the only concrete number found. The GameRefinery case studies are anecdotal. This sub-domain also needs deeper research.
+5. **The whale distribution (20/75, 1/24) is the most important assumption in any F2P revenue model.** It determines whether a game's economics work at indie scale. NBI should validate these ratios against actual client data when available.
+
+### Suggestions for Next Cycle (Week 2)
+
+- **Production cost estimation:** Search GDC Vault for talks on game budgeting methodology. Look for Rami Ismail's cost framework. Search for post-mortems with detailed budget breakdowns.
+- **Live service event revenue:** Search for specific battle pass revenue contribution data (% of total IAP from pass vs direct purchase). Look for MachineZone/Scopely/Supercell operational data from GDC talks.
+- **Market sizing by genre/platform:** Access Newzoo or Sensor Tower genre-level revenue data. Look for Niko Partners MENA/SEA market sizing methodology docs.
+- **Retention curve validation:** Search for academic validation of power curve vs exponential vs Weibull retention models. Which fit best for which genres?
+- **Try Apify web browser actor** for GameAnalytics 2026 full report (behind registration gate) and gamesindustry.biz articles on forecasting methodology.
