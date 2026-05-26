@@ -259,3 +259,87 @@ Audit trail of all research activity. Each entry records what was searched, what
 - **Market sizing by genre/platform:** Access Newzoo or Sensor Tower genre-level revenue data. Look for Niko Partners MENA/SEA market sizing methodology docs.
 - **Retention curve validation:** Search for academic validation of power curve vs exponential vs Weibull retention models. Which fit best for which genres?
 - **Try Apify web browser actor** for GameAnalytics 2026 full report (behind registration gate) and gamesindustry.biz articles on forecasting methodology.
+
+---
+
+## 2026-05-26 (Cycle 3) | industry_current | Web Research Cycle
+
+**Agent:** research_agent (manual invocation)
+**Bank:** industry_current
+**Brief:** New events from last 7 days NOT covered in cycles 1-2 (Supercell/Metacore, Astrocade, FTC Genshin, Steam AI disclosure, Q2 layoffs, Google/Epic settlement, Grand Games, Fortnite App Store return, Morgan Stanley AI report, UK ASA enforcement, Take-Two/Zynga, Midsummer closure)
+
+### Searches Executed
+
+1. "gaming industry news May 20-26 2026 latest" -- Bungie/Destiny 2 sunset, PS Plus price increase, Warhammer Skulls
+2. "game studio funding round acquisition deal May 2026" -- Reforged Studios $30M, Scopely/Loom Games $1B (Feb), SHIFT UP/UNBOUND (March)
+3. "Bungie layoffs Destiny 2 development end May 2026" -- Bloomberg report, third layoff wave, Monument of Triumph details
+4. "PlayStation Plus price increase May 2026 details" -- $1-2/month increase for new subscribers, Essential/Extra/Premium affected
+5. "Reforged Studios $30 million funding gaming IP platform 2026" -- MEP Capital, indie IP consolidation model
+6. "Nintendo Switch 2 launch sales numbers June 2026" -- 3.5M units in 4 days, 19.86M in first fiscal year (historical, not new)
+7. "gaming regulation legislation May 2026 new laws" -- US state sweeps casino bans, prediction market regulation (gambling, not video games)
+8. "Unreal Engine Unity engine update announcement May 2026" -- UE6 reveal at RLCS Paris Major 24 May
+9. '"Unreal Engine 6" announced revealed May 2026 features details' -- multithreading overhaul, Verse language, UEFN merge, 2028-2029 timeline
+10. "Summer Game Fest 2026 announcements schedule" -- June 5-8, 60+ indie titles, Valve teaser
+11. "PlayStation State of Play June 2026 announcements" -- June 2, 60+ minutes, Wolverine deep dive
+12. "game industry layoffs studio closures news this week May 2026" -- Survios (May 1), Spiders (Apr 30), Mattel (May 22)
+13. "Bungie layoffs significant number Destiny 2 sunset Marathon details headcount" -- third wave, 850 employees in 2024, previous rounds data
+14. "Spiders studio GreedFall closure May 2026 details" -- Nacon liquidation, 18 years, STJV union statement
+15. "Mattel gaming layoffs May 2026" -- 65 employees, $160M Mattel163 full buyout from NetEase
+16. "Valve announcement Summer Game Fest 2026 Steam" -- Steam Machine/Frame hardware rumour, HLX project speculation
+17. "Survios VR studio layoffs May 2026" -- majority of dev team let go, VR pioneer effectively shuttered
+18. "AI gaming tools announcements partnerships May 2026" -- no major new deals found beyond existing coverage
+19. "game industry OR gaming news deals acquisitions funding site:pocketgamer.biz May 2026" -- Q1 M&A $7.7B report, 52 deals
+20. "Xbox Games Showcase 2026 announcements June" -- June 7, Gears of War E-Day Direct
+21. "mobile gaming news deals May 20-26 2026" -- NetEase 520 conference, Sensor Tower consolidation
+22. "NetEase 520 conference 2026 announcements details games" -- 40+ games, Marvel Rivals, Once Human, Sea of Remnants
+23. "Savvy Games Group Moonton acquisition $6 billion 2026" -- March 20 deal, ByteDance divestiture, 1.5B downloads/110M MAU
+24. "Scopely Loom Games acquisition billion 2026" -- $1B valuation, 20-person Istanbul studio, Pixel Flow
+25. "gaming industry Q1 2026 M&A $7.7 billion deals report" -- Aream & Co vs Drake Star data, revenue benchmarks
+26. "Drake Star gaming report Q1 2026 M&A deals May" -- 51 deals, $100B+ (inc. Paramount/WBD $110B), private financings $785M
+27. "Apple Epic Supreme Court App Store commission gaming May 2026" -- SCOTUS denied Apple stay (May 6), Apple filed for full review (May 21)
+28. "gaming venture capital investment Q1 Q2 2026 report data" -- VC early-stage gaming at post-pandemic low despite $300B total tech VC
+29. "Warhammer Skulls 2026 announcements Dawn of War IV May" -- May 21 event, Dawn of War IV Sept 17 release
+
+**Deep fetches:** shacknews.com (Bungie details), eteknix.com (Bungie financial data), techtimes.com (Bungie layoff history + Marathon metrics), pocketgamer.biz (Q1 M&A data), drakestar.com (Q1 deal breakdown), cinelinx.com (UE6 technical details), winbuzzer.com (UE6), kitguru.net (UE6), kotaku.com (Bungie/Destiny 2)
+
+**Note:** gamesindustry.biz still blocked by WebSearch crawler. Bloomberg paywalled for full Bungie reporting. Most UE6 articles had minimal technical substance beyond the teaser announcement.
+
+### Findings Kept (4 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---|---|---|---|---|
+| Bungie Destiny 2 sunset + third layoff wave | 8 | 7 | 7 | Major live-service shutdown with $766M Sony write-downs across two fiscal years. Third layoff wave at a $3.6B acquisition. Marathon underperforming (59% concurrent player decline). |
+| Unreal Engine 6 announcement (24 May) | 8 | 8 | 7 | First official UE6 reveal. Multithreading overhaul, Verse language, UEFN merge. Preview builds 2027-2028. Affects studio technology planning. |
+| Q1 2026 gaming M&A: $7.7B across 52 deals | 8 | 7 | 8 | Concrete market data with deal-level breakdown. Console revenue ($21.7B) overtook mobile IAP ($20.5B) for first time. Saudi capital dominated ($7B+ of $7.7B). VC early-stage gaming at post-pandemic low. |
+| Reforged Studios $30M indie IP platform | 7 | 6 | 7 | New mid-market consolidation model: buy proven indie IP and extend lifecycles. Non-endemic PE capital. Alternative exit path for indie studios. |
+
+### Findings Rejected
+
+- **PlayStation Plus price increase (May 20):** $1-2/month for new subscribers in select regions. Consumer pricing change with no strategic implications for game studios or NBI advisory. Low actionability.
+- **Spiders/Nacon studio closure (late April/May 1):** French AA RPG studio liquidated after 18 years. Interesting "RPG middle class disappearing" narrative and STJV union statement blaming Nacon mismanagement. Excluded on freshness -- dates to April 29-May 1, outside the 7-day window.
+- **Survios VR shutdown (May 1):** Pioneer VR studio effectively shuttered, majority of dev team let go. VR market contraction signal (joins Polyarc mass layoffs in March). Excluded: low advisory relevance for NBI's client base and just outside the 7-day window.
+- **Mattel gaming layoffs (May 22):** 65 employees at El Segundo HQ, part of ongoing restructuring ($200M cost savings target). IP licensing play (Mattel163 buyout from NetEase). Excluded: too peripheral to core gaming advisory.
+- **Summer Game Fest / Xbox Showcase / PS State of Play schedules:** Consumer events not yet occurred (June 2-8). No advisory-relevant data until after they happen.
+- **Warhammer Skulls 2026 (May 21):** Dawn of War IV release date (Sept 17), Boltgun 2, Darktide DLC. Consumer game announcements with no strategic or market data.
+- **NetEase 520 Conference (May 20):** 40+ games showcased. Consumer content roadmaps for existing titles. No M&A, funding, or policy data.
+- **Apple vs Epic Supreme Court escalation (May 6-21):** SCOTUS denied Apple's stay, Apple filed for full review of contempt finding. Extends existing coverage (Fortnite return, Google settlement already captured). Incremental legal development rather than new event.
+- **Valve/Steam Machine rumours:** Speculative based on Summer Game Fest teaser. No confirmed announcement. Excluded per brief rules (no vague trend pieces).
+- **SHIFT UP/UNBOUND acquisition:** March 2026 announcement, outside the 7-day window.
+- **Scopely/Loom Games $1B:** February 2026 deal, outside window. Captured as supporting data in Q1 M&A extract.
+
+### Key Themes Emerging (Cycle 3)
+
+1. **Live-service economics under severe stress.** Bungie's $766M in write-downs on a $3.6B acquisition is the clearest signal yet that premium live-service valuations were unsustainable. The Destiny 2 sunset + Marathon underperformance is a dual failure.
+2. **Console revenue overtaking mobile IAP for the first time** is a structural shift driven by Switch 2, not a cyclical blip. Mobile downloads declining even as IAP holds above $20B suggests the mobile market has hit a ceiling.
+3. **Saudi capital is the dominant force in gaming M&A.** Savvy Games Group + Scopely accounted for $7B+ of the $7.7B Q1 total. This concentration of capital in a single sovereign fund reshapes the acquirer landscape.
+4. **Mid-market indie IP consolidation is emerging as a new category** between full studio acquisitions and organic growth. Reforged's $30M platform model offers indie studios an alternative to closure.
+5. **UE6 announcement resets the engine planning clock.** Studios committing to UE5 for 2026-2027 titles are safe, but anyone planning 2028+ projects needs to factor UE6 migration costs and the Verse language transition.
+
+### Suggestions for Next Cycle
+
+- Track Bungie layoff headcount when disclosed -- third wave numbers will clarify the scale of Sony's restructuring
+- Monitor Summer Game Fest (June 5) and Xbox Showcase (June 7) for any M&A or strategic announcements alongside game reveals
+- Follow Apple Supreme Court response to Epic -- full review decision expected Q3 2026
+- Check for Newzoo/Sensor Tower Q1 2026 mobile market reports with genre breakdowns (mobile download decline context)
+- Track Switch 2 software attach rate data to understand whether console > mobile is sustained or launch-driven
+- Monitor Discord IPO timing and valuation -- would be the first major gaming-adjacent IPO in years
