@@ -342,7 +342,7 @@ button.sidebar__title::after { content: "▾"; font-size: 0.75rem; transition: t
 .main__content:has(> .docs),
 .main__content:has(> .tasks-view),
 .main__content:has(> .cc-page) { overflow: hidden; display: flex; flex-direction: column; padding: 0; }
-.main__content:has(> .pf) { overflow: hidden; display: flex; flex-direction: column; }
+.main__content:has(> .pf) { overflow-y: auto; display: flex; flex-direction: column; }
 
 /* ===== KPI CARDS ===== */
 .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--space-lg); margin-bottom: var(--space-xl); }
@@ -3588,6 +3588,9 @@ function _actCloseExpReportDetail() { closeExpenseDetail(); closeReportDetail();
 function _actDeleteBugAndClose(id) { deleteBugReport(id); closeBugDetail(); }
 function _actFilterClientReport(client) { filterByClient(client); switchView('report'); }
 function _actFilterClientTasks(client) { filterByClient(client); switchView('tasks'); }
+function _actNeedsAttnOverdue(client) { filterByClient(client); currentFilter.overdue = true; switchView('tasks'); }
+function _actNeedsAttnBlocked(client) { filterByClient(client); currentFilter.status = ['Blocked']; switchView('tasks'); }
+function _actClearFilterOverdueBreadcrumb() { currentFilter.overdue = false; renderContent(); renderBreadcrumbs(); }
 function _actFilterClientAndOpenTask(client, taskId) { filterByClient(client); switchView('tasks'); openDetail(taskId); }
 function _actSwitchAndOpenDetail(taskId) { switchView('tasks'); openDetail(taskId); }
 function _actOpenOverlayAndClose(id) { toggleWarnAlertSidebar(); navigateToTaskInTree(id); }
@@ -4861,6 +4864,7 @@ function getFilteredTasks() {
     const myName = _currentUser?.displayName || _currentUser?.display_name || '';
     if (myName) list = list.filter(t => (t.assignees || []).some(a => a.toLowerCase() === myName.toLowerCase()));
   }
+  if (currentFilter.overdue) list = list.filter(t => t.dueDate && t.status !== 'Done' && t.status !== 'Cancelled' && safeParseDate(t.dueDate) < new Date());
   if (currentFilter.incomplete) list = list.filter(t => t.status !== 'Done' && t.status !== 'Cancelled' && (!t.hoursEstimated || !t.priority || !t.dueDate || !t.healthState));
   if (currentFilter.search) {
     const q = currentFilter.search.toLowerCase();
@@ -5776,9 +5780,9 @@ window.addEventListener('popstate', e => {
 // Set initial history state
 history.replaceState({ view: currentView, filter: { ...currentFilter }, taskSubView }, '', '#' + currentView);
 /** Clear all active filters except sort order, and deselect any bulk-selected tasks */
-function resetFilters() { currentFilter = { client: null, project: null, status: [], health: [], search: '', sort: currentFilter.sort || 'default', assignee: [], incomplete: false, practice: currentFilter.practice || null }; selectedTaskIds.clear(); }
+function resetFilters() { currentFilter = { client: null, project: null, status: [], health: [], search: '', sort: currentFilter.sort || 'default', assignee: [], incomplete: false, overdue: false, practice: currentFilter.practice || null }; selectedTaskIds.clear(); }
 /** Set the client filter and re-render -- pass null to show all clients */
-function filterByClient(c) { if (isClientUser()) return; currentFilter = { client: c, project: null, status: [], health: [], assignee: [], search: '', sort: currentFilter.sort || 'default', practice: currentFilter.practice || null }; selectedTaskIds.clear(); renderSidebarCounts(); renderContent(); renderBreadcrumbs(); history.replaceState({ view: currentView, filter: { ...currentFilter }, taskSubView }, '', '#' + currentView); }
+function filterByClient(c) { if (isClientUser()) return; currentFilter = { client: c, project: null, status: [], health: [], assignee: [], search: '', sort: currentFilter.sort || 'default', incomplete: false, overdue: false, practice: currentFilter.practice || null }; selectedTaskIds.clear(); renderSidebarCounts(); renderContent(); renderBreadcrumbs(); history.replaceState({ view: currentView, filter: { ...currentFilter }, taskSubView }, '', '#' + currentView); }
 // Practice areas (Phase 9 of the NBI WorkSage backlog, a6c82c8c).
 // Stored as `practice_area` on tasks/leads/clients. The legacy "Human
 // Capital" / HC label has been retired in favour of "Organisational"
@@ -5993,17 +5997,7 @@ function renderDashboard(el) {
 
   html += renderPortfolioDashboard();
 
-  // Activity feed + Client health scores (loaded async, rendered into placeholders)
-  html += '<div class="pf__pgrid pf__pgrid--fill" style="margin-top:12px">';
-  html += '<div class="pf__panel" style="flex:1.2"><div class="pf__panel-hdr">Recent Activity</div><div id="activityFeedContainer" style="font-size:0.82rem;color:var(--text-muted);padding:8px 0">Loading...</div></div>';
-  html += '<div class="pf__panel" style="flex:0.8"><div class="pf__panel-hdr">Client Health</div><div id="healthScoresContainer" style="font-size:0.82rem;color:var(--text-muted);padding:8px 0">Loading...</div></div>';
-  html += '</div>';
-
   el.innerHTML = html;
-
-  // Load activity feed and health scores
-  loadActivityFeed();
-  loadHealthScores();
 }
 
 function renderWorkloadView(el) {
@@ -6233,7 +6227,8 @@ function renderPortfolioDashboard() {
   const blockedTasks = filtered.filter(t => (t.healthState === 'Blocked' || t.status === 'Blocked') && t.status !== 'Done' && t.status !== 'Cancelled');
   const atRiskTasks = filtered.filter(t => t.healthState === 'Red' && t.status !== 'Done' && t.status !== 'Cancelled');
 
-  const needsAttentionCount = overdueTasks.length;
+  const needsAttentionIds = new Set([...overdueTasks.map(t => t.id), ...blockedTasks.map(t => t.id)]);
+  const needsAttentionCount = needsAttentionIds.size;
   const uniqueProblemIds = new Set([...overdueTasks.map(t => t.id), ...atRiskTasks.map(t => t.id)]);
   const onTrackCount = Math.max(0, activeRoots.length - uniqueProblemIds.size);
 
@@ -6357,7 +6352,7 @@ function renderPfStrip(activeCount, onTrackCount, needsAttentionCount, atRiskCou
   var items = [
     { val: activeCount, label: 'Active Engagements', style: '', delta: delta(activeCount, 'active_projects', false) },
     { val: onTrackCount, label: 'On Track', style: '', delta: delta(onTrackCount, 'on_track_count', false) },
-    { val: needsAttentionCount, label: 'Needs Attention', style: 'color:var(--warning)', delta: delta(needsAttentionCount, 'overdue_count', true) },
+    { val: needsAttentionCount, label: 'Needs Attention', style: 'color:var(--warning)', delta: (function() { if (!snap7) return ''; var prev = (parseFloat(snap7.overdue_count) || 0) + (parseFloat(snap7.blocked_count) || 0); var diff = needsAttentionCount - prev; if (diff === 0) return ''; var arrow = diff > 0 ? '▲' : '▼'; var sign = diff > 0 ? '+' : ''; var col = diff < 0 ? 'var(--success)' : 'var(--danger)'; return '<span class="pf__kpi-delta" style="color:' + col + '">' + arrow + ' ' + sign + Math.round(diff) + '</span><span class="pf__kpi-delta-text">vs last week</span>'; })() },
     { val: atRiskCount, label: 'At Risk', style: 'color:var(--danger);text-shadow:0 0 20px rgba(255,71,87,0.2)', delta: delta(atRiskCount, 'at_risk_count', true) },
   ];
 
@@ -6555,35 +6550,44 @@ function renderPfProgressStatus(panelTasks) {
 function renderPfNeedsAttention(panelTasks, now) {
   const blocked = panelTasks.filter(t => (t.healthState === 'Blocked' || t.status === 'Blocked') && t.status !== 'Done' && t.status !== 'Cancelled');
   const overdue = panelTasks.filter(t => t.dueDate && t.status !== 'Done' && t.status !== 'Cancelled' && safeParseDate(t.dueDate) < now && t.healthState !== 'Blocked' && t.status !== 'Blocked');
-  overdue.sort((a, b) => safeParseDate(a.dueDate) - safeParseDate(b.dueDate));
-  const items = [...blocked, ...overdue];
-  const seen = new Set();
-  const unique = items.filter(t => { if (seen.has(t.id)) return false; seen.add(t.id); return true; });
+  const totalCount = blocked.length + overdue.length;
+
+  const clientMap = {};
+  blocked.forEach(t => {
+    const c = getTaskClient(t) || 'Unassigned';
+    if (!clientMap[c]) clientMap[c] = { blocked: 0, overdue: 0 };
+    clientMap[c].blocked++;
+  });
+  overdue.forEach(t => {
+    const c = getTaskClient(t) || 'Unassigned';
+    if (!clientMap[c]) clientMap[c] = { blocked: 0, overdue: 0 };
+    clientMap[c].overdue++;
+  });
+  const clientList = Object.entries(clientMap)
+    .map(([name, counts]) => ({ name, blocked: counts.blocked, overdue: counts.overdue, total: counts.blocked + counts.overdue }))
+    .sort((a, b) => b.total - a.total);
 
   let html = '<div class="pf__panel">';
-  html += '<div class="pf__panel-hdr"><span class="pf__panel-title" style="color:var(--danger)">Needs Attention</span><span class="pf__panel-badge" style="color:var(--danger)">' + unique.length + '</span></div>';
+  html += '<div class="pf__panel-hdr"><span class="pf__panel-title" style="color:var(--danger)">Needs Attention</span><span class="pf__panel-badge" style="color:var(--danger)">' + totalCount + '</span></div>';
   html += '<div class="pf__panel-body">';
 
-  if (unique.length === 0) {
+  if (clientList.length === 0) {
     html += '<div class="pf__empty"><div class="pf__empty-title" style="color:var(--success)">All clear</div></div>';
   } else {
-    unique.forEach(t => {
-      const parent = t.parentId ? tasks.find(p => p.id === t.parentId) : null;
-      const clientName = getTaskClient(t) || '';
-      const projectName = parent ? parent.title : '';
-      const ctx = [clientName, projectName].filter(Boolean).join(' — ');
-      const owner = (t.assignees || []).join(', ');
-      const isBlocked = t.healthState === 'Blocked' || t.status === 'Blocked';
+    const rows = [];
+    clientList.forEach(c => {
+      if (c.overdue > 0) rows.push({ name: c.name, type: 'overdue', count: c.overdue });
+      if (c.blocked > 0) rows.push({ name: c.name, type: 'blocked', count: c.blocked });
+    });
+    rows.forEach(r => {
+      const isBlocked = r.type === 'blocked';
       const badge = isBlocked ? 'BLOCKED' : 'OVERDUE';
       const badgeClass = isBlocked ? 'pf__attn-badge--blk' : 'pf__attn-badge--ovd';
-
-      html += '<div class="pf__attn" data-action="openDetailOverlay" data-arg0="' + t.id + '">';
+      const action = isBlocked ? '_actNeedsAttnBlocked' : '_actNeedsAttnOverdue';
+      html += '<div class="pf__attn" data-action="' + action + '" data-arg0="' + esc(r.name) + '">';
       html += '<div class="pf__attn-bar" style="background:var(--danger);box-shadow:0 0 6px var(--danger-bg)"></div>';
       html += '<span class="pf__attn-badge ' + badgeClass + '">' + badge + '</span>';
-      html += '<div class="pf__attn-info"><div class="pf__attn-name">' + esc(t.title) + '</div>';
-      if (ctx) html += '<div class="pf__attn-sub">' + esc(ctx) + '</div>';
-      html += '</div>';
-      if (owner) html += '<span class="pf__attn-who">' + esc(owner) + '</span>';
+      html += '<div class="pf__attn-info"><div class="pf__attn-name">' + esc(r.name) + ' <span style="font-weight:600">' + r.count + '</span></div></div>';
       html += '</div>';
     });
   }
@@ -7621,7 +7625,7 @@ function renderTaskView(el) {
   </div>`;
 
   // Combined sub-controls row: Show buttons (board only) + quick-add + filter pills
-  const hasFilter = currentFilter.client || (currentFilter.status && currentFilter.status.length > 0) || (currentFilter.health && currentFilter.health.length > 0) || currentFilter.project || (currentFilter.assignee && currentFilter.assignee.length > 0) || currentFilter.incomplete;
+  const hasFilter = currentFilter.client || (currentFilter.status && currentFilter.status.length > 0) || (currentFilter.health && currentFilter.health.length > 0) || currentFilter.project || (currentFilter.assignee && currentFilter.assignee.length > 0) || currentFilter.incomplete || currentFilter.overdue;
   html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:var(--space-sm);flex-wrap:wrap">`;
   if (taskSubView === 'board') {
     html += `<div style="display:flex;align-items:center;gap:4px;flex-shrink:0">
@@ -7645,6 +7649,7 @@ function renderTaskView(el) {
     if (currentFilter.project) { const pt = tasks.find(t => t.id === currentFilter.project); html += `<span class="filter-chip" style="font-size:0.75rem;margin:0">${esc(pt ? pt.title : 'Project')} <button data-action="_actClearFilterProjectBreadcrumb">&times;</button></span>`; }
     if (currentFilter.status && currentFilter.status.length > 0) html += `<span class="filter-chip" style="font-size:0.75rem;margin:0">${currentFilter.status.join(', ')} <button data-action="_actClearFilterStatusBreadcrumb">&times;</button></span>`;
     if (currentFilter.health && currentFilter.health.length > 0) html += `<span class="filter-chip" style="font-size:0.75rem;margin:0">${currentFilter.health.join(', ')} <button data-action="_actClearFilterHealthBreadcrumb">&times;</button></span>`;
+    if (currentFilter.overdue) html += `<span class="filter-chip" style="font-size:0.75rem;margin:0;background:var(--danger-bg);color:var(--danger)">Overdue <button data-action="_actClearFilterOverdueBreadcrumb">&times;</button></span>`;
     if (currentFilter.incomplete) html += `<span class="filter-chip" style="font-size:0.75rem;margin:0">Incomplete <button data-action="_actClearFilterIncompleteBreadcrumb">&times;</button></span>`;
     html += `<button class="filter-chip-clear" style="font-size:0.75rem" data-action="_actResetFiltersBreadcrumb">Clear all</button>`;
     html += `</div>`;
@@ -22833,8 +22838,8 @@ function _ccRenderWorkTab(b, w, s, fc) {
       html += '<div class="cc-row-t">' + esc(client.client_name) + '</div>';
       html += '<div class="cc-row-m">';
       html += '<span style="color:var(--text-secondary);">' + client.done + '/' + client.total + ' done</span>';
-      if (client.overdue > 0) html += ' <span class="cc-tag r">' + client.overdue + ' overdue</span>';
-      if (client.blocked > 0) html += ' <span class="cc-tag a">' + client.blocked + ' blocked</span>';
+      if (client.overdue > 0) html += ' <span class="cc-tag r" style="cursor:pointer" data-action="_actNeedsAttnOverdue" data-arg0="' + esc(client.client_name) + '" data-stop>' + client.overdue + ' overdue</span>';
+      if (client.blocked > 0) html += ' <span class="cc-tag a" style="cursor:pointer" data-action="_actNeedsAttnBlocked" data-arg0="' + esc(client.client_name) + '" data-stop>' + client.blocked + ' blocked</span>';
       html += '</div>';
       html += '</div>';
       html += '<div style="font-size:0.75rem;color:' + daysCol + ';white-space:nowrap;text-align:right;">' + client.days_since_activity + 'd ago</div>';
@@ -22900,24 +22905,39 @@ function _ccRenderWorkTab(b, w, s, fc) {
     }
     html += '</div>';
 
-    // Team Workload — third column
+    // Team Workload — third column (grouped by client)
     html += '<div class="cc-card"><h3><span>&#128101; Team</span> <span class="ct">' + assignees.length + ' people</span></h3>';
-    var barColours = ['#238636', '#1f6feb', '#8b5cf6', '#f59e0b', '#f85149', '#06b6d4'];
     if (assignees.length === 0) {
       html += '<div style="color:var(--text-secondary)">No assignee data</div>';
     } else {
-      assignees.slice(0, 8).forEach(function(a) {
-        var countCol = a.total > 15 ? '#f85149' : a.total > 10 ? '#d29922' : '#3fb950';
-        html += '<div style="margin-bottom:8px;">';
-        html += '<div style="display:flex;justify-content:space-between;margin-bottom:2px;">';
-        html += '<span style="font-size:0.85rem;">' + esc(a.name) + '</span>';
-        html += '<span style="font-size:0.82rem;font-weight:700;color:' + countCol + ';">' + a.total + '</span>';
-        html += '</div>';
-        html += '<div class="cc-sbar">';
-        a.clients.forEach(function(cl, i) {
-          if (cl.count > 0) html += '<div style="background:' + barColours[i % barColours.length] + ';flex:' + cl.count + ';" title="' + esc(cl.client) + ': ' + cl.count + '"></div>';
+      var clientTeamMap = {};
+      assignees.forEach(function(a) {
+        (a.clients || []).forEach(function(cl) {
+          if (cl.count <= 0) return;
+          var cn = cl.client || 'Unassigned';
+          if (!clientTeamMap[cn]) clientTeamMap[cn] = { total: 0, people: [] };
+          clientTeamMap[cn].total += cl.count;
+          clientTeamMap[cn].people.push({ name: a.name, count: cl.count });
         });
-        html += '</div></div>';
+      });
+      var clientTeamList = Object.entries(clientTeamMap)
+        .map(function(e) { return { name: e[0], total: e[1].total, people: e[1].people }; })
+        .sort(function(a, b) { return b.total - a.total; });
+      clientTeamList.forEach(function(cl) {
+        cl.people.sort(function(a, b) { return b.count - a.count; });
+        html += '<div style="margin-bottom:12px;">';
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">';
+        html += '<span style="font-size:0.85rem;font-weight:600;">' + esc(cl.name) + '</span>';
+        html += '<span style="font-size:0.78rem;color:var(--text-secondary);">' + cl.total + ' tasks</span>';
+        html += '</div>';
+        cl.people.forEach(function(p) {
+          var countCol = p.count > 15 ? '#f85149' : p.count > 10 ? '#d29922' : 'var(--text-secondary)';
+          html += '<div style="display:flex;justify-content:space-between;padding:2px 0 2px 12px;font-size:0.82rem;">';
+          html += '<span>' + esc(p.name) + '</span>';
+          html += '<span style="font-weight:600;color:' + countCol + ';">' + p.count + '</span>';
+          html += '</div>';
+        });
+        html += '</div>';
       });
     }
     if (spof.length > 0) {
