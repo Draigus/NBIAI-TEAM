@@ -424,3 +424,81 @@ Audit trail of all research activity. Each entry records what was searched, what
 - **Search for Remedy Entertainment (Control, Alan Wake 2) production methodology** -- ~300 people but may have documented AA-scale processes from earlier in their history
 - **Search for pre-production to production transition failures** -- studios that shipped late or over budget due to skipping vertical slice or extending pre-production too long
 - **Try Apify web browser actor for GDC Vault** to access production track talk transcripts and slides behind the paywall
+
+---
+
+## 2026-05-27 (Cycle 4) | industry_current | Web Research Cycle
+
+**Agent:** research_agent (manual invocation)
+**Bank:** industry_current
+**Brief:** New events from last 3-7 days NOT covered in cycles 1-3 (16 topics: Supercell/Metacore, Astrocade, FTC Genshin, Steam AI disclosure, Q2 layoffs, Google/Epic settlement, Grand Games, Fortnite App Store, Morgan Stanley AI report, UK ASA enforcement, Take-Two/Zynga, Midsummer closure, Bungie/Destiny 2 sunset, UE6 announcement, Q1 M&A $7.7B, Reforged Studios)
+
+### Searches Executed
+
+1. "gaming news May 27 2026" -- 007 First Light launch, PlayStation Days of Play
+2. "game studio funding acquisition deal May 2026" -- Scopely/Loom Games $1B (Feb), Take-Two acquisition signal, SHIFT UP/UNBOUND (March)
+3. "Summer Game Fest 2026 date schedule announcements" -- June 5-8, full showcase calendar
+4. "gaming industry layoffs studio closures May 2026" -- Nacon 90 jobs, 31st Union, MercurySteam, Night Street Games
+5. "Xbox Games Showcase 2026 announcements leaks" -- June 7, Fable/Halo/Gears/CoD expected
+6. "gaming regulation policy update May 2026" -- India PROG Rules effective 1 May
+7. "video game technology AI announcements this week May 2026" -- Roblox AI engine challenge
+8. "Take-Two GTA 6 acquisition plans CEO Strauss Zelnick May 2026" -- earnings call, three-pillar capital allocation, $8B projection
+9. "Nacon layoffs 90 jobs restructuring 2026" -- insolvency filing, Big Bad Wolf closure, Kylotonn near-total layoffs
+10. "Valve announcement Summer Game Fest Steam hardware 2026" -- Steam Machine four SKUs, 50 tons shipped
+11. "Roblox challenge Unity Unreal engine AI development tools 2026" -- Bloomberg, Baszucki photorealistic AI tools
+12. "Sony State of Play June 2026 announcements PS5" -- June 2, 60+ minutes, Wolverine deep dive
+13. "Valve Steam Machine hardware leak tiers specifications 2026" -- AMD RDNA 3, 16GB DDR5, $499 entry, reservation system
+14. "India online gaming regulation rules PROG 2026 impact" -- OGAI established, real-money gaming banned, esports recognised
+15. "Microsoft $250 million Activision Blizzard shareholder lawsuit settlement 2026" -- AP7 suit, $0.30/share, D&O insurance 60%
+16. "former BioWare developers new studio 2026 announcement" -- Studio Reset, neon-noir mystery, Canada Media Fund
+17. "Bungie third layoff wave Destiny 2 ends June 2026 Marathon" -- confirmed third wave, Marathon 59% decline, no D3 greenlit
+18. "gaming market data revenue numbers Q1 Q2 2026 mobile PC console" -- $205B projected, mobile $132B, console recovery
+19. "IO Interactive 007 First Light James Bond game release reviews May 2026" -- May 27 launch, best Bond game since GoldenEye
+20. "gaming acquisitions deals closures week May 19-27 2026" -- GAMEE/Alpha Compute $11M (too small)
+21. "PlayStation Days of Play 2026 deals discounts PS Plus" -- consumer sale, no strategic significance
+22. "Nintendo Switch 2 pre-order sales launch date 2026" -- June 5, $449.99/$499.99
+
+**Deep fetches:** gamefile.news (Microsoft/Activision settlement details), allkeyshop.com (Steam Machine specs and logistics), gamedeveloper.com (Studio Reset founding), startupfortune.com (Roblox AI tools), india-briefing.com (PROG Rules detail)
+
+**Note:** gamesindustry.biz still blocked by WebSearch crawler. Bloomberg paywalled for full Roblox reporting.
+
+### Findings Kept (6 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---|---|---|---|---|
+| Microsoft/Activision $250M shareholder settlement | 8 | 8 | 7 | Largest gaming acquisition's legal coda. $250M on $69B deal. D&O insurance structure (60%). AP7 pension fund activism precedent. |
+| Valve Steam Machine hardware launch imminent | 8 | 9 | 7 | New console entrant. Four SKUs, AMD RDNA 3, $499 entry. 50 tons shipped to US. SGF reveal expected 5 June. Platform diversification signal. |
+| Nacon insolvency + 90 layoffs + studio closures | 7 | 8 | 6 | European AA publisher collapse. EUR 43M bond default. Big Bad Wolf and Kylotonn closed. AA licensed-game vulnerability pattern. |
+| India PROG online gaming regulation | 7 | 8 | 6 | First national-level Indian gaming framework. Real-money gaming banned. Esports formally recognised. 500M+ gamer market now regulated. Extraterritorial application. |
+| Roblox challenges Unity/Unreal with AI engine | 8 | 8 | 7 | Platform + engine + distribution convergence. AI-assisted development as competitive differentiator. Claude/Cursor/Codex integrated into Studio. |
+| Summer 2026 showcase season calendar | 7 | 7 | 6 | Most compressed showcase week in history (June 2-8). State of Play, Switch 2 launch, SGF, Xbox Showcase. Calendar awareness for advisory. |
+
+**Note:** Take-Two GTA 6 acquisition signal also written as a standalone extract (extends existing Take-Two/Zynga coverage with earnings call specifics and $8B projection). Total: 7 extracts including the Take-Two update.
+
+### Findings Rejected
+
+- **007 First Light launch (27 May):** Major AAA release from IO Interactive. Strong reviews ("best Bond game since GoldenEye"). However, this is a consumer game release, not an industry-structural event. No M&A, funding, policy, or market data. Low advisory relevance.
+- **PlayStation Days of Play (27 May - 10 June):** Annual consumer sale. $100 off PSVR2, game discounts, PS Plus content. No strategic implications for game studios or NBI advisory.
+- **Nintendo Switch 2 pre-orders/launch (5 June):** $449.99/$499.99 pricing. Already well-known. Consumer hardware event covered in cycle 3. No new data beyond retail availability updates.
+- **Studio Reset (ex-BioWare, 20 May):** New Canadian indie studio founded by BioWare/Inflexion/Timbre veterans. Neon-noir mystery game with Canada Media Fund support. Interesting but too early-stage and too small for advisory relevance. No funding amount disclosed.
+- **GAMEE/Alpha Compute acquisition ($11M):** 60% stake at $18M enterprise valuation. $926K Q1 revenue. Too small for advisory relevance.
+- **Bungie third layoff wave update:** Already comprehensively covered in cycle 3 extract (2026-05-26_bungie-destiny2-sunset-layoffs.md). No new data beyond confirmation of what was already reported. Marathon decline numbers already captured.
+- **Global gaming market revenue projections ($205B):** Newzoo/Sensor Tower data. Market sizing numbers ($205B total, $132B mobile, $96B PC, $53-55B console). Useful reference data but not a discrete event -- belongs in market data compilation rather than event extract.
+
+### Key Themes Emerging (Cycle 4)
+
+1. **The platform landscape is fragmenting further.** Valve entering console hardware (Steam Machine), Roblox challenging Unity/Unreal as a professional engine, and Switch 2 launching within the same week. Studios face more platform decisions than ever.
+2. **AI is the new engine battleground.** Roblox's AI tools, UE6's Verse language, and the agentic AI integrations (Claude, Cursor, Codex) signal that AI-assisted development is becoming the primary differentiator between engines, displacing rendering fidelity.
+3. **Post-acquisition litigation is a real cost centre.** Microsoft's $250M settlement on the $69B Activision deal is a data point every M&A advisor should reference. D&O insurance structure matters.
+4. **European AA publishing is in structural decline.** Nacon's insolvency follows Embracer's restructuring, Focus Entertainment's rebranding, and Koch Media's downsizing. Studios should evaluate publisher financial health before signing deals.
+5. **Regulatory convergence continues globally.** India's PROG Rules join the US (FTC), UK (ASA), and EU (Digital Fairness Act) in creating a multi-jurisdictional compliance landscape for gaming companies.
+
+### Suggestions for Next Cycle
+
+- Monitor Summer Game Fest (5 June) for Valve Steam Machine confirmation and any M&A or strategic announcements
+- Track Xbox Showcase (7 June) for Elder Scrolls 6 and Fable details -- significant for RPG market sizing
+- Follow up on Sony State of Play (2 June) for first-party pipeline announcements
+- Check for Bungie third layoff headcount when officially disclosed
+- Monitor India PROG Rules enforcement -- first compliance actions expected Q3 2026
+- Track Roblox developer adoption metrics for the new AI tools post-launch
+- Search for Discord IPO timing and valuation updates (still pending from cycle 3)
