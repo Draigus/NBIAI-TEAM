@@ -343,3 +343,84 @@ Audit trail of all research activity. Each entry records what was searched, what
 - Check for Newzoo/Sensor Tower Q1 2026 mobile market reports with genre breakdowns (mobile download decline context)
 - Track Switch 2 software attach rate data to understand whether console > mobile is sustained or launch-driven
 - Monitor Discord IPO timing and valuation -- would be the first major gaming-adjacent IPO in years
+
+---
+
+## 2026-05-27 | production_methods | Web Research Cycle (Week 1)
+
+**Agent:** research_agent (manual invocation)
+**Bank:** production_methods
+**Brief:** Game studio production frameworks for teams of 20-100 people. Sub-domains: sprint/milestone planning, remote-first production, pre-production to production transitions, live ops cadence, Shape Up adaptations, vertical slice milestone gates.
+
+### Searches Executed
+
+1. "game studio production methodology 20-50 person team sprint milestone planning creative engineering coordination 2024 2025 2026" -- mostly generic Scrum/agile guides, GS-Studio blog, Codecks sprint guide
+2. "Shape Up methodology game development studio adaptation basecamp alternative agile games 2024 2025" -- extensive Shape Up documentation but zero game studio adoption examples found
+3. "remote first game studio production process hybrid team 40-80 people workflow 2024 2025 2026" -- generic remote work guides (AWS, Perforce, Gamixlabs), no studio-specific methodology
+4. "GDC production track talk game development process small studio post-mortem agile alternative 2023 2024 2025" -- Game Developer best production talks list, GDC Vault links, Class Central GDC index
+5. "Supergiant Games Hades production process team size workflow how they make games" -- two strong sources (Game Developer interview, Kotaku feature)
+6. "vertical slice milestone gate game development pre-production to production transition framework indie mid-size studio" -- Rami Ismail LTPF milestones page, Tono Game Consultants, askagamedev Tumblr
+7. "site:gamedeveloper.com production process studio team workflow methodology post-mortem 2024 2025" -- Designing a Production Process series, CSA article, various post-mortems
+8. "Larian Studios Baldur's Gate 3 production process team structure" -- 400+ people, excluded per brief (too large)
+9. "Coffee Stain Studios Satisfactory Deep Rock Galactic production methodology" -- minimal methodology detail, redirected to Ghost Ship Games
+10. '"game production" "we stopped using scrum" OR "ditched agile" OR "moved away from sprints"' -- zero results
+11. "Codecks game development project management tool" -- Codecks feature overview, adoption data (up to 100-person teams)
+12. "indie game studio production post-mortem team 20-60 people 2023 2024 2025" -- Inevitable Studios 2024 lessons, generic guides
+13. "Ghost Ship Games Deep Rock Galactic production process remote team workflow live ops update cadence" -- team size (~40-54), seasonal cadence, open development model
+14. "game development production methodology kanban cooldown cycle creative engineering coordination mid-size studio" -- Tono Kanban guide, generic Kanban articles
+15. "Dodge Roll Games OR Team Cherry development methodology" -- both too small (<10 people), excluded
+16. "game studio remote distributed team production process 50-100 people 2024 2025 GDC" -- generic remote work articles, Codecks collaboration guide
+17. "vertical slice pre-production transition gate criteria team 20-100 people 2023 2024 2025" -- Walla Walla Studio article (404), Tim Cain 9-stage framework
+18. "live service game update cadence scheduling season pass content pipeline production methodology indie mid-size studio 2024 2025" -- Magic Media overview, Hades II 6-8 week cadence reference
+
+**Deep fetches:** gamedeveloper.com (Designing a Production Process Part 1, Supergiant Hades interview, CSA article), ltpf.ramiismail.com (milestones), kotaku.com (Supergiant anti-crunch), tonogameconsultants.com (Kanban in game dev), gameworldobserver.com (Tim Cain 9 stages), creativedenmark.com (Ghost Ship Games), codecks.io (sprint guide, collaboration guide), inevitablestudios.com (2024 lessons), robert.zubek.net (production practice PDF -- binary, unreadable)
+
+**Note:** gamesindustry.biz blocked by WebSearch crawler. Walla Walla Studio vertical slice article returned 404. Robert Zubek's production practice PDF (SomaSim) was binary/image-based, not extractable. Shape Up has zero documented game studio adoptions despite extensive general documentation. Reddit blocked by WebSearch crawler.
+
+### Findings Kept (5 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---|---|---|---|---|
+| Rami Ismail LTPF Milestone Framework | 8 | 6 | 9 | Complete 4-phase framework with gate criteria for 6-10 person teams. Most widely referenced indie milestone system. Directly usable as publisher milestone definitions. |
+| Supergiant Games Hades monthly milestone cadence | 8 | 7 | 7 | 17-person team. Monthly cadence with phase gates (code-open, code-locked, polish, ship). Anti-crunch policies with proven outcomes. "Ripple effect" test for scope changes. |
+| Ghost Ship Games open development + live-ops | 7 | 6 | 7 | 40-54 person team. Crunch-free 6+ year development. 4-6 month seasonal cadence. "Develop by doing, not talking." Information-sharing stand-ups vs task-assignment stand-ups. |
+| Tim Cain 9-stage production framework | 7 | 7 | 7 | "Beautiful Corner" concept: small polished area proving visual quality before committing to full production. Horizontal Slice for connectivity testing. 30+ years experience distilled. |
+| Critical Stage Analysis (CSA) by Wolfgang Hamann | 7 | 7 | 8 | Monthly 3-question feedback framework replacing postmortems. 2-4 hours per cycle. Accountability chains. Insertable into any existing methodology without disruption. |
+
+### Findings Rejected
+
+- **Larian Studios / Baldur's Gate 3:** Quality-first philosophy and story-first team structure are well-documented, but the studio grew to 400+ people across 7 global offices. Excluded per brief (too large for NBI's 20-100 person client range).
+- **LucasArts Star Wars: First Assault sprint methodology:** Detailed 2-week sprint structure with physical boards, ~20 person team. However, the project was cancelled (never shipped), and the methodology was developed within LucasArts (large studio infrastructure). Useful as a reference but not as a proven exemplar.
+- **Dodge Roll Games (Enter the Gungeon):** Team of ~5 people. Too small for the brief's 20-100 person range. No formal methodology documented beyond "handcraft rooms then procedurally connect them."
+- **Team Cherry (Hollow Knight):** 3 people, no formal methodology ("What is Jira?"). Interesting anti-process stance but inapplicable at the brief's target scale.
+- **Inevitable Studios 2024 lessons:** Small team, no specific headcount disclosed. Useful pain points (animation pipeline debt, scope management) but no replicable methodology framework.
+- **Codecks sprint planning guide:** Competent synthesis of sprint methodology adapted for games, but it is product documentation from a tool vendor, not a studio's documented experience. The game-specific adaptations (phase-based cadence, milestone alignment) are captured in other extracts.
+- **Tono Game Consultants Kanban guide:** Useful Kanban positioning (stabilisation complement to Scrum/Waterfall) and V*R prioritisation formula, but no specific studio case studies or team-size evidence. The author lists credits (Halo Infinite, Minecraft, Pokemon Go) but does not detail how Kanban was applied there.
+- **Shape Up methodology:** Extensively documented by Basecamp with clear game-relevant properties (6-week cycles, shaping, betting table, cooldown). However, zero documented game studio adoptions were found despite extensive searching. Cannot include as a game production methodology without evidence of game studio use.
+- **Generic remote work guides (AWS, Perforce, Gamixlabs, Treeobit):** Tool-focused or generic advice. No specific studio methodology, team sizes, or outcomes documented.
+- **Coffee Stain Studios:** Decentralised model with lean teams, but no production methodology documentation found beyond general company description.
+
+### Key Themes Emerging
+
+1. **Monthly milestone cadence is the sweet spot for small-to-mid studios.** Both Supergiant (17 people) and the CSA framework converge on monthly cycles. This is shorter than traditional publisher milestones (quarterly) but longer than Scrum sprints (2 weeks). The monthly rhythm allows meaningful creative iteration while maintaining production discipline.
+
+2. **Phase gates within milestones solve the creative-engineering coordination problem.** Supergiant's pattern (code-open early, code-locked mid, polish late) creates a natural handoff sequence that does not require heavyweight cross-department meetings. This is more organic than Scrum ceremonies and more structured than pure Kanban.
+
+3. **Anti-crunch is a production methodology choice, not just a culture statement.** Supergiant's mandatory PTO, Ghost Ship's 6+ years crunch-free, and both studios' commercial success directly challenge the "crunch is necessary" assumption. The methodology implication: if your process requires crunch, the process is broken, not the team.
+
+4. **The Beautiful Corner is an underused de-risking tool.** Tim Cain's concept fills a gap between prototype and vertical slice that most frameworks skip. For studios pitching to publishers, a Beautiful Corner is cheaper than a vertical slice and proves visual ambition earlier.
+
+5. **Shape Up has no documented game studio adoption.** Despite its theoretical fit (6-week cycles, creative autonomy, cooldown periods), no game studio has publicly documented using Shape Up. This is a gap worth monitoring but not a recommendation NBI can make yet.
+
+6. **Postmortems are structurally flawed; continuous feedback is better.** CSA's monthly 3-question format with accountability chains is more actionable than end-of-project postmortems where the team has already disbanded.
+
+### Suggestions for Next Cycle (Week 2)
+
+- **Search for GDC Vault talks on production at 30-80 person studios** -- specific talk titles and speakers, not just the conference schedule
+- **Search for Klei Entertainment (Don't Starve, Oxygen Not Included) production methodology** -- ~40 person studio with multiple shipped titles and live-ops experience
+- **Search for Motion Twin (Dead Cells) flat hierarchy and production process** -- anarcho-syndicalist co-op model, ~20 people, live-ops success
+- **Search for Iron Gate (Valheim) and Coffee Stain publishing relationship** -- small team with massive commercial success, production under publisher support
+- **Search for "Shape Up" game development adoption** on Reddit (via Apify web browser actor, since Reddit is blocked) -- may find practitioner discussions not indexed by WebSearch
+- **Search for Remedy Entertainment (Control, Alan Wake 2) production methodology** -- ~300 people but may have documented AA-scale processes from earlier in their history
+- **Search for pre-production to production transition failures** -- studios that shipped late or over budget due to skipping vertical slice or extending pre-production too long
+- **Try Apify web browser actor for GDC Vault** to access production track talk transcripts and slides behind the paywall
