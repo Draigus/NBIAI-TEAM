@@ -502,3 +502,82 @@ Audit trail of all research activity. Each entry records what was searched, what
 - Monitor India PROG Rules enforcement -- first compliance actions expected Q3 2026
 - Track Roblox developer adoption metrics for the new AI tools post-launch
 - Search for Discord IPO timing and valuation updates (still pending from cycle 3)
+
+---
+
+## 2026-05-28 (Cycle 5) | industry_current | Web Research Cycle
+
+**Agent:** research_agent (manual invocation)
+**Bank:** industry_current
+**Brief:** New events from last 2-3 days NOT covered in cycles 1-4 (23 topics: Supercell/Metacore, Astrocade, FTC Genshin, Steam AI disclosure, Q2 layoffs, Google/Epic settlement, Grand Games, Fortnite App Store, Morgan Stanley AI report, UK ASA enforcement, Take-Two/Zynga, Midsummer closure, Bungie/Destiny 2 sunset, UE6 announcement, Q1 M&A $7.7B, Reforged Studios, Microsoft/Activision $250M settlement, Valve Steam Machine, Nacon insolvency, India PROG regulation, Roblox AI engine, Summer 2026 showcases, Take-Two GTA 6 acquisition signal)
+
+### Searches Executed
+
+1. "gaming industry news May 26 27 28 2026" -- 007 First Light launch, Goonhammer roundup, Dead by Daylight anniversary
+2. "game studio funding acquisition May 2026" -- Grand Games (already captured), Take-Two acquisition signal (already captured)
+3. "gaming news this week May 2026" (gamedeveloper.com, pocketgamer.biz, venturebeat.com) -- gamesindustry.biz blocked by crawler
+4. "game studio layoffs closures May 2026" -- Survios, MercurySteam, Night Street Games, 31st Union updates
+5. "nDreams VR studio closures layoffs 2026" -- 78 redundancies, Near Light + Compass studios closed (March 2026)
+6. "MercurySteam layoffs May 2026" -- Blades of Fire underperformance, workforce adjustment, undisclosed headcount
+7. "Night Street Games layoffs Last Flag May 2026" -- ~12 laid off, 13 remain, Imagine Dragons-funded
+8. "CI Games Epic Lords of the Fallen II deal terminated May 2026" -- EGS exclusivity terminated 14 April, disclosed 18 May
+9. "IO Interactive 007 First Light launch May 2026" -- 27 May launch, $100M+ budget, best Bond game reviews
+10. "gaming regulation news May 2026" -- India PROG already captured, no new regulatory events
+11. "Epic Games Unreal Engine Unity news May 26 27 28 2026" -- UE6 already captured, no new details
+12. "2K 31st Union layoffs Project Ethos May 2026" -- PvP roguelike, undisclosed headcount (already rejected in cycles 2-3)
+13. "Survios layoffs May 2026" -- majority of dev team let go, effectively shuttered, Alien sequel cancelled
+14. "gaming industry news today May 28 2026" -- Embracer/Fellowship split, Dead by Daylight Jason, Persona 4 Revival rumour
+15. "game showcase announcements pre-E3 May 28 2026" -- Thinky Direct, Indie Quest, 25+ showcases in June
+16. "007 First Light reviews sales launch week May 2026" -- weak pre-orders, Indiana Jones tier not Uncharted tier, $100M+ budget
+17. "Rocket League Unreal Engine 6 details May 2026" -- first UE6 game confirmed, no technical specs (already captured)
+18. "Embracer Group split Fellowship Entertainment 2026" -- 20 May announcement, 10 studios, SEK 4.4B revenue
+19. "CD Projekt Red Witcher 3 Songs of the Past DLC May 2026" -- leaked 27 May, officially confirmed 28 May, 2027 release
+20. "Dead by Daylight Jason Voorhees 10th anniversary May 2026" -- PTB 26 May, full launch 16 June (consumer game content)
+21. "gaming market data revenue Q1 2026 report" -- $205B projected (Newzoo), commercial gaming Q1 data (iGaming, not video games)
+22. "Embracer Fellowship Entertainment studios IPs details spin-off May 2026" -- full studio list, dormant IPs, financial details
+23. "Witcher 3 Songs of the Past DLC details leak 2026" -- Fool's Theory co-developer, bridges to Witcher 4, EUIPO trademark
+24. "Survios shutdown VR studio closure details May 2026" -- Alien sequel cancelled, 13 years of VR development, PSVR2 market failure
+
+**Deep fetches:** Embracer investor page, gamedeveloper.com (CI Games, Survios), gamingbolt.com (007 sales), notebookcheck.net (Witcher 3 DLC), variety.com (Fellowship Entertainment)
+
+**Note:** gamesindustry.biz still blocked by WebSearch crawler. Bloomberg paywalled for Roblox reporting. No major new funding rounds or regulatory events found in the 2-3 day window.
+
+### Findings Kept (5 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---|---|---|---|---|
+| Embracer/Fellowship Entertainment spin-off (20 May) | 9 | 8 | 8 | Major European gaming restructuring. 10 studios, SEK 4.4B revenue, Tomb Raider/LotR/Metro IPs. IP-led business model shift. Dormant IP portfolio (Deus Ex, Saints Row, Thief) as partnership opportunities. |
+| Survios VR studio shutdown (May) | 7 | 7 | 7 | VR pioneer effectively shuttered. Alien sequel cancelled, funding collapsed. Joins nDreams (78 redundancies), Polyarc layoffs. VR gaming in structural contraction despite chart-topping titles. |
+| CI Games/Epic LotF2 exclusivity deal terminated (May) | 7 | 7 | 8 | EGS exclusivity model cracking. Studio walked away from guaranteed minimum. Engine licensing decoupled from store exclusivity. Advisory-relevant for PC distribution strategy. |
+| 007 First Light weak opening sales (27 May) | 7 | 7 | 6 | $100M+ AAA licensed IP launch tracking below expectations. Indiana Jones tier, not Uncharted tier. Licensed IP does not guarantee AAA sales velocity. IO Interactive's most expensive project. |
+| CDPR Witcher 3 "Songs of the Past" DLC (28 May) | 7 | 6 | 6 | 12-year-old game getting new expansion. Legacy IP monetisation model. Co-development with Fool's Theory. Bridge-to-sequel narrative strategy. Replicable for studios with large installed-base single-player titles. |
+
+### Findings Rejected
+
+- **Dead by Daylight Jason Voorhees (PTB 26 May, launch 16 June):** Behaviour Interactive's 10th anniversary content addition. Consumer game content update with no strategic, financial, or market data. The licensing deal itself is interesting but no financial terms disclosed.
+- **MercurySteam layoffs (12 May):** Already rejected in cycles 2 and 3. Blades of Fire underperformance as context is useful but no new structural insight beyond what's covered in the Q2 layoffs extract. Undisclosed headcount limits analytical value.
+- **Night Street Games / Last Flag layoffs (~12 people):** Already rejected in cycle 3. Imagine Dragons-funded studio too small and niche for advisory relevance. 13 remaining employees, game underperformed one month post-launch.
+- **31st Union / Project Ethos layoffs (8 May):** Already rejected in cycles 2-3. Undisclosed headcount. PvP roguelike pivot under 2K ownership. No new data.
+- **nDreams VR restructuring (March 2026):** 78 redundancies, Near Light + Compass studios closed. Third restructuring round. Used as supporting context in Survios extract (VR contraction pattern) but excluded as standalone -- occurred in March, outside the brief's 2-3 day window.
+- **Persona 4 Revival release date rumour:** Unconfirmed rumour with no official announcement. Excluded per brief rules.
+- **Thinky Direct / Indie Quest showcases (28 May):** Consumer-facing showcases for puzzle and JRPG games. No strategic data. Already covered thematically by the Summer 2026 showcase extract.
+- **Dead by Daylight 10 years / Behaviour Interactive performance:** No financial data disclosed. The company's longevity is notable but not an event with specific numbers.
+- **Global gaming market $205B projection (Newzoo):** Market sizing projection, not a discrete event. Already noted in cycle 4 rejections. Belongs in market data compilation.
+
+### Key Themes Emerging (Cycle 5)
+
+1. **IP-led business models are replacing studio-led models.** Embracer's Fellowship Entertainment spin-off is explicitly structured around IP licensing across media (games, film, consumer products), not studio capabilities. This mirrors Disney/Hasbro/Mattel and signals where gaming corporate strategy is heading.
+2. **VR gaming's independent developer ecosystem is collapsing.** Survios (shuttered), nDreams (78 redundancies), Polyarc (mass layoffs) in a 3-month span. Even chart-topping VR titles cannot sustain studio economics. PSVR2's 3-5% attach rate is below viability.
+3. **EGS exclusivity is losing its appeal.** CI Games walking away from the Lords of the Fallen 2 deal signals that the cost of forgoing Steam access now exceeds EGS guaranteed minimums for most mid-tier titles. Epic's strategic focus appears to be shifting toward mobile (Google settlement) rather than PC storefront competition.
+4. **Licensed AAA games face a budget-to-audience mismatch.** 007 First Light ($100M+) and Indiana Jones both demonstrate that cinematic IP recognition does not translate directly to gaming franchise-tier sales. Studios licensing major entertainment IP should model conservatively.
+5. **Legacy single-player IP remains commercially viable.** CDPR returning to Witcher 3 twelve years post-launch with a co-developed expansion shows that large installed-base single-player titles can be monetised without live-service infrastructure. This is an alternative revenue model worth considering for studios with proven catalogue titles.
+
+### Suggestions for Next Cycle
+
+- Monitor 007 First Light first-week sales data when analyst reports publish (expected within 7 days of launch)
+- Track Embracer/Fellowship Entertainment spin-off execution -- any studio reshuffling or additional IP announcements
+- Monitor Summer Game Fest (5 June) and Xbox Showcase (7 June) for M&A or strategic announcements
+- Follow Sony State of Play (2 June) for first-party pipeline and PSVR2 strategy signals (given VR contraction)
+- Check for EGS exclusivity deal cancellations or terminations by other studios following CI Games precedent
+- Track Witcher 3 Songs of the Past DLC details when CDPR reveals more in "late summer 2026"
+- Search for Discord IPO timing and valuation updates (carried forward from cycles 3-4)
