@@ -1,49 +1,39 @@
-# Intelligence Brief — 2026-05-27
+# Intelligence Brief — 2026-05-28
 
 ## What's New
 
-**Industry intelligence (7 new findings):**
-- Valve Steam Machine launching — 4 SKUs from $499, Summer Game Fest reveal expected. Platform landscape fragmenting.
-- Microsoft/Activision $250M shareholder settlement — post-acquisition litigation cost benchmark (0.36% of $69B deal)
-- Nacon insolvency + 90 layoffs, Big Bad Wolf and Kylotonn closed. European AA publishing in structural decline.
-- India enacted national gaming regulation (PROG Rules, effective 1 May). Joins US/UK/EU in formal regulation.
-- Roblox integrating Claude/Cursor/Codex into engine tools — AI is the new engine battleground, displacing rendering fidelity
-- Summer 2026 showcase season: State of Play, SGF, Switch 2, Xbox all June 2-8
-- Take-Two signalling post-GTA 6 acquisitions — $8B projected, "inorganic growth" explicit
+**Industry intelligence (5 new findings):**
+- Embracer spinning off Fellowship Entertainment — 10 studios (Crystal Dynamics, Eidos-Montreal, Warhorse, 4A Games), Tomb Raider/LotR/Metro IPs, Nasdaq listing 2027. Dormant IPs (Deus Ex, Saints Row, Thief) under evaluation.
+- Survios VR shutdown — joins nDreams and Polyarc in VR developer exodus. PSVR2 economics can't support independent VR studios.
+- CI Games terminated EGS exclusivity for Lords of the Fallen 2 — launching on Steam. EGS model weakening as Epic pivots to mobile.
+- 007 First Light weak pre-orders despite $100M+ budget and strong reviews. Licensed entertainment IP ≠ gaming-franchise sales.
+- Witcher 3 third expansion 12 years post-launch — legacy IP monetisation via external co-development.
 
-**Production methods research (5 new findings):**
-- Rami Ismail's LTPF milestone framework — 4-phase with gate criteria, directly usable for publisher milestones
-- Supergiant's monthly milestone cadence — 17-person team, "ripple effect" scope test, mandatory anti-crunch policies
-- Ghost Ship Games — 40-54 people, 6+ years crunch-free, 4-6 month seasonal live-ops
-- Tim Cain's "Beautiful Corner" concept — prove visual quality before committing full production
-- Critical Stage Analysis — monthly 3-question feedback replacing end-of-project postmortems
-
-**Forecast models research (5 new findings yesterday):**
-- Retention curve LTV model (power-curve formula, works in spreadsheet)
-- Tenjin F2P unit economics framework (Google Sheets template)
-- Seufert marketing P&L / cash-at-risk model
-- Whale economics: top 1% = 24% revenue, live events = 2-3x ARPDAU
-- GameAnalytics 2025 benchmarks: 11,600 games, D1 top quartile 26-28%
-
-**Notable gap found:** Shape Up has zero documented game studio adoptions despite theoretical fit.
+**Granola batch 3 (10 new extracts yesterday):**
+- 5 Product Leadership meetings (Mar-Apr): staffing gaps, VGTR 30% savings, feature hierarchy, contractor-to-FTE transitions
+- Estimation debrief with Dino: 7-year industry cycle, Griffin $100M fund target
+- Vertical slice planning: 200-300 pipelines needed, sandbagging in estimates
+- Lighthouse sync: PlaceSage commercial potential, 14 wireframes in 15 mins vs team's 40hr estimate
+- Saybrook legal: Greece gaming fund (GBP 1M seed, 8yr half tax), Riley at GBP 6.5K/month
+- PlayGOALS project plan: 400K testers, pricing matrix, k-means clustering
 
 ## Today's Context
 
-Three research cycles completed across this session. All three target banks need recompilation.
+Pipeline has accumulated significant uncompiled material. All 7 banks need full recompilation — 31 Granola extracts, 28 web research findings, and 3 Gmail extracts have been added since last compile.
 
 Most relevant banks:
-- **industry_current** — 23 total web research findings, needs recompile
-- **production_methods** — 5 new methodology findings, needs recompile
-- **forecast_models** — 5 new methodology findings, needs recompile
+- **client_couch_heroes** — 20+ new Granola extracts (executive meetings, product leadership, legal, hiring)
+- **industry_current** — 28 web research findings across 5 cycles
+- **production_methods** — 5 new methodology findings + Granola production meetings
 
 ## Pipeline Health
 
-- Banks: 7 active, 0 stale. 3 need recompilation (industry_current, production_methods, forecast_models)
-- Total extracts: 162 across 8 sources
-- Cloud routines: unverified — check https://claude.ai/code/routines
-- Granola: 21 of 119 meetings processed (batches 1+2). 98 remaining.
+- Banks: 7 active, all need recompilation
+- Total extracts: 177 across 8 sources
+- Granola: 31 of 119 meetings processed (batches 1-3). 88 remaining.
+- Cloud routines: unverified
 
 ## Actions Needed
 
+- **Bank recompilation overdue** — 70+ new extracts unintegrated across all banks
 - **4 bank suggestions pending:** consulting_frameworks, studio_staffing_models, salary_benchmarks, investor_database
-- **Routine verification:** confirm 9 routines are active at https://claude.ai/code/routines
