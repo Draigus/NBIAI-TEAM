@@ -673,3 +673,92 @@ Audit trail of all research activity. Each entry records what was searched, what
 - Investigate whether any game studios have publicly discussed their consulting spend or procurement processes
 - Check for Naavik job postings that might reveal new service areas they are building
 - Search for gaming advisory firms in MENA (Saudi, UAE) given the capital flow into the region
+
+---
+
+## 2026-05-29 (Cycle 6) | industry_current | Web Research Cycle
+
+**Agent:** research_agent (manual invocation)
+**Bank:** industry_current
+**Brief:** New events from last 1-2 days NOT covered in cycles 1-5 (28 topics: Supercell/Metacore, Astrocade, FTC Genshin, Steam AI policy, Q2 layoffs paradox, Google/Epic 20%, Grand Games, Fortnite App Store return, Morgan Stanley AI $22B, UK ASA loot boxes, Take-Two/Zynga/GTA 6, Midsummer closure, Bungie D2 sunset/$766M Sony, UE6 announcement, Q1 M&A $7.7B, Reforged $30M, MS/Activision $250M settlement, Valve Steam Machine, Nacon insolvency, India PROG regulation, Roblox AI engine, Summer showcase season, Take-Two acquisition signal, Embracer Fellowship spinoff, Survios VR shutdown, CI Games EGS termination, 007 First Light weak sales, Witcher 3 expansion)
+
+### Searches Executed
+
+1. "gaming industry news May 29 2026" -- Embracer/Fellowship split, Bungie D2 final content, Fortnite 3.4M installs, Goonhammer roundup
+2. "game studio acquisition funding deal May 2026" -- Griffin Gaming $100M indie fund, Imaginary Hazard $2M, GameByte $1M pre-seed
+3. "Summer Game Fest 2026 announcements leaks previews" -- June 5 main show, Xbox Showcase June 7, RE Code Veronica leak, Tifa in SF6 leak
+4. "gaming layoffs studio closure May 2026" -- Night Street Games ~12 laid off, Rec Room shutting down June 1, Synth Riders studio 50% cuts
+5. "gaming regulation policy loot box legislation 2026" -- EU cancellation button June 19, Brazil loot box ban for minors, Germany 18+ push
+6. "game technology AI tools platform update May 2026" -- Unity Muse/Sentis, Rosebud AI, Ludo.ai, Windows GDC dev tools
+7. "site:gamedeveloper.com May 2026" -- Nintendo Switch 2 price increases, Subnautica 2 dispute, unions conference, Unity board changes
+8. "site:pocketgamer.biz May 2026" -- HoYoverse $14.7B AI investment, May executive moves roundup, Xbox leadership reshuffle
+9. PocketGamer.biz May 2026 Movers and Shakers (deep fetch) -- Full executive moves data across ~20 companies
+10. PocketGamer.biz HoYoverse AI article (deep fetch) -- $14.7B/3-year investment details from CEO Liu Wei
+11. Game Developer Nintendo Switch 2 pricing article (deep fetch) -- Regional price increases and production cut details
+12. Game Developer unions conference article (deep fetch) -- GWC inaugural event, UVW-CWA organiser
+13. "Xbox leadership reshuffle Asha Sharma May 2026" -- CNBC, PocketGamer, Pure Xbox coverage of full overhaul
+14. "Griffin Gaming Partners $100M indie fund 2026" -- GamesBeat, Hollywood Reporter, BusinessWire, PocketGamer coverage
+15. "Rec Room shutting down June 2026" -- UploadVR, Game Developer, Prism News, Yahoo Finance coverage
+16. "Subnautica 2 legal dispute Krafton Unknown Worlds 2026" -- PC Gamer, Massively OP, court ruling details
+17. "GTA 6 release date May 26 2026 Take-Two" -- November 19 confirmation, stock volatility, pre-order timing
+18. "Nintendo Switch 2 sales production cut weak demand 2026" -- Bloomberg, Japan Times, 33% output reduction
+19. "gaming market data revenue report Q1 Q2 2026" -- $205B projection, Q1 US commercial gaming $20.09B
+20. "Fortnite iOS App Store return installs revenue May 2026" -- 3.4M downloads, regional breakdown (Saudi Arabia led)
+21. "game studio news this week May 28 29 2026" -- Bendy Double Pack, Xbox releases, Embracer split confirmation
+22. "Unity Bernard Kim board Zynga veteran 2026" -- Board appointment May 1, Helgason/Bar-Zeev departures
+23. "GTA 6 November 2026 delay Take-Two stock impact pre-orders" -- $30/share drop, $2B recovery, fiscal report selloff
+
+**Deep fetches:** pocketgamer.biz (May Movers and Shakers, HoYoverse AI), gamedeveloper.com (Switch 2 pricing, unions conference), multiple sources for each major story.
+
+**Note:** gamesindustry.biz still blocked by WebSearch crawler.
+
+### Findings Kept (13 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---|---|---|---|---|
+| Xbox leadership overhaul under CEO Asha Sharma | 8 | 8 | 7 | Major platform strategy shift. Tech leaders from OpenAI, Vercel, Instacart. Copilot wind-down contradicts industry AI narrative. |
+| HoYoverse $14.7B AI investment over 3 years | 9 | 9 | 8 | Largest single-company AI investment in gaming. Validates NBI EAD framework positioning. |
+| Rec Room shutdown (June 1, $3.5B to zero) | 7 | 8 | 6 | Major UGC platform death. VR market contraction signal. Investment advisory reference point. |
+| Subnautica 2 / Krafton $250M earnout dispute | 9 | 9 | 8 | Unprecedented M&A case study. ChatGPT-planned takeover, court intervention, 2M copies in 24h. |
+| Griffin Gaming $100M revenue-share indie fund | 8 | 8 | 7 | Structural innovation in gaming finance. Revenue-share not equity. Hooded Horse CEO as MD. |
+| Nintendo Switch 2 global price hikes + production cut | 7 | 7 | 6 | AI component costs cited. $499 US price. 33% production reduction. Console market health signal. |
+| GTA 6 delayed to November 19, 2026 | 8 | 7 | 7 | Reshapes Q4 2026 for entire industry. Stock volatility case study. Pre-orders imminent. |
+| Summer Game Fest 2026 preview (June 2-8) | 7 | 6 | 6 | First showcase under new Xbox leadership. Leaked reveals. Calendar awareness for advisory. |
+| Game Workers Conference (union-led event) | 7 | 7 | 6 | First formal union-led conference. Labour organising structural milestone. HR advisory context. |
+| Night Street Games layoffs + 28% developer layoff stat | 6 | 5 | 5 | Live-service shakeout pattern. GDC survey benchmark (28% affected). Minimum threshold. |
+| Unity board: Bernard Kim (Zynga), Helgason exits | 7 | 6 | 5 | Platform strategy signal. Mobile monetisation focus at governance level. |
+| EU cancellation button mandate (June 19, 2026) | 8 | 7 | 8 | Imminent compliance deadline. Direct client impact. Advisory service opportunity. |
+| Fortnite iOS return: 3.4M installs, Saudi Arabia led | 7 | 7 | 6 | Hard data update to cycle 4. MENA market validation. Regional mobile demand signals. |
+
+**Bonus extract:** Gaming executive moves May 2026 roundup (Relevance 7, Novelty 6, Actionability 6) -- Supercell AI specialist hire, Scopely Monopoly Go investment, Roblox MENA GM. Talent market intelligence.
+
+**Also captured:** Global gaming revenue $205B projection (Relevance 8, Novelty 6, Actionability 7) -- Newzoo market sizing, Q1 US commercial gaming data, iGaming +20.7%.
+
+### Findings Rejected
+
+- **Imaginary Hazard Studios $2M raise:** Too small for advisory relevance. Sci-fi action roguelike from undisclosed investors. No structural insight.
+- **GameByte $1M pre-seed:** AI-powered no-code mobile game creation. Interesting concept but pre-seed stage, unproven, too early.
+- **Synth Riders studio 50% layoffs:** VR rhythm game studio. Covered thematically by the VR market contraction pattern (Rec Room, Survios).
+- **Bendy Double Pack release (May 29):** Consumer game release, not industry-structural event.
+- **Dead by Daylight anniversary:** Live-service content event, no strategic implications.
+- **Persona 4 Revival rumour:** Unconfirmed rumour, not actionable intelligence.
+- **Nexon Q2 guidance (-10% to +1%):** Soft quarter for one publisher. Captured within market data extract as a data point rather than standalone extract.
+
+### Key Themes Emerging (Cycle 6)
+
+1. **AI investment is bifurcating dramatically.** HoYoverse's $14.7B commitment dwarfs Western studios' spending. Meanwhile, Xbox is *pulling back* from AI (Copilot wind-down). The industry is not converging on AI strategy -- it is splitting into aggressive adopters and strategic retreaters.
+2. **M&A governance is under judicial scrutiny.** The Subnautica 2/Krafton ruling establishes that courts will actively intervene in earnout disputes, reinstate fired founders, and restore operational control. This changes the risk calculus for every gaming acquisition.
+3. **Alternative financing models are emerging.** Griffin Gaming's revenue-share fund represents a structural alternative to equity investment and traditional publishing. Studios can access capital without dilution or giving up IP control.
+4. **VR market contraction is accelerating.** Rec Room ($3.5B to zero), Survios (cycle 5), Synth Riders (50% cuts), and nDreams (cycle 5) -- four VR-focused companies in distress within a single month.
+5. **Platform economics remain in flux.** Nintendo raising prices due to AI-driven component costs, GTA 6 reshaping Q4 release calendars, EU mandating cancellation buttons -- the rules of the game are changing on multiple fronts simultaneously.
+
+### Suggestions for Next Cycle
+
+- Monitor Summer Game Fest (June 5) and Xbox Showcase (June 7) for strategic announcements, M&A signals, and new platform features
+- Track HoYoverse AI investment follow-through -- any concrete tool announcements or hiring data
+- Follow GTA 6 pre-order opening and Trailer 3 release (expected late June)
+- Check for EU cancellation button enforcement actions after June 19 deadline
+- Monitor Krafton/Unknown Worlds final resolution and $250M payment timeline
+- Track Rec Room shutdown aftermath -- any creator migration patterns to competing platforms
+- Search for Discord IPO timing updates (still pending from cycle 3)
+- Look for post-SGF funding announcements as showcase season traditionally triggers deal flow
