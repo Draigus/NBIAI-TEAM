@@ -581,3 +581,95 @@ Audit trail of all research activity. Each entry records what was searched, what
 - Check for EGS exclusivity deal cancellations or terminations by other studios following CI Games precedent
 - Track Witcher 3 Songs of the Past DLC details when CDPR reveals more in "late summer 2026"
 - Search for Discord IPO timing and valuation updates (carried forward from cycles 3-4)
+
+---
+
+## 2026-05-29 | competitors | Web Research Cycle (Week 1)
+
+**Agent:** research_agent (manual invocation)
+**Bank:** competitor_watch (new)
+**Brief:** competitors.md -- gaming consultancies, advisory firms, pricing signals, case studies, service offerings, positioning, gaps NBI can exploit
+
+### Searches Executed
+
+1. "Lightspeed Advisory gaming consultancy services 2025 2026" -- Lightspeed is a VC fund (Lightspeed Venture Partners), NOT an advisory consultancy. Runs "Game Changers" programme spotlighting startups. No consulting services offered.
+2. "Execution Labs gaming accelerator consultancy services 2025 2026" -- Montreal-based accelerator (founded 2012), effectively wound down. No longer accepting new studios. Supporting existing portfolio only.
+3. "GameFounders gaming accelerator advisory services 2025 2026" -- Estonian accelerator (founded 2012), pivoted to ecosystem building. 100+ studios across Estonia, Malaysia, Saudi Arabia. Government partnerships, not fee-based consulting.
+4. "gaming consultancy advisory firm services studio support 2025 2026" -- broad sweep surfacing Naavik, GameBiz Consulting, Tottenham & Co (iGaming, not video games), Bain/McKinsey (excluded per brief), SCCG Management (iGaming)
+5. "game economy consulting monetisation consultancy firm services 2025 2026" -- Game Economist Consulting, F2P Games Consulting, GameBiz, L.E.K. Consulting (excluded per brief as MBB-tier)
+6. "Naavik gaming consulting advisory services case studies clients 2025 2026" -- comprehensive service detail, 300+ companies, fractional talent offering
+7. "GameBiz Consulting video game advisory services case studies pricing" -- mobile-focused boutique, EUR 2B aggregate client revenue claim, revenue share pricing model
+8. "site:gameeconomistconsulting.com services clients" -- solo practitioner (Phillip Black), economy design focus, no named clients
+9. "site:gamesconsulting.net services team F2P" -- solo practitioner (Nick Murray), F2P economy and live ops, Rovio among clients
+10. '"gaming consultant" OR "game consultancy" new firm launched services 2025 2026 advisory studio' -- no significant new entrants found
+11. "Naavik consulting pricing fractional talent revenue 2025 2026 team size" -- 30+ named consultants, 3-month trial / 6-month minimum engagement, tailored pricing
+12. "F2P Games Consulting gamesconsulting.net team clients case studies" -- Nick Murray sole practitioner, Rovio/Nordisk/Goodgame clients
+13. "gaming advisory consultancy GDC 2025 2026 speakers Pocket Gamer Connects PGC consulting" -- conference schedules, no new advisory firms surfaced
+14. '"gaming consultant" fees rates pricing 2025 2026 hourly retainer advisory' -- consultfees.com comprehensive 2026 benchmarks
+15. "Naavik 2025 recap services growth new offerings" -- confirmed 300+ companies, three-pillar model (consulting, M&A advisory, fractional talent)
+16. "Solsten Overwolf Ludo.ai gaming analytics consulting platform" -- tech platforms, not consulting firms. Solsten is player psychology analytics ($22M raised).
+
+**Deep fetches (WebFetch):** naavik.co/consulting/ (full service list), naavik.co/advisory/ (M&A fixed-fee model), naavik.co/fractional-talent/ (30+ consultants, role categories), gamebizconsulting.com/advisory (three client segments), gamesconsulting.net (full service list + client logos), gamefounders.com/experience/ (regional programme history), gameeconomistconsulting.com (solo practitioner detail), consultfees.com/use-cases/gaming-consultants (comprehensive fee benchmarks)
+
+**Note:** gamesindustry.biz blocked by WebSearch crawler. LinkedIn company pages not directly fetchable. Most competitor firms publish zero pricing data -- consultfees.com aggregated benchmarks were the only structured pricing source found.
+
+### Findings Kept (5 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---|---|---|---|---|
+| Naavik full-stack gaming consultancy (300+ clients) | 9 | 7 | 8 | Closest direct competitor to NBI. Three-pillar model (consulting, M&A advisory, fractional talent). 30+ consultants. Fixed-fee M&A model. Gaps: no production consulting, no HR/people advisory, no AI operations framework. |
+| Gaming consultant fee benchmarks 2026 | 8 | 6 | 9 | First structured market rate data: senior specialists $150-$275/hr, monetisation audit $8K-$30K, embedded partner retainer $10K-$25K/month. Direct input for NBI rate card. |
+| GameBiz Consulting mobile advisory | 7 | 6 | 7 | Mobile-first boutique (Serbia). EUR 2B aggregate client revenue. Revenue share pricing model is an innovation worth monitoring. Not a strategic threat -- different service focus. |
+| Boutique F2P and game economy consultancies | 7 | 6 | 7 | Market is fragmented across solo practitioners (Nick Murray, Phillip Black). No one has scaled game economy consulting into a proper firm. NBI's integrated model is a structural advantage. |
+| GameFounders accelerator ecosystem | 6 | 5 | 6 | Pivoted from accelerator to ecosystem building. Saudi government partnership model is relevant to NBI's MENA interests. Not a direct competitor. |
+
+### Findings Rejected
+
+- **Lightspeed Venture Partners / Game Changers programme:** Lightspeed is a VC fund, not an advisory consultancy. The "Game Changers" programme is a startup spotlight list in partnership with GamesBeat and Nasdaq. They invest in gaming companies but do not offer consulting or advisory services. Excluded on scope.
+- **Execution Labs (Montreal):** Founded 2012 as a game incubator/accelerator. Has effectively ceased active operations -- no longer accepting new studios, focuses on supporting existing portfolio. Not a current competitive threat. Website shows portfolio page but no active services.
+- **Tottenham & Co:** London-based international gaming consultancy, but focused on iGaming (casinos, integrated resorts, gambling regulation), not video game development advisory. Despite the "gaming" label, they serve a completely different market. Excluded on scope.
+- **SCCG Management:** iGaming advisory firm (120+ partners, gambling industry focus). Not a video game consultancy. Excluded on scope.
+- **Bain & Company / McKinsey / L.E.K. Consulting / Deloitte / PwC:** Major consulting firms with gaming practices. Excluded per brief (completely different scale). Their gaming practices serve publishers with $50M+ advisory budgets, not the indie-to-mid-tier studios NBI targets.
+- **MentorCruise gaming consulting:** Freelance marketplace model, not a competing firm. Individual consultants listing availability. Too fragmented and marketplace-based to constitute a competitor.
+- **Solsten (player psychology analytics):** SaaS platform for psychological player profiling, not a consulting firm. $22M raised. Interesting product but operates in a different category (analytics tooling vs advisory).
+- **C3 Gaming consortium:** 19 boutique consultancies forming a consortium, but focused on casino/hospitality gaming (feasibility studies, table game integrity, online wagering). Not video game advisory. Excluded on scope.
+- **The Powell Group:** Video game consulting firm but extremely limited public information. No service detail, no case studies, no team information discoverable. Insufficient data to assess.
+- **Scott Steinberg / Futurist Speakers:** Personal brand gaming consultant and keynote speaker. Content marketing operation rather than advisory firm. Publishes listicles and guides. Not a structured competitor.
+
+### Key Themes Emerging
+
+1. **Naavik is the only scaled competitor.** No other firm has built a multi-service gaming advisory practice comparable to NBI or Naavik. The market is otherwise fragmented across solo practitioners, accelerators, and iGaming consultancies that share the "gaming" label but serve different markets.
+
+2. **The fractional talent model is the biggest service innovation in the space.** Naavik's 30+ consultant pool with structured engagement terms (3-month trial, 6-month minimum) is a differentiated offering that neither NBI nor any other competitor currently provides. This is the clearest gap in NBI's service portfolio.
+
+3. **Game economy consulting has not been scaled.** Despite being a high-value specialism ($150-$275/hr, $10K-$30K per project), game economy consulting remains dominated by solo practitioners. NBI's integrated game economy capability within a broader advisory firm is a structural advantage.
+
+4. **Production consulting is an NBI differentiator.** None of the competitors found -- including Naavik -- offer studio production methodology consulting, operations advisory, or people/HR advisory for game studios. NBI's producer, production_consultant, and head_of_people roles fill a genuine market gap.
+
+5. **AI operations advisory is NBI's unique positioning.** No competitor mentions AI strategy implementation or operations advisory as a core service. Naavik lists "AI strategy" but this appears to be strategy consulting about AI, not operational AI implementation (the EAD framework approach that NBI takes).
+
+6. **Content marketing is the dominant lead generation model.** Naavik's daily digest, podcast, and deep dives create a content flywheel that builds authority and generates consulting leads. GameBiz publishes on Medium. F2P Games Consulting and Game Economist Consulting both run podcasts. NBI lacks an equivalent content marketing engine.
+
+7. **Pricing is universally opaque.** No competitor publishes pricing. The consultfees.com benchmarks are the only structured data. This means NBI can price based on value delivery rather than market rates, but it also means clients have no external reference point to anchor expectations.
+
+### Competitive Gaps NBI Can Exploit
+
+| Gap | Competitors who miss it | NBI's advantage |
+|---|---|---|
+| Production consulting / studio operations | All competitors | Producer, production_consultant roles with documented frameworks |
+| HR / people advisory for game studios | All competitors | Head_of_people role with compensation data, org design, hiring |
+| AI operations implementation (not just strategy) | All competitors | EAD framework, operational AI deployment, tool selection + integration |
+| Full-service advisory (strategy + ops + people + economy) | All competitors offer only subsets | Integrated role system covering 33 specialisms |
+| European / UK regulatory compliance for game studios | Naavik is US-centric, GameBiz is SEE-focused | General counsel role, UK/EU regulatory knowledge |
+| Content marketing / thought leadership | NBI lacks this vs Naavik | Opportunity, not current advantage |
+| Fractional talent at scale | NBI lacks this vs Naavik | Potential service expansion opportunity |
+
+### Suggestions for Next Cycle
+
+- Monitor Naavik's service expansion -- any announcements about production consulting, HR advisory, or AI operations
+- Search for Naavik revenue data or headcount growth (LinkedIn employee count, Crunchbase funding)
+- Look for new gaming advisory firm launches at GDC 2026 or PGC events
+- Search for gaming consultant pricing on LinkedIn posts and Substack newsletters (practitioners often share rate guidance informally)
+- Investigate whether any game studios have publicly discussed their consulting spend or procurement processes
+- Check for Naavik job postings that might reveal new service areas they are building
+- Search for gaming advisory firms in MENA (Saudi, UAE) given the capital flow into the region
