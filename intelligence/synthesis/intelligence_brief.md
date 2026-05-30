@@ -1,46 +1,40 @@
-# Intelligence Brief — 2026-05-29
+# Intelligence Brief — 2026-05-30
 
 ## What's New
 
-**Industry intelligence (20 new findings across cycles 5+6):**
-- HoYoverse committing $14.7B to AI — largest single-company gaming AI investment. Validates NBI's EAD framework positioning.
-- Subnautica 2 / Krafton $250M earnout dispute — Krafton used ChatGPT to plan takeover, court reinstated CEO. Critical M&A due diligence case study.
-- Xbox leadership overhaul — Phil Spencer retired, Asha Sharma hiring from OpenAI/Vercel. Gaming-as-tech-product shift.
-- EU cancellation button mandate hits June 19 — direct client compliance impact.
-- Griffin Gaming $100M revenue-share indie fund — structural alternative to equity financing for NBI's clients.
-- Embracer Fellowship spinoff — 10 studios, Tomb Raider/Metro IPs, Nasdaq 2027.
-- Nacon insolvency + studio closures — European AA publishing in structural decline.
-- VR developer exodus accelerating — Survios, Rec Room shutdowns join nDreams/Polyarc.
+**Industry intelligence (5 new findings):**
+- Playstack/IMC $151M acquisition — PE vertical integration (Fandom + publishing), ~1.5x revenue multiple. Closing June 10.
+- Steam Deck OLED 46% price hike — AI data centre demand driving DDR5 costs up 4x. Sold out in 24 hours.
+- Sony's 5th live-service retreat — Destruction AllStars delisted without notice.
+- GGJ micro-grants pilot — $2,500 for indie studios, micro-work marketplace addressing post-layoff talent pipeline.
+- Gaming media business model collapsing — Valnet (TheGamer) moving to $3-8 per 1,000 sessions pay.
 
-**Competitor intelligence (first cycle — 5 findings):**
-- Naavik is NBI's closest competitor: 300+ clients, FractionalTalent (30+ consultants), daily content engine. Gaps vs NBI: no production, no HR, no AI ops.
-- Market rates: senior specialists $150-275/hr, principal day rates $1,600-2,800.
-- No competitor covers production consulting, HR/people advisory, or AI operations.
-
-**Granola batch 4 (10 extracts):**
-- NBI $24K cash shortfall, Lighthouse $66K over budget (Tom/Glen 1:1)
-- EMI options structurally unavailable at CH (Dino 1:1)
-- 50%+ features undocumented, production shutdown proposed (Valeria 1:1)
-- PlaysAge commercial potential, potential $1M round (Amir/Glen 1:1)
+**Granola batch 5 (10 extracts yesterday):**
+- CH culture values formally articulated for first time (vision call with Aris, Vardis, Lorenza)
+- Mustafa on final warning — burnout since CTO step-down, weekly 1:1s as support mechanism
+- Vertical slice deadline: 30 August (director-level only, not shared with team)
+- Pod structure defined — each pod owns ~6 features, cross-disciplinary
+- Gary Platner hired as Lead Level Designer (USD 150K)
+- IR-35 compliance gap from Dino's unilateral template switch
+- Design department assessed as weakest — 3 designers leaving for military service
 
 ## Today's Context
 
-207 raw extracts across 8 sources. Banks last compiled 2026-05-26 — 100+ extracts unintegrated. Full recompilation critical.
+222 raw extracts across 8 sources. Banks last compiled May 26 — now 4 days and 90+ extracts overdue.
 
 Most relevant banks:
-- **industry_current** — 43 web research findings, massively overdue for compile
-- **client_couch_heroes** — 20+ Granola extracts unintegrated
-- **forecast_models** — 5 methodology findings unintegrated
+- **client_couch_heroes** — 30+ Granola extracts unintegrated (executive, product leadership, 1:1s, HR, hiring, legal)
+- **industry_current** — 48 web research findings, only 18 compiled
+- **production_methods** — 5 methodology findings + Granola production meetings unintegrated
 
 ## Pipeline Health
 
-- Banks: 7 active, all overdue for recompilation (last compiled May 26, 100+ new extracts since)
-- Total extracts: 207 across 8 sources
-- Granola: 41 of 119 meetings processed. 78 remaining.
-- Competitor research: first cycle complete, new bank suggested
+- Banks: 7 active, all critically overdue for recompilation
+- Total extracts: 222 across 8 sources
+- Granola: 51 of 119 processed (batches 1-5). 68 remaining.
+- Summer Game Fest starts June 2 — next week's research cycles will be dense
 
 ## Actions Needed
 
-- **Bank recompilation critical** — 100+ extracts unintegrated
-- **4 bank suggestions pending:** consulting_frameworks, studio_staffing_models, salary_benchmarks, investor_database
-- **New suggestion from competitor research:** competitor_watch bank
+- **Bank recompilation critical** — 90+ extracts unintegrated, 4 days stale
+- **5 bank suggestions pending:** consulting_frameworks, studio_staffing_models, salary_benchmarks, investor_database, competitor_watch
