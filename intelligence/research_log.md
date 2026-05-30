@@ -762,3 +762,72 @@ Audit trail of all research activity. Each entry records what was searched, what
 - Track Rec Room shutdown aftermath -- any creator migration patterns to competing platforms
 - Search for Discord IPO timing updates (still pending from cycle 3)
 - Look for post-SGF funding announcements as showcase season traditionally triggers deal flow
+
+---
+
+## 2026-05-30 (Cycle 7) | industry_current | Web Research Cycle
+
+**Agent:** research_agent (manual invocation)
+**Bank:** industry_current
+**Brief:** New events from last 1-2 days NOT covered in cycles 1-6 (43+ topics already captured)
+
+### Searches Executed
+
+1. "gaming news May 30 2026" -- game release calendar, Goonhammer roundup, no new strategic events
+2. "gaming industry news May 29 30 2026 deals funding acquisitions" -- Alpha Compute/GAMEE $18M (too small), Q1 M&A context
+3. "gamedeveloper.com news this week May 2026" -- Playstack/IMC acquisition, GGJ micro-grants, Valve Steam Deck price hike, Destruction AllStars shutdown
+4. "Playstack acquisition Valnet Fandom GameSpot 2026" -- $151M deal, TruFin/VantageCo/IMC/TPG details
+5. "Valve Steam Deck OLED price increase May 2026" -- 44-46% hikes, DRAM/NAND crisis, sold out in 24 hours
+6. "pocketgamer.biz gaming news May 28 29 30 2026" -- PGC Barcelona, industry events calendar
+7. "venturebeat gaming news May 2026 latest" -- GamesBeat Summit recap, Bluepoint (Feb, already covered)
+8. "Global Game Jam micro-grant program indie 2026" -- GGJ + Endless Foundation, $2,500 grants, 3 categories
+9. "Alpha Compute GAMEE acquisition gaming platform 2026" -- $18M valuation, Telegram/Web3, Animoca Brands
+10. "gaming studio layoffs closures news May 28 29 30 2026" -- no new closures beyond existing coverage
+11. "Destruction AllStars PS5 shutdown servers closed May 2026" -- delisted May 26, servers offline
+12. "Valve Steam Deck price increase tariffs component shortage gaming hardware 2026" -- RAMageddon, Strait of Hormuz, US-China trade
+13. "summer game fest 2026 announcements lineup schedule June" -- full schedule June 1-8, PS State of Play June 2 confirmed
+14. "Playstack Balatro publisher IMC acquisition details $151 million May 2026" -- TPG/PE ownership, $100M Steam gross, closing June 10
+15. "PlayStation State of Play June 2 2026 announcements confirmed" -- 60+ minutes, Wolverine deep dive, Insomniac
+16. "gaming regulation news May 2026 loot boxes legislation policy" -- EU Digital Fairness Act Q4 2026 (already tracked)
+17. "Valnet layoffs gaming media 2026 Patch Notes" -- pay-per-click model at TheGamer, writer revolt
+18. "gaming deals funding investment news late May 2026 studio" -- Griffin Gaming (already captured), Good Job Games $60M
+19. "Steam Deck sold out price increase demand May 2026" -- DDR5 4x price, sold out <24hrs, AI demand crowding consumer electronics
+
+**Note:** gamesindustry.biz still blocked by WebSearch crawler. No major new funding rounds or regulatory events found in the 1-2 day window beyond what was already captured.
+
+### Findings Kept (5 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---|---|---|---|---|
+| Playstack/IMC $151M acquisition (Balatro publisher) | 8 | 8 | 7 | PE consolidation of gaming value chain. TPG/IMC already owns Fandom, GameSpot, Fanatical. Publisher valuation benchmark ($169M total on $100M+ Steam gross). UK indie publisher exit. |
+| Steam Deck OLED ~46% price hike + instant sellout | 7 | 7 | 6 | DDR5 quadrupled due to AI data centre demand. Structural hardware cost inflation. Demand inelastic at $949. Cascading impact on all consumer electronics/gaming hardware. |
+| Destruction AllStars PS5 shutdown (May 26) | 7 | 6 | 6 | Sony's GaaS retreat continues (Concord, Firewalk, Bluepoint, now this). Quiet delisting without notice. Digital ownership debate ammunition. Five-year lifecycle data point. |
+| GGJ micro-grants pilot for indie studios | 6 | 7 | 6 | Micro-work marketplace model for games. Addresses post-layoff talent pipeline gap. GGJ pivoting from annual event to year-round platform. |
+| Valnet pay-per-click model at TheGamer | 6 | 7 | 5 | Gaming media business model collapse. Zero-pay floor for underperforming articles. Information ecosystem degradation affects NBI's intelligence pipeline source reliability. |
+
+### Findings Rejected
+
+- **Alpha Compute/GAMEE $18M acquisition:** 60% stake at $18M enterprise valuation. $926K Q1 revenue. Telegram/Web3 gaming focus. Too small and too niche (Web3) for advisory relevance. Already rejected in cycle 4.
+- **PlayStation State of Play June 2:** Consumer event not yet occurred. Already covered by Summer 2026 showcase extract (cycle 4). Wolverine confirmed but no strategic/financial data until the event happens.
+- **Good Job Games $60M Series A:** Mobile-focused (Match Villains). Interesting raise but no deep detail found beyond headline number. Would need more context on team, retention metrics, and geographic strategy to be advisory-relevant.
+- **Bluepoint Games closure (Feb 2026):** Already rejected in cycle 2 as too old. Resurfaced in search results but no new information.
+- **EU Digital Fairness Act Q4 2026:** Already tracked across multiple cycles. No new developments.
+- **Brazil loot box ban for minors:** Already captured in EU cancellation button extract (cycle 6) as part of regulatory convergence pattern.
+
+### Key Themes Emerging (Cycle 7)
+
+1. **PE is vertically integrating gaming media + publishing.** TPG/IMC acquiring Playstack while owning Fandom, GameSpot, and Fanatical creates a content-discovery-distribution pipeline. This is a new class of buyer in gaming M&A -- media conglomerates adding game publishing rather than game companies buying game companies.
+2. **AI demand is the hidden tax on gaming hardware.** The Steam Deck price hike and Nintendo Switch 2 production cuts both trace back to AI data centre demand consuming DRAM, NAND, and GPU supply. This is structural, not cyclical. Every hardware forecast needs an AI demand adjustment.
+3. **Sony's live-service retreat is now a documented multi-year pattern.** Five data points: Concord (2024), Firewalk closure (2024), Bluepoint GaaS cancellation (2025), Bluepoint closure (2026), Destruction AllStars shutdown (2026). Any client considering live-service should study this trajectory.
+4. **Gaming media quality is deteriorating as a source.** Valnet's pay-per-click model at TheGamer joins the broader trend of quality journalism being replaced by traffic farming. NBI's intelligence pipeline should weight sources accordingly.
+5. **The indie funding ecosystem is evolving.** GGJ micro-grants and Griffin Gaming revenue-share (cycle 6) represent two non-traditional models alongside traditional VC and publisher deals. Studios have more financing options than ever, but each comes with different tradeoffs.
+
+### Suggestions for Next Cycle
+
+- Monitor Summer Game Fest (June 5) and Xbox Showcase (June 7) for M&A or strategic announcements
+- Track Playstack/IMC deal closure (expected June 10) and any post-acquisition publisher strategy changes
+- Follow EU cancellation button enforcement after June 19 deadline
+- Check for Steam Deck restock timing and whether price hikes persist or are adjusted
+- Monitor Valnet writer exodus -- whether key journalists move to independent outlets
+- Track GTA 6 pre-order opening and Trailer 3 release
+- Search for Discord IPO timing updates (carried forward from cycles 3-6)
