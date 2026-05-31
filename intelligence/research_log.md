@@ -831,3 +831,75 @@ Audit trail of all research activity. Each entry records what was searched, what
 - Monitor Valnet writer exodus -- whether key journalists move to independent outlets
 - Track GTA 6 pre-order opening and Trailer 3 release
 - Search for Discord IPO timing updates (carried forward from cycles 3-6)
+
+---
+
+## 2026-05-31 | industry_current | Web Research Cycle 8
+
+**Agent:** research_agent (manual invocation)
+**Bank:** industry_current
+**Brief:** Current gaming industry events -- last 1-2 days, pre-Summer Game Fest / State of Play focus
+
+### Searches Executed
+
+1. "gaming industry news May 31 2026" -- general sweep, SGF schedule, Embracer recap
+2. "gaming news May 30 31 2026 deals acquisitions funding" -- Alpha Compute/GAMEE, Q1 M&A recap
+3. "Summer Game Fest 2026 announcements lineup schedule" -- full schedule June 2-8, 11 showcases
+4. "State of Play June 2026 PlayStation announcements" -- 60-min showcase, Wolverine confirmed, God of War Faye leaked
+5. "Xbox Games Showcase 2026 announcements lineup June" -- June 7, Gears of War: E-Day Direct follows
+6. "gamedeveloper.com gaming news this week May 2026" -- Playstack, Brazil, Valve Steam Deck, AI quality concerns
+7. "pocketgamer.biz gaming news May 29 30 31 2026" -- Fortnite 3.4M installs, Rebellion leadership, PGC Barcelona
+8. "venturebeat gaming studio layoffs closures funding May 2026" -- layoff tracker, Intrepid 200, Meta VR closures
+9. "Alpha Compute GAMEE acquisition gaming May 2026" -- $18M valuation, 60% stake, Telegram gaming
+10. "Rebellion CEO Jason Kingsley replaced leadership change May 2026" -- no confirmation found
+11. "PlayStation State of Play June 2 2026 leaked announcements" -- God of War Faye, Break In trademark, Infamous
+12. "Xbox Project Helix next-gen console 2026" -- hybrid console/PC, AMD Magnus chip, Unified GDK
+13. "Scopely Loom Games Pixel Flow $1 billion acquisition Istanbul 2026" -- deal structure, founders, Turkey unicorn
+14. "Bungie Destiny 2 Monument of Triumph final expansion shutdown details 2026" -- June 9, free update, $765M writedown
+15. "gaming market data revenue report Q1 2026 mobile PC console" -- $205B global, mobile $103B
+16. "Drake Star Q1 2026 gaming report M&A deals analysis" -- 51 deals, $117.6B disclosed, XR financing
+17. "Sony Bungie $565 million writedown Marathon underperformance 2026" -- $765M total, Marathon -59% concurrent
+18. "Embracer Fellowship Entertainment split IPO details 2026" -- Nasdaq Stockholm 2027, SEK 4,393M revenue
+19. "Warhammer Skulls 2026 Dawn of War IV release date business impact" -- Sept 17 release, 7+ game announcements
+20. "Brazil gaming industry government support tax incentives Abragames" -- Law 14,852, 70% tax reduction, accelerator
+21. "Xbox Project Helix unified GDK developer impact console PC single build 2026" -- 30-40% dev time reduction
+22. "gaming deal funding studio acquisition closure announcement this week late May 2026" -- Alpha Compute/GAMEE confirmed
+
+**Note:** gamesindustry.biz, eurogamer.net, polygon.com blocked by WebSearch crawler. Several searches returned recaps of previously captured events rather than new developments.
+
+### Findings Kept (4 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---|---|---|---|---|
+| PlayStation State of Play June 2 -- 60-min showcase, Wolverine confirmed, God of War Faye leaked | 8 | 7 | 7 | Largest pre-SGF showcase. God of War franchise pivot (Faye protagonist, multi-mythology) is strategically significant. Live-service signal via Break In trademark. |
+| Xbox Project Helix -- console/PC hybrid with Unified GDK | 9 | 7 | 8 | Next-gen platform with native Steam access is unprecedented. Unified GDK's 30-40% dev time reduction directly impacts production cost models. Alpha hardware to devs 2027. |
+| Scopely/Loom Games $1B acquisition (Istanbul, Pixel Flow) | 8 | 7 | 8 | Turkey's third gaming unicorn. 20-person studio at $1B validates Istanbul ecosystem. Saudi-backed Scopely continues M&A dominance. Earn-out structure as mobile acquisition norm. |
+| Brazil gaming legal framework (Law 14,852) -- tax incentives and accelerator | 7 | 6 | 7 | Most comprehensive government gaming support in LATAM. 70% tax reduction on reinvested remittances. Relevant for outsourcing cost modelling and emerging market advisory. |
+
+### Findings Rejected
+
+- **Alpha Compute/GAMEE acquisition ($18M, Telegram gaming):** Too small and niche (crypto/Web3 gaming via Telegram) for NBI's advisory context. 120M users but only $3.5M revenue. Low strategic relevance.
+- **Warhammer Skulls 2026 / Dawn of War IV (Sept 17):** Games Workshop licensing expansion with 7+ titles announced. Interesting consumer event but low advisory relevance -- GW's licensing model is well established and these are individual game announcements, not structural industry shifts.
+- **Discord IPO update:** Still in confidential filing stage from January 2026. No new S-1 filing or pricing data since previous cycles. Carried forward again.
+- **Bungie $565M Q4 writedown detail:** Already comprehensively captured in cycle 2 extract (2026-05-26) at $766M total. The new reporting adds no structural insight beyond what's already documented.
+- **Embracer/Fellowship split additional details:** Already captured in cycle 5 extract (2026-05-28). New details (SEK 4,393M revenue, 2,169 headcount, Nasdaq Stockholm 2027 listing) are incremental updates to an existing extract, not a new finding.
+- **Q1 2026 M&A $100B+ (Drake Star full report):** The headline figure is inflated by Paramount/WBD ($110B). Excluding that, the market is well captured by the existing Q1 M&A extract at $7.7B (Aream & Co methodology). No new insight.
+- **Global gaming revenue $205B:** Already captured in cycle 6 (2026-05-29).
+- **Intrepid Studios 200 layoffs / Meta VR studio closures:** Both occurred earlier in 2026 (January-February). Not fresh enough for this cycle.
+
+### Key Themes Emerging (Cycle 8)
+
+1. **Showcase season begins Tuesday.** State of Play (June 2), SGF (June 5), Xbox (June 7) in rapid succession. The God of War Faye leak and Project Helix silence create a Sony-dominated pre-show narrative. Watch for M&A or partnership announcements embedded in showcases.
+2. **Next-gen platform strategy is diverging radically.** Xbox is opening its console to Steam and unifying PC/console builds. PlayStation is doubling down on exclusive first-party IP. Nintendo has a Switch 2 hardware lead. Three completely different bets on where value lives -- hardware openness vs IP exclusivity vs installed base momentum.
+3. **Turkey is a confirmed mobile gaming production hub.** Three unicorn-tier outcomes (Dream Games, Grand Games, Loom Games) from Istanbul. The city's cost-talent-proximity combination mirrors Helsinki's golden era. NBI should consider Turkey explicitly in any mobile-focused advisory.
+4. **Government gaming policy is globalising.** Brazil (tax incentives), India (PROG regulation), EU (cancellation button), UK (ASA enforcement), US (FTC loot boxes). Every major market now has active gaming-specific policy. Compliance complexity is rising for studios operating internationally.
+
+### Suggestions for Next Cycle
+
+- Cover State of Play reveals (June 2) -- especially God of War Faye confirmation and any surprise announcements
+- Cover Summer Game Fest main show (June 5) -- new IP, studio partnerships, technology reveals
+- Cover Xbox Showcase (June 7) -- Project Helix updates, Gears of War: E-Day, first-party pipeline under Asha Sharma
+- Monitor Playstack/IMC deal closure (expected June 10)
+- Track EU cancellation button enforcement after June 19 deadline
+- Search for Discord IPO S-1 filing updates (carried forward from cycles 3-7)
+- Monitor GTA 6 Trailer 3 and pre-order opening
