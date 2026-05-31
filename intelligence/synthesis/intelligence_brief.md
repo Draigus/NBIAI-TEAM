@@ -1,40 +1,40 @@
-# Intelligence Brief — 2026-05-30
+# Intelligence Brief — 2026-05-31
 
 ## What's New
 
-**Industry intelligence (5 new findings):**
-- Playstack/IMC $151M acquisition — PE vertical integration (Fandom + publishing), ~1.5x revenue multiple. Closing June 10.
-- Steam Deck OLED 46% price hike — AI data centre demand driving DDR5 costs up 4x. Sold out in 24 hours.
-- Sony's 5th live-service retreat — Destruction AllStars delisted without notice.
-- GGJ micro-grants pilot — $2,500 for indie studios, micro-work marketplace addressing post-layoff talent pipeline.
-- Gaming media business model collapsing — Valnet (TheGamer) moving to $3-8 per 1,000 sessions pay.
+**Industry intelligence (4 new findings):**
+- Xbox Project Helix runs Steam natively — Unified GDK cuts cross-platform dev time 30-40%. Alpha to devs 2027, launch late 2027/28. Major platform shift.
+- Scopely/Loom $1B acquisition — 20-person Istanbul studio, $50M/employee. Saudi capital now 90%+ of Q1 2026 M&A value.
+- PlayStation State of Play tomorrow (June 2) — 60+ minutes, Wolverine Sept 15, God of War Faye spinoff leaked.
+- Brazil gaming legal framework live — 70% tax cut on reinvested remittances, games reclassified as cultural products.
 
-**Granola batch 5 (10 extracts yesterday):**
-- CH culture values formally articulated for first time (vision call with Aris, Vardis, Lorenza)
-- Mustafa on final warning — burnout since CTO step-down, weekly 1:1s as support mechanism
-- Vertical slice deadline: 30 August (director-level only, not shared with team)
-- Pod structure defined — each pod owns ~6 features, cross-disciplinary
-- Gary Platner hired as Lead Level Designer (USD 150K)
-- IR-35 compliance gap from Dino's unilateral template switch
-- Design department assessed as weakest — 3 designers leaving for military service
+**Granola batch 6 (25 extracts yesterday):**
+- Lili catch-up: $5M closed, $10M next round, portal system has 12 games interested, competitor MMO threat identified
+- Studio audit: documentation 30-80% complete, Alon termination decided, CTO candidate Otto, 17 hires done / 18 more planned
+- VS with Robin: backend fundamentally unsuited for MMO (web server patterns, 60-70K packets)
+- Hannah QA: elevated to ship-readiness arbiter, no design lock process exists
+- WorkSage presented as third-party ATS to Couch Heroes
+- Chris Southall CTO interview: ex-Sega CTO, 80-page studio audit, rated CH as healthiest studio he's seen
+- NBI financials: $60K/month minimum, $80K target, CH $360K/yr
+- Character pipeline three-tier lock system defined
 
 ## Today's Context
 
-222 raw extracts across 8 sources. Banks last compiled May 26 — now 4 days and 90+ extracts overdue.
+246 raw extracts across 8 sources. Banks last compiled May 26 — now 5 days and 115+ extracts overdue. Showcase season starts tomorrow.
 
 Most relevant banks:
-- **client_couch_heroes** — 30+ Granola extracts unintegrated (executive, product leadership, 1:1s, HR, hiring, legal)
-- **industry_current** — 48 web research findings, only 18 compiled
-- **production_methods** — 5 methodology findings + Granola production meetings unintegrated
+- **client_couch_heroes** — 55+ Granola extracts unintegrated (most critical)
+- **industry_current** — 52 web research findings, only 18 compiled
+- **production_methods** — Granola production meetings + 5 research findings unintegrated
 
 ## Pipeline Health
 
-- Banks: 7 active, all critically overdue for recompilation
-- Total extracts: 222 across 8 sources
-- Granola: 51 of 119 processed (batches 1-5). 68 remaining.
-- Summer Game Fest starts June 2 — next week's research cycles will be dense
+- Banks: 7 active, all critically overdue (5 days, 115+ unintegrated extracts)
+- Total extracts: 246 across 8 sources
+- Granola: 76 of 119 processed (batches 1-6). 43 remaining.
+- Showcase season: State of Play June 2, SGF June 7-8, Xbox June 7
 
 ## Actions Needed
 
-- **Bank recompilation critical** — 90+ extracts unintegrated, 4 days stale
+- **Bank recompilation critical** — 115+ extracts unintegrated, banks 5 days stale
 - **5 bank suggestions pending:** consulting_frameworks, studio_staffing_models, salary_benchmarks, investor_database, competitor_watch
