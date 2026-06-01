@@ -3526,7 +3526,6 @@ window.filterByPractice = filterByPractice;
 window.overflowPrint = overflowPrint;
 window.overflowReport = overflowReport;
 window.overflowTheme = overflowTheme;
-window.logTimeEntry = logTimeEntry;
 window.previewReceipt = previewReceipt;
 window._updateTaskRowInPlace = _updateTaskRowInPlace;
 window.openTeamDetailModal = openTeamDetailModal;
