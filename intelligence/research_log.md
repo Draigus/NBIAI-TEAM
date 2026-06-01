@@ -990,3 +990,71 @@ Audit trail of all research activity. Each entry records what was searched, what
 - Investigate the "funding ladder" model (Patreon -> grants -> publisher) with more documented examples beyond Manor Lords
 - Try Apify web browser actor for Reddit r/gamedev fundraising threads (blocked by WebSearch)
 - Search for Chinese/Korean publisher requirements for Western indie studios pitching to Asian markets
+
+---
+
+## 2026-06-01 (Cycle 9) | industry_current | Web Research Cycle
+
+**Agent:** research_agent (manual invocation)
+**Bank:** industry_current
+**Brief:** New events from last 1-2 days NOT covered in cycles 1-8 (52+ topics already captured). Pre-State of Play / Summer Game Fest focus. Specifically looking for: pre-show announcements, new deals/funding since May 30, studio news, platform updates, technology, market data.
+
+### Searches Executed
+
+1. "gaming news June 1 2026" (gamedeveloper.com, pocketgamer.biz, venturebeat.com) -- gamesindustry.biz/eurogamer/ign blocked by crawler
+2. "State of Play June 2 2026 lineup announcements" -- confirmed Wolverine Sept 15, God of War Faye rumours, 60-90 min runtime
+3. "gaming deals funding acquisition June 2026" -- no new deals found beyond existing coverage
+4. "Summer Game Fest 2026 announcements" -- June 5 main show, "biggest ever" per Keighley, 40+ games expected
+5. "Marvel Wolverine Insomniac September 15 2026 State of Play" -- release date officially confirmed
+6. "Castlevania Belmont's Curse PS5 2026 announcement" -- Feb 2026 reveal, Evil Empire + Motion Twin + Konami
+7. "gaming studio news deals May 31 June 1 2026" -- Days of Play sale, Game Pass updates, no M&A
+8. "Xbox Games Showcase June 2026 schedule" -- June 7, Gears of War: E-Day Direct follows, 30 min deep dive
+9. "MIX indie showcase June 1 2026 announcements" -- streaming today, 60+ indie games, onsite LA June 5
+10. "gaming industry acquisition funding investment May 2026" (pocketgamer.biz, gamedeveloper.com, venturebeat.com) -- EA buyout surfaced
+11. "Gears of War E-Day Direct Xbox June 2026" -- 30 min deep dive, origin story, Xbox FanFest
+12. "EA buyout FTC CFIUS regulatory review status June 2026" -- HSR cleared, CFIUS pending, expected close June 30
+13. "EA shareholders approved buyout vote date May 2026" -- 99% approval Dec 2025, regulatory review in progress
+14. "God of War Faye State of Play June 2026" -- multiple leakers, multi-mythology (Japanese, Chinese, Native American), DMC-style combat
+15. "Geoff Keighley biggest Summer Game Fest 2026 details" -- Dolby Theatre, 2+ hours, 40 games, Lucy James co-host
+16. "Ivy Road studio shutting down Wanderstop developer 2026" -- March 2026 closure (too old)
+17. "Rebellion CEO replaced Nellyvision May 2026" -- TIGA chair appointment (Elaine Green replaces Kingsley as TIGA chair, not Rebellion CEO)
+18. "gaming news June 1 2026 today" -- release calendar, SGF starts today with MIX
+
+**Note:** gamesindustry.biz, eurogamer.net, ign.com blocked by WebSearch crawler. No major new funding rounds or studio news found in the 1-2 day window beyond existing coverage. The EA buyout regulatory status was the key uncaptured story.
+
+### Findings Kept (3 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---|---|---|---|---|
+| EA $55B Saudi-led buyout -- CFIUS decision imminent (June 30 target) | 9 | 7 | 8 | Largest gaming LBO ever approaching closure. PIF 93.4% ownership. $20B debt. Congressional + union opposition. CFIUS outcome defines regulatory precedent for all future gaming M&A with foreign sovereign capital. |
+| PlayStation State of Play June 2 -- confirmed Wolverine Sept 15, God of War Faye rumoured | 8 | 7 | 7 | Longest State of Play ever (60-90 min). Theatre screenings. Wolverine release date locks Sept 15. God of War Faye (if confirmed) is franchise's biggest strategic evolution since 2018 reboot. Multi-mythology expansion. |
+| Summer 2026 showcase week final calendar (June 1-8) | 7 | 6 | 7 | Densest showcase week ever. 15+ events in 7 days. SGF "biggest ever" per Keighley. Xbox first showcase under Asha Sharma. Full calendar with times for advisory awareness. Updates and finalises cycle 4/8 showcase coverage. |
+
+### Findings Rejected
+
+- **MIX Summer Game Showcase (June 1):** Streaming today but has not yet aired (9am PT). 60+ indie games. Will need post-event coverage in next cycle for any standout announcements. No pre-show reveal data available.
+- **Castlevania: Belmont's Curse:** Originally announced February 2026. Not new -- just expected to appear at State of Play with gameplay.
+- **Ivy Road / Wanderstop studio closure:** March 2026 shutdown. Too old for this cycle.
+- **TIGA chair appointment (Elaine Green):** UK trade body leadership change. Low strategic relevance for NBI's client advisory.
+- **Days of Play sale / Game Pass updates:** Consumer promotions with no strategic implications for studios.
+- **GTA 6 Trailer 3 speculation:** Rumoured for SGF but unconfirmed. Excluded per brief rules (no unverified rumours as standalone extracts).
+- **Switch 2 June 5 launch:** Already captured in cycles 4 and 6. No new data.
+- **Gears of War: E-Day Direct (30 min):** Already captured within Xbox Showcase context in cycles 4 and 8. Incremental detail (duration confirmed) absorbed into showcase calendar extract.
+
+### Key Themes Emerging (Cycle 9)
+
+1. **The EA/PIF deal is the single most consequential pending event in gaming.** A June 30 close would make Saudi Arabia the controlling owner of the world's fourth-largest game publisher ($7.5B revenue). The CFIUS outcome will define whether gaming is treated as a national security concern alongside semiconductors and telecom. Every NBI advisory client with EA partnerships should be scenario-planning.
+
+2. **Sony is doubling down on blockbuster exclusivity during Xbox's openness pivot.** The longest-ever State of Play, theatre screenings, and rumoured franchise expansion (God of War multi-mythology) signals Sony sees exclusive content as its competitive moat against Game Pass ubiquity. The platforms are diverging further.
+
+3. **The showcase week creates a narrow attention window.** 15+ events in 7 days means individual reveals compete for coverage. Studios outside these events should either participate or avoid the week entirely. The worst strategy is an independent announcement that gets buried.
+
+### Suggestions for Next Cycle
+
+- Cover State of Play results (June 2) -- confirm God of War Faye, capture any surprise announcements, note strategic signals
+- Cover Summer Game Fest main show (June 5) -- new IP reveals, technology announcements, any embedded M&A signals
+- Cover Xbox Showcase (June 7) -- first showcase under Asha Sharma, Project Helix, Gears of War: E-Day gameplay
+- Monitor EA/PIF CFIUS decision -- any news of conditions, approval, or extended review
+- Track MIX showcase highlights (June 1) -- any indie studios with strategic relevance
+- Monitor GTA 6 Trailer 3 timing and pre-order opening
+- Search for Discord IPO S-1 filing updates (carried forward from cycles 3-8)
