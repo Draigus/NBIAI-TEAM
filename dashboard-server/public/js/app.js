@@ -12,6 +12,7 @@ import './views/leads.js';
 import './views/expenses.js';
 import './views/bugs.js';
 import './views/hiring.js';
+import './views/interview.js';
 import './views/finances.js';
 import './views/people.js';
 import './views/reports.js';
