@@ -21809,7 +21809,7 @@ async function openInterviewConfig(candidateId, clientId, positionId) {
         '</div>';
     }).join('');
 
-    const interviewersHtml = (users || []).filter(u => u.is_active !== false).map(u =>
+    const interviewersHtml = (users || []).filter(u => u.is_active !== false && u.client_id === clientId).map(u =>
       '<label style="display:flex;align-items:center;gap:8px;padding:8px;cursor:pointer;border-bottom:1px solid var(--border)">' +
         '<input type="checkbox" ' + (selectedInterviewers.has(u.id) ? 'checked' : '') + ' onchange="window._ivToggleInterviewer(\'' + u.id + '\')">' +
         '<span>' + esc(u.display_name || u.username) + '</span>' +
@@ -21840,30 +21840,61 @@ async function openInterviewConfig(candidateId, clientId, positionId) {
   window._ivToggleInterviewer = function(id) { selectedInterviewers.has(id) ? selectedInterviewers.delete(id) : selectedInterviewers.add(id); renderConfigPanel(); };
 
   window._ivGenerateQuestions = async function() {
-    const resp = await authFetch('/api/interview-questions/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ position_id: positionId || null, client_id: clientId || null, discipline: 'Engineering' }),
-    });
-    const generated = await resp.json();
-    if (generated && Array.isArray(generated)) {
-      allQuestions.push(...generated);
-      generated.forEach(q => selectedIds.add(q.id));
+    var disc = prompt('Discipline for this role?\n\nOptions: Engineering, Art, Narrative/Writing, Game Design, QA, Production, Audio, HR/People, Leadership');
+    if (!disc || !disc.trim()) return;
+    var btn = document.querySelector('[onclick*="ivGenerateQuestions"]');
+    if (btn) { btn.disabled = true; btn.textContent = 'Generating...'; }
+    try {
+      const resp = await authFetch('/api/interview-questions/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ position_id: positionId || null, client_id: clientId || null, discipline: disc.trim() }),
+      });
+      if (!resp.ok) {
+        var err = await resp.json();
+        alert('Generation failed: ' + (err.error || 'Unknown error'));
+        if (btn) { btn.disabled = false; btn.textContent = 'Generate from JD'; }
+        return;
+      }
+      const generated = await resp.json();
+      if (generated && Array.isArray(generated)) {
+        allQuestions.push(...generated);
+        generated.forEach(q => selectedIds.add(q.id));
+      }
+    } catch (e) {
+      alert('Generation failed: ' + e.message);
     }
+    if (btn) { btn.disabled = false; btn.textContent = 'Generate from JD'; }
     renderConfigPanel();
   };
 
   window._ivAddCustom = function() {
-    var text = prompt('Enter your custom question:');
-    if (!text || !text.trim()) return;
-    var cat = prompt('Category (culture, technical, collaboration, leadership, depth):') || 'technical';
-    authFetch('/api/interview-questions', {
+    var formHtml = '<div id="ivCustomForm" style="border:1px solid var(--accent);border-radius:8px;padding:12px;margin-bottom:12px;background:var(--bg-elevated)">' +
+      '<div style="font-weight:600;margin-bottom:8px">Add Custom Question</div>' +
+      '<textarea id="ivCustomText" rows="3" placeholder="Type your interview question..." style="width:100%;font-size:14px;margin-bottom:8px"></textarea>' +
+      '<div style="display:flex;gap:8px;align-items:center">' +
+        '<select id="ivCustomCat" style="font-size:13px;padding:4px 8px">' +
+          '<option value="culture">Culture</option><option value="technical" selected>Technical</option><option value="collaboration">Collaboration</option><option value="leadership">Leadership</option><option value="depth">Depth</option>' +
+        '</select>' +
+        '<button class="btn btn--primary btn--sm" onclick="window._ivSaveCustom()">Add</button>' +
+        '<button class="btn btn--sm" onclick="document.getElementById(\'ivCustomForm\').remove()">Cancel</button>' +
+      '</div></div>';
+    var container = panel.querySelector('[style*="max-height:400px"]');
+    if (container) container.insertAdjacentHTML('beforebegin', formHtml);
+    var ta = document.getElementById('ivCustomText');
+    if (ta) ta.focus();
+  };
+  window._ivSaveCustom = async function() {
+    var text = document.getElementById('ivCustomText');
+    var cat = document.getElementById('ivCustomCat');
+    if (!text || !text.value.trim()) return;
+    var resp = await authFetch('/api/interview-questions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ client_id: clientId || null, discipline: 'Engineering', category: cat, question_text: text }),
-    }).then(r => r.json()).then(q => {
-      if (q && q.id) { allQuestions.push(q); selectedIds.add(q.id); renderConfigPanel(); }
+      body: JSON.stringify({ client_id: clientId || null, discipline: 'General', category: cat.value, question_text: text.value.trim() }),
     });
+    var q = await resp.json();
+    if (q && q.id) { allQuestions.push(q); selectedIds.add(q.id); renderConfigPanel(); }
   };
 
   window._ivSendInterviews = async function() {
