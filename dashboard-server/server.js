@@ -7447,7 +7447,7 @@ app.post('/api/interview-questions/generate', requireNBI, async (req, res) => {
     const prompt = buildGenerationPrompt({ jdText, clientName, discipline, seniority });
     const anthropicClient = new Anthropic.default();
     const message = await anthropicClient.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       max_tokens: 4096,
       system: prompt.system,
       messages: [{ role: 'user', content: prompt.user }],
