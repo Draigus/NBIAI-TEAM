@@ -1,40 +1,39 @@
-# Intelligence Brief — 2026-05-31
+# Intelligence Brief — 2026-06-01
 
 ## What's New
 
-**Industry intelligence (4 new findings):**
-- Xbox Project Helix runs Steam natively — Unified GDK cuts cross-platform dev time 30-40%. Alpha to devs 2027, launch late 2027/28. Major platform shift.
-- Scopely/Loom $1B acquisition — 20-person Istanbul studio, $50M/employee. Saudi capital now 90%+ of Q1 2026 M&A value.
-- PlayStation State of Play tomorrow (June 2) — 60+ minutes, Wolverine Sept 15, God of War Faye spinoff leaked.
-- Brazil gaming legal framework live — 70% tax cut on reinvested remittances, games reclassified as cultural products.
+**Industry intelligence (3 new findings):**
+- EA $55B Saudi-led buyout — CFIUS decision imminent, PIF will own 93.4%. Largest gaming LBO ever. Expected close June 30. Defines regulatory treatment of all future sovereign gaming M&A.
+- State of Play tomorrow (June 2) — Wolverine Sept 15 confirmed, God of War Faye spinoff strongly rumoured. 60-90 minutes, longest ever.
+- Showcase week starts today — 15+ events June 1-8. SGF June 5 (40 games), Xbox Showcase June 7.
 
-**Granola batch 6 (25 extracts yesterday):**
-- Lili catch-up: $5M closed, $10M next round, portal system has 12 games interested, competitor MMO threat identified
-- Studio audit: documentation 30-80% complete, Alon termination decided, CTO candidate Otto, 17 hires done / 18 more planned
-- VS with Robin: backend fundamentally unsuited for MMO (web server patterns, 60-70K packets)
-- Hannah QA: elevated to ship-readiness arbiter, no design lock process exists
-- WorkSage presented as third-party ATS to Couch Heroes
-- Chris Southall CTO interview: ex-Sega CTO, 80-page studio audit, rated CH as healthiest studio he's seen
-- NBI financials: $60K/month minimum, $80K target, CH $360K/yr
-- Character pipeline three-tier lock system defined
+**Pitch deck research cycle 2 (5 new findings — PC/console indie):**
+- Outersloth published full contract terms ($19.2M across 24 games, 50/50 pre-recoup then 15/85)
+- Gremlins Inc. 2 live publisher pitch — only documented in-progress negotiation with real EUR 1M budget
+- Hooded Horse + Manor Lords — developer-first terms (65/35, no recoup), 3.2M wishlists
+- Focus Entertainment — <0.5% acceptance from 3,000-4,000 annual pitches, $318K average advance
+- Human Computer $7.7M seed — 19 slides, a16z + Makers Fund
+
+**Granola backlog fully cleared (batch 7 yesterday — 36 extracts):**
+- All 119 meetings processed (112 extracts total). Key additions: Lighthouse/James crisis documented, Simon Woodroffe interview, CH UK entity compliance, NBI cash flow detail, PlayGOALS beta results.
 
 ## Today's Context
 
-246 raw extracts across 8 sources. Banks last compiled May 26 — now 5 days and 115+ extracts overdue. Showcase season starts tomorrow.
+275 raw extracts across 8 sources. All sources fully harvested. Showcase week will generate dense industry findings all week.
 
 Most relevant banks:
-- **client_couch_heroes** — 55+ Granola extracts unintegrated (most critical)
-- **industry_current** — 52 web research findings, only 18 compiled
-- **production_methods** — Granola production meetings + 5 research findings unintegrated
+- **industry_current** — 55 research findings, needs recompile badly
+- **games_pitch_decks** — 15 research findings (mobile + PC/console), needs recompile
+- **client_couch_heroes** — 70+ Granola extracts unintegrated
 
 ## Pipeline Health
 
-- Banks: 7 active, all critically overdue (5 days, 115+ unintegrated extracts)
-- Total extracts: 246 across 8 sources
-- Granola: 76 of 119 processed (batches 1-6). 43 remaining.
-- Showcase season: State of Play June 2, SGF June 7-8, Xbox June 7
+- Banks: 7 active, all critically overdue (last compiled May 26 — 6 days, 145+ extracts)
+- Total extracts: 275 across 8 sources
+- Granola: fully cleared (112/119 processed)
+- Gmail/Slack: quiet (CH mailbox only, Slack idle during Athens week)
 
 ## Actions Needed
 
-- **Bank recompilation critical** — 115+ extracts unintegrated, banks 5 days stale
+- **Bank recompilation critical** — 145+ extracts unintegrated, 6 days stale. This is the biggest bottleneck.
 - **5 bank suggestions pending:** consulting_frameworks, studio_staffing_models, salary_benchmarks, investor_database, competitor_watch
