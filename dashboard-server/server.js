@@ -65,6 +65,9 @@ const runMigrations = require('./migrations/runner');
 let cron, runBackup;
 try { cron = require('node-cron'); runBackup = require('./backup'); }
 catch (e) { /* logged after logger init below */ }
+let Anthropic;
+try { Anthropic = require('@anthropic-ai/sdk'); } catch (e) { /* optional: AI question generation disabled */ }
+const { buildGenerationPrompt } = require('./lib/interview-questions-prompt');
 
 // ==================== ITEM TYPE HIERARCHY ====================
 const ITEM_TYPES = ['project', 'feature', 'story', 'task'];
@@ -7410,6 +7413,75 @@ app.get('/api/interview-questions', requireNBI, async (req, res) => {
   } catch (e) {
     log('error', 'Interview', 'Failed to list questions', { error: e.message });
     res.status(500).json({ error: 'An internal error occurred' });
+  }
+});
+
+/** POST /api/interview-questions/generate — AI-generate questions from JD */
+app.post('/api/interview-questions/generate', requireNBI, async (req, res) => {
+  if (!req.user) return res.status(401).json({ error: 'Auth required' });
+  if (!Anthropic || !process.env.ANTHROPIC_API_KEY) {
+    return res.status(503).json({ error: 'AI question generation not configured — set ANTHROPIC_API_KEY' });
+  }
+  const { position_id, client_id, discipline, seniority } = req.body || {};
+  if (!discipline) return res.status(400).json({ error: 'discipline required' });
+
+  try {
+    let jdText = '';
+    let clientName = '';
+    if (position_id && isValidUuid(position_id)) {
+      const { rows } = await pool.query(
+        `SELECT hp.description, hp.title, c.name AS client_name
+         FROM hiring_positions hp LEFT JOIN clients c ON hp.client_id = c.id
+         WHERE hp.id = $1`, [position_id]
+      );
+      if (rows.length) {
+        jdText = rows[0].description || '';
+        clientName = rows[0].client_name || '';
+      }
+    }
+    if (client_id && isValidUuid(client_id) && !clientName) {
+      const { rows } = await pool.query('SELECT name FROM clients WHERE id = $1', [client_id]);
+      if (rows.length) clientName = rows[0].name;
+    }
+
+    const prompt = buildGenerationPrompt({ jdText, clientName, discipline, seniority });
+    const anthropicClient = new Anthropic.default();
+    const message = await anthropicClient.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 4096,
+      system: prompt.system,
+      messages: [{ role: 'user', content: prompt.user }],
+    });
+
+    const text = message.content[0]?.text || '[]';
+    let questions;
+    try {
+      questions = JSON.parse(text);
+    } catch (parseErr) {
+      const match = text.match(/\[[\s\S]*\]/);
+      questions = match ? JSON.parse(match[0]) : [];
+    }
+
+    if (!Array.isArray(questions)) return res.status(500).json({ error: 'AI returned invalid format' });
+
+    const inserted = [];
+    for (const q of questions) {
+      if (!q.question_text || !q.category) continue;
+      const cat = q.category.toLowerCase();
+      if (!INTERVIEW_CATEGORIES.includes(cat)) continue;
+      const { rows } = await pool.query(
+        `INSERT INTO interview_question_bank (client_id, discipline, category, question_text, depth_type, source, created_by)
+         VALUES ($1, $2, $3, $4, $5, 'ai_generated', $6) RETURNING *`,
+        [client_id || null, discipline, cat, q.question_text.trim(), q.depth_type || null, req.user.id]
+      );
+      inserted.push(rows[0]);
+    }
+
+    log('info', 'Interview', `AI generated ${inserted.length} questions for ${discipline} at ${clientName}`, {});
+    res.status(201).json(inserted);
+  } catch (e) {
+    log('error', 'Interview', 'Failed to generate questions', { error: e.message });
+    res.status(500).json({ error: 'Question generation failed: ' + e.message });
   }
 });
 
