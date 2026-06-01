@@ -719,8 +719,7 @@ window.toggleSidebarSection = toggleSidebarSection;
 window.toggleWarnAlertSidebar = toggleWarnAlertSidebar;
 window.updateWarnAlertButton = updateWarnAlertButton;
 window.renderWarnAlertContent = renderWarnAlertContent;
-window.snoozeWarnings = snoozeWarnings;
-window.unsnoozeWarnings = unsnoozeWarnings;
+// snoozeWarnings/unsnoozeWarnings were never extracted — individual snoozeWarning exists at line 672
 window.dismissWarning = dismissWarning;
 
 // ===== REGISTER SHELL CALLBACK =====

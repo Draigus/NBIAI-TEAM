@@ -19,7 +19,7 @@ let _financeEntries = []; // Ad-hoc finance entries (loaded from API or localSto
 
 /** Read FX rate from server-managed settings (updated by daily cron). No cross-origin calls. */
 export function fetchFxRate() {
-  const fx = window.settings.fx_rates;
+  const fx = window.settings && window.settings.fx_rates;
   if (fx && fx.USD) {
     _fxRate = fx.USD;
     _fxDate = new Date().toISOString().split('T')[0];

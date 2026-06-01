@@ -1,5 +1,7 @@
 import { registerView } from '../core/router.js';
 
+let _pagePermissions = window._pagePermissions || {};
+
 // ==================== CHANGELOG / AUDIT LOG ====================
 
 let _changelogData = null;

@@ -863,7 +863,7 @@ let _ganttSelectedArrow = null; // { fromId, toId } when an arrow is selected
 let _ganttDepView = false;     // Critical path dependency view mode
 
 /** Render the Gantt/timeline view -- horizontal bars per task, grouped by client, with zoom controls */
-let _ganttLimit = GANTT_ROW_LIMIT;
+let _ganttLimit = window.GANTT_ROW_LIMIT || 200;
 let _ganttHideDone = true; // Hide completed tasks by default on timeline
 
 /** Render the Gantt/timeline view with horizontal bars, dependency chains, and zoom controls */
