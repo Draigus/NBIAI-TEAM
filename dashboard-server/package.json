@@ -12,6 +12,7 @@
     "postinstall": "playwright install chromium --with-deps || true"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.100.1",
     "@azure/msal-node": "^5.1.2",
     "archiver": "^7.0.1",
     "bcrypt": "^6.0.0",
