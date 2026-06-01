@@ -3522,12 +3522,10 @@ window.toggleBlockerType = toggleBlockerType;
 window.startPanelResize = startPanelResize;
 window.toggleAddItemMenu = toggleAddItemMenu;
 window.closeAddItemMenu = closeAddItemMenu;
-window.filterByPractice = filterByPractice;
 window.overflowPrint = overflowPrint;
 window.overflowReport = overflowReport;
 window.overflowTheme = overflowTheme;
 window.previewReceipt = previewReceipt;
 window._updateTaskRowInPlace = _updateTaskRowInPlace;
-window.openTeamDetailModal = openTeamDetailModal;
 
 registerView('tasks', renderTaskView);
