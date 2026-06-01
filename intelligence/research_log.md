@@ -903,3 +903,90 @@ Audit trail of all research activity. Each entry records what was searched, what
 - Track EU cancellation button enforcement after June 19 deadline
 - Search for Discord IPO S-1 filing updates (carried forward from cycles 3-7)
 - Monitor GTA 6 Trailer 3 and pre-order opening
+
+---
+
+## 2026-06-01 | games_pitch_decks | Web Research Cycle (Week 2 of 4)
+
+**Agent:** research_agent (manual invocation)
+**Bank:** games_pitch_decks
+**Brief:** PC/Console indie pitch decks (premium, early access) -- studios that raised funding for PC/console games, structural analyses, VC/publisher perspectives on premium pitches, post-mortems mentioning fundraising, how early access changes the pitch
+
+### Searches Executed
+
+1. "indie game pitch deck funded PC console studio raised money 2024 2025 2026" -- Human Computer $7.7M seed, Work With Indies article, Outersloth, market context
+2. "early access pitch deck raised funding indie game Steam 2024 2025" -- IndieGameBusiness state of pitching, Kickstarter $26.1M record, publisher expectations shift
+3. "GDC talk pitching premium indie game publisher investor 2024 2025 2026" -- GDC Pitch competition details, Della Rocca coaching, Hooded Horse/Finji/1Up Ventures judges
+4. "Devolver Digital Raw Fury Team17 Annapurna pitch requirements indie studio submission 2024 2025" -- publisher submission processes, vertical slice requirements, 3-5% cold outreach response rate
+5. "indie game pitch deck structure breakdown slides what publishers look for PC console 2024 2025" -- 12-slide structure framework, three-comparable methodology, traction metrics
+6. "reddit gamedev indie studio raised funding pitch deck PC console premium game 2024 2025" -- Little Polygon case study detail ($2M budget ask, 50+ publishers contacted)
+7. "Hooded Horse indie publisher pitch submission what they look for PC strategy 2024 2025" -- 65/35 revenue split, $100K marketing guarantee, genre-specific focus
+8. "indie game studio raised seed Series A funding PC console 2024 2025 pitch deck slides" -- Outersloth $50K-$2M range, BITKRAFT early-stage, market contraction ($12B to $2.4B)
+9. "Human Computer studio Alex Schleifer $7.7M Makers Fund pitch deck game funding 2025" -- BusinessWire press release, Substack blog post, a16z participation
+10. "Manor Lords pitch deck publisher pitch Slavic Magic early access funding" -- Patreon to Epic MegaGrants to Hooded Horse pipeline, 3.2M wishlists, 3M copies
+11. "gamediscover.co game contracts evolve indie publisher deal terms revenue share 2024 2025" -- Voyer Law 30-deal analysis, Hooded Horse 65/35 model, GameDiscoverCo live pitch case study
+12. "Outersloth Innersloth contract terms published transparent indie publisher deal 50% 15% revenue" -- full contract published, GDC 2026 presentation, $19.2M across 24 games
+13. "Focus Entertainment 3000 4000 pitches per year what they look for 2025" -- Le Yaouanq CCO interview, three-comparable framework, event-first deal origination
+14. "early access indie game pitch publisher investor traction wishlists Steam data metrics 2024 2025" -- 30K+ wishlist threshold, 27% first-month conversion, EA 8% lower conversion than full release
+15. "Manor Lords Hooded Horse early access sales success 2024 revenue units sold" -- 1M in 24 hours, 2M in 3 weeks, 3M by Feb 2025, 173K peak concurrent
+
+**Deep fetches:** workwithindies.com (Human Computer $7.7M details), indiegamebusiness.com (state of pitching 2025), gamedeveloper.com (Della Rocca pitching tips, Hooded Horse model, Outersloth contract), huco.substack.com (Human Computer 19-slide deck), newsletter.gamediscover.co (Gremlins Inc 2 live pitch, game contracts analysis, publishing agreement terms), businesswire.com (Human Computer press release), strayspark.studio (publisher vs self-publishing data), gameworldobserver.com (Manor Lords sales data)
+
+**Note:** reddit.com blocked by WebSearch crawler. VentureBeat returned 429 rate limit. GameDiscoverCo articles partially gated but key data extractable.
+
+### Findings Kept (5 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---|---|---|---|---|
+| Human Computer $7.7M seed -- 19-slide pitch deck | 8 | 8 | 7 | Rare documented PC/console indie raise with pitch deck structure disclosed. a16z + Makers Fund. Anti-addiction positioning as VC differentiator. Founder pedigree (ex-Airbnb CDO) angle. |
+| Outersloth transparent contract -- $19.2M across 24 games | 9 | 8 | 8 | Unprecedented: published full contract terms. 50/50 pre-recoup then 15/85 post-recoup. ~$800K average per game. Industry benchmark for deal negotiation. |
+| Gremlins Inc. 2 live publisher pitch -- 35-slide deck | 9 | 9 | 8 | Only publicly documented in-progress publisher negotiation with real budget (EUR 1M), ROI projection (EUR 3M), and three deal structures encountered. Separate studio/product decks as tactic. |
+| Hooded Horse + Manor Lords early access model | 8 | 7 | 8 | Developer-first terms (65/35, no recoup, $100K marketing minimum). Manor Lords: 3.2M wishlists to 3M copies. Patreon-to-MegaGrants-to-publisher funding ladder. EA traction metrics benchmarks. |
+| Focus Entertainment publisher pitch requirements | 8 | 7 | 8 | 3,000-4,000 pitches/year with <0.5% acceptance. Three-comparable framework (success/average/failure). "5-6 minute pitch in 30-minute meeting." Comprehensive deal terms benchmarks from Voyer Law (30 deals analysed). |
+
+### Findings Rejected
+
+- **IndieGameBusiness "State of Pitching in 2025" (Ash Cason):** Focus Entertainment CCO Yves Le Yaouanq interview. Useful context but the specific data points (3,000-4,000 pitches/year, three-comparable framework) were extracted directly from Focus and Della Rocca sources. The article itself is an aggregation without original case studies. Data absorbed into Extract 5.
+- **StraySpark "Publisher vs Self-Publishing" data framework:** Comprehensive data compilation (publisher share ranges: 20-50%, advance ranges: $20K-$several million, wishlist benchmarks, marketing costs). However, all original numbers come from Voyer Law and GameDiscoverCo, which are already captured in Extract 5. No original research -- it is a secondary synthesis.
+- **Wayline pitch + wishlist guide:** Tactical Steam wishlist optimisation advice. No specific funded deck examples or deal terms. Generic "get wishlists before pitching" advice.
+- **Cloutboost Steam marketing 2025:** Marketing strategy guide, not pitch/fundraising content. No deal terms or deck structure.
+- **Failory "Top 10 Pitch Decks from Gaming Startups":** Aggregator page with brief summaries. No structural analysis or deck breakdowns. The listed decks (Homa, Voodoo, etc.) are already captured in cycle 1.
+- **Viktori.co game pitch deck template:** Generic pitch deck consultant content. Author has no gaming VC or studio credentials. No real examples with verified funding outcomes.
+- **SuperGaming / Indus $5.5M Series A:** Mobile battle royale (10M pre-registrations). Excluded per brief -- mobile-focused, already covered in cycle 1 scope.
+- **Layer $6.5M seed (AI game art tools):** Game development tools company, not a game studio. King and Tripledot co-founders as investors. Outside brief scope.
+
+### Key Themes Emerging (Week 2)
+
+1. **The "paper pitch" is dead for PC/console indie games.** Every source converges: publishers now require a polished vertical slice or 10-15 minutes of bug-free gameplay alongside the deck. Cold emails without builds are filtered before first calls. The pitch deck is now a conversation starter, not the product.
+
+2. **Deal terms are becoming more transparent, and the floor is rising.** Outersloth publishing its full contract (50/50 then 15/85), Hooded Horse's public 65/35 split, and the Voyer Law 30-deal benchmark (60/40 average) together create a publicly citable reference framework that gives developers real negotiation leverage.
+
+3. **Early access changes the pitch from "vision" to "traction."** Manor Lords demonstrates the flywheel: demo at Steam Next Fest -> wishlist accumulation -> EA launch with revenue -> self-evident pitch. The 30,000+ wishlist threshold is the minimum credible signal. Publishers care about wishlist velocity (month-over-month growth) as much as raw totals.
+
+4. **The pitch funnel is brutally narrow.** Focus: 3,000-4,000 pitches/year, signs ~10-15 (0.3-0.5%). Outersloth: ~1.4% signing rate. Average studio contacts 50+ publishers. Cold outreach response: 3-5%. These numbers calibrate realistic fundraising timelines for advisory clients.
+
+5. **Two decks are better than one.** The Gremlins Inc. 2 case study shows the tactical advantage of separating the product deck (creative pitch) from the studio/term sheet deck (business negotiation). This prevents the business discussion from contaminating the creative first impression.
+
+6. **Founder pedigree unlocks VC funding that game credentials alone may not.** Human Computer (ex-Airbnb CDO) attracted a16z and Makers Fund at seed stage with no shipped game. Pedigree from tech/design leadership translates directly to VC confidence in execution. Studios with non-gaming executive backgrounds should lead with that angle.
+
+### Cross-Reference with Week 1 (Mobile F2P)
+
+| Dimension | Mobile F2P (Week 1) | PC/Console Indie (Week 2) |
+|---|---|---|
+| Pitch focus | Process/platform/team ("sell the company") | Game quality + traction data ("show the build") |
+| Key metrics | D1/D7/D28 retention, ARPDAU, CPI, LTV | Wishlists, demo plays, community size, EA sales |
+| Deal structure | Revenue share with recoup, equity raises | Revenue share (65/35 to 55/45), advances $100K-$2M |
+| Deck length | 10-15 slides | 12-35 slides (product + studio decks) |
+| Funding range | $500K-$50M (wide variance) | $50K-$7.7M (tighter, lower ceiling) |
+| VC vs publisher | VC-dominated for platform plays | Publisher-dominated for game projects |
+| Traction proof | Retention data from soft launch | Wishlists + demo performance from Steam Next Fest |
+
+### Suggestions for Next Cycle (Week 3)
+
+- Target AA/mid-budget studio pitch decks -- studios with $5M-$20M budgets and 50-100 person teams
+- Search for Kickstarter post-mortems from 2024-2025 campaigns that raised $500K+ for PC/console games
+- Look for publisher-side perspectives beyond Focus -- Devolver Digital, Raw Fury, Team17, Annapurna internal evaluation criteria
+- Search for GDC Vault recordings of pitch competition finalists with structural analysis
+- Investigate the "funding ladder" model (Patreon -> grants -> publisher) with more documented examples beyond Manor Lords
+- Try Apify web browser actor for Reddit r/gamedev fundraising threads (blocked by WebSearch)
+- Search for Chinese/Korean publisher requirements for Western indie studios pitching to Asian markets
