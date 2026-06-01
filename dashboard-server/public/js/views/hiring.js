@@ -392,6 +392,12 @@ async function openCandidateDetail(id) {
   const c = await apiCall('/api/candidates/' + id);
   if (!c) return;
 
+  let interviewConfig = null;
+  if (c.stage === 'interviews' || c.stage === 'offer' || c.stage === 'hired') {
+    const configs = await apiCall(`/api/interview-configs?candidate_id=${c.id}`);
+    if (configs && configs.length > 0) interviewConfig = configs[0];
+  }
+
   const isAdmin = _currentUser && _currentUser.role === 'admin';
   let clientList = getContractedClientRecords();
   if (c.client_id && !clientList.some(cl => cl.id === c.client_id)) {
@@ -420,7 +426,18 @@ async function openCandidateDetail(id) {
       : '<div style="color:var(--text-muted);font-size:0.78rem;padding:4px 0">No onboarding docs yet</div>';
     stageSubHtml = `<div class="candidate-detail__field"><label>Onboarding documents</label>${linksHtml}<div style="display:flex;gap:6px;margin-top:6px"><input type="text" id="cdOnboardLink" placeholder="Paste a link (Google Doc, Drive, etc.)" style="flex:1"><button class="btn btn--sm" data-action="addOnboardingLink" data-arg0="${c.id}">Add link</button></div></div>`;
   } else if (c.stage === 'interviews') {
-    stageSubHtml = `<div class="candidate-detail__field"><label>Interview rounds</label><textarea rows="3" placeholder="e.g. Round 1: Glen + Magnus on Mon, Round 2: Stavros on Wed" onchange="updateCandidateField('${c.id}','notes',(c.notes||'')+'\\n'+this.value)">${esc(c.notes || '')}</textarea></div>`;
+    let interviewBtnLabel = 'Configure Interview';
+    let interviewBtnAction = `openInterviewConfig('${c.id}', '${c.client_id || ''}', '${c.position_id || ''}')`;
+    if (interviewConfig && interviewConfig.status === 'active') {
+      interviewBtnLabel = 'View Interview';
+      interviewBtnAction = `openInterviewResults('${interviewConfig.id}')`;
+    } else if (interviewConfig && interviewConfig.status === 'completed') {
+      interviewBtnLabel = 'Interview Results';
+      interviewBtnAction = `openInterviewResults('${interviewConfig.id}')`;
+    }
+    stageSubHtml = `<div class="candidate-detail__field"><label>Interview</label>
+      <button class="btn btn--primary" onclick="${interviewBtnAction}">${interviewBtnLabel}</button>
+    </div>`;
   }
 
   panel.innerHTML = `
@@ -717,6 +734,420 @@ async function deleteCandidate(id) {
   }
 }
 window.deleteCandidate = deleteCandidate;
+
+// ===== INTERVIEW CONFIG (Question Picker + Interviewer Selection) =====
+
+const INTERVIEW_CATEGORIES = ['culture', 'technical', 'collaboration', 'leadership', 'depth'];
+const INTERVIEW_CATEGORY_LABELS = {
+  culture: 'Culture', technical: 'Technical', collaboration: 'Collaboration',
+  leadership: 'Leadership', depth: 'Depth',
+};
+const INTERVIEW_CATEGORY_COLOURS = {
+  culture: '#f59e0b', technical: '#3b82f6', collaboration: '#10b981',
+  leadership: '#8b5cf6', depth: '#ef4444',
+};
+
+async function openInterviewConfig(candidateId, clientId, positionId) {
+  const panel = document.getElementById('candidateDetailPanel');
+  if (!panel) return;
+
+  // Show loading
+  panel.innerHTML = '<div style="padding:24px;text-align:center;color:var(--text-muted)">Loading questions...</div>';
+
+  let questions = [];
+  let users = [];
+  try {
+    const [q, u] = await Promise.all([
+      apiCall('/api/interview-questions' + (clientId ? `?client_id=${clientId}` : '')),
+      apiCall('/api/users'),
+    ]);
+    if (Array.isArray(q)) questions = q;
+    if (Array.isArray(u)) users = u.filter(usr => usr.is_active !== false && usr.role !== 'client');
+  } catch (e) {
+    panel.innerHTML = `<div style="padding:24px;color:var(--danger)">Failed to load data: ${esc(e.message || 'Unknown error')}</div>`;
+    return;
+  }
+
+  const selectedIds = new Set();
+  const selectedInterviewers = new Set();
+  let activeTab = 'questions';
+  let filterCategory = '';
+
+  function render() {
+    const filteredQuestions = filterCategory
+      ? questions.filter(q => q.category === filterCategory)
+      : questions;
+
+    // Group by category
+    const grouped = {};
+    for (const cat of INTERVIEW_CATEGORIES) grouped[cat] = [];
+    for (const q of filteredQuestions) {
+      if (grouped[q.category]) grouped[q.category].push(q);
+    }
+
+    let html = `
+      <div class="candidate-detail__header">
+        <div style="flex:1;min-width:0">
+          <h3 style="font-size:1rem;font-weight:600;margin:0">Configure Interview</h3>
+          <div style="font-size:0.78rem;color:var(--text-muted);margin-top:2px">${selectedIds.size} question${selectedIds.size !== 1 ? 's' : ''} selected &middot; ${selectedInterviewers.size} interviewer${selectedInterviewers.size !== 1 ? 's' : ''}</div>
+        </div>
+        <button class="btn btn--ghost btn--sm" onclick="openCandidateDetail('${candidateId}')" aria-label="Back">&larr; Back</button>
+      </div>
+      <div style="display:flex;gap:0;border-bottom:1px solid var(--border-default);margin-bottom:12px">
+        <button class="btn btn--sm" style="border-radius:0;border-bottom:2px solid ${activeTab === 'questions' ? 'var(--accent)' : 'transparent'};color:${activeTab === 'questions' ? 'var(--accent-text)' : 'var(--text-muted)'};font-weight:${activeTab === 'questions' ? '600' : '400'}" onclick="window._ivSetTab('questions')">Questions</button>
+        <button class="btn btn--sm" style="border-radius:0;border-bottom:2px solid ${activeTab === 'interviewers' ? 'var(--accent)' : 'transparent'};color:${activeTab === 'interviewers' ? 'var(--accent-text)' : 'var(--text-muted)'};font-weight:${activeTab === 'interviewers' ? '600' : '400'}" onclick="window._ivSetTab('interviewers')">Interviewers</button>
+      </div>`;
+
+    if (activeTab === 'questions') {
+      // Filter chips
+      html += '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px">';
+      html += `<button class="btn btn--sm" style="font-size:0.7rem;${!filterCategory ? 'background:var(--accent);color:#fff' : ''}" onclick="window._ivFilterCat('')">All</button>`;
+      for (const cat of INTERVIEW_CATEGORIES) {
+        const active = filterCategory === cat;
+        html += `<button class="btn btn--sm" style="font-size:0.7rem;${active ? 'background:' + INTERVIEW_CATEGORY_COLOURS[cat] + ';color:#fff' : ''}" onclick="window._ivFilterCat('${cat}')">${INTERVIEW_CATEGORY_LABELS[cat]}</button>`;
+      }
+      html += '</div>';
+
+      // Action buttons
+      html += '<div style="display:flex;gap:6px;margin-bottom:12px">';
+      html += `<button class="btn btn--sm" onclick="window._ivAddCustomQuestion()">+ Add Custom Question</button>`;
+      html += `<button class="btn btn--sm" onclick="window._ivGenerateFromJD()" ${positionId ? '' : 'disabled title="No hiring position linked"'}>Generate from JD</button>`;
+      html += '</div>';
+
+      // Questions grouped by category
+      for (const cat of INTERVIEW_CATEGORIES) {
+        const catQs = grouped[cat];
+        if (catQs.length === 0) continue;
+        html += `<div style="margin-bottom:12px">
+          <div style="font-size:0.72rem;font-weight:600;color:${INTERVIEW_CATEGORY_COLOURS[cat]};text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px">${INTERVIEW_CATEGORY_LABELS[cat]} (${catQs.length})</div>`;
+        for (const q of catQs) {
+          const checked = selectedIds.has(q.id) ? 'checked' : '';
+          html += `<label style="display:flex;align-items:flex-start;gap:8px;padding:6px 4px;cursor:pointer;border-radius:var(--radius-sm);font-size:0.82rem;line-height:1.4" onmouseover="this.style.background='var(--bg-surface-hover)'" onmouseout="this.style.background='transparent'">
+            <input type="checkbox" ${checked} onchange="window._ivToggleQ('${q.id}')" style="accent-color:var(--accent);margin-top:2px;flex-shrink:0">
+            <span>${esc(q.question_text)}</span>
+          </label>`;
+        }
+        html += '</div>';
+      }
+
+      if (questions.length === 0) {
+        html += '<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:0.82rem">No questions available. Add custom questions or generate from a JD.</div>';
+      }
+    } else {
+      // Interviewers tab
+      html += '<div style="display:flex;flex-direction:column;gap:4px">';
+      for (const u of users) {
+        const checked = selectedInterviewers.has(u.id) ? 'checked' : '';
+        html += `<label style="display:flex;align-items:center;gap:8px;padding:8px 4px;cursor:pointer;border-radius:var(--radius-sm);font-size:0.85rem" onmouseover="this.style.background='var(--bg-surface-hover)'" onmouseout="this.style.background='transparent'">
+          <input type="checkbox" ${checked} onchange="window._ivToggleInterviewer('${u.id}')" style="accent-color:var(--accent)">
+          <span style="flex:1">${esc(u.display_name || u.username || u.email)}</span>
+          ${u.role === 'admin' ? '<span style="font-size:0.65rem;color:var(--text-muted);background:var(--bg-surface);padding:1px 6px;border-radius:8px">admin</span>' : ''}
+        </label>`;
+      }
+      if (users.length === 0) {
+        html += '<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:0.82rem">No users available.</div>';
+      }
+      html += '</div>';
+    }
+
+    // Bottom actions
+    const canSend = selectedIds.size > 0 && selectedInterviewers.size > 0;
+    html += `<div style="display:flex;gap:var(--space-sm);margin-top:var(--space-lg);padding-top:var(--space-md);border-top:1px solid var(--border-default)">
+      <button class="btn btn--primary" ${canSend ? '' : 'disabled'} onclick="window._ivSendInterviews()" style="flex:1">Send Interviews (${selectedIds.size}q &middot; ${selectedInterviewers.size}p)</button>
+    </div>`;
+
+    panel.innerHTML = html;
+  }
+
+  // Expose handlers on window for onclick
+  window._ivSetTab = (tab) => { activeTab = tab; render(); };
+  window._ivFilterCat = (cat) => { filterCategory = cat; render(); };
+  window._ivToggleQ = (id) => { selectedIds.has(id) ? selectedIds.delete(id) : selectedIds.add(id); render(); };
+  window._ivToggleInterviewer = (id) => { selectedInterviewers.has(id) ? selectedInterviewers.delete(id) : selectedInterviewers.add(id); render(); };
+
+  window._ivAddCustomQuestion = async () => {
+    const text = prompt('Enter your custom interview question:');
+    if (!text || !text.trim()) return;
+    const catSel = prompt('Category (culture, technical, collaboration, leadership, depth):', 'technical');
+    if (!catSel || !INTERVIEW_CATEGORIES.includes(catSel.trim().toLowerCase())) {
+      toast('Invalid category', 'error');
+      return;
+    }
+    const disc = prompt('Discipline (e.g. engineering, design, production):', 'general');
+    try {
+      const created = await apiCall('/api/interview-questions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          question_text: text.trim(),
+          category: catSel.trim().toLowerCase(),
+          discipline: (disc || 'general').trim(),
+          source: 'custom',
+          client_id: clientId || null,
+        }),
+      });
+      if (created && created.id) {
+        questions.push(created);
+        selectedIds.add(created.id);
+        toast('Question added');
+        render();
+      }
+    } catch (e) {
+      toast('Failed to add question: ' + (e.message || ''), 'error');
+    }
+  };
+
+  window._ivGenerateFromJD = async () => {
+    if (!positionId) { toast('No hiring position linked', 'error'); return; }
+    const disc = prompt('Discipline to generate questions for (e.g. engineering, design, production):', 'engineering');
+    if (!disc || !disc.trim()) return;
+    toast('Generating questions from JD...', 'info');
+    try {
+      const generated = await apiCall('/api/interview-questions/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          position_id: positionId,
+          client_id: clientId || null,
+          discipline: disc.trim(),
+        }),
+      });
+      if (Array.isArray(generated)) {
+        for (const q of generated) {
+          questions.push(q);
+          selectedIds.add(q.id);
+        }
+        toast(`Generated ${generated.length} questions`);
+        render();
+      }
+    } catch (e) {
+      toast('Failed to generate: ' + (e.message || ''), 'error');
+    }
+  };
+
+  window._ivSendInterviews = async () => {
+    if (selectedIds.size === 0 || selectedInterviewers.size === 0) return;
+    const ok = await themedConfirm(
+      `Send ${selectedIds.size} questions to ${selectedInterviewers.size} interviewer${selectedInterviewers.size !== 1 ? 's' : ''}?\nEach interviewer will receive an email with a link to their scorecard.`,
+      'Send Interviews',
+      'Send'
+    );
+    if (!ok) return;
+    try {
+      // Create config
+      const result = await apiCall('/api/interview-configs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          candidate_id: candidateId,
+          position_id: positionId || null,
+          question_ids: [...selectedIds],
+          interviewer_ids: [...selectedInterviewers],
+        }),
+      });
+      if (!result || !result.config) throw new Error('Failed to create config');
+      // Activate it
+      await apiCall(`/api/interview-configs/${result.config.id}/activate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      toast('Interviews sent! Interviewers will receive an email.');
+      openCandidateDetail(candidateId);
+    } catch (e) {
+      toast('Failed to send interviews: ' + (e.message || ''), 'error');
+    }
+  };
+
+  render();
+}
+window.openInterviewConfig = openInterviewConfig;
+
+// ===== INTERVIEW RESULTS (Aggregated Scores + Decision) =====
+
+async function openInterviewResults(configId) {
+  const panel = document.getElementById('candidateDetailPanel');
+  if (!panel) return;
+
+  panel.innerHTML = '<div style="padding:24px;text-align:center;color:var(--text-muted)">Loading results...</div>';
+
+  let data;
+  try {
+    data = await apiCall(`/api/interview-results/${configId}`);
+  } catch (e) {
+    panel.innerHTML = `<div style="padding:24px;color:var(--danger)">Failed to load results: ${esc(e.message || 'Unknown error')}</div>`;
+    return;
+  }
+
+  if (!data || !data.config) {
+    panel.innerHTML = '<div style="padding:24px;color:var(--danger)">No results found.</div>';
+    return;
+  }
+
+  const { config, questions, sessions, scores, decision, summary } = data;
+  const candidateId = config.candidate_id;
+
+  // Build a lookup: scores by session_id -> question_id
+  const scoreMap = {};
+  for (const sc of scores) {
+    if (!scoreMap[sc.session_id]) scoreMap[sc.session_id] = {};
+    scoreMap[sc.session_id][sc.question_id] = sc;
+  }
+
+  // Check if candidate is still in interviews stage
+  let stageWarning = '';
+  try {
+    const cand = await apiCall('/api/candidates/' + candidateId);
+    if (cand && cand.stage !== 'interviews') {
+      stageWarning = `<div style="background:color-mix(in srgb, var(--warning) 15%, var(--bg-surface));border:1px solid var(--warning);border-radius:var(--radius-sm);padding:8px 12px;margin-bottom:12px;font-size:0.78rem;color:var(--text-primary)">&#9888; This candidate has been moved to <strong>${esc(cand.stage)}</strong> stage.</div>`;
+    }
+  } catch (e) { /* non-fatal */ }
+
+  function scoreColour(score) {
+    if (score >= 4) return 'var(--success)';
+    if (score === 3) return 'var(--warning)';
+    return 'var(--danger)';
+  }
+
+  let html = `
+    <div class="candidate-detail__header">
+      <div style="flex:1;min-width:0">
+        <h3 style="font-size:1rem;font-weight:600;margin:0">${esc(config.candidate_name || 'Candidate')}</h3>
+        <div style="font-size:0.8rem;color:var(--text-muted);margin-top:2px">${esc(config.candidate_role || '')}${config.client_name ? ' &middot; ' + esc(config.client_name) : ''}</div>
+      </div>
+      <button class="btn btn--ghost btn--sm" onclick="openCandidateDetail('${candidateId}')" aria-label="Back">&larr; Back</button>
+    </div>
+    ${stageWarning}`;
+
+  // Summary section
+  html += '<div class="candidate-detail__section">';
+  html += '<div class="candidate-detail__section-title">Summary</div>';
+
+  // Overall average
+  if (summary.overall_avg !== null) {
+    html += `<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+      <div style="font-size:2rem;font-weight:700;color:${scoreColour(summary.overall_avg)}">${summary.overall_avg.toFixed(1)}</div>
+      <div style="font-size:0.78rem;color:var(--text-muted)">Overall average<br>${scores.length} scores from ${sessions.length} interviewer${sessions.length !== 1 ? 's' : ''}</div>
+    </div>`;
+  }
+
+  // Category bar charts
+  if (summary.category_avgs && Object.keys(summary.category_avgs).length > 0) {
+    html += '<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px">';
+    for (const cat of INTERVIEW_CATEGORIES) {
+      const avg = summary.category_avgs[cat];
+      if (avg === undefined) continue;
+      const pct = (avg / 5) * 100;
+      html += `<div style="display:flex;align-items:center;gap:8px;font-size:0.75rem">
+        <span style="width:90px;color:${INTERVIEW_CATEGORY_COLOURS[cat]};font-weight:600">${INTERVIEW_CATEGORY_LABELS[cat]}</span>
+        <div style="flex:1;height:8px;background:var(--bg-surface);border-radius:4px;overflow:hidden">
+          <div style="width:${pct}%;height:100%;background:${INTERVIEW_CATEGORY_COLOURS[cat]};border-radius:4px"></div>
+        </div>
+        <span style="width:28px;text-align:right;font-weight:600;color:var(--text-primary)">${avg.toFixed(1)}</span>
+      </div>`;
+    }
+    html += '</div>';
+  }
+
+  // Submission status
+  html += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">';
+  for (const s of sessions) {
+    const statusIcon = s.status === 'submitted' ? '&#10003;' : (s.status === 'in_progress' ? '&#9998;' : '&#8987;');
+    const statusColour = s.status === 'submitted' ? 'var(--success)' : (s.status === 'in_progress' ? 'var(--warning)' : 'var(--text-muted)');
+    html += `<span style="display:inline-flex;align-items:center;gap:4px;font-size:0.75rem;padding:3px 8px;border:1px solid var(--border-default);border-radius:12px">
+      <span style="color:${statusColour}">${statusIcon}</span> ${esc(s.interviewer_name || 'Interviewer')}
+    </span>`;
+  }
+  html += '</div>';
+  html += '</div>';
+
+  // Comparison table
+  html += '<div class="candidate-detail__section">';
+  html += '<div class="candidate-detail__section-title">Score Comparison</div>';
+  html += '<div style="overflow-x:auto">';
+  html += '<table style="width:100%;border-collapse:collapse;font-size:0.78rem">';
+  html += '<thead><tr><th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border-default);color:var(--text-muted);font-weight:600">Question</th>';
+  for (const s of sessions) {
+    html += `<th style="text-align:center;padding:6px 8px;border-bottom:1px solid var(--border-default);color:var(--text-muted);font-weight:600;min-width:60px">${esc(s.interviewer_name || '?')}</th>`;
+  }
+  html += '</tr></thead><tbody>';
+
+  for (const q of questions) {
+    // Calculate divergence
+    const qScores = sessions.map(s => scoreMap[s.id]?.[q.question_id]?.score).filter(v => v != null);
+    const maxScore = Math.max(...qScores);
+    const minScore = Math.min(...qScores);
+    const divergent = qScores.length >= 2 && (maxScore - minScore) >= 3;
+
+    html += '<tr>';
+    html += `<td style="padding:6px 8px;border-bottom:1px solid var(--border-subtle);line-height:1.3">
+      <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${INTERVIEW_CATEGORY_COLOURS[q.category] || 'var(--text-muted)'};margin-right:4px;vertical-align:middle"></span>
+      ${esc(q.question_text)}
+      ${divergent ? ' <span style="background:var(--danger);color:#fff;font-size:0.6rem;padding:1px 5px;border-radius:6px;font-weight:700;vertical-align:middle">DIVERGENT</span>' : ''}
+    </td>`;
+
+    for (const s of sessions) {
+      const sc = scoreMap[s.id]?.[q.question_id];
+      if (sc) {
+        const notesAttr = sc.notes ? ` title="${esc(sc.notes)}"` : '';
+        const notesIcon = sc.notes ? ' <span style="cursor:help"' + notesAttr + '>&#128172;</span>' : '';
+        html += `<td style="text-align:center;padding:6px 8px;border-bottom:1px solid var(--border-subtle);font-weight:700;color:${scoreColour(sc.score)}"${notesAttr}>${sc.score}${notesIcon}</td>`;
+      } else {
+        html += '<td style="text-align:center;padding:6px 8px;border-bottom:1px solid var(--border-subtle);color:var(--text-faint)">&mdash;</td>';
+      }
+    }
+    html += '</tr>';
+  }
+
+  html += '</tbody></table></div></div>';
+
+  // Decision section
+  html += '<div class="candidate-detail__section">';
+  html += '<div class="candidate-detail__section-title">Decision</div>';
+
+  if (decision) {
+    const decColour = decision.decision === 'advance' ? 'var(--success)' : (decision.decision === 'reject' ? 'var(--danger)' : 'var(--warning)');
+    html += `<div style="padding:12px;border:1px solid ${decColour};border-radius:var(--radius-sm);margin-bottom:8px">
+      <div style="font-weight:700;color:${decColour};text-transform:uppercase;font-size:0.82rem;margin-bottom:4px">${esc(decision.decision)}</div>
+      <div style="font-size:0.82rem;color:var(--text-primary);margin-bottom:6px">${esc(decision.notes)}</div>
+      <div style="font-size:0.7rem;color:var(--text-muted)">By ${esc(decision.decided_by_name || 'Unknown')} on ${new Date(decision.decided_at || decision.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
+    </div>`;
+  } else {
+    html += `<div style="margin-bottom:8px">
+      <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px">Notes (required)</label>
+      <textarea id="ivDecisionNotes" rows="3" placeholder="Explain your reasoning..." style="width:100%;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);padding:8px;font-size:0.82rem;resize:vertical"></textarea>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn--sm" style="background:var(--success);color:#fff;flex:1" onclick="window._ivDecide('${configId}','advance')">Advance</button>
+      <button class="btn btn--sm" style="background:var(--warning);color:#fff;flex:1" onclick="window._ivDecide('${configId}','hold')">Hold</button>
+      <button class="btn btn--sm" style="background:var(--danger);color:#fff;flex:1" onclick="window._ivDecide('${configId}','reject')">Reject</button>
+    </div>`;
+  }
+  html += '</div>';
+
+  panel.innerHTML = html;
+
+  // Decision handler
+  window._ivDecide = async (cfgId, dec) => {
+    const notesEl = document.getElementById('ivDecisionNotes');
+    const notes = notesEl ? notesEl.value.trim() : '';
+    if (!notes) { toast('Notes are required', 'error'); if (notesEl) notesEl.focus(); return; }
+    try {
+      await apiCall('/api/interview-decisions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ config_id: cfgId, decision: dec, notes }),
+      });
+      toast('Decision recorded');
+      await loadCandidates();
+      if (currentView === 'hiring') renderContent();
+      renderSidebar();
+      openInterviewResults(cfgId);
+    } catch (e) {
+      toast('Failed to record decision: ' + (e.message || ''), 'error');
+    }
+  };
+}
+window.openInterviewResults = openInterviewResults;
 
 // ===== REGISTER VIEW =====
 registerView('hiring', renderHiringView);
