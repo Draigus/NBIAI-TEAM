@@ -207,7 +207,7 @@ async function loadNewsModule() {
 }
 
 function newsEsc(s) {
-  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]);
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
 }
 function newsFormatDate(iso) {
   if (!iso) return '';
