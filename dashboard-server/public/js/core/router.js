@@ -81,9 +81,10 @@ window.addEventListener('popstate', e => {
 // Restore view from URL hash on page load (supports deep-linking e.g. #bugs, #leads, #interview/uuid)
 (function() {
   const h = window.location.hash.replace('#', '');
-  const known = ['report','dashboard','tasks','people','leads','expenses','finances','news','bugs','settings','mytasks','workload'];
+  const known = ['report','dashboard','tasks','people','leads','expenses','finances','news','bugs','settings','mytasks','workload','hiring'];
   if (h && known.includes(h)) { window.currentView = LEGACY_ROUTES[h] || h; }
   else if (h && h.startsWith('interview/')) { window.currentView = 'interview'; }
+  if (!window.currentView) window.currentView = 'dashboard';
 })();
 
 // Set initial history state
