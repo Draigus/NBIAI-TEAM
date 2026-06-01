@@ -21824,8 +21824,7 @@ async function openInterviewConfig(candidateId, clientId, positionId) {
         '<div style="padding:10px 16px;cursor:pointer;font-weight:' + (activeTab === 'interviewers' ? '600' : '400') + ';border-bottom:2px solid ' + (activeTab === 'interviewers' ? 'var(--accent)' : 'transparent') + '" onclick="window._ivSetTab(\'interviewers\')">Interviewers</div></div>' +
       (activeTab === 'questions'
         ? '<div style="display:flex;gap:8px;margin-bottom:12px">' +
-            '<button class="btn btn--sm" onclick="window._ivGenerateQuestions()">Generate from JD</button>' +
-            '<button class="btn btn--sm" onclick="window._ivAddCustom()">+ Custom</button></div>' +
+            '<button class="btn btn--sm" onclick="window._ivAddCustom()">+ Custom Question</button></div>' +
           '<div style="font-weight:600;margin-bottom:8px;color:var(--accent)">' + selectedIds.size + ' selected</div>' +
           '<div style="max-height:400px;overflow-y:auto">' + (questionsHtml || '<p style="color:var(--text-muted)">No questions in bank. Generate from JD or add custom questions.</p>') + '</div>'
         : '<div style="max-height:400px;overflow-y:auto">' + (interviewersHtml || '<p style="color:var(--text-muted)">No team members found.</p>') + '</div>') +
@@ -21839,34 +21838,7 @@ async function openInterviewConfig(candidateId, clientId, positionId) {
   window._ivToggleQ = function(id) { selectedIds.has(id) ? selectedIds.delete(id) : selectedIds.add(id); renderConfigPanel(); };
   window._ivToggleInterviewer = function(id) { selectedInterviewers.has(id) ? selectedInterviewers.delete(id) : selectedInterviewers.add(id); renderConfigPanel(); };
 
-  window._ivGenerateQuestions = async function() {
-    var disc = prompt('Discipline for this role?\n\nOptions: Engineering, Art, Narrative/Writing, Game Design, QA, Production, Audio, HR/People, Leadership');
-    if (!disc || !disc.trim()) return;
-    var btn = document.querySelector('[onclick*="ivGenerateQuestions"]');
-    if (btn) { btn.disabled = true; btn.textContent = 'Generating...'; }
-    try {
-      const resp = await authFetch('/api/interview-questions/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ position_id: positionId || null, client_id: clientId || null, discipline: disc.trim() }),
-      });
-      if (!resp.ok) {
-        var err = await resp.json();
-        alert('Generation failed: ' + (err.error || 'Unknown error'));
-        if (btn) { btn.disabled = false; btn.textContent = 'Generate from JD'; }
-        return;
-      }
-      const generated = await resp.json();
-      if (generated && Array.isArray(generated)) {
-        allQuestions.push(...generated);
-        generated.forEach(q => selectedIds.add(q.id));
-      }
-    } catch (e) {
-      alert('Generation failed: ' + e.message);
-    }
-    if (btn) { btn.disabled = false; btn.textContent = 'Generate from JD'; }
-    renderConfigPanel();
-  };
+
 
   window._ivAddCustom = function() {
     var formHtml = '<div id="ivCustomForm" style="border:1px solid var(--accent);border-radius:8px;padding:12px;margin-bottom:12px;background:var(--bg-elevated)">' +
