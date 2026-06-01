@@ -252,6 +252,7 @@ module.exports = function (ctx) {
                p.status, p.created_at, p.updated_at,
                p.salary_range, p.employment_type, p.location, p.interview_panel,
                p.scorecard_criteria, p.jd_filename, p.jd_original_name,
+               p.discipline,
                c.name AS client_name,
                s.title AS sow_title,
                (SELECT COUNT(*)::int FROM candidates ca WHERE ca.position_id = p.id) AS candidate_count
@@ -285,8 +286,8 @@ module.exports = function (ctx) {
     }
     try {
       const { rows } = await pool.query(
-        `INSERT INTO hiring_positions (client_id, sow_id, title, description, seniority, status, salary_range, employment_type, location, interview_panel)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,
+        `INSERT INTO hiring_positions (client_id, sow_id, title, description, seniority, status, salary_range, employment_type, location, interview_panel, discipline)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *`,
         [
           client_id || null, sow_id || null, title.trim(), description || null,
           seniority || null, status || 'open',
@@ -294,6 +295,7 @@ module.exports = function (ctx) {
           req.body.employment_type || 'permanent',
           req.body.location || null,
           req.body.interview_panel ? JSON.stringify(req.body.interview_panel) : '[]',
+          req.body.discipline || null,
         ]
       );
       await auditLog('hiring_position', rows[0].id, 'create', req.user.displayName || 'unknown', { title: title.trim() });
@@ -314,7 +316,7 @@ module.exports = function (ctx) {
     const patchBody = { ...req.body };
     if (patchBody.interview_panel !== undefined) patchBody.interview_panel = JSON.stringify(patchBody.interview_panel);
     if (patchBody.scorecard_criteria !== undefined) patchBody.scorecard_criteria = JSON.stringify(patchBody.scorecard_criteria);
-    const { updates, vals, nextIdx } = buildPatchQuery(patchBody, ['client_id', 'sow_id', 'title', 'description', 'seniority', 'status', 'salary_range', 'employment_type', 'location', 'interview_panel', 'scorecard_criteria']);
+    const { updates, vals, nextIdx } = buildPatchQuery(patchBody, ['client_id', 'sow_id', 'title', 'description', 'seniority', 'status', 'salary_range', 'employment_type', 'location', 'interview_panel', 'scorecard_criteria', 'discipline']);
     if (req.body.title !== undefined && !String(req.body.title).trim()) {
       return res.status(400).json({ error: 'title cannot be empty' });
     }

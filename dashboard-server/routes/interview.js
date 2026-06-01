@@ -221,6 +221,7 @@ module.exports = function (ctx) {
       const { rows } = await pool.query(`
         SELECT ic.*, ca.name AS candidate_name, ca.role AS candidate_role,
                hp.title AS position_title, hp.client_id AS position_client_id,
+               hp.discipline AS position_discipline,
                cl.name AS client_name, u.display_name AS created_by_name,
                (SELECT COUNT(*)::int FROM interview_config_questions cq WHERE cq.config_id = ic.id) AS question_count,
                (SELECT COUNT(*)::int FROM interview_sessions s WHERE s.config_id = ic.id) AS session_count

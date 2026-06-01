@@ -3127,6 +3127,34 @@ body.dark-mode [data-tooltip-pos="below"]::before { border-top-color: transparen
 .intel-pending-item:last-child { border-bottom: none; }
 @media (max-width: 900px) { .intel-columns { grid-template-columns: 1fr; } }
 
+/* Meetings Intelligence Tab */
+.cc-btn-sm { font-size:12px; font-weight:600; padding:4px 10px; border-radius:4px; border:1px solid var(--border-default); background:var(--bg-surface); color:var(--text-primary); cursor:pointer; transition:all .12s; font-family:inherit; }
+.cc-btn-sm:hover { background:var(--bg-raised); }
+.cc-tbl { width:100%; border-collapse:collapse; font-size:14px; }
+.cc-tbl th { text-align:left; padding:8px 10px; font-size:12px; font-weight:600; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.4px; border-bottom:1px solid var(--border-default); }
+.cc-tbl td { padding:8px 10px; border-bottom:1px solid var(--border-subtle); vertical-align:top; }
+.cc-tbl tr:hover td { background:rgba(255,255,255,0.02); }
+.cc-meetings-stats { display:flex; gap:12px; align-items:center; flex-wrap:wrap; padding:12px 0; border-bottom:1px solid var(--border-default); margin-bottom:12px; }
+.cc-meetings-refresh { margin-left:auto; display:flex; align-items:center; gap:8px; }
+.cc-meetings-compiled { font-size:12px; color:var(--text-secondary); }
+.cc-meetings-subtabs { display:flex; gap:2px; margin-bottom:12px; background:var(--bg-surface); border-radius:6px; padding:3px; }
+.cc-meetings-subtab { padding:6px 14px; border-radius:4px; font-size:13px; cursor:pointer; color:var(--text-secondary); transition:all .15s; }
+.cc-meetings-subtab:hover { color:var(--text-primary); background:rgba(255,255,255,0.04); }
+.cc-meetings-subtab.on { background:var(--accent); color:#fff; font-weight:600; }
+.cc-meetings-filters { display:flex; gap:8px; align-items:center; margin-bottom:14px; flex-wrap:wrap; }
+.cc-meetings-filters select, .cc-meetings-search { background:var(--bg-surface); color:var(--text-primary); border:1px solid var(--border-default); border-radius:4px; padding:5px 10px; font-size:13px; }
+.cc-meetings-search { flex:1; min-width:150px; max-width:300px; }
+.cc-meetings-people-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:10px; }
+.cc-meetings-person ul { list-style:disc; }
+.cc-meetings-person ul li { margin-bottom:3px; }
+.cc-meetings-insight { background:var(--purple-bg); border-left:3px solid var(--purple); padding:10px 14px; margin-bottom:8px; border-radius:0 6px 6px 0; }
+.cc-meetings-timeline { padding-left:20px; }
+.cc-meetings-tl-item { border-left:2px solid var(--border-default); padding:8px 0 8px 18px; position:relative; }
+.cc-meetings-tl-dot { position:absolute; left:-5px; top:14px; width:8px; height:8px; border-radius:50%; background:var(--accent); }
+.cc-meetings-tl-date { font-size:13px; font-weight:600; color:var(--text-secondary); margin-bottom:4px; }
+.cc-meetings-threads-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(400px,1fr)); gap:10px; }
+@media(max-width:800px) { .cc-meetings-people-grid,.cc-meetings-threads-grid { grid-template-columns:1fr; } .cc-meetings-filters { flex-direction:column; } .cc-meetings-search { max-width:100%; } }
+
 </style>
 </head>
 <body>
@@ -20052,6 +20080,7 @@ function renderPositionCard(p, candidates) {
     </div>
     <div class="position-card__row">
       ${seniorityChip}
+      ${p.discipline ? `<span class="position-card__chip" style="color:var(--accent);background:color-mix(in srgb, var(--accent) 12%, transparent)">${esc(p.discipline)}</span>` : ''}
       ${d.recruitStatus ? `<span class="position-card__chip">${esc(d.recruitStatus)}</span>` : ''}
       ${p.client_name ? `<span class="position-card__chip" style="color:#60a5fa;background:rgba(59,130,246,0.1)">${esc(p.client_name)}</span>` : ''}
     </div>
@@ -20337,8 +20366,12 @@ function openCreatePositionModal() {
         '<label style="flex:1;font-size:0.78rem;color:var(--text-muted)">Type<select id="cpType" style="width:100%;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;margin-top:4px">' +
           '<option value="permanent">Permanent</option><option value="contract">Contract</option><option value="freelance">Freelance</option></select></label>' +
       '</div>' +
+      '<div style="display:flex;gap:8px">' +
+        '<label style="flex:1;font-size:0.78rem;color:var(--text-muted)">Discipline<select id="cpDiscipline" style="width:100%;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;margin-top:4px">' +
+          '<option value="">— None —</option><option value="Engineering">Engineering</option><option value="Art">Art</option><option value="Narrative/Writing">Narrative/Writing</option><option value="Game Design">Game Design</option><option value="QA">QA</option><option value="Production">Production</option><option value="Audio">Audio</option><option value="HR/People">HR/People</option><option value="Leadership">Leadership</option></select></label>' +
+        '<label style="flex:1;font-size:0.78rem;color:var(--text-muted)">Location<input type="text" id="cpLocation" placeholder="e.g. Remote, London" style="width:100%;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;margin-top:4px"></label>' +
+      '</div>' +
       '<label style="font-size:0.78rem;color:var(--text-muted)">Salary Range<input type="text" id="cpSalary" placeholder="e.g. £50,000 - £70,000" style="width:100%;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;margin-top:4px"></label>' +
-      '<label style="font-size:0.78rem;color:var(--text-muted)">Location<input type="text" id="cpLocation" placeholder="e.g. Remote, London" style="width:100%;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;margin-top:4px"></label>' +
     '</div>' +
     '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">' +
       '<button class="btn" onclick="this.closest(\'.modal-overlay\').remove()">Cancel</button>' +
@@ -20365,6 +20398,7 @@ async function submitCreatePosition() {
     employment_type: (document.getElementById('cpType') || {}).value || 'permanent',
     salary_range: (document.getElementById('cpSalary') || {}).value || null,
     location: (document.getElementById('cpLocation') || {}).value || null,
+    discipline: (document.getElementById('cpDiscipline') || {}).value || null,
   };
   var resp = await authFetch('/api/hiring-positions', {
     method: 'POST',
@@ -21057,7 +21091,7 @@ async function openPositionDetail(id) {
           ? `<input type="text" value="${esc(p.title)}" style="font-size:1.1rem;font-weight:600;border:none;background:transparent;color:var(--text-primary);width:100%;padding:0;outline:none;border-bottom:1px solid transparent" onfocus="this.style.borderBottomColor='var(--accent)'" onblur="this.style.borderBottomColor='transparent';if(this.value.trim()&&this.value!=='${esc(p.title)}')updatePositionField('${p.id}','title',this.value.trim())">`
           : `<h3 style="font-size:1.1rem;font-weight:600;margin:0;word-break:break-word">${esc(p.title)}</h3>`
         }
-        ${p.seniority && !isAdmin ? `<div style="font-size:0.82rem;color:var(--text-muted);margin-top:2px">${esc(seniorityLabel)} level</div>` : ''}
+        ${!isAdmin && (p.seniority || p.discipline) ? `<div style="font-size:0.82rem;color:var(--text-muted);margin-top:2px">${p.seniority ? esc(seniorityLabel) + ' level' : ''}${p.seniority && p.discipline ? ' · ' : ''}${p.discipline ? esc(p.discipline) : ''}</div>` : ''}
       </div>
       <button class="btn btn--ghost btn--sm" data-action="closePositionDetail" aria-label="Close" style="flex-shrink:0;font-size:1.2rem">&times;</button>
     </div>
@@ -21076,6 +21110,13 @@ async function openPositionDetail(id) {
           <select style="${inputStyle}" onchange="updatePositionField('${p.id}','seniority',this.value||null)">
             <option value="">— None —</option>
             ${seniorityOptions.map(s => `<option value="${s}" ${p.seniority===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}
+          </select>
+        </div>
+        <div style="flex:1;min-width:120px">
+          <div class="position-detail__info-label" style="margin-bottom:4px">Discipline</div>
+          <select style="${inputStyle}" onchange="updatePositionField('${p.id}','discipline',this.value||null)">
+            <option value="">— None —</option>
+            ${['Engineering','Art','Narrative/Writing','Game Design','QA','Production','Audio','HR/People','Leadership'].map(d => `<option value="${d}" ${p.discipline===d?'selected':''}>${d}</option>`).join('')}
           </select>
         </div>
       </div>` : ''}
@@ -22726,7 +22767,7 @@ let _ccProjectHealth = null;
 let _ccFinancialPulse = null;
 let _ccLoading = false;
 let _ccLoadFailed = false;
-const _ccValidTabs = ['work', 'pipeline', 'money', 'aios', 'comms'];
+const _ccValidTabs = ['work', 'pipeline', 'money', 'aios', 'comms', 'meetings'];
 let _ccTab = (() => { const v = localStorage.getItem('ccTab'); return _ccValidTabs.includes(v) ? v : 'work'; })();
 let _ccPollTimer = null;
 
@@ -22902,7 +22943,8 @@ function _ccRenderPage(el) {
     { id: 'money', label: 'Money' },
     { id: 'aios', label: 'AIOS' },
     { id: 'comms', label: 'Comms' },
-    { id: 'intel', label: 'Intel' }
+    { id: 'intel', label: 'Intel' },
+    { id: 'meetings', label: 'Meetings' }
   ];
   tabs.forEach(function(t) {
     html += '<div class="cc-tab' + (_ccTab === t.id ? ' on' : '') + '" onclick="_ccSwitchTab(\'' + t.id + '\')">' + t.label + '</div>';
@@ -22917,6 +22959,7 @@ function _ccRenderPage(el) {
   else if (_ccTab === 'aios') html += _ccRenderAiosTab();
   else if (_ccTab === 'comms') html += _ccRenderCommsTab();
   else if (_ccTab === 'intel') html += _ccRenderIntelTab();
+  else if (_ccTab === 'meetings') html += _ccRenderMeetingsTab();
   html += '</div>';
 
   html += '</div>';
@@ -23856,6 +23899,296 @@ function _ccRenderAiosContent(a) {
 
   html += '</div>'; // end cc-grid-2
   return html;
+}
+
+// ==================== MEETINGS INTELLIGENCE TAB ====================
+
+var _mtgData = null;
+var _mtgSubTab = 'actions';
+var _mtgFilters = JSON.parse(localStorage.getItem('ccMtgFilters') || '{}');
+
+function _ccRenderMeetingsTab() {
+  var html = '<div class="cc-meetings" id="ccMeetingsRoot"><div class="cc-panel-empty">Loading meetings intelligence...</div></div>';
+  setTimeout(function() { _mtgFetchAll(); }, 0);
+  return html;
+}
+
+function _mtgFetchAll() {
+  var el = document.getElementById('ccMeetingsRoot');
+  if (!el) return;
+  authFetch('/api/meetings/compiled').then(function(r) { return r.ok ? r.json() : null; }).then(function(data) {
+    _mtgData = data;
+    if (!_mtgData || !_mtgData.sections) {
+      el.innerHTML = '<div class="cc-panel-empty">No meetings data compiled yet.<br><span style="font-size:12px;color:var(--text-secondary)">Run <code>/compile-meetings</code> in Claude Code to get started.</span></div>';
+      return;
+    }
+    _mtgRender();
+  }).catch(function() {
+    el.innerHTML = '<div class="cc-panel-empty">Failed to load meetings data.</div>';
+  });
+}
+
+function _mtgRender() {
+  var el = document.getElementById('ccMeetingsRoot');
+  if (!el || !_mtgData) return;
+  el.innerHTML = _mtgRenderFull();
+}
+
+function _mtgRenderFull() {
+  var d = _mtgData;
+  var s = d.sections;
+  var filtered = _mtgApplyFilters(s);
+  var stats = _mtgCalcStats(d, filtered);
+  var h = '';
+
+  h += '<div class="cc-meetings-stats">';
+  h += '<div class="cc-hstat"><span class="v">' + stats.meeting_count + '</span><span class="l">Meetings</span></div>';
+  h += '<div class="cc-hstat"><span class="v">' + stats.days + '</span><span class="l">Days</span></div>';
+  h += '<div class="cc-hstat' + (stats.open_actions > 5 ? ' warn' : '') + '"><span class="v">' + stats.open_actions + '</span><span class="l">Open Actions</span></div>';
+  h += '<div class="cc-hstat"><span class="v">' + stats.decisions + '</span><span class="l">Decisions</span></div>';
+  h += '<div class="cc-hstat"><span class="v">' + stats.people + '</span><span class="l">People</span></div>';
+  var compiled = d.compiled_at ? new Date(d.compiled_at) : null;
+  var ago = compiled ? Math.round((Date.now() - compiled) / 3600000) + 'h ago' : 'never';
+  h += '<div class="cc-meetings-refresh"><span class="cc-meetings-compiled">Compiled ' + ago + '</span>';
+  h += '<button class="cc-btn-sm" onclick="_mtgRefresh()">Refresh &#8635;</button></div>';
+  h += '</div>';
+
+  var subTabs = [
+    { id: 'actions', label: 'Actions (' + filtered.actions.length + ')' },
+    { id: 'decisions', label: 'Decisions (' + filtered.decisions.length + ')' },
+    { id: 'people', label: 'People (' + filtered.people.length + ')' },
+    { id: 'learnings', label: 'Learnings (' + filtered.learnings.length + ')' },
+    { id: 'numbers', label: 'Numbers (' + filtered.numbers.length + ')' },
+    { id: 'timeline', label: 'Timeline' },
+    { id: 'threads', label: 'Threads (' + filtered.threads.length + ')' }
+  ];
+  h += '<div class="cc-meetings-subtabs">';
+  subTabs.forEach(function(t) {
+    h += '<div class="cc-meetings-subtab' + (_mtgSubTab === t.id ? ' on' : '') + '" onclick="_mtgSwitchSub(\'' + t.id + '\')">' + t.label + '</div>';
+  });
+  h += '</div>';
+
+  h += '<div class="cc-meetings-filters">';
+  h += '<select onchange="_mtgSetFilter(\'workstream\',this.value)"><option value="">All workstreams</option>';
+  ['couch_heroes', 'lighthouse', 'nbi', 'sarge', 'playgoals'].forEach(function(ws) {
+    h += '<option value="' + ws + '"' + (_mtgFilters.workstream === ws ? ' selected' : '') + '>' + ws.replace(/_/g, ' ') + '</option>';
+  });
+  h += '</select>';
+  if (_mtgSubTab === 'actions') {
+    h += '<select onchange="_mtgSetFilter(\'status\',this.value)"><option value="">All statuses</option>';
+    ['open', 'done', 'overdue'].forEach(function(st) {
+      h += '<option value="' + st + '"' + (_mtgFilters.status === st ? ' selected' : '') + '>' + st + '</option>';
+    });
+    h += '</select>';
+  }
+  h += '<input type="text" class="cc-meetings-search" placeholder="Search..." value="' + esc(_mtgFilters.q || '') + '" onkeyup="_mtgSearchDebounce(this.value)">';
+  if (Object.values(_mtgFilters).some(function(v) { return v; })) {
+    h += '<button class="cc-btn-sm" onclick="_mtgClearFilters()">Clear</button>';
+  }
+  h += '</div>';
+
+  h += '<div class="cc-meetings-content">' + _mtgRenderSubTab(filtered) + '</div>';
+  return h;
+}
+
+function _mtgApplyFilters(sections) {
+  var f = _mtgFilters;
+  function matchWs(item) {
+    if (!f.workstream) return true;
+    if (Array.isArray(item.workstreams)) return item.workstreams.indexOf(f.workstream) >= 0;
+    return item.workstream === f.workstream;
+  }
+  function matchStatus(item) { return !f.status || item.status === f.status; }
+  function matchQ(item) {
+    if (!f.q) return true;
+    return JSON.stringify(item).toLowerCase().indexOf(f.q.toLowerCase()) >= 0;
+  }
+  function matchAll(item) { return matchWs(item) && matchStatus(item) && matchQ(item); }
+  function matchNoStatus(item) { return matchWs(item) && matchQ(item); }
+  return {
+    actions: (sections.actions || []).filter(matchAll),
+    decisions: (sections.decisions || []).filter(matchNoStatus),
+    people: (sections.people || []).filter(matchNoStatus),
+    learnings: (sections.learnings || []).filter(matchNoStatus),
+    numbers: (sections.numbers || []).filter(matchNoStatus),
+    timeline: f.q ? (sections.timeline || []).filter(matchQ) : (sections.timeline || []),
+    threads: (sections.threads || []).filter(matchNoStatus)
+  };
+}
+
+function _mtgCalcStats(data, filtered) {
+  return {
+    meeting_count: data.meeting_count || 0,
+    days: data.date_range ? Math.round((new Date(data.date_range.end) - new Date(data.date_range.start)) / 86400000) : 0,
+    open_actions: filtered.actions.filter(function(a) { return a.status === 'open'; }).length,
+    decisions: filtered.decisions.length,
+    people: filtered.people.length
+  };
+}
+
+function _mtgSwitchSub(tab) {
+  _mtgSubTab = tab;
+  if (tab !== 'actions') delete _mtgFilters.status;
+  _mtgRender();
+}
+
+function _mtgSetFilter(key, val) {
+  if (val) _mtgFilters[key] = val; else delete _mtgFilters[key];
+  localStorage.setItem('ccMtgFilters', JSON.stringify(_mtgFilters));
+  _mtgRender();
+}
+
+var _mtgSearchTimer;
+function _mtgSearchDebounce(val) {
+  clearTimeout(_mtgSearchTimer);
+  _mtgSearchTimer = setTimeout(function() { _mtgSetFilter('q', val); }, 300);
+}
+
+function _mtgClearFilters() {
+  _mtgFilters = {};
+  localStorage.removeItem('ccMtgFilters');
+  _mtgRender();
+}
+
+function _mtgRefresh() {
+  authFetch('/api/meetings/refresh', { method: 'POST' }).then(function() { _mtgFetchAll(); });
+}
+
+function _mtgRenderSubTab(filtered) {
+  if (_mtgSubTab === 'actions') return _mtgRenderActions(filtered.actions);
+  if (_mtgSubTab === 'decisions') return _mtgRenderDecisions(filtered.decisions);
+  if (_mtgSubTab === 'people') return _mtgRenderPeople(filtered.people);
+  if (_mtgSubTab === 'learnings') return _mtgRenderLearnings(filtered.learnings);
+  if (_mtgSubTab === 'numbers') return _mtgRenderNumbers(filtered.numbers);
+  if (_mtgSubTab === 'timeline') return _mtgRenderTimeline(filtered.timeline);
+  if (_mtgSubTab === 'threads') return _mtgRenderThreads(filtered.threads);
+  return '';
+}
+
+function _mtgRenderActions(actions) {
+  if (!actions.length) return '<div class="cc-panel-empty">No actions match your filters.</div>';
+  var h = '<table class="cc-tbl"><thead><tr><th>Date</th><th>Owner</th><th>Action</th><th>Workstream</th><th>Status</th></tr></thead><tbody>';
+  actions.forEach(function(a) {
+    var cls = a.status === 'done' ? 'cc-tag--green' : a.status === 'overdue' ? 'cc-tag--red' : 'cc-tag--yellow';
+    h += '<tr><td style="white-space:nowrap">' + esc(a.date) + '</td>';
+    h += '<td>' + esc(a.owner) + '</td>';
+    h += '<td>' + esc(a.description) + '</td>';
+    h += '<td><span class="cc-tag cc-tag--blue">' + esc((a.workstream || '').replace(/_/g, ' ')) + '</span></td>';
+    h += '<td><span class="cc-tag ' + cls + '" style="cursor:pointer" onclick="_mtgCycleStatus(\'' + esc(a.id) + '\',\'' + esc(a.status) + '\')">' + esc(a.status) + '</span></td></tr>';
+  });
+  h += '</tbody></table>';
+  return h;
+}
+
+function _mtgCycleStatus(id, current) {
+  var next = current === 'open' ? 'done' : current === 'done' ? 'overdue' : 'open';
+  authFetch('/api/meetings/actions/' + encodeURIComponent(id), {
+    method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status: next })
+  }).then(function(r) {
+    if (!r.ok) return;
+    if (_mtgData && _mtgData.sections) {
+      var a = _mtgData.sections.actions.find(function(x) { return x.id === id; });
+      if (a) a.status = next;
+      _mtgRender();
+    }
+  });
+}
+
+function _mtgRenderDecisions(items) {
+  if (!items.length) return '<div class="cc-panel-empty">No decisions match your filters.</div>';
+  var h = '<table class="cc-tbl"><thead><tr><th>Date</th><th>Decision</th><th>Rationale</th><th>Workstream</th></tr></thead><tbody>';
+  items.forEach(function(d) {
+    h += '<tr><td style="white-space:nowrap">' + esc(d.date) + '</td>';
+    h += '<td>' + esc(d.decision) + '</td>';
+    h += '<td style="color:var(--text-secondary)">' + esc(d.rationale || '') + '</td>';
+    h += '<td><span class="cc-tag cc-tag--blue">' + esc((d.workstream || '').replace(/_/g, ' ')) + '</span></td></tr>';
+  });
+  h += '</tbody></table>';
+  return h;
+}
+
+function _mtgRenderPeople(items) {
+  if (!items.length) return '<div class="cc-panel-empty">No people match your filters.</div>';
+  var h = '<div class="cc-meetings-people-grid">';
+  items.forEach(function(p) {
+    h += '<div class="cc-card cc-meetings-person">';
+    h += '<div style="display:flex;justify-content:space-between;align-items:baseline">';
+    h += '<strong style="color:var(--accent)">' + esc(p.name) + '</strong>';
+    h += '<span style="font-size:12px;color:var(--text-secondary)">Last: ' + esc(p.last_seen || '?') + '</span></div>';
+    h += '<div style="font-size:13px;color:var(--text-secondary);margin-bottom:6px">' + esc(p.role || '') + '</div>';
+    if (p.workstreams) p.workstreams.forEach(function(ws) { h += '<span class="cc-tag cc-tag--blue" style="margin-right:4px">' + esc(ws.replace(/_/g, ' ')) + '</span>'; });
+    if (p.notes && p.notes.length) {
+      h += '<ul style="margin-top:8px;font-size:14px;padding-left:16px">';
+      p.notes.forEach(function(n) { h += '<li>' + esc(n) + '</li>'; });
+      h += '</ul>';
+    }
+    h += '</div>';
+  });
+  h += '</div>';
+  return h;
+}
+
+function _mtgRenderLearnings(items) {
+  if (!items.length) return '<div class="cc-panel-empty">No learnings match your filters.</div>';
+  var h = '';
+  items.forEach(function(l) {
+    h += '<div class="cc-meetings-insight">';
+    h += '<div style="display:flex;justify-content:space-between;margin-bottom:4px">';
+    h += '<span style="font-size:12px;color:var(--text-secondary)">' + esc(l.date) + '</span>';
+    h += '<span class="cc-tag cc-tag--blue">' + esc((l.workstream || '').replace(/_/g, ' ')) + '</span></div>';
+    h += '<strong>' + esc(l.insight) + '</strong>';
+    h += '<div style="font-size:14px;color:var(--text-secondary);margin-top:4px">' + esc(l.context || '') + '</div></div>';
+  });
+  return h;
+}
+
+function _mtgRenderNumbers(items) {
+  if (!items.length) return '<div class="cc-panel-empty">No numbers match your filters.</div>';
+  var groups = {};
+  items.forEach(function(n) { var c = n.category || 'other'; if (!groups[c]) groups[c] = []; groups[c].push(n); });
+  var h = '';
+  Object.keys(groups).forEach(function(cat) {
+    h += '<h4 style="margin:16px 0 8px;color:var(--text-secondary);text-transform:capitalize">' + esc(cat.replace(/_/g, ' ')) + '</h4>';
+    h += '<table class="cc-tbl"><thead><tr><th>Date</th><th>Figure</th><th>Context</th><th>Workstream</th></tr></thead><tbody>';
+    groups[cat].forEach(function(n) {
+      h += '<tr><td style="white-space:nowrap">' + esc(n.date) + '</td>';
+      h += '<td style="color:var(--success);font-weight:700">' + esc(n.figure) + '</td>';
+      h += '<td>' + esc(n.context || '') + '</td>';
+      h += '<td><span class="cc-tag cc-tag--blue">' + esc((n.workstream || '').replace(/_/g, ' ')) + '</span></td></tr>';
+    });
+    h += '</tbody></table>';
+  });
+  return h;
+}
+
+function _mtgRenderTimeline(items) {
+  if (!items.length) return '<div class="cc-panel-empty">No timeline data.</div>';
+  var h = '<div class="cc-meetings-timeline">';
+  items.forEach(function(t) {
+    h += '<div class="cc-meetings-tl-item"><div class="cc-meetings-tl-dot"></div>';
+    h += '<div class="cc-meetings-tl-date">' + esc(t.period) + ' &mdash; ' + esc(t.label) + '</div>';
+    h += '<div style="font-size:14px">' + esc(t.summary) + '</div></div>';
+  });
+  h += '</div>';
+  return h;
+}
+
+function _mtgRenderThreads(items) {
+  if (!items.length) return '<div class="cc-panel-empty">No active threads.</div>';
+  var h = '<div class="cc-meetings-threads-grid">';
+  items.forEach(function(t) {
+    var cls = t.status === 'active' ? 'cc-tag--yellow' : 'cc-tag--green';
+    h += '<div class="cc-card">';
+    h += '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">';
+    h += '<strong style="color:var(--warning)">' + esc(t.title) + '</strong>';
+    h += '<span class="cc-tag ' + cls + '">' + esc(t.status) + '</span></div>';
+    h += '<div style="font-size:14px">' + esc(t.summary) + '</div>';
+    if (t.workstream) h += '<div style="margin-top:8px"><span class="cc-tag cc-tag--blue">' + esc(t.workstream.replace(/_/g, ' ')) + '</span></div>';
+    h += '</div>';
+  });
+  h += '</div>';
+  return h;
 }
 
 // ==================== EMBEDDED CLAUDE CHAT ====================
