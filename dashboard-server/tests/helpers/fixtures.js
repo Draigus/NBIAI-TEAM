@@ -352,6 +352,67 @@ async function createTestScorecard(opts = {}) {
   return rows[0];
 }
 
+/**
+ * Create an interview_question_bank row.
+ */
+async function createTestInterviewQuestion(opts = {}) {
+  const { rows } = await pool.query(
+    `INSERT INTO interview_question_bank (client_id, discipline, category, question_text, depth_type, source, created_by)
+     VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+    [
+      opts.client_id || null,
+      opts.discipline || 'Engineering',
+      opts.category || 'technical',
+      opts.question_text || uniq('Test interview question'),
+      opts.depth_type || null,
+      opts.source || 'custom',
+      opts.created_by || null,
+    ]
+  );
+  return rows[0];
+}
+
+/**
+ * Create an interview_configs row with optional questions and sessions.
+ * Returns { config, questions: [...], sessions: [...] }.
+ */
+async function createTestInterviewConfig(opts = {}) {
+  if (!opts.candidate_id) throw new Error('createTestInterviewConfig: candidate_id required');
+
+  const { rows: configRows } = await pool.query(
+    `INSERT INTO interview_configs (candidate_id, position_id, created_by, status)
+     VALUES ($1, $2, $3, $4) RETURNING *`,
+    [opts.candidate_id, opts.position_id || null, opts.created_by || null, opts.status || 'draft']
+  );
+  const config = configRows[0];
+
+  const questions = [];
+  if (opts.question_ids && opts.question_ids.length > 0) {
+    for (let i = 0; i < opts.question_ids.length; i++) {
+      const { rows } = await pool.query(
+        `INSERT INTO interview_config_questions (config_id, question_id, sort_order)
+         VALUES ($1, $2, $3) RETURNING *`,
+        [config.id, opts.question_ids[i], i]
+      );
+      questions.push(rows[0]);
+    }
+  }
+
+  const sessions = [];
+  if (opts.interviewer_ids && opts.interviewer_ids.length > 0) {
+    for (const iid of opts.interviewer_ids) {
+      const { rows } = await pool.query(
+        `INSERT INTO interview_sessions (config_id, interviewer_id, status)
+         VALUES ($1, $2, $3) RETURNING *`,
+        [config.id, iid, 'assigned']
+      );
+      sessions.push(rows[0]);
+    }
+  }
+
+  return { config, questions, sessions };
+}
+
 module.exports = {
   uniq,
   createTestUser,
@@ -374,6 +435,8 @@ module.exports = {
   createTestScorecard,
   createTestEmailTemplate,
   createTestOnboardingItem,
+  createTestInterviewQuestion,
+  createTestInterviewConfig,
 };
 
 async function createTestEmailTemplate(opts = {}) {
