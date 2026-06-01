@@ -711,7 +711,6 @@ setTimeout(function() { try { updateWarnAlertButton(); } catch (e) {} }, 1500);
 
 // ===== WINDOW REGISTRATIONS =====
 window.renderSidebar = renderSidebar;
-window.renderSidebarCounts = renderSidebarCounts;
 window.toggleSidebarCollapse = toggleSidebarCollapse;
 window.toggleMobileSidebar = toggleMobileSidebar;
 window.toggleHeaderOverflow = toggleHeaderOverflow;
@@ -719,8 +718,7 @@ window.toggleSidebarSection = toggleSidebarSection;
 window.toggleWarnAlertSidebar = toggleWarnAlertSidebar;
 window.updateWarnAlertButton = updateWarnAlertButton;
 window.renderWarnAlertContent = renderWarnAlertContent;
-// snoozeWarnings/unsnoozeWarnings were never extracted — individual snoozeWarning exists at line 672
-window.dismissWarning = dismissWarning;
+// snoozeWarnings/unsnoozeWarnings/dismissWarning were never extracted from the monolith
 
 // ===== REGISTER SHELL CALLBACK =====
 registerShellCallback("sidebar", renderSidebar);
