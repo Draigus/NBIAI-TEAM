@@ -1,4 +1,4 @@
-<!--
+﻿<!--
   NBI Project Dashboard — Single-page project management tool
   Built for NBI Gaming / NBI Analytics Ltd
 
@@ -2891,7 +2891,16 @@ span.fin-editable { display: inline-block; position: relative; }
 .cc-btn.rd { border-color: rgba(248,81,73,.4); color: #f85149; }
 .cc-btn.p { background: #238636; border-color: #238636; color: white; }
 .cc-btn.p:hover { background: #2ea043; }
-.cc-btn.pu { border-color: rgba(163,113,247,.4); color: #a371f7; }
+.cc-btn.pu { border-color: rgba(163,113,247,.4); color: #a371f7; cursor: pointer; }
+.cc-improv-detail { display: none; padding: 6px 12px 10px 44px; font-size: 13px; color: var(--text-secondary); border-bottom: 1px solid var(--border-color); }
+.cc-improv-detail.open { display: block; }
+.cc-improv-item { padding: 3px 0; display: flex; align-items: center; gap: 8px; }
+.cc-improv-item::before { content: ''; width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+.cc-improv-item--amber::before { background: var(--warning); }
+.cc-improv-item--red::before { background: var(--danger); }
+.cc-improv-item--purple::before { background: #a371f7; }
+.cc-improv-name { font-family: 'SF Mono', Consolas, monospace; font-size: 12px; }
+.cc-improv-age { font-size: 11px; color: var(--text-muted); margin-left: auto; }
 
 /* Row items */
 .cc-row { display: flex; align-items: center; gap: 12px; padding: 8px 12px; background: #0d1117; border-radius: 6px; margin-bottom: 5px; border: 1px solid transparent; cursor: pointer; transition: border .12s; }
@@ -11211,6 +11220,14 @@ async function updateTask(id, field, value) {
   // Refresh the overlay detail panel if it's open for this task
   if (activeDetailTaskId === id && document.getElementById('detailPanel')?.classList.contains('open')) {
     openDetailOverlay(id);
+  }
+  // Refresh the inline detail panel if it's showing for this task
+  if (activeDetailTaskId === id && !structural) {
+    const inlinePanel = document.getElementById('inlineDetailPanel');
+    if (inlinePanel && !inlinePanel.classList.contains('tasks-layout__detail--hidden')) {
+      inlinePanel.querySelector('.inline-detail')?.remove();
+      inlinePanel.insertAdjacentHTML('beforeend', renderInlineTaskDetail(id));
+    }
   }
 }
 
@@ -21670,8 +21687,21 @@ function buildCandidateTagsHtml(c, disabledStyle) {
   </div>`;
 }
 
-function buildCandidateStageSubHtml(c) {
-  if (c.stage === 'offer') {
+function buildCandidateStageSubHtml(c, interviewConfig) {
+  if (c.stage === 'interviews') {
+    let interviewBtnLabel = 'Configure Interview';
+    let interviewBtnAction = `openInterviewConfig('${c.id}', '${c.client_id || ''}', '${c.position_id || ''}')`;
+    if (interviewConfig && interviewConfig.status === 'active') {
+      interviewBtnLabel = 'View Interview';
+      interviewBtnAction = `openInterviewResults('${interviewConfig.id}')`;
+    } else if (interviewConfig && interviewConfig.status === 'completed') {
+      interviewBtnLabel = 'Interview Results';
+      interviewBtnAction = `openInterviewResults('${interviewConfig.id}')`;
+    }
+    return `<div class="candidate-detail__section"><div class="candidate-detail__field"><label>Interview</label>
+      <button class="btn btn--primary" onclick="${interviewBtnAction}">${interviewBtnLabel}</button>
+    </div></div>`;
+  } else if (c.stage === 'offer') {
     return `<div class="candidate-detail__section"><div class="candidate-detail__section-title">Offer details</div><div class="candidate-detail__field"><label>Start date</label><input type="date" id="cdStartDate" value="${c.start_date ? String(c.start_date).slice(0,10) : ''}" onchange="updateCandidateField('${c.id}','start_date',this.value||null)"></div></div>`;
   } else if (c.stage === 'onboarding') {
     return `<div class="candidate-detail__section" id="cdOnboardingSection">
@@ -21737,6 +21767,213 @@ async function addOnboardingItem(candidateId, title) {
 async function deleteOnboardingItem(candidateId, itemId) {
   await authFetch(`/api/candidates/${candidateId}/onboarding/${itemId}`, { method: 'DELETE' });
   loadOnboardingChecklist(candidateId);
+}
+
+async function openInterviewConfig(candidateId, clientId, positionId) {
+  const params = new URLSearchParams();
+  if (clientId) params.set('client_id', clientId);
+
+  let allQuestions = [];
+  let users = [];
+  try {
+    const [qResp, uResp] = await Promise.all([
+      authFetch('/api/interview-questions?' + params),
+      authFetch('/api/users')
+    ]);
+    allQuestions = await qResp.json();
+    users = await uResp.json();
+  } catch (e) {}
+
+  const overlay = document.getElementById('candidateDetailOverlay');
+  const panel = document.getElementById('candidateDetailPanel');
+  if (!overlay || !panel) return;
+
+  const categories = ['culture', 'technical', 'collaboration', 'leadership', 'depth'];
+  const selectedIds = new Set();
+  let activeTab = 'questions';
+  const selectedInterviewers = new Set();
+
+  function renderConfigPanel() {
+    const grouped = {};
+    for (const cat of categories) grouped[cat] = (allQuestions || []).filter(q => q.category === cat);
+
+    const questionsHtml = categories.map(cat => {
+      const qs = grouped[cat] || [];
+      if (qs.length === 0) return '';
+      return '<div style="margin-bottom:16px">' +
+        '<div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">' + cat + ' <span style="color:var(--accent)">(' + qs.filter(q => selectedIds.has(q.id)).length + ' selected)</span></div>' +
+        qs.map(q => '<label style="display:flex;align-items:flex-start;gap:8px;padding:8px;border-radius:6px;cursor:pointer;background:' + (selectedIds.has(q.id) ? 'var(--bg-elevated)' : 'transparent') + ';margin-bottom:4px;border:1px solid ' + (selectedIds.has(q.id) ? 'var(--accent)' : 'var(--border)') + '">' +
+          '<input type="checkbox" ' + (selectedIds.has(q.id) ? 'checked' : '') + ' onchange="window._ivToggleQ(\'' + q.id + '\')" style="margin-top:4px">' +
+          '<div><div style="font-size:14px;line-height:1.5">' + esc(q.question_text) + '</div>' +
+          '<div style="font-size:10px;color:var(--text-muted);margin-top:4px">' + q.source + (q.depth_type ? ' · ' + q.depth_type : '') + '</div></div></label>').join('') +
+        '</div>';
+    }).join('');
+
+    const interviewersHtml = (users || []).filter(u => u.is_active !== false).map(u =>
+      '<label style="display:flex;align-items:center;gap:8px;padding:8px;cursor:pointer;border-bottom:1px solid var(--border)">' +
+        '<input type="checkbox" ' + (selectedInterviewers.has(u.id) ? 'checked' : '') + ' onchange="window._ivToggleInterviewer(\'' + u.id + '\')">' +
+        '<span>' + esc(u.display_name || u.username) + '</span>' +
+        '<span style="color:var(--text-muted);font-size:12px">' + esc(u.email || '') + '</span></label>'
+    ).join('');
+
+    panel.innerHTML =
+      '<div class="candidate-detail__header"><h3>Configure Interview</h3>' +
+        '<button class="btn btn--sm" onclick="openCandidateDetail(\'' + candidateId + '\')">Back</button></div>' +
+      '<div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:12px">' +
+        '<div style="padding:10px 16px;cursor:pointer;font-weight:' + (activeTab === 'questions' ? '600' : '400') + ';border-bottom:2px solid ' + (activeTab === 'questions' ? 'var(--accent)' : 'transparent') + '" onclick="window._ivSetTab(\'questions\')">Questions</div>' +
+        '<div style="padding:10px 16px;cursor:pointer;font-weight:' + (activeTab === 'interviewers' ? '600' : '400') + ';border-bottom:2px solid ' + (activeTab === 'interviewers' ? 'var(--accent)' : 'transparent') + '" onclick="window._ivSetTab(\'interviewers\')">Interviewers</div></div>' +
+      (activeTab === 'questions'
+        ? '<div style="display:flex;gap:8px;margin-bottom:12px">' +
+            '<button class="btn btn--sm" onclick="window._ivGenerateQuestions()">Generate from JD</button>' +
+            '<button class="btn btn--sm" onclick="window._ivAddCustom()">+ Custom</button></div>' +
+          '<div style="font-weight:600;margin-bottom:8px;color:var(--accent)">' + selectedIds.size + ' selected</div>' +
+          '<div style="max-height:400px;overflow-y:auto">' + (questionsHtml || '<p style="color:var(--text-muted)">No questions in bank. Generate from JD or add custom questions.</p>') + '</div>'
+        : '<div style="max-height:400px;overflow-y:auto">' + (interviewersHtml || '<p style="color:var(--text-muted)">No team members found.</p>') + '</div>') +
+      '<div style="border-top:1px solid var(--border);padding-top:12px;margin-top:12px;display:flex;justify-content:space-between;align-items:center">' +
+        '<span style="color:var(--text-muted);font-size:13px">' + selectedIds.size + ' questions · ' + selectedInterviewers.size + ' interviewers</span>' +
+        '<button class="btn btn--primary" ' + (selectedIds.size === 0 || selectedInterviewers.size === 0 ? 'disabled' : '') + ' onclick="window._ivSendInterviews()">Send Interviews</button></div>';
+  }
+
+  window._ivRenderConfig = renderConfigPanel;
+  window._ivSetTab = function(tab) { activeTab = tab; renderConfigPanel(); };
+  window._ivToggleQ = function(id) { selectedIds.has(id) ? selectedIds.delete(id) : selectedIds.add(id); renderConfigPanel(); };
+  window._ivToggleInterviewer = function(id) { selectedInterviewers.has(id) ? selectedInterviewers.delete(id) : selectedInterviewers.add(id); renderConfigPanel(); };
+
+  window._ivGenerateQuestions = async function() {
+    const resp = await authFetch('/api/interview-questions/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ position_id: positionId || null, client_id: clientId || null, discipline: 'Engineering' }),
+    });
+    const generated = await resp.json();
+    if (generated && Array.isArray(generated)) {
+      allQuestions.push(...generated);
+      generated.forEach(q => selectedIds.add(q.id));
+    }
+    renderConfigPanel();
+  };
+
+  window._ivAddCustom = function() {
+    var text = prompt('Enter your custom question:');
+    if (!text || !text.trim()) return;
+    var cat = prompt('Category (culture, technical, collaboration, leadership, depth):') || 'technical';
+    authFetch('/api/interview-questions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ client_id: clientId || null, discipline: 'Engineering', category: cat, question_text: text }),
+    }).then(r => r.json()).then(q => {
+      if (q && q.id) { allQuestions.push(q); selectedIds.add(q.id); renderConfigPanel(); }
+    });
+  };
+
+  window._ivSendInterviews = async function() {
+    const resp = await authFetch('/api/interview-configs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        candidate_id: candidateId,
+        position_id: positionId || null,
+        question_ids: [...selectedIds],
+        interviewer_ids: [...selectedInterviewers],
+      }),
+    });
+    const result = await resp.json();
+    if (!result || !result.config) return;
+    await authFetch('/api/interview-configs/' + result.config.id + '/activate', { method: 'POST' });
+    openCandidateDetail(candidateId);
+  };
+
+  renderConfigPanel();
+}
+
+async function openInterviewResults(configId) {
+  let results;
+  try {
+    const resp = await authFetch('/api/interview-results/' + configId);
+    results = await resp.json();
+  } catch (e) { return; }
+  if (!results) return;
+
+  const overlay = document.getElementById('candidateDetailOverlay');
+  const panel = document.getElementById('candidateDetailPanel');
+  if (!overlay || !panel) return;
+
+  const { config, questions, sessions, scores, decision, summary } = results;
+  const categories = ['culture', 'technical', 'collaboration', 'leadership', 'depth'];
+
+  var barsHtml = categories.map(function(cat) {
+    var avg = summary.category_avgs[cat] || 0;
+    var pct = (avg / 5) * 100;
+    var colour = cat === 'depth' ? '#e8a87c' : 'var(--accent)';
+    return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">' +
+      '<span style="width:100px;font-size:12px;text-align:right;color:var(--text-muted)">' + cat + '</span>' +
+      '<div style="flex:1;background:var(--bg-elevated);border-radius:4px;height:18px;position:relative">' +
+        '<div style="background:' + colour + ';width:' + pct + '%;height:100%;border-radius:4px"></div>' +
+        '<span style="position:absolute;right:6px;top:1px;font-size:11px;font-weight:600">' + avg.toFixed(1) + '</span></div></div>';
+  }).join('');
+
+  var submittedSessions = sessions.filter(function(s) { return s.status === 'submitted'; });
+  var headerCols = submittedSessions.map(function(s) {
+    return '<th style="font-size:11px;color:var(--text-muted);text-align:center;padding:6px">' + esc(s.interviewer_name) + '</th>';
+  }).join('');
+
+  var tableRows = '';
+  var currentCat = '';
+  questions.forEach(function(q) {
+    if (q.category !== currentCat) {
+      currentCat = q.category;
+      tableRows += '<tr><td colspan="' + (submittedSessions.length + 2) + '" style="background:var(--bg-elevated);padding:4px 8px;font-size:10px;text-transform:uppercase;color:var(--accent);letter-spacing:1px">' + currentCat + '</td></tr>';
+    }
+    var qScores = submittedSessions.map(function(s) {
+      var sc = scores.find(function(sc) { return sc.session_id === s.id && sc.question_id === q.id; });
+      if (!sc) return '<td style="text-align:center;padding:6px;color:var(--text-muted)">—</td>';
+      var bg = sc.score >= 4 ? '#2d4a2d' : sc.score === 3 ? '#4a4a2d' : '#4a2d2d';
+      var fg = sc.score >= 4 ? '#7dce7d' : sc.score === 3 ? '#e8d87c' : '#e87d7d';
+      return '<td style="text-align:center;padding:6px"><span style="background:' + bg + ';color:' + fg + ';padding:2px 8px;border-radius:4px;font-weight:600">' + sc.score + '</span>' + (sc.notes ? ' <span title="' + esc(sc.notes) + '" style="cursor:help;font-size:10px">💬</span>' : '') + '</td>';
+    }).join('');
+
+    var qAvgScores = scores.filter(function(sc) { return sc.question_id === q.id; }).map(function(sc) { return sc.score; });
+    var qAvg = qAvgScores.length > 0 ? (qAvgScores.reduce(function(a, b) { return a + b; }, 0) / qAvgScores.length).toFixed(1) : '—';
+    var minScore = qAvgScores.length > 0 ? Math.min.apply(null, qAvgScores) : 0;
+    var maxScore = qAvgScores.length > 0 ? Math.max.apply(null, qAvgScores) : 0;
+    var divergent = (maxScore - minScore) >= 3;
+
+    tableRows += '<tr style="' + (divergent ? 'border-left:3px solid #e8a87c;background:rgba(232,168,124,0.06)' : '') + '">' +
+      '<td style="padding:6px 8px;font-size:13px;max-width:300px">' + esc(q.question_text) + (divergent ? ' <span style="font-size:10px;color:#e8a87c;background:#2a2218;padding:1px 6px;border-radius:4px">DIVERGENT</span>' : '') + '</td>' +
+      qScores +
+      '<td style="text-align:center;padding:6px;font-weight:600;color:var(--accent)">' + qAvg + '</td></tr>';
+  });
+
+  var pendingCount = sessions.filter(function(s) { return s.status !== 'submitted'; }).length;
+
+  panel.innerHTML =
+    '<div class="candidate-detail__header"><h3>Interview Results — ' + esc(config.candidate_name || 'Candidate') + '</h3>' +
+      '<button class="btn btn--sm" onclick="openCandidateDetail(\'' + config.candidate_id + '\')">Back</button></div>' +
+    '<div style="display:flex;gap:16px;margin-bottom:16px">' +
+      '<div style="text-align:center;min-width:80px"><div style="font-size:32px;font-weight:700;color:var(--accent)">' + summary.overall_avg.toFixed(1) + '</div><div style="font-size:11px;color:var(--text-muted)">Overall</div></div>' +
+      '<div style="flex:1">' + barsHtml + '</div>' +
+      '<div style="text-align:center;min-width:100px"><span style="background:' + (pendingCount === 0 ? '#2d4a2d' : '#4a4a2d') + ';color:' + (pendingCount === 0 ? '#7dce7d' : '#e8d87c') + ';padding:4px 12px;border-radius:12px;font-size:12px">' + (sessions.length - pendingCount) + ' of ' + sessions.length + ' submitted</span></div></div>' +
+    (config.candidate_stage && config.candidate_stage !== 'interviews' ? '<div style="background:#4a4a2d;color:#e8d87c;padding:8px 12px;border-radius:6px;margin-bottom:12px;font-size:13px">Candidate has been moved to "' + config.candidate_stage + '" stage</div>' : '') +
+    '<div style="overflow-x:auto;margin-bottom:16px"><table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr><th style="text-align:left;padding:6px 8px;font-size:11px;color:var(--text-muted)">Question</th>' + headerCols + '<th style="font-size:11px;color:var(--text-muted);text-align:center;padding:6px">Avg</th></tr></thead><tbody>' + tableRows + '</tbody></table></div>' +
+    (!decision
+      ? '<div style="border-top:1px solid var(--border);padding-top:12px"><div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px">Decision</div>' +
+        '<div style="display:flex;gap:8px;align-items:flex-start">' +
+          '<button class="btn" style="background:#2d4a2d;color:#7dce7d;border:1px solid #3a6a3a" onclick="window._ivDecide(\'advance\')">Advance</button>' +
+          '<button class="btn" style="background:var(--bg-elevated);color:#e8d87c;border:1px solid #4a4a2d" onclick="window._ivDecide(\'hold\')">Hold</button>' +
+          '<button class="btn" style="background:var(--bg-elevated);color:#e87d7d;border:1px solid #4a2d2d" onclick="window._ivDecide(\'reject\')">Reject</button>' +
+          '<textarea id="ivDecisionNotes" placeholder="Decision notes (required)" rows="2" style="flex:1;font-size:13px"></textarea></div></div>'
+      : '<div style="border-top:1px solid var(--border);padding-top:12px;color:var(--text-muted)">Decision: <strong style="color:' + (decision.decision === 'advance' ? '#7dce7d' : decision.decision === 'reject' ? '#e87d7d' : '#e8d87c') + '">' + decision.decision.toUpperCase() + '</strong> — ' + esc(decision.notes) + '</div>');
+
+  window._ivDecide = async function(d) {
+    var notes = document.getElementById('ivDecisionNotes');
+    if (!notes || !notes.value.trim()) { alert('Please add decision notes.'); return; }
+    await authFetch('/api/interview-decisions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ config_id: configId, decision: d, notes: notes.value }),
+    });
+    openInterviewResults(configId);
+  };
 }
 
 function buildCandidateGdprHtml(c, disabledStyle) {
@@ -21951,6 +22188,15 @@ async function openCandidateDetail(id) {
   const c = await apiCall('/api/candidates/' + id);
   if (!c) return;
 
+  let interviewConfig = null;
+  if (c.stage === 'interviews' || c.stage === 'offer' || c.stage === 'hired') {
+    try {
+      const cfgResp = await authFetch('/api/interview-configs?candidate_id=' + c.id);
+      const configs = await cfgResp.json();
+      if (configs && configs.length > 0) interviewConfig = configs[0];
+    } catch (e) {}
+  }
+
   const isAdmin = _currentUser && _currentUser.role === 'admin';
   const isDetailScoped = isClientUser();
   let clientList = getContractedClientRecords();
@@ -21981,7 +22227,7 @@ async function openCandidateDetail(id) {
         ${buildCandidateTagsHtml(c, disabledStyle)}
       </div>
       <div id="cdTabInterviews" class="candidate-detail__tab-content">
-        ${buildCandidateStageSubHtml(c)}
+        ${buildCandidateStageSubHtml(c, interviewConfig)}
         ${buildCandidateInterviewsHtml(id, roundsData, disabledStyle)}
       </div>
       <div id="cdTabActivity" class="candidate-detail__tab-content">
@@ -22572,6 +22818,15 @@ function _ccNavigate(type, id) {
   else if (type === 'task') { switchView('tasks'); openDetail(id); }
 }
 
+function _ccToggleImprov(id) {
+  var el = document.getElementById('cc-improv-' + id);
+  if (el) el.classList.toggle('open');
+}
+function _ccDaysAgo(dateStr) {
+  if (!dateStr) return '?';
+  return Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000);
+}
+
 function _ccSwitchTab(tab) {
   _ccTab = tab;
   localStorage.setItem('ccTab', tab);
@@ -23014,9 +23269,9 @@ function _ccRenderWorkTab(b, w, s, fc) {
   const missingConns = Object.entries(buckets).filter(([,v]) => v.status === 'missing');
   let improvCount = 0;
   if (staleBrain.length > 0) { improvCount++; html += '<div class="cc-row"><div class="cc-row-icon" style="background:rgba(210,153,34,.1);color:#d29922;">&#128218;</div><div class="cc-row-b"><div class="cc-row-t">' + staleBrain.length + ' brain modules stale (&gt;30d)</div><div class="cc-row-m">Knowledge freshness</div></div><button class="cc-btn pu">Refresh</button></div>'; }
-  if (missingConns.length > 0) { improvCount++; html += '<div class="cc-row"><div class="cc-row-icon" style="background:rgba(248,81,73,.1);color:#f85149;">&#128279;</div><div class="cc-row-b"><div class="cc-row-t">' + missingConns.length + ' blind spots</div><div class="cc-row-m">' + esc(missingConns.slice(0,3).map(([n]) => n).join(', ')) + '</div></div><button class="cc-btn pu">Connect</button></div>'; }
+  if (missingConns.length > 0) { improvCount++; html += '<div class="cc-row"><div class="cc-row-icon" style="background:rgba(248,81,73,.1);color:#f85149;">&#128279;</div><div class="cc-row-b"><div class="cc-row-t">' + missingConns.length + ' blind spots</div><div class="cc-row-m">' + esc(missingConns.slice(0,3).map(([n]) => n).join(', ')) + '</div></div><button class="cc-btn pu" onclick="_ccToggleImprov(\'blind-spots\')">Connect</button></div>'; html += '<div class="cc-improv-detail" id="cc-improv-blind-spots">'; missingConns.forEach(function(mc) { html += '<div class="cc-improv-item cc-improv-item--red"><span class="cc-improv-name">' + esc(mc[0]) + '</span><span class="cc-improv-age">not configured</span></div>'; }); html += '</div>'; }
   if (kf.dormant_roles_count > 0) { improvCount++; html += '<div class="cc-row"><div class="cc-row-icon" style="background:rgba(163,113,247,.1);color:#a371f7;">&#9889;</div><div class="cc-row-b"><div class="cc-row-t">' + kf.dormant_roles_count + ' dormant roles</div><div class="cc-row-m">Role dispatch system</div></div><button class="cc-btn pu">Backlog</button></div>'; }
-  if ((kf.stale_memory_files || []).length > 0) { improvCount++; html += '<div class="cc-row"><div class="cc-row-icon" style="background:rgba(210,153,34,.1);color:#d29922;">&#128203;</div><div class="cc-row-b"><div class="cc-row-t">' + kf.stale_memory_files.length + ' stale memory files</div><div class="cc-row-m">Reference moved targets</div></div><button class="cc-btn pu">Review</button></div>'; }
+  if ((kf.stale_memory_files || []).length > 0) { var smf = kf.stale_memory_files; improvCount++; html += '<div class="cc-row"><div class="cc-row-icon" style="background:rgba(210,153,34,.1);color:#d29922;">&#128203;</div><div class="cc-row-b"><div class="cc-row-t">' + smf.length + ' stale memory files</div><div class="cc-row-m">Reference moved targets</div></div><button class="cc-btn pu" onclick="_ccToggleImprov(\'stale-memory\')">Review</button></div>'; html += '<div class="cc-improv-detail" id="cc-improv-stale-memory">'; smf.forEach(function(mf) { html += '<div class="cc-improv-item cc-improv-item--amber"><span class="cc-improv-name">' + esc(mf.name || mf.file || '') + '</span><span class="cc-improv-age">' + (mf.reason || 'target may have moved') + '</span></div>'; }); html += '</div>'; }
   if (improvCount === 0) { html += '<div style="padding:8px 0;color:#3fb950">&#10003; All systems healthy</div>'; }
   html += '</div>';
 
