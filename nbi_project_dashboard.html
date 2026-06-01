@@ -21829,33 +21829,81 @@ async function openInterviewConfig(candidateId, clientId, positionId) {
   const panel = document.getElementById('candidateDetailPanel');
   if (!overlay || !panel) return;
 
-  const categories = ['culture', 'technical', 'collaboration', 'leadership', 'depth'];
+  const position = (_hiringPositionsData || []).find(p => p.id === positionId);
+  const positionDiscipline = position ? position.discipline : null;
+
+  const categoryOrder = ['culture', 'technical', 'collaboration', 'leadership', 'depth'];
   const selectedIds = new Set();
   let activeTab = 'questions';
   const selectedInterviewers = new Set();
+  const expandedDisciplines = new Set(positionDiscipline ? [positionDiscipline] : []);
+
+  function renderDisciplineSection(discName, discQuestions, isMatched) {
+    var total = 0; var selCount = 0;
+    for (var cat of categoryOrder) { var qs = discQuestions[cat] || []; total += qs.length; selCount += qs.filter(function(q) { return selectedIds.has(q.id); }).length; }
+    var isOpen = expandedDisciplines.has(discName);
+    var html = '<div style="margin-bottom:8px;border:1px solid ' + (isMatched ? 'var(--accent)' : 'var(--border)') + ';border-radius:8px;overflow:hidden">';
+    html += '<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;background:' + (isMatched ? 'color-mix(in srgb, var(--accent) 8%, var(--bg-card))' : 'var(--bg-elevated)') + '" onclick="window._ivToggleDisc(\'' + discName.replace(/'/g, "\\'") + '\')">';
+    html += '<span style="transform:rotate(' + (isOpen ? '90' : '0') + 'deg);transition:transform 0.15s;font-size:10px">&#9654;</span>';
+    html += '<span style="font-weight:600;font-size:13px">' + esc(discName) + '</span>';
+    html += '<span style="font-size:11px;color:var(--text-muted)">' + total + ' questions</span>';
+    if (selCount > 0) html += '<span style="font-size:11px;color:var(--accent);margin-left:auto">' + selCount + ' selected</span>';
+    html += '</div>';
+    if (isOpen) {
+      html += '<div style="padding:8px 12px">';
+      for (var cat of categoryOrder) {
+        var qs = discQuestions[cat];
+        if (!qs || qs.length === 0) continue;
+        html += '<div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin:8px 0 4px">' + cat + '</div>';
+        for (var q of qs) {
+          html += '<label style="display:flex;align-items:flex-start;gap:8px;padding:6px 8px;border-radius:6px;cursor:pointer;background:' + (selectedIds.has(q.id) ? 'var(--bg-elevated)' : 'transparent') + ';margin-bottom:2px;border:1px solid ' + (selectedIds.has(q.id) ? 'var(--accent)' : 'transparent') + '">';
+          html += '<input type="checkbox" ' + (selectedIds.has(q.id) ? 'checked' : '') + ' onchange="window._ivToggleQ(\'' + q.id + '\')" style="margin-top:4px">';
+          html += '<div><div style="font-size:14px;line-height:1.5">' + esc(q.question_text) + '</div>';
+          html += '<div style="font-size:10px;color:var(--text-muted);margin-top:2px">' + q.source + (q.depth_type ? ' · ' + q.depth_type : '') + '</div></div></label>';
+        }
+      }
+      html += '</div>';
+    }
+    html += '</div>';
+    return html;
+  }
 
   function renderConfigPanel() {
-    const grouped = {};
-    for (const cat of categories) grouped[cat] = (allQuestions || []).filter(q => q.category === cat);
+    var disciplines = {};
+    for (var q of (allQuestions || [])) {
+      var d = q.discipline || 'General';
+      if (!disciplines[d]) disciplines[d] = {};
+      if (!disciplines[d][q.category]) disciplines[d][q.category] = [];
+      disciplines[d][q.category].push(q);
+    }
 
-    const questionsHtml = categories.map(cat => {
-      const qs = grouped[cat] || [];
-      if (qs.length === 0) return '';
-      return '<div style="margin-bottom:16px">' +
-        '<div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">' + cat + ' <span style="color:var(--accent)">(' + qs.filter(q => selectedIds.has(q.id)).length + ' selected)</span></div>' +
-        qs.map(q => '<label style="display:flex;align-items:flex-start;gap:8px;padding:8px;border-radius:6px;cursor:pointer;background:' + (selectedIds.has(q.id) ? 'var(--bg-elevated)' : 'transparent') + ';margin-bottom:4px;border:1px solid ' + (selectedIds.has(q.id) ? 'var(--accent)' : 'var(--border)') + '">' +
-          '<input type="checkbox" ' + (selectedIds.has(q.id) ? 'checked' : '') + ' onchange="window._ivToggleQ(\'' + q.id + '\')" style="margin-top:4px">' +
-          '<div><div style="font-size:14px;line-height:1.5">' + esc(q.question_text) + '</div>' +
-          '<div style="font-size:10px;color:var(--text-muted);margin-top:4px">' + q.source + (q.depth_type ? ' · ' + q.depth_type : '') + '</div></div></label>').join('') +
-        '</div>';
-    }).join('');
+    var questionsHtml = '';
+    if (positionDiscipline) {
+      questionsHtml += '<div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">Showing questions for: <strong style="color:var(--accent)">' + esc(positionDiscipline) + '</strong></div>';
+      if (disciplines[positionDiscipline]) {
+        questionsHtml += renderDisciplineSection(positionDiscipline, disciplines[positionDiscipline], true);
+      }
+      var otherDiscs = Object.keys(disciplines).filter(function(d) { return d !== positionDiscipline; }).sort();
+      if (otherDiscs.length > 0) {
+        var otherTotal = otherDiscs.reduce(function(s, d) { return s + Object.values(disciplines[d]).reduce(function(s2, qs) { return s2 + qs.length; }, 0); }, 0);
+        questionsHtml += '<div style="font-size:11px;color:var(--text-muted);margin:12px 0 8px;padding-top:8px;border-top:1px solid var(--border)">Other disciplines (' + otherTotal + ' questions)</div>';
+        for (var d of otherDiscs) { questionsHtml += renderDisciplineSection(d, disciplines[d], false); }
+      }
+    } else {
+      questionsHtml += '<div style="background:color-mix(in srgb, #f59e0b 10%, var(--bg-card));border:1px solid #f59e0b;border-radius:6px;padding:8px 12px;font-size:12px;color:#f59e0b;margin-bottom:12px">This position has no discipline set — showing all questions. Set a discipline on the position to filter.</div>';
+      var allExpanded = expandedDisciplines.size === 0;
+      for (var d of Object.keys(disciplines).sort()) {
+        if (allExpanded) expandedDisciplines.add(d);
+        questionsHtml += renderDisciplineSection(d, disciplines[d], false);
+      }
+    }
 
-    const interviewersHtml = (users || []).filter(u => u.is_active !== false && u.client_id === clientId).map(u =>
-      '<label style="display:flex;align-items:center;gap:8px;padding:8px;cursor:pointer;border-bottom:1px solid var(--border)">' +
+    var interviewersHtml = (users || []).filter(function(u) { return u.is_active !== false && u.client_id === clientId; }).map(function(u) {
+      return '<label style="display:flex;align-items:center;gap:8px;padding:8px;cursor:pointer;border-bottom:1px solid var(--border)">' +
         '<input type="checkbox" ' + (selectedInterviewers.has(u.id) ? 'checked' : '') + ' onchange="window._ivToggleInterviewer(\'' + u.id + '\')">' +
         '<span>' + esc(u.display_name || u.username) + '</span>' +
-        '<span style="color:var(--text-muted);font-size:12px">' + esc(u.email || '') + '</span></label>'
-    ).join('');
+        '<span style="color:var(--text-muted);font-size:12px">' + esc(u.email || '') + '</span></label>';
+    }).join('');
 
     panel.innerHTML =
       '<div class="candidate-detail__header"><h3>Configure Interview</h3>' +
@@ -21867,7 +21915,7 @@ async function openInterviewConfig(candidateId, clientId, positionId) {
         ? '<div style="display:flex;gap:8px;margin-bottom:12px">' +
             '<button class="btn btn--sm" onclick="window._ivAddCustom()">+ Custom Question</button></div>' +
           '<div style="font-weight:600;margin-bottom:8px;color:var(--accent)">' + selectedIds.size + ' selected</div>' +
-          '<div style="max-height:400px;overflow-y:auto">' + (questionsHtml || '<p style="color:var(--text-muted)">No questions in bank. Generate from JD or add custom questions.</p>') + '</div>'
+          '<div style="max-height:400px;overflow-y:auto">' + (questionsHtml || '<p style="color:var(--text-muted)">No questions in bank. Add custom questions.</p>') + '</div>'
         : '<div style="max-height:400px;overflow-y:auto">' + (interviewersHtml || '<p style="color:var(--text-muted)">No team members found.</p>') + '</div>') +
       '<div style="border-top:1px solid var(--border);padding-top:12px;margin-top:12px;display:flex;justify-content:space-between;align-items:center">' +
         '<span style="color:var(--text-muted);font-size:13px">' + selectedIds.size + ' questions · ' + selectedInterviewers.size + ' interviewers</span>' +
@@ -21878,8 +21926,7 @@ async function openInterviewConfig(candidateId, clientId, positionId) {
   window._ivSetTab = function(tab) { activeTab = tab; renderConfigPanel(); };
   window._ivToggleQ = function(id) { selectedIds.has(id) ? selectedIds.delete(id) : selectedIds.add(id); renderConfigPanel(); };
   window._ivToggleInterviewer = function(id) { selectedInterviewers.has(id) ? selectedInterviewers.delete(id) : selectedInterviewers.add(id); renderConfigPanel(); };
-
-
+  window._ivToggleDisc = function(disc) { expandedDisciplines.has(disc) ? expandedDisciplines.delete(disc) : expandedDisciplines.add(disc); renderConfigPanel(); };
 
   window._ivAddCustom = function() {
     var formHtml = '<div id="ivCustomForm" style="border:1px solid var(--accent);border-radius:8px;padding:12px;margin-bottom:12px;background:var(--bg-elevated)">' +
@@ -21904,7 +21951,7 @@ async function openInterviewConfig(candidateId, clientId, positionId) {
     var resp = await authFetch('/api/interview-questions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ client_id: clientId || null, discipline: 'General', category: cat.value, question_text: text.value.trim() }),
+      body: JSON.stringify({ client_id: clientId || null, discipline: positionDiscipline || 'General', category: cat.value, question_text: text.value.trim() }),
     });
     var q = await resp.json();
     if (q && q.id) { allQuestions.push(q); selectedIds.add(q.id); renderConfigPanel(); }
