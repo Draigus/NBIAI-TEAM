@@ -1058,3 +1058,71 @@ Audit trail of all research activity. Each entry records what was searched, what
 - Track MIX showcase highlights (June 1) -- any indie studios with strategic relevance
 - Monitor GTA 6 Trailer 3 timing and pre-order opening
 - Search for Discord IPO S-1 filing updates (carried forward from cycles 3-8)
+
+---
+
+## 2026-06-02 | forecast_models | Web Research Cycle 2
+
+**Agent:** research_agent (manual invocation)
+**Bank:** forecast_models
+**Brief:** Cycle 2 -- production cost estimation and live service event revenue modelling (weakest sub-domains from cycle 1). Focus: budget estimation frameworks by team size/genre/platform, post-mortem budget breakdowns, battle pass revenue contribution data, seasonal event revenue impact multipliers, live ops cadence economics.
+
+### Searches Executed
+
+1. "game development cost estimation framework team size genre platform 2024 2025" -- generic guides, Oski, Juego Studios, iLogos, Steam Page Analyzer
+2. "Rami Ismail game development budget estimation methodology indie" -- LTPF Budget Viability page, PocketGamer.biz GDC coverage, DevGAMM interview
+3. '"battle pass" revenue contribution percentage total game revenue data model 2024 2025' -- GameMakers, Google Play Developer Blog, Deconstructor of Fun, Udonis
+4. '"live ops" "seasonal event" revenue impact multiplier data mobile game 2024 2025' -- Sensor Tower, Adjust, GameRefinery, AppMagic report, SplitMetrics
+5. "game development post-mortem budget breakdown actual cost numbers indie 2024 2025 2026" -- Steam Page Analyzer, Vsquad, iLogos, Financial Models Lab
+6. '"live ops" event cadence frequency diminishing returns optimal schedule mobile games data' -- Game Growth Advisor, Digital Artists League, PocketGamer.biz 2026 trends
+7. "GDC game development budget cost per genre benchmark AAA mid-tier production cost framework methodology" -- Kevuru Games, StudioKrew, Ocean View Games
+8. "game development production cost estimation per person month salary benchmark 2024 2025 framework" -- Ziva trend analysis, 8BitPlay salaries, iLogos
+9. "naavik battle pass revenue percentage contribution data modelling framework games" -- no Naavik-specific framework found
+10. '"battle pass" ARPDAU conversion rate purchase percentage data 2024 2025 mobile f2p monetization' -- Google Play blog, Bruin analytics, Wikipedia, Udonis
+
+**Deep fetches:** ramiismail.com/ltpf (budget viability framework + Boxleiter Number), gamegrowthadvisor.com (live ops cadence playbook), steampageanalyzer.com (indie budget data with genre breakdown), gamemakers.com (battle pass design analysis), deconstructoroffun.com (battle pass cannibalization risk), ziva.sh (5-year cost trend analysis), medium.com/googleplaydev (Google Play battle pass data), getbruin.com (renewal rate threshold), mobidictum.com (AppMagic 2025 report summary), gamedevreports.substack.com (AppMagic data tables), naavik.co (puzzle live ops convergence), kevurugames.com (production cost formula)
+
+**Note:** sensortower.com ECONNREFUSED (paywalled). Battle pass conversion rate data remains proprietary across all sources -- no publisher shares exact purchase percentages. GameAnalytics 2026 report still gated.
+
+### Findings Kept (4 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---|---|---|---|---|
+| Ismail Budget Viability Framework | 9 | 7 | 9 | Complete replicable methodology: personnel cost formula with 30% margin, Boxleiter Number (57 units/review) for viability check, three-tier comparable analysis, explicit viability gates. The production cost model cycle 1 was missing. |
+| Indie Budget Breakdown Benchmarks | 8 | 6 | 8 | Genre-specific cost and revenue ranges for 11 genres. Budget allocation percentages (art 25-40%, programming 20-35%, etc.). Break-even formula with 0.88 regional/refund adjustment. Percentile distribution of indie budgets. |
+| Live Ops Event Cadence Economics | 8 | 7 | 8 | ARPDAU +20-40% during events. Battle pass = 10-40% of revenue. Three-layer calendar framework (macro/mid/micro). Genre-specific cadence (casual 15-25/month, mid-core 8-15). AppMagic 2025 data: events grew from 73 to 89/month. |
+| Battle Pass Revenue Modelling | 7 | 6 | 7 | Five-step forecasting framework synthesised from multiple sources. 3-8% conversion, 55% renewal threshold, 10-20x value ratio. Clash Royale cannibalization warning. Integration-level split (low 1-15%, high 20-40%). |
+
+### Findings Rejected
+
+- **Kevuru Games cost formula (Rate x 8 x Team x 20 x Months):** Captured within the production cost scaling extract as a cross-reference. Too thin to justify a standalone extract -- it is a single arithmetic formula with no surrounding methodology.
+- **Vsquad indie game budgets article:** Same ranges as Steam Page Analyzer with less granularity. No additional data points.
+- **Juego Studios indie cost guide:** Marketing content for outsourcing services. Cost ranges are generic ("$50K-$500K"). No methodology.
+- **Financial Models Lab indie studio running costs ($31.5K/month):** Single worked example for a 3-person studio. Too narrow and specific to be a benchmark.
+- **iLogos budget breakdown:** Same generic ranges as other sources. No post-mortem data or named-game budgets.
+- **SplitMetrics live ops guide:** Design philosophy only, no quantitative data on revenue impact.
+- **Adjust live ops best practices:** Strategic overview with no measurable benchmarks.
+- **GameRefinery 2024 LiveOps award winners:** Qualitative analysis of winning designs, no financial metrics.
+- **Naavik puzzle live ops convergence:** D90/D1 retention convergence (25%) and playtime (38 min) data, but no revenue impact or cadence economics. Retained as background reading only.
+- **Bruin analytics battle pass renewal:** Platform marketing page, not a data report. The 55% threshold is stated as a monitoring question, not a validated benchmark. However, captured directionally in the battle pass extract.
+- **Deconstructor of Fun battle pass analysis:** Qualitative design taxonomy with pricing ($5-$15) and value ratio (10-20x) but no conversion rates, no revenue contribution data, and no modelling framework. Key warning (Clash Royale cannibalization) captured in battle pass extract.
+
+### Key Themes Emerging (Cycle 2)
+
+1. **The production cost gap is now partially filled.** Cycle 1 found "no good public models." Cycle 2 delivers two complementary approaches: Ismail's bottom-up personnel formula with viability gates, and the Steam Page Analyzer genre benchmarks with break-even calculation. Together they cover estimation through validation.
+
+2. **Live ops event revenue has quantifiable benchmarks.** The +20-40% ARPDAU lift during events and 10-40% battle pass contribution range are modelling inputs that can be integrated into the Valeev LTV model from cycle 1. The three-layer calendar provides a structural framework for scheduling.
+
+3. **Battle pass conversion data remains proprietary.** No source publishes exact purchase conversion rates. The 3-8% figure is inferred from limited-time offer benchmarks. This is the largest uncertainty in the battle pass revenue model.
+
+4. **Cost inflation compounds at ~8%/year.** The Ziva analysis shows 7.8% CAGR in global development costs, driven by both labour inflation (~5%/year) and team size growth (~36% for AAA over 4 years). Multi-year budget projections must account for this.
+
+5. **Three-model forecasting stack is now more complete.** Cycle 1 built: retention -> LTV -> unit economics -> UA capital. Cycle 2 adds: production cost estimation -> break-even validation -> live ops revenue uplift -> battle pass contribution layer. The combined stack goes from "how much does it cost to make" through "how much will it earn" to "is this commercially viable."
+
+### Suggestions for Next Cycle
+
+- **Retention model validation:** Search for academic comparisons of power curve vs. Weibull vs. exponential retention models by genre. Which fitting approach is most accurate for projection?
+- **Market sizing by genre/platform:** Access Newzoo or Sensor Tower genre-level revenue segmentation. Look for Niko Partners methodology documents.
+- **Production cost post-mortems with named games:** Search GDC Vault for specific talks where developers disclosed actual budgets. Look for "what we spent" or "budget post-mortem" presentations.
+- **Battle pass conversion rates:** Try to find Sensor Tower or data.ai reports that segment IAP revenue by monetisation type (direct IAP vs. subscription vs. battle pass). May require Apify actor for paywalled sources.
+- **Console/PC live service economics:** Current live ops data is mobile-centric. Search for Destiny 2, Fortnite, Apex Legends seasonal revenue data to extend the model to premium platforms.
