@@ -22586,53 +22586,186 @@ function buildCandidateActionsHtml(c, isArchived, isAdmin) {
 }
 
 function buildCandidateInterviewsHtml(candidateId, rounds, disabledStyle) {
+  const isNBI = !isClientUser();
+  const isAdmin = _currentUser && _currentUser.role === 'admin';
+  const DENSITY_LIMIT = 5;
+
   if (!rounds || rounds.length === 0) {
     return `<div class="candidate-detail__section" id="cdInterviewsSection" style="${disabledStyle}">
-      <div class="candidate-detail__section-title">Interviews</div>
-      <div style="text-align:center;padding:20px;color:var(--text-muted);font-size:0.82rem">
-        <p>No interviews scheduled</p>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="candidate-detail__section-title">Interviews</div>
+        ${isNBI ? `<button class="btn btn--sm" style="background:#7c3aed;color:white;border:none;font-size:0.75rem" onclick="openAddRoundModal('${candidateId}')">+ Add Round</button>` : ''}
+      </div>
+      <div style="text-align:center;padding:24px;color:var(--text-muted);font-size:0.82rem">
+        <p style="margin:0 0 8px">No interviews scheduled</p>
+        ${isNBI ? `<button class="btn btn--sm" style="background:#7c3aed;color:white;border:none" onclick="openAddRoundModal('${candidateId}')">Schedule first interview</button>` : ''}
       </div>
     </div>`;
   }
 
   const typeColors = { 'Phone Screen': '#3b82f6', 'Technical': '#7c3aed', 'Cultural': '#f59e0b', 'Final': '#10b981', 'Other': '#6b7280' };
-  const statusColors = { draft: 'var(--text-muted)', active: 'var(--accent)', completed: 'var(--success)' };
   const outcomeColors = { pending: 'var(--text-muted)', passed: 'var(--success)', failed: 'var(--danger)', rescheduled: 'var(--accent)', no_show: 'var(--danger)', cancelled: 'var(--text-muted)' };
+  const outcomeLabels = { pending: 'Pending', passed: 'Passed', failed: 'Failed', rescheduled: 'Rescheduled', no_show: 'No-show', cancelled: 'Cancelled' };
+  const now = new Date();
 
-  const roundsHtml = rounds.map(r => {
-    const schedStr = r.scheduled_at ? new Date(r.scheduled_at).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Not scheduled';
-    const durStr = r.duration_minutes ? `${r.duration_minutes}min` : '';
+  function buildRoundCard(r, forceExpanded) {
     const label = r.round_type === 'Other' ? (r.round_type_custom || 'Other') : (r.round_type || 'Interview');
     const color = typeColors[r.round_type] || '#7c3aed';
+    const outcome = r.outcome || 'pending';
+    const isCancelled = outcome === 'cancelled';
+    const cardOpacity = isCancelled ? 'opacity:0.55;' : '';
+    const schedStr = r.scheduled_at ? new Date(r.scheduled_at).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
 
-    const sessionsHtml = (r.sessions && r.sessions.length > 0) ? r.sessions.map(s => {
-      const sColor = s.status === 'submitted' ? 'var(--success)' : s.status === 'declined' ? 'var(--danger)' : 'var(--text-muted)';
-      return `<span style="display:inline-flex;align-items:center;gap:4px;font-size:0.72rem;padding:2px 6px;border-radius:8px;background:color-mix(in srgb, ${sColor} 15%, var(--bg-surface));color:${sColor}">${esc(s.interviewer_name || 'Interviewer')} &middot; ${s.status}${s.scored_count ? ' (' + s.scored_count + ' scored)' : ''}</span>`;
+    const sessions = r.sessions || [];
+    const activeSessions = sessions.filter(s => s.status !== 'declined');
+    const submittedCount = sessions.filter(s => s.status === 'submitted').length;
+    const totalActive = activeSessions.length;
+    const allSubmitted = totalActive > 0 && submittedCount >= totalActive;
+
+    const isStale = r.scheduled_at && new Date(r.scheduled_at) < now && outcome === 'pending' && submittedCount === 0 && totalActive > 0;
+
+    const scoreSummary = totalActive > 0
+      ? (allSubmitted && r.aggregate_score ? `${Number(r.aggregate_score).toFixed(1)}/5` : `${submittedCount}/${totalActive} scored`)
+      : '';
+
+    const compactHtml = `<div class="iv-round-compact" data-config-id="${r.id}" onclick="window._ivExpandRound('${r.id}')" style="display:flex;align-items:center;gap:10px;padding:8px 12px;cursor:pointer;border-left:3px solid ${color};background:var(--bg-surface);border-radius:var(--radius-sm);margin-bottom:4px;${cardOpacity}transition:background 0.15s" onmouseenter="this.style.background='var(--bg-elevated)'" onmouseleave="this.style.background='var(--bg-surface)'">
+      <span style="font-size:10px;color:var(--text-muted);transition:transform 0.15s" class="iv-chevron">&#9654;</span>
+      <span style="font-weight:600;font-size:0.82rem;color:${color};flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Round ${r.round_number}: ${esc(label)}</span>
+      ${isStale ? `<span style="font-size:0.68rem;padding:2px 6px;border-radius:8px;background:color-mix(in srgb, var(--warning) 15%, var(--bg-surface));color:var(--warning)" title="Overdue — scoring not started">Overdue</span>` : ''}
+      ${scoreSummary ? `<span style="font-size:0.72rem;color:${allSubmitted && r.aggregate_score ? 'var(--text-primary)' : 'var(--text-muted)'};font-weight:${allSubmitted && r.aggregate_score ? '600' : '400'}">${scoreSummary}</span>` : ''}
+      <span style="font-size:0.68rem;padding:2px 8px;border-radius:8px;background:color-mix(in srgb, ${outcomeColors[outcome]} 15%, var(--bg-surface));color:${outcomeColors[outcome]}">${outcomeLabels[outcome] || outcome}</span>
+      ${schedStr ? `<span style="font-size:0.72rem;color:var(--text-muted)">${schedStr}</span>` : ''}
+    </div>`;
+
+    const durStr = r.duration_minutes ? `${r.duration_minutes}min` : '';
+
+    const sessionsHtml = sessions.length > 0 ? sessions.map(s => {
+      const sColor = s.status === 'submitted' ? 'var(--success)' : s.status === 'declined' ? 'var(--danger)' : s.status === 'in_progress' ? 'var(--accent)' : 'var(--text-muted)';
+      const blindLabel = isClientUser() ? '' : (s.scored_count ? ` (${s.scored_count} scored)` : '');
+      return `<span style="display:inline-flex;align-items:center;gap:4px;font-size:0.72rem;padding:3px 8px;border-radius:8px;background:color-mix(in srgb, ${sColor} 12%, var(--bg-surface));color:${sColor}">${esc(s.interviewer_name || 'Interviewer')} &middot; ${s.status}${blindLabel}</span>`;
     }).join(' ') : (r.interviewer_name ? `<span style="font-size:0.72rem;color:var(--text-muted)">${esc(r.interviewer_name)}</span>` : '');
 
-    return `<div style="border-left:3px solid ${color};background:var(--bg-surface);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:8px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-        <div style="font-weight:600;font-size:0.85rem;color:${color}">Round ${r.round_number}: ${esc(label)}</div>
-        <span style="font-size:0.72rem;padding:2px 8px;border-radius:8px;background:color-mix(in srgb, ${outcomeColors[r.outcome] || 'var(--text-muted)'} 15%, var(--bg-surface));color:${outcomeColors[r.outcome] || 'var(--text-muted)'}">${r.outcome || 'pending'}</span>
+    const hasResults = allSubmitted && r.aggregate_score && !isClientUser();
+
+    const expandedHtml = `<div class="iv-round-expanded" data-config-id="${r.id}" style="display:none;border-left:3px solid ${color};background:var(--bg-surface);border-radius:var(--radius-sm);margin-bottom:4px;${cardOpacity}">
+      <div onclick="window._ivExpandRound('${r.id}')" style="display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--border-default)">
+        <span style="font-size:10px;color:var(--text-muted);transform:rotate(90deg)" class="iv-chevron">&#9654;</span>
+        <span style="font-weight:600;font-size:0.85rem;color:${color};flex:1">Round ${r.round_number}: ${esc(label)}</span>
+        <span style="font-size:0.68rem;padding:2px 8px;border-radius:8px;background:color-mix(in srgb, ${outcomeColors[outcome]} 15%, var(--bg-surface));color:${outcomeColors[outcome]}">${outcomeLabels[outcome] || outcome}</span>
       </div>
-      <div style="font-size:0.75rem;color:var(--text-muted);display:flex;gap:12px;flex-wrap:wrap;align-items:center">
-        <span>${schedStr}</span>
-        ${durStr ? `<span>${durStr}</span>` : ''}
-        ${r.location ? `<span>${esc(r.location)}</span>` : ''}
+      <div style="padding:10px 12px">
+        ${isStale ? `<div style="font-size:0.75rem;padding:6px 10px;border-radius:6px;background:color-mix(in srgb, var(--warning) 10%, var(--bg-surface));color:var(--warning);margin-bottom:8px;border:1px solid color-mix(in srgb, var(--warning) 30%, transparent)">Overdue — scheduled ${schedStr}, scoring not started</div>` : ''}
+        <div style="font-size:0.78rem;color:var(--text-muted);display:flex;gap:12px;flex-wrap:wrap;margin-bottom:8px">
+          ${schedStr ? `<span>&#128197; ${schedStr}</span>` : '<span style="color:var(--text-faint)">Not scheduled</span>'}
+          ${durStr ? `<span>&#9201; ${durStr}</span>` : ''}
+          ${r.location ? `<span>&#128205; ${esc(r.location)}</span>` : ''}
+        </div>
+        ${sessionsHtml ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">${sessionsHtml}</div>` : ''}
+        ${totalActive > 0 ? `<div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:6px">${r.question_count || 0} questions &middot; ${submittedCount} of ${totalActive} interviewers scored${allSubmitted && r.aggregate_score ? ` &middot; Avg: <strong style="color:var(--text-primary)">${Number(r.aggregate_score).toFixed(1)}</strong>/5` : ''}</div>` : ''}
+        ${r.outcome_notes ? `<div style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:8px;padding:6px 8px;background:var(--bg-elevated);border-radius:4px">${esc(r.outcome_notes)}</div>` : ''}
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          ${isNBI && outcome !== 'cancelled' ? `<select onchange="window._ivSetOutcome('${r.id}',this.value)" style="font-size:0.75rem;padding:4px 8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:4px;color:var(--text-primary);font-family:inherit">
+            <option value="pending" ${outcome === 'pending' ? 'selected' : ''}>Pending</option>
+            <option value="passed" ${outcome === 'passed' ? 'selected' : ''}>Passed</option>
+            <option value="failed" ${outcome === 'failed' ? 'selected' : ''}>Failed</option>
+            <option value="rescheduled" ${outcome === 'rescheduled' ? 'selected' : ''}>Rescheduled</option>
+            <option value="no_show" ${outcome === 'no_show' ? 'selected' : ''}>No-show</option>
+          </select>` : ''}
+          ${hasResults ? `<button class="btn btn--sm" style="font-size:0.72rem" onclick="openInterviewResults('${r.id}')">View Results &rarr;</button>` : ''}
+          ${isNBI && outcome !== 'cancelled' ? `<button class="btn btn--sm" style="font-size:0.72rem;background:transparent;color:var(--text-muted);border:1px solid var(--border-default)" onclick="window._ivCancelRound('${r.id}')">Cancel</button>` : ''}
+          ${isAdmin ? `<button class="btn btn--sm" style="font-size:0.72rem;background:transparent;color:var(--danger);border:1px solid var(--danger)" onclick="window._ivDeleteRound('${r.id}','${candidateId}')">Delete</button>` : ''}
+        </div>
       </div>
-      ${r.outcome_notes ? `<div style="font-size:0.78rem;margin-top:6px;color:var(--text-secondary)">${esc(r.outcome_notes)}</div>` : ''}
-      ${sessionsHtml ? `<div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">${sessionsHtml}</div>` : ''}
-      ${r.aggregate_score ? `<div style="margin-top:4px;font-size:0.75rem;color:var(--text-muted)">Avg score: <strong style="color:var(--text-primary)">${r.aggregate_score}</strong>/5</div>` : ''}
     </div>`;
-  }).join('');
+
+    return compactHtml + expandedHtml;
+  }
+
+  const visibleRounds = rounds.slice(0, DENSITY_LIMIT);
+  const hiddenRounds = rounds.slice(DENSITY_LIMIT);
+
+  const visibleHtml = visibleRounds.map(r => buildRoundCard(r, false)).join('');
+  const hiddenHtml = hiddenRounds.length > 0
+    ? `<div id="ivHiddenRounds" style="display:none">${hiddenRounds.map(r => buildRoundCard(r, false)).join('')}</div>
+       <button id="ivShowMoreBtn" class="btn btn--sm" style="width:100%;margin-bottom:8px;font-size:0.75rem;background:var(--bg-elevated);color:var(--text-muted);border:1px solid var(--border-default)" onclick="window._ivShowMore()">Show ${hiddenRounds.length} more round${hiddenRounds.length > 1 ? 's' : ''}</button>`
+    : '';
 
   return `<div class="candidate-detail__section" id="cdInterviewsSection" style="${disabledStyle}">
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <div class="candidate-detail__section-title">Interviews</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div class="candidate-detail__section-title" style="margin-bottom:0">Interviews (${rounds.length})</div>
+      ${isNBI ? `<button class="btn btn--sm" style="background:#7c3aed;color:white;border:none;font-size:0.75rem" onclick="openAddRoundModal('${candidateId}')">+ Add Round</button>` : ''}
     </div>
-    ${roundsHtml}
+    ${visibleHtml}
+    ${hiddenHtml}
+    <div id="cdDecisionBar"></div>
   </div>`;
 }
+
+window._ivExpandedRounds = new Set();
+
+window._ivExpandRound = function(configId) {
+  const compact = document.querySelector(`.iv-round-compact[data-config-id="${configId}"]`);
+  const expanded = document.querySelector(`.iv-round-expanded[data-config-id="${configId}"]`);
+  if (!compact || !expanded) return;
+  const isOpen = window._ivExpandedRounds.has(configId);
+  if (isOpen) {
+    compact.style.display = 'flex';
+    expanded.style.display = 'none';
+    window._ivExpandedRounds.delete(configId);
+  } else {
+    compact.style.display = 'none';
+    expanded.style.display = 'block';
+    window._ivExpandedRounds.add(configId);
+  }
+};
+
+window._ivSetOutcome = async function(configId, outcome) {
+  try {
+    const resp = await authFetch('/api/interview-configs/' + configId, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ outcome: outcome }),
+    });
+    if (resp.ok) toast('Outcome updated');
+    else toast('Failed to update outcome', 'error');
+  } catch (e) { toast('Network error', 'error'); }
+};
+
+window._ivCancelRound = async function(configId) {
+  const ok = await themedConfirm('Cancel this interview round? The round data will be preserved but marked as cancelled.', 'Cancel Round', 'Cancel Round');
+  if (!ok) return;
+  try {
+    const resp = await authFetch('/api/interview-configs/' + configId, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ outcome: 'cancelled' }),
+    });
+    if (resp.ok) {
+      toast('Round cancelled');
+      const cid = document.getElementById('candidateDetailPanel')?.dataset?.candidateId;
+      if (cid) openCandidateDetail(cid);
+    } else toast('Failed to cancel round', 'error');
+  } catch (e) { toast('Network error', 'error'); }
+};
+
+window._ivDeleteRound = async function(configId, candidateId) {
+  const ok = await themedConfirm('Permanently delete this interview round? All scores and session data will be lost.', 'Delete Round', 'Delete');
+  if (!ok) return;
+  try {
+    const resp = await authFetch('/api/interview-configs/' + configId, { method: 'DELETE' });
+    if (resp.ok) {
+      toast('Round deleted');
+      openCandidateDetail(candidateId);
+    } else toast('Failed to delete round', 'error');
+  } catch (e) { toast('Network error', 'error'); }
+};
+
+window._ivShowMore = function() {
+  const hidden = document.getElementById('ivHiddenRounds');
+  const btn = document.getElementById('ivShowMoreBtn');
+  if (hidden) hidden.style.display = 'block';
+  if (btn) btn.style.display = 'none';
+};
 
 async function addInterviewRound(candidateId) {
   const typeMap = { '1': 'Phone Screen', '2': 'Technical', '3': 'Cultural', '4': 'Final' };
@@ -22653,17 +22786,7 @@ async function addInterviewRound(candidateId) {
   }
 }
 
-async function updateInterviewOutcome(configId, outcome) {
-  try {
-    const resp = await authFetch('/api/interview-configs/' + configId, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ outcome: outcome }),
-    });
-    if (resp.ok) toast('Outcome updated');
-    else toast('Failed to update outcome', 'error');
-  } catch (e) { toast('Network error', 'error'); }
-}
+
 
 async function loadAndRenderScorecards(candidateId, roundId) {
   const container = document.getElementById(`cdScorecardsFor_${roundId}`);
@@ -22762,6 +22885,7 @@ async function openCandidateDetail(id) {
     getHiringStagesForClient(c.client_id),
   ]);
 
+  panel.dataset.candidateId = id;
   panel.innerHTML = `
     ${buildCandidateHeaderHtml(c, isArchived)}
     <div class="candidate-detail__stage-bar">${buildCandidateStageBarHtml(c, isArchived, disabledStyle, candidateStages)}</div>
