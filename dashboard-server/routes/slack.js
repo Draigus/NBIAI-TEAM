@@ -29,6 +29,9 @@ module.exports = function(ctx) {
     if (event?.bot_id || event?.subtype === 'bot_message') return;
     if (event?.type !== 'app_mention' && event?.type !== 'message') return;
 
+    // For message events (not app_mention), only process if the bot was @mentioned
+    if (event.type === 'message' && !/<@[A-Z0-9]+>/.test(event.text || '')) return;
+
     try {
       await handleAppMention(event, pool, process.env.SLACK_BOT_TOKEN || '');
     } catch (err) {
