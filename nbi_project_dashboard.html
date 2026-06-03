@@ -22658,6 +22658,7 @@ function buildCandidateInterviewsHtml(candidateId, rounds, disabledStyle) {
             <option value="rescheduled" ${outcome === 'rescheduled' ? 'selected' : ''}>Rescheduled</option>
             <option value="no_show" ${outcome === 'no_show' ? 'selected' : ''}>No-show</option>
           </select>` : ''}
+          ${r.round_type !== 'Phone Screen' && isNBI && (r.question_count === 0 || sessions.length === 0) ? `<button class="btn btn--sm" style="font-size:0.72rem;background:var(--accent);color:#fff;border:none" onclick="openInterviewConfig('${candidateId}','${r.position_client_id || ''}','${r.position_id || ''}')">Configure Questions &amp; Interviewers</button>` : ''}
           ${hasResults ? `<button class="btn btn--sm" style="font-size:0.72rem" onclick="openInterviewResults('${r.id}')">View Results &rarr;</button>` : ''}
           ${isNBI && outcome !== 'cancelled' ? `<button class="btn btn--sm" style="font-size:0.72rem;background:transparent;color:var(--text-muted);border:1px solid var(--border-default)" onclick="window._ivCancelRound('${r.id}')">Cancel</button>` : ''}
           ${isAdmin ? `<button class="btn btn--sm" style="font-size:0.72rem;background:transparent;color:var(--danger);border:1px solid var(--danger)" onclick="window._ivDeleteRound('${r.id}','${candidateId}')">Delete</button>` : ''}
