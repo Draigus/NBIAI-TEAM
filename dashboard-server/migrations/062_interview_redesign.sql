@@ -7,9 +7,8 @@ CREATE TABLE IF NOT EXISTS hiring_decisions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   candidate_id UUID NOT NULL REFERENCES candidates(id) ON DELETE CASCADE,
   decision TEXT NOT NULL CHECK (decision IN ('advance', 'hold', 'reject')),
-  rejection_category TEXT,
   decided_by UUID REFERENCES users(id) ON DELETE SET NULL,
-  notes TEXT NOT NULL,
+  notes TEXT,
   decided_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -37,14 +36,14 @@ END $$;
 DO $$ BEGIN
   ALTER TABLE interview_configs
     ADD CONSTRAINT chk_ic_outcome
-    CHECK (outcome IN ('pending', 'passed', 'failed', 'rescheduled', 'no_show', 'cancelled'));
+    CHECK (outcome IN ('passed', 'failed', 'pending', 'cancelled'));
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
 
 DO $$ BEGIN
   ALTER TABLE interview_configs
     ADD CONSTRAINT chk_ic_duration_minutes
-    CHECK (duration_minutes >= 5 AND duration_minutes <= 480);
+    CHECK (duration_minutes > 0);
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
 
@@ -181,13 +180,13 @@ SELECT
   ir.scheduled_at,
   ir.duration_minutes,
   ir.location,
-  ir.interviewer_name,
+  NULL AS interviewer_name,
   CASE
     WHEN ir.outcome = 'pass'              THEN 'passed'
     WHEN ir.outcome = 'fail'              THEN 'failed'
     WHEN ir.outcome = 'on-hold'           THEN 'pending'
     WHEN ir.status  = 'cancelled'         THEN 'cancelled'
-    ELSE 'pending'
+    ELSE NULL
   END AS outcome,
   ir.outcome_notes,
   'completed' AS status,
