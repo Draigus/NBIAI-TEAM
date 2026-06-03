@@ -299,10 +299,10 @@ module.exports = function (ctx) {
     }
 
     if (!isPhoneScreen) {
-      if (!Array.isArray(question_ids) || question_ids.length === 0) return res.status(400).json({ error: 'question_ids must be a non-empty array for scored round types' });
-      if (!Array.isArray(interviewer_ids) || interviewer_ids.length === 0) return res.status(400).json({ error: 'interviewer_ids must be a non-empty array for scored round types' });
-      for (const qid of question_ids) { if (!isValidUuid(qid)) return res.status(400).json({ error: `Invalid question_id: ${qid}` }); }
-      for (const iid of interviewer_ids) { if (!isValidUuid(iid)) return res.status(400).json({ error: `Invalid interviewer_id: ${iid}` }); }
+      if (question_ids && !Array.isArray(question_ids)) return res.status(400).json({ error: 'question_ids must be an array' });
+      if (interviewer_ids && !Array.isArray(interviewer_ids)) return res.status(400).json({ error: 'interviewer_ids must be an array' });
+      if (question_ids) { for (const qid of question_ids) { if (!isValidUuid(qid)) return res.status(400).json({ error: `Invalid question_id: ${qid}` }); } }
+      if (interviewer_ids) { for (const iid of interviewer_ids) { if (!isValidUuid(iid)) return res.status(400).json({ error: `Invalid interviewer_id: ${iid}` }); } }
     }
 
     if (duration_minutes !== undefined) {

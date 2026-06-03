@@ -22876,10 +22876,6 @@ window._ivSubmitAddRound = async function(candidateId, btn) {
       body: JSON.stringify(body),
     });
     if (resp.ok) {
-      const result = await resp.json();
-      if (!isPhoneScreen && result.config) {
-        await authFetch('/api/interview-configs/' + result.config.id + '/activate', { method: 'POST' });
-      }
       document.querySelector('.modal-overlay')?.remove();
       toast('Interview round created');
       openCandidateDetail(candidateId);
