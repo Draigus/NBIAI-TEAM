@@ -55,40 +55,118 @@ describe('verifySlackSignature', () => {
   });
 });
 
-describe('parseSlackMessage', () => {
+describe('parseSlackMessage (enhanced)', () => {
   let parseSlackMessage;
+  const ABBREVS = new Set(['ch', 'lh', 'nbi', 'go', 'su', 'pl']);
 
-  it('extracts title from a single-line message after removing mention', () => {
+  beforeEach(() => {
     ({ parseSlackMessage } = require('../../lib/slack-bot'));
-    const result = parseSlackMessage('<@U12345ABC> Fix the login page');
-    expect(result.title).toBe('Fix the login page');
-    expect(result.description).toBeNull();
   });
 
-  it('extracts title and description from multi-line message', () => {
-    ({ parseSlackMessage } = require('../../lib/slack-bot'));
-    const result = parseSlackMessage('<@U12345ABC> Fix the login page\nThe submit button does nothing when clicked\nAlso the password field is missing');
-    expect(result.title).toBe('Fix the login page');
-    expect(result.description).toBe('The submit button does nothing when clicked\nAlso the password field is missing');
+  it('extracts full metadata: client, type, assignee, title', () => {
+    const r = parseSlackMessage('<@U123> CH task for Aris: Fix login timeout', ABBREVS);
+    expect(r.clientAbbr).toBe('CH');
+    expect(r.itemType).toBe('task');
+    expect(r.assigneeRaw).toBe('Aris');
+    expect(r.title).toBe('Fix login timeout');
+    expect(r.description).toBeNull();
+  });
+
+  it('extracts client + assignee, defaults type to null', () => {
+    const r = parseSlackMessage('<@U123> LH for Magnus: Review spec', ABBREVS);
+    expect(r.clientAbbr).toBe('LH');
+    expect(r.itemType).toBeNull();
+    expect(r.assigneeRaw).toBe('Magnus');
+    expect(r.title).toBe('Review spec');
+  });
+
+  it('extracts client + type, no assignee', () => {
+    const r = parseSlackMessage('<@U123> NBI feature: Build integration', ABBREVS);
+    expect(r.clientAbbr).toBe('NBI');
+    expect(r.itemType).toBe('feature');
+    expect(r.assigneeRaw).toBeNull();
+    expect(r.title).toBe('Build integration');
+  });
+
+  it('bare title with no metadata', () => {
+    const r = parseSlackMessage('<@U123> Fix the broken button', ABBREVS);
+    expect(r.clientAbbr).toBeNull();
+    expect(r.itemType).toBeNull();
+    expect(r.assigneeRaw).toBeNull();
+    expect(r.title).toBe('Fix the broken button');
+  });
+
+  it('handles tokens in any order (type before client)', () => {
+    const r = parseSlackMessage('<@U123> task CH for Aris: Works in any order', ABBREVS);
+    expect(r.clientAbbr).toBe('CH');
+    expect(r.itemType).toBe('task');
+    expect(r.assigneeRaw).toBe('Aris');
+    expect(r.title).toBe('Works in any order');
+  });
+
+  it('is case-insensitive for tokens', () => {
+    const r = parseSlackMessage('<@U123> ch TASK For aris: Title', ABBREVS);
+    expect(r.clientAbbr).toBe('ch');
+    expect(r.itemType).toBe('TASK');
+    expect(r.assigneeRaw).toBe('aris');
+    expect(r.title).toBe('Title');
+  });
+
+  it('captures "for X" as assigneeRaw even if X is not a real user (pass 2 decides)', () => {
+    const r = parseSlackMessage('<@U123> Deploy fix for production', ABBREVS);
+    expect(r.assigneeRaw).toBe('production');
+    expect(r.title).toBe('Deploy fix');
+  });
+
+  it('returns null title when only metadata with trailing colon', () => {
+    const r = parseSlackMessage('<@U123> CH task for Aris:', ABBREVS);
+    expect(r.title).toBeNull();
+  });
+
+  it('captures greedy assignee when no colon', () => {
+    const r = parseSlackMessage('<@U123> CH task for Aris Fix login', ABBREVS);
+    expect(r.clientAbbr).toBe('CH');
+    expect(r.itemType).toBe('task');
+    expect(r.assigneeRaw).toBe('Aris Fix login');
+    expect(r.title).toBeNull();
+  });
+
+  it('extracts description from subsequent lines', () => {
+    const r = parseSlackMessage('<@U123> CH task for Aris: Fix\nDetails here\nMore info', ABBREVS);
+    expect(r.title).toBe('Fix');
+    expect(r.description).toBe('Details here\nMore info');
+  });
+
+  it('strips multiple bot mentions', () => {
+    const r = parseSlackMessage('<@U1> <@U2> CH Fix it', ABBREVS);
+    expect(r.clientAbbr).toBe('CH');
+    expect(r.title).toBe('Fix it');
   });
 
   it('returns null title for empty message after mention removal', () => {
-    ({ parseSlackMessage } = require('../../lib/slack-bot'));
-    const result = parseSlackMessage('<@U12345ABC>');
-    expect(result.title).toBeNull();
-    expect(result.description).toBeNull();
-  });
-
-  it('handles multiple mentions', () => {
-    ({ parseSlackMessage } = require('../../lib/slack-bot'));
-    const result = parseSlackMessage('<@U12345ABC> <@UOTHER> Deploy the new build');
-    expect(result.title).toBe('Deploy the new build');
+    const r = parseSlackMessage('<@U123>', ABBREVS);
+    expect(r.title).toBeNull();
   });
 
   it('handles message with no mention', () => {
-    ({ parseSlackMessage } = require('../../lib/slack-bot'));
-    const result = parseSlackMessage('Just a plain message');
-    expect(result.title).toBe('Just a plain message');
+    const r = parseSlackMessage('Just a plain message', ABBREVS);
+    expect(r.title).toBe('Just a plain message');
+  });
+
+  it('handles story type without client', () => {
+    const r = parseSlackMessage('<@U123> story for Glen: User can export CSV', ABBREVS);
+    expect(r.clientAbbr).toBeNull();
+    expect(r.itemType).toBe('story');
+    expect(r.assigneeRaw).toBe('Glen');
+    expect(r.title).toBe('User can export CSV');
+  });
+
+  it('works with empty abbreviation set', () => {
+    const r = parseSlackMessage('<@U123> CH task for Aris: Fix login', new Set());
+    expect(r.clientAbbr).toBeNull();
+    expect(r.itemType).toBe('task');
+    expect(r.title).toBe('CH Fix login');
+    expect(r.assigneeRaw).toBe('Aris');
   });
 });
 
@@ -188,7 +266,7 @@ describe('POST /api/slack/events', () => {
       type: 'event_callback',
       event: {
         type: 'app_mention',
-        text: '<@UBOTID> New task from Slack\nWith a description',
+        text: '<@UBOTID> New item from Slack\nWith a description',
         user: 'USENDER',
         channel: 'CCHANNEL',
         ts: '111.222',
@@ -208,7 +286,7 @@ describe('POST /api/slack/events', () => {
 
     const { rows } = await pool.query('SELECT * FROM task_queue');
     expect(rows).toHaveLength(1);
-    expect(rows[0].title).toBe('New task from Slack');
+    expect(rows[0].title).toBe('New item from Slack');
     expect(rows[0].slack_user_id).toBe('USENDER');
   });
 });

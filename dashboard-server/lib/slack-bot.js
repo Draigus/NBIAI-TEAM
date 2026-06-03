@@ -14,14 +14,80 @@ function verifySlackSignature(signingSecret, timestamp, rawBody, signature) {
   return crypto.timingSafeEqual(Buffer.from(computed), Buffer.from(signature));
 }
 
-function parseSlackMessage(text) {
+const ITEM_TYPES = new Set(['project', 'feature', 'story', 'task']);
+
+function parseSlackMessage(text, abbreviations) {
   const cleaned = (text || '').replace(/<@[A-Z0-9]+>/g, '').trim();
-  const lines = cleaned.split('\n').map(l => l.trim()).filter(Boolean);
-  if (lines.length === 0) return { title: null, description: null };
-  return {
-    title: lines[0],
-    description: lines.length > 1 ? lines.slice(1).join('\n') : null,
-  };
+  const nlIndex = cleaned.indexOf('\n');
+  const firstLine = nlIndex === -1 ? cleaned : cleaned.slice(0, nlIndex).trim();
+  const description = nlIndex === -1 ? null : cleaned.slice(nlIndex + 1).trim() || null;
+
+  if (!firstLine) return { title: null, description, clientAbbr: null, itemType: null, assigneeRaw: null };
+
+  const abbrSet = abbreviations || new Set();
+  const tokens = firstLine.split(/\s+/);
+  let clientAbbr = null;
+  let itemType = null;
+  let assigneeRaw = null;
+  const remainder = [];
+  let i = 0;
+
+  while (i < tokens.length) {
+    const tok = tokens[i];
+    const tokLower = tok.toLowerCase();
+
+    if (tok === ':') { i++; break; }
+    if (tok.endsWith(':')) {
+      const word = tok.slice(0, -1);
+      const wordLower = word.toLowerCase();
+      if (!clientAbbr && abbrSet.has(wordLower)) { clientAbbr = word; }
+      else if (!itemType && ITEM_TYPES.has(wordLower)) { itemType = word; }
+      else { remainder.push(word); }
+      i++;
+      break;
+    }
+
+    if (!clientAbbr && abbrSet.has(tokLower)) {
+      clientAbbr = tok;
+      i++;
+      continue;
+    }
+
+    if (!itemType && ITEM_TYPES.has(tokLower)) {
+      itemType = tok;
+      i++;
+      continue;
+    }
+
+    if (tokLower === 'for' && !assigneeRaw && i + 1 < tokens.length) {
+      i++;
+      const nameParts = [];
+      while (i < tokens.length) {
+        const nt = tokens[i];
+        if (nt === ':') { i++; break; }
+        if (nt.endsWith(':')) {
+          nameParts.push(nt.slice(0, -1));
+          i++;
+          break;
+        }
+        nameParts.push(nt);
+        i++;
+      }
+      assigneeRaw = nameParts.join(' ') || null;
+      break;
+    }
+
+    remainder.push(tok);
+    i++;
+  }
+
+  while (i < tokens.length) {
+    remainder.push(tokens[i]);
+    i++;
+  }
+
+  const title = remainder.join(' ').trim() || null;
+  return { title, description, clientAbbr, itemType, assigneeRaw };
 }
 
 function postSlackReply(token, channel, text, threadTs) {
