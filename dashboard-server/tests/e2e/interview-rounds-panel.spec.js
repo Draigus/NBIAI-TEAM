@@ -86,7 +86,7 @@ test.describe('Interview Round Cards Panel', () => {
     await expect(page.locator('text=Hiring Decision')).toBeVisible();
     await expect(page.locator('button:has-text("Advance")')).toBeVisible();
     await expect(page.locator('button:has-text("Hold")')).toBeVisible();
-    await expect(page.locator('button:has-text("Reject")')).toBeVisible();
+    await expect(page.locator('#cdDecisionBar button:has-text("Reject")')).toBeVisible();
   });
 
   test('member does not see decision bar', async ({ page }) => {
