@@ -20953,8 +20953,8 @@ async function submitScheduleInterview() {
 }
 
 async function doCreateInterview(candidateId, title, scheduledAt, duration, interviewer, location) {
-  var roundTypeMap = { 'Phone Screen': 'Phone Screen', 'Technical Interview': 'Technical', 'Cultural Fit': 'Cultural', 'Final Interview': 'Final' };
-  var roundType = roundTypeMap[title] || 'Phone Screen';
+  var roundTypeMap = { 'Phone Screen': 'Phone Screen', 'Technical': 'Technical', 'Technical Interview': 'Technical', 'Cultural': 'Cultural', 'Cultural Fit': 'Cultural', 'Final': 'Final', 'Final Interview': 'Final' };
+  var roundType = roundTypeMap[title] || title || 'Phone Screen';
   try {
     var resp = await authFetch('/api/interview-configs', {
       method: 'POST',
@@ -21984,20 +21984,7 @@ function buildCandidateTagsHtml(c, disabledStyle) {
 }
 
 function buildCandidateStageSubHtml(c, interviewConfig) {
-  if (c.stage === 'interviews') {
-    let interviewBtnLabel = 'Configure Interview';
-    let interviewBtnAction = `openInterviewConfig('${c.id}', '${c.client_id || ''}', '${c.position_id || ''}')`;
-    if (interviewConfig && interviewConfig.status === 'active') {
-      interviewBtnLabel = 'View Interview';
-      interviewBtnAction = `openInterviewResults('${interviewConfig.id}')`;
-    } else if (interviewConfig && interviewConfig.status === 'completed') {
-      interviewBtnLabel = 'Interview Results';
-      interviewBtnAction = `openInterviewResults('${interviewConfig.id}')`;
-    }
-    return `<div class="candidate-detail__section"><div class="candidate-detail__field"><label>Interview</label>
-      <button class="btn btn--primary" onclick="${interviewBtnAction}">${interviewBtnLabel}</button>
-    </div></div>`;
-  } else if (c.stage === 'offer') {
+  if (c.stage === 'offer') {
     return `<div class="candidate-detail__section"><div class="candidate-detail__section-title">Offer details</div><div class="candidate-detail__field"><label>Start date</label><input type="date" id="cdStartDate" value="${c.start_date ? String(c.start_date).slice(0,10) : ''}" onchange="updateCandidateField('${c.id}','start_date',this.value||null)"></div></div>`;
   } else if (c.stage === 'onboarding') {
     return `<div class="candidate-detail__section" id="cdOnboardingSection">
@@ -22767,86 +22754,144 @@ window._ivShowMore = function() {
   if (btn) btn.style.display = 'none';
 };
 
-async function addInterviewRound(candidateId) {
-  const typeMap = { '1': 'Phone Screen', '2': 'Technical', '3': 'Cultural', '4': 'Final' };
-  const choice = prompt('Interview round type:\n1. Phone Screen\n2. Technical\n3. Cultural\n4. Final\n\nEnter number:');
-  if (!choice || !typeMap[choice.trim()]) return;
-  const roundType = typeMap[choice.trim()];
-  const resp = await authFetch('/api/interview-configs', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ candidate_id: candidateId, round_type: roundType }),
+function openAddRoundModal(candidateId) {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:10000;display:flex;align-items:center;justify-content:center';
+  overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
+
+  const candidate = (_candidatesData || []).find(c => c.id === candidateId);
+  const candidateName = candidate ? candidate.name : 'Candidate';
+
+  overlay.innerHTML = `
+  <div style="background:var(--bg-card);border-radius:var(--radius-md);width:min(520px,90vw);max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);padding:24px" role="dialog" aria-modal="true" aria-label="Add interview round">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3 style="margin:0;font-size:1rem;color:var(--text-primary)">Add Interview Round — ${esc(candidateName)}</h3>
+      <button onclick="this.closest('.modal-overlay').remove()" style="background:none;border:none;color:var(--text-muted);font-size:1.2rem;cursor:pointer;padding:4px">&times;</button>
+    </div>
+
+    <div style="margin-bottom:12px">
+      <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px">Round Type</label>
+      <select id="ivAddType" onchange="window._ivAddTypeChanged()" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;font-family:inherit">
+        <option value="Phone Screen">Phone Screen</option>
+        <option value="Technical">Technical</option>
+        <option value="Cultural">Cultural</option>
+        <option value="Final">Final</option>
+        <option value="Other">Other (custom label)</option>
+      </select>
+    </div>
+
+    <div id="ivAddCustomRow" style="display:none;margin-bottom:12px">
+      <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px">Custom Label</label>
+      <input id="ivAddCustomLabel" type="text" maxlength="40" placeholder="e.g. Portfolio Review" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem">
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+      <div>
+        <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px">Date</label>
+        <input id="ivAddDate" type="date" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem">
+      </div>
+      <div>
+        <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px">Time</label>
+        <input id="ivAddTime" type="time" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem">
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+      <div>
+        <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px">Duration (minutes)</label>
+        <input id="ivAddDuration" type="number" value="60" min="5" max="480" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem">
+      </div>
+      <div>
+        <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px">Location</label>
+        <input id="ivAddLocation" type="text" placeholder="e.g. Office, Zoom" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem">
+      </div>
+    </div>
+
+    <div id="ivAddInterviewerRow" style="margin-bottom:16px">
+      <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px">Interviewer Name</label>
+      <input id="ivAddInterviewer" type="text" placeholder="e.g. Glen Pryer" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem">
+    </div>
+
+    <div id="ivAddScoredNote" style="display:none;margin-bottom:16px;padding:10px;border-radius:var(--radius-sm);background:color-mix(in srgb, var(--accent) 8%, var(--bg-surface));font-size:0.78rem;color:var(--text-secondary)">
+      For scored rounds (Technical, Cultural, Final), you will be able to select questions and interviewers after creating the round via the Configure Interview panel.
+    </div>
+
+    <div id="ivAddPastWarn" style="display:none;margin-bottom:12px;padding:8px;border-radius:var(--radius-sm);background:color-mix(in srgb, var(--warning) 10%, var(--bg-surface));font-size:0.78rem;color:var(--warning)">This date is in the past — the round will be created for retrospective entry.</div>
+
+    <div style="display:flex;justify-content:flex-end;gap:8px;padding-top:12px;border-top:1px solid var(--border-default)">
+      <button class="btn btn--sm" onclick="this.closest('.modal-overlay').remove()">Cancel</button>
+      <button class="btn btn--sm btn--primary" id="ivAddSubmitBtn" onclick="window._ivSubmitAddRound('${candidateId}', this)">Create Round</button>
+    </div>
+  </div>`;
+
+  document.body.appendChild(overlay);
+  _trapFocus(overlay.querySelector('[role="dialog"]'));
+  document.getElementById('ivAddType')?.focus();
+}
+
+window._ivAddTypeChanged = function() {
+  const type = document.getElementById('ivAddType')?.value;
+  const isPhoneScreen = type === 'Phone Screen';
+  const isOther = type === 'Other';
+  const customRow = document.getElementById('ivAddCustomRow');
+  const interviewerRow = document.getElementById('ivAddInterviewerRow');
+  const scoredNote = document.getElementById('ivAddScoredNote');
+  if (customRow) customRow.style.display = isOther ? 'block' : 'none';
+  if (interviewerRow) interviewerRow.style.display = isPhoneScreen ? 'block' : 'none';
+  if (scoredNote) scoredNote.style.display = isPhoneScreen ? 'none' : 'block';
+};
+
+window._ivSubmitAddRound = async function(candidateId, btn) {
+  const roundType = document.getElementById('ivAddType')?.value;
+  const customLabel = document.getElementById('ivAddCustomLabel')?.value?.trim();
+  const date = document.getElementById('ivAddDate')?.value;
+  const time = document.getElementById('ivAddTime')?.value;
+  const duration = parseInt(document.getElementById('ivAddDuration')?.value) || 60;
+  const location = document.getElementById('ivAddLocation')?.value?.trim();
+  const interviewer = document.getElementById('ivAddInterviewer')?.value?.trim();
+
+  if (roundType === 'Other' && !customLabel) { toast('Custom label is required for Other type', 'error'); return; }
+
+  const scheduledAt = (date && time) ? new Date(date + 'T' + time).toISOString() : null;
+
+  const pastWarn = document.getElementById('ivAddPastWarn');
+  if (scheduledAt && new Date(scheduledAt) < new Date() && pastWarn) pastWarn.style.display = 'block';
+
+  const isPhoneScreen = roundType === 'Phone Screen';
+  const body = {
+    candidate_id: candidateId,
+    round_type: roundType,
+    scheduled_at: scheduledAt,
+    duration_minutes: duration,
+    location: location || undefined,
+  };
+  if (roundType === 'Other') body.round_type_custom = customLabel;
+  if (isPhoneScreen && interviewer) body.interviewer_name = interviewer;
+
+  await withButtonLoading(btn, async () => {
+    const resp = await authFetch('/api/interview-configs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (resp.ok) {
+      const result = await resp.json();
+      if (!isPhoneScreen && result.config) {
+        await authFetch('/api/interview-configs/' + result.config.id + '/activate', { method: 'POST' });
+      }
+      document.querySelector('.modal-overlay')?.remove();
+      toast('Interview round created');
+      openCandidateDetail(candidateId);
+    } else {
+      const err = await resp.json().catch(() => ({}));
+      toast(err.error || 'Failed to create round', 'error');
+    }
   });
-  if (resp.ok) {
-    toast('Interview round added');
-    openCandidateDetail(candidateId);
-  } else {
-    const err = await resp.json().catch(() => ({}));
-    toast(err.error || 'Failed to add round', 'error');
-  }
-}
+};
 
 
 
-async function loadAndRenderScorecards(candidateId, roundId) {
-  const container = document.getElementById(`cdScorecardsFor_${roundId}`);
-  if (!container) return;
-  try {
-    const cards = await apiCall(`/api/candidates/${candidateId}/interviews/${roundId}/scorecards`);
-    if (!cards || cards.length === 0) {
-      const isNBI = !isClientUser();
-      container.innerHTML = isNBI
-        ? `<button class="btn btn--sm" onclick="createScorecard('${candidateId}','${roundId}')">Start Evaluation</button>`
-        : '<div style="font-size:0.75rem;color:var(--text-muted)">No evaluations yet</div>';
-      return;
-    }
-
-    const myCard = cards.find(c => c.interviewer_user_id === (_currentUser && _currentUser.id));
-    const submitted = cards.filter(c => c.submitted_at);
-    const isNBI = !isClientUser();
-
-    let html = '';
-    if (isNBI && !myCard) {
-      html += `<button class="btn btn--sm" style="margin-bottom:8px" onclick="createScorecard('${candidateId}','${roundId}')">Add Your Assessment</button>`;
-    }
-
-    if (submitted.length > 0) {
-      const avgRating = (submitted.reduce((s, c) => s + (c.overall_rating || 0), 0) / submitted.length).toFixed(1);
-      const recCounts = {};
-      submitted.forEach(c => { if (c.recommendation) recCounts[c.recommendation] = (recCounts[c.recommendation] || 0) + 1; });
-      const recSummary = Object.entries(recCounts).map(([k, v]) => `${v} ${k.replace(/-/g, ' ')}`).join(', ');
-
-      html += `<div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:6px">Avg rating: <strong>${avgRating}/5</strong> | ${recSummary}</div>`;
-      submitted.forEach(c => {
-        html += `<div style="font-size:0.75rem;padding:6px 0;border-top:1px solid var(--border-default)">
-          <span style="font-weight:600">${esc(c.interviewer_name)}</span>
-          <span style="color:var(--text-muted)"> — ${c.overall_rating}/5, ${(c.recommendation || '').replace(/-/g, ' ')}</span>
-          ${c.strengths ? `<div style="color:var(--success);font-size:0.75rem;margin-top:2px">+ ${esc(c.strengths)}</div>` : ''}
-          ${c.concerns ? `<div style="color:var(--danger);font-size:0.75rem">- ${esc(c.concerns)}</div>` : ''}
-        </div>`;
-      });
-    }
-
-    container.innerHTML = html || '<div style="font-size:0.75rem;color:var(--text-muted)">Evaluations in progress</div>';
-  } catch (e) {
-    container.innerHTML = '<div style="font-size:0.75rem;color:var(--text-muted)">Failed to load scorecards</div>';
-  }
-}
-
-async function createScorecard(candidateId, roundId) {
-  const resp = await authFetch(`/api/candidates/${candidateId}/interviews/${roundId}/scorecards`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({}),
-  });
-  if (resp.ok) {
-    toast('Scorecard created');
-    openCandidateDetail(candidateId);
-  } else {
-    const err = await resp.json().catch(() => ({}));
-    toast(err.error || 'Failed to create scorecard', 'error');
-  }
-}
 
 /**
  * Open the slide-in detail panel for a candidate. Builds the panel synchronously
@@ -22972,7 +23017,93 @@ async function openCandidateDetail(id) {
   if (c.stage === 'onboarding') {
     loadOnboardingChecklist(id);
   }
+
+  loadDecisionBar(id);
 }
+
+async function loadDecisionBar(candidateId) {
+  const container = document.getElementById('cdDecisionBar');
+  if (!container) return;
+  if (!_currentUser || _currentUser.role !== 'admin') { container.innerHTML = ''; return; }
+
+  const decisions = await apiCall('/api/hiring-decisions?candidate_id=' + candidateId);
+
+  const REJECTION_CATEGORIES = [
+    { value: 'skills-mismatch', label: 'Skills mismatch' },
+    { value: 'culture-fit', label: 'Culture fit' },
+    { value: 'experience-level', label: 'Experience level' },
+    { value: 'salary-expectations', label: 'Salary expectations' },
+    { value: 'better-candidate', label: 'Better candidate available' },
+    { value: 'position-filled', label: 'Position filled' },
+    { value: 'candidate-withdrew', label: 'Candidate withdrew' },
+    { value: 'other', label: 'Other' },
+  ];
+
+  const historyHtml = (decisions && decisions.length > 0) ? decisions.map(d => {
+    const dColor = d.decision === 'advance' ? 'var(--success)' : d.decision === 'reject' ? 'var(--danger)' : 'var(--warning)';
+    const ago = _relativeTime(new Date(d.decided_at));
+    return `<div style="display:flex;gap:8px;align-items:flex-start;padding:6px 0;font-size:0.78rem;border-bottom:1px solid var(--border-default)">
+      <span style="font-size:0.72rem;padding:2px 8px;border-radius:8px;background:color-mix(in srgb, ${dColor} 15%, var(--bg-surface));color:${dColor};font-weight:600;text-transform:uppercase;flex-shrink:0">${d.decision}</span>
+      <div style="flex:1;min-width:0">
+        <div style="color:var(--text-secondary)">${esc(d.notes)}</div>
+        <div style="font-size:0.72rem;color:var(--text-faint);margin-top:2px">${esc(d.decided_by_name || 'Unknown')} &middot; ${ago}${d.rejection_category ? ' &middot; ' + esc(d.rejection_category) : ''}</div>
+      </div>
+    </div>`;
+  }).join('') : '';
+
+  const catOptions = REJECTION_CATEGORIES.map(c => `<option value="${c.value}">${c.label}</option>`).join('');
+
+  container.innerHTML = `
+    <div style="margin-top:12px;padding-top:12px;border-top:2px solid var(--border-default)">
+      <div style="font-weight:600;font-size:0.85rem;margin-bottom:8px;color:var(--text-primary)">Hiring Decision</div>
+      ${historyHtml ? `<div style="margin-bottom:10px">${historyHtml}</div>` : ''}
+      <textarea id="ivDecisionNotes" placeholder="Decision notes (required)..." rows="2" style="width:100%;font-size:0.82rem;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-family:inherit;resize:vertical;margin-bottom:8px"></textarea>
+      <div id="ivRejectCatRow" style="display:none;margin-bottom:8px">
+        <select id="ivRejectCategory" style="width:100%;font-size:0.82rem;padding:6px 8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-family:inherit">
+          <option value="">Select rejection reason...</option>
+          ${catOptions}
+        </select>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn--sm" style="background:var(--success);color:#fff;border:none;font-weight:600" onclick="window._ivDecideCandidate('${candidateId}','advance',this)">Advance</button>
+        <button class="btn btn--sm" style="background:var(--warning);color:#fff;border:none;font-weight:600" onclick="window._ivDecideCandidate('${candidateId}','hold',this)">Hold</button>
+        <button class="btn btn--sm" style="background:var(--danger);color:#fff;border:none;font-weight:600" onclick="window._ivShowRejectFlow('${candidateId}')">Reject</button>
+      </div>
+    </div>`;
+}
+
+window._ivShowRejectFlow = function(candidateId) {
+  const row = document.getElementById('ivRejectCatRow');
+  if (row) row.style.display = 'block';
+  const notes = document.getElementById('ivDecisionNotes');
+  if (notes && !notes.value.trim()) notes.focus();
+};
+
+window._ivDecideCandidate = async function(candidateId, decision, btn) {
+  const notes = document.getElementById('ivDecisionNotes')?.value?.trim();
+  if (!notes) { toast('Notes are required', 'error'); document.getElementById('ivDecisionNotes')?.focus(); return; }
+
+  let rejection_category = null;
+  if (decision === 'reject') {
+    rejection_category = document.getElementById('ivRejectCategory')?.value;
+    if (!rejection_category) { toast('Please select a rejection reason', 'error'); return; }
+  }
+
+  await withButtonLoading(btn, async () => {
+    const resp = await authFetch('/api/hiring-decisions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ candidate_id: candidateId, decision, notes, rejection_category }),
+    });
+    if (resp.ok) {
+      toast(decision === 'advance' ? 'Candidate advanced to offer' : decision === 'reject' ? 'Candidate rejected' : 'Decision recorded');
+      openCandidateDetail(candidateId);
+    } else {
+      const err = await resp.json().catch(() => ({}));
+      toast(err.error || 'Failed to record decision', 'error');
+    }
+  });
+};
 
 /** Render the comments section of the candidate detail panel. */
 function renderCandidateComments(candidateId, comments, disabledStyle) {
