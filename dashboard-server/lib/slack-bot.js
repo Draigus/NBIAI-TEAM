@@ -146,6 +146,46 @@ async function resolveAssignee(dbPool, rawName) {
   return { resolved: false, raw: name, reason: 'not_found' };
 }
 
+const WORKSAGE_URL = 'https://worksage.nbi-consulting.com/nbi_project_dashboard.html';
+
+function buildSlackReply(opts) {
+  const { title, itemType, clientName, clientAbbr, assigneeName,
+          assigneeResolved, clientResolved, queueId, warnings } = opts || {};
+
+  if (!title) {
+    return '❌ Couldn\'t parse a task from that message.\nUsage: @WorkSage [CH|LH|NBI] [task|story|feature] for [Name]: Title';
+  }
+
+  const lines = [];
+  lines.push(`✅ Queued: *${title}*`);
+
+  const typeName = (itemType || 'task').charAt(0).toUpperCase() + (itemType || 'task').slice(1).toLowerCase();
+  const parts = [`📋 ${typeName}`];
+
+  if (assigneeName && assigneeResolved) {
+    parts.push(`👤 ${assigneeName}`);
+  } else if (assigneeName && !assigneeResolved) {
+    parts.push(`⚠️ "${assigneeName}" (not matched to a user)`);
+  }
+
+  if (clientName && clientResolved) {
+    parts.push(`🏢 ${clientName}`);
+  } else if (clientAbbr && !clientResolved) {
+    parts.push(`⚠️ "${clientAbbr}" (unknown client)`);
+  }
+
+  lines.push(parts.join(' · '));
+
+  if (warnings && warnings.includes('db_error')) {
+    lines.push('⚠️ Couldn\'t look up client/assignee — queued without metadata');
+  }
+
+  if (queueId) lines.push(`🆔 ${queueId}`);
+  lines.push(`🔗 ${WORKSAGE_URL}`);
+
+  return lines.join('\n');
+}
+
 function postSlackReply(token, channel, text, threadTs) {
   if (!token) return Promise.resolve({ skipped: true });
   const payload = JSON.stringify({ channel, text, thread_ts: threadTs });
@@ -197,5 +237,5 @@ async function handleAppMention(event, dbPool, botToken) {
 module.exports = {
   verifySlackSignature, parseSlackMessage, postSlackReply, handleAppMention,
   loadClientAbbreviations, getClientAbbreviations, startAbbreviationRefresh, stopAbbreviationRefresh,
-  resolveClient, resolveAssignee,
+  resolveClient, resolveAssignee, buildSlackReply,
 };

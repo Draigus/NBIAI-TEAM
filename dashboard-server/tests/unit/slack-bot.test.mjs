@@ -279,6 +279,91 @@ describe('loadClientAbbreviations', () => {
   });
 });
 
+describe('buildSlackReply', () => {
+  let buildSlackReply;
+
+  beforeEach(() => {
+    ({ buildSlackReply } = require('../../lib/slack-bot'));
+  });
+
+  it('builds a full success reply with all metadata', () => {
+    const reply = buildSlackReply({
+      title: 'Fix login timeout',
+      itemType: 'task',
+      clientName: 'Couch Heroes',
+      assigneeName: 'Aris',
+      assigneeResolved: true,
+      clientResolved: true,
+      queueId: 'abc-123',
+    });
+    expect(reply).toContain('✅ Queued: *Fix login timeout*');
+    expect(reply).toContain('📋 Task');
+    expect(reply).toContain('👤 Aris');
+    expect(reply).toContain('🏢 Couch Heroes');
+    expect(reply).toContain('🆔 abc-123');
+    expect(reply).toContain('🔗');
+  });
+
+  it('flags unresolved assignee with warning', () => {
+    const reply = buildSlackReply({
+      title: 'Fix login timeout',
+      itemType: 'task',
+      clientName: 'Couch Heroes',
+      assigneeName: 'Nobody',
+      assigneeResolved: false,
+      clientResolved: true,
+      queueId: 'abc-123',
+    });
+    expect(reply).toContain('⚠️ "Nobody" (not matched to a user)');
+    expect(reply).not.toContain('👤');
+  });
+
+  it('flags unresolved client with warning', () => {
+    const reply = buildSlackReply({
+      title: 'Fix login timeout',
+      itemType: 'task',
+      clientName: null,
+      clientAbbr: 'XX',
+      assigneeName: 'Aris',
+      assigneeResolved: true,
+      clientResolved: false,
+      queueId: 'abc-123',
+    });
+    expect(reply).toContain('⚠️ "XX" (unknown client)');
+    expect(reply).not.toContain('🏢');
+  });
+
+  it('builds minimal reply with no metadata', () => {
+    const reply = buildSlackReply({
+      title: 'Fix the broken button',
+      itemType: 'task',
+      queueId: 'abc-123',
+    });
+    expect(reply).toContain('✅ Queued: *Fix the broken button*');
+    expect(reply).toContain('📋 Task');
+    expect(reply).toContain('🆔 abc-123');
+    expect(reply).not.toContain('👤');
+    expect(reply).not.toContain('🏢');
+  });
+
+  it('builds error reply for empty title', () => {
+    const reply = buildSlackReply({ title: null });
+    expect(reply).toContain('❌');
+    expect(reply).toContain('Usage:');
+  });
+
+  it('builds degraded reply with DB error warning', () => {
+    const reply = buildSlackReply({
+      title: 'Fix login timeout',
+      itemType: 'task',
+      queueId: 'abc-123',
+      warnings: ['db_error'],
+    });
+    expect(reply).toContain('⚠️');
+    expect(reply).toContain('queued without metadata');
+  });
+});
+
 describe('postSlackReply', () => {
   let postSlackReply;
 
