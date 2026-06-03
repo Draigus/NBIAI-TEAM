@@ -374,47 +374,104 @@ describe('postSlackReply', () => {
   });
 });
 
-describe('handleAppMention', () => {
-  let handleAppMention;
+describe('handleAppMention (enhanced)', () => {
+  let handleAppMention, loadClientAbbreviations;
 
-  beforeEach(async () => { await truncate(); });
+  beforeEach(async () => {
+    ({ handleAppMention, loadClientAbbreviations } = require('../../lib/slack-bot'));
+    await truncate();
+    await pool.query("INSERT INTO clients (name, abbreviation) VALUES ('Couch Heroes', 'CH')");
+    await pool.query("INSERT INTO users (username, display_name, password_hash, role, is_active) VALUES ('aris', 'Aris', 'x', 'member', true)");
+    await pool.query("INSERT INTO users (username, display_name, password_hash, role, is_active) VALUES ('glen', 'Glen Pryer', 'x', 'admin', true)");
+    await loadClientAbbreviations(pool);
+  });
 
-  it('inserts a queue item from a valid mention event', async () => {
-    ({ handleAppMention } = require('../../lib/slack-bot'));
+  it('queues a task with full metadata', async () => {
     const event = {
       type: 'app_mention',
-      text: '<@U12345> Fix the login page\nButtons are broken',
-      user: 'U99SENDER',
-      channel: 'C88CHANNEL',
-      ts: '1234567890.123456',
+      text: '<@UBOT> CH task for Aris: Fix login timeout\nThe session expires too fast',
+      user: 'USENDER', channel: 'CCHAN', ts: '111.222',
     };
     const result = await handleAppMention(event, pool, '');
     expect(result.queued).toBe(true);
-    expect(result.item.title).toBe('Fix the login page');
-    expect(result.item.description).toBe('Buttons are broken');
-    expect(result.item.slack_user_id).toBe('U99SENDER');
-    expect(result.item.slack_channel).toBe('C88CHANNEL');
-    expect(result.item.slack_message_ts).toBe('1234567890.123456');
+    expect(result.item.title).toBe('Fix login timeout');
+    expect(result.item.description).toBe('The session expires too fast');
+    expect(result.item.item_type).toBe('task');
+    expect(result.item.assignee).toBe('Aris');
+    expect(result.item.client_id).toBeDefined();
 
     const { rows } = await pool.query('SELECT * FROM task_queue');
     expect(rows).toHaveLength(1);
-    expect(rows[0].title).toBe('Fix the login page');
+    expect(rows[0].client_id).toBeDefined();
+    expect(rows[0].assignee).toBe('Aris');
+    expect(rows[0].item_type).toBe('task');
+  });
+
+  it('queues with default type when not specified', async () => {
+    const event = {
+      type: 'app_mention',
+      text: '<@UBOT> CH for Aris: Fix it',
+      user: 'USENDER', channel: 'CCHAN', ts: '111.222',
+    };
+    const result = await handleAppMention(event, pool, '');
+    expect(result.item.item_type).toBe('task');
+  });
+
+  it('re-merges "for X" into title when X is not a known user', async () => {
+    const event = {
+      type: 'app_mention',
+      text: '<@UBOT> CH Deploy fix for production',
+      user: 'USENDER', channel: 'CCHAN', ts: '111.222',
+    };
+    const result = await handleAppMention(event, pool, '');
+    expect(result.queued).toBe(true);
+    expect(result.item.title).toBe('Deploy fix for production');
+    expect(result.item.assignee).toBeNull();
+  });
+
+  it('queues with null client_id when abbreviation is unknown', async () => {
+    const event = {
+      type: 'app_mention',
+      text: '<@UBOT> XX for Aris: Some task',
+      user: 'USENDER', channel: 'CCHAN', ts: '111.222',
+    };
+    const result = await handleAppMention(event, pool, '');
+    expect(result.queued).toBe(true);
+    expect(result.item.client_id).toBeNull();
+    expect(result.item.title).toContain('XX');
   });
 
   it('returns queued:false for an empty message', async () => {
-    ({ handleAppMention } = require('../../lib/slack-bot'));
     const event = {
       type: 'app_mention',
-      text: '<@U12345>',
-      user: 'U99SENDER',
-      channel: 'C88CHANNEL',
-      ts: '1234567890.123456',
+      text: '<@UBOT>',
+      user: 'USENDER', channel: 'CCHAN', ts: '111.222',
     };
     const result = await handleAppMention(event, pool, '');
     expect(result.queued).toBe(false);
+  });
 
-    const { rows } = await pool.query('SELECT * FROM task_queue');
-    expect(rows).toHaveLength(0);
+  it('resolves first-name assignee to full display_name', async () => {
+    const event = {
+      type: 'app_mention',
+      text: '<@UBOT> for Glen: Review the spec',
+      user: 'USENDER', channel: 'CCHAN', ts: '111.222',
+    };
+    const result = await handleAppMention(event, pool, '');
+    expect(result.queued).toBe(true);
+    expect(result.item.assignee).toBe('Glen Pryer');
+  });
+
+  it('stores raw assignee text when not found and warns', async () => {
+    const event = {
+      type: 'app_mention',
+      text: '<@UBOT> CH for Nobody: Some task',
+      user: 'USENDER', channel: 'CCHAN', ts: '111.222',
+    };
+    const result = await handleAppMention(event, pool, '');
+    expect(result.queued).toBe(true);
+    expect(result.item.assignee).toBe('Nobody');
+    expect(result.warnings).toContain('assignee_not_found');
   });
 });
 

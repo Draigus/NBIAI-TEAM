@@ -214,24 +214,98 @@ function postSlackReply(token, channel, text, threadTs) {
 }
 
 async function handleAppMention(event, dbPool, botToken) {
-  const { title, description } = parseSlackMessage(event.text);
-  if (!title) return { queued: false };
+  const abbrSet = getClientAbbreviations();
+  const parsed = parseSlackMessage(event.text, abbrSet);
+
+  if (!parsed.title && !parsed.assigneeRaw) {
+    const errorReply = buildSlackReply({ title: null });
+    await postSlackReply(botToken, event.channel, errorReply, event.ts);
+    return { queued: false };
+  }
+
+  let clientId = null;
+  let clientName = null;
+  let clientResolved = false;
+  let assigneeName = null;
+  let assigneeResolved = false;
+  const warnings = [];
+  let title = parsed.title;
+
+  // Detect whether the original first line uses colon syntax (explicit metadata)
+  const firstLine = (event.text || '').replace(/<@[A-Z0-9]+>/g, '').split('\n')[0] || '';
+  const hasColon = firstLine.includes(':');
+
+  if (parsed.clientAbbr) {
+    try {
+      const client = await resolveClient(dbPool, parsed.clientAbbr);
+      if (client) {
+        clientId = client.id;
+        clientName = client.name;
+        clientResolved = true;
+      }
+    } catch (err) {
+      warnings.push('db_error');
+    }
+  }
+
+  if (parsed.assigneeRaw) {
+    try {
+      const result = await resolveAssignee(dbPool, parsed.assigneeRaw);
+      if (result.resolved) {
+        assigneeName = result.displayName;
+        assigneeResolved = true;
+      } else if (hasColon) {
+        // Colon was present — title is clean, store raw assignee with warning
+        assigneeName = parsed.assigneeRaw;
+        warnings.push('assignee_' + result.reason);
+      } else {
+        // No colon — "for X" was probably natural language, re-merge
+        if (title) {
+          title = title + ' for ' + parsed.assigneeRaw;
+        } else {
+          title = 'for ' + parsed.assigneeRaw;
+        }
+      }
+    } catch (err) {
+      warnings.push('db_error');
+      if (title) {
+        title = title + ' for ' + parsed.assigneeRaw;
+      } else {
+        title = 'for ' + parsed.assigneeRaw;
+      }
+    }
+  }
+
+  if (!title) {
+    const errorReply = buildSlackReply({ title: null });
+    await postSlackReply(botToken, event.channel, errorReply, event.ts);
+    return { queued: false };
+  }
+
+  const itemType = (parsed.itemType || 'task').toLowerCase();
 
   const { rows } = await dbPool.query(
-    `INSERT INTO task_queue (title, description, submitted_by, slack_user_id, slack_channel, slack_message_ts)
-     VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-    [title, description, `slack:${event.user}`, event.user, event.channel, event.ts]
+    `INSERT INTO task_queue (title, description, submitted_by, slack_user_id, slack_channel, slack_message_ts, client_id, assignee, item_type)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+    [title, parsed.description, `slack:${event.user}`, event.user, event.channel, event.ts,
+     clientId, assigneeName, itemType]
   );
   const item = rows[0];
 
-  await postSlackReply(
-    botToken,
-    event.channel,
-    `Queued: *${title}*\nID: \`${item.id}\``,
-    event.ts
-  );
+  const reply = buildSlackReply({
+    title,
+    itemType,
+    clientName,
+    clientAbbr: parsed.clientAbbr,
+    assigneeName: assigneeName || (warnings.some(w => w.startsWith('assignee_')) ? parsed.assigneeRaw : null),
+    assigneeResolved,
+    clientResolved,
+    queueId: item.id,
+    warnings,
+  });
+  await postSlackReply(botToken, event.channel, reply, event.ts);
 
-  return { queued: true, item };
+  return { queued: true, item, warnings };
 }
 
 module.exports = {
