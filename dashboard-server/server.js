@@ -223,9 +223,15 @@ app.use('/public', express.static(path.join(__dirname, 'public'), { maxAge: '7d'
 app.use(express.json({
   limit: '10mb',
   verify: (req, _res, buf) => {
-    if (req.path === '/api/slack/events') req.rawBody = buf.toString('utf8');
+    if (req.path.startsWith('/api/slack/')) req.rawBody = buf.toString('utf8');
   },
 }));   // Allow large payloads for sync/restore
+app.use(express.urlencoded({
+  extended: true,
+  verify: (req, _res, buf) => {
+    if (req.path.startsWith('/api/slack/')) req.rawBody = buf.toString('utf8');
+  },
+}));
 app.use((req, res, next) => {
   const ms = req.path.startsWith('/api/restore') || req.path.startsWith('/api/backup') ? 120000 : 30000;
   req.setTimeout(ms);
@@ -315,6 +321,9 @@ app.post('/api/internal/notifications', async (req, res) => {
   }
 });
 
+// Slack routes — before requireAuth (authenticated via Slack signing secret, not session)
+app.use(require('./routes/slack')({ pool, log, verifySlackSignature, handleAppMention, loadClientAbbreviations, startAbbreviationRefresh }));
+
 // All routes below this line require a valid auth token
 app.use(requireAuth);
 
@@ -379,8 +388,6 @@ app.use(require('./routes/client-notes')({ pool, requireAdmin, getClientScopes, 
 app.use(require('./routes/notifications')({ pool, requireAdmin, requireNBI, createNotification, log }));
 app.use(require('./routes/templates')({ pool, requireAdmin, isValidUuid, log }));
 app.use(require('./routes/activity')({ pool, requireAuth, requireNBI }));
-app.use(require('./routes/slack')({ pool, log, verifySlackSignature, handleAppMention, loadClientAbbreviations, startAbbreviationRefresh }));
-
 // Prime Slack client abbreviation cache (after routes registered, skipped in test)
 if (!(process.env.DATABASE_URL || '').includes('_test')) {
   loadClientAbbreviations(pool).catch(() => {});

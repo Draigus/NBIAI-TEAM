@@ -408,6 +408,72 @@ describe('POST /api/slack/events (non-async)', () => {
   });
 });
 
+describe('POST /api/slack/command', () => {
+  const SIGNING_SECRET = process.env.SLACK_SIGNING_SECRET || 'test_slack_signing_secret';
+
+  beforeEach(async () => {
+    await truncate();
+    await pool.query("INSERT INTO clients (name, abbreviation) VALUES ('Couch Heroes', 'CH')");
+    await pool.query("INSERT INTO users (username, display_name, password_hash, role, is_active) VALUES ('aris', 'Aris', 'x', 'member', true)");
+    const { loadEntityCache } = require('../../lib/slack-bot');
+    await loadEntityCache(pool);
+  });
+
+  function signedFormRequest(params) {
+    const bodyStr = new URLSearchParams(params).toString();
+    const ts = String(Math.floor(Date.now() / 1000));
+    const sig = signPayload(SIGNING_SECRET, ts, bodyStr);
+    return { bodyStr, ts, sig };
+  }
+
+  it('creates a task from slash command with client and user', async () => {
+    const params = { text: 'Couch Heroes Aris fix the login', user_id: 'USENDER', channel_id: 'CCHAN', command: '/worksage' };
+    // supertest .type('form').send(obj) produces consistent encoding we can sign
+    const bodyStr = require('querystring').stringify(params);
+    const ts = String(Math.floor(Date.now() / 1000));
+    const sig = signPayload(SIGNING_SECRET, ts, bodyStr);
+    const res = await getApp().request(getApp().app)
+      .post('/api/slack/command')
+      .set('x-slack-request-timestamp', ts)
+      .set('x-slack-signature', sig)
+      .type('form')
+      .send(bodyStr);
+    expect(res.status).toBe(200);
+    expect(res.body.response_type).toBe('in_channel');
+    expect(res.body.text).toContain('Created');
+    expect(res.body.text).toContain('fix the login');
+
+    const { rows } = await pool.query("SELECT * FROM tasks WHERE source = 'slack'");
+    expect(rows).toHaveLength(1);
+    expect(rows[0].assignees).toContain('Aris');
+    expect(rows[0].client_id).toBeDefined();
+  });
+
+  it('queues when no client recognised', async () => {
+    const { bodyStr, ts, sig } = signedFormRequest({
+      text: 'fix something broken', user_id: 'USENDER', channel_id: 'CCHAN', command: '/worksage',
+    });
+    const res = await getApp().request(getApp().app)
+      .post('/api/slack/command')
+      .set('Content-Type', 'application/x-www-form-urlencoded')
+      .set('x-slack-request-timestamp', ts)
+      .set('x-slack-signature', sig)
+      .send(bodyStr);
+    expect(res.status).toBe(200);
+    expect(res.body.text).toContain('Queued');
+  });
+
+  it('rejects invalid signature', async () => {
+    const res = await getApp().request(getApp().app)
+      .post('/api/slack/command')
+      .set('Content-Type', 'application/x-www-form-urlencoded')
+      .set('x-slack-request-timestamp', String(Math.floor(Date.now() / 1000)))
+      .set('x-slack-signature', 'v0=invalid')
+      .send('text=test&user_id=U1&channel_id=C1');
+    expect(res.status).toBe(401);
+  });
+});
+
 describe('POST /api/queue with API key', () => {
   const API_KEY = process.env.QUEUE_API_KEY || 'test_queue_api_key_abc123';
 

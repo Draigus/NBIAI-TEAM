@@ -1,12 +1,18 @@
 display_information:
   name: WorkSage
-  description: Submit tasks to the NBI WorkSage dashboard queue by mentioning @WorkSage in any channel.
+  description: Create tasks in WorkSage from any Slack conversation.
   background_color: "#1e293b"
 
 features:
   bot_user:
     display_name: WorkSage
     always_online: true
+  slash_commands:
+    - command: /worksage
+      url: https://worksage.nbi-consulting.com/api/slack/command
+      description: Create a task in WorkSage
+      usage_hint: "[client] [person] what needs doing"
+      should_escape: false
 
 oauth_config:
   scopes:
