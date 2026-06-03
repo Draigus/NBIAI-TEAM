@@ -90,6 +90,62 @@ function parseSlackMessage(text, abbreviations) {
   return { title, description, clientAbbr, itemType, assigneeRaw };
 }
 
+let _abbrCache = new Set();
+let _abbrCacheTimer = null;
+
+async function loadClientAbbreviations(dbPool) {
+  const { rows } = await dbPool.query(
+    "SELECT abbreviation FROM clients WHERE abbreviation IS NOT NULL AND abbreviation != ''"
+  );
+  _abbrCache = new Set(rows.map(r => r.abbreviation.toLowerCase()));
+  return _abbrCache;
+}
+
+function getClientAbbreviations() {
+  return _abbrCache;
+}
+
+function startAbbreviationRefresh(dbPool, intervalMs) {
+  if (_abbrCacheTimer) clearInterval(_abbrCacheTimer);
+  _abbrCacheTimer = setInterval(() => {
+    loadClientAbbreviations(dbPool).catch(() => {});
+  }, intervalMs || 3600000);
+}
+
+function stopAbbreviationRefresh() {
+  if (_abbrCacheTimer) { clearInterval(_abbrCacheTimer); _abbrCacheTimer = null; }
+}
+
+async function resolveClient(dbPool, abbr) {
+  if (!abbr) return null;
+  const { rows } = await dbPool.query(
+    'SELECT id, name, abbreviation FROM clients WHERE LOWER(abbreviation) = LOWER($1) LIMIT 1',
+    [abbr]
+  );
+  return rows[0] || null;
+}
+
+async function resolveAssignee(dbPool, rawName) {
+  if (!rawName || !rawName.trim()) return { resolved: false, raw: rawName || '', reason: 'not_found' };
+
+  const name = rawName.trim();
+
+  const { rows: exact } = await dbPool.query(
+    'SELECT display_name FROM users WHERE LOWER(display_name) = LOWER($1) AND is_active = true LIMIT 1',
+    [name]
+  );
+  if (exact.length === 1) return { resolved: true, displayName: exact[0].display_name };
+
+  const { rows: prefix } = await dbPool.query(
+    "SELECT display_name FROM users WHERE LOWER(display_name) LIKE (LOWER($1) || ' %') AND is_active = true LIMIT 2",
+    [name]
+  );
+  if (prefix.length === 1) return { resolved: true, displayName: prefix[0].display_name };
+  if (prefix.length > 1) return { resolved: false, raw: name, reason: 'ambiguous' };
+
+  return { resolved: false, raw: name, reason: 'not_found' };
+}
+
 function postSlackReply(token, channel, text, threadTs) {
   if (!token) return Promise.resolve({ skipped: true });
   const payload = JSON.stringify({ channel, text, thread_ts: threadTs });
@@ -138,4 +194,8 @@ async function handleAppMention(event, dbPool, botToken) {
   return { queued: true, item };
 }
 
-module.exports = { verifySlackSignature, parseSlackMessage, postSlackReply, handleAppMention };
+module.exports = {
+  verifySlackSignature, parseSlackMessage, postSlackReply, handleAppMention,
+  loadClientAbbreviations, getClientAbbreviations, startAbbreviationRefresh, stopAbbreviationRefresh,
+  resolveClient, resolveAssignee,
+};

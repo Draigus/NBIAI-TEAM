@@ -170,6 +170,115 @@ describe('parseSlackMessage (enhanced)', () => {
   });
 });
 
+describe('resolveClient', () => {
+  let resolveClient;
+
+  beforeEach(async () => {
+    ({ resolveClient } = require('../../lib/slack-bot'));
+    await truncate();
+    await pool.query("INSERT INTO clients (name, abbreviation) VALUES ('Couch Heroes', 'CH')");
+  });
+
+  it('resolves a known abbreviation', async () => {
+    const result = await resolveClient(pool, 'CH');
+    expect(result).not.toBeNull();
+    expect(result.name).toBe('Couch Heroes');
+    expect(result.abbreviation).toBe('CH');
+    expect(result.id).toBeDefined();
+  });
+
+  it('resolves case-insensitively', async () => {
+    const result = await resolveClient(pool, 'ch');
+    expect(result).not.toBeNull();
+    expect(result.name).toBe('Couch Heroes');
+  });
+
+  it('returns null for unknown abbreviation', async () => {
+    const result = await resolveClient(pool, 'XX');
+    expect(result).toBeNull();
+  });
+
+  it('returns null for null input', async () => {
+    const result = await resolveClient(pool, null);
+    expect(result).toBeNull();
+  });
+});
+
+describe('resolveAssignee', () => {
+  let resolveAssignee;
+
+  beforeEach(async () => {
+    ({ resolveAssignee } = require('../../lib/slack-bot'));
+    await truncate();
+    await pool.query("INSERT INTO users (username, display_name, password_hash, role, is_active) VALUES ('glen', 'Glen Pryer', 'x', 'admin', true)");
+    await pool.query("INSERT INTO users (username, display_name, password_hash, role, is_active) VALUES ('magnus', 'Magnus Pryer', 'x', 'admin', true)");
+    await pool.query("INSERT INTO users (username, display_name, password_hash, role, is_active) VALUES ('inactive', 'Inactive User', 'x', 'member', false)");
+  });
+
+  it('resolves exact full name match', async () => {
+    const r = await resolveAssignee(pool, 'Glen Pryer');
+    expect(r.resolved).toBe(true);
+    expect(r.displayName).toBe('Glen Pryer');
+  });
+
+  it('resolves exact full name case-insensitively', async () => {
+    const r = await resolveAssignee(pool, 'glen pryer');
+    expect(r.resolved).toBe(true);
+    expect(r.displayName).toBe('Glen Pryer');
+  });
+
+  it('resolves first name via prefix match', async () => {
+    const r = await resolveAssignee(pool, 'Glen');
+    expect(r.resolved).toBe(true);
+    expect(r.displayName).toBe('Glen Pryer');
+  });
+
+  it('returns not_found for unknown name', async () => {
+    const r = await resolveAssignee(pool, 'Nobody');
+    expect(r.resolved).toBe(false);
+    expect(r.raw).toBe('Nobody');
+    expect(r.reason).toBe('not_found');
+  });
+
+  it('returns not_found for empty string', async () => {
+    const r = await resolveAssignee(pool, '');
+    expect(r.resolved).toBe(false);
+    expect(r.reason).toBe('not_found');
+  });
+
+  it('does not match inactive users', async () => {
+    const r = await resolveAssignee(pool, 'Inactive User');
+    expect(r.resolved).toBe(false);
+    expect(r.reason).toBe('not_found');
+  });
+
+  it('returns not_found for null input', async () => {
+    const r = await resolveAssignee(pool, null);
+    expect(r.resolved).toBe(false);
+    expect(r.reason).toBe('not_found');
+  });
+});
+
+describe('loadClientAbbreviations', () => {
+  let loadClientAbbreviations;
+
+  beforeEach(async () => {
+    ({ loadClientAbbreviations } = require('../../lib/slack-bot'));
+    await truncate();
+    await pool.query("INSERT INTO clients (name, abbreviation) VALUES ('Couch Heroes', 'CH')");
+    await pool.query("INSERT INTO clients (name, abbreviation) VALUES ('Lighthouse Studios', 'LH')");
+    await pool.query("INSERT INTO clients (name) VALUES ('No Abbrev Client')");
+  });
+
+  it('returns a Set of lowercase abbreviations', async () => {
+    const set = await loadClientAbbreviations(pool);
+    expect(set).toBeInstanceOf(Set);
+    expect(set.has('ch')).toBe(true);
+    expect(set.has('lh')).toBe(true);
+    expect(set.size).toBe(2);
+  });
+});
+
 describe('postSlackReply', () => {
   let postSlackReply;
 
