@@ -2928,7 +2928,11 @@ span.fin-editable { display: inline-block; position: relative; }
 .cc-tag.r { background: rgba(248,81,73,0.15); color: #f85149; }
 .cc-tag.a { background: rgba(210,153,34,0.15); color: #d29922; }
 .cc-tag.g { background: rgba(63,185,80,0.15); color: #3fb950; }
-.cc-tag.b { background: rgba(88,166,255,0.15); color: #58a6ff; }
+.cc-tag.b, .cc-tag--blue { background: rgba(88,166,255,0.15); color: #58a6ff; }
+.cc-tag--green { background: rgba(63,185,80,0.15); color: #3fb950; }
+.cc-tag--yellow { background: rgba(210,153,34,0.15); color: #d29922; }
+.cc-tag--red { background: rgba(248,81,73,0.15); color: #f85149; }
+.cc-tag--purple { background: rgba(188,140,255,0.15); color: var(--purple); }
 
 /* Badges */
 .cc-badge { font-size: 0.78rem; font-weight: 700; padding: 4px 10px; border-radius: 4px; white-space: nowrap; }
@@ -22615,7 +22619,6 @@ function buildCandidateInterviewsHtml(candidateId, rounds, disabledStyle) {
         <span>${schedStr}</span>
         ${durStr ? `<span>${durStr}</span>` : ''}
         ${r.location ? `<span>${esc(r.location)}</span>` : ''}
-        <span style="font-size:0.72rem;padding:2px 6px;border-radius:8px;background:color-mix(in srgb, ${statusColors[r.status] || 'var(--text-muted)'} 15%, var(--bg-surface));color:${statusColors[r.status] || 'var(--text-muted)'}">${r.status}</span>
       </div>
       ${r.outcome_notes ? `<div style="font-size:0.78rem;margin-top:6px;color:var(--text-secondary)">${esc(r.outcome_notes)}</div>` : ''}
       ${sessionsHtml ? `<div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">${sessionsHtml}</div>` : ''}
