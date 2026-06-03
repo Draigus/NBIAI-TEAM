@@ -4,12 +4,16 @@ Updated 2026-06-03
 
 ---
 
-## Interview UX Redesign — Phase A COMPLETE, Phase B next
+## Interview UX Redesign — Phases A + B COMPLETE
 
-Phase A (DB + API) is done: migration 062 applied, all new endpoints live, old endpoints retired (410 Gone).
-- **Glen UAT needed:** confirm dashboard loads at worksage.nbi-consulting.com, non-interview pages unaffected
-- **Expected breakage:** interview round section on candidate cards will show errors (old endpoints return 410). This is intentional — Phase B rebuilds the frontend.
-- **Next:** Phase B — Frontend candidate detail panel (unified round cards, decision bar, blind scoring UI)
+Phase A (DB + API) and Phase B (Frontend) both done. Deployed on :8888.
+- **Glen UAT needed:** open candidate detail → Interviews tab. Check:
+  - Compact round cards expand on click (type, date, outcome, blind score summary)
+  - Decision bar at bottom (Advance/Hold/Reject buttons, notes, history)
+  - "+ Add Round" button opens modal with type/schedule fields
+  - Questions tab visible in Hiring page sub-tabs
+  - Scorecard flow still works (deep link `#interview/{sessionId}`)
+- **Next:** Phase C — Add/Edit/Delete modals + calendar integration
 
 ## Interview Tool — COMPLETE (awaiting Glen UAT)
 
