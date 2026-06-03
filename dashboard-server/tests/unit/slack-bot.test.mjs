@@ -511,13 +511,18 @@ describe('POST /api/slack/events', () => {
     expect(res.status).toBe(401);
   });
 
-  it('returns 200 and queues item for valid app_mention', async () => {
+  it('returns 200 and queues item with metadata for valid app_mention', async () => {
     await truncate();
+    await pool.query("INSERT INTO clients (name, abbreviation) VALUES ('Couch Heroes', 'CH')");
+    await pool.query("INSERT INTO users (username, display_name, password_hash, role, is_active) VALUES ('aris', 'Aris', 'x', 'member', true)");
+    const { loadClientAbbreviations } = require('../../lib/slack-bot');
+    await loadClientAbbreviations(pool);
+
     const body = {
       type: 'event_callback',
       event: {
         type: 'app_mention',
-        text: '<@UBOTID> New item from Slack\nWith a description',
+        text: '<@UBOTID> CH for Aris: New item from Slack\nWith a description',
         user: 'USENDER',
         channel: 'CCHANNEL',
         ts: '111.222',
@@ -532,13 +537,15 @@ describe('POST /api/slack/events', () => {
       .send(bodyStr);
     expect(res.status).toBe(200);
 
-    // Give the async handler a moment
-    await new Promise(r => setTimeout(r, 200));
+    await new Promise(r => setTimeout(r, 300));
 
     const { rows } = await pool.query('SELECT * FROM task_queue');
     expect(rows).toHaveLength(1);
     expect(rows[0].title).toBe('New item from Slack');
     expect(rows[0].slack_user_id).toBe('USENDER');
+    expect(rows[0].item_type).toBe('task');
+    expect(rows[0].assignee).toBe('Aris');
+    expect(rows[0].client_id).toBeDefined();
   });
 });
 
@@ -570,5 +577,43 @@ describe('POST /api/queue with API key', () => {
       .post('/api/queue')
       .send({ title: 'Should also fail' });
     expect(res.status).toBe(401);
+  });
+
+  it('accepts submission with metadata fields', async () => {
+    const { rows: clients } = await pool.query("INSERT INTO clients (name, abbreviation) VALUES ('Test Client', 'TC') RETURNING id");
+    const clientId = clients[0].id;
+
+    const res = await request(app)
+      .post('/api/queue')
+      .set('X-API-Key', API_KEY)
+      .send({
+        title: 'Task with metadata',
+        description: 'Has all fields',
+        client_id: clientId,
+        assignee: 'Glen Pryer',
+        item_type: 'feature',
+      });
+    expect(res.status).toBe(201);
+    expect(res.body.client_id).toBe(clientId);
+    expect(res.body.assignee).toBe('Glen Pryer');
+    expect(res.body.item_type).toBe('feature');
+  });
+
+  it('defaults item_type to task when not provided', async () => {
+    const res = await request(app)
+      .post('/api/queue')
+      .set('X-API-Key', API_KEY)
+      .send({ title: 'No type specified' });
+    expect(res.status).toBe(201);
+    expect(res.body.item_type).toBe('task');
+  });
+
+  it('defaults invalid item_type to task', async () => {
+    const res = await request(app)
+      .post('/api/queue')
+      .set('X-API-Key', API_KEY)
+      .send({ title: 'Bad type', item_type: 'epic' });
+    expect(res.status).toBe(201);
+    expect(res.body.item_type).toBe('task');
   });
 });
