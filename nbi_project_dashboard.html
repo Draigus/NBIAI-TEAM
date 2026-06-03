@@ -25016,7 +25016,7 @@ function _mtgSrcChip(item) {
   if (item.source === 'manual' || !item.source_meeting_id) return '';
   var mtg = (_mtgData && _mtgData.sections && _mtgData.sections.meetings || []).find(function(m) { return m.id === item.source_meeting_id; });
   if (!mtg) return '';
-  var label = (mtg.title || '').length > 30 ? mtg.title.slice(0, 28) + '...' : mtg.title;
+  var label = (mtg.title || '').length > 30 ? (mtg.title || '').slice(0, 28) + '...' : (mtg.title || '');
   return ' <span class="cc-tag cc-tag--purple cc-mtg-src" onclick="event.stopPropagation();_mtgOpenMeeting(\'' + esc(item.source_meeting_id) + '\')">' + esc(label) + ' &middot; ' + esc(mtg.date || '') + '</span>';
 }
 
@@ -25219,7 +25219,7 @@ function _mtgDoCreateTask(action, client) {
 function _mtgFinishCreateTask(actionId, parentId, client) {
   var modal = document.getElementById('mtgParentPickerModal');
   if (modal) modal.remove();
-  var action = _mtgData.sections.actions.find(function(a) { return a.id === actionId; });
+  var action = _mtgData && _mtgData.sections && _mtgData.sections.actions ? _mtgData.sections.actions.find(function(a) { return a.id === actionId; }) : null;
   if (!action) return;
   var t = createTaskObject({ title: action.description || 'Meeting action', parentId: parentId, client: client, itemType: 'task',
     description: 'From meeting intelligence: ' + (action.date || '') + ' — ' + (action.owner || '') });
