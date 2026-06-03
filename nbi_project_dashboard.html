@@ -2298,6 +2298,59 @@ span.fin-editable { display: inline-block; position: relative; }
 .ats-interview-block .name { font-weight: 600; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ats-interview-block .meta { font-size: 12px; color: rgba(255,255,255,0.6); }
 .ats-interview-block.compact .name { font-size: 12px; }
+
+/* ===== Interview Scorecard (full-page) ===== */
+.interview-scorecard { position: fixed; inset: 0; z-index: 9999; background: var(--bg-body); display: flex; flex-direction: column; overflow: hidden; }
+.interview-scorecard__header { height: 56px; display: flex; align-items: center; padding: 0 24px; gap: 16px; border-bottom: 1px solid var(--border); background: var(--bg-card); flex-shrink: 0; }
+.interview-scorecard__header-left { display: flex; align-items: center; gap: 8px; font-size: 14px; min-width: 0; }
+.interview-scorecard__header-left span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.interview-scorecard__header-centre { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.interview-scorecard__progress-bar { width: 200px; height: 6px; background: var(--bg-elevated); border-radius: 3px; overflow: hidden; }
+.interview-scorecard__progress-fill { height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.3s; }
+.interview-scorecard__header-right { flex-shrink: 0; }
+.interview-scorecard__categories { display: flex; gap: 12px; padding: 12px 24px; border-bottom: 1px solid var(--border); background: var(--bg-card); flex-shrink: 0; flex-wrap: wrap; }
+.interview-scorecard__cat-bar { flex: 1; min-width: 100px; cursor: pointer; }
+.interview-scorecard__cat-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.interview-scorecard__cat-track { height: 4px; background: var(--bg-elevated); border-radius: 2px; overflow: hidden; }
+.interview-scorecard__cat-fill { height: 100%; border-radius: 2px; transition: width 0.3s; }
+.interview-scorecard__body { flex: 1; display: flex; align-items: center; justify-content: center; padding: 24px; overflow-y: auto; }
+.interview-scorecard__card { max-width: 700px; width: 100%; }
+.interview-scorecard__card-badges { display: flex; justify-content: space-between; margin-bottom: 16px; }
+.interview-scorecard__badge { font-size: 11px; padding: 2px 10px; border-radius: 10px; font-weight: 600; text-transform: uppercase; }
+.interview-scorecard__question-text { font-size: 18px; line-height: 1.6; color: var(--text-primary); margin-bottom: 24px; }
+.interview-scorecard__scores { display: flex; gap: 8px; justify-content: center; margin-bottom: 16px; }
+.interview-scorecard__score-btn { position: relative; width: 72px; padding: 12px 0; border: 2px solid var(--border); border-radius: 8px; background: transparent; color: var(--text-primary); cursor: pointer; text-align: center; font-size: 14px; font-weight: 600; transition: all 0.15s; }
+.interview-scorecard__score-btn:hover { border-color: var(--accent); }
+.interview-scorecard__score-btn--selected { border-color: transparent; color: #fff; }
+.interview-scorecard__score-btn--1.interview-scorecard__score-btn--selected,
+.interview-scorecard__score-btn--2.interview-scorecard__score-btn--selected { background: #dc2626; }
+.interview-scorecard__score-btn--3.interview-scorecard__score-btn--selected { background: #d97706; }
+.interview-scorecard__score-btn--4.interview-scorecard__score-btn--selected,
+.interview-scorecard__score-btn--5.interview-scorecard__score-btn--selected { background: #16a34a; }
+.interview-scorecard__score-label { font-size: 10px; font-weight: 400; display: block; margin-top: 2px; }
+.interview-scorecard__notes-toggle { font-size: 13px; color: var(--accent); cursor: pointer; border: none; background: none; padding: 0; }
+.interview-scorecard__notes { width: 100%; margin-top: 8px; font-size: 14px; padding: 8px; background: var(--bg-input); border: 1px solid var(--border); border-radius: 6px; color: var(--text-primary); resize: vertical; min-height: 60px; }
+.interview-scorecard__nav { height: 48px; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; border-top: 1px solid var(--border); background: var(--bg-card); flex-shrink: 0; }
+.interview-scorecard__dots { display: flex; gap: 6px; align-items: center; }
+.interview-scorecard__dot { width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--text-muted); background: transparent; cursor: pointer; transition: all 0.15s; padding: 0; }
+.interview-scorecard__dot--scored { background: var(--accent); border-color: var(--accent); }
+.interview-scorecard__dot--current { border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 30%, transparent); }
+.interview-scorecard__splash { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 16px; max-width: 500px; margin: 0 auto; }
+.interview-scorecard__splash h2 { font-size: 24px; margin: 0; }
+.interview-scorecard__splash .meta { font-size: 14px; color: var(--text-muted); }
+.interview-scorecard__splash .info { font-size: 13px; color: var(--text-secondary); }
+.interview-scorecard__submitted { max-width: 600px; width: 100%; }
+@media (max-width: 480px) {
+  .interview-scorecard__scores { flex-wrap: wrap; justify-content: center; }
+  .interview-scorecard__score-btn { width: calc(33% - 6px); }
+  .interview-scorecard__header { padding: 0 12px; gap: 8px; }
+  .interview-scorecard__header-centre { display: none; }
+  .interview-scorecard__body { padding: 16px; }
+  .interview-scorecard__question-text { font-size: 16px; }
+  .interview-scorecard__dots { gap: 4px; }
+  .interview-scorecard__dot { width: 8px; height: 8px; }
+}
+
 .ats-calendar-legend { display: flex; gap: 16px; margin-top: 10px; font-size: 12px; color: var(--text-muted); align-items: center; }
 .ats-calendar-legend-dot { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 4px; vertical-align: middle; }
 
@@ -3154,6 +3207,35 @@ body.dark-mode [data-tooltip-pos="below"]::before { border-top-color: transparen
 .cc-meetings-tl-date { font-size:13px; font-weight:600; color:var(--text-secondary); margin-bottom:4px; }
 .cc-meetings-threads-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(400px,1fr)); gap:10px; }
 @media(max-width:800px) { .cc-meetings-people-grid,.cc-meetings-threads-grid { grid-template-columns:1fr; } .cc-meetings-filters { flex-direction:column; } .cc-meetings-search { max-width:100%; } }
+/* Meetings — Edit Forms */
+.cc-mtg-edit-row { background:var(--bg-surface); border:1px solid var(--border-default); border-radius:6px; padding:10px 14px; margin-bottom:8px; }
+.cc-mtg-edit-row input, .cc-mtg-edit-row select, .cc-mtg-edit-row textarea { background:var(--bg-base); color:var(--text-primary); border:1px solid var(--border-default); border-radius:4px; padding:5px 8px; font-size:14px; font-family:inherit; width:100%; box-sizing:border-box; margin-bottom:6px; }
+.cc-mtg-edit-row textarea { min-height:60px; resize:vertical; }
+.cc-mtg-edit-row label { font-size:12px; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.4px; display:block; margin-bottom:2px; }
+.cc-mtg-edit-actions { display:flex; gap:6px; margin-top:8px; align-items:center; }
+.cc-mtg-edit-actions .del { color:var(--danger); cursor:pointer; font-size:12px; margin-left:auto; }
+.cc-mtg-edit-actions .del:hover { text-decoration:underline; }
+.cc-mtg-add-btn { margin-bottom:12px; }
+.cc-mtg-badge { font-size:10px; font-weight:700; padding:1px 6px; border-radius:3px; background:rgba(188,140,255,0.15); color:var(--purple); margin-left:6px; vertical-align:middle; }
+.cc-mtg-edit-icon { cursor:pointer; opacity:0.4; font-size:13px; margin-left:6px; transition:opacity .15s; }
+.cc-mtg-edit-icon:hover { opacity:1; }
+.cc-mtg-task-icon { cursor:pointer; opacity:0.5; font-size:14px; margin-left:4px; transition:opacity .15s; }
+.cc-mtg-task-icon:hover { opacity:1; color:var(--accent); }
+/* Meetings — Slide-over Panel */
+.cc-mtg-panel-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:1000; }
+.cc-mtg-panel { position:fixed; top:0; right:0; bottom:0; width:480px; background:var(--bg-raised); border-left:1px solid var(--border-default); z-index:1001; overflow-y:auto; padding:20px 24px; animation:ccSlideIn 0.2s ease; }
+@keyframes ccSlideIn { from { transform:translateX(100%); } to { transform:translateX(0); } }
+.cc-mtg-panel-title { font-size:18px; font-weight:700; margin-bottom:4px; }
+.cc-mtg-panel-date { font-size:14px; color:var(--text-secondary); margin-bottom:12px; }
+.cc-mtg-panel-section { margin-top:16px; }
+.cc-mtg-panel-section h4 { font-size:13px; font-weight:600; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.4px; margin-bottom:8px; }
+.cc-mtg-panel-close { position:absolute; top:16px; right:16px; background:none; border:none; color:var(--text-secondary); font-size:20px; cursor:pointer; padding:4px 8px; }
+.cc-mtg-panel-close:hover { color:var(--text-primary); }
+.cc-mtg-src { cursor:pointer; font-size:11px; }
+.cc-mtg-src:hover { opacity:0.8; }
+.cc-mtg-linked-item { padding:4px 0; font-size:13px; cursor:pointer; color:var(--text-secondary); }
+.cc-mtg-linked-item:hover { color:var(--accent); }
+@media(max-width:600px) { .cc-mtg-panel { width:100%; } }
 
 </style>
 </head>
@@ -3294,6 +3376,7 @@ body.dark-mode [data-tooltip-pos="below"]::before { border-top-color: transparen
 <div class="candidate-detail-panel" id="candidateDetailPanel" role="dialog" aria-modal="true" aria-label="Candidate detail"></div>
 <div class="position-detail-overlay" id="positionDetailOverlay"></div>
 <div class="position-detail-panel" id="positionDetailPanel" role="dialog" aria-modal="true" aria-label="Position detail"></div>
+<div id="interviewScorecardView" class="interview-scorecard" style="display:none"></div>
 
 <!-- QUEUE DETAIL PANEL -->
 <div class="queue-detail-overlay" id="queueDetailOverlay" data-action="closeQueueDetail"></div>
@@ -3951,6 +4034,7 @@ async function apiCall(url, options = {}) {
       errMsg = body?.error?.message || body?.error || errMsg;
     } catch(e) {}
     if (resp.status === 403 && isClientUser()) return null;
+    if (resp.status === 410) return null;
     toast(errMsg, 'error');
     return null;
   }
@@ -4019,6 +4103,7 @@ async function handleLogin(e) {
     renderAll();
     restartPollingIntervals();
     checkExpenseReportDeepLink();
+    checkInterviewDeepLink();
   } catch (err) {
     errEl.textContent = 'Connection error. Is the server running?';
   }
@@ -4042,6 +4127,15 @@ function checkExpenseReportDeepLink() {
       }
     };
     tryOpen();
+  }
+}
+
+function checkInterviewDeepLink() {
+  const hash = window.location.hash;
+  const m = hash.match(/#interview\/([a-f0-9-]+)/i);
+  if (m) {
+    setTimeout(() => openInterviewScorecard(m[1]), 300);
+    window.location.hash = '';
   }
 }
 
@@ -5753,13 +5847,12 @@ async function _msDelete() {
 
 /** Render the main tab bar, filtering out tabs the current user lacks permission to see */
 function renderTabs() {
-  const tabs = ['dashboard', 'tasks', 'workload', 'people', 'leads', 'expenses', 'finances', 'news', 'intelligence', 'settings'];
-  const labels = { dashboard: 'Portfolio', tasks: 'Projects', workload: 'Workload', report: 'Report', people: 'People', leads: 'Leads', expenses: 'Expenses', finances: 'Finances', news: 'News', intelligence: 'Intelligence', settings: 'Settings' };
+  const tabs = ['dashboard', 'tasks', 'workload', 'people', 'leads', 'expenses', 'finances', 'news', 'settings'];
+  const labels = { dashboard: 'Portfolio', tasks: 'Projects', workload: 'Workload', report: 'Report', people: 'People', leads: 'Leads', expenses: 'Expenses', finances: 'Finances', news: 'News', settings: 'Settings' };
   // Filter tabs based on permissions
   const visibleTabs = tabs.filter(t => {
     if (!isClientAllowedView(t)) return false;
     if (t === 'finances' || t === 'leads' || t === 'expenses') return hasPageAccess(t);
-    if (t === 'intelligence') return _currentUser && _currentUser.role === 'admin';
     return true;
   });
   document.getElementById('mainTabs').setAttribute('role', 'tablist');
@@ -5913,7 +6006,7 @@ function _renderMainContent(content) {
   else if (currentView === 'workload') renderWorkloadView(content);
   else if (currentView === 'news') renderNewsOrLoad(content);
   else if (currentView === 'commandcentre') renderCommandCentre(content);
-  else if (currentView === 'intelligence') renderIntelligenceView(content);
+  // intelligence view consolidated into CC Intel tab
   else if (currentView === 'activity') renderActivityFeedView(content);
   else if (currentView === 'settings') renderSettings(content);
   if (currentView === 'tasks' && taskSubView === 'gantt') {
@@ -20106,8 +20199,8 @@ function renderHiringView(container) {
       await resolveAndCacheHiringStages();
       var todayStr = new Date().toISOString().slice(0, 10);
       try {
-        var resp = await authFetch('/api/interview-rounds?from=' + todayStr + '&to=' + todayStr);
-        if (resp.ok) { var ivs = await resp.json(); window._interviewsTodayCount = ivs.length; }
+        var ivConfigs = await apiCall('/api/interview-configs');
+        if (ivConfigs) { window._interviewsTodayCount = ivConfigs.filter(function(c) { return c.scheduled_at && c.scheduled_at.slice(0,10) === todayStr; }).length; }
       } catch (e) { /* non-fatal */ }
       window._hiringLoaded = true;
       if (currentView === 'hiring') renderContent();
@@ -20131,7 +20224,7 @@ function renderHiringView(container) {
   var openPositions = positions.filter(function(p) { return p.status === 'open'; }).length;
 
   var tabNames = ['pipeline', 'positions', 'database', 'calendar', 'metrics'];
-  var tabLabels = { pipeline: 'Pipeline', positions: 'Positions', database: 'Database', calendar: 'Calendar', metrics: 'Metrics' };
+  var tabLabels = { pipeline: 'Pipeline', positions: 'Positions', database: 'Database', calendar: 'Calendar', metrics: 'Metrics', questions: 'Questions' };
 
   var html = '<div class="hiring">';
   html += '<div class="ats-summary">' +
@@ -20148,6 +20241,7 @@ function renderHiringView(container) {
   if (canSeeTabs) {
     html += '<div class="ats-tabs" role="tablist">';
     tabNames.forEach(function(t) {
+      if (t === 'questions' && isClientUser()) return;
       html += '<div class="ats-tab' + (activeTab === t ? ' active' : '') + '" role="tab" onclick="window._hiringActiveTab=\'' + t + '\';renderContent()">' + tabLabels[t] + '</div>';
     });
     html += '</div>';
@@ -20163,6 +20257,7 @@ function renderHiringView(container) {
     case 'database': renderDatabaseTab(tabEl); break;
     case 'calendar': renderCalendarTab(tabEl); break;
     case 'metrics': renderMetricsTab(tabEl); break;
+    case 'questions': renderQuestionsTab(tabEl); break;
   }
 }
 
@@ -20628,8 +20723,16 @@ async function renderCalendarTab(container) {
 
   var interviews = [];
   try {
-    var resp = await authFetch('/api/interview-rounds?from=' + fromStr + '&to=' + toStr);
-    if (resp.ok) interviews = await resp.json();
+    var allConfigs = await apiCall('/api/interview-configs?include=progress');
+    if (allConfigs) {
+      interviews = allConfigs.filter(function(c) {
+        if (!c.scheduled_at) return false;
+        var d = c.scheduled_at.slice(0, 10);
+        return d >= fromStr && d <= toStr;
+      }).map(function(c) {
+        return Object.assign({}, c, { title: c.round_type === 'Other' ? (c.round_type_custom || 'Other') : c.round_type });
+      });
+    }
   } catch (e) { /* empty */ }
 
   var todayStr = new Date().toISOString().slice(0, 10);
@@ -20842,34 +20945,21 @@ async function submitScheduleInterview() {
   if (!candidateId || !date || !time) return;
   var scheduledAt = new Date(date + 'T' + time).toISOString();
 
-  if (interviewer) {
-    try {
-      var checkResp = await authFetch('/api/interview-rounds/check-conflict?interviewer_name=' + encodeURIComponent(interviewer) + '&scheduled_at=' + encodeURIComponent(scheduledAt) + '&duration_minutes=' + duration);
-      var check = await checkResp.json();
-      if (check.conflict) {
-        var warn = document.getElementById('schedule-conflict-warn');
-        warn.style.display = 'block';
-        warn.textContent = interviewer + ' already has "' + check.conflicting_interview.title + '" with ' + (check.conflicting_interview.candidate_name || 'someone') + ' at that time.';
-        var btn = warn.closest('.modal').querySelector('.modal-footer button:last-child');
-        btn.textContent = 'Schedule Anyway';
-        btn.onclick = function() { doCreateInterview(candidateId, title, scheduledAt, duration, interviewer, location); };
-        return;
-      }
-    } catch (e) { /* proceed */ }
-  }
   await doCreateInterview(candidateId, title, scheduledAt, duration, interviewer, location);
 }
 
 async function doCreateInterview(candidateId, title, scheduledAt, duration, interviewer, location) {
+  var roundTypeMap = { 'Phone Screen': 'Phone Screen', 'Technical Interview': 'Technical', 'Cultural Fit': 'Cultural', 'Final Interview': 'Final' };
+  var roundType = roundTypeMap[title] || 'Phone Screen';
   try {
-    var resp = await authFetch('/api/interview-rounds', {
+    var resp = await authFetch('/api/interview-configs', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ candidate_id: candidateId, title: title, scheduled_at: scheduledAt, duration_minutes: duration, interviewer_name: interviewer || undefined, location: location || undefined }),
+      body: JSON.stringify({ candidate_id: candidateId, round_type: roundType, scheduled_at: scheduledAt, duration_minutes: duration || 60, interviewer_name: interviewer || undefined, location: location || undefined }),
     });
     if (resp.ok) {
-      var overlay = document.querySelector('.modal-overlay');
-      if (overlay) overlay.remove();
+      var overlays = document.querySelectorAll('.modal-overlay');
+      overlays.forEach(function(o) { if (o.style.display === 'flex' || o.classList.contains('open')) o.remove(); });
       toast('Interview scheduled');
       renderContent();
     } else {
@@ -21030,6 +21120,167 @@ function renderMetricsTab(container) {
   html += '</div>';
   container.innerHTML = html;
 }
+
+async function renderQuestionsTab(container) {
+  const isAdmin = _currentUser && _currentUser.role === 'admin';
+  const DISCIPLINES = ['Engineering','Art','Narrative/Writing','Game Design','QA','Production','Audio','HR/People','Leadership'];
+  const CATEGORIES = ['culture','technical','collaboration','leadership','depth'];
+  const CATEGORY_ORDER = { culture: 0, technical: 1, collaboration: 2, leadership: 3, depth: 4 };
+
+  const filterClient = window._qbFilterClient || window._hiringFilterClient || '';
+  const filterDisc = window._qbFilterDisc || '';
+  const filterCat = window._qbFilterCat || '';
+  const filterSearch = window._qbFilterSearch || '';
+
+  const clientOptions = getContractedClientRecords();
+  let html = '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:16px">';
+  html += '<select onchange="window._qbFilterClient=this.value;renderContent()" style="font-size:13px;padding:4px 8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)">';
+  html += '<option value="">All clients</option>';
+  clientOptions.forEach(c => { html += '<option value="' + c.id + '"' + (filterClient === c.id ? ' selected' : '') + '>' + esc(c.name) + '</option>'; });
+  html += '</select>';
+  html += '<select onchange="window._qbFilterDisc=this.value;renderContent()" style="font-size:13px;padding:4px 8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)">';
+  html += '<option value="">All disciplines</option>';
+  DISCIPLINES.forEach(d => { html += '<option value="' + d + '"' + (filterDisc === d ? ' selected' : '') + '>' + d + '</option>'; });
+  html += '</select>';
+  html += '<div style="display:flex;gap:4px">';
+  html += '<span style="padding:4px 10px;border-radius:12px;font-size:12px;cursor:pointer;' + (!filterCat ? 'background:var(--accent);color:#fff' : 'background:var(--bg-elevated);color:var(--text-muted)') + '" onclick="window._qbFilterCat=\'\';renderContent()">All</span>';
+  CATEGORIES.forEach(cat => {
+    html += '<span style="padding:4px 10px;border-radius:12px;font-size:12px;cursor:pointer;text-transform:capitalize;' + (filterCat === cat ? 'background:var(--accent);color:#fff' : 'background:var(--bg-elevated);color:var(--text-muted)') + '" onclick="window._qbFilterCat=\'' + cat + '\';renderContent()">' + cat + '</span>';
+  });
+  html += '</div>';
+  html += '<input type="text" placeholder="Search questions…" value="' + esc(filterSearch) + '" oninput="window._qbFilterSearch=this.value;clearTimeout(window._qbSearchTimer);window._qbSearchTimer=setTimeout(function(){renderContent()},300)" style="font-size:13px;padding:4px 8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);min-width:150px">';
+  if (isAdmin) html += '<button class="btn btn--primary btn--sm" style="margin-left:auto" onclick="window._qbOpenModal()">+ New Question</button>';
+  html += '</div>';
+
+  container.innerHTML = html + '<div id="qbQuestionsList" style="color:var(--text-muted)">Loading questions…</div>';
+
+  const params = new URLSearchParams();
+  if (filterClient) params.set('client_id', filterClient);
+  if (filterDisc) params.set('discipline', filterDisc);
+  let questions = [];
+  try {
+    const resp = await authFetch('/api/interview-questions?' + params);
+    if (resp.ok) questions = await resp.json();
+  } catch (e) {}
+
+  if (filterCat) questions = questions.filter(q => q.category === filterCat);
+  if (filterSearch) {
+    const s = filterSearch.toLowerCase();
+    questions = questions.filter(q => q.question_text.toLowerCase().includes(s));
+  }
+
+  const grouped = {};
+  questions.forEach(q => {
+    const d = q.discipline || 'General';
+    if (!grouped[d]) grouped[d] = [];
+    grouped[d].push(q);
+  });
+  for (const d in grouped) grouped[d].sort((a, b) => (CATEGORY_ORDER[a.category] || 99) - (CATEGORY_ORDER[b.category] || 99));
+
+  const listEl = document.getElementById('qbQuestionsList');
+  if (!listEl) return;
+
+  if (questions.length === 0) {
+    listEl.innerHTML = '<div style="padding:24px;text-align:center;color:var(--text-muted)">No questions match your filters. Try adjusting your search or filters.</div>';
+    return;
+  }
+
+  let listHtml = '<div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">' + questions.length + ' question' + (questions.length !== 1 ? 's' : '') + '</div>';
+  const catColours = { culture: '#3b82f6', technical: '#7c3aed', collaboration: '#16a34a', leadership: '#d97706', depth: '#e8a87c' };
+  const sourceColours = { curated: '#16a34a', custom: '#3b82f6', ai_generated: '#7c3aed' };
+
+  for (const disc of Object.keys(grouped).sort()) {
+    const qs = grouped[disc];
+    listHtml += '<div style="margin-bottom:16px">';
+    listHtml += '<div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--accent);font-weight:600;margin-bottom:8px">' + esc(disc) + ' <span style="color:var(--text-muted);font-weight:400">(' + qs.length + ')</span></div>';
+    for (const q of qs) {
+      listHtml += '<div style="display:flex;gap:12px;align-items:flex-start;padding:10px 12px;border:1px solid var(--border);border-radius:6px;margin-bottom:4px;background:var(--bg-card)">';
+      listHtml += '<div style="flex:1;min-width:0"><div style="font-size:14px;line-height:1.5">' + esc(q.question_text) + '</div>';
+      listHtml += '<div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">';
+      listHtml += '<span style="font-size:10px;padding:1px 8px;border-radius:8px;background:color-mix(in srgb, ' + (catColours[q.category] || 'var(--accent)') + ' 15%, transparent);color:' + (catColours[q.category] || 'var(--accent)') + '">' + q.category + '</span>';
+      listHtml += '<span style="font-size:10px;padding:1px 8px;border-radius:8px;background:color-mix(in srgb, ' + (sourceColours[q.source] || '#6b7280') + ' 15%, transparent);color:' + (sourceColours[q.source] || '#6b7280') + '">' + q.source + '</span>';
+      if (q.created_by_name) listHtml += '<span style="font-size:10px;color:var(--text-muted)">by ' + esc(q.created_by_name) + '</span>';
+      listHtml += '</div></div>';
+      if (isAdmin) {
+        listHtml += '<div style="display:flex;gap:4px;flex-shrink:0">';
+        listHtml += '<button class="btn btn--ghost btn--sm" onclick="window._qbEdit(\'' + q.id + '\')" title="Edit">&#9998;</button>';
+        listHtml += '<button class="btn btn--ghost btn--sm" style="color:var(--danger)" onclick="window._qbDelete(\'' + q.id + '\')" title="Delete">&times;</button>';
+        listHtml += '</div>';
+      }
+      listHtml += '</div>';
+    }
+    listHtml += '</div>';
+  }
+  listEl.innerHTML = listHtml;
+
+  window._qbQuestions = questions;
+}
+
+window._qbOpenModal = function(existingId) {
+  const DISCIPLINES = ['Engineering','Art','Narrative/Writing','Game Design','QA','Production','Audio','HR/People','Leadership'];
+  const CATEGORIES = ['culture','technical','collaboration','leadership','depth'];
+  const existing = existingId ? (window._qbQuestions || []).find(q => q.id === existingId) : null;
+  const isEdit = !!existing;
+  const clientOptions = getContractedClientRecords();
+
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.style.display = 'flex';
+  modal.innerHTML = '<div class="modal" style="min-width:400px;max-width:560px">' +
+    '<div class="modal__title">' + (isEdit ? 'Edit Question' : 'New Question') + '</div>' +
+    '<div style="display:flex;flex-direction:column;gap:10px">' +
+      '<label style="font-size:0.78rem;color:var(--text-muted)">Question *<textarea id="qbModalText" rows="4" style="width:100%;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;margin-top:4px;resize:vertical">' + (existing ? esc(existing.question_text) : '') + '</textarea></label>' +
+      '<div style="display:flex;gap:8px">' +
+        '<label style="flex:1;font-size:0.78rem;color:var(--text-muted)">Discipline *<select id="qbModalDisc" style="width:100%;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;margin-top:4px">' +
+          DISCIPLINES.map(d => '<option value="' + d + '"' + (existing && existing.discipline === d ? ' selected' : '') + '>' + d + '</option>').join('') +
+        '</select></label>' +
+        '<label style="flex:1;font-size:0.78rem;color:var(--text-muted)">Category *<select id="qbModalCat" style="width:100%;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;margin-top:4px">' +
+          CATEGORIES.map(c => '<option value="' + c + '"' + (existing && existing.category === c ? ' selected' : '') + '>' + c.charAt(0).toUpperCase() + c.slice(1) + '</option>').join('') +
+        '</select></label>' +
+      '</div>' +
+      (!isEdit ? '<label style="font-size:0.78rem;color:var(--text-muted)">Client<select id="qbModalClient" style="width:100%;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;margin-top:4px"><option value="">— None —</option>' + clientOptions.map(c => '<option value="' + c.id + '"' + (window._qbFilterClient === c.id ? ' selected' : '') + '>' + esc(c.name) + '</option>').join('') + '</select></label>' : '') +
+    '</div>' +
+    '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">' +
+      '<button class="btn" onclick="this.closest(\'.modal-overlay\').remove()">Cancel</button>' +
+      '<button class="btn btn--primary" onclick="window._qbModalSave(\'' + (existingId || '') + '\')">' + (isEdit ? 'Save' : 'Create') + '</button>' +
+    '</div></div>';
+
+  document.body.appendChild(modal);
+  modal.onclick = function(e) { if (e.target === modal) modal.remove(); };
+  setTimeout(() => { var el = modal.querySelector('#qbModalText'); if (el) el.focus(); }, 0);
+};
+
+window._qbModalSave = async function(existingId) {
+  const text = (document.getElementById('qbModalText') || {}).value;
+  if (!text || !text.trim()) { toast('Question text is required', 'error'); return; }
+  const discipline = (document.getElementById('qbModalDisc') || {}).value;
+  const category = (document.getElementById('qbModalCat') || {}).value;
+
+  if (existingId) {
+    await authFetch('/api/interview-questions/' + existingId, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question_text: text.trim(), discipline, category }),
+    });
+  } else {
+    const client_id = (document.getElementById('qbModalClient') || {}).value || null;
+    await authFetch('/api/interview-questions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question_text: text.trim(), discipline, category, client_id, source: 'custom' }),
+    });
+  }
+  document.querySelector('.modal-overlay')?.remove();
+  renderContent();
+};
+
+window._qbEdit = function(id) { window._qbOpenModal(id); };
+
+window._qbDelete = async function(id) {
+  if (!confirm('Delete this question? This cannot be undone.')) return;
+  await authFetch('/api/interview-questions/' + id, { method: 'DELETE' });
+  renderContent();
+};
 
 /** Open position detail slide-in panel */
 async function openPositionDetail(id) {
@@ -22067,6 +22318,212 @@ async function openInterviewResults(configId) {
   };
 }
 
+async function openInterviewScorecard(sessionId) {
+  const container = document.getElementById('interviewScorecardView');
+  if (!container) return;
+
+  container.style.display = 'flex';
+  container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;flex:1;color:var(--text-muted)">Loading scorecard…</div>';
+  document.getElementById('appContainer').style.display = 'none';
+
+  let data;
+  try {
+    const resp = await authFetch('/api/interview-sessions/' + sessionId);
+    if (resp.status === 401) { container.innerHTML = '<div class="interview-scorecard__body"><div class="interview-scorecard__splash"><h2>Please log in</h2><p class="meta">You need to be logged in to view this scorecard.</p><button class="btn btn--primary" onclick="closeInterviewScorecard()">Back to Dashboard</button></div></div>'; return; }
+    if (resp.status === 403) { container.innerHTML = '<div class="interview-scorecard__body"><div class="interview-scorecard__splash"><h2>Access Denied</h2><p class="meta">You are not assigned to this interview.</p><button class="btn btn--primary" onclick="closeInterviewScorecard()">Back to Dashboard</button></div></div>'; return; }
+    if (!resp.ok) { container.innerHTML = '<div class="interview-scorecard__body"><div class="interview-scorecard__splash"><h2>Not Found</h2><p class="meta">Interview session not found.</p><button class="btn btn--primary" onclick="closeInterviewScorecard()">Back to Dashboard</button></div></div>'; return; }
+    data = await resp.json();
+  } catch (e) {
+    container.innerHTML = '<div class="interview-scorecard__body"><div class="interview-scorecard__splash"><h2>Connection Error</h2><p class="meta">Could not load the scorecard. Please try again.</p><button class="btn btn--primary" onclick="closeInterviewScorecard()">Back to Dashboard</button></div></div>';
+    return;
+  }
+
+  const { session, questions } = data;
+  const categoryOrder = ['culture', 'technical', 'collaboration', 'leadership', 'depth'];
+  const catColours = { culture: '#3b82f6', technical: '#7c3aed', collaboration: '#16a34a', leadership: '#d97706', depth: '#e8a87c' };
+  let currentIdx = 0;
+  let showNotes = {};
+  const localScores = {};
+  for (const q of questions) {
+    if (q.score) localScores[q.question_id] = { score: q.score, notes: q.score_notes || '' };
+  }
+
+  if (session.status === 'submitted') { renderSubmitted(); return; }
+  if (session.status === 'assigned') { renderSplash(); return; }
+  currentIdx = questions.findIndex(q => !localScores[q.question_id]);
+  if (currentIdx < 0) currentIdx = 0;
+  renderScoring();
+
+  function renderSplash() {
+    const estTime = questions.length * 2;
+    container.innerHTML =
+      '<div class="interview-scorecard__body"><div class="interview-scorecard__splash">' +
+      '<h2>' + esc(session.candidate_name || 'Candidate') + '</h2>' +
+      '<p class="meta">' + esc(session.candidate_role || '') + (session.position_title ? ' — ' + esc(session.position_title) : '') + '</p>' +
+      (session.client_name ? '<p class="meta">' + esc(session.client_name) + '</p>' : '') +
+      '<p class="info">' + questions.length + ' questions · ~' + estTime + ' minutes</p>' +
+      '<p class="info" style="font-style:italic;max-width:400px">These scores are confidential — only the hiring manager will see aggregated results.</p>' +
+      '<button class="btn btn--primary" style="padding:12px 32px;font-size:16px" onclick="window._scStart()">Begin Scoring</button>' +
+      '<button class="btn" style="margin-top:8px" onclick="closeInterviewScorecard()">Cancel</button>' +
+      '</div></div>';
+    window._scStart = function() { renderScoring(); };
+  }
+
+  function renderSubmitted() {
+    let html = '<div class="interview-scorecard__header"><div class="interview-scorecard__header-left"><strong>' + esc(session.candidate_name || 'Candidate') + '</strong></div><div class="interview-scorecard__header-right"><button class="btn btn--sm" onclick="closeInterviewScorecard()">Close</button></div></div>';
+    html += '<div class="interview-scorecard__body"><div class="interview-scorecard__submitted">';
+    html += '<div style="text-align:center;margin-bottom:24px;padding:16px;background:color-mix(in srgb, var(--success) 10%, var(--bg-card));border-radius:8px;border:1px solid var(--success)"><div style="font-size:18px;font-weight:600;color:var(--success)">Your scorecard has been submitted — thank you</div>';
+    html += session.submitted_at ? '<div style="font-size:12px;color:var(--text-muted);margin-top:4px">Submitted ' + new Date(session.submitted_at).toLocaleString('en-GB') + '</div>' : '';
+    html += '</div>';
+    let currentCat = '';
+    for (const q of questions) {
+      if (q.category !== currentCat) { currentCat = q.category; html += '<div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:' + (catColours[currentCat] || 'var(--text-muted)') + ';margin:16px 0 8px;font-weight:600">' + currentCat + '</div>'; }
+      const sc = localScores[q.question_id];
+      const scoreBg = sc ? (sc.score >= 4 ? '#16a34a' : sc.score === 3 ? '#d97706' : '#dc2626') : 'var(--text-muted)';
+      html += '<div style="display:flex;gap:12px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border)">';
+      html += '<span style="flex-shrink:0;width:28px;height:28px;border-radius:6px;background:' + scoreBg + ';color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px">' + (sc ? sc.score : '—') + '</span>';
+      html += '<div style="flex:1"><div style="font-size:14px;line-height:1.5">' + esc(q.question_text) + '</div>';
+      if (sc && sc.notes) html += '<div style="font-size:12px;color:var(--text-muted);margin-top:4px;font-style:italic">' + esc(sc.notes) + '</div>';
+      html += '</div></div>';
+    }
+    html += '</div></div>';
+    container.innerHTML = html;
+  }
+
+  function renderScoring() {
+    const q = questions[currentIdx];
+    const scored = Object.keys(localScores).length;
+    const pct = questions.length > 0 ? (scored / questions.length) * 100 : 0;
+
+    let catBarsHtml = '';
+    for (const cat of categoryOrder) {
+      const catQs = questions.filter(x => x.category === cat);
+      const catScored = catQs.filter(x => localScores[x.question_id]).length;
+      const catPct = catQs.length > 0 ? (catScored / catQs.length) * 100 : 0;
+      catBarsHtml += '<div class="interview-scorecard__cat-bar" onclick="window._scJumpCat(\'' + cat + '\')">' +
+        '<div class="interview-scorecard__cat-label" style="color:' + (catColours[cat] || 'var(--text-muted)') + '">' + cat + ' ' + catScored + '/' + catQs.length + '</div>' +
+        '<div class="interview-scorecard__cat-track"><div class="interview-scorecard__cat-fill" style="width:' + catPct + '%;background:' + (catColours[cat] || 'var(--accent)') + '"></div></div></div>';
+    }
+
+    const sc = localScores[q.question_id];
+    const scoreLabels = ['', 'Poor', 'Below Average', 'Average', 'Good', 'Excellent'];
+    let scoreBtnsHtml = '';
+    for (let s = 1; s <= 5; s++) {
+      const sel = sc && sc.score === s;
+      scoreBtnsHtml += '<button class="interview-scorecard__score-btn interview-scorecard__score-btn--' + s + (sel ? ' interview-scorecard__score-btn--selected' : '') + '" onclick="window._scScore(' + s + ')">' + s + '<span class="interview-scorecard__score-label">' + scoreLabels[s] + '</span></button>';
+    }
+
+    const showingNotes = showNotes[q.question_id] || (sc && sc.notes);
+    let notesHtml = '';
+    if (showingNotes) {
+      notesHtml = '<textarea class="interview-scorecard__notes" placeholder="Optional — add context for the hiring manager" onchange="window._scNotes(this.value)">' + esc(sc && sc.notes ? sc.notes : '') + '</textarea>';
+    } else {
+      notesHtml = '<button class="interview-scorecard__notes-toggle" onclick="window._scShowNotes()">+ Add notes</button>';
+    }
+
+    let dotsHtml = '';
+    for (let i = 0; i < questions.length; i++) {
+      const dotClass = i === currentIdx ? ' interview-scorecard__dot--current' : (localScores[questions[i].question_id] ? ' interview-scorecard__dot--scored' : '');
+      dotsHtml += '<button class="interview-scorecard__dot' + dotClass + '" onclick="window._scJump(' + i + ')"></button>';
+    }
+
+    const allScored = scored >= questions.length;
+    const isLast = currentIdx === questions.length - 1;
+    let navRightHtml = '';
+    if (isLast && allScored) {
+      navRightHtml = '<button class="btn btn--primary" onclick="window._scSubmit()">Submit Scorecard</button>';
+    } else {
+      navRightHtml = '<button class="btn btn--sm" ' + (isLast ? 'disabled' : '') + ' onclick="window._scNav(1)">Next &rarr;</button>';
+    }
+
+    container.innerHTML =
+      '<div class="interview-scorecard__header">' +
+        '<div class="interview-scorecard__header-left"><strong>' + esc(session.candidate_name || 'Candidate') + '</strong><span style="color:var(--text-muted)">·</span><span style="color:var(--text-muted)">' + esc(session.candidate_role || '') + '</span>' + (session.client_name ? '<span style="color:var(--text-muted)">·</span><span style="color:var(--text-muted)">' + esc(session.client_name) + '</span>' : '') + '</div>' +
+        '<div class="interview-scorecard__header-centre"><span style="font-size:12px;color:var(--text-muted)">' + scored + ' of ' + questions.length + '</span><div class="interview-scorecard__progress-bar"><div class="interview-scorecard__progress-fill" style="width:' + pct + '%"></div></div></div>' +
+        '<div class="interview-scorecard__header-right"><button class="btn btn--sm" onclick="closeInterviewScorecard()">Save &amp; Exit</button></div>' +
+      '</div>' +
+      '<div class="interview-scorecard__categories">' + catBarsHtml + '</div>' +
+      '<div class="interview-scorecard__body"><div class="interview-scorecard__card">' +
+        '<div class="interview-scorecard__card-badges"><span class="interview-scorecard__badge" style="background:color-mix(in srgb, ' + (catColours[q.category] || 'var(--accent)') + ' 15%, transparent);color:' + (catColours[q.category] || 'var(--accent)') + '">' + q.category + '</span>' +
+        (q.discipline ? '<span class="interview-scorecard__badge" style="background:var(--bg-elevated);color:var(--text-muted)">' + esc(q.discipline) + '</span>' : '') + '</div>' +
+        '<div class="interview-scorecard__question-text">' + esc(q.question_text) + '</div>' +
+        '<div class="interview-scorecard__scores">' + scoreBtnsHtml + '</div>' +
+        '<div style="text-align:center">' + notesHtml + '</div>' +
+      '</div></div>' +
+      '<div class="interview-scorecard__nav">' +
+        '<button class="btn btn--sm" ' + (currentIdx === 0 ? 'disabled' : '') + ' onclick="window._scNav(-1)">&larr; Previous</button>' +
+        '<div class="interview-scorecard__dots">' + dotsHtml + '</div>' +
+        navRightHtml +
+      '</div>';
+  }
+
+  window._scNav = function(dir) { currentIdx = Math.max(0, Math.min(questions.length - 1, currentIdx + dir)); renderScoring(); };
+  window._scJump = function(idx) { currentIdx = idx; renderScoring(); };
+  window._scJumpCat = function(cat) {
+    const idx = questions.findIndex(q => q.category === cat && !localScores[q.question_id]);
+    if (idx >= 0) { currentIdx = idx; renderScoring(); }
+    else { const firstInCat = questions.findIndex(q => q.category === cat); if (firstInCat >= 0) { currentIdx = firstInCat; renderScoring(); } }
+  };
+  window._scShowNotes = function() { showNotes[questions[currentIdx].question_id] = true; renderScoring(); };
+  window._scNotes = function(val) {
+    const qid = questions[currentIdx].question_id;
+    if (localScores[qid]) localScores[qid].notes = val;
+  };
+
+  window._scScore = async function(score) {
+    const q = questions[currentIdx];
+    localScores[q.question_id] = { score, notes: (localScores[q.question_id] || {}).notes || '' };
+    renderScoring();
+    try {
+      await authFetch('/api/interview-scores/' + sessionId + '/' + q.question_id, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ score, notes: localScores[q.question_id].notes || null }),
+      });
+    } catch (e) {
+      toast('Score not saved — check your connection', 'error');
+    }
+  };
+
+  window._scSubmit = async function() {
+    if (!confirm('Submit your scorecard for ' + (session.candidate_name || 'this candidate') + '? You won\'t be able to change your scores after submission.')) return;
+    const q = questions[currentIdx];
+    const sc = localScores[q.question_id];
+    if (sc && sc.notes) {
+      try { await authFetch('/api/interview-scores/' + sessionId + '/' + q.question_id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ score: sc.score, notes: sc.notes }) }); } catch (e) {}
+    }
+    try {
+      const resp = await authFetch('/api/interview-sessions/' + sessionId + '/submit', { method: 'POST' });
+      if (!resp.ok) { const err = await resp.json().catch(() => ({})); toast(err.error || 'Submission failed', 'error'); return; }
+      session.status = 'submitted';
+      session.submitted_at = new Date().toISOString();
+      renderSubmitted();
+    } catch (e) {
+      toast('Submission failed — check your connection', 'error');
+    }
+  };
+
+  function scorecardKeyHandler(e) {
+    if (session.status === 'submitted') return;
+    if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
+    if (e.key === 'ArrowLeft') { window._scNav(-1); e.preventDefault(); }
+    else if (e.key === 'ArrowRight') { window._scNav(1); e.preventDefault(); }
+    else if (['1','2','3','4','5'].includes(e.key)) { window._scScore(parseInt(e.key)); e.preventDefault(); }
+  }
+  container.setAttribute('tabindex', '-1');
+  container.focus();
+  container.addEventListener('keydown', scorecardKeyHandler);
+  window._scCleanup = function() { container.removeEventListener('keydown', scorecardKeyHandler); };
+}
+
+function closeInterviewScorecard() {
+  const container = document.getElementById('interviewScorecardView');
+  if (container) { container.style.display = 'none'; container.innerHTML = ''; }
+  if (window._scCleanup) { window._scCleanup(); window._scCleanup = null; }
+  document.getElementById('appContainer').style.display = '';
+  ['_scNav','_scJump','_scJumpCat','_scShowNotes','_scNotes','_scScore','_scSubmit','_scStart'].forEach(k => { delete window[k]; });
+}
+
 function buildCandidateGdprHtml(c, disabledStyle) {
   const expiresAt = c.retention_expires_at ? new Date(c.retention_expires_at) : null;
   const isExpiring = expiresAt && (expiresAt.getTime() - Date.now()) < 30 * 86400000;
@@ -22125,65 +22582,64 @@ function buildCandidateActionsHtml(c, isArchived, isAdmin) {
 }
 
 function buildCandidateInterviewsHtml(candidateId, rounds, disabledStyle) {
-  const isNBI = !isClientUser();
   if (!rounds || rounds.length === 0) {
     return `<div class="candidate-detail__section" id="cdInterviewsSection" style="${disabledStyle}">
       <div class="candidate-detail__section-title">Interviews</div>
       <div style="text-align:center;padding:20px;color:var(--text-muted);font-size:0.82rem">
         <p>No interviews scheduled</p>
-        ${isNBI ? `<button class="btn btn--sm" style="margin-top:8px;background:#7c3aed;color:white;border:none" onclick="openScheduleInterviewModal('${candidateId}')">Schedule first interview</button>` : ''}
       </div>
     </div>`;
   }
 
-  const typeColors = { 'Phone Screen': '#3b82f6', 'Technical': '#7c3aed', 'Cultural': '#f59e0b', 'Final': '#10b981' };
-  const statusColors = { scheduled: 'var(--accent)', completed: 'var(--success)', cancelled: 'var(--text-muted)', 'no-show': 'var(--danger)' };
+  const typeColors = { 'Phone Screen': '#3b82f6', 'Technical': '#7c3aed', 'Cultural': '#f59e0b', 'Final': '#10b981', 'Other': '#6b7280' };
+  const statusColors = { draft: 'var(--text-muted)', active: 'var(--accent)', completed: 'var(--success)' };
+  const outcomeColors = { pending: 'var(--text-muted)', passed: 'var(--success)', failed: 'var(--danger)', rescheduled: 'var(--accent)', no_show: 'var(--danger)', cancelled: 'var(--text-muted)' };
 
   const roundsHtml = rounds.map(r => {
     const schedStr = r.scheduled_at ? new Date(r.scheduled_at).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Not scheduled';
     const durStr = r.duration_minutes ? `${r.duration_minutes}min` : '';
-    const color = typeColors[r.title] || '#7c3aed';
+    const label = r.round_type === 'Other' ? (r.round_type_custom || 'Other') : (r.round_type || 'Interview');
+    const color = typeColors[r.round_type] || '#7c3aed';
+
+    const sessionsHtml = (r.sessions && r.sessions.length > 0) ? r.sessions.map(s => {
+      const sColor = s.status === 'submitted' ? 'var(--success)' : s.status === 'declined' ? 'var(--danger)' : 'var(--text-muted)';
+      return `<span style="display:inline-flex;align-items:center;gap:4px;font-size:0.72rem;padding:2px 6px;border-radius:8px;background:color-mix(in srgb, ${sColor} 15%, var(--bg-surface));color:${sColor}">${esc(s.interviewer_name || 'Interviewer')} &middot; ${s.status}${s.scored_count ? ' (' + s.scored_count + ' scored)' : ''}</span>`;
+    }).join(' ') : (r.interviewer_name ? `<span style="font-size:0.72rem;color:var(--text-muted)">${esc(r.interviewer_name)}</span>` : '');
 
     return `<div style="border-left:3px solid ${color};background:var(--bg-surface);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:8px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-        <div style="font-weight:600;font-size:0.85rem;color:${color}">Round ${r.round_number}: ${esc(r.title)}</div>
-        <select onchange="updateInterviewOutcome('${r.id}',this.value)" style="background:var(--bg-input);border:1px solid var(--border-default);border-radius:4px;color:var(--text-primary);padding:2px 8px;font-size:0.75rem;font-family:inherit">
-          <option value="pending" ${!r.outcome || r.outcome === 'pending' ? 'selected' : ''}>Pending</option>
-          <option value="passed" ${r.outcome === 'passed' ? 'selected' : ''}>Passed</option>
-          <option value="failed" ${r.outcome === 'failed' ? 'selected' : ''}>Failed</option>
-          <option value="rescheduled" ${r.outcome === 'rescheduled' ? 'selected' : ''}>Rescheduled</option>
-          <option value="no_show" ${r.outcome === 'no_show' ? 'selected' : ''}>No-show</option>
-        </select>
+        <div style="font-weight:600;font-size:0.85rem;color:${color}">Round ${r.round_number}: ${esc(label)}</div>
+        <span style="font-size:0.72rem;padding:2px 8px;border-radius:8px;background:color-mix(in srgb, ${outcomeColors[r.outcome] || 'var(--text-muted)'} 15%, var(--bg-surface));color:${outcomeColors[r.outcome] || 'var(--text-muted)'}">${r.outcome || 'pending'}</span>
       </div>
-      <div style="font-size:0.75rem;color:var(--text-muted);display:flex;gap:12px;flex-wrap:wrap">
+      <div style="font-size:0.75rem;color:var(--text-muted);display:flex;gap:12px;flex-wrap:wrap;align-items:center">
         <span>${schedStr}</span>
         ${durStr ? `<span>${durStr}</span>` : ''}
         ${r.location ? `<span>${esc(r.location)}</span>` : ''}
-        <span style="font-size:0.75rem;padding:2px 6px;border-radius:8px;background:color-mix(in srgb, ${statusColors[r.status] || 'var(--text-muted)'} 20%, var(--bg-surface));color:${statusColors[r.status] || 'var(--text-muted)'}">${r.status}</span>
+        <span style="font-size:0.72rem;padding:2px 6px;border-radius:8px;background:color-mix(in srgb, ${statusColors[r.status] || 'var(--text-muted)'} 15%, var(--bg-surface));color:${statusColors[r.status] || 'var(--text-muted)'}">${r.status}</span>
       </div>
       ${r.outcome_notes ? `<div style="font-size:0.78rem;margin-top:6px;color:var(--text-secondary)">${esc(r.outcome_notes)}</div>` : ''}
-      <div style="margin-top:8px" id="cdScorecardsFor_${r.id}">
-        <div style="color:var(--text-muted);font-size:0.75rem">Loading scorecards…</div>
-      </div>
+      ${sessionsHtml ? `<div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">${sessionsHtml}</div>` : ''}
+      ${r.aggregate_score ? `<div style="margin-top:4px;font-size:0.75rem;color:var(--text-muted)">Avg score: <strong style="color:var(--text-primary)">${r.aggregate_score}</strong>/5</div>` : ''}
     </div>`;
   }).join('');
 
   return `<div class="candidate-detail__section" id="cdInterviewsSection" style="${disabledStyle}">
     <div style="display:flex;justify-content:space-between;align-items:center">
       <div class="candidate-detail__section-title">Interviews</div>
-      ${isNBI ? `<button class="btn btn--sm" style="background:#7c3aed;color:white;border:none;font-size:0.75rem" onclick="openScheduleInterviewModal('${candidateId}')">+ Schedule</button>` : ''}
     </div>
     ${roundsHtml}
   </div>`;
 }
 
 async function addInterviewRound(candidateId) {
-  const title = prompt('Interview round title (e.g. Phone Screen, Technical Interview):');
-  if (!title || !title.trim()) return;
-  const resp = await authFetch(`/api/candidates/${candidateId}/interviews`, {
+  const typeMap = { '1': 'Phone Screen', '2': 'Technical', '3': 'Cultural', '4': 'Final' };
+  const choice = prompt('Interview round type:\n1. Phone Screen\n2. Technical\n3. Cultural\n4. Final\n\nEnter number:');
+  if (!choice || !typeMap[choice.trim()]) return;
+  const roundType = typeMap[choice.trim()];
+  const resp = await authFetch('/api/interview-configs', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ title: title.trim() }),
+    body: JSON.stringify({ candidate_id: candidateId, round_type: roundType }),
   });
   if (resp.ok) {
     toast('Interview round added');
@@ -22194,9 +22650,9 @@ async function addInterviewRound(candidateId) {
   }
 }
 
-async function updateInterviewOutcome(interviewId, outcome) {
+async function updateInterviewOutcome(configId, outcome) {
   try {
-    const resp = await authFetch('/api/interview-rounds/' + interviewId, {
+    const resp = await authFetch('/api/interview-configs/' + configId, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ outcome: outcome }),
@@ -22299,7 +22755,7 @@ async function openCandidateDetail(id) {
   const isArchived = !!c.archived_at;
   const disabledStyle = isArchived ? 'pointer-events:none;opacity:0.55' : '';
   const [roundsData, candidateStages] = await Promise.all([
-    apiCall(`/api/candidates/${id}/interviews`).catch(() => []),
+    apiCall(`/api/interview-configs?candidate_id=${id}&include=progress`).then(r => r || []).catch(() => []),
     getHiringStagesForClient(c.client_id),
   ]);
 
@@ -22385,10 +22841,6 @@ async function openCandidateDetail(id) {
   }
 
   renderCandidateComments(id, commentsData, disabledStyle);
-
-  if (roundsData && roundsData.length > 0) {
-    roundsData.forEach(r => loadAndRenderScorecards(id, r.id));
-  }
 
   if (c.stage === 'onboarding') {
     loadOnboardingChecklist(id);
@@ -23637,10 +24089,10 @@ function _ccRenderIntelTab() {
         });
         h += '</div>';
       }
-      // Bank health
+      // Bank health (full table with shelf life + last compiled)
       if (banks.length) {
         h += '<div class="cc-intel-banks"><div class="cc-intel-hdr"><span class="cc-intel-title">Bank Health</span></div>';
-        h += '<table class="cc-intel-table"><thead><tr><th>Bank</th><th>Lines</th><th>Capacity</th><th>Sources</th><th>Status</th></tr></thead><tbody>';
+        h += '<table class="cc-intel-table"><thead><tr><th>Bank</th><th>Lines</th><th>Capacity</th><th>Sources</th><th>Last Compiled</th><th>Shelf Life</th><th>Status</th></tr></thead><tbody>';
         var tl = 0, ts = 0;
         banks.forEach(function(b) {
           tl += b.lines; ts += b.sources;
@@ -23649,6 +24101,8 @@ function _ccRenderIntelTab() {
           h += '<td>' + b.lines + '</td>';
           h += '<td><div class="cc-intel-bar"><div class="cc-intel-bar-fill" style="width:' + b.capacity + '%;background:' + bc + '"></div></div>' + b.capacity + '%</td>';
           h += '<td>' + b.sources + '</td>';
+          h += '<td>' + (b.lastCompiled || 'never') + '</td>';
+          h += '<td>' + (b.shelfLife || '-') + '</td>';
           h += '<td><span class="cc-intel-status--' + b.status + '">' + b.status.charAt(0).toUpperCase() + b.status.slice(1) + '</span></td></tr>';
         });
         h += '</tbody></table>';
@@ -23673,6 +24127,15 @@ function _ccRenderIntelTab() {
         pipeline.sources.forEach(function(s) {
           var dc = s.lastRun === 'never' ? 'cc-intel-dot--amber' : 'cc-intel-dot--green';
           h += '<div class="cc-intel-source"><span>' + s.name + '</span><span><span class="cc-intel-source-dot ' + dc + '"></span>' + s.lastRun + '</span></div>';
+        });
+        h += '</div></div>';
+      }
+      // Pending actions
+      if (pipeline && pipeline.pending && pipeline.pending.length) {
+        h += '<div class="cc-intel-pipeline"><div class="cc-intel-hdr"><span class="cc-intel-title">Pending Actions</span><span class="cc-intel-count">(' + pipeline.pending.length + ')</span></div>';
+        h += '<div style="padding:12px 16px">';
+        pipeline.pending.forEach(function(p) {
+          h += '<div style="padding:6px 0;font-size:13px;color:var(--text-secondary);border-bottom:1px solid rgba(42,46,61,0.4)">' + p + '</div>';
         });
         h += '</div></div>';
       }
@@ -23953,6 +24416,8 @@ function _ccRenderAiosContent(a) {
 var _mtgData = null;
 var _mtgSubTab = 'actions';
 var _mtgFilters = JSON.parse(localStorage.getItem('ccMtgFilters') || '{}');
+var _mtgEditingId = null;
+var _mtgAddingSection = null;
 
 function _ccRenderMeetingsTab() {
   var html = '<div class="cc-meetings" id="ccMeetingsRoot"><div class="cc-panel-empty">Loading meetings intelligence...</div></div>';
@@ -24007,7 +24472,8 @@ function _mtgRenderFull() {
     { id: 'learnings', label: 'Learnings (' + filtered.learnings.length + ')' },
     { id: 'numbers', label: 'Numbers (' + filtered.numbers.length + ')' },
     { id: 'timeline', label: 'Timeline' },
-    { id: 'threads', label: 'Threads (' + filtered.threads.length + ')' }
+    { id: 'threads', label: 'Threads (' + filtered.threads.length + ')' },
+    { id: 'sources', label: 'Sources (' + (filtered.meetings || []).length + ')' }
   ];
   h += '<div class="cc-meetings-subtabs">';
   subTabs.forEach(function(t) {
@@ -24075,6 +24541,8 @@ function _mtgCalcStats(data, filtered) {
 
 function _mtgSwitchSub(tab) {
   _mtgSubTab = tab;
+  _mtgEditingId = null;
+  _mtgAddingSection = null;
   if (tab !== 'actions') delete _mtgFilters.status;
   _mtgRender();
 }
@@ -24098,7 +24566,7 @@ function _mtgClearFilters() {
 }
 
 function _mtgRefresh() {
-  authFetch('/api/meetings/refresh', { method: 'POST' }).then(function() { _mtgFetchAll(); });
+  _mtgFetchAll();
 }
 
 function _mtgRenderSubTab(filtered) {
@@ -24109,60 +24577,244 @@ function _mtgRenderSubTab(filtered) {
   if (_mtgSubTab === 'numbers') return _mtgRenderNumbers(filtered.numbers);
   if (_mtgSubTab === 'timeline') return _mtgRenderTimeline(filtered.timeline);
   if (_mtgSubTab === 'threads') return _mtgRenderThreads(filtered.threads);
+  if (_mtgSubTab === 'sources') return _mtgRenderSources(filtered.meetings);
   return '';
 }
 
+// ——— EDIT FORM HELPERS ———
+
+function _mtgFieldHtml(label, name, value, type, options) {
+  var h = '<label>' + esc(label) + '</label>';
+  if (type === 'select' && options) {
+    h += '<select data-field="' + name + '">';
+    options.forEach(function(o) { h += '<option value="' + esc(o) + '"' + (value === o ? ' selected' : '') + '>' + esc(o) + '</option>'; });
+    h += '</select>';
+  } else if (type === 'textarea') {
+    h += '<textarea data-field="' + name + '">' + esc(value || '') + '</textarea>';
+  } else {
+    h += '<input type="text" data-field="' + name + '" value="' + esc(value || '') + '">';
+  }
+  return h;
+}
+
+function _mtgEditFormFields(section, data) {
+  var ws = ['couch_heroes','lighthouse','nbi','sarge','playgoals'];
+  var h = '';
+  if (section === 'actions') {
+    h += _mtgFieldHtml('Date', 'date', data.date, 'text');
+    h += _mtgFieldHtml('Owner', 'owner', data.owner, 'text');
+    h += _mtgFieldHtml('Description', 'description', data.description, 'text');
+    h += _mtgFieldHtml('Workstream', 'workstream', data.workstream, 'select', ws);
+    h += _mtgFieldHtml('Status', 'status', data.status, 'select', ['open','done','overdue']);
+  } else if (section === 'decisions') {
+    h += _mtgFieldHtml('Date', 'date', data.date, 'text');
+    h += _mtgFieldHtml('Decision', 'decision', data.decision, 'text');
+    h += _mtgFieldHtml('Rationale', 'rationale', data.rationale, 'text');
+    h += _mtgFieldHtml('Workstream', 'workstream', data.workstream, 'select', ws);
+  } else if (section === 'people') {
+    h += _mtgFieldHtml('Name', 'name', data.name, 'text');
+    h += _mtgFieldHtml('Role', 'role', data.role, 'text');
+    h += _mtgFieldHtml('Workstreams (comma-separated)', 'workstreams', (data.workstreams || []).join(', '), 'text');
+    h += _mtgFieldHtml('Notes (one per line)', 'notes', (data.notes || []).join('\n'), 'textarea');
+  } else if (section === 'learnings') {
+    h += _mtgFieldHtml('Date', 'date', data.date, 'text');
+    h += _mtgFieldHtml('Insight', 'insight', data.insight, 'text');
+    h += _mtgFieldHtml('Context', 'context', data.context, 'textarea');
+    h += _mtgFieldHtml('Workstream', 'workstream', data.workstream, 'select', ws);
+  } else if (section === 'numbers') {
+    h += _mtgFieldHtml('Date', 'date', data.date, 'text');
+    h += _mtgFieldHtml('Figure', 'figure', data.figure, 'text');
+    h += _mtgFieldHtml('Context', 'context', data.context, 'text');
+    h += _mtgFieldHtml('Workstream', 'workstream', data.workstream, 'select', ws);
+    h += _mtgFieldHtml('Category', 'category', data.category, 'select', ['revenue','compensation','investment','cost','metric']);
+  } else if (section === 'timeline') {
+    h += _mtgFieldHtml('Period', 'period', data.period, 'text');
+    h += _mtgFieldHtml('Label', 'label', data.label, 'text');
+    h += _mtgFieldHtml('Summary', 'summary', data.summary, 'textarea');
+  } else if (section === 'threads') {
+    h += _mtgFieldHtml('Title', 'title', data.title, 'text');
+    h += _mtgFieldHtml('Status', 'status', data.status, 'select', ['active','resolved']);
+    h += _mtgFieldHtml('Summary', 'summary', data.summary, 'textarea');
+    h += _mtgFieldHtml('Workstream', 'workstream', data.workstream, 'select', ws);
+  } else if (section === 'meetings') {
+    h += _mtgFieldHtml('Date', 'date', data.date, 'text');
+    h += _mtgFieldHtml('Title', 'title', data.title, 'text');
+    h += _mtgFieldHtml('Attendees (comma-separated)', 'attendees', (data.attendees || []).join(', '), 'text');
+    h += _mtgFieldHtml('Workstream', 'workstream', data.workstream, 'select', ws);
+    h += _mtgFieldHtml('Summary', 'summary', data.summary, 'textarea');
+  }
+  return h;
+}
+
+function _mtgReadFormData(formEl) {
+  var data = {};
+  formEl.querySelectorAll('[data-field]').forEach(function(el) {
+    var key = el.getAttribute('data-field');
+    var val = el.value;
+    if (key === 'notes') {
+      data[key] = val.split('\n').map(function(l) { return l.trim(); }).filter(function(l) { return l; });
+    } else if (key === 'workstreams' || key === 'attendees') {
+      data[key] = val.split(',').map(function(s) { return s.trim(); }).filter(function(s) { return s; });
+    } else {
+      data[key] = val;
+    }
+  });
+  return data;
+}
+
+function _mtgEditFormHtml(itemId, section, data) {
+  var safeId = itemId ? itemId.replace(/[^a-zA-Z0-9]/g, '_') : 'new';
+  var h = '<div class="cc-mtg-edit-row" id="mtgEditForm_' + safeId + '">';
+  h += _mtgEditFormFields(section, data);
+  h += '<div class="cc-mtg-edit-actions">';
+  if (itemId) {
+    h += '<button class="cc-btn-sm" onclick="_mtgSaveEdit(\'' + esc(itemId) + '\')">Save</button>';
+    h += '<button class="cc-btn-sm" onclick="_mtgCancelEdit()">Cancel</button>';
+    h += '<span class="del" onclick="_mtgDeleteItem(\'' + esc(itemId) + '\')">Delete</span>';
+  } else {
+    h += '<button class="cc-btn-sm" onclick="_mtgSaveAdd()">Save</button>';
+    h += '<button class="cc-btn-sm" onclick="_mtgCancelEdit()">Cancel</button>';
+  }
+  h += '</div></div>';
+  return h;
+}
+
+function _mtgStartEdit(itemId) { _mtgEditingId = itemId; _mtgAddingSection = null; _mtgRender(); }
+function _mtgCancelEdit() { _mtgEditingId = null; _mtgAddingSection = null; _mtgRender(); }
+function _mtgStartAdd() { _mtgAddingSection = _mtgSubTab; _mtgEditingId = null; _mtgRender(); }
+
+function _mtgSaveEdit(itemId) {
+  var formEl = document.getElementById('mtgEditForm_' + itemId.replace(/[^a-zA-Z0-9]/g, '_'));
+  if (!formEl) return;
+  var data = _mtgReadFormData(formEl);
+  if (_mtgData && _mtgData.sections) {
+    var arr = _mtgData.sections[_mtgSubTab] || [];
+    var item = arr.find(function(a) { return a.id === itemId; });
+    if (item) Object.assign(item, data);
+  }
+  _mtgEditingId = null;
+  _mtgRender();
+  authFetch('/api/meetings/items/' + encodeURIComponent(itemId), {
+    method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ data: data })
+  }).then(function(r) { if (!r.ok) { toast('Failed to save edit', 'error'); _mtgFetchAll(); } });
+}
+
+function _mtgSaveAdd() {
+  var formEl = document.getElementById('mtgEditForm_new');
+  if (!formEl) return;
+  var data = _mtgReadFormData(formEl);
+  var section = _mtgAddingSection;
+  _mtgAddingSection = null;
+  _mtgRender();
+  authFetch('/api/meetings/items', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ section: section, data: data })
+  }).then(function(r) {
+    if (!r.ok) { toast('Failed to add item', 'error'); return r.json().then(function(b) { toast(b.error || 'Validation error', 'error'); }); }
+    return r.json();
+  }).then(function(item) {
+    if (!item || !item.id) return;
+    if (_mtgData && _mtgData.sections) {
+      if (!_mtgData.sections[section]) _mtgData.sections[section] = [];
+      _mtgData.sections[section].unshift(item);
+    }
+    _mtgRender();
+  });
+}
+
+function _mtgDeleteItem(itemId) {
+  if (!confirm('Delete this item?')) return;
+  if (_mtgData && _mtgData.sections) {
+    _mtgData.sections[_mtgSubTab] = (_mtgData.sections[_mtgSubTab] || []).filter(function(a) { return a.id !== itemId; });
+  }
+  _mtgEditingId = null;
+  _mtgRender();
+  authFetch('/api/meetings/items/' + encodeURIComponent(itemId), { method: 'DELETE' }).then(function(r) {
+    if (!r.ok) { toast('Failed to delete', 'error'); _mtgFetchAll(); }
+  });
+}
+
+function _mtgCycleStatus(id, current) {
+  var next = current === 'open' ? 'done' : current === 'done' ? 'overdue' : 'open';
+  if (_mtgData && _mtgData.sections) {
+    var a = _mtgData.sections.actions.find(function(x) { return x.id === id; });
+    if (a) a.status = next;
+    _mtgRender();
+  }
+  authFetch('/api/meetings/items/' + encodeURIComponent(id), {
+    method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ data: { status: next } })
+  }).then(function(r) { if (!r.ok) { toast('Failed to update status', 'error'); _mtgFetchAll(); } });
+}
+
+function _mtgBadge(item) {
+  return item.source === 'manual' ? '<span class="cc-mtg-badge">Manual</span>' : '';
+}
+
+function _mtgSrcChip(item) {
+  if (item.source === 'manual' || !item.source_meeting_id) return '';
+  var mtg = (_mtgData && _mtgData.sections && _mtgData.sections.meetings || []).find(function(m) { return m.id === item.source_meeting_id; });
+  if (!mtg) return '';
+  var label = (mtg.title || '').length > 30 ? mtg.title.slice(0, 28) + '...' : mtg.title;
+  return ' <span class="cc-tag cc-tag--purple cc-mtg-src" onclick="event.stopPropagation();_mtgOpenMeeting(\'' + esc(item.source_meeting_id) + '\')">' + esc(label) + ' &middot; ' + esc(mtg.date || '') + '</span>';
+}
+
+function _mtgPeopleMtgChip(item) {
+  if (!item.meeting_ids || !item.meeting_ids.length) return '';
+  return ' <span class="cc-tag cc-tag--purple cc-mtg-src" onclick="event.stopPropagation();_mtgFilterSources(\'' + esc(item.id) + '\')">' + item.meeting_ids.length + ' meetings</span>';
+}
+
+// ——— SECTION RENDERERS (with edit/add/delete) ———
+
 function _mtgRenderActions(actions) {
-  if (!actions.length) return '<div class="cc-panel-empty">No actions match your filters.</div>';
-  var h = '<table class="cc-tbl"><thead><tr><th>Date</th><th>Owner</th><th>Action</th><th>Workstream</th><th>Status</th></tr></thead><tbody>';
+  var h = '<button class="cc-btn-sm cc-mtg-add-btn" onclick="_mtgStartAdd()">+ Add Action</button>';
+  if (_mtgAddingSection === 'actions') h += _mtgEditFormHtml(null, 'actions', { date: new Date().toISOString().slice(0,10), status: 'open', workstream: 'nbi' });
+  if (!actions.length && !_mtgAddingSection) return h + '<div class="cc-panel-empty">No actions match your filters.</div>';
+  h += '<table class="cc-tbl"><thead><tr><th>Date</th><th>Owner</th><th>Action</th><th>Workstream</th><th>Status</th><th></th></tr></thead><tbody>';
   actions.forEach(function(a) {
+    if (_mtgEditingId === a.id) { h += '<tr><td colspan="6">' + _mtgEditFormHtml(a.id, 'actions', a) + '</td></tr>'; return; }
     var cls = a.status === 'done' ? 'cc-tag--green' : a.status === 'overdue' ? 'cc-tag--red' : 'cc-tag--yellow';
-    h += '<tr><td style="white-space:nowrap">' + esc(a.date) + '</td>';
-    h += '<td>' + esc(a.owner) + '</td>';
-    h += '<td>' + esc(a.description) + '</td>';
+    h += '<tr><td style="white-space:nowrap">' + esc(a.date || '') + '</td>';
+    h += '<td>' + esc(a.owner || '') + '</td>';
+    h += '<td>' + esc(a.description || '') + _mtgBadge(a) + _mtgSrcChip(a) + '</td>';
     h += '<td><span class="cc-tag cc-tag--blue">' + esc((a.workstream || '').replace(/_/g, ' ')) + '</span></td>';
-    h += '<td><span class="cc-tag ' + cls + '" style="cursor:pointer" onclick="_mtgCycleStatus(\'' + esc(a.id) + '\',\'' + esc(a.status) + '\')">' + esc(a.status) + '</span></td></tr>';
+    h += '<td><span class="cc-tag ' + cls + '" style="cursor:pointer" onclick="_mtgCycleStatus(\'' + esc(a.id) + '\',\'' + esc(a.status) + '\')">' + esc(a.status) + '</span></td>';
+    h += '<td><span class="cc-mtg-edit-icon" onclick="_mtgStartEdit(\'' + esc(a.id) + '\')" title="Edit">&#9998;</span>';
+    h += '<span class="cc-mtg-task-icon" onclick="_mtgCreateTask(\'' + esc(a.id) + '\')" title="Create task">&#128203;</span></td></tr>';
   });
   h += '</tbody></table>';
   return h;
 }
 
-function _mtgCycleStatus(id, current) {
-  var next = current === 'open' ? 'done' : current === 'done' ? 'overdue' : 'open';
-  authFetch('/api/meetings/actions/' + encodeURIComponent(id), {
-    method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ status: next })
-  }).then(function(r) {
-    if (!r.ok) return;
-    if (_mtgData && _mtgData.sections) {
-      var a = _mtgData.sections.actions.find(function(x) { return x.id === id; });
-      if (a) a.status = next;
-      _mtgRender();
-    }
-  });
-}
-
 function _mtgRenderDecisions(items) {
-  if (!items.length) return '<div class="cc-panel-empty">No decisions match your filters.</div>';
-  var h = '<table class="cc-tbl"><thead><tr><th>Date</th><th>Decision</th><th>Rationale</th><th>Workstream</th></tr></thead><tbody>';
+  var h = '<button class="cc-btn-sm cc-mtg-add-btn" onclick="_mtgStartAdd()">+ Add Decision</button>';
+  if (_mtgAddingSection === 'decisions') h += _mtgEditFormHtml(null, 'decisions', { date: new Date().toISOString().slice(0,10), workstream: 'nbi' });
+  if (!items.length && !_mtgAddingSection) return h + '<div class="cc-panel-empty">No decisions match your filters.</div>';
+  h += '<table class="cc-tbl"><thead><tr><th>Date</th><th>Decision</th><th>Rationale</th><th>Workstream</th><th></th></tr></thead><tbody>';
   items.forEach(function(d) {
-    h += '<tr><td style="white-space:nowrap">' + esc(d.date) + '</td>';
-    h += '<td>' + esc(d.decision) + '</td>';
+    if (_mtgEditingId === d.id) { h += '<tr><td colspan="5">' + _mtgEditFormHtml(d.id, 'decisions', d) + '</td></tr>'; return; }
+    h += '<tr><td style="white-space:nowrap">' + esc(d.date || '') + '</td>';
+    h += '<td>' + esc(d.decision || '') + _mtgBadge(d) + _mtgSrcChip(d) + '</td>';
     h += '<td style="color:var(--text-secondary)">' + esc(d.rationale || '') + '</td>';
-    h += '<td><span class="cc-tag cc-tag--blue">' + esc((d.workstream || '').replace(/_/g, ' ')) + '</span></td></tr>';
+    h += '<td><span class="cc-tag cc-tag--blue">' + esc((d.workstream || '').replace(/_/g, ' ')) + '</span></td>';
+    h += '<td><span class="cc-mtg-edit-icon" onclick="_mtgStartEdit(\'' + esc(d.id) + '\')" title="Edit">&#9998;</span></td></tr>';
   });
   h += '</tbody></table>';
   return h;
 }
 
 function _mtgRenderPeople(items) {
-  if (!items.length) return '<div class="cc-panel-empty">No people match your filters.</div>';
-  var h = '<div class="cc-meetings-people-grid">';
+  var h = '<button class="cc-btn-sm cc-mtg-add-btn" onclick="_mtgStartAdd()">+ Add Person</button>';
+  if (_mtgAddingSection === 'people') h += _mtgEditFormHtml(null, 'people', { workstreams: ['nbi'] });
+  if (!items.length && !_mtgAddingSection) return h + '<div class="cc-panel-empty">No people match your filters.</div>';
+  h += '<div class="cc-meetings-people-grid">';
   items.forEach(function(p) {
+    if (_mtgEditingId === p.id) { h += _mtgEditFormHtml(p.id, 'people', p); return; }
     h += '<div class="cc-card cc-meetings-person">';
     h += '<div style="display:flex;justify-content:space-between;align-items:baseline">';
-    h += '<strong style="color:var(--accent)">' + esc(p.name) + '</strong>';
-    h += '<span style="font-size:12px;color:var(--text-secondary)">Last: ' + esc(p.last_seen || '?') + '</span></div>';
+    h += '<strong style="color:var(--accent)">' + esc(p.name) + '</strong>' + _mtgBadge(p) + _mtgPeopleMtgChip(p);
+    h += '<span style="font-size:12px;color:var(--text-secondary)"><span class="cc-mtg-edit-icon" onclick="_mtgStartEdit(\'' + esc(p.id) + '\')" title="Edit">&#9998;</span> Last: ' + esc(p.last_seen || '?') + '</span></div>';
     h += '<div style="font-size:13px;color:var(--text-secondary);margin-bottom:6px">' + esc(p.role || '') + '</div>';
     if (p.workstreams) p.workstreams.forEach(function(ws) { h += '<span class="cc-tag cc-tag--blue" style="margin-right:4px">' + esc(ws.replace(/_/g, ' ')) + '</span>'; });
     if (p.notes && p.notes.length) {
@@ -24177,32 +24829,37 @@ function _mtgRenderPeople(items) {
 }
 
 function _mtgRenderLearnings(items) {
-  if (!items.length) return '<div class="cc-panel-empty">No learnings match your filters.</div>';
-  var h = '';
+  var h = '<button class="cc-btn-sm cc-mtg-add-btn" onclick="_mtgStartAdd()">+ Add Learning</button>';
+  if (_mtgAddingSection === 'learnings') h += _mtgEditFormHtml(null, 'learnings', { date: new Date().toISOString().slice(0,10), workstream: 'nbi' });
+  if (!items.length && !_mtgAddingSection) return h + '<div class="cc-panel-empty">No learnings match your filters.</div>';
   items.forEach(function(l) {
+    if (_mtgEditingId === l.id) { h += _mtgEditFormHtml(l.id, 'learnings', l); return; }
     h += '<div class="cc-meetings-insight">';
     h += '<div style="display:flex;justify-content:space-between;margin-bottom:4px">';
-    h += '<span style="font-size:12px;color:var(--text-secondary)">' + esc(l.date) + '</span>';
+    h += '<span style="font-size:12px;color:var(--text-secondary)">' + esc(l.date || '') + ' <span class="cc-mtg-edit-icon" onclick="_mtgStartEdit(\'' + esc(l.id) + '\')" title="Edit">&#9998;</span></span>';
     h += '<span class="cc-tag cc-tag--blue">' + esc((l.workstream || '').replace(/_/g, ' ')) + '</span></div>';
-    h += '<strong>' + esc(l.insight) + '</strong>';
+    h += '<strong>' + esc(l.insight) + '</strong>' + _mtgBadge(l) + _mtgSrcChip(l);
     h += '<div style="font-size:14px;color:var(--text-secondary);margin-top:4px">' + esc(l.context || '') + '</div></div>';
   });
   return h;
 }
 
 function _mtgRenderNumbers(items) {
-  if (!items.length) return '<div class="cc-panel-empty">No numbers match your filters.</div>';
+  var h = '<button class="cc-btn-sm cc-mtg-add-btn" onclick="_mtgStartAdd()">+ Add Number</button>';
+  if (_mtgAddingSection === 'numbers') h += _mtgEditFormHtml(null, 'numbers', { date: new Date().toISOString().slice(0,10), workstream: 'nbi', category: 'revenue' });
+  if (!items.length && !_mtgAddingSection) return h + '<div class="cc-panel-empty">No numbers match your filters.</div>';
   var groups = {};
   items.forEach(function(n) { var c = n.category || 'other'; if (!groups[c]) groups[c] = []; groups[c].push(n); });
-  var h = '';
   Object.keys(groups).forEach(function(cat) {
     h += '<h4 style="margin:16px 0 8px;color:var(--text-secondary);text-transform:capitalize">' + esc(cat.replace(/_/g, ' ')) + '</h4>';
-    h += '<table class="cc-tbl"><thead><tr><th>Date</th><th>Figure</th><th>Context</th><th>Workstream</th></tr></thead><tbody>';
+    h += '<table class="cc-tbl"><thead><tr><th>Date</th><th>Figure</th><th>Context</th><th>Workstream</th><th></th></tr></thead><tbody>';
     groups[cat].forEach(function(n) {
-      h += '<tr><td style="white-space:nowrap">' + esc(n.date) + '</td>';
+      if (_mtgEditingId === n.id) { h += '<tr><td colspan="5">' + _mtgEditFormHtml(n.id, 'numbers', n) + '</td></tr>'; return; }
+      h += '<tr><td style="white-space:nowrap">' + esc(n.date || '') + '</td>';
       h += '<td style="color:var(--success);font-weight:700">' + esc(n.figure) + '</td>';
-      h += '<td>' + esc(n.context || '') + '</td>';
-      h += '<td><span class="cc-tag cc-tag--blue">' + esc((n.workstream || '').replace(/_/g, ' ')) + '</span></td></tr>';
+      h += '<td>' + esc(n.context || '') + _mtgBadge(n) + _mtgSrcChip(n) + '</td>';
+      h += '<td><span class="cc-tag cc-tag--blue">' + esc((n.workstream || '').replace(/_/g, ' ')) + '</span></td>';
+      h += '<td><span class="cc-mtg-edit-icon" onclick="_mtgStartEdit(\'' + esc(n.id) + '\')" title="Edit">&#9998;</span></td></tr>';
     });
     h += '</tbody></table>';
   });
@@ -24210,31 +24867,227 @@ function _mtgRenderNumbers(items) {
 }
 
 function _mtgRenderTimeline(items) {
-  if (!items.length) return '<div class="cc-panel-empty">No timeline data.</div>';
-  var h = '<div class="cc-meetings-timeline">';
+  var h = '<button class="cc-btn-sm cc-mtg-add-btn" onclick="_mtgStartAdd()">+ Add Period</button>';
+  if (_mtgAddingSection === 'timeline') h += _mtgEditFormHtml(null, 'timeline', {});
+  if (!items.length && !_mtgAddingSection) return h + '<div class="cc-panel-empty">No timeline data.</div>';
+  h += '<div class="cc-meetings-timeline">';
   items.forEach(function(t) {
+    if (_mtgEditingId === t.id) { h += _mtgEditFormHtml(t.id, 'timeline', t); return; }
     h += '<div class="cc-meetings-tl-item"><div class="cc-meetings-tl-dot"></div>';
-    h += '<div class="cc-meetings-tl-date">' + esc(t.period) + ' &mdash; ' + esc(t.label) + '</div>';
-    h += '<div style="font-size:14px">' + esc(t.summary) + '</div></div>';
+    h += '<div class="cc-meetings-tl-date">' + esc(t.period || '') + ' &mdash; ' + esc(t.label || '') + ' <span class="cc-mtg-edit-icon" onclick="_mtgStartEdit(\'' + esc(t.id) + '\')" title="Edit">&#9998;</span>' + _mtgBadge(t) + '</div>';
+    h += '<div style="font-size:14px">' + esc(t.summary || '') + '</div></div>';
   });
   h += '</div>';
   return h;
 }
 
 function _mtgRenderThreads(items) {
-  if (!items.length) return '<div class="cc-panel-empty">No active threads.</div>';
-  var h = '<div class="cc-meetings-threads-grid">';
+  var h = '<button class="cc-btn-sm cc-mtg-add-btn" onclick="_mtgStartAdd()">+ Add Thread</button>';
+  if (_mtgAddingSection === 'threads') h += _mtgEditFormHtml(null, 'threads', { status: 'active', workstream: 'nbi' });
+  if (!items.length && !_mtgAddingSection) return h + '<div class="cc-panel-empty">No active threads.</div>';
+  h += '<div class="cc-meetings-threads-grid">';
   items.forEach(function(t) {
+    if (_mtgEditingId === t.id) { h += _mtgEditFormHtml(t.id, 'threads', t); return; }
     var cls = t.status === 'active' ? 'cc-tag--yellow' : 'cc-tag--green';
     h += '<div class="cc-card">';
     h += '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">';
-    h += '<strong style="color:var(--warning)">' + esc(t.title) + '</strong>';
-    h += '<span class="cc-tag ' + cls + '">' + esc(t.status) + '</span></div>';
-    h += '<div style="font-size:14px">' + esc(t.summary) + '</div>';
+    h += '<strong style="color:var(--warning)">' + esc(t.title) + '</strong>' + _mtgBadge(t);
+    h += '<span><span class="cc-mtg-edit-icon" onclick="_mtgStartEdit(\'' + esc(t.id) + '\')" title="Edit">&#9998;</span> <span class="cc-tag ' + cls + '">' + esc(t.status) + '</span></span></div>';
+    h += '<div style="font-size:14px">' + esc(t.summary || '') + '</div>';
     if (t.workstream) h += '<div style="margin-top:8px"><span class="cc-tag cc-tag--blue">' + esc(t.workstream.replace(/_/g, ' ')) + '</span></div>';
     h += '</div>';
   });
   h += '</div>';
+  return h;
+}
+
+// ——— TASK CREATION FROM ACTIONS ———
+
+var _WS_CLIENT_MAP = null;
+function _mtgResolveClient(workstream) {
+  if (!_WS_CLIENT_MAP) {
+    _WS_CLIENT_MAP = {};
+    var allClients = typeof getAllClients === 'function' ? getAllClients() : [];
+    allClients.forEach(function(c) { _WS_CLIENT_MAP[c.toLowerCase().replace(/\s+/g, '_')] = c; });
+  }
+  return _WS_CLIENT_MAP[workstream] || null;
+}
+
+function _mtgCreateTask(actionId) {
+  var action = null;
+  if (_mtgData && _mtgData.sections && _mtgData.sections.actions) {
+    action = _mtgData.sections.actions.find(function(a) { return a.id === actionId; });
+  }
+  if (!action) { toast('Action not found', 'error'); return; }
+  var client = _mtgResolveClient(action.workstream || '');
+  if (!client) {
+    _pickClient('Select client for this task').then(function(c) { if (c) _mtgDoCreateTask(action, c); });
+    return;
+  }
+  _mtgDoCreateTask(action, client);
+}
+
+function _mtgDoCreateTask(action, client) {
+  var candidates = tasks.filter(function(t) {
+    return getTaskClient(t) === client && ['project', 'feature', 'story'].indexOf(getItemType(t)) >= 0;
+  }).sort(function(a, b) { return a.title.localeCompare(b.title); });
+
+  if (candidates.length === 0) {
+    var t = createTaskObject({ title: action.description || 'Meeting action', client: client, itemType: 'task',
+      description: 'From meeting intelligence: ' + (action.date || '') + ' — ' + (action.owner || '') });
+    tasks.push(t); markDirty(t.id); save(); renderSidebarCounts(); renderContent(); openDetail(t.id);
+    _mtgMarkActionDone(action.id);
+    return;
+  }
+
+  var html = '<div class="modal-overlay open" id="mtgParentPickerModal" role="dialog" aria-modal="true" onclick="if(event.target===this)this.remove()">';
+  html += '<div class="modal" style="max-width:500px">';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">';
+  html += '<h2 style="margin:0;font-size:16px">Create task under...</h2>';
+  html += '<button class="btn btn--ghost" onclick="document.getElementById(\'mtgParentPickerModal\').remove()">&times;</button></div>';
+  html += '<div style="max-height:400px;overflow-y:auto;border:1px solid var(--border-default);border-radius:6px">';
+  candidates.forEach(function(c) {
+    var indent = getItemType(c) === 'project' ? 0 : getItemType(c) === 'feature' ? 1 : 2;
+    html += '<div class="picker-row" style="padding-left:' + (12 + indent * 16) + 'px;cursor:pointer" onclick="_mtgFinishCreateTask(\'' + esc(action.id) + '\',\'' + esc(c.id) + '\',\'' + esc(client) + '\')">';
+    html += '<span style="font-size:11px;color:var(--text-secondary);margin-right:6px">' + esc(getItemType(c)) + '</span> ' + esc(c.title);
+    html += '</div>';
+  });
+  html += '</div></div></div>';
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+function _mtgFinishCreateTask(actionId, parentId, client) {
+  var modal = document.getElementById('mtgParentPickerModal');
+  if (modal) modal.remove();
+  var action = _mtgData.sections.actions.find(function(a) { return a.id === actionId; });
+  if (!action) return;
+  var t = createTaskObject({ title: action.description || 'Meeting action', parentId: parentId, client: client, itemType: 'task',
+    description: 'From meeting intelligence: ' + (action.date || '') + ' — ' + (action.owner || '') });
+  tasks.push(t); markDirty(t.id); save(); renderSidebarCounts(); renderContent(); openDetail(t.id);
+  _mtgMarkActionDone(actionId);
+}
+
+function _mtgMarkActionDone(actionId) {
+  if (_mtgData && _mtgData.sections) {
+    var a = _mtgData.sections.actions.find(function(x) { return x.id === actionId; });
+    if (a) a.status = 'done';
+  }
+  authFetch('/api/meetings/items/' + encodeURIComponent(actionId), {
+    method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ data: { status: 'done' } })
+  });
+}
+
+// ——— MEETING SLIDE-OVER PANEL ———
+
+function _mtgOpenMeeting(meetingId) {
+  var mtg = (_mtgData && _mtgData.sections && _mtgData.sections.meetings || []).find(function(m) { return m.id === meetingId; });
+  if (!mtg) { toast('Meeting record not found', 'error'); return; }
+  var old = document.getElementById('mtgPanelOverlay');
+  if (old) old.remove();
+
+  var h = '<div class="cc-mtg-panel-overlay" id="mtgPanelOverlay" onclick="if(event.target===this)_mtgClosePanel()">';
+  h += '<div class="cc-mtg-panel">';
+  h += '<button class="cc-mtg-panel-close" id="mtgPanelClose" onclick="_mtgClosePanel()" title="Close">&times;</button>';
+  h += '<div class="cc-mtg-panel-title">' + esc(mtg.title || '') + '</div>';
+  h += '<div class="cc-mtg-panel-date">' + esc(mtg.date || '') + '</div>';
+
+  if (mtg.attendees && mtg.attendees.length) {
+    h += '<div style="margin-bottom:12px">';
+    mtg.attendees.forEach(function(a) { h += '<span class="cc-tag" style="margin:0 4px 4px 0">' + esc(a) + '</span>'; });
+    h += '</div>';
+  }
+
+  if (mtg.workstream) h += '<span class="cc-tag cc-tag--blue" style="margin-right:4px">' + esc(mtg.workstream.replace(/_/g, ' ')) + '</span>';
+  if (mtg.topics && mtg.topics.length) {
+    mtg.topics.forEach(function(t) { h += '<span class="cc-tag cc-tag--purple" style="margin:0 4px 4px 0;font-size:11px">' + esc(t) + '</span>'; });
+  }
+
+  if (mtg.summary) {
+    h += '<div class="cc-mtg-panel-section"><h4>Summary</h4>';
+    h += '<div style="font-size:14px;line-height:1.6">' + esc(mtg.summary).replace(/\n/g, '<br>') + '</div></div>';
+  }
+
+  if (mtg.decisions_text) {
+    h += '<div class="cc-mtg-panel-section"><h4>Decisions</h4><ul style="padding-left:16px;font-size:14px">';
+    mtg.decisions_text.split('\n').filter(function(l) { return l.trim(); }).forEach(function(l) {
+      h += '<li style="margin-bottom:4px">' + esc(l.replace(/^[-*]\s*/, '').replace(/^\[.*?\]\s*/, '')) + '</li>';
+    });
+    h += '</ul></div>';
+  }
+
+  if (mtg.context) {
+    h += '<div class="cc-mtg-panel-section"><h4>Context</h4>';
+    h += '<div style="font-size:13px;color:var(--text-secondary)">' + esc(mtg.context) + '</div></div>';
+  }
+
+  if (mtg.source_id) {
+    h += '<div style="margin-top:12px;font-size:12px;color:var(--text-secondary)">Source: ' + esc(mtg.source_id) + '</div>';
+  }
+
+  var linkedSections = {};
+  ['actions', 'decisions', 'learnings', 'numbers'].forEach(function(sec) {
+    var items = (_mtgData.sections[sec] || []).filter(function(i) { return i.source_meeting_id === meetingId; });
+    if (items.length) linkedSections[sec] = items;
+  });
+  var linkedKeys = Object.keys(linkedSections);
+  if (linkedKeys.length) {
+    h += '<div class="cc-mtg-panel-section"><h4>From This Meeting</h4>';
+    var countParts = linkedKeys.map(function(k) { return linkedSections[k].length + ' ' + k; });
+    h += '<div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px">' + countParts.join(' &middot; ') + '</div>';
+    linkedKeys.forEach(function(sec) {
+      linkedSections[sec].forEach(function(item) {
+        var label = item.description || item.decision || item.insight || item.figure || item.title || '';
+        h += '<div class="cc-mtg-linked-item" onclick="_mtgClosePanel();_mtgSwitchSub(\'' + sec + '\')">' + esc(label.slice(0, 80)) + '</div>';
+      });
+    });
+    h += '</div>';
+  }
+
+  h += '</div></div>';
+  document.body.insertAdjacentHTML('beforeend', h);
+  setTimeout(function() { var btn = document.getElementById('mtgPanelClose'); if (btn) btn.focus(); }, 100);
+  document.addEventListener('keydown', _mtgPanelEscape);
+}
+
+function _mtgClosePanel() {
+  var el = document.getElementById('mtgPanelOverlay');
+  if (el) el.remove();
+  document.removeEventListener('keydown', _mtgPanelEscape);
+}
+
+function _mtgPanelEscape(e) {
+  if (e.key === 'Escape') _mtgClosePanel();
+}
+
+function _mtgFilterSources(personId) {
+  var person = (_mtgData.sections.people || []).find(function(p) { return p.id === personId; });
+  if (!person || !person.meeting_ids) return;
+  _mtgFilters._personMeetingIds = person.meeting_ids;
+  _mtgSwitchSub('sources');
+}
+
+// ——— SOURCES SUB-TAB ———
+
+function _mtgRenderSources(meetings) {
+  var h = '<button class="cc-btn-sm cc-mtg-add-btn" onclick="_mtgStartAdd()">+ Add Meeting</button>';
+  if (_mtgAddingSection === 'meetings') h += _mtgEditFormHtml(null, 'meetings', { date: new Date().toISOString().slice(0,10), attendees: [], topics: [], workstream: 'nbi' });
+  if (_mtgFilters._personMeetingIds) {
+    h += '<div style="margin-bottom:10px;font-size:13px;color:var(--text-secondary)">Filtered to meetings for this person <button class="cc-btn-sm" onclick="delete _mtgFilters._personMeetingIds;_mtgRender()">Clear</button></div>';
+  }
+  if (!meetings.length && !_mtgAddingSection) return h + '<div class="cc-panel-empty">No meeting records found.</div>';
+  h += '<table class="cc-tbl"><thead><tr><th>Date</th><th>Meeting</th><th>Attendees</th><th>Workstream</th><th></th></tr></thead><tbody>';
+  meetings.forEach(function(m) {
+    if (_mtgEditingId === m.id) { h += '<tr><td colspan="5">' + _mtgEditFormHtml(m.id, 'meetings', m) + '</td></tr>'; return; }
+    h += '<tr style="cursor:pointer" onclick="_mtgOpenMeeting(\'' + esc(m.id) + '\')">';
+    h += '<td style="white-space:nowrap">' + esc(m.date || '') + '</td>';
+    h += '<td>' + esc(m.title || '') + _mtgBadge(m) + '</td>';
+    h += '<td style="font-size:12px;color:var(--text-secondary)">' + (m.attendees ? m.attendees.length : 0) + '</td>';
+    h += '<td><span class="cc-tag cc-tag--blue">' + esc((m.workstream || '').replace(/_/g, ' ')) + '</span></td>';
+    h += '<td><span class="cc-mtg-edit-icon" onclick="event.stopPropagation();_mtgStartEdit(\'' + esc(m.id) + '\')" title="Edit">&#9998;</span></td>';
+    h += '</tr>';
+  });
+  h += '</tbody></table>';
   return h;
 }
 
@@ -26796,6 +27649,13 @@ window.addEventListener('hashchange', () => {
     setTimeout(() => openCandidateDetail(candidateId), 300);
     window.location.hash = '';
   }
+  if (hash.startsWith('#interview/')) {
+    const sessionId = hash.replace('#interview/', '');
+    if (sessionId && /^[a-f0-9-]+$/i.test(sessionId)) {
+      openInterviewScorecard(sessionId);
+    }
+    window.location.hash = '';
+  }
 });
 
 // ===== CONFLICT RESOLUTION =====
@@ -27992,6 +28852,7 @@ async function fetchSeedData() {
       renderAll();
       restartPollingIntervals();
       checkExpenseReportDeepLink();
+      checkInterviewDeepLink();
       return;
     }
   } catch (e) {
@@ -28609,67 +29470,7 @@ const newsApi = {
   },
 };
 
-/** Dispatch helper called from renderContent(). Shows a loading state on cold
- *  start, then lazy-loads the module and the current digest on first visit. */
-function renderIntelligenceView(container) {
-  container.innerHTML = '<div style="padding:20px;color:var(--text-muted)">Loading intelligence...</div>';
-  Promise.all([
-    authFetch('/api/intelligence/brief').then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; }),
-    authFetch('/api/intelligence/banks').then(function(r) { return r.ok ? r.json() : []; }).catch(function() { return []; }),
-    authFetch('/api/intelligence/research?limit=10').then(function(r) { return r.ok ? r.json() : []; }).catch(function() { return []; }),
-    authFetch('/api/intelligence/pipeline').then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; })
-  ]).then(function(results) {
-    var brief = results[0], banks = results[1], research = results[2], pipeline = results[3];
-    var h = '<div class="intel-view">';
-    var totalLines = 0, totalSources = 0, totalExtracts = 0, staleCount = 0;
-    banks.forEach(function(b) { totalLines += b.lines; totalSources += b.sources; if (b.status === 'stale') staleCount++; });
-    if (pipeline) pipeline.sources.forEach(function(s) { totalExtracts += s.produced; });
-    h += '<div class="intel-kpis">';
-    [{v:banks.length,l:'Active Banks'},{v:totalLines.toLocaleString(),l:'Total Lines',c:'var(--success)'},{v:totalExtracts,l:'Raw Extracts'},{v:totalSources,l:'Source Refs'},{v:staleCount,l:'Stale Banks',c:staleCount>0?'var(--danger)':'var(--success)'}].forEach(function(k) {
-      h += '<div class="intel-kpi"><div class="intel-kpi-value"' + (k.c ? ' style="color:'+k.c+'"' : '') + '>' + k.v + '</div><div class="intel-kpi-label">' + k.l + '</div></div>';
-    });
-    h += '</div>';
-    h += '<div class="pf__panel" style="margin-bottom:16px"><div class="pf__panel-hdr"><h2 style="margin:0;font-size:15px">Bank Health</h2></div>';
-    h += '<div style="padding:0;overflow-x:auto"><table class="intel-bank-table"><thead><tr><th>Bank</th><th>Lines</th><th>Capacity</th><th>Sources</th><th>Last Compiled</th><th>Shelf Life</th><th>Status</th></tr></thead><tbody>';
-    banks.forEach(function(b) {
-      var bc = b.capacity > 80 ? 'var(--warning)' : 'var(--success)';
-      if (b.status === 'stale') bc = 'var(--danger)';
-      h += '<tr><td><strong class="intel-bank-name">' + b.slug.replace(/_/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();}) + '</strong><br><span class="intel-bank-slug">' + b.slug + '</span></td>';
-      h += '<td>' + b.lines + '</td>';
-      h += '<td><div class="intel-cap-bar"><div class="intel-cap-fill" style="width:'+b.capacity+'%;background:'+bc+'"></div></div>'+b.capacity+'%</td>';
-      h += '<td>' + b.sources + '</td><td>' + (b.lastCompiled||'never') + '</td><td>' + b.shelfLife + '</td>';
-      h += '<td><span class="intel-status intel-status--'+b.status+'">' + b.status.charAt(0).toUpperCase()+b.status.slice(1) + '</span></td></tr>';
-    });
-    h += '</tbody></table><div style="padding:12px 16px;font-size:13px;color:var(--text-secondary);border-top:1px solid var(--border)"><strong>'+totalLines.toLocaleString()+'</strong> total lines across <strong>'+totalSources+'</strong> source references</div></div></div>';
-    h += '<div class="intel-columns">';
-    h += '<div class="pf__panel"><div class="pf__panel-hdr"><h2 style="margin:0;font-size:15px">Recent Research</h2></div><div class="pf__panel-body">';
-    if (research.length) {
-      research.forEach(function(entry) {
-        h += '<div class="intel-research-group"><div class="intel-research-date">' + (entry.date||'') + ' <span class="intel-domain-badge">' + (entry.domain||'') + '</span></div>';
-        entry.findings.forEach(function(f) {
-          h += '<div class="intel-finding"><span class="intel-score ' + (f.relevance>=8?'intel-score--high':'intel-score--mid') + '">' + f.relevance + '</span><span class="intel-finding-text">' + f.title + '</span></div>';
-        });
-        h += '</div>';
-      });
-    } else { h += '<div style="color:var(--text-muted)">No research runs yet.</div>'; }
-    h += '</div></div>';
-    h += '<div class="intel-right-col">';
-    h += '<div class="pf__panel" style="margin-bottom:16px"><div class="pf__panel-hdr"><h2 style="margin:0;font-size:15px">Pipeline Activity</h2></div><div class="pf__panel-body">';
-    if (pipeline && pipeline.sources) {
-      pipeline.sources.forEach(function(s) {
-        h += '<div class="intel-source-row"><span class="intel-source-name">' + s.name + '</span><span><span class="intel-source-dot ' + (s.lastRun==='never'?'intel-dot--amber':'intel-dot--green') + '"></span>' + s.lastRun + '</span></div>';
-      });
-    }
-    h += '</div></div>';
-    if (pipeline && pipeline.pending && pipeline.pending.length) {
-      h += '<div class="pf__panel"><div class="pf__panel-hdr"><h2 style="margin:0;font-size:15px">Pending</h2><span class="intel-pending-badge">'+pipeline.pending.length+'</span></div><div class="pf__panel-body">';
-      pipeline.pending.forEach(function(p) { h += '<div class="intel-pending-item">' + p + '</div>'; });
-      h += '</div></div>';
-    }
-    h += '</div></div></div>';
-    container.innerHTML = h;
-  });
-}
+// renderIntelligenceView removed — consolidated into CC Intel tab
 
 function renderNewsOrLoad(el) {
   if (_newsModuleLoaded) { renderNewsView(); return; }
