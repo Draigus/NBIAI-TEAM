@@ -1,24 +1,39 @@
 # Pending Tasks
 
-Updated 2026-05-23
+Updated 2026-06-03
 
 ---
+
+## Interview UX Redesign — Phase A COMPLETE, Phase B next
+
+Phase A (DB + API) is done: migration 062 applied, all new endpoints live, old endpoints retired (410 Gone).
+- **Glen UAT needed:** confirm dashboard loads at worksage.nbi-consulting.com, non-interview pages unaffected
+- **Expected breakage:** interview round section on candidate cards will show errors (old endpoints return 410). This is intentional — Phase B rebuilds the frontend.
+- **Next:** Phase B — Frontend candidate detail panel (unified round cards, decision bar, blind scoring UI)
+
+## Interview Tool — COMPLETE (awaiting Glen UAT)
+
+All 9 tasks done. Scorecard, question bank tab, quality pass, E2E tests, unit test verification.
+- **Note:** The scorecard flow (session-based) still works. The interview rounds UI (old system) is now retired.
+- Run `npm run test:e2e` from dashboard-server/ to execute E2E tests
 
 ## Awaiting Glen UAT
 
 All deployed on :8888 via PM2. Glen needs to test at worksage.nbi-consulting.com.
-Unit tests: running (41 files). 9 Playwright E2E specs committed. Branch: `feature/command-centre` (48+ commits ahead of master).
+Unit tests: 632/639 pass (51 files, 7 pre-existing failures). 4 new interview E2E specs + existing specs. Branch: `feature/command-centre`.
 
 ### Innovation Items (deployed, awaiting UAT)
 - **Finance entries server migration** — ad-hoc entries now persisted in PostgreSQL (was localStorage-only)
 - **Client invite password display** — generated passwords shown after user creation
 - **Theme token colours** — ~40 hardcoded hex values replaced with CSS custom properties
 - **Client status reports** — "Generate Client Report" button shows rich modal with KPI cards and sections
-- **Client health scores** — R/A/G score per client on Portfolio dashboard
 - **Onboarding bridge** — default 7-item checklist created when candidate reaches onboarding stage
 - **Version-based sync conflicts** — tasks track version counter; concurrent edits detected and rejected
-- **Activity feed** — recent changes timeline on Portfolio dashboard
 - **Position modal focus trap** — proper focus management with restoration
+- **Portfolio Needs Attention redesign** — client-grouped overdue/blocked counts, clickable rows navigate to filtered tasks view
+- **CC Team by client** — pivoted to client-first grouping with team members under each client
+- **CC Client Health clickable tags** — overdue/blocked tags navigate to filtered tasks view
+- **Portfolio cleanup** — removed Recent Activity + Client Health panels (redundant with CC)
 
 ### Command Centre v2 — Zone-Based Layout
 - Three-zone cockpit: status strip (48px), 4Cs metrics row (120px), main+rail grid
@@ -94,7 +109,7 @@ Unit tests: running (41 files). 9 Playwright E2E specs committed. Branch: `featu
 
 ## Branch Merge
 
-`feature/command-centre` is 46 commits ahead of `master`. Needs merge after UAT pass. Includes CC v2 + all bug fixes + email + infrastructure fixes.
+`feature/command-centre` is 60+ commits ahead of `master`. Needs merge after UAT pass. Includes CC v2 + all bug fixes + email + infrastructure fixes + product audit improvements + intelligence pipeline.
 
 ---
 
@@ -111,7 +126,17 @@ Unit tests: running (41 files). 9 Playwright E2E specs committed. Branch: `featu
 
 ## E2E Test Health
 
-9 committed Playwright spec files: auth, bugs, smoke, documents, kanban-drag, mobile-screenshots, tasks, verify-bug-batch, warnings-light-theme. One untracked diagnostic script (`scroll-verify.js`, not a test). Unit tests (vitest) stable at 434/434 across 34 test files.
+12 Playwright E2E specs committed. Unit tests: 636/636 across 51 Vitest files (post-zombie-cleanup clean run on 2026-06-02). Test infrastructure hardened: pool error handler, keepAlive, truncate resolves tables dynamically.
+
+## Infrastructure Health (2026-06-02)
+
+- **Zombie processes cleared:** 154 → 21 node processes. No pre-June-1 orphans remain.
+- **Test suite stable:** 51/51 files, 636/636 tests, 0 failures, 398s duration.
+- **Security:** settings.local.json removed from git tracking, .gitignore updated.
+- **Worktrees:** 8 orphaned directories deleted, 5 registered worktrees intact. ~2.3 GB reclaimed.
+- **Knowledge:** playsage.md conflicts resolved (GDC demo + data licensing strategy).
+- **Intelligence banks:** 7 banks, all stale (last compiled May 25). 145+ extracts waiting. Recompilation needed.
+- **BearsLaptop duplicates:** 759 files remain across repo — reconciliation pending.
 
 ---
 

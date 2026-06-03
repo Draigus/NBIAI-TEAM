@@ -4,6 +4,126 @@ Append-only. Every feature/fix completed gets logged here immediately.
 
 ---
 
+## 2026-06-03 — Interview UX Redesign Phase A (DB + API)
+
+Complete database and API foundation for unified round-based interview system:
+
+1. **Migration 062 applied** — `hiring_decisions` table, `interview_configs` extended with round_type/round_number/scheduling/outcome columns, `interview_sessions` 'declined' status, score audit timestamps, FK cascade fixes, data migrated from `interview_rounds` (51 rounds: 38 Phone Screen, 7 Technical, 6 Cultural).
+
+2. **POST/GET /api/hiring-decisions** — Candidate-level advance/hold/reject decisions. Advance moves to offer stage, reject archives with category, hold no-ops. Stage history tracked. Admin only.
+
+3. **POST /api/interview-configs rewritten** — Round types (Phone Screen, Technical, Cultural, Final, Other). Phone Screen mode: no questions/interviewers needed, auto-status 'completed'. Scored types require question_ids + interviewer_ids. Auto-increment round_number with FOR UPDATE lock.
+
+4. **PATCH /api/interview-configs/:id** — Edit schedule, outcome, location, interviewer_name. Optimistic concurrency via If-Match header (date_trunc millisecond comparison).
+
+5. **DELETE /api/interview-configs/:id** — Admin-only cascade delete with audit trail (counts scores removed).
+
+6. **GET /api/interview-configs** — Now ordered by round_number ASC. `include=progress` returns session-level data with interviewer names and aggregate scores.
+
+7. **Audit trail on scores** — `created_at`/`updated_at` on interview_scores, auditLog on every score upsert.
+
+8. **Blind scoring gate** — Non-admin interviewers must submit their scorecard before viewing results (403 if not submitted). Results endpoint changed from requireAdmin to requireNBI + blind check.
+
+9. **Session decline** — POST /api/interview-sessions/:id/decline. Submit endpoint excludes declined sessions from "all submitted" check.
+
+10. **Clone endpoint updated** — Copies round_type, duration_minutes, and interviewer sessions from original. Auto-increments round_number for target candidate.
+
+11. **All old endpoints retired** — /api/interview-rounds (hiring.js) and /api/candidates/:id/interviews (interview-rounds.js) return 410 Gone with migration message. ~250 lines of old code replaced with 410 stubs.
+
+12. **Test fixtures updated** — createTestInterviewConfig sets round_type/round_number/scheduling. hiring_decisions in TRUNCATE_TABLES.
+
+**Files modified:** `routes/interview.js` (~870 lines), `routes/hiring.js` (-200 lines), `routes/interview-rounds.js` (replaced), `migrations/062_interview_redesign.sql` (fixes), `tests/helpers/fixtures.js`, `tests/helpers/db.js`, `tests/unit/hiring-decisions.test.mjs` (new, 7 tests), `tests/unit/interview-configs.test.mjs` (+10 tests = 15 total), `tests/unit/interview-management.test.mjs` (rewritten for 410s, 4 tests).
+
+**Tests:** 52 files, 645 pass, 0 fail. PM2 restarted, live on :8888.
+
+---
+
+## 2026-06-02 — Interview Tool Completion (Tasks 5-9)
+
+Completed the remaining 5 tasks of the interview tool:
+
+1. **Focused Interview Scorecard** (Task 5) — Full-page scoring view for interviewers. Splash screen (assigned), one-question-at-a-time scoring view (in_progress), read-only review (submitted). Score buttons 1-5 with colour coding, optional notes, category progress bars, dot navigation, keyboard shortcuts (1-5, arrows). Hash routing via `#interview/{sessionId}` with deep-link support at both post-login points. Auto-save on score click. Submit with confirmation.
+
+2. **Question Bank Management Tab** (Task 6) — "Questions" tab in Hiring page (NBI users only). Filter bar with client dropdown, discipline dropdown, category pills, and text search. Questions grouped by discipline with category and source badges. CRUD modals for create/edit/delete. 
+
+3. **Question Quality Pass** (Task 7) — Audited 450 Couch Heroes questions. 0 exact duplicates, 2 near-dup false positives, 2 contextual generic phrasings, even 10-per-category distribution. Bank is clean — no changes needed.
+
+4. **E2E Playwright Tests** (Task 8) — 4 spec files: interview-picker (discipline filtering), interview-scorecard (deep link + scoring flow), interview-results (aggregated results + decision), interview-bank (tab visibility + filter).
+
+5. **Unit Test Verification** (Task 9) — 632/639 pass. 7 failures pre-existing (documents + import-hierarchy). All 46 interview unit tests pass.
+
+## 2026-06-02 — Meetings Intelligence Enhancements
+
+Three enhancements to the Meetings Intelligence CC tab:
+
+1. **Editable meeting data** — Full CRUD on all 7 section types. Data migrated from read-only JSON to Postgres `meeting_items` table (195 items seeded). Inline editing forms on every item (pencil icon), "+ Add" button on each sub-tab, delete with confirmation, "Manual" badge on user-added items. Optimistic updates with server-side persistence.
+
+2. **Task creation from actions** — Clipboard icon on each action row. Opens parent picker filtered by client (dynamic workstream-to-client mapping). Creates task under chosen project/feature/story, pre-filled with action description. Action auto-marked as done.
+
+3. **Intelligence consolidation** — Removed standalone Intelligence sidebar page. Merged bank health table (with Last Compiled + Shelf Life columns), pipeline activity, and pending actions into CC Intel tab. CC is now the single home for all intelligence.
+
+**Files created:**
+- `dashboard-server/migrations/061_meeting_items.sql` — meeting_items + meeting_metadata tables
+- `dashboard-server/scripts/seed-meeting-items.js` — JSON import + status override migration
+
+**Files rewritten:**
+- `dashboard-server/lib/meetings-intelligence.js` — DB-backed CRUD (getAll, createItem, updateItem, deleteItem, getStats)
+- `dashboard-server/routes/meetings-intelligence.js` — POST/PATCH/DELETE endpoints with validation
+- `dashboard-server/tests/unit/meetings-intelligence.test.mjs` — 12 DB-backed CRUD tests
+- `dashboard-server/tests/e2e/meetings-tab.spec.js` — 4 CRUD lifecycle tests
+
+**Files modified:**
+- `nbi_project_dashboard.html` — inline editing, add/delete, task creation, sidebar removal, Intel tab merge
+- `dashboard-server/tests/helpers/db.js` — added meeting_items + meeting_metadata to truncate list
+
+Tests: 12/12 unit, 4/4 E2E. PM2 restarted, live on :8888.
+
+---
+
+## 2026-06-01 — Interview Tool for Hiring Page
+
+1. **Database schema** — 6 new tables: interview_question_bank, interview_configs, interview_config_questions, interview_sessions, interview_scores, interview_decisions. Migration 058 applied.
+2. **Backend API** — 14 endpoints in routes/interview.js (route factory pattern). Question bank CRUD, config create/activate/clone, session management, score upsert with auto-save, results aggregation with category averages and divergence detection, decision recording (advance/hold/reject with candidate stage transitions).
+3. **Email notifications** — 3 types: interview assigned (to interviewer), scorecard submitted (to HM), all scorecards in (to HM). Uses existing sendEmailAsync + Microsoft Graph.
+4. **Frontend — Configure Interview** — button on candidate cards in interviews stage. Question picker with category grouping, checkboxes, inline custom question form. Interviewer assignment tab filtered to client-specific staff only.
+5. **Frontend — Results View** — overall average, per-category bar charts, scorecard comparison table with colour-coded scores (green/amber/red), divergent question flagging (3+ point spread), decision bar with required notes.
+6. **Question bank seed** — 450 hand-crafted questions for Couch Heroes. 9 disciplines (Engineering, Art, Narrative/Writing, Game Design, QA, Production, Audio, HR/People, Leadership) × 5 categories (culture, technical, collaboration, leadership, depth) × 10 questions each. Quality pass with industry research planned as follow-up.
+7. **Tests** — 3 test files (interview-questions, interview-configs, interview-scoring), all passing as part of 306-test suite.
+
+**Not yet ported from nbi-modularise:** Focused interview mode (full-page scoring view for interviewers — interview.js). Needs adapting to monolithic HTML.
+
+**Remaining work:** Question quality research pass, focused interview mode port, question bank management page (standalone curation UI), E2E Playwright tests.
+
+---
+
+## 2026-05-26 — Portfolio & Command Centre UI Redesign
+
+1. **Portfolio Needs Attention** — replaced 123 individual item listings with client-grouped rows showing overdue/blocked counts. Each row clickable, navigates to tasks view filtered to that client + overdue or blocked filter.
+2. **CC Team section** — pivoted from person-first to client-first grouping. Each client header shows total tasks, team members listed underneath.
+3. **CC Client Health clickable tags** — overdue/blocked tags per client now navigate to filtered tasks view.
+4. **New overdue filter** — `currentFilter.overdue` boolean, integrated into filter chain, breadcrumbs, reset.
+5. **Portfolio cleanup** — removed Recent Activity and Client Health panels (redundant with CC, were clipped by overflow:hidden). Fixed overflow:hidden → overflow-y:auto.
+6. **KPI alignment** — Needs Attention count now includes both overdue + blocked (deduplicated), delta compares combined count.
+
+Committed as `7232d6f`.
+
+---
+
+## 2026-05-25 — Product Audit Backend + Test Fix
+
+1. **Sync batch cap** — MAX_BATCH_SIZE=500 in sync.js, rejects before DB connection
+2. **Correlation IDs** — UUID per request in server.js middleware, X-Request-Id header, logger requestId param
+3. **Password policy** — validatePassword() in helpers.js: 12+ chars, uppercase+lowercase+digit. Wired into auth.js + users.js
+4. **DB client contacts** — migrations 056+057, replaced hardcoded NBI_CONTACTS_BY_CLIENT with DB table. Admin CRUD endpoints
+5. **Email notifications** — notifyAdminsOfClientActivity() on client bug/comment creation, fire-and-forget
+6. **Activity feed API** — routes/activity.js, GET /api/activity with cursor pagination and entity_type filtering
+7. **Dashboard crash fix** — `currentUser` → `_currentUser` in intelligence tab filter (line 5721)
+8. **Test infrastructure** — pool error handler + keepAlive in test helper, truncate resolves tables against pg_tables
+
+Tests: 600/600 passing (47 files). Committed as `a4018ce`.
+
+---
+
 ## 2026-05-23 — 10 Bug Fixes + Features
 
 1. **8f8c2a3c**: Removed redundant +New dropdown arrow button
@@ -1331,3 +1451,19 @@ See items 78-128 above (already logged from earlier sessions).
    - Implementer subagent terminated mid-test-run with uncommitted changes on the orphan fix; controller verified, found 1 failing test, traced root cause (two-pool problem), and applied the constraint-based fix directly rather than re-dispatching.
    - Code reviewer flagged a minor concern that's worth recording as a follow-up: `uploadDir` is shared with the legacy task-attachments endpoint, so the doc-attachment GET handler doesn't constrain `stored_name` to actually belong to the requested doc. Mitigated for client users by H1 (only filenames referenced in `body_json` pass), but NBI users with a doc id can serve any file in `uploadDir` via the doc route. Matches the existing `/api/attachments/:filename` permissiveness for NBI users — not a privilege escalation. Consider adding `WHERE document_id = $1 AND stored_name = $2` in a future hardening pass.
    - Magic-byte sniffing of uploads is deferred to Task G1 (orphan tracking + file integrity sweep). Currently MIME is validated from the client-supplied header only.
+
+## 2026-06-02 — Infrastructure Audit Verification and Cleanup
+
+199. **Codex 5.5 audit verification** — Systematically verified all 8 areas of Codex's read-only infrastructure audit. Key corrections: untracked file count was 431 not 1,538 (3.5x inflation); test suite completes in 451s (not timeout); intelligence-layer tests 4/20 not 20/20; .codex directory exists (Codex said not found). Both knowledge conflicts (GDC demo, data licensing) confirmed verbatim. All intelligence pipeline numbers exact. Security finding (settings.local.json with DB password tracked in git) confirmed critical.
+
+200. **Zombie node process cleanup** — Identified and killed 129 orphaned node processes (MCP servers from dead CLI sessions dating to May 16, stale pm2 commands, orphaned server.js instances). PM2-managed processes (nbi-dashboard PID 65712, nbi-news PID 81324, daemon PID 21700) preserved. System went from 154 to 21 clean node processes.
+
+201. **Test suite restored to green** — After zombie cleanup, full vitest suite: **51/51 files, 636/636 tests, 0 failures, 398s**. Prior to cleanup: run 1 had 5 failures/11 failed tests; run 2 (immediately after) cascaded to 28 failures/125 failed tests due to zombie processes holding stale DB connections that prevented clean schema reset.
+
+202. **Security hardening** — `.claude/settings.local.json` removed from git tracking via `git rm --cached` (local file preserved). Added `settings.local*.json` and `.codex/` to `.gitignore`. File contained plaintext database password `PGPASSWORD` in Bash permission allowlist.
+
+203. **Knowledge conflict resolution** — Updated `brain/playsage.md` with supersession notes per CLAUDE.md PARA rules: (a) GDC 2026 demo marked RESOLVED (was still listed as "unknown" despite May 16 confirmation in pending_actions.md); (b) Data strategy revised from 3 pillars to 2 (removed "Licensed data feeds" pillar, added supersession note referencing Glen's £0 licensing decision from 2026-05-19-data-architecture-spec.md).
+
+204. **Orphaned worktree cleanup** — 8 orphaned physical directories deleted from `.worktrees/`: documentation-tab, documentation-tab-v2, fix-scroll-architecture, import-wizard-fix, modularise-server, people-redesign, queue-detail-panel, slack-bot-integration. Cross-referenced against `git worktree list` to confirm 2 registered worktrees (capacity-detail, frontend-polish) preserved. `git worktree prune` run to clear 5 broken git admin entries. ~2.3 GB reclaimed.
+
+205. **Session continuity refresh** — Updated all 4 live state files: conversation_context.md (rebuilt from May 7 stale state), pending_tasks.md (infrastructure health section added), work_completed.md (this entry), decisions.md (pending — no un-logged decisions found in recent handoffs).

@@ -7,11 +7,13 @@ CREATE TABLE IF NOT EXISTS hiring_decisions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   candidate_id UUID NOT NULL REFERENCES candidates(id) ON DELETE CASCADE,
   decision TEXT NOT NULL CHECK (decision IN ('advance', 'hold', 'reject')),
+  rejection_category TEXT,
   decided_by UUID REFERENCES users(id) ON DELETE SET NULL,
-  notes TEXT,
+  notes TEXT NOT NULL,
   decided_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+ALTER TABLE hiring_decisions ADD COLUMN IF NOT EXISTS rejection_category TEXT;
 CREATE INDEX IF NOT EXISTS idx_hd_candidate ON hiring_decisions(candidate_id);
 
 -- ===== 2. ADD ROUND / SCHEDULING COLUMNS TO interview_configs =====

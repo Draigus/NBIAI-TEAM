@@ -380,10 +380,22 @@ async function createTestInterviewQuestion(opts = {}) {
 async function createTestInterviewConfig(opts = {}) {
   if (!opts.candidate_id) throw new Error('createTestInterviewConfig: candidate_id required');
 
+  const roundType = opts.round_type || 'Technical';
+  const status = opts.status || (roundType === 'Phone Screen' ? 'completed' : 'draft');
+
+  const { rows: rnRows } = await pool.query(
+    'SELECT COALESCE(MAX(round_number), 0) AS max_rn FROM interview_configs WHERE candidate_id = $1',
+    [opts.candidate_id]
+  );
+
   const { rows: configRows } = await pool.query(
-    `INSERT INTO interview_configs (candidate_id, position_id, created_by, status)
-     VALUES ($1, $2, $3, $4) RETURNING *`,
-    [opts.candidate_id, opts.position_id || null, opts.created_by || null, opts.status || 'draft']
+    `INSERT INTO interview_configs (candidate_id, position_id, created_by, status,
+     round_type, round_type_custom, round_number, scheduled_at, duration_minutes, location, interviewer_name, outcome)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`,
+    [opts.candidate_id, opts.position_id || null, opts.created_by || null, status,
+     roundType, opts.round_type_custom || null, rnRows[0].max_rn + 1,
+     opts.scheduled_at || null, opts.duration_minutes || 60, opts.location || null,
+     opts.interviewer_name || null, opts.outcome || 'pending']
   );
   const config = configRows[0];
 
