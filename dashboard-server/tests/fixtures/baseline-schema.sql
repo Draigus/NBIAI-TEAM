@@ -1005,6 +1005,9 @@ CREATE TABLE public.task_queue (
     slack_user_id text,
     slack_channel text,
     slack_message_ts text,
+    client_id uuid,
+    assignee text,
+    item_type text DEFAULT 'task'::text,
     created_at timestamp with time zone DEFAULT now()
 );
 
@@ -1715,6 +1718,9 @@ ALTER TABLE ONLY public.task_notes
 
 ALTER TABLE ONLY public.task_queue
     ADD CONSTRAINT task_queue_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.task_queue
+    ADD CONSTRAINT task_queue_client_id_fkey FOREIGN KEY (client_id) REFERENCES public.clients(id);
 
 
 --
@@ -3152,6 +3158,7 @@ COPY public.schema_migrations (version, name, applied_at) FROM stdin;
 51	051_stage_changed_at.sql	2026-05-21 15:33:12.493284+01
 52	052_candidate_activity.sql	2026-05-21 15:34:11.52324+01
 53	053_contract_status.sql	2026-05-22 17:10:01.34238+01
+64	064_queue_metadata.sql	2026-06-03 00:00:00+00
 \.
 
 
