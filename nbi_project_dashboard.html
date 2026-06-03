@@ -22869,21 +22869,30 @@ window._ivSubmitAddRound = async function(candidateId, btn) {
   if (roundType === 'Other') body.round_type_custom = customLabel;
   if (isPhoneScreen && interviewer) body.interviewer_name = interviewer;
 
-  await withButtonLoading(btn, async () => {
+  const overlay = btn.closest('.modal-overlay');
+  btn.disabled = true;
+  btn.textContent = 'Creating…';
+  try {
     const resp = await authFetch('/api/interview-configs', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     });
     if (resp.ok) {
-      document.querySelector('.modal-overlay')?.remove();
+      if (overlay) overlay.remove();
       toast('Interview round created');
       openCandidateDetail(candidateId);
     } else {
       const err = await resp.json().catch(() => ({}));
       toast(err.error || 'Failed to create round', 'error');
+      btn.disabled = false;
+      btn.textContent = 'Create Round';
     }
-  });
+  } catch (e) {
+    toast('Network error', 'error');
+    btn.disabled = false;
+    btn.textContent = 'Create Round';
+  }
 };
 
 
