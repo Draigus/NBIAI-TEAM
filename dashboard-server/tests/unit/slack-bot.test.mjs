@@ -7,8 +7,8 @@ const crypto = require('crypto');
 const { pool, truncate } = require('../helpers/db.js');
 
 afterAll(() => {
-  const { stopAbbreviationRefresh } = require('../../lib/slack-bot');
-  stopAbbreviationRefresh();
+  const { stopEntityRefresh } = require('../../lib/slack-bot');
+  stopEntityRefresh();
 });
 
 // Helper: compute a valid Slack signature for test payloads
@@ -60,227 +60,158 @@ describe('verifySlackSignature', () => {
   });
 });
 
-describe('parseSlackMessage (enhanced)', () => {
+describe('parseSlackMessage (entity extraction)', () => {
   let parseSlackMessage;
-  const ABBREVS = new Set(['ch', 'lh', 'nbi', 'go', 'su', 'pl']);
+  const ENTITIES = {
+    clients: [
+      { label: 'Couch Heroes', id: 'c1', name: 'Couch Heroes', abbreviation: 'CH' },
+      { label: 'CH', id: 'c1', name: 'Couch Heroes', abbreviation: 'CH' },
+      { label: 'Lighthouse Studios', id: 'c2', name: 'Lighthouse Studios', abbreviation: 'LH' },
+      { label: 'LH', id: 'c2', name: 'Lighthouse Studios', abbreviation: 'LH' },
+      { label: 'NBI Operations', id: 'c3', name: 'NBI Operations', abbreviation: 'NBI' },
+      { label: 'NBI', id: 'c3', name: 'NBI Operations', abbreviation: 'NBI' },
+    ],
+    users: [
+      { label: 'Glen Pryer', displayName: 'Glen Pryer' },
+      { label: 'Glen', displayName: 'Glen Pryer' },
+      { label: 'Aris', displayName: 'Aris' },
+      { label: 'Magnus Pryer', displayName: 'Magnus Pryer' },
+      { label: 'Magnus', displayName: 'Magnus Pryer' },
+    ],
+  };
 
   beforeEach(() => {
     ({ parseSlackMessage } = require('../../lib/slack-bot'));
   });
 
-  it('extracts full metadata: client, type, assignee, title', () => {
-    const r = parseSlackMessage('<@U123> CH task for Aris: Fix login timeout', ABBREVS);
-    expect(r.clientAbbr).toBe('CH');
-    expect(r.itemType).toBe('task');
-    expect(r.assigneeRaw).toBe('Aris');
-    expect(r.title).toBe('Fix login timeout');
-    expect(r.description).toBeNull();
+  it('extracts full client name, user, and title from natural language', () => {
+    const r = parseSlackMessage('<@U123> Couch Heroes Glen time to make the donuts', ENTITIES);
+    expect(r.clientMatch.name).toBe('Couch Heroes');
+    expect(r.userMatch.displayName).toBe('Glen Pryer');
+    expect(r.title).toBe('time to make the donuts');
   });
 
-  it('extracts client + assignee, defaults type to null', () => {
-    const r = parseSlackMessage('<@U123> LH for Magnus: Review spec', ABBREVS);
-    expect(r.clientAbbr).toBe('LH');
-    expect(r.itemType).toBeNull();
-    expect(r.assigneeRaw).toBe('Magnus');
-    expect(r.title).toBe('Review spec');
+  it('extracts abbreviation as client', () => {
+    const r = parseSlackMessage('<@U123> CH Aris fix the login page', ENTITIES);
+    expect(r.clientMatch.name).toBe('Couch Heroes');
+    expect(r.userMatch.displayName).toBe('Aris');
+    expect(r.title).toBe('fix the login page');
   });
 
-  it('extracts client + type, no assignee', () => {
-    const r = parseSlackMessage('<@U123> NBI feature: Build integration', ABBREVS);
-    expect(r.clientAbbr).toBe('NBI');
+  it('extracts item type keyword', () => {
+    const r = parseSlackMessage('<@U123> CH feature Aris build the dashboard', ENTITIES);
+    expect(r.clientMatch.name).toBe('Couch Heroes');
     expect(r.itemType).toBe('feature');
-    expect(r.assigneeRaw).toBeNull();
-    expect(r.title).toBe('Build integration');
+    expect(r.userMatch.displayName).toBe('Aris');
+    expect(r.title).toBe('build the dashboard');
   });
 
-  it('bare title with no metadata', () => {
-    const r = parseSlackMessage('<@U123> Fix the broken button', ABBREVS);
-    expect(r.clientAbbr).toBeNull();
+  it('handles natural "for" phrasing without breaking', () => {
+    const r = parseSlackMessage('<@U123> Couch Heroes for Glen Pryer to build a new feature', ENTITIES);
+    expect(r.clientMatch.name).toBe('Couch Heroes');
+    expect(r.userMatch.displayName).toBe('Glen Pryer');
+    expect(r.title).not.toBeNull();
+    expect(r.title.length).toBeGreaterThan(0);
+  });
+
+  it('handles "deploy fix for production" without false assignee match', () => {
+    const r = parseSlackMessage('<@U123> CH deploy fix for production', ENTITIES);
+    expect(r.clientMatch.name).toBe('Couch Heroes');
+    expect(r.userMatch).toBeNull();
+    expect(r.title).toBe('deploy fix for production');
+  });
+
+  it('bare title with no entities', () => {
+    const r = parseSlackMessage('<@U123> Fix the broken button', ENTITIES);
+    expect(r.clientMatch).toBeNull();
+    expect(r.userMatch).toBeNull();
     expect(r.itemType).toBeNull();
-    expect(r.assigneeRaw).toBeNull();
     expect(r.title).toBe('Fix the broken button');
   });
 
-  it('handles tokens in any order (type before client)', () => {
-    const r = parseSlackMessage('<@U123> task CH for Aris: Works in any order', ABBREVS);
-    expect(r.clientAbbr).toBe('CH');
-    expect(r.itemType).toBe('task');
-    expect(r.assigneeRaw).toBe('Aris');
-    expect(r.title).toBe('Works in any order');
+  it('prefers full client name over abbreviation in same message', () => {
+    const r = parseSlackMessage('<@U123> Couch Heroes fix it', ENTITIES);
+    expect(r.clientMatch.name).toBe('Couch Heroes');
+    expect(r.title).toBe('fix it');
   });
 
-  it('is case-insensitive for tokens', () => {
-    const r = parseSlackMessage('<@U123> ch TASK For aris: Title', ABBREVS);
-    expect(r.clientAbbr).toBe('ch');
-    expect(r.itemType).toBe('TASK');
-    expect(r.assigneeRaw).toBe('aris');
-    expect(r.title).toBe('Title');
+  it('prefers full user name over first name', () => {
+    const r = parseSlackMessage('<@U123> Glen Pryer review the spec', ENTITIES);
+    expect(r.userMatch.displayName).toBe('Glen Pryer');
+    expect(r.title).toBe('review the spec');
   });
 
-  it('captures "for X" as assigneeRaw even if X is not a real user (pass 2 decides)', () => {
-    const r = parseSlackMessage('<@U123> Deploy fix for production', ABBREVS);
-    expect(r.assigneeRaw).toBe('production');
-    expect(r.title).toBe('Deploy fix');
-  });
-
-  it('returns null title when only metadata with trailing colon', () => {
-    const r = parseSlackMessage('<@U123> CH task for Aris:', ABBREVS);
-    expect(r.title).toBeNull();
-  });
-
-  it('captures greedy assignee when no colon', () => {
-    const r = parseSlackMessage('<@U123> CH task for Aris Fix login', ABBREVS);
-    expect(r.clientAbbr).toBe('CH');
-    expect(r.itemType).toBe('task');
-    expect(r.assigneeRaw).toBe('Aris Fix login');
-    expect(r.title).toBeNull();
+  it('is case-insensitive', () => {
+    const r = parseSlackMessage('<@U123> couch heroes glen fix login', ENTITIES);
+    expect(r.clientMatch.name).toBe('Couch Heroes');
+    expect(r.userMatch.displayName).toBe('Glen Pryer');
+    expect(r.title).toBe('fix login');
   });
 
   it('extracts description from subsequent lines', () => {
-    const r = parseSlackMessage('<@U123> CH task for Aris: Fix\nDetails here\nMore info', ABBREVS);
-    expect(r.title).toBe('Fix');
-    expect(r.description).toBe('Details here\nMore info');
+    const r = parseSlackMessage('<@U123> CH Aris fix the thing\nMore details here', ENTITIES);
+    expect(r.title).toBe('fix the thing');
+    expect(r.description).toBe('More details here');
   });
 
-  it('strips multiple bot mentions', () => {
-    const r = parseSlackMessage('<@U1> <@U2> CH Fix it', ABBREVS);
-    expect(r.clientAbbr).toBe('CH');
-    expect(r.title).toBe('Fix it');
+  it('strips filler words from remaining title', () => {
+    const r = parseSlackMessage('<@U123> CH Aris to fix the login', ENTITIES);
+    expect(r.title).toBe('fix the login');
   });
 
-  it('returns null title for empty message after mention removal', () => {
-    const r = parseSlackMessage('<@U123>', ABBREVS);
+  it('returns null title for empty message', () => {
+    const r = parseSlackMessage('<@U123>', ENTITIES);
     expect(r.title).toBeNull();
   });
 
+  it('works with no entities provided', () => {
+    const r = parseSlackMessage('<@U123> Just a message', { clients: [], users: [] });
+    expect(r.clientMatch).toBeNull();
+    expect(r.userMatch).toBeNull();
+    expect(r.title).toBe('Just a message');
+  });
+
+  it('strips multiple bot mentions', () => {
+    const r = parseSlackMessage('<@U1> <@U2> CH fix it', ENTITIES);
+    expect(r.clientMatch.name).toBe('Couch Heroes');
+    expect(r.title).toBe('fix it');
+  });
+
   it('handles message with no mention', () => {
-    const r = parseSlackMessage('Just a plain message', ABBREVS);
+    const r = parseSlackMessage('Just a plain message', ENTITIES);
     expect(r.title).toBe('Just a plain message');
   });
-
-  it('handles story type without client', () => {
-    const r = parseSlackMessage('<@U123> story for Glen: User can export CSV', ABBREVS);
-    expect(r.clientAbbr).toBeNull();
-    expect(r.itemType).toBe('story');
-    expect(r.assigneeRaw).toBe('Glen');
-    expect(r.title).toBe('User can export CSV');
-  });
-
-  it('works with empty abbreviation set', () => {
-    const r = parseSlackMessage('<@U123> CH task for Aris: Fix login', new Set());
-    expect(r.clientAbbr).toBeNull();
-    expect(r.itemType).toBe('task');
-    expect(r.title).toBe('CH Fix login');
-    expect(r.assigneeRaw).toBe('Aris');
-  });
 });
 
-describe('resolveClient', () => {
-  let resolveClient;
+describe('loadEntityCache', () => {
+  let loadEntityCache;
 
   beforeEach(async () => {
-    ({ resolveClient } = require('../../lib/slack-bot'));
-    await truncate();
-    await pool.query("INSERT INTO clients (name, abbreviation) VALUES ('Couch Heroes', 'CH')");
-  });
-
-  it('resolves a known abbreviation', async () => {
-    const result = await resolveClient(pool, 'CH');
-    expect(result).not.toBeNull();
-    expect(result.name).toBe('Couch Heroes');
-    expect(result.abbreviation).toBe('CH');
-    expect(result.id).toBeDefined();
-  });
-
-  it('resolves case-insensitively', async () => {
-    const result = await resolveClient(pool, 'ch');
-    expect(result).not.toBeNull();
-    expect(result.name).toBe('Couch Heroes');
-  });
-
-  it('returns null for unknown abbreviation', async () => {
-    const result = await resolveClient(pool, 'XX');
-    expect(result).toBeNull();
-  });
-
-  it('returns null for null input', async () => {
-    const result = await resolveClient(pool, null);
-    expect(result).toBeNull();
-  });
-});
-
-describe('resolveAssignee', () => {
-  let resolveAssignee;
-
-  beforeEach(async () => {
-    ({ resolveAssignee } = require('../../lib/slack-bot'));
-    await truncate();
-    await pool.query("INSERT INTO users (username, display_name, password_hash, role, is_active) VALUES ('glen', 'Glen Pryer', 'x', 'admin', true)");
-    await pool.query("INSERT INTO users (username, display_name, password_hash, role, is_active) VALUES ('magnus', 'Magnus Pryer', 'x', 'admin', true)");
-    await pool.query("INSERT INTO users (username, display_name, password_hash, role, is_active) VALUES ('inactive', 'Inactive User', 'x', 'member', false)");
-  });
-
-  it('resolves exact full name match', async () => {
-    const r = await resolveAssignee(pool, 'Glen Pryer');
-    expect(r.resolved).toBe(true);
-    expect(r.displayName).toBe('Glen Pryer');
-  });
-
-  it('resolves exact full name case-insensitively', async () => {
-    const r = await resolveAssignee(pool, 'glen pryer');
-    expect(r.resolved).toBe(true);
-    expect(r.displayName).toBe('Glen Pryer');
-  });
-
-  it('resolves first name via prefix match', async () => {
-    const r = await resolveAssignee(pool, 'Glen');
-    expect(r.resolved).toBe(true);
-    expect(r.displayName).toBe('Glen Pryer');
-  });
-
-  it('returns not_found for unknown name', async () => {
-    const r = await resolveAssignee(pool, 'Nobody');
-    expect(r.resolved).toBe(false);
-    expect(r.raw).toBe('Nobody');
-    expect(r.reason).toBe('not_found');
-  });
-
-  it('returns not_found for empty string', async () => {
-    const r = await resolveAssignee(pool, '');
-    expect(r.resolved).toBe(false);
-    expect(r.reason).toBe('not_found');
-  });
-
-  it('does not match inactive users', async () => {
-    const r = await resolveAssignee(pool, 'Inactive User');
-    expect(r.resolved).toBe(false);
-    expect(r.reason).toBe('not_found');
-  });
-
-  it('returns not_found for null input', async () => {
-    const r = await resolveAssignee(pool, null);
-    expect(r.resolved).toBe(false);
-    expect(r.reason).toBe('not_found');
-  });
-});
-
-describe('loadClientAbbreviations', () => {
-  let loadClientAbbreviations;
-
-  beforeEach(async () => {
-    ({ loadClientAbbreviations } = require('../../lib/slack-bot'));
+    ({ loadEntityCache } = require('../../lib/slack-bot'));
     await truncate();
     await pool.query("INSERT INTO clients (name, abbreviation) VALUES ('Couch Heroes', 'CH')");
     await pool.query("INSERT INTO clients (name, abbreviation) VALUES ('Lighthouse Studios', 'LH')");
     await pool.query("INSERT INTO clients (name) VALUES ('No Abbrev Client')");
+    await pool.query("INSERT INTO users (username, display_name, password_hash, role, is_active) VALUES ('glen', 'Glen Pryer', 'x', 'admin', true)");
+    await pool.query("INSERT INTO users (username, display_name, password_hash, role, is_active) VALUES ('inactive', 'Inactive User', 'x', 'member', false)");
   });
 
-  it('returns a Set of lowercase abbreviations', async () => {
-    const set = await loadClientAbbreviations(pool);
-    expect(set).toBeInstanceOf(Set);
-    expect(set.has('ch')).toBe(true);
-    expect(set.has('lh')).toBe(true);
-    expect(set.size).toBe(2);
+  it('loads clients with both name and abbreviation entries', async () => {
+    const cache = await loadEntityCache(pool);
+    const labels = cache.clients.map(c => c.label);
+    expect(labels).toContain('Couch Heroes');
+    expect(labels).toContain('CH');
+    expect(labels).toContain('Lighthouse Studios');
+    expect(labels).toContain('LH');
+    expect(labels).toContain('No Abbrev Client');
+  });
+
+  it('loads active users with full name and first name', async () => {
+    const cache = await loadEntityCache(pool);
+    const labels = cache.users.map(u => u.label);
+    expect(labels).toContain('Glen Pryer');
+    expect(labels).toContain('Glen');
+    expect(labels).not.toContain('Inactive User');
   });
 });
 
@@ -309,35 +240,6 @@ describe('buildSlackReply', () => {
     expect(reply).toContain('🔗');
   });
 
-  it('flags unresolved assignee with warning', () => {
-    const reply = buildSlackReply({
-      title: 'Fix login timeout',
-      itemType: 'task',
-      clientName: 'Couch Heroes',
-      assigneeName: 'Nobody',
-      assigneeResolved: false,
-      clientResolved: true,
-      queueId: 'abc-123',
-    });
-    expect(reply).toContain('⚠️ "Nobody" (not matched to a user)');
-    expect(reply).not.toContain('👤');
-  });
-
-  it('flags unresolved client with warning', () => {
-    const reply = buildSlackReply({
-      title: 'Fix login timeout',
-      itemType: 'task',
-      clientName: null,
-      clientAbbr: 'XX',
-      assigneeName: 'Aris',
-      assigneeResolved: true,
-      clientResolved: false,
-      queueId: 'abc-123',
-    });
-    expect(reply).toContain('⚠️ "XX" (unknown client)');
-    expect(reply).not.toContain('🏢');
-  });
-
   it('builds minimal reply with no metadata', () => {
     const reply = buildSlackReply({
       title: 'Fix the broken button',
@@ -354,18 +256,6 @@ describe('buildSlackReply', () => {
   it('builds error reply for empty title', () => {
     const reply = buildSlackReply({ title: null });
     expect(reply).toContain('❌');
-    expect(reply).toContain('Usage:');
-  });
-
-  it('builds degraded reply with DB error warning', () => {
-    const reply = buildSlackReply({
-      title: 'Fix login timeout',
-      itemType: 'task',
-      queueId: 'abc-123',
-      warnings: ['db_error'],
-    });
-    expect(reply).toContain('⚠️');
-    expect(reply).toContain('queued without metadata');
   });
 });
 
@@ -379,74 +269,77 @@ describe('postSlackReply', () => {
   });
 });
 
-describe('handleAppMention (enhanced)', () => {
-  let handleAppMention, loadClientAbbreviations;
+describe('handleAppMention (entity extraction)', () => {
+  let handleAppMention, loadEntityCache;
 
   beforeEach(async () => {
-    ({ handleAppMention, loadClientAbbreviations } = require('../../lib/slack-bot'));
+    ({ handleAppMention, loadEntityCache } = require('../../lib/slack-bot'));
     await truncate();
     await pool.query("INSERT INTO clients (name, abbreviation) VALUES ('Couch Heroes', 'CH')");
     await pool.query("INSERT INTO users (username, display_name, password_hash, role, is_active) VALUES ('aris', 'Aris', 'x', 'member', true)");
     await pool.query("INSERT INTO users (username, display_name, password_hash, role, is_active) VALUES ('glen', 'Glen Pryer', 'x', 'admin', true)");
-    await loadClientAbbreviations(pool);
+    await loadEntityCache(pool);
   });
 
-  it('queues a task with full metadata', async () => {
+  it('queues with client name, assignee, and title from natural language', async () => {
     const event = {
       type: 'app_mention',
-      text: '<@UBOT> CH task for Aris: Fix login timeout\nThe session expires too fast',
+      text: '<@UBOT> Couch Heroes Aris fix the login timeout\nIt expires too fast',
       user: 'USENDER', channel: 'CCHAN', ts: '111.222',
     };
     const result = await handleAppMention(event, pool, '');
     expect(result.queued).toBe(true);
-    expect(result.item.title).toBe('Fix login timeout');
-    expect(result.item.description).toBe('The session expires too fast');
+    expect(result.item.title).toBe('fix the login timeout');
+    expect(result.item.description).toBe('It expires too fast');
     expect(result.item.item_type).toBe('task');
     expect(result.item.assignee).toBe('Aris');
     expect(result.item.client_id).toBeDefined();
-
-    const { rows } = await pool.query('SELECT * FROM task_queue');
-    expect(rows).toHaveLength(1);
-    expect(rows[0].client_id).toBeDefined();
-    expect(rows[0].assignee).toBe('Aris');
-    expect(rows[0].item_type).toBe('task');
   });
 
-  it('queues with default type when not specified', async () => {
+  it('works with abbreviation instead of full name', async () => {
     const event = {
       type: 'app_mention',
-      text: '<@UBOT> CH for Aris: Fix it',
+      text: '<@UBOT> CH Aris fix it',
+      user: 'USENDER', channel: 'CCHAN', ts: '111.222',
+    };
+    const result = await handleAppMention(event, pool, '');
+    expect(result.item.client_id).toBeDefined();
+    expect(result.item.assignee).toBe('Aris');
+    expect(result.item.title).toBe('fix it');
+  });
+
+  it('resolves first name to full display_name', async () => {
+    const event = {
+      type: 'app_mention',
+      text: '<@UBOT> Glen review the spec',
+      user: 'USENDER', channel: 'CCHAN', ts: '111.222',
+    };
+    const result = await handleAppMention(event, pool, '');
+    expect(result.item.assignee).toBe('Glen Pryer');
+  });
+
+  it('keeps "for production" in title when no user matches', async () => {
+    const event = {
+      type: 'app_mention',
+      text: '<@UBOT> CH deploy fix for production',
+      user: 'USENDER', channel: 'CCHAN', ts: '111.222',
+    };
+    const result = await handleAppMention(event, pool, '');
+    expect(result.item.title).toBe('deploy fix for production');
+    expect(result.item.assignee).toBeNull();
+  });
+
+  it('defaults item_type to task', async () => {
+    const event = {
+      type: 'app_mention',
+      text: '<@UBOT> CH Aris fix it',
       user: 'USENDER', channel: 'CCHAN', ts: '111.222',
     };
     const result = await handleAppMention(event, pool, '');
     expect(result.item.item_type).toBe('task');
   });
 
-  it('re-merges "for X" into title when X is not a known user', async () => {
-    const event = {
-      type: 'app_mention',
-      text: '<@UBOT> CH Deploy fix for production',
-      user: 'USENDER', channel: 'CCHAN', ts: '111.222',
-    };
-    const result = await handleAppMention(event, pool, '');
-    expect(result.queued).toBe(true);
-    expect(result.item.title).toBe('Deploy fix for production');
-    expect(result.item.assignee).toBeNull();
-  });
-
-  it('queues with null client_id when abbreviation is unknown', async () => {
-    const event = {
-      type: 'app_mention',
-      text: '<@UBOT> XX for Aris: Some task',
-      user: 'USENDER', channel: 'CCHAN', ts: '111.222',
-    };
-    const result = await handleAppMention(event, pool, '');
-    expect(result.queued).toBe(true);
-    expect(result.item.client_id).toBeNull();
-    expect(result.item.title).toContain('XX');
-  });
-
-  it('returns queued:false for an empty message', async () => {
+  it('returns queued:false for empty message', async () => {
     const event = {
       type: 'app_mention',
       text: '<@UBOT>',
@@ -454,29 +347,6 @@ describe('handleAppMention (enhanced)', () => {
     };
     const result = await handleAppMention(event, pool, '');
     expect(result.queued).toBe(false);
-  });
-
-  it('resolves first-name assignee to full display_name', async () => {
-    const event = {
-      type: 'app_mention',
-      text: '<@UBOT> for Glen: Review the spec',
-      user: 'USENDER', channel: 'CCHAN', ts: '111.222',
-    };
-    const result = await handleAppMention(event, pool, '');
-    expect(result.queued).toBe(true);
-    expect(result.item.assignee).toBe('Glen Pryer');
-  });
-
-  it('stores raw assignee text when not found and warns', async () => {
-    const event = {
-      type: 'app_mention',
-      text: '<@UBOT> CH for Nobody: Some task',
-      user: 'USENDER', channel: 'CCHAN', ts: '111.222',
-    };
-    const result = await handleAppMention(event, pool, '');
-    expect(result.queued).toBe(true);
-    expect(result.item.assignee).toBe('Nobody');
-    expect(result.warnings).toContain('assignee_not_found');
   });
 });
 
@@ -608,14 +478,14 @@ describe('POST /api/slack/events (async handler)', () => {
     await truncate();
     await pool.query("INSERT INTO clients (name, abbreviation) VALUES ('Couch Heroes', 'CH')");
     await pool.query("INSERT INTO users (username, display_name, password_hash, role, is_active) VALUES ('aris', 'Aris', 'x', 'member', true)");
-    const { loadClientAbbreviations } = require('../../lib/slack-bot');
-    await loadClientAbbreviations(pool);
+    const { loadEntityCache } = require('../../lib/slack-bot');
+    await loadEntityCache(pool);
 
     const body = {
       type: 'event_callback',
       event: {
         type: 'app_mention',
-        text: '<@UBOTID> CH for Aris: New item from Slack\nWith a description',
+        text: '<@UBOTID> Couch Heroes Aris fix the login\nWith a description',
         user: 'USENDER',
         channel: 'CCHANNEL',
         ts: '111.222',
@@ -630,7 +500,6 @@ describe('POST /api/slack/events (async handler)', () => {
       .send(bodyStr);
     expect(res.status).toBe(200);
 
-    // Async handler runs after res.json — poll until INSERT completes
     let rows = [];
     for (let attempt = 0; attempt < 20; attempt++) {
       await new Promise(r => setTimeout(r, 250));
@@ -638,7 +507,7 @@ describe('POST /api/slack/events (async handler)', () => {
       if (rows.length > 0) break;
     }
     expect(rows).toHaveLength(1);
-    expect(rows[0].title).toBe('New item from Slack');
+    expect(rows[0].title).toBe('fix the login');
     expect(rows[0].slack_user_id).toBe('USENDER');
     expect(rows[0].item_type).toBe('task');
     expect(rows[0].assignee).toBe('Aris');

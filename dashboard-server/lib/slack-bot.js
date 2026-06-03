@@ -16,135 +16,117 @@ function verifySlackSignature(signingSecret, timestamp, rawBody, signature) {
 
 const ITEM_TYPES = new Set(['project', 'feature', 'story', 'task']);
 
-function parseSlackMessage(text, abbreviations) {
+// Entity extraction parser — finds known clients, users, and item types anywhere in the message
+function parseSlackMessage(text, entities) {
   const cleaned = (text || '').replace(/<@[A-Z0-9]+>/g, '').trim();
   const nlIndex = cleaned.indexOf('\n');
   const firstLine = nlIndex === -1 ? cleaned : cleaned.slice(0, nlIndex).trim();
   const description = nlIndex === -1 ? null : cleaned.slice(nlIndex + 1).trim() || null;
 
-  if (!firstLine) return { title: null, description, clientAbbr: null, itemType: null, assigneeRaw: null };
+  if (!firstLine) return { title: null, description, clientMatch: null, userMatch: null, itemType: null };
 
-  const abbrSet = abbreviations || new Set();
-  const tokens = firstLine.split(/\s+/);
-  let clientAbbr = null;
+  const { clients, users } = entities || { clients: [], users: [] };
+  let line = firstLine;
+
+  // Extract client — longest match first, word-boundary safe
+  let clientMatch = null;
+  const sortedClients = [...clients].sort((a, b) => b.label.length - a.label.length);
+  for (const c of sortedClients) {
+    const re = new RegExp('\\b' + escapeRegex(c.label) + '\\b', 'i');
+    const m = line.match(re);
+    if (m) {
+      clientMatch = c;
+      line = (line.slice(0, m.index) + line.slice(m.index + m[0].length)).replace(/\s{2,}/g, ' ').trim();
+      break;
+    }
+  }
+
+  // Extract user — longest match first, word-boundary safe
+  let userMatch = null;
+  const sortedUsers = [...users].sort((a, b) => b.label.length - a.label.length);
+  for (const u of sortedUsers) {
+    const re = new RegExp('\\b' + escapeRegex(u.label) + '\\b', 'i');
+    const m = line.match(re);
+    if (m) {
+      userMatch = u;
+      line = (line.slice(0, m.index) + line.slice(m.index + m[0].length)).replace(/\s{2,}/g, ' ').trim();
+      break;
+    }
+  }
+
+  // Extract item type keyword
   let itemType = null;
-  let assigneeRaw = null;
-  const remainder = [];
-  let i = 0;
-
-  while (i < tokens.length) {
-    const tok = tokens[i];
-    const tokLower = tok.toLowerCase();
-
-    if (tok === ':') { i++; break; }
-    if (tok.endsWith(':')) {
-      const word = tok.slice(0, -1);
-      const wordLower = word.toLowerCase();
-      if (!clientAbbr && abbrSet.has(wordLower)) { clientAbbr = word; }
-      else if (!itemType && ITEM_TYPES.has(wordLower)) { itemType = word; }
-      else { remainder.push(word); }
-      i++;
-      break;
-    }
-
-    if (!clientAbbr && abbrSet.has(tokLower)) {
-      clientAbbr = tok;
-      i++;
-      continue;
-    }
-
-    if (!itemType && ITEM_TYPES.has(tokLower)) {
-      itemType = tok;
-      i++;
-      continue;
-    }
-
-    if (tokLower === 'for' && !assigneeRaw && i + 1 < tokens.length) {
-      i++;
-      const nameParts = [];
-      while (i < tokens.length) {
-        const nt = tokens[i];
-        if (nt === ':') { i++; break; }
-        if (nt.endsWith(':')) {
-          nameParts.push(nt.slice(0, -1));
-          i++;
-          break;
-        }
-        nameParts.push(nt);
-        i++;
-      }
-      assigneeRaw = nameParts.join(' ') || null;
-      break;
-    }
-
-    remainder.push(tok);
-    i++;
+  const typeRe = /\b(project|feature|story|task)\b/i;
+  const typeMatch = line.match(typeRe);
+  if (typeMatch) {
+    itemType = typeMatch[1].toLowerCase();
+    line = (line.slice(0, typeMatch.index) + line.slice(typeMatch.index + typeMatch[0].length)).replace(/\s{2,}/g, ' ').trim();
   }
 
-  while (i < tokens.length) {
-    remainder.push(tokens[i]);
-    i++;
-  }
+  // Strip leading filler words ("for", "to", "a", "the", ":") from what remains
+  line = line.replace(/^[\s:]+/, '').replace(/[\s:]+$/, '');
+  line = line.replace(/^(for|to|a|the|please|can you|could you)\s+/i, '').trim();
 
-  const title = remainder.join(' ').trim() || null;
-  return { title, description, clientAbbr, itemType, assigneeRaw };
+  const title = line || null;
+  return { title, description, clientMatch, userMatch, itemType };
 }
 
-let _abbrCache = new Set();
-let _abbrCacheTimer = null;
+function escapeRegex(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 
-async function loadClientAbbreviations(dbPool) {
-  const { rows } = await dbPool.query(
-    "SELECT abbreviation FROM clients WHERE abbreviation IS NOT NULL AND abbreviation != ''"
+// Entity cache — holds clients (name + abbreviation) and users (display_name + first name)
+let _entityCache = { clients: [], users: [] };
+let _entityCacheTimer = null;
+
+async function loadEntityCache(dbPool) {
+  const { rows: clientRows } = await dbPool.query(
+    "SELECT id, name, abbreviation FROM clients WHERE name IS NOT NULL"
   );
-  _abbrCache = new Set(rows.map(r => r.abbreviation.toLowerCase()));
-  return _abbrCache;
+  const clients = [];
+  for (const r of clientRows) {
+    clients.push({ label: r.name, id: r.id, name: r.name, abbreviation: r.abbreviation });
+    if (r.abbreviation) {
+      clients.push({ label: r.abbreviation, id: r.id, name: r.name, abbreviation: r.abbreviation });
+    }
+  }
+
+  const { rows: userRows } = await dbPool.query(
+    "SELECT display_name FROM users WHERE is_active = true AND display_name IS NOT NULL"
+  );
+  const users = [];
+  for (const r of userRows) {
+    users.push({ label: r.display_name, displayName: r.display_name });
+    const firstName = r.display_name.split(' ')[0];
+    if (firstName !== r.display_name) {
+      users.push({ label: firstName, displayName: r.display_name });
+    }
+  }
+
+  _entityCache = { clients, users };
+  return _entityCache;
 }
 
-function getClientAbbreviations() {
-  return _abbrCache;
+function getEntityCache() {
+  return _entityCache;
 }
 
-function startAbbreviationRefresh(dbPool, intervalMs) {
-  if (_abbrCacheTimer) clearInterval(_abbrCacheTimer);
-  _abbrCacheTimer = setInterval(() => {
-    loadClientAbbreviations(dbPool).catch(() => {});
+function startEntityRefresh(dbPool, intervalMs) {
+  if (_entityCacheTimer) clearInterval(_entityCacheTimer);
+  _entityCacheTimer = setInterval(() => {
+    loadEntityCache(dbPool).catch(() => {});
   }, intervalMs || 3600000);
 }
 
-function stopAbbreviationRefresh() {
-  if (_abbrCacheTimer) { clearInterval(_abbrCacheTimer); _abbrCacheTimer = null; }
+function stopEntityRefresh() {
+  if (_entityCacheTimer) { clearInterval(_entityCacheTimer); _entityCacheTimer = null; }
 }
 
-async function resolveClient(dbPool, abbr) {
-  if (!abbr) return null;
-  const { rows } = await dbPool.query(
-    'SELECT id, name, abbreviation FROM clients WHERE LOWER(abbreviation) = LOWER($1) LIMIT 1',
-    [abbr]
-  );
-  return rows[0] || null;
-}
-
-async function resolveAssignee(dbPool, rawName) {
-  if (!rawName || !rawName.trim()) return { resolved: false, raw: rawName || '', reason: 'not_found' };
-
-  const name = rawName.trim();
-
-  const { rows: exact } = await dbPool.query(
-    'SELECT display_name FROM users WHERE LOWER(display_name) = LOWER($1) AND is_active = true LIMIT 1',
-    [name]
-  );
-  if (exact.length === 1) return { resolved: true, displayName: exact[0].display_name };
-
-  const { rows: prefix } = await dbPool.query(
-    "SELECT display_name FROM users WHERE LOWER(display_name) LIKE (LOWER($1) || ' %') AND is_active = true LIMIT 2",
-    [name]
-  );
-  if (prefix.length === 1) return { resolved: true, displayName: prefix[0].display_name };
-  if (prefix.length > 1) return { resolved: false, raw: name, reason: 'ambiguous' };
-
-  return { resolved: false, raw: name, reason: 'not_found' };
-}
+// Kept for backwards compat with existing route wiring
+const loadClientAbbreviations = loadEntityCache;
+const getClientAbbreviations = getEntityCache;
+const startAbbreviationRefresh = startEntityRefresh;
+const stopAbbreviationRefresh = stopEntityRefresh;
 
 const WORKSAGE_URL = 'https://worksage.nbi-consulting.com/nbi_project_dashboard.html';
 
@@ -245,77 +227,23 @@ function postSlackReply(token, channel, text, threadTs) {
 }
 
 async function handleAppMention(event, dbPool, botToken) {
-  const abbrSet = getClientAbbreviations();
-  const parsed = parseSlackMessage(event.text, abbrSet);
+  const entities = getEntityCache();
+  const parsed = parseSlackMessage(event.text, entities);
 
-  if (!parsed.title && !parsed.assigneeRaw) {
+  if (!parsed.title) {
     const errorReply = buildSlackReply({ title: null });
     await postSlackReply(botToken, event.channel, errorReply, event.ts);
     return { queued: false };
   }
 
-  let clientId = null;
-  let clientName = null;
-  let clientResolved = false;
-  let assigneeName = null;
-  let assigneeResolved = false;
+  const clientId = parsed.clientMatch?.id || null;
+  const clientName = parsed.clientMatch?.name || null;
+  const clientResolved = !!parsed.clientMatch;
+  const assigneeName = parsed.userMatch?.displayName || null;
+  const assigneeResolved = !!parsed.userMatch;
+  const itemType = parsed.itemType || 'task';
   const warnings = [];
-  let title = parsed.title;
 
-  // Detect whether the original first line uses colon syntax (explicit metadata)
-  const firstLine = (event.text || '').replace(/<@[A-Z0-9]+>/g, '').split('\n')[0] || '';
-  const hasColon = firstLine.includes(':');
-
-  if (parsed.clientAbbr) {
-    try {
-      const client = await resolveClient(dbPool, parsed.clientAbbr);
-      if (client) {
-        clientId = client.id;
-        clientName = client.name;
-        clientResolved = true;
-      }
-    } catch (err) {
-      warnings.push('db_error');
-    }
-  }
-
-  if (parsed.assigneeRaw) {
-    try {
-      const result = await resolveAssignee(dbPool, parsed.assigneeRaw);
-      if (result.resolved) {
-        assigneeName = result.displayName;
-        assigneeResolved = true;
-      } else if (hasColon) {
-        // Colon was present — title is clean, store raw assignee with warning
-        assigneeName = parsed.assigneeRaw;
-        warnings.push('assignee_' + result.reason);
-      } else {
-        // No colon — "for X" was probably natural language, re-merge
-        if (title) {
-          title = title + ' for ' + parsed.assigneeRaw;
-        } else {
-          title = 'for ' + parsed.assigneeRaw;
-        }
-      }
-    } catch (err) {
-      warnings.push('db_error');
-      if (title) {
-        title = title + ' for ' + parsed.assigneeRaw;
-      } else {
-        title = 'for ' + parsed.assigneeRaw;
-      }
-    }
-  }
-
-  if (!title) {
-    const errorReply = buildSlackReply({ title: null });
-    await postSlackReply(botToken, event.channel, errorReply, event.ts);
-    return { queued: false };
-  }
-
-  const itemType = (parsed.itemType || 'task').toLowerCase();
-
-  // Resolve Slack user ID to a real name for submitted_by
   let submittedBy = `slack:${event.user}`;
   try {
     const realName = await lookupSlackUser(botToken, event.user);
@@ -325,17 +253,16 @@ async function handleAppMention(event, dbPool, botToken) {
   const { rows } = await dbPool.query(
     `INSERT INTO task_queue (title, description, submitted_by, slack_user_id, slack_channel, slack_message_ts, client_id, assignee, item_type)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
-    [title, parsed.description, submittedBy, event.user, event.channel, event.ts,
+    [parsed.title, parsed.description, submittedBy, event.user, event.channel, event.ts,
      clientId, assigneeName, itemType]
   );
   const item = rows[0];
 
   const reply = buildSlackReply({
-    title,
+    title: parsed.title,
     itemType,
     clientName,
-    clientAbbr: parsed.clientAbbr,
-    assigneeName: assigneeName || (warnings.some(w => w.startsWith('assignee_')) ? parsed.assigneeRaw : null),
+    assigneeName,
     assigneeResolved,
     clientResolved,
     queueId: item.id,
@@ -349,5 +276,6 @@ async function handleAppMention(event, dbPool, botToken) {
 module.exports = {
   verifySlackSignature, parseSlackMessage, postSlackReply, handleAppMention,
   loadClientAbbreviations, getClientAbbreviations, startAbbreviationRefresh, stopAbbreviationRefresh,
-  resolveClient, resolveAssignee, buildSlackReply, lookupSlackUser,
+  loadEntityCache, getEntityCache, startEntityRefresh, stopEntityRefresh,
+  buildSlackReply, lookupSlackUser,
 };
