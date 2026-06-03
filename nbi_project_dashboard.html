@@ -20630,7 +20630,7 @@ function renderDatabaseTab(container) {
       '<td>' + daysInStageHtml(c.stage_changed_at, c.created_at) + '</td>' +
       '<td><div style="display:flex;flex-wrap:wrap;align-items:center;gap:2px">' + (assigneeChips || '<span style="font-size:12px;color:var(--text-muted);font-style:italic">Unassigned</span>') +
         '<select class="ats-inline-select" aria-label="Add assignee for ' + esc(c.name || 'candidate') + '" onchange="event.stopPropagation();dbAddAssignee(\'' + c.id + '\',\'' + esc(c.stage) + '\',this.value);this.selectedIndex=0" style="color:var(--text-muted);width:auto;min-width:30px"><option value="">+</option>' +
-        (_cachedUsers || []).filter(function(u) { return !u.client_id || u.client_id === c.client_id; }).map(function(u) { return u.display_name; }).sort().map(function(m) { return '<option value="' + esc(m) + '">' + esc(m) + '</option>'; }).join('') + '</select></div></td>' +
+        (_cachedUsers || []).filter(function(u) { return c.client_id ? u.client_id === c.client_id : !u.client_id; }).map(function(u) { return u.display_name; }).sort().map(function(m) { return '<option value="' + esc(m) + '">' + esc(m) + '</option>'; }).join('') + '</select></div></td>' +
     '</tr>';
   });
 
@@ -21898,7 +21898,7 @@ function buildCandidateStageBarHtml(c, isArchived, disabledStyle, candidateStage
   <div style="display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap;${disabledStyle}">
     ${currentStageAssignees.map((name, i) => `<span style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:10px;padding:3px 10px;font-size:0.78rem;display:inline-flex;align-items:center;gap:4px">${esc(name)} <button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.78rem" data-action="hiringRemoveStageAssignee" data-arg0="${c.id}" data-arg1="${esc(c.stage)}" data-arg2="${i}">&times;</button></span>`).join('')}
     ${unassigned ? '<span style="color:var(--danger);font-size:0.78rem">&#9888; No assignee</span>' : ''}
-    <select id="cdStageAssigneeAdd" style="font-size:0.78rem;padding:3px 8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)" onchange="if(this.value){hiringAddStageAssignee('${c.id}','${esc(c.stage)}');this.value=''}"><option value="">+ Assign…</option>${(_cachedUsers || []).filter(u => !u.client_id || u.client_id === c.client_id).map(u => u.display_name).sort().map(m => `<option value="${esc(m)}">${esc(m)}</option>`).join('')}</select>
+    <select id="cdStageAssigneeAdd" style="font-size:0.78rem;padding:3px 8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)" onchange="if(this.value){hiringAddStageAssignee('${c.id}','${esc(c.stage)}');this.value=''}"><option value="">+ Assign…</option>${(_cachedUsers || []).filter(u => c.client_id ? u.client_id === c.client_id : !u.client_id).map(u => u.display_name).sort().map(m => `<option value="${esc(m)}">${esc(m)}</option>`).join('')}</select>
   </div>`;
 }
 
