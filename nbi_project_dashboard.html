@@ -20227,7 +20227,7 @@ function renderHiringView(container) {
   var offersCount = active.filter(function(c) { return c.stage === 'offer'; }).length;
   var openPositions = positions.filter(function(p) { return p.status === 'open'; }).length;
 
-  var tabNames = ['pipeline', 'positions', 'database', 'calendar', 'metrics'];
+  var tabNames = ['pipeline', 'positions', 'database', 'calendar', 'metrics', 'questions'];
   var tabLabels = { pipeline: 'Pipeline', positions: 'Positions', database: 'Database', calendar: 'Calendar', metrics: 'Metrics', questions: 'Questions' };
 
   var html = '<div class="hiring">';
@@ -23057,9 +23057,9 @@ async function loadDecisionBar(candidateId) {
     <div style="margin-top:12px;padding-top:12px;border-top:2px solid var(--border-default)">
       <div style="font-weight:600;font-size:0.85rem;margin-bottom:8px;color:var(--text-primary)">Hiring Decision</div>
       ${historyHtml ? `<div style="margin-bottom:10px">${historyHtml}</div>` : ''}
-      <textarea id="ivDecisionNotes" placeholder="Decision notes (required)..." rows="2" style="width:100%;font-size:0.82rem;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-family:inherit;resize:vertical;margin-bottom:8px"></textarea>
-      <div id="ivRejectCatRow" style="display:none;margin-bottom:8px">
-        <select id="ivRejectCategory" style="width:100%;font-size:0.82rem;padding:6px 8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-family:inherit">
+      <textarea id="ivBarDecisionNotes" placeholder="Decision notes (required)..." rows="2" style="width:100%;font-size:0.82rem;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-family:inherit;resize:vertical;margin-bottom:8px"></textarea>
+      <div id="ivBarRejectCatRow" style="display:none;margin-bottom:8px">
+        <select id="ivBarRejectCategory" style="width:100%;font-size:0.82rem;padding:6px 8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-family:inherit">
           <option value="">Select rejection reason...</option>
           ${catOptions}
         </select>
@@ -23073,19 +23073,19 @@ async function loadDecisionBar(candidateId) {
 }
 
 window._ivShowRejectFlow = function(candidateId) {
-  const row = document.getElementById('ivRejectCatRow');
+  const row = document.getElementById('ivBarRejectCatRow');
   if (row) row.style.display = 'block';
-  const notes = document.getElementById('ivDecisionNotes');
+  const notes = document.getElementById('ivBarDecisionNotes');
   if (notes && !notes.value.trim()) notes.focus();
 };
 
 window._ivDecideCandidate = async function(candidateId, decision, btn) {
-  const notes = document.getElementById('ivDecisionNotes')?.value?.trim();
-  if (!notes) { toast('Notes are required', 'error'); document.getElementById('ivDecisionNotes')?.focus(); return; }
+  const notes = document.getElementById('ivBarDecisionNotes')?.value?.trim();
+  if (!notes) { toast('Notes are required', 'error'); document.getElementById('ivBarDecisionNotes')?.focus(); return; }
 
   let rejection_category = null;
   if (decision === 'reject') {
-    rejection_category = document.getElementById('ivRejectCategory')?.value;
+    rejection_category = document.getElementById('ivBarRejectCategory')?.value;
     if (!rejection_category) { toast('Please select a rejection reason', 'error'); return; }
   }
 
@@ -24731,7 +24731,7 @@ function _mtgRenderFull() {
     { id: 'numbers', label: 'Numbers (' + filtered.numbers.length + ')' },
     { id: 'timeline', label: 'Timeline' },
     { id: 'threads', label: 'Threads (' + filtered.threads.length + ')' },
-    { id: 'sources', label: 'Sources (' + (filtered.meetings || []).length + ')' }
+    { id: 'sources', label: 'Sources (' + filtered.meetings.length + ')' }
   ];
   h += '<div class="cc-meetings-subtabs">';
   subTabs.forEach(function(t) {
@@ -24767,6 +24767,7 @@ function _mtgApplyFilters(sections) {
   function matchWs(item) {
     if (!f.workstream) return true;
     if (Array.isArray(item.workstreams)) return item.workstreams.indexOf(f.workstream) >= 0;
+    if (Array.isArray(item.workstream)) return item.workstream.indexOf(f.workstream) >= 0;
     return item.workstream === f.workstream;
   }
   function matchStatus(item) { return !f.status || item.status === f.status; }
@@ -24783,7 +24784,8 @@ function _mtgApplyFilters(sections) {
     learnings: (sections.learnings || []).filter(matchNoStatus),
     numbers: (sections.numbers || []).filter(matchNoStatus),
     timeline: f.q ? (sections.timeline || []).filter(matchQ) : (sections.timeline || []),
-    threads: (sections.threads || []).filter(matchNoStatus)
+    threads: (sections.threads || []).filter(matchNoStatus),
+    meetings: (sections.meetings || []).filter(matchNoStatus)
   };
 }
 
@@ -25256,7 +25258,8 @@ function _mtgOpenMeeting(meetingId) {
     h += '</div>';
   }
 
-  if (mtg.workstream) h += '<span class="cc-tag cc-tag--blue" style="margin-right:4px">' + esc(mtg.workstream.replace(/_/g, ' ')) + '</span>';
+  var panelWs = Array.isArray(mtg.workstream) ? mtg.workstream[0] : mtg.workstream;
+  if (panelWs) h += '<span class="cc-tag cc-tag--blue" style="margin-right:4px">' + esc(panelWs.replace(/_/g, ' ')) + '</span>';
   if (mtg.topics && mtg.topics.length) {
     mtg.topics.forEach(function(t) { h += '<span class="cc-tag cc-tag--purple" style="margin:0 4px 4px 0;font-size:11px">' + esc(t) + '</span>'; });
   }
@@ -25341,7 +25344,8 @@ function _mtgRenderSources(meetings) {
     h += '<td style="white-space:nowrap">' + esc(m.date || '') + '</td>';
     h += '<td>' + esc(m.title || '') + _mtgBadge(m) + '</td>';
     h += '<td style="font-size:12px;color:var(--text-secondary)">' + (m.attendees ? m.attendees.length : 0) + '</td>';
-    h += '<td><span class="cc-tag cc-tag--blue">' + esc((m.workstream || '').replace(/_/g, ' ')) + '</span></td>';
+    var ws = Array.isArray(m.workstream) ? m.workstream[0] : (m.workstream || '');
+    h += '<td><span class="cc-tag cc-tag--blue">' + esc(ws.replace(/_/g, ' ')) + '</span></td>';
     h += '<td><span class="cc-mtg-edit-icon" onclick="event.stopPropagation();_mtgStartEdit(\'' + esc(m.id) + '\')" title="Edit">&#9998;</span></td>';
     h += '</tr>';
   });
@@ -28174,7 +28178,10 @@ async function loadUserManagement() {
         <td><strong>${esc(u.username)}</strong></td>
         <td><input value="${esc(u.display_name)}" onblur="updateUserField('${u.id}','display_name',this.value)" onkeydown="if(event.key==='Enter')this.blur()" style="background:transparent;border:1px solid transparent;border-radius:3px;padding:2px 4px;color:var(--text-primary);font-size:0.8rem;width:100%" onfocus="this.style.borderColor='var(--accent)';this.style.background='var(--bg-input)'" onblur="this.style.borderColor='transparent';this.style.background='transparent';updateUserField('${u.id}','display_name',this.value)"></td>
         <td><input value="${esc(u.email||'')}" onblur="updateUserField('${u.id}','email',this.value)" onkeydown="if(event.key==='Enter')this.blur()" style="background:transparent;border:1px solid transparent;border-radius:3px;padding:2px 4px;color:var(--text-primary);font-size:0.8rem;width:100%" onfocus="this.style.borderColor='var(--accent)';this.style.background='var(--bg-input)'" onblur="this.style.borderColor='transparent';this.style.background='transparent';updateUserField('${u.id}','email',this.value)"></td>
-        <td><select onchange="updateUserRole('${u.id}',this.value)" style="font-size:0.75rem;padding:2px 4px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:3px;color:var(--text-primary)"><option value="user" ${u.role==='user'?'selected':''}>User</option><option value="admin" ${u.role==='admin'?'selected':''}>Admin</option></select></td>
+        <td><select onchange="updateUserRole('${u.id}',this.value,${u.client_id?'true':'false'})" style="font-size:0.75rem;padding:2px 4px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:3px;color:var(--text-primary)">${u.client_id
+          ? `<option value="member" ${u.client_role!=='admin'?'selected':''}>User</option><option value="admin" ${u.client_role==='admin'?'selected':''}>Admin</option>`
+          : `<option value="member" ${u.role!=='admin'?'selected':''}>User</option><option value="admin" ${u.role==='admin'?'selected':''}>Admin</option>`
+        }</select></td>
         <td><input type="number" min="1" max="80" step="1" value="${u.capacity_hours_per_week || 40}" onchange="updateUserCapacity('${u.id}',this.value)" style="width:50px;padding:2px 4px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:3px;color:var(--text-primary);font-size:0.8rem;text-align:center"></td>
         <td><select onchange="updateUserClientScope('${u.id}',this.value)" style="font-size:0.75rem;padding:2px 4px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:3px;color:var(--text-primary)">${scopeOpts}</select></td>
         <td style="font-size:0.75rem;white-space:nowrap"><label title="View docs"><input type="checkbox" ${u.docs_view!==false?'checked':''} onchange="updateUserField('${u.id}','docs_view',this.checked)"> V</label> <label title="Edit docs"><input type="checkbox" ${u.docs_edit!==false?'checked':''} onchange="updateUserField('${u.id}','docs_edit',this.checked)"> E</label> <label title="Create docs"><input type="checkbox" ${u.docs_create!==false?'checked':''} onchange="updateUserField('${u.id}','docs_create',this.checked)"> C</label> <label title="Upload images"><input type="checkbox" ${u.docs_upload!==false?'checked':''} onchange="updateUserField('${u.id}','docs_upload',this.checked)"> U</label> <label title="Queue submit"><input type="checkbox" ${u.can_submit_queue?'checked':''} onchange="updateUserField('${u.id}','can_submit_queue',this.checked)" style="accent-color:var(--accent)"> Q</label></td>
@@ -28201,8 +28208,14 @@ async function createUser() {
   if (!username) { showFieldError(usernameEl, 'Username is required'); valid = false; }
   if (!password) { showFieldError(passwordEl, 'Password is required'); valid = false; }
   if (!valid) return;
-  const newUserPayload = { username, display_name: displayName || username, email, password, role };
-  if (clientScope) newUserPayload.client_id = clientScope;
+  const newUserPayload = { username, display_name: displayName || username, email, password };
+  if (clientScope) {
+    newUserPayload.client_id = clientScope;
+    newUserPayload.role = 'member';
+    newUserPayload.client_role = role;
+  } else {
+    newUserPayload.role = role;
+  }
   try {
     const resp = await authFetch('/api/users', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -28236,11 +28249,14 @@ async function deleteUser(userId, name) {
 }
 
 /** Update a user's role (admin/member) via the API */
-async function updateUserRole(userId, role) {
+async function updateUserRole(userId, value, isClientUser) {
   try {
+    const body = isClientUser
+      ? { role: 'member', client_role: value }
+      : { role: value };
     await authFetch('/api/users/' + userId, {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ role })
+      body: JSON.stringify(body)
     });
     toast('Role updated');
   } catch(e) { toast('Error: ' + e.message, 'error'); }
@@ -28249,11 +28265,16 @@ async function updateUserRole(userId, role) {
 /** Update a user's client_id scope via the API (empty string clears the scope) */
 async function updateUserClientScope(userId, clientId) {
   try {
+    const body = { client_id: clientId || null };
+    if (!clientId) {
+      body.client_role = null;
+    }
     await authFetch('/api/users/' + userId, {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ client_id: clientId || null })
+      body: JSON.stringify(body)
     });
     toast('Client scope updated');
+    loadUserManagement();
   } catch(e) { toast('Error: ' + e.message, 'error'); }
 }
 
