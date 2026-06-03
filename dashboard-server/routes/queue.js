@@ -27,14 +27,17 @@ module.exports = function(ctx) {
       }
       submittedBy = req.user.displayName || 'Unknown';
     }
-    const { title, description, slack_user_id, slack_channel, slack_message_ts } = req.body || {};
+    const { title, description, slack_user_id, slack_channel, slack_message_ts, client_id, assignee, item_type } = req.body || {};
     if (!title || !title.trim()) return res.status(400).json({ error: 'title required' });
     const lenErr = validateLength(title.trim(), 'title') || (description ? validateLength(description, 'description') : null);
     if (lenErr) return res.status(400).json({ error: lenErr });
+    const validTypes = ['project', 'feature', 'story', 'task'];
+    const resolvedType = item_type && validTypes.includes(item_type.toLowerCase()) ? item_type.toLowerCase() : 'task';
     const { rows } = await pool.query(
-      `INSERT INTO task_queue (title, description, submitted_by, slack_user_id, slack_channel, slack_message_ts)
-       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-      [title.trim(), description || null, submittedBy, slack_user_id || null, slack_channel || null, slack_message_ts || null]
+      `INSERT INTO task_queue (title, description, submitted_by, slack_user_id, slack_channel, slack_message_ts, client_id, assignee, item_type)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+      [title.trim(), description || null, submittedBy, slack_user_id || null, slack_channel || null, slack_message_ts || null,
+       client_id || null, assignee || null, resolvedType]
     );
     res.status(201).json(rows[0]);
   });

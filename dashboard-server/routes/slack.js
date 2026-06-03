@@ -1,6 +1,11 @@
 module.exports = function(ctx) {
   const router = require('express').Router();
-  const { pool, log, verifySlackSignature, handleAppMention } = ctx;
+  const { pool, log, verifySlackSignature, handleAppMention, loadClientAbbreviations, startAbbreviationRefresh } = ctx;
+
+  loadClientAbbreviations(pool).catch(err => {
+    log('warn', 'Slack', 'Failed to load client abbreviations at startup', { error: err.message });
+  });
+  startAbbreviationRefresh(pool, 3600000);
 
   router.post('/api/slack/events', async (req, res) => {
     const signingSecret = process.env.SLACK_SIGNING_SECRET;

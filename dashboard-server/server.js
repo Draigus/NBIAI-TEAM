@@ -49,7 +49,7 @@ let archiver;
 try { archiver = require('archiver'); } catch (e) { /* archiver optional — expense report ZIP export disabled */ }
 const { withRetry, CircuitBreaker } = require('./resilience');
 const { validateBackup } = require('./backup-validate');
-const { verifySlackSignature, handleAppMention } = require('./lib/slack-bot');
+const { verifySlackSignature, handleAppMention, loadClientAbbreviations, startAbbreviationRefresh } = require('./lib/slack-bot');
 const runMigrations = require('./migrations/runner');
 let cron, runBackup;
 try { cron = require('node-cron'); runBackup = require('./backup'); }
@@ -379,7 +379,7 @@ app.use(require('./routes/client-notes')({ pool, requireAdmin, getClientScopes, 
 app.use(require('./routes/notifications')({ pool, requireAdmin, requireNBI, createNotification, log }));
 app.use(require('./routes/templates')({ pool, requireAdmin, isValidUuid, log }));
 app.use(require('./routes/activity')({ pool, requireAuth, requireNBI }));
-app.use(require('./routes/slack')({ pool, log, verifySlackSignature, handleAppMention }));
+app.use(require('./routes/slack')({ pool, log, verifySlackSignature, handleAppMention, loadClientAbbreviations, startAbbreviationRefresh }));
 
 const { detectImportFormat, mapRowsToTasks } = require('./lib/import-parser');
 
@@ -439,6 +439,7 @@ app.use(require('./routes/command-centre')({ pool, log, requireNBI, _msalClient 
 
 // ==================== INTELLIGENCE PIPELINE ====================
 app.use(require('./routes/intelligence')({ requireNBI }));
+app.use(require('./routes/meetings-intelligence')({ requireNBI, pool }));
 
 
 // ==================== LEADS TRACKER ====================
