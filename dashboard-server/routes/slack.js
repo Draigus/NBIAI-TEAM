@@ -2,10 +2,7 @@ module.exports = function(ctx) {
   const router = require('express').Router();
   const { pool, log, verifySlackSignature, handleAppMention, loadClientAbbreviations, startAbbreviationRefresh } = ctx;
 
-  loadClientAbbreviations(pool).catch(err => {
-    log('warn', 'Slack', 'Failed to load client abbreviations at startup', { error: err.message });
-  });
-  startAbbreviationRefresh(pool, 3600000);
+  // Cache init is handled by server.js startup, not here — avoids DB races in tests
 
   router.post('/api/slack/events', async (req, res) => {
     const signingSecret = process.env.SLACK_SIGNING_SECRET;

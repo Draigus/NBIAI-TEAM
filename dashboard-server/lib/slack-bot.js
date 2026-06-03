@@ -186,6 +186,37 @@ function buildSlackReply(opts) {
   return lines.join('\n');
 }
 
+function slackApiCall(token, method, params, timeoutMs) {
+  if (!token) return Promise.resolve(null);
+  const qs = new URLSearchParams(params).toString();
+  return new Promise((resolve) => {
+    const req = https.request({
+      hostname: 'slack.com',
+      path: `/api/${method}?${qs}`,
+      method: 'GET',
+      headers: { 'Authorization': `Bearer ${token}` },
+      timeout: timeoutMs || 3000,
+    }, (res) => {
+      let data = '';
+      res.on('data', chunk => { data += chunk; });
+      res.on('end', () => {
+        try { resolve(JSON.parse(data)); }
+        catch { resolve(null); }
+      });
+    });
+    req.on('error', () => resolve(null));
+    req.on('timeout', () => { req.destroy(); resolve(null); });
+    req.end();
+  });
+}
+
+async function lookupSlackUser(token, userId) {
+  if (!token || !userId) return null;
+  const result = await slackApiCall(token, 'users.info', { user: userId });
+  if (!result || !result.ok) return null;
+  return result.user?.real_name || result.user?.profile?.display_name || result.user?.name || null;
+}
+
 function postSlackReply(token, channel, text, threadTs) {
   if (!token) return Promise.resolve({ skipped: true });
   const payload = JSON.stringify({ channel, text, thread_ts: threadTs });
@@ -284,10 +315,17 @@ async function handleAppMention(event, dbPool, botToken) {
 
   const itemType = (parsed.itemType || 'task').toLowerCase();
 
+  // Resolve Slack user ID to a real name for submitted_by
+  let submittedBy = `slack:${event.user}`;
+  try {
+    const realName = await lookupSlackUser(botToken, event.user);
+    if (realName) submittedBy = realName;
+  } catch { /* fall back to slack ID */ }
+
   const { rows } = await dbPool.query(
     `INSERT INTO task_queue (title, description, submitted_by, slack_user_id, slack_channel, slack_message_ts, client_id, assignee, item_type)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
-    [title, parsed.description, `slack:${event.user}`, event.user, event.channel, event.ts,
+    [title, parsed.description, submittedBy, event.user, event.channel, event.ts,
      clientId, assigneeName, itemType]
   );
   const item = rows[0];
@@ -311,5 +349,5 @@ async function handleAppMention(event, dbPool, botToken) {
 module.exports = {
   verifySlackSignature, parseSlackMessage, postSlackReply, handleAppMention,
   loadClientAbbreviations, getClientAbbreviations, startAbbreviationRefresh, stopAbbreviationRefresh,
-  resolveClient, resolveAssignee, buildSlackReply,
+  resolveClient, resolveAssignee, buildSlackReply, lookupSlackUser,
 };

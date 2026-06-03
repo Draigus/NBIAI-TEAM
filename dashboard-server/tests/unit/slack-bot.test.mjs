@@ -1,10 +1,15 @@
 // dashboard-server/tests/unit/slack-bot.test.mjs
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterAll } from 'vitest';
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 
 const crypto = require('crypto');
 const { pool, truncate } = require('../helpers/db.js');
+
+afterAll(() => {
+  const { stopAbbreviationRefresh } = require('../../lib/slack-bot');
+  stopAbbreviationRefresh();
+});
 
 // Helper: compute a valid Slack signature for test payloads
 function signPayload(secret, timestamp, body) {
@@ -475,10 +480,17 @@ describe('handleAppMention (enhanced)', () => {
   });
 });
 
-const request = require('supertest');
-const app = require('../../server.js');
+// Lazy-load app to avoid server.js side effects during pure unit tests
+let _app;
+function getApp() {
+  if (!_app) {
+    const request = require('supertest');
+    _app = { request, app: require('../../server.js') };
+  }
+  return _app;
+}
 
-describe('POST /api/slack/events', () => {
+describe('POST /api/slack/events (non-async)', () => {
   const SIGNING_SECRET = process.env.SLACK_SIGNING_SECRET || 'test_slack_signing_secret';
 
   function buildSignedRequest(body) {
@@ -491,7 +503,7 @@ describe('POST /api/slack/events', () => {
   it('responds to url_verification challenge', async () => {
     const body = { type: 'url_verification', challenge: 'test_challenge_token' };
     const { bodyStr, ts, sig } = buildSignedRequest(body);
-    const res = await request(app)
+    const res = await getApp().request(getApp().app)
       .post('/api/slack/events')
       .set('Content-Type', 'application/json')
       .set('x-slack-request-timestamp', ts)
@@ -502,7 +514,7 @@ describe('POST /api/slack/events', () => {
   });
 
   it('rejects requests with invalid signature', async () => {
-    const res = await request(app)
+    const res = await getApp().request(getApp().app)
       .post('/api/slack/events')
       .set('Content-Type', 'application/json')
       .set('x-slack-request-timestamp', String(Math.floor(Date.now() / 1000)))
@@ -510,6 +522,87 @@ describe('POST /api/slack/events', () => {
       .send(JSON.stringify({ type: 'event_callback' }));
     expect(res.status).toBe(401);
   });
+});
+
+describe('POST /api/queue with API key', () => {
+  const API_KEY = process.env.QUEUE_API_KEY || 'test_queue_api_key_abc123';
+
+  beforeEach(async () => { await truncate(); });
+
+  it('accepts submission with valid API key (no user session)', async () => {
+    const res = await getApp().request(getApp().app)
+      .post('/api/queue')
+      .set('X-API-Key', API_KEY)
+      .send({ title: 'API key task', description: 'From external tool' });
+    expect(res.status).toBe(201);
+    expect(res.body.title).toBe('API key task');
+    expect(res.body.submitted_by).toBe('api-key');
+  });
+
+  it('rejects submission with invalid API key', async () => {
+    const res = await getApp().request(getApp().app)
+      .post('/api/queue')
+      .set('X-API-Key', 'wrong_key')
+      .send({ title: 'Should fail' });
+    expect(res.status).toBe(401);
+  });
+
+  it('still rejects unauthenticated requests (no key, no session)', async () => {
+    const res = await getApp().request(getApp().app)
+      .post('/api/queue')
+      .send({ title: 'Should also fail' });
+    expect(res.status).toBe(401);
+  });
+
+  it('accepts submission with metadata fields', async () => {
+    const { rows: clients } = await pool.query("INSERT INTO clients (name, abbreviation) VALUES ('Test Client', 'TC') RETURNING id");
+    const clientId = clients[0].id;
+
+    const res = await getApp().request(getApp().app)
+      .post('/api/queue')
+      .set('X-API-Key', API_KEY)
+      .send({
+        title: 'Task with metadata',
+        description: 'Has all fields',
+        client_id: clientId,
+        assignee: 'Glen Pryer',
+        item_type: 'feature',
+      });
+    expect(res.status).toBe(201);
+    expect(res.body.client_id).toBe(clientId);
+    expect(res.body.assignee).toBe('Glen Pryer');
+    expect(res.body.item_type).toBe('feature');
+  });
+
+  it('defaults item_type to task when not provided', async () => {
+    const res = await getApp().request(getApp().app)
+      .post('/api/queue')
+      .set('X-API-Key', API_KEY)
+      .send({ title: 'No type specified' });
+    expect(res.status).toBe(201);
+    expect(res.body.item_type).toBe('task');
+  });
+
+  it('defaults invalid item_type to task', async () => {
+    const res = await getApp().request(getApp().app)
+      .post('/api/queue')
+      .set('X-API-Key', API_KEY)
+      .send({ title: 'Bad type', item_type: 'epic' });
+    expect(res.status).toBe(201);
+    expect(res.body.item_type).toBe('task');
+  });
+});
+
+// LAST: async handler test — fires handleAppMention after res.json, must run after all other tests
+describe('POST /api/slack/events (async handler)', () => {
+  const SIGNING_SECRET = process.env.SLACK_SIGNING_SECRET || 'test_slack_signing_secret';
+
+  function buildSignedRequest(body) {
+    const bodyStr = typeof body === 'string' ? body : JSON.stringify(body);
+    const ts = String(Math.floor(Date.now() / 1000));
+    const sig = signPayload(SIGNING_SECRET, ts, bodyStr);
+    return { bodyStr, ts, sig };
+  }
 
   it('returns 200 and queues item with metadata for valid app_mention', async () => {
     await truncate();
@@ -529,7 +622,7 @@ describe('POST /api/slack/events', () => {
       },
     };
     const { bodyStr, ts, sig } = buildSignedRequest(body);
-    const res = await request(app)
+    const res = await getApp().request(getApp().app)
       .post('/api/slack/events')
       .set('Content-Type', 'application/json')
       .set('x-slack-request-timestamp', ts)
@@ -537,83 +630,18 @@ describe('POST /api/slack/events', () => {
       .send(bodyStr);
     expect(res.status).toBe(200);
 
-    await new Promise(r => setTimeout(r, 300));
-
-    const { rows } = await pool.query('SELECT * FROM task_queue');
+    // Async handler runs after res.json — poll until INSERT completes
+    let rows = [];
+    for (let attempt = 0; attempt < 20; attempt++) {
+      await new Promise(r => setTimeout(r, 250));
+      ({ rows } = await pool.query('SELECT * FROM task_queue'));
+      if (rows.length > 0) break;
+    }
     expect(rows).toHaveLength(1);
     expect(rows[0].title).toBe('New item from Slack');
     expect(rows[0].slack_user_id).toBe('USENDER');
     expect(rows[0].item_type).toBe('task');
     expect(rows[0].assignee).toBe('Aris');
     expect(rows[0].client_id).toBeDefined();
-  });
-});
-
-describe('POST /api/queue with API key', () => {
-  const API_KEY = process.env.QUEUE_API_KEY || 'test_queue_api_key_abc123';
-
-  beforeEach(async () => { await truncate(); });
-
-  it('accepts submission with valid API key (no user session)', async () => {
-    const res = await request(app)
-      .post('/api/queue')
-      .set('X-API-Key', API_KEY)
-      .send({ title: 'API key task', description: 'From external tool' });
-    expect(res.status).toBe(201);
-    expect(res.body.title).toBe('API key task');
-    expect(res.body.submitted_by).toBe('api-key');
-  });
-
-  it('rejects submission with invalid API key', async () => {
-    const res = await request(app)
-      .post('/api/queue')
-      .set('X-API-Key', 'wrong_key')
-      .send({ title: 'Should fail' });
-    expect(res.status).toBe(401);
-  });
-
-  it('still rejects unauthenticated requests (no key, no session)', async () => {
-    const res = await request(app)
-      .post('/api/queue')
-      .send({ title: 'Should also fail' });
-    expect(res.status).toBe(401);
-  });
-
-  it('accepts submission with metadata fields', async () => {
-    const { rows: clients } = await pool.query("INSERT INTO clients (name, abbreviation) VALUES ('Test Client', 'TC') RETURNING id");
-    const clientId = clients[0].id;
-
-    const res = await request(app)
-      .post('/api/queue')
-      .set('X-API-Key', API_KEY)
-      .send({
-        title: 'Task with metadata',
-        description: 'Has all fields',
-        client_id: clientId,
-        assignee: 'Glen Pryer',
-        item_type: 'feature',
-      });
-    expect(res.status).toBe(201);
-    expect(res.body.client_id).toBe(clientId);
-    expect(res.body.assignee).toBe('Glen Pryer');
-    expect(res.body.item_type).toBe('feature');
-  });
-
-  it('defaults item_type to task when not provided', async () => {
-    const res = await request(app)
-      .post('/api/queue')
-      .set('X-API-Key', API_KEY)
-      .send({ title: 'No type specified' });
-    expect(res.status).toBe(201);
-    expect(res.body.item_type).toBe('task');
-  });
-
-  it('defaults invalid item_type to task', async () => {
-    const res = await request(app)
-      .post('/api/queue')
-      .set('X-API-Key', API_KEY)
-      .send({ title: 'Bad type', item_type: 'epic' });
-    expect(res.status).toBe(201);
-    expect(res.body.item_type).toBe('task');
   });
 });

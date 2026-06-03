@@ -381,6 +381,12 @@ app.use(require('./routes/templates')({ pool, requireAdmin, isValidUuid, log }))
 app.use(require('./routes/activity')({ pool, requireAuth, requireNBI }));
 app.use(require('./routes/slack')({ pool, log, verifySlackSignature, handleAppMention, loadClientAbbreviations, startAbbreviationRefresh }));
 
+// Prime Slack client abbreviation cache (after routes registered, skipped in test)
+if (!(process.env.DATABASE_URL || '').includes('_test')) {
+  loadClientAbbreviations(pool).catch(() => {});
+  startAbbreviationRefresh(pool, 3600000);
+}
+
 const { detectImportFormat, mapRowsToTasks } = require('./lib/import-parser');
 
 // ==================== UNIVERSAL ATTACHMENTS ====================
