@@ -222,7 +222,7 @@ describe('buildSlackReply', () => {
     ({ buildSlackReply } = require('../../lib/slack-bot'));
   });
 
-  it('builds a full success reply with all metadata', () => {
+  it('shows Created for direct task creation', () => {
     const reply = buildSlackReply({
       title: 'Fix login timeout',
       itemType: 'task',
@@ -231,26 +231,23 @@ describe('buildSlackReply', () => {
       assigneeResolved: true,
       clientResolved: true,
       queueId: 'abc-123',
+      createdAsTask: true,
     });
-    expect(reply).toContain('✅ Queued: *Fix login timeout*');
-    expect(reply).toContain('📋 Task');
+    expect(reply).toContain('✅ Created: *Fix login timeout*');
     expect(reply).toContain('👤 Aris');
     expect(reply).toContain('🏢 Couch Heroes');
-    expect(reply).toContain('🆔 abc-123');
-    expect(reply).toContain('🔗');
+    expect(reply).not.toContain('triage');
   });
 
-  it('builds minimal reply with no metadata', () => {
+  it('shows Queued for triage when no client', () => {
     const reply = buildSlackReply({
       title: 'Fix the broken button',
       itemType: 'task',
       queueId: 'abc-123',
+      createdAsTask: false,
     });
-    expect(reply).toContain('✅ Queued: *Fix the broken button*');
-    expect(reply).toContain('📋 Task');
-    expect(reply).toContain('🆔 abc-123');
-    expect(reply).not.toContain('👤');
-    expect(reply).not.toContain('🏢');
+    expect(reply).toContain('📥 Queued for triage');
+    expect(reply).toContain('triage');
   });
 
   it('builds error reply for empty title', () => {
@@ -281,65 +278,82 @@ describe('handleAppMention (entity extraction)', () => {
     await loadEntityCache(pool);
   });
 
-  it('queues with client name, assignee, and title from natural language', async () => {
+  it('creates a real task when client is recognised', async () => {
     const event = {
       type: 'app_mention',
       text: '<@UBOT> Couch Heroes Aris fix the login timeout\nIt expires too fast',
       user: 'USENDER', channel: 'CCHAN', ts: '111.222',
     };
     const result = await handleAppMention(event, pool, '');
-    expect(result.queued).toBe(true);
+    expect(result.created).toBe(true);
+    expect(result.queued).toBe(false);
     expect(result.item.title).toBe('fix the login timeout');
     expect(result.item.description).toBe('It expires too fast');
     expect(result.item.item_type).toBe('task');
-    expect(result.item.assignee).toBe('Aris');
-    expect(result.item.client_id).toBeDefined();
+    expect(result.item.source).toBe('slack');
+
+    const { rows } = await pool.query('SELECT * FROM tasks WHERE source = $1', ['slack']);
+    expect(rows).toHaveLength(1);
+    expect(rows[0].assignees).toContain('Aris');
+    expect(rows[0].client_id).toBeDefined();
+    expect(rows[0].status).toBe('Not started');
   });
 
-  it('works with abbreviation instead of full name', async () => {
+  it('creates task with abbreviation', async () => {
     const event = {
       type: 'app_mention',
       text: '<@UBOT> CH Aris fix it',
       user: 'USENDER', channel: 'CCHAN', ts: '111.222',
     };
     const result = await handleAppMention(event, pool, '');
+    expect(result.created).toBe(true);
     expect(result.item.client_id).toBeDefined();
-    expect(result.item.assignee).toBe('Aris');
-    expect(result.item.title).toBe('fix it');
   });
 
-  it('resolves first name to full display_name', async () => {
+  it('falls back to queue when no client recognised', async () => {
     const event = {
       type: 'app_mention',
-      text: '<@UBOT> Glen review the spec',
+      text: '<@UBOT> fix the broken button',
       user: 'USENDER', channel: 'CCHAN', ts: '111.222',
     };
     const result = await handleAppMention(event, pool, '');
-    expect(result.item.assignee).toBe('Glen Pryer');
+    expect(result.created).toBe(false);
+    expect(result.queued).toBe(true);
+
+    const { rows: tasks } = await pool.query('SELECT * FROM tasks WHERE source = $1', ['slack']);
+    expect(tasks).toHaveLength(0);
+    const { rows: queue } = await pool.query('SELECT * FROM task_queue');
+    expect(queue).toHaveLength(1);
   });
 
-  it('keeps "for production" in title when no user matches', async () => {
+  it('resolves first name to full display_name in assignees', async () => {
+    const event = {
+      type: 'app_mention',
+      text: '<@UBOT> CH Glen review the spec',
+      user: 'USENDER', channel: 'CCHAN', ts: '111.222',
+    };
+    const result = await handleAppMention(event, pool, '');
+    expect(result.created).toBe(true);
+
+    const { rows } = await pool.query('SELECT assignees FROM tasks WHERE source = $1', ['slack']);
+    expect(rows[0].assignees).toContain('Glen Pryer');
+  });
+
+  it('creates task without assignee when no user matches', async () => {
     const event = {
       type: 'app_mention',
       text: '<@UBOT> CH deploy fix for production',
       user: 'USENDER', channel: 'CCHAN', ts: '111.222',
     };
     const result = await handleAppMention(event, pool, '');
+    expect(result.created).toBe(true);
     expect(result.item.title).toBe('deploy fix for production');
-    expect(result.item.assignee).toBeNull();
+
+    const { rows } = await pool.query('SELECT assignees FROM tasks WHERE source = $1', ['slack']);
+    expect(rows[0].assignees).toEqual([]);
   });
 
-  it('defaults item_type to task', async () => {
-    const event = {
-      type: 'app_mention',
-      text: '<@UBOT> CH Aris fix it',
-      user: 'USENDER', channel: 'CCHAN', ts: '111.222',
-    };
-    const result = await handleAppMention(event, pool, '');
-    expect(result.item.item_type).toBe('task');
-  });
-
-  it('returns queued:false for empty message', async () => {
+  it('returns queued:false and created:undefined for empty message', async () => {
     const event = {
       type: 'app_mention',
       text: '<@UBOT>',
@@ -503,14 +517,13 @@ describe('POST /api/slack/events (async handler)', () => {
     let rows = [];
     for (let attempt = 0; attempt < 20; attempt++) {
       await new Promise(r => setTimeout(r, 250));
-      ({ rows } = await pool.query('SELECT * FROM task_queue'));
+      ({ rows } = await pool.query("SELECT * FROM tasks WHERE source = 'slack'"));
       if (rows.length > 0) break;
     }
     expect(rows).toHaveLength(1);
     expect(rows[0].title).toBe('fix the login');
-    expect(rows[0].slack_user_id).toBe('USENDER');
     expect(rows[0].item_type).toBe('task');
-    expect(rows[0].assignee).toBe('Aris');
+    expect(rows[0].assignees).toContain('Aris');
     expect(rows[0].client_id).toBeDefined();
   });
 });

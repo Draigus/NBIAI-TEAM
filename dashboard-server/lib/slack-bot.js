@@ -131,29 +131,29 @@ const stopAbbreviationRefresh = stopEntityRefresh;
 const WORKSAGE_URL = 'https://worksage.nbi-consulting.com/nbi_project_dashboard.html';
 
 function buildSlackReply(opts) {
-  const { title, itemType, clientName, clientAbbr, assigneeName,
-          assigneeResolved, clientResolved, queueId, warnings } = opts || {};
+  const { title, itemType, clientName, assigneeName,
+          assigneeResolved, clientResolved, queueId, createdAsTask, warnings } = opts || {};
 
   if (!title) {
-    return '❌ Couldn\'t parse a task from that message.\nUsage: @WorkSage [CH|LH|NBI] [task|story|feature] for [Name]: Title';
+    return '❌ Couldn\'t parse a task from that message.\nTry: @WorkSage [client] [person] what needs doing';
   }
 
   const lines = [];
-  lines.push(`✅ Queued: *${title}*`);
+  if (createdAsTask) {
+    lines.push(`✅ Created: *${title}*`);
+  } else {
+    lines.push(`📥 Queued for triage: *${title}*`);
+  }
 
   const typeName = (itemType || 'task').charAt(0).toUpperCase() + (itemType || 'task').slice(1).toLowerCase();
   const parts = [`📋 ${typeName}`];
 
   if (assigneeName && assigneeResolved) {
     parts.push(`👤 ${assigneeName}`);
-  } else if (assigneeName && !assigneeResolved) {
-    parts.push(`⚠️ "${assigneeName}" (not matched to a user)`);
   }
 
   if (clientName && clientResolved) {
     parts.push(`🏢 ${clientName}`);
-  } else if (clientAbbr && !clientResolved) {
-    parts.push(`⚠️ "${clientAbbr}" (unknown client)`);
   }
 
   lines.push(parts.join(' · '));
@@ -162,7 +162,10 @@ function buildSlackReply(opts) {
     lines.push('⚠️ Couldn\'t look up client/assignee — queued without metadata');
   }
 
-  if (queueId) lines.push(`🆔 ${queueId}`);
+  if (!createdAsTask) {
+    lines.push('_No client matched — queued for manual triage_');
+  }
+
   lines.push(`🔗 ${WORKSAGE_URL}`);
 
   return lines.join('\n');
@@ -250,13 +253,27 @@ async function handleAppMention(event, dbPool, botToken) {
     if (realName) submittedBy = realName;
   } catch { /* fall back to slack ID */ }
 
-  const { rows } = await dbPool.query(
-    `INSERT INTO task_queue (title, description, submitted_by, slack_user_id, slack_channel, slack_message_ts, client_id, assignee, item_type)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
-    [parsed.title, parsed.description, submittedBy, event.user, event.channel, event.ts,
-     clientId, assigneeName, itemType]
-  );
-  const item = rows[0];
+  // If client is resolved, create a real task directly. Otherwise queue for triage.
+  let item;
+  let createdAsTask = false;
+
+  if (clientResolved) {
+    const { rows } = await dbPool.query(
+      `INSERT INTO tasks (title, description, client_id, item_type, status, assignees, source)
+       VALUES ($1, $2, $3, $4, 'Not started', $5, 'slack') RETURNING *`,
+      [parsed.title, parsed.description || '', clientId, itemType, assigneeName ? [assigneeName] : []]
+    );
+    item = rows[0];
+    createdAsTask = true;
+  } else {
+    const { rows } = await dbPool.query(
+      `INSERT INTO task_queue (title, description, submitted_by, slack_user_id, slack_channel, slack_message_ts, client_id, assignee, item_type)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+      [parsed.title, parsed.description, submittedBy, event.user, event.channel, event.ts,
+       clientId, assigneeName, itemType]
+    );
+    item = rows[0];
+  }
 
   const reply = buildSlackReply({
     title: parsed.title,
@@ -266,11 +283,12 @@ async function handleAppMention(event, dbPool, botToken) {
     assigneeResolved,
     clientResolved,
     queueId: item.id,
+    createdAsTask,
     warnings,
   });
   await postSlackReply(botToken, event.channel, reply, event.ts);
 
-  return { queued: true, item, warnings };
+  return { queued: !createdAsTask, created: createdAsTask, item, warnings };
 }
 
 module.exports = {
