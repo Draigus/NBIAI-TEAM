@@ -24086,6 +24086,91 @@ function _ccRenderWorkTab(b, w, s, fc) {
 
   html += '</div>';
 
+  // === ROW 4: Dreaming Engine — Overnight Insights + Trends + Stale Report ===
+  var dr = b.dreaming;
+  if (dr) {
+    var drInsights = dr.insights || [];
+    var drTrends = dr.trends || {};
+    var drStale = dr.stale_report || {};
+    var staleTotal = (drStale.memory_files || []).length + (drStale.brain_modules || []).length + (drStale.skills_without_learnings || []).length + (drStale.roles_without_knowledge || []).length;
+
+    html += '<div class="cc-grid-3">';
+
+    html += '<div class="cc-card" style="grid-column:span 2;"><h3><span>&#127769; Overnight Insights</span> <span class="ct">' + drInsights.length + '</span></h3>';
+    if (drInsights.length === 0) {
+      html += '<div style="padding:8px 0;color:#3fb950">&#10003; No issues detected overnight</div>';
+    } else {
+      var sevBorders = { critical: '#f85149', warning: '#d29922', info: '#58a6ff' };
+      var sevBgs2 = { critical: 'rgba(248,81,73,.06)', warning: 'rgba(210,153,34,.06)', info: 'rgba(88,166,255,.06)' };
+      var catBadges = { risk: 'Risk', drift: 'Drift', stale: 'Stale', gap: 'Gap', achievement: 'Win', pattern: 'Pattern' };
+      drInsights.forEach(function(ins) {
+        var bc = sevBorders[ins.severity] || '#8b949e';
+        var bg2 = sevBgs2[ins.severity] || 'transparent';
+        var badge = catBadges[ins.category] || ins.category;
+        html += '<div class="cc-row" style="border-left:3px solid ' + bc + ';background:' + bg2 + ';margin-bottom:6px;padding:8px 12px;border-radius:4px;">';
+        html += '<div class="cc-row-b" style="flex:1;">';
+        html += '<div style="display:flex;gap:6px;align-items:center;margin-bottom:2px;">';
+        html += '<span class="cc-tag" style="background:' + bc + '22;color:' + bc + ';font-size:0.65rem;">' + esc(badge) + '</span>';
+        html += '<span class="cc-row-t" style="font-size:0.85rem;">' + esc(ins.title) + '</span>';
+        html += '</div>';
+        html += '<div class="cc-row-m" style="font-size:0.8rem;">' + esc(ins.body) + '</div>';
+        html += '</div>';
+        if (ins.action) {
+          html += '<div class="cc-row-a" style="min-width:auto;"><button class="cc-btn" style="font-size:0.65rem;white-space:nowrap;">' + esc(ins.action.length > 30 ? ins.action.slice(0, 28) + '...' : ins.action) + '</button></div>';
+        }
+        html += '</div>';
+      });
+    }
+    if (dr.generated_at) {
+      html += '<div style="margin-top:8px;font-size:0.72rem;color:#484f58;">Generated ' + new Date(dr.generated_at).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + ' (' + dr.duration_ms + 'ms)</div>';
+    }
+    html += '</div>';
+
+    html += '<div style="display:flex;flex-direction:column;gap:16px;">';
+
+    html += '<div class="cc-card"><h3><span>&#128200; Trends</span> <span class="ct">7-day</span></h3>';
+    var trendLabels = { bugs_velocity: 'Bugs', task_velocity: 'Tasks', capacity_pressure: 'Capacity', test_health: 'Tests' };
+    var trendKeys = Object.keys(trendLabels);
+    trendKeys.forEach(function(key) {
+      var t = drTrends[key];
+      if (!t) return;
+      var arrow = t.trend === 'improving' ? '&#9650;' : t.trend === 'worsening' ? '&#9660;' : '&#8212;';
+      var col2 = t.trend === 'improving' ? '#3fb950' : t.trend === 'worsening' ? '#f85149' : '#8b949e';
+      var val = '';
+      if (key === 'bugs_velocity') val = 'net ' + (t.net > 0 ? '+' : '') + t.net;
+      else if (key === 'task_velocity') val = t.completed_7d + ' done';
+      else if (key === 'capacity_pressure') val = t.avg_util_pct + '% avg';
+      else if (key === 'test_health') val = (t.pass_rate || 0) + '% pass';
+      html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid #21262d;">';
+      html += '<span style="font-size:0.82rem;">' + trendLabels[key] + '</span>';
+      html += '<span style="font-size:0.82rem;color:' + col2 + ';">' + arrow + ' ' + val + '</span>';
+      html += '</div>';
+    });
+    html += '</div>';
+
+    if (staleTotal > 0) {
+      html += '<div class="cc-card"><h3><span>&#128203; Stale Report</span> <span class="ct">' + staleTotal + '</span></h3>';
+      (drStale.brain_modules || []).forEach(function(m) {
+        html += '<div style="font-size:0.8rem;padding:2px 0;color:var(--text-secondary);">&#128218; ' + esc(m.name) + ' <span style="color:#d29922;">(' + m.days_stale + 'd)</span></div>';
+      });
+      (drStale.memory_files || []).slice(0, 5).forEach(function(f) {
+        html += '<div style="font-size:0.8rem;padding:2px 0;color:var(--text-secondary);">&#128203; ' + esc(f.name) + ' <span style="color:' + (f.broken_refs ? '#f85149' : '#d29922') + ';">(' + f.days_stale + 'd' + (f.broken_refs ? ' + broken refs' : '') + ')</span></div>';
+      });
+      if ((drStale.skills_without_learnings || []).length > 0) {
+        html += '<div style="font-size:0.8rem;padding:2px 0;color:var(--text-secondary);">&#9889; ' + drStale.skills_without_learnings.length + ' skills without learnings</div>';
+      }
+      if ((drStale.roles_without_knowledge || []).length > 0) {
+        html += '<div style="font-size:0.8rem;padding:2px 0;color:var(--text-secondary);">&#128101; ' + drStale.roles_without_knowledge.length + ' roles without knowledge</div>';
+      }
+      html += '</div>';
+    }
+
+    html += '</div>';
+    html += '</div>';
+  } else {
+    html += '<div class="cc-card" style="margin-top:16px;text-align:center;padding:20px;"><span style="color:var(--text-secondary);font-size:0.85rem;">&#127769; Overnight analysis will appear here after the first nightly run at 03:00.</span></div>';
+  }
+
   return html;
 }
 
@@ -24308,6 +24393,35 @@ function _ccRenderMoneyTab() {
   }
 
   return html;
+}
+
+var _ccAiosRefreshing = false;
+var _ccAiosLastRefresh = 0;
+
+async function _ccAiosRefresh(btnEl) {
+  if (_ccAiosRefreshing) return;
+  var now = Date.now();
+  if (now - _ccAiosLastRefresh < 35000) {
+    if (btnEl) toast('Snapshot already refreshed — data is current', 'info');
+    return;
+  }
+  _ccAiosRefreshing = true;
+  _ccAiosLastRefresh = now;
+  if (btnEl) { btnEl.disabled = true; btnEl.textContent = '...'; }
+  try {
+    await apiCall('/api/command-centre/refresh', { method: 'POST' });
+    var res = await apiCall('/api/command-centre/aios-detail');
+    _ccAiosDetail = res.data || res;
+    if (currentView === 'commandcentre' && _ccTab === 'aios') {
+      var el = document.getElementById('mainContent');
+      if (el) renderCommandCentre(el);
+    }
+  } catch (e) {
+    console.warn('[CC] AIOS refresh failed:', e);
+    _ccAiosLastRefresh = 0;
+    toast('Refresh failed: ' + (e.message || 'unknown error'), 'error');
+  }
+  _ccAiosRefreshing = false;
 }
 
 function _ccRenderAiosTab() {
@@ -24635,7 +24749,8 @@ function _ccRenderAiosContent(a) {
       html += '<div class="cc-row-t">' + esc(r.title) + '</div>';
       html += '<div class="cc-row-m">' + esc(r.detail || '') + '</div>';
       html += '</div>';
-      html += '<div class="cc-row-a"><button class="cc-btn" style="font-size:.6rem;border-color:' + col + ';color:' + col + ';">' + esc(r.action || 'view') + '</button></div>';
+      var actionLabel = r.action || 'view';
+      html += '<div class="cc-row-a"><button class="cc-btn" onclick="_ccAiosRefresh(this)" style="font-size:.6rem;border-color:' + col + ';color:' + col + ';">' + esc(actionLabel) + '</button></div>';
       html += '</div>';
     });
   }
