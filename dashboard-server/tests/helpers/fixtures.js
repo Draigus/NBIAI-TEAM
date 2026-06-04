@@ -427,6 +427,21 @@ async function createTestInterviewConfig(opts = {}) {
   return { config, questions, sessions };
 }
 
+/**
+ * Create a position_question_templates row.
+ * Requires position_id and question_id.
+ */
+async function createTestPositionTemplate(opts = {}) {
+  if (!opts.position_id) throw new Error('createTestPositionTemplate: position_id required');
+  if (!opts.question_id) throw new Error('createTestPositionTemplate: question_id required');
+  const { rows } = await pool.query(
+    `INSERT INTO position_question_templates (position_id, question_id, sort_order, added_by)
+     VALUES ($1, $2, $3, $4) RETURNING *`,
+    [opts.position_id, opts.question_id, opts.sort_order || 0, opts.added_by || null]
+  );
+  return rows[0];
+}
+
 module.exports = {
   uniq,
   createTestUser,
@@ -451,6 +466,7 @@ module.exports = {
   createTestOnboardingItem,
   createTestInterviewQuestion,
   createTestInterviewConfig,
+  createTestPositionTemplate,
 };
 
 async function createTestEmailTemplate(opts = {}) {

@@ -64,6 +64,72 @@ module.exports = function (ctx) {
     }
   });
 
+  // ---------- Group 1b: Position Question Templates ----------
+
+  /** GET /api/positions/:id/question-template — List template questions for a position */
+  router.get('/api/positions/:id/question-template', requireNBI, async (req, res) => {
+    if (!req.user) return res.status(401).json({ error: 'Auth required' });
+    if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid position ID' });
+    try {
+      const { rows } = await pool.query(`
+        SELECT q.question_text, q.category, q.discipline, q.source, q.depth_type,
+               t.sort_order, t.position_id, t.question_id, t.added_at
+        FROM position_question_templates t
+        JOIN interview_question_bank q ON t.question_id = q.id
+        WHERE t.position_id = $1
+        ORDER BY t.sort_order ASC
+      `, [req.params.id]);
+      res.json(rows);
+    } catch (e) {
+      log('error', 'Interview', 'Failed to list position question template', { error: e.message });
+      res.status(500).json({ error: 'An internal error occurred' });
+    }
+  });
+
+  /** POST /api/positions/:id/question-template/questions — Add a question to a position template */
+  router.post('/api/positions/:id/question-template/questions', requireNBI, async (req, res) => {
+    if (!req.user) return res.status(401).json({ error: 'Auth required' });
+    if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid position ID' });
+    const { question_id } = req.body || {};
+    if (!question_id || !isValidUuid(question_id)) return res.status(400).json({ error: 'Valid question_id is required' });
+    try {
+      const { rows: sortRows } = await pool.query(
+        `SELECT COALESCE(MAX(sort_order), -1) AS max_sort FROM position_question_templates WHERE position_id = $1`,
+        [req.params.id]
+      );
+      const nextSort = sortRows[0].max_sort + 1;
+      const { rows } = await pool.query(
+        `INSERT INTO position_question_templates (position_id, question_id, sort_order, added_by)
+         VALUES ($1, $2, $3, $4) RETURNING *`,
+        [req.params.id, question_id, nextSort, req.user.id]
+      );
+      res.status(201).json(rows[0]);
+    } catch (e) {
+      if (e.code === '23505') return res.status(409).json({ error: 'Question already in template' });
+      if (e.code === '23503') return res.status(404).json({ error: 'Position or question not found' });
+      log('error', 'Interview', 'Failed to add question to template', { error: e.message });
+      res.status(500).json({ error: 'An internal error occurred' });
+    }
+  });
+
+  /** DELETE /api/positions/:id/question-template/questions/:questionId — Remove a question from a position template */
+  router.delete('/api/positions/:id/question-template/questions/:questionId', requireNBI, async (req, res) => {
+    if (!req.user) return res.status(401).json({ error: 'Auth required' });
+    if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid position ID' });
+    if (!isValidUuid(req.params.questionId)) return res.status(400).json({ error: 'Invalid question ID' });
+    try {
+      const { rowCount } = await pool.query(
+        `DELETE FROM position_question_templates WHERE position_id = $1 AND question_id = $2`,
+        [req.params.id, req.params.questionId]
+      );
+      if (rowCount === 0) return res.status(404).json({ error: 'Template entry not found' });
+      res.json({ deleted: true });
+    } catch (e) {
+      log('error', 'Interview', 'Failed to remove question from template', { error: e.message });
+      res.status(500).json({ error: 'An internal error occurred' });
+    }
+  });
+
   /** POST /api/interview-questions/generate — AI-generate questions from JD */
   router.post('/api/interview-questions/generate', requireNBI, async (req, res) => {
     if (!req.user) return res.status(401).json({ error: 'Auth required' });
