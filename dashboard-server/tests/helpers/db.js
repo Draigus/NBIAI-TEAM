@@ -76,6 +76,7 @@ const TRUNCATE_TABLES = [
   'interview_scores',
   'interview_sessions',
   'interview_config_questions',
+  'position_question_templates',
   'interview_configs',
   'interview_question_bank',
   'candidate_activity',
