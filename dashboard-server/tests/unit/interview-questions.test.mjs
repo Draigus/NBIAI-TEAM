@@ -56,6 +56,40 @@ describe('Interview Question Bank API', () => {
       expect(res.body[0].question_text).toBe('Eng Q');
     });
 
+    it('returns questions filtered by position_title', async () => {
+      const admin = await createTestUser({ role: 'admin' });
+      const token = await mintSession(admin.id);
+
+      await createTestInterviewQuestion({ discipline: 'Engineering', category: 'technical', question_text: 'Tools Q', position_titles: ['Tools Engineer'] });
+      await createTestInterviewQuestion({ discipline: 'Design', category: 'culture', question_text: 'Design Q', position_titles: ['Game Design Lead'] });
+
+      const res = await request(app)
+        .get('/api/interview-questions')
+        .query({ position_title: 'Tools Engineer' })
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveLength(1);
+      expect(res.body[0].question_text).toBe('Tools Q');
+    });
+
+    it('returns shared questions when position_title matches any tag', async () => {
+      const admin = await createTestUser({ role: 'admin' });
+      const token = await mintSession(admin.id);
+
+      await createTestInterviewQuestion({ discipline: 'Production', category: 'culture', question_text: 'Shared Producer Q', position_titles: ['Art Producer', 'Assoc Producer', 'Tech Producer'] });
+      await createTestInterviewQuestion({ discipline: 'Production', category: 'technical', question_text: 'Art Only Q', position_titles: ['Art Producer'] });
+
+      const res = await request(app)
+        .get('/api/interview-questions')
+        .query({ position_title: 'Tech Producer' })
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveLength(1);
+      expect(res.body[0].question_text).toBe('Shared Producer Q');
+    });
+
     it('rejects unauthenticated requests with 401', async () => {
       const res = await request(app).get('/api/interview-questions');
       expect(res.status).toBe(401);

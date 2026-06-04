@@ -358,8 +358,8 @@ async function createTestScorecard(opts = {}) {
  */
 async function createTestInterviewQuestion(opts = {}) {
   const { rows } = await pool.query(
-    `INSERT INTO interview_question_bank (client_id, discipline, category, question_text, depth_type, source, created_by)
-     VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+    `INSERT INTO interview_question_bank (client_id, discipline, category, question_text, depth_type, source, created_by, position_titles)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
     [
       opts.client_id || null,
       opts.discipline || 'Engineering',
@@ -368,6 +368,7 @@ async function createTestInterviewQuestion(opts = {}) {
       opts.depth_type || null,
       opts.source || 'custom',
       opts.created_by || null,
+      opts.position_titles || null,
     ]
   );
   return rows[0];

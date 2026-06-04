@@ -29,7 +29,7 @@ module.exports = function (ctx) {
   /** GET /api/interview-questions — List questions with optional filters */
   router.get('/api/interview-questions', requireNBI, async (req, res) => {
     if (!req.user) return res.status(401).json({ error: 'Auth required' });
-    const { client_id, discipline, category } = req.query;
+    const { client_id, discipline, category, position_title } = req.query;
     const where = [];
     const vals = [];
     let i = 1;
@@ -43,6 +43,9 @@ module.exports = function (ctx) {
     if (category) {
       if (!INTERVIEW_CATEGORIES.includes(category)) return res.status(400).json({ error: `Invalid category. Must be one of: ${INTERVIEW_CATEGORIES.join(', ')}` });
       where.push(`q.category = $${i++}`); vals.push(category);
+    }
+    if (position_title) {
+      where.push(`q.position_titles @> ARRAY[$${i++}]`); vals.push(position_title);
     }
     const whereClause = where.length ? 'WHERE ' + where.join(' AND ') : '';
     try {
