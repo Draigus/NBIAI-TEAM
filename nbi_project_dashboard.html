@@ -22341,13 +22341,20 @@ async function openInterviewConfig(candidateId, clientId, positionId) {
 
   let allQuestions = [];
   let users = [];
+  let templateQuestionIds = [];
   try {
-    const [qResp, uResp] = await Promise.all([
+    const fetches = [
       authFetch('/api/interview-questions?' + params),
       authFetch('/api/users')
-    ]);
-    allQuestions = await qResp.json();
-    users = await uResp.json();
+    ];
+    if (positionId) fetches.push(authFetch('/api/positions/' + positionId + '/question-template'));
+    const results = await Promise.all(fetches);
+    allQuestions = await results[0].json();
+    users = await results[1].json();
+    if (results[2] && results[2].ok) {
+      const tplRows = await results[2].json();
+      templateQuestionIds = (tplRows || []).map(function(r) { return r.question_id; }).filter(Boolean);
+    }
   } catch (e) {}
 
   const overlay = document.getElementById('candidateDetailOverlay');
@@ -22359,6 +22366,17 @@ async function openInterviewConfig(candidateId, clientId, positionId) {
 
   const categoryOrder = ['culture', 'technical', 'collaboration', 'leadership', 'depth'];
   const selectedIds = new Set();
+  let hasTemplatePreFill = false;
+  if (templateQuestionIds.length > 0) {
+    try {
+      const cfgResp = await authFetch('/api/interview-configs?candidate_id=' + candidateId);
+      const existingConfigs = cfgResp.ok ? await cfgResp.json() : [];
+      if (!existingConfigs || existingConfigs.length === 0) {
+        for (var tqId of templateQuestionIds) selectedIds.add(tqId);
+        hasTemplatePreFill = true;
+      }
+    } catch (e) {}
+  }
   let activeTab = 'questions';
   const selectedInterviewers = new Set();
   const expandedDisciplines = new Set(positionDiscipline ? [positionDiscipline] : []);
@@ -22437,7 +22455,10 @@ async function openInterviewConfig(candidateId, clientId, positionId) {
         '<div style="padding:10px 16px;cursor:pointer;font-weight:' + (activeTab === 'questions' ? '600' : '400') + ';border-bottom:2px solid ' + (activeTab === 'questions' ? 'var(--accent)' : 'transparent') + '" onclick="window._ivSetTab(\'questions\')">Questions</div>' +
         '<div style="padding:10px 16px;cursor:pointer;font-weight:' + (activeTab === 'interviewers' ? '600' : '400') + ';border-bottom:2px solid ' + (activeTab === 'interviewers' ? 'var(--accent)' : 'transparent') + '" onclick="window._ivSetTab(\'interviewers\')">Interviewers</div></div>' +
       (activeTab === 'questions'
-        ? '<div style="display:flex;gap:8px;margin-bottom:12px">' +
+        ? (hasTemplatePreFill && selectedIds.size > 0
+            ? '<div style="background:color-mix(in srgb, var(--accent) 8%, var(--bg-card));border:1px solid color-mix(in srgb, var(--accent) 30%, transparent);border-radius:6px;padding:8px 12px;font-size:0.78rem;color:var(--accent);margin-bottom:12px">&#8505; Pre-loaded ' + selectedIds.size + ' questions from ' + esc((position || {}).title || 'position') + ' template. You can add or remove questions for this candidate.</div>'
+            : '') +
+          '<div style="display:flex;gap:8px;margin-bottom:12px">' +
             '<button class="btn btn--sm" onclick="window._ivAddCustom()">+ Custom Question</button></div>' +
           '<div style="font-weight:600;margin-bottom:8px;color:var(--accent)">' + selectedIds.size + ' selected</div>' +
           '<div style="max-height:calc(100vh - 320px);overflow-y:auto">' + (questionsHtml || '<p style="color:var(--text-muted)">No questions in bank. Add custom questions.</p>') + '</div>'
