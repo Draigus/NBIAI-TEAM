@@ -452,6 +452,12 @@ module.exports = function (ctx) {
     try {
       const data = await computeSnapshot();
       const today = new Date().toISOString().slice(0, 10);
+      const { rows: existing } = await pool.query(
+        'SELECT data FROM cc_snapshots WHERE snapshot_date = $1', [today]
+      );
+      if (existing.length > 0 && existing[0].data && existing[0].data.dreaming) {
+        data.dreaming = existing[0].data.dreaming;
+      }
       const { rows } = await pool.query(
         `INSERT INTO cc_snapshots (snapshot_date, data) VALUES ($1, $2)
          ON CONFLICT (snapshot_date) DO UPDATE SET data = $2, updated_at = NOW()
