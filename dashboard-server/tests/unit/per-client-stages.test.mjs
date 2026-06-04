@@ -35,11 +35,12 @@ describe('GET /api/clients/:id/hiring-stages', () => {
 
     expect(res.body.isCustom).toBe(false);
     expect(Array.isArray(res.body.stages)).toBe(true);
-    expect(res.body.stages).toHaveLength(5);
+    expect(res.body.stages).toHaveLength(6);
     // Check known default keys present
     const keys = res.body.stages.map(s => s.key);
     expect(keys).toContain('sourcing');
     expect(keys).toContain('onboarded');
+    expect(keys).toContain('process_closed');
   });
 
   it('client user can GET stages for their own client', async () => {
@@ -190,7 +191,7 @@ describe('DELETE /api/clients/:id/hiring-stages', () => {
       .expect(200);
 
     expect(res.body.isCustom).toBe(false);
-    expect(res.body.stages).toHaveLength(5);
+    expect(res.body.stages).toHaveLength(6);
   });
 });
 

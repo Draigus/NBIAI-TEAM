@@ -40,10 +40,10 @@ describe('Rejection enforcement', () => {
     expect(res.body.rejection_reason).toBe('Lacks required experience');
   });
 
-  it('does NOT require rejection when archiving at terminal stage (onboarded)', async () => {
+  it('does NOT require rejection when archiving at terminal stage (process_closed)', async () => {
     const admin = await createTestUser({ role: 'admin' });
     const token = await mintSession(admin.id);
-    const candidate = await createTestCandidate({ name: 'Carla', stage: 'onboarded' });
+    const candidate = await createTestCandidate({ name: 'Carla', stage: 'process_closed' });
 
     await request(app)
       .patch(`/api/candidates/${candidate.id}`)
