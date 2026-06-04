@@ -464,7 +464,7 @@ module.exports = function (ctx) {
          RETURNING *`,
         [snapDate, JSON.stringify(data)]
       );
-      log('info', 'CC', 'Snapshot refreshed', { date: today });
+      log('info', 'CC', 'Snapshot refreshed', { date: snapDate });
       res.json({ data: rows[0], error: null });
     } catch (e) {
       log('error', 'CC', 'Refresh failed', { error: e.message });
