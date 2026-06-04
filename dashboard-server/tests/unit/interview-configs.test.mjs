@@ -100,7 +100,7 @@ describe('Interview Configs API', () => {
       expect(res.body.config.interviewer_name).toBe('Glen');
     });
 
-    it('scored round type requires questions and interviewers', async () => {
+    it('scored round type creates config with empty questions when none provided and no template', async () => {
       const { adminToken, candidate } = await setupConfigData();
       const res = await request(app)
         .post('/api/interview-configs')
@@ -109,8 +109,8 @@ describe('Interview Configs API', () => {
           candidate_id: candidate.id,
           round_type: 'Cultural',
         });
-      expect(res.status).toBe(400);
-      expect(res.body.error).toContain('question_ids');
+      expect(res.status).toBe(201);
+      expect(res.body.questions).toHaveLength(0);
     });
 
     it('auto-increments round_number per candidate', async () => {
