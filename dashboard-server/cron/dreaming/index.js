@@ -75,17 +75,24 @@ async function runDreamingEngine(ctx) {
     cross_refs: crossRefs,
   };
 
-  const today = new Date().toISOString().slice(0, 10);
   try {
     const { rows } = await pool.query(
-      'SELECT data FROM cc_snapshots WHERE snapshot_date = $1', [today]
+      'SELECT snapshot_date, data FROM cc_snapshots ORDER BY snapshot_date DESC LIMIT 1'
     );
-    let data = rows.length > 0 ? rows[0].data : {};
-    data.dreaming = dreaming;
-    await pool.query(
-      'INSERT INTO cc_snapshots (snapshot_date, data) VALUES ($1, $2) ON CONFLICT (snapshot_date) DO UPDATE SET data = $2, updated_at = NOW()',
-      [today, JSON.stringify(data)]
-    );
+    if (rows.length > 0) {
+      const data = rows[0].data;
+      data.dreaming = dreaming;
+      await pool.query(
+        'UPDATE cc_snapshots SET data = $1, updated_at = NOW() WHERE snapshot_date = $2',
+        [JSON.stringify(data), rows[0].snapshot_date]
+      );
+    } else {
+      const today = new Date().toISOString().slice(0, 10);
+      await pool.query(
+        'INSERT INTO cc_snapshots (snapshot_date, data) VALUES ($1, $2)',
+        [today, JSON.stringify({ dreaming })]
+      );
+    }
     log('info', 'Dreaming', 'Engine complete: ' + allInsights.length + ' insights, ' + failed + ' failures, ' + dreaming.duration_ms + 'ms');
   } catch (e) {
     log('error', 'Dreaming', 'Failed to write snapshot', { error: e.message });
