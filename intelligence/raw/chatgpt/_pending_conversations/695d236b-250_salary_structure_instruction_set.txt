@@ -1,0 +1,221 @@
+TITLE: Salary Structure Instruction Set
+DATE: 2026-01-06
+MESSAGES: 2
+ID: 695d236b-2504-8325-88d9-8a8a5a8cb5de
+---
+
+[USER]
+I need help writing a robust instruction set for this project which is focused on 
+1) building a fully detailed salary min mid max for all (and I do mean all ) video game roles in a video game studio. I expect there to be close to or slightly over 100 roles. 
+2) rabidly verifying the salaries at current to date rates
+3) all roles will be listed in grades (junior, mid, senior ) 
+4) all grades / roles will be listed in min mid max
+5) all salaries for all grades and all roles will be accurate for hub cities (London, SF, LA etc.) and non hub regions (California, Texas, UK midlands etc.) 
+
+
+[ASSISTANT]
+Before I draft the “final” instruction set: Heather or Glen?
+
+## Clarification bundle (outcome changing)
+1) Benchmark year: do you want everything normalised to **2025** (your earlier spec) or **current as of January 6, 2026**?  
+2) Geography scope: **UK + US + EU** (as previously), or only **UK + US** for now?  
+3) Min / Mid / Max definition: do you mean **P10 / P50 / P90** (common comp practice) or **Floor / Market median / Ceiling** as published by sources, or **P25 / P50 / P75**? Pick one standard.  
+4) Grade model locked to **Junior / Mid / Senior only**, or do you also want **Lead / Principal / Director / VP / C-level** as separate grades? (This affects “all roles” a lot.)  
+5) Hub model: do you want a fixed hub list per country (example: London, SF Bay Area, LA, Seattle, NYC, Austin, etc.) and everything else is non-hub, or do you want specific non-hub regions (example: “UK Midlands”, “US Texas”) explicitly enumerated?  
+6) Evidence bar: is **crowdsourced** data (Glassdoor, Levels.fyi, etc.) allowed as supporting evidence, or only as a last resort behind stronger sources?
+
+## Minimal progress slice: robust instruction set (v0, with a few placeholders)
+Copy/paste this as the project instruction set. Replace the bracketed placeholders after you answer the bundle.
+
+### 1) Mission
+Build the most accurate, fully-detailed salary reference for **all video game studio roles** (target: ~100+ distinct roles), with **annual base salary** ranges for each:
+- Role
+- Grade: **Junior, Mid, Senior** (plus any additional grades if enabled)
+- Location segment: **Hub** and **Non-hub** (as explicitly defined per country)
+- Output fields: **Min, Mid, Max** in local currency
+
+The work product must be evidence-based. If evidence is insufficient, the entry must be flagged as insufficient rather than guessed.
+
+### 2) Definitions (non-negotiable)
+Salary definition:
+- Annual **base salary** in local currency, gross (pre-tax)
+- Excludes: bonus, equity, profit share, overtime, allowances, benefits
+- Full-time permanent employees only unless a row is explicitly tagged as contract
+
+Grades:
+- Junior, Mid, Senior must be applied consistently across all roles using the grade rubric in Section 6.
+
+Min / Mid / Max standard:
+- Use **[CHOSEN STANDARD: P10/P50/P90 OR P25/P50/P75 OR Floor/Median/Ceiling]** consistently across every row.
+- Never mix standards inside the same dataset.
+
+Hub vs non-hub:
+- Hub and non-hub are **cost and market density segments**, not “remote vs on-site.”
+- Hub list is explicitly defined in Section 7.
+
+### 3) Deliverables
+Deliverable A: Overview document
+- Scope and exclusions
+- Grade rubric
+- Hub/non-hub definitions
+- Source hierarchy and verification method
+- Known gaps and how they are flagged
+
+Deliverable B: Master table (spreadsheet-ready)
+One row per: Role × Grade × Country/Region × HubStatus.
+
+Required columns:
+- Discipline
+- Role family
+- Role (canonical name)
+- Role aliases (synonyms)
+- Grade
+- Country
+- Region/State (if applicable)
+- HubStatus (Hub, Non-hub)
+- Location definition (example: “London hub”, “UK Midlands non-hub”, “US Pacific non-hub”)
+- Min
+- Mid
+- Max
+- Currency
+- Pay period normalisation notes (if converted)
+- Source 1 (publisher + year + title)
+- Source 1 link
+- Source 2 (publisher + year + title)
+- Source 2 link
+- Verification date (YYYY-MM-DD)
+- Evidence strength (High/Medium/Low)
+- Notes (assumptions allowed only if explicitly stated and justified)
+
+### 4) Role coverage rules (to reach “all roles” cleanly)
+Role catalogue goal: ~100 to 120 unique roles, deduplicated.
+
+Disciplines to cover (minimum):
+- Engineering (gameplay, engine, tools, backend, online, build, DevOps, security, QA automation)
+- Design (game, systems, level, narrative design, UX design)
+- Art (concept, 2D, 3D, character, environment, VFX, tech art, animation, UI art, lighting)
+- Production (producer, project manager, scrum master, release manager)
+- QA (manual QA, test lead, compatibility, localisation QA)
+- Audio (sound designer, composer, audio programmer)
+- Narrative (writer, editor, narrative lead)
+- Data (analyst, data scientist, telemetry, BI)
+- Product (product manager, live ops, monetisation)
+- Publishing/Marketing (UA, brand, comms, community, creator partnerships)
+- Operations (IT, facilities, HR/People, finance, legal, recruiting)
+- Customer support / player support
+- Leadership roles if enabled (lead, principal, director, VP, C-level)
+
+Canonical naming and dedupe:
+- Maintain a Role Alias Map so synonyms collapse into one canonical role.
+- Example: “Gameplay Programmer” and “Game Programmer” must map to one canonical role if you want them merged.
+- Never create duplicate roles that differ only by naming.
+
+### 5) Source hierarchy (what counts as evidence)
+Rank sources by reliability. Prefer top tiers.
+
+Tier 1 (highest):
+- Reputable compensation surveys and salary reports specific to games/tech (publisher-known, method disclosed)
+- Major recruiting firm salary guides with clear methodology
+- Government labour statistics where role mapping is defensible (used carefully, with mapping notes)
+
+Tier 2:
+- Aggregated market datasets from reputable platforms with strong sample sizes and filtering
+- Job posting comp disclosures where legal and common, only when role, level, and location are explicit
+
+Tier 3 (last resort, support only):
+- Crowdsourced self-reports (only if sample size is reasonable and cross-checked)
+
+Rules:
+- Each row must have **at least two independent sources**, OR one Tier 1 source plus explicit justification.
+- If only Tier 3 exists and cannot be triangulated, mark Evidence strength = Low and flag as provisional.
+
+### 6) Grade rubric (make grades consistent)
+Define grades using responsibility scope, not just years.
+
+Junior:
+- Works on scoped tasks with guidance, limited ownership
+
+Mid:
+- Owns features/systems end-to-end, works independently, collaborates cross-functionally
+
+Senior:
+- Owns large systems, sets technical or craft direction, mentors, drives quality and planning
+
+If additional grades are enabled (Lead/Principal/Director/etc.), define them here with crisp scope boundaries.
+
+### 7) Location model (hub and non-hub accuracy)
+You must define hubs explicitly.
+
+Hub list per country:
+- UK hubs: [LIST]
+- US hubs: [LIST]
+- EU hubs (by country or city): [LIST]
+
+Non-hub rule:
+- Non-hub is any location in that country not in the hub list, OR a defined set of non-hub regions if you prefer explicit regions.
+
+Important:
+- If the same country has multiple hubs (example: US), you may either:
+  A) Treat “US Hub” as one blended segment, or  
+  B) Split by hub metro (SF Bay, LA, Seattle, NYC, etc.)  
+Pick one approach and enforce it consistently.
+
+### 8) Normalisation rules (no mixed units, no hidden maths)
+- Convert hourly, daily, monthly to annual using explicit assumptions recorded in Notes.
+- Remove contractor day rates unless the dataset explicitly includes contractor rates with a tag.
+- If a source provides ranges but not percentiles, map to your Min/Mid/Max standard explicitly (and document the mapping rule).
+- Never convert currencies for the primary dataset. Keep local currency. (Optional secondary view can convert, but must show FX date and source.)
+
+### 9) Verification protocol (the “rabid verification” part)
+For every row:
+1) Find at least 2 sources that match: role, grade, location segment, and year as close as possible.
+2) Check for mismatch risk:
+   - Role mapping ambiguity (example: “tools engineer” vs “engine programmer”)
+   - Level inflation (titles differ across companies)
+   - Location mismatch (city vs state vs country)
+3) Triangulate:
+   - If sources differ materially, prefer Tier 1 and explain deltas.
+   - If deltas are unexplained, downgrade Evidence strength and flag.
+
+Recordkeeping:
+- Every row includes verification date and links.
+- Maintain a “dispute log” for rows with conflicting evidence, showing what was chosen and why.
+
+Stop rule:
+- If you cannot reach the evidence bar, you must output the row as “insufficient evidence” rather than inventing a number.
+
+### 10) QA gates (must pass before anything is considered “done”)
+Automated consistency checks:
+- For each Role + Location: Junior < Mid < Senior for Mid and Max, unless explicitly justified
+- Min <= Mid <= Max always
+- Hub pay should generally not be below non-hub for the same role and grade; if it is, require a note and stronger evidence
+- Outlier detection: flag any row where spread is implausibly tight or wide relative to adjacent levels
+
+Manual red-team review:
+- Spot check 10% of rows per discipline against sources directly
+- Audit the alias map for duplicates
+- Audit hub definitions for consistency
+
+### 11) Acceptance criteria (what “complete” means)
+A row is “complete” only if:
+- Canonical role naming is correct and deduped
+- Grade is applied per rubric
+- Hub/non-hub mapping is correct
+- Min/Mid/Max standard is consistent with the project standard
+- Evidence bar met and citations recorded
+- QA checks passed or exceptions documented
+
+## Self-audit (against your 5 requirements)
+- All roles: covered via role catalogue rules and dedupe + alias map, targeting 100+ roles.
+- Verification: explicit evidence tiers, triangulation, dispute log, stop rule.
+- Grades: junior/mid/senior built in, plus optional expanded grades if you choose.
+- Min/mid/max: standardised with a single chosen definition.
+- Hub and non-hub: explicit hub list requirement plus non-hub rule and QA comparisons.
+
+## Next step
+Answer the 6 clarification questions at the top and I will revise this into a locked v1 “system prompt style” instruction set with:
+- Your exact hub list structure
+- Your chosen Min/Mid/Max percentile definition
+- Your exact geography scope
+- A tighter role taxonomy template that reliably lands at ~100 to 120 roles without drift
+

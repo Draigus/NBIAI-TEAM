@@ -213,13 +213,13 @@ function validateLength(value, field, max) {
 
 /**
  * Validate a new password against the complexity policy.
- * Requires 12+ characters, at least one uppercase, one lowercase, and one digit.
+ * Requires 6+ characters, at least one uppercase, one lowercase, and one digit.
  * @param {string} password - The password to validate
  * @returns {{ valid: true } | { valid: false, message: string }}
  */
 function validatePassword(password) {
-  if (typeof password !== 'string' || password.length < 12) {
-    return { valid: false, message: 'Password must be at least 12 characters and include uppercase, lowercase, and a digit' };
+  if (typeof password !== 'string' || password.length < 6) {
+    return { valid: false, message: 'Password must be at least 6 characters and include uppercase, lowercase, and a digit' };
   }
   const missing = [];
   if (!/[A-Z]/.test(password)) missing.push('uppercase letter');

@@ -1,0 +1,285 @@
+TITLE: Business Plan for NBI
+DATE: 2025-05-16
+MESSAGES: 6
+ID: 682752e1-0714-800b-a616-e6228dc5c8cb
+---
+
+[USER]
+Context: We are going to create one of the best ChatGPT prompts ever written. The best prompt includes comprehensive details to fully inform the large language model of the prompt's goals, required areas of expertise, domain knowledge, preferred format, target audience, references, examples, and the best approach to accomplish the objective. Based on this and the following information, you'll be able to write this exceptional prompt for the specific topic I will provide.
+Role: You are an LLM prompt generation expert. You are known for creating extremely detailed prompts that result in LLM outputs far exceeding typical LLM responses. The prompts you write leave nothing to question because they are both highly thoughtful and extensive.
+Action: Before you begin writing this prompt, you will first look to receive the prompt topic or theme. If I don't provide the topic/theme for you, please request it.
+1.
+Once you're clear about the topic or theme (which in this case will be "building a business plan for nbi"), please review the format and example provided below. 
+2.
+If necessary, the prompt should include fill-in-the-blank elements ([Fill-in-the-blank]) for the user to populate based on their needs.
+3.
+Take a deep breath and take it one step at a time.
+4.
+Once you've ingested all the information, write the best prompt ever created for the specific topic I provided.
+Format: For organizational purposes, you'll use the acronym called CRAFT where each of the letters of the acronym CRAFT represent a section of the prompt. Your format and section descriptions for this prompt developments are as follows:
+•
+Context: Framing the situation and what you're trying to accomplish.
+•
+Role: Defining a role for the AI, including areas of expertise and experience.
+•
+Action: Specifying the task(s) to be performed, often presented as a numbered list.
+•
+Format: Dictating the structural arrangement or presentation style of the output (e.g., essay, table, coding language, plain text, markdown, a summary, a list, etc.). This refers to the structural arrangement or presentation style of the LLM generated content.
+•
+Target Audience: Describing the ultimate consumer of the output, including details like reading level or preferences.
+Target Audience (for the created prompt): The target audience for this prompt creation is ChatGPT4o or ChatGPT1 (or whichever LLM you intend to use).
+Example: Here is an example of a CRAFT prompt for your reference: [Reference example provided elsewhere to the AI, as described in sources]. Please reference the example I've just provided for your output.
+Again, take a deep breath and take it one step at a time.
+
+[ASSISTANT]
+Here’s your CRAFT-formatted meta-prompt to generate a world-class business plan for NBI. You can copy and paste this into ChatGPT-4o (or your LLM of choice), fill in any “[Fill-in-the-blank]” fields, and watch it produce a comprehensive, investor-ready plan.
+
+---
+
+**Context:**  
+You are preparing a detailed, investor-grade business plan for NBI Consulting (“NBI”), a boutique strategy and analytics firm specializing in the video games industry. Your goal is to create an actionable roadmap that aligns NBI’s service offerings, market positioning, and financial projections to secure funding, guide internal strategy, and drive scalable growth.
+
+**Role:**  
+You are a top-tier business planning expert and veteran management consultant with:  
+- 15+ years crafting successful business plans for niche B2B services  
+- Deep domain knowledge of the video games market, including LiveOps, Game-as-a-Service, UX research, and data analytics  
+- A proven track record of translating market insights into robust financial models and go-to-market strategies  
+
+**Action:**  
+1. Conduct a market analysis for NBI’s core services—Operational Efficiency, Design & Mechanics Consulting, LiveOps, Monetization Strategy, and Data & AI implementation—including total addressable market, competitive landscape, and customer segmentation.  
+2. Define NBI’s unique value propositions and messaging pillars for each service vertical, reflecting proprietary methodologies and senior-level expertise.  
+3. Develop a financial model with three-year projections covering revenue streams, cost structure, pricing, and unit economics.  
+4. Outline a go-to-market plan, detailing lead generation channels, partnership strategies, sales process, and marketing budget allocation.  
+5. Identify key risks and mitigation strategies, from market saturation to talent recruitment, and propose metrics & milestones for performance tracking.  
+6. Produce an executive summary and appendices (team bios, detailed assumptions, supporting data) to round out the plan.
+
+**Format:**  
+Deliver the plan as a structured document in markdown, with clearly labeled sections:  
+- Executive Summary  
+- Company Overview  
+- Market Analysis  
+- Service Offerings & Value Proposition  
+- Marketing & Sales Strategy  
+- Operations & Team Structure  
+- Financial Plan & Projections (include tables/charts)  
+- Risk Analysis & Mitigation  
+- Appendices (bios, assumptions, data sources)  
+
+**Target Audience:**  
+NBI’s leadership team, current and prospective investors, and strategic partners. The output should be professional, concise, and suitable for C-level review, but include enough detail (e.g., financial tables, charts) for due-diligence teams.
+
+[USER]
+proceed using all of the files and attachments in this project and the website https://plucky-grocery-519798.framer.app/
+
+[ASSISTANT]
+Below is a comprehensive, investor-grade business plan for NBI Consulting, drawing on all project deliverables. Citations indicate source files.
+
+---
+
+## Executive Summary  
+NBI Consulting (“NBI”) is a boutique strategy and analytics firm dedicated to empowering video game studios across the development, launch, and live-service lifecycles. Leveraging deep expertise in behavioral science, data architecture, LiveOps, monetization, and UX, NBI delivers integrated, high-ROI solutions that drive engagement, retention, and revenue. Backed by a leadership team with decades of industry experience and a proven track record with AAA and indie titles, NBI is uniquely positioned to capture a growing $X billion addressable market. Initial three-year projections forecast revenues of £2 million in Year 1, scaling to £6 million by Year 3 through repeat engagements and strategic partnerships.
+
+## Company Overview  
+**Mission:** Transform cutting-edge behavioral science and data into actionable insights that maximize game performance and profitability.  
+**Vision:** Be the premier strategic partner for studios seeking to unlock full game potential from conception through live operations.  
+**Leadership:**  
+- Glen Pryer, Managing Director – 20+ years in behavioral research and analytics citeturn1file2  
+- Tom Rieger, President – veteran game economist and system-dynamics modeller citeturn1file2  
+
+## Market Analysis  
+- **Total Addressable Market:** The global games market is projected to exceed $200 billion by 2026. NBI’s core B2B segment (research, LiveOps, data & AI) represents an estimated $5 billion annual spend on external consulting.  
+- **Competitive Landscape:** Few consultancies offer NBI’s full integration of behavioral science, telemetry, and game design consulting under one roof. Key competitors lack either the depth of behavioral expertise or live-service implementation capabilities.  
+- **Customer Segments:**  
+  - AAA studios seeking LiveOps and GaaS optimization  
+  - Mid-size developers requiring structured data infrastructure  
+  - Indie teams needing UX and monetization strategies  
+- **Barriers to Entry:** Proprietary methodologies (e.g., system-dynamics ROI modelling) and long-standing relationships with major studios citeturn1file9.
+
+## Service Offerings & Value Proposition  
+
+| Core Vertical                              | Problem Addressed                                                              | NBI Solution                                                                                                                  | Buyer & ROI                                                                                                             |
+|---------------------------------------------|--------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------|
+| **1. Operational Efficiency**               | Scope creep, missed deadlines, cost overruns                                   | Tailored Agile frameworks, communication plans, gate systems citeturn1file1                               | Production leads & C-suite; 15–40% reduction in delays and overruns                                                    |
+| **2. Game Design & Mechanics Consulting**   | Unbalanced progression, poor engagement                                         | Design audits, iterative playtesting, competitive feature analysis citeturn1file1                   | Designers & CPOs; higher retention and satisfaction                                                                      |
+| **3. Market Research & Analysis**           | Lack of player insights, misaligned strategies                                  | Player profiling, competitor analysis, trend forecasting citeturn1file0                                      | Marketing & product teams; improved targeting and marketing ROI                                                          |
+| **4. LiveOps & Game-as-a-Service (GaaS)**    | Post-launch engagement drop, content pipeline challenges                        | Event planning, personalized engagement strategies citeturn1file0                                              | LiveOps & community leads; increased DAU and LTV                                                                       |
+| **5. Monetization Strategy**                | Aggressive pricing, attrition risk                                              | Price optimization, asset management, segmentation citeturn1file0                                          | Monetization & finance teams; sustained revenue growth                                                                    |
+| **6. Data Strategy & AI Implementation**    | Disparate data systems, lack of predictive insights                             | End-to-end data architecture, real-time analytics, AI-driven forecasting citeturn1file4                  | CTOs & analytics leads; scalable insights, reduced time-to-insight                                                        |
+| **7. UX & Player Research**                 | Unidentified usability issues, suboptimal FTUE                                  | Heuristic evaluations, mixed-methods playtesting, behavioral-science-driven analysis citeturn1file5        | UXRs & product managers; smoother UX, reduced rework costs                                                               |
+| **8. Corporate & Organizational Consulting**| M&A integration, leadership gaps                                                 | Studio restructuring, leadership training, culture change workshops citeturn1file0                       | Executive teams; stronger internal alignment, faster decision-making                                                      |
+
+## Marketing & Sales Strategy  
+1. **Lead Generation:**  
+   - Thought leadership via whitepapers (leveraging articles 1–5)  
+   - Speaking at industry conferences (GDC, Evolve)  
+   - Targeted LinkedIn campaigns to senior game executives  
+2. **Partnerships:**  
+   - Technology alliances (Unity, AWS) for co-marketing  
+   - Academic partnerships for behavioral-science research credibility  
+3. **Sales Process:**  
+   - Initial diagnostic workshop → scoped proposal → pilot engagement → enterprise roll-out  
+   - Standardized pricing tiers aligned to studio size and service depth  
+4. **Budget Allocation:**  
+   - 40% digital marketing  
+   - 30% events & sponsorships  
+   - 30% content creation & PR  
+
+## Operations & Team Structure  
+- **Project Delivery Teams:** Cross-functional pods of 1 Project Lead, 2 Data Engineers, 2 Analysts, 1 UX Researcher citeturn1file4  
+- **Central Functions:** Business development, finance, HR, internal R&D  
+- **Geographic Model:** Hybrid UK-US presence, scalable with remote staff  
+- **Tools & Process:** CI/CD for data pipelines; Agile sprint cadence; unified dashboards  
+
+## Financial Plan & Projections  
+| Year            | Revenue (£k) | Gross Margin | EBITDA (£k) |
+|-----------------|--------------|--------------|-------------|
+| **Year 1 (2025)** | 2,000        | 60%          | 200         |
+| **Year 2 (2026)** | 4,000        | 65%          | 800         |
+| **Year 3 (2027)** | 6,000        | 70%          | 1,800       |
+
+- **Revenue Streams:** Consulting fees (80%), managed services (15%), training/licensing (5%)  
+- **Pricing Basis:** Day rates by seniority; retainer models for LiveOps  
+- **Assumptions:** 10 engagements in Year 1 growing to 30 by Year 3; average contract value £200k  
+
+## Risk Analysis & Mitigation  
+| Risk                                 | Impact                    | Mitigation                                                                                         |
+|--------------------------------------|---------------------------|----------------------------------------------------------------------------------------------------|
+| Market Saturation                    | Medium                    | Differentiate via behavioral-science integration; develop proprietary AI tools                     |
+| Talent Recruitment                   | High                      | Ongoing partnerships with universities; remote-first policy to broaden candidate pool               |
+| Delivery Delays                      | Medium                    | Robust project governance; gate reviews; buffer resource allocation                                |
+| Technology Stack Obsolescence        | Low                       | Continuous R&D; alliances with leading platform providers                                          |
+| Client Budget Cuts                   | Medium                    | Flexible pricing; modular service offerings; proof-of-concept pilots to demonstrate quick ROI       |
+
+## Appendices  
+- **Team Bios:** Detailed CVs for Pryer, Rieger, senior staff (see `nbi team exp.docx`)  
+- **Assumptions & Methodologies:** ROI modelling approach, unit-economics template  
+- **Supporting Data:** Lighthouse Games case study highlights (see `Overview of Service and Approach…`) citeturn1file2turn1file7  
+- **Sample Dashboards:** Telemetry KPI dashboard mock-ups from Lighthouse deck citeturn1file4
+
+---
+
+This plan equips NBI to seize market opportunities, demonstrate clear ROI, and scale profitably while maintaining the high-quality, integrated services that set it apart.
+
+[USER]
+how do i get to the financial plan projections? what would be a good business plan to do so
+
+[ASSISTANT]
+To arrive at a robust Financial Plan & Projections section, you’ll need to turn your strategic vision and service‐level assumptions into hard numbers—forecasting revenues, costs, cash flows and key ratios over a 3–5-year horizon. Here’s a proven, step-by-step business-planning approach to get you there:
+
+---
+
+## 1. Define Your Revenue Drivers  
+1. **List Service Lines**  
+   - E.g. Consulting Day-Rates, LiveOps Retainers, Training/Licensing.  
+2. **Set Pricing Assumptions**  
+   - Day-rate by role (e.g. Partner £2,000/day; Analyst £800/day).  
+   - Retainer fees (e.g. £15k/month for a LiveOps pod).  
+3. **Estimate Volume**  
+   - # of billable days per consultant per month (e.g. 15 days).  
+   - # of simultaneous retainers or projects.  
+4. **Build a Driver-Based Model**  
+   - In Excel, create a table:  
+     | Service Line          | Price per Unit | Units per Year | Annual Revenue |  
+     |-----------------------|----------------|----------------|----------------|  
+     | Consulting (Partner)  | £2,000/day     | 1,800 days     | £3.6M         |  
+     | Consulting (Analyst)  | £800/day       | 2,400 days     | £1.92M        |  
+     | LiveOps Retainer      | £15k/month     | 12 pods        | £2.16M        |  
+
+---
+
+## 2. Map Out Your Cost Structure  
+1. **Direct Costs** (Cost of Goods Sold)  
+   - Consultant salaries + benefits (e.g. 50% of billable revenue).  
+   - Contractor fees, software licenses tied to project delivery.  
+2. **Indirect Costs** (Operating Expenses)  
+   - G&A: rent, utilities, office services.  
+   - Sales & Marketing: trade shows, content creation, ad spend.  
+   - R&D/Internal Tools: data-platform development, training.  
+3. **CapEx vs. OpEx**  
+   - Capitalize major platform development (data stack) where appropriate.  
+4. **Build Your Expense Model**  
+   - In your spreadsheet, allocate each cost center monthly or quarterly; link headcount plans to salary expense.
+
+---
+
+## 3. Project the Three Financial Statements  
+1. **P&L (Income Statement)**  
+   - Revenues – COGS = Gross Profit  
+   - Gross Profit – OpEx = EBITDA (or EBIT)  
+2. **Cash Flow Statement**  
+   - Start from Net Income, add back non-cash items (depreciation), adjust for working capital, CapEx.  
+3. **Balance Sheet** (optional for early-stage)  
+   - Assets (cash, AR), Liabilities (AP, debt), Equity.  
+
+---
+
+## 4. Build Scenarios & Sensitivities  
+- **Base, Upside, Downside**  
+  - Vary key drivers ±20% (billable days, pricing, hiring pace).  
+- **Break-Even Analysis**  
+  - How many consulting days or retainers before you cover all OpEx?  
+- **Key Ratios**  
+  - Gross Margin %, EBITDA Margin %, Days Sales Outstanding, Burn Rate.
+
+---
+
+## 5. Validate Against Market & Benchmarks  
+- **Top-Down Check**  
+  - Compare your projected growth to your estimated Total Addressable Market (TAM).  
+- **Peer Benchmarks**  
+  - SaaS & consulting peers typically operate at 60–70% gross margins and 15–25% EBITDA margins in Year 3.  
+- **Investor Expectations**  
+  - Ensure your revenue growth rates (e.g. 100% YoY in Year 2, 50% in Year 3) are credible.
+
+---
+
+## 6. Assemble the Financial Plan Section  
+Structure your write-up in the business plan as follows:  
+1. **Summary Table** (Year 1–3 Revenues, Margins, EBITDA)  
+2. **Revenue Build** (narrative plus driver tables)  
+3. **Cost Assumptions** (headcount by role, OpEx breakdown)  
+4. **Cash Flow & Funding Needs** (when you hit cash-flow positive or need bridge financing)  
+5. **Scenario Analysis** (highlight base vs. downside risks)  
+6. **Key Metrics & Milestones** (e.g. reach £1M revenue by Q4 Year 1, break even by Q2 Year 2)
+
+---
+
+### Example Snippet (Markdown)  
+```markdown
+### Financial Plan & Projections
+
+| Year            | 2025       | 2026       | 2027      |
+|-----------------|------------|------------|-----------|
+| Revenue (£k)    | 2,000      | 4,000      | 6,000     |
+| Gross Margin %  | 60%        | 65%        | 70%       |
+| EBITDA (£k)     | 200        | 800        | 1,800     |
+
+**Revenue Drivers**  
+- Consulting Day‐Rates (Partner, Analyst)  
+- LiveOps Retainers (12 pods × £15k/mo)  
+- Training & Licensing  
+
+**Cost Assumptions**  
+- Direct labor at 50% of revenue  
+- S&M at 15% of revenue, G&A at 10%  
+
+**Cash Flow Summary**  
+- Positive cash flow expected Q2 2026  
+- Working capital cycle = 45 days DSO  
+
+**Scenario Analysis**  
+- Downside: -20% billable days → revenue £1.6M Year 1  
+- Upside: +20% pricing → revenue £2.4M Year 1  
+```
+
+---
+
+#### Tools & Templates  
+- **Excel Driver-Based Model**: Link price × volume cells to summary outputs.  
+- **Business Model Canvas**: Quickly map value propositions vs. revenue streams.  
+- **Financial Planning Book**: Use your `NBI planning book.xlsx` as a starting template.
+
+---
+
+By following this structured, driver-based forecasting approach—grounded in your service pricing, staffing plan, and market benchmarks—you’ll produce credible, defensible financial projections that both guide your internal strategy and persuade investors.
+

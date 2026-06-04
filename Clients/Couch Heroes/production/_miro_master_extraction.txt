@@ -1,0 +1,952 @@
+================================================================================
+COUCH HEROES - MIRO BOARD MASTER EXTRACTION
+================================================================================
+Source: Glen's Miro board screenshots (org_chart widget direct readings)
+Date: 2026-05-13
+Status: Epics 1-3 COMPLETE | Epics 4-10 AWAITING SCREENSHOTS
+================================================================================
+
+This file captures EVERY story found from the Miro board screenshots.
+Screenshots provide far more detail than the API extraction.
+
+Legend:
+  CONFIRMED = story existed in previous API extraction
+  NEW       = story found only in screenshot extraction (not in API)
+  NOT FOR VS  = excluded from Vertical Slice scope
+  NO ART      = no art tasks required
+  OUTSOURCE   = work to be outsourced, not in-house
+  MVP DONE    = minimum viable version already complete
+
+================================================================================
+EPIC 1: PLAYER BUILD
+================================================================================
+
+--------------------------------------------------------------------------------
+FEATURE: Coloured Faction NPCs
+--------------------------------------------------------------------------------
+
+  STORY: Faction: Icons [CONFIRMED]
+    - Concept Art .................. 16h - 19h
+    - UI ........................... 3h - 6h
+
+  STORY: Faction: Insignias [CONFIRMED]
+    - Concept Art .................. 8h - 16h
+    - Char Modeling ................ (hours TBC)
+    - UI ........................... (hours TBC)
+    - Tech Art ..................... (hours TBC)
+
+  STORY: Faction: Banners [CONFIRMED]
+    - Concept Art .................. (hours TBC)
+    - Char Modeling ................ (hours TBC)
+    - Tech Art ..................... (hours TBC)
+
+  STORY: Faction: Clothing Variations [CONFIRMED]
+    - Concept Art .................. 12h - 48h
+    - Char Modeling ................ 12h - 24h
+    - Tech Art ..................... 16h - 24h
+
+--------------------------------------------------------------------------------
+FEATURE: Garment System
+--------------------------------------------------------------------------------
+
+  STORY: Garment System Options [CONFIRMED]
+    - Concept Art .................. 20h - 28h
+    - UI ........................... 40h - 60h
+
+  STORY: Garment Sets [CONFIRMED]
+    - Concept Art .................. 12h - 64h
+    - Char Modeling ................ 12h - 80h
+    - Tech Art ..................... (hours TBC)
+
+  STORY: Armour Sets [CONFIRMED]
+    - Concept Art .................. 12h - 64h
+    - Char Modeling ................ 12h - 48h
+    - Tech Art ..................... (hours TBC)
+
+  STORY: Weapon Sets [CONFIRMED]
+    - Concept Art .................. 12h - 48h
+    - Char Modeling ................ 12h - 60h
+    - Tech Art ..................... 16h - 24h
+
+  STORY: Skins [CONFIRMED]
+    - Concept Art .................. 24h - 40h
+    - Char Modeling ................ 32h - 60h
+    - Tech Art ..................... 16h - 24h
+
+  STORY: Partner Skins [CONFIRMED]
+    - Concept Art .................. 24h - 64h
+    - Char Modeling ................ 8h - 60h
+    - Tech Art ..................... 16h - 24h
+
+--------------------------------------------------------------------------------
+FEATURE: Forge System
+--------------------------------------------------------------------------------
+
+  STORY: Weapon Parts [CONFIRMED]
+    - Concept ...................... 6h - 8h
+    - Char Modeling ................ 14h - 32h
+    - VFX .......................... 24h - 32h
+    - UI ........................... 40h - 80h
+    - Tech Art ..................... 16h - 24h
+
+--------------------------------------------------------------------------------
+FEATURE: Character Creation & Customisation
+--------------------------------------------------------------------------------
+
+  STORY: Char Creation System [CONFIRMED]
+    - Concept Art .................. 52h - 64h
+    - UI ........................... (hours TBC)
+
+  STORY: Ethnicity Variations [CONFIRMED]
+    - Concept Art .................. 16h - 56h
+    - Char Modeling ................ 8h - 60h
+    - Tech Art ..................... 16h - 24h
+
+  STORY: Fantasy Races [CONFIRMED]
+    - Concept Art .................. 24h - 48h
+    - Char Modeling ................ 10h - 96h
+    - Tech Art ..................... 16h - 24h
+    - Concept ...................... 52h - 64h
+
+  STORY: Base Body [CONFIRMED, MVP DONE]
+    (No outstanding tasks)
+
+  STORY: Base Faces [CONFIRMED, MVP DONE]
+    (No outstanding tasks)
+
+--------------------------------------------------------------------------------
+FEATURE: Professions
+--------------------------------------------------------------------------------
+
+  STORY: Gathering [CONFIRMED]
+    - Concept ...................... 24h - 40h
+    - Animation .................... 40h - 80h
+    - UI ........................... 3h - 6h
+
+  STORY: Crafting [CONFIRMED]
+    - Concept ...................... 32h - 64h
+    - Animation .................... 40h - 80h
+    - UI ........................... 40h - 60h
+
+  STORY: Forge Crafting Station [NEW]
+    - Concept ...................... 16h - 32h
+    - Env Modeling ................. 40h - 65h
+
+--------------------------------------------------------------------------------
+FEATURE: Achievements & Trophies
+--------------------------------------------------------------------------------
+
+  STORY: Trophies [CONFIRMED]
+    - Concept ...................... 16h - 32h
+    - Env Modeling ................. 24h - 50h
+    - VFX .......................... 32h - 40h
+    - UI ........................... 3h - 4h
+
+  STORY: Text Pop Up [NEW]
+    - Concept ...................... 16h - 32h
+    - VFX .......................... 32h - 48h
+    - UI ........................... 3h - 8h
+
+--------------------------------------------------------------------------------
+FEATURE: Player Progression [marked "Submitted"]
+--------------------------------------------------------------------------------
+
+  STORY: Player Level Up [CONFIRMED]
+    - Player Level Up UI ........... 2h - 6h
+    - Character Stats UI ........... 2h - 4h
+    - Skill System UI .............. 2h - 4h
+
+--------------------------------------------------------------------------------
+NOT FOR VS FEATURES (no stories to extract):
+--------------------------------------------------------------------------------
+  - Factions/Reputations
+  - Character Management
+  - Persona System
+  - Emote System
+
+
+================================================================================
+EPIC 2: WORLD SYSTEMS - ENV
+================================================================================
+
+--------------------------------------------------------------------------------
+FEATURE: Fluid Ninja Tech R&D
+--------------------------------------------------------------------------------
+
+  STORY: Weather Cycles [NEW, NOT FOR VS]
+    (No hour detail provided)
+
+  STORY: Lighting Tech [CONFIRMED]
+    - Tech Art ..................... 40h - 56h
+
+  STORY: Atmospherics [CONFIRMED]
+    - Tech Art ..................... 40h - 56h
+
+  STORY: Fog [CONFIRMED]
+    - Tech Art ..................... 40h - 56h
+
+  STORY: Ocean [NEW]
+    - Tech Art ..................... 40h - 56h
+
+  STORY: River [NEW]
+    - Tech Art ..................... 40h - 56h
+
+  STORY: Water [CONFIRMED]
+    - Tech Art ..................... 40h - 56h
+
+  STORY: VFX Tech [CONFIRMED] (80h - 120h total)
+    - Tech Art ..................... 40h - 60h
+    - VFX .......................... 40h - 60h
+
+--------------------------------------------------------------------------------
+FEATURE: Zone - FTUE Cave
+--------------------------------------------------------------------------------
+
+  STORY: POI - Cave [NEW as individual story]
+    - Concept ...................... 160h - 180h
+    - World Building (Med) ......... 80h - 120h
+    - Set Dressing (Med) ........... 80h - 120h
+    - Terrain Footprint ............ 20h - 40h
+    - Biome Dressing ............... 40h - 80h
+    - Collision Pass ............... 40h - 80h
+    - Lighting ..................... 20h - 40h
+    - Rocking ...................... 40h - 60h
+    - NPC Lighting ................. 40h - 60h
+    - Proxy Pass ................... 80h - 120h
+
+  STORY: POI - Tower Exterior [CONFIRMED]
+    - Concept ...................... 80h - 120h
+    - World Building (Epic) ........ 240h - 360h
+    - Set Dressing (Epic) .......... 160h - 180h
+    - Terrain Footprint ............ 20h - 40h
+    - Biome Dressing ............... 40h - 80h
+    - Collision Pass ............... 40h - 80h
+    - Lighting ..................... 20h - 40h
+    - Rocking ...................... 40h - 60h
+    - NPC Lighting ................. 40h - 60h
+    - Proxy Pass ................... 80h - 120h
+
+  STORY: POI - The Big Battle Hill [CONFIRMED]
+    - Concept ...................... 80h - 120h
+    - World Building ............... (standard POI pipeline)
+    - Set Dressing ................. (standard POI pipeline)
+    - Terrain Footprint ............ 20h - 40h
+    - Biome Dressing ............... 40h - 80h
+    - Collision Pass ............... 40h - 80h
+    - Lighting ..................... 20h - 40h
+    - Rocking ...................... 40h - 60h
+    - NPC Lighting ................. 40h - 60h
+    - Proxy Pass ................... 80h - 120h
+
+  STORY: POI - Cave Interior [CONFIRMED]
+    - Concept ...................... 20h - 30h
+    - World Building ............... (standard POI pipeline)
+    - Set Dressing ................. (standard POI pipeline)
+    - Terrain Footprint ............ 20h - 40h
+    - Biome Dressing ............... 40h - 80h
+    - Collision Pass ............... 40h - 80h
+    - Lighting ..................... 20h - 40h
+    - Rocking ...................... 40h - 60h
+    - NPC Lighting ................. 40h - 60h
+    - Proxy Pass ................... 80h - 120h
+
+--------------------------------------------------------------------------------
+FEATURE: Zone - New TBNL
+--------------------------------------------------------------------------------
+
+  STORY: POI - Waterfall Beauty [CONFIRMED]
+    - Concept ...................... 40h - 50h
+    - World Building ............... (standard POI pipeline)
+    - Set Dressing ................. (standard POI pipeline)
+    - Terrain Footprint ............ 20h - 40h
+    - Biome Dressing ............... 40h - 80h
+    - Collision Pass ............... 40h - 80h
+    - Lighting ..................... 20h - 40h
+    - Rocking ...................... 40h - 60h
+    - NPC Lighting ................. 40h - 60h
+    - Proxy Pass ................... 80h - 120h
+
+  STORY: POI - Rope Bridge [NEW]
+    - Concept ...................... 40h - 60h
+    - World Building ............... (standard POI pipeline)
+    - Set Dressing ................. (standard POI pipeline)
+    - Terrain Footprint ............ 20h - 40h
+    - Biome Dressing ............... 40h - 80h
+    - Collision Pass ............... 40h - 80h
+    - Lighting ..................... 20h - 40h
+    - Rocking ...................... 40h - 60h
+    - NPC Lighting ................. 40h - 60h
+    - Proxy Pass ................... 80h - 120h
+
+  STORY: POI - Drifter's Cross (TBNL) [CONFIRMED]
+    - Concept ...................... 160h - 200h
+    - World Building ............... (standard POI pipeline)
+    - Set Dressing ................. (standard POI pipeline)
+    - Terrain Footprint ............ 20h - 40h
+    - Biome Dressing ............... 40h - 80h
+    - Collision Pass ............... 40h - 80h
+    - Lighting ..................... 20h - 40h
+    - Rocking ...................... 40h - 60h
+    - NPC Lighting ................. 40h - 60h
+    - Proxy Pass ................... 80h - 120h
+
+--------------------------------------------------------------------------------
+FEATURE: Biomes (under zone features)
+--------------------------------------------------------------------------------
+
+  STORY: Biome - Mediterranean [CONFIRMED]
+    Trees:
+      - Concept .................... 25h - 45h
+      - Proxy ...................... 40h - 65h
+      - Adult 1 Final .............. 85h - 160h
+      - Adult 2 Final .............. 85h - 160h
+      - Juvenile ................... 16h - 24h
+      - Sapling .................... 8h - 16h
+    Bushes:
+      - Concept .................... 20h - 25h
+      - Proxy ...................... 2h - 4h
+      - Final x4 ................... 24h - 36h each (96h - 144h total)
+    Grass/Groundcover:
+      - Concept .................... 20h - 25h
+      - Proxy ...................... 2h - 4h
+      - Final x3 ................... 8h - 16h each (24h - 48h total)
+    Hero:
+      - Concept .................... 25h - 45h
+      - Proxy ...................... 8h - 24h
+      - Final ...................... 120h - 160h
+
+  STORY: Cliff - Mediterranean [NEW]
+    - Cliff Rock Proxy Kit (12 pieces) .. 40h - 65h
+    - Cliff Rock Final (12 pieces) ..... 192h - 224h
+
+  STORY: Biome - Lush [CONFIRMED]
+    (Same structure as Biome - Mediterranean)
+    Trees:
+      - Concept .................... 25h - 45h
+      - Proxy ...................... 40h - 65h
+      - Adult 1 Final .............. 85h - 160h
+      - Adult 2 Final .............. 85h - 160h
+      - Juvenile ................... 16h - 24h
+      - Sapling .................... 8h - 16h
+    Bushes:
+      - Concept .................... 20h - 25h
+      - Proxy ...................... 2h - 4h
+      - Final x4 ................... 24h - 36h each (96h - 144h total)
+    Grass/Groundcover:
+      - Concept .................... 20h - 25h
+      - Proxy ...................... 2h - 4h
+      - Final x3 ................... 8h - 16h each (24h - 48h total)
+    Hero:
+      - Concept .................... 25h - 45h
+      - Proxy ...................... 8h - 24h
+      - Final ...................... 120h - 160h
+
+--------------------------------------------------------------------------------
+FEATURE: Zone - Downtime
+--------------------------------------------------------------------------------
+
+  STORY: POI - Barracks [NEW]
+    - Concept ...................... 30h
+    - World Building (Med) ......... 80h - 120h
+    - Set Dressing (Med) ........... 80h - 120h
+    - Terrain Footprint ............ 20h - 40h
+    - Biome Dressing ............... 40h - 80h
+    - Collision Pass ............... 40h - 80h
+    - Lighting ..................... 20h - 40h
+    - Rocking ...................... 60h - 60h
+    - NPC Lighting ................. 40h - 60h
+    - Proxy Pass ................... 80h - 120h
+
+  STORY: POI - Harbor [NEW]
+    - Concept ...................... 20h - 30h
+    - World Building (Med) ......... 80h - 120h
+    - Set Dressing (Med) ........... 80h - 120h
+    - Terrain Footprint ............ 20h - 40h
+    - Biome Dressing ............... 40h - 80h
+    - Collision Pass ............... 40h - 80h
+    - Lighting ..................... 20h - 40h
+    - Rocking ...................... 60h - 60h
+    - NPC Lighting ................. 40h - 60h
+    - Proxy Pass ................... 80h - 120h
+
+  STORY: POI - House of Houses [NEW]
+    - Concept ...................... 20h - 30h
+    - World Building (Med) ......... 80h - 120h
+    - Set Dressing (Med) ........... 80h - 120h
+    - Terrain Footprint ............ 20h - 40h
+    - Biome Dressing ............... 40h - 80h
+    - Collision Pass ............... 40h - 80h
+    - Lighting ..................... 20h - 40h
+    - Rocking ...................... 60h - 60h
+    - NPC Lighting ................. 40h - 60h
+    - Proxy Pass ................... 80h - 120h
+
+  STORY: POI - Marketplace [NEW]
+    - Concept ...................... 20h - 30h
+    - World Building (Med) ......... 80h - 120h
+    - Set Dressing (Med) ........... 80h - 120h
+    - Terrain Footprint ............ 20h - 40h
+    - Biome Dressing ............... 40h - 80h
+    - Collision Pass ............... 40h - 80h
+    - Lighting ..................... 20h - 40h
+    - Rocking ...................... 60h - 60h
+    - NPC Lighting ................. 40h - 60h
+    - Proxy Pass ................... 80h - 120h
+
+  STORY: POI - Elevator Interior [NEW]
+    - Concept ...................... 20h - 30h
+    - World Building (Med) ......... 80h - 120h
+    - Set Dressing (Med) ........... 80h - 120h
+    - Terrain Footprint ............ 20h - 40h
+    - Biome Dressing ............... 40h - 80h
+    - Collision Pass ............... 40h - 80h
+    - Lighting ..................... 20h - 40h
+    - Rocking ...................... 60h - 60h
+    - NPC Lighting ................. 40h - 60h
+    - Proxy Pass ................... 80h - 120h
+
+  STORY: POI - Elevator Top [NEW]
+    - Concept ...................... 20h - 30h
+    - World Building (Med) ......... 80h - 120h
+    - Set Dressing (Med) ........... 80h - 120h
+    - Terrain Footprint ............ 20h - 40h
+    - Biome Dressing ............... 40h - 80h
+    - Collision Pass ............... 40h - 80h
+    - Lighting ..................... 20h - 40h
+    - Rocking ...................... 60h - 60h
+    - NPC Lighting ................. 40h - 60h
+    - Proxy Pass ................... 80h - 120h
+
+  STORY: POI - Tranquil Pond [NEW]
+    - Concept ...................... 20h - 30h
+    - World Building (Med) ......... 80h - 120h
+    - Set Dressing (Med) ........... 80h - 120h
+    - Terrain Footprint ............ 20h - 40h
+    - Biome Dressing ............... 40h - 80h
+    - Collision Pass ............... 40h - 80h
+    - Lighting ..................... 20h - 40h
+    - Rocking ...................... 60h - 60h
+    - NPC Lighting ................. 40h - 60h
+    - Proxy Pass ................... 80h - 120h
+
+  STORY: POI - Lighthouse [NEW]
+    - Concept ...................... 20h - 30h
+    - World Building (Med) ......... 80h - 120h
+    - Set Dressing (Med) ........... 80h - 120h
+    - Terrain Footprint ............ 20h - 40h
+    - Biome Dressing ............... 40h - 80h
+    - Collision Pass ............... 40h - 80h
+    - Lighting ..................... 20h - 40h
+    - Rocking ...................... 60h - 60h
+    - NPC Lighting ................. 40h - 60h
+    - Proxy Pass ................... 80h - 120h
+
+  STORY: POI - Housing District [NEW]
+    - Concept ...................... 20h - 30h
+    - World Building (Med) ......... 80h - 120h
+    - Set Dressing (Med) ........... 80h - 120h
+    - Terrain Footprint ............ 20h - 40h
+    - Biome Dressing ............... 40h - 80h
+    - Collision Pass ............... 40h - 80h
+    - Lighting ..................... 20h - 40h
+    - Rocking ...................... 60h - 60h
+    - NPC Lighting ................. 40h - 60h
+    - Proxy Pass ................... 80h - 120h
+
+  STORY: POI - Marketplace 2 [NEW]
+    - Concept ...................... 20h - 30h
+    - World Building (Med) ......... 80h - 120h
+    - Set Dressing (Med) ........... 80h - 120h
+    - Terrain Footprint ............ 20h - 40h
+    - Biome Dressing ............... 40h - 80h
+    - Collision Pass ............... 40h - 80h
+    - Lighting ..................... 20h - 40h
+    - Rocking ...................... 60h - 60h
+    - NPC Lighting ................. 40h - 60h
+    - Proxy Pass ................... 80h - 120h
+
+  Hero Buildings (task group under Downtime):
+    - Arcade Facade ................ 40h - 80h
+    - Bank Facade .................. 65h - 120h
+    - Tavern with Interior ......... 80h - 120h
+    - Barber Facade ................ 40h - 80h
+
+--------------------------------------------------------------------------------
+FEATURE: Zone - Portal Dimension
+--------------------------------------------------------------------------------
+
+  STORY: POI - Portal Instance [CONFIRMED]
+    (Standard POI pipeline tasks)
+
+--------------------------------------------------------------------------------
+FEATURE: Zone - User Space Island 1
+--------------------------------------------------------------------------------
+
+  STORY: POI - User Space Island [CONFIRMED]
+    (Standard POI pipeline tasks)
+
+--------------------------------------------------------------------------------
+FEATURE: Zone - Guild
+--------------------------------------------------------------------------------
+
+  STORY: POI - Guild Island [CONFIRMED]
+    (Standard POI pipeline tasks)
+
+--------------------------------------------------------------------------------
+FEATURE: Zone - The Dungeon
+--------------------------------------------------------------------------------
+
+  STORY: POI - Dungeon [CONFIRMED]
+    (Standard POI pipeline tasks)
+
+--------------------------------------------------------------------------------
+FEATURE: Zone - Arena
+--------------------------------------------------------------------------------
+
+  STORY: POI - Arena Interior [CONFIRMED]
+    (Standard POI pipeline tasks)
+
+--------------------------------------------------------------------------------
+FEATURE: Navigation
+--------------------------------------------------------------------------------
+
+  STORY: Compass/Mini Map [CONFIRMED]
+    - UI ........................... 4h - 16h
+    - Concept ...................... 24h - 64h
+
+  STORY: Markers [CONFIRMED]
+    - Concept ...................... 16h - 40h
+    - VFX .......................... 24h - 32h
+    - UI ........................... 4h - 10h
+
+  STORY: Maps [CONFIRMED]
+    - Concept ...................... 40h - 80h
+    - VFX .......................... 24h - 32h
+    - UI ........................... 20h - 40h
+    - Env - Map Blockout ........... 500h - 720h
+
+--------------------------------------------------------------------------------
+FEATURE: Partner Portal [NOT FOR VS]
+--------------------------------------------------------------------------------
+
+  STORY: Stories Temp (placeholder) [CONFIRMED]
+    - UI ........................... 4h - 12h
+    - Concept ...................... 40h - 45h
+    - VFX .......................... 40h - 60h
+    - Env Modeling ................. 50h - 100h
+
+--------------------------------------------------------------------------------
+FEATURE: Env Architecture Kits
+--------------------------------------------------------------------------------
+
+  STORY: Env Architecture Kit - Mythcore [CONFIRMED]
+    - Proxy ........................ 40h - 65h
+    - Final ........................ 40h - 80h
+
+  STORY: Env Architecture Kit - Graveyard Assets [NEW name]
+    - Proxy ........................ 40h - 65h
+    - Final ........................ 120h - 160h
+
+  STORY: Env Architecture Kit - Mythcore Ruin [CONFIRMED]
+    - Proxy ........................ 40h - 65h
+    - Final ........................ 40h - 60h
+
+  STORY: Env Architecture Kit - Fantasy [CONFIRMED]
+    - Proxy ........................ 40h - 65h
+    - Final ........................ 160h - 400h
+
+  STORY: Env Architecture Kit - Guild Hall [CONFIRMED]
+    - Concept ...................... 40h - 90h
+    - Proxy ........................ 40h - 65h
+    - Final ........................ 160h - 400h
+
+  STORY: Env Architecture Kit - Player Housing Kit [NEW]
+    - Concept ...................... 100h - 150h
+    - Proxy ........................ 40h - 65h
+    - Final ........................ 160h - 400h
+
+  STORY: Env Architecture Kit - Arena [CONFIRMED]
+    - Concept ...................... 40h - 70h
+    - Proxy ........................ 40h - 65h
+    - Final ........................ 160h - 400h
+
+  STORY: Env Architecture Kit - Deck/Scaffolding [NEW]
+    - Proxy ........................ (hours TBC)
+    - Final ........................ 80h - 170h
+
+  STORY: Env Architecture Kit - Wooden Camp [NEW]
+    - Concept ...................... 40h - 90h
+    - Proxy ........................ 40h - 65h
+    - Final ........................ 120h - 160h
+
+--------------------------------------------------------------------------------
+FEATURE: Env Props Kits
+--------------------------------------------------------------------------------
+
+  STORY: Env Prop Kit - Mythcore [NEW as individual breakdown]
+    - Concept ...................... 80h - 90h
+    - Proxy ........................ 40h - 65h
+    - Final ........................ 40h - 80h
+
+  STORY: Env Prop Kit - Graveyard Assets [NEW]
+    - Concept ...................... 80h - 90h
+    - Proxy ........................ 40h - 65h
+    - Final ........................ 120h - 160h
+
+  STORY: Env Prop Kit - Mythcore Ruin [NEW]
+    - Concept ...................... 50h - 90h
+    - Proxy ........................ 40h - 65h
+    - Final ........................ 40h - 80h
+
+  STORY: Env Prop Kit - Fantasy [CONFIRMED as "Fantasy Exterior"]
+    - Concept ...................... 80h - 120h
+    - Proxy ........................ 40h - 65h
+    - Final ........................ 480h - 800h
+
+  STORY: Env Prop Kit - Arena [NEW]
+    - Concept ...................... 40h - 50h
+    - Proxy ........................ 40h - 65h
+    - Final ........................ 560h - 960h
+
+  STORY: Env Prop Kit - Deck/Scaffolding [NEW]
+    - Concept ...................... 40h - 50h
+    - Proxy ........................ 40h - 65h
+    - Final ........................ 460h - 800h
+
+  STORY: Env Prop Kit - Wooden Camp [NEW]
+    - Concept ...................... 80h - 90h
+    - Proxy ........................ 40h - 65h
+    - Final ........................ 120h - 160h
+
+  STORY: Env Prop Kit - Tavern [CONFIRMED]
+    - Concept ...................... 40h - 50h
+    - Proxy ........................ 40h - 65h
+    - Final ........................ 120h - 240h
+
+--------------------------------------------------------------------------------
+FEATURE: Env Furniture Kits
+--------------------------------------------------------------------------------
+
+  STORY: Env Furniture Kit - Fantasy [CONFIRMED]
+    - Concept ...................... 60h - 80h
+    - Proxy Kit .................... 50h - 120h
+    - Final Model (10 Pieces) ...... 320h - 400h
+
+  STORY: Env Furniture Kit - Graveyard [CONFIRMED]
+    - Concept ...................... 50h - 60h
+    - Proxy Kit .................... 80h - 120h
+    - Final Model (10 Pieces) ...... 370h - 430h
+
+  STORY: Env Furniture Kit - Gritcore [CONFIRMED]
+    - Concepts ..................... 50h - 80h
+    - Proxy Kit .................... 80h - 120h
+    - Final Model (10 Pieces) ...... 320h - 430h
+
+  STORY: Env Furniture Kit - Mythcore [CONFIRMED]
+    - Concept ...................... 40h - 80h
+    - Proxy Kit .................... 80h - 120h
+    - Final Model (10 Pieces) ...... 320h - 400h
+
+  STORY: Env Furniture Kit - Bug Dungeon [CONFIRMED]
+    - Concept ...................... 60h - 80h
+    - Proxy Kit .................... 80h - 120h
+    - Final Model (10 Pieces) ...... 370h - 430h
+
+--------------------------------------------------------------------------------
+FEATURE: Corruption
+--------------------------------------------------------------------------------
+
+  STORY: Corruption: Vines [CONFIRMED]
+    - Concept ...................... (hours TBC)
+    - Tech Art ..................... 80h - 120h
+    - UI ........................... (hours TBC)
+    - Modeling ..................... (hours TBC)
+
+  STORY: Corruption: Foam [CONFIRMED]
+    - Concept ...................... 40h - 64h
+    - VFX .......................... 40h - 64h
+    - Env Modeling ................. 60h - 80h
+
+  STORY: Corruption: Time [CONFIRMED]
+    - Concept ...................... 40h - 64h
+    - UI ........................... 4h - 10h
+    - VFX .......................... 40h - 64h
+    - Animation .................... "Does not need animation"
+    - Tech Art ..................... 80h - 120h
+    - Env Modeling ................. 120h - 160h
+      Sub-tasks:
+        - Modeling Alive State
+        - Modeling Int State
+        - Modeling Dead State
+
+
+================================================================================
+EPIC 3: WORLD SYSTEMS - THE REST
+================================================================================
+
+--------------------------------------------------------------------------------
+FEATURE: Critters NPCs
+--------------------------------------------------------------------------------
+
+  STORY: Cows [CONFIRMED]
+    - Concept Art .................. 24h - 32h
+    - Char Modeling ................ 32h - 48h
+    - Rigging ...................... 32h - 40h
+    - Animation .................... 80h - 100h
+
+  STORY: Chickens [CONFIRMED]
+    - Concept Art .................. 16h - 32h
+    - Char Modeling ................ 16h - 24h
+    - Rigging ...................... (hours TBC)
+    - Animation .................... (hours TBC)
+
+  STORY: Horses [CONFIRMED]
+    - Concept Art .................. 24h - 32h
+    - Char Modeling ................ 32h - 48h
+    - Rigging ...................... 40h - 48h
+    - Animation .................... 80h - 120h
+
+  STORY: Pigs [CONFIRMED]
+    - Concept Art .................. 24h - 48h
+    - Char Modeling ................ 24h - 32h
+    - Rigging ...................... 32h - 48h
+    - Animation .................... 80h - 100h
+
+  STORY: Hares [CONFIRMED]
+    - Concept Art .................. 16h - 32h
+    - Char Modeling ................ (hours TBC)
+    - Rigging ...................... (hours TBC)
+    - Animation .................... 80h - 100h
+
+  STORY: Sheep [CONFIRMED]
+    - Concept Art .................. 24h - 32h
+    - Char Modeling ................ 24h - 32h
+    - Rigging ...................... 32h - 48h
+    - Animation .................... 80h - 100h
+
+--------------------------------------------------------------------------------
+FEATURE: Hero NPCs
+--------------------------------------------------------------------------------
+
+  STORY: Xyron Upgrade [CONFIRMED]
+    - Concept Art .................. 40h - 64h
+    - Char Modeling ................ 32h - 48h
+    - Rigging ...................... 24h - 40h
+    - Animation .................... (hours TBC)
+
+  STORY: Unnamed Hero Green [CONFIRMED]
+    - Concept Art .................. 40h - 48h
+    - Char Modeling ................ 32h - 48h
+    - Rigging ...................... (hours TBC)
+    - Animation .................... (hours TBC)
+
+  STORY: Barbersmith Upgrade [CONFIRMED, NOT FOR VS]
+    (Hours not applicable for VS scope)
+
+  STORY: Maeve Mayer Upgrade [CONFIRMED, NOT FOR VS]
+    (Hours not applicable for VS scope)
+
+--------------------------------------------------------------------------------
+FEATURE: Human NPCs
+--------------------------------------------------------------------------------
+
+  STORY: Blue Faction NPCs [CONFIRMED]
+    - Concept Art .................. 32h - 64h
+    - Char Modeling ................ 32h - 56h
+    - Animation .................... 12h - 30h
+    - Tech Art ..................... 8h - 16h
+
+  STORY: Red Faction NPCs [CONFIRMED]
+    - Concept Art .................. 32h - 56h
+    - Char Modeling ................ 37h - 50h
+    - Animation .................... 10h - 30h
+    - Tech Art ..................... (hours TBC)
+
+  STORY: Yellow Faction NPCs [CONFIRMED]
+    - Concept Art .................. 32h - 64h
+    - Char Modeling ................ 32h - 56h
+    - Tech Art ..................... 8h - 16h
+
+  STORY: Green Faction NPCs [CONFIRMED]
+    - Concept Art .................. 20h - 64h
+    - Char Modeling ................ 24h - 56h
+    - NPC Rigging .................. 16h - 24h
+    - Animation .................... 12h - 24h
+    - Tech Art ..................... 8h - 16h
+
+  STORY: Generic NPC [CONFIRMED]
+    - Concept Art .................. 16h - 20h
+    - Char Modeling ................ 37h - 36h
+    - NPC Rigging .................. 24h - 48h
+    - Animation .................... 10h - 30h
+    - Tech Art ..................... 8h - 16h
+
+--------------------------------------------------------------------------------
+FEATURE: Player Advanced Traversal
+--------------------------------------------------------------------------------
+
+  STORY: Grappling [CONFIRMED]
+    - Grappling Animation .......... 16h - 24h
+    - Grappling VFX ................ 56h - 80h
+    - Concept-Grappling ............ 20h - 39h
+
+  STORY: Gliding [CONFIRMED]
+    - Gliding VFX .................. 16h - 80h
+    - Gliding Animation ............ (hours TBC)
+    - Concept-Gliding .............. 20h - 30h
+
+--------------------------------------------------------------------------------
+FEATURE: Player Basic Locomotion (20h - 533h total)
+--------------------------------------------------------------------------------
+
+  STORY: Locomotion [CONFIRMED]
+    - VFX .......................... 40h - 64h
+    - Animation .................... 10h - 32h
+
+--------------------------------------------------------------------------------
+FEATURE: Player
+--------------------------------------------------------------------------------
+
+  STORY: Player Environment [CONFIRMED]
+    - Animation .................... 12h - 40h
+
+--------------------------------------------------------------------------------
+FEATURE: Cinematics
+--------------------------------------------------------------------------------
+
+  STORY: FMV/Pre-Rendered [CONFIRMED, NOT IN BUDGET/OUTSOURCE]
+    - Concept Art .................. 60h - 120h
+    (Full pipeline: Storyboard, Editing, Char Modeling, Rigging,
+     Animation, Camera, Lighting, VFX, Compositing)
+
+  STORY: IGC In Game Cinematics [CONFIRMED, NOT IN BUDGET/OUTSOURCE]
+    - Storyboard ................... (hours TBC)
+    - Editing ...................... (hours TBC)
+    - Char Modeling ................ (hours TBC)
+    - Rigging Upgrades ............. (hours TBC)
+    - Animation .................... (hours TBC)
+    - Camera ....................... (hours TBC)
+    - Lighting ..................... (hours TBC)
+
+  STORY: 2.5D Cinematics [CONFIRMED]
+    - Storyboard ................... (hours TBC)
+    - Editing ...................... (hours TBC)
+    - Concept ...................... (hours TBC)
+    - Modeling ..................... (hours TBC)
+    - Camera ....................... (hours TBC)
+    - VFX .......................... (hours TBC)
+    - Compositing .................. (hours TBC)
+
+  STORY: Static Pictures Intro [CONFIRMED, ONLY IN-HOUSE]
+    - Concept ...................... 160h - 200h
+    - Editing ...................... 6h - 35h
+
+--------------------------------------------------------------------------------
+NOT FOR VS FEATURES:
+--------------------------------------------------------------------------------
+  - Env Elemental FX (ice slips)
+  - Day/Night Cycle
+  - World Bosses
+  - Corruption Heatmap
+  - Dynamic Weather
+  - Dungeon Mechanics
+  - Instancing (NO ART)
+  - Last Tower Valley
+  - Scale of the (NO ART)
+  - Camera Behavior
+
+
+================================================================================
+EPICS 4-10: AWAITING SCREENSHOTS
+================================================================================
+
+The following epics have NOT yet been extracted from screenshots.
+Stories will be added as screenshots are provided.
+
+  EPIC 4:  Combat
+  EPIC 5:  User Space
+  EPIC 6:  Items & Inventory
+  EPIC 7:  Quest System
+  EPIC 8:  Player Economy
+  EPIC 9:  Social & Multiplayer
+  EPIC 10: The Game / Bibles ("The Rest")
+
+
+================================================================================
+STANDARD POI PIPELINE REFERENCE
+================================================================================
+
+The following task structure applies to most POI stories unless
+specific hours are listed. Default hours for Medium-scale POIs:
+
+  - Concept ...................... 20h - 30h
+  - World Building (Med) ......... 80h - 120h
+  - Set Dressing (Med) ........... 80h - 120h
+  - Terrain Footprint ............ 20h - 40h
+  - Biome Dressing ............... 40h - 80h
+  - Collision Pass ............... 40h - 80h
+  - Lighting ..................... 20h - 40h
+  - Rocking ...................... 40h - 60h
+  - NPC Lighting ................. 40h - 60h
+  - Proxy Pass ................... 80h - 120h
+
+Total per Medium POI: 500h - 750h (approx)
+
+
+================================================================================
+SUMMARY: NEW STORIES FOUND (not in previous API extraction)
+================================================================================
+
+EPIC 1 - PLAYER BUILD:
+  1.  Forge Crafting Station (under Professions)
+  2.  Text Pop Up (under Achievements & Trophies)
+
+EPIC 2 - WORLD SYSTEMS ENV:
+  3.  Weather Cycles (NOT FOR VS, under Fluid Ninja Tech R&D)
+  4.  Ocean (under Fluid Ninja Tech R&D)
+  5.  River (under Fluid Ninja Tech R&D)
+  6.  POI - Cave (individual story, was summarised as "FTUE Cave POI Development")
+  7.  POI - Rope Bridge (under Zone - New TBNL)
+  8.  Cliff - Mediterranean (under Biomes)
+  9.  POI - Barracks (under Zone - Downtime)
+  10. POI - Harbor (under Zone - Downtime)
+  11. POI - House of Houses (under Zone - Downtime)
+  12. POI - Marketplace (under Zone - Downtime)
+  13. POI - Elevator Interior (under Zone - Downtime)
+  14. POI - Elevator Top (under Zone - Downtime)
+  15. POI - Tranquil Pond (under Zone - Downtime)
+  16. POI - Lighthouse (under Zone - Downtime)
+  17. POI - Housing District (under Zone - Downtime)
+  18. POI - Marketplace 2 (under Zone - Downtime)
+  19. Env Architecture Kit - Player Housing Kit
+  20. Env Architecture Kit - Deck/Scaffolding
+  21. Env Architecture Kit - Wooden Camp
+  22. Env Prop Kit - Mythcore (individual breakdown)
+  23. Env Prop Kit - Graveyard Assets
+  24. Env Prop Kit - Mythcore Ruin
+  25. Env Prop Kit - Arena
+  26. Env Prop Kit - Deck/Scaffolding
+  27. Env Prop Kit - Wooden Camp
+
+EPIC 3 - WORLD SYSTEMS THE REST:
+  No new stories -- all confirmed with task-level hours added.
+
+
+================================================================================
+EXTRACTION STATISTICS
+================================================================================
+
+  Total NEW stories found (Epics 1-3) ........ 27
+  Total CONFIRMED stories with hours ......... 80+
+  Total stories extracted (all types) ........ 107+
+
+  Epics fully extracted ...................... 3 of 10
+  Epics awaiting screenshots ................. 7
+
+  NOT FOR VS stories ......................... 9
+  OUTSOURCE stories .......................... 2
+  MVP DONE stories ........................... 2
+
+================================================================================
+END OF MASTER EXTRACTION
+================================================================================

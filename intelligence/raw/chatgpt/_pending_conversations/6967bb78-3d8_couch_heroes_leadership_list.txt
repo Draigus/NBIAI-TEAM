@@ -1,0 +1,114 @@
+TITLE: Couch Heroes Leadership List
+DATE: 2026-01-14
+MESSAGES: 4
+ID: 6967bb78-3d88-8325-97cf-4e08efd0a34b
+---
+
+[USER]
+can you make a lsit of all leads and heads and c level at couch
+
+[ASSISTANT]
+Below is a **clean, consolidated list of all C-level, Heads, and Leads at Couch Heroes**, based strictly on the **Company Profile / Leadership section** you have on file. I have **not inferred or promoted roles** beyond what is explicitly listed.
+
+Source: Couch Heroes – Company Profile fileciteturn0file0
+
+---
+
+## C-LEVEL EXECUTIVES
+
+- **Founder, CEO & Creative Director**  
+  Vardis Vardinogiannis
+
+- **Chief Technology Officer (CTO)**  
+  Mustafa Sibai
+
+---
+
+## CO-FOUNDER / EXECUTIVE HEAD
+
+- **Co-Founder, Head of Finance & Operations**  
+  Aris Konstantinidis
+
+---
+
+## HEADS (FUNCTIONAL / DEPARTMENT)
+
+- **Head of Strategy**  
+  Dino Kandiloros
+
+- **HR Manager / Head of HR**  
+  Lorenza Menna
+
+---
+
+## DIRECTORS (CREATIVE & TECH LEADERSHIP)
+
+- **Game Director**  
+  Robin Jubber
+
+- **Art Director**  
+  David Luong
+
+- **Technical Art & VFX Director**  
+  Rafael Budnik
+
+---
+
+## LEADS (DISCIPLINE LEADS)
+
+- **Lead UI/UX Designer**  
+  Antony Marques
+
+- **Lead 3D Environment Artist**  
+  Michael Dunnam
+
+- **Lead Game Developer**  
+  Raynor D’Souza
+
+- **Lead Character Artist**  
+  Sasha R. Krieger
+
+---
+
+## SENIOR (NON-LEAD, NON-HEAD)
+
+- **Senior Concept Artist**  
+  Niko Gesell
+
+- **Game Producer**  
+  Valeria Trofimova
+
+---
+
+### Notes and validation
+- No **CFO, COO, or CPO** titles are formally listed in the source document.
+- “Head of Finance & Operations” is treated as an executive-level Head, not a formal COO.
+- “Senior” roles are **not** Leads or Heads and are separated intentionally.
+- No contractors, advisors, or external roles included.
+
+If you want, next steps could be:
+- Normalize this into **C-level / VP / Director / Lead** bands for org design.
+- Flag **role gaps** versus a standard MMO studio.
+- Export this into **Excel or org-chart format**.
+
+Say the word and specify output format.
+
+[USER]
+just the names
+
+[ASSISTANT]
+Vardis Vardinogiannis  
+Mustafa Sibai  
+Aris Konstantinidis  
+Dino Kandiloros  
+Lorenza Menna  
+Robin Jubber  
+David Luong  
+Rafael Budnik  
+Antony Marques  
+Michael Dunnam  
+Raynor D’Souza  
+Sasha R. Krieger  
+Niko Gesell  
+Valeria Trofimova
+

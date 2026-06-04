@@ -1,0 +1,183 @@
+TITLE: Forecast model for Sarge
+DATE: 2025-10-15
+MESSAGES: 2
+ID: 68efb4be-13dc-832d-81c3-bdc3fc6dc7a2
+---
+
+[USER]
+as a video game forecast analyst I need a detailed model of forecasting sarge for launch
+DAU
+MAU
+ARPU
+ARPU
+CPI
+total revenue by day and month and year
+
+[ASSISTANT]
+Here’s a clean, analyst-grade forecast model you can drop into Excel or Sheets today. It covers DAU, MAU, ARPDAU/ARPU, CPI and total revenue at daily, monthly and yearly levels, with event uplifts and platform-fee netting. I attempted to generate a downloadable workbook, but my file tool errored. So below is the full blueprint with exact sheet layouts and formulas you can paste in directly. When you want, I can retry outputting the finished XLSX.
+
+# 1) Workbook structure
+Create these sheets in order:
+1) **Inputs_Overview**  
+2) **Retention_Curve**  
+3) **UA_Plan**  
+4) **Daily_Forecast**  
+5) **Monthly_Summary**  
+6) **Yearly_Summary**
+
+# 2) Inputs_Overview
+Put the following keys in a 3-column table: Section | Key | Value.
+
+**General**
+- Launch Date: `2025-11-01`  
+- Currency: `GBP`  
+- Scenario: `Conservative | Base | Target`  
+- Daily Horizon Days: `365`  
+- Monthly Horizon Months: `24`  
+- Platform Fee % – Telegram: `5`  (editable)  
+- Platform Fee % – Web: `2`  (editable)  
+- Platform Fee % – Other: `30`  (editable)
+
+**Acquisition Channels (editable numbers)**
+- Use Budget-to-Installs Calculation: `Yes`  
+- Channels: `Telegram Paid, Influencer, Web Ads, Organic/Referral`  
+- Budget Day 1 (GBP): `15000`  
+- Budget Day 2–7 (GBP/day): `8000`  
+- Budget Day 8–30 (GBP/day): `4000`  
+- Budget Day 31+ (GBP/day): `2500`  
+- CPI Telegram Paid (GBP): `0.60`  
+- CPI Influencer (GBP): `1.20`  
+- CPI Web Ads (GBP): `1.80`  
+- Organic Viral K-Factor Day 1: `0.15`  
+- Organic Viral Decay Half-life Days: `14`
+
+**Retention Targets**  (Base targets align with your plan)
+- D1 %: Cons `35`, Base `45`, Target `50`  fileciteturn2file4L137-L146  
+- D7 %: Cons `18`, Base `22`, Target `25`  fileciteturn2file4L77-L86  
+- D30 %: Cons `9`, Base `13`, Target `15`   fileciteturn2file4L91-L101
+
+**Monetisation**
+- Baseline ARPDAU Conservative (GBP): `0.07`  
+- Baseline ARPDAU Base (GBP): `0.12`  
+- Baseline ARPDAU Target (GBP): `0.18`  
+- Share of Revenue – IAP/MTX %: `80`  
+- Share of Revenue – Ads %: `0`  (ads off at mobile launch per plan) fileciteturn2file0L117-L126  
+- Share of Revenue – Other %: `20`  
+- Revenue Flow % via Telegram: `45`  fileciteturn2file4L141-L151  
+- Revenue Flow % via Web: `35`     fileciteturn2file4L157-L168  
+- Revenue Flow % via Other: `20`
+
+**Events & Uplifts**
+- Fortnightly Weekend Events?: `Yes`  (cadence matches your plan) fileciteturn2file0L1-L15  
+- ARPDAU Uplift on Event Days %: Cons `15`, Base `20`, Target `25`  fileciteturn2file0L19-L51  
+- Holiday Event Uplift %: `30`  
+- Holiday Event Days (YYYY-MM-DD): `2025-12-24,2026-01-01`
+
+**Reference KPI**  
+- CPI target guardrail: `≤ $2.50` (from GTM actions)  fileciteturn2file14L117-L121  
+- Telegram scale (context for tops-down checks): `1.2B MAU • 750M DAU`  fileciteturn2file5L5-L6
+
+# 3) Retention_Curve
+Column A = Day_Age 1..365  
+Column B = Retention (decimal)
+
+Use a simple, stable piecewise power model that hits your anchors exactly.
+
+Anchors (pull from Inputs_Overview by scenario):
+- B1 (for day 1) = D1%
+- B7 (for day 7) = D7%
+- B30 (for day 30) = D30%
+
+Fit exponents between anchor pairs:
+- **Segment 1** age 1→7: r(d) = A1*d^b1 with b1 = LN(r7/r1)/LN(7/1) and A1 = r1  
+- **Segment 2** age 7→30: r(d) = A2*d^b2 with b2 = LN(r30/r7)/LN(30/7) and A2 chosen so r(7) matches r7  
+- **Segment 3** age >30: continue with b2, or cap with a gentle tail: r(d) = r30*(d/30)^b2
+
+Excel cells (example, assuming r1 in D1, r7 in D2, r30 in D3):
+- `b1` in E1: `=LN(D2/D1)/LN(7/1)`  
+- `b2` in E2: `=LN(D3/D2)/LN(30/7)`  
+- In B2 (day=1): `=D1/100`  
+- In B3..B8 (days 2..7): `=($D$1/100)*A2^$E$1`  
+- In B9..B31 (days 8..30): `=($D$2/100)*(A9/7)^$E$2`  
+- In B32..B366: `=($D$3/100)*(A32/30)^$E$2`  
+Then wrap each with `MAX(0,MIN(1, ... ))` and enforce monotonic by `=MIN(previous_cell, this_cell)`.
+
+# 4) UA_Plan
+Dates across rows for the full horizon.
+
+Columns:
+- Date  
+- Budget (GBP) with tiers: Day1, Days 2–7, Days 8–30, Day 31+  
+- CPI by channel: Telegram, Influencer, Web Ads  
+- Installs by channel = Budget_share / CPI  
+  - Split budget evenly across paid channels unless you have a mix share.  
+  - Example formula for Installs_Telegram on a day: `= (Budget / 3) / CPI_Telegram`
+- Organic/Referral installs: `= Total_Paid_Installs * K0 * EXP(-LN(2)*(Day_Index-1)/HalfLife)`  
+  where K0 is Organic Viral K-Factor Day 1, HalfLife is Organic Viral Decay Half-life Days.
+- Total Installs = sum of paid channels + organic.
+
+# 5) Daily_Forecast
+Columns:
+- Date  
+- Installs by channel (link from UA_Plan)  
+- Installs_Total  
+- **DAU** from cohort summation:  
+  If A is Date column and Installs is column F, Retention_Curve!B is the daily retention vector, the DAU on row t is:
+  ```
+  =SUMPRODUCT(
+     OFFSET(F$2,0,0,ROW()-ROW(F$2)+1,1),
+     INDEX(Retention_Curve!$B:$B, ROW()-ROW(F$2)+1, 1) : INDEX(Retention_Curve!$B:$B, 1, 1)
+  )
+  ```
+  This multiplies each cohort’s installs by the matching day-age retention and sums.
+- **ARPDAU (GBP)** = Baseline ARPDAU from Inputs_Overview, adjusted by event flags:  
+  - Fortnightly event flag: build a helper that marks Sat–Sun every 14 days from first weekend after launch.  
+  - Holiday flag: mark provided dates.  
+  - ARPDAU_with_uplift = Baseline * (1 + EventUplift%) * (1 + HolidayUplift% if flagged)
+- **Gross Revenue / Day (GBP)** = DAU * ARPDAU  
+- **UA Spend / Day (GBP)** = Budget that day  
+- **Day-ROAS** = Gross_Revenue_Day / UA_Spend_Day  
+- **Net Revenue / Day (GBP)**  
+  Weighted platform take = `Flow_Telegram*Fee_Telegram + Flow_Web*Fee_Web + Flow_Other*Fee_Other`  
+  Net = Gross * (1 – WeightedTake)
+
+Notes that match your plan:
+- No rewarded-video inside the mobile launch build, which is why Ads % defaults to 0. Ads can be modelled later for browser partners. fileciteturn2file0L117-L126  
+- Weekend event cadence every two weeks, with 15–20 percent ARPDAU uplift used as standard. fileciteturn2file0L19-L51
+
+# 6) Monthly_Summary
+First add a Month key on Daily_Forecast:
+- Month = `=TEXT(Date,"yyyy-mm")`
+
+Then aggregate with SUMIFS/AVERAGEIFS:
+- Installs = `SUMIFS(Installs_Total, Month, this_month)`  
+- Avg DAU = `AVERAGEIFS(DAU, Month, this_month)`  
+- Gross Revenue (GBP) = `SUMIFS(Gross_Revenue_Day, Month, this_month)`  
+- Net Revenue (GBP) = `SUMIFS(Net_Revenue_Day, Month, this_month)`  
+- UA Spend (GBP) = `SUMIFS(UA_Spend_Day, Month, this_month)`  
+- **MAU (approx)**: good simple proxy = `SUMIFS(DAU, Month, this_month)*0.85`  
+  If you want precise MAU, build a monthly cohort cube and count users active ≥1 day in the month.
+- **ARPDAU (GBP)** = `AVERAGEIFS(ARPDAU, Month, this_month)`  
+- **ARPU (GBP)** = `Gross_Revenue_Month / MAU`
+
+# 7) Yearly_Summary
+- Year key on Daily_Forecast = `=YEAR(Date)`  
+- Installs, Avg DAU, Gross and Net revenue, UA Spend with SUMIFS/AVERAGEIFS by Year  
+- Avg Monthly MAU = average of the 12 monthly MAUs for that year  
+- Yearly **ARPU** = `Gross_Revenue_Year / Avg_Monthly_MAU`  
+- Yearly **ARPDAU** = `Gross_Revenue_Year / (Avg_DAU*365)`
+
+# 8) Interpreting and tuning
+- **CPI and ROAS**: Use daily budgets and CPIs to compute installs, then track Day-0 ROAS on the Daily tab. A GTM guardrail of CPI ≤ $2.50 is in your plan; tune budgets and channel mix to stay under it while holding retention and ARPDAU targets. fileciteturn2file14L117-L121  
+- **Event cadence**: Default uplifts match your weekend cadence. You can move to weekly or add mid-cycle flash sales by raising the event flag density. fileciteturn2file0L19-L51  
+- **Ads**: Keep Ads % at 0 for mobile launch. If you later enable browser platforms, add an Ads ARPDAU line or an eCPM-driven session model on a separate sheet. fileciteturn2file1L73-L83  
+- **Payment flow and net take**: Use the revenue-flow splits for Telegram and Web to net platform fees accurately. fileciteturn2file4L141-L168  
+- **Tops-down sanity checks**: Use Telegram’s scale for reach ceilings and virality expectations in your early weeks. fileciteturn2file5L5-L6
+
+# 9) What this produces
+- **Daily**: Installs by channel, DAU, ARPDAU with event uplifts, gross and net revenue, UA spend, Day-0 ROAS.  
+- **Monthly**: Installs, Avg DAU, MAU (approx), ARPDAU, ARPU, revenue and UA spend.  
+- **Yearly**: Same roll-ups with ARPU and ARPDAU.
+
+If you want the XLSX generated for you, say the word and I will output the file with the structure above and your Base scenario defaults already wired.
+

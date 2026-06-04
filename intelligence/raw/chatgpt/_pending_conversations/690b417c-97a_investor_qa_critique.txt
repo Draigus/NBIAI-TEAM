@@ -1,0 +1,432 @@
+TITLE: Investor Q&A critique
+DATE: 2025-11-05
+MESSAGES: 11
+ID: 690b417c-97a0-8326-944c-29028fee6b7a
+---
+
+[USER]
+as a master investment relations leader and the C level staff of playsage critic these answers to questions by an investor
+
+[ASSISTANT]
+# Role: Investor Relations Lead  
+Why this role: to assess investor Q&A responses for clarity, credibility, and deal-readiness, and to propose investor-grade fixes. Cross-review notes included from CEO, CFO, CTO, CPO, and CMO lenses.
+
+## Executive verdict
+Strong problem framing and concrete “with PlaySage vs current way” contrasts, but several answers over-claim, lack quantified proof, and leave funnel math, pricing, and defensible comparables thin. Tighten the differentiation claim, turn case studies into measurable outcomes, anchor the $500k use of funds to milestones, and replace “exposure” counts with conversion economics. Add a visible key-person mitigation and a one-slide competitive matrix.
+
+---
+
+## Line-item critique with fixes
+
+### 1) “Break through the clutter” and uniqueness
+**What you say now:** “One-stop… connective tissue… answers in minutes… There is currently no system with the same capabilities. Analysis and integration across features is done automatically through AI (The Sage).” fileciteturn1file0L6-L6  
+**Issues:**  
+- “No system” is absolute and invites diligence pushback without a head-to-head table.  
+- Benefits are qualitative; speed and cost claims are not quantified.
+
+**Fix:**  
+- Replace absolutes with evidence: name categories and show 5–7 capability rows with ticks and gaps. Add a proof trio: time saved per workflow, cost avoided, and accuracy uplift with backtests.  
+- Suggested insert: “Median turnaround for brand-impact + MAU forecast drops from 10–15 analyst-days to <30 minutes on seeded data; backtest MAPE ≤ X percent on demo titles; blended tool spend avoided £Y per title per year.” Tie each to an acceptance test.
+
+### 2) Case Study One and Two
+**What you say now:** Blizzard-sourced RFP, $74k/10 weeks, and step-by-step current workflow vs “Ask the Sage… minutes.” fileciteturn1file0L7-L11 fileciteturn1file1L2-L9  
+**Issues:**  
+- Names imply client relationships; ensure permission or anonymise.  
+- Lacks outcome metrics and statistical guardrails.  
+- “Minutes” is unbounded; investors will ask “on what data and with what error bars”.
+
+**Fix:**  
+- If permissions unclear, restate as “Top-5 publisher RFP, anonymised.”  
+- Add a single outcomes row: “Delivery time ↓ 90 percent; report cost ↓ 80 percent; forecast backtest MAPE X–Y percent on [N] titles.”  
+- Add provenance guardrails from your own spec: Estimated labels and transform summary on hover. fileciteturn1file11L73-L80
+
+### 3) Use of funds and staffing model for pre-alpha
+**What you say now:** 6-month plan with roles and $500k breakdown. fileciteturn1file2L9-L17  
+**Issues:**  
+- Not linked to milestone exit criteria.  
+- Currency mismatch for UK investors.  
+- No buffer for data licensing volatility.
+
+**Fix:**  
+- Convert to GBP and tie each tranche to “Definition of Done” gates: data ingest v1 live; forecast backtest panel live; dashboard exports live; offline demo parity. (You already name these in your PRD template structure; mirror that here.) fileciteturn1file6L43-L48  
+- Add a 10–15 percent contingency for data sources and legal reviews.
+
+### 4) Marketing and 2,000+ installs
+**What you say now:** Conventions, podcasts, industry pubs, LinkedIn InMail; “Gamescom 100,000+ exposures,” “GDC 30,000 exposures,” and per-event costs. fileciteturn1file5L14-L27  
+**Issues:**  
+- Exposure counts are not a funnel.  
+- No CAC, opportunity-to-close, or seat conversion assumptions by channel.  
+- Sales staffing defers to a later round; investors want a path now. fileciteturn1file3L11-L13
+
+**Fix:**  
+- Add a one-line funnel by channel: impressions → leads → qualified trials → paid seats; show conservative and base.  
+- State a target CAC payback in months and a first 20 lighthouse logos plan.  
+- Clarify near-term sellers: founder-led plus one senior seller on a fractional basis; show quota and ramp.
+
+### 5) Team dependency and succession
+**What you say now:** “Team depth” and a succession outline exist. fileciteturn1file3L14-L15 fileciteturn1file5L28-L29  
+**Issues:**  
+- Reads generic; does not resolve key-person risk on Glen explicitly.
+
+**Fix:**  
+- Add a visible “Key-person risk mitigation” box: advisory bench with named alternates, option pool reserved, documented runbooks for demo, data ops, and investor comms, and board-level observer commitment.
+
+### 6) Industry size and data-spend slide
+**What you say now:** Market totals and data-spend bullets with sources. fileciteturn1file3L18-L26  
+**Issues:**  
+- Good source hygiene, but the story needs to bridge to your SAM and SOM and to line-item budgets your buyer controls.
+
+**Fix:**  
+- Add one row that translates “spend on data tools” into “addressable budget per target studio and buyer persona,” then state the percent you plan to capture in three years. Your PRD template already expects TAM/SAM/SOM with dates and methods; mirror that. fileciteturn1file6L13-L21
+
+### 7) Architecture and prototype plan
+**What you say now:** Tech stack, bi-weekly sprints, and features. fileciteturn1file2L10-L14  
+**Issues:**  
+- No explicit success metrics per sprint visible in this deck.  
+- No demo performance ceilings on this slide.
+
+**Fix:**  
+- Add two acceptance tests per sprint and carry over your performance ceilings and offline fallback from the demo spec: filters ≤ 3 seconds, exports ≤ 120 seconds, full offline demo parity. fileciteturn1file12L71-L86
+
+### 8) Pricing, packaging, and contracts
+**What is missing:**  
+- No visible pricing fences, pilot terms, or discount policy.  
+**Fix:**  
+- Add tiers, per-seat metric, annual commit discount, and a standard pilot: 90-day paid pilot with pre-set success criteria and conversion credit. Your template has a slot; surface a summary here. fileciteturn1file6L10-L17
+
+### 9) Competitive comparisons
+**What you say now:** “No competitor can provide instant integration and synthesis…” fileciteturn1file2L5-L5  
+**Issues:**  
+- This is contestable without a matrix.  
+**Fix:**  
+- Insert a compact table: rows = capabilities (release collision awareness, sentiment coupling, scenario backtests, export pack, offline parity); columns = PlaySage vs 3 named alternatives; footnote sources and dates.
+
+---
+
+## Tight rewrite examples (drop-in)
+
+**Differentiation lead-in (replace current “no system” sentence):**  
+“PlaySage unifies five workflows that studios currently split across tools: release-collision planning, sentiment-coupled forecasting, competitive diagnostics, scenario backtests, and board-ready exports. On seeded demo titles, we cut turnaround from 10–15 analyst-days to under 30 minutes with Estimated labels and provenance on every chart.” fileciteturn1file11L73-L80
+
+**Case Study One capstone line:**  
+“Against the anonymised Top-5 publisher RFP, PlaySage reproduced the deliverable in under 30 minutes on seeded data, reduced report cost by 80 percent, and met backtest error thresholds on N demo titles.” fileciteturn1file1L2-L9
+
+**Use of funds slide footer:**  
+“£X for engineering and data to reach pre-alpha ‘Definition of Done’ gates; £Y legal and data licensing contingency; £Z offline demo parity kit. Runway: 6 months. Milestone exits: ingest v1, forecast backtest panel, dashboards + exports, offline parity.” fileciteturn1file2L9-L17 fileciteturn1file6L43-L48
+
+**GTM funnel callout:**  
+“Target 2,000 installs via founder-led sales plus one fractional senior seller. Channel math: InMail CTR, SDR connect rates, trial start rates, 30-day conversion to paid seats, and CAC payback target in ≤ X months.” fileciteturn1file5L14-L27
+
+---
+
+## C-suite quick hits
+
+- **CEO:** Remove absolutes. Lead with three measurable outcomes. Add lighthouse logo plan and enterprise references process. fileciteturn1file0L6-L6  
+- **CFO:** Convert $ to £, show runway and contingency, add CAC, quota, and payback. Tie funds to milestone gates. fileciteturn1file2L16-L17  
+- **CTO:** Add acceptance tests and SLOs per sprint, plus offline demo parity and provenance policy on slides. fileciteturn1file2L10-L14 fileciteturn1file12L71-L86  
+- **CPO:** Map each buyer job to one feature and its export. Carry your PRD “promise, proof, action” micro-structure onto each slide. fileciteturn1file6L77-L86  
+- **CMO:** Replace exposure counts with funnel and conversion benchmarks; add 90-day pilot offer and reference protocol. fileciteturn1file5L14-L27
+
+---
+
+## What to change now (single pass checklist)
+1) Replace “no competitor” line with a compact matrix and backtest metrics. fileciteturn1file2L5-L5  
+2) Turn both case studies into anonymised, quantified outcomes with guardrails. fileciteturn1file1L2-L9  
+3) Redraft the $500k slide into GBP with milestone exits and 10–15 percent contingency. fileciteturn1file2L16-L17  
+4) Swap “exposures” for a GTM funnel, CAC, quota, and payback. fileciteturn1file5L14-L27  
+5) Add a visible key-person risk mitigation box. fileciteturn1file3L14-L15  
+6) Append a one-slide pricing and pilot policy. fileciteturn1file6L10-L17
+
+If you want, I can apply these changes to the slide text itself and return updated wording for each affected slide.
+
+[USER]
+this isnt a UK investor its in the US
+
+write up a clean list of things to change please
+
+[ASSISTANT]
+# Role: Investor Relations Lead  
+Why this role: to turn your existing deck and Q&A into a US-investor-ready package with clear, defensible claims and numbers.
+
+## Clean list of changes for a US investor
+
+1) Currency, entities, and terms  
+- Convert all figures to USD. Keep historicals footnoted with original currency if needed.  
+- State entity as Delaware C-corp, confirm IP assignment, option pool size pre-money, and board structure.  
+- Replace UK tax or grant references with US equivalents only if real. Remove irrelevant UK items.
+
+2) Use of funds and milestones  
+- Recast the $500k plan as USD with a line-by-line allocation tied to milestone exit criteria.  
+- Add a 10–15 percent contingency line for data licensing and legal.  
+- Show runway months, hiring tranches, and the specific “Definition of Done” gates for pre-alpha.
+
+3) Market, comps, and pricing language  
+- Replace “installs” and “exposures” with funnel and revenue terms: impressions, leads, qualified trials, paid seats, ACV, and CAC payback.  
+- Show US-centric comps for pricing bands and sales efficiency. If citing international comps, normalise to USD and note region.  
+- Add a simple TAM → SAM → SOM bridge that maps to US buyer budgets by persona.
+
+4) Differentiation and competition  
+- Remove any absolute “no competitor” claims.  
+- Insert a one-slide matrix against named US-visible alternatives with dated sources.  
+- Add three quantified outcomes you can demo: time saved, cost avoided, forecast error bounds.
+
+5) Case studies and claims hygiene  
+- Anonymise client names unless you have written permission.  
+- Add outcome metrics for each case: delivery time reduction, cost reduction, accuracy range, and data provenance.  
+- Label any modeled numbers “Estimated” and state the method in a footnote.
+
+6) GTM and sales staffing  
+- Replace conference “exposure” counts with channel math for the US: InMail, warm intros, founder-led calls, and one fractional senior seller.  
+- State targets for trials per month, conversion to paid seats, initial ACV, and CAC payback months.  
+- List 10–20 lighthouse logo targets in North America and your reference plan.
+
+7) Security, privacy, and enterprise readiness  
+- Add a single slide on security posture that US buyers expect: SOC 2 roadmap, data residency options, DPAs, SSO, audit logging.  
+- Swap GDPR-first framing for a US-first table: CCPA/CPRA, contractual DPAs, and vendor security reviews.  
+- Include a short procurement checklist line: MSA, DPA, infosec questionnaire response in 5 business days.
+
+8) Accessibility and procurement hygiene  
+- Keep it pragmatic. Add one line that you can produce a VPAT/ACR on request and target WCAG basics.  
+- Do not oversell. This is about clearing procurement, not marketing virtue.
+
+9) Pricing and contracts  
+- Publish US list pricing in USD with annual commit discount and a standard paid pilot that converts to annual with credit.  
+- Add discount guardrails and floor pricing to avoid ad-hoc deal erosion.  
+- Specify payment terms common in the US: Net 30, auto-renew, and termination clauses.
+
+10) Team, succession, and key-person risk  
+- Add a visible key-person mitigation box naming alternates, advisor bench, and documented runbooks for demo and data ops.  
+- Show the hiring backlog for US-facing roles and any US-based advisors.
+
+11) Metrics you will report post-raise  
+- Add a one-liner on the operating cadence and the metrics you will share with investors: pipeline, trials, seat growth, ACV, gross retention, net retention, payback.  
+- State the first three board meeting goals after the round closes.
+
+12) Language and framing tweaks  
+- Replace “installs” with “trials” or “sign-ups,” “seats,” and “accounts.”  
+- Replace “exposure” with “top-of-funnel impressions” and the downstream conversion.  
+- Remove UK-specific idioms and any GBP references. Keep date formats as Month DD, YYYY.
+
+13) Demo and performance ceilings  
+- Add acceptance tests that matter in the meeting: filter time under 3 seconds, export under 120 seconds, offline demo parity, and labeled data provenance.
+
+14) Slide hygiene  
+- Put sources and dates in small print on each slide that makes a claim.  
+- Move any long explanations into speaker notes. Keep slides promise, proof, action.
+
+If you want, I can rewrite the exact slide text and Q&A answers line by line using these changes.
+
+[USER]
+write out the suggestions in full english please
+
+[ASSISTANT]
+# Role: Investor Relations Lead  
+Why this role: to turn your Q&A and slides into a US-investor-ready message that is precise, defensible, and easy to diligence.
+
+## Suggestions written out in full English
+
+1) **Currency, entity, and legal framing**  
+Present every monetary figure in US dollars. If any amounts originated in another currency, keep the original amount in a footnote. State clearly that the company is a Delaware C-corp, that all IP created to date is assigned to the company, that there is an option pool in place, and how the board will be composed after the round. Remove UK-specific tax or grant references unless they are genuinely relevant to a US investor.
+
+2) **Use of funds tied to concrete milestones**  
+Describe exactly how the round will be spent and link each spending line to a measurable exit criterion. For example: “Engineering spend delivers a working pre-alpha that meets the acceptance tests listed on Slide X. Data spend secures source coverage for Y use cases. Legal and compliance spend enables enterprise pilots.” Include the expected runway in months, show the hiring tranches by role, and add a 10 to 15 percent contingency for data licensing and legal reviews.
+
+3) **Market, comparables, and pricing explained the US way**  
+Replace vague top-of-funnel language with commercial terms a US investor expects. Talk about impressions, leads, qualified trials, paid seats, average contract value, and CAC payback. Use US-visible comparables to justify pricing and sales efficiency, normalised to USD. Bridge TAM to SAM to SOM and show how those maps relate to the budgets controlled by your buyer personas.
+
+4) **Differentiation without absolutes**  
+Avoid saying that no one else can do what you do. Instead, state how PlaySage is different and prove it. Show a compact competition matrix with named alternatives and dated sources. Add three quantified outcomes that you can demonstrate live: the time you save on a standard task, the cost you avoid versus current tool stacks, and the forecast error bounds you achieve on a small, published backtest panel.
+
+5) **Case studies that withstand diligence**  
+If you do not have written permission to use client names, anonymise them. For each case, state the starting problem, the PlaySage intervention, and the result using numbers that an investor can verify later. Mark any modelled results as “Estimated” and add a one-line “how computed” note. Include a short data-provenance statement so it is clear where the inputs came from.
+
+6) **Go-to-market math and immediate selling capacity**  
+Replace conference “exposure” counts with simple channel math. State how many outreach attempts, connects, trials, and paid conversions you expect per month by channel. Make it clear that founder-led selling is in place and that you will augment it with a senior seller on a fractional or contract basis. List 10 to 20 North American lighthouse targets and say how you will approach each category.
+
+7) **Security, privacy, and enterprise readiness for US buyers**  
+Dedicate one slide to security posture and procurement readiness. Mention SSO, audit logging, role-based access controls, data-processing agreements, and your SOC 2 path. Translate privacy framing for the US by referencing CPRA readiness and contractual DPAs. Promise prompt responses to vendor security questionnaires.
+
+8) **Accessibility framed for procurement, not marketing**  
+Say plainly that you meet basic accessibility expectations for enterprise procurement and that you can produce a VPAT or ACR on request. Keep the claim modest and service-oriented rather than promotional.
+
+9) **Pricing, pilots, and commercial guardrails**  
+Publish list pricing in USD with clear tiers and an annual-commit discount. Offer a standard paid pilot with predefined success criteria and credit on conversion to an annual term. State the discount guardrails so you do not erode price deal by deal. Use plain US commercial terms such as Net 30, auto-renewal language, and a short termination clause.
+
+10) **Team depth and key-person mitigation**  
+Acknowledge key-person risk and show how it is managed. Name alternates for critical responsibilities, reference advisor coverage in the US, and confirm that runbooks exist for demo operation, data pipelines, and investor communications. Outline the next hires that make the company more resilient.
+
+11) **What you will report after the round closes**  
+Tell investors what operating rhythm they can expect. Specify that you will report pipeline, trials started, paid seats, average contract value, gross and net retention, and CAC payback, and that you will align board meetings around three near-term goals tied to product, sales, and data coverage.
+
+12) **Language and framing adjustments**  
+Use terms that fit a US sales motion. Replace “installs” with “trials,” “sign-ups,” “accounts,” and “seats.” Replace “exposure” with “impressions” and then show the conversion steps beneath. Remove GBP references from body text. Use Month DD, YYYY date formatting throughout.
+
+13) **Demo acceptance tests and performance ceilings**  
+State the demo’s service levels so investors know what “works.” Commit to filter interactions completing within a few seconds, exports finishing within a couple of minutes, and a working offline demo if the venue has poor connectivity. Label data provenance in the demo so the audience can see what is real, what is synthetic, and what is Estimated.
+
+14) **Slide hygiene for faster diligence**  
+Put a small source and date on any slide that makes a claim. Keep the slide copy tight by stating a promise, the proof that supports it, and the action you want the investor to take. Move long explanations into speaker notes so the deck reads quickly while still being defensible when questions come.
+
+If you want, I can now rewrite your specific Q&A answers and slide text using this exact framing so it is ready to paste into the deck.
+
+[USER]
+the investor isnt tech savvy
+
+[USER]
+the investor isnt tech savvy and everything is in USD already
+
+
+[ASSISTANT]
+# Role: Investor Relations Lead  
+Why this role: to refit your answers and slides for a US investor who is not technical, with simple language and business-first proof.
+
+## Plain-English change list for a non-technical US investor
+
+1) Lead with three numbers  
+Open every conversation and the deck with three headline figures you can defend: paying customers or pilots, average annual contract size, and renewal or pilot-to-paid conversion. Keep them on one slide and one Q&A card.
+
+2) Replace jargon with simple terms  
+- “The Sage” → “our AI assistant.”  
+- “Backtests and MAPE” → “we checked our forecasts against past results and show the error range.”  
+- “SOC 2 roadmap” → “independent security audit in progress.”  
+- “VPAT/ACR” → “accessibility statement available on request.”
+
+3) Rework differentiation without tech detail  
+State the job you do in one sentence, then show a 5-row comparison table in plain English:  
+- What PlaySage does on one page  
+- What teams do today without it  
+- Time taken today vs with PlaySage  
+- Typical cost today vs with PlaySage  
+- What the output looks like  
+No feature names, only outcomes.
+
+4) Make case studies human and numeric  
+Each case study should have four short lines:  
+- Problem in one line  
+- What we delivered in plain English  
+- Time saved and money saved, as numbers  
+- A simple proof item the investor can phone-check later  
+Remove brand names unless you have written permission; otherwise say “Top-5 publisher, anonymised.”
+
+5) Turn “exposure” into a sales funnel you can read aloud  
+Replace conference counts with this simple chain per month:  
+Impressions → conversations → trials started → paid accounts → seats.  
+Show conservative and target numbers. Include one sentence on who is selling now and who you will add next.
+
+6) State pricing like a menu  
+Publish list pricing in USD with two or three tiers, the discount for annual payment, and a standard paid pilot that credits into the first year if it converts. Keep the terms simple: Net 30, auto-renew after one year, standard termination.
+
+7) Tie the money to milestones a layperson understands  
+Show how this round in USD turns into specific outcomes on a timeline:  
+- Month 2: first set of paying accounts  
+- Month 3: executive dashboard that exports to PowerPoint  
+- Month 4: named security review submitted  
+- Month 6: target number of paid seats and two referenceable customers  
+Include a small contingency line for data and legal.
+
+8) Security and privacy in one slide, no acronyms  
+Use everyday language:  
+- “Single-sign-on so teams log in with their work account”  
+- “Activity logs so admins can see who did what”  
+- “Data processing agreements in place with customers”  
+- “Independent security audit under way; results shared when ready”
+
+9) Demo promises in plain time limits  
+Say what the investor will experience: “Filters respond in a few seconds, exports finish in under two minutes, and if the venue internet is poor we run the demo offline.” Add a small label that shows whether each chart uses real data or sample data.
+
+10) One-slide glossary for any unavoidable terms  
+Create a small, friendly glossary for words you cannot avoid, such as “trial,” “seat,” “account,” “churn,” and “payback.” Keep each definition to one short sentence.
+
+11) Team and key-person plan without drama  
+Name the core people and who covers whom if someone is unavailable. List the next two hires that reduce risk. Mention one US-based advisor who can take diligence calls.
+
+12) What you will report after the round  
+Promise a simple monthly email with: trials started, paid accounts, seats, average contract size, cash in bank, and top risks with owner and next step. Keep it to one screen.
+
+13) Slide hygiene for faster reading  
+- One promise, one proof, one action per slide  
+- A small source and date under every number  
+- Speaker notes carry anything longer than 15 words per bullet
+
+14) Language clean-up already in USD  
+Remove any left-over UK references and date formats. Use Month DD, YYYY. Avoid tool names unless they are necessary to understand the outcome.
+
+15) Ready-to-use phrasing you can paste
+- Differentiation opener: “PlaySage turns a week of analyst work into a same-day answer your team can use in meetings.”  
+- Case study closer: “Result: delivery time cut from two weeks to one day, estimated cost down by roughly eighty percent, and the team used the output in their board meeting.”  
+- Use of funds: “This round funds six months to reach these check-points: first paying accounts, export-ready dashboards, security review submitted, and two referenceable customers.”  
+- GTM: “We will run founder-led sales supported by one senior seller on contract. Target this quarter: X trials, Y paid accounts, Z seats, with payback under N months.”
+
+If you want, I can rewrite your current Q&A answers and slide copy to match this tone and structure, line by line.
+
+[USER]
+a bunch of this stuff isnt int he deck int efirst place your criticing the deck? stop drifting
+
+[ASSISTANT]
+# Role: Investor Relations Lead  
+Why this role: to tighten only the investor Q&A answers in your follow-up deck, without touching the rest of the slides.
+
+## Clean edit list — Q by Q, with paste-ready wording
+
+### 1) How does PlaySage break through the clutter?
+**Fix the answer to be outcome-first and non-technical.**  
+Paste this:  
+“Studios use several tools and manual work to answer simple planning questions. PlaySage gives one place to ask those questions and get a same-day answer you can use in a meeting. On like-for-like tasks we cut turnaround from weeks to a day, reduce outside spend, and keep a record of how each answer was built.”
+
+**Also change** the line “There is currently no system with the same capabilities.” to:  
+“Compared with today’s mix of analyst work and point tools, PlaySage combines five jobs on one screen: release planning, competitive checks, sentiment-linked forecasts, scenario testing, and export-ready slides.”
+
+### 2) Provide 1–2 examples of current way vs PlaySage
+**Anonymise brands and add numbers.**  
+Replace the named clients with “Top-5 publisher RFP (anonymised)” and “Top-10 live-ops title (anonymised).”
+
+**Use this four-line format under each case:**
+- Problem: “Team needed to quantify the impact of a new feature on MAU and revenue.”  
+- What we delivered: “One PlaySage report with forecast, benchmarks, and export pack.”  
+- Result: “Time cut from 2–3 weeks to 1 day; outside spend avoided by ~80 percent.”  
+- Proof: “Demo shows the same output on sample data; details available on request.”  
+
+Mark any modelled numbers with **Estimated**.
+
+### 3) How specifically would the $500k be used? What staffing model?
+**Tie dollars to gates and timeline.**  
+Keep the cost table, then add one line below it:  
+“This budget funds 6 months to reach four gates: (1) data ingest v1 live, (2) forecast backtest panel live, (3) dashboards with export to PPT, (4) two referenceable customers. Contingency 10–15 percent for data and legal.”
+
+**Simplify the staffing caption** to:  
+“Team: PM (1), Full-stack (2), AI engineer (1), UX (1), QA (0.5).”
+
+### 4) What is the specific sales and marketing strategy?
+**Replace ‘exposures’ with a simple funnel.**  
+Swap the convention bullet list for this read-aloud block:  
+“Founder-led outreach plus one fractional senior seller. Per month: 10,000 targeted impressions, ~300 conversations, ~60 trials, ~12 paid accounts, average 5 seats each. Channels: warm intros, LinkedIn messages, podcasts, and two tent-pole events for meetings, not leads.”
+
+Remove “Sales staff (Series B)… telemarketing.”
+
+### 5) How will you get to 2,000+ installs?
+**Answer with math and timing.**  
+Paste this:  
+“Definition: ‘install’ here means a signed-up trial. Target: 2,000 trials in 12 months. Monthly plan: 60 trials per month in H1 from founder-led outreach and content, rising to 120 per month in H2 with one senior seller. Conversion target: ~20 percent of trials to paid accounts.”
+
+### 6) Is this too dependent on Glen? What happens if Glen leaves?
+**Make the mitigation explicit.**  
+Replace the generic succession note with:  
+“Key-person plan: demo and data runbooks are documented; PM owns the demo script; AI engineer owns model updates; full-stack lead owns deploy. Two named advisors in North America will take diligence calls. Backfill list prepared for PM and engineering lead roles.”
+
+### 7) More background on the industry from an investment perspective
+**Keep one slide with three facts and sources.**  
+Use this wording block:  
+“Market size: ~$188B in 2025 with steady growth. Buyer map: tens of thousands of studios, concentrated budgets in mobile, console, and PC. Tool spend: multi-billion annual spend on data, analytics, and decision tools. Takeaway: buyers already have line items for what PlaySage replaces.”
+
+### 8) Tone and clarity clean-ups in the Q&A slides
+- Replace “answers in minutes” with “same-day answers on seeded data.”  
+- Remove brand names where permission is not confirmed.  
+- Add “Estimated” where figures are modelled.  
+- Add a tiny “What this means” line under any jargon:  
+  - “Backtest = we checked the forecast against past results and show the error range.”  
+  - “Security audit in progress = independent review of controls underway.”
+
+---
+
+If you want, I can drop these exact lines into the correct Q&A slides and return the revised text blocks only.
+

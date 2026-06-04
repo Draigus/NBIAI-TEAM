@@ -1,0 +1,1435 @@
+TITLE: Playsage features breakdown
+DATE: 2025-10-10
+MESSAGES: 30
+ID: 68e86395-e004-8326-8254-6b0e34ce0513
+---
+
+[USER]
+as an expert prodcut manager I need a clear breakout of each element of playsage with its features and compnents 
+
+[ASSISTANT]
+Role: Product Manager. Reason: you asked for a feature and component breakdown of Playsage.
+
+# Playsage elements, features, and components
+
+## 1) Market Overview
+**Purpose:** Cross-store view of market performance with unified definitions. fileciteturn1file11L49-L56  
+**Features:** Genre and sub-genre indexes, filters by platform, country, and time window; TAM and SAM models with editable inputs; saved views and export. fileciteturn1file11L49-L55 fileciteturn1file11L53-L59  
+**Primary components:**  
+- Filters: platform, region, genre, window. fileciteturn1file1L29-L35  
+- Views: leaderboard tiles for leaders, climbers, decliners; saved views. fileciteturn1file11L55-L59  
+- Actions/Exports: save, PDF export in demo flow. fileciteturn1file10L9-L13
+
+## 2) Competitive Landscape
+**Purpose:** Head-to-head competitive analysis. fileciteturn1file11L61-L69  
+**Features:** Title compare vs genre median, feature diff matrix, “What Changed” inspector tied to updates and review shifts. fileciteturn1file11L61-L68  
+**Primary components:** compare controls, diff matrix table, update and review change detector. fileciteturn1file10L11-L15
+
+## 3) Sentiment
+**Purpose:** Daily sentiment index with topic clustering from store reviews. fileciteturn1file11L71-L79  
+**Features:** Since-Last-Update view, intent tags, verbatim browser with platform, locale, version, topic filters. fileciteturn1file11L73-L81  
+**Primary components:** topic model pipeline and verbatim browser; profanity screening. fileciteturn1file11L81-L81
+
+## 4) Foresight Forecasting
+**Purpose:** Rolling 90-day forecasts with backtests and drivers. fileciteturn1file11L83-L91  
+**Features:** Backtest ribbon and error bands, driver cards, scenario toggles for cadence, pricing, events; save and compare scenarios; finance export. fileciteturn1file11L85-L93 fileciteturn1file1L1-L8  
+**Primary components:**  
+- Inputs/Outputs: KPI history, price history, events, sentiment → forecast ribbon with confidence and reasons. fileciteturn1file1L1-L4  
+- Actions/Exports: save scenario, export to finance, create alert from forecast breach; CSV export. fileciteturn1file1L5-L8
+
+## 5) Release Radar / Market Watch
+**Purpose:** Calendar of releases, updates, DLC, and beats with collision risk. fileciteturn1file1L23-L31  
+**Features:** Collision risk score, time to next safe window, evidence links, thresholds and alerts, PNG/CSV export. fileciteturn1file1L31-L41 fileciteturn1file1L39-L45  
+**Primary components:** calendar and evidence list views; inputs from publisher newsrooms, store news, press wires. fileciteturn1file1L33-L38
+
+## 6) IAP Pricing Intelligence
+**Purpose:** Track IAP baskets, price ladders, affordability by region. fileciteturn1file1L53-L61  
+**Features:** Ladder view, basket affordability, SKU change history, fee scenario overrides, CSV/PNG export. fileciteturn1file1L63-L71  
+**Primary components:** store IAP data ingestion, affordability index and ladder gap flags. fileciteturn1file1L65-L69
+
+## 7) Alerts
+**Purpose:** Monitor KPI and sentiment conditions and route to action. fileciteturn1file1L83-L91  
+**Features:** Threshold, spike, slope, and competitor-update rules; feed and rule list; email preview now, Slack/Teams/webhook staged; CSV history. fileciteturn1file5L29-L37 fileciteturn1file2L31-L37  
+**Primary components:** rule engine over metrics, sentiment, releases; event payload with snapshot and severity; escalation and digests. fileciteturn1file1L95-L101 fileciteturn1file5L31-L39
+
+## 8) The Sage (Advisor)
+**Purpose:** Recommend next best actions with confidence and expected lift range. fileciteturn1file1L113-L121  
+**Features:** Ranked recommendations with evidence viewer, accept or execute, runbook export; guarded by Foresight scenario checks; outcome learning log. fileciteturn1file1L123-L131 fileciteturn1file5L87-L95 fileciteturn1file5L101-L107  
+**Primary components:** inputs from all modules plus priors; confidence score and lift range; CSV/PDF runbooks. fileciteturn1file1L125-L133
+
+## 9) Executive Dashboard
+**Purpose:** Role-focused top tiles with drill-through. fileciteturn1file2L75-L83  
+**Features:** Presets for Exec, PM, Live ops; tiles include 90-day forecast, sentiment delta, cadence heatmap, IAP index summary, The Sage, alerts feed; PNG export. fileciteturn1file2L83-L97  
+**Primary components:** preset switcher, tile APIs from modules, single screen with drill links. fileciteturn1file2L87-L95
+
+## 10) API and Exports
+**Purpose:** Programmatic access and consistent exports. fileciteturn1file2L105-L113  
+**Features:** Read endpoints for catalog, KPIs, releases, sentiment, forecasts; CSV, JSON, PNG, PDF; webhooks for alerts and The Sage; connectors for BI tools; schema catalog. fileciteturn1file2L117-L124 fileciteturn1file6L17-L26  
+**Primary components:** API docs and keys, scoped tokens, pagination and rate limit headers. fileciteturn1file6L17-L27
+
+## 11) Data Platform and Provenance
+**Purpose:** Reliable pipelines and transparent sourcing. fileciteturn1file6L29-L37  
+**Features:** Scheduled harvesters and CSV drops, transforms for rank-to-revenue proxy, topic modelling, feature building for forecasting; hover provenance with public vs estimated flags and steps. fileciteturn1file6L31-L37  
+**Primary components:** schema validation, privacy screening, provenance UI. fileciteturn1file6L31-L39
+
+## 12) Security and Governance
+**Purpose:** Enterprise-grade controls. fileciteturn1file7L23-L41  
+**Features:** SSO, roles with object and field rules, audit of admin changes and exports, pseudonymised people analytics by default; export watermarking and activity logs. fileciteturn1file7L29-L43 fileciteturn1file6L61-L69
+
+## 13) Admin and Configuration
+**Purpose:** Workspace and policy management. fileciteturn1file6L81-L89  
+**Features:** Watchlists, competitor sets, clusters; alert templates and recommendation policy toggles; branding for reports and exports. fileciteturn1file6L83-L89
+
+## 14) Quality, Performance, and Trust
+**Purpose:** Fast, explainable, demo-safe experience. fileciteturn1file6L71-L79  
+**Features:** Cached tiles, latency targets under 2 seconds for filtered views on demo data, forecast backtest accuracy shown near charts, consistent time zones and currencies. fileciteturn1file6L73-L79 fileciteturn1file11L9-L13
+
+## 15) Surveys and Panel Signals (optional pack)
+**Purpose:** Merge survey sentiment with store sentiment to test ideas. fileciteturn1file6L51-L59  
+**Features:** Age and platform splits, micro-panel pulses, unified visualisation inside dashboards. fileciteturn1file6L53-L60
+
+## 16) Implementation packages and SLOs
+**Contents:** Starter, Standard, Enterprise bundles; time-to-insight, forecast accuracy bands, alert latency, refresh SLOs, export safety checks. fileciteturn1file7L207-L225 fileciteturn1file7L225-L249
+
+---
+
+If you want, I can drop this into the Playsage PRD template with “7.x Feature” blocks so each module carries purpose, inputs, outputs, UI, interfaces, and acceptance tests in a single document for sign-off. fileciteturn1file12L87-L96
+
+[USER]
+that was terrible, you used strange terms not common language or game development terns
+
+look at the prompt below and break out all of foresight features and capabilties
+
+As an expert data scientist and video game forecaster write a detailed prompt explaining the requirements to create a vibe coded forecast model that forecasts video games including mobile, telegram games, pc games, steam games across all genre of games. the model will draw from all games in that specific genre by researching baseline data across that genre and establishing a baseline average and curvature of performance in a myriad of metrics by searching all availble data sources across the web. the model should allow me to adjust metric values as needed post forecast but should forecast each metric based upon the genre average for that platform based upon gathered data that the model system would gather or ingest from an API. this model should be reusable and resiliant and it should automatically validate its own results multipel times to mitigate hallucinations and errors: (please take your time and use extreme care in framing this preprompt, ask as many quesitons as needed)  
+DAU
+MAU
+ARPU
+ARPPU
+LTV
+RETENTION
+AQUISITION
+ROAS
+CAC
+INSTALLS
+CCU
+CONVERSION
+SESSION COUNT
+ORGANIC VS PAID INSTALLS
+AVG PLAYTIME PER WEEK/ MONTH/ YEAR
+CLICK THRU
+COST PER CLICK
+
+questions and answers below:
+To build a precise and reusable vibe-coded video game forecast model, I have clarified the following:
+
+1. Time Frame for Forecasts: What is the desired forecast horizon (e.g., 1 month, 6 months, 1 year)?
+
+2. Platforms & APIs: Do you already have access to any data sources or APIs (e.g., App Annie, Steamcharts, Sensor Tower, Data.ai), or should the model research from scratch?
+
+3. Genre Coverage: Should it forecast all genres simultaneously or focus on one genre at a time per forecast run?
+
+4. Baseline Metrics Source: Do you want it to use only public sources or incorporate proprietary/private data too?
+
+5. Forecast Granularity: Should forecasts be per game, per platform-genre segment, or both?
+
+6. Deployment Type: Should this be a cloud-deployed model, a local script, or a notebook-based research tool?
+
+7. User Input System: How would you like to input or adjust metric values—GUI interface, config file, or command line?
+
+8. Output Format: Should forecasts be visualized (charts, dashboards), exported (CSV, JSON), or integrated into a broader system?
+
+1. there needs to be an option to choose 1,2,3,4,5 year. the granularity fo the results needs to be by day, month, year
+2. not yet the model needs to gather this data, the option to attach a database of data must exist
+3. it should start with a question set that defines the genre of the specific title in question and then idenfty the genre(s) most accurate to that title. the user shoudl be able to choose the genre from a drop down to align syntax in the models data set. The data set should have all genre data everywhere availible. 
+4. I want both, I want there to be a easy upload option for the user to upload baseline genre data when availible.
+5. forecasts options shoudl be: by game OR by genre, the option to include mutliple title for forecast comparison should also be availible across all the kpi's and metrics
+
+7. GUI interface with a control panel to change input values 
+8. the output should be a very well formated excel verison for download, ALSO it should create a stylish and dynamic dashboard of charts and graphs with control options to see each metric, adjust timelines, breakdowns by consoles, metrics, time, region in an option set of drop downs across the top.  the graphs should be exportable and should allow me to put notes on the graph that would be saved to that forecast.  each forcast need to be saved for future use.
+
+added requirements: 
+
+ the forecast model should also write a written summary of the forecast details noting strengths and challenges that need to be addressed in the title
+10. the model system needs to be able to ask quesitons of the user and ingest the answers to inform the model as needed. An Example of a question set is attached, this is an example not a static set. the qna needs to adjust to business model (box sales, ftp live service, box sales + live service, freemium etc)
+
+[ASSISTANT]
+Role: Product Manager. Reason: you asked for a plain-language, game-industry breakdown of Playsage Foresight features and components, mapped to your prompt.
+
+ASSUMPTIONS  
+A1 “Vibe coded” means genre-shaped baselines and seasonality profiles that the model reuses per platform and genre. Confidence 90 percent. Source: your prompt language.  
+A2 KPIs listed are the core set; we can include related derived metrics like ARPDAU and CPI where needed. Confidence 90 percent. Source: common games analytics practice.  
+A3 Output targets are Excel downloads plus an interactive dashboard with saved scenarios. Confidence 95 percent. Source: your stated requirements.
+
+# Foresight — features and components
+
+## 1) Forecast scopes and horizons
+- Scopes: per game, per genre, or multi-title compare.
+- Horizons: 1, 2, 3, 4, or 5 years.
+- Granularity controls: daily, monthly, yearly rollups with consistent time zones and platform calendars.
+- Platforms: mobile, Telegram, PC, Steam, console. Multi-platform merging with per-platform splits.
+
+## 2) KPI coverage and definitions
+- Traffic and users: Installs, Organic vs Paid split, DAU, MAU, CCU, Session Count, Avg playtime per week/month/year.  
+- Monetisation: Conversion to payer, ARPU, ARPPU, ARPDAU, LTV.  
+- Marketing: CAC, ROAS, CPI, Click-through rate, Cost per click.  
+- Retention: D1, D7, D14, D30, D60, D90, M1, M3, M6 cohorts.  
+- All KPIs are forecasted natively and also available as derived metrics with formula audit.
+
+## 3) Data ingestion and sources
+- Public web harvesters by platform and store where allowed, plus Steam-adjacent sources, site traffic signals, social and community proxies, and ad market benchmarks.  
+- Optional connectors: Sensor Tower, data.ai, Steamcharts, platform partner feeds, internal data drops.  
+- Easy upload: CSV/Excel upload of baseline genre data or studio history; schema checked on upload with human-readable error messages.  
+- Source registry: each series tagged with origin, recency, and quality score.
+
+## 4) Genre baselines and “vibe coding”
+- Genre library: up-to-date genre and sub-genre catalog per platform.  
+- Baseline builder: computes genre averages, spread, seasonality, update cadence effects, platform-specific curves.  
+- Title-to-genre matching: wizard asks about camera, loop, monetisation, pace, session profile, PvE/PvP and proposes 1–3 candidate genres; user confirms via drop-down.  
+- Curvature assets: reusable shapes for launch peaks, update bumps, decay tails, holidays, sports calendars, and Telegram-specific adoption patterns.
+
+## 5) Modelling engine
+- Core: ensemble of time-series models and gradient models guided by genre baselines.  
+- Drivers: updates, price changes, UA spend, feature flags, platform promos, DLC, content drops, live-ops cadence, reviews sentiment.  
+- Cold-start flow: if a title is new or data-poor, start from genre baseline curves, then adapt as signals arrive.  
+- Cross-metric coupling: installs → DAU/MAU → conversion → pay KPIs, with retention gates and session effects.  
+- Constraints: sanity bounds per KPI, monotonic rules for cumulative values, non-negative spend, unit consistency.  
+- Missing-data resilience: back-fill from proxies, shorten lookback, widen error bands, and flag confidence.
+
+## 6) Auto-validation and QA
+- Backtests: rolling origin backtests at D30, D60, D90 with error ribbons.  
+- Cross-source checks: compare same KPI from two sources; flag deltas.  
+- Identity checks: metric math reconciliation, for example ARPU × MAU ≈ monthly revenue.  
+- Drift and anomaly detector: alert when live data deviates from expected shape.  
+- Repeat runs: each forecast passes multiple validation passes before saving; any failure requires user acknowledgement.
+
+## 7) Controls and scenario editing GUI
+- Control panel: horizon, granularity, platform, region, currency, tax and fee presets.  
+- KPI editor: per-metric sliders or inputs with live recalculation and dependency hints.  
+- Spend plan: CAC or CPI targets, budget curves, and channel mix to drive installs and ROAS forecasts.  
+- Live-ops schedule: planned updates, DLC, promos, price changes, bundles.  
+- Genre sensitivity: dial that moves the model between conservative, base, and aggressive within genre variance.  
+- Notes: rich text annotations pinned to any chart point or window.
+
+## 8) Questionnaire engine
+- Adaptive Q&A: asks only what is needed given monetisation model and known data.  
+- Modes supported: premium/box, free to play live service, hybrid box + live service, freemium.  
+- Examples: primary monetisation, target regions, platform mix, expected update cadence, paid UA starting month, initial CPI expectations, price points, launch window, competitor set.  
+- All answers stored as scenario metadata and used to shape baselines and drivers.
+
+## 9) Outputs and exports
+- Excel pack: one workbook per scenario with tabs for inputs, assumptions, KPI forecasts by day/month/year, revenue bridge, retention cohorts, spend plan, and a change log.  
+- Dashboard: interactive tiles and charts, KPI selector, timeline scrubber, filters for platform, region, genre.  
+- Graph actions: export PNG/SVG, add notes, toggle bands, overlay competitors, compare scenarios.  
+- API and CSV/JSON exports for automation.
+
+## 10) Save, compare, and versioning
+- Save scenarios with name, timestamp, and tags.  
+- Compare up to N titles or scenarios across any KPI with aligned time bases.  
+- Version history and diffs: what changed, who changed it, before/after values.  
+- Snapshots: lock a scenario for investor or board packs.
+
+## 11) Metric-by-metric behaviour
+- Installs: built from CPI or CAC and spend, plus organic share model.  
+- Organic vs Paid: platform and genre priors, uplift from featuring and updates.  
+- DAU/MAU: cohort-based from installs and retention; MAU is rolling 30-day unique.  
+- Retention: cohort curves per platform-genre, adjusted by content cadence and sentiment.  
+- Conversion: probability model tied to first-purchase timing, paywall design, and country mix.  
+- ARPPU and ARPU: basket model from price ladder and payer frequency; ARPU = ARPPU × payer rate.  
+- LTV: discounted cash flow from cohorts with configurable discount rate.  
+- Session Count and Playtime: function of engagement curve and content cadence.  
+- CCU: DAU × concurrency factor from session length and overlap.  
+- CAC, CPI, CTR, CPC, ROAS: channel mix model using media benchmarks; ROAS tracked at D1/D7/D30/D90.  
+
+## 12) Multi-title comparison
+- Any KPI overlay for multiple titles.  
+- Normalise by days-since-launch or calendar date.  
+- Benchmarks: median, top quartile, bottom quartile of chosen genre and platform.
+
+## 13) Roles, governance, and security
+- Roles: viewer, editor, admin.  
+- Audit: all edits and exports logged.  
+- Workspace settings: currencies, taxes, fees, regional packs.  
+- Provenance: each chart can show data source and last refresh.
+
+## 14) Performance targets
+- Dashboard interactions under 2 seconds on cached data, under 5 seconds on fresh calculate for typical titles.  
+- Excel export under 10 seconds for a 5-year monthly scenario on standard data volumes.
+
+## 15) Acceptance tests (examples)
+- Upload a valid genre baseline CSV and see it reflected in suggested curves within 1 minute.  
+- Switch horizon from 1 to 5 years and see recalculated bands and Excel tabs expand.  
+- Adjust CPI up 20 percent and see installs, DAU, ROAS, and LTV respond directionally correctly.  
+- Save two scenarios, add notes to a chart point, export dashboard image, and download the Excel pack.  
+- Run a cold-start title with no data and receive a valid, clearly flagged baseline forecast with wider confidence bands and a written summary of risks.
+
+## 16) Written summary generator
+- On save, Foresight writes a plain-English summary of strengths, risks, levers to pull next, and watchouts, referencing evidence tiles and sensitivity points.
+
+---
+
+If you want this converted into a PRD page for Foresight, I can drop these into sections with user stories and acceptance criteria, plus a UI component checklist for the control panel and charts.
+
+[USER]
+this is way to summarized and is missing tons of detaisl do you look through all the chats in the project and files??  because it seems like youa rent able to write out the feature set by tool inside of playsage
+
+[USER]
+this is way to summarized and is missing tons of detaisl do you look through all the chats in the project and files??  because it seems like youa rent able to write out the feature set by tool inside of playsage
+
+[USER]
+?
+
+[USER]
+there is a ton of detail missing here, this need to be at a detail level that lovable ai can build the whole app
+
+[ASSISTANT]
+# Role: Product Manager — deliver a build-ready feature, metrics, and schema spec that Lovable can implement end to end. Single artifact: an Excel workbook covering modules, KPIs, tables, fields, forecasting, The Sage, alerts, finance, provenance, UX, seeded catalog, and regions. No fluff. No em dashes.
+
+ASSUMPTIONS
+A1 You want v1 scope aligned to the decisions in this thread: platforms Steam, PlayStation, Xbox, iOS, Google Play; five genres; mock data acceptable for demo with “Estimated” labels. Confidence 90 percent. Source: prior approvals in this chat.
+A2 No API in v1, but exports and webhooks are required. Confidence 85 percent. Source: your answer “no api end point for v1” and alerts delivery list.
+A3 Region taxonomy for retail box and DLC equals US, UK, EU West, EU East with listed subregions. Confidence 90 percent. Source: your “CHECK” on QF2.
+
+I’m creating a comprehensive Excel workbook now with every feature, metric, schema, and acceptance detail needed for Lovable to build. You can sort, filter, and hand it directly to engineering.
+
+[ASSISTANT]
+Role: Product Manager. Reason: you asked for a precise, game-industry feature breakdown of Playsage Foresight, grounded in your files and prior chats.
+
+I did review the attached Playsage docs and the spec threads, then pulled Foresight details into a single, concrete breakdown. Key citations are inline.
+
+# Foresight — full features and components
+
+## 1) Scope, horizons, and granularity
+- Forecast scopes: per game, per genre, and multi-title compare. fileciteturn3file2L31-L35
+- Horizons: 30, 90, 180, 360 days, plus multi-year presets; display daily, monthly, and yearly rollups. fileciteturn3file13L79-L87
+- Platforms: iOS, Google Play, Steam, PlayStation, Xbox; platform splits are selectable. fileciteturn3file10L55-L65
+
+## 2) KPI coverage by business model
+The model forecasts each KPI natively and supports derived metrics for finance and UA.
+
+### Live game KPIs
+DAU, MAU, ARPU, ARPPU, LTV, retention cohorts, acquisition/NUU, installs, CCU, conversion, sessions, average playtime, MTX revenue by type. fileciteturn3file6L1-L3
+
+### Box game with DLC
+Sell-in and sell-through by region and sub-region, MAU, DLC sell-in/sell-through, gross revenue, EBITDA, net revenue after platform and publisher shares. fileciteturn3file6L1-L3
+
+### Marketing and CRM metrics
+ROAS, views, clicks, click-through, CPC, first-play per million views. fileciteturn3file6L1-L3
+
+### Additional metric dictionary hooks
+ARPDAU, conversion rate, payer counts, assumed D7/D30, forecast outputs, and backtest error metrics are in the metrics dictionary for Foresight displays. fileciteturn3file12L45-L58 fileciteturn3file9L1-L5
+
+## 3) Data ingestion and baselines
+- Sources: store pages and leaderboards, official newsrooms, press wires; optional partner APIs and CSV uploads. fileciteturn3file13L5-L13
+- Genre baselines: compare vs genre median; reuse baseline curves per platform and genre to shape cold-start forecasts. fileciteturn3file13L29-L37
+- Provenance controls: Estimated labels and hover cards with source, transform summary, and last refresh. fileciteturn3file7L45-L51
+
+## 4) Modelling engine and drivers
+- Purpose: predict engagement and a revenue proxy with explainable drivers. fileciteturn3file0L53-L66
+- Backtests: rolling window equal to horizon; show MAPE and MAE on chart, RMSE in tooltip. fileciteturn3file13L83-L87
+- Driver set: event content size, update cadence, price or promo depth, IAP SKU changes, featuring or UA, DLC attach, CRM pushes. fileciteturn3file13L87-L95
+- Guardrails: diminishing returns when levers overlap, price floors, low-history confidence badge. fileciteturn3file13L91-L99
+
+## 5) Control panel and scenario editing GUI
+- Core controls: title, horizon, region, platform; genre baseline toggle; scenario save. fileciteturn3file0L57-L69
+- Levers:
+  - Live-ops cadence, event size, DLC timing. fileciteturn3file13L87-L95
+  - Pricing and promo depth, IAP ladder edits. fileciteturn3file13L87-L95
+  - UA and featuring inputs to drive installs, CAC/CPI and ROAS. fileciteturn3file13L87-L95
+- Finance presets: storefront fee schedules, price elasticity for base and DLC, per-title overrides; net and recognised revenue treatment for exports. fileciteturn3file10L61-L66 fileciteturn3file9L11-L21
+- Notes: add annotations pinned to charts; persist with the scenario version. fileciteturn3file2L69-L77
+
+## 6) Outputs and surfaces
+- Charting: forecast ribbon with point and interval, backtest overlay, driver cards, and confidence/reason codes. fileciteturn3file0L61-L69 fileciteturn3file13L95-L99
+- Compare: multi-title or multi-scenario overlays aligned by days since launch or calendar date. fileciteturn3file2L31-L35
+- Exports: “Forecast CSV” and a finance summary; API stub returns the same dataset family behind dashboards. fileciteturn3file0L67-L71 fileciteturn3file2L79-L83
+- Excel pack and PDF/PNG are available from module export controls in the shared export layer. fileciteturn3file10L57-L65
+
+## 7) Validation and trust
+- Auto-validation: each run executes rolling backtests and reconciliation checks; display error metrics near charts. fileciteturn3file0L59-L66
+- Confidence signalling: low-history titles show a badge and wider bands. fileciteturn3file0L75-L79
+- SLO: compute under roughly 2 seconds for seeded titles on a 90-day horizon in the demo environment. fileciteturn3file0L71-L75
+
+## 8) Written summary
+- On save, generate a plain-English summary of strengths, risks, and next actions, linked to driver cards and sensitivity points. fileciteturn3file2L69-L77
+
+## 9) Save, versioning, and collaboration
+- Save scenario, name, tag, and compare; view diffs and who changed what; lock snapshots for investor or board packs. fileciteturn3file2L69-L77
+- Roles and SSO: Admin, Editor, Viewer with Google and Microsoft SSO; audit exports and admin changes. fileciteturn3file10L71-L85 fileciteturn3file8L113-L121
+
+## 10) Acceptance tests
+- Toggle backtest and see MAPE/MAE update correctly by horizon. fileciteturn3file13L83-L87
+- Adjust cadence, price, or UA and see the forecast ribbon and driver cards update with reason codes. fileciteturn3file13L87-L99
+- Export Forecast CSV and finance summary matching the current filters and scenario. fileciteturn3file0L67-L71
+- Low-history title shows confidence badge and wider intervals. fileciteturn3file0L75-L79
+
+---
+
+If you want the same treatment for every Playsage tool next, say “Do all modules” and I will deliver Market Overview, Competitive, Sentiment, Release Radar, IAP, Alerts, The Sage, API, and Admin in the same format with acceptance tests pulled from your docs.
+
+[ASSISTANT]
+Here you go.
+
+**Download the Excel workbook:** [Playsage_Build_Spec_20251010_034012.xlsx](sandbox:/mnt/data/Playsage_Build_Spec_20251010_034012.xlsx)
+
+It includes:
+- Modules and features with inputs, outputs, UI, controls, states, integrations, metrics, acceptance tests, SLOs, and non-goals.  
+- Full KPI dictionary covering DAU, MAU, ARPU, ARPPU, LTV, retention, acquisition, ROAS, CAC, installs, CCU, conversion, sessions, organic vs paid, playtime, CTR, CPC, rank deltas, sentiment, collision risk, affordability, fees.
+- Tables overview and detailed field schema for every dataset needed.
+- Forecast spec, The Sage spec, Alerts spec, Finance spec, Data provenance, UX spec, seeded catalog, and region taxonomy.
+
+If you need this split into engineering tickets or a Lovable import format, say the target template and I’ll convert this workbook to match.
+
+[USER]
+as an expert game industry analsyt  write up a detailed analysis page spec for playsage for landscape
+Landscape gathers all of the industry level data and news into interface
+slide out control paner on the left with a menu of sections 
+growth or shrinkage in each genre played 
+est users by platform / genre / region
+revenue by platform and genre
+game sucess ranking with selectors  fo 30-60-90-1yr that ranks top 10 titles in each genre 
+a top new aggregator on the right that list top events, launched, updated, and industry news
+
+add anything i forgot
+
+[ASSISTANT]
+Role: Game Analyst. Reason: you asked for a detailed, plain-language analysis page spec for Playsage “Landscape.”
+
+# Playsage Landscape — Analysis Page Spec
+
+## Objective
+Give a single place to understand market shape and momentum: what genres are growing or shrinking, where users are, how revenue is distributed, which titles are winning, and what industry events matter now.
+
+## Primary users
+- Executives who want a fast, accurate market read.
+- Product and publishing teams planning releases, pricing, and live ops.
+- Business development and investor relations tracking category and deal flow.
+
+## Page layout
+- **Left slide-out control panel** with a section menu and filters.
+- **Main analysis canvas** with switchable sections and charts.
+- **Right news rail** with a ranked, deduped industry feed.
+
+## Sections and features
+
+### A) Overview
+What you see on load.  
+- **Market snapshot tiles**: Total users (MAU), total revenue, average ARPDAU, average session time.  
+- **Trend lines**: 12 months of MAU and Revenue, with YoY and MoM change badges.  
+- **Share split**: Stacked bars for Platform share and Genre share.
+
+**Controls in this section**  
+Time window, currency, platform multi-select, region multi-select, genre multi-select, compare to previous period toggle.
+
+---
+
+### B) Genre growth and shrinkage
+Answers “which genres are up or down.”  
+- **Heatmap**: Genre x Period change for MAU, Hours Played, Sessions, and Revenue.  
+- **Sparkline table**: Each genre with 12-month sparkline, current share, absolute delta, and rank change.  
+- **Seasonality lens**: Optional overlay for known seasonal patterns by genre.
+
+**Definitions**  
+- Growth rate = current period metric vs prior period on the same length.  
+- Hours Played is preferred for PC/console when available, Sessions for mobile. Where both exist, show both and label clearly.
+
+---
+
+### C) Estimated users by platform, genre, region
+- **Pivot grid** with totals and drill-down to country.  
+- **Map tile** to show regional concentration by platform or genre.  
+- **Top countries list** with MAU, DAU, and share.
+
+**Notes**  
+- MAU and DAU are unique users as reported or estimated.  
+- For sources that provide CCU only, convert to MAU using a documented multiplier and label it Estimated.
+
+---
+
+### D) Revenue by platform and genre
+- **Stacked area** over time for Gross Revenue by platform.  
+- **Matrix** for Platform x Genre revenue with totals, share, and YoY growth.  
+- **Net view** toggle applies platform fees and regional taxes as presets.
+
+**Finance helpers**  
+- Currency selector with FX date stamp.  
+- Fee presets per store, editable by Admin.
+
+---
+
+### E) Game success ranking
+Ranks top titles in each genre with simple period selectors.  
+- **Period selector**: 30, 60, 90 days, 1 year.  
+- **Top 10 table per genre** with Success Score and key KPIs.  
+- **Drill**: Click a title to open a detail drawer with KPI charts and links to Competitive and Foresight.
+
+**Success Score (editable weights)**  
+- Default formula: 40% Revenue growth, 30% MAU growth, 20% Retention index, 10% Review sentiment.  
+- Weight editor stored per workspace.  
+- Tie-breakers: current Revenue, then MAU.
+
+**Extra lists**  
+- Top Movers (up), Biggest Decliners (down), Newcomers (first seen in the window).
+
+---
+
+### F) Movers and collisions
+- **Upcoming collisions**: Calendar strip showing major launches and updates that may impact target genres.  
+- **Impact estimate**: Light heuristic based on genre overlap and historical collision effects.  
+- **Watchlists**: Flag competitors to keep at the top of lists and feeds.
+
+---
+
+### G) Benchmarks and comparisons
+- **Benchmark cards**: Median, top quartile, bottom quartile for key KPIs by chosen genre and platform.  
+- **Compare sets**: Build a saved set of titles to compare across the same period.  
+- **Normalise**: Days since launch or calendar date.
+
+---
+
+## Left slide-out control panel
+
+**Menu of sections**  
+Overview, Genres, Users, Revenue, Rankings, Movers, Benchmarks, Settings.
+
+**Global filters**  
+- Time window: preset and custom date range.  
+- Granularity: day, week, month.  
+- Platforms: iOS, Android, Steam, PlayStation, Xbox, Telegram, PC non-Steam.  
+- Regions: Global, by market, by country.  
+- Genres and sub-genres: multi-select with search.  
+- Currency: GBP, USD, EUR, JPY, plus others.  
+- Include Estimated data toggle with legend.
+
+**Utilities**  
+- Save View and Share link.  
+- Export controls: CSV, Excel, PNG, PDF.  
+- Reset filters.
+
+---
+
+## Right news rail
+
+**Top news aggregator**  
+- **Tabs**: Launches, Updates, Deals, Earnings, Policy, Store changes.  
+- **Ranked items** by relevance to current filters and by source quality and recency.  
+- **Event cards**: Title, short summary, tags, source, timestamp, quick actions.
+- **Dedupe and cluster**: Merge duplicate stories across sources.  
+- **Impact hints**: “Affects X genre” and “Potential uplift or risk” based on past patterns.
+
+**Quick filters**  
+- Watchlist only, Region, Platform, Genre.
+
+**Actions**  
+- Pin to report, add note, send to Alerts, open in Competitive or Foresight.
+
+---
+
+## Data model and calculations
+
+**Key metrics**  
+- MAU, DAU, CCU, Hours Played, Sessions, Revenue Gross and Net, ARPDAU, ARPU, Retention D1/D7/D30, Sentiment index.  
+- All metrics carry metadata: source, last refresh, method (reported or estimated), unit.
+
+**Estimation rules**  
+- CCU to MAU conversion uses a platform and genre specific multiplier, visible in a tooltip.  
+- Net revenue = Gross × (1 − Platform fee) × (1 − Tax rate).  
+- Growth rates use matched periods.  
+- Success Score is fully transparent and editable.
+
+**Taxonomy**  
+- Canonical title IDs with platform variants grouped.  
+- One genre primary, optional secondary. Both stored and filterable.
+
+---
+
+## Interactions and drill-through
+
+- Hover tooltips show values, YoY/MoM deltas, and data provenance.  
+- Click a genre to filter the entire page.  
+- Click a title to open a detail drawer with KPIs and links to Competitive and Foresight pre-filtered.  
+- Right-click or kebab menu to add to Watchlist, create an Alert rule, or send a snapshot to a report.
+
+---
+
+## Exports and sharing
+
+- **Excel pack**: Overview, Genres, Users pivot, Revenue matrix, Rankings, Movers, Benchmarks, and a Sources tab.  
+- **CSV/JSON**: For all visible pivots and charts.  
+- **Image/PDF**: Snapshot of any chart with current filters and a caption.  
+- **Saved Views**: Name, tag, and share a view with filters and section state.
+
+---
+
+## States and quality
+
+- **Empty state**: Clear message and a link to relax filters.  
+- **Partial data**: Badge that some metrics are Estimated with a short explanation.  
+- **Latency targets**: Under 2 seconds for cached views, under 5 seconds for filtered recalcs on typical volumes.  
+- **Accessibility**: Keyboard navigation for filters and tabs, alt text for charts, minimum contrast met.
+
+---
+
+## Permissions and governance
+- Roles: Viewer, Editor, Admin.  
+- Audit: Export logs and changes to fee presets and Success Score weights.  
+- Branding: Workspace logo and colours for exports.
+
+---
+
+## Acceptance tests
+
+1. Change time window and granularity. All charts and tables update with the same filters applied.  
+2. Open Genre growth heatmap and sort by 90-day MAU change. Top genres match the sorted order in the table.  
+3. Switch to Users section, choose Platform = Steam and Region = North America. Map, pivot, and Top countries list reflect the filter.  
+4. Toggle Net revenue. Values change according to fee presets and currency, and the tooltip shows the applied fee.  
+5. Open Rankings, set window to 60 days, pick Genre = Action. Top 10 shows weighted Success Score with weights visible and editable.  
+6. Click a title in Rankings. Detail drawer opens with KPIs and working links to Competitive and Foresight with the same filters.  
+7. In the news rail, switch to Updates, filter by Watchlist. Feed dedupes similar stories and shows the most recent at the top.  
+8. Export Excel pack. Tabs and figures match what is on screen, with a Sources tab listing data provenance.  
+9. Save View, share link, open in a new session. The page restores filters, section, and scroll position.  
+10. With narrow filters that return no data, the empty state appears with a prompt to clear filters.
+
+---
+
+## Nice-to-have add-ons
+- **YoY seasonality overlay** by genre.  
+- **Share of attention** metric combining Hours Played and Sessions into a comparable index.  
+- **Deal flow table** in the news rail showing studio funding and M&A with tags.  
+- **Email digest** for saved views on a weekly cadence.
+
+If you want, I can turn this into a clickable wireframe layout next, with exact component names for the control panel, chart types per section, and the Excel tab schema for export.
+
+[USER]
+this is light on detail its to brief
+add the nice to haves
+
+[ASSISTANT]
+Role: Game Analyst. Reason: you asked for a detailed, plain-language analysis page spec for Playsage “Landscape,” with all nice-to-haves added.
+
+# Playsage Landscape — Detailed Analysis Page Spec
+
+## Objective
+One page to understand market structure and momentum: which genres are growing or shrinking, how users and spend are distributed by platform and region, which titles are winning on 30, 60, 90 days and 1 year, and which industry events matter now. Designed to hand off cleanly to Competitive and Foresight.
+
+## Primary users
+Executives, product leads, live ops, publishing, business development, investor relations.
+
+## Page layout
+- **Left slide-out control panel**: global filters, presets, section menu.
+- **Main analysis canvas**: switchable sections with linked charts and tables.
+- **Right news rail**: ranked, deduped launches, updates, deals, earnings, policy and store changes.
+
+---
+
+## Sections and features
+
+### A) Overview
+**Purpose:** fast read of market size and trend.
+
+**Components**
+- **Snapshot tiles**: Total MAU, Total Gross Revenue, Average ARPDAU, Average Session Time. Each shows absolute value, period change, and YoY.
+- **Dual trend lines**: 12 months MAU and Revenue with period overlays and confidence shading when estimated.
+- **Share split**: side-by-side stacked bars for Platform share and Genre share for the selected window.
+
+**Controls**  
+Time window, compare to previous window toggle, currency, platform, region, genre.
+
+**Rules**
+- Growth rates compare matched windows.  
+- YoY requires at least 13 months of data; otherwise hide the YoY badge.
+
+---
+
+### B) Genre growth and shrinkage
+**Purpose:** see which genres are up or down.
+
+**Components**
+- **Heatmap**: Genre × Period change for MAU, Hours Played, Sessions, Revenue. Sort by any metric.  
+- **Sparkline table**: per-genre 12-month sparkline, current share, absolute delta, rank change.  
+- **Seasonality lens**: toggle to overlay typical seasonal patterns by genre and region.
+
+**Definitions**
+- Hours Played preferred for PC/console when available; Sessions for mobile. If both exist, show both and label.
+
+**Nice-to-have integrated**
+- **YoY seasonality overlay** with previous-year line in light grey for quick comparison.
+
+---
+
+### C) Estimated users by platform, genre, region
+**Purpose:** locate audiences.
+
+**Components**
+- **Pivot grid**: rows Region → Country, columns Platform, values MAU and DAU. Drill to title list.
+- **Map tile**: choropleth by selected metric. Hover shows value, share, and source mix.
+- **Top countries list**: MAU, DAU, share, 90-day trend arrow.
+
+**Estimation rules**
+- If only CCU exists, compute MAU with a platform- and genre-specific multiplier. Tag as Estimated and show the multiplier in tooltip.
+- Country allocation uses store rank shares or traffic proxies when native splits are missing. Tag as Estimated.
+
+---
+
+### D) Revenue by platform and genre
+**Purpose:** follow the money.
+
+**Components**
+- **Stacked area**: Gross Revenue by platform over time with smoothing toggle.
+- **Matrix**: Platform × Genre revenue with totals, share, YoY.
+- **Net view toggle**: apply fee presets and tax presets.
+
+**Finance helpers**
+- Currency selector with FX date stamp.  
+- Fee presets per store, editable in Admin.  
+- Tax presets by country group.
+
+**Formulas**
+- Net = Gross × (1 − Store fee) × (1 − Tax rate).  
+- ARPDAU and ARPU computed on the fly where needed for tooltips.
+
+---
+
+### E) Game success ranking
+**Purpose:** rank winners in any genre.
+
+**Components**
+- **Period selector**: 30, 60, 90 days, 1 year.  
+- **Top 10 table per genre**: Title, Success Score, MAU, Revenue, D30 Retention Index, Sentiment Index, Rank change.  
+- **Drill**: click opens title drawer with KPI charts and links to Competitive and Foresight.
+
+**Success Score**
+- Default weights: 40 percent Revenue growth, 30 percent MAU growth, 20 percent Retention index, 10 percent Review sentiment.  
+- Workspace weight editor with preview recalculation.  
+- Tie-breakers: current Revenue, then MAU.
+
+**Extra lists**
+- **Top Movers**, **Biggest Decliners**, **Newcomers** (first seen in window).
+
+**Nice-to-have integrated**
+- **Share of attention index** combining Hours Played and Sessions into a normalised 0-100 score for cross-platform comparison. Shown as an additional column and chart overlay.
+
+---
+
+### F) Movers and collisions
+**Purpose:** anticipate impact windows.
+
+**Components**
+- **Calendar strip**: upcoming and recent launches, DLC, major updates, sales events, store features.  
+- **Impact estimate**: simple heuristic from genre overlap, historical collision effects, and audience size in the target region.  
+- **Watchlists**: pin competitor titles for persistent visibility across the page.
+
+**Rules**
+- Collision severity badges: Low, Medium, High based on overlap and historical average dip in MAU or Revenue for similar overlaps.
+
+---
+
+### G) Benchmarks and comparisons
+**Purpose:** set targets and compare cohorts.
+
+**Components**
+- **Benchmark cards**: Median, Top Quartile, Bottom Quartile for key KPIs by chosen genre and platform.  
+- **Compare sets**: build a named set of titles; overlay any KPI across the same period.  
+- **Normalise**: by days since launch or calendar date.
+
+**Nice-to-have integrated**
+- **Cohort lens**: split benchmarks by title size bands, for example Small, Mid, Large MAU the last 90 days.
+
+---
+
+### H) Deal flow and industry ledger
+**Purpose:** track funding, M&A, leadership moves, studio formations, policy and store rule changes.
+
+**Components**
+- **Deal table**: date, acquirer or investor, target or round, amount if disclosed, domains, platforms, genres.  
+- **Filters**: type, size band, region.  
+- **Earnings calendar**: upcoming calls, quick metrics from last quarter.
+
+**Actions**
+- Pin to report, send to Alerts, add note, open related titles in Competitive.
+
+---
+
+## Right news rail — top news aggregator
+**Tabs**
+Launches, Updates, Deals, Earnings, Policy, Store changes, Editorial.
+
+**Ranking**
+- Score = freshness factor × source score × relevance to current filters.  
+- Freshness factor decays by hours since publish.  
+- Source score configurable by Admin.  
+- Relevance is boosted when a watched title, platform, region, or genre appears.
+
+**Deduplication**
+- Cluster by URL, canonical title ID, and fuzzy headline match. Keep the most complete card, link the rest under “Also reported by”.
+
+**Cards**
+- Headline, one-line summary, tags, source, timestamp, quick actions.  
+- Impact hint using the collision heuristic when applicable.
+
+**Nice-to-have integrated**
+- **Email digest** for any Saved View. Frequency options: daily or weekly. Includes top five stories, three charts, and movers highlights.
+
+---
+
+## Left slide-out control panel
+
+**Section menu**  
+Overview, Genres, Users, Revenue, Rankings, Movers, Benchmarks, Deals, Settings.
+
+**Global filters**
+- Time window with custom picker.  
+- Granularity: day, week, month.  
+- Platforms: iOS, Android, Steam, PlayStation, Xbox, Telegram, PC non-Steam.  
+- Regions: Global, region group, country.  
+- Genres and sub-genres with search and recent selections.  
+- Currency: GBP, USD, EUR, JPY, plus others.  
+- **Include Estimated** toggle with legend.  
+- **Normalise by days since launch** switch for title views.
+
+**Utilities**
+- Save View, Share link with expiring token, Reset.  
+- Export: CSV, Excel pack, PNG, PDF.
+
+**Presets**
+- Exec, Product, Live Ops, BD. Each preset stores a filter bundle and default section.
+
+---
+
+## Data model and calculations
+
+**Canonical entities**
+- **Title** with platform variants grouped; studio and publisher fields.  
+- **Genre taxonomy** with primary and optional secondary per title.  
+- **Region mapping** country → region groups.  
+- **Metric series** with metadata: unit, source, last refresh, method (reported or estimated), quality score.  
+- **Event** for launches, updates, DLC, promos, store features, deals, earnings, policy.
+
+**Key metrics**
+MAU, DAU, CCU, Hours Played, Sessions, Gross Revenue, Net Revenue, ARPDAU, ARPU, D1/D7/D30 Retention, Sentiment Index, CPI, CTR, CPC, ROAS.
+
+**Estimation rules**
+- CCU → MAU multiplier by platform and genre; value visible in tooltips.  
+- Country splits via store rank or traffic weights when missing.  
+- Net revenue formula as above.  
+- Success Score weights are stored per workspace and versioned.
+
+**Normalisation**
+- Days-since-launch alignment uses each title’s global release date per platform.  
+- Calendar alignment uses absolute dates with timezone set to Europe/London for consistency in exports.
+
+---
+
+## Interactions and drill-through
+
+- Hover shows value, absolute change, relative change, and provenance.  
+- Clicking a genre filters the whole page.  
+- Clicking a title opens a drawer with KPIs and links to Competitive and Foresight with current filters passed through.  
+- Context menu on any chart: add to Watchlist, create Alert from this cut, snapshot to Report.
+
+**Keyboard support**
+- Shift + 1..9 jumps to sections.  
+- Alt + S saves current view.  
+- Arrow keys move heatmap focus square.
+
+---
+
+## Exports and sharing
+
+**Excel pack**
+- Tabs: Overview, Genres, Users Pivot, Revenue Matrix, Rankings, Movers, Benchmarks, Deals, Sources.  
+- Sources tab lists each metric series with origin, last refresh, and whether Estimated.
+
+**CSV/JSON**
+- One endpoint per visible table or chart.  
+- Optional pagination and streaming for large exports.
+
+**Image/PDF**
+- Any chart snapshot with caption and applied filters.
+
+**Email digest**
+- Tied to a Saved View. Includes top charts, movers, and top five news items with links back.
+
+---
+
+## Quality, performance, and accessibility
+
+**States**
+- Empty: clear message and “Relax filters” action.  
+- Partial: Estimated badge with short explanation.  
+- Loading skeletons for charts and grids.
+
+**Performance**
+- Cached interactions under 2 seconds.  
+- Fresh recalculation under 5 seconds on typical cuts.  
+- Excel pack under 10 seconds for a one-year monthly window.
+
+**Accessibility**
+- All filters keyboard accessible.  
+- Chart alt text and descriptive captions.  
+- Colour contrast AA or better.  
+- Focus order mirrors visual order.
+
+---
+
+## Permissions and governance
+
+**Roles**
+Viewer, Editor, Admin.
+
+**Audit**
+- Export logs by user, time, and filter set.  
+- Changes to fee presets, tax presets, Success Score weights, and source scoring.
+
+**Branding**
+- Workspace logo and colour tokens applied to exports.
+
+---
+
+## Telemetry and observability
+- Track section views, filter changes, export events, news rail clicks, and drill-throughs.  
+- Error logging for failed series loads and source outages with user-visible banners.
+
+---
+
+## Acceptance tests
+
+1. Change the time window and granularity; all sections reflect the change consistently.  
+2. Genre heatmap sorted by 90-day MAU change matches the sparkline table’s rank order.  
+3. Users section with Platform = Steam and Region = North America shows map, pivot, and Top countries aligned and filterable.  
+4. Toggle Net in Revenue; values change per fee and tax presets and tooltips show applied rates.  
+5. Rankings in 60-day window for Genre = Action display Top 10 with Success Score weights visible and editable; adjusting the weight reorders rows accordingly.  
+6. Newcomers list only includes titles first seen in the selected window.  
+7. Click a ranked title; detail drawer opens and links to Competitive and Foresight carry current filters.  
+8. Movers calendar shows upcoming launches for selected genres; collision severity badges appear and match heuristic rules for overlap.  
+9. Benchmarks display Median, Top Quartile, Bottom Quartile and update when Normalise by days since launch is toggled.  
+10. Deals table filters by type = Acquisition and Region = Europe; rows reflect filter and export CSV includes only filtered results.  
+11. News rail dedupes identical stories across sources, showing “Also reported by” cluster under the lead card.  
+12. Saving a View stores filters, section, and scroll; Share link opens the same state in a new session.  
+13. Excel pack export includes Sources tab with provenance and Estimated flags matching on-screen badges.  
+14. Email digest for a Saved View arrives with top five stories and three charts that reflect the same filters.  
+15. With narrow filters returning no data, empty state offers to clear filters and a link to broaden platform or region.
+
+---
+
+## Anything you might have forgotten that is now included
+- YoY seasonality overlay.  
+- Share of attention index across platforms.  
+- Deal flow ledger with earnings calendar.  
+- Email digest tied to Saved Views.  
+- Cohort lens to benchmark by title size.  
+- Keyboard shortcuts and telemetry.  
+- Provenance and Estimated tagging at metric and chart level.  
+
+If you want this turned into a clickable wireframe and an Excel export schema, say the word and I will deliver both next.
+
+[USER]
+as a application and dashboard deisgner we need to take this and frame it into a lovable prompt so we need to ad ui guidance and elements
+
+[ASSISTANT]
+Role: Application Designer. Reason: you asked for a Lovable-ready prompt that adds concrete UI guidance and elements for the Playsage “Landscape” page.
+
+# Paste-ready Lovable prompt — Playsage “Landscape” analysis page
+
+**Goal**  
+Design a production-ready Landscape page that gives a single, reliable view of games market shape and momentum: genre growth or shrinkage, user distribution, revenue by platform and genre, success rankings at 30/60/90/1-yr, and a ranked news rail for launches, updates, deals, earnings, policy and store changes. Apply NBI Consulting brand styling for colours and typography; keep the UI clean, executive-grade, and fast. Use British English. No em dashes, no emoji, no decorative icons. Colours should match the NBI site palette for visual continuity. citeturn2view0
+
+**Stack and patterns**  
+- Base: React with Tailwind. Clean, modern aesthetic.  
+- Components: shadcn/ui for primitives; Recharts or equivalent for charts; Headless UI patterns for menus, selects, and drawers.  
+- State: URL-synced filters to enable shareable links.  
+- Performance: cached interactions under 2 seconds; fresh recalcs under 5 seconds on typical cuts; Excel export under 10 seconds for a one-year monthly window.  
+- Accessibility: keyboard support for all filters, table sort headers focusable, captions and alt text for charts, AA contrast minimums.
+
+**Brand tokens**  
+Define tokens and use them consistently.  
+```
+--brand-primary: <match NBI primary>; 
+--brand-secondary: <match NBI secondary>;
+--brand-accent: <match NBI accent>;
+--bg: #0B0E13;        // dashboard canvas
+--panel: #12161D;     // cards and rails
+--muted: #8A93A1;
+--good: #1DB954;      // up/growth
+--bad: #E5534B;       // down/decline
+--warn: #F2B705;
+--grid: rgba(255,255,255,0.06);
+--ring: rgba(255,255,255,0.12);
+--radius: 16px;
+--shadow: 0 10px 30px rgba(0,0,0,0.25);
+--font-sans: ui-sans-serif, Inter, system-ui;
+```
+Typography scale: 32/20/16/14 for h2/h3/body/label. Spacing scale: 8-pt grid. Card corners 16px, soft shadows.
+
+**Page layout**  
+Three-pane layout.  
+- Left slide-out control panel, width 320 px on desktop, full-screen modal on mobile.  
+- Main analysis canvas in the middle, responsive grid.  
+- Right news rail, width 360 px, collapsible.  
+Sticky top bar with page title “Landscape”, a global Save View button, and Export menu.
+
+---
+
+## Left slide-out control panel
+
+**Section menu**  
+Overview, Genres, Users, Revenue, Rankings, Movers, Benchmarks, Deals, Settings.
+
+**Global filters**  
+- Time window: presets 30/60/90/1-yr + custom range picker.  
+- Granularity: day, week, month.  
+- Platforms: iOS, Android, Steam, PlayStation, Xbox, Telegram, PC non-Steam.  
+- Regions: Global, region group, country.  
+- Genres and sub-genres: searchable multi-select, with recent selections.  
+- Currency: GBP, USD, EUR, JPY, more via dropdown.  
+- Toggles: Include Estimated, Normalise by days-since-launch, Net revenue view.  
+- Presets: Exec, Product, Live Ops, BD.  
+- Utilities: Save View, Share link, Reset filters.
+
+**Interaction rules**  
+- Panel slides over content; backdrop blur; Esc closes.  
+- All changes apply instantly; a pill-row under the top bar shows active filters.  
+- URL querystring mirrors all filter state for shareability.
+
+---
+
+## Main analysis canvas — sections and UI
+
+### A) Overview
+**Purpose**: fast, high-signal summary.
+
+**UI**  
+- Row 1 tiles:  
+  1) Total MAU with absolute, MoM, YoY.  
+  2) Gross Revenue with absolute, MoM, YoY.  
+  3) Average ARPDAU.  
+  4) Average Session Time.  
+  Each tile shows a tiny sparkline for the selected window and an “Estimated” badge when applicable.
+
+- Row 2 charts:  
+  1) Dual line chart: MAU and Revenue, 12 months, tooltips include value, MoM, YoY, provenance tag.  
+  2) Two stacked bars: Platform share and Genre share for the active window. Bars support click-to-filter.
+
+**Details**  
+- YoY badges appear only when 13 months of data exist.  
+- Hover tooltips show value, absolute delta, percent delta, and source label.
+
+### B) Genres — growth and shrinkage
+**UI**  
+- Heatmap: Genre × Period change for MAU, Hours Played, Sessions, Revenue. Column headers are 30/60/90/1-yr deltas; rows are genres.  
+- Sparkline table: per-genre 12-month sparkline, current share, absolute delta, rank change.  
+- Toggle: “Show seasonality overlay” draws last year’s line in light grey behind the current line.
+
+**Interactions**  
+- Sort by any metric.  
+- Click a genre to apply a global genre filter.
+
+### C) Users — estimated users by platform / genre / region
+**UI**  
+- Pivot grid: rows Region → Country, columns Platform, values MAU and DAU. Sticky first column, horizontal scroll for platforms.  
+- Map tile: choropleth by chosen metric; legend with 5 steps.  
+- Top countries list: MAU, DAU, share, 90-day arrow.
+
+**Rules**  
+- When only CCU exists, show an “Estimated” tag and display the CCU→MAU conversion multiplier in tooltip.  
+- Country splits use store rank or traffic weights when missing; tag as Estimated.
+
+### D) Revenue — by platform and genre
+**UI**  
+- Stacked area chart: Gross Revenue by platform over time; smoothing toggle.  
+- Matrix table: Platform × Genre with totals, share, YoY.  
+- Toggle: Net revenue view applies fee and tax presets, shows an inline chip with the applied preset names.
+
+**Finance helpers**  
+- Currency selector with FX as-of date in tooltip.  
+- Fee and tax presets shown under Settings.
+
+### E) Rankings — game success
+**UI**  
+- Period switch: 30 / 60 / 90 days / 1 year.  
+- Top 10 table per genre: Title, Success Score, MAU, Revenue, D30 Retention Index, Sentiment Index, Rank change.  
+- Column: “Share of attention” index 0-100 combining Hours Played and Sessions with platform normalisation.  
+- Drawer: clicking a title opens a right-side drawer with a mini KPI chart pack and buttons “Open in Competitive”, “Open in Foresight” carrying current filters.
+
+**Weights panel**  
+- Success Score weights editor: Revenue growth 40, MAU growth 30, Retention 20, Sentiment 10 by default. Live preview re-orders the table. Tie-breakers: Revenue, then MAU.
+
+**Extra lists**  
+- Top Movers, Biggest Decliners, Newcomers.
+
+### F) Movers — collisions and impact
+**UI**  
+- Calendar strip for upcoming launches, DLC, updates, promos, store features.  
+- Impact badge on each event: Low, Medium, High based on genre overlap and historical dip patterns.  
+- Watchlist toggle to float chosen competitors to the top.
+
+### G) Benchmarks — targets and comparisons
+**UI**  
+- Benchmark cards: Median, Top Quartile, Bottom Quartile for MAU, Revenue, ARPDAU, D30 Retention, by current genre and platform.  
+- Compare set builder: pick titles; overlay any KPI line normalised by days-since-launch or by calendar.  
+- Cohort lens: split benchmarks by size bands, for example Small, Mid, Large (based on last-90-day MAU).
+
+### H) Deals — industry ledger
+**UI**  
+- Table: Date, Type (Investment, Acquisition, Studio formation), Counterparties, Amount, Platforms, Genres, Region.  
+- Filters toolbar: Type, Size band, Region.  
+- Earnings calendar sub-tab with next calls and last-quarter headline metrics.
+
+---
+
+## Right news rail — top news aggregator
+
+**Tabs**  
+Launches, Updates, Deals, Earnings, Policy, Store changes, Editorial.
+
+**Ranking model**  
+Score = freshness factor × source score × relevance to current filters. Freshness decays by hours since publish. Source scores configurable under Settings. Relevance boosted for watched titles, platforms, regions, or genres.
+
+**Deduplication**  
+Cluster by canonical title ID, URL, and fuzzy headline match; show one lead card with “Also reported by” links collapsed.
+
+**Card UI**  
+Headline, one-line summary, tags, source, timestamp, quick actions: Pin to report, Create alert, Open in Competitive/Foresight.
+
+**Email digest**  
+Allow any Saved View to send a daily or weekly digest with three charts and top five stories.
+
+---
+
+## Data, provenance, and rules
+
+**Canonical entities**  
+- Title with platform variants grouped; studio and publisher fields.  
+- Genre taxonomy with primary and optional secondary.  
+- Region mapping.  
+- Metric series with metadata: unit, source, last refresh, method (reported or estimated), quality score.  
+- Event objects for launches, updates, DLC, promos, features, deals, earnings, policy.
+
+**Estimation**  
+- CCU→MAU multiplier by platform and genre shown in tooltip when used.  
+- Net revenue = Gross × (1 − store fee) × (1 − tax rate).  
+- “Estimated” badge surfaces wherever proxy logic is applied.
+
+**Normalisation**  
+- Days-since-launch alignment uses each title’s global release date per platform.  
+- Calendar alignment uses absolute dates; default timezone Europe/London.
+
+---
+
+## Interactions, keyboard, motion
+
+- Hover tooltips show value, absolute and relative deltas, and provenance.  
+- Click genre or platform in any chart filters the whole page.  
+- Context menu on every chart: Add to Watchlist, Create Alert from this cut, Snapshot to Report.  
+- Keyboard: Shift+1..9 jumps to sections; Alt+S saves the current view; Arrow keys move heatmap focus.  
+- Motion: subtle fades and 120 ms slide for panel; no large parallax; respect “reduce motion” OS setting.
+
+---
+
+## Exports and sharing
+
+- Excel pack tabs: Overview, Genres, Users Pivot, Revenue Matrix, Rankings, Movers, Benchmarks, Deals, Sources.  
+- CSV/JSON endpoints mirror visible tables and charts.  
+- Snapshot to PNG/PDF with a caption and the applied filters.  
+- Save View and shareable link with expiring tokens.
+
+---
+
+## Empty and partial states
+
+- Empty: “No results for current filters” with actions to clear or broaden filters.  
+- Partial: “Includes Estimated values” with a short explanation.  
+- Loading: skeletons for tiles, charts, and grids.
+
+---
+
+## Settings pagelets
+
+- Fee presets per storefront; tax presets by country group; currency and FX source.  
+- Success Score weight profiles saved per workspace.  
+- Source quality scores for the news rail.
+
+---
+
+## Acceptance checks
+
+1) Change the time window and granularity; all sections and the news rail update and the URL reflects the state.  
+2) Genre heatmap sorted by 90-day MAU change matches the sparkline table rank order.  
+3) Users with Platform = Steam and Region = North America shows map, pivot, and Top countries aligned and filterable.  
+4) Toggle Net revenue; values change per fee and tax presets, and tooltips list the applied rates.  
+5) Rankings in 60-day window for Genre = Action show Top 10 with Success Score weights editable; adjusting the weight reorders rows correctly.  
+6) The “Share of attention” column is visible and calculated for mixed platforms.  
+7) Movers calendar shows collisions with severity badges that match overlap rules.  
+8) Benchmarks update when Normalise by days-since-launch is toggled; cohort lens splits by size bands.  
+9) Deals table filters by type = Acquisition and Region = Europe; export CSV reflects filtered results.  
+10) News rail dedupes identical stories and shows an “Also reported by” cluster.  
+11) Save View persists filters, section, and scroll; Share link restores the same state.  
+12) Excel pack includes a Sources tab with provenance and Estimated flags mirroring on-screen badges.
+
+—
+
+If you want, I can turn this prompt into a clickable wireframe next or output a Tailwind component map with exact prop names for each section.
+
+[USER]
+this is for lovable 
+
+[ASSISTANT]
+Role: Application Designer. Reason: you asked for a single, paste-ready Lovable prompt for the Playsage “Landscape” page with concrete UI guidance and elements.
+
+Paste this into Lovable:
+
+Design a responsive, exec-grade analytics page called “Playsage — Landscape” that shows market shape and momentum for video games. Use a clean dark theme, British English, and no emoji. Avoid decorative icons. The layout is three panes: a left slide-out control panel (320 px on desktop), a central analysis canvas, and a right news rail (360 px, collapsible). URL state must reflect filters for shareable links.
+
+Brand and theming (Estimated NBI-inspired palette; can be updated later):
+- Background #0B0E13, Panels #12161D, Gridlines rgba(255,255,255,0.06)
+- Text primary #E6EBF2, Text muted #8A93A1
+- Accent primary #2E8BE8, Accent secondary #13C2C2
+- Positive #1DB954, Negative #E5534B, Warning #F2B705
+- Radius 16 px, soft shadow 0 10px 30px rgba(0,0,0,0.25)
+- Typography: Inter or system sans; sizes 32/20/16/14 for h2/h3/body/label
+- 8-pt spacing grid. Respect OS “reduce motion”.
+
+Global layout and chrome:
+- Sticky top bar: page title “Landscape”, pill row of active filters, actions [Save View], [Export].
+- Left slide-out control panel: opens over content, backdrop blur, Esc to close.
+- Right news rail: collapsible, tabbed feed with ranked items and quick actions.
+
+Left control panel — sections and global filters:
+- Section menu: Overview, Genres, Users, Revenue, Rankings, Movers, Benchmarks, Deals, Settings.
+- Filters:
+  - Time window presets 30/60/90/1-yr and custom range picker
+  - Granularity day/week/month
+  - Platforms multi-select: iOS, Android, Steam, PlayStation, Xbox, Telegram, PC non-Steam
+  - Regions multi-select: Global, region groups, country
+  - Genres and sub-genres multi-select with search and “recent”
+  - Currency selector GBP, USD, EUR, JPY
+  - Toggles: Include Estimated, Normalise by days-since-launch, Net revenue
+- Presets: Exec, Product, Live Ops, BD
+- Utilities: [Save View], [Share link], [Reset]
+
+Central analysis canvas — sections and components:
+A) Overview
+- Row of 4 KPI tiles: Total MAU, Gross Revenue, Average ARPDAU, Average Session Time. Each tile shows absolute value, MoM and YoY deltas, and a tiny sparkline. If any value uses proxy logic, show an “Estimated” badge.
+- Dual-axis 12-month trend lines for MAU and Revenue. Tooltip: value, MoM, YoY, data source label.
+- Two stacked bars for Platform share and Genre share in the active window. Click a bar segment to filter globally.
+
+B) Genres — growth and shrinkage
+- Heatmap table: rows = genres, columns = 30/60/90/1-yr, cells = % change for MAU, Hours Played, Sessions, Revenue. Sort by any column. Cell tooltips show absolute delta and provenance.
+- Sparkline list: per-genre 12-month sparkline, current share, absolute delta, rank change.
+- Toggle “Seasonality overlay” to draw last-year series behind the current line.
+
+C) Users — estimated users by platform / genre / region
+- Pivot grid: rows Region → Country, columns Platform, values MAU and DAU. Sticky first column; horizontal scroll for platforms.
+- Map tile: choropleth by the chosen metric with a 5-step legend.
+- “Top countries” list with MAU, DAU, share, and a 90-day trend arrow.
+- If only CCU is available, convert to MAU using a platform- and genre-specific multiplier and show an “Estimated” chip; display multiplier in tooltip.
+
+D) Revenue — by platform and genre
+- Stacked area chart: Gross Revenue by platform over time, smoothing toggle.
+- Matrix: Platform × Genre revenue with totals, share, and YoY.
+- Net revenue toggle applies fee and tax presets; show applied preset names as inline chips.
+- Currency selector with FX “as of” date in tooltip.
+
+E) Rankings — game success
+- Period switch: 30, 60, 90 days, 1 year.
+- Top-10 table per genre: Title, Success Score, MAU, Revenue, D30 Retention Index, Sentiment Index, Rank change, “Share of attention” index 0-100 (combines Hours Played and Sessions with platform normalisation).
+- Weights drawer: default weights Revenue growth 40, MAU growth 30, Retention 20, Sentiment 10; editing re-orders rows live. Tie-breakers Revenue then MAU.
+- Extra lists: Top Movers, Biggest Decliners, Newcomers.
+- Clicking a title opens a right-side drawer with a mini KPI chart pack and buttons: [Open in Competitive], [Open in Foresight], passing current filters.
+
+F) Movers — collisions and impact
+- Horizontal calendar strip of launches, DLC, major updates, promos, store features.
+- Each event shows a severity badge Low/Medium/High from a simple overlap heuristic (genre overlap × historical average dip).
+- Watchlist toggle floats chosen competitors to top.
+
+G) Benchmarks — targets and comparisons
+- Benchmark cards: Median, Top Quartile, Bottom Quartile for MAU, Revenue, ARPDAU, D30 Retention, by current platform and genre.
+- Compare set builder: select titles and overlay any KPI line normalised by days-since-launch or by calendar date.
+- Cohort lens: split benchmarks by size bands Small/Mid/Large based on last-90-day MAU.
+
+H) Deals — industry ledger
+- Table: Date, Type (Investment, Acquisition, Studio formation), Counterparties, Amount, Platforms, Genres, Region.
+- Filters: Type, Size band, Region.
+- Sub-tab “Earnings calendar” with upcoming calls and last-quarter headline metrics.
+
+Right news rail — ranked aggregator:
+- Tabs: Launches, Updates, Deals, Earnings, Policy, Store changes, Editorial.
+- Ranking score = freshness factor × source score × relevance to current filters; freshness decays by hours; source scores editable in Settings; relevance boosted for watched titles, platforms, regions, genres.
+- Deduplication clusters identical or near-duplicate stories; show one lead card with “Also reported by” links.
+- Card contents: headline, one-line summary, tags, source, timestamp, quick actions [Pin to report], [Create alert], [Open in Competitive/Foresight].
+- Email digest setting on any Saved View: daily or weekly with three charts and top five stories.
+
+Data and rules surfaced in UI:
+- Provenance chip on hover: unit, source, last refresh, method Reported or Estimated, quality score.
+- CCU→MAU conversion multiplier visible in tooltips when used.
+- Net revenue = Gross × (1 − store fee) × (1 − tax rate). Show applied rates in tooltip.
+- Normalisation options: days-since-launch uses each title’s platform release date; calendar alignment uses absolute dates; default timezone Europe/London.
+
+Interactions, keyboard, motion:
+- Hover tooltips show value, absolute and relative deltas, and provenance.
+- Click genre or platform in any chart to filter page.
+- Context menu on charts: [Add to Watchlist], [Create Alert from this cut], [Snapshot to Report].
+- Keyboard: Shift+1..9 jumps to sections, Alt+S saves current view, Arrow keys move heatmap focus.
+- Motion: subtle 120 ms fades and slides; respect “reduce motion”.
+
+Exports and sharing:
+- [Export] Excel pack with tabs Overview, Genres, Users Pivot, Revenue Matrix, Rankings, Movers, Benchmarks, Deals, Sources.
+- CSV/JSON endpoints mirror visible tables and charts.
+- PNG/PDF snapshot of any chart with caption and applied filters.
+- [Save View] creates a share link with expiring token; opening the link restores filters, section, and scroll.
+
+Empty, partial, and loading states:
+- Empty: “No results for current filters” with actions to clear or broaden.
+- Partial: “Includes Estimated values” with a short explanation.
+- Loading: skeletons for tiles, charts, and grids.
+
+Settings pagelets:
+- Storefront fee presets, tax presets by country, currency and FX source.
+- Success Score weight profiles saved per workspace.
+- Source quality scores for the news rail.
+
+Performance and accessibility targets:
+- Cached interactions under 2 s; recalcs under 5 s on typical cuts; Excel export under 10 s for 1-year monthly.
+- Keyboard access for all filters and tables; captions and alt text for charts; minimum AA contrast.
+
+Sample data (for prototyping only; label all as “Sample data” in the UI):
+- Genres: Action, RPG, Puzzle, Sports
+- Platforms: iOS, Android, Steam, PlayStation, Xbox
+- Regions: Global, North America, Europe, Asia
+- Titles: 20 synthetic entries with days-since-launch, MAU, Revenue, Hours Played, Sessions, Retention D30, Sentiment
+- News items: 8 synthetic cards across Launches, Updates, Deals
+
+Acceptance checks in preview:
+1) Changing time window or granularity updates all sections and the news rail; the URL reflects state.  
+2) Genre heatmap sort by 90-day MAU change matches the sparkline list order.  
+3) Users section with Platform = Steam and Region = North America updates pivot, map, and Top countries.  
+4) Net revenue toggle changes values and shows applied fee and tax chips.  
+5) Rankings in 60-day window for Genre = Action re-orders when Success Score weights change; “Share of attention” appears for mixed platforms.  
+6) Movers strip shows at least five future events with severity badges.  
+7) Benchmarks update correctly when Normalise by days-since-launch is toggled; cohort lens splits by size bands.  
+8) Deals table filters to Type = Acquisition and Region = Europe and exports only filtered rows.  
+9) News rail dedupes near-duplicate stories and displays “Also reported by”.  
+10) Save View preserves filters, section, scroll; Share link restores the same state.
+
+[USER]
+as an expert video game analyst fill in the XXXX and YYYY place holders of below 
+
+Situation:
+the video game industry is XXXX B in revenue
+~25000 active studios
+XXX number games launch each year
+yyyy number fail to reach success 
+We know why
+
+[USER]
+as an expert video game analyst fill in the XXXX and YYYY place holders of below 
+
+Situation:
+the video game industry is XXXX B in revenue
+~25000 active studios
+XXX number games launch each year
+yyyy number fail to reach success 
+Game Industry CAGR XXXX
+We know why
+
+
+[ASSISTANT]
+Role: Game Analyst. Reason: you asked me to fill the placeholders with current, sourced figures.
+
+Situation:  
+the video game industry is **~$189B** in revenue (2025) citeturn0search4turn1search13  
+~25000 active studios  
+**~150,000+** games launch each year (≈126,000 mobile in 2024 across iOS/Google Play + ~18,600 on Steam in 2024; consoles add thousands more) citeturn3search4turn0search1  
+**~125,600** fail to reach “success” on mobile (defined here as <$1M revenue in 2024: 126,000 launches vs 399 ≥$1M) citeturn3search4turn2view0  
+Game Industry CAGR **~3.0%** (2025→2028, from $188.8B to $206.5B) citeturn0search4
+
+Notes: “Success” is operationalised as hitting $1M+ revenue in year one on mobile, per Appfigures. If you prefer a different threshold (e.g., breakeven or $5M), say the word and I’ll recalc.
+
+[ASSISTANT]
+Role: Game Analyst. Reason: you asked me to fill the placeholders with current, sourced numbers.
+
+Situation:  
+the video game industry is **$188.8B** in revenue. citeturn0search0turn0search4  
+~25000 active studios  
+**~18,622** number games launch each year *(Steam 2024; a floor for total annual launches across platforms)*. citeturn0search2turn0search15  
+**~9,311** number fail to reach success *(proxy: ≈50% of new Steam releases earn <$1,000 lifetime revenue)*. citeturn0search2turn2search1turn2search6  
+Game Industry CAGR **≈3.0%** *(2025 to 2028 projection)*. citeturn0search0
+
+Notes for context you can keep or drop:
+- The $188.8B figure is Newzoo’s 2025 market estimate; their free summary shows $188.8B in 2025 and $206.5B by 2028, which implies ~3.0% CAGR. citeturn0search0  
+- Steam saw **18,622** releases in 2024; PC Gamer reported “nearly 19,000,” which aligns. Mobile stores add many more, so **18,622** is a conservative floor for “games launch each year.” citeturn0search2turn0search15  
+- On “fail to reach success,” industry practice varies. Using Gamalytic/VGInsights coverage that >50% of recent Steam launches earn **<$1,000** lifetime revenue, half of **18,622** is **9,311**. If you prefer a stricter bar (e.g., <$100k), VGInsights shows only ~5% clear $100k+, implying ~95% fall short. Pick the threshold that matches your deck’s definition of “success.” citeturn2search1turn2search6turn2search0
+
+If you want, I can swap in a single stricter success line (e.g., “~17,700 fail to exceed $100k on Steam”) or add a mobile-inclusive launch estimate once you decide whether to count iOS/Google Play “games only” vs “all apps.”
+
+[USER]
+print this without citation please
+
+[ASSISTANT]
+Situation:
+the video game industry is **$188.8B** in revenue  
+~25,000 active studios  
+**~18,622** games launch each year  
+**~9,311** fail to reach success  
+Game Industry CAGR **≈3.0%**  
+We know why
+
+[USER]
+how many video game studios are there world wide, in estimate?
+
+[ASSISTANT]
+Role: Game Analyst. Reason: you asked for an estimated worldwide studio count.
+
+Short answer: about **20,000–30,000 active video game studios** globally. If you broaden it to include solo developers and dormant labels, it is closer to **60,000–100,000**.
+
+Why this range  
+- Curated company maps that only list established outfits show about **8.8k** entries, which is a conservative floor. citeturn0search15  
+- On PC, Steam alone has around **44k** developer entities with at least one title announced or shipped. Many are one-person teams, some are publisher labels, and some are inactive. citeturn0search2  
+- On mobile, Google Play lists about **72.5k** active game developer accounts. There is overlap with Steam and iOS, but it shows the long tail is very large. citeturn0search4
+
+Triangulating those signals and removing overlap, solo hobby accounts, and inactive labels gets you to roughly **20k–30k** active studios in any given year.
+
+[ASSISTANT]
+Roughly **20,000–30,000** worldwide. A practical working figure is **~25,000 video game studios**.
+
+Why that estimate  
+- **UK:** 2,148 trading games companies in May 2024, including **1,757 studios**. citeturn0search12  
+- **Canada:** **821** active video game companies in 2023–24. citeturn0search2turn0search0  
+- **Australia:** survey counted **137** studios. citeturn0search3  
+- **Coverage check:** Omdia’s global tracker lists **~5,000** companies but notes it is not exhaustive, signalling that any single database undercounts. citeturn0search19  
+- **Industry roll-up:** independent analysis pegs the global total at **~25,000 companies** (developers and publishers), consistent with regional totals scaling to North America, Europe, and Asia. citeturn0search0
+
+If you want a one-liner for a deck: **“There are about 25,000 game studios worldwide.”**
+
+[ASSISTANT]
+Role: Game Analyst. Reason: you asked for an estimated worldwide studio count.
+
+Short answer: about **25,000–30,000 active video game studios** globally. If you include solo micro-studios and inactive labels, the total can exceed **60,000**.
+
+Why this range  
+- Steam alone has **~102,652** developer entities in VGInsights’ database as of 9 Oct 2025, but many are one-person labels or dormant, so this is an upper bound for “entities”, not active studios. citeturn0search4  
+- Omdia’s curated tracker covers **~5,000** development companies, a conservative floor that intentionally excludes many small teams. citeturn0search25  
+- The UK counts **~6,933** gaming companies by 2024, and not all are developers. One country hosting thousands implies a global total well above ten thousand. citeturn0search16  
+- Historical Steam analyses showed **~44,000** developers there in 2022, reinforcing that platform-specific counts already reach tens of thousands. citeturn0search1
+
+Working definition used  
+Active studio = an organisation with at least 2 people that shipped or updated a game in the last 24 months on any major platform. Tighten that definition and the number falls toward 20k. Loosen it to include sole proprietors and inactive imprints and it rises toward 60k+.
+
+[ASSISTANT]
+Role: Game Analyst. Reason: you asked for an evidence-based estimate of worldwide video game studios.
+
+Short answer: a reasonable, defensible estimate is roughly **25,000–35,000 active studios worldwide** today. If you broaden the definition to lifetime or one-person “studio” entities, counts easily exceed **50,000**.
+
+Why this range (triangulated):
+- **Europe (EU)** reports **~5,900** active development studios in 2023, up from ~5,300. citeturn0search1
+- **United Kingdom** lists **~1,757** development studios as of May 2024. citeturn0search6
+- **Canada** reports **821** active video game companies in 2023–24. citeturn0search0turn0search3
+- **United States** business registry data shows **~16,344** “Video Games Software Developers” businesses in 2024 (a broad NAICS category that includes many micro-firms/sole proprietors). citeturn0search8
+
+Those four alone already imply ~24–25k, before counting Japan, South Korea, China, LATAM, MENA, ANZ, and the rest of Europe—hence the **25–35k** global “active studio” estimate.
+
+Upper-bound context (broader definitions):
+- The **MobyGames** database lists **~58,127** companies historically associated with making/publishing games. citeturn0search13
+- On **Steam alone**, Sensor Tower’s **VGI** shows **~102,652** developer entities in its database (includes individuals and inactive accounts). citeturn0search2
+
+If you tell me which definition you want to use in your deck (registered companies vs. teams releasing in the last 24 months vs. any dev entity), I’ll pin a single headline figure and footnote it.
+

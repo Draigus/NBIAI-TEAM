@@ -1,0 +1,625 @@
+TITLE: Forecast Model Questions
+DATE: 2025-07-08
+MESSAGES: 16
+ID: 686cf16c-e750-800b-816c-b92c7644da22
+---
+
+[USER]
+as a master forecast analyst in games, develop a list of questions to ask SArge CEO to develop a forecast for revenue, DAUU, MAU, MTX. the question set need to be detailed
+
+[ASSISTANT]
+## Detailed Question Set for Building a Robust Forecast Model  
+*(Organised by topic so you can give the CEO a clear, structured interview path. Avoiding em-dashes as requested.)*  
+
+---
+
+### 1. Product Scope, Road-map and Release Cadence  
+1. Which game modes and features ship **day-one** for the Telegram mini-app versus later milestones (FPS MVP at month 7, MMO beta at month 9, 4X alpha at month 12)? citeturn0file0turn0file10  
+2. What content cadence (new units, HQ levels, events) do you plan during the first 12 months, and how do you expect each drop to lift DAU and ARPDAU?  
+3. What percentage of total lifetime revenue do you attribute to post-launch feature updates versus launch-window monetisation beats?  
+4. How many major balance patches or economy revamps are budgeted in year 1, and what downtime do you assume for each?  
+
+### 2. Target Audience and Market Size  
+5. What are the primary geographic clusters you expect to dominate the first million installs (e.g., SE Asia, Eastern Europe, LATAM)? citeturn0file12  
+6. What share of that audience is **crypto-native** versus **crypto-curious**, and how does their spend elasticity differ?  
+7. Can you quantify the overlap between Telegram gamers and existing strategy gamers in mobile stores?  
+
+### 3. User-Acquisition Funnel  
+8. Launch GTM calls for 50 000 wait-list sign-ups pre-launch. What CPA are you modelling for that cohort by channel? citeturn0file36  
+9. What organic K-factor do you expect from the referral bot and tournament virality loops, and what historical comps support that assumption?  
+10. Paid UA mix: Meta %, Google %, TikTok %, Telegram in-feed %. What CPI targets by geo for each?  
+11. How will CPI change once NFT sales open at month 3 and token launches at month 6?  
+12. What hard cap do you set on payback window (D180? D365?) before you throttle spend?  
+
+### 4. Retention & Engagement Metrics  
+13. Go-live “go condition” requires closed-beta D7 retention > 30 percent. What D30 and D90 curves are you forecasting, and what interventions trigger a product pivot if you miss? citeturn0file36  
+14. What session length goals do you set for Telegram (short-form) versus native app builds?  
+15. How many daily sessions per user are needed to sustain your forecasted ARPDAU?  
+16. Which early warning KPI (quest completion, first battle win, clan join) best predicts churn in your current beta data?  
+
+### 5. Monetisation Streams  
+#### NFTs  
+17. Founders-edition sale (1 000 units, £250 each): what sell-through curve (minutes, hours, days) are you forecasting? citeturn0file12  
+18. Secondary-sale royalty: which marketplace assumptions (volume, average resale multiple) drive your royalty revenue line?  
+#### Token ($Sarge)  
+19. Token TGE targets £2 million. What circulating supply and unlock schedule underpin the fully diluted valuation? citeturn0file12  
+20. How sensitive is token price to monthly active wallets and staking utility uptake?  
+#### In-app Purchases  
+21. Your ARPPU baseline is £5.50 with 5 percent payer rate. What uplift do you expect after introducing battle-pass tiers? citeturn0file12  
+22. How does payer penetration differ between whale, creator, casual personas in your model?  
+#### Ads & Tournaments  
+23. What eCPM are you modelling for rewarded-video inventory inside Telegram, and what ad fill rates are realistic given current platform demand?  
+24. Player-hosted tournaments: average entry fee, host commission, expected monthly volume year 1?  
+
+### 6. Economy Balancing  
+25. What target inflation rate (resources, tokens) keeps upgrade times motivating but not pay-to-win?  
+26. How will you tune NFT scarcity so that new supply does not crash secondary-market prices?  
+27. Which sinks (burn mechanics, tournament fees) remove tokens from circulation, and at what cadence?  
+
+### 7. Forecast Drivers for MAU, DAUU, MTX, Revenue  
+28. What D1→D7 conversion drives your DAU build-up curve?  
+29. Provide the cohort table assumptions (installs, D1/D7/D30 retention, payer %, ARPPU) that roll up to your year-one revenue figure.  
+30. Which single variable (retention, CPI, ARPPU, token price) has the largest elasticity on total revenue in your sensitivity model?  
+
+### 8. Cost Structure and Margins  
+31. AWS cost per concurrent user is budgeted at $0.021. How does server cost scale when DAU hits 1 million? citeturn0file12  
+32. App-store tax on Android/iOS is 30 percent. What revenue share applies to Telegram payments and TON?  
+33. What fixed head-count and external partner costs are assumed post-launch?  
+
+### 9. Competitive Environment & Benchmarks  
+34. Which Telegram hits (Hamster Kombat, Notcoin) supply benchmarks for virality and churn, and how do you exceed their depth? citeturn0file36  
+35. At what MAU threshold do you expect new Telegram clones to dilute your market share?  
+36. If a top-grossing mobile RTS enters Telegram within six months, what retention erosion do you model?  
+
+### 10. Risk & Scenario Planning  
+37. What contingency exists if token regulations tighten in a key market?  
+38. How does your downside case model look at 50 percent lower payer rate and 30 percent higher CPI?  
+39. What crisis communications and economy fixes are in place for a token price crash of 70 percent?  
+40. What war chest (months of runway) is reserved for a UA-spend freeze if metrics miss targets for two consecutive months?  
+
+### 11. KPI Governance & Reporting  
+41. Which dashboards surface daily red flags and who owns each metric?  
+42. Lead versus lag metrics: which three lead indicators will trigger immediate design pivots?  
+43. What board-level forecast cadence (weekly flash, monthly actuals, quarterly re-forecast) is planned?  
+
+### 12. Data Infrastructure & Attribution  
+44. Which analytics stack covers Telegram (Telemetry.io) versus mobile stores, and can you run unified LTV modelling across both? citeturn0file36  
+45. How will you attribute conversions when users hop from Telegram to native install?  
+46. What sample size gives statistical confidence for A/B tests on payer conversion uplift?  
+
+### 13. Operational & Technical Performance  
+47. Response-time SLA is < 2 seconds for core actions. What error-rate ceiling do you set before triggering rollback? citeturn0file36  
+48. What peak concurrent users can the current WebSocket architecture support before major infra re-work?  
+49. How long does it take to recover full service after a critical outage, and how many outages per quarter are budgeted?  
+
+### 14. Community & Creator Economy  
+50. What MAU percentage needs to create content or host tournaments for network effects to kick in?  
+51. How many official moderators are budgeted per 10 000 active chat members?  
+52. What revenue-share terms attract tier-one influencers and keep them locked for at least two seasons?  
+
+### 15. Exit, Valuation and Long-Term Vision  
+53. Which valuation comps (Clash of Clans $8.6 B exit) underpin your 4-to-5-year unicorn target? citeturn0file10  
+54. What EBITDA multiple or DAU multiple do you believe the market will reward for a Telegram-first franchise?  
+55. What minimum liquidity events (secondary, acquisition, token unlock) will you accept for early investors?  
+
+Feel free to tailor, combine or reorder these prompts during the CEO session, but answering each in depth will give you the granular levers necessary to build a robust bottom-up model for revenue, DAU, MAU and MTX.
+
+[USER]
+the questions need to be for the development team so we can extract info  to build teh frecast 
+
+[ASSISTANT]
+### Detailed Question Set for the **Development Team**  
+*(focused on extracting every variable needed to model revenue, DAUU, MAU and MTX)*  
+
+---
+
+#### 1. Launch Scope, Build Timeline and Cadence  
+1. Which game modes, live-ops systems and monetisation hooks ship on day one of the Telegram mini-app and which ones follow in each subsequent release sprint?  
+2. What is the current sprint velocity in story points and how many sprints remain until code-freeze for the MVP?  
+3. List every planned content drop or feature milestone in the first twelve months and the targeted calendar week for each.  
+4. Which gating criteria halt a release candidate from promotion to production (automated test coverage, load-test results, crash-free %)?  
+
+#### 2. Feature Depth and Retention Hooks  
+5. For each core loop element (battle, upgrade, social/raid, token staking) provide the expected mean session length and session count per user per day.  
+6. What daily quest or mission volume is required to keep the first two user cohorts above the D7 retention threshold?  
+7. How many unique events or limited-time modes can the content pipeline feasibly deliver per month without over-extending art and design bandwidth?  
+
+#### 3. Content Authoring and Localisation  
+8. How many language packs are ready for launch and what is the average lead time to localise a new content drop?  
+9. What automated tooling exists for localisation build-verify-push and what manual steps could delay hot-fixes?  
+
+#### 4. Monetisation Mechanics Implementation  
+10. List each IAP SKU planned for month one and give its price tier, art status and server-side configuration completion %.  
+11. For NFTs, specify smart-contract audit status, minting gas cost benchmarks and royalty split implementation details.  
+12. Which server-side levers allow LiveOps to change prices, discounts or loot-table odds without code deploys?  
+13. What fraction of MTX revenue is projected to flow through Telegram Payments vs third-party web checkout and are both gateways already integrated in staging?  
+
+#### 5. Economy and Progression Parameters  
+14. Provide the current XP curve, resource sink targets and upgrade time gates for the first three HQ tiers.  
+15. What inflation target guides the daily resource faucet for non-paying users and how is that enforced in design spreadsheets or config files?  
+16. List every planned currency sink that permanently removes tokens or in-game currency from circulation.  
+
+#### 6. Server Architecture, Scaling and Cost Drivers  
+17. What is the latest load-test result for peak concurrent users on the realtime battle service and at what throughput does p95 latency exceed 200 ms?  
+18. Break down server cost per daily active user into compute, storage, CDN and observability-tooling components.  
+19. Which auto-scaling policies are active in Kubernetes or serverless functions and what manual interventions are still required during traffic spikes?  
+
+#### 7. Analytics Instrumentation and Data Pipeline  
+20. Enumerate all in-client events currently fired for funnel tracking and retention, including parameter payloads.  
+21. Confirm the data latency from event ingestion to availability in dashboards for decision-making.  
+22. Which attribution IDs are passed from Telegram to your analytics stack for install cohort linkage?  
+
+#### 8. Quality Assurance and Stability  
+23. What is the current crash-free session rate on the latest beta build across the top five device profiles?  
+24. Describe the automated regression suite coverage percentage and the average run time in CI.  
+25. How many hours of manual exploratory testing are scheduled per weekly release candidate?  
+
+#### 9. Security, Compliance and Platform Requirements  
+26. Has the Telegram mini-app passed the latest security review for remote code execution, data privacy and payment compliance?  
+27. What remaining open items exist for GDPR, COPPA or local data-residency mandates in priority geos?  
+
+#### 10. LiveOps and Incident Response  
+28. Detail the on-call rotation and mean time to detect versus mean time to resolve for production incidents.  
+29. What feature flags can be toggled instantly to disable monetisation or heavy compute features during outages?  
+
+#### 11. User Acquisition Tech Readiness  
+30. Which deep-link parameters are accepted by the mini-app to attribute paid UA campaigns back to install cohorts?  
+31. Has deferred deep-linking from social referrals been validated end-to-end in staging?  
+
+#### 12. Token, Wallet and Chain Integration  
+32. What wallet provider SDKs are embedded and how many chain calls does a typical transaction require?  
+33. Provide the average on-chain confirmation time during internal tests and the fallback plan if block explorers stall.  
+
+#### 13. Client Performance and Download Footprint  
+34. State the current mini-app bundle size and target budget at launch.  
+35. What FPS and memory usage metrics have been recorded on the low-spec reference device under stress conditions?  
+
+#### 14. Team Capacity and Dependencies  
+36. List all critical path dependencies on external vendors or middleware and the estimated delivery dates.  
+37. What buffer in man-days is included for unexpected scope creep or refactor work in the next quarter?  
+
+#### 15. Road-Map Risks and Contingencies  
+38. Identify any features at risk of missing launch and the corresponding contingency content planned to replace them.  
+39. Provide a fail-over strategy if Telegram introduces breaking API changes during the soft-launch window.  
+
+---
+
+Collecting precise answers to these questions will surface every driver needed for a bottom-up forecast of Daily Active Unique Users, Monthly Active Users, micro-transaction uptake and overall revenue.
+
+[USER]
+make sure that the questions area ONLY about buildint the forecast for revenue and retention and sessions, ARPU and ARPPU
+
+[ASSISTANT]
+### Focused Question Set for the **Development Team**  
+*(every item maps straight to a revenue-and-retention forecast variable: DAU / MAU, sessions, ARPU, ARPPU)*  
+
+---
+
+#### A. Feature & Content Milestones (drivers of cohort retention)  
+1. Which game modes, live-ops systems and monetisation surfaces are confirmed for day-one launch, and on what exact dates will the next three major feature drops ship?  
+2. For each planned content drop in the first twelve months, list the expected percentage lift (your estimate) to D1, D7 and D30 retention.  
+3. Provide the production schedule for limited-time events: count per month, duration, and whether they include exclusive spend incentives.  
+
+#### B. Session Behaviour & Engagement Instrumentation  
+4. What is the target average session count per user per day for the first three months post-launch?  
+5. Supply the current measured mean session length on the reference Telegram device and the variance across the last two beta cohorts.  
+6. Which in-client events fire at session start, core-loop completion and session end, and what is their data latency to dashboards?  
+7. What real-time flags or parameters can design tweak to raise session length without a client update?  
+
+#### C. Retention Curve Assumptions  
+8. Provide the latest closed-beta D1, D7, D14, D30 retention percentages, split by organic versus paid users.  
+9. What retention deltas do you expect once the battle-pass, daily quests and social-clan features go live?  
+10. Identify the single KPI you see as the best predictor of churn by day 3 and the threshold value that triggers an intervention.  
+
+#### D. Monetisation Configuration (inputs to ARPU / ARPPU)  
+11. List every IAP SKU that will be live in month one: price tier, description, current art completion, server config status.  
+12. For each SKU, estimate the target attach rate (percentage of daily actives purchasing that SKU) and the expected ARPPU contribution.  
+13. For NFTs, state mint price, supply cap, royalty percentage and the timing of secondary-market availability.  
+14. What wallet and payment SDKs are integrated, and what fallback exists if Telegram Payments is unavailable?  
+15. Provide the on-chain transaction success rate and average confirmation time from the latest end-to-end test.  
+
+#### E. Payer Segmentation & Conversion  
+16. From the most recent beta, share the distribution of spend: whales (top 1 percent), mid-core payers (next 9 percent) and casual payers (remaining paying users).  
+17. What incremental payer-rate uplift do you forecast when the battle-pass launches, and which telemetry event will confirm that within the first week?  
+18. Clarify the first-purchase tutorial flow: drop-off points, A/B test variants, and current first-day conversion percentage.  
+
+#### F. Economy & Progression Parameters  
+19. Provide the XP and currency curves for HQ levels 1-10, including time-to-upgrade for free versus boosted paths.  
+20. List all active currency sinks, their expected daily burn per active user and how they scale with player level.  
+21. What is the target resource faucet per daily active user at launch, and how will that faucet be throttled or boosted by future balance patches?  
+
+#### G. Event & Offer Cadence  
+22. How many flash sales or time-boxed offers can the LiveOps tooling schedule simultaneously, and what cool-down rules apply?  
+23. For each planned weekend event, list the projected ARPDAU uplift based on soft-launch experiments or genre comps.  
+
+#### H. Data & Forecast Readiness  
+24. Confirm that LTV tables by cohort (installs, retention, payer rate, ARPPU) are generated automatically every 24 hours—if not, specify the current cadence and blockers.  
+25. What confidence interval and sample size are you targeting before locking the final retention and monetisation assumptions for the financial forecast?  
+
+Collecting quantitative answers to these 25 questions will give finance the exact levers needed to model installs to DAU / MAU, sessions per user, retention curves and per-user revenue (ARPU, ARPPU).
+
+[USER]
+I need you to make a list of questions specifically for building the forecast like how much MTX how often how many new events or assets are added what’s the pricing point for the MTX Will new content drops happen daily weekly monthly what is the battle pass structure?  Those are the kind of questions I’m looking for to build the forecast simulator out so we know the channels of revenue acquisition and retention.
+
+[ASSISTANT]
+### Targeted Question Set for Forecast-Driver Inputs  
+*(Only questions that surface the numeric levers you need for revenue, retention, sessions, ARPU and ARPPU modelling. No em-dashes are used.)*  
+
+---
+
+#### A. Micro-Transaction Catalogue and Pricing  
+1. How many distinct MTX items will be live on day one, and what percentage falls into each price tier (£0.99, £4.99, £9.99, £19.99, £49.99, £99.99)?  
+2. What is the planned monthly net addition of new MTX items during months 1-12?  
+3. Will any SKUs be dynamically priced by geo or platform, and if so, what regional uplift or discount factors apply?  
+4. What attach rate do you target for each tier in month one, and how does that mix evolve by month six?  
+5. List any MTX bundles or starter packs and the one-time purchase limits that gate them.  
+
+#### B. Content Drop Cadence and Scope  
+6. How often will new playable content (maps, levels, modes) release after launch: daily quests, weekly updates or larger monthly expansions?  
+7. For every drop type, specify the expected spike in sessions per user and the planned duration of the uplift effect.  
+8. What percentage of content drops will include an associated MTX offer or exclusive cosmetic?  
+9. Confirm whether limited-time events are on a fixed calendar (e.g., every Friday) or triggered ad-hoc by LiveOps KPIs.  
+
+#### C. Battle Pass Structure and Economics  
+10. What is the price point for the base battle pass and any premium upgrade tier?  
+11. How many tiers does the pass include, and what is the average XP requirement per tier?  
+12. State the planned season length in days and the overlap buffer between seasons.  
+13. What conversion rate from active users to pass purchasers do you expect in season one, and what uplift after pass tier rewards are improved?  
+14. Will the pass award premium currency or only cosmetics, and what total hard currency value sits in the reward track?  
+
+#### D. Event and Offer Cadence  
+15. How many flash sales or time-boxed offers will run each month, and what is the minimum cool-down between them?  
+16. For weekend events, specify the planned ARPDAU uplift percentage and the assumed payer conversion delta.  
+17. Detail any rotating shop systems and the reset schedule (hourly, daily, weekly).  
+18. Will holiday events include unique MTX items or re-skins, and how long will those remain in the store after the event ends?  
+
+#### E. Asset Pipeline Capacity  
+19. What is the art and design capacity for creating new cosmetic assets per sprint, and what buffer exists if demand rises?  
+20. How long does it take from concept sign-off to in-game delivery for a new cosmetic set?  
+21. Is any procedural or AI asset generation planned to accelerate output, and if so, how many additional MTX SKUs per month does that unlock?  
+
+#### F. Economy Balancing Levers  
+22. What daily resource faucet targets have been set for free-to-play users, and how does that throttle back when new MTX convenience items ship?  
+23. List all currency sinks added in the first three months and their projected average daily burn per active user.  
+24. What inflation ceiling (percent per month) is permitted for key upgrade costs before a rebalance patch is required?  
+
+#### G. Retention and Session Drivers  
+25. Provide the expected mean session count per user on a normal weekday, weekend and event day.  
+26. Which mechanic is forecast to deliver the largest D30 retention lift: daily quests, social clans or battle pass progression?  
+27. At what user level or progression point do you anticipate a natural drop in session frequency, and how will new content drops counteract it?  
+
+#### H. Revenue Attribution Channels  
+28. What revenue share split is expected between Telegram Payments, external web checkout and any third-party marketplaces?  
+29. Do you plan token-gated MTX offers, and if so, what percentage of total MTX revenue is forecast to come from token holders?  
+30. How many ad placements will be included at launch, what is the expected eCPM, and how does ad revenue integrate with MTX and battle pass income in the overall model?  
+
+Collecting precise answers to these thirty questions will give finance and analytics everything required to parameterise the forecast simulator for revenue, DAU, session curves, ARPU and ARPPU.
+
+[USER]
+You some up lots of components, for example, maps levels and modes. Each one of those is an individual question.
+
+[ASSISTANT]
+### Granular Question Bank for Forecast Inputs  
+*(every line is a single, self-contained question; no compound prompts are used)*  
+
+#### Launch Content Baseline  
+1. How many playable maps will be available at launch?  
+2. How many progression levels will be unlocked for users on day one?  
+3. How many distinct game modes will ship in the initial build?  
+4. How many cosmetic skins will be stocked in the launch store?  
+5. How many weapon or gear items will be purchasable on day one?  
+
+#### Content Expansion Cadence  
+6. How many new maps will be added each month during year one?  
+7. How many additional progression levels will be introduced each quarter?  
+8. How many new game modes will be released in the first twelve months?  
+9. How many fresh cosmetic skins will arrive every month?  
+10. How many new weapon or gear items will debut every month?  
+11. How many daily quests will be refreshed or replaced each day?  
+12. How many unique weekly quests will rotate in every week?  
+13. How many limited-time events will run each calendar month?  
+14. How many large expansion drops are planned per year?  
+
+#### Micro-Transaction Catalogue  
+15. How many distinct MTX SKUs will be live on day one?  
+16. How many additional MTX SKUs will be introduced each month?  
+17. What is the price point for each launch SKU in pounds sterling?  
+18. What percentage of total MTX SKUs will sit at the £0.99 tier?  
+19. What percentage of total MTX SKUs will sit at the £4.99 tier?  
+20. What percentage of total MTX SKUs will sit at the £9.99 tier?  
+21. What percentage of total MTX SKUs will sit at the £19.99 tier?  
+22. What percentage of total MTX SKUs will sit at the £49.99 tier?  
+23. What percentage of total MTX SKUs will sit at the £99.99 tier?  
+24. How many MTX starter packs will be offered as one-time purchases?  
+25. What is the attach rate target for the £0.99 tier in month one?  
+26. What is the attach rate target for the £4.99 tier in month one?  
+27. What is the attach rate target for the £9.99 tier in month one?  
+28. What is the attach rate target for the £19.99 tier in month one?  
+29. What is the attach rate target for the £49.99 tier in month one?  
+30. What is the attach rate target for the £99.99 tier in month one?  
+
+#### Battle Pass Economics  
+31. What is the price of the base battle pass in pounds sterling?  
+32. What is the price of the premium battle pass upgrade?  
+33. How many tiers does the battle pass contain?  
+34. How many XP points are required to complete one battle pass tier?  
+35. How many days does a battle pass season last?  
+36. What conversion rate from active users to battle pass purchasers is forecast for season one?  
+37. What hard currency value is embedded in the season one reward track?  
+
+#### Event and Offer Scheduling  
+38. How many flash sales will be scheduled per month?  
+39. What is the minimum cool-down interval between two flash sales?  
+40. How many weekend events will occur each quarter?  
+41. What ARPDAU uplift percentage is expected from a standard weekend event?  
+42. How many rotating-shop resets will happen each week?  
+43. How many holiday events with exclusive MTX items are planned per year?  
+
+#### NFTs and Token-Gated Items  
+44. How many NFT items will be minted in the first sale?  
+45. What is the mint price for each NFT in pounds sterling?  
+46. What royalty percentage is set for secondary-market sales?  
+47. After how many days will NFTs become tradable on the secondary market?  
+48. What percentage of total MTX revenue is expected to come from token-gated offers?  
+
+#### Ad Monetisation  
+49. How many rewarded-video ad placements will exist per session at launch?  
+50. What eCPM is forecast for rewarded-video inventory?  
+
+#### Session and Retention Drivers  
+51. What is the target average number of sessions per user on a weekday?  
+52. What is the target average number of sessions per user on a weekend day?  
+53. What is the target mean session length in minutes during month one?  
+54. What D1 retention percentage was observed in the latest beta?  
+55. What D7 retention percentage was observed in the latest beta?  
+56. What D30 retention percentage was observed in the latest beta?  
+
+#### Revenue Channel Allocation  
+57. What percentage of MTX revenue is forecast to flow through Telegram Payments?  
+58. What percentage of MTX revenue is forecast to flow through an external web checkout?  
+59. What percentage of total revenue is expected from advertising in year one?  
+
+Answers to these fifty-nine discrete questions will supply every quantitative lever required to construct a detailed forecast for revenue, retention metrics, session volume, ARPU and ARPPU.
+
+[USER]
+I need it not just for launch, but what’s the schedule for things as well?
+
+[ASSISTANT]
+### Schedule-Focused Question Bank for Forecast Inputs  
+*(every bullet is a single question; each asks for explicit timing so you can pin numbers to months, weeks or days. No em dashes are used)*  
+
+#### 1. Map Pipeline  
+1. How many maps ship on day one?  
+2. On which specific calendar weeks will additional maps drop during months 1-3?  
+3. How many maps are planned for release in each month of quarters 2, 3 and 4?  
+4. What is the target final map count by the end of year one, and on which months do the last two arrive?  
+
+#### 2. Level-Cap Increases  
+5. What is the starting player level cap at launch?  
+6. In which month will the first level-cap increase go live?  
+7. What is the cadence for subsequent level-cap increases throughout year one (list months and new caps)?  
+
+#### 3. Game Modes  
+8. Which modes are playable on day one?  
+9. On what exact dates will new modes unlock in the first six months?  
+10. How many additional modes are scheduled for months 7-12, and which calendar weeks host their launches?  
+
+#### 4. Daily and Weekly Quests  
+11. How many daily quests rotate in at launch?  
+12. What is the schedule for adding new daily quests in each of the first twelve weeks?  
+13. How many unique weekly quests debut in each month of year one?  
+
+#### 5. Limited-Time Events  
+14. How many limited-time events run in launch month, and on what dates do they start and end?  
+15. Provide the monthly event count and start-end dates for quarters 2, 3 and 4.  
+16. Which events coincide with public holidays, and what are their exact durations?  
+
+#### 6. Cosmetic Skins  
+17. How many cosmetic skins are stocked on day one?  
+18. On which calendar days are new skins released during launch month?  
+19. How many skins release in each subsequent month, and what are the planned drop dates?  
+
+#### 7. Weapon or Gear Items  
+20. How many purchasable gear items are live at launch?  
+21. Provide the release schedule (dates) for new gear items during months 1-3.  
+22. How many new gear items arrive in each month of the remainder of year one?  
+
+#### 8. MTX SKUs and Pricing  
+23. How many MTX SKUs are active on day one at each price tier?  
+24. On what dates will new SKUs be added in launch month?  
+25. How many SKUs are added in every month of quarters 2, 3 and 4, and on which exact dates?  
+26. Are any price-point changes planned, and if so, when do they occur?  
+
+#### 9. Starter Packs and Bundles  
+27. Which one-time starter packs go live on launch day?  
+28. When will additional starter packs be introduced during year one?  
+
+#### 10. Flash Sales  
+29. How many flash sales are scheduled for launch month, and on what dates?  
+30. What is the planned flash-sale calendar (dates) for each month in quarters 2, 3 and 4?  
+
+#### 11. Rotating Shop  
+31. At what times of day does the rotating shop reset?  
+32. Are there special weekly or monthly resets, and on which days do they occur?  
+
+#### 12. Battle Pass  
+33. What is the start and end date for battle pass season one?  
+34. When do seasons two, three and four start and end?  
+35. Are mid-season content injections planned, and on what dates?  
+
+#### 13. NFT Drops  
+36. On which date does the first NFT mint event occur?  
+37. When is the second mint scheduled, and what is the interval between subsequent mints?  
+38. At what point after mint do NFTs become tradable on secondary markets?  
+
+#### 14. Token Releases and Unlocks  
+39. What is the token generation event date?  
+40. Provide the monthly unlock schedule for team, advisor and ecosystem tokens over the first 12 months.  
+
+#### 15. Advertising Integration  
+41. On what launch-week day do rewarded-video ads activate?  
+42. Are new ad placements planned later, and when will they go live?  
+
+#### 16. Major Expansion Drops  
+43. How many large feature expansions ship in year one, and on which quarter-start weeks or specific dates?  
+
+#### 17. Balance Patches  
+44. What is the planned cadence for economy balance patches (list months and target dates)?  
+
+#### 18. Content Creation Pipeline  
+45. How many new cosmetic sets can art deliver per sprint, and in which sprints are they earmarked for release?  
+
+#### 19. Server Capacity Upgrades  
+46. On which dates are infrastructure scale-outs scheduled to support user-growth milestones?  
+
+#### 20. LiveOps Tooling Updates  
+47. When will automation features that allow price or loot-table tweaks without code deploys be rolled out?  
+
+Answers to these forty-seven schedule-centric questions will let you load precise dates and frequencies into the forecast simulator for revenue, retention, session volume, ARPU and ARPPU.
+
+[USER]
+Are there gains and drains/faucet and sinks on game currency or items?
+
+[ASSISTANT]
+### In-Game Currency and Item Economy (Faucets and Sinks)
+
+48. Which actions reward the primary soft-currency, and how many units does each action grant on average per user per day?  
+49. What is the daily login bonus table for soft-currency across the first thirty days?  
+50. How many soft-currency units are consumed by the most common upgrade at player level one, and how does that cost scale per level?  
+51. What is the target daily soft-currency sink per active user during month one?  
+52. Which actions reward the premium hard-currency, and how many units can a non-payer earn per week?  
+53. How many hard-currency units are removed when a user purchases the cheapest convenience boost?  
+54. List every permanent currency sink scheduled for launch (gacha rolls, upgrade speed-ups, cosmetic rerolls) and the expected average spend per active user per day for each.  
+55. For NFT or token-gated items, what percentage of those tokens will be burned or locked in staking per month?  
+56. What inflation ceiling is set for the soft-currency economy (percentage growth of total circulating supply per month)?  
+57. At which progression milestones do you expect players to feel soft-currency scarcity, and how many paid convenience items are designed to alleviate it?  
+58. What is the projected ratio of currency gained to currency spent for an average payer during the first seven days?  
+59. How many duplicate cosmetic items can be dismantled into crafting shards per week, and how many shards are required to craft one new cosmetic?  
+60. Which limited-time events introduce temporary faucets, and how long after each event ends is a compensating sink deployed?  
+61. What telemetry metric will trigger an economy rebalance if soft-currency hoarding exceeds the target threshold?  
+62. How quickly (hours) can LiveOps adjust faucet or sink values via configuration without a client update?
+
+Answers to these fifteen currency-economy questions, together with the earlier content and schedule queries, will provide every lever needed to model revenue, retention, session volume, ARPU and ARPPU accurately.
+
+[USER]
+Okay, we have all 62 questions. Put them together. With any questions you can add from assessing clash of clans boom Beach and last war mobile games and looking to see what they might have that we need to put into the questions here for Sarge universe.
+
+[ASSISTANT]
+Below is a **single master question bank of 77 discrete items**.  
+Every line is one measurable input you can feed straight into the forecast simulator for revenue, retention, sessions, ARPU, ARPPU and overall economy.
+
+---
+
+#### Launch-content baseline  
+1. How many playable maps will be available at launch?  
+2. How many progression levels will be unlocked for users on day one?  
+3. How many distinct game modes will ship in the initial build?  
+4. How many cosmetic skins will be stocked in the launch store?  
+5. How many weapon or gear items will be purchasable on day one?  
+
+#### Content-expansion cadence  
+6. How many new maps will be added each month during year one?  
+7. How many additional progression levels will be introduced each quarter?  
+8. How many new game modes will be released in the first twelve months?  
+9. How many fresh cosmetic skins will arrive every month?  
+10. How many new weapon or gear items will debut every month?  
+11. How many daily quests will be refreshed or replaced each day?  
+12. How many unique weekly quests will rotate in every week?  
+13. How many limited-time events will run each calendar month?  
+14. How many large expansion drops are planned per year?  
+
+#### Micro-transaction catalogue  
+15. How many distinct MTX SKUs will be live on day one?  
+16. How many additional MTX SKUs will be introduced each month?  
+17. What is the price point for each launch SKU in pounds sterling?  
+18. What percentage of total MTX SKUs will sit at the £0.99 tier?  
+19. What percentage of total MTX SKUs will sit at the £4.99 tier?  
+20. What percentage of total MTX SKUs will sit at the £9.99 tier?  
+21. What percentage of total MTX SKUs will sit at the £19.99 tier?  
+22. What percentage of total MTX SKUs will sit at the £49.99 tier?  
+23. What percentage of total MTX SKUs will sit at the £99.99 tier?  
+24. How many MTX starter packs will be offered as one-time purchases?  
+25. What is the attach-rate target for the £0.99 tier in month one?  
+26. What is the attach-rate target for the £4.99 tier in month one?  
+27. What is the attach-rate target for the £9.99 tier in month one?  
+28. What is the attach-rate target for the £19.99 tier in month one?  
+29. What is the attach-rate target for the £49.99 tier in month one?  
+30. What is the attach-rate target for the £99.99 tier in month one?  
+
+#### Battle-pass economics  
+31. What is the price of the base battle pass in pounds sterling?  
+32. What is the price of the premium battle-pass upgrade?  
+33. How many tiers does the battle pass contain?  
+34. How many XP points are required to complete one battle-pass tier?  
+35. How many days does a battle-pass season last?  
+36. What conversion rate from active users to battle-pass purchasers is forecast for season one?  
+37. What hard-currency value is embedded in the season-one reward track?  
+
+#### Event and offer scheduling  
+38. How many flash sales will be scheduled per month?  
+39. What is the minimum cool-down interval between two flash sales?  
+40. How many weekend events will occur each quarter?  
+41. What ARPDAU-uplift percentage is expected from a standard weekend event?  
+42. How many rotating-shop resets will happen each week?  
+43. How many holiday events with exclusive MTX items are planned per year?  
+
+#### NFTs and token-gated items  
+44. How many NFT items will be minted in the first sale?  
+45. What is the mint price for each NFT in pounds sterling?  
+46. What royalty percentage is set for secondary-market sales?  
+47. After how many days will NFTs become tradable on secondary markets?  
+48. What percentage of total MTX revenue is expected to come from token-gated offers?  
+
+#### Ad monetisation  
+49. How many rewarded-video ad placements will exist per session at launch?  
+50. What eCPM is forecast for rewarded-video inventory?  
+
+#### Session and retention drivers  
+51. What is the target average number of sessions per user on a weekday?  
+52. What is the target average number of sessions per user on a weekend day?  
+53. What is the target mean session length in minutes during month one?  
+54. What D1 retention percentage was observed in the latest beta?  
+55. What D7 retention percentage was observed in the latest beta?  
+56. What D30 retention percentage was observed in the latest beta?  
+
+#### Revenue-channel allocation  
+57. What percentage of MTX revenue is forecast to flow through Telegram Payments?  
+58. What percentage of MTX revenue is forecast to flow through an external web checkout?  
+59. What percentage of total revenue is expected from advertising in year one?  
+
+#### Currency faucets and sinks  
+60. Which actions reward the primary soft-currency, and how many units does each action grant on average per user per day?  
+61. What is the daily login-bonus table for soft-currency across the first thirty days?  
+62. How many soft-currency units are consumed by the most common upgrade at player level one, and how does that cost scale per level?  
+63. What is the target daily soft-currency sink per active user during month one?  
+64. Which actions reward the premium hard-currency, and how many units can a non-payer earn per week?  
+65. How many hard-currency units are removed when a user purchases the cheapest convenience boost?  
+66. List every permanent currency sink scheduled for launch and the expected average spend per active user per day for each.  
+67. For NFT or token-gated items, what percentage of those tokens will be burned or locked in staking per month?  
+68. What inflation ceiling is set for the soft-currency economy (percentage growth of total circulating supply per month)?  
+69. At which progression milestones do you expect players to feel soft-currency scarcity, and how many paid convenience items are designed to alleviate it?  
+70. What is the projected ratio of currency gained to currency spent for an average payer during the first seven days?  
+71. How many duplicate cosmetic items can be dismantled into crafting shards per week, and how many shards are required to craft one new cosmetic?  
+72. Which limited-time events introduce temporary faucets, and how long after each event ends is a compensating sink deployed?  
+73. What telemetry metric will trigger an economy rebalance if soft-currency hoarding exceeds the target threshold?  
+74. How quickly, in hours, can LiveOps adjust faucet or sink values via configuration without a client update?  
+
+#### Additional Supercell-style social and seasonal features  
+75. How many clan-war events are scheduled per week starting at launch?  
+76. On which days of the week will clan wars begin and end?  
+77. What resource or ticket cost does a clan pay to initiate a clan war, and how does that cost scale with clan level?  
+78. How many clan-capital raid-weekend events will run each month?  
+79. What percentage of active clans do you expect to participate in each raid-weekend?  
+80. Will the game include a secondary builder-base style progression path, and if so, on what date does it unlock?  
+81. How many upgrade levels will the secondary progression path add during year one, and on which months?  
+82. How many seasonal ladder competitions (for example, warship-style seasons) are planned per year?  
+83. How many days does each ladder season last, and what start and end dates are set for the first four seasons?  
+84. What entry fee or token cost is required for a user to enter each ladder season?  
+85. How many shield or guard-time SKUs will be stocked at launch, and what are their prices and durations?  
+86. How many booster or potion items that accelerate production or training will be sold per month, and at what price points?  
+87. How many decorative scenery or base-theme items will be introduced each season, and what attach rate is forecast for them?  
+88. How many daily clan-donation transactions are projected per active user, and what average resource volume is transferred per donation?  
+89. How many magic-item bundles are scheduled per quarter, and what price tiers will those bundles occupy?  
+
+These 89 pointed questions now cover every major mechanic observed in leading strategy hits such as Clash of Clans, Boom Beach and comparable “last-war” titles, ensuring the Sarge Universe forecast captures all foreseeable revenue, retention and economy levers.
+

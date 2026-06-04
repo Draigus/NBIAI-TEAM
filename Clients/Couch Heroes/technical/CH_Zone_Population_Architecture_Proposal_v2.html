@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Couch Heroes — Zone Population Architecture Proposal v2.0</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --bg-card: #12121a;
+    --bg-card-alt: #161622;
+    --bg-highlight: #1a1a2e;
+    --border: #2a2a3e;
+    --border-accent: #4a3aff;
+    --text: #e2e2f0;
+    --text-secondary: #9898b0;
+    --text-muted: #6a6a82;
+    --accent: #6c5ce7;
+    --accent-bright: #a29bfe;
+    --accent-glow: rgba(108, 92, 231, 0.15);
+    --success: #00cec9;
+    --warning: #fdcb6e;
+    --danger: #ff6b6b;
+    --danger-dim: rgba(255, 107, 107, 0.12);
+    --info: #74b9ff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* === NAV === */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(10, 10, 15, 0.92);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    height: 56px;
+    gap: 2rem;
+  }
+  nav .logo {
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.05em;
+    color: var(--accent-bright);
+    white-space: nowrap;
+  }
+  nav .nav-links {
+    display: flex;
+    gap: 0.25rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  nav .nav-links::-webkit-scrollbar { display: none; }
+  nav a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  nav a:hover { color: var(--text); background: var(--bg-highlight); }
+
+  /* === LAYOUT === */
+  .container { max-width: 1100px; margin: 0 auto; padding: 80px 2rem 4rem; }
+
+  /* === HEADER === */
+  .hero {
+    padding: 3rem 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 3rem;
+  }
+  .hero .badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-bright);
+    background: var(--accent-glow);
+    border: 1px solid rgba(108, 92, 231, 0.3);
+    padding: 4px 12px;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+  }
+  .hero h1 {
+    font-size: 2.4rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, #fff 0%, var(--accent-bright) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .hero .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+  .hero .meta span { display: flex; align-items: center; gap: 6px; }
+
+  /* === SECTIONS === */
+  section { margin-bottom: 3.5rem; }
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--border);
+    color: #fff;
+  }
+  h2 .section-num {
+    color: var(--accent-bright);
+    font-weight: 800;
+    margin-right: 0.5rem;
+  }
+  h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 1.75rem 0 0.75rem;
+    color: #fff;
+  }
+  h4 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 1.25rem 0 0.5rem;
+    color: var(--accent-bright);
+  }
+  p { margin-bottom: 1rem; color: var(--text); }
+  strong { color: #fff; font-weight: 600; }
+  em { color: var(--text-secondary); font-style: italic; }
+
+  /* === CALLOUT BOXES === */
+  .callout {
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    margin: 1.5rem 0;
+    border-left: 4px solid;
+  }
+  .callout-critical {
+    background: var(--danger-dim);
+    border-color: var(--danger);
+  }
+  .callout-critical .callout-title { color: var(--danger); }
+  .callout-recommendation {
+    background: var(--accent-glow);
+    border-color: var(--accent);
+  }
+  .callout-recommendation .callout-title { color: var(--accent-bright); }
+  .callout-info {
+    background: rgba(116, 185, 255, 0.08);
+    border-color: var(--info);
+  }
+  .callout-info .callout-title { color: var(--info); }
+  .callout-warning {
+    background: rgba(253, 203, 110, 0.08);
+    border-color: var(--warning);
+  }
+  .callout-warning .callout-title { color: var(--warning); }
+  .callout-title {
+    font-weight: 700;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.5rem;
+  }
+  .callout p:last-child { margin-bottom: 0; }
+
+  /* === TABLES === */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.25rem 0;
+    font-size: 14px;
+  }
+  thead th {
+    text-align: left;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-secondary);
+    padding: 10px 14px;
+    border-bottom: 2px solid var(--border);
+    background: var(--bg-card);
+  }
+  tbody td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  tbody tr:hover { background: var(--bg-highlight); }
+  .tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+  .tag-high { background: rgba(255,107,107,0.15); color: var(--danger); }
+  .tag-medium { background: rgba(253,203,110,0.15); color: var(--warning); }
+  .tag-low { background: rgba(0,206,201,0.15); color: var(--success); }
+  .tag-recommended { background: var(--accent-glow); color: var(--accent-bright); }
+  .tag-primary { background: rgba(0,206,201,0.12); color: var(--success); border: 1px solid rgba(0,206,201,0.25); }
+  .tag-fallback { background: rgba(253,203,110,0.1); color: var(--warning); border: 1px solid rgba(253,203,110,0.2); }
+
+  /* === CODE / MONO === */
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    background: var(--bg-highlight);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--accent-bright);
+  }
+
+  /* === ARCHITECTURE DIAGRAM === */
+  .diagram {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    margin: 1.5rem 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    overflow-x: auto;
+    white-space: pre;
+    color: var(--text-secondary);
+  }
+
+  /* === STATS GRID === */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem;
+  }
+  .stat-card .stat-value {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 0.25rem;
+  }
+  .stat-card .stat-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .stat-card .stat-note {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 0.5rem;
+  }
+
+  /* === LIST STYLING === */
+  ul, ol { margin: 0.75rem 0 1rem 1.5rem; }
+  li { margin-bottom: 0.4rem; }
+  li::marker { color: var(--accent-bright); }
+
+  /* === GRID LAYOUT === */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+  }
+  @media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem;
+  }
+  .card h4 { margin-top: 0; }
+
+  /* === PHASE TIMELINE === */
+  .phase {
+    position: relative;
+    padding-left: 2rem;
+    margin-bottom: 2rem;
+  }
+  .phase::before {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 0;
+    bottom: -2rem;
+    width: 2px;
+    background: var(--border);
+  }
+  .phase:last-child::before { bottom: 0; }
+  .phase-dot {
+    position: absolute;
+    left: 0;
+    top: 4px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 3px solid var(--bg);
+  }
+  .phase-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.25rem;
+  }
+  .phase-subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+  }
+
+  /* === FOOTER === */
+  footer {
+    margin-top: 4rem;
+    padding: 2rem 0;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+
+  /* === PRINT === */
+  @media print {
+    nav { display: none; }
+    body { background: #fff; color: #1a1a1a; font-size: 11pt; }
+    .container { padding-top: 0; max-width: 100%; }
+    .hero h1 { background: none; -webkit-text-fill-color: #1a1a1a; font-size: 24pt; }
+    .callout { break-inside: avoid; }
+    table { font-size: 9pt; }
+    .stat-card { border: 1px solid #ccc; }
+    h2 { break-after: avoid; }
+    section { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">NBI GAMING</div>
+  <div class="nav-links">
+    <a href="#decision">Decision</a>
+    <a href="#summary">Summary</a>
+    <a href="#landscape">Landscape</a>
+    <a href="#architecture">Architecture</a>
+    <a href="#stack">Tech Stack</a>
+    <a href="#spec">Spec</a>
+    <a href="#security">Security</a>
+    <a href="#perspectives">Perspectives</a>
+    <a href="#costs">Costs</a>
+    <a href="#risks">Risks</a>
+    <a href="#unknowns">Unknowns</a>
+    <a href="#phases">Phases</a>
+    <a href="#team">Team</a>
+  </div>
+</nav>
+
+<div class="container">
+
+<!-- ===== HERO ===== -->
+<header class="hero">
+  <div class="badge">Internal — Technical Leadership</div>
+  <h1>Zone Population Architecture Proposal</h1>
+  <div class="meta">
+    <span><strong>Client:</strong> Couch Heroes</span>
+    <span><strong>Prepared by:</strong> NBI Gaming — Glen Pryer, CPO (Advisory)</span>
+    <span><strong>Version:</strong> 2.3 (red-teamed, cross-reviewed)</span>
+    <span><strong>Date:</strong> 4 June 2026</span>
+  </div>
+  <div class="meta" style="margin-top: 0.5rem;">
+    <span><strong>Audience:</strong> Vardis (CEO), Aris (COO), Mustafa (Head of Tech), Robin (Game Director)</span>
+  </div>
+</header>
+
+<!-- ===== 0. DECISION FRAMEWORK ===== -->
+<section id="decision">
+  <h2><span class="section-num">0.</span> Decision Framework</h2>
+
+  <p>This document asks Couch Heroes leadership to make one architectural commitment: <strong>how many concurrent players per zone should the networking architecture support?</strong></p>
+
+  <p>The answer is not a single number. It is a spectrum with different engineering costs, different team requirements, and different competitive positioning.</p>
+
+  <table>
+    <thead>
+      <tr><th>Target</th><th>Engineering Effort</th><th>Team Requirement</th><th>Competitive Position</th><th>Risk</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>100–150 per zone</strong></td>
+        <td>Significant. Replication Graph plugin with custom C++ node implementation, spatial partitioning, dormancy configuration, per-actor frequency tuning.</td>
+        <td>1–2 engineers with UE5 Replication Graph experience. This is custom C++, not configuration.</td>
+        <td>Parity with Fortnite's 100-player cap (built by Epic's own engine team). Below FFXIV (~300).</td>
+        <td><span class="tag tag-medium">Moderate</span></td>
+      </tr>
+      <tr style="background: var(--accent-glow);">
+        <td><strong>200–300 per zone</strong> <span class="tag tag-recommended">Recommended</span></td>
+        <td>Major. Everything above plus custom interest management tiers, hub sharding, staggered replication, state transfer pipeline. Multi-quarter infrastructure build.</td>
+        <td>2–3 senior engineers with UE5 dedicated server experience, dedicated to networking.</td>
+        <td>Approaches FFXIV's ~300 zone cap. Would be rare among shipped Social MMOs. Unusual for a UE5 title with real-time open-world combat.</td>
+        <td><span class="tag tag-medium">Moderate-High</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-recommendation">
+    <div class="callout-title">Recommendation</div>
+    <p>Build the architecture for 200–300 players per zone. Prototype at 200 first. Let telemetry from the prototype determine the achievable ceiling at acceptable quality.</p>
+  </div>
+
+  <div class="callout callout-critical">
+    <div class="callout-title">Critical Constraint — All Readers Must Understand</div>
+    <p>Regardless of zone population, <strong>any single combat encounter (world boss, corruption event, PvP battle) caps at approximately 100 participants.</strong> Players beyond that cap can observe but not interact. The zone holds 200–300 players coexisting; combat happens in clusters of up to 100 within that zone. This is the standard MMO pattern — the zone population and the combat population are different numbers.</p>
+  </div>
+</section>
+
+<!-- ===== 1. EXECUTIVE SUMMARY ===== -->
+<section id="summary">
+  <h2><span class="section-num">1.</span> Executive Summary</h2>
+
+  <p>Couch Heroes is a fantasy Social MMORPG built in Unreal Engine 5, targeting PC first with console to follow. The game's design pillars — discovery-driven exploration, a corruption world mechanic, no-stat cosmetics, soft-class building via weapon + off-hand, and a social-first identity — demand a world that feels alive and populated.</p>
+
+  <p>The original GDD specified 30–40 players per instance. This proposal defines the architecture required to scale zone populations to <strong>200–300 concurrent players per zone</strong>, with hub areas (Downtime, faction districts) scaling dynamically through sharding, and combat encounters running responsively at up to 100 participants.</p>
+
+  <h3>Why population density matters for Couch Heroes specifically</h3>
+
+  <p>Couch Heroes is a Social MMO. <strong>The social experience IS the product.</strong> A world with 30 players per zone feels empty — Palia is a strong cautionary example: its low visible population cap was widely criticised by players, and its commercial outcome shows the risk of under-populated social MMO spaces. Couch Heroes' five factions (Allegiant, Athenaeum, Adeticus, Mendarium, Purple) only feel meaningful when faction districts are populated. The corruption mechanic only generates shared stories when multiple players witness and participate in corruption events. The no-stat cosmetic system only drives aspiration when players see each other's outfits.</p>
+
+  <p>Social MMO competitors with gameplay systems cap at 25–50 players per zone (Palia, Tower of Fantasy, Destiny 2). Social virtual worlds without combat reach higher (VRChat at 80, Second Life at 100) but lack game systems. FFXIV achieves ~300 per zone with all combat instanced on separate servers and a custom engine built over 15 years. A UE5 Social MMO that delivers 200–300 players coexisting in a zone with real-time open-world combat would be a genuine differentiator: approaching FFXIV's zone density while supporting open-world PvE and PvP on the zone server.</p>
+
+  <h3>Architecture at a glance</h3>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-value">5</div>
+      <div class="stat-label">Server Profiles</div>
+      <div class="stat-note">Overworld, Hub Shards, Instances, Housing, Backend</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">200–300</div>
+      <div class="stat-label">Primary Zone Target</div>
+      <div class="stat-note">Prototype at 200, target 300</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">100</div>
+      <div class="stat-label">Max Combat Encounter</div>
+      <div class="stat-note">Designed constraint, not a bug</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">10–20Hz</div>
+      <div class="stat-label">Server Tick Rate</div>
+      <div class="stat-note">10–15Hz at 300+, 20Hz at 200</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 2. COMPETITIVE LANDSCAPE ===== -->
+<section id="landscape">
+  <h2><span class="section-num">2.</span> Competitive Landscape</h2>
+
+  <p>All figures below are from published architecture documentation, community testing, or developer statements. Marketing claims are labelled as such.</p>
+
+  <table>
+    <thead>
+      <tr><th>Title</th><th>Engine</th><th>Zone Cap</th><th>Combat Scale</th><th>Status</th><th>Source</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Palia</strong></td><td>UE4</td><td>25 per instance</td><td>No combat</td><td>Acquired by Daybreak after layoffs</td><td><span class="tag tag-medium">Community reported</span></td></tr>
+      <tr><td><strong>Tower of Fantasy</strong></td><td>UE4</td><td>~30–50 per channel</td><td>Open-world + instanced</td><td>Live, declining concurrent</td><td><span class="tag tag-medium">Community reported</span></td></tr>
+      <tr><td><strong>Throne and Liberty</strong></td><td>UE4</td><td>Hundreds in siege (marketing)</td><td>Large PvP sieges</td><td>Consolidated 107 → 25 servers ~5 months post-launch</td><td><span class="tag tag-high">Marketing claim</span></td></tr>
+      <tr><td><strong>Destiny 2</strong></td><td>Custom (Tiger)</td><td>20–26 in social hub</td><td>Instanced PvE/PvP</td><td>Live</td><td><span class="tag tag-medium">Community reported</span></td></tr>
+      <tr><td><strong>FFXIV</strong></td><td>Custom</td><td>~300 per zone (commonly reported, not officially published), cities shard at threshold</td><td>Instanced (8–24 PvE, 72 PvP)</td><td>Live, dominant subscriber MMO</td><td><span class="tag tag-medium">Community reported</span></td></tr>
+      <tr><td><strong>World of Warcraft</strong></td><td>Custom</td><td>Sharded open world (dynamic layering)</td><td>20-player raids, 40-player battlegrounds, Wintergrasp ~200 with issues</td><td>Live, dominant MMO for 20 years</td><td><span class="tag tag-medium">Community reported</span></td></tr>
+      <tr><td><strong>Guild Wars 2</strong></td><td>Custom</td><td>Megaserver dynamic instancing. Open world: undisclosed caps. WvW: hundreds per map with queue system.</td><td>Large-scale WvW PvP, 5v5 structured PvP</td><td>Live</td><td><span class="tag tag-low">Dev stated</span> (megaserver blog)</td></tr>
+      <tr><td><strong>Ashes of Creation</strong></td><td>UE5</td><td>~300 demonstrated in alpha stress test</td><td>100v100 siege target</td><td>Alpha, not shipped</td><td><span class="tag tag-low">Dev stated</span></td></tr>
+      <tr><td><strong>Mortal Online 2</strong></td><td>UE5</td><td>~500 in seamless battle (developer claim)</td><td>Open-world full-loot PvP</td><td>Live, persistent quality issues</td><td><span class="tag tag-high">Marketing claim</span></td></tr>
+      <tr><td><strong>VRChat</strong></td><td>Unity</td><td>80 hard cap per instance</td><td>No combat</td><td>Live</td><td><span class="tag tag-primary">Official docs</span></td></tr>
+      <tr><td><strong>Second Life</strong></td><td>Custom</td><td>100 basic avatars per region (+ premium allowance); event regions can support higher</td><td>Minimal</td><td>Live (20+ year proven ceiling)</td><td><span class="tag tag-primary">Official docs</span></td></tr>
+    </tbody>
+  </table>
+
+  <h3>What worked</h3>
+  <ul>
+    <li><strong>FFXIV's city sharding</strong> — cleanest model for Downtime. Friends/party routed to same instance. Players can switch manually.</li>
+    <li><strong>GW2's megaserver</strong> — dynamic zone instancing with friend/guild-aware routing creates perception of a populated world.</li>
+    <li><strong>GW2's centralised Trading Post</strong> — solves cross-shard commerce. Global service outside the instance system.</li>
+    <li><strong>PlanetSide 2</strong> — hundreds of players in active combat via aggressive distance-based update rates.</li>
+  </ul>
+
+  <h3>What failed</h3>
+
+  <div class="two-col">
+    <div class="card">
+      <h4>Palia — The "Empty World" Problem</h4>
+      <p>25-player cap in a social game. World felt empty. Community cited loneliness as a core issue. Two rounds of layoffs, then acquired. <strong>Lesson:</strong> a Social MMO must feel populated or it fails at its core promise.</p>
+    </div>
+    <div class="card">
+      <h4>Throne and Liberty — The "Marketing vs Reality" Problem</h4>
+      <p>Marketed large-scale sieges. Community reported freezing, severe input lag, visual chaos. 107 → 25 servers in 4 months. <strong>Lesson:</strong> claiming large-scale and delivering smooth large-scale are different things.</p>
+    </div>
+    <div class="card">
+      <h4>ESO Cyrodiil — The "Retrofit" Problem</h4>
+      <p>Decade of large-scale PvP performance issues. Now testing simplified abilities to reduce server load. <strong>Lesson:</strong> combat must be designed networking-friendly from the start, not retrofitted.</p>
+    </div>
+    <div class="card">
+      <h4>Tower of Fantasy — The "Silent Split" Problem</h4>
+      <p>Auto-channelling silently separates players ignoring social connections. World never feels populated. <strong>Lesson:</strong> channel splitting that ignores social connections destroys the social experience.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 3. ARCHITECTURE ===== -->
+<section id="architecture">
+  <h2><span class="section-num">3.</span> Architecture Overview</h2>
+
+  <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; margin: 1.5rem 0;">
+    <div style="text-align: center; font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1.5rem;">Game World Architecture</div>
+
+    <!-- Overworld -->
+    <div style="border: 2px solid var(--accent); border-radius: 10px; padding: 1.25rem; margin-bottom: 1rem;">
+      <div style="font-weight: 700; color: var(--accent-bright); margin-bottom: 0.5rem;">Overworld Zone Server <span style="font-weight: 400; color: var(--text-secondary);">— 200–300 players, 10–20Hz tick</span></div>
+      <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+        <div style="background: var(--bg-highlight); border: 1px solid var(--border); border-radius: 6px; padding: 0.6rem 1rem; font-size: 13px;">
+          <div style="font-weight: 600; color: var(--text);">Exploration</div>
+          <div style="color: var(--text-muted); font-size: 12px;">1–3Hz updates</div>
+        </div>
+        <div style="background: var(--bg-highlight); border: 1px solid var(--border); border-radius: 6px; padding: 0.6rem 1rem; font-size: 13px;">
+          <div style="font-weight: 600; color: var(--text);">Combat Clusters</div>
+          <div style="color: var(--text-muted); font-size: 12px;">10–20Hz priority</div>
+        </div>
+        <div style="background: var(--bg-highlight); border: 1px solid var(--border); border-radius: 6px; padding: 0.6rem 1rem; font-size: 13px;">
+          <div style="font-weight: 600; color: var(--text);">Corruption Events</div>
+          <div style="color: var(--text-muted); font-size: 12px;">Up to 100 participants</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mid tier: hubs + housing -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+      <div style="border: 1px solid var(--border); border-radius: 8px; padding: 1rem;">
+        <div style="font-weight: 700; color: var(--success); margin-bottom: 0.25rem;">Downtime Hub Shards</div>
+        <div style="font-size: 13px; color: var(--text-secondary);">~200 per shard<br>Social-graph-aware routing</div>
+      </div>
+      <div style="border: 1px solid var(--border); border-radius: 8px; padding: 1rem;">
+        <div style="font-weight: 700; color: var(--success); margin-bottom: 0.25rem;">User Space Housing</div>
+        <div style="font-size: 13px; color: var(--text-secondary);">12–24 visitors per house<br>Shared server processes</div>
+      </div>
+    </div>
+
+    <!-- Instances -->
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-bottom: 1rem;">
+      <div style="border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; text-align: center;">
+        <div style="font-weight: 600; font-size: 13px; color: var(--text);">Dungeon</div>
+        <div style="font-size: 12px; color: var(--text-muted);">4-player / 30Hz</div>
+      </div>
+      <div style="border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; text-align: center;">
+        <div style="font-weight: 600; font-size: 13px; color: var(--text);">Raid</div>
+        <div style="font-size: 12px; color: var(--text-muted);">8–24 / 30Hz</div>
+      </div>
+      <div style="border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; text-align: center;">
+        <div style="font-weight: 600; font-size: 13px; color: var(--text);">PvP Arena</div>
+        <div style="font-size: 12px; color: var(--text-muted);">3v3–20v / 30Hz</div>
+      </div>
+      <div style="border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; text-align: center;">
+        <div style="font-weight: 600; font-size: 13px; color: var(--text);">Siege</div>
+        <div style="font-size: 12px; color: var(--text-muted);">50v50 / 20Hz (target)</div>
+      </div>
+    </div>
+
+    <!-- Backend -->
+    <div style="border: 1px solid var(--border); border-radius: 8px; padding: 1rem; background: var(--bg-highlight);">
+      <div style="font-weight: 700; color: var(--warning); margin-bottom: 0.5rem;">Backend Services</div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 13px; color: var(--text-secondary);">
+        <div><strong style="color: var(--text);">Orchestration:</strong> Agones (Kubernetes)</div>
+        <div><strong style="color: var(--text);">State:</strong> Redis (ephemeral) + PostgreSQL (durable)</div>
+        <div><strong style="color: var(--text);">Metagame:</strong> Custom-built (accounts, social, matchmaking, economy)</div>
+        <div><strong style="color: var(--text);">World State:</strong> Corruption service (pub/sub to zone servers)</div>
+        <div><strong style="color: var(--text);">Security:</strong> EasyAntiCheat + Cloudflare Spectrum</div>
+        <div><strong style="color: var(--text);">Telemetry:</strong> Per-connection bandwidth, tick time, events</div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Where players are at any given moment</h3>
+  <p>300 players in a zone does not mean 300 in one place. A plausible busy-state distribution:</p>
+  <ul>
+    <li><strong>~40–80</strong> in Downtime areas (handled by hub shards separately)</li>
+    <li><strong>~30–80</strong> in active combat clusters (corruption events, world bosses, PvP)</li>
+    <li><strong>~120–200</strong> exploring, questing, gathering, fishing — spread across the zone</li>
+    <li><strong>~20–50</strong> transitioning to or from instanced content (dungeons, arenas, User Spaces)</li>
+  </ul>
+  <p><em>These are illustrative proportions, not hard allocations. The actual mix will vary by time of day, content cadence, and event scheduling.</em></p>
+
+  <h3>Corruption State Replication</h3>
+  <p>Corruption is a core design pillar. The networking architecture supports it natively with a <strong>tiered hybrid model:</strong></p>
+  <ul>
+    <li><strong>Per-zone corruption scalar</strong> (0–100, one byte) — the authoritative gameplay value driving spawns, accessibility gates, and VFX palette. Replicated to all clients in periodic world-state snapshots. Essentially free in bandwidth terms.</li>
+    <li><strong>Low-resolution spatial grid</strong> (64×64 cells, 1 byte per cell = 4 KB total) — visual corruption spread patterns. Replicated via delta compression (only changed cells sent). Typical update: 50–200 bytes every 5–10 seconds. A corruption update costs usually smaller than one full moving character update under this replication model.</li>
+  </ul>
+  <p>Cross-shard consistency: corruption state owned by a central world-state service (PostgreSQL + pub/sub). Changes fan out to all zone instances and hub shards with 1–5 second latency. Acceptable for environmental state.</p>
+
+  <h3>User Space (Housing) Architecture</h3>
+  <p>User Spaces are personal pocket dimensions accessed via the House of Houses. Shared housing server processes host 20–50 concurrent occupied User Spaces via UE5 World Partition streaming. Visitor cap: <strong>12–24 per house</strong> (consistent with ESO and FFXIV). Entry is a server transition via <code>ClientTravel()</code> masked by a portal animation.</p>
+</section>
+
+<!-- ===== 4. TECH STACK ===== -->
+<section id="stack">
+  <h2><span class="section-num">4.</span> Recommended Technology Stack</h2>
+  <p>A single recommended stack with documented fallback positions. This is a starting point, not a menu.</p>
+
+  <table>
+    <thead>
+      <tr><th>Layer</th><th>Recommendation</th><th>Rationale</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Replication</strong></td>
+        <td>Replication Graph</td>
+        <td>Stable, proven, battle-tested. <code>GridSpatialization2D</code> for spatial culling (stock node). Distance-based frequency tiers require a <strong>custom Replication Graph node</strong> (not stock — must be engineered). Iris (Epic's next-gen replication) exists but is labelled Experimental in UE 5.7 with a caution warning — not recommended for shipping. Monitor its status but do not plan around it.</td>
+        <td><span class="tag tag-primary">Primary</span></td>
+      </tr>
+      <tr>
+        <td><strong>Zone Orchestration</strong></td>
+        <td>Agones on Kubernetes</td>
+        <td>Open source, cloud-agnostic, established game server orchestration layer used in production game infrastructure. No vendor lock-in.</td>
+        <td><span class="tag tag-primary">Primary</span></td>
+      </tr>
+      <tr>
+        <td><strong>Server Hosting</strong></td>
+        <td>AWS c7i (x86-64)</td>
+        <td>UE5 servers are x86 builds. c7i.4xlarge for zones, c7i.xlarge for instances.</td>
+        <td><span class="tag tag-primary">Primary</span></td>
+      </tr>
+      <tr>
+        <td><strong>Metagame Backend</strong></td>
+        <td>Custom-built metagame backend</td>
+        <td>Purpose-built for CH's needs: accounts, social graph, matchmaking, chat, economy, faction state. No vendor dependency. Full control over feature set and scaling.</td>
+        <td><span class="tag tag-primary">Primary</span></td>
+      </tr>
+      <tr>
+        <td><strong>Anti-Cheat</strong></td>
+        <td>EasyAntiCheat</td>
+        <td>Base EAC is free via Epic Online Services. Native UE5 integration. Client-side scanning + server authority. Advanced support or enterprise features may require a separate agreement.</td>
+        <td><span class="tag tag-primary">Primary</span></td>
+      </tr>
+      <tr>
+        <td><strong>DDoS Protection</strong></td>
+        <td>Cloudflare Spectrum Enterprise (quote required) + AWS Shield Standard baseline</td>
+        <td>Cloudflare Spectrum Enterprise proxies game traffic — required to hide server IPs. AWS Shield Standard alone does NOT hide origin IPs. Note: Spectrum drops fragmented UDP packets at the edge, so protocol design must keep datagrams below path MTU.</td>
+        <td><span class="tag tag-primary">Primary</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Documented Fallback Positions</h3>
+  <table>
+    <thead>
+      <tr><th>Layer</th><th>Fallback</th><th>When to Switch</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Orchestration</td><td>Redwood MMO Framework</td><td>If Agones alone is insufficient for zone routing/sharding</td></tr>
+      <tr><td>Server Meshing</td><td>OmniMesh (StarVault, licensed)</td><td>Only if single-server ceiling is below 200 in the stress test prototype</td></tr>
+      <tr><td>Backend</td><td>Pragma (managed)</td><td>Only if custom backend proves too large a build for the team. Adds vendor dependency.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-warning">
+    <div class="callout-title">Technologies Explicitly Not Recommended</div>
+    <p><strong>Custom server meshing</strong> — multi-year investment, 55-person studio cannot build this while building a game. <strong>Third-party server-meshing vendors</strong> (SpatialOS, Hadean, Hathora, and similar) are not recommended for launch planning due to strategic fit, licensing uncertainty, and product availability risk.</p>
+  </div>
+</section>
+
+<!-- ===== 5. TECHNICAL SPEC ===== -->
+<section id="spec">
+  <h2><span class="section-num">5.</span> Technical Specification</h2>
+
+  <h3>5.1 Overworld Zone Server</h3>
+  <ul>
+    <li>Single UE5 dedicated server process per zone</li>
+    <li>Target: 200–300 concurrent connections.</li>
+    <li>Server tick rate: <strong>10–15Hz realistic at 300+</strong>. 20Hz achievable at 200 or fewer.</li>
+    <li>Staggered replication: 50–100 connections per tick, rotated. Priority accumulation ensures combat participants are never starved.</li>
+  </ul>
+
+  <h4>Interest Management Tiers (with Hysteresis)</h4>
+  <table>
+    <thead>
+      <tr><th>Tier</th><th>Promote</th><th>Demote</th><th>Update Rate</th><th>Visual</th><th>UE5 Mechanism</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Near</strong></td><td>&lt; 45m</td><td>&gt; 55m</td><td>3–10Hz effective*</td><td>Full skeletal mesh</td><td><code>DORM_Awake</code>, <code>NetPriority 2.0</code> + combat elevation to 3.0</td></tr>
+      <tr><td><strong>Mid</strong></td><td>&lt; 180m</td><td>&gt; 220m</td><td>1–3Hz</td><td>Low-LOD mesh</td><td>Custom frequency node (must be built) + <code>NetUpdateFrequency</code> tuning</td></tr>
+      <tr><td><strong>Far</strong></td><td>all others</td><td>—</td><td>0.5–1Hz or excluded</td><td>Impostor billboard / culled</td><td>Replication Graph filtering removes actor from connection's relevancy list. <code>DORM_DormantAll</code> only applies when far from ALL viewers (actor-wide, not per-viewer).</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-warning">
+    <div class="callout-title">*Effective Rates are Lower than Tick Rate Due to Staggered Replication</div>
+    <p>At 300 connections with 50–100 replicated per tick at 15Hz, each connection receives a replication pass every 3–6 ticks (200–400ms). Near-tier players with elevated priority (3.0) win passes more frequently but still cannot achieve the full tick rate. <strong>The effective update rate for near-tier at 300 players is ~3–10Hz, not 15Hz.</strong> At 200 players, near-tier approaches 10–15Hz. This is why the 200-player prototype is essential — it determines whether these effective rates deliver acceptable combat responsiveness.</p>
+  </div>
+
+  <div class="callout callout-info">
+    <div class="callout-title">Hysteresis Prevents Tier Thrashing (Custom Code Required)</div>
+    <p>Hysteresis (separate promote/demote distances) is not a stock UE5 feature — it must be implemented in the custom Replication Graph node. Without it, players near tier boundaries oscillate between update rates causing visual popping. The 10m buffer (promote at 45m, demote at 55m) is the minimum guard.</p>
+  </div>
+
+  <h3>5.2 Bandwidth Budget (Corrected)</h3>
+  <p>Based on UE5 framing overhead (object header, property header, bunch framing) and typical replicated character properties:</p>
+
+  <table>
+    <thead>
+      <tr><th>Property Set</th><th>Raw Size</th><th>With Delta Compression</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Position (quantised FVector)</td><td>6 bytes</td><td>3–6 bytes</td></tr>
+      <tr><td>Rotation (compressed)</td><td>4–6 bytes</td><td>2–4 bytes</td></tr>
+      <tr><td>Velocity</td><td>6 bytes</td><td>3–6 bytes</td></tr>
+      <tr><td>Movement mode</td><td>1 byte</td><td>0–1 byte</td></tr>
+      <tr><td>Animation state</td><td>4–8 bytes</td><td>2–6 bytes</td></tr>
+      <tr><td>Combat state</td><td>8–12 bytes</td><td>4–8 bytes</td></tr>
+      <tr><td>UE5 replication overhead</td><td>8–16 bytes</td><td>8–16 bytes (not compressible)</td></tr>
+      <tr><td><strong>Total (moving, in combat)</strong></td><td><strong>37–65 bytes</strong></td><td><strong>~45 bytes typical</strong></td></tr>
+    </tbody>
+  </table>
+
+  <h4>Per-Connection at 300 Players (with staggered replication)</h4>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-value">~25–50 KB/s</div>
+      <div class="stat-label">Per Connection</div>
+      <div class="stat-note">~200–400 kbps. Near-tier at effective 3–10Hz, not full tick rate.</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">~60–120 Mbps</div>
+      <div class="stat-label">Total Server Egress</div>
+      <div class="stat-note">Comfortable on 1 Gbps NIC. Add combat RPCs, chat, items for ~100–180 Mbps realistic peak.</div>
+    </div>
+  </div>
+
+
+  <div class="callout callout-warning">
+    <div class="callout-title">These are estimates</div>
+    <p>The 200-player stress test prototype must measure actual bytes-on-wire using UE5's Network Profiler before any production commitment.</p>
+  </div>
+
+  <h3>5.3 Latency Targets</h3>
+  <p><em>These are prototype targets, not commitments, until validated under synthetic and real playtest load.</em></p>
+  <table>
+    <thead>
+      <tr><th>Activity</th><th>Max RTT</th><th>End-to-End Budget</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Combat ability activation</td><td>100ms</td><td>150–200ms</td><td>Client prediction makes it feel instant locally</td></tr>
+      <tr><td>Soft-lock target acquisition</td><td>150ms</td><td>200–250ms</td><td>Binary server validation</td></tr>
+      <tr><td>Movement (near tier)</td><td>100ms</td><td>150–200ms</td><td>Client prediction + server reconciliation</td></tr>
+      <tr><td>Social interactions</td><td>250ms</td><td>300–500ms</td><td>Not latency-sensitive</td></tr>
+      <tr><td>Hub shard transition</td><td>—</td><td>3–5 seconds</td><td>Masked by animation</td></tr>
+      <tr><td>Corruption state update</td><td>—</td><td>5–10 seconds</td><td>Eventual consistency</td></tr>
+    </tbody>
+  </table>
+
+  <h3>5.4 The 100-Participant Event Cap</h3>
+  <p>Open-world events (corruption cleansing, world bosses) cap at <strong>100 active participants:</strong></p>
+  <ul>
+    <li>At 100 participants, event transitions to "full" state</li>
+    <li>Additional players can observe (reduced-LOD visuals) but cannot deal damage or receive loot</li>
+    <li>When a participant leaves, a slot opens for an observer</li>
+    <li>Robin's team should frame this as <em>"the corruption is overwhelming — reinforcements standing by"</em></li>
+  </ul>
+
+  <h3>5.5 Combat Design for Networking</h3>
+  <h4>Soft-Lock Skill Expression</h4>
+  <div class="two-col">
+    <div class="card">
+      <h4>Positioning-Based</h4>
+      <ul>
+        <li><strong>Positional bonuses</strong> — flanking/rear attacks deal more damage (FFXIV)</li>
+        <li><strong>Dodge i-frames</strong> — invincibility frames with precise timing (GW2)</li>
+        <li><strong>Momentum dodges</strong> — movement speed/direction affects dodge trajectory</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Lock Management</h4>
+      <ul>
+        <li><strong>Lock degradation</strong> — lock weakens when target dashes or enters cover</li>
+        <li><strong>Split-body animation</strong> — attack locked, lower body free to move (Ashes of Creation)</li>
+        <li><strong>Animation cancelling</strong> — cancel recovery into startup of next ability</li>
+      </ul>
+    </div>
+  </div>
+  <h4>Networking-Friendly Design Rules</h4>
+  <ul>
+    <li><strong>AoE caps at 12 targets</strong> (nearest by distance) — prevents O(N²) scaling</li>
+    <li><strong>VFX tiers:</strong> full (under 30 players), reduced (30–60), minimal (60+) — defined by combat design, not post-hoc optimisation</li>
+    <li><strong>Death respawn at safe locations</strong> — prevents "death ball" density buildup</li>
+    <li><strong>PvP requires opt-in flag</strong> — single replicated boolean, negligible bandwidth</li>
+  </ul>
+</section>
+
+<!-- ===== 6. SECURITY ===== -->
+<section id="security">
+  <h2><span class="section-num">6.</span> Security and Resilience</h2>
+
+  <div class="two-col">
+    <div class="card">
+      <h4>DDoS Mitigation</h4>
+      <p><strong>AWS Shield Standard does NOT hide server IPs</strong> — it only mitigates volumetric attacks on known IPs. To actually hide game server IPs from clients, game traffic must be proxied through <strong>Cloudflare Spectrum</strong> (Enterprise plan, UDP proxy) or <strong>GameLift Player Gateway</strong> (only available with GameLift managed/container fleets, not with Agones/EKS). With the primary Agones/EKS architecture, Cloudflare Spectrum is required for IP hiding. Without it, server IPs are exposed to clients via the connection address.</p>
+    </div>
+    <div class="card">
+      <h4>Anti-Cheat</h4>
+      <p>Two layers: <strong>server authority</strong> (validates all state-changing inputs; interest management reduces remote-state exposure for irrelevant actors but does not replace visibility checks for relevant actors) + <strong>EasyAntiCheat</strong> (base free via EOS; catches aimbots and memory manipulation; enterprise support may require separate agreement).</p>
+    </div>
+    <div class="card">
+      <h4>Crash Recovery</h4>
+      <p><strong>PostgreSQL is the durable authority</strong> for player state — written on every significant state change (level up, item acquisition, quest completion, disconnect). Redis holds hot transient state (position, health, combat state) with 30–60 second snapshots for fast recovery. On crash: Agones detects failure, allocates warm-pool replacement, loads durable state from PostgreSQL + recent snapshot from Redis. Players see "Reconnecting..." screen. Target recovery: 60–120 seconds (cold zone load is the bottleneck). Redis is a cache, not recovery truth.</p>
+    </div>
+    <div class="card">
+      <h4>Console Compatibility</h4>
+      <p>PC-first architecture is console-compatible. Dedicated servers avoid peer-host NAT traversal (clients make outbound connections), but PSN/XBL session integration and TRC/XR reconnect behaviour must be validated separately. Build platform-specific session and reconnection requirements in from the start.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 7. PERSPECTIVES ===== -->
+<section id="perspectives">
+  <h2><span class="section-num">7.</span> Expert Perspectives</h2>
+
+  <h3>Network Engineer</h3>
+
+  <div class="callout callout-critical">
+    <div class="callout-title">Custom Engineering Clarity</div>
+    <p>UE5 provides the Replication Graph plugin with <code>GridSpatialization2D</code> for spatial culling, <code>NetUpdateFrequency</code> / <code>NetPriority</code> for per-actor tuning, and dormancy states. <strong>Everything else in this architecture is custom C++ that must be built:</strong> distance-based frequency tiers (custom Replication Graph node), hysteresis, combat priority elevation logic, staggered replication budgeting, impostor billboard rendering for skeletal meshes, and client-side NPC simulation. The Replication Graph gives you the framework; the game-specific interest management is engineering work.</p>
+  </div>
+
+  <ul>
+    <li><strong>Replication Graph is the foundation.</strong> Iris is Experimental and should not be planned around. If the Replication Graph ceiling is too low, the answer is OmniMesh or reduced targets, not an experimental API.</li>
+    <li><strong>Prototype at 200 players immediately.</strong> Measure <code>NetBroadcastTickTime</code>, per-connection bandwidth, server tick time. This prototype is the gate for all further work.</li>
+    <li><strong>Reliable RPC discipline is a code review gate.</strong> No reliable RPCs in combat paths. A single reliable RPC in a hot path stalls replication for an entire connection.</li>
+    <li><strong>Interest management hysteresis is mandatory.</strong> 10m buffer minimum between promote and demote distances. This is custom code, not a stock UE5 feature.</li>
+  </ul>
+  <div class="callout callout-info">
+    <div class="callout-title">Engineering Estimate</div>
+    <p>Networking layer (interest management, dormancy, priority accumulation, staggered replication, state transfer, hub sharding) requires <strong>2–3 senior engineers dedicated to infrastructure</strong> for pre-production and early production.</p>
+  </div>
+
+  <h3>Level Designer</h3>
+  <ul>
+    <li>Initial zone size target: <strong>2km × 2km</strong> to distribute 300 players naturally (validate during Phase 1 — this is a design heuristic, not a proven constraint)</li>
+    <li>No single POI attracts more than 100 players</li>
+    <li>Downtime's five faction districts distribute key NPCs across districts</li>
+    <li>Natural density barriers (terrain, verticality) prevent convergence</li>
+    <li>Shard transition zones use natural geography (city gates, bridges, tunnels) to mask 3–5 second transitions</li>
+  </ul>
+
+  <h3>Combat Designer</h3>
+  <ul>
+    <li>AoE target caps from day one — every AoE caps at 12</li>
+    <li>VFX tiers in the ability pipeline — 3 tiers per ability, specified by combat design</li>
+    <li>Corruption cleansing as positional puzzle/platforming — inherently networking-cheap</li>
+    <li>Death respawn at safe locations away from combat sites</li>
+  </ul>
+
+  <h3>Product Manager</h3>
+  <ul>
+    <li>Lead with experience: <em>"You always see other players"</em> — not raw player counts</li>
+    <li>The 100-player event cap is a feature: <em>"epic battles with up to 100 combatants"</em></li>
+    <li>MassAI NPC crowds make 100 human players feel like a living world</li>
+    <li><strong>New player test at every milestone:</strong> what does the first 30 minutes look like at 100 concurrent vs 300?</li>
+  </ul>
+
+  <h3>CTO / Full Stack</h3>
+  <ul>
+    <li>Containerise everything on Kubernetes. Agones manages game server lifecycle.</li>
+    <li>Telemetry from day one — dashboard per-zone, per-connection, per-event</li>
+    <li>Blue-green deployment for stateless backend services (metagame backend, world state service). For zone servers: scheduled draining — stop accepting new players, wait for natural zone transitions to empty the server, then replace. This is not instant and requires planned maintenance windows for major server updates.</li>
+    <li>State transfer with verification handshake. Return to source on failure, not dropped.</li>
+  </ul>
+  <div class="callout callout-info">
+    <div class="callout-title">Backend Engineering Estimate</div>
+    <p>Infrastructure (Kubernetes, Agones, custom metagame backend, Redis/PostgreSQL, telemetry, CI/CD, DDoS) requires <strong>2–3 backend/DevOps engineers</strong> during pre-production, then ongoing ops support.</p>
+  </div>
+</section>
+
+<!-- ===== 8. COSTS ===== -->
+<section id="costs">
+  <h2><span class="section-num">8.</span> Comprehensive Cost Model</h2>
+  <p>Fully-loaded estimate including all infrastructure components.</p>
+
+  <h3>Monthly at Scale (300 per zone, 10 zones, ~3,000 in zones + hubs/instances/housing)</h3>
+  <p><em>Note: 10 zones × 300 = 3,000 players in overworld zones. Total CCU including hub shards, instances, and housing will be higher. For 30,000 peak CCU, you would need ~100 zone servers plus proportionally more shards and instances — multiply the compute lines accordingly. This model shows a 10-zone baseline to illustrate unit economics.</em></p>
+  <table>
+    <thead>
+      <tr><th>Component</th><th>Specification</th><th>Monthly Cost (AWS reserved)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Zone servers (10)</td><td>c7i.4xlarge (16 vCPU, 32 GB)</td><td>$3,200–5,200</td></tr>
+      <tr><td>Hub shards (20)</td><td>c7i.2xlarge (8 vCPU, 16 GB)</td><td>$3,200–5,200</td></tr>
+      <tr><td>Instance servers (50 warm pool)</td><td>c7i.xlarge (4 vCPU, 8 GB)</td><td>$5,000–9,000</td></tr>
+      <tr><td>Housing servers (10)</td><td>c7i.xlarge</td><td>$1,000–1,800</td></tr>
+      <tr><td>PostgreSQL (RDS Multi-AZ)</td><td>db.r6g.2xlarge + storage</td><td>$1,400–1,800</td></tr>
+      <tr><td>Redis (ElastiCache, 3-node cluster)</td><td>cache.r6g.xlarge</td><td>$600–900</td></tr>
+      <tr><td>Custom metagame backend (3 nodes)</td><td>c7i.xlarge</td><td>$1,500–2,500</td></tr>
+      <tr><td>Network egress</td><td>See note below*</td><td>$10,000–45,000</td></tr>
+      <tr><td>DDoS protection</td><td>AWS Shield Standard (free) + Cloudflare Spectrum Enterprise (paid, quote required)</td><td>Shield: $0 / Spectrum: TBD Enterprise quote</td></tr>
+      <tr><td>Monitoring / telemetry</td><td>CloudWatch, Grafana</td><td>$500–1,500</td></tr>
+      <tr><td>CDN (patches)</td><td>CloudFront</td><td>$500–2,000</td></tr>
+      <tr><td>CI/CD + stress testing</td><td>Build servers, sim clients</td><td>$1,000–3,000</td></tr>
+      <tr><td>Dev + staging environments</td><td>2× reduced-scale</td><td>$3,000–5,000</td></tr>
+      <tr style="background: var(--bg-highlight);"><td><strong>Total Monthly (excl. Cloudflare Spectrum Enterprise quote)</strong></td><td></td><td><strong>$31,000–88,000</strong></td></tr>
+    </tbody>
+  </table>
+  <p style="font-size: 13px; color: var(--text-muted);"><em>Assumptions: AWS us-east-1, 1-year reserved instances (no upfront), public internet egress at standard tiered pricing, 8h peak + 16h at 20% utilisation for bandwidth calculations. Savings Plans or committed-use agreements would reduce compute costs. Private interconnect would reduce egress costs.</em></p>
+
+  <div class="callout callout-warning">
+    <div class="callout-title">*Network Egress is the Largest Variable</div>
+    <p><strong>Working:</strong> At 300 players per zone, each zone server pushes 100–180 Mbps. Per zone per day: 8 hours at peak (100–180 Mbps) + 16 hours at ~20% load = <strong>504–907 GB/day per zone</strong>. Monthly per zone: 15–27 TB. Across 10 zones: <strong>~150–270 TB/month</strong>.</p>
+    <p>AWS tiered egress pricing: first 10 TB at $0.09/GB, next 40 TB at $0.085/GB, next 100 TB at $0.07/GB, 150 TB+ at $0.05/GB. At 150 TB: ~$11,400. At 270 TB: ~$17,400.</p>
+    <p>This is the single largest variable in the cost model. Committed use discounts or Private Pricing Agreements with AWS reduce this significantly at scale. <strong>Must be monitored from day one.</strong></p>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-value">$8–15K</div>
+      <div class="stat-label">Pre-Launch (Dev Only)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">$15–35K</div>
+      <div class="stat-label">Soft Launch (1–5K CCU)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">$31–88K</div>
+      <div class="stat-label">10-Zone Baseline (~3K in zones)</div>
+      <div class="stat-note">Multiply compute lines ~10x for 30K CCU</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">Linear ↑</div>
+      <div class="stat-label">100K+ CCU</div>
+      <div class="stat-note">Negotiate AWS committed use discounts at this scale</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 9. RISKS ===== -->
+<section id="risks">
+  <h2><span class="section-num">9.</span> Risk Register</h2>
+  <table>
+    <thead>
+      <tr><th>Risk</th><th>Severity</th><th>Mitigation</th><th>Owner</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Zone server cannot sustain 15Hz at 300 players</td><td><span class="tag tag-high">High</span></td><td>Prototype at 200 first. If ceiling &lt; 300, reduce target or evaluate OmniMesh.</td><td>Mustafa</td></tr>
+      <tr><td>Player count at launch too low to fill zones</td><td><span class="tag tag-high">High</span></td><td>MassAI NPC crowds, concentrated POI layout, megaserver-style zone merging.</td><td>Robin + Mustafa</td></tr>
+      <tr><td>Hub sharding breaks social connections</td><td><span class="tag tag-high">High</span></td><td>Social-graph-aware routing. Manual shard-switch UI. Test with simulated clusters.</td><td>Mustafa</td></tr>
+      <tr><td>State transfer loses player data</td><td><span class="tag tag-high">High</span></td><td>PostgreSQL is durable authority. Redis hot cache with 120s TTL for fast recovery. Verification handshake. Return to source on failure.</td><td>Mustafa</td></tr>
+      <tr><td>Zone server crash at 300+ players</td><td><span class="tag tag-high">High</span></td><td>PostgreSQL durable writes + Redis hot cache snapshots. Warm pool replacement. 60–120s recovery (cold zone load is the bottleneck).</td><td>Mustafa + DevOps</td></tr>
+      <tr><td>Team lacks UE5 networking specialists</td><td><span class="tag tag-high">High</span></td><td>Assess team. If &lt; 2 engineers with DS experience, hire or contract.</td><td>Vardis + Mustafa</td></tr>
+      <tr><td>UE5 engine version lock-in</td><td><span class="tag tag-medium">Medium</span></td><td>Lock version for production. Plan migration only between milestones.</td><td>Mustafa</td></tr>
+      <tr><td>Reliable RPC bunch contention</td><td><span class="tag tag-medium">Medium</span></td><td>Code review gate: no reliable RPCs in combat paths.</td><td>Mustafa</td></tr>
+      <tr><td>Client rendering fails at 80+ characters</td><td><span class="tag tag-medium">Medium</span></td><td>Impostor billboards + animation LOD tested on min-spec early.</td><td>Art Director</td></tr>
+      <tr><td>Shard transitions &gt; 5 seconds</td><td><span class="tag tag-medium">Medium</span></td><td>Prototype early. Fallback: FFXIV visible-instance model.</td><td>Mustafa</td></tr>
+      <tr><td>Bandwidth costs exceed estimates</td><td><span class="tag tag-medium">Medium</span></td><td>Monitor per-connection from day one. Egress is the main variable.</td><td>DevOps</td></tr>
+      <tr><td>Redwood maturity insufficient</td><td><span class="tag tag-low">Low</span></td><td>Evaluate in pre-production. Fallback: custom Agones + NodeJS.</td><td>Mustafa</td></tr>
+      <tr><td>Custom metagame backend exceeds available backend capacity</td><td><span class="tag tag-high">High</span></td><td>Restrict launch backend to account/session/social routing/matchmaking. Defer non-critical features (advanced chat, economy automation, faction analytics) to post-launch. Load-test before content lock.</td><td>Backend Lead + CTO</td></tr>
+      <tr><td>DDoS attack on game servers</td><td><span class="tag tag-low">Low</span></td><td>Cloudflare Spectrum Enterprise proxies traffic (hides server IPs). AWS Shield Standard as baseline.</td><td>DevOps</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ===== 10. UNKNOWNS ===== -->
+<section id="unknowns">
+  <h2><span class="section-num">10.</span> What We Don't Know</h2>
+  <p>Significant unknowns that must be resolved by prototyping. Presenting them honestly is more valuable than pretending certainty.</p>
+
+  <ol>
+    <li><strong>The actual single-server player ceiling for this game.</strong> No published data for a third-person MMORPG with hybrid combat and cosmetic customisation at 300+ in UE5. The stress test resolves this.</li>
+    <li><strong>Replication Graph performance with CH's actor complexity.</strong> The no-stat cosmetic system means more visual state per character than a typical MMO. Must be measured.</li>
+    <li><strong>Actual <code>ClientTravel</code> transition time</strong> with full cosmetic state through Redis. Must be prototyped.</li>
+    <li><strong>MassAI client-side deterministic simulation viability.</strong> Floating-point determinism across diverse hardware is not guaranteed.</li>
+    <li><strong>If Replication Graph proves insufficient.</strong> Iris is Experimental and cannot be relied on. The fallback is OmniMesh licensing or reduced zone population targets.</li>
+    <li><strong>OmniMesh licensing terms.</strong> Pricing and source code access not publicly documented.</li>
+    <li><strong>Min-spec client rendering at 50+ characters</strong> with CH's Byte-Punk art style. Must be tested.</li>
+    <li><strong>Custom metagame backend scalability at 30,000+ CCU.</strong> Must be designed for horizontal scaling from the start. Load testing required.</li>
+  </ol>
+</section>
+
+<!-- ===== 11. PHASES ===== -->
+<section id="phases">
+  <h2><span class="section-num">11.</span> Phased Delivery</h2>
+
+  <div class="phase">
+    <div class="phase-dot"></div>
+    <div class="phase-title">Phase 1: Foundation (Pre-production)</div>
+    <div class="phase-subtitle">Validate the architecture with hard data</div>
+    <ul>
+      <li>200-player stress test prototype with Replication Graph</li>
+      <li>Shard transition prototype (<code>ClientTravel</code> + Redis round-trip)</li>
+      <li>MassAI determinism test across 3+ hardware configs</li>
+      <li>OmniMesh licensing inquiry (only if prototype ceiling is below the required target range, or if 300 remains a hard business requirement after Phase 1)</li>
+      <li>Custom metagame backend prototype (accounts, social graph, matchmaking) on Kubernetes</li>
+    </ul>
+    <p><strong>Team:</strong> 2–3 networking engineers + 1 DevOps + 1 backend engineer, full-time</p>
+    <div class="callout callout-critical">
+      <div class="callout-title">Gate</div>
+      <p>Prototype must pass ALL of these before proceeding:</p>
+      <ul style="margin:0.5rem 0 0 1.5rem; font-size: 14px;">
+        <li>Server tick rate &gt; 15Hz sustained (not average — p99 must not drop below 10Hz)</li>
+        <li><code>NetBroadcastTickTime</code> &lt; 40% of tick budget</li>
+        <li>Per-connection bandwidth &lt; 50 KB/s at steady state</li>
+        <li>No server-induced packet loss; measured loss remains within controlled test-network baseline</li>
+        <li>Reliable RPC queue depth stays bounded (no unbounded growth)</li>
+        <li>Memory and GC stable over 1-hour run (no leaks)</li>
+        <li>100-player combat cluster test: combat responsiveness subjectively acceptable at 100ms RTT</li>
+        <li>Client rendering at 50+ nearby characters on minimum-spec hardware: &gt; 30 FPS</li>
+      </ul>
+      <p>If any of these fail → reduce target and/or evaluate OmniMesh.</p>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-dot"></div>
+    <div class="phase-title">Phase 2: Core Infrastructure (Early Production)</div>
+    <div class="phase-subtitle">Build the production networking layer</div>
+    <ul>
+      <li>Interest management with three tiers, hysteresis, combat elevation</li>
+      <li>Hub sharding for Downtime with social-graph routing</li>
+      <li>State transfer pipeline (Redis + verification handshake)</li>
+      <li>Instance server pipeline via Agones</li>
+      <li>User Space housing server pipeline</li>
+      <li>Corruption state replication</li>
+      <li>Telemetry dashboard + EasyAntiCheat + DDoS proxy</li>
+    </ul>
+    <p><strong>Team:</strong> 2–3 networking + 1–2 DevOps + 1–2 backend for metagame/world state</p>
+  </div>
+
+  <div class="phase">
+    <div class="phase-dot"></div>
+    <div class="phase-title">Phase 3: Scale and Polish (Mid-Late Production)</div>
+    <div class="phase-subtitle">Optimise, stress test at full target, prepare for launch</div>
+    <ul>
+      <li>300-player stress tests under production conditions</li>
+      <li>Continuous stress testing in CI</li>
+      <li>Server crash recovery validation</li>
+      <li>Console compatibility (PSN/XBL session integration)</li>
+      <li>Min-spec client performance profiling</li>
+      <li>All thresholds data-driven and tunable via config</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ===== 12. TEAM ===== -->
+<section id="team">
+  <h2><span class="section-num">12.</span> Team Capability Assessment</h2>
+
+  <table>
+    <thead>
+      <tr><th>Capability</th><th>Required</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>UE5 dedicated server development</td><td><strong>2–3 engineers</strong></td><td>Must understand Replication Graph, dormancy, <code>NetDriver</code>, server profiling</td></tr>
+      <tr><td>Kubernetes / DevOps</td><td><strong>1 engineer</strong></td><td>Agones, CI/CD, monitoring, Redis/PostgreSQL ops</td></tr>
+      <tr><td>Backend development</td><td><strong>1–2 engineers</strong></td><td>Custom metagame backend (accounts, social, matchmaking, economy), world state service, shard routing</td></tr>
+      <tr><td>UE5 rendering (part-time)</td><td><strong>1 engineer</strong></td><td>Impostor billboards, character LOD, animation LOD</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-critical">
+    <div class="callout-title">Staffing Requirement</div>
+    <p>If Mustafa's current team does not include 2–3 engineers with UE5 dedicated server experience, <strong>budget for hiring or contracting senior networking engineers.</strong> This is specialised work — gameplay programmers cannot be retrained quickly enough for production timelines.</p>
+    <p><strong>Total networking/infrastructure headcount:</strong> 5–7 engineers during core infrastructure build (2–3 networking, 1–2 DevOps, 1–2 backend). Reduces to 3–4 steady-state after launch stabilisation.</p>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <p><strong>NBI Gaming</strong> — Confidential. Prepared for Couch Heroes internal technical leadership.</p>
+  <p>Figures cited from external sources represent their published claims, not independently verified measurements by NBI.</p>
+  <p>Version 2.3 (red-teamed, cross-reviewed) — 4 June 2026</p>
+</footer>
+
+</div>
+</body>
+</html>

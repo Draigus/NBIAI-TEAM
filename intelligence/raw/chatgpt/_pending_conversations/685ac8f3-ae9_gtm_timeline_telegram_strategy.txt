@@ -1,0 +1,4174 @@
+TITLE: GTM Timeline Telegram Strategy
+DATE: 2025-06-24
+MESSAGES: 76
+ID: 685ac8f3-ae94-800b-a935-421b0ef7bc4b
+---
+
+[USER]
+I have tried multiple times to build a gtm timeline for sarge universe as an expert chief publishing officer please read through all the chats and content and come back with a timeline for Go to martket planning, make sure to cover ever element of go to market. ensure this is oriented to telegram specifically. DO NOT include nft, or token usage reference or implementation at all.  the overall timeline needs to be detailed and throughouh inclluding spend and KPI's at each step. 
+
+[ASSISTANT]
+**SARGE UNIVERSE · TELEGRAM-FIRST GO-TO-MARKET MASTER TIMELINE  
+(Launch target: mid-July 2025 | Currency: £GBP)**  
+
+| Phase & Week | Core Actions (owner) | Spend £ | Primary KPI(s) |
+|--------------|----------------------|---------|----------------|
+| **FOUNDATION**<br>T-12 → T-9 wks | • Competitive scan, TAM sizing, USP stress-test (Publishing Dir.)<br>• Brand & avatar kit, UI style-guide (Art Lead)<br>• 90-sec teaser storyboard (Creative Agency) | 20 k | Deck CTR on Telegram ≥ 2 %, internal D0 retention ≥ 60 % |
+| **ALPHA SET-UP**<br>T-8 wks | • Trailer shoot & post-prod • Hero key-art batch • 30-player closed alpha spin-up (Prod Mgr.) | **15 k** fileciteturn0file0 | Early ad click-thru ≥ 3 %, alpha D1 ≥ 50 % |
+| T-7 wks | • Daily play-tests → pacing tweaks • Clip capture for creators | 10 k* | Alpha session length ≥ 10 min |
+| T-6 wks | • Lore drops plan • Meme pack for Telegram stickers | *0 (internal)* fileciteturn0file0 | Community reactions / post rate ≥ 300 / day |
+| **COMMUNITY IGNITION**<br>T-5 → T-3 wks | — | — | — |
+| T-4 wks | • Wait-list microsite & bot • Channels + 3 mods live • £1 k boosted posts | **5 k** fileciteturn0file0 | 10 k wait-list, CPA (bot) ≤ £0.40 |
+| T-3 wks | • Sign 10 mid-tier Telegram/YT creators (15 M reach) • Co-marketing kits | **25 k** fileciteturn0file0 | 50 k pre-installs; forecast ROI 8× |
+| T-2 wks | • UA dry-run (Meta, TikTok) • Invite-a-friend bot rewards | 30 k | CPI ≤ £0.35, K-factor ≥ 0.3 |
+| **LAUNCH WEEK (T-0)** | • Mini-app goes live • Creator tournament stream • PR push (games / crypto press) • 24/7 Discord war-room | 50 k | Day-0 installs 500 k, CPI ≤ £0.50, Peak CCU 50 k |
+| **EARLY SCALE**<br>Week 1 | • Funnel optimisations • Telemetry.io dashboards (NBI) | 50 k (20 k data / 30 k UA) | Onboarding drop-off < 25 %, D7 ret ≥ 25 % |
+| Week 2 | • Viral loop incentives (builder packs) • Meme-relay contest | 15 k | K-factor ≥ 0.4, organic share ≥ 30 % |
+| Week 3 | • Economy & price-point A/B • Community AMA roadmap | 10 k | ARPDAU £0.05, sentiment > 80 % positive |
+| Week 4 | • First content drop (Clan wars) • Paid press/editorials (Gamezebo take-over) | 40 k (inc. £6 k site take-over) fileciteturn0file9 | MAU 1 M, D30 ret ≥ 15 % |
+| **REGIONAL EXPANSION**<br>Months 2-3 | • Localised creatives (BR, IN, PH) • PropellerAds TG channels • Prop prize tournaments | 150 k | CPI ≤ £0.25, monthly uniques 3 M |
+| **LIVE-OPS & MONETISATION**<br>Months 4-6 | • Weekly events, seasonal Battle-Pass • Rewarded-video network (AppLixir) | 300 k UA + 40 k prize pool | Payback < 60 days, DAU 1.2 M, LTV > £1, mkt spend < 30 % rev |
+
+\* internal estimate where file data not explicit.
+
+---
+
+### How the numbers were built  
+* **Pre-launch cost anchors** come directly from the original SARGE GTM slide deck: £15 k Production Kick-off, £5 k Community Seeding, £25 k Influencer Lock-in fileciteturn0file0.  
+* **Channel pricing** for launch-week editorial/ads references 2024 Push Your App media-pack (e.g., Gamezebo site take-over £6 k) fileciteturn0file9.  
+* **UA tactic cadence & KPI benchmarks** align with Matej Lančarič’s 15 UA strategies playbook (CPI, K-factor, retention targets) fileciteturn0file14.
+
+### End-to-end coverage of GTM elements
+| Pillar | Key Deliverables & where they land in the timeline |
+|--------|---------------------------------------------------|
+| **Market & Positioning** | Competitive scan (T-12), USP/lore drops (T-6) |
+| **Product Readiness** | Closed alpha (T-8), Telemetry dashboards live (Week 1) |
+| **Creative & Assets** | Trailer (T-8), influencer packs (T-3), localisation kits (M2) |
+| **Owned Channels** | Telegram groups/Discord + wait-list bot (T-4) |
+| **Earned / PR** | Press tour during Launch Week; follow-up dev-diaries Week 3 |
+| **Paid UA** | Test burst (T-2), Launch burst (Week 0-4), Regional scale (M2-3) |
+| **Influencers & UGC** | 10 creator lock-ins (T-3), Streamed tournament (Launch) |
+| **Community & Viral** | Referral bot, meme contests, weekly AMAs |
+| **Monetisation** | Soft-launch store Week 2; rewarded-video Month 4 |
+| **Analytics & KPI gating** | Pre-set D1/D7/D30, K-factor, ARPDAU, payback dashboard |
+| **Live-Ops / Retention** | Weekly events from Week 3; Battle-Pass Month 4 |
+
+### Budget snapshot (first 6 months)
+* **Total planned spend:** ≈ £660 k  
+  * Pre-launch ± 85 k  
+  * Launch window ± 130 k  
+  * Months 1-3 scale ± 225 k  
+  * Months 4-6 live-ops & UA ± 220 k  
+
+### Success gates (“green-light” checks)
+1. **Closed-beta D7 retention ≥ 30 %** before scaling.  
+2. **Server latency < 2 s** at 50 k CCU.  
+3. **Wait-list ≥ 50 k** and community > 25 k members pre-launch.  
+4. **Marketing payback ≤ 60 days** by Month 4.
+
+This timeline gives a publishing-grade, Telegram-specific GTM plan, grounded in the existing Sarge spend data and current UA best practice—without any reference to NFTs or token mechanics, per your requirement.
+
+[USER]
+I would like this by week actually and want it in a bullet form I could add to a powerpoint but maintain the detail
+
+[ASSISTANT]
+Below is the full GTM timeline broken out by week, in a copy-&-paste-friendly bullet format for PowerPoint. Spend and key KPIs are shown alongside each week. Items drawn directly from the Sarge GTM deck are cited.  
+
+---  
+
+**Weeks –12 to –9 (Foundation)**  
+- **Week –12**  
+  - Competitive scan, TAM sizing, USP stress-test (Publishing)  
+  - Begin brand & avatar kit drafts (Art)  
+  - **Spend:** £5 k  
+  - **KPIs:** Deck CTR ≥ 2 %; internal D0 retention ≥ 60 %  
+
+- **Week –11**  
+  - Finalise brand & avatar kit  
+  - Start UI style-guide (Art)  
+  - **Spend:** £5 k  
+  - **KPIs:** Asset approval in ≤ 3 days  
+
+- **Week –10**  
+  - Complete UI style-guide  
+  - Outline 90 sec teaser storyboard (Creative agency)  
+  - **Spend:** £5 k  
+  - **KPIs:** Storyboard sign-off in ≤ 2 iterations  
+
+- **Week –9**  
+  - Final storyboard  
+  - Prep shot list & schedule for trailer shoot  
+  - **Spend:** £5 k  
+  - **KPIs:** On-time deliverable  
+
+**Weeks –8 to –5 (Asset Creation & Closed-Alpha)**  
+- **Week –8**  
+  - Trailer shoot & post-production  
+  - Hero key-art batch  
+  - Spin up 30-player closed alpha  
+  - **Spend:** £15 k fileciteturn2file0  
+  - **KPIs:** Early ad CTR ≥ 3 %; alpha D1 retention ≥ 50 %  
+
+- **Week –7**  
+  - Daily alpha play-tests & pacing tweaks  
+  - Capture clips for creator seeding  
+  - **Spend:** £10 k fileciteturn2file2  
+  - **KPIs:** Alpha session length ≥ 10 min  
+
+- **Week –6**  
+  - Plan Telegram-native lore drops  
+  - Design meme-style sticker pack  
+  - **Spend:** £0 k (internal) fileciteturn2file2  
+  - **KPIs:** Community posts ≥ 300/day  
+
+- **Week –5**  
+  - (Internal wrap-up of asset creation; begin community seeding prep)  
+  - **Spend:** included above  
+  - **KPIs:** Readiness gate D7 retention ≥ 30 %  
+
+**Weeks –4 to –2 (Community Build & Influencer Prep)**  
+- **Week –4**  
+  - Launch whitelist microsite & Telegram bot  
+  - Go live with 3× community mods  
+  - £1 k boosted posts on Telegram  
+  - **Spend:** £5 k fileciteturn2file2  
+  - **KPIs:** 10 k wait-list sign-ups; CPA ≤ £0.40  
+
+- **Week –3**  
+  - Lock in 10 mid-tier Telegram/YouTube creators (∼15 M reach)  
+  - Distribute co-marketing asset kits  
+  - **Spend:** £25 k fileciteturn2file2  
+  - **KPIs:** 50 k pre-installs; projected ROI ≥ 8×  
+
+- **Week –2**  
+  - UA dry-run on Meta & TikTok  
+  - Deploy invite-a-friend reward bot  
+  - **Spend:** £30 k  
+  - **KPIs:** CPI ≤ £0.35; viral K-factor ≥ 0.3  
+
+**Week 0 (Launch Week)**  
+- Mini-app goes live on Telegram  
+- Creator-led tournament stream  
+- PR push across games press  
+- 24/7 Discord “war-room” operations  
+- **Spend:** £50 k  
+- **KPIs:** Day 0 installs ≥ 500 k; CPI ≤ £0.50; peak CCU ≥ 50 k  
+
+**Weeks +1 to +4 (Early Scale & Engagement)**  
+- **Week +1**  
+  - Funnel optimisations via telemetry dashboards  
+  - **Spend:** £50 k (20 k data + 30 k UA)  
+  - **KPIs:** Onboarding drop‐off < 25 %; D7 retention ≥ 25 %  
+
+- **Week +2**  
+  - Launch builder-pack viral incentives  
+  - Meme-relay contest kickoff  
+  - **Spend:** £15 k  
+  - **KPIs:** K-factor ≥ 0.4; organic share ≥ 30 %  
+
+- **Week +3**  
+  - Economy & price-point A/B tests  
+  - Community AMA on roadmap  
+  - **Spend:** £10 k  
+  - **KPIs:** ARPDAU ≥ £0.05; sentiment > 80 % positive  
+
+- **Week +4**  
+  - First content drop: “Clan Wars”  
+  - Paid press/editorial site takeover (£6 k Gamezebo)  
+  - **Spend:** £40 k fileciteturn2file1  
+  - **KPIs:** MAU ≥ 1 M; D30 retention ≥ 15 %  
+
+**Weeks +5 to +12 (Regional Expansion)**  
+- Localised ad creatives for BR, IN, PH  
+- PropellerAds on Telegram channels  
+- Host prize tournaments in each region  
+- **Spend:** £150 k  
+- **KPIs:** CPI ≤ £0.25; monthly uniques ≥ 3 M  
+
+**Weeks +13 to +26 (Live-Ops & Monetisation)**  
+- Weekly in-app events & seasonal Battle Pass  
+- Integrate rewarded-video network (AppLixir)  
+- **Spend:** £300 k UA + £40 k prize pool  
+- **KPIs:** Payback ≤ 60 days; DAU ≥ 1.2 M; LTV > £1; marketing spend < 30 % of revenue  
+
+---  
+
+This week-by-week breakdown retains full detail on owners, spend and gating KPIs, and is ready for slide copy.
+
+[USER]
+you need tyo write out acronyms and expain terms where possible
+
+[ASSISTANT]
+**Weeks –12 to –9 (Foundation Preparations)**  
+- **Week –12**  
+  - Conduct competitive scan, Total Addressable Market (TAM – estimate of the total revenue opportunity) sizing, and Unique Selling Proposition (USP – what makes Sarge Universe distinct) stress-test (Publishing Lead)  
+  - Draft brand identity and avatar concept art (Art Director)  
+  - **Spend:** £5 000  
+  - **KPIs:** Deck Click-Through Rate ≥ 2 % (percentage of people who click when shown the pitch deck); Day-0 (first-day) retention ≥ 60 % (percentage of users returning within 24 hours)  
+
+- **Week –11**  
+  - Finalize brand identity and avatar art  
+  - Begin User-Interface (UI) style guide (Art Director)  
+  - **Spend:** £5 000  
+  - **KPIs:** Asset approval within 3 business days  
+
+- **Week –10**  
+  - Complete UI style guide  
+  - Outline 90-second teaser storyboard (Creative Agency)  
+  - **Spend:** £5 000  
+  - **KPIs:** Storyboard sign-off with ≤ 2 iterations  
+
+- **Week –9**  
+  - Finalize teaser storyboard  
+  - Prep shot list and schedule for trailer production  
+  - **Spend:** £5 000  
+  - **KPIs:** Trailer production kickoff on schedule  
+
+---
+
+**Weeks –8 to –5 (Asset Creation & Closed-Alpha)**  
+- **Week –8**  
+  - Shoot and post-produce launch trailer; create hero key art  
+  - Spin up closed alpha for 30 players (Product Manager)  
+  - **Spend:** £15 000 fileciteturn2file0  
+  - **KPIs:** Early ad Click-Through Rate ≥ 3 %; Day-1 retention ≥ 50 % (percentage returning one day after install)  
+
+- **Week –7**  
+  - Run daily alpha play-tests; tweak pacing based on feedback  
+  - Capture gameplay clips for creator seeding  
+  - **Spend:** £10 000 fileciteturn2file2  
+  - **KPIs:** Average alpha session ≥ 10 minutes  
+
+- **Week –6**  
+  - Plan Telegram-native lore drops (in-app story snippets)  
+  - Design meme-style sticker pack for community sharing  
+  - **Spend:** £0 (internal resources) fileciteturn2file2  
+  - **KPIs:** Community engagement ≥ 300 posts/day  
+
+- **Week –5**  
+  - Wrap up final asset creation; prepare community seeding materials  
+  - **Spend:** included above  
+  - **KPIs:** Gate check: Day-7 retention ≥ 30 %  
+
+---
+
+**Weeks –4 to –2 (Community Build & Influencer Prep)**  
+- **Week –4**  
+  - Launch whitelist microsite and Telegram bot for early sign-ups  
+  - Activate three community moderators on Telegram  
+  - Boost posts on Telegram (paid)  
+  - **Spend:** £5 000 fileciteturn2file2  
+  - **KPIs:** 10 000 whitelist sign-ups; Cost Per Action (CPA) via bot ≤ £0.40  
+
+- **Week –3**  
+  - Contract ten mid-tier Telegram and YouTube creators (≈ 15 million total reach)  
+  - Distribute co-marketing asset kits to influencers  
+  - **Spend:** £25 000 fileciteturn2file2  
+  - **KPIs:** 50 000 pre-installs; forecast Return On Investment ≥ 8×  
+
+- **Week –2**  
+  - Run User Acquisition (UA) dry-run campaigns on Meta and TikTok  
+  - Deploy “invite-a-friend” reward bot (viral referral mechanic)  
+  - **Spend:** £30 000  
+  - **KPIs:** Cost Per Install (CPI) ≤ £0.35; viral coefficient (K-factor – average new users acquired per existing user) ≥ 0.3  
+
+---
+
+**Week 0 (Launch Week)**  
+- Go live with the mini-app on Telegram  
+- Host creator-led tournament livestream  
+- Execute public relations push across games press  
+- Maintain 24/7 operations “war-room” on Discord  
+- **Spend:** £50 000  
+- **KPIs:** Day-0 installs ≥ 500 000; CPI ≤ £0.50; peak Concurrent Users (CCU – simultaneous online players) ≥ 50 000  
+
+---
+
+**Weeks +1 to +4 (Early Scale & Engagement)**  
+- **Week +1**  
+  - Optimize onboarding funnel using telemetry dashboards (real-time analytics)  
+  - **Spend:** £50 000 (incl. £20 000 for analytics tooling, £30 000 for UA)  
+  - **KPIs:** Onboarding drop-off < 25 %; Day-7 retention ≥ 25 %  
+
+- **Week +2**  
+  - Launch builder-pack viral incentives (in-app item giveaways for sharing)  
+  - Kick off meme-relay community contest  
+  - **Spend:** £15 000  
+  - **KPIs:** K-factor ≥ 0.4; organic share rate ≥ 30 %  
+
+- **Week +3**  
+  - Conduct economy and price-point A/B tests (compare two variants)  
+  - Host community AMA (Ask Me Anything) on product roadmap  
+  - **Spend:** £10 000  
+  - **KPIs:** Average Revenue Per Daily Active User (ARPDAU) ≥ £0.05; community sentiment > 80 % positive  
+
+- **Week +4**  
+  - Release first content update: “Clan Wars”  
+  - Place paid editorial takeover on Gamezebo site (paid press)  
+  - **Spend:** £40 000 (incl. £6 000 Gamezebo) fileciteturn2file1  
+  - **KPIs:** Monthly Active Users (MAU – distinct users per month) ≥ 1 000 000; Day-30 retention ≥ 15 %  
+
+---
+
+**Weeks +5 to +12 (Regional Expansion)**  
+- Produce localized ad creatives for Brazil, India, Philippines  
+- Run campaigns on PropellerAds’ Telegram channels  
+- Host prize tournaments in each region  
+- **Spend:** £150 000  
+- **KPIs:** CPI ≤ £0.25; monthly unique users ≥ 3 000 000  
+
+---
+
+**Weeks +13 to +26 (Live-Operations & Monetisation)**  
+- Launch weekly in-app events and seasonal Battle Pass feature  
+- Integrate rewarded-video ad network (AppLixir)  
+- **Spend:** £300 000 for UA + £40 000 prize pool  
+- **KPIs:** Payback period ≤ 60 days (time to recover UA cost); Daily Active Users (DAU) ≥ 1 200 000; Lifetime Value (LTV – total revenue per user) > £1; marketing spend < 30 % of revenue  
+
+---
+
+All acronyms have been expanded on first reference and key terms defined inline to ensure clarity for any audience.
+
+[USER]
+what is the total spend
+
+[ASSISTANT]
+- **Total planned spend (Weeks –12 through +26): £760 000**  
+
+  **Breakdown by phase:**  
+  - Foundation (Weeks –12 to –9): £20 000  
+  - Asset Creation & Closed-Alpha (Weeks –8 to –5): £25 000  
+  - Community Build & Influencer Prep (Weeks –4 to –2): £60 000  
+  - Launch Week (Week 0): £50 000  
+  - Early Scale & Engagement (Weeks +1 to +4): £115 000  
+  - Regional Expansion (Weeks +5 to +12): £150 000  
+  - Live-Operations & Monetisation (Weeks +13 to +26): £340 000  
+
+Feel free to copy this summary straight into your slide.
+
+[USER]
+there should be a launch video for telegram is that in there somewherE?
+
+[ASSISTANT]
+You’re right—let’s call it out explicitly. I’ve updated the bullets for Week –8 and Week 0 to include a Telegram-optimized launch video.
+
+---
+
+**Week –8 (Asset Creation & Closed-Alpha)**  
+- Shoot and post-produce **launch video**, optimized for Telegram auto-play (vertical format, <60 sec)  
+- Create hero key art  
+- Spin up closed alpha for 30 players (Product Manager)  
+- **Spend:** £15 000  
+- **KPIs:** Early ad Click-Through Rate ≥ 3 %; Day-1 retention ≥ 50 %  
+
+---
+
+**Week 0 (Launch Week)**  
+- Publish and **pin launch video** to Telegram channel and via bot (auto-play on first open)  
+- Go live with the mini-app on Telegram  
+- Host creator-led tournament livestream  
+- Execute public relations push across games press  
+- Maintain 24/7 operations “war-room” on Discord  
+- **Spend:** £50 000  
+- **KPIs:** Day-0 installs ≥ 500 000; Cost Per Install ≤ £0.50; peak Concurrent Users ≥ 50 000  
+
+---  
+
+You can copy & paste these directly into your deck.
+
+[USER]
+great can you please give me the new consolidated timeline? adding the changes of -8 and 0
+
+[ASSISTANT]
+**Weeks –12 to –9 (Foundation Preparations)**  
+- **Week –12**  
+  - Conduct competitive scan, Total Addressable Market (TAM – total revenue opportunity) sizing, Unique Selling Proposition (USP – what makes Sarge Universe distinct) stress-test (Publishing Lead)  
+  - Draft brand identity and avatar art (Art Director)  
+  - **Spend:** £5 000  
+  - **KPIs:** Deck Click-Through Rate (CTR) ≥ 2 %; Day-0 retention ≥ 60 %  
+
+- **Week –11**  
+  - Finalize brand identity and avatar art  
+  - Begin User-Interface (UI) style guide (Art Director)  
+  - **Spend:** £5 000  
+  - **KPIs:** Asset approval within 3 business days  
+
+- **Week –10**  
+  - Complete UI style guide  
+  - Outline 90-second teaser storyboard (Creative Agency)  
+  - **Spend:** £5 000  
+  - **KPIs:** Storyboard sign-off ≤ 2 iterations  
+
+- **Week –9**  
+  - Finalize teaser storyboard  
+  - Prep shot list and trailer production schedule  
+  - **Spend:** £5 000  
+  - **KPIs:** On-time production kickoff  
+
+---
+
+**Weeks –8 to –5 (Asset Creation & Closed-Alpha)**  
+- **Week –8**  
+  - Shoot and post-produce **launch video**, optimized for Telegram auto-play (vertical format, ≤ 60 sec)  
+  - Create hero key art  
+  - Spin up closed alpha for 30 players (Product Manager)  
+  - **Spend:** £15 000  
+  - **KPIs:** Early ad CTR ≥ 3 %; Day-1 retention ≥ 50 %  
+
+- **Week –7**  
+  - Run daily alpha play-tests; implement pacing tweaks  
+  - Capture gameplay clips for creator seeding  
+  - **Spend:** £10 000  
+  - **KPIs:** Average alpha session ≥ 10 minutes  
+
+- **Week –6**  
+  - Plan Telegram-native lore drops (in-app story snippets)  
+  - Design meme-style sticker pack for community sharing  
+  - **Spend:** £0 (internal)  
+  - **KPIs:** Community engagement ≥ 300 posts/day  
+
+- **Week –5**  
+  - Wrap up asset creation; prepare community seeding materials  
+  - **Spend:** included above  
+  - **KPIs:** Gate check: Day-7 retention ≥ 30 %  
+
+---
+
+**Weeks –4 to –2 (Community Build & Influencer Prep)**  
+- **Week –4**  
+  - Launch whitelist microsite and Telegram bot for early sign-ups  
+  - Activate 3 community moderators on Telegram  
+  - Boost posts on Telegram (paid)  
+  - **Spend:** £5 000  
+  - **KPIs:** 10 000 whitelist sign-ups; Cost Per Action (CPA) via bot ≤ £0.40  
+
+- **Week –3**  
+  - Contract 10 mid-tier Telegram and YouTube creators (≈ 15 million reach)  
+  - Distribute co-marketing asset kits  
+  - **Spend:** £25 000  
+  - **KPIs:** 50 000 pre-installs; forecast Return On Investment (ROI) ≥ 8×  
+
+- **Week –2**  
+  - Run User Acquisition (UA) dry-run on Meta and TikTok  
+  - Deploy invite-a-friend reward bot (viral referral mechanic)  
+  - **Spend:** £30 000  
+  - **KPIs:** Cost Per Install (CPI) ≤ £0.35; viral coefficient (K-factor) ≥ 0.3  
+
+---
+
+**Week 0 (Launch Week)**  
+- Publish and pin **launch video** to Telegram channel via bot (auto-play on first open)  
+- Go live with the mini-app on Telegram  
+- Host creator-led tournament livestream  
+- Execute public relations push across games press  
+- Maintain 24/7 operations “war-room” on Discord  
+- **Spend:** £50 000  
+- **KPIs:** Day-0 installs ≥ 500 000; CPI ≤ £0.50; peak Concurrent Users (CCU) ≥ 50 000  
+
+---
+
+**Weeks +1 to +4 (Early Scale & Engagement)**  
+- **Week +1**  
+  - Optimize onboarding funnel using telemetry dashboards (real-time analytics)  
+  - **Spend:** £50 000 (incl. £20 000 analytics tooling, £30 000 UA)  
+  - **KPIs:** Onboarding drop-off < 25 %; Day-7 retention ≥ 25 %  
+
+- **Week +2**  
+  - Launch builder-pack viral incentives (in-app item giveaways for sharing)  
+  - Kick off meme-relay community contest  
+  - **Spend:** £15 000  
+  - **KPIs:** K-factor ≥ 0.4; organic share rate ≥ 30 %  
+
+- **Week +3**  
+  - Conduct economy and price-point A/B tests (compare two variants)  
+  - Host community Ask Me Anything (AMA) on roadmap  
+  - **Spend:** £10 000  
+  - **KPIs:** Average Revenue per Daily Active User (ARPDAU) ≥ £0.05; community sentiment > 80 % positive  
+
+- **Week +4**  
+  - Release first content update: “Clan Wars”  
+  - Place paid editorial takeover on Gamezebo site  
+  - **Spend:** £40 000 (incl. £6 000 Gamezebo)  
+  - **KPIs:** Monthly Active Users (MAU) ≥ 1 000 000; Day-30 retention ≥ 15 %  
+
+---
+
+**Weeks +5 to +12 (Regional Expansion)**  
+- Produce localized ad creatives for Brazil, India, Philippines  
+- Run campaigns on PropellerAds’ Telegram channels  
+- Host prize tournaments in each region  
+- **Spend:** £150 000  
+- **KPIs:** CPI ≤ £0.25; monthly unique users ≥ 3 000 000  
+
+---
+
+**Weeks +13 to +26 (Live-Operations & Monetisation)**  
+- Launch weekly in-app events and seasonal Battle Pass feature  
+- Integrate rewarded-video ad network (AppLixir)  
+- **Spend:** £300 000 UA + £40 000 prize pool  
+- **KPIs:** Payback period ≤ 60 days; Daily Active Users (DAU) ≥ 1 200 000; Lifetime Value (LTV) > £1; marketing spend < 30 % of revenue
+
+[USER]
+what does competative scan mean?
+
+[ASSISTANT]
+A **competitive scan** (sometimes called competitive analysis) is the systematic process of gathering, assessing and synthesizing information about other products or services in your space, so you can position your own offering to win.  
+
+**Key steps and deliverables include:**  
+- **Competitor identification**  
+  - List direct and indirect rivals (e.g. other Telegram mini-games, browser-based MMORPGs, social games)  
+- **Feature benchmarking**  
+  - Catalog each competitor’s core functionality (game modes, social features, monetization mechanics)  
+- **Message and positioning review**  
+  - Analyze their marketing copy, value propositions and visual style to spot gaps you can exploit  
+- **Pricing and monetization mapping**  
+  - Compare any in-app purchase bundles, subscription tiers or ad placements  
+- **Distribution and channel audit**  
+  - Note where and how they acquire users (e.g. Telegram channels, influencer partnerships, paid ads)  
+- **Performance and user sentiment**  
+  - Gather data on retention rates, download volumes and player reviews to gauge what’s working or broken  
+- **SWOT summary**  
+  - Synthesize into a Strengths, Weaknesses, Opportunities and Threats matrix that highlights where Sarge Universe can differentiate  
+
+**Why it matters for Sarge Universe:**  
+By doing this in Week –12 of your timeline you:  
+1. Validate that your Unique Selling Proposition (USP) is genuinely distinct.  
+2. Surface any “white-space” — features or audience segments your rivals aren’t serving.  
+3. Inform creative messaging, pricing and channel choices that will resonate best with Telegram gamers.
+
+[USER]
+this isnt a mmorpg
+
+[ASSISTANT]
+You’re right—Sarge Universe is a Telegram-first mini-game, not a massive online RPG. Here’s an updated competitive-scan breakdown:
+
+- **Competitor identification**  
+  - List direct and indirect rivals in the Telegram mini-game space (e.g. other strategy or idle games, chat-based RPGs, puzzle/social title bots)  
+- **Feature benchmarking**  
+  - Catalog core mechanics each competitor offers (turn-based combat, resource management, daily quests, social gifting, etc.)  
+- **Message and positioning review**  
+  - Analyze their marketing copy, bot onboarding flow and visual style to spot gaps in tone, theme or UX you can exploit  
+- **Pricing and monetization mapping**  
+  - Compare in-bot purchase bundles (e.g. resource packs), ad placements (rewarded video vs. interstitials) and any subscription tiers  
+- **Distribution and channel audit**  
+  - Note how they acquire users (Telegram channels, partner bots, influencer promotions, paid ads on socials)  
+- **Performance and user sentiment**  
+  - Gather publicly available stats on retention, installs and review sentiment (via app stores or community feedback) to see what delights or frustrates players  
+- **SWOT summary**  
+  - Synthesize into a Strengths, Weaknesses, Opportunities, Threats matrix—highlighting where Sarge Universe’s theme, mechanics or Telegram-native UX can stand out  
+
+This ensures we’re scanning the right landscape and positioning Sarge Universe to win in the Telegram mini-game arena.
+
+[USER]
+the comeptatice scan shoudl be done way ealirer right because the game couldnt develop any changes in 12 weeks to comepte with what is found or change core code 
+
+[ASSISTANT]
+Yes—you’ll need to surface any white-space or fatal flaws long before you’re 12 weeks out. I recommend moving the entire Competitive Scan, Total Addressable Market sizing and Unique Selling Proposition validation up into a “Strategic Planning” phase about six months before launch.
+
+---
+
+**Weeks –26 to –23 (Strategic Planning)**  
+- **Week –26**  
+  - Conduct Competitive Scan (map direct/indirect Telegram mini-game rivals and their feature sets)  
+  - Size Total Addressable Market (TAM – estimate of total revenue opportunity)  
+  - Define and stress-test Unique Selling Proposition (USP – how Sarge Universe will stand apart)  
+  - Stakeholder review and concept-pivot window  
+  - **Spend:** £10 000  
+  - **KPIs:** Concept-approval in 2 weeks; identified ≥ 3 white-space opportunities  
+
+---
+
+Everything else then shifts four weeks later:  
+- What was “Week –12” becomes **Week –18**,  
+- “Week –11” → **Week –17**, and so on,  
+right up through launch.  
+
+That way you have a full 12 weeks after planning to bake in any core design, UX or feature pivots before you start brand, art and build work.
+
+[USER]
+put it in prework to the -12 to p[ositive 12 week  assess any other things that need to happen before that
+
+[ASSISTANT]
+**Pre-work Phase (Weeks –26 to –13)**  
+> *Ensure all strategic, technical and operational foundations are in place before the 12-week GTM countdown begins.*  
+
+- **Week –26**  
+  - Conduct **Competitive Scan**, Total Addressable Market (TAM) sizing and Unique Selling Proposition (USP) stress-test  
+  - Deliver Strengths, Weaknesses, Opportunities, Threats (SWOT) matrix and white-space report  
+  - **Spend:** £10 000  
+  - **KPIs:** Concept approval in ≤ 2 weeks; ≥ 3 white-space opportunities identified  
+
+- **Week –25**  
+  - Finalize high-level product roadmap & feature freeze milestone  
+  - Lock architecture for Telegram bot integration (API version, tech stack)  
+  - **Spend:** £5 000  
+  - **KPIs:** Architecture doc approved by Engineering and Security  
+
+- **Week –24**  
+  - Run security & compliance audit (data privacy, Terms of Service, age ratings)  
+  - Set up hosting / server capacity plan to handle 100 k peak CCU (concurrent users)  
+  - **Spend:** £8 000  
+  - **KPIs:** Audit report sign-off; infrastructure stress-test ≥ 2 × expected load  
+
+- **Week –23**  
+  - Define analytics & KPI instrumentation (events, dashboards) with Telemetry.io  
+  - Prepare moderation policy, community guidelines and recruit/train 5× moderators  
+  - **Spend:** £4 000  
+  - **KPIs:** Dashboards live in sandbox; moderator playbook completed  
+
+- **Weeks –22 to –20**  
+  - Recruit & onboard any remaining UA, Creative and Community hires  
+  - Finalize legal (privacy policy, bot registration) and payment gateway setup for in-bot purchases  
+  - **Spend:** £15 000  
+  - **KPIs:** Team at 100 % capacity; payment flow end-to-end tested  
+
+- **Weeks –19 to –18**  
+  - Build & validate Telegram bot infrastructure (webhooks, rate-limits) in staging  
+  - Conduct end-to-end QA: onboarding, gameplay loops, referral mechanics  
+  - **Spend:** £12 000  
+  - **KPIs:** QA pass rate ≥ 95 %; bot error rate < 1 %  
+
+- **Week –17**  
+  - Final dry-run of analytics, marketing tags and attribution links  
+  - “Game day” drill with cross-functional war-room process  
+  - **Spend:** £3 000  
+  - **KPIs:** Drill execution with zero critical issues; all teams green-lit  
+
+- **Week –16**  
+  - Stakeholder sign-off on GTM plan, budget and risk register  
+  - Freeze all pre-launch changes  
+  - **Spend:** £2 000  
+  - **KPIs:** Executive approval logged; change freeze enforced  
+
+- **Weeks –15 to –13**  
+  - Buffer for any last-mile fixes, asset revisions or legal sign-offs  
+  - Begin creative hand-off to agency/partners for Week –12 start  
+  - **Spend:** £5 000  
+  - **KPIs:** All pre-work tasks completed; Ready for Foundation phase  
+
+---
+
+## Weeks –12 to +12 (Core GTM Timeline)
+
+**Weeks –12 to –9 (Foundation Preparations)**  
+- **Week –12**  
+  - Competitive scan/TAM/USP refresh (Publishing Lead)  
+  - Draft brand identity & avatar art (Art Director)  
+  - **Spend:** £5 000; **KPIs:** Deck CTR ≥ 2 %; Day-0 retention ≥ 60 %  
+- **Week –11**  
+  - Finalize brand & avatar art; begin UI style guide  
+  - **Spend:** £5 000; **KPIs:** Asset approval ≤ 3 days  
+- **Week –10**  
+  - Complete UI style guide; outline 90 sec teaser storyboard  
+  - **Spend:** £5 000; **KPIs:** Storyboard sign-off ≤ 2 iterations  
+- **Week –9**  
+  - Finalize storyboard; prep trailer shot list & schedule  
+  - **Spend:** £5 000; **KPIs:** On-time production kickoff  
+
+**Weeks –8 to –5 (Asset Creation & Closed-Alpha)**  
+- **Week –8**  
+  - Shoot/post-produce **launch video** (≤ 60 sec, vertical for Telegram auto-play)  
+  - Create hero key art; spin up 30-player closed alpha  
+  - **Spend:** £15 000; **KPIs:** Early ad CTR ≥ 3 %; Day-1 retention ≥ 50 %  
+- **Week –7**  
+  - Daily alpha play-tests & pacing tweaks; capture creator clips  
+  - **Spend:** £10 000; **KPIs:** Avg. alpha session ≥ 10 min  
+- **Week –6**  
+  - Plan Telegram lore-drops; design meme-sticker pack  
+  - **Spend:** £0 (internal); **KPIs:** Community posts ≥ 300/day  
+- **Week –5**  
+  - Wrap assets; prep community seeding materials  
+  - **KPIs:** Gate check: Day-7 retention ≥ 30 %  
+
+**Weeks –4 to –2 (Community Build & Influencer Prep)**  
+- **Week –4**  
+  - Launch whitelist microsite & Telegram bot; activate 3 mods; boost posts  
+  - **Spend:** £5 000; **KPIs:** 10 000 sign-ups; CPA ≤ £0.40  
+- **Week –3**  
+  - Sign 10 mid-tier Telegram/YouTube creators (~15 M reach); distribute kits  
+  - **Spend:** £25 000; **KPIs:** 50 000 pre-installs; ROI ≥ 8×  
+- **Week –2**  
+  - UA dry-run on Meta/TikTok; deploy invite-a-friend bot  
+  - **Spend:** £30 000; **KPIs:** CPI ≤ £0.35; K-factor ≥ 0.3  
+
+**Week 0 (Launch Week)**  
+- Publish & pin **launch video** via bot (auto-play), go live on Telegram, creator tournament livestream, PR push, 24/7 Discord war-room  
+- **Spend:** £50 000; **KPIs:** Day-0 installs ≥ 500 000; CPI ≤ £0.50; peak CCU ≥ 50 000  
+
+**Weeks +1 to +4 (Early Scale & Engagement)**  
+- **Week +1:** Funnel optimizations via telemetry; **Spend:** £50 000; **KPIs:** Onboard drop-off < 25 %; D7 retention ≥ 25 %  
+- **Week +2:** Builder-pack incentives; meme-relay contest; **Spend:** £15 000; **KPIs:** K-factor ≥ 0.4; organic share ≥ 30 %  
+- **Week +3:** Economy & price A/B tests; AMA roadmap; **Spend:** £10 000; **KPIs:** ARPDAU ≥ £0.05; sentiment > 80 % positive  
+- **Week +4:** “Clan Wars” update; Gamezebo editorial takeover; **Spend:** £40 000; **KPIs:** MAU ≥ 1 M; D30 retention ≥ 15 %  
+
+**Weeks +5 to +12 (Regional Expansion)**  
+- Localized creatives (Brazil, India, Philippines); PropellerAds on Telegram; prize tournaments  
+- **Spend:** £150 000; **KPIs:** CPI ≤ £0.25; monthly uniques ≥ 3 M  
+
+**Weeks +13 to +26 (Live-Operations & Monetisation)**  
+- Weekly events & seasonal Battle Pass; rewarded-video ad network integration  
+- **Spend:** £300 000 UA + £40 000 prize pool; **KPIs:** Payback ≤ 60 days; DAU ≥ 1.2 M; LTV > £1; marketing spend < 30 % rev  
+
+[USER]
+no do it by week please
+
+[ASSISTANT]
+**Pre-work Phase (Weeks –26 to –13)**  
+> *Lay strategic, technical and operational foundations before the 12-week GTM countdown.*  
+
+- **Week –26**  
+  - Conduct Competitive Scan (map direct/indirect Telegram mini-game rivals and their feature sets)  
+  - Size Total Addressable Market (TAM – total revenue opportunity)  
+  - Define and stress-test Unique Selling Proposition (USP – how Sarge Universe stands apart)  
+  - Deliver SWOT (Strengths, Weaknesses, Opportunities, Threats) matrix and white-space report  
+  - **Spend:** £10 000 • **KPIs:** Concept sign-off in ≤ 2 weeks; ≥ 3 white-space opportunities identified  
+
+- **Week –25**  
+  - Finalize high-level product roadmap & feature-freeze milestone  
+  - Lock Telegram bot architecture (API version, tech stack)  
+  - **Spend:** £5 000 • **KPIs:** Architecture doc approved by Engineering & Security  
+
+- **Week –24**  
+  - Security & compliance audit (data privacy, Terms of Service, age ratings)  
+  - Provision hosting/server plan for 100 000 peak Concurrent Users (CCU)  
+  - **Spend:** £8 000 • **KPIs:** Audit sign-off; infrastructure stress-test ≥ 2× expected load  
+
+- **Week –23**  
+  - Define analytics instrumentation (events, dashboards) in Telemetry.io  
+  - Recruit & train 5 community moderators; finalize moderation policy  
+  - **Spend:** £4 000 • **KPIs:** Dashboards live in sandbox; moderator playbook completed  
+
+- **Week –22**  
+  - Recruit User Acquisition (UA) and Creative hires  
+  - **Spend:** £5 000 • **KPIs:** UA team at 100 % capacity  
+
+- **Week –21**  
+  - Recruit Community Manager and finalize legal (privacy policy, bot registration)  
+  - **Spend:** £5 000 • **KPIs:** Legal docs signed; community head hired  
+
+- **Week –20**  
+  - Payment gateway setup & end-to-end in-bot purchase testing  
+  - **Spend:** £5 000 • **KPIs:** Payment flow pass rate ≥ 99 %  
+
+- **Week –19**  
+  - Build & validate Telegram bot infrastructure in staging (webhooks, rate limits)  
+  - **Spend:** £7 000 • **KPIs:** Staging error rate < 1 %  
+
+- **Week –18**  
+  - End-to-end Quality Assurance: onboarding, core loops, referral mechanics  
+  - **Spend:** £5 000 • **KPIs:** QA pass rate ≥ 95 %  
+
+- **Week –17**  
+  - Dry-run analytics events, marketing tags & attribution links  
+  - Execute cross-functional “game day” drill in war-room  
+  - **Spend:** £3 000 • **KPIs:** Zero critical issues in drill  
+
+- **Week –16**  
+  - Executive sign-off on GTM plan, budget and risk register  
+  - Enforce code & asset freeze for pre-launch  
+  - **Spend:** £2 000 • **KPIs:** Change-freeze in effect; sign-off documented  
+
+- **Week –15**  
+  - Buffer for last-mile fixes, asset tweaks, legal sign-offs  
+  - Begin creative hand-off to agency/partners for Week –12 start  
+  - **Spend:** £3 000 • **KPIs:** Pre-work ∼100 % complete  
+
+- **Week –14**  
+  - Continue buffer period: finalize any pending deliverables  
+  - **Spend:** £1 000 • **KPIs:** All critical paths cleared  
+
+- **Week –13**  
+  - Final readiness review; “Go/No-Go” gate for Foundation phase  
+  - **Spend:** £1 000 • **KPIs:** Green-light given for Week –12 start  
+
+---
+
+**Core GTM Timeline (Weeks –12 to +12)**  
+
+- **Week –12**  
+  - Refresh Competitive Scan/TAM/USP (Publishing Lead)  
+  - Draft brand identity & avatar art (Art Director)  
+  - **Spend:** £5 000 • **KPIs:** Deck Click-Through Rate ≥ 2 %; Day-0 retention ≥ 60 %  
+
+- **Week –11**  
+  - Finalize brand identity & avatar art; begin UI style guide  
+  - **Spend:** £5 000 • **KPIs:** Asset approval within 3 business days  
+
+- **Week –10**  
+  - Complete User Interface (UI) style guide; outline 90-second teaser storyboard  
+  - **Spend:** £5 000 • **KPIs:** Storyboard sign-off ≤ 2 iterations  
+
+- **Week –9**  
+  - Finalize storyboard; prep trailer shot list & production schedule  
+  - **Spend:** £5 000 • **KPIs:** Production kickoff on schedule  
+
+- **Week –8**  
+  - Shoot & post-produce **launch video**, optimized for Telegram auto-play (vertical format, ≤ 60 sec)  
+  - Create hero key art; spin up 30-player closed alpha (Product Manager)  
+  - **Spend:** £15 000 • **KPIs:** Early ad CTR ≥ 3 %; Day-1 retention ≥ 50 %  
+
+- **Week –7**  
+  - Run daily alpha play-tests & implement pacing tweaks  
+  - Capture gameplay clips for influencer seeding  
+  - **Spend:** £10 000 • **KPIs:** Avg. alpha session length ≥ 10 min  
+
+- **Week –6**  
+  - Plan Telegram-native lore drops (in-bot story snippets)  
+  - Design meme-style sticker pack for community sharing  
+  - **Spend:** £0 (internal) • **KPIs:** Community posts ≥ 300/day  
+
+- **Week –5**  
+  - Wrap up asset creation; prepare community seeding materials  
+  - **KPIs:** Gate check: Day-7 retention ≥ 30 %  
+
+- **Week –4**  
+  - Launch whitelist microsite & Telegram bot for early sign-ups  
+  - Activate 3 community moderators; boost Telegram posts (paid)  
+  - **Spend:** £5 000 • **KPIs:** 10 000 whitelist sign-ups; Cost Per Action ≤ £0.40  
+
+- **Week –3**  
+  - Contract 10 mid-tier Telegram & YouTube creators (∼15 M reach)  
+  - Distribute co-marketing asset kits  
+  - **Spend:** £25 000 • **KPIs:** 50 000 pre-installs; forecast ROI ≥ 8×  
+
+- **Week –2**  
+  - Run User Acquisition (UA) dry-run on Meta & TikTok  
+  - Deploy invite-a-friend reward bot (viral referral mechanic)  
+  - **Spend:** £30 000 • **KPIs:** Cost Per Install ≤ £0.35; K-factor ≥ 0.3  
+
+- **Week 0**  
+  - Publish & pin **launch video** via bot (auto-play on first open)  
+  - Go live with mini-app on Telegram; host creator tournament livestream  
+  - Execute PR push across games press; maintain 24/7 Discord war-room  
+  - **Spend:** £50 000 • **KPIs:** Day-0 installs ≥ 500 000; CPI ≤ £0.50; peak CCU ≥ 50 000  
+
+- **Week +1**  
+  - Optimize onboarding funnel using Telemetry.io dashboards (real-time analytics)  
+  - **Spend:** £50 000 (£20 000 analytics + £30 000 UA) • **KPIs:** Onboard drop-off < 25 %; Day-7 retention ≥ 25 %  
+
+- **Week +2**  
+  - Launch builder-pack viral incentives (in-app item giveaways for sharing)  
+  - Kick off meme-relay community contest  
+  - **Spend:** £15 000 • **KPIs:** K-factor ≥ 0.4; organic share rate ≥ 30 %  
+
+- **Week +3**  
+  - Conduct economy & price-point A/B tests (compare two variants)  
+  - Host community Ask Me Anything (AMA) on roadmap  
+  - **Spend:** £10 000 • **KPIs:** ARPDAU ≥ £0.05; community sentiment > 80 % positive  
+
+- **Week +4**  
+  - Release first content update: “Clan Wars”  
+  - Execute paid editorial takeover on Gamezebo site  
+  - **Spend:** £40 000 (incl. £6 000 Gamezebo) • **KPIs:** MAU ≥ 1 000 000; Day-30 retention ≥ 15 %  
+
+- **Week +5**  
+  - Produce localized ad creatives for Brazil, India, Philippines  
+  - **Spend:** £20 000 • **KPIs:** Cost Per Install ≤ £0.25  
+
+- **Week +6**  
+  - Launch PropellerAds campaigns on Telegram channels  
+  - **Spend:** £20 000 • **KPIs:** Weekly unique users ≥ 500 000  
+
+- **Week +7**  
+  - Host region-specific prize tournaments in each market  
+  - **Spend:** £25 000 • **KPIs:** Tournament participants ≥ 10 000  
+
+- **Week +8**  
+  - Analyze regional KPIs; optimize creatives & targeting  
+  - **Spend:** £25 000 • **KPIs:** Regional ROI ≥ 4×  
+
+- **Week +9**  
+  - Expand influencer seeding in Brazil, India, Philippines  
+  - **Spend:** £20 000 • **KPIs:** Influencer content reach ≥ 5 000 000  
+
+- **Week +10**  
+  - Deploy localized referral mechanics (reward boosts per invite)  
+  - **Spend:** £20 000 • **KPIs:** Referral K-factor ≥ 0.35  
+
+- **Week +11**  
+  - Conduct regional community AMAs and live Q&A sessions  
+  - **Spend:** £10 000 • **KPIs:** AMA attendance ≥ 1 000  
+
+- **Week +12**  
+  - Review Weeks +5–+12 performance; refine UA and retention roadmap  
+  - **Spend:** £10 000 • **KPIs:** Cumulative MAU ≥ 3 000 000  
+
+This fully weekly, bullet-style timeline covers Pre-work through Week +12, with spend and clear KPI gates at each step—ready to paste into your presentation.
+
+[USER]
+as a executve product leader on telegram based games review the timeline and kpis and dollars and assess if its correct
+
+[ASSISTANT]
+Here’s my assessment of the week-by-week timeline, spend and KPIs from the standpoint of an executive product lead for Telegram mini-games:
+
+---
+
+## 1. Pre-work Phase (Weeks –26 to –13)
+- **Budget (~£64 k total):**  
+  - **Reality check:** £64 k for six months of strategic, security, staffing, infra and QA prep is on the lean side but feasible if you’re leveraging internal engineering.  
+  - **Risk:** Under-budgeting security/compliance and server scaling could lead to missed issues late. Consider padding Weeks –24 and –23 another ~20 % (≈£3–4 k each) for unexpected remediation.  
+- **KPIs:**  
+  - Concept sign-off, architecture approval, 2× stress-test, QA > 95 % are all solid gating criteria.
+
+## 2. Foundation (Weeks –12 to –9)
+- **Budget (4 × £5 k = £20 k):**  
+  - Reasonable for brand/identity/UI/storyboard in an agency engagement.  
+- **KPIs (Deck CTR ≥ 2 %, Day-0 retention ≥ 60 %):**  
+  - On-deck CTR at 2 % is standard for B2C pitches; Day-0 retention ≥ 60 % is aggressive but aligns with top-tier mini-games.  
+  - **Recommendation:** Add a Lite Build usability test goal to catch any critical UX drop-offs before you invest further.
+
+## 3. Asset Creation & Closed-Alpha (Weeks –8 to –5)
+- **Budget (£15 k + £10 k + internal + 0 = £25 k):**  
+  - £15 k for a vertical, Telegram-optimized launch video plus hero art is tight but doable with a small creative shop.  
+  - £10 k for alpha ops/testing is minimal; if alpha reveals major tuning needs, you may need another £5 k reserve.  
+- **KPIs:**  
+  - Early-ad CTR ≥ 3 % and Day-1 ≥ 50 % are good early signals.  
+  - **Missing:** A tech stability metric (error/crash rate < 2 %) during alpha.
+
+## 4. Community Build & Influencer Prep (Weeks –4 to –2)
+- **Budget (£5 k + £25 k + £30 k = £60 k):**  
+  - £25 k for ten mid-tier creators (~£2.5 k each) is market-aligned.  
+  - £30 k UA dry-run on Meta/TikTok: you’ll likely spend ~£20 k to get statistically valid CPI and then use the remaining £10 k to refine creatives.  
+- **KPIs:**  
+  - 10 k whitelist, CPA ≤ £0.40, 50 k pre-installs, CPI ≤ £0.35, K-factor ≥ 0.3 are all realistic but interdependent.  
+  - **Flag:** If your K-factor is below 0.3, you’ll need to pause and re-optimize referral mechanics before launch.
+
+## 5. Launch Week (Week 0)
+- **Budget (£50 k):**  
+  - Splitting UA vs. PR vs. community support, £50 k is lean for hitting 500 k installs Day-0 on Telegram.  
+  - **Suggestion:** Reserve an extra £10 k “agility fund” to double down on the best-performing channels mid-week.
+- **KPIs:**  
+  - 500 k installs, CPI ≤ £0.50, peak CCU ≥ 50 k are aggressive but in-reach if influencer seeding drove strong pre-orders.  
+  - **Add:** A server latency SLA (< 2 s average response) so the war-room truly sees performance.
+
+## 6. Early Scale & Engagement (Weeks +1 to +4)
+- **Budget (£50 k + £15 k + £10 k + £40 k = £115 k):**  
+  - £50 k for funnel and analytics tooling is high; ensure you’re not duplicating internal dashboards.  
+  - £40 k for content drop + Gamezebo takeover is spot on given their £6 k pack.  
+- **KPIs:**  
+  - Onboard drop-off < 25 %, D7 ≥ 25 %, K-factor ≥ 0.4, ARPDAU ≥ £0.05, MAU ≥ 1 M and D30 ≥ 15 % — these match top-quartile Telegram mini-games.  
+  - **Caution:** Hitting ARPDAU of £0.05 within Week +3 implies strong monetization hooks; validate with live-ops readiness.
+
+## 7. Regional Expansion (Weeks +5 to +12)
+- **Budget (£150 k over 8 weeks):** ~£18 k/week  
+  - This allows for localization, regional UA and tournaments. It’s in line with expected CPI ≤ £0.25.  
+- **KPIs:**  
+  - Monthly uniques ≥ 3 M and CPI ≤ £0.25 are solid mid-funnel goals.  
+  - **Recommendation:** Add a regional Day-3 retention gate (≥ 35 %) to ensure localized creatives are resonating before pouring budget.
+
+---
+
+### Overall Assessment
+- **Total core GTM + pre-work spend ≈ £484 k**, not the previously stated £760 k.  
+- **Gap:** Weeks +13–+26 live-ops & monetization (£340 k) aren’t included here; if you add them back, total ≈ £824 k.  
+- **KPIs:** In general, they’re ambitious but achievable if each gating metric is met before scaling spend.  
+- **Next steps:**  
+  1. **Reconcile total budget** versus financial plan.  
+  2. **Build in contingency reserves** (≈10–15 % of phase spend) for unexpected overruns.  
+  3. **Add technical stability and latency KPIs** during alpha and launch.  
+  4. **Institute strict go/no-go gates** after each KPI to avoid wasting budget on under-performing tactics.
+
+With those adjustments, the timeline, spend and KPIs would be well-aligned to a high-growth Telegram mini-game launch.
+
+[USER]
+ok fix it then
+
+[ASSISTANT]
+**Revised Weekly Timeline & Budgets (Pre-work → Week +12)**  
+Includes 20 % padding on security/compliance and alpha, +£10 k agility fund in launch week, technical stability KPIs and 10 % contingency reserve.  
+
+---
+
+## Pre-work Phase (Weeks –26 to –13)  
+*Lay all strategic, technical and operational groundwork before the 12-week GTM sprint.*  
+
+- **Week –26**  
+  - Conduct Competitive Scan, Total Addressable Market sizing, Unique Selling Proposition stress-test  
+  - Deliver SWOT matrix and white-space report  
+  - **Spend:** £10 000 • **KPIs:** Concept sign-off ≤ 2 weeks; ≥ 3 white-space opportunities  
+
+- **Week –25**  
+  - Finalize high-level roadmap & feature-freeze milestone  
+  - Lock Telegram bot architecture (API version, tech stack)  
+  - **Spend:** £5 000 • **KPIs:** Architecture doc approved by Engineering & Security  
+
+- **Week –24**  
+  - Security & compliance audit (data-privacy, ToS, age-ratings) (+20 % pad)  
+  - Provision hosting plan for 100 000 peak Concurrent Users  
+  - **Spend:** £10 000 • **KPIs:** Audit sign-off; infrastructure sustains 2× load  
+
+- **Week –23**  
+  - Define analytics instrumentation in Telemetry.io  
+  - Recruit & train 5 community moderators; finalize moderation policy (+25 % pad)  
+  - **Spend:** £5 000 • **KPIs:** Dashboards live in sandbox; moderator playbook complete  
+
+- **Week –22**  
+  - Recruit UA and Creative hires  
+  - **Spend:** £5 000 • **KPIs:** UA team at 100 % capacity  
+
+- **Week –21**  
+  - Recruit Community Manager; finalize legal (privacy policy, bot registration)  
+  - **Spend:** £5 000 • **KPIs:** Legal docs signed; community head onboarded  
+
+- **Week –20**  
+  - Payment-gateway setup & end-to-end in-bot purchase testing  
+  - **Spend:** £5 000 • **KPIs:** Purchase flow pass rate ≥ 99 %  
+
+- **Week –19**  
+  - Build & validate bot infra in staging (webhooks, rate-limits)  
+  - **Spend:** £7 000 • **KPIs:** Staging error-rate < 1 %  
+
+- **Week –18**  
+  - End-to-end QA: onboarding, core loops, referral mechanics  
+  - **Spend:** £5 000 • **KPIs:** QA pass-rate ≥ 95 %; crash/error rate < 2 %  
+
+- **Week –17**  
+  - Dry-run analytics events, marketing tags & attribution  
+  - Execute cross-functional “game-day” war-room drill  
+  - **Spend:** £3 000 • **KPIs:** Zero critical issues  
+
+- **Week –16**  
+  - Executive sign-off on GTM plan, budget & risk register  
+  - Enforce code & asset freeze  
+  - **Spend:** £2 000 • **KPIs:** Change-freeze in effect  
+
+- **Week –15**  
+  - Buffer for last-mile fixes, asset tweaks, legal sign-offs  
+  - Begin creative hand-off for Week –12  
+  - **Spend:** £3 000 • **KPIs:** Pre-work ∼100 % complete  
+
+- **Week –14**  
+  - Finalize any pending deliverables  
+  - **Spend:** £1 000 • **KPIs:** All critical paths cleared  
+
+- **Week –13**  
+  - Final readiness review & **Go/No-Go gate** for Foundation phase  
+  - **Spend:** £1 000 • **KPIs:** All pre-work KPIs met → green light  
+
+> **Pre-work total:** £67 000  
+
+---
+
+## Core GTM Sprint (Weeks –12 to +12)  
+
+- **Week –12**  
+  - Refresh Competitive Scan/TAM/USP (Publishing)  
+  - Draft brand identity & avatar art (Art)  
+  - **Spend:** £5 000 • **KPIs:** Deck CTR ≥ 2 %; Day-0 retention ≥ 60 %  
+
+- **Week –11**  
+  - Finalize brand & avatar art; begin UI style guide  
+  - **Spend:** £5 000 • **KPIs:** Asset approval ≤ 3 days  
+
+- **Week –10**  
+  - Complete UI style guide; outline 90 s teaser storyboard  
+  - **Spend:** £5 000 • **KPIs:** Storyboard sign-off ≤ 2 iterations  
+
+- **Week –9**  
+  - Finalize storyboard; prep trailer shot list & schedule  
+  - **Spend:** £5 000 • **KPIs:** Production kickoff on schedule  
+
+- **Week –8**  
+  - Shoot & post-produce **launch video** (vertical, ≤ 60 s for Telegram auto-play)  
+  - Create hero key art; spin up 30-player closed alpha  
+  - **Spend:** £20 000 (+£5 k alpha pad) • **KPIs:** Early-ad CTR ≥ 3 %; Day-1 retention ≥ 50 %; alpha crash/error rate < 2 %  
+
+- **Week –7**  
+  - Daily alpha play-tests & pacing tweaks; capture gameplay clips  
+  - **Spend:** £10 000 • **KPIs:** Avg. alpha session ≥ 10 min; server latency < 2 s  
+
+- **Week –6**  
+  - Plan Telegram-native lore drops; design meme-sticker pack  
+  - **Spend:** £0 (internal) • **KPIs:** Community posts ≥ 300/day  
+
+- **Week –5**  
+  - Wrap assets; prep community seeding materials  
+  - **KPIs:** Gate check: Day-7 retention ≥ 30 %; tech stability ok → move to Community Build  
+
+- **Week –4**  
+  - Launch whitelist microsite & Telegram bot; activate 3 mods; boost posts  
+  - **Spend:** £5 000 • **KPIs:** 10 000 sign-ups; CPA ≤ £0.40  
+
+- **Week –3**  
+  - Sign 10 mid-tier Telegram & YouTube creators (∼15 M reach); distribute co-marketing kits  
+  - **Spend:** £25 000 • **KPIs:** 50 000 pre-installs; ROI ≥ 8×  
+
+- **Week –2**  
+  - UA dry-run on Meta & TikTok; deploy invite-a-friend bot  
+  - **Spend:** £30 000 • **KPIs:** CPI ≤ £0.35; viral coefficient (K-factor) ≥ 0.3  
+
+- **Week 0**  
+  - Publish & pin **launch video** via bot; go live on Telegram; host creator tournament; PR push; 24/7 Discord war-room  
+  - **Spend:** £60 000 (+£10 k agility fund) • **KPIs:** Day-0 installs ≥ 500 000; CPI ≤ £0.50; peak CCU ≥ 50 000; server latency < 2 s  
+
+- **Week +1**  
+  - Optimize onboarding funnel via Telemetry.io dashboards  
+  - **Spend:** £50 000 • **KPIs:** Onboarding drop-off < 25 %; Day-7 retention ≥ 25 %  
+
+- **Week +2**  
+  - Launch builder-pack viral incentives; kick off meme-relay contest  
+  - **Spend:** £15 000 • **KPIs:** K-factor ≥ 0.4; organic share rate ≥ 30 %  
+
+- **Week +3**  
+  - Economy & price-point A/B tests; community AMA on roadmap  
+  - **Spend:** £10 000 • **KPIs:** ARPDAU ≥ £0.05; sentiment > 80 % positive  
+
+- **Week +4**  
+  - Release “Clan Wars” content update; Gamezebo site takeover  
+  - **Spend:** £40 000 • **KPIs:** MAU ≥ 1 000 000; Day-30 retention ≥ 15 %  
+
+- **Week +5**  
+  - Produce localized creatives for Brazil, India, Philippines  
+  - **Spend:** £20 000 • **KPIs:** CPI ≤ £0.25  
+
+- **Week +6**  
+  - Launch PropellerAds campaigns on Telegram channels  
+  - **Spend:** £20 000 • **KPIs:** Weekly uniques ≥ 500 000  
+
+- **Week +7**  
+  - Host regional prize tournaments  
+  - **Spend:** £25 000 • **KPIs:** Tournament participants ≥ 10 000  
+
+- **Week +8**  
+  - Analyze regional performance; optimize creatives & targeting  
+  - **Spend:** £25 000 • **KPIs:** Regional ROI ≥ 4×  
+
+- **Week +9**  
+  - Expand influencer seeding in key markets  
+  - **Spend:** £20 000 • **KPIs:** Influencer reach ≥ 5 000 000  
+
+- **Week +10**  
+  - Deploy localized referral boosts per invite  
+  - **Spend:** £20 000 • **KPIs:** Regional K-factor ≥ 0.35  
+
+- **Week +11**  
+  - Conduct regional community AMAs and live Q&As  
+  - **Spend:** £10 000 • **KPIs:** AMA attendance ≥ 1 000  
+
+- **Week +12**  
+  - Review Weeks +5–+12 performance; **Go/No-Go gate** for next phase  
+  - **Spend:** £10 000 • **KPIs:** Cumulative MAU ≥ 3 000 000; regional Day-3 retention ≥ 35 %  
+
+> **Core sprint total:** £435 000  
+> **Combined core + pre-work:** £502 000  
+> **Contingency (10 %):** £50 000  
+> **Revised total budget:** ~£552 000  
+
+This weekly breakdown now includes padded budgets for risk, explicit technical stability metrics, “Go/No-Go” gates after each phase, and a 10 % contingency reserve—fully vetted for a Telegram-first GTM.
+
+[USER]
+fix the kpi bullet its on the same line as spend should be on the next line
+
+[ASSISTANT]
+**Revised Weekly Timeline & Budgets (Pre-work → Week +12)**  
+Includes 20 % padding on security/compliance and alpha, +£10 k agility fund in launch week, technical stability KPIs and 10 % contingency reserve.
+
+---
+
+## Pre-work Phase (Weeks –26 to –13)  
+*Lay all strategic, technical and operational groundwork before the 12-week GTM sprint.*
+
+- **Week –26**  
+  - Conduct Competitive Scan, Total Addressable Market sizing, Unique Selling Proposition stress-test  
+  - Deliver SWOT matrix and white-space report  
+  - **Spend:** £10 000  
+  - **KPIs:** Concept sign-off ≤ 2 weeks; ≥ 3 white-space opportunities  
+
+- **Week –25**  
+  - Finalize high-level roadmap & feature-freeze milestone  
+  - Lock Telegram bot architecture (API version, tech stack)  
+  - **Spend:** £5 000  
+  - **KPIs:** Architecture doc approved by Engineering & Security  
+
+- **Week –24**  
+  - Security & compliance audit (data-privacy, ToS, age ratings) (+20 % pad)  
+  - Provision hosting plan for 100 000 peak Concurrent Users  
+  - **Spend:** £10 000  
+  - **KPIs:** Audit sign-off; infrastructure sustains 2× expected load  
+
+- **Week –23**  
+  - Define analytics instrumentation in Telemetry.io  
+  - Recruit & train 5 community moderators; finalize moderation policy (+25 % pad)  
+  - **Spend:** £5 000  
+  - **KPIs:** Dashboards live in sandbox; moderator playbook complete  
+
+- **Week –22**  
+  - Recruit User Acquisition and Creative hires  
+  - **Spend:** £5 000  
+  - **KPIs:** UA team at 100 % capacity  
+
+- **Week –21**  
+  - Recruit Community Manager; finalize legal (privacy policy, bot registration)  
+  - **Spend:** £5 000  
+  - **KPIs:** Legal docs signed; community head onboarded  
+
+- **Week –20**  
+  - Payment-gateway setup & end-to-end in-bot purchase testing  
+  - **Spend:** £5 000  
+  - **KPIs:** Purchase flow pass rate ≥ 99 %  
+
+- **Week –19**  
+  - Build & validate bot infrastructure in staging (webhooks, rate-limits)  
+  - **Spend:** £7 000  
+  - **KPIs:** Staging error-rate < 1 %  
+
+- **Week –18**  
+  - End-to-end QA: onboarding, core loops, referral mechanics  
+  - **Spend:** £5 000  
+  - **KPIs:** QA pass-rate ≥ 95 %; crash/error rate < 2 %  
+
+- **Week –17**  
+  - Dry-run analytics events, marketing tags & attribution links  
+  - Execute cross-functional “game-day” war-room drill  
+  - **Spend:** £3 000  
+  - **KPIs:** Zero critical issues  
+
+- **Week –16**  
+  - Executive sign-off on GTM plan, budget & risk register  
+  - Enforce code & asset freeze  
+  - **Spend:** £2 000  
+  - **KPIs:** Change-freeze in effect  
+
+- **Week –15**  
+  - Buffer for last-mile fixes, asset tweaks, legal sign-offs  
+  - Begin creative hand-off for Week –12  
+  - **Spend:** £3 000  
+  - **KPIs:** Pre-work ∼100 % complete  
+
+- **Week –14**  
+  - Finalize any pending deliverables  
+  - **Spend:** £1 000  
+  - **KPIs:** All critical paths cleared  
+
+- **Week –13**  
+  - Final readiness review & **Go/No-Go gate** for Foundation phase  
+  - **Spend:** £1 000  
+  - **KPIs:** All pre-work KPIs met → green light  
+
+> **Pre-work total:** £67 000
+
+---
+
+## Core GTM Sprint (Weeks –12 to +12)
+
+- **Week –12**  
+  - Refresh Competitive Scan/TAM/USP (Publishing Lead)  
+  - Draft brand identity & avatar art (Art Director)  
+  - **Spend:** £5 000  
+  - **KPIs:** Deck Click-Through Rate ≥ 2 %; Day-0 retention ≥ 60 %  
+
+- **Week –11**  
+  - Finalize brand & avatar art; begin UI style guide  
+  - **Spend:** £5 000  
+  - **KPIs:** Asset approval ≤ 3 business days  
+
+- **Week –10**  
+  - Complete UI style guide; outline 90-second teaser storyboard  
+  - **Spend:** £5 000  
+  - **KPIs:** Storyboard sign-off ≤ 2 iterations  
+
+- **Week –9**  
+  - Finalize storyboard; prep trailer shot list & production schedule  
+  - **Spend:** £5 000  
+  - **KPIs:** Production kickoff on schedule  
+
+- **Week –8**  
+  - Shoot & post-produce **launch video** (vertical, ≤ 60 s for Telegram auto-play)  
+  - Create hero key art; spin up 30-player closed alpha  
+  - **Spend:** £20 000  
+  - **KPIs:** Early-ad CTR ≥ 3 %; Day-1 retention ≥ 50 %; alpha crash/error rate < 2 %  
+
+- **Week –7**  
+  - Daily alpha play-tests & pacing tweaks; capture gameplay clips  
+  - **Spend:** £10 000  
+  - **KPIs:** Avg. alpha session ≥ 10 min; server latency < 2 s  
+
+- **Week –6**  
+  - Plan Telegram-native lore drops; design meme-sticker pack  
+  - **Spend:** £0 (internal)  
+  - **KPIs:** Community posts ≥ 300/day  
+
+- **Week –5**  
+  - Wrap assets; prep community seeding materials  
+  - **Spend:** included above  
+  - **KPIs:** Gate check: Day-7 retention ≥ 30 %; tech stability ok  
+
+- **Week –4**  
+  - Launch whitelist microsite & Telegram bot; activate 3 mods; boost posts  
+  - **Spend:** £5 000  
+  - **KPIs:** 10 000 sign-ups; Cost Per Action ≤ £0.40  
+
+- **Week –3**  
+  - Sign 10 mid-tier Telegram & YouTube creators (~15 M reach); distribute co-marketing kits  
+  - **Spend:** £25 000  
+  - **KPIs:** 50 000 pre-installs; ROI ≥ 8×  
+
+- **Week –2**  
+  - UA dry-run on Meta & TikTok; deploy invite-a-friend bot  
+  - **Spend:** £30 000  
+  - **KPIs:** Cost Per Install ≤ £0.35; K-factor ≥ 0.3  
+
+- **Week 0**  
+  - Publish & pin **launch video** via bot; go live on Telegram; host creator tournament; PR push; 24/7 Discord war-room  
+  - **Spend:** £60 000  
+  - **KPIs:** Day-0 installs ≥ 500 000; CPI ≤ £0.50; peak CCU ≥ 50 000; server latency < 2 s  
+
+- **Week +1**  
+  - Optimize onboarding funnel via Telemetry.io dashboards  
+  - **Spend:** £50 000  
+  - **KPIs:** Onboarding drop-off < 25 %; Day-7 retention ≥ 25 %  
+
+- **Week +2**  
+  - Launch builder-pack viral incentives; kick off meme-relay contest  
+  - **Spend:** £15 000  
+  - **KPIs:** K-factor ≥ 0.4; organic share rate ≥ 30 %  
+
+- **Week +3**  
+  - Conduct economy & price-point A/B tests; community AMA on roadmap  
+  - **Spend:** £10 000  
+  - **KPIs:** ARPDAU ≥ £0.05; sentiment > 80 % positive  
+
+- **Week +4**  
+  - Release “Clan Wars” update; Gamezebo site takeover  
+  - **Spend:** £40 000  
+  - **KPIs:** MAU ≥ 1 000 000; Day-30 retention ≥ 15 %  
+
+- **Week +5**  
+  - Produce localized creatives for Brazil, India, Philippines  
+  - **Spend:** £20 000  
+  - **KPIs:** CPI ≤ £0.25  
+
+- **Week +6**  
+  - Launch PropellerAds campaigns on Telegram channels  
+  - **Spend:** £20 000  
+  - **KPIs:** Weekly uniques ≥ 500 000  
+
+- **Week +7**  
+  - Host regional prize tournaments  
+  - **Spend:** £25 000  
+  - **KPIs:** Tournament participants ≥ 10 000  
+
+- **Week +8**  
+  - Analyze regional performance; optimize creatives & targeting  
+  - **Spend:** £25 000  
+  - **KPIs:** Regional ROI ≥ 4×  
+
+- **Week +9**  
+  - Expand influencer seeding in key markets  
+  - **Spend:** £20 000  
+  - **KPIs:** Influencer reach ≥ 5 000 000  
+
+- **Week +10**  
+  - Deploy localized referral boosts per invite  
+  - **Spend:** £20 000  
+  - **KPIs:** Regional K-factor ≥ 0.35  
+
+- **Week +11**  
+  - Conduct regional community AMAs and live Q&As  
+  - **Spend:** £10 000  
+  - **KPIs:** AMA attendance ≥ 1 000  
+
+- **Week +12**  
+  - Review Weeks +5–+12 performance; **Go/No-Go gate** for next phase  
+  - **Spend:** £10 000  
+  - **KPIs:** Cumulative MAU ≥ 3 000 000; regional Day-3 retention ≥ 35 %  
+
+---
+
+> **Core sprint total:** £435 000  
+> **Combined core + pre-work:** £502 000  
+> **Contingency (10 %):** £50 000  
+> **Revised total budget:** ~£552 000
+
+[USER]
+as a ceo of a telegram game studio review this timelines and assess it
+
+[ASSISTANT]
+**Executive Summary (CEO Perspective)**  
+Overall, this week-by-week Go-To-Market (GTM) plan for Sarge Universe on Telegram is comprehensive, with clear budget lines, gating KPIs, and a built-in contingency. It balances strategic pre-work, creative asset build, community seeding, launch execution and post-launch scaling. Below is my high-level assessment.
+
+---
+
+## 1. Strengths  
+- **End-to-End Coverage**  
+  - From six months of strategic planning (Competitive Scan, TAM sizing, USP stress-test) through Week +12 of live-ops and monetization, no major phase is missing.  
+- **Tight Gating & “Go/No-Go” Gates**  
+  - Each phase concludes with a KPI gate (e.g. Day-7 retention ≥ 30 %, infrastructure 2× load test) before unlocking the next spend tranche—this enforces discipline.  
+- **Contingency & Risk Buffers**  
+  - +20 % padding on security/compliance and alpha, +£10 k “agility fund” in launch week, plus an overall 10 % reserve (~£50 k) demonstrates prudent risk management.  
+- **Telegram-Native Tactics**  
+  - Vertical launch video, lore drops, sticker pack, bot-driven waitlist & referrals—all tailored to Telegram’s UX and distribution model.  
+- **Regional Phasing**  
+  - Localized creatives, PropellerAds channels and tournaments in Brazil, India and Philippines show a thoughtful expansion roadmap beyond English-only audiences.
+
+---
+
+## 2. Risks & Gaps  
+- **Budget vs. Expected Installs**  
+  - Aim of 500 k Day-0 installs on Telegram with a £60 k launch spend (incl. agility fund) yields an implied Cost-Per-Install (CPI) of £0.12—optimistic vs. industry CPI benchmarks (£0.30–£0.50).  
+- **Technical Resourcing**  
+  - Pre-work allocates only ~£7 k for bot infra & £5 k for staging QA. If unexpected scaling issues arise, we may need more engineering hours.  
+- **Retention Reliance**  
+  - Success hinges on hitting Day-1 ≥ 50 %, Day-7 ≥ 25 % and Day-30 ≥ 15 %. Missing any of those could cascade into wasted UA spend.  
+- **Community Moderation Scale**  
+  - Only five moderators trained pre-launch; if viral growth exceeds projections (~50 k CCU), moderation capacity could be overwhelmed, harming brand trust.  
+- **Legal & Compliance Oversight**  
+  - One week for privacy/ToS and bot-registration may not cover all global jurisdictions if we expand rapidly into Brazil, India and Philippines.
+
+---
+
+## 3. Recommendations  
+1. **Revisit Launch Spend or Install Goal**  
+   - Either increase launch-week UA budget by ~£20 k or temper Day-0 install target to ~300 k for a more realistic CPI of £0.20–£0.25.  
+2. **Augment Technical Reserves**  
+   - Allocate an additional £10 k–£15 k during pre-work for unexpected infra scaling or third-party API costs.  
+3. **Expand Moderation Team**  
+   - Plan to onboard at least 10 moderators by Week 0, with automated tooling (word filters, rate limits) to handle viral spikes.  
+4. **Add Legal Buffer**  
+   - Build in an extra week (Week –22 to –21) or £3 k for regional compliance (GDPR-equivalent, local gambling regulations if any).  
+5. **Introduce Mid-Phase KPI Checkpoints**  
+   - Between Weeks +5 and +8, add a Day-3 retention gate for each key region (target ≥ 35 %) to avoid overspending on underperforming markets.  
+
+---
+
+**Conclusion**  
+With these adjustments—particularly around realistic CPI assumptions, technical and moderation capacity, and legal buffers—the GTM timeline and budget will be robust enough to deliver strong launch performance on Telegram and sustainable scale thereafter.
+
+[USER]
+fix it
+
+[ASSISTANT]
+**Updated Weekly Timeline & Budgets (Pre-work → Week + 12)**  
+Incorporates CEO feedback: boosted technical reserves, expanded moderation, added legal buffer, larger launch fund and mid-phase retention checkpoints.
+
+---
+
+## Pre-work Phase (Weeks –26 to –13)  
+*Strengthened for technical risk, compliance, and moderation scale.*  
+
+- **Week –26**  
+  - Competitive Scan, TAM sizing, USP stress-test; SWOT & white-space report  
+  - **Spend:** £10 000  
+  - **KPIs:** Concept sign-off ≤ 2 weeks; ≥ 3 white-space opportunities  
+
+- **Week –25**  
+  - High-level roadmap & feature-freeze milestone; lock Telegram bot architecture  
+  - **Spend:** £5 000  
+  - **KPIs:** Architecture doc approved by Engineering & Security  
+
+- **Week –24**  
+  - Security & compliance audit (+20 % pad); provisioning for 100 k peak CCU (+£5 k reserve)  
+  - **Spend:** £15 000  
+  - **KPIs:** Audit sign-off; infra sustains 2× expected load  
+
+- **Week –23**  
+  - Analytics instrumentation in Telemetry.io; recruit & train **10** community moderators (+£3 k)  
+  - **Spend:** £8 000  
+  - **KPIs:** Dashboards live; moderator playbook complete; moderation staffing at 100%  
+
+- **Week –22**  
+  - **Legal buffer:** finalize privacy policy, bot registration, local compliance (+£3 k)  
+  - **Spend:** £8 000  
+  - **KPIs:** All legal docs signed; compliance sign-off for BR/IN/PH  
+
+- **Week –21**  
+  - Recruit UA, Creative & Community hires to full capacity  
+  - **Spend:** £5 000  
+  - **KPIs:** Hiring complete; teams at 100 %  
+
+- **Week –20**  
+  - Payment-gateway setup & end-to-end in-bot purchase testing  
+  - **Spend:** £5 000  
+  - **KPIs:** Purchase flow ≥ 99 % success  
+
+- **Week –19**  
+  - Build & validate bot infra in staging (webhooks, rate-limits) + tech reserve (+£5 k)  
+  - **Spend:** £12 000  
+  - **KPIs:** Staging error-rate < 1 %; reserve capacity validated  
+
+- **Week –18**  
+  - End-to-end QA: onboarding, core loops, referral mechanics  
+  - **Spend:** £5 000  
+  - **KPIs:** QA pass-rate ≥ 95 %; crash/error rate < 2 %  
+
+- **Week –17**  
+  - Dry-run analytics events, tags & attribution; war-room “game-day” drill  
+  - **Spend:** £3 000  
+  - **KPIs:** Zero critical issues  
+
+- **Week –16**  
+  - Exec sign-off on GTM, budget & risk register; enforce freeze  
+  - **Spend:** £2 000  
+  - **KPIs:** Change-freeze in effect  
+
+- **Week –15**  
+  - Buffer for last-mile fixes; begin creative hand-off for Week –12  
+  - **Spend:** £3 000  
+  - **KPIs:** Pre-work 100 % complete  
+
+- **Week –14**  
+  - Finalize any pending deliverables  
+  - **Spend:** £1 000  
+  - **KPIs:** All critical paths cleared  
+
+- **Week –13**  
+  - Final readiness review & **Go/No-Go** gate for Foundation phase  
+  - **Spend:** £1 000  
+  - **KPIs:** All pre-work KPIs met → green light  
+
+> **Pre-work total:** £78 000  
+
+---
+
+## Core GTM Sprint (Weeks –12 to +12)
+
+- **Week –12**  
+  - Refresh Competitive Scan/TAM/USP; draft brand & avatar art  
+  - **Spend:** £5 000  
+  - **KPIs:** Deck CTR ≥ 2 %; Day-0 retention ≥ 60 %  
+
+- **Week –11**  
+  - Finalize brand & avatar art; begin UI style guide  
+  - **Spend:** £5 000  
+  - **KPIs:** Asset approval ≤ 3 business days  
+
+- **Week –10**  
+  - Complete UI style guide; outline 90 s teaser storyboard  
+  - **Spend:** £5 000  
+  - **KPIs:** Storyboard sign-off ≤ 2 iterations  
+
+- **Week –9**  
+  - Finalize storyboard; prep trailer shot list & schedule  
+  - **Spend:** £5 000  
+  - **KPIs:** Production kickoff on schedule  
+
+- **Week –8**  
+  - Shoot & post-produce **launch video** (vertical, ≤ 60 s for Telegram auto-play); hero key art; spin up 30-player closed alpha  
+  - **Spend:** £20 000  
+  - **KPIs:** Early-ad CTR ≥ 3 %; Day-1 retention ≥ 50 %; alpha crash/error < 2 %  
+
+- **Week –7**  
+  - Daily alpha play-tests & pacing tweaks; capture gameplay clips  
+  - **Spend:** £10 000  
+  - **KPIs:** Avg alpha session ≥ 10 min; server latency < 2 s  
+
+- **Week –6**  
+  - Plan Telegram-native lore drops; design meme-sticker pack  
+  - **Spend:** £0 (internal)  
+  - **KPIs:** Community posts ≥ 300/day  
+
+- **Week –5**  
+  - Wrap assets; prep community seeding materials  
+  - **Spend:** included above  
+  - **KPIs:** Gate check: Day-7 retention ≥ 30 %; tech stability OK  
+
+- **Week –4**  
+  - Launch whitelist microsite & Telegram bot; activate 10 mods; boost posts  
+  - **Spend:** £5 000  
+  - **KPIs:** 10 000 sign-ups; Cost Per Action ≤ £0.40  
+
+- **Week –3**  
+  - Sign 10 mid-tier Telegram & YouTube creators (~15 M reach); distribute co-marketing kits  
+  - **Spend:** £25 000  
+  - **KPIs:** 50 000 pre-installs; ROI ≥ 8×  
+
+- **Week –2**  
+  - UA dry-run on Meta & TikTok; deploy invite-a-friend bot  
+  - **Spend:** £30 000  
+  - **KPIs:** CPI ≤ £0.35; K-factor ≥ 0.3  
+
+- **Week 0**  
+  - Publish & pin **launch video**; go live on Telegram; creator tournament livestream; PR push; 24/7 war-room; **+£10 k agility fund**  
+  - **Spend:** £80 000  
+  - **KPIs:** Day-0 installs ≥ 500 000 (@ £0.16 CPI); CPI ≤ £0.50; peak CCU ≥ 50 000; server latency < 2 s  
+
+- **Week +1**  
+  - Optimize onboarding via Telemetry.io dashboards  
+  - **Spend:** £50 000  
+  - **KPIs:** Onboard drop-off < 25 %; Day-7 retention ≥ 25 %  
+
+- **Week +2**  
+  - Builder-pack viral incentives; meme-relay contest  
+  - **Spend:** £15 000  
+  - **KPIs:** K-factor ≥ 0.4; organic share ≥ 30 %  
+
+- **Week +3**  
+  - Economy & price-point A/B tests; community AMA on roadmap  
+  - **Spend:** £10 000  
+  - **KPIs:** ARPDAU ≥ £0.05; sentiment > 80 % positive  
+
+- **Week +4**  
+  - Release “Clan Wars” update; Gamezebo takeover  
+  - **Spend:** £40 000  
+  - **KPIs:** MAU ≥ 1 000 000; Day-30 retention ≥ 15 %  
+
+- **Week +5**  
+  - Localized creatives for Brazil, India, Philippines  
+  - **Spend:** £20 000  
+  - **KPIs:** CPI ≤ £0.25; Day-3 retention ≥ 35 %  
+
+- **Week +6**  
+  - Launch PropellerAds on Telegram channels  
+  - **Spend:** £20 000  
+  - **KPIs:** Weekly uniques ≥ 500 000; Day-3 retention ≥ 35 %  
+
+- **Week +7**  
+  - Host regional prize tournaments  
+  - **Spend:** £25 000  
+  - **KPIs:** Tournament participants ≥ 10 000; Day-3 retention ≥ 35 %  
+
+- **Week +8**  
+  - Analyze regional performance; optimize creatives & targeting; **mid-phase retention check**  
+  - **Spend:** £25 000  
+  - **KPIs:** Regional ROI ≥ 4×; Day-3 retention ≥ 35 %  
+
+- **Week +9**  
+  - Expand influencer seeding in key markets  
+  - **Spend:** £20 000  
+  - **KPIs:** Influencer reach ≥ 5 000 000; Day-3 retention ≥ 35 %  
+
+- **Week +10**  
+  - Deploy localized referral boosts per invite  
+  - **Spend:** £20 000  
+  - **KPIs:** Regional K-factor ≥ 0.35; Day-3 retention ≥ 35 %  
+
+- **Week +11**  
+  - Conduct regional community AMAs and Q&As  
+  - **Spend:** £10 000  
+  - **KPIs:** AMA attendance ≥ 1 000; Day-3 retention ≥ 35 %  
+
+- **Week +12**  
+  - Review Weeks + 5–+12 performance; **Go/No-Go** for next phase  
+  - **Spend:** £10 000  
+  - **KPIs:** Cumulative MAU ≥ 3 000 000; overall Day-3 retention ≥ 35 %  
+
+> **Core sprint total:** £455 000  
+> **Combined with Pre-work:** £533 000  
+> **Contingency (10 %):** £53 000  
+> **Revised total budget:** ~£586 000
+
+[USER]
+as a chief publishing officer at a telegram based game studio assess the new timeline
+
+[ASSISTANT]
+**As Chief Publishing Officer, here’s my take on the revised weekly GTM timeline and budget (~£586 k total):**
+
+---
+
+## 1. Content & Creative Assets  
+- **Strengths:**  
+  - **Launch video & hero art** (Week –8) are well-timed to feed influencer and paid UA campaigns.  
+  - **90 sec teaser storyboard** and UI/style guide ensure brand consistency.  
+
+- **Risks & Gaps:**  
+  - No ongoing asset refresh after “Clan Wars” (Week +4). In a Telegram-driven title, you need fresh visuals every 2–3 weeks to keep channels and forward rates high.  
+  - **Recommendation:** Carve out £10 k for mid-cycle asset refresh (e.g. Week +6 or +8) to support evolving ad creatives and community posts.
+
+---
+
+## 2. Community & Channel Management  
+- **Strengths:**  
+  - Recruiting **10 moderators** (Week –23) gives solid coverage ahead of the wait-list launch.  
+  - Telegram-native lore drops (Week –6) and sticker pack drive organic virality.  
+
+- **Risks & Gaps:**  
+  - **Channel/channel creation** isn’t explicitly scheduled until Week –4. That leaves lore-drop content and teaser rollout with nowhere to land.  
+  - **Recommendation:**  
+    - Spin up and moderate the official Telegram channel and supergroup in **Week –8**, immediately after the launch video is ready.  
+    - Track channel metrics: message views, forward rate, new subscribers per day.
+
+---
+
+## 3. User Acquisition & Paid UA  
+- **Strengths:**  
+  - Multi-channel dry-run (Meta/TikTok) at Week –2 validates CPI assumptions.  
+  - Agility fund (+£10 k) in Launch Week lets you double-down on top performers.
+
+- **Risks & Gaps:**  
+  - **Launch Week CPI (£0.16 implied)** is still optimistic versus the £0.30–£0.50 benchmark for mini-games.  
+  - **Recommendation:** Be prepared to shift an extra £10–15 k from contingency into UA if CPI stalls above £0.25.
+
+---
+
+## 4. Influencer & Partner Programs  
+- **Strengths:**  
+  - Locking in **10 mid-tier creators** (15 M reach) well before launch gives time for content previews and community hype.  
+
+- **Risks & Gaps:**  
+  - There’s no follow-up seeding after Week –3. Influencer content peaks too early.  
+  - **Recommendation:** Schedule a second micro-campaign in **Week +7**—brief “look how Clan Wars turned out” videos, or AMA clips from top creators.
+
+---
+
+## 5. KPIs & Measurement  
+- **Strengths:**  
+  - Solid retention gates (Day 1, 7, 30) and technical SLAs (latency < 2 s, crash rate < 2 %) enforced throughout.  
+
+- **Risks & Gaps:**  
+  - Missing **Telegram-specific metrics**: channel message open rate, bot command usage, sticker usage per user.  
+  - **Recommendation:** Add these to your Week +1 and +2 dashboard to ensure publishing tactics (lore drops, stickers) actually move the needle.
+
+---
+
+## 6. Budget & Contingency  
+- **Strengths:**  
+  - £78 k pre-work, £455 k core sprint, £53 k contingency (~10 %) is a healthy buffer.  
+  - Padded security/compliance and tech reserves mitigate expensive “surprises.”
+
+- **Risks & Gaps:**  
+  - Moderation spend is front-loaded; community team sits idle until Week –4.  
+  - **Recommendation:** Shift £5 k of moderation training budget to cover Week –8 channel launch activities (community seeding, welcome events).
+
+---
+
+### **Overall Verdict**  
+This is a **strong, disciplined GTM plan** with clear gates, risk buffers and a Telegram-native playbook. To make it bullet-proof from a **publishing** standpoint, I’d:  
+1. Launch and moderate your Telegram channel by **Week –8**, not –4.  
+2. Allocate recurring creative refreshes every 2–3 weeks post-launch.  
+3. Inject Telegram-specific metrics into your dashboards immediately after launch.  
+4. Be ready to flex contingency into UA if CPI > £0.25.  
+
+With those tweaks, you’ll maximize organic momentum, influencer impact and paid efficiency—and give Sarge Universe the strongest possible foothold on Telegram.
+
+[USER]
+fix it
+
+[ASSISTANT]
+**Updated Weekly Timeline & Budgets (Pre-work → Week +12)**  
+_Incorporates publishing-team fixes: earlier channel launch, recurring asset refresh, mid-phase influencer push, Telegram-specific metrics, and shifted moderation._
+
+---
+
+## Pre-work Phase (Weeks –26 to –13)  
+
+- **Week –26**  
+  - Competitive Scan, TAM sizing, USP stress-test; SWOT & white-space report  
+  - **Spend:** £10 000  
+  - **KPIs:** Concept sign-off ≤ 2 weeks; ≥ 3 white-space opportunities  
+
+- **Week –25**  
+  - High-level roadmap & feature-freeze milestone; lock Telegram bot architecture  
+  - **Spend:** £5 000  
+  - **KPIs:** Architecture doc approved by Engineering & Security  
+
+- **Week –24**  
+  - Security & compliance audit (+20 % pad); provision infra for 100 k peak CCU (+£5 k reserve)  
+  - **Spend:** £15 000  
+  - **KPIs:** Audit sign-off; infrastructure sustains 2× expected load  
+
+- **Week –23**  
+  - Analytics instrumentation in Telemetry.io; recruit & train **10** community moderators (+£3 k)  
+  - **Spend:** £8 000  
+  - **KPIs:** Dashboards live in sandbox; moderator playbook complete; moderation staffing at 100 %  
+
+- **Week –22**  
+  - **Legal buffer:** finalize privacy policy, bot registration, local compliance (+£3 k)  
+  - **Spend:** £8 000  
+  - **KPIs:** All legal docs signed; compliance sign-off for BR/IN/PH  
+
+- **Week –21**  
+  - Recruit UA, Creative & Community teams to full capacity  
+  - **Spend:** £5 000  
+  - **KPIs:** Teams at 100 % capacity  
+
+- **Week –20**  
+  - Payment-gateway setup & end-to-end in-bot purchase testing  
+  - **Spend:** £5 000  
+  - **KPIs:** Purchase flow ≥ 99 % success  
+
+- **Week –19**  
+  - Build & validate bot infra in staging (webhooks, rate-limits) + tech reserve (+£5 k)  
+  - **Spend:** £12 000  
+  - **KPIs:** Staging error-rate < 1 %; reserve capacity validated  
+
+- **Week –18**  
+  - End-to-end QA: onboarding, core loops, referral mechanics  
+  - **Spend:** £5 000  
+  - **KPIs:** QA pass-rate ≥ 95 %; crash/error rate < 2 %  
+
+- **Week –17**  
+  - Dry-run analytics events, marketing tags & attribution; “game-day” war-room drill  
+  - **Spend:** £3 000  
+  - **KPIs:** Zero critical issues  
+
+- **Week –16**  
+  - Executive sign-off on GTM, budget & risk register; enforce code & asset freeze  
+  - **Spend:** £2 000  
+  - **KPIs:** Change-freeze in effect  
+
+- **Week –15**  
+  - Buffer for last-mile fixes; begin creative hand-off for Week –12  
+  - **Spend:** £3 000  
+  - **KPIs:** Pre-work 100 % complete  
+
+- **Week –14**  
+  - Finalize any pending deliverables  
+  - **Spend:** £1 000  
+  - **KPIs:** All critical paths cleared  
+
+- **Week –13**  
+  - Final readiness review & **Go/No-Go** gate for Foundation phase  
+  - **Spend:** £1 000  
+  - **KPIs:** All pre-work KPIs met → green light  
+
+> **Pre-work total:** £78 000  
+
+---
+
+## Core GTM Sprint (Weeks –12 to +12)  
+
+- **Week –12**  
+  - Refresh Competitive Scan/TAM/USP; draft brand & avatar art  
+  - **Spend:** £5 000  
+  - **KPIs:** Deck CTR ≥ 2 %; Day-0 retention ≥ 60 %  
+
+- **Week –11**  
+  - Finalize brand & avatar art; begin UI style guide  
+  - **Spend:** £5 000  
+  - **KPIs:** Asset approval ≤ 3 business days  
+
+- **Week –10**  
+  - Complete UI style guide; outline 90 s teaser storyboard  
+  - **Spend:** £5 000  
+  - **KPIs:** Storyboard sign-off ≤ 2 iterations  
+
+- **Week –9**  
+  - Finalize storyboard; prep trailer shot list & schedule  
+  - **Spend:** £5 000  
+  - **KPIs:** Production kickoff on schedule  
+
+- **Week –8**  
+  - **Activate official Telegram channel & supergroup**; seed welcome events  
+  - Shoot & post-produce **launch video** (vertical, ≤ 60 s)  
+  - Create hero key art; spin up 30-player closed alpha  
+  - **Spend:** £20 000  
+  - **KPIs:** Early-ad CTR ≥ 3 %; Day-1 retention ≥ 50 %; alpha crash/error rate < 2 %  
+
+- **Week –7**  
+  - Daily alpha play-tests & pacing tweaks; capture gameplay clips  
+  - **Spend:** £10 000  
+  - **KPIs:** Avg. alpha session ≥ 10 min; server latency < 2 s  
+
+- **Week –6**  
+  - Plan Telegram-native lore drops; design meme-sticker pack  
+  - **Spend:** £0 (internal)  
+  - **KPIs:** Community posts ≥ 300/day  
+
+- **Week –5**  
+  - Wrap assets; prep community seeding materials  
+  - **Spend:** included above  
+  - **KPIs:** Gate check: Day-7 retention ≥ 30 %; tech stability OK  
+
+- **Week –4**  
+  - Launch whitelist microsite & Telegram bot; boost posts  
+  - **Spend:** £5 000  
+  - **KPIs:** 10 000 sign-ups; Cost Per Action ≤ £0.40  
+
+- **Week –3**  
+  - Sign 10 mid-tier Telegram & YouTube creators (∼15 M reach); distribute kits  
+  - **Spend:** £25 000  
+  - **KPIs:** 50 000 pre-installs; ROI ≥ 8×  
+
+- **Week –2**  
+  - UA dry-run on Meta & TikTok; deploy invite-a-friend bot  
+  - **Spend:** £30 000  
+  - **KPIs:** CPI ≤ £0.35; K-factor ≥ 0.3  
+
+- **Week 0**  
+  - Publish & pin **launch video**; go live on Telegram; creator tournament livestream; PR push; 24/7 war-room; **+£10 k agility fund**  
+  - **Spend:** £80 000  
+  - **KPIs:** Day-0 installs ≥ 500 000; CPI ≤ £0.50; peak CCU ≥ 50 000; server latency < 2 s  
+
+- **Week +1**  
+  - Optimize onboarding via Telemetry.io dashboards; **track Telegram metrics** (channel open rate, bot-command usage, sticker usage)  
+  - **Spend:** £50 000  
+  - **KPIs:** Onboard drop-off < 25 %; Day-7 retention ≥ 25 %; Telegram metrics dashboard live  
+
+- **Week +2**  
+  - Builder-pack viral incentives; meme-relay contest  
+  - **Spend:** £15 000  
+  - **KPIs:** K-factor ≥ 0.4; organic share rate ≥ 30 %  
+
+- **Week +3**  
+  - Economy & price-point A/B tests; community AMA on roadmap  
+  - **Spend:** £10 000  
+  - **KPIs:** ARPDAU ≥ £0.05; sentiment > 80 % positive  
+
+- **Week +4**  
+  - Release “Clan Wars” update; Gamezebo site takeover  
+  - **Spend:** £40 000  
+  - **KPIs:** MAU ≥ 1 000 000; Day-30 retention ≥ 15 %  
+
+- **Week +5**  
+  - Produce localized creatives for Brazil, India, Philippines  
+  - **Spend:** £20 000  
+  - **KPIs:** CPI ≤ £0.25; Day-3 retention ≥ 35 %  
+
+- **Week +6**  
+  - Launch PropellerAds campaigns on Telegram channels  
+  - **Mid-cycle asset refresh** (new banners, teaser cutdowns)  
+  - **Spend:** £30 000  
+  - **KPIs:** Weekly uniques ≥ 500 000; asset-performance lift ≥ 15 %  
+
+- **Week +7**  
+  - Host regional prize tournaments  
+  - **Micro-influencer campaign** (second creator push)  
+  - **Spend:** £35 000  
+  - **KPIs:** Tournament participants ≥ 10 000; micro-content views ≥ 1 000 000  
+
+- **Week +8**  
+  - Analyze regional performance; optimize creatives & targeting; **mid-phase retention check**  
+  - **Spend:** £25 000  
+  - **KPIs:** Regional ROI ≥ 4×; Day-3 retention ≥ 35 %  
+
+- **Week +9**  
+  - Expand influencer seeding in key markets  
+  - **Spend:** £20 000  
+  - **KPIs:** Influencer reach ≥ 5 000 000; Day-3 retention ≥ 35 %  
+
+- **Week +10**  
+  - Deploy localized referral boosts per invite  
+  - **Spend:** £20 000  
+  - **KPIs:** Regional K-factor ≥ 0.35; Day-3 retention ≥ 35 %  
+
+- **Week +11**  
+  - Conduct regional community AMAs and Q&As  
+  - **Spend:** £10 000  
+  - **KPIs:** AMA attendance ≥ 1 000; Day-3 retention ≥ 35 %  
+
+- **Week +12**  
+  - Review Weeks +5–+12 performance; **Go/No-Go** gate for next phase  
+  - **Spend:** £10 000  
+  - **KPIs:** Cumulative MAU ≥ 3 000 000; overall Day-3 retention ≥ 35 %  
+
+> **Core sprint total:** £ District455 000  
+> **Combined with Pre-work:** £533 000  
+> **Contingency (10 %):** £53 000  
+> **Revised total budget:** ~£586 000
+
+[USER]
+as a chief product officer assess the timeline
+
+[ASSISTANT]
+**Chief Product Officer Assessment of the Weekly GTM Timeline**
+
+---
+
+### 1. Product Validation & Iteration  
+- **Strengths:**  
+  - **Strategic pre-work** (Weeks –26 to –23) gives six full months for competitive research, architecture freeze and analytics instrumentation—essential for data-driven feature decisions.  
+  - **Closed alpha in Week –8** with clear retention and quality gates ensures early signal on core gameplay loops.
+
+- **Risks & Recommendations:**  
+  - **Alpha duration (Weeks –8 to –7) is just two weeks.** In practice, you’ll want at least three to four weeks of active “alpha + soft beta” user feedback to uncover edge-case bugs and finalize onboarding flows. Consider extending alpha through Week –6 and shifting lore-drops later.  
+  - **No public beta phase.** A small opt-in beta in Week –5 (before community seeding) would surface critical UX friction and let you A/B test launch messaging.
+
+---
+
+### 2. Feature Freeze & Build-Readiness  
+- **Strengths:**  
+  - **Week –25 feature-freeze milestone** locks in scope six months ahead—good to minimize last-minute scope creep.  
+  - **Code & asset freeze in Week –16** enforces stability before creative work ramps up.
+
+- **Risks & Recommendations:**  
+  - **Lack of mid-cycle product refinements.** After the initial style-guide, storyboard and launch video are locked, there’s no scheduled UX polish sprints. I’d schedule a “Product Polish Sprint” in Week –10 to tackle any alpha feedback, refine tutorials and tweak core loops.  
+  - **Telemetry dashboards go live in Week –23,** but product teams only get one week (Week –22) before alpha to instrument and test them. It’s tight—shift telemetry sign-off to Week –24 so devs can iterate dashboards alongside QA.
+
+---
+
+### 3. Onboarding & Retention Engineering  
+- **Strengths:**  
+  - **Explicit Day-0, Day-1, Day-7 and Day-30 retention gates** give clear go/no-go metrics for both pre-launch and early scale phases.  
+  - **Server latency and crash-rate SLAs** are enforced during alpha and launch.
+
+- **Risks & Recommendations:**  
+  - **First-time user (FTUE) flow isn’t stress-tested publicly.** Embed a “Lightning Launch” beta group of 1,000 users in Week –6 to validate tutorials, payment flows and referral prompts under real-world conditions.  
+  - **No “churn diagnostic sprint”** in Weeks +2 to +3. If retention dips below targets, there’s no dedicated slot to troubleshoot—consider carving out 3–4 days in Week +3 solely for deep dives on user drop-off.
+
+---
+
+### 4. Feature Roadmap Alignment  
+- **Strengths:**  
+  - **“Clan Wars” content drop in Week +4** and a seasonal Battle Pass planned later give a clear live-ops cadence.  
+  - **Mid-cycle asset refresh** and micro-influencer push in Weeks +6 and +7 tie product events to marketing.
+
+- **Risks & Recommendations:**  
+  - **Battle Pass timing is unclear.** If planned for Months 4–6, slot a teaser or feature spec discussion in Week +10 so community knows what’s coming.  
+  - **No explicit backlog grooming for Weeks +8–+12.** Book a “Next Features” workshop in Week +8 to align product, live-ops and marketing on upcoming roadmap.
+
+---
+
+### 5. Cross-Functional Collaboration  
+- **Strengths:**  
+  - **“Game-day” war-room drills** in Week –17 and 24/7 support at launch demonstrate strong operational readiness.  
+  - **Go/No-Go gates** ensure that product, engineering, marketing and exec teams are aligned at every milestone.
+
+- **Risks & Recommendations:**  
+  - **Too few structured syncs post-launch.** Schedule brief cross-functional check-ins in Weeks +2, +6 and +10 to ensure product fixes, new features and marketing tactics remain tightly integrated.  
+  - **Community feedback loops** aren’t formalized after Week +1. Institute a weekly product-community review—pull top user suggestions each Friday to prioritize quick wins.
+
+---
+
+**Overall Verdict:**  
+The timeline is **well-scoped** and **data-driven**, with robust gating and risk buffers. To optimize product success, I’d:
+
+1. **Extend alpha to Week –6** and add a small public beta in Week –5.  
+2. **Front-load telemetry** and add a “product polish sprint” in Week –10.  
+3. **Build in rapid churn diagnostics** in the first two weeks post-launch.  
+4. **Formalize ongoing cross-team syncs** through Week +12.
+
+With these tweaks, our product roadmap, testing cadence and launch readiness will be bullet-proof for a Telegram-centric title.
+
+[USER]
+fix it
+
+[ASSISTANT]
+**Updated Weekly Timeline & Budgets (Pre-work → Week +12)**  
+_Includes CPO fixes: front-loaded telemetry, Product Polish Sprint, extended alpha, public beta, shifted lore-drops, churn diagnostics, community syncs, and channel activation._  
+
+---
+
+## Pre-work Phase (Weeks –26 to –13)
+
+- **Week –26**  
+  - Competitive Scan, Total Addressable Market sizing, USP stress-test; deliver SWOT & white-space report  
+  - **Spend:** £10 000  
+  - **KPIs:** Concept sign-off ≤ 2 weeks; ≥ 3 white-space opportunities  
+
+- **Week –25**  
+  - Finalize high-level roadmap & feature-freeze milestone; lock Telegram bot architecture  
+  - **Spend:** £5 000  
+  - **KPIs:** Architecture doc approved by Engineering & Security  
+
+- **Week –24**  
+  - Security & compliance audit (+20 % pad); provision infra for 100 000 peak CCU (+£5 k reserve)  
+  - Telemetry instrumentation setup in Telemetry.io (events, dashboards)  
+  - **Spend:** £15 000  
+  - **KPIs:** Audit sign-off; dashboards live; infra sustains 2× expected load  
+
+- **Week –23**  
+  - Recruit & train **10** community moderators (+£3 k)  
+  - Finalize moderation policy  
+  - **Spend:** £8 000  
+  - **KPIs:** Moderation staffing at 100 %; playbook complete  
+
+- **Week –22**  
+  - **Legal buffer:** finalize privacy policy, bot registration, local compliance (+£3 k)  
+  - **Spend:** £8 000  
+  - **KPIs:** All legal docs signed; compliance sign-off for BR/IN/PH  
+
+- **Week –21**  
+  - Recruit UA, Creative & Community teams to full capacity  
+  - **Spend:** £5 000  
+  - **KPIs:** Teams at 100 % capacity  
+
+- **Week –20**  
+  - Payment-gateway setup & end-to-end in-bot purchase testing  
+  - **Spend:** £5 000  
+  - **KPIs:** Purchase flow ≥ 99 % success  
+
+- **Week –19**  
+  - Build & validate bot infra in staging (webhooks, rate-limits) + tech reserve (+£5 k)  
+  - **Spend:** £12 000  
+  - **KPIs:** Staging error-rate < 1 %; reserve capacity validated  
+
+- **Week –18**  
+  - End-to-end QA: onboarding, core loops, referral mechanics  
+  - **Spend:** £5 000  
+  - **KPIs:** QA pass-rate ≥ 95 %; crash/error rate < 2 %  
+
+- **Week –17**  
+  - Dry-run analytics events, tags & attribution; “game-day” war-room drill  
+  - **Spend:** £3 000  
+  - **KPIs:** Zero critical issues  
+
+- **Week –16**  
+  - Exec sign-off on GTM, budget & risk register; enforce code & asset freeze  
+  - **Spend:** £2 000  
+  - **KPIs:** Change-freeze in effect  
+
+- **Week –15**  
+  - Buffer for last-mile fixes; begin creative hand-off for Week –12  
+  - **Spend:** £3 000  
+  - **KPIs:** Pre-work 100 % complete  
+
+- **Week –14**  
+  - Finalize any pending deliverables  
+  - **Spend:** £1 000  
+  - **KPIs:** All critical paths cleared  
+
+- **Week –13**  
+  - Final readiness review & **Go/No-Go** gate for Foundation phase  
+  - **Spend:** £1 000  
+  - **KPIs:** All pre-work KPIs met → green light  
+
+> **Pre-work total:** £78 000  
+
+---
+
+## Core GTM Sprint (Weeks –12 to +12)
+
+- **Week –12**  
+  - Refresh Competitive Scan/TAM/USP; draft brand identity & avatar art  
+  - **Spend:** £5 000  
+  - **KPIs:** Deck CTR ≥ 2 %; Day-0 retention ≥ 60 %  
+
+- **Week –11**  
+  - Finalize brand & avatar art; begin UI style guide  
+  - **Spend:** £5 000  
+  - **KPIs:** Asset approval ≤ 3 business days  
+
+- **Week –10**  
+  - **Product Polish Sprint:** refine onboarding tutorial, UX flows & core loops based on alpha feedback  
+  - **Spend:** £5 000  
+  - **KPIs:** Tutorial completion ≥ 90 %; user satisfaction (NPS) ≥ 60 %  
+
+- **Week –9**  
+  - Finalize teaser storyboard; prep trailer shot list & schedule  
+  - **Spend:** £5 000  
+  - **KPIs:** Production kickoff on schedule  
+
+- **Week –8**  
+  - **Activate official Telegram channel & supergroup**; host welcome events  
+  - Shoot & post-produce **launch video** (vertical, ≤ 60 s)  
+  - Create hero key art; spin up closed alpha (30 players)  
+  - **Spend:** £20 000  
+  - **KPIs:** Early-ad CTR ≥ 3 %; Day-1 retention ≥ 50 %; alpha crash/error < 2 %  
+
+- **Week –7**  
+  - Daily alpha play-tests & pacing tweaks; capture gameplay clips  
+  - **Spend:** £10 000  
+  - **KPIs:** Avg. alpha session ≥ 10 min; server latency < 2 s  
+
+- **Week –6**  
+  - Continue closed alpha; finalize pacing & tech stability  
+  - **Spend:** £0 (internal)  
+  - **KPIs:** Alpha retention ≥ 60 %; alpha error-rate < 1 %  
+
+- **Week –5**  
+  - **Public Beta (1 000 users):** surface UX friction, tutorial validation & referral prompts  
+  - Plan Telegram-native lore drops & design sticker pack  
+  - **Spend:** £5 000  
+  - **KPIs:** Beta tutorial completion ≥ 90 %; beta user NPS ≥ 60 %  
+
+- **Week –4**  
+  - Launch whitelist microsite & Telegram bot; boost posts  
+  - Conduct lore-drop #1 in-channel  
+  - **Spend:** £5 000  
+  - **KPIs:** 10 000 sign-ups; Cost Per Action ≤ £0.40  
+
+- **Week –3**  
+  - Sign 10 mid-tier Telegram & YouTube creators (~15 M reach); distribute co-marketing kits  
+  - **Spend:** £25 000  
+  - **KPIs:** 50 000 pre-installs; ROI ≥ 8×  
+
+- **Week –2**  
+  - UA dry-run on Meta & TikTok; deploy invite-a-friend bot  
+  - **Spend:** £30 000  
+  - **KPIs:** CPI ≤ £0.35; K-factor ≥ 0.3  
+
+- **Week 0**  
+  - Publish & pin **launch video**; go live on Telegram; creator tournament livestream; PR push; 24/7 war-room; **+£10 k agility fund**  
+  - **Spend:** £80 000  
+  - **KPIs:** Day-0 installs ≥ 500 000; CPI ≤ £0.50; peak CCU ≥ 50 000; server latency < 2 s  
+
+- **Week +1**  
+  - Optimize onboarding via Telemetry.io dashboards; launch weekly **Product-Community Review**  
+  - **Spend:** £50 000  
+  - **KPIs:** Onboarding drop-off < 25 %; Day-7 retention ≥ 25 %; weekly feedback loop active  
+
+- **Week +2**  
+  - Builder-pack viral incentives; meme-relay contest; **cross-functional sync**  
+  - **Spend:** £15 000  
+  - **KPIs:** K-factor ≥ 0.4; organic share ≥ 30 %  
+
+- **Week +3**  
+  - Economy & price-point A/B tests; community AMA; **Churn Diagnostic Sprint** (deep dive on drop-off)  
+  - **Spend:** £10 000  
+  - **KPIs:** ARPDAU ≥ £0.05; churn causes identified; solutions backlog created  
+
+- **Week +4**  
+  - Release “Clan Wars” update; Gamezebo takeover  
+  - **Spend:** £40 000  
+  - **KPIs:** MAU ≥ 1 000 000; Day-30 retention ≥ 15 %  
+
+- **Week +5**  
+  - Produce localized creatives for Brazil, India, Philippines  
+  - **Spend:** £20 000  
+  - **KPIs:** CPI ≤ £0.25; Day-3 retention ≥ 35 %  
+
+- **Week +6**  
+  - Launch PropellerAds campaigns; **mid-cycle asset refresh**  
+  - **Spend:** £30 000  
+  - **KPIs:** Weekly uniques ≥ 500 000; asset uplift ≥ 15 %; **cross-functional sync**  
+
+- **Week +7**  
+  - Host regional prize tournaments; **Micro-influencer Push**  
+  - **Spend:** £35 000  
+  - **KPIs:** Tournament participants ≥ 10 000; micro-content views ≥ 1 000 000  
+
+- **Week +8**  
+  - Analyze regional performance; optimize creatives & targeting; **mid-phase retention check**  
+  - **Spend:** £25 000  
+  - **KPIs:** Regional ROI ≥ 4×; Day-3 retention ≥ 35 %  
+
+- **Week +9**  
+  - Expand influencer seeding in key markets  
+  - **Spend:** £20 000  
+  - **KPIs:** Influencer reach ≥ 5 000 000; Day-3 retention ≥ 35 %  
+
+- **Week +10**  
+  - Deploy localized referral boosts; **cross-functional sync**  
+  - **Spend:** £20 000  
+  - **KPIs:** Regional K-factor ≥ 0.35; Day-3 retention ≥ 35 %  
+
+- **Week +11**  
+  - Conduct regional community AMAs & Q&As  
+  - **Spend:** £10 000  
+  - **KPIs:** AMA attendance ≥ 1 000; Day-3 retention ≥ 35 %  
+
+- **Week +12**  
+  - Review Weeks +5–+12 performance; **Go/No-Go** gate for next phase  
+  - **Spend:** £10 000  
+  - **KPIs:** Cumulative MAU ≥ 3 000 000; overall Day-3 retention ≥ 35 %  
+
+> **Core sprint total:** £455 000  
+> **Combined with Pre-work:** £533 000  
+> **Contingency (10 %):** £53 000  
+> **Revised total budget:** ~£586 000
+
+[USER]
+as a cto review and assess the timeline
+
+[ASSISTANT]
+**CTO Assessment of the Revised Weekly GTM Timeline**
+
+Overall, the timeline shows strong technical discipline—security audits, infrastructure provisioning, telemetry setup, QA gates and code freezes are all in place. However, from a technology leadership standpoint there are some gaps and optimizations to consider.
+
+---
+
+## 1. Architecture & Infrastructure Readiness  
+- **Strengths:**  
+  - Early lock-in of Telegram bot architecture (Week –25) prevents late-stage refactors.  
+  - Capacity provisioned for 100 k peak concurrent users (Weeks –24/–19) with a 2× load-test KPI.  
+  - Tech reserve (+£5 k) built into staging validation (Week –19).  
+
+- **Risks & Recommendations:**  
+  - **No mention of multi-region deployment or CDN** for global coverage—critical for low-latency delivery in Brazil, India, Philippines. Add a “Global Infra Design” task in Week –23.  
+  - **Lack of disaster-recovery (DR) planning**: schedule a tabletop DR drill in Week –17 alongside the war-room drill, and formalize RPO/RTO targets.  
+  - **Infrastructure as Code (IaC)** isn’t called out—introduce Terraform/CloudFormation pipelines by Week –24 to ensure reproducible environments.
+
+---
+
+## 2. Scalability & Performance  
+- **Strengths:**  
+  - SLAs for server latency (< 2 s) and crash/error rates (< 2 %) during alpha and launch.  
+
+- **Risks & Recommendations:**  
+  - **Load-testing cadence** is only implied in pre-work. Formalize bi-weekly load tests from Week –19 to Week –5, ramping to 150 % of expected CCU.  
+  - **No chaos engineering or canary deployments**: incorporate simple fault-injection drills in Week –18 and canary rollout procedures in Week 0 to catch production issues early.
+
+---
+
+## 3. Observability & Telemetry  
+- **Strengths:**  
+  - Telemetry instrumentation and dashboards go live in Week –24—with real-time analytics from Day 0.  
+
+- **Risks & Recommendations:**  
+  - **Metric coverage gap**: ensure you instrument not only UX events but also system metrics (CPU, memory, queue length, API latency). Assign telemetry owners in Week –23.  
+  - **Tracing & logging**: integrate distributed tracing (e.g. OpenTelemetry) and centralized log aggregation (ELK/CloudWatch) by Week –22 so performance issues can be debugged end-to-end.
+
+---
+
+## 4. CI/CD & Release Engineering  
+- **Strengths:**  
+  - Clear code & asset freeze in Week –16 prevents drift.  
+
+- **Risks & Recommendations:**  
+  - **No dedicated CI/CD setup task**: add a Week –25 subtask to build automated pipelines with unit, integration and security scans.  
+  - **Feature-flag capability** is missing—implement a flags framework (LaunchDarkly, Unleash) in Week –24 so you can safely toggle features post-launch.
+
+---
+
+## 5. Security & Compliance  
+- **Strengths:**  
+  - Security/compliance audit early with 20 % budget padding.  
+
+- **Risks & Recommendations:**  
+  - **Ongoing security monitoring**: plan to integrate automated vulnerability scanning (Snyk/Dependabot) into your CI by Week –23, and schedule a penetration test in Week –6.  
+  - **Secrets management**: introduce a vault (AWS Secrets Manager / HashiCorp Vault) in Week –24 to avoid hard-coded credentials.
+
+---
+
+## 6. Data Privacy & Governance  
+- **Strengths:**  
+  - Legal buffer for privacy policy and regional compliance (Week –22).  
+
+- **Risks & Recommendations:**  
+  - **No data retention policy**: define how long telemetry and user data are stored, and implement automated purge jobs by Week –20.  
+  - **Consent flow**: ensure GDPR-style consent banners or opt-in messaging built into the bot onboarding in Week –10.
+
+---
+
+## 7. Technical Team & Practices  
+- **Strengths:**  
+  - Early recruitment of engineering-adjacent roles ensures staffing ahead of sprint tasks.  
+
+- **Risks & Recommendations:**  
+  - **DevOps skill gap**: verify your team includes at least one dedicated DevOps/SRE engineer by Week –21.  
+  - **On-call rotations**: formalize post-launch on-call schedules and run a handover drill in Week –17.
+
+---
+
+### **Conclusion & Next Steps**  
+The GTM timeline demonstrates mature technical gating, but to harden it for a global, high-scale Telegram launch you should:
+
+1. **Add multi-region architecture and CDN planning** by Week –23.  
+2. **Formalize CI/CD pipelines and feature flags** by Week –25/–24.  
+3. **Expand observability** with distributed tracing and system metrics by Week –22.  
+4. **Introduce chaos engineering and DR drills** in Weeks –19 and –17.  
+5. **Implement security monitoring and secrets vault** by Week –24.  
+
+Addressing these will ensure the platform is robust, scalable and maintainable under real-world load and risk conditions.
+
+[USER]
+fix it 
+
+[ASSISTANT]
+**Updated Weekly Timeline & Budgets (Pre-work → Week +12)**  
+_Includes CTO-driven infrastructure, DevOps, observability, security and DR enhancements._
+
+---
+
+## Pre-work Phase (Weeks –26 to –13)
+
+- **Week –26**  
+  - Competitive Scan, Total Addressable Market sizing, Unique Selling Proposition stress-test; deliver SWOT & white-space report  
+  - **Spend:** £10 000  
+  - **KPIs:** Concept sign-off ≤ 2 weeks; ≥ 3 white-space opportunities  
+
+- **Week –25**  
+  - Finalize high-level roadmap & feature-freeze milestone  
+  - Lock Telegram bot architecture, including multi-region deployment design and CDN plan  
+  - **Spend:** £5 000  
+  - **KPIs:** Architecture doc approved by Engineering & Security  
+
+- **Week –24**  
+  - Provision infrastructure as code (IaC) pipelines, CI/CD setup and feature-flag framework  
+  - Integrate secrets management vault and initial automated vulnerability scanning  
+  - Security & compliance audit (+20 % pad)  
+  - **Spend:** £20 000  
+  - **KPIs:** Audit sign-off; IaC pipelines live; first scan issues < 5; infra sustains 2× expected load  
+
+- **Week –23**  
+  - Instrument analytics, system metrics, distributed tracing and centralized logging in Telemetry.io  
+  - Draft and schedule bi-weekly load-test plan  
+  - Draft Disaster-Recovery (DR) plan  
+  - Recruit & train 10 community moderators; finalize moderation policy  
+  - **Spend:** £8 000  
+  - **KPIs:** Dashboards live; tracing/logging validated; moderation staffing at 100 %; DR plan reviewed  
+
+- **Week –22**  
+  - **DR tabletop drill** alongside war-room process  
+  - Finalize privacy policy, bot registration and regional compliance for BR/IN/PH  
+  - **Spend:** £8 000  
+  - **KPIs:** Zero critical DR gaps; all legal/compliance sign-offs  
+
+- **Week –21**  
+  - Recruit DevOps/SRE engineer and finalize on-call rotation schedules  
+  - Recruit UA, Creative & Community teams to full capacity  
+  - **Spend:** £5 000  
+  - **KPIs:** SRE on-boarded; on-call roster published; teams at 100 % capacity  
+
+- **Week –20**  
+  - Payment-gateway setup & end-to-end in-bot purchase testing  
+  - Define data-retention policy and implement automated purge jobs  
+  - **Spend:** £5 000  
+  - **KPIs:** Purchase flow ≥ 99 % success; data purge job tested  
+
+- **Week –19**  
+  - Build & validate bot infra in staging (webhooks, rate-limits)  
+  - **Chaos engineering drill** (fault injection) and first load test at 50 % CCU  
+  - **Spend:** £12 000  
+  - **KPIs:** Staging error-rate < 1 %; chaos drill issues resolved; load-test metrics logged  
+
+- **Week –18**  
+  - End-to-end QA: onboarding, core loops, referral mechanics  
+  - Second load test at 100 % CCU  
+  - **Spend:** £5 000  
+  - **KPIs:** QA pass-rate ≥ 95 %; crash/error rate < 2 %; performance within latency SLA  
+
+- **Week –17**  
+  - Dry-run analytics, marketing tags & attribution; **game-day war-room + on-call drill**  
+  - **Spend:** £3 000  
+  - **KPIs:** Zero critical issues in drill; on-call handover validated  
+
+- **Week –16**  
+  - Executive sign-off on GTM, budget & risk register; enforce code & asset freeze  
+  - **Spend:** £2 000  
+  - **KPIs:** Change-freeze in effect  
+
+- **Week –15**  
+  - Buffer for last-mile fixes; begin creative hand-off for Week –12  
+  - **Spend:** £3 000  
+  - **KPIs:** Pre-work 100 % complete  
+
+- **Week –14**  
+  - Finalize any pending deliverables  
+  - **Spend:** £1 000  
+  - **KPIs:** All critical paths cleared  
+
+- **Week –13**  
+  - Final readiness review & **Go/No-Go** gate for Foundation phase  
+  - **Spend:** £1 000  
+  - **KPIs:** All pre-work KPIs met → green light  
+
+> **Pre-work total:** £83 000  
+
+---
+
+## Core GTM Sprint (Weeks –12 to +12)
+
+- **Week –12**  
+  - Refresh Competitive Scan/TAM/USP; draft brand identity & avatar art  
+  - **Spend:** £5 000  
+  - **KPIs:** Deck CTR ≥ 2 %; Day-0 retention ≥ 60 %  
+
+- **Week –11**  
+  - Finalize brand & avatar art; begin UI style guide  
+  - **Spend:** £5 000  
+  - **KPIs:** Asset approval ≤ 3 business days  
+
+- **Week –10**  
+  - **Product Polish Sprint:** refine onboarding tutorial, UX flows & core loops based on alpha feedback  
+  - **Consent-flow integration** (GDPR-style onboarding opt-in)  
+  - **Spend:** £5 000  
+  - **KPIs:** Tutorial completion ≥ 90 %; user satisfaction (NPS) ≥ 60 %  
+
+- **Week –9**  
+  - Finalize teaser storyboard; prep trailer shot list & schedule  
+  - **Spend:** £5 000  
+  - **KPIs:** Production kickoff on schedule  
+
+- **Week –8**  
+  - Activate official Telegram channel & supergroup; host welcome events  
+  - Shoot & post-produce **launch video** (vertical ≤ 60 s)  
+  - Create hero key art; spin up closed alpha (30 players)  
+  - **Spend:** £20 000  
+  - **KPIs:** Early-ad CTR ≥ 3 %; Day-1 retention ≥ 50 %; alpha crash/error < 2 %  
+
+- **Week –7**  
+  - Daily alpha play-tests & pacing tweaks; capture gameplay clips  
+  - **Spend:** £10 000  
+  - **KPIs:** Avg. alpha session ≥ 10 min; server latency < 2 s  
+
+- **Week –6**  
+  - Continue closed alpha; finalize pacing & tech stability  
+  - **Spend:** £0 (internal)  
+  - **KPIs:** Alpha retention ≥ 60 %; alpha error-rate < 1 %  
+
+- **Week –5**  
+  - **Public Beta (1 000 users):** surface UX friction, referral prompt validation  
+  - Plan Telegram-native lore drops & design sticker pack  
+  - **Spend:** £5 000  
+  - **KPIs:** Beta tutorial completion ≥ 90 %; beta user NPS ≥ 60 %  
+
+- **Week –4**  
+  - Launch whitelist microsite & Telegram bot; conduct lore-drop #1  
+  - **Spend:** £5 000  
+  - **KPIs:** 10 000 sign-ups; Cost Per Action ≤ £0.40  
+
+- **Week –3**  
+  - Sign 10 mid-tier Telegram & YouTube creators (~15 M reach); distribute kits  
+  - **Spend:** £25 000  
+  - **KPIs:** 50 000 pre-installs; ROI ≥ 8×  
+
+- **Week –2**  
+  - UA dry-run on Meta & TikTok; deploy invite-a-friend bot  
+  - **Spend:** £30 000  
+  - **KPIs:** CPI ≤ £0.35; K-factor ≥ 0.3  
+
+- **Week 0**  
+  - Publish & pin **launch video**; go live on Telegram; creator tournament livestream; PR push; 24/7 war-room; **+£10 k agility fund**  
+  - **Spend:** £80 000  
+  - **KPIs:** Day-0 installs ≥ 500 000; CPI ≤ £0.50; peak CCU ≥ 50 000; server latency < 2 s  
+
+- **Week +1**  
+  - Optimize onboarding via Telemetry.io dashboards; launch Weekly Product-Community Review  
+  - **Spend:** £50 000  
+  - **KPIs:** Onboard drop-off < 25 %; Day-7 retention ≥ 25 %; review meeting held  
+
+- **Week +2**  
+  - Builder-pack viral incentives; meme-relay contest; cross-functional sync  
+  - **Spend:** £15 000  
+  - **KPIs:** K-factor ≥ 0.4; organic share ≥ 30 %  
+
+- **Week +3**  
+  - Economy & price-point A/B tests; community AMA; Churn Diagnostic Sprint  
+  - **Spend:** £10 000  
+  - **KPIs:** ARPDAU ≥ £0.05; churn causes identified; backlog created  
+
+- **Week +4**  
+  - Release “Clan Wars” update; Gamezebo takeover  
+  - **Spend:** £40 000  
+  - **KPIs:** MAU ≥ 1 000 000; Day-30 retention ≥ 15 %  
+
+- **Week +5**  
+  - Produce localized creatives for Brazil, India, Philippines  
+  - **Spend:** £20 000  
+  - **KPIs:** CPI ≤ £0.25; Day-3 retention ≥ 35 %  
+
+- **Week +6**  
+  - Launch PropellerAds campaigns; mid-cycle asset refresh; cross-functional sync  
+  - **Spend:** £30 000  
+  - **KPIs:** Weekly uniques ≥ 500 000; asset uplift ≥ 15 %  
+
+- **Week +7**  
+  - Host regional prize tournaments; Micro-influencer push  
+  - **Spend:** £35 000  
+  - **KPIs:** Tournament participants ≥ 10 000; micro-content views ≥ 1 000 000  
+
+- **Week +8**  
+  - Analyze regional performance; optimize targeting; mid-phase retention check  
+  - **Spend:** £25 000  
+  - **KPIs:** Regional ROI ≥ 4×; Day-3 retention ≥ 35 %  
+
+- **Week +9**  
+  - Expand influencer seeding  
+  - **Spend:** £20 000  
+  - **KPIs:** Influencer reach ≥ 5 000 000; Day-3 retention ≥ 35 %  
+
+- **Week +10**  
+  - Deploy localized referral boosts; cross-functional sync  
+  - **Spend:** £20 000  
+  - **KPIs:** Regional K-factor ≥ 0.35; Day-3 retention ≥ 35 %  
+
+- **Week +11**  
+  - Conduct regional community AMAs & Q&As  
+  - **Spend:** £10 000  
+  - **KPIs:** AMA attendance ≥ 1 000; Day-3 retention ≥ 35 %  
+
+- **Week +12**  
+  - Review Weeks +5–+12 performance; **Go/No-Go** gate for next phase  
+  - **Spend:** £10 000  
+  - **KPIs:** Cumulative MAU ≥ 3 000 000; overall Day-3 retention ≥ 35 %  
+
+> **Core sprint total:** £455 000  
+> **Combined with Pre-work:** £538 000  
+> **Contingency (10 %):** £54 000  
+> **Revised total budget:** ~£592 000  
+
+[USER]
+as a chief product officer assess the new timeline
+
+[ASSISTANT]
+**Chief Product Officer Assessment of the Final Weekly GTM Timeline**
+
+---
+
+### 1. Product Validation & Iteration  
+- **Strengths:**  
+  - **Extended closed-alpha through Week –6** gives extra runway to tune core loops and stability.  
+  - **Public beta (1 000 users) in Week –5** surfaces real-world onboarding friction and validates tutorial & referral flows.  
+  - **Product-Polish Sprint (Week –10)** explicitly refines UX based on alpha feedback.  
+
+- **Risks & Recommendations:**  
+  - **Feedback cadence:** Alpha → beta → launch has only two major feedback gates. Consider a **mini-sprint** in Week –7 for rapid bug fixes and UX tweaks before beta.  
+  - **Feature backlog:** No explicit “backlog grooming” session post-beta; schedule one in Week –4 to prioritize fixes and small polish items before launch.
+
+---
+
+### 2. Onboarding & Retention Engineering  
+- **Strengths:**  
+  - **Telemetry & consent flow** front-loaded in pre-work ensures all UX events and compliance hooks are tracked from Day 0.  
+  - **Churn-Diagnostic Sprint (Week +3)** dedicated to deep-dive on drop-off, with clear metrics for ARPDAU and churn root-cause.  
+
+- **Risks & Recommendations:**  
+  - **First-Time User Experience (FTUE):** Beta and polish sprints cover tutorials, but no stress-test under load. Add a **“Lightning Launch”** pilot group (500 users) in Week –3 to validate FTUE at scale.  
+  - **Retention loops:** Weekly live-ops and content drops are in place, yet no mid-week micro-updates; carve out small “surprise & delight” pushes (e.g. mini-quests) in Weeks +2 and +6.
+
+---
+
+### 3. Feature Roadmap & Live-Ops Cadence  
+- **Strengths:**  
+  - **“Clan Wars” update (Week +4)** and mid-cycle asset refresh drive sustained engagement.  
+  - **Micro-influencer push (Week +7)** aligns with live-ops events for maximum visibility.  
+
+- **Risks & Recommendations:**  
+  - **Battle Pass tease:** The roadmap mentions seasonal passes but no teaser; schedule a **Battle Pass Preview** in Week +8 to build anticipation.  
+  - **Future roadmap alignment:** Host a **“Next Features” workshop** in Week +10 so product, marketing and ops teams are synchronized on Q3 additions.
+
+---
+
+### 4. Cross-Functional Collaboration & Governance  
+- **Strengths:**  
+  - **Weekly Product-Community Review** (Week +1) and **cross-functional syncs** in Weeks +2, +6, +10 keep teams aligned.  
+  - **Go/No-Go gates** at key milestones enforce discipline and minimize sunk cost.
+
+- **Risks & Recommendations:**  
+  - **Dashboard visibility:** Ensure that **Telegram-specific metrics** (channel open rate, sticker usage) are included in the weekly reports from Week +1 onward.  
+  - **Stakeholder updates:** Add a **bi-weekly exec briefing** in Weeks –8, 0, +4 and +12 to maintain visibility at the C-suite level.
+
+---
+
+### 5. Timeline & Budget Fit  
+- **Strengths:**  
+  - Product team milestones are tightly coupled with marketing spend and gating KPIs.  
+  - Technical, compliance and moderation buffers are well-resourced.
+
+- **Risks & Recommendations:**  
+  - **Resource balance:** The **Product-Polish Sprint** and **Churn Diagnostic Sprint** each budget £5 000–£10 000 but may require more engineering support; validate that dev capacity is secured.  
+  - **Contingency usage:** Keep the **10 % reserve** flexible, ready to fund unexpected product tweaks in Weeks –7 and +3.
+
+---
+
+**Overall Verdict:**  
+This timeline is **robust** and **data-driven**, with strong feedback loops, clear UX gates and integrated live-ops planning. By adding a scaled FTUE stress-test, a Battle Pass tease, and ensuring exec-level syncs, we’ll maximize user satisfaction, retention and strategic visibility for Sarge Universe on Telegram.
+
+[USER]
+fix it 
+
+[ASSISTANT]
+**Updated Weekly GTM Timeline & Budgets (Pre-work → Week +12)**  
+_Includes CPO fixes: mini-sprint in Week –7, backlog grooming, FTUE stress-test, “surprise & delight” quests, Battle Pass preview, Next Features workshop, bi-weekly exec briefings._
+
+---
+
+## Pre-work Phase (Weeks –26 to –13)
+
+- **Week –26**  
+  - Competitive Scan, TAM sizing, USP stress-test; deliver SWOT & white-space report  
+  - **Spend:** £10 000  
+  - **KPIs:** Concept sign-off ≤ 2 weeks; ≥ 3 white-space opportunities  
+
+- **Week –25**  
+  - Finalize roadmap & feature-freeze; lock multi-region bot architecture & CDN plan  
+  - **Spend:** £5 000  
+  - **KPIs:** Architecture doc approved  
+
+- **Week –24**  
+  - IaC pipelines, CI/CD & feature-flags; secrets vault; vuln scanning; security audit (+20 %)  
+  - **Spend:** £20 000  
+  - **KPIs:** Audit sign-off; IaC live; infra ≥ 2× load  
+
+- **Week –23**  
+  - Instrument analytics, system metrics, tracing & logs; draft DR plan; recruit/train 10 mods  
+  - **Spend:** £8 000  
+  - **KPIs:** Dashboards live; DR plan reviewed; mods onboarded  
+
+- **Week –22**  
+  - DR tabletop drill; finalize privacy, bot registration & local compliance (BR/IN/PH)  
+  - **Spend:** £8 000  
+  - **KPIs:** No critical DR/legal gaps  
+
+- **Week –21**  
+  - Hire DevOps/SRE (on-call roster); complete UA/Creative/Community hiring  
+  - **Spend:** £5 000  
+  - **KPIs:** SRE on-boarded; teams at 100 %  
+
+- **Week –20**  
+  - Payment gateway & in-bot purchase end-to-end test; implement data-retention purge jobs  
+  - **Spend:** £5 000  
+  - **KPIs:** Purchase flow ≥ 99 %; data purge tested  
+
+- **Week –19**  
+  - Staging infra validation; chaos drill; 50 % CCU load test  
+  - **Spend:** £12 000  
+  - **KPIs:** Error-rate < 1 %; chaos issues resolved  
+
+- **Week –18**  
+  - QA all flows; 100 % CCU load test  
+  - **Spend:** £5 000  
+  - **KPIs:** QA ≥ 95 %; latency & crash SLAs met  
+
+- **Week –17**  
+  - Analytics dry-run, marketing tags & on-call war-room drill  
+  - **Spend:** £3 000  
+  - **KPIs:** Zero critical issues  
+
+- **Week –16**  
+  - Exec sign-off on GTM/budget/risk; code & asset freeze  
+  - **Spend:** £2 000  
+  - **KPIs:** Freeze enforced  
+
+- **Week –15**  
+  - Buffer for fixes; begin creative hand-off for Week –12  
+  - **Spend:** £3 000  
+  - **KPIs:** Pre-work 100 % complete  
+
+- **Week –14**  
+  - Finalize pending deliverables  
+  - **Spend:** £1 000  
+  - **KPIs:** All critical paths cleared  
+
+- **Week –13**  
+  - Final readiness review & Go/No-Go gate for Foundation  
+  - **Spend:** £1 000  
+  - **KPIs:** All pre-work KPIs met  
+
+> **Pre-work total:** £83 000  
+
+---
+
+## Core GTM Sprint (Weeks –12 to +12)
+
+- **Week –12**  
+  - Refresh Competitive Scan/TAM/USP; draft brand identity & avatar art  
+  - **Spend:** £5 000  
+  - **KPIs:** Deck CTR ≥ 2 %; Day-0 retention ≥ 60 %  
+
+- **Week –11**  
+  - Finalize brand & avatar art; begin UI style guide  
+  - **Spend:** £5 000  
+  - **KPIs:** Asset approval ≤ 3 days  
+
+- **Week –10**  
+  - Product-Polish Sprint: refine onboarding, UX & loops  
+  - Integrate GDPR-style consent flow  
+  - **Spend:** £5 000  
+  - **KPIs:** Tutorial completion ≥ 90 %; NPS ≥ 60 %  
+
+- **Week –9**  
+  - Finalize teaser storyboard; prep trailer shot list & schedule  
+  - **Spend:** £5 000  
+  - **KPIs:** Production kickoff on schedule  
+
+- **Week –8**  
+  - **Exec Briefing #1** to C-suite  
+  - Activate Telegram channel & supergroup; host welcome events  
+  - Shoot & post-produce launch video (vertical ≤ 60 s); hero key art; spin up closed alpha  
+  - **Spend:** £20 000  
+  - **KPIs:** Early-ad CTR ≥ 3 %; Day-1 retention ≥ 50 %; crash/error < 2 %  
+
+- **Week –7**  
+  - Mini-Sprint: rapid bug fixes & UX tweaks from alpha feedback  
+  - Daily alpha play-tests; capture gameplay clips  
+  - **Spend:** £10 000  
+  - **KPIs:** Avg. alpha session ≥ 10 min; latency < 2 s  
+
+- **Week –6**  
+  - Continue closed alpha; finalize stability & pacing  
+  - **Spend:** £0 (internal)  
+  - **KPIs:** Alpha retention ≥ 60 %; error-rate < 1 %  
+
+- **Week –5**  
+  - Public Beta (1 000 users): FTUE stress-test, tutorial & referral validation  
+  - Plan lore-drop #1 & design sticker pack  
+  - **Spend:** £5 000  
+  - **KPIs:** Beta tutorial completion ≥ 90 %; beta NPS ≥ 60 %  
+
+- **Week –4**  
+  - Backlog Grooming: prioritize beta fixes & polish items  
+  - Launch whitelist microsite & Telegram bot; conduct lore-drop #1  
+  - **Spend:** £5 000  
+  - **KPIs:** 10 000 sign-ups; CPA ≤ £0.40  
+
+- **Week –3**  
+  - FTUE Lightning Pilot (500 users) under load  
+  - Sign 10 mid-tier creators (~15 M reach); distribute kits  
+  - **Spend:** £25 000  
+  - **KPIs:** FTUE success ≥ 90 %; 50 000 pre-installs; ROI ≥ 8×  
+
+- **Week –2**  
+  - UA dry-run on Meta & TikTok; deploy invite-a-friend bot  
+  - **Spend:** £30 000  
+  - **KPIs:** CPI ≤ £0.35; K-factor ≥ 0.3  
+
+- **Week 0**  
+  - **Exec Briefing #2** to C-suite  
+  - Publish & pin launch video; go live on Telegram; creator tournament; PR push; 24/7 war-room  
+  - **Spend:** £80 000  
+  - **KPIs:** Day-0 installs ≥ 500 000; CPI ≤ £0.50; peak CCU ≥ 50 000; latency < 2 s  
+
+- **Week +1**  
+  - Optimize onboarding via Telemetry.io; launch Weekly Product-Community Review; track Telegram metrics  
+  - **Spend:** £50 000  
+  - **KPIs:** Drop-off < 25 %; Day-7 retention ≥ 25 %; review held  
+
+- **Week +2**  
+  - Builder-pack incentives; meme-relay contest; “surprise & delight” mini-quests; cross-functional sync  
+  - **Spend:** £15 000  
+  - **KPIs:** K-factor ≥ 0.4; organic share ≥ 30 %  
+
+- **Week +3**  
+  - Economy & price-point A/B tests; community AMA; Churn Diagnostic Sprint  
+  - **Spend:** £10 000  
+  - **KPIs:** ARPDAU ≥ £0.05; churn causes identified; backlog created  
+
+- **Week +4**  
+  - Release Clan Wars update; Gamezebo takeover; **Exec Briefing #3**  
+  - **Spend:** £40 000  
+  - **KPIs:** MAU ≥ 1 000 000; Day-30 retention ≥ 15 %  
+
+- **Week +5**  
+  - Localized creatives for BR/IN/PH  
+  - **Spend:** £20 000  
+  - **KPIs:** CPI ≤ £0.25; Day-3 retention ≥ 35 %  
+
+- **Week +6**  
+  - Launch PropellerAds; mid-cycle asset refresh; “surprise & delight” mini-quests; sync  
+  - **Spend:** £30 000  
+  - **KPIs:** Weekly uniques ≥ 500 000; asset uplift ≥ 15 %  
+
+- **Week +7**  
+  - Regional prize tournaments; micro-influencer push  
+  - **Spend:** £35 000  
+  - **KPIs:** Participants ≥ 10 000; micro-content views ≥ 1 000 000  
+
+- **Week +8**  
+  - Battle Pass Preview; analyze regional performance; optimize targeting; mid-phase retention check  
+  - **Spend:** £25 000  
+  - **KPIs:** Regional ROI ≥ 4×; Day-3 retention ≥ 35 %  
+
+- **Week +9**  
+  - Expand influencer seeding  
+  - **Spend:** £20 000  
+  - **KPIs:** Reach ≥ 5 000 000; Day-3 retention ≥ 35 %  
+
+- **Week +10**  
+  - Deploy localized referral boosts; Next Features workshop; sync  
+  - **Spend:** £20 000  
+  - **KPIs:** K-factor ≥ 0.35; workshop held  
+
+- **Week +11**  
+  - Regional AMAs & Q&As  
+  - **Spend:** £10 000  
+  - **KPIs:** AMA attendance ≥ 1 000; Day-3 retention ≥ 35 %  
+
+- **Week +12**  
+  - Review Weeks +5–+12; Go/No-Go gate; **Exec Briefing #4**  
+  - **Spend:** £10 000  
+  - **KPIs:** Cumulative MAU ≥ 3 000 000; overall Day-3 retention ≥ 35 %  
+
+> **Core Sprint Total:** £455 000  
+> **Combined w/ Pre-work:** £538 000  
+> **Contingency (10 %):** £54 000  
+> **Revised Total Budget:** ~£592 000
+
+[USER]
+review the timeline as the CPO, the chief publishing officer, the head of marketing and the ceo  and assess
+
+[ASSISTANT]
+**1. Chief Product Officer (CPO) Perspective**  
+- **Product Feedback Loops**  
+  - ✅ Extended closed-alpha through Week –6 and a 1 000-user public beta in Week –5 ensure robust FTUE and stability testing.  
+  - ⚠️ Missing a rapid “mini-sprint” review in Week –7 creates a gap between alpha feedback and beta readiness.  
+  - **Rec**: Add a 3-day bug-fix sprint in Week –7 before public beta kickoff.  
+
+- **Onboarding & Retention**  
+  - ✅ Telemetry and consent flows are instrumented up front (Weeks –24/–10) to capture key UX events.  
+  - ⚠️ No large-scale FTUE stress test under load until Week –3 Lightning Pilot; better to pivot that to Week –6 or Week –5.  
+  - **Rec**: Shift FTUE Lightning Pilot to Week –6 alongside final alpha stability checks.  
+
+- **Roadmap & Live-Ops**  
+  - ✅ Product-Polish Sprint (Week –10) and mid-cycle “surprise & delight” quests (Weeks +2/+6) drive continuous improvement.  
+  - ⚠️ Battle Pass Preview (Week +8) is late—players need earlier teaser to build excitement.  
+  - **Rec**: Tease Battle Pass in Week +6, immediately after asset refresh.  
+
+---
+
+**2. Chief Publishing Officer (CPO) Perspective**  
+- **Channel & Community**  
+  - ✅ Telegram channel activation in Week –8 with welcome events primes audience early.  
+  - ⚠️ Lore-drops (Weeks –5/–4) lack synchronized channel content schedule.  
+  - **Rec**: Map out a weekly “story beat” cadence in the channel from Week –8 through launch.  
+
+- **Creative Asset Cadence**  
+  - ✅ Launch video, hero art and sticker pack timelines align with influencer seeding.  
+  - ⚠️ Only one mid-cycle asset refresh (Week +6) risks creative fatigue.  
+  - **Rec**: Plan a second refresh in Week +10 tied to Next Features workshop.  
+
+- **Influencer & UGC**  
+  - ✅ Primary influencer push in Week –3 and micro-push in Week +7 bracket launch nicely.  
+  - ⚠️ No user-generated content (UGC) incentives beyond contests—missed organic reach.  
+  - **Rec**: Introduce a “Best Clip of the Week” UGC challenge from Week +1 onward.  
+
+---
+
+**3. Head of Marketing Perspective**  
+- **User Acquisition & Budget**  
+  - ✅ Multi-channel dry-runs (Weeks –2/0) and a £10 k agility fund make UA spend adaptive.  
+  - ⚠️ Launch-week spend (£80 k) vs. 500 k installs target implies a £0.16 CPI—still aggressive.  
+  - **Rec**: Reserve an additional £10 k contingency specifically for UA if CPI > £0.25.  
+
+- **Performance Metrics**  
+  - ✅ Clear CPI, CPA, K-factor and retention gates at each stage.  
+  - ⚠️ Telegram-specific metrics (sticker usage, bot commands) only tracked in Week +1.  
+  - **Rec**: Integrate those custom metrics into all dashboards before Week 0.  
+
+- **Mid-Phase Activation**  
+  - ✅ “Surprise & delight” quests and asset refresh drive re-engagement.  
+  - ⚠️ No paid retargeting plan outlined for lapsed Day 3–7 users.  
+  - **Rec**: Add a £15 k retargeting burst in Week +3 targeting Day 1–3 drop-offs.  
+
+---
+
+**4. CEO Perspective**  
+- **Overall Budget & ROI**  
+  - ✅ Total ~£592 k with 10 % contingency shows prudent financial planning.  
+  - ⚠️ Pre-work spend (£83 k) vs. core sprint (£455 k) vs. ROI horizons need alignment to P&L timelines.  
+  - **Rec**: Map expected break-even week post-launch based on current CPI/ARPDAU assumptions.  
+
+- **Risk Management & Governance**  
+  - ✅ Go/No-Go gates, bi-weekly exec briefings and DR drills ensure cross-functional accountability.  
+  - ⚠️ Heavy reliance on retention gates—failure at Day 7 or Day 30 could cascade into overspend.  
+  - **Rec**: Empower a “kill switch” authority at Day 7 gate to pause UA if retention < 25 %.  
+
+- **Strategic Alignment**  
+  - ✅ The plan tightly integrates product, publishing, marketing and engineering.  
+  - ⚠️ Lack of explicit C-suite alignment sessions post-launch beyond briefings.  
+  - **Rec**: Schedule monthly all-hands reviews (Weeks +4, +8, +12) to track progress against Q3/Q4 objectives.  
+
+---
+
+**Summary:**  
+The timeline is **comprehensive** and **well-gated**, with clear roles and budgets. Each function sees strong foundations and calls out a handful of tactical refinements—adding those will sharpen our execution and safeguard ROI for Sarge Universe’s Telegram launch.
+
+[USER]
+fix it
+
+[ASSISTANT]
+**1. Chief Product Officer Perspective**  
+- **Strengths**  
+  - Extended closed-alpha to Week –6 and 1 000-user public beta in Week –5 provide robust FTUE (First-Time User Experience) and stability validation.  
+  - Product-Polish Sprint in Week –10 ensures core loops and onboarding tutorial are refined before heavy marketing spend.  
+- **Risks & Recommendations**  
+  - **Mini-Sprint Gap**: No dedicated bug-fix sprint between alpha and beta.  
+    - **Recommendation:** Insert a 3-day rapid-fix sprint in Week –7 to triage alpha feedback.  
+  - **FTUE Stress-Test Timing**: Lightning Pilot at Week –3 is late for catching scale issues.  
+    - **Recommendation:** Move the 500-user FTUE pilot to Week –6 alongside final alpha stability checks.  
+  - **Battle Pass Tease**: Preview in Week +8 may miss early excitement window.  
+    - **Recommendation:** Introduce a Battle Pass teaser in Week +6 immediately after the mid-cycle asset refresh.  
+
+---
+
+**2. Chief Publishing Officer Perspective**  
+- **Strengths**  
+  - Telegram channel and supergroup activation in Week –8 primes the community with welcome events and early lore.  
+  - Sticker pack and lore-drop content align with Telegram’s share and forward mechanics.  
+- **Risks & Recommendations**  
+  - **Content Cadence**: Lore drops in Weeks –5/–4 lack a structured weekly story schedule.  
+    - **Recommendation:** Publish a “story beat” every Wednesday from Week –8 through launch.  
+  - **Asset Refresh Frequency**: Only one mid-cycle refresh risks creative fatigue.  
+    - **Recommendation:** Schedule a second refresh in Week +10 tied to the Next Features workshop.  
+  - **User-Generated Content**: No ongoing UGC incentive beyond one contest.  
+    - **Recommendation:** Launch a “Best Clip of the Week” challenge starting in Week +1 to drive organic reach.  
+
+---
+
+**3. Head of Marketing Perspective**  
+- **Strengths**  
+  - Multi-channel UA dry-runs and a £10 k agility fund in Launch Week enable rapid budget shifts.  
+  - Clear CPI, CPA, K-factor and retention gates at every phase enforce discipline.  
+- **Risks & Recommendations**  
+  - **CPI Assumptions**: £80 k for 500 k Day 0 installs implies £0.16 CPI—still aggressive.  
+    - **Recommendation:** Allocate an extra £10–15 k from contingency into UA if CPI exceeds £0.25.  
+  - **Telegram-Specific Metrics**: Only tracked starting Week +1.  
+    - **Recommendation:** Integrate channel open rate, bot-command usage and sticker usage into dashboards before Week 0.  
+  - **Retargeting Plan**: No paid retargeting for Day 1–3 drop-offs.  
+    - **Recommendation:** Reserve £15 k for a retargeting burst in Week +3 targeting early churn cohorts.  
+
+---
+
+**4. Chief Executive Officer Perspective**  
+- **Strengths**  
+  - Total budget (~£592 k) with 10 % contingency and phase-gating ensures financial prudence.  
+  - Bi-weekly executive briefings and Go/No-Go gates provide strong governance.  
+- **Risks & Recommendations**  
+  - **Break-Even Clarity**: P&L timeline not mapped to CPI and ARPDAU assumptions.  
+    - **Recommendation:** Model expected payback period and schedule a break-even review in Week +4.  
+  - **Retention Kill-Switch**: Heavy reliance on retention gates may expose overspend risk.  
+    - **Recommendation:** Empower a hard pause on UA if Day 7 retention falls below 25 %.  
+  - **Stakeholder Syncs**: Post-launch C-suite sessions are limited to briefings.  
+    - **Recommendation:** Host monthly all-hands reviews in Weeks +4, +8 and +12 to align on Q3/Q4 goals.  
+
+---
+
+**Overall Summary:**  
+The timeline is rigorous and well-integrated across product, publishing, marketing and executive functions. Incorporating these targeted refinements will tighten feedback loops, amplify organic reach, safeguard budget, and secure a sustainable launch trajectory for Sarge Universe on Telegram.
+
+[USER]
+fix the timeline with the feedabck
+
+[ASSISTANT]
+**Updated Weekly GTM Timeline & Budgets (Pre-work → Week +12)**  
+_Incorporates feedback from CPO, Chief Publishing Officer, Head of Marketing and CEO._
+
+---
+
+## Pre-work Phase (Weeks –26 to –13)
+
+- **Week –26**  
+  - Competitive Scan, TAM sizing, USP stress-test; deliver SWOT & white-space report  
+  - **Spend:** £10 000  
+  - **KPIs:** Concept sign-off ≤ 2 weeks; ≥ 3 white-space opportunities  
+
+- **Week –25**  
+  - Finalize roadmap & feature-freeze; lock multi-region bot architecture & CDN plan  
+  - **Spend:** £5 000  
+  - **KPIs:** Architecture doc approved  
+
+- **Week –24**  
+  - Build IaC pipelines, CI/CD & feature-flags; secrets vault; vuln scanning; security audit (+20 % pad)  
+  - **Spend:** £20 000  
+  - **KPIs:** Audit sign-off; IaC live; infra ≥ 2× load  
+
+- **Week –23**  
+  - Instrument analytics, system metrics, tracing & logs; draft DR plan; recruit/train 10 mods  
+  - **Spend:** £8 000  
+  - **KPIs:** Dashboards live; DR plan reviewed; mods onboarded  
+
+- **Week –22**  
+  - Run DR tabletop drill; finalize privacy, bot registration & local compliance (BR/IN/PH)  
+  - **Spend:** £8 000  
+  - **KPIs:** No critical DR/legal gaps  
+
+- **Week –21**  
+  - Hire DevOps/SRE (on-call roster); complete UA/Creative/Community hiring  
+  - **Spend:** £5 000  
+  - **KPIs:** SRE on-boarded; teams at 100 %  
+
+- **Week –20**  
+  - Payment-gateway & purchase flow testing; implement data-retention jobs  
+  - **Spend:** £5 000  
+  - **KPIs:** Purchase flow ≥ 99 % success; data purge tested  
+
+- **Week –19**  
+  - Validate staging infra; chaos drill; 50 % CCU load test  
+  - **Spend:** £12 000  
+  - **KPIs:** Error-rate < 1 %; chaos issues resolved  
+
+- **Week –18**  
+  - QA all flows; 100 % CCU load test  
+  - **Spend:** £5 000  
+  - **KPIs:** QA ≥ 95 %; latency & crash SLAs met  
+
+- **Week –17**  
+  - Dry-run analytics/marketing tags; war-room & on-call drill  
+  - **Spend:** £3 000  
+  - **KPIs:** Zero critical issues  
+
+- **Week –16**  
+  - Exec sign-off on GTM/budget/risk; code & asset freeze  
+  - **Spend:** £2 000  
+  - **KPIs:** Freeze enforced  
+
+- **Week –15**  
+  - Buffer for fixes; begin creative hand-off for Week –12  
+  - **Spend:** £3 000  
+  - **KPIs:** Pre-work 100 % complete  
+
+- **Week –14**  
+  - Finalize pending deliverables  
+  - **Spend:** £1 000  
+  - **KPIs:** All critical paths cleared  
+
+- **Week –13**  
+  - Final readiness review & Go/No-Go gate for Foundation  
+  - **Spend:** £1 000  
+  - **KPIs:** All pre-work KPIs met  
+
+> **Pre-work total:** £83 000  
+
+---
+
+## Core GTM Sprint (Weeks –12 to +12)
+
+- **Week –12**  
+  - Refresh Competitive Scan/TAM/USP; draft brand identity & avatar art  
+  - **Spend:** £5 000  
+  - **KPIs:** Deck CTR ≥ 2 %; Day-0 retention ≥ 60 %  
+
+- **Week –11**  
+  - Finalize brand & avatar art; begin UI style guide  
+  - **Spend:** £5 000  
+  - **KPIs:** Asset approval ≤ 3 days  
+
+- **Week –10**  
+  - Product-Polish Sprint: refine onboarding, UX & loops; integrate GDPR-style consent flow  
+  - **Spend:** £5 000  
+  - **KPIs:** Tutorial completion ≥ 90 %; NPS ≥ 60 %  
+
+- **Week –9**  
+  - Finalize teaser storyboard; prep trailer shot list & schedule  
+  - **Spend:** £5 000  
+  - **KPIs:** Production kickoff on schedule  
+
+- **Week –8**  
+  - **Exec Briefing #1**  
+  - Activate Telegram channel & supergroup; host welcome events  
+  - Shoot & post-produce launch video (vertical ≤ 60 s); hero key art; spin up closed alpha  
+  - Publish **Story Beat #1**  
+  - **Spend:** £20 000  
+  - **KPIs:** Early-ad CTR ≥ 3 %; Day-1 retention ≥ 50 %; crash/error < 2 %  
+
+- **Week –7**  
+  - **Mini-Sprint:** 3-day rapid bug-fix & UX tweaks from alpha feedback  
+  - Daily alpha play-tests; capture gameplay clips  
+  - Publish **Story Beat #2**  
+  - **Spend:** £10 000  
+  - **KPIs:** Avg. alpha session ≥ 10 min; latency < 2 s  
+
+- **Week –6**  
+  - Continue closed alpha; finalize pacing & stability  
+  - **FTUE Lightning Pilot** (500 users) stress-test  
+  - Publish **Story Beat #3**  
+  - **Spend:** £0 (internal)  
+  - **KPIs:** Alpha retention ≥ 60 %; error-rate < 1 %  
+
+- **Week –5**  
+  - **Public Beta (1 000 users):** FTUE & referral validation  
+  - Plan & release lore-drop #1; design sticker pack  
+  - Publish **Story Beat #4**  
+  - **Spend:** £5 000  
+  - **KPIs:** Beta tutorial completion ≥ 90 %; beta NPS ≥ 60 %  
+
+- **Week –4**  
+  - **Backlog Grooming:** prioritize beta fixes & polish  
+  - Launch whitelist microsite & Telegram bot; conduct lore-drop #2  
+  - Publish **Story Beat #5**  
+  - **Spend:** £5 000  
+  - **KPIs:** 10 000 sign-ups; CPA ≤ £0.40  
+
+- **Week –3**  
+  - Sign 10 mid-tier Telegram & YouTube creators (~ 15 M reach); distribute kits  
+  - Publish **Story Beat #6**  
+  - **Spend:** £25 000  
+  - **KPIs:** 50 000 pre-installs; ROI ≥ 8×  
+
+- **Week –2**  
+  - UA dry-run on Meta & TikTok; deploy invite-a-friend bot  
+  - Integrate Telegram-specific metrics into dashboards  
+  - Publish **Story Beat #7**  
+  - **Spend:** £30 000  
+  - **KPIs:** CPI ≤ £0.35; K-factor ≥ 0.3; dashboards live  
+  - **UA Contingency:** £15 000 reserve if CPI > £0.25  
+
+- **Week 0**  
+  - **Exec Briefing #2**  
+  - Publish & pin launch video; go live on Telegram; host creator tournament; PR push; 24/7 war-room  
+  - Publish **Story Beat #8**  
+  - **Spend:** £80 000  
+  - **KPIs:** Day-0 installs ≥ 500 000; CPI ≤ £0.50; peak CCU ≥ 50 000; latency < 2 s  
+
+- **Week +1**  
+  - Optimize onboarding via Telemetry.io; launch Weekly Product-Community Review; track Telegram metrics  
+  - Start **“Best Clip of the Week”** UGC challenge; enforce **kill-switch** if Day-7 retention < 25 %  
+  - **Spend:** £50 000  
+  - **KPIs:** Drop-off < 25 %; Day-7 retention ≥ 25 %; challenge live  
+
+- **Week +2**  
+  - Builder-pack incentives; meme-relay contest; “surprise & delight” mini-quests; cross-functional sync  
+  - **Spend:** £15 000  
+  - **KPIs:** K-factor ≥ 0.4; organic share ≥ 30 %  
+
+- **Week +3**  
+  - Economy & price-point A/B tests; community AMA; Churn Diagnostic Sprint; **retargeting burst** (£15 000) for Day 1–3 drop-offs  
+  - **Spend:** £25 000  
+  - **KPIs:** ARPDAU ≥ £0.05; churn causes identified; retargeting ROI ≥ 4×  
+
+- **Week +4**  
+  - Release **Clan Wars** update; Gamezebo takeover; **Exec Briefing #3**; **Break-Even Review**; **All-Hands #1**  
+  - **Spend:** £40 000  
+  - **KPIs:** MAU ≥ 1 000 000; Day-30 retention ≥ 15 %; break-even modeled  
+
+- **Week +5**  
+  - Localized creatives for BR, IN & PH  
+  - **Spend:** £20 000  
+  - **KPIs:** CPI ≤ £0.25; Day-3 retention ≥ 35 %  
+
+- **Week +6**  
+  - Launch PropellerAds; mid-cycle asset refresh; **Battle Pass Teaser**; “surprise & delight” mini-quests; sync  
+  - **Spend:** £30 000  
+  - **KPIs:** Weekly uniques ≥ 500 000; asset uplift ≥ 15 %; teaser engagement ≥ 20 %  
+
+- **Week +7**  
+  - Host regional prize tournaments; micro-influencer push  
+  - **Spend:** £35 000  
+  - **KPIs:** Participants ≥ 10 000; micro-content views ≥ 1 000 000  
+
+- **Week +8**  
+  - **All-Hands #2**; analyze regional performance; optimize targeting; mid-phase retention check  
+  - **Spend:** £25 000  
+  - **KPIs:** Regional ROI ≥ 4×; Day-3 retention ≥ 35 %  
+
+- **Week +9**  
+  - Expand influencer seeding  
+  - **Spend:** £20 000  
+  - **KPIs:** Reach ≥ 5 000 000; Day-3 retention ≥ 35 %  
+
+- **Week +10**  
+  - Deploy localized referral boosts; **Next Features Workshop**; second asset refresh  
+  - **Spend:** £20 000  
+  - **KPIs:** K-factor ≥ 0.35; workshop delivered; asset performance ≥ 15 %  
+
+- **Week +11**  
+  - Regional AMAs & Q&As  
+  - **Spend:** £10 000  
+  - **KPIs:** AMA attendance ≥ 1 000; Day-3 retention ≥ 35 %  
+
+- **Week +12**  
+  - Review Weeks +5–+12; Go/No-Go gate; **Exec Briefing #4**; **All-Hands #3**  
+  - **Spend:** £10 000  
+  - **KPIs:** Cumulative MAU ≥ 3 000 000; overall Day-3 retention ≥ 35 %  
+
+> **Core Sprint Total:** £455 000  
+> **Combined w/ Pre-work:** £538 000  
+> **Contingency (10 %):** £54 000  
+> **Revised Total Budget:** ~£592 000
+
+[USER]
+review the timeline as the CPO, the chief publishing officer, the head of marketing and the ceo  and assess make sure nothing is missed
+
+[ASSISTANT]
+**1. Chief Product Officer (CPO) Assessment**  
+- **Strengths**  
+  - **Robust Validation Cadence**: Closed-alpha extended through Week –6, 500-user FTUE pilot in Week –6, 1 000-user public beta in Week –5, and a dedicated Product-Polish Sprint in Week –10 ensure iterative refinement of core loops and tutorials.  
+  - **Telemetry & Crash SLAs**: System & UX instrumentation goes live early (Week –24), with crash-rate (< 2 %) and latency (< 2 s) targets enforced in alpha and launch.  
+  - **Churn Diagnostics**: Week +3 Churn Diagnostic Sprint and break-even review in Week +4 focus on retention levers and ROI.  
+
+- **Gaps & Recommendations**  
+  - **Mini-Sprint Timing**: The three-day bug-fix mini-sprint in Week –7 should be clearly scoped around highest-priority alpha issues and dovetailed with telemetry alerts.  
+  - **Backlog Grooming**: While Week –4 covers beta fixes, add a quick backlog-grooming checkpoint in Week +2 to capture live‐ops feedback before “surprise & delight” quests.  
+  - **Feature Roadmap Preview**: Beyond the Battle Pass teaser in Week +6, schedule a **“Next Features”** session for product owners, marketing and community leads in Week +10 to align on Q3 deliverables.  
+
+---
+
+**2. Chief Publishing Officer Assessment**  
+- **Strengths**  
+  - **Early Channel Activation**: Official Telegram channel & supergroup go live in Week –8 with weekly “Story Beats” to build narrative momentum.  
+  - **Content Cadence**: Four scheduled lore-drops, two asset refreshes (Weeks +6 & +10), and “Best Clip of the Week” UGC drive ongoing engagement.  
+  - **Integrated Briefings & All-Hands**: Exec Briefings in Weeks –9, 0, +4, +12 and All-Hands in Weeks +4, +8, +12 keep publishing aligned with strategy.  
+
+- **Gaps & Recommendations**  
+  - **Community Support Workflows**: No explicit schedule for support-bot enhancements or FAQ content updates—add a Week +1 task to launch a support-bot FAQ module and refresh in Week +5.  
+  - **Localization Depth**: While local creatives are produced in Week +5, ensure sticker packs and in-bot messaging are fully localized (language, tone) and tested.  
+  - **Content Moderation Scaling**: With 10 moderators onboarded pre-launch, plan surge capacity (volunteer “super-mods” or AI-assist) in Weeks 0–+2 when community peaks.  
+
+---
+
+**3. Head of Marketing Assessment**  
+- **Strengths**  
+  - **Adaptive UA Budgeting**: Dry-runs on Meta/TikTok (Week –2), a £15 k UA contingency, and an agility fund (£10 k) in launch week allow rapid reallocation.  
+  - **Retention-Driven Spend**: CPA, CPI, K-factor and Day 1/7/30 retention gates enforce performance gating.  
+  - **Multi-Phase Influencer Push**: Primary seeding in Week –3, micro-push in Week +7, and UGC contests maintain share of voice.  
+
+- **Gaps & Recommendations**  
+  - **Retargeting Scope**: The £15 k retargeting burst in Week +3 targets Day 1–3 churn but omits mid-funnel (Day 7–14)—consider a second retargeting pulse in Week +6.  
+  - **Paid Social Extensions**: No mention of Telegram Discovery Ads or channel-takeover partnerships; investigate mid-cycle buys (e.g. paid channel sponsorship) in Week +5.  
+  - **KPI Dashboard Completeness**: Ensure Telegram-specific metrics (stickers used, bot commands, channel forwards) are piped into the UA dashboard by Week –2.  
+
+---
+
+**4. Chief Executive Officer (CEO) Assessment**  
+- **Strengths**  
+  - **Comprehensive Governance**: Go/No-Go gates at pre-work, launch and Week +12; bi-weekly exec briefings; clear P&L contingency (10 %) and kill-switch authority at Day 7.  
+  - **Budget Discipline**: £83 k pre-work, £455 k core sprint, £54 k contingency yields a £592 k total—balanced between strategic foundations and growth spend.  
+  - **Cross-Functional Alignment**: Monthly All-Hands and Next Features workshops bind product, marketing, tech and publishing to shared goals.  
+
+- **Gaps & Recommendations**  
+  - **Break-Even Analysis**: While Week +4 includes a break-even review, add a forward-looking cash-flow projection update in Week +8 based on actual CPI and ARPDAU.  
+  - **Regulatory Oversight**: Post-launch, schedule a compliance audit in Week +6 to ensure no emerging policy issues in BR/IN/PH markets.  
+  - **Executive Visibility**: Consider a “War-Room Demo” in Week +2 for the board to review live metrics and early retention trends.  
+
+---
+
+**Conclusion**  
+This final timeline is **holistic and tightly gated**, covering pre-work, product validation, publishing cadence, UA flexibility, and executive oversight. By adding targeted support-bot enhancements, deeper localization checks, mid-funnel retargeting, and additional executive visibility sessions, we’ll close all gaps and safeguard Sarge Universe’s success on Telegram.
+
+[USER]
+fix the timeline except for the Executive Visibility: Consider a “War-Room Demo” in Week +2 for the board to review live metrics and early retention trends.
+
+[ASSISTANT]
+**Updated Weekly GTM Timeline & Budgets (Pre-work → Week +12)**  
+_Incorporates all function-level feedback, with support-bot FAQ, content cadence, retargeting, compliance checks, surge moderation and mid-funnel optimizations. Executive Visibility “War-Room Demo” removed per request._
+
+---
+
+## Pre-work Phase (Weeks –26 to –13)
+
+*(Unchanged from prior version – £83 000 total)*
+
+---
+
+## Core GTM Sprint (Weeks –12 to +12)
+
+- **Week –12**  
+  - Refresh Competitive Scan, TAM sizing, USP; draft brand identity & avatar art  
+  - **Spend:** £5 000  
+  - **KPIs:** Deck CTR ≥ 2 %; Day-0 retention ≥ 60 %  
+
+- **Week –11**  
+  - Finalize brand & avatar art; begin UI style guide  
+  - **Spend:** £5 000  
+  - **KPIs:** Asset approval ≤ 3 days  
+
+- **Week –10**  
+  - **Product-Polish Sprint:** refine onboarding tutorial, UX flows & core loops  
+  - Integrate GDPR-style consent flow  
+  - **Spend:** £5 000  
+  - **KPIs:** Tutorial completion ≥ 90 %; NPS ≥ 60   
+
+- **Week –9**  
+  - Finalize teaser storyboard; prep trailer shot list & schedule  
+  - **Exec Briefing #1** for C-suite  
+  - **Spend:** £5 000  
+  - **KPIs:** Production kickoff on schedule  
+
+- **Week –8**  
+  - Activate official Telegram channel & supergroup; host welcome events  
+  - Publish **Story Beat #1**  
+  - Shoot & post-produce launch video (vertical ≤ 60 s); create hero key art; spin up closed alpha (30 players)  
+  - **Spend:** £20 000  
+  - **KPIs:** Early-ad CTR ≥ 3 %; Day-1 retention ≥ 50 %; crash/error < 2 %  
+
+- **Week –7**  
+  - **Mini-Sprint:** 3-day rapid bug-fix & UX tweaks from alpha feedback  
+  - Daily alpha play-tests; capture gameplay clips  
+  - Publish **Story Beat #2**  
+  - **Spend:** £10 000  
+  - **KPIs:** Avg. alpha session ≥ 10 min; latency < 2 s  
+
+- **Week –6**  
+  - Continue closed alpha; finalize pacing & tech stability  
+  - **FTUE Lightning Pilot** (500 users) stress-test  
+  - Publish **Story Beat #3**  
+  - **Spend:** £0 (internal)  
+  - **KPIs:** Alpha retention ≥ 60 %; error-rate < 1 %  
+
+- **Week –5**  
+  - **Public Beta (1 000 users):** FTUE & referral validation  
+  - Plan & release lore-drop #1; design sticker pack  
+  - Publish **Story Beat #4**  
+  - **Spend:** £5 000  
+  - **KPIs:** Beta tutorial completion ≥ 90 %; beta NPS ≥ 60   
+
+- **Week –4**  
+  - **Backlog Grooming:** prioritize beta fixes & polish items  
+  - Launch whitelist microsite & Telegram bot; conduct lore-drop #2  
+  - Publish **Story Beat #5**  
+  - **Spend:** £5 000  
+  - **KPIs:** 10 000 sign-ups; CPA ≤ £0.40  
+
+- **Week –3**  
+  - Sign 10 mid-tier Telegram & YouTube creators (~15 M reach); distribute co-marketing kits  
+  - Publish **Story Beat #6**  
+  - **Spend:** £25 000  
+  - **KPIs:** 50 000 pre-installs; ROI ≥ 8×  
+
+- **Week –2**  
+  - UA dry-run on Meta & TikTok; deploy invite-a-friend bot  
+  - Integrate Telegram-specific metrics into dashboards  
+  - Publish **Story Beat #7**  
+  - **Spend:** £30 000  
+  - **KPIs:** CPI ≤ £0.35; K-factor ≥ 0.3; dashboards live  
+  - **UA Contingency:** £15 000 reserved if CPI > £0.25  
+
+- **Week 0**  
+  - **Exec Briefing #2** for C-suite  
+  - Publish & pin launch video; go live on Telegram; host creator tournament livestream; PR push; stand up surge moderation capacity (volunteers + AI-assist)  
+  - Publish **Story Beat #8**  
+  - **Spend:** £80 000  
+  - **KPIs:** Day-0 installs ≥ 500 000; CPI ≤ £0.50; peak CCU ≥ 50 000; latency < 2 s  
+
+- **Week +1**  
+  - Optimize onboarding via Telemetry.io; launch Weekly Product-Community Review; track Telegram metrics  
+  - Launch support-bot FAQ module; start **“Best Clip of the Week”** UGC challenge  
+  - **Spend:** £50 000  
+  - **KPIs:** Drop-off < 25 %; Day-7 retention ≥ 25 %; FAQ live; challenge active  
+
+- **Week +2**  
+  - Builder-pack incentives; meme-relay contest; **Surprise & Delight** mini-quests; cross-functional sync  
+  - **Quick Backlog Grooming** checkpoint for live-ops feedback  
+  - **Spend:** £15 000  
+  - **KPIs:** K-factor ≥ 0.4; organic share ≥ 30   
+
+- **Week +3**  
+  - Economy & price-point A/B tests; community AMA; **Churn Diagnostic Sprint**; retarget Day 1–3 churn (£15 000 burst)  
+  - **Spend:** £25 000  
+  - **KPIs:** ARPDAU ≥ £0.05; churn causes identified; retarget ROI ≥ 4×  
+
+- **Week +4**  
+  - Release **Clan Wars** update; Gamezebo site takeover; **Exec Briefing #3**; **Break-Even Review**; **All-Hands #1**  
+  - **Spend:** £40 000  
+  - **KPIs:** MAU ≥ 1 000 000; Day-30 retention ≥ 15 %; break-even modeled  
+
+- **Week +5**  
+  - Produce localized creatives for BR/IN/PH; fully localize sticker pack & in-bot messaging; investigate paid channel sponsorship (Discovery Ads)  
+  - Refresh support-bot FAQ content  
+  - **Spend:** £20 000  
+  - **KPIs:** CPI ≤ £0.25; Day-3 retention ≥ 35 %; localization QA pass  
+
+- **Week +6**  
+  - Launch PropellerAds campaigns; mid-cycle asset refresh; **Battle Pass Teaser**; mid-funnel retarget Day 7–14; post-launch compliance audit (BR/IN/PH); continue mini-quests; sync  
+  - **Spend:** £30 000  
+  - **KPIs:** Weekly uniques ≥ 500 000; asset uplift ≥ 15 ; compliance sign-off  
+
+- **Week +7**  
+  - Host regional prize tournaments; micro-influencer push; continue “Best Clip” UGC  
+  - **Spend:** £35 000  
+  - **KPIs:** Participants ≥ 10 000; micro-content views ≥ 1 000 000  
+
+- **Week +8**  
+  - **All-Hands #2**; analyze regional performance; optimize targeting; mid-phase retention check; **Cash-Flow & Break-Even Update**  
+  - **Spend:** £25 000  
+  - **KPIs:** Regional ROI ≥ 4×; Day-3 retention ≥ 35   
+
+- **Week +9**  
+  - Expand influencer seeding; continue mini-quests  
+  - **Spend:** £20 000  
+  - **KPIs:** Reach ≥ 5 000 000; Day-3 retention ≥ 35   
+
+- **Week +10**  
+  - Deploy localized referral boosts; **Next Features Workshop**; second mid-cycle asset refresh  
+  - **Spend:** £20 000  
+  - **KPIs:** K-factor ≥ 0.35; workshop held; asset performance ≥ 15   
+
+- **Week +11**  
+  - Regional AMAs & Q&As; surge moderation review  
+  - **Spend:** £10 000  
+  - **KPIs:** AMA attendance ≥ 1 000; Day-3 retention ≥ 35   
+
+- **Week +12**  
+  - Review Weeks +5–+12 performance; **Go/No-Go** gate; **Exec Briefing #4**; **All-Hands #3**  
+  - **Spend:** £10 000  
+  - **KPIs:** Cumulative MAU ≥ 3 000 000; overall Day-3 retention ≥ 35   
+
+> **Core Sprint Total:** £455 000  
+> **Combined w/ Pre-work:** £538 000  
+> **Contingency (10 %):** £54 000  
+> **Revised Total Budget:** ~£592 000
+
+[USER]
+do you need payment gateways with telegram?
+
+[ASSISTANT]
+If you plan to sell anything—premium passes, virtual currency packs or one-off consumables—then yes, you’ll need a payment gateway (or two) to handle real-money transactions in your Telegram game. Here’s why and how:
+
+1. **Telegram’s Built-In Payments API**  
+   - Telegram lets you collect payments directly inside chats and bot UIs via its Payments API.  
+   - You register as a “bot merchant” and choose from supported providers (Stripe, Rapyd, YooMoney, Tranzzo, etc.).  
+   - **Pros:** Seamless UX—users never leave Telegram; no redirect to web checkout.  
+   - **Cons:** Limited to the payment providers Telegram integrates; fees vary by provider.  
+
+2. **External/Embedded Web-Checkout**  
+   - For more flexibility (regional processors, subscription models, broader currency support), you can build an in-bot or web-app checkout that talks to your own payment gateway (e.g., Stripe, Braintree, Adyen).  
+   - You’d host a web view or inline Web App that collects card details, then process via your gateway.  
+   - **Pros:** Full control over pricing, supports advanced features (subscriptions, local wallets).  
+   - **Cons:** UX bump—users leave the chat interface; extra compliance (PCI DSS).  
+
+3. **When You Don’t Need One**  
+   - If your game is purely free-to-play with ad-based or reward-video monetization, you can skip direct payments entirely and focus on integrating with ad networks instead.  
+   - You’ll still need to track “virtual currency” balances internally, but no real-money flows through your own systems.  
+
+4. **Key Considerations**  
+   - **Compliance & Fees:** Gateway partners charge transaction fees (typically 2–5%). If you use Telegram’s Payments API, Telegram takes a cut on top of provider fees.  
+   - **Localization:** Choose a provider that supports your core markets (e.g., India’s UPI, Brazil’s Boleto).  
+   - **Security:** If you host your own Web App checkout, you’ll need PCI-compliant hosting or use a tokenized SDK to stay out of scope.  
+
+**Recommendation for Sarge Universe on Telegram:**  
+Leverage **Telegram’s Payments API** for the initial launch (fast integration, great UX) and add an **external gateway** for subscriptions or any advanced pricing models in a subsequent live-ops update. That way you get the best of both worlds—seamless in-chat purchases Day 0, and broader payment flexibility as you scale.
+
+[USER]
+can you label the weeks with that they are?
+
+[ASSISTANT]
+Below is the **Core GTM Sprint** with each “Week X” labeled by its calendar dates (Monday–Sunday) based on a launch week of **14–20 July 2025**. (All dates in 2025.)
+
+---
+
+- **Week –12 (Apr 21–27, 2025)**  
+  - Refresh Competitive Scan, TAM sizing, USP; draft brand identity & avatar art  
+  - **Spend:** £5 000  
+  - **KPIs:** Deck CTR ≥ 2 %; Day-0 retention ≥ 60 %  
+
+- **Week –11 (Apr 28–May 4, 2025)**  
+  - Finalize brand & avatar art; begin UI style guide  
+  - **Spend:** £5 000  
+  - **KPIs:** Asset approval ≤ 3 days  
+
+- **Week –10 (May 5–11, 2025)**  
+  - Product-Polish Sprint: refine onboarding, UX & loops; integrate GDPR-style consent flow  
+  - **Spend:** £5 000  
+  - **KPIs:** Tutorial completion ≥ 90 %; NPS ≥ 60  
+
+- **Week –9 (May 12–18, 2025)**  
+  - Finalize teaser storyboard; prep trailer shot list & schedule  
+  - **Exec Briefing #1**  
+  - **Spend:** £5 000  
+  - **KPIs:** Production kickoff on schedule  
+
+- **Week –8 (May 19–25, 2025)**  
+  - Activate Telegram channel & supergroup; host welcome events; publish Story Beat #1  
+  - Shoot & post-produce launch video (vertical ≤ 60 s); hero key art; spin up closed alpha  
+  - **Spend:** £20 000  
+  - **KPIs:** Early-ad CTR ≥ 3 %; Day-1 retention ≥ 50 %; crash/error < 2 %  
+
+- **Week –7 (May 26–Jun 1, 2025)**  
+  - Mini-Sprint: 3-day rapid bug-fix & UX tweaks from alpha; daily play-tests; capture clips; Story Beat #2  
+  - **Spend:** £10 000  
+  - **KPIs:** Avg alpha session ≥ 10 min; latency < 2 s  
+
+- **Week –6 (Jun 2–8, 2025)**  
+  - Continue closed alpha; finalize pacing & stability; FTUE Lightning Pilot (500 users); Story Beat #3  
+  - **Spend:** £0 (internal)  
+  - **KPIs:** Alpha retention ≥ 60 %; error-rate < 1 %  
+
+- **Week –5 (Jun 9–15, 2025)**  
+  - Public Beta (1 000 users) for FTUE & referral validation; lore-drop #1; sticker pack; Story Beat #4  
+  - **Spend:** £5 000  
+  - **KPIs:** Beta tutorial ≥ 90 %; beta NPS ≥ 60  
+
+- **Week –4 (Jun 16–22, 2025)**  
+  - Backlog Grooming; whitelist microsite & bot; lore-drop #2; Story Beat #5  
+  - **Spend:** £5 000  
+  - **KPIs:** 10 000 sign-ups; CPA ≤ £0.40  
+
+- **Week –3 (Jun 23–29, 2025)**  
+  - Sign 10 creators (~15 M reach); distribute kits; Story Beat #6  
+  - **Spend:** £25 000  
+  - **KPIs:** 50 000 pre-installs; ROI ≥ 8×  
+
+- **Week –2 (Jun 30–Jul 6, 2025)**  
+  - UA dry-run (Meta/TikTok); invite-a-friend bot; integrate Telegram metrics; Story Beat #7  
+  - **Spend:** £30 000 (+£15 000 UA contingency)  
+  - **KPIs:** CPI ≤ £0.35; K-factor ≥ 0.3; dashboards live  
+
+- **Week 0 (Jul 14–20, 2025)**  
+  - **Exec Briefing #2**  
+  - Publish & pin launch video; go live; creator tournament; PR push; surge moderation; Story Beat #8  
+  - **Spend:** £80 000  
+  - **KPIs:** Day-0 installs ≥ 500 000; CPI ≤ £0.50; peak CCU ≥ 50 000; latency < 2 s  
+
+- **Week +1 (Jul 21–27, 2025)**  
+  - Onboarding optimisations; Weekly Product-Community Review; Telegram metrics; support-bot FAQ; “Best Clip” UGC  
+  - **Spend:** £50 000  
+  - **KPIs:** Drop-off < 25 %; Day-7 retention ≥ 25 %; FAQ live; challenge active  
+
+- **Week +2 (Jul 28–Aug 3, 2025)**  
+  - Builder-pack incentives; meme contest; mini-quests; quick backlog grooming; sync  
+  - **Spend:** £15 000  
+  - **KPIs:** K-factor ≥ 0.4; organic share ≥ 30 %  
+
+- **Week +3 (Aug 4–10, 2025)**  
+  - Economy & price A/B; AMA; Churn Diagnostic Sprint; Day 1–3 retarget (£15 000)  
+  - **Spend:** £25 000  
+  - **KPIs:** ARPDAU ≥ £0.05; churn causes ID’d; retarget ROI ≥ 4×  
+
+- **Week +4 (Aug 11–17, 2025)**  
+  - Clan Wars update; Gamezebo takeover; **Exec Briefing #3**; Break-Even Review; **All-Hands #1**  
+  - **Spend:** £40 000  
+  - **KPIs:** MAU ≥ 1 000 000; Day-30 retention ≥ 15 %; break-even modeled  
+
+- **Week +5 (Aug 18–24, 2025)**  
+  - Localized creatives (BR/IN/PH); localize stickers & messages; paid channel sponsorship test; FAQ refresh  
+  - **Spend:** £20 000  
+  - **KPIs:** CPI ≤ £0.25; Day-3 retention ≥ 35 %; localization QA pass  
+
+- **Week +6 (Aug 25–31, 2025)**  
+  - PropellerAds campaigns; asset refresh; Battle Pass teaser; Day 7–14 retarget; compliance audit; mini-quests; sync  
+  - **Spend:** £30 000  
+  - **KPIs:** Weekly uniques ≥ 500 000; asset uplift ≥ 15 %; compliance sign-off  
+
+- **Week +7 (Sep 1–7, 2025)**  
+  - Regional tournaments; micro-influencer push; “Best Clip” continues  
+  - **Spend:** £35 000  
+  - **KPIs:** Participants ≥ 10 000; micro-content views ≥ 1 000 000  
+
+- **Week +8 (Sep 8–14, 2025)**  
+  - **All-Hands #2**; regional performance deep-dive; targeting optimisations; Day-3 retention check; Cash-Flow Update  
+  - **Spend:** £25 000  
+  - **KPIs:** Regional ROI ≥ 4×; Day-3 retention ≥ 35 %  
+
+- **Week +9 (Sep 15–21, 2025)**  
+  - Expand influencer seeding; mini-quests  
+  - **Spend:** £20 000  
+  - **KPIs:** Reach ≥ 5 000 000; Day-3 retention ≥ 35 %  
+
+- **Week +10 (Sep 22–28, 2025)**  
+  - Referral boosts; **Next Features Workshop**; second asset refresh  
+  - **Spend:** £20 000  
+  - **KPIs:** K-factor ≥ 0.35; workshop delivered; asset lift ≥ 15 %  
+
+- **Week +11 (Sep 29–Oct 5, 2025)**  
+  - Regional AMAs/Q&As; surge moderation review  
+  - **Spend:** £10 000  
+  - **KPIs:** AMA attendance ≥ 1 000; Day-3 retention ≥ 35 %  
+
+- **Week +12 (Oct 6–12, 2025)**  
+  - Review Weeks +5–+12; Go/No-Go gate; **Exec Briefing #4**; **All-Hands #3**  
+  - **Spend:** £10 000  
+  - **KPIs:** Cumulative MAU ≥ 3 000 000; overall Day-3 retention ≥ 35 %  
+
+> **Core Sprint Total:** £455 000 **+ Pre-work:** £83 000 **+ Contingency (10 %):** £54 000  
+> **Revised Total Budget:** ~£592 000
+
+[USER]
+no sorry I want it to look kind of like this 
+
+Week ‑7 – Community proof
+Premiere 90‑sec cinematic/gameplay trailer via YouTube Premiere & Telegram
+Host AMA #1 with founders; capture top 10 feature requests
+Release alpha patch v0.7 (onboarding + economy tweaks)
+Kick‑off weekly “Ask the Lorekeeper” world‑building posts
+Week ‑6 – Creative lock
+Lock 60 ad creatives (video/static/HTML5) in EN, ES, PT, RU, ID
+Sign 20 influencer contracts (deliverables, CPV targets & calendar)
+Open closed beta wave 1 (NFT holders + top referrers) – target 2 000 testers
+Dry‑run backend tournament/prize system in test bracket
+Week ‑5 – UA instrumentation
+Integrate AppsFlyer + Adjust; verify multi‑channel attribution & post‑backs
+Finalise launch Genesis Tournament prize pool (10 k USDT) & ruleset
+Run closed‑beta balance survey; iterate economy parameters
+Draft press kit (screens, key art, fact sheet) for embargo distribution
+Week ‑4 – Beta expansion
+Flip to open beta, remove invite gate; anticipate 20 k CCU; run full load & security tests
+Scale UA to £8 k/week aiming CPI < $1.20 in Tier‑1 GEOs
+Announce partnerships (GuildFi, Telegram Mini‑Apps) via press release
+Pen‑test sign‑off & patch remaining P1 vulns
+
+[ASSISTANT]
+**Core GTM Sprint (Weeks –12 to +12) in “Week –X – Title” Bullet Format**  
+
+---
+
+**Week –12 – Brand & Strategy Refresh**  
+- Refresh Competitive Scan, Total Addressable Market sizing and Unique Selling Proposition stress-test  
+- Draft brand identity and avatar art  
+- **Spend:** £5 000  
+- **KPIs:** Deck CTR ≥ 2 %; Day-0 retention ≥ 60 %  
+
+---
+
+**Week –11 – UI & Style Guide**  
+- Finalize brand identity and avatar art  
+- Begin User-Interface style guide  
+- **Spend:** £5 000  
+- **KPIs:** Asset approval ≤ 3 days  
+
+---
+
+**Week –10 – Product-Polish Sprint**  
+- Refine onboarding tutorial, core loops and UX flows based on alpha feedback  
+- Integrate GDPR-style consent flow  
+- **Spend:** £5 000  
+- **KPIs:** Tutorial completion ≥ 90 %; NPS ≥ 60  
+
+---
+
+**Week –9 – Creative Planning & Exec Briefing**  
+- Finalize 90 sec teaser storyboard; prep trailer shot list and production schedule  
+- **Exec Briefing #1** for C-suite alignment  
+- **Spend:** £5 000  
+- **KPIs:** Production kickoff on schedule  
+
+---
+
+**Week –8 – Channel Activation & Premiere**  
+- Activate official Telegram channel and supergroup; host welcome events  
+- Publish “Story Beat #1” teaser post  
+- Shoot and post-produce launch video (vertical ≤ 60 sec); create hero key art  
+- Spin up closed alpha (30 players)  
+- **Spend:** £20 000  
+- **KPIs:** Early-ad CTR ≥ 3 %; Day-1 retention ≥ 50 %; crash/error rate < 2 %  
+
+---
+
+**Week –7 – Alpha Tuning Mini-Sprint**  
+- 3-day rapid bug-fix and UX-tweak sprint using alpha feedback  
+- Daily alpha play-tests; capture highlight clips for creators  
+- Publish “Story Beat #2”  
+- **Spend:** £10 000  
+- **KPIs:** Avg. alpha session ≥ 10 min; server latency < 2 s  
+
+---
+
+**Week –6 – Alpha Stress Test & FTUE Pilot**  
+- Continue closed alpha; finalize pacing, economy balance and tech stability  
+- Run FTUE Lightning Pilot (500 users) under load  
+- Publish “Story Beat #3”  
+- **Spend:** £0 (internal)  
+- **KPIs:** Alpha retention ≥ 60 %; alpha crash/error rate < 1 %  
+
+---
+
+**Week –5 – Public Beta & Lore Drop**  
+- Launch public beta (1 000 users): validate FTUE, tutorials and referral prompts  
+- Plan and release lore-drop #1; design and ship sticker pack  
+- Publish “Story Beat #4”  
+- **Spend:** £5 000  
+- **KPIs:** Beta tutorial completion ≥ 90 %; beta user NPS ≥ 60  
+
+---
+
+**Week –4 – Community Build & Backlog Grooming**  
+- Backlog grooming: prioritize beta fixes and small polish items  
+- Launch whitelist microsite and Telegram wait-list bot; conduct lore-drop #2  
+- Publish “Story Beat #5”  
+- **Spend:** £5 000  
+- **KPIs:** 10 000 whitelist sign-ups; CPA ≤ £0.40  
+
+---
+
+**Week –3 – Influencer Seeding**  
+- Sign 10 mid-tier Telegram & YouTube creators (~ 15 M reach); distribute co-marketing asset kits  
+- Publish “Story Beat #6”  
+- **Spend:** £25 000  
+- **KPIs:** 50 000 pre-installs; forecast ROI ≥ 8×  
+
+---
+
+**Week –2 – UA Dry-Run & Dashboard Go-Live**  
+- Run UA dry-runs on Meta and TikTok; deploy invite-a-friend bot  
+- Integrate Telegram-specific metrics (channel opens, bot commands, sticker use) into dashboards  
+- Publish “Story Beat #7”  
+- **Spend:** £30 000 (+£15 000 UA contingency)  
+- **KPIs:** CPI ≤ £0.35; K-factor ≥ 0.3; dashboards live  
+
+---
+
+**Week 0 – Launch Week**  
+- **Exec Briefing #2** for C-suite  
+- Publish and pin launch video; go live on Telegram; host creator tournament livestream; PR push; stand up surge moderation (volunteers + AI-assist)  
+- Publish “Story Beat #8”  
+- **Spend:** £80 000  
+- **KPIs:** Day-0 installs ≥ 500 000; CPI ≤ £0.50; peak CCU ≥ 50 000; server latency < 2 s  
+
+---
+
+**Week +1 – Onboarding & Community Kick-off**  
+- Optimize onboarding via Telemetry.io; launch Weekly Product-Community Review; track Telegram metrics  
+- Deploy support-bot FAQ module; launch “Best Clip of the Week” UGC challenge  
+- **Spend:** £50 000  
+- **KPIs:** Onboarding drop-off < 25 %; Day-7 retention ≥ 25 %; FAQ live; UGC challenge active  
+
+---
+
+**Week +2 – Viral Engagement & Quick Grooming**  
+- Builder-pack viral incentives; meme-relay contest; “surprise & delight” mini-quests  
+- Quick backlog-grooming checkpoint for live-ops feedback; cross-functional sync  
+- **Spend:** £15 000  
+- **KPIs:** K-factor ≥ 0.4; organic share ≥ 30 %  
+
+---
+
+**Week +3 – Monetisation & Retargeting**  
+- Economy and price-point A/B tests; community AMA; Churn Diagnostic Sprint  
+- Retarget Day 1–3 churn cohort (£15 000 retarget burst)  
+- **Spend:** £25 000  
+- **KPIs:** ARPDAU ≥ £0.05; churn causes identified; retarget ROI ≥ 4×  
+
+---
+
+**Week +4 – Content Drop & Review**  
+- Release “Clan Wars” content update; Gamezebo site takeover  
+- **Exec Briefing #3**; Break-Even Review; **All-Hands #1**  
+- **Spend:** £40 000  
+- **KPIs:** MAU ≥ 1 000 000; Day-30 retention ≥ 15 %; break-even modeled  
+
+---
+
+**Week +5 – Regional Localization & Sponsorship**  
+- Produce localized creatives for Brazil, India & Philippines; localize sticker pack & in-bot messaging  
+- Test paid channel sponsorship (Discovery Ads); refresh support-bot FAQ content  
+- **Spend:** £20 000  
+- **KPIs:** CPI ≤ £0.25; Day-3 retention ≥ 35 %; localization QA pass  
+
+---
+
+**Week +6 – Scale, Compliance & Teasers**  
+- Launch PropellerAds campaigns; mid-cycle asset refresh; Battle Pass Teaser  
+- Retarget Day 7–14 churn; post-launch compliance audit (BR/IN/PH); continue mini-quests; sync  
+- **Spend:** £30 000  
+- **KPIs:** Weekly uniques ≥ 500 000; asset uplift ≥ 15 %; compliance sign-off  
+
+---
+
+**Week +7 – Community Tournaments & UGC**  
+- Host regional prize tournaments; micro-influencer push; continue “Best Clip” UGC  
+- **Spend:** £35 000  
+- **KPIs:** Tournament participants ≥ 10 000; micro-content views ≥ 1 000 000  
+
+---
+
+**Week +8 – Performance Deep-Dive**  
+- **All-Hands #2**; analyze regional performance; optimise targeting; mid-phase retention check; Cash-Flow Update  
+- **Spend:** £25 000  
+- **KPIs:** Regional ROI ≥ 4×; Day-3 retention ≥ 35 %  
+
+---
+
+**Week +9 – Expanded Seeding**  
+- Expand influencer seeding; continue surprise & delight quests  
+- **Spend:** £20 000  
+- **KPIs:** Reach ≥ 5 000 000; Day-3 retention ≥ 35 %  
+
+---
+
+**Week +10 – Next Features & Refresh**  
+- Deploy localized referral boosts; **Next Features Workshop**; second mid-cycle asset refresh  
+- **Spend:** £20 000  
+- **KPIs:** K-factor ≥ 0.35; workshop delivered; asset uplift ≥ 15 %  
+
+---
+
+**Week +11 – AMA & Moderation Surge**  
+- Conduct regional community AMAs & Q&As; review surge moderation capacity  
+- **Spend:** £10 000  
+- **KPIs:** AMA attendance ≥ 1 000; Day-3 retention ≥ 35 %  
+
+---
+
+**Week +12 – Final Review & Governance**  
+- Review Weeks +5–+12 performance; **Go/No-Go** gate; **Exec Briefing #4**; **All-Hands #3**  
+- **Spend:** £10 000  
+- **KPIs:** Cumulative MAU ≥ 3 000 000; overall Day-3 retention ≥ 35 %  
+
+---
+
+**Totals**  
+- **Pre-work:** £83 000  
+- **Core Sprint:** £455 000  
+- **Contingency (10 %):** £54 000  
+- **Revised Budget:** ~£592 000
+
+[USER]
+lets remove the second dash between the number and the label and place a : at the endo fthe label
+
+[ASSISTANT]
+**Core GTM Sprint (Weeks –12 to +12) – “Week X: Label” Format**  
+
+---
+
+**Week –12: Brand & Strategy Refresh**  
+- Refresh Competitive Scan, Total Addressable Market sizing and Unique Selling Proposition stress-test  
+- Draft brand identity and avatar art  
+- **Spend:** £5 000  
+- **KPIs:** Deck CTR ≥ 2 %; Day-0 retention ≥ 60 %  
+
+---
+
+**Week –11: UI & Style Guide**  
+- Finalize brand identity and avatar art  
+- Begin User-Interface style guide  
+- **Spend:** £5 000  
+- **KPIs:** Asset approval ≤ 3 days  
+
+---
+
+**Week –10: Product-Polish Sprint**  
+- Refine onboarding tutorial, core loops and UX flows based on alpha feedback  
+- Integrate GDPR-style consent flow  
+- **Spend:** £5 000  
+- **KPIs:** Tutorial completion ≥ 90 %; NPS ≥ 60  
+
+---
+
+**Week –9: Creative Planning & Exec Briefing**  
+- Finalize 90 sec teaser storyboard; prep trailer shot list and production schedule  
+- **Exec Briefing #1** for C-suite alignment  
+- **Spend:** £5 000  
+- **KPIs:** Production kickoff on schedule  
+
+---
+
+**Week –8: Channel Activation & Premiere**  
+- Activate official Telegram channel and supergroup; host welcome events  
+- Publish “Story Beat #1” teaser post  
+- Shoot and post-produce launch video (vertical ≤ 60 sec); create hero key art  
+- Spin up closed alpha (30 players)  
+- **Spend:** £20 000  
+- **KPIs:** Early-ad CTR ≥ 3 %; Day-1 retention ≥ 50 %; crash/error < 2 %  
+
+---
+
+**Week –7: Alpha Tuning Mini-Sprint**  
+- 3-day rapid bug-fix and UX-tweak sprint using alpha feedback  
+- Daily alpha play-tests; capture highlight clips for creators  
+- Publish “Story Beat #2”  
+- **Spend:** £10 000  
+- **KPIs:** Avg. alpha session ≥ 10 min; latency < 2 s  
+
+---
+
+**Week –6: Alpha Stress Test & FTUE Pilot**  
+- Continue closed alpha; finalize pacing, economy balance and tech stability  
+- Run FTUE Lightning Pilot (500 users) under load  
+- Publish “Story Beat #3”  
+- **Spend:** £0 (internal)  
+- **KPIs:** Alpha retention ≥ 60 %; alpha crash/error < 1 %  
+
+---
+
+**Week –5: Public Beta & Lore Drop**  
+- Launch public beta (1 000 users): validate FTUE, tutorials and referral prompts  
+- Plan and release lore-drop #1; design and ship sticker pack  
+- Publish “Story Beat #4”  
+- **Spend:** £5 000  
+- **KPIs:** Beta tutorial completion ≥ 90 %; beta user NPS ≥ 60  
+
+---
+
+**Week –4: Community Build & Backlog Grooming**  
+- Backlog grooming: prioritize beta fixes and small polish items  
+- Launch whitelist microsite and Telegram wait-list bot; conduct lore-drop #2  
+- Publish “Story Beat #5”  
+- **Spend:** £5 000  
+- **KPIs:** 10 000 whitelist sign-ups; CPA ≤ £0.40  
+
+---
+
+**Week –3: Influencer Seeding**  
+- Sign 10 mid-tier Telegram & YouTube creators (≈ 15 M reach); distribute co-marketing asset kits  
+- Publish “Story Beat #6”  
+- **Spend:** £25 000  
+- **KPIs:** 50 000 pre-installs; forecast ROI ≥ 8×  
+
+---
+
+**Week –2: UA Dry-Run & Dashboard Go-Live**  
+- Run UA dry-runs on Meta and TikTok; deploy invite-a-friend bot  
+- Integrate Telegram-specific metrics (channel opens, bot commands, sticker use) into dashboards  
+- Publish “Story Beat #7”  
+- **Spend:** £30 000 (+ £15 000 UA contingency)  
+- **KPIs:** CPI ≤ £0.35; K-factor ≥ 0.3; dashboards live  
+
+---
+
+**Week 0: Launch Week**  
+- **Exec Briefing #2** for C-suite  
+- Publish and pin launch video; go live on Telegram; host creator tournament livestream; PR push; stand up surge moderation (volunteers + AI-assist)  
+- Publish “Story Beat #8”  
+- **Spend:** £80 000  
+- **KPIs:** Day-0 installs ≥ 500 000; CPI ≤ £0.50; peak CCU ≥ 50 000; latency < 2 s  
+
+---
+
+**Week +1: Onboarding & Community Kick-off**  
+- Optimize onboarding via Telemetry.io; launch Weekly Product-Community Review; track Telegram metrics  
+- Deploy support-bot FAQ module; launch “Best Clip of the Week” UGC challenge  
+- **Spend:** £50 000  
+- **KPIs:** Onboarding drop-off < 25 %; Day-7 retention ≥ 25 %; FAQ live; UGC challenge active  
+
+---
+
+**Week +2: Viral Engagement & Quick Grooming**  
+- Builder-pack viral incentives; meme-relay contest; “surprise & delight” mini-quests  
+- Quick backlog-grooming checkpoint for live-ops feedback; cross-functional sync  
+- **Spend:** £15 000  
+- **KPIs:** K-factor ≥ 0.4; organic share ≥ 30 %  
+
+---
+
+**Week +3: Monetisation & Retargeting**  
+- Economy and price-point A/B tests; community AMA; Churn Diagnostic Sprint  
+- Retarget Day 1–3 churn cohort (£15 000 burst)  
+- **Spend:** £25 000  
+- **KPIs:** ARPDAU ≥ £0.05; churn causes identified; retarget ROI ≥ 4×  
+
+---
+
+**Week +4: Content Drop & Review**  
+- Release “Clan Wars” content update; Gamezebo site takeover  
+- **Exec Briefing #3**; Break-Even Review; **All-Hands #1**  
+- **Spend:** £40 000  
+- **KPIs:** MAU ≥ 1 000 000; Day-30 retention ≥ 15 %; break-even modeled  
+
+---
+
+**Week +5: Regional Localization & Sponsorship**  
+- Produce localized creatives for Brazil, India & Philippines; localize sticker pack & in-bot messaging  
+- Test paid channel sponsorship (Discovery Ads); refresh support-bot FAQ content  
+- **Spend:** £20 000  
+- **KPIs:** CPI ≤ £0.25; Day-3 retention ≥ 35 %; localization QA pass  
+
+---
+
+**Week +6: Scale, Compliance & Teasers**  
+- Launch PropellerAds campaigns; mid-cycle asset refresh; Battle Pass Teaser  
+- Retarget Day 7–14 churn; post-launch compliance audit (BR/IN/PH); continue mini-quests; sync  
+- **Spend:** £30 000  
+- **KPIs:** Weekly uniques ≥ 500 000; asset uplift ≥ 15 %; compliance sign-off  
+
+---
+
+**Week +7: Community Tournaments & UGC**  
+- Host regional prize tournaments; micro-influencer push; continue “Best Clip” UGC  
+- **Spend:** £35 000  
+- **KPIs:** Tournament participants ≥ 10 000; micro-content views ≥ 1 000 000  
+
+---
+
+**Week +8: Performance Deep-Dive**  
+- **All-Hands #2**; analyze regional performance; optimize targeting; mid-phase retention check; Cash-Flow Update  
+- **Spend:** £25 000  
+- **KPIs:** Regional ROI ≥ 4×; Day-3 retention ≥ 35 %  
+
+---
+
+**Week +9: Expanded Seeding**  
+- Expand influencer seeding; continue surprise & delight quests  
+- **Spend:** £20 000  
+- **KPIs:** Reach ≥ 5 000 000; Day-3 retention ≥ 35 %  
+
+---
+
+**Week +10: Next Features & Refresh**  
+- Deploy localized referral boosts; **Next Features Workshop**; second asset refresh  
+- **Spend:** £20 000  
+- **KPIs:** K-factor ≥ 0.35; workshop delivered; asset uplift ≥ 15 %  
+
+---
+
+**Week +11: AMA & Moderation Surge**  
+- Conduct regional community AMAs & Q&As; review surge moderation capacity  
+- **Spend:** £10 000  
+- **KPIs:** AMA attendance ≥ 1 000; Day-3 retention ≥ 35 %  
+
+---
+
+**Week +12: Final Review & Governance**  
+- Review Weeks +5–+12 performance; **Go/No-Go** gate; **Exec Briefing #4**; **All-Hands #3**  
+- **Spend:** £10 000  
+- **KPIs:** Cumulative MAU ≥ 3 000 000; overall Day-3 retention ≥ 35 %  
+
+---
+
+**Totals:**  
+- **Pre-work:** £83 000  
+- **Core Sprint:** £455 000  
+- **Contingency (10 %):** £54 000  
+- **Revised Total Budget:** ~£592 000  
+
+[USER]
+what is gamezebo?
+
+[ASSISTANT]
+Gamezebo is a dedicated video-games media outlet that’s been online since 2005. It specializes in news, reviews, guides and features—originally focused on casual and social games, and now covering mobile, PC and Switch titles. Gamezebo also sells advertising packages (e.g., site takeovers) to reach its audience of gamers and casual-play enthusiasts citeturn0search2.
+
+[USER]
+what is PropellerAds 
+
+[ASSISTANT]
+PropellerAds is a technology-driven, multi‐source advertising network that specializes in user acquisition and traffic monetization across desktop and mobile. Key aspects include:
+
+- **Ad Formats:**  
+  - Push Notifications and In‐Page Push (browser/mobile)  
+  - Popunder and Interstitial Ads  
+  - Native and Video Ads citeturn0search4turn0search1  
+
+- **Platform Features:**  
+  - AI‐based ad‐serving and optimization with CPA (Cost-Per-Action) goal pricing  
+  - Advanced demographic and interest targeting  
+  - Real‐time reporting and automated bidding/optimization citeturn0search1turn0search2  
+
+- **Traffic Sources:**  
+  - Proprietary network of websites, apps and push‐subscription channels  
+  - “Multisource” approach lets advertisers access multiple traffic sources via one account citeturn0search3  
+
+- **Global Reach & Localisation:**  
+  - Supports campaigns in Tier-1 and emerging GEOs  
+  - Localised creatives and native-language support for major regions  
+
+- **Integration with Telegram:**  
+  - Recently launched Telegram Ads format for Mini-Apps: up to 100 M impressions/day, 20 % click-through and 50 % conversion on select offers citeturn0search2  
+
+Founded in 2011 and privately held, PropellerAds helps media buyers, agencies and brands scale acquisition with a mix of efficient ad formats and AI-powered optimization.
+
+[USER]
+whoa re there competitors
+
+[ASSISTANT]
+Here are some of the leading ad‐network alternatives and competitors to PropellerAds, across both mass-market and affiliate-focused channels:
+
+- **Adsterra** — Pop­under, push, native and social ads; strong global reach (2.5 M visits/mo) citeturn0search6  
+- **RichAds** — Push, pops, direct-click, native and Telegram-mini-app ads; AI-powered optimization; award-winning iGaming traffic source citeturn0search1  
+- **PopAds (PopAds.net)** — Specialist in pop­under ads with high CPMs; 995 K visits/mo citeturn0search6  
+- **HilltopAds** — Push, popunder, interstitial and mobile-in-app formats; 200+ country coverage; CPM $0.50–$2 citeturn0search8  
+- **Adcash** — Popunder, push, native, banners and video; real‐time bidding; wide GEO support citeturn0search6  
+- **MGID** — Native-advertising network focused on content discovery; programmatic & direct deals  
+- **Taboola** — Native and video discovery ads; vast publisher network; strong for content-driven UA citeturn0search3  
+- **Outbrain** — Native “recommended content” widgets on premium sites; in-feed and video ads  
+- **ZeroPark** — Domain redirect and popunder ads with granular targeting; popular for affiliates  
+- **ClickAdilla** — Push, popunder & on-click ads; high-volume affiliate traffic  
+
+Each of these networks offers a different mix of formats, pricing models (CPM/CPA/CPV), targeting capabilities and regional coverage—so your optimal UA mix will depend on your audience, budgets and performance goals.
+
+[USER]
+who is better than them
+
+[ASSISTANT]
+The answer really depends on your priorities—scale, cost, format or Telegram‐native reach. Here’s a high-level comparison to help you decide which network might be “better” than PropellerAds for your Telegram mini-game:
+
+| Network         | Strengths                                          | When it’s Better Than PropellerAds                          | Citations                        |
+|-----------------|----------------------------------------------------|-------------------------------------------------------------|----------------------------------|
+| **RichAds**     | • Extremely cheap Telegram Mini-App ads (from \$0.03 CPC)  
+• Low competition in the format  
+• AI-driven optimization across push, pop, native | • If your sole focus is Telegram Mini-App UA with minimal budgets and you need the lowest CPC  
+• When you want turnkey, low-friction setup for Telegram ads | citeturn0search5  
+|
+| **Adsterra**    | • Popunders, push, native & social ads  
+• Strong global reach with 2.5 M visits/mo  
+• Competitive CPM/CPA goal pricing | • If you need ultra-broad popunder coverage and diversified formats beyond push  
+• For affiliate-style campaigns where popunders outperform | citeturn0search6turn0search15 |
+| **PopAds**      | • Specialist popunder network with very high CPMs  
+• 995 K visits/mo focused on quality traffic | • If popunders are your main UA driver and you need higher-value impressions  
+• When you want the most-optimized popunder placements | citeturn0search6 |
+| **Taboola / Outbrain** | • Premium native & video discovery ads on top publishers  
+• Excellent for driving mid-funnel engagement & content virality | • If you want brand-safe, high-intent native placements  
+• When click-through to landing pages and long-form content is key | citeturn0search3turn0search6 |
+| **Adcash**      | • Popunder, push, native, banners & video  
+• Real-time bidding and wide GEO support | • When you need a multi-format network with real-time optimization  
+• If you want alternative traffic sources to prop up UA funnels | citeturn0search6 |
+| **HilltopAds**  | • Push, popunder, interstitial & in-app ads  
+• 200+ country coverage; low CPMs (\$0.50–\$2) | • If you need aggressive CPMs on push/pop across emerging markets  
+• When you’re targeting very granular GEOs not covered well by others | citeturn0search8 |
+
+### Key Takeaways
+- **For Telegram-First UA**: **RichAds** wins on cost (from \$0.03 CPC) and low competition.  
+- **For Scale & Reach**: **PropellerAds** remains unbeaten on sheer volume (12 billion daily impressions; 32 000+ advertisers) citeturn0search0.  
+- **For Premium Native**: Turn to **Taboola** or **Outbrain** if you need content discovery on major publisher sites.  
+- **For Popunder-Heavy Campaigns**: **Adsterra** or **PopAds** will give you the highest-quality popunder traffic.  
+
+No single network is universally “best.” Instead, mix and match based on:
+1. **Format** (push vs. pop vs. native)  
+2. **Budget sensitivity** (CPC/CPM floor)  
+3. **Geographic focus** (Tier-1 vs. emerging markets)  
+4. **Campaign goals** (brand lift vs. direct installs vs. retargeting)
+
+By layering PropellerAds for scale, RichAds for ultra-cheap Telegram buys, and a native network for higher-intent placements, you’ll maximize reach, control costs and hit your UA targets most efficiently.
+
+[USER]
+why Brazil, India & Philippines as a market?
+
+[ASSISTANT]
+**Why Focus on Brazil, India & the Philippines?**
+
+1. **Massive Mobile Populations**  
+   - **Brazil**: > 150 M smartphone users, 70 %+ mobile‐only internet adoption.  
+   - **India**: > 750 M smartphone users, fastest‐growing gaming market in the world.  
+   - **Philippines**: > 60 % of population mobile‐only; one of the highest daily screen-time averages globally.
+
+2. **Strong Telegram Penetration**  
+   - These markets sit in the **top 10** for global Telegram monthly active users, ensuring your bot and channel growth taps into existing Telegram communities.
+
+3. **High Growth & Engagement**  
+   - Mobile‐gaming revenues in these countries are growing at 15–25 % CAGR, driven by affordable devices and expanding 4G/5G coverage.  
+   - Players in these regions exhibit some of the highest session lengths and in-app engagement rates worldwide.
+
+4. **Cost-Efficient User Acquisition**  
+   - Average Cost-Per-Install (CPI) in Tier-1 Western markets runs £0.80–£1.20; in BR/IN/PH you can achieve CPIs of £0.10–£0.25 with comparable retention.  
+   - Lower competition in Telegram-native ad formats yields better CPA and K-factor performance.
+
+5. **Vibrant Community & UGC Culture**  
+   - These markets have highly social player communities, driving organic sharing via stickers, forwards and in-chat referrals.  
+   - Cultural affinity for local events (e.g. esports, mobile tournaments) boosts participation in in-game contests and live-ops.
+
+6. **Localization Leverage**  
+   - English plus major local languages (Portuguese, Hindi, Tagalog) cover a huge addressable audience without excessive localization overhead.  
+   - Strong local creator ecosystems on YouTube and Telegram amplify co-marketing efforts.
+
+---
+
+By prioritizing **Brazil, India & the Philippines**, you balance **reach**, **engagement**, and **cost-efficiency**, laying a solid foundation for rapid scale and high-quality retention on Telegram.
+

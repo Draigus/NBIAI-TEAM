@@ -1,0 +1,227 @@
+TITLE: Employee cash cost estimate
+DATE: 2025-11-20
+MESSAGES: 8
+ID: 691ef1eb-97d8-8327-8458-82a798bdb4fe
+---
+
+[USER]
+If I hired 20 people and gave them benefits and pension, what is the total cash cost per month?
+
+[ASSISTANT]
+annual_salary = 40000
+ni_rate = 0.15
+secondary_threshold = 5000
+employer_ni = ni_rate * (annual_salary - secondary_threshold)
+employer_ni
+
+[ASSISTANT]
+total_annual = 49250*20
+total_annual, total_annual/12
+
+[ASSISTANT]
+def per_head_cost(salary, ni_rate=0.15, st=5000, pension_rate=0.05, benefits_rate=0.05):
+    employer_ni = ni_rate*max(0,salary-st)
+    pension = pension_rate*salary
+    benefits = benefits_rate*salary
+    return salary+employer_ni+pension+benefits
+
+for s in [30000,50000]:
+    annual = per_head_cost(s)
+    print(s, annual, annual/12)
+
+[ASSISTANT]
+for s in [30000,50000]:
+    annual = per_head_cost(s)*20
+    print(s, annual, annual/12)
+
+[ASSISTANT]
+Assuming UK employees on typical salaries and a standard benefits package, a good working estimate is that 20 people will cost you roughly **£60k to £100k per month**, depending on salary level and how generous you are with pension and benefits.
+
+To actually put a number on it I need to make some assumptions, so here is one concrete worked example plus a quick way for you to plug in your own numbers.
+
+---
+
+## 1. What drives the employer cash cost
+
+For each employee, your annual cash cost is roughly:
+
+> **Total employer cost  
+> = Gross salary  
+> + Employer National Insurance  
+> + Employer pension contributions  
+> + Employer paid benefits**
+
+Key UK parameters right now:
+
+- Employer NI on salaries is moving to **15%** of earnings above the secondary threshold from April 2025.citeturn1search4turn1search8turn1search10turn1search14  
+- Minimum auto enrolment pension is an overall **8% of qualifying earnings**, of which the employer must pay at least **3%**, but many decent schemes pay **4–6%** from the employer side.citeturn1search1turn1search3turn1search9turn1search15  
+
+For a planning model, most UK SMEs assume:
+
+- Employer NI: about **14–15% of salary**  
+- Employer pension: **3–6% of salary**  
+- Other benefits (healthcare, life, perks): use a flat **3–7% of salary** as an estimate, unless you cost them line by line.
+
+That gives a typical **“on top” load of roughly 20–30% of salary**.
+
+---
+
+## 2. Worked example: average salary £40k, 5% pension, 5% benefits
+
+Assumptions for this example:
+
+- Location: UK, tax year 2025–26  
+- Average gross salary per person: **£40,000**  
+- Employer NI: **15%** of earnings above £5,000  
+- Employer pension: **5%** of full salary  
+- Employer benefits: **5%** of full salary  
+
+Step by step per employee, per year:
+
+1. **Employer NI**
+
+- Taxable earnings for NI = £40,000 − £5,000 = **£35,000**  
+- Employer NI = 15% of £35,000  
+  - 10% of 35,000 = 3,500  
+  - 5% of 35,000 = 1,750  
+  - Total = **£5,250**
+
+2. **Employer pension (5%)**
+
+- 5% of £40,000 = 0.05 × 40,000 = **£2,000**
+
+3. **Employer benefits (5%)**
+
+- 5% of £40,000 = **£2,000**
+
+4. **Total employer cost per employee**
+
+- Salary: 40,000  
+- Employer NI: 5,250  
+- Pension: 2,000  
+- Benefits: 2,000  
+
+Total per employee per year = 40,000 + 5,250 + 2,000 + 2,000  
+= **£49,250**
+
+Per employee per month = 49,250 ÷ 12 ≈ **£4,104**  
+
+Now scale up to **20 people**:
+
+- Annual cost = 49,250 × 20 = **£985,000**  
+- Monthly cost = 985,000 ÷ 12 ≈ **£82,083 per month**
+
+So under these assumptions, **20 staff at £40k each costs you roughly £82k per month in cash outlay**.
+
+---
+
+## 3. How it changes with salary level
+
+Using the same assumptions (15% NI above £5k, 5% pension, 5% benefits):
+
+### If average salary is £30k
+
+Per employee, per year:
+
+- Employer NI: 15% of (30,000 − 5,000) = 0.15 × 25,000 = 3,750  
+- Pension (5%): 1,500  
+- Benefits (5%): 1,500  
+- Total per head = 30,000 + 3,750 + 1,500 + 1,500 = **£36,750**
+
+For 20 people:
+
+- Annual = 36,750 × 20 = **£735,000**  
+- Monthly ≈ **£61,250**
+
+### If average salary is £50k
+
+Per employee, per year:
+
+- Employer NI: 15% of (50,000 − 5,000) = 0.15 × 45,000 = 6,750  
+- Pension (5%): 2,500  
+- Benefits (5%): 2,500  
+- Total per head = 50,000 + 6,750 + 2,500 + 2,500 = **£61,750**
+
+For 20 people:
+
+- Annual = 61,750 × 20 = **£1,235,000**  
+- Monthly ≈ **£102,917**
+
+---
+
+## 4. Quick rule of thumb you can reuse
+
+For UK planning, a simple planning shortcut is:
+
+> **Employer monthly cost for N staff ≈  
+> N × (Average salary ÷ 12) × (1 + overhead%)**
+
+Where:
+
+- Overhead% = Employer NI% on salary + pension% + benefits%  
+- For many reasonable packages, overhead% lands in the **23–30%** range.
+
+So, for example, 20 staff at £40k with a 25% overhead:
+
+- Per head per month base salary = 40,000 ÷ 12 ≈ 3,333  
+- Add 25% overhead: 3,333 × 1.25 ≈ 4,167  
+- For 20 staff: 4,167 × 20 ≈ **£83,340 per month**  
+  (which is very close to the fully worked £82k figure above, the difference is the NI threshold.)
+
+---
+
+## 5. To tighten this for you
+
+If you want a more precise number for your actual plan, tell me:
+
+1. Average salary or a breakdown by role (for example: 5 at 30k, 10 at 45k, 5 at 60k).  
+2. What pension level you want the company to pay as a percent of salary for each group.  
+3. Whether you will offer private healthcare, life insurance, or other benefits that have known annual per-head costs.
+
+I can then plug those straight into a mini model and give you a specific **“20 people = £X per month”** for your exact scenario.
+
+[USER]
+Make the gross salary 60 K
+
+[ASSISTANT]
+Assumptions are the same as before (UK, employer NI 15% on earnings above £5k, 5% employer pension, 5% benefits).
+
+### Per employee at £60k
+
+1. **Employer NI**
+
+- NI-eligible earnings: £60,000 − £5,000 = **£55,000**  
+- Employer NI @ 15%:  
+  - 10% of 55,000 = 5,500  
+  - 5% of 55,000 = 2,750  
+  - Total NI = **£8,250**
+
+2. **Employer pension (5%)**
+
+- 5% of 60,000 = **£3,000**
+
+3. **Employer benefits (5%)**
+
+- 5% of 60,000 = **£3,000**
+
+4. **Total employer cost per employee**
+
+- Salary: 60,000  
+- NI: 8,250  
+- Pension: 3,000  
+- Benefits: 3,000  
+
+**Per employee per year = £74,250**  
+Per employee per month = 74,250 ÷ 12 ≈ **£6,188**
+
+### For 20 employees
+
+- Annual total = 74,250 × 20 = **£1,485,000**  
+- Monthly total = 1,485,000 ÷ 12 = **£123,750 per month**
+
+---
+
+**Answer:** With 20 people on **£60k gross each**, under these assumptions your **total cash cost is about £123,750 per month**.  
+
+Quick self-check: all arithmetic recomputed step by step, NI threshold treated consistently with the earlier example. If you want to change NI %, pension, or benefits, I can re-run the numbers.
+

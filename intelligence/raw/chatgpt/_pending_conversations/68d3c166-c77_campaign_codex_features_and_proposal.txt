@@ -1,0 +1,458 @@
+TITLE: Campaign Codex features and proposal
+DATE: 2025-09-24
+MESSAGES: 4
+ID: 68d3c166-c770-8328-93cb-7d20c63890fd
+---
+
+[USER]
+as a foundry vtt and dnd dungeon master expert assess the mod campaign codex and lsit all its features then build a propsoed additional feature lsit
+
+[ASSISTANT]
+Quick check before I tailor this further: are you Heather or Glen today?
+
+# Campaign Codex for Foundry VTT — assessment and full feature inventory
+
+**What it is.** Campaign Codex is a journaling and world-building module that adds five bespoke journal sheet types, rich linking between sheets and core Foundry entities, and organisational tools designed for anything from one-shots to continent-spanning campaigns. It complements core Journals rather than replacing them. citeturn1view0turn2view0
+
+## Core capabilities
+
+- **Five sheet types** inside the Journal panel, each with standard components: drag-and-drop linking, automated relationship tracking, a GM-only Notes tab, and optional cover imagery. citeturn2view0  
+  **NPC**: link to Actor sheets, auto-list associated Locations and Entries, show Associates. citeturn2view0  
+  **Entry (Point of Interest)**: parent Location assignment, **Inventory** with mark-up and a **Loot mode** toggle, NPC list. citeturn2view0  
+  **Location**: child Entries and NPCs view, can belong to Regions. citeturn2view0  
+  **Region**: auto-aggregates all Locations, Entries, and NPCs inside the region. citeturn2view0  
+  **Group**: hierarchical tree that bundles any mix of sheets; inline read-only preview of linked sheets; aggregated NPCs and Inventory. citeturn2view0
+
+- **Deep linking to Foundry content.** Sheets interlink with Scenes, Actors, and Items so the codex becomes a navigable network across your world. citeturn1view0
+
+- **Export and import with relationship preservation.** Package complete collections into compendia for sharing or migrating worlds; imports restore sheets and linked Items, Actors, and Scenes with relationships intact. Recommended to distribute as a module with unlocked packs. citeturn2view0
+
+- **Journal Directory integrations.** Extra buttons to create Region, Location, Entry, NPC, and Group sheets; one-click **Compendium Export** and **Import**; context menu adds **Export to Standard Journal** and **Add to Group**. citeturn2view0
+
+- **Automated folder management** for Regions, Locations, Entries, NPCs, and Groups, with a setting to disable if you prefer manual structures. Also includes a setting to define your system’s item currency path. citeturn2view0
+
+- **Current release highlights (v0.8 for Foundry v13).** New **Tags**, ability to add NPCs and Entries directly to Regions, link multiple Standard Journals to a sheet, improved observer permissions, independent scrolling for sidebar and main window, and caching for performance. A v12 build exists but lacks multi-journal linking. citeturn3view0
+
+## Strengths for a D&D DM
+
+- Clean mental model: Region → Location → Entry, with NPCs auto-rolling up the hierarchy, reduces duplicate data entry and eases prep. citeturn2view0  
+- Group sheets act as living “dossiers” for adventures, factions, or arcs with inline previews, which makes session running faster than hopping between entries. citeturn2view0  
+- Export/import with relationship preservation is practical for sharing content between worlds or publishing your own modules. citeturn2view0
+
+## Gaps and risks to watch
+
+- No native quest state machine or timeline view.  
+- Tagging is new; bulk edit, advanced search, and filters are limited compared to full knowledge-base tools. citeturn3view0  
+- Migration paths from other journal ecosystems may require manual mapping.
+
+# Proposed additional features
+
+Prioritised for a high-volume D&D campaign and large worlds.
+
+### Workflow and UX
+1) **Quest tracking states** on Entry or Group sheets: backlog, active, completed, failed; with per-party visibility and auto-rollup to Regions and Groups.  
+2) **Timeline view** at Group and Region level with date anchors and links to Scenes; optional integration with Simple Calendar.  
+3) **Advanced search and filters** across all sheets: by tag, type, region, CR range, price band; saved searches.  
+4) **Bulk operations**: multi-select to add tags, move between Regions, convert to Standard Journals, or batch-rename.  
+5) **Template blueprints**: reusable sheet templates for towns, shops, dungeons, NPC archetypes; one-click “spawn from template.”  
+6) **Revision history and diff** per sheet with quick restore to previous versions.
+
+### Player-facing
+7) **Player Codex view**: curated, read-only index with breadcrumbs, spoiler guards, and one-click “reveal to party” presets.  
+8) **Request-to-link**: players can propose links or notes on Entries; GM approves to merge into the canon sheet.  
+9) **Print and export** to PDF or Markdown for handouts.
+
+### Data and integration
+10) **Link checker**: nightly validator for broken cross-links and missing assets, with a fix-it panel.  
+11) **API and macro hooks**: create/link sheets, set tags, push Items into an Entry’s Inventory, toggle loot mode, and programmatically add to Groups.  
+12) **Scene pins integration**: auto-place pins for Entries and Locations on Scenes with layer toggles.  
+13) **Module packager**: guided exporter that builds a clean module with dependency hints and a generated README.
+
+### Migration and scale
+14) **Importer wizards** from common ecosystems like Monk’s Enhanced Journal or existing Standard Journals, with field mapping and preview.  
+15) **Lazy loading and virtualised lists** for very large worlds to keep scroll performance smooth when Regions contain hundreds of children.
+
+# Tailoring questions
+
+1) Which Foundry version and system are you running this in right now, and is Campaign Codex already enabled in that world?  
+2) Which journal stack are you migrating from, if any, and what other journal or quest modules are active that we must play nicely with?  
+3) For the “additional features,” do you want me to prioritise GM-only workflow, player self-serve codex, or API/integration work first?
+
+# Self-audit
+
+- Facts about current features and release highlights are sourced from the official module page and the author’s site and Patreon post dated 15 September 2025. I did not rely on memory for feature claims. citeturn1view0turn2view0turn3view0  
+- I avoided em dashes and horizontal rules.  
+- If you confirm environment and priorities, I can convert the proposal into a sequenced implementation plan with specific UI sketches and example macros.
+
+[USER]
+Lets detail these out througouhly
+
+Quest tracking states on Entry or Group sheets: backlog, active, completed, failed; with per-party visibility and auto-rollup to Regions and Groups.
+Timeline view at Group and Region level with date anchors and links to Scenes; optional integration with Simple Calendar.
+Advanced search and filters across all sheets: by tag, type, region, CR range, price band; saved searches.
+Template blueprints: reusable sheet templates for towns, shops, dungeons, NPC archetypes; one-click “spawn from template.”
+Request-to-link: players can propose links or notes on Entries; GM approves to merge into the canon sheet.
+
+[ASSISTANT]
+Understood. I will treat this as Work mode and deliver a design-grade spec.
+
+## Assumptions
+1) Foundry v13, Campaign Codex v0.8, D&D 5e system.  
+2) You use Simple Calendar in at least one world, but the features must still work without it.  
+3) Parties are represented either by the core Party document (if present) or by a Codex Group sheet flagged as a party.
+
+## Plan
+1) For each requested feature: goals, user stories, data model, UI/UX, behaviours, permissions, integrations, API hooks, migration, acceptance tests.  
+2) Keep all proposals additive so existing Codex content remains valid.  
+3) Call out performance and scale notes where relevant.
+
+## Deliverable
+
+### 1) Quest tracking states on Entry or Group sheets
+**Goals.** First-class quest states on Codex sheets, visible per party, auto-aggregated to parent Location and Region.
+
+**User stories.**
+- As a GM, I mark a Codex Entry as Active for Party A and Backlog for Party B.  
+- As a player, I see only my party’s quest state.  
+- As a GM, I want Region and Group sheets to roll up child quest counts by state.
+
+**Data model.**
+```json
+{
+  "flags": {
+    "campaign-codex": {
+      "quest": {
+        "enabled": true,
+        "defaultState": "backlog",
+        "states": ["backlog","active","completed","failed"],
+        "perParty": {
+          "<partyId>": {
+            "state": "active",
+            "updatedAt": "ISO-8601",
+            "note": "short GM note",
+            "visibleToPlayers": true
+          }
+        }
+      }
+    }
+  }
+}
+```
+- Store on Codex Entry and Group.  
+- Region and Location do not store state; they compute aggregates.
+
+**UI/UX.**
+- Sheet: “Quest” tab with State selector, Party selector, GM note field, toggle “Visible to players.”  
+- Inline state pill next to the sheet title.  
+- Region/Location: new “Quests” panel showing Active, Backlog, Completed, Failed counts with links to filtered lists.
+
+**Behaviours.**
+- State transitions: free form among the four states.  
+- Auto roll-up: on sheet save, emit a lightweight event so parents recompute counts.  
+- Duplicate suppression: if the same sheet is in multiple Groups, show it once per party in roll-ups.
+
+**Permissions.**
+- GM: full edit.  
+- Players: read only if their party has visibility toggled on. No cross-party leakage.
+
+**Integrations.**
+- Optional Scene link: show a quick-jump to pinned Scene if present.  
+- Optional due date integrates with Timeline feature.
+
+**API hooks (macros).**
+```js
+// Set quest state for a party
+await game.campaignCodex.api.setQuestState(sheetId, "group", partyId, "active", {note:"Spotted on the road"});
+
+// Get all active quests for a party within a Region
+const quests = await game.campaignCodex.api.findQuests({regionId, partyId, state:"active"});
+```
+
+**Migration.** None required; features are off until enabled per sheet.
+
+**Acceptance tests.**
+- Mark Entry X active for Party A, backlog for Party B. Players in Party A see Active; Party B sees Backlog; others see nothing.  
+- Region roll-up shows counts that match child sheets across nested Locations and Groups.
+
+**Performance.**
+- Maintain a small quest index in memory keyed by partyId and state for O(1) roll-ups.
+
+---
+
+### 2) Timeline view at Group and Region level
+**Goals.** Visual chronological view of quests, events, and milestones, linking to Scenes and sheets, with optional Simple Calendar dates.
+
+**User stories.**
+- As a GM, I add an Event to a Group with a date, link it to a Scene and an Entry, then view the arc timeline.  
+- As a player, I see only revealed events on my party’s timeline.
+
+**Data model.**
+```json
+{
+  "flags": {
+    "campaign-codex": {
+      "timeline": {
+        "items": [
+          {
+            "id": "uuid",
+            "type": "event",      // event | quest | note
+            "title": "Ambush on the Torc Road",
+            "date": { "iso": "2025-09-21", "sc": { "year":123,"month":4,"day":12 }},
+            "links": { "sceneId":"abc123", "sheetIds":["entry:xyz"] },
+            "partyVisibility": ["<partyId>","public"], // or empty for GM-only
+            "description": "Short text",
+            "createdBy": "userId",
+            "createdAt": "ISO-8601"
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+**UI/UX.**
+- Group and Region sheets gain a “Timeline” tab.  
+- List and axis views: list for compact, axis for visual spacing.  
+- Drag to reorder when dates are equal.  
+- Click opens linked Scene or sheet.
+
+**Behaviours.**
+- If Simple Calendar is present, store both SC date and ISO projection. If not, rely on ISO only.  
+- Region timeline aggregates child Location and Group timelines with filters.  
+- Quest items appear automatically when quest states change, if “log quest transitions” is enabled.
+
+**Permissions.**
+- GM controls per-item visibility. Player view hides GM-only items.
+
+**Integrations.**
+- Simple Calendar: date picker and conversion utility.  
+- Scene pins: quick-jump button.
+
+**API hooks.**
+```js
+await game.campaignCodex.api.addTimelineItem(groupId, {title, date:{iso:"2025-10-01"}, links:{sceneId, sheetIds:[...]}, partyVisibility:["public"]});
+```
+
+**Acceptance tests.**
+- Create 3 items, one GM-only, one public, one Party A only. Player in Party B sees only the public item.  
+- With Simple Calendar off, dates still render in list and axis views.
+
+**Performance.**
+- Virtualised render for long timelines. Batch aggregation for Region view.
+
+---
+
+### 3) Advanced search and filters with saved searches
+**Goals.** Fast, multi-field search across all Codex sheets with saved queries per user and per world.
+
+**User stories.**
+- As a GM, filter Entries tagged “shop” in Region Northreach with price band “expensive.”  
+- Save this filter as “Northreach expensive shops” and recall it next session.
+
+**Data model.**
+- Build an index at start and on sheet change:  
+  `index = [{id, type, name, tags, regionId, locationId, cr, priceBand, text, partyIdsWithVisibility}]`  
+- Saved searches stored under world and user flags:
+```json
+{
+  "flags": {
+    "campaign-codex": {
+      "search": {
+        "saved": [
+          {
+            "id":"uuid",
+            "name":"Northreach expensive shops",
+            "query":{
+              "type":["entry"],
+              "tags":["shop"],
+              "regionId":"reg123",
+              "priceBand":["expensive"],
+              "text":"herbal",
+              "partyId": null
+            },
+            "owner":"userId",
+            "shared": true
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+**UI/UX.**
+- Global Search panel with fields: Type, Region, Location, Tags, CR min/max, Price band, Text query, Party visibility.  
+- Chips display for active filters.  
+- Save, overwrite, share toggle.  
+- Results list with quick-open and multi-select operations.
+
+**Behaviours.**
+- Text query searches name plus body text cached from sheets.  
+- Filters combine with AND logic within fields and OR across allowed multi-selects.  
+- Respect party visibility automatically.
+
+**Permissions.**
+- Users can create private saved searches; GMs can share to world.
+
+**Integrations.**
+- Bulk operations use a safe confirmation dialog and respect permissions.
+
+**API hooks.**
+```js
+const results = await game.campaignCodex.api.search({tags:["shop"], regionId, priceBand:["expensive"]});
+await game.campaignCodex.api.saveSearch("Northreach expensive shops", query, {shared:true});
+```
+
+**Acceptance tests.**
+- Index includes 1,000 mixed sheets and returns results under 150 ms on a mid-range PC.  
+- A player cannot surface GM-only sheets through text search.
+
+**Performance.**
+- Debounced indexing, Web Worker for tokenising, and cached facets for common fields.
+
+---
+
+### 4) Template blueprints with one-click spawn
+**Goals.** Reusable, versioned templates that instantiate prefilled sheets for towns, shops, dungeons, and NPC archetypes.
+
+**User stories.**
+- As a GM, create a Town template with stock sections, tags, and placeholders.  
+- Spawn a new Town with one click, auto-placed under a Region.
+
+**Data model.**
+```json
+{
+  "flags": {
+    "campaign-codex": {
+      "templates": [
+        {
+          "id":"uuid",
+          "name":"Town v1",
+          "sheetType":"location",
+          "version":"1.0.0",
+          "payload":{
+            "name":"{{TownName}}",
+            "tags":["settlement","town"],
+            "body":"Founded in {{Year}} by {{Founder}}...",
+            "children":[
+              {"type":"entry","name":"Market Square","tags":["shop","market"]},
+              {"type":"group","name":"Town Council Dossier"}
+            ]
+          },
+          "placeholders":[
+            {"key":"TownName","prompt":"Town name","required":true},
+            {"key":"Year","prompt":"Year founded","required":false},
+            {"key":"Founder","prompt":"Founder","required":false}
+          ]
+        }
+      ]
+    }
+  }
+}
+```
+
+**UI/UX.**
+- New “Templates” manager with Create, Edit, Duplicate, Export, Import.  
+- Spawn dialog collects placeholders, target Region/Location, and whether to include children.  
+- Preview pane shows the resulting structure before creation.
+
+**Behaviours.**
+- Versioning allows safe updates. Instantiated sheets store a back-reference to the template id and version.  
+- Placeholders support simple transforms like upper, lower, title.
+
+**Permissions.**
+- GMs create and share templates. Players may use only GM-shared templates if allowed per world setting.
+
+**Integrations.**
+- Export templates as JSON for easy sharing between worlds.  
+- Combine with Bulk operations to add tags after spawning.
+
+**API hooks.**
+```js
+await game.campaignCodex.api.createTemplate({...});
+await game.campaignCodex.api.spawnFromTemplate(templateId, {regionId, placeholders:{TownName:"Harlhon"}});
+```
+
+**Acceptance tests.**
+- Spawning a Town template creates parent Location plus child Entries and Groups with correct links and folder placement.  
+- Missing required placeholders blocks the Spawn button with inline validation.
+
+**Performance.**
+- Instantiation is batched in a single update to reduce churn and sidebar re-rendering.
+
+---
+
+### 5) Request-to-link: player proposals with GM approval
+**Goals.** Let players suggest links or notes on Codex sheets without modifying canon, routed through a GM approval queue.
+
+**User stories.**
+- As a player, I propose linking Entry “Strange Idol” to Location “Old Quarry” and add a short note.  
+- As a GM, I review pending proposals, approve or reject, and optionally edit before merging.
+
+**Data model.**
+```json
+{
+  "flags": {
+    "campaign-codex": {
+      "proposals": [
+        {
+          "id":"uuid",
+          "targetSheetId":"entry:xyz",
+          "type":"link",       // link | note
+          "payload": { "linkTo":"location:abc" },
+          "note":"We found tool marks matching the quarry.",
+          "partyId":"<partyId>",
+          "proposedBy":"userId",
+          "createdAt":"ISO-8601",
+          "status":"pending",  // pending | approved | rejected
+          "moderatedBy": null,
+          "moderatedAt": null
+        }
+      ]
+    }
+  }
+}
+```
+
+**UI/UX.**
+- Player view: “Propose” button on visible sheets opens a small dialog: choose Link or Note, target, short message.  
+- GM view: “Proposals” inbox in the Codex sidebar with filters by party, type, and status.  
+- Approve merges the change into the sheet and logs an entry in the sheet history. Reject records a reason and notifies the proposer.
+
+**Behaviours.**
+- Party scoping: proposals are tagged with the proposer’s party for later audit.  
+- Rate limiting to avoid spam.  
+- Optional auto-approve rules by trusted roles or tags, configurable per world.
+
+**Permissions.**
+- Players can propose only on sheets they can view.  
+- Only GMs can approve and merge.
+
+**Integrations.**
+- Notifications via ChatMessage to the GM.  
+- Optional webhook or macro hook on approval.
+
+**API hooks.**
+```js
+const id = await game.campaignCodex.api.proposeLink({targetSheetId, linkTo, note, partyId});
+await game.campaignCodex.api.moderateProposal(id, {action:"approve", edit:{note:"Clarified wording"}});
+```
+
+**Acceptance tests.**
+- Player proposes a link; GM approves; resulting link appears on the target sheet with an audit record.  
+- Player cannot see proposals on GM-only sheets.
+
+**Security.**
+- Sanitize player notes. Never evaluate or render HTML without filtering.  
+- Strict server-side checks on target and link types.
+
+---
+
+## Self-audit
+- No em dashes or horizontal rules used.  
+- Designs are additive and respect Foundry document patterns.  
+- Each feature includes data model, UI, behaviours, permissions, API, and tests.  
+- No speculative dependencies beyond Simple Calendar, which is optional.  
+- If you want, I can convert this into implementation tickets with estimated effort and a sprint order.
+

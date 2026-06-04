@@ -1,0 +1,166 @@
+TITLE: Veteran Technical Animator Salary
+DATE: 2026-01-21
+MESSAGES: 7
+ID: 6970a58c-f3f8-832c-9d1b-90bb567c761b
+---
+
+[USER]
+for a veteran technical animator base salary what is the base salary for denmark make sure you have multiple sources in the salary
+
+[ASSISTANT]
+Before I answer, who is this: Heather or Glen?
+
+## Assumptions
+- “Veteran technical animator” = senior individual contributor (roughly 8+ years), not a people manager.
+- Base salary only (excludes bonus, pension, equity).
+- Denmark market rate (Copenhagen will typically be at the top end vs smaller cities).
+
+## Brief plan
+- Pull Denmark pay anchors for closely adjacent roles (Animator, Character Animator, Technical Artist) from multiple sources.
+- Convert any monthly figures to annual.
+- Triangulate a veteran Technical Animator base salary range for Denmark.
+
+## Deliverable
+A defensible **base salary range for a veteran (8+ yrs) Technical Animator in Denmark** is:
+
+- **DKK 650,000 to 800,000 per year (base)**
+- Midpoint to use in a comp table: **DKK 725,000 per year (base)**
+
+Why this range (multi-source triangulation):
+1) **Senior animator anchors (8+ yrs)** from ERI-powered SalaryExpert are around **DKK 762,000 to 763,000 per year** for senior animation roles (Character Animator, 2D Animator). citeturn3search8turn2search1  
+2) **Technical Artist anchor** for Denmark is about **DKK 630,515 per year average**, with an upper range near **DKK 766,076** (same ERI/ERI-powered family, but it brackets the technical side). citeturn2search4  
+3) A Denmark-specific local-facing anchor for **Animator** shows **45,008 DKK per month** (which is **540,096 DKK per year**, because 45,008 × 12 = 540,096). This is “Animator” broadly, so a veteran technical specialist typically sits above it. citeturn5view0  
+4) Glassdoor’s Copenhagen Animator page reports **base pay of DKK 27K to 40K per month**, which annualizes to **DKK 324,000 to 480,000** (27,000 × 12 = 324,000; 40,000 × 12 = 480,000). It’s labeled “Low Confidence” and “all years,” so I treat it as a lower-bound signal rather than the main driver for a veteran specialist. citeturn1view2
+
+Practical monthly equivalent (base):
+- **DKK 650,000 per year ÷ 12 = ~DKK 54,167 per month**
+- **DKK 800,000 per year ÷ 12 = ~DKK 66,667 per month**
+
+## Self-audit
+- Used multiple sources and called out confidence differences (ERI/SalaryExpert vs local monthly stat vs Glassdoor low-confidence).  
+- Converted monthly to annual explicitly and checked arithmetic.  
+- The result is a triangulated estimate because Denmark-specific “Technical Animator” benchmarks are sparse; I anchored to nearest roles with Denmark data.
+
+If you tell me **(1) Copenhagen vs Billund vs “any Denmark,”** and **(2) senior IC vs lead/manager**, I can tighten the range and pick a cleaner midpoint for your sheet.
+
+[USER]
+What is the salary converted to UK GBP?
+
+[USER]
+What is the salary converted to UK GBP? and this is a lead animator 
+
+[ASSISTANT]
+Before I answer in your preferred style, who is this: Heather or Glen?
+
+## Assumptions
+- Role is **Lead Animator** (game studio), senior IC lead (not a department head).
+- **Base salary only**, annual, Denmark.
+
+## Brief plan
+- Set a Denmark lead-level annual base range using Denmark animator anchors from multiple sources.
+- Convert that DKK range to GBP using a current DKK→GBP spot rate.
+
+## Deliverable
+
+### 1) Denmark Lead Animator base salary (annual, DKK)
+A practical **Lead Animator base salary range for Denmark** is:
+
+- **DKK 700,000 to 850,000 per year (base)**
+- Midpoint for your sheet: **DKK 775,000 per year (base)**
+
+Anchors used (Denmark data):
+- Senior animator levels sit around **DKK 762K to 763K** (senior 8+ years) on SalaryExpert for 2D Animator and Character Animator. citeturn2search7turn0search5  
+- ERI’s Denmark 3D Animator range runs up to about **DKK 832K**, which is consistent with lead-level landing near the top end. citeturn1search4  
+- A Denmark “Animator” monthly average of **DKK 45,008 per month** (about **DKK 540,096 per year**) helps sanity-check that lead should price above general animator averages. citeturn2search3  
+
+### 2) Converted to UK GBP (annual)
+Using **1 DKK = 0.116899 GBP** (21 Jan 2026). citeturn0search0  
+Cross-check sources show roughly the same spot level. citeturn0search7  
+
+Conversion: **GBP = DKK × 0.116899**
+
+- **DKK 700,000 × 0.116899 = GBP 81,829**
+- **DKK 775,000 × 0.116899 = GBP 90,597**
+- **DKK 850,000 × 0.116899 = GBP 99,364**
+
+So, **Lead Animator Denmark base** converted to GBP is:
+
+- **GBP 81,800 to 99,400 per year (base)**  
+- Midpoint: **about GBP 90,600 per year (base)**
+
+## Self-audit
+- Multiple Denmark salary anchors used (SalaryExpert, ERI, Denmark monthly average), then lead positioned near the upper end.
+- Exchange rate is date-specific and cited; arithmetic shown explicitly.
+
+If you tell me whether this is **Copenhagen** specifically (or “any Denmark”), I can tighten the range further.
+
+[USER]
+Did you derive this salary or did you find multiple cited locations with job roles that match this range? Or did you find a salary report from the last three months that support it? If not, can you attempt to do that? Because this needs to be completely accurate and not sloppy or guesswork.
+
+[ASSISTANT]
+Before I dive in: Heather or Glen?
+
+## Assumptions
+- Role: **Lead (veteran) Technical Animator**.
+- Pay: **annual base salary** in **DKK**, excluding bonus, equity, pension, and allowances.
+- Location: you said “Denmark” (not specifically Copenhagen). I will still use Copenhagen-centric benchmarks where the source is Copenhagen, because most game studios cluster there.
+
+## Brief plan
+1) Find Denmark and Copenhagen animator benchmarks from multiple sources, prioritising items updated in the last 3 months.  
+2) Check for Denmark game studio, animator-related pay datapoints.  
+3) If no credible “Lead Animator Denmark” dataset exists, produce a range that is explicitly marked as inferred, and keep it inside the supported Denmark ranges.
+
+## Deliverable
+
+### What I actually found (recent, Denmark specific)
+These are **directly sourced** figures (not my own derivation):
+
+- **ERI: 3D Animator, Denmark (updated January 21, 2026)**  
+  Average **DKK 684,907**, with a salary range **DKK 480,120 to DKK 832,161**. citeturn16view0
+
+- **ERI: Game Artist, Copenhagen (updated January 21, 2026)**  
+  Average **DKK 657,491**, with a salary range **DKK 456,298 to DKK 800,824**. citeturn21view0
+
+- **ERI SalaryExpert: 2D Animator, Denmark (updated December 20, 2025)**  
+  Average base **DKK 617,093**; “senior level (8+ years)” **DKK 762,088**. citeturn23view0
+
+- **Studentum (Denmark): Animator average monthly pay**  
+  **DKK 45,008 per month**, citing ug.dk text plus a pay growth update using Denmark Statistics (Danmarks Statistik) pay level series. citeturn22view0  
+  (That monthly number implies about **DKK 540,096 per year** if you annualise it as 12x, but note it is not games-specific.)
+
+- **Glassdoor: IO Interactive (Copenhagen), “Animator” (3 submissions)**  
+  **DKK 300K to DKK 486K per year**. This is games-studio-specific, but small sample size and notably lower than the survey-based Denmark benchmarks above. I treat it as a weak, potentially underreported anchor, not as the market midpoint. citeturn24view0
+
+### Did I find a Denmark “Lead Animator” report from the last 3 months?
+- I found **fresh Denmark salary survey data** (ERI and SalaryExpert) updated **January 21, 2026** and **December 20, 2025**, but those pages are for **3D Animator / 2D Animator / Game Artist**, not explicitly “Lead Technical Animator.” citeturn16view0turn21view0turn23view0  
+- I did **not** find a credible, Denmark-specific, publicly viewable dataset that cleanly labels **Lead Animator** (or Lead Technical Animator) with a stable sample size.
+
+### So what is the Denmark base salary for a Lead Technical Animator?
+Because there is no clean Denmark “Lead Technical Animator” dataset here, any single number would be **inference**. The least-sloppy way to do this is to keep the lead estimate inside the **Denmark/Copenhagen upper-quartile envelope** that the sources support.
+
+**Evidence-supported range (annual base, DKK):**
+- **Min:** **DKK 700,000**  
+- **Mid:** **DKK 770,000**  
+- **Max:** **DKK 830,000**  
+
+Why that band: it sits above the Denmark averages for animator-adjacent roles, and it stays within (or right up against) the upper end of the Denmark/Copenhagen ranges from ERI and SalaryExpert. citeturn16view0turn21view0turn23view0
+
+### Convert to UK GBP
+Using Wise’s mid-market rate for **January 21, 2026**: **1 DKK = 0.1169 GBP**. citeturn20view1
+
+Step-by-step:
+- **DKK 700,000 × 0.1169 = GBP 81,830**
+- **DKK 770,000 × 0.1169 = GBP 90,013**
+- **DKK 830,000 × 0.1169 = GBP 97,027**
+
+So the lead technical animator band in GBP is approximately:
+- **£81.8k to £97.0k**, midpoint **£90.0k**. citeturn20view1
+
+## Self-audit
+- Multiple Denmark sources used: ERI (3D Animator DK, Game Artist Copenhagen), SalaryExpert (2D Animator DK), Studentum (DK animator avg monthly), plus a Denmark game studio datapoint (IO Interactive via Glassdoor). citeturn16view0turn21view0turn23view0turn22view0turn24view0  
+- Recency: ERI updated **January 21, 2026**; SalaryExpert updated **December 20, 2025**, both within 3 months. citeturn16view0turn21view0turn23view0  
+- Lead-specific precision: **Not directly sourced**, explicitly marked as inferred.
+
+## One clarifying question that materially affects the number
+Is this lead role assumed to be **Copenhagen hub** (most likely) or **Denmark-wide including non-hub**? If you say “Copenhagen hub,” I will keep the band as-is. If you say “Denmark non-hub,” I will re-anchor closer to the national averages and tighten downward.
+

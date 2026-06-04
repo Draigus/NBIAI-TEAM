@@ -1,0 +1,483 @@
+TITLE: Investor forecast questions
+DATE: 2025-10-17
+MESSAGES: 10
+ID: 68f22a75-327c-8329-956d-82718653a379
+---
+
+[USER]
+list all of the detailed questions that an investor or an analyst working for an investor might ask of the forecast for sarge (no blockchain or bit coin)
+
+[ASSISTANT]
+Here is a diligence checklist investors typically push on a mobile F2P forecast like Sarge’s, grouped for speed. I have tailored several to Sarge’s planned systems, cadence, and pricing.
+
+# 1) Scope, structure, and auditability of the model
+- What products, platforms, markets, and SKUs are in scope for this forecast, and which are explicitly out of scope?
+- Is the unit of account clearly set for every sheet and metric: user, cohort, country, platform, or global aggregate?
+- What is the primary time base: day for the first 90 days, then month, or month only?
+- Are all KPI definitions pinned in a metrics dictionary with formulas and sources?
+- Is there a clean separation between Assumptions, Calculations, and Outputs with change logs and version tags?
+- Can every major output roll back to inputs through a short audit trail?
+- Are currency, FX rates, fees, tax and VAT rules parameterised by country?
+
+# 2) Market context and benchmarks
+- Which comparator titles drive benchmarks for retention, conversion, ARPPU, and CPI?
+- What ranges were used for base, high, and low, and why are they appropriate for a Telegram-first RTS?
+- What evidence supports the assumed battle pass conversion relative to strategy peers?
+
+# 3) Acquisition and growth
+- What launch countries, sequencing, and gates are assumed? Soft launch vs global timing?
+- What paid channels are modelled, expected CPIs by channel, and what learning budget is allocated?
+- What organic drivers are assumed: creator programs, referral loops, K-factor, store featuring, PR?
+- What is the payback curve by channel and by country, and how sensitive is it to D7 and D30 retention?
+- What caps or throttles exist on daily net new installs during the first 12 weeks?
+
+# 4) Retention and engagement curves
+- What are the D1, D3, D7, D14, D30, D60, and D90 retention assumptions by cohort?
+- How do live events, tournaments, and shop resets alter session count and session length assumptions during those windows?
+- What percentage of players finish the monthly progression track under the current XP pacing and what is the median tier reached? fileciteturn2file0L46-L56
+- What reactivation rates are assumed from events, updates, and paid re-engagement?
+
+# 5) Monetisation model, pricing, and mix
+- Which SKUs are live at Day 1, and what is the attach rate target by price band? fileciteturn2file11L76-L96
+- What is the expected revenue mix in Month 1 and Month 6 across credit bundles, battle pass, cosmetics, shields, and starter packs? fileciteturn2file7L4-L12
+- What share of revenue comes from top price tiers versus the core £9.99–£19.98 band, and how does that evolve? fileciteturn2file11L1-L19
+- What whale share threshold is assumed for top 1 percent and top 10 percent of payers?
+
+# 6) Battle pass economics and pacing
+- What is the price, content value, and cadence of the monthly pass, and how does it translate to ARPDAU uplift during pass windows? fileciteturn2file2L5-L16
+- What exact XP per day is required to finish the 30 tiers in 28 days, and what completion distribution is assumed across cohorts? fileciteturn2file2L123-L127 fileciteturn2file0L46-L56
+- What battle pass conversion is assumed for Season 1, what is the range analysis against market benchmarks, and how sensitive is LTV to a 500 bps swing? fileciteturn2file0L77-L89
+- How is the Month 3 Commander Pass step-change modelled for revenue, conversion cannibalisation, and payer ASP? fileciteturn2file2L26-L36
+
+# 7) LiveOps calendar and event uplifts
+- What ARPDAU and conversion uplift is assumed for standard weekend events, and what is the source benchmark range used? fileciteturn2file3L90-L103
+- How many flash sales per month by SKU tier, with what cooldown and purchase limits, and what uplift is assumed versus baseline? fileciteturn2file3L13-L21 fileciteturn2file3L31-L41
+- How do rotating shop resets three times per week translate to incremental revenue and churn risk from overexposure? fileciteturn2file3L126-L135
+- How are daily and weekly challenges contributing to log-ins, time spent, and monetisation windows during Season 1? fileciteturn2file12L1-L9
+
+# 8) Competitive play, tournaments, and prize pool ROI
+- What participation rates and conversion uplifts are assumed from monthly, quarterly, and annual tournaments?
+- What CAC efficiency or creator activation is attributed to the tournament calendar versus standard marketing?
+- What is the annual cash prize budget in the model, and why does the documentation reference both £270k and £275k totals? Reconcile and show P&L impact. fileciteturn2file12L40-L50 fileciteturn2file10L1-L4
+- What is the expected viewership and replay UGC flywheel from ladders that feed into cash events? fileciteturn2file9L1-L11
+- Are entry paths purely progression-based with no real-money requirement, and how is fairness enforced at tournament time? fileciteturn2file9L67-L75 fileciteturn2file9L81-L87
+
+# 9) Content cadence and scope
+- What maps, modes, and cosmetics ship at launch, and how is that reflected in the first 90 days of the revenue curve? fileciteturn2file1L8-L16 fileciteturn2file5L1-L9 fileciteturn2file5L71-L79
+- What monthly additions are budgeted in Year 1 for maps and skins, and what resource plan backs that cadence? fileciteturn2file4L74-L82 fileciteturn2file4L120-L129
+- Are new modes in Year 1 modelled for engagement uplifts and one-off monetisation spikes? fileciteturn2file4L101-L110
+- No purchasable gear in Year 1: what revenue headroom is deferred to Year 2 and how is that captured in LTV scenarios? fileciteturn2file4L51-L66
+
+# 10) Payer funnel and segmentation
+- What is the assumed first-purchase day distribution and ASP for first purchase?
+- What is payer conversion by D7 and D30, and the repeat-purchase rate by month?
+- What fraction of revenue is projected from starter packs, and what one-time attach rates are assumed within purchase windows? fileciteturn2file7L4-L12
+- How is churn among payers modelled versus non-payers after flash sale cycles?
+
+# 11) UA economics and payback
+- Install-to-tutorial completion, tutorial-to-match, match-to-retention conversion rates: what are the funnel targets?
+- What LTV curves by source justify the planned CPIs and budgets?
+- What is the Month-over-Month cohort cash payback and the 180-day payback share of spend?
+
+# 12) Geography, platform, fees, and compliance
+- Which regions are modelled with local pricing, payment fees, and tax?
+- What fee assumptions are used for payment processing on the launch platform, and what sensitivities are run for future platform expansion?
+- Are legal, AML, and prize fulfilment costs for tournaments fully burdened into COGS or Marketing?
+
+# 13) Operating costs and margins
+- What are the server, CDN, analytics, and anti-cheat costs per DAU and per concurrent peak?
+- What are LiveOps and support headcount ramps tied to content cadence?
+- Gross margin by month and year after payment fees, infra, and prize pools.
+
+# 14) Scenarios, sensitivity, and risk
+- What are the explicit base, high, and low levers for retention, conversion, ARPPU, CPI, and content cadence?
+- What scenario mix shifts are predefined for delays or under-performance in a mode or feature?
+- Provide tornado charts for the top five value drivers and show which uncertainty dominates NPV variance.
+- What risks are logged with mitigations and checkpoints?
+
+# 15) Evidence, governance, and reporting
+- Link every non-obvious assumption to a source, benchmark, or internal test. What is the freshness date on each?
+- How will weekly actuals feed into the model, and what triggers a re-forecast?
+- What is the reporting pack to share with investors for the first 12 weeks post-launch?
+
+# 16) Sarge-specific alignment checks to close
+- Confirm that the 30-tier, 28-day battle pass and 10,000 XP track are consistently represented in pacing, pass conversion, and XP sinks. fileciteturn2file0L46-L56 fileciteturn2file2L123-L127
+- Validate assumptions for 3 shop resets per week, planned flash sale cadence, and weekend ARPDAU uplift against the revenue curve. fileciteturn2file3L126-L135 fileciteturn2file3L13-L21 fileciteturn2file3L90-L101
+- Reconcile tournament prize budgets and show ROI attribution in acquisition and retention. fileciteturn2file12L40-L50 fileciteturn2file10L1-L4
+- Map launch content and Year-1 cadence to capacity, cost, and forecast uplifts by content drop. fileciteturn2file1L8-L16 fileciteturn2file4L74-L82
+
+If you want, I can turn this into a one-click diligence worksheet that mirrors your current Sarge model’s tabs and levers.
+
+[USER]
+as a master investor in video games assess these questions and make sure there arent more we need to answer
+
+[ASSISTANT]
+Below is a tight audit from an investor’s lens. Your current list is strong on core F2P economics, but there are several missing areas investors will probe before signing a cheque. I have grouped the gaps and added precise questions. Labels: Critical, Important, Useful.
+
+# 1) Data provenance, methodology, and QA  [Critical]
+- What historical or proxy data underpins every curve, and what is the provenance for each benchmark and its freshness date?
+- How are inputs versioned and locked for experiments versus board reporting?
+- What automated tests prevent broken links, circular refs, and unit mismatches in the model?
+- What is the reconciliation from granular cohort output to headline P&L and cash?
+
+# 2) Calibration, drift, and backtesting  [Critical]
+- What is the plan to backtest the model on soft launch cohorts and re-fit curves monthly?
+- What thresholds trigger a re-forecast, and who is the decision owner?
+- What is the expected model error band by metric at D30, D90, and 12 months, based on peer backtests?
+
+# 3) Telegram-first distribution realities  [Critical]
+- What friction points are modelled for Telegram Mini App onboarding versus iOS or Android native flows?
+- By region, what is Telegram penetration for our target audience and how does that flow into top-of-funnel TAM and CPI?
+- What policy or platform risks are modelled for Telegram changes to payments, gaming rules, or discoverability?
+- What is the contingency path for distribution expansion beyond Telegram and how is that represented in scenarios?
+
+# 4) Payments, refunds, chargebacks, and KYC  [Critical]
+- What refund and chargeback rates are assumed by region and payment rail?
+- What KYC and prize fulfilment costs are included for cash tournaments, and where do they sit in the P&L?
+- How are failed transactions, payment retries, and currency conversions handled in revenue recognition and cash timing?
+
+# 5) Fraud, bots, multi-accounting, and integrity  [Critical]
+- What bot rates and duplicate-account rates are assumed, and how do they impact retention, conversion, and tournament integrity?
+- What anti-cheat and risk tooling costs per DAU are modelled?
+- What KPI guardrails flag anomalous payer behaviour or abuse of starter packs and flash sales?
+
+# 6) LiveOps capacity and toolchain feasibility  [Critical]
+- What authoring and deployment pipeline exists to deliver the promised cadence of maps, events, and shop rotations?
+- What LiveOps staffing ramp and on-call posture is assumed to hit weekend events and tournament schedules without slippage?
+- What content backlog buffer exists to survive two missed drops without hurting revenue?
+
+# 7) Technology scale and cost curves  [Critical]
+- What is the concurrency profile by time zone and event type, and how do infra costs scale at P95 and P99 spikes?
+- What is the resilience plan for prize events under load, and what SLA penalties are budgeted for outages?
+- What is the per-DAU cost split for servers, CDN, analytics, anti-cheat, and observability, and how elastic are these costs?
+
+# 8) Regulatory, data protection, and child safety  [Critical]
+- Which regions are excluded or age-gated for tournaments, and how is geo-fencing enforced?
+- How do GDPR, UK GDPR, and EU DSA obligations map onto analytics, profiling, and right-to-erasure workflows?
+- Are under-18 users modelled separately with different monetisation and communications rules?
+
+# 9) Accounting policies and recognition  [Critical]
+- What is the revenue recognition policy for virtual currency, time-limited passes, and tournament fees or sponsorships?
+- What portion of bookings is deferred, and what is the monthly unwind schedule?
+- Are third-party fees in COGS or contra revenue, and is this consistent across regions?
+
+# 10) Cash flow, funding runway, and payback integrity  [Critical]
+- What is the monthly net cash bridge from bookings to bank, including fees, refunds, prize payouts, and UA spend phasing?
+- What are the runway checkpoints tied to UA scale-up gates and content cadence risk?
+- At what D180 payback percentile does UA scale pause in each scenario?
+
+# 11) Seasonality, geography, and localisation  [Important]
+- How are Ramadan, Golden Week, summer holidays, and end-of-year holidays reflected in acquisition, retention, and monetisation?
+- What is the localisation plan and cost per language, and what uplift is assumed for each language add?
+- What regional pricing tiers and purchasing power indices are used, and how often are they refreshed?
+
+# 12) Competitive response modelling  [Important]
+- What collision risk windows are mapped against competitor launches and large updates?
+- What is the expected CPI surge under competitive pressure, and how is spend throttled or redeployed?
+- What counter-programming events are pre-planned and budgeted?
+
+# 13) Creator, UGC, and community economics  [Important]
+- What creator incentive budget exists, what CPA or CAC lift is assumed, and how is fraud prevented in creator attribution?
+- What UGC or tournament broadcast rights exist, and do we model any sponsorship or media revenue in Year 2+?
+- What moderation workload and cost per 1,000 DAU is included for community channels?
+
+# 14) Ads readiness, even if not day one  [Important]
+- If ads are added later, what waterfall and fill assumptions would be used, and what is the expected ARPDAU without payer cannibalisation?
+- What is the content rating strategy to keep premium network eligibility open?
+
+# 15) Accessibility, performance, and device coverage  [Important]
+- What device minimums and performance targets are assumed, and what share of potential TAM is excluded by spec?
+- What accessibility features affect retention for older or less dexterous players, and are they costed?
+
+# 16) Testing, experimentation, and decision rights  [Important]
+- What sample size calculator and MDE thresholds govern A/B decisions on pricing and XP pacing?
+- Who owns greenlight on price moves and progression changes, and what cooling-off rules protect payer trust?
+
+# 17) KPI definitions, telemetry, and reporting SLAs  [Important]
+- Are metric definitions fully pinned and immutable in a metrics dictionary used by both product and finance?
+- What is the data latency SLA for the board pack and how are late sources handled?
+- What three KPI alert thresholds will wake the team at 02:00 on a tournament weekend?
+
+# 18) Sensitivities beyond the top five  [Useful]
+- Run multi-factor sensitivities that combine bad-case retention with CPI shocks and missed content drops.
+- Add sensitivities for refund spikes, payment rail outages, and policy changes on Telegram.
+
+# 19) Talent, hiring plan, and execution risk  [Useful]
+- Are the engineering, art, and LiveOps hires sequenced to support the Year 1 roadmap, and what hiring slip risk is priced into scenarios?
+- What is the plan if key hires are delayed by 60 to 90 days?
+
+# 20) Exit paths and valuation framing  [Useful]
+- What valuation approaches are used for the board: revenue multiples, gross profit multiples, and DCF triangulation?
+- What milestones de-risk a strategic exit route versus a growth financing path?
+
+# Tightening a few of your existing sections
+Your list already covers acquisition, retention, monetisation, LiveOps cadence, and tournaments. I recommend these refinements to make it investor-proof:
+- Add explicit numeric ranges and sources in every question that references a benchmark or uplift. Investors want traceable numbers, not just topics.
+- Require a payback by channel table with D30, D90, and D180 for every UA lever. Include throttles when payback breaches guardrails.
+- For battle pass pacing, add a percentile completion distribution target and a plan for XP tuning without player backlash.
+- For tournaments, add a bracket integrity checklist, fraud thresholds, and a budget line for independent adjudication on finals.
+- For shop design, add a SKU fatigue guardrail that limits exposure frequency to prevent conversion decay.
+
+# Acceptance tests to declare the question set complete
+Investors will accept the diligence pack when:
+1) Every question maps to a named tab, variable, or chart in the model.  
+2) Each non-obvious assumption has a source, a date, and a confidence tag.  
+3) Sensitivity pages include at least one tornado chart and one multi-factor downside combining three independent shocks.  
+4) There is a backtesting plan with target error bands and a re-forecast protocol.  
+5) A 12-week post-launch reporting pack is templated with owners, refresh cadence, and alert thresholds.
+
+If you want, I can integrate these into a single diligence worksheet that mirrors your current model tabs and includes a status column, owner, due date, and evidence link for each question.
+
+[USER]
+and you think investors are going to ask these questions??
+
+[ASSISTANT]
+Short answer: yes. Tier-1 gaming VCs and buy-side analysts routinely press on exactly these areas because they map to the few things that actually drive valuation: retention-led LTV, payback discipline, LiveOps capacity, and platform risk.
+
+A few receipts:
+
+- Retention and cohort quality are the first class questions for PMF and LTV. Sequoia and a16z both put retention and LTV-to-CAC at the centre of diligence and scaling decisions. citeturn0search0turn0search10turn0search1
+
+- Cohort tables, backtests, and forecast hygiene are standard asks in fundraising checklists and “what investors expect” guides. You will be asked to surface raw cohort retention, stickiness, and the forecast that ties to the board pack. citeturn0search4turn0search22turn0search13
+
+- Benchmarks for D1, D7, D30, ARPDAU, ARPPU, and conversion are expected on the spot. GameAnalytics and Deconstructor of Fun are common reference points when investors pressure-test your curves and LiveOps uplift assumptions. citeturn0search7turn0search12turn0search21turn0search6
+
+- UA payback by channel and scenario is table-stakes. Every credible guide for investors emphasises LTV:CAC, channel CPIs, and disciplined scale-up rules. citeturn0search19turn0search10
+
+- Platform and payments risk for Telegram Mini Apps is not optional. Telegram docs make clear that payments run through third-party providers and that Telegram itself does not process payments, so investors will probe fees, refunds, chargebacks, KYC, and policy risk. The platform’s evolving monetisation features have been covered in mainstream tech press, which also prompts questions about roadmap dependency. citeturn2search0turn2search2turn2news20
+
+Given those norms, your list is aligned with what investors actually ask. If you want, I can tag the questions by “must answer before term sheet” versus “good to have,” and map each to a specific tab and owner in your forecast so nothing gets missed.
+
+[USER]
+the language int he questisons seems very llm not how a human investor woudl ask the questions
+
+[ASSISTANT]
+Fair point. Here is the same diligence set rewritten in plain, boardroom English. Short, direct, and sceptical. I have also added a few gaps investors usually hit.
+
+# Model hygiene
+- What exactly is in scope for this forecast and what is not?
+- Show me the tab that defines every KPI and its formula.
+- What is the time grain for the first 90 days and after that?
+- Can I trace any output number back to the input that created it?
+- Are fees, FX, and taxes set per country, or hard-coded?
+
+# Benchmarks and proof
+- Which three games anchor your retention, conversion, and ARPPU assumptions?
+- What data or tests back each curve? How fresh is that data?
+- Where do your numbers sit vs the benchmark range, and why?
+
+# Acquisition and payback
+- What are the launch countries and the order you enter them?
+- By channel, what are the assumed CPIs and monthly scale caps?
+- Show payback by cohort at D30, D90, and D180 for each channel.
+- What happens to spend if payback slips beyond the guardrail?
+
+# Retention and engagement
+- What are D1, D7, D30, D60, and D90 by cohort? Show the curves.
+- What moves those numbers up in your plan, and by how much?
+- What are the reactivation rates from updates and events?
+
+# Monetisation
+- What sells on Day 1 and at what price points?
+- What is payer conversion by D7 and D30? What is repeat purchase rate by month?
+- How much revenue comes from starter packs, the pass, credit bundles, and cosmetics in Month 1 vs Month 6?
+- What share comes from the top 1 percent of payers? Top 10 percent?
+
+# Battle pass
+- What is the price, the track length, and the expected completion rate?
+- What conversion do you expect in Season 1 and Season 3?
+- If conversion is 5 points lower, what happens to LTV?
+
+# LiveOps and events
+- What is the weekly and monthly event cadence?
+- What uplift do you assume for a standard weekend event?
+- How many flash sales per month, what limits, and what uplift vs baseline?
+- What is the plan if two drops slip in a row?
+
+# Tournaments
+- What is the prize budget this year and where does it sit in the P&L?
+- What participation do you assume, and what revenue or acquisition lift do you attribute to it?
+- How do you keep brackets fair and stop abuse or multi-accounting?
+
+# Content plan and capacity
+- What ships at launch: maps, modes, cosmetics?
+- What is the Year 1 monthly add, and do you have the team and tools to deliver it?
+- If the team misses a drop, what is the revenue hit you modelled?
+
+# Telegram realities
+- What is Telegram penetration in your target regions, and how does that affect TAM and CPI?
+- How do payments work by region, including refunds and chargebacks?
+- What is the plan if Telegram changes policy or visibility? What is Plan B for distribution?
+
+# Payments and compliance
+- What refund and chargeback rates are assumed by region?
+- What KYC, prize fulfilment, and payment processing costs are in the model?
+- How do you recognise revenue for virtual currency and season passes?
+
+# Fraud and integrity
+- What bot and duplicate-account rates do you assume?
+- What is the anti-cheat tool cost per DAU and who runs it?
+- How do you cap abuse of welcome offers and flash sales?
+
+# Costs and margins
+- Break out per-DAU costs for servers, CDN, analytics, anti-cheat, and support.
+- What are P95 and P99 load costs during events?
+- Show gross margin by month after all payment fees and infra.
+
+# Seasonality, geo, and pricing
+- How do you model Ramadan, Golden Week, summer holidays, and December?
+- Which languages are supported at launch and what uplift do you expect from each localisation?
+- How are price tiers set by country, and how often do you refresh them?
+
+# Experimentation and decision rights
+- What sample sizes and MDE thresholds do you require to move a price or XP curve?
+- Who signs off on live price changes and progression changes?
+- What cool-off rules protect payer trust after a failed test?
+
+# Reporting and backtesting
+- What does the weekly board pack look like for the first 12 weeks?
+- When do you re-forecast, and who owns that decision?
+- How will you backtest the model during soft launch, and what error band do you accept at D30 and D90?
+
+# Talent and delivery risk
+- Do you have the engineers, artists, and LiveOps staff to hit the Year 1 plan?
+- What is the hiring critical path, and what happens if key hires slip 60 to 90 days?
+
+# Ads, even if not Day 1
+- If you add ads later, what ARPDAU do you model without harming spenders?
+- What content rating and brand-safety choices keep premium networks open?
+
+# Cash and runway
+- Show the cash bridge from bookings to bank each month, including fees, refunds, prizes, and UA phasing.
+- At what payback percentile do you pause UA in each scenario?
+- What are the runway gates tied to content cadence and UA scale-up?
+
+# Exit and valuation framing
+- How are you framing valuation: revenue multiple, gross profit multiple, or DCF?
+- What milestones unlock the next round or a strategic exit path?
+
+# Final gate check
+- Point me to the tab or chart that answers each item above.
+- Every non-obvious assumption needs a cited source and a date.
+- Include one tornado chart for top value drivers and one combined downside that hits retention, CPI, and a missed drop at the same time.
+
+If you want this turned into a one-page investor checklist or a status tracker that maps to your forecast tabs and owners, say the word and I will produce it.
+
+[USER]
+many of these questions are too short and dont expain the question well
+
+[ASSISTANT]
+Understood. Here’s a cleaner, human-sounding diligence set. Each item tells you exactly what the investor is really asking, why it matters, what to show, and what will worry them.
+
+# 1) What exactly is in this forecast?
+- Ask: Spell out platforms, countries, and SKUs included at launch and in Year 1. List anything excluded.
+- Show: One row table that names scope, time grain for Day 0–90 vs Month 4+, and the unit of each sheet.
+- Red flags: Blended global numbers with no scope notes. Monthly only for the first 90 days.
+
+# 2) Can we trace any headline number back to its inputs?
+- Ask: Pick total revenue in Month 6 and walk me back through cohorts, payers, and SKUs to the raw inputs.
+- Show: A short audit trail or “drill path” plus a change log.
+- Red flags: Hidden cells, hard-coded plugs, circular references.
+
+# 3) Which games anchor your assumptions, and why those games?
+- Ask: Name three comparator titles and explain the fit by genre, platform, audience, and year. Cite the date range.
+- Show: A one-page benchmark table for retention, payer conversion, ARPPU, and CPI with source and freshness date.
+- Red flags: Old benchmarks, apples-to-oranges sources, no rationale for differences.
+
+# 4) How do you plan to buy users and when do you scale spend?
+- Ask: List channels, expected CPI ranges by country, daily scale caps for the first 12 weeks, and the rules for pausing spend.
+- Show: Payback tables by channel at Day 30, Day 90, Day 180 with a simple traffic-light rule for go or pause.
+- Red flags: One global CPI. No cap plan. No pause rule.
+
+# 5) What does retention actually look like in your model?
+- Ask: Show D1, D7, D30, D60, D90 by cohort. Explain what moves these numbers and by how much.
+- Show: Cohort curves and a plain-English note like “weekly event adds 3 to 5 percent relative at D30 for that week’s cohort.”
+- Red flags: Flat lines. No mechanism that links LiveOps to movement in the curves.
+
+# 6) What are you selling on Day 1 and how does the mix change by Month 6?
+- Ask: List Day 1 SKUs with price points and attach targets by band. Show expected revenue mix in Month 1 and Month 6.
+- Show: A single table that splits credit bundles, battle pass, cosmetics, starter packs, shields, and any limited offers.
+- Red flags: Heavy reliance on one SKU band. No view of repeat purchase.
+
+# 7) Battle pass: price, pacing, and completion reality
+- Ask: What is the price and track length, how much XP per day is needed to finish, what completion distribution do you expect, and what is Season 1 versus Season 3 conversion?
+- Show: A small pacing calculator, expected completion percentiles, and a sensitivity for conversion plus or minus 5 points.
+- Red flags: Pass assumed as a flat ARPDAU boost with no pacing math.
+
+# 8) LiveOps cadence and what it actually earns
+- Ask: What events run weekly and monthly, what you expect them to do to log-ins and ARPDAU, how many flash sales you run, limits per user, and cooldowns.
+- Show: An events calendar for the first 90 days with an “uplift vs baseline” column and a cap on exposure to prevent fatigue.
+- Red flags: Daily sales with no fatigue model. No plan if two drops slip.
+
+# 9) Tournaments: cost, lift, and fairness
+- Ask: What is the annual cash prize budget, where it sits in the P&L, what DAU and revenue lift you attribute, and how you protect brackets from smurfs, bots, and multi-accounting.
+- Show: A simple ROI bridge that ties prize spend to incremental acquisition and spend, plus a one-line integrity checklist.
+- Red flags: Big prize headlines with no measurable lift or controls.
+
+# 10) Content roadmap versus team capacity
+- Ask: What ships at launch, what lands monthly in Year 1, and whether your team and tools can actually deliver that cadence.
+- Show: A capacity view that pairs each monthly drop to named roles, toolchain, and buffer for two missed drops.
+- Red flags: Ambitious roadmap with no resourcing or tool support.
+
+# 11) Telegram reality check
+- Ask: What Telegram penetration looks like in your target countries, how that shapes TAM and CPI, how payments work by region including refunds and chargebacks, and what happens if Telegram changes visibility or policy.
+- Show: A short country table for audience reach, a payments note naming providers and fees, and a fallback distribution plan.
+- Red flags: Treating Telegram like an app store. No contingency plan.
+
+# 12) Fraud, bots, and promo abuse
+- Ask: What bot and duplicate-account rates you assume, how they hit retention and spend, the tools you will use, and cost per DAU.
+- Show: Fraud assumptions wired into cohorts, plus a cap on welcome offer abuse and multi-buy limits for flash sales.
+- Red flags: Zero fraud assumed. Unlimited first-purchase offers.
+
+# 13) Geography, pricing tiers, seasonality, and localisation
+- Ask: Which price tiers you use by country, how often you refresh them, which languages you support at launch, and what uplift you expect. Show how Ramadan, Golden Week, summer, and December affect the curves.
+- Show: A geo table for pricing and language, plus seasonal multipliers in the model.
+- Red flags: One global price. No localisation plan. No seasonal effects.
+
+# 14) Telemetry, reporting, and re-forecast rules
+- Ask: What the weekly pack looks like for the first 12 weeks, data freshness targets, and exactly when you re-forecast and who decides.
+- Show: A one-page template with owners and a short list of alert thresholds.
+- Red flags: “We will know when we see it.” No owner named.
+
+# 15) Accounting policies that change the shape of revenue
+- Ask: How you recognise revenue for virtual currency and season passes, what is deferred, and how it unwinds each month. Clarify where payment fees and prize costs sit.
+- Show: A bookings to revenue to cash bridge with deferral lines.
+- Red flags: Bookings shown as revenue. Fees buried in “other.”
+
+# 16) Cost stack and scale behaviour
+- Ask: Per-DAU costs for servers, CDN, analytics, anti-cheat, and support, plus what happens to costs at weekend peaks and tournaments.
+- Show: A table for average, P95, and P99 costs and a note on SLAs.
+- Red flags: Flat per-DAU costs with no peak treatment.
+
+# 17) Experimentation and decision rights
+- Ask: What sample sizes and minimal detectable effects you require before changing price or XP, who signs off, and what cool-off rules protect payer trust.
+- Show: A short test policy and a scoreboard with a stop-list for failed tests.
+- Red flags: Price tests on tiny samples. No governance.
+
+# 18) Hiring plan and delivery risk
+- Ask: Whether engineering, art, and LiveOps ramps match the Year 1 roadmap, and what happens if key hires slip 60 to 90 days.
+- Show: A hiring Gantt tied to roadmap drops and a slip scenario.
+- Red flags: Marketing hires before core build roles. No contingency.
+
+# 19) Scenarios and what really moves value
+- Ask: What you set as low, base, and high for retention, conversion, ARPPU, CPI, and content cadence, and which two levers dominate NPV variance.
+- Show: A tornado chart for the top drivers and one downside that combines a retention miss, a CPI spike, and a missed drop.
+- Red flags: Only single-variable sensitivities. No combined downside.
+
+# 20) Compliance, age-gating, and tournament legality
+- Ask: Where you will not run tournaments, how you age-gate, how GDPR and UK GDPR affect analytics and player rights, and how these costs are modelled.
+- Show: A country list for tournament eligibility and a privacy cost line.
+- Red flags: “We will handle later.” No geofencing plan.
+
+# 21) Cash bridge and runway triggers
+- Ask: Month-by-month cash from bookings to bank including fees, refunds, chargebacks, prize payouts, and UA phasing, and the exact trigger that pauses UA if payback slips.
+- Show: A cash bridge plus a payback rule by percentile and scenario.
+- Red flags: Cash shown as straight line from revenue. No UA brakes.
+
+# 22) Exit and valuation framing
+- Ask: How you are framing valuation for the board and what milestones de-risk the next round or a strategic exit.
+- Show: A short triangulation across revenue multiple, gross profit multiple, and DCF with milestone dates.
+- Red flags: Single multiple from a best-case comp.
+
+If you want, I can convert this into a checklist that maps each item to a specific tab in your forecast, adds an “owner, evidence link, status” column, and highlights any missing proof so the team can close gaps quickly.
+

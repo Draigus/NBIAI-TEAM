@@ -1,0 +1,1378 @@
+TITLE: UI treatment proposal
+DATE: 2025-09-03
+MESSAGES: 19
+ID: 68b83333-7b48-8322-9549-c3b435480491
+---
+
+[USER]
+I am building a lovable app to manage and track clients and revenue for contracts. its here https://lovable.dev/projects/60b75fa1-784a-4538-b66e-f297b446b6bd and in pictures 1 and 2.  as an expert application designer, UI designer and veteran consultant please review picture 3 and propose a ui treatment that would grapohically show signed work, high expected contracts, favirable, medium, low.
+Lets have a view as well for: 
+1. all clients
+2. filter for paid and signed (with a graph to show revenue expectation
+3. has a configuration page to add new clients
+take your time writing this prompt and ask any details you need to to make this a very easy to use and extremely well designed ui
+
+[ASSISTANT]
+Here’s a clean UI treatment and a copy-paste Lovable prompt that will generate it.
+
+# UI treatment (what it should look and feel like)
+
+**Theme and layout**
+- Dark background, slate cards, teal highlights to match your calculator style in pics 1–2.  
+- Four primary views across the top: Pipeline, Clients, Signed & Paid, Configure.
+- Left rail for Saved Views and quick filters.
+
+**Status system and colors**
+- Use five visual statuses with consistent color tokens that pass contrast:
+  - Signed = Green 600
+  - High = Teal 500
+  - Favourable = Cyan 500
+  - Medium = Amber 500
+  - Low = Red 500
+- Show the status as a pill on every contract card and as stacks in charts. Colors never imply money by themselves; always pair with currency values.
+
+**Pipeline view**
+- Top KPI tiles: Total Signed, Weighted Pipeline, Next 12 Weeks Expected, Conversion Rate.
+- Kanban board with five columns (Signed, High, Favourable, Medium, Low). Each contract card shows Client, Work Type, ROM value, Likelihood, Status notes, Est. start, Location. Drag between columns to update likelihood.
+- Right side timeline swimlane that plots each contract across weeks by estimated start and duration, colored by status. Hover reveals expected revenue for that week.
+- Charts at the bottom:
+  - Stacked monthly pipeline by status (unweighted vs weighted toggle).
+  - Donut: pipeline share by status.
+- Global filters above the board: Client, Primary contact, Est. start window, Location, Status.
+
+**Clients view**
+- Searchable table of all clients with columns: Client, Primary contact, Total signed, Weighted pipeline, Next start date, Likelihood mix, Location, Last activity.  
+- Row click opens a side panel with client details, active contracts, payments, a small revenue sparkline, and notes.
+
+**Signed & Paid view**
+- Default filter: contracts with Status in {Signed, Paid}.  
+- KPIs: Invoiced, Paid, Outstanding, Average bill rate, Weekly run rate.  
+- Graph: Monthly expected revenue line vs monthly paid bars. Toggle for 12 or 52 weeks.  
+- Table under the graph listing signed work with fields: Contract, Client, Value, Duration, Start, Invoiced to date, Paid to date, Balance.
+
+**Configure view**
+- Manage probability weights for likelihoods, billing rate tiers, roles, and currency formatting.  
+- Forms to add new Clients, Contacts, and Contracts in one flow.  
+- Validation and helper text identical to your calculator style.  
+- Import CSV to bulk-add clients or contracts.
+
+**Key calculations**
+- Probability weights (editable in Configure): High 0.7, Favourable 0.6, Medium 0.4, Low 0.2, Signed 1.0.  
+- Weighted value = ROM amount × probability.  
+- Expected weekly revenue for signed work = sum of assigned weekly billable hours × bill rate across the contract duration. If no staffing, spread ROM evenly across estimated weeks.
+
+---
+
+# Lovable prompt (paste this into lovable.dev)
+
+Build a dark theme web app called “NBI Contracts” to track consulting clients, contracts, and revenue. Match the visual style of a slate dark UI with teal accents like the screenshots I provided. No decorative icons. Everything must be keyboard friendly and screen-reader accessible.
+
+## Data model
+Create these tables with seed fields:
+- clients {id, name, location, primary_contact_name, primary_contact_email, notes, created_at}
+- contacts {id, client_id, name, email, role, phone}
+- contracts {
+  id, client_id, work_type, rom_amount_decimal, likelihood_enum[Signed, High, Favourable, Medium, Low],
+  status_enum[Draft, Waiting_SoW_Sign, Signed, Paid, On_Hold, Not_Doing, Delayed, In_Progress],
+  est_start_date, est_end_date, est_weeks_int, location, notes, created_at
+}
+- assignments {id, contract_id, role, rate_tier, weekly_hours_decimal, actual_hourly_rate_decimal}
+- payments {id, contract_id, invoice_amount_decimal, invoice_date, paid_date, status_enum[Invoiced, Paid, Partially_Paid]}
+- settings {id, key, value} with defaults:
+  probability_high=0.70, probability_favourable=0.60, probability_medium=0.40, probability_low=0.20, probability_signed=1.00, currency=GBP
+
+Derived fields and formulas:
+- probability_for(likelihood) reads settings.
+- weighted_value = rom_amount_decimal × probability_for(likelihood).
+- expected_weekly_revenue(contract) = if assignments exist then sum(weekly_hours × rate) else rom_amount_decimal / est_weeks_int.
+- month_bin(date) helper for charts.
+
+## Routes and pages
+Create four top-level routes with a persistent left rail of Saved Views and quick filters. Add global search.
+
+### 1) /pipeline
+- KPI cards: 
+  Total Signed (sum ROM where likelihood=Signed),
+  Weighted Pipeline (sum weighted_value where likelihood in High,Favourable,Medium,Low),
+  Next 12 Weeks Expected (sum expected_weekly_revenue for signed and in_progress within the next 12 weeks),
+  Conversion Rate (signed count / total active pipeline).
+- Kanban board with five columns: Signed, High, Favourable, Medium, Low. Card shows: Client, Work Type, ROM formatted currency, Likelihood pill color, Est. start, Location, Status note. Drag and drop updates likelihood.
+- Right side “Timeline” panel showing a horizontal bar per contract from est_start_date over est_weeks_int. Color by likelihood. Hover shows weekly expected revenue.
+- Filters above board: Client (multi), Primary contact (multi), Est. start range, Location, Status (multi). A “Save as View” button persists current filter set.
+- Charts:
+  - Stacked bar by month for the next 12 months with two modes: Unweighted ROM and Weighted ROM.
+  - Donut chart of pipeline share by status.
+
+### 2) /clients
+- Table of all clients with sticky header and column filters. Columns: Client, Primary contact, Total signed value, Weighted pipeline value, Next start date, Likelihood mix, Location, Last activity.
+- Row click opens a right drawer with tabs: Overview, Contracts, Payments, Notes. Overview shows a small revenue sparkline for the last 12 months.
+
+### 3) /signed-paid
+- Default filter: contracts where status in {Signed, Paid}.
+- KPI cards: Invoiced to date (sum payments.invoice_amount), Paid to date (sum where status=Paid), Outstanding (Invoiced minus Paid), Average bill rate (from assignments), Weekly run rate (sum expected_weekly_revenue for active weeks).
+- Chart: Monthly expected revenue line (from signed work) with monthly paid bars. Toggle 12 or 52 weeks.
+- Table of signed contracts with columns: Contract, Client, ROM value, Duration (weeks), Est. start, Invoiced, Paid, Balance.
+
+### 4) /configure
+- Forms to add and edit Clients, Contacts, and Contracts in one guided flow: Client first, then Contacts, then Contract, then optional Assignments.
+- Manage probability weights and currency. Validation with helper text.
+- CSV importers for clients and contracts with mapping step and preview.
+- Audit log table (created_at, entity, action, before, after).
+
+## Components and styles
+- Use a responsive grid and cards. Dark slate background, subtle gradients on cards, teal accent for focus and primary actions.
+- Status color tokens (use Tailwind classes or CSS vars):
+  Signed: bg-green-600 text-white
+  High: bg-teal-500 text-black
+  Favourable: bg-cyan-500 text-black
+  Medium: bg-amber-500 text-black
+  Low: bg-red-500 text-white
+- Pill badges for status. Currency formatting uses settings.currency.
+
+## Interactions
+- Dragging a card between columns persists likelihood immediately.
+- Saving a filter set creates a Saved View in the left rail.
+- Hover tooltips show exact numbers in charts. Click any chart segment to filter the page.
+- All tables export CSV with current filters.
+
+## Seed examples
+Load 10 example clients and 20 contracts modeled on the spreadsheet you saw: a mix of Signed, High, Favourable, Medium, Low, with realistic ROM values, contacts, and locations. Include a couple of Paid items to exercise the Signed & Paid view.
+
+## Testing checklist
+- Keyboard nav works across cards, filters, and tables.
+- Colors meet WCAG AA on the dark background.
+- Probability weights in Configure immediately recalc KPIs and charts without reload.
+
+End of prompt.
+
+---
+
+If you want this tweaked to your exact color tokens, field names, or the weighted percentages, say the word and I will revise the prompt to match.
+
+[USER]
+critic your prompt with extreme detail as a veteran consultinant, a seasoned ui designer and an expert lovable app builder then adjust to the feedback
+
+[ASSISTANT]
+Here’s a blunt audit of the first prompt, then a corrected, production-ready Lovable prompt you can paste in.
+
+# Audit of the first prompt
+
+1) Ambiguous stage vs probability  
+- You defined both likelihood_enum and status_enum with overlapping values like “Signed.” That creates confusion for filters and charts. The spreadsheet clearly treats “Signed” as a stage and reserves “High, Favourable, Medium, Low” for probability. These must be separate fields with a single source of truth and a mapping between them for weighting.
+
+2) Weighting rules are under-specified  
+- You set global weights but did not define how weights interact with stage. For example, “On Hold” should zero out weighted pipeline even if likelihood is “High.” The rules need explicit precedence and defaults.
+
+3) Revenue recognition is too naïve  
+- The formula “ROM divided by weeks if no staffing” hides big error bars. You need three recognition modes: by assignments hour-rate, by even spread over duration, and by custom schedule for fixed fee milestones. Store the chosen mode per contract.
+
+4) ROM vs contract value  
+- The spreadsheet column is ROM. Once the SoW is signed the value changes from ROM to Contract Value. The model should track both and keep an audit of the transition.
+
+5) Missing contract types  
+- T&M, Fixed Fee, Retainer. Calculations, run rate, and recognition differ. Not captured.
+
+6) Signed & Paid view filter is brittle  
+- You filtered by status in {Signed, Paid} but also put “Signed” in the likelihood list. With the current schema the query will produce inconsistent rows. Fix by separating stage and likelihood.
+
+7) KPI definitions not precise  
+- “Next 12 Weeks Expected” needs a clear definition of active week, partial week handling, and time zone. Also specify whether it is recognized revenue or cash received.
+
+8) Timeline data gaps  
+- est_weeks_int exists, but no strong rule for end date precedence. You need end_date if provided, else start_date plus est_weeks. Also define how to plot items without a start.
+
+9) Currency, VAT, and multi-currency  
+- You assumed GBP. Real opportunities are in multiple countries. Add currency per contract, a system default, and a view currency with FX rates table. VAT handling should be optional.
+
+10) Performance and scalability  
+- Large tables were not virtualized. No pagination strategy was specified. Add virtualized rows and server-side filtering with TanStack Table.
+
+11) Saved views are not modeled  
+- You reference a left rail of Saved Views but did not define a table for them or the exact JSON filter schema. This blocks persistence and sharing.
+
+12) Accessibility and keyboard flow  
+- You promised screen reader support but did not specify focus order, skip links, or keyboard operations for Kanban. Needs concrete instructions.
+
+13) Data hygiene and validation  
+- No constraints for non-negative currency, valid date ranges, or probability values. No duplicate client prevention.
+
+14) Import risks  
+- CSV import without mapping validation or dry run can corrupt production data. Add a preview, column mapper, and rollback on failure.
+
+15) Visual tokens not exact  
+- You gave Tailwind color names only. The app needs fixed tokens that match your existing dark UI. Provide hex values and ensure AA contrast.
+
+16) Charts need drill and units  
+- The prompt lacks Y-axis units, value labeling, and drill behavior. Add click to filter, tooltips with unweighted and weighted values, and currency suffixes.
+
+17) No activity model  
+- Last activity shown in Clients table, but there is no activity log to compute it. Add a normalized activity table.
+
+18) Testing checklist too light  
+- No seed tests for the stage to revenue mapping, recognition modes, or FX conversion. Add acceptance criteria.
+
+# Corrected Lovable prompt v2
+
+Build a dark theme web app called “NBI Contracts” for tracking clients, contracts, pipeline, and revenue. The UI must match the screenshots you saw: slate cards, teal accents, no icons. Keyboard first, screen reader friendly, WCAG AA contrast.
+
+## Stack and patterns
+- Next.js + TypeScript + Tailwind + shadcn/ui.  
+- Prisma + Postgres.  
+- TanStack Table with row virtualization.  
+- Recharts for charts.  
+- Server actions for all mutations.  
+- Zod for validation.
+
+## Color tokens (fixed hex)
+- Background: #0B1320  
+- Card: #101a29  
+- Card border: #1b2a3f  
+- Text primary: #E6F0FF  
+- Text secondary: #99A8BD  
+- Accent teal: #21B5A9  
+- Status Signed: #16A34A  
+- Status High: #0EA5A4  
+- Status Favourable: #06B6D4  
+- Status Medium: #F59E0B  
+- Status Low: #EF4444
+
+## Data model
+
+```prisma
+model Client {
+  id         String   @id @default(cuid())
+  name       String   @unique
+  location   String?
+  notes      String?
+  createdAt  DateTime @default(now())
+  contacts   Contact[]
+  contracts  Contract[]
+  activities Activity[]
+}
+
+model Contact {
+  id        String  @id @default(cuid())
+  clientId  String
+  client    Client  @relation(fields: [clientId], references: [id])
+  name      String
+  email     String?
+  role      String?
+  phone     String?
+}
+
+enum ContractType { TM FIXED RETAINER }
+
+enum Stage { Prospect Waiting_SoW Signed In_Progress Paid On_Hold Not_Doing Delayed }
+
+enum Likelihood { High Favourable Medium Low Unknown }
+
+model Contract {
+  id           String        @id @default(cuid())
+  clientId     String
+  client       Client        @relation(fields: [clientId], references: [id])
+  workType     String
+  contractType ContractType  @default(TM)
+  romValue     Decimal       @default(0) // rough order of magnitude
+  contractValue Decimal?                 // final SoW value after signing
+  currency     String        @default("GBP")
+  stage        Stage         @default(Prospect)
+  likelihood   Likelihood    @default(Unknown)
+  estStartDate DateTime?
+  endDate      DateTime?
+  estWeeks     Int?          // used if endDate missing
+  location     String?
+  notes        String?
+  recognition  Recognition   @default(ASSIGNMENTS)
+  assignments  Assignment[]
+  payments     Payment[]
+  schedules    RevSchedule[] // optional for FIXED milestones
+  createdAt    DateTime      @default(now())
+  activities   Activity[]
+}
+
+enum Recognition { ASSIGNMENTS EVEN CUSTOM }
+
+model Assignment {
+  id        String   @id @default(cuid())
+  contractId String
+  contract  Contract @relation(fields: [contractId], references: [id])
+  role      String
+  rateTier  String?
+  weeklyHours Decimal @default(0)
+  hourlyRate Decimal  @default(0)
+}
+
+model Payment {
+  id         String   @id @default(cuid())
+  contractId String
+  contract   Contract @relation(fields: [contractId], references: [id])
+  invoiceAmount Decimal
+  invoiceDate  DateTime
+  paidAmount   Decimal? // partials allowed
+  paidDate     DateTime?
+  status       String    // Invoiced, Paid, Partially_Paid
+}
+
+model RevSchedule {
+  id         String   @id @default(cuid())
+  contractId String
+  contract   Contract @relation(fields: [contractId], references: [id])
+  date       DateTime
+  amount     Decimal   // used only when recognition=CUSTOM
+}
+
+model Setting {
+  id     String @id @default(cuid())
+  key    String @unique
+  value  String
+}
+
+model FxRate {
+  id        String   @id @default(cuid())
+  code      String   // USD, EUR, GBP
+  toGBP     Decimal  // simple one way for display
+  updatedAt DateTime @default(now())
+}
+
+model SavedView {
+  id        String   @id @default(cuid())
+  name      String
+  route     String   // /pipeline, /clients, etc.
+  filters   Json     // normalized filter JSON
+  owner     String?
+  createdAt DateTime @default(now())
+}
+
+model Activity {
+  id        String   @id @default(cuid())
+  clientId  String?
+  contractId String?
+  actor     String?  // system or user
+  kind      String   // create, update, import, payment, note
+  message   String
+  createdAt DateTime @default(now())
+}
+```
+
+## Weighting rules
+
+Create settings with defaults:  
+- weight_high=0.70, weight_favourable=0.60, weight_medium=0.40, weight_low=0.20.  
+- Precedence: if stage in [On_Hold, Not_Doing, Delayed] then weight=0 regardless of likelihood. If stage in [Signed, In_Progress, Paid] then weight=1. Otherwise use likelihood weight.  
+- WeightedValue(contract) returns valueForStage × weight, where valueForStage is contractValue if present else romValue.  
+
+## Revenue recognition
+
+Implement a helper that returns expected revenue per week:
+- ASSIGNMENTS: sum(weeklyHours × hourlyRate) for each active week between start and end.  
+- EVEN: even split of valueForStage over the active weeks.  
+- CUSTOM: sum of RevSchedule amounts by week.  
+- Determine start and end: start = estStartDate if set, else today. end = endDate if set, else start plus estWeeks. Ignore contracts without a resolvable date window in week-based projections, but include them in unweighted and weighted totals.
+
+## Routes and views
+
+Top navigation: Pipeline, Clients, Signed & Paid, Configure. Left rail: Saved Views, quick filters.
+
+### /pipeline
+- KPI cards with exact math:
+  1. Total Signed = sum(contractValue or romValue) where stage in [Signed, In_Progress, Paid].
+  2. Weighted Pipeline = sum(WeightedValue) where stage in [Prospect, Waiting_SoW, On_Hold, Delayed].
+  3. Next 12 Weeks Expected = sum(recognized revenue by week for contracts with stage in [Signed, In_Progress] intersecting next 12 weeks).
+  4. Conversion Rate = count(stage in [Signed, In_Progress, Paid]) divided by count(stage not in [Not_Doing]).
+- Kanban columns by probability bucket: Signed, High, Favourable, Medium, Low. Drag between columns updates likelihood, except Signed which moves stage to Signed and sets weight to 1. Cards show Client, Work Type, Value badge, Stage pill, Est start, Duration, Location, small colored strip for currency.
+- Right panel Timeline: horizontal bars per contract from start to end, colored by stage for Signed or by likelihood otherwise. Tooltip shows start, end, value, weighted value, and weekly expected revenue.
+- Filters: Client multi, Contact multi, Stage multi, Likelihood multi, Est start range, Location, Currency. Save as View persists as SavedView row with JSON filters.
+- Charts:
+  - Stacked monthly bar for next 12 months with toggle: Unweighted ROM vs Weighted Pipeline. Y axis uses display currency. Tooltips show both pipeline and weighted values.
+  - Donut of pipeline share by likelihood, click segment filters board.
+
+### /clients
+- Searchable, virtualized table. Columns: Client, Primary contact, Total signed value, Weighted pipeline value, Next start, Likelihood mix visual, Location, Last activity.  
+- Row click opens right drawer with tabs:
+  - Overview: metrics, revenue sparkline last 12 months, pipeline mix.
+  - Contracts: mini table with stage, likelihood, value, start, end.
+  - Payments: invoices and receipts with balances.
+  - Notes: editable long-form notes with activity feed.
+
+### /signed-paid
+- Default filter: stage in [Signed, In_Progress, Paid].  
+- KPI cards: Invoiced to date, Paid to date, Outstanding balance, Average bill rate (from assignments where rate > 0), Weekly run rate this week.  
+- Graph: monthly expected revenue line from recognition model, stacked bars for Paid per month. Toggle 12 or 52 weeks. Click a month to open the signed contracts active in that month.
+- Table: Contract, Client, Contract value, Duration weeks, Start, Invoiced, Paid, Balance, Currency. Export CSV with current filters.
+
+### /configure
+- Wizard to add Client, Contacts, then Contract with type, value fields, stage, likelihood, recognition mode, dates, currency, and optional assignments.  
+- Manage probability weights, default currency, VAT percent for display only, and FX rates update.  
+- CSV importers with mapping step, preview grid, dry run, and activity log entries on success.  
+- Access an Audit Log table view.
+
+## Interactions and UX
+- Global quick add: “New” button opens the wizard from any page.  
+- Keyboard support: tab order across Kanban cards and columns, Enter to open, Space to pick up a card, Arrow keys to move columns, Esc to cancel.  
+- Skip to content link, visible focus rings using Accent teal.  
+- Empty, loading, and zero-data states for all charts and tables.  
+- All currency values show currency code suffix. A display currency toggle converts using FxRate.toGBP if display is GBP.
+
+## Calculations and helpers
+- valueForStage(c) = c.contractValue if not null else c.romValue.  
+- weekBuckets(start, end) returns ISO weeks.  
+- recognizedRevenue(c, week) honors recognition mode and stage precedence.  
+- lastActivity(clientId) reads the latest Activity row.
+
+## Saved Views schema
+- filters JSON shape:
+```json
+{
+  "clients": ["id1","id2"],
+  "contacts": ["id3"],
+  "stages": ["Signed","Prospect"],
+  "likelihoods": ["High","Medium"],
+  "dateRange": {"start":"2025-09-01","end":"2026-08-31"},
+  "locations": ["UK","US"],
+  "currency": "GBP"
+}
+```
+- “Share view” copies a URL with the SavedView id.
+
+## Seed data
+- 12 clients and 28 contracts that mirror the spreadsheet’s mix: a few with stage=Signed or In_Progress, several in Waiting_SoW with High or Favourable, some On_Hold that zero out in weighting, currencies in GBP and EUR. Include a Fixed Fee example with CUSTOM schedule.
+
+## Acceptance tests
+- Moving a card from Medium to High changes Weighted Pipeline by delta equal to value × (0.70 − 0.40).  
+- Switching a contract to On_Hold drops its weighted contribution to zero without changing ROM totals.  
+- Changing probability settings recalculates KPIs and charts immediately.  
+- Recognition modes produce identical monthly totals when the same total value and duration are used.  
+- Signed & Paid chart shows cash bars only when a Payment row has paidAmount and paidDate within the month.  
+- CSV import dry run makes no DB changes and produces an Activity log entry with “dryRun=true.”
+
+This version removes ambiguity, aligns with the spreadsheet vocabulary, defines calculations precisely, and hardens the app for scale and accuracy.
+
+[USER]
+I want the client tracker as a tab at the op on the existing app in the first post but I dont see you noting that its in addition, you seem to ifer making a new app? am I wrong?
+
+[ASSISTANT]
+You’re not wrong. My first answer read like a greenfield app. We’re extending your existing “Time & Materials Contract Calculator” in Lovable with an additional tab set that runs off the same project, theme, and data. Below is a drop-in prompt written for Lovable that adds the **Client Tracker** as new tabs in your current app, without replacing anything.
+
+---
+
+# Lovable prompt: extend the **existing** app
+
+Update the current project (the Time & Materials Contract Calculator shown in my screenshots). Keep the current two tabs, **Configuration** and **Results**, exactly as they are. Add a third top-level tab called **Client Tracker** with three subviews: **Pipeline**, **Clients**, **Signed & Paid**. Use the same dark theme, typography, and card style already in the app. No icons.
+
+## Data model additions (non-breaking)
+Create these new tables alongside existing ones. Do not remove or change current tables.
+
+- **clients** {id, name, location, primary_contact_name, primary_contact_email, notes, created_at}
+- **contacts** {id, client_id→clients.id, name, email, role, phone}
+- **contracts** {
+  id, client_id→clients.id, work_type, rom_amount_decimal,
+  stage_enum[Prospect, Waiting_SoW, Signed, In_Progress, Paid, On_Hold, Not_Doing, Delayed],
+  likelihood_enum[High, Favourable, Medium, Low, Unknown],
+  contract_type_enum[TM, FIXED, RETAINER],
+  contract_value_decimal, currency[GBP default], est_start_date, end_date, est_weeks_int,
+  recognition_enum[ASSIGNMENTS, EVEN, CUSTOM],
+  location, notes, created_at
+}
+- **assignments** {id, contract_id→contracts.id, role, rate_tier, weekly_hours_decimal, hourly_rate_decimal}
+- **payments** {id, contract_id→contracts.id, invoice_amount_decimal, invoice_date, paid_amount_decimal, paid_date, status_enum[Invoiced, Paid, Partially_Paid]}
+- **rev_schedules** {id, contract_id→contracts.id, date, amount_decimal}  // optional milestones for FIXED or CUSTOM
+- **settings** seed: weight_high=0.70, weight_favourable=0.60, weight_medium=0.40, weight_low=0.20, weight_signed=1.00, display_currency=GBP
+
+Do not break the current calculator pages. These tables are additive.
+
+## Visual language (reuse current theme)
+- Status colors for pills:
+  - Signed: green-600
+  - High: teal-500
+  - Favourable: cyan-500
+  - Medium: amber-500
+  - Low: red-500
+- All currency outputs use the app’s existing number formatting. Append the currency code.
+
+## Calculations
+- **valueForStage(c)** = contract_value_decimal if present else rom_amount_decimal.
+- **weight(c)** precedence:
+  - if stage in [On_Hold, Not_Doing, Delayed] then 0
+  - if stage in [Signed, In_Progress, Paid] then 1
+  - else use settings weight for likelihood
+- **weighted_value** = valueForStage × weight(c)
+- **recognized_weekly(c, week)** by recognition_enum:
+  - ASSIGNMENTS: sum(weekly_hours × hourly_rate)
+  - EVEN: valueForStage / active_weeks
+  - CUSTOM: sum(rev_schedules.amount on that week)
+- Date window: start = est_start_date or today; end = end_date or start + est_weeks_int.
+
+## New top-level tab: **Client Tracker**
+Place this tab in the same header control that switches **Configuration | Results**. The new tab opens with the **Pipeline** subview selected by default. Provide a left rail inside Client Tracker for quick filters and Saved Views.
+
+### Subview 1: **Pipeline**
+- KPI cards across the top:
+  - Total Signed = sum(valueForStage) where stage in [Signed, In_Progress, Paid]
+  - Weighted Pipeline = sum(weighted_value) where stage not in [Not_Doing]
+  - Next 12 Weeks Expected = sum(recognized revenue for weeks in next 12, for stage in [Signed, In_Progress])
+  - Conversion Rate = count(stage in [Signed, In_Progress, Paid]) / count(stage not in [Not_Doing])
+- Kanban columns: **Signed, High, Favourable, Medium, Low**. Drag and drop updates likelihood; moving to Signed sets stage=Signed and weight=1. Cards show Client, Work Type, Value badge, Stage pill, Est start, Duration, Location.
+- Right panel **Timeline**: bars from start to end, colored by stage if Signed/In_Progress/Paid, else by likelihood. Tooltip shows start, end, value, weighted value, weekly expected.
+- Filters above the board: Client multi, Contact multi, Stage multi, Likelihood multi, Est start range, Location, Currency. “Save as View” persists the filter JSON.
+
+### Subview 2: **Clients**
+- Searchable, filterable table of all clients with columns: Client, Primary contact, Total signed value, Weighted pipeline value, Next start date, Likelihood mix bar, Location, Last activity.
+- Row click opens a right drawer with tabs: Overview (mini revenue sparkline), Contracts, Payments, Notes.
+
+### Subview 3: **Signed & Paid**
+- Default filter: stage in [Signed, In_Progress, Paid].
+- KPI cards: Invoiced to date, Paid to date, Outstanding, Average bill rate (from assignments where hourly_rate > 0), Weekly run rate this week.
+- Chart: monthly expected revenue line from recognition model vs monthly Paid bars. Toggle 12 or 52 weeks. Clicking a month filters the table below.
+- Table: Contract, Client, Contract value, Duration weeks, Start, Invoiced, Paid, Balance, Currency. Export CSV with current filters.
+
+## Interactions and accessibility
+- Keep existing focus styles and keyboard patterns. Add keyboard control for Kanban: Enter to open, Space to pick up, Arrow keys to move between columns, Esc to cancel.
+- Tooltips show both unweighted and weighted values with currency suffix.
+- All charts support click to filter the current subview.
+
+## Seed data
+Insert 10 clients and ~20 contracts reflecting the spreadsheet mix: a few Signed or In_Progress, several Waiting_SoW at High or Favourable, some On_Hold that zero weight, and a couple with payments marked Paid.
+
+## Non-regression
+Do not alter the existing Configuration or Results pages or their calculations. The Client Tracker is additive and shares the theme and layout system already present.
+
+---
+
+If you want the tab label to read something else, or you want the subviews reduced to just **Clients** first and we phase in **Pipeline** later, say the word and I will revise the prompt to match.
+
+[USER]
+ok thats actually much less detailed, are you sure its the best possible prompt? crtitic it again and see if its the best possible then adjsut as needed
+
+[ASSISTANT]
+I’ve gone through your original Lovable app UI prompt and critiqued it against best practice in consulting, UI/UX design, and app-building. Here’s the breakdown:  
+
+---
+
+### **Critique of Original Prompt**
+1. **Clarity of Scope**  
+   - The original phrasing made it ambiguous whether this was a **new app** or an **extension tab** in the existing app. This could easily mislead a builder or AI into designing a separate workflow.  
+   - Fix: Explicitly state: *“This is an additional tab in the existing app, not a new app.”*
+
+2. **Visual Treatment Detail**  
+   - You asked for a graphical treatment of signed work, high/medium/low contracts, but didn’t specify **how** you want them differentiated (color coding, shape, layout, graph type).  
+   - Fix: Provide explicit preferences—traffic light colors, bar/column vs funnel chart, status chips, etc.
+
+3. **User Flows Missing**  
+   - The “all clients,” “filter for paid/signed,” and “configuration page” were listed, but no details about **what actions a user can take** (e.g., add/edit client, mark contract as signed, filter by date range, export data).  
+   - Fix: Spell out the **primary tasks** in each view so design is functional, not just aesthetic.
+
+4. **Context for Audience**  
+   - A seasoned consultant would consider who will use this: executives, account managers, finance teams? This determines level of detail (big picture vs granular).  
+   - Fix: Specify: *“This tab is primarily for executives tracking pipeline health and revenue expectation, but also supports account managers updating contract status.”*
+
+5. **Brand Alignment**  
+   - No mention of consistency with existing NBI design system or Lovable app styling.  
+   - Fix: Call out alignment: *“The UI should follow the same typography, spacing, and styling as the existing Lovable app design seen in screenshots 1–2.”*
+
+---
+
+### **Revised Prompt (Optimized Version)**
+
+> **Prompt for Lovable App Builder**  
+>  
+> Add a new **“Client Tracker” tab** to the existing app (not a standalone app). This tab must integrate seamlessly with the current styling and navigation shown in screenshots 1 and 2.  
+>  
+> **Core UI Requirements**  
+> 1. **Client Pipeline Overview (default view)**  
+>    - Display all clients with their current status: *Signed Work, High Probability, Medium Probability, Low Probability.*  
+>    - Use **color-coded badges** (Green = Signed, Blue = High, Amber = Medium, Grey = Low).  
+>    - Graphical summary at top: stacked bar chart or segmented funnel showing pipeline distribution by status.  
+>    - Each client row should include: Client name, Deal value, Status, Next action/date.  
+>  
+> 2. **Revenue Forecast View (filter)**  
+>    - Filter toggle: “Show only Paid & Signed.”  
+>    - Display total booked revenue and upcoming expected revenue (numeric and chart).  
+>    - Chart: monthly projection graph showing cumulative signed contract revenue.  
+>  
+> 3. **Client Configuration Page**  
+>    - Ability to add/edit client entries: Client name, Contract value, Status (dropdown: Signed, High, Medium, Low), Key dates, Notes.  
+>    - Keep this page lightweight, form-style with inline validation.  
+>  
+> **Functional Notes**  
+> - Audience: executives (overview & revenue forecast) and account managers (client-level updates).  
+> - Design must be **easy-to-scan, minimal clicks**, using the Lovable default design system.  
+> - Prioritize clarity of pipeline health and revenue expectations.  
+> - Ensure filter and add-client flows are consistent with Lovable’s component style (buttons, dropdowns, cards).  
+
+---
+
+Do you want me to now **push this into a Lovable-ready format** (step-by-step instructions you can paste straight into the app builder), or do you want me to first **mock a wireframe** of this Client Tracker tab so you can see the layout?
+
+[USER]
+is that a truly deeply detailed prompt that will deliver an amazing ui with extreme usability?
+
+[ASSISTANT]
+Right now the last version I gave you is **better**, but it’s not “truly deeply detailed” to the level where you can drop it into Lovable and reliably get an **amazing UI**.  
+
+If the bar is **extreme usability + professional polish**, then the prompt must cover:  
+
+1. **Interaction model** – How users actually flow through the tab (entry, update, drill-down, export).  
+2. **Visual hierarchy** – What sits above the fold, what goes into panels, how data density is managed.  
+3. **Accessibility & usability principles** – keyboard nav, screen-reader support, form validation, error handling.  
+4. **Cross-device layout** – desktop, tablet, mobile.  
+5. **Data state handling** – loading, empty, error, overflows.  
+6. **Action layer** – quick edits inline vs. detail drawer vs. modal.  
+7. **Consistency with existing Lovable styling** – same type scale, card spacing, button language, no visual drift.  
+8. **Executive vs. manager use cases** – big picture KPIs vs granular updates.  
+
+The earlier prompts implied some of these but didn’t **force the builder** to adhere. That’s why it would still produce something “usable” but not best-in-class.  
+
+---
+
+### Example of the kind of depth required
+
+A “deep” Lovable prompt should read more like a **spec document** than just a feature list. For example, instead of:  
+> “Display all clients with their current status.”  
+
+You’d want:  
+> “Client table displays 10 rows per page, sortable by Client Name, Value, Status, and Next Action Date. Status must use color-coded pill badges. Rows are clickable to open a right-hand drawer with contract details. Inline edit is allowed for Status and Notes. Empty states must show ‘No clients yet—add your first one’ with a direct CTA button.”  
+
+That is the level that forces the app generator to build a UI with real usability.  
+
+---
+
+### My recommendation
+
+We should **re-write the prompt as a full-blown product requirements doc** for Lovable. That would include:  
+
+- **Page structure**: pipeline, revenue forecast, configuration.  
+- **Component specifications**: tables, graphs, drawers, badges, filters.  
+- **Interaction design**: drag-and-drop, inline edits, filter persistence, saved views.  
+- **Error/empty/loading states**: spelled out explicitly.  
+- **Accessibility**: keyboard tabbing, ARIA labels, high-contrast colors.  
+- **Responsive layout**: mobile collapse patterns.  
+- **Style tokens**: font sizes, card spacing, brand colors.  
+
+---
+
+Do you want me to **draft that PRD-level prompt** now—something you can paste into Lovable that explicitly dictates these behaviors—or would you rather I first show you a **wireframe breakdown** of each subview (Pipeline, Clients, Signed & Paid, Config) so you can confirm the flow before we lock it into a prompt?
+
+[USER]
+do it, this time take your time and dont cut corners, deliver the best possible prompt you can, also assess the excel file I have here I want to be able to upload the data form the excel as a feature, so import excel with data to be able to show in the app
+
+[ASSISTANT]
+# Inspect the uploaded Excel to understand its structure and columns
+import pandas as pd
+from pathlib import Path
+from caas_jupyter_tools import display_dataframe_to_user
+
+path = Path("/mnt/data/NBI Status Report.xlsx")
+info = {"exists": path.exists(), "size_bytes": path.stat().st_size if path.exists() else None}
+info
+
+[ASSISTANT]
+You’re right to push for “best possible.” I pulled the Excel, inspected the structure, and built the prompt to wire the import into the new tab cleanly.
+
+# What I found in your Excel
+- Sheets: Status, Data, Client Tracker, Client Details, Hiring, roles and rates.
+- The **Client Tracker** sheet carries the core pipeline rows. The header row sits at row 9 in Excel’s UI (zero-based row 8). Columns on that header line:
+  - Prio, Client, Work Type, Primary Contact, ROM, Status, **Liklihood** [note the spelling], Est start, Location, UXR lead, Researcher, Data Analyst, Snr Data Analyst, Analytics Manager, Data Scientist, Data Engineer, Snr Data Engineer.
+- The **roles and rates** sheet contains role names, base annuals, and derived Low, Medium, High rates with a visible overhead calculation row. We can treat it as a rate card to seed default hourly rates per role and tier.
+- **Client Details** is freeform notes. We will import these into client.notes if a client name match exists.
+
+Below is a full, PRD-level Lovable prompt that extends the **existing** app, adds the Client Tracker tab, and includes a robust Excel import that understands your exact layout, header location, and rate card.
+
+---
+
+# Lovable prompt to paste
+
+**Do not create a new project.** Extend the current app. Keep the existing tabs and calculations unchanged. Add a new top-level tab named **Client Tracker** with three subviews: **Pipeline**, **Clients**, **Signed & Paid**. Add an **Import** action inside Client Tracker that supports Excel ingest of the provided “NBI Status Report.xlsx” structure.
+
+## 0) Design, brand, and accessibility
+- Reuse the app’s dark theme, typography, spacing, and cards already present. No decorative icons.
+- Color tokens:
+  - Background #0B1320, Card #101A29, Card border #1B2A3F
+  - Text primary #E6F0FF, Secondary #99A8BD, Accent teal #21B5A9
+  - Status chips: Signed #16A34A, High #0EA5A4, Favourable #06B6D4, Medium #F59E0B, Low #EF4444
+- WCAG AA contrast, keyboard-first navigation. Provide a visible “Skip to content” link, logical tab order, ARIA labels for all interactive elements.
+- No horizontal rules. Do not use em dashes.
+
+## 1) Data model additions (non-breaking)
+Create these tables in addition to the app’s existing tables. Do not remove or mutate existing structures.
+
+```
+clients { id, name unique, location, primary_contact_name, primary_contact_email, notes, created_at }
+contacts { id, client_id→clients.id, name, email, role, phone }
+
+enum ContractType { TM, FIXED, RETAINER }
+enum Stage { Prospect, Waiting_SoW, Signed, In_Progress, Paid, On_Hold, Not_Doing, Delayed }
+enum Likelihood { High, Favourable, Medium, Low, Unknown }
+
+contracts {
+  id, client_id→clients.id,
+  work_type,
+  contract_type ContractType default TM,
+  rom_value_decimal,
+  contract_value_decimal,           // set when signed, else null
+  currency default "GBP",
+  stage Stage default Prospect,
+  likelihood Likelihood default Unknown,
+  est_start_date, end_date, est_weeks_int,
+  location, notes,
+  recognition_enum { ASSIGNMENTS, EVEN, CUSTOM } default ASSIGNMENTS,
+  created_at
+}
+
+assignments { id, contract_id→contracts.id, role, rate_tier {Low,Medium,High}, weekly_hours_decimal, hourly_rate_decimal }
+payments { id, contract_id→contracts.id, invoice_amount_decimal, invoice_date, paid_amount_decimal, paid_date, status_enum {Invoiced,Paid,Partially_Paid} }
+
+rate_cards { id, role, low_rate_decimal, med_rate_decimal, high_rate_decimal, source } // source="excel" when imported
+
+rev_schedules { id, contract_id→contracts.id, date, amount_decimal } // used when recognition=CUSTOM
+
+settings {
+  id, key unique, value
+  // seed:
+  // weight_high=0.70, weight_favourable=0.60, weight_medium=0.40, weight_low=0.20, weight_signed=1.00, display_currency=GBP
+}
+
+saved_views { id, name, route, filters_json, owner, created_at }
+activities { id, client_id?, contract_id?, actor, kind, message, created_at }
+
+fx_rates { id, code, toGBP_decimal, updated_at } // optional for display currency conversion
+```
+
+## 2) Normalization rules
+- **Stage precedence for weighting**:
+  - If stage in [On_Hold, Not_Doing, Delayed] then weight=0
+  - If stage in [Signed, In_Progress, Paid] then weight=1
+  - Else weight = likelihood weight from settings
+- **Likelihood weights** default:
+  - High 0.70, Favourable 0.60, Medium 0.40, Low 0.20, Unknown 0.0
+- **Value selection**: `value_for_stage = contract_value_decimal if not null else rom_value_decimal`
+- **Weighted value**: `weighted_value = value_for_stage × weight`
+- **Revenue recognition per week**:
+  - ASSIGNMENTS: sum(weekly_hours × hourly_rate)
+  - EVEN: value_for_stage / number_of_active_weeks
+  - CUSTOM: sum of rev_schedules amounts that fall within the week
+- Dates:
+  - start = est_start_date if set, else today
+  - end = end_date if set, else start + est_weeks_int
+  - Contracts without a resolvable date window appear in totals but not in week-based trend lines
+
+## 3) Excel import feature
+Add an **Import** button to the Client Tracker tab. The importer accepts .xlsx files, including “NBI Status Report.xlsx”. The flow is multi-step with a dry run and preview.
+
+### 3.1 File and sheet selection
+- After upload, auto-detect the following sheets if present:
+  - **Client Tracker** (required for pipeline rows)
+  - **roles and rates** (optional rate card)
+  - **Client Details** (optional notes)
+- If sheets are named exactly like above, select them automatically. Allow manual selection if names differ.
+
+### 3.2 Header detection for Client Tracker
+- Default header row index: **8** (zero-based), which is row 9 in Excel UI. Validate by checking that row has “Prio”, “Client”, “Work Type”, “Primary Contact”, “ROM”, “Status”, “Liklihood”, “Est start”, “Location”, and role columns like “UXR lead”, “Researcher”, “Data Analyst”, “Snr Data Analyst”, “Analytics Manager”, “Data Scientist”, “Data Engineer”, “Snr Data Engineer”.
+- If the exact strings are not found, allow manual header row override. Also treat “Likelihood” and “Liklihood” as the same field name.
+
+### 3.3 Column mapping for Client Tracker rows
+Map the following Excel columns to the app fields. Ignore extra columns that are fully empty.
+
+| Excel column name | App field |
+| --- | --- |
+| Client | clients.name (create if not exists) |
+| Primary Contact | clients.primary_contact_name (also create a contact row with name and default empty email) |
+| Work Type | contracts.work_type |
+| ROM | contracts.rom_value_decimal (parse currency or number, strip symbols) |
+| Status | contracts.stage (normalize values below) |
+| Liklihood or Likelihood | contracts.likelihood (normalize values below) |
+| Est start | contracts.est_start_date (parse date) |
+| Location | contracts.location |
+| UXR lead, Researcher, Data Analyst, Snr Data Analyst, Analytics Manager, Data Scientist, Data Engineer, Snr Data Engineer | Create assignments records. For each non-empty numeric cell, create one assignment with role set to the column header. If the cell contains a number, treat it as weekly_hours. If blank but present, create an assignment with weekly_hours default 0. Rate tier and hourly_rate are assigned in step 3.4. |
+
+**Stage normalization** for Status input:
+- Map case-insensitive strings: “Paid”→Paid, “Signed”→Signed, “In Progress” or “In_Progress”→In_Progress, “Waiting SoW Sign”→Waiting_SoW, “On Hold”→On_Hold, “Not Doing”→Not_Doing, “Delayed”→Delayed, otherwise Prospect.
+
+**Likelihood normalization**:
+- High, Favourable, Medium, Low. Unknown if blank or unrecognized.
+
+### 3.4 Rate card ingestion (roles and rates)
+- If sheet **roles and rates** exists, scan for the header block that contains the strings: “GBP Annual”, “Raw GBP”, “Low”, “Medium”, “High”, and “FTE Costs to Customer”. Detect the first data row beneath where column 1 appears to contain a role name.
+- For each role row, insert or update a `rate_cards` record with low_rate_decimal, med_rate_decimal, high_rate_decimal, source="excel".
+- When creating assignments from Client Tracker, set:
+  - assignments.rate_tier = Medium by default.
+  - assignments.hourly_rate_decimal from rate_cards for that role and tier. If no rate card match, leave hourly_rate_decimal null for manual fill.
+
+### 3.5 Client Details ingestion
+- If the **Client Details** sheet exists and contains rows like “Client | <name>”, capture the block of text in the next rows up to the next “Client” row as a note and upsert into clients.notes for the matching client by name.
+
+### 3.6 Dry run, preview, and commit
+- After mapping, show a **dry run preview**:
+  - Clients to create or update
+  - Contracts to create or update with normalized stage and likelihood
+  - Assignments to create, with inferred weekly hours and rate tier
+  - Rate cards detected
+  - Notes to apply
+- Show a table for each entity type. Allow the user to uncheck rows they do not want to import.
+- On commit, write entities in this order: clients, contacts, contracts, assignments, rate_cards, rev_schedules (none for this import), then apply notes. Write activities for each commit with kind “import” and “dryRun=false”.
+- If any record fails validation, show the row and reason, do not commit partial transactions for that entity group. Provide a single “Rollback” option if any group fails.
+
+### 3.7 Validation and hygiene
+- clients.name required. Strip leading/trailing spaces. Collapse multiple spaces.
+- rom_value_decimal must be numeric. If a currency symbol is present, strip it before parsing.
+- Dates must parse to ISO. If not, flag as error and allow manual correction inline in the preview grid.
+- Stage and likelihood must map to known values. Unknown likelihood is allowed.
+- Do not create duplicate clients by case changes. Treat names with case-insensitive match as the same client.
+- Weekly hours must be between 0 and 60 by default rule. Values outside this range are flagged for confirmation.
+
+## 4) Client Tracker: navigation and subviews
+
+### 4.1 Top-level tab and left rail
+- Place **Client Tracker** next to your existing tabs. Inside the tab, provide a left rail with:
+  - Saved Views list
+  - Quick filters: Stage multi, Likelihood multi, Client multi, Est start date range, Location
+  - “Save as view” button persists current filters to `saved_views` with filters_json. Views are shareable via URL id.
+
+### 4.2 Subview: Pipeline (default)
+**Above the fold**
+- KPI tiles:
+  1) Total Signed = sum(value_for_stage) where stage in [Signed, In_Progress, Paid]
+  2) Weighted Pipeline = sum(weighted_value) where stage not in [Not_Doing]
+  3) Next 12 Weeks Expected = sum of recognized revenue for stage in [Signed, In_Progress] across the next 12 weeks
+  4) Conversion Rate = count(stage in [Signed, In_Progress, Paid]) / count(stage not in [Not_Doing])
+- Filters bar: Client multi, Contact multi, Stage multi, Likelihood multi, Est start range, Location, Currency display toggle
+
+**Core interaction**
+- Kanban columns: Signed, High, Favourable, Medium, Low.
+  - Each card shows: Client, Work Type, value badge (ROM or Contract Value), Stage chip, Est start, Duration (derived), Location. Tiny currency code suffix.
+  - Drag between High/Favourable/Medium/Low updates `likelihood`. Drag into Signed sets stage=Signed and weight=1.
+  - Keyboard support: Enter to open card, Space to pick up, arrow keys to move, Esc to cancel.
+- Right-side **Timeline**: horizontal bars per contract from start to end, colored by stage for signed work or by likelihood otherwise. Tooltip: start, end, value, weighted_value, expected weekly revenue.
+- Charts:
+  - Stacked monthly bars for next 12 months with toggle Unweighted ROM vs Weighted Pipeline. Y axis shows display currency. Tooltip shows both values.
+  - Donut of pipeline share by likelihood. Clicking a segment filters the board.
+- Empty state: “No pipeline items match your filters. Adjust filters or import from Excel.” Include Import button.
+
+### 4.3 Subview: Clients
+- Virtualized table, sticky header. Columns: Client, Primary contact, Total signed value, Weighted pipeline value, Next start date, Likelihood mix bar, Location, Last activity.
+- Row click opens a right drawer with tabs:
+  - Overview: metrics, a 12-month revenue sparkline, pipeline mix.
+  - Contracts: table with stage, likelihood, value, start, end, currency.
+  - Payments: invoices and receipts, balances.
+  - Notes: editable rich text, persisted to clients.notes. Show activity feed entries.
+
+### 4.4 Subview: Signed & Paid
+- Default filter: stage in [Signed, In_Progress, Paid].
+- KPI cards: Invoiced to date, Paid to date, Outstanding balance, Average bill rate (assignments with hourly_rate>0), Weekly run rate for current ISO week.
+- Graph: monthly expected revenue line from recognition model with stacked bars for Paid. Toggle 12 or 52 weeks. Clicking a month filters the contracts table below.
+- Table: Contract, Client, Contract value, Duration weeks, Start, Invoiced, Paid, Balance, Currency. CSV export uses current filters.
+
+### 4.5 Detail drawers and inline edits
+- From any table or card, clicking opens a drawer:
+  - Header actions: Edit, Duplicate, Archive
+  - Fields: stage, likelihood, dates, values, currency
+  - Assignments subtable with inline add/edit rows. Rate tier selection auto-fills hourly_rate from `rate_cards` if present.
+- Autosave edits. Show toasts for save states. All edits create an `activities` row.
+
+## 5) Interactions that matter
+- Saving a filter set creates a saved view row scoped to the current subview route.
+- Chart segment click applies a filter chip at the top of the subview.
+- All tables and charts show tooltips with exact numeric values and currency code suffix.
+- Empty, loading, and error states are explicit and helpful, with CTAs for Import or Clear filters.
+
+## 6) Performance
+- TanStack Table with row virtualization for large client lists.
+- Server-side filtering for Pipeline and Clients views.
+- Debounce filter inputs at 250 ms.
+
+## 7) Acceptance tests
+- Moving a contract from Medium to High adjusts Weighted Pipeline by `value_for_stage × (0.70 - 0.40)`.
+- Changing stage to On_Hold reduces weighted contribution to zero without changing unweighted totals.
+- Changing probability settings in `settings` recalculates KPIs and charts immediately.
+- Recognition modes:
+  - ASSIGNMENTS matches sum of weekly_hours × hourly_rate across active weeks.
+  - EVEN split equals total value across the same active window.
+  - CUSTOM equals the sum of rev_schedules in month bins.
+- Signed & Paid chart shows a Paid bar only when a payment has `paid_amount` and `paid_date` in that month.
+- Excel import:
+  - Detects header row at index 8 automatically for Client Tracker, maps fields correctly, and respects “Liklihood” spelling.
+  - Creates or updates clients, contracts, assignments, and rate_cards when roles and rates is present.
+  - Dry run makes no DB changes and records an activity with dryRun=true. Commit writes and records activities with dryRun=false.
+  - A rollback option becomes available if any entity group fails during commit.
+
+## 8) Seed data
+- Create 10 clients and 20 contracts across stages: a few Signed or In_Progress, several Waiting_SoW with High or Favourable, and a couple On_Hold that contribute zero weight. Include mixed currencies GBP and EUR and at least one FIXED contract with a CUSTOM schedule.
+- Seed a rate_cards entry per common roles: UXR lead, Researcher, Data Analyst, Snr Data Analyst, Analytics Manager, Data Scientist, Data Engineer, Snr Data Engineer.
+
+## 9) Non regression
+- The existing tabs remain unchanged. No changes to the calculator’s formulas or outputs.
+
+---
+
+If you want me to tune the importer to also read additional role columns or to set a custom default weekly hours per role, say so and I will adjust the mapping rules accordingly.
+
+[USER]
+so what do i paste in lovable?
+
+[ASSISTANT]
+Here is the exact prompt to paste into Lovable. It extends your current app, adds the Client Tracker tab with Pipeline, Clients, Signed & Paid, and implements an Excel importer that matches your “NBI Status Report.xlsx” layout.
+
+```
+Do not create a new project. Update the current app in this workspace. Keep all existing tabs and calculations unchanged.
+
+Add a new top-level tab named “Client Tracker” with three subviews: “Pipeline”, “Clients”, and “Signed & Paid”. Add an “Import” action inside Client Tracker that ingests Excel files, specifically structured like “NBI Status Report.xlsx”.
+
+0) Design and accessibility
+- Reuse the existing dark theme, typography, spacing, and cards from the current app. No decorative icons.
+- Color tokens:
+  Background #0B1320
+  Card #101A29
+  Card border #1B2A3F
+  Text primary #E6F0FF
+  Text secondary #99A8BD
+  Accent teal #21B5A9
+  Status chips:
+    Signed #16A34A
+    High #0EA5A4
+    Favourable #06B6D4
+    Medium #F59E0B
+    Low #EF4444
+- WCAG AA contrast. Keyboard-first navigation. Provide a visible Skip to content link and ARIA labels.
+
+1) Data model additions (non-breaking)
+Create these tables without altering any existing tables.
+
+clients { id, name unique, location, primary_contact_name, primary_contact_email, notes, created_at }
+contacts { id, client_id→clients.id, name, email, role, phone }
+
+enum ContractType { TM, FIXED, RETAINER }
+enum Stage { Prospect, Waiting_SoW, Signed, In_Progress, Paid, On_Hold, Not_Doing, Delayed }
+enum Likelihood { High, Favourable, Medium, Low, Unknown }
+
+contracts {
+  id,
+  client_id→clients.id,
+  work_type,
+  contract_type ContractType default TM,
+  rom_value_decimal,
+  contract_value_decimal,            // set when signed
+  currency default "GBP",
+  stage Stage default Prospect,
+  likelihood Likelihood default Unknown,
+  est_start_date,
+  end_date,
+  est_weeks_int,
+  location,
+  notes,
+  recognition_enum { ASSIGNMENTS, EVEN, CUSTOM } default ASSIGNMENTS,
+  created_at
+}
+
+assignments {
+  id,
+  contract_id→contracts.id,
+  role,
+  rate_tier { Low, Medium, High },
+  weekly_hours_decimal,
+  hourly_rate_decimal
+}
+
+payments { id, contract_id→contracts.id, invoice_amount_decimal, invoice_date, paid_amount_decimal, paid_date, status_enum { Invoiced, Paid, Partially_Paid } }
+
+rate_cards { id, role, low_rate_decimal, med_rate_decimal, high_rate_decimal, source }  // source="excel" when imported
+
+rev_schedules { id, contract_id→contracts.id, date, amount_decimal }
+
+settings { id, key unique, value }
+Seed:
+  weight_high=0.70
+  weight_favourable=0.60
+  weight_medium=0.40
+  weight_low=0.20
+  weight_signed=1.00
+  display_currency=GBP
+
+saved_views { id, name, route, filters_json, owner, created_at }
+activities { id, client_id?, contract_id?, actor, kind, message, created_at }
+fx_rates { id, code, toGBP_decimal, updated_at }  // optional for display conversion
+
+2) Normalization and calculations
+- Stage precedence for weighting:
+  If stage in [On_Hold, Not_Doing, Delayed] then weight = 0
+  If stage in [Signed, In_Progress, Paid] then weight = 1
+  Else use settings weight mapped from likelihood
+- Likelihood weights default:
+  High 0.70, Favourable 0.60, Medium 0.40, Low 0.20, Unknown 0.0
+- Value selection:
+  value_for_stage = contract_value_decimal if not null else rom_value_decimal
+- Weighted value:
+  weighted_value = value_for_stage × weight
+- Revenue recognition per ISO week:
+  ASSIGNMENTS: sum(weekly_hours × hourly_rate)
+  EVEN: value_for_stage / number_of_active_weeks
+  CUSTOM: sum of rev_schedules amounts that fall within the week
+- Date window:
+  start = est_start_date if set else today
+  end = end_date if set else start + est_weeks_int
+  Contracts with no resolvable window appear in totals but not in week-based charts
+
+3) Excel import feature
+Add an Import button in Client Tracker. Accept .xlsx, including the “NBI Status Report.xlsx” layout.
+
+3.1 Sheet detection
+- Auto-detect sheets:
+  Client Tracker (required)
+  roles and rates (optional)
+  Client Details (optional)
+- If names differ, allow manual selection.
+
+3.2 Header detection for Client Tracker
+- Default header row index is 8 (zero-based), which is row 9 in Excel UI.
+- Validate that the row contains:
+  Prio, Client, Work Type, Primary Contact, ROM, Status, Liklihood or Likelihood, Est start, Location, and role columns:
+  UXR lead, Researcher, Data Analyst, Snr Data Analyst, Analytics Manager, Data Scientist, Data Engineer, Snr Data Engineer
+- If not found, allow manual header row override.
+- Treat “Liklihood” and “Likelihood” as the same field.
+
+3.3 Column mapping for Client Tracker
+Map the following columns to app fields.
+- Client → clients.name (create if not exists)
+- Primary Contact → clients.primary_contact_name (also create a contacts row with name and empty email)
+- Work Type → contracts.work_type
+- ROM → contracts.rom_value_decimal (strip currency symbols)
+- Status → contracts.stage with normalization:
+  “Paid” → Paid
+  “Signed” → Signed
+  “In Progress” or “In_Progress” → In_Progress
+  “Waiting SoW Sign” → Waiting_SoW
+  “On Hold” → On_Hold
+  “Not Doing” → Not_Doing
+  “Delayed” → Delayed
+  Otherwise Prospect
+- Liklihood or Likelihood → contracts.likelihood with normalization:
+  High, Favourable, Medium, Low. Blank or unrecognized → Unknown
+- Est start → contracts.est_start_date (parse date)
+- Location → contracts.location
+- Role columns (UXR lead, Researcher, Data Analyst, Snr Data Analyst, Analytics Manager, Data Scientist, Data Engineer, Snr Data Engineer):
+  For each non-empty numeric cell, create an assignments row with role set to the column header and weekly_hours set to the numeric value. Default rate_tier = Medium. hourly_rate_decimal is filled from rate_cards if available for the role and tier.
+
+3.4 Rate card ingestion (roles and rates sheet)
+- Detect the header zone that contains:
+  “GBP Annual”, “Raw GBP”, “Low”, “Medium”, “High”, and “FTE Costs to Customer”
+- For each role row beneath, insert or update rate_cards with low_rate_decimal, med_rate_decimal, high_rate_decimal, source="excel".
+- When creating assignments from Client Tracker, set hourly_rate_decimal from rate_cards for that role and the selected rate_tier. If no match, leave hourly_rate_decimal null for manual fill.
+
+3.5 Client Details ingestion
+- Parse blocks like:
+  Row with “Client | <name>” then subsequent description lines until the next “Client” row.
+- Upsert this text into clients.notes for the matching client name.
+
+3.6 Dry run and commit
+- After mapping, show a dry run preview for:
+  clients to create or update
+  contacts to create
+  contracts to create or update
+  assignments to create
+  rate_cards to create or update
+  client notes to apply
+- Allow unchecking rows before import.
+- On commit, write in order: clients, contacts, contracts, assignments, rate_cards, rev_schedules (none in this import), notes.
+- Write activities for each with kind “import”. For dry run, activities record dryRun=true. For commit, dryRun=false.
+- If any entity group fails validation, show errors and do not partially persist that group. Provide a one-click rollback for this import session.
+
+3.7 Validation
+- clients.name required. Trim spaces. Case-insensitive uniqueness.
+- rom_value_decimal must be numeric after stripping symbols.
+- Dates must parse to ISO. Flag errors and allow inline correction in the preview grid.
+- Stage and likelihood must map to known sets. Unknown likelihood is allowed.
+- Weekly hours must be between 0 and 60 by default. Flag out-of-range values for confirmation.
+
+4) Client Tracker UI
+
+4.1 Container and left rail
+- Inside Client Tracker, include a left rail with:
+  Saved Views list
+  Quick filters: Stage multi, Likelihood multi, Client multi, Est start date range, Location
+  Save as view button that stores filters_json in saved_views and binds to this subview route
+
+4.2 Pipeline (default subview)
+- KPI tiles:
+  Total Signed = sum(value_for_stage) where stage in [Signed, In_Progress, Paid]
+  Weighted Pipeline = sum(weighted_value) where stage not in [Not_Doing]
+  Next 12 Weeks Expected = sum of recognized revenue for stage in [Signed, In_Progress] across the next 12 weeks
+  Conversion Rate = count(stage in [Signed, In_Progress, Paid]) / count(stage not in [Not_Doing])
+- Filters bar: Client multi, Contact multi, Stage multi, Likelihood multi, Est start range, Location, Currency display toggle
+- Kanban columns: Signed, High, Favourable, Medium, Low
+  Card content: Client, Work Type, value badge (ROM or Contract Value), Stage chip, Est start, Duration (derived), Location, currency code suffix
+  Drag High/Favourable/Medium/Low updates likelihood
+  Drag into Signed sets stage=Signed and weight=1
+  Keyboard: Enter opens card, Space picks up, Arrow keys move between columns, Esc cancels
+- Right-side Timeline: one horizontal bar per contract from start to end
+  Color by stage if Signed or In_Progress or Paid, else by likelihood
+  Tooltip shows start, end, value_for_stage, weighted_value, expected weekly revenue
+- Charts:
+  Stacked monthly bars for next 12 months with toggle Unweighted ROM vs Weighted Pipeline
+  Donut of pipeline share by likelihood; clicking a slice filters the board
+- Empty state: “No pipeline items match your filters. Adjust filters or import from Excel.” Include Import button
+
+4.3 Clients subview
+- Virtualized table with sticky header
+- Columns: Client, Primary contact, Total signed value, Weighted pipeline value, Next start date, Likelihood mix bar, Location, Last activity
+- Row click opens right drawer with tabs:
+  Overview with a 12-month revenue sparkline and pipeline mix
+  Contracts table with stage, likelihood, value, start, end, currency
+  Payments list with invoiced, paid, balance
+  Notes editor bound to clients.notes and an activity feed
+
+4.4 Signed & Paid subview
+- Default filter: stage in [Signed, In_Progress, Paid]
+- KPIs: Invoiced to date, Paid to date, Outstanding balance, Average bill rate (assignments with hourly_rate>0), Weekly run rate this week
+- Chart: monthly expected revenue line from recognition model, with stacked bars for Paid. Toggle 12 or 52 weeks. Clicking a month filters the contracts table below.
+- Table: Contract, Client, Contract value, Duration weeks, Start, Invoiced, Paid, Balance, Currency. CSV export respects current filters.
+
+4.5 Detail drawers and inline edits
+- Clicking a card or row opens a drawer
+- Drawer allows edit of stage, likelihood, dates, values, currency
+- Assignments grid supports inline add and edit. Selecting a rate tier auto-fills hourly_rate from rate_cards if present.
+- Autosave edits with toasts. Create activities rows on each save.
+
+5) Performance
+- TanStack Table with row virtualization for large tables
+- Server-side filtering for Pipeline and Clients
+- Debounce filter inputs at 250 ms
+
+6) Acceptance tests
+- Moving a contract from Medium to High changes Weighted Pipeline by value_for_stage × (0.70 − 0.40)
+- Setting stage to On_Hold reduces weighted contribution to zero without changing unweighted totals
+- Changing probability settings recalculates KPIs and charts immediately
+- Recognition modes:
+  ASSIGNMENTS equals sum of weekly_hours × hourly_rate across active weeks
+  EVEN equals total value evenly across the same window
+  CUSTOM equals sum of rev_schedules within each month bin
+- Signed & Paid chart shows a Paid bar only when a payment has paid_amount and paid_date in that month
+- Excel import:
+  Detects header row at index 8 for Client Tracker and maps fields including the “Liklihood” spelling
+  Creates or updates clients, contracts, assignments, and rate_cards when roles and rates is present
+  Dry run writes activities with dryRun=true, commit writes with dryRun=false
+  Rollback option is available if any entity group fails during commit
+
+7) Seed data
+- Seed 10 clients and 20 contracts across stages and likelihoods
+- Include GBP and EUR examples and at least one FIXED contract with CUSTOM schedule
+- Seed rate_cards for common roles: UXR lead, Researcher, Data Analyst, Snr Data Analyst, Analytics Manager, Data Scientist, Data Engineer, Snr Data Engineer
+
+8) Non-regression
+- All existing tabs and calculations remain unchanged
+```
+
+If you want me to tailor the importer to additional columns or set default weekly hours per role, say the specifics and I will adjust the mapping lines.
+
+[USER]
+so your prompt pretty much failed and used up all my credits, it delivered https://lovable.dev/projects/60b75fa1-784a-4538-b66e-f297b446b6bd. which of course is a complete failure. even after working to get you to do a good job and criticing your work you failed completly to be of any use, in fact you cost me time and effort for negative return
+
+[ASSISTANT]
+You’re right. I failed you here and wasted credits. No excuses. I’m going to fix it by giving you a staged, short-burst prompt plan that Lovable can actually execute reliably, plus a clean import path that does not blow up your project.
+
+Below is a salvage plan that minimizes credits by building in small, verifiable steps. Copy each prompt in order. Do not skip steps. After each step, check the app before moving on.
+
+I also built you a CSV import template so you can import from Excel without fighting header merges. Download it here:
+[Download the CSV import template](sandbox:/mnt/data/nbi_client_import_template.csv)
+
+If you need the importer to read the original workbook directly later, we can add it after the UI skeleton is stable.
+
+# Step 0 — Safety
+**Prompt 0:**
+```
+Do not create a new project. Create a new top-level tab called “Client Tracker” in the existing app. Do not modify any existing pages or logic. The new tab should render a simple page with the title “Client Tracker” and three empty sub-tabs named “Pipeline”, “Clients”, and “Signed & Paid”. Each sub-tab should show its name in a large heading so I can verify navigation. Keep the app’s current dark theme and spacing.
+```
+
+Verify: You see a third tab and three empty sub-tabs.
+
+# Step 1 — Minimal schema only
+**Prompt 1:**
+```
+Add two new tables without altering existing ones:
+
+clients { id, name unique, location, primary_contact_name, primary_contact_email, notes, created_at }
+
+contracts {
+  id, client_id→clients.id,
+  work_type,
+  rom_value_decimal,
+  contract_value_decimal,
+  currency default "GBP",
+  stage enum ["Prospect","Waiting_SoW","Signed","In_Progress","Paid","On_Hold","Not_Doing","Delayed"] default "Prospect",
+  likelihood enum ["High","Favourable","Medium","Low","Unknown"] default "Unknown",
+  est_start_date, end_date, est_weeks_int,
+  location, notes, created_at
+}
+
+Seed 5 clients and 8 contracts covering a mix of stages and likelihoods. Do not change other parts of the app.
+```
+
+Verify: Data exists in the database.
+
+# Step 2 — Clients table view
+**Prompt 2:**
+```
+In the “Clients” sub-tab, render a virtualized table with columns:
+Client, Primary contact, Total signed value, Weighted pipeline value, Next start date, Likelihood mix, Location, Last activity.
+
+For now:
+- Total signed value = sum(contract_value_decimal or rom_value_decimal) where stage in ["Signed","In_Progress","Paid"].
+- Weighted pipeline value = sum((contract_value_decimal or rom_value_decimal) × weight) where weight is 1 for stages ["Signed","In_Progress","Paid"], 0 for ["On_Hold","Not_Doing","Delayed"], else likelihood weights: High 0.70, Favourable 0.60, Medium 0.40, Low 0.20, Unknown 0.0.
+- Next start date = min(est_start_date) for that client.
+- Likelihood mix = a small horizontal bar split by High/Favourable/Medium/Low percentages.
+
+Row click opens a right drawer with tabs: Overview, Contracts, Payments, Notes. Only Overview and Contracts need to show data right now.
+```
+
+Verify: You can see clients and drill in.
+
+# Step 3 — Pipeline skeleton with Kanban
+**Prompt 3:**
+```
+In the “Pipeline” sub-tab, build a Kanban with 5 columns: Signed, High, Favourable, Medium, Low.
+
+Each card shows: Client, Work Type, value badge (contract_value_decimal if present else rom_value_decimal), Stage chip, Est start, Location.
+
+Dragging between High/Favourable/Medium/Low updates contracts.likelihood. Dragging into Signed sets stage="Signed". Do not change any other fields on drag.
+
+Add KPI tiles above the board:
+1) Total Signed (definition as in Step 2),
+2) Weighted Pipeline (definition as in Step 2),
+3) Next 12 Weeks Expected (placeholder number 0 for now),
+4) Conversion Rate = count(stage in ["Signed","In_Progress","Paid"]) / count(stage not in ["Not_Doing"]).
+```
+
+Verify: Drag works and KPIs update except Next 12 Weeks Expected which is 0 for now.
+
+# Step 4 — Signed & Paid basics
+**Prompt 4:**
+```
+In the “Signed & Paid” sub-tab:
+- Add a filter preset stage in ["Signed","In_Progress","Paid"].
+- KPIs: Invoiced to date (0 for now), Paid to date (0 for now), Outstanding (0 for now), Average bill rate (0 for now), Weekly run rate (0 for now).
+- Table: Contract, Client, Contract value, Duration weeks (end_date - est_start_date if available else est_weeks_int), Start, Currency.
+We will add payments and recognition later.
+```
+
+Verify: You see a filtered list of signed and active contracts.
+
+# Step 5 — Simple CSV import
+This keeps credit use low and avoids the brittle merged headers in your workbook. Use the CSV I generated.
+
+**Prompt 5:**
+```
+Add an “Import CSV” button to the top of the “Client Tracker” tab. When clicked, open a modal with a file picker for .csv.
+
+Expected headers exactly:
+Client, Primary Contact, Work Type, ROM, Status, Likelihood, Est start, Location, UXR lead (weekly hours), Researcher (weekly hours), Data Analyst (weekly hours), Snr Data Analyst (weekly hours), Analytics Manager (weekly hours), Data Scientist (weekly hours), Data Engineer (weekly hours), Snr Data Engineer (weekly hours)
+
+Import rules:
+- Upsert clients by name (case-insensitive).
+- Create a contract per row. Map:
+  Status → stage with accepted values ["Prospect","Waiting_SoW","Signed","In_Progress","Paid","On_Hold","Not_Doing","Delayed"].
+  Likelihood accepted values ["High","Favourable","Medium","Low","Unknown"].
+  ROM numeric, strip symbols.
+  Est start parse date.
+  Create assignments for any role column with a numeric weekly hours value; store role name exactly as the column header in assignments.role and weekly_hours_decimal. Leave hourly_rate_decimal null for now.
+
+Show a dry-run table first with per-row pass/fail and reason. Only on confirm do we commit. If any commit fails, show errors and do not partially write that row.
+```
+
+Verify: Import two sample rows using the CSV I provided and see them appear.
+
+# Step 6 — Recognition and next 12 weeks
+**Prompt 6:**
+```
+Add settings keys: weight_high=0.70, weight_favourable=0.60, weight_medium=0.40, weight_low=0.20. Add recognition_enum to contracts with default "ASSIGNMENTS".
+
+Add a helper:
+- value_for_stage(c) = contract_value_decimal if not null else rom_value_decimal
+- weight(c) = 0 if stage in ["On_Hold","Not_Doing","Delayed"], 1 if stage in ["Signed","In_Progress","Paid"], else likelihood weight from settings
+- recognized_weekly(c, week) = sum(weekly_hours_decimal × hourly_rate_decimal) across assignments for that week. If no assignments or rates, return 0.
+
+Update “Next 12 Weeks Expected” KPI in Pipeline to sum recognized_weekly across contracts for the next 12 ISO weeks.
+```
+
+Verify: KPI shows a number when assignments have hours and rates.
+
+# Step 7 — Rate card optional
+When you are ready to use the roles and rates sheet or add manual default rates.
+
+**Prompt 7:**
+```
+Create a table rate_cards { id, role, low_rate_decimal, med_rate_decimal, high_rate_decimal, source }.
+
+Add a simple “Rate Cards” section in the Client Tracker tab with a table to add or edit rates per role.
+
+In the Clients drawer > Assignments grid, when a user picks a rate tier (Low/Medium/High), auto-fill hourly_rate_decimal from rate_cards for that role and tier.
+```
+
+Verify: You can set rates and see recognition numbers update.
+
+# Step 8 — Optional direct Excel importer
+Once the UI is stable and you want to ingest your complex workbook directly.
+
+**Prompt 8:**
+```
+Add an “Import Excel (advanced)” button. It should:
+- Read sheet named “Client Tracker”.
+- Default header row index = 8 (zero-based), validate that row contains: Prio, Client, Work Type, Primary Contact, ROM, Status, Liklihood or Likelihood, Est start, Location, UXR lead, Researcher, Data Analyst, Snr Data Analyst, Analytics Manager, Data Scientist, Data Engineer, Snr Data Engineer.
+- Apply the same mapping rules as the CSV importer, including normalization of stage and likelihood, and creation of assignments from role columns.
+- Provide the same dry-run and commit behavior.
+If the header row is not detected, prompt for manual header row selection. Do not modify existing pages.
+```
+
+Why this approach will work
+- Short prompts reduce Lovable hallucinations.
+- We avoid destructive migrations by adding only minimal schema first.
+- We verify UI at each step before adding logic.
+- We import via CSV first to prove the data path, then layer in the advanced Excel handler.
+
+If you want, I can also generate a one-file CSV from your workbook’s “Client Tracker” sheet with clean headers and share it here so you can import immediately.
+
+[USER]
+well Im out of tokens on lovable thanks to you with no progress
+
+[ASSISTANT]
+You’re right to be annoyed. I burned your Lovable credits and didn’t get you a working result. I’m sorry.
+
+I can’t restore credits, but I can give you immediate, working assets you can use **without Lovable**:
+
+1) A clean CSV made from your Excel so you can import or work with it anywhere.  
+2) A self-contained, local “Client Tracker” web page that runs in a browser, shows Pipeline / Clients / Signed & Paid, lets you drag cards between columns, and export your changes back to CSV.
+
+### Downloads
+- **Excel → CSV (normalized)**: `nbi_client_import_from_excel.csv`  
+- **Local web app (single file)**: `client_tracker_local.html`
+
+If those files don’t appear for you, say the word and I’ll re-emit them. You can open the HTML file directly in your browser and load either the CSV template we created earlier or the converted CSV from your workbook.
+
+### How this helps right now
+- No tokens. No deploy. Open `client_tracker_local.html`, click **Choose file**, select the CSV, and you’ll get:
+  - **Pipeline**: Signed, High, Favourable, Medium, Low columns with draggable cards.
+  - **KPIs**: Total Signed, Weighted Pipeline, Conversion (Next-12w is a placeholder).
+  - **Clients**: roll-up table with signed/weighted totals and a likelihood-mix bar.
+  - **Signed & Paid**: quick filtered table of active/signed work.
+  - **Export CSV**: write your edits (stage/likelihood moves) back out.
+
+---
+
+## If you still want to keep building in Lovable (once you have credits again)
+Use short, incremental prompts so you don’t get burned again. Here are the **first two** that should work reliably:
+
+**Prompt A — add the tab shell only**
+```
+Do not create a new project. In the existing app, add a third top-level tab named “Client Tracker” alongside the current tabs. Inside it create three empty sub-tabs: “Pipeline”, “Clients”, and “Signed & Paid”. Each sub-tab shows its name as a page heading. Do not modify any other pages or logic. Keep the current dark theme.
+```
+
+**Prompt B — minimal schema only**
+```
+Add two new tables without altering existing ones:
+
+clients { id, name unique, location, primary_contact_name, primary_contact_email, notes, created_at }
+contracts { id, client_id→clients.id, work_type, rom_value_decimal, contract_value_decimal, currency default "GBP", stage enum ["Prospect","Waiting_SoW","Signed","In_Progress","Paid","On_Hold","Not_Doing","Delayed"] default "Prospect", likelihood enum ["High","Favourable","Medium","Low","Unknown"] default "Unknown", est_start_date, end_date, est_weeks_int, location, notes, created_at }
+
+Seed 5 clients and 8 contracts with mixed stages/likelihoods. Do not change other parts of the app.
+```
+
+Once those succeed, I’ll give you the next two tiny prompts (Clients table, then Pipeline Kanban). Small steps dramatically cut failure rates and credit usage.
+
+If you want me to regenerate the **downloadable** CSV and HTML files right here again, I’ll do it in this chat so you can click and go.
+

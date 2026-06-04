@@ -1,0 +1,145 @@
+TITLE: Migration from Democrat states
+DATE: 2025-11-09
+MESSAGES: 4
+ID: 69109a42-b224-832c-b268-3c9c8889285b
+---
+
+[USER]
+are people in the us moving out of democrat held states?
+
+[ASSISTANT]
+Yes. Over the last few years there has been a clear *net* movement out of many Democratic-leaning, high cost states and into lower cost states that tend to be Republican-leaning, especially in the South and Mountain West.
+
+Here is the reality in simple terms:
+
+- **Big Democratic strongholds are losing people to other states.**  
+  Recent Census estimates show that between July 2023 and July 2024, California, New York and Illinois had the largest net *domestic* migration losses in the country, with roughly  
+  - California: about −240,000  
+  - New York: about −121,000  
+  - Illinois: about −56,000  
+  in net movers to other states. citeturn2search2turn2search6  
+
+- **Many Republican-run Sun Belt states are gaining those movers.**  
+  In the same period, the biggest domestic migration *gains* were in:  
+  - Texas: about +85,000  
+  - North Carolina: about +82,000  
+  - South Carolina: about +68,000  
+  - Florida: about +64,000  
+  - Tennessee: about +48,000. citeturn2search2turn2search6  
+
+- **County-level data shows the same pattern.**  
+  A Stateline analysis of moves from 2020 to 2023 found that counties that voted Republican in 2020 gained about **3.7 million** people from internal moves, while counties that voted Democratic lost about **3.7 million**. That includes people leaving big Democratic cities for more Republican-leaning suburbs and regions. citeturn2search3  
+
+- **Blue to red flows have grown compared with the 2000s.**  
+  A Statista analysis of long-term migration patterns found that large “blue” states now send more than half a million additional residents per year to “red” states compared with the mid-2000s. citeturn1search0turn2search7  
+
+- **Why people say they are moving.**  
+  When movers are surveyed or interviewed, the most common reasons are:  
+  - cost of housing and general cost of living  
+  - job opportunities  
+  - taxes  
+  - desire for more space or different climate  
+  rather than simply “politics,” although commentators on the right in particular often frame it as a reaction to Democratic policies in high-tax, high-cost states. citeturn2search10turn0news40turn2news36turn2news39  
+
+- **Important nuance.**  
+  - Some Democratic-led states still grow overall because immigration and births offset domestic outflows, especially California and New York. citeturn2search2turn0news41  
+  - There is still migration out of Republican states too; it is just that **net** flows since about 2020 tilt from blue toward red states, not a one-way stampede.
+
+So, if you translate your question into “On net, are more people leaving Democratic-leaning states than moving into them, and going toward Republican-leaning states instead?”, the current data supports **yes, that has been a real pattern in the last few years**, mainly tied to cost of living, housing, and jobs, with politics and tax regimes intertwined in that mix.
+
+navlistRecent coverage on US migration patternsturn2news36,turn2news38,turn0news40,turn0news41
+
+[USER]
+is the comet ai browser safe?
+
+[ASSISTANT]
+Short version: I would **not** treat the Comet AI browser as “safe” for anything sensitive right now. It is an early AI “agent” browser with a track record of serious security findings.
+
+Here is the reality in practical terms.
+
+---
+
+### 1. What Comet is
+
+Comet is Perplexity AI’s Chromium-based browser with a built-in AI assistant that can read pages, summarise content, manage email, shop, and take actions on your behalf while logged into sites. citeturn0search0turn0search2  
+
+That means, by design, it can see:
+
+- your pages and tabs  
+- your logged-in sessions  
+- often your messages, calendars, and files, if you authorise it.
+
+That power is exactly what makes it useful and what makes it risky.
+
+---
+
+### 2. Recent security findings
+
+Multiple independent security teams have called out **serious vulnerabilities** in Comet specifically, not just AI browsers in general:
+
+1. **CometJacking attack (LayerX, 2025)**  
+   - A single crafted URL could hijack Comet’s AI agent and quietly exfiltrate data such as emails, calendar entries, and the browser’s own “memory,” all in the background. citeturn1search0turn1search10turn1search15  
+
+2. **Indirect prompt injection (Brave, 2025)**  
+   - When you ask Comet to “summarise this page,” it was shown to execute hidden instructions planted inside the page, potentially letting attackers access other tabs, accounts, or data you are logged into. citeturn1search1turn1search11turn1search21  
+
+3. **OAuth account-takeover scenarios (SquareX)**  
+   - In testing, Comet followed a malicious “workflow” and granted a rogue app full access to Gmail and Google Drive, allowing exfiltration of all files. citeturn1search2turn1search18  
+
+4. **Higher susceptibility than normal browsers**  
+   - LayerX estimated Comet can be up to **85% more vulnerable** to phishing and web attacks than Chrome, largely because the AI agent happily walks through dangerous flows that a human might catch. citeturn1search3turn1search7  
+   - Windows Central’s write-up on Brave and Guardio’s audits sums it up: Comet’s assistant can be tricked into running malicious commands and doing fraudulent purchases or helping with phishing flows. citeturn1news40  
+
+5. **Sidebar spoofing & other systemic issues**  
+   - SquareX and others have also shown that AI sidebars in browsers like Comet can be spoofed, tricking users into following fake “assistant” instructions. citeturn1search14turn1search26  
+
+Security researchers and tech press now treat **AI browsers as a whole** as a new, higher-risk category compared with normal browsers. citeturn0search9turn1search5turn1search8turn1search23  
+
+---
+
+### 3. Has Perplexity done anything about it?
+
+Yes, to some extent:
+
+- Perplexity has introduced **Standard / Strict / Local** privacy modes and markets Comet as privacy focused. Strict and Local are supposed to limit what leaves your machine. citeturn0search6  
+- They have published a post about **mitigating prompt injection** and say they have shipped fixes for reported issues like the earlier indirect injection bugs. citeturn1search19turn1search6  
+- They have partnered with 1Password to emphasise protected credential storage and autofill. citeturn0news18  
+
+However:
+
+- New attacks keep being found as recently as October 2025 (CometJacking, OAuth flows, sidebar spoofing, “unseeable” prompt injections in screenshots). citeturn1search0turn1search4turn1search18turn1search22  
+- Some privacy-focused vendors and compliance advisers outright describe Comet as a **data privacy nightmare** and recommend avoiding AI browsers like Comet entirely for corporate or confidential work. citeturn0search4turn1search23  
+
+There is also an ongoing Amazon lawsuit alleging Comet’s automated shopping feature accessed Amazon customer accounts in ways Amazon claims violate its rules, which is a separate but relevant trust signal. Perplexity disputes those claims. citeturn0news16  
+
+---
+
+### 4. So, is it “safe”?
+
+It depends what you mean by “safe” and what you plan to do with it.
+
+**I would treat it as *unsafe* for:**
+
+- work with confidential or regulated data  
+- anything involving client documents, internal tools, source code, HR data, or financial systems  
+- managing business email, cloud drives, or admin consoles
+
+In other words, I would not use Comet for anything you would normally restrict to a hardened corporate browser and VPN.
+
+**For personal, casual use:**
+
+It is closer to “use at your own risk, with safeguards”:
+
+- Assume the AI may be tricked by hidden content on pages.  
+- Do not let it automatically complete logins, grant OAuth permissions, or “handle” banking, investments, or tax accounts for you.  
+- Use the strictest privacy mode (Strict or Local) wherever possible. citeturn0search6turn1search19  
+- Use a *separate* traditional browser (Chrome, Firefox, Safari, Brave, etc.) for banking, password changes, 2FA recovery, and anything critical. citeturn1search6turn1search8  
+
+Given the current research, my honest answer is:
+
+> **Comet is interesting, but for now it is not a browser I would trust with sensitive accounts or work data.** For low-stakes personal browsing with careful settings, you can use it, but only if you are comfortable accepting more risk than with a normal browser.
+
+---
+
+If you tell me how you were thinking of using it (everyday browsing, work, email, banking, etc.), I can give a very specific yes/no recommendation for that scenario.
+

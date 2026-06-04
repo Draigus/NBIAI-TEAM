@@ -1,0 +1,597 @@
+TITLE: Proposal assessment
+DATE: 2025-10-22
+MESSAGES: 10
+ID: 68f8ad32-9320-832f-bf91-7ce8b2677f4f
+---
+
+[USER]
+assess this proposal 
+
+Business Modelling RFP
+Wonderland Launch Strategy
+
+Overview
+Lighthouse Games is seeking a modelling consultant to build an Excel financial model for our upcoming driving game. The model must forecast and test key levers including pricing, content timing, live service cadence, and yearly EBITDA outcomes. The model needs to support both finance and publishing in ongoing scenario planning.
+The consultant will deliver a five-year, monthly, cohort-based model that covers acquisition, engagement, retention and monetisation (AERM) across premium box, direct access DLC, UGC, and MTX. Our requirement is a working, auditable Excel model with clear assumptions, inputs, and calculations.
+We’ve made these changes to the RFP in alignment with internal strategic decisions to focus on the business strategy from launch. There is potential for future work on long-term strategy around the previous Sequel/F2P thinking, but it is outside of the scope of this RFP.
+
+Strategy Definitions
+Acquisition Funnel: Paid and organic acquisition across marketing, platform featuring, and UGC-driven discovery.
+Game SKUs:
+•	Base Game (May 2027)
+•	Standalone/Direct Access DLC SKUs (e.g. China DLC – Nov/Dec 2027; Italy DLC – May 2028; additional ~6 month cadence (this should be adjustable in the model)
+•	All SKUs include equal live service and UGC access, even for players who purchase DLC without owning the base game
+Monetisation: Premium box (multiple price levels and editions), DLC (direct access), MTX (vehicles, parts, avatars, cosmetics, convenience)
+UGC: PC-based creation tool with content released across platforms; model the uplift in AERM
+Regional modelling: Global coverage, with specific modelling for direct purchase DLC in China
+Platforms at Launch: PS5, Xbox Series, PC
+
+Objectives
+1.	Forecasting and Financial Outcomes
+o	Build a five-year, monthly forecasting model (May 2027-April 2032) that projects units, revenue, costs and annual EBITDA using a stub cost sheet if not available.
+o	Include platform, region and SKU (base, DLC, MTX) detail.
+2.	AERM modelling
+o	Player acquisition, engagement, retention and reactivation
+o	Model monetisation flows for premium box, direct access DLC and MTX, including attach and cannibalisation between SKUs.
+o	Include inputs for UGC platform, live service and content events that apply uplift factors to AERM so we can test different cadence and timing strategies.
+o	The model should estimate how player retention, reactivation, content cadence, and UGC influence revenue, LTV and annual EBITDA, including the ROI of live service and DLC.
+3.	Pricing and Elasticity
+o	Include price mix and price elasticity modelling to test how price levels, discount depth, and regional pricing affect unit volumes and revenue
+4.	Scenario and Sensitivity Testing
+o	Provide inputs for DLC release timing, discount cadence, live service events, marketing spend, UGC growth, and platform expansion (PS6, Xbox Next)
+o	Support of alternative strategies, i.e. Is it more profitable to push earlier, smaller or later, bigger DLC, drop price faster, or run more live service? Full scenario builds and toggling is not expected, but the model should support exploring alternative strategies results on KPIs and EBITDA.
+5.	Output KPIs
+o	Annual EBITDA and EBITDA margin
+o	Revenue & units by SKU/region: Base, DLC (standalone vs attach), MTX
+o	MAU, MoM retention %, Reactivation %
+o	Payer rate % and ARPMAU
+o	Attach rate % (Base→DLC) and DLC standalone mix %
+o	Average selling price (vs list) and discount mix %
+
+Key Questions the Model Must Answer
+•	What are the forecasted monthly units, revenue and gross profit by SKU/region/platform and how do they roll up to annual results?
+•	Which list prices and discount cadence maximise revenue, including average selling price and price elasticity by SKU/region?
+•	When should DLC ship to maximise revenue, yearly EBITDA, and engagement?
+•	For each season or DLC, what is the forecasted incremental MAU and revenue? Given costs, what’s the ROI? What’s the spike and decay curve of the release?
+•	Considering local prices/fees/taxes, what share of units, revenue and EBITDA could come from a China DLC?
+
+Note: If full cost data isn’t available at kickoff, the consultant should stub a documented cost sheet (platform fees, refunds, taxes/VAT, COGS and OPEX) with placeholders and ranges that we can replace with actuals later.
+
+Deliverables & Timeline
+
+Deliverables
+•	Excel model with functionality as listed above
+o	Single inputs/scenarios tab
+o	Pricing/elasticity in one place
+o	Events calendar driving event uplift/ROI
+•	Model should be fully editable with no black-box logic or locked cells
+•	Documentation of the model including:
+o	Inputs and formulas in plain language
+o	Assumptions made, including any benchmarks/comps used
+o	Data dictionary
+•	Handover
+o	Instructions on how to use the file
+o	One recorded walkthrough
+o	One revision pass after our review
+Timeline
+We are looking for completion of this model within 4-6 weeks. Please include a timeline with milestones in your proposal and trade-offs if this window is insufficient.
+
+[USER]
+assess this release for proposal - is it well structured and good? how would you critic it ?
+
+
+Business Modelling RFP
+Wonderland Launch Strategy
+
+Overview
+Lighthouse Games is seeking a modelling consultant to build an Excel financial model for our upcoming driving game. The model must forecast and test key levers including pricing, content timing, live service cadence, and yearly EBITDA outcomes. The model needs to support both finance and publishing in ongoing scenario planning.
+The consultant will deliver a five-year, monthly, cohort-based model that covers acquisition, engagement, retention and monetisation (AERM) across premium box, direct access DLC, UGC, and MTX. Our requirement is a working, auditable Excel model with clear assumptions, inputs, and calculations.
+We’ve made these changes to the RFP in alignment with internal strategic decisions to focus on the business strategy from launch. There is potential for future work on long-term strategy around the previous Sequel/F2P thinking, but it is outside of the scope of this RFP.
+
+Strategy Definitions
+Acquisition Funnel: Paid and organic acquisition across marketing, platform featuring, and UGC-driven discovery.
+Game SKUs:
+•	Base Game (May 2027)
+•	Standalone/Direct Access DLC SKUs (e.g. China DLC – Nov/Dec 2027; Italy DLC – May 2028; additional ~6 month cadence (this should be adjustable in the model)
+•	All SKUs include equal live service and UGC access, even for players who purchase DLC without owning the base game
+Monetisation: Premium box (multiple price levels and editions), DLC (direct access), MTX (vehicles, parts, avatars, cosmetics, convenience)
+UGC: PC-based creation tool with content released across platforms; model the uplift in AERM
+Regional modelling: Global coverage, with specific modelling for direct purchase DLC in China
+Platforms at Launch: PS5, Xbox Series, PC
+
+Objectives
+1.	Forecasting and Financial Outcomes
+o	Build a five-year, monthly forecasting model (May 2027-April 2032) that projects units, revenue, costs and annual EBITDA using a stub cost sheet if not available.
+o	Include platform, region and SKU (base, DLC, MTX) detail.
+2.	AERM modelling
+o	Player acquisition, engagement, retention and reactivation
+o	Model monetisation flows for premium box, direct access DLC and MTX, including attach and cannibalisation between SKUs.
+o	Include inputs for UGC platform, live service and content events that apply uplift factors to AERM so we can test different cadence and timing strategies.
+o	The model should estimate how player retention, reactivation, content cadence, and UGC influence revenue, LTV and annual EBITDA, including the ROI of live service and DLC.
+3.	Pricing and Elasticity
+o	Include price mix and price elasticity modelling to test how price levels, discount depth, and regional pricing affect unit volumes and revenue
+4.	Scenario and Sensitivity Testing
+o	Provide inputs for DLC release timing, discount cadence, live service events, marketing spend, UGC growth, and platform expansion (PS6, Xbox Next)
+o	Support of alternative strategies, i.e. Is it more profitable to push earlier, smaller or later, bigger DLC, drop price faster, or run more live service? Full scenario builds and toggling is not expected, but the model should support exploring alternative strategies results on KPIs and EBITDA.
+5.	Output KPIs
+o	Annual EBITDA and EBITDA margin
+o	Revenue & units by SKU/region: Base, DLC (standalone vs attach), MTX
+o	MAU, MoM retention %, Reactivation %
+o	Payer rate % and ARPMAU
+o	Attach rate % (Base→DLC) and DLC standalone mix %
+o	Average selling price (vs list) and discount mix %
+
+Key Questions the Model Must Answer
+•	What are the forecasted monthly units, revenue and gross profit by SKU/region/platform and how do they roll up to annual results?
+•	Which list prices and discount cadence maximise revenue, including average selling price and price elasticity by SKU/region?
+•	When should DLC ship to maximise revenue, yearly EBITDA, and engagement?
+•	For each season or DLC, what is the forecasted incremental MAU and revenue? Given costs, what’s the ROI? What’s the spike and decay curve of the release?
+•	Considering local prices/fees/taxes, what share of units, revenue and EBITDA could come from a China DLC?
+
+Note: If full cost data isn’t available at kickoff, the consultant should stub a documented cost sheet (platform fees, refunds, taxes/VAT, COGS and OPEX) with placeholders and ranges that we can replace with actuals later.
+
+Deliverables & Timeline
+
+Deliverables
+•	Excel model with functionality as listed above
+o	Single inputs/scenarios tab
+o	Pricing/elasticity in one place
+o	Events calendar driving event uplift/ROI
+•	Model should be fully editable with no black-box logic or locked cells
+•	Documentation of the model including:
+o	Inputs and formulas in plain language
+o	Assumptions made, including any benchmarks/comps used
+o	Data dictionary
+•	Handover
+o	Instructions on how to use the file
+o	One recorded walkthrough
+o	One revision pass after our review
+Timeline
+We are looking for completion of this model within 4-6 weeks. Please include a timeline with milestones in your proposal and trade-offs if this window is insufficient.
+
+
+[ASSISTANT]
+The **Wonderland Launch Strategy / Business Modelling RFP** you shared is **strongly structured, clear, and targeted**, but it could benefit from **minor refinements for clarity, hierarchy, and tone**. Here’s a professional critique and assessment:
+
+---
+
+## **Overall Assessment**
+
+**Verdict:**  
+It’s a well-structured and highly professional release, aligned with standard RFP best practices for financial modelling and scenario planning. It demonstrates clear understanding of **business needs (AERM, pricing, elasticity, EBITDA)** and gives consultants enough technical and contextual direction to scope and price the work confidently.
+
+**Strengths:**
+- Very clear in purpose and scope — the problem statement, objectives, and deliverables are concise and logically sequenced.  
+- Strong linkage to the **studio’s live-service roadmap** and **business modelling context**, consistent with previous Lighthouse documentation (e.g. *LH – Live Service Modelling*, *Wonderland Platform One-Pager*)【22†LH - live service modelling.docx】【23†WonderlandPlatformOnePager.docx】.  
+- The inclusion of *Key Questions the Model Must Answer* is excellent — few RFPs are this specific about decision outputs.  
+- Delivers strong technical clarity: monthly granularity, cohort structure, elasticity, retention/UGC uplift, and sensitivity toggles.  
+- The **Deliverables & Timeline** section clearly articulates expectations for transparency, documentation, and handover quality — a major differentiator.
+
+---
+
+## **Areas for Improvement**
+
+### 1. **Strategic Framing / Narrative Hook**
+The opening is factual but could add a **contextual lead-in** that positions this RFP as part of Lighthouse’s larger *data-driven launch strategy* (as established in *Overview of Service and Approach for Lighthouse Games*【19†Overview of Service and Approach for Lighthouse Games.pdf】).  
+**Suggestion:** Begin with one short paragraph framing *why* this model is critical to Lighthouse’s transition into live service profitability — connecting to internal analytics maturity, the hybrid/F2P strategy exploration, and the intent to unify financial and design decisions.
+
+Example revision for the first paragraph:
+> Lighthouse Games is commissioning a business modelling partner to quantify and stress-test the commercial strategy for Wonderland’s launch and early live-service years. The goal is to deliver a unified financial model that links acquisition, retention, monetisation, and live-service cadence to profitability, providing a decision engine for publishing and finance.
+
+---
+
+### 2. **Section Balance**
+The **Objectives** section is comprehensive but lengthy. Consider breaking it into **sub-sections with short headers** (e.g., “Forecasting,” “AERM Modelling,” “Pricing and Elasticity,” “Scenario Testing”) so that evaluators can skim and reference requirements quickly.  
+
+Also, move the **Output KPIs** under a single table or bulleted block labeled “Required Outputs” for brevity.
+
+---
+
+### 3. **Consistency with Prior Modelling Scope**
+The prior “Hybrid vs Sequel” RFP (the *LH – live service modelling.docx* version)【22†LH - live service modelling.docx】and this new “Launch Strategy” RFP overlap but differ in purpose. The earlier RFP focused on **strategic comparison and cashflow mechanics**, while this one focuses on **launch-phase scenario planning**. To avoid confusion for recipients who have seen both, explicitly state this is *a separate engagement focused on launch modelling only*, not the hybrid comparison.
+
+Suggested addition at the end of the Overview:
+> This RFP supersedes prior hybrid/sequel financial model work and focuses solely on launch-phase scenario modelling for the premium and DLC strategy.
+
+---
+
+### 4. **Technical Clarity and Guardrails**
+While it’s detailed, you might clarify:
+- **Model Input Data**: specify if Lighthouse will provide player forecasts, baseline retention curves, or benchmark data (from *MScience*, *NPD*, etc.) to avoid scope ambiguity.  
+- **Sensitivity Expectations**: you note that full toggling isn’t required — clarify that consultants should *structure for toggling later* but not *implement full automation*.  
+- **Regional Modelling**: specify whether regional FX assumptions, taxation rates, and fees will be supplied or stubbed.  
+
+---
+
+### 5. **Tone and Flow**
+The tone is clear but leans toward **dense corporate phrasing** in places. You could improve readability for non-financial readers (especially production or design stakeholders) by reducing compound sentences and splitting lists into tables or shorter bullets.  
+
+For instance:
+> “The model should estimate how player retention, reactivation, content cadence, and UGC influence revenue, LTV and annual EBITDA, including the ROI of live service and DLC.”  
+→  
+> “The model must estimate how retention, reactivation, and content cadence affect LTV and EBITDA, and calculate ROI for both live service cadence and DLC releases.”
+
+---
+
+### 6. **Timeline / Evaluation Criteria**
+The timeline section is strong but one item is missing: **evaluation criteria** for selection. Consider adding a short paragraph such as:
+> Proposals will be evaluated on technical capability, prior experience with game financial modelling, methodological clarity, and value for cost.
+
+This anchors expectations for both parties.
+
+---
+
+## **Summary of Recommendations**
+
+| Area | Current Quality | Suggested Action |
+|------|------------------|------------------|
+| Structural clarity | 9/10 | Add short headers within Objectives for skimmability |
+| Strategic framing | 7/10 | Add brief “Why now / why this model” context |
+| Technical completeness | 9/10 | Clarify input data sources, elasticity toggle expectation |
+| Readability | 8/10 | Shorten complex sentences, tighten phrasing |
+| Continuity with previous RFPs | 7/10 | Note explicitly this covers launch-phase modelling only |
+| Evaluation readiness | 6/10 | Add selection and scoring criteria |
+| Deliverables clarity | 10/10 | Excellent — no change needed |
+
+---
+
+**Overall rating: 8.5/10.**  
+This is a **well-constructed and technically mature RFP** that clearly communicates scope, expectations, and deliverables. Minor structural and contextual tweaks would elevate it to a **top-tier professional release**, matching the precision and framing standards of your previous Lighthouse and NBI deliverables.
+
+[USER]
+I need a rewrite in more clear and non redundant language that also include a build out of the Pnl for the studio
+
+[ASSISTANT]
+Understood. Before rewriting, I need to clarify several outcome-critical points so the revised RFP and added P&L requirements align with Lighthouse’s strategic and operational intent rather than just tidying the prose.
+
+Please confirm the following:
+
+---
+
+### **Clarification Bundle — Wonderland Business Modelling RFP Rewrite**
+
+#### 1. **Scope confirmation**
+- Do you want this rewritten as **one integrated RFP** (replacing the current version entirely), or as a **clean new document** titled something like *“Wonderland Business & Financial Modelling RFP (Launch + Studio P&L)”*?
+- Should it include the earlier *Hybrid vs Sequel* elements for context, or remain **focused on the launch/live service model only**?
+
+#### 2. **P&L build requirements**
+To build the studio-level P&L model section precisely:
+- Should it cover **Lighthouse overall** (studio overhead, staff costs, publishing revenue share, etc.), or be limited to the **Wonderland business unit**?
+- Which time horizon should it use — **five years** to match the game forecast, or a **rolling three-year operational P&L**?
+- Do you want it to include both **forecast structure** (i.e., line items and definitions for consultants to populate) and **specific guidance** on what cost categories must be modelled (headcount, overhead, platform fees, OPEX, etc.)?
+
+#### 3. **Target readers and tone**
+- Is the primary audience **external financial modelling consultants** or **internal leadership reviewing vendor bids**?  
+  (This affects whether I include instructional notes or evaluation criteria.)
+- Maintain the same **formal RFP style** (Objectives, Deliverables, Key Questions, etc.), correct?
+
+#### 4. **Depth and deliverables**
+For the rewritten RFP:
+- Do you want a **fully fleshed, ready-to-release** document (polished formatting, concise but detailed language, with the new P&L section integrated), or an **executive draft** suitable for review before final layout?
+- Should the P&L section specify **exact output views** (e.g., EBIT, margin, cashflow bridge, contribution margin by SKU) or just describe expectations at a functional level?
+
+#### 5. **Deadline and file format**
+- Should I prepare it for **Word (.docx)** formatting for issue to vendors, or **PDF layout**?
+- Do you want me to include **section numbering and TOC** for document control?
+
+---
+
+Once you confirm those five points, I’ll deliver a **streamlined rewrite** in plain, precise language with:
+- Reduced redundancy  
+- Added “Studio P&L Modelling” section  
+- Clearer inputs/outputs hierarchy  
+- Improved readability and flow  
+- Matching tone and structure to your other Lighthouse RFPs.  
+
+Can you confirm these items so I can produce the exact version you need?
+
+[USER]
+1 options 1
+2 operational Pnl with all opex and capex catagories as well as revenue modelling, up to 5 years
+3 its an rfp for firms to bid on
+4 fully fleshed, ready-to-release document and yes the p&L should incliude exact outputs
+5. word
+
+[ASSISTANT]
+Excellent — thank you for the precision.  
+
+To confirm before I produce the final release draft:  
+
+You want a **new integrated RFP**, replacing the previous text entirely, titled:  
+**“Wonderland Business & Financial Modelling RFP (Launch + Studio P&L)”**  
+
+It should:  
+- Keep the structure of a formal RFP (Overview, Objectives, Deliverables, Key Questions, etc.).  
+- Use **clear, non-redundant, direct language** — no repetition or corporate filler.  
+- Combine **game-level financial modelling** (pricing, AERM, live service, DLC, etc.) **with a full operational P&L** for Lighthouse, including OPEX, CAPEX, headcount, and depreciation categories.  
+- Define expected **outputs and line items** for both the game model and the studio-level P&L.  
+- Be **ready to issue to vendors** as a Word document.  
+
+Please confirm the final small details before I write the release version:
+
+1. **Currency and geography:** Should all financials and assumptions be in GBP (£) or USD ($)?  
+2. **Confidentiality statement:** Do you want me to retain the same confidentiality notice format used in your other Lighthouse/NBI proposals?  
+3. **Timeline expectation:** Still target **4–6 weeks** for delivery of the model, or extend slightly given the P&L build?  
+4. **Inclusion of evaluation criteria:** Include a final section specifying how proposals will be assessed (e.g., experience, methodology, cost, timeline)?  
+
+Once you confirm those four, I’ll draft the **final RFP ready for issue** (formatted for Word, internal placeholders removed, language tightened, and full P&L section integrated).
+
+[USER]
+1. GBP
+2. no follow the format of the previous rfp
+3.  5-10 weeks  (4 weeks est for the model, 6 weeks overlapping for the Pnl)
+4 yes
+
+[ASSISTANT]
+# We'll generate a Word (.docx) RFP document per the user's specifications.
+# Using python-docx to create the file with clear headings and structured sections.
+
+from docx import Document
+from docx.shared import Pt, Inches
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.enum.style import WD_STYLE_TYPE
+
+doc = Document()
+
+# Set a simple title style
+styles = doc.styles
+
+# Ensure Normal style is readable
+normal_style = styles['Normal']
+normal_font = normal_style.font
+normal_font.name = 'Calibri'
+normal_font.size = Pt(11)
+
+# Title
+title = doc.add_paragraph()
+run = title.add_run("Wonderland Business & Financial Modelling RFP (Launch + Studio P&L)")
+run.bold = True
+run.font.size = Pt(18)
+title.alignment = WD_ALIGN_PARAGRAPH.LEFT
+
+# Subtitle / metadata
+meta = doc.add_paragraph()
+meta.add_run("Issuer: Lighthouse Games\n").bold = True
+meta.add_run("Project: Wonderland Launch Strategy\n").bold = True
+meta.add_run("Currency: GBP (£)\n").bold = True
+meta.add_run("Intended audience: Financial modelling and analytics firms").bold = True
+
+# Helper to add a heading
+def add_heading(text, level=1):
+    h = doc.add_heading(text, level=level)
+    return h
+
+# Helper to add bullet list
+def add_bullets(items):
+    for it in items:
+        p = doc.add_paragraph(it, style='List Bullet')
+    return
+
+# Helper to add numbered list
+def add_numbered(items):
+    for it in items:
+        p = doc.add_paragraph(it, style='List Number')
+    return
+
+# Overview
+add_heading("1. Overview", level=1)
+doc.add_paragraph(
+    "Lighthouse Games is commissioning a partner to build a unified financial model for Wonderland’s launch and early live service. "
+    "The model must quantify how acquisition, engagement, retention, monetisation, content cadence, pricing and discounts translate into revenue, "
+    "cash and EBITDA, and must be usable by both Finance and Publishing for scenario planning. "
+    "This RFP replaces prior drafts and adds a full Lighthouse studio P&L build in GBP."
+)
+
+# Strategy definitions
+add_heading("2. Strategy Definitions", level=1)
+doc.add_paragraph("Acquisition funnel: Paid and organic acquisition across marketing, platform featuring and UGC-driven discovery.")
+doc.add_paragraph("Game SKUs:")
+add_bullets([
+    "Base Game targeted for May 2027",
+    "Standalone Direct-Access DLC SKUs (example: China DLC Nov/Dec 2027, Italy DLC May 2028, then at an adjustable cadence)",
+    "All SKUs include equal live service and UGC access, including DLC-only purchasers"
+])
+doc.add_paragraph("Monetisation: Premium box pricing (multiple editions), Direct-Access DLC, MTX (vehicles, parts, avatars, cosmetics, convenience).")
+doc.add_paragraph("UGC: PC-based creation tool, content released across platforms. Model uplift to acquisition, engagement, retention and monetisation.")
+doc.add_paragraph("Launch platforms: PS5, Xbox Series, PC.")
+
+# Objectives
+add_heading("3. Objectives", level=1)
+
+add_heading("3.1 Forecasting and Financial Outcomes", level=2)
+add_bullets([
+    "Build a five-year monthly model (May 2027 to April 2032) projecting units, revenue, costs and annual EBITDA.",
+    "Provide detail by platform, region and SKU (base, DLC, MTX).",
+    "Stub a documented cost sheet if full costs are not available at kickoff."
+])
+
+add_heading("3.2 AERM Modelling", level=2)
+add_bullets([
+    "Model acquisition, engagement, retention and reactivation at monthly cohort level.",
+    "Model monetisation for premium box, direct-access DLC and MTX with attach and cannibalisation effects between SKUs.",
+    "Include inputs for UGC platform, live service and content events that apply uplift factors to AERM.",
+    "Estimate the impact of retention, reactivation, cadence and UGC on LTV, revenue and EBITDA. Calculate ROI for live service and DLC releases."
+])
+
+add_heading("3.3 Pricing and Elasticity", level=2)
+add_bullets([
+    "Provide price mix and elasticity modelling to test list prices, discount depth and regional pricing effects on units and revenue."
+])
+
+add_heading("3.4 Scenario and Sensitivity Testing", level=2)
+add_bullets([
+    "Inputs for DLC timing, discount cadence, live service events, marketing spend, UGC growth and platform expansion (PS6, Xbox Next).",
+    "Structure the model to explore alternative strategies and their impact on KPIs and EBITDA. Full scenario toggling is not required but the model must be ready for it."
+])
+
+add_heading("3.5 Output KPIs", level=2)
+add_bullets([
+    "Annual EBITDA and EBITDA margin",
+    "Revenue and units by SKU and region: Base, DLC (standalone vs attach), MTX",
+    "MAU, month-over-month retention, Reactivation rate",
+    "Payer rate and ARPMAU",
+    "Attach rate (Base to DLC) and DLC standalone mix",
+    "Average selling price versus list, discount mix"
+])
+
+# Studio P&L section
+add_heading("4. Studio P&L Modelling Requirements (Lighthouse Games)", level=1)
+doc.add_paragraph(
+    "Build a five-year operational P&L in GBP that consolidates Wonderland’s contribution with studio-level operating and capital costs. "
+    "This P&L must be structured for monthly actuals and forecasts with annual roll-ups, and support sensitivity testing on headcount and major cost drivers."
+)
+
+add_heading("4.1 Revenue Modelling", level=2)
+add_bullets([
+    "Game revenue: Wonderland by SKU, platform and region in line with the game model outputs.",
+    "Other revenue lines: optional placeholder lines for additional projects or services, switchable on or off.",
+    "Gross to net: platform fees, refunds, taxes and VAT, currency effects and regional pricing."
+])
+
+add_heading("4.2 Cost of Sales", level=2)
+add_bullets([
+    "Platform fees and payment processing",
+    "First-party and distribution fees",
+    "Refunds and chargebacks",
+    "Royalties and external IP fees if applicable",
+    "Cost of physical goods if any"
+])
+
+add_heading("4.3 Operating Expenses (OPEX)", level=2)
+add_bullets([
+    "Headcount: salaries, benefits, NI, bonuses, contractors by function (engineering, design, art, QA, analytics, live operations, marketing, G&A).",
+    "Facilities and office: rent, utilities, equipment leases, security.",
+    "Software, cloud and tools: hosting, data, build infrastructure, analytics, licenses.",
+    "Professional services: legal, audit, tax, HR, recruiting, consulting.",
+    "QA and localisation services.",
+    "Marketing and community: paid media, creators, events, PR, research.",
+    "Insurance, travel and other G&A."
+])
+
+add_heading("4.4 Capital Expenditure (CAPEX) and Amortisation", level=2)
+add_bullets([
+    "Capitalised development costs and useful life assumptions.",
+    "Equipment and hardware purchases.",
+    "Amortisation and depreciation schedules and policies.",
+    "Link amortisation of capitalised development to content releases where applicable."
+])
+
+add_heading("4.5 Working Capital and Cash", level=2)
+add_bullets([
+    "Receivables timing by platform and territory.",
+    "Payables cycles for key vendors and contractors.",
+    "Deferred revenue roll-forward aligning to delivery of content and performance obligations.",
+    "Cash bridge from EBITDA to net cash, including capex, tax, interest and FX effects."
+])
+
+add_heading("4.6 P&L Output Views", level=2)
+add_bullets([
+    "Income statement by month and year: Revenue, COGS, Gross Profit, OPEX, EBITDA, D&A, EBIT, Interest, Tax, Net Income.",
+    "EBITDA and EBITDA margin by year and rolling 12 months.",
+    "Contribution margin by SKU and platform.",
+    "Cash bridge and cash runway indicators.",
+    "Headcount plan versus revenue and EBITDA.",
+    "Sensitivity views: tornado charts for top drivers, headcount and marketing spend scenarios."
+])
+
+# Model requirements
+add_heading("5. Model Requirements and Standards", level=1)
+add_bullets([
+    "Excel delivery. No protected or hidden logic. All cells editable.",
+    "Single Inputs and Scenarios tab with clear groupings and change logs.",
+    "A Pricing and Elasticity section in one place.",
+    "An Events Calendar that drives uplift factors and ROI calculations for live service beats and DLC.",
+    "Cohort tables for acquisition, retention and reactivation with clear formula references.",
+    "Clear separation of Inputs, Calculations and Outputs tabs. Colour-coding and named ranges for auditability.",
+    "Documentation embedded in the workbook plus a separate readable document explaining inputs, formulas and assumptions."
+])
+
+# Key questions
+add_heading("6. Key Questions the Model Must Answer", level=1)
+add_bullets([
+    "What are monthly units, revenue and gross profit by SKU, region and platform, and how do they roll up to annual results?",
+    "Which list prices and discount cadence maximise revenue by SKU and region, including average selling price and elasticity implications?",
+    "When should DLC ship to maximise revenue, annual EBITDA and engagement? What is the spike and decay profile?",
+    "For each season or DLC, what is the incremental MAU and revenue and the ROI after costs?",
+    "What share of units, revenue and EBITDA could come from a China DLC after local prices, fees and taxes?",
+    "At the studio level, what headcount and OPEX profile supports launch and live cadence while preserving EBITDA margin and cash runway?"
+])
+
+# Deliverables
+add_heading("7. Deliverables", level=1)
+add_bullets([
+    "Excel model with functionality described in Sections 3 to 5.",
+    "Single Inputs and Scenarios tab, central Pricing and Elasticity section, Events Calendar driving uplift and ROI.",
+    "Studio P&L workbook or integrated module with line items and schedules as in Section 4.",
+    "Documentation: inputs, assumptions, formula descriptions and data dictionary.",
+    "Handover: instructions for use, one recorded walkthrough, and one revision pass after our review."
+])
+
+# Timeline
+add_heading("8. Timeline", level=1)
+doc.add_paragraph(
+    "Target completion window: 5 to 10 weeks. "
+    "We expect the game model within approximately 4 weeks and the studio P&L within approximately 6 weeks, with workstreams overlapping. "
+    "Proposals must include a milestone plan, staffing plan and critical path, and identify any dependencies on Lighthouse inputs."
+)
+
+# Proposal contents
+add_heading("9. Proposal Content Requirements", level=1)
+add_bullets([
+    "Executive summary and approach.",
+    "Relevant experience in game financial modelling and live service economics.",
+    "Team bios and roles with time allocation.",
+    "Methodology, model architecture and auditability plan.",
+    "Initial assumptions list and data requests.",
+    "Milestone schedule and deliverables, including review cycles.",
+    "Fixed price or capped T&M with rate card, plus any optional items.",
+    "Risks and mitigations, including data sensitivity and backup plans.",
+    "Two client references for comparable work."
+])
+
+# Evaluation criteria
+add_heading("10. Evaluation Criteria", level=1)
+doc.add_paragraph("Lighthouse will assess proposals using the following criteria. Include evidence for each area.")
+add_bullets([
+    "Technical capability and methodology for cohort-based modelling and P&L construction.",
+    "Quality of model design for auditability, clarity and future expansion.",
+    "Relevant industry experience and case studies for premium and live service games.",
+    "Team strength and delivery plan aligned to the 5 to 10 week window.",
+    "Value for cost and transparency of pricing.",
+    "Security, confidentiality and IP handling."
+])
+
+# Commercial and legal terms
+add_heading("11. Commercial and Legal", level=1)
+add_bullets([
+    "All work product and models will be owned by Lighthouse Games. No third-party licence restrictions.",
+    "Contract terms to include confidentiality, data protection and security standards.",
+    "Suppliers must use Lighthouse-approved collaboration tools for file exchange and walkthroughs.",
+    "Payment terms to be agreed during contracting."
+])
+
+# Submission instructions
+add_heading("12. Submission Instructions", level=1)
+add_bullets([
+    "Submit proposals in PDF with an attached Excel sample demonstrating cohort and P&L structure, or redacted work of similar complexity.",
+    "State availability to start, required inputs and any constraints.",
+    "Provide a single named engagement lead with contact details."
+])
+
+# Close
+add_heading("13. Contacts", level=1)
+doc.add_paragraph("Please direct all questions and submissions to Lighthouse Games Procurement. Contact details will be provided separately.")
+
+# Save the document
+output_path = "/mnt/data/Wonderland_Business_and_Financial_Modelling_RFP.docx"
+doc.save(output_path)
+
+output_path
+
+[ASSISTANT]
+Here’s the cleaned, consolidated RFP you asked for, with the full operational P&L build integrated and outputs defined, in GBP and ready for vendors.
+
+[Download the Word document](sandbox:/mnt/data/Wonderland_Business_and_Financial_Modelling_RFP.docx)
+
+If you want this aligned to a specific Lighthouse cover page or with your preferred header/footer, say the word and I’ll apply it.
+

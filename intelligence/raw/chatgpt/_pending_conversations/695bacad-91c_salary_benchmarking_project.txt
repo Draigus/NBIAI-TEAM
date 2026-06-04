@@ -1,0 +1,282 @@
+TITLE: Salary Benchmarking Project
+DATE: 2026-01-05
+MESSAGES: 3
+ID: 695bacad-91c0-832a-adcd-ffe52db1506b
+---
+
+[USER]
+OLE AND MISSION
+
+You are a senior compensation analyst and labour market researcher specialising in the global video games industry. Your job is to build the most accurate and up to date 2025 salary reference for video game studio roles across the UK, US, and EU.
+
+Your responsibilities:
+
+Identify all relevant video game studio roles across disciplines.
+
+Break each role into clear seniority levels.
+
+Research salary benchmarks for those roles in:
+
+UK, by region: London, Midlands, Scotland, Ireland (and any additional UK subregions where credible data exists).
+
+US, by timezone: Eastern, Central, Mountain, Pacific.
+
+EU, by individual country where meaningful games industry data exists.
+
+Use as many reputable sources as possible, with data current to 2025 wherever available.
+
+Deliver two outputs:
+
+A clearly written overview document.
+
+A structured, spreadsheet-ready table with one row per role, per seniority, per region, including citations for sources.
+
+All salary figures refer to annual base salary in local currency, excluding bonuses, equity, and benefits, unless a source clearly states that they are included. If non-base elements are included, you must flag this in the “Method or notes” column.
+
+You must prioritise accuracy, transparency, and clear documentation of methods and caveats. Never silently invent numbers.
+
+SCOPE OF ROLES
+
+Cover all standard video game studio disciplines, including but not limited to the following families and roles.
+
+Production and project management
+
+Roles: Producer, Associate Producer, Senior Producer, Development Director, Line Producer, Project Manager, Executive Producer, Head of Production, VP Production, CPO or equivalent.
+
+Design
+
+Roles: Game Designer, Systems Designer, Economy Designer, Combat Designer, Level Designer, Narrative Designer, UX Designer, UI Designer.
+
+Senior and Lead versions of the above.
+
+Leadership: Lead Designer, Lead Systems Designer, Lead Economy Designer, Lead Level Designer, Lead UX, Lead UI, Design Director, Creative Director, Game Director, VP Design, CCO or equivalent.
+
+Engineering and programming
+
+Roles: Gameplay Programmer, Tools Programmer, Engine Programmer, Network Programmer, Graphics Programmer, AI Programmer, UI Programmer, Build Engineer, Online Services Engineer, DevOps or Infrastructure Engineer, Platform Engineer, Mobile Engineer.
+
+Senior roles for each specialism.
+
+Leadership: Lead Programmer roles by specialism, Technical Director, CTO or equivalent where gaming specific.
+
+Art
+
+Roles: Concept Artist, Character Artist, Environment Artist, Prop Artist, VFX Artist, Technical Artist, Lighting Artist, Animator, Technical Animator, UI Artist, Graphic Artist, 2D or 3D Generalist.
+
+Senior and Lead roles in each area.
+
+Leadership: Art Director, Studio Art Director, VP Art or equivalent.
+
+Audio
+
+Roles: Sound Designer, Audio Designer, Composer, Technical Audio Designer, Audio Programmer.
+
+Senior and Lead audio roles.
+
+Leadership: Audio Director, Head of Audio.
+
+QA and player support
+
+Roles: QA Tester, Senior QA Tester, QA Lead, QA Manager, Test Architect, QA-focused Automation Engineer.
+
+Player and community support roles tied directly to a game studio: Community Support, Player Support, Customer Support.
+
+Data, analytics, and monetisation
+
+Roles: Data Analyst, Product Analyst, Game Analyst, Data Scientist, User Researcher, UX Researcher.
+
+Monetisation and product: Monetisation Designer, Economy Analyst, Live Ops Manager, Product Manager, Game Product Manager, Growth Product Manager.
+
+Senior, Lead, and Director roles, up to VP Product, VP Data, CPO where used in a games context.
+
+Marketing, community, and publishing
+
+Roles: Brand Manager, Product Marketing Manager, Growth Marketer, UA Manager, ASO Specialist.
+
+Community and communications: Community Manager, Social Media Manager, Influencer Manager, PR Manager.
+
+Senior and Lead roles.
+
+Leadership: Marketing Director, Publishing Director, VP Marketing, VP Publishing, CMO where relevant.
+
+Operations and business
+
+Roles: HR Generalist, HR Business Partner, Talent Acquisition, Recruitment roles.
+
+Finance: Finance Analyst, Accountant, FP and A roles.
+
+Operations: Office Manager, Operations Manager, IT Support.
+
+Legal: Legal Counsel where games focused.
+
+Leadership: Heads of department, Director of HR, Director of Operations, CFO, COO, CEO where part of a game studio.
+
+Live service and central functions
+
+Roles: Live Ops Producer, Live Ops Coordinator, Technical Live Ops roles.
+
+Central teams: Central Tech, Central Art, Central QA, Platform Relations, Developer Relations, Partner Manager.
+
+Esports roles that sit inside a game studio or publisher.
+
+Always aim for broad coverage of roles within each family. If you discover additional common titles in credible sources, you should incorporate them into the role list.
+
+SENIORITY LEVELS
+
+For each relevant role, use the following levels, where they exist in practice:
+
+Junior
+
+Mid
+
+Senior
+
+Lead
+
+Director
+
+VP
+
+C level (CTO, CPO, CCO, CFO, COO, CEO, or similar gaming specific executive roles)
+
+If a particular seniority level is not typically used for a role or market (for example no “Junior” for a given executive role, or no “VP” in a small market), explicitly note “not commonly used in this region or discipline” rather than leaving cells blank or ambiguous.
+
+GEOGRAPHIC BREAKDOWN
+
+Break salary data out as follows.
+
+UK
+
+Region group: UK.
+
+Minimum subregions:
+
+UK: London
+
+UK: Midlands
+
+UK: Scotland
+
+UK: Ireland
+
+You may add additional UK subregions where credible data exists, but never omit the four listed above.
+
+US
+
+Region group: US.
+
+Subregions by timezone:
+
+US: Eastern Time
+
+US: Central Time
+
+US: Mountain Time
+
+US: Pacific Time
+
+When underlying sources are city or state based, map them to the correct timezone and record the specific location in a “Location notes” column. For example, San Francisco maps to “US: Pacific Time”, Austin to “US: Central Time”.
+
+If a source only provides “North America” aggregates, you may use them as supporting evidence, but you must mark them as “North America aggregate” in the source list or notes and avoid using them as the sole basis for a US-specific datapoint unless no better alternative exists.
+
+EU
+
+Region group: EU.
+
+Break out by individual country where reasonable sample sizes exist, with a focus on major development hubs such as:
+
+Germany, France, Spain, Italy, Netherlands, Sweden, Finland, Denmark, Poland, Czech Republic, Romania.
+
+Include any other EU country where there is material games industry presence and robust data.
+
+Use “EU: Other (specify country)” for smaller markets if you find robust data.
+
+Where a survey only gives an “EU aggregate” or “Europe” figure, you may create rows labelled as “EU: Aggregate” and use those directly. If you use an aggregate figure as a proxy for a specific country, you must clearly label the resulting cell as an estimate and explain the logic.
+
+For roles labelled as remote, anchor each datapoint to the employer’s contractual location (for example “UK, London based contract, remote within UK”) wherever possible. If a role is genuinely location-independent and the source says so, state this explicitly in the notes.
+
+[ASSISTANT]
+Before I go further: is this Heather or Glen?
+
+## Clarification bundle (outcome changing)
+
+1) Output format: do you want (a) a downloadable Excel plus a Word/PDF overview, or (b) both outputs pasted into chat as CSV and markdown?
+
+2) Salary statistic: for each row, do you want **P25 / P50 / P75**, or a **single “typical range”**, or **min / median / max**?
+
+3) UK “Ireland”: do you mean **Northern Ireland (GBP)**, **Republic of Ireland (EUR)**, or **both** (split rows)?
+
+4) UK subregions: if direct games data for Midlands, Scotland, Ireland is thin, is it acceptable to use a clearly labelled proxy (example: “UK outside London” as a temporary stand-in) while we keep hunting for subregion-specific sources?
+
+5) EU scope: confirm the EU countries you definitely want in v1 (your list plus any others). If you want a hard cap for v1, give me a number (example: “top 10 hubs first”).
+
+6) Title mapping rule: do you want strict titles only (exact match), or a controlled mapping (example: “Gameplay Programmer” can use “Game Programmer” from a source, flagged in notes)?
+
+## Assumptions (kept minimal)
+- You want permanent staff annual pay only (no day rates), unless a source is explicitly contractor-only.
+- You want salaries shown as ranges (low-high) where sources provide bands, otherwise P25-P75 where sources provide percentiles.
+- If a source reports “gross annual salary” without specifying base vs total, I will label it as gross and mark base/total as “not stated”.
+
+## Brief plan
+1) Lock the output schema (columns, statistic, notes rules, citation format).
+2) Build the master role taxonomy (role family, canonical title, allowed seniority levels).
+3) Fill UK, US, EU in passes:
+   - Pass A: strongest 2025 sources, even if they are broad.
+   - Pass B: add role-specific and location-specific evidence (job postings with posted ranges, surveys, reputable recruiters).
+   - Pass C: reconcile conflicts with transparent rules (prioritise direct-location, direct-title, larger samples, and 2025 dated data).
+4) Produce:
+   - Overview document: methodology, source list, caveats, mapping rules.
+   - Spreadsheet table: one row per role x seniority x region, with citations per row.
+
+## Minimal progress slice (schema + sample rows)
+
+### Proposed table columns
+- Region group
+- Subregion
+- Country (if EU)
+- Role family
+- Role title (canonical)
+- Seniority level
+- Currency
+- Low
+- High
+- Benchmark type (band, P25-P75, etc.)
+- Source
+- Location notes
+- Method or notes
+
+### Sample rows (pulled from 2025 sources already opened)
+
+| Region group | Subregion | Country | Role family | Role title | Seniority | Curr | Low | High | Benchmark type | Source | Location notes | Method or notes |
+|---|---|---|---|---|---|---|---:|---:|---|---|---|---|
+| UK | London |  | Engineering | Gameplay Programmer | Junior | GBP | 35,000 | 45,000 | band | TechNET Immersive salary benchmarks | London | Source labels this “Junior Programmer”. Base vs total not explicitly stated. citeturn19view0 |
+| UK | UK outside London |  | Engineering | Gameplay Programmer | Junior | GBP | 30,000 | 40,000 | band | TechNET Immersive salary benchmarks | UK outside London | Proxy subregion label from source (“UK” vs “London”). Base vs total not explicitly stated. citeturn19view0 |
+| UK | London |  | Engineering | Gameplay Programmer | Senior | GBP | 70,000 | 90,000 | band | TechNET Immersive salary benchmarks | London | Source labels this “Senior Developer”. Base vs total not explicitly stated. citeturn19view0 |
+| UK | UK outside London |  | Engineering | Gameplay Programmer | Senior | GBP | 60,000 | 80,000 | band | TechNET Immersive salary benchmarks | UK outside London | Proxy subregion label from source (“UK” vs “London”). citeturn19view0 |
+| UK | London |  | Production | Producer | Junior | GBP | 30,000 | 45,000 | band | TechNET Immersive salary benchmarks | London | Source labels this “Junior Producer”. Base vs total not explicitly stated. citeturn19view0 |
+| UK | UK outside London |  | Production | Producer | Junior | GBP | 28,000 | 40,000 | band | TechNET Immersive salary benchmarks | UK outside London | Proxy subregion label from source (“UK” vs “London”). citeturn19view0 |
+| EU | Aggregate |  | Engineering | Gameplay Programmer | Junior | EUR | 30,000 | 30,000 | median (single point) | Big Games Industry Employment Survey 2025 | EU+UK+CH aggregate | Report states “Median Annual Salary (Gross)”. Not country-specific; not base/total split. citeturn23view0 |
+| EU | Aggregate |  | Production | Producer | Junior | EUR | 33,000 | 33,000 | median (single point) | Big Games Industry Employment Survey 2025 | EU+UK+CH aggregate | Report states “Median Annual Salary (Gross)”. citeturn23view0 |
+| US | Pacific Time |  | Engineering | Game Programmer | All (mixed) | USD | 78,020 | 140,601 | P25-P75 | Glassdoor | California | Average reported: $104,026. Sample size shown as 75 submissions. This is “Game Programmer”, used as a proxy title. citeturn29search4 |
+| US | Central Time |  | Engineering | Game Programmer | All (mixed) | USD | 63,155 | 114,117 | P25-P75 | Glassdoor | Texas | Average reported: $84,206. Sample size shown as 15 submissions. citeturn29search2 |
+| US | Mountain Time |  | Engineering | Game Programmer | All (mixed) | USD | 76,918 | 131,123 | P25-P75 | Glassdoor | Denver, CO | Average reported: $100,033. Sample size shown as 3 submissions, so volatility risk is high. citeturn29search0 |
+| US | Eastern Time |  | Engineering | Game Programmer | All (mixed) | USD | 83,348 | 147,559 | P25-P75 | Glassdoor | New York City, NY | Average reported: $110,423. citeturn29search1 |
+
+What this proves: I can already populate a clean table with citations, but the current source set is not yet strong enough to meet your full spec for (a) UK Midlands, Scotland, Ireland splits and (b) EU country-by-country in local currencies, and (c) role-by-role specialisms at every seniority.
+
+## Self-audit
+- I did not invent any salary numbers. Every number in the sample table is taken directly from a cited source.  
+- I flagged where a source is gross, mixed-seniority, mixed-title, or not explicit about base vs total.  
+- UK subregions Midlands, Scotland, Ireland are not faked here; only “London” and “UK outside London” are used where that is how the source is structured.
+
+Reply with the answers to the 6 clarification questions (and confirm Heather or Glen), and I will lock the schema and start filling the atlas in the exact structure you specified.
+
+[USER]
+1 a
+2 Min median max
+3 both
+4 yes
+5 15 hubs and 15 non hubs related to the country with the hubs
+6 I want the list deduplicated Gameplay and Game programmer are the same role
+
+

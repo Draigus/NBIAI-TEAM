@@ -1,0 +1,228 @@
+TITLE: Migration tool recommendation
+DATE: 2025-11-11
+MESSAGES: 8
+ID: 691334d2-9e04-832a-bf81-edc407db3963
+---
+
+[USER]
+can I use the make platform to migrate all of microsoft teams and sharepoint content from one 0365 account to another? or would this be a terrible decision
+
+[ASSISTANT]
+Short version: Using Make as the primary way to move *all* Teams and SharePoint content from one Microsoft 365 tenant to another would be a bad idea. It can help around the edges, but it should not be your main migration engine.
+
+Here is why.
+
+---
+
+### 1. What Make is actually good at in this context
+
+Make is a general-purpose automation/iPaaS platform. It has connectors for:
+
+- **SharePoint Online**: lists, items, files, sites, pages, etc.citeturn1search1  
+- **Microsoft Teams**: list/create/update/delete teams and channels, send messages, watch messages, etc.citeturn3search0turn3search1  
+
+It is designed for workflows like:
+
+- “When X happens, create a file/list item/message over there.”
+- Light integrations between SharePoint / Teams and other apps.
+
+It is *not* designed as a full-fidelity migration tool.
+
+---
+
+### 2. Why using Make for “all Teams and SharePoint content” is a bad idea
+
+For a proper tenant-to-tenant migration, you usually need to move:
+
+- SharePoint sites, libraries, folders, files, metadata, permissions, sharing links, and sometimes version history.  
+- Teams structure: teams, channels, tabs, apps, and the underlying SharePoint sites.  
+- Teams *data*: channel messages, 1:1 and group chats, meeting artefacts, OneNote, wikis, Planner, etc.citeturn2search14turn2search22  
+
+Make can hit some of the APIs, but:
+
+1. **No first-class migration semantics**
+
+   Dedicated tools and Microsoft’s own migration features use the SharePoint Migration API and tailored processes that understand identities, permissions, and links, and are tuned for performance.citeturn2search12turn2search20  
+
+   Make just calls generic APIs. You would have to hand-roll:
+
+   - Identity mapping between tenants.  
+   - Permission mapping and re-assignment.  
+   - Re-creation of Teams structures with correct backing SharePoint sites.  
+   - Handling of broken references, links, and embedded content.
+
+2. **Coverage gaps**
+
+   Out of the box, Make’s Teams connector manages objects and messages, but there is no “migrate team and all its history, files, and settings” operation. Things like:
+
+   - Full chat history (especially 1:1 DMs).  
+   - Meeting artefacts and call records.  
+   - All Planner, OneNote, app configs, and nuanced channel settings.
+
+   These are exactly what dedicated Teams migration tools and scripts are built to handle.citeturn2search16turn2search22  
+
+3. **Scale, throttling, and cost**
+
+   - Make prices by operations; large migrations mean huge operation counts and potentially ugly bills.citeturn1search12turn3search5  
+   - Microsoft heavily throttles Graph and SharePoint APIs. The SharePoint Migration API and associated tools are specifically tuned to work with this at high throughput.citeturn2search12  
+   - With Make, you would be fighting throttling yourself, adding sleeps, retries, and chunking logic in scenarios.
+
+4. **Reliability and restartability**
+
+   Migration tools give you:
+
+   - Batches, delta passes, resumable jobs.  
+   - Detailed logs per site/team/user.  
+   - Cut-over planning and test runs.
+
+   With Make, you would be building all of that: error handling, idempotency, partial retries, and verification.
+
+5. **Compliance and supportability**
+
+   Microsoft’s own cross-tenant migration features and recognised vendor tools are the things support, FastTrack, and most consultants understand and will back.  
+
+   Make is great glue. It is not a standard answer if something goes wrong and you need Microsoft or a migration vendor to help.
+
+---
+
+### 3. What you *could* sensibly use Make for
+
+Make is still useful around the migration:
+
+- **Post-migration automation**  
+  Once content is in the new tenant, use Make to wire workflows, notifications, data syncs, etc., across the new environment.
+
+- **Niche, low-volume copy jobs**  
+  For example, copying a small number of lists, or doing light transform logic for a specific library, where you are OK if it is “best effort” and you can manually verify.
+
+- **Side integrations**  
+  E.g. feeding legacy systems, CRMs, or external tools as part of a broader change programme.
+
+But I would not point it at “everything from Teams and SharePoint” and expect a sane, maintainable migration.
+
+---
+
+### 4. What is a more sensible approach
+
+For tenant-to-tenant migrations of Teams and SharePoint, your realistic options are:
+
+1. **Microsoft’s own cross-tenant features**
+
+   - **Cross-tenant SharePoint site migration** via SharePoint Online PowerShell and the migration API.citeturn2search0turn2search2turn2search11  
+   - **Cross-tenant mailbox / OneDrive migration** via the Cross-Tenant User Data Migration SKU and FastTrack where eligible.citeturn2search5turn2search7turn0search25  
+
+   These give you proper handling of identities, permissions, and links.
+
+2. **Specialist migration tools**
+
+   Typical names:
+
+   - **ShareGate** for SharePoint and Teams tenant-to-tenant, including Teams structure, files, and some conversation data.citeturn2search1turn2search14turn2search15  
+   - **CloudFuze, Cloudiway, BitTitan MigrationWiz**, and similar for heavier Teams migrations (public/private teams, channel history, chats, etc.).citeturn2search22turn2search13turn2search16  
+
+   These exist specifically because doing this with raw APIs is painful.
+
+3. **Power Automate for edge cases**
+
+   If you really want a low-code option inside the Microsoft stack, Power Automate is more “native” to M365 and has governance and connectors tuned to Microsoft workloads. It still is not a full migration tool, but it is often better aligned than Make for M365-only jobs.citeturn3search5turn1search21  
+
+---
+
+### 5. Direct answer to your question
+
+- **Can you?**  
+  You can technically use Make to move some subset of SharePoint files and maybe recreate Teams and channels, if you are prepared to build and maintain a fairly complex set of scenarios and accept data / metadata loss.
+
+- **Should you, for a full Teams + SharePoint tenant migration?**  
+  For anything beyond a tiny, low-risk environment, it would be a **bad** decision compared with purpose-built options.
+
+If you tell me roughly:
+
+- How many users  
+- How many Teams and SharePoint sites  
+- Rough data volume and how critical chat history / permissions fidelity are  
+
+I can sketch a more concrete “use this stack, not that” recommendation.
+
+[USER]
+so simply put this is a bad idea or not?
+
+[ASSISTANT]
+Yes. Using Make as the primary engine for a full Teams and SharePoint tenant-to-tenant migration is a bad idea.
+
+Use purpose-built options instead:
+- Microsoft cross-tenant migration features for SharePoint, OneDrive, and mail
+- A specialist tool such as ShareGate or MigrationWiz for Teams structure, files, permissions, and history
+
+Make is fine for small edge cases or post-migration automations, not for the core migration.
+
+[USER]
+ok well Im trying to move teams to a new tenant and need to know how to do that 
+
+[ASSISTANT]
+Before I lay out the plan, I need to know **who I am speaking to**, because the approach depends on **work mode vs. brainstorming**.
+
+**Are you Heather or Glen?**
+
+[USER]
+glen
+
+[ASSISTANT]
+Work mode then.  
+For a **Teams tenant-to-tenant migration**, I need to gather a few outcome-changing details before proposing the plan. Clarify-only. No assumptions. No progress slice yet.
+
+**Questions (impacting scope, tools, and feasibility):**
+
+1. **How much Teams data matters?**  
+   Do you need to migrate:
+   - Teams **structure + channels + files** only  
+   or also:
+   - **Channel chat history**
+   - **Private chat history**
+   - **Meeting recordings**
+   - **Planner boards / Tasks**
+   - **OneNote tabs**
+   - **Apps / Tabs integrations**  
+   (Select one: *Structure only* / *Structure + files* / *Everything including chat history*)
+
+2. **Compliance requirement level:**  
+   Is **chat history preservation legally required**?  
+   (Yes / No / Unsure)
+
+3. **Volume:**  
+   - Approx number of **Teams**:
+   - Approx number of **users**:
+   - Approx total **SharePoint + OneDrive storage (TB or GB)**:
+
+4. **Cutover model preference:**  
+   - **Big bang** cutover (everything switched at once)  
+   - **Staged** migration (some teams move first, others later)
+
+5. **Are both tenants** under your administrative control?  
+   - Source (old tenant): Yes/No  
+   - Destination (new tenant): Yes/No  
+   - Are you **Global Admin** in both? (Yes/No)
+
+6. **Licensing constraint:**  
+   Can you purchase a **migration tool license** if needed (e.g. ShareGate / MigrationWiz)?  
+   - Yes (budget available)  
+   - No (must use MS native only)
+
+Once I have these, I will:
+
+- Identify the correct **migration tool** or **native Microsoft path**  
+- Produce a **precise step-by-step migration plan**  
+- Include **identity mapping and permission handling**  
+- Define **test migration**, **delta pass**, and **cutover procedure**
+
+Reply with answers in this format:
+
+```
+1) 
+2) 
+3) Teams: ___, Users: ___, Data: ___
+4) 
+5) 
+6) 
+```
+

@@ -1,0 +1,83 @@
+TITLE: Write Couch Heroes Tasks
+DATE: 2025-09-24
+MESSAGES: 2
+ID: 68d42681-95b4-8330-a3a1-8ca167682655
+---
+
+[USER]
+write out the taks for couch heroes from the sow
+
+[ASSISTANT]
+Here are the tasks exactly as defined in the signed SOW.
+
+# Base Services (fixed-fee)
+
+## Task One: Tech Stack and Pipelines Audit — High-level
+- Intake and documentation walkthrough of design docs, tech specs and logical maps.  
+- Three 60-minute stakeholder interviews/workshops with CTO and relevant technical leads.  
+- Engine and build pipeline audit, contingent on existing documentation.  
+- Server and netcode review for players-per-instance assumptions; note any existing test results.  
+- Backend and cross-play assessment for code choices, scalability, and any test evidence.  
+- DevOps and environments assessment for architecture, tooling, and fitness for purpose.  
+- Synthesis and write-up with verbal walkthrough; examine MVP design and intended fit.  
+- Estimated period of performance: 2–3 weeks. fileciteturn0file1
+
+## Task Two: MVP Tech Roadmap and Game Fit Audit — High-level
+- Intake and goals alignment to lock MVP and near-term scope; confirm platform order and 30–40 players per instance.  
+- Three 60-minute stakeholder interviews/workshops with Game Director and relevant product and creative stakeholders.  
+- Competitive and differentiation scan (light) to identify table-stakes vs must-win features and shortlist 3–5 differentiators.  
+- Core loop and MVP slice definition, including content and capacity assumptions.  
+- KPI tree with target bands, plus data owners.  
+- Post-MVP roadmap outline for 30-60-90 days, covering dependencies and gates for cross-play, online services and console readiness.  
+- Risk and dependency register with mitigations and go or no-go checks.  
+- Readout deck (15–20 slides) summarising roadmap, KPIs, risks and decisions required.  
+- Estimated period of performance: 2–3 weeks. fileciteturn0file1
+
+# Additional Services (optional, time-and-materials)
+
+## Architecture and Development Audit (Light)
+- Technical architecture snapshot with current vs target diagrams, performance and cost envelope, dependency map.  
+- Game systems design review for modularity and extensibility, save and persistence model, tuning surfaces.  
+- Data infrastructure requirements for telemetry events, minimal data flow to support KPI tree and live-ops.  
+- Team capabilities and delivery process assessment: CI/CD, branch and release, on-call and incident process, definition of done.  
+- Senior tech and product hiring support snapshot: role criteria, scorecard outline, technical assessments. fileciteturn0file1
+
+## Architecture and Development Audit (Detailed)
+- Deep technical architecture review per domain with performance and cost models, risk and debt register.  
+- Deep game systems design evaluation: extension points, save and rollback strategy, configuration strategy.  
+- Data infrastructure and event contract: taxonomy, ingestion plan, first role-based dashboard specs.  
+- Team capabilities and delivery assessment: CI health, build times, branch and release practices, incident post-mortems and improvements.  
+- Senior tech and product hiring support: scorecards, interview loop, take-home or live exercises, reference template. fileciteturn0file1
+
+## Post-MVP Strategic Product Development (Light)
+- Market fit and differentiation assessment (light).  
+- Monetisation and retention validation at outline level: starter economy, retention scaffolding and guardrails.  
+- Success metrics aligned to vision: KPI tree, target bands, owners, measurement plan.  
+- Feedback loop design (light): how player data informs backlog and release decisions.  
+- Org design for rapid iteration: release rhythm, rituals, decision rights.  
+- Three-year technical roadmap outline for platform, services and live-ops/tools. fileciteturn0file1
+
+## Post-MVP Strategic Product Development (Detailed)
+- Competitive and differentiation deep dive with structured teardown and positioning plan.  
+- Monetisation and retention validation with economy modelling, sinks and sources, season cadence, ethics guardrails.  
+- KPI targets and dashboard specifications with role-based dashboards, integrity checks, reporting cadence.  
+- Feedback loop and experimentation framework: A/B or staged rollout catalogue, governance, decision logs.  
+- Org design and staffing model: RACI, hiring sequence, throughput targets, training plan.  
+- Three-year technical roadmap v1.0 with per-domain tracks, dependencies, cost envelopes, risk mitigations.  
+- Executive readout and revisions with action log and final documents. fileciteturn0file1
+
+## Growth and Long-Term Strategy Support (Light)
+- Organisational structure outline for data-driven development: decision rights, reporting, engineering and product and data interfaces.  
+- Systems outline for continuous player insight: UXR plus analytics operating model, cadence, tooling surfaces.  
+- Technical platform strategy outline beyond first game: shared services, content tooling, infrastructure evolution.  
+- Market expansion and product evolution playbook outline: test-and-learn loops, geography and platform expansion, partner programme frame. fileciteturn0file1
+
+## Growth and Long-Term Strategy Support (Detailed)
+- Organisational design in detail: job families, levelling, staffing plan, governance, operating cadence.  
+- Continuous insight systems in detail: UXR and analytics pipelines, research ops, prioritisation rules.  
+- Technical platform strategy in detail: shared services roadmap, live-ops tools, content pipeline, security and cost.  
+- Market expansion and evolution playbook in detail: market entries, partner ecosystem, KPIs, decision trees.  
+- Readout and governance setup: steering cadence, metrics reviews, change control. fileciteturn0file1
+
+If you want, I can turn this into a clickable checklist with owners, due windows and acceptance notes next.
+

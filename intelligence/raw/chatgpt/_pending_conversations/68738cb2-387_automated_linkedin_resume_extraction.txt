@@ -1,0 +1,224 @@
+TITLE: Automated LinkedIn Resume Extraction
+DATE: 2025-07-13
+MESSAGES: 4
+ID: 68738cb2-3878-800b-b992-afcbf3cf09c1
+---
+
+[USER]
+how can I get resumes from linkedin posting in an automated way
+
+[ASSISTANT]
+Below is a pragmatic “menu” of automation paths, ordered from most compliant / enterprise-grade to quickest DIY.  Pick the tier that matches your budget, volume, risk tolerance and existing tech stack.
+
+---
+
+### 1  |  Native ATS integrations (the *clean* way)
+
+| What you do | What happens automatically | Typical cost |
+|-------------|---------------------------|--------------|
+| ● Hold a LinkedIn Recruiter or Job Slots licence <br>● Use a supported ATS (Greenhouse, Lever, Workday, SmartRecruiters, iCIMS, etc.) | Enable **Apply Connect / Recruiter System Connect (RSC)** inside LinkedIn *and* your ATS.  LinkedIn pushes each “Easy Apply” application—resume file, profile metadata, screening-question answers—into the ATS in real time.  The CV lands on the candidate record; status updates sync both ways. | No extra fee beyond your existing Recruiter & ATS licences. |
+
+Why choose it  
+
+* Zero scraping; you stay inside LinkedIn’s Terms & GDPR.  
+* One source of truth—no forwarding rules, no scripts to maintain.  
+* Rich data (profile links, skills, LinkedIn tags) flows in with the PDF/Doc resume.  
+
+Resources  
+LinkedIn’s help centre lists every certified ATS and shows how to switch the integration on citeturn7view0.
+
+---
+
+### 2  |  LinkedIn → email → parsing service (the *fast* way)
+
+1. **Create the job post with “Easy Apply”.**  
+   In the *Receive applicants* field, enter a dedicated address such as `linkedin@jobs.yourcompany.com`.
+
+2. **Point that mailbox at a parser.**  
+   *Options:*  
+   * Low-/no-code SaaS (Skima AI, Zapier + CandidateZip, Make/Integromat, etc.)  
+   * Your own Gmail/Outlook rule that forwards every incoming “New applicant for …” message to the parser address.
+
+3. **Parser saves the attachments** (PDF/Doc/RTF) and extracts name, email, phone, skills → pushes into Google Sheet, Airtable or your ATS via API.
+
+Skima’s guide shows three variants—straight email forwarding, Easy Apply with custom email, or redirecting applicants to your career site citeturn5view0.
+
+Pros & cons  
+
+| ✅ Pros | ❌ Cons |
+|--------|--------|
+| Live in <30 minutes; no LinkedIn partner approval. | You still manage a mailbox (spam, storage). |
+| Works even on the free Job Post tier. | If LinkedIn changes its email template, your parser needs tweaking. |
+| Parser can enrich data (skills, seniority, sentiment). | Candidate experience ≈ OK, but slower than in-ATS flow (no auto-status updates). |
+
+---
+
+### 3  |  Mail-API or IMAP + small Python job (the *hackable* way)
+
+If you prefer full control and have dev resources, run a lightweight service that:
+
+```text
+• Polls the inbox via Gmail API / Microsoft Graph every X minutes  
+• Reads messages where subject LIKE "New applicant for"  
+• Downloads attachments (resume + cover letter)  
+• Writes metadata to a database or S3 bucket  
+• Marks the email archived / moves to “Processed”
+```
+
+Open-source starters:  
+
+* GitHub repo **Linkedin-Auto-Resume-Downloader** (Python + Gmail API) citeturn0search3  
+* Blog with a cleaner refactored script & cron setup citeturn6view0  
+
+Add a resume-parsing library (e.g., `python-resume-parser` or `Rchilli`) if you need structure.  Keep OAuth secrets in a secrets-manager; encrypt files at rest (GDPR).
+
+---
+
+### 4  |  LinkedIn Talent Solutions APIs (the *heavy* way – partner only)
+
+LinkedIn exposes *Job Posting, Apply Connect and Candidate Data* endpoints.  A certified partner (often your ATS vendor) can:
+
+* Post the job programmatically.  
+* Collect full applicant payload (profile URN + resume download URL + answers) via webhook.  
+
+⚠️  Access is restricted—you must pass LinkedIn’s partner vetting, sign data-use addenda, and respect “one customer, one app” rules citeturn1view0.  Unless you’re building a commercial HR product, it’s overkill.
+
+---
+
+## Implementation decision tree
+
+```
+Have Recruiter licence + supported ATS?
+          └─► YES → turn on Apply Connect (Option 1)
+          └─► NO  → Need it fast?
+                       └─► YES → Option 2 (SaaS parser)
+                       └─► Want full control / coding skills?
+                               └─► Option 3 (Python IMAP)
+Need enterprise-grade HR product → Apply for Partner API (Option 4)
+```
+
+---
+
+### Governance & compliance checklist (don’t skip)
+
+* **Privacy notice:** Update your careers page to tell candidates their data is stored in XYZ system.  
+* **Retention rules:** Purge or anonymise CVs after statutory period (UK: 6 months for unsuccessful applicants unless consent).  
+* **Security:** Encrypt in transit & at rest; restrict S3/G-Drive buckets to HR.  
+* **LinkedIn ToS:** Scraping the UI with Selenium violates section 8.2—stick to email/API routes.
+
+---
+
+### Quick next steps for NBI
+
+1. **Map current tools** – Which clients already run Greenhouse/Lever etc.?  
+2. **Pilot Apply Connect** with one live requisition to benchmark drop-off vs. external-apply flow.  
+3. **For SMB clients without an ATS, spin up Option 2** using Skima or Zapier; brand it as an “NBI Fast-Track Pipeline” and bundle resume-parsing dashboards.  
+4. **Document SOPs** (email naming, folder structure, parser fields) so recruiters can replicate in <5 min.  
+5. **Review data-processing agreements** and add LinkedIn + parser vendors as sub-processors.
+
+With the right tier switched on, your team will never click “Download resume” again—candidate CVs arrive parsed, tagged and ready for outreach while you focus on the high-value conversations.
+
+[USER]
+1. we dont have tools we pull them from linkedin today and its slow a tedious
+2. what?
+3. is it free? if so write a zaptier for me?
+4. the resumes are in linkedin no?
+5. unsure how to do this
+
+summary how do i do this for free
+
+[ASSISTANT]
+### Free (and ToS-friendly) ways to stop right-click-saving resumes
+
+| Route | What it costs | What you need | When it works best |
+|-------|---------------|--------------|--------------------|
+| **A. Gmail + Google Apps Script** | £0 (all Google tools have generous free quotas) | Google Workspace or personal Gmail, Drive, Sheets | Any volume if you’re happy to paste a little code |
+| **B. Zapier “Free” plan** | £0 up to **100 tasks / month** and **1-step Zaps only** citeturn0search0turn0search5 | Zapier account, Gmail, Drive & Sheets | <100 applicants per month and very simple flows |
+| **C. DIY Python job (Gmail API)** | £0 on your own server / laptop | Basic Python skills, cron, free Gmail API quota | Unlimited volume, full control, but you maintain code |
+
+Below are the two quickest **£0** setups most teams choose. Skip Option C unless you prefer to code.
+
+---
+
+## A. 100 % free with Google Apps Script (no-code once installed)
+
+1. **Point LinkedIn “Easy Apply” to a Gmail address**  
+   *When you create each job post, choose “Email address to receive applicants” and enter something like `li-apps@yourcompany.com`.*  
+
+2. **Create a Gmail label called `LI-Applicants`**  
+   *Filter: `from:(@linkedin.com) subject:"New applicant for"` → Apply label + Skip Inbox.*
+
+3. **Copy-paste this Apps Script:**
+
+```javascript
+function saveLinkedInResumes() {
+  const label = GmailApp.getUserLabelByName('LI-Applicants');
+  const threads = label.getThreads();
+
+  const folder = DriveApp.getFolderById('YOUR_DRIVE_FOLDER_ID');      // destination
+  const sheet  = SpreadsheetApp.openById('YOUR_SHEET_ID')
+                               .getSheetByName('Applicants');         // log sheet
+
+  threads.forEach(t => t.getMessages().forEach(m => {
+    m.getAttachments({includeInlineImages:false}).forEach(att => {
+      if (/\.(pdf|docx?)$/i.test(att.getName())) {
+        const file = folder.createFile(att.copyBlob())
+                           .setName(att.getName());
+        sheet.appendRow([new Date(), m.getSubject(), m.getFrom(), file.getUrl()]);
+      }
+    });
+  }));
+  // stop duplicates next run
+  threads.forEach(t => t.removeLabel(label));
+}
+```
+
+4. **Add a time-driven trigger** in the Script Editor → Runs every 10 min.  
+
+Result: every resume file lands in your Drive folder and is logged to Google Sheets; nothing to pay. The Gmail/Drive quotas are in the tens of thousands per day—plenty for hiring needs. (Classes used: `GmailAttachment`, `GmailApp`, etc. citeturn1search2)
+
+---
+
+## B. Zapier “Free” plan recipe (small-volume teams)
+
+> **Caveat:** the free tier allows only **one action per Zap** and **100 tasks a month**; multi-step or “Formatter” steps require a paid plan citeturn0search0turn0search2.  
+> Workaround: create **two separate single-step Zaps** that fire off the same email trigger.
+
+**Zap #1 – store the file**
+
+| Step | App | What to configure |
+|------|-----|-------------------|
+| Trigger | **Gmail – New Attachment** | Search string `from:@linkedin.com subject:"New applicant for"` & “Has attachment = yes” citeturn2search0 |
+| Action  | **Google Drive – Upload File** | Folder: `LinkedIn Resumes` |
+
+**Zap #2 – log the meta-data**
+
+| Step | App | What to configure |
+|------|-----|-------------------|
+| Trigger | *same as above* | |
+| Action | **Google Sheets – Create Spreadsheet Row** | Columns: Date-received, Gmail “From Name”, Subject, `Attachments` (this holds the file-URL) citeturn2search8 |
+
+You now use 2 tasks per applicant, so the **free 100-task cap ≈ 50 candidates/month**. If your volume grows, upgrade Zapier (£20/mo) or switch to the always-free Apps Script in Option A.
+
+---
+
+## Why the resumes really are in the email
+
+When a candidate hits **“Easy Apply”** and uploads a CV, LinkedIn emails the poster:
+
+*Subject:* “New applicant for *[Job Title]*”  
+Attachments: the PDF/Doc resume (plus any cover letter).  
+No scraping needed; you’re simply harvesting the file from your own inbox, which keeps you inside LinkedIn’s Terms of Service and GDPR.
+
+---
+
+### Quick decision tree
+
+```
+< 50 apps / month & no code skills?  → Zapier Free (Option B)
+Need unlimited or hate limits?       → Gmail + Apps Script (Option A)
+Want to self-host & customise?       → Python via Gmail API (Option C)
+```
+
+Set up takes ~15 minutes and saves hours of right-click-download. Enjoy the extra coffee breaks!
+

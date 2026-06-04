@@ -1,0 +1,114 @@
+TITLE: Website Review RICEO Prompt
+DATE: 2026-01-23
+MESSAGES: 2
+ID: 6972c833-7f10-832b-a5dc-4b76b2925071
+---
+
+[USER]
+write a RICEO p[rompt to review the website https://nbi-consulting.com/ and tell me if the deisgn in good ro bad and if its clear what we do, me honest with feedback.  if thier are meaninful updates make a lsit
+
+[ASSISTANT]
+Before I tailor the tone and strictness: who is speaking, Heather or Glen?
+
+Clarification bundle (outcome-changing)
+1) Primary goal: lead generation, credibility for procurement, recruiting, or all three?
+2) Primary audience: US Gov and DoD buyers, UK Gov and MoD, commercial clients, or mixed?
+3) Any constraints: keep current brand colours and logo, or free to recommend a rebrand if needed?
+
+RICEO PROMPT: NBI Consulting Website Design and Clarity Review
+
+R) ROLE  
+You are a senior UX and UI auditor specialising in B2B consulting and government-adjacent firms. You combine expertise in information architecture, conversion rate optimisation, accessibility (WCAG 2.2 AA), and trust/credibility design for high-scepticism audiences (procurement, compliance, security). You are direct, unsentimental, and evidence-based.
+
+I) INSTRUCTION  
+Review the website: https://nbi-consulting.com/  
+Answer two core questions with blunt honesty:
+1) Is the design good, bad, or mixed for a serious consulting firm selling high-trust services?  
+2) Within 5 seconds on the homepage, is it clear what the firm does, for whom, and why it is credible?
+
+Then produce a prioritised list of meaningful updates that would materially improve clarity, trust, and conversion.
+
+C) CONSTRAINTS  
+- You must browse the live website and check both desktop and mobile layouts.  
+- You must inspect, at minimum: Home, any Services pages, About, Contact, and any Case Studies, Insights, or Careers pages if present.  
+- Do not guess. If a needed item is missing (for example, no case studies), state that explicitly as a finding.  
+- No fluff. No “nice work” padding. Be specific.  
+- Every critique must include a locator so a designer can find it, using this format:  
+  - Page: [URL]  
+  - Location: [Header text, section name, or visible snippet of copy]  
+  - Issue: [What is wrong]  
+  - Impact: [Why it matters]  
+  - Recommendation: [What to change]  
+- If you propose copy changes, provide concrete “Before” and “After” text.  
+- If you propose layout changes, describe them as clear, implementable actions (for example, “Move primary CTA into hero, left-aligned, above the fold”).  
+- If you cannot validate something (performance metrics, Core Web Vitals), label it “unverified” and explain what would need to be checked.
+
+E) EVALUATION RUBRIC  
+Score each category 1 to 10 and justify with evidence:
+1) First-5-seconds clarity (who, what, for whom, outcome)  
+2) Message hierarchy and information scent (navigation labels, page flow)  
+3) Visual hierarchy (typography, spacing, contrast, scanning)  
+4) Brand credibility (enterprise polish, consistency, restraint)  
+5) Trust signals (case studies, certifications, client logos, testimonials, security posture statements)  
+6) Calls-to-action (clarity, placement, specificity, friction)  
+7) Content quality (specificity of services, outcomes, differentiation)  
+8) Accessibility basics (contrast, headings, keyboard focus, alt text patterns)  
+9) Mobile experience (layout, readability, tap targets, nav)  
+10) Conversion readiness (contact flow, forms, scheduling, lead capture, objections handled)
+
+Also answer:
+- What does the company appear to do based only on the homepage hero and first scroll?  
+- What are the top 3 points of confusion or ambiguity?  
+- What is the strongest part of the site today?  
+- What is the weakest part that blocks conversion?
+
+O) OUTPUT FORMAT  
+Provide output in exactly this structure:
+
+1) Verdict  
+- Design verdict: Good / Mixed / Bad  
+- Clarity verdict: Clear / Partially clear / Not clear  
+- One-paragraph rationale (no more than 120 words)
+
+2) What the site communicates today (evidence-based)  
+- In one sentence: “They do X for Y to achieve Z.”  
+- Evidence: cite the exact headline/subheadline and any supporting sections.
+
+3) Scorecard (1–10)  
+- List the 10 rubric items with score + 1–2 sentence justification each.
+
+4) Top issues (prioritised)  
+For each issue include: Page, Location, Issue, Impact, Recommendation.  
+- P0 (must fix): up to 6 items  
+- P1 (high value): up to 8 items  
+- P2 (nice to have): up to 8 items
+
+5) Meaningful updates list (action plan)  
+A table with columns: Priority, Update, Why it matters, Effort (S/M/L), Owner (Design/Copy/Dev), Success metric.  
+Include at least:
+- One update that improves “what we do” clarity in the hero  
+- One update that improves credibility and trust signals  
+- One update that improves service discoverability and packaging  
+- One update that improves conversion flow from homepage to contact
+
+6) Quick copy fixes  
+- Provide improved hero headline + subheadline + primary CTA text (3 options).  
+- Provide improved nav labels if needed.  
+- Provide one improved “Services summary” block (short bullets).
+
+7) Optional: page-by-page notes  
+Short bullets per reviewed page, only if they add new information.
+
+Inputs to use (fill in from user, otherwise assume defaults)
+- Primary goal: [LEAD GEN / CREDIBILITY / RECRUITING / MIXED]  
+- Primary audience: [AUDIENCE]  
+- Offerings focus: [AI, consulting, gov contracting, security, etc]  
+- Brand constraints: [KEEP BRAND / OPEN TO CHANGE]
+
+Default assumptions if user provides nothing
+- Goal = lead generation + credibility  
+- Audience = buyers of consulting services  
+- Constraints = keep brand, recommend redesign only if clearly necessary  
+
+If you answer those three clarification questions (goal, audience, constraints), I will tighten the prompt further so the scoring and recommendations are aligned to the exact outcome you care about.
+

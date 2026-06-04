@@ -1,0 +1,159 @@
+TITLE: Document review for investors
+DATE: 2025-08-13
+MESSAGES: 3
+ID: 689c6f2c-d0e4-832e-a056-8171cd3e3699
+---
+
+[USER]
+as the CEO of a leading Mobile game company and a top video games investor please review the following document for clarity, detail and structure to an investors questions  
+
+[USER]
+as the CEO of a leading Mobile game company and a top video games investor please review the following document for clarity, detail and structure to an investors questions  
+
+[ASSISTANT]
+Here is a clean, investor-grade review of your “Sarge Q&A” draft. I am assessing clarity, structure, and the credibility of claims and numbers, then giving concrete redlines and a sharper outline.
+
+# Executive read
+Strong bones and a clear ToC. The doc answers the right investor questions and shows work on LiveOps, creator flywheel, and prize-pool cadence. The main gaps are consistency and evidencing. There are a few material math errors, positioning clashes on Web3, mismatched burn figures, and small copy issues that will distract a serious investor.
+
+Below are the fixes I would make before this goes in front of a partner meeting.
+
+---
+
+# Priority issues to fix before sharing
+
+1) **Revenue math and TAM linkage conflict**
+- You state Year-1 revenue of **£120m** driven by **25% of 220m Telegram PvP players at £4 ARPU**. That math implies **55m users × £4 = £220m**, not £120m. Either the base, the penetration, or the ARPU needs to change. Also, the 220m “Telegram PvP players” figure is asserted without source. Tighten the sizing, define the addressable segment, and present base, target, and stretch scenarios. fileciteturn1file8
+
+**What to do**
+- Replace the single “£120m” claim with a three-case bridge from MAU to revenue: MAU → payers → ARPPU → revenue, and reconcile to your category split. Keep the category split you gave: **Currency 24%, Consumables 22%, Battle Pass 10%, Durables 12%, Cosmetics 28%, Tournaments 4%**. Then show how each line rolls up to the total. fileciteturn1file16
+
+2) **Web3 stance is inconsistent across the deck**
+- In this Q&A you say **no Web3 in GTM** and **no token or NFTs at launch**, with optional TON/AVAX exploration later. Good. Elsewhere in project materials the pitch leans into Web3 partnerships, token talk, and “token economics” in the exit strategy. That undermines credibility. fileciteturn1file8 fileciteturn1file7
+
+**What to do**
+- Lock a single position in this document: Web2 first. Optional future blockchain payments only when they improve UX. Remove token and NFT language from the Q&A and scrub the older “Brief Overview” before sending anything together. Keep one line that you are “infrastructure ready” without committing to it. fileciteturn1file8 fileciteturn1file7
+
+3) **Burn and use-of-proceeds mismatch**
+- Burn is quoted as **£100–150k** post-launch in one place and **£130–180k** in another. Use-of-proceeds totals are solid, but there is no 24-month monthly burn ramp to prove the £10m raise creates 24 months of runway with prize pools and hiring included. fileciteturn1file5 fileciteturn1file4
+
+**What to do**
+- Pick one burn band and show a monthly ramp for 24 months that ties exactly to the £10m allocation table already in the doc. Add FTE counts, average salary by role, start dates, and prize-pool phasing. fileciteturn1file4
+
+4) **Prize-pool total drifts**
+- Some materials use **£270k** in Year-1. The Q&A and budget sections use **£275k** and **£275k+**. Pick one number and stick with it across the doc and budget. fileciteturn1file14 fileciteturn1file17 fileciteturn1file3
+
+5) **Ambitious KPIs need definitions and acceptance criteria**
+- D1 45–50, D7 30, D30 15, BP conversion 20% of DAU, CPQ ≤ £0.35, ROAS 120% at D90 are all aggressive. None are defined. Investors will ask what “qualified player” means, what the K-factor is based on, how you will measure watch-mode engagement, and what baseline you used. fileciteturn1file18
+
+**What to do**
+- Add a one-page KPI glossary with a plain-English definition and formula for each metric, plus the measurement window and source. Example: CPQ = paid users who hit HQ3 within 72 hours with at least 2 sessions per day in first 3 days. Do the same for K-factor, ROAS window, and conversion cohorts. fileciteturn1file18
+
+6) **Platform timing and dependencies**
+- Milestones list iOS and Google Play in 12–24 months and Poki integration with ad monetisation, while you also state an ad-free core experience. Clarify where ads live, and show dependency gates for each platform launch. fileciteturn1file8
+
+**What to do**
+- Add gating criteria per milestone. Example: “Ship iOS when D30 ≥ 12% on Telegram and web, crash-free sessions ≥ 99.0%, content backlog ≥ 3 months, and BI pipeline v1 is live.” State that ads are browser-only and never in the mobile core. fileciteturn1file8
+
+7) **Competitive claims need precision**
+- “First serious strategy MMO on Telegram” and “no traditional strategy title offers creator-led monetisation” are absolute claims that will draw fire. Reframe as positioning, or back them with a named, dated scan. fileciteturn1file18 fileciteturn1file3
+
+8) **Copy, spelling, and formatting items**
+- Clean the typos. Examples: “Prottype,” “preperation,” “Influiencer,” “Boombeach,” “boarder” instead of border. These small errors harm perceived quality fast. fileciteturn1file6 fileciteturn1file3
+
+---
+
+# Section-by-section redlines and insertions
+
+## 1.0 Product
+
+**1.1 Milestones**
+- Insert dates and acceptance criteria per phase. Add explicit dependencies for Creator Dashboard, Watch Mode, Tournament Admin, and anti-cheat. Current list is good, but needs gates to measure completion. fileciteturn1file8
+
+**1.2 Revenue streams**
+- Keep the category split, but add a bottom-up bridge: DAU → payers → ARPPU → revenue per stream. Fix the TAM/penetration inconsistency called out above. Tie prize-pool months to expected ARPDAU lifts. fileciteturn1file16
+
+**1.3 Web3 elements**
+- Replace the section with a short, single stance: “Web2 first. Optional blockchain payments later if they improve checkout on Telegram or web. No token, no NFTs, no staking.” Remove references that imply near-term token economics in other materials. fileciteturn1file8 fileciteturn1file7
+
+**1.4 Player or creator earnings**
+- Add two paragraphs on compliance: KYC for cash tournament winners, age-gating, geography restrictions, AML checks for payments, and a partner bank of record. State explicitly that there is no P2P cash-out and no wagering. fileciteturn1file16
+
+**1.5 KPIs**
+- Add a one-page KPI glossary and the analytics plan covering event taxonomy, cohorting, and dashboards. Clarify CPQ, K-factor, ROAS window, and BP conversion denominator. fileciteturn1file18
+
+**1.6 Competitive landscape**
+- Replace absolutes with specific contrasts and a short feature matrix. Keep Clash of Clans, Boom Beach, Last War, Mavia, but present three concrete differentiators that map to retention and monetisation, not slogans. fileciteturn1file18
+
+## 2.0 Studio
+
+**2.1 Headcount**
+- Present a single hiring table for 24 months: role, FTE, start month, annual salary, location, capex if any. Tie this directly to the burn ramp. The phase narrative is fine, but investors want the table first. fileciteturn1file13
+
+**2.4 Burn**
+- Unify to one band and add a 24-month monthly burn chart aligned with use-of-proceeds. Include prize-pool cash timing and show that tournament payouts are expensed in the month they occur. fileciteturn1file5 fileciteturn1file4
+
+## 3.0 Marketing
+
+**3.1 GTM**
+- Good structure. Add channel split targets and creative testing plan. For example: creator seeding 35%, prize pools 25%, UA testing 20%, content production 15%, PR 5%. Link each to KPIs you listed. fileciteturn1file15
+
+**3.2 Budget**
+- You list three launch tiers. Insert expected output per tier: forecast installs, DAU at day-30, creator count on platform, and expected ROAS learning per tier. fileciteturn1file17
+
+**3.3 Launch gaps**
+- The “what is not at launch” section is clear. Add one line each on when gear, new civ, and PvP modes unlock, and how those drops are monetised. fileciteturn1file17
+
+**3.4 Retention plan**
+- Strong. Add a 90-day event calendar table as an appendix so investors see the cadence that feeds the KPIs. fileciteturn1file19
+
+## 4.0 Funding
+
+**4.1 Raise and valuation**
+- Keep the £10m ask and the allocation table, but add a brief comps paragraph to justify valuation and show that the raise equals 24 months of runway in your burn plan. fileciteturn1file4
+
+**4.2 Soft commits**
+- Separate real soft-circles from general interest. If “under consideration,” leave out the numbers or move them to a verbal. fileciteturn1file2
+
+**4.4 Cap table**
+- Add an ESOP line. Recommend 10–15% post-money. Clarify founder equity post-raise. fileciteturn1file4
+
+**4.6 End goal**
+- Reframe to “Two credible exits” with milestones that make you acquirable within 36 months. Avoid “top-10 global IP” wording which reads like a slogan. fileciteturn1file12
+
+---
+
+# Quick copyfix list
+- Spelling: Prototype, preparation, Influencer, Boom Beach, border. fileciteturn1file6 fileciteturn1file3
+- Consistency: prize-pool total, burn figures, platform list order, currency symbols, and date formats. fileciteturn1file14 fileciteturn1file17 fileciteturn1file5
+
+---
+
+# Insert this one-page summary at the front
+
+**Sarge: Search & Destroy — Investor Q&A Summary**
+
+- **Platform and GTM**: Launching on Telegram and web, with creator-tools and admin tournaments live at launch. iOS and Google Play targeted in months 12–24 after hitting retention and stability gates. Browser integrations may use ads. The mobile core stays ad-free. fileciteturn1file8
+
+- **Monetisation mix**: Currency 24%, Consumables 22%, Battle Pass 10%, Durables 12%, Cosmetics 28%, Tournaments 4%. No token or NFTs. Optional blockchain payments only if they improve checkout. fileciteturn1file16 fileciteturn1file8
+
+- **KPIs**: Defined targets with measurement windows. D1, D7, D30, BP conversion, K-factor, CPQ definition, ROAS window. Reported via a shared dashboard. fileciteturn1file18
+
+- **Economics**: A bottom-up bridge from MAU to revenue with base, target, stretch cases that reconcile to the category split above. Prize-pool uplift assumptions are shown next to the calendar. fileciteturn1file16
+
+- **Team and burn**: 24-month hiring table and cash plan. One burn band for post-launch. Use-of-proceeds aligns to the plan and yields 24 months of runway including prize pools. fileciteturn1file4 fileciteturn1file5
+
+- **Compliance**: Cash prizes paid to winners with KYC, age gating, AML, and geography restrictions. No P2P cash-out. No wagering. Bank of record in place. fileciteturn1file16
+
+---
+
+# If you want me to implement the edits now
+I can deliver a marked-up version with:
+- Corrected math and a three-case revenue bridge.
+- Unified Web2 positioning.
+- A 24-month burn and hiring table that ties to the £10m use-of-proceeds.
+- A KPI glossary and first 90-day event calendar.
+- Spelling and consistency clean-up.
+
+The result will read clean, defend the numbers, and remove the tripwires that block partner-level approval.
+

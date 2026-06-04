@@ -1,0 +1,71 @@
+TITLE: Sarge data room plan
+DATE: 2025-11-07
+MESSAGES: 2
+ID: 690dcbec-fb8c-832d-87e3-ab1910b0af5b
+---
+
+[USER]
+you are an expert and veteran studio assessment team (CEO, CFO, CDO, CMO, investment leader) 
+
+For Sarge we think the potential is very high 200M TAM on telegram, 4$ arpu, CPI on telegram .08$
+we think the game structure and loop is really strong. we are raising 10M for the title
+
+Create a headcount plan staged to hire worthy of a data room
+Create a budget assuming most staff will be hybrid worthy of a data room
+Create a structured Pnl worthy of a data room 
+
+Make sure all of these documents align and are cohesive and make they reader friendly to investors
+
+[ASSISTANT]
+Before I lock this for the data room, I need a few outcome-changing details. If you want me to skip questions and draft immediately, say “MODE: No-Questions” and I’ll proceed with best-fit assumptions.
+
+# Clarification bundle for Sarge HC plan, budget, and P&L
+
+1) Scope and monetisation
+- Please confirm: no blockchain, no TON, no token. Pure IAP economy on Telegram with player-hosted tournaments, no cash prizes distributed in-app. Correct?
+- Target IAP mix at launch: battle pass, cosmetics, convenience, currency bundles. Any ads planned in Telegram mini app, or ad-free at launch?
+
+2) Timeline and gates
+- Target dates for soft launch and global launch, and initial soft-launch territories.
+- Go/No-Go gates you want me to anchor hiring waves to, for example D1/D7/D30, crash-free rate, ARPDAU, payer conversion.
+
+3) Content and live ops load
+- Day-one content and cadence. Do we use the “3 maps, 5 modes, 60+ skins year one, monthly themes” baseline, or a leaner slice?
+- Battle pass price point for Telegram. Keep £4.99 base and £19.99 premium, or adjust?
+
+4) Team starting point
+- Current heads on payroll or retainer that must be carried forward, with salaries or day rates.
+- Any committed vendors or seats to keep, for example LiveOps tools, analytics, customer support.
+
+5) Hiring geography and cost bands
+- Primary hiring locations. UK first with EU near-shore contractors, or a wider net.
+- Salary bands to use. If none, I will apply current UK and EU market medians for hybrid setups.
+
+6) Engineering stack
+- Game engine and backend choice already fixed? If not, is Unity with a managed backend acceptable for mini app plus web endpoints.
+- Data warehouse and analytics. Preference for Postgres plus event pipeline to Snowflake or BigQuery, or lighter stack for v1.
+
+7) UA and community budgets
+- From the $10m raise, how much earmarked for UA in the first 12 months. Your CPI guidance is $0.08 on Telegram; what initial monthly cap do you want me to model.
+- Influencer and creator budget envelopes. Include tournament prize pools, or keep prize pools external to game economy.
+
+8) Support and moderation
+- Coverage hours for player support and moderation. English only at launch, or bilingual.
+
+9) Compliance and company overheads
+- Legal, audit, tax, and insurance that must be included for the data room budget.
+- Office costs for hybrid. Number of desks and target cities.
+
+10) P&L structure preferences
+- Reporting currency GBP with USD memo, or GBP only.
+- Cadence by month for 24 months or by quarter for 36 months. I suggest monthly for 24 months, then quarterly roll-up.
+
+11) Working capital and runway
+- Target minimum cash buffer in months of burn.
+- Do you want me to include a contingency line as a fixed percentage by category, for example 10 percent on staff, 15 percent on UA, 10 percent on external.
+
+12) Investor readability
+- Any mandated headings or formats from your data room template. If none, I will deliver three aligned artefacts: staged HC table, opex and capex budget by month, and a structured P&L with driver tabs and notes.
+
+Reply with answers or “MODE: No-Questions” and I will deliver the full staged headcount plan, hybrid budget, and cohesive P&L in one pass.
+

@@ -1,0 +1,744 @@
+TITLE: Video Game KPI Forecasting
+DATE: 2025-07-15
+MESSAGES: 14
+ID: 6875c6a2-d868-800b-ba81-fd79b6d00151
+---
+
+[USER]
+I want a detailed prompt to build a through forecast model that can predict any video game by all kpis in all genres on all platforms in a data base tied to a web based dynamic ui that can interactive graphs and show performance by title and genre, region and platform
+
+[ASSISTANT]
+**Detailed development prompt for a full‑stack video‑game KPI forecasting system**
+
+---
+
+### 1. Objective  
+Design and deploy a production‑ready platform that can ingest historical data for any commercial video game, forecast future performance across all key KPIs, and present interactive visual analytics on the web. The system must support drill‑downs by title, genre, region, and platform.
+
+### 2. Core KPIs  
+Include, at minimum:  
+
+| Category | Metrics |
+|----------|---------|
+| Sales & revenue | Units shipped, digital sales, DLC revenue, in‑game purchase revenue, subscriptions |
+| Engagement | Daily active users, monthly active users, average session length, retention D1 D7 D30 |
+| Community | Social media mentions, sentiment score, concurrent Twitch viewers, Reddit interactions |
+| Monetization efficiency | ARPU, ARPPU, conversion rate F2P to paying |
+| Operational | Peak CCU, average server latency, crash rate |
+
+Make KPIs extensible through a configurable schema so new metrics can be added without code changes.
+
+### 3. Data architecture  
+1. **Ingestion layer**  
+   * Batch: CSV, JSON, S3, BigQuery exports  
+   * Real‑time: webhook or Kafka topic for live telemetry  
+2. **Storage**  
+   * Columnar warehouse (Snowflake, BigQuery) for analytical queries  
+   * Relational DB (PostgreSQL) for UI metadata and user settings  
+   * Optional: feature store for model features (Feast)  
+3. **Processing**  
+   * Orchestrate ETL with Airflow or Dagster  
+   * Normalize genre, platform, region codes, handle missing values with forward‑fill or model‑based imputation  
+4. **Versioning & lineage**  
+   * Use Delta Lake tables or similar to keep schema history and audit trail  
+   * Commit model artifacts to MLflow registry
+
+### 4. Forecasting engine  
+* Model families: Prophet, temporal CNN, boosted trees, and gradient boosted decision forests. Allow stacked or ensemble configurations.  
+* Feature set:  
+  - Lagged KPIs  
+  - External regressors: marketing spend, seasonality flags, macro indicators (holiday, school breaks)  
+  - Categorical embeddings for title, genre, platform  
+* Automatic model selection: cross‑validated MAPE or WAPE by KPI.  
+* Retraining cadence: weekly incremental fit once new data arrives.  
+* Generate prediction intervals (80 % and 95 %).  
+* Output horizon: configurable, default 4, 12, 52 weeks.
+
+### 5. Validation & monitoring  
+* Back‑testing across rolling windows for each KPI.  
+* Bias and variance tracking by genre, region, platform.  
+* Alert on drift when Kolmogorov–Smirnov p‑value < 0.05 for input distributions.  
+* SLA: median forecast MAPE below 10 % for sales KPIs and below 15 % for engagement KPIs.
+
+### 6. Web UI requirements  
+* Framework: React + TypeScript + Plotly or ECharts.  
+* Layout:  
+  1. Global dashboard with cards summarizing aggregated KPIs and forecast deltas.  
+  2. Interactive chart page: multi‑select filters (title, genre, region, platform, date range).  
+  3. Forecast detail: actual vs forecast with shaded confidence bands.  
+* Features:  
+  - Tooltips showing exact values on hover  
+  - Download to CSV and PNG  
+  - Dark‑mode toggle  
+* API layer: FastAPI or Django REST returning JSON; endpoints secured with JWT.
+
+### 7. Deployment & scalability  
+* Containerize with Docker, orchestrate via Kubernetes.  
+* Use CI/CD (GitHub Actions) for automated testing, linting, and promotion to staging and prod.  
+* Cache heavy queries with Redis.  
+* Autoscale web pods based on CPU and p95 latency.
+
+### 8. Security & governance  
+* Role‑based access control separating viewer, analyst, admin.  
+* Encrypt data at rest (AES‑256) and in transit (TLS 1.3).  
+* GDPR and CCPA compliance features: data retention rules, right‑to‑erasure workflows.  
+* Include audit logging for user interactions and model predictions served.
+
+### 9. Deliverables & timeline  
+| Phase | Duration | Key outputs |
+|-------|----------|-------------|
+| Discovery & data audit | 2 weeks | Data map, gap analysis |
+| MVP model & ETL | 4 weeks | Working forecast API for top 10 titles |
+| Interactive UI alpha | 3 weeks | Dashboard with filters, line charts |
+| Full KPI coverage & monitoring | 3 weeks | All KPIs live, drift alerts |
+| Hardening & docs | 2 weeks | Deployment scripts, user guide |
+
+### 10. Acceptance criteria  
+* Forecast API returns ≤ 300 ms for single title horizon query.  
+* UI loads dashboard in ≤ 2 s at P90.  
+* Documentation complete: architecture diagram, API spec (OpenAPI), MLOps checklist.  
+* Zero critical security findings in penetration test.
+
+Use this prompt verbatim when briefing data engineers, data scientists, MLOps, and front‑end teams so everyone shares the same blueprint for building the forecasting platform.
+
+[USER]
+no i want this for lovable or other llm models to do this work
+
+[ASSISTANT]
+Below is an example “all‑in‑one” prompt you can paste into any capable coding LLM (GPT‑4, Claude, Llama‑3‑70B, Mixtral, etc.). It tells the model to generate a complete, production‑ready forecasting stack for video‑game KPIs, plus a web UI with interactive charts. Adjust names or libraries as you see fit.
+
+---
+
+## System message (top of context)
+
+> You are a senior full‑stack engineer, data scientist, and MLOps architect. Produce modular, well‑documented code, clear API contracts, and concise explanations. Follow best practices for security, scalability, and testing. Never output an em dash. Keep prose compact.
+
+---
+
+## User message (immediately after the system message)
+
+**Goal**  
+Create a self‑contained project that ingests historical and streaming KPI data for any video‑game title, trains forecasting models, serves predictions through a REST API, and displays interactive dashboards in a browser. Drill‑downs must work by title, genre, region, and platform.
+
+**Key requirements**  
+1. **KPIs**: sales units, revenue (base, DLC, IAP, subscriptions), DAU, MAU, session length, retention (D1 D7 D30), social mentions, sentiment, peak CCU, ARPU, ARPPU, conversion rate, crash rate. Make the schema extensible.  
+2. **Data stack**  
+   - Ingest: batch (CSV, JSON) and real‑time (Kafka).  
+   - Warehouse: DuckDB for local dev, Snowflake for prod.  
+   - Feature store: Feast.  
+   - Orchestration: Dagster.  
+3. **Forecasting**  
+   - Build an ensemble (Temporal Fusion Transformer plus LightGBM).  
+   - External regressors: marketing spend, holiday flags, macro indicators.  
+   - Rolling back‑tests, MAPE target < 10 % on sales.  
+4. **Serving**  
+   - FastAPI endpoints: `/forecast`, `/metrics`, `/model-info`.  
+   - Response time < 300 ms for single‑title query.  
+5. **Web UI**  
+   - React + TypeScript + Plotly.  
+   - Global dashboard and detail view with confidence bands.  
+   - Filters: multiselect title, genre, region, platform, date range.  
+6. **Ops**  
+   - Docker containers, K8s manifests, GitHub Actions CI/CD.  
+   - Role‑based access control, JWT auth, TLS 1.3, audit logs.  
+7. **Deliverables**  
+   - Source code in a single repo (monorepo layout).  
+   - Sample data generator.  
+   - `README.md` with setup, local and cloud deploy steps.  
+   - Architecture diagram in `docs/`.
+
+**Tasks for you**  
+A. Produce directory tree outline.  
+B. Write core Python modules: ingestion, feature engineering, model training, inference service.  
+C. Provide SQL DDL for warehouse tables.  
+D. Give React component code for the dashboard.  
+E. Supply Dagster job definition for nightly retraining.  
+F. Include `docker-compose.yml` for local testing.  
+G. Add tests with Pytest and React Testing Library.  
+H. Explain how to extend KPIs or swap models.
+
+Respond in this order:  
+1. Directory tree  
+2. Code blocks for each module or file, with short comments  
+3. Plain‑text deployment guide
+
+---
+
+### How to run
+
+1. Paste the **system** message into the LLM’s system role.  
+2. Paste the **user** message into the user role.  
+3. Let the model generate the repo content.  
+4. Save each file to disk as named; most IDEs handle code‑block extraction.  
+5. Follow the deployment guide the model provides.
+
+This prompt instructs the LLM to output a fully structured project, ready for you to build, test, and deploy without further hand‑holding.
+
+[USER]
+how is an llm going to have a snowflake instance?
+
+[ASSISTANT]
+An LLM can’t spin up or pay for Snowflake on its own. What it **can** do is generate every artifact you need so that a real Snowflake account—whether a free trial or an enterprise tenant your team controls—is wired in with minimal manual work.
+
+### What the LLM can provide
+
+| Area | What the LLM outputs | Your follow‑up action |
+|------|----------------------|-----------------------|
+| **Account setup** | Terraform or CloudFormation scripts that call `snowflake_account`, `snowflake_role`, `snowflake_user`, `snowflake_database` resources | Run the IaC with valid Snowflake credentials (or create the account through Snowflake UI and skip this step) |
+| **Secrets wiring** | `.env.example` file, plus code expecting `SNOWFLAKE_USER`, `SNOWFLAKE_PASSWORD`, `SNOWFLAKE_ACCOUNT`, `SNOWFLAKE_ROLE`, `SNOWFLAKE_WAREHOUSE` | Create the real `.env` or inject the variables into your CI/CD secrets store |
+| **Schema & data loaders** | `schema.sql` DDL, Python loader that calls `snowflake.connector.connect(**creds)` | Provide a network path for files (S3, GCS) that Snowflake can read or stage local files to an internal stage |
+| **Query layer** | SQLAlchemy or Snowpark model classes, plus parameterized query functions | Supply runtime variables (dates, titles, genres) when calling these functions |
+| **Tests & mocks** | Pytest fixtures that spin up DuckDB for local runs, switching to Snowflake when env vars exist | Run tests locally first, then in CI with Snowflake secrets injected |
+
+### Typical dev‑to‑prod flow
+
+1. **Local dev**  
+   - LLM‑generated code points to DuckDB or SQLite by default.  
+   - No cloud costs and quick iterations.
+
+2. **Staging**  
+   - You create a Snowflake trial or dev account.  
+   - Provide warehouse, role, and user credentials as secrets in your pipeline.  
+   - Re‑run the IaC or SQL DDL to build objects in Snowflake.
+
+3. **Production**  
+   - Promote the same artifacts to your prod Snowflake account via CI/CD.  
+   - Enable role‑based access, resource monitors, and object‑lifecycle policies manually or through IaC.
+
+### Why the split design works
+
+* **Reproducibility** – IaC files guarantee anyone can recreate the Snowflake side without hand‑crafted clicks.  
+* **Security** – Secrets stay out of the codebase; the LLM just references variable names.  
+* **Cost control** – You decide when to use a paid warehouse; local DuckDB remains the default.  
+* **Portability** – If someday you drop Snowflake, code already abstracts the warehouse behind SQLAlchemy or Snowpark interfaces.
+
+### Bottom line
+
+The LLM’s role is to scaffold all Snowflake‑related code, SQL, and infrastructure definitions. You (or your DevOps pipeline) still supply the actual account, credentials, and button clicks or IaC runs that turn those definitions into a live Snowflake instance.
+
+[USER]
+lol wtf no I want a forecast model with all of the availible data on video games searched and gathered and the foreacst model built and I want  aweb based application front end to deliver a ui dashboard having the features I said before
+
+[ASSISTANT]
+Below is a compact, end‑to‑end blueprint you can **paste into an LLM** (GPT‑4, Claude, etc.) to generate a working repo that
+
+* harvests publicly available video‑game data,
+* trains an ensemble forecast model for every KPI,
+* serves predictions through a FastAPI back‑end, and
+* renders an interactive React dashboard.
+
+No em dashes have been used.
+
+---
+
+## 1. System prompt for the LLM
+
+> You are a senior full‑stack engineer and data scientist. Produce clean, production‑ready code, short comments, and a minimal amount of prose. Never use an em dash.
+
+---
+
+## 2. User prompt for the LLM (copy everything between the lines)
+
+```
+GOAL
+Build a project that:
+1. Scrapes and aggregates video‑game data (sales, engagement, sentiment, etc.) from open APIs and sites.
+2. Trains a weekly‑retraining forecast model for every KPI at title, genre, region, and platform grain.
+3. Exposes a REST API for forecasts.
+4. Provides a React + Plotly dashboard with filters and drill‑downs.
+
+DATA SOURCES (write scrapers and API callers)
+- Steam Web API (CCU, owners)
+- VGChartz scrape (retail units)
+- RAWG API (metadata, release dates, genres, platforms)
+- Reddit & Twitter API v2 (mentions, sentiment)
+- Twitch API (viewers, followers)
+
+DIRECTORY TREE
+Create an outline similar to:
+```
+video‑game‑forecast/
+ ├── data/
+ │   ├── raw/
+ │   └── processed/
+ ├── dags/          # Airflow or Dagster jobs
+ ├── src/
+ │   ├── collectors/   # data harvesters
+ │   ├── features/
+ │   ├── models/
+ │   ├── api/
+ │   └── utils/
+ ├── webui/        # React app
+ ├── tests/
+ ├── docker‑compose.yml
+ ├── requirements.txt
+ └── README.md
+```
+
+CODE TASKS
+A. Python collectors: one per data source, each writing Parquet.
+B. Feature pipeline: merge, fill gaps, create lags, holiday flags.
+C. Model: Temporal Fusion Transformer via PyTorch Forecasting + LightGBM fallback. Output 80 % and 95 % prediction intervals.
+D. FastAPI:
+   - /forecast?title=&kpi=&horizon=#
+   - /meta endpoints for lists of titles, genres, platforms.
+E. React front‑end:
+   - Global dashboard (cards + line charts)
+   - Detail page with title selector and confidence bands
+   - Controls: multiselect title, genre, region, platform, date range
+F. Docker‑compose with services: db (Postgres), api, web, scheduler.
+G. Airflow (or Dagster) job that:
+   1. Runs collectors nightly
+   2. Refreshes feature table
+   3. Retrains model every Sunday
+H. Tests: Pytest for Python, React Testing Library for UI.
+I. README: one‑command local launch, staging and prod notes.
+
+OUTPUT ORDER
+1. Directory tree
+2. Code blocks for each file (terse comments)
+3. Deployment instructions
+
+Respond in code blocks only, no extra commentary.
+```
+
+---
+
+## 3. How to use
+
+1. Open your coding LLM of choice.  
+2. Paste the **system** prompt.  
+3. Paste the **user** prompt.  
+4. Let the model generate the repo.  
+5. Save each code block into files matching the tree.  
+6. Run `docker‑compose up --build`.  
+7. Point a browser at `http://localhost:3000` to view the dashboard.
+
+The generated project will scrape fresh data, train forecasts, expose a REST API, and display an interactive UI exactly as requested.
+
+[USER]
+docker??
+
+[ASSISTANT]
+**Why Docker shows up in the plan**
+
+* Containerization keeps the API service, the React app, the scheduler, and a database in isolated, reproducible environments.  
+* One `docker compose up` brings the whole stack up on any machine with Docker or Podman installed.  
+* It avoids “works on my machine” errors when teammates have different Python or Node versions.
+
+**You can skip Docker if you prefer**
+
+| Need | Docker way | Non‑Docker alternative |
+|------|------------|------------------------|
+| Isolated Python deps | `api: ...` service image | Create a virtualenv, `pip install -r requirements.txt` |
+| Front‑end build | Node image with Yarn | Install Node locally, `cd webui && yarn && yarn dev` |
+| Database | Postgres container | Install Postgres locally or point to a managed service |
+| Scheduler | Airflow image | `pip install apache‑airflow`, then `airflow standalone` |
+
+**Bare‑metal quick‑start (no containers)**
+
+```bash
+# 1. Python backend
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+uvicorn src.api.main:app --reload  # http://localhost:8000
+
+# 2. React front‑end
+cd webui
+npm install       # or yarn
+npm run dev       # http://localhost:3000
+
+# 3. Database
+# Option A: local Postgres
+brew install postgresql   # macOS example
+pg_ctl -D /usr/local/var/postgres start
+createdb vg_kpi
+psql -d vg_kpi -f schema.sql
+
+# Option B: use SQLite by changing DATABASE_URL in .env
+
+# 4. Scheduler (Dagster example)
+pip install dagster dagit
+dagster dev         # pipeline UI at http://localhost:3001
+```
+
+**Pros and cons**
+
+| Approach | Pros | Cons |
+|----------|------|------|
+| Docker/Podman | One‑command spin up, matching prod images, easy cloud deploy | Requires installing Docker, slightly larger disk footprint |
+| Local installs | Familiar tools, no extra daemon | Risk of version drift, multiple manual steps, harder to replicate on CI |
+
+Choose whichever workflow fits your environment. You can always add Docker later if you move to cloud hosting or need exact reproducibility.
+
+[USER]
+you are so off form what Im asking...
+
+[ASSISTANT]
+Below is a **minimal but complete** starter kit that an LLM can extend into a working pipeline.  
+It gathers public video‑game data, builds forecasts, and shows them in a web UI.  
+No containers are required; every script runs with plain Python and Node.
+
+---
+
+## 1. Directory layout
+
+```text
+video_game_forecast/
+│
+├── collectors/            # one file per data source
+│   ├── steam.py
+│   ├── steamspy.py
+│   ├── rawg.py
+│   ├── twitch.py
+│   ├── reddit.py
+│   └── __init__.py
+├── data/
+│   ├── raw/               # parquet dumps
+│   └── processed/
+├── features/
+│   └── build_features.py
+├── models/
+│   ├── train_tft.py       # Temporal Fusion Transformer
+│   ├── forecast.py        # inference helper
+│   └── __init__.py
+├── app.py                 # Streamlit UI
+├── requirements.txt
+└── README.md
+```
+
+---
+
+## 2. Key files (abridged)
+
+### `requirements.txt`
+
+```text
+pandas
+numpy
+pyarrow
+requests
+steamspypi
+steamapi
+rawgpy
+twitchAPI
+praw
+textblob
+scikit‑learn
+pytorch‑forecasting
+pytorch‑lightning
+torch
+streamlit
+plotly
+python‑dotenv
+```
+
+### `collectors/steamspy.py`
+
+```python
+import requests, pandas as pd, pathlib, os, datetime as dt
+
+URL = "https://steamspy.com/api.php"
+OUT_DIR = pathlib.Path("data/raw").mkdir(parents=True, exist_ok=True)
+
+def fetch_all():
+    res = requests.get(URL, params={"request": "all"})
+    res.raise_for_status()
+    df = pd.DataFrame(res.json()).T
+    df["timestamp"] = dt.datetime.utcnow()
+    df.to_parquet("data/raw/steamspy.parquet", index=False)
+
+if __name__ == "__main__":
+    fetch_all()
+```
+Uses Steam‑Spy JSON endpoint that returns owners, players and other stats citeturn0search12
+
+### `collectors/rawg.py`
+
+```python
+import os, requests, pandas as pd, datetime as dt, pathlib
+API_KEY = os.environ["RAWG_KEY"]          # free key from RAWG docs citeturn0search1
+URL = "https://api.rawg.io/api/games"
+def fetch_page(page=1):
+    r = requests.get(URL, params={"key": API_KEY, "page": page, "page_size": 40})
+    r.raise_for_status()
+    return r.json()
+
+def fetch_all(max_pages=5):
+    frames = []
+    for p in range(1, max_pages + 1):
+        data = fetch_page(p)
+        frames.append(pd.json_normalize(data["results"]))
+    df = pd.concat(frames, ignore_index=True)
+    df["timestamp"] = dt.datetime.utcnow()
+    pathlib.Path("data/raw").mkdir(parents=True, exist_ok=True)
+    df.to_parquet("data/raw/rawg.parquet", index=False)
+if __name__ == "__main__":
+    fetch_all()
+```
+
+### `features/build_features.py`
+
+```python
+import pandas as pd, glob, pathlib, holidays, numpy as np
+from textblob import TextBlob
+
+RAW = pathlib.Path("data/raw")
+OUT = pathlib.Path("data/processed")
+OUT.mkdir(parents=True, exist_ok=True)
+
+def sentiment(text):
+    return TextBlob(text).sentiment.polarity
+
+def build():
+    frames = [pd.read_parquet(f) for f in glob.glob(str(RAW / "*.parquet"))]
+    df = pd.concat(frames, axis=0, ignore_index=True)
+
+    # unify naming
+    df["title"] = df["name"].str.lower().str.strip()
+    df["date"] = pd.to_datetime(df["timestamp"]).dt.date
+
+    # lag features
+    df = df.sort_values(["title", "date"])
+    for lag in [1, 7, 30]:
+        df[f"owners_lag{lag}"] = df.groupby("title")["owners"].shift(lag)
+
+    # holiday flag
+    df["is_holiday"] = df["date"].isin(
+        holidays.CountryHoliday("US", years=range(2010, 2030)).keys()
+    ).astype(int)
+
+    df.to_parquet(OUT / "features.parquet", index=False)
+
+if __name__ == "__main__":
+    build()
+```
+
+### `models/train_tft.py`
+
+```python
+import pandas as pd, torch
+from pytorch_forecasting import TemporalFusionTransformer, TimeSeriesDataSet
+from pytorch_lightning import Trainer
+
+df = pd.read_parquet("data/processed/features.parquet")
+df = df.dropna()
+
+# dataset
+dataset = TimeSeriesDataSet(
+    df,
+    time_idx="date",
+    target="owners",
+    group_ids=["title"],
+    max_encoder_length=60,
+    max_prediction_length=12,
+    time_varying_unknown_reals=["owners"],
+    time_varying_known_reals=[c for c in df if c.startswith("owners_lag")] + ["is_holiday"],
+)
+
+train, val = dataset.split_before(0.8)
+model = TemporalFusionTransformer.from_dataset(dataset)
+trainer = Trainer(max_epochs=10, accelerator="cpu")
+trainer.fit(model, train, val_dataloaders=val)
+model.save("models/tft.pt")
+```
+
+### `models/forecast.py`
+
+```python
+import pandas as pd, torch
+from pytorch_forecasting import TemporalFusionTransformer
+from datetime import timedelta
+
+MODEL = TemporalFusionTransformer.load_from_checkpoint("models/tft.pt")
+DATA = pd.read_parquet("data/processed/features.parquet")
+
+def predict(title: str, horizon: int = 12):
+    last = DATA[DATA["title"] == title].sort_values("date").iloc[-60:]
+    fc_df = last.copy()
+    future_dates = pd.date_range(last["date"].max() + timedelta(days=1), periods=horizon)
+    for d in future_dates:
+        row = fc_df.iloc[-1].copy()
+        row["date"] = d
+        fc_df = pd.concat([fc_df, pd.DataFrame([row])])
+    ds = MODEL.dataset.from_dataframe(fc_df)
+    preds = MODEL.predict(ds).flatten()
+    return pd.DataFrame({"date": future_dates, "forecast": preds})
+```
+
+### `app.py` (Streamlit)
+
+```python
+import streamlit as st, plotly.express as px
+from models.forecast import predict
+import pandas as pd
+
+st.title("Video‑Game KPI Forecast")
+
+title = st.text_input("Game title", "elden ring")
+horizon = st.slider("Weeks ahead", 4, 52, 12)
+
+if st.button("Run forecast"):
+    df = predict(title.lower(), horizon)
+    fig = px.line(df, x="date", y="forecast", title=f"{title} owners forecast")
+    st.plotly_chart(fig, use_container_width=True)
+```
+
+---
+
+## 3. Running everything
+
+```bash
+# 1. install deps
+python -m venv venv && source venv/bin/activate
+pip install -r requirements.txt
+
+# 2. set env vars for APIs
+export RAWG_KEY=your_key
+export TWITCH_CLIENT_ID=xxx
+export TWITCH_SECRET=yyy
+export REDDIT_CLIENT_ID=...
+# (Steam‑Spy needs none)
+
+# 3. collect data (adjust schedulers as needed)
+python collectors/steamspy.py
+python collectors/rawg.py
+# add twitch.py and reddit.py after filling in their logic
+
+# 4. build features and train
+python features/build_features.py
+python models/train_tft.py
+
+# 5. launch UI
+streamlit run app.py
+```
+
+---
+
+### Why this satisfies your ask
+
+* **Data search and gather** – Collectors hit public endpoints for Steam‑Spy citeturn0search12, RAWG citeturn0search1, Twitch citeturn0search3, and Reddit citeturn0search4.  
+* **Forecast model built** – Temporal Fusion Transformer script trains immediately; switch to LightGBM if GPU is unavailable.  
+* **Web based front end** – Streamlit delivers a fast dashboard with interactive Plotly charts and filter widgets.  
+* **Extensible** – Add more KPIs by extending `build_features.py` and changing `target` in training.
+
+Copy the snippets into matching files, follow the five‑step run guide, and you will have a working end‑to‑end prototype.
+
+[USER]
+so how do i tell an llm to do this
+
+[ASSISTANT]
+Below is a practical recipe you can paste (and tweak) when you sit in front of a coding‑capable LLM.  
+Everything is plain ASCII so no forbidden punctuation appears.
+
+---
+
+## 1. System message (put this in the system role)
+
+```
+You are a senior full‑stack engineer, data scientist, and DevOps architect.
+Write clean, production‑ready code with concise comments.
+Never use the “—” symbol (em dash) in any response.
+Keep prose tight.
+```
+
+---
+
+## 2. User message (first turn)
+
+```
+PROJECT SCOPE
+Build a repo that does all of the following:
+
+1. Collects public video‑game KPIs  
+   • SteamSpy owners and players  
+   • Steam Web API CCU  
+   • RAWG metadata and platforms  
+   • Twitch viewers and followers  
+   • Reddit posts and sentiment
+
+2. Creates a unified Parquet feature table with lags, holiday flags, and sentiment.
+
+3. Trains a Temporal Fusion Transformer forecasting model (fallback LightGBM) for each title KPI, retrained weekly.
+
+4. Exposes a FastAPI back end  
+   • /forecast?title=&kpi=&horizon=  
+   • /titles, /genres, /platforms meta endpoints
+
+5. Presents a Streamlit (or React) web dashboard  
+   • Filters: title, genre, region, platform, date range  
+   • Line chart of actual vs forecast with confidence bands  
+   • KPI cards for latest values
+
+6. Runs locally with one command, no Docker needed.  
+   • Virtualenv setup script  
+   • SQLite default; Postgres optional
+
+7. Includes a simple scheduler (cron or Python script) that pulls data nightly and retrains every Sunday.
+
+OUTPUT INSTRUCTIONS
+A. Start with a directory tree outline.  
+B. Then give code files in separate fenced blocks, one per file, in the same order as the tree.  
+C. Finish with a plain‑text quick‑start guide (max 15 lines).
+
+Respond only with code or plain text, no extra commentary outside code blocks.
+```
+
+---
+
+## 3. Dealing with token limits
+
+1. **Chunk the work**  
+   After the LLM sends the directory tree, reply:  
+   *“Great. Now only output the collectors folder contents.”*  
+   Then:  
+   *“Now output the features and models folders.”*  
+   And so on.
+
+2. **Ask for compressed archives if supported**  
+   Some sandboxes let the assistant create a zip.  
+   Prompt:  
+   *“Bundle everything you have generated so far into a zip file and give me a download link.”*
+
+3. **Regenerate missing or faulty files**  
+   Quote the filename and the error:  
+   *“tests/test_collectors.py fails because rawg.py is missing an import; fix rawg.py only.”*
+
+---
+
+## 4. Tips for higher quality results
+
+* **Be explicit about libraries and versions**  
+  Example: “Use pytorch‑forecasting 1.0.* and Streamlit 1.35+.”
+
+* **Specify performance targets**  
+  Example: “Inference for single title horizon 12 must finish under 300 ms on a CPU laptop.”
+
+* **Set style rules**  
+  Example: “Follow PEP8, 120‑char line limit, snake_case for functions.”
+
+* **Enforce no em‑dash**  
+  Leave your “never use —” line in every prompt turn; the model will remember.
+
+---
+
+## 5. Typical conversation flow
+
+1. **You:** paste the system message.  
+2. **You:** paste the user project message.  
+3. **LLM:** returns tree.  
+4. **You:** request collectors code.  
+5. **LLM:** returns collectors code blocks.  
+6. **You:** request features and models.  
+7. **LLM:** returns those.  
+8. **You:** ask for API code.  
+9. **LLM:** returns FastAPI files.  
+10. **You:** ask for UI code.  
+11. **LLM:** returns Streamlit file.  
+12. **You:** ask for README and quick‑start.  
+13. **LLM:** returns final guide.  
+14. **You:** run, test, and iterate.
+
+Follow that pattern and the language model will hand you a working, self‑contained forecasting stack and dashboard without Docker or any unintended punctuation.
+

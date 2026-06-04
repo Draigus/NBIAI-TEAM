@@ -1,0 +1,267 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="1500" viewBox="0 0 2400 1500" role="img" aria-labelledby="title desc">
+  <title id="title">Couch Heroes Backend Architecture Flow Diagram</title>
+  <desc id="desc">A polished backend flow diagram showing the Couch Heroes client, edge ingress, custom backend services, Agones orchestration, Unreal Engine dedicated server fleets, state services, event fanout, and observability.</desc>
+  <defs>
+    <style>
+      .page { fill: #f6f8fb; }
+      .frame { fill: #ffffff; stroke: #d7deea; stroke-width: 2; }
+      .lane { fill: #fbfcff; stroke: #dfe6f2; stroke-width: 2; }
+      .lane-title { fill: #64748b; font: 800 16px Arial, Helvetica, sans-serif; letter-spacing: 1.6px; }
+      .h1 { fill: #101828; font: 800 44px Arial, Helvetica, sans-serif; letter-spacing: -0.8px; }
+      .sub { fill: #667085; font: 400 22px Arial, Helvetica, sans-serif; }
+      .foot { fill: #667085; font: 400 15px Arial, Helvetica, sans-serif; }
+      .card-title { fill: #101828; font: 800 22px Arial, Helvetica, sans-serif; }
+      .card-body { fill: #475467; font: 400 17px Arial, Helvetica, sans-serif; }
+      .small { fill: #667085; font: 400 14px Arial, Helvetica, sans-serif; }
+      .label { fill: #101828; font: 800 15px Arial, Helvetica, sans-serif; }
+      .tag-text { fill: #ffffff; font: 800 14px Arial, Helvetica, sans-serif; letter-spacing: .3px; }
+      .step-title { fill: #101828; font: 800 19px Arial, Helvetica, sans-serif; }
+      .step-body { fill: #475467; font: 400 15px Arial, Helvetica, sans-serif; }
+      .blue-card { fill: #eff6ff; stroke: #2f80ed; stroke-width: 2.5; }
+      .green-card { fill: #ecfdf5; stroke: #12b76a; stroke-width: 2.5; }
+      .purple-card { fill: #f4f0ff; stroke: #7a5af8; stroke-width: 2.5; }
+      .amber-card { fill: #fffbeb; stroke: #f59e0b; stroke-width: 2.5; }
+      .pink-card { fill: #fdf2fa; stroke: #ee46bc; stroke-width: 2.5; }
+      .slate-card { fill: #f8fafc; stroke: #94a3b8; stroke-width: 2.5; }
+      .dark-card { fill: #101828; stroke: #344054; stroke-width: 2; }
+      .arrow { fill: none; stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; }
+      .arrow-light { fill: none; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+      .blue { stroke: #2f80ed; }
+      .green { stroke: #12b76a; }
+      .purple { stroke: #7a5af8; }
+      .amber { stroke: #f59e0b; }
+      .slate { stroke: #94a3b8; }
+      .blue-fill { fill: #2f80ed; }
+      .green-fill { fill: #12b76a; }
+      .purple-fill { fill: #7a5af8; }
+      .amber-fill { fill: #f59e0b; }
+      .slate-fill { fill: #64748b; }
+      .shadow { filter: url(#shadow); }
+    </style>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#101828" flood-opacity=".10"/>
+    </filter>
+    <marker id="arrowBlue" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto" markerUnits="strokeWidth">
+      <path d="M2 2 L12 7 L2 12 Z" fill="#2f80ed"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto" markerUnits="strokeWidth">
+      <path d="M2 2 L12 7 L2 12 Z" fill="#12b76a"/>
+    </marker>
+    <marker id="arrowPurple" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto" markerUnits="strokeWidth">
+      <path d="M2 2 L12 7 L2 12 Z" fill="#7a5af8"/>
+    </marker>
+    <marker id="arrowAmber" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto" markerUnits="strokeWidth">
+      <path d="M2 2 L12 7 L2 12 Z" fill="#f59e0b"/>
+    </marker>
+    <marker id="arrowSlate" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto" markerUnits="strokeWidth">
+      <path d="M2 2 L12 7 L2 12 Z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <rect class="page" width="2400" height="1500"/>
+  <rect class="frame" x="42" y="36" width="2316" height="1428" rx="34"/>
+
+  <text class="h1" x="86" y="104">Couch Heroes Backend Architecture Flow</text>
+  <text class="sub" x="86" y="140">How clients enter the world, how shards are selected, how servers are allocated, and where state becomes durable.</text>
+  <text class="foot" x="2040" y="96">NBI Gaming</text>
+  <text class="foot" x="2040" y="124">Couch Heroes Technical Proposal</text>
+  <text class="foot" x="2040" y="152">June 2026</text>
+
+  <g transform="translate(86 182)">
+    <rect x="0" y="0" width="200" height="34" rx="17" fill="#2f80ed"/>
+    <text class="tag-text" x="22" y="22">1 Control path</text>
+    <rect x="220" y="0" width="198" height="34" rx="17" fill="#12b76a"/>
+    <text class="tag-text" x="242" y="22">2 Game traffic</text>
+    <rect x="438" y="0" width="188" height="34" rx="17" fill="#f59e0b"/>
+    <text class="tag-text" x="460" y="22">3 State writes</text>
+    <rect x="646" y="0" width="218" height="34" rx="17" fill="#7a5af8"/>
+    <text class="tag-text" x="668" y="22">4 World events</text>
+    <rect x="884" y="0" width="190" height="34" rx="17" fill="#64748b"/>
+    <text class="tag-text" x="906" y="22">5 Telemetry</text>
+  </g>
+
+  <rect class="lane" x="86" y="250" width="2228" height="190" rx="24"/>
+  <text class="lane-title" x="116" y="286">CONTROL PLANE: LOGIN, ROUTING, ALLOCATION</text>
+
+  <rect class="lane" x="86" y="486" width="2228" height="280" rx="24"/>
+  <text class="lane-title" x="116" y="522">GAME PLANE: PROTECTED CLIENT TRAFFIC TO AUTHORITATIVE UE5 SERVERS</text>
+
+  <rect class="lane" x="86" y="812" width="2228" height="220" rx="24"/>
+  <text class="lane-title" x="116" y="848">STATE, EVENTS, AND OBSERVABILITY</text>
+
+  <!-- Control plane nodes -->
+  <g class="shadow">
+    <rect class="blue-card" x="116" y="312" width="230" height="90" rx="18"/>
+    <text class="card-title" x="142" y="350">UE5 Client</text>
+    <text class="card-body" x="142" y="378">Login request</text>
+
+    <rect class="blue-card" x="420" y="312" width="250" height="90" rx="18"/>
+    <text class="card-title" x="446" y="350">API Gateway</text>
+    <text class="card-body" x="446" y="378">HTTPS backend entry</text>
+
+    <rect class="blue-card" x="744" y="312" width="250" height="90" rx="18"/>
+    <text class="card-title" x="770" y="350">Auth + Session</text>
+    <text class="card-body" x="770" y="378">Identity, token, presence</text>
+
+    <rect class="purple-card" x="1068" y="312" width="270" height="90" rx="18"/>
+    <text class="card-title" x="1094" y="350">Social Graph</text>
+    <text class="card-body" x="1094" y="378">Party, friends, guild, faction</text>
+
+    <rect class="purple-card" x="1412" y="312" width="270" height="90" rx="18"/>
+    <text class="card-title" x="1438" y="350">Shard Router</text>
+    <text class="card-body" x="1438" y="378">Zone, hub, instance choice</text>
+
+    <rect class="blue-card" x="1756" y="312" width="250" height="90" rx="18"/>
+    <text class="card-title" x="1782" y="350">Agones Allocation</text>
+    <text class="card-body" x="1782" y="378">Ready GameServer token</text>
+
+    <rect class="blue-card" x="2080" y="312" width="204" height="90" rx="18"/>
+    <text class="card-title" x="2106" y="350">Connect Token</text>
+    <text class="card-body" x="2106" y="378">Endpoint returned</text>
+  </g>
+
+  <path class="arrow blue" marker-end="url(#arrowBlue)" d="M346 357 H420"/>
+  <path class="arrow blue" marker-end="url(#arrowBlue)" d="M670 357 H744"/>
+  <path class="arrow blue" marker-end="url(#arrowBlue)" d="M994 357 H1068"/>
+  <path class="arrow blue" marker-end="url(#arrowBlue)" d="M1338 357 H1412"/>
+  <path class="arrow blue" marker-end="url(#arrowBlue)" d="M1682 357 H1756"/>
+  <path class="arrow blue" marker-end="url(#arrowBlue)" d="M2006 357 H2080"/>
+
+  <!-- Game plane nodes -->
+  <g class="shadow">
+    <rect class="green-card" x="116" y="570" width="270" height="112" rx="18"/>
+    <text class="card-title" x="142" y="610">UE5 Client</text>
+    <text class="card-body" x="142" y="640">Game UDP/TCP after token</text>
+    <text class="card-body" x="142" y="664">ClientTravel for shard moves</text>
+
+    <rect class="green-card" x="480" y="570" width="300" height="112" rx="18"/>
+    <text class="card-title" x="506" y="610">Cloudflare Spectrum</text>
+    <text class="card-body" x="506" y="640">DDoS absorption, UDP proxy</text>
+    <text class="card-body" x="506" y="664">Origin IP hidden</text>
+
+    <rect class="dark-card" x="900" y="532" width="340" height="188" rx="22"/>
+    <text x="930" y="576" fill="#ffffff" font="800 24px Arial, Helvetica, sans-serif">UE5 Server Fleet</text>
+    <text x="930" y="608" fill="#cbd5e1" font="400 17px Arial, Helvetica, sans-serif">Authoritative simulation</text>
+    <text x="930" y="636" fill="#cbd5e1" font="400 17px Arial, Helvetica, sans-serif">Replication Graph, prioritisation</text>
+    <text x="930" y="664" fill="#cbd5e1" font="400 17px Arial, Helvetica, sans-serif">Connection metrics emitted</text>
+
+    <rect class="purple-card" x="1348" y="534" width="270" height="84" rx="16"/>
+    <text class="card-title" x="1374" y="568">Overworld Zones</text>
+    <text class="card-body" x="1374" y="596">200-300 player target</text>
+
+    <rect class="green-card" x="1660" y="534" width="270" height="84" rx="16"/>
+    <text class="card-title" x="1686" y="568">Downtime Hubs</text>
+    <text class="card-body" x="1686" y="596">Social hub shards</text>
+
+    <rect class="amber-card" x="1348" y="652" width="270" height="84" rx="16"/>
+    <text class="card-title" x="1374" y="686">Instances</text>
+    <text class="card-body" x="1374" y="714">Dungeon, raid, PvP, siege</text>
+
+    <rect class="pink-card" x="1660" y="652" width="270" height="84" rx="16"/>
+    <text class="card-title" x="1686" y="686">User Spaces</text>
+    <text class="card-body" x="1686" y="714">Housing capacity to validate</text>
+
+    <rect class="slate-card" x="2010" y="570" width="274" height="112" rx="18"/>
+    <text class="card-title" x="2036" y="610">Server Authority</text>
+    <text class="card-body" x="2036" y="640">EAC signals assist detection</text>
+    <text class="card-body" x="2036" y="664">Server decides outcome</text>
+  </g>
+
+  <path class="arrow green" marker-end="url(#arrowGreen)" d="M386 626 H480"/>
+  <path class="arrow green" marker-end="url(#arrowGreen)" d="M780 626 H900"/>
+  <path class="arrow-light green" marker-end="url(#arrowGreen)" d="M1240 626 C1285 616, 1300 576, 1348 576"/>
+  <path class="arrow-light green" marker-end="url(#arrowGreen)" d="M1240 608 C1370 500, 1532 508, 1660 576"/>
+  <path class="arrow-light green" marker-end="url(#arrowGreen)" d="M1240 644 C1285 654, 1300 694, 1348 694"/>
+  <path class="arrow-light green" marker-end="url(#arrowGreen)" d="M1240 662 C1388 788, 1542 790, 1660 714"/>
+  <path class="arrow green" marker-end="url(#arrowGreen)" d="M1930 626 H2010"/>
+
+  <!-- Data and operations nodes -->
+  <g class="shadow">
+    <rect class="amber-card" x="116" y="884" width="260" height="92" rx="18"/>
+    <text class="card-title" x="142" y="920">Redis Hot Cache</text>
+    <text class="card-body" x="142" y="950">Transient transfer snapshots</text>
+
+    <rect class="amber-card" x="436" y="884" width="280" height="92" rx="18"/>
+    <text class="card-title" x="462" y="920">PostgreSQL</text>
+    <text class="card-body" x="462" y="950">Durable player/world authority</text>
+
+    <rect class="purple-card" x="790" y="884" width="300" height="92" rx="18"/>
+    <text class="card-title" x="816" y="920">Corruption Service</text>
+    <text class="card-body" x="816" y="950">Versioned cells, reconciliation</text>
+
+    <rect class="purple-card" x="1150" y="884" width="250" height="92" rx="18"/>
+    <text class="card-title" x="1176" y="920">Pub/Sub Bus</text>
+    <text class="card-body" x="1176" y="950">Event fanout to shards</text>
+
+    <rect class="slate-card" x="1500" y="884" width="240" height="92" rx="18"/>
+    <text class="card-title" x="1526" y="920">Telemetry</text>
+    <text class="card-body" x="1526" y="950">Network and server metrics</text>
+
+    <rect class="slate-card" x="1800" y="884" width="220" height="92" rx="18"/>
+    <text class="card-title" x="1826" y="920">CloudWatch</text>
+    <text class="card-body" x="1826" y="950">Logs, metrics, alerts</text>
+
+    <rect class="slate-card" x="2070" y="884" width="214" height="92" rx="18"/>
+    <text class="card-title" x="2096" y="920">Grafana</text>
+    <text class="card-body" x="2096" y="950">Dashboards, profiling</text>
+  </g>
+
+  <path class="arrow amber" marker-end="url(#arrowAmber)" d="M1070 720 C1060 790, 246 790, 246 884"/>
+  <path class="arrow amber" marker-end="url(#arrowAmber)" d="M1070 720 C1040 812, 576 800, 576 884"/>
+  <path class="arrow purple" marker-end="url(#arrowPurple)" d="M1483 618 C1483 800, 940 786, 940 884"/>
+  <path class="arrow purple" marker-end="url(#arrowPurple)" d="M1090 930 H1150"/>
+  <path class="arrow purple" marker-end="url(#arrowPurple)" d="M1400 930 C1530 850, 1650 810, 1794 736"/>
+  <path class="arrow slate" marker-end="url(#arrowSlate)" d="M1070 720 C1220 826, 1510 806, 1620 884"/>
+  <path class="arrow slate" marker-end="url(#arrowSlate)" d="M1740 930 H1800"/>
+  <path class="arrow slate" marker-end="url(#arrowSlate)" d="M2020 930 H2070"/>
+
+  <!-- Bottom pipeline cards -->
+  <g class="shadow">
+    <rect class="frame" x="86" y="1090" width="690" height="286" rx="24"/>
+    <text class="lane-title" x="126" y="1132">PIPELINE A: LOGIN TO WORLD</text>
+    <circle class="blue-fill" cx="136" cy="1182" r="18"/><text x="130" y="1188" fill="#fff" font="800 17px Arial">1</text>
+    <text class="step-title" x="172" y="1188">Authenticate</text>
+    <text class="step-body" x="310" y="1188">API Gateway creates session and presence.</text>
+    <circle class="purple-fill" cx="136" cy="1234" r="18"/><text x="130" y="1240" fill="#fff" font="800 17px Arial">2</text>
+    <text class="step-title" x="172" y="1240">Route</text>
+    <text class="step-body" x="310" y="1240">Social graph influences zone or hub selection.</text>
+    <circle class="blue-fill" cx="136" cy="1286" r="18"/><text x="130" y="1292" fill="#fff" font="800 17px Arial">3</text>
+    <text class="step-title" x="172" y="1292">Allocate</text>
+    <text class="step-body" x="310" y="1292">Agones returns a ready server and token.</text>
+    <circle class="green-fill" cx="136" cy="1338" r="18"/><text x="130" y="1344" fill="#fff" font="800 17px Arial">4</text>
+    <text class="step-title" x="172" y="1344">Connect</text>
+    <text class="step-body" x="310" y="1344">Client uses Spectrum endpoint, not origin IP.</text>
+
+    <rect class="frame" x="856" y="1090" width="690" height="286" rx="24"/>
+    <text class="lane-title" x="896" y="1132">PIPELINE B: SHARD TRANSITION</text>
+    <circle class="amber-fill" cx="906" cy="1182" r="18"/><text x="900" y="1188" fill="#fff" font="800 17px Arial">1</text>
+    <text class="step-title" x="942" y="1188">Snapshot</text>
+    <text class="step-body" x="1080" y="1188">Source writes transient handoff state to Redis.</text>
+    <circle class="blue-fill" cx="906" cy="1234" r="18"/><text x="900" y="1240" fill="#fff" font="800 17px Arial">2</text>
+    <text class="step-title" x="942" y="1240">Prepare</text>
+    <text class="step-body" x="1080" y="1240">Target server is allocated or warmed.</text>
+    <circle class="amber-fill" cx="906" cy="1286" r="18"/><text x="900" y="1292" fill="#fff" font="800 17px Arial">3</text>
+    <text class="step-title" x="942" y="1292">Verify</text>
+    <text class="step-body" x="1080" y="1292">Target checks durable version before spawn.</text>
+    <circle class="green-fill" cx="906" cy="1338" r="18"/><text x="900" y="1344" fill="#fff" font="800 17px Arial">4</text>
+    <text class="step-title" x="942" y="1344">Release</text>
+    <text class="step-body" x="1080" y="1344">Source drops player only after target ack.</text>
+
+    <rect class="frame" x="1626" y="1090" width="688" height="286" rx="24"/>
+    <text class="lane-title" x="1666" y="1132">PIPELINE C: CORRUPTION STATE</text>
+    <circle class="purple-fill" cx="1676" cy="1182" r="18"/><text x="1670" y="1188" fill="#fff" font="800 17px Arial">1</text>
+    <text class="step-title" x="1712" y="1188">Emit</text>
+    <text class="step-body" x="1850" y="1188">Zone sends versioned cell deltas.</text>
+    <circle class="purple-fill" cx="1676" cy="1234" r="18"/><text x="1670" y="1240" fill="#fff" font="800 17px Arial">2</text>
+    <text class="step-title" x="1712" y="1240">Persist</text>
+    <text class="step-body" x="1850" y="1240">Corruption Service stores authoritative state.</text>
+    <circle class="purple-fill" cx="1676" cy="1286" r="18"/><text x="1670" y="1292" fill="#fff" font="800 17px Arial">3</text>
+    <text class="step-title" x="1712" y="1292">Fan out</text>
+    <text class="step-body" x="1850" y="1292">Pub/Sub updates affected zones and hubs.</text>
+    <circle class="purple-fill" cx="1676" cy="1338" r="18"/><text x="1670" y="1344" fill="#fff" font="800 17px Arial">4</text>
+    <text class="step-title" x="1712" y="1344">Recover</text>
+    <text class="step-body" x="1850" y="1344">Late joiners receive snapshot before deltas.</text>
+  </g>
+
+  <text class="foot" x="86" y="1430">Diagram intentionally separates control plane, game traffic, state persistence, world events, and observability to avoid implying that all 300 zone players occupy hub or housing shards simultaneously.</text>
+</svg>

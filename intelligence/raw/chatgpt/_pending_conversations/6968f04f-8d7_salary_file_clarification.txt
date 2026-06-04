@@ -1,0 +1,186 @@
+TITLE: Salary File Clarification
+DATE: 2026-01-15
+MESSAGES: 6
+ID: 6968f04f-8d74-8325-ae95-445db54ded77
+---
+
+[USER]
+need to ask you a couple of questions on the salary file:the UK salary you specified there is from London, Midlands or an average? there are 2 roles that I think are monthly instead of yearly, but I need you to confirm it (screenshots below)
+
+[ASSISTANT]
+Quick check before I dive in: is this Heather or Glen?
+
+## Assumptions
+- The screenshot is a slice of your main salary table, and the “UK” rows do not include a separate Region or Hub Status column in this view.
+- Min, Mid, Max are intended to be annual base pay in local currency unless flagged otherwise.
+
+## Brief plan
+1) Infer what “UK” means in this extract based on the columns shown and the actual GBP values.  
+2) Sanity-check the two rows you suspect are monthly by converting them to implied monthly pay and looking for obvious scale issues.
+
+## Answers
+
+### 1) The UK salary there: London, Midlands, or average?
+From the screenshot alone, those UK rows are **not explicitly London or Midlands**. They are just tagged “UK” with currency “GBP”, and there is no region indicator in the visible columns.
+
+Based on the *levels* shown (example: **Level Designer, UK, Mid I, Mid £34,000** and **VFX Artist, UK, Mid I, Mid £36,000**), those look **closer to a UK-wide figure or a non-London average** than a London-only benchmark. London medians for mid-level specialist roles are typically higher than those numbers in many studio datasets.
+
+So: **treat these UK values as “UK unspecified” (effectively an average or blended figure) unless your hidden columns elsewhere explicitly map them to London.**
+
+If you want, paste the column headers for this sheet (or one full UK row including any hidden region/hub fields) and I can tell you definitively how the file is currently structured.
+
+### 2) Two roles might be monthly instead of yearly: what I can confirm from the screenshot
+I cannot *prove* monthly vs annual without the original source line or notes, but I can flag which rows are scale-suspicious.
+
+The two most suspicious in this screenshot are:
+
+**A) Romania, Graphic Designer, Junior II**
+- RON 12,000 / 25,000 / 66,000
+- If those are **annual**, the implied monthly is:
+  - 12,000 / 12 = **1,000 RON per month**
+  - 25,000 / 12 = **2,083 RON per month**
+  - 66,000 / 12 = **5,500 RON per month**
+That low end is extremely low for full-time professional work, so this row is a prime candidate for “wrong unit” or “bad floor”.
+
+**B) Greece, VFX Artist, Mid II**
+- €9,024 / €14,892 / €24,156
+- If those are **annual**, the implied monthly is:
+  - 9,024 / 12 = **€752 per month**
+  - 14,892 / 12 = **€1,241 per month**
+  - 24,156 / 12 = **€2,013 per month**
+The floor is also very low for a mid-level VFX role, so this is another prime candidate for a unit mismatch or an incorrect floor.
+
+What would “monthly” imply here? If you multiplied these full figures by 12 (treating them as monthly), the annual numbers would become unrealistically high for both roles, especially the max values. That suggests the issue might be **not purely monthly vs yearly**, but possibly:
+- floor copied from an unrelated junior band
+- net vs gross mixing
+- missing zero or decimal error
+- a source that reports “monthly” but in a different basis than assumed (for example, net monthly for one figure only)
+
+## What I need from you to confirm with certainty
+- Tell me the **two exact rows** you believe are monthly (row numbers or role/country/grade exactly), and if possible the **source note** (even a short paste from that “External research” reference).
+- Also, confirm whether this sheet is supposed to be **UK Hub (London)**, **UK Non-Hub (Midlands/etc.)**, or **UK blended**. Right now, the visible data reads as blended/unspecified.
+
+## Self-audit
+- I did not assume a region that is not shown in the screenshot.
+- I flagged the two most unit-suspicious rows and showed the implied monthly math.
+- I’m not claiming “monthly” as a fact without source context.
+
+[USER]
+the yellow ones
+
+[ASSISTANT]
+Got it, the yellow ones are:
+
+- **Row 13:** Graphic Designer, Romania, Junior II, **RON 12,000 / 25,000 / 66,000**
+- **Row 16:** VFX Artist, Greece, Mid II, **€9,024 / €14,892 / €24,156**
+
+One quick thing first: Heather or Glen?
+
+## Assumptions
+- The GBP columns shown (the three pound values) are annual equivalents of the local Min, Mid, Max.
+- The table is intended to be annual base pay for all rows.
+
+## Brief plan
+- Confirm what the UK rows mean from what is visible.
+- Check whether the two highlighted rows can reasonably be “monthly” without breaking internal consistency.
+
+## Deliverable
+
+### UK salary in this view: London, Midlands, or average?
+In this screenshot, **it is not labeled as London or Midlands**. It is simply “UK” with “GBP”. So the correct interpretation is:
+
+- **UK unspecified**, treat as **blended / average / general UK** unless another column (not shown here) explicitly maps it to London or Midlands.
+
+### Are the two yellow rows monthly?
+I can **confidently say they are not cleanly “monthly”** in a way that fits the rest of this table.
+
+Why:
+- If you treat them as **monthly**, their annualized numbers become wildly out of line with the neighboring rows, especially for Greece.
+- If you treat them as **annual**, they are absurdly low compared to other Greece and EU entries, which strongly suggests a data issue, but not a consistent “monthly vs annual” unit shift.
+
+Concrete internal consistency checks from your screenshot:
+
+**Greece VFX Artist, Mid II (yellow)**
+- Mid is **€14,892**, but nearby Greece roles show higher mids at lower grades:
+  - Level Designer, Greece, Junior II mid **€20,285**
+  - Sound Designer, Greece, Junior II mid **€18,353**
+- A Mid II VFX number being below Junior II medians is a strong signal this row is **incorrectly keyed**, not “monthly”.
+
+**Romania Graphic Designer, Junior II (yellow)**
+- If annual, **RON 12,000** converts to only **£2,043** in your GBP column, which is not credible for annual base pay.
+- If monthly, **RON 12,000 per month** could be plausible for some professional contexts, but then your max **RON 66,000 per month** is extreme. Also the GBP conversion would then also be monthly, and the sheet does not label it that way.
+
+So the best classification is:
+- **Both yellow rows are almost certainly bad inputs (wrong digit, wrong grade mapping, wrong copy source, or mixed net/gross), not simply monthly.**
+
+## What I need to confirm the exact failure mode
+For each yellow row, can you paste the “External research” note or source text you used (even 1 to 2 lines), especially any mention of “per month”, “net”, or “gross”? With that, I can tell you whether it is:
+- missing a zero
+- copied from monthly net pay
+- incorrect seniority
+- wrong country mapping
+- wrong currency basis
+
+## Self-audit
+- I identified the exact highlighted rows.
+- I did not invent corrected numbers.
+- I used only internal comparisons visible in your screenshot to rule out a simple monthly conversion.
+
+[USER]
+this project has all the files
+
+[ASSISTANT]
+Who am I speaking with, Heather or Glen?
+
+## Assumptions
+- In this sheet, **Min / Mid / Max are intended to be annual base pay** in the local currency.
+- The three GBP columns are a straight currency conversion of those same Min / Mid / Max numbers (not an annualization step).
+
+## Brief plan
+1) Use what is visible in the screenshot to determine whether UK is London, Midlands, or blended.  
+2) Sanity-check the two yellow rows against the rest of the table to confirm whether they look monthly or annual.
+
+## Deliverable
+
+### 1) UK salary in this view
+In the screenshot you provided, there is **no region field for UK** (no London, Midlands, Hub, Non-Hub). The rows are simply “UK” + “GBP”.
+
+So, from the table as shown, the correct interpretation is:
+
+- **UK = UK unspecified (blended/average)**
+- It is **not** explicitly London or Midlands in this view.
+
+If you intended “UK” here to mean London, the sheet needs an explicit Region or Hub Status column (or a UK sub-region column).
+
+### 2) The two yellow rows: monthly or yearly?
+Based on internal consistency of this table, **they do not behave like monthly salaries**. They behave like **annual values that are wrong or mis-keyed**.
+
+- **Greece, VFX Artist, Mid II (EUR 9,024 / 14,892 / 24,156)**  
+  If those were monthly, the implied annual would be €108,288 / €178,704 / €289,872. That is wildly out of band for the surrounding Greece entries and for a mid-level role.  
+  If annual, they are extremely low, even below nearby Greece Junior II medians in the screenshot. That screams “bad row”, not “monthly row”.
+
+- **Romania, Graphic Designer, Junior II (RON 12,000 / 25,000 / 66,000)**  
+  If monthly, the annualized max for a Junior II would be implausibly high.  
+  If annual, the floor is implausibly low. Again, this looks like a mis-keyed band or incorrect source interpretation.
+
+So my confirmation is:
+- **These two yellow rows are almost certainly not monthly rows.**  
+- They are **annual-format rows with suspect numbers**, likely due to grade mismatch, net vs gross mixing, missing digit, or copied from a different seniority band.
+
+## What I need to be definitive (and I cannot do without it)
+Right now, I only have the screenshot in this chat environment. I do not have your Excel workbook loaded here.
+
+To confirm 100% from the file, upload either:
+- the full `video_game_salaries_2025-2026.xlsx`, or
+- an export of the sheet that includes the **header row** plus the **source / notes cells** for rows 13 and 16.
+
+Once you upload it, I will:
+- tell you exactly what “UK” maps to in the file (London, Midlands, blended, or missing),
+- trace the two yellow rows back to their source fields or notes,
+- and flag any other rows that look like unit mistakes.
+
+## Self-audit
+- I did not invent corrected salaries.
+- I used only what is visible in your screenshot to interpret UK and to test monthly-vs-annual plausibility.
+- I clearly stated what I cannot confirm without the actual workbook.
+

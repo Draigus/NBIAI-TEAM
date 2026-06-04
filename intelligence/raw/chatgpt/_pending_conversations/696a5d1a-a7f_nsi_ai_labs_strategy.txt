@@ -1,0 +1,64 @@
+TITLE: NSI AI Labs Strategy
+DATE: 2026-01-16
+MESSAGES: 4
+ID: 696a5d1a-a7f4-832d-ab1d-12195fe0f557
+---
+
+[USER]
+whats the gist of this 
+Tom and Glen,
+
+Sorry to have scheduled the AI Working Group on top of your standup; I’m working to find a meeting time that works for everyone. 
+
+Larry asked me to reach out to you and Glen regarding a lengthy discussion he, James, Eric, and I had about how NSI could serve the AI labs. We discussed how we might serve them in a few different ways, given our bench that is both technically deep and highly interdisciplinary. Ideas included:
+•	Evaluating safety risk (e.g., red teaming)
+•	Creating or evaluating preparedness frameworks and methodologies. *We had an interesting discussion under this point regarding how risks from “untruths” may not be “harmful,” and yet NSI deeply understands complex, interconnected risks thanks to our work for CIO, on GECM, etc.*
+•	@Ellis, Devin also just told me we have a value proposition on both sides of our customer base:
+o	We understand untruths and how adversaries use AI for their ends
+o	We understand how AI labs can impact themselves negatively through their models 
+
+Could you and Glen speak to if/how NSI could serve the AI labs? If of interested, I’ve got a good bit of experience in this space, as well as a number of relationships at the AI labs (particularly OpenAI and Anthropic), so I’m happy to help however I can. I will be connecting with a number of industry folks at a weekend workshop in DC end of the month, including Tarun Chhabra, the Head of National Security Policy at Anthropic, so any guidance on this larger question of value proposition would be greatly appreciated. 
+
+As one useful reference, here is OpenAI’s publicly available work on external testing, which might provide some insights as to where we could fit in their ecosystem. 
+
+Larry and others in the meeting this morning, please feel free to chime in as well on these questions for Tom and Glen!
+
+Best,
+
+[ASSISTANT]
+Before I go further: is this Glen or Heather?
+
+Gist:
+
+- The sender apologises for accidentally scheduling an AI Working Group meeting on top of Tom and Glen’s standup and is trying to reschedule.
+- Larry asked the sender to ask Tom and Glen a strategic question: how could NSI serve “AI labs” (they name OpenAI and Anthropic as examples).
+- They had a long internal discussion (Larry, James, Eric, sender) and see potential NSI offerings such as:
+  - Safety risk evaluation, including red teaming.
+  - Creating or assessing preparedness frameworks and methodologies.
+  - Positioning NSI as valuable on both sides: understanding adversarial “untruths” and how they are used, and understanding how labs can harm themselves via their own models.
+- The sender offers to help because they have experience and relationships at the labs, and they are attending a DC workshop later this month where they will meet relevant people, including Tarun Chhabra (noted as Anthropic’s Head of National Security Policy).
+- They provide OpenAI’s public external testing work as a reference to identify where NSI might fit.
+- They invite Larry and others to chime in, but the main ask is: Tom and Glen should give guidance on NSI’s value proposition to AI labs and whether/how NSI should pursue this.
+
+[USER]
+what do they actually want?
+
+[ASSISTANT]
+Assuming this is Glen (work mode). If not, say so and I will switch.
+
+What they actually want is:
+
+1) A clear, concrete point of view from you (and Tom) on NSI’s value proposition to AI labs.  
+   Specifically: “If NSI were pitching OpenAI, Anthropic, etc., what exact problems would we solve that they will pay for, and why us?”
+
+2) Direction on whether NSI should pursue this and how to frame it.  
+   They are looking for positioning guidance: which of the candidate offerings is real, differentiated, and sellable (red teaming, preparedness frameworks, untruths/adversarial misuse, self harm via models).
+
+3) Help turning that positioning into outreach and conversations.  
+   The sender is offering to leverage their relationships (OpenAI/Anthropic) and an upcoming DC workshop to socialize the pitch, but they do not want to wing it. They want your guidance before they talk to people.
+
+4) Implicitly: a short internal alignment so they can stop thrashing on meeting times and move to execution.  
+   The scheduling apology is noise; the payload is “tell us what to sell, to whom, and why it wins.”
+
+If you want, paste any surrounding context (who NSI is, what “CIO” and “GECM” refer to in your org, and what capabilities are on the bench) and I will draft a crisp 6 to 10 sentence reply you can send back that answers the ask without overcommitting.
+

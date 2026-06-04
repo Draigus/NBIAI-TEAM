@@ -1,0 +1,121 @@
+TITLE: Playsage services list
+DATE: 2025-09-16
+MESSAGES: 2
+ID: 68c95292-9d58-8330-9486-fa53abba3544
+---
+
+[USER]
+make a lsited bullet slist of playsage services
+
+[ASSISTANT]
+Here’s a consolidated **bullet list of Playsage services**, based on your uploaded files and prior feature planning work【10†playsage.docx】【12†Investor demo feature plan.docx】【14†PRD TEMPLATE.docx】. I’ve structured it as service headers with sub-bullets for clarity.
+
+---
+
+### Market Overview & TAM
+- Cross-store dashboards (iOS, Google Play, Steam, PlayStation, Xbox) with unified KPI definitions.  
+- Genre and sub-genre performance indexes.  
+- TAM, SAM, SOM models with editable inputs.  
+- Collision risk scoring for crowded release windows.  
+
+### Competitive Landscape
+- Head-to-head title comparisons against genre baselines.  
+- Feature diff matrix (monetization, cadence, update frequency).  
+- “What Changed” inspector linking KPI shifts to updates or competitor moves.  
+
+### Sentiment Analysis
+- Review mining from App Store, Google Play, Steam, Reddit, Discord, Twitter, YouTube.  
+- Daily sentiment index and topic clustering.  
+- Pre/post-update sentiment tracking.  
+- Intent tagging (bugs, balance, value, delight).  
+- Verbatim browser with filters.  
+
+### Foresight (Forecasting)
+- Rolling forecasts: 30, 90, 180, 360 days plus 3-year and 5-year horizons.  
+- Backtest ribbons with MAPE %, MAE, RMSE.  
+- Driver cards showing key signals.  
+- Scenario toggles (pricing, cadence, events).  
+- Forecast sandbox for versioned scenario saves.  
+
+### Market Watch & Release Calendar
+- Release and update history plus projections.  
+- Impact tags for category displacement.  
+- Collision and advisory alerts for crowded months.  
+
+### IAP & Pricing Index
+- Cross-title index of price points and bundles.  
+- Detection of monetization signatures (battle pass, gacha, rotating shops).  
+- Regional affordability scoring tied to income proxies.  
+
+### Player Affinity & Clusters
+- Audience overlap analysis and cluster profiling.  
+- Cluster growth/movement tracking.  
+- Export for UA lookalikes and partnerships.  
+- Cross-store identity stitching at tag level.  
+
+### Update Cadence & Content Taxonomy
+- Parsed patch/update frequency with auto-tagging.  
+- Heatmaps of cadence vs peers.  
+- Cadence effectiveness score linking cadence to sentiment and performance.  
+
+### Interactive Dashboards
+- Filters: genre, platform, region, time.  
+- Views: Top 25 by genre, My Watchlist, Regional splits.  
+- Save, share, and export (CSV, XLSX, PDF, PNG, PPT).  
+- Definition parity mode (compare metrics vs vendor definitions).  
+
+### Automated & Custom Reports
+- Weekly and monthly canned insight packs.  
+- Custom builder for charts + commentary.  
+- Audit trail on data version and filters.  
+
+### Alerts & Subscriptions
+- Alerts on thresholds, spikes, slope changes, competitor updates.  
+- Delivery to in-app feed, email, Slack, Teams, SMS, webhooks.  
+- Compound alerts for noise reduction.  
+- Subscription “Sage News” stream curating relevant industry events.  
+
+### The Sage (Recommendations)
+- LLM-guided rule+model engine for next-best actions.  
+- Recommendations on cadence, pricing, bundles, events, store page.  
+- Evidence-linked with rationale and lift ranges.  
+- Persona-aware outputs (Exec, Live-ops, Economy Designer, etc.).  
+- Outcome logging for learning and policy tuning.  
+
+### Data Platform & Provenance
+- Public signals + NBI-owned product data.  
+- Schema-validated ingestion pipelines.  
+- Data provenance hover cards (source, estimated, transform summary, refresh time).  
+- Privacy screening (no PII).  
+
+### Usability & Presentation
+- Responsive layouts, touch-friendly controls.  
+- Dark/light themes.  
+- Presenter mode with enlarged charts and tooltips.  
+- Accessibility (contrast, keyboard support, alt text).  
+
+### Surveys & Panel Signals
+- Optional survey module by age/platform.  
+- Merge survey sentiment with reviews.  
+- Micro-panel pulses for quick feature validation.  
+
+### Security & Governance
+- Role-based access with IP allow lists.  
+- Export controls and PDF watermarking.  
+- Activity logs for compliance.  
+
+### Quality, Performance & Trust
+- Cached tiles for heavy charts with fallbacks.  
+- Latency targets: <3s filters, <120s exports.  
+- Backtest error bands shown in context.  
+- Internal health dashboards with SLOs.  
+
+### Admin & Configuration
+- Watchlist, competitor set, and cluster management.  
+- Alert templates and Sage policy toggles.  
+- Branding options for reports and exports.  
+
+---
+
+Do you want me to now **reframe this list as “services” for external presentation** (investor deck / website copy style), instead of product features? That would mean grouping them into client-facing categories like “Market Intelligence,” “Player Insights,” “Forecasting,” etc., and stripping internal detail.
+

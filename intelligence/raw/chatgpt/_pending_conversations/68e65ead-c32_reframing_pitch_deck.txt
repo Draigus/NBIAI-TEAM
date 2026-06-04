@@ -1,0 +1,230 @@
+TITLE: Reframing pitch deck
+DATE: 2025-10-08
+MESSAGES: 4
+ID: 68e65ead-c324-832e-b4fb-1f2ff7c3b85f
+---
+
+[USER]
+as a master investment pitch builder please review teh following for playsage. as an expert in playsage critic the flow and statements and missing elements .  formulate a deep critic to make this an award winning product pitch
+
+[ASSISTANT]
+Role: Product Executive, chosen to stress-test the investor narrative and shape a capital-raise pitch that lands with CEOs, CFOs, and fund partners.
+
+## Verdict in one line
+Strong vision and feature depth, but the deck overclaims, spreads attention across too many modules, and lacks proof, pricing context, and a tight story arc. Fix those and you have a fundable, memorable pitch.
+
+## What works
+- Clear platform ambition with named modules and a decision-centric promise spanning “past, present, future” and an action layer via The Sage. fileciteturn1file9L4-L8  
+- Sensible differentiators already sketched for the demo: cross-store view, forecast backtests, release collision detection, recommendation layer, and alerting/exports. Use these as the backbone of the pitch. fileciteturn1file0L35-L45
+
+## High-impact issues to fix
+
+1) Unsubstantiated superlatives  
+The deck asserts “there is currently nothing like it,” that “no one provides an integrated platform,” and that pricing is a “fraction of the price,” without third-party evidence or a side-by-side price table. Investors will mark this down. Replace with proof: a competitor matrix and price benchmarks. fileciteturn1file9L6-L8 fileciteturn1file2L2-L5
+
+2) Module sprawl dilutes the story  
+You list Archives, RivalMap, Resonance, Foresight, MarketWatch, Guardian, The Sage, API. This breadth reads as scope risk in a seed deck. Collapse narrative into three stages: See, Forecast, Act. Position Guardian as a future add-on to avoid “org-consulting” creep in v1. fileciteturn1file9L9-L21
+
+3) TAM is top-down and fragile  
+“25,000 × $100,000 = $2.5B” is a coarse assumption chain; it will be challenged. Rebuild with a bottom-up TAM/SAM/SOM using seat counts and attach sources per your own PRD template. Show assumptions and sensitivity. fileciteturn1file2L1-L1 fileciteturn1file4L13-L21
+
+4) Pricing lacks context and fences  
+You state Team at $2.5k–$4k and Enterprise at $5.5k–$10k monthly, but do not tie to buyer personas, included datasets, seat limits, or API quotas. Add value fences, export limits, and SLA deltas, then show how you undercut like-for-like competitor bundles. fileciteturn1file2L4-L5
+
+5) Proof is implied, not shown  
+Your own plan calls for forecast backtests and a 5-minute investor flow with acceptance tests. Put one slide with backtest error bands for 3 titles over 90 days and a live collision-risk example to anchor credibility. fileciteturn1file0L39-L45 fileciteturn1file8L39-L41
+
+6) Competitive posture is hand-wavy  
+Name the specific Tier-1 and Tier-2 tools, then show a row-level capability delta: Coverage, Data Depth, Forecasts, Recommendations, Alerts, API, Price. You already sketched why you must win on cross-store, foresight, collision detection, and The Sage. Put it in a one-page grid. fileciteturn1file0L37-L45
+
+7) Buyer clarity and user hierarchy  
+Your Q&A shows uncertainty about “primary buyer vs primary daily user.” Commit on a slide: Buyer = Executive; Primary users per module = Exec Dashboard, Marketing/UA for Competitive Landscape, Live-ops for Sentiment and Foresight. Then tie pricing tiers to these roles. fileciteturn1file12L21-L29 fileciteturn1file12L49-L57 fileciteturn1file12L91-L99
+
+8) Data rights, provenance, and reliability  
+Add a trust slide: sources, refresh cadence, labeled “Estimated” metrics, provenance hovers, and offline fallback. You already defined these policies in planning; surface them to de-risk the model. fileciteturn1file8L65-L69 fileciteturn1file8L41-L43
+
+9) Roadmap and use of funds are thin  
+Funding path and use-of-funds lines are placeholders and low for scope. Tie the ask to 12–18 month milestones: Data coverage v1, Forecast accuracy target, First 10 paying customers, API alpha, SOC 2 start. Then show staffing and data costs that get you there. fileciteturn1file2L19-L22
+
+10) Visual and copy discipline  
+Replace generic claims with promise-proof-action. Example: Promise “Decisions your CFO can audit.” Proof “Cross-store KPIs, 90-day backtests, collision alerts, and recommendations with cited evidence.” Action “Schedule a 15-minute live forecast backtest.” Your PRD template already enforces this structure. fileciteturn1file3L1-L9
+
+## Recommended slide order that will land with investors
+
+1. Cold open: the operator pain and cost of inaction, quantified.  
+2. Promise in one line, then a 30-second product trailer GIF.  
+3. Proof snapshots: backtest error bands, a collision-risk flag that changed a date, and one recommendation with outcome. fileciteturn1file0L39-L45  
+4. Product story: See → Forecast → Act, mapped to Exec, Marketing/UA, Live-ops. fileciteturn1file12L21-L29  
+5. Why we win: one-page competitor grid with pricing bands. fileciteturn1file0L37-L45  
+6. Who buys and why now: buyer, users, triggers, and budget sources. fileciteturn1file12L21-L29  
+7. Business model: tiers with value fences, export/API limits, SLAs. fileciteturn1file2L4-L5  
+8. TAM/SAM/SOM bottom-up with sources and sensitivity bars. fileciteturn1file4L13-L21  
+9. Roadmap and milestones with measurable acceptance tests. fileciteturn1file8L39-L41  
+10. Data rights, provenance, and offline demo plan. fileciteturn1file8L41-L43 fileciteturn1file8L65-L69  
+11. Go-to-market channels and first 10 logos plan.  
+12. Team and advisors.  
+13. Ask and use of funds tied to the milestones. fileciteturn1file2L19-L22
+
+## Concrete edits to make this award-level
+
+- Replace “nothing like it” with a quantified delta chart against named tools. Include at least one independent source or customer quote. fileciteturn1file9L6-L8  
+- Add one backtest chart per genre with MAE or MAPE and a short driver card. fileciteturn1file0L39-L45  
+- Build a one-page price fence table. Team vs Enterprise, seats, API rate limits, export caps, and support targets. fileciteturn1file2L4-L5  
+- Move Guardian to “Later” and show it as a monetisable add-on post-PMF. fileciteturn1file9L18-L21  
+- Insert a “Trust and Provenance” tile with “Estimated” labels and hoverable sources. fileciteturn1file8L65-L69  
+- Show the investor demo flow you already defined: 5 minutes, three questions answered, exports delivered. Put this as an appendix slide and a live demo plan. fileciteturn1file8L39-L41  
+- Replace top-down TAM with PRD-style table and sources. fileciteturn1file4L13-L21  
+- Add a compact “Data and Architecture” diagram with ingest, model, serve, and UI, matching your planned stack. fileciteturn1file13L93-L99
+
+## Missing or placeholder items to supply before meetings
+- Competitor price points and annual TCO for 3 realistic buyer configs. fileciteturn1file2L6-L8  
+- At least one validated mini-case: collision alert that changed a launch date, or a recommendation that improved a KPI.  
+- References or LOIs for 2–3 design partners.  
+- Clear 12–18 month hiring plan and data-licensing budget aligned to milestones. fileciteturn1file2L19-L22
+
+If you want, I can turn this critique into a red-lined slide outline and a one-page “promise-proof-action” script for the presenter next.
+
+[USER]
+as an expert fund raiser how can I reframe this to a better pitch deck 
+
+[ASSISTANT]
+Role: Product Executive, chosen to reframe the Playsage investor story for fund partners, with a focus on clarity, proof, and capital efficiency.
+
+# Playsage Investor Deck: Reframe Blueprint (v1.0, 08 Oct 2025)
+
+## One-line pitch
+Decisions you can audit: cross-store market intelligence, forecasted outcomes with error bands, and automated next actions for game studios and investors.
+
+## Narrative spine
+See → Forecast → Act. Compress modules into this story and anchor each act with one killer proof.
+
+---
+
+## Slide-by-slide structure with sample copy and proof asks
+
+1) Title and promise  
+Headline: Playsage: Decisions you can audit  
+Sub: Market intelligence for games that predicts outcomes, flags collisions, and recommends next actions.
+
+2) Operator pain (quantified)  
+Headline: The cost of flying blind  
+Bullets: Launch slip penalties, wasted UA spend, missed platform timing. Add one quantified example from a design partner.  
+Design: Big number at left, short story at right.
+
+3) Product trailer (30–45 seconds)  
+Flow: 1) Cross-store title view. 2) Forecast backtest with error band. 3) Collision alert changing a date. 4) One recommendation with cited evidence.  
+Goal: Show See → Forecast → Act in under a minute.
+
+4) See: unified market view  
+Headline: One place to see the whole market  
+Proof: Side-by-side of Steam + console + mobile coverage for the same title. Call out refresh cadence.  
+Copy: “Coverage across PC, console, mobile with normalised KPIs and evidence links.”
+
+5) Forecast: accuracy you can measure  
+Headline: Forecasts with error bands and driver cards  
+Proof: Backtests for 3 titles across 90 days with MAE or MAPE and short driver cards.  
+Copy: “We publish accuracy and drivers. No black-box.”
+
+6) Act: collisions, trade-offs, and next actions  
+Headline: From signals to decisions  
+Proof: Real collision alert that moved a date, plus a recommendation that improved a KPI.  
+Copy: “Recommendations cite evidence and alternatives. Exports to Slack, Sheets, and Jira.”
+
+7) Why we win  
+Headline: How Playsage differs  
+Grid rows: Coverage, Data depth, Forecasts with error bands, Collision detection, Recommendations, Alerts, API, Price.  
+Columns: Playsage vs named incumbents.  
+Copy: “We combine cross-store coverage with measurable forecasts and actioning.”
+
+8) Business model and value fences  
+Headline: Simple tiers tied to value  
+Table: Team and Enterprise with seats, data scope, export caps, API rate limits, support SLAs.  
+Copy: “Priced below like-for-like bundles. Switch costs offset by migration support.”
+
+9) Market size (bottom-up)  
+Headline: Bottom-up TAM, not wishful math  
+Content: Seat counts by buyer type, attach rates, ARPUs. Sensitivity bars for ±20 percent.  
+Copy: “Focus on SAM we can reach in 18 months.”
+
+10) Go-to-market  
+Headline: Design partners today, logos tomorrow  
+Content: ICP, triggers, channels, first 10 logos plan, sales motion and cycle length.
+
+11) Traction and roadmap  
+Headline: What is real and what ships next  
+Content: Live tiles, pilot logos or LOIs, upcoming releases by quarter.  
+Copy: “Milestones with acceptance tests: coverage, accuracy, customers, API alpha, SOC 2 start.”
+
+12) Team  
+Headline: Operators with the scars to ship this  
+Content: Roles tied to milestones. Advisors only if active.
+
+13) The ask tied to milestones  
+Headline: Raise £X for 18 months of proof  
+Use of funds mapped to the five roadmap milestones.  
+Copy: “Cash use gates on coverage, accuracy, and revenue milestones. We cut scope if a gate is missed.”
+
+14) Appendix  
+A1: Competitive price table  
+A2: Data provenance, licenses, and refresh cadences  
+A3: Architecture at a glance  
+A4: Live demo flow and offline fallback
+
+---
+
+## Copy kit you can paste into slides
+
+- Promise line: “Decisions you can audit.”  
+- Proof line: “Backtested forecasts with published error bands.”  
+- Action line: “Recommendations with evidence and one-click exports.”
+
+Example slide body (Forecasts):  
+“We forecast performance with published error bands. Backtests across 90 days for three titles show MAE between 7.9 percent and 12.4 percent [Estimated]. Driver cards explain variance by genre, price, and platform timing.”
+
+Example slide body (Act):  
+“Collision detection flagged a launch clash with a first-party showcase. Moving by 10 days lifted projected peak CCU by 14 percent [Estimated] and reduced UA CPI by 9 percent [Estimated]. Recommendation and evidence are stored and exportable.”
+
+---
+
+## Proof and data you must add before meetings
+- Three backtests with MAE or MAPE and brief driver cards.  
+- One verified collision case and one recommendation case.  
+- Competitor grid with public pricing or credible estimates.  
+- Bottom-up TAM table with sources and a sensitivity bar.  
+- Value-fence table: seats, datasets, exports, API, SLAs.
+
+---
+
+## Design guardrails
+- Visual hierarchy: one job per slide.  
+- Evidence labels: “Estimated” where not yet sourced.  
+- No generic claims. Promise → Proof → Action on every feature slide.  
+- One colour accent for “Act” to make the recommendation moments pop.
+
+---
+
+## Presenter script beats
+1) Open with the operator pain and a number.  
+2) Show the trailer and pause on the alert that changed a date.  
+3) Say “we publish accuracy” then click into error bands.  
+4) Place the grid. “Others show history. We forecast outcomes and recommend actions.”  
+5) Close on ask gated to milestones. Invite diligence on the proof slides.
+
+---
+
+## Governance and QA
+- Version tag on cover: Playsage_InvestorDeck_v1.0_20251008.  
+- Evidence table in appendix with sources and dates.  
+- “Estimated” badges where applicable.  
+- Accessibility: proper headings, alt text, readable contrast.
+
+---
+
+## Cross-role critic matrix (apply before you pitch)
+- CFO check: unit economics per tier, pricing comps, runway versus milestones.  
+- Product check: demo path runs in 5 minutes, offline fallback works.  
+- Data check: accuracy metrics repeatable, provenance visible.  
+- Brand check: British English, no em dashes, promise-proof-action.
+
+If you want, I can convert this blueprint into a ready-to-paste outline with speaker notes and drop-in chart specs for the three proof slides.
+

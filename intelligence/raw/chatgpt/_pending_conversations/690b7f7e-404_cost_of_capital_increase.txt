@@ -1,0 +1,76 @@
+TITLE: Cost of capital increase
+DATE: 2025-11-05
+MESSAGES: 8
+ID: 690b7f7e-404c-832a-9d44-579a551ffb17
+---
+
+[USER]
+has the cost of capital gone up int he last 5 years 
+
+[ASSISTANT]
+Short answer: yes.
+
+Across most markets the cost of capital is higher than it was five years ago, mainly because risk-free rates and debt yields rose sharply from 2020 lows.
+
+Key points
+- Risk-free rates rose a lot. The U.S. 10-year Treasury yield was under 1% in late 2020 and has been around the mid-4% range in 2024–2025, lifting discount rates and WACC baselines. citeturn0search2turn0search12  
+- Corporate and sovereign borrowing costs remain elevated compared with the pre-2022 period, so refinancing maturing debt is pricier than it was five years ago. citeturn1search9turn1search0  
+- Surveyed company WACCs ticked up. KPMG’s multi-industry study reports an average WACC of 8.5% in 2025, up from 8.2% the prior year. citeturn0search10  
+- Equity risk premia have not collapsed enough to offset higher base rates. Damodaran’s implied ERP readings in 2025 were higher than mid-2024, supporting a higher cost of equity. citeturn0search9turn0search14  
+- UK context: gilt yields also moved up from near-zero in 2020 to roughly the mid-4% area in 2025, keeping UK discount rates elevated. citeturn2search10turn2search0
+
+If you want this translated into a quick WACC impact for a specific sector or for your company, tell me the location, capital structure, and sector, and I will run a simple WACC refresh with current inputs.
+
+[USER]
+waht about for the game industry
+
+[ASSISTANT]
+Short answer: yes.
+
+Indicative benchmarks:
+- Sector WACC today: “Entertainment” 8.28 percent and “Software (Entertainment)” 9.58 percent as of January 2025, per Damodaran’s industry table. citeturn16view0  
+- Compared with 2020: global corporate WACC levels were materially lower during the zero-rate period. KPMG’s cross-industry study shows the worldwide average WACC rising from about 6.6 percent in 2020 to roughly 8.5 percent by 2025. citeturn1search2  
+- Games-specific funding environment: UKIE/Nordicity notes a sharp rise in the cost of speculative capital for video games since 2021 alongside weaker VC appetite, which effectively raises studios’ cost of capital. citeturn1open2
+
+If you want a games-company WACC for a specific publisher or your own model, give me jurisdiction, tax rate, beta proxy, target leverage, and borrowing spread, and I will compute it.
+
+[USER]
+what is the current video game multiplier in valuaiton
+
+[ASSISTANT]
+Short answer: it depends which multiple.
+
+Current public comps, Q1–Q2 2025:
+
+- Mobile-focused developers/publishers (NA/EU): median EV/Revenue ≈ 0.9x LTM, EV/EBITDA ≈ 5.0x LTM. citeturn6view1  
+- PC/Console publishers (examples): EA ~5.0x EV/Rev and ~18.7x EV/EBITDA LTM; Take-Two ~7.2x EV/Rev and ~94x EV/EBITDA LTM due to depressed EBITDA; Embracer ~0.8x EV/Rev with negative EBITDA. Directionally, large PC/Console names sit roughly 2x–7x EV/Rev and 11x–20x EV/EBITDA when EBITDA is normalised. citeturn6view1  
+- Asia developers: median EV/Revenue ~5.1x and EV/EBITDA ~14.6x (Japan/Korea and China cohorts). citeturn4view1
+
+Sector-wide yardsticks:
+
+- “Software (Entertainment)” EV/EBITDA medians around 18x in the US dataset. Use with care since it includes broader entertainment software. citeturn1view0
+
+Private M&A colour:
+
+- Recent deals have ranged widely. Example: MTG’s late-2024 Plarium deal implied <4.5x EV/EBITDA. citeturn0search2  
+- EV/Revenue medians across listed gaming names were ~2.2x in late-2023, rising into 2025 with the market recovery. citeturn0search10
+
+If you tell me platform mix, region, growth, and profitability profile, I can pin a tighter working range for your model.
+
+[USER]
+lsit all catagories and the current multiplier in valuation
+
+[ASSISTANT]
+Here are the **current public-comp valuation multiples by gaming category**. Figures are **LTM medians** as of **30 Jun 2025**. I’m listing **EV/Revenue** and **EV/EBITDA** for each.
+
+- **North America & Europe — mobile-focused developers/publishers:** **EV/Rev 1.0x**, **EV/EBITDA 5.5x**. citeturn4view1  
+- **North America & Europe — PC/console-focused developers/publishers:** **EV/Rev 2.2x**, **EV/EBITDA 11.4x**. citeturn8view0  
+- **Japan/Korea developers:** **EV/Rev 2.0x**, **EV/EBITDA 11.2x**. citeturn4view2  
+- **China (Shenzhen-listed) developers:** **EV/Rev 7.0x**, **EV/EBITDA 21.5x**. citeturn4view2  
+- **China, South-East Asia & India (US/HK-listed) developers:** **EV/Rev 1.7x**, **EV/EBITDA 15.1x**. citeturn5view0  
+- **Hardware, platforms, advertising and tools** (e.g., engines, adtech, peripherals): **EV/Rev 1.1x**, **EV/EBITDA 13.5x**. citeturn5view0  
+
+Cross-check benchmark: **US “Software (Entertainment)” EV/EBITDA ~18.3x** (broad sector, not games-only). citeturn6view0
+
+If you want **NTM** medians instead, or a **private M&A** view, say which set you need and I’ll print those next.
+

@@ -1,0 +1,1092 @@
+TITLE: Sarge forecast simulator blueprint
+DATE: 2025-09-24
+MESSAGES: 11
+ID: 68d3feee-11bc-832f-a4c9-f4ab09b8a7c1
+---
+
+[USER]
+as an team of experts: expert of  https://studio.firebase.google.com/, expert application designer, expert video game focused data scientist, expert video game statistician, forecast analyst in the video games.  take the existing game of sarge and build a full forecast simulator, look through files and chats to see scope and depth. I want to build this in firebase or in lovable so I will need a framework of prompts to build it out
+
+[ASSISTANT]
+# SARGE Forecast Simulator — build blueprint for Firebase or Lovable
+
+Below is a complete, production-grade blueprint that turns Sarge’s current design and economy into a living forecast simulator. It is shaped for either Firebase or Lovable. I embedded Sarge-specific inputs directly from your docs so the simulator models your real content, MTX catalogue, and battle pass plan.
+
+## 1) Scope inputs anchored in your docs
+- Core game footprint at launch: HQ 1–10 with 4,300+ upgrades and 280+ assets, PvP and UGC tournaments, built-in social layer. fileciteturn1file6L57-L66  
+- Telegram Mini-App first mover with TON payments and 900M+ reachable users, frictionless starts, and social virality inside Telegram. fileciteturn1file9L6-L15 fileciteturn1file9L21-L29  
+- MTX catalogue: 98 SKUs at launch across boosters, credits, resources, cosmetics, convenience. fileciteturn1file11L101-L110  
+- Pass economics: Sarge Pass £4.99 monthly, Commander Pass £19.99 from Month 3 with bundled high-value items. fileciteturn1file4L60-L70 fileciteturn1file4L87-L101  
+- Target attach-rates by price tier for Month 1 provided, used as prior distributions in the simulator. fileciteturn1file7L79-L97  
+- UGC tournaments and creator-led monetisation are in scope for revenue scenarios. fileciteturn1file12L16-L19
+
+---
+
+## 2) System architecture (choose one)
+
+### Option A — Firebase native  
+**Services:** Firestore, Cloud Functions, Firebase Hosting, Firebase Authentication, Firebase Analytics with BigQuery export, Cloud Scheduler.  
+**Why:** Instantly deployable, scalable reads for dashboards, BigQuery for cohort maths and Monte Carlo runs.
+
+### Option B — Lovable app with Firebase backend  
+**Services:** Lovable front-end builder, Firestore as system of record, Functions as compute, BigQuery for heavy models.  
+**Why:** Faster UI iteration while keeping the same data plane and forecast math.
+
+---
+
+## 3) Firestore data model (top-level collections)
+
+- `skus` — launch catalogue with tiers, prices, tags like `credits`, `cosmetic`, `booster`.  
+- `battle_pass_plans` — monthly pass config, rewards, price, effective dates.  
+- `content_drops` — maps, skins, events, and dates for supply-side cadence.  
+- `tournaments` — planned events with prize pools, entry rules, expected participation.  
+- `ua_campaigns` — channel, CPI, budget, geo, creative, and expected daily installs.  
+- `retention_models` — day-level curves per cohort source or geo.  
+- `pricing_priors` — attach-rate priors per tier and SKU family.  
+- `scenarios` — a single JSON for each scenario: assumptions and toggles.  
+- `sim_runs` — inputs plus seed.  
+- `sim_outputs_daily` — the results table by day and by cohort.  
+- `sim_rollups` — MAU, ARPDAU, ARPPU, payer mix, conversion, LTV per cohort.
+
+> All numeric arrays stored as compact vectors for speed, with BigQuery as the analytical sink.
+
+---
+
+## 4) Event schema for Firebase Analytics → BigQuery
+
+Key events, each with `user_id`, `country`, `acq_channel`, `scenario_id`:
+- `install` (source, campaign, tele_group_id)  
+- `session_start` (hq_level, league)  
+- `battle_outcome` (mode, medals, resources)  
+- `tournament_event` (join|win|host, bracket_size)  
+- `iap_begin` and `iap_purchase` (sku_id, price_gbp, tier_label)  
+- `pass_purchase` (sarge|commander, price_gbp, season_id)  
+- `content_drop_seen` and `content_drop_purchase`  
+- `invite_sent` and `invite_joined` (for k-factor estimates)  
+
+---
+
+## 5) Forecast engine — modules and equations
+
+All modules run per day and per acquisition cohort, then aggregate.
+
+1) **Acquisition**  
+`NewInstalls_d = Paid_d + Organic_d + Viral_d + Reactivations_d`  
+- `Paid_d = Σ_campaigns (Budget_d / CPI)`  
+- `Viral_d = k * ActiveUsers_{d-1}` with k learned from invite/join events in production Telegram cohorts. Telegram’s frictionless start and built-in social help justify modelling a meaningfully higher k than App Store starts. fileciteturn1file9L10-L17  
+- Channel mix controls live in `ua_campaigns`.
+
+2) **Retention**  
+- Cohort curve `R(d)` stored in `retention_models` per channel or geo.  
+- Default priors: smooth parametric curve, e.g., Log-Logistic or BG-NBD for payers, updated via Bayesian posterior once live.  
+- Active users: `DAU_d = Σ_cohorts NewInstalls_c * R_c(d - d0)`.
+
+3) **Monetisation**  
+- **SKU model:** draw purchase attempts from a Poisson with rate linked to activity and pass status, then allocate across tiers with your tier priors from Month 1 targets. fileciteturn1file7L79-L97  
+- **Pass model:** conversion to Sarge Pass at £4.99 with 20% target, Commander from Month 3 at £19.99 with an adoption uplift on high-engagement cohorts. fileciteturn1file4L60-L73 fileciteturn1file4L87-L101  
+- **Tournament revenue:** configurable streams from entry fees, sponsorships, and creator shares. Your materials position player-driven tournaments and brand monetisation as a core revenue vector, so include toggles here. fileciteturn1file12L16-L19  
+- **Catalogue constraints:** 98 launch SKUs bound the early choice set. fileciteturn1file11L101-L110  
+- Outputs: `Revenue_d`, `ARPPU_d`, `ARPDAU_d`, payer share, and SKU mix.
+
+4) **Content cadence and uplift**  
+- Monthly cosmetic themes and map drops set availability flags and apply configurable demand uplifts around drop windows. Your live-ops cadence runs through content drops and tournaments, so the simulator exposes date pickers for these. fileciteturn1file6L63-L67
+
+5) **LTV and cashflow**  
+- `LTV_180 = Σ_d^180 (Revenue_d / NewInstalls_0) * discount_factor`.  
+- Scenario toggles for TON fee assumptions and currency mix where relevant to take-home.
+
+---
+
+## 6) Outputs and dashboards
+
+- **Cohort view:** Installs, D1/D7/D30, payer rate, LTV.  
+- **P&L view:** Booked revenue, platform fees, marketing spend, net.  
+- **Monetisation view:** SKU mix, price-tier attach, pass adoption.  
+- **UA view:** CPI curve, ROAS by day, k-factor trend.  
+- **Live-ops view:** uplift around content drops and tournaments.
+
+---
+
+## 7) “Lovable” prompt framework (copy-paste blocks)
+
+**Block 1 — Project scaffold**  
+“Create a web app named ‘SARGE Forecast Simulator’ with Firebase as backend. Include a left sidebar with tabs: Scenarios, UA, Retention, Monetisation, Content, Tournaments, Runs, Results. Use Firestore for storage, Cloud Functions for simulations, and BigQuery for heavy queries. Add authentication by email and Google.”
+
+**Block 2 — Firestore schema seeding**  
+“Seed collections `skus`, `battle_pass_plans`, `pricing_priors`, `content_drops`, `tournaments`, `ua_campaigns`, `retention_models`. Each doc must include `effective_from`, `effective_to`, and `version` fields. Provide sample docs for:  
+- 98 launch SKUs with tier labels and GBP prices.  
+- Sarge Pass £4.99 and Commander £19.99 from Month 3.  
+- Month-level content drop entries.”  
+(Use the prices and tiers from your table as defaults. fileciteturn1file11L141-L166)
+
+**Block 3 — Scenario editor UI**  
+“Build a form to create a `scenarios/{id}` document with fields: name, start_date, horizon_days, CPI_by_channel, UA_budget_by_day, k_factor, pass_conv, commander_conv, attach_rate_by_tier, tournament_params, price_elasticity, discount_rate. Add save and validate.”
+
+**Block 4 — Simulation function**  
+“Create a Cloud Function `runSimulation(scenarioId)` that:  
+1) Loads scenario and current configs from Firestore.  
+2) Generates daily cohort installs by channel.  
+3) Applies retention curves to compute DAU.  
+4) Simulates monetisation using tier attach-rate priors and pass conversions.  
+5) Writes per-day outputs to `sim_outputs_daily` and rollups to `sim_rollups`.”
+
+**Block 5 — BigQuery model**  
+“Create a BigQuery dataset `sarge_sim`. Create tables `events`, `cohorts`, `sim_outputs_daily`, `sim_rollups`. Expose SQL to compute LTV, ARPDAU, ARPPU, payer share, and ROAS by campaign and by scenario. Add views for 7, 30, 90, 180 day LTV.”
+
+**Block 6 — Results dashboards**  
+“Add a Results tab with:  
+- Cohort heatmap.  
+- ROAS chart by campaign.  
+- SKU mix bar chart by price tier.  
+- Pass funnel.  
+- Tournament revenue and participation charts.  
+Include export to CSV and to Google Sheets.”
+
+**Block 7 — Versioning and compare**  
+“Add scenario compare: select two `sim_runs` and show deltas for MAU, revenue, LTV, payers, and ROAS. Provide ‘clone scenario’ action.”
+
+**Block 8 — Data guardrails**  
+“Validate inputs, show warnings if attach-rate totals exceed 100% or if UA budgets do not match horizon. Disallow saving invalid scenarios.”
+
+---
+
+## 8) Firebase build steps (concise)
+
+1) Create Firebase project and enable Authentication, Firestore, Analytics, BigQuery export.  
+2) Deploy Functions TypeScript runtime with modules: `acquisition.ts`, `retention.ts`, `monetisation.ts`, `content.ts`, `run.ts`.  
+3) Write Firestore security rules for read-only configs and write-only results per role.  
+4) Add Cloud Scheduler to trigger nightly `runSimulation` for selected scenarios.  
+5) Publish Hosting SPA for the simulator UI.
+
+---
+
+## 9) Example documents to start
+
+**`pricing_priors/tiers`**  
+```json
+{
+  "low": {"gbp_range":[0.99,4.98],"attach_target":[0.02,0.03]},
+  "mid": {"gbp_range":[4.99,9.98],"attach_target":[0.03,0.04]},
+  "premium": {"gbp_range":[9.99,19.98],"attach_target":[0.04,0.06]},
+  "elite": {"gbp_range":[19.99,49.98],"attach_target":[0.01,0.02]},
+  "highroller": {"gbp_range":[49.99,99.99],"attach_target":[0.001,0.01]}
+}
+```
+
+**`battle_pass_plans/season_1`**  
+```json
+{"name":"Sarge Pass","price_gbp":4.99,"duration_days":28,"start":"2025-11-01","commander_available":false}
+```
+
+**`battle_pass_plans/season_3`**  
+```json
+{"name":"Commander Pass","price_gbp":19.99,"duration_days":28,"start":"2026-01-01","commander_available":true}
+```
+
+---
+
+## 10) Core equations you can paste into Functions
+
+- **Viral installs:** `viral = k * DAU_prev`  
+- **DAU from cohorts:** `DAU_d = Σ (installs_c * R_c(age_d))`  
+- **Revenue:** `Revenue_d = Σ_payers (Σ_purchases price)` with distribution by tier drawn from priors.  
+- **ARPPU:** `Revenue_d / PayingUsers_d`  
+- **ARPDAU:** `Revenue_d / DAU_d`  
+- **LTV_t:** cumulative revenue per new user to day t.
+
+---
+
+## 11) What is Sarge-specific vs generic
+
+- **Specific:** SKU counts and price ranges, pass pricing, Telegram growth mechanics, TON payments, UGC tournament revenue toggles. fileciteturn1file11L141-L166 fileciteturn1file4L60-L70 fileciteturn1file9L21-L29 fileciteturn1file12L16-L19  
+- **Generic:** CPI curves, initial retention priors, k-factor prior. These start as editable assumptions and will be learned from live data.
+
+---
+
+## 12) Ready-to-run test scenario (baseline)
+
+- Horizon 180 days, start next month.  
+- `CPI`: Telegram 0.10–0.25 GBP, Paid Social 0.60–1.20 GBP.  
+- `k`: 0.03.  
+- Pass conversion: 20% paid pass from season 1, Commander 6% from season 3. fileciteturn1file4L60-L73 fileciteturn1file4L87-L101  
+- Attach-rates: use your tier priors. fileciteturn1file7L79-L97  
+- Tournament revenue: £0 in baseline, then toggle on to test upside. fileciteturn1file12L16-L19
+
+---
+
+## 13) Acceptance tests
+
+- Create two scenarios with different CPIs and k. Verify ROAS curves and LTV respond sensibly.  
+- Toggle Commander Pass on Month 3. Confirm revenue step-change.  
+- Increase premium tier attach prior and see SKU mix migrate toward £9.99–£19.99 band.  
+- Set a weekend content drop and check for uplift around drop date.
+
+If you want, I can generate the initial Firestore seed JSONs for SKUs, passes, and a Season 1 content calendar using the exact price ranges and pass pricing from your Q&A doc, then drop them straight into your project.
+
+[USER]
+as teh same expert group please critic the framework above and then choose the best platform (lovable or firebase) and lay ou tthe prompts in order
+
+[ASSISTANT]
+Below is a tight critique, a platform choice, and then a clean runbook of copy-paste prompts in the exact order to build the simulator.
+
+# 1) Critique of the framework
+
+**What is strong**
+- Clear split of Acquisition, Retention, Monetisation, Content cadence, and LTV.  
+- Uses cohorts and daily grain with rollups, which is the right level for forecast control.  
+- Scenario toggles cover CPI, k-factor, passes, attach rates, and tournaments. Good for sensitivity sweeps.  
+- BigQuery sink is specified, which is required once volumes or variants increase.
+
+**Gaps and risks to fix**
+1) **Evidence pinning**. Values like SKU count, pass pricing, target attach rates, and Commander timing need a linked source table and version tag inside the app. Without this, scenario drift will creep in.  
+2) **Units and currency**. Define canonical currency and fee assumptions at scenario level. Include TON or Telegram payment fees only if they are actually netted out.  
+3) **Retention family**. One curve family seldom fits all. Store at least two parametric options per cohort type, plus a non-parametric vector override.  
+4) **Pricing elasticity**. Attach rates as flat priors are fine for a baseline, but you also need a simple price elasticity parameter by tier so scenario nudges behave realistically.  
+5) **ROAS feedback**. Add an optional rule that adjusts paid UA spend by ROAS thresholds or budget pacing so long-horizon scenarios do not spend blindly.  
+6) **Tournament model**. Distinguish between entry-fee revenue, sponsor revenue, and creator revenue, with a simple capacity control per event.  
+7) **Versioning**. Config documents need `version`, `effective_from`, `effective_to`, and a change note. Include a Compare view with deltas.  
+8) **Data governance**. Add roles: Admin, PM, Analyst, Viewer. Lock results so only Functions write `sim_outputs_daily`.  
+9) **Validation**. Block saves when tier attach sums exceed 100 percent, when UA budget does not match horizon, or when retention vectors are the wrong length.  
+10) **Acceptance tests**. Bake tests into the UI, not just a checklist in a doc.
+
+# 2) Platform decision
+
+**Choose: Lovable (front end) with Firebase stack under it**  
+Reasoning: you asked for a prompt-driven build. Lovable gives the fastest iteration on a multi-tab simulator UI with forms, tables, and charts. Firebase handles Authentication, Firestore, Functions, Hosting, and Analytics with BigQuery export. This pairing delivers speed now and headroom later. If you later outgrow Lovable for charts, you can replace only the front end without touching the data plane.
+
+# 3) Ordered prompts for Lovable
+
+Copy each prompt in order. Lovable will scaffold UI and code. Where a prompt mentions Firebase or BigQuery configuration, allow Lovable to generate the glue and confirm the resources when asked.
+
+**Prompt 1 — Project scaffold**
+> Create a web app named “SARGE Forecast Simulator”. Use Firebase Authentication, Firestore, Cloud Functions, Firebase Hosting, and BigQuery. Add email and Google sign-in. Left sidebar tabs: Scenarios, UA, Retention, Monetisation, Content, Tournaments, Runs, Results, Admin. Use a clean desktop layout with a top bar that shows the active scenario and a “Run simulation” button.
+
+**Prompt 2 — Roles and access**
+> Implement roles: admin, product_manager, analyst, viewer. Only admin can edit Admin and delete anything. product_manager can edit Scenarios, UA, Retention, Monetisation, Content, Tournaments. analyst can run simulations and view Results. viewer is read-only. Enforce with Firestore rules. Add a simple Admin page to assign roles by email.
+
+**Prompt 3 — Firestore schema**
+> Create collections with strict types:
+> - `skus` { sku_id, name, tier_label, price_gbp, family, tags[], active, version, effective_from, effective_to }
+> - `battle_pass_plans` { season_id, name, price_gbp, duration_days, start_date, commander_available, version }
+> - `content_drops` { drop_id, name, type, start_date, end_date, uplift_pct, active }
+> - `tournaments` { event_id, name, start_date, end_date, type, capacity, entry_fee_gbp, sponsor_rev_gbp, creator_share_pct, active }
+> - `ua_campaigns` { campaign_id, channel, geo, daily_budget_gbp[], cpi_gbp[], start_date, end_date }
+> - `retention_models` { model_id, label, family, params{}, r_vector[] }
+> - `pricing_priors` { prior_id, tier_label, attach_min, attach_max, elasticity }
+> - `global_config` { currency, platform_fee_pct, telegram_fee_pct, discount_rate_annual, version }
+> - `scenarios` { scenario_id, name, start_date, horizon_days, ua_refs[], retention_ref, pricing_prior_ref, pass_conv_pct, commander_conv_pct, k_factor, elasticity_mult, notes }
+> - `sim_runs` { run_id, scenario_id, created_by, seed, status, summary{} }
+> - `sim_outputs_daily` { run_id, date, cohort_key, installs, dau, payers, revenue_gbp, arpdau, arppu }
+> - `sim_rollups` { run_id, metric, day, value }
+> Add composite indexes needed for querying outputs by run_id and date.
+
+**Prompt 4 — Seed data helpers**
+> Build an Admin tool to upload CSVs to seed `skus`, `battle_pass_plans`, `pricing_priors`, `content_drops`, `tournaments`, and `ua_campaigns`. Validate columns, preview before commit, and version the inserted docs with `version = v1`.
+
+**Prompt 5 — Scenario editor**
+> Create a Scenario form that writes to `scenarios`. Fields: name, start_date, horizon_days, choose UA campaigns, choose retention model, choose pricing prior, pass_conv_pct, commander_conv_pct, k_factor, elasticity_mult, notes. Add validation and a “Clone scenario” action.
+
+**Prompt 6 — Retention modeller**
+> Build a Retention page that lets an analyst:
+> - Pick a family: log-logistic, Weibull, BG-NBD for payers, or Vector.  
+> - Edit parameters with live preview of D1, D7, D30, D60, D90.  
+> - Upload a vector override of length N and normalise to [0,1].  
+> Save to `retention_models` with versioning and a small chart.
+
+**Prompt 7 — UA planner**
+> Build a UA page with a matrix editor for `ua_campaigns`: rows are campaigns, columns are days across the scenario horizon. Editable arrays for
+
+[USER]
+as teh same expert group please critic the framework above and fix it and then choose the best platform (lovable or firebase) and lay out the prompts in order
+
+[ASSISTANT]
+Here is a hard critique of the first blueprint, followed by a corrected plan and a single recommended platform with an ordered set of copy-paste build prompts.
+
+# Critique of the first framework
+
+**What was strong**
+- Model shape was right for a game like Sarge: acquisition → retention → monetisation with cohorting and scenario toggles.  
+- It acknowledged Telegram’s frictionless onboarding and virality which Sarge explicitly relies on. fileciteturn3file7L5-L6  
+- It reflected Sarge’s scale and content depth which drive retention and spend modelling. fileciteturn3file1L35-L37  
+- It recognised creator and tournament economics, which are part of Sarge’s stated model. fileciteturn3file15L1-L7 fileciteturn3file1L77-L81
+
+**What needed fixing**
+- It hard-coded values that are not evidenced in your files, for example exact SKU counts and specific pass prices or attach targets. These must be parameters, not constants, until we anchor them in your source of truth.  
+- Analytics events did not include Telegram-specific funnel needs. Telegram mini-apps behave like web pages tied to a bot token and need Telegram-aware analytics and journey tracking. Add fields for chat_id, message_origin, deeplink_source, and invite vectors. fileciteturn3file10L1-L8  
+- No explicit bot-filtering or anti-fraud assumptions. Your GTM checklists call out anti-bot measures and readiness gates, so the simulator needs switches for suspected-bot discounting and sensitivity. fileciteturn3file12L1-L8  
+- Content cadence uplift was treated generically. Your pitch highlights frequent updates, UGC tournaments, and creator-driven activations. We should model distinct, dated interventions with separate uplift curves for drops, tournaments, and creator events. fileciteturn3file1L56-L62 fileciteturn3file15L1-L7  
+- UA module needs an explicit Telegram k-factor path tied to invites and group joins, and a separate path for paid social or other channels that do not enjoy Telegram’s native spread. fileciteturn3file7L5-L6  
+- Evidence-based claims should be cited. The revised plan below only uses values that appear in your docs and treats the rest as inputs to be seeded by you.
+
+# Corrected simulator blueprint
+
+**Scope anchors from your files**
+- Core footprint used for retention and content pacing: “Sarge: Search & Destroy” with 280+ assets and 4,300+ upgrades, base-building, PvP. fileciteturn3file1L35-L37  
+- Telegram as primary channel with instant start and virality considerations. fileciteturn3file7L5-L6  
+- Multi-stream monetisation, including player-hosted tournament fees and brand deals. fileciteturn3file15L1-L7 fileciteturn3file1L77-L81
+
+**Data model fixes**
+- Make all commercial values scenario inputs: price points, attach priors, pass conversion, tournament take-rate, fee structure.  
+- Add Telegram fields to user and event docs: `tg_user_id`, `chat_id`, `deeplink_src`, `referrer_user_id`, `group_id`, `message_origin`. fileciteturn3file10L1-L8  
+- Add `fraud_screen_score` and `bot_suspect_flag` at user and event level to enable bot-discount sensitivity aligned with your GTM readiness gates. fileciteturn3file12L1-L8
+
+**Modelling fixes**
+- Acquisition: split paths into `telegram_viral`, `telegram_paid`, `paid_social`, `organic`. Viral path driven by invites and group joins per day.  
+- Retention: per-channel curves with creator and content-event uplifts as dated modifiers rather than a single global effect.  
+- Monetisation: tournament revenue represented as three separate toggles: entry fee rake, sponsorship share, creator share. Brand deals are outside the simulator unless you want a marketing P&L overlay. fileciteturn3file15L1-L7  
+- Reporting: include cohort LTV at 7, 30, 90, 180 days and ROAS by channel.  
+- Readiness checks: embed a checklist in the UI mirroring the GTM gates so scenarios can be labelled “viable” only when thresholds are met. fileciteturn3file12L1-L16
+
+# Platform choice
+
+**Choose: Firebase native with BigQuery export.**  
+Reasoning: you need reliable cohort maths, Monte Carlo capability, and event pipelines with Telegram-specific fields. Firebase Analytics to BigQuery is a proven path for cohort and revenue tables. Cloud Functions handle simulation runs without introducing UI-builder lock-in. You can still add a Lovable front-end later that reads the same Firestore and BigQuery if you want rapid UI tweaks.
+
+# Ordered build prompts for Firebase
+
+Use these as exact copy-paste prompts or tickets for your engineers. They create a working simulator with clean separation of inputs, runs, and outputs.
+
+**1) Project scaffold**
+- Create a Firebase project named `sarge-forecast-sim`.  
+- Enable Authentication, Firestore (native mode), Analytics, and BigQuery export.  
+- Create a service account key for local dev.
+
+**2) Firestore collections and indexes**
+- Create top-level collections: `scenarios`, `ua_campaigns`, `retention_models`, `content_events`, `tournaments`, `pricing_inputs`, `sim_runs`, `sim_daily`, `sim_rollups`, `catalogue`.  
+- Add composite indexes:  
+  - `sim_daily` on `scenario_id` ascending, `date` ascending.  
+  - `sim_rollups` on `scenario_id` ascending, `metric` ascending.
+
+**3) Security rules**
+- Read for `catalogue`, `retention_models`, `pricing_inputs` is allowed to analysts and admins.  
+- Write for `sim_runs`, `sim_daily`, `sim_rollups` restricted to Cloud Functions.  
+- Only admins can write `scenarios`.
+
+**4) Telegram-aware event schema**
+- In Analytics custom events, register: `tg_invite_sent`, `tg_invite_joined`, `tg_group_joined`, `tg_dl_open`, with params `tg_user_id`, `chat_id`, `deeplink_src`, `referrer_user_id`, `group_id`, `message_origin`. Store extra metadata in Firestore on first seen. fileciteturn3file10L1-L8
+
+**5) Seed baseline documents**
+- `retention_models/{default_telegram}` with a 180-day vector.  
+- `pricing_inputs/{default}` with arrays for `price_points`, `attach_priors`, `pass_conv_priors`, `tournament_rake`, `sponsorship_share`, `creator_share`.  
+- `content_events` with dated drops and expected uplift windows.  
+- `tournaments` with frequency plans and expected participation.  
+- `catalogue` as a minimal placeholder until your SKU table is confirmed.
+
+**6) Scenario editor UI**
+- Build a simple SPA on Firebase Hosting with tabs: Scenario, UA, Retention, Content, Tournaments, Pricing, Run, Results.  
+- Scenario fields: `name`, `start_date`, `horizon_days`, `discount_rate`, `fraud_discount_pct`, `currency`.  
+- UA fields: daily budgets and CPI by channel.  
+- Telegram viral fields: expected invites per active user, conversion rate to joins, join-to-install rate.  
+- Content and tournament pickers: multi-select from dated entries.  
+- Pricing: link to `pricing_inputs/{id}`.
+
+**7) Simulation Cloud Function (`runSimulation`)**
+- Input: `scenario_id`.  
+- Steps:  
+  1. Load scenario and inputs.  
+  2. Generate daily installs by channel.  
+  3. Apply retention per cohort and add content or tournament uplifts when dates match.  
+  4. Simulate purchase attempts driven by activity, pass status, and pricing inputs.  
+  5. Apply fraud discount.  
+  6. Persist `sim_daily` rows and write `sim_rollups` aggregates.
+
+**8) BigQuery dataset and views**
+- Create dataset `sarge_sim`.  
+- Create tables mirrored to `sim_daily` and `sim_rollups`.  
+- Views: `ltv_7_30_90_180`, `roas_by_channel`, `payer_mix_by_day`, `tournament_revenue`.  
+- Join to Analytics export for back-testing once live.
+
+**9) Results dashboards**
+- Build charts in the SPA that query BigQuery through a callable Function:  
+  - LTV curves by cohort and channel.  
+  - ARPDAU and ARPPU trends.  
+  - Pass funnel if you add passes later.  
+  - Tournament revenue and participation.  
+  - Scenario compare with deltas.
+
+**10) Readiness gate mirror**
+- Add a “Readiness” widget that mirrors your GTM gates: D7 threshold, latency target, community size, wallet failure rate, load test status. Tag each scenario as Green or Red based on inputs you set. fileciteturn3file12L1-L16
+
+**11) Bot and fraud sensitivity**
+- Add a slider for `fraud_discount_pct`. Recompute revenue and LTV with that discount to stress test the plan, reflecting your anti-bot callouts. fileciteturn3file12L1-L8
+
+**12) Evidence pinning**
+- For any non-obvious claim in the simulator’s “About this run,” show the specific source fragment and date from your Sarge files. Examples already cited above.
+
+# Copy-paste prompt blocks for your team
+
+Use these as “builder prompts” in issue trackers or AI assistants that scaffold code.
+
+**Prompt A — Initialise**
+“Set up Firebase project `sarge-forecast-sim` with Authentication, Firestore, Analytics, Cloud Functions, Hosting. Enable Analytics BigQuery export. Create service account for local dev.”
+
+**Prompt B — Firestore schema**
+“Create collections: scenarios, ua_campaigns, retention_models, content_events, tournaments, pricing_inputs, sim_runs, sim_daily, sim_rollups, catalogue. Create composite indexes for sim_daily and sim_rollups by scenario_id and date or metric.”
+
+**Prompt C — Security rules**
+“Only admins can write scenarios and inputs. Analysts can read inputs. Only Cloud Functions can write sim_runs, sim_daily, sim_rollups.”
+
+**Prompt D — Event registration**
+“Register custom Analytics events: tg_invite_sent, tg_invite_joined, tg_group_joined, tg_dl_open. Each includes params tg_user_id, chat_id, deeplink_src, referrer_user_id, group_id, message_origin. Persist these identifiers in Firestore on first sight.” fileciteturn3file10L1-L8
+
+**Prompt E — Seed inputs**
+“Seed retention_models/default_telegram with a 180-day vector. Seed pricing_inputs/default with arrays for price points, attach priors, pass conversion priors, tournament rake, sponsorship share, creator share. Seed a few content_events and tournaments with dates and expected uplift factors.”
+
+**Prompt F — Simulator function**
+“Implement Cloud Function runSimulation(scenarioId). Load inputs. Produce daily installs by channel with a Telegram viral path driven by invite rates and join rates. Apply retention curves and dated uplifts. Simulate purchases based on activity and priors. Apply fraud discount. Write sim_daily and sim_rollups.”
+
+**Prompt G — BigQuery**
+“Create dataset sarge_sim, tables sim_daily and sim_rollups. Create views for ltv_7_30_90_180, roas_by_channel, payer_mix_by_day, tournament_revenue. Expose a callable Function that executes parameterised queries for the SPA.”
+
+**Prompt H — SPA**
+“Deploy a single-page app on Firebase Hosting with tabs for Scenario, UA, Retention, Content, Tournaments, Pricing, Run, Results, Readiness. Results tab plots LTV, ARPDAU, ARPPU, ROAS, tournament revenue, and shows scenario compares with deltas.”
+
+**Prompt I — Readiness gates**
+“Add a readiness widget that checks configured thresholds for D7 retention, latency, community size, wallet failure rate, and load test status, and labels the scenario as Green or Red.” fileciteturn3file12L1-L16
+
+**Prompt J — Evidence**
+“When saving a scenario or run, store a short Evidence block that links each non-obvious assumption to a source and date from the Sarge files for auditing.”
+
+# Notes and open items to confirm
+- Pass products and prices, detailed SKU catalogue, and attach priors were not found in the uploaded files. Treat them as scenario inputs until you provide the source of truth.  
+- If you want brand deals in revenue, we can add a separate marketing sheet rather than mixing them with IAP revenue.
+
+If you want, I can now generate the initial Firestore seed JSONs for `retention_models`, `pricing_inputs`, and a sample `content_events` plus a skeleton tournament plan, ready to import.
+
+[USER]
+I need this to paste into firebase right?
+
+[ASSISTANT]
+# Create a ready-to-deploy Firebase starter for "SARGE Forecast Simulator"
+
+import os, json, zipfile, textwrap, pathlib
+
+base = "/mnt/data/sarge-forecast-sim-starter"
+paths = [
+    base,
+    f"{base}/functions",
+    f"{base}/functions/src",
+    f"{base}/hosting"
+]
+for p in paths:
+    os.makedirs(p, exist_ok=True)
+
+# firebase.json
+firebase_json = {
+  "functions": { "source": "functions" },
+  "hosting": {
+    "public": "hosting",
+    "ignore": ["firebase.json","**/.*","**/node_modules/**"]
+  }
+}
+with open(f"{base}/firebase.json","w",encoding="utf-8") as f:
+    json.dump(firebase_json, f, indent=2)
+
+# .firebaserc with placeholder project
+with open(f"{base}/.firebaserc","w",encoding="utf-8") as f:
+    f.write(json.dumps({"projects":{"default":"sarge-forecast-sim"}}, indent=2))
+
+# firestore.rules
+firestore_rules = textwrap.dedent("""
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function isAdmin() {
+      return request.auth != null && request.auth.token.admin == true;
+    }
+
+    // Config and catalogue
+    match /catalogue/{doc} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+    match /retention_models/{doc} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+    match /pricing_inputs/{doc} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+    match /scenarios/{doc} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+    match /ua_campaigns/{doc} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+    match /content_events/{doc} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+    match /tournaments/{doc} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // Simulation outputs
+    match /sim_runs/{doc} {
+      allow read, write: if isSignedIn();
+    }
+    match /sim_daily/{doc} {
+      allow read, write: if isSignedIn();
+    }
+    match /sim_rollups/{doc} {
+      allow read, write: if isSignedIn();
+    }
+  }
+}
+""")
+with open(f"{base}/firestore.rules","w",encoding="utf-8") as f:
+    f.write(firestore_rules)
+
+# firestore.indexes.json
+indexes = {
+  "indexes": [
+    {
+      "collectionGroup": "sim_daily",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "scenario_id", "order": "ASCENDING"},
+        {"fieldPath": "date", "order": "ASCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "sim_rollups",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "scenario_id", "order": "ASCENDING"},
+        {"fieldPath": "metric", "order": "ASCENDING"}
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
+with open(f"{base}/firestore.indexes.json","w",encoding="utf-8") as f:
+    json.dump(indexes, f, indent=2)
+
+# functions/package.json
+package_json = {
+  "name": "sarge-forecast-sim-functions",
+  "version": "0.1.0",
+  "private": True,
+  "engines": {"node": "20"},
+  "scripts": {
+    "build": "tsc",
+    "deploy": "npm run build && firebase deploy --only functions",
+    "lint": "eslint .",
+    "serve": "npm run build && firebase emulators:start --only functions"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.6.0",
+    "firebase-functions": "^5.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.7",
+    "typescript": "^5.4.5"
+  }
+}
+with open(f"{base}/functions/package.json","w",encoding="utf-8") as f:
+    json.dump(package_json, f, indent=2)
+
+# functions/tsconfig.json
+tsconfig = {
+  "compilerOptions": {
+    "lib": ["es2020"],
+    "module": "commonjs",
+    "target": "es2020",
+    "outDir": "lib",
+    "rootDir": "src",
+    "strict": True,
+    "esModuleInterop": True
+  },
+  "compileOnSave": True
+}
+with open(f"{base}/functions/tsconfig.json","w",encoding="utf-8") as f:
+    json.dump(tsconfig, f, indent=2)
+
+# functions/src/index.ts
+index_ts = textwrap.dedent("""
+import * as functions from 'firebase-functions';
+import * as admin from 'firebase-admin';
+
+admin.initializeApp();
+const db = admin.firestore();
+
+/**
+ * Minimal callable to test the pipeline.
+ * Input: { scenarioId: string }
+ * Writes placeholder rows into sim_runs, sim_daily, sim_rollups.
+ */
+export const runSimulation = functions.https.onCall(async (data, context) => {
+  const scenarioId = data?.scenarioId;
+  if (!scenarioId) {
+    throw new functions.https.HttpsError('invalid-argument', 'scenarioId is required');
+  }
+
+  const scenarioRef = db.collection('scenarios').doc(String(scenarioId));
+  const snap = await scenarioRef.get();
+  if (!snap.exists) {
+    throw new functions.https.HttpsError('not-found', 'Scenario not found');
+  }
+  const scenario = snap.data() || {};
+
+  const today = new Date().toISOString().slice(0,10);
+
+  const runRef = db.collection('sim_runs').doc();
+  await runRef.set({
+    scenario_id: scenarioRef.id,
+    created_at: admin.firestore.FieldValue.serverTimestamp(),
+    horizon_days: scenario.horizon_days ?? 30,
+    status: 'ok'
+  });
+
+  await db.collection('sim_daily').add({
+    scenario_id: scenarioRef.id,
+    date: today,
+    installs: 0,
+    dau: 0,
+    revenue: 0,
+    created_at: admin.firestore.FieldValue.serverTimestamp(),
+    run_id: runRef.id
+  });
+
+  await db.collection('sim_rollups').add({
+    scenario_id: scenarioRef.id,
+    metric: 'summary',
+    value: { installs: 0, dau: 0, revenue: 0 },
+    created_at: admin.firestore.FieldValue.serverTimestamp(),
+    run_id: runRef.id
+  });
+
+  return { run_id: runRef.id, message: 'Simulation stub wrote placeholder rows' };
+});
+""")
+with open(f"{base}/functions/src/index.ts","w",encoding="utf-8") as f:
+    f.write(index_ts)
+
+# hosting/index.html
+index_html = textwrap.dedent("""
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>SARGE Forecast Simulator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+  <h1>SARGE Forecast Simulator</h1>
+  <p>Client smoke test. Fill your Firebase config below and click "Run".</p>
+
+  <label>Scenario ID: <input id="scenarioId" placeholder="scenario_1"></label>
+  <button id="btn">Run</button>
+
+  <pre id="out"></pre>
+
+  <script type="module">
+    // Paste your config from Firebase console here
+    const firebaseConfig = {
+      apiKey: "",
+      authDomain: "",
+      projectId: "sarge-forecast-sim",
+      appId: ""
+    };
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+    import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-functions.js";
+
+    const app = initializeApp(firebaseConfig);
+    const functions = getFunctions(app);
+
+    const btn = document.getElementById('btn');
+    btn.addEventListener('click', async () => {
+      const scenarioId = (document.getElementById('scenarioId') as HTMLInputElement).value;
+      const runSimulation = httpsCallable(functions, 'runSimulation');
+      try {
+        const res = await runSimulation({ scenarioId });
+        (document.getElementById('out') as HTMLElement).textContent = JSON.stringify(res.data, null, 2);
+      } catch (e) {
+        (document.getElementById('out') as HTMLElement).textContent = String(e);
+      }
+    });
+  </script>
+</body>
+</html>
+""")
+with open(f"{base}/hosting/index.html","w",encoding="utf-8") as f:
+    f.write(index_html)
+
+# README with step-by-step
+readme = textwrap.dedent("""
+SARGE Forecast Simulator — Firebase starter
+
+1) Install tooling
+   npm i -g firebase-tools
+   firebase login
+
+2) Set project
+   firebase use --add
+   # choose or create your project, then ensure .firebaserc has the correct id
+
+3) Deploy indexes and rules
+   firebase deploy --only firestore:indexes,firestore:rules
+
+4) Install and build functions
+   cd functions
+   npm install
+   npm run build
+   cd ..
+
+5) Deploy functions
+   firebase deploy --only functions
+
+6) Host the smoke-test page
+   firebase deploy --only hosting
+
+7) Seed a scenario doc in Firestore (manually for now)
+   Collection: scenarios
+   Document id: scenario_1
+   Fields:
+     name: "Baseline"
+     start_date: "2025-10-01"
+     horizon_days: 30
+
+8) Open the Hosting URL, enter scenario_1, click Run.
+   You should see a run_id and placeholder rows in sim_* collections.
+""")
+with open(f"{base}/README.txt","w",encoding="utf-8") as f:
+    f.write(readme)
+
+# Zip it
+zip_path = "/mnt/data/sarge-forecast-sim-starter.zip"
+with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as z:
+    for root, _, files in os.walk(base):
+        for name in files:
+            full = os.path.join(root, name)
+            rel = os.path.relpath(full, base)
+            z.write(full, arcname=f"sarge-forecast-sim-starter/{rel}")
+
+zip_path
+
+[ASSISTANT]
+# Retry creating the starter project zip after transient error
+
+import os, json, zipfile, textwrap
+
+base = "/mnt/data/sarge-forecast-sim-starter"
+if not os.path.exists(base):
+    os.makedirs(base, exist_ok=True)
+    os.makedirs(f"{base}/functions", exist_ok=True)
+    os.makedirs(f"{base}/functions/src", exist_ok=True)
+    os.makedirs(f"{base}/hosting", exist_ok=True)
+
+# Write files again, overwriting if needed
+firebase_json = {
+  "functions": { "source": "functions" },
+  "hosting": {
+    "public": "hosting",
+    "ignore": ["firebase.json","**/.*","**/node_modules/**"]
+  }
+}
+with open(f"{base}/firebase.json","w",encoding="utf-8") as f:
+    json.dump(firebase_json, f, indent=2)
+
+with open(f"{base}/.firebaserc","w",encoding="utf-8") as f:
+    f.write(json.dumps({"projects":{"default":"sarge-forecast-sim"}}, indent=2))
+
+firestore_rules = """
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function isAdmin() {
+      return request.auth != null && request.auth.token.admin == true;
+    }
+    match /catalogue/{doc} { allow read: if isSignedIn(); allow write: if isAdmin(); }
+    match /retention_models/{doc} { allow read: if isSignedIn(); allow write: if isAdmin(); }
+    match /pricing_inputs/{doc} { allow read: if isSignedIn(); allow write: if isAdmin(); }
+    match /scenarios/{doc} { allow read: if isSignedIn(); allow write: if isAdmin(); }
+    match /ua_campaigns/{doc} { allow read: if isSignedIn(); allow write: if isAdmin(); }
+    match /content_events/{doc} { allow read: if isSignedIn(); allow write: if isAdmin(); }
+    match /tournaments/{doc} { allow read: if isSignedIn(); allow write: if isAdmin(); }
+    match /sim_runs/{doc} { allow read, write: if isSignedIn(); }
+    match /sim_daily/{doc} { allow read, write: if isSignedIn(); }
+    match /sim_rollups/{doc} { allow read, write: if isSignedIn(); }
+  }
+}
+"""
+with open(f"{base}/firestore.rules","w",encoding="utf-8") as f:
+    f.write(firestore_rules)
+
+indexes = {
+  "indexes": [
+    {
+      "collectionGroup": "sim_daily",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "scenario_id", "order": "ASCENDING"},
+        {"fieldPath": "date", "order": "ASCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "sim_rollups",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "scenario_id", "order": "ASCENDING"},
+        {"fieldPath": "metric", "order": "ASCENDING"}
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
+with open(f"{base}/firestore.indexes.json","w",encoding="utf-8") as f:
+    json.dump(indexes, f, indent=2)
+
+package_json = {
+  "name": "sarge-forecast-sim-functions",
+  "version": "0.1.0",
+  "private": True,
+  "engines": {"node": "20"},
+  "scripts": {
+    "build": "tsc",
+    "deploy": "npm run build && firebase deploy --only functions",
+    "serve": "npm run build && firebase emulators:start --only functions"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.6.0",
+    "firebase-functions": "^5.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.7",
+    "typescript": "^5.4.5"
+  }
+}
+with open(f"{base}/functions/package.json","w",encoding="utf-8") as f:
+    json.dump(package_json, f, indent=2)
+
+tsconfig = {
+  "compilerOptions": {
+    "lib": ["es2020"],
+    "module": "commonjs",
+    "target": "es2020",
+    "outDir": "lib",
+    "rootDir": "src",
+    "strict": True,
+    "esModuleInterop": True
+  },
+  "compileOnSave": True
+}
+with open(f"{base}/functions/tsconfig.json","w",encoding="utf-8") as f:
+    json.dump(tsconfig, f, indent=2)
+
+index_ts = """
+import * as functions from 'firebase-functions';
+import * as admin from 'firebase-admin';
+
+admin.initializeApp();
+const db = admin.firestore();
+
+export const runSimulation = functions.https.onCall(async (data, context) => {
+  const scenarioId = data?.scenarioId;
+  if (!scenarioId) {
+    throw new functions.https.HttpsError('invalid-argument', 'scenarioId is required');
+  }
+
+  const scenarioRef = db.collection('scenarios').doc(String(scenarioId));
+  const snap = await scenarioRef.get();
+  if (!snap.exists) {
+    throw new functions.https.HttpsError('not-found', 'Scenario not found');
+  }
+  const scenario = snap.data() || {};
+
+  const today = new Date().toISOString().slice(0,10);
+
+  const runRef = db.collection('sim_runs').doc();
+  await runRef.set({
+    scenario_id: scenarioRef.id,
+    created_at: admin.firestore.FieldValue.serverTimestamp(),
+    horizon_days: scenario.horizon_days ?? 30,
+    status: 'ok'
+  });
+
+  await db.collection('sim_daily').add({
+    scenario_id: scenarioRef.id,
+    date: today,
+    installs: 0,
+    dau: 0,
+    revenue: 0,
+    created_at: admin.firestore.FieldValue.serverTimestamp(),
+    run_id: runRef.id
+  });
+
+  await db.collection('sim_rollups').add({
+    scenario_id: scenarioRef.id,
+    metric: 'summary',
+    value: { installs: 0, dau: 0, revenue: 0 },
+    created_at: admin.firestore.FieldValue.serverTimestamp(),
+    run_id: runRef.id
+  });
+
+  return { run_id: runRef.id, message: 'Simulation stub wrote placeholder rows' };
+});
+"""
+with open(f"{base}/functions/src/index.ts","w",encoding="utf-8") as f:
+    f.write(index_ts)
+
+index_html = """
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>SARGE Forecast Simulator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+  <h1>SARGE Forecast Simulator</h1>
+  <p>Client smoke test. Paste Firebase config and run.</p>
+
+  <label>Scenario ID: <input id="scenarioId" placeholder="scenario_1"></label>
+  <button id="btn">Run</button>
+
+  <pre id="out"></pre>
+
+  <script type="module">
+    const firebaseConfig = {
+      apiKey: "",
+      authDomain: "",
+      projectId: "sarge-forecast-sim",
+      appId: ""
+    };
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+    import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-functions.js";
+
+    const app = initializeApp(firebaseConfig);
+    const functions = getFunctions(app);
+
+    document.getElementById('btn').addEventListener('click', async () => {
+      const scenarioId = document.getElementById('scenarioId').value;
+      const runSimulation = httpsCallable(functions, 'runSimulation');
+      try {
+        const res = await runSimulation({ scenarioId });
+        document.getElementById('out').textContent = JSON.stringify(res.data, null, 2);
+      } catch (e) {
+        document.getElementById('out').textContent = String(e);
+      }
+    });
+  </script>
+</body>
+</html>
+"""
+with open(f"{base}/hosting/index.html","w",encoding="utf-8") as f:
+    f.write(index_html)
+
+readme = """
+SARGE Forecast Simulator — Firebase starter
+
+1) Install tooling
+   npm i -g firebase-tools
+   firebase login
+
+2) Set project
+   firebase use --add
+   # choose or create your project, then ensure .firebaserc has the correct id
+
+3) Deploy indexes and rules
+   firebase deploy --only firestore:indexes,firestore:rules
+
+4) Install and build functions
+   cd functions
+   npm install
+   npm run build
+   cd ..
+
+5) Deploy functions
+   firebase deploy --only functions
+
+6) Host the smoke-test page
+   firebase deploy --only hosting
+
+7) Seed a scenario doc in Firestore (manually for now)
+   Collection: scenarios
+   Document id: scenario_1
+   Fields:
+     name: "Baseline"
+     start_date: "2025-10-01"
+     horizon_days: 30
+
+8) Open the Hosting URL, enter scenario_1, click Run.
+   You should see a run_id and placeholder rows in sim_* collections.
+"""
+with open(f"{base}/README.txt","w",encoding="utf-8") as f:
+    f.write(readme)
+
+zip_path = "/mnt/data/sarge-forecast-sim-starter.zip"
+with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as z:
+    for root, _, files in os.walk(base):
+        for name in files:
+            full = os.path.join(root, name)
+            rel = os.path.relpath(full, base)
+            z.write(full, arcname=f"sarge-forecast-sim-starter/{rel}")
+
+zip_path
+
+[USER]
+?
+
+[ASSISTANT]
+Yes. I built you a Firebase starter you can deploy now.
+
+[Download the starter zip](sandbox:/mnt/data/sarge-forecast-sim-starter.zip)
+
+What is inside
+- `functions` with a callable `runSimulation` stub that writes `sim_runs`, `sim_daily`, and `sim_rollups`
+- Firestore rules and composite indexes
+- A simple Hosting page to trigger a run by `scenarioId`
+- A README with the exact commands
+
+How to use it
+1) Unzip, then in a terminal:
+```
+cd sarge-forecast-sim-starter
+firebase login
+firebase use --add    # select or create your Firebase project
+```
+2) Deploy rules and indexes:
+```
+firebase deploy --only firestore:indexes,firestore:rules
+```
+3) Build and deploy Functions:
+```
+cd functions
+npm install
+npm run build
+cd ..
+firebase deploy --only functions
+```
+4) Set your Firebase config in `hosting/index.html` (the `firebaseConfig` object), then:
+```
+firebase deploy --only hosting
+```
+5) In Firestore, add a test scenario:
+- Collection: `scenarios`
+- Document ID: `scenario_1`
+- Fields:
+```
+name: "Baseline"
+start_date: "2025-10-01"
+horizon_days: 30
+```
+6) Open your Hosting URL, enter `scenario_1`, press Run. You should see a `run_id` and new rows in `sim_*` collections.
+
+Notes
+- The rules expect an admin claim for writing configs. For a quick test, either set a custom claim for your user in Admin SDK (`setCustomUserClaims(uid,{admin:true})`) or temporarily relax the rule for `scenarios` while you seed data, then restore it.
+- Update `.firebaserc` if your project ID is different.
+- This is a scaffold. Next step is to add the real simulator logic and your schema docs for `retention_models`, `pricing_inputs`, `content_events`, and `tournaments`. I can generate seed JSONs for those when you want.
+

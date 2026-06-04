@@ -1,0 +1,274 @@
+TITLE: Mavia performance KPIs
+DATE: 2025-08-22
+MESSAGES: 8
+ID: 68a88dbd-ac94-8325-9687-6028dcd2d318
+---
+
+[USER]
+what are the performance kpis for Mavia the crypto game
+
+[ASSISTANT]
+Use Work mode.
+
+Assumptions
+- You want an operator-grade KPI set to evaluate Heroes of Mavia across gameplay, monetization, UA, and Web3 health.  
+- I will include Mavia-specific nuances where there is public data and cite them.
+
+Plan
+- List KPIs by category with short definitions and formulas.  
+- Note where to measure them and any Mavia-specific context.  
+- Finish with a compact starter dashboard you can lift into a tracker.
+
+Deliverable
+
+Core game & engagement
+- Installs, DAU, WAU, MAU. Stickiness = DAU ÷ MAU. Source: App Store Connect, Google Play Console, Adjust or AppsFlyer.  
+  • Public context: Skrice cited 278k peak DAU in Feb 2024 and ~74k average DAU a few months later. Gam3s reported 2.6M MAU in Mar 2024. citeturn0search22turn0search3turn0search12  
+- Sessions per DAU, average session length, time in game per DAU.  
+- Retention D1, D7, D30, D60, D90, plus survival curves by cohort. Benchmarks vary by genre; compare to current midcore benchmarks rather than hypercasual. citeturn3search6turn3search21  
+- Progression KPIs: HQ level distribution, time to HQ10 or higher, attack frequency, defense win rate, loot per attack, shield uptime.  
+- Stability and performance: crash-free rate, ANR rate, median cold start, server latency.
+
+Monetization
+- IAP revenue, ad revenue, share of revenue by stream.  
+- ARPDAU = total revenue that day ÷ DAU.  
+- ARPPU = IAP revenue ÷ payers. Payer conversion = payers ÷ DAU.  
+- Ad KPIs: rewarded opt-in rate, impressions per DAU, eCPM, ad ARPDAU.  
+- LTV by cohort.  
+- ROAS by day (D1, D7, D30, D90) and payback period. Reference genre ROAS patterns when judging buyability. citeturn3search7turn3search15
+
+UA and growth
+- CPI by geo and platform. Organic ratio = organics ÷ total installs.  
+- Store page CVR, rating volume and average rating.  
+- Virality: K-factor and invites→install conversion. K > 1 indicates compounding growth. citeturn3search8turn3search11
+
+Economy health specific to Mavia
+- RUBY flows: daily RUBY earned per active, total emissions, sinks vs sources ratio, net RUBY inflation. Mavia’s RUBY is the premium off-chain earnable currency that converts into legendary NFTs, so track off-chain ledger plus marketplace conversion. citeturn2search0  
+- Marketplace GMV, take rate, buyer conversion, average order value, time to first trade.  
+- Price signals inside the game: RUBY purchasing power index over a fixed basket of upgrades or items.
+
+Web3 adoption and token health
+- Wallet link rate = linked wallets ÷ DAU.  
+- % of DAU with any on-chain action last 7 days.  
+- On-chain usage: unique wallets, tx count, bridge volume between Ethereum and Base, success rate, fees. Mavia runs a cross-chain bridge for MAVIA and NFTs via Stargate. citeturn2search22turn2search14  
+- Token metrics for $MAVIA: price, circulating supply, market cap, FDV, turnover, CEX vs DEX volume, holder count, top-10 concentration, staking share, unlock schedule progress and sell-through after unlocks. Allocation reference: team 22%, community and ecosystem 44%, pre-sale 15%, gameplay rewards 10%, airdrop 3.5%, advisors 3%, launch partners 2.5%. citeturn0search19  
+- NFT health: unique owners, listings rate, floor price, sales velocity for Land, Heroes, Statues.  
+- Note on KPI choice: early 2024 coverage pointed out Mavia’s gameplay was thin on blockchain integration, so daily active wallets alone was not meaningful yet. Use wallet KPIs once deeper on-chain loops are live. citeturn0search3
+
+Community & support
+- Discord MAU, daily messages, sentiment index, mod actions.  
+- X follower growth and engagement.  
+- CSAT, NPS, median first response and resolution times for tickets.
+
+Integrity & risk
+- Bot detection hit rate, ban rate per 1k DAU, multi-accounting flags, chargeback rate.
+
+Starter dashboard for Mavia
+- Acquisition: Installs, CPI, organic ratio, store CVR, K-factor.  
+- Engagement: DAU, MAU, stickiness, sessions per DAU, session length, D1, D7, D30.  
+- Monetization: ARPDAU, ARPPU, payer conversion, ad ARPDAU, ROAS D7 and D30, payback days.  
+- Economy: RUBY emissions, RUBY sinks-to-sources ratio, marketplace GMV, take rate.  
+- Web3: wallet link rate, on-chain unique wallets 7D, bridge volume ETH↔Base 7D, holders and top-10 share, unlock-event sell-through. citeturn2search22  
+- Stability: crash-free sessions, ANR, median server latency.  
+- Community: Discord MAU, CSAT, NPS.
+
+Where to fetch
+- Mobile analytics: App Store Connect, Google Play Console, Adjust or AppsFlyer, GameAnalytics. citeturn3search22  
+- Token and chain: Dune dashboards, IntoTheBlock, CoinMarketCap or Coinbase for quick price and market cap, Tokenomist for unlock and allocation tracking. citeturn0search14turn0search11turn2search15turn0search19  
+- Official ecosystem docs for currency rules and bridge status. citeturn2search12turn2search22
+
+Live price reference for $MAVIA
+financeturn1finance0
+
+Self-audit
+- No target numbers were asserted beyond cited public figures.  
+- Web sources cited for DAU, MAU, currency design, bridge, and token allocation.  
+- No em dashes and no horizontal rules.  
+- If you want, I can turn this into a KPI spec with data owners, cadence, and SQL outlines for each metric.
+
+[USER]
+give me run rates on all key kpi from launch to date
+
+[ASSISTANT]
+Use Work mode.
+
+Assumptions
+- You want concrete run-rate numbers from public sources, launch on 31 Jan 2024 through today, 22 Aug 2025.
+- “Run rate” means the average per day over the stated interval. When only point estimates exist, I report them as such and avoid inventing unseen data.
+
+Plan
+- Compile dated milestones for installs, DAU, MAU, RUBY, token and holders.
+- Compute per-day run rates between milestones. Show the math.
+- Call out data gaps that are not public.
+
+Deliverable
+
+# Acquisition run rates
+1) Installs  
+- 1,000,000 installs by 5 Feb 2024. Interval length 5 days from 31 Jan to 5 Feb. Run rate 1,000,000 ÷ 5 = 200,000 installs per day. citeturn0search11turn0search4  
+- 3,000,000 installs by 8 Mar 2024. Interval 5 Feb to 8 Mar is 32 days. Increment 2,000,000. Run rate 2,000,000 ÷ 32 = 62,500 installs per day. citeturn1search2  
+- 4,000,000 installs by 17 Jun 2024. Interval 8 Mar to 17 Jun is 101 days. Increment 1,000,000. Run rate 1,000,000 ÷ 101 ≈ 9,901 installs per day. citeturn1search0
+
+Notes  
+- Those three checkpoints are all publicly claimed. There is no reliable public total after Jun 2024. If you have store dashboards, I can extend the series.
+
+# Engagement run rates
+2) DAU and MAU  
+- Point DAU near launch: 278,000 on 17 Feb 2024. Point estimate, not averaged. citeturn0search0  
+- Point MAU: 2,600,000 in early March 2024. Point estimate. citeturn0search5  
+- Early stickiness proxy using the two public points: 278,000 ÷ 2,600,000 ≈ 10.7 percent. Calculation uses DAU from 17 Feb against MAU reported 4 Mar, so treat as an approximate early-month signal rather than a same-day ratio.  
+- Mid 2024 commentary: average DAU ≈ 74,000 cited alongside 4 million total downloads by 19 Jun 2024. That supports a declining DAU run rate post-launch. citeturn0search1
+
+# Economy run rates
+3) RUBY emissions  
+- Total RUBY “earned in-game” reported as over 275,000,000 by 17 Jun 2024. Interval 31 Jan to 17 Jun is 138 days. Run rate 275,000,000 ÷ 138 ≈ 1,992,756 RUBY per day. citeturn0view0
+
+4) Marketplace milestones  
+- In-app Ruby Marketplace live by 7 May 2024. Web Ruby Marketplace opened later in 2024. These are feature gates, not GMV. No public GMV to compute run rate. citeturn0search22turn0search1
+
+# Web3 and token run rates
+5) Token price levels and drawdown  
+- Token generation: 6 Feb 2024. citeturn0search21  
+- All-time high around 10.59 to 10.71 USD on 18 Feb 2024. citeturn0search10turn0search21  
+- All-time low around 0.097 USD on 11 Mar 2025. citeturn0search13  
+- Current price snapshot below. From ATH to now, drawdown ≈ 98.4 percent using 10.59 and 0.1695. citeturn0search21  
+financeturn0finance0
+
+6) Token holders  
+- Ethereum holders on Etherscan: 28,454 observed on page metadata. Treat as chain-specific. citeturn0search0  
+- Base chain holders on BaseScan: 80,785 with circulating supply shown as 51,619,195. Figures are chain-specific and sourced from CoinMarketCap feed on the page. citeturn0view1
+
+# What is not publicly available
+- Cohort retention curves, sessions per DAU, session length, LTV, ROAS, CPI, wallet link rate, on-chain daily active wallets by date, marketplace GMV and take rate. None of these have credible public time series. For internal reporting, we can compute and backfill these from App Store Connect, Google Play Console, Adjust or AppsFlyer, GameAnalytics, Dune, and marketplace logs.
+
+Compact table you can lift into a tracker
+
+| KPI | Date or Interval | Value | Run-rate math |
+|---|---|---:|---|
+| Installs | 31 Jan to 5 Feb 2024 | 1,000,000 | 1,000,000 ÷ 5 days = 200,000/day citeturn0search11 |
+| Installs | 5 Feb to 8 Mar 2024 | +2,000,000 | 2,000,000 ÷ 32 days = 62,500/day citeturn1search2 |
+| Installs | 8 Mar to 17 Jun 2024 | +1,000,000 | 1,000,000 ÷ 101 days ≈ 9,901/day citeturn1search0 |
+| DAU (point) | 17 Feb 2024 | 278,000 | Point snapshot citeturn0search0 |
+| MAU (point) | 4 Mar 2024 | 2,600,000 | Point snapshot citeturn0search5 |
+| Stickiness | Feb to early Mar 2024 | ≈ 10.7 percent | 278,000 ÷ 2,600,000 |
+| RUBY emissions | 31 Jan to 17 Jun 2024 | 275,000,000 total | 275,000,000 ÷ 138 days ≈ 1,992,756/day citeturn0view0 |
+| Token ATH | 18 Feb 2024 | ~10.59 to 10.71 USD | Level only citeturn0search10turn0search21 |
+| Token ATL | 11 Mar 2025 | ~0.097 USD | Level only citeturn0search13 |
+| Holders (ETH) | 12 Aug 2025 | 28,454 | Chain specific citeturn0search0 |
+| Holders (Base) | current | 80,785 | Chain specific citeturn0view1 |
+
+Self-audit
+- All reported run rates are computed directly from dated public claims. I showed the division and intervals.  
+- I did not infer private KPIs like LTV or retention curves.  
+- No em dashes and no horizontal rules.  
+- If you share internal dashboards, I can extend this into a complete month-by-month sheet with sparklines and alert bands.
+
+[USER]
+I need a run rate from launch to date of all kpi's
+
+[ASSISTANT]
+Use Work mode.
+
+Assumptions  
+- “Launch” is the global mobile release on 31 Jan 2024. “To date” is 22 Aug 2025, Europe/London. citeturn0search7  
+- “Run rate” means average per day across the stated interval. I only compute it where credible public totals exist.
+
+Plan  
+- Pull dated milestones from primary sources.  
+- Compute day counts and per-day rates, show the math.  
+- Flag KPIs with no public time series.
+
+Deliverable
+
+# Acquisition
+
+**Installs**  
+- 1,000,000 by 5 Feb 2024. Interval 31 Jan to 5 Feb = 5 days. Run rate = 1,000,000 ÷ 5 = **200,000 installs/day**. citeturn0search4  
+- 3,000,000 by 8 Mar 2024. Interval 5 Feb to 8 Mar = 32 days. Increment = 2,000,000. Run rate = 2,000,000 ÷ 32 = **62,500 installs/day**. citeturn0search5  
+- 4,000,000 by 17 Jun 2024. Interval 8 Mar to 17 Jun = 101 days. Increment = 1,000,000. Run rate = 1,000,000 ÷ 101 ≈ **9,900.99 installs/day**. citeturn0search2  
+- Launch to 17 Jun 2024 overall: 4,000,000 over 138 days → **28,985.51 installs/day**. citeturn0search2  
+- Launch to 22 Aug 2025 lower-bound floor using last verified total: 4,000,000 over 569 days → **7,029.88 installs/day**. Treat this as a floor until a newer total is published. citeturn0search2
+
+# Engagement
+
+**DAU**  
+- Peak period snapshot: “over 278,000 DAU” in Feb 2024. This is a point estimate, not an average. citeturn0search0  
+- Team-cited **average DAU ≈ 74,000** around the Phase 2 reveal in mid-Jun 2024. Use this as the only public “run-rate” DAU. citeturn0search1
+
+**MAU**  
+- **2.6 million MAU** reported on 4 Mar 2024. Monthly level, not a per-day series, so no launch-to-date average can be computed from public data. citeturn0search0turn0search2
+
+# Economy
+
+**RUBY earned in-game**  
+- **275,000,000+ RUBY** by 17 Jun 2024. Launch to 17 Jun = 138 days. Run rate = 275,000,000 ÷ 138 ≈ **1,992,753.62 RUBY/day**. citeturn0search3
+
+# Web3 adoption and token
+
+**$MAVIA token ATH to date context**  
+- ATH **$10.59** on 18 Feb 2024. Today’s live price widget below. Drawdown vs ATH is implied by the widget. citeturn0search3  
+financeturn0finance0
+
+**Holders, Ethereum mainnet**  
+- **28,490 holders** on Etherscan. TGE on 6 Feb 2024. Average ETH-holders accrual from TGE to 12 Aug 2025 = 28,490 ÷ 553 ≈ **51.52 holders/day**. Treat as approximate because holders were not strictly zero at TGE and this excludes Base. citeturn0view0
+
+# Compact table you can lift into a tracker
+
+| KPI | Interval | Public total | Run-rate math | Run-rate |
+|---|---|---:|---|---:|
+| Installs | 31 Jan to 5 Feb 2024 | 1,000,000 | 1,000,000 ÷ 5 | **200,000/day** citeturn0search4 |
+| Installs | 5 Feb to 8 Mar 2024 | +2,000,000 | 2,000,000 ÷ 32 | **62,500/day** citeturn0search5 |
+| Installs | 8 Mar to 17 Jun 2024 | +1,000,000 | 1,000,000 ÷ 101 | **9,900.99/day** citeturn0search2 |
+| Installs | Launch to 17 Jun 2024 | 4,000,000 | 4,000,000 ÷ 138 | **28,985.51/day** citeturn0search2 |
+| Installs | Launch to 22 Aug 2025 | ≥4,000,000 | 4,000,000 ÷ 569 | **7,029.88/day** floor citeturn0search2 |
+| DAU (avg) | Jun 2024 period | 74,000 | team-cited average | **74,000** citeturn0search1 |
+| DAU (peak) | Feb 2024 snapshot | 278,000+ | point reading | n.a. run-rate citeturn0search0 |
+| MAU | Mar 2024 | 2,600,000 | monthly level | n.a. run-rate citeturn0search0turn0search2 |
+| RUBY earned | Launch to 17 Jun 2024 | 275,000,000+ | 275,000,000 ÷ 138 | **1,992,753.62/day** citeturn0search3 |
+| $MAVIA holders, ETH | 6 Feb 2024 to 12 Aug 2025 | 28,490 | 28,490 ÷ 553 | **51.52/day** citeturn0view0 |
+
+What is not publicly computable from launch to today  
+- Retention curves, session length, sessions per DAU, ARPDAU, ARPPU, payer conversion, ad ARPDAU, LTV, CPI, ROAS, wallet link rate, daily on-chain unique users by date, marketplace GMV and take rate. None of these have credible public time series for Mavia.  
+
+If you can share internal dashboards for App Store Connect, Google Play Console, Adjust or AppsFlyer, GameAnalytics, and marketplace logs, I can extend this into a full launch-to-date KPI sheet with per-cohort run rates, confidence bands, and alert thresholds.
+
+Self-audit  
+- Every run rate is derived from a dated total and shows the math.  
+- I avoided inferring hidden data.  
+- All external facts are cited.  
+- No em dashes.
+
+[USER]
+I need these in a month over month graph
+
+[ASSISTANT]
+Use Work mode.
+
+Assumptions  
+- Launch is 31 Jan 2024. Today is 22 Aug 2025, Europe/London. citeturn0search0turn0search4  
+- “Month over month graph” means monthly adds per KPI, not cumulative.  
+- I only graphed KPIs with enough dated public totals to compute MoM without inventing data. Everything else is flagged as unavailable.
+
+Plan  
+- Rebuild daily series from dated milestones, allocate linearly within each interval, then aggregate to calendar months.  
+- Show separate charts for Installs and RUBY. Add a snapshot chart for DAU/MAU where only point data exists.  
+- Provide a CSV you can lift into your tracker.
+
+Deliverable  
+- I generated three MoM charts and a CSV containing the exact values used. June 2024 bars are partial because the last verified milestone is 17 Jun 2024.
+
+[Download the CSV](sandbox:/mnt/data/mavia_mom_public_series.csv)
+
+What’s in the graphs  
+- Installs per month, Feb–Jun 2024. Milestones used: 1M by 5 Feb, 3M by 8 Mar, 4M by 17 Jun. citeturn0search5turn0search2turn0view0  
+- RUBY earned per month, Feb–Jun 2024. Total 275M by 17 Jun allocated uniformly within the observed window because no finer public breakdown exists. citeturn0view0  
+- Engagement snapshots: DAU 278k on 17 Feb 2024, average DAU ~74k cited mid-Jun 2024, MAU 2.6M on 4 Mar 2024. These are not MoM series, so I plotted them as labeled points. citeturn0search0turn0view0turn0search19
+
+Limits and how to complete “all KPIs”  
+- No credible public MoM for retention, session length, ARPDAU, ARPPU, payer conversion, ad ARPDAU, LTV, CPI, ROAS, wallet-link rate, marketplace GMV or take rate. If you share App Store Connect, Google Play Console, Adjust/AppsFlyer, GameAnalytics, Dune, and marketplace exports, I will extend this to full MoM coverage and align definitions.
+
+Self-audit  
+- Sources cited for each milestone.  
+- Interpolation declared and only used where necessary.  
+- No em dashes.
+

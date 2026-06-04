@@ -1,0 +1,2607 @@
+TITLE: Statement of work tasks
+DATE: 2025-10-22
+MESSAGES: 23
+ID: 68f8cf76-58f4-8326-8e49-f06a7b51088c
+---
+
+[USER]
+the client (couch heroes) wants a statement of work breakout of tasks for 
+1. Hiring a CTO
+2. Hiring an Executive producer
+3. structuring the right distribution of staff
+4. Building out a production framework and implementation
+
+[ASSISTANT]
+Here is a clean SoW-style breakout for the four requested workstreams, aligned to Couch Heroes’ platform and team context.
+
+# Scope and Objective
+Deliver four parallel workstreams that secure senior leadership hires, define a right-sized org design, and stand up a production framework the team can operate immediately.
+
+# Workstream 1: Hire a Chief Technology Officer
+## Outcomes
+- Signed CTO with proven MMO or large-scale online platform experience, start date agreed.
+- Codified technical charter and first 90-day plan.
+
+## Tasks
+1) Role definition and success profile  
+- Translate company vision and near-term roadmap into a CTO remit, responsibilities, and measurable outcomes.  
+- Produce a scorecard covering architecture at scale, backend and services, UE5 networking, live ops, hiring, and delivery.  
+
+2) Compensation and search strategy  
+- Benchmark total comp and equity ranges for Cyprus, Greece, UK, and remote candidates.  
+- Choose channels: retained search, curated networks, targeted outreach, and referrals.  
+
+3) Sourcing and longlist  
+- Build a longlist with evidence of shipped online titles, scalable systems, and team building.  
+- Weekly funnel reporting and de-risk checks on conflicts, notice periods, and relocation.  
+
+4) Structured assessment  
+- Screening interview against scorecard.  
+- Technical deep dive on architecture choices, cost envelopes, and ops maturity.  
+- Leadership interview on delivery cadence, coaching, and culture.  
+- Practical exercise: 72-hour take-home or live case on scaling regions, layers, and instancing.  
+- Reference calls with past CEOs, technical peers, and reports.  
+
+5) Offer and close  
+- Offer pack, equity modelling within board parameters, start-date, communications plan.  
+
+## Deliverables
+- Role description and scorecard  
+- Comp benchmark memo and search plan  
+- Candidate tracker with interview notes  
+- Case exercise brief and rubric  
+- Reference summaries  
+- Offer pack and onboarding plan
+
+## Acceptance tests
+- Minimum 6 qualified candidates interviewed, 2 finalists with completed case and references.  
+- Offer accepted within approved comp band and start date confirmed.
+
+Estimated period of performance: 6 to 10 weeks.
+
+# Workstream 2: Hire an Executive Producer
+## Outcomes
+- Signed Executive Producer with shipped live service or multiplayer track record and studio-wide production leadership remit.
+
+## Tasks
+1) Role definition and success profile  
+- Responsibilities across planning, scope control, risk, cross-discipline throughput, vendor oversight, and release management.  
+- Scorecard emphasising shipped titles, live service operating rhythms, team coaching, and stakeholder management.  
+
+2) Compensation and search strategy  
+- Market benchmarks for EP level in target locations.  
+- Sourcing plan and outreach cadence.  
+
+3) Sourcing and assessment  
+- Longlist build with shipped proof.  
+- Interviews: screening, production-systems deep dive, studio leadership behaviours.  
+- Practical exercise: 48-hour plan to take current build to an investor-ready milestone, including staffing and risk plan.  
+- References across engineering, art, and business stakeholders.  
+
+4) Offer and close  
+- Offer pack, bonus structure tied to delivery milestones, start-date plan.
+
+## Deliverables
+- Role description and scorecard  
+- Candidate tracker and interview packets  
+- Exercise brief and scoring rubric  
+- Reference summaries  
+- Offer pack and onboarding plan
+
+## Acceptance tests
+- Minimum 6 qualified candidates interviewed, 2 finalists with completed exercise and references.  
+- Offer accepted within band and start date confirmed.
+
+Estimated period of performance: 5 to 8 weeks.
+
+# Workstream 3: Organisation Design and Right Distribution of Staff
+## Outcomes
+- Target org for the next 18 months with ratios, hiring sequence, and cost envelope.  
+- Clear decision rights, reporting lines, and interfaces.
+
+## Tasks
+1) Current state inventory  
+- Catalogue roles, seniority, contractors, vendors, and delivery responsibilities.  
+- Map against product scope and environments.  
+
+2) Target operating model  
+- Define core functions: Game, Platform, Online Services, Tools, Art, Design, QA, Data, Live Ops, UXR, Community, and Publishing support.  
+- Ratios by phase, for example engineer to producer, gameplay to online, content to tools.  
+- Decision rights and RACI across roadmap, scope changes, releases, and incidents.  
+
+3) Staffing plan and phasing  
+- Headcount by quarter with hiring sequence, location split, and remote policy.  
+- Job families and levels, career ladders, and interview loops.  
+- Cost envelope with scenarios for contractor vs FTE.  
+
+4) Governance and reporting  
+- Cadence for planning, stand-ups, playtests, metrics reviews, and risk boards.
+
+## Deliverables
+- Org blueprint and RACI  
+- Hiring plan workbook with cost scenarios  
+- Job family summaries and interview loop templates  
+- Operating cadence calendar
+
+## Acceptance tests
+- Organisation baseline and target approved by CEO and Finance.  
+- Hiring plan covers next 2 quarters with named requisitions and interview loops ready.
+
+Estimated period of performance: 3 to 4 weeks.
+
+# Workstream 4: Production Framework and Implementation
+## Outcomes
+- A working production system across Jira or Azure Boards, release calendar, playtest rhythm, and dashboards.  
+- Team trained and shipping against the new framework.
+
+## Tasks
+1) Production audit  
+- Review current backlogs, build and release pipeline, environments, and team rituals.  
+- Identify bottlenecks in scope control, cross-team dependencies, and incident response.  
+
+2) Framework design  
+- Ways of working blueprint: Sprint or Kanban by stream, estimation policy, Definition of Ready and Done, change control, and release readiness checks.  
+- Release management: calendar, branch strategy, pre-flight checklists, and go or no-go rules.  
+- Risk and dependency management: single register with owners and SLAs.  
+- Measurement: KPI tree and role-based dashboards for delivery, quality, and player outcomes.  
+
+3) Tooling configuration  
+- Jira or Azure Boards projects, workflows, fields, boards, filters, dashboards.  
+- Templates for epics, stories, tech tasks, test cases, release tickets, and post-mortems.  
+- Automation for status transitions, definitions, and checklists.  
+
+4) Training and pilot  
+- Playbook and quick-start guides.  
+- Live pilot in two teams for one full cadence, capture improvements, then scale.  
+
+5) Roll-out and handover  
+- Full team migration, calendar live, dashboard live.  
+- Handover of admin rights, governance meetings running.
+
+## Deliverables
+- Production Handbook and playbook  
+- Configured project spaces and dashboards  
+- Release calendar and checklists  
+- Risk and dependency register  
+- Training sessions completed and recordings archived
+
+## Acceptance tests
+- Two teams run a full cadence in the new system with green build, tagged release, and retro actions closed.  
+- Dashboards show throughput, blockers, defects, and release readiness.  
+- CEO and Game Director sign off the framework for studio-wide use.
+
+Estimated period of performance: 4 to 6 weeks for design and pilot, 2 to 4 additional weeks for full roll-out.
+
+# Governance, Cadence, and Interfaces
+- Single weekly programme check-in with CEO, Head of Strategy, and hiring leads.  
+- Biweekly delivery read-out for production framework progress.  
+- Shared trackers for candidates, hiring status, org plan, and production risks.  
+- Acceptance follows single consolidated feedback cycles per deliverable, then re-submission for approval.
+
+# Client contributions needed
+- Access to leaders and team members for interviews.  
+- Agreement on compensation bands and equity policy.  
+- Access to current project management tools and repositories.  
+- Named reviewers for deliverable sign-off.
+
+If you want this packaged as a Services Schedule with periods of performance, acceptance, and fee modelisation ready for signature, I can format it directly into the CSA template language you already use and map any fixed-fee vs time-and-materials elements accordingly. fileciteturn0file1
+
+Context used to align scope and artefacts with existing Couch Heroes material: leadership and company overview, platform pillars and production needs, and current architecture and environments. fileciteturn0file0 fileciteturn0file8 fileciteturn0file7 fileciteturn0file6
+
+[USER]
+this is the new list from the client
+
+Production framework implementation
+Hiring and leadership support CTO and EP 
+Build Production and leadership structures  
+Mentor Robin, Mustafa, and David to mature into effective mid-level leaders
+Establish operational rituals until the Executive Producer is onboarded
+
+[ASSISTANT]
+Here is the updated SoW breakout aligned to the client’s new list. Language is contract-ready, British English, and structured for quick approval.
+
+# Scope and objective
+Stand up a working production framework, secure senior leadership hires, establish operating rituals, and mature three named leads into reliable mid-level managers.
+
+# Workstream A: Production framework implementation
+## Outcomes
+- A live production system in Jira or Azure Boards with release management, risk control, and KPI dashboards.
+- Teams running two full cadences in the new system, on time and with clear handover.
+
+## Key tasks
+1) Production audit and target state  
+- Review current backlogs, environments, release flow, and team rituals.  
+- Define target ways of working by stream: cadence, estimation, Definition of Ready and Done, scope control, change control.
+
+2) Framework design  
+- Release management process, pre-flight checklists, incident response, and go/no-go.  
+- Risk and dependency register with owners and SLAs.  
+- KPI tree and role-based dashboards covering throughput, quality, and player outcomes.
+
+3) Tooling configuration  
+- Configure projects, workflows, fields, boards, filters, automation, dashboards.  
+- Templates for epics, stories, tech tasks, test cases, release tickets, and post-mortems.
+
+4) Pilot and scale  
+- Pilot in two teams for one cadence, capture improvements, then roll out to all teams.  
+- Training sessions and quick-start guides, recordings archived.
+
+## Deliverables
+- Production Handbook and playbook  
+- Configured project spaces and dashboards  
+- Release calendar, pre-flight and post-mortem templates  
+- Risk and dependency register  
+- Training deck and recordings
+
+## Acceptance tests
+- Two teams complete one full cadence under the framework, with a tagged release and retro actions closed.  
+- Dashboards show live throughput, blockers, defects, and release readiness.  
+- CEO and Game Director approve studio-wide adoption.
+
+## Period of performance
+- Design and pilot: 4 to 6 weeks; roll-out: 2 to 4 additional weeks.
+
+# Workstream B: Hiring and leadership support for CTO and Executive Producer
+## Outcomes
+- Signed CTO and Executive Producer with start dates agreed.  
+- Scorecards, interview loops, case exercises, and references completed.
+
+## Key tasks
+1) Role and success profiles  
+- Finalise remits, responsibilities, and measurable outcomes.  
+- Scorecards emphasising at-scale architecture and live service delivery (CTO), and studio-wide production leadership (EP).
+
+2) Search and sourcing  
+- Comp and equity benchmarks for target locations.  
+- Sourcing plan, outreach, and weekly funnel reporting.
+
+3) Structured assessment  
+- Screenings, deep dives, leadership interviews.  
+- Practical exercises:  
+  • CTO: 72-hour case on multi-region scaling and cost envelope.  
+  • EP: 48-hour plan to land an investor-ready milestone with staffing and risk control.  
+- Reference calls across CEOs, peers, and direct reports.
+
+4) Offer and close  
+- Offer packs within approved bands, start-date and onboarding plans.
+
+## Deliverables
+- Role descriptions and scorecards  
+- Candidate tracker and interview packets  
+- Case briefs and scoring rubrics  
+- Reference summaries  
+- Offer packs and 90-day onboarding plans
+
+## Acceptance tests
+- At least 6 qualified interviews per role, 2 finalists each with completed case and references.  
+- One accepted offer per role within band and start date confirmed.
+
+## Period of performance
+- EP: 5 to 8 weeks.  
+- CTO: 6 to 10 weeks.
+
+# Workstream C: Build production and leadership structures
+## Outcomes
+- Right-sized org design with decision rights, reporting lines, and operating cadence.  
+- Hiring plan, interview loops, and cost envelope for the next 2 quarters.
+
+## Key tasks
+1) Current state and gaps  
+- Inventory roles, seniority, vendors, and responsibilities.  
+- Map gaps to roadmap and environments.
+
+2) Target operating model  
+- Functions: Game, Platform, Online Services, Tools, Art, Design, QA, Data, Live Ops, UXR, Community, Publishing support.  
+- Ratios by phase, decision rights, and RACI across scope, releases, and incidents.
+
+3) Staffing and phasing  
+- Headcount by quarter with requisitions, location split, contractor vs FTE scenarios, and interview loops.
+
+4) Governance and reporting  
+- Planning, demos, playtests, metrics reviews, risk board, and change control cadence.
+
+## Deliverables
+- Org blueprint and RACI  
+- Hiring plan workbook with cost scenarios  
+- Job family summaries and interview loop templates  
+- Operating cadence calendar
+
+## Acceptance tests
+- CEO and Finance approve org blueprint and cost envelope.  
+- Requisitions and interview loops ready for next 2 quarters.
+
+## Period of performance
+- 3 to 4 weeks.
+
+# Workstream D: Mentorship for Robin, Mustafa, and David
+## Outcomes
+- Three leaders operating as dependable mid-level managers with clear charters, measurable KPIs, and improved delivery.
+
+## Key tasks
+1) Baseline and goal setting  
+- 360 inputs and competency assessment per person.  
+- Role charters, scope, and KPIs aligned to product goals.
+
+2) Guided practice in the framework  
+- Shadow ownership of sprint rituals, risk reviews, release pre-flights, and post-mortems.  
+- Stretch assignments: one cross-team dependency burn-down each, one release readiness pack each.
+
+3) Coaching cadence  
+- Weekly 1:1s, biweekly 360 check-ins, written feedback after each ritual.  
+- Micro-training modules: planning quality, estimation hygiene, stakeholder updates, risk language.
+
+4) Evidence and progression  
+- Personal development plans with milestones at 30, 60, 90 days.  
+- Readiness reviews against competency ladder.
+
+## Deliverables
+- Three role charters with KPIs  
+- Three 90-day development plans  
+- Coaching notes and 360 summaries  
+- Readiness review reports
+
+## Acceptance tests
+- Each leader demonstrates sustained ownership of one ritual set and one cross-team deliverable.  
+- 360 feedback shows measurable improvement in planning quality, risk management, and communication.  
+- Game Director signs off readiness at 90 days.
+
+## Period of performance
+- 12 weeks with formal checkpoints at 30, 60, and 90 days.
+
+# Workstream E: Establish operational rituals until the Executive Producer is onboarded
+## Outcomes
+- Stable operating rhythm led by interim owners, with handover to the EP on start.
+
+## Key tasks
+- Stand-ups by stream, weekly planning, fortnightly demos and playtests, weekly risk board, release triage twice weekly in the week of a release, monthly business review.  
+- Set agendas, artefacts, and service levels for each ritual.  
+- Publish a single calendar and RACI for interim ownership and EP handover.
+
+## Deliverables
+- Operating Rhythm Calendar (studio-wide)  
+- Meeting agendas, templates, and attendance policies  
+- Handover pack for the EP
+
+## Acceptance tests
+- 90 percent attendance for core rituals for four consecutive weeks.  
+- All releases use the pre-flight and go/no-go process.  
+- EP handover completed within 2 weeks of start.
+
+# Governance and interfaces
+- Weekly programme checkpoint with CEO and hiring leads.  
+- Biweekly production read-out for framework and rituals.  
+- Single shared tracker for candidates, hiring status, org plan, and production risks.  
+- One consolidated review cycle per deliverable, then resubmission for approval.
+
+# Client contributions
+- Access to leaders and teams for interviews and rituals.  
+- Agreement on compensation bands and equity policy for CTO and EP.  
+- Access to current project tools and repositories.  
+- Named reviewers for sign-off.
+
+If you want, I can drop this straight into the CSA Services Schedule format with periods of performance, acceptance, and fee structure sections ready for signature.
+
+[USER]
+add executive coaching for senior leader
+conflict management 
+how to not be a know it all (rephrase of course)
+how to act with humulity and admit when he is wrong (rephrase of course)
+how to focus in his area and not jump into other leaders areas (rephrase of course)
+How to be patient and see things from others perspectics (rephrase of course)
+
+[ASSISTANT]
+Here is an added workstream for the senior leader, integrated with the existing SoW. Language is contract-ready and aligned to the current structure.
+
+# Workstream F: Executive coaching for Senior Leader
+## Outcomes
+- Senior leader demonstrates consistent executive behaviours that improve decision quality, team trust, and delivery.
+- Measurable improvements in conflict handling, remit focus, humility, and perspective-taking, evidenced by 360 feedback and operating outcomes.
+
+## Capability focus
+- Constructive conflict: turn disagreement into decisions and commitments without escalation.
+- Learning stance over certainty bias: replace “answer-first” habits with inquiry, testing, and evidence.
+- Ownership and humility: acknowledge missteps promptly, commit corrective actions, and close the loop.
+- Operate within remit: respect peer decision rights and escalate via agreed governance rather than side-stepping.
+- Patience and perspective: slow down to understand constraints, trade-offs, and other disciplines’ priorities before acting.
+
+## Key tasks
+1) Baseline and goals  
+- Confidential intake with the CEO and the senior leader.  
+- 360 inputs from direct reports, peers, and senior stakeholders.  
+- Define 90-day behaviour goals tied to operating metrics.
+
+2) Coaching plan and cadence  
+- Weekly 1:1 coaching sessions and biweekly stakeholder check-ins.  
+- Field practice during real meetings and rituals, with immediate debriefs.  
+- Micro-modules: conflict models, inquiry techniques, decision framing, apology and repair, and remit discipline.
+
+3) Operating guardrails and tools  
+- Personal Decision Rights Map aligned to the org RACI.  
+- Conflict Playbook with step-by-step patterns for tense situations.  
+- “Slow the decision” checklist to enforce patience and perspective-taking when stakes are high.
+
+4) Evidence and reinforcement  
+- Behavioural scorecard reviewed at 30, 60, and 90 days.  
+- Two observed live interventions per month with written feedback.  
+- Short written reflections after key meetings to institutionalise learning.
+
+## Deliverables
+- Coaching plan with 90-day goals and metrics  
+- Decision Rights Map aligned to RACI  
+- Conflict Playbook and “Slow the decision” checklist  
+- 30/60/90 reports with 360 summaries and recommended next steps
+
+## Acceptance tests
+- Conflict handling: at least three high-stakes disagreements resolved to clear decisions with documented commitments and no follow-on escalation in the next sprint.  
+- Humility and ownership: two written post-mortems where the leader names a personal error, states corrective action, and verifies closure with stakeholders.  
+- Remit discipline: zero instances of bypassing agreed decision rights over a rolling eight-week period, confirmed by peers.  
+- Perspective-taking: stakeholder feedback shows improved listening quality and context capture, with a minimum one-grade improvement on 360 items for empathy and cross-discipline collaboration by day 90.
+
+## Period of performance
+- 12 weeks, with checkpoints at days 30, 60, and 90.
+
+## Interfaces
+- Aligned with Workstream C (org design and RACI) to anchor remit boundaries.  
+- Aligned with Workstream E (operational rituals) to create regular practice moments.  
+- CEO receives the 30/60/90 reports and approves progression.
+
+[USER]
+put this all into a word doc as a sow
+
+[ASSISTANT]
+# Create a Word document for the Statement of Work (SoW) per Glen's request.
+# We will use python-docx to structure a clean, contract-ready document in British English
+# with sections, headings, bullet points, and tables. No em dashes or horizontal rules.
+
+from docx import Document
+from docx.shared import Pt, Inches
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
+from datetime import date
+
+doc = Document()
+
+# Helper to add a heading with consistent spacing
+def add_heading(text, level=1):
+    h = doc.add_heading(text, level=level)
+    return h
+
+# Helper for normal paragraph
+def add_para(text, bold=False, italic=False, align=None):
+    p = doc.add_paragraph()
+    run = p.add_run(text)
+    run.bold = bold
+    run.italic = italic
+    if align == 'center':
+        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    return p
+
+# Helper for bullets
+def add_bullet(text):
+    p = doc.add_paragraph(text, style='List Bullet')
+    return p
+
+# Helper for numbered list
+def add_numbered(text):
+    p = doc.add_paragraph(text, style='List Number')
+    return p
+
+# Title Page
+title = doc.add_paragraph()
+title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+run = title.add_run("Statement of Work")
+run.font.size = Pt(26)
+run.bold = True
+
+subtitle = doc.add_paragraph()
+subtitle.alignment = WD_ALIGN_PARAGRAPH.CENTER
+run2 = subtitle.add_run("Couch Heroes: Production Framework, Leadership Hiring, Organisation Design, and Executive Coaching")
+run2.font.size = Pt(14)
+
+doc.add_paragraph("")
+info = doc.add_paragraph()
+info.alignment = WD_ALIGN_PARAGRAPH.CENTER
+today = date(2025, 10, 22)
+run3 = info.add_run(f"Date: {today.strftime('%d %B %Y')}   |   Version: v0.1   |   Prepared by: Consultant   |   Client: Couch Heroes")
+run3.font.size = Pt(10)
+
+doc.add_paragraph("")
+
+# Overview and Objective
+add_heading("1. Overview and Objective", level=1)
+add_para("Objective: Stand up a working production framework, secure senior leadership hires, establish stable operating rituals, and mature named leaders into reliable mid-level managers.")
+
+# Scope Summary
+add_heading("2. Scope Summary", level=1)
+add_para("This SoW covers six integrated workstreams:")
+add_bullet("Workstream A: Production framework implementation")
+add_bullet("Workstream B: Hiring and leadership support for CTO and Executive Producer")
+add_bullet("Workstream C: Build production and leadership structures")
+add_bullet("Workstream D: Mentorship for Robin, Mustafa, and David")
+add_bullet("Workstream E: Establish operational rituals until the Executive Producer is onboarded")
+add_bullet("Workstream F: Executive coaching for Senior Leader")
+
+# Workstream A
+add_heading("3. Workstream A: Production framework implementation", level=1)
+add_para("Outcomes:", bold=True)
+add_bullet("A live production system in Jira or Azure Boards with release management, risk control, and KPI dashboards.")
+add_bullet("Teams running two full cadences in the new system, on time and with clear handover.")
+
+add_para("Key tasks:", bold=True)
+add_numbered("Production audit and target state: review backlogs, environments, release flow, and team rituals. Define target ways of working by stream including cadence, estimation, Definition of Ready and Done, scope control, and change control.")
+add_numbered("Framework design: release management process, pre-flight checklists, incident response, and go or no-go. Risk and dependency register with owners and SLAs. KPI tree and role-based dashboards covering throughput, quality, and player outcomes.")
+add_numbered("Tooling configuration: configure projects, workflows, fields, boards, filters, automation, and dashboards. Create templates for epics, stories, tech tasks, test cases, release tickets, and post-mortems.")
+add_numbered("Pilot and scale: pilot in two teams for one cadence, capture improvements, then roll out to all teams. Deliver training sessions and quick-start guides with recordings archived.")
+
+add_para("Deliverables:", bold=True)
+add_bullet("Production Handbook and playbook")
+add_bullet("Configured project spaces and dashboards")
+add_bullet("Release calendar, pre-flight and post-mortem templates")
+add_bullet("Risk and dependency register")
+add_bullet("Training deck and recordings")
+
+add_para("Acceptance tests:", bold=True)
+add_bullet("Two teams complete one full cadence under the framework, with a tagged release and retro actions closed.")
+add_bullet("Dashboards show live throughput, blockers, defects, and release readiness.")
+add_bullet("CEO and Game Director approve studio-wide adoption.")
+
+add_para("Period of performance:", bold=True)
+add_para("Design and pilot: 4 to 6 weeks, followed by roll-out of 2 to 4 additional weeks.")
+
+# Workstream B
+add_heading("4. Workstream B: Hiring and leadership support for CTO and Executive Producer", level=1)
+add_para("Outcomes:", bold=True)
+add_bullet("Signed CTO and Executive Producer with start dates agreed.")
+add_bullet("Scorecards, interview loops, case exercises, and references completed.")
+
+add_para("Key tasks:", bold=True)
+add_numbered("Role and success profiles: finalise remits, responsibilities, and measurable outcomes. Create scorecards emphasising at-scale architecture and live service delivery for the CTO, and studio-wide production leadership for the Executive Producer.")
+add_numbered("Search and sourcing: set compensation and equity benchmarks for target locations. Run sourcing plan and outreach, provide weekly funnel reporting.")
+add_numbered("Structured assessment: screenings, deep dives, and leadership interviews. Practical exercises include a 72-hour multi-region scaling and cost envelope case for the CTO and a 48-hour investor-ready milestone plan for the Executive Producer. Conduct reference calls across CEOs, peers, and direct reports.")
+add_numbered("Offer and close: prepare offer packs within approved bands, confirm start dates, and provide onboarding plans.")
+
+add_para("Deliverables:", bold=True)
+add_bullet("Role descriptions and scorecards")
+add_bullet("Candidate tracker and interview packets")
+add_bullet("Case briefs and scoring rubrics")
+add_bullet("Reference summaries")
+add_bullet("Offer packs and 90-day onboarding plans")
+
+add_para("Acceptance tests:", bold=True)
+add_bullet("At least six qualified interviews per role and two finalists per role with completed case and references.")
+add_bullet("One accepted offer per role within band and start date confirmed.")
+
+add_para("Period of performance:", bold=True)
+add_bullet("Executive Producer: 5 to 8 weeks")
+add_bullet("Chief Technology Officer: 6 to 10 weeks")
+
+# Workstream C
+add_heading("5. Workstream C: Build production and leadership structures", level=1)
+add_para("Outcomes:", bold=True)
+add_bullet("Right-sized organisation design with decision rights, reporting lines, and operating cadence.")
+add_bullet("Hiring plan, interview loops, and cost envelope for the next two quarters.")
+
+add_para("Key tasks:", bold=True)
+add_numbered("Current state and gaps: inventory roles, seniority, vendors, and responsibilities. Map gaps to roadmap and environments.")
+add_numbered("Target operating model: define core functions including Game, Platform, Online Services, Tools, Art, Design, QA, Data, Live Ops, UXR, Community, and Publishing support. Set ratios by phase, decision rights, and RACI across scope, releases, and incidents.")
+add_numbered("Staffing and phasing: build headcount by quarter with requisitions, location split, contractor versus FTE scenarios, and interview loops.")
+add_numbered("Governance and reporting: set planning, demos, playtests, metrics reviews, risk board, and change control cadence.")
+
+add_para("Deliverables:", bold=True)
+add_bullet("Organisation blueprint and RACI")
+add_bullet("Hiring plan workbook with cost scenarios")
+add_bullet("Job family summaries and interview loop templates")
+add_bullet("Operating cadence calendar")
+
+add_para("Acceptance tests:", bold=True)
+add_bullet("CEO and Finance approve organisation blueprint and cost envelope.")
+add_bullet("Requisitions and interview loops ready for the next two quarters.")
+
+add_para("Period of performance:", bold=True)
+add_para("Three to four weeks.")
+
+# Workstream D
+add_heading("6. Workstream D: Mentorship for Robin, Mustafa, and David", level=1)
+add_para("Outcomes:", bold=True)
+add_bullet("Three leaders operating as dependable mid-level managers with clear charters, measurable KPIs, and improved delivery.")
+
+add_para("Key tasks:", bold=True)
+add_numbered("Baseline and goal setting: 360 inputs and competency assessment per person. Define role charters, scope, and KPIs aligned to product goals.")
+add_numbered("Guided practice in the framework: shadow ownership of sprint rituals, risk reviews, release pre-flights, and post-mortems. Assign stretch work such as a cross-team dependency burn-down and a release readiness pack for each leader.")
+add_numbered("Coaching cadence: weekly one-to-ones, biweekly 360 check-ins, and written feedback after each ritual. Deliver micro-training modules in planning quality, estimation hygiene, stakeholder updates, and risk language.")
+add_numbered("Evidence and progression: personal development plans with milestones at 30, 60, and 90 days. Readiness reviews against the competency ladder.")
+
+add_para("Deliverables:", bold=True)
+add_bullet("Three role charters with KPIs")
+add_bullet("Three 90-day development plans")
+add_bullet("Coaching notes and 360 summaries")
+add_bullet("Readiness review reports")
+
+add_para("Acceptance tests:", bold=True)
+add_bullet("Each leader demonstrates sustained ownership of one ritual set and one cross-team deliverable.")
+add_bullet("360 feedback shows measurable improvement in planning quality, risk management, and communication.")
+add_bullet("Game Director signs off readiness at 90 days.")
+
+add_para("Period of performance:", bold=True)
+add_para("Twelve weeks with checkpoints at 30, 60, and 90 days.")
+
+# Workstream E
+add_heading("7. Workstream E: Establish operational rituals until the Executive Producer is onboarded", level=1)
+add_para("Outcomes:", bold=True)
+add_bullet("Stable operating rhythm led by interim owners, with handover to the Executive Producer on start.")
+
+add_para("Key tasks:", bold=True)
+add_numbered("Stand-ups by stream, weekly planning, fortnightly demos and playtests, weekly risk board, release triage twice weekly in the week of a release, and a monthly business review.")
+add_numbered("Set agendas, artefacts, and service levels for each ritual.")
+add_numbered("Publish a single calendar and RACI for interim ownership and Executive Producer handover.")
+
+add_para("Deliverables:", bold=True)
+add_bullet("Operating Rhythm Calendar covering the studio")
+add_bullet("Meeting agendas, templates, and attendance policies")
+add_bullet("Handover pack for the Executive Producer")
+
+add_para("Acceptance tests:", bold=True)
+add_bullet("Ninety percent attendance for core rituals for four consecutive weeks.")
+add_bullet("All releases use the pre-flight and go or no-go process.")
+add_bullet("Executive Producer handover completed within two weeks of start.")
+
+add_para("Period of performance:", bold=True)
+add_para("Ongoing until the Executive Producer is onboarded and handover is complete.")
+
+# Workstream F
+add_heading("8. Workstream F: Executive coaching for Senior Leader", level=1)
+add_para("Outcomes:", bold=True)
+add_bullet("Senior leader demonstrates consistent executive behaviours that improve decision quality, team trust, and delivery.")
+add_bullet("Measurable improvements in conflict handling, remit focus, humility, and perspective-taking, evidenced by 360 feedback and operating outcomes.")
+
+add_para("Capability focus:", bold=True)
+add_bullet("Constructive conflict: turn disagreement into decisions and commitments without escalation.")
+add_bullet("Learning stance over certainty bias: replace answer-first habits with inquiry, testing, and evidence.")
+add_bullet("Ownership and humility: acknowledge missteps promptly, commit corrective actions, and close the loop.")
+add_bullet("Operate within remit: respect peer decision rights and escalate via agreed governance rather than side-stepping.")
+add_bullet("Patience and perspective: understand constraints, trade-offs, and other disciplines’ priorities before acting.")
+
+add_para("Key tasks:", bold=True)
+add_numbered("Baseline and goals: confidential intake with the CEO and the senior leader. Collect 360 inputs from direct reports, peers, and senior stakeholders. Define 90-day behaviour goals tied to operating metrics.")
+add_numbered("Coaching plan and cadence: weekly one-to-one coaching sessions and biweekly stakeholder check-ins. Field practice during real meetings and rituals, with immediate debriefs. Micro-modules include conflict models, inquiry techniques, decision framing, apology and repair, and remit discipline.")
+add_numbered("Operating guardrails and tools: Personal Decision Rights Map aligned to the organisation RACI. Conflict Playbook with step-by-step patterns for tense situations. Slow the decision checklist to enforce patience and perspective-taking when stakes are high.")
+add_numbered("Evidence and reinforcement: behavioural scorecard reviewed at 30, 60, and 90 days. Two observed live interventions per month with written feedback. Short written reflections after key meetings to institutionalise learning.")
+
+add_para("Deliverables:", bold=True)
+add_bullet("Coaching plan with 90-day goals and metrics")
+add_bullet("Decision Rights Map aligned to RACI")
+add_bullet("Conflict Playbook and Slow the decision checklist")
+add_bullet("30, 60, and 90-day reports with 360 summaries and recommended next steps")
+
+add_para("Acceptance tests:", bold=True)
+add_bullet("Conflict handling: at least three high-stakes disagreements resolved to clear decisions with documented commitments and no follow-on escalation in the next sprint.")
+add_bullet("Humility and ownership: two written post-mortems where the leader names a personal error, states corrective action, and verifies closure with stakeholders.")
+add_bullet("Remit discipline: zero instances of bypassing agreed decision rights over a rolling eight-week period, confirmed by peers.")
+add_bullet("Perspective-taking: stakeholder feedback shows improved listening quality and context capture, with a minimum one-grade improvement on 360 items for empathy and cross-discipline collaboration by day 90.")
+
+add_para("Period of performance:", bold=True)
+add_para("Twelve weeks, with checkpoints at days 30, 60, and 90.")
+
+# Governance and Interfaces
+add_heading("9. Governance and Interfaces", level=1)
+add_bullet("Weekly programme checkpoint with the CEO and hiring leads.")
+add_bullet("Biweekly production read-out for framework and rituals.")
+add_bullet("Single shared tracker for candidates, hiring status, organisation plan, and production risks.")
+add_bullet("One consolidated review cycle per deliverable, followed by resubmission for approval.")
+
+# Client Contributions
+add_heading("10. Client Contributions and Dependencies", level=1)
+add_bullet("Access to leaders and teams for interviews and rituals.")
+add_bullet("Agreement on compensation bands and equity policy for the CTO and Executive Producer.")
+add_bullet("Access to current project tools and repositories.")
+add_bullet("Named reviewers for sign-off.")
+
+# Deliverables Summary Table
+add_heading("11. Deliverables Summary", level=1)
+table = doc.add_table(rows=1, cols=3)
+hdr_cells = table.rows[0].cells
+hdr_cells[0].text = "Workstream"
+hdr_cells[1].text = "Key Deliverables"
+hdr_cells[2].text = "Period of Performance"
+
+rows = [
+    ("A", "Production Handbook and playbook, tool configurations, dashboards, release templates, risk register, training recordings", "4 to 6 weeks design and pilot, then 2 to 4 weeks roll-out"),
+    ("B", "Role descriptions, scorecards, tracker, case briefs and rubrics, reference summaries, offer packs and onboarding plans", "EP 5 to 8 weeks, CTO 6 to 10 weeks"),
+    ("C", "Organisation blueprint and RACI, hiring plan workbook, job family summaries, operating cadence calendar", "3 to 4 weeks"),
+    ("D", "Role charters with KPIs, 90-day plans, coaching notes and 360 summaries, readiness reports", "12 weeks"),
+    ("E", "Operating Rhythm Calendar, meeting agendas and templates, EP handover pack", "Until EP onboarded and handover complete"),
+    ("F", "Coaching plan, Decision Rights Map, Conflict Playbook, 30-60-90 reports", "12 weeks")
+]
+for ws, dels, pop in rows:
+    row_cells = table.add_row().cells
+    row_cells[0].text = ws
+    row_cells[1].text = dels
+    row_cells[2].text = pop
+
+# Commercials and Sign-off
+add_heading("12. Commercials and Terms", level=1)
+add_para("Fees, invoicing schedules, and travel policy to be documented in the Services Schedule and Master Agreement.")
+
+add_heading("13. Sign-off", level=1)
+add_para("Client: Couch Heroes")
+add_para("Name: ____________________    Title: ____________________    Date: ____________________")
+add_para("Signature: ______________________________________________")
+
+add_para("Consultant")
+add_para("Name: ____________________    Title: ____________________    Date: ____________________")
+add_para("Signature: ______________________________________________")
+
+# Change log
+add_heading("14. Change Log", level=1)
+add_bullet("v0.1 on 22 October 2025: Initial compilation of Workstreams A to F into a contract-ready SoW.")
+
+# Save document
+filepath = "/mnt/data/Couch_Heroes_SoW_Production_Leadership_2025-10-22.docx"
+doc.save(filepath)
+
+filepath
+
+[ASSISTANT]
+Word doc is ready: [Download the SoW](sandbox:/mnt/data/Couch_Heroes_SoW_Production_Leadership_2025-10-22.docx)
+
+If you want it in your CSA template next, tell me which exact sections to carry over and I’ll format it to match.
+
+[USER]
+they dont use azure or jira they use click up and its the overall production framework not jsut live
+"Practical exercises:
+• CTO: 72-hour case on multi-region scaling and cost envelope.
+• EP: 48-hour plan to land an investor-ready milestone with staffing and risk control." I dont want practical excercises 
+
+Im not sourcing the candidates jsut making sure they hire the right one and helping with recruiters and interviews and ratings and background checks
+
+
+[ASSISTANT]
+# Update the SoW per Glen's changes:
+# - Replace Jira/Azure with ClickUp and broaden to overall production framework (not just live)
+# - Remove practical exercises for CTO/EP; replace with structured interview guides and scenarios
+# - Clarify hiring scope: advisory support only (recruiters source); focus on interviews, ratings, background checks
+# - Keep British English; no em dashes; no horizontal rules
+# - Bump version to v0.2 and add change log entry
+
+from docx import Document
+from docx.shared import Pt
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from datetime import date
+
+doc = Document()
+
+def add_heading(text, level=1):
+    return doc.add_heading(text, level=level)
+
+def add_para(text, bold=False, italic=False, align=None):
+    p = doc.add_paragraph()
+    run = p.add_run(text)
+    run.bold = bold
+    run.italic = italic
+    if align == 'center':
+        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    return p
+
+def add_bullet(text):
+    return doc.add_paragraph(text, style='List Bullet')
+
+def add_numbered(text):
+    return doc.add_paragraph(text, style='List Number')
+
+# Title
+title = doc.add_paragraph()
+title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+run = title.add_run("Statement of Work")
+run.font.size = Pt(26)
+run.bold = True
+
+subtitle = doc.add_paragraph()
+subtitle.alignment = WD_ALIGN_PARAGRAPH.CENTER
+run2 = subtitle.add_run("Couch Heroes: Production Framework, Leadership Hiring Advisory, Organisation Design, and Executive Coaching")
+run2.font.size = Pt(14)
+
+doc.add_paragraph("")
+info = doc.add_paragraph()
+info.alignment = WD_ALIGN_PARAGRAPH.CENTER
+today = date(2025, 10, 22)
+run3 = info.add_run(f"Date: {today.strftime('%d %B %Y')}   |   Version: v0.2   |   Prepared by: Consultant   |   Client: Couch Heroes")
+run3.font.size = Pt(10)
+
+doc.add_paragraph("")
+
+# 1. Overview and Objective
+add_heading("1. Overview and Objective", level=1)
+add_para("Objective: Establish a studio-wide production framework in ClickUp across concept to live service, support senior leadership hiring through advisory and assessment, set stable operating rituals, and develop designated leaders into reliable mid-level managers.")
+
+# 2. Scope Summary
+add_heading("2. Scope Summary", level=1)
+add_para("This SoW covers six integrated workstreams:")
+add_bullet("Workstream A: Production framework implementation in ClickUp")
+add_bullet("Workstream B: Senior hiring advisory for CTO and Executive Producer")
+add_bullet("Workstream C: Build production and leadership structures")
+add_bullet("Workstream D: Mentorship for Robin, Mustafa, and David")
+add_bullet("Workstream E: Establish operational rituals until the Executive Producer is onboarded")
+add_bullet("Workstream F: Executive coaching for Senior Leader")
+
+# 3. Workstream A
+add_heading("3. Workstream A: Production framework implementation in ClickUp", level=1)
+add_para("Outcomes:", bold=True)
+add_bullet("A studio-wide production system in ClickUp covering concept, pre-production, production, QA, release, and live operations.")
+add_bullet("Teams running two full cadences using standardised templates, automation, and dashboards, with clear handover to owners.")
+
+add_para("Key tasks:", bold=True)
+add_numbered("Production audit and target state: review current backlogs, asset and code pipelines, environments, and rituals. Define target ways of working by stream including cadence, estimation, Definition of Ready and Done, scope and change control, and milestone gates.")
+add_numbered("Framework design: roadmap and milestone model, release management, incident response, and go or no-go criteria. Create a risk and dependency register with owners and SLAs. Define a KPI tree with role-based dashboards for throughput, quality, predictability, and player outcomes.")
+add_numbered("ClickUp configuration: set up Spaces, Folders, Lists, custom fields, statuses, automations, and Dashboards. Create templates for Epics, Features, User Stories, Technical Tasks, Art Assets, Bugs, Test Cases, Release Readiness, and Post-mortems. Configure Goals and Docs for PRDs, design specs, and release notes. Integrate with source control where applicable.")
+add_numbered("Pilot and scale: pilot in two teams for one cadence, capture improvements, then roll out to all teams. Provide training sessions, quick-start guides, and recordings.")
+
+add_para("Deliverables:", bold=True)
+add_bullet("Production Handbook and playbook")
+add_bullet("Configured ClickUp Spaces, Folders, Lists, custom fields, statuses, automations, Dashboards, Goals, and Docs")
+add_bullet("Roadmap and milestone template, release calendar, pre-flight and post-mortem templates")
+add_bullet("Risk and dependency register")
+add_bullet("Training deck, quick-start guides, and recordings")
+
+add_para("Acceptance tests:", bold=True)
+add_bullet("Two teams complete one full cadence using the ClickUp framework, with a tagged release and retro actions closed.")
+add_bullet("Dashboards show live throughput, blockers, defects, lead and cycle time, and release readiness.")
+add_bullet("CEO and Game Director approve studio-wide adoption.")
+
+add_para("Period of performance:", bold=True)
+add_para("Design and pilot: 4 to 6 weeks, followed by roll-out of 2 to 4 additional weeks.")
+
+# 4. Workstream B
+add_heading("4. Workstream B: Senior hiring advisory for CTO and Executive Producer", level=1)
+add_para("Outcomes:", bold=True)
+add_bullet("Client hires a CTO and an Executive Producer who fit the success profiles and culture, with start dates agreed.")
+add_bullet("Structured, fair, and defensible hiring process with interview packs, scoring rubrics, and background checks completed.")
+add_para("Scope note: This is advisory support. Recruiters and the client perform all candidate sourcing.", italic=True)
+
+add_para("Key tasks:", bold=True)
+add_numbered("Success profiles and scorecards: finalise remits, responsibilities, measurable outcomes, and weighted evaluation criteria.")
+add_numbered("Recruiter selection and brief: help select and brief recruiter(s), define search parameters, and agree reporting cadence.")
+add_numbered("Interview loop design and support: define panel composition, design structured interview guides and question banks, and set up rating scales. Participate as a panel member when requested.")
+add_numbered("Portfolio and track record validation: review shipped work, technology or production systems, and organisation scope against scorecard evidence.")
+add_numbered("References and background checks: coordinate reference calls with agreed stakeholders and support background verification as required.")
+add_numbered("Offer advisory: advise on compensation band alignment, risk flags, start dates, and onboarding plans.")
+
+add_para("Deliverables:", bold=True)
+add_bullet("Role descriptions and success scorecards")
+add_bullet("Recruiter brief and reporting template")
+add_bullet("Interview loop definitions, structured interview guides, and rating rubrics")
+add_bullet("Candidate scorecards and comparison memos for finalists")
+add_bullet("Reference summaries and background check confirmation")
+add_bullet("Onboarding outline and 90-day plan per role")
+
+add_para("Acceptance tests:", bold=True)
+add_bullet("For each role: finalists have completed structured interviews using the agreed guides, with scored rubrics and reference summaries on file.")
+add_bullet("Recruiter reporting cadence running for the duration of the search with no gaps longer than one week.")
+add_bullet("Final hiring decision documented with scorecard evidence and risk assessment.")
+
+add_para("Period of performance:", bold=True)
+add_bullet("Executive Producer advisory: 5 to 8 weeks, dependent on recruiter pipeline and candidate availability.")
+add_bullet("Chief Technology Officer advisory: 6 to 10 weeks, dependent on recruiter pipeline and candidate availability.")
+
+# 5. Workstream C
+add_heading("5. Workstream C: Build production and leadership structures", level=1)
+add_para("Outcomes:", bold=True)
+add_bullet("Right-sized organisation design with decision rights, reporting lines, and operating cadence for the next 18 months.")
+add_bullet("Hiring plan, interview loops, and cost envelope for the next two quarters.")
+
+add_para("Key tasks:", bold=True)
+add_numbered("Current state and gaps: inventory roles, seniority, vendors, and responsibilities. Map gaps to roadmap and environments.")
+add_numbered("Target operating model: define core functions including Game, Platform, Online Services, Tools, Art, Design, QA, Data, Live Ops, UXR, Community, and Publishing support. Set ratios by phase, decision rights, and RACI across scope changes, releases, and incidents.")
+add_numbered("Staffing and phasing: build headcount by quarter with requisitions, location split, contractor versus FTE scenarios, and interview loops.")
+add_numbered("Governance and reporting: set planning, demos, playtests, metrics reviews, risk board, and change control cadence.")
+
+add_para("Deliverables:", bold=True)
+add_bullet("Organisation blueprint and RACI")
+add_bullet("Hiring plan workbook with cost scenarios")
+add_bullet("Job family summaries and interview loop templates")
+add_bullet("Operating cadence calendar")
+
+add_para("Acceptance tests:", bold=True)
+add_bullet("CEO and Finance approve organisation blueprint and cost envelope.")
+add_bullet("Requisitions and interview loops ready for the next two quarters.")
+
+add_para("Period of performance:", bold=True)
+add_para("Three to four weeks.")
+
+# 6. Workstream D
+add_heading("6. Workstream D: Mentorship for Robin, Mustafa, and David", level=1)
+add_para("Outcomes:", bold=True)
+add_bullet("Three leaders operating as dependable mid-level managers with clear charters, measurable KPIs, and improved delivery.")
+
+add_para("Key tasks:", bold=True)
+add_numbered("Baseline and goal setting: 360 inputs and competency assessment per person. Define role charters, scope, and KPIs aligned to product goals.")
+add_numbered("Guided practice in the framework: shadow ownership of sprint rituals, risk reviews, release readiness, and post-mortems. Assign stretch work such as a cross-team dependency burn-down and a release readiness pack for each leader.")
+add_numbered("Coaching cadence: weekly one-to-ones, biweekly 360 check-ins, and written feedback after each ritual. Deliver micro-training modules in planning quality, estimation hygiene, stakeholder updates, and risk language.")
+add_numbered("Evidence and progression: personal development plans with milestones at 30, 60, and 90 days. Readiness reviews against the competency ladder.")
+
+add_para("Deliverables:", bold=True)
+add_bullet("Three role charters with KPIs")
+add_bullet("Three 90-day development plans")
+add_bullet("Coaching notes and 360 summaries")
+add_bullet("Readiness review reports")
+
+add_para("Acceptance tests:", bold=True)
+add_bullet("Each leader demonstrates sustained ownership of one ritual set and one cross-team deliverable.")
+add_bullet("360 feedback shows measurable improvement in planning quality, risk management, and communication.")
+add_bullet("Game Director signs off readiness at 90 days.")
+
+add_para("Period of performance:", bold=True)
+add_para("Twelve weeks with checkpoints at 30, 60, and 90 days.")
+
+# 7. Workstream E
+add_heading("7. Workstream E: Establish operational rituals until the Executive Producer is onboarded", level=1)
+add_para("Outcomes:", bold=True)
+add_bullet("Stable operating rhythm led by interim owners across concept, production, QA, release, and live service, with handover to the Executive Producer on start.")
+
+add_para("Key tasks:", bold=True)
+add_numbered("Run stand-ups by stream, weekly planning, fortnightly demos and playtests, weekly risk board, release triage twice weekly in the week of a release, and a monthly business review.")
+add_numbered("Define agendas, artefacts, and service levels for each ritual.")
+add_numbered("Publish a single calendar and RACI for interim ownership and Executive Producer handover.")
+
+add_para("Deliverables:", bold=True)
+add_bullet("Operating Rhythm Calendar covering the studio")
+add_bullet("Meeting agendas, templates, and attendance policies")
+add_bullet("Handover pack for the Executive Producer")
+
+add_para("Acceptance tests:", bold=True)
+add_bullet("Ninety percent attendance for core rituals for four consecutive weeks.")
+add_bullet("All releases use the pre-flight and go or no-go process.")
+add_bullet("Executive Producer handover completed within two weeks of start.")
+
+add_para("Period of performance:", bold=True)
+add_para("Ongoing until the Executive Producer is onboarded and handover is complete.")
+
+# 8. Workstream F
+add_heading("8. Workstream F: Executive coaching for Senior Leader", level=1)
+add_para("Outcomes:", bold=True)
+add_bullet("Senior leader demonstrates consistent executive behaviours that improve decision quality, team trust, and delivery.")
+add_bullet("Measurable improvements in conflict handling, remit focus, humility, and perspective-taking, evidenced by 360 feedback and operating outcomes.")
+
+add_para("Capability focus:", bold=True)
+add_bullet("Constructive conflict: turn disagreement into decisions and commitments without escalation.")
+add_bullet("Learning stance over certainty bias: replace answer-first habits with inquiry, testing, and evidence.")
+add_bullet("Ownership and humility: acknowledge missteps promptly, commit corrective actions, and close the loop.")
+add_bullet("Operate within remit: respect peer decision rights and escalate via agreed governance rather than side-stepping.")
+add_bullet("Patience and perspective: understand constraints, trade-offs, and other disciplines’ priorities before acting.")
+
+add_para("Key tasks:", bold=True)
+add_numbered("Baseline and goals: confidential intake with the CEO and the senior leader. Collect 360 inputs from direct reports, peers, and senior stakeholders. Define 90-day behaviour goals tied to operating metrics.")
+add_numbered("Coaching plan and cadence: weekly one-to-one coaching sessions and biweekly stakeholder check-ins. Field practice during real meetings and rituals, with immediate debriefs. Micro-modules include conflict models, inquiry techniques, decision framing, apology and repair, and remit discipline.")
+add_numbered("Operating guardrails and tools: Personal Decision Rights Map aligned to the organisation RACI. Conflict Playbook with step-by-step patterns for tense situations. Slow the decision checklist to enforce patience and perspective-taking when stakes are high.")
+add_numbered("Evidence and reinforcement: behavioural scorecard reviewed at 30, 60, and 90 days. Two observed live interventions per month with written feedback. Short written reflections after key meetings to institutionalise learning.")
+
+add_para("Deliverables:", bold=True)
+add_bullet("Coaching plan with 90-day goals and metrics")
+add_bullet("Decision Rights Map aligned to RACI")
+add_bullet("Conflict Playbook and Slow the decision checklist")
+add_bullet("30, 60, and 90-day reports with 360 summaries and recommended next steps")
+
+add_para("Acceptance tests:", bold=True)
+add_bullet("Conflict handling: at least three high-stakes disagreements resolved to clear decisions with documented commitments and no follow-on escalation in the next sprint.")
+add_bullet("Humility and ownership: two written post-mortems where the leader names a personal error, states corrective action, and verifies closure with stakeholders.")
+add_bullet("Remit discipline: zero instances of bypassing agreed decision rights over a rolling eight-week period, confirmed by peers.")
+add_bullet("Perspective-taking: stakeholder feedback shows improved listening quality and context capture, with a minimum one-grade improvement on 360 items for empathy and cross-discipline collaboration by day 90.")
+
+add_para("Period of performance:", bold=True)
+add_para("Twelve weeks, with checkpoints at days 30, 60, and 90.")
+
+# 9. Governance and Interfaces
+add_heading("9. Governance and Interfaces", level=1)
+add_bullet("Weekly programme checkpoint with the CEO and hiring leads.")
+add_bullet("Biweekly production read-out for framework and rituals.")
+add_bullet("Single shared tracker for candidates, hiring status, organisation plan, and production risks.")
+add_bullet("One consolidated review cycle per deliverable, followed by resubmission for approval.")
+
+# 10. Client Contributions and Dependencies
+add_heading("10. Client Contributions and Dependencies", level=1)
+add_bullet("Engage recruiter(s) to source candidates and maintain the agreed reporting cadence.")
+add_bullet("Access to leaders and teams for interviews and rituals.")
+add_bullet("Agreement on compensation bands and equity policy for the CTO and Executive Producer.")
+add_bullet("Access to ClickUp and relevant repositories for configuration and training.")
+add_bullet("Named reviewers for sign-off.")
+
+# 11. Deliverables Summary
+add_heading("11. Deliverables Summary", level=1)
+table = doc.add_table(rows=1, cols=3)
+hdr = table.rows[0].cells
+hdr[0].text = "Workstream"
+hdr[1].text = "Key Deliverables"
+hdr[2].text = "Period of Performance"
+
+rows = [
+    ("A", "Production Handbook and playbook; configured ClickUp (Spaces, Folders, Lists, fields, statuses, automations, Dashboards, Goals, Docs); roadmap and release templates; risk register; training materials", "4 to 6 weeks design and pilot, then 2 to 4 weeks roll-out"),
+    ("B", "Success scorecards; recruiter brief; interview loop and guides; rating rubrics; finalist scorecards and comparison memos; reference summaries; onboarding outline", "EP 5 to 8 weeks advisory; CTO 6 to 10 weeks advisory"),
+    ("C", "Organisation blueprint and RACI; hiring plan workbook; job family summaries; operating cadence calendar", "3 to 4 weeks"),
+    ("D", "Role charters with KPIs; 90-day plans; coaching notes and 360 summaries; readiness reports", "12 weeks"),
+    ("E", "Operating Rhythm Calendar; agendas and templates; EP handover pack", "Until EP onboarded and handover complete"),
+    ("F", "Coaching plan; Decision Rights Map; Conflict Playbook; 30-60-90 reports", "12 weeks")
+]
+for ws, dels, pop in rows:
+    r = table.add_row().cells
+    r[0].text = ws
+    r[1].text = dels
+    r[2].text = pop
+
+# 12. Commercials and Terms
+add_heading("12. Commercials and Terms", level=1)
+add_para("Fees, invoicing schedules, and travel policy to be documented in the Services Schedule and Master Agreement.")
+
+# 13. Sign-off
+add_heading("13. Sign-off", level=1)
+add_para("Client: Couch Heroes")
+add_para("Name: ____________________    Title: ____________________    Date: ____________________")
+add_para("Signature: ______________________________________________")
+add_para("Consultant")
+add_para("Name: ____________________    Title: ____________________    Date: ____________________")
+add_para("Signature: ______________________________________________")
+
+# 14. Change Log
+add_heading("14. Change Log", level=1)
+add_bullet("v0.2 on 22 October 2025: Updated for ClickUp, broadened to overall production framework, removed practical exercises, clarified advisory-only scope for senior hiring.")
+
+filepath = "/mnt/data/Couch_Heroes_SoW_Production_Leadership_2025-10-22_v0.2.docx"
+doc.save(filepath)
+
+filepath
+
+[ASSISTANT]
+Updated as requested. Download the revised SoW: [Couch_Heroes_SoW_Production_Leadership_2025-10-22_v0.2.docx](sandbox:/mnt/data/Couch_Heroes_SoW_Production_Leadership_2025-10-22_v0.2.docx)
+
+Key changes:
+- ClickUp only, and the framework now spans concept to live service.  
+- Removed practical exercises for CTO/EP; replaced with structured interview guides and scorecards.  
+- Clarified advisory-only scope for senior hiring, with recruiter-led sourcing.
+
+[ASSISTANT]
+# Verify if previous file exists; if not, recreate the SoW as v0.2.1 and provide the path.
+import os
+from docx import Document
+from docx.shared import Pt
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from datetime import date
+
+base_dir = "/mnt/data"
+prev_path = os.path.join(base_dir, "Couch_Heroes_SoW_Production_Leadership_2025-10-22_v0.2.docx")
+new_path = os.path.join(base_dir, "Couch_Heroes_SoW_Production_Leadership_2025-10-22_v0.2.1.docx")
+
+def build_doc(path):
+    doc = Document()
+
+    def add_heading(text, level=1):
+        return doc.add_heading(text, level=level)
+
+    def add_para(text, bold=False, italic=False, align=None):
+        p = doc.add_paragraph()
+        run = p.add_run(text)
+        run.bold = bold
+        run.italic = italic
+        if align == 'center':
+            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        return p
+
+    def add_bullet(text):
+        return doc.add_paragraph(text, style='List Bullet')
+
+    def add_numbered(text):
+        return doc.add_paragraph(text, style='List Number')
+
+    # Title
+    title = doc.add_paragraph()
+    title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run = title.add_run("Statement of Work")
+    run.font.size = Pt(26)
+    run.bold = True
+
+    subtitle = doc.add_paragraph()
+    subtitle.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run2 = subtitle.add_run("Couch Heroes: Production Framework, Leadership Hiring Advisory, Organisation Design, and Executive Coaching")
+    run2.font.size = Pt(14)
+
+    doc.add_paragraph("")
+    info = doc.add_paragraph()
+    info.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    today = date(2025, 10, 22)
+    run3 = info.add_run(f"Date: {today.strftime('%d %B %Y')}   |   Version: v0.2.1   |   Prepared by: Consultant   |   Client: Couch Heroes")
+    run3.font.size = Pt(10)
+
+    doc.add_paragraph("")
+
+    # 1. Overview and Objective
+    add_heading("1. Overview and Objective", level=1)
+    add_para("Objective: Establish a studio-wide production framework in ClickUp across concept to live service, support senior leadership hiring through advisory and assessment, set stable operating rituals, and develop designated leaders into reliable mid-level managers.")
+
+    # 2. Scope Summary
+    add_heading("2. Scope Summary", level=1)
+    add_para("This SoW covers six integrated workstreams:")
+    add_bullet("Workstream A: Production framework implementation in ClickUp")
+    add_bullet("Workstream B: Senior hiring advisory for CTO and Executive Producer")
+    add_bullet("Workstream C: Build production and leadership structures")
+    add_bullet("Workstream D: Mentorship for Robin, Mustafa, and David")
+    add_bullet("Workstream E: Establish operational rituals until the Executive Producer is onboarded")
+    add_bullet("Workstream F: Executive coaching for Senior Leader")
+
+    # 3. Workstream A
+    add_heading("3. Workstream A: Production framework implementation in ClickUp", level=1)
+    add_para("Outcomes:", bold=True)
+    add_bullet("A studio-wide production system in ClickUp covering concept, pre-production, production, QA, release, and live operations.")
+    add_bullet("Teams running two full cadences using standardised templates, automation, and dashboards, with clear handover to owners.")
+
+    add_para("Key tasks:", bold=True)
+    add_numbered("Production audit and target state: review current backlogs, asset and code pipelines, environments, and rituals. Define target ways of working by stream including cadence, estimation, Definition of Ready and Done, scope and change control, and milestone gates.")
+    add_numbered("Framework design: roadmap and milestone model, release management, incident response, and go or no-go criteria. Create a risk and dependency register with owners and SLAs. Define a KPI tree with role-based dashboards for throughput, quality, predictability, and player outcomes.")
+    add_numbered("ClickUp configuration: set up Spaces, Folders, Lists, custom fields, statuses, automations, and Dashboards. Create templates for Epics, Features, User Stories, Technical Tasks, Art Assets, Bugs, Test Cases, Release Readiness, and Post-mortems. Configure Goals and Docs for PRDs, design specs, and release notes. Integrate with source control where applicable.")
+    add_numbered("Pilot and scale: pilot in two teams for one cadence, capture improvements, then roll out to all teams. Provide training sessions, quick-start guides, and recordings.")
+
+    add_para("Deliverables:", bold=True)
+    add_bullet("Production Handbook and playbook")
+    add_bullet("Configured ClickUp Spaces, Folders, Lists, custom fields, statuses, automations, Dashboards, Goals, and Docs")
+    add_bullet("Roadmap and milestone template, release calendar, pre-flight and post-mortem templates")
+    add_bullet("Risk and dependency register")
+    add_bullet("Training deck, quick-start guides, and recordings")
+
+    add_para("Acceptance tests:", bold=True)
+    add_bullet("Two teams complete one full cadence using the ClickUp framework, with a tagged release and retro actions closed.")
+    add_bullet("Dashboards show live throughput, blockers, defects, lead and cycle time, and release readiness.")
+    add_bullet("CEO and Game Director approve studio-wide adoption.")
+
+    add_para("Period of performance:", bold=True)
+    add_para("Design and pilot: 4 to 6 weeks, followed by roll-out of 2 to 4 additional weeks.")
+
+    # 4. Workstream B
+    add_heading("4. Workstream B: Senior hiring advisory for CTO and Executive Producer", level=1)
+    add_para("Outcomes:", bold=True)
+    add_bullet("Client hires a CTO and an Executive Producer who fit the success profiles and culture, with start dates agreed.")
+    add_bullet("Structured, fair, and defensible hiring process with interview packs, scoring rubrics, and background checks completed.")
+    add_para("Scope note: This is advisory support. Recruiters and the client perform all candidate sourcing.", italic=True)
+
+    add_para("Key tasks:", bold=True)
+    add_numbered("Success profiles and scorecards: finalise remits, responsibilities, measurable outcomes, and weighted evaluation criteria.")
+    add_numbered("Recruiter selection and brief: help select and brief recruiter(s), define search parameters, and agree reporting cadence.")
+    add_numbered("Interview loop design and support: define panel composition, design structured interview guides and question banks, and set up rating scales. Participate as a panel member when requested.")
+    add_numbered("Portfolio and track record validation: review shipped work, technology or production systems, and organisation scope against scorecard evidence.")
+    add_numbered("References and background checks: coordinate reference calls with agreed stakeholders and support background verification as required.")
+    add_numbered("Offer advisory: advise on compensation band alignment, risk flags, start dates, and onboarding plans.")
+
+    add_para("Deliverables:", bold=True)
+    add_bullet("Role descriptions and success scorecards")
+    add_bullet("Recruiter brief and reporting template")
+    add_bullet("Interview loop definitions, structured interview guides, and rating rubrics")
+    add_bullet("Candidate scorecards and comparison memos for finalists")
+    add_bullet("Reference summaries and background check confirmation")
+    add_bullet("Onboarding outline and 90-day plan per role")
+
+    add_para("Acceptance tests:", bold=True)
+    add_bullet("For each role: finalists have completed structured interviews using the agreed guides, with scored rubrics and reference summaries on file.")
+    add_bullet("Recruiter reporting cadence running for the duration of the search with no gaps longer than one week.")
+    add_bullet("Final hiring decision documented with scorecard evidence and risk assessment.")
+
+    add_para("Period of performance:", bold=True)
+    add_bullet("Executive Producer advisory: 5 to 8 weeks, dependent on recruiter pipeline and candidate availability.")
+    add_bullet("Chief Technology Officer advisory: 6 to 10 weeks, dependent on recruiter pipeline and candidate availability.")
+
+    # 5. Workstream C
+    add_heading("5. Workstream C: Build production and leadership structures", level=1)
+    add_para("Outcomes:", bold=True)
+    add_bullet("Right-sized organisation design with decision rights, reporting lines, and operating cadence for the next 18 months.")
+    add_bullet("Hiring plan, interview loops, and cost envelope for the next two quarters.")
+
+    add_para("Key tasks:", bold=True)
+    add_numbered("Current state and gaps: inventory roles, seniority, vendors, and responsibilities. Map gaps to roadmap and environments.")
+    add_numbered("Target operating model: define core functions including Game, Platform, Online Services, Tools, Art, Design, QA, Data, Live Ops, UXR, Community, and Publishing support. Set ratios by phase, decision rights, and RACI across scope changes, releases, and incidents.")
+    add_numbered("Staffing and phasing: build headcount by quarter with requisitions, location split, contractor versus FTE scenarios, and interview loops.")
+    add_numbered("Governance and reporting: set planning, demos, playtests, metrics reviews, risk board, and change control cadence.")
+
+    add_para("Deliverables:", bold=True)
+    add_bullet("Organisation blueprint and RACI")
+    add_bullet("Hiring plan workbook with cost scenarios")
+    add_bullet("Job family summaries and interview loop templates")
+    add_bullet("Operating cadence calendar")
+
+    add_para("Acceptance tests:", bold=True)
+    add_bullet("CEO and Finance approve organisation blueprint and cost envelope.")
+    add_bullet("Requisitions and interview loops ready for the next two quarters.")
+
+    add_para("Period of performance:", bold=True)
+    add_para("Three to four weeks.")
+
+    # 6. Workstream D
+    add_heading("6. Workstream D: Mentorship for Robin, Mustafa, and David", level=1)
+    add_para("Outcomes:", bold=True)
+    add_bullet("Three leaders operating as dependable mid-level managers with clear charters, measurable KPIs, and improved delivery.")
+
+    add_para("Key tasks:", bold=True)
+    add_numbered("Baseline and goal setting: 360 inputs and competency assessment per person. Define role charters, scope, and KPIs aligned to product goals.")
+    add_numbered("Guided practice in the framework: shadow ownership of sprint rituals, risk reviews, release readiness, and post-mortems. Assign stretch work such as a cross-team dependency burn-down and a release readiness pack for each leader.")
+    add_numbered("Coaching cadence: weekly one-to-ones, biweekly 360 check-ins, and written feedback after each ritual. Deliver micro-training modules in planning quality, estimation hygiene, stakeholder updates, and risk language.")
+    add_numbered("Evidence and progression: personal development plans with milestones at 30, 60, and 90 days. Readiness reviews against the competency ladder.")
+
+    add_para("Deliverables:", bold=True)
+    add_bullet("Three role charters with KPIs")
+    add_bullet("Three 90-day development plans")
+    add_bullet("Coaching notes and 360 summaries")
+    add_bullet("Readiness review reports")
+
+    add_para("Acceptance tests:", bold=True)
+    add_bullet("Each leader demonstrates sustained ownership of one ritual set and one cross-team deliverable.")
+    add_bullet("360 feedback shows measurable improvement in planning quality, risk management, and communication.")
+    add_bullet("Game Director signs off readiness at 90 days.")
+
+    add_para("Period of performance:", bold=True)
+    add_para("Twelve weeks with checkpoints at 30, 60, and 90 days.")
+
+    # 7. Workstream E
+    add_heading("7. Workstream E: Establish operational rituals until the Executive Producer is onboarded", level=1)
+    add_para("Outcomes:", bold=True)
+    add_bullet("Stable operating rhythm led by interim owners across concept, production, QA, release, and live service, with handover to the Executive Producer on start.")
+
+    add_para("Key tasks:", bold=True)
+    add_numbered("Run stand-ups by stream, weekly planning, fortnightly demos and playtests, weekly risk board, release triage twice weekly in the week of a release, and a monthly business review.")
+    add_numbered("Define agendas, artefacts, and service levels for each ritual.")
+    add_numbered("Publish a single calendar and RACI for interim ownership and Executive Producer handover.")
+
+    add_para("Deliverables:", bold=True)
+    add_bullet("Operating Rhythm Calendar covering the studio")
+    add_bullet("Meeting agendas, templates, and attendance policies")
+    add_bullet("Handover pack for the Executive Producer")
+
+    add_para("Acceptance tests:", bold=True)
+    add_bullet("Ninety percent attendance for core rituals for four consecutive weeks.")
+    add_bullet("All releases use the pre-flight and go or no-go process.")
+    add_bullet("Executive Producer handover completed within two weeks of start.")
+
+    add_para("Period of performance:", bold=True)
+    add_para("Ongoing until the Executive Producer is onboarded and handover is complete.")
+
+    # 8. Workstream F
+    add_heading("8. Workstream F: Executive coaching for Senior Leader", level=1)
+    add_para("Outcomes:", bold=True)
+    add_bullet("Senior leader demonstrates consistent executive behaviours that improve decision quality, team trust, and delivery.")
+    add_bullet("Measurable improvements in conflict handling, remit focus, humility, and perspective-taking, evidenced by 360 feedback and operating outcomes.")
+
+    add_para("Capability focus:", bold=True)
+    add_bullet("Constructive conflict: turn disagreement into decisions and commitments without escalation.")
+    add_bullet("Learning stance over certainty bias: replace answer-first habits with inquiry, testing, and evidence.")
+    add_bullet("Ownership and humility: acknowledge missteps promptly, commit corrective actions, and close the loop.")
+    add_bullet("Operate within remit: respect peer decision rights and escalate via agreed governance rather than side-stepping.")
+    add_bullet("Patience and perspective: understand constraints, trade-offs, and other disciplines’ priorities before acting.")
+
+    add_para("Key tasks:", bold=True)
+    add_numbered("Baseline and goals: confidential intake with the CEO and the senior leader. Collect 360 inputs from direct reports, peers, and senior stakeholders. Define 90-day behaviour goals tied to operating metrics.")
+    add_numbered("Coaching plan and cadence: weekly one-to-one coaching sessions and biweekly stakeholder check-ins. Field practice during real meetings and rituals, with immediate debriefs. Micro-modules include conflict models, inquiry techniques, decision framing, apology and repair, and remit discipline.")
+    add_numbered("Operating guardrails and tools: Personal Decision Rights Map aligned to the organisation RACI. Conflict Playbook with step-by-step patterns for tense situations. Slow the decision checklist to enforce patience and perspective-taking when stakes are high.")
+    add_numbered("Evidence and reinforcement: behavioural scorecard reviewed at 30, 60, and 90 days. Two observed live interventions per month with written feedback. Short written reflections after key meetings to institutionalise learning.")
+
+    add_para("Deliverables:", bold=True)
+    add_bullet("Coaching plan with 90-day goals and metrics")
+    add_bullet("Decision Rights Map aligned to RACI")
+    add_bullet("Conflict Playbook and Slow the decision checklist")
+    add_bullet("30, 60, and 90-day reports with 360 summaries and recommended next steps")
+
+    add_para("Acceptance tests:", bold=True)
+    add_bullet("Conflict handling: at least three high-stakes disagreements resolved to clear decisions with documented commitments and no follow-on escalation in the next sprint.")
+    add_bullet("Humility and ownership: two written post-mortems where the leader names a personal error, states corrective action, and verifies closure with stakeholders.")
+    add_bullet("Remit discipline: zero instances of bypassing agreed decision rights over a rolling eight-week period, confirmed by peers.")
+    add_bullet("Perspective-taking: stakeholder feedback shows improved listening quality and context capture, with a minimum one-grade improvement on 360 items for empathy and cross-discipline collaboration by day 90.")
+
+    add_para("Period of performance:", bold=True)
+    add_para("Twelve weeks, with checkpoints at days 30, 60, and 90.")
+
+    # 9. Governance and Interfaces
+    add_heading("9. Governance and Interfaces", level=1)
+    add_bullet("Weekly programme checkpoint with the CEO and hiring leads.")
+    add_bullet("Biweekly production read-out for framework and rituals.")
+    add_bullet("Single shared tracker for candidates, hiring status, organisation plan, and production risks.")
+    add_bullet("One consolidated review cycle per deliverable, followed by resubmission for approval.")
+
+    # 10. Client Contributions and Dependencies
+    add_heading("10. Client Contributions and Dependencies", level=1)
+    add_bullet("Engage recruiter(s) to source candidates and maintain the agreed reporting cadence.")
+    add_bullet("Access to leaders and teams for interviews and rituals.")
+    add_bullet("Agreement on compensation bands and equity policy for the CTO and Executive Producer.")
+    add_bullet("Access to ClickUp and relevant repositories for configuration and training.")
+    add_bullet("Named reviewers for sign-off.")
+
+    # 11. Deliverables Summary
+    add_heading("11. Deliverables Summary", level=1)
+    table = doc.add_table(rows=1, cols=3)
+    hdr = table.rows[0].cells
+    hdr[0].text = "Workstream"
+    hdr[1].text = "Key Deliverables"
+    hdr[2].text = "Period of Performance"
+
+    rows = [
+        ("A", "Production Handbook and playbook; configured ClickUp (Spaces, Folders, Lists, fields, statuses, automations, Dashboards, Goals, Docs); roadmap and release templates; risk register; training materials", "4 to 6 weeks design and pilot, then 2 to 4 weeks roll-out"),
+        ("B", "Success scorecards; recruiter brief; interview loop and guides; rating rubrics; finalist scorecards and comparison memos; reference summaries; onboarding outline", "EP 5 to 8 weeks advisory; CTO 6 to 10 weeks advisory"),
+        ("C", "Organisation blueprint and RACI; hiring plan workbook; job family summaries; operating cadence calendar", "3 to 4 weeks"),
+        ("D", "Role charters with KPIs; 90-day plans; coaching notes and 360 summaries; readiness reports", "12 weeks"),
+        ("E", "Operating Rhythm Calendar; agendas and templates; EP handover pack", "Until EP onboarded and handover complete"),
+        ("F", "Coaching plan; Decision Rights Map; Conflict Playbook; 30-60-90 reports", "12 weeks")
+    ]
+    for ws, dels, pop in rows:
+        r = table.add_row().cells
+        r[0].text = ws
+        r[1].text = dels
+        r[2].text = pop
+
+    # 12. Commercials and Terms
+    add_heading("12. Commercials and Terms", level=1)
+    add_para("Fees, invoicing schedules, and travel policy to be documented in the Services Schedule and Master Agreement.")
+
+    # 13. Sign-off
+    add_heading("13. Sign-off", level=1)
+    add_para("Client: Couch Heroes")
+    add_para("Name: ____________________    Title: ____________________    Date: ____________________")
+    add_para("Signature: ______________________________________________")
+    add_para("Consultant")
+    add_para("Name: ____________________    Title: ____________________    Date: ____________________")
+    add_para("Signature: ______________________________________________")
+
+    # 14. Change Log
+    add_heading("14. Change Log", level=1)
+    add_bullet("v0.2.1 on 22 October 2025: Rebuilt file due to link issue. Content same as v0.2 with minor formatting only.")
+    add_bullet("v0.2 on 22 October 2025: Updated for ClickUp, broadened to overall production framework, removed practical exercises, clarified advisory-only scope for senior hiring.")
+
+    doc.save(path)
+
+# If previous path does not exist, or to ensure fresh link, build the new file
+if not os.path.exists(prev_path):
+    build_doc(new_path)
+else:
+    # Build the new version anyway to ensure a valid link
+    build_doc(new_path)
+
+# Return the path so the UI can link it
+new_path
+
+[ASSISTANT]
+Thanks for the flag. I rebuilt the file with a fresh link.
+
+Download here: [Couch_Heroes_SoW_Production_Leadership_2025-10-22_v0.2.1.docx](sandbox:/mnt/data/Couch_Heroes_SoW_Production_Leadership_2025-10-22_v0.2.1.docx)
+
+If it still fails on your side, I can paste the SoW content inline or export a PDF version.
+
+[USER]
+as an expert team of veteran game development CEO, CFO, Chief Production Officer, and executive coach read through this whole sow line by line and critic it.  avoid "corperate language" where possible but remain professional
+
+[ASSISTANT]
+Below is a tight, section-by-section critique from four lenses: CEO, CFO, Chief Production Officer, and Executive Coach. I keep the tone plain, remove fluff, and give concrete fixes. Where I call out a line, I include a suggested replacement.
+
+# 1) Overview and Objective
+- **CEO:** Clear intent, but it reads generic. Name the outcome in one sentence with a finish line.
+  - Change “Establish a studio-wide production framework in ClickUp across concept to live service, support senior leadership hiring through advisory and assessment…”  
+  - To: “Stand up a ClickUp-based production system that ships builds on a set rhythm, help the team select the right CTO and EP, run stable studio rituals, and level up three named leads within 90 days.”
+- **CFO:** Add a single line on cost control levers and decision gates.
+  - Add: “All changes with budget impact go through a weekly gating review with CEO and Finance.”
+- **CPO:** Define “cadence” and “one cadence” up front. State the time unit.
+  - Add: “For this SoW, one cadence is two weeks.”
+- **Coach:** State behavioural finish lines tied to operating outcomes.
+  - Add: “Success includes visible improvements in planning quality, cross-team handoffs, and incident response.”
+
+# 2) Scope Summary
+- **CEO:** Good layout. Add a one-line purpose for each workstream so a non-producer gets it at a glance.
+- **CFO:** Flag where spend happens. Mark Workstreams A, B, C as the ones with likely external costs.
+- **CPO:** Replace “implementation in ClickUp” with “ClickUp build that mirrors how you really work.” Avoid tool-first tone.
+- **Coach:** Fine.
+
+Suggested edits:
+- “Workstream A: Production framework implementation in ClickUp”  
+  To: “Workstream A: Build a practical production system in ClickUp from concept to live.”
+
+# 3) Workstream A: Production framework in ClickUp
+- **CEO:** Outcomes are fine but abstract. Make them testable.
+  - Change “Teams running two full cadences using standardised templates…”  
+  - To: “Two successive two-week cadences completed with a tagged build at the end of each and no blockers older than three days.”
+- **CFO:** You will change workflows and automation. Add a cap on new paid apps or seats and a migration note.
+  - Add: “No new paid tools or ClickUp add-ons without written approval from CEO and Finance. Any migration effort over 8 hours is flagged before starting.”
+- **CPO:** Strong but still buzzwords. Name the exact ClickUp objects and status model so anyone can reproduce.
+  - Add under configuration: “Global statuses: Backlog, Ready, In Progress, In Review, In Test, Ready for Release, Released, Blocked. Required fields: Owner, Estimate, Risk, Dependency, Test Plan, Release Tag. Dashboards: Delivery Flow, Quality, Release Readiness, Risk.”
+  - Replace “Integrate with source control where applicable”  
+  - With: “Set up release tags and PR links in task templates. If no repo integration is possible, log release tags in ClickUp Docs and link from the Release task.”
+- **Coach:** Add required rituals that reinforce behaviour.
+  - Add: “Rituals baked into the tool: planning checklist, daily stand-up comments in task, review checklist, retro log attached to sprint.”
+
+**Acceptance tests need tightening**
+- Change “Dashboards show live throughput, blockers, defects, lead and cycle time”  
+- To: “Dashboards show weekly throughput trend, items blocked over 48 hours, defect arrival and fix rate, lead and cycle time by stream. Reviewed in a weekly 30-minute delivery check.”
+
+# 4) Workstream B: Senior hiring advisory for CTO and EP
+- **CEO:** The scope correction is good. Make the decision flow explicit.
+  - Add: “Only the client hires. We advise, score, and record the decision rationale.”
+- **CFO:** Add comp controls and background check boundaries.
+  - Add: “Comp offers remain within pre-approved bands. If a finalist exceeds band, prepare a one-page variance with risks and trade-offs. Background checks comply with local law and company policy.”
+- **CPO:** Replace soft phrases with concrete interview outputs.
+  - Change “structured interview guides and question banks”  
+  - To: “Three role-specific interview guides per role: Architecture and Scale, Delivery and Live Ops, People and Hiring (for CTO). Production Systems, Scope Control, Cross-discipline Leadership (for EP). Each guide has 6 scored questions and red-flag triggers.”
+- **Coach:** Add a final “no-surprises” reference pattern.
+  - Add: “Final call with a past manager and a past direct report is mandatory. We provide a short summary of strengths, watch-outs, and how to onboard around them.”
+
+**Remove leftover exercise language everywhere.** You did this, just confirm no stragglers.
+
+**Acceptance tests tweak**
+- Change “Recruiter reporting cadence running… no gaps longer than one week.”  
+- To: “Recruiter report due each Friday at 12:00 UK, with funnel counts, age of each stage, and next interviews scheduled.”
+
+# 5) Workstream C: Production and leadership structures
+- **CEO:** Good, but say what changes first, second, third. Otherwise this becomes a slide deck, not action.
+  - Add: “We will ship a 3-phase plan: Phase 1 critical hires and reporting lines, Phase 2 enabling roles and tools, Phase 3 Live Ops posture.”
+- **CFO:** Add a cost envelope with toggles.
+  - Add: “We deliver a cost model with FTE vs contractor toggles, geography splits, and an overhead factor. Baseline includes salaries, benefits, tools, and vendor budgets.”
+- **CPO:** RACI is named but not anchored. Name the decisions that matter.
+  - Add: “Decision rights table covers roadmap changes, cut list, release go or no-go, hotfix policy, vendor selection, and incident command.”
+- **Coach:** Add a simple ladder.
+  - Add: “Job level ladder summary for Engineering, Design, Art, QA, Production. Define what ‘good’ looks like per level in one page.”
+
+**Acceptance tests**
+- Add: “RACI and org chart are published in ClickUp Docs and linked in the Operating Rhythm Calendar.”
+
+# 6) Workstream D: Mentorship for Robin, Mustafa, David
+- **CEO:** Good. Make the stretch work tie to real deliverables.
+  - Add: “Each leader owns one real dependency burn-down and one real release pack that ships.”
+- **CFO:** No finance concern here, fine.
+- **CPO:** Specify observable behaviours during rituals.
+  - Add: “Each leader runs planning with clear ready criteria, closes daily blockers under 48 hours, and runs a retro with three closed actions.”
+- **Coach:** The 30, 60, 90 plan is solid. Add how feedback is delivered.
+  - Add: “Written feedback after each observed ritual, stored in a shared folder, discussed within 48 hours.”
+
+# 7) Workstream E: Operational rituals until EP starts
+- **CEO:** Name interim owners by role, not “interim owner”.
+  - Add: “Engineering lead runs release triage, Production lead runs planning, QA lead runs test gate.”
+- **CFO:** Add that meetings end with a single page of decisions and actions. Cuts waste.
+  - Add: “Each ritual produces a one-pager: decisions, owners, due dates. Stored in ClickUp Docs and linked to the sprint.”
+- **CPO:** Define release triage rules.
+  - Add: “Release triage runs Mon and Wed of release week, 30 minutes strict, limit WIP hotfixes, changes freeze 48 hours before release.”
+- **Coach:** Attendance metric is fine. Also track meeting quality.
+  - Add: “Ritual health score every two weeks. If below green, pick one improvement and test it next sprint.”
+
+# 8) Workstream F: Executive coaching for Senior Leader
+- **CEO:** Strong. Make it safe and accountable.
+  - Add: “Coaching notes are confidential. Only the 30, 60, 90 summaries are shared with the CEO.”
+- **CFO:** No cost note needed here.
+- **CPO:** Tie behaviour to delivery.
+  - Add: “Improved behaviour must show in fewer carry-overs, faster blocker clearance, and cleaner handoffs.”
+- **Coach:** The acceptance tests are good but a bit stiff. Keep them, and add one lightweight signal.
+  - Add: “Leader uses the ‘slow the decision’ checklist on two high-stakes calls per month and logs the outcome.”
+
+# 9) Governance and Interfaces
+- **CEO:** Weekly checkpoint is fine. Add who decides when there is a split view.
+  - Add: “CEO is tie-breaker on scope and spend.”
+- **CFO:** Include a basic change process.
+  - Add: “Any scope change over one day of effort is logged as a change request with impact on time, cost, and risk.”
+- **CPO:** Add a single link home.
+  - Add: “Publish one ClickUp Home Doc with links to the framework, dashboards, rituals, and trackers.”
+
+# 10) Client Contributions and Dependencies
+- **CEO:** Good. Add a real response time so the schedule is believable.
+  - Add: “Provide access and responses within two business days or timelines slip day-for-day.”
+- **CFO:** Add data access guardrails.
+  - Add: “We do not store candidate data outside approved systems. Background checks follow local law.”
+
+# 11) Deliverables Summary
+- **CEO:** Useful. Add the owner next to each workstream so there is one neck to wring.
+- **CFO:** Add a column for cost impact type: fixed, variable, or advisory only.
+- **CPO:** Fine.
+- **Coach:** Fine.
+
+# 12) Commercials and Terms
+- **CEO and CFO:** Too thin. Even if the CSA holds the detail, add three anchors so no one is confused.
+  - Add: “Billing monthly in arrears against milestones. Travel pre-approved only. Payment term 30 days. Late changes billed time and materials.”
+
+# 13) Sign-off
+- **All:** Fine.
+
+# 14) Change Log
+- **All:** Good to keep. Note any material template changes next time.
+
+---
+
+## Language clean-ups to remove corporate feel
+- Replace “cadence” with “two-week cycle.”
+- Replace “artefacts” with “templates and docs.”
+- Replace “aligned to” with “matches.”
+- Replace “stakeholders” with “named reviewers” or the actual roles.
+- Replace “outcomes” with “what you get.”
+- Keep British English spelling elsewhere.
+
+## Gaps to fill before final
+1) Define the exact two-week cycle dates for the first two cycles so teams know when the first build is due.  
+2) List the ClickUp Spaces and their owners.  
+3) State the comp bands or point to the living doc where they live.  
+4) Name interim ritual owners by role, not “interim.”  
+5) Add the decision rights table topics and where it lives.  
+6) Add the tool budget guardrail.  
+7) Confirm data handling for background checks.
+
+---
+
+## Ready-to-paste line edits (samples)
+- “Two teams complete one full cadence under the framework…”  
+  To: “Two teams complete two consecutive two-week cycles with a build tagged at the end of each and all retro actions closed.”
+- “Recruiter reporting cadence running for the duration of the search…”  
+  To: “Recruiter sends a funnel report every Friday at 12:00 UK with counts by stage, average age in stage, and next interviews booked.”
+- “Integrate with source control where applicable.”  
+  To: “Log release tags in ClickUp and link to the relevant PRs. If repo integration is not available, record tags in the Release task and the Release Notes Doc.”
+
+---
+
+## Verdict
+Solid skeleton, free of busywork, and now correctly advisory on hiring. The biggest wins will come from: naming exact ClickUp objects and statuses, making acceptance tests measurable, adding owner names, and putting light guardrails on spend and change. If you want, I can apply all edits above and regenerate the Word file so it is ready to send.
+
+[USER]
+remove coperate tool mechanisms like RACI
+
+[USER]
+remove coperate tool mechanisms like RACI and implement the feedback
+
+
+[USER]
+?
+
+[ASSISTANT]
+# Build revised SoW v0.3 with plain language, no RACI, and critique implemented.
+from docx import Document
+from docx.shared import Pt
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from datetime import date
+
+doc = Document()
+
+def H(text, level=1):
+    return doc.add_heading(text, level=level)
+
+def P(text, bold=False, italic=False, align=None):
+    p = doc.add_paragraph()
+    run = p.add_run(text)
+    run.bold = bold
+    run.italic = italic
+    if align == 'center':
+        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    return p
+
+def B(text):
+    return doc.add_paragraph(text, style='List Bullet')
+
+def N(text):
+    return doc.add_paragraph(text, style='List Number')
+
+# Title
+t = doc.add_paragraph()
+t.alignment = WD_ALIGN_PARAGRAPH.CENTER
+r = t.add_run("Statement of Work")
+r.font.size = Pt(26)
+r.bold = True
+
+st = doc.add_paragraph()
+st.alignment = WD_ALIGN_PARAGRAPH.CENTER
+r2 = st.add_run("Couch Heroes: Production System in ClickUp, Senior Hiring Advisory, Organisation Design, Mentorship, and Executive Coaching")
+r2.font.size = Pt(14)
+
+doc.add_paragraph("")
+info = doc.add_paragraph()
+info.alignment = WD_ALIGN_PARAGRAPH.CENTER
+today = date(2025, 10, 22)
+r3 = info.add_run(f"Date: {today.strftime('%d %B %Y')}   |   Version: v0.3   |   Prepared by: Consultant   |   Client: Couch Heroes")
+r3.font.size = Pt(10)
+
+doc.add_paragraph("")
+
+# 1 Overview and Objective
+H("1. Overview and Objective", 1)
+P("Goal: Stand up a ClickUp-based production system that ships builds on a set rhythm, help the team select the right CTO and Executive Producer, run steady studio rituals, and level up three named leads within 90 days.")
+P("For this SoW, one cycle is two weeks.")
+P("Any change with budget impact goes through a weekly gate with the CEO and Finance.")
+P("Success includes visible improvements in planning quality, cross-team handoffs, and incident response.")
+
+# 2 Scope Summary
+H("2. Scope Summary", 1)
+P("Six work areas and what you get:")
+B("Workstream A: Build a practical production system in ClickUp from concept to live.")
+B("Workstream B: Advisory support for CTO and Executive Producer hiring (recruiters source, we guide and score).")
+B("Workstream C: Organisation design and a simple decision map; right people, right order, clear lines.")
+B("Workstream D: Mentorship for Robin, Mustafa, and David to operate as mid-level leads.")
+B("Workstream E: Run core rituals until the Executive Producer starts, then hand over cleanly.")
+B("Workstream F: Executive coaching for a senior leader to improve conflict handling, focus, humility, and perspective.")
+
+# 3 Workstream A
+H("3. Workstream A: Production system in ClickUp", 1)
+P("What you get:", bold=True)
+B("A studio-wide setup in ClickUp that covers concept, pre-production, production, QA, release, and live service.")
+B("Two successive two-week cycles completed with a build tagged at the end of each and no blockers older than three days.")
+
+P("How we do it:", bold=True)
+N("Production review and target state: look at current backlogs, asset and code flow, environments, and rituals. Set target ways of working by stream including estimation, Definition of Ready and Done, change control, and milestone gates.")
+N("Design the system: roadmap and milestone model, release flow, incident response, and go or no-go rules. Create a risk and dependency list with named owners and service levels. Define a KPI set for throughput, quality, predictability, and player outcomes.")
+N("Configure ClickUp: set up Spaces, Folders, Lists, custom fields, statuses, automations, and Dashboards. Templates for Epics, Features, Stories, Tech Tasks, Art Assets, Bugs, Test Cases, Release Readiness, and Post-mortems. Use Goals and Docs for PRDs, design specs, and release notes. Link to source control where possible.")
+N("Pilot and scale: run two teams for one two-week cycle, apply fixes, then roll out to all teams. Train with quick-start guides and recordings.")
+
+P("ClickUp specifics:", bold=True)
+B("Global statuses: Backlog, Ready, In Progress, In Review, In Test, Ready for Release, Released, Blocked.")
+B("Required fields: Owner, Estimate, Risk, Dependency, Test Plan, Release Tag.")
+B("Dashboards: Delivery Flow, Quality, Release Readiness, Risk.")
+B("Ritual checklists: planning checklist, daily stand-up comments in task, review checklist, retro log attached to the cycle.")
+
+P("Guardrails:", bold=True)
+B("No new paid tools or ClickUp add-ons without written approval from the CEO and Finance.")
+B("Any migration work over 8 hours is flagged before starting.")
+
+P("Acceptance tests:", bold=True)
+B("Two consecutive two-week cycles complete with a build tagged at the end of each and all retro actions closed.")
+B("Dashboards show weekly throughput trend, items blocked over 48 hours, defect arrival and fix rate, and lead and cycle time by stream. Reviewed in a weekly 30-minute delivery check.")
+B("CEO and Game Director sign off studio-wide use.")
+
+P("Timeframe:", bold=True)
+P("Design and pilot: 4 to 6 weeks, then 2 to 4 weeks to roll out.")
+
+# 4 Workstream B
+H("4. Workstream B: Senior hiring advisory for CTO and Executive Producer", 1)
+P("What you get:", bold=True)
+B("Client hires a CTO and an Executive Producer who fit the success profiles and culture, with start dates agreed.")
+B("Clear, fair, and defensible hiring process with interview packs, scoring rubrics, and background checks completed.")
+P("Scope note: advisory only. Recruiters and the client source candidates.", italic=True)
+
+P("How we do it:", bold=True)
+N("Success profiles and scorecards: final remits, responsibilities, measurable outcomes, and weighted criteria.")
+N("Recruiter selection and brief: advise on recruiter choice, set search parameters, and agree weekly reporting.")
+N("Interview loop and support: define panel members, provide three role-specific guides per role with six scored questions and red-flag triggers. Join panels when asked.")
+N("Track record checks: review shipped work, technology or production systems, and team scale against the scorecard.")
+N("References and background checks: coordinate with agreed referees and support lawful background checks.")
+N("Offer advisory: advise on comp bands, risk flags, start dates, and onboarding plans.")
+N("Decision record: we summarise the decision with scorecard evidence and risks. Hiring remains the client’s call.")
+
+P("Controls:", bold=True)
+B("Comp offers stay within approved bands. If a finalist exceeds a band, prepare a one-page variance with risks and trade-offs.")
+B("Background checks follow local law and company policy.")
+
+P("Acceptance tests:", bold=True)
+B("For each role, finalists complete structured interviews using the agreed guides. Scored rubrics and reference summaries on file.")
+B("Recruiter sends a funnel report each Friday at 12:00 UK with counts by stage, age in stage, and next interviews booked.")
+B("Final decision note includes scorecard evidence and risk view.")
+
+P("Timeframe:", bold=True)
+B("Executive Producer: 5 to 8 weeks, subject to recruiter pipeline.")
+B("Chief Technology Officer: 6 to 10 weeks, subject to recruiter pipeline.")
+
+# 5 Workstream C
+H("5. Workstream C: Organisation design and decision map", 1)
+P("What you get:", bold=True)
+B("A right-sized org for the next 18 months with clear reporting lines and a simple list of who decides what.")
+B("Hiring plan and interview loops for the next two quarters, with a cost model you can toggle.")
+
+P("How we do it:", bold=True)
+N("Current state and gaps: list roles, seniority, vendors, and responsibilities. Map gaps to the roadmap and environments.")
+N("Target operating model: name the core functions (Game, Platform, Online Services, Tools, Art, Design, QA, Data, Live Ops, UXR, Community, Publishing support). Set healthy ratios by phase. Create a plain English decision map that covers roadmap changes, the cut list, release go or no-go, hotfix rules, vendor choices, and incident command.")
+N("Staffing and phasing: headcount by quarter with requisitions, location split, contractor versus FTE scenarios, and interview loops.")
+N("Governance and reporting: planning, demos, playtests, metrics reviews, risk board, and change control rhythm.")
+
+P("Cost view:", bold=True)
+B("A model with toggles for FTE vs contractor, location mix, and an overhead factor. Baseline includes salaries, benefits, tools, and vendors.")
+
+P("Acceptance tests:", bold=True)
+B("Org view and decision map published in ClickUp Docs and linked from the Operating Calendar.")
+B("CEO and Finance approve the plan and its cost range.")
+B("Requisitions and interview loops ready for the next two quarters.")
+
+P("Timeframe:", bold=True)
+P("Three to four weeks.")
+
+# 6 Workstream D
+H("6. Workstream D: Mentorship for Robin, Mustafa, and David", 1)
+P("What you get:", bold=True)
+B("Three leaders who run with clear charters, measurable KPIs, and real delivery wins.")
+
+P("How we do it:", bold=True)
+N("Baseline and goals: 360 inputs and a short competency check for each person. Write role charters, scope, and KPIs that match product goals.")
+N("Guided practice: each leader runs planning, risk reviews, release readiness, and post-mortems. Each owns one real dependency burn-down and one real release pack that ships.")
+N("Coaching rhythm: weekly one-to-ones, fortnightly 360 check-ins, and written feedback after each ritual. Micro-training on planning quality, estimates, stakeholder updates, and risk language.")
+N("Evidence and progression: personal plans with 30, 60, 90-day markers. Readiness reviews tied to observable behaviours.")
+
+P("Acceptance tests:", bold=True)
+B("Each leader runs planning with clear ready criteria, closes blockers under 48 hours, and completes a retro with three closed actions.")
+B("Each ships one dependency burn-down and one release pack.")
+B("Game Director signs off readiness at 90 days.")
+
+P("Timeframe:", bold=True)
+P("Twelve weeks with checks at 30, 60, and 90 days.")
+
+# 7 Workstream E
+H("7. Workstream E: Run core rituals until the Executive Producer starts", 1)
+P("What you get:", bold=True)
+B("A stable rhythm run by interim role owners, with a clean handover to the Executive Producer.")
+
+P("How we do it:", bold=True)
+N("Run stand-ups by stream, weekly planning, fortnightly demos and playtests, weekly risk board, and release triage on Monday and Wednesday of release week.")
+N("Freeze changes 48 hours before a release.")
+N("Each ritual ends with a one-page note: decisions, owners, and due dates. Notes live in ClickUp Docs and link to the cycle.")
+N("Publish a single Operating Calendar in ClickUp and a simple handover pack for the Executive Producer.")
+
+P("Acceptance tests:", bold=True)
+B("Ninety percent attendance for core rituals for four weeks in a row.")
+B("Every release follows the pre-flight and go or no-go rules.")
+B("Executive Producer handover done within two weeks of start.")
+
+P("Timeframe:", bold=True)
+P("Until the Executive Producer is onboarded and handover is complete.")
+
+# 8 Workstream F
+H("8. Workstream F: Executive coaching for a senior leader", 1)
+P("What you get:", bold=True)
+B("A leader who handles conflict well, stays in their lane, owns mistakes, and pauses to see other views.")
+
+P("Focus areas:", bold=True)
+B("Turn disagreements into clear decisions without drama.")
+B("Ask before telling. Test ideas and look for evidence.")
+B("Admit errors fast, state the fix, and close the loop.")
+B("Respect peer decision areas. Use the agreed path to raise issues.")
+B("Slow down on high-stakes calls. Check others’ constraints before acting.")
+
+P("How we do it:", bold=True)
+N("Intake and goals: private intake with the CEO and the leader. 360 inputs from reports and peers. Set 90-day behaviour goals tied to delivery.")
+N("Coaching rhythm: weekly one-to-ones and fortnightly stakeholder check-ins. Field practice in live meetings, with quick debriefs. Short modules on conflict patterns, inquiry, framing decisions, apology and repair, and staying in lane.")
+N("Tools: Decision Map for the leader’s remit, a Conflict Playbook, and a ‘slow the decision’ checklist for high-stakes moments.")
+N("Evidence: behavioural scorecard at 30, 60, 90 days. Two observed interventions per month with written feedback. Short written reflections after key meetings. Coaching notes are private; only 30, 60, 90 summaries go to the CEO.")
+
+P("Acceptance tests:", bold=True)
+B("Resolve at least three high-stakes disagreements into clear decisions with commitments and no later flare-ups in the next cycle.")
+B("Write two short post-mortems naming a personal error and the fix, and confirm closure with the people affected.")
+B("No instances of bypassing peer decision areas for eight weeks, confirmed by peers.")
+B("Use the ‘slow the decision’ checklist on two high-stakes calls per month and log outcomes.")
+
+P("Timeframe:", bold=True)
+P("Twelve weeks, with checks at days 30, 60, and 90.")
+
+# 9 Governance
+H("9. Governance and Interfaces", 1)
+B("Weekly checkpoint with the CEO and hiring leads. CEO is tie-breaker on scope and spend.")
+B("Weekly budget and scope gate with Finance for any change that affects cost.")
+B("Any scope change over one day is logged as a change note with time, cost, and risk impact.")
+B("Publish one ClickUp Home Doc with links to the system, dashboards, rituals, and trackers.")
+
+# 10 Client Contributions
+H("10. Client Contributions and Dependencies", 1)
+B("Engage recruiter(s) to source candidates and keep weekly reports flowing.")
+B("Give access to teams and tools for interviews and ClickUp setup.")
+B("Share compensation bands or point to the living doc.")
+B("Give access and responses within two business days or timelines slip day-for-day.")
+B("Handle candidate data only in approved systems. Background checks follow local law.")
+
+# 11 Deliverables Summary
+H("11. Deliverables Summary", 1)
+table = doc.add_table(rows=1, cols=4)
+hdr = table.rows[0].cells
+hdr[0].text = "Workstream"
+hdr[1].text = "Owner (role)"
+hdr[2].text = "Key deliverables"
+hdr[3].text = "Timeframe"
+
+rows = [
+    ("A", "Consultant Production Lead", "Production Handbook and templates; configured ClickUp (Spaces, Folders, Lists, fields, statuses, automations, Dashboards, Goals, Docs); roadmap and release templates; risk list; training guides and recordings", "4–6 weeks design and pilot + 2–4 weeks roll out"),
+    ("B", "Consultant Hiring Advisor", "Success scorecards; recruiter brief; interview loop and guides; rating rubrics; finalist scorecards; reference summaries; decision note; onboarding outline", "EP 5–8 weeks; CTO 6–10 weeks"),
+    ("C", "Consultant Org Designer", "Org view and decision map; hiring plan; interview loops; simple cost model", "3–4 weeks"),
+    ("D", "Consultant Coach", "Three role charters and KPIs; 90-day plans; written feedback; readiness reports", "12 weeks"),
+    ("E", "Interim Production Lead", "Operating Calendar; agendas and templates; EP handover pack", "Until EP starts and handover complete"),
+    ("F", "Executive Coach", "Coaching plan; Decision Map; Conflict Playbook; 30/60/90 summaries", "12 weeks"),
+]
+for ws, owner, dels, tf in rows:
+    r = table.add_row().cells
+    r[0].text = ws
+    r[1].text = owner
+    r[2].text = dels
+    r[3].text = tf
+
+# 12 Commercials
+H("12. Commercials and Terms", 1)
+P("Billing monthly in arrears against milestones. Travel must be pre-approved. Payment term 30 days. Late changes billed time and materials.")
+
+# 13 Sign-off
+H("13. Sign-off", 1)
+P("Client: Couch Heroes")
+P("Name: ____________________    Title: ____________________    Date: ____________________")
+P("Signature: ______________________________________________")
+P("Consultant")
+P("Name: ____________________    Title: ____________________    Date: ____________________")
+P("Signature: ______________________________________________")
+
+# 14 Change Log
+H("14. Change Log", 1)
+B("v0.3 on 22 October 2025: Implemented plain language, removed RACI, added decision map, hard acceptance tests, guardrails, and role owners.")
+B("v0.2.1 on 22 October 2025: Rebuilt file due to link issue; content matched v0.2.")
+B("v0.2 on 22 October 2025: ClickUp scope, overall production (not just live), removed practical exercises, advisory-only hiring.")
+
+path = "/mnt/data/Couch_Heroes_SoW_Production_Leadership_2025-10-22_v0.3.docx"
+doc.save(path)
+path
+
+[ASSISTANT]
+from docx import Document
+from docx.shared import Pt
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from datetime import date
+
+doc = Document()
+
+def H(text, level=1):
+    return doc.add_heading(text, level=level)
+
+def P(text, bold=False, italic=False, align=None):
+    p = doc.add_paragraph()
+    run = p.add_run(text)
+    run.bold = bold
+    run.italic = italic
+    if align == 'center':
+        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    return p
+
+def B(text):
+    return doc.add_paragraph(text, style='List Bullet')
+
+def N(text):
+    return doc.add_paragraph(text, style='List Number')
+
+# Title
+t = doc.add_paragraph()
+t.alignment = WD_ALIGN_PARAGRAPH.CENTER
+r = t.add_run("Statement of Work")
+r.font.size = Pt(26)
+r.bold = True
+
+st = doc.add_paragraph()
+st.alignment = WD_ALIGN_PARAGRAPH.CENTER
+r2 = st.add_run("Couch Heroes: Production System in ClickUp, Senior Hiring Advisory, Organisation Design, Mentorship, and Executive Coaching")
+r2.font.size = Pt(14)
+
+doc.add_paragraph("")
+info = doc.add_paragraph()
+info.alignment = WD_ALIGN_PARAGRAPH.CENTER
+today = date(2025, 10, 22)
+r3 = info.add_run(f"Date: {today.strftime('%d %B %Y')}   |   Version: v0.3   |   Prepared by: Consultant   |   Client: Couch Heroes")
+r3.font.size = Pt(10)
+
+doc.add_paragraph("")
+
+# 1 Overview and Objective
+H("1. Overview and Objective", 1)
+P("Goal: Stand up a ClickUp-based production system that ships builds on a set rhythm, help the team select the right CTO and Executive Producer, run steady studio rituals, and level up three named leads within 90 days.")
+P("For this SoW, one cycle is two weeks.")
+P("Any change with budget impact goes through a weekly gate with the CEO and Finance.")
+P("Success includes visible improvements in planning quality, cross-team handoffs, and incident response.")
+
+# 2 Scope Summary
+H("2. Scope Summary", 1)
+P("Six work areas and what you get:")
+B("Workstream A: Build a practical production system in ClickUp from concept to live.")
+B("Workstream B: Advisory support for CTO and Executive Producer hiring (recruiters source, we guide and score).")
+B("Workstream C: Organisation design and a simple decision map; right people, right order, clear lines.")
+B("Workstream D: Mentorship for Robin, Mustafa, and David to operate as mid-level leads.")
+B("Workstream E: Run core rituals until the Executive Producer starts, then hand over cleanly.")
+B("Workstream F: Executive coaching for a senior leader to improve conflict handling, focus, humility, and perspective.")
+
+# 3 Workstream A
+H("3. Workstream A: Production system in ClickUp", 1)
+P("What you get:", bold=True)
+B("A studio-wide setup in ClickUp that covers concept, pre-production, production, QA, release, and live service.")
+B("Two successive two-week cycles completed with a build tagged at the end of each and no blockers older than three days.")
+
+P("How we do it:", bold=True)
+N("Production review and target state: look at current backlogs, asset and code flow, environments, and rituals. Set target ways of working by stream including estimation, Definition of Ready and Done, change control, and milestone gates.")
+N("Design the system: roadmap and milestone model, release flow, incident response, and go or no-go rules. Create a risk and dependency list with named owners and service levels. Define a KPI set for throughput, quality, predictability, and player outcomes.")
+N("Configure ClickUp: set up Spaces, Folders, Lists, custom fields, statuses, automations, and Dashboards. Templates for Epics, Features, Stories, Tech Tasks, Art Assets, Bugs, Test Cases, Release Readiness, and Post-mortems. Use Goals and Docs for PRDs, design specs, and release notes. Link to source control where possible.")
+N("Pilot and scale: run two teams for one two-week cycle, apply fixes, then roll out to all teams. Train with quick-start guides and recordings.")
+
+P("ClickUp specifics:", bold=True)
+B("Global statuses: Backlog, Ready, In Progress, In Review, In Test, Ready for Release, Released, Blocked.")
+B("Required fields: Owner, Estimate, Risk, Dependency, Test Plan, Release Tag.")
+B("Dashboards: Delivery Flow, Quality, Release Readiness, Risk.")
+B("Ritual checklists: planning checklist, daily stand-up comments in task, review checklist, retro log attached to the cycle.")
+
+P("Guardrails:", bold=True)
+B("No new paid tools or ClickUp add-ons without written approval from the CEO and Finance.")
+B("Any migration work over 8 hours is flagged before starting.")
+
+P("Acceptance tests:", bold=True)
+B("Two consecutive two-week cycles complete with a build tagged at the end of each and all retro actions closed.")
+B("Dashboards show weekly throughput trend, items blocked over 48 hours, defect arrival and fix rate, and lead and cycle time by stream. Reviewed in a weekly 30-minute delivery check.")
+B("CEO and Game Director sign off studio-wide use.")
+
+P("Timeframe:", bold=True)
+P("Design and pilot: 4 to 6 weeks, then 2 to 4 weeks to roll out.")
+
+# 4 Workstream B
+H("4. Workstream B: Senior hiring advisory for CTO and Executive Producer", 1)
+P("What you get:", bold=True)
+B("Client hires a CTO and an Executive Producer who fit the success profiles and culture, with start dates agreed.")
+B("Clear, fair, and defensible hiring process with interview packs, scoring rubrics, and background checks completed.")
+P("Scope note: advisory only. Recruiters and the client source candidates.", italic=True)
+
+P("How we do it:", bold=True)
+N("Success profiles and scorecards: final remits, responsibilities, measurable outcomes, and weighted criteria.")
+N("Recruiter selection and brief: advise on recruiter choice, set search parameters, and agree weekly reporting.")
+N("Interview loop and support: define panel members, provide three role-specific guides per role with six scored questions and red-flag triggers. Join panels when asked.")
+N("Track record checks: review shipped work, technology or production systems, and team scale against the scorecard.")
+N("References and background checks: coordinate with agreed referees and support lawful background checks.")
+N("Offer advisory: advise on comp bands, risk flags, start dates, and onboarding plans.")
+N("Decision record: we summarise the decision with scorecard evidence and risks. Hiring remains the client’s call.")
+
+P("Controls:", bold=True)
+B("Comp offers stay within approved bands. If a finalist exceeds a band, prepare a one-page variance with risks and trade-offs.")
+B("Background checks follow local law and company policy.")
+
+P("Acceptance tests:", bold=True)
+B("For each role, finalists complete structured interviews using the agreed guides. Scored rubrics and reference summaries on file.")
+B("Recruiter sends a funnel report each Friday at 12:00 UK with counts by stage, age in stage, and next interviews booked.")
+B("Final decision note includes scorecard evidence and risk view.")
+
+P("Timeframe:", bold=True)
+B("Executive Producer: 5 to 8 weeks, subject to recruiter pipeline.")
+B("Chief Technology Officer: 6 to 10 weeks, subject to recruiter pipeline.")
+
+# 5 Workstream C
+H("5. Workstream C: Organisation design and decision map", 1)
+P("What you get:", bold=True)
+B("A right-sized org for the next 18 months with clear reporting lines and a simple list of who decides what.")
+B("Hiring plan and interview loops for the next two quarters, with a cost model you can toggle.")
+
+P("How we do it:", bold=True)
+N("Current state and gaps: list roles, seniority, vendors, and responsibilities. Map gaps to the roadmap and environments.")
+N("Target operating model: name the core functions (Game, Platform, Online Services, Tools, Art, Design, QA, Data, Live Ops, UXR, Community, Publishing support). Set healthy ratios by phase. Create a plain English decision map that covers roadmap changes, the cut list, release go or no-go, hotfix rules, vendor choices, and incident command.")
+N("Staffing and phasing: headcount by quarter with requisitions, location split, contractor versus FTE scenarios, and interview loops.")
+N("Governance and reporting: planning, demos, playtests, metrics reviews, risk board, and change control rhythm.")
+
+P("Cost view:", bold=True)
+B("A model with toggles for FTE vs contractor, location mix, and an overhead factor. Baseline includes salaries, benefits, tools, and vendors.")
+
+P("Acceptance tests:", bold=True)
+B("Org view and decision map published in ClickUp Docs and linked from the Operating Calendar.")
+B("CEO and Finance approve the plan and its cost range.")
+B("Requisitions and interview loops ready for the next two quarters.")
+
+P("Timeframe:", bold=True)
+P("Three to four weeks.")
+
+# 6 Workstream D
+H("6. Workstream D: Mentorship for Robin, Mustafa, and David", 1)
+P("What you get:", bold=True)
+B("Three leaders who run with clear charters, measurable KPIs, and real delivery wins.")
+
+P("How we do it:", bold=True)
+N("Baseline and goals: 360 inputs and a short competency check for each person. Write role charters, scope, and KPIs that match product goals.")
+N("Guided practice: each leader runs planning, risk reviews, release readiness, and post-mortems. Each owns one real dependency burn-down and one real release pack that ships.")
+N("Coaching rhythm: weekly one-to-ones, fortnightly 360 check-ins, and written feedback after each ritual. Micro-training on planning quality, estimates, stakeholder updates, and risk language.")
+N("Evidence and progression: personal plans with 30, 60, 90-day markers. Readiness reviews tied to observable behaviours.")
+
+P("Acceptance tests:", bold=True)
+B("Each leader runs planning with clear ready criteria, closes blockers under 48 hours, and completes a retro with three closed actions.")
+B("Each ships one dependency burn-down and one release pack.")
+B("Game Director signs off readiness at 90 days.")
+
+P("Timeframe:", bold=True)
+P("Twelve weeks with checks at 30, 60, and 90 days.")
+
+# 7 Workstream E
+H("7. Workstream E: Run core rituals until the Executive Producer starts", 1)
+P("What you get:", bold=True)
+B("A stable rhythm run by interim role owners, with a clean handover to the Executive Producer.")
+
+P("How we do it:", bold=True)
+N("Run stand-ups by stream, weekly planning, fortnightly demos and playtests, weekly risk board, and release triage on Monday and Wednesday of release week.")
+N("Freeze changes 48 hours before a release.")
+N("Each ritual ends with a one-page note: decisions, owners, and due dates. Notes live in ClickUp Docs and link to the cycle.")
+N("Publish a single Operating Calendar in ClickUp and a simple handover pack for the Executive Producer.")
+
+P("Acceptance tests:", bold=True)
+B("Ninety percent attendance for core rituals for four weeks in a row.")
+B("Every release follows the pre-flight and go or no-go rules.")
+B("Executive Producer handover done within two weeks of start.")
+
+P("Timeframe:", bold=True)
+P("Until the Executive Producer is onboarded and handover is complete.")
+
+# 8 Workstream F
+H("8. Workstream F: Executive coaching for a senior leader", 1)
+P("What you get:", bold=True)
+B("A leader who handles conflict well, stays in their lane, owns mistakes, and pauses to see other views.")
+
+P("Focus areas:", bold=True)
+B("Turn disagreements into clear decisions without drama.")
+B("Ask before telling. Test ideas and look for evidence.")
+B("Admit errors fast, state the fix, and close the loop.")
+B("Respect peer decision areas. Use the agreed path to raise issues.")
+B("Slow down on high-stakes calls. Check others’ constraints before acting.")
+
+P("How we do it:", bold=True)
+N("Intake and goals: private intake with the CEO and the leader. 360 inputs from reports and peers. Set 90-day behaviour goals tied to delivery.")
+N("Coaching rhythm: weekly one-to-ones and fortnightly stakeholder check-ins. Field practice in live meetings, with quick debriefs. Short modules on conflict patterns, inquiry, framing decisions, apology and repair, and staying in lane.")
+N("Tools: Decision Map for the leader’s remit, a Conflict Playbook, and a ‘slow the decision’ checklist for high-stakes moments.")
+N("Evidence: behavioural scorecard at 30, 60, 90 days. Two observed interventions per month with written feedback. Short written reflections after key meetings. Coaching notes are private; only 30, 60, 90 summaries go to the CEO.")
+
+P("Acceptance tests:", bold=True)
+B("Resolve at least three high-stakes disagreements into clear decisions with commitments and no later flare-ups in the next cycle.")
+B("Write two short post-mortems naming a personal error and the fix, and confirm closure with the people affected.")
+B("No instances of bypassing peer decision areas for eight weeks, confirmed by peers.")
+B("Use the ‘slow the decision’ checklist on two high-stakes calls per month and log outcomes.")
+
+P("Timeframe:", bold=True)
+P("Twelve weeks, with checks at days 30, 60, and 90.")
+
+# 9 Governance
+H("9. Governance and Interfaces", 1)
+B("Weekly checkpoint with the CEO and hiring leads. CEO is tie-breaker on scope and spend.")
+B("Weekly budget and scope gate with Finance for any change that affects cost.")
+B("Any scope change over one day is logged as a change note with time, cost, and risk impact.")
+B("Publish one ClickUp Home Doc with links to the system, dashboards, rituals, and trackers.")
+
+# 10 Client Contributions
+H("10. Client Contributions and Dependencies", 1)
+B("Engage recruiter(s) to source candidates and keep weekly reports flowing.")
+B("Give access to teams and tools for interviews and ClickUp setup.")
+B("Share compensation bands or point to the living doc.")
+B("Give access and responses within two business days or timelines slip day-for-day.")
+B("Handle candidate data only in approved systems. Background checks follow local law.")
+
+# 11 Deliverables Summary
+H("11. Deliverables Summary", 1)
+table = doc.add_table(rows=1, cols=4)
+hdr = table.rows[0].cells
+hdr[0].text = "Workstream"
+hdr[1].text = "Owner (role)"
+hdr[2].text = "Key deliverables"
+hdr[3].text = "Timeframe"
+
+rows = [
+    ("A", "Consultant Production Lead", "Production Handbook and templates; configured ClickUp (Spaces, Folders, Lists, fields, statuses, automations, Dashboards, Goals, Docs); roadmap and release templates; risk list; training guides and recordings", "4–6 weeks design and pilot + 2–4 weeks roll out"),
+    ("B", "Consultant Hiring Advisor", "Success scorecards; recruiter brief; interview loop and guides; rating rubrics; finalist scorecards; reference summaries; decision note; onboarding outline", "EP 5–8 weeks; CTO 6–10 weeks"),
+    ("C", "Consultant Org Designer", "Org view and decision map; hiring plan; interview loops; simple cost model", "3–4 weeks"),
+    ("D", "Consultant Coach", "Three role charters and KPIs; 90-day plans; written feedback; readiness reports", "12 weeks"),
+    ("E", "Interim Production Lead", "Operating Calendar; agendas and templates; EP handover pack", "Until EP starts and handover complete"),
+    ("F", "Executive Coach", "Coaching plan; Decision Map; Conflict Playbook; 30/60/90 summaries", "12 weeks"),
+]
+for ws, owner, dels, tf in rows:
+    r = table.add_row().cells
+    r[0].text = ws
+    r[1].text = owner
+    r[2].text = dels
+    r[3].text = tf
+
+# 12 Commercials
+H("12. Commercials and Terms", 1)
+P("Billing monthly in arrears against milestones. Travel must be pre-approved. Payment term 30 days. Late changes billed time and materials.")
+
+# 13 Sign-off
+H("13. Sign-off", 1)
+P("Client: Couch Heroes")
+P("Name: ____________________    Title: ____________________    Date: ____________________")
+P("Signature: ______________________________________________")
+P("Consultant")
+P("Name: ____________________    Title: ____________________    Date: ____________________")
+P("Signature: ______________________________________________")
+
+# 14 Change Log
+H("14. Change Log", 1)
+B("v0.3 on 22 October 2025: Implemented plain language, removed RACI, added decision map, hard acceptance tests, guardrails, and role owners.")
+B("v0.2.1 on 22 October 2025: Rebuilt file due to link issue; content matched v0.2.")
+B("v0.2 on 22 October 2025: ClickUp scope, overall production (not just live), removed practical exercises, advisory-only hiring.")
+
+path = "/mnt/data/Couch_Heroes_SoW_Production_Leadership_2025-10-22_v0.3.docx"
+doc.save(path)
+path
+
+[ASSISTANT]
+# Retry document creation one more time after transient error.
+from docx import Document
+from docx.shared import Pt
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from datetime import date
+
+doc = Document()
+
+def H(text, level=1):
+    return doc.add_heading(text, level=level)
+
+def P(text, bold=False, italic=False, align=None):
+    p = doc.add_paragraph()
+    run = p.add_run(text)
+    run.bold = bold
+    run.italic = italic
+    if align == 'center':
+        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    return p
+
+def B(text):
+    return doc.add_paragraph(text, style='List Bullet')
+
+def N(text):
+    return doc.add_paragraph(text, style='List Number')
+
+# Title
+t = doc.add_paragraph()
+t.alignment = WD_ALIGN_PARAGRAPH.CENTER
+r = t.add_run("Statement of Work")
+r.font.size = Pt(26)
+r.bold = True
+
+st = doc.add_paragraph()
+st.alignment = WD_ALIGN_PARAGRAPH.CENTER
+r2 = st.add_run("Couch Heroes: Production System in ClickUp, Senior Hiring Advisory, Organisation Design, Mentorship, and Executive Coaching")
+r2.font.size = Pt(14)
+
+doc.add_paragraph("")
+info = doc.add_paragraph()
+info.alignment = WD_ALIGN_PARAGRAPH.CENTER
+today = date(2025, 10, 22)
+r3 = info.add_run(f"Date: {today.strftime('%d %B %Y')}   |   Version: v0.3   |   Prepared by: Consultant   |   Client: Couch Heroes")
+r3.font.size = Pt(10)
+
+doc.add_paragraph("")
+
+# 1 Overview and Objective
+H("1. Overview and Objective", 1)
+P("Goal: Stand up a ClickUp-based production system that ships builds on a set rhythm, help the team select the right CTO and Executive Producer, run steady studio rituals, and level up three named leads within 90 days.")
+P("For this SoW, one cycle is two weeks.")
+P("Any change with budget impact goes through a weekly gate with the CEO and Finance.")
+P("Success includes visible improvements in planning quality, cross-team handoffs, and incident response.")
+
+# 2 Scope Summary
+H("2. Scope Summary", 1)
+P("Six work areas and what you get:")
+B("Workstream A: Build a practical production system in ClickUp from concept to live.")
+B("Workstream B: Advisory support for CTO and Executive Producer hiring (recruiters source, we guide and score).")
+B("Workstream C: Organisation design and a simple decision map; right people, right order, clear lines.")
+B("Workstream D: Mentorship for Robin, Mustafa, and David to operate as mid-level leads.")
+B("Workstream E: Run core rituals until the Executive Producer starts, then hand over cleanly.")
+B("Workstream F: Executive coaching for a senior leader to improve conflict handling, focus, humility, and perspective.")
+
+# 3 Workstream A
+H("3. Workstream A: Production system in ClickUp", 1)
+P("What you get:", bold=True)
+B("A studio-wide setup in ClickUp that covers concept, pre-production, production, QA, release, and live service.")
+B("Two successive two-week cycles completed with a build tagged at the end of each and no blockers older than three days.")
+
+P("How we do it:", bold=True)
+N("Production review and target state: look at current backlogs, asset and code flow, environments, and rituals. Set target ways of working by stream including estimation, Definition of Ready and Done, change control, and milestone gates.")
+N("Design the system: roadmap and milestone model, release flow, incident response, and go or no-go rules. Create a risk and dependency list with named owners and service levels. Define a KPI set for throughput, quality, predictability, and player outcomes.")
+N("Configure ClickUp: set up Spaces, Folders, Lists, custom fields, statuses, automations, and Dashboards. Templates for Epics, Features, Stories, Tech Tasks, Art Assets, Bugs, Test Cases, Release Readiness, and Post-mortems. Use Goals and Docs for PRDs, design specs, and release notes. Link to source control where possible.")
+N("Pilot and scale: run two teams for one two-week cycle, apply fixes, then roll out to all teams. Train with quick-start guides and recordings.")
+
+P("ClickUp specifics:", bold=True)
+B("Global statuses: Backlog, Ready, In Progress, In Review, In Test, Ready for Release, Released, Blocked.")
+B("Required fields: Owner, Estimate, Risk, Dependency, Test Plan, Release Tag.")
+B("Dashboards: Delivery Flow, Quality, Release Readiness, Risk.")
+B("Ritual checklists: planning checklist, daily stand-up comments in task, review checklist, retro log attached to the cycle.")
+
+P("Guardrails:", bold=True)
+B("No new paid tools or ClickUp add-ons without written approval from the CEO and Finance.")
+B("Any migration work over 8 hours is flagged before starting.")
+
+P("Acceptance tests:", bold=True)
+B("Two consecutive two-week cycles complete with a build tagged at the end of each and all retro actions closed.")
+B("Dashboards show weekly throughput trend, items blocked over 48 hours, defect arrival and fix rate, and lead and cycle time by stream. Reviewed in a weekly 30-minute delivery check.")
+B("CEO and Game Director sign off studio-wide use.")
+
+P("Timeframe:", bold=True)
+P("Design and pilot: 4 to 6 weeks, then 2 to 4 weeks to roll out.")
+
+# 4 Workstream B
+H("4. Workstream B: Senior hiring advisory for CTO and Executive Producer", 1)
+P("What you get:", bold=True)
+B("Client hires a CTO and an Executive Producer who fit the success profiles and culture, with start dates agreed.")
+B("Clear, fair, and defensible hiring process with interview packs, scoring rubrics, and background checks completed.")
+P("Scope note: advisory only. Recruiters and the client source candidates.", italic=True)
+
+P("How we do it:", bold=True)
+N("Success profiles and scorecards: final remits, responsibilities, measurable outcomes, and weighted criteria.")
+N("Recruiter selection and brief: advise on recruiter choice, set search parameters, and agree weekly reporting.")
+N("Interview loop and support: define panel members, provide three role-specific guides per role with six scored questions and red-flag triggers. Join panels when asked.")
+N("Track record checks: review shipped work, technology or production systems, and team scale against the scorecard.")
+N("References and background checks: coordinate with agreed referees and support lawful background checks.")
+N("Offer advisory: advise on comp bands, risk flags, start dates, and onboarding plans.")
+N("Decision record: we summarise the decision with scorecard evidence and risks. Hiring remains the client’s call.")
+
+P("Controls:", bold=True)
+B("Comp offers stay within approved bands. If a finalist exceeds a band, prepare a one-page variance with risks and trade-offs.")
+B("Background checks follow local law and company policy.")
+
+P("Acceptance tests:", bold=True)
+B("For each role, finalists complete structured interviews using the agreed guides. Scored rubrics and reference summaries on file.")
+B("Recruiter sends a funnel report each Friday at 12:00 UK with counts by stage, age in stage, and next interviews booked.")
+B("Final decision note includes scorecard evidence and risk view.")
+
+P("Timeframe:", bold=True)
+B("Executive Producer: 5 to 8 weeks, subject to recruiter pipeline.")
+B("Chief Technology Officer: 6 to 10 weeks, subject to recruiter pipeline.")
+
+# 5 Workstream C
+H("5. Workstream C: Organisation design and decision map", 1)
+P("What you get:", bold=True)
+B("A right-sized org for the next 18 months with clear reporting lines and a simple list of who decides what.")
+B("Hiring plan and interview loops for the next two quarters, with a cost model you can toggle.")
+
+P("How we do it:", bold=True)
+N("Current state and gaps: list roles, seniority, vendors, and responsibilities. Map gaps to the roadmap and environments.")
+N("Target operating model: name the core functions (Game, Platform, Online Services, Tools, Art, Design, QA, Data, Live Ops, UXR, Community, Publishing support). Set healthy ratios by phase. Create a plain English decision map that covers roadmap changes, the cut list, release go or no-go, hotfix rules, vendor choices, and incident command.")
+N("Staffing and phasing: headcount by quarter with requisitions, location split, contractor versus FTE scenarios, and interview loops.")
+N("Governance and reporting: planning, demos, playtests, metrics reviews, risk board, and change control rhythm.")
+
+P("Cost view:", bold=True)
+B("A model with toggles for FTE vs contractor, location mix, and an overhead factor. Baseline includes salaries, benefits, tools, and vendors.")
+
+P("Acceptance tests:", bold=True)
+B("Org view and decision map published in ClickUp Docs and linked from the Operating Calendar.")
+B("CEO and Finance approve the plan and its cost range.")
+B("Requisitions and interview loops ready for the next two quarters.")
+
+P("Timeframe:", bold=True)
+P("Three to four weeks.")
+
+# 6 Workstream D
+H("6. Workstream D: Mentorship for Robin, Mustafa, and David", 1)
+P("What you get:", bold=True)
+B("Three leaders who run with clear charters, measurable KPIs, and real delivery wins.")
+
+P("How we do it:", bold=True)
+N("Baseline and goals: 360 inputs and a short competency check for each person. Write role charters, scope, and KPIs that match product goals.")
+N("Guided practice: each leader runs planning, risk reviews, release readiness, and post-mortems. Each owns one real dependency burn-down and one real release pack that ships.")
+N("Coaching rhythm: weekly one-to-ones, fortnightly 360 check-ins, and written feedback after each ritual. Micro-training on planning quality, estimates, stakeholder updates, and risk language.")
+N("Evidence and progression: personal plans with 30, 60, 90-day markers. Readiness reviews tied to observable behaviours.")
+
+P("Acceptance tests:", bold=True)
+B("Each leader runs planning with clear ready criteria, closes blockers under 48 hours, and completes a retro with three closed actions.")
+B("Each ships one dependency burn-down and one release pack.")
+B("Game Director signs off readiness at 90 days.")
+
+P("Timeframe:", bold=True)
+P("Twelve weeks with checks at 30, 60, and 90 days.")
+
+# 7 Workstream E
+H("7. Workstream E: Run core rituals until the Executive Producer starts", 1)
+P("What you get:", bold=True)
+B("A stable rhythm run by interim role owners, with a clean handover to the Executive Producer.")
+
+P("How we do it:", bold=True)
+N("Run stand-ups by stream, weekly planning, fortnightly demos and playtests, weekly risk board, and release triage on Monday and Wednesday of release week.")
+N("Freeze changes 48 hours before a release.")
+N("Each ritual ends with a one-page note: decisions, owners, and due dates. Notes live in ClickUp Docs and link to the cycle.")
+N("Publish a single Operating Calendar in ClickUp and a simple handover pack for the Executive Producer.")
+
+P("Acceptance tests:", bold=True)
+B("Ninety percent attendance for core rituals for four weeks in a row.")
+B("Every release follows the pre-flight and go or no-go rules.")
+B("Executive Producer handover done within two weeks of start.")
+
+P("Timeframe:", bold=True)
+P("Until the Executive Producer is onboarded and handover is complete.")
+
+# 8 Workstream F
+H("8. Workstream F: Executive coaching for a senior leader", 1)
+P("What you get:", bold=True)
+B("A leader who handles conflict well, stays in their lane, owns mistakes, and pauses to see other views.")
+
+P("Focus areas:", bold=True)
+B("Turn disagreements into clear decisions without drama.")
+B("Ask before telling. Test ideas and look for evidence.")
+B("Admit errors fast, state the fix, and close the loop.")
+B("Respect peer decision areas. Use the agreed path to raise issues.")
+B("Slow down on high-stakes calls. Check others’ constraints before acting.")
+
+P("How we do it:", bold=True)
+N("Intake and goals: private intake with the CEO and the leader. 360 inputs from reports and peers. Set 90-day behaviour goals tied to delivery.")
+N("Coaching rhythm: weekly one-to-ones and fortnightly stakeholder check-ins. Field practice in live meetings, with quick debriefs. Short modules on conflict patterns, inquiry, framing decisions, apology and repair, and staying in lane.")
+N("Tools: Decision Map for the leader’s remit, a Conflict Playbook, and a ‘slow the decision’ checklist for high-stakes moments.")
+N("Evidence: behavioural scorecard at 30, 60, 90 days. Two observed interventions per month with written feedback. Short written reflections after key meetings. Coaching notes are private; only 30, 60, 90 summaries go to the CEO.")
+
+P("Acceptance tests:", bold=True)
+B("Resolve at least three high-stakes disagreements into clear decisions with commitments and no later flare-ups in the next cycle.")
+B("Write two short post-mortems naming a personal error and the fix, and confirm closure with the people affected.")
+B("No instances of bypassing peer decision areas for eight weeks, confirmed by peers.")
+B("Use the ‘slow the decision’ checklist on two high-stakes calls per month and log outcomes.")
+
+P("Timeframe:", bold=True)
+P("Twelve weeks, with checks at days 30, 60, and 90.")
+
+# 9 Governance
+H("9. Governance and Interfaces", 1)
+B("Weekly checkpoint with the CEO and hiring leads. CEO is tie-breaker on scope and spend.")
+B("Weekly budget and scope gate with Finance for any change that affects cost.")
+B("Any scope change over one day is logged as a change note with time, cost, and risk impact.")
+B("Publish one ClickUp Home Doc with links to the system, dashboards, rituals, and trackers.")
+
+# 10 Client Contributions
+H("10. Client Contributions and Dependencies", 1)
+B("Engage recruiter(s) to source candidates and keep weekly reports flowing.")
+B("Give access to teams and tools for interviews and ClickUp setup.")
+B("Share compensation bands or point to the living doc.")
+B("Give access and responses within two business days or timelines slip day-for-day.")
+B("Handle candidate data only in approved systems. Background checks follow local law.")
+
+# 11 Deliverables Summary
+H("11. Deliverables Summary", 1)
+table = doc.add_table(rows=1, cols=4)
+hdr = table.rows[0].cells
+hdr[0].text = "Workstream"
+hdr[1].text = "Owner (role)"
+hdr[2].text = "Key deliverables"
+hdr[3].text = "Timeframe"
+
+rows = [
+    ("A", "Consultant Production Lead", "Production Handbook and templates; configured ClickUp (Spaces, Folders, Lists, fields, statuses, automations, Dashboards, Goals, Docs); roadmap and release templates; risk list; training guides and recordings", "4–6 weeks design and pilot + 2–4 weeks roll out"),
+    ("B", "Consultant Hiring Advisor", "Success scorecards; recruiter brief; interview loop and guides; rating rubrics; finalist scorecards; reference summaries; decision note; onboarding outline", "EP 5–8 weeks; CTO 6–10 weeks"),
+    ("C", "Consultant Org Designer", "Org view and decision map; hiring plan; interview loops; simple cost model", "3–4 weeks"),
+    ("D", "Consultant Coach", "Three role charters and KPIs; 90-day plans; written feedback; readiness reports", "12 weeks"),
+    ("E", "Interim Production Lead", "Operating Calendar; agendas and templates; EP handover pack", "Until EP starts and handover complete"),
+    ("F", "Executive Coach", "Coaching plan; Decision Map; Conflict Playbook; 30/60/90 summaries", "12 weeks"),
+]
+for ws, owner, dels, tf in rows:
+    r = table.add_row().cells
+    r[0].text = ws
+    r[1].text = owner
+    r[2].text = dels
+    r[3].text = tf
+
+# 12 Commercials
+H("12. Commercials and Terms", 1)
+P("Billing monthly in arrears against milestones. Travel must be pre-approved. Payment term 30 days. Late changes billed time and materials.")
+
+# 13 Sign-off
+H("13. Sign-off", 1)
+P("Client: Couch Heroes")
+P("Name: ____________________    Title: ____________________    Date: ____________________")
+P("Signature: ______________________________________________")
+P("Consultant")
+P("Name: ____________________    Title: ____________________    Date: ____________________")
+P("Signature: ______________________________________________")
+
+# 14 Change Log
+H("14. Change Log", 1)
+B("v0.3 on 22 October 2025: Implemented plain language, removed RACI, added decision map, hard acceptance tests, guardrails, and role owners.")
+B("v0.2.1 on 22 October 2025: Rebuilt file due to link issue; content matched v0.2.")
+B("v0.2 on 22 October 2025: ClickUp scope, overall production (not just live), removed practical exercises, advisory-only hiring.")
+
+path = "/mnt/data/Couch_Heroes_SoW_Production_Leadership_2025-10-22_v0.3.docx"
+doc.save(path)
+path
+
+[ASSISTANT]
+Got it. I removed “corporate tool” bits like RACI, tightened the language, and baked in all the feedback. Here’s the cleaned SoW, ready to drop into a doc.
+
+# Statement of Work  
+Couch Heroes: Production System in ClickUp, Senior Hiring Advisory, Organisation Design, Mentorship, and Executive Coaching  
+Date: 22 October 2025 • Version: v0.3
+
+## 1. Overview and objective
+Goal: stand up a ClickUp-based production system that ships builds on a set rhythm, help the team select the right CTO and Executive Producer, run steady studio rituals, and level up three named leads within 90 days.  
+For this SoW, one cycle is two weeks.  
+Any change with budget impact goes through a weekly gate with the CEO and Finance.  
+Success shows up as better planning quality, cleaner handoffs, and faster incident response.
+
+## 2. Scope summary
+- Workstream A: build a practical production system in ClickUp from concept to live.  
+- Workstream B: advisory support for CTO and EP hiring (recruiters source, we guide and score).  
+- Workstream C: organisation design and a simple decision map (who decides what).  
+- Workstream D: mentorship for Robin, Mustafa, and David to operate as mid-level leads.  
+- Workstream E: run core rituals until the EP starts, then hand over.  
+- Workstream F: executive coaching for a senior leader to improve conflict handling, focus, humility, and perspective.
+
+---
+
+## 3. Workstream A: Production system in ClickUp
+### What you get
+- A studio-wide setup in ClickUp covering concept, pre-production, production, QA, release, and live service.  
+- Two successive two-week cycles completed with a build tagged at the end of each and no blockers older than three days.
+
+### How we do it
+1) Production review and target state  
+Look at current backlogs, asset and code flow, environments, and rituals. Set target ways of working by stream: estimation, Definition of Ready and Done, change control, and milestone gates.  
+2) Design the system  
+Roadmap and milestone model, release flow, incident response, and go/no-go rules. Risk and dependency list with named owners and service levels. KPI set for throughput, quality, predictability, and player outcomes.  
+3) Configure ClickUp  
+Spaces, Folders, Lists, custom fields, statuses, automations, Dashboards. Templates for Epics, Features, Stories, Tech Tasks, Art Assets, Bugs, Test Cases, Release Readiness, Post-mortems. Use Goals and Docs for PRDs, design specs, and release notes. Link to source control where possible.  
+4) Pilot and scale  
+Run two teams for one two-week cycle, apply fixes, roll out to all teams. Training with quick-start guides and recordings.
+
+### ClickUp specifics
+- Global statuses: Backlog; Ready; In Progress; In Review; In Test; Ready for Release; Released; Blocked.  
+- Required fields: Owner; Estimate; Risk; Dependency; Test Plan; Release Tag.  
+- Dashboards: Delivery Flow; Quality; Release Readiness; Risk.  
+- Ritual checklists in-tool: planning checklist; daily stand-up comments in task; review checklist; retro log attached to the cycle.
+
+### Guardrails
+- No new paid tools or ClickUp add-ons without written approval from the CEO and Finance.  
+- Any migration work over 8 hours is flagged before starting.
+
+### Acceptance tests
+- Two consecutive two-week cycles complete with a build tagged at the end of each and all retro actions closed.  
+- Dashboards show weekly throughput trend; items blocked over 48 hours; defect arrival and fix rate; lead and cycle time by stream. Reviewed in a weekly 30-minute delivery check.  
+- CEO and Game Director sign off studio-wide use.
+
+### Timeframe
+Design and pilot: 4–6 weeks, then 2–4 weeks to roll out.
+
+---
+
+## 4. Workstream B: Senior hiring advisory for CTO and Executive Producer
+### What you get
+- Client hires a CTO and an EP who fit the success profiles and culture, with start dates agreed.  
+- Clear, fair process with interview packs, scoring rubrics, and background checks completed.  
+*Scope note: advisory only. Recruiters and the client source candidates.*
+
+### How we do it
+1) Success profiles and scorecards  
+Final remits, responsibilities, measurable outcomes, weighted criteria.  
+2) Recruiter selection and brief  
+Advise on recruiter choice, set search parameters, agree weekly reporting.  
+3) Interview loop and support  
+Define panel members. Three role-specific guides per role with six scored questions and red-flag triggers. Join panels when asked.  
+4) Track record checks  
+Review shipped work, tech or production systems, and team scale against the scorecard.  
+5) References and background checks  
+Coordinate with agreed referees and support lawful background checks.  
+6) Offer advisory  
+Advise on comp bands, risk flags, start dates, and onboarding plans.  
+7) Decision record  
+We summarise the decision with scorecard evidence and risks. Hiring remains the client’s call.
+
+### Controls
+- Comp offers stay within approved bands. If a finalist exceeds a band, prepare a one-page variance with risks and trade-offs.  
+- Background checks follow local law and company policy.
+
+### Acceptance tests
+- For each role, finalists complete structured interviews using the agreed guides. Scored rubrics and reference summaries on file.  
+- Recruiter sends a funnel report each Friday at 12:00 UK with counts by stage, age in stage, and next interviews booked.  
+- Final decision note includes scorecard evidence and risk view.
+
+### Timeframe
+- EP: 5–8 weeks, subject to recruiter pipeline.  
+- CTO: 6–10 weeks, subject to recruiter pipeline.
+
+---
+
+## 5. Workstream C: Organisation design and decision map
+### What you get
+- A right-sized org for the next 18 months with clear reporting lines and a simple list of who decides what.  
+- Hiring plan and interview loops for the next two quarters, plus a toggleable cost model.
+
+### How we do it
+1) Current state and gaps  
+List roles, seniority, vendors, responsibilities. Map gaps to the roadmap and environments.  
+2) Target operating model  
+Name core functions: Game, Platform, Online Services, Tools, Art, Design, QA, Data, Live Ops, UXR, Community, Publishing support. Set healthy ratios by phase. Create a plain-English decision map that covers roadmap changes, the cut list, release go/no-go, hotfix rules, vendor choices, and incident command.  
+3) Staffing and phasing  
+Headcount by quarter with requisitions, location split, contractor vs FTE scenarios, and interview loops.  
+4) Governance and reporting  
+Planning, demos, playtests, metrics reviews, risk board, and change control rhythm.
+
+### Cost view
+- A model with toggles for FTE vs contractor, location mix, and an overhead factor. Baseline includes salaries, benefits, tools, and vendors.
+
+### Acceptance tests
+- Org view and decision map published in ClickUp Docs and linked from the Operating Calendar.  
+- CEO and Finance approve the plan and its cost range.  
+- Requisitions and interview loops ready for the next two quarters.
+
+### Timeframe
+Three to four weeks.
+
+---
+
+## 6. Workstream D: Mentorship for Robin, Mustafa, and David
+### What you get
+- Three leaders who run with clear charters, measurable KPIs, and real delivery wins.
+
+### How we do it
+1) Baseline and goals  
+360 inputs and a short competency check for each person. Role charters, scope, and KPIs that match product goals.  
+2) Guided practice  
+Each leader runs planning, risk reviews, release readiness, and post-mortems. Each owns one real dependency burn-down and one real release pack that ships.  
+3) Coaching rhythm  
+Weekly one-to-ones, fortnightly 360 check-ins, written feedback after each ritual. Micro-training on planning quality, estimates, stakeholder updates, and risk language.  
+4) Evidence and progression  
+Personal plans with 30, 60, 90-day markers. Readiness reviews tied to observable behaviours.
+
+### Acceptance tests
+- Each leader runs planning with clear ready criteria, clears blockers under 48 hours, and completes a retro with three closed actions.  
+- Each ships one dependency burn-down and one release pack.  
+- Game Director signs off readiness at 90 days.
+
+### Timeframe
+Twelve weeks with checks at 30, 60, and 90 days.
+
+---
+
+## 7. Workstream E: Run core rituals until the EP starts
+### What you get
+- A stable rhythm run by interim role owners, with a clean handover to the EP.
+
+### How we do it
+- Run stand-ups by stream, weekly planning, fortnightly demos and playtests, weekly risk board, and release triage on Monday and Wednesday of release week.  
+- Freeze changes 48 hours before a release.  
+- Each ritual ends with a one-page note: decisions, owners, and due dates. Notes live in ClickUp Docs and link to the cycle.  
+- Publish a single Operating Calendar in ClickUp and a simple handover pack for the EP.
+
+### Acceptance tests
+- 90 percent attendance for core rituals for four weeks in a row.  
+- Every release follows the pre-flight and go/no-go rules.  
+- EP handover done within two weeks of start.
+
+### Timeframe
+Until the EP is onboarded and handover is complete.
+
+---
+
+## 8. Workstream F: Executive coaching for a senior leader
+### What you get
+- A leader who handles conflict well, stays in their lane, owns mistakes, and pauses to see other views.
+
+### Focus areas
+- Turn disagreements into clear decisions without drama.  
+- Ask before telling. Test ideas and look for evidence.  
+- Admit errors fast, state the fix, and close the loop.  
+- Respect peer decision areas. Use the agreed path to raise issues.  
+- Slow down on high-stakes calls. Check others’ constraints before acting.
+
+### How we do it
+1) Intake and goals  
+Private intake with the CEO and the leader. 360 inputs from reports and peers. Set 90-day behaviour goals tied to delivery.  
+2) Coaching rhythm  
+Weekly one-to-ones and fortnightly check-ins. Field practice in live meetings, quick debriefs. Short modules on conflict patterns, inquiry, framing decisions, apology and repair, staying in lane.  
+3) Tools  
+Decision Map for the leader’s remit, a Conflict Playbook, and a “slow the decision” checklist.  
+4) Evidence  
+Behavioural scorecard at 30, 60, 90 days. Two observed interventions per month with written feedback. Short written reflections after key meetings. Coaching notes are private; only 30/60/90 summaries go to the CEO.
+
+### Acceptance tests
+- Resolve at least three high-stakes disagreements into clear decisions with commitments and no later flare-ups in the next cycle.  
+- Write two short post-mortems naming a personal error and the fix; confirm closure with the people affected.  
+- No instances of bypassing peer decision areas for eight weeks, confirmed by peers.  
+- Use the “slow the decision” checklist on two high-stakes calls per month and log outcomes.
+
+### Timeframe
+Twelve weeks, with checks at days 30, 60, and 90.
+
+---
+
+## 9. Governance and interfaces
+- Weekly checkpoint with the CEO and hiring leads. CEO is tie-breaker on scope and spend.  
+- Weekly budget and scope gate with Finance for any change that affects cost.  
+- Any scope change over one day is logged as a change note with time, cost, and risk impact.  
+- One ClickUp Home Doc links to the system, dashboards, rituals, and trackers.
+
+## 10. Client contributions and dependencies
+- Engage recruiter(s) to source candidates and keep weekly reports flowing.  
+- Give access to teams and tools for interviews and ClickUp setup.  
+- Share compensation bands or point to the living doc.  
+- Provide access and responses within two business days or timelines slip day-for-day.  
+- Handle candidate data only in approved systems. Background checks follow local law.
+
+## 11. Deliverables summary
+| Workstream | Owner (role) | Key deliverables | Timeframe |
+|---|---|---|---|
+| A | Consultant Production Lead | Production Handbook and templates; configured ClickUp (Spaces, Folders, Lists, fields, statuses, automations, Dashboards, Goals, Docs); roadmap and release templates; risk list; training guides and recordings | 4–6 weeks design and pilot + 2–4 weeks roll out |
+| B | Consultant Hiring Advisor | Success scorecards; recruiter brief; interview loop and guides; rating rubrics; finalist scorecards; reference summaries; decision note; onboarding outline | EP 5–8 weeks; CTO 6–10 weeks |
+| C | Consultant Org Designer | Org view and decision map; hiring plan; interview loops; simple cost model | 3–4 weeks |
+| D | Consultant Coach | Three role charters and KPIs; 90-day plans; written feedback; readiness reports | 12 weeks |
+| E | Interim Production Lead | Operating Calendar; agendas and templates; EP handover pack | Until EP starts and handover complete |
+| F | Executive Coach | Coaching plan; Decision Map; Conflict Playbook; 30/60/90 summaries | 12 weeks |
+
+## 12. Commercials and terms
+Billing monthly in arrears against milestones. Travel must be pre-approved. Payment term 30 days. Late changes billed time and materials.
+
+## 13. Sign-off
+Client: Couch Heroes  
+Name: ____________________    Title: ____________________    Date: ____________________  
+Signature: ______________________________________________  
+
+Consultant  
+Name: ____________________    Title: ____________________    Date: ____________________  
+Signature: ______________________________________________
+
+## 14. Change log
+- v0.3 on 22 October 2025: Plain language, removed RACI, added decision map, tighter acceptance tests, spend guardrails, role owners.  
+- v0.2.1 on 22 October 2025: Rebuilt file link; matched v0.2.  
+- v0.2 on 22 October 2025: ClickUp scope, overall production, removed practical exercises, advisory-only hiring.
+
+—
+
+If you want this exported to Word or PDF exactly as above, say the word and I’ll hand you the file.
+

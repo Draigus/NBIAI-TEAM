@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ATS Scorecard Prototype — WorkSage</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0f0f23; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #e0e0e0; }
+
+  /* Tab navigation */
+  .tab-bar { display: flex; gap: 2px; background: #0d1b2a; padding: 0 24px; border-bottom: 2px solid #ffffff10; position: sticky; top: 0; z-index: 100; }
+  .tab { padding: 14px 20px; font-size: 13px; font-weight: 500; color: #888; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.2s; }
+  .tab:hover { color: #bbb; }
+  .tab.active { color: #4ecdc4; border-bottom-color: #4ecdc4; font-weight: 600; }
+
+  /* Views */
+  .view { display: none; max-width: 1100px; margin: 0 auto; padding: 24px; }
+  .view.active { display: block; }
+
+  /* Shared styles from brainstorm frames */
+  h2 { color: #fff; margin-bottom: 4px; }
+  h3 { color: #ddd; margin-top: 24px; margin-bottom: 8px; }
+  .subtitle { color: #6c6c8a; font-size: 14px; margin-bottom: 20px; }
+  .label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #8888aa; margin-bottom: 4px; }
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .mockup { border-radius: 10px; overflow: hidden; border: 1px solid #ffffff10; margin-bottom: 20px; }
+  .mockup-header { background: #0d1b2a; color: #8888aa; padding: 10px 16px; font-size: 12px; }
+  .mockup-body { background: #1a1a2e; }
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .card { background: #ffffff06; border-radius: 10px; overflow: hidden; border: 1px solid #ffffff10; cursor: pointer; transition: border-color 0.2s; }
+  .card:hover { border-color: #4ecdc430; }
+  .card.selected { border-color: #4ecdc4; }
+  .card-image { border-bottom: 1px solid #ffffff10; }
+  .card-body { padding: 16px; }
+  .card-body h3 { margin-top: 0; color: #fff; font-size: 15px; }
+  .card-body p { color: #999; font-size: 13px; line-height: 1.6; margin-top: 6px; }
+
+  /* Branding bar */
+  .brand { background: #0d1b2a; padding: 10px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ffffff08; }
+  .brand-title { font-size: 14px; font-weight: 700; color: #4ecdc4; letter-spacing: 1px; }
+  .brand-sub { font-size: 11px; color: #555; }
+</style>
+</head>
+<body>
+
+<div class="brand">
+  <div class="brand-title">WORKSAGE <span style="color:#555;font-weight:400;">ATS Prototype</span></div>
+  <div class="brand-sub">Brainstorm Session — Couch Heroes</div>
+</div>
+
+<div class="tab-bar">
+  <div class="tab active" onclick="showView('interview')">Interview Scorecard</div>
+  <div class="tab" onclick="showView('cards')">Card Anatomy</div>
+  <div class="tab" onclick="showView('database')">Database View</div>
+  <div class="tab" onclick="showView('calendar')">Calendar</div>
+  <div class="tab" onclick="showView('navigation')">Navigation</div>
+</div>
+
+<!-- ==================== VIEW 1: INTERVIEW SCORECARD ==================== -->
+<div id="view-interview" class="view active">
+  <h2>Focused Interview Mode</h2>
+  <p class="subtitle">What the interviewer sees when conducting an interview</p>
+
+  <div class="mockup">
+    <div class="mockup-header">Interview Session — Interviewer View</div>
+    <div class="mockup-body" style="padding: 0;">
+      <div style="background: #16213e; padding: 14px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2a2a4a;">
+        <div>
+          <span style="font-size: 18px; font-weight: 600; color: #fff;">Sarah Mitchell</span>
+          <span style="color: #8888aa; margin-left: 12px;">Senior Game Engineer</span>
+          <span style="color: #555; margin-left: 8px;">&bull;</span>
+          <span style="color: #6c6c8a; margin-left: 8px;">Couch Heroes</span>
+        </div>
+        <div style="display: flex; gap: 12px; align-items: center;">
+          <span style="background: #2d4a2d; color: #7dce7d; padding: 4px 12px; border-radius: 12px; font-size: 13px;">12 of 25 scored</span>
+          <button style="background: #333355; color: #aaa; border: 1px solid #444; padding: 6px 16px; border-radius: 6px; cursor: pointer; font-size: 13px;">Save &amp; Exit</button>
+        </div>
+      </div>
+
+      <div style="padding: 12px 24px; background: #1e1e3a; display: flex; gap: 16px; border-bottom: 1px solid #2a2a4a;">
+        <div style="flex: 1;"><div style="display: flex; justify-content: space-between; font-size: 11px; color: #8888aa; margin-bottom: 4px;"><span>Culture</span><span>3/5</span></div><div style="background: #2a2a4a; border-radius: 4px; height: 6px;"><div style="background: #4ecdc4; width: 60%; height: 100%; border-radius: 4px;"></div></div></div>
+        <div style="flex: 1;"><div style="display: flex; justify-content: space-between; font-size: 11px; color: #8888aa; margin-bottom: 4px;"><span>Technical</span><span>2/5</span></div><div style="background: #2a2a4a; border-radius: 4px; height: 6px;"><div style="background: #4ecdc4; width: 40%; height: 100%; border-radius: 4px;"></div></div></div>
+        <div style="flex: 1;"><div style="display: flex; justify-content: space-between; font-size: 11px; color: #8888aa; margin-bottom: 4px;"><span>Collaboration</span><span>4/5</span></div><div style="background: #2a2a4a; border-radius: 4px; height: 6px;"><div style="background: #4ecdc4; width: 80%; height: 100%; border-radius: 4px;"></div></div></div>
+        <div style="flex: 1;"><div style="display: flex; justify-content: space-between; font-size: 11px; color: #8888aa; margin-bottom: 4px;"><span>Leadership</span><span>1/5</span></div><div style="background: #2a2a4a; border-radius: 4px; height: 6px;"><div style="background: #4ecdc4; width: 20%; height: 100%; border-radius: 4px;"></div></div></div>
+        <div style="flex: 1;"><div style="display: flex; justify-content: space-between; font-size: 11px; color: #e8a87c; margin-bottom: 4px;"><span style="font-weight:600;">Code Depth</span><span>2/5</span></div><div style="background: #2a2a4a; border-radius: 4px; height: 6px;"><div style="background: #e8a87c; width: 40%; height: 100%; border-radius: 4px;"></div></div></div>
+      </div>
+
+      <div style="padding: 32px 48px; max-width: 800px; margin: 0 auto;">
+        <div style="margin-bottom: 12px;">
+          <span style="background: #2d3a5a; color: #7da8e8; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 500;">TECHNICAL</span>
+          <span style="color: #555; font-size: 13px; margin-left: 12px;">Question 8 of 25</span>
+        </div>
+
+        <div style="font-size: 20px; font-weight: 500; color: #fff; line-height: 1.5; margin-bottom: 28px;">
+          Describe a time you had to refactor a large system while maintaining backward compatibility. What was your approach to ensuring nothing broke?
+        </div>
+
+        <div style="margin-bottom: 24px;">
+          <div style="font-size: 12px; color: #8888aa; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">Score</div>
+          <div style="display: flex; gap: 8px;">
+            <button style="width: 64px; height: 48px; border-radius: 8px; border: 2px solid #333355; background: #1e1e3a; color: #888; font-size: 16px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center;"><span style="font-weight: 700;">1</span><span style="font-size: 9px; color: #666;">Poor</span></button>
+            <button style="width: 64px; height: 48px; border-radius: 8px; border: 2px solid #333355; background: #1e1e3a; color: #888; font-size: 16px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center;"><span style="font-weight: 700;">2</span><span style="font-size: 9px; color: #666;">Below</span></button>
+            <button style="width: 64px; height: 48px; border-radius: 8px; border: 2px solid #333355; background: #1e1e3a; color: #888; font-size: 16px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center;"><span style="font-weight: 700;">3</span><span style="font-size: 9px; color: #666;">Average</span></button>
+            <button style="width: 64px; height: 48px; border-radius: 8px; border: 2px solid #4ecdc4; background: #1a3a3a; color: #4ecdc4; font-size: 16px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center;"><span style="font-weight: 700;">4</span><span style="font-size: 9px;">Good</span></button>
+            <button style="width: 64px; height: 48px; border-radius: 8px; border: 2px solid #333355; background: #1e1e3a; color: #888; font-size: 16px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center;"><span style="font-weight: 700;">5</span><span style="font-size: 9px; color: #666;">Excellent</span></button>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 32px;">
+          <div style="font-size: 12px; color: #8888aa; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">Notes <span style="color: #555; text-transform: none; letter-spacing: 0;">(optional)</span></div>
+          <div style="background: #1e1e3a; border: 1px solid #333355; border-radius: 8px; padding: 14px; min-height: 80px; color: #999; font-size: 14px; line-height: 1.5;">
+            Good understanding of incremental migration. Mentioned feature flags and versioned APIs. Could have elaborated more on testing strategy during the transition...
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #2a2a4a; padding-top: 20px;">
+          <button style="background: #2a2a4a; color: #aaa; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 14px;">&larr; Previous</button>
+          <div style="display: flex; gap: 4px;">
+            <span style="width:8px;height:8px;border-radius:50%;background:#4ecdc4;"></span><span style="width:8px;height:8px;border-radius:50%;background:#4ecdc4;"></span><span style="width:8px;height:8px;border-radius:50%;background:#4ecdc4;"></span><span style="width:8px;height:8px;border-radius:50%;background:#4ecdc4;"></span><span style="width:8px;height:8px;border-radius:50%;background:#4ecdc4;"></span><span style="width:8px;height:8px;border-radius:50%;background:#4ecdc4;"></span><span style="width:8px;height:8px;border-radius:50%;background:#4ecdc4;"></span>
+            <span style="width:10px;height:10px;border-radius:50%;background:#fff;border:2px solid #4ecdc4;"></span>
+            <span style="width:8px;height:8px;border-radius:50%;background:#333;"></span><span style="width:8px;height:8px;border-radius:50%;background:#333;"></span><span style="width:8px;height:8px;border-radius:50%;background:#333;"></span><span style="width:8px;height:8px;border-radius:50%;background:#333;"></span><span style="width:8px;height:8px;border-radius:50%;background:#333;"></span><span style="width:8px;height:8px;border-radius:50%;background:#333;"></span><span style="width:8px;height:8px;border-radius:50%;background:#333;"></span><span style="width:8px;height:8px;border-radius:50%;background:#333;"></span><span style="width:8px;height:8px;border-radius:50%;background:#333;"></span><span style="width:8px;height:8px;border-radius:50%;background:#333;"></span><span style="width:8px;height:8px;border-radius:50%;background:#333;"></span><span style="width:8px;height:8px;border-radius:50%;background:#333;"></span><span style="width:8px;height:8px;border-radius:50%;background:#333;"></span><span style="width:8px;height:8px;border-radius:50%;background:#333;"></span><span style="width:8px;height:8px;border-radius:50%;background:#333;"></span><span style="width:8px;height:8px;border-radius:50%;background:#333;"></span><span style="width:8px;height:8px;border-radius:50%;background:#333;"></span><span style="width:8px;height:8px;border-radius:50%;background:#333;"></span>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button style="background: #2a2a4a; color: #aaa; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 14px;">Skip</button>
+            <button style="background: #4ecdc4; color: #1a1a2e; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600;">Next &rarr;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top: 24px; padding: 16px; background: rgba(78, 205, 196, 0.08); border-radius: 8px; border-left: 3px solid #4ecdc4;">
+    <h3 style="margin: 0 0 8px 0; color: #4ecdc4;">Key Design Points</h3>
+    <ul style="margin: 0; padding-left: 20px; line-height: 1.8; font-size: 14px; color: #ccc;">
+      <li>Distraction-free — no sidebar, no kanban, just the interview</li>
+      <li>Category progress bars show completion at a glance</li>
+      <li>Score buttons with labels (1=Poor through 5=Excellent)</li>
+      <li>Question dot navigation shows scored (teal) vs pending (grey)</li>
+      <li>Auto-saves on every interaction — no lost work</li>
+      <li>Responsive for tablet use in interview rooms</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ==================== VIEW 2: CARD ANATOMY ==================== -->
+<div id="view-cards" class="view">
+  <h2>Candidate Card Redesign</h2>
+  <p class="subtitle">Current card vs proposed. Dark theme, richer data, clear hierarchy.</p>
+
+  <div class="split">
+    <div class="mockup">
+      <div class="mockup-header">Current Card (150px)</div>
+      <div class="mockup-body" style="padding:20px;display:flex;justify-content:center;">
+        <div style="width:150px;background:#23234a;border-radius:8px;padding:10px;border-left:3px solid #f59e0b;font-family:system-ui;color:#e0e0e0;">
+          <div style="font-size:13px;font-weight:600;margin-bottom:4px;">Sarah Chen</div>
+          <div style="font-size:11px;color:#999;margin-bottom:8px;">Sr Backend Eng</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:10px;color:#888;">21 May</span>
+            <span style="font-size:9px;background:#f59e0b33;color:#f59e0b;padding:1px 5px;border-radius:3px;">INTERVIEWS</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="mockup">
+      <div class="mockup-header">Proposed Card (220px)</div>
+      <div class="mockup-body" style="padding:20px;display:flex;justify-content:center;">
+        <div style="width:220px;background:#23234a;border-radius:10px;padding:14px;border-left:3px solid #f59e0b;font-family:system-ui;color:#e0e0e0;">
+          <div style="display:flex;gap:10px;margin-bottom:10px;">
+            <div style="width:38px;height:38px;border-radius:50%;background:#7c3aed;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:white;flex-shrink:0;">SC</div>
+            <div style="min-width:0;"><div style="font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Sarah Chen</div><div style="font-size:12px;color:#999;">Sr Backend Engineer</div></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <span style="font-size:10px;background:#3b82f620;color:#60a5fa;padding:2px 7px;border-radius:4px;display:flex;align-items:center;gap:3px;"><span style="font-size:8px;">in</span> LinkedIn</span>
+            <span style="font-size:10px;background:#f59e0b20;color:#f59e0b;padding:2px 7px;border-radius:4px;">INTERVIEWS</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid #ffffff10;">
+            <div style="display:flex;">
+              <div style="width:22px;height:22px;border-radius:50%;background:#10b981;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:white;border:2px solid #23234a;">JP</div>
+              <div style="width:22px;height:22px;border-radius:50%;background:#f59e0b;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:white;margin-left:-6px;border:2px solid #23234a;">MK</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:10px;color:#888;">📄</span>
+              <span style="font-size:10px;color:#888;">💬 2</span>
+              <span style="font-size:10px;color:#f59e0b;font-weight:600;">5d</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:32px;">Card Elements</h3>
+  <p class="subtitle">Everything visible on the proposed card</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;">
+    <div style="background:#ffffff08;border-radius:8px;padding:12px;">
+      <div class="label">Always shown</div>
+      <ul style="margin:8px 0 0 0;padding-left:18px;font-size:14px;line-height:1.8;">
+        <li><strong>Avatar</strong> — coloured initials circle (hue from name hash)</li>
+        <li><strong>Name</strong> — 14px bold, truncated if long</li>
+        <li><strong>Role</strong> — 12px muted</li>
+        <li><strong>Stage badge</strong> — colour-coded pill</li>
+        <li><strong>Days in stage</strong> — "5d", "2w" — amber after 7d, red after 14d</li>
+      </ul>
+    </div>
+    <div style="background:#ffffff08;border-radius:8px;padding:12px;">
+      <div class="label">Shown when available</div>
+      <ul style="margin:8px 0 0 0;padding-left:18px;font-size:14px;line-height:1.8;">
+        <li><strong>Source badge</strong> — LinkedIn / Referral / Agency / Job Board / Direct</li>
+        <li><strong>Assignee faces</strong> — overlapping initials circles (max 3 + count)</li>
+        <li><strong>CV indicator</strong> — document icon if has_cv</li>
+        <li><strong>Comment count</strong> — speech bubble + number</li>
+        <li><strong>Action border</strong> — left border: red=needs action, amber=stale, green=on track</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 style="margin-top:32px;">New Database Fields Required</h3>
+  <div style="background:#ffffff08;border-radius:8px;padding:16px;margin-top:12px;">
+    <table style="width:100%;font-size:13px;border-collapse:collapse;">
+      <tr style="border-bottom:1px solid #ffffff15;"><td style="padding:6px 12px;font-weight:600;color:#60a5fa;">candidates.source</td><td style="padding:6px 12px;">TEXT — enum: linkedin, referral, agency, job_board, direct, other</td></tr>
+      <tr style="border-bottom:1px solid #ffffff15;"><td style="padding:6px 12px;font-weight:600;color:#60a5fa;">candidates.stage_changed_at</td><td style="padding:6px 12px;">TIMESTAMPTZ — set on stage change, used for days-in-stage calc</td></tr>
+      <tr style="border-bottom:1px solid #ffffff15;"><td style="padding:6px 12px;font-weight:600;color:#60a5fa;">candidate_comments table</td><td style="padding:6px 12px;">id, candidate_id, author, body, created_at — same pattern as bug_report_comments</td></tr>
+      <tr><td style="padding:6px 12px;font-weight:600;color:#60a5fa;">interviews table</td><td style="padding:6px 12px;">id, candidate_id, interviewer_name, type, scheduled_at, duration, location, notes, outcome</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ==================== VIEW 3: DATABASE VIEW ==================== -->
+<div id="view-database" class="view">
+  <h2>Database / Search View</h2>
+  <p class="subtitle">New tab — all candidates in a searchable, sortable table. Which layout?</p>
+
+  <div class="cards">
+    <div class="card" onclick="this.classList.toggle('selected')">
+      <div class="card-image" style="background:#1a1a2e;padding:16px;">
+        <div style="font-family:system-ui;color:#e0e0e0;font-size:11px;">
+          <div style="display:flex;gap:8px;margin-bottom:12px;">
+            <div style="flex:1;background:#23234a;border:1px solid #ffffff15;border-radius:6px;padding:6px 10px;color:#888;font-size:11px;">🔍 Search candidates...</div>
+            <div style="background:#23234a;border:1px solid #ffffff15;border-radius:6px;padding:6px 10px;color:#60a5fa;">Stage ▾</div>
+            <div style="background:#23234a;border:1px solid #ffffff15;border-radius:6px;padding:6px 10px;color:#60a5fa;">Client ▾</div>
+            <div style="background:#23234a;border:1px solid #ffffff15;border-radius:6px;padding:6px 10px;color:#60a5fa;">Source ▾</div>
+          </div>
+          <div style="display:flex;gap:6px;margin-bottom:12px;">
+            <span style="background:#f59e0b20;color:#f59e0b;padding:2px 8px;border-radius:10px;font-size:9px;">Interviews ✕</span>
+            <span style="background:#3b82f620;color:#60a5fa;padding:2px 8px;border-radius:10px;font-size:9px;">Couch Heroes ✕</span>
+          </div>
+          <table style="width:100%;border-collapse:collapse;font-size:10px;">
+            <tr style="color:#888;border-bottom:1px solid #ffffff15;text-align:left;">
+              <th style="padding:4px 6px;">Candidate</th><th style="padding:4px 6px;">Role</th><th style="padding:4px 6px;">Stage</th><th style="padding:4px 6px;">Source</th><th style="padding:4px 6px;">Days</th><th style="padding:4px 6px;">Assignee</th>
+            </tr>
+            <tr style="border-bottom:1px solid #ffffff08;">
+              <td style="padding:6px;display:flex;align-items:center;gap:6px;"><div style="width:22px;height:22px;border-radius:50%;background:#7c3aed;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:white;">SC</div>Sarah Chen</td>
+              <td style="padding:6px;color:#999;">Sr Backend Eng</td>
+              <td style="padding:6px;"><span style="background:#f59e0b20;color:#f59e0b;padding:1px 5px;border-radius:3px;font-size:9px;">INTERVIEWS</span></td>
+              <td style="padding:6px;color:#60a5fa;">LinkedIn</td>
+              <td style="padding:6px;color:#f59e0b;">5d</td>
+              <td style="padding:6px;"><div style="width:18px;height:18px;border-radius:50%;background:#10b981;display:flex;align-items:center;justify-content:center;font-size:7px;color:white;">JP</div></td>
+            </tr>
+            <tr style="border-bottom:1px solid #ffffff08;">
+              <td style="padding:6px;display:flex;align-items:center;gap:6px;"><div style="width:22px;height:22px;border-radius:50%;background:#3b82f6;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:white;">MJ</div>Marcus Johnson</td>
+              <td style="padding:6px;color:#999;">Game Designer</td>
+              <td style="padding:6px;"><span style="background:#a855f720;color:#a855f7;padding:1px 5px;border-radius:3px;font-size:9px;">OFFER</span></td>
+              <td style="padding:6px;color:#60a5fa;">Referral</td>
+              <td style="padding:6px;color:#10b981;">2d</td>
+              <td style="padding:6px;"><div style="width:18px;height:18px;border-radius:50%;background:#f59e0b;display:flex;align-items:center;justify-content:center;font-size:7px;color:white;">MK</div></td>
+            </tr>
+            <tr style="border-bottom:1px solid #ffffff08;">
+              <td style="padding:6px;display:flex;align-items:center;gap:6px;"><div style="width:22px;height:22px;border-radius:50%;background:#ef4444;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:white;">AL</div>Anna Lopez</td>
+              <td style="padding:6px;color:#999;">QA Lead</td>
+              <td style="padding:6px;"><span style="background:#6b728020;color:#9ca3af;padding:1px 5px;border-radius:3px;font-size:9px;">SOURCING</span></td>
+              <td style="padding:6px;color:#60a5fa;">Agency</td>
+              <td style="padding:6px;color:#ef4444;">12d</td>
+              <td style="padding:6px;color:#666;">—</td>
+            </tr>
+          </table>
+          <div style="text-align:right;color:#666;font-size:9px;margin-top:8px;">Showing 3 of 47 candidates</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <h3>A — Full Table</h3>
+        <p>Classic data table with avatar + name, role, stage badge, source, days-in-stage, assignees. Sortable columns. Search + filter dropdowns + removable chips. Click row to open detail panel. Best for scanning lots of candidates fast.</p>
+      </div>
+    </div>
+
+    <div class="card" onclick="this.classList.toggle('selected')">
+      <div class="card-image" style="background:#1a1a2e;padding:16px;">
+        <div style="font-family:system-ui;color:#e0e0e0;font-size:11px;display:flex;gap:12px;">
+          <div style="flex:1.2;">
+            <div style="background:#23234a;border:1px solid #ffffff15;border-radius:6px;padding:6px 10px;color:#888;font-size:11px;margin-bottom:10px;">🔍 Search...</div>
+            <table style="width:100%;border-collapse:collapse;font-size:10px;">
+              <tr style="color:#888;border-bottom:1px solid #ffffff15;text-align:left;"><th style="padding:4px;">Candidate</th><th style="padding:4px;">Stage</th><th style="padding:4px;">Days</th></tr>
+              <tr style="border-bottom:1px solid #ffffff08;"><td style="padding:5px;display:flex;align-items:center;gap:5px;"><div style="width:20px;height:20px;border-radius:50%;background:#7c3aed;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:white;">SC</div>Sarah Chen</td><td style="padding:5px;"><span style="background:#f59e0b20;color:#f59e0b;padding:1px 4px;border-radius:3px;font-size:8px;">INT</span></td><td style="padding:5px;color:#f59e0b;">5d</td></tr>
+              <tr style="background:#ffffff08;border-bottom:1px solid #ffffff08;"><td style="padding:5px;display:flex;align-items:center;gap:5px;"><div style="width:20px;height:20px;border-radius:50%;background:#3b82f6;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:white;">MJ</div>Marcus Johnson</td><td style="padding:5px;"><span style="background:#a855f720;color:#a855f7;padding:1px 4px;border-radius:3px;font-size:8px;">OFR</span></td><td style="padding:5px;color:#10b981;">2d</td></tr>
+              <tr style="border-bottom:1px solid #ffffff08;"><td style="padding:5px;display:flex;align-items:center;gap:5px;"><div style="width:20px;height:20px;border-radius:50%;background:#ef4444;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:white;">AL</div>Anna Lopez</td><td style="padding:5px;"><span style="background:#6b728020;color:#9ca3af;padding:1px 4px;border-radius:3px;font-size:8px;">SRC</span></td><td style="padding:5px;color:#ef4444;">12d</td></tr>
+            </table>
+          </div>
+          <div style="flex:0.8;background:#23234a;border-radius:8px;padding:12px;border-left:3px solid #f59e0b;">
+            <div style="display:flex;gap:8px;margin-bottom:10px;">
+              <div style="width:32px;height:32px;border-radius:50%;background:#3b82f6;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;">MJ</div>
+              <div><div style="font-size:12px;font-weight:600;">Marcus Johnson</div><div style="font-size:10px;color:#999;">Game Designer</div></div>
+            </div>
+            <div style="font-size:9px;color:#888;margin-bottom:4px;">Couch Heroes · Referral</div>
+            <div style="font-size:9px;color:#888;margin-bottom:8px;">Offer stage · 2 days</div>
+            <div style="font-size:9px;color:#888;border-top:1px solid #ffffff10;padding-top:6px;">Next: Start date TBD<br>Assignee: MK</div>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <h3>B — Table + Side Preview</h3>
+        <p>Compact table on the left, candidate preview card on the right (updates on row hover/click). Good for browsing — see key details without opening a full panel. But uses more horizontal space and shows fewer columns in the table.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== VIEW 4: CALENDAR ==================== -->
+<div id="view-calendar" class="view">
+  <h2>Calendar — Richer Interview Blocks</h2>
+  <p class="subtitle">Week grid kept, blocks now show more detail.</p>
+
+  <div class="mockup">
+    <div class="mockup-header">Week Grid — Enhanced Blocks</div>
+    <div class="mockup-body" style="padding:20px;">
+      <div style="font-size:11px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+          <div style="display:flex;gap:10px;align-items:center;">
+            <span style="font-size:16px;font-weight:600;">May 2026</span>
+            <span style="color:#888;cursor:pointer;font-size:14px;">◀</span>
+            <span style="color:#888;cursor:pointer;font-size:14px;">▶</span>
+          </div>
+          <div style="display:flex;gap:4px;">
+            <span style="background:#7c3aed;color:white;padding:4px 12px;border-radius:5px;font-size:11px;">Week</span>
+            <span style="background:#23234a;color:#888;padding:4px 12px;border-radius:5px;font-size:11px;">Month</span>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:54px repeat(5,1fr);gap:1px;background:#ffffff06;border-radius:8px;overflow:hidden;">
+          <div style="background:#1a1a2e;padding:8px;"></div>
+          <div style="background:#1a1a2e;padding:8px;text-align:center;color:#888;font-size:10px;">Mon 19</div>
+          <div style="background:#1a1a2e;padding:8px;text-align:center;color:#60a5fa;font-size:10px;font-weight:600;">Tue 20</div>
+          <div style="background:#1a1a2e;padding:8px;text-align:center;color:#888;font-size:10px;">Wed 21</div>
+          <div style="background:#1a1a2e;padding:8px;text-align:center;color:#888;font-size:10px;">Thu 22</div>
+          <div style="background:#1a1a2e;padding:8px;text-align:center;color:#888;font-size:10px;">Fri 23</div>
+
+          <div style="background:#1a1a2e;padding:8px 4px;text-align:right;color:#555;font-size:9px;">9:00</div>
+          <div style="background:#23234a;padding:5px;min-height:64px;">
+            <div style="background:#7c3aed20;border-left:3px solid #7c3aed;border-radius:4px;padding:6px 8px;height:100%;">
+              <div style="display:flex;align-items:center;gap:5px;margin-bottom:4px;"><div style="width:18px;height:18px;border-radius:50%;background:#7c3aed;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:white;flex-shrink:0;">SC</div><span style="font-weight:600;color:#c4b5fd;font-size:11px;">Sarah Chen</span></div>
+              <div style="font-size:9px;color:#999;margin-bottom:2px;">Technical Round</div>
+              <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:8px;color:#888;">9:00 – 10:00 · Zoom</span><div style="width:16px;height:16px;border-radius:50%;background:#10b981;display:flex;align-items:center;justify-content:center;font-size:6px;font-weight:700;color:white;">JP</div></div>
+            </div>
+          </div>
+          <div style="background:#23234a;padding:5px;min-height:64px;"></div>
+          <div style="background:#23234a;padding:5px;min-height:64px;"></div>
+          <div style="background:#23234a;padding:5px;min-height:64px;">
+            <div style="background:#3b82f620;border-left:3px solid #3b82f6;border-radius:4px;padding:6px 8px;height:100%;">
+              <div style="display:flex;align-items:center;gap:5px;margin-bottom:4px;"><div style="width:18px;height:18px;border-radius:50%;background:#ef4444;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:white;flex-shrink:0;">AL</div><span style="font-weight:600;color:#93c5fd;font-size:11px;">Anna Lopez</span></div>
+              <div style="font-size:9px;color:#999;margin-bottom:2px;">Phone Screen</div>
+              <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:8px;color:#888;">9:00 – 9:30 · Phone</span><div style="width:16px;height:16px;border-radius:50%;background:#f59e0b;display:flex;align-items:center;justify-content:center;font-size:6px;font-weight:700;color:white;">MK</div></div>
+            </div>
+          </div>
+          <div style="background:#23234a;padding:5px;min-height:64px;"></div>
+
+          <div style="background:#1a1a2e;padding:8px 4px;text-align:right;color:#555;font-size:9px;">10:00</div>
+          <div style="background:#23234a;padding:5px;min-height:64px;"></div>
+          <div style="background:#23234a;padding:5px;min-height:64px;">
+            <div style="background:#10b98120;border-left:3px solid #10b981;border-radius:4px;padding:6px 8px;height:100%;">
+              <div style="display:flex;align-items:center;gap:5px;margin-bottom:4px;"><div style="width:18px;height:18px;border-radius:50%;background:#3b82f6;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:white;flex-shrink:0;">MJ</div><span style="font-weight:600;color:#6ee7b7;font-size:11px;">Marcus Johnson</span></div>
+              <div style="font-size:9px;color:#999;margin-bottom:2px;">Final Interview</div>
+              <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:8px;color:#888;">10:00 – 11:00 · Office</span><div style="width:16px;height:16px;border-radius:50%;background:#7c3aed;display:flex;align-items:center;justify-content:center;font-size:6px;font-weight:700;color:white;">VP</div></div>
+            </div>
+          </div>
+          <div style="background:#23234a;padding:5px;min-height:64px;"></div>
+          <div style="background:#23234a;padding:5px;min-height:64px;"></div>
+          <div style="background:#23234a;padding:5px;min-height:64px;"></div>
+
+          <div style="background:#1a1a2e;padding:8px 4px;text-align:right;color:#555;font-size:9px;">11:00</div>
+          <div style="background:#23234a;padding:5px;min-height:64px;"></div>
+          <div style="background:#23234a;padding:5px;min-height:64px;"></div>
+          <div style="background:#23234a;padding:5px;min-height:64px;">
+            <div style="background:#f59e0b20;border-left:3px solid #f59e0b;border-radius:4px;padding:6px 8px;height:100%;">
+              <div style="display:flex;align-items:center;gap:5px;margin-bottom:4px;"><div style="width:18px;height:18px;border-radius:50%;background:#f59e0b;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:white;flex-shrink:0;">YT</div><span style="font-weight:600;color:#fcd34d;font-size:11px;">Yuki Tanaka</span></div>
+              <div style="font-size:9px;color:#999;margin-bottom:2px;">Cultural Fit</div>
+              <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:8px;color:#888;">11:00 – 11:45 · Zoom</span><div style="width:16px;height:16px;border-radius:50%;background:#10b981;display:flex;align-items:center;justify-content:center;font-size:6px;font-weight:700;color:white;">JP</div></div>
+            </div>
+          </div>
+          <div style="background:#23234a;padding:5px;min-height:64px;"></div>
+          <div style="background:#23234a;padding:5px;min-height:64px;"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;">
+          <div style="display:flex;gap:12px;font-size:9px;color:#888;">
+            <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#7c3aed;margin-right:3px;"></span>Technical</span>
+            <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#3b82f6;margin-right:3px;"></span>Phone Screen</span>
+            <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#10b981;margin-right:3px;"></span>Final</span>
+            <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#f59e0b;margin-right:3px;"></span>Cultural</span>
+          </div>
+          <span style="font-size:10px;color:#666;">4 interviews this week</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:24px;">Each Block Shows</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;">
+    <div style="background:#ffffff08;border-radius:8px;padding:12px;">
+      <div class="label">On the block</div>
+      <ul style="margin:8px 0 0 0;padding-left:18px;font-size:14px;line-height:1.8;">
+        <li><strong>Candidate avatar</strong> — initials circle</li>
+        <li><strong>Candidate name</strong> — bold, colour-matched to type</li>
+        <li><strong>Interview type</strong> — Phone Screen / Technical / Cultural / Final</li>
+        <li><strong>Time + location</strong> — "9:00 – 10:00 · Zoom"</li>
+        <li><strong>Interviewer avatar</strong> — small circle, bottom-right</li>
+      </ul>
+    </div>
+    <div style="background:#ffffff08;border-radius:8px;padding:12px;">
+      <div class="label">On click (opens panel)</div>
+      <ul style="margin:8px 0 0 0;padding-left:18px;font-size:14px;line-height:1.8;">
+        <li>Full candidate detail panel (existing)</li>
+        <li>Interview notes field</li>
+        <li>Outcome selector (Pending / Passed / Failed / No-show)</li>
+        <li>Reschedule / Cancel actions</li>
+        <li>Conflict warning if interviewer double-booked</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== VIEW 5: NAVIGATION ==================== -->
+<div id="view-navigation" class="view">
+  <h2>Hiring View Navigation</h2>
+  <p class="subtitle">How should the 5 views be organised? Currently just a Kanban/By Client toggle.</p>
+
+  <div class="cards">
+    <div class="card" onclick="this.classList.toggle('selected')">
+      <div class="card-image" style="background:#1a1a2e;padding:16px;">
+        <div style="font-family:system-ui;color:#e0e0e0;">
+          <div style="display:flex;gap:2px;border-bottom:2px solid #ffffff10;margin-bottom:16px;">
+            <div style="padding:8px 16px;font-size:12px;font-weight:600;color:#7c3aed;border-bottom:2px solid #7c3aed;margin-bottom:-2px;">Pipeline</div>
+            <div style="padding:8px 16px;font-size:12px;color:#888;">Positions</div>
+            <div style="padding:8px 16px;font-size:12px;color:#888;">Database</div>
+            <div style="padding:8px 16px;font-size:12px;color:#888;">Calendar</div>
+            <div style="padding:8px 16px;font-size:12px;color:#888;">Metrics</div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div style="display:flex;gap:4px;">
+              <span style="background:#7c3aed;color:white;padding:3px 10px;border-radius:4px;font-size:10px;">Kanban</span>
+              <span style="background:#23234a;color:#888;padding:3px 10px;border-radius:4px;font-size:10px;">By Client</span>
+            </div>
+            <div style="display:flex;gap:6px;">
+              <span style="background:#23234a;border:1px solid #ffffff15;border-radius:5px;padding:4px 10px;color:#888;font-size:10px;">Client ▾</span>
+              <span style="background:#23234a;border:1px solid #ffffff15;border-radius:5px;padding:4px 10px;color:#888;font-size:10px;">Stage ▾</span>
+              <span style="background:#7c3aed;color:white;padding:4px 10px;border-radius:5px;font-size:10px;">+ Candidate</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <h3>A — Top Tab Bar</h3>
+        <p>5 tabs across the top. Pipeline tab has Kanban/By Client sub-toggle. Each tab has its own controls (filters, actions) below. Clean separation. Standard ATS pattern.</p>
+      </div>
+    </div>
+
+    <div class="card" onclick="this.classList.toggle('selected')">
+      <div class="card-image" style="background:#1a1a2e;padding:16px;">
+        <div style="font-family:system-ui;color:#e0e0e0;">
+          <div style="display:flex;gap:12px;">
+            <div style="width:100px;flex-shrink:0;">
+              <div style="background:#7c3aed20;border-left:3px solid #7c3aed;padding:8px 10px;border-radius:0 6px 6px 0;margin-bottom:4px;"><div style="font-size:11px;font-weight:600;color:#c4b5fd;">Pipeline</div></div>
+              <div style="padding:8px 10px;margin-bottom:4px;"><div style="font-size:11px;color:#888;">Positions</div></div>
+              <div style="padding:8px 10px;margin-bottom:4px;"><div style="font-size:11px;color:#888;">Database</div></div>
+              <div style="padding:8px 10px;margin-bottom:4px;"><div style="font-size:11px;color:#888;">Calendar</div></div>
+              <div style="padding:8px 10px;"><div style="font-size:11px;color:#888;">Metrics</div></div>
+            </div>
+            <div style="flex:1;background:#23234a;border-radius:8px;padding:12px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <div style="display:flex;gap:4px;">
+                  <span style="background:#7c3aed;color:white;padding:3px 10px;border-radius:4px;font-size:10px;">Kanban</span>
+                  <span style="background:#1a1a2e;color:#888;padding:3px 10px;border-radius:4px;font-size:10px;">By Client</span>
+                </div>
+                <span style="background:#7c3aed;color:white;padding:4px 10px;border-radius:5px;font-size:10px;">+ Candidate</span>
+              </div>
+              <div style="color:#666;font-size:10px;text-align:center;padding:20px;">[ kanban content ]</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <h3>B — Left Sidebar Nav</h3>
+        <p>Vertical nav on the left, content on the right. Feels more like a dedicated app. But eats horizontal space that the kanban lanes need, and the dashboard already has a left sidebar for main navigation.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+
+</body>
+</html>

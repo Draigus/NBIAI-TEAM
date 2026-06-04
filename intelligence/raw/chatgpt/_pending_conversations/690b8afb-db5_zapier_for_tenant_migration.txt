@@ -1,0 +1,59 @@
+TITLE: Zapier for tenant migration
+DATE: 2025-11-05
+MESSAGES: 2
+ID: 690b8afb-db54-832f-9931-7c1769e9dafe
+---
+
+[USER]
+I have a office 365 that has a SharePoint and a Microsoft planner that’s full of information and I need to migrate both of them including OneDrive to a new office 365 tenant and I know Microsoft doesn’t have a tool that does this. I’m wondering if Zapier can do it?  If you can find articles or walk-throughs on Sapier or a predefined script already, can you please give me links to those things?
+
+
+[ASSISTANT]
+Short answer: Zapier isn’t suitable for tenant-to-tenant migration of SharePoint, OneDrive, or Planner. It has a SharePoint connector for simple automations, but there’s no native Zapier integration for Planner and nothing in Zapier that will bulk-lift sites, drives, or plans between tenants. citeturn2search7turn2search1
+
+Better options and the exact guides you asked for are below.
+
+# What to use instead
+
+## Microsoft’s native cross-tenant migration (SharePoint + OneDrive)
+Microsoft now provides supported cross-tenant migrations for OneDrive and SharePoint, with step-by-step admin centre and PowerShell instructions. These are the most reliable for files, sites, permissions, and user mapping.
+
+- Cross-tenant OneDrive migration overview and steps. citeturn1search0turn1search9  
+- Cross-tenant SharePoint site migration overview and run-book steps. citeturn1search3turn0search10  
+- Licensing note for cross-tenant migrations, including coverage for OneDrive. citeturn1search12
+
+Helpful background and walkthroughs:
+- “Migrate your content to Microsoft 365” tool chooser and guidance. citeturn1search6  
+- ShareGate’s explainer on OneDrive tenant-to-tenant moves. citeturn1search21
+
+## Planner migration (no first-party tool; use a product or a script)
+Planner data lives with Microsoft 365 Groups and Teams. There isn’t a Microsoft native tenant-to-tenant Planner migrator, so use a third-party tool or a Graph-based script.
+
+Tools with walkthroughs:
+- BitTitan MigrationWiz: Teams-to-Teams with Planner content. Guide and scope. citeturn0search12turn0search6  
+- Apps4.Pro Migration Manager: Planner tenant-to-tenant migration guide. citeturn1search2turn1search11  
+- FluentPro Project Migrator: Planner Basic and Premium scenarios, with limits and prerequisites. citeturn1search4turn1search1turn1search13turn1search15
+
+Predefined scripts and community tools:
+- Planner tenant-to-tenant PowerShell script (what it migrates and what it cannot, like comments and attachments). citeturn3view0  
+- PlannerMigrationTool (GUI over Graph) by Sean McAvinue, with README and setup steps. citeturn4view0
+
+## Why not Zapier for this
+- Zapier has no Planner integration, so it cannot read or recreate plans at scale. citeturn2search0  
+- Zapier’s SharePoint connector is designed for light workflow automations, not bulk, permissions-aware content migration across tenants. citeturn2search7
+
+# Quick path to execution
+
+1) Use Microsoft cross-tenant migration for OneDrive and SharePoint to move files, sites, and permissions. citeturn1search0turn1search3  
+2) For Planner, pick one of:  
+   - BitTitan if you are already doing Teams migration. citeturn0search12  
+   - Apps4.Pro or FluentPro if you want a Planner-specific pipeline with UI and user mapping. citeturn1search2turn1search1  
+   - For a small number of plans, run the PowerShell/Graph script and accept limitations like missing comments and file attachments unless you handle them separately. citeturn3view0
+
+# Optional scoping questions
+- Roughly how many SharePoint sites and OneDrive users need to move, and do you need version history and permissions preserved?  
+- How many Planner plans, and do you need task comments and attachments migrated or is tasks/buckets/assignees sufficient?  
+- Are you also moving Teams and Microsoft 365 Groups, or just the underlying files and plans?
+
+If you want, I can assemble a concrete run-book for your tenants with pre-migration checks, identity mapping, throttling windows, and a rollback plan.
+

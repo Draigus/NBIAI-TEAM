@@ -1,0 +1,99 @@
+TITLE: Cost profit analysis prompt
+DATE: 2025-08-22
+MESSAGES: 2
+ID: 68a841ae-c73c-8329-a9d1-4162544fb9c1
+---
+
+[USER]
+as an expert Financial analyst please write up an extremely detailed pre-prompt to derive the cost and profit from a contract that is time and materials billed for 4 staff:
+
+[ASSISTANT]
+Here’s a **pre-prompt framework** you can use to derive cost and profit for a **time & materials (T&M) billed contract with 4 staff**. It’s written as if you are preparing an LLM (or analyst) to do a full breakdown, ensuring no key variables are missed. You can adapt this into your financial model or contract draft.  
+
+---
+
+## Pre-Prompt for Cost & Profit Analysis of T&M Contract (4 Staff)
+
+**Objective:**  
+Derive the total contract cost, margin, and profit for a time and materials (T&M) billed engagement involving 4 staff members. Ensure that all direct and indirect cost drivers are included, and provide both per-staff and aggregate financial outputs.  
+
+---
+
+### 1. Contract Scope Inputs
+- **Duration of engagement:** (weeks, months, or total hours)  
+- **Expected utilization rate per staff member:** (% billable hours per week)  
+- **Client billing rates:** (hourly/daily rate per staff role; list separately if different roles)  
+- **Overtime or weekend premium rates, if applicable**  
+
+---
+
+### 2. Staff & Labor Costs
+For each of the 4 staff:
+- **Base salary / day-rate equivalent**  
+- **Fully weighted labor cost per hour/day** (including employer contributions: payroll tax, pension, NI, insurance)  
+- **Expected billable hours per week**  
+- **Effective cost per billable hour**  
+
+---
+
+### 3. Overheads & Indirect Costs
+- **Proportional overhead allocation per staff** (office, equipment, software licenses, HR, IT, finance, admin, etc.)  
+- **Travel & expenses** (onsite visits, conferences, client workshops)  
+- **Facilities costs** (if dedicated to this project)  
+- **Training / onboarding time** (non-billable but still a cost)  
+
+---
+
+### 4. Revenue Calculations
+- **Total billable hours per staff over contract duration**  
+- **Revenue per staff member = Billable hours × Billing rate**  
+- **Total revenue across all 4 staff**  
+
+---
+
+### 5. Cost Calculations
+- **Direct labor cost = Staff fully weighted cost × hours worked**  
+- **Overhead allocation = % of overhead applied per staff member**  
+- **Total project cost = Sum of labor + overhead + expenses**  
+
+---
+
+### 6. Profitability Metrics
+- **Gross Margin % = (Revenue – Direct Labor) ÷ Revenue**  
+- **Contribution Margin % = (Revenue – Direct Labor – Allocated Overheads) ÷ Revenue**  
+- **Absolute Profit = Revenue – Total Project Cost**  
+- **Break-even billing rate per staff role** (minimum rate required to cover all costs)  
+
+---
+
+### 7. Scenario / Sensitivity Testing
+- **Low case:** 70% utilization  
+- **Expected case:** 85% utilization  
+- **High case:** 95% utilization  
+- **Impact of rate changes:** ±10% billing rate variation  
+- **Impact of duration shifts:** +/– 1 month  
+
+---
+
+### 8. Reporting Outputs
+Generate a **table** with the following columns for each staff member and totals:
+- Staff Role  
+- Billable Hours  
+- Billing Rate  
+- Revenue  
+- Fully Weighted Cost  
+- Overheads/Expenses  
+- Total Cost  
+- Gross Margin %  
+- Profit  
+
+Also generate **summary metrics**:
+- Total Revenue  
+- Total Costs (Labor + Overheads + Expenses)  
+- Total Profit (absolute)  
+- Profit Margin (%)  
+
+---
+
+Would you like me to now **build this into a working Excel model** (so you can just enter rates, costs, and hours for each staff role and get automated cost/profit outputs), or do you prefer I draft a **financial narrative template** you can paste directly into your contract proposals?
+

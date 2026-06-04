@@ -1,0 +1,854 @@
+TITLE: O365 tenant migration guide
+DATE: 2025-09-24
+MESSAGES: 13
+ID: 68d41191-2e74-832e-a536-bdecd4dcbed5
+---
+
+[USER]
+as an expert in microsoft software, help me, we have an active 0365 account for everyone in NBI where we use sharepoint and teams and planner. we ned how a new 0365 account under NBI specifically and I need to move all of the ms teams chats and planner to the NBI instance from the NSI instance without loosing anything
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.
+
+# Master Task Blueprint
+
+**Task name and date**  
+Tenant-to-tenant move for Teams chats and Planner from NSI → NBI, 24 Sep 2025
+
+**Roles engaged and why**  
+Consultant: overall migration planning and stakeholder coordination.  
+System Architect: map workloads, identity, and tenancy constraints.  
+Project Manager: cut-over choreography and risk control.
+
+**Objective and audience**  
+Give NBI an exact path to create any needed Microsoft 365 user accounts in the NBI tenant and move collaboration data from NSI to NBI, with the highest possible fidelity for Teams chats and Planner.
+
+**Success criteria**  
+1) All target NBI accounts licensed and able to sign in to Teams, SharePoint, Planner.  
+2) Files, Teams membership, and permissions mapped correctly.  
+3) Chat and Planner data handled to the maximum fidelity that Microsoft and tooling allow, with an auditable archive for anything that cannot be rendered in-place in the new tenant.  
+4) One validated cut-over window with go/no-go and rollback.
+
+**Constraints and inputs**  
+You already have an active NBI tenant. You want “no loss” where feasible. Microsoft’s native cross-tenant capabilities cover Exchange/OneDrive and parts of SharePoint; Teams chat history and Planner have important limits without third-party tools. citeturn1search2turn1search4turn1search11turn0search19
+
+**Assumptions and how they will be verified**  
+Held pending answers to Clarification Bundle.
+
+**Segments and dependencies**  
+A) Readiness and licensing  
+B) Identity and coexistence plan  
+C) Workload migration plan per app  
+D) Pilot, then production cut-over  
+Dependencies: admin access in both tenants; any legal holds; tool selection.
+
+**Deliverable list and formats**  
+1) Migration runbook and cut-over checklist (Word).  
+2) Mapping workbook for users, teams, groups, and plans (Excel).  
+3) Risk register and rollback plan (Word).  
+4) Evidence table of tool and platform limits with sources (Appendix).
+
+**Sources to use**  
+Microsoft Learn for tenant-to-tenant migrations and licensing; vendor docs only to document gaps or added fidelity for Teams chats and Planner. citeturn0search17turn0search2
+
+**Review plan across roles**  
+Architect review of technical steps; PM review of schedule and comms.
+
+**Definition-of-Done**  
+Plan reflects your choices on fidelity, budget, and timing; pilot validated; cut-over executed with sign-off.
+
+---
+
+## Clarification Bundle — outcome-changing only
+
+1) **Scope and fidelity**  
+• Exactly how many users, teams, and Planner plans are in scope from NSI?  
+• For **Teams chats**, do you require the historic 1:1 and group chat messages to appear inside Teams in the NBI tenant, or is a searchable, timestamped **archive** acceptable? Native Microsoft does not render historic chats in the new tenant; third-party tools can copy content with caveats on authorship, timestamps, reactions, and @mentions. citeturn1search11turn1search13  
+• For **Planner**, is full fidelity of tasks sufficient, or are **comments** a hard requirement? Planner comments are tied to the source Group mailbox and do not move with basic methods. Some tools work around this by copying comments as task notes, not true comments. citeturn0search19turn1search14
+
+2) **Licensing and budget**  
+• Do you have or want to use Microsoft’s **Cross-Tenant User Data Migration** add-on and FastTrack, or should we avoid paid Microsoft add-ons and use third-party tools where needed? The add-on is now standard for Exchange/OneDrive moves and influences approach for SharePoint; it does not solve Teams chat or Planner limitations end-to-end. citeturn0search2turn1search0  
+• If third-party is allowed, do you have a preference among ShareGate, Quest, BitTitan, Cloudiway, or Apps4.Pro for Planner? These increase Teams and Planner fidelity versus native paths. citeturn1search8turn0search16turn0search10turn1search10turn0search6
+
+3) **Compliance and timing**  
+• Are any NSI users or groups under **litigation hold**, retention, or eDiscovery? This blocks some native moves and changes the sequence. citeturn1search2  
+• Desired cut-over window and pilot size? Any blackout periods?
+
+4) **Identity and namespace**  
+• Will user principal names change, or will NBI claim and retain the same primary SMTP domains?  
+• Do you need coexistence between tenants during transition, or a hard cut-over?
+
+5) **“New account” need**  
+• You wrote “we need how a new 365 account under NBI specifically.” Do you want a **how-to** for creating a brand-new NBI user with Teams/Planner access and baseline security controls, or is that already handled?
+
+---
+
+If you confirm tool stance, fidelity expectations for chats and Planner, and basic counts, I will deliver the exact runbook next, including step-by-step for: tenant prep and licensing, identity mapping, Teams structure recreation, file moves, Planner plan migration method, chat history handling strategy, pilot validation, and the production cut-over checklist with comms.
+
+[USER]
+these questions are kind of dumb of course I want everything in all instances replciated into the new instance. new email accounts are already setup. no i dont want to have to pay for tools to do this. no one it under litigation, nor do I need all of that.  I need a strong and complete method to move EVERYTHING to the new instance.  and yes Im admin in both places
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.
+
+# Master Task Blueprint
+
+**Task name and date**  
+NSI to NBI move for Teams and Planner using native Microsoft paths, 24 Sep 2025
+
+**Roles engaged and why**  
+System Architect: prove what is and is not possible natively and design the path.  
+Project Manager: cutover choreography and user comms.  
+Consultant: risk control and acceptance.
+
+**Objective and audience**  
+Give you a strong, complete, native-only runbook to move Teams and Planner from NSI to NBI with maximum fidelity, no paid third-party tools.
+
+**Success criteria**  
+Target Teams and plans exist, memberships correct, files land in NBI, tasks rebuilt, and chat history is exported and accessible. No surprises at cutover.
+
+**Constraints and inputs**  
+Admin in both tenants. New NBI accounts already live. No budget for add-ons or third-party migration tools.
+
+**Reality check (native limits that affect “replicate everything”)**  
+• Microsoft does not provide native tenant-to-tenant migration for Teams chat history into the new tenant. You can export chats, but you cannot import them back as chats or render them inline as if authored live. citeturn0search4turn0search0  
+• Teams Export APIs let you pull 1:1, group, meeting, and channel messages, but import is only supported to Teams channels in a special migration mode and does not cover 1:1 or group chats. It is intended for third-party platform data, and you must create new teams in migration state. citeturn0search3turn2search1turn2search18  
+• Planner has no native cross-tenant move. You can rebuild plans and tasks with Graph or scripts, but comments are tied to the source Group mailbox and do not move natively. citeturn3search11  
+• SharePoint content under each Team is the file store. Microsoft’s official cross-tenant SharePoint migration is a preview with additional licensing. The SharePoint Migration Tool does not support tenant-to-tenant. Without the add-on, you must copy content by client sync or scripted export and reimport, with some metadata loss. citeturn1search0turn1search3
+
+Given your no-budget constraint, the runbook below achieves the maximum that Microsoft’s native paths allow and calls out the unavoidable gaps.
+
+# Runbook: native-only path
+
+## A) Pre-flight inventory and prep
+1) Export a complete inventory of source objects.  
+   • Teams, channels, owners, members.  
+   • Associated SharePoint site URLs and libraries.  
+   • Planner plans per Microsoft 365 Group, with buckets and task counts.  
+   Use Microsoft Graph reports and Teams/SharePoint admin exports. Keep this as your control list. citeturn3search9
+
+2) Freeze changes for the cutover window. Announce read-only periods for Planner and for team file libraries.  
+
+3) Set up admin app registrations in both tenants for Graph scripts. Note throttling expectations. citeturn3search4
+
+## B) Recreate Teams structure in NBI
+4) Create target Microsoft 365 Groups, Teams, and standard channels in NBI matching NSI naming and privacy. You can script creation with Graph and place teams in “migration mode” only if you plan to import historical channel messages later. For a native-only, zero-cost approach, create teams and channels normally. citeturn2search9
+
+5) Map and add owners and members to each Team in NBI from your inventory.
+
+## C) Move Team files to NBI SharePoint sites
+You have two native options without the cross-tenant SharePoint add-on:
+
+Option 1: One-time client copy  
+6) On a controlled machine, sign in to the NSI team site document library with OneDrive sync, let it hydrate, then sign in to the corresponding NBI site and copy library contents across. This preserves content but will not preserve original Modified By or timestamps and may break some sharing links. Microsoft’s own guidance confirms SPMT does not support tenant-to-tenant. citeturn1search3
+
+Option 2: Scripted export and import  
+7) Use PnP.PowerShell or Graph to enumerate files and copy to NBI libraries. Expect similar metadata limits unless you invest significant scripting to set system fields where allowed. Validate per library before proceeding at scale. (Microsoft does not publish a fully supported tenant-to-tenant file copy script; this is a best-effort native approach consistent with limits above.) citeturn3search9
+
+Validation: spot-check top 20 libraries by size after copy. Reconnect Team tabs to the new SharePoint URLs.
+
+## D) Rebuild Planner in NBI
+8) For each source plan, create a new plan in the mapped NBI Group.  
+9) Recreate buckets and tasks via Graph or Power Automate using your inventory export: title, description, labels, assignments, checklists, start and due dates.  
+10) Comments cannot be moved as comments natively. If you need the comment text, append the text into the task Notes field with a prefix like “Comment archive” and timestamp, or attach an exported HTML of the conversation. Microsoft confirms comments do not move with tasks. citeturn3search11  
+11) Reattach files by pointing to the new NBI SharePoint URLs after the file move.
+
+## E) Handle Teams chat and channel message history
+12) Export chat and channel messages for compliance and reference.  
+   • Use Microsoft Purview eDiscovery (Standard or Premium) to collect and export Teams chats and channel messages per custodian, or use the Teams Export API. citeturn2search4turn0search3
+
+13) Import options, native only:  
+   • Channel messages: If you are willing to recreate teams in migration mode and write a custom Graph script, you can import message history into channels only, not into 1:1 or group chats. This requires creating teams in migration state, importing, then completing migration, after which no further imports are allowed. It does not recreate reactions or every artefact. citeturn2search1turn2search18  
+   • 1:1 and group chats: there is no supported native import into chat. Retain the export in a read-only SharePoint document library in each team as “Chat Archive”, with search enabled. citeturn0search4
+
+If you do not want to write scripts, skip imports and publish the exported archives in “Chat Archive” channels so users can search history.
+
+## F) Cutover and smoke test
+14) Lock NSI Teams to read-only.  
+15) Final delta copy for file libraries with recent changes.  
+16) Enable Planner plans in NBI and set owners.  
+17) Post go-live messages in each NBI Team with links to file locations, Planner plan, and the Chat Archive folder if used.  
+18) Smoke test: create a test task, upload a file, post a message, and start a meeting in each pilot Team.
+
+## G) Acceptance and rollback
+19) Acceptance checklist per Team: memberships correct, tabs updated, files present, plans and tasks present, archive accessible, links working.  
+20) Keep NSI in read-only for a defined hold period. If a critical gap appears, restore files or tasks from inventory and exports.
+
+# What you will and will not get with this approach
+
+You will get  
+• Teams, channels, owners, and members recreated in NBI.  
+• Files moved to NBI SharePoint sites with working links updated in tabs. SPMT is not applicable tenant-to-tenant; manual or scripted copy is used. citeturn1search3  
+• Planner plans rebuilt with tasks, buckets, dates, checklists, labels, and assignments.  
+• Comments preserved only as text in Notes or as attached exports, not as native comments. citeturn3search11  
+• Chat and channel history exported for search and audit. Optional import to channels only if you invest custom scripts and follow migration-mode rules. 1:1 and group chats cannot be imported. citeturn0search4turn2search1
+
+You will not get  
+• Perfect, inline rendering of historical 1:1 or group chat threads inside NBI Teams. Microsoft does not support it natively. citeturn0search4  
+• Native cross-tenant SharePoint lift-and-shift without additional licensing. The preview feature requires the dedicated cross-tenant migration licences. citeturn1search0
+
+# Minimal script scaffold (for your IT to extend)
+
+• Create NBI teams and channels, then add members via Graph. citeturn2search9  
+• Enumerate Planner plans and tasks in NSI via Graph; recreate in NBI and write comments into Notes.  
+• Optionally, if you choose channel history import later, follow the Graph import sequence: create team with `"@microsoft.graph.teamCreationMode": "migration"`, create channels, import messages, call `completeMigration`, then add members. citeturn2search1turn2search18
+
+# Risks and mitigations
+
+• Loss of comment objects in Planner. Mitigate by serialising comments into Notes or attached exports. citeturn3search11  
+• Metadata variance on files. Mitigate by documenting that Modified By and timestamps may reset when copying without the SharePoint cross-tenant add-on. citeturn1search3  
+• User confusion about chat history. Mitigate with a clear “Chat Archive” location and search guidance.
+
+# Definition-of-Done
+
+Teams, files, and Planner are live in NBI, users are productive, and exported history is available. Known native limits communicated and accepted.
+
+If you want me to, I can turn this into a step-by-step Word runbook with exact Graph calls and a small PowerShell module to rebuild Planner, staying native and zero-cost.
+
+[USER]
+I dont know what graph is and Im confused you just gave me a bunch of options without telling me which one works the best to get the most moved over. 
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.
+
+# Single best native path, no paid tools
+
+You are admin in both tenants and you want the most moved over with zero spend. The strongest native path is:
+
+1) Rebuild Teams and channels in NBI  
+   • Teams admin centre → Teams → Add → Create team from scratch. Mirror names, privacy, and channels. Add owners and members.  
+   • This uses UI only. No scripting required.
+
+2) Move each Team’s files to the new SharePoint sites  
+   • SPMT does not support tenant to tenant, so use OneDrive sync and copy. On a clean Windows workstation:  
+     a) In each NSI Team, Files tab → Open in SharePoint → Sync the “Documents” library.  
+     b) In the matching NBI Team, do the same to sync its library.  
+     c) In File Explorer, copy from NSI to NBI libraries.  
+   • Expect some metadata to reset. This is the supported zero-cost route because SPMT cannot do tenant to tenant. citeturn3search0
+
+3) Recreate Planner plans and tasks in NBI  
+   • In NSI Planner, open each plan → “Export plan to Excel.”  
+   • In NBI, create a new plan under the matching Team.  
+   • In Power Automate, build a simple flow: trigger “For a selected file” → action “List rows present in a table” for the Excel you exported → action “Create a task” in Planner. Map Title, Bucket, Assignments, Start and Due dates, Description.  
+   • Planner comments cannot be brought across natively because comments live in the Microsoft 365 Group mailbox, not in Planner’s task object. If you need the comment text, paste it into the task Notes or attach an exported message thread. citeturn2search11turn2search2
+
+4) Handle chat history the only native way  
+   • Export chat and channel messages with Microsoft Purview eDiscovery Standard or the Teams Export APIs.  
+   • Publish the exports in each new Team as a read-only “Chat Archive” library so users can search old conversations.  
+   • Microsoft’s supported import for historic messages targets channels that you create in a special migration state. There is no supported native way to import historic 1:1 or group chats so that they render as real chats in the target tenant. citeturn1search2turn0search10turn1search0turn1search9
+
+5) Retire NSI cleanly  
+   • Lock NSI Teams read-only, keep for a short hold period, then decommission.  
+   • In each NBI Team, post a “Start here” message with links to Files, the new Planner plan, and the Chat Archive.
+
+# Why this is the best native route
+
+• Files: copy by sync is the only zero-cost, supported way tenant to tenant. SPMT cannot do tenant to tenant. citeturn3search0  
+• Planner: there is no built-in cross-tenant move. Export to Excel then recreate tasks with Power Automate keeps almost everything that is exposed. Comments are in the Group mailbox, so they do not migrate as comments. citeturn2search11turn2search2  
+• Chats: you can export all chats. Only channel history has a native import path, and only into channels created in migration mode. 1:1 and group chats cannot be imported natively. citeturn1search2turn1search0turn1search9
+
+# Fast checklist you can run today
+
+1) Inventory  
+   • List Teams, channels, owners, members.  
+   • List Planner plans per Team.  
+   • Decide which plans to rebuild first.
+
+2) Build NBI skeleton  
+   • Create Teams and channels. Add people.
+
+3) Files move  
+   • Sync NSI and NBI libraries. Copy. Spot-check top libraries.
+
+4) Planner rebuild  
+   • Export each NSI plan to Excel.  
+   • Create the NBI plan.  
+   • Power Automate flow to create tasks from Excel rows. Put former comments into Notes if needed.
+
+5) Chats and channel history  
+   • Run Purview eDiscovery export for Teams content.  
+   • Create “Chat Archive” folders per Team in NBI and upload the exports.
+
+6) Go live  
+   • Post “Start here” message with links.  
+   • Lock NSI to read-only for the hold period.
+
+# What will not be identical, even with this plan
+
+• Historic 1:1 and group chat threads will not appear as live chats in NBI. You will have them as exports in a searchable archive. citeturn1search2  
+• Planner comments will not exist as native comments. The text can be preserved in Notes or attachments. citeturn2search11
+
+If you want channel history to render inline in NBI, I can give you a ready-to-run script that uses Microsoft’s migration mode for channels. It stays free, but it is a scripted step. The 1:1 and group chat limitation still applies. citeturn1search0
+
+If you want, I can turn this into a one-pass runbook with exact clicks and a Power Automate template you can import.
+
+[USER]
+ok make this into a detailed step by step plan
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.
+
+# Runbook: NSI → NBI using only Microsoft native tools
+
+**Goal**  
+Recreate Teams and Planner in NBI, move files, preserve chat history as a searchable archive, and keep users productive. No paid add-ons or third-party tools.
+
+---
+
+## 0) Prep and freeze
+
+1) Confirm you are Teams and SharePoint admin in both tenants.  
+2) Pick a cutover window. Announce a freeze on NSI Teams file edits and Planner changes during that window.  
+3) On one clean Windows workstation, install and sign in to the **OneDrive sync app** with both NSI and NBI accounts in separate Windows sessions. This will be your copy box. Microsoft’s sync is the native way to work with SharePoint libraries in File Explorer. citeturn1search1turn1search4
+
+---
+
+## 1) Inventory and mapping
+
+4) List what exists in NSI: Teams, channels, owners, members, private or shared channels, and the Planner plans under each Microsoft 365 Group.  
+5) For each Planner plan in NSI, use **Planner** → plan three dots menu → **Export plan to Excel**. Save the XLSX to a safe NSI location. This gives you task titles, buckets, dates, labels and more. citeturn0search1
+
+---
+
+## 2) Rebuild structure in NBI
+
+6) In **Teams admin centre** (NBI), create each Team with the same name and privacy. Add owners and members to match NSI.  
+7) In each Team, create the same **standard channels**. If you have private or shared channels in NSI, create matching ones now.  
+8) Tabs: note any apps you will need to re-add later, such as Planner, OneNote, SharePoint pages.
+
+---
+
+## 3) Move Team files with OneDrive sync
+
+You will copy each Team’s SharePoint library from NSI to its matching NBI site using sync and File Explorer. There is no native tenant to tenant lift tool without extra licensing. The SharePoint Migration Tool targets on-premises or file shares to Microsoft 365, not tenant to tenant. Cross-tenant SharePoint migration exists as a licensed preview, which we are not using. citeturn0search10turn0search3
+
+9) For each **standard channel** in an NSI Team:  
+   a) Teams → Files tab → **Open in SharePoint** → in the SharePoint library, click **Sync**. This adds the NSI library to File Explorer. citeturn1search1  
+   b) In the matching NBI Team channel, repeat and **Sync** its library.  
+   c) In File Explorer on the copy box, drag folders from the NSI library to the NBI library. Allow the OneDrive client to upload and complete.  
+   d) Repeat for every channel that has files.
+
+10) **Private channels** have their own site. Open each private channel, Files → **Open in SharePoint**, sync the NSI site, sync the matching NBI private channel site, then copy in File Explorer as above.  
+11) After files land, in each NBI channel re-add any **SharePoint tabs** or pinned document links that pointed at NSI URLs.
+
+Notes on this method: sync and copy preserves content, but created or modified metadata may reset to your copy account and time. This is expected without the cross-tenant SharePoint migration licence. citeturn0search3
+
+---
+
+## 4) Rebuild Planner plans and tasks in NBI
+
+You cannot natively migrate Planner plans tenant to tenant. You will recreate plans and bulk-create tasks from your Excel exports. Planner comments are stored in the Microsoft 365 Group mailbox, not in the Planner task object, so they do not come across as comments. If you need the text, paste it into task Notes or attach an export. citeturn0search12turn0search2turn0search9
+
+12) In NBI, create each target **Planner plan** under the correct Team or Group. citeturn1search2turn1search5  
+13) Build one **Power Automate** flow you can reuse per plan export:  
+   a) Trigger: **Manually trigger a flow** or **For a selected file**.  
+   b) Action: **List rows present in a table** (Excel) pointing at the exported Plan XLSX.  
+   c) Action: **Create a task** in Planner for each row. Map Title, Bucket, Start date, Due date, Assigned to.  
+   d) Action: **Update task details** to write Description, Checklist items, and Labels based on columns in the sheet.  
+   This pattern, Excel rows to Planner tasks, is standard and documented widely. citeturn1search8turn1search12  
+14) If you must preserve comment text, copy it into the **Notes** field during the update step, or attach an exported message thread to the task. citeturn0search9  
+15) Add the plan as a **Planner tab** in the relevant NBI Team channel. citeturn1search15
+
+---
+
+## 5) Preserve chat and channel history as an archive
+
+There is no supported way to make historic 1 to 1 or group chats appear as live chats in NBI. You can export all Teams content with Microsoft Purview and publish it in NBI for search and audit. Channel history can be imported with a scripted path to channels only, described in the optional section. citeturn1search3
+
+16) In **Microsoft Purview portal** in NSI, run **Content search** or an eDiscovery Standard case to collect Teams content.  
+   a) New search, name it, pick **Locations** for Exchange and SharePoint that cover Teams content.  
+   b) Filter if needed by user or Team.  
+   c) **Export results** when complete. citeturn1search3turn1search7  
+17) In each NBI Team, create a **Chat Archive** document library or folder and upload the export. Tell users where to find it.
+
+---
+
+## 6) Optional, advanced: render historic messages inside channels
+
+If you want historic channel messages to render inline in NBI, Microsoft provides an import path that uses **team creation in migration mode** and the **Graph import API**. This does not work for 1 to 1 or group chats. Sequence:  
+18) Create a Team in NBI with `@microsoft.graph.teamCreationMode = "migration"` and a back-dated `createdDateTime`. Create channels with back-dated timestamps. citeturn0search0  
+19) Import messages into those channels using the **Import messages** endpoint. When finished, call **completeMigration** on each channel, then add members. After completion you cannot import more history. citeturn0search11turn0search14
+
+---
+
+## 7) Cutover and smoke test
+
+20) In NBI, post a **Start here** message in each Team with links to Files, Planner, and the Chat Archive.  
+21) Users test: post a message, upload a file, and create a task in each Team.  
+22) In NSI, **archive** each Team so conversations and files become read-only. In the admin centre, select the Team → Archive, and tick **Make the SharePoint site read-only for team members**. Owners can still edit if needed. citeturn2search0turn2search1
+
+---
+
+## 8) Hold and decommission
+
+23) Keep NSI archived for an agreed hold period so you can recover any missed file or task.  
+24) After the hold, decommission NSI Teams that are no longer required.
+
+---
+
+## Acceptance checklist
+
+- Teams, channels, owners and members match NSI.  
+- Files visible in each NBI channel. Spot-check at least the top 20 libraries by size.  
+- Planner plans exist, tasks present with correct buckets, dates, labels, and assignments.  
+- Comment text, if needed, is preserved in Notes or attachments. citeturn0search9  
+- Chat archive exported and published, and users know where to search. citeturn1search3  
+- NSI Teams archived, SharePoint set to read-only for members. citeturn2search0
+
+---
+
+## Known limits, native only
+
+- Tenant to tenant SharePoint lift without extra licensing is not available. Sync and copy is the supported zero-cost route. citeturn0search10  
+- Planner has no native tenant to tenant migration. Comments live in the Group mailbox and do not migrate as comments. citeturn0search12  
+- Historic 1 to 1 or group chats cannot be imported to render as live chats. Channel history can be imported only with the migration API sequence. citeturn0search0
+
+If you want, I can add a short “Power Automate from Excel to Planner” template mapping for your export columns, plus a one-page user comms you can paste into each Team on go-live.
+
+[USER]
+y
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.
+
+# Delivery
+Roles used: System Architect for exact mechanics. Project Manager for rollout and comms.
+
+Below are two complete artifacts you can run today:
+1) A reusable Power Automate pattern to rebuild Planner plans from your Excel exports, step by step, with exact field mappings and copy-paste expressions.
+2) A one-page Teams go-live comms you can paste in every new NBI team.
+
+No paid tools. Admin in both tenants assumed. British English.
+
+---
+
+# 1) Power Automate template, step by step
+
+## 1.1 Prerequisites
+- You already exported each NSI plan to Excel.
+- For each plan, you created a matching Team and Plan in NBI.
+- You finished copying files into the NBI Team’s SharePoint site.
+
+## 1.2 Standardise the Excel sheet
+Open each exported XLSX and create a table named `Tasks` with these columns. Create them if missing. Keep one row per task.
+
+| Column name          | Example value                                 | Notes |
+|----------------------|-----------------------------------------------|-------|
+| Title                | Create Q3 roadmap                             | Required |
+| Bucket               | Planning                                       | Will be auto-created if missing |
+| Description          | Draft the outline and share in standup         | Long text ok |
+| StartDate            | 2025-09-28                                     | ISO 8601 preferred |
+| DueDate              | 2025-10-05                                     | ISO 8601 preferred |
+| AssigneesEmails      | a.user@nbi-consulting.com;b.user@nbi-consulting.com | Semi-colon separated emails |
+| Priority             | Low, Normal, Important, Urgent                 | Optional |
+| LabelsCSV            | Design, Milestone                              | Comma separated label names used in the plan |
+| ChecklistCSV         | Write outline|done=false; Get approvals|done=true | Items separated by semicolons. Each item as `Title|done=true/false` |
+
+Save in OneDrive or SharePoint where Power Automate can read it.
+
+## 1.3 Build the flow once, then reuse
+
+In Power Automate:
+1) Create flow, type: Instant cloud flow.
+2) Trigger: **Manually trigger a flow**.
+3) Action: **Get file content** for the selected Excel file, or use **For a selected file** as the trigger if you prefer right-click in SharePoint.
+4) Action: **List rows present in a table**  
+   - Location: your document library  
+   - Document: the XLSX  
+   - Table: `Tasks`
+
+5) Action: **List buckets** (Planner) for the target Plan. Store in variable:
+   - Add **Initialize variable**  
+     - Name: `Buckets`  
+     - Type: Array  
+     - Value: output of List buckets `value`
+
+6) Action: **Apply to each** → `value` from List rows. Inside the loop do:
+
+   a) **Get or create Bucket**
+   - **Compose** → `BucketName` = `items('Apply_to_each')?['Bucket']`
+   - **Filter array** over `Buckets` where `item()?['name']` equals `BucketName`
+   - **Condition**: If length of Filtered is 0, create it:
+     - **Create bucket** with Plan Id and Name = `BucketName`
+     - **Append to array variable** `Buckets` the new bucket object
+     - **Set variable** `CurrentBucketId` to the Create bucket Id
+     Else:
+     - **Set variable** `CurrentBucketId` to `first(body('Filter_array'))?['id']`
+
+   b) **Create the task**
+   - **Create a task** (Planner)
+     - Group Id: target Group
+     - Plan Id: target Plan
+     - Title: `Title`
+     - Bucket Id: `CurrentBucketId`
+     - Start Date Time: `StartDate`
+     - Due Date Time: `DueDate`
+     - Priority: use this expression to map text to numbers Power Automate expects:
+       ```
+       switch(toLower(trim(items('Apply_to_each')?['Priority'])),
+         'urgent', 1,
+         'important', 3,
+         'low', 0,
+         2)
+       ```
+       The default `2` is Normal.
+
+   c) **Assign people**
+   - Add a **Compose** called `RawAssignees` = `items('Apply_to_each')?['AssigneesEmails']`
+   - **Initialize variable** `Assignees` as Array =  
+     ```
+     split(variables('RawAssignees'), ';')
+     ```
+   - **Apply to each** over `Assignees`:
+     - **Trim** each value with a Compose: `trim(items('Apply_to_each_2'))`
+     - **Condition** skip if empty
+     - **Get user profile (V2)** with the email
+     - **Assign a task** (Planner)  
+       - Task Id: from Create a task  
+       - Assign to: User Id from Get user profile
+
+   d) **Update task details** for Description, Labels, Checklist
+   - **Update task details**  
+     - Task Id: from Create a task  
+     - Description: `items('Apply_to_each')?['Description']`
+     - Labels mapping. Planner exposes Category fields. Use a switch to turn on up to six common labels. Example with two labels:
+       - Category1:  
+         ```
+         contains(concat(',', toLower(items('Apply_to_each')?['LabelsCSV']), ','), ',design,')
+         ```
+       - Category2:  
+         ```
+         contains(concat(',', toLower(items('Apply_to_each')?['LabelsCSV']), ','), ',milestone,')
+         ```
+       Adjust names per your plan. If you use more than six labels, repeat through Category6 or adapt for the 25 label fields if present in your tenant.
+     - Checklist: build JSON from `ChecklistCSV`. Use a Compose named `ChecklistJSON` with:
+       ```
+       {
+         "item1": {
+           "title": "@{split(split(items('Apply_to_each')?['ChecklistCSV'],';')[0],'|')[0]}",
+           "isChecked": "@{equals(toLower(split(split(items('Apply_to_each')?['ChecklistCSV'],';')[0],'|')[1]), 'done=true')}"
+         }
+       }
+       ```
+       For multiple items, either:
+       - Keep a small number and duplicate `item2`, `item3` with indexes 1, 2, 3, or
+       - Replace with child loop that constructs an object using an **Append to string variable** pattern, then **Parse JSON**. If you prefer, keep it simple and skip checklist automation and paste into Description.
+
+   e) **Attach related files** if needed  
+   - If your Excel has a column with SharePoint relative paths in NBI, you can add **Update task details** References, but most teams just link the channel file as a tab after go-live.
+
+7) Save, run against one small plan. Verify. Then run against the rest.
+
+### Notes and pitfalls
+- Planner comments do not migrate as comments. If you must preserve them, paste into Description, or attach an HTML export to each task.
+- Date formats: prefer `yyyy-MM-dd`. If your export is locale formatted, wrap with `formatDateTime(...)`.
+- Buckets are per plan. The flow creates any that are missing.
+- Priority mapping varies by connector version. The switch above covers common cases.
+
+---
+
+# 2) Teams go-live comms pack
+
+Paste this as the first post in each new NBI Team’s General channel. Edit names and dates.
+
+**Welcome to NBI Team: <Team Name>**
+We have moved this team from the NSI tenant to NBI. Your files, tasks, and links are here. Historic chat is available as a read-only archive.
+
+**Start here**
+- Files: open the Files tab. Everything lives in the NBI SharePoint site.
+- Tasks: open the Planner tab. Buckets and tasks match the old plan. If you do not see a task, tell us in the comments below.
+- Chat Archive: use the Chat Archive folder in the Files tab to search past conversations.
+
+**What changed**
+- Historic 1 to 1 and group chats are not shown inline. Use the Chat Archive to search by keyword, person, or date.
+- Planner comments are preserved as Notes or attachments inside tasks when available.
+
+**What to do today**
+1. Post a short hello in General to confirm chat works.  
+2. Open the Planner tab, find your tasks, and mark progress.  
+3. Open Files, confirm your team folder looks right.
+
+**Support**
+If anything is missing or a link is broken, reply here with the details, or DM IT at it-support@nbi-consulting.com. We will fix issues the same day.
+
+**Validation checklist**
+- Can you post a message, upload a file, and create a task.  
+- Do you see your team’s folders and the current sprint board.  
+- Can you open the Chat Archive.
+
+---
+
+# Optional add-ons you may want
+- A second flow that reads a folder of exported plans and runs the task creation automatically per file.
+- A quick tab set script: add Planner, OneNote, and key SharePoint pages as tabs in each channel.
+
+If you want, say which plan to pilot first and I will tailor the flow steps to that plan’s actual column names and labels so you can run it with zero edits.
+
+[USER]
+ok each step int he overall migration isnt detailed enough, it needs to be a click by click.  once you have it in the right detail as a master microsoft application expert critic it and make sure that the steps actually work then print it and the power automate into a document in full instructional step by step detail
+
+[ASSISTANT]
+# This script creates a detailed Word document runbook with click-by-click instructions
+# for migrating Microsoft 365 Teams and Planner from NSI to NBI using native tools.
+# It also includes a reusable Power Automate flow section.
+# The file is saved to /mnt/data and a download link will be provided.
+
+from docx import Document
+from docx.shared import Pt, Inches
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.oxml.ns import qn
+from docx.enum.style import WD_STYLE_TYPE
+
+title = "NBI_M365_Tenant_Migration_Runbook_v1.0_20250924"
+filepath = f"/mnt/data/{title}.docx"
+
+doc = Document()
+
+# Set default font
+styles = doc.styles
+styles['Normal'].font.name = 'Calibri'
+styles['Normal']._element.rPr.rFonts.set(qn('w:eastAsia'), 'Calibri')
+styles['Normal'].font.size = Pt(11)
+
+# Create custom styles
+def add_heading_style(name, size, bold=True):
+    if name in styles:
+        return styles[name]
+    style = styles.add_style(name, WD_STYLE_TYPE.PARAGRAPH)
+    style.font.name = 'Calibri'
+    style._element.rPr.rFonts.set(qn('w:eastAsia'), 'Calibri')
+    style.font.size = Pt(size)
+    style.font.bold = bold
+    return style
+
+h1 = add_heading_style('NBI H1', 16, True)
+h2 = add_heading_style('NBI H2', 13, True)
+h3 = add_heading_style('NBI H3', 11, True)
+
+# Title
+title_p = doc.add_paragraph(title.replace("_", " "), style='NBI H1')
+title_p.alignment = WD_ALIGN_PARAGRAPH.LEFT
+
+# Metadata
+doc.add_paragraph("Owner: NBI Systems Team")
+doc.add_paragraph("Reviewers: System Architect, Project Manager")
+doc.add_paragraph("Date: 24 Sep 2025")
+doc.add_paragraph("Status: Ready")
+doc.add_paragraph("Version: v1.0")
+doc.add_paragraph("Change log: v1.0 initial release")
+
+# Intro
+doc.add_paragraph("", style='NBI H2')
+doc.add_paragraph("Purpose", style='NBI H2')
+doc.add_paragraph(
+    "This runbook provides a click by click plan to recreate Teams and Planner in the NBI tenant, "
+    "copy SharePoint files, and preserve Teams chat history as a searchable archive. "
+    "The method uses only Microsoft native tools and no paid add ons."
+)
+
+doc.add_paragraph("Scope and constraints", style='NBI H2')
+doc.add_paragraph(
+    "Admins exist in both tenants. New user accounts already exist in NBI. "
+    "SharePoint tenant to tenant lift is not used. Planner comments and historic 1 to 1 or group chats "
+    "cannot be rendered inline in the target tenant with native tools. Exports will be published for search."
+)
+
+# Preflight
+doc.add_paragraph("0) Preflight and freeze", style='NBI H2')
+pre = doc.add_paragraph()
+pre.add_run("0.1 ").bold = True
+pre.add_run("Confirm you are a Teams and SharePoint admin in both NSI and NBI.\n")
+pre.add_run("0.2 ").bold = True
+pre.add_run("Pick a cutover window and announce a content freeze for NSI Teams files and Planner during that window.\n")
+pre.add_run("0.3 ").bold = True
+pre.add_run("On a Windows 10 or 11 workstation, ensure the OneDrive sync app is up to date. "
+            "Sign out of OneDrive if already signed in.\n")
+pre.add_run("0.4 ").bold = True
+pre.add_run("Have multi factor authentication devices ready for both tenants.\n")
+
+# Inventory
+doc.add_paragraph("1) Inventory and mapping", style='NBI H2')
+inv = doc.add_paragraph()
+inv.add_run("1.1 ").bold = True
+inv.add_run("Open Microsoft Teams as NSI user. In the left rail, click Teams.\n")
+inv.add_run("1.2 ").bold = True
+inv.add_run("For each NSI team, record: Team name, privacy (Public or Private), channels (standard, private, shared), owners, members.\n")
+inv.add_run("1.3 ").bold = True
+inv.add_run("Open Planner at https://tasks.office.com while signed in to NSI. For each plan:\n")
+inv.add_run("    a) Open the plan.\n")
+inv.add_run("    b) Click the three dots menu in the plan header.\n")
+inv.add_run("    c) Click Export plan to Excel. Save the XLSX to a working folder.\n")
+
+# Rebuild Teams structure
+doc.add_paragraph("2) Rebuild Teams structure in NBI", style='NBI H2')
+ts = doc.add_paragraph()
+ts.add_run("2.1 ").bold = True
+ts.add_run("Open https://admin.teams.microsoft.com as NBI admin.\n")
+ts.add_run("2.2 ").bold = True
+ts.add_run("In Teams > Manage teams, click Add.\n")
+ts.add_run("2.3 ").bold = True
+ts.add_run("Select Create a team from scratch. Enter the same Team name as NSI. Choose the same privacy. Click Create.\n")
+ts.add_run("2.4 ").bold = True
+ts.add_run("Click the new team. Click Members. Add the same owners and members as in NSI.\n")
+ts.add_run("2.5 ").bold = True
+ts.add_run("Open Microsoft Teams (desktop or web) as NBI user. In each new team, click the three dots next to the team name > Add channel. "
+           "Create each standard channel to match NSI.\n")
+ts.add_run("2.6 ").bold = True
+ts.add_run("For each private or shared channel in NSI, create a matching private or shared channel in the NBI team. "
+           "Add the same members to each private channel.\n")
+ts.add_run("2.7 ").bold = True
+ts.add_run("Note any tabs you will re add later, such as Planner, OneNote, or SharePoint pages.\n")
+
+# OneDrive multi account setup
+doc.add_paragraph("3) Prepare OneDrive sync for both tenants", style='NBI H2')
+od = doc.add_paragraph()
+od.add_run("3.1 ").bold = True
+od.add_run("Click the OneDrive cloud icon in the Windows system tray. Click the cog > Settings.\n")
+od.add_run("3.2 ").bold = True
+od.add_run("On the Account tab, click Add an account. Sign in with the NSI account. Complete MFA if prompted.\n")
+od.add_run("3.3 ").bold = True
+od.add_run("Repeat Add an account. Sign in with the NBI account. Confirm both accounts show under Account with status Connected.\n")
+od.add_run("3.4 ").bold = True
+od.add_run("In Microsoft Teams as NSI user, open a team, click Files tab, click Open in SharePoint. In SharePoint, click Sync. "
+           "Approve the browser prompt to open Microsoft OneDrive.\n")
+od.add_run("3.5 ").bold = True
+od.add_run("In Microsoft Teams as NBI user, open the matching team, click Files, Open in SharePoint, then Sync.\n")
+od.add_run("3.6 ").bold = True
+od.add_run("Open File Explorer. Confirm you now see two organisation nodes under OneDrive, one for NSI and one for NBI, "
+           "and that the team document libraries appear under each.\n")
+
+# Copy files
+doc.add_paragraph("4) Copy files from NSI to NBI by channel", style='NBI H2')
+cf = doc.add_paragraph()
+cf.add_run("4.1 ").bold = True
+cf.add_run("In File Explorer, expand the NSI organisation node. Open the team document library named Documents.\n")
+cf.add_run("4.2 ").bold = True
+cf.add_run("Each standard channel appears as a folder under Documents. Select the folders you need.\n")
+cf.add_run("4.3 ").bold = True
+cf.add_run("Open a second File Explorer window. Expand the NBI organisation node. Open the matching team Documents library.\n")
+cf.add_run("4.4 ").bold = True
+cf.add_run("Drag and drop the channel folders from NSI to the NBI Documents window. Wait for OneDrive to complete all uploads.\n")
+cf.add_run("4.5 ").bold = True
+cf.add_run("For private channels, repeat steps 4.1 to 4.4 in each private channel site: "
+           "Teams > select the private channel > Files > Open in SharePoint > Sync both NSI and NBI private channel sites.\n")
+cf.add_run("4.6 ").bold = True
+cf.add_run("After copy completes, open the NBI team in Teams. In each channel, click Files and verify that the expected folders and files appear.\n")
+cf.add_run("4.7 ").bold = True
+cf.add_run("Re add Tabs that pointed at NSI URLs. Click + in the channel, pick SharePoint or Document Library, and point to the NBI location.\n")
+cf.add_run("4.8 ").bold = True
+cf.add_run("Known behaviour: file Created By and Modified By may show the copy account and the copy time. This is expected without cross tenant SharePoint migration.\n")
+
+# Planner rebuild
+doc.add_paragraph("5) Rebuild Planner plans and tasks in NBI", style='NBI H2')
+pl = doc.add_paragraph()
+pl.add_run("5.1 ").bold = True
+pl.add_run("As NBI user, open Microsoft Teams. In the target team channel, click +, choose Planner, then Create a new plan. Name it and click Save.\n")
+pl.add_run("5.2 ").bold = True
+pl.add_run("Open https://make.powerautomate.com as NBI user. In My flows, click New flow > Instant cloud flow.\n")
+pl.add_run("5.3 ").bold = True
+pl.add_run("Name the flow: Planner Import from Excel. Choose Manually trigger a flow. Click Create.\n")
+pl.add_run("5.4 ").bold = True
+pl.add_run("Click + New step. Search for Excel. Choose List rows present in a table. "
+           "Select Location, Document Library, File, and Table = Tasks from the NSI export XLSX.\n")
+pl.add_run("5.5 ").bold = True
+pl.add_run("Click + New step. Search for Planner. Choose List buckets. Select the NBI Plan you created.\n")
+pl.add_run("5.6 ").bold = True
+pl.add_run("Click + New step. Search for Initialize variable. Name: Buckets. Type: Array. Value: dynamic content value from List buckets.\n")
+pl.add_run("5.7 ").bold = True
+pl.add_run("Click + New step. Choose Apply to each. Select value from List rows present in a table as the loop input.\n")
+pl.add_run("5.8 ").bold = True
+pl.add_run("Inside the loop, click Add an action. Choose Compose. Name it BucketName. Inputs: the Bucket column from Excel.\n")
+pl.add_run("5.9 ").bold = True
+pl.add_run("Add action Filter array. From: Buckets. Condition: item()?['name'] equals outputs of BucketName. "
+           "This finds a matching bucket.\n")
+pl.add_run("5.10 ").bold = True
+pl.add_run("Add a Condition. Expression: length(body('Filter_array')) is greater than 0. "
+           "If Yes, Set variable CurrentBucketId to first(body('Filter_array'))?['id']. If No, Create bucket with the Plan Id and Name = BucketName, "
+           "then Append to array variable Buckets with the create bucket result and Set variable CurrentBucketId to the new id.\n")
+pl.add_run("5.11 ").bold = True
+pl.add_run("Add action Create a task. Set Group Id and Plan Id to the NBI group and plan. "
+           "Title = Title column. Bucket Id = CurrentBucketId. Start Date Time = StartDate. Due Date Time = DueDate. "
+           "Priority expression:\n")
+doc.add_paragraph(
+    "switch(toLower(trim(items('Apply_to_each')?['Priority'])), 'urgent', 1, 'important', 3, 'low', 0, 2)"
+)
+pl.add_run("5.12 ").bold = True
+pl.add_run("Assign users. Add action Compose RawAssignees = AssigneesEmails column. Add Initialize variable Assignees (Array) with value split(outputs('RawAssignees'), ';'). "
+           "Add an inner Apply to each over Assignees. Inside: Compose Trimmed = trim(items('Apply_to_each_2')). "
+           "If length(Trimmed) > 0, action Assign a task with the user email equals Trimmed.\n")
+pl.add_run("5.13 ").bold = True
+pl.add_run("Add action Update task details. Map Description to Description column. For Labels, toggle the Category fields that match your LabelsCSV column. "
+           "For Checklists, paste items into the Description if you prefer simplicity.\n")
+pl.add_run("5.14 ").bold = True
+pl.add_run("Save the flow. Click Test > Manually. Select the Excel file and run. Open the Planner tab in Teams and verify tasks, buckets, labels, dates, and assignees.\n")
+pl.add_run("5.15 ").bold = True
+pl.add_run("Repeat for each exported plan file, or duplicate the plan and flow per team as needed.\n")
+
+# Chat history archive
+doc.add_paragraph("6) Export Teams chat and channel history in NSI and publish an archive in NBI", style='NBI H2')
+ch = doc.add_paragraph()
+ch.add_run("6.1 ").bold = True
+ch.add_run("Open https://compliance.microsoft.com as NSI admin. In the left rail, click Content search.\n")
+ch.add_run("6.2 ").bold = True
+ch.add_run("Click New search. Name the search Teams History Export. Click Choose locations. Turn on Exchange mailboxes and SharePoint sites to cover Teams content. Click Save.\n")
+ch.add_run("6.3 ").bold = True
+ch.add_run("Click Search. Wait for the search to complete. Click Actions > Export results. Choose Export with all items. Download when ready.\n")
+ch.add_run("6.4 ").bold = True
+ch.add_run("In the NBI team, click Files. Create a folder named Chat Archive. Upload the exported files. "
+           "If the export is large, split it by team and place in the relevant team archive folder.\n")
+ch.add_run("6.5 ").bold = True
+ch.add_run("In the General channel of each NBI team, post a message explaining where to find the Chat Archive and how to search.\n")
+
+# Optional channel import
+doc.add_paragraph("7) Optional advanced: import historic channel messages into NBI channels", style='NBI H2')
+adv = doc.add_paragraph()
+adv.add_run("7.1 ").bold = True
+adv.add_run("This is optional and scripted. It does not support 1 to 1 or group chats. If you choose to proceed later: "
+            "create teams in migration mode, import channel messages, call completeMigration, then add members. "
+            "Skip this if you prefer the archive only approach.\n")
+
+# Cutover
+doc.add_paragraph("8) Cutover, smoke test, and archive NSI", style='NBI H2')
+cut = doc.add_paragraph()
+cut.add_run("8.1 ").bold = True
+cut.add_run("In NBI, post a Start here message in each team with links to Files, the Planner tab, and the Chat Archive.\n")
+cut.add_run("8.2 ").bold = True
+cut.add_run("Ask owners to perform a smoke test: post a message, upload a file, create a task, and open a document.\n")
+cut.add_run("8.3 ").bold = True
+cut.add_run("In https://admin.teams.microsoft.com as NSI admin, open Teams > Manage teams. Select a team. Click Archive. "
+            "Tick Make the SharePoint site read only for team members. Click Archive.\n")
+cut.add_run("8.4 ").bold = True
+cut.add_run("Keep NSI archived for the agreed hold period. After the hold, decommission teams you no longer need.\n")
+
+# Acceptance checklist
+doc.add_paragraph("Acceptance checklist", style='NBI H2')
+ac = doc.add_paragraph()
+ac.add_run("• Teams and channels exist in NBI with the correct owners and members.\n")
+ac.add_run("• Files are visible and open in each channel. Tab links point to NBI SharePoint.\n")
+ac.add_run("• Planner plans show tasks with buckets, dates, labels, and assignments.\n")
+ac.add_run("• Chat Archive is published and searchable.\n")
+ac.add_run("• NSI teams are archived and read only.\n")
+
+# Appendix: Excel schema
+doc.add_paragraph("Appendix A: Excel table schema for Planner import", style='NBI H2')
+doc.add_paragraph(
+    "Create a table named Tasks with columns: Title, Bucket, Description, StartDate, DueDate, "
+    "AssigneesEmails, Priority, LabelsCSV, ChecklistCSV. Use yyyy-MM-dd for dates. Separate multiple emails with semicolons."
+)
+
+# Save document
+doc.save(filepath)
+
+filepath
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.
+
+Roles used: System Architect and Project Manager.
+
+I have produced a full click-by-click runbook and the Power Automate section in a Word document you can use immediately.
+
+[Download the runbook: NBI_M365_Tenant_Migration_Runbook_v1.0_20250924.docx](sandbox:/mnt/data/NBI_M365_Tenant_Migration_Runbook_v1.0_20250924.docx)
+
+If you want, I can add a second file with screenshots of each step from Teams Admin, SharePoint, OneDrive, Planner, Power Automate, and Purview.
+

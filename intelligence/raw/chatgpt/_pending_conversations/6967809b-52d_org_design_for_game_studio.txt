@@ -1,0 +1,133 @@
+TITLE: Org Design for Game Studio
+DATE: 2026-01-14
+MESSAGES: 2
+ID: 6967809b-52d8-8330-b98c-8a4f9517c5ac
+---
+
+[USER]
+as an expert in organizational design for a game studio critic this layout for couch heroes 
+1) are the reporting lines optimal? 
+2) what are teh three design alternatives
+
+[ASSISTANT]
+Before I go further: who is speaking, Heather or Glen?
+
+## Assumptions
+1) This org chart is meant to be the operating model for the next 6 to 12 months, not a long-term ideal-state org.  
+2) Couch Heroes is both a game and a platform (identity, partner integrations, dashboards), so “platform” is not a side project.  
+3) “Producer” and “Executive Producer” are intended to be delivery leadership, not admin roles.
+
+## Brief plan
+- Give a direct call on whether the reporting lines are optimal.  
+- Call out the biggest structural risks in this exact layout.  
+- Provide three viable alternative org designs with when-to-use guidance.
+
+## 1) Are the reporting lines optimal?
+No.
+
+The main issues are structural, not cosmetic:
+
+### A. Production appears mis-parented and fragmented
+- The “Producer” role looks effectively parented through Finance and Ops (or at least routed that way). That is a delivery risk. Production should be accountable to the studio delivery leader (Executive Producer or equivalent), not Finance. Finance should be a strong partner, not the chain of command.
+- “Executive Producer” looks disconnected from the core game build. If EP only owns QA and Writing, you get partial delivery control with no authority over the critical path.
+
+What breaks: schedule ownership, tradeoff authority, dependency resolution.
+
+### B. Platform is treated like an ops subteam, but it is product
+- “Platform Team” under Finance and Ops is a red flag if the platform is central to the strategy. Platform needs product ownership and engineering leadership, with a clear GM-style accountability (scope, timeline, quality).
+
+What breaks: platform roadmap clarity, partner commitments, tech priorities, and resourcing arguments that become finance debates instead of product decisions.
+
+### C. Engineering span of control is too flat
+- CTO directly over multiple engineering subteams (web dev, gameplay) with no explicit engineering managers or leads shown. If those are missing, CTO becomes a bottleneck and quality drops.
+
+What breaks: code review quality, architecture coherence, hiring and mentoring, delivery predictability.
+
+### D. Tech Art and VFX sit in a grey zone
+- Technical Art and VFX are structurally between Engineering and Art. That is normal, but the chart must explicitly show the matrix: functional line for craft development, project line for delivery priorities.
+
+What breaks: tool ownership, pipeline priorities, and “who says yes” on tech art constraints.
+
+### E. Content disciplines are not cleanly grouped under game direction
+- Sound design and writing are not clearly under Game Director ownership (even if they collaborate). Game Director should own the full player-facing content stack: design, narrative, audio, UX content, and moment-to-moment experience, with production enforcing delivery.
+
+What breaks: creative cohesion and decision velocity.
+
+## 2) Three design alternatives
+
+### Alternative 1: Classic functional studio with a strong Executive Producer hub
+Best when: you are early, team is under ~60, you need speed, and the product is still forming.
+
+Structure:
+- CEO/Creative Director
+  - Executive Producer (single throat to choke for delivery across game + platform)
+    - Producers (Game Producer, Tech Producer, possibly Platform Producer)
+    - QA Lead (not just QA as individuals)
+  - Game Director
+    - Design (Level, Systems, Combat)
+    - Narrative/Writing
+    - Audio
+  - CTO
+    - Gameplay Engineering Lead
+    - Platform/Services Engineering Lead (web, backend)
+  - Art Director
+    - Concept, Characters, Environment, Animation
+    - Technical Art Lead (solid line to Art Director for people and craft, dotted to CTO for tooling priorities)
+- Finance/Ops and Legal remain as staff functions.
+
+Why it is better than current: clear delivery authority, clear creative authority, clearer engineering leadership, platform treated as a first-class product.
+
+Key risk: functional silos. Producers must actively run cross-discipline dependency management.
+
+### Alternative 2: Two-GM model: Platform GM and Game GM
+Best when: the platform is a co-equal product and partner commitments are real, not aspirational.
+
+Structure:
+- CEO/Creative Director
+  - GM Game (owns game outcomes)
+    - Game Director
+    - Game Producer
+    - Gameplay Engineering Lead
+    - Art Director
+  - GM Platform (owns platform outcomes)
+    - Platform Product Lead
+    - Platform Producer
+    - Platform Engineering Lead (web, backend, services)
+    - Partner Ops or Integrations Lead (if partner work is material)
+  - Shared Services: Finance/Ops, Legal, HR
+  - CTO becomes a standards and architecture authority across both GMs, or sits inside platform depending on how technical the platform is.
+
+Why it is better than current: eliminates platform being “owned by nobody,” avoids constant priority fights, makes partner delivery realistic.
+
+Key risk: duplicated process and competing roadmaps unless CEO forces alignment through quarterly priorities.
+
+### Alternative 3: Cross-functional “pods” (squads) with discipline homes
+Best when: you are actively shipping features and need predictable throughput, especially for live ops, identity, and partner drops.
+
+Structure:
+- Discipline homes (for hiring, craft, performance):
+  - Engineering, Art, Design, Production, QA
+- Delivery pods (for shipping):
+  - Core Gameplay Pod
+  - Platform Identity Pod
+  - Content and Rewards Pod (includes partner drops)
+  - Tools and Pipeline Pod (Tech Art-heavy)
+Each pod has:
+- Pod Lead (often a senior discipline lead)
+- Producer (delivery)
+- Product Owner (scope and priority, could be GM or Director depending on size)
+
+Why it is better than current: reduces handoffs, makes ownership obvious, tech art and tools stop being “everyone’s problem.”
+
+Key risk: requires mature production and leadership. If you are too early, it can feel like process overhead.
+
+## Clarification bundle (outcome-changing)
+1) Who is speaking, Heather or Glen?  
+2) Is “Platform Team” expected to ship external partner-facing features in the next 6 months, or is it internal-only tooling right now?  
+3) Who is accountable today for “one integrated roadmap” across platform + game: CEO, Executive Producer, or the Producer? If the answer is “nobody,” that is the first fix.
+
+## Self-audit
+- Direct yes/no given on reporting optimality: yes.  
+- Three alternatives provided, each with when-to-use and risks: yes.  
+- I did not assume headcount, funding stage, or exact responsibilities beyond what the chart implies: yes.
+

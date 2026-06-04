@@ -1,0 +1,92 @@
+TITLE: Custom Fonts in Foundry
+DATE: 2023-09-24
+MESSAGES: 4
+ID: b32bc01e-cfdd-49e4-9149-651bc00d4549
+---
+
+[USER]
+how do i use custom fonts in monks enhanced journals in foundry vtt
+
+[ASSISTANT]
+As of my last knowledge update in September 2021, Foundry Virtual Tabletop (Foundry VTT) didn't natively support custom fonts in its core features, and Monks Enhanced Journals is a module for Foundry VTT. However, some community modules and custom CSS can be used to achieve this effect. Keep in mind that the specifics of Foundry VTT and its modules may have evolved since then. Here's a general guideline on how to potentially use custom fonts with Monks Enhanced Journals or similar modules:
+
+**Note**: This process may involve some technical knowledge and could become outdated as Foundry VTT and its modules evolve. Always refer to the latest documentation and community resources for the most up-to-date information.
+
+1. **Prepare Your Custom Font:**
+   - Obtain the custom font you want to use in your Foundry VTT journal. Make sure it's in a web-friendly format, such as TTF or OTF.
+   - Convert the font file to web formats like WOFF or WOFF2, as these are more widely supported on the web.
+
+2. **Upload the Font:**
+   - In Foundry VTT, navigate to your User Data directory (where your Foundry VTT data is stored).
+   - Create a folder for your custom fonts, e.g., `fonts`, inside the `public` directory. This directory should be accessible via a web browser.
+
+3. **Edit CSS (Stylesheet):**
+   - You'll need to write custom CSS to apply the custom font to elements within Monks Enhanced Journals.
+   - Locate or create a custom CSS file within Foundry VTT. This file should be placed within the `User Data` directory.
+   - Write CSS rules that specify your custom font for specific elements. For example, to change the font of journal text, you might use something like this:
+     ```css
+     .journal-content {
+       font-family: 'YourCustomFont', sans-serif;
+     }
+     ```
+     Replace `'YourCustomFont'` with the actual font name, and adjust the class selectors according to the elements you want to style.
+
+4. **Link CSS in Foundry VTT:**
+   - In Foundry VTT, go to `Settings` > `Configure Settings`.
+   - Scroll down to the "Game Settings" section.
+   - In the "HTML Templates" field, add a link to your custom CSS file, like this:
+     ```html
+     <link rel="stylesheet" type="text/css" href="public/fonts/custom-fonts.css">
+     ```
+     Make sure the path matches the location of your custom CSS file.
+
+5. **Save and Restart:**
+   - Save your changes in Foundry VTT, and restart your server to apply the custom font.
+
+Remember that using custom fonts may have licensing restrictions, so make sure you have the appropriate rights to use and distribute the font in your virtual tabletop sessions.
+
+Always consult the documentation for Monks Enhanced Journals and any other relevant modules for specific instructions and updates, as the process can change with software updates and module improvements.
+
+[USER]
+how di I use custom fonts in monks enhanced journals
+
+[ASSISTANT]
+As of my last knowledge update in September 2021, Monks Enhanced Journals is a module for Foundry Virtual Tabletop (Foundry VTT) that enhances the journal functionality within the platform. While the module itself doesn't have built-in support for custom fonts, you can apply custom fonts to the content within the journal using CSS. Here's a general guide on how to do this:
+
+1. **Prepare Your Custom Font:**
+   - Obtain the custom font you want to use in your Foundry VTT journal. Make sure it's in a web-friendly format like TTF, OTF, WOFF, or WOFF2.
+
+2. **Upload the Font:**
+   - In Foundry VTT, navigate to your User Data directory (where your Foundry VTT data is stored).
+   - Create a folder for your custom fonts, e.g., `fonts`, inside the `public` directory. This directory should be accessible via a web browser.
+
+3. **Edit Your Custom CSS:**
+   - Create a custom CSS file that will apply your custom font to specific journal content.
+   - You can create this CSS file using a text editor or code editor.
+
+   Example CSS code to apply a custom font to the journal content:
+
+   ```css
+   /* Replace 'YourCustomFont' with the actual font name */
+   .journal-content {
+     font-family: 'YourCustomFont', sans-serif;
+   }
+   ```
+
+4. **Link the CSS in Foundry VTT:**
+   - In Foundry VTT, go to the "Configuration" tab for your world.
+   - In the "Settings" tab, find the "Module Settings" section.
+   - Look for an option to add custom CSS or a reference to external CSS. This location may vary depending on your Foundry VTT setup and any additional modules you have installed.
+   - Add a link to your custom CSS file. For example:
+     ```html
+     <link rel="stylesheet" type="text/css" href="public/fonts/custom-font.css">
+     ```
+   - Make sure the path to your custom CSS file is correct.
+
+5. **Save and Apply Changes:**
+   - Save your changes in Foundry VTT, and restart your Foundry server to apply the custom font to the journal content.
+
+Keep in mind that this method applies the custom font to the entire journal content within Foundry VTT. If you want to apply different fonts to specific parts of the journal or to different journals, you'll need to write more specific CSS rules or utilize additional modules or HTML markup within your journal entries.
+
+Please consult the Monks Enhanced Journals documentation or the documentation for any other relevant modules you might be using, as the interface and options can change with updates and module improvements.
+

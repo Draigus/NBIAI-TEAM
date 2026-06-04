@@ -1,0 +1,407 @@
+TITLE: ChatGPT vs NotebookLM
+DATE: 2025-10-23
+MESSAGES: 6
+ID: 68f9fbcb-af78-8333-9ce0-20567138806e
+---
+
+[USER]
+As an LLM EXpert skilled in chatgpt and notebookllm, would chatgpt and this project be the best option or a notebookllm  project at extracting all names places and definitions for them in a full 100% list? take your time and answer correctly
+
+[ASSISTANT]
+Short answer: use ChatGPT here with a purpose-built extraction pipeline, not NotebookLM, if you want an exhaustive, auditable gazetteer of every name, place, and definition.
+
+Why that is the correct call
+- NotebookLM is excellent for quick “tell me about X in these sources” work, but it does not give you the programmatic control, reproducibility, or error-budget you need for a 100 percent census. It will miss edge cases, you cannot tune regex and fuzzy-match thresholds, and de-duplication or stop-word rules are not first-class.
+- Your corpus already contains semi-structured scaffolding we can exploit: many entities appear as headings and lists that are straightforward to parse and normalise, then cross-verify in prose. Examples include h2 or h3 entries such as “Alvarin Sanlin of Travaghn, Archbishop of Porthios,” “Silverbay,” “Dented Kettle,” and district lists for Alethrin. These are perfect anchors for deterministic extraction and definition building. fileciteturn1file0 fileciteturn1file11 fileciteturn1file5
+- Given the above, the best path is a rules-first pipeline that uses ChatGPT for definition synthesis and disambiguation, with code handling discovery, de-dupe, provenance, and exports.
+
+Recommended approach that will actually get you to “complete”
+1) Parse and index everything  
+• Ingest the HTML and DOCX in a single pass.  
+• Capture structure: headings, bullet lists, tables, and image alt text. Your “People of Interest,” “Districts,” tavern lists, and h2 or h3 entries are low-hanging fruit. fileciteturn1file8 fileciteturn1file12  
+• Store provenance for every hit: file, heading trail, and character offsets.
+
+2) Candidate generation with strict rules  
+• Heuristics per class:  
+  Person: capitalised multi-token strings that contain connectors like “of,” titles like “Archbishop,” or kinship markers.  
+  Place: ends with tokens like “Hill,” “District,” “Inn,” “Port,” “Vale,” or appears under “Districts,” “Harbours,” or “Rivers” sections. fileciteturn1file15  
+  Organisation or location-within-city: “School of,” “Temple of,” “Guild,” “Company,” “Druidhome,” “Ruins of,” etc. fileciteturn1file5 fileciteturn1file17  
+• Add a stop-list of common English words and a Hule-specific allow-list to end the false positives you flagged before.  
+• Require contextual cues. For example, do not accept a single capitalised token unless it appears with “of <Place>,” a title, or in a known section.
+
+3) Normalisation and de-duplication  
+• Canonicalise punctuation, accents, and spacing.  
+• Use fuzzy matching within tight bounds so “Lehn’s Port,” “Lehnsport,” and “Lehnport” resolve to one canonical place, with aliases preserved.  
+• Merge by type first, then by name similarity, then by co-occurrence in the same definitions.
+
+4) First-definition and cross-check  
+• For each entity, lift the nearest definitional sentence or the structured block under its heading, then ask ChatGPT to condense into a one-line definition with a short two-to-three line summary.  
+• Cross-verify the summary against at least one additional mention elsewhere in the corpus. Flag conflicts for manual review.
+
+5) Confidence and QA gates  
+• Assign a confidence score per entity based on signal strength: heading hit plus body confirmation scores highest; single body hit with weak context scores low and goes to review.  
+• Generate a “potential mistakes” view: single-token names, entries that trip the stop-list, or names that resemble places.  
+• Run a diff on every subsequent corpus change so you can re-review only deltas.
+
+6) Provenance-rich exports  
+• Output CSV and JSON with: name, type, aliases, first definition, two supporting quotes with citations, provenance, and confidence.  
+• Prepare a Foundry-ready compendium export so you can browse People, Places, Factions, Deities, Items.
+
+Acceptance tests to declare “done”
+- Zero common English words included as people or places.  
+- Every row has: type, one-line definition, at least one provenance citation, and a confidence score.  
+- Manual review queue contains only low-confidence items and disputed merges.  
+- Random spot check of 200 passages shows no missed capitalised entities that meet your rules.  
+- Reproducible: same inputs produce the same gazetteer.
+
+Bottom line
+- If you truly need “complete,” you need determinism plus LLM judgement. ChatGPT here, paired with a rules-first parser and a review loop, is the right tool. NotebookLM is not designed for exhaustive, high-recall entity harvesting with tight false-positive control and auditable outputs.  
+
+If you want me to proceed on a first pass, I will run the structured extraction against the current Hule files and produce a starter gazetteer with the acceptance tests above so you can judge coverage quickly.
+
+[USER]
+please look at the chats and see the many failed attempts so far and determine which approaches fail and then work out an actualy scaffolding and framewortk that will be sucessful
+
+[ASSISTANT]
+Here is a clear-eyed post-mortem of what went wrong in the earlier passes, followed by a concrete scaffolding that will get you to a complete, auditable gazetteer of names, places, and short definitions.
+
+# Why the earlier attempts failed
+
+1) Discovery-by-capitalisation  
+Relying on simple capitalisation or word shapes promoted junk like Commander His, Tarros Do, Guild Collegiate, and That as “entities.” The rules did not insist on contextual signals such as titles, prepositions of place, or section anchors.
+
+2) No structural parsing  
+Your corpus already contains strong anchors in headings, lists, and section blocks, for example h2 or h3 entries such as Garren Orys, Breakwater Keep, Pelduin’s School of Magery, and dozens more in the Hule_Book HTML parts. Those were not harvested first, which forced the system to guess in free prose.
+
+3) Mixed entity types and weak typing  
+People, places, buildings, factions, and artefacts were not typed with explicit features. That turned tavern names, district names, and even rulebook terms into “people.”
+
+4) No allow-list or stop-list tuned to Hule  
+Hularen linguistic terms and clan words were not handled as vocabulary classes with definitions. That let common English words and function words leak in as false positives, and it also caused real Hularen terms to be misclassified as names.
+
+5) Missing normalisation and alias control  
+Variants such as Lehn’s Port vs Lehnsport vs Lehnport were not canonicalised. Hyphenation, quotes, and diacritics were not normalised before matching, which split a single place into multiple rows.
+
+6) No provenance or confidence  
+Rows arrived without file locations, heading trails, or confidence scores. That blocked triage, re-runs, and reproducibility.
+
+7) Partial corpus scans  
+Some passes only skimmed a subset of files, which made counts look artificially small and left duplicates untouched.
+
+# Scaffolding that will work
+
+This is a rules-first pipeline with LLM adjudication only where rules cannot decide. It is deterministic, reproducible, and fast to iterate.
+
+## A. Repository layout
+
+```
+hule-gazetteer/
+  corpus/
+    html/              # the Hule_Book_Part_*.html
+    docx/              # the .docx lore files
+    pdf/               # Cara's Game Journal.pdf
+  config/
+    patterns.yml       # regex and token rules per entity type
+    allow_hularen.txt  # Hularen lexicon and canonical spellings
+    stop_words.txt     # tight stop-list for English and game-system terms
+    type_features.yml  # endings and cues, for example Inn, Hall, Vale, Port
+  scripts/
+    01_ingest.py
+    02_candidates.py
+    03_typing.py
+    04_normalise_merge.py
+    05_definitions.py
+    06_qachecks.py
+    07_exports.py
+  data/
+    gazetteer_raw.jsonl
+    gazetteer_final.csv
+    review_queue.csv
+  tests/
+    test_rules.py
+    golden_samples.json
+  notebooks/
+    audit_summaries.ipynb
+```
+
+## B. Ingestion and structure capture
+
+- Parse HTML with BeautifulSoup. Lift all h1 to h4, list items, and tables. Store each as a record with file, heading trail, and character offsets.  
+- Parse DOCX with python-docx. Capture headings, bolded headings, and bulleted lists.  
+- For PDFs, prefer text extraction of headings and lists. If layout is poor, process later as prose.
+
+Deliverable: a single index of structural anchors that includes at least these examples, which appear as headings in your HTML parts: Bronze Hill, Heavy Metal Smithy, Breakwater Keep, Pelduin’s School of Magery, The Bluewater Inn, Ruins of Lorkaj, Jandur Olemarn of Bahldren, and many more. These become high-confidence seeds.
+
+## C. Candidate generation with strict gating
+
+Generate candidates in three passes, in this order:
+
+1) Structural pass  
+Every heading and list item that matches an entity pattern becomes a candidate. Examples of patterns that should promote immediately:  
+- Person: `Proper Noun` sequences with either a title token or a place preposition, such as of, from, Lord, Elder, Archbishop, Knight, Marshal, Priest, Merchant.  
+- Place or location: tokens that end in Hall, Inn, Keep, Port, Hill, Vale, Bay, District, Bridge, Tower, School, Temple, Ruins, Point, March, Home, Wood, Isles.  
+- Organisations and facilities: School of X, Temple of X, Knights of X, House of X.
+
+2) Patterned prose pass  
+Scan prose for the same signals, but require at least one of: title terms, of <Place>, or proximity to a known section. Examples: Lokander “Lok” Farlind of Iron Hill, Lord Commander qualifies. The word Commander by itself does not.
+
+3) LLM rescue pass  
+Only for edge cases the rules cannot decide. Provide the sentence and the top N nearest structured anchors. Ask for a binary keep or drop, with a type guess and a one-line why.
+
+Hard filters that stop the junk you saw earlier:  
+- Reject any two-token candidate where the second token is a pronoun or a determiner, for example His, That, This, Do, Yes.  
+- Reject single-token capitalised words unless they occur as a heading or in a known list section.  
+- Reject tokens with leading numerals or Dream N markers.  
+- Reject rulebook terminology such as Exhaustion and Concentration unless a matching section explicitly defines it as a game term for your rules appendix.
+
+## D. Typing and feature scoring
+
+For each candidate, compute a type with features and a score:
+
+- Person features  
+  Title present, of <Place> present, appears in a People of Interest section, has a personal nickname in quotes, has kinship markers, appears with verbs such as said, met, wrote, arrived.
+
+- Place features  
+  Ends with a place suffix, appears in a Districts or Locations section, appears in travel or arrival contexts, or is the object of go to, arrive at, return to.
+
+- Organisation or building features  
+  Contains School of, Temple of, House of, Inn, Keep, Ruins, Guild, Company, Hall, Embassy, Palace, Port Authority.
+
+Keep the type with the highest score and store contributing features for audit.
+
+## E. Normalisation and alias control
+
+- Canonical form rules  
+  Strip quotes, harmonise apostrophes, collapse double spaces, NFC normalise diacritics.  
+- Alias merge  
+  Use tight fuzzy matching and token equivalence to merge Lehn’s Port, Lehnsport, and Lehnport into one canonical entry with aliases kept.  
+- Token dictionary  
+  Maintain a Hularen lexicon where items such as Var, Varkier, Vaer, Fascar, Verfascar, Hjorvarn, Molthrehda, and Thredavaer are kept as terms with definitions, not mis-typed as people.
+
+## F. First definition and cross-check
+
+- For entries with a heading block, lift the nearest definitional sentence or bullet.  
+- For entries found only in prose, lift the sentence where the candidate has the highest feature score.  
+- Ask the LLM to write a strict one-line definition and a two-line summary using only the lifted text and the closest anchor paragraph. No invention.  
+- Cross-check that the summary does not contradict a second occurrence. If it does, mark for review.
+
+Example shape:
+```
+name: Pelduin’s School of Magery
+type: Building
+definition: A magery school referenced in Travaghn-era notes as a place of study and recruitment.
+summary: Appears in journal sections alongside travel and appointment planning. Context implies a formal academy within an urban centre.
+provenance: [file, heading trail, char offsets]
+aliases: [Pelduin School of Magery]
+confidence: 0.86
+```
+
+## G. QA and acceptance gates
+
+- Precision wall  
+  No common English stop-words may appear as People or Places. Tests assert this with a banned-tokens list that includes His, That, Do, Yes, Company used alone, and similar.
+
+- Recall spot-checks  
+  From random samples of 200 paragraphs, there must be zero missed capitalised multi-token entities that match the gating rules.
+
+- Low-confidence review  
+  Anything with a confidence below 0.7 goes to review_queue.csv with the reason code, for example WeakContext or AliasConflict.
+
+- Diffing and reproducibility  
+  A new run on the same corpus must produce the same gazetteer. When the corpus changes, the review queue only contains new or changed items.
+
+## H. Exports and integration
+
+- CSV and JSON with columns: name, type, definition, summary, aliases, first_seen_file, heading_trail, evidence_snippet, confidence, rule_features.  
+- Foundry compendium export split by type.  
+- A simple audit notebook that lists top adds, drops, merges, and low-confidence entries for a quick daily scan.
+
+# Concrete rule pack to start
+
+Add these to patterns.yml and type_features.yml as seed rules.
+
+People, high-confidence
+- Regex: `\b([A-Z][a-z’\-]+(?:\s"[A-Za-z]+"\s)?[A-Z][a-z’\-]+)\s+of\s+[A-Z][A-Za-z’\-\s]+`
+- Title terms: Lord, Lady, Elder, Archbishop, Bishop, Priest, Priestess, Marshal, Knight, Dyurnok, Keeper, Commander, Master, Merchant
+- Kinship markers: son of, daughter of, mate of
+
+Places, high-confidence
+- Suffixes: Hill, Vale, Bay, Port, Keep, Bridge, Point, March, Home, Wood, Isles, District, Temple, School, Inn, Hall, Tower, Palace, Ruins
+- Section cues: Districts, Harbours, Rivers, Maps, Arrive in, Travel to
+
+Organisations or buildings
+- Patterns: `School of`, `Temple of`, `House of`, `Knights of`, `Company`, `Guild`, `Embassy`
+
+Do-not-promote
+- Single capitalised tokens unless they are a heading.  
+- Tokens adjacent to Dream N or rulebook sections such as Exhaustion.  
+- Capitalised determiners and pronouns, for example This, That, His, Her, You, We.
+
+Stop-list starter
+- English function words and pronouns.  
+- Rules terms: Exhaustion, Concentration, Incapacitated, Saving Throw, etc., unless they are inside a rules appendix section.  
+- Calendar words and day markers.
+
+Allow-list starter for Hule
+- Hularen terms and spellings from your canon, for example Varkier, Fascar, Verfascar, Hjorvarn, Throdhan, Molthrehda, Vaer, Vahn, Thredavaer, Vahliir, Vahldren, Vadreni, Drohtraghn, Traghn, Nemorra, Asha’ Tah’ Kari, Kho’Vahr. Treat as vocabulary terms with their own definitions rather than people unless the section clearly refers to a person.
+
+# How this fixes the earlier failure cases
+
+- Commander His would fail the pronoun filter and the title-without-name test.  
+- Guild Collegiate would fail the organisation pattern because it lacks of <Thing> or a known suffix and appears without a section anchor.  
+- Tarros Do and Tarros That would fail because the second token is a function word.  
+- Duplicate spellings of Lehn’s Port would merge under the alias rules.  
+- Counts would include headings and list anchors first, so you do not see spurious “only 97 people” totals.
+
+# Minimal progress slice from the current corpus
+
+From the HTML parts alone, the headings already yield high-confidence seeds such as Bronze Hill, Heavy Metal Smithy, Breakwater Keep, The Bluewater Inn, Pelduin’s School of Magery, Ruins of Lorkaj, and person-shaped entries like Lokander “Lok” Farlind of Iron Hill, Lord Commander, Elion Larin of Woodbridge, and Jandur Olemarn of Bahldren. These will enter as type-scored candidates with provenance before any risky free-prose scanning.
+
+# Success checklist before first full run
+
+- Patterns.yml, type_features.yml, allow_hularen.txt, and stop_words.txt are populated and under version control.  
+- Golden samples include at least twenty known tricky cases with expected types and canonical forms.  
+- Tests verify that banned tokens can never appear as People or Places.  
+- Export format is agreed for Foundry and CSV.
+
+If you want, I will implement the exact scaffolding above and deliver a first pass that contains only structural-anchor entities with clean definitions and full provenance. Once that is locked, we will widen to prose mining and resolve the review queue.
+
+[USER]
+audit this scaffolding 
+
+[ASSISTANT]
+Here is a rigorous audit of the scaffolding you outlined, with specific fixes so it will actually deliver a complete, reproducible gazetteer.
+
+# Executive verdict
+Your plan is close to right. The structural-first discovery, typed rules, normalisation, and provenance are the backbone you need. Where it will fail without upgrades is: category coverage, precision-vs-recall balance in prose, apostrophe/diacritic handling, PDF/DOCX edge cases, over-eager stop-word filters, and lack of calibrated confidence targets. The fixes below close those gaps and harden it so you can run it repeatedly on the full corpus and get stable results.
+
+# What is already strong
+1) **Structure-first discovery.** Your HTML parts have rich anchors that are perfect seeds. Examples actually present in headings include Breakwater Keep, The Bluewater Inn, Bronze Hill, Ruins of Lorkaj, Pelduin’s School of Magery, and person-style headings such as Lokander “Lok” Farlind of Iron Hill, Elion Larin of Woodbridge, and Jandur Olemarn of Bahldren. Leaning on these first materially increases precision before you touch free prose.
+
+2) **Typed heuristics and confidence.** Scoring features by type, then assigning confidence and keeping provenance, is the correct design for auditability.
+
+3) **Determinism before LLM.** Using rules for candidate generation and reserving the model for adjudication only on edge cases will prevent most hallucinations.
+
+# Gaps and failure modes to fix
+
+1) **Entity taxonomy is too narrow.** Current types are Person, Place, Organisation/Building, plus a vocabulary bucket. Expand to cover what the corpus actually contains, or you will mis-type and miss entities:
+   - Regions and geographies: region, province, isles, range, forest, river, harbour
+   - Sub-city units: district, ward, quarter, gate, market
+   - Structures: keep, tower, bridge, hall, inn, school, temple, palace, ruins
+   - Polities and factions: clan, house, order, guild, circle, council
+   - Deities and mythic beings: Nemorra, Porthios, Pelor, Mishakal, etc.
+   - Titles and epithets as entities in their own right where canon demands it: Varkier, Keeper of War, Dyurnok
+   - Events and periods: The Breaking, wars, trials, festivals
+   - Lexicon terms: all Hularen words you have fixed in canon
+
+   This taxonomy prevents “Varkier” from bouncing between title, person, and faction, and it captures things like “Temple District” correctly as a sub-city place.
+
+2) **Apostrophes, diacritics, and curly quotes.** Mixed punctuation like Asha’ Tah’ Kari or Olemarn vs Ole­marn will fragment aliases and defeat matching. You need:
+   - A single normaliser that maps all apostrophe forms to a canonical character
+   - NFC diacritic normalisation
+   - Quote handling for nicknames such as Lokander “Lok” Farlind, keeping the epithet as an alias
+
+3) **Stop-word filters risk false negatives.** Banning tokens like Company, Hall, or Temple outright will hide true positives in names such as Bluewater Trading Company or Temple District. Replace blanket bans with **contextual rejectors**:
+   - Reject only when the token appears alone or as a trailing token without an of <X> or a recognised suffix
+   - Allow when the token is inside a known section, a heading, or a multi-token proper name
+
+4) **Dialogue and “Dream N” noise.** Headings like Dream 104 and dialogue lines inflate capitalisation without yielding entities. Add:
+   - A hard rejector for headings starting with Dream, Vision, Date, and year codes like 2324 IC
+   - A dialogue filter that down-weights matches inside quotation-heavy paragraphs unless accompanied by title/place features
+
+5) **DOCX and PDF extraction edge cases.** Your current plan mentions parsing but not the pitfalls. For DOCX:
+   - Read paragraph styles to capture true headings and list levels, not just bold text
+   - Preserve list indentation depth to keep nested structures, which often encode “Districts” and “People of Interest”
+
+   For PDFs:
+   - Prefer text layer; if it is poor, switch to page-region heuristics by font size for pseudo-headings
+   - Do not trust line breaks for candidate boundaries; sentence-split after extraction
+
+6) **Alias merges need per-type logic.** Places tolerate tighter token edit-distance than people. Constrain merges by type and token role:
+   - Place merge threshold: high for suffix-stable names (Lehn’s Port vs Lehnsport)
+   - Person merge threshold: stricter, require surname or byname match plus place/title agreement
+   - Keep alias provenance so you can roll back bad merges
+
+7) **Confidence needs calibration, not guesses.** Build a tiny golden set and calibrate thresholds:
+   - 200 gold entities across all types, hand-typed and canonical
+   - Calibrate feature weights so gold recall ≥ 0.95 and precision ≥ 0.98 on structural anchors, then widen to prose
+   - Record a target: overall gazetteer precision ≥ 0.97 with a review queue for the rest
+
+8) **Prose discovery under-specifies cues.** Titles and “of <Place>” are strong, but you also need:
+   - Verbal cues for people: said, wrote, met, led, commanded, married, was born in
+   - Locative verbs for places: arrived at, returned to, based in, sailed from
+   - Section proximity features: nearer to “Districts,” “Harbours,” “Rivers,” “People,” or “Taverns” increases the score
+
+9) **Provenance granularity.** File and heading are not enough for fast audits. Add:
+   - Character offsets or XPath-like paths
+   - A 200-character evidence snippet for each entity
+   - A hash of the source chunk to make diffs robust against minor whitespace changes
+
+10) **LLM adjudication guardrails.** For the rescue pass:
+   - Temperature 0, short system rule: “Decide keep or drop strictly from the provided text. Never invent.”
+   - Require the model to echo the decisive token or clause as justification
+   - If the model uses external knowledge or introduces new tokens, drop and send to review
+
+# Concrete fixes to the scaffolding
+
+1) **Expand taxonomy and storage schema**
+   - `entity_type` becomes an enum with the categories listed above
+   - Add `title_or_epithet` boolean for entries like Varkier
+   - Add `temporal_tags` for events and periods
+
+2) **Normalisation module**
+   - Map [\u2019\u2018\u275B\u275C\u02BC] to ASCII apostrophe
+   - NFC all strings
+   - Strip leading and trailing quotes while preserving nicknames into `aliases`
+
+3) **Rejectors and allow-lists**
+   - Reject single capitalised tokens outside headings
+   - Reject determiners and pronouns as second tokens in a two-token candidate
+   - Maintain a **Hularen allow-list** of canon terms so they are captured as vocabulary entries rather than mis-typed as people
+
+4) **Per-type alias merging**
+   - Token-level equivalence sets: port ↔’s port ↔ sport? No. Only apostrophe variations and spacing collapse are equivalent
+   - Require at least one stable token match across aliases for people, plus one context key (title or place)
+
+5) **Confidence calibration**
+   - Build a gold set from the headings you already have and a sample of prose mentions
+   - Grid-search feature weights to hit your precision/recall targets before expanding
+
+6) **Evidence-only definition synthesis**
+   - Extract one definitional sentence and one corroborating sentence
+   - Prompt the model to produce a one-line definition and a two-line summary **using only those quoted sentences**
+   - Store the two sentences verbatim for audit
+
+7) **Tests and quality gates**
+   - Unit tests for rejectors: Commander His, Tarros Do, Guild Collegiate, That must never pass
+   - Golden test for merges: map Lehn’s Port, Lehnsport, Lehnport to one canonical row with aliases kept
+   - Regression test that forbids any single-token capitalised entries in People or Places
+
+8) **Change tracking**
+   - Hash each source file; on re-run, only re-process changed files
+   - Produce a diff report: added entities, dropped entities, changed definitions, changed aliases
+
+9) **Review queue ergonomics**
+   - Include reason codes: WeakContext, AliasConflict, TypeAmbiguity, LowSupport
+   - Sort by confidence ascending and by entity_type for focused reviews
+
+# Tightened acceptance tests
+
+- **Precision wall:** People and Places contain zero entries where the second token is a pronoun, determiner, or bare stop-word
+- **Coverage:** Every heading-level entity in HTML parts is captured with type, definition, and provenance
+- **Gold set:** ≥ 0.95 recall and ≥ 0.98 precision on the 200-item gold set
+- **Stability:** Re-running on unchanged inputs produces byte-identical CSV and JSON
+- **Provenance:** Every row has file, heading trail, offsets, and an evidence snippet
+
+# Example rules to add immediately
+
+- **Dialogue down-weighting:** If the sentence has more than 40 percent quoted characters and no title/place cue, subtract 0.3 from the person score
+- **Temple District handling:** Treat “<City>, Temple District” as a subordinate place with `parent_place = <City>`
+- **Nickname capture:** `([A-Z][a-z’\-]+)\s“([^”]+)”\s([A-Z][a-z’\-]+)` extracts both the canonical full name and the epithet alias
+
+# Minimal progress slice that will move the needle
+Start with the structural pass on the HTML parts only. That alone yields hundreds of high-confidence seeds such as Breakwater Keep, The Bluewater Inn, Bronze Hill, Ruins of Lorkaj, Pelduin’s School of Magery, Lokander “Lok” Farlind of Iron Hill, Elion Larin of Woodbridge, and Jandur Olemarn of Bahldren. Store each with type, a one-line definition drawn from its heading or nearest paragraph, and full provenance. Lock that set, calibrate against a 200-item gold list, then widen to prose with the rejectors enabled.
+
+# Final call
+If you incorporate the fixes above, this scaffolding will be both exhaustive and auditable on your current corpus, and it will not repeat the earlier failure modes that produced Commander His, Tarros Do, or Guild Collegiate.
+

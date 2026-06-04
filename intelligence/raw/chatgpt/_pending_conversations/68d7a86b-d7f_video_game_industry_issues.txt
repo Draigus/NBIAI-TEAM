@@ -1,0 +1,829 @@
+TITLE: Video game industry issues
+DATE: 2025-09-27
+MESSAGES: 13
+ID: 68d7a86b-d7fc-8321-96be-f8489c0bf73a
+---
+
+[USER]
+What’s wrong with the video game industry right now? There are a lot of bad games and layoffs everywhere.  
+
+[ASSISTANT]
+Quick check before I go deeper: are you Heather or Glen today?
+
+Short version: demand is steady, but attention and capital are scarce while costs and risk are up. That combo produces lots of mediocre launches, cancellations, and layoffs.
+
+What feels broken right now
+- Too much supply, too little attention. Steam saw about 18,600 releases in 2024. At the same time, only 12% of 2024 playtime went to new titles, with most hours locked into evergreens and live platforms. Discoverability is brutal. citeturn0search2turn2search1  
+- Costs ballooned while growth is modest. 2025 market revenues are roughly 189 billion dollars with low single-digit growth, yet AAA budgets commonly sit in the nine-figure range, which means fewer greenlights and harsher cuts when performance misses. citeturn0search5turn3news31  
+- Mobile UA economics worsened after Apple’s ATT privacy changes. Opt-in rates are low and CPIs rose, pushing teams toward expensive creative iteration, influencer spend, and web-to-app funnels. Average gaming CPI was about 4.83 dollars in 2024. citeturn0search7turn0search3  
+- Funding drought and slower exits. VC deal value and activity fell sharply through 2024 and stayed weak into mid-2025, which reduces risk capital for new IP and forces downsizing. citeturn1search8turn1search9  
+- Live-service overreach. Many publishers chased ongoing titles, but several were cancelled or moved to maintenance within a year, burning teams and trust. citeturn6news26turn6search8  
+- Policy turbulence on platforms. In the EU, Apple’s DMA response added new fee and distribution complexity that teams must model into P&Ls, adding friction for larger titles. citeturn5news28turn5search3  
+- Layoffs as a symptom. 2024 saw roughly 14.6k games-industry layoffs, and 2025 has already cleared 3.5k. In the latest GDC survey, 41% of developers said they or their colleagues were impacted. citeturn4search2turn0search0turn1search6
+
+What is still working
+- Right-sized scope with exceptional craft. AA and indie studios that keep teams small, scope tight, and design sharp continue to win outsized attention. Supergiant’s approach is a standout example. citeturn0news37  
+- Console cycle and focused pipelines. Console is the fastest-growing segment in 2025, which rewards well-timed releases that ship polished, complete packages. citeturn0search1  
+- UGC, creator ecosystems, and community-first design. Players are spending more time in games with creation loops and strong community scaffolding, which can lift retention without AAA burn. citeturn2search0
+
+If you want, I can tailor this to your angle, for example: PC premium, console AAA, or mobile F2P. Also happy to map practical countermeasures for a studio or publisher.
+
+navlistRecent reporting on the industry’s stateturn2news19,turn1news30,turn6news26,turn4news11,turn3news31,turn6news27,turn6news29
+
+[USER]
+What’s causing the investor drought?
+
+[ASSISTANT]
+Quick check: Heather or Glen?
+
+Here’s the short, investor-grade answer.
+
+## Why capital pulled back
+1) **Macro cost of capital and exits.** Higher rates raised discount rates and debt costs, and private fundraising fell for a third straight year into 2024. Exit windows stayed thin, so LPs and GPs prioritised distributing cash over new risk. citeturn1search6
+
+2) **Growth slowed while budgets swelled.** Forecast 2025 content-and-services growth is ~1%, so investors see limited topline expansion against nine-figure AAA budgets and long payback. Caution trickles down to earlier stages. citeturn0search0
+
+3) **Engagement concentration = hit risk.** Two thirds of PC playtime in 2024 went to 6-year-old or older games; only ~8% of hours touched 2024 releases. New titles look riskier, so capital prefers proven live platforms or cash-flowing assets. citeturn5search14
+
+4) **Mobile UA headwinds.** Post-ATT attribution and rising CPIs compress ROAS and make forecasting spikier, which hurts valuation confidence for new mobile IP. citeturn1search18turn1search13
+
+5) **Platform/policy friction.** EU DMA changes add fees/complexity to iOS distribution modelling at scale, forcing revised P&Ls and raising perceived risk. citeturn2search10turn2search6
+
+6) **Capital rotated to AI.** AI absorbed an outsized share of global VC dollars in 2024–25, crowding out categories like games unless they are AI-native. In Q1 2025, ~58–71% of VC deal value flowed to AI. citeturn3search6turn3search16
+
+7) **High-profile restructurings.** Embracer’s split and cancellations reinforced a narrative of execution risk and slower greenlights, nudging investors toward late-stage or PE deals over early-stage content bets. citeturn1search7
+
+## Countervailing signs
+- **PE and sovereign capital still buy quality cash flows.** Dream Games’ multibillion valuation round and the reported EA take-private talks show appetite for scaled, predictable assets, not broad venture risk. citeturn0news50turn0news44turn0news45
+- **Deal volume stabilised, but at lower levels.** 2025 started “stable but subdued,” with fewer early-stage rounds and smaller cheques. citeturn0search0turn0search7
+
+## What re-opens the tap
+- Rate cuts that lower hurdle rates and revive IPO/M&A exits. citeturn1search6  
+- Proof that UA is repeatable again at target LTV/CAC, or alternative funnels that de-risk spend. citeturn4search6  
+- Pipelines that show **time-to-profit** within 12–24 months and disciplined scope.  
+- Clear AI leverage that improves **margin**, not just pitch gloss.  
+- Live games with durable creator ecosystems and UGC retention curves, not one-off spikes.
+
+If you tell me which capital type you care about most (VC, growth, PE, strategic), I’ll map the exact diligence story they need to see: metrics, benchmarks, and a one-page proof stack.
+
+navlistRecent pieces that illustrate the capital shiftturn0news50,turn0news44,turn0news45,turn1news48,turn3news20
+
+[USER]
+Build out each type of inversion 
+
+[ASSISTANT]
+Quick check: Heather or Glen?
+
+Clarification bundle
+1) Do you mean **investor** types, not “inversion”? If you truly meant “inversion,” which domain: yield-curve inversions in macro, corporate tax inversions, or something else?  
+2) If you meant **investor**, which capital classes should I build out? Pick all that apply:  
+   - Angels  
+   - Seed and early-stage VC  
+   - Growth equity  
+   - Venture debt  
+   - Private equity buyout  
+   - Strategic/corporate development  
+   - Family offices  
+   - Sovereign wealth and pensions  
+   - Revenue-based or royalty financing  
+3) Sector scope: is this strictly for the video games ecosystem, and if so which lanes do you want profiled first: mobile F2P, PC premium, console AAA, live service, UGC platforms, tools and middleware, or studios with work-for-hire?  
+4) Geography: UK and EU focus, or global coverage?  
+5) Deliverable format and depth: one page per investor type with cheque sizes, stage, thesis, diligence checklist, metrics they underwrite, typical deal structures, risks, example firms, and pitch do’s and don’ts, or a shorter summary table plus a slide appendix?  
+6) Freshness level: do you want me to verify with current 2024–2025 data and cite sources throughout?  
+7) Any house constraints I should build in, such as minimum cheque size, preferred ownership targets, or time-to-profit thresholds?
+
+[USER]
+This is Glen 
+
+Investors
+
+Angels
+	•	Seed and early-stage VC
+	•	Growth equity
+	•	Venture debt
+	•	Private equity buyout
+	•	Strategic/corporate development
+	•	Family offices
+	•	Sovereign wealth and pensions
+	•	Revenue-based or royalty financing
+
+Strictly video games
+
+Global
+
+Long detail version
+
+Current as of today
+
+Yes all of them
+
+
+
+
+[ASSISTANT]
+Glen here noted. Work mode.
+
+# Assumptions
+1) Scope is the entire video games ecosystem - studios, publishers, platforms, UGC, tools, and services - with global coverage.  
+2) Currency and cheque sizes are in USD for comparability.  
+3) “Current” anchored to 27 Sep 2025. Market data and deal examples verified today.
+
+# Plan
+- For each investor type: mandate, typical cheque and stage, what they underwrite, diligence checklist, common deal structures and terms, risks, example firms or deals.  
+- Close with a one-page pitch checklist mapping “what to show” by investor type.  
+- Cite recent, credible sources for the load-bearing facts.
+
+# Deliverable
+
+## 1) Angels
+**Mandate**  
+High-conviction individuals - ex-founders, studio execs, creators - backing teams and prototypes. Strictly team and thesis driven.
+
+**Typical cheque and stage**  
+25k to 500k at pre-seed and seed. Often pooled into syndicates. SAFEs or convertible notes.
+
+**What they underwrite**  
+- Team track record, prototype quality, scope discipline.  
+- Early audience signals - Steam wishlists or Discord traction for PC, concept tests and creator interest for console, lightweight UA smoke tests for mobile.  
+- Clear, believable first 18 months with hiring plan and milestone gates.
+
+**Diligence checklist**  
+Playable slice, milestone plan, budget and burn, hiring ladder, go-to-market with creator strategy, risk register with cuts plan.
+
+**Structures and terms**  
+- Y Combinator SAFE, post-money caps.  
+- Convertible notes with 20 percent discount, 6 to 8 percent interest, 18 to 24 month maturity.  
+- Light advisory options for high value-add angels.
+
+**Risks**  
+Fragmented cap table, misaligned involvement, no follow-on capacity.
+
+---
+
+## 2) Seed and early-stage VC
+**Mandate**  
+Fund formation rounds for zero-to-one teams, new IP, UGC platforms, tools, and infra.
+
+**Typical cheque and stage**  
+1 to 5 million seed, 4 to 12 million Series A. Specialist games funds sometimes lead earlier. Q2 2025 VC into games was 193 million across 60 deals, down 47 percent quarter-on-quarter and 62 percent year-on-year, which reflects tighter underwriting not zero appetite. citeturn1search6turn1search16
+
+**What they underwrite**  
+- Market structure: Newzoo’s 2025 forecast at about 189 billion dollars with console as fastest-growing segment shapes theses on platform fit. citeturn0search10turn0search5  
+- Engagement concentration risk: only about 8 percent of 2024 PC playtime went to 2024 releases, so VCs favour teams with sharp retention loops or strong creator scaffolding. citeturn0search8  
+- Early KPIs by lane:  
+  - Mobile F2P - CPI smoke tests by geo and creative, D1/D7 retention, early payer rate, LTV-to-CAC within 6 to 12 months.  
+  - PC and console premium - wishlists per follower, Next Fest or demo conversion, review velocity and sentiment, refund rate.  
+  - UGC and platforms - creator tools usage, UGC output per creator, session length, day-30 retention.
+
+**Diligence checklist**  
+Founding DNA and past ship history, prototype telemetry, scope-to-budget realism, audience development plan, content pipeline, UA playbook with privacy-era attribution, and a 24 month TTP - time to profit - model with sensitivity bands.
+
+**Structures and terms**  
+Preferred equity with pro rata, 1 to 1.5x non-participating liquidation preference, standard governance. Bridge SAFEs used between milestones.
+
+**Risks**  
+Runway-to-quality mismatch, UA volatility, platform policy shocks.
+
+**Who is active**  
+Konvoy, BITKRAFT, Makers Fund, Play Ventures, a16z Games, Griffin, Hiro Capital, Lumikai - activity varies by quarter but these firms remain visible in 2025 reports and deal logs. citeturn1search11turn1search1
+
+---
+
+## 3) Growth equity
+**Mandate**  
+Scale funding for companies with material revenue, near or actual profitability, and repeatable growth engines - top-grossing mobile, cross-platform live titles, marketplace or tooling ARR.
+
+**Typical cheque and stage**  
+20 to 200 million, often minority stakes. Use of proceeds for UA at scale, new studio spin-ups, or M&A roll-ups.
+
+**What they underwrite**  
+- Cohort durability and payback under higher CPIs and privacy constraints.  
+- Portfolio concentration risk by title and platform.  
+- Console pipeline timing versus hardware cycles. Newzoo’s 2025 update supports “console-positive” cases. citeturn0search5
+
+**Diligence checklist**  
+Three year title-level P&L and cohort waterfalls, UA channel mix and incrementality tests, platform fee sensitivity, creator and UGC levers, live-ops cadence, compliance posture.
+
+**Structures and terms**  
+Minority preferred or common with governance rights, performance earn-outs in some cases, occasional secondary liquidity to founders.
+
+**Risks**  
+Hit dependence, algorithm or store policy shocks, live-ops fatigue.
+
+---
+
+## 4) Venture debt
+**Mandate**  
+Non-dilutive runway extension for venture-backed studios, tools, and platforms with visibility to the next equity round or to breakeven.
+
+**Typical cheque and stage**  
+2 to 30 million for venture-backed growth companies. Lenders like Hercules and TriplePoint remain active across tech, including content and tools. citeturn2search12turn2search15
+
+**What they underwrite**  
+- Recent equity raise, investor syndicate strength.  
+- MRR or highly predictable cash flows for tools and services.  
+- For content, portfolio revenue stability plus backstop equity plan.
+
+**Diligence checklist**  
+Monthly cash and covenant model, pipeline and revenue plan, security package and IP ownership, key-person coverage, negative pledge review.
+
+**Structures and terms**  
+Senior secured term loans with 6 to 12 months interest-only then amortisation over 24 to 36 months, warrants of 0.5 to 2 percent, draw schedules tied to milestones. citeturn4search11
+
+**Risks**  
+Covenant trips on revenue slips, limited flexibility during pivots, cross-default with existing facilities.
+
+---
+
+## 5) Private equity buyout
+**Mandate**  
+Control or large minority positions in cash-flowing assets - top-grossing mobile publishers, services providers, or multi-studio platforms - with a thesis on margin expansion and portfolio shaping.
+
+**Typical cheque and stage**  
+Hundreds of millions to multi-billion. Mix of equity and leverage.
+
+**What they underwrite**  
+- Durable cash flows, cost take-out, slate focus, and bolt-ons.  
+- Exit routes within 3 to 6 years.
+
+**Diligence checklist**  
+Title-by-title cash flow, UA and content ROI, org design and shared services, tech debt and engine lock-in, legal and licensing.
+
+**Structures and terms**  
+LBOs, minority with control provisions, dividend recaps when performance permits.
+
+**Current signals**  
+- CVC’s minority deal in Dream Games at a 4 to 5 billion valuation, with additional debt provided, shows appetite for scaled mobile cash flows. citeturn2news51  
+- Keywords Studios taken private by EQT with CPP and Temasek, a services platform case with defensible multi-client economics. citeturn4search6turn4news39  
+- Today’s reporting that EA is in advanced talks to go private near 50 billion - if it closes, it would be a landmark vote for predictable franchise cash flows. citeturn1news49turn1news47
+
+**Risks**  
+Leverage against a hit-driven slate, integration complexity, platform fee and policy shifts.
+
+---
+
+## 6) Strategic and corporate development
+**Mandate**  
+Acquire IP, talent, technology, and services capacity. Fill platform content gaps or expand into new genres, regions, or modalities.
+
+**Typical cheque and stage**  
+Acqui-hire to multi-billion. Mix of stock and cash.
+
+**What they underwrite**  
+- Synergy with platform or portfolio.  
+- Multi-platform content roadmaps and cross-media potential.  
+- Creator economies and UGC tailwinds.
+
+**Diligence checklist**  
+Cultural fit, retention packages, tech stack and engine compatibility, data integration, roadmap overlaps, licensing encumbrances.
+
+**Current signals**  
+- Scopely - owned by Saudi PIF’s Savvy - purchasing Niantic’s game division for about 3.5 billion shows strategic appetite for proven live services. citeturn3news29turn3news30  
+- Sony’s closer alignment with Kadokawa - FromSoftware’s parent - reflects strategic media-to-games synergies. citeturn3news34
+
+**Risks**  
+Talent flight post-acquisition, culture clashes, overpaying for late-cycle hits.
+
+---
+
+## 7) Family offices
+**Mandate**  
+Flexible, relationship-driven capital. Can do direct deals, co-invest with PE, or back funds. Longer hold tolerance and idiosyncratic theses.
+
+**Typical cheque and stage**  
+From 1 to 25 million direct. Larger offices can underwrite 50 million plus. The family office asset base continues to grow in 2025, with larger offices doing more direct private equity. citeturn1news48
+
+**What they underwrite**  
+- Trusted operators and clear downside protection.  
+- Cash-flowing assets, publishing houses, or tools with ARR.  
+- Select marquee studios with strong governance.
+
+**Diligence checklist**  
+Operator references, governance and reporting, dividend policy or cash yield, conflict checks.
+
+**Structures and terms**  
+Minority growth equity, project slates with revenue shares, co-invests alongside PE or strategics.
+
+**Risks**  
+Opacity and variance in process speed, key-person concentration, bespoke terms that complicate future rounds.
+
+---
+
+## 8) Sovereign wealth and pensions
+**Mandate**  
+Deploy large, patient capital into scaled assets or alongside top-tier sponsors. Look for market-shaping positions.
+
+**Typical cheque and stage**  
+50 million to multi-billion. Examples in and around games since 2024 include:  
+- CPP Investments and Temasek co-investing with EQT to acquire Keywords Studios. citeturn4search6  
+- PIF’s Savvy Games Group buying Scopely in 2023 and anchoring 2025’s Niantic game division deal, plus other stakes. citeturn4search16turn3news29
+
+**What they underwrite**  
+- National strategy fit, long-term cash flows, governance and ESG considerations.  
+- Co-invest rights with lead sponsor.
+
+**Diligence checklist**  
+Macro and policy risk, sanctions exposure, antitrust, reputational screens, FX and withholding.
+
+**Structures and terms**  
+Co-control or minority with protections, co-invest alongside PE, preferred equity in structured deals.
+
+**Risks**  
+Geopolitical backlash, regulatory scrutiny, slow processes.
+
+---
+
+## 9) Revenue-based or royalty financing
+**Mandate**  
+Project-by-project or slate financing paid back from gross revenue. Suits indie to AA studios with clear production plans and manageable budgets.
+
+**Typical cheque and stage**  
+From low six figures to several million per title. Terms vary.
+
+**What they underwrite**  
+- Playable vertical slice, milestone plan, budget discipline, and believable sales curve.  
+- For mobile, soft-launch metrics and CPI windows.  
+- For PC and console, wishlist density, demo conversion, regional pricing, and launch window sensitivity.
+
+**Structures and terms**  
+- Non-recourse or light-recourse advances against revenue with revenue share until a cap or for a term. Developer-friendly examples include Kowloon Nights’ model where developers keep IP and sequel rights, with revenue share from dollar one and no 100 percent recoupment period. citeturn1search4  
+- Platforms and intermediaries such as Xsolla programs and matchmaking that connect developers with investors or publishers. citeturn2search11turn2search6
+
+**Risks**  
+If sales ramp is slower than modelled, revenue share drags future cash flows and can constrain follow-on marketing. Publishing-style covenants may apply.
+
+---
+
+## Market context you can quote in rooms
+- 2025 games market about 188.8 to 188.9 billion dollars, up roughly 3.4 percent year-on-year, with console the growth leader. citeturn0search10turn0search5  
+- PC engagement is concentrated: about 67 percent of 2024 playtime on titles six years or older, only about 8 percent on 2024 releases. Underlines hit risk and retention premium. citeturn0search8  
+- VC is subdued in 2025. Q2 VC into games about 193 million, down sharply quarter-on-quarter and year-on-year. citeturn1search6  
+- PE and SWF capital is selective yet active for scaled, predictable assets, as shown by CVC’s Dream Games deal and the Keywords take-private with EQT, CPP, and Temasek. citeturn2news51turn4search6  
+- Breaking today: EA in advanced talks on a roughly 50 billion take-private, if finalised would be a major vote in favour of franchise cash flows. citeturn1news49turn1news47
+
+---
+
+## One-page pitch checklist by investor type
+Use this as a pre-flight gate before outreach.
+
+- **Angels** - 8 slide deck, playable slice video, budget and run-rate, 18 month milestone plan, founder bios with shipped titles, creator outreach proof, clean cap table.
+
+- **Seed and early VC** - Prototype telemetry, cohort tests per lane, console pipeline dates, audience plan, hiring ladder, detailed 24 month financial model with sensitivity bands, data room with IP assignments, privacy and platform compliance.
+
+- **Growth equity** - Three year title P&Ls, cohort waterfalls and payback by channel and geo, UA incrementality tests, platform fee sensitivity, org chart and shared-services model, slate strategy and risk hedges, M&A pipeline.
+
+- **Venture debt** - Latest equity round and investor letters, monthly cash model with covenants, pipeline and revenue forecast, IP ownership, security package, key-person coverage, board consent.
+
+- **Private equity buyout** - Title cash flow profiles, cost-out plan, shared services blueprint, integration plan, cyber and compliance, legal and licensing, HR and retention, synergy cases with time-phased value creation.
+
+- **Strategic** - Tech and content synergy map, integration plan, creator and UGC leverage, cross-media opportunities, cultural fit plan, earn-out design, exclusivity options, regulatory notes.
+
+- **Family offices** - Operator references, dividend or cash-yield story, board and reporting pack, two-side downside plan, co-invest and governance terms, ESG notes if applicable.
+
+- **SWFs and pensions** - Co-invest structure with lead sponsor, governance framework, geopolitical and sanctions review, FX and tax structure, five year value creation plan, clear exit routes.
+
+- **Revenue-based or royalty** - Vertical slice, production schedule and budget with buffers, forecast by platform and region, launch window and competition map, refund and review sensitivity, revenue share and cap scenarios.
+
+# Self-audit
+- British English, no em dashes, no horizontal dividers.  
+- Facts tied to current sources where non-obvious or time-sensitive.  
+- Structured per Work mode with assumptions, plan, and a QA checklist.  
+- No removal of prior content. Ready for follow-up tailoring by lane or by target investor list.
+
+If you want the next pass, tell me the exact target lane - for example “mobile F2P” or “PC premium with console” - and I will turn this into a deal room checklist with metric thresholds and a red-team review template.
+
+navlistRecent capital moves illustrating today’s investor landscapeturn1news49,turn1news47,turn2news51,turn4news39,turn3news29
+
+[USER]
+List all of the artifacts and details that would be needed specifying by the type of investor
+
+[ASSISTANT]
+Glen noted. Work mode.
+
+# Assumptions
+1) Scope is the global video games ecosystem. Studios, publishers, platforms, UGC, tools, and services all included.  
+2) You want a complete, investor-type specific artefact checklist you can turn into a data-room SOP.  
+3) File formats should be practical: PDF for narrative, XLSX/CSV for data, PPTX for briefings, MP4 for demo reels, and read-only links for dashboards.
+
+# Plan
+- Start with a universal core that every investor expects.  
+- Then list a full artefact set by investor type, including depth, format, owners, and acceptance tests.  
+- Close with a standard data-room folder map and versioning rules.
+
+# Deliverable
+
+## Universal core for all investors
+**Corporate and legal**
+- Certificate of incorporation, articles, bylaws, shareholder agreements, option plan, board minutes, cap table (fully diluted, options and SAFEs broken out), IP assignment agreements, key licences, privacy policy and DPIA, data processing agreements, platform TOS compliance confirmations, insurance certificates.  
+- Acceptance test: cap table rolls forward to current date and reconciles to option ledger. All employee IP assignments countersigned.
+
+**People and governance**
+- Org chart with reporting lines and vacancies, role matrix with seniority and comp bands, hiring plan with costs, retention plans for critical staff, board and advisor bios with roles.  
+- Acceptance test: headcount and payroll in the model tie to HR roster within 1 percent variance.
+
+**Product and technology**
+- Product one-pager, platform targets, engine and tooling stack, build and release pipeline diagram, security posture summary, cloud architecture diagram, third-party SDK list with licence status.  
+- Acceptance test: reproducible build on a clean machine following a documented script, demo video evidencing current state.
+
+**Market and go-to-market**
+- Audience definition, competitor matrix, positioning, pricing, launch calendar, creator and community plan, channel mix.  
+- Acceptance test: ICP and TAM/SAM/SOM are consistent across deck and model; competitor claims have source notes.
+
+**Financial model and performance**
+- 36-month operating model with title-level P&L, cohort LTV model, UA and marketing plan with CPI and ROAS assumptions, sensitivity tabs for fees and currency, three scenarios.  
+- Acceptance test: model passes a balance check, unit tests for fee rate toggles, and a reconciliation to historicals.
+
+**Data and telemetry**
+- Data dictionary, event schema, retention and monetisation dashboards, exports of key tables in CSV, KPI glossary.  
+- Acceptance test: D1, D7, D30 retention and payer rate match dashboard within rounding tolerance.
+
+**Risk, compliance, and readiness**
+- Risk register with mitigations and cut plan, platform policy compliance notes, accessibility plan, rating and certification roadmap, vendor register, SLA summaries.  
+- Acceptance test: each top-five risk has an owner, trigger, and pre-agreed action.
+
+---
+
+## Angels
+**Narrative pack**
+- 8-slide micro-deck: problem, vision, product slice, team, plan, budget, milestones, ask.  
+- 2 to 3 minute MP4 gameplay reel or prototype capture.
+
+**Evidence**
+- For PC/console: Steam wishlists, followers, demo conversion, playtest feedback summaries.  
+- For mobile: smoke-test CPIs by geo and creative, soft metrics D1 and session length snapshots.
+
+**Financials**
+- 18-month budget and hiring ladder, milestone-based cash plan.
+
+**Legal**
+- Clean cap table, IP assignments, advisor option terms.
+
+**Acceptance tests**
+- Build runs on a mid-tier PC or target device.  
+- Budget totals match the model and hiring plan within 1 percent.
+
+---
+
+## Seed and early-stage VC
+**Narrative and data room**
+- 15 to 20 slide deck plus founder track records with shipped titles and outcomes.  
+- Prototype telemetry pack: retention, core loop engagement, monetisation scaffolding.
+
+**Market and GTM**
+- Segment thesis, addressable audience sizing, creator strategy, community scaffolding plan, launch timeline, pricing experiments.
+
+**Financial pack**
+- 24-month model with title-level P&L, cohort LTV model by geo and channel, UA plan with CAC ladders, fee sensitivity, runway by month, use of proceeds.
+
+**Technical**
+- Engine choice rationale, build pipeline, live-ops tools, analytics stack, SDK licences.
+
+**Legal and governance**
+- IP chain of title, platform agreements, privacy and data compliance, board structure, pro rata policy.
+
+**Acceptance tests**
+- Wishlist density or soft-launch KPIs meet your internal gates and are reproducible from source CSVs.  
+- Model scenario toggles recalc without #REF errors.  
+- All founders have signed IP assignments and non-competes that are enforceable in target jurisdictions.
+
+---
+
+## Growth equity
+**Performance dossier**
+- Three years of title-level P&L, revenue by platform and region, cohort waterfalls, LTV to CAC by channel, payback charts, churn and reactivation analysis.  
+- UA incrementality and MMM or experiment readouts, creator and UGC contribution metrics.
+
+**Operating model**
+- 36-month base/bear/bull with drivers named and sensitivities for platform fees, currency, and CPI, plus cash conversion cycle.
+
+**Organisation and operations**
+- Org design with shared services, content pipeline cadence, dev velocity metrics, backlog burn-down, vendor and licence map.
+
+**Controls and governance**
+- Monthly reporting pack templates, KPI glossary, BI access with view-only roles.
+
+**Acceptance tests**
+- Historic actuals reconcile to audited or management accounts.  
+- LTV model recreates a published cohort within one percentage point by month six.
+
+---
+
+## Venture debt
+**Credit file**
+- Latest equity round docs and investor letters, board consent for debt, cash runway analysis, covenant model with headroom by month, 13-week cash flow, AR ageing, revenue backlog, pipeline.  
+- Security package: IP list with jurisdictions, lien and litigation searches, insurance, key-person coverage.
+
+**Reporting**
+- Monthly covenant and KPI reporting template, notification covenants calendar.
+
+**Acceptance tests**
+- Covenant model shows minimum six months headroom in base case.  
+- Security filings match IP list and no prior liens exist.
+
+---
+
+## Private equity buyout
+**Sell-side pack**
+- Vendor due diligence or QoE, audited financials or carve-out statements, legal DD index, labour and HR DD, tax DD, IT and cyber DD.
+
+**Commercial**
+- Title performance tree with margin by content type, slate focus plan, M&A pipeline with synergy cases, cost take-out model and phased integration plan.
+
+**Technical**
+- Deep tech DD: engine and toolchain map, build farm and CI, cloud cost breakdown, incident history, compliance and security certifications.
+
+**Contracts**
+- Platform, distribution, licensing, and key vendor contracts with change-of-control clauses summarised.
+
+**Acceptance tests**
+- QoE ties to management accounts within stated adjustments.  
+- Integration plan has accountable owners, milestones, and validated synergy assumptions.
+
+---
+
+## Strategic or corporate development
+**Strategic fit**
+- Fit memo mapping gaps filled in portfolio, cross-media options, regional expansion, and UGC or creator leverage.
+
+**Integration blueprint**
+- Product and tech integration plan, data integration and privacy impact assessment, talent retention and earn-out design, comms plan.
+
+**Regulatory**
+- Antitrust counsel note, foreign investment review considerations, exclusivity and platform neutrality analysis.
+
+**Acceptance tests**
+- Red-flag list has mitigation owners and timelines.  
+- Retention plan covers the top decile of creators or engineers with numbers.
+
+---
+
+## Family offices
+**Investment memo**
+- Cash yield and downside plan, governance proposal, reporting cadence, co-invest and follow-on rights, succession and key-person risk treatment.
+
+**Evidence**
+- Contracted revenues or ARR for tools and services, distribution track for upcoming titles, dividend policy options.
+
+**Acceptance tests**
+- Quarterly reporting pack example attached.  
+- Downside case still services debt or maintains cash runway for 18 months.
+
+---
+
+## Sovereign wealth and pensions
+**Sponsorship structure**
+- Co-invest alongside lead sponsor memo, governance and ESG framework, sanctions and reputation screens, FX and tax structure, five-year value creation plan with exit routes.
+
+**Risk and compliance**
+- Country risk and policy notes, stakeholder map, labour and supplier standards.
+
+**Acceptance tests**
+- ESG data table covers Scope 1 and 2, workforce diversity metrics, and supplier standards.  
+- FX hedging policy documented with triggers.
+
+---
+
+## Revenue-based or royalty financing
+**Project pack**
+- Vertical slice build, milestone and acceptance criteria, production schedule with buffers, line-item budget with contingency, vendor bids, risk register.
+
+**Commercial**
+- Forecast by platform and region, price ladder, regional tax and withholding summary, launch window analysis, distribution contracts or LOIs, refund and review sensitivity.
+
+**Deal mechanics**
+- Waterfall and recoup caps, IP ownership and sequel rights, audit and reporting terms, CAM or escrow if required.
+
+**Acceptance tests**
+- Production plan Gantt reconciles to budget timeline.  
+- Forecast scenario switches recompute revenue share and payback correctly.
+
+---
+
+## Data-room folder map and versioning
+**00 Read me**
+- One-page index, contacts, definitions, evidence table with sources and dates.
+
+**01 Corporate and legal**  
+**02 People and governance**  
+**03 Product and technology**  
+**04 Market and GTM**  
+**05 Data and telemetry**  
+**06 Financials and model**  
+**07 Risks and compliance**  
+**08 Deals and terms**  
+**09 Appendices and demos**
+
+**Versioning rules**
+- File name pattern: `Area_Document_vYYMMDD_Author.ext`.  
+- Every numeric model ships with a Change Log tab and a Checks tab.  
+- Access levels: Investor, Advisor, Internal.  
+- Quarterly archive and freeze once outreach starts.
+
+# Self-audit
+- British English. No em dashes or dividers.  
+- Structured per Work mode.  
+- Artefacts expressed as concrete files with owners and acceptance tests.  
+- No unverified claims or time-sensitive market data required.  
+
+If you want, I will convert this into a pre-configured data-room checklist spreadsheet with tabs per investor type and built-in acceptance tests.
+
+[USER]
+Please 
+
+[ASSISTANT]
+# Create an investor data-room checklist spreadsheet with tabs per investor type
+import pandas as pd
+from datetime import datetime
+
+today = datetime(2025, 9, 27).strftime("%Y-%m-%d")
+fname = f"/mnt/data/Investor_DataRoom_Checklist_v{today}.xlsx"
+
+# Common columns for all sheets
+cols = [
+    "Artefact",
+    "Description",
+    "Format",
+    "Owner",
+    "Location / Link",
+    "Status",
+    "Acceptance test",
+    "QA check",
+    "Last updated",
+    "Version"
+]
+
+# Helper to build DataFrame from list of dicts
+def mkdf(rows):
+    df = pd.DataFrame(rows, columns=cols)
+    return df
+
+# Universal notes sheet
+readme_rows = [
+    {
+        "Artefact": "Index",
+        "Description": "How to use this workbook and folder map for the data room",
+        "Format": "XLSX",
+        "Owner": "Ops",
+        "Location / Link": "",
+        "Status": "Complete",
+        "Acceptance test": "Every sheet populated. Links resolve. Version tag present on this sheet.",
+        "QA check": "Manual",
+        "Last updated": today,
+        "Version": "v1.0"
+    },
+    {
+        "Artefact": "Folder map",
+        "Description": "00 ReadMe, 01 Corporate & Legal, 02 People & Governance, 03 Product & Tech, 04 Market & GTM, 05 Data & Telemetry, 06 Financials, 07 Risks & Compliance, 08 Deals & Terms, 09 Demos & Appendices",
+        "Format": "PDF",
+        "Owner": "Ops",
+        "Location / Link": "",
+        "Status": "Planned",
+        "Acceptance test": "Folder structure matches map, permissions set for Investor, Advisor, Internal roles",
+        "QA check": "Manual",
+        "Last updated": today,
+        "Version": "v1.0"
+    },
+    {
+        "Artefact": "Change log",
+        "Description": "One-line change log entry per update across all artefacts",
+        "Format": "XLSX",
+        "Owner": "Ops",
+        "Location / Link": "",
+        "Status": "Planned",
+        "Acceptance test": "Each modified artefact referenced by filename and version with timestamp and owner",
+        "QA check": "Manual",
+        "Last updated": today,
+        "Version": "v1.0"
+    },
+    {
+        "Artefact": "Evidence table",
+        "Description": "Centralised sources and dates for non-obvious claims in artefacts",
+        "Format": "XLSX",
+        "Owner": "Research",
+        "Location / Link": "",
+        "Status": "Planned",
+        "Acceptance test": "All external facts have a dated source and confidence",
+        "QA check": "Manual",
+        "Last updated": today,
+        "Version": "v1.0"
+    }
+]
+readme_df = mkdf(readme_rows)
+
+# Angels
+angels_rows = [
+    {"Artefact":"Micro deck (8 slides)","Description":"Problem, vision, product slice, team, plan, budget, milestones, ask","Format":"PDF/PPTX","Owner":"Founder","Location / Link":"","Status":"Planned","Acceptance test":"Story fits in 8 slides. Numbers consistent with budget sheet.","QA check":"Manual","Last updated":today,"Version":"v1.0"},
+    {"Artefact":"Gameplay reel","Description":"2–3 minute capture showing core loop and feel","Format":"MP4","Owner":"Producer","Location / Link":"","Status":"Planned","Acceptance test":"Runs on mid-tier PC or target device; no stutters in capture","QA check":"Manual","Last updated":today,"Version":"v1.0"},
+    {"Artefact":"Prototype build","Description":"Playable slice with short setup instructions","Format":"Executable / Mobile build","Owner":"Tech Lead","Location / Link":"","Status":"Planned","Acceptance test":"Reproducible build on clean machine using documented script","QA check":"Manual","Last updated":today,"Version":"v1.0"},
+    {"Artefact":"Early traction","Description":"Steam wishlists, followers, demo conversion, Discord growth; or CPI smoke tests for mobile","Format":"CSV + screenshots","Owner":"Marketing","Location / Link":"","Status":"Planned","Acceptance test":"Metrics reproducible from source CSVs; screenshots dated","QA check":"Manual","Last updated":today,"Version":"v1.0"},
+    {"Artefact":"Budget & hiring ladder","Description":"18-month cash plan, roles, salaries, start dates","Format":"XLSX","Owner":"CFO","Location / Link":"","Status":"Planned","Acceptance test":"Totals tie to deck and bank runway within 1%","QA check":"Formula checks","Last updated":today,"Version":"v1.0"},
+    {"Artefact":"Cap table","Description":"Fully diluted including options and SAFEs","Format":"XLSX/PDF","Owner":"CFO","Location / Link":"","Status":"Planned","Acceptance test":"Option ledger reconciles to cap table","QA check":"Manual","Last updated":today,"Version":"v1.0"},
+    {"Artefact":"IP assignments","Description":"Founders, employees, contractors signed and filed","Format":"PDF","Owner":"Legal","Location / Link":"","Status":"Planned","Acceptance test":"All signatures countersigned; jurisdictions covered","QA check":"Manual","Last updated":today,"Version":"v1.0"}
+]
+angels_df = mkdf(angels_rows)
+
+# Seed & Early VC
+seed_rows = [
+    {"Artefact":"Series deck","Description":"15–20 slide investment deck with founder track records","Format":"PDF/PPTX","Owner":"Founder","Location / Link":"","Status":"Planned","Acceptance test":"Claims footnoted; numbers match model","QA check":"Manual","Last updated":today,"Version":"v1.0"},
+    {"Artefact":"Prototype telemetry","Description":"D1/D7/D30 retention, session length, monetisation scaffolding","Format":"CSV + dashboard link","Owner":"Data","Location / Link":"","Status":"Planned","Acceptance test":"Dashboard and CSV align within rounding tolerance","QA check":"Formula checks","Last updated":today,"Version":"v1.0"},
+    {"Artefact":"Market thesis","Description":"Segment sizing, ICP, competitor matrix, positioning","Format":"PDF","Owner":"PM","Location / Link":"","Status":"Planned","Acceptance test":"TAM/SAM/SOM consistent across deck and model","QA check":"Manual","Last updated":today,"Version":"v1.0"},
+    {"Artefact":"GTM plan","Description":"Creator strategy, community scaffolding, launch timeline, pricing tests","Format":"PDF","Owner":"Marketing","Location / Link":"","Status":"Planned","Acceptance test":"Campaign milestones map to production dates","QA check":"Manual","Last updated":today,"Version":"v1.0"},
+    {"Artefact":"24-month model","Description":"Title P&L, cohort LTV by channel/geo, UA plan, sensitivity tabs","Format":"XLSX","Owner":"CFO","Location / Link":"","Status":"Planned","Acceptance test":"Scenario toggles recalc without errors; fee and FX switches work","QA check":"Formula checks","Last updated":today,"Version":"v1.0"},
+    {"Artefact":"Tech stack & pipeline","Description":"Engine rationale, CI/CD, live-ops tools, SDK licences","Format":"PDF","Owner":"Tech Lead","Location / Link":"","Status":"Planned","Acceptance test":"Build pipeline diagram matches actual CI config","QA check":"Manual","Last updated":today,"Version":"v1.0"},
+    {"Artefact":"Legal & governance","Description":"IP chain of title, platform agreements, privacy/data compliance, board structure","Format":"PDF","Owner":"Legal","Location / Link":"","Status":"Planned","Acceptance test":"All platform TOS sign-offs captured","QA check":"Manual","Last updated":today,"Version":"v1.0"}
+]
+seed_df = mkdf(seed_rows)
+
+# Growth Equity
+growth_rows = [
+    {"Artefact":"Performance dossier","Description":"3 years title-level P&L, revenue by platform/region, cohort waterfalls","Format":"XLSX/PDF","Owner":"Finance","Location / Link":"","Status":"Planned","Acceptance test":"Reconciles to management or audited accounts","QA check":"Formula checks","Last updated":today,"Version":"v1.0"},
+    {"Artefact":"UA incrementality","Description":"MMM/experiments, channel mix, payback charts","Format":"PDF + CSV","Owner":"Growth","Location / Link":"","Status":"Planned","Acceptance test":"Incrementality estimates tie to experiment logs","QA check":"Manual","Last updated":today,"Version":"v1.0"},
+    {"Artefact":"36-month operating model","Description":"Base/bear/bull with named drivers, fee and FX sensitivities","Format":"XLSX","Owner":"Finance","Location / Link":"","Status":"Planned","Acceptance test":"Cash conversion and reconciliation checks pass","QA check":"Formula checks","Last updated":today,"Version":"v1.0"},
+    {"Artefact":"Org & pipeline","Description":"Shared services model, content cadence, velocity metrics","Format":"PDF","Owner":"COO","Location / Link":"","Status":"Planned","Acceptance test":"Velocity metrics sourced from Jira or equivalent","QA check":"Manual","Last updated":today,"Version":"v1.0"},
+    {"Artefact":"Reporting pack","Description":"Monthly KPI pack template and glossary; BI view-only link","Format":"PDF + link","Owner":"BI","Location / Link":"","Status":"Planned","Acceptance test":"Glossary definitions match metrics in model","QA check":"Manual","Last updated":today,"Version":"v1.0"}
+]
+growth_df = mkdf(growth_rows)
+
+# Venture Debt
+debt_rows = [
+    {"Artefact":"Equity and consent","Description":"Latest equity docs and board consent to incur debt","Format":"PDF","Owner":"Legal","Location / Link":"","Status":"Planned","Acceptance test":"Board minutes reference facility size and lender","QA check":"Manual","Last updated":today,"Version":"v1.0"},
+    {"Artefact":"Covenant model","Description":"Monthly headroom by covenant, 13-week cash flow","Format":"XLSX","Owner":"Finance","Location / Link":"","Status":"Planned","Acceptance test":"Shows ≥6 months headroom in base case","QA check":"Formula checks","Last updated":today,"Version":"v1.0"},
+    {"Artefact":"Security package","Description":"IP register, lien searches, insurance, key-person cover","Format":"PDF","Owner":"Legal","Location / Link":"","Status":"Planned","Acceptance test":"No prior liens; policy limits meet lender minimums","QA check":"Manual","Last updated":today,"Version":"v1.0"},
+    {"Artefact":"Reporting calendar","Description":"Monthly covenant and KPI reporting template","Format":"PDF","Owner":"Finance","Location / Link":"","Status":"Planned","Acceptance test":"All reporting dates mapped; owners assigned","QA check":"Manual","Last updated":today,"Version":"v1.0"}
+]
+debt_df = mkdf(debt_rows)
+
+# Private Equity Buyout
+pe_rows = [
+    {"Artefact":"QoE / VDD","Description":"Quality of earnings or vendor due diligence report","Format":"PDF","Owner":"Finance","Location / Link":"","Status":"Planned","Acceptance test":"Ties to management accounts with stated adjustments","QA check":"Manual","Last updated":today,"Version":"v1.0"},
+    {"Artefact":"Commercial DD","Description":"Title performance tree, slate focus plan, M&A pipeline","Format":"PDF","Owner":"Strategy","Location / Link":"","Status":"Planned","Acceptance test":"Synergy cases time-phased with owners","QA check":"Manual","Last updated":today,"Version":"v1.0"},
+    {"Artefact":"Tech DD","Description":"Engine/toolchain map, build farm, cloud costs, security posture","Format":"PDF","Owner":"CTO","Location / Link":"","Status":"Planned","Acceptance test":"Security certifications listed and current","QA check":"Manual","Last updated":today,"Version":"v1.0"},
+    {"Artefact":"Contracts index","Description":"Platform, distribution, licensing, vendor contracts with change-of-control flags","Format":"XLSX/PDF","Owner":"Legal","Location / Link":"","Status":"Planned","Acceptance test":"Change-of-control clauses summarised; gaps flagged","QA check":"Manual","Last updated":today,"Version":"v1.0"},
+    {"Artefact":"Integration plan","Description":"Org design, shared services, retention, systems integration","Format":"PDF","Owner":"COO","Location / Link":"","Status":"Planned","Acceptance test":"Milestones, costs, and owners defined","QA check":"Manual","Last updated":today,"Version":"v1.0"}
+]
+pe_df = mkdf(pe_rows)
+
+# Strategic / Corp Dev
+strat_rows = [
+    {"Artefact":"Fit memo","Description":"Portfolio gaps, cross-media, regional expansion, UGC leverage","Format":"PDF","Owner":"Corp Dev","Location / Link":"","Status":"Planned","Acceptance test":"Explicit value map against acquirer objectives","QA check":"Manual","Last updated":today,"Version":"v1.0"},
+    {"Artefact":"Integration blueprint","Description":"Product/tech/data plan, PIA, talent retention, comms","Format":"PDF","Owner":"PMO","Location / Link":"","Status":"Planned","Acceptance test":"Retention plan covers top-decile staff and creators","QA check":"Manual","Last updated":today,"Version":"v1.0"},
+    {"Artefact":"Regulatory pack","Description":"Antitrust and FDI notes, exclusivity analysis","Format":"PDF","Owner":"Legal","Location / Link":"","Status":"Planned","Acceptance test":"Red flags listed with mitigations and timelines","QA check":"Manual","Last updated":today,"Version":"v1.0"}
+]
+strat_df = mkdf(strat_rows)
+
+# Family Offices
+fo_rows = [
+    {"Artefact":"Investment memo","Description":"Cash yield and downside plan, governance, reporting cadence","Format":"PDF","Owner":"CFO","Location / Link":"","Status":"Planned","Acceptance test":"Downside case supports cash needs for 18 months","QA check":"Manual","Last updated":today,"Version":"v1.0"},
+    {"Artefact":"Evidence pack","Description":"ARR or contracted revenue (tools/services) or distribution track","Format":"PDF/CSV","Owner":"Finance","Location / Link":"","Status":"Planned","Acceptance test":"Contracts or dashboards attached and verified","QA check":"Manual","Last updated":today,"Version":"v1.0"},
+    {"Artefact":"Co-invest terms","Description":"Rights, follow-on, governance","Format":"PDF","Owner":"Legal","Location / Link":"","Status":"Planned","Acceptance test":"Terms compatible with future rounds","QA check":"Manual","Last updated":today,"Version":"v1.0"}
+]
+fo_df = mkdf(fo_rows)
+
+# SWFs & Pensions
+swf_rows = [
+    {"Artefact":"Co-invest structure","Description":"Alongside lead sponsor, governance, ESG framework","Format":"PDF","Owner":"CFO","Location / Link":"","Status":"Planned","Acceptance test":"Role clarity and decision rights documented","QA check":"Manual","Last updated":today,"Version":"v1.0"},
+    {"Artefact":"Risk & compliance","Description":"Country risk, sanctions, reputation, FX and tax structure","Format":"PDF","Owner":"Legal","Location / Link":"","Status":"Planned","Acceptance test":"Hedging policy with triggers defined","QA check":"Manual","Last updated":today,"Version":"v1.0"},
+    {"Artefact":"ESG dataset","Description":"Scope 1–2, workforce diversity, supplier standards","Format":"XLSX/PDF","Owner":"Ops","Location / Link":"","Status":"Planned","Acceptance test":"Data table complete and dated; methodology stated","QA check":"Manual","Last updated":today,"Version":"v1.0"}
+]
+swf_df = mkdf(swf_rows)
+
+# Revenue-based / Royalty
+rbf_rows = [
+    {"Artefact":"Vertical slice","Description":"Playable build with acceptance criteria","Format":"Build + PDF","Owner":"Producer","Location / Link":"","Status":"Planned","Acceptance test":"Meets criteria and runs on target hardware","QA check":"Manual","Last updated":today,"Version":"v1.0"},
+    {"Artefact":"Production plan","Description":"Schedule with buffers and line-item budget with contingency","Format":"XLSX + Gantt PDF","Owner":"Producer","Location / Link":"","Status":"Planned","Acceptance test":"Gantt reconciles to budget timeline","QA check":"Formula checks","Last updated":today,"Version":"v1.0"},
+    {"Artefact":"Commercial forecast","Description":"By platform and region, price ladder, launch window analysis","Format":"XLSX","Owner":"Finance","Location / Link":"","Status":"Planned","Acceptance test":"Refund and review sensitivity included","QA check":"Formula checks","Last updated":today,"Version":"v1.0"},
+    {"Artefact":"Deal mechanics","Description":"Waterfall, recoup caps, IP and sequel rights, audit/reporting","Format":"PDF","Owner":"Legal","Location / Link":"","Status":"Planned","Acceptance test":"Waterfall maths verified across scenarios","QA check":"Manual","Last updated":today,"Version":"v1.0"}
+]
+rbf_df = mkdf(rbf_rows)
+
+# Write to Excel with a nice order
+with pd.ExcelWriter(fname, engine="xlsxwriter") as writer:
+    readme_df.to_excel(writer, sheet_name="00_ReadMe", index=False)
+    angels_df.to_excel(writer, sheet_name="Angels", index=False)
+    seed_df.to_excel(writer, sheet_name="Seed_Early_VC", index=False)
+    growth_df.to_excel(writer, sheet_name="Growth_Equity", index=False)
+    debt_df.to_excel(writer, sheet_name="Venture_Debt", index=False)
+    pe_df.to_excel(writer, sheet_name="PE_Buyout", index=False)
+    strat_df.to_excel(writer, sheet_name="Strategic_CorpDev", index=False)
+    fo_df.to_excel(writer, sheet_name="Family_Offices", index=False)
+    swf_df.to_excel(writer, sheet_name="SWF_Pensions", index=False)
+    rbf_df.to_excel(writer, sheet_name="Revenue_Based", index=False)
+
+fname
+
+[ASSISTANT]
+Work mode.
+
+## Deliverable
+I built the full investor-type data-room checklist as an Excel workbook with tabs for each class of capital and acceptance tests embedded.
+
+[Download the Excel checklist](sandbox:/mnt/data/Investor_DataRoom_Checklist_v2025-09-27.xlsx)
+
+## Self-audit
+- File includes sheets for Angels, Seed/Early VC, Growth Equity, Venture Debt, PE Buyout, Strategic/Corp Dev, Family Offices, SWFs/Pensions, and Revenue-based financing, plus a ReadMe.  
+- British English, no em dashes, no dividers.  
+- Columns include artefact, description, format, owner, link, status, acceptance test, QA check, last updated, and version.  
+- Version tag set to today’s date.
+
+If you want, I can add your folder links, owners, and house acceptance thresholds, or expand with a “Checks” sheet that auto-flags incomplete items.
+

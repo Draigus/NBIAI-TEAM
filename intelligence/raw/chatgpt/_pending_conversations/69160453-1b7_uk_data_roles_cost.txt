@@ -1,0 +1,112 @@
+TITLE: UK data roles cost
+DATE: 2025-11-13
+MESSAGES: 4
+ID: 69160453-1b74-8332-8148-78ec37107e29
+---
+
+[USER]
+int he UK market what would one senior game data analyst and 1 senior data engineer And 1 data engineer be in cost per year as a fully weighted cost? 
+
+[ASSISTANT]
+salaries = {
+    "senior_game_data_analyst": 65000,
+    "senior_data_engineer": 80000,
+    "data_engineer": 60000
+}
+multiplier = 1.6
+fully_loaded = {k: v*multiplier for k,v in salaries.items()}
+total_salary = sum(salaries.values())
+total_fully_loaded = sum(fully_loaded.values())
+salaries, fully_loaded, total_salary, total_fully_loaded
+
+[ASSISTANT]
+multipliers = [1.5, 1.75]
+ranges = {m: {k: v*m for k,v in salaries.items()} for m in multipliers}
+total_ranges = {m: sum(r.values()) for m,r in ranges.items()}
+ranges, total_ranges
+
+[ASSISTANT]
+Short version: for UK games-industry hires on competitive but not crazy packages, you are roughly looking at **£320k–£340k per year fully loaded** for that three-person pod.
+
+I will spell out the assumptions and the maths so you can tweak.
+
+---
+
+### 1. Assumptions
+
+- Roles are UK based (outside central London, for example Cambridge/Midlands) but paid competitively for games / data talent.
+- You want **“fully weighted cost”** to include:
+  - Gross salary  
+  - Employer National Insurance (15 percent from April 2025) citeturn1search6turn1search16  
+  - Statutory minimum employer pension and basic benefits  
+  - A reasonable slice of overhead (equipment, software, office, HR, etc.)
+- For modelling, I am using a **1.6x multiplier on base salary** for fully loaded cost.
+  - This sits within the common UK guidance that all-in employee cost is often **1.5x–1.75x salary** once NIC, pension and overhead are included. citeturn1search7turn1search9turn1search13  
+
+---
+
+### 2. Market-aligned base salary bands
+
+Grounding the numbers:
+
+- **Game Data Analyst in England**  
+  Average ~£42k, with typical range mid-30s to ~£60k, London skewing higher. citeturn0search5turn0search17  
+- **Data Engineer, UK-wide**  
+  Average reported ~£53k–£56k, with common ranges into the £70k band. citeturn0search11turn0search19turn0search15  
+- **Senior Data Engineer, UK-wide**  
+  Median around **£71k**, with senior / top-end roles often advertised in the **£80k–£90k** band, especially in tech and gaming. citeturn0search6turn0search10  
+
+Using upper-mid bands to be realistically competitive for good talent in games:
+
+- **Senior Game Data Analyst**  
+  - Planning salary: **£65k**  
+  - Rationale: at or above 75th percentile for game data analysts, treating “senior” as top band of that distribution.
+
+- **Senior Data Engineer**  
+  - Planning salary: **£80k**  
+  - Rationale: above UK median and aligned with strong but not FAANG-level senior DE in a games / analytics context.
+
+- **Data Engineer (mid-level)**  
+  - Planning salary: **£60k**  
+  - Rationale: above national average and consistent with experienced non-senior DE outside central London.
+
+---
+
+### 3. Fully weighted annual cost per role
+
+Using a **1.6x multiplier** on salary:
+
+1. **Senior Game Data Analyst**  
+   - Base: £65,000  
+   - Fully loaded (approx): £65,000 × 1.6 ≈ **£104,000 per year**
+
+2. **Senior Data Engineer**  
+   - Base: £80,000  
+   - Fully loaded (approx): £80,000 × 1.6 ≈ **£128,000 per year**
+
+3. **Data Engineer (mid-level)**  
+   - Base: £60,000  
+   - Fully loaded (approx): £60,000 × 1.6 ≈ **£96,000 per year**
+
+---
+
+### 4. Combined annual cost
+
+- Total base salaries:  
+  £65k + £80k + £60k = **£205,000**
+
+- Total fully loaded at 1.6x:  
+  ≈ **£328,000 per year**
+
+For sensitivity:
+
+- At **1.5x** fully loaded: ~**£308k**  
+- At **1.75x** fully loaded: ~**£359k**  
+
+So a reasonable planning figure for UK budgeting is:
+
+> **Three-person pod (1 senior game data analyst, 1 senior DE, 1 DE)**  
+> **≈ £320k–£340k per year fully weighted**, using the mid-point of those assumptions.
+
+If you tell me where you want to anchor (London vs regional, “pay top 10 percent” vs “solid median”), I can tighten those bands and add monthly numbers too.
+

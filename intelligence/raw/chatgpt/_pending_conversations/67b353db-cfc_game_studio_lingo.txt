@@ -1,0 +1,356 @@
+TITLE: Game Studio Lingo
+DATE: 2025-02-17
+MESSAGES: 10
+ID: 67b353db-cfcc-800b-8328-6929915d7926
+---
+
+[USER]
+video game studio lingo words
+
+[ASSISTANT]
+Here’s a list of **video game studio lingo and terminology** commonly used in the industry, categorized for easy reference:
+
+### **Game Development Roles & Teams**
+- **Dev (Developer)** – A game creator, often referring to programmers or the entire development team.  
+- **Designer** – The person responsible for gameplay mechanics, levels, and overall player experience.  
+- **Producer** – Oversees the project, schedules, and ensures the game is on track.  
+- **QA (Quality Assurance)** – Testers who find and report bugs.  
+- **Artist** – Responsible for visual elements, including concept art, character models, and environments.  
+- **Animator** – Brings characters and objects to life through movement.  
+- **Tech Artist** – Bridges the gap between artists and programmers, optimizing assets for performance.  
+- **UI/UX Designer** – Designs menus, interfaces, and overall user experience.  
+- **Sound Designer** – Creates sound effects (SFX) and works with composers on music.  
+- **Narrative Designer** – Writes game stories, dialogues, and lore.  
+- **Localization** – Adapting a game for different languages and regions.  
+- **Community Manager** – Engages with the game’s community and manages social media.  
+
+---
+
+### **Game Production & Pipeline Terms**
+- **Sprint** – A short development cycle, often used in Agile development.  
+- **Vertical Slice** – A polished, playable section of a game that showcases core mechanics.  
+- **MVP (Minimum Viable Product)** – A version of the game with just enough features to be functional.  
+- **Graybox/Whitebox** – A rough, untextured version of a level used for early playtesting.  
+- **Alpha** – An early, unfinished build of the game, usually missing assets or polish.  
+- **Beta** – A near-complete version of the game, often released for testing.  
+- **Gold Master** – The final version of the game ready for release.  
+- **Day One Patch** – An update released immediately at launch to fix issues.  
+- **Crunch** – Intense overtime work to meet deadlines, often controversial.  
+- **Pipeline** – The process and workflow for developing a game.  
+- **Vertical Slice** – A fully functional small segment of a game used to pitch or test features.  
+- **Bug** – An error or glitch in the game’s code.  
+- **Patch** – A post-release update that fixes bugs or adds content.  
+
+---
+
+### **Game Design & Mechanics**
+- **Gameplay Loop** – The core set of actions that players repeat throughout the game.  
+- **Mechanic** – A specific gameplay feature, such as jumping, shooting, or crafting.  
+- **Hitbox** – The invisible area that detects collisions with other objects.  
+- **Tweakables** – Variables that can be adjusted to balance gameplay.  
+- **AI (Artificial Intelligence)** – The behavior of non-player characters (NPCs).  
+- **NavMesh** – A navigation map that AI characters use to move through the game world.  
+- **LOD (Level of Detail)** – A technique where objects decrease in detail based on distance to improve performance.  
+- **Gating** – Restricting player progress until certain conditions are met.  
+- **Metagame (Meta)** – Strategies or mechanics that go beyond the core gameplay, often related to competitive balancing.  
+- **Juice** – The extra polish that makes actions feel satisfying, such as screen shakes, particles, or sound effects.  
+- **Procedural Generation** – Using algorithms to generate game content dynamically.  
+- **Fog of War** – A mechanic that hides unexplored areas in strategy games.  
+- **Bullet Sponge** – An enemy that takes an excessive number of hits to defeat.  
+- **Invisible Wall** – An unseen barrier preventing players from leaving a game area.  
+
+---
+
+### **Level Design Terms**
+- **Choke Point** – A narrow area in a level designed to control player movement or create tension.  
+- **Golden Path** – The intended route through a level.  
+- **Set Piece** – A scripted, cinematic event in a game.  
+- **Easter Egg** – A hidden reference, joke, or secret in a game.  
+- **Line of Sight (LoS)** – How much a character can see based on obstacles in the environment.  
+- **Zone** – A distinct area in an open-world game.  
+- **Dungeon** – A self-contained level or area, often with unique challenges.  
+- **Sandbox** – A game or level with open-ended player freedom.  
+- **Hub World** – A central location connecting multiple levels or zones.  
+
+---
+
+### **Game Art & Animation**
+- **Rigging** – Adding a skeleton to a 3D model for animation.  
+- **Vertex Count** – The number of points that make up a 3D model, affecting performance.  
+- **Texture Map** – A 2D image applied to a 3D model for visual detail.  
+- **Normal Map** – A type of texture that creates the illusion of depth.  
+- **Shader** – A program that controls how objects appear based on lighting and materials.  
+- **Particles** – Small visual effects like smoke, fire, or rain.  
+- **Keyframe** – A primary frame in animation that marks major motion changes.  
+- **Tweening** – Automatically generating frames between two keyframes.  
+
+---
+
+### **Programming & Tech**
+- **Engine** – The software framework used to build a game (e.g., Unity, Unreal Engine).  
+- **FPS (Frames Per Second)** – The number of images rendered per second; higher is smoother.  
+- **Tick Rate** – How often the game updates per second, critical in multiplayer games.  
+- **Latency/Ping** – The delay between a player's action and the game server’s response.  
+- **Physics Engine** – A system that simulates real-world physics in a game.  
+- **Networking** – The system managing online multiplayer interactions.  
+- **Optimization** – Improving a game’s performance by reducing resource usage.  
+- **Garbage Collection** – Automatic memory management to prevent crashes.  
+- **Netcode** – The programming behind online play and server-client interactions.  
+
+---
+
+### **Marketing & Monetization**
+- **Live Service** – A game designed for continuous updates and long-term engagement.  
+- **DLC (Downloadable Content)** – Extra content released post-launch.  
+- **Microtransaction (MTX)** – Small in-game purchases, often cosmetic.  
+- **Battle Pass** – A seasonal content system that rewards players for completing challenges.  
+- **Gacha** – A random loot mechanic inspired by capsule toy machines.  
+- **Pay-to-Win (P2W)** – A controversial system where players can buy advantages.  
+- **Freemium** – A game that is free but includes monetization options.  
+- **Soft Launch** – A limited early release to test a game’s market performance.  
+
+---
+
+### **Studio Culture & Slang**
+- **Feature Creep** – When new ideas keep getting added, delaying release.  
+- **Gold Plating** – Over-polishing a feature instead of shipping it.  
+- **Spaghetti Code** – Messy, unorganized programming that’s hard to fix.  
+- **Refactor** – Rewriting or optimizing code for better performance.  
+- **Smoke Test** – A quick test to see if a feature works.  
+- **Dogfooding** – The team playing their own game to find issues.  
+- **Pixel F***ing** – Overly obsessing over minor visual details.  
+- **Jank** – Clunky, unpolished gameplay that feels awkward.  
+- **Brain Dump** – Rapidly writing down all ideas to sort later.  
+- **Devsplaining** – A developer over-explaining mechanics to non-devs.  
+- **Launch Hype** – The marketing buzz around a game’s release.  
+
+---
+
+Let me know if you want more specialized terminology (e.g., indie dev lingo, console vs. PC-specific terms, or industry-specific phrases). 🚀
+
+[USER]
+add more slang terms
+
+[ASSISTANT]
+Here’s a **deep dive into more video game studio slang and insider lingo**, including industry-specific terms, inside jokes, and casual phrases devs use.  
+
+---
+
+### **Game Development Slang & Studio Culture**  
+
+- **Bug Factory** – A term for a developer known for introducing a lot of bugs in their code.  
+- **Crunch Mode / Death March** – A brutal period of overtime to finish a project before a deadline.  
+- **Smoke & Mirrors** – Tricks used to make the game look better than it actually is (e.g., clever lighting, camera tricks).  
+- **Happy Path** – The ideal way a player is expected to play through a game without breaking anything.  
+- **Sad Path** – When a player does something unexpected and causes the game to break.  
+- **Rubberbanding** – When a game or network connection tries to correct lag, causing sudden position shifts.  
+- **Scope Creep** – The project getting bigger and more complex as more features keep getting added.  
+- **Yak Shaving** – Wasting time fixing minor issues that don’t impact the bigger picture.  
+- **Gremlins** – Mysterious, unexplainable bugs that appear and disappear at random.  
+- **Wonky** – When a game mechanic feels off or unpolished.  
+- **Uncanny Valley** – When characters or animations look almost realistic but feel creepy instead.  
+- **Brain Drain** – When too many developers leave a studio, causing knowledge loss.  
+- **Cutting Room Floor** – Features or assets that were removed from the final game.  
+- **Sacred Cow** – A feature or idea that no one is allowed to remove, even if it’s bad.  
+- **Glass Cannon** – A high-damage but fragile character, enemy, or feature.  
+- **Eldritch Code** – Old, cryptic, or overly complex code that no one understands anymore.  
+- **Black Hole Task** – A development task that seems small but keeps sucking up time endlessly.  
+- **GDC Special** – A rushed prototype or vertical slice made just in time for a demo at an event like GDC (Game Developers Conference).  
+- **Banana For Scale** – A placeholder asset or reference used in level design for size comparison.  
+- **Sea of Doors** – A level design with a ton of doors, but most don’t open.  
+- **NPC Energy** – When someone acts robotic or predictable, like a bad AI character.  
+- **Rubber Duck Debugging** – Explaining a bug to an inanimate object (like a rubber duck) to help figure it out.  
+- **Monday Morning Patch** – A last-minute fix that breaks more things than it solves.  
+- **Zombie Feature** – A feature that was cut but somehow keeps coming back into development.  
+- **Meat Grinder** – A section of a game or workflow that is frustrating or punishing.  
+- **Bleeding Edge** – Super new or risky technology that hasn’t been tested much yet.  
+- **Frankenbuild** – A barely functional game build made by stitching together various unfinished features.  
+- **Murder Wall** – A whiteboard full of sticky notes, red lines, and complex design ideas that look like a detective’s crime investigation board.  
+
+---
+
+### **Programming & Technical Slang**  
+- **Spaghetti Code** – Messy, unstructured code that’s hard to debug.  
+- **Code Rot** – When old code starts causing issues because no one has maintained it.  
+- **Magic Numbers** – Random numbers in the code with no clear explanation for why they exist.  
+- **God Object** – A piece of code that controls way too many things, making it a nightmare to manage.  
+- **Null Pointer Hell** – A flood of errors caused by referencing something that doesn’t exist.  
+- **Heisenbug** – A bug that disappears when you try to debug it.  
+- **Schrödinger’s Bug** – A bug that both exists and doesn’t exist depending on who's testing it.  
+- **Rubber Band AI** – AI that adjusts difficulty based on the player's performance (common in racing games).  
+- **Code Gremlin** – A mysterious bug that no one can figure out.  
+- **Ghost in the Machine** – An unexplained issue that seems to fix itself.  
+- **Refactorpocalypse** – When a major overhaul of the codebase causes widespread chaos.  
+- **Y2K Moment** – When something in the game breaks because of an overlooked numerical or time-related limit.  
+- **Bit Rot** – When things in the game slowly stop working for seemingly no reason over time.  
+
+---
+
+### **Game Design & Art Slang**  
+- **Feel-Good Physics** – Tweaks to physics that make gameplay feel more satisfying (e.g., extra jump height, slight air control).  
+- **Hit Scan vs. Projectile** – "Hit Scan" weapons instantly register damage (like a laser), while "Projectile" weapons have travel time (like an arrow).  
+- **Juice / Game Feel** – The polish that makes actions in a game feel impactful (e.g., camera shake, sound effects).  
+- **Nerf / Buff** – Weakening or strengthening a game mechanic or character.  
+- **Clown Shoes Physics** – When movement or animations look exaggerated and goofy.  
+- **Z-Fighting** – A graphical issue where two textures flicker because they’re too close together.  
+- **Mocap Jank** – Awkward or unnatural motion capture animation.  
+- **Paper Design** – A game feature or system that sounds great on paper but doesn’t actually work well in-game.  
+- **Ketchup Mechanic** – A feature that helps losing players catch up.  
+- **Hard Lock vs. Soft Lock** – A "hard lock" completely breaks the game, while a "soft lock" traps the player in an unwinnable situation.  
+- **Playtesting Hell** – When a game is stuck in endless playtesting without meaningful fixes.  
+- **Cheese / Cheesing** – Using an unintended or overpowered strategy to beat a challenge easily.  
+- **Jank** – Unpolished, weird, or clunky game mechanics.  
+- **Smoke Test** – A quick, basic test to see if a game build is functional.  
+- **Fridge Horror** – When a game seems normal at first, but thinking about it more makes it unsettling.  
+
+---
+
+### **Marketing & Monetization Slang**  
+- **Whale** – A player who spends a ton of money on microtransactions.  
+- **Dolphin** – A mid-tier spender in free-to-play games.  
+- **Kraken** – A step above a whale; someone who spends absurd amounts of money.  
+- **F2P Bait** – A free game designed to get players to spend money on premium content.  
+- **Gacha Hell** – A term used in games with loot-box mechanics where players spend too much trying to get a rare item.  
+- **Skinner Box** – A game design that keeps players addicted through rewards and psychological tricks.  
+- **Content Drought** – A period where no new updates or expansions are released.  
+- **Live Service Fatigue** – Burnout from games that demand constant engagement.  
+- **Day-One DLC** – Downloadable content available at launch, often seen as greedy.  
+- **Battle Pass FOMO** – Fear of missing out on seasonal rewards, pushing players to grind or spend money.  
+- **Streamer Bait** – A game designed to be entertaining for streamers and viral content.  
+- **Launch Window Wars** – Studios scrambling to release their game before a competitor.  
+- **Hype Train** – Intense excitement before a game’s release.  
+
+---
+
+This should give you **a solid arsenal of game studio slang!** Let me know if you want more terms related to a specific area (like indie devs, AAA studios, or specific disciplines). 🚀
+
+[USER]
+make a list of the 20 most common slangs
+
+[ASSISTANT]
+Here’s a list of the **20 most common video game studio slang terms** that developers, designers, and industry professionals frequently use:  
+
+### **Top 20 Most Common Video Game Studio Slang Terms**  
+
+1. **Crunch** – A period of intense overtime to meet deadlines, often controversial.  
+2. **Feature Creep** – When new ideas keep getting added, making the game bloated and delaying release.  
+3. **Bug** – An error or glitch in the game’s code.  
+4. **Patch** – A post-release update that fixes bugs or adds content.  
+5. **Hitbox** – The invisible area that detects collisions with other objects.  
+6. **Juice** – The extra polish that makes actions feel satisfying (e.g., camera shake, sound effects).  
+7. **Nerf / Buff** – Weakening or strengthening a character, weapon, or mechanic for balance.  
+8. **Spaghetti Code** – Messy, unstructured programming that’s difficult to debug.  
+9. **Rubberbanding** – Sudden position shifts due to network lag, often in multiplayer games.  
+10. **LOD (Level of Detail)** – A technique where objects decrease in detail at a distance to improve performance.  
+11. **Hard Lock vs. Soft Lock** – A "hard lock" breaks the game entirely, while a "soft lock" traps the player in an unwinnable situation.  
+12. **Vertical Slice** – A small, polished section of a game used to showcase core mechanics.  
+13. **Graybox/Whitebox** – A rough, untextured version of a level used for early playtesting.  
+14. **Live Service** – A game designed for continuous updates and long-term engagement.  
+15. **DLC (Downloadable Content)** – Extra content released post-launch.  
+16. **Gacha** – A loot-box mechanic where players spend money for random rewards.  
+17. **Metagame (Meta)** – The most effective strategy or mechanics based on competitive balance.  
+18. **Easter Egg** – A hidden reference, joke, or secret in a game.  
+19. **Playtesting** – The process of testing a game to find bugs, improve balance, and refine mechanics.  
+20. **Ghost in the Machine** – An unexplained bug that appears and disappears unpredictably.  
+
+These terms are widely used across game studios, from **indie developers** to **AAA studios**, covering **design, programming, production, and marketing**. 🚀 Let me know if you need a breakdown of any specific area!
+
+[USER]
+finish the definitions descriptions of this list 
+
+Some slang terms used often 
+•	Crunch – A period of intense overtime to meet deadlines, often controversial.
+•	Feature Creep – When new ideas keep getting added, making the game bloated and delaying release.
+•	GDD – General design document that defines the design of part of the game.
+•	TDD – The technical specifications needed to create a design in code. 
+•	Ghost Bug – An error or glitch in the game’s code that goes away and comes back.
+•	Hitbox – The invisible area that detects collisions with other objects.
+•	Juice or Secret sauce – The extra polish that makes actions feel satisfying (e.g., camera shake, sound effects, specific design element) 
+•	Nerf (bat) Buff – Weakening or strengthening a character, weapon, or mechanic for balance.
+•	Fragile/Spaghetti Code – Messy, unstructured programming that’s difficult to debug.
+•	Rubberbanding – Sudden position shifts due to network lag, often in multiplayer games.
+•	LOD (Level of Detail) – A technique where objects decrease in detail at a distance to improve performance.
+•	Hard Lock vs. Soft Lock – A "hard lock" breaks the game entirely, while a "soft lock" traps the player in an unwinnable situation.
+•	Vertical Slice – A small, polished section of a game used to showcase core mechanics.
+•	Graybox/Whitebox – A rough, untextured version of a level used for early playtesting.
+•	Live Service – A game designed for continuous updates and long-term engagement.
+•	DLC (Downloadable Content) – Extra content released post-launch.
+•	Gacha – A loot-box mechanic where players spend money for random rewards.
+•	Metagame (Meta) – The most effective strategy or mechanics based on competitive balance.
+•	Playtesting – The process of testing a game to find bugs, improve balance, and refine mechanics.
+•	Ghost in the Machine – An unexplained bug that appears and disappears unpredictably.
+•	Draws and calls – how much memory the game uses to call in assets and mechanics from the codebase and place the assets on the screen at any one time. 
+•	Pri0 - References a stop and do this first task usually a game breaking bug
+•	Treadmill – The process of maintain content and events for a live service game. 
+•	On rails – game play on rails means the player is locked to a specific path rather than being able to explore anywhere they want
+•	Open world – the player is free to ignore quests and areas and can explore anywhere is the built world
+•	Netcode – derogatory term used to describe network coding that explains rubberbanding and physics issues in Multiplayer games
+•	Bullet sponge – a lazy design choice to make a creature take many shots before dying
+•	Mob – slang for mobile element – which is usually used to describe a non-player character or enemy in a game. 
+•	Tech tree – structured progression system to unlock abilities through progression in a game
+•	Core loop – the primary cycle of actions in the process of playing the game in the most fundamental way
+•	Golden Cohort
+•	RNG
+•	Min maxing
+•	Tanking
+•	Glasscannon
+•	Door boss
+•	One shot 
+•	Cheesing
+
+[ASSISTANT]
+Here’s the **completed list with definitions** for the remaining terms:
+
+---
+
+### **Common Video Game Studio Slang Terms & Definitions**
+
+- **Crunch** – A period of intense overtime to meet deadlines, often controversial.  
+- **Feature Creep** – When new ideas keep getting added, making the game bloated and delaying release.  
+- **GDD (Game Design Document)** – A document outlining the game's mechanics, systems, and vision, serving as a blueprint for development.  
+- **TDD (Technical Design Document)** – A document detailing the technical specifications needed to implement a design in code.  
+- **Ghost Bug** – An error or glitch in the game’s code that disappears and reappears unpredictably, making it difficult to fix.  
+- **Hitbox** – The invisible area that detects collisions with other objects, used for damage, interaction, and physics.  
+- **Juice or Secret Sauce** – The extra polish that makes actions feel satisfying (e.g., screen shake, dynamic effects, sound feedback).  
+- **Nerf (bat) / Buff** – Weakening ("nerfing") or strengthening ("buffing") a character, weapon, or mechanic for balance in a game.  
+- **Fragile/Spaghetti Code** – Messy, unstructured programming that is difficult to debug and prone to breaking.  
+- **Rubberbanding** – Sudden position shifts due to network lag, often in multiplayer games, where a character snaps back to a previous position.  
+- **LOD (Level of Detail)** – A graphical optimization technique where object detail is reduced at a distance to improve performance.  
+- **Hard Lock vs. Soft Lock** – A "hard lock" crashes the game or prevents further progress, while a "soft lock" traps the player in an unwinnable situation without crashing.  
+- **Vertical Slice** – A small, polished section of a game showcasing all core mechanics, often used for pitching or internal review.  
+- **Graybox/Whitebox** – A rough, untextured version of a level used in early development for playtesting layouts and mechanics.  
+- **Live Service** – A game designed for ongoing updates, events, and monetization beyond its initial release.  
+- **DLC (Downloadable Content)** – Extra content released post-launch, such as expansions, characters, or missions.  
+- **Gacha** – A loot-box-style system where players spend money or in-game currency for random rewards, often in mobile or free-to-play games.  
+- **Metagame (Meta)** – The most effective strategy or set of mechanics currently dominating competitive play, often shaped by balance updates.  
+- **Playtesting** – The process of testing a game to find bugs, improve balance, and refine mechanics through iterative feedback.  
+- **Ghost in the Machine** – A mysterious bug that appears and disappears unpredictably, making it difficult to track down.  
+- **Draws and Calls** – The amount of memory the game uses to load assets and execute mechanics on screen at any given moment.  
+- **Pri0 (Priority Zero)** – A game-breaking bug or task that must be fixed immediately before anything else.  
+- **Treadmill** – The ongoing process of maintaining and creating new content/events for a live-service game.  
+- **On Rails** – A game or section where the player follows a predetermined path with little to no freedom of movement.  
+- **Open World** – A game environment where players can explore freely without being restricted to a linear path or specific objectives.  
+- **Netcode** – A derogatory term referring to poor network programming that causes lag, rubberbanding, and synchronization issues in multiplayer games.  
+- **Bullet Sponge** – A poorly designed enemy that takes an excessive number of hits to kill without offering an engaging challenge.  
+- **Mob** – Short for "mobile entity," referring to a non-player character (NPC) or enemy in a game.  
+- **Tech Tree** – A structured progression system that allows players to unlock abilities, upgrades, or research new technologies.  
+- **Core Loop** – The fundamental cycle of gameplay actions that players repeat (e.g., combat, collecting resources, upgrading gear).  
+- **Golden Cohort** – A specific group of players considered ideal for playtesting or market analysis due to their engagement and spending habits.  
+- **RNG (Random Number Generator)** – A system that introduces randomness into games, affecting things like loot drops, critical hits, and procedural generation.  
+- **Min-Maxing** – Optimizing a character or playstyle by maximizing beneficial stats and minimizing weaknesses, often at the expense of balance or roleplay.  
+- **Tanking** – A strategy where a character absorbs damage and protects teammates, common in RPGs and multiplayer games.  
+- **Glass Cannon** – A character or build that deals high damage but has very low defense, making them fragile.  
+- **Door Boss** – A frustrating obstacle (often an actual door or locked area) that prevents progress more than the real enemies do.  
+- **One-Shot** – Killing an enemy or player in a single attack, often seen as overpowered or requiring a high level of optimization.  
+- **Cheesing** – Exploiting a game mechanic, AI behavior, or level design to gain an unfair advantage with minimal effort.  
+
+---
+
+This list should cover the **most commonly used game development slang** across studios. Let me know if you'd like further refinement or additional terms! 🚀
+
+[USER]
+add save scumming
+
+[ASSISTANT]
+### **Save Scumming** – The act of repeatedly saving and reloading a game to manipulate outcomes, such as getting a favorable result in RNG-based mechanics (e.g., critical hits, loot drops, dialogue choices). Often used in strategy games, RPGs, and roguelikes to avoid negative consequences or optimize success.
+

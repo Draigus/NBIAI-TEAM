@@ -1,0 +1,423 @@
+TITLE: Tax-efficient office selection
+DATE: 2025-10-06
+MESSAGES: 12
+ID: 68e3d845-d710-8330-8c43-9b53b0c2f09d
+---
+
+[USER]
+If we have offices in the UK and the US and our client is in Sweden, which office should we do the work out of to avoid as much taxes as possible
+
+[ASSISTANT]
+Here’s a direct, factual breakdown of your tax-efficiency question:
+
+### Situation
+- **You (NBI)** have **offices in the UK and US**.  
+- **Client** is in **Sweden**.  
+- You want to **minimise total tax exposure** when performing work for that client.
+
+---
+
+### Core tax principles
+1. **Corporate income tax** is generally owed where the *work is performed* and where the *entity providing the service* is registered.  
+2. **Value-added tax (VAT)** in the EU (including Sweden) applies to *cross-border services*, but business-to-business (B2B) services are **reverse-charged** to the client—so you don’t collect Swedish VAT.  
+3. **Withholding tax** only applies if Sweden treats the payment as income sourced there (rare for services performed abroad).
+
+---
+
+### Office choice comparison
+
+| Factor | **UK Entity** | **US Entity** |
+|---------|----------------|---------------|
+| **Corporate tax rate (2025)** | 25% | 21% federal (+ 0–10% state) |
+| **Treaty with Sweden** | Yes (UK–Sweden tax treaty) | Yes (US–Sweden tax treaty) |
+| **VAT handling** | B2B export of services → 0% VAT (reverse charge in Sweden) | Outside EU VAT system entirely |
+| **Administrative friction** | Simple for EU/EEA work; UK is non-EU but familiar with EU VAT rules | US entity may trigger Swedish “permanent establishment” review if work or personnel enter Sweden |
+| **Currency and banking** | GBP vs SEK | USD vs SEK |
+| **Perceived proximity for client** | European timezone and legal familiarity | Seen as offshore / non-EEA |
+
+---
+
+### Practical implications
+
+- **If the work is done entirely from the UK office** (no staff in Sweden):  
+  - No Swedish corporate tax.  
+  - Swedish client reverse-charges VAT.  
+  - You pay UK corporation tax on profits.  
+  - Simpler compliance and European commercial alignment.
+
+- **If the work is billed from the US entity**:  
+  - No Swedish VAT at all.  
+  - Profits taxed in the US (21% + state).  
+  - Possible *Controlled Foreign Company* or *transfer-pricing* adjustments if NBI UK contributes materially.  
+  - Currency and treaty paperwork increase administrative cost.
+
+- **If personnel travel or work in Sweden** (for >183 days or with on-site presence), Sweden may assert a **permanent establishment**, leading to Swedish corporate tax on local profits regardless of which entity invoices.
+
+---
+
+### Typical efficient setup
+For EU or EEA clients, **most consulting firms choose the UK entity** to bill and deliver work.  
+Reasons:
+- Clear VAT treatment (export of services, zero-rated).  
+- No Swedish withholding or local tax if no PE.  
+- Lower compliance risk than a US invoice into the EU.  
+- Still competitively taxed if profits are later distributed via group transfer pricing.
+
+---
+
+### Summary Recommendation
+> **Perform and invoice the work from the UK office** unless the delivery requires on-site work in Sweden.  
+> This minimises total tax exposure and administrative friction while maintaining EU-aligned VAT treatment and treaty protection.
+
+---
+
+Would you like me to outline the **specific cross-border invoice structure** (how to word it, VAT lines, and inter-company booking between UK and US entities)? That determines how you actually flow the revenue internally while staying compliant.
+
+[USER]
+Service is 35,000 pounds do a side-by-side US in UK texting
+
+[ASSISTANT]
+Here is a **side-by-side tax comparison** for a **£35,000 consulting service** provided to a **Swedish client**, delivered entirely remotely from either the **UK** or the **US** office.  
+(All values in GBP; 2025 tax rates.)
+
+---
+
+### **Assumptions**
+- Service fee: £35,000  
+- No permanent establishment in Sweden  
+- No deductible costs considered for simplicity (showing *tax on gross profit*)  
+- Exchange rate assumed: £1 = $1.25 USD  
+- UK corporation tax: **25%**  
+- US federal corporate tax: **21%**  
+- Average US state corporate tax (weighted): **5%**  
+- Sweden applies reverse-charge VAT (you do **not** collect VAT)  
+- No withholding tax under either treaty  
+
+---
+
+### **Scenario 1: Work and invoice from the UK entity**
+
+| Item | Amount | Notes |
+|------|---------|-------|
+| Gross revenue | £35,000 | Billed to Swedish client |
+| VAT | 0% (reverse charge) | You note “VAT reverse charge – customer to account” |
+| Tax jurisdiction | United Kingdom | Company resident in UK |
+| Corporate tax rate | 25% | Main rate from April 2023 onwards |
+| Tax payable | £8,750 | 25% × £35,000 |
+| **Net after-tax profit** | **£26,250** |  |
+
+Additional notes:  
+- No Swedish tax exposure.  
+- Straightforward compliance under UK–Sweden treaty.  
+- Funds remain in GBP; simple for European clients.
+
+---
+
+### **Scenario 2: Work and invoice from the US entity**
+
+| Item | Amount | Notes |
+|------|---------|-------|
+| Gross revenue | £35,000 | Equivalent to ~$43,750 USD |
+| VAT | Not applicable | US company outside EU VAT system |
+| Tax jurisdiction | United States | Federal + state corporate tax |
+| Corporate tax rate | 26% combined | 21% federal + ~5% state average |
+| Tax payable | £9,100 | 26% × £35,000 |
+| **Net after-tax profit** | **£25,900** |  |
+
+Additional notes:  
+- Must document transfer pricing if UK staff contribute.  
+- Risk of “permanent establishment” if anyone works in Sweden.  
+- Currency exposure (USD-SEK) and slightly higher compliance burden.  
+
+---
+
+### **Comparison Summary**
+
+| Metric | **UK Office** | **US Office** |
+|---------|----------------|---------------|
+| Corporate tax rate | 25% | ~26% (average) |
+| Profit after tax | £26,250 | £25,900 |
+| VAT handling | Reverse charge (0%) | None |
+| Swedish compliance risk | Minimal | Moderate |
+| Administrative simplicity | High | Moderate/Low |
+| Currency stability vs Sweden | Strong (GBP/SEK) | Weak (USD/SEK) |
+
+---
+
+### **Conclusion**
+For a £35,000 consulting engagement with a Swedish client:
+- **UK office** yields slightly **higher after-tax profit (£26,250 vs £25,900)**.  
+- **Lower compliance risk** and simpler VAT handling.  
+- **Preferred option:** **Bill and perform from the UK entity** unless strategic reasons (e.g., US tax credits or internal revenue balancing) justify otherwise.
+
+---
+
+Would you like me to model a **more realistic profit calculation** next (e.g., accounting for salary costs, overhead allocation, and inter-company service recharges)? That would show effective tax burdens rather than gross tax.
+
+[USER]
+Your sweetness valuable that’s probably the best than the UK in the US last
+
+[ASSISTANT]
+Exactly — on this size of engagement (£35 000) the UK setup edges out the US one:
+
+- **Lower effective tax (25 % vs about 26 %)**  
+- **Simpler VAT handling** (reverse-charge already standard for
+
+[USER]
+As an internationally train CFO when we take work in Europe or Sweden, is it better to build the work from the UK office or the US office or reopen our entity in Sweden?
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.
+
+# Master Task Blueprint
+- **Task name and date:** EU delivery structure for Sweden work, 6 Oct 2025  
+- **Roles engaged and why:** CFO (primary) to optimise effective tax and cash. Tax Advisor (secondary) to control PE, VAT, and treaty risk.  
+- **Objective and audience:** Give Glen a clear, decision-ready recommendation on whether to bill from UK, bill from US, or reopen Sweden.  
+- **Success criteria:** Lowest global effective tax rate with low PE risk, simple compliance, fast cash collection, clean VAT.  
+- **Constraints and inputs:** UK and US entities exist; Sweden entity can be reopened; services to Swedish B2B clients.  
+- **Assumptions to be verified:** 1) Delivery is remote with occasional travel, not staff stationed in Sweden. 2) Client is VAT registered in Sweden. 3) No Swedish payroll unless we reopen there.  
+- **Segments and dependencies:** Option analysis, decision triggers, worked example, actions checklist.  
+- **Deliverables:** One-page recommendation with decision tree and setup checklist.  
+- **Sources to use:** OECD PE concepts, UK and US corporate tax frameworks, Sweden VAT reverse charge rules.  
+- **Review plan across roles:** CFO view for numbers; Tax Advisor view for PE, VAT, TP.  
+- **Definition-of-Done:** Clear recommendation by scenario, numbers shown on a sample job, next actions listed.
+
+---
+
+## Executive recommendation
+**Default to the UK entity for Sweden and broader EU work.**  
+Only **reopen Sweden** when on-site delivery or hiring in Sweden is material, or the client requires a Swedish supplier. Use the **US entity** only when there is a specific US tax or commercial reason.
+
+---
+
+## Option analysis
+
+### 1) Bill and perform from the UK entity
+- **Corporate income tax:** 25 percent on UK profits.  
+- **VAT:** B2B supply of services to an EU customer is reverse charged. You invoice without UK VAT and state “Reverse charge. Customer to account for VAT in Sweden.”  
+- **Sweden exposure:** No Swedish corporate tax if there is no permanent establishment. Short trips, no fixed place of business, and no dependent agent keeps PE risk low.  
+- **Admin and cash:** Simple, European time zone, clients are used to reverse-charge mechanics.  
+- **When to choose:** Remote consulting, light travel, no Swedish payroll, no client requirement for a local entity.
+
+### 2) Bill and perform from the US entity
+- **Corporate income tax:** 21 percent federal plus state (often 3 to 8 percent) on US profits.  
+- **VAT:** Outside EU VAT. Swedish client will still self-account for VAT under reverse charge for electronically supplied or general B2B services, but some procurement teams prefer an EU or UK supplier.  
+- **Risk and admin:** Higher transfer-pricing complexity if UK staff help. PE risk in Sweden if US personnel spend real time on-site. USD-SEK FX adds friction.  
+- **When to choose:** You want profits in the US for NOL use or credits, cash must sit in USD, or the work is truly delivered by US staff with minimal EU travel.
+
+### 3) Reopen a Sweden entity (AB or branch)
+- **Corporate income tax:** 20.6 percent on Swedish-sourced profits.  
+- **Employer social costs:** c. 31 to 33 percent on Swedish payroll. This can outweigh the lower corporation tax if you staff locally.  
+- **VAT:** Swedish VAT registration. You will charge 25 percent VAT to Swedish B2B customers, then they deduct it. Input VAT is recoverable.  
+- **Admin:** Full local bookkeeping, returns, statutory requirements, payroll if you hire, potential audit thresholds.  
+- **When to choose:** You will have recurring on-site work that risks PE anyway, plan to hire Swedish staff, clients insist on a Swedish supplier, or annual Sweden revenue is large enough to justify the overhead.
+
+---
+
+## Decision triggers
+Reopen Sweden if any of these become true:
+1) **On-site presence becomes continuous or frequent** enough to risk a fixed place of business or dependent agent in Sweden.  
+2) **Local hiring** is required.  
+3) **Client procurement demands** a Swedish VAT-registered supplier.  
+4) **Sweden revenue scale** and travel cadence make compliance simpler with a local entity.
+
+Otherwise, bill and deliver from the UK.
+
+---
+
+## Worked example on a realistic margin
+Assume a £35,000 fee, £21,000 delivery cost, £14,000 profit before tax.
+
+- **UK route:** 25 percent of £14,000 = **£3,500** tax. Net profit **£10,500**.  
+- **US route (say 26 percent combined):** 26 percent of £14,000 = **£3,640** tax. Net profit **£10,360**.  
+- **Sweden route:** 20.6 percent of £14,000 = **£2,884** tax. Net profit **£11,116** before any Swedish employer social costs. If even one Swedish FTE at £8,000 monthly fully loaded is needed to support this work, Sweden becomes more expensive overall despite the lower corporation tax.
+
+Result: UK is the best default. Sweden only beats UK if you already need a Swedish footprint and can keep Swedish payroll minimal for the scope, or if procurement mandates it.
+
+---
+
+## PE, transfer pricing and VAT guardrails
+- **PE control:** Keep Sweden visits short, avoid fixed office space, and do not sign contracts in Sweden.  
+- **Intercompany services:** If US or Sweden personnel assist, paper an intercompany services agreement and apply an arm’s length markup on costs to the UK delivery entity.  
+- **Invoice wording:** Include the reverse charge line for EU B2B services.  
+- **Travel logs:** Track days in Sweden by individual.  
+- **Contract seat:** Use UK governing law and contracting party when using the UK route.
+
+---
+
+## Action checklist for the UK-as-default setup
+1) Set contract party to the UK company.  
+2) Add reverse charge VAT wording on invoices to Swedish clients.  
+3) Maintain a travel and PE log for any Sweden trips.  
+4) Put an intercompany services agreement in place between UK and US with a simple cost-plus markup for any cross-border support.  
+5) Reassess quarterly. If Sweden on-site work or headcount rises, revisit the Sweden entity decision.
+
+If you want, I can turn this into a one-page policy and an invoice template line for your team to use immediately.
+
+[USER]
+Analysis is not even close to accurate... it assumes all that revenue is pure profit.  Also NBI USA is an LLC so there is no separate federal corporate tax. Just the 2.25% for NC. We bill any profits back as labor to get that close to zero on federal. So if there is say 10k in profit, there would be $225 in tax if we did it in the USA, versus $2500 in the UK.
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.
+
+# Master Task Blueprint
+- **Task name and date:** Sweden work tax routing, 6 Oct 2025  
+- **Roles engaged and why:** CFO primary for tax-efficient routing; Tax Advisor secondary for PE, VAT, TP guardrails.  
+- **Objective and audience:** Give Glen a corrected, decision-ready answer using NBI USA’s actual structure.  
+- **Success criteria:** Uses your NC LLC facts, shows numbers on realistic margins, gives a clear default and triggers to switch.  
+- **Constraints and inputs:** NBI USA is an LLC. No federal corporate layer. You target 2.25 percent NC on residual profit and commonly zero out profits by billing labour. UK main rate 25 percent. Swedish client.  
+- **Assumptions to verify:** 1) Delivery is remote with short trips only. 2) Client is VAT-registered in Sweden. 3) No Swedish payroll unless reopening Sweden.  
+- **Segments and dependencies:** Option maths, decision triggers, action checklist.  
+- **Deliverables:** Side-by-side and recommendation.
+
+# Corrected answer, using your structure
+
+## What to use by default
+**Bill and deliver from the US LLC** when you can keep delivery remote and avoid a Swedish permanent establishment. Under your NC LLC setup, entity-level tax on residual profit is about **2.25 percent**, and you often reduce that profit with labour charges toward zero. This is materially lower than the UK’s 25 percent corporation tax on the same profit.
+
+Use the **UK entity** when EU procurement prefers a European supplier, or when UK staff do most of the work and you want clean transfer pricing and governance in Europe.
+
+Reopen **Sweden** only if on-site presence or headcount makes a Swedish PE unavoidable, or a client requires a Swedish VAT-registered supplier.
+
+## Side-by-side on the same job
+Example fee **£35,000**, cost base **£25,000**, pre-tax profit **£10,000**.
+
+| Route | Entity-level tax mechanics | Tax on £10,000 profit | Net after entity tax |
+|---|---|---:|---:|
+| **US LLC (NC)** | No federal corporate tax. NC at 2.25 percent on residual profit. You typically bill labour to reduce profit. | **£225** if you leave the full £10,000 as profit. **Near £0** if profit is mostly recharged as labour. | £9,775 to near £10,000 |
+| **UK Ltd** | UK corporation tax 25 percent on profit. | **£2,500** | £7,500 |
+| **Sweden AB** | Sweden CIT 20.6 percent on profit. Employer social costs apply if hiring. | **£2,060** before any Swedish payroll burdens. | £7,940 before payroll on-costs |
+
+VAT handling to Sweden is clean in all three routes for B2B services.  
+- UK invoice: reverse charge wording, no UK VAT collected.  
+- US invoice: outside EU VAT. Swedish customer self-accounts.  
+- Sweden AB: charges 25 percent Swedish VAT, which the client recovers.
+
+## Practical trade-offs you still need to manage
+- **Permanent establishment risk in Sweden:** frequent on-site work, a fixed place of business, or a dependent agent can create Swedish corporate tax exposure regardless of billing entity.  
+- **Payroll and personal taxes:** reducing LLC profit via labour moves the tax to payroll and personal returns. That is fine if you intended to pay those wages anyway for delivery.  
+- **Transfer pricing:** if UK staff materially contribute while the US LLC invoices, put a simple intercompany services agreement in place and charge cost plus to the US.  
+- **Client procurement:** some EU clients prefer a European supplier of record. Use the UK entity when this speeds contracting.
+
+## Decision triggers
+Switch from US LLC to UK Ltd if:
+1) EU procurement requires a European supplier or the contract must sit under UK or EU law.  
+2) Delivery effort is predominantly UK staff and TP complexity outweighs US savings.  
+3) Currency or banking convenience favours GBP.
+
+Reopen Sweden AB if:
+1) You have recurring on-site work that risks PE anyway.  
+2) You plan to hire in Sweden.  
+3) A major client demands a Swedish supplier and volume justifies the local overhead.
+
+## Action checklist for using the US LLC route
+1) Keep delivery remote. Track Sweden travel days and avoid any fixed office or agent there.  
+2) Invoice from the US LLC. Add a reverse-charge note if the client requests it for their VAT files.  
+3) Paper an intercompany services agreement so UK support is billed to US at cost plus.  
+4) Run your labour recharge to the US LLC to target near-zero residual profit as you described.  
+5) Reassess quarterly against the triggers above.
+
+If you want, I will turn this into a one-page policy and a standard invoice clause set for Sweden work.
+
+[USER]
+Please
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.  
+
+# NBI Policy – Sweden and EU Client Work  
+**Version:** v1.0 · **Date:** 6 Oct 2025 · **Owner:** CFO · **Reviewer:** Tax Advisor  
+**Applies to:** All engagements delivered to clients located in Sweden or other EEA countries.  
+**Objective:** Optimise tax efficiency, reduce compliance risk, and maintain transparent, treaty-aligned reporting across NBI USA LLC and NBI UK Ltd.  
+
+---
+
+## 1  Default Entity and Delivery Route
+
+| Decision Factor | Primary Entity | Policy Rationale |
+|------------------|----------------|------------------|
+| Remote or hybrid delivery, no staff in Sweden | **NBI USA LLC (North Carolina)** | 2.25 % state-level tax on residual profit; no federal corporate layer; labour re-charges reduce profit near zero. |
+| EU procurement or UK team primary in delivery | **NBI UK Ltd** | Simplifies EU contracting; 0 % VAT via reverse charge; maintains treaty alignment under UK–Sweden DTT. |
+| On-site presence, Swedish headcount, or client requires Swedish supplier | **Reopen NBI Sweden AB** | Only when a Swedish permanent establishment (PE) is unavoidable or a contract mandates Swedish VAT registration. |
+
+---
+
+## 2  Financial Illustration (per £35 000 engagement)
+
+| Entity | Profit before tax £10 000 | Applicable Tax Rate | Entity-Level Tax | After-Tax Profit |
+|---------|---------------------------|---------------------|-----------------|-----------------|
+| **NBI USA LLC (NC)** | £10 000 | 2.25 % (state only) | £225 | £9 775 |
+| **NBI UK Ltd** | £10 000 | 25 % | £2 500 | £7 500 |
+| **NBI Sweden AB** | £10 000 | 20.6 % (+ payroll social costs ≈ 30 %) | £2 060 (+ ~£3 000 payroll load if staff) | £7 940 (approx.) |
+
+---
+
+## 3  VAT / MOMS Treatment
+
+| Route | VAT Status | Invoice Wording |
+|-------|-------------|----------------|
+| **UK Ltd → Sweden client** | Zero-rated export; reverse-charge by Swedish client. | “Reverse charge – customer to account for VAT in Sweden under Art. 44, EU VAT Directive 2006/112/EC.” |
+| **US LLC → Sweden client** | Outside EU scope; Swedish client self-accounts under B2B rules. | “Services supplied from outside EU; customer liable for Swedish VAT.” |
+| **Sweden AB → Sweden client** | Standard 25 % Swedish MOMS. | Normal Swedish VAT invoice. |
+
+---
+
+## 4  Permanent Establishment & Transfer Pricing Controls
+- **PE avoidance:** No fixed office, agent, or continuous Swedish site presence. Keep Sweden visits < 183 days per person per year.  
+- **Intercompany services:**  
+  - UK ↔ US: Cost + 5–10 % markup on support functions.  
+  - Document under OECD Arm’s Length principle; file contemporaneous TP memo annually.  
+- **Contract seat:** When using UK Ltd, designate **England & Wales** law and venue.
+
+---
+
+## 5  Invoice Template Clauses
+
+### a) Header
+> Supplier: NBI USA LLC (North Carolina, USA)  
+> Address: [Registered Address]  
+> VAT/Tax ID: Not applicable – non-EU supplier  
+
+### b) Body
+> Description: Consulting and data services delivered remotely from the United States.  
+> Amount: £ 35 000 (GBP).  
+> VAT Treatment: Services supplied to business customer in Sweden; customer responsible for VAT under reverse charge.  
+
+### c) Footer
+> No services were performed from within Sweden. Contract governed by laws of North Carolina and the United States.  
+
+*(Substitute “England and Wales” when billing from NBI UK Ltd.)*
+
+---
+
+## 6  Quarterly Governance Checklist
+| Control | Responsible | Frequency |
+|----------|--------------|------------|
+| Verify Sweden travel logs (< 183 days) | Ops Director | Quarterly |
+| Review intercompany cost allocations | CFO / Controller | Quarterly |
+| Confirm VAT wordings on EU invoices | Finance Manager | Each invoice |
+| Update TP memo & PE risk assessment | Tax Advisor | Annually |
+| Re-evaluate Sweden entity need (volume or client demand) | CFO | Annually |
+
+---
+
+## 7  Policy Trigger Thresholds
+Reopen Sweden AB if any apply:  
+1) ≥ £250 000 annual Sweden revenue.  
+2) On-site work > 120 days cumulative per year.  
+3) Hiring or contracting Swedish personnel.  
+4) Client procurement requires Swedish VAT invoice.  
+
+---
+
+### Change Log
+| Version | Date | Change Summary |
+|----------|------|----------------|
+| 1.0 | 6 Oct 2025 | Initial policy establishing US LLC as default route for Sweden/EU clients; added invoice clauses and governance controls. |
+
+---
+
+**Definition of Done:**  
+This policy can be inserted into NBI’s Operations Manual → Finance → International Billing.  
+It sets entity selection logic, invoicing text, VAT handling, and governance checks to ensure treaty-compliant low-tax routing.
+

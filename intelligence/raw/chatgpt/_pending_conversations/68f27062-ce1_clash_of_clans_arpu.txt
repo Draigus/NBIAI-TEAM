@@ -1,0 +1,99 @@
+TITLE: Clash of Clans ARPU
+DATE: 2025-10-17
+MESSAGES: 4
+ID: 68f27062-ce1c-8333-8659-72aef63e2521
+---
+
+[USER]
+What is clash of clans ARPU and last of wars 
+
+[ASSISTANT]
+It depends on which time period, region, and how “users” is defined (e.g. DAU, MAU, or total paying users). But here’s what I found:
+
+---
+
+## Clash of Clans ARPU (or related metrics)
+
+I did **not** find a reliable, recent, public figure for a global ARPU (average revenue per user) for Clash of Clans.
+
+Some related data:
+
+- In 2023, Clash of Clans made about **US$378 million** in revenue. citeturn0search0  
+- In 2024, it made ≈ US$355 million. citeturn0search0  
+- It has tens of millions of active players. citeturn0search2turn1search0  
+
+If one assumed, for example, ~ 50 million MAU, then ARPU = revenue ÷ MAU would give something like:
+
+\[
+\text{ARPU} ≈ \frac{355\,\text{million USD}}{50\,\text{million users}} = 7.1\text{ USD/year (≈ }0.59\text{ USD/month)}
+\]
+
+But *this is just a crude estimate*, not a confirmed figure.
+
+---
+
+## “Last War: Survival” ARPU / revenue data
+
+“Last War: Survival” (often just “Last War”) is a mobile strategy / survival hybrid that has seen very strong monetization and growth. citeturn0search31turn1search13turn1search15turn1search18  
+
+Key figures:
+
+- By February 2025, Last War had passed **US$2 billion** lifetime player spending (i.e. cumulative revenue) across mobile platforms. citeturn1search13turn1search18  
+- In December 2024 alone, the monthly player spending was ~ **US$138 million**. citeturn0search31turn1search15turn1search18  
+- It grew from ~$30 million in January 2024 to ~$138 million in December 2024. citeturn0search31turn1search15turn1search18  
+
+I did *not* find a confidently published ARPU (per-user average) for Last War. However, one can approximate:
+
+If in a given month the game made US$138 million, and assume it had, say, 30 million monthly active users, then:
+
+\[
+\text{ARPU (monthly)} ≈ \frac{138\,\text{million}}{30\,\text{million}} = 4.6\text{ USD/user/month}
+\]
+
+But this is speculative—actual user counts are less clearly disclosed.
+
+---
+
+If you want, I can try to estimate ARPU for specific markets (USA, Korea, etc.) for both games, or dig internal reports for more precise values. Do you want me to do that?
+
+[USER]
+comapre year 0 of clash of clands to year zero of last war in:
+ARPU
+ARPPU
+LTV
+
+[ASSISTANT]
+Here is a clean, apples-to-apples “Year 0” comparison using the first 12 months after initial release for each title:
+- Clash of Clans: 2 Aug 2012 to 1 Aug 2013 (iOS only during most of this window). citeturn0search0
+- Last War: Survival: Aug 2023 to Jul 2024. citeturn2search10
+
+Important context: neither Supercell nor FUNFLY publish Year 0 ARPU, ARPPU, or LTV. The figures below are analyst estimates grounded in reported revenues, scale, and typical 4X strategy monetisation patterns. I have called out the evidence and logic so you can adjust assumptions if you prefer.
+
+### Estimated Year 0 comparison (USD, global)
+- **ARPU (12-month)**  
+  • Clash of Clans: ~5 to 15 per user  
+  • Last War: ~20 to 60 per user  
+  Rationale: CoC’s Year 0 was iOS-only for most of the period and occurred in 2012–2013 when mobile IAP depth and payer penetration were lower. Last War’s first year coincided with far higher spend levels and very strong KR/JP mix. citeturn1search3turn0search5turn2search10turn2search9
+
+- **ARPPU (12-month, paying users only)**  
+  • Clash of Clans: ~150 to 350 per payer  
+  • Last War: ~250 to 700 per payer  
+  Rationale: 4X strategy titles commonly see early-life payer rates around 3 to 8 percent with high depth per payer. Last War’s KR RPD signals much higher monetisation headroom. citeturn2search6turn2search9
+
+- **LTV (cumulative revenue per user after 12 months)**  
+  • Clash of Clans: ~5 to 15  
+  • Last War: ~20 to 60  
+  Note: for Year 0, LTV equals ARPU by definition when measured over the same 12-month window.
+
+### Why these ranges
+- **Scale signals for Clash Year 0:** Supercell reported company revenue of about 101 million in 2012 and 892 million in 2013 across Hay Day and Clash, reaching about 1 to 2.5 million per day by early to mid-2013. CoC’s Year 0 sits inside that ramp, but Android only arrived Oct 2013, just after the Year 0 window. This supports lower ARPU than modern 4X benchmarks. citeturn1search3turn0search5turn0search0
+- **Scale signals for Last War Year 0:** Launched Aug 2023, ramped from about 30 million in Jan 2024 to about 138 million in Dec 2024 monthly mobile revenue, surpassing 900 million by Sep 2024 and 2 billion lifetime by Feb 2025. KR RPD around 53 indicates exceptional depth that lifts global ARPU and ARPPU. citeturn2search10turn2search9turn2search6
+
+### If you want point estimates instead of ranges
+Give me your preferred Year 0 average MAU and payer rate for each title, and I will compute ARPU, ARPPU, and LTV exactly using:
+- ARPU = Year 0 revenue ÷ average MAU
+- ARPPU = Year 0 revenue ÷ number of payers (MAU × payer rate)
+- LTV_12m = ARPU over first 12 months
+
+If you want me to lock the ranges tighter, I can also anchor to a specific MAU band you believe for each game’s Year 0 and show the sensitivity table.
+

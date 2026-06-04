@@ -1,0 +1,50 @@
+TITLE: Turn off Copilot O365
+DATE: 2025-10-14
+MESSAGES: 2
+ID: 68eda250-bb0c-8327-8711-da50eac30470
+---
+
+[USER]
+ok how do i turn off copilot in ms o365 there is no option in the options tab
+
+[ASSISTANT]
+Who am I speaking with today, Heather or Glen?
+
+Here’s how to turn off Copilot in Microsoft 365. The reason you don’t see an option in the Options tab is usually one of two things: your app version is older than the build that added the toggle, or you’re on a work or school account where the toggle is controlled by admin policy.
+
+## 1) Personal Microsoft account on desktop apps
+First make sure your app version includes the Copilot toggle. Microsoft added it per-app on these versions and later:
+- Windows: Word 2412, Excel 2501, PowerPoint 2501, OneNote 2502.  
+- Mac: Word 16.93, Excel 16.93.2, PowerPoint 16.93.2. citeturn1view0
+
+Then, per app:
+- Word/Excel/PowerPoint/OneNote on Windows: File → Options → Copilot → clear “Enable Copilot” → OK → restart the app. citeturn1view0  
+- On Mac: App menu → Preferences → Authoring and Proofing Tools → Copilot → clear “Enable Copilot” → restart. citeturn1view0  
+- Outlook uses a different switch: Settings (or Quick Settings) → Copilot → turn off “Turn on Copilot.” Works on new Outlook for Windows, Mac, web, iOS, and Android. citeturn1view0
+
+Notes:
+- You cannot turn off Copilot in the web or mobile versions of Word, Excel, or PowerPoint. citeturn1view0  
+- If you still don’t see the toggle, update Microsoft 365 to the latest version. citeturn1view0
+
+## 2) Work or school account (no toggle visible)
+If your 365 sign-in is corporate or school, Copilot is controlled by tenant settings. You need an admin to do one of the following:
+
+- Block the Copilot app and agents tenant-wide  
+  Admin Center → Copilot → Settings → Agents, then Block or Remove for everyone or selected groups. This prevents Copilot Chat and agents across Microsoft 365. citeturn2search0turn2search1
+
+- Block via Integrated Apps  
+  Admin Center → Settings → Integrated apps → find “Microsoft 365 Copilot” → Block. This removes the app surface for users. citeturn2search5
+
+- Unassign Copilot licences or service plans  
+  Admin Center → Billing → Licences → select users → unassign the Copilot licence or disable the Copilot service plan. citeturn0search7
+
+## 3) If you need a hard stop today and the toggle isn’t there
+Turn off “connected experiences that analyse your content.” This disables Copilot and some other AI features:
+- File → Account → Account Privacy → Manage Settings → clear “Turn on experiences that analyse your content” → OK → restart. citeturn1view0
+
+## 4) Just hide the button
+If you only want the UI gone, you can remove the Copilot icon from the ribbon without disabling features:
+- Right-click ribbon → Customise the Ribbon → untick Copilot. citeturn1view0
+
+Quick check to tailor this: are you on a personal Microsoft 365 subscription or a work or school account, and which app are you trying to turn it off in?
+

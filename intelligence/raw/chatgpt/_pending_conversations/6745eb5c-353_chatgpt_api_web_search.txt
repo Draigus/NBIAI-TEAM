@@ -1,0 +1,12 @@
+TITLE: ChatGPT API Web Search
+DATE: 2024-11-26
+MESSAGES: 2
+ID: 6745eb5c-3530-800b-ba96-f00388b36c5a
+---
+
+[USER]
+is chatgpt api web enabled
+
+[ASSISTANT]
+The ChatGPT API does not have built-in web browsing capabilities. To enable web search functionality, developers can implement custom solutions by integrating external search APIs, such as the Bing Search API, and configuring ChatGPT to utilize these services. citeturn0search0 
+

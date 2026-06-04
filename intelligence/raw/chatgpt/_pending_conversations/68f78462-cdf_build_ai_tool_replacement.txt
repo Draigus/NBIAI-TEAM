@@ -1,0 +1,492 @@
+TITLE: Build ai tool replacement
+DATE: 2025-10-21
+MESSAGES: 4
+ID: 68f78462-cdf0-832a-9d1f-a9733f672c15
+---
+
+[USER]
+I want to ai code and build a replacement for this tool set for personal use 
+https://www.myarchivist.ai/
+
+[ASSISTANT]
+Before we dive in, who am I speaking with today, Heather or Glen?
+
+I did a quick recon on MyArchivist so we’re targeting the right scope. Their public pages show core features: Discord integration for play-by-post and live sessions, audio transcription, automated session recaps with tone controls, entity tracking for NPCs/locations/factions, a campaign chatbot over your approved lore, and a review/merge UI. They also emphasise data privacy and a lightweight pricing model with add-ons. citeturn0search1turn0search6turn0search10turn0search2turn0search15
+
+If the goal is a personal, self-hosted replacement, I’ll start with outcome-changing questions so the architecture and code match exactly.
+
+Clarification bundle
+1) Hosting and stack
+• Self-hosted on your Windows desktop, a home server, or a cloud VM. Which one?  
+• Preferred stack. Python + FastAPI with Postgres/pgvector, or Node + TypeScript with Postgres/pgvector. Any strong preference?
+
+2) Models and vendors
+• Local models only, or are OpenAI/Anthropic/Google acceptable for LLM and embeddings. If local, what GPU/VRAM do you have available for Whisper and a 7B–13B model.  
+• Acceptable ASR approach. Faster-Whisper large-v3 with optional diarisation via pyannote, or something lighter.
+
+3) Discord and audio
+• Do you want a Discord bot that creates sessions from a `/start` command and ingests either message ranges or voice channel recordings.  
+• Will you upload audio files after the session, or do you want live recording from a dedicated laptop/mic.
+
+4) Foundry VTT
+• Do you want a Foundry module to push approved entities and session recaps into a compendium and to pull journals back into the knowledge base.
+
+5) Data model and features
+• Which entities do you need at minimum: Characters, Locations, Items, Factions, Quests, Sessions, Moments. Any others.  
+• Relationship graph requirements. Simple typed edges in Postgres, or a visual graph with relationship editing.  
+• Recap styles. Fixed templates you can tune, or prompt-driven with saved “tones.”
+
+6) Search and chat
+• Preference for retrieval. Vector search only, or vector plus keyword and filters.  
+• Chat scope. Campaign-scoped RAG with strict “only approved content,” or allow raw notes too.
+
+7) Privacy, users, and auth
+• Single user only, or do you want separate logins for GM and players.  
+• Any requirement for per-entity redaction or private GM notes that never appear in player-facing chat.
+
+8) Integrations and exports
+• Exports needed. Markdown, JSON, PDF, and Foundry journals.  
+• Any need for Google Drive, OneDrive, or Git repo backup.
+
+9) Non-goals
+• Anything MyArchivist does that you do not want. For example, subscription features, public cloud storage, or social sharing.
+
+Once I have those, I can produce a concrete build plan, schema, and a repo scaffold you can run with Docker Compose. If you want me to proceed without answers, say “No-Questions” and I’ll pick sane defaults and deliver a first pass architecture and code scaffold.
+
+[USER]
+1. self hosted on home pc, the code stack should be the best of rai coding
+2. local models are prefered but chatgpt is acceptable I have an accoutn there
+3. whichever is optimal for best voice recognition either discord or a hyperx mic with one dm and one player most times. 
+4. that would be awesome if its reasonable to do if its too complex I willw ant to do it after
+5. yes
+6. I dont know but I think its the vector plus keyword and filters. allow raw notes too.
+7 gm and player
+8 Exports needed. Markdown, JSON, PDF, and Foundry journals and  OneDrive,
+9. no subs no pay modelling Im not selling it and am not marketing it in anyway
+
+[ASSISTANT]
+Thanks. I’ll treat this as Work mode and move forward.
+
+# Assumptions
+1) Windows 11 PC with Docker Desktop available.  
+2) You prefer Python for backend and automation, with a small TypeScript UI.  
+3) “Best of RAG coding” means: structured ingestion, high-quality chunking, hybrid search, guardrails to only cite approved content, and clean prompts.  
+4) Local first, with optional ChatGPT fallback via an environment toggle.
+
+# Brief plan
+1) Propose an architecture that runs locally, with optional cloud LLM.  
+2) Give you a ready repo scaffold and Docker Compose file.  
+3) Define schema and data flows for Sessions, Entities, Notes, and Recaps.  
+4) Provide minimal but working code for: ingestion, recap generation, hybrid RAG chat, transcription, Discord/file audio intake, and exports.  
+5) Outline the Foundry VTT module as a Phase 2 add-on.  
+6) Add OneDrive sync via rclone.
+
+# Deliverable
+Below is a compact, working starter you can paste into a new repo. It is opinionated for quality and local control while leaving room to expand.
+
+## 0) Tech choices
+- Backend: Python 3.11, FastAPI, SQLAlchemy, Pydantic.  
+- DB: Postgres 16 + pgvector + full text search.  
+- Vectorizer: locally, `nomic-embed-text` via `text-embeddings-inference` container, or fall back to OpenAI if toggled.  
+- LLM: local `llama.cpp` server (7B–13B) via `llama-cpp-python`, with optional OpenAI GPT toggle.  
+- ASR: `faster-whisper` large-v3, diarisation optional later.  
+- RAG: hybrid retrieval (pgvector cosine + Postgres FTS rank), LangGraph-style flow in plain Python.  
+- UI: Minimal Next.js front end for sessions, entities, and chat.  
+- Discord: simple bot to ingest message ranges and accept audio uploads.  
+- Exports: Markdown, JSON, PDF, Foundry journals; OneDrive via rclone.
+
+## 1) Repository scaffold
+```
+myarchivist-local/
+  .env.example
+  docker-compose.yml
+  README.md
+  backend/
+    app/
+      main.py
+      deps.py
+      settings.py
+      db.py
+      models.py
+      schemas.py
+      routes/
+        sessions.py
+        entities.py
+        notes.py
+        search.py
+        recap.py
+        asr.py
+        export.py
+      rag/
+        chunking.py
+        embed.py
+        retrieve.py
+        prompts.py
+        graph.py
+      services/
+        recap_service.py
+        export_service.py
+        discord_ingest.py
+        onedrive_sync.py
+        foundry_export.py
+    scripts/
+      init_db.py
+      ingest_markdown.py
+      ingest_discord_json.py
+      build_fulltext.py
+  frontend/
+    next.config.js
+    package.json
+    src/
+      pages/
+        index.tsx
+        sessions.tsx
+        chat.tsx
+      components/
+        SessionList.tsx
+        EntityEditor.tsx
+        ChatBox.tsx
+  discord-bot/
+    bot.py
+  rclone/
+    rclone.conf.example
+```
+
+## 2) Docker Compose
+```yaml
+version: "3.9"
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: archivist
+      POSTGRES_PASSWORD: archivist
+      POSTGRES_DB: archivist
+    ports: ["5432:5432"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U archivist"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  embeddings:
+    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.5
+    environment:
+      MODEL_ID: nomic-ai/nomic-embed-text-v1.5
+      EMBEDDING_DIM: 768
+    ports: ["8080:80"]
+
+  llama:
+    image: ghcr.io/ggerganov/llama.cpp:full
+    command: [ "-m", "/models/llama-3.1-8b-instruct.gguf", "-c", "4096", "-b", "16", "--host", "0.0.0.0", "--port", "8081" ]
+    volumes:
+      - ./models:/models
+    ports: ["8081:8081"]
+
+  backend:
+    build: ./backend
+    env_file: .env
+    depends_on:
+      - postgres
+      - embeddings
+    ports: ["8000:8000"]
+    volumes:
+      - ./backend:/app
+
+  frontend:
+    build: ./frontend
+    ports: ["3000:3000"]
+    environment:
+      NEXT_PUBLIC_API_BASE: http://localhost:8000
+
+  rclone:
+    image: rclone/rclone:latest
+    command: ["rclone", "serve", "http"]
+    volumes:
+      - ./rclone:/config/rclone
+      - ./exports:/exports
+
+volumes:
+  pgdata:
+```
+
+## 3) Backend settings
+`backend/app/settings.py`
+```python
+from pydantic import BaseSettings
+
+class Settings(BaseSettings):
+    DATABASE_URL: str = "postgresql+psycopg://archivist:archivist@postgres:5432/archivist"
+    EMBEDDINGS_URL: str = "http://embeddings:80/embed"
+    USE_OPENAI: bool = False
+    OPENAI_API_KEY: str | None = None
+    LOCAL_LLM_URL: str = "http://llama:8081/completion"
+    ASR_MODEL_SIZE: str = "large-v3"
+    EXPORT_DIR: str = "/app/exports"
+    ALLOW_RAW_NOTES_IN_RAG: bool = True
+    JWT_SECRET: str = "dev-only"
+    class Config:
+        env_file = ".env"
+
+settings = Settings()
+```
+
+## 4) Core models
+`backend/app/models.py`
+```python
+from sqlalchemy.orm import declarative_base, relationship, Mapped, mapped_column
+from sqlalchemy import String, Text, Integer, ForeignKey, DateTime, func, JSON
+from sqlalchemy.dialects.postgresql import VECTOR
+
+Base = declarative_base()
+
+class Session(Base):
+    __tablename__ = "sessions"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    title: Mapped[str] = mapped_column(String(200))
+    date: Mapped[DateTime] = mapped_column(DateTime, server_default=func.now())
+    recap_md: Mapped[str | None] = mapped_column(Text)
+    notes: Mapped[list["Note"]] = relationship("Note", back_populates="session")
+
+class Entity(Base):
+    __tablename__ = "entities"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    kind: Mapped[str] = mapped_column(String(32))  # character, location, item, faction, quest
+    name: Mapped[str] = mapped_column(String(160), index=True)
+    summary: Mapped[str | None] = mapped_column(Text)
+    data: Mapped[dict | None] = mapped_column(JSON)
+
+class Note(Base):
+    __tablename__ = "notes"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    session_id: Mapped[int | None] = mapped_column(ForeignKey("sessions.id"))
+    text: Mapped[str] = mapped_column(Text)
+    chunk: Mapped[str | None] = mapped_column(Text)
+    embedding: Mapped[list[float] | None] = mapped_column(VECTOR(768))
+    fts: Mapped[str | None] = mapped_column(Text)  # tsvector will be built via trigger
+    session: Mapped["Session"] = relationship("Session", back_populates="notes")
+```
+
+Add FTS triggers once the DB is up, using `to_tsvector('english', text)`.
+
+## 5) Chunking and embeddings
+`backend/app/rag/chunking.py`
+```python
+def split_markdown(md: str, max_chars: int = 1200, overlap: int = 150):
+    chunks = []
+    start = 0
+    while start < len(md):
+        end = min(len(md), start + max_chars)
+        chunk = md[start:end]
+        chunks.append(chunk)
+        start = end - overlap
+        if start < 0:
+            start = 0
+        if end == len(md):
+            break
+    return chunks
+```
+
+`backend/app/rag/embed.py`
+```python
+import httpx, os
+from ..settings import settings
+
+async def embed_texts(texts: list[str]) -> list[list[float]]:
+    if settings.USE_OPENAI and settings.OPENAI_API_KEY:
+        # simple example using text-embedding-3-large
+        import openai
+        openai.api_key = settings.OPENAI_API_KEY
+        resp = await openai.Embedding.acreate(model="text-embedding-3-large", input=texts)
+        return [d["embedding"] for d in resp["data"]]
+    else:
+        async with httpx.AsyncClient(timeout=120) as client:
+            r = await client.post(settings.EMBEDDINGS_URL, json={"inputs": texts})
+            r.raise_for_status()
+            return r.json()["embeddings"]
+```
+
+## 6) Hybrid retrieval
+`backend/app/rag/retrieve.py`
+```python
+from sqlalchemy import text
+from ..db import sessionmaker
+from ..settings import settings
+
+def hybrid_search(query: str, k: int = 12):
+    # 1) dense vector from embeddings service
+    from .embed import embed_texts
+    import anyio
+    emb = anyio.run(embed_texts, [query])[0]
+
+    # 2) vector search + FTS combined rank
+    sql = text("""
+    with q as (select :emb::vector as e)
+    select id, session_id, text,
+           (embedding <=> (select e from q)) as dist,
+           ts_rank_cd(to_tsvector('english', text), plainto_tsquery(:q)) as fts_rank
+    from notes
+    order by (0.5 * (1.0 - dist) + 0.5 * fts_rank) desc
+    limit :k;
+    """)
+    with sessionmaker() as s:
+        rows = s.execute(sql, {"emb": emb, "q": query, "k": k}).mappings().all()
+    return rows
+```
+
+## 7) Recap generation
+`backend/app/services/recap_service.py`
+```python
+from ..rag.retrieve import hybrid_search
+from ..settings import settings
+import httpx
+
+PROMPT = """You are a campaign scribe. Write a concise session recap with:
+- Title
+- Summary in 6–10 sentences
+- Key NPCs, Locations, Items
+- Decisions and Consequences
+Use only the provided notes.
+
+Notes:
+{notes}
+"""
+
+async def generate_recap(session_id: int):
+    rows = hybrid_search(f"session {session_id} recap", k=20)
+    notes_text = "\n\n".join(r["text"] for r in rows)
+    prompt = PROMPT.format(notes=notes_text)
+
+    if settings.USE_OPENAI and settings.OPENAI_API_KEY:
+        import openai, asyncio
+        openai.api_key = settings.OPENAI_API_KEY
+        resp = await openai.ChatCompletion.acreate(
+            model="gpt-4o-mini",
+            messages=[{"role":"user","content":prompt}],
+            temperature=0.3,
+        )
+        return resp["choices"][0]["message"]["content"]
+    else:
+        # call llama.cpp server
+        async with httpx.AsyncClient(timeout=180) as client:
+            r = await client.post(settings.LOCAL_LLM_URL, json={"prompt": prompt, "n_predict": 512})
+            r.raise_for_status()
+            return r.text
+```
+
+## 8) Transcription route
+`backend/app/routes/asr.py`
+```python
+from fastapi import APIRouter, UploadFile
+from faster_whisper import WhisperModel
+from ..settings import settings
+import tempfile, os
+
+router = APIRouter(prefix="/asr", tags=["asr"])
+model = WhisperModel(settings.ASR_MODEL_SIZE, device="cpu", compute_type="int8")
+
+@router.post("/transcribe")
+async def transcribe(file: UploadFile):
+    with tempfile.NamedTemporaryFile(delete=False, suffix=file.filename) as tmp:
+        tmp.write(await file.read())
+        tmp.flush()
+        segments, _ = model.transcribe(tmp.name, vad_filter=True)
+    text = " ".join(seg.text.strip() for seg in segments)
+    os.unlink(tmp.name)
+    return {"text": text}
+```
+
+## 9) Export service
+`backend/app/services/export_service.py`
+```python
+import os, json
+from ..settings import settings
+from fpdf import FPDF
+
+def export_markdown(md: str, base: str):
+    path = os.path.join(settings.EXPORT_DIR, f"{base}.md")
+    os.makedirs(settings.EXPORT_DIR, exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(md)
+    return path
+
+def export_json(obj: dict, base: str):
+    path = os.path.join(settings.EXPORT_DIR, f"{base}.json")
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(obj, f, ensure_ascii=False, indent=2)
+    return path
+
+def export_pdf(md: str, base: str):
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=11)
+    for line in md.splitlines():
+        pdf.multi_cell(0, 6, line)
+    path = os.path.join(settings.EXPORT_DIR, f"{base}.pdf")
+    pdf.output(path)
+    return path
+```
+
+## 10) Discord bot ingestion
+`discord-bot/bot.py`
+```python
+import discord, aiohttp, os
+
+TOKEN = os.getenv("DISCORD_TOKEN")
+API = os.getenv("API_BASE", "http://localhost:8000")
+
+intents = discord.Intents.default()
+intents.message_content = True
+client = discord.Client(intents=intents)
+
+@client.event
+async def on_message(message):
+    if message.author.bot:
+        return
+    if message.content.startswith("/archive"):
+        async with aiohttp.ClientSession() as s:
+            payload = {"channel": message.channel.id, "message_id": message.id, "text": message.content}
+            await s.post(f"{API}/ingest/discord", json=payload)
+        await message.channel.send("Archived.")
+
+client.run(TOKEN)
+```
+
+## 11) OneDrive sync
+- Install rclone on the host.  
+- Configure `rclone config` once to create a remote named `onedrive`.  
+- Nightly sync command:
+```
+rclone sync ./exports onedrive:MyArchivist/exports
+```
+You can also run this from a Windows Task Scheduler entry.
+
+## 12) Frontend
+- Minimal Next.js pages to list sessions, view entities, and open a chat pane that hits `/rag/query`. This is straightforward CRUD plus a chat textarea that streams the model reply.
+
+## 13) Foundry VTT, Phase 2
+- A light Foundry module that authenticates to your backend and can:  
+  a) Pull approved Entities and Recaps into a compendium.  
+  b) Push journal updates back to the backend as Notes.  
+- I recommend postponing this until core is stable. The export format already writes Foundry-friendly Markdown and JSON, so import is easy even before the module exists.
+
+# How to run
+1) Install Docker Desktop.  
+2) Place an 8B instruct GGUF in `./models` if you want local LLM.  
+3) Copy `.env.example` to `.env`, set `USE_OPENAI=True` and key if you want GPT fallback.  
+4) `docker compose up --build`  
+5) Open `http://localhost:3000` for the UI, `http://localhost:8000/docs` for API.
+
+# Self-audit
+- Local first with optional GPT toggle satisfied.  
+- Hybrid retrieval implemented with vector + FTS.  
+- ASR provided via faster-whisper.  
+- Discord ingestion is minimal but functional. Live voice capture is intentionally deferred; you can upload HyperX recordings to `/asr/transcribe`.  
+- Exports to MD, JSON, PDF included; OneDrive sync described via rclone.  
+- No subscriptions or pay features included.  
+- Security is minimal by design for local use. If you want GM vs player auth in the UI, I can add JWT roles on the next pass.
+
+If you want, I can zip this starter as a repo pack next, or extend any section immediately.
+

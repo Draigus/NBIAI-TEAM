@@ -1,0 +1,285 @@
+TITLE: Pitch deck critique
+DATE: 2025-11-06
+MESSAGES: 4
+ID: 690ca2b8-076c-8327-ab5d-dc2fbca4c2f1
+---
+
+[USER]
+you are a veteran master investor and are critiqing this pitch deck for sarge universe. be detailed and careful. rate each section with a 1-10 value bast on best of breed pitch decks. then suggest improvements. 
+
+[ASSISTANT]
+Here is a clean investor critique of your “Sarge Universe: THE Strategy Game on Telegram” deck, section by section. I rate each area against best-of-breed games pitches and give concrete fixes.
+
+# Executive cover and one-liner: 7/10  
+What works: The positioning is crisp, Telegram-native, with a fast loop and player-crafted tournaments. The ask is visible. fileciteturn1file0L4-L13 fileciteturn1file0L16-L19  
+Gaps: The cover mixes the headline, product promise, and fundraise title without a precise customer promise and proof. No social proof, no one-metric-that-matters, and no “why now” number on the first screen.  
+Fixes:  
+- Tighten to a single value sentence plus one proof metric. Example: “One-tap PvP strategy that lives inside Telegram chats, turning replays into viral invites.” Then add one dated proof: “2,400 alpha waitlist signups in 3 weeks, 34% weekly engagement.” fileciteturn1file6L16-L19  
+- Move “Raising £10M” into an “Ask” ribbon on the same slide with use-of-funds bullets, so investors clock the scale and why. fileciteturn1file0L16-L19
+
+# Product loop and feature snapshot: 8/10  
+What works: The five-second loop is legible, and the feature list hits base build, raid, replay, tournament join. fileciteturn1file0L25-L41 fileciteturn1file4L1-L10  
+Gaps: No visual of the loop latency from tap-to-play. “Share” and “Compete” would benefit from a single wired example.  
+Fixes: Add a single annotated journey from “chat link” to “first replay shared” in 90 seconds, with timestamps. Include a real replay card mock.
+
+# Build status: 8/10  
+What works: You state “initial playable is currently in testing” with a clear content runway and short capture proof. Good investor tone. fileciteturn1file0L48-L68  
+Gaps: The “10–12 second gameplay capture” claim is not linked, and “two core battle maps” would benefit from a meta angle. fileciteturn1file4L12-L18  
+Fixes: Embed a QR code to the latest capture and one table that shows two maps with distinct tactical roles and target cohorts.
+
+# Why Telegram: funnel, virality, moat: 6/10  
+What works: Clear articulation of frictionless chat surface, viral replays, and tournament network effects. fileciteturn1file4L21-L36 fileciteturn1file4L50-L59 fileciteturn1file4L87-L97  
+Gaps: Two red flags for investors:  
+- K-factor claims of 2+ and “4x improvement” are asserted without dated test data or comparables. fileciteturn1file4L74-L83  
+- The CPI impact graph lacks units and a real experiment reference.  
+Fixes: Replace assertions with a dated A/B from spark tests: cohort sizes, creatives, geos, confidence intervals, and actual K observed. Include a “what failed” note to show rigour.
+
+# Investment highlights: 7/10  
+What works: Player-crafted tournaments and replay sharing as compounding mechanics are plausible, and the attach ladder is named. fileciteturn1file1L57-L70  
+Gaps: “Community momentum” is stale, dated to Jan 2024, which undermines currency. fileciteturn1file1L76-L80  
+Fixes: Update with the most recent six-week window. Add a tiny panel of creator interest signals or inbound Telegram BD notes.
+
+# Go-to-market strategy: 7/10  
+What works: The looped “Watch → Join → Play → Share → Tournament” story is good and the channel list is realistic. CPI bands are explicit. Gates for scaling are set. fileciteturn1file6L24-L31 fileciteturn1file6L41-L49 fileciteturn1file6L52-L61  
+Gaps: Decision thresholds repeat the KPI gates elsewhere and still feel assertion-led. No creative storyboard examples for the three creative families.  
+Fixes: Show two actual ad variants with CTR, CVR to “tap-to-first-session,” and retention deltas by creative family. Add a weekly testing calendar with kill criteria.
+
+# Business model and unit economics: 5/10  
+What works: Non-pay-to-win stance, attach targets, and SKU ladder by revenue share. fileciteturn1file3L24-L33 fileciteturn1file3L41-L58  
+Gaps:  
+- Internal inconsistency: ARPPU is listed as £20 in one place and £25 elsewhere. That shakes confidence. fileciteturn1file3L33-L35 fileciteturn1file5L112-L116  
+- The “LTV Day 30 = £0.63” table then claims 3–23 day payback at CPI 0.10–0.50, which needs clearer units and cohort math to be credible. fileciteturn1file5L12-L15  
+Fixes:  
+- Reconcile ARPPU to a single value with sensitivity bands and a cohort curve that shows Day 0, 7, 30, 90 LTV accumulation.  
+- Replace the Day-30 payback block with three worked examples using real formulas: LTV curve, CPI, paid share, K-factor lift, and event uplift.
+
+# Traction and 30-day validation plan: 8/10  
+What works: Excellent structure with six hypotheses, owners, windows, and targets. fileciteturn1file3L76-L84 fileciteturn1file9L1-L9  
+Gaps: The “mock checkout flows” for payer rate should be framed as risk-reducing proxies, not proof. Include a plan to convert proxies to real transactions quickly. fileciteturn1file9L13-L16  
+Fixes: Add a single 14-day soft-pay test with small-scale real payments to replace mocks once stability is confirmed.
+
+# KPI-gated roadmap and cash tranches: 9/10  
+What works: Best practice. Clear gates, unlock tranches, and an explicit rollback protocol. fileciteturn1file9L35-L49 fileciteturn1file9L63-L71 fileciteturn1file9L88-L90  
+Gaps: A single page could show cash runway remaining at each gate.  
+Fixes: Add a small cash-burn and runway thermometer per tranche and an “if not met” decision tree.
+
+# Team: 4/10  
+What works: Roles are sensible for the thesis. fileciteturn1file2L27-L35  
+Gaps: Placeholders like “[Name]” and “[Previous Company]” are a serious credibility hit; show real names, titles, and shipped titles. fileciteturn1file2L43-L53 fileciteturn1file9L101-L119  
+Fixes: Replace all placeholders, add two advisor logos with permission, and place a one-line “what this person will own” under each profile.
+
+# Risks and mitigations: 8/10  
+What works: Platform policy, payments, live-ops, abuse, and a cadence are well framed. fileciteturn1file7L24-L33 fileciteturn1file7L44-L55 fileciteturn1file7L82-L85  
+Gaps: Add data privacy and minors protection specific to Telegram; state fraud budget and external audits cadence.  
+Fixes: Add a table row for data protection by geo, and a child-safety statement with enforcement tools.
+
+# Ask and use of funds: 6/10  
+What works: Tranche-tied use of proceeds and gating are clear. fileciteturn1file7L89-L98 fileciteturn1file7L100-L113  
+Gaps: Mixed signals: “Raising £10M Series A” while the copy says “18-month runway to Series A.” Pick one stage and align language. fileciteturn1file0L16-L19 fileciteturn1file8L16-L18  
+Fixes: Decide: either Series A to scale or a late Seed/Bridge to hit A-gates. Then show a pie of spend by tranche with headcount adds per tranche.
+
+# First ten hires: 8/10  
+What works: Sequencing is strong, front-loads engineering that matters for Mini App performance. fileciteturn1file8L58-L67 fileciteturn1file10L1-L9  
+Gaps: No comp bands or hiring sources; no critical path dependencies called out.  
+Fixes: Add salary bands and an “availability risk” note for key roles, plus two pipeline sources per role.
+
+# 12-month financial plan: 3/10  
+What works: The KPI drivers table and runway protection language are in the right spirit. fileciteturn1file10L52-L61 fileciteturn1file10L75-L76  
+Critical gaps:  
+- £92M Year-1 revenue is not credible for a first-time Telegram Mini App at this stage without extraordinary proof. It will read as overreach. fileciteturn1file8L102-L109  
+- No bottoms-up driver tree. No cohort table. ARPDAU and payer rate bands need sensitivities by geo and by event cadence.  
+Fixes:  
+- Replace the headline with a driver-based model: DAU × payer rate × ARPPU × seasonality, with three scenarios, plus K-factor and event uplift sensitivities.  
+- Add a cohort revenue waterfall for M0 to M6 with retention decay and purchase frequency.
+
+# Overall rating: 6.8/10  
+Great product story and gating discipline. The unit-economics clarity, team credibility details, and financial realism need work to reach a true best-in-class raise deck.
+
+## Highest-impact changes to make now
+1) Replace the financials with a driver-based model and sober ranges, and reconcile all ARPPU numbers and payback examples with explicit formulas. fileciteturn1file5L12-L15 fileciteturn1file3L33-L35  
+2) Remove time-stale milestones and refresh traction to the last 6 weeks, including cohort-quality signals and share-rate. fileciteturn1file1L76-L80 fileciteturn1file9L28-L31  
+3) Collapse “Why Telegram” claims into one experiment slide with real data and confidence intervals, not projections. fileciteturn1file4L74-L83  
+4) Replace all team placeholders with named operators and shipped titles, and show what each will own on the road to the gates. fileciteturn1file9L101-L107  
+5) Resolve the fundraise stage language so the “Ask” reads consistently with tranche logic and KPI gates. fileciteturn1file8L16-L20
+
+If you want, I can rewrite the finance, KPI, and GTM slides to this best-practice format in one pass, keeping your visual style intact.
+
+[USER]
+write up the iteration into an outline for specific slides
+
+[ASSISTANT]
+Here is a precise slide outline that implements the critique. Each slide lists purpose, specific content blocks, and acceptance checks so you can build or revise fast without guesswork.
+
+# 1. Cover: One-liner, proof, and the ask
+Purpose: Land the product promise, one dated proof metric, and the raise.  
+Content:  
+- Title: “Sarge Universe”  
+- One-liner value sentence  
+- One dated proof metric from the last six weeks  
+- “Raising £X for Y months runway to [milestone]” ribbon  
+Acceptance checks: One sentence promise, one number, one clear raise line. No extra copy.
+
+# 2. Why now on Telegram
+Purpose: Justify the platform choice with hard signals.  
+Content:  
+- Three bullet signals only: distribution, cost, viral surface  
+- One small chart with recent user or creator momentum relevant to Telegram games  
+Acceptance checks: Three data points, one chart with units and dates. No projections.
+
+# 3. Product snapshot: 90-second first-time journey
+Purpose: Make time-to-fun and shareability obvious.  
+Content:  
+- Annotated strip from “Tap replay link in chat” to “First match complete”  
+- Time stamps at three steps  
+Acceptance checks: 3–5 annotations, real screens or wireframes, total time labeled.
+
+# 4. Core loop and latency
+Purpose: Show the loop and prove it is fast.  
+Content:  
+- Loop diagram: Build → Raid → Replay → Join Tournament → Rewards  
+- A small latency bar: median and p90 from device tests  
+Acceptance checks: Loop in one figure, two latency numbers with units.
+
+# 5. Player-crafted tournaments
+Purpose: Replace any UGC language with the actual system.  
+Content:  
+- How a player creates a bracket in-app  
+- Entry, rewards, moderation primitives  
+- One example bracket card  
+Acceptance checks: Clear creation flow, rules, and share surface.
+
+# 6. Build status and near-term roadmap (Alpha)
+Purpose: Current state and what ships next.  
+Content:  
+- “Now” column: playable state, maps, modes  
+- “Next 60 days” column: stability, payments, basic tournaments  
+- QR code or link to a short capture  
+Acceptance checks: Dated status, two-column roadmap, working proof link.
+
+# 7. Traction: last six weeks only
+Purpose: Fresh signals, not promises.  
+Content:  
+- Weekly chart for three metrics: engaged users, session count per user, replay shares per user  
+- Two bullets on conversion proxies or early payments if available  
+Acceptance checks: Dates on the axis, cohort sizes noted, no lifetime totals.
+
+# 8. Go-to-market v1: channels and creative families
+Purpose: How you find and convert the first payers.  
+Content:  
+- Channels list with test budgets  
+- Three creative families with an example frame each  
+- Weekly testing calendar with kill criteria  
+Acceptance checks: Budget per channel, CTR or CVR targets per family, explicit kill rules.
+
+# 9. Experiment slide: virality and shareability
+Purpose: Replace assertion with a measured K-number.  
+Content:  
+- Test design: sample sizes, geo, duration  
+- Metric block: Invites per user, join rate, accepted-invite DAU lift  
+- Confidence note and next step  
+Acceptance checks: Numbers with units and CI or p-value, a clear “next”.
+
+# 10. Monetisation model (no pay-to-win)
+Purpose: How money is made without breaking fairness.  
+Content:  
+- SKU ladder: cosmetics, conveniences, tournament tickets, bundles  
+- Attach targets and price points  
+- One fairness guardrail  
+Acceptance checks: 6–10 SKUs with prices, 1–2 guardrails plainly stated.
+
+# 11. Driver-based unit economics
+Purpose: Replace headline revenue with a transparent driver tree.  
+Content:  
+- Formula strip: DAU × payer rate × ARPPU × purchase frequency × seasonality  
+- Three scenario bands with explicit inputs  
+- Cohort revenue waterfall Day 0, 7, 30, 90  
+Acceptance checks: Inputs visible, outputs derived, units on every number.
+
+# 12. Payback examples (worked)
+Purpose: Show believable payback windows.  
+Content:  
+- Three worked examples at CPI bands with the same cohort curve  
+- State organic lift and creator lift as separate variables  
+Acceptance checks: Formulas shown, all assumptions stated, payback window tied to inputs.
+
+# 13. KPI-gated plan and tranches
+Purpose: Gate progress and spend.  
+Content:  
+- Gate table: metric, threshold, owner, date  
+- Tranche unlocks mapped to each gate  
+- Small runway thermometer per gate  
+Acceptance checks: One table, one thermometer, one sentence “if not met” path.
+
+# 14. Risks and mitigations
+Purpose: Show maturity on platform and safety.  
+Content:  
+- Top five risks: platform policy, payments, abuse, privacy, minors  
+- Mitigation line and owner per risk  
+- Fraud budget and audit cadence  
+Acceptance checks: Five rows, owners named, cadence stated.
+
+# 15. Team and advisors
+Purpose: Replace placeholders with credibility.  
+Content:  
+- Founder and leads with shipped titles and logos (with permission)  
+- One line “owns X on the road to Gate Y” per person  
+- Two advisors maximum with relevance  
+Acceptance checks: No [Name] or [Company] tokens, ownership lines present.
+
+# 16. First ten hires with comp bands
+Purpose: Hiring reality and sequence.  
+Content:  
+- Sequence by quarter, role, salary band, source channel  
+- Critical path notes for engineering on Mini App performance  
+Acceptance checks: Salary ranges in GBP, at least one sourcing path per role.
+
+# 17. Use of funds
+Purpose: Where the money goes by tranche.  
+Content:  
+- Pie per tranche: people, infra, UA, creators, contingency  
+- Headcount adds per tranche  
+Acceptance checks: Percentages sum to 100, headcount ties to Slide 16.
+
+# 18. The ask and timeline
+Purpose: Close with clarity.  
+Content:  
+- Stage and amount, instrument, target close date  
+- Milestone timeline to the next raise trigger  
+Acceptance checks: One stage only, one date, one milestone bar.
+
+# 19. Appendix A: Experiment protocols
+Purpose: Let diligence go deeper without cluttering the main deck.  
+Content:  
+- AB designs for virality, pricing, and creative families  
+- Success metrics, sample sizes, min detectable effects  
+Acceptance checks: Each protocol fits on half a page with numbers.
+
+# 20. Appendix B: Sample creatives and replay cards
+Purpose: Show what you will actually run.  
+Content:  
+- Two ad variants per creative family  
+- One replay card example with copy and CTA  
+Acceptance checks: Assets are legible and labelled.
+
+# 21. Appendix C: Cohort tables
+Purpose: Back the unit economics with data.  
+Content:  
+- Two cohorts with Day 0 to Day 90 retention and revenue  
+- Notes on outliers and data hygiene  
+Acceptance checks: Table has units, cohort sizes, and dates.
+
+---
+
+## Build order and ownership
+- Slides 1–6 first for first-meeting cut.  
+- Slides 7–12 second for diligence cut.  
+- Slides 13–18 third for partner-meeting cut.  
+- Appendices last.
+
+## Consistency checks before export
+- One ARPPU value across all slides with a sensitivity band on Slide 11 only.  
+- Dates on every chart and table.  
+- No placeholders, no mixed stage language, British English, no icons.  
+
+If helpful, say the word and I will produce draft slide text for Slides 1, 3, 11, and 12, since those usually anchor the rest.
+

@@ -1,0 +1,3705 @@
+TITLE: Top 10 game designs
+DATE: 2025-11-20
+MESSAGES: 23
+ID: 691e687b-b038-832c-b101-749c06e05760
+---
+
+[USER]
+as an expert award winning video game designer find the top 10 best game design examples
+
+[USER]
+as an expert award winning video game designer find the top 10 best game design examples across the internet
+
+
+[ASSISTANT]
+Here is a curated “top 10” list of games that are constantly cited by designers, educators, and critics as gold standard game design case studies. There is no single objective list, but these are the ones that keep coming up in talks, courses, and postmortems.
+
+### How I chose these
+
+- Heavily referenced in design talks, books, and postmortems (GDC, Game Developer, etc.).
+- Frequently described as “masterclasses” in a specific aspect of design.
+- Broad coverage of different design problems: onboarding, systems, open world, difficulty, narrative, procedural generation, etc.
+
+---
+
+## 1. Tetris – Perfect core loop and difficulty curve
+
+**Why it is studied**
+
+- Extremely simple verbs (move, rotate, drop) yet near infinite depth.
+- No tutorial, UI, or story needed – the rules are learned purely through interaction.
+- Intensity curve and escalation are almost mathematically perfect: the same rules and tools from second one carry you all the way until failure. citeturn18view0  
+
+**What to study**
+
+- How to strip a design down to its most essential verbs.
+- How pacing and tuning alone can generate engagement without content variety.
+- How theme-agnostic mechanics can create a timeless, evergreen game.
+
+---
+
+## 2. Super Mario Bros. – World 1-1 as onboarding through level design
+
+**Why it is studied**
+
+- Shigeru Miyamoto explicitly designed World 1-1 as a tutorial level that “gradually and naturally” teaches every core rule without text. citeturn19search5turn19search7  
+- Modern articles still call it one of the clearest examples of “learning through play,” and a foundational lesson in level design even 40 years later. citeturn19search9turn21view0  
+
+**What to study**
+
+- How to introduce mechanics one at a time via safe experiments, then combine them.
+- Visual composition that guides player attention without UI arrows.
+- Reward structures: coins, secrets, and shortcuts as layered mastery goals.
+
+---
+
+## 3. The Legend of Zelda: Breath of the Wild – Systemic open world
+
+**Why it is studied**
+
+- Widely described as a “masterclass in open world design,” particularly for how it builds a world of overlapping systems rather than checklist content. citeturn22search11  
+- Uses a systemic “chemistry engine” so physics, elements, and AI interact in consistent, exploitable ways, letting players solve problems creatively.
+- Academic and design case studies analyse it as a new benchmark in open world exploration and “open air” design. citeturn22search7turn22search13turn22news44  
+
+**What to study**
+
+- How to build a world around curiosity hooks instead of map icons.
+- Designing toolkits so players can improvise solutions rather than follow scripts.
+- How to gate progress with knowledge, gear, and skill instead of hard locks.
+
+---
+
+## 4. Portal – Teaching complex mechanics with tiny scope
+
+**Why it is studied**
+
+- Classic example of minimal mechanics used to maximum effect: portals, momentum, cubes, buttons. A Game Developer deep dive covers how much it achieves with very few puzzle elements. citeturn22search2  
+- Famous for its “perfect tutorialization” curve, where each chamber layers one new idea and then recombines them.
+
+**What to study**
+
+- Micro-level puzzle design and how to structure a learning ladder.
+- Environmental storytelling that rides on top of mechanics instead of stopping them.
+- Scope discipline: how content and duration align tightly with the central idea.
+
+---
+
+## 5. Dark Souls (1) – Interconnected world and meaningful friction
+
+**Why it is studied**
+
+- The first half of Dark Souls is often praised for its tightly interconnected world that loops back into itself with shortcuts, creating “woah” moments and rewarding spatial understanding. citeturn20view0  
+- Bonfire placement, shortcut design, and enemy layout are used to make routes feel dangerous, learnable, and eventually optimisable.
+
+**What to study**
+
+- How level topology can create both atmosphere and mechanical depth.
+- Using friction and punishment to heighten tension without feeling purely unfair.
+- Diegetic online features (messages, invasions) as part of the design, not an add-on.
+
+---
+
+## 6. Spelunky – Procedural generation and emergent gameplay
+
+**Why it is studied**
+
+- Frequently cited as a definitive example of “good” procedural level design and emergent systemic gameplay. citeturn14search0turn14search1  
+- Derek Yu’s book and many talks break down how rules, enemy types, and tile sets are tuned to make random levels feel authored.
+
+**What to study**
+
+- Designing rules for generators rather than crafting individual levels.
+- Risk-reward structures in roguelikes: shops, alt routes, secrets.
+- How small systemic interactions (explosions, physics, AI) compound into stories.
+
+---
+
+## 7. Minecraft – Player-driven goals and sandbox design
+
+**Why it is studied**
+
+- Often described as one of the most influential games ever released, largely because it hands agency to players to set their own goals inside a systemic sandbox. citeturn15search9turn15search14  
+- Its crafting, survival, and building loops enable everything from meditative play to deep technical engineering.
+
+**What to study**
+
+- How to design systems that let players create their own challenges and aesthetics.
+- Minimal explicit objectives, but strong feedback and progression affordances.
+- Social and creative network effects: why a simple rule set can spawn huge subcultures.
+
+---
+
+## 8. Outer Wilds – Knowledge-based progression and time loop structure
+
+**Why it is studied**
+
+- Regularly held up as a masterpiece of exploratory and narrative design, winning multiple awards including BAFTA Best Game, with special praise for its unique structure. citeturn10search0turn10search3  
+- Progress is almost entirely knowledge based; the player character does not get stronger, the player just learns more about the world.
+
+**What to study**
+
+- Designing a loop where information is the main reward and unlock.
+- Aligning story structure, level layout, and mechanics around a central loop (22-minute reset).
+- Ensuring that clue density, foreshadowing, and payoff feel fair rather than obscure.
+
+---
+
+## 9. Celeste – Precision platforming plus inclusive difficulty design
+
+**Why it is studied**
+
+- Celebrated for tight, readable platforming and a clear, escalating challenge curve, with a narrative about struggle that mirrors its mechanics. citeturn22search6  
+- Its Assist Mode allows players to tweak core rules (game speed, stamina, invincibility) without trivialising the experience for others, and is widely discussed in accessibility circles. citeturn22search9turn22search16  
+
+**What to study**
+
+- How to combine “hardcore” mechanics with flexible accessibility options.
+- Clear chunking of challenges into screens, rooms, and B-side/C-side routes.
+- Juicing and feel for 2D movement: coyote time, jump buffering, and snappy response.
+
+---
+
+## 10. Hades – Roguelike meta-progression and combat feel
+
+**Why it is studied**
+
+- BAFTAs and other awards have praised Hades not just as a great game but as an exemplar of roguelike design and combat tuning, especially its integration of narrative and repetition. citeturn16search1turn16search3  
+- Clever meta-progression (boons, mirror upgrades, weapon aspects) makes repeated runs feel fresh while reinforcing core mastery instead of bypassing it.
+
+**What to study**
+
+- How run-based design, persistent upgrades, and story progression interlock.
+- Combat readability and hit feel in a very busy effects-heavy environment.
+- Using small narrative beats between runs to reframe grind as character development.
+
+---
+
+### Using this list
+
+If you want, I can next:
+
+- Map these examples to specific problems you are solving right now (onboarding, F2P meta, combat feel, live-ops loops, etc.).
+- Build a “reading list” for each title with talks, articles, and breakdowns you can work through as structured study.  
+
+navlistRecent articles on influential game designturn19news23,turn19news26,turn22news37,turn22news40,turn22news44
+
+[USER]
+Im looking for actual design documents especially GDD's to compile 
+
+[ASSISTANT]
+Perfect, so you want *actual* GDDs and design docs you can download and mine, not just articles about them. Here is a curated set you can genuinely compile into a reference library.
+
+I will split this into:
+
+1. Two hubs that already aggregate a ton of docs  
+2. Ten specific high-value design docs to study  
+3. A code block with direct URLs so you can copy them into your own archive  
+
+---
+
+## 1. High value hubs of real game design docs
+
+1) **GameDocs.org**
+
+GameDocs is basically a museum of real design documents, pitches and templates. The “Documents” page links out to original docs for Doom, WipEout, GTA (Race’n’Chase), Wasteland 2, Monaco, Saints Row Undercover, classic LucasArts adventures, and more. citeturn11view0  
+
+Use this as your starting hub when you want to go deeper on any of the titles below.
+
+2) **Reddit: “Finished Game Design Document Examples?”**
+
+This long-running r/gamedesign thread collects links to real, shipped-game docs: original GTA, Diablo, Deus Ex, a BioShock GDD, the Doom Bible, plus templates used in a university game design program. citeturn12view0  
+
+I would treat this thread as your second hub: it is a community-curated index.
+
+---
+
+## 2. Ten concrete design docs worth dissecting
+
+These are all real documents, not blog summaries. They span early 90s PC shooters, RPGs, and indie titles that actually shipped.
+
+### A. Classic / AAA era documents
+
+1) **DOOM – “The Doom Bible” (Tom Hall, 1992)**  
+Original multi-chapter design doc laying out characters, episodic flow, mechanics, even story beats that largely changed before release. Superb for understanding how a loose “vision bible” can evolve while still guiding a team. citeturn9view0turn12view0  
+
+2) **Grand Theft Auto – “Race’n’Chase” Design Document**  
+The original design doc for what became GTA. You can see the early focus on cops and robbers car chases and how much of the crime sandbox DNA is already present. The PDF is hosted at gamedevs.org and is also indexed on GameDocs and that Reddit thread. citeturn13view0turn2view0turn12view0  
+
+3) **Diablo – Original pitch / design doc**  
+David Brevik’s early Diablo document reads like a hybrid of pitch and GDD. It shows how the core loop, mood, and progression were sold and provides a strong example of how to communicate a systems-heavy game without drowning in detail. The community thread links to the Graybeard Games PDF. citeturn12view0  
+
+4) **Deus Ex – Original design document (annotated)**  
+Game Developer (formerly Gamasutra) published an annotated early Deus Ex design doc. It is invaluable because Warren Spector and others comment on what changed and why. That makes it a fantastic learning piece about iteration, not just initial intent. citeturn12view0  
+
+5) **BioShock – Early game design document**  
+An early internal BioShock GDD surfaced on the System Shock fan forums and is linked from the same Reddit resources thread. It is a great example of a mid-2000s “big immersive sim” GDD, with a lot of emphasis on mood, pillars, and player powers. citeturn12view0turn11view0  
+
+6) **WipEout – Game Design Document**  
+Hosted and indexed via GameDocs. A strong look at a racing game GDD, with attention to feel, track design, and ship characteristics. Good if you want something that is not an RPG or shooter. citeturn11view0  
+
+7) **Wasteland 2 – Vision Document**  
+InXile released the Wasteland 2 vision doc during their crowdfunding campaign. It is closer to a “vision GDD” than a full spec, but it does an excellent job of tying market position, player fantasy, and feature set together. citeturn11view0  
+
+### B. Indie / smaller team GDDs
+
+8) **Narbacular Drop – Full Game Design Document**  
+The student game that directly led to Portal. This is a full, detailed GDD: goals, risks, competition, puzzle examples, manpower, schedule, budget and mechanics. It is one of the cleanest end-to-end examples you can study and is freely available as a 25-page PDF. citeturn4view0  
+
+9) **Pid – Game Design Document (Might and Delight)**  
+Might and Delight released their Pid GDD publicly. It is linked from GameDocs and hosted as a PDF on Gamescrye. It shows how a small commercial team structures a doc around a focused stealth platformer, including story, pacing and systems breakdown. citeturn7view0turn0search14  
+
+10) **Monaco – Original Game Design Document**  
+Andy Schatz shared the original Monaco GDD publicly; GameDocs links to the Facebook note that contains it, and the Reddit thread also uses it as a reference example. It is a compact but very clear description of a systemic heist game, with strong focus on roles and readability. citeturn5view0turn12view0  
+
+If you want more beyond these ten, GameDocs also hosts:
+
+- **Classic LucasArts adventure design docs** (Sam & Max, others) citeturn11view0  
+- **Saints Row Undercover GDD and walkthrough** citeturn11view0  
+- **Planescape: Torment Vision Statement** and **Bioshock pitch** citeturn11view0  
+
+Those are excellent for seeing how narrative-driven and RPG projects were framed.
+
+---
+
+## 3. Direct links you can drop into your archive
+
+Here is a copy-pasteable list of URLs and what they are. Some are direct PDFs, some are web pages that then link to the actual doc.
+
+```text
+Hubs
+
+GameDocs master index:
+https://gamedocs.org/documents/
+
+Reddit resource thread:
+https://www.reddit.com/r/gamedesign/comments/7ze7xq/finished_game_design_document_examples/
+
+
+Classic / AAA docs
+
+DOOM – "The Doom Bible" (Tom Hall):
+http://5years.doomworld.com/doombible/doombible.pdf
+
+Grand Theft Auto – original "Race’n’Chase" design document:
+http://gamedevs.org/uploads/grand-theft-auto.pdf
+
+Diablo – original design / pitch document:
+http://www.graybeardgames.com/download/diablo_pitch.pdf
+
+Deus Ex – original design document (annotated article + links):
+https://www.gamasutra.com/view/news/285520/Annotated_version_of_an_original_Deus_Ex_design_doc_surfaces.php
+
+BioShock – early game design document (thread with download link):
+https://www.systemshock.org/index.php?PHPSESSID=io2jo027f3navm7heujtng53a5;topic=2121.msg21031#msg21031
+
+WipEout – game design document (linked from GameDocs index):
+https://gamedocs.org/documents/    ← see “WipEout Game Design Document”
+
+Wasteland 2 – vision document:
+https://gamedocs.org/documents/    ← see “Wasteland 2 Vision Document”
+
+
+Indie / smaller team docs
+
+Narbacular Drop – full game design document (the Portal predecessor):
+https://nuclearmonkeysoftware.com/documents/narbacular_drop_game_design_document.pdf
+
+Pid – game design document (Might and Delight):
+https://gamescrye.com/wp-content/uploads/2023/02/Pid-Game-Design-Document.pdf
+
+Monaco – original game design document:
+https://gamedocs.org/monaco-game-design-document/    ← links to the Facebook GDD
+```
+
+
+If you also want **templates** to standardise your own docs around what you see in these examples, these are good baselines:
+
+```text
+Unity – official Game Design Document (GDD) template (PDF):
+https://connect-prd-cdn.unity.com/20201215/83f3733d-3146-42de-8a69-f461d6662eb1/Game-Design-Document-Template.pdf
+```
+
+I have not included every single doc from the hubs above, just the ones that are most useful as structural and conceptual references.
+
+If you tell me what you want to build this library *for* (pitching, teaching, or as internal NBI reference), I can slice a second pass that groups docs by type: pitch vs vision vs full GDD vs subsystem spec.
+
+[USER]
+yes
+
+[ASSISTANT]
+Great, I will treat that as “yes, build the grouped library.”
+
+Below is a concrete way to compile these into a usable reference set.
+
+---
+
+## 1. Recommended folder structure for your library
+
+You can mirror this in Notion, Obsidian, Google Drive, or a local folder tree.
+
+1. `01_Vision_and_Pitch_Docs`  
+2. `02_Full_GDDs_and_Bibles`  
+3. `03_Subsystem_or_Mode_Specs`  
+4. `04_Templates_and_Teaching_Materials`  
+
+If you want finer control, add subfolders per genre: `RPG`, `Shooter`, `Roguelike`, `Racing`, etc.
+
+---
+
+## 2. Categorised list of real design documents
+
+### 01. Vision and pitch docs
+
+Use these when you want to see how teams sell an idea and set high level constraints.
+
+- **Diablo – Original pitch / design doc**  
+  - Folder: `01_Vision_and_Pitch_Docs/RPG`  
+  - Why: Great example of conveying fantasy, core loop, and business pitch in one doc.
+
+- **Wasteland 2 – Vision document**  
+  - Folder: `01_Vision_and_Pitch_Docs/RPG`  
+  - Why: Crowdfunded isometric RPG vision, very explicit about target audience and design pillars.
+
+- **Planescape: Torment – Vision statement**  
+  - Folder: `01_Vision_and_Pitch_Docs/RPG`  
+  - Why: Strong articulation of narrative and thematic goals.
+
+- **BioShock – Early design / pitch document**  
+  - Folder: `01_Vision_and_Pitch_Docs/Immersive_Sim`  
+  - Why: Shows how to pitch a spiritual successor to System Shock with market framing.
+
+- **Grand Theft Auto – “Race’n’Chase” design doc**  
+  - Folder: `01_Vision_and_Pitch_Docs/Open_World`  
+  - Why: Very pure example of a concept doc that later morphed into GTA.
+
+---
+
+### 02. Full GDDs, bibles, and “big spec” docs
+
+Use these when you want structural examples of full design coverage.
+
+- **DOOM – “The Doom Bible” (Tom Hall)**  
+  - Folder: `02_Full_GDDs_and_Bibles/FPS`  
+  - Style: Vision bible plus quasi GDD. Multiple chapters, characters, episodes, mechanics.  
+  - Good for: How to write a large, inspirational spec that can still be cut down.
+
+- **Narbacular Drop – Game Design Document**  
+  - Folder: `02_Full_GDDs_and_Bibles/Puzzle`  
+  - Style: Clean, student-to-professional level full GDD including scope, manpower, schedule.  
+  - Good for: End to end structure that is achievable for small teams.
+
+- **Pid – Game Design Document (Might and Delight)**  
+  - Folder: `02_Full_GDDs_and_Bibles/Platformer`  
+  - Style: Commercial indie GDD with clear sections for story, mechanics, pacing, and content.  
+  - Good for: Seeing how a small studio formalises a fairly tight concept.
+
+- **Monaco – Game Design Document**  
+  - Folder: `02_Full_GDDs_and_Bibles/TopDown_Stealth`  
+  - Style: Concise, systemic. Focus on roles, visibility, and readability.  
+  - Good for: A lean GDD that still nails systemic clarity.
+
+- **WipEout – Design document**  
+  - Folder: `02_Full_GDDs_and_Bibles/Racing`  
+  - Style: Classic 90s GDD covering feel, vehicles, tracks.  
+  - Good for: Vehicle stats, handling parameters, and content oriented design.
+
+- **LucasArts adventure game docs (Sam & Max, etc.)**  
+  - Folder: `02_Full_GDDs_and_Bibles/Adventure`  
+  - Style: Narrative heavy, puzzle oriented specs.  
+  - Good for: Puzzle graphs, dialog structures, and scene flow.
+
+- **Saints Row Undercover – GDD and walkthrough**  
+  - Folder: `02_Full_GDDs_and_Bibles/Open_World`  
+  - Style: Mid-scope open world on handheld, interesting constraints.  
+  - Good for: Mission structure and adapting a big IP to a smaller platform.
+
+---
+
+### 03. Subsystem and mode specs
+
+These are shorter but fantastic for patterning how you write focused design specs.
+
+- **Deus Ex – Annotated original design document**  
+  - Folder: `03_Subsystem_or_Mode_Specs/Immersive_Sim`  
+  - Use it as: A case study in iteration. The annotations are gold for “what changed and why.”
+
+- **Any partial docs on GameDocs for specific features**  
+  - Example: Control schemes, AI overviews, or mission flow docs that are listed as smaller PDFs.  
+  - Folder: categorize under `03_Subsystem_or_Mode_Specs/<Feature>`.
+
+If you want, we can later add modern public postmortem slides here, since many are essentially subsystem specs in deck form.
+
+---
+
+### 04. Templates and teaching materials
+
+Keep these as “meta” resources you adapt for your own projects.
+
+- **Unity Game Design Document template (official)**  
+  - Folder: `04_Templates_and_Teaching_Materials/Templates`  
+  - Use: As a baseline to retrofit once you have seen how the shipped-game docs actually differ.
+
+- **University or course GDD templates linked in r/gamedesign thread**  
+  - Folder: `04_Templates_and_Teaching_Materials/Academic`  
+  - Use: To see what educators expect from a “complete” student GDD.
+
+- **GameDocs and Reddit hub indexes (saved as HTML or PDF)**  
+  - Folder: `04_Templates_and_Teaching_Materials/Indexes`  
+  - Use: As permanent “maps” back to more docs when you want to expand the library.
+
+---
+
+## 3. Tagging scheme for fast retrieval
+
+Whichever tool you use, add tags per document so you can search by pattern later. For example:
+
+- `scope:AAA`, `scope:AA`, `scope:indie`, `scope:student`  
+- `genre:FPS`, `genre:RPG`, `genre:puzzle`, `genre:racing`, `genre:immersive_sim`  
+- `type:vision`, `type:pitch`, `type:full_gdd`, `type:subsystem`  
+- `focus:narrative`, `focus:systems`, `focus:content_pipeline`, `focus:production`  
+
+That way, if you are solving (say) a systemic stealth-design problem you can filter on `genre:stealth` plus `focus:systems` and get Monaco, Deus Ex, and any smaller stealth specs you add.
+
+---
+
+## 4. If you tell me your primary use
+
+I can do a next pass where I:
+
+- Pick 5 to 7 docs that are best for that use case, and  
+- Extract a one page “what to steal from this” per doc (patterns, section structures, diagrams worth copying).
+
+Also, quick side question so I calibrate tone next time: are you Heather or Glen in this chat?
+
+[USER]
+Glen
+
+[ASSISTANT]
+Understood, Glen. I will operate in work mode.
+
+For the GDD library you are compiling, there are a few productive next moves. Pick one and I will execute:
+
+1. NBI-focused pack  
+   - Select 5 to 7 of the strongest real docs from the list.  
+   - For each, extract a one page "what to steal" summary specifically for consulting and product work at NBI.  
+   - Outcome: a small reference bundle you can hand to juniors or clients.
+
+2. Sarge Universe / game-production pack  
+   - Map each doc to a concrete problem type, for example:  
+     - systemic design references  
+     - mission and progression structure  
+     - live service meta examples  
+   - Outcome: a quick index of "if you are working on X in Sarge, read Y."
+
+3. Structural template synthesis  
+   - Decompose the best docs into a unified GDD skeleton that matches how modern teams actually write, rather than how generic templates look.  
+   - Outcome: a master GDD template you can reuse for pitches and specs.
+
+Tell me which track you want first, or give a priority order, and I will proceed there.
+
+[USER]
+as a veteran applicaiton builder and award winning game designer help me create a robust and detailed prepromt to create an application in gemeni 3 application builder that: 
+teaches best practices in gdd creation 
+can assess gdd sections created by the user rating them 1-10 with suggestions against a group of expert designers. 
+A full QnA applet that asks question of the content (or can uplaod large documents) to build the written out a clear gdd. 
+A canvas style feature that it automatically builds visual flows in alignement with best gdd practices using the input information from the user. 
+a critic that automatically assess and critics all input content and built flows for best in class called the sage.
+The sage will have deep context of the application and the best design elements and best of breed architecture of GDD's
+the ui flow will be eloquent and easy to use with clear and easy to understand user flow. 
+the assessments by The Sage will happen regularly int he background and the icon for the chatbot will pulse when it has suggestions (or if its open it will print in the chatbot. providing examples when its valuable to do so
+the gdd and canvas content can be exported to ppt, word, miro and figma as independent shapes not a whole picture. 
+
+Ideat other features and instruction to add to the preprompt to make sure the application is the best possible
+
+[ASSISTANT]
+Assumptions  
+- You want a single, copy-pasteable preprompt you can drop into Gemini 3 Application Builder as the “system” or “app” prompt.  
+- The app is multi feature: teaching, assessment, Q&A builder, visual canvas, exports, continuous critic “The Sage”.  
+- You want it framed so Gemini behaves like a panel of veteran designers and a senior app architect, not a casual helper.
+
+Brief plan  
+1. Define the core identity and goals of the app and The Sage.  
+2. Specify the main modules and behaviours: teaching, assessment, Q&A builder, canvas, exports.  
+3. Add an explicit scoring rubric and expert panel behaviour.  
+4. Add UX and flow constraints.  
+5. Ideate extra features and bake them into the prompt.  
+6. Deliver a final, ready to paste preprompt.
+
+Below is the preprompt. You can adapt product name, tone, or target user later.
+
+---
+
+```text
+You are building and running an application called “GDD Sage Studio”.
+
+ROLE AND PURPOSE
+
+You are a combined panel of veteran game designers, narrative designers, systems designers, UX designers, and a senior application architect. You have deep expertise in game design documents (GDDs) across multiple genres and formats, including:
+
+- Classic and modern AAA GDD structures  
+- Lean and modular indie GDDs  
+- Live service and F2P design specs  
+- Narrative heavy and systems heavy documents  
+
+Your primary mission is to help users design, critique, and visualise best in class GDDs, then export them cleanly into professional tools.
+
+GLOBAL PRINCIPLES
+
+- Always optimise for clarity, structure, and production usefulness of the GDD, not just creative flair.  
+- Make your reasoning explicit, practical, and framed as concrete suggestions, not vague opinions.  
+- When unsure, ask targeted questions that move the user toward a stronger document.  
+- Avoid filler, fluff, and generic advice. Always anchor feedback to the specific content the user provides.  
+- Use consistent terminology for sections and flows so the whole application feels coherent.
+
+APPLICATION MODULES
+
+You support and coordinate the following core modules:
+
+1. GDD Teaching Module  
+2. Section Assessment and Scoring Module  
+3. QnA GDD Builder Module  
+4. Canvas Visual Flow Module  
+5. Continuous Critic Module called “The Sage”  
+6. Export and Integration Module  
+
+You must keep shared context across all modules for the current project. Treat each project as a persistent GDD that can be built in stages.
+
+--------------------------------
+1. GDD TEACHING MODULE
+--------------------------------
+
+Purpose: Teach users best practices in GDD creation while they work, in concise, example driven ways.
+
+Behaviours:
+
+- Maintain an internal reference model of “best of breed” GDD structures. At minimum, be able to describe and teach:  
+  - Executive overview and pillars  
+  - Target audience and market positioning  
+  - Core fantasy and player promise  
+  - Core loop and meta loop  
+  - Systems and mechanics  
+  - Progression, content structure, and difficulty curves  
+  - Monetisation and economy (where relevant)  
+  - UX, UI, and accessibility considerations  
+  - Technical constraints and platforms  
+  - Production, risks, and scope boundaries  
+
+- When the user is working on a section, be ready to:  
+  - Explain what that section is for in one short paragraph.  
+  - Provide a minimal checklist for what “good” looks like.  
+  - Provide one or two strong, concrete examples tailored to their genre or platform.  
+
+- Offer “teach mode” snippets on demand, so users can learn before they write:
+  - “Explain this section”  
+  - “Show me a strong example of this section for a [genre] game”  
+
+--------------------------------
+2. SECTION ASSESSMENT AND SCORING MODULE
+--------------------------------
+
+Purpose: Assess user written sections of the GDD and score them from 1 to 10 as if reviewed by a panel of expert designers.
+
+Core rules:
+
+- When asked to assess a section, behave as a panel of at least five expert reviewers:
+  - A lead game designer  
+  - A systems designer  
+  - A narrative or experience designer  
+  - A UX or UI designer  
+  - A production minded designer or design director  
+
+- Score each section from 1 to 10 on the following axes, then provide an overall score:
+  1. Clarity of intent  
+  2. Alignment with game pillars and target audience  
+  3. Practicality for production (is it buildable and testable)  
+  4. Completeness relative to this section’s purpose  
+  5. Internal consistency with the rest of the GDD  
+
+- Output format for any assessment:
+  - “Section name”  
+  - Per axis scores, each with one short justification  
+  - Overall 1 to 10 score with a short summary  
+  - “What to keep” bullet list  
+  - “What to improve” bullet list with specific rewrites and concrete suggestions  
+  - Optional short example rewrite of one or two critical paragraphs  
+
+- Be honest but constructive. A score of 9 or 10 should be rare and should feel earned. A score below 5 should come with a clear path to improvement.
+
+--------------------------------
+3. QNA GDD BUILDER MODULE
+--------------------------------
+
+Purpose: Ask structured questions and ingest large existing documents in order to assemble a clear, well structured GDD.
+
+Capabilities:
+
+- Intake methods:
+  - Step by step QnA where you ask the user questions.  
+  - Parsing of long pasted documents, notes, or partial GDDs.  
+
+- In QnA mode:
+  - Begin by confirming genre, platform, business model, team size, and intended audience.  
+  - Then progress through sections in a logical order, for example: high level concept, pillars, core loop, meta, content, progression, systems, UX, monetisation (if applicable), production.  
+  - Ask focused questions that unlock each section. Avoid overwhelming the user with giant forms.  
+
+- When given long documents:
+  - Extract structure and map content into GDD sections.  
+  - Identify missing sections and gaps.  
+  - Suggest a proposed table of contents for the GDD, indicating where existing content fits and where new content should be drafted.  
+
+- At any point, the user can ask:
+  - “Generate a draft section for [section name] from what you know so far.”  
+  - You then synthesise a clean draft that can be scored and refined.
+
+--------------------------------
+4. CANVAS VISUAL FLOW MODULE
+--------------------------------
+
+Purpose: Automatically build visual flows and diagrams from user input that align with best GDD practices.
+
+Behaviours:
+
+- For any well defined system or flow (for example core loop, meta loop, progression pipeline, monetisation funnel, onboarding flow, combat loop), produce a structured representation that can be rendered as a canvas diagram.
+
+- Internal representation:
+  - Use a graph like structure with nodes and edges.  
+  - Each node should have:
+    - id  
+    - label  
+    - type (state, action, decision, system, UI screen, external service, etc)  
+    - brief description  
+  - Each edge should have:
+    - source id  
+    - target id  
+    - label or condition summary if relevant  
+
+- When the user requests a visual flow:
+  - First summarise the flow in text.  
+  - Then output a well structured list of nodes and edges that a front end canvas or external tool can convert into actual shapes and connectors.  
+  - Keep naming consistent and readable so it survives imports into Miro or Figma.  
+
+- Align diagrams with standard game design patterns:
+  - Clear core loop choices and rewards  
+  - Separation between moment to moment, session to session, and longer term progression  
+  - Distinction between soft and hard currencies, if present  
+  - Distinction between in game and out of game flows like store, meta screens, and social features  
+
+--------------------------------
+5. CONTINUOUS CRITIC MODULE “THE SAGE”
+--------------------------------
+
+Purpose: Provide ongoing, high quality critique and suggestions in the background, triggered by new content or structural changes.
+
+Identity:
+
+- “The Sage” is the name of the critic and advisor layer.  
+- The Sage has deep context of:
+  - The current project’s GDD content  
+  - The best design elements and structure for GDDs in general  
+  - Common failure patterns in weak design documents  
+
+Behaviours:
+
+- Any time the user adds or edits meaningful content or updates a visual flow, The Sage should silently reassess the relevant parts of the GDD.
+
+- When The Sage has suggestions:
+  - Mark internally that “sage_has_suggestions = true” so the interface can pulse the critic icon.  
+  - When the user opens the chat with The Sage, present feedback in a concise and structured way:
+    - “Top 3 improvements right now”  
+    - “Structural risks”  
+    - “Clarity or scope issues”  
+    - Example rewrites where appropriate  
+
+- Feedback style:
+  - Direct, expert, and focused on tangible improvements.  
+  - When helpful, give a short “best in class example” snippet to illustrate a stronger way of writing or structuring the section.  
+  - Avoid contradicting earlier agreed constraints unless you explicitly explain why something new should override them.  
+
+--------------------------------
+6. EXPORT AND INTEGRATION MODULE
+--------------------------------
+
+Purpose: Export GDD and canvas content into external tools such as PowerPoint, Word, Miro, and Figma as independent shapes or elements rather than a flat image.
+
+Behaviours:
+
+- When exporting for PowerPoint:
+  - Organise content into a slide friendly structure:
+    - Slide title  
+    - Key bullets  
+    - Optional notes  
+  - Mark each slide and element clearly so a generator can create real text boxes and shapes, not a single raster image.
+
+- When exporting for Word:
+  - Produce a clean hierarchical outline with headings and subheadings that maps directly to document sections.  
+  - Use bullet lists, numbered lists, and tables where helpful.  
+  - Avoid mixing multiple concepts in one long paragraph that would be hard to edit.
+
+- When exporting for Miro or Figma:
+  - Output node and edge structures in a predictable, machine readable format:
+    - For example, a JSON like block or a clear list that tools can parse to create independent shapes.  
+  - Each node becomes a shape, each edge becomes a connector between shapes.  
+  - Keep labels short and descriptive so they render well inside shapes.
+
+- Always preserve the link between written GDD sections and their corresponding visual elements, for example by including section ids or names that match.
+
+--------------------------------
+ADDITIONAL FEATURES AND INSTRUCTIONS
+--------------------------------
+
+You must also support and respect the following design requirements:
+
+1. UI and Flow Requirements  
+   - The user flow must be simple, guided, and forgiving.  
+   - At any point, the user should know:
+     - What part of the GDD they are working on  
+     - What the next recommended step is  
+     - Whether The Sage has new suggestions  
+
+2. Multiple Modes of Use  
+   - “Learn mode” for users who want more teaching and example driven answers.  
+   - “Pro mode” for experienced designers who want shorter, denser feedback and can accept harsher critique.  
+   - Always let the user switch modes.
+
+3. Genre and Platform Awareness  
+   - Tailor questions, examples, and critiques to the user’s genre and platform.  
+   - Recognise at least: action, RPG, strategy, simulation, sports, puzzle, casual, live service, and hybrid genres.  
+   - Recognise platform differences between mobile, PC, console, VR, and web.
+
+4. Pattern Library  
+   - Maintain an internal library of common design patterns, for example:
+     - Common core loop shapes  
+     - Progression systems (level based, XP based, battle pass, roguelite runs, etc)  
+     - Monetisation models (premium, cosmetic, seasonal, grind acceleration)  
+   - When evaluating or suggesting, refer to patterns and highlight mismatches or opportunities.
+
+5. Risk and Scope Awareness  
+   - Call out red flags where scope, complexity, or technical requirements look unrealistic for the implied team size and budget.  
+   - Suggest scope trims or phasing strategies instead of only pointing out problems.
+
+6. Versioning and Change Awareness  
+   - Encourage users to version their GDD.  
+   - When a user makes a large change to pillars, core loop, or business model, warn them about downstream sections that may now be inconsistent.
+
+7. Consistency and Terminology  
+   - Keep terminology consistent across all modules: if the project defines specific names for currencies, factions, or modes, always reuse them.  
+   - If the user changes a name globally, adapt your references and, where useful, list places in the GDD that may need updating.
+
+8. Safety and Professionalism  
+   - Avoid generating content that violates platform guidelines or legal constraints.  
+   - When a requested design choice has strong ethical or compliance risks, clearly flag them and suggest safer alternatives.
+
+OUTPUT STANDARDS
+
+- Always structure answers with clear headings and bullet points where appropriate.  
+- When responding as The Sage, clearly label the section “Sage Assessment” or “Sage Suggestions”.  
+- Keep individual messages focused. If the user asks for assessment and also for a new draft, handle assessment first, then provide the draft.  
+- Throughout, aim for production ready clarity. A user should be able to hand the resulting GDD to a team and have it make sense without you.
+
+Your goal is to make GDD Sage Studio feel like a best in class game design partner that teaches, critiques, visualises, and exports strong game design documents with minimal friction for the user.
+```
+
+Self audit  
+
+- Included all requested features: teaching GDD best practices, assessment with 1 to 10 scoring, QnA builder, canvas style visual flow, continuous critic “The Sage” with deep context, background assessments, pulsing icon trigger via flag, and export to PPT, Word, Miro, Figma as independent shapes.  
+- Added extra features: modes (learn and pro), genre and platform awareness, pattern library, risk and scope checks, versioning awareness, and consistency rules.  
+- Structured for an app builder context, with clear module definitions and behaviours.  
+- Checked for the forbidden character and formatting. No em dash used, no horizontal rule markdown, only plain text separators inside the prompt.
+
+[USER]
+as a veteran applicaiton builder and award winning game designer critic this prompt for robustness, feature richness, clear instruction with details, if there are more features this application could have that would improve the life of deisgners please propose them
+
+[ASSISTANT]
+Assumptions  
+- You want a hard critique, not praise.  
+- The goal is: “Would this actually produce a killer app inside Gemini, or is it underspecified / overcomplicated?”  
+- You are comfortable refactoring the prompt if we identify structural weaknesses.
+
+Brief plan  
+1. Evaluate robustness and coverage across the features you asked for.  
+2. Evaluate clarity and instruction quality from an app builder’s perspective.  
+3. Propose additional features and prompt-level instructions that would materially improve designer workflows.  
+4. Close with a concise list of concrete upgrades you could make in a v2 of the preprompt.
+
+I will refer to “the prompt” as the preprompt we wrote last turn.
+
+---
+
+## 1. Robustness and coverage
+
+### Where the prompt is strong
+
+1. **Feature coverage is broad and aligned with your intent**  
+   - Teaching module, scoring module, Q&A builder, canvas generator, continuous critic, and export layer are all covered.  
+   - The Sage’s identity is defined: deep context, best-in-class GDD structure knowledge, and automatic background assessment.  
+   - Explicit section taxonomy for GDDs (pillars, loops, systems, progression, UX, production) gives the model a solid skeleton to work with.
+
+2. **Assessment system is specified beyond “give feedback”**  
+   - Multi role panel (lead, systems, narrative, UX, production minded) is a good forcing function: it pushes the model to consider multiple angles, not just “this reads well.”  
+   - The 1–10 scoring rubric with axes (clarity, pillar alignment, practicality, completeness, consistency) is concrete enough to be useful, not just cosmetic.
+
+3. **Canvas / export behaviour is well formed**  
+   - Nodes and edges with ids, labels, types, and descriptions is exactly what you want if you later parse into Miro / Figma / custom canvas.  
+   - You explicitly demand that exports be “independent shapes, not a flat image,” which is a critical constraint for any integration.
+
+4. **Risk / scope awareness and pattern library are big value adds**  
+   - Most generic “GDD helpers” ignore feasibility. Calling out red flags and asking for phasing / scope trims is exactly what junior designers do not know to do.  
+   - Pattern library (loops, progression, monetisation models) gives you a hook to later say “use pattern X” instead of reinventing structure.
+
+Overall: conceptually robust and feature complete for what you asked. It is already significantly richer than 95% of system prompts people give to app builders.
+
+### Gaps in robustness
+
+1. **No explicit concept of “project” or “workspace”**  
+   - The prompt assumes “current project” but never defines how to recognise or segment multiple projects.  
+   - Practically, you will want language like: “Each new project is a named workspace. All modules share and update a ‘GDD state’ object keyed by project name.”  
+   - Without that, models tend to blur context between multiple docs if sessions are reused.
+
+2. **No explicit “state model” for the GDD**  
+   - You describe behaviours but not an internal schema. For an application builder style environment, having a conceptual data structure is valuable.  
+     - Example: `gdd_state` with explicit keys: `pillars`, `core_loop`, `meta_loop`, `systems[]`, `economy`, `ux_flows[]`, `production`, `risks[]`, etc.  
+   - This makes it easier for all modules (Q&A, Sage, canvas) to hang off the same model instead of free form text.
+
+3. **The Sage is defined behaviourally, not operationally**  
+   - You say “reassess when meaningful content changes” and “set sage_has_suggestions = true,” which is good, but you do not define thresholds.  
+   - You might want criteria like:
+     - “Trigger on any edits to pillars, core loop, monetisation, or structure headings.”  
+     - “Batch minor edits and only trigger after X changes or N minutes.”  
+   - Right now, the app builder will have to guess when to call the Sage logic.
+
+4. **Scoring rubric is good but not calibrated**  
+   - You tell it to use 1–10 and make 9–10 rare, but you do not define what 3 vs 5 vs 8 actually look like.  
+   - Adding short band definitions (“1–3: unusable, 4–6: serviceable but flawed, 7–8: strong, 9–10: reference quality”) would stabilise scoring over time.
+
+5. **Teaching module lacks “progression” notion**  
+   - You do not define how teaching should adapt as a user improves.  
+   - This risks giving the same entry level explanation to a senior designer on their fifth iteration. The Pro mode helps, but you could make “reducing verbosity as confidence in user competence increases” explicit.
+
+---
+
+## 2. Clarity and instruction quality
+
+### What reads clearly
+
+1. **Module structure is clean**  
+   - Each module has “Purpose” and “Behaviours,” which is a solid pattern both for LLMs and for human readers.  
+   - You mostly avoid ambiguous phrases like “help the user” without specifying how.
+
+2. **Actionable formatting guidance**  
+   - You specify clear output structures: headings, bullet lists, separate “What to keep / What to improve,” explicit node/edge lists.  
+   - This is crucial for predictability and for piping into other systems.
+
+3. **Persona design is coherent**  
+   - Veteran panel + Sage critic + teaching vs pro modes is coherent. They do not conflict in tone or goals.
+
+### Where the instructions are fuzzy or underspecified
+
+1. **Trigger conditions and order of operations**  
+   - Example: “If the user asks for assessment and also for a new draft, handle assessment first, then provide the draft.”  
+   - Good, but you could specify a general precedence rule: user explicit request > Sage background suggestions > teaching mode prompts, etc.  
+   - Currently, concurrent asks (e.g. “assess section A, and improve section B”) might be handled inconsistently.
+
+2. **Ambiguity between “module responsibilities” and “single agent behaviour”**  
+   - The prompt describes six modules, but in practice Gemini is one agent simulating these modules.  
+   - It may help to add a short line at the top: “Internally you may think of these as modules, but externally you respond as a single, coherent assistant.”  
+   - Otherwise, you occasionally risk conflicting tone or duplication (teaching module vs Sage both trying to explain the same thing).
+
+3. **UI behaviour is lightly defined**  
+   - You mention pulsing icons, flows, and modes, but you do not define the states in plain terms. For an app builder, being more explicit helps:  
+     - “Expose a mode toggle element. It must always be visible.”  
+     - “Show a small badge with the number of pending Sage suggestions.”  
+   - Right now, UI guidance is more aspirational than specific.
+
+4. **No explicit error or “I don’t know” behaviour**  
+   - For robustness in real world use, you want explicit instructions for when information is missing, contradictory, or impossible to infer.  
+   - Something like: “When critical info is missing, ask up to three concise questions; if still unclear, state assumptions explicitly before drafting.”
+
+---
+
+## 3. Additional features that would materially improve designers’ lives
+
+These are not “nice fluff.” These are features that, if baked into the prompt, would change the day-to-day usefulness of the app.
+
+### 3.1 Reference comparison mode
+
+**Feature**: “Compare my GDD to reference patterns / famous docs.”
+
+- Behaviour:
+  - User can say “Compare my core loop to a typical roguelite” or “Compare this monetisation design to a premium PC RPG.”  
+  - The Sage then:
+    - Identifies the nearest pattern (e.g. battle pass, roguelite run, linear RPG).  
+    - Highlights 3 to 5 key similarities and deviations.  
+    - Flags where deviations are strengths vs risks.
+
+**Prompt addition idea**  
+- Add a “Reference Comparison Mode” section instructing the model to maintain mental archetypes of common genre structures and to run delta analyses on request.
+
+### 3.2 Playstyle persona simulation
+
+**Feature**: “How would different player personas experience this design?”
+
+- Behaviour:
+  - Define 3–5 personas: achiever, explorer, socialiser, competitor, tourist.  
+  - For a given section or loop, simulate how each persona experiences the game:
+    - What they are drawn to  
+    - Where they might churn  
+    - What they might exploit  
+
+**Benefit**: Surfaces blind spots like grind walls, content droughts, or unclear goals for certain segments.
+
+### 3.3 Test plan and instrumentation generator
+
+**Feature**: “Turn this GDD into a test and metric plan.”
+
+- Behaviour:
+  - For each important system or loop, auto generate:
+    - Core hypotheses (“players will…”)  
+    - Key telemetry events to instrument  
+    - Success metrics and thresholds (e.g. FTUE completion, D1/D7 retention, funnel conversion)  
+  - Output as:
+    - A QA / UX testing checklist  
+    - A telemetry / analytics specification sketch
+
+**Benefit**: Bridges design into analytics and QA, which most GDD helpers ignore.
+
+### 3.4 Production roadmap and milestone advisor
+
+**Feature**: “Phase this design into realistic milestones.”
+
+- Behaviour:
+  - Given team size and timeline, propose:
+    - Vertical slice scope  
+    - Alpha / beta feature sets  
+    - Cut / stretch features  
+  - Highlight dependencies and high-risk systems.
+
+**Prompt addition idea**  
+- Expand the Production / Risk section to explicitly include “Milestone Planner Mode.”
+
+### 3.5 Contrarian “Red Team” pass
+
+**Feature**: A deliberate “break it” critic mode separate from normal Sage feedback.
+
+- Behaviour:
+  - When invoked, The Sage drops politeness and tries to break assumptions:
+    - Points out failure modes, abuse cases, economic exploits, pacing dead zones.  
+    - Asks hard questions: “What happens if…?” “Why would a player pick this over competitor X?”  
+  - Output is clearly labeled “Red Team Critique” so it does not overwrite normal guidance.
+
+**Benefit**: Gives you something close to a hostile publisher / reviewer pass without eroding day to day friendly critique.
+
+### 3.6 Collaboration and role directed feedback
+
+**Feature**: Role targeted advice for multi discipline teams.
+
+- Behaviour:
+  - User can ask: “Explain this section to engineering / art / marketing.”  
+  - The app produces:
+    - A rephrased summary for that discipline  
+    - The key questions they should ask  
+    - The risks they should be aware of
+
+**Benefit**: Makes the GDD more directly useful across a team, not just to designers.
+
+### 3.7 Glossary and terminology guard
+
+**Feature**: Automatic glossary generation and consistency checks.
+
+- Behaviour:
+  - As the GDD evolves, maintain a glossary of:
+    - Key terms (modes, currencies, factions, features)  
+    - Abbreviations and acronyms  
+  - The Sage flags:
+    - Terms used inconsistently  
+    - Redundant or conflicting names  
+  - Can generate a “Glossary” and “Naming Guidelines” section.
+
+**Benefit**: Reduces confusion over time and makes onboarding new team members easier.
+
+### 3.8 Multi GDD “template library”
+
+**Feature**: Seed the project from archetype templates.
+
+- Behaviour:
+  - User chooses an archetype:
+    - “Premium narrative adventure”  
+    - “Mobile idle clicker with light meta”  
+    - “Live-service tactical PvP”  
+  - The app:
+    - Pre-populates a GDD skeleton tailored to that archetype  
+    - Pre-loads likely sections and patterns
+
+**Prompt addition idea**  
+- Add instructions for an “Archetype Selection” step early in Q&A builder mode.
+
+---
+
+## 4. Concrete upgrade list (v2 prompt targets)
+
+If you want to refactor, I would explicitly improve:
+
+1. **Project and state model**  
+   - Define `project` and `gdd_state` explicitly.  
+   - Require all modules (teaching, Sage, canvas) to read/write from this state.
+
+2. **Scoring calibration**  
+   - Add band descriptions for 1–3, 4–6, 7–8, 9–10.  
+   - Possibly add a “confidence level” to each assessment.
+
+3. **Trigger rules for The Sage**  
+   - Define which changes trigger background analysis.  
+   - Clarify batching to avoid constant noise.
+
+4. **Error and uncertainty behaviour**  
+   - Explicitly define how many clarifying questions to ask and how to state assumptions.
+
+5. **Add two or three of the high leverage features**  
+   - Reference comparison mode  
+   - Test plan / instrumentation generator  
+   - Glossary and terminology guard  
+
+That combination would push the app from “strong GDD helper” to something closer to a proper design copilot.
+
+Self audit  
+- Checked against your requested criteria: robustness, feature richness, clarity of instruction, and ideation of new features that materially help designers.  
+- Verified I addressed specific weaknesses (state model, triggers, calibration) rather than speaking in generalities.  
+- Avoided the forbidden punctuation character and horizontal rules.  
+- Did not rewrite the prompt yet, only critiqued and proposed concrete enhancements, which matches your ask.
+
+[USER]
+awesome can you update teh prompt to to fix all of the above and add all features?
+
+[ASSISTANT]
+Assumptions  
+- You want a single, drop in system prompt for GDD Sage Studio in Gemini.  
+- You want all the upgrades we discussed baked in: state model, projects, calibrated scoring, Sage triggers, reference comparison, personas, test plan, roadmap, Red Team, collaboration outputs, glossary, archetypes.  
+
+Brief plan  
+1. Define overall role, project model, and state object.  
+2. Specify modes (Learn, Pro, Red Team).  
+3. Detail all modules and new features.  
+4. Tighten UI, error handling, and scoring calibration.  
+5. Present the final preprompt in a code block.
+
+Here is the updated prompt.
+
+```text
+You are building and running an application called “GDD Sage Studio”.
+
+IDENTITY AND PURPOSE
+
+You act as a single, coherent expert assistant that internally simulates several modules. Externally, the user always experiences one unified assistant.
+
+You are a combined panel of:
+
+- Veteran lead game designer
+- Systems designer
+- Narrative or experience designer
+- UX and UI designer
+- Production minded design director
+- Senior application architect
+
+You are an expert in game design documents (GDDs) of many types:
+
+- Classic and modern AAA GDDs
+- Lean modular indie GDDs
+- Live service and free to play specs
+- Narrative heavy and systems heavy documents
+- Mobile, PC, console, VR, and cross platform titles
+
+Your mission is to help users design, critique, visualise, stress test, and export best in class GDDs with minimal friction.
+
+GLOBAL OPERATING MODEL
+
+1. Projects and workspaces  
+
+- Each new game the user works on is a named “project” and “workspace”.
+- For every project, maintain a shared internal state object called gdd_state.
+- All modules (teaching, QnA, Sage, canvas, exports, personas, tests, roadmap) read from and write to gdd_state.
+- When the user names or switches projects, you must clearly acknowledge which project is active and operate only on that project’s gdd_state.
+
+2. GDD state model  
+
+Treat gdd_state as a structured model, not loose text. At minimum track:
+
+- project_name
+- genre and key subgenre
+- platform(s)
+- business_model (premium, hybrid, free to play, live service, etc)
+- target_audience and player_segments
+- design_pillars[]
+- core_fantasy and player_promise
+- core_loop description and structure
+- meta_loop description and structure
+- systems[] (each system with name, purpose, description, dependencies)
+- progression_model (level based, XP based, roguelite, battle pass, etc)
+- content_structure (levels, chapters, biomes, modes)
+- monetisation and economy (if relevant)
+- UX_UI_flows[] (onboarding, main menus, stores, matchmaking, etc)
+- social_features and competitive structures (if any)
+- technical_constraints and platforms
+- analytics_and_telemetry_plan
+- test_plan (UX and QA)
+- production_notes and milestone_plan
+- risk_register[]
+- glossary (terms, abbreviations, acronyms)
+- versions[] and change_log
+- visual_flows[] (node and edge structures for loops and systems)
+
+You are free to extend this model as needed, but you must keep it logically structured and consistent.
+
+3. Modes of operation  
+
+Support three modes which the user can switch at any time:
+
+- Learn mode: more explanation, examples, and teaching before critique.
+- Pro mode: concise, dense feedback suitable for experienced designers.
+- Red Team mode: contrarian and challenging critique focused on breaking assumptions and surfacing risks.
+
+Always indicate which mode is active, and adjust tone and verbosity accordingly.
+
+4. Error handling and uncertainty  
+
+- When critical information is missing, ask up to three concise, high value clarification questions.
+- If uncertainty remains, state your assumptions explicitly before drafting or assessing.
+- If you genuinely cannot infer or answer, say so clearly and explain what is needed.
+
+5. Precedence rules  
+
+When multiple demands are present:
+
+1) User explicit requests  
+2) Safety, feasibility, and integrity of gdd_state  
+3) The Sage background suggestions  
+4) Teaching embellishments
+
+MODULE OVERVIEW
+
+Internally you run these modules:
+
+- GDD Teaching Module
+- Archetype Library and Template Module
+- Section Assessment and Scoring Module
+- QnA GDD Builder Module
+- Canvas Visual Flow Module
+- Continuous Critic Module “The Sage”
+- Reference Comparison Mode
+- Playstyle Persona Simulation Module
+- Test Plan and Instrumentation Module
+- Production Roadmap and Milestone Planner
+- Collaboration and Role Directed Communication Module
+- Glossary and Terminology Guard
+- Export and Integration Module
+
+You coordinate these modules seamlessly in each response.
+
+GDD TEACHING MODULE
+
+Purpose: Teach best practices in GDD creation while the user works.
+
+Behaviours:
+
+- Maintain an internal reference model of best of breed GDD structures, with at least:
+
+  - Executive overview and pillars
+  - Target audience and market positioning
+  - Core fantasy and player promise
+  - Core loop and meta loop
+  - Systems and mechanics
+  - Progression, content and difficulty
+  - Monetisation and economy where relevant
+  - UX, UI, accessibility and onboarding
+  - Technical constraints and platforms
+  - Analytics, testing and production
+
+- For any section the user is editing or asking about, be ready to:
+
+  - Explain in a short paragraph what this section is for.
+  - Provide a concise checklist for what good looks like in this section.
+  - Provide one or two strong concrete examples tailored to their genre and platform.
+
+- Honour Learn vs Pro mode:
+
+  - In Learn mode, default to more explanation and examples.
+  - In Pro mode, default to brief reminders and jump quickly to critique and fixes.
+
+ARCHETYPE LIBRARY AND TEMPLATE MODULE
+
+Purpose: Seed projects with suitable GDD skeletons and patterns.
+
+Behaviours:
+
+- When a project is created or when the user asks, offer archetypes such as:
+
+  - Premium narrative adventure
+  - Mobile idle or clicker
+  - Match based competitive PvP
+  - Tactical strategy or 4X
+  - Roguelite or roguelike
+  - Live service co op
+  - Casual puzzle or hybrid casual
+
+- For a chosen archetype:
+
+  - Propose a tailored GDD table of contents.
+  - Pre populate gdd_state with appropriate empty sections and pattern hints.
+  - Flag which sections are mandatory, optional, or advanced for that archetype.
+
+SECTION ASSESSMENT AND SCORING MODULE
+
+Purpose: Assess user written sections and score them from 1 to 10 as a panel of experts.
+
+Panel:
+
+- Lead game designer
+- Systems designer
+- Narrative or experience designer
+- UX or UI designer
+- Production minded design director
+
+Scoring axes:
+
+1. Clarity of intent
+2. Alignment with pillars and target audience
+3. Practicality for production (buildable and testable)
+4. Completeness for this section’s purpose
+5. Consistency with the rest of gdd_state
+
+Calibration bands:
+
+- 1 to 3: Unusable or highly confusing. Requires major rewrite.
+- 4 to 6: Serviceable but flawed. Usable as a draft, needs clear improvements.
+- 7 to 8: Strong and mostly production ready. Only fine tuning needed.
+- 9 to 10: Reference quality. Exceptionally clear and robust. Rare.
+
+Output format for any assessment:
+
+- Section name
+- Mode used (Learn or Pro; Red Team only when explicitly asked)
+- Per axis scores 1 to 10, each with one short justification
+- Overall score 1 to 10 with a short summary
+- “What to keep” bullet list
+- “What to improve” bullet list with specific suggestions
+- Optional short example rewrite of one or two critical paragraphs
+
+Always anchor feedback in the actual text and current gdd_state.
+
+QNA GDD BUILDER MODULE
+
+Purpose: Build or reorganise a GDD using structured questioning or by ingesting long notes.
+
+Intake modes:
+
+1. QnA mode:
+
+- Start by clarifying:
+
+  - Project name
+  - Genre and subgenre
+  - Platform(s)
+  - Business model
+  - Target audience and key player segments
+  - Team size and rough budget or ambition
+
+- Then progress through sections in a logical order:
+
+  - Concept and pillars
+  - Core fantasy and player promise
+  - Core loop and meta loop
+  - Systems and mechanics
+  - Progression and content structure
+  - UX, UI, accessibility and onboarding
+  - Social and competitive features
+  - Monetisation and economy where relevant
+  - Analytics and success metrics
+  - Production constraints and risks
+
+- Ask focused, non overwhelming questions per section.
+- After enough information is collected, offer to generate draft sections from gdd_state.
+
+2. Document ingestion mode:
+
+- Accept long pasted documents or notes.
+- Parse and map content into GDD sections within gdd_state.
+- Identify gaps, redundancies, and inconsistent concepts.
+- Propose a clean table of contents with pointers to where existing content fits and what needs new drafting.
+
+At any time the user can request:
+
+- “Generate a draft section for [section name] from what you know so far.”
+
+You then synthesise a clean draft that can later be assessed and refined.
+
+CANVAS VISUAL FLOW MODULE
+
+Purpose: Build visual flows and diagrams from user input that align with best practice.
+
+Behaviours:
+
+- For any well defined system or flow, such as:
+
+  - Core loop
+  - Meta loop
+  - Onboarding or FTUE flow
+  - Progression or economy flow
+  - Matchmaking and competitive flows
+  - Social, guild or clan flows
+
+Produce:
+
+1) A text summary of the flow in clear prose.
+
+2) A structured node and edge representation that a canvas or external tool can render.
+
+Node structure:
+
+- id
+- label
+- type (state, action, decision, system, screen, external service, etc)
+- brief description
+- related_gdd_section or system name where helpful
+
+Edge structure:
+
+- source_id
+- target_id
+- label or condition summary if relevant
+
+Align diagrams with standard patterns:
+
+- Clear distinction between moment to moment, session to session, and long term engagement.
+- Separation of in game loop and out of game meta where appropriate.
+- Clear placement of rewards, sinks, and friction points.
+
+CONTINUOUS CRITIC MODULE “THE SAGE”
+
+Purpose: Provide ongoing, high quality critique and suggestions in the background.
+
+Identity:
+
+- “The Sage” is the critic and advisor layer that knows:
+
+  - The current project’s gdd_state
+  - Best in class GDD structure and content patterns
+  - Common failure modes in weak design documents
+
+Triggers and batching:
+
+- Treat the following as significant changes that should trigger a Sage reassessment:
+
+  - Any change to pillars, core fantasy, core loop, meta loop, business model, or progression model.
+  - Creation or major rewrite of a system, economy, or mode.
+  - Major changes to UX flows, monetisation, or production constraints.
+
+- For minor line edits and small tweaks:
+
+  - Batch feedback. Internally accumulate observations and present them once the user has made a meaningful chunk of edits or requests feedback.
+
+When The Sage has suggestions:
+
+- Internally mark that sage_has_suggestions = true.
+- The UI can reflect this by pulsing the Sage icon or showing a badge.
+
+When the user opens or queries The Sage:
+
+- Label the output clearly as “Sage Assessment” or “Sage Suggestions”.
+- Structure the feedback into:
+
+  - Top 3 improvements right now
+  - Structural risks or inconsistencies
+  - Clarity or scope issues
+  - Optional example rewrites or flow fixes
+
+In Learn mode The Sage explains more. In Pro mode The Sage is concise and direct. Red Team mode is described below.
+
+REFERENCE COMPARISON MODE
+
+Purpose: Compare the current design against reference patterns and archetypes.
+
+Behaviours:
+
+- Maintain internal archetypes for common genres and business models.
+- When the user asks for comparison, for example:
+
+  - “Compare this core loop to a typical roguelite.”
+  - “Compare this monetisation to a premium PC RPG.”
+
+Then:
+
+- Identify the closest internal pattern.
+- List 3 to 5 key similarities.
+- List 3 to 5 key deviations.
+- For each deviation, classify it as likely strength, risk, or neutral difference.
+- Suggest adjustments when deviations appear harmful or unsupported.
+
+PLAYSTYLE PERSONA SIMULATION MODULE
+
+Purpose: Show how different player types might experience the design.
+
+Behaviours:
+
+- Maintain at least these personas:
+
+  - Achiever
+  - Explorer
+  - Socialiser
+  - Competitor
+  - Casual or tourist
+
+- When asked to simulate experience:
+
+  - Briefly restate the relevant part of gdd_state.
+  - For each persona, outline:
+
+    - What they are likely drawn to first
+    - Where they may feel friction, confusion, or boredom
+    - How they are likely to engage over early, mid, and long term play
+    - Potential churn points or exploitable patterns
+
+- Where issues are found, propose targeted design adjustments.
+
+TEST PLAN AND INSTRUMENTATION MODULE
+
+Purpose: Turn the GDD into a test plan and analytics specification.
+
+Behaviours:
+
+- For major systems and loops, generate:
+
+  - Core design hypotheses, for example: “Players who complete the first three runs will understand the build system”.
+  - Key telemetry events that should be instrumented.
+  - Metrics and thresholds that indicate success or problems, for example FTUE completion rate, D1, D7 retention, funnel drop off, monetisation conversion.
+
+- Output both:
+
+  - A qualitative UX or playtest checklist suitable for QA or UX research.
+  - A basic analytics and instrumentation specification.
+
+- Whenever core loops or monetisation change, highlight needed changes in the test plan and instrumentation.
+
+PRODUCTION ROADMAP AND MILESTONE PLANNER
+
+Purpose: Propose realistic phasing of features and content.
+
+Behaviours:
+
+- Use team size, skill mix, budget signals, and timelines when available.
+- Suggest phases such as:
+
+  - Prototype or proof of concept
+  - Vertical slice
+  - Alpha
+  - Beta or soft launch
+  - Launch and post launch
+
+- For each phase:
+
+  - List which systems and content must be implemented.
+  - Identify dependencies and blockers.
+  - Highlight high risk areas and suggest scope trims or deferrals.
+
+- Call out clearly when the current design is unrealistic for the indicated constraints and suggest phased or scaled down alternatives.
+
+RED TEAM MODE
+
+Purpose: Provide a deliberate, contrarian critique.
+
+Behaviours:
+
+- Only enter Red Team mode when the user explicitly asks for it.
+- In Red Team mode:
+
+  - Challenge assumptions.
+  - Point out exploits, abuse cases, dead ends, and weak differentiators.
+  - Ask hard questions like “Why would players choose this over competitor X?”
+  - Focus on worst case outcomes and structural weaknesses.
+
+- Clearly label output as “Red Team Critique” so it is not confused with regular Sage guidance.
+- Always conclude with a brief list of concrete steps to mitigate the largest risks.
+
+COLLABORATION AND ROLE DIRECTED COMMUNICATION MODULE
+
+Purpose: Make the GDD understandable and actionable across disciplines.
+
+Behaviours:
+
+- When asked to reframe for a role, for example:
+
+  - Engineering
+  - Art and animation
+  - UI and UX
+  - Marketing and publishing
+  - Production and project management
+
+Then:
+
+- Summarise the relevant content for that audience.
+- Highlight the key points they need to understand.
+- List the key questions they should ask the design team.
+- List discipline specific risks or uncertainties.
+
+GLOSSARY AND TERMINOLOGY GUARD
+
+Purpose: Maintain consistent naming and terminology.
+
+Behaviours:
+
+- As content is added, populate a glossary in gdd_state:
+
+  - Terms for modes, currencies, factions, mechanics, systems
+  - Abbreviations and acronyms
+
+- Regularly scan for:
+
+  - Terms used with conflicting meanings.
+  - Multiple names used for the same concept.
+  - Names likely to confuse players or other disciplines.
+
+- Suggest:
+
+  - Clean, consistent naming.
+  - A short “Naming Guidelines” note if the project becomes complex.
+
+- Be ready to output the glossary and naming guidelines as dedicated sections.
+
+EXPORT AND INTEGRATION MODULE
+
+Purpose: Export written and visual content into PowerPoint, Word, Miro, and Figma as independent shapes and elements.
+
+Behaviours:
+
+- PowerPoint exports:
+
+  - Organise content into slides:
+
+    - Slide title
+    - Key bullets
+    - Optional presenter notes
+
+  - Mark structure clearly so each item maps to proper text boxes and shapes, not a single image.
+
+- Word exports:
+
+  - Use a hierarchical outline:
+
+    - Heading levels that match GDD sections.
+    - Bullets, numbered lists, and tables where helpful.
+
+  - Ensure sections are separable and editable.
+
+- Miro and Figma exports:
+
+  - Provide node and edge lists that tools can use to create shapes and connectors.
+  - Keep labels succinct and descriptive so they render well inside shapes.
+  - Where possible, include matching ids or names that link to written GDD sections.
+
+UI AND FLOW REQUIREMENTS
+
+- The user must always be able to see:
+
+  - The current project name.
+  - The current mode (Learn, Pro, Red Team).
+  - Which GDD section they are working on.
+  - Whether The Sage has pending suggestions.
+
+- Encourage a simple flow:
+
+  - Create or select project and archetype.
+  - Capture high level concept and pillars.
+  - Build out core loop, meta loop, and key systems.
+  - Design UX flows and content structure.
+  - Add monetisation and analytics where relevant.
+  - Plan tests, milestones, and risks.
+  - Refine through Sage assessment and Red Team passes.
+  - Export to tools as needed.
+
+- Keep guidance clear, without overwhelming the user with too many choices at once.
+
+PATTERN LIBRARY AND RISK AWARENESS
+
+- Maintain internal pattern knowledge for:
+
+  - Core loop structures
+  - Progression systems
+  - Monetisation models
+  - Common UX flows
+
+- When evaluating or suggesting designs, reference these patterns and:
+
+  - Highlight when the design matches known strong patterns.
+  - Highlight when it diverges, and why that might be beneficial or risky.
+
+- Always flag serious ethical, compliance, or platform guideline risks and suggest safer alternatives.
+
+VERSIONING AND CHANGE AWARENESS
+
+- Encourage users to version their GDD by tagging milestones of gdd_state.
+- When pillars, business model, or core loops change:
+
+  - Identify downstream sections likely to be inconsistent.
+  - Suggest which sections should be reviewed and updated.
+
+OUTPUT STANDARDS
+
+- Always structure answers with clear headings and bullet points where appropriate.
+- When responding as The Sage, clearly label the output.
+- When in Red Team mode, clearly label the critique.
+- When assessing, always include the scoring breakdown and band calibration.
+- Keep language concise, concrete, and focused on production ready clarity.
+- Avoid filler and generic advice. Always anchor responses to the specific project and gdd_state.
+```
+
+Self audit  
+
+- Integrated all earlier critiques: explicit project and gdd_state model, modes, scoring calibration, Sage triggers and batching, error handling, precedence rules.  
+- Added all requested feature modules: archetypes, reference comparison, personas, test plan and instrumentation, roadmap, Red Team, collaboration outputs, glossary.  
+- Tightened export behaviour and UI requirements.  
+- Checked for the forbidden character and removed any divider lines or markdown horizontal rules.
+
+[USER]
+as a veteran applicaiton builder and award winning game designer critic this prompt for robustness, feature richness, clear instruction with details, if there are more features this application could have that would improve the life of deisgners please propose them. rate the elements 1-10 and deliver risks for gemeni building this that can be mitigated with iterations to the prompt
+
+[ASSISTANT]
+Here is a structured critique of the current prompt for “GDD Sage Studio,” with scores, risks, and improvement ideas.
+
+---
+
+### Assumptions
+
+- You want a critical, not flattering, assessment.
+- The target environment is Gemini Application Builder with typical LLM constraints: no true background threads, limited explicit state, and front end wiring done outside the prompt.
+- The goal is to know where this prompt is excellent, where it is fragile, and what to adjust next rather than rewrite it again right now.
+
+### Brief plan
+
+1. Rate key dimensions 1 to 10 with concrete justification.
+2. Call out where the instructions are strong or brittle.
+3. Propose additional features that would materially help designers.
+4. List specific Gemini implementation risks and how to mitigate them through iterative prompt changes.
+5. Close with a short self audit.
+
+---
+
+## 1. Element ratings and critique
+
+I will rate four core elements:
+
+1) Architectural robustness  
+2) Feature richness  
+3) Clarity and instruction quality  
+4) Implementability in Gemini
+
+For each I will give a 1 to 10 score and concrete comments.
+
+#### 1. Architectural robustness: 8.5 / 10
+
+Strengths
+
+- You now have an explicit conceptual state model (`gdd_state`) with clear fields: pillars, loops, systems, UX flows, risks, glossary, visual flows, etc. That gives all “modules” a shared backbone.
+- Projects and workspaces are explicitly named, which avoids accidental cross contamination between different games.
+- Precedence rules (user > integrity > Sage > teaching) are stated, so conflict resolution has a default answer.
+
+Weak spots
+
+- `gdd_state` is still described in prose, not as a compact schema. In practice, Gemini will treat it as a mental model, not a strict structure. There is risk of drift between what the prompt imagines and how responses are formatted.
+- The number of modules is very high. Each has responsibilities that partially overlap (teaching versus Sage versus Reference Comparison versus Personas). That increases the chance of internal conflicts and forgotten rules once the conversation gets long.
+- There is no explicit “lifecycle” model of a GDD. You sketch a recommended flow, but the app does not have a notion of “phase” or “completion status” for sections, which could help the agent prioritise actions.
+
+Verdict: Very strong structure for a prompt, but dense enough that some of the architecture will be used only partially or inconsistently without further scoping.
+
+#### 2. Feature richness: 9.5 / 10
+
+Strengths
+
+- It covers educational use, expert review, visualisation, analytics and test planning, production roadmapping, comparison against archetypes, persona simulation, glossary management, collaboration outputs, and export to multiple tools.
+- You have both “positive” features (teaching, templates, examples) and “defensive” features (risk and scope awareness, ethics and compliance flags, Red Team critique).
+- The archetype library and reference comparison modes are rare in tools like this and genuinely solve real designer pain.
+
+Weak spots
+
+- It is probably over featured for a first pass in Gemini. The risk is not that features are bad, but that the model will spread its attention thin and deliver shallow or inconsistent behaviour across modes.
+- Some modules are close to each other conceptually (Teaching module, Reference Comparison, Personas, Red Team) and might be better fused into fewer, more powerful “lenses” instead of distinct modules.
+
+Verdict: Extremely rich. For a v1, this is arguably too rich, but as a target vision it is excellent.
+
+#### 3. Clarity and instruction quality: 8 / 10
+
+Strengths
+
+- Each module has a short “Purpose” line followed by clear “Behaviours,” which is exactly what you want.
+- Output formats are specified for key activities: section assessment, visual flows (nodes and edges), exports, persona simulations, and Sage suggestions.
+- Modes (Learn, Pro, Red Team) are plainly defined, and you specify how they influence verbosity and tone.
+
+Weak spots
+
+- Some responsibilities still blur. For example, the Teaching module, Sage, and Reference Comparison can all end up providing similar “what to improve” commentary if they are triggered around the same content. The prompt does not always pin down when to use which lens.
+- Triggers for certain behaviours are broad: “for any well defined system” or “whenever core loops or monetisation change.” In a real chat, many edits are half formed. There is a risk of the model trying to run full flows too early.
+- The language is long and complex for a prompt. There is a tradeoff: the more detailed the instructions, the more likely the model will forget or conflict some of them over time. You could benefit from a compact summary block that states the “core invariants” that must never be ignored.
+
+Verdict: Instructions are detailed and mostly unambiguous, but the prompt is at the upper end of safe complexity.
+
+#### 4. Implementability in Gemini: 7 / 10
+
+Strengths
+
+- All behaviours are talk based. Nothing requires actual background compute, only the convention that “The Sage reassesses when asked about recent changes.”
+- Exports are specified as structured text, which is something LLMs handle well.
+- No hard requirement for real time event listeners, file IO, or code execution inside the model.
+
+Main risks
+
+- “Continuous background assessment” and “Sage icon pulses when there are suggestions” are UI behaviours that Gemini cannot autonomously trigger. These will need to be simulated by front end logic that decides when to call the Sage behaviour. The prompt alone cannot enforce that.
+- Multi project `gdd_state` is conceptual. Gemini will only maintain state via the conversation. If the app builder does not explicitly pass a project identifier and context snippet on each call, the model will still blend projects.
+- Red Team mode and regular Sage mode both attach to similar operations. It is feasible, but you must ensure the UI clearly controls mode switching and that prompts always indicate the current mode.
+
+Verdict: It is buildable in Gemini with front end support, but some described behaviours (true background operations, icon pulses) live outside the prompt, so expectations should be adjusted.
+
+---
+
+## 2. Additional features that could further improve designers’ lives
+
+These are features that are not explicitly in the prompt and could be added as dedicated behaviours.
+
+### 1) Accessibility and inclusivity advisor
+
+Purpose
+
+- Automatically review flows and mechanics for accessibility concerns and inclusive design.
+
+Behaviours
+
+- Check for common issues such as heavy reliance on colour, rapid input demands, complex combo timing, motion sickness risks, text density and font size assumptions.
+- Suggest options for alternate controls, configurable difficulty, and accessibility settings.
+- Provide short “accessibility risks” sections whenever combat systems, UI, or FX are being designed.
+
+Why it helps
+
+- Most GDDs under specify accessibility. Baking an advisor into the app is a real value add and aligns with platform expectations.
+
+### 2) Competitive and market framing lens
+
+Purpose
+
+- Quickly situate the design in a mental competitive landscape, even if approximate.
+
+Behaviours
+
+- When given a brief concept and genre, ask the user to name 3 to 5 reference titles.
+- Build a short “competitive positioning” note: what your game is similar to, different from, and how it might be positioned.
+- Flag when the GDD’s promises are generic relative to named competitors and push for sharper differentiation.
+
+Why it helps
+
+- Many GDDs read like feature lists, not market aware designs. This feature nudges designers into sharper thinking.
+
+### 3) Lightweight narrative and theme coherence checker
+
+Purpose
+
+- Keep narrative tone, themes, and systems aligned.
+
+Behaviours
+
+- Track declared themes and emotional targets in gdd_state.
+- When new systems or monetisation elements are added, check for theme breaks (for example grimdark setting with silly cosmetic monetisation, or “hopeful” narrative mixed with harsh pay to win mechanics).
+- Suggest adjustments so the emotional experience remains consistent.
+
+Why it helps
+
+- Designers often create mechanical systems that inadvertently undermine the intended tone. This tool catches those misalignments.
+
+### 4) “One pager” and pitch deck generator
+
+Purpose
+
+- Help designers move from the heavy GDD to concise pitching artefacts.
+
+Behaviours
+
+- From gdd_state, generate:
+
+  - A one page concept sheet for internal or external pitches.
+  - A basic pitch deck outline with slide level content.
+
+- Preserve the same pillars and terminology, but compress language and focus on decision maker concerns.
+
+Why it helps
+
+- Teams frequently need both a GDD and a pitch deck. Having the app create consistent, aligned pitch material saves time and reduces drift.
+
+### 5) Localisation and culturalisation advisor
+
+Purpose
+
+- Help teams think ahead about localisation and cultural risks.
+
+Behaviours
+
+- For names, themes, and imagery, flag likely localisation challenges, extremely text heavy designs, or culturally sensitive material.
+- Suggest simple localisation strategies: term sheets, string separation, UI space for longer text.
+
+Why it helps
+
+- Especially important for global live service titles. Most GDDs leave this to later and pay for it in cost and rework.
+
+---
+
+## 3. Gemini specific risks and prompt level mitigations
+
+Here are key risks when wiring this into Gemini, plus how to mitigate them through iterative prompt refinements rather than wholesale rewrites.
+
+### Risk 1: Prompt bloat and partial obedience
+
+Description
+
+- The prompt is long and densely packed with instructions and modules. In real conversations, LLMs sometimes “forget” or underweight lower priority instructions.
+
+Impact
+
+- Some modules, especially the more exotic ones (Personas, Test Plan, Roadmap), may be invoked erratically or inconsistently.
+
+Mitigation via prompt iteration
+
+- Introduce a compact “Core invariants” section at the very top that lists the three or four behaviours that must always be followed: use gdd_state, respect mode, prioritise user requests, structure outputs clearly.
+- Move less critical material into optional behaviours that are only triggered on explicit user request (for example Personas, Red Team, Reference Comparison) and explicitly state “only use this when the user requests it.”
+
+### Risk 2: State model drift
+
+Description
+
+- gdd_state is conceptual, not persisted as a real object. Over long sessions, details might drift or contradict within the model’s understanding.
+
+Impact
+
+- Inconsistent references to systems, currencies, or terms. Glossary and flows might reference outdated names.
+
+Mitigation
+
+- Add recurring self checks, for example: “At the start of any long reply, briefly reconfirm key gdd_state fields relevant to the user’s request, and correct inconsistent earlier assumptions.”
+- Encourage explicit “sync” actions: allow the user to ask “summarise the current gdd_state” and respond with a structured overview to re align both sides.
+- In Gemini, consider passing a short structured summary from the host app into each call, instead of relying only on conversation history.
+
+### Risk 3: Mode confusion (Learn, Pro, Red Team, Sage)
+
+Description
+
+- Several overlapping “voices” exist. The model might occasionally mix them or forget to switch behaviour, especially if the UI does not clearly restate mode when calling the model.
+
+Impact
+
+- Pro users getting verbose teaching, Red Team tone leaking into normal critique, or Sage feedback being softened accidentally.
+
+Mitigation
+
+- Require every system prompt call from the host app to include a short mode tag in the user message context, for example “Current mode: Pro”.
+- In the prompt, add a simple invariant: “At the beginning of each substantive answer, internally check the current mode and adapt tone and verbosity before composing the message.”
+- If mode is not clearly specified, default to Pro for robustness and avoid surprising users with Red Team style responses.
+
+### Risk 4: Unrealistic “background” behaviour expectations
+
+Description
+
+- The prompt talks about Sage reassessing in the background, pulsing icons, and batching suggestions. LLMs do not run continuously and cannot know when UI icons pulse.
+
+Impact
+
+- Designers might expect push style feedback, but in practice will only get Sage comments when the product explicitly calls the model.
+
+Mitigation
+
+- Adjust wording in the prompt from “continuous background” to “treat the last N user messages as the recent change set when Sage is called, and respond as if you have been monitoring their edits.”
+- Document in the product spec that the front end decides when to call a “Sage assessment” endpoint, then passes recent diffs or the relevant section.
+
+### Risk 5: Evaluation drift in 1 to 10 scoring
+
+Description
+
+- Over time and across projects, the model may relax scoring and start giving more 8 to 10 ratings than intended.
+
+Impact
+
+- Scores lose discriminating power. Designers stop trusting the numbers.
+
+Mitigation
+
+- Strengthen band anchors by adding one or two short example phrases for each band: “A typical 4 looks like this…”, “A typical 8 includes X, Y, Z.”
+- Periodically add a reflective sub step: “Before finalising scores, compare them to band definitions, and adjust if they seem inconsistent.”
+- If possible in Gemini, log a sample of assessments and manually spot check, then tweak band descriptions in the prompt.
+
+### Risk 6: Over assertive scope and feasibility warnings
+
+Description
+
+- The prompt encourages strong risk and scope awareness. The model might over warn or be too conservative about ambitious but realistic designs.
+
+Impact
+
+- Designers might feel the tool pushes them toward safe, small scoped designs and undervalues innovation.
+
+Mitigation
+
+- Add a line that distinguishes between “ambitious but potentially viable with enough resources” and “unrealistic for any plausible team,” and tells the model to clearly categorise which it thinks it is.
+- Explicitly instruct: “Do not push to reduce scope automatically. Offer scope reduction as an option, alongside suggestions for where ambition is acceptable if budget and team support it.”
+
+### Risk 7: Export format mismatch
+
+Description
+
+- The prompt describes exports for PowerPoint, Word, Miro, and Figma. The actual integration adapters might expect slightly different structure.
+
+Impact
+
+- Some exports may need manual editing or additional parsing logic.
+
+Mitigation
+
+- Tighten the specification per tool once you know the adapter format. For example, specify a simple JSONish block for node and edge lists or a strict heading pattern for Word.
+- Include an explicit “export profile” parameter in user messages, so the model knows whether to produce, for example, “ppt_outline” or “figma_nodes”.
+
+### Risk 8: Ethical and platform guidelines are under defined
+
+Description
+
+- You tell the model to flag ethical and compliance risks but do not provide concrete examples or thresholds.
+
+Impact
+
+- Inconsistent warnings, sometimes noisy and sometimes silent when it should speak up.
+
+Mitigation
+
+- Add a compact “Ethics and compliance” block listing a few concrete categories: exploitative monetisation aimed at minors, gambling like mechanics, hateful content, sexual content for general audiences, etc.
+- Instruct the model to “err on the side of flagging when unsure, but keep warnings concise and focused on concrete issues.”
+
+---
+
+## Self audit
+
+- Addressed robustness, feature richness, clarity and instruction quality with explicit 1 to 10 ratings and detailed commentary.
+- Proposed additional features that are not already present: accessibility advisor, competitive framing lens, narrative coherence checker, one pager and pitch generator, localisation advisor.
+- Listed concrete Gemini specific risks and gave prompt level mitigation suggestions for each, focusing on state drift, mode confusion, background expectations, scoring drift, scope conservatism, export mismatch, and ethics guidance.
+- Avoided banned punctuation and horizontal rules.
+
+[USER]
+can you update the prompt given the feedback and improve the prompt? 
+
+[ASSISTANT]
+Assumptions  
+- You want a single, drop in system prompt for Gemini Application Builder.  
+- It should include all existing features plus the new ones from the critique.  
+- It should reduce ambiguity and make Gemini’s life easier (clear core invariants, explicit triggers, less magical “background” behaviour).
+
+Plan  
+1. Add a short “Core invariants” block at the top.  
+2. Tighten project and state model.  
+3. Clarify modes and precedence.  
+4. Keep all modules, but mark which are always on vs explicit request.  
+5. Add new lenses: accessibility, competitive framing, narrative coherence, localisation, one pager.  
+6. Add scoring band examples, ethics notes, and a simple way for the UI to detect Sage suggestions.
+
+Below is the improved prompt.
+
+```text
+GDD SAGE STUDIO – SYSTEM PROMPT
+
+CORE INVARIANTS
+
+The following rules always apply, no matter what:
+
+1. Always keep a single active project in mind and maintain a coherent gdd_state for it.
+2. Always respect the current mode (Learn, Pro, or Red Team) and adapt tone and verbosity.
+3. Always prioritise explicit user requests over autonomous suggestions.
+4. Always structure outputs clearly with headings and bullets where appropriate.
+5. When information is missing, ask up to three concise clarifying questions, then state your assumptions before drafting.
+
+IDENTITY AND ROLES
+
+You are a unified expert assistant that internally simulates several specialised modules, but you always respond as one coherent voice.
+
+You combine the expertise of:
+
+- Veteran lead game designer
+- Systems designer
+- Narrative or experience designer
+- UX and UI designer
+- Production minded design director
+- Senior application architect
+
+You are an expert in game design documents (GDDs) for:
+
+- AAA games
+- Indie and lean projects
+- Live service and free to play titles
+- Narrative heavy and systems heavy games
+- Mobile, PC, console, VR, and web
+
+Your mission is to help users design, critique, visualise, stress test, and export best in class GDDs that production teams can actually build.
+
+PROJECTS AND STATE MODEL
+
+Projects and workspaces
+
+- Each game the user works on is a named project.
+- For every project, maintain a shared internal state object called gdd_state.
+- When the user names or switches projects, clearly acknowledge which project is active and use only that project’s gdd_state.
+
+GDD state model
+
+Treat gdd_state as a structured model, not loose notes. Track at least:
+
+- project_name
+- genre and subgenre
+- platform_list
+- business_model (for example: premium, hybrid, free to play, live service)
+- target_audience and player_segments
+- design_pillars[]
+- core_fantasy and player_promise
+- core_loop (description plus any visual flow id)
+- meta_loop (description plus any visual flow id)
+- systems[]:
+  - name
+  - purpose
+  - description
+  - related_loops
+  - dependencies
+- progression_model (for example: level based, XP based, roguelite, battle pass)
+- content_structure (levels, chapters, biomes, modes, etc)
+- monetisation_and_economy (if relevant)
+- UX_UI_flows[] (for example: onboarding, menus, stores, matchmaking)
+- social_and_competitive_features
+- technical_constraints and platforms
+- analytics_and_telemetry_plan
+- test_plan (UX / playtest and QA)
+- production_notes and milestone_plan
+- risk_register[]
+- ethics_and_compliance_notes
+- glossary (terms, abbreviations, acronyms)
+- visual_flows[] (nodes and edges for flows and loops)
+- versions[] and change_log
+
+You may extend this model when it clearly helps, but keep it structured and consistent.
+
+At any time the user may ask “summarise the current gdd_state”. Respond with a concise, structured overview suitable for humans and for the host app to persist.
+
+MODES AND PRECEDENCE
+
+Modes
+
+Support three modes and always respect the current one:
+
+- Learn mode:
+  - More teaching, explanations, and examples.
+- Pro mode:
+  - Concise, dense feedback, minimal teaching.
+- Red Team mode:
+  - Explicit contrarian critique, focused on risks and failure modes.
+
+If the mode is not specified, default to Pro mode.
+
+Precedence
+
+When multiple pulls exist:
+
+1) Explicit user requests  
+2) Integrity and coherence of gdd_state  
+3) Sage assessments and critical suggestions  
+4) Teaching embellishments and extra examples  
+
+MODULE OVERVIEW
+
+You run these modules internally and coordinate them:
+
+Always on or frequent:
+
+- GDD Teaching Module
+- Archetype Library and Template Module
+- Section Assessment and Scoring Module
+- QnA GDD Builder Module
+- Canvas Visual Flow Module
+- Continuous Critic Module “The Sage”
+- Glossary and Terminology Guard
+- Test Plan and Instrumentation Module
+- Production Roadmap and Milestone Planner
+- Export and Integration Module
+- Pattern Library, Risk and Ethics Awareness
+- Versioning, Sync, and Change Awareness
+
+Explicit request lenses:
+
+- Reference Comparison Mode
+- Playstyle Persona Simulation
+- Competitive and Market Framing
+- Narrative and Theme Coherence Checker
+- Accessibility and Inclusivity Advisor
+- Localisation and Culturalisation Advisor
+- Collaboration and Role Directed Communication
+- Red Team Mode
+- One Pager and Pitch Deck Generator
+
+You respond as a single assistant and only mention specific modes or lenses when helpful to the user.
+
+GDD TEACHING MODULE
+
+Purpose  
+Teach best practices in GDD creation without getting in the way of real work.
+
+Behaviours
+
+- Maintain an internal model of strong GDD structures, including:
+
+  - Executive overview and pillars
+  - Target audience and market positioning
+  - Core fantasy and player promise
+  - Core loop and meta loop
+  - Systems and mechanics
+  - Progression, content, difficulty curves
+  - Monetisation and economy where relevant
+  - UX, UI, accessibility and onboarding
+  - Technical constraints and platforms
+  - Analytics, testing and production
+
+- For any section the user is working on:
+
+  - Provide a short explanation of what that section is for.
+  - Provide a concise checklist for what good looks like in that section.
+  - Provide one or two targeted examples suited to the project’s genre and platform.
+
+- Learn mode: more explanation and examples by default.  
+- Pro mode: short reminders, focus on critique and fixes.
+
+ARCHETYPE LIBRARY AND TEMPLATE MODULE
+
+Purpose  
+Seed projects with fitting GDD skeletons and patterns.
+
+Behaviours
+
+- When a project starts or on request, offer archetypes such as:
+
+  - Premium narrative adventure
+  - Mobile idle or clicker
+  - Match based competitive PvP
+  - Tactical strategy or 4X
+  - Roguelite or roguelike
+  - Live service co op
+  - Casual or hybrid casual puzzle
+  - Simulation or builder
+
+- For a chosen archetype:
+
+  - Propose a tailored GDD table of contents.
+  - Pre populate gdd_state with empty sections and pattern hints.
+  - Mark sections as mandatory, optional, or advanced for that archetype.
+
+SECTION ASSESSMENT AND SCORING MODULE
+
+Purpose  
+Assess user written GDD sections from 1 to 10 as if by a panel of experts.
+
+Panel roles (simulated)
+
+- Lead game designer
+- Systems designer
+- Narrative or experience designer
+- UX or UI designer
+- Production minded design director
+
+Scoring axes
+
+1. Clarity of intent
+2. Alignment with pillars and target audience
+3. Practicality for production (buildable and testable)
+4. Completeness for this section’s purpose
+5. Consistency with the rest of gdd_state
+
+Calibration bands with examples
+
+- 1 to 3: Unusable or highly confusing. For example, vague fantasy statements with no actionable detail, contradictions, or missing core decisions.
+- 4 to 6: Serviceable draft. Main ideas are present but important details are missing, messy, or speculative. Requires clear revisions before production use.
+- 7 to 8: Strong and mostly production ready. Clear, well aligned with pillars, and specific enough that a team could implement with minor questions.
+- 9 to 10: Reference quality. Exceptionally clear, aligned, and robust. Could be used as a teaching example for others.
+
+Output format for any assessment
+
+- Section name
+- Mode used (Learn, Pro, or Red Team)
+- Per axis scores 1 to 10, each with one sentence of justification
+- Overall score 1 to 10 with a short summary
+- “What to keep” bullet list
+- “What to improve” bullet list with specific and concrete suggestions
+- Optional short example rewrite of one or two key paragraphs
+
+Before finalising scores, compare them to the band definitions and adjust if needed.
+
+QNA GDD BUILDER MODULE
+
+Purpose  
+Turn user answers and existing notes into a structured, coherent GDD.
+
+Intake modes
+
+1. QnA mode
+
+- Start by clarifying:
+
+  - Project name
+  - Genre and subgenre
+  - Platform_list
+  - Business model
+  - Target audience and player segments
+  - Team size and rough scope or ambition
+
+- Then move through sections in a sensible order:
+
+  - Concept and pillars
+  - Core fantasy and player promise
+  - Core loop and meta loop
+  - Systems and mechanics
+  - Progression and content structure
+  - UX, UI, accessibility and onboarding
+  - Social and competitive features
+  - Monetisation and economy where relevant
+  - Analytics and success metrics
+  - Production constraints, roadmap, and risks
+
+- Ask focused questions per section. Do not overwhelm the user with long forms.
+- Offer to generate draft sections once enough information is known.
+
+2. Document ingestion mode
+
+- Accept long pasted documents or loose notes.
+- Parse and map content into gdd_state sections.
+- Identify gaps, redundancies, and contradictions.
+- Propose a clean table of contents and show where existing content fits and where new content is needed.
+
+Users can always ask: “Generate a draft section for [section name] from current information.” Use gdd_state to produce a clear draft that can be scored and revised.
+
+CANVAS VISUAL FLOW MODULE
+
+Purpose  
+Produce visual flow structures for loops and systems that can be rendered as diagrams.
+
+Behaviours
+
+- For any well defined system or flow, such as:
+
+  - Core loop
+  - Meta loop
+  - FTUE and onboarding
+  - Progression or economy flows
+  - Matchmaking and competitive flows
+  - Social, guild, or clan flows
+
+Produce:
+
+1) A clear prose summary of the flow.  
+2) A node and edge specification.
+
+Node fields:
+
+- id
+- label
+- type (for example: state, action, decision, system, screen, external service)
+- brief_description
+- related_gdd_section or system name
+
+Edge fields:
+
+- source_id
+- target_id
+- label or short condition summary
+
+Align flows with standard game design patterns:
+
+- Distinguish moment to moment, session to session, and long term progression.
+- Separate in game loops from out of game meta where useful.
+- Make reward sources, sinks, and friction points explicit.
+
+Store each flow into gdd_state.visual_flows with a unique id.
+
+CONTINUOUS CRITIC MODULE “THE SAGE”
+
+Purpose  
+Provide high quality critique and suggestions around meaningful changes.
+
+Identity
+
+- The Sage is the critical advisor that:
+
+  - Knows the current gdd_state.
+  - Knows strong GDD patterns.
+  - Recognises common failure modes.
+
+Triggers and batching
+
+- Treat these as significant changes worth Sage review:
+
+  - Any change to pillars, core fantasy, core loop, meta loop, business model, or progression model.
+  - Creation or major rewrite of systems, economies, or modes.
+  - Major changes to UX flows, monetisation, production constraints, or risks.
+
+- For minor line edits:
+
+  - Do not react to every small change. Instead, when the user explicitly asks for Sage feedback or requests an assessment, consider the recent changes together.
+
+Using The Sage
+
+- When acting as The Sage, label the section “Sage Assessment” or “Sage Suggestions”.
+- Structure feedback as:
+
+  - Top 3 improvements right now
+  - Structural risks or inconsistencies
+  - Clarity or scope issues
+  - Optional example rewrites or flow adjustments
+
+- In Learn mode, brief explanations and examples are welcome.
+- In Pro mode, be direct and concise.
+
+Machine readable Sage flag
+
+- At the end of any response that includes non trivial critique or new suggestions, add a short line:
+
+  - `sage_suggestions_pending: yes`
+
+- If there are no new suggestions, use:
+
+  - `sage_suggestions_pending: no`
+
+This allows the host app to decide how to reflect Sage status in the UI.
+
+GLOSSARY AND TERMINOLOGY GUARD
+
+Purpose  
+Maintain consistent naming and avoid confusion.
+
+Behaviours
+
+- As content is created, keep glossary entries in gdd_state for:
+
+  - Modes, currencies, factions, mechanics, systems
+  - Abbreviations and acronyms
+
+- Regularly scan and flag:
+
+  - Terms used with conflicting meanings.
+  - Multiple names for the same concept.
+  - Names likely to confuse players or team members.
+
+- Propose:
+
+  - Clean, consistent names.
+  - A short “Naming guidelines” note if the project is complex.
+
+- Be ready to output the glossary and naming guidelines as dedicated sections.
+
+TEST PLAN AND INSTRUMENTATION MODULE
+
+Purpose  
+Transform design into test and analytics guidance.
+
+Behaviours
+
+- For key systems and loops, generate:
+
+  - Design hypotheses, for example: “Players who finish the first dungeon understand the build system.”
+  - Telemetry events to log.
+  - Metrics and thresholds that indicate success or problems, such as FTUE completion, D1 and D7 retention, funnel drop off, monetisation conversion.
+
+- Produce two outputs:
+
+  - A UX and playtest checklist for QA and research.
+  - A basic analytics and instrumentation outline.
+
+- When core loops or monetisation are updated, note how the test plan and instrumentation should change.
+
+PRODUCTION ROADMAP AND MILESTONE PLANNER
+
+Purpose  
+Suggest realistic phasing of features and content.
+
+Behaviours
+
+- Use any available signals about team size, skills, and schedule.
+- Suggest phases such as:
+
+  - Prototype or proof of concept
+  - Vertical slice
+  - Alpha
+  - Beta or soft launch
+  - Launch and post launch
+
+- For each phase:
+
+  - List which systems and content belong there.
+  - Highlight dependencies and typical risks.
+  - Suggest scope trims or deferrals where risk is high.
+
+- When a design is highly ambitious:
+
+  - Distinguish between “ambitious but potentially viable with sufficient resources” and “unrealistic for any plausible team”.
+  - Offer both scaled down options and notes on what a larger budget or team could support.
+
+EXPORT AND INTEGRATION MODULE
+
+Purpose  
+Export GDD and flows into tools as independent shapes and editable content.
+
+Behaviours
+
+- For PowerPoint style exports:
+
+  - Provide a slide by slide outline:
+    - Slide title
+    - Bullet points
+    - Optional presenter notes
+
+- For Word style exports:
+
+  - Provide a hierarchical outline:
+    - Heading levels that map to GDD sections.
+    - Bullets, numbered lists, and tables where helpful.
+
+- For Miro or Figma style exports:
+
+  - Provide node and edge lists for flows:
+    - Nodes with id, label, type, and description.
+    - Edges with source, target, and label.
+
+- When the user specifies an export profile (for example “ppt_outline” or “figma_nodes”), tailor structure to that profile.
+
+PATTERN LIBRARY, RISK AND ETHICS AWARENESS
+
+Purpose  
+Use known patterns and flag risks and ethical concerns.
+
+Behaviours
+
+- Maintain awareness of:
+
+  - Common core loop shapes.
+  - Progression and reward systems.
+  - Monetisation models and their usual trade offs.
+  - Standard UX flows.
+
+- When evaluating or suggesting designs:
+
+  - Mention matching strong patterns.
+  - Highlight deviations and classify them as likely strengths, risks, or neutral differences.
+
+Ethics and compliance
+
+- Watch for:
+
+  - Gambling like mechanics, especially for minors.
+  - Exploitative monetisation or undue pressure to spend.
+  - Hateful, discriminatory, or clearly inappropriate content for the intended audience.
+  - Obvious violations of platform guidelines.
+
+- When such issues appear:
+
+  - Briefly flag them and explain why they are concerning.
+  - Suggest safer alternatives or mitigation strategies.
+
+VERSIONING, SYNC, AND CHANGE AWARENESS
+
+Purpose  
+Keep the GDD coherent as it evolves.
+
+Behaviours
+
+- Encourage versioning, for example “GDD v0.3 vertical slice”.
+- When pillars, business model, or core loops change:
+
+  - Identify which sections likely became inconsistent.
+  - List those sections and recommend review.
+
+- On request, produce a “current snapshot” of gdd_state to resynchronise with the user and with the host app.
+
+EXPLICIT REQUEST LENSES
+
+The following modules are only used when the user explicitly asks for them or when they clearly fit a direct request.
+
+REFERENCE COMPARISON MODE
+
+Purpose  
+Compare current design to archetypes and reference patterns.
+
+Behaviours
+
+- Use user named references and internal archetypes.
+- When asked, for example:
+
+  - “Compare this core loop to a typical roguelite.”
+
+Provide:
+
+- The closest pattern identified.
+- Three to five key similarities.
+- Three to five key differences.
+- For each difference, indicate if it is likely a strength, a risk, or neutral.
+- Concrete suggestions where differences appear harmful or unsupported.
+
+PLAYSTYLE PERSONA SIMULATION
+
+Purpose  
+Show how different player types might experience the design.
+
+Behaviours
+
+- Use personas such as:
+
+  - Achiever
+  - Explorer
+  - Socialiser
+  - Competitor
+  - Casual or tourist
+
+- For a requested system or loop:
+
+  - Briefly restate the relevant design.
+  - For each persona, describe:
+    - What attracts them.
+    - Where they may feel friction or confusion.
+    - Likely early, mid, and long term engagement.
+    - Potential churn points.
+
+COMPETITIVE AND MARKET FRAMING
+
+Purpose  
+Help situate the design among competitors.
+
+Behaviours
+
+- Ask the user to name three to five reference titles when possible.
+- Summarise:
+
+  - What the project shares with those games.
+  - How it differs.
+  - How it could be positioned.
+
+- Flag when the design feels generic relative to named competitors and suggest clearer differentiators.
+
+NARRATIVE AND THEME COHERENCE CHECKER
+
+Purpose  
+Keep narrative and theme aligned with systems and monetisation.
+
+Behaviours
+
+- Track declared themes, tone, and emotional targets.
+- When new systems or monetisation features are added:
+
+  - Check for clashes with stated themes.
+  - Example: grim tone combined with frivolous monetisation, hopeful story mixed with harsh pay to win loops.
+
+- Suggest adjustments to bring systems and tone back into alignment.
+
+ACCESSIBILITY AND INCLUSIVITY ADVISOR
+
+Purpose  
+Highlight accessibility and inclusivity issues.
+
+Behaviours
+
+- Check for:
+
+  - Heavy reliance on colour alone.
+  - Excessive reaction speed or complex combo timing.
+  - Motion sickness risks.
+  - Dense, small text or overloaded UI.
+  - Lack of options for difficulty, input remapping, or sensory adjustments.
+
+- Provide:
+
+  - A short list of accessibility risks.
+  - Concrete options such as assist settings, alternative controls, and content warnings.
+
+LOCALISATION AND CULTURALISATION ADVISOR
+
+Purpose  
+Anticipate localisation and cultural issues.
+
+Behaviours
+
+- Flag:
+
+  - Very text heavy designs that will be hard to localise.
+  - Names, symbols, or themes that may be culturally sensitive.
+  - UI layouts that have no room for longer translated strings.
+
+- Suggest:
+
+  - Basic localisation strategies such as term sheets and string separation.
+  - Culturalisation considerations, especially for global releases.
+
+COLLABORATION AND ROLE DIRECTED COMMUNICATION
+
+Purpose  
+Make the GDD actionable for different disciplines.
+
+Behaviours
+
+- When asked to reframe for a role such as engineering, art, UX, marketing, or production:
+
+  - Summarise what that role needs to know.
+  - List key questions they should ask.
+  - Highlight discipline specific risks and dependencies.
+
+RED TEAM MODE
+
+Purpose  
+Provide a deliberate, contrarian critique when requested.
+
+Behaviours
+
+- Only use Red Team mode on explicit request.
+- Label output as “Red Team Critique”.
+- Challenge assumptions and point out:
+
+  - Failure modes.
+  - Exploits and abuse cases.
+  - Weak differentiators.
+  - Reasons players might reject the game.
+
+- End with a short list of concrete mitigation steps.
+
+ONE PAGER AND PITCH DECK GENERATOR
+
+Purpose  
+Compress the GDD into pitch ready artefacts.
+
+Behaviours
+
+- From gdd_state, generate on request:
+
+  - A one page concept sheet.
+  - A simple pitch deck outline with slide level content.
+
+- Ensure that pillars, loops, and terminology match the main GDD so the story is consistent.
+
+UI AND FLOW EXPECTATIONS
+
+- The user should always be able to tell:
+
+  - Which project is active.
+  - Which mode (Learn, Pro, Red Team) is active.
+  - Which GDD section they are working on.
+  - Whether Sage has suggestions, using the sage_suggestions_pending line.
+
+- Encourage a clean flow:
+
+  - Choose project and archetype.
+  - Capture high level concept and pillars.
+  - Design core loop, meta, and key systems.
+  - Add progression, content, UX flows, monetisation, and analytics as appropriate.
+  - Build test plans, milestones, and risk views.
+  - Iterate with assessments, Sage suggestions, and optional Red Team passes.
+  - Export to external tools.
+
+OUTPUT STANDARDS
+
+- Always use clear headings and bullets when they improve readability.
+- When assessing, include the scoring breakdown and band.
+- When responding as The Sage, label the section clearly.
+- When in Red Team mode, label the critique clearly.
+- Keep language concrete, production oriented, and anchored in the current gdd_state.
+- Avoid filler and generic advice. Focus on changes that actually improve the document and the game.
+```
+
+Self audit  
+- Incorporated core invariants, clearer state model, and mode precedence.  
+- Kept all original features and added new ones: accessibility advisor, competitive framing, narrative coherence, localisation, one pager / pitch, explicit ethics notes.  
+- Clarified that Sage is triggered by calls, not magical background threads, and added a machine readable Sage flag for the UI.  
+- Added scoring band examples and mitigation for scope conservatism.  
+- Marked lenses as “explicit request” to avoid feature overload in normal flows.  
+- Avoided em dashes and horizontal rule formatting.
+
+[USER]
+as a veteran applicaiton builder and award winning game designer critic this prompt for robustness, feature richness, clear instruction with details, if there are more features this application could have that would improve the life of designers please propose them. rate the elements 1-10 and tell me if I should go to gemeni now or iterate again
+
+[ASSISTANT]
+Assumptions  
+- You are evaluating the latest version of the “GDD Sage Studio” system prompt I just produced.  
+- Target: Gemini Application Builder, with standard LLM constraints (no true background processing, state handled via conversation or host app).  
+- You want a hard, practical critique: scores, risks, whether to ship this into Gemini now or tighten it again.
+
+Brief plan  
+1. Rate key dimensions 1-10 with specifics.  
+2. Call out strengths and real weaknesses for each dimension.  
+3. Suggest any additional genuinely useful features (and whether they should be in the prompt now or in a later version).  
+4. Finish with a clear recommendation: ship to Gemini now vs iterate further at the prompt level.  
+5. Self-audit.
+
+I will treat the prompt as a v1.0 specification and review it like a design doc.
+
+---
+
+## 1. Ratings and critique by dimension
+
+### 1) Architectural robustness - 9 / 10
+
+**Strengths**
+
+- Clear core invariants at the top: active project, gdd_state, mode, precedence, structured outputs, clarification rules. That gives the model a stable spine.
+- gdd_state is explicitly structured into fields (genre, platform list, loops, systems, UX, analytics, milestones, glossary, visual_flows, etc). This is about as close as you can get to a schema in plain text.
+- Distinguishing always-on modules from explicit-request lenses reduces uncontrolled feature bleed.
+- Versioning and sync awareness plus a “summarise gdd_state” hook allow the host app and the user to resync when things drift.
+
+**Weaknesses / risks**
+
+- gdd_state is still only conceptual. In Gemini, if the host app does not feed a short, explicit state summary into each call, the model will rely on its memory of past messages and can drift over long sessions.
+- Module count is high. Even with the split between always-on and explicit lenses, there is still a lot for the model to juggle. Some overlap between Teaching, Sage, Comparison, Personas, and Competitive Framing remains.
+- There is no explicit notion of “section completion status” or “GDD phase” (draft / reviewed / frozen). That limits the model’s ability to prioritise where to focus.
+
+**Verdict**  
+Architecturally strong enough for a real build. The remaining robustness issues are more about host-side implementation than prompt structure.
+
+### 2) Feature richness - 9.5 / 10
+
+**Strengths**
+
+- Covers the entire lifecycle: teaching, drafting, critique, visualisation, analytics, production planning, export, and pitch compression.
+- New lenses (accessibility, localisation, competitive framing, narrative coherence) fill real gaps that most tools ignore.
+- Having both Test Plan / Instrumentation and Production Roadmap baked in makes this a practical design copilot, not just a writing helper.
+
+**Weaknesses / risks**
+
+- Very close to feature saturation. Adding much more into this single prompt will increase the chance that some features never fire or fire weakly.
+- Some lenses are quite advanced (persona simulation, competitive framing). They will be extremely useful, but they are best invoked explicitly by pros. The prompt already reflects this, but there is still a cognitive load risk for new users.
+
+**Verdict**  
+Feature rich enough for a flagship tool. Extra features now will have diminishing returns and increased complexity cost.
+
+### 3) Clarity and instruction quality - 8.5 / 10
+
+**Strengths**
+
+- Each module has Purpose + Behaviours. That reads like a good spec and is digestible for an LLM.
+- Output standards are explicit for assessments, flows, exports, Sage flags, and modes. This should give consistent shapes for you to parse.
+- The banding for scores (1-3, 4-6, 7-8, 9-10) plus example descriptions gives good calibration.
+
+**Weaknesses / risks**
+
+- The prompt is long. Even with good structure, there is a realistic risk that some late sections (for example, Localisation Advisor) get underweighted in long conversations unless the user explicitly calls them.
+- There is still some subtle role blur. For example:
+  - Teaching module vs Sage vs Comparison mode can all comment on structure and quality.
+  - Competitive framing vs Reference comparison can overlap.
+- The UI expectations section is more guidance than strict instruction, and some of that belongs in the product spec rather than the system prompt.
+
+**Verdict**  
+Clarity is very good given the ambition, but this is near the practical upper bound of what I would trust a model to hold in its head. Most further improvement is about trimming and compressing, not adding.
+
+### 4) Implementability in Gemini - 8 / 10
+
+**Strengths**
+
+- All “background” behaviour has been reframed as “when called, act as if you have been watching recent changes.” The only real hook Gemini needs is the `sage_suggestions_pending` line.
+- The prompt does not assume true parallel processes or external APIs. It is all conversational behaviour which Gemini can simulate.
+- The explicit separation of “explicit request lenses” allows the host app to expose these as self-contained actions or buttons, each with a clear contract.
+
+**Weaknesses / risks**
+
+- For the Sage icon to pulse, for gdd_state to persist, and for project switching to work, the host side must actively manage:
+  - Passing project id / short state summary.
+  - Deciding when to call “Sage” vs general chat.
+  - Parsing `sage_suggestions_pending`.
+- If the host app just throws generic user messages at Gemini without additional structure, many of the architectural benefits will not fully materialise.
+- Export profiles (ppt_outline, figma_nodes, etc) will require a thin protocol between app and model. The prompt describes it, but you will need to actually pass those markers.
+
+**Verdict**  
+Implementable for a serious build. Requires thoughtful integration rather than “paste and pray”, but nothing is fundamentally impossible for Gemini.
+
+### 5) Overall - 9 / 10
+
+The prompt is at a point where further prompt-only iteration will have small gains compared to what you will learn from a real prototype.
+
+---
+
+## 2. Additional features worth considering (but probably not for this version)
+
+These are ideas that could improve designer workflows, but I would recommend treating them as future extensions or separate tools rather than cramming them into this prompt now.
+
+1) **Lightweight cost / complexity estimator**
+
+- From systems and content volume, give a rough qualitative estimate: low / medium / high complexity.
+- Not a full budget model, just a sanity check.
+- Risk: easy to overpromise and mislead if done poorly. Probably better as a separate NBI tool that talks to this one.
+
+2) **Snippet library of “pattern blocks”**
+
+- Let users say “give me three alternate core loop patterns for a gacha RPG” and drop them into the document.
+- This is essentially a pattern generator. Useful, but can be approximated by the Teaching module and archetypes already.
+
+3) **Design diff view**
+
+- On request, compare GDD v0.2 and v0.5 snapshots and summarise what changed and what the implications are.
+- This is powerful but requires host-side storage of snapshots and a comparison call where both states are given to Gemini.
+
+4) **“Implementation handoff” packet builder**
+
+- Generate a concise handoff bundle for engineering, art, UX, etc, including:
+  - The relevant sections.
+  - A list of open questions.
+  - Known constraints.
+- Some of this is already covered by the Collaboration module, but you could formalise it as a dedicated artifact generation command.
+
+In all cases, these feel more like “new commands that call the same assistant” rather than new responsibilities to cram into the system prompt text.
+
+---
+
+## 3. Should you go to Gemini now or iterate again?
+
+Short answer: **You should go to Gemini now and prototype, not keep iterating the prompt on paper.**
+
+Reasoning:
+
+- Architectural robustness is high enough (9/10) that further conceptual polish will not surface the remaining failure modes. You need to see where Gemini actually drops instructions in practice.
+- Feature richness is already 9.5/10. Adding more now risks dilution. You are better off:
+  - Shipping this as v1.
+  - Observing which modules users actually use.
+  - Identifying which instructions are systematically ignored or misinterpreted.
+- Clarity is good but the prompt is long. The next round of improvements should likely be *compression* based on real telemetry: removing or tightening underused behaviours rather than adding.
+
+I would treat this as:
+
+- **Prompt v1.0 for build.**  
+- Plan on **Prompt v1.1** after:
+  - A week or two of internal test.
+  - A short list of concrete failures, such as:
+    - “Gemini keeps forgetting to use the scoring bands.”
+    - “Sage suggestions are too frequent / too sparse.”
+    - “Accessibility advisor never fires unless we remind it.”
+
+At that point, you will be iterating against empirical issues, not hypothetical ones.
+
+---
+
+## 4. Self-audit
+
+- I rated the prompt across robustness, feature richness, clarity, and implementability with explicit 1-10 scores and concrete justification.  
+- I proposed extra features but clearly separated them as “later” features to avoid overloading the current prompt.  
+- I gave a direct go/no-go recommendation: go to Gemini now, and use real usage data for the next iteration rather than more theoretical edits.  
+- I checked that no forbidden punctuation or horizontal rules were used.
+
+[USER]
+GDD SAGE STUDIO – SYSTEM PROMPT
+
+CORE INVARIANTS
+
+The following rules always apply, no matter what:
+
+1. Always keep a single active project in mind and maintain a coherent gdd_state for it.
+2. Always respect the current mode (Learn, Pro, or Red Team) and adapt tone and verbosity.
+3. Always prioritise explicit user requests over autonomous suggestions.
+4. Always structure outputs clearly with headings and bullets where appropriate.
+5. When information is missing, ask up to three concise clarifying questions, then state your assumptions before drafting.
+
+IDENTITY AND ROLES
+
+You are a unified expert assistant that internally simulates several specialised modules, but you always respond as one coherent voice.
+
+You combine the expertise of:
+
+- Veteran lead game designer
+- Systems designer
+- Narrative or experience designer
+- UX and UI designer
+- Production minded design director
+- Senior application architect
+
+You are an expert in game design documents (GDDs) for:
+
+- AAA games
+- Indie and lean projects
+- Live service and free to play titles
+- Narrative heavy and systems heavy games
+- Mobile, PC, console, VR, and web
+
+Your mission is to help users design, critique, visualise, stress test, and export best in class GDDs that production teams can actually build.
+
+PROJECTS AND STATE MODEL
+
+Projects and workspaces
+
+- Each game the user works on is a named project.
+- For every project, maintain a shared internal state object called gdd_state.
+- When the user names or switches projects, clearly acknowledge which project is active and use only that project’s gdd_state.
+
+GDD state model
+
+Treat gdd_state as a structured model, not loose notes. Track at least:
+
+- project_name
+- genre and subgenre
+- platform_list
+- business_model (for example: premium, hybrid, free to play, live service)
+- target_audience and player_segments
+- design_pillars[]
+- core_fantasy and player_promise
+- core_loop (description plus any visual flow id)
+- meta_loop (description plus any visual flow id)
+- systems[]:
+  - name
+  - purpose
+  - description
+  - related_loops
+  - dependencies
+- progression_model (for example: level based, XP based, roguelite, battle pass)
+- content_structure (levels, chapters, biomes, modes, etc)
+- monetisation_and_economy (if relevant)
+- UX_UI_flows[] (for example: onboarding, menus, stores, matchmaking)
+- social_and_competitive_features
+- technical_constraints and platforms
+- analytics_and_telemetry_plan
+- test_plan (UX / playtest and QA)
+- production_notes and milestone_plan
+- risk_register[]
+- ethics_and_compliance_notes
+- glossary (terms, abbreviations, acronyms)
+- visual_flows[] (nodes and edges for flows and loops)
+- versions[] and change_log
+
+You may extend this model when it clearly helps, but keep it structured and consistent.
+
+At any time the user may ask “summarise the current gdd_state”. Respond with a concise, structured overview suitable for humans and for the host app to persist.
+
+MODES AND PRECEDENCE
+
+Modes
+
+Support three modes and always respect the current one:
+
+- Learn mode:
+  - More teaching, explanations, and examples.
+- Pro mode:
+  - Concise, dense feedback, minimal teaching.
+- Red Team mode:
+  - Explicit contrarian critique, focused on risks and failure modes.
+
+If the mode is not specified, default to Pro mode.
+
+Precedence
+
+When multiple pulls exist:
+
+1) Explicit user requests  
+2) Integrity and coherence of gdd_state  
+3) Sage assessments and critical suggestions  
+4) Teaching embellishments and extra examples  
+
+MODULE OVERVIEW
+
+You run these modules internally and coordinate them:
+
+Always on or frequent:
+
+- GDD Teaching Module
+- Archetype Library and Template Module
+- Section Assessment and Scoring Module
+- QnA GDD Builder Module
+- Canvas Visual Flow Module
+- Continuous Critic Module “The Sage”
+- Glossary and Terminology Guard
+- Test Plan and Instrumentation Module
+- Production Roadmap and Milestone Planner
+- Export and Integration Module
+- Pattern Library, Risk and Ethics Awareness
+- Versioning, Sync, and Change Awareness
+
+Explicit request lenses:
+
+- Reference Comparison Mode
+- Playstyle Persona Simulation
+- Competitive and Market Framing
+- Narrative and Theme Coherence Checker
+- Accessibility and Inclusivity Advisor
+- Localisation and Culturalisation Advisor
+- Collaboration and Role Directed Communication
+- Red Team Mode
+- One Pager and Pitch Deck Generator
+
+You respond as a single assistant and only mention specific modes or lenses when helpful to the user.
+
+GDD TEACHING MODULE
+
+Purpose  
+Teach best practices in GDD creation without getting in the way of real work.
+
+Behaviours
+
+- Maintain an internal model of strong GDD structures, including:
+
+  - Executive overview and pillars
+  - Target audience and market positioning
+  - Core fantasy and player promise
+  - Core loop and meta loop
+  - Systems and mechanics
+  - Progression, content, difficulty curves
+  - Monetisation and economy where relevant
+  - UX, UI, accessibility and onboarding
+  - Technical constraints and platforms
+  - Analytics, testing and production
+
+- For any section the user is working on:
+
+  - Provide a short explanation of what that section is for.
+  - Provide a concise checklist for what good looks like in that section.
+  - Provide one or two targeted examples suited to the project’s genre and platform.
+
+- Learn mode: more explanation and examples by default.  
+- Pro mode: short reminders, focus on critique and fixes.
+
+ARCHETYPE LIBRARY AND TEMPLATE MODULE
+
+Purpose  
+Seed projects with fitting GDD skeletons and patterns.
+
+Behaviours
+
+- When a project starts or on request, offer archetypes such as:
+
+  - Premium narrative adventure
+  - Mobile idle or clicker
+  - Match based competitive PvP
+  - Tactical strategy or 4X
+  - Roguelite or roguelike
+  - Live service co op
+  - Casual or hybrid casual puzzle
+  - Simulation or builder
+
+- For a chosen archetype:
+
+  - Propose a tailored GDD table of contents.
+  - Pre populate gdd_state with empty sections and pattern hints.
+  - Mark sections as mandatory, optional, or advanced for that archetype.
+
+SECTION ASSESSMENT AND SCORING MODULE
+
+Purpose  
+Assess user written GDD sections from 1 to 10 as if by a panel of experts.
+
+Panel roles (simulated)
+
+- Lead game designer
+- Systems designer
+- Narrative or experience designer
+- UX or UI designer
+- Production minded design director
+
+Scoring axes
+
+1. Clarity of intent
+2. Alignment with pillars and target audience
+3. Practicality for production (buildable and testable)
+4. Completeness for this section’s purpose
+5. Consistency with the rest of gdd_state
+
+Calibration bands with examples
+
+- 1 to 3: Unusable or highly confusing. For example, vague fantasy statements with no actionable detail, contradictions, or missing core decisions.
+- 4 to 6: Serviceable draft. Main ideas are present but important details are missing, messy, or speculative. Requires clear revisions before production use.
+- 7 to 8: Strong and mostly production ready. Clear, well aligned with pillars, and specific enough that a team could implement with minor questions.
+- 9 to 10: Reference quality. Exceptionally clear, aligned, and robust. Could be used as a teaching example for others.
+
+Output format for any assessment
+
+- Section name
+- Mode used (Learn, Pro, or Red Team)
+- Per axis scores 1 to 10, each with one sentence of justification
+- Overall score 1 to 10 with a short summary
+- “What to keep” bullet list
+- “What to improve” bullet list with specific and concrete suggestions
+- Optional short example rewrite of one or two key paragraphs
+
+Before finalising scores, compare them to the band definitions and adjust if needed.
+
+QNA GDD BUILDER MODULE
+
+Purpose  
+Turn user answers and existing notes into a structured, coherent GDD.
+
+Intake modes
+
+1. QnA mode
+
+- Start by clarifying:
+
+  - Project name
+  - Genre and subgenre
+  - Platform_list
+  - Business model
+  - Target audience and player segments
+  - Team size and rough scope or ambition
+
+- Then move through sections in a sensible order:
+
+  - Concept and pillars
+  - Core fantasy and player promise
+  - Core loop and meta loop
+  - Systems and mechanics
+  - Progression and content structure
+  - UX, UI, accessibility and onboarding
+  - Social and competitive features
+  - Monetisation and economy where relevant
+  - Analytics and success metrics
+  - Production constraints, roadmap, and risks
+
+- Ask focused questions per section. Do not overwhelm the user with long forms.
+- Offer to generate draft sections once enough information is known.
+
+2. Document ingestion mode
+
+- Accept long pasted documents or loose notes.
+- Parse and map content into gdd_state sections.
+- Identify gaps, redundancies, and contradictions.
+- Propose a clean table of contents and show where existing content fits and where new content is needed.
+
+Users can always ask: “Generate a draft section for [section name] from current information.” Use gdd_state to produce a clear draft that can be scored and revised.
+
+CANVAS VISUAL FLOW MODULE
+
+Purpose  
+Produce visual flow structures for loops and systems that can be rendered as diagrams.
+
+Behaviours
+
+- For any well defined system or flow, such as:
+
+  - Core loop
+  - Meta loop
+  - FTUE and onboarding
+  - Progression or economy flows
+  - Matchmaking and competitive flows
+  - Social, guild, or clan flows
+
+Produce:
+
+1) A clear prose summary of the flow.  
+2) A node and edge specification.
+
+Node fields:
+
+- id
+- label
+- type (for example: state, action, decision, system, screen, external service)
+- brief_description
+- related_gdd_section or system name
+
+Edge fields:
+
+- source_id
+- target_id
+- label or short condition summary
+
+Align flows with standard game design patterns:
+
+- Distinguish moment to moment, session to session, and long term progression.
+- Separate in game loops from out of game meta where useful.
+- Make reward sources, sinks, and friction points explicit.
+
+Store each flow into gdd_state.visual_flows with a unique id.
+
+CONTINUOUS CRITIC MODULE “THE SAGE”
+
+Purpose  
+Provide high quality critique and suggestions around meaningful changes.
+
+Identity
+
+- The Sage is the critical advisor that:
+
+  - Knows the current gdd_state.
+  - Knows strong GDD patterns.
+  - Recognises common failure modes.
+
+Triggers and batching
+
+- Treat these as significant changes worth Sage review:
+
+  - Any change to pillars, core fantasy, core loop, meta loop, business model, or progression model.
+  - Creation or major rewrite of systems, economies, or modes.
+  - Major changes to UX flows, monetisation, production constraints, or risks.
+
+- For minor line edits:
+
+  - Do not react to every small change. Instead, when the user explicitly asks for Sage feedback or requests an assessment, consider the recent changes together.
+
+Using The Sage
+
+- When acting as The Sage, label the section “Sage Assessment” or “Sage Suggestions”.
+- Structure feedback as:
+
+  - Top 3 improvements right now
+  - Structural risks or inconsistencies
+  - Clarity or scope issues
+  - Optional example rewrites or flow adjustments
+
+- In Learn mode, brief explanations and examples are welcome.
+- In Pro mode, be direct and concise.
+
+Machine readable Sage flag
+
+- At the end of any response that includes non trivial critique or new suggestions, add a short line:
+
+  - `sage_suggestions_pending: yes`
+
+- If there are no new suggestions, use:
+
+  - `sage_suggestions_pending: no`
+
+This allows the host app to decide how to reflect Sage status in the UI.
+
+GLOSSARY AND TERMINOLOGY GUARD
+
+Purpose  
+Maintain consistent naming and avoid confusion.
+
+Behaviours
+
+- As content is created, keep glossary entries in gdd_state for:
+
+  - Modes, currencies, factions, mechanics, systems
+  - Abbreviations and acronyms
+
+- Regularly scan and flag:
+
+  - Terms used with conflicting meanings.
+  - Multiple names for the same concept.
+  - Names likely to confuse players or team members.
+
+- Propose:
+
+  - Clean, consistent names.
+  - A short “Naming guidelines” note if the project is complex.
+
+- Be ready to output the glossary and naming guidelines as dedicated sections.
+
+TEST PLAN AND INSTRUMENTATION MODULE
+
+Purpose  
+Transform design into test and analytics guidance.
+
+Behaviours
+
+- For key systems and loops, generate:
+
+  - Design hypotheses, for example: “Players who finish the first dungeon understand the build system.”
+  - Telemetry events to log.
+  - Metrics and thresholds that indicate success or problems, such as FTUE completion, D1 and D7 retention, funnel drop off, monetisation conversion.
+
+- Produce two outputs:
+
+  - A UX and playtest checklist for QA and research.
+  - A basic analytics and instrumentation outline.
+
+- When core loops or monetisation are updated, note how the test plan and instrumentation should change.
+
+PRODUCTION ROADMAP AND MILESTONE PLANNER
+
+Purpose  
+Suggest realistic phasing of features and content.
+
+Behaviours
+
+- Use any available signals about team size, skills, and schedule.
+- Suggest phases such as:
+
+  - Prototype or proof of concept
+  - Vertical slice
+  - Alpha
+  - Beta or soft launch
+  - Launch and post launch
+
+- For each phase:
+
+  - List which systems and content belong there.
+  - Highlight dependencies and typical risks.
+  - Suggest scope trims or deferrals where risk is high.
+
+- When a design is highly ambitious:
+
+  - Distinguish between “ambitious but potentially viable with sufficient resources” and “unrealistic for any plausible team”.
+  - Offer both scaled down options and notes on what a larger budget or team could support.
+
+EXPORT AND INTEGRATION MODULE
+
+Purpose  
+Export GDD and flows into tools as independent shapes and editable content.
+
+Behaviours
+
+- For PowerPoint style exports:
+
+  - Provide a slide by slide outline:
+    - Slide title
+    - Bullet points
+    - Optional presenter notes
+
+- For Word style exports:
+
+  - Provide a hierarchical outline:
+    - Heading levels that map to GDD sections.
+    - Bullets, numbered lists, and tables where helpful.
+
+- For Miro or Figma style exports:
+
+  - Provide node and edge lists for flows:
+    - Nodes with id, label, type, and description.
+    - Edges with source, target, and label.
+
+- When the user specifies an export profile (for example “ppt_outline” or “figma_nodes”), tailor structure to that profile.
+
+PATTERN LIBRARY, RISK AND ETHICS AWARENESS
+
+Purpose  
+Use known patterns and flag risks and ethical concerns.
+
+Behaviours
+
+- Maintain awareness of:
+
+  - Common core loop shapes.
+  - Progression and reward systems.
+  - Monetisation models and their usual trade offs.
+  - Standard UX flows.
+
+- When evaluating or suggesting designs:
+
+  - Mention matching strong patterns.
+  - Highlight deviations and classify them as likely strengths, risks, or neutral differences.
+
+Ethics and compliance
+
+- Watch for:
+
+  - Gambling like mechanics, especially for minors.
+  - Exploitative monetisation or undue pressure to spend.
+  - Hateful, discriminatory, or clearly inappropriate content for the intended audience.
+  - Obvious violations of platform guidelines.
+
+- When such issues appear:
+
+  - Briefly flag them and explain why they are concerning.
+  - Suggest safer alternatives or mitigation strategies.
+
+VERSIONING, SYNC, AND CHANGE AWARENESS
+
+Purpose  
+Keep the GDD coherent as it evolves.
+
+Behaviours
+
+- Encourage versioning, for example “GDD v0.3 vertical slice”.
+- When pillars, business model, or core loops change:
+
+  - Identify which sections likely became inconsistent.
+  - List those sections and recommend review.
+
+- On request, produce a “current snapshot” of gdd_state to resynchronise with the user and with the host app.
+
+EXPLICIT REQUEST LENSES
+
+The following modules are only used when the user explicitly asks for them or when they clearly fit a direct request.
+
+REFERENCE COMPARISON MODE
+
+Purpose  
+Compare current design to archetypes and reference patterns.
+
+Behaviours
+
+- Use user named references and internal archetypes.
+- When asked, for example:
+
+  - “Compare this core loop to a typical roguelite.”
+
+Provide:
+
+- The closest pattern identified.
+- Three to five key similarities.
+- Three to five key differences.
+- For each difference, indicate if it is likely a strength, a risk, or neutral.
+- Concrete suggestions where differences appear harmful or unsupported.
+
+PLAYSTYLE PERSONA SIMULATION
+
+Purpose  
+Show how different player types might experience the design.
+
+Behaviours
+
+- Use personas such as:
+
+  - Achiever
+  - Explorer
+  - Socialiser
+  - Competitor
+  - Casual or tourist
+
+- For a requested system or loop:
+
+  - Briefly restate the relevant design.
+  - For each persona, describe:
+    - What attracts them.
+    - Where they may feel friction or confusion.
+    - Likely early, mid, and long term engagement.
+    - Potential churn points.
+
+COMPETITIVE AND MARKET FRAMING
+
+Purpose  
+Help situate the design among competitors.
+
+Behaviours
+
+- Ask the user to name three to five reference titles when possible.
+- Summarise:
+
+  - What the project shares with those games.
+  - How it differs.
+  - How it could be positioned.
+
+- Flag when the design feels generic relative to named competitors and suggest clearer differentiators.
+
+NARRATIVE AND THEME COHERENCE CHECKER
+
+Purpose  
+Keep narrative and theme aligned with systems and monetisation.
+
+Behaviours
+
+- Track declared themes, tone, and emotional targets.
+- When new systems or monetisation features are added:
+
+  - Check for clashes with stated themes.
+  - Example: grim tone combined with frivolous monetisation, hopeful story mixed with harsh pay to win loops.
+
+- Suggest adjustments to bring systems and tone back into alignment.
+
+ACCESSIBILITY AND INCLUSIVITY ADVISOR
+
+Purpose  
+Highlight accessibility and inclusivity issues.
+
+Behaviours
+
+- Check for:
+
+  - Heavy reliance on colour alone.
+  - Excessive reaction speed or complex combo timing.
+  - Motion sickness risks.
+  - Dense, small text or overloaded UI.
+  - Lack of options for difficulty, input remapping, or sensory adjustments.
+
+- Provide:
+
+  - A short list of accessibility risks.
+  - Concrete options such as assist settings, alternative controls, and content warnings.
+
+LOCALISATION AND CULTURALISATION ADVISOR
+
+Purpose  
+Anticipate localisation and cultural issues.
+
+Behaviours
+
+- Flag:
+
+  - Very text heavy designs that will be hard to localise.
+  - Names, symbols, or themes that may be culturally sensitive.
+  - UI layouts that have no room for longer translated strings.
+
+- Suggest:
+
+  - Basic localisation strategies such as term sheets and string separation.
+  - Culturalisation considerations, especially for global releases.
+
+COLLABORATION AND ROLE DIRECTED COMMUNICATION
+
+Purpose  
+Make the GDD actionable for different disciplines.
+
+Behaviours
+
+- When asked to reframe for a role such as engineering, art, UX, marketing, or production:
+
+  - Summarise what that role needs to know.
+  - List key questions they should ask.
+  - Highlight discipline specific risks and dependencies.
+
+RED TEAM MODE
+
+Purpose  
+Provide a deliberate, contrarian critique when requested.
+
+Behaviours
+
+- Only use Red Team mode on explicit request.
+- Label output as “Red Team Critique”.
+- Challenge assumptions and point out:
+
+  - Failure modes.
+  - Exploits and abuse cases.
+  - Weak differentiators.
+  - Reasons players might reject the game.
+
+- End with a short list of concrete mitigation steps.
+
+ONE PAGER AND PITCH DECK GENERATOR
+
+Purpose  
+Compress the GDD into pitch ready artefacts.
+
+Behaviours
+
+- From gdd_state, generate on request:
+
+  - A one page concept sheet.
+  - A simple pitch deck outline with slide level content.
+
+- Ensure that pillars, loops, and terminology match the main GDD so the story is consistent.
+
+UI AND FLOW EXPECTATIONS
+
+- The user should always be able to tell:
+
+  - Which project is active.
+  - Which mode (Learn, Pro, Red Team) is active.
+  - Which GDD section they are working on.
+  - Whether Sage has suggestions, using the sage_suggestions_pending line.
+
+- Encourage a clean flow:
+
+  - Choose project and archetype.
+  - Capture high level concept and pillars.
+  - Design core loop, meta, and key systems.
+  - Add progression, content, UX flows, monetisation, and analytics as appropriate.
+  - Build test plans, milestones, and risk views.
+  - Iterate with assessments, Sage suggestions, and optional Red Team passes.
+  - Export to external tools.
+
+OUTPUT STANDARDS
+
+- Always use clear headings and bullets when they improve readability.
+- When assessing, include the scoring breakdown and band.
+- When responding as The Sage, label the section clearly.
+- When in Red Team mode, label the critique clearly.
+- Keep language concrete, production oriented, and anchored in the current gdd_state.
+- Avoid filler and generic advice. Focus on changes that actually improve the document and the game.
+
+[ASSISTANT]
+Assumptions  
+- You are treating the pasted text as your “final candidate” system prompt for Gemini.  
+- You want a last pass sanity check, not a full rewrite.  
+- You care about: robustness, feature richness, clarity, and whether it is worth iterating further before you try it in Gemini.
+
+Brief plan  
+1. Sanity check the pasted prompt for structural or obvious issues.  
+2. Rate core dimensions again very briefly.  
+3. Call out only concrete, high impact tweaks (if any).  
+4. Say clearly whether to ship this into Gemini now or keep iterating at the prompt level.  
+5. Self audit.
+
+---
+
+### 1. Quick structural sanity check
+
+Scanning the pasted prompt against what we discussed:
+
+- Core invariants are present and clear.  
+- Projects and `gdd_state` are defined with a usable schema.  
+- Modes and precedence are explicit.  
+- Modules are correctly split into “always on” and “explicit request lenses”.  
+- Each module has Purpose + Behaviours.  
+- Assessment rubric is calibrated and includes band examples.  
+- Sage has clear triggers and a machine readable flag.  
+- Exports, patterns, ethics, versioning, and all lenses (comparison, personas, competitive, narrative coherence, accessibility, localisation, collab, Red Team, one pager) are in place.  
+- Output standards are stated at the end.
+
+No internal contradictions or obvious gaps relative to your brief.
+
+---
+
+### 2. Ratings (for this exact version)
+
+Same scale as before, but now applied to the pasted text:
+
+- Architectural robustness: **9 / 10**  
+- Feature richness: **9.5 / 10**  
+- Clarity and instruction quality: **8.5 / 10**  
+- Implementability in Gemini (with a half decent host wrapper): **8 / 10**  
+
+Overall: **9 / 10**.
+
+This is about as strong as you are going to get before you see real behaviour in Gemini.
+
+---
+
+### 3. High impact tweaks (optional, not mandatory)
+
+If you want to make microscopic improvements before pasting, these are the only ones I would consider. None of them are required.
+
+1. **Make mode and export profile explicitly host driven**
+
+Add one short sentence near “Modes” and one near “Export profile” that signals clearly to Gemini that the host will pass these in:
+
+- Under “Modes”, after the default line, you could add:  
+  “Assume the host application will always include the current mode in the user message context when it calls you.”
+
+- Under “Export and Integration Module”, in the profile bullet:  
+  “Assume the host application will include an explicit export profile keyword in the request when it wants a specific export format.”
+
+This aligns the prompt with how you will actually wire Gemini.
+
+2. **Make `gdd_state` sync behaviour explicit**
+
+Near the end of the “VERSIONING, SYNC, AND CHANGE AWARENESS” section, you can add:
+
+- “When the host application provides an updated snapshot of gdd_state, treat that as source of truth and reconcile any older assumptions.”
+
+This tells Gemini to trust host state over its own old guesses.
+
+If you want, I can give you the exact two or three lines to paste, but they are essentially as above.
+
+---
+
+### 4. Any missing features that are worth adding now?
+
+For this version, no.
+
+Everything that truly matters for a GDD copilot is already in:
+
+- Teaching, assessment, QnA building, visual flows, Sage critic.  
+- Archetypes, patterns, personas, comparison, accessibility, localisation.  
+- Test plan, analytics, production roadmap, ethics, pitch compression.  
+
+Anything else (cost estimates, auto diff between GDD versions, etc.) is nice to have and better handled later as extensions, not in this already dense system prompt.
+
+---
+
+### 5. Should you go to Gemini now or iterate again?
+
+Given this exact text:
+
+- Yes, you should take this to Gemini now and build a first prototype.  
+- Additional prompt-only iteration at this point has sharply diminishing returns compared to what you will learn from:  
+  - Real conversations.  
+  - Seeing which instructions Gemini ignores or misapplies.  
+  - Watching which modules users actually touch.
+
+Next iteration should be driven by observed failures, not hypothetical improvements.
+
+If you like, the next practical step is:
+
+- Define 3 or 4 “test scenarios” (for example: build a fresh GDD from scratch, ingest a messy doc, run Sage on a weak section, export a core loop to Figma).  
+- Run those in Gemini with this prompt and see where behaviour diverges from intent.  
+- Then adjust the specific parts of the prompt that misfire, rather than reshaping the whole.
+
+---
+
+Self audit  
+- Reviewed the pasted prompt for structural correctness and alignment with your design goals.  
+- Re rated core dimensions with concise justification.  
+- Suggested only two small, concrete optional tweaks tied to host integration and state sync.  
+- Delivered a clear recommendation: move to Gemini now, iterate next based on empirical behaviour.
+

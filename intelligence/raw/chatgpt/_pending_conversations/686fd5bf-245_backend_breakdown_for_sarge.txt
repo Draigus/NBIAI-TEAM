@@ -1,0 +1,18 @@
+TITLE: Backend Breakdown for Sarge
+DATE: 2025-07-10
+MESSAGES: 2
+ID: 686fd5bf-245c-800b-8796-cecb15c8f69d
+---
+
+[USER]
+For Sarge Universe, break down the entirety of the backend, as if you were an extremely experienced games backend engineer. List the categories of code in the backend and break down components in each category, so that we can have the discussion with the third-party developer to build all that code.
+
+[ASSISTANT]
+To accurately define the backend architecture for Sarge Universe, could you confirm a few things:
+
+1. Should this cover the entire multi-game roadmap (Strategy game, FPS, and 4X Metaverse) or focus only on the initial Telegram Strategy game?
+2. Do you want this breakdown to include infrastructure and DevOps architecture (e.g., AWS structure, CI/CD, monitoring) or limit to gameplay-related backend code modules?
+3. Should we include blockchain/Web3-specific services and APIs (e.g. TON integration, token/NFT handling, wallet management) as a category?
+
+Once confirmed, I will produce a category-by-category backend system breakdown aligned with AAA game backend engineering standards.
+

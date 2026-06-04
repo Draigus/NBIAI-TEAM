@@ -1,0 +1,81 @@
+TITLE: Game studio salary search
+DATE: 2026-01-05
+MESSAGES: 4
+ID: 695baa27-ca70-8327-9520-c4ba1dd92aa5
+---
+
+[USER]
+can you find the salary work we did for game studios please
+
+[ASSISTANT]
+Who’s speaking, Heather or Glen?
+
+I can help you locate it, but I need to be explicit about a limitation: I cannot directly open or search your other ChatGPT chats or your local files unless you paste the content here or upload the document.
+
+### Clarification bundle (only what changes the outcome)
+1) Was the “salary work for game studios” produced in:
+   - a previous ChatGPT chat,
+   - an Excel/Word/PDF you have,
+   - or something you uploaded in this chat?
+
+2) Give me one of these so I can lock onto it fast:
+   - 3 to 8 keywords you remember (example: “salary atlas”, “quartiles”, “UK/US/EU”, “bands”, “leveling”, “producer”, “engineering”, “VGTR”)
+   - or the rough date/month we did it
+
+3) What do you want back once found:
+   - the original text as-is,
+   - a cleaned and indexed summary,
+   - or an updated Excel/Word rebuild?
+
+### Minimal progress slice (so we move forward now)
+If you upload the file (or paste any chunk of the content), I will:
+- extract the full salary tables/bands,
+- rebuild a clean “Salary Atlas” structure (role, level, region, min/25th/50th/75th/max, notes, source tags),
+- and return it in whatever format you want (table in chat, or a new Excel/Word artifact if you ask for a file).
+
+Send me the answer to the three questions above, plus either an upload or a pasted snippet, and I will pull it together in the same reply thread.
+
+[USER]
+salary
+
+[ASSISTANT]
+Who’s speaking, Heather or Glen?
+
+Also, “salary” alone is not enough for me to identify what you mean.
+
+Two realities up front:
+- I cannot search your past ChatGPT chats from here.
+- I can help you find it fast inside your ChatGPT history (you do the search, you paste the result), or I can recreate the salary workbook/text from scratch if you tell me the spec.
+
+### Option A: You locate it in ChatGPT history (fastest)
+Use the ChatGPT chat search and try these exact queries (one at a time):
+- salary atlas
+- salary bands
+- comp bands
+- quartiles
+- UK US EU salary
+- headcount salary
+- NBI salary
+- producer salary
+- engineer salary
+
+When you find the right chat, paste:
+- the table(s), or
+- 30 to 60 lines around the key section
+
+Then I will reformat, clean, index, and rebuild it into a single “Salary Atlas” output.
+
+### Option B: I recreate it now (no past chat needed)
+Answer these and I will generate the salary structure immediately:
+1) Regions: UK only, UK+EU, UK+US+EU, other?
+2) Roles: which families (Engineering, Design, Product, Production, Art, QA, Data, Live Ops, etc.)?
+3) Leveling: how many levels and what naming (Junior, Mid, Senior, Lead, Principal, Director), or your custom ladder?
+4) Output format: table in chat, Excel, or Word?
+
+If you reply with:
+- “Glen” or “Heather”
+- “A” or “B”
+- and any one keyword you remember (example: “quartiles”)
+
+…I can take the next step without guessing.
+

@@ -10,20 +10,20 @@ const require = createRequire(import.meta.url);
 const { validatePassword } = require('../../lib/helpers.js');
 
 describe('validatePassword', () => {
-  it('rejects passwords shorter than 12 characters', () => {
-    const result = validatePassword('Abcdefgh1');
+  it('rejects passwords shorter than 6 characters', () => {
+    const result = validatePassword('Ab1d');
     expect(result.valid).toBe(false);
-    expect(result.message).toMatch(/12 characters/);
+    expect(result.message).toMatch(/6 characters/);
   });
 
-  it('rejects 11-character passwords', () => {
-    const result = validatePassword('Abcdefghi1k');
+  it('rejects 5-character passwords', () => {
+    const result = validatePassword('Ab1de');
     expect(result.valid).toBe(false);
-    expect(result.message).toMatch(/12 characters/);
+    expect(result.message).toMatch(/6 characters/);
   });
 
-  it('accepts exactly 12-character passwords meeting all rules', () => {
-    const result = validatePassword('Abcdefghij1k');
+  it('accepts exactly 6-character passwords meeting all rules', () => {
+    const result = validatePassword('Ab1def');
     expect(result.valid).toBe(true);
   });
 

@@ -1,0 +1,53 @@
+TITLE: Mobile game marketing budget
+DATE: 2025-08-05
+MESSAGES: 2
+ID: 6891f473-dbf4-832a-8aaa-0d2764c3e99e
+---
+
+[USER]
+for a mobile game what is the avg marketing budget
+
+[ASSISTANT]
+**There is no single “standard” marketing budget for a mobile-game launch**—spend swings from a few-thousand pounds for a boot-strapped hyper-casual title to well over £50 million for a top-grossing 4X or casino game.  Still, the industry’s own performance data lets you ball-park what “average” looks like today:
+
+| Studio size / title type | Typical UA & marketing kitty for the **first 6-12 months** | How that number is reached |
+|--------------------------|--------------------------------------|-------------------|
+| Indie / hyper–casual | **£10k – £100k** total | A shoestring CPI test of ~5-25 k installs at a global CPI of $1.50-$2.50 (Android) or $2-$3 (iOS) plus creative production and store assets citeturn7search0turn7search4 |
+| Mid-tier F2P (puzzle, idle, casual RPG) | **£250k – £2 million** | 100-500 k paid installs at $2-$4 CPI, 3-6 months of live-ops UA bursts, influencer seed budgets and a PR/asset pipeline |
+| Core / mid-hardcore strategy or RPG | **£3 million – £10 million** | 0.5-1.5 million paid installs at $4-$6 CPI, creative refresh every 14-30 days, multi-channel media (Meta, Google, Unity, TikTok) |
+| Top-grossing franchise launch | **£15 million +** (can exceed £50 m) | Monopoly GO!, for example, has already spent **~$500 m on advertising** in its first year citeturn1view1 |
+
+### Why the ranges are so wide
+
+1. **Genre & audience drive CPI.** 2025 average CPIs range from **$1.5 on Android casual** to **$6 on iOS RPG/strategy** citeturn7search1turn7search8.  
+2. **Scale targets.** A title that needs 1 m installs before breakeven obviously needs a bigger war-chest than a 50 k-install niche game.  
+3. **Platform privacy changes.** ATT and SKAN on iOS push CPIs up ~30-50 % versus pre-2021 figures citeturn7search3.  
+4. **Company policy.** Bain & Co. finds most large mobile publishers earmark **~25 % of expected game revenue for marketing** citeturn1view1.
+
+### A quick way to **estimate** your own budget
+
+```
+Target installs x Expected CPI  +  15-30 % buffer for creative tests
+= Launch UA budget
+```
+*Example*: 200 k installs × $3 CPI ≈ $600 k → add $120 k buffer → **$720 k (≈ £560 k)**.
+
+Then add:
+* **Asset & creative production** (trailers, store art, influencer briefing material): £20-50 k for a mid-core launch.  
+* **ASO/tooling/analytics** licences: £2-10 k.  
+* **Cash-flow for live-ops offers (cross-promo skins, etc.)** if you run paid rev-shares with partners.
+
+### Benchmarks publishers use
+
+| KPI | “Good” rule of thumb | Source |
+|-----|----------------------|--------|
+| Marketing share of total P&L | 20-30 % of gross revenue | Bain & Co. citeturn1view1 |
+| Day-1 CPI test budget | £5 k – £15 k | Dev-publisher round-table, 2025 citeturn6view0 |
+| Global median CPI (2025) | iOS $2-$3.5, Android $1.5-$2.5 | Business-of-Apps citeturn7search0 |
+
+---
+
+**Bottom line**
+
+*For a “typical” new free-to-play mobile game in 2025, plan on **£250 k–£1 m** of marketing to hit product/market fit and reach the first half-million installs.  Double or triple that if you’re entering a high-CPI genre (strategy, RPG) or aiming for the Top-Grossing charts.*
+

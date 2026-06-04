@@ -1,0 +1,172 @@
+TITLE: Interview Feedback Jack
+DATE: 2026-01-22
+MESSAGES: 4
+ID: 69726965-8c18-8326-bcdd-e766d72df8db
+---
+
+[USER]
+write this into an interview feedback notes 
+Jack interview notes
+
+Located in far south London - hard to get to studio when needed
+
+Background
+
+Eidos publisher
+
+telemetry exp cited 
+insights across publishing
+
+eg win-back campaign 
+custom insights a lot but all publishing not studio or game
+built reporting and monitoring for publisher across games
+
+Went to a development studio rather than publisher - wanted more dev interaction
+playtest reporting and analysis
+designed telemetry - multiple times so there should be some skill here 
+checking into this he understands teh fundamentals of telemetry - scale 1-10 =7
+
+worked cross title
+moved back to UK worked remote - timing wasn't great for time zone
+short term for PlayStation
+word on spiderman and God of war Ragnarök - game analysis and qa based crash data.
+Rockstar - economy tuning on vehicle pricing - segmentation model for mtx payers create production models to see when they move between segments.
+coatsink - laid off - working on a mobile - building mobile only for horizon worlds from meta - now cancelled
+setup the full analytic plan
+
+product:
+deep understanding of the game
+
+dislikes - design and feature builds are really rough or poor design and delivery 
+         - hates when people will ignore the obvious truth base don data and want the data to fit their narrative in their head rather than an obvious truth
+         - you have to come prepared and make your insight convincing and present in layman's terms - have to bring the learning to the person
+         - when client want every single piece of data without a reason 
+	 - hates over processing and documentation to deliver insights where its super heavy and the need for the original ask has passed by the time it gets done. 
+         - we serve the devs so we need to move at their speed 
+	 - 
+self admitted people pleaser
+
+	 no forecasting experience at all  
+	- lots of FTUE and funnel
+	- Little bit of ROAS on marketing funnel
+	- open to AI usage 
+	- no Data Engineering skill at all - self admitted
+
+[ASSISTANT]
+Before I tailor the recommendation and scoring to your hiring bar, who is speaking, Heather or Glen?
+
+## Interview feedback notes: Jack
+
+### Logistics and availability
+- **Location:** Far South London  
+- **Risk:** Commute could make ad hoc in-studio attendance difficult when needed.
+
+### Background summary
+- **Publishing analytics (Eidos, publisher side):**
+  - Experience with telemetry-driven insights across multiple titles at publisher level.
+  - Example work: win-back campaign analysis.
+  - Built reporting and monitoring across a portfolio of games.
+  - Most work described here was **publisher-focused**, less directly embedded in a single studio or specific game team.
+
+- **Move to development studio (seeking closer dev interaction):**
+  - Playtest reporting and analysis.
+  - Designed telemetry on multiple occasions.
+
+### Telemetry capability (as discussed)
+- Demonstrates solid understanding of telemetry fundamentals and practical implementation considerations.  
+- **Telemetry fundamentals rating (self assessed from discussion): 7/10.**
+
+### Notable experience highlights
+- **Cross-title analytics work** across multiple environments and teams.
+- **UK return with remote work:** Timing and time zone friction noted; short-term engagement for PlayStation.
+- **PlayStation related work:** Game analysis and QA insights using crash data (referenced titles include Spider-Man and God of War Ragnarök).
+- **Rockstar:** Economy tuning on vehicle pricing. Built a segmentation model for MTX payer types and production models to track movement between segments.
+- **Coatsink:** Role ended due to layoff.
+- **Meta (Horizon Worlds mobile):** Built the full analytics plan for a mobile-only initiative; project subsequently cancelled.
+
+### Product and game understanding
+- **Product depth:** Presents as having a deep understanding of games and how analytics supports decision making and iteration.
+
+### Working style and preferences (what he values, what frustrates him)
+- Strong negative reaction to:
+  - Poor design or weak feature delivery.
+  - Stakeholders ignoring clear data signals and trying to force data to match a preconceived narrative.
+  - Requests for “all data” without a clear purpose or decision attached.
+  - Heavy process and documentation that slows insight delivery until the original question is no longer relevant.
+- Strong positive alignment to:
+  - Moving at developer speed and serving the dev team pragmatically.
+  - Making insights persuasive and understandable in plain language, then bringing the learning to the decision maker.
+- **Self admitted:** People pleaser.
+
+### Skill gaps and constraints
+- **Forecasting:** No forecasting experience stated.
+- **FTUE and funnel analytics:** Significant experience.
+- **ROAS and marketing funnel:** Limited experience.
+- **AI openness:** Open to using AI tools.
+- **Data engineering:** No data engineering skill (self admitted).
+
+### Overall assessment (from these notes)
+- **Best fit:** Product analytics, telemetry insights, funnel and FTUE work, economy analytics, crash and quality telemetry interpretation, studio-facing insight delivery.
+- **Risks:** Commute reliability for in-person needs; lack of forecasting; lack of data engineering; potential stakeholder management risk if “people pleaser” behavior reduces pushback when data conflicts with narratives.
+
+### Suggested next steps (if progressing)
+- Clarify onsite expectations and his ability to meet them consistently.
+- Run a practical case: telemetry spec design plus an insight narrative presentation to a non-technical stakeholder.
+- Validate hands-on capability: SQL proficiency, experimentation basics, and end-to-end workflow from question to instrument to dashboard to decision.
+
+[USER]
+Glen, I dot want Overall assessment or Suggested next steps
+
+[ASSISTANT]
+Understood. Here are the interview feedback notes with those sections removed.
+
+## Interview feedback notes: Jack
+
+### Logistics and availability
+- **Location:** Far South London  
+- **Risk:** Commute could make ad hoc in-studio attendance difficult when needed.
+
+### Background summary
+- **Publishing analytics (Eidos, publisher side):**
+  - Telemetry-driven insights across publishing.
+  - Example work: win-back campaign.
+  - Built reporting and monitoring across multiple games.
+  - Most experience described here is publisher-focused, not embedded studio or single-game team.
+
+- **Shift to development studio (seeking more dev interaction):**
+  - Playtest reporting and analysis.
+  - Designed telemetry multiple times.
+
+### Telemetry capability (as discussed)
+- Understands telemetry fundamentals.
+- **Telemetry fundamentals rating: 7/10.**
+
+### Notable experience highlights
+- Worked cross-title.
+- Returned to UK and worked remote; time zone timing was not ideal.
+- Short-term work for PlayStation.
+- Referenced work on Spider-Man and God of War Ragnarök: game analysis and QA using crash data.
+- Rockstar: economy tuning on vehicle pricing; segmentation model for MTX payers; production models tracking movement between segments.
+- Coatsink: laid off.
+- Meta (Horizon Worlds mobile): set up full analytics plan; project cancelled.
+
+### Product and game understanding
+- Deep understanding of the game/product.
+
+### Working style and preferences
+- Dislikes:
+  - Rough or poor design and feature delivery.
+  - Stakeholders ignoring obvious truths in the data and forcing data to match their narrative.
+  - Needing to over-justify insights; emphasises presenting convincingly in plain language and bringing learning to the decision maker.
+  - Clients requesting every piece of data without a clear reason.
+  - Over-processing and heavyweight documentation that delays insights past usefulness.
+- Belief: analytics serves devs and must move at dev speed.
+- Self-admitted people pleaser.
+
+### Skill gaps and constraints
+- No forecasting experience.
+- Strong FTUE and funnel experience.
+- Some ROAS and marketing funnel exposure.
+- Open to AI usage.
+- No data engineering skill (self admitted).
+

@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meeting Intelligence Consolidation — Mar 6 to May 22, 2026 (v2 Complete)</title>
+<style>
+:root {
+  --bg: #0d1117; --surface: #161b22; --surface2: #1c2128; --border: #30363d;
+  --text: #e6edf3; --text-muted: #8b949e; --accent: #58a6ff; --green: #3fb950;
+  --yellow: #d29922; --red: #f85149; --purple: #bc8cff; --orange: #f0883e;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; padding: 2rem; max-width: 1400px; margin: 0 auto; font-size: 15px; }
+h1 { font-size: 1.8rem; margin-bottom: 0.5rem; color: var(--accent); }
+h2 { font-size: 1.4rem; margin: 2.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--border); color: var(--text); }
+h3 { font-size: 1.1rem; margin: 1.5rem 0 0.75rem; color: var(--purple); }
+h4 { font-size: 1rem; margin: 1rem 0 0.5rem; color: var(--text-muted); }
+p { margin-bottom: 0.75rem; }
+.subtitle { color: var(--text-muted); margin-bottom: 0.5rem; font-size: 0.95rem; }
+.version-note { color: var(--green); font-size: 0.85rem; margin-bottom: 2rem; font-weight: 600; }
+.stats { display: flex; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 2rem; }
+.stat { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.5rem; min-width: 120px; }
+.stat-value { font-size: 1.6rem; font-weight: 700; color: var(--accent); }
+.stat-label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+details { margin-bottom: 0.5rem; }
+summary { cursor: pointer; padding: 0.6rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; font-weight: 600; font-size: 0.95rem; }
+summary:hover { background: var(--surface2); }
+details[open] > summary { border-radius: 6px 6px 0 0; border-bottom: none; }
+.detail-content { padding: 1rem; background: var(--surface); border: 1px solid var(--border); border-top: none; border-radius: 0 0 6px 6px; }
+table { width: 100%; border-collapse: collapse; margin: 0.75rem 0; font-size: 0.88rem; }
+th, td { padding: 0.5rem 0.6rem; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+th { background: var(--surface2); color: var(--text-muted); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.03em; position: sticky; top: 0; }
+tr:hover td { background: rgba(88,166,255,0.04); }
+.tag { display: inline-block; padding: 0.1rem 0.45rem; border-radius: 3px; font-size: 0.72rem; font-weight: 700; }
+.tag-red { background: rgba(248,81,73,0.15); color: var(--red); }
+.tag-yellow { background: rgba(210,153,34,0.15); color: var(--yellow); }
+.tag-green { background: rgba(63,185,80,0.15); color: var(--green); }
+.tag-blue { background: rgba(88,166,255,0.15); color: var(--accent); }
+.tag-purple { background: rgba(188,140,255,0.15); color: var(--purple); }
+.person-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; margin-bottom: 0.6rem; }
+.person-name { font-weight: 700; color: var(--accent); font-size: 1.05rem; }
+.person-role { color: var(--text-muted); font-size: 0.85rem; }
+.person-notes { margin-top: 0.5rem; font-size: 0.9rem; }
+.person-notes ul { padding-left: 1.2rem; }
+.person-notes li { margin-bottom: 0.3rem; }
+.timeline-item { border-left: 2px solid var(--border); padding: 0.6rem 0 0.6rem 1.5rem; margin-left: 0.5rem; position: relative; }
+.timeline-item::before { content: ''; position: absolute; left: -5px; top: 1rem; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+.timeline-date { color: var(--text-muted); font-size: 0.8rem; font-weight: 600; }
+.number-highlight { color: var(--green); font-weight: 700; }
+ul { padding-left: 1.5rem; margin: 0.5rem 0; }
+li { margin-bottom: 0.3rem; }
+.section-nav { position: sticky; top: 0; background: var(--bg); padding: 0.75rem 0; border-bottom: 1px solid var(--border); margin-bottom: 2rem; z-index: 100; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.section-nav a { color: var(--accent); text-decoration: none; padding: 0.35rem 0.7rem; border-radius: 4px; background: var(--surface); border: 1px solid var(--border); font-size: 0.82rem; }
+.section-nav a:hover { background: var(--surface2); }
+.insight-box { background: rgba(188,140,255,0.08); border-left: 3px solid var(--purple); padding: 0.65rem 1rem; margin: 0.6rem 0; border-radius: 0 6px 6px 0; font-size: 0.9rem; }
+.warning-box { background: rgba(210,153,34,0.08); border-left: 3px solid var(--yellow); padding: 0.65rem 1rem; margin: 0.6rem 0; border-radius: 0 6px 6px 0; font-size: 0.9rem; }
+.thread-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; margin-bottom: 0.75rem; }
+.thread-title { font-weight: 700; color: var(--orange); font-size: 1rem; margin-bottom: 0.5rem; }
+@media (max-width: 768px) { body { padding: 1rem; font-size: 14px; } .stats { gap: 0.75rem; } .stat { padding: 0.75rem 1rem; } }
+</style>
+</head>
+<body>
+
+<h1>Meeting Intelligence Consolidation</h1>
+<p class="subtitle">142 Granola meetings | March 6 - May 22, 2026 | Compiled for Glen Pryer</p>
+<p class="version-note">v2 COMPLETE REBUILD — All 142 transcripts fully processed via 7 parallel extraction agents. Zero truncation.</p>
+
+<div class="stats">
+  <div class="stat"><div class="stat-value">142</div><div class="stat-label">Meetings</div></div>
+  <div class="stat"><div class="stat-value">78 days</div><div class="stat-label">Time Span</div></div>
+  <div class="stat"><div class="stat-value">~95</div><div class="stat-label">Unique People</div></div>
+  <div class="stat"><div class="stat-value">5</div><div class="stat-label">Workstreams</div></div>
+  <div class="stat"><div class="stat-value">200+</div><div class="stat-label">Action Items</div></div>
+  <div class="stat"><div class="stat-value">80+</div><div class="stat-label">Decisions</div></div>
+</div>
+
+<nav class="section-nav">
+  <a href="#actions">Open Actions</a>
+  <a href="#decisions">Decisions</a>
+  <a href="#people">People</a>
+  <a href="#learnings">Learnings</a>
+  <a href="#numbers">Numbers</a>
+  <a href="#timeline">Timeline</a>
+  <a href="#threads">Active Threads</a>
+</nav>
+
+<!-- ================================================================== -->
+<h2 id="actions">1. Open Actions &amp; Commitments</h2>
+<p><span class="tag tag-green">DONE</span> = confirmed completed in a later meeting. <span class="tag tag-red">OVERDUE</span> = deadline passed without confirmation. <span class="tag tag-yellow">OPEN</span> = no confirmation either way.</p>
+
+<h3>Couch Heroes — CTO Hire</h3>
+<table>
+<tr><th style="width:65px">Date</th><th style="width:90px">Owner</th><th>Action</th><th style="width:70px">Status</th></tr>
+<tr><td>Apr 2</td><td>Glen</td><td>Follow-up calls with Neil and Nia — probe cost, equity expectations, culture fit</td><td><span class="tag tag-green">DONE</span></td></tr>
+<tr><td>Apr 9</td><td>Glen</td><td>Recalibrate Vardis interview behaviour (inappropriate language 3x with Neil)</td><td><span class="tag tag-yellow">OPEN</span></td></tr>
+<tr><td>Apr 14</td><td>Glen</td><td>Extend offer to Nia (CTO, 230K + 3% equity, start May 18)</td><td><span class="tag tag-green">DONE</span></td></tr>
+<tr><td>Apr 17</td><td>Glen</td><td>Brief Aris/Vardis on Nia compensation tradeoffs (3 options)</td><td><span class="tag tag-green">DONE</span></td></tr>
+<tr><td>Apr 21</td><td>Glen</td><td>Break news to CH about third CTO candidate loss (Nia took AI startup)</td><td><span class="tag tag-green">DONE</span></td></tr>
+<tr><td>May 5</td><td>Glen</td><td>Interview Maurizio de Pascale (IO Interactive, direct MMO experience)</td><td><span class="tag tag-green">DONE</span></td></tr>
+<tr><td>May 15</td><td>Glen</td><td>Meet and greet Chris Southall (8yr CTO Sega, heads Sumo Digital)</td><td><span class="tag tag-green">DONE</span></td></tr>
+<tr><td>May 20</td><td>Glen</td><td>Interview Per-Olof Romell (ex-DICE, Starbreeze, Ubisoft)</td><td><span class="tag tag-green">DONE</span></td></tr>
+<tr><td>May 21</td><td>Glen</td><td>CTO follow-ups — schedule for week after Nordic Game Conference</td><td><span class="tag tag-yellow">OPEN</span></td></tr>
+<tr><td>May 21</td><td>Glen</td><td>Follow up with Chris Southall (3rd attempt for scheduling)</td><td><span class="tag tag-yellow">OPEN</span></td></tr>
+</table>
+
+<h3>Couch Heroes — Senior Hires &amp; Contracts</h3>
+<table>
+<tr><th style="width:65px">Date</th><th style="width:90px">Owner</th><th>Action</th><th style="width:70px">Status</th></tr>
+<tr><td>Mar 17</td><td>Lorenza</td><td>Prepare Graham (120K) and Lily (135-140K) offer letters</td><td><span class="tag tag-green">DONE</span></td></tr>
+<tr><td>Apr 1</td><td>Glen</td><td>Send final offer to Graham (135K base, 145K post-probation)</td><td><span class="tag tag-green">DONE</span></td></tr>
+<tr><td>Apr 1</td><td>Glen</td><td>Send Lily Zhao offer letter</td><td><span class="tag tag-green">DONE</span></td></tr>
+<tr><td>Apr 8</td><td>Lorenza</td><td>Send Graham FT contract immediately</td><td><span class="tag tag-green">DONE</span></td></tr>
+<tr><td>Apr 17</td><td>Glen</td><td>Interview Gary Platner (23yr Blizzard)</td><td><span class="tag tag-green">DONE</span></td></tr>
+<tr><td>Apr 20</td><td>Glen</td><td>Terminate Anthony at 12:30 UK time</td><td><span class="tag tag-green">DONE</span></td></tr>
+<tr><td>May 4</td><td>Glen</td><td>Gary offer call ($216K USD)</td><td><span class="tag tag-green">DONE</span></td></tr>
+<tr><td>May 7</td><td>Simon</td><td>Redline contract by Friday; gentleman's agreement to sign current version</td><td><span class="tag tag-green">DONE</span></td></tr>
+<tr><td>May 7</td><td>Lorenza</td><td>Escalate Jack (Skill Search) concerns to agency leadership</td><td><span class="tag tag-green">DONE</span></td></tr>
+<tr><td>May 13</td><td>Lorenza</td><td>Send contracts for Graham, Simon, Mikhail, Charlie, Gary</td><td><span class="tag tag-green">DONE</span></td></tr>
+<tr><td>May 21</td><td>Glen</td><td>Ping Reilly and Gary for contract signatures</td><td><span class="tag tag-yellow">OPEN</span></td></tr>
+<tr><td>May 21</td><td>Mustafa</td><td>Lead Daniel offer call Monday (95K, Glen present)</td><td><span class="tag tag-yellow">OPEN</span></td></tr>
+<tr><td>May 22</td><td>Lorenzo</td><td>Update Lili's contract for July 1st start date</td><td><span class="tag tag-yellow">OPEN</span></td></tr>
+</table>
+
+<h3>Couch Heroes — Studio Operations &amp; Production</h3>
+<table>
+<tr><th style="width:65px">Date</th><th style="width:90px">Owner</th><th>Action</th><th style="width:70px">Status</th></tr>
+<tr><td>Mar 18</td><td>Aris</td><td>Create accountability spreadsheet for exec meetings (3 priorities, R/Y/G)</td><td><span class="tag tag-yellow">OPEN</span></td></tr>
+<tr><td>Mar 24</td><td>Glen</td><td>Plan comprehensive studio AMA</td><td><span class="tag tag-green">DONE</span></td></tr>
+<tr><td>Apr 1</td><td>Glen</td><td>Source H&S policy templates from EA, Jagex, or Barb</td><td><span class="tag tag-green">DONE</span></td></tr>
+<tr><td>Apr 1</td><td>Robin</td><td>Draft no-meeting Thursday announcement (launch week of Apr 14)</td><td><span class="tag tag-green">DONE</span></td></tr>
+<tr><td>Apr 7</td><td>Glen</td><td>Stop all production for 1 week — focus entirely on documentation</td><td><span class="tag tag-green">DONE</span></td></tr>
+<tr><td>Apr 14</td><td>Glen</td><td>Record and post AMA video</td><td><span class="tag tag-green">DONE</span></td></tr>
+<tr><td>Apr 21</td><td>Glen</td><td>Complete AMA deck overnight, present tomorrow 3pm UK / 5pm Greece</td><td><span class="tag tag-green">DONE</span></td></tr>
+<tr><td>Apr 24</td><td>Glen</td><td>Synthesize vision call into 3-5 key statements (studio/world/product)</td><td><span class="tag tag-yellow">OPEN</span></td></tr>
+<tr><td>May 1</td><td>Glen</td><td>Build comprehensive communication plan for studio</td><td><span class="tag tag-yellow">OPEN</span></td></tr>
+<tr><td>May 11</td><td>Glen</td><td>Merge all department estimation sheets into unified Excel</td><td><span class="tag tag-green">DONE</span></td></tr>
+<tr><td>May 12</td><td>All directors</td><td>Review 1,700-line game development estimates</td><td><span class="tag tag-green">DONE</span></td></tr>
+<tr><td>May 14</td><td>Leads</td><td>Provide software license lists for onboarding kits</td><td><span class="tag tag-yellow">OPEN</span></td></tr>
+<tr><td>May 15</td><td>Glen/Hannah</td><td>Schedule design lock process meeting (with Robin, Valeria)</td><td><span class="tag tag-yellow">OPEN</span></td></tr>
+<tr><td>May 15</td><td>Hannah</td><td>Create separate QA estimation sheet with test plan approach</td><td><span class="tag tag-yellow">OPEN</span></td></tr>
+<tr><td>May 21</td><td>Glen</td><td>Write Narrative Lead job description</td><td><span class="tag tag-yellow">OPEN</span></td></tr>
+<tr><td>May 21</td><td>Dino</td><td>Confirm Mishcon template delivery by Friday</td><td><span class="tag tag-yellow">OPEN</span></td></tr>
+<tr><td>May 21</td><td>Glen/Lorenza</td><td>Draft military service narrative for Nicolas/Panos contract endings</td><td><span class="tag tag-yellow">OPEN</span></td></tr>
+<tr><td>May 21</td><td>All leadership</td><td>Wednesday meeting with David re: Alon final warning/departure</td><td><span class="tag tag-yellow">OPEN</span></td></tr>
+<tr><td>May 22</td><td>Glen</td><td>Complete onboarding workspace + video presentation for May 29</td><td><span class="tag tag-yellow">OPEN</span></td></tr>
+</table>
+
+<h3>Couch Heroes — Dino Transition</h3>
+<table>
+<tr><th style="width:65px">Date</th><th style="width:90px">Owner</th><th>Action</th><th style="width:70px">Status</th></tr>
+<tr><td>Apr 9</td><td>Aris</td><td>Transition MD role to Sophia (existing investor, UK resident)</td><td><span class="tag tag-yellow">OPEN</span></td></tr>
+<tr><td>Apr 9</td><td>Aris</td><td>Email performance review to Dino, deny salary/benefit requests</td><td><span class="tag tag-green">DONE</span></td></tr>
+<tr><td>Apr 9</td><td>Lorenza</td><td>Request all contract documentation from Dino (escalating pressure)</td><td><span class="tag tag-yellow">OPEN</span></td></tr>
+<tr><td>Apr 9</td><td>Glen</td><td>Provide termination letter and settlement agreement templates</td><td><span class="tag tag-green">DONE</span></td></tr>
+<tr><td>Apr 9</td><td>Vardis/Aris</td><td>Decide settlement amount by end of next week</td><td><span class="tag tag-yellow">OPEN</span></td></tr>
+</table>
+
+<h3>NBI Business &amp; Lighthouse</h3>
+<table>
+<tr><th style="width:65px">Date</th><th style="width:90px">Owner</th><th>Action</th><th style="width:70px">Status</th></tr>
+<tr><td>Mar 18</td><td>Amir</td><td>Extend Sarge forecast to 3 years</td><td><span class="tag tag-yellow">OPEN</span></td></tr>
+<tr><td>Mar 27</td><td>Glen</td><td>Line-by-line financial file cleanup with Tom</td><td><span class="tag tag-green">DONE</span></td></tr>
+<tr><td>Apr 9</td><td>Glen</td><td>Collect and sanitize team feedback on James for Justin</td><td><span class="tag tag-green">DONE</span></td></tr>
+<tr><td>May 7</td><td>Stavros</td><td>Complete final data model pass for Lighthouse</td><td><span class="tag tag-green">DONE</span></td></tr>
+<tr><td>May 11</td><td>Stavros</td><td>Rebalance Lighthouse forecast distribution across years 2-4</td><td><span class="tag tag-yellow">OPEN</span></td></tr>
+<tr><td>May 13</td><td>Glen</td><td>Greece trip: speaking engagement + dinner with PM + 3 cabinet ministers</td><td><span class="tag tag-yellow">OPEN</span></td></tr>
+<tr><td>May 22</td><td>Glen/Justin</td><td>Sprint review meeting Tuesday (Magnus coordinating)</td><td><span class="tag tag-yellow">OPEN</span></td></tr>
+<tr><td>May 22</td><td>Glen</td><td>Game development roadmap completion by June 12</td><td><span class="tag tag-yellow">OPEN</span></td></tr>
+<tr><td>May 22</td><td>Team</td><td>Fundraising timeline decision by June 19</td><td><span class="tag tag-yellow">OPEN</span></td></tr>
+</table>
+
+<!-- ================================================================== -->
+<h2 id="decisions">2. Key Decisions Made</h2>
+
+<h3>Studio Strategy &amp; Org Structure</h3>
+<table>
+<tr><th style="width:65px">Date</th><th>Decision</th><th>Rationale</th></tr>
+<tr><td>Mar 17</td><td>Riley legal team contract at 150K/year (3 people: legal + IP + GDPR/DPO)</td><td>Replaces Dino's solo legal coverage with full team</td></tr>
+<tr><td>Mar 19</td><td>Robin to step down from management to IC/R&D role</td><td>"Not directing anything, a passenger" — prefers toymaker role, "my way or highway" feedback style</td></tr>
+<tr><td>Mar 20</td><td>Age rating changed from 18+ to Teen</td><td>11 of 14 MMOs are Teen-rated; ESO filed Teen but got Mature; broadest market access</td></tr>
+<tr><td>Apr 1</td><td>No-meeting Thursdays starting week of Apr 14</td><td>Protect maker time; urgent calls still permitted</td></tr>
+<tr><td>Apr 2</td><td>Frame EUR 6M as seed, position as post-Series A, target Series B directly</td><td>EUR 6M seed + EUR 5M convertible note = strong foundation</td></tr>
+<tr><td>Apr 9</td><td>Exit Dino from MD role. 3-month notice. Sophia as replacement.</td><td>Single-person dependencies across multiple critical functions; risk mitigation</td></tr>
+<tr><td>Apr 9</td><td>Riley at 150K annual flat fee for comprehensive legal</td><td>Third-party costs become Riley's responsibility under agreement</td></tr>
+<tr><td>Apr 13</td><td>CH is building an MMO first, with platform features supportive (not platform with game)</td><td>Studio success determined by MMO playability; not large enough for separate platform product</td></tr>
+<tr><td>Apr 24</td><td>"Calm intensity" adopted as studio crisis posture</td><td>Vision call with Vardis/Aris: fight collectively, not individually. Fix first, understand why after.</td></tr>
+<tr><td>Apr 24</td><td>"Belonging" adopted as product vision keyword over "epic"</td><td>Blizzard owns epic; CH about belonging TO something epic</td></tr>
+<tr><td>May 5</td><td>Scope reduction hierarchy: headcount first, outsource second, feature cuts last</td><td>Vertical slice must be production-quality, not throwaway</td></tr>
+<tr><td>May 7</td><td>4 C-level org: COO, CPO, CTO, Business Head</td><td>EP reports to CPO; CEO can act as Creative Director but EP has final production say</td></tr>
+<tr><td>May 11</td><td>Glen proposed as Chief Product Officer (CPO)</td><td>Vardis dual role: CEO (hard decisions) vs Creative Director (collaborative input)</td></tr>
+<tr><td>May 12</td><td>Jack (Skill Search recruiter) unanimously removed</td><td>Shared negative feedback about CH being "unstructured" with HR candidate</td></tr>
+<tr><td>May 20</td><td>"Thou Shalt Not Hack" — all vertical slice code production-quality</td><td>Tech leads determine build order, not creative director; systems layer on each other</td></tr>
+<tr><td>May 20</td><td>Cosmetics-only monetisation — no pay-to-win weapons</td><td>Foundational design pillar</td></tr>
+</table>
+
+<h3>Hiring Decisions</h3>
+<table>
+<tr><th style="width:65px">Date</th><th>Decision</th><th>Rationale</th></tr>
+<tr><td>Mar 17</td><td>Graham: 120K base, FTE, 30-day start, equity after probation</td><td>Later negotiated to 135K start, 145K post-probation (4-month review)</td></tr>
+<tr><td>Mar 17</td><td>Lili: 135-140K max base (accepted at 140K, later negotiated to 145K)</td><td>35K below current salary; willing for games industry move</td></tr>
+<tr><td>Mar 24</td><td>Charlie preferred over Tanya for lead level designer</td><td>Stronger leadership answers on cross-department conflicts; Tanya rated 6/10</td></tr>
+<tr><td>Mar 27</td><td>Kalen selected over Chris Southall for VFX Lead (75K vs 98K)</td><td>Chris anti-crunch stance + higher salary; Kalen MMO background + collaborative</td></tr>
+<tr><td>Apr 2</td><td>Both Neil and Nia are hires; prefer Neil slightly on all else equal</td><td>Neil more structured; Nia warmer. Salary the deciding factor.</td></tr>
+<tr><td>Apr 8</td><td>Anthony (UI/UX) let go</td><td>Can't implement in Unreal, only copies existing solutions, poor collaboration. UI/UX moves under David (Design), not Robin (Art).</td></tr>
+<tr><td>Apr 9</td><td>CTO salary band: 220-240K base + launch bonus (440-480K total over project)</td><td>Equity: CTO ~5%, C-level 8-10%, senior leadership 3-5%, key staff 1-2%</td></tr>
+<tr><td>Apr 14</td><td>Nia offered CTO: 230K + 3% equity, start May 18</td><td>Later revised: target 250K (Glen overruled Aris's 210K suggestion)</td></tr>
+<tr><td>Apr 17</td><td>Gary Platner recommended at $150K initially</td><td>"Avengers team" — assembling recognisable AAA talent is a fundraising asset, not just production</td></tr>
+<tr><td>Apr 20</td><td>Simon Woodruff chosen over Nelly for Head of Design</td><td>30-year veteran; Sea of Thieves, Rare, Sega, Epic. Social game design philosophy deeply aligned.</td></tr>
+<tr><td>Apr 21</td><td>Nia declined — took AI startup ($5M seed)</td><td>Third CTO candidate loss. Neil also rejected (350K + 20% equity ask).</td></tr>
+<tr><td>May 4</td><td>Gary offered $202K→$216K as Head of Level Design (contractor)</td><td>23 years at Blizzard/WoW; US-based, interested in Greece relocation</td></tr>
+<tr><td>May 6</td><td>Simon offered 180K + 3% equity + uncapped pension</td><td>Negotiated up from 150K. Start June 1.</td></tr>
+<tr><td>May 12</td><td>Stephen Bain: 8/10, strong HR Ops hire</td><td>Deep EOR/IR35 knowledge. Calm personality offsets Lorenza's intensity.</td></tr>
+<tr><td>May 21</td><td>Daniel (Lead Full Stack) approved at 95K (12K over budget)</td><td>Barcelona-based, B2B, available immediately. Ex-Niantic.</td></tr>
+<tr><td>May 21</td><td>Alon contract termination decided</td><td>Zero combat animations in 4 months; toxic to multiple team members</td></tr>
+<tr><td>May 21</td><td>End military service contracts early (Nicolas, Panos); replace with seniors</td><td>Combine junior salaries into 1-2 seniors for 2x delivery</td></tr>
+</table>
+
+<h3>Production &amp; Process</h3>
+<table>
+<tr><th style="width:65px">Date</th><th>Decision</th><th>Rationale</th></tr>
+<tr><td>Apr 27</td><td>Platform team redirected from launcher to game backend (guilds, achievements, LFG)</td><td>Launcher redesign deprioritised for vertical slice</td></tr>
+<tr><td>Apr 28</td><td>Content + feature epics merged — one per domain</td><td>Split epics make completion tracking misleading</td></tr>
+<tr><td>Apr 28</td><td>Vertical slice = Jira release filter, not an epic</td><td>Prevents structural confusion</td></tr>
+<tr><td>Apr 28</td><td>6-stage dev pipeline: Ideation > R&D > GDD > Prototype > MVP > Player Ready</td><td>Previously: idea directly to prototype without documentation</td></tr>
+<tr><td>Apr 28</td><td>14 agreed epics: Player Build, World Systems, Combat, User Spaces, Items, Economy, Quests, Social, Platform, Live Game, BD/Partners, Publishing, Bibles, RMT</td><td>Comprehensive domain coverage for all studio work</td></tr>
+<tr><td>May 4</td><td>Investor payback: 30-50% of net profit, capped at 100K/quarter</td><td>600K owed; conservative 1.3-year payback while maintaining growth</td></tr>
+<tr><td>May 11</td><td>Vertical slice deadline: end of August (director/lead level only)</td><td>Do not share with team yet. Pod model: ~6 features per pod.</td></tr>
+<tr><td>May 15</td><td>Three-tier change lock: Open > Soft lock > Hard lock (formal change request)</td><td>Hard lock requires game director AND production heads approval with cost analysis</td></tr>
+<tr><td>May 22</td><td>QA authority: QA/playtesting teams are primary arbiters of ship-readiness</td><td>Hannah needs authority to block gate progression if quality criteria not met</td></tr>
+</table>
+
+<h3>Financial &amp; Business</h3>
+<table>
+<tr><th style="width:65px">Date</th><th>Decision</th><th>Rationale</th></tr>
+<tr><td>Apr 17</td><td>EMI options structurally impossible due to 20+ vehicle corporate structure</td><td>Connected persons hold >50% control; only unapproved options available (~25% tax on exercise)</td></tr>
+<tr><td>Apr 17</td><td>Launch bonus structure better than options for 3+ year timeline</td><td>Options become "irritant rather than value" without EMI eligibility</td></tr>
+<tr><td>May 4</td><td>AI knowledge management system IS the business moat</td><td>Zero-code, covers client KBs, BD pipelines, delivery templates, reporting automation</td></tr>
+<tr><td>May 22</td><td>Free-to-install with paid subscription + cosmetics marketplace</td><td>Subscription includes all expansions + in-game currency stipend. Monetisation ~30 days post-launch.</td></tr>
+<tr><td>May 22</td><td>Portal system: 20% revenue share on game purchases</td><td>12 games interested, 3-4 under contract. Reduces content development costs.</td></tr>
+</table>
+
+<!-- ================================================================== -->
+<h2 id="people">3. People Register</h2>
+
+<h3>Couch Heroes — Leadership</h3>
+
+<div class="person-card">
+  <div class="person-name">Vardis</div>
+  <div class="person-role">CEO / Founder | Couch Heroes / IREON Ventures</div>
+  <div class="person-notes"><ul>
+    <li>29 years old, owns company, 4 years commitment. Family owns 17 hotels in Greece.</li>
+    <li>Built Greece Gaming Fund: ~EUR 20M for Greek studios, backed by PM.</li>
+    <li>Wrote 1,400 pages of lore/backstory. Sends 2am documents on naming conventions.</li>
+    <li>Exceptionally receptive: responded to Glen's 80-page audit with "Can you help us fix this?"</li>
+    <li>Used inappropriate language 3x during Neil interview — overcorrected after Glen told him to "loosen up".</li>
+    <li>Asked Glen 5 times if Mustafa 1:1 had happened — rare for him to push.</li>
+    <li>Makes mid-stream scope changes (7 biomes → sub-biomes) without consulting roadmap — governance gap.</li>
+    <li>Too approachable — goes directly to ICs, undermining lead authority.</li>
+    <li>Ship philosophy: "done when it's done" — family investors comfortable with longer timeline.</li>
+  </ul></div>
+</div>
+
+<div class="person-card">
+  <div class="person-name">Aris Konstantinidis</div>
+  <div class="person-role">COO | Couch Heroes</div>
+  <div class="person-notes"><ul>
+    <li>Quantitative, risk-averse, "needs pushing forward" (vs Vardis who "needs pulling back").</li>
+    <li>Transitioning to lead exec meetings and accountability tracking.</li>
+    <li>Wants equity for everyone — specific communicated plan creates confidence even before grants.</li>
+    <li>Suggested 210K for Nia CTO offer — Glen overruled to 250K ("don't pass up a dollar to pick up a nickel").</li>
+    <li>Strong on "final warning means final" — pushes harder than Glen on performance action.</li>
+    <li>Managing Lorenza transition from Glen's report to his own.</li>
+    <li>Handling Dino exit: transition MD to Sophia, deny Dino's salary/benefit requests.</li>
+  </ul></div>
+</div>
+
+<div class="person-card">
+  <div class="person-name">Dino Kandiloros</div>
+  <div class="person-role">Head of Legal (being exited from MD) | Couch Heroes</div>
+  <div class="person-notes"><ul>
+    <li><strong>EXIT IN PROGRESS.</strong> 3-month notice period (UK law). Settlement: 1 month transition + 2 months garden leave.</li>
+    <li>Role reduced to Head of Legal only; MD responsibilities removed. No salary increase.</li>
+    <li>Performance review: below expectations across collaboration, communication, accountability, leadership, coachability. Only "delivery" meets expectations.</li>
+    <li>Response: combative, walked out believing everything was okay, then asked about a raise.</li>
+    <li>Self-evaluation showed zero areas for improvement.</li>
+    <li>Changed contractor templates without informing HR (Mishcon vs Sheridans).</li>
+    <li>UK transition setup had 30-40% errors; giving contractors PTO/computers inappropriately.</li>
+    <li>Contacted family lawyer Marisol after explicit instruction not to.</li>
+    <li>"Listens but picks what to hear" — lacks genuine self-awareness.</li>
+    <li>Riley legal team being used as cover story for documentation handover.</li>
+  </ul></div>
+</div>
+
+<div class="person-card">
+  <div class="person-name">Robin Jubber</div>
+  <div class="person-role">Game Director (transitioning from management) | Couch Heroes</div>
+  <div class="person-notes"><ul>
+    <li>Transitioning to IC Game Director with no direct reports; Simon takes design team.</li>
+    <li>"Not directing anything, you're a passenger" — team running in whatever direction they want.</li>
+    <li>Lacks structured interview approach — no structured questions, minimal notes.</li>
+    <li>Working hard to demonstrate leadership post-feedback, but Glen assessed as "too late" for management role.</li>
+    <li>Vardis initially wanted separation; Glen secured his position as IC.</li>
+    <li>Owns final scope cut decisions for vertical slice.</li>
+    <li>Design lock process gap: says designs are final but other designers think first iteration.</li>
+    <li>Completed 25-page lore document, vertical slice draft, pipeline work with Stefano.</li>
+  </ul></div>
+</div>
+
+<div class="person-card">
+  <div class="person-name">Mustafa Sibai</div>
+  <div class="person-role">Principal Engineer (former CTO) | Couch Heroes</div>
+  <div class="person-notes"><ul>
+    <li><strong>Apr 24: Major 1:1 breakthrough.</strong> Admitted burnout, bare minimum performance, isolation.</li>
+    <li>"I don't have anyone to talk to. I haven't gotten feedback. I don't know where I am."</li>
+    <li>"I'm doing the bare minimum. Yeah, I am doing the bare minimum."</li>
+    <li>Confidence collapsed after stepping down from CTO.</li>
+    <li>Told Nia mid-interview he was burned out — cost Glen an hour convincing her.</li>
+    <li>Took vacation without telling anyone; product council spent 30 min trying to locate him.</li>
+    <li>Leaked confidential champion/weak performer lists — caused staff anxiety.</li>
+    <li>Shared product council info with staff twice (including Ella).</li>
+    <li>"Runs around in panic mode" — tags multiple people, no clear ownership or timelines.</li>
+    <li>Final warning agreed (Aris, Glen, Vardis). After 1:1: "I feel a lot better. That fixed a lot."</li>
+    <li>Glen committed to weekly 1:1s. Strategic reality: doing ~50% of role; losing him = backfill priority zero.</li>
+    <li>Pattern continued post-1:1: failed documentation sign-off for 2 weeks. "One thread away" from termination (May 21).</li>
+    <li>Visa issues prevented offsite attendance.</li>
+  </ul></div>
+</div>
+
+<div class="person-card">
+  <div class="person-name">Lorenza Menna</div>
+  <div class="person-role">HR Lead | Couch Heroes</div>
+  <div class="person-notes"><ul>
+    <li>Salary: 4K/month (48K annually) — significantly underpaid. 10K bump recommended. Rating: 4/5.</li>
+    <li>Has imposter syndrome; thrives with 10 minutes venting followed by 20-hour work days.</li>
+    <li>Needs development in bedside manner and communication conciseness.</li>
+    <li>Hates Dino — needs 30-day three-way conversation planning.</li>
+    <li>Transitioning from Glen's report to Aris's (gradual, separate 1:1s maintained).</li>
+    <li>Successfully closed Tanya's interview when Glen had tech difficulties.</li>
+    <li><strong>Health concern May 7:</strong> Two findings on chest X-ray (lung + breast). CT and ultrasound ordered.</li>
+    <li>Had pneumonia risk around May 21 — created bottleneck in hiring pipeline.</li>
+  </ul></div>
+</div>
+
+<div class="person-card">
+  <div class="person-name">Valeria Trofimova</div>
+  <div class="person-role">Producer | Couch Heroes</div>
+  <div class="person-notes"><ul>
+    <li>Strong performer; needs coaching on pushing back on leadership.</li>
+    <li>Led comprehensive Miro board creation for offsite (2.3GB board).</li>
+    <li>Increasingly anxious about feature documentation gaps (50%+ missing).</li>
+    <li>Currently the "one-man band" handling all production coordination.</li>
+    <li>Want her at peer level in working groups, employee level in decision meetings.</li>
+    <li>Russian passport — visa process handled by Aris/Vardis.</li>
+  </ul></div>
+</div>
+
+<div class="person-card">
+  <div class="person-name">David Luong</div>
+  <div class="person-role">Art Director (18yr WoW) | Couch Heroes</div>
+  <div class="person-notes"><ul>
+    <li>Created 4-quadrant artist performance matrix (Loose Cannons / Champions / Steady Eddies / Weak Links).</li>
+    <li>"Amazing person, nicest" — but agrees with everything Michael says without constructive friction.</li>
+    <li>"Never disagreed with me, ever, not one time" — yet fights hard in budget meetings behind scenes.</li>
+    <li>Performance concern May 21: leaked confidential timeline information causing team panic.</li>
+    <li>Struggles with firm feedback delivery. Team reports filtered communication up/down.</li>
+    <li>Coaching plan required with documented outcomes.</li>
+    <li>Already doing 5am starts, calendar 100% booked. London flights EUR 2.2K per trip.</li>
+  </ul></div>
+</div>
+
+<h3>Senior Hires (Confirmed)</h3>
+
+<div class="person-card">
+  <div class="person-name">Graham Monk</div>
+  <div class="person-role">Executive Producer | Started ~May 18 | 135K→145K</div>
+  <div class="person-notes"><ul>
+    <li>~20 years industry experience, 10 years post-Sega. From Square Enix.</li>
+    <li>Accepted at midnight after deadline pressure (Apr 8).</li>
+    <li>Several behavioural oddities: wanted to negotiate from the pub; says one thing does another.</li>
+    <li>30/60/90 plan with clear behavioural tests — if red flags persist, replace and move on.</li>
+    <li>Sent gating process documentation from Square (Leah approved sharing).</li>
+    <li>Probation: 4 months. Termination notice: 6 months post-probation.</li>
+  </ul></div>
+</div>
+
+<div class="person-card">
+  <div class="person-name">Gary Platner</div>
+  <div class="person-role">Head of Level Design | $216K USD contractor</div>
+  <div class="person-notes"><ul>
+    <li>23 years at Blizzard/World of Warcraft — designed all WoW levels. BAFTA contributions.</li>
+    <li>Also: Epic Games ($280K salary before layoffs), Disney, Singularity Six, Palia.</li>
+    <li>US-based (Riverside, CA); interested in Greece relocation (43% tax reduction for 8 years).</li>
+    <li>Wife has Type 1 diabetes requiring specialised insurance. 2.5-hour call with Glen's wife on logistics.</li>
+    <li>Strongly pro-AI — used AI at Epic for rapid ideation, AI voice work, NPC personalities.</li>
+    <li>Design philosophy: "make games we want to play" — passion-driven over formulaic.</li>
+  </ul></div>
+</div>
+
+<div class="person-card">
+  <div class="person-name">Simon Woodroffe</div>
+  <div class="person-role">Head of Design | 180K + 3% equity | Starting June 1</div>
+  <div class="person-notes"><ul>
+    <li>30+ years: Rare (Sea of Thieves 8.5yr), Sega (~17 games, 3yr), Epic (2yr), Improbable VP Creative (3.5yr), Disney.</li>
+    <li>Wrote Simon the Sorcerer script as teenager. Designed combat system for first Elvira game.</li>
+    <li>Sea of Thieves insight: game was NOT about piracy — about players creating stories together.</li>
+    <li>Crew betrayal feature: fun in office testing but destructive/toxic online — "can be fun AND wrong for the game".</li>
+    <li>Built/specified spatial voice chat 4 times. Considers it foundational for social games.</li>
+    <li>Social games are 8x more sticky due to friend connections.</li>
+    <li>Strongest value to CH: not "designing features" but defining the social design philosophy.</li>
+    <li>IP ownership: standard company time/equipment rule. Equity review at Series B (USD 8-10M).</li>
+  </ul></div>
+</div>
+
+<div class="person-card">
+  <div class="person-name">Lili Zhao</div>
+  <div class="person-role">Head of Finance | 140K (negotiated to 145K) | Starting July 1</div>
+  <div class="person-notes"><ul>
+    <li>Background: Jaguar (1.5yr), Barb (5yr global financial comptroller). MSc management science.</li>
+    <li>Current employer "Barb" described as vindictive regarding departures.</li>
+    <li>6-month review for VP Finance discussion. Current gap: very simplistic P&L, no CFO.</li>
+    <li>10 vacation days available pre-start for urgent work (unpaid).</li>
+    <li>Also evaluated as potential MD candidate for Greek operations (UK citizen).</li>
+  </ul></div>
+</div>
+
+<h3>CTO Pipeline (as of May 22)</h3>
+
+<div class="person-card">
+  <div class="person-name">Maurizio de Pascale</div>
+  <div class="person-role">CTO Candidate | ex-IO Interactive Technical Director</div>
+  <div class="person-notes"><ul>
+    <li>Led IO's unannounced fantasy MMO ("Project Fantasy") through first green light — rare direct MMO experience.</li>
+    <li>Part of IO management buyout when Square Enix sold; cashed out after 5 years.</li>
+    <li>PhD Robotics, "black belt" C++, built OS kernels at university.</li>
+    <li>Comfortable at 200K range (not 350K+). Values honesty highly; left IO due to dishonest CEO.</li>
+    <li>Key concern about CH: Blueprint-heavy codebases are a scaling risk — C++ migration essential.</li>
+  </ul></div>
+</div>
+
+<div class="person-card">
+  <div class="person-name">Chris Southall</div>
+  <div class="person-role">CTO Candidate | 8yr CTO Sega, heads Sumo Digital co-dev</div>
+  <div class="person-notes"><ul>
+    <li>Manages 100-person co-dev team at Sumo (700 devs across business). Started Dell 1992, managed 13,000 staff.</li>
+    <li>Conducted CH's 80-page audit October 2024 — studio responded "Can you fix us?"</li>
+    <li>Philosophy: "Teams with perfect processes often make poor games."</li>
+    <li>"Hyper protective" of studio culture. Assessed CH as "one of healthiest I've worked with."</li>
+    <li>Best strategic leadership of all candidates.</li>
+  </ul></div>
+</div>
+
+<div class="person-card">
+  <div class="person-name">Per-Olof Romell</div>
+  <div class="person-role">CTO Candidate | ex-DICE, Starbreeze, Ubisoft</div>
+  <div class="person-notes"><ul>
+    <li>Glen's former DICE colleague (Battlefield 1/Battlefront 2 era).</li>
+    <li>Starbreeze: managed 180→60 headcount reduction. Payday 3 involvement (2% retention).</li>
+    <li>Ubisoft: microservice architecture (1.2M AIs, infinite world demos).</li>
+    <li>Key concern: 7 engineers insufficient for MMO; cost-per-user economics critical (Anthem $7/user failure).</li>
+    <li>Equity discussion at ~3%.</li>
+  </ul></div>
+</div>
+
+<div class="person-card">
+  <div class="person-name">Pair (surname unknown)</div>
+  <div class="person-role">CTO Candidate | Built Frostbite engine</div>
+  <div class="person-notes"><ul><li>Strongest technical candidate. Follow-up calls scheduled.</li></ul></div>
+</div>
+
+<h3>Lighthouse / NBI Team</h3>
+
+<div class="person-card">
+  <div class="person-name">Justin Logan</div>
+  <div class="person-role">Client Lead | Lighthouse Games</div>
+  <div class="person-notes"><ul>
+    <li>15-year relationship with Glen. Worked 3 weeks straight on live service plan; Alex won't give feedback.</li>
+    <li>Visa/ILR situation resolved — proved he was never told he'd pay; Annie agreed to cover costs.</li>
+    <li>Tencent demanding $80M live service revenue year 1 ($6.5M/month — unrealistic; comps hit $2-4 ARPU).</li>
+    <li>Wants to fire James, promote Stavros to lead.</li>
+    <li>Passed UK driving test; Imogen started school after 6-7 months at home.</li>
+  </ul></div>
+</div>
+
+<div class="person-card">
+  <div class="person-name">James Frith</div>
+  <div class="person-role">Data Lead | Lighthouse Games</div>
+  <div class="person-notes"><ul>
+    <li>NOT leading from front — "checked out", "mildly interested".</li>
+    <li>First in-person standup with team was Apr 13 after months of only async text.</li>
+    <li>Told team "game developers won't look at data anyway".</li>
+    <li>Submitted roadmap with XXL tasks spanning 17 sprints.</li>
+    <li>Took sick day when pressed for details; MIA ~a week with COVID without communicating.</li>
+    <li>Only communication with Glen was Feb 13 about Slack channels.</li>
+    <li>Justin independently seeking appraisals on James from multiple people.</li>
+  </ul></div>
+</div>
+
+<div class="person-card">
+  <div class="person-name">Hannah Pickard</div>
+  <div class="person-role">QA Lead | Couch Heroes</div>
+  <div class="person-notes"><ul>
+    <li>Solo QA person for ~55-person studio (critical gap).</li>
+    <li>Created Miro mirror breaking VS flow into testable sections — separate QA estimation approved.</li>
+    <li>Identified design lock process gap as major issue.</li>
+    <li>Needs authority to block gate progression if quality criteria not met.</li>
+    <li>Thoughtful, process-oriented. Friday check-ins with Glen established.</li>
+  </ul></div>
+</div>
+
+<h3>Interview Candidates (Notable)</h3>
+
+<div class="person-card">
+  <div class="person-name">Chaitanya Gaggar (CG)</div>
+  <div class="person-role">Lead Gameplay Developer Candidate | ex-Wargaming</div>
+  <div class="person-notes"><ul>
+    <li>Built gameplay team from scratch to 17-18 people at Wargaming (third-person vehicle shooter).</li>
+    <li>Heavy GAS expertise, replication, network architecture.</li>
+    <li>"Almost never trust the client — people find a way to cheat with anything" — server-authoritative advocate.</li>
+    <li>GAS library maturation takes ~1.5 years of solid work.</li>
+    <li>Compensation deprioritised ("titles and salaries matter less right now"). Selective about next move.</li>
+    <li>Nightly automated network tests advocated strongly.</li>
+  </ul></div>
+</div>
+
+<div class="person-card">
+  <div class="person-name">Dave Springer</div>
+  <div class="person-role">Lead Gameplay Developer Candidate | ex-Improbable</div>
+  <div class="person-notes"><ul>
+    <li>Rated 8+/10, Strong Hire. Morpheus platform: 15,000-player single-server experience.</li>
+    <li>MPG, Warp Digital, Improbable/M Squared. Laid off Dec after IP buyout (not performance).</li>
+    <li>Conflicting interview: answered well with Glen but claimed ignorance to Mustafa/Reyna.</li>
+    <li>Salary seeking: 75-85K (previously 95K). Threshold: anyone offering 85K+ "in very strong running".</li>
+    <li>Previously reported to Neil Jones at Improbable — gave positive feedback on Neil's leadership.</li>
+  </ul></div>
+</div>
+
+<div class="person-card">
+  <div class="person-name">Nia Kiigan</div>
+  <div class="person-role">CTO Candidate (declined) | ex-Rockstar 12yr, ex-Activision VP</div>
+  <div class="person-notes"><ul>
+    <li>Managed 830 programmers across 89 studios at Activision. Built GTA 5/RDR2 engine systems.</li>
+    <li>Rated 7-8/10. Calm, level-headed, strategic. Based in Dublin.</li>
+    <li>External assessment of CH independently validated Glen's transformation findings exactly.</li>
+    <li>"Art creates illusion of complete game while masking fundamental systems depth gaps."</li>
+    <li>Offered 230K→250K + 3% equity. Declined for AI startup with $5M seed funding.</li>
+  </ul></div>
+</div>
+
+<div class="person-card">
+  <div class="person-name">Neil Jones</div>
+  <div class="person-role">CTO Candidate (rejected) | ex-Epic, ex-Improbable</div>
+  <div class="person-notes"><ul>
+    <li>~300K total comp at Epic. Built Improbable's multiplayer engine (15,000 concurrent players).</li>
+    <li>Starts wooden/cold but warms up — first 20-30 mins not representative.</li>
+    <li>Aligned on build-vs-buy philosophy. AccelByte ruled out; caution on PlayFab.</li>
+    <li>Wanted 350K + 20% equity at startup stage — non-viable.</li>
+    <li>Glen's read: "probably doesn't want the job enough to accept the financial downside."</li>
+  </ul></div>
+</div>
+
+<div class="person-card">
+  <div class="person-name">James Relph</div>
+  <div class="person-role">NBI Data PM Candidate | ex-PlayStation</div>
+  <div class="person-notes"><ul>
+    <li>Senior Data Product Manager at Sony (6yr). Commerce data owner for PS5 launch.</li>
+    <li>Managed $110-120M daily revenue data flows. Managed 3 DPOs.</li>
+    <li>Burned out from PlayStation role; 6 months unemployed. Divorced, 2 daughters.</li>
+    <li>NBI commodity projects ($10-40K) often lead to larger contracts ($300-500K).</li>
+  </ul></div>
+</div>
+
+<!-- ================================================================== -->
+<h2 id="learnings">4. Key Learnings &amp; Insights</h2>
+
+<h3>Studio Transformation</h3>
+
+<div class="insight-box">
+<strong>[Apr 13] Nia Kiigan's independent assessment validated Glen's internal audit exactly.</strong><br>
+Team believed mid-production; Glen confirmed pre-production. Art significantly ahead creates "illusion of a full game" while core systems, design, and tech lag. Studio built components out of sequence; prototype mode persisted too long.
+</div>
+
+<div class="insight-box">
+<strong>[Apr 7] 50%+ of features have missing documentation; existing docs often not applicable.</strong><br>
+Most design team members never worked on games before (except recent hires). Too much time spent explaining basics vs executing. Design team identified as weakest department across all assessments.
+</div>
+
+<div class="insight-box">
+<strong>[Mar 25] Studio workflow completely backwards.</strong><br>
+Lore created after art completion, art created without game design input, characters completed before game mechanics defined. Robin unaware of completed goblin assets until December. 600-page GDD too unwieldy for practical use.
+</div>
+
+<div class="insight-box">
+<strong>[Apr 17] "The studio's problem isn't bad people, it's invisible systems."</strong><br>
+Root cause analysis reveals process failures, not individual failures. Portal Peak instancing discussed for months but poor communication flow. Only Portal Peak has proper documentation with Google art boards; other zones have never had detailed briefs.
+</div>
+
+<div class="insight-box">
+<strong>[May 15] 3-month timeline was premature sharing, not a commitment.</strong><br>
+Art leads panicked hearing "3 months" without context of planned scope cuts, headcount additions, and outsourcing. Incomplete information creates anxiety faster than no information.
+</div>
+
+<h3>People &amp; Management</h3>
+
+<div class="insight-box">
+<strong>[Apr 24] Mustafa breakthrough: isolation and lack of feedback is the root cause.</strong><br>
+"I don't have anyone to talk to" — the admission. Regular 1:1s and direct communication fix engagement. Glen's silence wasn't patience — it was enabling drift. But by May 21, pattern continued: failed documentation sign-off for 2 weeks. "One thread away" from termination.
+</div>
+
+<div class="insight-box">
+<strong>[Mar 25] Addressing interpersonal conflicts increased team productivity 35-40%.</strong><br>
+Clear boundaries and consequences for toxic behaviour had measurable impact. Dragon terminated, Clara and Ella identified as underperforming.
+</div>
+
+<div class="insight-box">
+<strong>[Apr 8] Lost critical code review workflow migrating GitHub/DevOps to Perforce.</strong><br>
+Previously Rainer approved all commits. Now anyone can push directly without review. Rainer "made it clear he's not the person to go to anymore" after losing lead. Mustafa "runs around in panic mode." ~10% build failure rate.
+</div>
+
+<h3>Hiring Patterns</h3>
+
+<div class="insight-box">
+<strong>[Mar-May] Most successful hires came through direct sourcing, not the agency.</strong><br>
+Simon, Gary, Graham — all direct. Jack (Skill Search) actively damaged the pipeline: shared negative feedback with candidates, told candidates CH "has zero idea what it's doing."
+</div>
+
+<div class="insight-box">
+<strong>[Apr 9] 300K+ candidates rarely accept startup risk even with equity.</strong><br>
+Neil (Epic, ~300K) interested but financial downside too large. The 220-240K ceiling is real unless someone cashed out elsewhere (Maurizio model).
+</div>
+
+<div class="insight-box">
+<strong>[Apr 17] EMI options structurally impossible — affects ALL senior hires.</strong><br>
+20+ vehicle corporate structure with Cyprus-based shareholders. Connected persons hold >50% control. Only unapproved options available (~25% income tax on exercise). 3% effectively worth ~1.5% after tax. Dual class/weighted voting rights could potentially solve — needs legal investigation.
+</div>
+
+<div class="insight-box">
+<strong>[Apr 17] "Avengers team" hiring is a fundraising asset, not just a production asset.</strong><br>
+Gary (23yr Blizzard), Charlie/Tanya (AC/Epic), Simon (Sea of Thieves) — recognisable AAA talent assembling at a startup signals quality to investors.
+</div>
+
+<h3>Business &amp; Industry</h3>
+
+<div class="insight-box">
+<strong>[May 4] AI knowledge management system IS the scalability framework.</strong><br>
+Zero-code implementation: client KBs, BD pipelines, delivery templates, reporting automation. Methodology that replicates without additional senior headcount.
+</div>
+
+<div class="insight-box">
+<strong>[Apr 8] AI implementation failure market: $10-20B potential.</strong><br>
+MIT study: 95% AI implementation failure rate. Failure modes: poor planning (40%), change management (30%), vendor overselling (20%), tech issues (10%). Enterprise spending $50B+ annually. NBI positioning: vendor-neutral consulting.
+</div>
+
+<div class="insight-box">
+<strong>[May 8] Industry follows 7-year expansion/contraction cycles, potentially extending to 11-12 years due to AI.</strong><br>
+Publishers squeeze successful studios until destruction, cycle repeats. Roblox under threat: takes 70% revenue (vs Steam 30%), 200+ child safety cases annually.
+</div>
+
+<div class="insight-box">
+<strong>[Mar 31] PlayGOALS: ~50% D1 retention on PlayStation. Launch May 14, multi-platform.</strong><br>
+400,000 players tested since 2022. Monetisation is the unproven element — pricing architecture needs external validation.
+</div>
+
+<div class="insight-box">
+<strong>[Apr 16] Simon Woodroffe: "Social games are 8x more sticky due to friend connections."</strong><br>
+Sea of Thieves anchor handbrake turn: 0.5 days coding, 99.5 days art polish — illustrates production reality. Players choose games based on which friends are available, not traditional "quality."
+</div>
+
+<!-- ================================================================== -->
+<h2 id="numbers">5. Numbers &amp; Data Points</h2>
+
+<h3>NBI Financials</h3>
+<table>
+<tr><th>Date</th><th>Figure</th><th>Context</th></tr>
+<tr><td>May 4</td><td class="number-highlight">55K/month</td><td>Current NBI revenue (Couch 30K + Lighthouse 25K + Activision 5K)</td></tr>
+<tr><td>May 4</td><td class="number-highlight">75-80K/month</td><td>Required operating costs for comfortable operations</td></tr>
+<tr><td>Apr 16</td><td class="number-highlight">$24K short</td><td>Next month cash flow gap — described as "five alarm fire"</td></tr>
+<tr><td>May 4</td><td>0 → 17K → 25K</td><td>Cash flow progression Feb → Mar → Apr</td></tr>
+<tr><td>May 4</td><td>600K</td><td>Investor debt owed to Bob, Brian, and partners</td></tr>
+<tr><td>Apr 7</td><td>60K/month</td><td>NBI monthly expenses</td></tr>
+<tr><td>May 22</td><td>$5K/month</td><td>First paying customer for WorkSage/NBI management tool (DOD consultancy)</td></tr>
+<tr><td>Mar 20</td><td>$15-20K invested → $500-800K yield</td><td>GDC trip ROI estimate</td></tr>
+<tr><td>May 4</td><td>150-250K/yr</td><td>High-confidence pipeline: UXR + data science expansion</td></tr>
+<tr><td>May 4</td><td>130-150K/yr</td><td>High-confidence pipeline: Lighthouse data manager</td></tr>
+<tr><td>May 4</td><td>150-250K</td><td>Medium-confidence: Enoma contract</td></tr>
+<tr><td>Apr 8</td><td>$50K immediate + $200-300K follow-on</td><td>Jason AI consulting engagement potential</td></tr>
+</table>
+
+<h3>Couch Heroes Financials &amp; Headcount</h3>
+<table>
+<tr><th>Date</th><th>Figure</th><th>Context</th></tr>
+<tr><td>Apr 2</td><td class="number-highlight">EUR 11M total invested</td><td>EUR 6M seed (2 rounds) + EUR 5M convertible note</td></tr>
+<tr><td>May 22</td><td>$5M</td><td>Just closed latest funding round</td></tr>
+<tr><td>May 22</td><td>$10M target</td><td>Next round (Series B)</td></tr>
+<tr><td>Mar 6</td><td>~55 people</td><td>Headcount when Glen started (52 per some meetings)</td></tr>
+<tr><td>May 22</td><td>~70 people</td><td>Current headcount</td></tr>
+<tr><td>May 22</td><td>~200 max</td><td>Target team size at full production. 120-150 at launch.</td></tr>
+<tr><td>May 22</td><td>Late 2028</td><td>Estimated game launch (2029 acceptable fallback)</td></tr>
+<tr><td>Apr 27</td><td>End of August</td><td>Vertical slice deadline</td></tr>
+<tr><td>Apr 17</td><td>60% art / 40% other</td><td>Studio composition — problematic for MMO</td></tr>
+<tr><td>Apr 17</td><td>60/40 junior/senior</td><td>Current ratio. Target: 30/70.</td></tr>
+<tr><td>Apr 2</td><td>717 features (→2000 expected)</td><td>Master feature Excel count during planning</td></tr>
+<tr><td>May 11</td><td>1,700-line Excel</td><td>Complete vertical slice mapping</td></tr>
+<tr><td>May 11</td><td>2.3GB</td><td>Miro board with full feature breakdown — first complete plan in studio history</td></tr>
+<tr><td>May 21</td><td>GDD 60% (30% locked), TDD 60%, Estimates 70-80%, Headcount 0%, Pipelines 20%</td><td>Documentation completion state as of May 21</td></tr>
+</table>
+
+<h3>Compensation Benchmarks</h3>
+<table>
+<tr><th>Figure</th><th>Context</th></tr>
+<tr><td>220-240K base + launch bonus = 440-480K total</td><td>CTO compensation ceiling (over project life)</td></tr>
+<tr><td>C-level 8-10%, senior 3-5%, key staff 1-2%</td><td>Equity tiers</td></tr>
+<tr><td>Pension: 3% → 4% → 5% → 8%</td><td>Scaling trajectory by funding stage</td></tr>
+<tr><td>135K→145K (Graham), 180K+3% (Simon), $216K (Gary), 140K→145K (Lili)</td><td>Confirmed senior hire salaries</td></tr>
+<tr><td>$350K Epic CTO base / $1.3M+ Riot CTO</td><td>Market benchmarks for CTO negotiation context</td></tr>
+<tr><td>36 days total (20 floating + 8 UK bank + 8 Greek)</td><td>Holiday policy. ~48 days including all combined holidays.</td></tr>
+</table>
+
+<h3>Lighthouse / Tencent</h3>
+<table>
+<tr><th>Date</th><th>Figure</th><th>Context</th></tr>
+<tr><td>Mar 6</td><td>$80M</td><td>Tencent demanding $80M live service revenue year 1</td></tr>
+<tr><td>Mar 6</td><td>$2-4 ARPU</td><td>Closest AAA racing competitors achieve this</td></tr>
+<tr><td>May 11</td><td>35-40%</td><td>Telemetry specs wrong or incomplete. 453 total elements.</td></tr>
+<tr><td>May 11</td><td>$1B over 5yr / 30% live service</td><td>Alex's aggressive targets (likely closer to 15% LS)</td></tr>
+<tr><td>Apr 15</td><td>EUR 60K→22K/month</td><td>Sergii reduced Rovio GCP costs (saved EUR 38K/month)</td></tr>
+</table>
+
+<!-- ================================================================== -->
+<h2 id="timeline">6. Chronological Arc</h2>
+
+<div class="timeline-item">
+  <div class="timeline-date">March 6-18 — Post-GDC Activation</div>
+  <p>Glen returns from GDC with 5-6 client leads, investor connections. Begins CH transformation: UK entity setup, exec meeting restructuring, hiring pipeline. Nia Kiigan first CTO interview (830 programmers at Activision). Keith Raythorn HR interview (2/10, rejected). Sarah Giles James (NO HIRE). David 1:1: Robin stepping down decided. Age rating changed to Teen. Team currently 35 art vs 7 engineers — unsustainable for MMO.</p>
+</div>
+
+<div class="timeline-item">
+  <div class="timeline-date">March 19-31 — Foundation Building</div>
+  <p>Directors/Leads sync: Rafael terminated. Charlie Todd and Dave Springer interviews (both positive). DS&A telemetry all zeroed out — fundamental quality problem. Sarge pitch deck with Steven Green (CPI 7-12 cents). PlayGOALS engagement kicks off (50% D1 retention on PS). Tom working on financial cleanup. Dashboard tool built over weekend. Glen averaging 2 hours/week schedule freedom. 22 leads, 156 work areas tracked.</p>
+</div>
+
+<div class="timeline-item">
+  <div class="timeline-date">April 1-8 — Hiring Wave &amp; Cash Flow Crisis</div>
+  <p>CTO narrowed to Neil vs Nia (slight Neil preference). Graham offer: 135K→145K path. Chaitanya Gaggar interview (GAS expertise, 17-18 person team). Product leadership: Anthony fired, UI/UX under David. Graeme accepted midnight after deadline pressure. Simon Woodroffe interview — "social games 8x more sticky." NBI cash flow "five alarm fire" ($24K short). AI consulting market identified ($50B+ spending, 95% failure). Build failure rate ~10%. Hassan contractor (8 days/month → 4) — Glen was unaware. Dino performance review: combative, walked out, asked about raise.</p>
+</div>
+
+<div class="timeline-item">
+  <div class="timeline-date">April 9-15 — Dino Exit &amp; CTO Decision</div>
+  <p>Dino exit decided: 3-month notice, Sophia as replacement MD. Riley legal at 150K/year. Neil CTO debrief (300K comp, "probably doesn't want it enough"). Nia assessment validates Glen's transformation approach exactly. James performance review: absent management confirmed. DS&A roadmap struggles. James Relph candidate ($110-120M daily PS5 revenue). PlayGOALS project plan. Executive meeting: comprehensive recruitment updates, Robin vertical slice, VFX issues. Daniel Casadevall interview (5/10 overall but 9/10 backend).</p>
+</div>
+
+<div class="timeline-item">
+  <div class="timeline-date">April 16-24 — AMA, Vision &amp; Breakthroughs</div>
+  <p>EMI options structurally impossible (20+ vehicle corporate structure). Nia offer revised to 250K. Michael 1:1: "invisible systems not bad people." Gary recommended at $150K ("Avengers team" strategy). Simon chosen over Nelly for Head of Design. Anthony terminated Apr 20. Lighthouse four-track execution plan established. AMA delivered (generally positive). <strong>April 24: Vision call — "calm intensity", "belonging", studio values defined.</strong> <strong>April 24: Mustafa 1:1 — "I'm doing the bare minimum. Yeah." — genuine breakthrough.</strong> Vertical slice full gameplay flow mapped with Robin.</p>
+</div>
+
+<div class="timeline-item">
+  <div class="timeline-date">April 27-May 1 — The Offsite</div>
+  <p>3-day intensive planning. VS scoped: character creation → tutorial → combat → crafting → multiplayer → guild → exploration. T0-T7 tiers defined. Epic/Feature/Story/Task hierarchy locked. 14 agreed epics. 6-stage dev pipeline formalised. Content + feature epics merged. VS = Jira release filter. Team confirmed in early production (not mid). "Digi Isle" removed as container.</p>
+</div>
+
+<div class="timeline-item">
+  <div class="timeline-date">May 4-8 — Estimation Week &amp; Strategy</div>
+  <p>Q2 business strategy: 55K/month vs 75-80K needed, investor payback plan. Gary offer $216K. Nia declined (AI startup $5M). Neil rejected (350K+20% equity). 3-day estimation across all departments. Simon negotiated to 180K+3%. Legal framework: GDPR, IP, digital regulation. Full estimation reveals scope significantly larger than assumed. Roblox under threat analysis.</p>
+</div>
+
+<div class="timeline-item">
+  <div class="timeline-date">May 11-15 — Cross-Department Mapping</div>
+  <p>Valeria/Glen planning: pods concept, sprint cadence. VS deadline: end of August (director level only). Lighthouse: telemetry 35-40% wrong, build crashes after 3 seconds. Contractor template crisis (Dino changed without telling HR). Stephen Bain 8/10. 1,700-line Excel completed. Jack unanimously removed. Chris Southall meet-and-greet. Hannah QA approach approved. Glen working 12-hour days, 6 days/week for 5 weeks. Three-tier change lock defined.</p>
+</div>
+
+<div class="timeline-item">
+  <div class="timeline-date">May 20-22 — Design Deep-Dives &amp; Final Hiring</div>
+  <p>Per-Olof Romell CTO interview. Game direction: weapon forging system, crafting tiers, live service events, "Thou Shalt Not Hack." Daniel approved (95K). Alon termination decided. Military service contracts ending. Lili: July 1 start, late-2028 launch estimate. Hiring platform/ATS built. $5K/month tool customer. Forza Horizon analysis (200K CCU, 14-year-old codebase). Free-to-install + subscription model confirmed. Portal system: 20% revenue share, 12 games interested.</p>
+</div>
+
+<!-- ================================================================== -->
+<h2 id="threads">7. Active Threads (as of May 22)</h2>
+
+<div class="thread-card">
+  <div class="thread-title">Thread 1: CTO Hire — Still Open</div>
+  <p><strong>Pipeline:</strong> Nia (declined — AI startup), Neil (rejected — salary), Maurizio (strong — direct MMO, 200K range), Per-Olof (DICE pedigree, technical concerns about 7 engineers), Chris Southall (best strategic, manages 100 at Sumo — availability?), Pair (built Frostbite — strongest technical), Otto (20yr Remedy/Guerrilla). <strong>Next:</strong> Follow-ups after Nordic Game Conference. 3rd attempt to reach Chris Southall.</p>
+</div>
+
+<div class="thread-card">
+  <div class="thread-title">Thread 2: Vertical Slice — End of August Deadline</div>
+  <p>1,700-line scope mapped. Estimation 70-80% complete. Cross-dept dependencies being mapped. Pods structure being defined. Scope cuts needed (headcount first, outsource second, feature cuts last). Design lock process undefined — Hannah/Glen/Robin meeting needed. Code quality mandate: production architecture, no hacks. QA authority established. Documentation: GDD 60%, TDD 60%, headcount breakdown 0%.</p>
+</div>
+
+<div class="thread-card">
+  <div class="thread-title">Thread 3: Dino Exit &amp; UK Entity</div>
+  <p>Exit in progress: 3-month notice, Sophia as replacement MD. Settlement TBD. Handbook ~70% complete. Pension (NEST, 3%). HiBob ready pending permissions. Mishcon templates replacing Sheridans. IR35 tightening. FTE transitions underway. Military service contracts ending (Nicolas, Panos, Yorgos). EMI structurally impossible — dual class voting rights being investigated.</p>
+</div>
+
+<div class="thread-card">
+  <div class="thread-title">Thread 4: NBI Revenue Growth</div>
+  <p>55K/month vs 75-80K needed. High-confidence: UXR expansion + LH data manager + Greek fund auditing. Enoma (medium). WorkSage tool: first $5K/month customer. Jason AI consulting ($50K immediate + $200-300K follow-on). Greece trip: PM dinner, gaming investment speaking. Government project: teaming agreement + NDA signed (6-month surge + 4-year advisory). NSI: $600K partner buyout needed.</p>
+</div>
+
+<div class="thread-card">
+  <div class="thread-title">Thread 5: Lighthouse Delivery Risk</div>
+  <p>Telemetry 35-40% wrong/incomplete (453 elements). Build crashes after ~3 seconds. James underperforming — Justin wants to fire, promote Stavros. Pre-alpha pushed to late July (MS-31), full alpha late August/early September. If Tencent rejects live service, data contract at risk. Tencent demanding $80M year 1 (unrealistic). Tencent vs NBI data methodology conflict: 100% chance of conflicting numbers.</p>
+</div>
+
+<div style="margin-top: 3rem; padding: 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px;">
+  <h3 style="margin-top: 0; color: var(--green);">Quality Notes — v2</h3>
+  <ul>
+    <li><strong>142/142 meetings processed.</strong> All 15 API batches read. 7 previously truncated batches fully extracted via dedicated agents.</li>
+    <li>3 meetings had empty summaries (Dino 1:1 Mar 27, Lorenza policy closure Apr 14, Lorenza-Glen May 22).</li>
+    <li>~8 "New note" meetings were fragments/private notes — included where substantive.</li>
+    <li>Private notes (Glen's personal annotations) included where they add actionable detail.</li>
+    <li>All financial figures are from Glen's statements in meetings — not externally verified.</li>
+    <li>Status tracking (DONE/OPEN/OVERDUE) based on whether later meetings confirm completion.</li>
+    <li>People profiles synthesised across all appearances — not just single-meeting snapshots.</li>
+  </ul>
+</div>
+
+</body>
+</html>

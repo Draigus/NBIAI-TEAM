@@ -5277,9 +5277,7 @@ function renderSidebar() {
   }
   // html += sidebarItem(svgReport, 'Report', '', () => switchView('report'), currentView==='report'); // COMMENTED OUT — old report view, kept for revert
   html += sidebarItem(svgTasks, 'Projects', scopedForHealth.length, () => { currentFilter.priority = []; switchView('tasks'); }, currentView==='tasks');
-  if (!isScoped) {
-    html += sidebarItem(svgReport, 'Reporting', '', () => switchView('reporting'), currentView==='reporting');
-  }
+  html += sidebarItem(svgReport, 'Reporting', '', () => switchView('reporting'), currentView==='reporting');
   const svgDocs = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 1h6l4 4v10H4z"/><path d="M10 1v4h4"/><path d="M6 8h6M6 11h4"/></svg>';
   if (!isScoped) {
     html += sidebarItem(svgDocs, 'Documentation', '', () => switchView('documentation'), currentView==='documentation');
@@ -11996,10 +11994,15 @@ function renderReportingView(el) {
     return;
   }
 
-  // Pick a default client / project if nothing selected yet. Prefer
-  // Lighthouse Games (the use case Glen called out), else the first client
-  // with at least one project.
-  if (!_reportingClient) {
+  // Scoped (client portal) users are locked to their own client
+  const _reportingScoped = !!(_currentUser && _currentUser.clientId);
+  const _reportingScopedClientName = _reportingScoped
+    ? (Object.values(_apiClientsCache).find(c => c.id === _currentUser.clientId) || {}).name || null
+    : null;
+
+  if (_reportingScoped) {
+    _reportingClient = _reportingScopedClientName;
+  } else if (!_reportingClient) {
     const allClients = [...new Set(tasks.filter(t => t.itemType === 'project' && getTaskClient(t)).map(t => getTaskClient(t)))].sort();
     _reportingClient = allClients.includes('Lighthouse Games') ? 'Lighthouse Games' : (allClients[0] || null);
   }
@@ -12013,7 +12016,9 @@ function renderReportingView(el) {
   const project = _reportingProjectId ? tasks.find(t => t.id === _reportingProjectId) : null;
   const features = project ? tasks.filter(t => t.parentId === project.id && t.itemType === 'feature') : [];
 
-  const allClientNames = [...new Set(tasks.filter(t => t.itemType === 'project' && getTaskClient(t)).map(t => getTaskClient(t)))].sort();
+  const allClientNames = _reportingScoped
+    ? (_reportingScopedClientName ? [_reportingScopedClientName] : [])
+    : [...new Set(tasks.filter(t => t.itemType === 'project' && getTaskClient(t)).map(t => getTaskClient(t)))].sort();
 
   let html = '<div class="reporting">';
 
@@ -12021,10 +12026,12 @@ function renderReportingView(el) {
   html += '<div class="reporting__hdr">';
   html += `<div class="reporting__hdr-title">Reporting</div>`;
   html += `<div class="reporting__hdr-pickers">`;
-  html += `<label class="reporting__lbl">Client</label>`;
-  html += `<select class="reporting__select" onchange="_actSetReportingClient(this.value)">`;
-  allClientNames.forEach(n => { html += `<option value="${esc(n)}" ${n === _reportingClient ? 'selected' : ''}>${esc(n)}</option>`; });
-  html += `</select>`;
+  if (!_reportingScoped) {
+    html += `<label class="reporting__lbl">Client</label>`;
+    html += `<select class="reporting__select" onchange="_actSetReportingClient(this.value)">`;
+    allClientNames.forEach(n => { html += `<option value="${esc(n)}" ${n === _reportingClient ? 'selected' : ''}>${esc(n)}</option>`; });
+    html += `</select>`;
+  }
   html += `<label class="reporting__lbl">Project</label>`;
   html += `<select class="reporting__select" onchange="_actSetReportingProject(this.value)">`;
   projectsForClient.forEach(p => { html += `<option value="${esc(p.id)}" ${p.id === _reportingProjectId ? 'selected' : ''}>${esc(p.title)}</option>`; });

@@ -1,0 +1,93 @@
+TITLE: Website review request
+DATE: 2025-07-28
+MESSAGES: 3
+ID: 6887713b-d268-8325-ad25-82209a5c317f
+---
+
+[USER]
+I need a througouh review of the website https://plucky-grocery-519798.framer.app/ before I push it live to our domain. The site is builtin framer and has multiple pages for different form factors
+
+[ASSISTANT]
+Understood. I’ll thoroughly review the website for you. I’ll visit the link you provided and evaluate the different pages and form factors to identify any issues related to design, performance, responsiveness, accessibility, and content. I’ll provide a detailed review once I’ve completed the assessment.
+
+[ASSISTANT]
+**Executive summary**
+  
+The Framer site has a modern look and a polished dark‑themed aesthetic, but several content and structural problems must be fixed before launch.  The site’s core pages (Home, About, Services, service details, Careers and Contact) are reachable via the top navigation and mostly consistent in style, yet there are significant issues: spelling/grammar errors and inconsistent tone, mismatched boiler‑plate copy (especially on the Systems & Insights and Organizational Consulting service pages), broken navigation (Contact page is a 404 with a form), poor accessibility and contrast, and some layout/interactive bugs.  Below is a page‑by‑page review with specific recommendations.
+
+---
+
+### Home page
+**Strengths**
+- Strong first impression with a dark gradient hero, animated scroll indicator and partner‑logo carousel. 
+- Clear value propositions: cards highlight “Proven track record”, “Tailored solutions” and “Your success is our success”【629288314530128†screenshot】.
+- Testimonials give social proof; quotes from industry leaders (e.g., Xbox’s Justin Logan praising the team’s work on **Halo** and **Minecraft**) reinforce expertise【160263739120007†screenshot】.
+- An accordion explains NBI’s approach (execution‑focused, problem‑solving philosophy, trust and partnership) and a “Let’s Talk” section provides a contact form and contact details【206187871014391†screenshot】.
+
+**Issues and suggestions**
+- Some copy is vague or uses clichés (e.g., “Your success is our success”)—clarify with concrete benefits.
+- Ensure all images have descriptive alt text for accessibility.
+- Check mobile responsiveness: text occasionally overlaps on small screens and the gradient backgrounds sometimes reduce contrast.
+- Provide a privacy notice for the contact form.
+
+### About page
+**Strengths**
+- Compelling overview of the company’s mission, highlighting expertise in behavioral science, data strategy and systems design【695125022517942†screenshot】.
+- A detailed history section explains origins and growth (founded in 2011, gaming division formalized in 2016).
+- “Meet the Founder” and team profiles humanize the firm; bios show credible experience (e.g., Glen Pryer’s 20 years in the games industry【168451075550160†screenshot】, Denise Delahanty’s research leadership【285847379502484†screenshot】).
+- A four‑stage process outlines how engagements work, from discovery to monitoring【456424763594212†screenshot】.
+
+**Issues and suggestions**
+- Minor grammatical errors (e.g., inconsistent capitalization in bullet lists) should be corrected.
+- Ensure profile pop‑ups are keyboard navigable and have clear close buttons.
+- Reevaluate the repeated accordion content; it duplicates the home page and feels redundant.
+
+### Services page
+The general Services overview introduces three categories—Digital Entertainment, Systems & Insights and Organizational Consulting【598780446398156†screenshot】—but there are several problems.
+
+- **Grammar and spelling:** The Digital Entertainment card has awkward phrasing (“From Concept to Live, NBI games Veterans can help to target optimize and elevate your vision”) and the “Why WE Are Your Best Choice” section misspells “Hundreds” as “Hhundres”【469774753570320†screenshot】.
+- **Content alignment:** Clicking each service reveals further detail pages. The games page mostly fits the industry and lists relevant offerings, but Systems & Insights and Organizational Consulting pull in irrelevant SEO/web‑design copy (e.g., “Responsive and mobile‑friendly websites,” “Keyword research and analysis,” “Link building,” etc.); this mismatched content confuses visitors and diminishes credibility.
+  
+### Service detail pages
+1. **Game services.**  
+   - The hero explains that NBI helps studios from concept to live service【505979366448938†screenshot】 and cards describe offerings such as market research, game design, architecture, operational efficiency and AI/ML implementation.  Some cards have typos (“To often” instead of “Too often”)【415925456734621†screenshot】 or low contrast that makes text unreadable.
+   - The accordion emphasises reasons to invest in games services (e.g., keep up with competitors, better user experience, live‑service expertise)【429322478871723†screenshot】.  
+   - A repeat of the generic “Why NBI is your best choice” features and the four‑stage process appear again【457330424533508†screenshot】, adding unnecessary redundancy.
+
+2. **Systems & Insights.**
+   - While some cards are relevant (data‑system architecture, KPI mapping, AI/ML delivery)【211979827843747†screenshot】, many bullet lists describe web‑development and SEO tasks unrelated to analytics services.
+   - The “Reasons to invest,” “Why WE Are Your Best Choice” and FAQ sections are generic SEO text and not specific to analytics【555972659057†screenshot】; remove these and replace with analytics‑oriented content.
+   - An FAQ asking “What are the key factors that influence SEO rankings?” appears, which is off‑topic; craft an analytics FAQ instead.
+
+3. **Organizational Consulting (Organizational Health Diagnostics).**
+   - The initial section has four well‑designed cards covering Cultural Assessment, Barrier Analysis & Targeted Interventions, Communications Assessment and Personal Threat Profile Diagnostics【427424466614065†screenshot】.
+   - Unfortunately, the page then inserts a long SEO section identical to the Systems & Insights page, with headings like “Keyword Research and Analysis”【434377705988625†screenshot】 and “Link Building and Outreach”【444377705988625†screenshot】.  There is even a “Brands that took our SEO service” section with placeholder logos【986245870895465†screenshot】 and an SEO FAQ【846893904754064†screenshot】—all irrelevant to organizational consulting.  Remove these templates and develop content focused on organizational health diagnostics and interventions.
+
+### Careers page
+- The hero invites candidates to “Build what matters. Solve what others can’t”【595022346765159†screenshot】 and lists available roles with location and posting date (e.g., Senior Data Engineer – Full‑time/Remote UK posted 12 May 2025, Data Engineer and Data Analyst roles remote in the US)【153565922586733†screenshot】.
+- The footer on this page is almost blank because the text is white on a white background; icons for email, phone and location show but the corresponding contact info is invisible【884241928210391†screenshot】.  Fix the colour contrast or apply the dark footer used on other pages.
+
+### Contact page (404)
+- Visiting `/contact` shows a 404 error at the top but still loads the “Let’s Talk!” form and contact details.  The presence of a 404 message is confusing and undermines trust.  Create a dedicated contact page or remove the 404 section.
+- The page displays a contact form and contact details (email, US and UK phone numbers, addresses)【848679729587312†screenshot】.  Ensure the form works and confirm you have a data‑privacy statement.  Provide ARIA labels for the form inputs.
+- The footer includes navigation links and services lists, which is good for SEO and user navigation.
+
+---
+
+### Accessibility & technical issues
+- **Contrast:** Several sections use light blue text on dark backgrounds; this generally meets WCAG contrast ratios, but some cards (especially with starry or photographic backgrounds) reduce legibility.  Increase text contrast or add semi‑opaque overlays.
+- **Keyboard navigation:** Test interactive elements (accordions, pop‑ups) for keyboard and screen‑reader accessibility.
+- **Loading performance:** Framer’s animations and heavy background images may slow load times; consider optimizing images and deferring non‑critical scripts.
+
+---
+
+### Final recommendations
+1. **Fix spelling, grammar and capitalization throughout the site** (e.g., “Hhundres,” “To often,” inconsistent use of title case)【469774753570320†screenshot】【415925456734621†screenshot】.
+2. **Align content with each service:** replace the generic SEO/web‑design copy on the Systems & Insights and Organizational Consulting pages with relevant analytics and organizational consulting information.
+3. **Resolve the Contact page** by removing the 404 header and ensuring the form is functional; add a data‑privacy notice and proper labels【848679729587312†screenshot】.
+4. **Improve accessibility:** ensure all text has sufficient contrast, provide alt text for images, and test keyboard navigation; fix the invisible footer on the Careers page【884241928210391†screenshot】.
+5. **Reduce redundancy:** avoid repeating the same “Why NBI is your best choice” and “4‑stage process” on every page; instead, tailor content to each service.
+6. **Double‑check responsiveness** across devices; adjust layout and spacing so text doesn’t overlap and interactive elements remain visible on smaller screens.
+
+By addressing these issues—correcting copy, aligning content with services, improving accessibility and fixing broken pages—the site will convey professionalism and readiness, helping NBI Consulting present a compelling and credible online presence before going live.
+

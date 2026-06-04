@@ -1,0 +1,203 @@
+TITLE: Consulting model summary
+DATE: 2025-10-14
+MESSAGES: 12
+ID: 68ede5cf-9810-8333-a4da-c56222ef7d17
+---
+
+[USER]
+as an expert nbi consulting games consultant please summarize this into a slide of what we will do (in 7-8 bullets and teh deliveries  also in bullets 
+use  the below 
+
+I need an output that works for a ppt slide
+
+We’re seeking a modelling consultant to build cohort-based, month level models for both paths, run scenarios/sensitivities, and deliver an auditable model, documentation, and recommendations to support internal decision making.
+Objectives
+Build side-by-side, five-year, monthly models (Premium/Sequel vs Hybrid F2P+Subscription+Premium).
+Quantify recognized revenue, bookings, deferred revenue rollforward, cash receipts, and risk under base/upside/downside.
+Model funnel flows (acquisition, retention, reactivation), and conversion/attach to Drivers Club, Quarterly Packs, and MTX.
+Include rev rec mechanics: subscription ratable (monthly/annual), packs recognized on delivery of content/performance obligations, MTX point-in-time and produce a deferred revenue roll forward.
+Reflect tenure archetypes (Bingers, Grazers, Long‑Haulers) with movement between segments.
+Deliver decision-ready outputs: charts, sensitivity/tornado views, and an executive summary with clear levers and thresholds.
+Model Requirements
+Two comparable workbooks/modules for Sequel and Hybrid paths with shared assumptions tables.
+Monthly granularity, 60 months minimum
+Cohorted by acquisition source (paid/organic/social/referrals); monthly retention/returner curves; cross-path migration (e.g. F2P→Premium, F2P→Subscription, Premium→Subscription).
+Segment players into Bingers, Grazers, and Long-Haulers; track movement between them; apply typical spend and content consumption by segment.
+Monetisation: Drivers Club (monthly/annual), Quarterly Packs (buy-to-own vs member access), cosmetic MTX, convenience/QoL, store discounts/tokens, vault tokens/redemption. Show how post-launch spending differs for F2P players vs premium purchasers and vs a sequel/premium only plan.
+Pricing & Elasticity: Price points for packs/sub/MTX; optional elasticity and promo effects.
+Seasonality & Cadence: Quarterly seasons with beats; pack releases; UGC/creator uplift; influencer spikes.
+Funnel & Social Effects: Low friction F2P entry; friend graph density as a retention modifier; UGC discovery uplift; returner flows.
+Platforms: PC/Console
+Revenue timing: Bookings vs recognized revenue vs cash receipts; recognition schedules & deferrals
+KPIs including DAU/WAU/MAU, payer conversion, ARPDAU/ARPPU, churn/reacquisition, recognized revenue, bookings, deferred revenue, cash receipts, revenue per cohort, and cohort health indicators.
+Key Questions the Model Must Answer
+Under what acquisition/attach/retention/recognition thresholds does the Hybrid beat Sequel on recognized revenue and cash flow?
+What % of F2P players convert to premium or monthly membership by month, and how does Hybrid cannibalize/boost premium sales in Year 2?
+What tenure mix of Bingers/Grazers/Long‑Haulers yields stable recurring recognized revenue under realistic acquisition?
+What monthly and annual renewal rates make Hybrid stable, and how do they move with content cadence (i.e. monthly sub, quarterly season)?
+What Drivers Club price and benefits maximize total revenue while avoiding over-cannibalization of premium purchases?
+What top levers should we monitor post‑launch? Which 5-7 KPIs best predict adding F2P/Subscription?
+
+Deliverables & Timeline
+Please propose the deliverables and realistic timeline with milestones. If you recommend a different cadence than ~3 weeks, explain the trade-offs.
+Proposed deliverables:
+Model files with clear inputs, calcs and outputs
+Dashboards/Charts for Bookings / Recognized / Deferred / Cash; deferred revenue rollforward; cohort waterfalls; tornado sensitivities
+Documentation including assumptions and how to safely change inputs
+Executive readout with thresholds
+Handover including one recorded walkthrough
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.  
+Role: Consultant, Games (to translate scope into a slide-ready plan with clear actions and outputs)
+
+# What we will do
+- Build side by side, five-year monthly forecast models for two paths: Premium Sequel and Hybrid F2P + Subscription + Premium.  
+- Run scenarios and sensitivities for base, upside, downside to quantify bookings, recognised revenue, deferred revenue rollforward, cash receipts, and risk.  
+- Model funnels end to end: acquisition, retention, reactivation, and conversion or attach to Drivers Club, Quarterly Packs, and MTX.  
+- Cohort players monthly by acquisition source and platform, with retention and returner curves and cross-path migration.  
+- Reflect tenure archetypes Bingers, Grazers, Long Haulers, including movement between segments and spend or content consumption by segment.  
+- Apply revenue recognition mechanics: subscription ratable monthly or annual, packs on delivery of obligations, MTX point in time, with full deferral schedules.  
+- Incorporate pricing, elasticity, promotions, seasonality, creator or influencer uplift, and cadence of quarterly seasons and pack releases.  
+- Produce decision-ready outputs that surface levers and thresholds, with KPIs including DAU, WAU, MAU, payer conversion, ARPDAU, ARPPU, churn and reacquisition.  
+
+# Deliveries
+- Two auditable workbook modules with shared assumptions, inputs, calcs, and outputs for Sequel and Hybrid paths.  
+- Executive dashboards and charts: Bookings, Recognised, Deferred, Cash, deferred revenue rollforward, cohort waterfalls, tornado or sensitivity views.  
+- Assumptions pack and change guide showing how to safely modify inputs and scenarios.  
+- Executive summary of findings with clear thresholds for when Hybrid beats Sequel on revenue and cash flow.  
+- KPI pack highlighting the 5–7 leading indicators to monitor post-launch for adding F2P or Subscription.  
+- Modelling documentation: structure, cohort logic, recognition schedules, migration rules, and QA checks.  
+- Handover: one recorded walkthrough and model audit trail.  
+- Note: all figures are forecasts and estimates until live data is available.
+
+[USER]
+ppt slide ... not so verbose
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.  
+Role: Consultant, Games — condense scope into slide bullets.
+
+# What we will do
+- Build two 5-year monthly models: Sequel vs Hybrid F2P + Subscription + Premium  
+- Quantify bookings, recognised revenue, deferred rollforward, cash, and risk across base/upside/downside  
+- Model funnels: acquisition, retention, reactivation, conversion to Drivers Club, Quarterly Packs, MTX  
+- Cohort by acquisition source and platform; track retention, returners, and cross-path migration  
+- Segment tenure: Bingers, Grazers, Long Haulers; track spend and content use by segment  
+- Apply revenue recognition rules: sub ratable, packs on delivery, MTX point-in-time with deferral schedules  
+- Include pricing elasticity, promotions, seasonality, creator and influencer uplift  
+- Produce decision outputs: levers, thresholds, and KPI set (DAU, WAU, MAU, conversion, ARPDAU, ARPPU, churn)
+
+# Deliveries
+- Two auditable workbooks with shared assumptions tables  
+- Dashboards and charts: Bookings, Recognised, Deferred, Cash; deferred rollforward; cohort waterfalls; tornado sensitivities  
+- Assumptions pack and input change guide  
+- Executive summary with thresholds for when Hybrid beats Sequel on revenue and cash flow  
+- KPI pack with 5–7 leading indicators to monitor post-launch  
+- Model documentation: structure, cohort logic, recognition schedules, migration rules, QA checks  
+- Recorded walkthrough and model audit trail  
+- Note: all figures are forecasts and estimates until live data is available
+
+[USER]
+Build two 5-year monthly models: Sequel vs Hybrid F2P + Subscription + Premium shoudl be 
+Build models: Sequel vs Hybrid F2P + Subscription + Premium
+
+[ASSISTANT]
+**What we will do**
+- Build models: Sequel vs Hybrid F2P + Subscription + Premium  
+- Quantify bookings, recognised revenue, deferred rollforward, cash, and risk across base/upside/downside  
+- Model funnels: acquisition, retention, reactivation; conversion to Drivers Club, Quarterly Packs, MTX  
+- Cohort by acquisition source and platform; track retention, returners, and cross-path migration  
+- Segment tenure: Bingers, Grazers, Long-Haulers; track spend and content by segment  
+- Apply revenue recognition rules: sub ratable, packs on delivery, MTX point-in-time with deferrals  
+- Include pricing elasticity, promotions, seasonality, creator and influencer uplift  
+- Produce decision outputs: levers, thresholds, and KPI set (DAU, WAU, MAU, conversion, ARPDAU, ARPPU, churn)
+
+**Deliveries**
+- Two auditable workbooks with shared assumptions  
+- Dashboards: Bookings, Recognised, Deferred, Cash; deferral rollforward; cohort waterfalls; tornado views  
+- Assumptions pack and input change guide  
+- Executive summary on when Hybrid beats Sequel for revenue and cash flow  
+- KPI pack with 5–7 leading indicators for post-launch  
+- Model documentation and QA checks  
+- Recorded walkthrough and model audit trail  
+- All figures are forecasts and estimates
+
+[USER]
+fuck do I have to redo every line for you 
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3  
+Role: Consultant, Games — slide copy
+
+# What we will do
+- Build models: Sequel vs Hybrid F2P + Subscription + Premium
+- Quantify bookings, recognised revenue, deferred rollforward, cash, and risk across base, upside, downside
+- Model funnels: acquisition, retention, reactivation; conversion to Drivers Club, Quarterly Packs, MTX
+- Cohort by acquisition source and platform; track returners and cross-path migration
+- Segment tenure: Bingers, Grazers, Long Haulers; model movement and spend
+- Apply rev rec: sub ratable, packs on delivery, MTX point-in-time with deferrals
+- Include pricing elasticity, promotions, seasonality, creator and influencer uplift
+- Monthly granularity for 60 months on PC and Console
+
+# Deliveries
+- Two auditable workbooks with shared assumptions
+- Dashboards: Bookings, Recognised, Deferred, Cash; deferral rollforward; cohort waterfalls; tornado sensitivities
+- KPI pack and thresholds: five to seven leading indicators
+- Assumptions and input change guide
+- Executive summary on when Hybrid beats Sequel for revenue and cash flow
+- Technical documentation and QA checks
+- Recorded walkthrough and model audit trail
+- All figures are forecasts and estimates
+
+[USER]
+Quantify revenue, and risk across base, upside & downside
+
+[ASSISTANT]
+**What we will do**
+- Build models: Sequel vs Hybrid F2P + Subscription + Premium  
+- Quantify revenue and risk across base, upside & downside  
+- Model funnels: acquisition, retention, reactivation; conversion to Drivers Club, Quarterly Packs, MTX  
+- Cohort by acquisition source and platform; track returners and cross-path migration  
+- Segment tenure: Bingers, Grazers, Long-Haulers; model movement and spend  
+- Apply rev rec: sub ratable, packs on delivery, MTX point-in-time with deferrals  
+- Include pricing elasticity, promotions, seasonality, creator and influencer uplift  
+- Monthly granularity for 60 months on PC and Console  
+
+**Deliveries**
+- Two auditable workbooks with shared assumptions  
+- Dashboards: Bookings, Recognised, Deferred, Cash; deferral rollforward; cohort waterfalls; tornado views  
+- KPI pack and thresholds: five to seven leading indicators  
+- Assumptions and input change guide  
+- Executive summary on when Hybrid beats Sequel for revenue and cash flow  
+- Technical documentation and QA checks  
+- Recorded walkthrough and model audit trail  
+- All figures are forecasts and estimates
+
+[USER]
+model funnel from aquisition to reactivations for drivers club and MTX
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3  
+Role: Consultant, Games. Slide copy.
+
+# What we will do
+- Build models: Sequel vs Hybrid F2P + Subscription + Premium
+- Quantify revenue and risk across base, upside & downside
+- Model funnel from acquisition to reactivation for Drivers Club and MTX
+- Cohort by acquisition source and platform; track returners and cross-path migration
+- Segment tenure: Bingers, Grazers, Long-Haulers; model movement and spend
+- Apply rev rec: sub ratable, packs on delivery, MTX point-in-time with deferrals
+- Include pricing elasticity, promotions, seasonality, creator and influencer uplift
+- Monthly granularity for 60 months on PC and Console
+
+# Deliveries
+- Two auditable workbooks with shared assumptions
+- Dashboards: Bookings, Recognised, Deferred, Cash; deferred revenue rollforward; cohort waterfalls; tornado views
+- KPI pack and thresholds: five to seven leading indicators
+- Assumptions and input change guide
+- Executive summary on when Hybrid beats Sequel for revenue and cash flow
+- Technical documentation and QA checks
+- Recorded walkthrough and model audit trail
+- All figures are forecasts and estimates
+

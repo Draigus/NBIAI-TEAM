@@ -1,0 +1,334 @@
+COUCH HEROES - MIRO SCREENSHOT EXTRACTION: EPICS 4-10
+======================================================
+Source: Glen's screenshots (E:\OneDrive\Pictures\Screenshots\Screenshot 2026-05-13 22*.png)
+Extracted: 2026-05-14 by parallel agent batch processing
+Status: COMPLETE — all 10 epics now covered
+
+All hours in format: MinH - MaxH (hours)
+Convert to days at 7h/day for spreadsheet
+
+================================================================================
+EPIC 4: COMBAT
+================================================================================
+
+FEATURE: Combat Framework
+--------------------------
+
+  STORY: Combat Status Effects [NOT FOR VS]
+
+  STORY: Combat Hit & Dmg
+    - Framework UI ................. 6h - 12h
+    - Concept Art .................. 6h - 12h
+
+  STORY: Magic
+    - Magic Animation .............. 16h - 24h
+    - CONCEPT (Magic Concept) ...... 6h - 8h
+    - Magic VFX .................... 40h - 64h
+    - Magic UI ..................... 10h - 24h
+
+  STORY: Player Combat Abilities
+    - Combat Animations ............ 24h - 80h
+    - Combat UI .................... 10h - 30h
+
+  STORY: AI Combat Behavior
+    - Combat AI VFX ................ (hours TBC)
+
+FEATURE: Enemies
+-----------------
+
+  STORY: Goblins
+    - Concept Art .................. 6h - 8h
+    - Char Modeling ................ 24h - 40h
+    - Animations ................... 20h - 30h
+
+  STORY: Slimes
+    - Concept Art .................. 6h - 8h
+    - Char Modeling ................ (hours TBC)
+    - Animations ................... 24h - 30h
+    - VFX .......................... 16h - 62h
+
+  STORY: Skeletons
+    - Concept Art .................. 4h - 12h
+    - Char Modeling ................ 32h - 48h
+    - Animation .................... 20h - 40h
+    - VFX .......................... 40h - 64h
+
+  STORY: Wolves
+    - Concept Art .................. 40h - 72h
+    - Char Modeling ................ 32h - 48h
+    - Rigging ...................... 16h - 40h
+    - Animation .................... 20h - 60h
+    - VFX .......................... 40h - 64h
+
+  STORY: Carapax Enemy
+    - Concept Art .................. 60h - 90h
+    - Char Modeling ................ 32h - 48h
+    - Rigging ...................... 16h - 100h
+    - Animation .................... 20h - 60h
+    - VFX .......................... 40h - 64h
+
+  NOT FOR VS: Combat Balance & Telemetry (NO ART), PVP Combat (NO ART), Ranged Combat
+
+
+================================================================================
+EPIC 5: USER SPACE
+================================================================================
+
+FEATURE: User Space Director
+------------------------------
+
+  STORY: Interior
+    - Concept Art .................. 10h - 30h
+    - VFX .......................... 8h - 15h
+    - Lighting ..................... 4h - 8h
+    - UI ........................... 15h - 15h
+    - Env Interior Architecture Kit:
+        Proxy Models ............... 40h - 64h
+        Final Models ............... 120h - 120h
+
+  STORY: Sidebar Camera (no hour detail)
+
+FEATURE: Modular Houses
+-------------------------
+
+  STORY: Interior (Modular Houses)
+    - UI ........................... 12h - 24h
+    - Env Modeling ................. 80h - 120h
+        Proxy Models ............... 40h - 64h
+        Final Models ............... 400h - 1200h
+
+  STORY: Dock - User Space Island
+    - POI - World Building (Med) ... 80h - 120h
+    - POI - Set Dressing (Med) ..... 45h - 80h
+    - Concept ...................... 25h - 30h
+    - POI - Terrain Footprint ...... 12h - 16h
+    - POI - Biome Dressing ......... 40h - 80h
+    - POI - Collision Pass ......... 6h - 8h
+    - POI - Lighting ............... 12h - 24h
+    - POI - Masking ................ 6h - 10h
+    - POI - NPC Lighting ........... 4h - 8h
+    - POI - Proxy Pass ............. 10h - 12h
+
+FEATURE: Anywhere Door
+
+  STORY: STORIES TEMP
+    - UI ........................... 4h - 8h
+    - Concept Art .................. 4h - 8h
+    - Env Modeling ................. 60h - 80h
+    - VFX .......................... 4h - 8h
+
+NOT FOR VS: User Space Server & Instances, F2P/F2E User Space Connection,
+  Saving House Layouts, Partner Portal System (Player Housing), Arcade Cabinet
+
+
+================================================================================
+EPIC 6: ITEMS & INVENTORY
+================================================================================
+
+FEATURE: Consumables
+
+  STORY: Potions
+    - UI ........................... 2h - 6h
+    - Concept Art .................. 8h - 16h
+    - Char Modeling ................ 1h - 2h
+    - VFX .......................... 40h - 56h
+    - Animation .................... 16h - 24h
+
+FEATURE: Item Core System
+
+  STORY: STORIES TEMP
+    - UI ........................... 2h - 4h
+    - Concept Art .................. (hours TBC)
+
+FEATURE: Equipment System
+
+  STORY: STORIES TEMP
+    - Equipment UI ................. 20h - 40h
+    - Concept Art .................. 20h - 30h
+
+FEATURE: Pets
+
+  STORY: MECH PARROT
+    - Char Modeling ................ 24h - 32h
+    - Animation .................... 16h - 56h (partially obscured)
+    - VFX .......................... 40h - 56h
+
+FEATURE: Loot Distribution
+
+  STORY: STORIES TEMP
+    - UI ........................... 18h - 22h
+    - Concept Art .................. 12h - 40h
+    - VFX .......................... 40h - 56h
+
+FEATURE: Inventory System
+
+  STORY: STORIES TEMP
+    - UI ........................... 40h - 80h
+    - Concept ...................... 10h - 16h
+
+NOT FOR VS: P2P Item Transfer, Durable Items, Mounts
+
+
+================================================================================
+EPIC 7: QUEST SYSTEM
+================================================================================
+
+FEATURE: Quest Types
+
+  STORY: Lock Picking Quest
+    - Concept Art .................. 60h - 72h
+    - UI ........................... 12h - 40h
+    - Tech Art ..................... 12h - 48h
+    - VFX .......................... 45h - 56h
+
+FEATURE: Quest Item
+
+  STORY: Hearthstone (Return Home Stone)
+    - Concept Art .................. 10h - 12h
+    - Env Modeling ................. 16h - 24h
+    - VFX .......................... 60h - 80h
+    - UI ........................... 6h - 8h
+
+  STORY: Partner Crystal
+    - Concept Art .................. 5h - 12h
+    - Env Modeling ................. 40h - 72h
+    - UI ........................... 10h - 20h
+
+FEATURE: Quest Reward System
+
+  STORY: STORIES TEMP
+    - Concept Art .................. 24h - 32h
+    - UI ........................... 10h - 20h
+
+FEATURE: Quest Log
+
+  STORY: STORIES TEMP
+    - Concept Art .................. 24h - 32h
+    - UI ........................... 10h - 20h
+
+FEATURE: Quest Dialog GUI
+
+  STORY: STORIES TEMP
+    - Concept Art .................. 10h - 20h
+    - UI ........................... 10h - 20h
+
+FEATURE: Quest Narrative Content
+
+  STORY: STORIES TEMP
+    - Concept Art .................. 24h - 24h
+    - UI ........................... 10h - 20h
+
+FEATURE: Quest Multiplayer
+
+  STORY: STORIES TEMP
+    - Concept Art .................. 24h - 24h
+    - UI ........................... 12h - 24h
+
+FEATURE: Quests Backend/Tooling [NO ART]
+
+  STORY: STORIES TEMP
+    - Concept Art .................. 24h - 32h
+    - UI ........................... 12h - 24h
+
+NOT FOR VS: Dialogue/Quest, Meta Quest System (NO ART), Targeted VO,
+  Quest Generator System, Quests as Events
+
+
+================================================================================
+EPIC 8: PLAYER ECONOMY
+================================================================================
+
+FEATURE: Garment Shop
+
+  STORY: STORIES TEMP
+    - UI ........................... 20h - 30h
+    - Concept Art .................. 40h - 60h
+
+FEATURE: Trading System
+
+  STORY: STORIES TEMP
+    - UI ........................... 10h - 20h
+    - Concept Art .................. 40h - 60h
+
+FEATURE: Virtual Currency System (VC)
+
+  STORY: Currency
+    - UI ........................... 10h - 20h
+    - Concept Art .................. 5h - 10h
+    - ENV .......................... 8h - 16h
+    - VFX .......................... 32h - 40h
+
+FEATURE: Partner Shop
+
+  STORY: Bugged Dungeon Shop
+    - UI ........................... 10h - 20h
+    - Concept Art .................. 30h - 40h
+    - ENV .......................... 40h - 120h
+    - VFX .......................... 32h - 40h
+
+NOT FOR VS: RMT In Game Monitoring System, In Game Store, Auction House
+NO ART: In Game Economy
+
+
+================================================================================
+EPIC 9: SOCIAL & MULTIPLAYER
+================================================================================
+
+FEATURE: In-Game Mail
+
+  STORY: STORIES TEMP
+    - UI ........................... 12h - 20h
+    - Concept Art .................. 16h - 32h
+
+FEATURE: Co-Op/Party
+
+  STORY: STORIES TEMP
+    - UI ........................... 10h - 20h
+    - Concept Art .................. 24h - 40h
+
+FEATURE: Guild Systems
+
+  STORY: STORIES TEMP
+    - UI ........................... 10h - 20h
+    - Concept Art .................. 24h - 40h
+
+FEATURE: Game Chat System
+
+  STORY: STORIES TEMP
+    - UI ........................... 12h - 24h
+    - Concept Art .................. 10h - 50h (partially obscured)
+
+NOT FOR VS: Dueling, LFG/PUG (Pickup Groups), Player Config P2P Server,
+  Notifications, Co-Op Raids, Friends
+
+
+================================================================================
+EPIC 10: GAME BIBLES
+================================================================================
+
+Top-level: THE GAME — VERTICAL SLICE 2026
+
+FEATURE: UX/UI Bible
+  - Colour Palette ................. 40h - 60h
+  - Typography ..................... 40h - 60h
+  - Wireframes ..................... 40h - 60h
+
+FEATURE: Art Bible
+  - CONCEPT Bible .................. (no hours)
+  - ANIM Bible ..................... (no hours)
+  - ENV Bible ...................... (no hours)
+  - CHAR Bible ..................... (no hours)
+  - VFX Bible ...................... (no hours)
+
+FEATURE: Accessibility Bible (no detail)
+
+FEATURE: Brand Bible
+  - Game Logo ...................... 80h - 120h
+
+NOT FOR VS: Red Books (Emergency Bible), Monetization Bible,
+  Platform, Live Service Game, Partner Build, Product Publishing
+
+
+================================================================================
+END OF EPICS 4-10 EXTRACTION
+================================================================================

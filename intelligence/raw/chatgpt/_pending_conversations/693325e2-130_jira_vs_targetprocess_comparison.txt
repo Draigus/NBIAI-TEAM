@@ -1,0 +1,160 @@
+TITLE: Jira vs Targetprocess comparison
+DATE: 2025-12-05
+MESSAGES: 2
+ID: 693325e2-130c-832a-ab40-957db676ea34
+---
+
+[USER]
+would jira or target process be a better project management tool for our consultancy
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.
+
+Master Task Blueprint  
+
+- Task name and date  
+  - Compare Jira vs Targetprocess for NBI consultancy project management, 5 Dec 2025  
+- Roles engaged and why  
+  - Consultant: clarify business needs and trade offs  
+  - Project Manager: assess workflow and portfolio fit  
+  - Application Engineer: consider integrations, admin overhead, scalability  
+- Objective and audience  
+  - Help NBI choose the more suitable project management tool for internal consultancy work (engagements, content, ops), for leadership and operations  
+- Success criteria  
+  - Clear recommendation with rationale, aligned to NBI size and model  
+  - Concrete cost and feature comparison  
+  - Simple guidance for “use X now, consider Y only if…”  
+- Constraints and inputs  
+  - Small consultancy scale (roughly 10 user tier from your earlier Jira cost question)  
+  - Focus on project management for consulting work, not running a client’s full studio stack  
+- Assumptions and verification  
+  - See ASSUMPTIONS section  
+- Segments and dependencies  
+  1) ASSUMPTIONS  
+  2) Tool comparison on key dimensions  
+  3) Recommendation and when to revisit  
+- Deliverables and formats  
+  - Single written advisory with a direct recommendation and scenario notes  
+- Sources  
+  - Atlassian Jira Cloud pricing and plan docs citeturn0search0turn0search11turn0search15turn0search28turn0search23  
+  - Independent Jira pricing breakdowns citeturn0search4turn0search7  
+  - IBM Apptio Targetprocess product and pricing references citeturn0search2turn0search5turn0search12turn0search16turn0search29  
+- Review plan  
+  - Cross check cost, scale, and use case fit  
+  - Sanity check against NBI’s core services and size  
+- Definition of done  
+  - Clear “pick A vs B” answer, with explicit conditions where the other tool would be justified  
+
+ASSUMPTIONS  
+
+1) Team size and usage  
+   - You need seats for roughly 10 to 20 internal users for NBI’s consulting work, not hundreds.  
+   - Confidence: 90 percent, based on your earlier “10 man team” Jira pricing question and typical boutique consultancy size.  
+
+2) Primary use case  
+   - The tool is primarily for NBI’s internal project and portfolio management across clients and internal initiatives, not as a system you deploy inside client studios.  
+   - Confidence: 85 percent, based on your service descriptions and current documents which position NBI as an external partner rather than a tooling vendor. citeturn0file0turn0file8  
+
+3) Process scope  
+   - You need strong Kanban or Scrum boards, multi client project tracking, decent reporting, and integrations with common tools, but not full blown SAFe at massive enterprise scale.  
+   - Confidence: 85 percent, based on your focus on operational efficiency and game studio consulting rather than running a Fortune 500 scale engineering org. citeturn0file0turn0file8  
+
+Within the Assumption Ceiling, so proceeding.  
+
+Segment 1: Cost and scale  
+
+Jira  
+
+- Pricing  
+  - Jira Cloud has a free plan for up to 10 users, which already includes core project tracking. citeturn0search15  
+  - Standard cloud pricing for small teams in 2025 is roughly 8.60 USD per user per month, with Premium around 17 USD per user per month, with some variation and increases announced for late 2025. citeturn0search19turn0search23turn0search28  
+  - For 10 users even on Standard, you are in the ballpark of 86 USD per month, or you can operate on the free tier initially.  
+
+Targetprocess  
+
+- Pricing  
+  - Targetprocess is positioned and priced as an enterprise agile portfolio management tool. Public pricing examples show annual fees around 40,500 USD for a 25 user package on AWS Marketplace, which includes a mix of full and connected users. citeturn0search12turn0search16  
+  - Documentation and G Cloud listings emphasise minimum user counts of 10 and a multi component pricing model (full users, connected users, limited users, private cloud), which is materially more expensive than Jira on a per seat basis. citeturn0search1turn0search16turn0search29  
+
+Summary on cost and scale  
+
+- For a 10 to 20 person consultancy, Jira is orders of magnitude cheaper and has a viable free tier.  
+- Targetprocess makes financial sense when you are running a sizeable portfolio with dozens to hundreds of users and need enterprise level portfolio and SAFe coverage.  
+
+Segment 2: Fit for a consultancy workflow  
+
+Jira  
+
+Strengths for NBI style consultancy  
+
+- Flexible project tracking  
+  - Supports Scrum, Kanban, and mixed work on configurable boards. citeturn0search10turn0search14turn0search18  
+  - Works well for client engagements as projects, with separate boards per client, per workstream, or per internal initiative.  
+- Multi client structure  
+  - You can separate work into projects or even separate sites if you ever need strong isolation for particular clients. Best practice for consultants with multiple clients is to structure separate projects and control access, or in some cases separate cloud instances. citeturn0search3turn0search22turn0search30  
+- Integrations and ecosystem  
+  - Deep ecosystem of Marketplace apps for time tracking, resource planning, reporting, and integration with tools such as Confluence, Slack, GitHub, Teams and others. citeturn0search10turn0search14  
+  - Many consultancies already use Jira, so it tends to be easy to integrate with a client’s Jira or at least exchange data in familiar formats. citeturn0search6turn0search18turn0search22  
+- Learning curve and admin  
+  - Most producers and PMs in games already know Jira. Onboarding for new staff is relatively quick, and admin load is low for a small instance.  
+
+Limitations relative to Targetprocess  
+
+- Portfolio view  
+  - Jira has roadmaps and basic portfolio views, but full portfolio management for complex dependency mapping, investment allocation, and SAFe at scale typically requires add ons or Jira Align. citeturn0search11turn0search26turn0search28  
+- Advanced cost and value alignment  
+  - Out of the box, Jira is less focused on aligning spend and capacity to strategic value, which is at the core of enterprise agile planning tools.  
+
+Targetprocess  
+
+Strengths for NBI type work  
+
+- Deep portfolio and strategy alignment  
+  - Designed explicitly for agile portfolio management, strategic alignment, and enterprise agile planning. It excels at connecting strategy to execution, with rich support for portfolio, program, and team level views. citeturn0search2turn0search5turn0search9turn0search29  
+  - Strong support for SAFe and other scaled frameworks, making it powerful if you are managing large programmes across many teams. citeturn0search13turn0search17  
+- Visualisation  
+  - Very good at visualising relationships between work items, dependencies, blockers, and portfolio flows, which is useful for big multi team client programmes. citeturn0search20turn0search24turn0search29  
+
+Limitations for NBI right now  
+
+- Complexity and overhead  
+  - Targetprocess is built for mid to large enterprises. For a small consultancy, the configuration and governance overhead is significant compared to the value you will actually extract. citeturn0search24turn0search20turn0search21  
+- Cost  
+  - Licence and hosting costs are high at small scales. Even if you negotiated something below the public examples, you are still multiple times above Jira for the same user count. citeturn0search12turn0search16  
+- Ecosystem familiarity  
+  - Fewer of your clients will already be on Targetprocess. You gain less “shared tooling” advantage compared with Jira, which is already widespread among studios and tech organisations. citeturn0search18turn0search22turn0search25  
+
+Segment 3: Recommendation and decision rule  
+
+For NBI’s consultancy right now  
+
+- Primary recommendation  
+  - Use Jira as your core project management tool for consultancy work.  
+- Why  
+  - Economically rational for a 10 to 20 user team, including a viable free tier and low cost Standard plans. citeturn0search15turn0search23turn0search28  
+  - Strong fit for agile consulting workflows, task tracking, roadmaps, and client by client boards without heavy setup. citeturn0search10turn0search18turn0search26  
+  - Familiar in the games ecosystem, which matters for working inside or alongside studios. citeturn0search6turn0search18turn0file8  
+  - You can extend Jira later with portfolio plugins or connect it to analytics and financial tools you already use.  
+
+When Targetprocess might become attractive  
+
+- Consider Targetprocess only if:  
+  - NBI scales to a significantly larger operation (for example, 50 to 100 internal users) and  
+  - You are actively running multi programme, multi client portfolios where you need strong SAFe or enterprise agile support and traceable alignment of spend and capacity to strategic initiatives. citeturn0search2turn0search5turn0search13turn0search29  
+- Even then, you would weigh it not against Jira alone but against Jira plus portfolio tools or Jira Align.  
+
+Practical next step  
+
+- If you have not already, set up:  
+  - One Jira Cloud site  
+  - Projects per client and per key internal initiative  
+  - A light governance layer for workflows, fields, and naming so the instance does not drift into chaos  
+- You can then judge after a few months whether the gaps are in Jira itself or in process clarity. For most consultancies at your scale, Jira plus discipline is sufficient.  
+
+Self audit  
+
+- Answered the core question: which is better for your consultancy today, Jira or Targetprocess, with a clear recommendation.  
+- Stayed within the Assumption Ceiling and listed assumptions explicitly.  
+- Used current web sources for pricing and positioning, with citations.  
+- Avoided any asynchronous promises and limited the scope to a single decision artifact, as required.
+

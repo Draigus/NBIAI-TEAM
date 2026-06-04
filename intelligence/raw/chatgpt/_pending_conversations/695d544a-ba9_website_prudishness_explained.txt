@@ -1,0 +1,282 @@
+TITLE: Website Prudishness Explained
+DATE: 2026-01-06
+MESSAGES: 14
+ID: 695d544a-ba94-8333-ab20-40f695b04f74
+---
+
+[USER]
+Why are websites governments and llms becoming so prudish
+
+[ASSISTANT]
+Who’s speaking, Heather or Glen?
+
+### Assumptions
+- By “prudish” you mainly mean stricter filtering of sexual content (and sometimes “adult-adjacent” speech) across government sites, mainstream platforms, and LLMs.
+- You are noticing this in the UK and broadly across US/EU online services.
+
+### Brief plan
+- Give the concrete drivers (law, liability, distribution choke points, ads/PR, and LLM guardrails).
+- Point to a few recent, specific examples so this is not hand-wavy.
+
+## Why it’s happening
+
+### 1) Regulation has moved from “optional moderation” to “legal duty”
+In the UK, the Online Safety Act regime is now forcing “strong age checks” for sites/apps that allow pornography, with Ofcom publishing consumer-facing guidance and enforcement expectations. That pushes companies toward conservative, lowest-risk policies, because the downside is fines, blocks, and reputational damage. citeturn0search1turn0search5turn0search17
+
+In the EU, the Digital Services Act requires platforms to assess and mitigate systemic risks, including protecting minors from illegal and harmful content. That also pushes toward stricter defaults, because compliance has to work at scale across many countries and edge cases. citeturn0search0
+
+### 2) Liability and “don’t be the test case” risk encourages over-filtering
+When rules and enforcement tighten, the rational corporate response is to reduce exposure. That produces “prudish” outcomes even when the content is lawful, because companies optimise for not getting dragged into investigations, headlines, or regulator action.
+
+You can see the pressure vividly in the UK right now with scrutiny around AI “nudification” and non-consensual sexualised imagery, which is pushing platforms and AI providers to tighten sexual-content controls further. citeturn0news38
+
+### 3) Distribution choke points: app stores and payment rails set hard limits
+Even if a website wants to be permissive, it often depends on Apple/Google app distribution and mainstream payment processors. Apple’s App Store rules explicitly prohibit “overtly sexual or pornographic material” and include broad categories that force developers toward conservative content handling if they want to stay listed. citeturn0search4
+
+So a lot of the “prudishness” is not moral panic. It is supply-chain compliance: one strict gatekeeper can effectively set the standard for everyone downstream.
+
+### 4) Ads and brand safety punish “adult-adjacent” ambiguity
+Most large platforms rely on advertising. Advertisers are extremely sensitive to adjacency risk (their ads appearing near sexual content, minors, coercion themes, etc.). That incentivises platforms to treat anything even slightly ambiguous as disallowed, because false positives are cheaper than a brand boycott.
+
+### 5) LLMs have a specific problem: sexual content is a high-abuse surface
+LLMs are “general purpose,” so they get hit with:
+- Requests for explicit content involving minors (illegal).
+- Non-consensual sexual content, harassment, “nudify this person,” and coercive content.
+- Rapid prompt variation to bypass guardrails.
+
+The easiest reliable strategy for a provider is to apply broad rules around sexual content, then allow narrow exceptions (education, health, non-erotic contexts). That can feel prudish, but it is driven by abuse-prevention and compliance risk, not vibes.
+
+### 6) Global products default to the strictest common denominator
+If you ship one product worldwide, you either:
+- Build complex jurisdiction-specific rules and enforcement, or
+- Pick a conservative global baseline that will not break in the strictest markets
+
+Most choose the second option because it is cheaper, simpler, and safer.
+
+## Why government websites, specifically, feel extra prudish
+Government comms teams optimise for:
+- Public-service tone and political neutrality
+- Accessibility and “safe for all ages” presentation
+- Avoiding anything that can be clipped into a scandal headline
+- Legal defensibility and consistency across departments
+
+So they often avoid sexual language even when it would be clearer, because clarity is not their only objective.
+
+### Quick clarification bundle (so I can aim this properly)
+1) When you say “prudish,” is it mostly about sexual content, or also profanity, politics, and “wrongthink” style moderation?
+2) Are you seeing this most on social platforms, app stores, or in LLM refusals?
+3) UK-only experience, or are you comparing US vs UK vs EU?
+
+If you answer those, I can map the causes to your exact examples and tell you which lever is most likely responsible (law vs app store vs ads vs model policy).  
+
+### Self-audit
+- No claims of “what changed” without sources: I cited UK Ofcom/gov.uk, EU DSA page, and Apple’s guideline text for the concrete policy drivers. citeturn0search1turn0search5turn0search17turn0search0turn0search4
+- Kept the rest as incentive analysis and marked it as such (not pretending it is a single provable fact).
+
+[USER]
+1 all of it
+
+[ASSISTANT]
+Who’s speaking, Heather or Glen?
+
+### Assumptions
+- By “prudish” you mean stricter moderation across sex, profanity, politics, and “wrongthink” style speech, plus more frequent age gates and refusals.
+- You want causes, not moral lecturing.
+
+### Brief plan
+- List the main structural drivers.
+- Tie each driver to concrete, recent policy or enforcement moves.
+- Flag what is specific to governments, platforms, payment rails, app stores, and LLMs.
+
+## Why it is getting more “prudish” across the board
+
+### 1) Laws have shifted from “moderate if you feel like it” to “prove you mitigated risk”
+This pushes everyone toward conservative defaults, because the penalty for missing edge cases is large.
+
+- UK: Online Safety Act duties and Ofcom guidance have put strong age checks and child protection front and center, especially for pornography and other harmful content. Ofcom has explicit timelines and user-facing explanations of these requirements. citeturn0search2turn0search6turn0search10  
+- EU: The Digital Services Act requires platforms to reduce risks to users, including minors, from illegal and harmful content. That creates a compliance incentive to over-filter rather than under-filter. citeturn0search3  
+- US: Age verification for porn has expanded via state laws, and a major recent Supreme Court decision upheld Texas’s age-check law, which encourages more of this direction. citeturn2news40turn2news44
+
+Result: If a company is unsure, it blocks. False positives are cheaper than enforcement action.
+
+### 2) “Protect minors” has become the universal justification, and it spreads to adjacent content
+Once a system is built to block porn for minors, the same machinery often catches:
+- Sex education phrasing that sounds explicit
+- Nudity in art contexts
+- Sexual harassment language (even in reporting)
+- Profanity and “adult tone” in general
+
+This is not just vibes. It is a predictable outcome of broad classifiers and liability avoidance.
+
+### 3) Non-consensual sexual imagery and “nudification” are forcing stricter controls fast
+A lot of the “prudishness” is a direct reaction to abuse cases that regulators and the public now treat as urgent.
+
+- Ofcom’s women and girls guidance explicitly targets harms like intimate image abuse and requires platforms to take practical action. citeturn1search9turn1search5  
+- This week’s Grok “undressing” scandal is exactly the kind of headline that makes platforms tighten rules immediately because it is politically and legally radioactive. citeturn0news40turn0news41
+
+Result: tighter nudity and sexual-content rules even for consenting adult contexts, because the same pathways are used for abuse.
+
+### 4) Gatekeepers set the standard: app stores and payment rails
+Even if a site wants permissive rules, it often depends on distribution and payments.
+
+- Apple App Store guidelines restrict “overtly sexual or pornographic material,” and that shapes what apps can safely ship if they want iOS scale. citeturn0search0  
+- Payment networks require controls to prevent unlawful purchases, including illegal adult content, and merchants often respond by over-removing anything “adult adjacent” to protect processing continuity. citeturn0search5turn0search1  
+- Recent adult game delistings show how payment pressure can effectively censor categories without new laws. citeturn0news44turn0search21
+
+Result: “prudish” policies propagate top-down from the choke points.
+
+### 5) Advertising and “brand safety” incentivize blandness and heavy moderation
+Most mainstream platforms run on ads. Advertisers hate controversy more than they hate lost reach, so platforms build policies and tooling to keep advertisers comfortable.
+
+This bleeds into politics and profanity too, because advertisers avoid polarising and “unsafe” adjacency, not just porn.
+
+### 6) Politics and “wrongthink” moderation is partly law, partly risk management, partly PR
+- EU disinformation controls are moving toward auditable commitments under the DSA framework (the Code of Practice on Disinformation conversion is one example). citeturn2search5turn2search1  
+- UK Online Safety Act captures mis and disinformation where it is illegal or harmful to children, plus foreign interference as illegal content in some cases. citeturn2search2turn1search21
+
+Even where something is legal, platforms often demote or remove it to avoid being accused of facilitating harms, especially around elections, health scares, or targeted harassment.
+
+### 7) LLMs are conservative because they are a high-abuse surface
+LLMs get hammered with:
+- minors, incest, coercion, non-consensual requests
+- harassment and sexual degradation
+- political persuasion requests that look like manipulation
+- “rewrite this hate speech,” “make it more effective,” etc.
+
+So providers build safety layers that sometimes feel prudish.
+
+Concrete example from OpenAI: the Model Spec explicitly treats sexual content involving minors as prohibited, and OpenAI’s usage policies also restrict building tools inappropriate for minors. citeturn1search0turn1search14  
+Even if some adult sexual content is allowed in principle, the product layer may still block many requests because it cannot reliably separate “consensual adult erotica” from “coercion, exploitation, age ambiguity, or non-consensual deepfake intent” at scale.
+
+## Why governments feel especially prudish
+Government comms is designed to be:
+- safe for all ages
+- low-risk legally
+- scandal-resistant
+- politically defensible
+
+So they avoid explicit language and controversial framing, even when it would be clearer.
+
+### Clarification bundle (outcome-changing)
+1) Which one is most annoying for you right now: sex/nudity filtering, profanity policing, political moderation, or LLM refusals?
+2) Is this mostly a UK experience, or are you comparing UK vs US vs EU platforms?
+
+### Self-audit
+- I did not claim “morals changed.” I tied the trend to identifiable drivers: UK Online Safety Act and Ofcom guidance, EU DSA, US age-verification expansion, app store rules, payment network controls, and recent deepfake scandals. citeturn0search2turn0search3turn2news40turn0search0turn0search5turn0news40
+- I separated structural incentives (risk, distribution, ad markets) from legal requirements, and cited the load-bearing legal and policy points.
+
+navlistRecent examples shaping stricter moderationturn0news40,turn0news41,turn2news40,turn2news44,turn2news39,turn0news44
+
+[USER]
+Boil all this bs down to the core reasoning without the soft language
+
+[ASSISTANT]
+Core reason: the cost of under-blocking is now higher than the cost of over-blocking.
+
+Why that’s true:
+
+- Laws and regulators: platforms can get fined, sued, or forced into compliance audits if “harmful” content slips through, especially anything involving kids, porn access, or harassment.
+- Choke points: Apple/Google app stores and payment processors can cut you off. If you lose either, your business dies. So companies preemptively clamp down.
+- Ads: advertisers punish controversy. Platforms optimize for “brand safe,” which means bland and heavily filtered.
+- PR and politics: one scandal headline can trigger investigations, delistings, and funding problems. So they set rules to avoid becoming the next example.
+- Scale forces automation: filters and classifiers are blunt. To avoid misses, they crank sensitivity up. That creates false positives that feel “prudish.”
+- Global products pick the strictest baseline: it’s cheaper to run one conservative policy worldwide than to run nuanced rules per country.
+- LLMs are a special case: sexual content, minors, coercion, “nudify” abuse, and harassment are constant attack vectors. Providers would rather refuse too much than enable one high-profile abuse case.
+
+Net: it’s not “morals.” It’s risk management plus gatekeepers plus automation, and it naturally ends up over-restrictive.
+
+Who’s speaking, Heather or Glen?
+
+[USER]
+So who set the rules and why
+
+[ASSISTANT]
+Who set the rules?
+
+1) Elected lawmakers
+- UK Parliament passed the Online Safety Act 2023. citeturn0search12turn0search4
+- EU lawmakers passed the Digital Services Act (Regulation (EU) 2022/2065). citeturn0search1
+
+2) Regulators
+- In the UK, Ofcom writes and enforces the practical guidance, including age checks for porn and other harmful content. citeturn0search0turn0search8
+- In the EU, the Commission issues guidelines (for example on protection of minors) and enforces parts of the DSA, especially for the biggest platforms. citeturn0search5turn0search1
+
+3) Gatekeepers that can kill distribution or revenue
+- Apple (and Google, similar logic) set App Store rules. If you want iOS scale, you follow them. Apple explicitly bans “overtly sexual or pornographic” apps. citeturn0search2
+- Card networks and payment rails set “high risk” rules for adult content and require enhanced controls. Visa spells this out as higher-risk categories that need extra checks. citeturn0search3
+
+4) Platforms themselves
+- Big platforms create their own moderation policies, then tighten them when laws, regulators, app stores, or payment rails pressure them.
+
+Why did they set them this way?
+
+Because the downside of letting bad stuff through is now existential, and the upside of being permissive is small.
+
+Concrete drivers:
+
+- Child protection and porn access: regulators are explicitly forcing strong age checks and broader “harmful to children” mitigation. citeturn0search8turn0search4
+- CSAM and trafficking risk: payment networks get dragged into this. That pushes them to clamp down on adult-adjacent businesses and require more verification and policing. citeturn0news41turn0search3
+- PR and scandal avoidance: one “porn on iPhone” or “AI undressing” headline triggers immediate tightening across the ecosystem. citeturn0news40turn0news43
+- Automation at scale: moderation is done with blunt tools. To avoid missing edge cases, they tune it to over-block.
+
+Net effect: lawmakers and regulators define the legal duties, app stores and payment rails enforce a stricter private standard, and platforms and LLM providers over-comply because getting it wrong is catastrophic.
+
+Self-audit
+- I used web sources and cited them.
+- I did not claim a single actor did it all. I separated law, regulator guidance, and private gatekeepers.
+
+[USER]
+So it’s mostly the labour gov in the uk then
+
+[ASSISTANT]
+No.
+
+Most of the UK rule set that is driving “prudish” outcomes online comes from the **Online Safety Act 2023**, which got **Royal Assent on 26 October 2023**. That was under the **Conservative government**, not Labour. citeturn0search0turn0search4
+
+What’s happening now is mainly **implementation and enforcement**, led by **Ofcom** (the regulator), using powers created by that Act. citeturn0search13turn0search6
+
+### Who set what, in the UK
+- **Conservative government + Parliament (pre-2024)**: wrote and passed the Online Safety Act framework. citeturn0search0turn0search4
+- **Ofcom**: sets the practical compliance expectations and deadlines (for example strong age checks for porn sites). citeturn0search2turn0search6
+- **Labour government (since 5 July 2024)**: did not create the Act, but they do control whether to **amend it**, how aggressively to **prioritise enforcement**, and the broader political pressure climate around it. citeturn0search5turn0search1
+
+### The specific “prudish” pressure you notice
+A clean example is porn access and age checks: Ofcom’s consumer guidance says that **from 25 July 2025** porn sites/apps must have “strong age checks.” That’s the Act being operationalised. citeturn0search2turn0search10
+
+### Bottom line
+If you mean “why did this system exist at all,” it is **not mostly Labour**. It is a **cross-party trend** and the UK’s main legal framework was locked in **before Labour took office**. Labour owns what happens next, but they did not write the core statute.
+
+Who’s speaking, Heather or Glen?
+
+[USER]
+Plainly plz
+
+[ASSISTANT]
+No.
+
+The UK rules that are tightening sites and services come mainly from the Online Safety Act 2023, passed under the Conservative government.
+
+Labour did not create that law. Labour can choose to amend it and can influence how hard enforcement is pushed, but the core rulebook was already in place.
+
+Who’s speaking, Heather or Glen?
+
+[USER]
+So uk gov is the shitheads and the heart of it
+
+[ASSISTANT]
+Not really.
+
+The UK government is a big driver in the UK because it passed the **Online Safety Act 2023** and gave **Ofcom** the power to force compliance. citeturn0search0turn0search4
+
+But it is not the “heart of it” globally, and it is not the only driver even in the UK. The clampdown is coming from multiple rule-makers and choke points:
+
+- **UK law + Ofcom enforcement**: strong age checks for porn sites/apps from **25 July 2025**, plus broader child-safety compliance. citeturn0search1turn0search9  
+- **EU law**: the **Digital Services Act** pushes platforms to reduce risk to minors and bans targeted ads to children. citeturn0search6turn0search2  
+- **App stores**: Apple’s rules ban “overtly sexual or pornographic” material. That forces conservative policies on anything that wants iOS scale. citeturn0search3  
+- **Payments**: payment access is life-or-death for most businesses, so adult-adjacent categories get restricted hard to avoid fraud and illegal content exposure. (This is one of the biggest private levers, even when laws are not changing.)  
+- **LLMs**: they get nonstop abuse requests (minors, coercion, “nudify,” harassment). Providers block aggressively to avoid one catastrophic incident.
+
+So if you want one blunt sentence: **UK gov is one of the people writing the rules in the UK, but the overall “prudishness” is mainly risk management enforced by regulators, app stores, payment rails, and ad markets, and they all stack.**
+
+Who’s speaking, Heather or Glen?
+

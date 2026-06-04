@@ -1,0 +1,1019 @@
+TITLE: Website audit review
+DATE: 2025-09-08
+MESSAGES: 65
+ID: 68bed8fc-86f4-832e-a8ad-5cc77922be11
+---
+
+[USER]
+as a web designer and expert brand executive for NBI consulting review the main website and all its links to all pages and assemble a list of things that need to be iterated be critical and careful to review every element of the pages. (note that this is a predomain page and will show 3 versions as it shows all three form factors) take your time and be very careful to read every word and review every page. https://plucky-grocery-519798.framer.app/
+
+[ASSISTANT]
+Here’s a complete, no-nonsense audit of the site and every linked page. I’ve grouped fixes into global issues first, then page-by-page corrections. I’ve ignored the expected triplicate rendering from the pre-domain preview, but I’ve still noted where duplicate content will confuse users if it ships as-is.
+
+# Global issues to fix before launch
+- Information architecture and slugs  
+  - Standardize service URLs and remove misspellings: use `/services/games`, `/services/analytics-insights`, `/services/organizational-health` instead of `service-detaits-*` which is misspelled on multiple pages. citeturn3view0turn4view0turn5view0
+- Remove all template filler content  
+  - Several pages still contain generic SEO/agency boilerplate unrelated to NBI’s offering. Purge and replace with NBI content only. citeturn4view0turn5view0turn8view0turn9view0
+- Copy quality and tone  
+  - Fix repeated typos and grammar across the site. Examples: “Sucess,” “Hhundres,” “foucs,” “Oganizational,” double words like “the the,” stray sentence fragments, inconsistent capitalization in headings. citeturn0view0turn2view0turn1view0turn4view0
+- CTA and contact consistency  
+  - Unify CTAs to one primary phrase site-wide, e.g., “Book a Call.” Remove mixed “Contact Us and Get Started” variants. Standardize contact email to lowercase `info@nbi-consulting.com` everywhere. Phone formats and address spacing are inconsistent across pages. citeturn3view0turn7view0
+- Testimonials and logos  
+  - Keep authentic testimonials (e.g., Blizzard, Xbox) and remove fake or template ones (“Bright Horizon Marketing,” etc.). Ensure legal permission and accurate titles for real quotes. citeturn0view0turn8view0
+- Accessibility  
+  - Add descriptive alt text for all logo and brand images. Ensure heading hierarchy isn’t duplicated three times per section when you publish the real domain build. Color contrast and focus states should be verified in Framer preview across all breakpoints. citeturn0view0
+- SEO and metadata  
+  - Set unique page titles, meta descriptions, open-graph images per page. Add canonical URLs to the production domain. Replace any “SEO service” boilerplate with NBI-specific copy. citeturn4view0
+- Performance and assets  
+  - Compress partner logos and hero images, lazy-load lower-fold carousels, and remove duplicate image blocks created by the 3-form-factor preview. citeturn0view0
+- Footer and menu hygiene  
+  - Align menu labels (“Reviews” vs “Review”; “Projects” vs “Case Studies”), and ensure all footer service links map to corrected slugs. citeturn0view0turn8view0turn9view0
+
+# Page-by-page fixes
+
+## Home
+- Headline blocks are repeated three times and partner logo grids appear multiple times in the same view. This is from the pre-domain layout; verify that only a single instance renders per breakpoint in production. citeturn0view0
+- Correct typos: “Your Sucess is Our Sucess.” Replace with “Your Success Is Our Success.” citeturn0view0
+- Testimonials here are credible (Blizzard, Xbox). Retain these and remove the unrelated template testimonial page entirely. citeturn0view0
+
+## About
+- Spelling and grammar: fix “foucs” to “focus,” “Oganizational Coach” to “Organizational Coach.” citeturn1view0
+- Team section corrections: “Principle Scientist” should be “Principal Scientist”; “Bryan Rassmusen” likely “Bryan Rasmussen.” Ensure titles and spellings are correct for every leader block. citeturn1view0
+- Remove duplicate value blocks and ensure the “4 Stage Process” renders once with clean, edited copy. citeturn1view0
+
+## Services overview
+- Card copy: fix “turn data into sucess.” Clean up run-on phrasing and capitalization like “Why WE Are Your Best Choice.” citeturn2view0
+- “Investment Advisors Service” looks like a placeholder and is off-brand. Either remove or replace with a validated NBI service. citeturn2view0
+
+## Game Services
+- Fix slug to `/services/games`. citeturn3view0
+- Clean grammar: “live games success or failure is live design that grow retention” should be “Live game success depends on live design that grows retention and investment.” citeturn3view0
+- Consolidate repeated “Why NBI is Your Best Choice” blocks and unify CTA to “Book a Call.” Also standardize email to `info@nbi-consulting.com`; it currently varies between “Info@” and “Information@.” citeturn3view0
+- Ensure the EU address appears consistently across all pages or remove it until finalized. It appears only on some pages. citeturn3view0
+
+## Analytics & Insights
+- Fix slug to `/services/analytics-insights`. citeturn4view0
+- Replace all non-NBI template text. The page currently references generic “SEO” services and even “Building robust websites,” which is misaligned with your analytics practice. Remove duplicate bullet carousels and correct “the the,” and apostrophe misuse in “KPI’s.” citeturn4view0
+- Standardize section titles: “What Makes NBI the Best choice for Success” to “What Makes NBI the Best Choice for Success.” citeturn4view0
+
+## Organizational Health
+- The hero and initial copy are on-brand, but mid-page sections revert to SEO boilerplate (“Local Search Optimization,” “Targeted Traffic”). Delete those and keep the behavioral-science content only. citeturn5view0
+- Remove duplicated “CULTURAL ASSESSMENT” blocks and verify the Oxford Brain Institute reference is accurate and approved for use. citeturn5view0
+
+## Reviews (should be removed or replaced)
+- This entire page is a vendor template with fake client quotes unrelated to NBI. Remove the page or rebuild it with your actual testimonials from Home. Also align nav to “Reviews” consistently or drop the item. citeturn8view0
+
+## Case Studies / Projects
+- Another placeholder page with unrelated case studies (barbershop, architects, pet grooming). Remove until you have NBI case studies, or convert to a hidden draft route. Align navigation label to one term: “Case Studies” or “Projects.” citeturn9view0
+
+## Careers
+- Job cards are duplicated and currently not linking to detail pages. Create dedicated job detail routes, add an apply CTA that opens mailto to `careers@nbi-consulting.com` or an application form, and remove duplicate tiles. citeturn6view0
+- Standardize the UK address format to “W1W 5PF” and keep that spacing consistent site-wide. citeturn6view0
+
+## Contact
+- Unify phone number formatting. Pick one format for the UK number, e.g., `+44 7591 167732` without the leading 0. Remove the invisible bidi control character after the US number. Unify emails to `info@nbi-consulting.com`. Ensure the address block matches the global footer. citeturn7view0
+
+# Fast-win priority list
+1. Delete or unpublish the template pages and sections immediately: Reviews, Case Studies, and any SEO boilerplate on Analytics and Organizational Health. citeturn8view0turn9view0turn4view0turn5view0  
+2. Fix all slugs and menu labels, then update internal links and footer links. citeturn2view0turn3view0turn4view0  
+3. Run a single copy pass to correct all typos and casing issues called out above, and remove repeated blocks created by the preview layout. citeturn0view0turn1view0turn2view0  
+4. Standardize CTAs, emails, phone, and addresses across every page. citeturn7view0  
+5. Keep authentic testimonials only; place them on a single Testimonials section or on Home. Remove the template page. citeturn0view0turn8view0  
+6. Add meta titles and descriptions per page and verify OG images.  
+7. Add alt text on all images and verify keyboard focus states.  
+8. Compress assets and enable lazy-loading for partner logo grids.
+
+If you want, I can supply corrected page copy for the three service pages and the About page in your brand voice next.
+
+[USER]
+where do i make these changes?
+
+[USER]
+what should I name them ?
+Standardize service URLs and remove misspellings: use /services/games, /services/analytics-insights, /services/organizational-health instead of service-detaits-* which is misspelled on multiple pages.
+
+[ASSISTANT]
+Here’s exactly where to change this in Framer and what to name each page.
+
+# Where to make the changes (Framer)
+1. Open the project in Framer.
+2. In the left Pages panel, click each service page.
+3. In the right sidebar, open Page Settings.
+4. Set the URL Path (slug) to the new value.
+5. Update the Page Title and Meta Description while you are there.
+6. Update navigation and footer links:
+   - Select your Header component → change link targets to the new slugs.
+   - Do the same for the Footer.
+7. Update any inline links inside text blocks on those pages.
+8. Add 301 redirects:
+   - Project Settings → Redirects → add from old “service-detaits-*” paths to the new ones.
+9. Publish.
+
+If you used a CMS Collection for Services:
+- Content → Collections → Services → open each item → set the Slug field to match the new URL and re-publish. Then confirm the header/footer link bindings point to the collection item routes.
+
+# What to name them (slugs, nav labels, titles)
+Use lowercase, hyphen separators, and keep them stable.
+
+Parent overview page
+- URL: `/services`
+- Nav label: Services
+- H1: Services
+
+Games
+- URL: `/services/games`
+- Nav label: Games
+- H1: Games Consulting
+- Old paths to redirect:  
+  `/service-detaits-games`, `/service-details-games` → `/services/games`
+
+Analytics & Insights
+- URL: `/services/analytics-insights`
+- Nav label: Analytics & Insights
+- H1: Analytics & Insights
+- Old paths to redirect:  
+  `/service-detaits-analytics`, `/service-details-analytics` → `/services/analytics-insights`
+
+Organizational Health
+- URL: `/services/organizational-health`
+- Nav label: Organizational Health
+- H1: Organizational Health
+- Old paths to redirect:  
+  `/service-detaits-organizational-health`, `/service-details-organizational-health` → `/services/organizational-health`
+
+# SEO housekeeping while you’re there
+- Page Titles:  
+  - Games: “Games Consulting | NBI Consulting”  
+  - Analytics & Insights: “Analytics & Insights for Studios | NBI Consulting”  
+  - Organizational Health: “Organizational Health for Teams | NBI Consulting”
+- Meta descriptions: 140–160 characters with the core value prop for each page.
+- Open Graph: set a unique OG image per page.
+
+If you want, I can generate the exact redirect list and the three meta descriptions now so you can paste them straight into Framer.
+
+[USER]
+ok re-assess https://plucky-grocery-519798.framer.app/
+
+[ASSISTANT]
+Here’s the fresh pass. I checked every linked page again and noted only what still needs fixing. I ignored the triple rendering from the pre-domain preview but flagged where duplication would leak into production if not handled.
+
+# High-priority fixes
+- Slugs are still wrong for the three service pages. They remain on `service-detaits-*`. Rename to `/services/games`, `/services/analytics-insights`, `/services/organizational-health` and add 301s from the old paths. citeturn3view0turn4view0turn5view0
+- Template content is still present. The Analytics page still includes SEO-agency copy and an SEO FAQ that does not fit NBI. Delete those blocks. The Games page still contains generic “campaigns/social media” boilerplate in the process section. citeturn4view0turn3view0
+- The Case Studies page is still a vendor template unrelated to NBI. Hide or rewrite with real projects. citeturn8view0
+
+# Copy and grammar
+- Home: fix “Your Sucess is Our Sucess.” Also check all repeated instances created by preview duplication. citeturn9view0
+- Services overview: fix “sucess” in Systems & Insights and “Hundres” in “Why We Are Your Best Choice.” citeturn2view0
+- Games page: fix “Every Title and every Studio… impact..” double period; “To often” to “Too often”; “intercation” to “interaction.” citeturn3view0
+- About: correct “Oganizational Coach,” “Operatons,” and “Bryan Rassmusen” spelling. citeturn1view0
+
+# Navigation, labels, and consistency
+- Header and footer menus use “Organizational Strategy” in several places, but the page is “Organizational Health.” Standardize to “Organizational Health” everywhere, including Services list in the footer. citeturn2view0turn7view0
+- Careers footer shows “Projects” and “Review” links that don’t map to finished pages. Remove until you have live routes. citeturn6view0
+
+# Contact details and CTAs
+- Email casing and naming vary between `Info@` and `Information@`. Standardize to `info@nbi-consulting.com` in header, footer, and Contact page. citeturn7view0turn9view0
+- UK phone formatting varies: pick one format and apply globally, for example `+44 7591 167732` without the leading 0. citeturn7view0
+- UK postcode has inconsistent spacing: standard is `W1W 5PF`. Fix where it appears as `W1W5PF`. citeturn7view0
+- Choose one primary CTA label and use it site-wide. You currently mix “Contact Us and Get Started” with other variants. citeturn9view0
+
+# Layout and duplication to resolve before publish
+- H1s, service cards, partner logos, and FAQ blocks appear multiple times on single pages due to the pre-domain preview. Ensure only one instance per breakpoint in production. This affects Home, About, Services overview, and all service detail pages. citeturn9view0turn1view0turn2view0turn3view0
+- Careers page shows each job card repeated many times. Keep a single instance per role and link to a job detail page or mailto. citeturn6view0
+
+# Content fit
+- Games: tighten the hero and services copy, and replace the generic process section with studio-specific language. Remove any leftover marketing-agency phrasing. citeturn3view0
+- Analytics & Insights: the top section is strong, but the “Benefits” and FAQ blocks revert to SEO topics. Replace with analytics outcomes, governance, data quality, and modeling value. citeturn4view0
+- Organizational Health: core offering reads on-brand. Do a grammar pass and keep only the OH content set. citeturn5view0
+
+# Quick action checklist inside Framer
+1. Pages panel → rename the three service pages to the corrected slugs and update nav/footer links. Add 301 redirects in Project Settings. citeturn3view0turn4view0turn5view0  
+2. Delete template sections: Analytics SEO FAQ, Games process boilerplate, Case Studies page. citeturn4view0turn3view0turn8view0  
+3. Global copy pass: fix the specific misspellings above and unify CTA text, email, phone, and address formatting across header, footers, and Contact. citeturn9view0turn7view0  
+4. Publish with “single instance per breakpoint” sanity check on Home, About, Services overview, and Careers to remove duplicated blocks from the preview build. citeturn9view0turn1view0turn2view0turn6view0
+
+Want me to write the corrected page copy for Games, Analytics & Insights, and Organizational Health now, in your brand voice, so you can paste directly?
+
+[USER]
+what do i rename them too? 
+
+Pages panel → rename the three service pages to the corrected slugs and update nav/footer links. Add 301 redirects in Project Settings. 
+plucky-grocery-519798.framer.app
++2
+plucky-grocery-519798.framer.app
++2
+
+[ASSISTANT]
+Here are the exact names to use. Do this in Framer on each page’s Page Settings.
+
+# Rename the three service pages
+
+## Games
+- URL Path: `services/games`
+- Nav label: `Games`
+- H1: `Games Consulting`
+- Meta title: `Games Consulting | NBI Consulting`
+
+## Analytics & Insights
+- URL Path: `services/analytics-insights`
+- Nav label: `Analytics & Insights`
+- H1: `Analytics & Insights`
+- Meta title: `Analytics & Insights for Studios | NBI Consulting`
+
+## Organizational Health
+- URL Path: `services/organizational-health`
+- Nav label: `Organizational Health`
+- H1: `Organizational Health`
+- Meta title: `Organizational Health for Teams | NBI Consulting`
+
+Notes for Framer:
+- In Page Settings, set “URL Path” exactly as above without a leading slash. Framer will add it.
+- Keep all lowercase, use hyphens, no spaces.
+- Make sure “Include in sitemap” is on for each.
+
+# Update header, footer, and any inline links
+Point all menu items and buttons to:
+- `/services/games`
+- `/services/analytics-insights`
+- `/services/organizational-health`
+
+# Add 301 redirects (Project Settings → Redirects)
+Add these entries so old links keep working:
+
+From → To
+- `/service-detaits-games` → `/services/games`
+- `/service-details-games` → `/services/games`
+- `/service-detaits-analytics` → `/services/analytics-insights`
+- `/service-details-analytics` → `/services/analytics-insights`
+- `/service-detaits-organizational-health` → `/services/organizational-health`
+- `/service-details-organizational-health` → `/services/organizational-health`
+
+Optional catch-alls if you had other typos:
+- `/service-detaits-*` → `/services`
+- `/service-details-*` → `/services`
+
+That is all you need to rename and route them correctly.
+
+[USER]
+here? 
+
+[ASSISTANT]
+Yes. That is the right place.
+
+Use that panel on each service page and set these exact values, then Save and Publish.
+
+# Games page
+- **URL**: `/services/games`
+- **Title**: `Games Consulting | NBI Consulting`
+- **Page Description**:  
+  `Games consulting for studios. We improve retention, monetization, and live ops with audits, economy design, roadmap tuning, analytics, and data-driven delivery.`
+- **Social Preview**: upload a 1200×630 image (your NBI brand image for Games).
+
+# Analytics & Insights page
+- **URL**: `/services/analytics-insights`
+- **Title**: `Analytics & Insights for Studios | NBI Consulting`
+- **Page Description**:  
+  `Analytics and insights for studios and publishers. Forecasting, segmentation, causal modeling, KPI governance, dashboards, and decision support that drives clarity.`
+- **Social Preview**: upload a 1200×630 image for Analytics.
+
+# Organizational Health page
+- **URL**: `/services/organizational-health`
+- **Title**: `Organizational Health for Teams | NBI Consulting`
+- **Page Description**:  
+  `Organizational health for creative teams. Leadership diagnostics, culture mapping, operating model design, and change programs that lift performance at scale.`
+- **Social Preview**: upload a 1200×630 image for OH.
+
+# Also do these two things
+1. **Header/Footer links**: point the menu items and any buttons to the three new paths above.
+2. **301 redirects**: Project Settings → Redirects → add:
+   - `/service-detaits-games` → `/services/games`
+   - `/service-details-games` → `/services/games`
+   - `/service-detaits-analytics` → `/services/analytics-insights`
+   - `/service-details-analytics` → `/services/analytics-insights`
+   - `/service-detaits-organizational-health` → `/services/organizational-health`
+   - `/service-details-organizational-health` → `/services/organizational-health`
+
+Final checks:
+- Make sure the on-page H1 matches each page name as listed above.
+- Keep both search checkboxes on.
+- Upload unique OG images so social shares show the right visual for each page.
+
+[USER]
+do better
+
+[ASSISTANT]
+You’re in the right panel. Here’s a stronger, outcomes-first set you can paste into **Page Settings → Page Description** for the Games page, plus a better title. I’m giving you multiple options with character counts so you can pick the fit you want.
+
+# Games page
+**Title**  
+Games Consulting for Live Service Teams | NBI Consulting
+
+**Page Description options**  
+1) 151 chars  
+We help studios grow retention, ARPDAU, and LTV through economy design, live ops audits, roadmap tuning, and analytics that turn insight into delivery.
+
+2) 152 chars  
+Expert support for live games. We diagnose what drives retention and spend, rebuild economies, optimize events, and align roadmaps to measurable growth.
+
+3) 150 chars  
+NBI partners with studios to lift retention and revenue through economy design, live ops audits, event strategy, and analytics that guide the roadmap.
+
+4) 153 chars  
+Live service growth for studios. Improve retention, monetization, and lifetime with economy design, event strategy, audits, and decision-grade analytics.
+
+5) 145 chars  
+Raise retention and ARPDAU. We audit live ops, refine economies, plan events, and build analytics that link player behavior to roadmap decisions.
+
+6) 154 chars  
+From soft launch to scale. We tune economies, events, and live ops, and deliver analytics that grow retention, ARPDAU, and studio confidence in decisions.
+
+7) 152 chars  
+Hands-on games consulting for live service teams. We fix economies, improve events, deploy analytics, and align the roadmap to retention and LTV growth.
+
+**My pick:** #2 or #3 for balanced clarity.  
+**Social Preview:** upload a 1200×630 image; overlay text “Games Consulting for Live Service Teams.”
+
+---
+
+If you want the same quality for **Analytics & Insights** and **Organizational Health**, here are ready-to-paste sets.
+
+# Analytics & Insights
+**Title**  
+Analytics & Insights for Studios | NBI Consulting
+
+**Page Description options**  
+1) 150 chars  
+Advanced analytics for studios and publishers. Forecasting, segmentation, causal modeling, and KPI governance that turn data into confident decisions.
+
+2) 149 chars  
+We build analytics that explain what happened, why, and what to do next. Forecasts, cohorts, causal impact, dashboards, and KPI governance for teams.
+
+3) 151 chars  
+Decision intelligence for games. Forecasting, segmentation, causal analysis, and governance frameworks that link product changes to financial outcomes.
+
+**My pick:** #1.
+
+# Organizational Health
+**Title**  
+Organizational Health for Creative Teams | NBI Consulting
+
+**Page Description options**  
+1) 154 chars  
+Organizational health for creative teams. Diagnostics, culture mapping, leadership coaching, and operating model design that unlock performance and trust.
+
+2) 149 chars  
+We fix the human system. Evidence-based diagnostics, leadership coaching, culture and process design that reduce friction and raise delivery quality.
+
+3) 150 chars  
+Better teams, better delivery. We map culture, align incentives, coach leaders, and redesign rituals so studios scale with clarity and accountability.
+
+**My pick:** #1.
+
+Need a single “hero subhead” line for the Games page too? Try:  
+- “Growth for live service teams through economy design, events, and analytics.”  
+- “Lift retention and revenue with audits, economy tuning, and decision-grade data.”  
+- “From soft launch to scale with economies, events, and analytics that deliver.”
+
+[USER]
+what about games that arent live? what about mobile games? these are all one angle and dont describe the full service area well
+
+[ASSISTANT]
+You’re right. The copy skewed to live service. Here’s a broader set you can paste that covers mobile, PC, console, free-to-play, and premium across the whole lifecycle.
+
+# Use this for the Games page
+
+**Title**  
+Games Consulting for Mobile, PC, and Console | NBI Consulting
+
+**Hero H1**  
+Games Consulting for Mobile, PC, and Console
+
+**Hero subhead (paste in the first text block on the page)**  
+Free-to-play and premium. Mobile, PC, and console. We align product strategy, design, monetization, user acquisition, analytics, and delivery from concept to scale.
+
+**Page Description options (pick one, all ≤160 chars)**  
+1) Consulting for mobile, PC, and console. Free-to-play and premium. Strategy, design, monetization, UA, analytics, and delivery from concept through scale.  
+2) Support for mobile, PC, and console teams. We shape product strategy, design, monetization, UA, analytics, and go-to-market for free-to-play and premium titles.  
+3) End-to-end games consulting. Mobile, PC, and console. Free-to-play and premium. Strategy, economy, UX, UA, analytics, and production that ship results.  
+4) From pitch to live scale. We help mobile, PC, and console teams with strategy, design, monetization, UA, analytics, and production for F2P and premium games.
+
+**Social preview text overlay**  
+“Mobile, PC, Console • F2P and Premium • Strategy to Scale”
+
+# On-page sections to add so the service breadth is obvious
+Use these as section headers with short bullets underneath.
+
+1) Product Strategy and Market Fit  
+- Concept framing, competitive review, feature set, positioning, pricing for premium and F2P
+
+2) Game Design and Economy  
+- Core loop, progression, reward systems, sinks and sources, difficulty and pacing, UX flows
+
+3) Monetization and Content  
+- Premium pricing and editions, DLC planning, F2P IAP design, bundles, season passes, stores
+
+4) User Acquisition and Go-to-Market  
+- Soft launch plans, UA testing, creatives, channel mix, ASO, storefront strategy, launch checklist
+
+5) Analytics and Decision Support  
+- KPI definitions, cohort and funnel analysis, forecast models, experiment design, dashboards
+
+6) Production and Operating Model  
+- Roadmaps, resourcing, vendor evaluation, rituals, risk tracking, live release quality bars
+
+7) Platform and Compliance  
+- First-party requirements, age ratings, accessibility, localization and regional content rules
+
+8) Post-Launch and Live or Ongoing Support  
+- For live titles: events, offers, live release planning  
+- For premium titles: DLC cadence, updates, retention beats, community feedback loops
+
+# Optional sub-descriptions if you create subpages later
+
+**Mobile Games**  
+Title: Mobile Games Consulting | NBI Consulting  
+Meta: Mobile F2P and premium. We optimize feature set, economy, UA, creatives, ASO, analytics, and delivery from soft launch to scale.
+
+**PC and Console**  
+Title: PC and Console Consulting | NBI Consulting  
+Meta: Premium and hybrid monetization. We shape product strategy, pricing and editions, DLC plans, analytics, and production quality from pitch to launch.
+
+If you want, I’ll rewrite the Games page body copy in this structure so you can paste it section by section.
+
+[USER]
+you did a shit job as an SEO exxpert and top consulting marketeer do it again and di it well this time
+
+[ASSISTANT]
+Understood. Here is a complete, paste-ready SEO and messaging pack for the **Games** service that covers mobile, PC, and console, free-to-play and premium, across the full lifecycle. Use it directly in Framer Page Settings and on-page sections.
+
+# Page settings
+- **URL path**: `services/games`
+- **Meta title**: `Games Consulting for Mobile, PC, and Console | NBI Consulting`
+- **Meta description**:  
+  `Consulting for mobile, PC, and console games. Free-to-play and premium. Strategy, design, monetization, UA, analytics, and delivery from concept to scale.`
+- **OG title**: `Games Consulting for Mobile, PC, and Console`
+- **OG description**: `Strategy to scale for F2P and premium. We align product, economy, UA, analytics, and delivery.`
+- **OG image**: 1200×630. Branded image with short overlay: “Mobile • PC • Console • F2P and Premium”.
+
+# On-page hero
+- **H1**: Games Consulting for Mobile, PC, and Console  
+- **Subhead**: Free-to-play and premium. We align product strategy, design, monetization, user acquisition, analytics, and delivery from concept through scale.  
+- **Primary CTA**: Book a Call  
+- **Secondary CTA**: See Analytics & Insights
+
+# Keyword strategy
+- **Primary target**: games consulting, game consulting, video game consulting  
+- **Secondary targets**: mobile game consulting, PC and console consulting, game economy design, game monetization consulting, user acquisition for games, live ops consulting, premium game pricing and DLC strategy, game analytics consulting, game forecasting  
+- **Support terms**: soft launch, ASO, creatives, cohorts, ARPDAU, LTV, retention, progression, pricing and editions, DLC, roadmap, production
+
+# H2 section structure and copy
+Use these headers and paste the copy as body paragraphs. Keep one clear H2 per section.
+
+## Product Strategy and Market Fit
+We frame the concept, audience, and positioning for mobile, PC, and console. For premium and F2P, we test value propositions, feature sets, and pricing models. You get a clear thesis, competitive map, and a plan that links product choices to commercial outcomes.
+
+## Game Design and Experience
+We refine core loop, progression, difficulty curve, rewards, and UX flows. For mobile we streamline early funnels and sessions. For PC and console we protect pacing, discovery, and feel. The goal is strong engagement without friction that kills momentum.
+
+## Economy and Monetization
+Premium, F2P, or hybrid. We design sinks and sources, reward cadence, bundles, and stores. For premium we set pricing, editions, and DLC plans. For F2P we build scalable IAPs, events, and offers that respect players and grow LTV.
+
+## User Acquisition and Go-to-Market
+From pitch to launch, we plan UA tests, creatives, and channel mix. For mobile we run soft launch milestones, ASO, and store optimization. For PC and console we align platform requirements, wishlists, and retail timing. Every step ties to measurable targets.
+
+## Analytics and Forecasting
+We define KPIs, build cohorts and funnels, and create decision-grade dashboards. Forecasting links content plans and UA to revenue and margin. Causal methods show what moved retention or spend so the roadmap reflects evidence, not guesswork.
+
+## Production and Operating Model
+We shape the delivery system. Roadmaps, resourcing, vendor strategy, rituals, risk tracking, and quality bars. Teams ship with clarity and fewer surprises. Leaders see status, tradeoffs, and runway in one place.
+
+## Platform, Compliance, and Localization
+We prepare for store guidelines, ratings, accessibility, privacy, and regional content rules. Launches clear review with fewer iterations and less rework.
+
+## Post-Launch and Ongoing Support
+For live titles we plan events, releases, and offers with guardrails that protect retention and trust. For premium titles we map DLC cadence, updates, and community feedback loops. You get a sustainable content and communication rhythm.
+
+# Optional H3s to add when needed
+- Mobile focus: soft launch plan, CPI tests, creative system, ASO checklist  
+- PC and console focus: pricing and editions, DLC roadmap, platform checklists  
+- Live service guardrails: event design rules, economy risk limits, offer QA
+
+# FAQ (on page)  
+Use 4 to 6 short Q&A. Then add schema below.
+
+**Q1. Do you only work on live service games?**  
+No. We support premium, hybrid, and F2P across mobile, PC, and console from concept to post-launch.
+
+**Q2. Can you help with mobile soft launch?**  
+Yes. We plan milestones, UA tests, creatives, ASO, and analytics to reach retention and monetization targets.
+
+**Q3. Do you design economies and pricing?**  
+Yes. We build progression and reward systems, IAPs, bundles, stores, and premium pricing and editions.
+
+**Q4. What analytics do you deliver?**  
+Cohorts, funnels, LTV and ARPDAU models, causal analysis, and dashboards tied to roadmap and targets.
+
+**Q5. Can you help us prepare for platform submissions?**  
+Yes. We cover store requirements, ratings, accessibility, privacy, and localization planning.
+
+# Internal links
+Add these inline links in relevant paragraphs:
+- **Analytics & Insights** page: anchor text “analytics and forecasting” and “decision-grade dashboards.”  
+- **Organizational Health** page: anchor text “operating model” and “leadership and team rituals.”  
+- **Services overview** page: anchor text “all services.”
+
+# Image and alt text plan
+- Hero image alt: `NBI Consulting games practice: strategy to scale for mobile, PC, and console`  
+- Section images:  
+  - Strategy: `Competitive landscape and positioning map for target genre`  
+  - Design: `Core loop and progression flow diagram`  
+  - Economy: `Reward cadence and economy sink-source model`  
+  - UA: `Soft launch milestone plan and creative testing board`  
+  - Analytics: `Cohort retention chart and forecasting dashboard`  
+  - Production: `Roadmap with releases, risks, and team capacity`
+
+# JSON-LD schema (paste into page head as a Code component)
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  "name": "NBI Consulting — Games Consulting",
+  "url": "https://plucky-grocery-519798.framer.app/services/games",
+  "description": "Consulting for mobile, PC, and console games. Free-to-play and premium. Strategy, design, monetization, user acquisition, analytics, and delivery from concept to scale.",
+  "areaServed": "Global",
+  "serviceType": [
+    "Game strategy",
+    "Game design consulting",
+    "Game economy design",
+    "Game monetization consulting",
+    "User acquisition for games",
+    "Game analytics and forecasting",
+    "Production and operating model"
+  ],
+  "provider": {
+    "@type": "Organization",
+    "name": "NBI Consulting"
+  }
+}
+```
+
+# Redirects to add
+- `/service-detaits-games` → `/services/games`  
+- `/service-details-games` → `/services/games`
+
+# Navigation and CTA consistency
+- Header and footer menu label: `Games`  
+- Primary button label site-wide: `Book a Call`  
+- Email everywhere: `info@nbi-consulting.com`
+
+# What to do next in Framer
+1. Open Games page → Page Settings → set URL, Title, Description, OG fields.  
+2. Update the hero H1 and subhead with the copy above.  
+3. Create H2 sections and paste the section copy.  
+4. Add the FAQ block and paste the Q&A.  
+5. Add the JSON-LD Code component.  
+6. Upload the OG image.  
+7. Update header/footer links to point to `/services/games`.  
+8. Add the two 301s in Project Settings → Redirects.  
+9. Publish.
+
+If you want the same treatment for **Analytics & Insights** and **Organizational Health**, say so and I will deliver both in this exact format.
+
+[USER]
+fuck you are bad at followinbg directions.....
+
+as a top marketeer and Brand creator write a very strong and engaging version of the copy for the box, write>critic>rewrite 
+
+[ASSISTANT]
+Here’s the write → critic → rewrite you asked for, tailored for the **Games** page’s Page Description box.
+
+# Draft
+Consulting for mobile, PC, and console. F2P and premium. We align strategy, design, monetization, UA, analytics, and delivery from concept to scale.  
+**148 chars**
+
+# Critique
+- Strengths: broad coverage across platforms and business models; clear service scope; under 160 chars.  
+- Gaps: low urgency, weak outcome language, and no explicit promise of measurable value.
+
+# Rewrite (pick one)
+1) End-to-end games consulting for mobile, PC, and console. F2P and premium. We grow retention and revenue through design, economy, UA, analytics, and delivery.  
+**157 chars**
+
+2) Mobile, PC, and console consulting. We sharpen strategy, design, economy, UA, and analytics so F2P and premium titles hit retention, LTV, and launch targets.  
+**157 chars**
+
+3) Games consulting that ships results. Mobile, PC, and console. F2P and premium. Strategy, design, monetization, UA, and analytics tied to clear business goals.  
+**158 chars**
+
+4) From pitch to scale, we partner with mobile, PC, and console teams. F2P and premium. Strategy, design, economy, UA, and analytics that drive retention and LTV.  
+**159 chars**
+
+5) NBI helps mobile, PC, and console teams win. F2P and premium. Strategy, design, economy, UA, analytics, and delivery that raise retention, LTV, and revenue.  
+**156 chars**
+
+**Recommendation:** Use #2 for balanced clarity and outcomes, or #5 if you want a stronger results tone.
+
+[USER]
+good god ....you dont need to list every platform of games dude... and the statement needs to ENCOMPASS the range of services
+
+[ASSISTANT]
+You're right. Here are tight, platform-agnostic lines that cover the full service range. Pick one for the Page Description box.
+
+1) End to end games consulting that unites strategy, design, economy, UA, analytics, and production to lift retention, LTV, and revenue from concept through scale.
+
+2) We help studios plan, build, launch, and grow by aligning product strategy, design, economy, UA, analytics, and delivery for measurable, defensible results.
+
+3) Full lifecycle support for games: strategy, design, economy, UA, analytics, production, and post-launch rhythms that convert insight into retention and revenue.
+
+4) A single partner for the game lifecycle. Strategy, design, economy, UA, analytics, and operating model tuned to ship quality and hit retention and LTV goals.
+
+5) Clarity and growth for games. We align strategy, design, economies, UA, analytics, and delivery so teams execute with confidence and results compound over time.
+
+6) We diagnose and improve the game and the system around it, spanning strategy, design, economy, UA, analytics, and delivery to drive durable player and revenue growth.
+
+My pick: 2 or 6 for strongest coverage without bloat.
+
+[USER]
+what about 
+A single partner for the game lifecycle. Strategy, design, economy, UA, analytics, and operating model tuned to ship quality and player and revenue goals.
+
+[ASSISTANT]
+Your line is close. Main issue: “player and revenue goals” is vague and the grammar around “ship quality and…” is clunky. Here are tighter, platform-agnostic versions that cover the full service range and stay within meta length.
+
+**Recommended (154 chars)**  
+One partner for the game lifecycle. We align strategy, design, economy, UA, analytics, and operating model to ship quality and grow retention and revenue.
+
+**Alt A (140 chars, shortest)**  
+Lifecycle partner for games. Strategy, design, economy, UA, analytics, and operating model that ship quality and grow retention and revenue.
+
+**Alt B (159 chars, goal-focused)**  
+One partner for the game lifecycle. We align strategy, design, economy, UA, analytics, and operating model to ship quality and hit retention and revenue goals.
+
+[USER]
+Your partner for the game lifecycle. We align strategy, design, economy, UA, analytics, and operating model to ship quality and grow retention and revenue.
+
+[ASSISTANT]
+Strong. It covers lifecycle, the full service range, and outcomes. It also fits meta length.
+
+Quick polish options you can paste into the Page Description box:
+
+**Use as-is**  
+Your partner for the game lifecycle. We align strategy, design, economy, UA, analytics, and operating model to ship quality and grow retention and revenue.  
+(155 chars)
+
+**Smoother phrasing**  
+Your partner for the game lifecycle. We align strategy, design, economy, UA, analytics, and operating model to raise quality and grow retention and revenue.  
+(156 chars)
+
+**Spell out UA, still within limit**  
+Your partner for the game lifecycle. We align strategy, design, economy, user acquisition, analytics, and operations to improve quality, retention, and revenue.  
+(160 chars)
+
+Pick one and paste into Page Settings → Page Description.
+
+[USER]
+why is there a 160 limit?
+
+[ASSISTANT]
+There isn’t a hard 160-character cap. That number is a practical guideline for search snippets.
+
+How it actually works:
+- Google and Bing truncate by pixel width, not characters. Desktop cuts off around 920 px which often lands near 150–160 characters. Mobile is tighter, roughly 100–120 characters.
+- Google may ignore or rewrite your description based on the query.
+- Framer’s “Page Description” is used for the HTML meta description and can also be reused for social previews, which have their own truncation.
+
+Best practice:
+- Put the core value in the first 100–120 characters so it reads clean on mobile.
+- Keep total around 140–160 characters for reliable desktop display.
+- Write a unique line per page, include one primary keyword naturally, avoid quotes that can trigger truncation, and keep it human, not a keyword list.
+
+If you want to run longer, you can, but expect truncation and possible rewrites.
+
+[USER]
+okso rate this "Your partner for the game lifecycle. We align strategy, design, economy, user acquisition, analytics, and operations to improve quality, retention, and revenue."
+
+[ASSISTANT]
+8/10.
+
+Why it’s good:
+- Covers the full service range cleanly.
+- Outcome-driven: quality, retention, revenue.
+- Reads naturally and fits typical desktop snippet length.
+
+What to tighten:
+- Add the exact phrase “games consulting” to match search intent.
+- Consider a shorter mobile-safe variant.
+- “Operations” is long; “ops” or “operating model” tests better depending on tone.
+
+Strong revisions you can paste now:
+
+**SEO-optimized (141 chars)**  
+Games consulting for the full lifecycle. We align strategy, design, economy, UA, analytics, and ops to raise quality, retention, and revenue.
+
+**Keep your tone, shorten (139 chars)**  
+Your partner for the game lifecycle. We align strategy, design, economy, user acquisition, analytics, and ops to improve quality, retention, and revenue.
+
+**Mobile-first (131 chars)**  
+Games consulting for the full lifecycle. Strategy, design, economy, UA, analytics, and ops to grow quality, retention, and revenue.
+
+Pick one and drop it into Page Settings → Page Description.
+
+[USER]
+I prefer wording tha tis clear and compelling, so you know
+
+[ASSISTANT]
+Got it. Here are crisp, platform-agnostic lines that cover the whole service range. Pick one to paste into Page Description.
+
+1) Your partner for the game lifecycle. We align strategy, design, economy, user acquisition, analytics, and operating model to raise quality, retention, and revenue.
+
+2) Games consulting for the full lifecycle. Strategy, design, economy, user acquisition, analytics, and operating model aligned to lift quality, retention, and revenue.
+
+3) End to end games consulting. We align strategy, design, economy, user acquisition, analytics, and operating model to deliver quality, retention, and revenue growth.
+
+4) We help studios plan, build, launch, and grow by aligning strategy, design, economy, user acquisition, analytics, and operating model to deliver retention and revenue.
+
+5) A single partner from concept to scale. Strategy, design, economy, user acquisition, analytics, and operating model aligned to improve quality, retention, and revenue.
+
+My picks: 3 for the strongest punch, or 1 if you want the “your partner” voice.
+
+[USER]
+I want the MOST compelling can you do that?
+
+[ASSISTANT]
+Paste this:
+
+**Games consulting that delivers. We align strategy, design, economy, user acquisition, analytics, and operating model to ship quality and grow retention and revenue.**
+
+If you need a tighter mobile-safe variant:
+
+**Games consulting that delivers. Strategy, design, economy, user acquisition, analytics, and operating model aligned to raise quality, retention, and revenue.**
+
+[USER]
+you think thats the most compelling????
+
+[ASSISTANT]
+Here’s a stronger, punchier line. No platforms, full scope, outcome-first.
+
+**My pick**  
+Results-first games consulting. We align strategy, design, economy, user acquisition, analytics, and operating model to raise quality, retention, and revenue.
+
+**Two spicier alternates**  
+- Games consulting that proves out. Strategy, design, economy, user acquisition, analytics, and operating model aligned to lift quality, retention, and revenue.  
+- One accountable partner for the game lifecycle. Strategy, design, economy, user acquisition, analytics, and operating model tuned to grow quality, retention, and revenue.
+
+[USER]
+Your advisor and partner for the full game lifecycle. Strategy, design, economy, user acquisition, analytics, and operating model tuned to grow quality, retention, and revenue.
+
+[ASSISTANT]
+Stronger, tighter, outcome-led version:
+
+**Your accountable partner across the game lifecycle. We align strategy, design, economy, user acquisition, analytics, and operating model to raise quality, retention, and revenue.**
+
+If you need a shorter mobile-safe cut:
+
+**Accountable partner for the game lifecycle. Strategy, design, economy, user acquisition, analytics, and operating model aligned to raise quality, retention, and revenue.**
+
+[USER]
+COMPELLING!!!
+
+[ASSISTANT]
+Here’s a truly punchy, outcome-led line that still covers the full service range. Paste this:
+
+**Measurable results across the game lifecycle. We align strategy, design, economy, user acquisition, analytics, and operating model to raise quality, retention, and revenue.**
+
+If you want a tighter cut:
+
+**Results across the game lifecycle. Strategy, design, economy, user acquisition, analytics, and operating model aligned to grow quality, retention, and revenue.**
+
+[USER]
+that fails the SEO putting the key in front 
+
+[ASSISTANT]
+You’re right. Lead with the keyword. Here are compelling, keyword-first lines. Pick one.
+
+**My pick**  
+Games consulting for decisive outcomes. Strategy, design, economy, user acquisition, analytics, and operating model aligned to raise quality, retention, and revenue.
+
+**Alternates**  
+Games consulting for the full lifecycle. Strategy, design, economy, user acquisition, analytics, and operating model aligned to grow retention and revenue.
+
+Games consulting that delivers real growth. We align strategy, design, economy, user acquisition, analytics, and operating model to improve quality, retention, and revenue.
+
+[USER]
+I lke pertner better than consulting is that a problem? which is actually better
+
+[ASSISTANT]
+Short answer:  
+- “Consulting” wins for SEO because people search “game consulting,” “video game consultants,” etc.  
+- “Partner” is stronger brand language.  
+
+Best move: combine them and lead with the keyword. Use “games consulting partner” up front.
+
+# What to use
+**Meta title**  
+Games Consulting Partner for the Full Lifecycle | NBI Consulting
+
+**Meta description (keyword-first, compelling, within desktop length)**  
+Games consulting partner for the full lifecycle. We align strategy, design, economy, user acquisition, analytics, and operating model to raise quality, retention, and revenue.
+
+**H1 (brand-led on page)**  
+Your partner for the game lifecycle
+
+**First sentence of the body (to reinforce the keyword)**  
+As a games consulting partner, we align strategy, design, economy, user acquisition, analytics, and operating model so teams hit clear retention and revenue goals.
+
+Why this works:
+- Keeps “games consulting” at the front for search intent.
+- Uses “partner” for tone and positioning.
+- Repeats the key phrase in body copy without stuffing.
+
+[USER]
+Games consulting partner for the full lifecycle. We align strategy, design, economy, user acquisition, data,business and operating model to raise quality, retention, and revenue.
+
+[ASSISTANT]
+Your draft is close but “data,business and operating model” is clunky and vague. Here are two tightened, keyword-first options that cover the full range and read clean.
+
+**Recommended (clarity-first):**  
+Games consulting partner for the lifecycle. We align strategy, design, economy, user acquisition, analytics, and ops to raise quality, retention, and revenue.
+
+**Alt (keeps “operating model” spelled out):**  
+Games consulting partner for the lifecycle. We align strategy, design, economy, UA, analytics, and operating model to raise quality, retention, and revenue.
+
+Pick the one that matches your tone preference: “ops” for brevity, or “operating model” if you want the consulting language explicit.
+
+[USER]
+this is closer
+
+Games consulting partner for the lifecycle. We align strategy, design, economy, UA, analytics, and operating model to raise quality, retention, and revenue.
+
+but here is what to get down to fit
+Your Games consulting partner across the full lifecycle. We aid in strategy, design, economy, UA, data, and operating model to help your title truly succeed.
+
+[ASSISTANT]
+Here are tightened, keyword-first lines that fit cleanly and cover the full service range. Pick one and paste.
+
+**Best overall (153 chars)**  
+Your games consulting partner across the lifecycle. We align strategy, design, economy, UA, analytics, and operating model to grow retention and revenue.
+
+**SEO-forward (156 chars)**  
+Games consulting partner for the lifecycle. We align strategy, design, economy, UA, analytics, and operating model to raise quality, retention, and revenue.
+
+**Mobile-safe (124 chars)**  
+Games consulting partner for the lifecycle. Strategy, design, economy, UA, analytics, and ops to grow retention and revenue.
+
+[USER]
+Your games consulting partner across the lifecycle. We align strategy, design, economy, UA, analytics, business and operating model to deliver sucess for your title. 
+
+[ASSISTANT]
+Two tight, keyword-first lines you can paste. Both cover the full service range.
+
+**Short & punchy (148 chars)**
+Your games consulting partner across the lifecycle. We align strategy, design, economy, UA, analytics, and ops to raise quality, retention, revenue.
+
+**Explicit consulting language (157 chars)**
+Your games consulting partner for the lifecycle. We align strategy, design, economy, UA, analytics, and operating model to raise quality, retention, revenue.
+
+[USER]
+stopo doing this "to raise quality, retention, revenue"
+
+[ASSISTANT]
+Understood. Here are keyword-first, platform-agnostic options without that phrase, each covering the full service range.
+
+**Options**
+1) Games consulting partner for the lifecycle. We align strategy, design, economy, UA, analytics, and operating model so teams ship confidently and scale sustainably.
+
+2) Your games consulting partner across the lifecycle. Strategy, design, economy, UA, analytics, and operating model unified to hit launch goals and sustain growth.
+
+3) Games consulting partner for the lifecycle. We tie strategy, design, economy, UA, analytics, and ops to clear targets, faster delivery, and profitable growth.
+
+4) Games consulting partner for the lifecycle. Align strategy, design, economy, UA, analytics, and operating model to convert insight into delivery and ROI.
+
+5) Your games consulting partner. We integrate strategy, design, economy, UA, analytics, and ops to achieve fit, efficient launches, and durable commercial performance.
+
+6) Games consulting partner for the lifecycle. Strategy, design, economy, UA, analytics, and operating model working together to meet targets and scale with confidence.
+
+7) Games consulting partner for the lifecycle. Strategy, design, economy, UA, analytics, and ops aligned for product-market fit, velocity, and sustainable growth.
+
+8) Your games consulting partner across the lifecycle. We align strategy, design, economy, UA, analytics, and operating model to deliver clarity, momentum, and margin.
+
+If you want one picked: use **#1** for balanced tone or **#3** for the sharpest commercial focus.
+
+[USER]
+they are all pretty shitty 
+
+[ASSISTANT]
+Here are three keyword-first lines that are tighter, clearer, and actually sell the breadth without fluff. Pick one.
+
+1) Games consulting partner for the lifecycle. We align strategy, design, economy, UA, analytics, and operating model to hit KPIs, reduce risk, and scale profitably.
+
+2) Games consulting partner across the lifecycle. Strategy, design, economy, UA, analytics, and operating model unified so you launch cleanly and grow with measurable returns.
+
+3) Games consulting partner for the lifecycle, uniting strategy, design, economy, UA, analytics, and operating model for product-market fit, faster delivery, and profitable scale.
+
+[USER]
+whats wrong with this one? 
+Your games consulting partner across the lifecycle. We align strategy, design, economy, UA, analytics, business and operating model to deliver sucess for your title.
+
+[ASSISTANT]
+Here’s what’s off with your line and a fixed version that keeps your structure.
+
+# What’s wrong
+- Spelling: “sucess” → success.
+- “business and operating model” is vague and duplicative. Use “business and operating models” or combine as “business & operating models.”
+- “deliver success for your title” is generic. Use concrete outcomes without the “quality/retention/revenue” phrasing you dislike.
+- Minor SEO: decide on “games consulting partner” vs “game consulting partner” and use it consistently. Both work; “game consulting” is searched slightly more, “games consulting” fits your brand voice.
+
+# Tight fixes (pick one)
+
+**Closest to yours (160 chars)**
+Your games consulting partner across the lifecycle. We align strategy, design, economy, UA, analytics, and business & operating models to hit targets and scale.
+
+**Singular keyword variant (155 chars)**
+Your game consulting partner for the lifecycle. We align strategy, design, economy, UA, analytics, and business & operating models so you launch and scale.
+
+**Brevity, same meaning (148 chars)**
+Your games consulting partner for the lifecycle. Strategy, design, economy, UA, analytics, and ops aligned to meet goals and scale sustainably.
+
+[USER]
+you didnt answer my question instead you vomited out more options,
+
+whats wrong with this one
+
+Your game consulting partner for the full lifecycle. We align strategy, design, economy, UA, analytics, business and operating model to deliver sucess for your title.
+
+[ASSISTANT]
+Here’s what’s wrong with your line, plainly:
+
+1) Spelling: “sucess” should be “success.”  
+2) Number/parallelism: “business and operating model” should be plural or paired (“business model and operating model”).  
+3) Clarity: “deliver success for your title” is generic. Use a concrete outcome that isn’t the “quality/retention/revenue” phrasing you rejected.  
+4) Keyword consistency: choose “game consulting partner” or “games consulting partner” and use it everywhere. I recommend “games consulting partner” for consistency with common phrasing.  
+5) Style: keep the list parallel. “economy” is fine, but if you want perfect symmetry use “economy design.” “UA” is industry-standard, but “user acquisition” is clearer if space allows.
+
+Tight, corrected version keeping your intent:
+
+**Your games consulting partner for the lifecycle. We align strategy, design, economy, UA, analytics, and business and operating models to meet targets and scale.**
+
+[USER]
+our games consulting partner for the lifecycle. We align strategy, design, economy, UA, analytics, business and operating models to meet goals and scale.
+
+[ASSISTANT]
+Two fixes:
+
+1) “our” should be “Games…” if you want the keyword first.
+2) Make “business and operating model” plural for parallelism.
+
+Use this:
+
+**Games consulting partner for the lifecycle. We align strategy, design, economy, UA, analytics, and business and operating models to meet goals and scale.**
+
+[USER]
+Your games consulting partner for the lifecycle. We align strategy, design, economy, UA, analytics, business and operating models to meet goals and scale.
+
+[USER]
+Your games consulting partner for full lifecycle. We align strategy, design, economy, UA, analytics, business and operating models to meet goals and scale.
+
+[USER]
+Your games consulting partner for the full lifecycle. We align strategy, design, economy, UA, analytics, business and operating models to meet goals and scale.
+
+[ASSISTANT]
+Here’s the corrected, ready-to-paste line with clean grammar and full coverage:
+
+**Your games consulting partner for the full lifecycle. We align strategy, design, economy, UA, analytics, and business and operating models to meet goals and scale.**
+
+What changed: I added the missing “and” before the last list item for proper parallelism. If you want maximum SEO weight, drop “Your” to start with **Games consulting partner…** instead.
+
+[USER]
+rate this 1-10 
+SEO
+Clarity
+Brand
+Services inclusion
+
+[ASSISTANT]
+Here’s the scorecard for:
+
+“Your games consulting partner for the full lifecycle. We align strategy, design, economy, UA, analytics, and business and operating models to meet goals and scale.”
+
+**SEO:** 8/10  
+Includes “games consulting,” but leading with “Your” weakens the exact-match signal. “UA” is not a search term.
+
+**Clarity:** 8/10  
+Clear structure, but “UA” is jargon and “economy” is vague. “Business and operating models” is heavy.
+
+**Brand:** 8/10  
+“Partner” is strong. “Meet goals and scale” is generic; could be sharper.
+
+**Services inclusion:** 8/10  
+Covers the big pillars, but production/go-to-market aren’t named. “Economy” could specify design/monetization.
+
+**Tighten with minimal edits (keep your intent):**  
+- Start keyword-first: **Games consulting partner for the full lifecycle.**  
+- Expand UA: **user acquisition.**  
+- Sharpen outcome: **hit targets and scale.**
+
+**Revised line (paste-ready):**  
+Games consulting partner for the full lifecycle. We align strategy, design, economy, user acquisition, analytics, and business and operating models to hit targets and scale.
+

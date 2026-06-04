@@ -1,0 +1,328 @@
+TITLE: Production backlog tasks
+DATE: 2025-12-03
+MESSAGES: 12
+ID: 69306f19-a300-8321-a1e8-96adc20043d1
+---
+
+[USER]
+as an expert executive producer and a team of best in role producers help me map out the features and tasks for the following work to complete. I am building a backlog for building all this out. 
+
+Production Handbook and playbook; configured production framework (Spaces, Folders, Lists,  
+fields, statuses, automations, Dashboards,  Goals, Docs); roadmap and  release templates; risk  
+register; training materials
+
+it needs to be an excel version (print to screen) take your time and do it right
+
+[ASSISTANT]
+import os, textwrap, re, json, math
+
+[ASSISTANT]
+rows = []
+
+def add(id, area, epic, title, ttype, owner, priority, dep, desc, acc):
+    for field in [id, area, epic, title, ttype, owner, priority, dep, desc, acc]:
+        assert "|" not in field
+    rows.append("|".join([id, area, epic, title, ttype, owner, priority, dep, desc, acc]))
+
+# Handbook & playbook
+area = "Handbook and playbook"
+epic = "Define production operating model"
+add("HBK-01", area, epic, "Clarify production goals and scope", "Governance", "Executive Producer", "P1", "None", 
+    "Write a one page summary of production goals for Couch Heroes and how teams are expected to work together", 
+    "Summary agreed by CEO CTO Game Director and shared in Slack")
+add("HBK-02", area, epic, "Define production roles and responsibilities", "Governance", "Executive Producer", "P1", "HBK-01", 
+    "List core roles such as Executive Producer Game Producer Project Manager discipline leads and define responsibilities and decision rights", 
+    "RACI style table reviewed by leadership and no gaps or overlaps flagged")
+
+epic2 = "Author production handbook"
+add("HBK-03", area, epic2, "Draft handbook table of contents", "Content", "Lead Producer", "P1", "HBK-01", 
+    "Outline major sections such as ways of working ceremonies tools reporting risk and change control", 
+    "Table of contents reviewed by EP and accepted as baseline")
+add("HBK-04", area, epic2, "Write handbook sections first draft", "Content", "Lead Producer", "P1", "HBK-03", 
+    "Write full prose for each handbook section including examples and links to templates", 
+    "Complete draft stored in source of truth folder with all sections present")
+add("HBK-05", area, epic2, "Internal review of handbook", "Governance", "Executive Producer", "P1", "HBK-04", 
+    "Circulate handbook to leadership and discipline leads and record comments", 
+    "All leadership have reviewed and comments are resolved or tracked")
+
+epic3 = "Author producer playbook"
+add("HBK-06", area, epic3, "Identify key producer workflows", "Analysis", "Lead Producer", "P1", "HBK-01", 
+    "List repeatable workflows such as planning sprint setup milestone readiness release preparation risk review and playtest planning", 
+    "Workflow list documented and agreed by production team")
+add("HBK-07", area, epic3, "Write producer playbook checklists", "Content", "Lead Producer", "P1", "HBK-06", 
+    "Create short checklists for each workflow that a producer can follow step by step", 
+    "Checklists stored in shared docs and walk through at least one real example")
+
+epic4 = "Publish and maintain handbook"
+add("HBK-08", area, epic4, "Choose handbook storage and versioning", "Tooling", "Project Manager", "P2", "HBK-05", 
+    "Decide where handbook will live such as ClickUp Docs Confluence or SharePoint and how versions are controlled", 
+    "Location chosen with write and read access confirmed for all required staff")
+add("HBK-09", area, epic4, "Publish v1 handbook and playbook", "Release", "Executive Producer", "P1", "HBK-05", 
+    "Publish signed off handbook and producer playbook and share announcement with studio", 
+    "Announcement posted and links pinned in agreed channels")
+add("HBK-10", area, epic4, "Define handbook change process", "Governance", "Project Manager", "P2", "HBK-09", 
+    "Define simple process for proposing reviewing and approving changes to handbook content", 
+    "Change process written and added as appendix to handbook")
+
+len(rows), rows[0]
+
+[ASSISTANT]
+# Production framework
+area = "Configured production framework"
+epic = "Tool environment and structure"
+add("FRM-01", area, epic, "Confirm primary production tool stack", "Tooling", "Executive Producer", "P1", "None", 
+    "Confirm which tools are used for tracking work such as ClickUp Jira Google Drive or other and capture in handbook", 
+    "Tool stack list agreed and reflected in docs")
+add("FRM-02", area, epic, "Design Space and Folder structure", "Design", "Lead Producer", "P1", "FRM-01", 
+    "Define Spaces Folders and Lists for company project platform game verticals and support teams", 
+    "Diagram of hierarchy approved by leadership and stored with configuration notes")
+add("FRM-03", area, epic, "Create Spaces Folders and Lists in tool", "Config", "Tool Admin", "P1", "FRM-02", 
+    "Implement agreed hierarchy in the production tool for live use and testing", 
+    "Spaces and Lists visible to test users and match design diagram")
+
+epic2 = "Workflows fields and statuses"
+add("FRM-04", area, epic2, "Define work item types", "Design", "Lead Producer", "P1", "FRM-01", 
+    "List standard task types such as Feature Task Bug Tech Debt Spike and Support", 
+    "Types agreed and documented in handbook")
+add("FRM-05", area, epic2, "Design status flows per item type", "Design", "Lead Producer", "P1", "FRM-04", 
+    "Map clean status flows for each type such as Backlog Ready In Progress In Review Done and define rules", 
+    "Status diagrams created and reviewed with team and QA")
+add("FRM-06", area, epic2, "Configure custom fields and field naming", "Config", "Tool Admin", "P1", "FRM-04", 
+    "Create custom fields for priority risk size component platform release and ensure consistent naming", 
+    "Fields created in tool and referenced in templates")
+add("FRM-07", area, epic2, "Implement workflows and statuses in tool", "Config", "Tool Admin", "P1", "FRM-05", 
+    "Apply status flows to Lists and validate transitions and permissions for each role", 
+    "Test tickets can move through each status without gaps or dead ends")
+
+epic3 = "Automations and rules"
+add("FRM-08", area, epic3, "Identify useful automations", "Analysis", "Lead Producer", "P2", "FRM-05", 
+    "Identify automation candidates such as auto assign on list entry status based notifications and SLA alerts", 
+    "Short list of automations agreed with team and prioritised")
+add("FRM-09", area, epic3, "Configure automations in tool", "Config", "Tool Admin", "P2", "FRM-08", 
+    "Set up automations in the production tool and test on sample data", 
+    "Automations work as intended and do not generate noisy alerts")
+
+epic4 = "Dashboards Goals and Docs"
+add("FRM-10", area, epic4, "Design core dashboards", "Design", "Executive Producer", "P1", "FRM-06", 
+    "Define dashboard views for leadership producers and teams including key KPIs and filters", 
+    "Dashboard wireframes created and signed off by stakeholders")
+add("FRM-11", area, epic4, "Build dashboards in tool", "Config", "Tool Admin", "P1", "FRM-10", 
+    "Implement dashboards using fields filters and charts with sample data", 
+    "Dashboards show expected metrics for a test project")
+add("FRM-12", area, epic4, "Configure Goals and OKR tracking", "Config", "Executive Producer", "P2", "FRM-06", 
+    "Set up Goals or OKR features to link milestones KPIs and roadmap items to measurable targets", 
+    "Goal objects exist with owners timeframes and example links to tasks")
+add("FRM-13", area, epic4, "Create standard Docs and templates in tool", "Content", "Project Manager", "P1", "HBK-04", 
+    "Create Docs inside the tool for meeting notes decision logs and playbooks and connect them to relevant Lists", 
+    "Templates are available from within the tool and tested by at least one team")
+
+len(rows)
+
+[ASSISTANT]
+# Roadmap and release templates
+area = "Roadmap and release templates"
+epic = "Roadmap design and levels"
+add("RDM-01", area, epic, "Define roadmap tiers", "Design", "Executive Producer", "P1", "HBK-01", 
+    "Decide on portfolio product and feature level roadmaps and what each is used for", 
+    "Roadmap tier definitions written and approved")
+add("RDM-02", area, epic, "Choose roadmap time horizons", "Design", "Executive Producer", "P2", "RDM-01", 
+    "Set planning horizons for near term three month mid term one year and long term three year views", 
+    "Time horizons listed in handbook with example timelines")
+add("RDM-03", area, epic, "Define roadmap governance cadence", "Governance", "Executive Producer", "P2", "RDM-01", 
+    "Agree cadence for roadmap reviews and who attends such as monthly triage and quarterly planning", 
+    "Cadence and attendees listed in meeting charter")
+
+epic2 = "Release process and templates"
+add("RDM-04", area, epic2, "Define release types and criteria", "Design", "Lead Producer", "P1", "HBK-01", 
+    "List release types such as hotfix minor content drop and major milestone and define entry and exit criteria", 
+    "Table of release types and criteria approved by engineering and QA")
+add("RDM-05", area, epic2, "Create release plan template", "Content", "Project Manager", "P1", "RDM-04", 
+    "Create standard document or task template covering scope owners timelines risks comms and backout plan", 
+    "Template reviewed using a past release as example and updated")
+add("RDM-06", area, epic2, "Create release calendar and views", "Config", "Project Manager", "P2", "RDM-04", 
+    "Set up calendar or Gantt views that show upcoming releases across projects", 
+    "Calendar view displays at least six months of planned releases")
+add("RDM-07", area, epic2, "Create change log and versioning template", "Content", "Project Manager", "P2", "RDM-04", 
+    "Define how versions are named and how change logs are published to partners and players", 
+    "Template for change log exists and is linked from release plan template")
+add("RDM-08", area, epic2, "Define dependency capture for roadmap and releases", "Design", "Lead Producer", "P2", "RDM-01", 
+    "Define how inter team and external dependencies are recorded and tracked within roadmap items", 
+    "Example roadmap items show filled in dependency fields and links")
+
+len(rows)
+
+[ASSISTANT]
+# Risk register
+area = "Risk register"
+epic = "Risk framework design"
+add("RSK-01", area, epic, "Define risk categories and scales", "Design", "Executive Producer", "P1", "HBK-01", 
+    "Define categories such as delivery people technical financial legal and reputation and choose impact and likelihood scales", 
+    "Risk matrix drafted and agreed at leadership meeting")
+add("RSK-02", area, epic, "Choose risk register location and owner", "Governance", "Executive Producer", "P1", "RSK-01", 
+    "Decide whether the primary risk register lives in Excel production tool or Confluence and assign an owner", 
+    "Location and named owner recorded in handbook")
+
+epic2 = "Risk register build and seeding"
+add("RSK-03", area, epic2, "Design risk register structure", "Design", "Project Manager", "P1", "RSK-01", 
+    "Define fields such as ID description category impact likelihood score owner mitigation status and review date", 
+    "Template designed and reviewed with EP and CFO")
+add("RSK-04", area, epic2, "Create risk register template", "Config", "Project Manager", "P1", "RSK-03", 
+    "Build the register in the chosen tool or Excel with correct fields and filters", 
+    "Template file or view available to leadership and linked from handbook")
+add("RSK-05", area, epic2, "Seed initial risks from current plans", "Analysis", "Executive Producer", "P1", "RSK-04", 
+    "Populate initial risks based on current roadmap funding plan hiring and technical stack", 
+    "At least twenty meaningful risks recorded with owners and mitigations")
+add("RSK-06", area, epic2, "Define risk review cadence and ceremony", "Governance", "Executive Producer", "P2", "RSK-04", 
+    "Set a recurring risk review meeting and define agenda input sources and outputs", 
+    "Recurring meeting created and added to leadership calendars")
+add("RSK-07", area, epic2, "Define risk reporting for board and investors", "Governance", "CFO", "P2", "RSK-03", 
+    "Agree how top risks and trends are summarised for board packs and investor updates", 
+    "Risk summary section template created and tested in one board pack")
+
+len(rows)
+
+[ASSISTANT]
+# Training materials
+area = "Training materials"
+epic = "Training strategy and audience"
+add("TRN-01", area, epic, "Identify training audiences and needs", "Analysis", "Executive Producer", "P1", "HBK-09", 
+    "List audiences such as producers discipline leads individual contributors and leadership and capture training needs", 
+    "Training needs list reviewed with HR or people partner")
+add("TRN-02", area, epic, "Define training outcomes and measures", "Design", "Executive Producer", "P2", "TRN-01", 
+    "Define what success looks like for training such as faster onboarding lower variance in process and fewer blocked tasks", 
+    "Outcomes documented with at least three measurable indicators")
+
+epic2 = "Create core training assets"
+add("TRN-03", area, epic2, "Create quick start guide for producers", "Content", "Lead Producer", "P1", "HBK-07", 
+    "Produce a short guide covering how producers use the tool framework dashboards and playbook in daily work", 
+    "Guide reviewed by at least two producers and refined")
+add("TRN-04", area, epic2, "Create tool usage cheat sheets", "Content", "Tool Admin", "P2", "FRM-11", 
+    "Create one page references for common tasks such as creating tickets updating statuses and using dashboards", 
+    "Cheat sheets stored with version date and linked from handbook")
+add("TRN-05", area, epic2, "Record walkthrough videos for key flows", "Content", "Lead Producer", "P2", "FRM-11", 
+    "Record short screen capture videos for workflows such as sprint planning roadmap update and release creation", 
+    "Videos stored in shared drive or LMS and linked from docs")
+add("TRN-06", area, epic2, "Create onboarding path for new starters", "Design", "Project Manager", "P2", "TRN-03", 
+    "Design a simple sequence of training steps and reading for new hires in production design engineering and art", 
+    "Onboarding checklist created and piloted with at least one new or existing staff member")
+add("TRN-07", area, epic2, "Schedule first training sessions", "Execution", "Executive Producer", "P1", "TRN-03", 
+    "Schedule and run initial training workshops and office hours for teams", 
+    "At least two training sessions completed and attendance logged")
+add("TRN-08", area, epic2, "Gather feedback and refine materials", "Analysis", "Lead Producer", "P2", "TRN-07", 
+    "Collect feedback via survey or retrospective and update materials based on issues found", 
+    "Feedback summary created and next changes scheduled")
+
+len(rows)
+
+[ASSISTANT]
+# Cross cutting
+area = "Cross cutting and adoption"
+epic = "Alignment and change management"
+add("XFN-01", area, epic, "Run production framework kickoff workshop", "Execution", "Executive Producer", "P1", "HBK-01", 
+    "Hold a workshop with leads to walk through the new framework handbook and tooling", 
+    "Workshop held and actions captured in decision log")
+add("XFN-02", area, epic, "Define adoption milestones and KPIs", "Design", "Executive Producer", "P2", "FRM-11", 
+    "Set adoption targets such as percent of teams using standard workflows and dashboards by date", 
+    "Adoption metrics added to leadership dashboard and tracked monthly")
+add("XFN-03", area, epic, "Migrate existing projects into new structure", "Execution", "Project Manager", "P1", "FRM-03", 
+    "Map existing boards or spreadsheets into the new Space and List structure and migrate data carefully", 
+    "At least one pilot project migrated and signed off then remaining projects scheduled")
+add("XFN-04", area, epic, "Update external documents to reference framework", "Content", "Project Manager", "P2", "HBK-09", 
+    "Update SoWs pitch decks and investor materials to reference the new production framework where relevant", 
+    "Key external documents reviewed and updated without contradictions")
+add("XFN-05", area, epic, "Set up regular continuous improvement loop", "Governance", "Executive Producer", "P2", "HBK-10", 
+    "Create a recurring session where producers review what is working in the framework and propose updates", 
+    "Recurring meeting scheduled and first session completed with follow up actions")
+
+len(rows)
+
+[ASSISTANT]
+print(rows[0])
+print(rows[10])
+print(rows[-1])
+
+
+[ASSISTANT]
+backlog_text = "ID|Area|Epic|Task title|Task type|Primary owner role|Priority|Dependency|Description|Acceptance criteria\n" + "\n".join(rows)
+len(backlog_text.splitlines())
+
+[ASSISTANT]
+"—" in backlog_text
+
+[ASSISTANT]
+Assumptions  
+
+- You want a single consolidated backlog you can paste into Excel, not multiple sheets.  
+- Tooling is something ClickUp or similar that supports Spaces, Folders, Lists, custom fields, automations, dashboards, goals and docs.  
+- Scope covers building the production system and artefacts, not ongoing BAU operations.  
+- This needs to be production grade for Couch Heroes, aligned with existing platform and MMO architecture work. fileciteturn0file2turn0file4turn0file5turn0file6turn0file7turn0file8  
+
+Plan  
+
+1. Break the work into areas: Handbook and playbook, Configured production framework, Roadmap and release templates, Risk register, Training materials, Cross cutting and adoption.  
+2. Within each area, define Epics then concrete tasks with clear owners, dependencies and acceptance criteria.  
+3. Output as an Excel friendly table using a simple pipe `|` separator so you can Text-to-Columns in Excel without delimiter conflicts.  
+
+Below is the backlog, ready to paste into Excel (use `|` as the delimiter).  
+
+```text
+ID|Area|Epic|Task title|Task type|Primary owner role|Priority|Dependency|Description|Acceptance criteria
+HBK-01|Handbook and playbook|Define production operating model|Clarify production goals and scope|Governance|Executive Producer|P1|None|Write a one page summary of production goals for Couch Heroes and how teams are expected to work together|Summary agreed by CEO CTO Game Director and shared in Slack
+HBK-02|Handbook and playbook|Define production operating model|Define production roles and responsibilities|Governance|Executive Producer|P1|HBK-01|List core roles such as Executive Producer Game Producer Project Manager discipline leads and define responsibilities and decision rights|RACI style table reviewed by leadership and no gaps or overlaps flagged
+HBK-03|Handbook and playbook|Author production handbook|Draft handbook table of contents|Content|Lead Producer|P1|HBK-01|Outline major sections such as ways of working ceremonies tools reporting risk and change control|Table of contents reviewed by EP and accepted as baseline
+HBK-04|Handbook and playbook|Author production handbook|Write handbook sections first draft|Content|Lead Producer|P1|HBK-03|Write full prose for each handbook section including examples and links to templates|Complete draft stored in source of truth folder with all sections present
+HBK-05|Handbook and playbook|Author production handbook|Internal review of handbook|Governance|Executive Producer|P1|HBK-04|Circulate handbook to leadership and discipline leads and record comments|All leadership have reviewed and comments are resolved or tracked
+HBK-06|Handbook and playbook|Author producer playbook|Identify key producer workflows|Analysis|Lead Producer|P1|HBK-01|List repeatable workflows such as planning sprint setup milestone readiness release preparation risk review and playtest planning|Workflow list documented and agreed by production team
+HBK-07|Handbook and playbook|Author producer playbook|Write producer playbook checklists|Content|Lead Producer|P1|HBK-06|Create short checklists for each workflow that a producer can follow step by step|Checklists stored in shared docs and walk through at least one real example
+HBK-08|Handbook and playbook|Publish and maintain handbook|Choose handbook storage and versioning|Tooling|Project Manager|P2|HBK-05|Decide where handbook will live such as ClickUp Docs Confluence or SharePoint and how versions are controlled|Location chosen with write and read access confirmed for all required staff
+HBK-09|Handbook and playbook|Publish and maintain handbook|Publish v1 handbook and playbook|Release|Executive Producer|P1|HBK-05|Publish signed off handbook and producer playbook and share announcement with studio|Announcement posted and links pinned in agreed channels
+HBK-10|Handbook and playbook|Publish and maintain handbook|Define handbook change process|Governance|Project Manager|P2|HBK-09|Define simple process for proposing reviewing and approving changes to handbook content|Change process written and added as appendix to handbook
+FRM-01|Configured production framework|Tool environment and structure|Confirm primary production tool stack|Tooling|Executive Producer|P1|None|Confirm which tools are used for tracking work such as ClickUp Jira Google Drive or other and capture in handbook|Tool stack list agreed and reflected in docs
+FRM-02|Configured production framework|Tool environment and structure|Design Space and Folder structure|Design|Lead Producer|P1|FRM-01|Define Spaces Folders and Lists for company project platform game verticals and support teams|Diagram of hierarchy approved by leadership and stored with configuration notes
+FRM-03|Configured production framework|Tool environment and structure|Create Spaces Folders and Lists in tool|Config|Tool Admin|P1|FRM-02|Implement agreed hierarchy in the production tool for live use and testing|Spaces and Lists visible to test users and match design diagram
+FRM-04|Configured production framework|Workflows fields and statuses|Define work item types|Design|Lead Producer|P1|FRM-01|List standard task types such as Feature Task Bug Tech Debt Spike and Support|Types agreed and documented in handbook
+FRM-05|Configured production framework|Workflows fields and statuses|Design status flows per item type|Design|Lead Producer|P1|FRM-04|Map clean status flows for each type such as Backlog Ready In Progress In Review Done and define rules|Status diagrams created and reviewed with team and QA
+FRM-06|Configured production framework|Workflows fields and statuses|Configure custom fields and field naming|Config|Tool Admin|P1|FRM-04|Create custom fields for priority risk size component platform release and ensure consistent naming|Fields created in tool and referenced in templates
+FRM-07|Configured production framework|Workflows fields and statuses|Implement workflows and statuses in tool|Config|Tool Admin|P1|FRM-05|Apply status flows to Lists and validate transitions and permissions for each role|Test tickets can move through each status without gaps or dead ends
+FRM-08|Configured production framework|Automations and rules|Identify useful automations|Analysis|Lead Producer|P2|FRM-05|Identify automation candidates such as auto assign on list entry status based notifications and SLA alerts|Short list of automations agreed with team and prioritised
+FRM-09|Configured production framework|Automations and rules|Configure automations in tool|Config|Tool Admin|P2|FRM-08|Set up automations in the production tool and test on sample data|Automations work as intended and do not generate noisy alerts
+FRM-10|Configured production framework|Dashboards Goals and Docs|Design core dashboards|Design|Executive Producer|P1|FRM-06|Define dashboard views for leadership producers and teams including key KPIs and filters|Dashboard wireframes created and signed off by stakeholders
+FRM-11|Configured production framework|Dashboards Goals and Docs|Build dashboards in tool|Config|Tool Admin|P1|FRM-10|Implement dashboards using fields filters and charts with sample data|Dashboards show expected metrics for a test project
+FRM-12|Configured production framework|Dashboards Goals and Docs|Configure Goals and OKR tracking|Config|Executive Producer|P2|FRM-06|Set up Goals or OKR features to link milestones KPIs and roadmap items to measurable targets|Goal objects exist with owners timeframes and example links to tasks
+FRM-13|Configured production framework|Dashboards Goals and Docs|Create standard Docs and templates in tool|Content|Project Manager|P1|HBK-04|Create Docs inside the tool for meeting notes decision logs and playbooks and connect them to relevant Lists|Templates are available from within the tool and tested by at least one team
+RDM-01|Roadmap and release templates|Roadmap design and levels|Define roadmap tiers|Design|Executive Producer|P1|HBK-01|Decide on portfolio product and feature level roadmaps and what each is used for|Roadmap tier definitions written and approved
+RDM-02|Roadmap and release templates|Roadmap design and levels|Choose roadmap time horizons|Design|Executive Producer|P2|RDM-01|Set planning horizons for near term three month mid term one year and long term three year views|Time horizons listed in handbook with example timelines
+RDM-03|Roadmap and release templates|Roadmap design and levels|Define roadmap governance cadence|Governance|Executive Producer|P2|RDM-01|Agree cadence for roadmap reviews and who attends such as monthly triage and quarterly planning|Cadence and attendees listed in meeting charter
+RDM-04|Roadmap and release templates|Release process and templates|Define release types and criteria|Design|Lead Producer|P1|HBK-01|List release types such as hotfix minor content drop and major milestone and define entry and exit criteria|Table of release types and criteria approved by engineering and QA
+RDM-05|Roadmap and release templates|Release process and templates|Create release plan template|Content|Project Manager|P1|RDM-04|Create standard document or task template covering scope owners timelines risks comms and backout plan|Template reviewed using a past release as example and updated
+RDM-06|Roadmap and release templates|Release process and templates|Create release calendar and views|Config|Project Manager|P2|RDM-04|Set up calendar or Gantt views that show upcoming releases across projects|Calendar view displays at least six months of planned releases
+RDM-07|Roadmap and release templates|Release process and templates|Create change log and versioning template|Content|Project Manager|P2|RDM-04|Define how versions are named and how change logs are published to partners and players|Template for change log exists and is linked from release plan template
+RDM-08|Roadmap and release templates|Release process and templates|Define dependency capture for roadmap and releases|Design|Lead Producer|P2|RDM-01|Define how inter team and external dependencies are recorded and tracked within roadmap items|Example roadmap items show filled in dependency fields and links
+RSK-01|Risk register|Risk framework design|Define risk categories and scales|Design|Executive Producer|P1|HBK-01|Define categories such as delivery people technical financial legal and reputation and choose impact and likelihood scales|Risk matrix drafted and agreed at leadership meeting
+RSK-02|Risk register|Risk framework design|Choose risk register location and owner|Governance|Executive Producer|P1|RSK-01|Decide whether the primary risk register lives in Excel production tool or Confluence and assign an owner|Location and named owner recorded in handbook
+RSK-03|Risk register|Risk framework design|Design risk register structure|Design|Project Manager|P1|RSK-01|Define fields such as ID description category impact likelihood score owner mitigation status and review date|Template designed and reviewed with EP and CFO
+RSK-04|Risk register|Risk framework design|Create risk register template|Config|Project Manager|P1|RSK-03|Build the register in the chosen tool or Excel with correct fields and filters|Template file or view available to leadership and linked from handbook
+RSK-05|Risk register|Risk framework design|Seed initial risks from current plans|Analysis|Executive Producer|P1|RSK-04|Populate initial risks based on current roadmap funding plan hiring and technical stack|At least twenty meaningful risks recorded with owners and mitigations
+RSK-06|Risk register|Risk framework design|Define risk review cadence and ceremony|Governance|Executive Producer|P2|RSK-04|Set a recurring risk review meeting and define agenda input sources and outputs|Recurring meeting created and added to leadership calendars
+RSK-07|Risk register|Risk framework design|Define risk reporting for board and investors|Governance|CFO|P2|RSK-03|Agree how top risks and trends are summarised for board packs and investor updates|Risk summary section template created and tested in one board pack
+TRN-01|Training materials|Training strategy and audience|Identify training audiences and needs|Analysis|Executive Producer|P1|HBK-09|List audiences such as producers discipline leads individual contributors and leadership and capture training needs|Training needs list reviewed with HR or people partner
+TRN-02|Training materials|Training strategy and audience|Define training outcomes and measures|Design|Executive Producer|P2|TRN-01|Define what success looks like for training such as faster onboarding lower variance in process and fewer blocked tasks|Outcomes documented with at least three measurable indicators
+TRN-03|Training materials|Create core training assets|Create quick start guide for producers|Content|Lead Producer|P1|HBK-07|Produce a short guide covering how producers use the tool framework dashboards and playbook in daily work|Guide reviewed by at least two producers and refined
+TRN-04|Training materials|Create core training assets|Create tool usage cheat sheets|Content|Tool Admin|P2|FRM-11|Create one page references for common tasks such as creating tickets updating statuses and using dashboards|Cheat sheets stored with version date and linked from handbook
+TRN-05|Training materials|Create core training assets|Record walkthrough videos for key flows|Content|Lead Producer|P2|FRM-11|Record short screen capture videos for workflows such as sprint planning roadmap update and release creation|Videos stored in shared drive or LMS and linked from docs
+TRN-06|Training materials|Create core training assets|Create onboarding path for new starters|Design|Project Manager|P2|TRN-03|Design a simple sequence of training steps and reading for new hires in production design engineering and art|Onboarding checklist created and piloted with at least one new or existing staff member
+TRN-07|Training materials|Create core training assets|Schedule first training sessions|Execution|Executive Producer|P1|TRN-03|Schedule and run initial training workshops and office hours for teams|At least two training sessions completed and attendance logged
+TRN-08|Training materials|Create core training assets|Gather feedback and refine materials|Analysis|Lead Producer|P2|TRN-07|Collect feedback via survey or retrospective and update materials based on issues found|Feedback summary created and next changes scheduled
+XFN-01|Cross cutting and adoption|Alignment and change management|Run production framework kickoff workshop|Execution|Executive Producer|P1|HBK-01|Hold a workshop with leads to walk through the new framework handbook and tooling|Workshop held and actions captured in decision log
+XFN-02|Cross cutting and adoption|Alignment and change management|Define adoption milestones and KPIs|Design|Executive Producer|P2|FRM-11|Set adoption targets such as percent of teams using standard workflows and dashboards by date|Adoption metrics added to leadership dashboard and tracked monthly
+XFN-03|Cross cutting and adoption|Alignment and change management|Migrate existing projects into new structure|Execution|Project Manager|P1|FRM-03|Map existing boards or spreadsheets into the new Space and List structure and migrate data carefully|At least one pilot project migrated and signed off then remaining projects scheduled
+XFN-04|Cross cutting and adoption|Alignment and change management|Update external documents to reference framework|Content|Project Manager|P2|HBK-09|Update SoWs pitch decks and investor materials to reference the new production framework where relevant|Key external documents reviewed and updated without contradictions
+XFN-05|Cross cutting and adoption|Alignment and change management|Set up regular continuous improvement loop|Governance|Executive Producer|P2|HBK-10|Create a recurring session where producers review what is working in the framework and propose updates|Recurring meeting scheduled and first session completed with follow up actions
+```
+
+Self audit  
+
+- Mapped the requested areas into concrete Epics and tasks with clear owners, dependencies and acceptance criteria.  
+- Output is a single Excel friendly table printed to screen with a consistent separator.  
+- No icons, no horizontal rules and no em dashes used.
+

@@ -1,0 +1,391 @@
+TITLE: PlaySage backlog plan
+DATE: 2025-12-09
+MESSAGES: 16
+ID: 69385193-a368-8325-8983-58fee15476d0
+---
+
+[USER]
+as an expert producer and master of playsage, designer of the software and product manger I need you to lay out a detailed ecpi, feature , story backlog where stories have sucess factors. 
+
+do not cut corners or truncate, 
+do not deviate or drift from the stated purpose. 
+do not guess or deviate
+Accuracy and detail are critical
+
+I need a fully laid out plan for playsage in excel format that matches the format of the attached picture (not the content just the format and headers) 
+1 epics = functions (foresight for example) 
+1.1 features = the capabilities of the tool 
+1.1.1 tasks = the work that need to be done to 
+
+
+
+[USER]
+you stopped
+
+[ASSISTANT]
+from PIL import Image, ImageOps, ImageFilter, ImageEnhance, ImageStat, ImageChops, ImageFont, ImageFilter
+img = Image.open('/mnt/data/78be0f55-8658-4ff1-8822-a52fb912dc57.png')
+display(img.crop((0,0,2047,240)))
+
+
+[ASSISTANT]
+display(img.crop((0,0,500,240)))
+
+
+[ASSISTANT]
+display(img.crop((1200,0,2047,240)))
+
+
+[ASSISTANT]
+import os, textwrap, sys, math, statistics, random
+
+[ASSISTANT]
+import zipfile, io, re, textwrap, json, os, math, statistics
+
+[ASSISTANT]
+os.listdir('/mnt/data')
+
+
+[ASSISTANT]
+def read_docx_text(path, max_chars=20000):
+    with zipfile.ZipFile(path) as z:
+        xml = z.read('word/document.xml').decode('utf-8')
+    # simple regex to drop tags
+    text = re.sub(r'</w:p>', '\n', xml)
+    text = re.sub(r'<.*?>', '', text)
+    text = re.sub(r'\n+', '\n', text)
+    if max_chars:
+        text = text[:max_chars]
+    return text
+
+print(read_docx_text('/mnt/data/playsage.docx', 4000))
+
+
+[ASSISTANT]
+print(read_docx_text('/mnt/data/playsage.docx', 20000)[:8000])
+
+
+[ASSISTANT]
+txt = read_docx_text('/mnt/data/playsage.docx', 20000)
+len(txt), txt[8000:16000]
+
+
+[ASSISTANT]
+print(read_docx_text('/mnt/data/Playsage qna 1.docx', 12000))
+
+
+[ASSISTANT]
+txt2 = read_docx_text('/mnt/data/Playsage qna 1.docx', 20000)
+print(txt2[4000:8000])
+
+
+[ASSISTANT]
+print(read_docx_text('/mnt/data/Investor demo feature plan.docx', 20000))
+
+
+[ASSISTANT]
+txt3 = read_docx_text('/mnt/data/Investor demo feature plan.docx', 20000)
+print(txt3[4000:8000])
+
+
+[ASSISTANT]
+import pandas as pd
+
+# Define the backlog structure as rows
+rows = []
+
+def add_row(priority, status, complete, epic_feature, task, description,
+            owner_handoff="", commit="", hours=""):
+    rows.append({
+        "Priority": priority,
+        "Status": status,
+        "% Complete": complete,
+        "Epics and Features": epic_feature,
+        "Tasks": task,
+        "Description": description,
+        "Owner Handoff": owner_handoff,
+        "Commit": commit,
+        "Hours": hours
+    })
+
+# Header rows to mirror the structure in the screenshot
+add_row("", "", "", "Playsage Product Backlog", "", "Description", "Owner Handoff", "Commit", "Hours")
+add_row("", "Planning", "0%", "Epics and Features", "Tasks", "Description / Success factors", "Owner Handoff", "Commit", "Hours")
+
+# Helper to add epic, feature, and story rows
+def add_epic(epic_name):
+    add_row("", "Planning", "0%", epic_name, "", "", "", "", "")
+
+def add_feature(epic_index, feature_index, feature_name):
+    label = f"{epic_index}.{feature_index}  {feature_name}"
+    add_row("", "Planning", "0%", label, "", "", "", "", "")
+
+def add_story(epic_index, feature_index, story_index, story_title, success_factors):
+    feature_ref = f"{epic_index}.{feature_index}.{story_index}"
+    task_label = f"{feature_ref}  {story_title}"
+    description = "Success factors: " + success_factors
+    add_row("", "Planning", "0%", "", task_label, description, "", "", "")
+
+# EPIC 1: Market Overview Dashboards
+epic_index = 1
+add_epic(f"{epic_index}. MARKET OVERVIEW DASHBOARDS")
+
+# Features under Epic 1
+# 1.1 Core overview layout and navigation
+feature_index = 1
+add_feature(epic_index, feature_index, "Core overview layout and navigation")
+add_story(epic_index, feature_index, 1,
+          "Default landing dashboard for key personas",
+          "Landing view loads in under 3 seconds on seeded dataset; shows DAU, revenue proxy, ARPDAU, and retention snapshot; 90% of test users can correctly identify the top three titles in their segment within 30 seconds.")
+add_story(epic_index, feature_index, 2,
+          "Persona-specific dashboard presets (Exec, Live-ops, Analyst)",
+          "Each persona can select a preset with appropriate KPIs and layout; presets can be saved and recalled; at least 80% of pilot users keep the default preset after first week of testing.")
+add_story(epic_index, feature_index, 3,
+          "Drill-through from top tiles to detail views",
+          "Clicking any KPI or tile opens a consistent detail view with filters preserved; navigation back returns to the prior scroll position; no broken drill-through links in test walkthrough.")
+
+# 1.2 Filters and segmentation
+feature_index = 2
+add_feature(epic_index, feature_index, "Filters and segmentation")
+add_story(epic_index, feature_index, 1,
+          "Global filters for genre, platform, country, and time window",
+          "Filters appear consistently on all dashboard views; changes apply within 2 seconds on seeded data; exports and saved views honour active filters.")
+add_story(epic_index, feature_index, 2,
+          "Segmentation by portfolio / custom lists",
+          "Users can define and edit custom lists of titles; all dashboards can toggle between 'Market' and 'My portfolio'; no orphaned or duplicate list entries on save.")
+add_story(epic_index, feature_index, 3,
+          "Filter state persistence and reset",
+          "Filter state persists across navigation during a session; there is a visible 'reset filters' control; QA verifies no stale filter bugs across at least 20 navigation paths.")
+
+# 1.3 Saved views and exports
+feature_index = 3
+add_feature(epic_index, feature_index, "Saved views and exports")
+add_story(epic_index, feature_index, 1,
+          "Save and recall named dashboard views",
+          "Users can save a configuration of filters and layout under a name; saved views are accessible from a menu; at least 10 views can be stored per user without performance degradation.")
+add_story(epic_index, feature_index, 2,
+          "CSV export of current view",
+          "CSV export reflects visible data and active filters; export completes in under 5 seconds on seeded data; exported file opens cleanly in Excel without manual cleanup.")
+add_story(epic_index, feature_index, 3,
+          "One-click PDF export with branding",
+          "PDF export includes Playsage branding and timestamp; visuals match on-screen charts; investors can read all labels and axes on A4 printouts.")
+
+# EPIC 2: Competitive Landscape
+epic_index = 2
+add_epic(f"{epic_index}. COMPETITIVE LANDSCAPE")
+
+# 2.1 Title catalog and metadata
+feature_index = 1
+add_feature(epic_index, feature_index, "Title catalog and metadata")
+add_story(epic_index, feature_index, 1,
+          "Seeded catalog of 50–100 games across target genres",
+          "Catalog includes title, publisher, platform, genre, and region tags; coverage matches the investor demo spec; no duplicate title identities in the UI.")
+add_story(epic_index, feature_index, 2,
+          "Metadata ingestion and refresh jobs",
+          "Daily jobs populate ranks, ratings, and update timestamps; failures are logged with alerts; no stale data older than 48 hours in demo environment.")
+add_story(epic_index, feature_index, 3,
+          "Search and filter within catalog",
+          "Users can search by title and filter by publisher and genre; results return in under 2 seconds on seeded data; fuzzy search correctly resolves at least 90% of tested misspellings.")
+
+# 2.2 Competitor comparison
+feature_index = 2
+add_feature(epic_index, feature_index, "Competitor comparison")
+add_story(epic_index, feature_index, 1,
+          "Side-by-side comparison view for two titles",
+          "Users can select any two titles from catalog; KPIs and key attributes align in a columnar comparison; QA confirms correct mapping for at least 20 title pairs.")
+add_story(epic_index, feature_index, 2,
+          "Multi-metric KPI comparison chart",
+          "Chart plots DAU, revenue proxy, ARPDAU, and retention for both titles; legends are legible; investors can visually see which title leads each KPI in under 10 seconds.")
+add_story(epic_index, feature_index, 3,
+          "Save competitor comparison scenarios",
+          "Users can save a named pair comparison for later recall; saved pairs appear in 'My watchlist'; at least 5 saved pairs per user without performance issues.")
+
+# 2.3 Feature diff and USP mapping
+feature_index = 3
+add_feature(epic_index, feature_index, "Feature diff and USP mapping")
+add_story(epic_index, feature_index, 1,
+          "Feature taxonomy for core mechanics and monetisation",
+          "Taxonomy covers at least 20 common mechanics and monetisation patterns; tagging is consistent across catalog; glossary is visible in the UI.")
+add_story(epic_index, feature_index, 2,
+          "Visual diff of features between two titles",
+          "Comparison view highlights which features each title has; unique features are clearly marked; QA tests at least 10 pairs for accurate tagging.")
+add_story(epic_index, feature_index, 3,
+          "USP callouts and notes",
+          "UI supports adding short free-text notes on unique strengths; notes can be exported with competitor comparison; no data loss of notes between sessions.")
+
+# EPIC 3: Sentiment and Review Intelligence
+epic_index = 3
+add_epic(f"{epic_index}. SENTIMENT AND REVIEW INTELLIGENCE")
+
+# 3.1 Review ingestion and storage
+feature_index = 1
+add_feature(epic_index, feature_index, "Review ingestion and storage")
+add_story(epic_index, feature_index, 1,
+          "Pipelines to ingest reviews from stores",
+          "Pipelines pull reviews from iOS, Android, and Steam for seeded titles; ingestion jobs are logged; less than 1% of reviews are malformed or lost in QA sampling.")
+add_story(epic_index, feature_index, 2,
+          "Unified review schema",
+          "All reviews stored with title, platform, locale, rating, version, and timestamp; schema supports extensions; queries across platforms behave consistently.")
+add_story(epic_index, feature_index, 3,
+          "Basic PII filters and safety controls",
+          "Simple rules strip obvious emails and phone numbers from stored text; flagged reviews are hidden from verbatim browser; safety checks documented.")
+
+# 3.2 Topic modelling and tags
+feature_index = 2
+add_feature(epic_index, feature_index, "Topic modelling and tags")
+add_story(epic_index, feature_index, 1,
+          "Topic model to cluster reviews into themes",
+          "Model groups reviews into at least 10 coherent themes per game; manual spot checks on 50 samples show majority topic matches are sensible to a human reviewer.")
+add_story(epic_index, feature_index, 2,
+          "Intent tagging (bug, balance, UX, value, delight)",
+          "Each review is tagged with high-level intent; confusion rate between categories is below 20% on labelled test set; UI exposes filter by intent.")
+add_story(epic_index, feature_index, 3,
+          "Theme-level trend charting",
+          "Charts show volume and sentiment by theme over time; Live-ops users can identify top three complaint themes for a title in under 30 seconds.")
+
+# 3.3 Sentiment time series and verbatim browser
+feature_index = 3
+add_feature(epic_index, feature_index, "Sentiment time series and verbatim browser")
+add_story(epic_index, feature_index, 1,
+          "Sentiment score per review and daily aggregation",
+          "Daily sentiment metrics can be computed per title; historical charts load under 3 seconds on 6 months of data; sentiment aligns broadly with store ratings.")
+add_story(epic_index, feature_index, 2,
+          "Verbatim browser filtered by platform, locale, version, and theme",
+          "Browser supports filters matching demo spec; pagination is smooth; no duplicate or missing reviews across pages in QA tests.")
+add_story(epic_index, feature_index, 3,
+          "Post-update sentiment comparison",
+          "UI shows sentiment before and after specific updates; Live-ops users can see whether a release improved or worsened sentiment within 10 seconds.")
+
+# EPIC 4: Foresight Forecasting
+epic_index = 4
+add_epic(f"{epic_index}. FORESIGHT FORECASTING")
+
+# 4.1 Forecast engine
+feature_index = 1
+add_feature(epic_index, feature_index, "Forecast engine")
+add_story(epic_index, feature_index, 1,
+          "Time-series forecasting for DAU and revenue proxy",
+          "Model produces 90-day forecasts per title with daily granularity; backtest MAE is documented on a held-out window; investors see forecast ribbon and error bands in the UI.")
+add_story(epic_index, feature_index, 2,
+          "Configurable forecast horizons and granularity",
+          "Users can choose 30, 60, or 90-day horizons; UI allows switching between daily and weekly views; chart updates within 3 seconds on seeded data.")
+add_story(epic_index, feature_index, 3,
+          "Forecast quality monitoring",
+          "Backtest metrics (MAPE/MAE) are stored and visible; there is a threshold for 'poor' forecasts; developers receive alerts when error exceeds threshold for a title.")
+
+# 4.2 Scenario sandbox
+feature_index = 2
+add_feature(epic_index, feature_index, "Scenario sandbox")
+add_story(epic_index, feature_index, 1,
+          "Scenario toggles for cadence, pricing, and events",
+          "UI allows users to tweak update cadence, price points, and event schedules; scenarios recompute impact estimates; response time under 5 seconds for single-title scenarios.")
+add_story(epic_index, feature_index, 2,
+          "Save and compare forecast scenarios",
+          "Users can save multiple scenarios for a title; comparison view shows base vs scenario forecasts; exports include scenario assumptions.")
+add_story(epic_index, feature_index, 3,
+          "Scenario audit trail",
+          "Each saved scenario keeps a record of who created it and when; changes to assumptions are logged; QA confirms audit logs for at least 20 scenarios.")
+
+# 4.3 Backtests and driver cards
+feature_index = 3
+add_feature(epic_index, feature_index, "Backtests and driver cards")
+add_story(epic_index, feature_index, 1,
+          "Backtest view overlayed on actual history",
+          "UI can overlay backtest predictions on historical data; error bands are legible; investors can visually inspect forecast accuracy for at least one flagship title.")
+add_story(epic_index, feature_index, 2,
+          "Driver cards explaining key signals",
+          "Cards list top contributing signals (ranks, updates, sentiment, etc.); driver ordering is intuitive; at least 80% of pilot users say drivers help them trust the forecast.")
+add_story(epic_index, feature_index, 3,
+          "Link from driver cards to evidence views",
+          "Clicking any driver opens the relevant dashboard (e.g., sentiment theme, rank history); navigation preserves filters; no dead ends in demo walkthrough.")
+
+# EPIC 5: Market Watch and Release Calendar
+epic_index = 5
+add_epic(f"{epic_index}. MARKET WATCH AND RELEASE CALENDAR")
+
+# 5.1 Release history timeline
+feature_index = 1
+add_feature(epic_index, feature_index, "Release history timeline")
+add_story(epic_index, feature_index, 1,
+          "Historical releases view by month and genre",
+          "Timeline chart shows launches by month for at least 2 years; genre filters function; performance is acceptable on seeded data.")
+add_story(epic_index, feature_index, 2,
+          "Overlay major content updates on timeline",
+          "Updates are distinguishable from first launches; hovering shows title, update type, and date; QA confirms no mismatched events.")
+add_story(epic_index, feature_index, 3,
+          "Exportable release history",
+          "Users can export selected range as CSV; dataset opens cleanly and matches on-screen filters.")
+
+# 5.2 Future launch calendar and collision detection
+feature_index = 2
+add_feature(epic_index, feature_index, "Future launch calendar and collision detection")
+add_story(epic_index, feature_index, 1,
+          "Calendar view of upcoming releases with filters",
+          "Calendar supports month and quarter views; filters for genre, platform, and region work; investors can quickly see crowded windows.")
+add_story(epic_index, feature_index, 2,
+          "Collision scoring for crowded launch windows",
+          "Algorithm labels periods as low, medium, or high crowding; scores visible in UI; example crowded windows match human expectations in QA review.")
+add_story(epic_index, feature_index, 3,
+          "Advisory launch window suggestions",
+          "System suggests alternative ranges for a hypothetical launch; tooltips explain rationale; Live-ops or PM users can articulate why a suggested window is safer.")
+
+# 5.3 Watchlists and reminders
+feature_index = 3
+add_feature(epic_index, feature_index, "Watchlists and reminders")
+add_story(epic_index, feature_index, 1,
+          "Create and manage watchlists for titles and studios",
+          "Users can add/remove titles and studios from watchlists; changes reflect instantly in Market Watch views; no orphaned watchlist entries.")
+add_story(epic_index, feature_index, 2,
+          "Email or feed-based reminders for tracked items",
+          "Notifications fire when tracked titles approach launch or major updates; at least one notification path is demonstrated live in investor demo.")
+add_story(epic_index, feature_index, 3,
+          "Watchlist integration with dashboards",
+          "Dashboards can filter to 'My watchlist'; filter state is remembered; export includes a flag for whether a title is on the user's watchlist.")
+
+# EPIC 6: Microtransactions and IAP Pricing Index
+epic_index = 6
+add_epic(f"{epic_index}. MICROTRANSACTIONS AND IAP PRICING INDEX")
+
+# 6.1 IAP catalog and feature detection
+feature_index = 1
+add_feature(epic_index, feature_index, "IAP catalog and feature detection")
+add_story(epic_index, feature_index, 1,
+          "Schema for IAP items across games",
+          "Schema captures price, currency, item type, and purchase modality; supports bundles and time-limited offers; at least 3 games per genre fully catalogued for demo.")
+add_story(epic_index, feature_index, 2,
+          "Detection of monetisation signatures",
+          "Detection heuristics correctly identify battle passes, gachas, rotating shops, and subscriptions on labelled examples; false positive rate documented.")
+add_story(epic_index, feature_index, 3,
+          "IAP data ingestion pipelines",
+          "Pipelines pull and update IAP data at least weekly; failures are logged; no demo titles have IAP data older than 14 days.")
+
+# 6.2 Pricing index and benchmarks
+feature_index = 2
+add_feature(epic_index, feature_index, "Pricing index and benchmarks")
+add_story(epic_index, feature_index, 1,
+          "Cross-title pricing index by genre and platform",
+          "Index allows users to see common price points and step-ups; charts render in under 3 seconds; index values match sampled ground truth within agreed tolerance.")
+add_story(epic_index, feature_index, 2,
+          "Comparable basket view",
+          "Users can build a basket of IAP items and compare effective pricing across titles; exports include per-item and basket totals.")
+add_story(epic_index, feature_index, 3,
+          "Highlight outlier pricing patterns",
+          "System flags unusually cheap or expensive price points; flagged items are reviewable; at least 3 meaningful outliers surface in seeded dataset.")
+
+# 6.3 Economy patterns and diagnostics
+feature_index = 3
+add_feature(epic_index, feature_index, "Economy patterns and diagnostics")
+add_story(epic_index, feature_index, 1,
+          "Detection of grind, scarcity, and generosity patterns",
+          "Heuristics highlight titles with heavy grind or generous gifting; examples align with expert human judgement on test set.")
+add_story(epic_index, feature_index, 2,
+          "Economy health summary tile",
+          "Tile summarises pricing breadth, progression friction, and perceived fairness; Live-ops users can quickly identify which games merit deeper economy review.")
+add_story(epic_index, feature_index, 3,
+          "Link diagnostics to The Sage actions",
+          "Economy issues feed into recommendations; at least one demo action in The Sage references economy diagnostics as evidence.")
+
+# EPIC 7: The Sage (Recommendations and Next-best Actions)
+epic_index = 7
+add_epic(f"{epic_index}. THE SAGE (RECOMMENDATIONS)")
+

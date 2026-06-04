@@ -1,0 +1,183 @@
+TITLE: Game Investment Services Categorization
+DATE: 2025-07-10
+MESSAGES: 4
+ID: 68703254-3d44-800b-a524-eb3b338893af
+---
+
+[USER]
+ As an expert at building services for consulting companies and an expert in advising investors, look at the attached picture and read all of the services that we would provide for a video game investment and take them and categorize them into specific categories that would fit to the games industry and line them to a service for investors that they would pay for for us to do this work to ensure confidence in their investment.
+
+[ASSISTANT]
+Below is a streamlined **“menu” of investor-grade diligence packages** that groups every line-item from your spreadsheet into the questions investors most commonly need answered before—and after—they wire money into a game studio.  Each package can be sold à-la-carte or bundled as a staged end-to-end engagement (e.g., Pre-Investment ► Pre-Launch ► Post-Launch monitoring).
+
+| # | Investor Question We Answer | Core Work-Products you listed (representative bullets) | NBI Service Offering (what appears on the SOW) | Typical Timing |
+|---|-----------------------------|--------------------------------------------------------|------------------------------------------------|----------------|
+| **1** | **How big is the opportunity and where is it hiding?** | • TAM/SAM model & scenario workbook<br>• Comparable-title benchmarks<br>• “Know segments”, reachable-segment analysis | **Market & Commercial Due-Diligence (“TAM Assessment”)** – quantifies realistic audience ceiling, platform mix and revenue headroom | Pre-Investment / Portfolio reviews |
+| **2** | **Will the core loop win and keep the right players?** | • Game-loop playability & fun tests<br>• FTUE & retention scorecards<br>• “Is product engaging/fun/playable?” | **Product & Design Audit** – deep-dive on moment-to-moment fun, balance, usability vs. top competitors | Pre-Investment or Post-Close improvement |
+| **3** | **Are funnel, spend & P&L assumptions plausible?** | • Re-built forecast model & sensitivity tables<br>• Burn-rate vs. runway check<br>• CAC model | **Forecast & Financial Model Validation** – pressure-tests unit economics, scenario risk and cash-out date | Pre-Investment & Board reviews |
+| **4** | **Can the studio actually ship on time & on budget?** | • Risk register, revised Gantt, 100-day recovery plan<br>• Milestone/gate adherence, scope-creep review<br>• Staff capability matrix | **Production & Project-Risk Audit** – surfaces execution bottlenecks and staffing gaps | Pre-Investment and Turn-arounds |
+| **5** | **Is the tech & content pipeline fit for continuous operation?** | • Readiness scorecard, event-cadence roadmap<br>• Five-year content pipeline plan<br>• CI/CD & telemetry readiness | **Live-Ops & Tech Readiness Review** – confirms ability to run, patch and expand a live service | Late Dev → Post-Release |
+| **6** | **Does the studio capture & act on the right KPIs?** | • Telemetry schema & maturity matrix<br>• Analytics roadmap & dashboards<br>• KPI governance playbook | **Data & Analytics Culture Assessment** – evaluates data stack, decision loops & reporting | Any stage; ideal before Beta |
+| **7** | **Will the economy maximise revenue without harming retention?** | • Economy review & price-test plan<br>• IAP / premium pricing model<br>• Event & lever planning | **Monetisation Strategy Audit** – optimises pricing, sinks/sources & player LTV drivers | Pre-Launch or Live-Ops optimisation |
+| **8** | **Will marketing actually hit install & cost targets?** | • Channel plan & creative-test backlog<br>• Brand presence & influencer strategy<br>• CRM campaign stack | **Marketing & UA Stress-Test** – de-risks go-to-market spend, CAC and ROAS | Pre-Launch planning |
+| **9** | **Can the team handle sentiment, tickets & moderation at scale?** | • Ops playbook & staffing model<br>• Community tooling review<br>• Support KPI dashboard spec | **Community & Support Readiness Audit** – gauges post-launch player care capability | Pre-Launch & Live Service |
+| **10** | **Is the organisation built to last?** | • Org-health diagnostics (info flow, culture, decision rights, governance, IP & GDPR checks)<br>• Leadership & project-management review | **Organisational Health & Governance Review** – ensures studio structure, processes & compliance support long-term growth | Any stage; often alongside #4 & #6 |
+
+### How to Sell It
+
+* **Modular pricing:** each audit is a fixed-fee work-package with a clear deliverable (scorecard, risk matrix, benchmark report, recovery roadmap).  
+* **Staged engagements:** investors typically start with Packages 1-4 for term-sheet diligence, then fund Packages 5-9 once they lead the round or join the board.  
+* **Ongoing monitoring retainer:** turn the scorecards into quarterly portfolio “pulse checks” so investors see variance early and can intervene.
+
+### Why Investors Pay
+
+1. **Risk compression:** Independent, domain-expert verification shrinks valuation haircuts and equity buffers.  
+2. **Faster go/no-go:** Our packaged scorecards map directly to investment IC rubrics, eliminating back-and-forth.  
+3. **Post-close value creation:** Actionable 100-day plans, live-ops roadmaps and KPI dashboards allow investors to track progress against the same metrics used in diligence.
+
+Use this framework in proposals and pitch decks—the language (“Assessment,” “Audit,” “Readiness Review”) mirrors private-equity and venture capital lexicon while clearly linking every spreadsheet line-item to a service investors instinctively recognise and are willing to fund.
+
+[USER]
+thats not at all waht I asked for
+
+[ASSISTANT]
+Below is a **line-by-line remap of every spreadsheet item** into 11 investor-ready diligence work-streams that are familiar to games-industry LPs, VCs and strategics.  
+For each work-stream you’ll see:  
+
+* **Investor-facing Service Name** – the label that shows up in proposals/SOWs  
+* **Purpose** – the confidence lever it gives the capital partner  
+* **Mapped Tasks (verbatim from the image)** – the exact artefacts or questions we will tackle  
+
+---
+
+### 1 Market Feasibility Assessment  
+*Purpose – “How big is the prize and who can we really reach?”*  
+
+- **TAM/SAM model, comparable title benchmarks, scenario workbook**  
+- Know segments  
+- Addressable market but do they understand subjective operational market (who you can actually get)  
+- Are you focusing on operational/reachable segments throughout  
+- How crowded is the genre  
+- Clear brand presence  
+- Economic landscape  
+
+---
+
+### 2 Product Fun & Retention Audit  
+*Purpose – “Will players stick around and recommend the game?”*  
+
+- Issue matrix, priority fix list, annotated clip library  
+- Is the product engaging/fun/playable  
+- Is the game structured for continued engagement and revenue  
+- How many hours  
+- Does it work  
+- Clear game identity, alignment top to bottom  
+- Player engagement strategy  
+- Design quality review  
+
+---
+
+### 3 Economy & Monetisation Strategy Review  
+*Purpose – “Is the in-game economy sound and commercially optimised?”*  
+
+- Economy review, price tests, monetisation features backlog  
+- If (live) is it based on a sound economy  
+- Will it scale (multiplayer) in fiscally appropriate manner  
+
+---
+
+### 4 Financial Model & Runway Validation  
+*Purpose – “Do the numbers add up and is the studio financed to finish?”*  
+
+- Re-built forecast model, sensitivity table, commentary  
+- Burn rate or opex ➜ runway… long enough?  
+- Overall business model  
+- Contracts – percentage of revenue for other investors  
+- Investor/other investor contract requirements and terms  
+
+---
+
+### 5 Production Plan & Delivery Risk Audit  
+*Purpose – “Can they actually ship when they say they will?”*  
+
+- Risk register, revised Gantt, 100-day recovery plan  
+- Five-year content pipeline plan  
+- Strong project management method  
+- Standardised nomenclature for product and project elements  
+- Op & tracking systems  
+- Accuracy of planned opex per milestone  
+- Anticipated timing of launch  
+- Minimal scope creep  
+- Gate/milestone structure and adherence  
+- Clear systems quality review  
+
+---
+
+### 6 Live-Ops & Content Readiness Assessment  
+*Purpose – “Can the team run a stable, evergreen live service?”*  
+
+- Readiness scorecard, event cadence roadmap, capex roadmap  
+- Will it scale (multiplayer)… _(in live-ops context)_  
+- Five-year content pipeline plan _(cross-links with Production)_  
+
+---
+
+### 7 Data-Pipeline & KPI Capability Review  
+*Purpose – “Will decisions be driven by the right telemetry?”*  
+
+- Telemetry schema, map, maturity matrix, analytics roadmap  
+- KPI dashboard specification  
+
+---
+
+### 8 Go-to-Market & UA Stress-Test  
+*Purpose – “Can they acquire, convert and retain users at target CAC/ROAS?”*  
+
+- Channel plan, CAC model, creative test backlog  
+- Social build-up / influencers / ad buy  
+- CRM campaign toolset and strategy  
+
+---
+
+### 9 Community & Player-Support Readiness  
+*Purpose – “Will sentiment, tickets and moderation be handled at scale?”*  
+
+- Ops playbook, staffing model, KPI dashboard spec _(support focus)_  
+
+---
+
+### 10 Organisational Health & Governance Due-Diligence  
+*Purpose – “Is the studio culture, structure and leadership fit for growth?”*  
+
+- Job fit for key roles  
+- Relevant past performance / experience levels of staff distribution  
+- Communication health  
+- Information flow  
+- Employee satisfaction  
+- Collaborative versus dictatorial culture  
+- Cross-functional cooperation degree  
+- Strength of internal communications  
+- Territorialism & parochialism / imbalanced empowerment  
+- Vulnerability to insular thinking  
+- Healthy conflict management  
+- Decision rights and hierarchy  
+- How is failure/problems handled? People or process?  
+
+---
+
+### 11 Legal, Compliance & IP Risk Review  
+*Purpose – “Any hidden liabilities that could sink ROI later?”*  
+
+- GDPR / PII compliant  
+- Copyright / trademark / IP checked / protected  
+
+---
+
+#### How to use this grid  
+
+1. **Proposal builder:** each numbered block becomes a fixed-fee work-stream in your statement of work.  
+2. **Scoping:** internal tasks stay in our PM software; investors only see the top-line service name and purpose.  
+3. **Bundling:** early-stage checks usually combine 1 + 2 + 4 + 5, while growth rounds add 6–9; 10–11 often run in parallel.  
+
+This explicit mapping keeps every spreadsheet item alive while translating it into language investors recognise—and are comfortable paying for—to build conviction in a games-studio deal.
+

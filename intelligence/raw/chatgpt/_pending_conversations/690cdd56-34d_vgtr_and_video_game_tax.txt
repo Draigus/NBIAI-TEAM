@@ -1,0 +1,51 @@
+TITLE: VGTR and video game tax
+DATE: 2025-11-06
+MESSAGES: 8
+ID: 690cdd56-34dc-832a-96fa-721403689a42
+---
+
+[USER]
+what is VGTR in the uk as it related to taxes on video game delivepment
+
+[ASSISTANT]
+**VGTR** is the UK’s **Video Games Tax Relief**. It was a corporation tax relief for qualifying game development that let a UK video games development company either reduce taxable profit or, if loss-making, receive a cash credit.
+
+**How VGTR worked (headline rules)**  
+- You needed **BFI certification** that the game was “British” by passing the cultural test. citeturn2view0turn4view0  
+- The company had to be responsible for design, production and testing, and spend **at least 25% of core costs** in the UK or EEA. citeturn2view0  
+- You could claim an **additional deduction** equal to the lower of 80% of total core costs or the UK+EEA core costs. If loss-making, you could **surrender the loss for a payable credit at 25%**. citeturn2view0
+
+**Status now**  
+VGTR is being phased out and replaced by the **Video Games Expenditure Credit (VGEC)**.  
+- New productions must use **VGEC from 1 April 2025**, and **all** productions must be on the new system from **1 April 2027**. citeturn1view0  
+- Under VGEC, you claim a **34% above-the-line credit** on qualifying spend, calculated on the lower of 80% of total core costs or **UK** core costs. The credit is taxable at the main Corporation Tax rate. Minimum **10% UK** core spend applies. citeturn3view0turn1view0
+
+If you want, I can map your project to the current rules and estimate the VGEC benefit versus the old VGTR for your budget.
+
+[USER]
+how much work needs to be done int he uk
+
+[ASSISTANT]
+Short answer:
+
+- **VGEC** (the current regime): at least **10% of core costs** must relate to **activities in the UK**. Core costs are design, production and testing. citeturn1view0  
+- **VGTR** (only for projects that started production by 31 March 2025 and still within transition): at least **25% of core costs** must be spent in the **UK or EEA**. citeturn3view0
+
+Practical note: under VGEC you calculate the credit on the **lower of 80% of total core costs or your UK core costs**, so the more qualifying work you place in the UK, the larger the claimable base. citeturn1view0
+
+If you tell me which scheme your project is on and your current UK vs non-UK split, I can estimate the claimable amount.
+
+[USER]
+what is EEA
+
+[ASSISTANT]
+EEA means the **European Economic Area**. It combines all **EU countries** with **Iceland, Liechtenstein, and Norway** into a single market for goods, services, people, and capital.  
+Notes for your tax context: the **UK is not in the EEA**, and **Switzerland is not EEA** either. Under the old VGTR rules, “EEA spend” meant costs on work done in any EU country or in Iceland, Liechtenstein, or Norway.
+
+[USER]
+isd ukrain in the EEA
+
+[ASSISTANT]
+No. Ukraine is **not** in the EEA.  
+The EEA comprises the EU member states plus Iceland, Liechtenstein and Norway. Ukraine is an EU candidate country, not an EU or EEA member. citeturn0search7turn0search10
+

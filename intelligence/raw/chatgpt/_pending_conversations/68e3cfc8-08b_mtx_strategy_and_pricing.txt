@@ -1,0 +1,283 @@
+TITLE: MTX strategy and pricing
+DATE: 2025-10-06
+MESSAGES: 4
+ID: 68e3cfc8-08b0-832a-b88c-49aa59ad3bbc
+---
+
+[USER]
+Frame this into a request for work and a set of steps to compelte so we can build out a sow
+
+Hey, this is a summary of Play Goals and Jonas. They want a strategic overview of their microtransaction system. He comes out of King as a background, so he's fairly knowledgeable, but they are concerned that they're not properly oriented. The studio is launching a football game, competitive football. They're not directly trying to compete with FIFA. They're doing some different things. They are going on to console and PC, specifically Steam and later mobile. They are going to release before the World Cup. No one in the team has done MTX on console, for example. They're primarily selling skins and cosmetics, so player skins in bundles and packs. They're looking for somebody with experience building up microtransactions. They're going to do a primary store with no Battle Pass. They are going to go on Game Pass for Xbox and PlayStation, but their monetization model is going to be pure store. They are going to do a first-party store offering of hard currency, so Xbox and PlayStation will have hard currency packs to sell. They are going to do an internal game store with content releases of the skins and cosmetics. The skins will be attribute-based, but they will be plus-minus attribute-based, which means you'll run faster but be less accurate in your shot or you're more accurate in shot but run slower, so they're going to be offset attribution, which is a little dicey. They very much want to optimize first-time purchase. They want to make sure their pricing is correct by platform so that we would need to build price indexes for their item types in their genre on platforms. That means a lot of manual research unless we can get it in data. It means that we are providing them back pricing targets or pricing ranges that they would target within for reasonable performance. It also means we need to build up a bit of a framework for the team to be able to tune for elasticity post-engagement. I told him it'd be about a week to get understanding of the studio and the game, about a week to research, and one to two weeks to build out frameworks and solution paths and pricing points. He also wants some feedback on where we would expect him to see sentiment polarization because they are putting attribution into MTX items. They're working very hard to be... He's convinced they're not pay-to-win, so we'll see once we dig into it. We need to frame up a statement of work for that. So, yeah, that's the gist.
+
+[ASSISTANT]
+Quick check first: am I speaking with Heather or Glen?
+
+# Request for Work: MTX Strategy and Pricing Framework for Play Goals
+
+## Objective
+Provide Play Goals and Jonas with a decision-grade strategy for a pure-store monetisation model for a competitive football game on Xbox, PlayStation, and Steam, releasing before the World Cup, with later mobile. Focus on pricing, first-time purchase optimisation, platform-specific price ladders, elasticity tuning, sentiment risk for attribute-offset cosmetics, and a practical operating framework the team can run post-engagement.
+
+## Background (from client brief)
+- Platform plan: Xbox, PlayStation, Steam at launch, mobile later. Game Pass participation on console.  
+- Store model: No Battle Pass. Pure store. First-party hard currency packs and an in-game store.  
+- Catalogue: Skins and cosmetics. Skins include plus-minus attribute offsets.  
+- Goals: Nail first purchase, set correct price points per platform, index against market comparators, and enable post-launch tuning for price elasticity.  
+- Constraint: Team is new to console MTX. Desire to avoid pay-to-win while using attribute offsets.
+
+## Scope of Work
+1. **Discovery and Alignment**
+   - Product, audience, and mode analysis. Content plan and Live Ops cadence expectations.  
+   - Audit of SKU plan, rarity, bundles, and release calendar.
+
+2. **Market and Price Indexing**
+   - Competitive and adjacent benchmarking by platform and region for hard currency packs, cosmetics, bundles, and value density.  
+   - Build price index ranges and platform-specific ladders tied to item archetypes.
+
+3. **Store Architecture and Currency Design**
+   - Hard currency SKU design for Xbox, PlayStation, and Steam.  
+   - In-game store layout, value ladders, anchor SKUs, first purchase offers, attach tactics.
+
+4. **Attribute-Offset Policy and Balance Guardrails**
+   - Define allowed attribute variance for cosmetics.  
+   - Create fairness boundaries, disclosure rules, and audit checks to avoid pay-to-win perception.
+
+5. **Elasticity and Experimentation Framework**
+   - Price tests, offer sequencing, limited-time events, and A/B governance.  
+   - Elasticity estimation method and roll-out criteria per platform.
+
+6. **Sentiment and Risk Management**
+   - Sentiment polarisation map for attribute-offset items.  
+   - Crisis triggers, messaging templates, and rollback plan.
+
+7. **KPI and Telemetry Specification**
+   - First-time purchase funnel metrics, attach rates, price sensitivity markers.  
+   - Dashboard definitions and weekly operating rhythm.
+
+8. **Delivery Kit**
+   - Price ladders and targets by platform, item type, and bundle.  
+   - Store playbook, test plan, governance checklist, and go-to-market recommendations for the pre-World Cup window.
+
+## Deliverables
+- **MTX Strategy Deck** with decisions, rationale, and platform specifics.  
+- **Price Index Workbook** with comparator data, ranges, and ladders by platform and region.  
+- **Store Playbook** covering currency packs, offers, bundles, first-purchase design, release calendar patterns.  
+- **Attribute-Offset Policy** with balance guardrails and examples.  
+- **Elasticity Test Plan** and experimentation runbook.  
+- **Sentiment Risk Brief** with polarisation hotspots and comms guidance.  
+- **KPI and Telemetry Spec** with dashboard mock and weekly operating cadence.
+
+## Workplan and Steps to complete the SoW
+1. **Kickoff and Inputs (Day 0 to 2)**
+   - Confirm objectives, constraints, and success criteria.  
+   - Collect design docs, SKU lists, early art, modes, and Live Ops intentions.
+
+2. **Discovery Deep Dive (Week 1)**
+   - Product and audience walkthrough.  
+   - Audit proposed catalogue, rarity, plus-minus rules, and store vision.  
+   - Identify platform policy touchpoints to validate.
+
+3. **Market and Pricing Research (Week 2)**
+   - Build platform-specific price indices for relevant item archetypes.  
+   - Define pricing targets and ranges per platform and region.  
+   - Draft hard currency pack ladders and reference value benchmarks.
+
+4. **Framework Build (Week 3 to 4)**
+   - Store architecture and first-purchase design.  
+   - Attribute-offset policy and fairness guardrails.  
+   - Elasticity model, test design, and rollout criteria.  
+   - Sentiment polarisation map and comms playbook.  
+   - KPI and telemetry specification.
+
+5. **Review and Finalisation**
+   - Walkthrough with stakeholder Q&A.  
+   - Apply changes, lock deliverables, and hand over the operating kit.
+
+## Inputs and Access Required
+- Game overview, modes, and progression model.  
+- Current item taxonomy, rarity scheme, bundle plan, and content pipeline.  
+- Regions and planned price tiers.  
+- Platform status and any first-party guidance already received.  
+- Existing analytics stack and data availability.  
+- Launch calendar and pre-World Cup milestones.
+
+## Risks and Mitigations
+- **Perceived pay-to-win from attribute offsets**  
+  Mitigate with strict offset caps, disclosure, and limited competitive surfaces.  
+- **Platform policy friction**  
+  Pre-validate currency SKUs, disclosures, and attribute impacts with first-party guidance.  
+- **Cross-platform price coherence**  
+  Use platform-specific ladders with common value density bands to avoid confusion.
+
+## Acceptance Criteria
+- Price ladders and ranges approved by platform and region, with rationale.  
+- First-purchase plan validated by predicted attach and CAC payback targets.  
+- Attribute-offset policy signed off by design and compliance.  
+- Experimentation plan workable by the live team within current tools.  
+- Dashboard spec implementable with named events and fields.
+
+## Proposed Timeline
+- Understanding and discovery: 1 week.  
+- Research and indexing: 1 week.  
+- Frameworks, pricing points, and solution paths: 1 to 2 weeks.  
+Total estimate: 3 to 4 weeks, subject to access and inputs.
+
+## Team and Roles
+- Lead Consultant: MTX strategy, pricing, and store architecture.  
+- Pricing Analyst: Index build, ladders, and elasticity modelling.  
+- Systems Designer: Attribute-offset policy and guardrails.  
+- Producer: Timeline, reviews, and handover readiness.
+
+## Open questions to finalise the SoW
+1. Regions and storefronts at launch, plus any currency localisation rules we must follow.  
+2. Confirm catalogue scope for launch quarter: number of skins, tiers, bundles, and release cadence.  
+3. Competitive pool for indexing: which titles do you consider closest comparators per platform.  
+4. First-party status: any guidance already received from Xbox, PlayStation, or Steam on currency packs and attribute disclosures.  
+5. Telemetry stack and A/B capability: current tools, event schema constraints, and reporting frequency.  
+6. Sentiment channels to monitor and response posture: owned Discord, Reddit, Steam forums, and social handles.  
+7. Game Pass details: commercial terms known or unknown, and any exclusivity windows that influence pricing.  
+8. Success criteria for first-purchase attach and D30 payer conversion by platform.
+
+## Assumptions (kept minimal)
+- No Battle Pass in scope for this engagement.  
+- Pure store monetisation with first-party currency packs and an in-game store at launch.  
+- Pre-World Cup launch window drives a short initial cadence plan inside the playbook.
+
+## Self-audit
+- British English. No em dashes. No horizontal dividers.  
+- Structured with objective, scope, deliverables, plan, risks, acceptance, and questions.  
+- Timeline mirrors the client conversation and is clearly marked as proposed.  
+- No external claims included. Ready to convert into a SoW once open questions are answered.
+
+If you confirm who I am working with and answer the open questions, I will convert this into a formal SoW with pricing, milestones, and a payment schedule.
+
+[USER]
+this is glen
+I dont have any answers to those questions yet
+
+[ASSISTANT]
+Glen, noted.
+
+# Assumptions
+1) You want a client-ready Request for Work to send to Jonas at Play Goals.  
+2) You want a concrete step plan we can follow to produce a full SoW without waiting on answers.  
+3) Pricing terms are out of scope for this message. We will add them once Play Goals confirms scope and access.
+
+# Brief plan
+1) Provide a client-facing Request for Work you can paste into email or a doc.  
+2) Provide an internal step checklist to reach a signed SoW.  
+3) Include acceptance tests and milestones so Play Goals can approve quickly.
+
+# Deliverable
+Below are two artefacts:  
+A) Client-facing Request for Work draft  
+B) Steps to complete the SoW, with milestones and acceptance tests
+
+A) Client-facing Request for Work draft
+Subject: Request for Work – MTX Strategy and Pricing Framework for Competitive Football Title
+
+Hi Jonas,
+
+Per our discussion, here is a focused request for work.
+
+Objective  
+Deliver a decision-grade MTX strategy for your competitive football game on Xbox, PlayStation, and Steam, with mobile later, launching ahead of the World Cup. The strategy will centre on a pure store model with first-party hard currency packs and an in-game store. We will optimise first-time purchase, set platform-correct price ladders and ranges, define guardrails for attribute-offset cosmetics, and provide an elasticity and experimentation framework the team can operate post-launch.
+
+Scope  
+1) Discovery and alignment on product, modes, catalogue, and Live Ops cadence  
+2) Market and price indexing by platform and region for cosmetic items, bundles, and currency packs  
+3) Store architecture and currency design, including first-purchase plan and anchor SKUs  
+4) Attribute-offset policy with fairness guardrails and disclosure standards  
+5) Elasticity and experimentation framework with offer sequencing and test design  
+6) Sentiment risk brief for attribute-offset items with mitigation and rollback playbook  
+7) KPI and telemetry specification for the first-time purchase funnel and weekly operating rhythm
+
+Deliverables  
+• MTX Strategy deck  
+• Price Index workbook with platform ladders and target ranges  
+• Store Playbook for launch and the pre-World Cup window  
+• Attribute-Offset Policy and audit checklist  
+• Elasticity Test Plan and experimentation runbook  
+• Sentiment Risk brief and comms templates  
+• KPI and Telemetry spec with dashboard outline
+
+Proposed timeline  
+Week 1 discovery and alignment  
+Week 2 market and pricing research  
+Week 3 to 4 frameworks, pricing points, and operating kit
+
+Inputs requested at kickoff  
+Game overview and modes, current item taxonomy and rarity scheme, preliminary release cadence, target regions, first-party status on currency packs and disclosures, analytics tooling, and launch calendar.
+
+If this framing looks right, we will send a formal SoW with milestones and commercials for signature.
+
+Best,  
+Glen
+
+B) Steps to complete the SoW
+1) Pre-kickoff prep  
+   • Draft SoW shell with section headers mirrored to the Scope above  
+   • Prepare an inputs checklist and NDA note  
+   Output: SoW v0.2 skeleton and inputs checklist
+
+2) Client kickoff call scheduling  
+   • Align on objective and success criteria  
+   • Confirm team contacts and comms cadence  
+   Output: Call notes and updated SoW assumptions list
+
+3) Inputs collection  
+   • Secure game overview, item taxonomy, rarity plan, early SKU list, regions, analytics stack, launch calendar, and first-party status on currency and disclosures  
+   Output: Inputs packet archived and referenced in SoW
+
+4) Risk and policy scan  
+   • Map platform policy touchpoints for MTX, disclosures, and attribute effects  
+   Output: Policy checklist to include in SoW risks and mitigations
+
+5) Scope finalisation  
+   • Confirm catalogue breadth for launch quarter and research breadth for indexing titles  
+   • Lock deliverables and review points  
+   Output: SoW v0.6 with locked scope and review gates
+
+6) Milestones and acceptance tests  
+   • Milestone M1: Discovery complete and documented  
+   • Milestone M2: Price Index draft delivered with methodology  
+   • Milestone M3: Store architecture and first-purchase plan draft  
+   • Milestone M4: Attribute-offset policy and sentiment risk brief  
+   • Milestone M5: Final delivery kit and handover  
+   Acceptance tests  
+   a) Price ladders per platform and region with clear rationale  
+   b) First-purchase plan with predicted attach and sensitivity ranges  
+   c) Attribute-offset guardrails signed off by design and compliance  
+   d) Experimentation plan operable with current tools  
+   e) KPI spec with named events and fields that analytics can implement  
+   Output: SoW v0.8 including milestones and acceptance tests
+
+7) Commercials and legal  
+   • Insert fees, payment schedule tied to milestones, and change-control terms  
+   • Reference NDA and IP ownership  
+   Output: SoW v0.9 with commercials and terms
+
+8) Internal QA  
+   • Evidence policy note, governance log, and version tag  
+   • Brand check and readability pass  
+   Output: SoW v1.0 ready for client signature
+
+Milestone summary for the SoW
+M0 SoW signature  
+M1 Discovery pack  
+M2 Price Index draft  
+M3 Store and FTP plan draft  
+M4 Offset policy and sentiment brief  
+M5 Final delivery kit and handover
+
+Acceptance tests for the SoW itself
+• Scope, deliverables, and milestones are unambiguous and testable  
+• Inputs checklist is complete and feasible within client realities  
+• Change-control and out-of-scope items are explicit
+
+# Self-audit
+• Work mode, concise, client-ready.  
+• Structure includes assumptions, plan, deliverable, milestones, and acceptance tests.  
+• British English. No em dashes. No horizontal rules.  
+• No open questions required before sending the Request for Work.  
+• Ready to paste and to proceed to SoW v0.2 on approval.
+

@@ -1,0 +1,970 @@
+TITLE: Playsage PRD RICECO Prompt
+DATE: 2026-01-17
+MESSAGES: 8
+ID: 696adf8c-a3d4-8327-9c2c-e6e227364611
+---
+
+[USER]
+Use RICECO and create a detailed prompt for a detailed prd for playsage detailing out all of the functions and features , it should be extremely thorough, use files and chats in this project
+
+[ASSISTANT]
+According to project documents last modified on **January 17, 2026**, here is a copy-paste **RICECO** prompt that will generate an extremely thorough Playsage PRD using the uploaded files and the project chat context. Sources include the module inventory, KPIs, SLOs, acceptance tests, data plan, governance, offline fallback, and The Sage requirements. 【50:0†scoping and planning update chat.docx†L101-L120】【50:4†scoping and planning update chat.docx†L103-L179】【50:1†Playsage qna 1.docx†L1-L44】【50:2†Playsage qna 1.docx†L3-L25】【50:7†scoping and planning update chat.docx†L13-L51】
+
+## Clarification bundle (outcome-changing)
+1) Who is speaking: Heather or Glen?  
+2) PRD target: Investor Demo v1 only, or full product v1 plus roadmap?  
+3) Output format: strictly the provided PRD template structure, or ok to extend it with appendices and a Work Items Register?
+
+## Deliverable: RICECO prompt (copy-paste)
+```text
+R) ROLE
+You are a cross-functional senior product leadership group writing a full PRD for Playsage:
+- Product Manager (owner of PRD quality and completeness)
+- UX Lead (information architecture, flows, states, accessibility)
+- Data Engineer (ingestion, schemas, SLAs, data contracts)
+- Applied ML/Forecast Scientist (forecasting, backtests, driver explainability, guardrails)
+- Application Engineer (services, caching, performance, exports, offline demo mode)
+- Security/Privacy Lead (PII handling, compliance, access control, auditability)
+- QA Lead (acceptance tests, edge cases, reliability)
+- Game Industry Analyst (domain correctness for metrics and workflows)
+
+Tone constraints:
+- No fluff.
+- No icons.
+- No em dashes.
+- Distinguish FACT vs PROPOSAL vs OPEN QUESTION.
+- Do not invent facts. If not in sources, label as PROPOSAL or OPEN QUESTION.
+
+I) INSTRUCTION
+Create an extremely thorough PRD for Playsage that enumerates ALL functions and features, with module-by-module specs, data requirements, acceptance tests, SLOs, and delivery plan.
+You MUST use and reconcile the following in-project sources (treat them as authoritative, cite them internally by file name and section when writing):
+1) playsage.docx
+2) Playsage qna 1.docx
+3) Investor demo feature plan.docx
+4) scoping and planning update chat.docx
+5) PRD TEMPLATE.docx
+Plus any relevant details in the current project chat context.
+
+Primary objective of the PRD:
+- Define Playsage end-to-end as a decision suite for game operators: Market Overview, Competitive Landscape, Sentiment Intelligence, Foresight forecasting, Release Radar collisions, Alerts, The Sage recommendations, Exec Dashboard, plus exports and demo-grade offline fallback.
+
+MANDATORY: In the PRD, surface and resolve contradictions across sources (example: API scope differs across docs). Where unresolved, create an OPEN QUESTION with options and a default.
+
+C) CONTEXT (you must anchor the PRD to these locked product truths from the sources)
+Navigation and demo anchor modules include:
+- Market Overview
+- Competitive Landscape
+- Sentiment
+- Foresight
+- Release Radar
+- Alerts
+- The Sage
+- Exec Dashboard
+(Also note any API mention and reconcile whether it is demo-only, roadmap-only, or v1 stub.)
+
+Personas for demo and early product:
+- Studio Executive
+- Live-ops Director
+- PM/Analyst
+
+Core policies that must be implemented:
+- Provenance and trust: any modeled values clearly labeled “Estimated” and shown with hover details including source, transform summary, and last refresh.
+- SLO-driven UX: charts and filter interactions target ~2 seconds on demo dataset, with stated refresh SLAs for pipelines.
+- Offline fallback for investor demo: full local data, forced-cache toggle, heavy tiles pre-rendered/cached, clickable flows.
+
+Data scope baseline for demo:
+- Seeded catalog (50 to 100 titles) across platforms (at least iOS, Google Play, Steam; consoles may appear with clearly labeled estimates depending on agreed scope).
+- Signals include store ranks, ratings, review text, update timestamps, releases, curated competitor lists.
+- Derived fields include revenue proxy, cadence/event signals, topic clusters, and forecast backtests.
+
+Forecasting must include:
+- Rolling horizons (30/90/180/360) and backtest display with MAPE/MAE on chart and RMSE in tooltip.
+- Driver cards and scenario controls with guardrails (diminishing returns, price floors, low history confidence badges).
+- Also incorporate the expanded forecasting simulator requirements present in the project chat (live game metrics, box plus DLC, and marketing/CRM performance), and explicitly define what is in v1 vs roadmap.
+
+E) EXAMPLES (follow this pattern for every module and every major feature)
+For each module, produce a section with:
+1) Purpose and target users
+2) Jobs-to-be-done and top user stories
+3) Inputs (data sources), transforms, and outputs (tables, metrics, tiles)
+4) UI: key screens, components, filters, saved views, drill-downs
+5) Actions: what users can do (save, compare, export, create alert, open evidence, etc.)
+6) Exports: CSV/XLSX/PNG/PDF/PPT as applicable, including watermark/subline requirements
+7) Performance and reliability: SLOs, caching strategy, offline behavior
+8) States and edge cases: missing data, sparse history, conflicting sources, estimated-only titles
+9) Instrumentation: events to log, success metrics, audit trail
+10) Acceptance tests: GIVEN/WHEN/THEN style, plus sample test data requirements
+
+Provide at least one fully written acceptance test per module, plus a consolidated acceptance test matrix appendix.
+
+C) CONSTRAINTS (non-negotiable)
+- Use the PRD TEMPLATE.docx structure as the base skeleton. You may add appendices if needed for completeness.
+- No invented facts. Anything not evidenced is PROPOSAL or OPEN QUESTION.
+- Explicitly call out data rights and privacy: no PII, comply with store terms, profanity masking for surfaced verbatims, and explain what is stored.
+- Include an “Out of scope” section for the investor demo, and a roadmap section with versioned milestones (v1, v1.1, v1.2).
+- Include a “Definition of Ready” and “Definition of Done” tailored to Playsage, plus a readiness checklist for investor meetings.
+- Include a Work Items Register (WIR) with IDs, priority, owner role, dependencies, and acceptance criteria.
+
+O) OUTPUT FORMAT (deliver all of the following)
+A) PRD Header
+- Title, version, owner, reviewers, date, status, change log
+
+B) Executive summary
+- What Playsage is, who it is for, what the demo proves, and why it wins
+
+C) Objective, audience, and success criteria
+- Product outcomes, investor demo outcomes, measurable KPIs
+
+D) Personas and key user journeys
+- 5-minute investor demo path
+- Daily operator path
+- One recovery path (offline mode / data stale)
+
+E) Full feature inventory and module specs
+- Market Overview
+- Competitive Landscape
+- Sentiment Intelligence
+- Foresight (Forecasting + Scenario Simulator)
+- Release Radar (Collisions)
+- IAP Pricing Intelligence (if in scope per sources)
+- Alerts system (channels, noise policy, latency)
+- The Sage (rule plus model hybrid in demo, evidence links, confidence, lift range, outcome logging)
+- Exec Dashboard (summary tiles, presets, exports)
+- API (explicitly reconcile: roadmap-only vs demo stub vs v1 scope)
+
+F) Data and architecture
+- Source registry and ingestion methods
+- Transform pipelines
+- Storage model (tables), including provenance fields
+- Caching and precomputation strategy for demo reliability
+- Offline fallback architecture
+
+G) Security, privacy, compliance
+- Access control and roles
+- Audit logs
+- PII scrubbing
+- Terms-of-service considerations
+- Watermarking and export disclaimers
+
+H) Observability and quality
+- SLOs per module (UI, ETL, alerts)
+- Health banners and freshness display
+- Forecast backtest reporting and model versioning
+- QA strategy and test plan
+
+I) Risks, mitigations, and decision log
+- Include top risks (public data gaps, trust, latency, rights) and mitigations from sources
+- List OPEN QUESTIONS with options and defaults
+
+J) Acceptance test matrix (appendix)
+- One row per key requirement, mapped to module, dataset(s), and test steps
+
+K) Work Items Register (appendix)
+- 50 to 150 work items if needed, grouped by module and platform layer
+- Each item includes: ID, title, description, priority, owner, dependencies, acceptance criteria, test notes
+
+Before finalizing, run a self-audit:
+- Completeness versus sources
+- Conflicts resolved or flagged
+- No em dashes
+- No icons
+- All estimates labeled
+- Every module has SLOs and acceptance tests
+- Data tables named and mapped to features
+- Demo offline path is fully specified
+Return the PRD in structured markdown with clear headings matching the PRD template.
+```
+
+## Self-audit (of this prompt)
+- Uses the uploaded docs and the project chat as required, and explicitly lists the files as sources. 【50:1†Playsage qna 1.docx†L1-L44】【50:13†Investor demo feature plan.docx†L1-L32】
+- Anchors module inventory, KPIs, SLOs, and acceptance tests to the project material (Market Overview through The Sage, plus governance and offline fallback). 【50:4†scoping and planning update chat.docx†L21-L179】【50:7†scoping and planning update chat.docx†L13-L67】
+- Forces contradiction reconciliation (example: API scope) instead of guessing. 【50:0†scoping and planning update chat.docx†L5-L9】【50:1†Playsage qna 1.docx†L45-L50】
+- Includes provenance/Estimated labeling and demo reliability requirements. 【50:7†scoping and planning update chat.docx†L41-L67】【50:2†Playsage qna 1.docx†L11-L26】
+- No em dashes used.
+
+If you answer the 3 clarification questions, I can tighten the prompt further by locking the PRD scope boundaries (demo-only vs full v1) and the final position on API and alert channels.
+
+[USER]
+1 glen 2 full product 3 extend it with appendices and a Work Items Register
+
+[ASSISTANT]
+ASSUMPTIONS  
+A1 You will run this prompt in the same Playsage project workspace where the assistant can read these local files: `/mnt/data/playsage.docx`, `/mnt/data/Playsage qna 1.docx`, `/mnt/data/Investor demo feature plan.docx`, `/mnt/data/scoping and planning update chat.docx`, `/mnt/data/PRD TEMPLATE.docx`, plus current project chat context. Confidence 90 percent. Source: project system context paths provided.  
+A2 Target is **full product** PRD, not investor-demo-only, but must still include demo readiness and offline mode as a deliverable. Confidence 85 percent. Source: your answer “full product.”  
+A3 Output must follow the PRD template as the base, extended with appendices plus a Work Items Register. Confidence 95 percent. Source: your answer “extend it with appendices and a Work Items Register.”
+
+```text
+RICECO PRD PROMPT FOR PLAYSAGE (FULL PRODUCT)
+
+R) ROLE
+You are a cross-functional product leadership team producing a complete, investor-grade and build-ready PRD for Playsage.
+
+Active roles and responsibilities:
+1) Product Manager (primary author): scope, prioritization, PRD structure, acceptance criteria, risks, decision log
+2) UX Lead: information architecture, workflows, states, accessibility, export flows
+3) Data Engineer: sources, ingestion, schemas, lineage, SLAs, QA checks, reproducibility
+4) Forecast Scientist: forecasting methods, backtests, driver explainability, scenario controls, uncertainty, guardrails
+5) Application Engineer: performance, caching, offline mode, export rendering, API surface, reliability
+6) Security and Privacy Lead: access control, audit logging, PII posture, compliance, terms sensitivity
+7) QA Lead: test strategy, edge cases, acceptance test matrix
+8) Game Industry Analyst: domain correctness for KPIs, live ops, release cadence, competitor framing, terminology
+
+Operating rules:
+- No fluff, no icons, no em dash characters.
+- No invented facts. Use only what is in the provided sources and current project chat context.
+- Separate FACT vs PROPOSAL vs OPEN QUESTION explicitly.
+- One artifact output: a single PRD document in markdown, plus appendices inside the same output.
+- Follow the Assumption Ceiling: max 3 assumptions, each at least 80 percent confidence. If more are needed, output only:
+  DECISION STOP
+  Field: <name> Options: <A|B|C> Default-if-forced: <X> Impact: <one line>
+
+I) INSTRUCTION
+Create an extremely thorough Playsage PRD that details all functions, features, modules, and requirements end to end, grounded in project sources.
+
+You MUST read and use these sources as authoritative, and reconcile differences between them:
+- /mnt/data/playsage.docx
+- /mnt/data/Playsage qna 1.docx
+- /mnt/data/Investor demo feature plan.docx
+- /mnt/data/scoping and planning update chat.docx
+- /mnt/data/PRD TEMPLATE.docx
+- Current project chat context (treat as additional source material, but do not treat it as more authoritative than the docs if they conflict)
+
+Mission:
+- Produce a full product PRD, not demo-only.
+- Still include investor demo readiness requirements, including offline fallback, dataset seeding, and a 5-minute demo path.
+- Enumerate every feature and function you can find in the sources, plus any explicit feature intentions captured in the project chat.
+- Do not silently resolve conflicts. Reconcile them or log them as OPEN QUESTIONS with options and defaults.
+
+C) CONTEXT
+Playsage is a decision suite for game operators and studio leaders. The PRD must cover:
+- Core modules (discover exact names from sources, then standardize them once):
+  Market Overview
+  Competitive Landscape
+  Sentiment Intelligence
+  Foresight (forecasting and scenario simulator)
+  Release Radar (release calendar and collision logic)
+  Alerts
+  The Sage (evidence-led recommendations and actions)
+  Exec Dashboard
+  Evidence Locker and provenance (if present in sources)
+  Data connectors and ingestion workflows (if present in sources)
+  Exports and reporting (XLSX, CSV, PDF, PNG, PPT, and any others in sources)
+  Admin, roles, permissions, audit logs
+  Offline demo mode and caching strategy
+
+Non-negotiable product principles:
+- Provenance-first: every metric and chart must show source, last refresh, transforms summary, and confidence.
+- Estimated labeling: any modeled or inferred value must be labeled “Estimated” and explain why.
+- Trust UX: visible freshness status, warnings for sparse or conflicting data, and easy drill-down to evidence.
+- Performance targets must be explicit per module and per key interaction.
+- Do not include any PII. Define what constitutes PII and how it is prevented from ingestion and display.
+
+E) EXAMPLES AND REQUIRED SPEC PATTERN
+For every module, produce a complete spec using this pattern:
+
+1) Purpose
+- Why the module exists, who uses it, and what decisions it enables
+
+2) Primary user journeys
+- Golden path
+- One recovery path
+- One failure path
+
+3) Feature inventory (module-level)
+For each feature:
+- Problem statement
+- User story
+- Preconditions
+- Main flow steps
+- Variants and edge cases
+- Outputs
+- Permissions
+- Data dependencies
+
+4) UX and IA
+- Screens, navigation nodes, filters, drill-downs, saved views, compare mode
+- Table and chart requirements
+- States: loading, empty, stale, error, partial data
+- Accessibility checklist: keyboard, contrast, text alternatives, focus order
+
+5) Data and metrics
+- Required inputs (sources and fields)
+- Transform logic at a high level
+- Output tables, metrics definitions, units, time bases, cohort definitions
+- Data contracts: schema tables with types, primary keys, grain, cardinality notes
+- Provenance fields required on every derived row
+
+6) Actions and workflows
+- What users can do from this module: create alert, save view, export, open evidence, annotate, share, compare, add to watchlist, etc
+
+7) Exports
+- Formats and what each must contain
+- Watermarking and disclaimers
+- Export fidelity rules (filters and time range must match screen)
+- Offline export support requirements
+
+8) Performance, reliability, and SLOs
+- UI interaction SLOs (p95)
+- Data freshness SLAs per dataset
+- Caching and precompute strategy
+- Offline mode behavior
+
+9) Instrumentation and analytics
+- Event taxonomy for key actions
+- Success metrics and adoption signals
+- Audit trail: what must be logged and retained
+
+10) Acceptance tests
+- At least 1 fully written GIVEN / WHEN / THEN test per major feature
+- Include negative tests and data quality tests
+
+You must also include:
+- A consolidated Acceptance Test Matrix appendix
+- A Work Items Register appendix (50 to 150 items if needed for completeness)
+- A cross-module Reconciliation appendix that ties shared entities (game IDs, platforms, dates, regions, currencies, tags) across the system
+
+C) CONSTRAINTS (NON-NEGOTIABLE)
+1) Structure
+- Use /mnt/data/PRD TEMPLATE.docx as the base structure.
+- You may extend with appendices, but do not delete template sections.
+
+2) Evidence and truthfulness
+- Every non-obvious claim must be labeled as FACT and traced to a source.
+- If not in sources, label as PROPOSAL or OPEN QUESTION.
+- Do not claim you validated something unless you explicitly show the validation steps and results inside the PRD.
+
+3) Assumptions
+- At most 3 assumptions, each with 80 percent or higher confidence and a named source or reason.
+- If additional assumptions are needed, output DECISION STOP only.
+
+4) No design theater
+- No icons.
+- No em dash characters.
+- Avoid vague language like “best in class” unless justified by evidence.
+- No placeholder data in shipped specs. If you must show an example, label it Sample data.
+
+5) Privacy and compliance
+- No PII ingestion or display.
+- Review text and sentiment: define profanity and sensitive content handling (masking, filtering, opt-outs).
+- Terms sensitivity: explicitly document data rights posture for each source type and how Playsage avoids prohibited uses.
+
+O) OUTPUT FORMAT (ONE PRD ARTIFACT)
+Your output must be a single markdown document with:
+
+0) Role header
+- Active role: Product Manager leading cross-functional PRD
+- Why: This PRD is the build contract and investor-grade spec
+
+1) Document header
+- Title: Playsage Product Requirements Document
+- Version: v1.0_YYYYMMDD (use today’s date)
+- Owner: Glen
+- Reviewers: list the roles
+- Status: Draft
+- Change log: one line
+
+2) Executive Summary
+- What Playsage is
+- Who it is for
+- Primary value promises
+- What v1 ships and what is next
+
+3) Objective, audience, and success criteria
+- Measurable success criteria per persona and per module
+- Demo readiness criteria and offline requirements
+
+4) Scope
+- In scope for v1
+- Out of scope for v1
+- Roadmap section with v1.1 and v1.2, each with crisp deltas
+
+5) Personas and jobs to be done
+- Studio Executive
+- Live Ops Director
+- PM or Analyst
+Add others only if supported by sources.
+
+6) System overview
+- Modules map and navigation
+- Shared entities: games, platforms, regions, genres, publishers, competitors, tags, time ranges
+
+7) Full module specifications
+Write the complete module-by-module specs using the required pattern above.
+Include:
+- Market Overview
+- Competitive Landscape
+- Sentiment Intelligence
+- Foresight (forecasting, scenario simulator, backtests, driver cards)
+- Release Radar (release calendar, collision detection, impact scoring)
+- Alerts (rules, channels, noise policy, escalation, audit)
+- The Sage (evidence links, triggers, exclusions, confidence rules, logging)
+- Exec Dashboard (presets, summary tiles, exports)
+- Evidence Locker and provenance (if present in sources)
+- Admin, permissions, audit logs
+- Data connectors and ingestion UI (if present in sources)
+- Export system (as a platform capability, not only per module)
+- API surface (explicitly reconcile whether it exists in v1, demo stub, or roadmap)
+
+8) Data architecture and contracts
+- Source registry table: source, method, refresh SLA, fields, rights notes
+- Core schemas: table names, grains, keys, types
+- Lineage and provenance spec
+- QA harness: checks, thresholds, failure actions
+
+9) Non-functional requirements
+- Performance SLOs
+- Reliability targets
+- Security requirements
+- Observability requirements
+- Accessibility requirements
+
+10) Risks and mitigations
+- Top risks, mitigations, owners, monitoring signals
+
+11) Decision log and OPEN QUESTIONS
+- Each open question includes options A/B/C and default-if-forced.
+
+APPENDIX A) Acceptance Test Matrix
+- Requirement ID
+- Module
+- Feature
+- Test type
+- Dataset
+- Steps summary
+- Pass criteria
+
+APPENDIX B) Work Items Register
+- WI-001 and up
+Fields per item:
+- ID
+- Title
+- Layer (UX, Data, Backend, ML, Platform, Security)
+- Module
+- Description
+- Priority (P0, P1, P2)
+- Owner role
+- Dependencies
+- Acceptance criteria
+- Test notes
+
+APPENDIX C) Cross-Module Reconciliation Matrix
+- Shared entity
+- Canonical definition
+- Where used
+- Conflicts found
+- Resolution or OPEN QUESTION
+
+FINAL SECTION) SELF AUDIT
+You must score the PRD 1 to 10 on:
+- Coverage of features found in sources
+- Internal consistency and reconciliation
+- Testability and acceptance completeness
+- Data contracts completeness
+- Performance and reliability completeness
+- Privacy and compliance completeness
+List concrete fixes you applied during the audit.
+
+PROCESS REQUIREMENT BEFORE WRITING
+Step 1: Parse sources and build a unified feature inventory table (internal, then summarized).
+Step 2: Identify conflicts across sources and resolve or log OPEN QUESTIONS.
+Step 3: Draft PRD using template structure.
+Step 4: Run double critique plus red-team:
+- Critique pass 1: missing features, vague specs, weak acceptance tests
+- Critique pass 2: data and SLO gaps, compliance gaps, demo failure modes
+- Red-team: how this PRD could fail investors or implementation
+Apply fixes before final output.
+
+Deliver only the PRD markdown artifact with appendices, nothing else.
+```
+
+Optional final clarification bundle (only answer if you want the PRD output to be even tighter when you run this prompt):
+1) Primary buyer for Playsage v1: studio, publisher, or services firm?  
+2) Default platform scope for v1: mobile only, or mobile plus PC at launch?  
+3) Required export formats for v1: pick from CSV, XLSX, PDF, PNG, PPT.
+
+[USER]
+1 studio and publishers, 2 PC, Console, Mobile, 3 word doc
+
+[ASSISTANT]
+ASSUMPTIONS  
+A1 The PRD must be written for a B2B buyer set of studio operators and publishers, not consumers. Confidence 95 percent. Source: your answer.  
+A2 v1 scope covers PC, console, and mobile as first-class platforms (not “later”). Confidence 95 percent. Source: your answer.  
+A3 The PRD output should be delivered in a Word-friendly document structure (Headings, numbered sections, tables) and the product itself must support exporting reports as a Word document. Confidence 90 percent. Source: your answer “word doc” plus earlier request to generate a PRD prompt.
+
+```text
+RICECO PRD PROMPT FOR PLAYSAGE (FULL PRODUCT, STUDIO + PUBLISHER, PC + CONSOLE + MOBILE, WORD DOC OUTPUT)
+
+R) ROLE
+You are a cross-functional product leadership team producing a complete, investor-grade and build-ready PRD for Playsage aimed at studio operators and publishers.
+
+Active roles and responsibilities:
+1) Product Manager (primary author): scope, prioritization, PRD structure, acceptance criteria, risks, decision log
+2) UX Lead: information architecture, workflows, states, accessibility, export flows
+3) Data Engineer: sources, ingestion, schemas, lineage, SLAs, QA checks, reproducibility
+4) Forecast Scientist: forecasting methods, backtests, driver explainability, scenario controls, uncertainty, guardrails
+5) Application Engineer: performance, caching, offline mode, export rendering (including Word doc export), reliability
+6) Security and Privacy Lead: access control, audit logging, PII posture, compliance, terms sensitivity
+7) QA Lead: test strategy, edge cases, acceptance test matrix
+8) Game Industry Analyst: domain correctness for KPIs, platform differences (PC, console, mobile), live ops realities
+
+Operating rules:
+- No fluff, no icons, no em dash characters.
+- No invented facts. Use only what is in the provided sources and current project chat context.
+- Separate FACT vs PROPOSAL vs OPEN QUESTION explicitly.
+- One artifact output: a single PRD formatted to paste into Microsoft Word cleanly.
+- Follow the Assumption Ceiling: max 3 assumptions, each at least 80 percent confidence. If more are needed, output only:
+  DECISION STOP
+  Field: <name> Options: <A|B|C> Default-if-forced: <X> Impact: <one line>
+
+I) INSTRUCTION
+Create an extremely thorough Playsage PRD that details all functions, features, modules, and requirements end to end, grounded in project sources.
+
+You MUST read and use these sources as authoritative, and reconcile differences between them:
+- /mnt/data/playsage.docx
+- /mnt/data/Playsage qna 1.docx
+- /mnt/data/Investor demo feature plan.docx
+- /mnt/data/scoping and planning update chat.docx
+- /mnt/data/PRD TEMPLATE.docx
+- Current project chat context (treat as additional source material, but do not treat it as more authoritative than the docs if they conflict)
+
+Mission:
+- Produce a full product PRD, not demo-only.
+- Target buyers and users: studios and publishers (executives, live ops, product, analytics).
+- Platforms in v1 scope: PC, console, mobile. You must explicitly handle platform deltas in data, metrics, and workflows.
+- Include investor demo readiness requirements, including offline fallback, seeded dataset, and a 5-minute demo path.
+- Enumerate every feature and function you can find in the sources, plus any explicit feature intentions captured in the project chat.
+- Do not silently resolve conflicts. Reconcile them or log them as OPEN QUESTIONS with options and defaults.
+
+C) CONTEXT
+Playsage is a decision suite for game operators and studio leaders across PC, console, and mobile. The PRD must cover:
+- Core modules (discover exact names from sources, then standardize them once):
+  Market Overview
+  Competitive Landscape
+  Sentiment Intelligence
+  Foresight (forecasting and scenario simulator)
+  Release Radar (release calendar and collision logic)
+  Alerts
+  The Sage (evidence-led recommendations and actions)
+  Exec Dashboard
+  Evidence Locker and provenance (if present in sources)
+  Data connectors and ingestion workflows (if present in sources)
+  Exports and reporting (must include Word doc export as a first-class format)
+  Admin, roles, permissions, audit logs
+  Offline mode and caching strategy
+
+Non-negotiable product principles:
+- Provenance-first: every metric and chart must show source, last refresh, transforms summary, and confidence.
+- Estimated labeling: any modeled or inferred value must be labeled “Estimated” and explain why.
+- Trust UX: visible freshness status, warnings for sparse or conflicting data, and easy drill-down to evidence.
+- Performance targets must be explicit per module and per key interaction.
+- Do not include any PII. Define what constitutes PII and how it is prevented from ingestion and display.
+
+Platform scope handling requirements (PC, console, mobile):
+- Define canonical cross-platform entities (title, SKU, platform, region, store, publisher, developer, release event).
+- Define platform-specific metrics and what is comparable vs not comparable.
+- Define ingestion differences and confidence flags by platform.
+- Define how forecasts handle platform-specific seasonality and data sparsity.
+
+E) REQUIRED SPEC PATTERN (USE FOR EVERY MODULE)
+For every module, produce a complete spec using this pattern:
+
+1) Purpose
+- Why the module exists, who uses it, and what decisions it enables for studios and publishers
+
+2) Primary user journeys
+- Golden path
+- One recovery path
+- One failure path
+
+3) Feature inventory (module-level)
+For each feature:
+- Problem statement
+- User story
+- Preconditions
+- Main flow steps
+- Variants and edge cases
+- Outputs
+- Permissions
+- Data dependencies
+- Platform deltas (PC vs console vs mobile)
+
+4) UX and IA
+- Screens, navigation nodes, filters, drill-downs, saved views, compare mode
+- Table and chart requirements
+- States: loading, empty, stale, error, partial data
+- Accessibility checklist: keyboard, contrast, text alternatives, focus order
+
+5) Data and metrics
+- Required inputs (sources and fields)
+- Transform logic at a high level
+- Output tables, metrics definitions, units, time bases, cohort definitions
+- Data contracts: schema tables with types, primary keys, grain, cardinality notes
+- Provenance fields required on every derived row
+- Platform coverage matrix (which metrics are available per platform, and confidence)
+
+6) Actions and workflows
+- What users can do from this module: create alert, save view, export, open evidence, annotate, share, compare, add to watchlist, etc
+
+7) Exports (MANDATORY: Word doc)
+- Formats and what each must contain
+- Word doc export requirements:
+  - Document template structure (cover page, TOC, sections, footnotes, appendix)
+  - Chart rendering approach (as images, or embedded Office chart objects) must be specified and logged as OPEN QUESTION if not in sources
+  - Evidence and provenance footnotes must appear in the Word export
+  - Watermarking and disclaimers
+  - Export fidelity rules (filters and time range must match screen)
+  - Offline export support requirements
+
+8) Performance, reliability, and SLOs
+- UI interaction SLOs (p95)
+- Data freshness SLAs per dataset
+- Caching and precompute strategy
+- Offline mode behavior
+
+9) Instrumentation and analytics
+- Event taxonomy for key actions
+- Success metrics and adoption signals
+- Audit trail: what must be logged and retained
+
+10) Acceptance tests
+- At least 1 fully written GIVEN / WHEN / THEN test per major feature
+- Include negative tests and data quality tests
+- Include platform-delta tests (same title across platforms yields correct labeling and comparable metrics behavior)
+
+C) CONSTRAINTS (NON-NEGOTIABLE)
+1) Structure
+- Use /mnt/data/PRD TEMPLATE.docx as the base structure.
+- You may extend with appendices, but do not delete template sections.
+
+2) Evidence and truthfulness
+- Every non-obvious claim must be labeled as FACT and traced to a source.
+- If not in sources, label as PROPOSAL or OPEN QUESTION.
+- Do not claim you validated something unless you explicitly show the validation steps and results inside the PRD.
+
+3) Assumptions
+- At most 3 assumptions, each with 80 percent or higher confidence and a named source or reason.
+- If additional assumptions are needed, output DECISION STOP only.
+
+4) No design theater
+- No icons.
+- No em dash characters.
+- Avoid vague language like “best in class” unless justified by evidence.
+- No placeholder data in shipped specs. If you must show an example, label it Sample data.
+
+5) Privacy and compliance
+- No PII ingestion or display.
+- Review text and sentiment: define profanity and sensitive content handling (masking, filtering, opt-outs).
+- Terms sensitivity: explicitly document data rights posture for each source type and how Playsage avoids prohibited uses.
+
+O) OUTPUT FORMAT (SINGLE WORD FRIENDLY PRD)
+Return a single PRD that can be pasted into Microsoft Word and immediately styled.
+Formatting rules for the output:
+- Use numbered headings (1, 1.1, 1.1.1) suitable for Word Heading styles.
+- Use tables where helpful. Use simple table formatting that pastes cleanly into Word (pipe tables are acceptable).
+- Do not use markdown-only constructs that break in Word. Avoid code blocks in the PRD body. Use plain text sections.
+
+Required PRD contents:
+
+0) Role header
+- Active role: Product Manager leading cross-functional PRD
+- Why: This PRD is the build contract and investor-grade spec
+
+1) Document header
+- Title: Playsage Product Requirements Document
+- Version: v1.0_YYYYMMDD (use today’s date)
+- Owner: Glen
+- Reviewers: list the roles
+- Status: Draft
+- Change log: one line
+
+2) Executive Summary
+- What Playsage is
+- Who it is for (studios and publishers)
+- Primary value promises
+- What v1 ships and what is next
+
+3) Objective, audience, and success criteria
+- Measurable success criteria per persona and per module
+- Demo readiness criteria and offline requirements
+
+4) Scope
+- In scope for v1 (PC, console, mobile)
+- Out of scope for v1
+- Roadmap section with v1.1 and v1.2, each with crisp deltas
+
+5) Personas and jobs to be done
+- Studio Executive
+- Publisher Executive
+- Live Ops Director
+- PM or Analyst
+Add others only if supported by sources.
+
+6) System overview
+- Modules map and navigation
+- Shared entities: games, SKUs, platforms, regions, stores, publishers, competitors, tags, time ranges
+- Platform deltas summary
+
+7) Full module specifications
+Write the complete module-by-module specs using the required pattern above.
+Include:
+- Market Overview
+- Competitive Landscape
+- Sentiment Intelligence
+- Foresight (forecasting, scenario simulator, backtests, driver cards)
+- Release Radar (release calendar, collision detection, impact scoring)
+- Alerts (rules, channels, noise policy, escalation, audit)
+- The Sage (evidence links, triggers, exclusions, confidence rules, logging)
+- Exec Dashboard (presets, summary tiles, exports)
+- Evidence Locker and provenance (if present in sources)
+- Admin, permissions, audit logs
+- Data connectors and ingestion UI (if present in sources)
+- Export system (Word doc export as a platform capability)
+- API surface (explicitly reconcile whether it exists in v1, demo stub, or roadmap)
+
+8) Data architecture and contracts
+- Source registry table: source, method, refresh SLA, fields, rights notes, platform coverage
+- Core schemas: table names, grains, keys, types
+- Lineage and provenance spec
+- QA harness: checks, thresholds, failure actions
+
+9) Non-functional requirements
+- Performance SLOs
+- Reliability targets
+- Security requirements
+- Observability requirements
+- Accessibility requirements
+
+10) Risks and mitigations
+- Top risks, mitigations, owners, monitoring signals
+
+11) Decision log and OPEN QUESTIONS
+- Each open question includes options A/B/C and default-if-forced.
+
+APPENDIX A) Acceptance Test Matrix
+Columns:
+- Requirement ID
+- Module
+- Feature
+- Test type
+- Dataset
+- Platform coverage
+- Steps summary
+- Pass criteria
+
+APPENDIX B) Work Items Register
+- WI-001 and up
+Fields per item:
+- ID
+- Title
+- Layer (UX, Data, Backend, ML, Platform, Security)
+- Module
+- Description
+- Priority (P0, P1, P2)
+- Owner role
+- Dependencies
+- Acceptance criteria
+- Test notes
+
+APPENDIX C) Cross-Module Reconciliation Matrix
+- Shared entity
+- Canonical definition
+- Where used
+- Conflicts found
+- Resolution or OPEN QUESTION
+
+FINAL SECTION) SELF AUDIT
+Score the PRD 1 to 10 on:
+- Coverage of features found in sources
+- Internal consistency and reconciliation
+- Testability and acceptance completeness
+- Data contracts completeness
+- Performance and reliability completeness
+- Privacy and compliance completeness
+List concrete fixes you applied during the audit.
+
+PROCESS REQUIREMENT BEFORE WRITING
+Step 1: Parse sources and build a unified feature inventory table (internal, then summarized).
+Step 2: Identify conflicts across sources and resolve or log OPEN QUESTIONS.
+Step 3: Draft PRD using template structure.
+Step 4: Run double critique plus red-team:
+- Critique pass 1: missing features, vague specs, weak acceptance tests
+- Critique pass 2: data and SLO gaps, compliance gaps, demo failure modes
+- Red-team: how this PRD could fail studios, publishers, investors, or implementation
+Apply fixes before final output.
+
+Deliver only the Word-friendly PRD content with appendices, nothing else.
+```
+
+One outcome-changing decision you may want to lock inside the PRD as an OPEN QUESTION (I did not assume it): for “Word doc export,” should charts be embedded as images only, or as editable Office chart objects. If it is not in the sources, the PRD should choose a default and justify it.
+
+[USER]
+ditable Office chart
+
+[ASSISTANT]
+ASSUMPTIONS  
+A1 The PRD generator will have access to these local sources in the same workspace: `/mnt/data/playsage.docx`, `/mnt/data/Playsage qna 1.docx`, `/mnt/data/Investor demo feature plan.docx`, `/mnt/data/scoping and planning update chat.docx`, `/mnt/data/PRD TEMPLATE.docx`, plus current project chat context. Confidence 90 percent. Source: project system context paths provided.  
+A2 Platforms in v1 scope are PC, console, and mobile as first-class. Confidence 95 percent. Source: your answer.  
+A3 Word export must embed charts as editable Office chart objects (not static images). Confidence 95 percent. Source: your answer.
+
+Here is the updated copy-paste RICECO prompt with that locked requirement.
+
+```text
+RICECO PRD PROMPT FOR PLAYSAGE (FULL PRODUCT, STUDIO + PUBLISHER, PC + CONSOLE + MOBILE, WORD EXPORT WITH EDITABLE CHARTS)
+
+R) ROLE
+You are a cross-functional product leadership team producing a complete, investor-grade and build-ready PRD for Playsage aimed at studio operators and publishers.
+
+Active roles and responsibilities:
+1) Product Manager (primary author): scope, prioritization, PRD structure, acceptance criteria, risks, decision log
+2) UX Lead: information architecture, workflows, states, accessibility, export flows
+3) Data Engineer: sources, ingestion, schemas, lineage, SLAs, QA checks, reproducibility
+4) Forecast Scientist: forecasting methods, backtests, driver explainability, scenario controls, uncertainty, guardrails
+5) Application Engineer: performance, caching, offline mode, Word export rendering with editable charts, reliability
+6) Security and Privacy Lead: access control, audit logging, PII posture, compliance, terms sensitivity
+7) QA Lead: test strategy, edge cases, acceptance test matrix
+8) Game Industry Analyst: domain correctness for KPIs, platform differences (PC, console, mobile), live ops realities
+
+Operating rules:
+- No fluff, no icons, no em dash characters.
+- No invented facts. Use only what is in the provided sources and current project chat context.
+- Separate FACT vs PROPOSAL vs OPEN QUESTION explicitly.
+- One artifact output: a single PRD formatted to paste into Microsoft Word cleanly.
+- Follow the Assumption Ceiling: max 3 assumptions, each at least 80 percent confidence. If more are needed, output only:
+  DECISION STOP
+  Field: <name> Options: <A|B|C> Default-if-forced: <X> Impact: <one line>
+
+I) INSTRUCTION
+Create an extremely thorough Playsage PRD that details all functions, features, modules, and requirements end to end, grounded in project sources.
+
+You MUST read and use these sources as authoritative, and reconcile differences between them:
+- /mnt/data/playsage.docx
+- /mnt/data/Playsage qna 1.docx
+- /mnt/data/Investor demo feature plan.docx
+- /mnt/data/scoping and planning update chat.docx
+- /mnt/data/PRD TEMPLATE.docx
+- Current project chat context (additional source material, but do not treat it as more authoritative than the docs if they conflict)
+
+Mission:
+- Produce a full product PRD, not demo-only.
+- Target buyers and users: studios and publishers (executives, live ops, product, analytics).
+- Platforms in v1 scope: PC, console, mobile. Explicitly handle platform deltas in data, metrics, and workflows.
+- Include investor demo readiness requirements, including offline fallback, seeded dataset, and a 5-minute demo path.
+- Enumerate every feature and function you can find in the sources, plus any explicit feature intentions captured in the project chat.
+- Do not silently resolve conflicts. Reconcile them or log them as OPEN QUESTIONS with options and defaults.
+
+C) CONTEXT
+Playsage is a decision suite for game operators and studio leaders across PC, console, and mobile. The PRD must cover:
+- Core modules (discover exact names from sources, then standardize them once):
+  Market Overview
+  Competitive Landscape
+  Sentiment Intelligence
+  Foresight (forecasting and scenario simulator)
+  Release Radar (release calendar and collision logic)
+  Alerts
+  The Sage (evidence-led recommendations and actions)
+  Exec Dashboard
+  Evidence Locker and provenance (if present in sources)
+  Data connectors and ingestion workflows (if present in sources)
+  Exports and reporting (must include Word doc export with editable Office chart objects)
+  Admin, roles, permissions, audit logs
+  Offline mode and caching strategy
+
+Non-negotiable product principles:
+- Provenance-first: every metric and chart must show source, last refresh, transforms summary, and confidence.
+- Estimated labeling: any modeled or inferred value must be labeled “Estimated” and explain why.
+- Trust UX: visible freshness status, warnings for sparse or conflicting data, and easy drill-down to evidence.
+- Performance targets must be explicit per module and per key interaction.
+- Do not include any PII. Define what constitutes PII and how it is prevented from ingestion and display.
+
+Platform scope handling requirements (PC, console, mobile):
+- Define canonical cross-platform entities (title, SKU, platform, region, store, publisher, developer, release event).
+- Define platform-specific metrics and what is comparable vs not comparable.
+- Define ingestion differences and confidence flags by platform.
+- Define how forecasts handle platform-specific seasonality and data sparsity.
+
+E) REQUIRED SPEC PATTERN (USE FOR EVERY MODULE)
+For every module, produce a complete spec using this pattern:
+
+1) Purpose
+2) Primary user journeys (golden, recovery, failure)
+3) Feature inventory (each feature: problem, story, preconditions, flow, edge cases, outputs, permissions, data deps, platform deltas)
+4) UX and IA (screens, nav, filters, drill-down, states, accessibility)
+5) Data and metrics (inputs, transforms, outputs, definitions, contracts, provenance, platform coverage matrix)
+6) Actions and workflows (alerts, saved views, evidence, compare, watchlists, annotations, share)
+7) Exports (MANDATORY: Word doc with editable Office chart objects)
+8) Performance, reliability, SLOs
+9) Instrumentation and analytics
+10) Acceptance tests (GIVEN / WHEN / THEN, negative tests, data quality tests, platform-delta tests)
+
+EXPORT REQUIREMENTS (LOCKED)
+Word doc export must:
+- Use a defined document template: cover page, TOC, sections, tables, footnotes, appendices.
+- Embed charts as editable Office chart objects (not images).
+- Store chart data within the document package (embedded spreadsheet data for each chart), so edits in Word update the chart.
+- Preserve filter context and time window: each chart includes a caption and a “Report Context” block (filters, platform, region, currency, time range).
+- Include provenance footnotes: source, last refresh timestamp, transform summary, confidence badge.
+- Support offline mode: exports must succeed without network calls when demo offline toggle is enabled.
+- Include watermarking and disclaimers where required, with “Estimated” labeling on any modeled values.
+
+If the exact Office chart embedding approach is not specified in sources, label the implementation approach as PROPOSAL and add an OPEN QUESTION with options:
+A) Word native chart parts with embedded workbook data (recommended default)
+B) Embedded Excel objects linked inside the doc
+C) Rendered images plus separate editable Excel appendix (not allowed unless you justify a policy exception)
+
+C) CONSTRAINTS (NON-NEGOTIABLE)
+1) Use /mnt/data/PRD TEMPLATE.docx as the base structure. Extend with appendices, do not delete template sections.
+2) Evidence and truthfulness: every non-obvious claim is FACT with a cited source, or PROPOSAL, or OPEN QUESTION.
+3) Assumptions: max 3. If more needed, output DECISION STOP only.
+4) No icons, no em dash characters, avoid vague claims, label Sample data when needed.
+5) Privacy and compliance: no PII; define handling for review text, toxicity, opt-outs; document data rights posture per source type.
+
+O) OUTPUT FORMAT (SINGLE WORD FRIENDLY PRD)
+Return a single PRD that can be pasted into Microsoft Word and immediately styled.
+
+Formatting rules:
+- Use numbered headings (1, 1.1, 1.1.1) suitable for Word Heading styles.
+- Use simple tables that paste cleanly.
+- Avoid markdown constructs that break in Word.
+- Avoid code blocks in the PRD body.
+
+Required PRD sections:
+0) Role header
+1) Document header (title, version v1.0_YYYYMMDD using today’s date, owner Glen, reviewers, status Draft, change log)
+2) Executive Summary
+3) Objective, audience, success criteria (include adoption, retention, and decision-impact metrics by persona)
+4) Scope (in scope v1, out of scope, roadmap v1.1 and v1.2)
+5) Personas and JTBD (studio exec, publisher exec, live ops, PM/analyst)
+6) System overview (modules map, shared entities, platform deltas summary)
+7) Full module specifications (all modules listed above, including Word export as a platform capability)
+8) Data architecture and contracts (source registry, schemas, lineage, QA harness)
+9) Non-functional requirements (performance, reliability, security, observability, accessibility)
+10) Risks and mitigations
+11) Decision log and OPEN QUESTIONS (A/B/C with default-if-forced)
+
+Appendices:
+APPENDIX A) Acceptance Test Matrix (requirement ID, module, feature, type, dataset, platform coverage, steps, pass criteria)
+APPENDIX B) Work Items Register (WI-001+, layer, module, desc, priority, owner role, deps, acceptance criteria, test notes)
+APPENDIX C) Cross-Module Reconciliation Matrix (shared entity, canonical definition, where used, conflicts, resolution or OPEN QUESTION)
+
+FINAL SECTION) SELF AUDIT
+Score 1 to 10:
+- Coverage of features found in sources
+- Internal consistency and reconciliation
+- Testability and acceptance completeness
+- Data contracts completeness
+- Performance and reliability completeness
+- Privacy and compliance completeness
+List concrete fixes applied during audit.
+
+PROCESS REQUIREMENT BEFORE WRITING
+Step 1: Parse sources and build a unified feature inventory (internal, then summarized).
+Step 2: Identify conflicts across sources and resolve or log OPEN QUESTIONS.
+Step 3: Draft PRD using template structure.
+Step 4: Double critique plus red-team (missing features, weak tests, data/SLO gaps, compliance gaps, demo failure modes, investor failure risks).
+Apply fixes before final output.
+
+Deliver only the Word-friendly PRD content with appendices, nothing else.
+```
+
+If you want one more lock: in the export, should embedded chart data be editable directly in Word, or require “Edit Data” which opens the embedded spreadsheet editor. Either is still “editable Office chart,” but it affects UX and implementation detail.
+

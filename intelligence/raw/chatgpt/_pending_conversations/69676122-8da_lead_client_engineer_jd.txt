@@ -1,0 +1,230 @@
+TITLE: Lead Client Engineer JD
+DATE: 2026-01-14
+MESSAGES: 4
+ID: 69676122-8da4-8328-8b67-9f78dd30a631
+---
+
+[USER]
+write up a job description for a detailed job description for a Lead client engineer for an MMO 
+
+[ASSISTANT]
+Before I write the final JD, who is speaking: Heather or Glen?
+
+Outcome-changing questions (answer in-line, short is fine):
+1) Engine: Unreal Engine 5 client, yes? (Your stack doc indicates UE5 + C++.) fileciteturn0file7  
+2) Platforms in scope for this hire: PC only first, or PC plus console readiness/cert support? fileciteturn0file5  
+3) Does “Client” include launcher/patcher ownership, or strictly the in-game UE client? (Your stack mentions a launcher + chunked patching.) fileciteturn0file7  
+4) Player scale target the client must support in real play: 30–40 per instance, ~100 per region/layer, or other? fileciteturn0file7  
+5) People leadership: is this “lead a small client team now” or “solo lead for 6–9 months, then hire”?  
+
+Minimal progress slice (v1 JD you can already use and I will tighten once you answer the 5 items)
+
+## Job Title
+Lead Client Engineer (MMO)
+
+## Role Summary
+Own the technical direction and delivery of the game client for a multiplayer MMO-lite social RPG platform. You will lead client architecture, performance, stability, and feature delivery in Unreal Engine 5, partnering closely with gameplay, backend services, design, and art to ship a high-quality playable social layer with scalable online features and a strong moment-to-moment experience. fileciteturn0file7 fileciteturn0file4
+
+## Reporting Line
+Reports to: CTO (or Technical Director)  
+Leads: Client engineers (size dependent on current team plan)
+
+## Core Responsibilities
+### Client architecture and systems
+- Own the UE5 client architecture, coding standards, technical design docs, and long-term maintainability.
+- Build and evolve core client systems: gameplay framework integration, UI flows, input, camera, streaming/loading, and client-side state management.
+- Partner with server and backend teams to ensure clean boundaries, stable contracts, and predictable integration.
+
+### Multiplayer, networking, and player experience
+- Deliver robust multiplayer client behaviour under real latency and packet loss conditions.
+- Implement and harden client flows for region traversal and server handoff patterns used for sharding/layering (client reconnect and transition experience, resilience, and failure recovery). fileciteturn0file7
+- Collaborate on authentication and account flows, integrating with the platform layer where required. fileciteturn0file4
+
+### Performance and stability
+- Own frame-time, memory, hitching, and crash-rate targets for the client across target hardware.
+- Build performance budgets (CPU, GPU, memory, streaming) and enforce them with tooling, profiling, and regression gates.
+- Drive systematic stability: crash triage, root cause fixes, and prevention through test coverage and build validation.
+
+### UI and UX implementation (engineering)
+- Lead engineering implementation of UI (in-engine UI stack as defined by the project), ensuring responsiveness, accessibility basics, and scalability for live content.
+- Partner with UI/UX design and tech art to ensure menus, social surfaces, inventory, and platform features are shippable and performant.
+
+### Build, release, and operational readiness
+- Own client build health: compile times, packaging, versioning, patching constraints, and release process in coordination with CI/CD.
+- Establish client-side observability hooks (logs, performance markers, crash metadata) so issues are diagnosable quickly.
+- Support feature flagging and safe rollout patterns where applicable to client features.
+
+### Cross-play readiness (if in scope)
+- Drive client-side requirements for cross-play and console readiness: input, UX constraints, platform-specific compliance considerations, and backend handshake expectations in collaboration with online services. fileciteturn0file5
+
+## Leadership Expectations
+- Hands-on: you ship code weekly and set quality bars through example.
+- Lead through clarity: break down ambiguous work into shippable slices with acceptance criteria.
+- Mentor: raise the capability of other engineers through reviews, pairing, and lightweight training.
+- Cross-functional ownership: proactively surface risks, dependencies, and integration gaps.
+
+## What Success Looks Like
+### First 30 days
+- Audit client architecture and top risks (performance, stability, networking integration, UI bottlenecks).
+- Establish measurable targets: FPS/frame-time budget, crash-free session rate, load-time targets, and build health baselines.
+- Put in place a pragmatic client tech roadmap aligned to near-term milestone goals.
+
+### 60–90 days
+- Key client flows stable and demonstrable: login to world, social surface basics, core loop traversal, and reliable multiplayer session behaviour.
+- Performance regressions have gates, profiling is routine, and crash triage is predictable.
+- Clear integration rhythm with backend and server teams.
+
+### 6–12 months
+- Client is production-minded: stable releases, predictable content integration, scalable UI, and strong performance on target hardware.
+- Cross-play foundations implemented or the client is ready to expand platforms with controlled risk (depending on scope). fileciteturn0file5
+
+## Required Experience
+- 7+ years professional game engineering, with significant Unreal Engine experience (UE4/UE5), strong preference for UE5.
+- Expert C++ in a shipping or late-stage production context.
+- Shipped at least one networked multiplayer title in a significant client engineering role.
+- Proven performance optimisation experience (profiling, memory, frame-time, streaming, hitch reduction).
+- Strong debugging skills across gameplay, rendering, async systems, and live crash reports.
+
+## Preferred Experience
+- MMO or MMO-lite experience: replication scaling, world streaming, seamless transitions, or instancing models.
+- Console experience (cert constraints, platform services, performance TRCs) and cross-play integration patterns. fileciteturn0file5
+- Experience building client-side live-ops or service-integrated features (stores, entitlements, inventories, social systems). fileciteturn0file7
+
+## Working Style and Collaboration
+- Comfortable partnering with design, art, and production to translate goals into technical reality without “throw it over the wall.”
+- Clear written communicator: specs, risks, decisions, and tradeoffs are documented and socialised early.
+- Operates with high engineering discipline: code reviews, test strategy, and build stability are not optional.
+
+## Tooling and Stack Context (informative, not limiting)
+- Unreal Engine 5 with C++ for gameplay and client systems; broader ecosystem includes TypeScript services and web dashboards. fileciteturn0file7
+
+## Self-audit
+- No em dashes used.
+- Role is scoped to “client engineering” with explicit boundaries, plus optional cross-play scope callout.
+- Responsibilities map to your documented tech stack and product direction (UE5 C++ core, platform-first product framing, cross-play considerations). fileciteturn0file7 fileciteturn0file4 fileciteturn0file5
+
+Reply with the 5 answers (and who is speaking) and I will produce the tightened final JD (v2) with your preferred format conventions (for example: no recruiter fluff, include scorecard-ready outcomes, and a clean requirement split).
+
+[USER]
+1) yes
+2) pc primarily
+3) strictly the in-game UE client
+4) 70 per
+5) lead a small client team now
+
+[ASSISTANT]
+Who is speaking, Heather or Glen?
+
+## Assumptions (max 3)
+1) This is a hands-on lead role, coding daily while leading a small team.  
+2) The client is Unreal Engine 5 in C++ (Blueprints in support), PC is the primary ship platform.  
+3) Live service ops are in scope for the in-game client (telemetry, crash reporting, hotfix-safe patterns), but launcher/patcher is explicitly out.
+
+## Brief plan
+- Define role outcomes for a UE5 MMO client at 70-player scale  
+- Specify responsibilities, interfaces, and leadership expectations  
+- Make success criteria measurable for 30/60/90 days and 6–12 months
+
+## Deliverable: Job Description
+
+### Job Title
+Lead Client Engineer (MMO)
+
+### Role Summary
+You will own the technical direction and delivery of the Unreal Engine 5 in-game client for a PC-first MMO. You will lead a small client team, set architecture and quality bars, and ship performant, stable gameplay and UX at a target scale of 70 concurrent players per gameplay instance. You will partner tightly with gameplay, online/server engineering, UI/UX, art, and production to deliver features that are resilient under real network conditions and maintainable through live development.
+
+### Reporting Line
+Reports to: CTO or Technical Director  
+Manages: Client engineering team (small team, currently in place)
+
+### Primary Objectives
+- Ship a stable, performant UE5 client that supports 70-player gameplay instances with predictable frame time, memory, and network performance.
+- Establish a scalable client architecture that enables rapid feature delivery without regression churn.
+- Build a high-discipline engineering culture on the client team: code quality, profiling habits, integration hygiene, and reliable releases.
+
+### Key Responsibilities
+
+#### Client architecture and core systems
+- Own the UE5 client architecture (module boundaries, coding standards, patterns, and technical design docs).
+- Drive implementation of core gameplay-facing client systems: input, camera, movement feel, animation integration, ability or combat framework integration (as applicable), UI framework integration, and client state management.
+- Define and maintain client-side boundaries with server and online services, including data contracts, error handling, and safe fallback behaviours.
+
+#### Networking and multiplayer client behaviour
+- Lead client-side networking strategy: replication usage, relevancy, prioritisation, prediction/interpolation where needed, and client reconciliation patterns.
+- Build features to behave correctly under latency, jitter, packet loss, and reconnect scenarios.
+- Own the “playable under load” bar at 70 players: replication budgets, actor counts, frequency tuning, and performance profiling tied to network behaviour.
+- Partner with server engineers to debug and resolve client-server integration issues with clear instrumentation and reproducible test cases.
+
+#### Performance, stability, and memory
+- Set and enforce performance budgets: frame-time targets, memory ceilings, streaming budgets, hitch tolerance, and UI costs.
+- Establish a profiling and regression workflow: Unreal Insights, stat captures, automated performance smoke tests, and performance review gates for risky merges.
+- Own crash and stability outcomes: crash triage, root cause fixes, prevention patterns, and release readiness criteria (crash-free session rate, top crash elimination).
+
+#### UI implementation and player experience
+- Lead engineering execution of in-game UI and menus (within the UE client), with a focus on responsiveness, readability, input consistency, and performance.
+- Partner with design and UI/UX to convert flows into shippable implementations with clear acceptance criteria.
+- Ensure UI does not become a performance sink at scale (widget lifecycles, invalidation, async loads, pooling, and memory behaviour).
+
+#### Content streaming, loading, and world experience
+- Own client-side loading, streaming, and traversal experience: level streaming strategy, async asset loads, hitch mitigation, and memory stability.
+- Work with tech art and content teams to set asset budgets, LOD strategy, and guidelines that prevent client regressions.
+
+#### Tooling, build health, and developer velocity (in-game client only)
+- Improve client iteration time and build stability: compile times where feasible, CI build health, deterministic packaging for the client deliverable.
+- Maintain in-client diagnostic tooling: debug UIs, test harnesses, network simulation toggles, and performance capture automation.
+
+#### Live development readiness (client scope)
+- Integrate telemetry and client event logging to support rapid issue diagnosis.
+- Implement safe rollout patterns inside the client where applicable (feature flags, kill-switchable behaviours, compatibility guardrails).
+- Support high-quality hotfix workflows by reducing risky coupling and improving testability.
+
+### Leadership Expectations
+- Be the technical owner for client quality and outcomes, not just delivery.
+- Run effective engineering rituals: weekly tech risk review, architectural decision records, code reviews with clear standards, and a measurable tech debt plan.
+- Mentor and grow the client team through pairing, feedback, and targeted capability development (profiling, debugging, multiplayer patterns, UE internals).
+- Drive cross-discipline alignment by translating product goals into engineering milestones, dependencies, and tradeoffs early.
+
+### What Success Looks Like
+
+#### First 30 days
+- Audit client architecture, top risks, and current technical debt; produce a focused remediation plan.
+- Establish measurable client KPIs and baselines: FPS and frame-time distribution, hitch frequency, memory usage, crash rate, network metrics.
+- Align with server and gameplay leads on the 70-player performance plan and integration contracts.
+
+#### 60–90 days
+- 70-player test scenario is reproducible, instrumented, and improving week over week.
+- Top client crashes are triaged with root causes fixed or mitigated; stability metrics trend clearly.
+- Performance regression gates and profiling workflows are in use by the whole client team.
+- Client feature delivery is predictable: fewer integration surprises, clearer “definition of done,” reduced churn.
+
+#### 6–12 months
+- Client is production-quality for PC: stable releases, strong performance at scale, and fast diagnosis when issues occur.
+- Architecture is scalable: new features do not routinely destabilise the client.
+- Client team capability is visibly higher: more engineers can profile, debug network issues, and ship features within standards.
+
+### Required Qualifications
+- 7+ years professional game engineering experience, including substantial Unreal Engine experience (UE4 or UE5), with UE5 strongly preferred.
+- Expert C++ skills in production codebases (memory, threading, performance, debugging).
+- Proven delivery on at least one multiplayer title with meaningful responsibility for client-side networking behaviour.
+- Strong profiling and optimisation experience (CPU, GPU, memory, streaming, hitching).
+- Demonstrated ownership of stability outcomes (crash triage, release quality, root cause discipline).
+- Experience leading engineers (direct management or strong technical leadership) with consistent code review and mentoring habits.
+
+### Preferred Qualifications
+- MMO or large-session multiplayer experience (replication scaling, relevancy tuning, bandwidth budgeting, server-authoritative gameplay patterns).
+- Deep Unreal internals knowledge: gameplay framework, networking stack, replication graph or equivalent patterns, Unreal Insights mastery.
+- Experience building scalable UI systems in Unreal with performance discipline.
+- Experience with automated test strategies for clients (smoke tests, network simulation tests, perf captures).
+
+### Non-negotiables for This Role
+- You can lead a small team and remain hands-on in critical systems.
+- You can ship and maintain a UE5 client that remains playable and stable at 70 concurrent players.
+- You are rigorous about profiling, budgets, and root-cause fixes.
+
+## Self-audit
+- Uses your confirmed scope: UE5 client only, PC primarily, 70-player target, leading an existing small team.
+- Explicitly excludes launcher/patcher ownership.
+- Success criteria are measurable and aligned to MMO client risks: networking scale, performance, stability, streaming, UI cost control.
+
+If you answer “Heather” or “Glen,” I will tune tone and add any house style you use for JDs (for example: section ordering, how strict you want years of experience, and whether you want a “must have vs nice to have” scoring rubric baked in).
+

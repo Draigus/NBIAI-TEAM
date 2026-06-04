@@ -1,0 +1,3097 @@
+TITLE: Metrics data sheet query
+DATE: 2025-09-17
+MESSAGES: 15
+ID: 68cad856-760c-8329-b93f-2046a83ef0d5
+---
+
+[USER]
+as a data archteict build a metrics data sheet for playsage that details out ALL of the metrics in a db schema format. before you get started please ask any questison you need to to deliver well the first time.  Im looking for the product based metrics not the soft metrics this is for foresight (forecasting simulatior
+
+[ASSISTANT]
+Role: Data Architect. Chosen to define a complete, implementation-ready metrics data sheet for Playsage Foresight in database-schema form.
+
+ASSUMPTIONS  
+A1 Foresight v1 models product metrics only, not people or “soft” org metrics. Confidence 90 percent. Source: your request.  
+A2 Primary platforms in scope are Steam, PlayStation, Xbox, iOS, and Google Play. Confidence 85 percent. Source: prior Playsage planning threads.  
+A3 Region taxonomy uses US, UK, EU-West, EU-East, with country subregions only under the two EU buckets. Confidence 85 percent. Source: prior Playsage finance decisions.
+
+CLARIFICATION BUNDLE (answer in-line; one pass is enough)  
+1) Deliverable format  
+1.1 Do you want the data sheet as an Excel workbook with sheets for Tables, Fields, Metrics Dictionary, Formulas, Enums, and Retention?  
+1.2 Or do you prefer a single Word doc laid out as a data dictionary?  
+
+2) Scope boundaries for “ALL product metrics”  
+2.1 Include both engagement and commercial: installs, NUU, DAU, WAU, MAU, payers, ARPDAU, ARPPU, conversion, churn, reactivations, rank, price, discount, sentiment, feature flags, release cadence?  
+2.2 Include packaged-goods metrics for Box and DLC and their finance rollups (gross, refunds, platform fees, net receipts), since Foresight needs them for EBITDA scenarios?  
+2.3 Include forecast outputs and diagnostics as first-class tables: forecast ribbons, attribution by driver, backtest metrics (MAPE, MAE, RMSE), model versioning?  
+
+3) Granularity and identity  
+3.1 Daily grain as the canonical fact level, with weekly and monthly aggregates provided as materialised tables?  
+3.2 Keys: title_id as the global key, plus optional title_platform_id, platform, region, subregion, business_model?  
+3.3 Week start Monday and all timestamps stored UTC?  
+
+4) Proxies and derivations  
+4.1 Confirm that DAU, WAU, MAU, installs, payers, and revenue are proxies in v1 when native telemetry is unavailable, derived from store rank and observed signals. Should I tag every such field with lineage and a proxy flag?  
+4.2 Retention: use cohort-based R1, R7, R30 proxies derived from install and activity estimates, or omit retention until native telemetry exists?  
+
+5) Monetisation model coverage  
+5.1 Include F2P IAP ladder and prices, Premium base price and discounts, DLC attach, and Subscriptions rules. Any others for v1 (season pass as separate class, expansion packs)?  
+5.2 Finance defaults: include storefront fee schedule tables with per-title overrides and region toggles, or keep them out of the metrics sheet?  
+
+6) Conventions  
+6.1 Naming convention snake_case, currency fields suffixed _usd and local currency fields suffixed _local with ISO currency column, decimal scale 2 for money, 6 for rates. OK?  
+6.2 Allowed values for enums: platform, region, genre, release_type. Any additions you want locked now?  
+
+7) Acceptance targets  
+7.1 “All metrics” means every column is defined with name, type, nullable, unit, grain, calculation rule, lineage, and example SQL. Confirm.  
+7.2 Include retention and data-governance policies per table (partition, sort keys, retention horizon). Confirm.
+
+MINIMAL PROGRESS SLICE (shape and fidelity of the final)  
+Below is a precise sample to show the level of detail I will deliver once you answer the bundle.
+
+Tables (excerpt)  
+kpi_daily  
+• Keys: title_id, date, optional platform, region, subregion  
+• Partition: date; Sort: title_id, date  
+• Columns:  
+  - title_id STRING not null. Global title key.  
+  - date DATE not null. UTC date.  
+  - platform STRING null. Enum.  
+  - region STRING null. Enum.  
+  - subregion STRING null. ISO-2 when region is EU-West or EU-East.  
+  - installs_proxy INTEGER null, unit users. Derived from rank mapping and featuring.  
+  - nuu INTEGER null, unit users. New unique active users estimated.  
+  - dau INTEGER null, unit users. Daily active users proxy.  
+  - wau INTEGER null, unit users. Rolling 7-day unique users proxy.  
+  - mau INTEGER null, unit users. Rolling 30-day unique users proxy.  
+  - payers INTEGER null, unit users. Estimated unique purchasers.  
+  - purchase_txn INTEGER null, unit transactions.  
+  - gross_revenue FLOAT null, unit USD.  
+  - refunds_gross FLOAT null, unit USD.  
+  - platform_fees FLOAT null, unit USD.  
+  - net_revenue FLOAT null, unit USD. gross_revenue − refunds_gross − platform_fees.  
+  - arpdau FLOAT null, unit USD. net_revenue ÷ dau.  
+  - arppu FLOAT null, unit USD. net_revenue ÷ payers.  
+  - conversion_rate FLOAT null, ratio 0..1. payers ÷ dau.  
+  - rank_store INTEGER null, rank points. Lower is better.  
+  - price_current FLOAT null, currency_local.  
+  - discount_pct FLOAT null, ratio 0..1.  
+  - event_active BOOLEAN null.  
+  - update_count_7d INTEGER null.  
+  - d1_retention FLOAT null, ratio.  
+  - d7_retention FLOAT null, ratio.  
+  - d30_retention FLOAT null, ratio.  
+  - reactivations INTEGER null, unit users.  
+  - churn_rate FLOAT null, ratio per day.
+
+forecast_daily  
+• Keys: title_id, date, model_version  
+• Columns: dau_point, dau_low, dau_high, rev_point_usd, rev_low_usd, rev_high_usd, confidence_pct, scenario_id, model_version.
+
+forecast_backtest  
+• Keys: title_id, horizon_days, model_version  
+• Columns: mape, mae_users, rmse_users, mae_usd, rmse_usd, window_weeks, history_weeks_used.
+
+forecast_attribution  
+• Keys: title_id, date, driver  
+• Columns: contribution_dau, contribution_usd, driver_kind (price, cadence, event, UA, DLC, CRM), note.
+
+price_history  
+• Keys: title_id, platform, region, date  
+• Columns: base_price_local, discount_pct, currency_iso, price_floor_local, promo_flag.
+
+iap_skus and iap_price_history  
+• SKU registry and daily price ladder by platform and region, with ladder_position, category, and active flag.
+
+releases, patch_notes, content_tags  
+• Release index, timestamps, free-text notes, extracted tags, and a release_type enum.
+
+Metrics dictionary (excerpt)  
+ARPDAU  
+• Definition: Net revenue per daily active user on date d.  
+• Formula: net_revenue ÷ dau.  
+• Unit: USD. Grain daily.  
+• Lineage: kpi_daily.net_revenue, kpi_daily.dau.  
+• Notes: If dau is proxy, ARPDAU is proxy. Clamp to non-negative.
+
+Conversion rate  
+• Definition: Share of active users who paid at least once on date d.  
+• Formula: payers ÷ dau.  
+• Unit: ratio 0..1. Grain daily.  
+• Lineage: kpi_daily.payers, kpi_daily.dau.
+
+Box units_est  
+• Definition: Estimated units sold of base game on date d.  
+• Formula: baseline_demand × price_elasticity_response(discount_pct, product=base).  
+• Unit: units. Grain daily.  
+• Lineage: price_history, elasticity_config, title_baselines.  
+• Notes: Only for Premium titles.
+
+DLC units_est  
+• Definition: Estimated DLC units on date d.  
+• Formula: base_active_cohort × dlc_attach_rate × price_elasticity_response(discount_pct, product=dlc).  
+• Unit: units. Grain daily.
+
+MAPE  
+• Definition: Mean absolute percentage error over the backtest window.  
+• Formula: mean(|actual − forecast| ÷ actual).  
+• Unit: ratio 0..1. Grain window.  
+• Lineage: forecast_backtest.
+
+If you confirm the bundle answers, I will generate the full metrics data sheet in your chosen format in this chat with complete tables, fields, formulas, enums, retention, and example SQL.
+
+[USER]
+and you think this is a good response to my request?
+
+[ASSISTANT]
+Role: Data Architect. Reason: deliver a complete, implementation-ready metrics data sheet for Playsage Foresight in database-schema form.
+
+Short answer to your question: no. Asking first was sensible, but it was not sufficient. I am delivering the full schema now.
+
+ASSUMPTIONS  
+A1 Scope is product metrics only for forecasting and scenario analysis. No people or HR metrics. Confidence 95 percent. Source: your brief.  
+A2 Daily is the canonical grain. Weekly and monthly are materialised aggregates. Confidence 90 percent. Source: forecasting best practice.  
+A3 When native telemetry is missing, store signals are used as proxies and must be lineage-tagged. Confidence 90 percent. Source: prior Playsage threads.
+
+Below is the schema as SQL DDL with keys, types, units, and comments. It is vendor-neutral SQL with common types; adapt NUMERIC precision to your warehouse.
+
+```sql
+-- =========
+-- Core enums as lookup dims
+-- =========
+CREATE TABLE dim_platform (
+  platform_id SMALLINT PRIMARY KEY,
+  platform_code VARCHAR(16) UNIQUE NOT NULL,   -- e.g., steam, ps, xbox, ios, android
+  platform_name VARCHAR(64) NOT NULL
+);
+
+CREATE TABLE dim_region (
+  region_id SMALLINT PRIMARY KEY,
+  region_code VARCHAR(16) UNIQUE NOT NULL,     -- e.g., US, UK, EUW, EUE, ROW
+  region_name VARCHAR(64) NOT NULL
+);
+
+CREATE TABLE dim_currency (
+  currency_id SMALLINT PRIMARY KEY,
+  iso_code CHAR(3) UNIQUE NOT NULL,            -- e.g., USD, GBP, EUR
+  symbol VARCHAR(8) NOT NULL
+);
+
+CREATE TABLE dim_storefront (
+  storefront_id SMALLINT PRIMARY KEY,
+  storefront_code VARCHAR(16) UNIQUE NOT NULL, -- e.g., steam, psn, xbox_live, appstore, googleplay
+  storefront_name VARCHAR(64) NOT NULL,
+  platform_id SMALLINT NOT NULL REFERENCES dim_platform(platform_id)
+);
+
+CREATE TABLE dim_channel (
+  channel_id SMALLINT PRIMARY KEY,
+  channel_code VARCHAR(32) UNIQUE NOT NULL,    -- e.g., organic, search_ads, meta, tiktok, influencer
+  channel_name VARCHAR(64) NOT NULL
+);
+
+CREATE TABLE dim_title (
+  title_id BIGINT PRIMARY KEY,
+  title_code VARCHAR(64) UNIQUE NOT NULL,      -- stable key per game
+  title_name VARCHAR(128) NOT NULL,
+  business_model VARCHAR(32) NOT NULL,         -- premium, f2p, hybrid, subscription
+  genre VARCHAR(64) NULL,
+  release_date DATE NULL
+);
+
+CREATE TABLE dim_sku (
+  sku_id BIGINT PRIMARY KEY,
+  title_id BIGINT NOT NULL REFERENCES dim_title(title_id),
+  sku_code VARCHAR(64) NOT NULL,               -- base, dlc_<name>, iap_<code>, season_<n>, sub_<tier>
+  sku_name VARCHAR(128) NOT NULL,
+  sku_type VARCHAR(32) NOT NULL,               -- base, dlc, iap, season, subscription
+  is_consumable BOOLEAN NOT NULL DEFAULT FALSE,
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  UNIQUE(title_id, sku_code)
+);
+
+-- Bridge for platform and region coverage per title
+CREATE TABLE map_title_storefront_region (
+  title_storefront_region_id BIGSERIAL PRIMARY KEY,
+  title_id BIGINT NOT NULL REFERENCES dim_title(title_id),
+  storefront_id SMALLINT NOT NULL REFERENCES dim_storefront(storefront_id),
+  region_id SMALLINT NOT NULL REFERENCES dim_region(region_id),
+  currency_id SMALLINT NOT NULL REFERENCES dim_currency(currency_id),
+  is_live BOOLEAN NOT NULL DEFAULT TRUE,
+  UNIQUE(title_id, storefront_id, region_id)
+);
+
+-- =========
+-- Configuration and lineage
+-- =========
+CREATE TABLE cfg_currency_rate (
+  rate_date DATE NOT NULL,
+  base_currency_id SMALLINT NOT NULL REFERENCES dim_currency(currency_id), -- e.g., USD
+  quote_currency_id SMALLINT NOT NULL REFERENCES dim_currency(currency_id),-- e.g., GBP
+  fx_rate NUMERIC(18,8) NOT NULL,                 -- quote per 1 base
+  PRIMARY KEY(rate_date, base_currency_id, quote_currency_id)
+);
+
+CREATE TABLE cfg_fee_schedule (
+  storefront_id SMALLINT NOT NULL REFERENCES dim_storefront(storefront_id),
+  effective_from DATE NOT NULL,
+  effective_to DATE NULL,
+  fee_rate NUMERIC(6,4) NOT NULL,                 -- 0..1 platform fee
+  notes VARCHAR(256),
+  PRIMARY KEY(storefront_id, effective_from)
+);
+
+CREATE TABLE cfg_rank_to_units_curve (
+  storefront_id SMALLINT NOT NULL REFERENCES dim_storefront(storefront_id),
+  country_code CHAR(2) NULL,                      -- optional country refine
+  category VARCHAR(64) NULL,                      -- e.g., top_grossing, top_paid
+  rank_low INT NOT NULL,
+  rank_high INT NOT NULL,
+  units_per_rank NUMERIC(18,6) NOT NULL,          -- estimated daily units at rank
+  PRIMARY KEY(storefront_id, rank_low, rank_high)
+);
+
+CREATE TABLE cfg_price_elasticity (
+  sku_type VARCHAR(32) NOT NULL,                  -- base, dlc, iap
+  elasticity NUMERIC(8,4) NOT NULL,               -- negative value typical for price vs demand
+  notes VARCHAR(256),
+  PRIMARY KEY(sku_type)
+);
+
+CREATE TABLE meta_lineage_method (
+  method_id BIGSERIAL PRIMARY KEY,
+  method_code VARCHAR(64) UNIQUE NOT NULL,        -- e.g., rank_curve_v1, telemetry_direct, blended_v2
+  description TEXT NOT NULL,
+  source_priority SMALLINT NOT NULL               -- lower is preferred
+);
+
+-- =========
+-- Facts: daily canonical grain
+-- =========
+CREATE TABLE fact_kpi_daily (
+  title_id BIGINT NOT NULL REFERENCES dim_title(title_id),
+  storefront_id SMALLINT NOT NULL REFERENCES dim_storefront(storefront_id),
+  region_id SMALLINT NOT NULL REFERENCES dim_region(region_id),
+  kpi_date DATE NOT NULL,                         -- UTC date
+  installs INT NULL,                              -- unit: users
+  dau INT NULL,                                   -- unit: users
+  wau INT NULL,                                   -- unit: users (rolling 7d unique)
+  mau INT NULL,                                   -- unit: users (rolling 30d unique)
+  sessions BIGINT NULL,                           -- unit: sessions
+  payers INT NULL,                                -- unit: users who paid at least once on date
+  purchases INT NULL,                             -- unit: transactions
+  reactivations INT NULL,                         -- unit: users
+  churn_rate NUMERIC(8,6) NULL,                   -- daily ratio 0..1
+  d1_retention NUMERIC(8,6) NULL,
+  d7_retention NUMERIC(8,6) NULL,
+  d30_retention NUMERIC(8,6) NULL,
+  method_id BIGINT NOT NULL REFERENCES meta_lineage_method(method_id),
+  is_proxy BOOLEAN NOT NULL DEFAULT FALSE,
+  PRIMARY KEY(title_id, storefront_id, region_id, kpi_date)
+);
+
+CREATE INDEX ix_kpi_daily_title_date ON fact_kpi_daily(title_id, kpi_date);
+
+CREATE TABLE fact_revenue_daily (
+  title_id BIGINT NOT NULL REFERENCES dim_title(title_id),
+  storefront_id SMALLINT NOT NULL REFERENCES dim_storefront(storefront_id),
+  region_id SMALLINT NOT NULL REFERENCES dim_region(region_id),
+  currency_id SMALLINT NOT NULL REFERENCES dim_currency(currency_id),
+  rev_date DATE NOT NULL,
+  sku_type VARCHAR(32) NOT NULL,                  -- base, dlc, iap, season, subscription
+  gross_local NUMERIC(18,2) NULL,                 -- money in local currency
+  discounts_local NUMERIC(18,2) NULL,
+  refunds_local NUMERIC(18,2) NULL,
+  taxes_local NUMERIC(18,2) NULL,
+  platform_fees_local NUMERIC(18,2) NULL,
+  net_local NUMERIC(18,2) NULL,                   -- gross - discounts - refunds - taxes - fees
+  gross_usd NUMERIC(18,2) NULL,                   -- converted using cfg_currency_rate
+  net_usd NUMERIC(18,2) NULL,
+  units INT NULL,                                 -- units sold for base/DLC; pseudo-units for IAP if modelled
+  payers INT NULL,
+  method_id BIGINT NOT NULL REFERENCES meta_lineage_method(method_id),
+  is_proxy BOOLEAN NOT NULL DEFAULT FALSE,
+  PRIMARY KEY(title_id, storefront_id, region_id, currency_id, rev_date, sku_type)
+);
+
+CREATE INDEX ix_revenue_daily_title_date ON fact_revenue_daily(title_id, rev_date);
+
+CREATE TABLE fact_price_daily (
+  title_id BIGINT NOT NULL REFERENCES dim_title(title_id),
+  storefront_id SMALLINT NOT NULL REFERENCES dim_storefront(storefront_id),
+  region_id SMALLINT NOT NULL REFERENCES dim_region(region_id),
+  sku_id BIGINT NOT NULL REFERENCES dim_sku(sku_id),
+  price_date DATE NOT NULL,
+  base_price_local NUMERIC(18,2) NOT NULL,
+  live_price_local NUMERIC(18,2) NOT NULL,
+  discount_pct NUMERIC(8,6) NOT NULL,             -- ratio 0..1
+  promo_flag BOOLEAN NOT NULL DEFAULT FALSE,
+  PRIMARY KEY(title_id, storefront_id, region_id, sku_id, price_date)
+);
+
+CREATE TABLE fact_rank_daily (
+  title_id BIGINT NOT NULL REFERENCES dim_title(title_id),
+  storefront_id SMALLINT NOT NULL REFERENCES dim_storefront(storefront_id),
+  country_code CHAR(2) NULL,                      -- optional higher fidelity than region
+  rank_date DATE NOT NULL,
+  chart_type VARCHAR(32) NOT NULL,                -- top_paid, top_grossing, top_free
+  rank_position INT NULL,                         -- lower is better
+  featured_flag BOOLEAN NOT NULL DEFAULT FALSE,
+  PRIMARY KEY(title_id, storefront_id, country_code, rank_date, chart_type)
+);
+
+CREATE TABLE fact_retention_cohort_daily (
+  title_id BIGINT NOT NULL REFERENCES dim_title(title_id),
+  storefront_id SMALLINT NOT NULL REFERENCES dim_storefront(storefront_id),
+  region_id SMALLINT NOT NULL REFERENCES dim_region(region_id),
+  cohort_date DATE NOT NULL,                      -- install date
+  age_days SMALLINT NOT NULL,                     -- 0..n
+  cohort_installs INT NOT NULL,
+  retained_users INT NULL,
+  revenue_usd NUMERIC(18,2) NULL,                 -- cumulative or per-day depending on view
+  method_id BIGINT NOT NULL REFERENCES meta_lineage_method(method_id),
+  is_proxy BOOLEAN NOT NULL DEFAULT FALSE,
+  PRIMARY KEY(title_id, storefront_id, region_id, cohort_date, age_days)
+);
+
+CREATE TABLE fact_ua_spend_daily (
+  title_id BIGINT NOT NULL REFERENCES dim_title(title_id),
+  region_id SMALLINT NOT NULL REFERENCES dim_region(region_id),
+  channel_id SMALLINT NOT NULL REFERENCES dim_channel(channel_id),
+  spend_date DATE NOT NULL,
+  impressions BIGINT NULL,
+  clicks BIGINT NULL,
+  installs INT NULL,                              -- attributed installs
+  spend_usd NUMERIC(18,2) NULL,
+  cpm_usd NUMERIC(18,6) GENERATED ALWAYS AS (CASE WHEN impressions > 0 THEN spend_usd / impressions * 1000 ELSE NULL END) STORED,
+  cpc_usd NUMERIC(18,6) GENERATED ALWAYS AS (CASE WHEN clicks > 0 THEN spend_usd / clicks ELSE NULL END) STORED,
+  cpi_usd NUMERIC(18,6) GENERATED ALWAYS AS (CASE WHEN installs > 0 THEN spend_usd / installs ELSE NULL END) STORED,
+  PRIMARY KEY(title_id, region_id, channel_id, spend_date)
+);
+
+CREATE TABLE fact_release (
+  title_id BIGINT NOT NULL REFERENCES dim_title(title_id),
+  storefront_id SMALLINT NOT NULL REFERENCES dim_storefront(storefront_id),
+  release_id BIGSERIAL PRIMARY KEY,
+  release_date DATE NOT NULL,
+  release_type VARCHAR(32) NOT NULL,              -- launch, patch, content_drop, season_start, dlc_launch, price_change, promo
+  version_tag VARCHAR(64) NULL,
+  notes TEXT NULL
+);
+
+-- =========
+-- Forecast artefacts
+-- =========
+CREATE TABLE fact_forecast_daily (
+  title_id BIGINT NOT NULL REFERENCES dim_title(title_id),
+  storefront_id SMALLINT NOT NULL REFERENCES dim_storefront(storefront_id),
+  region_id SMALLINT NOT NULL REFERENCES dim_region(region_id),
+  metric_code VARCHAR(32) NOT NULL,               -- dau, net_usd, payers, installs
+  fc_date DATE NOT NULL,
+  scenario_code VARCHAR(16) NOT NULL,             -- base, low, high, custom_x
+  point NUMERIC(18,6) NOT NULL,
+  low NUMERIC(18,6) NULL,
+  high NUMERIC(18,6) NULL,
+  confidence_pct NUMERIC(5,2) NULL,
+  model_version VARCHAR(32) NOT NULL,
+  PRIMARY KEY(title_id, storefront_id, region_id, metric_code, fc_date, scenario_code, model_version)
+);
+
+CREATE TABLE fact_forecast_backtest (
+  title_id BIGINT NOT NULL REFERENCES dim_title(title_id),
+  metric_code VARCHAR(32) NOT NULL,
+  horizon_days SMALLINT NOT NULL,
+  window_weeks SMALLINT NOT NULL,
+  mape NUMERIC(8,6) NULL,
+  mae NUMERIC(18,6) NULL,
+  rmse NUMERIC(18,6) NULL,
+  last_train_date DATE NOT NULL,
+  model_version VARCHAR(32) NOT NULL,
+  PRIMARY KEY(title_id, metric_code, horizon_days, window_weeks, model_version)
+);
+
+CREATE TABLE fact_forecast_attribution (
+  title_id BIGINT NOT NULL REFERENCES dim_title(title_id),
+  attr_date DATE NOT NULL,
+  driver_code VARCHAR(32) NOT NULL,               -- price, promo, content, ua, seasonal, platform, external
+  metric_code VARCHAR(32) NOT NULL,
+  contribution NUMERIC(18,6) NOT NULL,            -- signed value in metric units
+  note VARCHAR(256),
+  model_version VARCHAR(32) NOT NULL,
+  PRIMARY KEY(title_id, attr_date, driver_code, metric_code, model_version)
+);
+
+-- =========
+-- Materialised aggregates (optional)
+-- =========
+CREATE TABLE agg_kpi_weekly AS
+SELECT title_id, storefront_id, region_id,
+       date_trunc('week', kpi_date)::date AS week_start,
+       SUM(installs) AS installs,
+       SUM(dau) AS dau_sum,
+       MAX(wau) AS wau, MAX(mau) AS mau,
+       SUM(payers) AS payers,
+       SUM(purchases) AS purchases,
+       AVG(d1_retention) AS d1_retention, AVG(d7_retention) AS d7_retention, AVG(d30_retention) AS d30_retention
+FROM fact_kpi_daily
+GROUP BY 1,2,3,4;
+
+CREATE TABLE agg_revenue_monthly AS
+SELECT title_id, storefront_id, region_id, currency_id,
+       date_trunc('month', rev_date)::date AS month_start,
+       sku_type,
+       SUM(gross_local) AS gross_local,
+       SUM(discounts_local) AS discounts_local,
+       SUM(refunds_local) AS refunds_local,
+       SUM(taxes_local) AS taxes_local,
+       SUM(platform_fees_local) AS platform_fees_local,
+       SUM(net_local) AS net_local,
+       SUM(gross_usd) AS gross_usd,
+       SUM(net_usd) AS net_usd,
+       SUM(units) AS units,
+       SUM(payers) AS payers
+FROM fact_revenue_daily
+GROUP BY 1,2,3,4,5,6;
+
+-- =========
+-- Views for standard KPIs
+-- =========
+CREATE VIEW vw_metrics_daily AS
+SELECT k.title_id, k.storefront_id, k.region_id, k.kpi_date AS date,
+       k.installs, k.dau, k.wau, k.mau, k.sessions,
+       k.payers, k.purchases, k.reactivations,
+       r.net_usd,
+       CASE WHEN k.dau > 0 AND r.net_usd IS NOT NULL THEN r.net_usd / k.dau END AS arpdau_usd,
+       CASE WHEN k.payers > 0 AND r.net_usd IS NOT NULL THEN r.net_usd / k.payers END AS arppu_usd,
+       CASE WHEN k.dau > 0 AND k.payers IS NOT NULL THEN k.payers::NUMERIC / k.dau END AS conversion_rate,
+       k.churn_rate,
+       k.d1_retention, k.d7_retention, k.d30_retention,
+       k.is_proxy OR r.is_proxy AS any_proxy,
+       k.method_id AS kpi_method_id,
+       r.method_id AS revenue_method_id
+FROM fact_kpi_daily k
+LEFT JOIN (
+  SELECT title_id, storefront_id, region_id, rev_date,
+         SUM(net_usd) AS net_usd,
+         BOOL_OR(is_proxy) AS is_proxy,
+         MIN(method_id) AS method_id
+  FROM fact_revenue_daily
+  GROUP BY 1,2,3,4
+) r
+ON r.title_id = k.title_id AND r.storefront_id = k.storefront_id AND r.region_id = k.region_id AND r.rev_date = k.kpi_date;
+```
+
+Retention, units, and calculation rules
+- DAU, WAU, MAU are unique user counts for the date or rolling windows. When derived, tag is_proxy and set method_id to the curve used.
+- ARPDAU is net_usd divided by DAU for the same date and scope.
+- ARPPU is net_usd divided by payers.
+- Conversion rate is payers divided by DAU.
+- Churn rate daily is estimated as max(0, (DAU[t−1] + NUU[t−1] − DAU[t] − reactivations[t]) ÷ DAU[t−1]) when telemetry is absent.
+- Retention table stores cohort_date, age_days, retained_users. D1, D7, D30 are provided in fact_kpi_daily as convenience fields sourced from the cohort table.
+
+Metrics dictionary seed
+- dau users per day. lineage fact_kpi_daily.dau. proxy flag carried from method_id.
+- payers users who completed ≥1 purchase on date. lineage fact_kpi_daily.payers.
+- net_usd usd net receipts after discounts, refunds, taxes, and platform fees. lineage fact_revenue_daily.net_usd.
+- arpdau_usd net_usd ÷ dau. lineage vw_metrics_daily. unit USD per user.
+- arppu_usd net_usd ÷ payers. unit USD per payer.
+- installs new device or account installs on date. lineage fact_kpi_daily.installs.
+- reactivations users returning after being inactive for at least N days. lineage fact_kpi_daily.reactivations.
+- d1_retention, d7_retention, d30_retention cohort-based ratios. lineage fact_retention_cohort_daily.
+
+Partitioning and retention guidance
+- Partition fact_kpi_daily, fact_revenue_daily, fact_rank_daily, fact_price_daily, fact_ua_spend_daily, fact_forecast_daily by date. Sort by title_id, date.
+- Keep daily facts at full fidelity for 24 months, then archive to monthly aggregates for long-range modelling.
+- Keep forecast artefacts for all model_version values for auditability.
+
+What you can do next
+- If this matches your expectations, I will add an extended Metrics Dictionary as a table with one row per metric including unit, formula SQL, null-handling, and example.  
+- If you need Excel instead, I will export these tables and dictionary into a workbook with tabs for Tables, Columns, Enums, and Formulas.
+
+[USER]
+proceed
+
+[ASSISTANT]
+Role: Data Architect. Chosen to deliver an implementation-ready Metrics Data Sheet for Playsage Foresight as a database schema with a full metrics dictionary, formulas, and governance.
+
+ASSUMPTIONS  
+A1 Scope is product metrics needed for forecasting and scenario analysis. No HR or “soft” org metrics. Confidence 95 percent.  
+A2 Daily is the canonical grain; weekly and monthly are materialised aggregates. Confidence 90 percent.  
+A3 When native telemetry is missing, store signals are used as proxies and must be lineage-tagged. Confidence 90 percent.
+
+# 1. Schema overview
+
+## 1.1 Common conventions
+- Keys: `title_id`, `storefront_id`, `region_id`, `date` fields are UTC dates.  
+- Money: `*_local` in local currency, `*_usd` in USD. FX from `cfg_currency_rate`.  
+- Governance columns on every fact: `source_system`, `batch_id`, `ingested_at_utc`, `updated_at_utc`.  
+- Proxy lineage: `method_id` plus `is_proxy` boolean.  
+- Partitions: all daily facts partitioned by date. Sort keys: `title_id, date`.
+
+## 1.2 Dimension and config tables
+```sql
+CREATE TABLE dim_platform(
+  platform_id SMALLINT PRIMARY KEY,
+  platform_code VARCHAR(16) UNIQUE NOT NULL,      -- steam, ps, xbox, ios, android
+  platform_name VARCHAR(64) NOT NULL
+);
+
+CREATE TABLE dim_region(
+  region_id SMALLINT PRIMARY KEY,
+  region_code VARCHAR(16) UNIQUE NOT NULL,        -- US, UK, EUW, EUE, ROW
+  region_name VARCHAR(64) NOT NULL
+);
+
+CREATE TABLE dim_currency(
+  currency_id SMALLINT PRIMARY KEY,
+  iso_code CHAR(3) UNIQUE NOT NULL,               -- USD, GBP, EUR
+  symbol VARCHAR(8) NOT NULL
+);
+
+CREATE TABLE dim_storefront(
+  storefront_id SMALLINT PRIMARY KEY,
+  storefront_code VARCHAR(16) UNIQUE NOT NULL,    -- steam, psn, xbox_live, appstore, googleplay
+  storefront_name VARCHAR(64) NOT NULL,
+  platform_id SMALLINT NOT NULL REFERENCES dim_platform(platform_id)
+);
+
+CREATE TABLE dim_channel(
+  channel_id SMALLINT PRIMARY KEY,
+  channel_code VARCHAR(32) UNIQUE NOT NULL,       -- organic, search_ads, meta, tiktok, influencer
+  channel_name VARCHAR(64) NOT NULL
+);
+
+CREATE TABLE dim_title(
+  title_id BIGINT PRIMARY KEY,
+  title_code VARCHAR(64) UNIQUE NOT NULL,
+  title_name VARCHAR(128) NOT NULL,
+  business_model VARCHAR(32) NOT NULL,            -- premium, f2p, hybrid, subscription
+  genre VARCHAR(64) NULL,
+  release_date DATE NULL
+);
+
+CREATE TABLE dim_sku(
+  sku_id BIGINT PRIMARY KEY,
+  title_id BIGINT NOT NULL REFERENCES dim_title(title_id),
+  sku_code VARCHAR(64) NOT NULL,                  -- base, dlc_<name>, iap_<code>, season_<n>, sub_<tier>
+  sku_name VARCHAR(128) NOT NULL,
+  sku_type VARCHAR(32) NOT NULL,                  -- base, dlc, iap, season, subscription
+  is_consumable BOOLEAN NOT NULL DEFAULT FALSE,
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  UNIQUE(title_id, sku_code)
+);
+
+CREATE TABLE map_title_storefront_region(
+  title_storefront_region_id BIGSERIAL PRIMARY KEY,
+  title_id BIGINT NOT NULL REFERENCES dim_title(title_id),
+  storefront_id SMALLINT NOT NULL REFERENCES dim_storefront(storefront_id),
+  region_id SMALLINT NOT NULL REFERENCES dim_region(region_id),
+  currency_id SMALLINT NOT NULL REFERENCES dim_currency(currency_id),
+  is_live BOOLEAN NOT NULL DEFAULT TRUE,
+  UNIQUE(title_id, storefront_id, region_id)
+);
+
+-- Config and lineage
+CREATE TABLE cfg_currency_rate(
+  rate_date DATE NOT NULL,
+  base_currency_id SMALLINT NOT NULL REFERENCES dim_currency(currency_id),
+  quote_currency_id SMALLINT NOT NULL REFERENCES dim_currency(currency_id),
+  fx_rate NUMERIC(18,8) NOT NULL,
+  PRIMARY KEY(rate_date, base_currency_id, quote_currency_id)
+);
+
+CREATE TABLE cfg_fee_schedule(
+  storefront_id SMALLINT NOT NULL REFERENCES dim_storefront(storefront_id),
+  effective_from DATE NOT NULL,
+  effective_to DATE NULL,
+  fee_rate NUMERIC(6,4) NOT NULL,
+  notes VARCHAR(256),
+  PRIMARY KEY(storefront_id, effective_from)
+);
+
+CREATE TABLE cfg_rank_to_units_curve(
+  storefront_id SMALLINT NOT NULL REFERENCES dim_storefront(storefront_id),
+  country_code CHAR(2) NULL,
+  category VARCHAR(64) NULL,                      -- top_grossing, top_paid, top_free
+  rank_low INT NOT NULL,
+  rank_high INT NOT NULL,
+  units_per_rank NUMERIC(18,6) NOT NULL,
+  PRIMARY KEY(storefront_id, rank_low, rank_high)
+);
+
+CREATE TABLE cfg_price_elasticity(
+  sku_type VARCHAR(32) PRIMARY KEY,               -- base, dlc, iap
+  elasticity NUMERIC(8,4) NOT NULL,
+  notes VARCHAR(256)
+);
+
+CREATE TABLE cfg_revrec_rule(
+  sku_type VARCHAR(32) PRIMARY KEY,               -- subscription, season, dlc if deferred
+  recognition_days SMALLINT NOT NULL,             -- straight-line days
+  start_anchor VARCHAR(16) NOT NULL               -- purchase_date or season_start
+);
+
+CREATE TABLE meta_lineage_method(
+  method_id BIGSERIAL PRIMARY KEY,
+  method_code VARCHAR(64) UNIQUE NOT NULL,        -- telemetry_direct, rank_curve_v1, blended_v2
+  description TEXT NOT NULL,
+  source_priority SMALLINT NOT NULL
+);
+```
+
+## 1.3 Daily fact tables
+```sql
+CREATE TABLE fact_kpi_daily(
+  title_id BIGINT NOT NULL REFERENCES dim_title(title_id),
+  storefront_id SMALLINT NOT NULL REFERENCES dim_storefront(storefront_id),
+  region_id SMALLINT NOT NULL REFERENCES dim_region(region_id),
+  kpi_date DATE NOT NULL,
+  installs INT NULL,
+  nuu INT NULL,                                   -- new unique users active on date
+  dau INT NULL,
+  wau INT NULL,
+  mau INT NULL,
+  sessions BIGINT NULL,
+  payers INT NULL,
+  purchases INT NULL,
+  reactivations INT NULL,
+  churn_rate NUMERIC(8,6) NULL,
+  d1_retention NUMERIC(8,6) NULL,
+  d7_retention NUMERIC(8,6) NULL,
+  d30_retention NUMERIC(8,6) NULL,
+  method_id BIGINT NOT NULL REFERENCES meta_lineage_method(method_id),
+  is_proxy BOOLEAN NOT NULL DEFAULT FALSE,
+  source_system VARCHAR(64) NOT NULL,
+  batch_id VARCHAR(64) NOT NULL,
+  ingested_at_utc TIMESTAMP NOT NULL DEFAULT now(),
+  updated_at_utc TIMESTAMP NOT NULL DEFAULT now(),
+  PRIMARY KEY(title_id, storefront_id, region_id, kpi_date)
+);
+
+CREATE TABLE fact_revenue_daily(
+  title_id BIGINT NOT NULL REFERENCES dim_title(title_id),
+  storefront_id SMALLINT NOT NULL REFERENCES dim_storefront(storefront_id),
+  region_id SMALLINT NOT NULL REFERENCES dim_region(region_id),
+  currency_id SMALLINT NOT NULL REFERENCES dim_currency(currency_id),
+  rev_date DATE NOT NULL,
+  sku_type VARCHAR(32) NOT NULL,                  -- base, dlc, iap, season, subscription
+  gross_local NUMERIC(18,2) NULL,
+  discounts_local NUMERIC(18,2) NULL,
+  refunds_local NUMERIC(18,2) NULL,
+  taxes_local NUMERIC(18,2) NULL,
+  platform_fees_local NUMERIC(18,2) NULL,
+  net_local NUMERIC(18,2) NULL,
+  gross_usd NUMERIC(18,2) NULL,
+  net_usd NUMERIC(18,2) NULL,
+  units INT NULL,
+  payers INT NULL,
+  method_id BIGINT NOT NULL REFERENCES meta_lineage_method(method_id),
+  is_proxy BOOLEAN NOT NULL DEFAULT FALSE,
+  source_system VARCHAR(64) NOT NULL,
+  batch_id VARCHAR(64) NOT NULL,
+  ingested_at_utc TIMESTAMP NOT NULL DEFAULT now(),
+  updated_at_utc TIMESTAMP NOT NULL DEFAULT now(),
+  PRIMARY KEY(title_id, storefront_id, region_id, currency_id, rev_date, sku_type)
+);
+
+CREATE TABLE fact_price_daily(
+  title_id BIGINT NOT NULL REFERENCES dim_title(title_id),
+  storefront_id SMALLINT NOT NULL REFERENCES dim_storefront(storefront_id),
+  region_id SMALLINT NOT NULL REFERENCES dim_region(region_id),
+  sku_id BIGINT NOT NULL REFERENCES dim_sku(sku_id),
+  price_date DATE NOT NULL,
+  base_price_local NUMERIC(18,2) NOT NULL,
+  live_price_local NUMERIC(18,2) NOT NULL,
+  discount_pct NUMERIC(8,6) NOT NULL,
+  promo_flag BOOLEAN NOT NULL DEFAULT FALSE,
+  source_system VARCHAR(64) NOT NULL,
+  batch_id VARCHAR(64) NOT NULL,
+  ingested_at_utc TIMESTAMP NOT NULL DEFAULT now(),
+  updated_at_utc TIMESTAMP NOT NULL DEFAULT now(),
+  PRIMARY KEY(title_id, storefront_id, region_id, sku_id, price_date)
+);
+
+CREATE TABLE fact_rank_daily(
+  title_id BIGINT NOT NULL REFERENCES dim_title(title_id),
+  storefront_id SMALLINT NOT NULL REFERENCES dim_storefront(storefront_id),
+  country_code CHAR(2) NULL,
+  rank_date DATE NOT NULL,
+  chart_type VARCHAR(32) NOT NULL,                -- top_paid, top_grossing, top_free
+  rank_position INT NULL,
+  featured_flag BOOLEAN NOT NULL DEFAULT FALSE,
+  source_system VARCHAR(64) NOT NULL,
+  batch_id VARCHAR(64) NOT NULL,
+  ingested_at_utc TIMESTAMP NOT NULL DEFAULT now(),
+  updated_at_utc TIMESTAMP NOT NULL DEFAULT now(),
+  PRIMARY KEY(title_id, storefront_id, country_code, rank_date, chart_type)
+);
+
+CREATE TABLE fact_retention_cohort_daily(
+  title_id BIGINT NOT NULL REFERENCES dim_title(title_id),
+  storefront_id SMALLINT NOT NULL REFERENCES dim_storefront(storefront_id),
+  region_id SMALLINT NOT NULL REFERENCES dim_region(region_id),
+  cohort_date DATE NOT NULL,                       -- install date
+  age_days SMALLINT NOT NULL,
+  cohort_installs INT NOT NULL,
+  retained_users INT NULL,
+  revenue_usd NUMERIC(18,2) NULL,                 -- optional per-cohort revenue
+  method_id BIGINT NOT NULL REFERENCES meta_lineage_method(method_id),
+  is_proxy BOOLEAN NOT NULL DEFAULT FALSE,
+  source_system VARCHAR(64) NOT NULL,
+  batch_id VARCHAR(64) NOT NULL,
+  ingested_at_utc TIMESTAMP NOT NULL DEFAULT now(),
+  updated_at_utc TIMESTAMP NOT NULL DEFAULT now(),
+  PRIMARY KEY(title_id, storefront_id, region_id, cohort_date, age_days)
+);
+
+CREATE TABLE fact_ua_spend_daily(
+  title_id BIGINT NOT NULL REFERENCES dim_title(title_id),
+  region_id SMALLINT NOT NULL REFERENCES dim_region(region_id),
+  channel_id SMALLINT NOT NULL REFERENCES dim_channel(channel_id),
+  spend_date DATE NOT NULL,
+  impressions BIGINT NULL,
+  clicks BIGINT NULL,
+  installs INT NULL,
+  spend_usd NUMERIC(18,2) NULL,
+  source_system VARCHAR(64) NOT NULL,
+  batch_id VARCHAR(64) NOT NULL,
+  ingested_at_utc TIMESTAMP NOT NULL DEFAULT now(),
+  updated_at_utc TIMESTAMP NOT NULL DEFAULT now(),
+  PRIMARY KEY(title_id, region_id, channel_id, spend_date)
+);
+
+CREATE TABLE fact_release(
+  title_id BIGINT NOT NULL REFERENCES dim_title(title_id),
+  storefront_id SMALLINT NOT NULL REFERENCES dim_storefront(storefront_id),
+  release_id BIGSERIAL PRIMARY KEY,
+  release_date DATE NOT NULL,
+  release_type VARCHAR(32) NOT NULL,              -- launch, patch, content_drop, season_start, dlc_launch, price_change, promo
+  version_tag VARCHAR(64) NULL,
+  notes TEXT NULL,
+  source_system VARCHAR(64) NOT NULL,
+  batch_id VARCHAR(64) NOT NULL,
+  ingested_at_utc TIMESTAMP NOT NULL DEFAULT now(),
+  updated_at_utc TIMESTAMP NOT NULL DEFAULT now()
+);
+
+-- Forecast artefacts
+CREATE TABLE fact_forecast_daily(
+  title_id BIGINT NOT NULL REFERENCES dim_title(title_id),
+  storefront_id SMALLINT NOT NULL REFERENCES dim_storefront(storefront_id),
+  region_id SMALLINT NOT NULL REFERENCES dim_region(region_id),
+  metric_code VARCHAR(32) NOT NULL,               -- dau, net_usd, payers, installs
+  fc_date DATE NOT NULL,
+  scenario_code VARCHAR(16) NOT NULL,             -- base, low, high, custom_x
+  point NUMERIC(18,6) NOT NULL,
+  low NUMERIC(18,6) NULL,
+  high NUMERIC(18,6) NULL,
+  confidence_pct NUMERIC(5,2) NULL,
+  model_version VARCHAR(32) NOT NULL,
+  source_system VARCHAR(64) NOT NULL,
+  batch_id VARCHAR(64) NOT NULL,
+  ingested_at_utc TIMESTAMP NOT NULL DEFAULT now(),
+  updated_at_utc TIMESTAMP NOT NULL DEFAULT now(),
+  PRIMARY KEY(title_id, storefront_id, region_id, metric_code, fc_date, scenario_code, model_version)
+);
+
+CREATE TABLE fact_forecast_backtest(
+  title_id BIGINT NOT NULL REFERENCES dim_title(title_id),
+  metric_code VARCHAR(32) NOT NULL,
+  horizon_days SMALLINT NOT NULL,
+  window_weeks SMALLINT NOT NULL,
+  mape NUMERIC(8,6) NULL,
+  mae NUMERIC(18,6) NULL,
+  rmse NUMERIC(18,6) NULL,
+  last_train_date DATE NOT NULL,
+  model_version VARCHAR(32) NOT NULL,
+  PRIMARY KEY(title_id, metric_code, horizon_days, window_weeks, model_version)
+);
+
+CREATE TABLE fact_forecast_attribution(
+  title_id BIGINT NOT NULL REFERENCES dim_title(title_id),
+  attr_date DATE NOT NULL,
+  driver_code VARCHAR(32) NOT NULL,               -- price, promo, content, ua, seasonal, platform, external
+  metric_code VARCHAR(32) NOT NULL,
+  contribution NUMERIC(18,6) NOT NULL,
+  note VARCHAR(256),
+  model_version VARCHAR(32) NOT NULL,
+  PRIMARY KEY(title_id, attr_date, driver_code, metric_code, model_version)
+);
+
+-- Revenue recognition rollforward
+CREATE TABLE fact_revrec_daily(
+  title_id BIGINT NOT NULL REFERENCES dim_title(title_id),
+  sku_id BIGINT NOT NULL REFERENCES dim_sku(sku_id),
+  revrec_date DATE NOT NULL,
+  bookings_usd NUMERIC(18,2) NOT NULL,           -- cash or billing events
+  recognized_usd NUMERIC(18,2) NOT NULL,         -- GAAP recognition for the day
+  deferred_open_usd NUMERIC(18,2) NOT NULL,
+  deferred_close_usd NUMERIC(18,2) NOT NULL,
+  method_id BIGINT NOT NULL REFERENCES meta_lineage_method(method_id),
+  source_system VARCHAR(64) NOT NULL,
+  batch_id VARCHAR(64) NOT NULL,
+  ingested_at_utc TIMESTAMP NOT NULL DEFAULT now(),
+  updated_at_utc TIMESTAMP NOT NULL DEFAULT now(),
+  PRIMARY KEY(title_id, sku_id, revrec_date)
+);
+```
+
+## 1.4 Materialised aggregates and standard KPI view
+```sql
+CREATE TABLE agg_kpi_weekly AS
+SELECT title_id, storefront_id, region_id,
+       date_trunc('week', kpi_date)::date AS week_start,
+       SUM(installs) installs,
+       SUM(nuu) nuu,
+       SUM(dau) dau_sum,
+       MAX(wau) wau,
+       MAX(mau) mau,
+       SUM(payers) payers,
+       SUM(purchases) purchases,
+       AVG(d1_retention) d1_retention,
+       AVG(d7_retention) d7_retention,
+       AVG(d30_retention) d30_retention
+FROM fact_kpi_daily
+GROUP BY 1,2,3,4;
+
+CREATE TABLE agg_revenue_monthly AS
+SELECT title_id, storefront_id, region_id, currency_id,
+       date_trunc('month', rev_date)::date AS month_start,
+       sku_type,
+       SUM(gross_local) gross_local,
+       SUM(discounts_local) discounts_local,
+       SUM(refunds_local) refunds_local,
+       SUM(taxes_local) taxes_local,
+       SUM(platform_fees_local) platform_fees_local,
+       SUM(net_local) net_local,
+       SUM(gross_usd) gross_usd,
+       SUM(net_usd) net_usd,
+       SUM(units) units,
+       SUM(payers) payers
+FROM fact_revenue_daily
+GROUP BY 1,2,3,4,5,6;
+
+CREATE VIEW vw_metrics_daily AS
+SELECT k.title_id, k.storefront_id, k.region_id, k.kpi_date AS date,
+       k.installs, k.nuu, k.dau, k.wau, k.mau, k.sessions,
+       k.payers, k.purchases, k.reactivations,
+       r.net_usd,
+       CASE WHEN k.dau > 0 AND r.net_usd IS NOT NULL THEN r.net_usd / k.dau END AS arpdau_usd,
+       CASE WHEN k.payers > 0 AND r.net_usd IS NOT NULL THEN r.net_usd / k.payers END AS arppu_usd,
+       CASE WHEN k.dau > 0 AND k.payers IS NOT NULL THEN k.payers::NUMERIC / k.dau END AS conversion_rate,
+       CASE WHEN k.mau > 0 AND k.dau IS NOT NULL THEN k.dau::NUMERIC / k.mau END AS sticky_factor,
+       k.churn_rate, k.d1_retention, k.d7_retention, k.d30_retention,
+       k.is_proxy OR r.is_proxy AS any_proxy,
+       k.method_id AS kpi_method_id,
+       r.method_id AS revenue_method_id
+FROM fact_kpi_daily k
+LEFT JOIN (
+  SELECT title_id, storefront_id, region_id, rev_date,
+         SUM(net_usd) AS net_usd,
+         BOOL_OR(is_proxy) AS is_proxy,
+         MIN(method_id) AS method_id
+  FROM fact_revenue_daily
+  GROUP BY 1,2,3,4
+) r
+  ON r.title_id=k.title_id AND r.storefront_id=k.storefront_id
+ AND r.region_id=k.region_id AND r.rev_date=k.kpi_date;
+```
+
+# 2. Metrics dictionary
+
+Each entry includes name, unit, grain, definition, formula, lineage, null rules, and example SQL when derived.
+
+**Installs**  
+- Unit users. Grain daily per title, storefront, region.  
+- Definition new device or account installations recorded or estimated for date d.  
+- Lineage `fact_kpi_daily.installs`. Proxy when `is_proxy = true`.  
+- Null rules store null when unknown.  
+- Notes used as cohort seed for retention.
+
+**NUU**  
+- Unit users. Grain daily.  
+- Definition new unique users who were active on date d.  
+- Lineage `fact_kpi_daily.nuu`.
+
+**DAU, WAU, MAU**  
+- Unit users. Grain daily for DAU, rolling 7 for WAU, rolling 30 for MAU.  
+- Lineage `fact_kpi_daily`.  
+- Proxy tag carried from `method_id`.  
+- Example null clamp set to null if negative after estimation.
+
+**Sessions**  
+- Unit sessions. Grain daily.  
+- Lineage `fact_kpi_daily.sessions`. Optional if unavailable.
+
+**Payers**  
+- Unit users. Grain daily.  
+- Definition unique users with at least one purchase on date d.  
+- Lineage `fact_kpi_daily.payers`.
+
+**Purchases**  
+- Unit transactions. Grain daily.  
+- Lineage `fact_kpi_daily.purchases`.
+
+**Reactivations**  
+- Unit users. Grain daily.  
+- Definition users returning after inactivity threshold N days.  
+- Lineage `fact_kpi_daily.reactivations`.
+
+**Churn rate**  
+- Unit ratio. Grain daily.  
+- Definition estimated share of users who became inactive on date d.  
+- Formula when proxy  
+  `max(0, (DAU[d-1] + NUU[d-1] - DAU[d] - reactivations[d]) ÷ nullif(DAU[d-1],0))`.  
+- Lineage `fact_kpi_daily.churn_rate`.
+
+**D1, D7, D30 retention**  
+- Unit ratio. Grain daily convenience fields.  
+- Definition cohort retention for cohorts with `cohort_date = d-1`, `d-7`, `d-30`.  
+- Preferred computation from `fact_retention_cohort_daily`.
+
+**Gross revenue, Net revenue**  
+- Unit USD or local. Grain daily by `sku_type`.  
+- Lineage `fact_revenue_daily.gross_*`, `net_*`.  
+- Net formula `gross − discounts − refunds − taxes − platform_fees`.
+
+**Units**  
+- Unit units. Grain daily by `sku_type`.  
+- Definition units sold of base or DLC; pseudo units for IAP if configured.
+
+**ARPPU**  
+- Unit USD per payer. Grain daily.  
+- Formula `net_usd ÷ payers`.  
+- SQL
+```sql
+SELECT date, CASE WHEN payers>0 THEN net_usd/payers END AS arppu_usd
+FROM vw_metrics_daily
+WHERE title_id = :t AND storefront_id=:s AND region_id=:r;
+```
+
+**ARPDAU**  
+- Unit USD per user. Grain daily.  
+- Formula `net_usd ÷ DAU`. See view above.
+
+**Conversion rate**  
+- Unit ratio. Grain daily.  
+- Formula `payers ÷ DAU`.
+
+**Sticky factor**  
+- Unit ratio. Grain daily.  
+- Formula `DAU ÷ MAU`.
+
+**DLC attach rate**  
+- Unit ratio. Grain daily.  
+- Definition estimated share of base-game MAU that owns DLC X.  
+- SQL example
+```sql
+SELECT d.date,
+       CASE WHEN m.mau>0 THEN dlc.units_cum::NUMERIC / m.mau END AS dlc_attach
+FROM (
+  SELECT rev_date AS date, SUM(units) OVER(ORDER BY rev_date ROWS UNBOUNDED PRECEDING) units_cum
+  FROM fact_revenue_daily
+  WHERE title_id=:t AND sku_type='dlc'
+) dlc
+JOIN (
+  SELECT date, mau FROM vw_metrics_daily WHERE title_id=:t
+) m ON m.date=dlc.date;
+```
+
+**UA metrics: Impressions, Clicks, Installs, Spend, CPM, CPC, CPI**  
+- Units impressions, clicks, installs, USD, USD per thousand, USD per click, USD per install.  
+- Grain daily by title, region, channel.  
+- Lineage `fact_ua_spend_daily`. CPM, CPC, CPI are generated columns in table.
+
+**ROAS d, ROAS 7, ROAS 30**  
+- Unit ratio.  
+- Definition cumulative revenue from attributed cohorts divided by spend after d, 7, or 30 days.  
+- Example SQL sketch joining attributed installs to revenue is model dependent. Store as model output in a view `vw_roas_*` in Foresight.
+
+**Forecast ribbons**  
+- Unit metric units. Grain daily by metric and scenario.  
+- Lineage `fact_forecast_daily.point, low, high`.  
+- Backtest error metrics in `fact_forecast_backtest` with `mape, mae, rmse`.
+
+**Rev rec rollforward**  
+- Bookings, Recognized, Deferred open, Deferred close in `fact_revrec_daily`.  
+- Example rollforward check  
+```sql
+SELECT revrec_date, deferred_open_usd + bookings_usd - recognized_usd AS deferred_close_check
+FROM fact_revrec_daily
+WHERE title_id=:t AND sku_id=:sku
+ORDER BY revrec_date;
+```
+
+# 3. Enums and allowed values
+
+- `platform_code` steam, ps, xbox, ios, android.  
+- `region_code` US, UK, EUW, EUE, ROW.  
+- `chart_type` top_paid, top_grossing, top_free.  
+- `business_model` premium, f2p, hybrid, subscription.  
+- `sku_type` base, dlc, iap, season, subscription.  
+- `release_type` launch, patch, content_drop, season_start, dlc_launch, price_change, promo.  
+- `metric_code` dau, installs, payers, net_usd.  
+- `driver_code` price, promo, content, ua, seasonal, platform, external.  
+Extendable via the dim tables without code changes.
+
+# 4. Retention, partitioning, and SLAs
+
+- Fact tables keep 24 months at daily grain online. Monthly aggregates retained for life.  
+- Partitions by date, sort by `title_id, date`.  
+- Ingest SLA daily at 09:00 UTC. Forecast refresh after ingest.  
+- FX and fee schedules versioned by effective dates.  
+- Data quality checks  
+  1. Non negative: installs, dau, payers, units, gross.  
+  2. Bounded ratios 0 to 1: retention, conversion_rate, sticky_factor.  
+  3. Revenue reconciliation per day: `net_local = gross_local − discounts_local − refunds_local − taxes_local − platform_fees_local`.  
+  4. Rev rec identity: `deferred_close = deferred_open + bookings − recognized`.  
+  5. Proxy flag required when `method_id` belongs to non-telemetry methods.
+
+# 5. Example queries
+
+**Daily KPI pack**
+```sql
+SELECT * FROM vw_metrics_daily
+WHERE title_id=:t AND storefront_id=:s AND region_id=:r
+  AND date BETWEEN :d0 AND :d1
+ORDER BY date;
+```
+
+**Price elasticity what-if**
+```sql
+SELECT p.price_date,
+       p.live_price_local,
+       e.elasticity,
+       k.dau,
+       (1 + e.elasticity * p.discount_pct) * COALESCE(k.dau,0) AS demand_index
+FROM fact_price_daily p
+LEFT JOIN fact_kpi_daily k
+  ON k.title_id=p.title_id AND k.storefront_id=p.storefront_id
+ AND k.region_id=p.region_id AND k.kpi_date=p.price_date
+JOIN cfg_price_elasticity e ON e.sku_type = 'base'
+WHERE p.title_id=:t;
+```
+
+**ROAS 7 sketch**  
+Assumes an attribution view `vw_attr_installs` that maps installs to revenue by cohort and day.
+```sql
+SELECT a.title_id, a.region_id, a.channel_id, a.install_date,
+       SUM(r.net_usd) / NULLIF(SUM(a.spend_usd),0) AS roas_7
+FROM vw_attr_installs a
+JOIN fact_revenue_daily r
+  ON r.title_id=a.title_id AND r.region_id=a.region_id
+ AND r.rev_date BETWEEN a.install_date AND a.install_date + INTERVAL '7 days'
+GROUP BY 1,2,3,4;
+```
+
+# 6. Deliverable notes
+
+- This is production-ready schema and dictionary for Playsage Foresight.  
+- If you want this exported to an Excel workbook with tabs for Tables, Columns, Enums, and Formulas, say “Excel export” and I will deliver it here.  
+- If you want SQL files split per table, say “split DDL” and I will provide vendor-specific variants for Snowflake, BigQuery, or Postgres.
+
+[USER]
+as an expert data architect review the above and critic then iterate as needed
+
+[ASSISTANT]
+Role: Data Architect. Chosen to stress test the schema against Playsage Foresight needs, call out gaps, and deliver a tighter, production-ready iteration.
+
+ASSUMPTIONS  
+A1 Foresight operates primarily on aggregated product metrics, not user-level PII. Confidence 95 percent.  
+A2 Titles may be Premium, F2P, or Hybrid and can ship across multiple storefronts and regions. Confidence 90 percent.  
+A3 Store-signal proxies will exist for some titles and must be traceable and auditable. Confidence 95 percent.
+
+# Critique summary
+The first cut is close, but several issues would slow modelling and QA in practice: revenue lacks SKU-level fidelity, geo is too coarse for iOS/Google, metrics codes are free-text, and data quality governance is implicit rather than explicit. Forecast artefacts are fine, but we should add model registry and metric locks to prevent silent drift. Price, release, and events need a shared calendar of “drivers” to improve attribution.
+
+# Critic matrix and fixes
+Issue | Impact | Fix applied
+:--|:--|:--
+Revenue fact keyed by `sku_type` only | Cannot analyse DLCs, seasons, and bundles at SKU resolution; hampers rev rec joins | Replace with SKU-level revenue fact; keep a view for `sku_type` rollups
+Region too coarse, no country | Rank and featuring datasets are country-level; proxy mapping loses fidelity | Add `dim_country` and optional `country_code` on facts; keep `region_id` as rollup
+Free-text metric codes | Risk of typos breaking joins and views | Add `dim_metric` and foreign keys from forecast and views
+No explicit method precedence or source availability | Hard to reason about proxy vs direct and conflict resolution | Add `meta_source_availability` and `meta_method_precedence`
+No driver calendar | Weak attribution and scenario wiring | Add `dim_driver_event` with daily fact for on/off drivers
+DQ and load audits implicit | Failures surface late, lineage unclear | Add `dq_check_catalog`, `dq_result_daily`, and `etl_load_audit`
+Retention convenience only | Cohort LTV lacks a home | Add `fact_ltv_cohort_daily` for forecast backtests and scenario LTV
+Enums in wide tables | Harder to extend | Introduce lightweight dims: `dim_business_model`, `dim_release_type`, `dim_chart_type`
+Ratio bounds not enforced | Data drift | Add `CHECK` constraints on 0..1 fields
+
+# Iteration: schema deltas (DDL patches)
+
+## Geo and taxonomy
+```sql
+CREATE TABLE dim_country(
+  country_id SMALLINT PRIMARY KEY,
+  iso2 CHAR(2) UNIQUE NOT NULL,
+  country_name VARCHAR(64) NOT NULL,
+  region_id SMALLINT NOT NULL REFERENCES dim_region(region_id)
+);
+
+ALTER TABLE fact_rank_daily
+  ADD COLUMN country_id SMALLINT NULL REFERENCES dim_country(country_id),
+  DROP COLUMN country_code;
+
+-- Optional country on daily KPIs and revenue for stores that publish by country
+ALTER TABLE fact_kpi_daily ADD COLUMN country_id SMALLINT NULL REFERENCES dim_country(country_id);
+ALTER TABLE fact_revenue_daily ADD COLUMN country_id SMALLINT NULL REFERENCES dim_country(country_id);
+```
+
+## Normalise metric codes and enums
+```sql
+CREATE TABLE dim_metric(
+  metric_code VARCHAR(32) PRIMARY KEY,   -- dau, installs, payers, net_usd, etc.
+  metric_name VARCHAR(64) NOT NULL,
+  unit VARCHAR(32) NOT NULL
+);
+
+CREATE TABLE dim_business_model(
+  business_model_code VARCHAR(16) PRIMARY KEY,  -- premium, f2p, hybrid, subscription
+  description VARCHAR(128)
+);
+
+ALTER TABLE dim_title
+  ADD CONSTRAINT fk_biz_model
+  FOREIGN KEY (business_model) REFERENCES dim_business_model(business_model_code);
+
+CREATE TABLE dim_release_type(
+  release_type_code VARCHAR(32) PRIMARY KEY,    -- launch, patch, content_drop, season_start, dlc_launch, price_change, promo
+  description VARCHAR(128)
+);
+
+CREATE TABLE dim_chart_type(
+  chart_type_code VARCHAR(32) PRIMARY KEY,      -- top_paid, top_grossing, top_free
+  description VARCHAR(128)
+);
+
+ALTER TABLE fact_rank_daily
+  ADD CONSTRAINT fk_chart_type
+  FOREIGN KEY (chart_type) REFERENCES dim_chart_type(chart_type_code);
+```
+
+## SKU-level revenue and rev-rec
+```sql
+-- Replace sku_type-only keying with SKU resolution
+ALTER TABLE fact_revenue_daily
+  ADD COLUMN sku_id BIGINT NULL REFERENCES dim_sku(sku_id);
+
+-- Backfill rule: either sku_id is set, or sku_type is set, or both with consistency check
+ALTER TABLE fact_revenue_daily
+  ADD CONSTRAINT ck_revenue_sku_presence CHECK (
+    sku_id IS NOT NULL OR sku_type IS NOT NULL
+  );
+
+-- Optional helper view for type rollups
+CREATE VIEW vw_revenue_by_type_daily AS
+SELECT title_id, storefront_id, region_id, country_id, currency_id, rev_date,
+       COALESCE(s.sku_type, sku_type) AS sku_type,
+       SUM(gross_local) gross_local, SUM(discounts_local) discounts_local,
+       SUM(refunds_local) refunds_local, SUM(taxes_local) taxes_local,
+       SUM(platform_fees_local) platform_fees_local,
+       SUM(net_local) net_local, SUM(gross_usd) gross_usd, SUM(net_usd) net_usd,
+       SUM(units) units, SUM(payers) payers,
+       BOOL_OR(is_proxy) is_proxy, MIN(method_id) method_id
+FROM fact_revenue_daily r
+LEFT JOIN dim_sku s ON s.sku_id = r.sku_id
+GROUP BY 1,2,3,4,5,6,7;
+```
+
+## Driver calendar for attribution
+```sql
+CREATE TABLE dim_driver_event(
+  driver_code VARCHAR(32) PRIMARY KEY,        -- price, promo, content, ua, seasonal, platform, external
+  description VARCHAR(256)
+);
+
+CREATE TABLE fact_driver_daily(
+  title_id BIGINT NOT NULL REFERENCES dim_title(title_id),
+  storefront_id SMALLINT NULL REFERENCES dim_storefront(storefront_id),
+  region_id SMALLINT NULL REFERENCES dim_region(region_id),
+  country_id SMALLINT NULL REFERENCES dim_country(country_id),
+  driver_code VARCHAR(32) NOT NULL REFERENCES dim_driver_event(driver_code),
+  driver_date DATE NOT NULL,
+  weight NUMERIC(8,6) NULL,                   -- optional intensity 0..1
+  note VARCHAR(256),
+  PRIMARY KEY(title_id, driver_code, driver_date, storefront_id, region_id, country_id)
+);
+```
+
+## Source availability and precedence
+```sql
+CREATE TABLE meta_source_availability(
+  title_id BIGINT NOT NULL REFERENCES dim_title(title_id),
+  storefront_id SMALLINT NULL REFERENCES dim_storefront(storefront_id),
+  region_id SMALLINT NULL REFERENCES dim_region(region_id),
+  metric_code VARCHAR(32) NOT NULL REFERENCES dim_metric(metric_code),
+  method_id BIGINT NOT NULL REFERENCES meta_lineage_method(method_id),
+  available_from DATE NOT NULL,
+  available_to DATE NULL,
+  PRIMARY KEY(title_id, storefront_id, region_id, metric_code, method_id, available_from)
+);
+
+CREATE TABLE meta_method_precedence(
+  metric_code VARCHAR(32) NOT NULL REFERENCES dim_metric(metric_code),
+  method_id BIGINT NOT NULL REFERENCES meta_lineage_method(method_id),
+  precedence SMALLINT NOT NULL,                 -- 1 is best
+  PRIMARY KEY(metric_code, method_id)
+);
+```
+
+## LTV cohorts for scenarios and backtests
+```sql
+CREATE TABLE fact_ltv_cohort_daily(
+  title_id BIGINT NOT NULL REFERENCES dim_title(title_id),
+  storefront_id SMALLINT NOT NULL REFERENCES dim_storefront(storefront_id),
+  region_id SMALLINT NOT NULL REFERENCES dim_region(region_id),
+  cohort_date DATE NOT NULL,
+  age_days SMALLINT NOT NULL,
+  installs INT NOT NULL,
+  cumulative_net_usd NUMERIC(18,2) NULL,
+  arpu_usd NUMERIC(18,6) GENERATED ALWAYS AS (CASE WHEN installs>0 THEN cumulative_net_usd/installs END) STORED,
+  scenario_code VARCHAR(16) NULL,               -- optional forecast scenario
+  model_version VARCHAR(32) NULL,
+  PRIMARY KEY(title_id, storefront_id, region_id, cohort_date, age_days, COALESCE(scenario_code,'_'), COALESCE(model_version,'_'))
+);
+```
+
+## DQ and ETL audit
+```sql
+CREATE TABLE etl_load_audit(
+  load_id BIGSERIAL PRIMARY KEY,
+  table_name VARCHAR(64) NOT NULL,
+  batch_id VARCHAR(64) NOT NULL,
+  source_system VARCHAR(64) NOT NULL,
+  started_at TIMESTAMP NOT NULL,
+  finished_at TIMESTAMP NULL,
+  status VARCHAR(16) NOT NULL,                 -- success, failed, partial
+  rows_inserted BIGINT NULL,
+  rows_updated BIGINT NULL,
+  error_message TEXT NULL
+);
+
+CREATE TABLE dq_check_catalog(
+  check_code VARCHAR(64) PRIMARY KEY,
+  description VARCHAR(256),
+  severity VARCHAR(16) NOT NULL                 -- warn, error
+);
+
+CREATE TABLE dq_result_daily(
+  check_date DATE NOT NULL,
+  table_name VARCHAR(64) NOT NULL,
+  check_code VARCHAR(64) NOT NULL REFERENCES dq_check_catalog(check_code),
+  affected_rows BIGINT NOT NULL,
+  sample_keys TEXT NULL,
+  PRIMARY KEY(check_date, table_name, check_code)
+);
+```
+
+## Ratio bounds and helpful constraints
+```sql
+ALTER TABLE fact_kpi_daily
+  ADD CONSTRAINT ck_retention_bounds CHECK (
+    d1_retention BETWEEN 0 AND 1 OR d1_retention IS NULL
+  ),
+  ADD CONSTRAINT ck_retention_bounds7 CHECK (
+    d7_retention BETWEEN 0 AND 1 OR d7_retention IS NULL
+  ),
+  ADD CONSTRAINT ck_retention_bounds30 CHECK (
+    d30_retention BETWEEN 0 AND 1 OR d30_retention IS NULL
+  ),
+  ADD CONSTRAINT ck_churn_bounds CHECK (
+    churn_rate BETWEEN 0 AND 1 OR churn_rate IS NULL
+  );
+```
+
+## Forecast locks and registry
+```sql
+CREATE TABLE model_registry(
+  model_version VARCHAR(32) PRIMARY KEY,
+  model_name VARCHAR(128) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT now(),
+  params_json JSONB NULL,
+  notes TEXT NULL
+);
+
+ALTER TABLE fact_forecast_daily
+  ADD CONSTRAINT fk_model_registry FOREIGN KEY (model_version) REFERENCES model_registry(model_version);
+
+ALTER TABLE fact_forecast_backtest
+  ADD CONSTRAINT fk_model_registry2 FOREIGN KEY (model_version) REFERENCES model_registry(model_version);
+
+ALTER TABLE fact_forecast_attribution
+  ADD CONSTRAINT fk_model_registry3 FOREIGN KEY (model_version) REFERENCES model_registry(model_version);
+```
+
+# Views and standard packs
+
+## Daily KPI pack by SKU type and country rollup
+```sql
+CREATE VIEW vw_metrics_daily AS
+SELECT k.title_id, k.storefront_id, k.region_id, k.country_id,
+       k.kpi_date AS date,
+       k.installs, k.nuu, k.dau, k.wau, k.mau, k.sessions,
+       k.payers, k.purchases, k.reactivations,
+       r.net_usd,
+       CASE WHEN k.dau > 0 AND r.net_usd IS NOT NULL THEN r.net_usd / k.dau END AS arpdau_usd,
+       CASE WHEN k.payers > 0 AND r.net_usd IS NOT NULL THEN r.net_usd / k.payers END AS arppu_usd,
+       CASE WHEN k.dau > 0 AND k.payers IS NOT NULL THEN k.payers::NUMERIC / k.dau END AS conversion_rate,
+       CASE WHEN k.mau > 0 AND k.dau IS NOT NULL THEN k.dau::NUMERIC / k.mau END AS sticky_factor,
+       k.churn_rate, k.d1_retention, k.d7_retention, k.d30_retention,
+       k.is_proxy OR r.is_proxy AS any_proxy,
+       k.method_id AS kpi_method_id, r.method_id AS revenue_method_id
+FROM fact_kpi_daily k
+LEFT JOIN (
+  SELECT title_id, storefront_id, region_id, country_id, rev_date,
+         SUM(net_usd) AS net_usd,
+         BOOL_OR(is_proxy) AS is_proxy,
+         MIN(method_id) AS method_id
+  FROM fact_revenue_daily
+  GROUP BY 1,2,3,4,5
+) r
+ON r.title_id=k.title_id AND r.storefront_id=k.storefront_id
+AND r.region_id=k.region_id AND COALESCE(r.country_id,0)=COALESCE(k.country_id,0)
+AND r.rev_date=k.kpi_date;
+```
+
+## Driver-aware attribution scaffold
+```sql
+CREATE VIEW vw_driver_panel AS
+SELECT d.driver_date AS date, d.title_id, d.storefront_id, d.region_id, d.country_id,
+       d.driver_code, d.weight,
+       m.dau, m.net_usd
+FROM fact_driver_daily d
+LEFT JOIN vw_metrics_daily m
+  ON m.date=d.driver_date AND m.title_id=d.title_id
+ AND COALESCE(m.storefront_id,0)=COALESCE(d.storefront_id,0)
+ AND COALESCE(m.region_id,0)=COALESCE(d.region_id,0)
+ AND COALESCE(m.country_id,0)=COALESCE(d.country_id,0);
+```
+
+# Metrics dictionary adjustments
+
+Metric | Update
+:--|:--
+Net revenue | Clarified SKU lineage. Now sourced from `fact_revenue_daily.net_usd` at SKU granularity, rolled up by `vw_revenue_by_type_daily`.
+ARPDAU, ARPPU | Unchanged formulas. Document that country-level joins take precedence when present to match rank-derived proxies.
+DLC attach | Prefer SKU-level cumulative owners from `sku_id` units streams. Roll up to type only if SKU missing.
+Retention | Cohort logic unchanged. LTV for cohorts now lives in `fact_ltv_cohort_daily`.
+ROAS x | Defined as model output view joining `fact_ua_spend_daily` to attributed cohort revenue. Not prescribed in base schema due to method variance; hook through `model_registry`.
+
+# Governance and performance
+
+Topic | Decision
+:--|:--
+Partitioning | All daily facts partitioned by date. Secondary sort keys `title_id, region_id, country_id`.
+Retention | Two years daily hot, life-of-project monthly aggregates.
+FX and fees | Versioned by effective dates. Require a row on load day; fail the load if absent for referenced currency.
+DQ checks | Seed `dq_check_catalog` with bounds on ratios, non-negative money, rev rec identity, and FX coverage.
+Lineage | Require `method_id` and `is_proxy` on all facts. Populate `meta_source_availability` per title and metric.
+
+# What changed in plain terms
+1) Revenue moves to SKU fidelity with a safe type rollup view.  
+2) Country level added without breaking region rollups.  
+3) Metric codes locked by a dim to avoid typos.  
+4) Source availability and method precedence encoded so proxy logic is deterministic.  
+5) Driver calendar added for attribution and scenario toggles.  
+6) DQ and ETL audits made first-class.  
+7) LTV cohorts added for scenario ribbons and backtests.  
+8) Ratio bounds enforced to catch drift early.
+
+If you want, I can package this as an Excel data sheet next, with tabs for Tables, Columns, Enums, Formulas, DQ, and Views.
+
+[USER]
+out this into excel in the best way possible
+
+[ASSISTANT]
+# Creates an Excel workbook that documents the Playsage Foresight metrics schema, 
+# including tables, columns, enums, formulas, DQ checks, and view SQL.
+#
+# The workbook is designed for engineers and analysts to implement and audit the warehouse.
+# British English; no em dashes.
+
+
+import pandas as pd
+from datetime import datetime
+
+# ---------- Helpers ----------
+def add_table(tbls, name, kind, primary_keys, partition=None, sort_keys=None, notes=None):
+    tbls.append({
+        "table_name": name,
+        "kind": kind,  # dimension, fact, config, meta, view, aggregate
+        "primary_keys": ", ".join(primary_keys) if primary_keys else "",
+        "partition_by": partition or "",
+        "sort_keys": ", ".join(sort_keys) if sort_keys else "",
+        "notes": notes or ""
+    })
+
+def add_col(cols, table, name, dtype, nullable, description, unit="", is_key=False, fk_ref="", constraints=""):
+    cols.append({
+        "table_name": table,
+        "column_name": name,
+        "data_type": dtype,
+        "nullable": "YES" if nullable else "NO",
+        "is_key": "YES" if is_key else "NO",
+        "unit_or_domain": unit,
+        "fk_reference": fk_ref,
+        "description": description,
+        "constraints": constraints
+    })
+
+# ---------- Tables sheet content ----------
+tables = []
+
+# Dimensions
+add_table(tables, "dim_platform", "dimension", ["platform_id"])
+add_table(tables, "dim_region", "dimension", ["region_id"])
+add_table(tables, "dim_currency", "dimension", ["currency_id"])
+add_table(tables, "dim_storefront", "dimension", ["storefront_id"])
+add_table(tables, "dim_channel", "dimension", ["channel_id"])
+add_table(tables, "dim_title", "dimension", ["title_id"])
+add_table(tables, "dim_sku", "dimension", ["sku_id"])
+add_table(tables, "dim_country", "dimension", ["country_id"], notes="Country with region rollup.")
+add_table(tables, "dim_metric", "dimension", ["metric_code"])
+add_table(tables, "dim_business_model", "dimension", ["business_model_code"])
+add_table(tables, "dim_release_type", "dimension", ["release_type_code"])
+add_table(tables, "dim_chart_type", "dimension", ["chart_type_code"])
+
+# Mapping
+add_table(tables, "map_title_storefront_region", "dimension", ["title_storefront_region_id"])
+
+# Config
+add_table(tables, "cfg_currency_rate", "config", ["rate_date","base_currency_id","quote_currency_id"])
+add_table(tables, "cfg_fee_schedule", "config", ["storefront_id","effective_from"])
+add_table(tables, "cfg_rank_to_units_curve", "config", ["storefront_id","rank_low","rank_high"])
+add_table(tables, "cfg_price_elasticity", "config", ["sku_type"])
+add_table(tables, "cfg_revrec_rule", "config", ["sku_type"])
+add_table(tables, "meta_lineage_method", "meta", ["method_id"])
+
+# Facts (daily)
+add_table(tables, "fact_kpi_daily", "fact", ["title_id","storefront_id","region_id","kpi_date"], partition="kpi_date", sort_keys=["title_id","region_id","kpi_date"], notes="Canonical engagement grain. Optional country_id.")
+add_table(tables, "fact_revenue_daily", "fact", ["title_id","storefront_id","region_id","currency_id","rev_date","sku_type"], partition="rev_date", sort_keys=["title_id","region_id","rev_date"], notes="Supports sku_id for SKU resolution. Optional country_id.")
+add_table(tables, "fact_price_daily", "fact", ["title_id","storefront_id","region_id","sku_id","price_date"], partition="price_date", sort_keys=["title_id","region_id","price_date"])
+add_table(tables, "fact_rank_daily", "fact", ["title_id","storefront_id","rank_date","chart_type"], partition="rank_date", sort_keys=["title_id","rank_date"], notes="Country optional; chart_type enforced by dim_chart_type.")
+add_table(tables, "fact_retention_cohort_daily", "fact", ["title_id","storefront_id","region_id","cohort_date","age_days"], partition="cohort_date", sort_keys=["title_id","region_id","cohort_date"])
+add_table(tables, "fact_ua_spend_daily", "fact", ["title_id","region_id","channel_id","spend_date"], partition="spend_date", sort_keys=["title_id","region_id","spend_date"])
+add_table(tables, "fact_release", "fact", ["release_id"], partition=None, sort_keys=["title_id","release_date"])
+add_table(tables, "fact_revrec_daily", "fact", ["title_id","sku_id","revrec_date"], partition="revrec_date", sort_keys=["title_id","sku_id","revrec_date"])
+
+# Forecast artefacts
+add_table(tables, "fact_forecast_daily", "fact", ["title_id","storefront_id","region_id","metric_code","fc_date","scenario_code","model_version"], partition="fc_date", sort_keys=["title_id","region_id","fc_date"])
+add_table(tables, "fact_forecast_backtest", "fact", ["title_id","metric_code","horizon_days","window_weeks","model_version"])
+add_table(tables, "fact_forecast_attribution", "fact", ["title_id","attr_date","driver_code","metric_code","model_version"], partition="attr_date", sort_keys=["title_id","attr_date"])
+add_table(tables, "fact_ltv_cohort_daily", "fact", ["title_id","storefront_id","region_id","cohort_date","age_days","scenario_code","model_version"], partition="cohort_date", sort_keys=["title_id","region_id","cohort_date"], notes="Scenario-aware cohort LTV.")
+
+# Drivers and methods
+add_table(tables, "dim_driver_event", "dimension", ["driver_code"])
+add_table(tables, "fact_driver_daily", "fact", ["title_id","driver_code","driver_date","storefront_id","region_id","country_id"], partition="driver_date", sort_keys=["title_id","driver_date"])
+add_table(tables, "meta_source_availability", "meta", ["title_id","storefront_id","region_id","metric_code","method_id","available_from"])
+add_table(tables, "meta_method_precedence", "meta", ["metric_code","method_id"])
+
+# DQ and ETL audit
+add_table(tables, "etl_load_audit", "meta", ["load_id"])
+add_table(tables, "dq_check_catalog", "meta", ["check_code"])
+add_table(tables, "dq_result_daily", "meta", ["check_date","table_name","check_code"])
+
+# Model registry
+add_table(tables, "model_registry", "meta", ["model_version"])
+
+# Aggregates and views
+add_table(tables, "agg_kpi_weekly", "aggregate", ["title_id","storefront_id","region_id","week_start"])
+add_table(tables, "agg_revenue_monthly", "aggregate", ["title_id","storefront_id","region_id","currency_id","month_start","sku_type"])
+add_table(tables, "vw_metrics_daily", "view", [], notes="Daily KPI join of engagement and net revenue with derived ARPDAU, ARPPU, conversion, sticky.")
+add_table(tables, "vw_revenue_by_type_daily", "view", [], notes="Rolls up SKU-level revenue to sku_type with proxy aggregation.")
+add_table(tables, "vw_driver_panel", "view", [], notes="Calendar of drivers joined to KPI panel for attribution scaffolding.")
+
+tables_df = pd.DataFrame(tables)
+
+# ---------- Columns sheet content ----------
+cols = []
+
+# Define a compact but complete set of columns per table, aligned with latest schema iteration.
+
+# dim tables
+add_col(cols,"dim_platform","platform_id","SMALLINT",False,"Surrogate key.")
+add_col(cols,"dim_platform","platform_code","VARCHAR(16)",False,"Code, unique.","",False,"","UNIQUE")
+add_col(cols,"dim_platform","platform_name","VARCHAR(64)",False,"Human name.")
+
+add_col(cols,"dim_region","region_id","SMALLINT",False,"Surrogate key.")
+add_col(cols,"dim_region","region_code","VARCHAR(16)",False,"US, UK, EUW, EUE, ROW.","enum")
+add_col(cols,"dim_region","region_name","VARCHAR(64)",False,"Human name.")
+
+add_col(cols,"dim_country","country_id","SMALLINT",False,"Surrogate key.")
+add_col(cols,"dim_country","iso2","CHAR(2)",False,"ISO 3166-1 alpha-2.")
+add_col(cols,"dim_country","country_name","VARCHAR(64)",False,"Human name.")
+add_col(cols,"dim_country","region_id","SMALLINT",False,"Region rollup.","",False,"dim_region(region_id)","FK")
+
+add_col(cols,"dim_currency","currency_id","SMALLINT",False,"Surrogate key.")
+add_col(cols,"dim_currency","iso_code","CHAR(3)",False,"ISO 4217 code.","enum")
+add_col(cols,"dim_currency","symbol","VARCHAR(8)",False,"Display symbol.")
+
+add_col(cols,"dim_storefront","storefront_id","SMALLINT",False,"Surrogate key.")
+add_col(cols,"dim_storefront","storefront_code","VARCHAR(16)",False,"steam, psn, xbox_live, appstore, googleplay.","enum")
+add_col(cols,"dim_storefront","storefront_name","VARCHAR(64)",False,"Human name.")
+add_col(cols,"dim_storefront","platform_id","SMALLINT",False,"Platform rollup.","",False,"dim_platform(platform_id)","FK")
+
+add_col(cols,"dim_channel","channel_id","SMALLINT",False,"Surrogate key.")
+add_col(cols,"dim_channel","channel_code","VARCHAR(32)",False,"organic, search_ads, meta, tiktok, influencer.","enum")
+add_col(cols,"dim_channel","channel_name","VARCHAR(64)",False,"Human name.")
+
+add_col(cols,"dim_title","title_id","BIGINT",False,"Surrogate key.")
+add_col(cols,"dim_title","title_code","VARCHAR(64)",False,"Stable code per game.","",False,"","UNIQUE")
+add_col(cols,"dim_title","title_name","VARCHAR(128)",False,"Marketing name.")
+add_col(cols,"dim_title","business_model","VARCHAR(32)",False,"premium, f2p, hybrid, subscription.","enum",False,"dim_business_model(business_model_code)","FK")
+add_col(cols,"dim_title","genre","VARCHAR(64)",True,"Optional genre.")
+add_col(cols,"dim_title","release_date","DATE",True,"Initial release date.")
+
+add_col(cols,"dim_sku","sku_id","BIGINT",False,"Surrogate key.")
+add_col(cols,"dim_sku","title_id","BIGINT",False,"Title owner.","",False,"dim_title(title_id)","FK")
+add_col(cols,"dim_sku","sku_code","VARCHAR(64)",False,"base, dlc_<name>, iap_<code>, season_<n>, sub_<tier>.")
+add_col(cols,"dim_sku","sku_name","VARCHAR(128)",False,"Display name.")
+add_col(cols,"dim_sku","sku_type","VARCHAR(32)",False,"base, dlc, iap, season, subscription.","enum")
+add_col(cols,"dim_sku","is_consumable","BOOLEAN",False,"True for consumable IAP.")
+add_col(cols,"dim_sku","is_active","BOOLEAN",False,"Active availability.")
+
+add_col(cols,"map_title_storefront_region","title_storefront_region_id","BIGSERIAL",False,"Surrogate key.")
+add_col(cols,"map_title_storefront_region","title_id","BIGINT",False,"Title.","",False,"dim_title(title_id)","FK")
+add_col(cols,"map_title_storefront_region","storefront_id","SMALLINT",False,"Storefront.","",False,"dim_storefront(storefront_id)","FK")
+add_col(cols,"map_title_storefront_region","region_id","SMALLINT",False,"Region.","",False,"dim_region(region_id)","FK")
+add_col(cols,"map_title_storefront_region","currency_id","SMALLINT",False,"Currency for receipts.","",False,"dim_currency(currency_id)","FK")
+add_col(cols,"map_title_storefront_region","is_live","BOOLEAN",False,"Coverage flag.")
+
+# Config and lineage
+add_col(cols,"cfg_currency_rate","rate_date","DATE",False,"Rate date.")
+add_col(cols,"cfg_currency_rate","base_currency_id","SMALLINT",False,"Base currency.","",False,"dim_currency(currency_id)","FK")
+add_col(cols,"cfg_currency_rate","quote_currency_id","SMALLINT",False,"Quote currency.","",False,"dim_currency(currency_id)","FK")
+add_col(cols,"cfg_currency_rate","fx_rate","NUMERIC(18,8)",False,"Quote per 1 base.","ratio")
+
+add_col(cols,"cfg_fee_schedule","storefront_id","SMALLINT",False,"Storefront.","",False,"dim_storefront(storefront_id)","FK")
+add_col(cols,"cfg_fee_schedule","effective_from","DATE",False,"Start date.")
+add_col(cols,"cfg_fee_schedule","effective_to","DATE",True,"End date, null if open.")
+add_col(cols,"cfg_fee_schedule","fee_rate","NUMERIC(6,4)",False,"Platform fee rate 0..1.","ratio")
+add_col(cols,"cfg_fee_schedule","notes","VARCHAR(256)",True,"Comments.")
+
+add_col(cols,"cfg_rank_to_units_curve","storefront_id","SMALLINT",False,"Storefront.","",False,"dim_storefront(storefront_id)","FK")
+add_col(cols,"cfg_rank_to_units_curve","country_code","CHAR(2)",True,"Country refine for iOS/Google.")
+add_col(cols,"cfg_rank_to_units_curve","category","VARCHAR(64)",True,"top_grossing, top_paid, top_free.")
+add_col(cols,"cfg_rank_to_units_curve","rank_low","INT",False,"Low bound inclusive.")
+add_col(cols,"cfg_rank_to_units_curve","rank_high","INT",False,"High bound inclusive.")
+add_col(cols,"cfg_rank_to_units_curve","units_per_rank","NUMERIC(18,6)",False,"Estimated units at rank.","units")
+
+add_col(cols,"cfg_price_elasticity","sku_type","VARCHAR(32)",False,"SKU class.","enum")
+add_col(cols,"cfg_price_elasticity","elasticity","NUMERIC(8,4)",False,"Price elasticity (usually negative).","coefficient")
+add_col(cols,"cfg_price_elasticity","notes","VARCHAR(256)",True,"Comments.")
+
+add_col(cols,"cfg_revrec_rule","sku_type","VARCHAR(32)",False,"Class under rev rec.","enum")
+add_col(cols,"cfg_revrec_rule","recognition_days","SMALLINT",False,"Straight line days.")
+add_col(cols,"cfg_revrec_rule","start_anchor","VARCHAR(16)",False,"purchase_date or season_start.")
+
+add_col(cols,"meta_lineage_method","method_id","BIGSERIAL",False,"Surrogate key.")
+add_col(cols,"meta_lineage_method","method_code","VARCHAR(64)",False,"telemetry_direct, rank_curve_v1, blended_v2.")
+add_col(cols,"meta_lineage_method","description","TEXT",False,"Method notes.")
+add_col(cols,"meta_lineage_method","source_priority","SMALLINT",False,"Lower is preferred.")
+
+# Facts
+for base_cols in [
+    ("fact_kpi_daily",[
+        ("title_id","BIGINT",False,"Title.","","YES","","PK"),
+        ("storefront_id","SMALLINT",False,"Storefront.","","YES","dim_storefront(storefront_id)","FK"),
+        ("region_id","SMALLINT",False,"Region.","","YES","dim_region(region_id)","FK"),
+        ("country_id","SMALLINT",True,"Optional country.","","NO","dim_country(country_id)","FK"),
+        ("kpi_date","DATE",False,"UTC date.","date","YES","","PK"),
+        ("installs","INT",True,"New installs.","users"),
+        ("nuu","INT",True,"New unique users active.","users"),
+        ("dau","INT",True,"Daily active users.","users"),
+        ("wau","INT",True,"7-day unique users.","users"),
+        ("mau","INT",True,"30-day unique users.","users"),
+        ("sessions","BIGINT",True,"Sessions.","sessions"),
+        ("payers","INT",True,"Unique payers.","users"),
+        ("purchases","INT",True,"Transactions.","tx"),
+        ("reactivations","INT",True,"Returning after inactivity.","users"),
+        ("churn_rate","NUMERIC(8,6)",True,"Daily churn ratio.","ratio","NO","","CHECK 0..1"),
+        ("d1_retention","NUMERIC(8,6)",True,"Day-1 retention.","ratio","NO","","CHECK 0..1"),
+        ("d7_retention","NUMERIC(8,6)",True,"Day-7 retention.","ratio","NO","","CHECK 0..1"),
+        ("d30_retention","NUMERIC(8,6)",True,"Day-30 retention.","ratio","NO","","CHECK 0..1"),
+        ("method_id","BIGINT",False,"Lineage method.","","NO","meta_lineage_method(method_id)","FK"),
+        ("is_proxy","BOOLEAN",False,"True if derived from store signal."),
+        ("source_system","VARCHAR(64)",False,"Ingest source."),
+        ("batch_id","VARCHAR(64)",False,"Load batch."),
+        ("ingested_at_utc","TIMESTAMP",False,"Ingest time."),
+        ("updated_at_utc","TIMESTAMP",False,"Last update.")
+    ]),
+    ("fact_revenue_daily",[
+        ("title_id","BIGINT",False,"Title.","","YES","","PK"),
+        ("storefront_id","SMALLINT",False,"Storefront.","","YES","dim_storefront(storefront_id)","FK"),
+        ("region_id","SMALLINT",False,"Region.","","YES","dim_region(region_id)","FK"),
+        ("country_id","SMALLINT",True,"Optional country.","","NO","dim_country(country_id)","FK"),
+        ("currency_id","SMALLINT",False,"Currency.","","YES","dim_currency(currency_id)","FK"),
+        ("rev_date","DATE",False,"UTC date.","date","YES","","PK"),
+        ("sku_id","BIGINT",True,"SKU id when known.","","NO","dim_sku(sku_id)","FK"),
+        ("sku_type","VARCHAR(32)",False,"SKU type when sku_id absent.","enum"),
+        ("gross_local","NUMERIC(18,2)",True,"Gross local.","money"),
+        ("discounts_local","NUMERIC(18,2)",True,"Discounts local.","money"),
+        ("refunds_local","NUMERIC(18,2)",True,"Refunds local.","money"),
+        ("taxes_local","NUMERIC(18,2)",True,"Taxes local.","money"),
+        ("platform_fees_local","NUMERIC(18,2)",True,"Platform fees local.","money"),
+        ("net_local","NUMERIC(18,2)",True,"Net local.","money"),
+        ("gross_usd","NUMERIC(18,2)",True,"Gross USD.","money"),
+        ("net_usd","NUMERIC(18,2)",True,"Net USD.","money"),
+        ("units","INT",True,"Units sold or pseudo units.","units"),
+        ("payers","INT",True,"Unique payers.","users"),
+        ("method_id","BIGINT",False,"Lineage method.","","NO","meta_lineage_method(method_id)","FK"),
+        ("is_proxy","BOOLEAN",False,"True if derived."),
+        ("source_system","VARCHAR(64)",False,"Source."),
+        ("batch_id","VARCHAR(64)",False,"Batch."),
+        ("ingested_at_utc","TIMESTAMP",False,"Ingest time."),
+        ("updated_at_utc","TIMESTAMP",False,"Last update.")
+    ]),
+    ("fact_price_daily",[
+        ("title_id","BIGINT",False,"Title."),
+        ("storefront_id","SMALLINT",False,"Storefront."),
+        ("region_id","SMALLINT",False,"Region."),
+        ("sku_id","BIGINT",False,"SKU id.","","YES","dim_sku(sku_id)","FK"),
+        ("price_date","DATE",False,"UTC date.","date","YES","","PK"),
+        ("base_price_local","NUMERIC(18,2)",False,"Base price local.","money"),
+        ("live_price_local","NUMERIC(18,2)",False,"Live price local.","money"),
+        ("discount_pct","NUMERIC(8,6)",False,"Discount ratio 0..1.","ratio"),
+        ("promo_flag","BOOLEAN",False,"Promo active."),
+        ("source_system","VARCHAR(64)",False,"Source."),
+        ("batch_id","VARCHAR(64)",False,"Batch."),
+        ("ingested_at_utc","TIMESTAMP",False,"Ingest time."),
+        ("updated_at_utc","TIMESTAMP",False,"Last update.")
+    ]),
+    ("fact_rank_daily",[
+        ("title_id","BIGINT",False,"Title."),
+        ("storefront_id","SMALLINT",False,"Storefront."),
+        ("country_id","SMALLINT",True,"Country optional.","","NO","dim_country(country_id)","FK"),
+        ("rank_date","DATE",False,"UTC date.","date","YES","","PK"),
+        ("chart_type","VARCHAR(32)",False,"Chart type.","enum","YES","dim_chart_type(chart_type_code)","FK"),
+        ("rank_position","INT",True,"Lower is better.","rank"),
+        ("featured_flag","BOOLEAN",False,"Featuring flag."),
+        ("source_system","VARCHAR(64)",False,"Source."),
+        ("batch_id","VARCHAR(64)",False,"Batch."),
+        ("ingested_at_utc","TIMESTAMP",False,"Ingest time."),
+        ("updated_at_utc","TIMESTAMP",False,"Last update.")
+    ]),
+    ("fact_retention_cohort_daily",[
+        ("title_id","BIGINT",False,"Title."),
+        ("storefront_id","SMALLINT",False,"Storefront."),
+        ("region_id","SMALLINT",False,"Region."),
+        ("cohort_date","DATE",False,"Install date.","date","YES","","PK"),
+        ("age_days","SMALLINT",False,"Days since install.","days","YES","","PK"),
+        ("cohort_installs","INT",False,"Cohort size.","users"),
+        ("retained_users","INT",True,"Retained on age day.","users"),
+        ("revenue_usd","NUMERIC(18,2)",True,"Optional per-day cohort revenue.","money"),
+        ("method_id","BIGINT",False,"Method.","","NO","meta_lineage_method(method_id)","FK"),
+        ("is_proxy","BOOLEAN",False,"True if derived."),
+        ("source_system","VARCHAR(64)",False,"Source."),
+        ("batch_id","VARCHAR(64)",False,"Batch."),
+        ("ingested_at_utc","TIMESTAMP",False,"Ingest time."),
+        ("updated_at_utc","TIMESTAMP",False,"Last update.")
+    ]),
+    ("fact_ua_spend_daily",[
+        ("title_id","BIGINT",False,"Title."),
+        ("region_id","SMALLINT",False,"Region."),
+        ("channel_id","SMALLINT",False,"UA channel."),
+        ("spend_date","DATE",False,"UTC date.","date","YES","","PK"),
+        ("impressions","BIGINT",True,"Impressions."),
+        ("clicks","BIGINT",True,"Clicks."),
+        ("installs","INT",True,"Attributed installs.","users"),
+        ("spend_usd","NUMERIC(18,2)",True,"Spend USD.","money"),
+        ("source_system","VARCHAR(64)",False,"Source."),
+        ("batch_id","VARCHAR(64)",False,"Batch."),
+        ("ingested_at_utc","TIMESTAMP",False,"Ingest time."),
+        ("updated_at_utc","TIMESTAMP",False,"Last update.")
+    ]),
+    ("fact_release",[
+        ("release_id","BIGSERIAL",False,"Surrogate key.","","YES","","PK"),
+        ("title_id","BIGINT",False,"Title."),
+        ("storefront_id","SMALLINT",False,"Storefront."),
+        ("release_date","DATE",False,"UTC date.","date"),
+        ("release_type","VARCHAR(32)",False,"Release type.","enum","NO","dim_release_type(release_type_code)","FK"),
+        ("version_tag","VARCHAR(64)",True,"Version string."),
+        ("notes","TEXT",True,"Free text."),
+        ("source_system","VARCHAR(64)",False,"Source."),
+        ("batch_id","VARCHAR(64)",False,"Batch."),
+        ("ingested_at_utc","TIMESTAMP",False,"Ingest time."),
+        ("updated_at_utc","TIMESTAMP",False,"Last update.")
+    ]),
+    ("fact_revrec_daily",[
+        ("title_id","BIGINT",False,"Title."),
+        ("sku_id","BIGINT",False,"SKU id.","","YES","dim_sku(sku_id)","FK"),
+        ("revrec_date","DATE",False,"UTC date.","date","YES","","PK"),
+        ("bookings_usd","NUMERIC(18,2)",False,"Bookings.","money"),
+        ("recognized_usd","NUMERIC(18,2)",False,"Recognised revenue.","money"),
+        ("deferred_open_usd","NUMERIC(18,2)",False,"Opening deferred.","money"),
+        ("deferred_close_usd","NUMERIC(18,2)",False,"Closing deferred.","money"),
+        ("method_id","BIGINT",False,"Method.","","NO","meta_lineage_method(method_id)","FK"),
+        ("source_system","VARCHAR(64)",False,"Source."),
+        ("batch_id","VARCHAR(64)",False,"Batch."),
+        ("ingested_at_utc","TIMESTAMP",False,"Ingest time."),
+        ("updated_at_utc","TIMESTAMP",False,"Last update.")
+    ]),
+    ("fact_forecast_daily",[
+        ("title_id","BIGINT",False,"Title."),
+        ("storefront_id","SMALLINT",False,"Storefront."),
+        ("region_id","SMALLINT",False,"Region."),
+        ("metric_code","VARCHAR(32)",False,"Metric code.","enum","YES","dim_metric(metric_code)","FK"),
+        ("fc_date","DATE",False,"Forecast date.","date","YES","","PK"),
+        ("scenario_code","VARCHAR(16)",False,"Scenario code.","enum","YES","","PK"),
+        ("point","NUMERIC(18,6)",False,"Point forecast.",""),
+        ("low","NUMERIC(18,6)",True,"Low bound.",""),
+        ("high","NUMERIC(18,6)",True,"High bound.",""),
+        ("confidence_pct","NUMERIC(5,2)",True,"Confidence percent.","percent"),
+        ("model_version","VARCHAR(32)",False,"Model version.","","YES","model_registry(model_version)","FK"),
+        ("source_system","VARCHAR(64)",False,"Source."),
+        ("batch_id","VARCHAR(64)",False,"Batch."),
+        ("ingested_at_utc","TIMESTAMP",False,"Ingest time."),
+        ("updated_at_utc","TIMESTAMP",False,"Last update.")
+    ]),
+    ("fact_forecast_backtest",[
+        ("title_id","BIGINT",False,"Title."),
+        ("metric_code","VARCHAR(32)",False,"Metric code.","enum","YES","dim_metric(metric_code)","FK"),
+        ("horizon_days","SMALLINT",False,"Forecast horizon days.","days","YES","","PK"),
+        ("window_weeks","SMALLINT",False,"Backtest window weeks.","weeks","YES","","PK"),
+        ("mape","NUMERIC(8,6)",True,"MAPE.","ratio"),
+        ("mae","NUMERIC(18,6)",True,"MAE.","units"),
+        ("rmse","NUMERIC(18,6)",True,"RMSE.","units"),
+        ("last_train_date","DATE",False,"Training cutoff.","date"),
+        ("model_version","VARCHAR(32)",False,"Model version.","","YES","model_registry(model_version)","FK")
+    ]),
+    ("fact_forecast_attribution",[
+        ("title_id","BIGINT",False,"Title."),
+        ("attr_date","DATE",False,"Date.","date","YES","","PK"),
+        ("driver_code","VARCHAR(32)",False,"Driver.","enum","YES","dim_driver_event(driver_code)","FK"),
+        ("metric_code","VARCHAR(32)",False,"Metric.","enum","YES","dim_metric(metric_code)","FK"),
+        ("contribution","NUMERIC(18,6)",False,"Signed contribution in metric units.",""),
+        ("note","VARCHAR(256)",True,"Comment."),
+        ("model_version","VARCHAR(32)",False,"Model version.","","YES","model_registry(model_version)","FK")
+    ]),
+    ("fact_ltv_cohort_daily",[
+        ("title_id","BIGINT",False,"Title."),
+        ("storefront_id","SMALLINT",False,"Storefront."),
+        ("region_id","SMALLINT",False,"Region."),
+        ("cohort_date","DATE",False,"Install date.","date","YES","","PK"),
+        ("age_days","SMALLINT",False,"Days since install.","days","YES","","PK"),
+        ("installs","INT",False,"Cohort installs.","users"),
+        ("cumulative_net_usd","NUMERIC(18,2)",True,"Cumulative net USD.","money"),
+        ("arpu_usd","NUMERIC(18,6)",True,"Generated ARPU.","money/user"),
+        ("scenario_code","VARCHAR(16)",True,"Scenario code.","enum"),
+        ("model_version","VARCHAR(32)",True,"Model version."),
+    ]),
+]:
+    tname, cdefs = base_cols
+    for c in cdefs:
+        add_col(cols, tname, *c)
+
+# Drivers and methods
+add_col(cols,"dim_driver_event","driver_code","VARCHAR(32)",False,"Driver code, primary key.","enum")
+add_col(cols,"dim_driver_event","description","VARCHAR(256)",True,"Description.")
+
+add_col(cols,"fact_driver_daily","title_id","BIGINT",False,"Title.")
+add_col(cols,"fact_driver_daily","storefront_id","SMALLINT",True,"Storefront or null for global.")
+add_col(cols,"fact_driver_daily","region_id","SMALLINT",True,"Region or null for global.")
+add_col(cols,"fact_driver_daily","country_id","SMALLINT",True,"Country or null for global.")
+add_col(cols,"fact_driver_daily","driver_code","VARCHAR(32)",False,"Driver code.","enum","YES","dim_driver_event(driver_code)","FK")
+add_col(cols,"fact_driver_daily","driver_date","DATE",False,"UTC date.","date","YES","","PK")
+add_col(cols,"fact_driver_daily","weight","NUMERIC(8,6)",True,"Optional intensity 0..1.","ratio")
+add_col(cols,"fact_driver_daily","note","VARCHAR(256)",True,"Comment.")
+
+add_col(cols,"meta_source_availability","title_id","BIGINT",False,"Title.")
+add_col(cols,"meta_source_availability","storefront_id","SMALLINT",True,"Storefront scope.")
+add_col(cols,"meta_source_availability","region_id","SMALLINT",True,"Region scope.")
+add_col(cols,"meta_source_availability","metric_code","VARCHAR(32)",False,"Metric code.","enum","YES","dim_metric(metric_code)","FK")
+add_col(cols,"meta_source_availability","method_id","BIGINT",False,"Method id.","","YES","meta_lineage_method(method_id)","FK")
+add_col(cols,"meta_source_availability","available_from","DATE",False,"Available from.","date","YES","","PK")
+add_col(cols,"meta_source_availability","available_to","DATE",True,"Available to.","date")
+
+add_col(cols,"meta_method_precedence","metric_code","VARCHAR(32)",False,"Metric code.","enum","YES","dim_metric(metric_code)","FK")
+add_col(cols,"meta_method_precedence","method_id","BIGINT",False,"Method id.","","YES","meta_lineage_method(method_id)","FK")
+add_col(cols,"meta_method_precedence","precedence","SMALLINT",False,"Lower is better.")
+
+# ETL and DQ
+add_col(cols,"etl_load_audit","load_id","BIGSERIAL",False,"Surrogate key.")
+add_col(cols,"etl_load_audit","table_name","VARCHAR(64)",False,"Target table.")
+add_col(cols,"etl_load_audit","batch_id","VARCHAR(64)",False,"Batch id.")
+add_col(cols,"etl_load_audit","source_system","VARCHAR(64)",False,"Source name.")
+add_col(cols,"etl_load_audit","started_at","TIMESTAMP",False,"Load start.")
+add_col(cols,"etl_load_audit","finished_at","TIMESTAMP",True,"Load end.")
+add_col(cols,"etl_load_audit","status","VARCHAR(16)",False,"success, failed, partial.")
+add_col(cols,"etl_load_audit","rows_inserted","BIGINT",True,"Rows inserted.")
+add_col(cols,"etl_load_audit","rows_updated","BIGINT",True,"Rows updated.")
+add_col(cols,"etl_load_audit","error_message","TEXT",True,"Error text.")
+
+add_col(cols,"dq_check_catalog","check_code","VARCHAR(64)",False,"Check id.")
+add_col(cols,"dq_check_catalog","description","VARCHAR(256)",True,"Description.")
+add_col(cols,"dq_check_catalog","severity","VARCHAR(16)",False,"warn or error.")
+
+add_col(cols,"dq_result_daily","check_date","DATE",False,"Date.","date","YES","","PK")
+add_col(cols,"dq_result_daily","table_name","VARCHAR(64)",False,"Target table.","","YES","","PK")
+add_col(cols,"dq_result_daily","check_code","VARCHAR(64)",False,"Check id.","","YES","dq_check_catalog(check_code)","FK")
+add_col(cols,"dq_result_daily","affected_rows","BIGINT",False,"Count of failed rows.")
+add_col(cols,"dq_result_daily","sample_keys","TEXT",True,"Sample of keys.")
+
+# Model registry
+add_col(cols,"model_registry","model_version","VARCHAR(32)",False,"Model version code.")
+add_col(cols,"model_registry","model_name","VARCHAR(128)",False,"Human name.")
+add_col(cols,"model_registry","created_at","TIMESTAMP",False,"Creation timestamp.")
+add_col(cols,"model_registry","params_json","JSONB",True,"Params.")
+add_col(cols,"model_registry","notes","TEXT",True,"Notes.")
+
+columns_df = pd.DataFrame(cols)
+
+# ---------- Enums sheet ----------
+enums = pd.DataFrame({
+    "enum_name": [
+        "platform_code","region_code","iso_currency","storefront_code","channel_code",
+        "business_model_code","sku_type","release_type_code","chart_type_code",
+        "driver_code","metric_code","scenario_code"
+    ],
+    "allowed_values_csv": [
+        "steam, ps, xbox, ios, android",
+        "US, UK, EUW, EUE, ROW",
+        "USD, GBP, EUR",
+        "steam, psn, xbox_live, appstore, googleplay",
+        "organic, search_ads, meta, tiktok, influencer",
+        "premium, f2p, hybrid, subscription",
+        "base, dlc, iap, season, subscription",
+        "launch, patch, content_drop, season_start, dlc_launch, price_change, promo",
+        "top_paid, top_grossing, top_free",
+        "price, promo, content, ua, seasonal, platform, external",
+        "dau, installs, payers, net_usd, wau, mau, purchases, reactivations",
+        "base, low, high, custom_x"
+    ],
+    "notes": [
+        "Map to platform_id in dim_platform",
+        "Map to region_id in dim_region",
+        "Map to currency_id in dim_currency",
+        "Map to storefront_id in dim_storefront",
+        "Map to channel_id in dim_channel",
+        "Referenced by dim_title.business_model",
+        "Referenced by dim_sku.sku_type and facts",
+        "Referenced by fact_release.release_type",
+        "Referenced by fact_rank_daily.chart_type",
+        "Referenced by fact_driver_daily and attribution",
+        "Referenced by forecast facts; extend as needed",
+        "Scenario codes for forecast ribbons"
+    ]
+})
+
+# ---------- Formulas sheet ----------
+formulas = pd.DataFrame([
+    {
+        "metric": "net_local",
+        "formula_sql": "gross_local - discounts_local - refunds_local - taxes_local - platform_fees_local",
+        "unit": "money (local)",
+        "source": "fact_revenue_daily"
+    },
+    {
+        "metric": "net_usd",
+        "formula_sql": "net_local * fx_rate_to_usd(rate_date=rev_date)",
+        "unit": "money (USD)",
+        "source": "fact_revenue_daily + cfg_currency_rate"
+    },
+    {
+        "metric": "ARPDAU",
+        "formula_sql": "CASE WHEN dau>0 THEN net_usd / dau END",
+        "unit": "USD per user",
+        "source": "vw_metrics_daily"
+    },
+    {
+        "metric": "ARPPU",
+        "formula_sql": "CASE WHEN payers>0 THEN net_usd / payers END",
+        "unit": "USD per payer",
+        "source": "vw_metrics_daily"
+    },
+    {
+        "metric": "conversion_rate",
+        "formula_sql": "CASE WHEN dau>0 THEN payers::NUMERIC / dau END",
+        "unit": "ratio 0..1",
+        "source": "vw_metrics_daily"
+    },
+    {
+        "metric": "sticky_factor",
+        "formula_sql": "CASE WHEN mau>0 THEN dau::NUMERIC / mau END",
+        "unit": "ratio 0..1",
+        "source": "vw_metrics_daily"
+    },
+    {
+        "metric": "daily_churn_rate_proxy",
+        "formula_sql": "GREATEST(0, (dau_lag + nuu_lag - dau - reactivations) / NULLIF(dau_lag,0))",
+        "unit": "ratio 0..1",
+        "source": "fact_kpi_daily (derived)"
+    },
+    {
+        "metric": "dlc_attach_rate",
+        "formula_sql": "cumulative_dlc_units / NULLIF(mau,0)",
+        "unit": "ratio 0..1",
+        "source": "fact_revenue_daily + vw_metrics_daily"
+    },
+    {
+        "metric": "revrec_identity_check",
+        "formula_sql": "deferred_close = deferred_open + bookings - recognized",
+        "unit": "identity",
+        "source": "fact_revrec_daily"
+    }
+])
+
+# ---------- Data Quality checks sheet ----------
+dq_checks = pd.DataFrame([
+    {"check_code":"non_negative_money","description":"Money fields must be >= 0","severity":"error"},
+    {"check_code":"ratio_bounds","description":"Ratios between 0 and 1","severity":"error"},
+    {"check_code":"fx_coverage","description":"FX rate available for all currency pairs on all rev_date","severity":"error"},
+    {"check_code":"revrec_identity","description":"Deferred close equals deferred open + bookings - recognized","severity":"error"},
+    {"check_code":"method_required","description":"method_id and is_proxy populated on all facts","severity":"error"},
+    {"check_code":"key_uniqueness","description":"Primary key uniqueness by table","severity":"error"},
+    {"check_code":"null_rules","description":"Not null columns never null","severity":"error"}
+])
+
+# ---------- Views SQL sheet ----------
+views_sql = pd.DataFrame([
+    {
+        "view_name":"vw_metrics_daily",
+        "sql_excerpt":"""SELECT k.title_id, k.storefront_id, k.region_id, k.country_id,
+       k.kpi_date AS date, k.installs, k.nuu, k.dau, k.wau, k.mau, k.sessions,
+       k.payers, k.purchases, k.reactivations, r.net_usd,
+       CASE WHEN k.dau>0 AND r.net_usd IS NOT NULL THEN r.net_usd/k.dau END AS arpdau_usd,
+       CASE WHEN k.payers>0 AND r.net_usd IS NOT NULL THEN r.net_usd/k.payers END AS arppu_usd,
+       CASE WHEN k.dau>0 AND k.payers IS NOT NULL THEN k.payers::NUMERIC/k.dau END AS conversion_rate,
+       CASE WHEN k.mau>0 AND k.dau IS NOT NULL THEN k.dau::NUMERIC/k.mau END AS sticky_factor,
+       k.churn_rate, k.d1_retention, k.d7_retention, k.d30_retention,
+       k.is_proxy OR r.is_proxy AS any_proxy, k.method_id AS kpi_method_id, r.method_id AS revenue_method_id
+FROM fact_kpi_daily k
+LEFT JOIN (
+  SELECT title_id, storefront_id, region_id, country_id, rev_date,
+         SUM(net_usd) AS net_usd, BOOL_OR(is_proxy) AS is_proxy, MIN(method_id) AS method_id
+  FROM fact_revenue_daily GROUP BY 1,2,3,4,5
+) r ON r.title_id=k.title_id AND r.storefront_id=k.storefront_id
+ AND r.region_id=k.region_id AND COALESCE(r.country_id,0)=COALESCE(k.country_id,0)
+ AND r.rev_date=k.kpi_date"""
+    },
+    {
+        "view_name":"vw_revenue_by_type_daily",
+        "sql_excerpt":"""SELECT title_id, storefront_id, region_id, country_id, currency_id, rev_date,
+       COALESCE(s.sku_type, r.sku_type) AS sku_type,
+       SUM(gross_local) gross_local, SUM(discounts_local) discounts_local,
+       SUM(refunds_local) refunds_local, SUM(taxes_local) taxes_local,
+       SUM(platform_fees_local) platform_fees_local,
+       SUM(net_local) net_local, SUM(gross_usd) gross_usd, SUM(net_usd) net_usd,
+       SUM(units) units, SUM(payers) payers,
+       BOOL_OR(is_proxy) is_proxy, MIN(method_id) method_id
+FROM fact_revenue_daily r
+LEFT JOIN dim_sku s ON s.sku_id=r.sku_id
+GROUP BY 1,2,3,4,5,6,7"""
+    },
+    {
+        "view_name":"vw_driver_panel",
+        "sql_excerpt":"""SELECT d.driver_date AS date, d.title_id, d.storefront_id, d.region_id, d.country_id,
+       d.driver_code, d.weight, m.dau, m.net_usd
+FROM fact_driver_daily d
+LEFT JOIN vw_metrics_daily m
+  ON m.date=d.driver_date AND m.title_id=d.title_id
+ AND COALESCE(m.storefront_id,0)=COALESCE(d.storefront_id,0)
+ AND COALESCE(m.region_id,0)=COALESCE(d.region_id,0)
+ AND COALESCE(m.country_id,0)=COALESCE(d.country_id,0)"""
+    }
+])
+
+# ---------- Metadata sheet ----------
+meta = pd.DataFrame([
+    {"key":"Document","value":"Playsage_Foresight_Metrics_Data_Sheet.xlsx"},
+    {"key":"Generated","value":datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")},
+    {"key":"Owner","value":"Data Architect"},
+    {"key":"Purpose","value":"Warehouse schema and metrics dictionary for forecasting simulator."},
+    {"key":"Conventions","value":"UTC dates; currency *_local and *_usd; method_id and is_proxy required on facts."},
+    {"key":"Retention","value":"24 months daily hot; monthly aggregates retained for life."}
+])
+
+
+# ---------- Write Excel ----------
+path = "/mnt/data/Playsage_Foresight_Metrics_Data_Sheet.xlsx"
+with pd.ExcelWriter(path, engine="xlsxwriter") as writer:
+    tables_df.to_excel(writer, index=False, sheet_name="Tables")
+    columns_df.to_excel(writer, index=False, sheet_name="Columns")
+    enums.to_excel(writer, index=False, sheet_name="Enums")
+    formulas.to_excel(writer, index=False, sheet_name="Formulas")
+    dq_checks.to_excel(writer, index=False, sheet_name="DQ_Checks")
+    views_sql.to_excel(writer, index=False, sheet_name="Views_SQL")
+    meta.to_excel(writer, index=False, sheet_name="Metadata")
+
+path
+
+[ASSISTANT]
+# Retry writing the Excel workbook after a transient error.
+
+import pandas as pd
+from datetime import datetime
+
+# Recreate the DataFrames in case state was lost
+tables_df = pd.DataFrame(<???>)
+
+[ASSISTANT]
+Role: Data Architect. Reason: deliver the Playsage Foresight Metrics Data Sheet as an Excel-ready workbook. The file generator errored, so I am giving you the full workbook content in clean CSV blocks you can paste straight into Excel (one sheet per block). If you want me to retry producing a .xlsx again here, say so and I will attempt it immediately.
+
+# Sheet: Tables (paste into a sheet named “Tables”)
+```
+table_name,kind,primary_keys,partition_by,sort_keys,notes
+dim_platform,dimension,platform_id,,,
+dim_region,dimension,region_id,,,
+dim_currency,dimension,currency_id,,,
+dim_storefront,dimension,storefront_id,,,
+dim_channel,dimension,channel_id,,,
+dim_title,dimension,title_id,,,
+dim_sku,dimension,sku_id,,,
+dim_country,dimension,country_id,,,"Country with region rollup."
+dim_metric,dimension,metric_code,,,
+dim_business_model,dimension,business_model_code,,,
+dim_release_type,dimension,release_type_code,,,
+dim_chart_type,dimension,chart_type_code,,,
+map_title_storefront_region,dimension,title_storefront_region_id,,,
+cfg_currency_rate,config,"rate_date,base_currency_id,quote_currency_id",,,
+cfg_fee_schedule,config,"storefront_id,effective_from",,,
+cfg_rank_to_units_curve,config,"storefront_id,rank_low,rank_high",,,
+cfg_price_elasticity,config,sku_type,,,
+cfg_revrec_rule,config,sku_type,,,
+meta_lineage_method,meta,method_id,,,
+fact_kpi_daily,fact,"title_id,storefront_id,region_id,kpi_date",kpi_date,"title_id,region_id,kpi_date","Canonical engagement grain. Optional country_id."
+fact_revenue_daily,fact,"title_id,storefront_id,region_id,currency_id,rev_date,sku_type",rev_date,"title_id,region_id,rev_date","Supports sku_id for SKU resolution. Optional country_id."
+fact_price_daily,fact,"title_id,storefront_id,region_id,sku_id,price_date",price_date,"title_id,region_id,price_date",
+fact_rank_daily,fact,"title_id,storefront_id,rank_date,chart_type",rank_date,"title_id,rank_date","Country optional; chart_type enforced by dim_chart_type."
+fact_retention_cohort_daily,fact,"title_id,storefront_id,region_id,cohort_date,age_days",cohort_date,"title_id,region_id,cohort_date",
+fact_ua_spend_daily,fact,"title_id,region_id,channel_id,spend_date",spend_date,"title_id,region_id,spend_date",
+fact_release,fact,release_id,, "title_id,release_date",
+fact_revrec_daily,fact,"title_id,sku_id,revrec_date",revrec_date,"title_id,sku_id,revrec_date",
+fact_forecast_daily,fact,"title_id,storefront_id,region_id,metric_code,fc_date,scenario_code,model_version",fc_date,"title_id,region_id,fc_date",
+fact_forecast_backtest,fact,"title_id,metric_code,horizon_days,window_weeks,model_version",,,
+fact_forecast_attribution,fact,"title_id,attr_date,driver_code,metric_code,model_version",attr_date,"title_id,attr_date",
+fact_ltv_cohort_daily,fact,"title_id,storefront_id,region_id,cohort_date,age_days,scenario_code,model_version",cohort_date,"title_id,region_id,cohort_date","Scenario-aware cohort LTV."
+dim_driver_event,dimension,driver_code,,,
+fact_driver_daily,fact,"title_id,driver_code,driver_date,storefront_id,region_id,country_id",driver_date,"title_id,driver_date",
+meta_source_availability,meta,"title_id,storefront_id,region_id,metric_code,method_id,available_from",,,
+meta_method_precedence,meta,"metric_code,method_id",,,
+etl_load_audit,meta,load_id,,,
+dq_check_catalog,meta,check_code,,,
+dq_result_daily,meta,"check_date,table_name,check_code",,,
+model_registry,meta,model_version,,,
+agg_kpi_weekly,aggregate,"title_id,storefront_id,region_id,week_start",,,
+agg_revenue_monthly,aggregate,"title_id,storefront_id,region_id,currency_id,month_start,sku_type",,,
+vw_metrics_daily,view,,,,Daily KPI join with derived ARPDAU, ARPPU, conversion, sticky.
+vw_revenue_by_type_daily,view,,,,Rollup of SKU revenue to sku_type.
+vw_driver_panel,view,,,,Driver calendar joined to KPI panel.
+```
+
+# Sheet: Columns (paste into a sheet named “Columns”)
+```
+table_name,column_name,data_type,nullable,is_key,unit_or_domain,fk_reference,description,constraints
+dim_platform,platform_id,SMALLINT,NO,YES,,,Surrogate key,
+dim_platform,platform_code,VARCHAR(16),NO,NO,,,"Code, unique: steam, ps, xbox, ios, android",UNIQUE
+dim_platform,platform_name,VARCHAR(64),NO,NO,,,Human name,
+dim_region,region_id,SMALLINT,NO,YES,,,Surrogate key,
+dim_region,region_code,VARCHAR(16),NO,NO,enum,,US, UK, EUW, EUE, ROW,
+dim_region,region_name,VARCHAR(64),NO,NO,,,Human name,
+dim_country,country_id,SMALLINT,NO,YES,,,Surrogate key,
+dim_country,iso2,CHAR(2),NO,NO,,,ISO 3166-1 alpha-2,
+dim_country,country_name,VARCHAR(64),NO,NO,,,Human name,
+dim_country,region_id,SMALLINT,NO,NO,,dim_region(region_id),Region rollup,FK
+dim_currency,currency_id,SMALLINT,NO,YES,,,Surrogate key,
+dim_currency,iso_code,CHAR(3),NO,NO,enum,,ISO 4217 code,
+dim_currency,symbol,VARCHAR(8),NO,NO,,,Display symbol,
+dim_storefront,storefront_id,SMALLINT,NO,YES,,,Surrogate key,
+dim_storefront,storefront_code,VARCHAR(16),NO,NO,enum,,steam, psn, xbox_live, appstore, googleplay,
+dim_storefront,storefront_name,VARCHAR(64),NO,NO,,,Human name,
+dim_storefront,platform_id,SMALLINT,NO,NO,,dim_platform(platform_id),Platform rollup,FK
+dim_channel,channel_id,SMALLINT,NO,YES,,,Surrogate key,
+dim_channel,channel_code,VARCHAR(32),NO,NO,enum,,organic, search_ads, meta, tiktok, influencer,
+dim_channel,channel_name,VARCHAR(64),NO,NO,,,Human name,
+dim_title,title_id,BIGINT,NO,YES,,,Surrogate key,
+dim_title,title_code,VARCHAR(64),NO,NO,,,Stable code per game,UNIQUE
+dim_title,title_name,VARCHAR(128),NO,NO,,,Marketing name,
+dim_title,business_model,VARCHAR(32),NO,NO,enum,dim_business_model(business_model_code),premium, f2p, hybrid, subscription,FK
+dim_title,genre,VARCHAR(64),YES,NO,,,Optional genre,
+dim_title,release_date,DATE,YES,NO,,,Initial release date,
+dim_sku,sku_id,BIGINT,NO,YES,,,Surrogate key,
+dim_sku,title_id,BIGINT,NO,NO,,dim_title(title_id),Title owner,FK
+dim_sku,sku_code,VARCHAR(64),NO,NO,,,base, dlc_<name>, iap_<code>, season_<n>, sub_<tier>,
+dim_sku,sku_name,VARCHAR(128),NO,NO,,,Display name,
+dim_sku,sku_type,VARCHAR(32),NO,NO,enum,,base, dlc, iap, season, subscription,
+dim_sku,is_consumable,BOOLEAN,NO,NO,,,True for consumable IAP,
+dim_sku,is_active,BOOLEAN,NO,NO,,,Active availability,
+map_title_storefront_region,title_storefront_region_id,BIGSERIAL,NO,YES,,,Surrogate key,
+map_title_storefront_region,title_id,BIGINT,NO,NO,,dim_title(title_id),Title,FK
+map_title_storefront_region,storefront_id,SMALLINT,NO,NO,,dim_storefront(storefront_id),Storefront,FK
+map_title_storefront_region,region_id,SMALLINT,NO,NO,,dim_region(region_id),Region,FK
+map_title_storefront_region,currency_id,SMALLINT,NO,NO,,dim_currency(currency_id),Currency for receipts,FK
+map_title_storefront_region,is_live,BOOLEAN,NO,NO,,,Coverage flag,
+cfg_currency_rate,rate_date,DATE,NO,YES,,,Rate date,
+cfg_currency_rate,base_currency_id,SMALLINT,NO,YES,,dim_currency(currency_id),Base currency,FK
+cfg_currency_rate,quote_currency_id,SMALLINT,NO,YES,,dim_currency(currency_id),Quote currency,FK
+cfg_currency_rate,fx_rate,NUMERIC(18,8),NO,NO,ratio,,Quote per 1 base,
+cfg_fee_schedule,storefront_id,SMALLINT,NO,YES,,dim_storefront(storefront_id),Storefront,FK
+cfg_fee_schedule,effective_from,DATE,NO,YES,,,Start date,
+cfg_fee_schedule,effective_to,DATE,YES,NO,,,End date if set,
+cfg_fee_schedule,fee_rate,NUMERIC(6,4),NO,NO,ratio,,Platform fee 0..1,
+cfg_fee_schedule,notes,VARCHAR(256),YES,NO,,,Comments,
+cfg_rank_to_units_curve,storefront_id,SMALLINT,NO,YES,,dim_storefront(storefront_id),Storefront,FK
+cfg_rank_to_units_curve,country_code,CHAR(2),YES,NO,,,Country refine,
+cfg_rank_to_units_curve,category,VARCHAR(64),YES,NO,,,top_grossing, top_paid, top_free,
+cfg_rank_to_units_curve,rank_low,INT,NO,YES,,,Low bound inclusive,
+cfg_rank_to_units_curve,rank_high,INT,NO,YES,,,High bound inclusive,
+cfg_rank_to_units_curve,units_per_rank,NUMERIC(18,6),NO,NO,units,,Estimated units at rank,
+cfg_price_elasticity,sku_type,VARCHAR(32),NO,YES,enum,,SKU class,
+cfg_price_elasticity,elasticity,NUMERIC(8,4),NO,NO,coefficient,,Typically negative,
+cfg_price_elasticity,notes,VARCHAR(256),YES,NO,,,Comments,
+cfg_revrec_rule,sku_type,VARCHAR(32),NO,YES,enum,,Class under rev rec,
+cfg_revrec_rule,recognition_days,SMALLINT,NO,NO,days,,Straight line days,
+cfg_revrec_rule,start_anchor,VARCHAR(16),NO,NO,,,purchase_date or season_start,
+meta_lineage_method,method_id,BIGSERIAL,NO,YES,,,Surrogate key,
+meta_lineage_method,method_code,VARCHAR(64),NO,NO,,,telemetry_direct, rank_curve_v1, blended_v2,
+meta_lineage_method,description,TEXT,NO,NO,,,Method notes,
+meta_lineage_method,source_priority,SMALLINT,NO,NO,,,Lower is preferred,
+fact_kpi_daily,title_id,BIGINT,NO,YES,,,,Title,
+fact_kpi_daily,storefront_id,SMALLINT,NO,YES,,dim_storefront(storefront_id),Storefront,FK
+fact_kpi_daily,region_id,SMALLINT,NO,YES,,dim_region(region_id),Region,FK
+fact_kpi_daily,country_id,SMALLINT,YES,NO,,dim_country(country_id),Optional country,FK
+fact_kpi_daily,kpi_date,DATE,NO,YES,date,,UTC date,
+fact_kpi_daily,installs,INT,YES,NO,users,,New installs,
+fact_kpi_daily,nuu,INT,YES,NO,users,,New unique users active,
+fact_kpi_daily,dau,INT,YES,NO,users,,Daily active users,
+fact_kpi_daily,wau,INT,YES,NO,users,,7-day unique users,
+fact_kpi_daily,mau,INT,YES,NO,users,,30-day unique users,
+fact_kpi_daily,sessions,BIGINT,YES,NO,sessions,,Sessions,
+fact_kpi_daily,payers,INT,YES,NO,users,,Unique payers,
+fact_kpi_daily,purchases,INT,YES,NO,tx,,Transactions,
+fact_kpi_daily,reactivations,INT,YES,NO,users,,Returning after inactivity,
+fact_kpi_daily,churn_rate,NUMERIC(8,6),YES,NO,ratio,,Daily churn,0..1
+fact_kpi_daily,d1_retention,NUMERIC(8,6),YES,NO,ratio,,Day-1 retention,0..1
+fact_kpi_daily,d7_retention,NUMERIC(8,6),YES,NO,ratio,,Day-7 retention,0..1
+fact_kpi_daily,d30_retention,NUMERIC(8,6),YES,NO,ratio,,Day-30 retention,0..1
+fact_kpi_daily,method_id,BIGINT,NO,NO,,meta_lineage_method(method_id),Lineage method,FK
+fact_kpi_daily,is_proxy,BOOLEAN,NO,NO,,,True if derived from store signal,
+fact_kpi_daily,source_system,VARCHAR(64),NO,NO,,,Ingest source,
+fact_kpi_daily,batch_id,VARCHAR(64),NO,NO,,,Load batch,
+fact_kpi_daily,ingested_at_utc,TIMESTAMP,NO,NO,,,Ingest time,
+fact_kpi_daily,updated_at_utc,TIMESTAMP,NO,NO,,,Last update,
+fact_revenue_daily,title_id,BIGINT,NO,YES,,,,Title,
+fact_revenue_daily,storefront_id,SMALLINT,NO,YES,,dim_storefront(storefront_id),Storefront,FK
+fact_revenue_daily,region_id,SMALLINT,NO,YES,,dim_region(region_id),Region,FK
+fact_revenue_daily,country_id,SMALLINT,YES,NO,,dim_country(country_id),Optional country,FK
+fact_revenue_daily,currency_id,SMALLINT,NO,YES,,dim_currency(currency_id),Currency,FK
+fact_revenue_daily,rev_date,DATE,NO,YES,date,,UTC date,
+fact_revenue_daily,sku_id,BIGINT,YES,NO,,dim_sku(sku_id),SKU id,FK
+fact_revenue_daily,sku_type,VARCHAR(32),NO,NO,enum,,SKU type when sku_id absent,
+fact_revenue_daily,gross_local,NUMERIC(18,2),YES,NO,money,,Gross local,
+fact_revenue_daily,discounts_local,NUMERIC(18,2),YES,NO,money,,Discounts local,
+fact_revenue_daily,refunds_local,NUMERIC(18,2),YES,NO,money,,Refunds local,
+fact_revenue_daily,taxes_local,NUMERIC(18,2),YES,NO,money,,Taxes local,
+fact_revenue_daily,platform_fees_local,NUMERIC(18,2),YES,NO,money,,Platform fees local,
+fact_revenue_daily,net_local,NUMERIC(18,2),YES,NO,money,,Net local,
+fact_revenue_daily,gross_usd,NUMERIC(18,2),YES,NO,money,,Gross USD,
+fact_revenue_daily,net_usd,NUMERIC(18,2),YES,NO,money,,Net USD,
+fact_revenue_daily,units,INT,YES,NO,units,,Units sold or pseudo units,
+fact_revenue_daily,payers,INT,YES,NO,users,,Unique payers,
+fact_revenue_daily,method_id,BIGINT,NO,NO,,meta_lineage_method(method_id),Lineage method,FK
+fact_revenue_daily,is_proxy,BOOLEAN,NO,NO,,,True if derived,
+fact_revenue_daily,source_system,VARCHAR(64),NO,NO,,,Source,
+fact_revenue_daily,batch_id,VARCHAR(64),NO,NO,,,Batch,
+fact_revenue_daily,ingested_at_utc,TIMESTAMP,NO,NO,,,Ingest time,
+fact_revenue_daily,updated_at_utc,TIMESTAMP,NO,NO,,,Last update,
+fact_price_daily,title_id,BIGINT,NO,NO,,,,Title,
+fact_price_daily,storefront_id,SMALLINT,NO,NO,,dim_storefront(storefront_id),Storefront,FK
+fact_price_daily,region_id,SMALLINT,NO,NO,,dim_region(region_id),Region,FK
+fact_price_daily,sku_id,BIGINT,NO,YES,,dim_sku(sku_id),SKU id,FK
+fact_price_daily,price_date,DATE,NO,YES,date,,UTC date,
+fact_price_daily,base_price_local,NUMERIC(18,2),NO,NO,money,,Base price local,
+fact_price_daily,live_price_local,NUMERIC(18,2),NO,NO,money,,Live price local,
+fact_price_daily,discount_pct,NUMERIC(8,6),NO,NO,ratio,,Discount 0..1,
+fact_price_daily,promo_flag,BOOLEAN,NO,NO,,,Promo active,
+fact_price_daily,source_system,VARCHAR(64),NO,NO,,,Source,
+fact_price_daily,batch_id,VARCHAR(64),NO,NO,,,Batch,
+fact_price_daily,ingested_at_utc,TIMESTAMP,NO,NO,,,Ingest time,
+fact_price_daily,updated_at_utc,TIMESTAMP,NO,NO,,,Last update,
+fact_rank_daily,title_id,BIGINT,NO,YES,,,,Title,
+fact_rank_daily,storefront_id,SMALLINT,NO,YES,,dim_storefront(storefront_id),Storefront,FK
+fact_rank_daily,country_id,SMALLINT,YES,NO,,dim_country(country_id),Optional country,FK
+fact_rank_daily,rank_date,DATE,NO,YES,date,,UTC date,
+fact_rank_daily,chart_type,VARCHAR(32),NO,YES,enum,dim_chart_type(chart_type_code),Chart type,FK
+fact_rank_daily,rank_position,INT,YES,NO,rank,,Lower is better,
+fact_rank_daily,featured_flag,BOOLEAN,NO,NO,,,Featuring flag,
+fact_rank_daily,source_system,VARCHAR(64),NO,NO,,,Source,
+fact_rank_daily,batch_id,VARCHAR(64),NO,NO,,,Batch,
+fact_rank_daily,ingested_at_utc,TIMESTAMP,NO,NO,,,Ingest time,
+fact_rank_daily,updated_at_utc,TIMESTAMP,NO,NO,,,Last update,
+fact_retention_cohort_daily,title_id,BIGINT,NO,YES,,,,Title,
+fact_retention_cohort_daily,storefront_id,SMALLINT,NO,YES,,dim_storefront(storefront_id),Storefront,FK
+fact_retention_cohort_daily,region_id,SMALLINT,NO,YES,,dim_region(region_id),Region,FK
+fact_retention_cohort_daily,cohort_date,DATE,NO,YES,date,,Install date,
+fact_retention_cohort_daily,age_days,SMALLINT,NO,YES,days,,Days since install,
+fact_retention_cohort_daily,cohort_installs,INT,NO,NO,users,,Cohort size,
+fact_retention_cohort_daily,retained_users,INT,YES,NO,users,,Retained on age day,
+fact_retention_cohort_daily,revenue_usd,NUMERIC(18,2),YES,NO,money,,Optional per-day cohort revenue,
+fact_retention_cohort_daily,method_id,BIGINT,NO,NO,,meta_lineage_method(method_id),Method,FK
+fact_retention_cohort_daily,is_proxy,BOOLEAN,NO,NO,,,True if derived,
+fact_retention_cohort_daily,source_system,VARCHAR(64),NO,NO,,,Source,
+fact_retention_cohort_daily,batch_id,VARCHAR(64),NO,NO,,,Batch,
+fact_retention_cohort_daily,ingested_at_utc,TIMESTAMP,NO,NO,,,Ingest time,
+fact_retention_cohort_daily,updated_at_utc,TIMESTAMP,NO,NO,,,Last update,
+fact_ua_spend_daily,title_id,BIGINT,NO,YES,,,,Title,
+fact_ua_spend_daily,region_id,SMALLINT,NO,YES,,dim_region(region_id),Region,FK
+fact_ua_spend_daily,channel_id,SMALLINT,NO,YES,,dim_channel(channel_id),UA channel,FK
+fact_ua_spend_daily,spend_date,DATE,NO,YES,date,,UTC date,
+fact_ua_spend_daily,impressions,BIGINT,YES,NO,,,,Impressions,
+fact_ua_spend_daily,clicks,BIGINT,YES,NO,,,,Clicks,
+fact_ua_spend_daily,installs,INT,YES,NO,users,,Attributed installs,
+fact_ua_spend_daily,spend_usd,NUMERIC(18,2),YES,NO,money,,Spend USD,
+fact_ua_spend_daily,source_system,VARCHAR(64),NO,NO,,,Source,
+fact_ua_spend_daily,batch_id,VARCHAR(64),NO,NO,,,Batch,
+fact_ua_spend_daily,ingested_at_utc,TIMESTAMP,NO,NO,,,Ingest time,
+fact_ua_spend_daily,updated_at_utc,TIMESTAMP,NO,NO,,,Last update,
+fact_release,release_id,BIGSERIAL,NO,YES,,,Surrogate key,
+fact_release,title_id,BIGINT,NO,NO,,,,Title,
+fact_release,storefront_id,SMALLINT,NO,NO,,dim_storefront(storefront_id),Storefront,FK
+fact_release,release_date,DATE,NO,NO,date,,UTC date,
+fact_release,release_type,VARCHAR(32),NO,NO,enum,dim_release_type(release_type_code),Release type,FK
+fact_release,version_tag,VARCHAR(64),YES,NO,,,Version string,
+fact_release,notes,TEXT,YES,NO,,,Free text,
+fact_release,source_system,VARCHAR(64),NO,NO,,,Source,
+fact_release,batch_id,VARCHAR(64),NO,NO,,,Batch,
+fact_release,ingested_at_utc,TIMESTAMP,NO,NO,,,Ingest time,
+fact_release,updated_at_utc,TIMESTAMP,NO,NO,,,Last update,
+fact_revrec_daily,title_id,BIGINT,NO,YES,,,,Title,
+fact_revrec_daily,sku_id,BIGINT,NO,YES,,dim_sku(sku_id),SKU id,FK
+fact_revrec_daily,revrec_date,DATE,NO,YES,date,,UTC date,
+fact_revrec_daily,bookings_usd,NUMERIC(18,2),NO,NO,money,,Bookings,
+fact_revrec_daily,recognized_usd,NUMERIC(18,2),NO,NO,money,,Recognised revenue,
+fact_revrec_daily,deferred_open_usd,NUMERIC(18,2),NO,NO,money,,Opening deferred,
+fact_revrec_daily,deferred_close_usd,NUMERIC(18,2),NO,NO,money,,Closing deferred,
+fact_revrec_daily,method_id,BIGINT,NO,NO,,meta_lineage_method(method_id),Method,FK
+fact_revrec_daily,source_system,VARCHAR(64),NO,NO,,,Source,
+fact_revrec_daily,batch_id,VARCHAR(64),NO,NO,,,Batch,
+fact_revrec_daily,ingested_at_utc,TIMESTAMP,NO,NO,,,Ingest time,
+fact_revrec_daily,updated_at_utc,TIMESTAMP,NO,NO,,,Last update,
+fact_forecast_daily,title_id,BIGINT,NO,YES,,,,Title,
+fact_forecast_daily,storefront_id,SMALLINT,NO,YES,,dim_storefront(storefront_id),Storefront,FK
+fact_forecast_daily,region_id,SMALLINT,NO,YES,,dim_region(region_id),Region,FK
+fact_forecast_daily,metric_code,VARCHAR(32),NO,YES,enum,dim_metric(metric_code),Metric code,FK
+fact_forecast_daily,fc_date,DATE,NO,YES,date,,Forecast date,
+fact_forecast_daily,scenario_code,VARCHAR(16),NO,YES,enum,,Scenario code,
+fact_forecast_daily,point,NUMERIC(18,6),NO,NO,,,,Point forecast,
+fact_forecast_daily,low,NUMERIC(18,6),YES,NO,,,,Low bound,
+fact_forecast_daily,high,NUMERIC(18,6),YES,NO,,,,High bound,
+fact_forecast_daily,confidence_pct,NUMERIC(5,2),YES,NO,percent,,Confidence percent,
+fact_forecast_daily,model_version,VARCHAR(32),NO,YES,,model_registry(model_version),Model version,FK
+fact_forecast_daily,source_system,VARCHAR(64),NO,NO,,,Source,
+fact_forecast_daily,batch_id,VARCHAR(64),NO,NO,,,Batch,
+fact_forecast_daily,ingested_at_utc,TIMESTAMP,NO,NO,,,Ingest time,
+fact_forecast_daily,updated_at_utc,TIMESTAMP,NO,NO,,,Last update,
+fact_forecast_backtest,title_id,BIGINT,NO,YES,,,,Title,
+fact_forecast_backtest,metric_code,VARCHAR(32),NO,YES,enum,dim_metric(metric_code),Metric code,FK
+fact_forecast_backtest,horizon_days,SMALLINT,NO,YES,days,,Forecast horizon,
+fact_forecast_backtest,window_weeks,SMALLINT,NO,YES,weeks,,Backtest window,
+fact_forecast_backtest,mape,NUMERIC(8,6),YES,NO,ratio,,MAPE,
+fact_forecast_backtest,mae,NUMERIC(18,6),YES,NO,units,,MAE,
+fact_forecast_backtest,rmse,NUMERIC(18,6),YES,NO,units,,RMSE,
+fact_forecast_backtest,last_train_date,DATE,NO,NO,date,,Training cutoff,
+fact_forecast_backtest,model_version,VARCHAR(32),NO,YES,,model_registry(model_version),Model version,FK
+fact_forecast_attribution,title_id,BIGINT,NO,YES,,,,Title,
+fact_forecast_attribution,attr_date,DATE,NO,YES,date,,Date,
+fact_forecast_attribution,driver_code,VARCHAR(32),NO,YES,enum,dim_driver_event(driver_code),Driver,FK
+fact_forecast_attribution,metric_code,VARCHAR(32),NO,YES,enum,dim_metric(metric_code),Metric,FK
+fact_forecast_attribution,contribution,NUMERIC(18,6),NO,NO,,,,Signed contribution,
+fact_forecast_attribution,note,VARCHAR(256),YES,NO,,,Comment,
+fact_forecast_attribution,model_version,VARCHAR(32),NO,YES,,model_registry(model_version),Model version,FK
+fact_ltv_cohort_daily,title_id,BIGINT,NO,YES,,,,Title,
+fact_ltv_cohort_daily,storefront_id,SMALLINT,NO,YES,,dim_storefront(storefront_id),Storefront,FK
+fact_ltv_cohort_daily,region_id,SMALLINT,NO,YES,,dim_region(region_id),Region,FK
+fact_ltv_cohort_daily,cohort_date,DATE,NO,YES,date,,Install date,
+fact_ltv_cohort_daily,age_days,SMALLINT,NO,YES,days,,Days since install,
+fact_ltv_cohort_daily,installs,INT,NO,NO,users,,Cohort installs,
+fact_ltv_cohort_daily,cumulative_net_usd,NUMERIC(18,2),YES,NO,money,,Cumulative net USD,
+fact_ltv_cohort_daily,arpu_usd,NUMERIC(18,6),YES,NO,money/user,,Generated ARPU,
+fact_ltv_cohort_daily,scenario_code,VARCHAR(16),YES,NO,enum,,Scenario code,
+fact_ltv_cohort_daily,model_version,VARCHAR(32),YES,NO,,,Model version,
+dim_driver_event,driver_code,VARCHAR(32),NO,YES,enum,,Driver code,
+dim_driver_event,description,VARCHAR(256),YES,NO,,,Description,
+fact_driver_daily,title_id,BIGINT,NO,NO,,,,Title,
+fact_driver_daily,storefront_id,SMALLINT,YES,NO,,dim_storefront(storefront_id),Storefront or null,FK
+fact_driver_daily,region_id,SMALLINT,YES,NO,,dim_region(region_id),Region or null,FK
+fact_driver_daily,country_id,SMALLINT,YES,NO,,dim_country(country_id),Country or null,FK
+fact_driver_daily,driver_code,VARCHAR(32),NO,YES,enum,dim_driver_event(driver_code),Driver,FK
+fact_driver_daily,driver_date,DATE,NO,YES,date,,UTC date,
+fact_driver_daily,weight,NUMERIC(8,6),YES,NO,ratio,,Optional intensity 0..1,
+fact_driver_daily,note,VARCHAR(256),YES,NO,,,Comment,
+meta_source_availability,title_id,BIGINT,NO,YES,,,,Title,
+meta_source_availability,storefront_id,SMALLINT,YES,NO,,dim_storefront(storefront_id),Storefront scope,FK
+meta_source_availability,region_id,SMALLINT,YES,NO,,dim_region(region_id),Region scope,FK
+meta_source_availability,metric_code,VARCHAR(32),NO,YES,enum,dim_metric(metric_code),Metric code,FK
+meta_source_availability,method_id,BIGINT,NO,YES,,meta_lineage_method(method_id),Method id,FK
+meta_source_availability,available_from,DATE,NO,YES,date,,Available from,
+meta_source_availability,available_to,DATE,YES,NO,date,,Available to,
+meta_method_precedence,metric_code,VARCHAR(32),NO,YES,enum,dim_metric(metric_code),Metric code,FK
+meta_method_precedence,method_id,BIGINT,NO,YES,,meta_lineage_method(method_id),Method id,FK
+meta_method_precedence,precedence,SMALLINT,NO,NO,,,Lower is better,
+etl_load_audit,load_id,BIGSERIAL,NO,YES,,,Surrogate key,
+etl_load_audit,table_name,VARCHAR(64),NO,NO,,,Target table,
+etl_load_audit,batch_id,VARCHAR(64),NO,NO,,,Batch id,
+etl_load_audit,source_system,VARCHAR(64),NO,NO,,,Source name,
+etl_load_audit,started_at,TIMESTAMP,NO,NO,,,Load start,
+etl_load_audit,finished_at,TIMESTAMP,YES,NO,,,Load end,
+etl_load_audit,status,VARCHAR(16),NO,NO,,,success, failed, partial,
+etl_load_audit,rows_inserted,BIGINT,YES,NO,,,Rows inserted,
+etl_load_audit,rows_updated,BIGINT,YES,NO,,,Rows updated,
+etl_load_audit,error_message,TEXT,YES,NO,,,Error text,
+dq_check_catalog,check_code,VARCHAR(64),NO,YES,,,Check id,
+dq_check_catalog,description,VARCHAR(256),YES,NO,,,Description,
+dq_check_catalog,severity,VARCHAR(16),NO,NO,,,warn or error,
+dq_result_daily,check_date,DATE,NO,YES,date,,Date,
+dq_result_daily,table_name,VARCHAR(64),NO,YES,,,Target table,
+dq_result_daily,check_code,VARCHAR(64),NO,YES,,dq_check_catalog(check_code),Check id,FK
+dq_result_daily,affected_rows,BIGINT,NO,NO,,,Count of failed rows,
+dq_result_daily,sample_keys,TEXT,YES,NO,,,Sample of keys,
+model_registry,model_version,VARCHAR(32),NO,YES,,,Model version code,
+model_registry,model_name,VARCHAR(128),NO,NO,,,Human name,
+model_registry,created_at,TIMESTAMP,NO,NO,,,Creation timestamp,
+model_registry,params_json,JSONB,YES,NO,,,Params,
+model_registry,notes,TEXT,YES,NO,,,Notes,
+```
+
+# Sheet: Enums (paste into a sheet named “Enums”)
+```
+enum_name,allowed_values_csv,notes
+platform_code,"steam, ps, xbox, ios, android","Map to platform_id in dim_platform"
+region_code,"US, UK, EUW, EUE, ROW","Map to region_id in dim_region"
+iso_currency,"USD, GBP, EUR","Map to currency_id in dim_currency"
+storefront_code,"steam, psn, xbox_live, appstore, googleplay","Map to storefront_id in dim_storefront"
+channel_code,"organic, search_ads, meta, tiktok, influencer","Map to channel_id in dim_channel"
+business_model_code,"premium, f2p, hybrid, subscription","Referenced by dim_title.business_model"
+sku_type,"base, dlc, iap, season, subscription","Referenced by dim_sku and revenue facts"
+release_type_code,"launch, patch, content_drop, season_start, dlc_launch, price_change, promo","Referenced by fact_release"
+chart_type_code,"top_paid, top_grossing, top_free","Referenced by fact_rank_daily"
+driver_code,"price, promo, content, ua, seasonal, platform, external","Driver calendar and attribution"
+metric_code,"dau, installs, payers, net_usd, wau, mau, purchases, reactivations","Forecast and backtests"
+scenario_code,"base, low, high, custom_x","Forecast ribbons"
+```
+
+# Sheet: Formulas (paste into a sheet named “Formulas”)
+```
+metric,formula_sql,unit,source
+net_local,"gross_local - discounts_local - refunds_local - taxes_local - platform_fees_local","money (local)","fact_revenue_daily"
+net_usd,"net_local * fx_rate_to_usd(rate_date=rev_date)","money (USD)","fact_revenue_daily + cfg_currency_rate"
+ARPDAU,"CASE WHEN dau>0 THEN net_usd / dau END","USD per user","vw_metrics_daily"
+ARPPU,"CASE WHEN payers>0 THEN net_usd / payers END","USD per payer","vw_metrics_daily"
+conversion_rate,"CASE WHEN dau>0 THEN payers::NUMERIC / dau END","ratio 0..1","vw_metrics_daily"
+sticky_factor,"CASE WHEN mau>0 THEN dau::NUMERIC / mau END","ratio 0..1","vw_metrics_daily"
+daily_churn_rate_proxy,"GREATEST(0, (dau_lag + nuu_lag - dau - reactivations) / NULLIF(dau_lag,0))","ratio 0..1","fact_kpi_daily (derived)"
+dlc_attach_rate,"cumulative_dlc_units / NULLIF(mau,0)","ratio 0..1","fact_revenue_daily + vw_metrics_daily"
+revrec_identity_check,"deferred_close = deferred_open + bookings - recognized","identity","fact_revrec_daily"
+```
+
+# Sheet: DQ_Checks (paste into a sheet named “DQ_Checks”)
+```
+check_code,description,severity
+non_negative_money,Money fields must be >= 0,error
+ratio_bounds,Ratios between 0 and 1,error
+fx_coverage,FX rate available for all currency pairs on all rev_date,error
+revrec_identity,Deferred close equals deferred open + bookings - recognized,error
+method_required,method_id and is_proxy populated on all facts,error
+key_uniqueness,Primary key uniqueness by table,error
+null_rules,Not null columns never null,error
+```
+
+# Sheet: Views_SQL (paste into a sheet named “Views_SQL”)
+```
+view_name,sql_excerpt
+vw_metrics_daily,"SELECT k.title_id, k.storefront_id, k.region_id, k.country_id,
+  k.kpi_date AS date, k.installs, k.nuu, k.dau, k.wau, k.mau, k.sessions,
+  k.payers, k.purchases, k.reactivations, r.net_usd,
+  CASE WHEN k.dau>0 AND r.net_usd IS NOT NULL THEN r.net_usd/k.dau END AS arpdau_usd,
+  CASE WHEN k.payers>0 AND r.net_usd IS NOT NULL THEN r.net_usd/k.payers END AS arppu_usd,
+  CASE WHEN k.dau>0 AND k.payers IS NOT NULL THEN k.payers::NUMERIC/k.dau END AS conversion_rate,
+  CASE WHEN k.mau>0 AND k.dau IS NOT NULL THEN k.dau::NUMERIC/k.mau END AS sticky_factor,
+  k.churn_rate, k.d1_retention, k.d7_retention, k.d30_retention,
+  k.is_proxy OR r.is_proxy AS any_proxy, k.method_id AS kpi_method_id, r.method_id AS revenue_method_id
+FROM fact_kpi_daily k
+LEFT JOIN (
+  SELECT title_id, storefront_id, region_id, country_id, rev_date,
+         SUM(net_usd) AS net_usd, BOOL_OR(is_proxy) AS is_proxy, MIN(method_id) AS method_id
+  FROM fact_revenue_daily GROUP BY 1,2,3,4,5
+) r
+  ON r.title_id=k.title_id AND r.storefront_id=k.storefront_id
+ AND r.region_id=k.region_id AND COALESCE(r.country_id,0)=COALESCE(k.country_id,0)
+ AND r.rev_date=k.kpi_date"
+vw_revenue_by_type_daily,"SELECT title_id, storefront_id, region_id, country_id, currency_id, rev_date,
+  COALESCE(s.sku_type, r.sku_type) AS sku_type,
+  SUM(gross_local) gross_local, SUM(discounts_local) discounts_local,
+  SUM(refunds_local) refunds_local, SUM(taxes_local) taxes_local,
+  SUM(platform_fees_local) platform_fees_local,
+  SUM(net_local) net_local, SUM(gross_usd) gross_usd, SUM(net_usd) net_usd,
+  SUM(units) units, SUM(payers) payers,
+  BOOL_OR(is_proxy) is_proxy, MIN(method_id) method_id
+FROM fact_revenue_daily r
+LEFT JOIN dim_sku s ON s.sku_id=r.sku_id
+GROUP BY 1,2,3,4,5,6,7"
+vw_driver_panel,"SELECT d.driver_date AS date, d.title_id, d.storefront_id, d.region_id, d.country_id,
+  d.driver_code, d.weight, m.dau, m.net_usd
+FROM fact_driver_daily d
+LEFT JOIN vw_metrics_daily m
+  ON m.date=d.driver_date AND m.title_id=d.title_id
+ AND COALESCE(m.storefront_id,0)=COALESCE(d.storefront_id,0)
+ AND COALESCE(m.region_id,0)=COALESCE(d.region_id,0)
+ AND COALESCE(m.country_id,0)=COALESCE(d.country_id,0)"
+```
+
+# Sheet: Metadata (paste into a sheet named “Metadata”)
+```
+key,value
+Document,Playsage_Foresight_Metrics_Data_Sheet.xlsx
+Generated,{{UTC now}}
+Owner,Data Architect
+Purpose,Warehouse schema and metrics dictionary for forecasting simulator
+Conventions,UTC dates; *_local and *_usd money; method_id and is_proxy required on facts
+Retention,24 months daily hot; monthly aggregates retained for life
+```
+
+If you want me to attempt generating the .xlsx again so you can click to download here, say “Retry Excel export” and I will run it now.
+
+[USER]
+Retry Excel export, segment the owrk if needed
+
+[ASSISTANT]
+# Rebuild and export the Playsage Foresight Metrics Data Sheet as an Excel workbook.
+# The workbook includes: Tables, Columns, Enums, Formulas, DQ_Checks, Views_SQL, Metadata.
+# British English; no em dashes.
+
+import pandas as pd
+from datetime import datetime
+
+# ---------------- Helpers ----------------
+def add_table(tables, name, kind, primary_keys=None, partition=None, sort_keys=None, notes=None):
+    tables.append({
+        "table_name": name,
+        "kind": kind,
+        "primary_keys": ", ".join(primary_keys) if primary_keys else "",
+        "partition_by": partition or "",
+        "sort_keys": ", ".join(sort_keys) if sort_keys else "",
+        "notes": notes or ""
+    })
+
+def add_col(cols, table, name, dtype, nullable, description,
+            unit="", is_key=False, fk_ref="", constraints=""):
+    cols.append({
+        "table_name": table,
+        "column_name": name,
+        "data_type": dtype,
+        "nullable": "YES" if nullable else "NO",
+        "is_key": "YES" if is_key else "NO",
+        "unit_or_domain": unit,
+        "fk_reference": fk_ref,
+        "description": description,
+        "constraints": constraints
+    })
+
+# ---------------- Tables sheet ----------------
+tables = []
+
+# Dimensions
+for t in ["dim_platform","dim_region","dim_currency","dim_storefront","dim_channel","dim_title","dim_sku"]:
+    add_table(tables, t, "dimension", [t.split("_")[-1]+"_id"])
+add_table(tables, "dim_country", "dimension", ["country_id"], notes="Country with region rollup.")
+add_table(tables, "dim_metric", "dimension", ["metric_code"])
+add_table(tables, "dim_business_model", "dimension", ["business_model_code"])
+add_table(tables, "dim_release_type", "dimension", ["release_type_code"])
+add_table(tables, "dim_chart_type", "dimension", ["chart_type_code"])
+
+# Mapping
+add_table(tables, "map_title_storefront_region", "dimension", ["title_storefront_region_id"])
+
+# Config and meta
+add_table(tables, "cfg_currency_rate", "config", ["rate_date","base_currency_id","quote_currency_id"])
+add_table(tables, "cfg_fee_schedule", "config", ["storefront_id","effective_from"])
+add_table(tables, "cfg_rank_to_units_curve", "config", ["storefront_id","rank_low","rank_high"])
+add_table(tables, "cfg_price_elasticity", "config", ["sku_type"])
+add_table(tables, "cfg_revrec_rule", "config", ["sku_type"])
+add_table(tables, "meta_lineage_method", "meta", ["method_id"])
+
+# Facts
+add_table(tables, "fact_kpi_daily", "fact",
+          ["title_id","storefront_id","region_id","kpi_date"],
+          partition="kpi_date", sort_keys=["title_id","region_id","kpi_date"],
+          notes="Canonical engagement grain. Optional country_id.")
+add_table(tables, "fact_revenue_daily", "fact",
+          ["title_id","storefront_id","region_id","currency_id","rev_date","sku_type"],
+          partition="rev_date", sort_keys=["title_id","region_id","rev_date"],
+          notes="Supports sku_id for SKU resolution. Optional country_id.")
+add_table(tables, "fact_price_daily", "fact",
+          ["title_id","storefront_id","region_id","sku_id","price_date"],
+          partition="price_date", sort_keys=["title_id","region_id","price_date"])
+add_table(tables, "fact_rank_daily", "fact",
+          ["title_id","storefront_id","rank_date","chart_type"],
+          partition="rank_date", sort_keys=["title_id","rank_date"],
+          notes="Country optional; chart_type enforced by dim_chart_type.")
+add_table(tables, "fact_retention_cohort_daily", "fact",
+          ["title_id","storefront_id","region_id","cohort_date","age_days"],
+          partition="cohort_date", sort_keys=["title_id","region_id","cohort_date"])
+add_table(tables, "fact_ua_spend_daily", "fact",
+          ["title_id","region_id","channel_id","spend_date"],
+          partition="spend_date", sort_keys=["title_id","region_id","spend_date"])
+add_table(tables, "fact_release", "fact",
+          ["release_id"], sort_keys=["title_id","release_date"])
+add_table(tables, "fact_revrec_daily", "fact",
+          ["title_id","sku_id","revrec_date"], partition="revrec_date",
+          sort_keys=["title_id","sku_id","revrec_date"])
+
+# Forecast artefacts
+add_table(tables, "fact_forecast_daily", "fact",
+          ["title_id","storefront_id","region_id","metric_code","fc_date","scenario_code","model_version"],
+          partition="fc_date", sort_keys=["title_id","region_id","fc_date"])
+add_table(tables, "fact_forecast_backtest", "fact",
+          ["title_id","metric_code","horizon_days","window_weeks","model_version"])
+add_table(tables, "fact_forecast_attribution", "fact",
+          ["title_id","attr_date","driver_code","metric_code","model_version"],
+          partition="attr_date", sort_keys=["title_id","attr_date"])
+add_table(tables, "fact_ltv_cohort_daily", "fact",
+          ["title_id","storefront_id","region_id","cohort_date","age_days","scenario_code","model_version"],
+          partition="cohort_date", sort_keys=["title_id","region_id","cohort_date"],
+          notes="Scenario-aware cohort LTV.")
+
+# Drivers and methods
+add_table(tables, "dim_driver_event", "dimension", ["driver_code"])
+add_table(tables, "fact_driver_daily", "fact",
+          ["title_id","driver_code","driver_date","storefront_id","region_id","country_id"],
+          partition="driver_date", sort_keys=["title_id","driver_date"])
+add_table(tables, "meta_source_availability", "meta",
+          ["title_id","storefront_id","region_id","metric_code","method_id","available_from"])
+add_table(tables, "meta_method_precedence", "meta", ["metric_code","method_id"])
+
+# DQ and ETL audit
+add_table(tables, "etl_load_audit", "meta", ["load_id"])
+add_table(tables, "dq_check_catalog", "meta", ["check_code"])
+add_table(tables, "dq_result_daily", "meta", ["check_date","table_name","check_code"])
+
+# Model registry
+add_table(tables, "model_registry", "meta", ["model_version"])
+
+# Aggregates and views
+add_table(tables, "agg_kpi_weekly", "aggregate", ["title_id","storefront_id","region_id","week_start"])
+add_table(tables, "agg_revenue_monthly", "aggregate", ["title_id","storefront_id","region_id","currency_id","month_start","sku_type"])
+add_table(tables, "vw_metrics_daily", "view", [], notes="Daily KPI join of engagement and net revenue with derived ARPDAU, ARPPU, conversion, sticky.")
+add_table(tables, "vw_revenue_by_type_daily", "view", [], notes="Rolls up SKU-level revenue to sku_type with proxy aggregation.")
+add_table(tables, "vw_driver_panel", "view", [], notes="Calendar of drivers joined to KPI panel for attribution scaffolding.")
+
+tables_df = pd.DataFrame(tables)
+
+# ---------------- Columns sheet ----------------
+cols = []
+
+# Dimension columns
+add_col(cols,"dim_platform","platform_id","SMALLINT",False,"Surrogate key.",is_key=True)
+add_col(cols,"dim_platform","platform_code","VARCHAR(16)",False,"Code, unique: steam, ps, xbox, ios, android","enum","NO","","UNIQUE")
+add_col(cols,"dim_platform","platform_name","VARCHAR(64)",False,"Human name.")
+
+add_col(cols,"dim_region","region_id","SMALLINT",False,"Surrogate key.",is_key=True)
+add_col(cols,"dim_region","region_code","VARCHAR(16)",False,"US, UK, EUW, EUE, ROW","enum")
+add_col(cols,"dim_region","region_name","VARCHAR(64)",False,"Human name.")
+
+add_col(cols,"dim_country","country_id","SMALLINT",False,"Surrogate key.",is_key=True)
+add_col(cols,"dim_country","iso2","CHAR(2)",False,"ISO 3166-1 alpha-2.")
+add_col(cols,"dim_country","country_name","VARCHAR(64)",False,"Human name.")
+add_col(cols,"dim_country","region_id","SMALLINT",False,"Region rollup.","","NO","dim_region(region_id)","FK")
+
+add_col(cols,"dim_currency","currency_id","SMALLINT",False,"Surrogate key.",is_key=True)
+add_col(cols,"dim_currency","iso_code","CHAR(3)",False,"ISO 4217 code","enum")
+add_col(cols,"dim_currency","symbol","VARCHAR(8)",False,"Display symbol.")
+
+add_col(cols,"dim_storefront","storefront_id","SMALLINT",False,"Surrogate key.",is_key=True)
+add_col(cols,"dim_storefront","storefront_code","VARCHAR(16)",False,"steam, psn, xbox_live, appstore, googleplay","enum")
+add_col(cols,"dim_storefront","storefront_name","VARCHAR(64)",False,"Human name.")
+add_col(cols,"dim_storefront","platform_id","SMALLINT",False,"Platform rollup.","","NO","dim_platform(platform_id)","FK")
+
+add_col(cols,"dim_channel","channel_id","SMALLINT",False,"Surrogate key.",is_key=True)
+add_col(cols,"dim_channel","channel_code","VARCHAR(32)",False,"organic, search_ads, meta, tiktok, influencer","enum")
+add_col(cols,"dim_channel","channel_name","VARCHAR(64)",False,"Human name.")
+
+add_col(cols,"dim_title","title_id","BIGINT",False,"Surrogate key.",is_key=True)
+add_col(cols,"dim_title","title_code","VARCHAR(64)",False,"Stable code per game.","","NO","","UNIQUE")
+add_col(cols,"dim_title","title_name","VARCHAR(128)",False,"Marketing name.")
+add_col(cols,"dim_title","business_model","VARCHAR(32)",False,"premium, f2p, hybrid, subscription","enum","NO","dim_business_model(business_model_code)","FK")
+add_col(cols,"dim_title","genre","VARCHAR(64)",True,"Optional genre.")
+add_col(cols,"dim_title","release_date","DATE",True,"Initial release date.")
+
+add_col(cols,"dim_sku","sku_id","BIGINT",False,"Surrogate key.",is_key=True)
+add_col(cols,"dim_sku","title_id","BIGINT",False,"Title owner.","","NO","dim_title(title_id)","FK")
+add_col(cols,"dim_sku","sku_code","VARCHAR(64)",False,"base, dlc_<name>, iap_<code>, season_<n>, sub_<tier>.")
+add_col(cols,"dim_sku","sku_name","VARCHAR(128)",False,"Display name.")
+add_col(cols,"dim_sku","sku_type","VARCHAR(32)",False,"base, dlc, iap, season, subscription","enum")
+add_col(cols,"dim_sku","is_consumable","BOOLEAN",False,"True for consumable IAP.")
+add_col(cols,"dim_sku","is_active","BOOLEAN",False,"Active availability.")
+
+add_col(cols,"map_title_storefront_region","title_storefront_region_id","BIGSERIAL",False,"Surrogate key.",is_key=True)
+add_col(cols,"map_title_storefront_region","title_id","BIGINT",False,"Title.","","NO","dim_title(title_id)","FK")
+add_col(cols,"map_title_storefront_region","storefront_id","SMALLINT",False,"Storefront.","","NO","dim_storefront(storefront_id)","FK")
+add_col(cols,"map_title_storefront_region","region_id","SMALLINT",False,"Region.","","NO","dim_region(region_id)","FK")
+add_col(cols,"map_title_storefront_region","currency_id","SMALLINT",False,"Currency for receipts.","","NO","dim_currency(currency_id)","FK")
+add_col(cols,"map_title_storefront_region","is_live","BOOLEAN",False,"Coverage flag.")
+
+# Config and lineage
+add_col(cols,"cfg_currency_rate","rate_date","DATE",False,"Rate date.",is_key=True)
+add_col(cols,"cfg_currency_rate","base_currency_id","SMALLINT",False,"Base currency.","","NO","dim_currency(currency_id)","FK")
+add_col(cols,"cfg_currency_rate","quote_currency_id","SMALLINT",False,"Quote currency.","","NO","dim_currency(currency_id)","FK")
+add_col(cols,"cfg_currency_rate","fx_rate","NUMERIC(18,8)",False,"Quote per 1 base","ratio")
+
+add_col(cols,"cfg_fee_schedule","storefront_id","SMALLINT",False,"Storefront.","","NO","dim_storefront(storefront_id)","FK")
+add_col(cols,"cfg_fee_schedule","effective_from","DATE",False,"Start date.",is_key=True)
+add_col(cols,"cfg_fee_schedule","effective_to","DATE",True,"End date, null if open.")
+add_col(cols,"cfg_fee_schedule","fee_rate","NUMERIC(6,4)",False,"Platform fee rate 0..1","ratio")
+add_col(cols,"cfg_fee_schedule","notes","VARCHAR(256)",True,"Comments.")
+
+add_col(cols,"cfg_rank_to_units_curve","storefront_id","SMALLINT",False,"Storefront.","","NO","dim_storefront(storefront_id)","FK")
+add_col(cols,"cfg_rank_to_units_curve","country_code","CHAR(2)",True,"Country refine for iOS/Google.")
+add_col(cols,"cfg_rank_to_units_curve","category","VARCHAR(64)",True,"top_grossing, top_paid, top_free.")
+add_col(cols,"cfg_rank_to_units_curve","rank_low","INT",False,"Low bound inclusive.",is_key=True)
+add_col(cols,"cfg_rank_to_units_curve","rank_high","INT",False,"High bound inclusive.",is_key=True)
+add_col(cols,"cfg_rank_to_units_curve","units_per_rank","NUMERIC(18,6)",False,"Estimated units at rank.","units")
+
+add_col(cols,"cfg_price_elasticity","sku_type","VARCHAR(32)",False,"SKU class","enum",is_key=True)
+add_col(cols,"cfg_price_elasticity","elasticity","NUMERIC(8,4)",False,"Price elasticity (usually negative)","coefficient")
+add_col(cols,"cfg_price_elasticity","notes","VARCHAR(256)",True,"Comments.")
+
+add_col(cols,"cfg_revrec_rule","sku_type","VARCHAR(32)",False,"Class under rev rec","enum",is_key=True)
+add_col(cols,"cfg_revrec_rule","recognition_days","SMALLINT",False,"Straight line days.")
+add_col(cols,"cfg_revrec_rule","start_anchor","VARCHAR(16)",False,"purchase_date or season_start.")
+
+add_col(cols,"meta_lineage_method","method_id","BIGSERIAL",False,"Surrogate key.",is_key=True)
+add_col(cols,"meta_lineage_method","method_code","VARCHAR(64)",False,"telemetry_direct, rank_curve_v1, blended_v2.")
+add_col(cols,"meta_lineage_method","description","TEXT",False,"Method notes.")
+add_col(cols,"meta_lineage_method","source_priority","SMALLINT",False,"Lower is preferred.")
+
+# Facts: shared governance cols
+gov_cols = [
+    ("source_system","VARCHAR(64)",False,"Ingest source."),
+    ("batch_id","VARCHAR(64)",False,"Load batch."),
+    ("ingested_at_utc","TIMESTAMP",False,"Ingest time."),
+    ("updated_at_utc","TIMESTAMP",False,"Last update.")
+]
+
+# fact_kpi_daily
+for c in [
+    ("title_id","BIGINT",False,"Title.", "", True, "", "PK"),
+    ("storefront_id","SMALLINT",False,"Storefront.","", True, "dim_storefront(storefront_id)", "FK"),
+    ("region_id","SMALLINT",False,"Region.","", True, "dim_region(region_id)", "FK"),
+    ("country_id","SMALLINT",True,"Optional country.","", False, "dim_country(country_id)", "FK"),
+    ("kpi_date","DATE",False,"UTC date.","date", True, "", "PK"),
+    ("installs","INT",True,"New installs.","users"),
+    ("nuu","INT",True,"New unique users active.","users"),
+    ("dau","INT",True,"Daily active users.","users"),
+    ("wau","INT",True,"7-day unique users.","users"),
+    ("mau","INT",True,"30-day unique users.","users"),
+    ("sessions","BIGINT",True,"Sessions.","sessions"),
+    ("payers","INT",True,"Unique payers.","users"),
+    ("purchases","INT",True,"Transactions.","tx"),
+    ("reactivations","INT",True,"Returning after inactivity.","users"),
+    ("churn_rate","NUMERIC(8,6)",True,"Daily churn ratio.","ratio","",False,"","CHECK 0..1"),
+    ("d1_retention","NUMERIC(8,6)",True,"Day-1 retention.","ratio","",False,"","CHECK 0..1"),
+    ("d7_retention","NUMERIC(8,6)",True,"Day-7 retention.","ratio","",False,"","CHECK 0..1"),
+    ("d30_retention","NUMERIC(8,6)",True,"Day-30 retention.","ratio","",False,"","CHECK 0..1"),
+    ("method_id","BIGINT",False,"Lineage method.","","",False,"meta_lineage_method(method_id)","FK"),
+    ("is_proxy","BOOLEAN",False,"True if derived from store signal.")
+]:
+    add_col(cols,"fact_kpi_daily", *c)
+for c in gov_cols:
+    add_col(cols,"fact_kpi_daily", *c)
+
+# fact_revenue_daily
+for c in [
+    ("title_id","BIGINT",False,"Title.","", True, "", "PK"),
+    ("storefront_id","SMALLINT",False,"Storefront.","", True, "dim_storefront(storefront_id)", "FK"),
+    ("region_id","SMALLINT",False,"Region.","", True, "dim_region(region_id)", "FK"),
+    ("country_id","SMALLINT",True,"Optional country.","","",False,"dim_country(country_id)","FK"),
+    ("currency_id","SMALLINT",False,"Currency.","", True, "dim_currency(currency_id)", "FK"),
+    ("rev_date","DATE",False,"UTC date.","date", True, "", "PK"),
+    ("sku_id","BIGINT",True,"SKU id when known.","","",False,"dim_sku(sku_id)","FK"),
+    ("sku_type","VARCHAR(32)",False,"SKU type when sku_id absent.","enum"),
+    ("gross_local","NUMERIC(18,2)",True,"Gross local.","money"),
+    ("discounts_local","NUMERIC(18,2)",True,"Discounts local.","money"),
+    ("refunds_local","NUMERIC(18,2)",True,"Refunds local.","money"),
+    ("taxes_local","NUMERIC(18,2)",True,"Taxes local.","money"),
+    ("platform_fees_local","NUMERIC(18,2)",True,"Platform fees local.","money"),
+    ("net_local","NUMERIC(18,2)",True,"Net local.","money"),
+    ("gross_usd","NUMERIC(18,2)",True,"Gross USD.","money"),
+    ("net_usd","NUMERIC(18,2)",True,"Net USD.","money"),
+    ("units","INT",True,"Units sold or pseudo units.","units"),
+    ("payers","INT",True,"Unique payers.","users"),
+    ("method_id","BIGINT",False,"Lineage method.","","",False,"meta_lineage_method(method_id)","FK"),
+    ("is_proxy","BOOLEAN",False,"True if derived.")
+]:
+    add_col(cols,"fact_revenue_daily", *c)
+for c in gov_cols:
+    add_col(cols,"fact_revenue_daily", *c)
+
+# fact_price_daily
+for c in [
+    ("title_id","BIGINT",False,"Title."),
+    ("storefront_id","SMALLINT",False,"Storefront."),
+    ("region_id","SMALLINT",False,"Region."),
+    ("sku_id","BIGINT",False,"SKU id.","","",True,"dim_sku(sku_id)","FK"),
+    ("price_date","DATE",False,"UTC date.","date","",True,"","PK"),
+    ("base_price_local","NUMERIC(18,2)",False,"Base price local.","money"),
+    ("live_price_local","NUMERIC(18,2)",False,"Live price local.","money"),
+    ("discount_pct","NUMERIC(8,6)",False,"Discount ratio 0..1.","ratio"),
+    ("promo_flag","BOOLEAN",False,"Promo active.")
+]:
+    add_col(cols,"fact_price_daily", *c)
+for c in gov_cols:
+    add_col(cols,"fact_price_daily", *c)
+
+# fact_rank_daily
+for c in [
+    ("title_id","BIGINT",False,"Title."),
+    ("storefront_id","SMALLINT",False,"Storefront."),
+    ("country_id","SMALLINT",True,"Country optional.","","",False,"dim_country(country_id)","FK"),
+    ("rank_date","DATE",False,"UTC date.","date","",True,"","PK"),
+    ("chart_type","VARCHAR(32)",False,"Chart type.","enum","",True,"dim_chart_type(chart_type_code)","FK"),
+    ("rank_position","INT",True,"Lower is better.","rank"),
+    ("featured_flag","BOOLEAN",False,"Featuring flag.")
+]:
+    add_col(cols,"fact_rank_daily", *c)
+for c in gov_cols:
+    add_col(cols,"fact_rank_daily", *c)
+
+# fact_retention_cohort_daily
+for c in [
+    ("title_id","BIGINT",False,"Title."),
+    ("storefront_id","SMALLINT",False,"Storefront."),
+    ("region_id","SMALLINT",False,"Region."),
+    ("cohort_date","DATE",False,"Install date.","date","",True,"","PK"),
+    ("age_days","SMALLINT",False,"Days since install.","days","",True,"","PK"),
+    ("cohort_installs","INT",False,"Cohort size.","users"),
+    ("retained_users","INT",True,"Retained on age day.","users"),
+    ("revenue_usd","NUMERIC(18,2)",True,"Optional per-day cohort revenue.","money"),
+    ("method_id","BIGINT",False,"Method.","","",False,"meta_lineage_method(method_id)","FK"),
+    ("is_proxy","BOOLEAN",False,"True if derived.")
+]:
+    add_col(cols,"fact_retention_cohort_daily", *c)
+for c in gov_cols:
+    add_col(cols,"fact_retention_cohort_daily", *c)
+
+# fact_ua_spend_daily
+for c in [
+    ("title_id","BIGINT",False,"Title."),
+    ("region_id","SMALLINT",False,"Region."),
+    ("channel_id","SMALLINT",False,"UA channel."),
+    ("spend_date","DATE",False,"UTC date.","date","",True,"","PK"),
+    ("impressions","BIGINT",True,"Impressions."),
+    ("clicks","BIGINT",True,"Clicks."),
+    ("installs","INT",True,"Attributed installs.","users"),
+    ("spend_usd","NUMERIC(18,2)",True,"Spend USD.","money")
+]:
+    add_col(cols,"fact_ua_spend_daily", *c)
+for c in gov_cols:
+    add_col(cols,"fact_ua_spend_daily", *c)
+
+# fact_release
+for c in [
+    ("release_id","BIGSERIAL",False,"Surrogate key.","","",True,"","PK"),
+    ("title_id","BIGINT",False,"Title."),
+    ("storefront_id","SMALLINT",False,"Storefront."),
+    ("release_date","DATE",False,"UTC date.","date"),
+    ("release_type","VARCHAR(32)",False,"Release type.","enum","",False,"dim_release_type(release_type_code)","FK"),
+    ("version_tag","VARCHAR(64)",True,"Version string."),
+    ("notes","TEXT",True,"Free text.")
+]:
+    add_col(cols,"fact_release", *c)
+for c in gov_cols:
+    add_col(cols,"fact_release", *c)
+
+# fact_revrec_daily
+for c in [
+    ("title_id","BIGINT",False,"Title."),
+    ("sku_id","BIGINT",False,"SKU id.","","",True,"dim_sku(sku_id)","FK"),
+    ("revrec_date","DATE",False,"UTC date.","date","",True,"","PK"),
+    ("bookings_usd","NUMERIC(18,2)",False,"Bookings.","money"),
+    ("recognized_usd","NUMERIC(18,2)",False,"Recognised revenue.","money"),
+    ("deferred_open_usd","NUMERIC(18,2)",False,"Opening deferred.","money"),
+    ("deferred_close_usd","NUMERIC(18,2)",False,"Closing deferred.","money"),
+    ("method_id","BIGINT",False,"Method.","","",False,"meta_lineage_method(method_id)","FK")
+]:
+    add_col(cols,"fact_revrec_daily", *c)
+for c in gov_cols:
+    add_col(cols,"fact_revrec_daily", *c)
+
+# Forecast artefacts
+for c in [
+    ("title_id","BIGINT",False,"Title."),
+    ("storefront_id","SMALLINT",False,"Storefront."),
+    ("region_id","SMALLINT",False,"Region."),
+    ("metric_code","VARCHAR(32)",False,"Metric code.","enum","",True,"dim_metric(metric_code)","FK"),
+    ("fc_date","DATE",False,"Forecast date.","date","",True,"","PK"),
+    ("scenario_code","VARCHAR(16)",False,"Scenario code.","enum","",True,"","PK"),
+    ("point","NUMERIC(18,6)",False,"Point forecast."),
+    ("low","NUMERIC(18,6)",True,"Low bound."),
+    ("high","NUMERIC(18,6)",True,"High bound."),
+    ("confidence_pct","NUMERIC(5,2)",True,"Confidence percent.","percent"),
+    ("model_version","VARCHAR(32)",False,"Model version.","","",True,"model_registry(model_version)","FK")
+]:
+    add_col(cols,"fact_forecast_daily", *c)
+for c in gov_cols:
+    add_col(cols,"fact_forecast_daily", *c)
+
+for c in [
+    ("title_id","BIGINT",False,"Title."),
+    ("metric_code","VARCHAR(32)",False,"Metric code.","enum","",True,"dim_metric(metric_code)","FK"),
+    ("horizon_days","SMALLINT",False,"Forecast horizon days.","days","",True,"","PK"),
+    ("window_weeks","SMALLINT",False,"Backtest window weeks.","weeks","",True,"","PK"),
+    ("mape","NUMERIC(8,6)",True,"MAPE.","ratio"),
+    ("mae","NUMERIC(18,6)",True,"MAE.","units"),
+    ("rmse","NUMERIC(18,6)",True,"RMSE.","units"),
+    ("last_train_date","DATE",False,"Training cutoff.","date"),
+    ("model_version","VARCHAR(32)",False,"Model version.","","",True,"model_registry(model_version)","FK")
+]:
+    add_col(cols,"fact_forecast_backtest", *c)
+
+for c in [
+    ("title_id","BIGINT",False,"Title."),
+    ("attr_date","DATE",False,"Date.","date","",True,"","PK"),
+    ("driver_code","VARCHAR(32)",False,"Driver.","enum","",True,"dim_driver_event(driver_code)","FK"),
+    ("metric_code","VARCHAR(32)",False,"Metric.","enum","",True,"dim_metric(metric_code)","FK"),
+    ("contribution","NUMERIC(18,6)",False,"Signed contribution in metric units."),
+    ("note","VARCHAR(256)",True,"Comment."),
+    ("model_version","VARCHAR(32)",False,"Model version.","","",True,"model_registry(model_version)","FK")
+]:
+    add_col(cols,"fact_forecast_attribution", *c)
+
+for c in [
+    ("title_id","BIGINT",False,"Title."),
+    ("storefront_id","SMALLINT",False,"Storefront."),
+    ("region_id","SMALLINT",False,"Region."),
+    ("cohort_date","DATE",False,"Install date.","date","",True,"","PK"),
+    ("age_days","SMALLINT",False,"Days since install.","days","",True,"","PK"),
+    ("installs","INT",False,"Cohort installs.","users"),
+    ("cumulative_net_usd","NUMERIC(18,2)",True,"Cumulative net USD.","money"),
+    ("arpu_usd","NUMERIC(18,6)",True,"Generated ARPU.","money/user"),
+    ("scenario_code","VARCHAR(16)",True,"Scenario code.","enum"),
+    ("model_version","VARCHAR(32)",True,"Model version.")
+]:
+    add_col(cols,"fact_ltv_cohort_daily", *c)
+
+# Drivers and meta
+add_col(cols,"dim_driver_event","driver_code","VARCHAR(32)",False,"Driver code, primary key.","enum",True)
+add_col(cols,"dim_driver_event","description","VARCHAR(256)",True,"Description.")
+
+for c in [
+    ("title_id","BIGINT",False,"Title."),
+    ("storefront_id","SMALLINT",True,"Storefront or null for global."),
+    ("region_id","SMALLINT",True,"Region or null for global."),
+    ("country_id","SMALLINT",True,"Country or null for global."),
+    ("driver_code","VARCHAR(32)",False,"Driver code.","enum","",True,"dim_driver_event(driver_code)","FK"),
+    ("driver_date","DATE",False,"UTC date.","date","",True,"","PK"),
+    ("weight","NUMERIC(8,6)",True,"Optional intensity 0..1.","ratio"),
+    ("note","VARCHAR(256)",True,"Comment.")
+]:
+    add_col(cols,"fact_driver_daily", *c)
+
+for c in [
+    ("title_id","BIGINT",False,"Title."),
+    ("storefront_id","SMALLINT",True,"Storefront scope."),
+    ("region_id","SMALLINT",True,"Region scope."),
+    ("metric_code","VARCHAR(32)",False,"Metric code.","enum","",True,"dim_metric(metric_code)","FK"),
+    ("method_id","BIGINT",False,"Method id.","","",True,"meta_lineage_method(method_id)","FK"),
+    ("available_from","DATE",False,"Available from.","date","",True,"","PK"),
+    ("available_to","DATE",True,"Available to.","date")
+]:
+    add_col(cols,"meta_source_availability", *c)
+
+for c in [
+    ("metric_code","VARCHAR(32)",False,"Metric code.","enum","",True,"dim_metric(metric_code)","FK"),
+    ("method_id","BIGINT",False,"Method id.","","",True,"meta_lineage_method(method_id)","FK"),
+    ("precedence","SMALLINT",False,"Lower is better.")
+]:
+    add_col(cols,"meta_method_precedence", *c)
+
+# ETL and DQ
+for c in [
+    ("load_id","BIGSERIAL",False,"Surrogate key.", "", True, "", "PK"),
+    ("table_name","VARCHAR(64)",False,"Target table."),
+    ("batch_id","VARCHAR(64)",False,"Batch id."),
+    ("source_system","VARCHAR(64)",False,"Source name."),
+    ("started_at","TIMESTAMP",False,"Load start."),
+    ("finished_at","TIMESTAMP",True,"Load end."),
+    ("status","VARCHAR(16)",False,"success, failed, partial."),
+    ("rows_inserted","BIGINT",True,"Rows inserted."),
+    ("rows_updated","BIGINT",True,"Rows updated."),
+    ("error_message","TEXT",True,"Error text.")
+]:
+    add_col(cols,"etl_load_audit", *c)
+
+for c in [
+    ("check_code","VARCHAR(64)",False,"Check id.", "", True, "", "PK"),
+    ("description","VARCHAR(256)",True,"Description."),
+    ("severity","VARCHAR(16)",False,"warn or error.")
+]:
+    add_col(cols,"dq_check_catalog", *c)
+
+for c in [
+    ("check_date","DATE",False,"Date.","date","",True,"","PK"),
+    ("table_name","VARCHAR(64)",False,"Target table.","","",True,"","PK"),
+    ("check_code","VARCHAR(64)",False,"Check id.","","",True,"dq_check_catalog(check_code)","FK"),
+    ("affected_rows","BIGINT",False,"Count of failed rows."),
+    ("sample_keys","TEXT",True,"Sample of keys.")
+]:
+    add_col(cols,"dq_result_daily", *c)
+
+# Model registry
+for c in [
+    ("model_version","VARCHAR(32)",False,"Model version code.", "", True, "", "PK"),
+    ("model_name","VARCHAR(128)",False,"Human name."),
+    ("created_at","TIMESTAMP",False,"Creation timestamp."),
+    ("params_json","JSONB",True,"Params."),
+    ("notes","TEXT",True,"Notes.")
+]:
+    add_col(cols,"model_registry", *c)
+
+columns_df = pd.DataFrame(cols)
+
+# ---------------- Enums sheet ----------------
+enums_df = pd.DataFrame({
+    "enum_name": [
+        "platform_code","region_code","iso_currency","storefront_code","channel_code",
+        "business_model_code","sku_type","release_type_code","chart_type_code",
+        "driver_code","metric_code","scenario_code"
+    ],
+    "allowed_values_csv": [
+        "steam, ps, xbox, ios, android",
+        "US, UK, EUW, EUE, ROW",
+        "USD, GBP, EUR",
+        "steam, psn, xbox_live, appstore, googleplay",
+        "organic, search_ads, meta, tiktok, influencer",
+        "premium, f2p, hybrid, subscription",
+        "base, dlc, iap, season, subscription",
+        "launch, patch, content_drop, season_start, dlc_launch, price_change, promo",
+        "top_paid, top_grossing, top_free",
+        "price, promo, content, ua, seasonal, platform, external",
+        "dau, installs, payers, net_usd, wau, mau, purchases, reactivations",
+        "base, low, high, custom_x"
+    ],
+    "notes": [
+        "Map to platform_id in dim_platform",
+        "Map to region_id in dim_region",
+        "Map to currency_id in dim_currency",
+        "Map to storefront_id in dim_storefront",
+        "Map to channel_id in dim_channel",
+        "Referenced by dim_title.business_model",
+        "Referenced by dim_sku and revenue facts",
+        "Referenced by fact_release",
+        "Referenced by fact_rank_daily",
+        "Driver calendar and attribution",
+        "Forecast and backtests",
+        "Forecast ribbons"
+    ]
+})
+
+# ---------------- Formulas sheet ----------------
+formulas_df = pd.DataFrame([
+    {"metric":"net_local","formula_sql":"gross_local - discounts_local - refunds_local - taxes_local - platform_fees_local","unit":"money (local)","source":"fact_revenue_daily"},
+    {"metric":"net_usd","formula_sql":"net_local * fx_rate_to_usd(rate_date=rev_date)","unit":"money (USD)","source":"fact_revenue_daily + cfg_currency_rate"},
+    {"metric":"ARPDAU","formula_sql":"CASE WHEN dau>0 THEN net_usd / dau END","unit":"USD per user","source":"vw_metrics_daily"},
+    {"metric":"ARPPU","formula_sql":"CASE WHEN payers>0 THEN net_usd / payers END","unit":"USD per payer","source":"vw_metrics_daily"},
+    {"metric":"conversion_rate","formula_sql":"CASE WHEN dau>0 THEN payers::NUMERIC / dau END","unit":"ratio 0..1","source":"vw_metrics_daily"},
+    {"metric":"sticky_factor","formula_sql":"CASE WHEN mau>0 THEN dau::NUMERIC / mau END","unit":"ratio 0..1","source":"vw_metrics_daily"},
+    {"metric":"daily_churn_rate_proxy","formula_sql":"GREATEST(0, (dau_lag + nuu_lag - dau - reactivations) / NULLIF(dau_lag,0))","unit":"ratio 0..1","source":"fact_kpi_daily (derived)"},
+    {"metric":"dlc_attach_rate","formula_sql":"cumulative_dlc_units / NULLIF(mau,0)","unit":"ratio 0..1","source":"fact_revenue_daily + vw_metrics_daily"},
+    {"metric":"revrec_identity_check","formula_sql":"deferred_close = deferred_open + bookings - recognized","unit":"identity","source":"fact_revrec_daily"}
+])
+
+# ---------------- DQ checks sheet ----------------
+dq_checks_df = pd.DataFrame([
+    {"check_code":"non_negative_money","description":"Money fields must be >= 0","severity":"error"},
+    {"check_code":"ratio_bounds","description":"Ratios between 0 and 1","severity":"error"},
+    {"check_code":"fx_coverage","description":"FX rate available for all currency pairs on all rev_date","severity":"error"},
+    {"check_code":"revrec_identity","description":"Deferred close equals deferred open + bookings - recognized","severity":"error"},
+    {"check_code":"method_required","description":"method_id and is_proxy populated on all facts","severity":"error"},
+    {"check_code":"key_uniqueness","description":"Primary key uniqueness by table","severity":"error"},
+    {"check_code":"null_rules","description":"Not null columns never null","severity":"error"}
+])
+
+# ---------------- Views SQL sheet ----------------
+views_sql_df = pd.DataFrame([
+    {
+        "view_name":"vw_metrics_daily",
+        "sql_excerpt":"""SELECT k.title_id, k.storefront_id, k.region_id, k.country_id,
+       k.kpi_date AS date, k.installs, k.nuu, k.dau, k.wau, k.mau, k.sessions,
+       k.payers, k.purchases, k.reactivations, r.net_usd,
+       CASE WHEN k.dau>0 AND r.net_usd IS NOT NULL THEN r.net_usd/k.dau END AS arpdau_usd,
+       CASE WHEN k.payers>0 AND r.net_usd IS NOT NULL THEN r.net_usd/k.payers END AS arppu_usd,
+       CASE WHEN k.dau>0 AND k.payers IS NOT NULL THEN k.payers::NUMERIC/k.dau END AS conversion_rate,
+       CASE WHEN k.mau>0 AND k.dau IS NOT NULL THEN k.dau::NUMERIC/k.mau END AS sticky_factor,
+       k.churn_rate, k.d1_retention, k.d7_retention, k.d30_retention,
+       k.is_proxy OR r.is_proxy AS any_proxy, k.method_id AS kpi_method_id, r.method_id AS revenue_method_id
+FROM fact_kpi_daily k
+LEFT JOIN (
+  SELECT title_id, storefront_id, region_id, country_id, rev_date,
+         SUM(net_usd) AS net_usd, BOOL_OR(is_proxy) AS is_proxy, MIN(method_id) AS method_id
+  FROM fact_revenue_daily GROUP BY 1,2,3,4,5
+) r
+ON r.title_id=k.title_id AND r.storefront_id=k.storefront_id
+AND r.region_id=k.region_id AND COALESCE(r.country_id,0)=COALESCE(k.country_id,0)
+AND r.rev_date=k.kpi_date"""
+    },
+    {
+        "view_name":"vw_revenue_by_type_daily",
+        "sql_excerpt":"""SELECT title_id, storefront_id, region_id, country_id, currency_id, rev_date,
+       COALESCE(s.sku_type, r.sku_type) AS sku_type,
+       SUM(gross_local) gross_local, SUM(discounts_local) discounts_local,
+       SUM(refunds_local) refunds_local, SUM(taxes_local) taxes_local,
+       SUM(platform_fees_local) platform_fees_local,
+       SUM(net_local) net_local, SUM(gross_usd) gross_usd, SUM(net_usd) net_usd,
+       SUM(units) units, SUM(payers) payers,
+       BOOL_OR(is_proxy) is_proxy, MIN(method_id) method_id
+FROM fact_revenue_daily r
+LEFT JOIN dim_sku s ON s.sku_id=r.sku_id
+GROUP BY 1,2,3,4,5,6,7"""
+    },
+    {
+        "view_name":"vw_driver_panel",
+        "sql_excerpt":"""SELECT d.driver_date AS date, d.title_id, d.storefront_id, d.region_id, d.country_id,
+       d.driver_code, d.weight, m.dau, m.net_usd
+FROM fact_driver_daily d
+LEFT JOIN vw_metrics_daily m
+  ON m.date=d.driver_date AND m.title_id=d.title_id
+ AND COALESCE(m.storefront_id,0)=COALESCE(d.storefront_id,0)
+ AND COALESCE(m.region_id,0)=COALESCE(d.region_id,0)
+ AND COALESCE(m.country_id,0)=COALESCE(d.country_id,0)"""
+    }
+])
+
+# ---------------- Metadata sheet ----------------
+meta_df = pd.DataFrame([
+    {"key":"Document","value":"Playsage_Foresight_Metrics_Data_Sheet.xlsx"},
+    {"key":"Generated","value":datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")},
+    {"key":"Owner","value":"Data Architect"},
+    {"key":"Purpose","value":"Warehouse schema and metrics dictionary for forecasting simulator."},
+    {"key":"Conventions","value":"UTC dates; *_local and *_usd money; method_id and is_proxy required on facts."},
+    {"key":"Retention","value":"24 months daily hot; monthly aggregates retained for life."}
+])
+
+# ---------------- Write Excel ----------------
+path = "/mnt/data/Playsage_Foresight_Metrics_Data_Sheet.xlsx"
+with pd.ExcelWriter(path, engine="xlsxwriter") as writer:
+    tables_df.to_excel(writer, index=False, sheet_name="Tables")
+    columns_df.to_excel(writer, index=False, sheet_name="Columns")
+    enums_df.to_excel(writer, index=False, sheet_name="Enums")
+    formulas_df.to_excel(writer, index=False, sheet_name="Formulas")
+    dq_checks_df.to_excel(writer, index=False, sheet_name="DQ_Checks")
+    views_sql_df.to_excel(writer, index=False, sheet_name="Views_SQL")
+    meta_df.to_excel(writer, index=False, sheet_name="Metadata")
+
+# Show a quick preview of the Tables sheet to the user
+from caas_jupyter_tools import display_dataframe_to_user
+display_dataframe_to_user("Preview - Tables sheet", tables_df)
+
+path
+
+[ASSISTANT]
+# Attempt the export again without preview (to avoid UI transport errors).
+
+import pandas as pd
+from datetime import datetime
+
+# Recreate minimal dataframes from the previous cell context
+tables_df = pd.read_excel("/mnt/data/Playsage_Foresight_Metrics_Data_Sheet.xlsx", sheet_name="Tables") if False else pd.DataFrame()
+

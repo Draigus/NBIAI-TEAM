@@ -1,0 +1,790 @@
+TITLE: Games Industry Future Analysis
+DATE: 2026-01-16
+MESSAGES: 8
+ID: 696ab715-baf4-8328-8ae0-5990d62ea56e
+---
+
+[USER]
+As a prompt expert use the RICECO method and write a detailed prompt to acertain where the gamers industry is headed looking at the last 10 years through the next 10 year, considering AI, marketshifts, publishers , indie studios etc
+
+[ASSISTANT]
+First, quick Clarification Bundle (outcome-changing). Reply with short answers and I will tailor the prompt to your exact use case.
+
+1) Heather or Glen?  
+2) Who is the audience: internal studio strategy, investor memo, publisher pitch, newsletter, academic, other?  
+3) Scope: global or specific regions (US/EU/UK/APAC), and which platforms matter most (mobile, PC, console, cloud, UGC like Roblox/Fortnite)?  
+4) Depth and format: 2 pages, 10 pages, or “full report”; do you want charts/tables and hard citations required for every quantitative claim?  
+5) Tooling: will the model you run this on have web browsing, or must it work offline?
+
+While you answer, here is a paste-ready RICECO prompt template you can use immediately. RICECO here means Role, Instruction, Context, Examples, Constraints, Output Format. citeturn0search0turn0search1
+
+## RICECO Prompt: Where the Games Industry Is Headed (2016–2036)
+
+### R) Role
+You are a senior games industry strategist and market analyst (publisher, platform, and studio economics), with strong coverage of:
+- Platform business models (premium, F2P, subscriptions, cloud, UGC economies)
+- Publishing, financing, and consolidation dynamics
+- Live ops and service game operations
+- AI in game development (production tooling, content pipelines, coding, QA, localization, moderation, UGC)
+- Regulatory and distribution shifts (privacy, app stores, loot box rules, labor, content regulation)
+
+Write in a board-level consulting style: concise, specific, neutral, and evidence-led.
+
+### I) Instruction
+Produce a forward-looking analysis of where the games industry is headed by:
+1) Retrospective: extract the major shifts from the last 10 years (2016–2026).  
+2) Forecast: project the next 10 years (2026–2036) with scenarios, probabilities, and signposts to watch.  
+3) Explicitly address implications for:
+   - AAA publishers and platform holders
+   - Mid-sized studios
+   - Indie studios and solo developers
+   - The creator economy and UGC ecosystems
+4) Explicitly address AI as both:
+   - A production productivity force (cost, speed, scale, roles impacted)
+   - A product and distribution force (new genres, personalization, agents, UGC, moderation, discoverability, IP and rights)
+
+Core question: “Given what changed from 2016–2026, what is most likely to be true by 2036, and what should different types of game businesses do about it?”
+
+### C) Context (fill in placeholders, do not invent)
+Assume today’s date is: 16 January 2026 (UK time).
+
+User context:
+- Target audience: [AUDIENCE]
+- Geography focus: [REGIONS]
+- Platform focus: [PLATFORMS]
+- Business focus: [PUBLISHER / STUDIO / INVESTOR / PLATFORM / MEDIA]
+- Risk appetite: [LOW / MEDIUM / HIGH]
+- Output length target: [SHORT BRIEF / 10-PAGE REPORT / DEEP DIVE]
+- If relevant, company profile: stage, headcount, funding, genres, live ops maturity: [COMPANY_PROFILE]
+
+Definitions:
+- “Last 10 years” means 2016–2026 inclusive.
+- “Next 10 years” means 2026–2036 inclusive.
+
+### E) Examples (follow these patterns)
+Example A: Evidence-backed claim format  
+- Claim: “Premium console software growth slowed relative to live-service monetization.”  
+- Required support: provide the metric, year range, and source; if uncertain, label as estimate and explain why.
+
+Example B: Prediction format  
+- Prediction: “By 2030–2032, AI-assisted content pipelines will be standard for [SPECIFIC DOMAIN], reducing iteration time by [RANGE].”  
+- Include: probability (0–100%), rationale, and 3 observable signposts that would confirm or disconfirm the prediction.
+
+Example C: Implication format  
+- “Implication for indies: [SO WHAT]. Recommended actions: [3–6 concrete moves]. Risks: [top 3].”
+
+### C) Constraints (strict)
+- Do not fabricate facts, dates, company actions, or numbers.  
+- If you have web access: cite sources for all non-trivial claims, especially anything quantitative or time-sensitive.  
+- If you do not have web access: clearly label claims as “unverified” or “estimate” and avoid precise numbers.  
+- Separate “Facts (with citations)” from “Interpretation” from “Forecast.”  
+- Include at least 3 scenarios (Base, Bull, Bear) with probability weights that sum to 100%.  
+- Cover at minimum these domains:
+  1) Market structure and spend (platform mix, monetization, subscriptions, advertising)
+  2) Distribution and discovery (stores, algorithms, communities, creators)
+  3) Production economics (cost of content, team structures, outsourcing, engines/tools)
+  4) Publisher and investor behaviour (funding cycles, M&A, portfolio strategy)
+  5) Indie realities (marketing, survivability, niche strategies, UGC leverage)
+  6) Live ops and retention (content cadence, personalization, community management)
+  7) AI impacts (tools, workflows, legal/IP, moderation, player-facing AI)
+  8) Regulation and platform policy (privacy, app store rules, loot box scrutiny, labor)
+- Use plain English. No em dashes.
+
+### O) Output format (exact structure)
+1) Executive Summary (max 12 bullets)
+   - 5 most important shifts 2016–2026
+   - 5 most important forecasts 2026–2036
+   - 3 “if you remember nothing else” takeaways
+
+2) Timeline of Inflection Points
+   - Table with 12–18 entries
+   - Columns: Year, Event/Shift, Why it mattered, Winners/Losers, Evidence or “unverified”
+
+3) Key Drivers (2016–2036)
+   - 10–14 drivers
+   - For each: description, strength (High/Med/Low), direction, leading indicators
+
+4) AI: What Changes, What Does Not
+   - Production: roles and pipeline impacts (art, design, engineering, QA, narrative, localization)
+   - Product: player-facing AI, personalization, agents, UGC acceleration
+   - Legal/IP: rights, training data, licensing models
+   - Risk: trust and safety, cheating, fraud, moderation costs
+
+5) Business Model Outlook
+   - Premium, F2P, subscription, cloud, UGC revenue share, ads
+   - What grows, what contracts, and why
+
+6) Publisher, Platform, and Indie Outlook
+   - Separate sub-sections with: strategy shifts, operating model, risks, opportunities
+
+7) Scenarios 2026–2036 (Base, Bull, Bear)
+   - Probability weights (sum to 100%)
+   - Narrative (max 250 words each)
+   - 6 signposts each
+   - “Implications” for AAA, mid-size, indie, creators
+
+8) Strategic Recommendations
+   - Three playbooks: Publisher, Mid-size studio, Indie/solo
+   - Each playbook: 6–10 actions, sequenced into 0–12 months, 12–36 months, 3–10 years
+
+9) Appendix
+   - Assumptions list
+   - Open questions and what data would resolve them
+
+End with: “Top 10 signals to track quarterly (2026 onward)” and “What would change my mind.”
+
+If you answer the 5 clarification questions at the top, I will return a v2 of this prompt that is tightly customised (platform-specific, audience-specific, and with the right depth and deliverable format).
+
+[USER]
+1 glen, 2 me glen 3 global and all of them 4 summary and a full report, charts table, longitudinal studies etc  5 has web search 
+
+[ASSISTANT]
+### Clarification Bundle (outcome-changing, answer in-line)
+1) Output container: do you want the model to return Markdown suitable for a Word paste, or a Word-style outline with numbered headings (still plain text)?  
+2) Charts: do you want actual rendered charts (if the model supports it), or chart-ready tables plus chart specs (axes, series, units) so you can plot them?  
+3) Primary objective weighting: (A) market sizing and business models, (B) studio economics and production, (C) platform power and distribution, (D) AI transformation. Rank A–D.
+
+## Assumptions (used only because you did not specify)
+1) Output is Markdown with numbered headings, easy to paste into Word.  
+2) “Charts” means chart-ready longitudinal tables plus explicit chart specifications (since most LLM outputs are text-only).  
+3) You want a board-level, evidence-led strategic report, not a hype piece.
+
+## Brief plan
+1) Provide a RICECO prompt that forces: multi-source web research, a 10-year retrospective dataset, and a 10-year forecast with scenarios.  
+2) Force longitudinal tables and chart specs for each major domain.  
+3) Add quality gates, cross-checks, and a red-team section to reduce hallucinations and trend overreach.
+
+## Deliverable: RICECO master prompt (paste as-is)
+
+### R) Role
+You are a senior global video games industry strategist and market analyst advising a CEO. You have deep expertise in:
+- Games market structure, segmentation, and monetization models across mobile, PC, console, cloud, and UGC ecosystems
+- Publisher and platform economics, distribution, and discovery
+- Studio production economics, live ops, and portfolio strategy
+- AI impacts across game development workflows and player-facing products
+- Regulation and policy trends impacting games
+
+Your writing style is board-level consulting: direct, specific, neutral, and evidence-led. Avoid hype. Separate fact from interpretation from forecast.
+
+### I) Instruction
+Produce a two-part deliverable that answers:
+
+“How did the games industry change from 2016–2026, and what is most likely to be true by 2036, considering AI, market shifts, publishers, and indies, across all platforms globally?”
+
+You must:
+1) Build an evidence-backed retrospective (2016–2026 inclusive) with longitudinal trend tables.
+2) Forecast 2026–2036 inclusive using scenarios with probability weights and signposts.
+3) Explicitly cover impacts for:
+   - Platform holders
+   - Large publishers
+   - Mid-sized studios
+   - Indie studios and solo developers
+   - UGC creator ecosystems and user-generated economies
+
+### C) Context
+- Today’s date: 16 January 2026.
+- Audience: Glen (operator and strategist).
+- Geography: global.
+- Platforms: mobile, PC, console, cloud, VR/AR where relevant, and UGC ecosystems.
+- Output requirements: an executive summary plus a full report, including tables and chart-ready longitudinal datasets, plus references to longitudinal studies where available.
+- Web research is permitted and required.
+
+### E) Examples (format patterns you must follow)
+
+Example 1, evidence-backed claim
+- Claim: [One sentence]
+- Evidence: [Metric, years covered, source(s), and any methodology notes]
+- Confidence: High / Medium / Low, with one-line justification
+
+Example 2, forecast claim
+- Prediction: [One sentence]
+- Probability: [0–100%]
+- Mechanism: [Why this happens]
+- Signposts: [3–6 observable indicators with thresholds or clear triggers]
+- What would change your mind: [1–3 items]
+
+Example 3, recommendation
+- Recommendation: [Action]
+- Who: [Publisher / platform / mid-size / indie]
+- When: [0–12 months, 12–36 months, 3–10 years]
+- Why now: [One paragraph]
+- Risks and mitigations: [Bullets]
+
+### C) Constraints (strict)
+Research and sourcing
+- Use web research. Cite sources for every non-trivial factual claim and every number.
+- Prioritise primary sources and high-quality secondary sources:
+  - Public filings and investor reports for platform holders and publishers
+  - Government, regulator, and court materials where applicable
+  - Major industry measurement firms and well-known trade publications
+  - Large-scale surveys (for example, developer surveys) and longitudinal studies
+- Use source diversity. Do not rely on one provider for the majority of claims.
+- For each major chart/table, list: sources used, definitions, and any known caveats.
+
+Honesty and uncertainty
+- Do not fabricate numbers, events, quotes, or company actions.
+- If sources disagree, present both and explain why.
+- Label estimates explicitly, show estimation logic, and keep precision modest.
+
+Coverage minimums
+You must cover at least these domains:
+1) Market size and mix: revenue and engagement trends by platform (global and key regions if data supports)
+2) Business models: premium, F2P, subscriptions, cloud, ads, DLC, battle passes, UGC revenue share
+3) Distribution and discovery: stores, algorithms, social video, streaming, community platforms, creator influence
+4) Publisher and investor behaviour: consolidation, portfolio strategy, funding cycles, risk appetite
+5) Studio production economics: headcount patterns, cost drivers, outsourcing, engine/tooling shifts
+6) Live ops operations: retention focus, content cadence, experimentation, personalization
+7) AI impacts:
+   - Production tooling: art, design, engineering, QA, narrative, localization, analytics
+   - Player-facing: agents, personalization, new genres, social moderation, anti-cheat and fraud
+   - Legal and IP: training data, licensing, rights management, brand safety
+8) Regulation and platform policy: privacy, youth safety, loot-box scrutiny, app store policy, labor and unionisation
+
+Scenario requirements
+- Provide Base, Bull, Bear scenarios for 2026–2036.
+- Each scenario must include probability weights that sum to 100%.
+- Each scenario must include at least 8 signposts.
+
+### O) Output format (exact headings and order)
+
+1) Executive Summary (max 12 bullets)
+- 5 most important shifts, 2016–2026
+- 5 most important forecasts, 2026–2036
+- 3 “operator takeaways” (actionable, non-obvious)
+
+2) Methods and Definitions
+- Time ranges and inclusions
+- Key definitions (what counts as games revenue, platform splits, UGC classification)
+- Source list with brief credibility notes
+- Known limitations and bias risks
+
+3) Retrospective 2016–2026: Timeline of Inflection Points
+- Table with 12–20 entries:
+  - Year
+  - Shift/event
+  - Why it mattered
+  - Winners/losers
+  - Evidence (citations)
+
+4) Longitudinal Data Pack 2016–2026 (chart-ready tables + chart specs)
+Provide at least 8 charts worth of data. For each chart:
+- Table: year-by-year values (2016–2026)
+- Chart spec: chart type, x-axis, y-axis, units, series definitions
+- Source notes and caveats
+
+Minimum required chart topics:
+A) Global games revenue trend and platform mix
+B) Mobile vs PC vs console engagement proxy trend (use the best defensible proxy)
+C) Business model mix trend (premium, F2P, subs, ads, UGC)
+D) Publisher concentration and consolidation indicators
+E) Live-service adoption proxy trend
+F) Development cost proxy trend (headcount, budgets, or other defensible measures)
+G) Discovery shift proxies (social video, streaming, store algorithm changes, creator impact)
+H) AI adoption proxy trend in studios (survey data and tool uptake where available)
+
+5) Key Drivers 2016–2036
+- 10–14 drivers
+- For each: description, direction, strength, leading indicators, and second-order effects
+
+6) AI: What Changes, What Does Not (2016–2036)
+- Production pipeline impacts by discipline (explicitly name the discipline and workflows)
+- Team structure and roles likely to expand/contract
+- Content velocity, cost curves, and quality risks
+- Player-facing AI: opportunities, retention risks, safety risks
+- Legal/IP: likely regimes and licensing models, and uncertainty bands
+- Security: cheating, fraud, account takeover, bot economies, moderation cost trajectory
+
+7) Forecast 2026–2036: Scenarios
+For Base, Bull, Bear:
+- Probability (must sum to 100 across scenarios)
+- Narrative (max 250 words)
+- 8+ signposts (with observable thresholds where possible)
+- Implications for:
+  - Platform holders
+  - Large publishers
+  - Mid-sized studios
+  - Indies and solo developers
+  - UGC creators and platforms
+
+8) Strategic Recommendations (playbooks)
+Provide three playbooks:
+A) Large publisher
+B) Mid-sized studio
+C) Indie/solo
+Each playbook must include:
+- 6–10 actions
+- Sequenced by horizon: 0–12 months, 12–36 months, 3–10 years
+- For each action: rationale, prerequisites, risks, mitigations, and a measurable KPI
+
+9) Red-Team Section: Where This Analysis Could Be Wrong
+- 8–12 plausible failure modes (data gaps, survivorship bias, regional misreads, AI overreach, platform policy shocks)
+- What evidence would falsify key claims
+- The single most important unknown to resolve next quarter
+
+10) Appendix
+- Full bibliography
+- Any additional longitudinal studies identified and a one-paragraph summary of each
+- Data tables in a copy-paste friendly format (CSV blocks are acceptable)
+
+Final line required:
+“Top 10 quarterly signals to track from 2026 onward” as a numbered list.
+
+## Self-audit (against your requirements)
+- Uses RICECO explicitly and is detailed, global, cross-platform.  
+- Forces web research, citations, and source diversity.  
+- Forces longitudinal, chart-ready tables plus chart specifications.  
+- Covers AI, market shifts, publishers, indies, and UGC ecosystems explicitly.  
+- Includes scenarios with probability weights and signposts.  
+- Includes a red-team section to reduce overconfidence and reveal uncertainties.  
+- No em dashes and no horizontal dividers used.
+
+If you answer the 3 clarification questions at the top, I will revise this prompt so it matches your preferred output container and your exact weighting priorities.
+
+[USER]
+1 just print the report to the chat, 2 yes actual charts, 3 ABCD and indie and AA vs AAA distribution
+
+
+[ASSISTANT]
+## Assumptions
+1) You will run this prompt in an environment that supports both web browsing and Python chart rendering in-chat (matplotlib).  
+2) If any metric is paywalled or proprietary, the model will either (a) use an openly accessible proxy, or (b) report the gap explicitly and proceed without inventing data.
+
+## Brief plan
+1) Lock the analysis scope: global, all platforms, 2016–2026 retrospective, 2026–2036 forecast.  
+2) Force an evidence-led workflow: source hierarchy, longitudinal datasets, cross-checks, and explicit uncertainty handling.  
+3) Require actual rendered charts in-chat plus copy-pasteable data tables and a full written report.  
+4) Add a dedicated module for indie and AA vs AAA distribution and how that changes over time.
+
+## Deliverable: Updated RICECO master prompt (paste as-is)
+
+### R) Role
+You are a senior global games industry strategist and market analyst advising an operator (Glen). You have deep expertise in:
+- Market structure and platform economics (mobile, PC, console, cloud, VR/AR where relevant, UGC ecosystems)
+- Publishing, financing, consolidation, and portfolio strategy
+- Studio production economics and operating models
+- Live ops, retention, and experimentation
+- AI impacts across production, distribution, and product design
+- Regulatory and policy shifts affecting games
+
+Write in a board-level consulting style: direct, specific, neutral, and evidence-led. Avoid hype. Separate Facts, Interpretation, and Forecast.
+
+### I) Instruction
+Produce an executive summary plus a full report answering:
+
+“How did the global games industry evolve from 2016–2026, and where is it headed from 2026–2036, considering AI, market shifts, publishers, platform holders, and the reality of indies, AA, and AAA across all platforms?”
+
+Weighting priorities (highest first):
+A) Market sizing and business models  
+B) Studio economics and production  
+C) Platform power, distribution, and discovery  
+D) AI transformation  
+Plus mandatory deep coverage of: indies, AA vs AAA distribution, and how that distribution shifts over time.
+
+You must:
+1) Build an evidence-backed retrospective (2016–2026 inclusive) with longitudinal datasets.  
+2) Forecast 2026–2036 inclusive using scenarios with probabilities and signposts.  
+3) Provide actionable implications and playbooks for: platform holders, large publishers, mid-sized studios, AA studios, indie studios, solo developers, UGC creators.
+
+### C) Context
+- Today’s date: 16 January 2026 (UK time).
+- Audience: Glen (operator and strategist).
+- Geography: global. If credible data allows, include regional cuts (NA, EU, APAC) as sub-views, but do not force weak data.
+- Platforms: mobile, PC, console, cloud, UGC ecosystems. Include VR/AR only if data supports meaningful trend coverage.
+- Output: print the report directly to chat, including actual rendered charts in-chat, plus the underlying tables.
+
+Tooling requirements:
+- Web browsing is required for sourcing.
+- Use Python (matplotlib) to render charts in-chat. Use default styling and do not hardcode colors.
+- Avoid pie charts. Prefer time-series, stacked area, indexed trend lines, distribution plots, and small multiples where possible.
+
+### E) Examples (must follow these formats)
+
+Evidence-backed claim format
+- Claim: [One sentence]
+- Evidence: [Metric, years, source(s), any methodology notes]
+- Confidence: High / Medium / Low, with one-line justification
+
+Forecast claim format
+- Prediction: [One sentence]
+- Probability: [0–100%]
+- Mechanism: [Why it happens]
+- Signposts: [3–8 observable indicators, with thresholds where possible]
+- What would change my mind: [1–3 items]
+
+Recommendation format
+- Recommendation: [Action]
+- Target: [Platform holder / publisher / AA / mid-size / indie / solo / UGC]
+- Horizon: [0–12 months, 12–36 months, 3–10 years]
+- KPI: [How to measure success]
+- Risks and mitigations: [Bullets]
+
+### C) Constraints (strict)
+1) No fabrication. Do not invent numbers, dates, quotes, company actions, or study findings.  
+2) Source quality hierarchy:
+   - Primary: SEC filings, annual reports, investor presentations, regulator publications, court records
+   - High-quality measurement and research: reputable industry analysts and longitudinal surveys
+   - Reputable trade press for context only, not for core numbers unless corroborated
+3) Source diversity: do not over-index on a single measurement provider.  
+4) If sources disagree: show both, explain why, choose a default with justification, and label confidence.  
+5) Every chart must have:
+   - A clearly defined metric and unit
+   - A definition of what is included and excluded
+   - Source list
+   - Notes on breaks in methodology over time
+6) Avoid weak proxies unless necessary. If you use a proxy, justify it and label it as a proxy.
+
+Mandatory coverage areas:
+A) Market sizing and mix: revenue and engagement trends by platform  
+B) Business models: premium, F2P, subscriptions, ads, DLC, battle passes, UGC revenue share  
+C) Distribution and discovery: stores, algorithms, social video, streaming, community platforms, creator influence  
+D) Publisher and investor behaviour: consolidation, funding cycles, risk appetite, portfolio dynamics  
+E) Studio production economics: headcount patterns, cost drivers, outsourcing, engine/tool shifts  
+F) Live ops: retention, content cadence, experimentation, personalization  
+G) AI impacts:
+   - Production tooling: art, design, engineering, QA, narrative, localization, analytics
+   - Player-facing AI: agents, personalization, moderation, anti-cheat, fraud
+   - Legal and IP: training data, licensing, rights management, brand safety
+H) Regulation and platform policy: privacy, youth safety, loot box scrutiny, app store policy, labor and unionisation
+
+AA vs AAA vs Indie requirements (explicit)
+- Define a classification scheme that is defensible and reproducible across time:
+  - Prefer budget and/or headcount bands when credible sources exist.
+  - If not, use a two-track approach:
+    1) Budget/headcount where available (publisher disclosures, credible datasets)
+    2) Platform-specific release proxies (for example: Steam, console catalogues, mobile publisher tiers), clearly labeled as proxies
+- Produce a longitudinal view (2016–2026) of:
+  - Share of releases by tier (indie, AA, AAA) by platform where feasible
+  - Share of revenue and/or engagement by tier (use best available defensible measure, label limitations)
+- Explicitly discuss how distribution shifts under AI (cost curves, content volume, discoverability pressure, marketing inflation, quality thresholds).
+
+Scenario requirements:
+- Provide Base, Bull, Bear scenarios for 2026–2036.
+- Assign probability weights that sum to 100%.
+- Each scenario includes at least 10 signposts.
+
+### O) Output format (exact headings and order)
+
+1) Executive Summary (max 12 bullets)
+- 5 most important shifts, 2016–2026
+- 5 most important forecasts, 2026–2036
+- 3 operator takeaways (actionable, non-obvious)
+
+2) Methods, Definitions, and Study Map
+- Definitions: revenue, engagement proxies, platform boundaries, UGC classification
+- Longitudinal studies and recurring datasets found (list 10–20)
+  - For each: what it measures, years covered, strengths, weaknesses
+- Source credibility notes
+- Known limitations
+
+3) Retrospective 2016–2026: Timeline of Inflection Points
+- Table with 15–25 entries:
+  - Year
+  - Shift/event
+  - Why it mattered
+  - Winners/losers
+  - Evidence (citations)
+
+4) Longitudinal Data Pack 2016–2026
+For each dataset:
+- Provide the table (year-by-year values, 2016–2026)
+- Then render an in-chat chart using Python (matplotlib)
+- Include chart title, axes labels, units, and source notes
+
+Minimum required charts (render all):
+1) Global games revenue trend and platform mix (stacked area where feasible)  
+2) Indexed growth lines by platform (2016 = 100)  
+3) Business model mix over time (stacked area or multi-line)  
+4) Publisher concentration and consolidation indicators over time (at least two metrics)  
+5) Live-service adoption proxy trend (clearly defined)  
+6) Development cost proxy trend (for example: headcount, budgets, or other defensible measures)  
+7) Discovery shift proxies (creator economy influence, streaming/social video reach, store featuring changes where measurable)  
+8) Funding cycle proxy: venture and publisher funding trends for games (with caveats)  
+9) AA vs AAA vs Indie release share trend (platform-specific where feasible, otherwise global proxy)  
+10) AA vs AAA vs Indie revenue or engagement share trend (best defensible measure)  
+11) Mobile advertising and UA efficiency proxy trend (CPI/CPM where credible)  
+12) AI adoption trend in studios (survey and tooling uptake), plus AI-related job posting or pipeline proxy if defensible
+
+Chart constraints:
+- No pie charts.
+- Prefer time series, distributions, indexed trends, and stacked views.
+- If a chart cannot be produced due to data gaps, replace it with:
+  - A table of what is known
+  - A list of specific missing inputs
+  - A proxy chart with explicit proxy labeling
+
+5) Key Drivers 2016–2036
+- 12–16 drivers
+- For each:
+  - Description
+  - Direction
+  - Strength (High/Med/Low)
+  - Leading indicators
+  - Second-order effects
+
+6) AI: What Changes, What Does Not
+- Production pipeline impacts by discipline (explicit workflows)
+- Team structure shifts (roles expanding, contracting, re-scoping)
+- Cost curve implications and quality risks
+- Player-facing AI: opportunities, retention risks, safety risks
+- Legal/IP: likely licensing regimes and uncertainty bands
+- Security: cheating, fraud, bot economies, moderation costs
+
+7) Forecast 2026–2036: Scenarios
+For Base, Bull, Bear:
+- Probability (sum to 100)
+- Narrative (max 300 words)
+- 10+ signposts (observable, thresholded where possible)
+- Implications for:
+  - Platform holders
+  - Large publishers
+  - Mid-sized studios
+  - AA studios
+  - Indie studios and solo devs
+  - UGC creators and platforms
+
+8) Strategic Recommendations: Playbooks
+Provide four playbooks:
+A) Platform holder  
+B) Large publisher  
+C) AA or mid-sized studio  
+D) Indie or solo  
+Each playbook includes:
+- 8–12 actions
+- Sequenced: 0–12 months, 12–36 months, 3–10 years
+- For each action: rationale, prerequisites, KPI, risks, mitigations
+
+9) Red-Team: Where This Could Be Wrong
+- 10–15 plausible failure modes
+- What evidence would falsify key claims
+- Highest value unknown to resolve next quarter
+
+10) Appendix
+- Full bibliography
+- Raw data tables (copy-paste friendly)
+- Notes on methodology breaks and reconciliations
+
+Final required section:
+“Top 15 quarterly signals to track from 2026 onward” with measurable definitions.
+
+Failover clause (only if chart rendering is impossible in the environment):
+- Provide Python code blocks that will generate each chart locally, plus the data tables used.
+
+## Self-audit
+- Output format matches your requirement: printed in chat, full report plus executive summary.  
+- Forces actual charts via Python and mandates longitudinal tables for verification.  
+- Explicitly weights A, B, C, D and adds mandatory indie plus AA vs AAA distribution coverage.  
+- Includes source hierarchy, diversity requirements, disagreement handling, and explicit uncertainty labeling.  
+- Avoids pie charts and requires more informative chart types.  
+- No em dashes and no horizontal dividers used.
+
+If you want, I can also add a “data acquisition script section” inside the prompt that forces the model to log every dataset URL and extraction step before it writes any prose.
+
+[USER]
+nope deliver the prompt
+
+[ASSISTANT]
+You are a senior global video games industry strategist and market analyst advising an operator (Glen). You will produce an evidence-led retrospective (2016–2026 inclusive) and a 10-year forecast (2026–2036 inclusive) for where the games industry is headed, with explicit treatment of AI, market shifts, publishers, platform holders, and the realities of indies, AA, and AAA across all platforms globally.
+
+RICECO METHOD
+
+R) Role
+- Act as a board-level consultant: direct, specific, neutral, evidence-led.
+- Core expertise: market sizing and business models; studio economics and production; platform power, distribution, and discovery; AI transformation; regulation and policy.
+- You must distinguish Facts vs Interpretation vs Forecast. Do not hype.
+
+I) Instruction
+Primary question:
+- “How did the global games industry evolve from 2016–2026, and what is most likely to be true by 2036, considering AI, market shifts, publishers, indies, AA, AAA, and all major platforms?”
+
+Weighting priority (highest first):
+A) Market sizing and business models
+B) Studio economics and production
+C) Platform power, distribution, and discovery
+D) AI transformation
+Plus mandatory deep coverage of: indies, AA vs AAA distribution, and how that distribution shifts over time.
+
+You must deliver:
+1) Executive summary (short)
+2) Full report (detailed)
+3) Longitudinal datasets (2016–2026) with actual rendered charts
+4) Scenario forecast (2026–2036) with probabilities and signposts
+5) Playbooks with sequenced actions for: platform holders, large publishers, AA or mid-sized studios, indie or solo developers, UGC creators and platforms
+6) Red-team section that enumerates failure modes and falsifiers
+
+C) Context
+- Today’s date: 16 January 2026 (UK time).
+- Geography: global. Include regional cuts (NA, EU, APAC) only when data quality supports it.
+- Platforms: mobile, PC, console, cloud, UGC ecosystems. Include VR/AR only if evidence supports meaningful trend coverage.
+- Output must be printed directly in chat.
+- You have web research capability and must use it.
+- You must render actual charts using Python with matplotlib (no seaborn, no pie charts, no manual color specification). Use one chart per figure, no subplots.
+
+E) Examples (follow these formats exactly)
+
+Evidence-backed claim format:
+- Claim: [one sentence]
+- Evidence: [metric, years covered, source(s), methodology notes]
+- Confidence: High / Medium / Low, with one-line justification
+
+Forecast claim format:
+- Prediction: [one sentence]
+- Probability: [0–100%]
+- Mechanism: [why it happens]
+- Signposts: [3–8 observable indicators with thresholds where possible]
+- What would change my mind: [1–3 items]
+
+Recommendation format:
+- Recommendation: [action]
+- Target: [platform holder / publisher / AA or mid-size / indie or solo / UGC]
+- Horizon: [0–12 months, 12–36 months, 3–10 years]
+- KPI: [measurable]
+- Risks and mitigations: [bullets]
+
+C) Constraints (strict)
+No fabrication:
+- Do not invent numbers, dates, quotes, company actions, or study findings.
+- If data is missing or paywalled, say so and either use a clearly labeled proxy or omit that metric.
+
+Source quality hierarchy and diversity:
+- Prefer: public filings, annual reports, investor presentations, regulator publications, court records.
+- Use: reputable measurement and longitudinal research (for example, recurring market reports and developer surveys) when accessible.
+- Use trade press for context only and corroborate core numbers.
+- Avoid over-indexing on a single provider. Use diverse sources.
+- If sources disagree, show both, explain why, choose a default with justification, and label confidence.
+
+Chart and data rules:
+- Every chart must have: metric definition, units, inclusion and exclusion notes, years, and source list.
+- Avoid pie charts. Prefer time-series, stacked area, indexed trends (2016 = 100), distributions, concentration metrics, and release volume trajectories.
+- If chart rendering is impossible, provide Python code blocks that generate each chart locally plus the underlying data tables.
+
+AA vs AAA vs Indie rules (mandatory):
+- Define a classification scheme that is defensible and reproducible:
+  - Primary: budget and or headcount bands where credible sources exist.
+  - Secondary: platform-specific release and publisher-tier proxies (explicitly labeled as proxies).
+- Produce a longitudinal view (2016–2026) of:
+  - Share of releases by tier (indie, AA, AAA) by platform where feasible, otherwise a defensible global proxy
+  - Share of revenue and or engagement by tier using the best defensible measure
+- Explicitly analyse how AI shifts this distribution through cost curves, content volume, discoverability pressure, marketing inflation, and quality thresholds.
+
+Scenario requirements:
+- Provide Base, Bull, Bear scenarios for 2026–2036.
+- Assign probabilities that sum to 100%.
+- Each scenario must include at least 10 signposts.
+
+Workflow requirements (do not skip):
+Step 1: Research and dataset selection
+- Identify and list 10–20 longitudinal datasets or recurring studies relevant to 2016–2026 and useful for forecasting.
+- For each: what it measures, years covered, strengths, weaknesses, access constraints, and why you chose it.
+- Only after this list is complete, proceed.
+
+Step 2: Data extraction and reconciliation
+- Build the 2016–2026 tables for each chart you will render.
+- Cross-check totals and definitions. Note methodology breaks.
+- Do not write narrative sections until the core data tables for charts 1–8 are assembled.
+
+Step 3: Chart rendering
+- Render the required charts using Python and matplotlib.
+- Show each chart, then directly beneath it provide the underlying table.
+
+Step 4: Narrative report writing
+- Write the full report using the required structure below.
+- Every non-trivial claim must be cited.
+- Separate Facts, Interpretation, and Forecast.
+
+O) Output format (exact headings and order)
+
+1) Executive Summary (max 12 bullets)
+- 5 most important shifts, 2016–2026
+- 5 most important forecasts, 2026–2036
+- 3 operator takeaways (actionable, non-obvious)
+
+2) Methods, Definitions, and Study Map
+- Definitions: revenue, engagement proxies, platform boundaries, UGC classification
+- Longitudinal studies and recurring datasets found (10–20)
+- Source credibility notes and disagreement handling
+- Known limitations and bias risks
+
+3) Retrospective 2016–2026: Timeline of Inflection Points
+- Table with 15–25 entries:
+  - Year
+  - Shift or event
+  - Why it mattered
+  - Winners and losers
+  - Evidence (citations)
+
+4) Longitudinal Data Pack 2016–2026 (tables plus rendered charts)
+Render at least these charts, each with a year-by-year table (2016–2026) and source notes:
+1) Global games revenue trend and platform mix (stacked area if feasible)
+2) Indexed growth lines by platform (2016 = 100)
+3) Business model mix over time (premium, F2P, subs, ads, DLC, battle pass, UGC revenue share where measurable)
+4) Publisher concentration and consolidation indicators over time (at least two measures, for example top-N share and major M&A count, with careful definitions)
+5) Live-service adoption proxy trend (explicitly defined)
+6) Development cost proxy trend (explicitly defined, for example budgets, headcount, or other defensible measures)
+7) Discovery shift proxies (explicitly defined, for example creator-driven acquisition share proxies, streaming reach proxies, store featuring changes where measurable)
+8) Funding cycle proxy for games (venture, publisher funding, and deal counts where defensible)
+9) AA vs AAA vs Indie release share trend (platform-specific where feasible, otherwise proxy with caveats)
+10) AA vs AAA vs Indie revenue or engagement share trend (best defensible measure, clearly defined)
+11) Mobile advertising and UA efficiency proxy trend (CPI, CPM, ROAS proxies where credible)
+12) AI adoption trend in studios (survey and tooling uptake, plus job posting or pipeline proxy if defensible)
+
+If a required chart cannot be produced:
+- State the blocker.
+- Provide the most defensible proxy, explicitly labeled.
+- Provide a “data needed” list.
+
+5) Key Drivers 2016–2036
+- 12–16 drivers.
+For each:
+- Description
+- Direction
+- Strength (High/Med/Low)
+- Leading indicators
+- Second-order effects
+
+6) AI: What Changes, What Does Not
+- Production impacts by discipline with explicit workflows: design, engineering, art, animation, narrative, QA, localization, analytics, production management
+- Team structure changes and role shifts
+- Cost curves, content velocity, quality risks, and pipeline governance
+- Player-facing AI: agents, personalization, moderation, safety, anti-cheat and fraud
+- Legal and IP: training data, licensing regimes, uncertainty bands
+- Security and trust: cheating, fraud, bot economies, moderation cost trajectory
+
+7) Forecast 2026–2036: Scenarios
+For Base, Bull, Bear:
+- Probability (sum to 100)
+- Narrative (max 300 words)
+- 10+ signposts with thresholds where possible
+- Implications for:
+  - Platform holders
+  - Large publishers
+  - AA or mid-sized studios
+  - Indie or solo developers
+  - UGC creators and platforms
+
+8) Strategic Recommendations: Playbooks
+Provide four playbooks:
+A) Platform holder
+B) Large publisher
+C) AA or mid-sized studio
+D) Indie or solo
+Each includes:
+- 8–12 actions
+- Sequenced: 0–12 months, 12–36 months, 3–10 years
+- For each action: rationale, prerequisites, KPI, risks, mitigations
+
+9) Red-Team: Where This Could Be Wrong
+- 10–15 plausible failure modes
+- What would falsify key claims
+- Highest-value unknown to resolve next quarter
+
+10) Appendix
+- Full bibliography with links
+- Raw data tables (copy-paste friendly)
+- Notes on methodology breaks, reconciliations, and proxy justifications
+
+Final required section:
+Top 15 quarterly signals to track from 2026 onward
+- Numbered list with measurable definitions for each signal.
+
+Start now. Do Step 1 first and do not write the executive summary until Step 1 is complete.
+

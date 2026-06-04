@@ -1,0 +1,698 @@
+TITLE: Website review and critique
+DATE: 2025-09-11
+MESSAGES: 18
+ID: 68c2b0b8-5cc4-8329-ae36-a87e00f195c8
+---
+
+[USER]
+as a brand exectuive and expert web designer review the following website and critic, be detailed about th locaiton of any criticism.  rate teh website for seo and for appeal for the NBI consulting org. https://plucky-grocery-519798.framer.app/
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.
+
+# Master Task Blueprint
+
+- **Task name and date**  
+  NBI site review and SEO audit, 11 Sep 2025
+
+- **Roles engaged and why**  
+  Brand Executive (message-market fit, proof, voice)  
+  Web Designer (IA, UX, component hygiene)  
+  SEO Analyst (on-page structure, semantics, crawlability)
+
+- **Objective and audience**  
+  Produce a detailed critique of the public Framer site with precise locations of issues, plus clear priorities. Audience: NBI leadership.
+
+- **Success criteria**  
+  Page-specific notes with citations, a 0–10 rating for SEO and NBI buyer appeal, and a short list of highest-leverage fixes.
+
+- **Constraints and inputs**  
+  British English, no em dashes, no icons, NBI does not design or build client games.
+
+- **Assumptions (Ceiling: 3, all ≥80% confidence)**  
+  1) This Framer site is your current staging for NBI Consulting. Confidence 95%, reason: URL context and prior threads.  
+  2) You want blunt, specific callouts, including copy fixes. Confidence 90%, reason: prior requests for rigorous critique.  
+  3) Duplicate sections seen in the DOM are not intentional. Confidence 85%, reason: repetition appears accidental across pages.
+
+- **Segments and dependencies**  
+  1) Snapshot and ratings. 2) Page-by-page critique. 3) SEO findings. 4) Quick wins.
+
+- **Deliverables**  
+  Written audit with page-anchored issues, ratings, and prioritized fixes.
+
+- **Sources to use**  
+  Live pages: Home, About, Services, Careers, Contact.
+
+- **Review plan across roles**  
+  Brand Executive and Web Designer cross-review for voice and IA; SEO Analyst checks headings, semantics, and consistency.
+
+- **Definition-of-Done**  
+  Issues cited to the live site, ratings given, and a fix list that can be executed immediately.
+
+---
+
+## Snapshot
+
+- **SEO rating:** 5.5/10. Multiple H1s, repeated sections, inconsistent service names, and thin FAQ content reduce clarity and topical focus. Examples on Home: three “NBI” H1s and two “Consulting” H1s at the top, plus repeated “Areas of Service” blocks and testimonials, all on the same page citeturn0view0.  
+- **Buyer appeal for NBI:** 6/10. Strong social proof (Blizzard, Xbox) and enterprise posture help, but the hero is generic and duplication signals unfinished craft. Services naming shifts between pages, which creates doubt about precision.
+
+---
+
+## Page-by-page critique (with exact locations)
+
+### Home
+1) **Hero is generic and over-repeated.** The top region renders multiple H1s: “NBI” three times and “Consulting” twice, with a repeated body paragraph under it. This harms accessibility and keyword focus (top of page) citeturn0view0.  
+2) **Service names are inconsistent.** Cards show “Systems & Insights” and “Organizational Health” here, while other pages use different labels (see below) citeturn5view0.  
+3) **Section duplication.** “Areas of Service,” “Our Partners,” and proof blocks repeat further down the same page, creating noise and scroll fatigue (mid-page and lower) citeturn0view0.  
+4) **FAQ is headings-only.** On Home, “Frequently Asked Questions” lists headings with no content, repeated twice, which feels placeholder (bottom) citeturn0view0.  
+5) **Footer contact details inconsistent across site.** Email shows “Info@NBI-Consulting.com,” while other pages also use “Information@NBI-Consulting.com.” Phone formatting differs too (see Contact and Careers) (footer) citeturn0view0.
+
+### About
+1) **Who we are block repeats.** The “About Our Company” paragraph is duplicated (top and again below), which reads as a build artifact rather than intent citeturn1view0.  
+2) **Founder section repeats.** “Meet The Founder” appears twice with similar copy, suggesting duplication, not emphasis (mid-page) citeturn1view0.  
+3) **Process section repeats.** “Our 4 Stage Process” renders three cycles of the same copy, increasing bloat and harming scanability (mid-page) citeturn1view0.  
+4) **Footer service labels differ again.** Footer shows “Analytics & Insights” and “Organizational Strategy,” which do not match Home or Services labels (bottom) citeturn1view0.
+
+### Services
+1) **Service naming drift in a single view.** Cards use “Digital Entertainment,” “Data Systems & Insights,” and “Organizational Consulting,” which differ from Home (“Systems & Insights,” “Organizational Health”) and About footer (“Organizational Strategy”) (top) citeturn2view0.  
+2) **Why Choose Us repeats.** The block appears twice with identical bullets, adding to perceived filler (mid-page) citeturn2view0.  
+3) **Brand casing.** “NBI games” appears in sentence case within the Digital Entertainment card; it should be “NBI Games” to preserve brand formality (top) citeturn2view0.
+
+### Careers
+1) **Job cards multiply.** Each job appears four times within the “Featured Job Posts” grid, which looks broken (middle) citeturn3view0.  
+2) **Menu noise.** The menu lists “Projects” and “Review,” which do not exist elsewhere in the primary nav, implying stray components (bottom) citeturn3view0.  
+3) **Email and telephone consistency.** Careers block uses “Information@NBI-Consulting.com”; other pages vary. UK number formatting differs from Contact (bottom) citeturn3view0.
+
+### Contact
+1) **Telephone formatting inconsistency.** UK number uses “+44 (0)7591 167732” in one block and “+44 07591 167732” elsewhere on the site. Pick one E.164-aligned format and apply site-wide (top) citeturn4view0turn0view0.  
+2) **Email inconsistency.** Contact shows “Information@NBI-Consulting.com,” while other pages use “Info@NBI-Consulting.com” (top vs. footers) citeturn4view0turn0view0.  
+3) **FAQ headings-only again in footer area** (mirrors the Home issue) (bottom) citeturn4view0.
+
+---
+
+## SEO findings
+
+- **Heading structure:** Multiple H1s on Home plus heavy duplication of content blocks on several pages reduces topical clarity and may confuse assistive tech and crawlers citeturn0view0.  
+- **Service taxonomy drift:** At least four variants for the same three service pillars appear across pages: “Systems & Insights,” “Data Systems & Insights,” “Analytics & Insights”; “Organizational Health,” “Organizational Consulting,” “Organizational Strategy.” Consolidate labels to one canonical triad across nav, cards, and footer citeturn5view0turn2view0turn1view0.  
+- **Thin sections:** The FAQ lists only headings with no answers on multiple pages. This reads as placeholder and adds crawlable noise without value citeturn0view0turn1view0.  
+- **Proof is strong:** Named testimonials from Blizzard and Xbox are excellent, though they repeat. Consider one testimonials block per site with deep links to case blurbs citeturn0view0.  
+- **Brand consistency:** “NBI games” casing and “From concept to Live” capitalisation feel off; align to “NBI Games” and sentence case for subheads citeturn2view0.
+
+---
+
+## Highest-leverage fixes (do these first)
+
+1) **Unify the three service pillars everywhere**  
+   Canonical set and copy suggestion:  
+   - Digital Entertainment  
+   - Data & Analytics  
+   - Organizational Consulting  
+   Apply to nav, cards, section headings, and footers on Home, About, Services, Contact, Careers citeturn5view0turn2view0turn1view0.
+
+2) **One H1 per page, no duplicates**  
+   - Home H1 proposal: “Consulting for Games, Data, and Organisational Performance.”  
+   - Move “NBI” into a logo element or an aria-label rather than H1; keep subheads as H2/H3. Remove duplicate “Areas of Service,” “Our Partners,” and testimonials sections on the same page citeturn0view0.
+
+3) **Replace placeholder FAQ blocks with real content or remove**  
+   - If you keep an FAQ, include 5–7 concise Q&As that map to buyer anxieties. Else, remove from pages where it is empty citeturn0view0turn1view0.
+
+4) **Normalize contact details site-wide**  
+   - Email: choose either info@ or information@ and apply globally.  
+   - UK phone: prefer +44 7591 167732 without the trunk zero. Update in Careers, Contact, and page footers citeturn4view0turn3view0turn0view0.
+
+5) **Fix Services naming and casing on the Services page**  
+   - Change “NBI games” to “NBI Games.”  
+   - Use the canonical triad above in the cards and the footer citeturn2view0.
+
+6) **Careers grid deduplication**  
+   - Ensure each job renders once. Remove “Projects” and “Review” from the Careers menu if not in scope citeturn3view0.
+
+---
+
+## Copy polish where it matters
+
+### Hero (Home)
+- Current: “NBI is your partner for designing tailored strategies, scalable systems…” citeturn0view0  
+- Option A: “We help game studios and operators turn data into decisions, build systems that scale, and remove barriers to execution.”  
+- Option B: “Strategy, data, and organisational performance for the games industry. Faster decisions. Fewer surprises. Better outcomes.”  
+- Option C: “Your partner for game analytics, live-ops clarity, and organisational scale. Decide faster. Deliver with confidence.”
+
+### Service tiles (canonical triad)
+- **Digital Entertainment:** “From discovery to live service, we help define your audience, sharpen design choices, tune economies, and operationalise live-ops without building your game.”  
+- **Data & Analytics:** “We engineer telemetry, pipelines, and decision-grade reporting, then build forecasting and segmentation that tie to revenue and retention.”  
+- **Organizational Consulting:** “We remove execution barriers, align teams, and set operating cadences that raise velocity and quality.”
+
+---
+
+## Ratings
+
+- **SEO:** 5.5/10 now. Likely 8/10 after the six fixes above.  
+- **NBI buyer appeal:** 6/10 now. With a focused hero, unified services, and cleaned sections, 8–9/10.
+
+---
+
+## Evidence anchors
+
+- Multiple H1s and repeated sections on Home; repeated “Areas of Service,” “Our Partners,” testimonials, FAQs. citeturn0view0  
+- Service naming drift across pages: Home vs Services vs About footer. citeturn5view0turn2view0turn1view0  
+- Empty FAQ structures on Home and About. citeturn0view0turn1view0  
+- Email and phone inconsistencies across Contact, Careers, and Home footers. citeturn4view0turn3view0turn0view0  
+- Careers job entries repeated and stray menu items. citeturn3view0  
+- Brand casing issue “NBI games” on Services. citeturn2view0
+
+---
+
+## Next suggested pass (fast, high impact)
+
+- Remove duplicate sections on each page.  
+- Lock the service taxonomy and update nav, footers, and cards.  
+- Replace or remove placeholder FAQ blocks.  
+- Normalise contact details and number formatting.  
+- Correct “NBI Games” casing and “From concept to live” sentence case.
+
+If you want, I can rewrite the hero and all three service tiles directly into Framer component copy in one go and provide the exact places to paste.
+
+[USER]
+remove all criticism of the three versions as framer makes "breakpoints" for different form factors (desktop, tablet, mobile" what youa re seeing is the three needed version.
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.
+
+Acknowledged. I have removed any criticism tied to Framer’s three breakpoint variants. The revised audit focuses only on content, naming, consistency, and buyer signalling.
+
+# What changed
+- Removed: earlier notes about apparent duplicates that are a result of desktop/tablet/mobile breakpoints.
+- Kept: issues that affect buyers and search regardless of breakpoints, plus concrete fixes.
+
+# Ratings
+- **SEO:** 6.5/10. Solid client proof and clear service pillars, but taxonomy drift, thin FAQs, and inconsistent contact details reduce topical clarity and trust.  
+- **Buyer appeal for NBI:** 7/10. Strong recognisable brands and confident voice; polish the service naming, British English, and contact normalisation to lift to 8–9.
+
+# Findings and precise locations
+
+## Service taxonomy and naming drift
+- Home “Areas of Service” shows three pillars: Digital Entertainment, Systems & Insights, and Organizational Health. citeturn0view0  
+- Services page labels the middle pillar “Data Systems and Decision Intelligence.” The footer service list elsewhere shows “Analytics & Insights.” Unify the middle pillar across all pages. citeturn2view0turn0view0  
+- Careers footer menu uses “Organizational Strategy,” which does not match “Organizational Health.” Align the label and content everywhere. citeturn3view0
+
+**Fix**  
+Pick a canonical triad and apply it to nav, tiles, footers, and copy:
+- Digital Entertainment  
+- Data & Analytics  
+- Organisational Consulting  
+Update on Home tiles and menus, Services tiles and headings, About and Careers footers. citeturn0view0turn2view0turn3view0
+
+## British English and casing consistency
+- Site uses American spellings in service names and copy, for example “Organizational Health” and “personalized.” Standardise to British English site-wide: “Organisational,” “personalised,” “prioritise,” etc. citeturn0view0turn2view0  
+- “From concept to Live” should be sentence case: “From concept to live.” Appears in Digital Entertainment tiles. citeturn0view0turn2view0
+
+## FAQ depth
+- Home and About show FAQ headings without body text. Add 5–7 concise Q&As or remove the block until ready. This is content depth, not a breakpoint issue. citeturn0view0turn1view0
+
+## Contact details normalisation
+- Email alternates between **Info@NBI-Consulting.com** and **Information@NBI-Consulting.com**. Choose one and use it everywhere. Home footer vs Contact page. citeturn0view0turn4view0  
+- UK phone formats vary: **+44 07591 167732** and **+44 (0)7591 167732**. Standardise to **+44 7591 167732** in visible copy and **+447591167732** in link hrefs. Home and Contact. citeturn0view0turn4view0
+
+## Careers menu hygiene
+- Careers footer menu includes “Projects” and “Review,” which are not present elsewhere. Remove or add the pages to avoid dead expectations. citeturn3view0
+
+# Quick, high-leverage fixes
+1) **Lock one service taxonomy** and update Home, Services, footers, and Careers to the same three labels. citeturn0view0turn2view0turn3view0  
+2) **Switch to British English** across all service names and paragraphs. citeturn0view0turn2view0  
+3) **Normalise contact details**: one email, one UK format, identical in headers, footers, and contact blocks. citeturn0view0turn4view0  
+4) **Write real FAQ answers** or remove the section until ready. citeturn0view0turn1view0  
+5) **Case and microcopy polish** on “From concept to live” and similar headings. citeturn2view0  
+6) **Careers footer clean-up**: remove or implement “Projects” and “Review.” citeturn3view0
+
+# Optional copy upgrades
+
+**Home hero**  
+Current: “NBI is your partner for designing tailored strategies, scalable systems, and insight-driven solutions…” citeturn0view0  
+Option: “We help game and enterprise leaders turn data into decisions, build systems that scale, and remove barriers to execution.”
+
+**Service tiles**  
+- **Digital Entertainment:** “From discovery to live service, we sharpen design choices, tune economies, and operationalise live-ops. We do not design or build your game.”  
+- **Data & Analytics:** “We engineer telemetry and pipelines, then deliver forecasting, segmentation, and decision-grade reporting tied to revenue and retention.”  
+- **Organisational Consulting:** “We align teams, remove execution barriers, and set operating cadences that raise velocity and quality.”
+
+# SEO to-dos that are breakpoint-agnostic
+- Confirm unique page titles and meta descriptions per page; set Open Graph and Twitter tags; add a sitemap and sensible robots rules.  
+- Ensure all brand logos have descriptive alt text; mark decorative graphics as aria-hidden.  
+- Use consistent internal linking from service tiles to dedicated detail sections.  
+- Add organisation schema and, if appropriate, product or service schema for the three pillars.
+
+If you want, I can supply exact replacement strings for the specific Framer layers where names, email, phone, and headings appear, mapped to each page.
+
+[USER]
+how do i fix this 
+Email alternates between Info@NBI-Consulting.com
+ and Information@NBI-Consulting.com
+. Choose one and use it everywhere. Home footer vs Contact page.
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.
+
+# Master Task Blueprint
+- **Task name and date**  
+  Fix site-wide email consistency, 11 Sep 2025
+- **Roles engaged and why**  
+  Brand Executive (clarity, trust), Web Designer (Framer implementation)
+- **Objective and audience**  
+  Make one canonical email appear everywhere, including links, forms, and metadata.
+- **Success criteria**  
+  Exactly one email address used across all pages, components, and meta. All mailto links open with the same address and a clean subject.  
+- **Assumptions**  
+  1) You’re okay to standardise on lowercase for brand neatness. Confidence 95%, reason: common web convention.  
+  2) You want the change to be single-source so future edits are one-and-done. Confidence 95%, reason: you flagged drift already.
+
+# Recommended canonical
+Use one address in lowercase for visual consistency, for example:  
+**info@nbi-consulting.com**  
+If you prefer **information@…**, the steps are identical. Substitute the value once.
+
+# How to fix it in Framer (step-by-step)
+
+## 1) Create a single source of truth
+Pick one of these patterns. Any will work; choose the one that fits how you maintain the site.
+
+**Option A — Footer component prop (fastest)**
+1. Convert your footer into a Framer Component if it isn’t already.  
+2. Add a **Text** layer for the visible email and a **Link** layer for the click target.  
+3. Expose a **prop** on the component called `email`.  
+4. In the component, bind both the Text layer and the Link layer’s URL to `email` and `mailto:{email}` respectively.  
+5. Set the prop once on the master instance used site-wide to `info@nbi-consulting.com`.
+
+**Option B — CMS collection (cleanest for scale)**
+1. In **Content** create a collection named **Company Settings** with a single item containing a field `email`.  
+2. Set `email` to `info@nbi-consulting.com`.  
+3. Bind every email Text layer and Link layer across pages to this field.  
+4. Future changes happen in one place: Content → Company Settings.
+
+**Option C — Code override constant (for dev-heavy sites)**
+1. In **Code** create an override exporting a constant `EMAIL = 'info@nbi-consulting.com'`.  
+2. Bind text and link props to `EMAIL`.  
+3. Change once in code when needed.
+
+## 2) Update all visible instances
+Work through these common placements and bind them to your single source:
+- **Footer** email text and its mail link.  
+- **Header CTA** buttons that email the team.  
+- **Contact page** email blocks and any “Email us” buttons.  
+- **Careers** or job cards that display an email.  
+- Any **service tiles** or **about** sections that print the email inline.
+
+Tips:
+- In Framer, use the project search to find layers containing `Info@` and `Information@`. Replace with the canonical value.  
+- Keep the **Text** value and the **Link URL** in sync. The URL should be a `mailto:` link.
+
+**Mailto best practice**  
+Set the link URL to:  
+```
+mailto:info@nbi-consulting.com?subject=NBI%20Consulting%20enquiry
+```
+Add an **aria-label** on the link:  
+```
+aria-label="Email NBI Consulting at info@nbi-consulting.com"
+```
+
+## 3) Normalise forms and notifications
+- If a **Contact form** sends notifications to an address configured in Framer, update that target to the canonical email.  
+- If you use a third-party form service, update the notification recipient there as well.
+
+## 4) Fix metadata and schema (one time)
+- In **Site Settings → Code → Head**, add or edit your **Organisation JSON-LD** to include the email:
+```html
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "NBI Consulting",
+  "url": "https://nbi-consulting.com",
+  "email": "info@nbi-consulting.com"
+}
+</script>
+```
+- If any Open Graph descriptions or meta text include the email, update to the canonical value.
+
+## 5) QA checklist
+- Preview each page and **click every email link**. Confirm it opens a draft addressed to the canonical email.  
+- Inspect the DOM for anchors with `mailto:` and confirm all use the same value.  
+- Check **desktop, tablet, mobile** variants to ensure every breakpoint pulls the same source.  
+- Send a test via the **Contact form** and confirm the notification reaches the correct inbox.
+
+# Optional polish
+- Keep email lowercase everywhere for clean visual rhythm.  
+- If spam is a concern, keep the visible text as the email but use a small Cloudflare Email Obfuscation or equivalent. If you do, test the mailto on mobile.
+
+# Change log template for your records
+NBI_Website_Email_Normalisation_v1.0_20250911  
+- Set canonical email to `info@nbi-consulting.com`  
+- Bound all footer, header, and contact links to single source  
+- Updated form notifications  
+- Added JSON-LD organisation schema with email  
+- QA complete across breakpoints
+
+If you tell me which pattern you prefer (Component prop vs CMS vs Code), I can give exact click-paths and binding instructions for your current project structure.
+
+[USER]
+as a framer expert on framer.com why am I getting this error the form is there and its been updated with email addressess on all three form factos
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.
+
+You’re seeing **Form Not Configured** because at least one Form in the project has **no destination** set. Selecting “Send To: Email” isn’t enough — you must add at least one recipient so it shows as a chip. Framer blocks publish until every Form has a destination. citeturn1view0
+
+## Fast fix on the form in your screenshot
+1) Select the **Form** wrapper (not the input).  
+2) Right panel → **Form** → **Send To: Email**.  
+3) Click in the **Add…** field, type your canonical address, **press Enter** so it becomes a chip. If you don’t see a chip, the form still has no destination.  
+4) Optional: set **Redirect** to a thank-you page.  
+5) Publish again.
+
+## Clear the error across the whole project
+One unconfigured form anywhere will trigger the error.
+
+- In the Layers search, type **Form** and check **every** instance on every page. Do the same inside any smart components.  
+- If you duplicated the form for Desktop, Tablet, and Phone as separate instances, ensure each instance has at least one recipient chip, or convert the form into a component and bind a single email prop across all breakpoints.  
+- Delete any unused draft forms.  
+- Publish; the warning should disappear once all forms have destinations. citeturn1view0
+
+## Sanity checks
+- Test a submission after publishing; Framer’s native forms send to email, Google Sheets, or Webhook when configured. citeturn2search17turn2search14  
+- If email delivery is flaky, add a second recipient or a Google Sheet temporarily to confirm submissions are being captured. citeturn2search2
+
+If you want, I can give you a one-time binding plan so the email lives in one place and all three breakpoints inherit it.
+
+[USER]
+solved, lets move on, I want to add a page(s) that is in the same format, color, tone as the website that will be a library for case studies and white papers can you find me one onthe templates page for framer or propose another solution
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.
+
+# Master Task Blueprint
+
+- **Task name and date**  
+  Resources library for case studies and white papers, 11 Sep 2025
+
+- **Roles engaged and why**  
+  Brand Executive (voice and buyer fit)  
+  Web Designer (Framer structure, CMS)
+
+- **Objective and audience**  
+  Add a Resources library that matches the site’s current look and feel, supports filtering, and scales.
+
+- **Success criteria**  
+  One Resources hub page with filters and cards, plus a dynamic detail page type. Uses British English, your colours and type, and works across breakpoints.
+
+- **Assumptions**  
+  1) You want to keep the current design system and not swap to a new full-site template. 90 percent, reason: prior brand alignment requests.  
+  2) Case studies and white papers will live in the same collection with a Type field for filtering. 90 percent, reason: simplest scale path.  
+  3) PDFs will be downloadable without hard gating for now. 85 percent, reason: no gating mentioned.
+
+- **Segments**  
+  1) Choose approach. 2) Implement CMS schema. 3) Build list and detail. 4) Filters and search. 5) QA.
+
+- **Deliverables**  
+  Recommendation plus concrete build steps in Framer.
+
+---
+
+## Option A — Start from a Framer template
+
+If you prefer a prebuilt structure you can copy patterns from, these are solid:
+
+1) **Blog templates category**. Many include list and detail pages with tags and authors, which adapts well to a Resources hub. citeturn0search6  
+2) **Info — Knowledge Base Template**. Designed for articles and FAQs, good for structured resources. citeturn0search7  
+3) **Wisdom — Knowledge Hub**. Focused on help centres and updates, still usable as a resource library with categories. citeturn0search13  
+4) **Documentation templates category** if you want a more technical library feel. citeturn0search17
+
+You would duplicate the template into a separate project, then copy the list and detail layouts into your current site and bind them to your CMS. The Academy lessons on CMS pages and lists show exactly how to wire dynamic pages and lists. citeturn0search2turn0search14
+
+**Pros**: Fast to visual parity, proven list/detail patterns.  
+**Cons**: You still need to restyle to match NBI, and copy-paste between projects is manual.
+
+---
+
+## Option B — Build it natively in your current project (recommended)
+
+Keeps your brand and components intact, and uses Framer CMS directly.
+
+### 1) Create the CMS collection
+In **CMS → New Collection**, name it **Resources**. Add fields:
+
+- Title (Text)  
+- Type (Option: Case Study, White Paper)  
+- Industry (Text)  
+- Client name (Text, optional)  
+- Abstract (Rich text)  
+- Hero image (Image)  
+- PDF URL (Link)  
+- Publish date (Date)  
+- Reading time (Number)  
+- Tags (Tags)  
+- Author name (Text)  
+- SEO title, SEO description, OG image (SEO fields)  
+- Slug (Slug)
+
+Framer’s CMS concepts and field setup are covered here if needed. citeturn0search4turn0search18
+
+### 2) Build the hub page
+- Add a new page **/resources**.  
+- Insert a **Collection List** bound to **Resources**.  
+- Card layout: logo or hero image, Title, Type, Abstract snippet, Tags, and a CTA button “Read more”.  
+- Sort by Publish date desc.  
+- Add a simple **Filter** row: buttons for All, Case Studies, White Papers that set the list’s filter by the **Type** field. If you want advanced multi-filtering, use the community filtering component. citeturn0search8  
+- Optional search: use the List’s built-in filter with a text input bound to Title and Tags.
+
+How to wire Collection Lists and filters is demonstrated in Framer Academy lessons. citeturn0search14
+
+### 3) Build the dynamic detail page
+- Create a **CMS Page** for **Resources** so each item renders at **/resources/[slug]**.  
+- Layout: breadcrumb → title and meta → hero image → abstract → body blocks (use rich text) → “Download PDF” button using the **PDF URL**.  
+- Add related items: a second Collection List filtered to share at least one Tag, excluding the current item.  
+- Framer’s CMS Pages and dynamic content guide walks through this wiring. citeturn0search2
+
+### 4) SEO and sharing
+- Set unique meta for each item using the SEO fields you created.  
+- Ensure open graph image pulls from the OG image field.  
+- If you plan to let non-designers update copy on live pages, Framer’s new on-page editing can help, but CMS remains the source of truth. citeturn0news56
+
+### 5) Download handling
+- Host PDFs and paste the public link into the **PDF URL** field.  
+- Optional soft gate: send users to **/resources/thanks** after a form submit, auto-redirect to the PDF with a short delay.  
+- Track downloads by linking the button through a Redirect page that fires an analytics event.
+
+---
+
+## Which should you pick?
+
+- If you want a fast visual starting point to copy: **Info — Knowledge Base Template** or a **Blog template** with clean list/detail pages. citeturn0search7turn0search6  
+- If you want full control and perfect brand match: build it inside the current project using the CMS steps above. The Academy lessons cover the exact wiring for lists and dynamic pages. citeturn0search2turn0search14
+
+---
+
+## Minimal slice I can deliver next
+
+- Create the **Resources** collection and fields.  
+- Build **/resources** list page with Type filter.  
+- Build the **/resources/[slug]** dynamic page, wired to the collection.
+
+If you want the template route, tell me which of the three above you prefer and I will adapt its layout to your brand in your current project.
+
+[USER]
+write up  a bullet guide on how to publish the website on framer.com to to replace the existing nbi-consulting.com and take down nbianalytics.com on godaddy
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.
+
+# Master Task Blueprint
+- **Task name and date**  
+  Cutover guide: Framer → nbi-consulting.com, retire nbianalytics.com, 11 Sep 2025
+- **Roles engaged and why**  
+  Web Designer (Framer publish and DNS changes)  
+  Brand Executive (redirect and SEO hygiene)
+- **Objective and audience**  
+  Replace the live site at nbi-consulting.com with the Framer site, and retire nbianalytics.com cleanly on GoDaddy.
+- **Success criteria**  
+  nbi-consulting.com and www.nbi-consulting.com serve the Framer site over HTTPS. nbianalytics.com stops serving its old site and forwards to nbi-consulting.com with a 301. No mail is disrupted.
+- **Assumptions**  
+  1) DNS is managed at GoDaddy for both domains. Confidence 85 percent, reason: you referenced GoDaddy directly.  
+  2) Email uses existing MX records and must not change. Confidence 90 percent, reason: no mail migration was requested.  
+  3) Canonical web URL is the apex nbi-consulting.com, with www redirected. Confidence 85 percent, reason: common pattern.
+
+# Bullet guide: publish on Framer and cut over on GoDaddy
+
+## A. Prepare
+- Freeze edits and publish the Framer project so the latest build is ready. In Framer, use **Publish** in the top right. citeturn2view0
+- In Framer **Site Settings → Domains → Connect a domain you own**, add:  
+  - `nbi-consulting.com`  
+  - `www.nbi-consulting.com`  
+  Framer will show the exact DNS records required. citeturn2view0
+
+## B. Copy the required DNS values from Framer
+- For apex `nbi-consulting.com` add two A records:  
+  - `@` → `31.43.160.6`  
+  - `@` → `31.43.161.6`  
+- For `www.nbi-consulting.com` add a CNAME:  
+  - `www` → `sites.framer.app`  
+- Ensure no other A or AAAA records remain for the apex. citeturn2view0
+
+## C. Update DNS at GoDaddy for nbi-consulting.com
+- Sign in to GoDaddy. Open **Domains → DNS** for `nbi-consulting.com`. citeturn3search10
+- Edit or add the **A records** for the apex as above. citeturn3search0turn3search3
+- Add or edit the **CNAME** for `www` to `sites.framer.app`. citeturn3search1turn3search4
+- Remove any conflicting records, such as old A, AAAA, or CNAME entries for `@` or `www`, and remove any active “connection” templates if present. citeturn3search2
+- Do not touch MX records. These control email delivery and are unrelated to the website cutover. (General DNS practice; GoDaddy’s DNS manager separates MX from A and CNAME.) citeturn3search10
+- Wait for DNS to propagate. Framer will show connection status once records resolve. citeturn2view0
+
+## D. Verify the cutover
+- In Framer **Domains** for the project, confirm both `nbi-consulting.com` and `www.nbi-consulting.com` show as Connected. citeturn2view0
+- Test live: visit both hostnames. Check HTTPS and that `www` redirects to the apex.
+
+## E. Retire nbianalytics.com on GoDaddy
+Choose one approach.
+
+**Option 1: Forward to nbi-consulting.com (recommended)**
+- In GoDaddy, open **DNS → Forwarding** for `nbianalytics.com`.  
+- Add **Domain Forwarding**:  
+  - To: `https://nbi-consulting.com`  
+  - Type: **Permanent (301)**  
+  - Settings: Forward only, or forward with masking disabled. citeturn0search8
+- If forwarding was previously set to somewhere else, remove the old forwarding first. citeturn0search3
+
+**Option 2: Remove old site connection without forwarding**
+- If `nbianalytics.com` is attached to an old builder or template, remove the connection in **DNS** so it no longer points to that product. citeturn3search2
+- Optionally unpublish or delete the old GoDaddy Websites + Marketing site if it exists. citeturn3search11turn3search13
+
+## F. Post-cutover hygiene
+- In Framer, set unique titles and meta descriptions, and ensure open graph images are set on key pages. The Academy “Publishing and domains” lesson covers staging and unpublishing as well. citeturn0search0
+- Add or update an Organisation JSON-LD with the new canonical URL if you use it.  
+- Crawl both domains with a checker and confirm:  
+  - `nbianalytics.com` returns a 301 to `nbi-consulting.com`.  
+  - `www.nbi-consulting.com` resolves and redirects as intended.  
+- Keep your MX records unchanged and verify email still flows.
+
+# Definition of Done
+- A and CNAME records at GoDaddy match Framer’s required values. citeturn2view0  
+- Framer shows the domain as Connected. citeturn2view0  
+- `nbianalytics.com` forwards permanently to the new site. citeturn0search8
+
+If you want me to tailor this to the exact current DNS screens, tell me whether GoDaddy is hosting DNS for both domains or if nameservers point elsewhere.
+
+[USER]
+Im seeing this in godaddy what do i do with this to get the website up?
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.
+
+# What to do with the DNS you’re seeing
+
+Your current DNS already matches Framer’s required setup:
+
+- **A records (apex `nbi-consulting.com`)** → `31.43.160.6` and `31.43.161.6` ✔  
+- **CNAME (`www`)** → `sites.framer.app` ✔  
+These are exactly the values Framer specifies for custom domains. citeturn0search2turn0search0
+
+Leave all the **Microsoft 365** records (MX, SPF TXT, DMARC, autodiscover, sip, lync, SRV) as they are. They handle email and Teams and do not affect the website. citeturn0search1
+
+## Finish the connection in Framer
+1) In your Framer project, open **Settings → Domains**.  
+2) Add both domains: `nbi-consulting.com` and `www.nbi-consulting.com`.  
+3) Framer should show them as **Connected** once it sees the A and CNAME you already set. If it does not, use the built-in checker or a DNS checker to confirm the records are visible from multiple locations. citeturn0search0turn0search1  
+4) In **Domains**, set your preferred **Primary** (usually the apex). Framer will handle the redirect between `www` and apex. citeturn0search0  
+5) Click **Publish** in Framer so the site goes live on the custom domain. citeturn0search15
+
+## Quick sanity checks
+- **Conflicts:** In GoDaddy DNS, make sure there are **no other A or CNAME records** for `@` or `www` besides the three above. Framer requires only Framer values for those hosts. citeturn0search1  
+- **Forwarding:** In GoDaddy, open the domain’s **Forwarding** section and ensure there is **no active domain forwarding** set for `nbi-consulting.com`, since forwarding would override your A records. If any exists, remove it. citeturn0search8  
+- **DNSSEC:** If DNSSEC is enabled at the registrar and Framer still shows invalid DNS, turn DNSSEC off for this domain and recheck. citeturn0search8
+
+## Result you should see
+- Visiting `https://nbi-consulting.com` and `https://www.nbi-consulting.com` serves your Framer site over HTTPS, with one redirecting to the Primary. citeturn0search0
+
+If you want, tell me what Framer shows under **Settings → Domains** right now and I will pinpoint the exact blocker.
+
+[USER]
+this is what shows in frmaer.com 
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.
+
+# Master Task Blueprint
+- **Task name and date**  
+  Clear “Pending” and bring nbi-consulting.com live, 11 Sep 2025
+- **Roles engaged and why**  
+  Web Designer (Framer domains), COO-lite (cutover checks)
+- **Objective and audience**  
+  Turn the Framer **Custom Domain** status from Pending to Connected and serve the site at apex and www without breaking email.
+- **Assumptions**  
+  1) GoDaddy DNS already has the two A records for `@` and the CNAME for `www` as in your screenshot. Confidence 95 percent, reason: screenshots.  
+  2) No third-party proxy like Cloudflare in front. Confidence 85 percent, reason: nameservers are GoDaddy.  
+  3) No domain forwarding is set on nbi-consulting.com. Confidence 85 percent, reason: not visible in screenshots.
+
+# Do this now
+
+## 1) Finish setup inside Framer
+1. **Add both hostnames** explicitly: in **Settings → Domains**, click **Add domain** and enter `www.nbi-consulting.com` as a second domain in addition to the apex.  
+2. In the **Custom Domain** card, click the **refresh** icon next to “Your DNS records must be set up…” to force a recheck.  
+3. When Framer shows both as connected, set **Primary domain** to `nbi-consulting.com`.  
+4. Click **Publish** so the latest version is served on the custom domain, not just the framer.app base domain.
+
+## 2) Remove any conflicts on GoDaddy
+Open **DNS Management** for nbi-consulting.com and confirm:
+- Exactly these three web records exist, nothing else for `@` or `www`:
+  - `A  @  31.43.160.6`
+  - `A  @  31.43.161.6`
+  - `CNAME  www  sites.framer.app`
+- **No AAAA** records for `@` or `www`. If present, delete them.
+- **No Forwarding** is active for the domain or for `www`. If forwarding exists, remove it.
+- Leave all **Microsoft 365** mail records (MX, SPF TXT, DMARC, autodiscover, sip, lync, SRV) untouched.
+
+## 3) Check for “attached elsewhere”
+If you ever connected `nbi-consulting.com` to another Framer project:
+- In Framer, open that old project, go to **Settings → Domains**, and **Remove** the domain there.  
+- In your current project, re-add the domain and refresh.
+
+## 4) Edge cases
+- **DNSSEC**: if enabled at GoDaddy, turn it off for this domain and refresh in Framer.  
+- **TTL**: your TTLs are fine. No change needed.  
+- **Cache**: after Framer shows Connected, publish again and test both `https://nbi-consulting.com` and `https://www.nbi-consulting.com`.
+
+# Quick QA checklist
+- Framer Domains shows **Connected** for both apex and www.  
+- Visiting `www` redirects to the **Primary** you set.  
+- Email still works, since MX and TXT were not touched.
+
+If anything still reads Pending after the refresh and publish, tell me exactly what Framer shows under the Custom Domain card for each host and I will pinpoint the blocker.
+
+[USER]
+here we are now
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.
+
+Status: your Framer **Base domain** and **Custom domain** both show **Optimized** and **Website is published and optimized**. That means `nbi-consulting.com` is connected and serving from Framer.
+
+## Quick validation checklist
+- Open `https://nbi-consulting.com` and `https://www.nbi-consulting.com`. One should redirect to the other. If not, in **Settings → Domains**, set **Primary domain** to `nbi-consulting.com` and publish.
+- Click a few deep links and submit a test form. Confirm emails arrive.
+- In GoDaddy DNS, keep only:
+  - `A @ 31.43.160.6`
+  - `A @ 31.43.161.6`
+  - `CNAME www sites.framer.app`
+  Leave MX, SPF, DMARC, and Microsoft SRV records as they are.
+
+## Retire nbianalytics.com with a 301 to nbi-consulting.com
+1) GoDaddy → the `nbianalytics.com` domain → **DNS** → **Forwarding**.  
+2) **Domain forwarding** → To: `https://nbi-consulting.com` → Type: **Permanent (301)** → Save.  
+3) Wait a few minutes, then check:
+   - Visit `http://nbianalytics.com` and `https://nbianalytics.com`. Both should 301 to `https://nbi-consulting.com`.
+
+## Post-cutover hygiene
+- **Redirects map:** In Framer **Settings → Redirects**, add any old paths from nbianalytics that you want to preserve, for example `/case-studies/abc` → `/case-studies`.  
+- **Search Console:** Add and verify the domain property for `nbi-consulting.com` via DNS TXT, submit the sitemap, and set preferred domain.  
+- **Analytics:** Install GA4 or your chosen analytics script in **Settings → Code**.  
+- **Robots and meta:** Ensure each page has a unique title and description; set default Open Graph image in Site settings.
+
+If you want, I can draft a redirects map from any known nbianalytics URLs and provide the exact entries to paste into Framer’s Redirects panel.
+

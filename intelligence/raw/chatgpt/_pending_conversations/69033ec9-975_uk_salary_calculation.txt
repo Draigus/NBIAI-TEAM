@@ -1,0 +1,87 @@
+TITLE: UK salary calculation
+DATE: 2025-10-30
+MESSAGES: 6
+ID: 69033ec9-9750-832c-bae4-3eb8872b70e1
+---
+
+[USER]
+what is 
+165000 gross pay in the uk
+with a 10% raise
+30% annula bonus
+Minus taxes
+
+
+[ASSISTANT]
+Here’s a clean estimate for take-home, using 2025/26 England or Wales rates.
+
+# Assumptions
+- Resident for tax in England or Wales for 2025/26. Scotland has different bands. citeturn1search3  
+- No pension salary sacrifice, no student loan, and no other payroll deductions.  
+- Bonus is fully taxable like salary. I show two ways bonus might be defined. citeturn1search2turn1search4
+
+# Calculation method
+- Income tax bands: 20 percent to £37,700, 40 percent to £125,140, 45 percent above. Personal Allowance is nil at this income. citeturn1search1turn1search5  
+- Employee National Insurance: 8 percent between £12,570 and £50,270, 2 percent above. citeturn0search5turn0search13
+
+# Results
+All figures rounded to the nearest pound.
+
+| Scenario | Gross pay | Income tax | Employee NI | Net per year | Net per month |
+|---|---:|---:|---:|---:|---:|
+| Bonus = 30 percent of raised salary | £235,950 | £92,380 | £6,730 | £136,840 | £11,403 |
+| Bonus = 30 percent of original salary | £231,000 | £90,153 | £6,631 | £134,216 | £11,185 |
+
+# Notes
+- Personal Allowance is fully tapered away above £125,140, so the whole amount is taxable. citeturn1search5  
+- Real payslips will differ slightly due to PAYE timing, tax code nuances, and any pension or student loan deductions.  
+- If you tell me which bonus basis you use and whether you contribute to a pension or repay a student loan, I will recompute precisely.
+
+[USER]
+sow hat is the net I end up with from the base salary a month and the take home bonus
+
+[ASSISTANT]
+Here’s the split you asked for.
+
+# Assumptions
+England or Wales taxpayer in 2025/26, no pension salary sacrifice, no student loan, no other payroll deductions. Bonuses are taxed at your marginal rate. Income tax bands and NI rates per 2025/26 rules. citeturn0search0turn0search1turn0search6turn0search12
+
+# Plan
+1) Apply 10 percent raise to £165,000 to get base salary.  
+2) Compute Income Tax and Employee NI on base only.  
+3) Treat bonus as fully in the additional-rate band, so net = bonus × (1 − 45 percent − 2 percent) = bonus × 53 percent. citeturn0search0turn0search6
+
+# Deliverable
+- Base salary after 10 percent raise: **£181,500**.  
+  - Net per year from base only: **£107,981**.  
+  - **Net per month from base only: £8,998**.
+
+- Take-home bonus (two common definitions):
+  - If bonus = 30 percent of raised salary (£54,450 gross): **~£28,859 net**.
+  - If bonus = 30 percent of original £165,000 (£49,500 gross): **~£26,235 net**.
+
+# Self-audit
+- Rates used: IT 20/40/45 percent with PA tapered to zero at this income, NI 8 percent to £50,270 then 2 percent above. Results recomputed with these exact bands. Marginal on any extra pay at this income is 47 percent, so bonus take-home ≈ 53 percent of gross. Figures rounded to the nearest pound. If you have pension contributions or a student loan, tell me and I will recompute precisely. citeturn0search0turn0search1turn0search6
+
+[USER]
+bonus is on the 165000
+
+[ASSISTANT]
+Great, using 30 percent of £165,000 for the bonus:
+
+## Results
+- Base salary after 10 percent raise: **£181,500**  
+  - Income tax: £62,850  
+  - Employee NI: £5,641  
+  - **Net from base per year:** £113,009  
+  - **Net from base per month:** **£9,417**
+
+- Bonus on £165,000 at 30 percent: **£49,500 gross**  
+  - At your income level, marginal rates apply: 45 percent income tax and 2 percent NI  
+  - **Net bonus:** **£26,235**
+
+## Notes
+- Rates used: 2025/26 Income Tax bands for England and Wales, and Employee NI of 8 percent to the Upper Earnings Limit and 2 percent above it. Bonuses are taxed via PAYE like salary. citeturn1view0turn2view0turn3search0
+
+If you want this with pension or student loan settings, tell me the percentages and I will recompute.
+

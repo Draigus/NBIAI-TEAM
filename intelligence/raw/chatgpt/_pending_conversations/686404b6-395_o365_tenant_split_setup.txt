@@ -1,0 +1,521 @@
+TITLE: O365 Tenant Split Setup
+DATE: 2025-07-01
+MESSAGES: 20
+ID: 686404b6-3954-800b-bfb9-ab21774ba5ec
+---
+
+[USER]
+I have an existing company that is splitting into two companies and need to sort out the o365's.  I need to configure the new O365 with people moving from the old one to the noew one in the new company AND they will need to keep thier old accoutns as well 
+
+[ASSISTANT]
+Below is a streamlined playbook that admins use when a single Microsoft 365 tenant splits into two while letting selected staff keep access to the original tenant.
+
+---
+
+### 1. Scope and inventory  
+- List who is moving, what data they own (mailboxes, OneDrive, SharePoint sites, Teams), and any third-party apps tied to the tenant.  
+- Decide how long users must retain access to the original tenant, and whether read-only access is enough.  
+
+### 2. Build the new tenant  
+1. Create the new Microsoft 365 tenant and buy the required licences.  
+2. Add and verify the new company domain.  
+3. Enable modern authentication, Conditional Access and baseline security.  
+
+### 3. Pick an identity model  
+| Option | When to use | How users keep legacy access | Notes |
+|---|---|---|---|
+| **Cross-tenant Synchronization (Entra ID)** | Cloud-only or single on-prem AD | Source tenant automatically creates a B2B guest for each migrated user | Requires Entra ID P1 in the source tenant citeturn0search1turn0search3 |
+| **Separate Entra Connect sync to both tenants** | Large on-prem AD and need true identities in both tenants | Users sign in with the same UPN to both tenants | Needs OU or attribute filtering to avoid duplicate objects |
+
+Most divestitures now choose cross-tenant sync because it maintains passwords and group membership while avoiding dual-sync complexity.  
+
+### 4. Provision accounts in the target tenant  
+- Configure cross-tenant sync in the source tenant, set an attribute-based scoping filter, and run an initial sync.  
+- Assign licences in the target tenant with group-based licensing.  
+
+### 5. Move mailboxes  
+1. Establish cross-tenant organization relationships in Exchange Online (both tenants).  
+2. In the target tenant, create a migration endpoint and run `New-MigrationBatch` for pilot users.  
+3. When a batch finishes, update Outlook (autodiscover updates automatically).  
+Cross-tenant mailbox migration is native, scriptable, and does not require third-party tools citeturn0search0.  
+
+### 6. Preserve mail in the source tenant  
+| Need | Tactic |
+|---|---|
+| Keep historical mail read-only | Convert the old mailbox to a *shared* mailbox (no licence) and leave the user as a guest with *Read* permission. |
+| Need active mail flow on old domain | Keep the mailbox active and licence it with the lowest-cost plan (F3 or Exchange Online Plan 1). Use a transport rule to forward a copy to the new address. |
+
+### 7. Migrate SharePoint, OneDrive, Teams  
+- Use Migration Manager or a partner tool for SharePoint/OneDrive.  
+- Teams: move channels with Graph-based scripts, or leave the original tenant in an archived state if users only need read-only access.  
+- Shared Channels can keep collaboration alive between tenants without extra guests.  
+
+### 8. Domain and mail routing  
+- A custom domain can exist in only one tenant at a time. Keep the old domain on the source tenant and give the new tenant its own domain (for example, new-corp.com).  
+- Add the old domain as an *accepted domain* in the target tenant only when you are ready to move it and the migration batches are complete. Until then, use forwarding or a sub-domain (e.g. user@oldcorp.mail.onmicrosoft.com) as the target address for migration. citeturn0search6  
+
+### 9. Coexistence during the transition  
+- Publish an up-to-date GAL to both tenants with cross-tenant sync or GALSync scripts.  
+- Set up free/busy federation so staff can book meetings across tenants.  
+- Communicate cut-over dates early, and migrate in small batches to reduce help-desk spikes.  
+
+### 10. Post-migration clean-up  
+- Verify data retention and eDiscovery policies are intact in both tenants.  
+- Remove stale guest accounts after users confirm they no longer need the old tenant.  
+- Decommission any Entra Connect servers that are no longer in use.
+
+---
+
+**Key takeaways**
+
+* Cross-tenant synchronization plus native mailbox migration is the simplest combo for most splits.  
+* Users keep legacy data with either a shared mailbox or a low-cost licence in the old tenant.  
+* Plan coexistence up front, especially GAL, free/busy and Teams collaboration, to avoid user friction.
+
+This checklist should give you a clear path from planning through clean-up. Adjust license levels, timelines and tooling to match your seat count and compliance needs.
+
+[USER]
+we already have a new o365 paid for 
+
+[ASSISTANT]
+Great. Since the target Microsoft 365 tenant already exists and is licensed, here is a concise action sequence to finish the split while letting movers keep access to the old tenant.
+
+### 1  Prepare the new tenant
+1. **Verify domains** – add and verify `new-corp.com` (and any sub-domains).  
+2. **Baseline security** – enable MFA, set up Conditional Access, turn on modern auth, review default sharing settings.  
+3. **Create admin roles** – Global Admin should be limited to break-glass accounts.
+
+### 2  Set up cross-tenant identity sync
+1. In the *source* tenant, open Entra ID > External Identities > Cross-tenant sync and create an **outbound** configuration that targets the new tenant.  
+2. Scope the sync using an attribute or group containing only the employees who are moving.  
+3. Run initial sync; confirm guest shadow accounts appear in the new tenant and primary mail etc. match.  
+4. In the *new* tenant, use group-based licensing to assign the right SKU to each incoming user.
+
+### 3  Enable mailbox moves
+1. In both tenants, Exchange admin > Organization > **Cross-tenant migration** – add the other tenant and upload each tenant’s application ID and certificate.  
+2. In the target tenant, create a migration endpoint.  
+3. Start a small **pilot MigrationBatch** using Exchange Online PowerShell:  
+   ```powershell
+   New-MigrationBatch -Name Pilot1 -SourceTenant <GUID> -CSVData (Get-Content .\pilot.csv | Out-String) -AutoStart
+   ```  
+4. After completion, spot-check Outlook profiles and mobile devices.
+
+### 4  Route mail during coexistence
+- Keep `old-corp.com` MX pointing at the old tenant until *all* mailboxes for that domain are moved.  
+- For movers, create a transport rule in the old tenant that forwards their mail to `user@new-corp.com` while keeping a copy.  
+- When every mailbox is migrated, move the public DNS records for `old-corp.com` to the new tenant (must delete the domain from the old tenant first).
+
+### 5  Migrate files and Teams
+| Workload | Tool | Tip |
+|-|-|-|
+| OneDrive | Migration Manager | Map source UPN to target UPN; throttle at 20 users a batch. |
+| SharePoint sites | Migration Manager or ShareGate | Pre-create target site collections to keep URLs. |
+| Teams chat & channels | Microsoft Teams Export API scripts | Shared Channels can avoid duplicates if collaboration continues. |
+
+### 6  Keep legacy access
+- Convert each user’s old mailbox to **shared** if read-only is enough; no licence needed.  
+- If active sending on `old-corp.com` must continue, leave the mailbox licensed with the lowest Exchange plan.  
+- Guest accounts in the old tenant still see Teams, SharePoint, and shared mailboxes.
+
+### 7  User experience and GAL
+1. Enable free/busy calendar federation: Exchange admin > Organization > Sharing.  
+2. Publish the full GAL to both tenants by turning on contact object sync in the cross-tenant settings.  
+3. Communicate timelines and add a help-desk banner for Outlook profile reset steps.
+
+### 8  Cut-over checklist
+- All mailboxes show as `SyncedSuccessfully` in `Get-MigrationBatch`.  
+- MX, SPF, DKIM, DMARC now point to the new tenant.  
+- Teams and SharePoint owners confirm data.  
+- Old tenant guest permissions are correct.  
+- Audit and litigation holds copied if required.
+
+### 9  Post-migration cleanup
+- Remove migration endpoints and sync filters that are no longer needed.  
+- Disable guest or shared mailboxes once data retention periods expire.  
+- Review licences in both tenants to avoid double billing.
+
+Follow this sequence and you can finish the split with minimal downtime while preserving historical access for everyone involved.
+
+[USER]
+I need you to take me step by step through this Im not the IT guy Im jsut the one fixing this and dont know the ins and outs of setting this up. I have this email below to work off of. 
+
+[ASSISTANT]
+Got it. To walk you through this in plain language I first need to know exactly what you have been told. Please paste the email (or the important parts) so I can see the instructions you are starting from.
+
+While you grab that, double-check these three things:
+
+1. **Admin sign-ins**: confirm you can log in as an administrator to both the old tenant and the new tenant.
+2. **User list**: how many people are moving? (Rough number is fine.)
+3. **Own domain**: do you need the old email domain to move to the new tenant later, or will staff use a brand-new domain?
+
+Once I see the email and those quick details, I will lay out the steps one by one with screen clicks and exact menu names—no jargon, no PowerShell.
+
+[USER]
+
+1. i can
+2. 10
+3. new domain
+
+[ASSISTANT]
+Below is a click-by-click plan that assumes
+
+* you already own a new Microsoft 365 tenant with licences
+* ten people are moving
+* they will use a brand-new email domain
+* they still need read-only access to their old mail and Teams files
+
+---
+
+## A. Prepare the new tenant (one-time)
+
+1. **Sign in** at https://admin.microsoft.com with your new-tenant admin account.  
+2. **Add and verify the new domain**  
+   1. Left menu → *Settings* → *Domains* → *Add domain*.  
+   2. Type **new-corp.com** → *Use this domain*.  
+   3. The portal shows a TXT record such as `MS=ms12345678`.  
+   4. Go to your DNS host, add that TXT, save, wait 5-10 min, then back in the portal press *Verify*.  
+   Microsoft’s guide for this step is current as of last week citeturn0search1  
+3. **Turn on basic security**  
+   1. *Settings* → *Org settings* → *Security & privacy* → *Security defaults* → *Enable*.  
+   2. This forces multi-factor authentication for everyone.  
+4. **Create a licence group** (makes later steps faster)  
+   *Teams & groups* → *Active teams & groups* → *Add a group* → *Microsoft 365 group*.  
+   Call it **“Migrated Users – Licenced”** and assign one licence to the whole group.
+
+---
+
+## B. Create user accounts (all ten people)
+
+Because it is only ten users, manual creation is quicker than setting up automated sync.
+
+1. *Users* → *Active users* → *Add a user.*  
+2. Fill first name, last name, username, pick **new-corp.com** from the dropdown.  
+3. Password options → leave “Require this user to change password” ticked.  
+4. *Product licences* → tick one licence (or add the user to the licence group you made earlier).  
+5. Finish. Repeat for each person.
+
+---
+
+## C. Bring their old mail into the new tenant
+
+### Option 1: quick manual export (best for small mailbox sizes)
+
+1. On each user’s PC, open Outlook connected to their old account.  
+2. *File* → *Open & Export* → *Import/Export* → *Export to a file* → *Outlook Data File (.pst)*.  
+3. Choose the mailbox root, include sub-folders, save the .pst locally.  
+4. Close Outlook, add the new account profile, then *Import/Export* → *Import from another program* → select that .pst.  
+This avoids any admin-side scripting.
+
+### Option 2: native cross-tenant mailbox migration (if you prefer a server-side move)
+
+Requires some PowerShell but no third-party tools.
+
+1. In **both tenants** open Exchange admin center → *Organization* → *Cross-tenant migration* and add the other tenant’s ID and cert.  
+2. In the **target** tenant create a migration endpoint.  
+3. Connect with Exchange Online PowerShell, run  
+
+   ```powershell
+   New-MigrationBatch -Name Move10 -CSVData (Get-Content .\users.csv | Out-String) -SourceTenant <SourceTenantID> -AutoStart
+   ```  
+
+4. Monitor with `Get-MigrationBatch` until Status = SyncedSuccessfully.  
+Full step list is in Microsoft’s cross-tenant guide updated four months ago citeturn0search0
+
+---
+
+## D. Let users keep read-only access to the old tenant
+
+### 1. Convert each old mailbox to a shared mailbox
+
+Old tenant → Exchange admin center → *Recipients* → *Mailboxes*  
+– select the user → *Convert to shared mailbox* → Confirm.  
+Shared mailboxes do not need licences.
+
+### 2. Add the new address as a guest with permissions
+
+1. Old tenant → Entra admin center → *Identity* → *Users* → *New guest user*.  
+2. Invite **new-user@new-corp.com**.  
+3. After the invite is accepted, back in Exchange admin center choose the shared mailbox → *Mail delegation* → *Read and manage* → *Add* → select the guest.
+
+The guest can now open the shared mailbox in Outlook Web: top-right avatar → *Open another mailbox* → type their old address.
+
+---
+
+## E. Move OneDrive and Teams files
+
+Each user:
+
+1. Sign in to https://onedrive.live.com with the **old** account.  
+2. Select all files → *Download*.  
+3. Sign out, sign in with the **new** account, drag the files into the OneDrive web page.
+
+For team files, owners can open the SharePoint document library in the old tenant, press *Sync*, then copy files to the synced folder of the new tenant.
+
+If you want a single-click tool, Microsoft’s Migration Manager is free and lives in the new SharePoint admin center. Its wizard matches one source user to one target user and works well for small numbers.
+
+---
+
+## F. Check calendar access
+
+1. In **both tenants** open Exchange admin center → *Organization* → *Sharing* → *Add organization*.  
+2. Enter the other tenant’s domain, tick *Share free/busy with time and subject*.  
+People can now book meetings across tenants. Guide: Cross-tenant access settings article published three months ago citeturn0search3
+
+---
+
+## G. Final tidy-up
+
+* Test sign-in and mail send/receive for every migrated user.  
+* Remove any licences still assigned in the old tenant after you convert to shared mailboxes.  
+* Tell users to update their email signatures with the new domain.  
+* Keep the old tenant for historical access as long as required, then disable the guest accounts when finished.
+
+Follow these sections in order and you will have every user working in the new Microsoft 365 tenant while still being able to view their old email and files.
+
+[USER]
+ons tep 2, where can i see the TxT record
+
+[ASSISTANT]
+Here is exactly where the portal shows the TXT record.
+
+### While you are adding the domain
+
+1. Sign in to the Microsoft 365 admin center at **admin.microsoft.com**.  
+2. In the left menu choose **Settings ▸ Domains ▸ Add domain**.  
+3. Enter **new-corp.com** then select **Use this domain / Next**.  
+4. The wizard stops on a page titled **Verify your domain**.  
+   * Pick **Add a TXT record to the domain’s DNS records**, then **Continue**.  
+   * On the next screen you will see a line that looks like `MS=ms12345678`.  
+   * Copy that full string; it is the TXT value you must place at your DNS host. citeturn0search0  
+
+### If you already closed the wizard and need the value again
+
+1. Go back to **Settings ▸ Domains**.  
+2. Click the domain that is still marked **Needs setup**.  
+3. Select **Continue setup** (sometimes labeled **Start setup**).  
+4. You are returned to the same **Verify your domain** step and the TXT value re-appears.
+
+You can keep this page open while you create the record with your DNS provider; after the TXT has propagated, press **Verify** in the wizard.
+
+[USER]
+ok i think i set is up but i didnt get the TXT
+
+[ASSISTANT]
+No worries. You can make the portal show that TXT value again in a few clicks.
+
+### Get the TXT record again
+
+1. Sign in at **admin.microsoft.com** with your admin account.  
+2. Left menu → **Settings** → **Domains**.  
+3. You will see a list of domains.  
+   * If your new domain is tagged **Needs setup** or **Setup in progress**, click its name. A pane opens on the right.  
+   * Press **Continue setup** (sometimes labeled **Start setup**).  
+4. The wizard jumps straight to **Verify your domain**.  
+   * Pick **Add a TXT record** if it asks which method to use.  
+   * The line that starts with `MS=` is the TXT value. Copy it exactly.  
+
+Keep the wizard open while you add that TXT at your DNS host, then come back and hit **Verify**.
+
+---
+
+#### If the domain already shows **Verified**
+
+That means Microsoft could confirm ownership with some other record, or the registrar auto-added the TXT for you. In that case you do not need to add anything else. You can check:
+
+* The **Status** column in the Domains list → should read **Healthy** or **Verified**.  
+* Clicking the domain → **DNS records** tab shows all required records. If TXT is missing, the portal will display an **Add record** button with the exact value.
+
+Follow whichever of the two sections matches what you see and you will have the TXT information you need.
+
+[USER]
+I see this (see first picture) but there is no DNS record
+
+[ASSISTANT]
+What you are looking at (`nbianalytics.onmicrosoft.com`) is the tenant’s default Microsoft-managed domain, so Microsoft 365 hides the DNS section because you do not control that domain.  
+To get the TXT record you must switch to your **custom** domain—the one you bought for company email.
+
+---
+
+### 1 Check whether the custom domain is already listed
+
+1. Admin center: **Settings → Domains**.  
+2. Look for `your-company.com` in the list.  
+   * **Status = Needs setup** or **Setup in progress**: click it, then choose **Continue setup/Start setup**.  
+   * The wizard will stop on **Verify your domain** and show the TXT value that starts with `MS=`. Copy this value. citeturn0search2  
+
+If you **do not see** the custom domain, add it first.
+
+---
+
+### 2 Add the custom domain (if it is not listed)
+
+1. **Settings → Domains → Add domain**.  
+2. Enter `your-company.com`, press **Next**.  
+3. Pick **Add a TXT record**, press **Continue**.  
+4. The portal now shows the TXT record. Leave the browser tab open. citeturn0search1  
+
+---
+
+### 3 Create the TXT record with your DNS host
+
+1. Sign in to your domain registrar’s control panel.  
+2. Find the DNS management area (often called “DNS records” or “Zone file”).  
+3. Add a **TXT** record:  
+   * **Host/Name**: `@`  
+   * **Value**: the full `MS=…` string you copied  
+   * **TTL**: leave the default or set to 3600 seconds.  
+4. Save the record.  
+
+The TXT record only proves ownership, it does not affect existing services. citeturn0search4  
+
+---
+
+### 4 Verify in Microsoft 365
+
+Back in the admin center tab, press **Verify**.  
+If Microsoft finds the TXT record, the domain status changes to **Verified**, and you can move on to adding MX, SPF, and the rest.
+
+---
+
+**Next step**  
+Let me know if the domain is now listed as **Verified**. If yes, we can continue to creating the ten user accounts.
+
+[USER]
+I see this
+
+[ASSISTANT]
+What you are seeing is only the Microsoft-supplied **onmicrosoft.com** domain. Your custom email domain has not been added yet. Do this:
+
+---
+
+### Add your company domain
+
+1. In that same Domains page, choose **Add domain** near the top.
+2. Type your company’s domain name (for example **mycompany.com**) then select **Use this domain** or **Next**.
+3. Choose **TXT record** when it asks how to verify, then click **Continue**.
+4. The next screen will show a value that starts with **MS=**.  
+   *Copy that entire value* and leave this browser tab open.
+
+---
+
+### Create the TXT record at your registrar
+
+1. Sign in to the web site where you bought the domain (GoDaddy, Namecheap, etc.).
+2. Find DNS Management or DNS Zone Editor.
+3. Add a **TXT** record:
+   * **Host / Name**: `@`
+   * **Value / Text**: paste the **MS=…** string
+   * **TTL**: leave default or set 3600
+4. Save the record.
+
+Wait about five minutes.
+
+---
+
+### Verify in Microsoft 365
+
+1. Return to the Microsoft 365 tab that is waiting.
+2. Click **Verify**.
+3. If the TXT record has propagated, the portal will say the domain is **Verified** and move you to the next setup step.
+
+Once it shows Verified, you can proceed to creating user accounts with the new domain. Let me know when verification succeeds or if you see an error.
+
+[USER]
+where do i get my company;s domain name? do i need to buy it like on godaddy?
+
+[ASSISTANT]
+### What a domain is  
+It’s the part after the @ in an email address ( `yourname@**mycompany.com**` ).  
+Microsoft gives every tenant a free `something.onmicrosoft.com`, but clients rarely want to use that in public mail.
+
+---
+
+## 1  Decide on a name
+Think of something short, easy to spell and unique: `mycompany.com`, `myco-tech.com`, etc.  
+If you already run a public web-site you probably own a domain already; check with whoever manages the site.
+
+---
+
+## 2  Buy the domain  
+You have two simple ways to purchase:
+
+| Where to buy | Steps | Notes |
+|-|-|-|
+| **Inside Microsoft 365** | Admin center → Settings → Domains → **Buy domain**. The wizard checks availability, takes payment and adds the domain to your tenant automatically. citeturn0search3 | Fastest, no DNS work later. |
+| **External registrar** (GoDaddy, Namecheap, Google Domains, etc.) | Go to the registrar’s web site, search for the name, check out. Keep the browser tab with your receipt. | Often cheaper; good if you already have a registrar account. |
+
+Either route costs roughly USD 10-20 per year for a standard .com.
+
+---
+
+## 3  Add the domain to Microsoft 365  
+If you used **Buy domain** the domain is already listed and marked “Setup in progress”.  
+If you bought it elsewhere:
+
+1. Admin center → Settings → Domains → **Add domain**.  
+2. Type the new name, click **Next**. citeturn0search0  
+
+---
+
+## 4  Verify ownership with a TXT record  
+The wizard shows a line like `MS=ms12345678`.  
+At your registrar:
+
+1. Open DNS management.  
+2. Add a **TXT** record  
+   * **Host / Name**: `@`  
+   * **Value / Text**: `MS=ms12345678`  
+   * **TTL**: leave default (typically 1 hour). citeturn0search2  
+3. Save, wait 5-10 minutes, return to the Microsoft 365 wizard and click **Verify**.  
+
+If the registrar supports **Domain Connect** (GoDaddy, Ionos, Cloudflare) Microsoft can add all records automatically once you sign in and approve. citeturn0search1
+
+---
+
+## 5  Finish DNS records  
+After verification the wizard offers to create the remaining records (MX, SPF, Autodiscover, etc.). Accept the defaults unless you have special requirements.
+
+---
+
+### Next step  
+Once the domain shows **Verified** in Settings → Domains you can start creating the ten user accounts with `user@mycompany.com`. If you’d like help on that part, let me know and we’ll walk through it.
+
+[USER]
+it says the old 0365 has the domain attached and I need to remove it to add it to the new 0365 account. will that harm email access to anyone?
+
+[ASSISTANT]
+### Will removing the domain cut users off?
+
+* **Data stays** – mailboxes, OneDrive, Teams files remain in the old tenant.  
+* **Mail flow on that domain stops** as soon as the MX, SPF and Autodiscover records point somewhere else.  
+* **User sign-in addresses switch** to the tenant’s onmicrosoft.com name the moment you delete the domain. Users can still log in, just with the new sign-in name. citeturn0search0turn0search2  
+
+So no one loses stored mail, but any new messages sent to **user@your-domain.com** will bounce until the domain is added to the new tenant and DNS finishes updating. Plan a short cut-over window to avoid that gap.
+
+---
+
+### Safe cut-over checklist
+
+| Step | Where | Why |
+|------|-------|-----|
+|1. Change every object that still uses the domain (users, groups, shared mailboxes, Azure apps) to **@tenant.onmicrosoft.com** or a spare domain. | Old tenant | Microsoft will not let you remove the domain if *anything* is still using it. |
+|2. Lower the domain’s public DNS TTL to 300 seconds at least 24 h ahead. | DNS host | Lets the new MX records propagate in minutes. |
+|3. Create the ten mailboxes in the **new** tenant and test mail flow with its onmicrosoft address. | New tenant | Confirms the new tenant is ready. |
+|4. Schedule the switch outside peak hours. Tell staff their sign-in name will change temporarily. | - | Reduces confusion. |
+|5. In the **old** tenant: Settings → Domains → select the domain → **Remove domain**. | Old tenant admin center | Frees the domain. |
+|6. Immediately in the **new** tenant: Settings → Domains → **Add domain** → verify by TXT → accept the automatic DNS script or paste the new MX, SPF, DKIM, etc. | New tenant admin center | Starts mail delivery to the new tenant. |
+|7. Change each user’s primary email to the custom domain and test send/receive. | New tenant | Restores normal mail flow. |
+|8. Tell users in the old tenant to sign in with **user@tenant.onmicrosoft.com** if they still need read-only access to historical data. | Users | They will no longer be able to use the old custom address there. |
+
+Downtime is usually only the few minutes between step 5 and step 7, plus the DNS cache time you set in step 2.
+
+---
+
+### Key points to remember
+
+* Removing the domain does **not** delete any mailbox or file data.  
+* Users keep access to the old tenant by signing in with the onmicrosoft address.  
+* Mail flow resumes as soon as DNS points to the new tenant and the domain is verified there.  
+
+Follow the checklist, and you will move the domain with minimal interruption.
+

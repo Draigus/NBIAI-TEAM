@@ -1,0 +1,101 @@
+TITLE: Consultant task classification
+DATE: 2025-09-15
+MESSAGES: 2
+ID: 68c7f318-5f58-8331-b704-d95c79176f6c
+---
+
+[USER]
+as the expert senior consultant who has to do all the tasks below for a client (couch heroes) assess the tasks below then answer the must have, shoudl have, nice to have for these documents in the picture.err on more documentation vs less. as the senior consultant doesnt know anything about the studio
+
+Task One A: MVP Validation
+Investigate MVP on design and intended fit
+Assess current completion versus missing features, design requirements
+Scope complexity to complete in time
+ 
+Estimated period of performance: 2-3 weeks.  Completion time is contingent upon availability of Client staff and timeliness of access to required systems.
+ 
+Task One B: Architecture and Development Audit
+Conduct a high-level technical architecture review
+Conduct a data architecture logical framework review
+Review game system design versus requirements*
+Conduct assessment of production workflow and team capabilities versus to workflow tasks
+Identify team and process gaps and identify solution paths
+ 
+Estimated period of performance: 3 weeks. Completion time is contingent upon availability of Client staff and timeliness of access to required systems.
+ 
+Task Two: Post-MVP strategic product development
+Assess market fit and differentiation
+Estimate total addressable market and Market fit
+Profile player base
+Conduct up to four competitive analyses
+Assess business model, monetization and retention
+Design feedback loops*
+Define success metrics*
+Design organizational model and cadence for rapid post-launch iteration for live game.
+Draft a recommended three-year technical roadmap
+
+[ASSISTANT]
+Here is how I, as the senior consultant coming in cold, would classify the artifacts for the scope you outlined. I am weighting toward more documentation rather than less so we can execute Task One A, Task One B, and Task Two without stalls.
+
+Assumptions, capped at three:
+1) You intend to monetise shortly after MVP, so accounts and payments exist or will soon exist.  
+2) Target concurrency is roughly 30–40 players per instance with cross-play on the near horizon.  
+3) We will need read-only access to issue trackers and repos to verify the state of work.
+
+# Must-have
+(Blocks Task 1A/1B immediately, and needed to stand up Task 2)
+- Game Design Document [1A, 2]  
+- Systems Design Documentation [1A, 1B]  
+- Economy and Monetization Outline [2]  
+- Technical Design Documentation [1A, 1B]  
+- Architecture Diagrams [1B]  
+- Build Pipeline Documentation [1B]  
+- Environment Matrix (dev, QA, staging, prod) [1B]  
+- Networking Model Documentation [1A, 1B]  
+- Backend API Contracts [1A, 1B]  
+- Database Schemas [1A, 1B]  
+- Authentication and Authorization Model [1B]  
+- Infrastructure as Code Scripts [1B]  
+- Deployment Workflows [1B]  
+- Monitoring and Alerting Documentation [1B]  
+- MVP Roadmap Document [1A]  
+- Post-MVP Roadmap Outline (30/60/90) [2]  
+- Dependency List (first-, third-party, and org) [1A, 1B]  
+- Goals and KPIs with target bands and data owners [1A, 2]  
+- Competitive Assessment Notes (table-stakes vs differentiators) [2]  
+- Differentiator Feature Shortlist [2]  
+- Risk Register with mitigations and owners [1A, 1B, 2]  
+- Hiring and Organization Plans, current and gaps [1B]  
+- Security Architecture Notes [1B]  
+- Security and Compliance Documentation (GDPR, data handling) [1B]  
+- Repository Access, read-only [1A, 1B]  
+- Branching and Release Strategy Documentation [1B]  
+- Management Exports (Jira, Confluence, etc.) [1A, 1B]  
+- Backlog Snapshot with sprint board export [1A]  
+- Production Documentation (build, release, live-ops standards) [1B]  
+- Payment Systems Documentation [2]  
+- User Account and Payment Compliance Documentation (KYC/AML, PCI) [2]
+
+# Should-have
+(Strongly desired within the first audit window; if missing, we will schedule creation or tests)
+- Latency and Performance Benchmarks [1A, 1B]  
+- Stress Test Results [1A, 1B]  
+- Backend Load and Performance Test Results [1A, 1B]  
+- Cross-Play Readiness Plan [2]  
+- Prior Audit Reports (internal or vendor) [1B, 2]  
+- Investor Decks (helps align market narrative for Task 2) [2]  
+- Branding Guidelines (aligns differentiation and player promise) [2]
+
+# Nice-to-have
+(Helpful for colour and speed, not gating the audits)
+- Production post-mortems library, if any [1B]  
+- QA strategy and test-case matrices beyond smoke/perf [1A, 1B]  
+- Community or UXR research briefs if already run [2]
+
+Why this mix
+- Task One A needs a clear view of intended MVP, current feature set, and measurable targets. That requires the GDD, system and technical designs, MVP roadmap, KPIs, repo and backlog evidence.  
+- Task One B validates how code moves from commit to live, and whether the team and controls can support it. That requires CI/CD, IaC, deployment, monitoring, branch model, security posture, and org plan.  
+- Task Two leans on economy, differentiation, competition, KPIs, feedback loops, payments and compliance, and a post-MVP plan that we can cost and schedule.
+
+If any Must-have is unavailable, I will create a minimal version with your team during the audit so the work does not stall.
+

@@ -1,0 +1,189 @@
+TITLE: Game Studios Data Estimation
+DATE: 2025-03-02
+MESSAGES: 16
+ID: 67c4df92-d830-800b-853f-696644732765
+---
+
+[USER]
+the picture shows the number of games studios in that country or continent, they are incorrect, I need a deep search of the internet and a compiled count and percentage of studios to replace the percentages on the slide. I realize that there isnt a perfect source for this data so perform an educated estimate if necessary, I have to put numbers and percents on this slide so I need numbers one way or the other
+
+[ASSISTANT]
+To provide accurate numbers and percentages of game studios worldwide, I'll need to clarify a few things:
+
+- **Scope**: Are you looking for all game studios (indie and AAA) or only major companies?
+- **Granularity**: Do you want data per country or per continent like in your slide?
+- **Timeframe**: Should I focus on current active studios in 2025, or do you want historical trends?
+- **Additional Details**: Are there specific sources or industry reports you want me to prioritize (e.g., IGDA, Statista, industry whitepapers)?
+
+Let me know so I can refine the research accordingly!
+
+[USER]
+yes all
+yes as in the slide
+current studios please
+just get me the most valid answer
+
+[ASSISTANT]
+I'll conduct an in-depth search to determine the most accurate count and percentage distribution of game studios worldwide. This will include indie and AAA studios, organized by region as displayed on your slide. Since no single source contains a perfect dataset, I'll compile and estimate from multiple industry reports, databases, and sources like IGDA, Statista, and government industry reports.
+
+Once I gather the data, I'll provide you with updated numbers and percentages to replace those in your slide. I'll notify you when it's ready.
+
+[ASSISTANT]
+# Global Game Studios by Region (Estimated Counts & Shares)
+
+Based on the latest industry data and reputable sources, **the distribution of game development studios worldwide (indie and AAA combined) can be estimated as follows:** 
+
+- **North America:** **≈3,600 studios** (approximately **18%** of global) – *The U.S. alone hosts around 2,700 game development companies (2023)【11†L475-L483】, with Canada home to ~821 studios (2023)【13†L22-L30】. Adding Mexico (about 80 studios in 2019)【19†L39-L43】 brings the North American total to roughly 3.6k.*  
+
+- **South America:** **≈1,300 studios** (approximately **6–7%** of global) – *Brazil is the regional leader with **1,042** active game studios as of 2023【45†L1-L4】. Other countries like Argentina (~150 studios as of 2019)【19†L39-L43】, Chile, Colombia, and others contribute the rest. In total, the South American continent’s studio count is on the order of one to two thousand, roughly ~1.3k.*  
+
+- **Europe:** **≈7,000 studios** (approximately **34–35%** of global) – *Europe harbors one of the largest share of game studios. The European Union alone accounts for about **5,500** game developer studios【44†L23-L27】. When including the UK (which had **1,757** game studios in 2024【47†L134-L142】) and other non-EU European countries, the total comes to roughly seven thousand. Notably, countries like Sweden (900+ studios), Germany (~750), France, and the UK are major hubs【44†L9-L17】【47†L134-L142】.*  
+
+- **Asia:** **≈8,000 studios** (approximately **37–40%** of global) – *Asia is home to a vast number of game studios, spanning East Asia, South Asia, and the Middle East. **China** alone had tens of thousands of registered game companies at its peak (over 18,000 were active before a 2021 licensing freeze caused ~14,000 small studios to shut down)【37†L85-L93】. Many still remain, and China’s game industry continues to be enormous. **Japan** hosts several hundred game developers (at least 267 notable companies【28†L9-L12】, with many more indie micro-studios), and **South Korea** also has a large development scene (hundreds of studios). Including emerging hubs in Southeast Asia and the Middle East, Asia’s studio count is roughly estimated around 8k. This gives Asia the largest regional share of game studios worldwide, on the order of ~38%. *  
+
+- **Africa:** **≈100+ studios** (approximately **~1%** of global) – *Africa’s game development sector is nascent but growing. **South Africa** alone has about 60 active game studios (mostly micros)【33†L142-L149】. Other countries across the continent (Nigeria, Kenya, Egypt, Tunisia, etc.) have smaller numbers of studios, typically only a handful each. In total, the entire African continent likely has on the order of one hundred or slightly more active studios, accounting for well under 1% of the global total.*  
+
+- **Australia/Oceania:** **≈300 studios** (approximately **~2%** of global) – *Australia and Oceania also host a few hundred game studios. **Australia** had about 188 game development businesses in 2021–22【34†L12-L16】 (a number now likely around 200 with recent growth), and **New Zealand** recently surveyed **93** active studios (2023)【48†L84-L92】. Combined with a few in other Oceanic locales, the region’s total is roughly ~300 studios, roughly 1–2% of the worldwide share.*  
+
+**Summing up:** Globally, there are on the order of **20,000** game development studios. Europe and Asia each account for roughly one-third or more of these (together nearly three-quarters of all studios), North America contributes around one-fifth, while South America, Oceania, and Africa collectively make up the remaining ~10% or so. These figures are **estimates** based on the best available industry data (IGDA, Statista, trade associations, etc.) and should be used as a reasonable approximation for replacing the slide’s numbers with more accurate ones【45†L1-L4】【44†L23-L27】. Each region’s percentage share has been derived from these studio counts to reflect the most credible current distribution. 
+
+
+
+[USER]
+summarize in a list the countries and the percentage of game studios fo the global total
+
+[ASSISTANT]
+Here is the **estimated percentage of global game studios by country** based on the latest available data:
+
+### **Game Studios by Country (Global % Share)**
+- **United States** – **~13.5%** (~2,700 studios)
+- **Canada** – **~4%** (~821 studios)
+- **United Kingdom** – **~8.5%** (~1,757 studios)
+- **Germany** – **~3.8%** (~750 studios)
+- **Sweden** – **~4.5%** (~900+ studios)
+- **France** – **~4%** (~800 studios)
+- **China** – **~12-14%** (Exact count unknown, estimated **3,000+ active**)
+- **Japan** – **~1.5%** (~300 studios)
+- **South Korea** – **~2%** (~400 studios)
+- **Brazil** – **~5%** (~1,042 studios)
+- **Australia** – **~1%** (~200 studios)
+- **New Zealand** – **~0.5%** (~93 studios)
+- **South Africa** – **~0.3%** (~60 studios)
+- **Argentina** – **~0.8%** (~150 studios)
+- **India** – **~1%** (~200+ studios)
+- **Rest of Europe** – **~10%** (Including Spain, Italy, Netherlands, Poland, Finland, etc.)
+- **Rest of Asia** – **~6%** (Including Southeast Asia, Middle East)
+- **Rest of South America** – **~1%** (Chile, Colombia, Peru, etc.)
+- **Rest of Africa** – **~0.2%** (Nigeria, Kenya, Egypt, Tunisia, etc.)
+
+### **Regional Summary (Global % Share)**
+- **North America** – **~18%** (~3,600 studios)
+- **South America** – **~7%** (~1,300 studios)
+- **Europe** – **~35%** (~7,000 studios)
+- **Asia** – **~38%** (~8,000 studios)
+- **Africa** – **~1%** (~100+ studios)
+- **Australia/Oceania** – **~2%** (~300 studios)
+
+These percentages are based on the best available industry data and estimates. Let me know if you need this formatted for your slide.
+
+[USER]
+summarize mainland europe 
+
+[ASSISTANT]
+### **Mainland Europe Game Studios (Global % Share)**  
+(Excluding the UK)  
+
+- **Germany** – **~3.8%** (~750 studios)  
+- **France** – **~4%** (~800 studios)  
+- **Sweden** – **~4.5%** (~900+ studios)  
+- **Spain** – **~2.5%** (~500 studios)  
+- **Italy** – **~2%** (~400 studios)  
+- **Netherlands** – **~1.5%** (~300 studios)  
+- **Poland** – **~1.2%** (~250 studios)  
+- **Finland** – **~1.5%** (~300 studios)  
+- **Rest of Mainland Europe (Denmark, Belgium, Norway, Austria, etc.)** – **~6%** (~1,200+ studios)  
+
+### **Total Mainland Europe: ~27% of Global Studios (~5,500-5,800 studios)**  
+*(Part of the total ~35% for all of Europe, including the UK.)*
+
+[USER]
+now do the same for players and revenue in games
+
+[ASSISTANT]
+Would you like player counts and revenue data **by country** or **by region**, similar to the game studio breakdown? Also, should revenue be **total** or **split by platform** (PC, console, mobile)? Let me know so I can refine the research accordingly!
+
+[USER]
+do the same as the game studio breakdown
+
+[ASSISTANT]
+I'll research global video game player counts and revenue distribution, categorized by region similar to the game studio breakdown. This will include estimates for North America, South America, Europe, Africa, Asia, and Australia/Oceania, based on the latest available data from reputable industry sources such as Statista, Newzoo, and market reports.
+
+I'll provide a structured breakdown showing estimated percentages and total figures per region. I'll notify you once the findings are ready.
+
+[ASSISTANT]
+# Global Video Game Players and Revenue by Region (Latest Estimates)
+
+Below is a breakdown of the **global video game player base and annual gaming revenue** by region, using continental categories (North America, South America, Europe, Africa, Asia, and Australia/Oceania). Figures reflect the most recent available estimates from industry sources (e.g. Newzoo, Statista, DappRadar), along with each region’s share of the worldwide total for context. 
+
+**Global Totals:** Approximately **3.3 billion** video game players worldwide (2023–2024) and about **$184 billion** in annual game revenue (2023)【38†L79-L87】【17†L48-L56】. The table below shows the regional distribution:
+
+| **Region**         | **Players** (millions) [**%** of global players] | **Annual Revenue** (USD) [**%** of global revenue] |
+|--------------------|-----------------------------------------|---------------------------------------------------|
+| **Asia** (incl. Middle East)    | ~1,700 million【44†L31-L39】 (~50% of global)  | ~$85 billion (≈46% of global)【40†L237-L241】【44†L31-L39】 |
+| **Europe**        | ~715 million【19†L171-L179】 (~22% of global)   | ~$33.6 billion (≈18% of global)【38†L79-L87】        |
+| **North America** | ~285 million【19†L173-L180】 (~9% of global)    | ~$50.6 billion (≈28% of global)【38†L79-L87】        |
+| **South America** (Latin America) | ~335 million【42†L59-L67】 (~10% of global)   | ~$8.7 billion (≈5% of global)【42†L59-L67】         |
+| **Africa**        | ~320–350 million【21†L80-L88】 (~9–10% of global) | ~$1.6–1.8 billion (<1% of global)【21†L71-L79】【21†L80-L88】 |
+| **Australia/Oceania** | ~32 million【19†L175-L180】 (~1% of global)    | ~$4 billion (≈2% of global)**【51†L79-L87】**        |
+
+**Notes:** 
+- **Asia** – **Asia is by far the largest gaming region**. It is home to roughly *1.7 billion* gamers – **about half of the world’s players**【44†L31-L39】 – and generates roughly **45–46% of global gaming revenue**【40†L237-L241】. (The Asia figure here includes the Middle East for completeness, as the Middle East is part of Western Asia.) Asia-Pacific as a whole (Asia plus Oceania) accounted for about **$84 billion in 2023** – nearly **46%** of the world’s game revenues【40†L237-L241】. Major markets like China, Japan, and South Korea drive Asia’s dominance.  
+- **North America** – Around *285 million* gamers (~9% of global) reside in North America, and the region contributed about **$50.6 billion** in 2023 (~28% of global revenue)【38†L79-L87】. The United States is the single largest country market by revenue (around $47–55 billion)【24†L102-L111】. North America’s share of revenue is high relative to its player count, reflecting a higher average spend per player.  
+- **Europe** – Europe has roughly *715 million* gamers (~22% of global)【19†L171-L179】 and about **$33.6 billion** in annual revenue (~18% of global)【38†L79-L87】. This makes Europe the third-largest region in terms of revenue. Like North America, Europe “over-indexes” in revenue compared to its share of players (e.g. Europe and North America combined are ~31% of players but **over 45% of revenues** in 2023)【24†L108-L116】. Key European markets include Western Europe countries (such as Germany, the UK, France, etc.).  
+- **Latin/South America** – The Latin American (South America and Central America) region accounts for roughly *335 million* gamers (~10% of global)【42†L59-L67】 and approximately **$8.7 billion** in annual revenue (~5% of global)【42†L59-L67】. **Brazil** and **Mexico** are the largest contributors, with Brazil alone about $2.5 billion and Mexico $2.56 billion in 2023【42†L61-L68】. Latin America is a fast-growing market in terms of new players, though overall spending per player is lower than in North America or Europe.  
+- **Africa** – The African continent has an **estimated 300–350 million** gamers (around 9–10% of the global player base)【21†L80-L88】. However, Africa’s game **revenues are comparatively small**, roughly on the order of **$1.6–$1.8 billion** annually (well under 1% of global revenue)【21†L71-L79】. The **vast majority of African gamers play on mobile** devices, and mobile titles drive ~90% of the region’s gaming revenue【21†L77-L84】. Africa’s gaming market is growing quickly (10%+ YoY growth in players)【21†L81-L88】, but spending remains limited relative to other regions.  
+- **Australia/Oceania** – This region has about *32 million* gamers (~1% of global)【19†L175-L180】. Annual game revenue for **Australia/Oceania** is roughly **$4 billion** (around 2% of global). For instance, Australia’s video game industry alone was about **$3.7 billion USD in 2023**【51†L79-L87】, and when combined with New Zealand and other Oceania markets, the region is on the order of $4 billion. This is a small fraction of global totals, but with high engagement; Australia has a **gaming penetration** of 94% of households【51†L71-L79】.
+
+**Sources:** Key data compiled from **Newzoo’s Global Games Market report**, **Statista**, **DappRadar**, and regional market reports. Notably, Newzoo estimates Asia-Pacific generated 46% of global gaming revenue in 2023【40†L237-L241】, and Exploding Topics/DemandSage data (drawing on Statista and DFC Intelligence) provides the regional gamer counts【48†L249-L258】. Latin American figures are from a 2024 market analysis (Allcorrect/Newzoo)【42†L59-L67】, and African data comes from a Newzoo/Carry1st report【21†L77-L84】【21†L80-L88】. These represent the **most recent estimates** as of 2023–2024, and give a clear picture of how the global gaming population and revenues are distributed across regions. 
+
+
+
+[USER]
+give me a list according to the countries i selected in the image of the ppt slide
+
+[ASSISTANT]
+Here is the **estimated player count and revenue distribution** for the countries you highlighted in the image:  
+
+---
+
+### **Game Players and Revenue by Country (2023–2024 Estimates)**  
+
+| **Country**         | **Players (millions)** [**% of global players**] | **Revenue (USD)** [**% of global revenue**] |
+|---------------------|---------------------------------|----------------------------------|
+| **United States** 🇺🇸 | ~212M (≈6.4%) | ~$47–55B (≈26–30%) |
+| **Canada** 🇨🇦 | ~25M (≈0.75%) | ~$3.9B (≈2%) |
+| **United Kingdom** 🇬🇧 | ~45M (≈1.4%) | ~$6.6B (≈3.5%) |
+| **Germany** 🇩🇪 | ~49M (≈1.5%) | ~$6.0B (≈3.2%) |
+| **France** 🇫🇷 | ~38M (≈1.1%) | ~$5.0B (≈2.7%) |
+| **Sweden** 🇸🇪 | ~10M (≈0.3%) | ~$2.2B (≈1.2%) |
+| **China** 🇨🇳 | ~730M (≈22%) | ~$45–50B (≈24–27%) |
+| **Japan** 🇯🇵 | ~75M (≈2.3%) | ~$20B (≈10.8%) |
+| **South Korea** 🇰🇷 | ~38M (≈1.1%) | ~$7.6B (≈4.1%) |
+| **India** 🇮🇳 | ~420M (≈12.7%) | ~$3.0B (≈1.6%) |
+| **Brazil** 🇧🇷 | ~110M (≈3.3%) | ~$2.5B (≈1.3%) |
+| **Australia** 🇦🇺 | ~19M (≈0.6%) | ~$3.7B (≈2%) |
+| **South Africa** 🇿🇦 | ~24M (≈0.7%) | ~$0.5B (<1%) |
+
+---
+
+### **Key Takeaways:**  
+- **China and the U.S. are the two biggest gaming markets** by **revenue and player base**.  
+- **Japan and South Korea have fewer players than India but generate far more revenue** due to high spending per player.  
+- **India has a massive gamer population (~420M) but lower revenue (~$3B) due to low ARPU (Average Revenue Per User).**  
+- **Brazil is the largest gaming market in Latin America**, with 110M players and $2.5B in revenue.  
+- **The UK, Germany, and France are Europe’s top gaming markets** in terms of both players and revenue.  
+- **Australia has a small but high-spending gaming community** (~$3.7B revenue from 19M players).  
+- **South Africa represents Africa’s largest gaming market** but still accounts for <1% of global gaming revenue.  
+
+These estimates are based on the latest reports from **Newzoo, Statista, DappRadar, and regional gaming associations**. Let me know if you need adjustments for your slide!
+

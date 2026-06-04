@@ -66,6 +66,20 @@ dashboard-server/cc-scroll-test.html
 dashboard-server/public/cc-scroll-test.html
 dashboard-server/_check_users.js
 
+# Verification screenshots (temporary, not source material)
+*.png
+
+# Test output captures
+e2e-output.txt
+test-output.txt
+
+# AI tooling directories
+.codex/
+.planning/
+.playwright-mcp/
+.claude/hooks/
+.claude/settings.local.json
+
 # OS files
 .DS_Store
 Thumbs.db

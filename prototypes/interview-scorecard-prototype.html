@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interview Scorecard Prototype — WorkSage</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0f0f23; min-height: 100vh; }
+  .mockup { max-width: 1100px; margin: 0 auto; }
+  .mockup-header { background: #0d1b2a; color: #8888aa; padding: 10px 24px; font-size: 13px; border-bottom: 1px solid #2a2a4a; }
+  .subtitle { color: #6c6c8a; font-size: 14px; padding: 16px 24px 0; }
+  h2 { color: #fff; padding: 24px 24px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+</style>
+</head>
+<body>
+
+<h2>Focused Interview Mode</h2>
+<p class="subtitle">What the interviewer sees when conducting an interview</p>
+
+<div class="mockup">
+  <div class="mockup-header">Interview Session &mdash; Interviewer View</div>
+  <div class="mockup-body" style="background: #1a1a2e; color: #e0e0e0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; padding: 0;">
+
+    <!-- Top bar -->
+    <div style="background: #16213e; padding: 14px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2a2a4a;">
+      <div>
+        <span style="font-size: 18px; font-weight: 600; color: #fff;">Sarah Mitchell</span>
+        <span style="color: #8888aa; margin-left: 12px;">Senior Game Engineer</span>
+        <span style="color: #555; margin-left: 8px;">&bull;</span>
+        <span style="color: #6c6c8a; margin-left: 8px;">Couch Heroes</span>
+      </div>
+      <div style="display: flex; gap: 12px; align-items: center;">
+        <span style="background: #2d4a2d; color: #7dce7d; padding: 4px 12px; border-radius: 12px; font-size: 13px;">12 of 25 scored</span>
+        <button style="background: #333355; color: #aaa; border: 1px solid #444; padding: 6px 16px; border-radius: 6px; cursor: pointer; font-size: 13px;">Save &amp; Exit</button>
+      </div>
+    </div>
+
+    <!-- Category progress -->
+    <div style="padding: 12px 24px; background: #1e1e3a; display: flex; gap: 16px; border-bottom: 1px solid #2a2a4a;">
+      <div style="flex: 1;">
+        <div style="display: flex; justify-content: space-between; font-size: 11px; color: #8888aa; margin-bottom: 4px;"><span>Culture</span><span>3/5</span></div>
+        <div style="background: #2a2a4a; border-radius: 4px; height: 6px;"><div style="background: #4ecdc4; width: 60%; height: 100%; border-radius: 4px;"></div></div>
+      </div>
+      <div style="flex: 1;">
+        <div style="display: flex; justify-content: space-between; font-size: 11px; color: #8888aa; margin-bottom: 4px;"><span>Technical</span><span>2/5</span></div>
+        <div style="background: #2a2a4a; border-radius: 4px; height: 6px;"><div style="background: #4ecdc4; width: 40%; height: 100%; border-radius: 4px;"></div></div>
+      </div>
+      <div style="flex: 1;">
+        <div style="display: flex; justify-content: space-between; font-size: 11px; color: #8888aa; margin-bottom: 4px;"><span>Collaboration</span><span>4/5</span></div>
+        <div style="background: #2a2a4a; border-radius: 4px; height: 6px;"><div style="background: #4ecdc4; width: 80%; height: 100%; border-radius: 4px;"></div></div>
+      </div>
+      <div style="flex: 1;">
+        <div style="display: flex; justify-content: space-between; font-size: 11px; color: #8888aa; margin-bottom: 4px;"><span>Leadership</span><span>1/5</span></div>
+        <div style="background: #2a2a4a; border-radius: 4px; height: 6px;"><div style="background: #4ecdc4; width: 20%; height: 100%; border-radius: 4px;"></div></div>
+      </div>
+      <div style="flex: 1;">
+        <div style="display: flex; justify-content: space-between; font-size: 11px; color: #e8a87c; margin-bottom: 4px;"><span style="font-weight:600;">Code Depth</span><span>2/5</span></div>
+        <div style="background: #2a2a4a; border-radius: 4px; height: 6px;"><div style="background: #e8a87c; width: 40%; height: 100%; border-radius: 4px;"></div></div>
+      </div>
+    </div>
+
+    <!-- Main question area -->
+    <div style="padding: 32px 48px; max-width: 800px; margin: 0 auto;">
+
+      <!-- Category badge -->
+      <div style="margin-bottom: 12px;">
+        <span style="background: #2d3a5a; color: #7da8e8; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 500;">TECHNICAL</span>
+        <span style="color: #555; font-size: 13px; margin-left: 12px;">Question 8 of 25</span>
+      </div>
+
+      <!-- Question -->
+      <div style="font-size: 20px; font-weight: 500; color: #fff; line-height: 1.5; margin-bottom: 28px;">
+        Describe a time you had to refactor a large system while maintaining backward compatibility. What was your approach to ensuring nothing broke?
+      </div>
+
+      <!-- Score buttons -->
+      <div style="margin-bottom: 24px;">
+        <div style="font-size: 12px; color: #8888aa; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">Score</div>
+        <div style="display: flex; gap: 8px;">
+          <button style="width: 64px; height: 48px; border-radius: 8px; border: 2px solid #333355; background: #1e1e3a; color: #888; font-size: 16px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <span style="font-weight: 700;">1</span>
+            <span style="font-size: 9px; color: #666;">Poor</span>
+          </button>
+          <button style="width: 64px; height: 48px; border-radius: 8px; border: 2px solid #333355; background: #1e1e3a; color: #888; font-size: 16px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <span style="font-weight: 700;">2</span>
+            <span style="font-size: 9px; color: #666;">Below</span>
+          </button>
+          <button style="width: 64px; height: 48px; border-radius: 8px; border: 2px solid #333355; background: #1e1e3a; color: #888; font-size: 16px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <span style="font-weight: 700;">3</span>
+            <span style="font-size: 9px; color: #666;">Average</span>
+          </button>
+          <button style="width: 64px; height: 48px; border-radius: 8px; border: 2px solid #4ecdc4; background: #1a3a3a; color: #4ecdc4; font-size: 16px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <span style="font-weight: 700;">4</span>
+            <span style="font-size: 9px;">Good</span>
+          </button>
+          <button style="width: 64px; height: 48px; border-radius: 8px; border: 2px solid #333355; background: #1e1e3a; color: #888; font-size: 16px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <span style="font-weight: 700;">5</span>
+            <span style="font-size: 9px; color: #666;">Excellent</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div style="margin-bottom: 32px;">
+        <div style="font-size: 12px; color: #8888aa; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">Notes <span style="color: #555; text-transform: none; letter-spacing: 0;">(optional)</span></div>
+        <div style="background: #1e1e3a; border: 1px solid #333355; border-radius: 8px; padding: 14px; min-height: 80px; color: #999; font-size: 14px; line-height: 1.5;">
+          Good understanding of incremental migration. Mentioned feature flags and versioned APIs. Could have elaborated more on testing strategy during the transition...
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #2a2a4a; padding-top: 20px;">
+        <button style="background: #2a2a4a; color: #aaa; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 14px;">&larr; Previous</button>
+        <div style="display: flex; gap: 4px;">
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #4ecdc4;"></span>
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #4ecdc4;"></span>
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #4ecdc4;"></span>
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #4ecdc4;"></span>
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #4ecdc4;"></span>
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #4ecdc4;"></span>
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #4ecdc4;"></span>
+          <span style="width: 10px; height: 10px; border-radius: 50%; background: #fff; border: 2px solid #4ecdc4;"></span>
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #333;"></span>
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #333;"></span>
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #333;"></span>
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #333;"></span>
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #333;"></span>
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #333;"></span>
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #333;"></span>
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #333;"></span>
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #333;"></span>
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #333;"></span>
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #333;"></span>
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #333;"></span>
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #333;"></span>
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #333;"></span>
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #333;"></span>
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #333;"></span>
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #333;"></span>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button style="background: #2a2a4a; color: #aaa; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 14px;">Skip</button>
+          <button style="background: #4ecdc4; color: #1a1a2e; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600;">Next &rarr;</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div style="max-width: 1100px; margin: 24px auto; padding: 16px; background: rgba(78, 205, 196, 0.08); border-radius: 8px; border-left: 3px solid #4ecdc4; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
+  <h3 style="margin: 0 0 8px 0; color: #4ecdc4;">Key Design Points</h3>
+  <ul style="margin: 0; padding-left: 20px; line-height: 1.8; font-size: 14px; color: #ccc;">
+    <li>Distraction-free &mdash; no sidebar, no kanban, just the interview</li>
+    <li>Category progress bars show completion at a glance</li>
+    <li>Score buttons with labels (1=Poor through 5=Excellent)</li>
+    <li>Question dot navigation shows scored (teal) vs pending (grey)</li>
+    <li>Auto-saves on every interaction &mdash; no lost work</li>
+    <li>Responsive for tablet use in interview rooms</li>
+  </ul>
+</div>
+
+</body>
+</html>

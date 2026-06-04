@@ -1,0 +1,220 @@
+TITLE: Sarge Universe game description
+DATE: 2025-11-19
+MESSAGES: 4
+ID: 691d1ebb-30bc-8333-be73-f39e2b942d4b
+---
+
+[USER]
+describe SArge Universe game genre, gameplay, art style and unique mechanics and social systems including tournaments
+
+[ASSISTANT]
+Assumptions  
+- You are asking about the flagship game, **Sarge: Search & Destroy**, as it launches on **Telegram**.  
+- Current direction is **F2P mobile strategy with standard MTX**, not a crypto-first pitch, so any Web3 elements are treated as optional roadmap, not core.
+
+Brief plan  
+1. Define genre in a way you can lift straight into decks and docs.  
+2. Describe core gameplay loop and modes.  
+3. Outline art style and presentation.  
+4. Detail unique mechanics, with emphasis on **social systems and tournaments**.
+
+---
+
+## 1. Genre
+
+**Short line you can reuse**
+
+Sarge: Search & Destroy is a **hero driven, base building mobile strategy game** on Telegram, focused on **real time PvP raids, competitive tournaments, and creator led communities**.
+
+Expanded description
+
+- **Primary genre**  
+  Mobile F2P **strategy / base builder** with PvP and PvE, in the Clash of Clans family but heavier on tournaments and social systems.  
+- **Sub genre tags**  
+  - Competitive PvP  
+  - Hero led squad combat  
+  - Creator run eSports style tournaments  
+  - Social platform integration inside the game  
+- **Platform**  
+  Built as a **Telegram mini app**, so it behaves like a mobile game and a social bot at the same time: tap to open, no store download, tightly integrated with chats and channels.
+
+---
+
+## 2. Gameplay
+
+### 2.1 Core loop
+
+At a high level the loop is:
+
+**Build base → Raid and defend → Progress heroes and tech tree → Enter tournaments → Earn rewards and status → Unlock new content → Repeat**
+
+Concretely:
+
+- **Build and upgrade a sci fi military base**  
+  - HQ levels 1 to 10 at launch, unlocking all buildings and systems.  
+  - Hundreds of upgrades across defences, resource buildings, unit production and tech.  
+- **Assemble armies and heroes**  
+  - A small, recognisable cast of named heroes with fixed weapons and abilities at launch.  
+  - Multiple unit types that emphasise composition, timing and pathing, not just raw power.  
+- **Attack other players in asynchronous PvP**  
+  - You search for a suitable opponent and raid their base.  
+  - Success grants resources, medals and progression towards leagues.  
+  - Your own base is attacked while you are offline, creating a natural push to log in, repair, and improve layout.  
+- **Upgrade, unlock, specialise**  
+  - Player account levels through XP.  
+  - HQ upgrades unlock new buildings, heroes, maps, and tournament access.  
+  - Cosmetic skins and map themes reinforce identity and status rather than raw power.  
+- **Step into tournaments and social play**  
+  - Once the base is stabilised, the focus shifts to **bracketed competitions, creator events and content sharing**, which is where Sarge diverges from classic base builders.
+
+### 2.2 Game modes at launch
+
+You already have a clear launch slate. Framed simply:
+
+- **Campaign Missions**  
+  - Solo PvE progression.  
+  - Teaches basic mechanics, provides early resources, and frames the fiction.  
+
+- **Online PvP Raids**  
+  - Asynchronous base attacks that feel like PvE in execution but are scored as PvP.  
+  - Drives resource income, medals, leagues and a large part of battle pass XP.  
+
+- **Tournaments**  
+  - Bracket or ladder format.  
+  - Can be **studio hosted** or **player hosted**.  
+  - Entry can be free, progression gated, or paid in soft / hard currency.  
+  - Scales from small friend group events up to large seasonal flagships.  
+
+- **Challenges**  
+  - Time limited PvE scenarios with twists, for example unit restrictions or special win conditions.  
+  - Leaderboards with rotating rewards.  
+  - Strongly tied to replay sharing, since they create short, high skill runs.  
+
+- **Training Mode**  
+  - Zero risk sandpit using pre built bases or templates.  
+  - Lets players test new compositions and heroes before committing resources.
+
+This mix gives you a clean funnel: **Campaign and Training** for learning, **PvP Raids** for daily bread, **Challenges and Tournaments** for mastery and social proof.
+
+---
+
+## 3. Art style and presentation
+
+You can position the visual style as:
+
+- **Stylised military sci fi**  
+  - Clean, readable shapes rather than hyper realistic rendering.  
+  - Modern military hardware with sci fi twists, so it feels aspirational rather than gritty.  
+- **Isometric base view**  
+  - Classic top down or three quarter view for the base, with clear separation between biomes and structures.  
+  - Launch home map with grassland centre, forest on one flank, desert on another, city zone and sea edge, which makes the base feel like a compact war theatre rather than a flat field.  
+- **High contrast for Telegram form factor**  
+  - Strong silhouettes for heroes and units, readable at small sizes inside a chat window.  
+  - UI designed to be touch friendly, with large tap targets and minimal nested menus.  
+- **Tournament and social identity**  
+  - Stadium map with crowd, screens and stage lighting for marquee matches.  
+  - Distinct hero and Warlord skins that are recognisable in thumbnails and clips, supporting creator branding.
+
+You can summarise for decks as:  
+“Stylised, high clarity sci fi military art built for mobile and Telegram mini app constraints, with strong silhouettes and spectacle where it matters, especially in tournaments and shared clips.”
+
+---
+
+## 4. Unique mechanics, social systems and tournaments
+
+This is where Sarge diverges from almost all Telegram games and most mobile strategy titles.
+
+### 4.1 Player hosted tournaments
+
+Core idea  
+Any qualified player can behave like a tournament organiser, with tools inside the game instead of needing external platforms.
+
+Key properties:
+
+- **Bracket creation inside the client**  
+  - Player chooses format size, for example 4, 16, 64, 256 participants, up to large flagship brackets.  
+  - Sets rules, such as HQ minimum, hero limits, or special challenge conditions.  
+
+- **Flexible entry and rewards**  
+  - Entry can be free, progression gated, or paid in in game currency.  
+  - Prize pools built from a mix of studio seeded rewards and entry derived contributions.  
+  - Studio sponsored events can add real world prize pools on a fixed schedule, for example monthly or quarterly marquee tournaments.  
+
+- **Host economics**  
+  - Hosts can earn a share of entry fees or receive in game rewards tied to tournament size and completion.  
+  - This turns “running tournaments” into a legitimate in game role with progression, not just a vanity tool.  
+
+- **Spectator and content focus**  
+  - Dedicated **Stadium map** as the visual home of high stakes matches.  
+  - Match replays are automatically saved and easy to share into the social feed and Telegram channels.  
+  - Tools to highlight featured tournaments and creators on a rotating basis.
+
+Conceptually, you are digitising the eSports organiser role and giving it to players inside a base builder.
+
+### 4.2 Built in social media layer
+
+The social layer is not a bolt on chat, it behaves like a lightweight social network for Sarge players.
+
+Key elements:
+
+- **Player profiles**  
+  - Each player has a profile page with avatar, hero showcases, base snapshot, and bio.  
+  - Followers and “salutes” act as social proof and ranking signals.  
+
+- **Newsfeed and content sharing**  
+  - Players can post battle replays, short clips, written guides and tournament announcements.  
+  - Engagement, especially salutes and comments, surfaces posts to more players, similar to a simplified Instagram or TikTok feed.  
+
+- **Creator and community tools**  
+  - Private or VIP groups that can be monetised with in game currency or subscription style access.  
+  - Space for strategy coaching, scrim organisation, and exclusive tournaments run by a specific creator or clan.  
+
+- **Telegram integration**  
+  - One tap sharing of replays and tournament links into Telegram groups and channels.  
+  - Native notifications for tournament starting times, bracket updates, and creator posts, which solves a big retention problem for other mini games.
+
+The positioning line from your materials still holds:  
+“What social platforms did for influencers, Sarge aims to do for competitive mobile gamers.”
+
+### 4.3 Tournament and event cadence
+
+To make the system feel alive rather than occasional:
+
+- **Regular tournament ladder**  
+  - Weekly mid scale tournaments, monthly larger cups, quarterly and annual flagships.  
+  - Prize pools scale with importance, mixing in game rewards with occasional cash prizes for headline events.  
+
+- **Creator spotlight and UGC focus**  
+  - Weekly or fortnightly content contests for best replay, best commentary, or best educational piece.  
+  - Rewards aimed at raising creator visibility, such as featured feed placement, unique cosmetics, or reserved tournament slots.  
+
+- **Future UGC challenge mode**  
+  - Longer term, players can construct their own PvE challenge bases.  
+  - Other players attempt to beat them, feeding into leaderboards and reward ladders.  
+  - Moderated publishing pipeline so the quality bar stays high.
+
+This cadence ties together progression, content creation and monetisation in a way that standard base builders do not attempt.
+
+---
+
+Self audit
+
+- Genre covered clearly with reusable one liner and supporting detail.  
+- Gameplay description includes core loop and all five launch modes without contradicting your latest MTX direction.  
+- Art style kept accurate to current materials, framed in a way that suits Telegram constraints, without inventing hard specifics.  
+- Unique mechanics and social systems described with emphasis on **player hosted tournaments** and **built in social network**, which are your differentiators.  
+- No em dashes or horizontal rules used.  
+- No explicit reintroduction of blockchain, TON, or tokenomics into the core pitch.
+
+[USER]
+rewrite this in a sentence based paragraph 
+
+[ASSISTANT]
+Sarge: Search & Destroy is a hero driven, base building mobile strategy game on Telegram that blends classic asynchronous PvP raiding with competitive tournaments and a built in social layer. Players construct and upgrade a stylised sci fi military base, develop defences and production buildings, and unlock a small cast of distinctive heroes and unit types. The core loop revolves around building and improving the base, assembling armies, attacking other players’ layouts for resources and medals, then reinvesting those gains into stronger defences, better unit compositions and higher league placement. A solo campaign and training scenarios introduce mechanics and fiction, while daily PvP raids and rotating challenge missions provide the main sources of progression, rewards and mastery.
+
+The art style is clean and stylised rather than gritty or realistic, with clear silhouettes and high contrast visuals that read well on a mobile screen and within a Telegram mini app frame. Bases are presented from an isometric perspective that makes structures, terrain and attack paths easy to read at a glance, and the overall look mixes modern military hardware with light sci fi flourishes so it feels aspirational and playful instead of grim. Key showcase moments, such as high stakes tournament matches, take place in a dedicated stadium style environment with crowds and stage lighting so that replays and shared clips remain visually striking even as small thumbnails.
+
+What truly differentiates Sarge is its social and competitive infrastructure. Any qualified player can act as a tournament organiser using tools inside the game, creating brackets of different sizes, setting entry rules, and defining special conditions such as HQ thresholds or hero limits. Tournaments can be free, progression gated or linked to in game currencies, and prize pools combine studio seeded rewards with contributions from entrants. Hosts gain progression and recognition of their own, turning the act of running events into a supported role rather than a side activity. Replays from these events are automatically saved, are easy to share, and are designed for spectator appeal.
+
+Alongside tournaments, Sarge includes a native social feed that behaves like a lightweight social network focused on the game. Each player has a profile that showcases heroes, base snapshots and achievements, and others can follow or salute them to signal status. The feed aggregates shared replays, strategy posts, tournament announcements and creator content, with engagement lifting the most compelling material to wider visibility. Deep integration with Telegram allows players to share matches and event links directly into chats and channels, receive native notifications about brackets and results, and move fluidly between conversation and play. Taken together, the tournament framework and social layer aim to do for competitive mobile players what mainstream social platforms did for influencers, turning skill, organisation and content creation into visible, rewarded identities within the Sarge universe.
+

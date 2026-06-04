@@ -1,0 +1,35 @@
+TITLE: ARPU comparison request
+DATE: 2025-10-17
+MESSAGES: 2
+ID: 68f26f34-1b74-8333-aa6b-d382b952c242
+---
+
+[USER]
+wat is the arpu for last war mobile game and clash vo clans 
+
+[ASSISTANT]
+Quick check, are you Heather or Glen?
+
+## Assumptions
+- You mean ARPU as revenue per *monthly active user* for a given period.
+- Use the freshest reputable public estimates for revenue and MAU to compute ARPMAU.
+
+## Answer
+**Last War: Survival (mobile)**  
+- Best-current snapshot: **~$17.7 to $20.0 per MAU per month** in Jan 2025.  
+  Calculation: January 2025 revenue ≈ **$212M** divided by MAU between **~12.0M** and **~10.6M**. citeturn1search12turn5view0turn2view0
+
+**Clash of Clans**  
+- 2024 average: **≈ $0.31 per MAU per month**  
+  Equivalent yearly ARPU: **≈ $3.66 per MAU per year**.  
+  Cross-month range in 2024: **~$0.21 to $0.39 per MAU per month** based on monthly revenue and MAU. citeturn7view0  
+- 2024 annual revenue reference used in the check: **≈ $355M**. citeturn0search1
+
+## Notes
+- Neither Supercell nor FUNFLY publish title-level ARPU. Figures above are **estimates** derived from public revenue and MAU data. Last War’s MAU varies by source, so a range is given. citeturn1search12turn5view0turn2view0
+
+## Self-audit
+- Math: 212/12.0 ≈ 17.7, 212/10.603 ≈ 20.0; 2024 CoC monthly ARPMAU average ≈ 0.305, annual ≈ 3.66, with monthly min ≈ 0.21 and max ≈ 0.39, consistent with Udonis’ month-by-month revenue and MAU series. citeturn7view0
+
+If you want ARPU on a different basis, for example per paying user or ARPDAU, say the window and I will compute it.
+

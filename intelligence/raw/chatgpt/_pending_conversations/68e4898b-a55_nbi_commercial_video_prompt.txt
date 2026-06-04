@@ -1,0 +1,208 @@
+TITLE: NBI commercial video prompt
+DATE: 2025-10-07
+MESSAGES: 4
+ID: 68e4898b-a55c-832d-b9f4-76d21c00058d
+---
+
+[USER]
+write a commercial add for nbi services that will be a detail prompt for a video generator
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.
+
+# Master Task Blueprint
+
+**Task name and date**  
+NBI commercial video prompt for generator, 7 Oct 2025
+
+**Roles engaged and why**  
+Brand Expert. To craft a clear, high-impact ad concept and script aligned to NBI’s positioning for game studios.  
+Secondary: Market Analyst. To prioritise messages that convert studio leaders.
+
+**Objective and audience**  
+Produce a detailed prompt that any video generator can use to create a polished NBI services commercial for studio leaders, producers, and C-suite in the games industry.
+
+**Success criteria**  
+Single prompt generates a 45-second master ad plus auto-cutdowns, with a tight VO script, on-screen text, shot guidance, music and motion notes, brand tone, and CTA.
+
+**Constraints and inputs**  
+British English. No icons. No em dashes. Use NBI service pillars and proof points from internal docs.
+
+**Assumptions**  
+1) Primary cut is 45 seconds with 15-second and 6-second cutdowns. Confidence 0.9. Reason: common ad lengths for B2B performance.  
+2) Neutral British voiceover fits the buyer audience. Confidence 0.85. Reason: UK base, B2B tone.  
+3) Use “dark slate + white + electric blue accent” if no brand palette is supplied. Confidence 0.8. Reason: consistent with NBI’s consultancy tone and typical tech B2B styling.
+
+**Segments and dependencies**  
+Single deliverable. Cutdowns and aspect-ratio variants included inside the prompt.
+
+**Deliverables and formats**  
+One detailed generator prompt including VO script, scene plan, overlays, motion, audio, output specs.
+
+**Sources to use**  
+NBI service and positioning docs: fileciteturn0file1 fileciteturn0file8 fileciteturn0file7 fileciteturn0file2
+
+**Review plan across roles**  
+Brand Expert pass for clarity and tone. Market Analyst pass for promise-proof-action alignment.
+
+**Definition-of-Done**  
+Prompt is self-contained, production-ready, aligned to NBI tone, with cutdown and ratio directives, CTA, and safety notes.
+
+---
+
+# Commercial Video Generator Prompt
+
+**Project**  
+Create a premium B2B commercial for NBI Games Consulting.
+
+**Goal**  
+Position NBI as the partner that improves delivery velocity, strengthens game design and LiveOps, and builds data systems that drive player retention and revenue.
+
+**Primary output**  
+- Duration: 45 seconds  
+- Aspect ratio: 16:9  
+- Style: modern, confident, games-industry consulting  
+- Colour: use supplied brand colours and logo. If none provided, use dark slate backgrounds, white type, subtle electric blue accents.  
+- Typography: clean grotesk or neo-grotesk. High contrast, generous spacing.  
+- Voiceover: neutral British, calm authority, warm register.  
+- Captions: burned-in, sentence case, timed to VO.  
+- Music: driving electronic score that builds. Tempo rises across three acts. No lyrics.  
+- SFX: subtle UI beeps, data swells, soft wooshes on transitions.
+
+**Secondary outputs**  
+- 15-second cutdown and 6-second bumper auto-derived from the 45-second master.  
+- Ratios: 9:16 and 1:1 reframed with safe areas and resized type.  
+- Deliver: ProRes 422 HQ and H.264, plus .srt.
+
+**Do not show**  
+Client logos or confidential material. No stock “gamer rage” clichés.
+
+**Visual language**  
+Sleek studio spaces, collaborative stand-ups, whiteboard strategy, game builds on screens, telemetry dashboards, playtest moments, code commits, controller and keyboard inputs, console and PC shots. Tasteful UI overlays and animated data motifs.
+
+**Structure and timing**
+
+**Act 1. The Problem. 0:00–0:10**  
+- Shots: Quick cuts of missed milestones on a calendar, branching Jira board, scope creep scribbles, build failures resolving to empty charts.  
+- Motion GFX: Red highlights around blockers, then desaturate.  
+- On-screen text: “Missed milestones. Scope creep. Live cadence stalls.”  
+- VO: “Speed without clarity costs millions. Studios stall on process, design alignment, and live cadence.”
+
+**Act 2. The Solution. 0:10–0:30**  
+- Shots: Team alignment workshop. Designer reviewing core loop. Researcher moderating a playtest. Analyst builds a dashboard. Producer checks gate metrics.  
+- Motion GFX: Clean overlays label workstreams as they appear.  
+- On-screen text, staggered tiles:  
+  “Operational efficiency”  
+  “Game design audits”  
+  “Market and competitor insight”  
+  “LiveOps architecture”  
+  “Monetisation that players trust”  
+  “Data systems that scale”  
+  “Practical AI where it fits”  
+- VO: “NBI fixes the gaps. We align teams, tune core loops, and build the data spine that powers decisions. Operational efficiency. Design that retains. Market and competitor intelligence. LiveOps you can run. Monetisation your players accept. Data and telemetry that scale. AI used where it adds value.”
+
+**Act 3. Proof and Action. 0:30–0:45**  
+- Shots: Graphs turning upward, healthy DAU curve, stable release train, team high-five and back to work, gameplay moment that feels polished.  
+- Motion GFX: A simple system diagram animates from concept to launch to live.  
+- On-screen text: “Senior leaders. Two decades in games. AAA and indie.”  
+- VO: “Senior leaders with decades in games. Behavioural science plus hard analytics. Results you can ship. If you are building, launching, or running live, make the next cycle count.”  
+- End-card: NBI wordmark.  
+- On-screen text: “NBI Games Consulting” newline “Build smarter. Launch stronger. Grow longer.” newline “Book a discovery call” newline “nbi-consulting.com/contact-us”  
+- Audio: Music peaks, clean resolve.
+
+**Full voiceover script for 45s**  
+“In games, speed without clarity costs millions. Studios stall on process, design alignment, and live cadence.  
+NBI fixes the gaps. We align teams, tune core loops, and build the data spine that powers decisions.  
+Operational efficiency. Design that retains. Market and competitor intelligence. LiveOps you can run. Monetisation your players accept. Data and telemetry that scale. AI used where it adds value.  
+Senior leaders with decades in games. Behavioural science plus hard analytics. Results you can ship.  
+If you are building, launching, or running live, make the next cycle count.  
+NBI Games Consulting. Build smarter. Launch stronger. Grow longer.  
+Book a discovery call. nbi-consulting.com slash contact-us.”
+
+**On-screen text map**  
+- 0:02 “Missed milestones. Scope creep. Live cadence stalls.”  
+- 0:12 “Align teams”  
+- 0:16 “Tune core loops”  
+- 0:18 “Build the data spine”  
+- 0:20 Tile stack of services as listed in Act 2  
+- 0:34 “Behavioural science + analytics”  
+- 0:38 “Results you can ship”  
+- 0:41 “Build. Launch. Live.”  
+- 0:43 End-card copy as specified
+
+**B-roll guidance**  
+Prefer real teams and tools. Avoid generic neon gamer setups. Show whiteboards, dashboards, Git commits, playtest rooms, console dev kits, Steam builds, controller inputs, live calendar with release trains.
+
+**Transitions and motion**  
+Hard cuts for Act boundaries. Within acts, smooth 12-frame push or cross dissolve. Subtle parallax on UI overlays. Data lines animate from left to right with easing. No gimmicks.
+
+**Colour and grade**  
+Neutral contrast, cool bias. Skin tones protected. Blue accent only for emphasis. Avoid over-saturation.
+
+**Audio notes**  
+Music rises across acts, side-chained under VO. Light UI beeps on metric reveals. No aggressive SFX.
+
+**Safety and accessibility**  
+High-contrast captions. Min font height 42 px in 1080p. Motion below 200 pixels per second for body text.
+
+**Cutdown logic**  
+- 15s: Keep one problem shot, the service tile cascade, and the end-card. VO short version: “NBI aligns teams, tunes core loops, and builds the data spine that powers decisions. Build smarter. Launch stronger. Grow longer.”  
+- 6s: End-card only with rapid service tile cascade behind the mark. No VO, caption the tagline.
+
+**Export**  
+Master 4K 16:9 ProRes 422 HQ, 1080p H.264, 9:16 and 1:1 recomposed. Include clean end-card with 2-second hold.
+
+---
+
+# Sources pinned
+Positioning, services, and proof points drawn from NBI internal materials: fileciteturn0file1 fileciteturn0file8 fileciteturn0file7 fileciteturn0file2
+
+# DoD check
+Objective and audience addressed. Clear promise, proof, and action. Assumptions listed with confidence. Sources named. British English. No icons. No em dashes.
+
+[USER]
+sadly the ai tool i was trying was way to expensive, what other ai tool could build this?
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.
+
+# Roles
+Consultant as primary. Market Analyst for tool triage and value.
+
+# Quick answer
+Here are solid, lower-cost options that can build your NBI ad from the prompt you already have. I grouped them by use case and included current pricing highlights.
+
+## 1) Prompt-to-video generators
+- **Runway** Gen-3/Gen-4. Good cinematic motion with credit plans from $12 per user per month on Standard, with higher tiers if you need 4K or “unlimited” relaxed mode. citeturn0search0turn0search8  
+- **Pika**. Budget-friendly, credits per render. Free tier exists; paid tiers are cheap and cost per video is transparent by model. citeturn0search5turn0search1turn0search9  
+- **Luma Dream Machine**. Strong image quality, credit-based plans with Plus/Unlimited removing watermarks and allowing commercial use. Web plans from about $9.99 per month per their support page. citeturn0search6turn0search10  
+
+## 2) Template-first editors with AI
+- **VEED**. Text-to-video models inside an editor, then finish titles, captions, and brand kit. Pro tier pricing is typically in the ~$19–$24 per month range depending on plan. citeturn1search9turn1search17turn1search13  
+- **Canva Pro**. Fast for polished B2B spots using your script and brand kit. UK price commonly ~£10.99–£13 per month for individuals. citeturn1search4turn1search10  
+- **Descript**. Great for VO, timing, captions, and assembling scenes; paid plans start around $16 per month. citeturn1search2  
+
+## 3) Avatar-style explainers
+- **Synthesia**. If you want a presenter reading the script, Starter from about $18 per month with 10 video minutes. citeturn0search3  
+
+## Important rights note
+- **CapCut** is capable and inexpensive, but recent reporting on its Terms grants very broad rights over user content. I would avoid it for commercial work unless your legal review approves. citeturn1news41  
+
+# What I’d pick at three budget levels
+- **Free/lowest cost**: Pika for motion shots + Canva Pro for titles/end-card + Descript for VO and final timing. citeturn0search1turn1search10turn1search2  
+- **Mid-range**: Runway Standard for 3–5 generated B-roll clips + VEED to assemble, caption, and apply brand kit. citeturn0search0turn1search13  
+- **Avatar route**: Synthesia for a presenter + Canva/VEED for supporting cutaways and graphics. citeturn0search3turn1search9  
+
+# How to use your existing prompt fast
+**Runway path**  
+1) Paste the “Act 1–3” sections of the prompt into Runway text-to-video to generate 4–6 short clips per act.  
+2) Export the best 8–10 clips.  
+3) Assemble in VEED or Descript. Add the on-screen text map, captions, and the end-card. citeturn0search0turn1search9turn1search2  
+
+**Canva-first path**  
+1) Start with a dark-slate corporate video template.  
+2) Use your prompt’s on-screen text map as scene titles.  
+3) Drop in a few Pika or Luma clips behind text tiles, then render the 45-second master and auto-create 15- and 6-second cutdowns. citeturn1search10turn0search1turn0search6  
+
+If you want, tell me your target monthly budget and required resolution, and I will pick a single tool stack and map your exact render counts to stay under that spend.
+

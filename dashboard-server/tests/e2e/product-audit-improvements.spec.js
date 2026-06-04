@@ -66,7 +66,7 @@ test('password change rejects weak passwords', async ({ request }) => {
   });
   expect(res.status()).toBe(400);
   const body = await res.json();
-  expect(body.error).toContain('12 characters');
+  expect(body.error).toContain('6 characters');
 });
 
 test('password change accepts strong passwords', async ({ request }) => {

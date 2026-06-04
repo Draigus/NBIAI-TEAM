@@ -1,0 +1,34 @@
+TITLE: Migrating SharePoint page
+DATE: 2025-08-26
+MESSAGES: 2
+ID: 68adcf74-5534-8331-ba1f-2d6b70f6f571
+---
+
+[USER]
+can I migrate a sharepoint page
+
+[ASSISTANT]
+I need to clarify what you mean by "migrate a SharePoint page," because there are a few different scenarios:
+
+1. **Between sites in the same tenant (modern page)**  
+   - SharePoint doesn’t have a built-in “copy page to another site” button.  
+   - You can:  
+     • Open the page in **Edit mode**, copy all sections and web parts, then create a new page in the destination site and paste them.  
+     • Or use **Save as Template** (if enabled), then create a new page from that template on the target site.  
+     • For multiple pages, admins usually use **PnP PowerShell** or **ShareGate**/**AvePoint** to copy content between sites.
+
+2. **Between tenants (e.g., Company A to Company B)**  
+   - There is no direct migration. You’d need a migration tool (ShareGate, Metalogix, AvePoint, etc.) or rebuild manually.  
+   - Microsoft’s native SharePoint Migration Tool does not handle modern site pages well—it’s mainly for files and libraries.
+
+3. **From Classic to Modern**  
+   - There is no 1-click migration. Content often needs to be manually rebuilt in a modern page using modern web parts.
+
+**Checklist before migrating a page:**  
+- Identify what web parts are on the page (some don’t copy well).  
+- Check whether custom scripts/custom web parts are used (these may need re-deployment).  
+- Decide if you’re moving a single page (manual copy may be fine) or an entire site collection (use a tool).  
+- Verify permissions (page ownership and target site access).  
+
+Would you like me to outline **step-by-step instructions for copying a single modern SharePoint page** between two sites in the same tenant, or are you trying to do a **larger migration (site/tenant)**?
+

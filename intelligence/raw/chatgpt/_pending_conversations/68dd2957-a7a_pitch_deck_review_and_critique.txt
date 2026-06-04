@@ -1,0 +1,90 @@
+TITLE: Pitch deck review and critique
+DATE: 2025-10-01
+MESSAGES: 2
+ID: 68dd2957-a7ac-832b-b686-77e123ec5d0c
+---
+
+[USER]
+As an expert investor in the games industry I need a top, award winning presentation outline with details of a pitch deck that lays out and will be highly likely to land the investors investing 5 million dollars. 
+
+As a presentation designer I need you to review the outline and layout a clean, exiciting and clear narrative and walkthrough that will land investment in this pitch deck
+
+As a expert team of game developers (CEO,CPO,CDO,CFO,CMO) you will critic the outline and narrative and make sure that there are real hooks and depth and that it represents Sarge Universe and highlights the value of the telegram first value and impact of one click to play and low CPI as well as the access to so many users without having to pay IOS to be on thier store. 
+
+lastly as an expert in landing investors review and critic the outline for build out in gamma.ai
+
+ASK AS MANY QUESTIONS AS YOU NEED TOO!!
+
+[ASSISTANT]
+Glen, switching to Clarify-Only as requested. Here is a single, outcome-changing question bundle. Once you answer, I will lock the deck outline, narrative flow, and Gamma.ai build spec in one pass.
+
+# A. Round, target, and outcomes
+1) What round label and target terms do you want on slide one: Seed or Pre-Seed, $5m primary, target pre-money, instrument (SAFE or equity), discount or cap, and runway months funded?
+2) Who is the primary investor persona for this deck: crypto-native gaming funds, traditional games VCs, strategic publishers, TON ecosystem funds, or angels and family offices? Rank the top three by priority.
+3) What is the single sentence outcome you want from the meeting: lead term sheet, soft circle, or partner diligence request?
+
+# B. Traction and proof
+4) Current live status: closed beta, open beta, or soft launch on Telegram. What is the date range and cohort sizes?
+5) Core metrics you can evidence today: WAU and MAU, D1, D7, D30, 30-day retention curve shape, session count per DAU, average session length, K-factor or invite accept rate, waitlist size with verified TG IDs, and bot-message open and click rates.
+6) Monetisation proof points available now: ARPDAU, payer rate, ARPPU, top three SKU attach rates, Battle Pass conversion, and first-purchase payback distribution.
+7) UA proof points: actual CPI on Telegram mini app flows by country, conversion from link tap to first battle, and first-day CAC payback. Any controlled paid tests you trust?
+
+# C. Product scope and readiness
+8) What is in the day-one build we are prepared to demo: content breadth, modes, maps, tournaments, creator tools, and store catalogue. Anything you want to hide for now?
+9) Are replays, creator feeds, and player-hosted tournaments working end-to-end in the current build, including moderation?
+10) Performance ceilings we can claim: average backend response times at P50 and P95, peak concurrent users sustained, error rates, queueing behaviour during bursts.
+
+# D. Telegram-first advantage
+11) Which of these claims do you want headlined with data: one-click or one-tap instant play, lower CPI than iOS and Android, faster viral loops through groups and channels, and push reach via bots. For each, what hard numbers can we cite?
+12) Payments: do you want to foreground TON and Stars, or keep Web3 low in the investor story and lead with “instant, global, low-friction payments inside Telegram”. Any compliance opinions you want visible?
+
+# E. Monetisation model
+13) Confirm pricing spine: currency bundles, cosmetics, shields, passes, and tournament fees. Do we include projected take rates for player-hosted tournaments and any platform rev-share assumptions?
+14) Battle Pass: monthly price points in GBP and USD, value stack, and target penetration for Season 1 that you are happy to defend in Q&A.
+15) Ads at launch: none, rewarded only, or hybrid. If rewarded, what placements and supplier short-list?
+
+# F. Go-to-market and growth system
+16) Launch geography and language set for first 90 days. Do we position UK and EU first, or SE Asia and CEE first where Telegram density is highest?
+17) Channel mix you want to show on the “growth engine” slide: Telegram referrals and bots, creator seeding, agency-run paid UA, TON ecosystem boosts, PR, and tournaments as acquisition moments. Anything to de-emphasise?
+18) Agency partners you want logo-locked in the deck. Any constraints with permissions?
+19) Community targets you will commit to on a timeline: total members across TG and Discord, weekly creator events, and tournament cadence with prize pools.
+
+# G. Compliance, policy, and risk
+20) Cash-prize tournaments: what is your legal position on skill-based competitions, KYC and payouts, age-gating, and geography blocks. Can we include a simple “risk controlled” diagram?
+21) Apple and Google risk messaging: do you want a frank “Telegram first avoids store fees for TG spend” line, or a softer “platform-agnostic with TG as beachhead”. Your call on tone.
+22) Data protection: GDPR posture, analytics stack inside TG, and consent flows. Can we include a single controls slide?
+
+# H. Team and hiring plan
+23) Final named leadership you want on the Team slide and any gaps you want to disclose as “open hires” with dates. Do you want advisors shown?
+24) 18-month hiring plan by function with monthly run-rate. What is the headcount cap you are comfortable publishing?
+
+# I. Financial model and use of funds
+25) Use of proceeds split you want to show: content and live ops, engineering, UA, creator fund, infra, legal and compliance, buffer. Target percentages that match the $5m ask.
+26) North-star model highlights you will defend: DAU ladder over 12 months, payer rate path, blended CPI path, payback, LTV to CAC, and sensitivity ranges. Do you prefer a “conservative-base-upside” trio or a single operator case?
+27) Milestone plan tied to funding tranches. What three hard milestones must be hit by months 6, 12, and 18?
+
+# J. Competitive framing
+28) Pick the comparables you want on the quadrant: Notcoin, Hamster Kombat, PixelTap, Clash of Clans, Rush Royale, Brawl Stars. Any direct TG strategy peers we must address head-on?
+29) What single unfair advantage do you want to own in the headline: creator-led tournaments, instant distribution, or economy depth?
+
+# K. Narrative choices and red lines
+30) Investor story tone: “category-defining Telegram strategy game with creator economy” or “mobile strategy with TG beachhead that scales off-platform later”. Choose one.
+31) Web3 prominence: front and centre or supporting layer. Any words to avoid entirely?
+32) Visual tone for the deck: dark military sci-fi, clean investor minimal, or hybrid. House style constraints I must respect beyond no em dashes and no icons?
+33) Slide budget and runtime: do you want a 14–16 slide raise deck plus a 30–40 slide appendix, or a single 18–22 slide master?
+
+# L. Assets I will need
+34) Latest gameplay capture at 16:9, 1080p, 30–60 seconds. Do you have raw files or should I script capture scenes?
+35) Updated KPIs export, store catalogue summary, and any audited metrics you want watermarked.
+36) Partner logo permissions, WARP SAFE letter screenshot, and any press you want to cite.
+
+# M. Gamma.ai build
+37) Are you sending the deck or presenting live in Gamma? If live, how long do you want the narrative path and how many branch slides for different investor types?
+38) Preferred template family in Gamma, brand hex codes and typefaces, and whether you want motion on the opener or keep it static for printability.
+39) Export plan: PDF for send-ahead, Gamma link for live, and a short two-page teaser. Which do you want first?
+
+# N. Approvals and constraints
+40) Any claims you want me to avoid until data is locked. Any confidentiality constraints that force us to hide maps, systems, or partners.
+
+DECISION STOP.
+

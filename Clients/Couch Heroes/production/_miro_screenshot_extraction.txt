@@ -1,0 +1,513 @@
+COUCH HEROES - MIRO SCREENSHOT EXTRACTION (TASK-LEVEL DETAIL)
+================================================================
+Source: Glen's screenshots of org_chart hierarchies, 2026-05-13
+Hierarchy: FEATURE (green) > STORY (blue) > TASK (purple+hours) > SUB-TASK (white)
+
+NOTE: All stories below were already captured by name in the previous
+extraction (_miro_stories_complete.txt / find_miro_gaps.py). What is
+NEW here is the task-level breakdown with specific hour ranges and
+sub-task pipelines per story. This detail was not available from the
+Miro API summaries.
+
+
+================================================================================
+FEATURE: Coloured Faction NPCs
+================================================================================
+
+STORY: Faction: Icons [CONFIRMED - name known, detail NEW]
+  TASK: CONCEPT ART .............. 16h - 19h
+    SUB-TASKS:
+      - Reference research
+      - Shapes/Sketches
+      - Colour Palette
+      - Extra explanatory callouts
+      - Game-ready asset production
+  TASK: UI ....................... 3h - 6h
+    (no sub-tasks listed)
+
+  STORY TOTAL: 19h - 25h
+
+--------
+
+STORY: Faction: Insignias [CONFIRMED - name known, detail NEW]
+  TASK: CONCEPT ART .............. 8h - 16h
+    SUB-TASKS:
+      - Reference research
+      - Shapes/Sketches
+      - Turntable
+      - Colour Palette
+      - Extra explanatory callouts
+      - Game-ready asset production
+  TASK: CHAR MODELING ............ (hours not shown)
+    SUB-TASKS:
+      - Block Out
+      - Hi Poly Modeling
+      - Retopo
+      - UV unwrapping
+      - Bakes
+      - Texturing
+  TASK: UI ....................... (hours not shown)
+    (no sub-tasks listed)
+  TASK: TECH ART ................. (hours not shown)
+    SUB-TASKS:
+      - Asset Validation
+      - Implementation
+
+  STORY TOTAL: 8h+ (only concept art hours visible)
+
+--------
+
+STORY: Faction: Banners [CONFIRMED - name known, detail NEW]
+  TASK: CONCEPT ART .............. (hours not shown)
+    SUB-TASKS:
+      - Reference research
+      - Silhouettes
+      - Shapes/Sketches
+      - Colour Palette
+      - Extra explanatory callouts
+      - Game-ready asset production
+      - Final Pass
+  TASK: CHAR MODELING ............ (hours not shown)
+    SUB-TASKS:
+      - Block Out
+      - Hi Poly Modeling
+      - Retopo
+      - UV unwrapping
+      - Bakes
+      - Texturing
+  TASK: TECH ART ................. (hours not shown)
+    SUB-TASKS:
+      - Asset Validation
+      - Implementation
+
+  STORY TOTAL: not estimable (no hours shown)
+
+--------
+
+STORY: Faction: Clothing Variations [CONFIRMED - name known, detail NEW]
+  TASK: CONCEPT ART .............. 12h - 48h
+    SUB-TASKS:
+      - Reference research
+      - Silhouettes
+      - Turntable
+      - Colour Palette
+      - Extra explanatory callouts
+      - Final Pass
+  TASK: CHAR MODELING ............ 12h - 24h
+    SUB-TASKS:
+      - Block Out
+      - Hi Poly Modeling
+      - Retopo
+      - UV unwrapping
+      - Bakes
+      - Texturing
+  TASK: TECH ART ................. 16h - 24h
+    SUB-TASKS:
+      - Asset Validation
+      - Implementation
+
+  STORY TOTAL: 40h - 96h
+
+
+================================================================================
+FEATURE: Garment System
+================================================================================
+
+STORY: Garment System Options [CONFIRMED - name known, detail NEW]
+  TASK: CONCEPT ART .............. 20h - 28h
+    SUB-TASKS:
+      - Reference research
+      - Shapes/Sketches
+      - Colour Palette
+      - Extra explanatory callouts
+      - Game-ready asset production
+  TASK: UI ....................... 40h - 60h
+    (no sub-tasks listed)
+
+  STORY TOTAL: 60h - 88h
+
+--------
+
+STORY: Garment Sets [CONFIRMED - name known, detail NEW]
+  TASK: CONCEPT ART .............. 12h - 64h
+    SUB-TASKS:
+      - Reference research
+      - Silhouettes
+      - Turntable
+      - Colour Palette
+      - Extra explanatory callouts
+      - Final Pass
+  TASK: CHAR MODELING ............ 12h - 80h
+    SUB-TASKS:
+      - Block Out
+      - Hi Poly Modeling
+      - Retopo
+      - UV unwrapping
+      - Bakes
+      - Texturing
+  TASK: TECH ART ................. (hours not shown)
+    SUB-TASKS:
+      - Asset Validation
+      - Implementation
+
+  STORY TOTAL: 24h - 144h (excluding Tech Art)
+
+--------
+
+STORY: Armour Sets [CONFIRMED - name known, detail NEW]
+  TASK: CONCEPT ART .............. 12h - 64h
+    SUB-TASKS:
+      - Reference research
+      - Silhouettes
+      - Turntable
+      - Colour Palette
+      - Extra explanatory callouts
+      - Final Pass
+  TASK: CHAR MODELING ............ 12h - 48h
+    SUB-TASKS:
+      - Block Out
+      - Hi Poly Modeling
+      - Retopo
+      - UV unwrapping
+      - Bakes
+      - Texturing
+  TASK: TECH ART ................. (hours not shown)
+    SUB-TASKS:
+      - Asset Validation
+      - Implementation
+
+  STORY TOTAL: 24h - 112h (excluding Tech Art)
+
+--------
+
+STORY: Weapon Sets [CONFIRMED - name known, detail NEW]
+  TASK: CONCEPT ART .............. 12h - 48h
+    SUB-TASKS:
+      - Reference research
+      - Silhouettes
+      - Turntable
+      - Colour Palette
+      - Extra explanatory callouts
+      - Final Pass
+  TASK: CHAR MODELING ............ 12h - 60h
+    SUB-TASKS:
+      - Block Out
+      - Hi Poly Modeling
+      - Retopo
+      - UV unwrapping
+      - Bakes
+      - Texturing
+  TASK: TECH ART ................. 16h - 24h
+    SUB-TASKS:
+      - Asset Validation
+      - Implementation
+
+  STORY TOTAL: 40h - 132h
+
+--------
+
+STORY: Skins [CONFIRMED - name known, detail NEW]
+  TASK: CONCEPT ART .............. 24h - 40h
+    SUB-TASKS:
+      - Reference research
+      - Silhouettes
+      - Turntable
+      - Colour Palette
+      - Extra explanatory callouts
+      - Final Pass
+  TASK: CHAR MODELING ............ 32h - 60h
+    SUB-TASKS:
+      - Block Out
+      - Hi Poly Modeling
+      - Retopo
+      - UV unwrapping
+      - Bakes
+      - Texturing
+  TASK: TECH ART ................. 16h - 24h
+    SUB-TASKS:
+      - Asset Validation
+      - Implementation
+
+  STORY TOTAL: 72h - 124h
+
+--------
+
+STORY: Partner Skins [CONFIRMED - name known, detail NEW]
+  TASK: CONCEPT ART .............. 24h - 64h
+    SUB-TASKS:
+      - Reference research
+      - Shapes/Sketches
+      - Colour Palette
+      - Extra explanatory callouts
+      - Final Pass
+  TASK: CHAR MODELING ............ 8h - 60h
+    SUB-TASKS:
+      - Block Out
+      - Hi Poly Modeling
+      - Retopo
+      - UV unwrapping
+      - Bakes
+      - Texturing
+  TASK: TECH ART ................. 16h - 24h
+    SUB-TASKS:
+      - Asset Validation
+      - Implementation
+
+  STORY TOTAL: 48h - 148h
+
+
+================================================================================
+FEATURE: Forge System
+================================================================================
+
+STORY: Weapon Parts [CONFIRMED - name known, detail NEW]
+  TASK: CONCEPT ART .............. 6h - 8h
+    SUB-TASKS:
+      - Reference research
+      - Silhouettes
+      - Turntable
+      - Colour Palette
+      - Extra explanatory callouts
+      - Final Pass
+  TASK: CHAR MODELING ............ 14h - 32h
+    SUB-TASKS:
+      - Block Out
+      - Hi Poly Modeling
+      - Retopo
+      - UV unwrapping
+      - Bakes
+      - Texturing
+  TASK: VFX ...................... 24h - 32h
+    (no sub-tasks listed)
+  TASK: UI ....................... 40h - 80h
+    (no sub-tasks listed)
+  TASK: TECH ART ................. 16h - 24h
+    SUB-TASKS:
+      - Asset Validation
+      - Implementation
+
+  STORY TOTAL: 100h - 176h
+
+
+================================================================================
+FEATURE: Character Creation & Customisation
+================================================================================
+
+STORY: Char Creation System [CONFIRMED - name known, detail NEW]
+  TASK: CONCEPT ART .............. 52h - 64h
+    SUB-TASKS:
+      - Reference research
+      - Shapes/Sketches
+      - Extra explanatory callouts
+      - Final Pass
+  TASK: UI ....................... (hours not shown)
+    (no sub-tasks listed)
+
+  STORY TOTAL: 52h+ (only concept art hours visible)
+
+--------
+
+STORY: Ethnicity Variations [CONFIRMED - name known, detail NEW]
+  (Note: listed as "Ethnicity Variants" in find_miro_gaps.py)
+  TASK: CONCEPT ART .............. 16h - 56h
+    SUB-TASKS:
+      - Reference research
+      - Shapes/Sketches
+      - Colour Palette
+      - Extra explanatory callouts
+      - Game-ready asset production
+  TASK: CHAR MODELING ............ 8h - 60h
+    SUB-TASKS:
+      - Block Out
+      - Hi Poly Modeling
+      - Retopo
+      - UV unwrapping
+      - Bakes
+      - Texturing
+  TASK: TECH ART ................. 16h - 24h
+    SUB-TASKS:
+      - Asset Validation
+      - Implementation
+
+  STORY TOTAL: 40h - 140h
+
+--------
+
+STORY: Base Body [CONFIRMED - MVP DONE]
+  (No task breakdown - marked as complete)
+
+--------
+
+STORY: Base Faces [CONFIRMED - MVP DONE]
+  (No task breakdown - marked as complete)
+
+--------
+
+STORY: Fantasy Races [CONFIRMED - name known as "Race Variants", detail NEW]
+  TASK: CONCEPT ART .............. 24h - 48h
+    SUB-TASKS:
+      - Reference research
+      - Silhouettes
+      - Turntable
+      - Colour Palette
+      - Extra explanatory callouts
+      - Final Pass
+  TASK: CHAR MODELING ............ 10h - 96h
+    SUB-TASKS:
+      - Block Out
+      - Hi Poly Modeling
+      - Retopo
+      - UV unwrapping
+      - Bakes
+      - Texturing
+  TASK: TECH ART ................. 16h - 24h
+    SUB-TASKS:
+      - Asset Validation
+      - Implementation
+  TASK: CONCEPT .................. 52h - 64h
+    SUB-TASKS:
+      - Reference research
+      - Shapes/Sketches
+      - Extra explanatory callouts
+      - Final Pass
+
+  STORY TOTAL: 102h - 232h
+
+  NOTE: This story has TWO concept tasks (CONCEPT ART and CONCEPT).
+  The first appears to be visual design, the second may be a separate
+  design/spec pass. Both were visible in the screenshot.
+
+
+================================================================================
+FEATURE: Professions
+================================================================================
+
+STORY: Fishing [CONFIRMED - name known, detail NEW]
+  TASK: Fishing Rod, Char Modeling  24h - 40h
+    SUB-TASKS:
+      - Reference research
+      - Shapes/Sketches
+      - Extra explanatory callouts
+      - Final Pass
+  TASK: Fish, Char Modeling ......  2h - 4h
+    SUB-TASKS:
+      - Block Out
+      - Hi Poly Modeling
+      - Retopo
+      - UV unwrapping
+      - Bakes
+      - Texturing
+  TASK: ANIMATION ................ 40h - 80h
+    (no sub-tasks listed)
+  TASK: UI ....................... 3h - 9h
+    (no sub-tasks listed)
+
+  STORY TOTAL: 69h - 133h
+
+--------
+
+STORY: Gathering [CONFIRMED - name known, detail NEW]
+  TASK: CONCEPT .................. 24h - 43h
+    SUB-TASKS:
+      - Reference research
+      - Shapes/Sketches
+      - Extra explanatory callouts
+  TASK: ANIMATION ................ 40h - 80h
+    (no sub-tasks listed)
+  TASK: UI ....................... 3h - 9h
+    (no sub-tasks listed)
+
+  STORY TOTAL: 67h - 132h
+
+
+================================================================================
+STORIES NOT COVERED IN THESE SCREENSHOTS
+================================================================================
+
+The following stories from the known list were NOT shown in the 5 screenshots.
+They remain name-only with no task-level detail:
+
+  - Crafting (under Professions)
+  - Trophies (under Achievements & Trophies)
+  - Green Faction NPC Variants (under Enemies Art)
+  - Red Faction NPC Variants (under Enemies Art)
+  - Yellow Faction NPC Variants (under Enemies Art)
+  - Blue Faction NPC Variants (under Enemies Art)
+
+
+================================================================================
+SUMMARY: HOUR RANGES BY STORY (from screenshots only)
+================================================================================
+
+Feature                          | Story                    | Low     | High
+---------------------------------|--------------------------|---------|--------
+Coloured Faction NPCs            | Faction: Icons           |    19h  |    25h
+Coloured Faction NPCs            | Faction: Insignias       |     8h+ |     ?
+Coloured Faction NPCs            | Faction: Banners         |      ?  |     ?
+Coloured Faction NPCs            | Faction: Clothing Vars   |    40h  |    96h
+Garment System                   | Garment System Options   |    60h  |    88h
+Garment System                   | Garment Sets             |    24h  |   144h
+Garment System                   | Armour Sets              |    24h  |   112h
+Garment System                   | Weapon Sets              |    40h  |   132h
+Garment System                   | Skins                    |    72h  |   124h
+Garment System                   | Partner Skins            |    48h  |   148h
+Forge System                     | Weapon Parts             |   100h  |   176h
+Char Creation & Customisation    | Char Creation System     |    52h+ |     ?
+Char Creation & Customisation    | Ethnicity Variations     |    40h  |   140h
+Char Creation & Customisation    | Fantasy Races            |   102h  |   232h
+Professions                      | Fishing                  |    69h  |   133h
+Professions                      | Gathering                |    67h  |   132h
+---------------------------------|--------------------------|---------|--------
+TOTALS (estimable stories only)  |                          |   765h  | 1,682h
+
+Notes on totals:
+  - Faction: Insignias, Faction: Banners, and Char Creation System have
+    incomplete hour data (some tasks had no hours shown). They are excluded
+    from the total.
+  - Base Body and Base Faces are MVP DONE and carry zero remaining hours.
+  - Tech Art tasks without hours are excluded; actual totals will be higher.
+  - These are ART hours only. Engineering, Design, and QA hours are separate.
+
+
+================================================================================
+SUB-TASK PIPELINE PATTERNS (observed across all stories)
+================================================================================
+
+CONCEPT ART PIPELINE (two variants observed):
+
+  Variant A - Full visual design:
+    Reference research > Silhouettes > Turntable > Colour Palette >
+    Extra explanatory callouts > Final Pass
+
+  Variant B - Icon/insignia/simpler assets:
+    Reference research > Shapes/Sketches > Colour Palette >
+    Extra explanatory callouts > Game-ready asset production
+
+CHARACTER MODELING PIPELINE (consistent across all stories):
+    Block Out > Hi Poly Modeling > Retopo > UV unwrapping > Bakes > Texturing
+
+TECH ART PIPELINE (consistent across all stories):
+    Asset Validation > Implementation
+
+
+================================================================================
+CROSS-REFERENCE: WHAT WAS KNOWN vs WHAT IS NEW
+================================================================================
+
+PREVIOUSLY KNOWN (from _miro_stories_complete.txt):
+  - All 20 story names were already captured
+  - Feature groupings were already captured
+  - Task DISCIPLINE names were known (Concept Art, Char Modeling, etc.)
+  - Global hour RANGES per discipline were known (e.g. "Concept Art: 8h-64h")
+  - Sub-task pipeline steps were known in aggregate
+
+NEW FROM THESE SCREENSHOTS:
+  - Specific hour ranges PER TASK PER STORY (e.g. Weapon Sets Concept Art = 12h-48h)
+  - Which sub-task variant applies to which story
+  - Which tasks have NO hours shown (flagged as incomplete on the board)
+  - That Fantasy Races has TWO separate concept tasks (CONCEPT ART + CONCEPT)
+  - That Fishing has two separate modeling tasks (Rod + Fish) with different hours
+  - Exact task composition per story (which disciplines each story requires)
+  - Story-level hour totals derived from summing task hours
+
+END OF EXTRACTION

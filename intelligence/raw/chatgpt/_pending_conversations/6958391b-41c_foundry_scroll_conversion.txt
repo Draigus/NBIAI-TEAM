@@ -1,0 +1,49 @@
+TITLE: Foundry Scroll Conversion
+DATE: 2026-01-02
+MESSAGES: 2
+ID: 6958391b-41cc-832c-8d07-97cdec56ed0d
+---
+
+[USER]
+in foundry how to i make the spell scroll 7th level into a scroll of teleportation in the charachter sheet
+
+[ASSISTANT]
+Who’s this, Glen or Heather?
+
+## Compatibility snapshot (checked online)
+- Foundry core (current stable): 13.351 (Nov 12, 2025). citeturn1view1  
+- DnD5e system (current): 5.2.4, requires Foundry 13.351+. citeturn1view0  
+
+## Assumptions
+- You’re on Foundry v13 and the DnD5e system.
+- By “scroll of teleportation” you mean a spell scroll that casts **Teleport** (a 7th level spell).
+
+## Plan
+Fastest reliable method is: create a Teleport scroll from the spell, then delete (or ignore) the generic “Spell Scroll (7th Level)”.
+
+## Do this on the character sheet (recommended)
+1) Open the character sheet.  
+2) Go to **Inventory**.  
+3) Find the **Teleport** spell (Compendium Browser or Spells directory).  
+4) Drag **Teleport** onto the character’s **Inventory** tab.  
+5) In the popup, choose **Create Scroll** and set the level to **7** (or leave default if it is already 7). citeturn5view0  
+6) You now have a scroll for Teleport in inventory. Delete the old “Spell Scroll (7th Level)” if you do not need it.
+
+This is an official DnD5e workflow: right click “Create Scroll”, or drag a spell onto an Actor’s Inventory to create a scroll. citeturn5view0  
+
+## If you insist on converting the existing generic scroll
+This only works if your “Spell Scroll (7th Level)” item sheet has a field that lets you pick the embedded spell.
+1) Right click the scroll in inventory, **Duplicate** it (safety copy).
+2) Open the scroll item.
+3) Look for a “Spell” selector or similar, set it to **Teleport**, then rename it to something like “Spell Scroll (Teleport)”.
+If there is no spell selector, that generic item cannot be “bound” cleanly. Use the recommended method above.
+
+## Acceptance tests
+- The scroll appears under **Inventory** as a scroll/consumable.
+- Clicking “Use” (or equivalent) triggers Teleport and consumes the scroll (usually 1 use, destroy on empty).
+
+## Clarification bundle (outcome changing)
+1) What Foundry core and DnD5e system versions are you on?  
+2) Can you actually see the **Teleport** spell in your compendiums, or is it missing?  
+3) Which character sheet are you using (default DnD5e, Tidy5e, something else)?
+

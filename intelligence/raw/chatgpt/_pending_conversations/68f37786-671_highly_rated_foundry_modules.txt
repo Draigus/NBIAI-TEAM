@@ -1,0 +1,112 @@
+TITLE: Highly rated Foundry modules
+DATE: 2025-10-18
+MESSAGES: 4
+ID: 68f37786-6710-8326-bac1-47eb0b369e27
+---
+
+[USER]
+for foundry vtt dnd what are teh most highly rated 50 modules
+
+[ASSISTANT]
+Here’s a practical, D&D-5e-oriented list of 50 Foundry VTT modules that are consistently highly rated or widely recommended by the community as of 18 Oct 2025. Ratings shift over time, but these show up again and again across Foundry Hub, the official package directory, and recent roundups. I included short notes so you can scan fast, then you can check the cited pages for details.
+
+1) DDB-Importer: A D&D Beyond Integrator — import characters, items, spells, adventures from D&D Beyond. citeturn2view0  
+2) Adventure Muncher for DDB-Importer — bulk-ingest DDB adventures into scenes and journals. citeturn2view0  
+3) Midi-QoL — robust 5e combat automation and roll workflow. citeturn1search13  
+4) DFreds Convenient Effects — one-click conditions and common effects, integrates with Midi and Time’s Up. citeturn3search7turn4search14  
+5) Time’s Up — auto-expire effects on turn, round, or seconds. citeturn4search0turn4search16  
+6) Token Action HUD Core — configurable action HUD so you roll from the HUD instead of opening sheets. citeturn3search12  
+7) Token Action HUD DnD5e — 5e system integration for the HUD. citeturn3search2  
+8) Monk’s TokenBar — quick party bar with AC, PP, click-to-center, turn handoffs. citeturn1search7  
+9) Monk’s Combat Details — turn alerts, start position markers, CR calc and quality-of-life in combat. citeturn1search13  
+10) Monk’s Active Tile Triggers — tile-based triggers for automation and puzzle logic. citeturn1search6  
+11) Item Piles — lootable containers, merchants, trading, drop items to the canvas. citeturn4search3  
+12) Loot Sheet NPC 5e — turn any actor into a vendor with prices and buy/sell UI. citeturn1search11  
+13) Quick Insert — fuzzy search to insert actors, items, journals, and compendium content fast. citeturn1search11  
+14) Search Anywhere — global search palette across sheets, packs, and UI. citeturn1search11  
+15) Compendium Folders — proper folder organization for massive compendiums. citeturn1search11  
+16) Drag Ruler — shows movement path and speed costs as you drag tokens. citeturn0search20  
+17) Dice So Nice — 3D dice, per-user styles, widely adopted and still maintained. citeturn3search11  
+18) Dice Tray — quick common rolls from chat without opening sheets. citeturn1search20  
+19) Image Hover — enlarge and preview images on hover in chat and journals. citeturn1search21  
+20) SmallTime — light, visible clock and day/night control. Often paired with Simple Calendar. citeturn4search11  
+21) Simple Calendar — flexible in-game calendar and timekeeping with presets and custom calendars. citeturn4search18  
+22) Perfect Vision — advanced lighting and vision controls. Popular, watch version compatibility. citeturn4search4turn4search12turn4search15  
+23) Levels — multi-level mapping, vertical play, stairs, and elevation handling. citeturn1search11  
+24) Wall Height — per-wall heights to support verticality and line-of-sight. citeturn1search11  
+25) Token Magic FX — animated spell and token effects with macro library. citeturn4search5  
+26) Active Token Lighting — toggle and manage token lights and templates. Often used with CE and Midi. citeturn3search5  
+27) JB2A Animated Assets (Free) — high quality spell and weapon animations. citeturn4search6  
+28) Automated Animations — plays correct JB2A animations for attacks and spells automatically. citeturn1search22  
+29) Sequencer — timeline system to orchestrate animated effects and sounds. citeturn1search22  
+30) Warpgate — spawn, mutate, and manage tokens by macro with clean APIs. citeturn1search11  
+31) Token Attacher — attach lights, sounds, or tiles to tokens so they move together. citeturn1search11  
+32) Token Mold — auto-naming, randomised images, scaling, and quick token tweaks. citeturn1search11  
+33) Chat Portrait — show actor portraits beside chat messages for clarity. citeturn1search11  
+34) Health Estimate — show relative enemy health instead of exact HP. citeturn1search11  
+35) Combat Carousel — horizontal, visual initiative tracker alternative. citeturn1search11  
+36) Combat Utility Belt — conditions and combat tools. Often replaced by CE, but still used. citeturn4search14  
+37) PopOut! — pop out sheets and journals into separate OS windows for multi-monitor setups. citeturn1search11  
+38) Universal Battlemap Importer — import maps with walls and lights from external tools. citeturn1search11  
+39) VTTA Tokenizer — fast portrait to token pipeline with rim and mask options. citeturn1search11  
+40) Better Rolltables — weighted, nested, and loot-friendly rolltables with extras. citeturn1search11  
+41) GM Screen — configurable panel of macros, journals, and tables for the GM. citeturn1search11  
+42) Scene Packer — package and share adventures with scenes, journals, and dependencies tracked. citeturn1search11  
+43) DFreds Pocket Change — auto-add treasure to actors based on DMG tables. citeturn4search8  
+44) Preload Tracker — shows loading progress and preloads heavy scenes. citeturn2view0  
+45) Pings — simple, clear table pings and attention tools. citeturn1search11  
+46) Monks Enhanced Journal — journal upgrades, shops via journals, and lootable containers. citeturn1search6  
+47) Compendium Browser (5e) — fast in-system browser for classes, items, spells. Now built into 5e, still a must for speed. citeturn1search16  
+48) Search Preset Compendiums — quick search across your curated compendium sets. citeturn1search11  
+49) About Face or Token Flip utilities — face tokens toward movement or target to keep the map readable. citeturn1search11  
+50) DFreds UI Extender — library that many UI-improving modules build upon. citeturn4search2
+
+Notes and cautions  
+• “Highest rated” depends on the source. I referenced the official package pages, Foundry Hub module pages, The Forge Bazaar pages, and recent community roundups. Examples: Dice So Nice, Token Action HUD, DFreds CE, Monk’s modules, and common automation picks show up repeatedly in 2024–2025 lists and videos. citeturn3search11turn3search9turn3search7turn1search9turn1search3  
+• Version compatibility matters. Perfect Vision and some legacy automation stacks changed across v10 to v13. Always check the module’s “Compatible Core” and last update date on its package page before enabling in a new Foundry version. citeturn4search4turn4search15  
+• The official D&D5e system keeps adding features. Where the system absorbed functionality, you might skip overlapping modules and keep your stack light. citeturn1search16
+
+If you want, tell me your Foundry version and whether you prefer theatre-of-the-mind, grid combat, or high-animation play. I can trim this to a lean, conflict-free “Top 20” you can enable today with minimal settings.
+
+[USER]
+does active token effect work in 13.350 dnd 5.1.9
+
+[ASSISTANT]
+Glen here. Short version: I *don’t know* that the module you asked about (“entity["software", "Active Token Effects", 0]” or maybe “Active Token Lighting / Effects”) is guaranteed to work correctly with **Foundry VTT version 13.350** and “entity["software", "D&D 5e – by Roll20 (5E)", 0] system version 5.1.9”. But I can summarise what the compatibility information shows and what you’ll need to check.  
+ 
+---
+
+### What I found  
+- The module page for Active Token Effects (ATE) indicates “Foundry Versions 0.7.9+ (Verified 12)”. citeturn0search0 That suggests it is verified up to Foundry 12.  
+- An issue discussion indicates that for “Active Token Effects” people reported “Not updated to v13” though may still work partially. citeturn0search2  
+- The module’s GitHub for “Active Token Lighting” / “Active Token Effects” states that it works with the new active effect transferral mode introduced in Foundry v11. citeturn0search3  
+- I did *not* find a clear statement that the module is verified for Foundry v13.350.  
+
+---
+
+### Key assumptions  
+- You are using Foundry VTT **13.350** (which is a v13 version).  
+- The D&D 5e system version is **5.1.9**.  
+- You want this module to work fully (lighting/vision changes, token size, active effects etc) without major issues.  
+
+---
+
+### My conclusion  
+Given the information:  
+- The module *may* work in v13 (since it supports v11+), but it’s **not guaranteed** or labelled as “Verified for v13.350”.  
+- There could be compatibility issues, bugs, or limited functionality when used with system 5.1.9 and Foundry v13.  
+- If you’ll rely on it in an active campaign, I’d treat it as “use at your own risk” unless you test thoroughly and verify all features you need.  
+
+---
+
+### My recommendation & next steps  
+1. **Check the module’s manifest/version**: In Foundry’s module manager, check the version of ATE you have installed. See what “Compatible Foundry Versions” it claims.  
+2. **Test in a sandbox**: Create a new test world with Foundry v13.350 + D&D 5e 5.1.9, install ATE, and test the specific features you plan to use (e.g., token size change, vision/light change, equip/unequip effects).  
+3. **Check for open issues**: Browse the module’s GitHub issues or community forum for “v13” or “5.1.9” references. If many users report bugs in v13, that’s a caution.  
+4. **Have a fallback plan**: If ATE doesn’t fully work, look for alternatives (or older versions of Foundry if you can downgrade) that are explicitly marked as v13-compatible.  
+5. **Backup your world** before using in production, so you can revert if something breaks.  
+
+---
+
+If you like, I can check *exactly* whether the latest release of ATE supports **Foundry v13.350** and **D&D 5e system 5.1.9** (including a review of any open compatibility issues). Do you want me to dig into the latest version and known issues?
+

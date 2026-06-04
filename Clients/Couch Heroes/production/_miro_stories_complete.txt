@@ -1,0 +1,883 @@
+COUCH HEROES - COMPLETE MIRO BOARD STORY EXTRACTION
+=====================================================
+Board: https://miro.com/app/board/uXjVHX6wqnQ=/
+Extracted: 2026-05-13
+Source: 10 org_chart widgets + 36 text items
+
+NOTES ON EXTRACTION METHOD:
+- Miro's context_get returns AI-summarised content, not raw card data
+- Where the summary says "40+ stories" but names fewer, that gap is flagged
+- "NOT FOR VS" = Not for Vertical Slice
+- "NO ART" = No art requirements (programming/design only)
+- "STORIES TEMP" = Placeholder story cards awaiting specification
+- Hour estimates shown where provided in summaries
+
+================================================================================
+=== EPIC 1: PLAYER BUILD (Widget: 3458764671354966026) ===
+=== 298 total cards | 11 features | 40+ stories | 100+ tasks | 200+ sub-tasks ===
+================================================================================
+
+FEATURES:
+  [FOR VS] Character Creation & Customisation
+  [FOR VS] Garment System
+  [FOR VS] Forge System
+  [FOR VS] Professions
+  [FOR VS] Achievements & Trophies
+  [FOR VS] Player Progression
+  [FOR VS] Coloured Faction NPCs
+  [NOT FOR VS] Factions/Reputations
+  [NOT FOR VS] Character Management
+  [NOT FOR VS] Persona System
+  [NOT FOR VS] Emote System
+
+STORIES:
+  [Character Creation & Customisation] Base Body [MVP DONE]
+  [Character Creation & Customisation] Base Faces [MVP DONE]
+  [Character Creation & Customisation] Ethnicity variants (multiple)
+  [Character Creation & Customisation] Race variants (multiple)
+  [Garment System] Armour sets (multiple per faction)
+  [Garment System] Weapon sets (multiple per faction)
+  [Faction NPCs] Green Faction NPC variants
+  [Faction NPCs] Red Faction NPC variants
+  [Faction NPCs] Yellow Faction NPC variants
+  [Faction NPCs] Blue Faction NPC variants
+  [Professions] Fishing
+  [Professions] Gathering
+  [Professions] Crafting
+  [Player Progression] (stories not individually named in summary)
+  [Achievements & Trophies] (stories not individually named in summary)
+  [Forge System] (stories not individually named in summary)
+
+  ** GAP: Summary states "40+ stories" but only ~15-20 are named explicitly.
+  ** The remaining stories likely include individual armour/weapon/customisation
+  ** variants per faction. Each faction appears to have multiple story-level items.
+
+TASK DISCIPLINES (with hour ranges):
+  Concept Art: 8h - 64h per task
+  Character Modeling: 5h - 96h per task
+  Environment Modeling: 24h - 65h per task
+  Tech Art: 8h - 24h per task
+  UI: 2h - 120h per task
+  VFX: 24h - 40h per task
+  Animation: 40h - 80h per task
+
+SUB-TASK PIPELINE (repeated per story):
+  Reference Research > Silhouettes > Colour Palette > Turntable > Final Pass >
+  Block Out > Hi-Poly Modeling > Retopo > UV Unwrapping > Bakes > Texturing >
+  Tech Art > Implementation > Asset Validation
+
+
+================================================================================
+=== EPIC 2: WORLD SYSTEMS - ENV (Widget: 3458764671375403999) ===
+=== 476 total cards | 15 features | 60+ stories | 300+ tasks | 50+ sub-tasks ===
+================================================================================
+
+FEATURES:
+  [FOR VS] Fluid Ninja Tech R&D
+  [FOR VS] FTUE Cave zone
+  [FOR VS] Downtime zone
+  [FOR VS] Portal Dimension zone
+  [FOR VS] Arena zone
+  [FOR VS] User Space Island zone
+  [FOR VS] Guild zone
+  [FOR VS] Navigation
+  [FOR VS] Corruption (Foam variant)
+  [FOR VS] Corruption (Time variant)
+  [FOR VS] Corruption (Vines variant)
+  [FOR VS] Environment Kits - Architecture
+  [FOR VS] Environment Kits - Props
+  [FOR VS] Environment Kits - Furniture
+  [NOT FOR VS] Partner Portal
+
+STORIES (60+ named):
+  --- Zone Stories ---
+  [FTUE Cave] FTUE Cave POI development
+  [Downtime] Downtime zone POI and dressing
+  [Portal Dimension] Portal Dimension POI and dressing
+  [Arena] Arena POI development
+  [Guild] Guild zone POI and dressing
+  [User Space Island] User Space Island development
+
+  --- Environmental Tech Stories ---
+  [Fluid Ninja] Lighting system
+  [Fluid Ninja] Weather system
+  [Fluid Ninja] Atmospherics
+  [Fluid Ninja] Water system
+  [Fluid Ninja] VFX Tech
+  [Fluid Ninja] Fog system
+
+  --- POI Stories ---
+  [Various Zones] Tower Exterior (Epic POI - 568-640h)
+  [Various Zones] The Big Battle Hill (Epic POI - 568-640h)
+  [Various Zones] Cave Interior (Med POI - 224-300h)
+  [Various Zones] Waterfall Beauty Spot (Small POI - 80-120h)
+  [Various Zones] Bridge (Small POI - 80-120h)
+  [Various Zones] Drifters Cross (Small POI - 320h)
+
+  --- Biome Stories ---
+  [Biomes] Mediterranean biome
+  [Biomes] Lush biome
+  [Biomes] Cave Biome (350-400h)
+  [Biomes] New Zone Biome (350-400h)
+  [Biomes] Downtime Biome (350-400h)
+
+  --- Architecture Kit Stories ---
+  [Architecture] Mythcore kit
+  [Architecture] Mythcore Ruins kit
+  [Architecture] Graveyard kit
+  [Architecture] Fantasy kit
+  [Architecture] Guild Hall kit
+  [Architecture] Arena kit
+
+  --- Prop Kit Stories ---
+  [Props] Gritcore props
+  [Props] Fantasy Exterior props
+
+  --- Furniture Kit Stories ---
+  [Furniture] Fantasy furniture
+  [Furniture] Graveyard furniture
+  [Furniture] Gritcore furniture
+  [Furniture] Mythcore furniture
+  [Furniture] Bug Dungeon furniture
+
+  --- Map/Navigation Stories ---
+  [Navigation] Maps
+  [Navigation] Navigation elements
+
+  --- Corruption Stories ---
+  [Corruption] Foam variant
+  [Corruption] Time variant
+  [Corruption] Vines variant
+
+  ** GAP: Summary states "60+ stories" - approximately 40 named above.
+  ** Remaining likely include individual POI sub-zones and additional kit variants.
+
+STANDARD POI WORKFLOW (per POI):
+  Concept > Terrain Footprint > Biome Dressing > Collision Pass > Lighting >
+  Rocking > NPC Lighting > Proxy Pass > World Building > Set Dressing
+
+
+================================================================================
+=== EPIC 3: WORLD SYSTEMS - THE REST (Widget: 3458764671375404752) ===
+=== 17 features | Extensive story breakdown ===
+================================================================================
+
+FEATURES:
+  [FOR VS] Player Basic Locomotion System (20h-533h)
+  [FOR VS] Player Advanced Traversal
+  [FOR VS] Human NPCs
+  [FOR VS] Critters NPCs
+  [FOR VS] Hero NPCs
+  [FOR VS] Cinematics
+  [FOR VS] Player Character/System
+  [FOR VS] Instancing
+  [FOR VS] Dungeon Mechanics
+  [FOR VS] Last Tower Valley
+  [FOR VS] Day/Night Cycle
+  [FOR VS] Dynamic Weather
+  [FOR VS] Environmental Elemental FX
+  [FOR VS] World Bosses
+  [FOR VS] Corruption Heatmap
+  [FOR VS] Scale of World/Buildings
+  [FOR VS] Camera Behavior
+
+STORIES:
+  --- NPC Stories by Faction ---
+  [Human NPCs] Green Faction NPCs
+  [Human NPCs] Red Faction NPCs
+  [Human NPCs] Yellow Faction NPCs
+  [Human NPCs] Blue Faction NPCs
+
+  --- Named Character Stories ---
+  [Hero NPCs] Xyron (Upgrade)
+  [Hero NPCs] Barbersmith (Upgrade)
+  [Hero NPCs] Maeve Mayor (Upgrade)
+  [Hero NPCs] Unnamed Hero Green Faction NPC
+
+  --- Critter Stories ---
+  [Critters NPCs] Pigs
+  [Critters NPCs] Hares
+  [Critters NPCs] Sheep
+  [Critters NPCs] Cows
+  [Critters NPCs] Chickens
+  [Critters NPCs] Horses
+
+  --- Player Mechanics Stories ---
+  [Player Basic Locomotion] Locomotion system
+  [Player Advanced Traversal] Gliding
+  [Player Advanced Traversal] Grappling
+  [Player Character/System] Generic NPC
+  [Player Character/System] Player Environment Interaction
+
+  --- Cinematic Stories ---
+  [Cinematics] FMV/Pre-Rendered cinematics
+  [Cinematics] Static Pictures Intro + Voiceover
+  [Cinematics] 2.5D Cinematics
+  [Cinematics] IGC (In Game Cinematics)
+
+  --- Other System Stories ---
+  [Day/Night Cycle] (stories not individually named)
+  [Dynamic Weather] (stories not individually named)
+  [Environmental Elemental FX] (stories not individually named)
+  [World Bosses] (stories not individually named)
+  [Corruption Heatmap] (stories not individually named)
+  [Scale of World/Buildings] (stories not individually named)
+  [Camera Behavior] (stories not individually named)
+  [Instancing] (stories not individually named)
+  [Dungeon Mechanics] (stories not individually named)
+  [Last Tower Valley] (stories not individually named)
+
+TASK DISCIPLINES (with hour ranges):
+  Concept Art: 16h - 120h
+  Character Modeling: 16h - 56h
+  Rigging: 16h - 48h
+  Animation: 10h - 100h
+  VFX: 40h - 80h
+  Tech Art: 8h - 16h
+  Editing: 6h - 20h
+  Lighting: (not estimated)
+  Storyboarding: (not estimated)
+  Compositing: (not estimated)
+  Colour Grading: (not estimated)
+  Cinematic Design: (not estimated)
+
+NOTED FLAGS:
+  [NOT FOR VS] (none explicitly flagged at feature level)
+  [NOT IN BUDGET, OR OUTSOURCE] - some items flagged with this label
+  [NO ART] - some items flagged
+
+
+================================================================================
+=== EPIC 4: COMBAT (Widget: 3458764671355718074) ===
+=== 211 total cards | 5 features | 10 stories | 32 tasks | 98 sub-tasks | 74 items ===
+================================================================================
+
+FEATURES:
+  [FOR VS] Combat Framework
+  [FOR VS] Enemies
+  [FOR VS] AI Combat Behavior
+  [NO ART] PVP Combat
+  [NO ART] Combat Balance & Telemetry
+  [NOT FOR VS] Ranged Combat
+
+STORIES:
+  [Enemies] Carapax
+  [Enemies] Wolves
+  [Enemies] Skeletons
+  [Enemies] Slimes
+  [Enemies] Goblins
+  [Combat Framework] Magic System
+  [Combat Framework] Player Combat Abilities
+  [Combat Framework] Combat Hit & Damage Processing
+  [NOT FOR VS] Combat Status Effects
+  [AI Combat Behavior] (stories not individually named beyond enemy types)
+
+TASK PIPELINE PER ENEMY:
+  Concept Art > Character Modeling > Rigging > Animation > VFX > UI
+
+  Concept Art sub-tasks: Reference Research, Silhouettes, Colour Palette, Turntable
+  Character Modeling sub-tasks: Block Out, Hi-Poly, Retopo, UV Unwrapping, Baking, Texturing
+  Rigging: (single task)
+  Animation categories per enemy:
+    Locomotion: Walk, Run, Idle, Jump, Turn (left/right), Dash
+    Combat: Attack 01, Attack 02, Attack 03, Attack 04, Dodge, Block
+    Death: Death animation
+    Hit React & Stagger: Hurt reactions, Stagger
+  VFX: Per enemy
+  UI: Per enemy
+
+TASK HOUR RANGES:
+  Simple tasks: 4h - 8h
+  Complex animation work: 200h - 350h
+
+NOTED FLAGS:
+  [NOT FOR VS] Ranged Combat
+  [NOT FOR VS] Combat Status Effects
+  [NO ART] PVP Combat
+  [NO ART] Combat Balance & Telemetry
+
+
+================================================================================
+=== EPIC 5: USER SPACE (Widget: 3458764671355843518) ===
+=== 9 features | 5 stories | 22 tasks | 4 sub-tasks ===
+================================================================================
+
+FEATURES:
+  [FOR VS] User Space Interior (with art)
+  [FOR VS] Modular Houses (house kits for players)
+  [FOR VS] Island
+  [FOR VS] Anywhere Door
+  [NO ART] User Space Server & Instance
+  [NO ART] P2P/P2G User Space Connection
+  [NO ART] Saving House Layouts
+  [NOT FOR VS] Partner Portal System
+  [NOT FOR VS] Arcade Cabinet
+
+STORIES:
+  [User Space Interior] Indoor Camera
+  [User Space Interior] Interior
+  [User Space Interior] Exterior
+  [Island] Zone - User Space Island
+  [General] Stories Temp (placeholder)
+
+TASKS (22 items):
+  Concept Art (various - 8h-120h)
+  Environment Modeling (various)
+  UI (various)
+  VFX (various)
+  Lighting (various)
+  Set Dressing (various)
+  World Building (various)
+  Terrain (various)
+  Collision (various)
+  Proxy Pass (various)
+
+SUB-TASKS:
+  Proxy Models (40h-80h)
+  Final Models (40h-520h)
+
+TASK HOUR RANGES:
+  Smallest: 4h
+  Largest: 520h (Final Models)
+
+
+================================================================================
+=== EPIC 6: ITEMS & INVENTORY (Widget: 3458764671356431750) ===
+=== 9 features | 6 stories | 17 tasks | 6 sub-tasks ===
+================================================================================
+
+FEATURES:
+  [FOR VS] Item Core System
+  [FOR VS] Equipment System
+  [FOR VS] Consumables
+  [FOR VS] Pets
+  [FOR VS] Loot Distribution
+  [FOR VS] Inventory System
+  [NOT FOR VS] P2P Item Transfer
+  [NOT FOR VS] Durable Items
+  [NOT FOR VS] Mounts
+
+STORIES:
+  [Consumables] Potions
+  [Pets] MECH PARROT
+  [Item Core System] STORIES TEMP (placeholder)
+  [Equipment System] STORIES TEMP (placeholder)
+  [Loot Distribution] STORIES TEMP (placeholder)
+  [Inventory System] STORIES TEMP (placeholder)
+
+TASKS (17 items):
+  UI: multiple instances (2h - 80h)
+  Concept Art: multiple instances (8h - 50h)
+  Character Modeling: multiple instances (1h - 32h)
+  Animation: (16h - 24h)
+  VFX: (40h - 56h)
+
+SUB-TASKS (6 items - 3D modeling pipeline):
+  Block Out
+  Hi Poly Modeling
+  Retopo
+  UV Unwrapping
+  Bakes
+  Texturing
+
+NOTED FLAGS:
+  [NOT FOR VS] P2P Item Transfer
+  [NOT FOR VS] Durable Items
+  [NOT FOR VS] Mounts
+
+  ** NOTE: 4 of 6 stories are placeholders (STORIES TEMP). This epic needs
+  ** significant story-level specification work.
+
+
+================================================================================
+=== EPIC 7: QUEST SYSTEM (Widget: 3458764671356982463) ===
+=== 13 features | 8 stories | 22 tasks | 20 sub-tasks ===
+================================================================================
+
+FEATURES:
+  [FOR VS] Quest Core System
+  [FOR VS] Quest Types (8 types listed below)
+  [FOR VS] Multiplayer Quest Support
+  [FOR VS] Quest Reward System
+  [FOR VS] Quest UI Elements
+  [FOR VS] Quest Narrative Content
+  [FOR VS] Quest Backend Tooling
+  [NOT FOR VS] Dialogue/Quest Cinematics
+  [NOT FOR VS] Meta Quest System
+  [NOT FOR VS] Quest Generator System
+
+QUEST TYPES (within Quest Types feature):
+  1. Courier Quest
+  2. Escort Quest
+  3. Kill Quest
+  4. Collect Quest
+  5. Research Quest
+  6. Time Objective Quest
+  7. Partner Quest
+  8. Corruption Quest
+
+STORIES:
+  [Quest Core] Lock Picking
+  [Quest Core] Hearthstone/Home Stone Return
+  [Quest Core] Partner Crystal
+  [Quest Types] STORIES TEMP (placeholder)
+  [Quest Types] STORIES TEMP (placeholder)
+  [Quest Types] STORIES TEMP (placeholder)
+  [Quest Types] STORIES TEMP (placeholder)
+  [Quest Types] STORIES TEMP (placeholder)
+
+TASKS (22 items):
+  Concept Art: 80h - 112h
+  UI: 10h - 40h
+  Tech Art: (hours not specified)
+  VFX: 40h - 56h
+  Environment Modeling: (hours not specified)
+
+SUB-TASKS (20 items - concept art workflow):
+  Reference Research (repeated per task)
+  Ideation (repeated per task)
+  Shapes/Sketches (repeated per task)
+  Extra Explanatory Callouts (repeated per task)
+
+NOTED FLAGS:
+  [NOT FOR VS] Dialogue/Quest Cinematics
+  [NOT FOR VS] Meta Quest System
+  [NOT FOR VS] Quest Generator System
+
+  ** NOTE: 5 of 8 stories are placeholders (STORIES TEMP). Significant
+  ** story-level specification work needed.
+
+
+================================================================================
+=== EPIC 8: PLAYER ECONOMY (Widget: 3458764671356617572) ===
+=== 8 features | 4 stories | 13 tasks ===
+================================================================================
+
+FEATURES:
+  [FOR VS] Trading System
+  [FOR VS] Virtual Currency System
+  [FOR VS] Garment Shop
+  [FOR VS] Partner Shop
+  [NO ART] In Game Economy
+  [NOT FOR VS] RMT In Game Monitoring System
+  [NOT FOR VS] In Game Store
+  [NOT FOR VS] Auction House
+
+STORIES:
+  [Virtual Currency System] Currency
+  [Garment Shop] Bugged Dungeon Shop
+  [General] STORIES TEMP (placeholder)
+  [General] STORIES TEMP (placeholder)
+
+TASKS (13 items):
+  UI: 5 tasks (hours vary, 5h-80h range)
+  Concept Art: 4 tasks (5h-10h range)
+  ENV: 2 tasks (40h-120h range)
+  VFX: 2 tasks (hours not specified)
+
+NOTED FLAGS:
+  [NOT FOR VS] Auction House
+  [NOT FOR VS] In Game Store
+  [NOT FOR VS] RMT In Game Monitoring System
+  [NO ART] In Game Economy
+
+  ** NOTE: 2 of 4 stories are placeholders. Limited story specification.
+
+
+================================================================================
+=== EPIC 9: SOCIAL & MULTIPLAYER (Widget: 3458764671357106374) ===
+=== 10 features | 4 stories | 8 tasks | 20 sub-tasks ===
+================================================================================
+
+FEATURES:
+  [FOR VS] Game Chat System
+  [FOR VS] Co-Op/Party
+  [FOR VS] Guild Systems
+  [FOR VS] In-Game Mail
+  [NOT FOR VS] Friends
+  [NOT FOR VS] Co-Op/Raids
+  [NOT FOR VS] Dueling
+  [NOT FOR VS] Player Config PVP Server
+  [NOT FOR VS] Notifications
+  [NOT FOR VS] LFG/PUG Pickup Groups
+
+STORIES:
+  [General] STORIES TEMP (placeholder)
+  [General] STORIES TEMP (placeholder)
+  [General] STORIES TEMP (placeholder)
+  [General] STORIES TEMP (placeholder)
+
+TASKS (8 items):
+  UI: 4 tasks (10h - 20h each)
+  Concept Art: 4 tasks (16h - 40h each)
+
+SUB-TASKS (20 items):
+  Reference Research (per concept art task)
+  Ideation (per concept art task)
+  Shapes/Sketches (per concept art task)
+  Extra Explanatory Callouts (per concept art task)
+  2D Asset Production (per concept art task)
+
+NOTED FLAGS:
+  [NOT FOR VS] Friends
+  [NOT FOR VS] Co-Op/Raids
+  [NOT FOR VS] Dueling
+  [NOT FOR VS] Player Config PVP Server
+  [NOT FOR VS] Notifications
+  [NOT FOR VS] LFG/PUG Pickup Groups
+
+  ** NOTE: ALL 4 stories are placeholders (STORIES TEMP). This epic has
+  ** NO specified stories - all need writing.
+
+
+================================================================================
+=== EPIC 10: THE GAME / BIBLES (Widget: 3458764671356811372) ===
+=== 5 features | 6 sub-features | 9 stories ===
+================================================================================
+
+FEATURES:
+  [FOR VS] Game Bibles (Epic container)
+  [NOT FOR VS] Platform
+  [NOT FOR VS] Live Service Game
+  [NOT FOR VS] Partner Build
+  [NOT FOR VS] Product Publishing
+
+SUB-FEATURES (Bibles):
+  [FOR VS] UX/UI Bible
+  [FOR VS] Art Bible
+  [FOR VS] Accessibility Bible
+  [FOR VS] Brand Bible
+  [NOT FOR VS] Monetisation Bible
+  [NOT FOR VS] Red Books (Emergency)
+
+STORIES:
+  [Art Bible] Colour Palette (40h-60h)
+  [Art Bible] Typography (40h-60h)
+  [UX/UI Bible] Wireframes (40h-60h)
+  [Brand Bible] Game Logo (40h-60h)
+  [Art Bible] ENV (80h-100h)
+  [Art Bible] ANIM (80h-100h)
+  [Art Bible] CHAR (80h-100h)
+  [Art Bible] VFX (80h-100h)
+  [Art Bible] CONCEPT (80h-100h)
+
+
+================================================================================
+=== TEXT ITEMS - ENV ART HOUR ESTIMATES (36 items from board) ===
+================================================================================
+
+--- Reference Definitions ---
+
+1. ENV TEMPLATE POIs
+   (Template label - no hours)
+
+2. What is in a Zone?
+   - Terrain/Rocking
+   - PCG/Veg
+   - Basic Lighting
+   - Polish Lighting
+   - Collision Pass
+   - Road Dressing
+   - Water
+
+3. What is in a POI?
+   - Terrain/Rocking
+   - PCG/Veg
+   - Basic Lighting
+   - Polish Lighting
+   - Collision Pass
+   - WB (World Building)
+   - Set Dressing
+
+4. What is in a Biome Kit?
+   - 2-4 Trees with 4-5 Variants of each
+   - 4-5 Bush Types with 4-5 variants of each
+   - 3-4 Grasses with 3-4 variants each
+   - misc ground cover, roots and moss
+
+5. What is in a Rock kit?
+   - 3-4 Epic Rocks/Cliffs
+   - 4-5 Large
+   - 3-4 Med
+   - 2-3 Small
+   - 3-4 hero pieces (like overhangs)
+
+6. What is in an architecture kit?
+   - models
+
+7. "Makeup" (large heading label)
+
+--- Zone/Location Estimates ---
+
+8. FTUE Cave - 224h
+   - Med Cave
+   - Fluid Ninja
+
+9. New Zone - 568 - 648h
+   - Terrain/Cliffs
+   - Set Dressing
+   - Fluid Ninja
+   - Surrounding Terrain
+
+10. Downtime - 648 - 800h
+    - 4 Hero Buildings
+    - Terrain
+
+11. Player Island 1 - 488h / Player Island 2 - 488h
+    - Terrain
+    - Vegetation PCG
+    - Atmosphere/Lighting
+    - Rocks
+
+12. Guild Island - 488h
+    - Terrain
+    - Vegetation PCG
+    - Atmosphere/Lighting
+    - Rocks
+
+13. Dungeon - 480h
+    - 1 Medium Dungeon
+    - Med - POI Set Dressing
+    - Basic Lighting
+    - Med - PCG/Veg
+    - Fluid Ninja
+
+14. Arena - 400 - 640h
+    - 1 Epic POI
+
+15. Portal Dimension - 200h
+    - 1 Small POI
+    - 2 Hero Prop
+    - Fluid Ninja
+
+16. Bug Dungeon - 80 - 120h
+    - 1 Hero Building interior
+
+17. Tower Interior - 320 - 420h
+    - 1 med POI
+
+--- POI Estimates ---
+
+18. POI - Epic - 568 - 640h
+    - Tower Exterior
+
+19. POI - Epic - 568 - 640h
+    - The Big Battle Hill
+
+20. POI - Med - 224h - 300h
+    - Cave Interior
+
+21. POI - Small - 80 - 120h
+    - Waterfall Beauty
+
+22. POI - Small - 80 - 120h
+    - Bridge
+
+23. POI - Small - 320h
+    - Drifters Cross
+
+--- Asset Kit Estimates ---
+
+24. Architecture Kits
+    - Mythcore: 40 - 80h
+    - Mythcore Ruins: 40 - 80h
+    - Fantasy: 480 - 800h
+    - Guild Hall (interior and exterior): 580 - 945h
+    - Player Housing: 460 - 800h
+    - Arena Kit: 240 - 800h
+    - Deck/Scaffolding: 80 - 120h
+    - Wooden Camp: 120 - 160h
+
+25. Props
+    - Gritcore: 200 - 400h
+    - Fantasy Exterior: 200 - 400h
+
+26. Furniture
+    - Fantasy: 40h
+    - Gritcore: 320h
+
+27. Biomes
+    - Cave Biome: 350 - 400h
+    - New Zone Biome: 350 - 400h
+    - Downtime Biome: 350 - 400h
+
+28. 1 Biome (breakdown) - 350 - 400h
+    - Proxy: 40h
+    - 4 Large: 160h
+    - 4 Med: 64h
+    - 4 Small: 32h
+
+29. Rock Kits - 192h
+    - Overhang Addition to Main Rock Kit
+    - New Sharp Rocks
+
+30. Veg/Natural
+    - Trees
+    - Bushes
+    - Grass
+    - Hero Trees
+
+31. Texture Kits
+    - Floors
+    - Walls
+
+--- Building Estimates ---
+
+32. Player Buildings - 480h
+    - Architecture kit
+    - Interior/exterior
+
+33. Guild Buildings
+    - Architecture kit: 240 - 480h
+    - Interior/exterior
+
+34. Hero Buildings
+    - Arcade Facade
+    - Bank Facade
+    - Tavern (with interior)
+    - Barber Facade
+
+35. Bug Polish
+    (No hours - just a label)
+
+36. New Zone or Portal Peak locations:
+    - Waterfall Beauty Spot
+    - The Big Battle Hill
+    - Tower Exterior
+    - Bridge
+
+
+================================================================================
+=== SUMMARY: STORY-LEVEL ITEM COUNT ===
+================================================================================
+
+Epic                        | Named Stories | Temp/Placeholder | Total
+----------------------------|---------------|------------------|------
+1. Player Build             | ~15-20        | 0                | ~40+*
+2. World Systems (ENV)      | ~40           | 0                | ~60+*
+3. World Systems (The Rest) | ~23           | 0                | ~23+
+4. Combat                   | 10            | 0                | 10
+5. User Space               | 4             | 1                | 5
+6. Items & Inventory        | 2             | 4                | 6
+7. Quest System             | 3             | 5                | 8
+8. Player Economy           | 2             | 2                | 4
+9. Social & Multiplayer     | 0             | 4                | 4
+10. The Game / Bibles       | 9             | 0                | 9
+----------------------------|---------------|------------------|------
+TOTALS                      | ~108-113      | 16               | ~169+
+
+* Miro summarises org charts with AI; it reports totals higher than the
+  individually named items. The gaps are flagged per epic above.
+
+STORIES TEMP (placeholder) breakdown:
+  - Items & Inventory: 4 placeholders
+  - Quest System: 5 placeholders
+  - Player Economy: 2 placeholders
+  - Social & Multiplayer: 4 placeholders (ALL stories are placeholders)
+  - User Space: 1 placeholder
+  TOTAL: 16 placeholder stories needing specification
+
+NOT FOR VS features (will NOT be in Vertical Slice):
+  - Player Build: Factions/Reputations, Character Management, Persona System, Emote System
+  - World Systems (ENV): Partner Portal
+  - World Systems (The Rest): (some items marked "NOT IN BUDGET, OR OUTSOURCE")
+  - Combat: Ranged Combat, Combat Status Effects
+  - User Space: Partner Portal System, Arcade Cabinet
+  - Items & Inventory: P2P Item Transfer, Durable Items, Mounts
+  - Quest System: Dialogue/Quest Cinematics, Meta Quest System, Quest Generator System
+  - Player Economy: RMT In Game Monitoring System, In Game Store, Auction House
+  - Social & Multiplayer: Friends, Co-Op/Raids, Dueling, Player Config PVP Server, Notifications, LFG/PUG Pickup Groups
+  - The Game / Bibles: Platform, Live Service Game, Partner Build, Product Publishing, Monetisation Bible, Red Books
+
+NO ART features (programming/design only):
+  - Combat: PVP Combat, Combat Balance & Telemetry
+  - User Space: User Space Server & Instance, P2P/P2G User Space Connection, Saving House Layouts
+  - Player Economy: In Game Economy
+
+DONE/MVP DONE items:
+  - Player Build: Base Body [MVP DONE], Base Faces [MVP DONE]
+
+
+================================================================================
+=== ENV ART HOURS SUMMARY (from text items) ===
+================================================================================
+
+ZONES:
+  FTUE Cave:                    224h
+  New Zone:                     568 - 648h
+  Downtime:                     648 - 800h
+  Player Island 1:              488h
+  Player Island 2:              488h
+  Guild Island:                 488h
+  Dungeon:                      480h
+  Arena:                        400 - 640h
+  Portal Dimension:             200h
+  Bug Dungeon:                  80 - 120h
+  Tower Interior:               320 - 420h
+  ---
+  ZONE TOTAL (low):             4,384h
+  ZONE TOTAL (high):            5,264h
+
+POIs:
+  Tower Exterior (Epic):        568 - 640h
+  The Big Battle Hill (Epic):   568 - 640h
+  Cave Interior (Med):          224 - 300h
+  Waterfall Beauty (Small):     80 - 120h
+  Bridge (Small):               80 - 120h
+  Drifters Cross (Small):       320h
+  ---
+  POI TOTAL (low):              1,840h
+  POI TOTAL (high):             2,140h
+
+ARCHITECTURE KITS:
+  Mythcore:                     40 - 80h
+  Mythcore Ruins:               40 - 80h
+  Fantasy:                      480 - 800h
+  Guild Hall (int+ext):         580 - 945h
+  Player Housing:               460 - 800h
+  Arena Kit:                    240 - 800h
+  Deck/Scaffolding:             80 - 120h
+  Wooden Camp:                  120 - 160h
+  ---
+  ARCH KIT TOTAL (low):         2,040h
+  ARCH KIT TOTAL (high):        3,785h
+
+PROPS:
+  Gritcore:                     200 - 400h
+  Fantasy Exterior:             200 - 400h
+  ---
+  PROPS TOTAL (low):            400h
+  PROPS TOTAL (high):           800h
+
+FURNITURE:
+  Fantasy:                      40h
+  Gritcore:                     320h
+  ---
+  FURNITURE TOTAL:              360h
+
+BIOMES:
+  Cave Biome:                   350 - 400h
+  New Zone Biome:               350 - 400h
+  Downtime Biome:               350 - 400h
+  ---
+  BIOMES TOTAL (low):           1,050h
+  BIOMES TOTAL (high):          1,200h
+
+OTHER KITS:
+  Rock Kits:                    192h
+  ---
+
+BUILDINGS:
+  Player Buildings:             480h
+  Guild Buildings:              240 - 480h
+  Hero Buildings:               (no hours given - 4 facades)
+  ---
+  BUILDINGS TOTAL (low):        720h
+  BUILDINGS TOTAL (high):       960h
+
+=======================================
+ENV ART GRAND TOTAL (low):      10,986h
+ENV ART GRAND TOTAL (high):     14,701h
+=======================================
+
+END OF EXTRACTION

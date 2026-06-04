@@ -1,0 +1,412 @@
+TITLE: SOW report structure
+DATE: 2025-10-29
+MESSAGES: 20
+ID: 69025031-b5b4-8329-a6f6-00d84ffd3935
+---
+
+[USER]
+as an expert consultant delivering work. I need to write up a report for the SOW to answer all the questions and areas of risk form the SOW.
+
+can you help me go through and structure the report out by area. 
+
+[ASSISTANT]
+Understood. You want a consultant-grade report that answers every question raised by the Couch Heroes CSA + Services Schedule and surfaces all material risks with owners and mitigations. Below is a clean, copy-pasteable outline you can drop into Word. I mapped each section to the governing clauses and the two base tasks in Services Schedule 1, and I added acceptance gates, evidence, and a ready-to-use risk register.
+
+# SOW Response and Risk Report  
+CH Game Development UK Limited ↔ NBI Analytics UK Limited
+
+## 0) Executive summary  
+One-page summary of objectives, scope, deliverables, timelines, total fees for base work, key risks with mitigations, and decision requests to the client.
+
+## 1) Objectives and scope  
+- **Engagement objective.** Deliver the two high-level audits defined in Services Schedule 1, with written findings and a readout, then propose any approved follow-on work. fileciteturn0file1  
+- **In-scope base tasks.**  
+  - **Task One:** Tech stack and pipelines audit, including documentation intake, 3 stakeholder sessions, build pipeline, server/netcode, backend and cross-play assessment, DevOps and environments, and a written synthesis. Est. 2–3 weeks. fileciteturn0file1  
+  - **Task Two:** MVP tech roadmap and game fit audit, including goals alignment, 3 stakeholder sessions, light competitive scan, core loop and MVP slice, KPI tree and target bands, 30-60-90 day post-MVP outline, risk and dependency register, and a 15–20 slide readout. Est. 2–3 weeks. fileciteturn0file1  
+- **Out-of-scope unless separately authorised.** Optional “Detailed” audits, strategy work, and staffing support billed T&M per Appendix A. fileciteturn0file1
+
+## 2) Deliverables  
+- **Task One deliverable set:** Written audit report plus verbal walkthrough. fileciteturn0file1  
+- **Task Two deliverable set:** Written report, KPI tree with target bands, risk and dependency register, and a 15–20 slide executive readout. fileciteturn0file1  
+- **Format:** PDF and editable source (docx/pptx) delivered through client-approved channels. **No acceptance until delivery** per Acceptance process below. fileciteturn0file1
+
+## 3) Acceptance, quality criteria, and sign-off  
+- **Contractual acceptance window.** Within 5 Business Days of delivery, Client either issues Acceptance or a single consolidated list of non-conformities. Contractor remedies within 5 Business Days and resubmits. Fixed-fee invoices may be issued only after Acceptance. fileciteturn0file1  
+- **Workmanship standard.** Services must be professional, workmanlike, and to a high standard of quality and integrity. fileciteturn0file1  
+- **Internal quality gates before submission:** spelling/grammar pass, clause alignment check, evidence table present, risks quantified, and decision log updated.
+
+## 4) Delivery plan and timeline  
+- **Period of performance:** Each base task estimated 2–3 weeks, sequencing agreed at kickoff. fileciteturn0file1  
+- **Cadence:** Kickoff, weekly check-ins, draft share, acceptance cycle, readout.  
+- **Key personnel:** Primary Advisor is Glen Pryer; substitution requires prior written consent; if unavailable, pro-rata fee reduction or termination rights apply as specified. fileciteturn0file1
+
+## 5) Communication and governance  
+- **Channels:** Email and Client Slack for async Q&A and share-outs; formal notices per CSA remain by post or email as defined. fileciteturn0file1  
+- **Change control:** Any scope or plan change captured in an updated Services Schedule or written agreement, which supersedes prior versions. fileciteturn0file1
+
+## 6) Evidence and sources  
+- **Internal materials:** CH profile, platform documents, architecture and MVP outlines for factual grounding. fileciteturn0file0 fileciteturn0file4 fileciteturn0file7 fileciteturn0file6  
+- **Contractual basis:** CSA plus Services Schedule 1 and Appendix A (rates). fileciteturn0file1  
+- **Evidence table:** Include a table in the appendix listing each non-obvious claim, its source, date, confidence, and any gaps.
+
+## 7) Pricing, invoicing, and taxes  
+- **Fixed fees:** Task One £9,240.00; Task Two £7,465.50; invoiced upon project completion and after Acceptance. VAT is payable by Client. fileciteturn0file1  
+- **Optional T&M:** Hourly rates by role per Appendix A; billed monthly as incurred; rates valid through 31 Dec 2025. fileciteturn0file1  
+- **Payment term:** 30 days from receipt of valid invoice issued after Acceptance. fileciteturn0file1
+
+## 8) Assumptions and constraints  
+- Access to up-to-date design docs, repos, builds, environments, and named interviewees. fileciteturn0file1  
+- Three 60-minute stakeholder sessions per task are sufficient to validate scope at the agreed level of depth. fileciteturn0file1  
+- Any client-requested travel pre-approved and reimbursed at cost. fileciteturn0file1
+
+## 9) Intellectual property and confidentiality  
+- **Ownership:** Client owns all IP in the Deliverables on creation; works deemed made for hire where permitted. Contractor Proprietary Materials used remain Contractor’s, licensed to Client on a perpetual, irrevocable basis for use with the Deliverables. fileciteturn0file1  
+- **Moral rights:** Waived by Contractor and procured from contributors. fileciteturn0file1  
+- **Confidentiality:** Strict; no disclosure of Client assets or information except as allowed. Limited factual use of Contractor name and logo by Client per clause 6.4. fileciteturn0file1
+
+## 10) Data protection and security  
+- **Data roles:** Neither party is a processor for the other unless separately agreed; if processing occurs, a DPA will be executed. fileciteturn0file1  
+- **Security posture:** Reasonable state-of-the-art measures; prompt breach notification; audit on request. fileciteturn0file1
+
+## 11) Term, termination, and exit  
+- **Without cause:** Either party may terminate the CSA or a Schedule on 30 days’ notice. Client pays pro-rata for work performed and non-cancelable costs. fileciteturn0file1  
+- **On completion or termination:** Contractor promptly returns all Client materials and delivers all work products and archives. fileciteturn0file1
+
+## 12) Risk register  
+A living register tracked from kickoff; below is a starter set with owners and mitigations.
+
+| ID | Risk | Likelihood | Impact | Owner | Mitigation | Trigger | Contingency |
+|---|---|---|---|---|---|---|---|
+| R1 | Missing or outdated documentation blocks Task One depth | Medium | High | CTO | Front-load intake, request doc list at kickoff, time-box gap analysis | No doc by Day 3 | Convert deep checks to sampling; flag as scope delta |
+| R2 | Stakeholder sessions slip due to availability | Medium | Medium | Producer | Schedule all 6 sessions at kickoff; offer group sessions; record replays | Cancellations > 24h | Add async questionnaire; extend by 2 days |
+| R3 | Acceptance delays past 5 Business Days | Medium | Medium | Head of Strategy | Pre-align acceptance checklist; 24h reminder on delivery | Day 6 no response | Apply CSA remedy loop; escalate to sponsor fileciteturn0file1 |
+| R4 | IP contamination from third-party content | Low | High | Legal/CTO | Inventory all third-party tools/content; ensure licenses notified to Client | Unvetted asset appears | Replace or remove; document license status fileciteturn0file1 |
+| R5 | Security incident during data access | Low | High | Contractor | Follow CSA security duties; limit PII; log access; notify immediately | Suspected breach | Execute incident plan; notify per CSA fileciteturn0file1 |
+| R6 | Scope creep via Slack requests | Medium | Medium | Primary Advisor | Channel all changes into written addenda per Schedule; weekly backlog review | Repeated ad-hoc asks | Issue change note for client sign-off fileciteturn0file1 |
+| R7 | T&M follow-on work starts without approvals | Low | Medium | Finance | Provide written estimates before work; do not start without written go-ahead | Urgent request | Park work until written authorisation is received fileciteturn0file1 |
+
+## 13) Dependencies  
+- Named stakeholders for CTO and Product tracks, repository and environment access, build artifacts, and any partner tech needed to assess cross-play and backend choices. fileciteturn0file1
+
+## 14) Decision log  
+Track and time-stamp all client decisions and open questions throughout both tasks. Include at least: platform sequence, target players per instance, and acceptance of KPI target bands. fileciteturn0file1
+
+## 15) Readout deck outline (Task Two)  
+- Context and objectives  
+- MVP scope lock and platform order  
+- Core loop and MVP slice  
+- KPI tree with target bands and owners  
+- 30-60-90 post-MVP roadmap  
+- Risks, dependencies, and go or no-go checks  
+- Decisions required from Client fileciteturn0file1
+
+## Appendices  
+**A. Acceptance checklist** mapped to each deliverable and clause 2.6. fileciteturn0file1  
+**B. Interview guides** for CTO and Game Director tracks, aligned to Task One and Task Two bullets. fileciteturn0file1  
+**C. Evidence table** with source files and dates (CSA, Services Schedule, CH product and architecture docs). fileciteturn0file1 fileciteturn0file0 fileciteturn0file7 fileciteturn0file6  
+**D. Rate card** extract for any optional work (Appendix A). fileciteturn0file1
+
+---
+
+If you want, I can immediately populate this skeleton with your current specifics from the CH platform one-pager, architecture stack, and MVP plan so the draft is 80 percent complete on first pass.
+
+[USER]
+yea lets do it by going through one item at a time and then you can consoldate it all for me ?
+
+[ASSISTANT]
+Yes. We’ll tackle one section at a time, lock it, then I’ll consolidate the full report.
+
+To get started, choose a first section. If no preference, I recommend beginning with 1) Objectives and Scope.
+
+## If we start with 1) Objectives and Scope, answer these:
+1) In one sentence, what is the engagement objective in your words for this SOW response?
+2) Confirm the legal entities to name on the cover and in the header: is it CH Game Development UK Limited ↔ NBI Analytics UK Limited, or different?
+3) In scope for the base engagement: list the exact audits and outputs you want guaranteed at this level. If helpful, think in two buckets:
+   - Task One: technology, pipelines, environments, DevOps, backend, cross play.
+   - Task Two: MVP fit, KPI tree and target bands, roadmap readout.
+   Add, remove, or refine.
+4) Out of scope unless authorised later: list anything you want explicitly excluded or set as optional (detailed audits, staffing support, extended competitive analysis, hands-on delivery work, travel, anything else).
+5) Success criteria for acceptance: what specific tests must we pass for you to say “accepted” beyond the contract baseline? Examples: evidence table present, KPI target bands with rationale, risk register with owners and dates, architecture issues called out with severity and fixes.
+6) Timebox expectations: do you want both base tasks at 2–3 weeks each, or a different duration?
+7) Constraints or assumptions you want written in: required access, minimum stakeholder availability, repositories, environments, build artifacts, interviewees.
+8) Decision requests you want to surface to the client in this section: list the decisions you want them to make during or by readout.
+
+Reply with your answers to those eight items. Once you do, I’ll draft the Objectives and Scope section verbatim in report-ready form, then we’ll move to the next section.
+
+[USER]
+that was 8 questions isntead of 1 at a time
+
+[ASSISTANT]
+Understood. One at a time.
+
+First question: in your own words, give me a single-sentence engagement objective for this SOW response.
+
+[USER]
+assessing the technical state of the game and studio, understand the MVP state and stucture and assess what is wrong or at risk. 
+
+[ASSISTANT]
+Proposed objective:  
+“Assess the technical state of the game and studio, understand the MVP state and structure, and identify issues and risks.”
+
+Next question, one only:  
+What exact legal entity names should appear on the report cover and header for both parties?
+
+[USER]
+I dont care about this right now
+
+[ASSISTANT]
+Logged objective: “Assess the technical state of the game and studio, understand the MVP state and structure, and identify issues and risks.”
+
+Next single question: what must be **in scope** at the base level?  
+Edit or confirm this starter list:
+
+- Tech stack and pipelines audit, including CI/CD, environments, and build health  
+- Backend, netcode, and cross-play readiness review  
+- DevOps posture, monitoring, alerting, and release management  
+- Security and compliance posture at a practical level  
+- MVP fit review: core loop, scope, and dependencies  
+- KPI tree with target bands and measurement plan  
+- 30-60-90 day technical action plan post-MVP  
+- Written report plus an executive readout with risks and mitigations
+
+[USER]
+The tech stack has some high risks, web clietn work rather than c++ client work, all game elements are - blueprints which wont scale 
+- networking layer is all unreal netcode and are generic and there is no netwroking engineer on the team.  The servers can only hold 100 players per server. this seems like it will be crazy heavy and costly
+Devops - there isnt any that I can see
+Security and compliance is a long way off
+Notes to translate into answers: 
+Tech-wise, I am worried about the corruption system and networking. The ability to have players move from one server to another without loading screens, and to maximize the number of players a single server instance can have.
+Everything else we got covered. I am very confident we can scale this to 100,000 concurrent players. I just need the issue of "server mesh" solved. The idea that each zone is its own server, and a player can walk from one zone to another and connect to that zone server without a loading screen. avoiding the "Anthem" issue. For that I need a network engineer that knows Unreal well
+Things that I don't have control over, which I am very, very, very worried about, are
+Gameplay and fun factor. I have yet to see that. The game is not fun. like at all. We don't have that after three years of development, and I feel like that's not the studio's focus. The focus is on creating the platform and a social place for players to come and hang out and view their items from other games, etc.. but who would want to do that if the game is not fun to play? idk. I am worried about the fun and gameplay a lot. I understand we are not your typical MMO, but I am having a hard time seeing myself play the game. Games succeed because the team that makes them enjoys playing them. I currently do not enjoy playing the game, and in all my projects that I’ve worked on, “Which I admit are a fraction of the size of this project,” we always made sure to get the gameplay and fun factor figured out first.
+Monetization. What's the plan? How are we going to make money? MMOs are hard to make, and you always need to make new content for players to play and enjoy. Where is the money coming from? Servers are expensive. Have to pay people. Where is the money coming from post-launch?
+Marketing. There is no point in making the best MMO in the world if no one knows about it. What's our marketing plan?
+We don't seem to have a solid plan on what we want to do. Like, I get the general idea but we have shifted so much this year with the introduction of the store and the talk of developers making games in our game etc... I understand sometimes you need to pivot but this year has been a disaster in terms of deadlines, and just ideas being thrown in without understanding the impact that will have on the game development timeline.
+We need a solid plan for the next two or three years of development + post-launch content if we are successful. We need a solid monetization and marketing plan. (edited) 
+
+[ASSISTANT]
+Here is the **In-scope (base engagement)** list translated from your notes:
+
+- **Tech stack and codebase review.** Quantify risk of a web client vs native C++ client. Audit Blueprint usage, complexity, and hotspots. Produce a refactor plan to move critical systems to C++ with effort bands.  
+- **Networking and server architecture.** Assess Unreal replication, interest management, and current server tick settings. Validate the 100 players per server limit and what it would take to raise it. Feasibility study for seamless zone hand-off (“server mesh”) without loading screens. Identify requirements for a senior Unreal networking engineer and provide a targeted JD.  
+- **Backend and persistence.** Current state of accounts, inventory, sessions, and cross-play readiness. Identify vendor risks and integration gaps.  
+- **DevOps and environments.** Gap analysis for CI/CD, build automation, packaging, environment parity, and observability. Provide a minimal viable DevOps plan with tools, roles, and day-one runbooks.  
+- **Security and compliance baseline.** Lightweight threat model, auth and entitlement checks, anti-cheat posture, secrets handling, and immediate fixes list.  
+- **MVP fitness and gameplay risk.** Assess core loop, fun factor signals, and dependency blockers. Define a short playtest plan, acceptance bars, and KPIs to validate fun before more platform work.  
+- **Capacity and cost model.** First-pass concurrency and server cost model to stress test 100k CCU ambition under different server caps and hand-off strategies.  
+- **Product direction stability.** Analyse change churn this year, map scope volatility to timeline risk, and propose decision gates to stop unplanned pivots.  
+- **Monetisation and marketing readiness check.** Identify critical gaps and decision points. Provide next-step recommendations. Not a full plan.  
+- **Deliverables.** Written report, risk and dependency register, 30-60-90 day technical action plan, and an executive readout.
+
+Single question: **Confirm this in-scope list as your base, or name any item to remove or add.**
+
+[USER]
+these are teh assessment of what they have meaning I want it to come intothe report as findings and 1-10 risk assessment becasue of them 
+
+[ASSISTANT]
+Great. I’ve converted your notes into a **Findings and 1–10 Risk Assessment** section. Ratings are overall risk levels, where 1 is negligible and 10 is critical. I included rationale, immediate mitigations, suggested owner, and target timeframe.
+
+# Findings and Risk Assessment (draft)
+
+**Scale:** 1 negligible, 3 low, 5 moderate, 7 high, 9 critical, 10 critical and imminent.
+
+1) **Client technology choice: web client vs native C++**
+- **Finding:** Current approach favours a web client where a native C++ client would better suit performance, memory control, platform features, and long term maintainability for an Unreal title.
+- **Risk:** **8/10 (High)**  
+- **Rationale:** Material performance, input latency, and feature constraints, plus duplicated effort to bridge engine features. Increases platform risk and QA surface.
+- **Mitigation:** Decide client strategy. If native, define a staged migration plan and performance budgets; keep a minimal web shell only where strictly justified.  
+- **Owner:** CTO  
+- **Timeframe:** Strategy decision in 2 weeks; migration plan in 4 weeks.
+
+2) **Blueprints used for all game systems**
+- **Finding:** Gameplay and systems are Blueprint heavy. This will not scale for performance critical paths or large code surfaces.
+- **Risk:** **8/10 (High)**
+- **Rationale:** Tick costs, GC pressure, versioning pain, and testing limitations. Refactors become harder the longer they are deferred.
+- **Mitigation:** Set Blueprint-to-C++ policy. Move replication, ability systems, inventory, and core AI into C++. Keep Blueprints for UI and light glue.  
+- **Owner:** Lead Engineer  
+- **Timeframe:** Policy in 2 weeks; first refactor sprint in 4 weeks.
+
+3) **Networking built on generic Unreal netcode with no networking engineer**
+- **Finding:** Replication layer relies on stock Unreal patterns without a specialist. No named owner.
+- **Risk:** **9/10 (Critical)**
+- **Rationale:** Large-scale replication, prioritisation, and interest management require expertise. Without it, you will cap out early and create instability.
+- **Mitigation:** Hire a senior Unreal networking engineer. Run a 4 to 6 week architecture and profiling pass to define replication graph, prioritisation, dormancy, and relevancy rules.  
+- **Owner:** CTO  
+- **Timeframe:** JD this week; shortlist in 2 weeks; hire target within 6 to 8 weeks.
+
+4) **Server capacity capped near 100 players per instance and likely expensive to scale**
+- **Finding:** Current design targets about 100 players per server process.
+- **Risk:** **8/10 (High)**
+- **Rationale:** Cost-to-CCU curve becomes steep without aggressive interest management, movement throttling, and server-side optimisation.
+- **Mitigation:** Build a capacity and cost model. Profile server tick and replication. Introduce strict update budgets, aggressive relevance culling, and entity LOD.  
+- **Owner:** Net Engineer with DevOps  
+- **Timeframe:** Model and profile in 3 weeks; optimisations in the next 1 to 2 sprints.
+
+5) **Seamless “server mesh” hand-off between zones not yet solved**
+- **Finding:** Goal is zone-based authority where players walk across boundaries without loading screens.
+- **Risk:** **9/10 (Critical)**
+- **Rationale:** Cross-instance hand-off, state transfer, and visibility across borders are hard problems with major schedule and stability risk.
+- **Mitigation:** Build a vertical slice prototype for boundary crossing. Define cell sizing, ownership, hand-off protocol, and state sync. Gate the 100k CCU ambition on this prototype’s success.  
+- **Owner:** Net Engineer with Technical Director  
+- **Timeframe:** Prototype plan in 2 weeks; hands-on prototype in 6 to 8 weeks.
+
+6) **DevOps is effectively absent**
+- **Finding:** No visible CI/CD, build automation, environment parity, or observability.
+- **Risk:** **7/10 (High)**
+- **Rationale:** Increased failure rate, slow iteration, and opaque production behaviour.
+- **Mitigation:** Stand up a minimal DevOps spine: CI for editorless builds, automated packaging, environment configs, metrics, logs, crash reporting, and a release checklist.  
+- **Owner:** DevOps Lead or senior engineer acting as owner  
+- **Timeframe:** MVP pipeline in 2 weeks; observability baseline in 3 weeks.
+
+7) **Security and compliance far from ready**
+- **Finding:** Early posture with gaps in auth, secrets, entitlement checks, anti-cheat, and data handling.
+- **Risk:** **7/10 (High)**
+- **Rationale:** Live service exposure, fraud, and data risk increase cost and reputation impact.
+- **Mitigation:** Lightweight threat model, rotate secrets, enforce server authority, basic anti-cheat signals, and a data handling checklist.  
+- **Owner:** Security owner with Backend Lead  
+- **Timeframe:** Baseline fixes in 3 to 4 weeks.
+
+8) **Corruption system complexity and coupling to networking**
+- **Finding:** Core feature depends on robust replication and server-side validation.
+- **Risk:** **7/10 (High)**
+- **Rationale:** If replication or authority models shift, this system may break or become exploitable.
+- **Mitigation:** Decouple feature logic from transport. Define authoritative server rules and bandwidth budgets. Add deterministic tests.  
+- **Owner:** Gameplay Lead with Net Engineer  
+- **Timeframe:** Design review in 2 weeks; refactor plan in 4 weeks.
+
+9) **Gameplay fun factor is not yet present**
+- **Finding:** After three years, the game is not enjoyable to play, and the team focus appears platform-first rather than fun-first.
+- **Risk:** **9/10 (Critical)**
+- **Rationale:** Product-market failure risk is dominant in MMOs. Cost and scope make recovery slower than in smaller titles.
+- **Mitigation:** Establish a fun-first vertical slice with clear acceptance bars. Weekly playtests, tight goals, and kill criteria for features that do not move fun KPIs.  
+- **Owner:** Game Director and EP  
+- **Timeframe:** Slice goals in 1 week; first measured playtest in 3 weeks.
+
+10) **Monetisation plan unclear**
+- **Finding:** No clear revenue pillars, pricing, or content cadence tied to costs.
+- **Risk:** **8/10 (High)**
+- **Rationale:** MMO burn requires steady revenue and reasons to pay. Server and content costs must be covered.
+- **Mitigation:** Choose monetisation pillars, instrument the slice for payer funnels, and model LTV against operating costs.  
+- **Owner:** Product Director with Finance  
+- **Timeframe:** Pillars and model in 3 weeks.
+
+11) **Marketing plan unclear**
+- **Finding:** No defined go-to-market with community build, creator strategy, or beat map.
+- **Risk:** **7/10 (High)**
+- **Rationale:** Discovery failure risks wasting technical gains.
+- **Mitigation:** Define GTM strategy, pre-launch community goals, creator pipeline, and content beats aligned to development milestones.  
+- **Owner:** Marketing Lead with EP  
+- **Timeframe:** Draft GTM in 3 weeks.
+
+12) **Planning instability and scope churn**
+- **Finding:** Frequent pivots this year, missed deadlines, and ideas added without impact analysis.
+- **Risk:** **8/10 (High)**
+- **Rationale:** Churn erodes schedule, morale, and quality. Increases integration risk across teams.
+- **Mitigation:** Lock a product strategy, introduce change control, and set quarterly decision gates with clear criteria. Publish a 2 to 3 year plan including post-launch content.  
+- **Owner:** CEO, Head of Strategy, EP  
+- **Timeframe:** Strategy lock in 3 weeks; roadmap governance live next quarter.
+
+13) **100k CCU ambition contingent on server mesh success**
+- **Finding:** Confidence in scaling to 100k CCU is conditional on solving seamless zoning and the replication strategy.
+- **Risk:** **9/10 (Critical)** until the prototype passes acceptance tests
+- **Rationale:** This is the dominant technical dependency for concurrency and cost control.
+- **Mitigation:** Treat server mesh prototype as a stage gate. If it fails, pivot to segmented shards with smart transfer and revisit marketing claims.  
+- **Owner:** Technical Director and Net Engineer  
+- **Timeframe:** Gate decision within 8 weeks.
+
+---
+
+Single next step: do you want to **adjust any one rating** above before I lock this section? If yes, tell me which item number and your desired score.
+
+[USER]
+add these as well 
+Technical and Systems Architecture (big one. Almost certainly being hidden or untruthful)
+We need proper instance management for dungeons and interiors. Currently this relies on Blueprints in the Player Controller, which is not scalable and is considered bad practice.
+The Player State needs to be implemented and stored on the server. Right now player data lives on the client, which breaks persistence and multiplayer logic.
+We need a Networking and Systems Programmer who understands backend architecture and proper Unreal multiplayer patterns, not just visuals or gameplay scripting.
+There is concern around technical transparency. Raynor told Kieron not to look into C++ after he questioned the Player Controller setup, which is unusual and concerning. There may be deeper code issues hidden there.
+Unreal Engine should be used for graphics and gameplay, not as the entire architectural layer.
+
+[ASSISTANT]
+Added. Here are the new findings with 1–10 risk scores, rationale, and fixes.
+
+14) **Technical and systems architecture clarity**
+- **Finding:** Architecture ownership and transparency are questionable, with signs of withheld detail.
+- **Risk:** **9/10 (Critical)**
+- **Rationale:** Hidden complexity or shortcuts multiply delivery risk and can mask security or scalability issues.
+- **Mitigation:** Mandate a full codebase and infra audit, repo-wide read access, dependency graph, and an ADR log. Require weekly technical reviews recorded to a shared archive.
+- **Owner:** CTO, Technical Director
+- **Timeframe:** Access within 48 hours, audit in 2 weeks.
+
+15) **Instance management for dungeons and interiors**
+- **Finding:** Instance creation and routing live in PlayerController Blueprints.
+- **Risk:** **8/10 (High)**
+- **Rationale:** Controller-level Blueprint logic for instancing is brittle and not scalable. It blocks authoritative control and clean hand-off.
+- **Mitigation:** Move instancing to server authority, implement an Instance Manager service, and drive transitions through server-side state with replication rules. Document travel paths and failure handling.
+- **Owner:** Systems Lead, Networking Engineer
+- **Timeframe:** Design in 2 weeks, first refactor sprint in 4 weeks.
+
+16) **PlayerState and persistence are not server authoritative**
+- **Finding:** Player data resides on client.
+- **Risk:** **10/10 (Critical and imminent)**
+- **Rationale:** Breaks multiplayer correctness, invites exploits, and invalidates persistence.
+- **Mitigation:** Implement authoritative PlayerState on server, move all player variables and inventory to server storage, add validation on all client RPCs, and add integrity checks.
+- **Owner:** Backend Lead, Gameplay Lead
+- **Timeframe:** Design and migration plan in 1 week, first migration in 2 weeks.
+
+17) **Staffing gap in networking and systems**
+- **Finding:** No senior networking and systems engineer with Unreal multiplayer expertise.
+- **Risk:** **9/10 (Critical)**
+- **Rationale:** Replication, interest management, state transfer, and seamless zoning will stall without this hire.
+- **Mitigation:** Open a requisition for a Senior Unreal Networking and Systems Engineer, publish targeted JD, start outreach to known specialists, set interview loop with code review and profiling exercise.
+- **Owner:** CTO, EP
+- **Timeframe:** JD this week, shortlist in 2 weeks, hire target in 6 to 8 weeks.
+
+18) **Technical transparency concern**
+- **Finding:** Engineer was told not to inspect C++ after questioning PlayerController setup.
+- **Risk:** **8/10 (High)**
+- **Rationale:** Signals potential code quality or architectural issues and a culture risk.
+- **Mitigation:** Establish code visibility as a policy, require peer review for all subsystems, run a targeted C++ audit on controller, replication, and persistence layers, publish findings.
+- **Owner:** CTO, Head of Strategy
+- **Timeframe:** Policy immediately, audit in 2 weeks.
+
+19) **Misuse of Unreal as the entire architecture**
+- **Finding:** Unreal is treated as the primary architectural layer rather than as engine plus presentation and gameplay.
+- **Risk:** **8/10 (High)**
+- **Rationale:** Tight coupling reduces testability, portability, and service evolution. It complicates server mesh and backend growth.
+- **Mitigation:** Define a layered architecture: engine and gameplay in UE, backend services separated with clear contracts, data and auth handled outside the client. Introduce service boundaries and versioned APIs.
+- **Owner:** Technical Director, Backend Lead
+- **Timeframe:** Architecture doc and boundaries in 3 weeks, first service extraction in 4 to 6 weeks.
+
+Single question: do you want to change the score on any one of these six new items before I lock this section?
+
+[USER]
+I dont know yet I want yopu to lock it for now and lets move on
+
+[ASSISTANT]
+Locked. 
+
+Which section do you want to tackle next: **Objectives & Scope**, **Acceptance & Quality**, **Delivery Plan & Timeline**, **Dependencies/Access**, or **30-60-90 Action Plan**?
+
+[USER]
+no I want to detail out the risks in production
+
+[ASSISTANT]
+Got it. We’ll build the **Production Risks** section item by item and lock each one.
+
+## Production Risk P1: Planning instability and scope churn
+**Description:** Frequent pivots, missed deadlines, and features added without impact analysis create unstable plans and slow delivery.  
+**Why it matters:** Unstable scope erodes schedule, morale, quality, and budget. It also blocks dependent teams and makes reliable forecasting impossible.  
+**Current signals:** Multiple shifts this year, store initiative added midstream, talk of third-party devs building inside the game without a clear impact model, deadlines missed.  
+**Risk score:** 8 out of 10  
+**Mitigation actions:**  
+- Lock a 2 to 3 year product strategy that separates vision, roadmap, and this quarter’s delivery plan.  
+- Introduce change control: any new idea must show cost, impact, and displacement, then go to a weekly decision gate.  
+- Define a simple milestone template: goal, acceptance tests, owner, start and end dates, success evidence.  
+- Track scope volatility as a KPI and publish it weekly.  
+**Owner:** CEO, Head of Strategy, Executive Producer  
+**Early warnings:** Rising carryover between sprints, tickets added during sprints, roadmap rebase more than once per quarter.  
+**Acceptance bar:** Two consecutive sprints delivered to plan, change control used for all new ideas, roadmap rebase only at the planned quarter gate.
+
+Single question: lock P1 as written, or change the score or wording?
+

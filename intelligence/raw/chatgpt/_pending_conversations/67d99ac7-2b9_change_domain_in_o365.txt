@@ -1,0 +1,58 @@
+TITLE: Change domain in O365
+DATE: 2025-03-18
+MESSAGES: 4
+ID: 67d99ac7-2b90-800b-9aa2-ae377ac57d9a
+---
+
+[USER]
+how do i change the domain in an email adress on 0365
+
+[ASSISTANT]
+To change the domain in an email address in Office 365, you'll need to update your domain settings and modify users’ email addresses. Here's a concise step-by-step:
+
+1. **Add and Verify the New Domain**  
+   - Sign in to the Office 365 admin center.
+   - Navigate to **Setup** > **Domains**.
+   - Click **Add Domain** and follow the prompts to add your new domain.
+   - Verify ownership by updating your DNS records (e.g., TXT record) as instructed.
+
+2. **Update DNS Records**  
+   - After verification, update necessary DNS records (MX, SPF, etc.) for the new domain to ensure mail flow.
+
+3. **Change Users’ Email Addresses**  
+   - In the **Exchange admin center** or **Office 365 admin center**, update the primary email address for each user from the old domain to the new one.
+   - You can do this individually or use PowerShell for bulk updates.  
+     For PowerShell, you might run:
+     ```powershell
+     Set-Mailbox user@olddomain.com -PrimarySmtpAddress user@newdomain.com
+     ```
+
+4. **Test and Confirm**  
+   - Verify that emails are routing correctly.
+   - Inform users about the change if needed.
+
+This process ensures that the new domain is fully integrated into your Office 365 environment and that user mailboxes are updated accordingly.
+
+[USER]
+how di I give someone admin rights in o365
+
+[ASSISTANT]
+To grant someone admin rights in Office 365, follow these steps:
+
+1. **Sign In**  
+   - Log in to the [Office 365 admin center](https://admin.microsoft.com).
+
+2. **Select the User**  
+   - In the left-hand menu, go to **Users** > **Active users**.
+   - Find and click on the user you want to grant admin rights.
+
+3. **Assign an Admin Role**  
+   - Under the user's settings, click **Manage roles**.
+   - Choose the appropriate admin role (e.g., Global admin, Exchange admin, etc.) based on the level of access required.
+   - Click **Save changes**.
+
+4. **Confirmation**  
+   - Inform the user of their new privileges and verify that they can access the admin features.
+
+This approach ensures the user gets the necessary rights without over-assigning permissions.
+

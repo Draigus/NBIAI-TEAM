@@ -1,0 +1,614 @@
+TITLE: Milestone staging assessment
+DATE: 2025-12-08
+MESSAGES: 135
+ID: 69370b09-f2d4-832f-8e20-c1dd24887b13
+---
+
+[USER]
+as an expert consultant and coach who is highly skilled in game development assess the work plan attached (specifically the Couch Heroes tab only) and stage work by milestone that aligned with capable work hours for one senior consultant delivery these tasks need to stage out across the milestones in a legitimate way. once they are staged as a team of expert game developers and consultants for the games industry assess the milestone staging for reasonable success **Im only interested in the lighthouse tab in the excel. compare it with milestones in the SOW
+
+[ASSISTANT]
+import openpyxl, os, textwrap, json, math, pandas as pd
+
+[ASSISTANT]
+wb_path = "/mnt/data/NBI Backlog Sheet.12-03-25.xlsx"
+os.path.exists(wb_path), wb_path
+
+[ASSISTANT]
+import openpyxl, pandas as pd
+wb = openpyxl.load_workbook(wb_path, data_only=True)
+wb.sheetnames
+
+[ASSISTANT]
+lighthouse_df = pd.read_excel(wb_path, sheet_name="Lighthouse")
+lighthouse_df.head(20)
+
+[ASSISTANT]
+lighthouse_df.columns
+
+[ASSISTANT]
+lighthouse_df.tail(30)
+
+[ASSISTANT]
+lighthouse_df.iloc[0:80]
+
+[ASSISTANT]
+sow_path = "/mnt/data/Couch Heroes.SoW.Framework and Coaching.FINAL.25-11-25.pdf"
+os.path.exists(sow_path)
+
+[ASSISTANT]
+ch_df = pd.read_excel(wb_path, sheet_name="Couch Heroes")
+ch_df.head(20)
+
+[USER]
+??
+
+[ASSISTANT]
+[col for col in ch_df.columns if isinstance(col,str) and 'Lighthouse' in col]
+
+[ASSISTANT]
+import pandas as pd, os, textwrap, math, json, sys, traceback
+
+[ASSISTANT]
+import pandas as pd, os, textwrap, math, json, sys, traceback
+
+excel_path = "/mnt/data/NBI Backlog Sheet.12-03-25.xlsx"
+os.path.exists(excel_path), excel_path
+
+[ASSISTANT]
+xls = pd.ExcelFile(excel_path)
+xls.sheet_names
+
+[ASSISTANT]
+# show PnL and Stories columns non-null
+subset = lighthouse_df[['PnL ', 'Unnamed: 1']].fillna('')
+for idx, row in subset.iterrows():
+    if row['PnL '] or row['Unnamed: 1']:
+        print(idx, '||', row['PnL '], '||', row['Unnamed: 1'])
+
+[ASSISTANT]
+df_lighthouse = pd.read_excel(excel_path, sheet_name="Lighthouse")
+df_lighthouse.head(), df_lighthouse.columns
+
+[ASSISTANT]
+for idx, row in subset.iloc[0:40].iterrows():
+    if row['PnL '] or row['Unnamed: 1']:
+        print(idx, '||', row['PnL '], '||', row['Unnamed: 1'])
+
+[ASSISTANT]
+for idx, row in subset.iloc[30:].iterrows():
+    if row['PnL '] or row['Unnamed: 1']:
+        print(idx, '||', row['PnL '], '||', row['Unnamed: 1'])
+
+[USER]
+as an expert consultant and coach who is highly skilled in game development assess the work plan attached (specifically the Couch Heroes tab only) and stage work by milestone that aligned with capable work hours for one senior consultant delivery these tasks need to stage out across the milestones in a legitimate way. once they are staged as a team of expert game developers and consultants for the games industry assess the milestone staging for reasonable success **Im only interested in the Couch Heroes tab in the excel. compare it with milestones in the SOW
+
+[ASSISTANT]
+lighthouse_df.iloc[30:40]
+
+[ASSISTANT]
+lighthouse_df.iloc[0:30]
+
+[ASSISTANT]
+lighthouse_df.iloc[10:30]
+
+[ASSISTANT]
+lighthouse_df.iloc[22:32]
+
+[ASSISTANT]
+lighthouse_tasks = []
+for idx, row in subset.iloc[32:].iterrows():
+    name = row['PnL ']
+    if isinstance(name,str) and name.startswith('Lighthouse'):
+        lighthouse_tasks.append((idx,name))
+len(lighthouse_tasks), lighthouse_tasks[:10]
+
+[ASSISTANT]
+lighthouse_tasks[-10:]
+
+[ASSISTANT]
+import openpyxl, os, textwrap, json, math, itertools
+
+[ASSISTANT]
+import openpyxl, os, sys, pprint, math, statistics, collections, itertools
+
+[ASSISTANT]
+file_path = "/mnt/data/NBI Backlog Sheet.12-03-25.xlsx"
+os.path.exists(file_path), file_path
+
+[ASSISTANT]
+wb = openpyxl.load_workbook(file_path, data_only=True)
+wb.sheetnames
+
+[ASSISTANT]
+sh = wb["Couch Heroes"]
+# Let's inspect first 40 rows and columns A through maybe L
+rows = []
+for i, row in enumerate(sh.iter_rows(min_row=1, max_row=40, values_only=True), start=1):
+    rows.append((i, row))
+rows
+
+[ASSISTANT]
+for i, row in rows[:25]:
+    print(i, row[:15])
+
+[ASSISTANT]
+for i, row in rows[:25]:
+    print("Row", i)
+    print(row)
+
+[ASSISTANT]
+for i, row in rows[:25]:
+    print(f"Row {i}:")
+    for j, val in enumerate(row[:13], start=1):
+        if isinstance(val, str) and len(val) > 80:
+            s = val[:77] + "..."
+        else:
+            s = val
+        print(f"  Col {j}: {repr(s)}")
+    print()
+
+[ASSISTANT]
+def show_row(idx):
+    row = list(sh.iter_rows(min_row=idx, max_row=idx, values_only=True))[0]
+    print("Row", idx)
+    for j, val in enumerate(row[:13], start=1):
+        print(f"  Col {j}: {repr(val)}")
+        
+for idx in range(4, 26):
+    show_row(idx)
+    print()
+
+[ASSISTANT]
+for idx in range(5, 11):
+    show_row(idx)
+    print()
+
+[ASSISTANT]
+show_row(6)
+
+[ASSISTANT]
+for idx in range(7, 17):
+    show_row(idx)
+    print()
+
+[ASSISTANT]
+for idx in range(8, 16):
+    show_row(idx)
+    print()
+
+[ASSISTANT]
+show_row(9)
+
+[ASSISTANT]
+show_row(10)
+
+[ASSISTANT]
+show_row(11)
+
+[ASSISTANT]
+show_row(12)
+
+[ASSISTANT]
+show_row(13)
+
+[ASSISTANT]
+show_row(14)
+
+[ASSISTANT]
+show_row(15)
+
+[ASSISTANT]
+import openpyxl, os, textwrap, math, json, sys, traceback
+
+[ASSISTANT]
+for idx in range(16, 23):
+    show_row(idx)
+    print()
+
+[ASSISTANT]
+for idx in range(17, 22):
+    show_row(idx)
+    print()
+
+[ASSISTANT]
+import os, json, textwrap, math, sys, traceback
+
+[ASSISTANT]
+show_row(18); show_row(19); show_row(20)
+
+[ASSISTANT]
+show_row(18)
+
+[ASSISTANT]
+os.listdir("/mnt/data")
+
+[ASSISTANT]
+import openpyxl, itertools, math
+
+[ASSISTANT]
+show_row(19)
+
+[ASSISTANT]
+wb = openpyxl.load_workbook("/mnt/data/NBI Backlog Sheet.12-03-25.xlsx", data_only=True)
+wb.sheetnames
+
+[ASSISTANT]
+row19 = list(sh.iter_rows(min_row=19, max_row=19, values_only=True))[0]
+len(row19[4]), row19[4]
+
+[ASSISTANT]
+wb.sheetnames
+
+[ASSISTANT]
+show_row(20)
+
+[ASSISTANT]
+sh = wb["Couch Heroes"]
+data = []
+for row in range(1, 60):
+    row_vals = [sh.cell(row=row, column=col).value for col in range(1, 15)]
+    data.append(row_vals)
+data
+
+[ASSISTANT]
+for row in range(1, 40):
+    print(row, [sh.cell(row=row, column=col).value for col in range(1, 12)])
+
+[ASSISTANT]
+# collect all non-empty rows (where Col4 or Col5 has content)
+tasks = []
+for i, row in enumerate(sh.iter_rows(min_row=1, max_row=200, values_only=True), start=1):
+    if any(row[:15]):
+        tasks.append((i, row[:15]))
+len(tasks)
+
+[ASSISTANT]
+len(tasks), tasks[:40]
+
+[ASSISTANT]
+for row in range(1, 25):
+    print(row, [sh.cell(row=row, column=col).value for col in range(1, 11)])
+
+[ASSISTANT]
+show_row(2)
+
+[ASSISTANT]
+# gather tasks rows with a numeric Hours value
+task_rows_with_hours = []
+for i, row in enumerate(sh.iter_rows(min_row=3, max_row=200, values_only=True), start=3):
+    hours = row[12]  # Col13 in Excel
+    if isinstance(hours, (int, float)):
+        task_rows_with_hours.append((i, hours, row[3], row[4], row[5:10]))
+len(task_rows_with_hours), task_rows_with_hours[:20]
+
+[ASSISTANT]
+# Let's inspect columns titles first:
+header = [sh.cell(row=2, column=c).value for c in range(1, 11)]
+header
+
+[ASSISTANT]
+tasks = []
+for r in range(3, sh.max_row+1):
+    prio = sh.cell(r,1).value
+    epic = sh.cell(r,4).value
+    task = sh.cell(r,5).value
+    ms = [sh.cell(r,5+i).value for i in range(1,6)]
+    if any([prio,epic,task] + ms):
+        tasks.append((r, prio, epic, task, ms))
+len(tasks)
+
+[ASSISTANT]
+import PyPDF2, os, textwrap, math
+
+[ASSISTANT]
+pdf_path = "/mnt/data/Couch Heroes.SoW.Framework and Coaching.FINAL.25-11-25.pdf"
+reader = PyPDF2.PdfReader(pdf_path)
+len(reader.pages)
+
+[ASSISTANT]
+text = ""
+for i in range(len(reader.pages)):
+    text += reader.pages[i].extract_text() + "\n\n---PAGE---\n\n"
+text[:4000]
+
+[ASSISTANT]
+sow_path = "/mnt/data/Couch Heroes.SoW.Framework and Coaching.FINAL.25-11-25.pdf"
+os.path.exists(sow_path), sow_path
+
+[ASSISTANT]
+text = ""
+for i in range(len(reader.pages)):
+    text += reader.pages[i].extract_text() + "\n"
+len(text)
+
+[ASSISTANT]
+import os, time, sys, math, textwrap, json, statistics
+
+[ASSISTANT]
+# Find where "Milestone" appears
+idx = text.lower().find("milestone")
+text[idx-300:idx+400]
+
+[ASSISTANT]
+text[:2000]
+
+[ASSISTANT]
+for keyword in ["Milestone 1", "Milestone 2", "Milestone 3", "Milestone 4", "MS 1"]:
+    idx = text.lower().find(keyword.lower())
+    print(keyword, idx)
+
+[ASSISTANT]
+# Show 3000 chars with visible newlines
+preview = text[:3000].replace("\n", "\\n")
+preview
+
+[ASSISTANT]
+paragraphs = text.split("\n\n")
+len(paragraphs), paragraphs[:10]
+
+[ASSISTANT]
+for kw in ["Term", "FEES", "Services", "Deliverables", "Production framework", "coaching", "workshop"]:
+    idx = text.lower().find(kw.lower())
+    print(kw, idx)
+
+[ASSISTANT]
+def snippet(kw, radius=400):
+    idx = text.lower().find(kw.lower())
+    if idx==-1:
+        return None
+    return text[max(0,idx-radius):idx+radius]
+
+print(snippet("Services"))
+
+
+[ASSISTANT]
+print(snippet("Production framework", 800))
+
+[ASSISTANT]
+print(snippet("Task  1: Production framework implementation", 1600))
+
+[ASSISTANT]
+print(snippet("4. Pilot and scale", 1000))
+
+[ASSISTANT]
+print(snippet("Term:", 800))
+
+[ASSISTANT]
+for kw in ["Term", "Duration", "Fees", "Timeline", "Period of performance", "Timeframe", "Estimated period"]:
+    idx = text.lower().find(kw.lower())
+    print(kw, idx)
+
+[ASSISTANT]
+print(snippet("Period of performance", 600))
+
+[ASSISTANT]
+print(snippet("Task 2: Senior hiring advisory for CTO and Executive Producer", 900))
+
+[ASSISTANT]
+idx = text.lower().find("period of performance", text.lower().find("task 2"))
+print(text[idx:idx+240])
+
+[ASSISTANT]
+for kw in ["Task 3:", "Task 4:", "Task 5:", "Task 6:", "Task 7:"]:
+    idx = text.lower().find(kw.lower())
+    print(kw, idx)
+
+[ASSISTANT]
+print(snippet("Task 5:", 800))
+
+[ASSISTANT]
+idx = text.lower().find("period of performance", text.lower().find("task 5"))
+print(text[idx:idx+260])
+
+[ASSISTANT]
+for t in ["Task 3:", "Task 4:"]:
+    start = text.lower().find(t.lower())
+    if start==-1: 
+        print(t, "not found")
+        continue
+    idx = text.lower().find("period of performance", start)
+    print(t, "period idx", idx)
+    print(text[idx:idx+260])
+
+
+[ASSISTANT]
+print(snippet("Task 3:", 800))
+
+[ASSISTANT]
+idx3 = text.lower().find("task 3")
+print(text[idx3:idx3+800])
+
+
+[ASSISTANT]
+print(text[idx3+800:idx3+1600])
+
+
+[ASSISTANT]
+idxm1 = text.lower().find("month 1 milestone")
+print(text[idxm1:idxm1+600])
+
+
+[ASSISTANT]
+[sh.cell(2,c).value for c in range(1,13)]
+
+[ASSISTANT]
+epics = {}
+for r, prio, epic, task, ms in tasks:
+    if epic:
+        epics.setdefault(epic.strip(), 0)
+        epics[epic.strip()] += 1
+len(epics), list(epics.items())[:30]
+
+[USER]
+?
+
+[ASSISTANT]
+import pandas as pd, os, textwrap, json, math, re, sys, traceback
+
+[ASSISTANT]
+import pandas as pd, os, math, textwrap, json, re, sys, traceback
+
+[ASSISTANT]
+os.listdir("/mnt/data")
+
+[ASSISTANT]
+backlog_path = "/mnt/data/NBI Backlog Sheet.12-03-25.xlsx"
+xls = pd.ExcelFile(backlog_path)
+xls.sheet_names
+
+[ASSISTANT]
+ch_df = pd.read_excel(backlog_path, sheet_name="Couch Heroes")
+ch_df.head(20)
+
+[ASSISTANT]
+list(ch_df.columns)[:40], len(ch_df.columns)
+
+[ASSISTANT]
+ch_df.iloc[:8, :40].to_string()
+
+[ASSISTANT]
+for i in range(10):
+    row = ch_df.iloc[i, :40].tolist()
+    print("ROW", i, ":", row)
+
+[ASSISTANT]
+[col for col in ch_df.columns if isinstance(col,str) and col.strip().startswith("MS")]
+
+[ASSISTANT]
+header_row = ch_df.iloc[0]
+# find indexes
+epic_idx = header_row[header_row=="Epic and Feature"].index[0]
+tasks_idx = header_row[header_row=="Tasks"].index[0]
+ms_indices = [idx for idx,val in header_row.items() if isinstance(val,str) and val.strip().startswith("MS")]
+epic_idx, tasks_idx, ms_indices[:10], len(ms_indices)
+
+[ASSISTANT]
+for col in [epic_idx, tasks_idx] + ms_indices:
+    print(col, "->", header_row[col])
+
+[ASSISTANT]
+cols = ["Priority", epic_idx, tasks_idx] + ms_indices
+ch_small = ch_df[cols].iloc[1:60].copy()
+ch_small.head(30)
+
+[ASSISTANT]
+pd.set_option("display.max_columns", None)
+pd.set_option("display.max_colwidth", 80)
+ch_small.head(40)
+
+[ASSISTANT]
+pd.set_option("display.width", 200)
+ch_small.head(40)
+
+[ASSISTANT]
+# Construct cleaned DataFrame
+df = ch_df.copy()
+# rename columns for clarity
+df = df.rename(columns={epic_idx:"EpicFeature", tasks_idx:"Task", ms_indices[0]:"MS1", ms_indices[1]:"MS2", ms_indices[2]:"MS3", ms_indices[3]:"MS4", ms_indices[4]:"MS5"})
+clean = df[["Priority","EpicFeature","Task","MS1","MS2","MS3","MS4","MS5"]].iloc[1:120].copy()
+clean.head(40)
+
+[ASSISTANT]
+# Filter to tasks (rows where Task not NaN)
+tasks = clean[clean["Task"].notna()].copy()
+len(tasks), tasks.head(10)
+
+[ASSISTANT]
+ms_counts = {}
+for ms in ["MS1","MS2","MS3","MS4","MS5"]:
+    ms_counts[ms] = tasks[ms].notna().sum()
+ms_counts
+
+[ASSISTANT]
+import pandas as pd, os, math, textwrap, json, re, sys, traceback
+
+[ASSISTANT]
+backlog_path = "/mnt/data/NBI Backlog Sheet.12-03-25.xlsx"
+xls = pd.ExcelFile(backlog_path)
+ch_df = pd.read_excel(backlog_path, sheet_name="Couch Heroes")
+header_row = ch_df.iloc[0]
+epic_idx = header_row[header_row=="Epic and Feature"].index[0]
+tasks_idx = header_row[header_row=="Tasks"].index[0]
+ms_indices = [idx for idx,val in header_row.items() if isinstance(val,str) and val.strip().startswith("MS")]
+df = ch_df.rename(columns={epic_idx:"EpicFeature", tasks_idx:"Task", ms_indices[0]:"MS1", ms_indices[1]:"MS2", ms_indices[2]:"MS3", ms_indices[3]:"MS4", ms_indices[4]:"MS5"})
+clean = df[["Priority","EpicFeature","Task","MS1","MS2","MS3","MS4","MS5"]].iloc[1:120].copy()
+tasks = clean[clean["Task"].notna()].copy()
+ms_counts = {ms: tasks[ms].notna().sum() for ms in ["MS1","MS2","MS3","MS4","MS5"]}
+ms_counts
+
+[ASSISTANT]
+# group tasks per EpicFeature and per MS flag
+group = []
+for idx,row in tasks.iterrows():
+    for ms in ["MS1","MS2","MS3","MS4","MS5"]:
+        if isinstance(row[ms], str) and row[ms].strip().lower() == "x":
+            group.append({"Epic": row["EpicFeature"], "Task": row["Task"], "MS": ms, "Priority": row["Priority"]})
+group_df = pd.DataFrame(group)
+group_df.head(20), group_df["MS"].value_counts()
+
+[ASSISTANT]
+epic_ms_counts = group_df.groupby(["Epic","MS"]).size().unstack(fill_value=0)
+epic_ms_counts
+
+[ASSISTANT]
+sow_path = "/mnt/data/Couch Heroes.SoW.Framework and Coaching.FINAL.25-11-25.pdf"
+import PyPDF2, io, math, textwrap, sys, traceback
+
+[ASSISTANT]
+reader = PyPDF2.PdfReader(open(sow_path, "rb"))
+len(reader.pages)
+
+[ASSISTANT]
+sow_text = ""
+for i in range(len(reader.pages)):
+    sow_text += reader.pages[i].extract_text() + "\n---PAGE BREAK---\n"
+sow_text[:4000]
+
+[ASSISTANT]
+"Milestone" in sow_text, sow_text[:1000]
+
+[ASSISTANT]
+for m in re.finditer("Milestone", sow_text):
+    start = max(0, m.start()-400)
+    end = min(len(sow_text), m.end()+800)
+    print("...", sow_text[start:end])
+    print("\n========\n")
+
+[ASSISTANT]
+print(sow_text[0:2500])
+
+[ASSISTANT]
+# Let's locate "Task  1: Production framework implementation" and print a slice
+m = re.search("Task  1: Production framework implementation", sow_text)
+start = max(0,m.start()-200)
+end = min(len(sow_text), m.start()+1500)
+print(sow_text[start:end])
+
+[ASSISTANT]
+print(sow_text[end:end+1500])
+
+[ASSISTANT]
+m2 = re.search("Task 2: Senior hiring advisory for CTO and Executive Producer", sow_text)
+print(sow_text[m2.start():m2.start()+1500])
+
+[ASSISTANT]
+print(sow_text[m2.start()+1500:m2.start()+3200])
+
+[ASSISTANT]
+print(sow_text[m2.start()+3200:m2.start()+5200])
+
+[ASSISTANT]
+for m in re.finditer("Milestone", sow_text):
+    print(sow_text[m.start()-200:m.start()+400])
+    print("-----")
+
+[ASSISTANT]
+epics = tasks["EpicFeature"].unique().tolist()
+len(epics), epics
+
+[ASSISTANT]
+# inspect rows 120-260 quickly
+clean2 = df[["Priority","EpicFeature","Task","MS1","MS2","MS3","MS4","MS5"]].iloc[120:260].copy()
+clean2[clean2["Task"].notna()].head(40)
+

@@ -1,0 +1,1820 @@
+{
+  "compiled_at": "2026-06-01T23:50:00Z",
+  "meeting_count": 142,
+  "date_range": { "start": "2026-03-06", "end": "2026-05-22" },
+  "sections": {
+    "actions": [
+      {
+        "id": "act_20260402_glen_cto-followup-neil-nia",
+        "date": "2026-04-02",
+        "owner": "Glen",
+        "owner_normalised": "glen",
+        "description": "Follow-up calls with Neil and Nia — probe cost, equity expectations, culture fit",
+        "workstream": "couch_heroes",
+        "source_file": "cto-hire-actions.md",
+        "status": "done"
+      },
+      {
+        "id": "act_20260409_glen_recalibrate-vardis-interview",
+        "date": "2026-04-09",
+        "owner": "Glen",
+        "owner_normalised": "glen",
+        "description": "Recalibrate Vardis interview behaviour (inappropriate language 3x with Neil)",
+        "workstream": "couch_heroes",
+        "source_file": "cto-hire-actions.md",
+        "status": "open"
+      },
+      {
+        "id": "act_20260414_glen_extend-offer-nia-cto",
+        "date": "2026-04-14",
+        "owner": "Glen",
+        "owner_normalised": "glen",
+        "description": "Extend offer to Nia (CTO, 230K + 3% equity, start May 18)",
+        "workstream": "couch_heroes",
+        "source_file": "cto-hire-actions.md",
+        "status": "done"
+      },
+      {
+        "id": "act_20260417_glen_brief-aris-vardis-nia-comp",
+        "date": "2026-04-17",
+        "owner": "Glen",
+        "owner_normalised": "glen",
+        "description": "Brief Aris/Vardis on Nia compensation tradeoffs (3 options)",
+        "workstream": "couch_heroes",
+        "source_file": "cto-hire-actions.md",
+        "status": "done"
+      },
+      {
+        "id": "act_20260421_glen_break-news-third-cto-loss",
+        "date": "2026-04-21",
+        "owner": "Glen",
+        "owner_normalised": "glen",
+        "description": "Break news to CH about third CTO candidate loss (Nia took AI startup)",
+        "workstream": "couch_heroes",
+        "source_file": "cto-hire-actions.md",
+        "status": "done"
+      },
+      {
+        "id": "act_20260505_glen_interview-maurizio-de-pascale",
+        "date": "2026-05-05",
+        "owner": "Glen",
+        "owner_normalised": "glen",
+        "description": "Interview Maurizio de Pascale (IO Interactive, direct MMO experience)",
+        "workstream": "couch_heroes",
+        "source_file": "cto-hire-actions.md",
+        "status": "done"
+      },
+      {
+        "id": "act_20260515_glen_meet-greet-chris-southall",
+        "date": "2026-05-15",
+        "owner": "Glen",
+        "owner_normalised": "glen",
+        "description": "Meet and greet Chris Southall (8yr CTO Sega, heads Sumo Digital)",
+        "workstream": "couch_heroes",
+        "source_file": "cto-hire-actions.md",
+        "status": "done"
+      },
+      {
+        "id": "act_20260520_glen_interview-per-olof-romell",
+        "date": "2026-05-20",
+        "owner": "Glen",
+        "owner_normalised": "glen",
+        "description": "Interview Per-Olof Romell (ex-DICE, Starbreeze, Ubisoft)",
+        "workstream": "couch_heroes",
+        "source_file": "cto-hire-actions.md",
+        "status": "done"
+      },
+      {
+        "id": "act_20260521_glen_cto-followups-post-nordic",
+        "date": "2026-05-21",
+        "owner": "Glen",
+        "owner_normalised": "glen",
+        "description": "CTO follow-ups — schedule for week after Nordic Game Conference",
+        "workstream": "couch_heroes",
+        "source_file": "cto-hire-actions.md",
+        "status": "open"
+      },
+      {
+        "id": "act_20260521_glen_followup-chris-southall-3rd",
+        "date": "2026-05-21",
+        "owner": "Glen",
+        "owner_normalised": "glen",
+        "description": "Follow up with Chris Southall (3rd attempt for scheduling)",
+        "workstream": "couch_heroes",
+        "source_file": "cto-hire-actions.md",
+        "status": "open"
+      },
+      {
+        "id": "act_20260317_lorenza_prepare-graham-lily-offers",
+        "date": "2026-03-17",
+        "owner": "Lorenza",
+        "owner_normalised": "lorenza",
+        "description": "Prepare Graham (120K) and Lily (135-140K) offer letters",
+        "workstream": "couch_heroes",
+        "source_file": "senior-hires-actions.md",
+        "status": "done"
+      },
+      {
+        "id": "act_20260401_glen_send-final-offer-graham",
+        "date": "2026-04-01",
+        "owner": "Glen",
+        "owner_normalised": "glen",
+        "description": "Send final offer to Graham (135K base, 145K post-probation)",
+        "workstream": "couch_heroes",
+        "source_file": "senior-hires-actions.md",
+        "status": "done"
+      },
+      {
+        "id": "act_20260401_glen_send-lily-zhao-offer",
+        "date": "2026-04-01",
+        "owner": "Glen",
+        "owner_normalised": "glen",
+        "description": "Send Lily Zhao offer letter",
+        "workstream": "couch_heroes",
+        "source_file": "senior-hires-actions.md",
+        "status": "done"
+      },
+      {
+        "id": "act_20260408_lorenza_send-graham-ft-contract",
+        "date": "2026-04-08",
+        "owner": "Lorenza",
+        "owner_normalised": "lorenza",
+        "description": "Send Graham FT contract immediately",
+        "workstream": "couch_heroes",
+        "source_file": "senior-hires-actions.md",
+        "status": "done"
+      },
+      {
+        "id": "act_20260417_glen_interview-gary-platner",
+        "date": "2026-04-17",
+        "owner": "Glen",
+        "owner_normalised": "glen",
+        "description": "Interview Gary Platner (23yr Blizzard)",
+        "workstream": "couch_heroes",
+        "source_file": "senior-hires-actions.md",
+        "status": "done"
+      },
+      {
+        "id": "act_20260420_glen_terminate-anthony",
+        "date": "2026-04-20",
+        "owner": "Glen",
+        "owner_normalised": "glen",
+        "description": "Terminate Anthony at 12:30 UK time",
+        "workstream": "couch_heroes",
+        "source_file": "senior-hires-actions.md",
+        "status": "done"
+      },
+      {
+        "id": "act_20260504_glen_gary-offer-call",
+        "date": "2026-05-04",
+        "owner": "Glen",
+        "owner_normalised": "glen",
+        "description": "Gary offer call ($216K USD)",
+        "workstream": "couch_heroes",
+        "source_file": "senior-hires-actions.md",
+        "status": "done"
+      },
+      {
+        "id": "act_20260507_simon_redline-contract-friday",
+        "date": "2026-05-07",
+        "owner": "Simon",
+        "owner_normalised": "simon",
+        "description": "Redline contract by Friday; gentleman's agreement to sign current version",
+        "workstream": "couch_heroes",
+        "source_file": "senior-hires-actions.md",
+        "status": "done"
+      },
+      {
+        "id": "act_20260507_lorenza_escalate-jack-skill-search",
+        "date": "2026-05-07",
+        "owner": "Lorenza",
+        "owner_normalised": "lorenza",
+        "description": "Escalate Jack (Skill Search) concerns to agency leadership",
+        "workstream": "couch_heroes",
+        "source_file": "senior-hires-actions.md",
+        "status": "done"
+      },
+      {
+        "id": "act_20260513_lorenza_send-contracts-five-hires",
+        "date": "2026-05-13",
+        "owner": "Lorenza",
+        "owner_normalised": "lorenza",
+        "description": "Send contracts for Graham, Simon, Mikhail, Charlie, Gary",
+        "workstream": "couch_heroes",
+        "source_file": "senior-hires-actions.md",
+        "status": "done"
+      },
+      {
+        "id": "act_20260521_glen_ping-reilly-gary-signatures",
+        "date": "2026-05-21",
+        "owner": "Glen",
+        "owner_normalised": "glen",
+        "description": "Ping Reilly and Gary for contract signatures",
+        "workstream": "couch_heroes",
+        "source_file": "senior-hires-actions.md",
+        "status": "open"
+      },
+      {
+        "id": "act_20260521_mustafa_lead-daniel-offer-call",
+        "date": "2026-05-21",
+        "owner": "Mustafa",
+        "owner_normalised": "mustafa",
+        "description": "Lead Daniel offer call Monday (95K, Glen present)",
+        "workstream": "couch_heroes",
+        "source_file": "senior-hires-actions.md",
+        "status": "open"
+      },
+      {
+        "id": "act_20260522_lorenzo_update-lili-contract-july",
+        "date": "2026-05-22",
+        "owner": "Lorenzo",
+        "owner_normalised": "lorenzo",
+        "description": "Update Lili's contract for July 1st start date",
+        "workstream": "couch_heroes",
+        "source_file": "senior-hires-actions.md",
+        "status": "open"
+      },
+      {
+        "id": "act_20260318_aris_create-accountability-spreadsheet",
+        "date": "2026-03-18",
+        "owner": "Aris",
+        "owner_normalised": "aris",
+        "description": "Create accountability spreadsheet for exec meetings (3 priorities, R/Y/G)",
+        "workstream": "couch_heroes",
+        "source_file": "studio-ops-actions.md",
+        "status": "open"
+      },
+      {
+        "id": "act_20260324_glen_plan-comprehensive-studio-ama",
+        "date": "2026-03-24",
+        "owner": "Glen",
+        "owner_normalised": "glen",
+        "description": "Plan comprehensive studio AMA",
+        "workstream": "couch_heroes",
+        "source_file": "studio-ops-actions.md",
+        "status": "done"
+      },
+      {
+        "id": "act_20260401_glen_source-hs-policy-templates",
+        "date": "2026-04-01",
+        "owner": "Glen",
+        "owner_normalised": "glen",
+        "description": "Source H&S policy templates from EA, Jagex, or Barb",
+        "workstream": "couch_heroes",
+        "source_file": "studio-ops-actions.md",
+        "status": "done"
+      },
+      {
+        "id": "act_20260401_robin_draft-no-meeting-thursday",
+        "date": "2026-04-01",
+        "owner": "Robin",
+        "owner_normalised": "robin",
+        "description": "Draft no-meeting Thursday announcement (launch week of Apr 14)",
+        "workstream": "couch_heroes",
+        "source_file": "studio-ops-actions.md",
+        "status": "done"
+      },
+      {
+        "id": "act_20260407_glen_stop-production-documentation-week",
+        "date": "2026-04-07",
+        "owner": "Glen",
+        "owner_normalised": "glen",
+        "description": "Stop all production for 1 week — focus entirely on documentation",
+        "workstream": "couch_heroes",
+        "source_file": "studio-ops-actions.md",
+        "status": "done"
+      },
+      {
+        "id": "act_20260414_glen_record-post-ama-video",
+        "date": "2026-04-14",
+        "owner": "Glen",
+        "owner_normalised": "glen",
+        "description": "Record and post AMA video",
+        "workstream": "couch_heroes",
+        "source_file": "studio-ops-actions.md",
+        "status": "done"
+      },
+      {
+        "id": "act_20260421_glen_complete-ama-deck-overnight",
+        "date": "2026-04-21",
+        "owner": "Glen",
+        "owner_normalised": "glen",
+        "description": "Complete AMA deck overnight, present tomorrow 3pm UK / 5pm Greece",
+        "workstream": "couch_heroes",
+        "source_file": "studio-ops-actions.md",
+        "status": "done"
+      },
+      {
+        "id": "act_20260424_glen_synthesize-vision-call-statements",
+        "date": "2026-04-24",
+        "owner": "Glen",
+        "owner_normalised": "glen",
+        "description": "Synthesize vision call into 3-5 key statements (studio/world/product)",
+        "workstream": "couch_heroes",
+        "source_file": "studio-ops-actions.md",
+        "status": "open"
+      },
+      {
+        "id": "act_20260501_glen_build-communication-plan",
+        "date": "2026-05-01",
+        "owner": "Glen",
+        "owner_normalised": "glen",
+        "description": "Build comprehensive communication plan for studio",
+        "workstream": "couch_heroes",
+        "source_file": "studio-ops-actions.md",
+        "status": "open"
+      },
+      {
+        "id": "act_20260511_glen_merge-estimation-sheets-excel",
+        "date": "2026-05-11",
+        "owner": "Glen",
+        "owner_normalised": "glen",
+        "description": "Merge all department estimation sheets into unified Excel",
+        "workstream": "couch_heroes",
+        "source_file": "studio-ops-actions.md",
+        "status": "done"
+      },
+      {
+        "id": "act_20260512_all-directors_review-1700-line-estimates",
+        "date": "2026-05-12",
+        "owner": "All directors",
+        "owner_normalised": "all_directors",
+        "description": "Review 1,700-line game development estimates",
+        "workstream": "couch_heroes",
+        "source_file": "studio-ops-actions.md",
+        "status": "done"
+      },
+      {
+        "id": "act_20260514_leads_provide-software-license-lists",
+        "date": "2026-05-14",
+        "owner": "Leads",
+        "owner_normalised": "leads",
+        "description": "Provide software license lists for onboarding kits",
+        "workstream": "couch_heroes",
+        "source_file": "studio-ops-actions.md",
+        "status": "open"
+      },
+      {
+        "id": "act_20260515_glen-hannah_schedule-design-lock-meeting",
+        "date": "2026-05-15",
+        "owner": "Glen/Hannah",
+        "owner_normalised": "glen_hannah",
+        "description": "Schedule design lock process meeting (with Robin, Valeria)",
+        "workstream": "couch_heroes",
+        "source_file": "studio-ops-actions.md",
+        "status": "open"
+      },
+      {
+        "id": "act_20260515_hannah_create-qa-estimation-sheet",
+        "date": "2026-05-15",
+        "owner": "Hannah",
+        "owner_normalised": "hannah",
+        "description": "Create separate QA estimation sheet with test plan approach",
+        "workstream": "couch_heroes",
+        "source_file": "studio-ops-actions.md",
+        "status": "open"
+      },
+      {
+        "id": "act_20260521_glen_write-narrative-lead-jd",
+        "date": "2026-05-21",
+        "owner": "Glen",
+        "owner_normalised": "glen",
+        "description": "Write Narrative Lead job description",
+        "workstream": "couch_heroes",
+        "source_file": "studio-ops-actions.md",
+        "status": "open"
+      },
+      {
+        "id": "act_20260521_dino_confirm-mishcon-template-friday",
+        "date": "2026-05-21",
+        "owner": "Dino",
+        "owner_normalised": "dino",
+        "description": "Confirm Mishcon template delivery by Friday",
+        "workstream": "couch_heroes",
+        "source_file": "studio-ops-actions.md",
+        "status": "open"
+      },
+      {
+        "id": "act_20260521_glen-lorenza_draft-military-service-narrative",
+        "date": "2026-05-21",
+        "owner": "Glen/Lorenza",
+        "owner_normalised": "glen_lorenza",
+        "description": "Draft military service narrative for Nicolas/Panos contract endings",
+        "workstream": "couch_heroes",
+        "source_file": "studio-ops-actions.md",
+        "status": "open"
+      },
+      {
+        "id": "act_20260521_all-leadership_wednesday-meeting-david-alon",
+        "date": "2026-05-21",
+        "owner": "All leadership",
+        "owner_normalised": "all_leadership",
+        "description": "Wednesday meeting with David re: Alon final warning/departure",
+        "workstream": "couch_heroes",
+        "source_file": "studio-ops-actions.md",
+        "status": "open"
+      },
+      {
+        "id": "act_20260522_glen_complete-onboarding-workspace-video",
+        "date": "2026-05-22",
+        "owner": "Glen",
+        "owner_normalised": "glen",
+        "description": "Complete onboarding workspace + video presentation for May 29",
+        "workstream": "couch_heroes",
+        "source_file": "studio-ops-actions.md",
+        "status": "open"
+      },
+      {
+        "id": "act_20260409_aris_transition-md-role-sophia",
+        "date": "2026-04-09",
+        "owner": "Aris",
+        "owner_normalised": "aris",
+        "description": "Transition MD role to Sophia (existing investor, UK resident)",
+        "workstream": "couch_heroes",
+        "source_file": "dino-transition-actions.md",
+        "status": "open"
+      },
+      {
+        "id": "act_20260409_aris_email-performance-review-dino",
+        "date": "2026-04-09",
+        "owner": "Aris",
+        "owner_normalised": "aris",
+        "description": "Email performance review to Dino, deny salary/benefit requests",
+        "workstream": "couch_heroes",
+        "source_file": "dino-transition-actions.md",
+        "status": "done"
+      },
+      {
+        "id": "act_20260409_lorenza_request-contract-docs-dino",
+        "date": "2026-04-09",
+        "owner": "Lorenza",
+        "owner_normalised": "lorenza",
+        "description": "Request all contract documentation from Dino (escalating pressure)",
+        "workstream": "couch_heroes",
+        "source_file": "dino-transition-actions.md",
+        "status": "open"
+      },
+      {
+        "id": "act_20260409_glen_provide-termination-templates",
+        "date": "2026-04-09",
+        "owner": "Glen",
+        "owner_normalised": "glen",
+        "description": "Provide termination letter and settlement agreement templates",
+        "workstream": "couch_heroes",
+        "source_file": "dino-transition-actions.md",
+        "status": "done"
+      },
+      {
+        "id": "act_20260409_vardis-aris_decide-settlement-amount",
+        "date": "2026-04-09",
+        "owner": "Vardis/Aris",
+        "owner_normalised": "vardis_aris",
+        "description": "Decide settlement amount by end of next week",
+        "workstream": "couch_heroes",
+        "source_file": "dino-transition-actions.md",
+        "status": "open"
+      },
+      {
+        "id": "act_20260318_amir_extend-sarge-forecast-3yr",
+        "date": "2026-03-18",
+        "owner": "Amir",
+        "owner_normalised": "amir",
+        "description": "Extend Sarge forecast to 3 years",
+        "workstream": "sarge",
+        "source_file": "nbi-lighthouse-actions.md",
+        "status": "open"
+      },
+      {
+        "id": "act_20260327_glen_line-by-line-financial-cleanup-tom",
+        "date": "2026-03-27",
+        "owner": "Glen",
+        "owner_normalised": "glen",
+        "description": "Line-by-line financial file cleanup with Tom",
+        "workstream": "nbi",
+        "source_file": "nbi-lighthouse-actions.md",
+        "status": "done"
+      },
+      {
+        "id": "act_20260409_glen_collect-sanitize-james-feedback",
+        "date": "2026-04-09",
+        "owner": "Glen",
+        "owner_normalised": "glen",
+        "description": "Collect and sanitize team feedback on James for Justin",
+        "workstream": "lighthouse",
+        "source_file": "nbi-lighthouse-actions.md",
+        "status": "done"
+      },
+      {
+        "id": "act_20260507_stavros_complete-final-data-model-lh",
+        "date": "2026-05-07",
+        "owner": "Stavros",
+        "owner_normalised": "stavros",
+        "description": "Complete final data model pass for Lighthouse",
+        "workstream": "lighthouse",
+        "source_file": "nbi-lighthouse-actions.md",
+        "status": "done"
+      },
+      {
+        "id": "act_20260511_stavros_rebalance-lh-forecast-yr2-4",
+        "date": "2026-05-11",
+        "owner": "Stavros",
+        "owner_normalised": "stavros",
+        "description": "Rebalance Lighthouse forecast distribution across years 2-4",
+        "workstream": "lighthouse",
+        "source_file": "nbi-lighthouse-actions.md",
+        "status": "open"
+      },
+      {
+        "id": "act_20260513_glen_greece-trip-speaking-dinner",
+        "date": "2026-05-13",
+        "owner": "Glen",
+        "owner_normalised": "glen",
+        "description": "Greece trip: speaking engagement + dinner with PM + 3 cabinet ministers",
+        "workstream": "nbi",
+        "source_file": "nbi-lighthouse-actions.md",
+        "status": "open"
+      },
+      {
+        "id": "act_20260522_glen-justin_sprint-review-tuesday",
+        "date": "2026-05-22",
+        "owner": "Glen/Justin",
+        "owner_normalised": "glen_justin",
+        "description": "Sprint review meeting Tuesday (Magnus coordinating)",
+        "workstream": "lighthouse",
+        "source_file": "nbi-lighthouse-actions.md",
+        "status": "open"
+      },
+      {
+        "id": "act_20260522_glen_game-dev-roadmap-june-12",
+        "date": "2026-05-22",
+        "owner": "Glen",
+        "owner_normalised": "glen",
+        "description": "Game development roadmap completion by June 12",
+        "workstream": "couch_heroes",
+        "source_file": "nbi-lighthouse-actions.md",
+        "status": "open"
+      },
+      {
+        "id": "act_20260522_team_fundraising-timeline-june-19",
+        "date": "2026-05-22",
+        "owner": "Team",
+        "owner_normalised": "team",
+        "description": "Fundraising timeline decision by June 19",
+        "workstream": "couch_heroes",
+        "source_file": "nbi-lighthouse-actions.md",
+        "status": "open"
+      }
+    ],
+    "decisions": [
+      {
+        "id": "dec_20260317_riley-legal-team-150k",
+        "date": "2026-03-17",
+        "decision": "Riley legal team contract at 150K/year (3 people: legal + IP + GDPR/DPO)",
+        "rationale": "Replaces Dino's solo legal coverage with full team",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260319_robin-step-down-ic",
+        "date": "2026-03-19",
+        "decision": "Robin to step down from management to IC/R&D role",
+        "rationale": "\"Not directing anything, a passenger\" — prefers toymaker role, \"my way or highway\" feedback style",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260320_age-rating-teen",
+        "date": "2026-03-20",
+        "decision": "Age rating changed from 18+ to Teen",
+        "rationale": "11 of 14 MMOs are Teen-rated; ESO filed Teen but got Mature; broadest market access",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260401_no-meeting-thursdays",
+        "date": "2026-04-01",
+        "decision": "No-meeting Thursdays starting week of Apr 14",
+        "rationale": "Protect maker time; urgent calls still permitted",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260402_frame-6m-seed-target-series-b",
+        "date": "2026-04-02",
+        "decision": "Frame EUR 6M as seed, position as post-Series A, target Series B directly",
+        "rationale": "EUR 6M seed + EUR 5M convertible note = strong foundation",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260409_exit-dino-md-sophia-replacement",
+        "date": "2026-04-09",
+        "decision": "Exit Dino from MD role. 3-month notice. Sophia as replacement.",
+        "rationale": "Single-person dependencies across multiple critical functions; risk mitigation",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260409_riley-150k-comprehensive-legal",
+        "date": "2026-04-09",
+        "decision": "Riley at 150K annual flat fee for comprehensive legal",
+        "rationale": "Third-party costs become Riley's responsibility under agreement",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260413_mmo-first-not-platform",
+        "date": "2026-04-13",
+        "decision": "CH is building an MMO first, with platform features supportive (not platform with game)",
+        "rationale": "Studio success determined by MMO playability; not large enough for separate platform product",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260424_calm-intensity-crisis-posture",
+        "date": "2026-04-24",
+        "decision": "\"Calm intensity\" adopted as studio crisis posture",
+        "rationale": "Vision call with Vardis/Aris: fight collectively, not individually. Fix first, understand why after.",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260424_belonging-over-epic",
+        "date": "2026-04-24",
+        "decision": "\"Belonging\" adopted as product vision keyword over \"epic\"",
+        "rationale": "Blizzard owns epic; CH about belonging TO something epic",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260505_scope-reduction-hierarchy",
+        "date": "2026-05-05",
+        "decision": "Scope reduction hierarchy: headcount first, outsource second, feature cuts last",
+        "rationale": "Vertical slice must be production-quality, not throwaway",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260507_four-clevel-org",
+        "date": "2026-05-07",
+        "decision": "4 C-level org: COO, CPO, CTO, Business Head",
+        "rationale": "EP reports to CPO; CEO can act as Creative Director but EP has final production say",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260511_glen-proposed-cpo",
+        "date": "2026-05-11",
+        "decision": "Glen proposed as Chief Product Officer (CPO)",
+        "rationale": "Vardis dual role: CEO (hard decisions) vs Creative Director (collaborative input)",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260512_jack-skill-search-removed",
+        "date": "2026-05-12",
+        "decision": "Jack (Skill Search recruiter) unanimously removed",
+        "rationale": "Shared negative feedback about CH being \"unstructured\" with HR candidate",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260520_thou-shalt-not-hack",
+        "date": "2026-05-20",
+        "decision": "\"Thou Shalt Not Hack\" — all vertical slice code production-quality",
+        "rationale": "Tech leads determine build order, not creative director; systems layer on each other",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260520_cosmetics-only-monetisation",
+        "date": "2026-05-20",
+        "decision": "Cosmetics-only monetisation — no pay-to-win weapons",
+        "rationale": "Foundational design pillar",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260317_graham-120k-fte-equity-after-probation",
+        "date": "2026-03-17",
+        "decision": "Graham: 120K base, FTE, 30-day start, equity after probation",
+        "rationale": "Later negotiated to 135K start, 145K post-probation (4-month review)",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260317_lili-135-140k-max",
+        "date": "2026-03-17",
+        "decision": "Lili: 135-140K max base (accepted at 140K, later negotiated to 145K)",
+        "rationale": "35K below current salary; willing for games industry move",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260324_charlie-over-tanya",
+        "date": "2026-03-24",
+        "decision": "Charlie preferred over Tanya for lead level designer",
+        "rationale": "Stronger leadership answers on cross-department conflicts; Tanya rated 6/10",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260327_kalen-over-chris-vfx",
+        "date": "2026-03-27",
+        "decision": "Kalen selected over Chris Southall for VFX Lead (75K vs 98K)",
+        "rationale": "Chris anti-crunch stance + higher salary; Kalen MMO background + collaborative",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260402_both-neil-nia-hires",
+        "date": "2026-04-02",
+        "decision": "Both Neil and Nia are hires; prefer Neil slightly on all else equal",
+        "rationale": "Neil more structured; Nia warmer. Salary the deciding factor.",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260408_anthony-let-go",
+        "date": "2026-04-08",
+        "decision": "Anthony (UI/UX) let go",
+        "rationale": "Can't implement in Unreal, only copies existing solutions, poor collaboration. UI/UX moves under David (Design), not Robin (Art).",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260409_cto-salary-band-220-240k",
+        "date": "2026-04-09",
+        "decision": "CTO salary band: 220-240K base + launch bonus (440-480K total over project)",
+        "rationale": "Equity: CTO ~5%, C-level 8-10%, senior leadership 3-5%, key staff 1-2%",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260414_nia-offered-cto-230k",
+        "date": "2026-04-14",
+        "decision": "Nia offered CTO: 230K + 3% equity, start May 18",
+        "rationale": "Later revised: target 250K (Glen overruled Aris's 210K suggestion)",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260417_gary-platner-recommended-150k",
+        "date": "2026-04-17",
+        "decision": "Gary Platner recommended at $150K initially",
+        "rationale": "\"Avengers team\" — assembling recognisable AAA talent is a fundraising asset, not just production",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260420_simon-over-nelly-head-design",
+        "date": "2026-04-20",
+        "decision": "Simon Woodruff chosen over Nelly for Head of Design",
+        "rationale": "30-year veteran; Sea of Thieves, Rare, Sega, Epic. Social game design philosophy deeply aligned.",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260421_nia-declined-neil-rejected",
+        "date": "2026-04-21",
+        "decision": "Nia declined — took AI startup ($5M seed)",
+        "rationale": "Third CTO candidate loss. Neil also rejected (350K + 20% equity ask).",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260504_gary-offered-216k-contractor",
+        "date": "2026-05-04",
+        "decision": "Gary offered $202K→$216K as Head of Level Design (contractor)",
+        "rationale": "23 years at Blizzard/WoW; US-based, interested in Greece relocation",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260506_simon-180k-3pct-equity",
+        "date": "2026-05-06",
+        "decision": "Simon offered 180K + 3% equity + uncapped pension",
+        "rationale": "Negotiated up from 150K. Start June 1.",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260512_stephen-bain-8-10",
+        "date": "2026-05-12",
+        "decision": "Stephen Bain: 8/10, strong HR Ops hire",
+        "rationale": "Deep EOR/IR35 knowledge. Calm personality offsets Lorenza's intensity.",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260521_daniel-lead-fullstack-95k",
+        "date": "2026-05-21",
+        "decision": "Daniel (Lead Full Stack) approved at 95K (12K over budget)",
+        "rationale": "Barcelona-based, B2B, available immediately. Ex-Niantic.",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260521_alon-contract-termination",
+        "date": "2026-05-21",
+        "decision": "Alon contract termination decided",
+        "rationale": "Zero combat animations in 4 months; toxic to multiple team members",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260521_end-military-contracts-early",
+        "date": "2026-05-21",
+        "decision": "End military service contracts early (Nicolas, Panos); replace with seniors",
+        "rationale": "Combine junior salaries into 1-2 seniors for 2x delivery",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260427_platform-redirected-game-backend",
+        "date": "2026-04-27",
+        "decision": "Platform team redirected from launcher to game backend (guilds, achievements, LFG)",
+        "rationale": "Launcher redesign deprioritised for vertical slice",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260428_content-feature-epics-merged",
+        "date": "2026-04-28",
+        "decision": "Content + feature epics merged — one per domain",
+        "rationale": "Split epics make completion tracking misleading",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260428_vs-jira-release-filter",
+        "date": "2026-04-28",
+        "decision": "Vertical slice = Jira release filter, not an epic",
+        "rationale": "Prevents structural confusion",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260428_6-stage-dev-pipeline",
+        "date": "2026-04-28",
+        "decision": "6-stage dev pipeline: Ideation > R&D > GDD > Prototype > MVP > Player Ready",
+        "rationale": "Previously: idea directly to prototype without documentation",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260428_14-agreed-epics",
+        "date": "2026-04-28",
+        "decision": "14 agreed epics: Player Build, World Systems, Combat, User Spaces, Items, Economy, Quests, Social, Platform, Live Game, BD/Partners, Publishing, Bibles, RMT",
+        "rationale": "Comprehensive domain coverage for all studio work",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260504_investor-payback-30-50pct",
+        "date": "2026-05-04",
+        "decision": "Investor payback: 30-50% of net profit, capped at 100K/quarter",
+        "rationale": "600K owed; conservative 1.3-year payback while maintaining growth",
+        "workstream": "nbi"
+      },
+      {
+        "id": "dec_20260511_vs-deadline-end-august",
+        "date": "2026-05-11",
+        "decision": "Vertical slice deadline: end of August (director/lead level only)",
+        "rationale": "Do not share with team yet. Pod model: ~6 features per pod.",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260515_three-tier-change-lock",
+        "date": "2026-05-15",
+        "decision": "Three-tier change lock: Open > Soft lock > Hard lock (formal change request)",
+        "rationale": "Hard lock requires game director AND production heads approval with cost analysis",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260522_qa-authority-ship-readiness",
+        "date": "2026-05-22",
+        "decision": "QA authority: QA/playtesting teams are primary arbiters of ship-readiness",
+        "rationale": "Hannah needs authority to block gate progression if quality criteria not met",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260417_emi-options-impossible",
+        "date": "2026-04-17",
+        "decision": "EMI options structurally impossible due to 20+ vehicle corporate structure",
+        "rationale": "Connected persons hold >50% control; only unapproved options available (~25% tax on exercise)",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260417_launch-bonus-over-options",
+        "date": "2026-04-17",
+        "decision": "Launch bonus structure better than options for 3+ year timeline",
+        "rationale": "Options become \"irritant rather than value\" without EMI eligibility",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260504_ai-km-is-business-moat",
+        "date": "2026-05-04",
+        "decision": "AI knowledge management system IS the business moat",
+        "rationale": "Zero-code, covers client KBs, BD pipelines, delivery templates, reporting automation",
+        "workstream": "nbi"
+      },
+      {
+        "id": "dec_20260522_free-to-install-subscription-cosmetics",
+        "date": "2026-05-22",
+        "decision": "Free-to-install with paid subscription + cosmetics marketplace",
+        "rationale": "Subscription includes all expansions + in-game currency stipend. Monetisation ~30 days post-launch.",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "dec_20260522_portal-system-20pct-revenue-share",
+        "date": "2026-05-22",
+        "decision": "Portal system: 20% revenue share on game purchases",
+        "rationale": "12 games interested, 3-4 under contract. Reduces content development costs.",
+        "workstream": "couch_heroes"
+      }
+    ],
+    "people": [
+      {
+        "id": "per_vardis",
+        "name": "Vardis",
+        "name_normalised": "vardis",
+        "role": "CEO / Founder | Couch Heroes / IREON Ventures",
+        "workstreams": ["couch_heroes"],
+        "notes": [
+          "29 years old, owns company, 4 years commitment. Family owns 17 hotels in Greece.",
+          "Built Greece Gaming Fund: ~EUR 20M for Greek studios, backed by PM.",
+          "Wrote 1,400 pages of lore/backstory. Sends 2am documents on naming conventions.",
+          "Exceptionally receptive: responded to Glen's 80-page audit with \"Can you help us fix this?\"",
+          "Used inappropriate language 3x during Neil interview — overcorrected after Glen told him to \"loosen up\".",
+          "Asked Glen 5 times if Mustafa 1:1 had happened — rare for him to push.",
+          "Makes mid-stream scope changes (7 biomes to sub-biomes) without consulting roadmap — governance gap.",
+          "Too approachable — goes directly to ICs, undermining lead authority.",
+          "Ship philosophy: \"done when it's done\" — family investors comfortable with longer timeline."
+        ],
+        "meetings_seen": 40,
+        "last_seen": "2026-05-22"
+      },
+      {
+        "id": "per_aris_konstantinidis",
+        "name": "Aris Konstantinidis",
+        "name_normalised": "aris_konstantinidis",
+        "role": "COO | Couch Heroes",
+        "workstreams": ["couch_heroes"],
+        "notes": [
+          "Quantitative, risk-averse, \"needs pushing forward\" (vs Vardis who \"needs pulling back\").",
+          "Transitioning to lead exec meetings and accountability tracking.",
+          "Wants equity for everyone — specific communicated plan creates confidence even before grants.",
+          "Suggested 210K for Nia CTO offer — Glen overruled to 250K (\"don't pass up a dollar to pick up a nickel\").",
+          "Strong on \"final warning means final\" — pushes harder than Glen on performance action.",
+          "Managing Lorenza transition from Glen's report to his own.",
+          "Handling Dino exit: transition MD to Sophia, deny Dino's salary/benefit requests."
+        ],
+        "meetings_seen": 35,
+        "last_seen": "2026-05-22"
+      },
+      {
+        "id": "per_dino_kandiloros",
+        "name": "Dino Kandiloros",
+        "name_normalised": "dino_kandiloros",
+        "role": "Head of Legal (being exited from MD) | Couch Heroes",
+        "workstreams": ["couch_heroes"],
+        "notes": [
+          "EXIT IN PROGRESS. 3-month notice period (UK law). Settlement: 1 month transition + 2 months garden leave.",
+          "Role reduced to Head of Legal only; MD responsibilities removed. No salary increase.",
+          "Performance review: below expectations across collaboration, communication, accountability, leadership, coachability. Only \"delivery\" meets expectations.",
+          "Response: combative, walked out believing everything was okay, then asked about a raise.",
+          "Self-evaluation showed zero areas for improvement.",
+          "Changed contractor templates without informing HR (Mishcon vs Sheridans).",
+          "UK transition setup had 30-40% errors; giving contractors PTO/computers inappropriately.",
+          "Contacted family lawyer Marisol after explicit instruction not to.",
+          "\"Listens but picks what to hear\" — lacks genuine self-awareness.",
+          "Riley legal team being used as cover story for documentation handover."
+        ],
+        "meetings_seen": 15,
+        "last_seen": "2026-05-21"
+      },
+      {
+        "id": "per_robin_jubber",
+        "name": "Robin Jubber",
+        "name_normalised": "robin_jubber",
+        "role": "Game Director (transitioning from management) | Couch Heroes",
+        "workstreams": ["couch_heroes"],
+        "notes": [
+          "Transitioning to IC Game Director with no direct reports; Simon takes design team.",
+          "\"Not directing anything, you're a passenger\" — team running in whatever direction they want.",
+          "Lacks structured interview approach — no structured questions, minimal notes.",
+          "Working hard to demonstrate leadership post-feedback, but Glen assessed as \"too late\" for management role.",
+          "Vardis initially wanted separation; Glen secured his position as IC.",
+          "Owns final scope cut decisions for vertical slice.",
+          "Design lock process gap: says designs are final but other designers think first iteration.",
+          "Completed 25-page lore document, vertical slice draft, pipeline work with Stefano."
+        ],
+        "meetings_seen": 20,
+        "last_seen": "2026-05-22"
+      },
+      {
+        "id": "per_mustafa_sibai",
+        "name": "Mustafa Sibai",
+        "name_normalised": "mustafa_sibai",
+        "role": "Principal Engineer (former CTO) | Couch Heroes",
+        "workstreams": ["couch_heroes"],
+        "notes": [
+          "Apr 24: Major 1:1 breakthrough. Admitted burnout, bare minimum performance, isolation.",
+          "\"I don't have anyone to talk to. I haven't gotten feedback. I don't know where I am.\"",
+          "\"I'm doing the bare minimum. Yeah, I am doing the bare minimum.\"",
+          "Confidence collapsed after stepping down from CTO.",
+          "Told Nia mid-interview he was burned out — cost Glen an hour convincing her.",
+          "Took vacation without telling anyone; product council spent 30 min trying to locate him.",
+          "Leaked confidential champion/weak performer lists — caused staff anxiety.",
+          "Shared product council info with staff twice (including Ella).",
+          "\"Runs around in panic mode\" — tags multiple people, no clear ownership or timelines.",
+          "Final warning agreed (Aris, Glen, Vardis). After 1:1: \"I feel a lot better. That fixed a lot.\"",
+          "Glen committed to weekly 1:1s. Strategic reality: doing ~50% of role; losing him = backfill priority zero.",
+          "Pattern continued post-1:1: failed documentation sign-off for 2 weeks. \"One thread away\" from termination (May 21).",
+          "Visa issues prevented offsite attendance."
+        ],
+        "meetings_seen": 25,
+        "last_seen": "2026-05-21"
+      },
+      {
+        "id": "per_lorenza_menna",
+        "name": "Lorenza Menna",
+        "name_normalised": "lorenza_menna",
+        "role": "HR Lead | Couch Heroes",
+        "workstreams": ["couch_heroes"],
+        "notes": [
+          "Salary: 4K/month (48K annually) — significantly underpaid. 10K bump recommended. Rating: 4/5.",
+          "Has imposter syndrome; thrives with 10 minutes venting followed by 20-hour work days.",
+          "Needs development in bedside manner and communication conciseness.",
+          "Hates Dino — needs 30-day three-way conversation planning.",
+          "Transitioning from Glen's report to Aris's (gradual, separate 1:1s maintained).",
+          "Successfully closed Tanya's interview when Glen had tech difficulties.",
+          "Health concern May 7: Two findings on chest X-ray (lung + breast). CT and ultrasound ordered.",
+          "Had pneumonia risk around May 21 — created bottleneck in hiring pipeline."
+        ],
+        "meetings_seen": 30,
+        "last_seen": "2026-05-22"
+      },
+      {
+        "id": "per_valeria_trofimova",
+        "name": "Valeria Trofimova",
+        "name_normalised": "valeria_trofimova",
+        "role": "Producer | Couch Heroes",
+        "workstreams": ["couch_heroes"],
+        "notes": [
+          "Strong performer; needs coaching on pushing back on leadership.",
+          "Led comprehensive Miro board creation for offsite (2.3GB board).",
+          "Increasingly anxious about feature documentation gaps (50%+ missing).",
+          "Currently the \"one-man band\" handling all production coordination.",
+          "Want her at peer level in working groups, employee level in decision meetings.",
+          "Russian passport — visa process handled by Aris/Vardis."
+        ],
+        "meetings_seen": 15,
+        "last_seen": "2026-05-15"
+      },
+      {
+        "id": "per_david_luong",
+        "name": "David Luong",
+        "name_normalised": "david_luong",
+        "role": "Art Director (18yr WoW) | Couch Heroes",
+        "workstreams": ["couch_heroes"],
+        "notes": [
+          "Created 4-quadrant artist performance matrix (Loose Cannons / Champions / Steady Eddies / Weak Links).",
+          "\"Amazing person, nicest\" — but agrees with everything Michael says without constructive friction.",
+          "\"Never disagreed with me, ever, not one time\" — yet fights hard in budget meetings behind scenes.",
+          "Performance concern May 21: leaked confidential timeline information causing team panic.",
+          "Struggles with firm feedback delivery. Team reports filtered communication up/down.",
+          "Coaching plan required with documented outcomes.",
+          "Already doing 5am starts, calendar 100% booked. London flights EUR 2.2K per trip."
+        ],
+        "meetings_seen": 15,
+        "last_seen": "2026-05-21"
+      },
+      {
+        "id": "per_graham_monk",
+        "name": "Graham Monk",
+        "name_normalised": "graham_monk",
+        "role": "Executive Producer | Started ~May 18 | 135K->145K",
+        "workstreams": ["couch_heroes"],
+        "notes": [
+          "~20 years industry experience, 10 years post-Sega. From Square Enix.",
+          "Accepted at midnight after deadline pressure (Apr 8).",
+          "Several behavioural oddities: wanted to negotiate from the pub; says one thing does another.",
+          "30/60/90 plan with clear behavioural tests — if red flags persist, replace and move on.",
+          "Sent gating process documentation from Square (Leah approved sharing).",
+          "Probation: 4 months. Termination notice: 6 months post-probation."
+        ],
+        "meetings_seen": 10,
+        "last_seen": "2026-05-22"
+      },
+      {
+        "id": "per_gary_platner",
+        "name": "Gary Platner",
+        "name_normalised": "gary_platner",
+        "role": "Head of Level Design | $216K USD contractor",
+        "workstreams": ["couch_heroes"],
+        "notes": [
+          "23 years at Blizzard/World of Warcraft — designed all WoW levels. BAFTA contributions.",
+          "Also: Epic Games ($280K salary before layoffs), Disney, Singularity Six, Palia.",
+          "US-based (Riverside, CA); interested in Greece relocation (43% tax reduction for 8 years).",
+          "Wife has Type 1 diabetes requiring specialised insurance. 2.5-hour call with Glen's wife on logistics.",
+          "Strongly pro-AI — used AI at Epic for rapid ideation, AI voice work, NPC personalities.",
+          "Design philosophy: \"make games we want to play\" — passion-driven over formulaic."
+        ],
+        "meetings_seen": 8,
+        "last_seen": "2026-05-21"
+      },
+      {
+        "id": "per_simon_woodroffe",
+        "name": "Simon Woodroffe",
+        "name_normalised": "simon_woodroffe",
+        "role": "Head of Design | 180K + 3% equity | Starting June 1",
+        "workstreams": ["couch_heroes"],
+        "notes": [
+          "30+ years: Rare (Sea of Thieves 8.5yr), Sega (~17 games, 3yr), Epic (2yr), Improbable VP Creative (3.5yr), Disney.",
+          "Wrote Simon the Sorcerer script as teenager. Designed combat system for first Elvira game.",
+          "Sea of Thieves insight: game was NOT about piracy — about players creating stories together.",
+          "Crew betrayal feature: fun in office testing but destructive/toxic online — \"can be fun AND wrong for the game\".",
+          "Built/specified spatial voice chat 4 times. Considers it foundational for social games.",
+          "Social games are 8x more sticky due to friend connections.",
+          "Strongest value to CH: not \"designing features\" but defining the social design philosophy.",
+          "IP ownership: standard company time/equipment rule. Equity review at Series B (USD 8-10M)."
+        ],
+        "meetings_seen": 10,
+        "last_seen": "2026-05-22"
+      },
+      {
+        "id": "per_lili_zhao",
+        "name": "Lili Zhao",
+        "name_normalised": "lili_zhao",
+        "role": "Head of Finance | 140K (negotiated to 145K) | Starting July 1",
+        "workstreams": ["couch_heroes"],
+        "notes": [
+          "Background: Jaguar (1.5yr), Barb (5yr global financial comptroller). MSc management science.",
+          "Current employer \"Barb\" described as vindictive regarding departures.",
+          "6-month review for VP Finance discussion. Current gap: very simplistic P&L, no CFO.",
+          "10 vacation days available pre-start for urgent work (unpaid).",
+          "Also evaluated as potential MD candidate for Greek operations (UK citizen)."
+        ],
+        "meetings_seen": 8,
+        "last_seen": "2026-05-22"
+      },
+      {
+        "id": "per_maurizio_de_pascale",
+        "name": "Maurizio de Pascale",
+        "name_normalised": "maurizio_de_pascale",
+        "role": "CTO Candidate | ex-IO Interactive Technical Director",
+        "workstreams": ["couch_heroes"],
+        "notes": [
+          "Led IO's unannounced fantasy MMO (\"Project Fantasy\") through first green light — rare direct MMO experience.",
+          "Part of IO management buyout when Square Enix sold; cashed out after 5 years.",
+          "PhD Robotics, \"black belt\" C++, built OS kernels at university.",
+          "Comfortable at 200K range (not 350K+). Values honesty highly; left IO due to dishonest CEO.",
+          "Key concern about CH: Blueprint-heavy codebases are a scaling risk — C++ migration essential."
+        ],
+        "meetings_seen": 3,
+        "last_seen": "2026-05-05"
+      },
+      {
+        "id": "per_chris_southall",
+        "name": "Chris Southall",
+        "name_normalised": "chris_southall",
+        "role": "CTO Candidate | 8yr CTO Sega, heads Sumo Digital co-dev",
+        "workstreams": ["couch_heroes"],
+        "notes": [
+          "Manages 100-person co-dev team at Sumo (700 devs across business). Started Dell 1992, managed 13,000 staff.",
+          "Conducted CH's 80-page audit October 2024 — studio responded \"Can you fix us?\"",
+          "Philosophy: \"Teams with perfect processes often make poor games.\"",
+          "\"Hyper protective\" of studio culture. Assessed CH as \"one of healthiest I've worked with.\"",
+          "Best strategic leadership of all candidates."
+        ],
+        "meetings_seen": 3,
+        "last_seen": "2026-05-15"
+      },
+      {
+        "id": "per_per_olof_romell",
+        "name": "Per-Olof Romell",
+        "name_normalised": "per_olof_romell",
+        "role": "CTO Candidate | ex-DICE, Starbreeze, Ubisoft",
+        "workstreams": ["couch_heroes"],
+        "notes": [
+          "Glen's former DICE colleague (Battlefield 1/Battlefront 2 era).",
+          "Starbreeze: managed 180 to 60 headcount reduction. Payday 3 involvement (2% retention).",
+          "Ubisoft: microservice architecture (1.2M AIs, infinite world demos).",
+          "Key concern: 7 engineers insufficient for MMO; cost-per-user economics critical (Anthem $7/user failure).",
+          "Equity discussion at ~3%."
+        ],
+        "meetings_seen": 2,
+        "last_seen": "2026-05-20"
+      },
+      {
+        "id": "per_pair",
+        "name": "Pair (surname unknown)",
+        "name_normalised": "pair",
+        "role": "CTO Candidate | Built Frostbite engine",
+        "workstreams": ["couch_heroes"],
+        "notes": [
+          "Strongest technical candidate. Follow-up calls scheduled."
+        ],
+        "meetings_seen": 1,
+        "last_seen": "2026-05-22"
+      },
+      {
+        "id": "per_justin_logan",
+        "name": "Justin Logan",
+        "name_normalised": "justin_logan",
+        "role": "Client Lead | Lighthouse Games",
+        "workstreams": ["lighthouse"],
+        "notes": [
+          "15-year relationship with Glen. Worked 3 weeks straight on live service plan; Alex won't give feedback.",
+          "Visa/ILR situation resolved — proved he was never told he'd pay; Annie agreed to cover costs.",
+          "Tencent demanding $80M live service revenue year 1 ($6.5M/month — unrealistic; comps hit $2-4 ARPU).",
+          "Wants to fire James, promote Stavros to lead.",
+          "Passed UK driving test; Imogen started school after 6-7 months at home."
+        ],
+        "meetings_seen": 15,
+        "last_seen": "2026-05-22"
+      },
+      {
+        "id": "per_james_frith",
+        "name": "James Frith",
+        "name_normalised": "james_frith",
+        "role": "Data Lead | Lighthouse Games",
+        "workstreams": ["lighthouse"],
+        "notes": [
+          "NOT leading from front — \"checked out\", \"mildly interested\".",
+          "First in-person standup with team was Apr 13 after months of only async text.",
+          "Told team \"game developers won't look at data anyway\".",
+          "Submitted roadmap with XXL tasks spanning 17 sprints.",
+          "Took sick day when pressed for details; MIA ~a week with COVID without communicating.",
+          "Only communication with Glen was Feb 13 about Slack channels.",
+          "Justin independently seeking appraisals on James from multiple people."
+        ],
+        "meetings_seen": 10,
+        "last_seen": "2026-05-11"
+      },
+      {
+        "id": "per_hannah_pickard",
+        "name": "Hannah Pickard",
+        "name_normalised": "hannah_pickard",
+        "role": "QA Lead | Couch Heroes",
+        "workstreams": ["couch_heroes"],
+        "notes": [
+          "Solo QA person for ~55-person studio (critical gap).",
+          "Created Miro mirror breaking VS flow into testable sections — separate QA estimation approved.",
+          "Identified design lock process gap as major issue.",
+          "Needs authority to block gate progression if quality criteria not met.",
+          "Thoughtful, process-oriented. Friday check-ins with Glen established."
+        ],
+        "meetings_seen": 8,
+        "last_seen": "2026-05-22"
+      },
+      {
+        "id": "per_chaitanya_gaggar",
+        "name": "Chaitanya Gaggar (CG)",
+        "name_normalised": "chaitanya_gaggar",
+        "role": "Lead Gameplay Developer Candidate | ex-Wargaming",
+        "workstreams": ["couch_heroes"],
+        "notes": [
+          "Built gameplay team from scratch to 17-18 people at Wargaming (third-person vehicle shooter).",
+          "Heavy GAS expertise, replication, network architecture.",
+          "\"Almost never trust the client — people find a way to cheat with anything\" — server-authoritative advocate.",
+          "GAS library maturation takes ~1.5 years of solid work.",
+          "Compensation deprioritised (\"titles and salaries matter less right now\"). Selective about next move.",
+          "Nightly automated network tests advocated strongly."
+        ],
+        "meetings_seen": 2,
+        "last_seen": "2026-04-08"
+      },
+      {
+        "id": "per_dave_springer",
+        "name": "Dave Springer",
+        "name_normalised": "dave_springer",
+        "role": "Lead Gameplay Developer Candidate | ex-Improbable",
+        "workstreams": ["couch_heroes"],
+        "notes": [
+          "Rated 8+/10, Strong Hire. Morpheus platform: 15,000-player single-server experience.",
+          "MPG, Warp Digital, Improbable/M Squared. Laid off Dec after IP buyout (not performance).",
+          "Conflicting interview: answered well with Glen but claimed ignorance to Mustafa/Reyna.",
+          "Salary seeking: 75-85K (previously 95K). Threshold: anyone offering 85K+ \"in very strong running\".",
+          "Previously reported to Neil Jones at Improbable — gave positive feedback on Neil's leadership."
+        ],
+        "meetings_seen": 3,
+        "last_seen": "2026-03-31"
+      },
+      {
+        "id": "per_nia_kiigan",
+        "name": "Nia Kiigan",
+        "name_normalised": "nia_kiigan",
+        "role": "CTO Candidate (declined) | ex-Rockstar 12yr, ex-Activision VP",
+        "workstreams": ["couch_heroes"],
+        "notes": [
+          "Managed 830 programmers across 89 studios at Activision. Built GTA 5/RDR2 engine systems.",
+          "Rated 7-8/10. Calm, level-headed, strategic. Based in Dublin.",
+          "External assessment of CH independently validated Glen's transformation findings exactly.",
+          "\"Art creates illusion of complete game while masking fundamental systems depth gaps.\"",
+          "Offered 230K to 250K + 3% equity. Declined for AI startup with $5M seed funding."
+        ],
+        "meetings_seen": 5,
+        "last_seen": "2026-04-21"
+      },
+      {
+        "id": "per_neil_jones",
+        "name": "Neil Jones",
+        "name_normalised": "neil_jones",
+        "role": "CTO Candidate (rejected) | ex-Epic, ex-Improbable",
+        "workstreams": ["couch_heroes"],
+        "notes": [
+          "~300K total comp at Epic. Built Improbable's multiplayer engine (15,000 concurrent players).",
+          "Starts wooden/cold but warms up — first 20-30 mins not representative.",
+          "Aligned on build-vs-buy philosophy. AccelByte ruled out; caution on PlayFab.",
+          "Wanted 350K + 20% equity at startup stage — non-viable.",
+          "Glen's read: \"probably doesn't want the job enough to accept the financial downside.\""
+        ],
+        "meetings_seen": 5,
+        "last_seen": "2026-04-21"
+      },
+      {
+        "id": "per_james_relph",
+        "name": "James Relph",
+        "name_normalised": "james_relph",
+        "role": "NBI Data PM Candidate | ex-PlayStation",
+        "workstreams": ["nbi"],
+        "notes": [
+          "Senior Data Product Manager at Sony (6yr). Commerce data owner for PS5 launch.",
+          "Managed $110-120M daily revenue data flows. Managed 3 DPOs.",
+          "Burned out from PlayStation role; 6 months unemployed. Divorced, 2 daughters.",
+          "NBI commodity projects ($10-40K) often lead to larger contracts ($300-500K)."
+        ],
+        "meetings_seen": 2,
+        "last_seen": "2026-04-09"
+      }
+    ],
+    "learnings": [
+      {
+        "id": "lrn_20260413_nia-validated-glen-audit",
+        "date": "2026-04-13",
+        "insight": "Nia Kiigan's independent assessment validated Glen's internal audit exactly.",
+        "context": "Team believed mid-production; Glen confirmed pre-production. Art significantly ahead creates \"illusion of a full game\" while core systems, design, and tech lag. Studio built components out of sequence; prototype mode persisted too long.",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "lrn_20260407_50pct-features-missing-docs",
+        "date": "2026-04-07",
+        "insight": "50%+ of features have missing documentation; existing docs often not applicable.",
+        "context": "Most design team members never worked on games before (except recent hires). Too much time spent explaining basics vs executing. Design team identified as weakest department across all assessments.",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "lrn_20260325_studio-workflow-backwards",
+        "date": "2026-03-25",
+        "insight": "Studio workflow completely backwards.",
+        "context": "Lore created after art completion, art created without game design input, characters completed before game mechanics defined. Robin unaware of completed goblin assets until December. 600-page GDD too unwieldy for practical use.",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "lrn_20260417_invisible-systems-not-bad-people",
+        "date": "2026-04-17",
+        "insight": "\"The studio's problem isn't bad people, it's invisible systems.\"",
+        "context": "Root cause analysis reveals process failures, not individual failures. Portal Peak instancing discussed for months but poor communication flow. Only Portal Peak has proper documentation with Google art boards; other zones have never had detailed briefs.",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "lrn_20260515_3month-timeline-premature-sharing",
+        "date": "2026-05-15",
+        "insight": "3-month timeline was premature sharing, not a commitment.",
+        "context": "Art leads panicked hearing \"3 months\" without context of planned scope cuts, headcount additions, and outsourcing. Incomplete information creates anxiety faster than no information.",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "lrn_20260424_mustafa-isolation-root-cause",
+        "date": "2026-04-24",
+        "insight": "Mustafa breakthrough: isolation and lack of feedback is the root cause.",
+        "context": "\"I don't have anyone to talk to\" — the admission. Regular 1:1s and direct communication fix engagement. Glen's silence wasn't patience — it was enabling drift. But by May 21, pattern continued: failed documentation sign-off for 2 weeks. \"One thread away\" from termination.",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "lrn_20260325_interpersonal-conflicts-35-40pct",
+        "date": "2026-03-25",
+        "insight": "Addressing interpersonal conflicts increased team productivity 35-40%.",
+        "context": "Clear boundaries and consequences for toxic behaviour had measurable impact. Dragon terminated, Clara and Ella identified as underperforming.",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "lrn_20260408_lost-code-review-perforce-migration",
+        "date": "2026-04-08",
+        "insight": "Lost critical code review workflow migrating GitHub/DevOps to Perforce.",
+        "context": "Previously Rainer approved all commits. Now anyone can push directly without review. Rainer \"made it clear he's not the person to go to anymore\" after losing lead. Mustafa \"runs around in panic mode.\" ~10% build failure rate.",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "lrn_20260306_direct-sourcing-beats-agency",
+        "date": "2026-03-06",
+        "insight": "Most successful hires came through direct sourcing, not the agency.",
+        "context": "Simon, Gary, Graham — all direct. Jack (Skill Search) actively damaged the pipeline: shared negative feedback with candidates, told candidates CH \"has zero idea what it's doing.\"",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "lrn_20260409_300k-candidates-rarely-accept-startup",
+        "date": "2026-04-09",
+        "insight": "300K+ candidates rarely accept startup risk even with equity.",
+        "context": "Neil (Epic, ~300K) interested but financial downside too large. The 220-240K ceiling is real unless someone cashed out elsewhere (Maurizio model).",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "lrn_20260417_emi-impossible-affects-all-hires",
+        "date": "2026-04-17",
+        "insight": "EMI options structurally impossible — affects ALL senior hires.",
+        "context": "20+ vehicle corporate structure with Cyprus-based shareholders. Connected persons hold >50% control. Only unapproved options available (~25% income tax on exercise). 3% effectively worth ~1.5% after tax. Dual class/weighted voting rights could potentially solve — needs legal investigation.",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "lrn_20260417_avengers-team-fundraising-asset",
+        "date": "2026-04-17",
+        "insight": "\"Avengers team\" hiring is a fundraising asset, not just a production asset.",
+        "context": "Gary (23yr Blizzard), Charlie/Tanya (AC/Epic), Simon (Sea of Thieves) — recognisable AAA talent assembling at a startup signals quality to investors.",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "lrn_20260504_ai-km-scalability-framework",
+        "date": "2026-05-04",
+        "insight": "AI knowledge management system IS the scalability framework.",
+        "context": "Zero-code implementation: client KBs, BD pipelines, delivery templates, reporting automation. Methodology that replicates without additional senior headcount.",
+        "workstream": "nbi"
+      },
+      {
+        "id": "lrn_20260408_ai-implementation-failure-market",
+        "date": "2026-04-08",
+        "insight": "AI implementation failure market: $10-20B potential.",
+        "context": "MIT study: 95% AI implementation failure rate. Failure modes: poor planning (40%), change management (30%), vendor overselling (20%), tech issues (10%). Enterprise spending $50B+ annually. NBI positioning: vendor-neutral consulting.",
+        "workstream": "nbi"
+      },
+      {
+        "id": "lrn_20260508_industry-7yr-cycles-extending",
+        "date": "2026-05-08",
+        "insight": "Industry follows 7-year expansion/contraction cycles, potentially extending to 11-12 years due to AI.",
+        "context": "Publishers squeeze successful studios until destruction, cycle repeats. Roblox under threat: takes 70% revenue (vs Steam 30%), 200+ child safety cases annually.",
+        "workstream": "nbi"
+      },
+      {
+        "id": "lrn_20260331_playgoals-50pct-d1-retention",
+        "date": "2026-03-31",
+        "insight": "PlayGOALS: ~50% D1 retention on PlayStation. Launch May 14, multi-platform.",
+        "context": "400,000 players tested since 2022. Monetisation is the unproven element — pricing architecture needs external validation.",
+        "workstream": "playgoals"
+      },
+      {
+        "id": "lrn_20260416_social-games-8x-stickier",
+        "date": "2026-04-16",
+        "insight": "Simon Woodroffe: \"Social games are 8x more sticky due to friend connections.\"",
+        "context": "Sea of Thieves anchor handbrake turn: 0.5 days coding, 99.5 days art polish — illustrates production reality. Players choose games based on which friends are available, not traditional \"quality.\"",
+        "workstream": "couch_heroes"
+      }
+    ],
+    "numbers": [
+      {
+        "id": "num_20260504_nbi-revenue-55k-month",
+        "date": "2026-05-04",
+        "figure": "55K/month",
+        "context": "Current NBI revenue (Couch 30K + Lighthouse 25K + Activision 5K)",
+        "workstream": "nbi",
+        "category": "revenue"
+      },
+      {
+        "id": "num_20260504_nbi-required-ops-75-80k",
+        "date": "2026-05-04",
+        "figure": "75-80K/month",
+        "context": "Required operating costs for comfortable operations",
+        "workstream": "nbi",
+        "category": "cost"
+      },
+      {
+        "id": "num_20260416_24k-cash-flow-gap",
+        "date": "2026-04-16",
+        "figure": "$24K short",
+        "context": "Next month cash flow gap — described as \"five alarm fire\"",
+        "workstream": "nbi",
+        "category": "metric"
+      },
+      {
+        "id": "num_20260504_cash-flow-progression",
+        "date": "2026-05-04",
+        "figure": "0 -> 17K -> 25K",
+        "context": "Cash flow progression Feb to Mar to Apr",
+        "workstream": "nbi",
+        "category": "metric"
+      },
+      {
+        "id": "num_20260504_investor-debt-600k",
+        "date": "2026-05-04",
+        "figure": "600K",
+        "context": "Investor debt owed to Bob, Brian, and partners",
+        "workstream": "nbi",
+        "category": "cost"
+      },
+      {
+        "id": "num_20260407_nbi-monthly-expenses-60k",
+        "date": "2026-04-07",
+        "figure": "60K/month",
+        "context": "NBI monthly expenses",
+        "workstream": "nbi",
+        "category": "cost"
+      },
+      {
+        "id": "num_20260522_worksage-first-customer-5k",
+        "date": "2026-05-22",
+        "figure": "$5K/month",
+        "context": "First paying customer for WorkSage/NBI management tool (DOD consultancy)",
+        "workstream": "nbi",
+        "category": "revenue"
+      },
+      {
+        "id": "num_20260320_gdc-trip-roi",
+        "date": "2026-03-20",
+        "figure": "$15-20K invested -> $500-800K yield",
+        "context": "GDC trip ROI estimate",
+        "workstream": "nbi",
+        "category": "metric"
+      },
+      {
+        "id": "num_20260504_pipeline-uxr-data-science",
+        "date": "2026-05-04",
+        "figure": "150-250K/yr",
+        "context": "High-confidence pipeline: UXR + data science expansion",
+        "workstream": "nbi",
+        "category": "revenue"
+      },
+      {
+        "id": "num_20260504_pipeline-lh-data-manager",
+        "date": "2026-05-04",
+        "figure": "130-150K/yr",
+        "context": "High-confidence pipeline: Lighthouse data manager",
+        "workstream": "lighthouse",
+        "category": "revenue"
+      },
+      {
+        "id": "num_20260504_pipeline-enoma-medium",
+        "date": "2026-05-04",
+        "figure": "150-250K",
+        "context": "Medium-confidence: Enoma contract",
+        "workstream": "nbi",
+        "category": "revenue"
+      },
+      {
+        "id": "num_20260408_jason-ai-consulting",
+        "date": "2026-04-08",
+        "figure": "$50K immediate + $200-300K follow-on",
+        "context": "Jason AI consulting engagement potential",
+        "workstream": "nbi",
+        "category": "revenue"
+      },
+      {
+        "id": "num_20260402_ch-total-invested-11m",
+        "date": "2026-04-02",
+        "figure": "EUR 11M total invested",
+        "context": "EUR 6M seed (2 rounds) + EUR 5M convertible note",
+        "workstream": "couch_heroes",
+        "category": "investment"
+      },
+      {
+        "id": "num_20260522_ch-latest-round-5m",
+        "date": "2026-05-22",
+        "figure": "$5M",
+        "context": "Just closed latest funding round",
+        "workstream": "couch_heroes",
+        "category": "investment"
+      },
+      {
+        "id": "num_20260522_ch-next-round-10m",
+        "date": "2026-05-22",
+        "figure": "$10M target",
+        "context": "Next round (Series B)",
+        "workstream": "couch_heroes",
+        "category": "investment"
+      },
+      {
+        "id": "num_20260306_ch-headcount-55",
+        "date": "2026-03-06",
+        "figure": "~55 people",
+        "context": "Headcount when Glen started (52 per some meetings)",
+        "workstream": "couch_heroes",
+        "category": "metric"
+      },
+      {
+        "id": "num_20260522_ch-headcount-current-70",
+        "date": "2026-05-22",
+        "figure": "~70 people",
+        "context": "Current headcount",
+        "workstream": "couch_heroes",
+        "category": "metric"
+      },
+      {
+        "id": "num_20260522_ch-target-team-200",
+        "date": "2026-05-22",
+        "figure": "~200 max",
+        "context": "Target team size at full production. 120-150 at launch.",
+        "workstream": "couch_heroes",
+        "category": "metric"
+      },
+      {
+        "id": "num_20260522_ch-game-launch-2028",
+        "date": "2026-05-22",
+        "figure": "Late 2028",
+        "context": "Estimated game launch (2029 acceptable fallback)",
+        "workstream": "couch_heroes",
+        "category": "metric"
+      },
+      {
+        "id": "num_20260427_vs-deadline-august",
+        "date": "2026-04-27",
+        "figure": "End of August",
+        "context": "Vertical slice deadline",
+        "workstream": "couch_heroes",
+        "category": "metric"
+      },
+      {
+        "id": "num_20260417_ch-60-40-art-other",
+        "date": "2026-04-17",
+        "figure": "60% art / 40% other",
+        "context": "Studio composition — problematic for MMO",
+        "workstream": "couch_heroes",
+        "category": "metric"
+      },
+      {
+        "id": "num_20260417_ch-junior-senior-ratio",
+        "date": "2026-04-17",
+        "figure": "60/40 junior/senior",
+        "context": "Current ratio. Target: 30/70.",
+        "workstream": "couch_heroes",
+        "category": "metric"
+      },
+      {
+        "id": "num_20260402_ch-717-features",
+        "date": "2026-04-02",
+        "figure": "717 features (->2000 expected)",
+        "context": "Master feature Excel count during planning",
+        "workstream": "couch_heroes",
+        "category": "metric"
+      },
+      {
+        "id": "num_20260511_ch-1700-line-excel",
+        "date": "2026-05-11",
+        "figure": "1,700-line Excel",
+        "context": "Complete vertical slice mapping",
+        "workstream": "couch_heroes",
+        "category": "metric"
+      },
+      {
+        "id": "num_20260511_ch-miro-2-3gb",
+        "date": "2026-05-11",
+        "figure": "2.3GB",
+        "context": "Miro board with full feature breakdown — first complete plan in studio history",
+        "workstream": "couch_heroes",
+        "category": "metric"
+      },
+      {
+        "id": "num_20260521_ch-doc-completion-state",
+        "date": "2026-05-21",
+        "figure": "GDD 60% (30% locked), TDD 60%, Estimates 70-80%, Headcount 0%, Pipelines 20%",
+        "context": "Documentation completion state as of May 21",
+        "workstream": "couch_heroes",
+        "category": "metric"
+      },
+      {
+        "id": "num_20260409_cto-comp-ceiling",
+        "date": "2026-04-09",
+        "figure": "220-240K base + launch bonus = 440-480K total",
+        "context": "CTO compensation ceiling (over project life)",
+        "workstream": "couch_heroes",
+        "category": "compensation"
+      },
+      {
+        "id": "num_20260409_equity-tiers",
+        "date": "2026-04-09",
+        "figure": "C-level 8-10%, senior 3-5%, key staff 1-2%",
+        "context": "Equity tiers",
+        "workstream": "couch_heroes",
+        "category": "compensation"
+      },
+      {
+        "id": "num_20260409_pension-scaling",
+        "date": "2026-04-09",
+        "figure": "Pension: 3% -> 4% -> 5% -> 8%",
+        "context": "Scaling trajectory by funding stage",
+        "workstream": "couch_heroes",
+        "category": "compensation"
+      },
+      {
+        "id": "num_20260506_confirmed-senior-salaries",
+        "date": "2026-05-06",
+        "figure": "135K->145K (Graham), 180K+3% (Simon), $216K (Gary), 140K->145K (Lili)",
+        "context": "Confirmed senior hire salaries",
+        "workstream": "couch_heroes",
+        "category": "compensation"
+      },
+      {
+        "id": "num_20260417_market-cto-benchmarks",
+        "date": "2026-04-17",
+        "figure": "$350K Epic CTO base / $1.3M+ Riot CTO",
+        "context": "Market benchmarks for CTO negotiation context",
+        "workstream": "couch_heroes",
+        "category": "compensation"
+      },
+      {
+        "id": "num_20260417_holiday-policy-36-days",
+        "date": "2026-04-17",
+        "figure": "36 days total (20 floating + 8 UK bank + 8 Greek)",
+        "context": "Holiday policy. ~48 days including all combined holidays.",
+        "workstream": "couch_heroes",
+        "category": "compensation"
+      },
+      {
+        "id": "num_20260306_tencent-80m-demand",
+        "date": "2026-03-06",
+        "figure": "$80M",
+        "context": "Tencent demanding $80M live service revenue year 1",
+        "workstream": "lighthouse",
+        "category": "revenue"
+      },
+      {
+        "id": "num_20260306_lh-arpu-comps",
+        "date": "2026-03-06",
+        "figure": "$2-4 ARPU",
+        "context": "Closest AAA racing competitors achieve this",
+        "workstream": "lighthouse",
+        "category": "metric"
+      },
+      {
+        "id": "num_20260511_lh-telemetry-35-40pct-wrong",
+        "date": "2026-05-11",
+        "figure": "35-40%",
+        "context": "Telemetry specs wrong or incomplete. 453 total elements.",
+        "workstream": "lighthouse",
+        "category": "metric"
+      },
+      {
+        "id": "num_20260511_lh-alex-1b-target",
+        "date": "2026-05-11",
+        "figure": "$1B over 5yr / 30% live service",
+        "context": "Alex's aggressive targets (likely closer to 15% LS)",
+        "workstream": "lighthouse",
+        "category": "revenue"
+      },
+      {
+        "id": "num_20260415_sergii-gcp-savings",
+        "date": "2026-04-15",
+        "figure": "EUR 60K->22K/month",
+        "context": "Sergii reduced Rovio GCP costs (saved EUR 38K/month)",
+        "workstream": "lighthouse",
+        "category": "cost"
+      }
+    ],
+    "timeline": [
+      {
+        "period": "March 6-18",
+        "label": "Post-GDC Activation",
+        "summary": "Glen returns from GDC with 5-6 client leads, investor connections. Begins CH transformation: UK entity setup, exec meeting restructuring, hiring pipeline. Nia Kiigan first CTO interview (830 programmers at Activision). Keith Raythorn HR interview (2/10, rejected). Sarah Giles James (NO HIRE). David 1:1: Robin stepping down decided. Age rating changed to Teen. Team currently 35 art vs 7 engineers — unsustainable for MMO."
+      },
+      {
+        "period": "March 19-31",
+        "label": "Foundation Building",
+        "summary": "Directors/Leads sync: Rafael terminated. Charlie Todd and Dave Springer interviews (both positive). DS&A telemetry all zeroed out — fundamental quality problem. Sarge pitch deck with Steven Green (CPI 7-12 cents). PlayGOALS engagement kicks off (50% D1 retention on PS). Tom working on financial cleanup. Dashboard tool built over weekend. Glen averaging 2 hours/week schedule freedom. 22 leads, 156 work areas tracked."
+      },
+      {
+        "period": "April 1-8",
+        "label": "Hiring Wave & Cash Flow Crisis",
+        "summary": "CTO narrowed to Neil vs Nia (slight Neil preference). Graham offer: 135K->145K path. Chaitanya Gaggar interview (GAS expertise, 17-18 person team). Product leadership: Anthony fired, UI/UX under David. Graeme accepted midnight after deadline pressure. Simon Woodroffe interview — \"social games 8x more sticky.\" NBI cash flow \"five alarm fire\" ($24K short). AI consulting market identified ($50B+ spending, 95% failure). Build failure rate ~10%. Hassan contractor (8 days/month -> 4) — Glen was unaware. Dino performance review: combative, walked out, asked about raise."
+      },
+      {
+        "period": "April 9-15",
+        "label": "Dino Exit & CTO Decision",
+        "summary": "Dino exit decided: 3-month notice, Sophia as replacement MD. Riley legal at 150K/year. Neil CTO debrief (300K comp, \"probably doesn't want it enough\"). Nia assessment validates Glen's transformation approach exactly. James performance review: absent management confirmed. DS&A roadmap struggles. James Relph candidate ($110-120M daily PS5 revenue). PlayGOALS project plan. Executive meeting: comprehensive recruitment updates, Robin vertical slice, VFX issues. Daniel Casadevall interview (5/10 overall but 9/10 backend)."
+      },
+      {
+        "period": "April 16-24",
+        "label": "AMA, Vision & Breakthroughs",
+        "summary": "EMI options structurally impossible (20+ vehicle corporate structure). Nia offer revised to 250K. Michael 1:1: \"invisible systems not bad people.\" Gary recommended at $150K (\"Avengers team\" strategy). Simon chosen over Nelly for Head of Design. Anthony terminated Apr 20. Lighthouse four-track execution plan established. AMA delivered (generally positive). April 24: Vision call — \"calm intensity\", \"belonging\", studio values defined. April 24: Mustafa 1:1 — \"I'm doing the bare minimum. Yeah.\" — genuine breakthrough. Vertical slice full gameplay flow mapped with Robin."
+      },
+      {
+        "period": "April 27-May 1",
+        "label": "The Offsite",
+        "summary": "3-day intensive planning. VS scoped: character creation -> tutorial -> combat -> crafting -> multiplayer -> guild -> exploration. T0-T7 tiers defined. Epic/Feature/Story/Task hierarchy locked. 14 agreed epics. 6-stage dev pipeline formalised. Content + feature epics merged. VS = Jira release filter. Team confirmed in early production (not mid). \"Digi Isle\" removed as container."
+      },
+      {
+        "period": "May 4-8",
+        "label": "Estimation Week & Strategy",
+        "summary": "Q2 business strategy: 55K/month vs 75-80K needed, investor payback plan. Gary offer $216K. Nia declined (AI startup $5M). Neil rejected (350K+20% equity). 3-day estimation across all departments. Simon negotiated to 180K+3%. Legal framework: GDPR, IP, digital regulation. Full estimation reveals scope significantly larger than assumed. Roblox under threat analysis."
+      },
+      {
+        "period": "May 11-15",
+        "label": "Cross-Department Mapping",
+        "summary": "Valeria/Glen planning: pods concept, sprint cadence. VS deadline: end of August (director level only). Lighthouse: telemetry 35-40% wrong, build crashes after 3 seconds. Contractor template crisis (Dino changed without telling HR). Stephen Bain 8/10. 1,700-line Excel completed. Jack unanimously removed. Chris Southall meet-and-greet. Hannah QA approach approved. Glen working 12-hour days, 6 days/week for 5 weeks. Three-tier change lock defined."
+      },
+      {
+        "period": "May 20-22",
+        "label": "Design Deep-Dives & Final Hiring",
+        "summary": "Per-Olof Romell CTO interview. Game direction: weapon forging system, crafting tiers, live service events, \"Thou Shalt Not Hack.\" Daniel approved (95K). Alon termination decided. Military service contracts ending. Lili: July 1 start, late-2028 launch estimate. Hiring platform/ATS built. $5K/month tool customer. Forza Horizon analysis (200K CCU, 14-year-old codebase). Free-to-install + subscription model confirmed. Portal system: 20% revenue share, 12 games interested."
+      }
+    ],
+    "threads": [
+      {
+        "id": "thr_cto-hire",
+        "title": "CTO Hire — Still Open",
+        "status": "active",
+        "summary": "Pipeline: Nia (declined — AI startup), Neil (rejected — salary), Maurizio (strong — direct MMO, 200K range), Per-Olof (DICE pedigree, technical concerns about 7 engineers), Chris Southall (best strategic, manages 100 at Sumo — availability?), Pair (built Frostbite — strongest technical), Otto (20yr Remedy/Guerrilla). Next: Follow-ups after Nordic Game Conference. 3rd attempt to reach Chris Southall.",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "thr_vertical-slice",
+        "title": "Vertical Slice — End of August Deadline",
+        "status": "active",
+        "summary": "1,700-line scope mapped. Estimation 70-80% complete. Cross-dept dependencies being mapped. Pods structure being defined. Scope cuts needed (headcount first, outsource second, feature cuts last). Design lock process undefined — Hannah/Glen/Robin meeting needed. Code quality mandate: production architecture, no hacks. QA authority established. Documentation: GDD 60%, TDD 60%, headcount breakdown 0%.",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "thr_dino-exit-uk-entity",
+        "title": "Dino Exit & UK Entity",
+        "status": "active",
+        "summary": "Exit in progress: 3-month notice, Sophia as replacement MD. Settlement TBD. Handbook ~70% complete. Pension (NEST, 3%). HiBob ready pending permissions. Mishcon templates replacing Sheridans. IR35 tightening. FTE transitions underway. Military service contracts ending (Nicolas, Panos, Yorgos). EMI structurally impossible — dual class voting rights being investigated.",
+        "workstream": "couch_heroes"
+      },
+      {
+        "id": "thr_nbi-revenue-growth",
+        "title": "NBI Revenue Growth",
+        "status": "active",
+        "summary": "55K/month vs 75-80K needed. High-confidence: UXR expansion + LH data manager + Greek fund auditing. Enoma (medium). WorkSage tool: first $5K/month customer. Jason AI consulting ($50K immediate + $200-300K follow-on). Greece trip: PM dinner, gaming investment speaking. Government project: teaming agreement + NDA signed (6-month surge + 4-year advisory). NSI: $600K partner buyout needed.",
+        "workstream": "nbi"
+      },
+      {
+        "id": "thr_lighthouse-delivery-risk",
+        "title": "Lighthouse Delivery Risk",
+        "status": "active",
+        "summary": "Telemetry 35-40% wrong/incomplete (453 elements). Build crashes after ~3 seconds. James underperforming — Justin wants to fire, promote Stavros. Pre-alpha pushed to late July (MS-31), full alpha late August/early September. If Tencent rejects live service, data contract at risk. Tencent demanding $80M year 1 (unrealistic). Tencent vs NBI data methodology conflict: 100% chance of conflicting numbers.",
+        "workstream": "lighthouse"
+      }
+    ]
+  }
+}

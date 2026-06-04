@@ -1,0 +1,197 @@
+TITLE: Answering NBI questions
+DATE: 2025-09-16
+MESSAGES: 2
+ID: 68c943da-62dc-8330-95af-32553bbf1188
+---
+
+[USER]
+help me asnwer these questions in detail
+
+
+To make your Master Prompt sharp, I need a few more details:
+
+Target Client Profile
+
+Size: indie studios, mid‑size, AAA?
+
+Type: developers, publishers, tech providers, or investors?
+
+Geography: global, or focused regions?
+
+Differentiators
+
+What sets NBI apart vs other consultancies in gaming / analytics / org performance?
+
+“Veterans” implies domain experience — any unique case studies, processes, IP?
+
+Service Breakdown & Deliverables
+
+What do clients concretely receive under each service area?
+
+For example, in Data Systems: dashboards, platform integrations, predictive modeling?
+
+For Organizational Health: leadership coaching, culture audits, performance metrics?
+
+Engagement Models
+
+Do you work on retainer, project basis, embedded support, strategic advisory?
+
+Typical timeframes and phases?
+
+Success Metrics / KPIs
+
+What metrics do you use internally & with clients to define “smarter decisions”, “faster delivery”, etc.?
+
+Tone / Style
+
+How formal or informal is your brand voice?
+
+Preferred messaging style: data‑heavy, storytelling, technical vs accessible, etc.
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.
+
+# Master Task Blueprint
+
+**Task name and date**  
+Define inputs for NBI Master Prompt, 16 September 2025
+
+**Roles engaged and why**  
+- Consultant: structure the prompt inputs clearly for downstream use.  
+- Market Analyst: align target client profile and differentiators with the games market.  
+- Brand Expert: set tone and style.
+
+**Objective and audience**  
+Produce detailed draft answers to the intake questions required to generate NBI’s Master Prompt. Audience is Glen for immediate review and edit.
+
+**Success criteria**  
+Answers are specific, decision-ready, and consistent with NBI’s positioning in video games, human capital, and data systems.
+
+**Constraints and inputs**  
+- British English.  
+- No em dashes, no icons.  
+- Europe/London timezone.
+
+**ASSUMPTIONS**  
+1) NBI targets funded studios and publishers from scale-up to AAA, plus investors supporting those studios. Confidence 80 percent. Reason: prior NBI conversations reference multi-million budgets, investor decks, and AAA-adjacent work.  
+2) NBI serves UK, EU, and North America, with remote delivery where needed. Confidence 85 percent. Reason: Glen is UK-based and prior work references UK and US clients.  
+3) NBI offers project scopes, retainers, and embedded advisory as core models. Confidence 90 percent. Reason: standard consulting patterns and past NBI scope discussions.
+
+**Segments and dependencies**  
+Single segment: deliver complete first draft answers. No external dependencies.
+
+**Deliverable list and formats**  
+One consolidated Q&A draft, plain text, ready to paste into the Master Prompt.
+
+**Sources to use**  
+Internal project context only.
+
+**Review plan across roles**  
+Brand Expert pass for tone. Market Analyst pass for client profile fit.
+
+**Definition-of-Done**  
+All questions answered in actionable detail, aligned to NBI positioning, assumptions stated.
+
+---
+
+Below is a complete draft you can accept as-is or edit inline.
+
+## Target Client Profile
+
+**Size**  
+- Primary: mid-size and scale-up studios or publishers with 50 to 500 staff and active titles in development or live service.  
+- Secondary: AAA units or labels seeking focused help on organisational health, product analytics, or portfolio planning.  
+- Tertiary: funded indies graduating to their first professional pipeline who need senior scaffolding for data, operations, or GTM.
+
+**Type**  
+- Developers and publishers building or running PC, console, and mobile titles.  
+- Investor and PE funds that require diligence, forecasting, and portfolio operating plans.  
+- Select tech providers in tooling, analytics, or back-end who need go-to-market and customer success design for games clients.
+
+**Geography**  
+- UK and EU core.  
+- North America for growth mandates, diligence, and executive advisory.  
+- Remote-first delivery with on-site intensives for workshops, audits, and leadership work.
+
+## Differentiators
+
+- **Veteran operators, not slide-ware.** Senior team with ship history and P&L responsibility across live service, analytics, and studio ops.  
+- **Decision-backed analytics.** We start from the decisions leaders must make, then design the evidence and systems to answer them clearly.  
+- **Organisational health as a performance system.** Leadership behaviours, rituals, and metrics tied directly to delivery speed, quality, and financial outcomes.  
+- **Integrated stack thinking.** Product, people, process, and data designed together, so dashboards and rituals change decisions within weeks, not months.  
+- **Reusable IP and templates.** Playbooks for forecasting, KPI taxonomies, org diagnostics, and delivery cadences that compress time to value.  
+- **Hands-on build.** We do the audits and the fixes. We implement pipelines, dashboards, hiring plans, and operating rhythms alongside the client.
+
+## Service Breakdown and Deliverables
+
+**1) Data Systems and Analytics**  
+- Discovery and metric canon: KPI dictionary, event schema, governance rules.  
+- Pipeline design: ingestion, modelling, QA checks, SLAs.  
+- Dashboards and reporting: executive, product, and live-ops views with decision prompts.  
+- Predictive and scenario models: retention, monetisation, forecasting, cohort dynamics.  
+- Experiments: A/B frameworks, guardrails, decision logs.  
+- Deliverables: KPI taxonomy, event schema, data architecture diagram, dashboard suite, forecasting workbook, experimentation playbook, runbook, ownership map.
+
+**2) Organisational Health and Operating Model**  
+- Leadership and team diagnostics: interviews, survey, behavioural mapping.  
+- Operating cadence: ceremonies, artefacts, decision rights, RACI.  
+- Performance system: goals, lead and lag metrics, scorecards, review rhythm.  
+- Role clarity and headcount plan: team structure, spans and layers, hiring plan.  
+- Leadership coaching and enablement: feedback loops, conflict resolution, decision quality.  
+- Deliverables: Org health report, operating model blueprint, role catalogue, RACI, scorecards, leadership action plan, coaching schedule.
+
+**3) Product Strategy and Live-Ops**  
+- Market and competitor analysis: positioning, feature ladders, content cadence.  
+- Product vision and north star metrics.  
+- Roadmap and release plan: scope by phase, resourcing, risk register.  
+- Monetisation model: economy design principles, pricing tests, revenue scenarios.  
+- Live-ops calendar and playbooks: events, offers, content pipelines, KPIs.  
+- Deliverables: Strategy memo, market brief, roadmap, live-ops calendar, monetisation model, risk and mitigation plan.
+
+**4) Diligence and Investment Support**  
+- Product and studio audit: build state, tech, data, team, and process.  
+- KPI quality and forecast review: model reconstruction and sensitivity.  
+- Value creation plan for post-close.  
+- Deliverables: diligence report, forecast pack, 100-day plan.
+
+## Engagement Models
+
+- **Project**: fixed-scope audits, builds, or strategy packages, typically 4 to 12 weeks with defined artefacts and acceptance tests.  
+- **Retainer**: ongoing advisory, performance cadence, and roadmap stewardship with monthly outcomes and a rolling backlog.  
+- **Embedded**: fractional leadership or specialist pods working inside client teams to stand up systems or ship critical milestones.  
+- **Typical phases**: Discover and define, design and pilot, implement and train, stabilise and handover, then iterate on a quarterly cadence.
+
+## Success Metrics and KPIs
+
+**For clients**  
+- Decision latency: time from question to supported decision.  
+- Delivery predictability: plan versus actual for milestones and scope.  
+- Quality: defect escape rate, incident volume, rework percentage.  
+- Product health: retention curves, conversion, ARPDAU, LTV to CAC, content cadence hit rate.  
+- Org health: leadership ritual adherence, engagement, attrition, hiring lead time, time to effectiveness for new hires.
+
+**For NBI delivery**  
+- Time to first decision-changing dashboard or ritual.  
+- Adoption rate of dashboards and operating ceremonies.  
+- Cycle time to resolve top three systemic blockers identified in discovery.  
+- ROI proxy: uplift in target KPIs tied to implemented recommendations within 90 days of go-live.
+
+## Tone and Style
+
+- **Voice**: senior, plain-spoken, and buyer-aware. Confident without hype.  
+- **Register**: professional and accessible. Technical when needed, but always anchored to decisions and outcomes.  
+- **Style**: short sentences, strong verbs, scannable structure. Promise, proof, action.  
+- **Proof**: case-style evidence and before-after metrics where permitted.  
+- **Accessibility**: clear headings, consistent terms, no jargon without definitions.
+
+---
+
+### Essential clarifications to finalise the Master Prompt
+Only reply to the bullets that you want to change.
+
+1) Client mix: confirm the primary focus as mid-size and scale-ups, with secondary AAA and investor work.  
+2) Geography: confirm UK and EU core with North America as a growth market.  
+3) Proof points: name 1 to 3 case studies we can reference publicly, or indicate “anonymised.”  
+4) Delivery cadence: confirm preferred first engagement format for new clients, for example a four-week diagnostic leading to a build phase.  
+5) Any red-line services we should exclude.
+

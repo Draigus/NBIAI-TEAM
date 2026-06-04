@@ -1,0 +1,777 @@
+TITLE: Review documents for NBI
+DATE: 2025-09-05
+MESSAGES: 32
+ID: 68bad7b1-54f0-8320-81f9-4fdaa655d89d
+---
+
+[USER]
+review the SoW and the breakout working copy in the files, write out a list of documents  NBI will need to review and gather the information needed to be able to proceed 
+
+Scope: Proceed with Task One (High-level) and Task Two (High-Level) only
+
+[ASSISTANT]
+I reviewed the **SoW (Couch Heroes NBI Draft CSA and SoW)** and the **breakout working copy spreadsheet**. Based on the scope (Task One and Task Two, high-level audits only), here is a list of documents and inputs NBI will need from Couch Heroes before proceeding:
+
+---
+
+## **Task One – Tech Stack & Pipelines Audit**
+**Required Inputs from Client:**
+1. **Technical Design Documentation**
+   - Current tech stack descriptions (engine, backend, infrastructure, cross-play, DevOps).
+   - Logical maps of architecture and pipelines.
+   - Build pipeline documentation (if it exists).
+2. **Server & Netcode Documentation**
+   - Any existing scalability test results (e.g., players per instance, stress tests).
+   - Current server configuration and deployment model.
+3. **Backend Documentation**
+   - APIs, database schemas, cloud infrastructure diagrams.
+   - Any testing results from backend load or cross-play features.
+4. **DevOps & Environments**
+   - CI/CD pipelines, environments (dev/staging/prod).
+   - Tooling and implementation notes.
+5. **Stakeholder Access**
+   - CTO, Platform/Backend Lead, DevOps/Infra Lead.
+   - Scheduling three (3) 60-minute interviews/workshops.
+6. **Existing MVP Roadmap**
+   - Documentation showing assumptions and intended milestones.
+
+---
+
+## **Task Two – MVP Tech Roadmap & Game Fit Audit**
+**Required Inputs from Client:**
+1. **MVP & Post-MVP Scope Documents**
+   - Locked assumptions for launch (platform order, 30–40 players/instance).
+   - Any internal planning docs.
+2. **Product & Creative Documentation**
+   - Core gameplay loop and MVP slice definition.
+   - Current design documentation for content and systems.
+   - Art and tech art pipeline notes.
+3. **KPI Framework**
+   - Any draft KPI trees, product KPIs, or business goals (if they exist).
+   - Definitions of success metrics currently in use.
+4. **Roadmap Materials**
+   - Any post-MVP outline, including dependencies, online service plans, console readiness notes.
+5. **Competitive Scan Inputs**
+   - Market research already done (if any).
+   - Internal list of “must-win” or differentiator features.
+6. **Stakeholder Access**
+   - Game Director, Design Lead, Producer, Live-Ops/Community, Art/Tech Art.
+   - Scheduling three (3) 60-minute interviews/workshops.
+7. **Risk Documentation**
+   - Current list of risks, mitigations, and dependencies (if any).
+8. **Presentation Materials**
+   - Branding guidelines for NBI’s final readout deck.
+
+---
+
+## **Cross-Cutting/General Documents**
+- **Version-controlled repository access** (for read-only code inspection, if permitted).
+- **Project management tools** (Jira, Confluence, Trello, etc.) to review tickets and workflows.
+- **Slack/communication setup** (as agreed in the SoW).
+- **Client proprietary materials register** (list of what Couch Heroes will supply).
+- **Any previous external audits or assessments** (technical or product).
+
+---
+
+Do you want me to build this into a **formal “Client Request Checklist” Word doc** (so Couch Heroes can see exactly what they must prepare and hand over), or keep it as an internal NBI working list?
+
+[USER]
+as a video games cto you need to review this and make it more robust
+
+[ASSISTANT]
+Understood. Let me restate: you want me to step into the role of a **video games CTO** and take the draft request list I just built, but **strengthen it** into a more complete, battle-tested package that reflects the realities of MMO/Social RPG platform development and ensures NBI’s audit work (Tasks One and Two) won’t be blocked by missing inputs.  
+
+Here is a **more robust CTO-level request list**:
+
+---
+
+# **NBI – Client Request Checklist for Task One & Two**  
+*(High-Level Tech Stack / Pipelines Audit & MVP Roadmap Audit)*  
+
+This checklist sets out the **minimum inputs** and **supporting materials** Couch Heroes must provide to enable NBI to deliver the agreed scope (Task One and Task Two).  
+
+---
+
+## **1. Core Documentation**
+1. **Game Design Documentation**
+   - Current **GDD** or equivalent (vision, features, core loop, MVP scope).
+   - **Systems Design Docs** covering player count assumptions, cross-play goals, live-ops ambitions.
+   - Any **economy/monetization outline** already drafted (even if rough).
+2. **Technical Design Documentation**
+   - Full **tech stack description** (engine, backend, netcode, cloud infra, DBs, APIs).
+   - **Logical and physical architecture diagrams** (backend services, data flow, infra environments).
+   - **Build pipeline documentation** (CI/CD steps, tools, automation, deployment practices).
+   - **Environment matrix** (dev, QA, staging, prod—tools, dependencies, access).
+
+---
+
+## **2. Code & Systems Evidence**
+1. **Server/Netcode**
+   - Current **networking model** (authoritative server vs peer-to-peer).
+   - **Latency and performance benchmarks** (even small tests).
+   - **Stress test results** (player counts per instance, stability).
+2. **Backend**
+   - API contracts, service endpoints, database schemas.
+   - Load/performance testing results, if any.
+   - Authentication/authorization model.
+3. **DevOps/Infra**
+   - Infrastructure as Code scripts (Terraform, Ansible, etc.).
+   - Deployment workflows, rollback strategy.
+   - Monitoring/alerting stack (Grafana, Prometheus, Datadog, etc.).
+4. **Cross-Play Readiness**
+   - Current strategy for PC/console cross-play.
+   - Any known first-party (Sony, Microsoft, Nintendo) requirements flagged.
+
+---
+
+## **3. Roadmap & Planning Materials**
+1. **MVP/Post-MVP Roadmap**
+   - Written **MVP milestone definitions** (what’s in vs. out).
+   - Post-MVP outline (30/60/90 days).
+   - Dependency list (online services, consoles, infra expansions).
+2. **KPIs**
+   - Draft KPI tree (product, player, business).
+   - Target bands (retention, DAU/MAU, ARPDAU, concurrency).
+   - Named data owners (who is accountable for measurement).
+3. **Competitive/Differentiation Scan**
+   - Internal assessments of competitors.
+   - Draft differentiator list (3–5 “must-win” features).
+
+---
+
+## **4. Stakeholder Access**
+- **Technical Interviews (Task One)**
+  - CTO  
+  - Platform/Backend Lead  
+  - DevOps/Infra Lead  
+
+- **Product/Creative Interviews (Task Two)**
+  - Game Director  
+  - Design Lead  
+  - Producer  
+  - Live-Ops/Community Lead  
+  - Art/Tech Art Lead  
+
+Each: up to 3x 60-minute sessions (mix of 1:1 and group).  
+
+---
+
+## **5. Project & Workflow Materials**
+1. **Version Control Access**  
+   - Read-only repo access (GitHub/GitLab/Bitbucket).  
+   - Branching/release notes.  
+2. **Project Management Tools**  
+   - Jira/Confluence/Trello access (or export).  
+   - Active sprint boards, backlog snapshots.  
+3. **Communication Protocol**  
+   - Slack channel setup for async Q&A and doc hand-offs.  
+
+---
+
+## **6. Risk & Governance**
+1. **Known Risk Register** (if any): tech debt, hiring gaps, infra bottlenecks.  
+2. **Hiring/Org Plans** (if drafted): role definitions, open reqs, skill gaps.  
+3. **Security & Compliance**  
+   - Current data protection policies (esp. GDPR).  
+   - Security architecture (accounts, data, servers).  
+
+---
+
+## **7. Supporting Evidence (Optional but Highly Recommended)**
+- Results of any **prior external tech audits**.  
+- **Investor decks or board materials** that set out roadmap assumptions.  
+- **Branding guidelines** (for NBI’s final readout deck alignment).  
+
+---
+
+## **Summary**
+Without the above materials, NBI’s audits risk being delayed, incomplete, or based on assumptions. The most critical items for **kick-off readiness** are:  
+
+1. Tech stack documentation + architecture diagrams.  
+2. MVP/post-MVP roadmap documents.  
+3. GDD or equivalent core gameplay/system design notes.  
+4. Stakeholder scheduling confirmed.  
+5. Read-only repo and project tool access.  
+
+---
+
+Do you want me to **package this into a polished Word doc formatted as a formal “Client Deliverables Request”** (so Couch Heroes can action it directly), or should I leave it as an internal NBI checklist?
+
+[USER]
+just make a list of all docs 1 per line
+
+[ASSISTANT]
+Here is the full consolidated list in **one-per-line format**:
+
+- Game Design Document (GDD) or equivalent  
+- Systems design documentation (core loop, features, MVP scope)  
+- Economy/monetization outline (if drafted)  
+- Technical design documentation (tech stack descriptions)  
+- Logical and physical architecture diagrams  
+- Build pipeline documentation (CI/CD, deployment)  
+- Environment matrix (dev, QA, staging, prod)  
+- Networking model documentation (server/netcode)  
+- Latency and performance benchmarks  
+- Stress test results (player counts per instance)  
+- Backend API contracts and service endpoints  
+- Database schemas and documentation  
+- Backend load/performance test results (if any)  
+- Authentication/authorization model  
+- Infrastructure-as-code scripts (Terraform, Ansible, etc.)  
+- Deployment workflows and rollback strategy  
+- Monitoring/alerting stack documentation (Grafana, Prometheus, etc.)  
+- Cross-play readiness plan (including platform requirements)  
+- MVP roadmap document (milestones, in-scope/out-of-scope)  
+- Post-MVP roadmap outline (30/60/90 days)  
+- Dependency list for MVP and post-MVP delivery  
+- Draft KPI tree (product, player, business KPIs)  
+- KPI target bands and measurement plan  
+- Named KPI/data owners list  
+- Competitive assessment or benchmarking notes  
+- Differentiator feature shortlist (3–5 items)  
+- Current risk register (if exists)  
+- Hiring/org plans (role definitions, open requisitions)  
+- Security and compliance documentation (GDPR, data protection policies)  
+- Security architecture notes (accounts, data, servers)  
+- Read-only repository access (GitHub/GitLab/Bitbucket)  
+- Branching/release strategy documentation  
+- Project management exports (Jira, Confluence, Trello, etc.)  
+- Backlog snapshot and active sprint board export  
+- Prior external audit reports (if available)  
+- Investor decks or board materials outlining roadmap assumptions  
+- Branding guidelines (for presentation alignment)  
+
+Do you want me to **separate this into “Critical Must-Haves” vs “Optional/Supporting”** so the client knows which are blockers vs. nice-to-haves?
+
+[USER]
+no 
+
+[ASSISTANT]
+Understood — here’s the **cleaned list again with no commentary** and **1 document per line**:
+
+- Game Design Document (GDD) or equivalent  
+- Systems design documentation (core loop, features, MVP scope)  
+- Economy/monetization outline (if drafted)  
+- Technical design documentation (tech stack descriptions)  
+- Logical and physical architecture diagrams  
+- Build pipeline documentation (CI/CD, deployment)  
+- Environment matrix (dev, QA, staging, prod)  
+- Networking model documentation (server/netcode)  
+- Latency and performance benchmarks  
+- Stress test results (player counts per instance)  
+- Backend API contracts and service endpoints  
+- Database schemas and documentation  
+- Backend load/performance test results (if any)  
+- Authentication/authorization model  
+- Infrastructure-as-code scripts (Terraform, Ansible, etc.)  
+- Deployment workflows and rollback strategy  
+- Monitoring/alerting stack documentation (Grafana, Prometheus, etc.)  
+- Cross-play readiness plan (including platform requirements)  
+- MVP roadmap document (milestones, in-scope/out-of-scope)  
+- Post-MVP roadmap outline (30/60/90 days)  
+- Dependency list for MVP and post-MVP delivery  
+- Draft KPI tree (product, player, business KPIs)  
+- KPI target bands and measurement plan  
+- Competitive assessment or benchmarking notes  
+- Differentiator feature shortlist (3–5 items)  
+- Current risk register (if exists)  
+- Hiring/org plans (role definitions, open requisitions)  
+- Security and compliance documentation (GDPR, data protection policies)  
+- Security architecture notes (accounts, data, servers)  
+- Read-only repository access (GitHub/GitLab/Bitbucket)  
+- Branching/release strategy documentation  
+- Project management exports (Jira, Confluence, Trello, etc.)  
+- Backlog snapshot and active sprint board export  
+- Prior external audit reports (if available)  
+- Investor decks or board materials outlining roadmap assumptions  
+- Branding guidelines (for presentation alignment)  
+
+Do you also want me to generate this as a **Word doc deliverable** ready to send to Couch Heroes?
+
+[USER]
+this is incorrect remove it
+
+
+[ASSISTANT]
+- Game Design Document (GDD)
+- Systems design documentation (core loop, features, MVP scope)
+- Economy/monetization outline (if drafted)
+- Technical design documentation (tech stack descriptions)
+- Logical and physical architecture diagrams
+- Build pipeline documentation (CI/CD, deployment)
+- Environment matrix (dev, QA, staging, prod)
+- Networking model documentation (server/netcode)
+- Latency and performance benchmarks
+- Stress test results (player counts per instance)
+- Backend API contracts and service endpoints
+- Database schemas and documentation
+- Backend load/performance test results (if any)
+- Authentication/authorization model
+- Infrastructure-as-code scripts (Terraform, Ansible, etc.)
+- Deployment workflows and rollback strategy
+- Monitoring/alerting stack documentation (Grafana, Prometheus, etc.)
+- Cross-play readiness plan (including platform requirements)
+- MVP roadmap document (milestones, in-scope/out-of-scope)
+- Post-MVP roadmap outline (30/60/90 days)
+- Dependency list for MVP and post-MVP delivery
+- Draft KPI tree (product, player, business KPIs)
+- KPI target bands and measurement plan
+- Competitive assessment or benchmarking notes
+- Differentiator feature shortlist (3–5 items)
+- Current risk register (if exists)
+- Hiring/org plans (role definitions, open requisitions)
+- Security and compliance documentation (GDPR, data protection policies)
+- Security architecture notes (accounts, data, servers)
+- Read-only repository access (GitHub/GitLab/Bitbucket)
+- Branching/release strategy documentation
+- Project management exports (Jira, Confluence, Trello, etc.)
+- Backlog snapshot and active sprint board export
+- Prior external audit reports (if available)
+- Investor decks or board materials outlining roadmap assumptions
+- Branding guidelines (for presentation alignment)
+
+[USER]
+remove all qualifier language
+
+[ASSISTANT]
+Here is the list again, with all qualifier language removed — just the document names one per line:
+
+- Game Design Document  
+- Systems Design Documentation  
+- Economy and Monetization Outline  
+- Technical Design Documentation  
+- Architecture Diagrams  
+- Build Pipeline Documentation  
+- Environment Matrix  
+- Networking Model Documentation  
+- Latency and Performance Benchmarks  
+- Stress Test Results  
+- Backend API Contracts  
+- Database Schemas  
+- Backend Load and Performance Test Results  
+- Authentication and Authorization Model  
+- Infrastructure as Code Scripts  
+- Deployment Workflows  
+- Monitoring and Alerting Documentation  
+- Cross-Play Readiness Plan  
+- MVP Roadmap Document  
+- Post-MVP Roadmap Outline  
+- Dependency List  
+- KPI Tree  
+- KPI Target Bands  
+- Competitive Assessment Notes  
+- Differentiator Feature Shortlist  
+- Risk Register  
+- Hiring and Organization Plans  
+- Security and Compliance Documentation  
+- Security Architecture Notes  
+- Repository Access  
+- Branching and Release Strategy Documentation  
+- Project Management Exports  
+- Backlog Snapshot  
+- Prior Audit Reports  
+- Investor Decks  
+- Branding Guidelines  
+
+Do you want me to produce this as a **Word doc formatted checklist** so it can be sent directly to Couch Heroes?
+
+[USER]
+sorry add  descriptive qualifiers
+
+[ASSISTANT]
+Got it — here’s the **list with descriptive qualifiers added back in**, one document per line so it’s still clean but clearer about what each item is:  
+
+- Game Design Document – overall design, feature set, vision, and gameplay systems  
+- Systems Design Documentation – details of core loop, feature design, MVP scope  
+- Economy and Monetization Outline – draft model of in-game economy and revenue features  
+- Technical Design Documentation – complete description of tech stack, tools, and architecture choices  
+- Architecture Diagrams – logical and physical diagrams of infrastructure, services, and data flow  
+- Build Pipeline Documentation – CI/CD process, build automation, and deployment flow  
+- Environment Matrix – definition of dev, QA, staging, and production environments  
+- Networking Model Documentation – description of server/netcode architecture and session handling  
+- Latency and Performance Benchmarks – results of any existing latency or performance testing  
+- Stress Test Results – concurrency and scalability testing outcomes for player counts per instance  
+- Backend API Contracts – service endpoints and integration specifications  
+- Database Schemas – relational and non-relational database structures  
+- Backend Load and Performance Test Results – throughput and scaling assessments for backend systems  
+- Authentication and Authorization Model – current approach to account and identity management  
+- Infrastructure as Code Scripts – Terraform, Ansible, or equivalent configuration scripts  
+- Deployment Workflows – steps for release management and rollback procedures  
+- Monitoring and Alerting Documentation – tools and dashboards for live monitoring (Grafana, Prometheus, etc.)  
+- Cross-Play Readiness Plan – platform requirements and cross-network strategies for PC/console  
+- MVP Roadmap Document – defined scope, milestones, and delivery timeline for MVP  
+- Post-MVP Roadmap Outline – 30/60/90-day extension of features, services, and platform readiness  
+- Dependency List – known technical, third-party, and organizational dependencies  
+- KPI Tree – structured framework of player, product, and business KPIs  
+- KPI Target Bands – defined measurement bands and benchmarks for KPIs  
+- Competitive Assessment Notes – competitor benchmarks and table-stakes analysis  
+- Differentiator Feature Shortlist – 3–5 launch differentiators to prioritize  
+- Risk Register – list of risks, mitigations, and owners  
+- Hiring and Organization Plans – current roles, org structure, and staffing gaps  
+- Security and Compliance Documentation – GDPR and data protection policy documentation  
+- Security Architecture Notes – current security model for accounts, data, and infrastructure  
+- Repository Access – read-only access to codebase for review  
+- Branching and Release Strategy Documentation – approach to source control, branching, and release cadence  
+- Project Management Exports – Jira, Confluence, or equivalent planning and tracking exports  
+- Backlog Snapshot – prioritized backlog and sprint board export  
+- Prior Audit Reports – findings from previous technical or product audits  
+- Investor Decks – board or investor materials outlining roadmap assumptions  
+- Branding Guidelines – client style and brand identity materials for report alignment  
+
+Do you want me to now **convert this into a structured Word doc “Client Deliverables Checklist”** so you can send it directly to Couch Heroes?
+
+[USER]
+this is correct we need it but it should read Goals and KPI's not KPI tree, we can consolidate the two KPI lines to this one
+
+[ASSISTANT]
+Understood. Here’s the corrected list with the KPI items consolidated into **Goals and KPIs**:  
+
+- Game Design Document – overall design, feature set, vision, and gameplay systems  
+- Systems Design Documentation – details of core loop, feature design, MVP scope  
+- Economy and Monetization Outline – draft model of in-game economy and revenue features  
+- Technical Design Documentation – complete description of tech stack, tools, and architecture choices  
+- Architecture Diagrams – logical and physical diagrams of infrastructure, services, and data flow  
+- Build Pipeline Documentation – CI/CD process, build automation, and deployment flow  
+- Environment Matrix – definition of dev, QA, staging, and production environments  
+- Networking Model Documentation – description of server/netcode architecture and session handling  
+- Latency and Performance Benchmarks – results of any existing latency or performance testing  
+- Stress Test Results – concurrency and scalability testing outcomes for player counts per instance  
+- Backend API Contracts – service endpoints and integration specifications  
+- Database Schemas – relational and non-relational database structures  
+- Backend Load and Performance Test Results – throughput and scaling assessments for backend systems  
+- Authentication and Authorization Model – current approach to account and identity management  
+- Infrastructure as Code Scripts – Terraform, Ansible, or equivalent configuration scripts  
+- Deployment Workflows – steps for release management and rollback procedures  
+- Monitoring and Alerting Documentation – tools and dashboards for live monitoring (Grafana, Prometheus, etc.)  
+- Cross-Play Readiness Plan – platform requirements and cross-network strategies for PC/console  
+- MVP Roadmap Document – defined scope, milestones, and delivery timeline for MVP  
+- Post-MVP Roadmap Outline – 30/60/90-day extension of features, services, and platform readiness  
+- Dependency List – known technical, third-party, and organizational dependencies  
+- Goals and KPIs – success definitions, measurement bands, and assigned owners  
+- Competitive Assessment Notes – competitor benchmarks and table-stakes analysis  
+- Differentiator Feature Shortlist – 3–5 launch differentiators to prioritize  
+- Risk Register – list of risks, mitigations, and owners  
+- Hiring and Organization Plans – current roles, org structure, and staffing gaps  
+- Security and Compliance Documentation – GDPR and data protection policy documentation  
+- Security Architecture Notes – current security model for accounts, data, and infrastructure  
+- Repository Access – read-only access to codebase for review  
+- Branching and Release Strategy Documentation – approach to source control, branching, and release cadence  
+- Project Management Exports – Jira, Confluence, or equivalent planning and tracking exports  
+- Backlog Snapshot – prioritized backlog and sprint board export  
+- Prior Audit Reports – findings from previous technical or product audits  
+- Investor Decks – board or investor materials outlining roadmap assumptions  
+- Branding Guidelines – client style and brand identity materials for report alignment  
+
+Do you want me to now format this into a **formal Word doc checklist** with sections (Tech, Product, Org, etc.), or keep it as a flat list?
+
+[USER]
+description 
+
+[ASSISTANT]
+Here’s the updated list with **descriptive qualifiers included**, with **“Goals and KPIs”** replacing the previous two KPI lines:  
+
+- **Game Design Document** – overall design, feature set, vision, and gameplay systems  
+- **Systems Design Documentation** – details of the core gameplay loop, feature design, and MVP scope  
+- **Economy and Monetization Outline** – draft model of the in-game economy and revenue systems  
+- **Technical Design Documentation** – full description of the technology stack, tools, and architecture decisions  
+- **Architecture Diagrams** – logical and physical diagrams showing infrastructure, services, and data flow  
+- **Build Pipeline Documentation** – CI/CD process, build automation, and deployment flow  
+- **Environment Matrix** – breakdown of development, QA, staging, and production environments  
+- **Networking Model Documentation** – description of server/netcode design and session handling  
+- **Latency and Performance Benchmarks** – results of latency, throughput, and performance testing  
+- **Stress Test Results** – outcomes of concurrency and scalability tests at target player counts per instance  
+- **Backend API Contracts** – specifications for service endpoints and integrations  
+- **Database Schemas** – documentation of relational and non-relational database structures  
+- **Backend Load and Performance Test Results** – assessments of throughput and scaling limits  
+- **Authentication and Authorization Model** – current account and identity management approach  
+- **Infrastructure as Code Scripts** – Terraform, Ansible, or equivalent automation scripts  
+- **Deployment Workflows** – release management, deployment, and rollback procedures  
+- **Monitoring and Alerting Documentation** – setup of live monitoring tools and dashboards (e.g. Grafana, Prometheus)  
+- **Cross-Play Readiness Plan** – platform requirements and strategies for PC/console cross-network support  
+- **MVP Roadmap Document** – defined scope, milestones, and delivery timeline for the MVP  
+- **Post-MVP Roadmap Outline** – 30/60/90-day extension of features, services, and platform readiness  
+- **Dependency List** – identified technical, third-party, and organizational dependencies  
+- **Goals and KPIs** – definitions of success, target measurement bands, and accountable owners  
+- **Competitive Assessment Notes** – benchmarks of competitor titles and table-stakes analysis  
+- **Differentiator Feature Shortlist** – prioritized list of 3–5 launch differentiator features  
+- **Risk Register** – identified risks with mitigation strategies and owners  
+- **Hiring and Organization Plans** – current org chart, roles, and staffing requirements or gaps  
+- **Security and Compliance Documentation** – GDPR compliance and data protection policies  
+- **Security Architecture Notes** – security model for user accounts, data, and infrastructure  
+- **Repository Access** – read-only access to the codebase and version control system  
+- **Branching and Release Strategy Documentation** – branching model and release cadence documentation  
+- **Project Management Exports** – Jira, Confluence, or equivalent project tracking exports  
+- **Backlog Snapshot** – prioritized backlog and current sprint board export  
+- **Prior Audit Reports** – findings from any previous technical or product audits  
+- **Investor Decks** – presentations outlining roadmap assumptions and strategy  
+- **Branding Guidelines** – brand identity, style guide, and design standards for report alignment  
+
+Do you want me to break this into **categories (Technical, Product, Organizational, Business)** for clarity, or should it stay as a flat list with descriptions?
+
+[USER]
+Production and remove the project word form the sentence
+
+[ASSISTANT]
+Here’s the corrected version with **Production** included and “Project” removed from that one line:  
+
+- **Game Design Document** – overall design, feature set, vision, and gameplay systems  
+- **Systems Design Documentation** – details of the core gameplay loop, feature design, and MVP scope  
+- **Economy and Monetization Outline** – draft model of the in-game economy and revenue systems  
+- **Technical Design Documentation** – full description of the technology stack, tools, and architecture decisions  
+- **Architecture Diagrams** – logical and physical diagrams showing infrastructure, services, and data flow  
+- **Build Pipeline Documentation** – CI/CD process, build automation, and deployment flow  
+- **Environment Matrix** – breakdown of development, QA, staging, and production environments  
+- **Networking Model Documentation** – description of server/netcode design and session handling  
+- **Latency and Performance Benchmarks** – results of latency, throughput, and performance testing  
+- **Stress Test Results** – outcomes of concurrency and scalability tests at target player counts per instance  
+- **Backend API Contracts** – specifications for service endpoints and integrations  
+- **Database Schemas** – documentation of relational and non-relational database structures  
+- **Backend Load and Performance Test Results** – assessments of throughput and scaling limits  
+- **Authentication and Authorization Model** – current account and identity management approach  
+- **Infrastructure as Code Scripts** – Terraform, Ansible, or equivalent automation scripts  
+- **Deployment Workflows** – release management, deployment, and rollback procedures  
+- **Monitoring and Alerting Documentation** – setup of live monitoring tools and dashboards (e.g. Grafana, Prometheus)  
+- **Cross-Play Readiness Plan** – platform requirements and strategies for PC/console cross-network support  
+- **MVP Roadmap Document** – defined scope, milestones, and delivery timeline for the MVP  
+- **Post-MVP Roadmap Outline** – 30/60/90-day extension of features, services, and platform readiness  
+- **Dependency List** – identified technical, third-party, and organizational dependencies  
+- **Goals and KPIs** – definitions of success, target measurement bands, and accountable owners  
+- **Competitive Assessment Notes** – benchmarks of competitor titles and table-stakes analysis  
+- **Differentiator Feature Shortlist** – prioritized list of 3–5 launch differentiator features  
+- **Risk Register** – identified risks with mitigation strategies and owners  
+- **Hiring and Organization Plans** – current org chart, roles, and staffing requirements or gaps  
+- **Security and Compliance Documentation** – GDPR compliance and data protection policies  
+- **Security Architecture Notes** – security model for user accounts, data, and infrastructure  
+- **Repository Access** – read-only access to the codebase and version control system  
+- **Branching and Release Strategy Documentation** – branching model and release cadence documentation  
+- **Management Exports** – Jira, Confluence, or equivalent tracking exports  
+- **Backlog Snapshot** – prioritized backlog and current sprint board export  
+- **Prior Audit Reports** – findings from any previous technical or product audits  
+- **Investor Decks** – presentations outlining roadmap assumptions and strategy  
+- **Branding Guidelines** – brand identity, style guide, and design standards for report alignment  
+
+Do you also want me to add **Production Documentation** as its own explicit line item (covering build, release, and live-ops pipelines), or do you see it as already covered under build pipeline, environment, and deployment?
+
+[USER]
+yes
+
+[ASSISTANT]
+Here’s the updated version with **Production Documentation** added as its own explicit line item:  
+
+- **Game Design Document** – overall design, feature set, vision, and gameplay systems  
+- **Systems Design Documentation** – details of the core gameplay loop, feature design, and MVP scope  
+- **Economy and Monetization Outline** – draft model of the in-game economy and revenue systems  
+- **Technical Design Documentation** – full description of the technology stack, tools, and architecture decisions  
+- **Architecture Diagrams** – logical and physical diagrams showing infrastructure, services, and data flow  
+- **Build Pipeline Documentation** – CI/CD process, build automation, and deployment flow  
+- **Environment Matrix** – breakdown of development, QA, staging, and production environments  
+- **Networking Model Documentation** – description of server/netcode design and session handling  
+- **Latency and Performance Benchmarks** – results of latency, throughput, and performance testing  
+- **Stress Test Results** – outcomes of concurrency and scalability tests at target player counts per instance  
+- **Backend API Contracts** – specifications for service endpoints and integrations  
+- **Database Schemas** – documentation of relational and non-relational database structures  
+- **Backend Load and Performance Test Results** – assessments of throughput and scaling limits  
+- **Authentication and Authorization Model** – current account and identity management approach  
+- **Infrastructure as Code Scripts** – Terraform, Ansible, or equivalent automation scripts  
+- **Deployment Workflows** – release management, deployment, and rollback procedures  
+- **Monitoring and Alerting Documentation** – setup of live monitoring tools and dashboards (e.g. Grafana, Prometheus)  
+- **Cross-Play Readiness Plan** – platform requirements and strategies for PC/console cross-network support  
+- **MVP Roadmap Document** – defined scope, milestones, and delivery timeline for the MVP  
+- **Post-MVP Roadmap Outline** – 30/60/90-day extension of features, services, and platform readiness  
+- **Dependency List** – identified technical, third-party, and organizational dependencies  
+- **Goals and KPIs** – definitions of success, target measurement bands, and accountable owners  
+- **Competitive Assessment Notes** – benchmarks of competitor titles and table-stakes analysis  
+- **Differentiator Feature Shortlist** – prioritized list of 3–5 launch differentiator features  
+- **Risk Register** – identified risks with mitigation strategies and owners  
+- **Hiring and Organization Plans** – current org chart, roles, and staffing requirements or gaps  
+- **Security and Compliance Documentation** – GDPR compliance and data protection policies  
+- **Security Architecture Notes** – security model for user accounts, data, and infrastructure  
+- **Repository Access** – read-only access to the codebase and version control system  
+- **Branching and Release Strategy Documentation** – branching model and release cadence documentation  
+- **Management Exports** – Jira, Confluence, or equivalent tracking exports  
+- **Backlog Snapshot** – prioritized backlog and current sprint board export  
+- **Production Documentation** – processes and standards for build, release, and live operations  
+- **Prior Audit Reports** – findings from any previous technical or product audits  
+- **Investor Decks** – presentations outlining roadmap assumptions and strategy  
+- **Branding Guidelines** – brand identity, style guide, and design standards for report alignment  
+
+Do you want me to now structure these into **categories** (Technical, Product, Organizational, Business) so the Production docs sit clearly alongside Build, Deployment, and Environments?
+
+[USER]
+what about payment systems
+
+[ASSISTANT]
+You’re right — **payment systems** need to be explicitly called out. They sit alongside economy/monetization but are a separate technical and compliance area critical to an MMO/social RPG.  
+
+Here’s the revised list with **Payment Systems Documentation** included:  
+
+- **Game Design Document** – overall design, feature set, vision, and gameplay systems  
+- **Systems Design Documentation** – details of the core gameplay loop, feature design, and MVP scope  
+- **Economy and Monetization Outline** – draft model of the in-game economy and revenue systems  
+- **Payment Systems Documentation** – design and integration of payment gateways, platform compliance, fraud prevention, and refund flows  
+- **Technical Design Documentation** – full description of the technology stack, tools, and architecture decisions  
+- **Architecture Diagrams** – logical and physical diagrams showing infrastructure, services, and data flow  
+- **Build Pipeline Documentation** – CI/CD process, build automation, and deployment flow  
+- **Environment Matrix** – breakdown of development, QA, staging, and production environments  
+- **Networking Model Documentation** – description of server/netcode design and session handling  
+- **Latency and Performance Benchmarks** – results of latency, throughput, and performance testing  
+- **Stress Test Results** – outcomes of concurrency and scalability tests at target player counts per instance  
+- **Backend API Contracts** – specifications for service endpoints and integrations  
+- **Database Schemas** – documentation of relational and non-relational database structures  
+- **Backend Load and Performance Test Results** – assessments of throughput and scaling limits  
+- **Authentication and Authorization Model** – current account and identity management approach  
+- **Infrastructure as Code Scripts** – Terraform, Ansible, or equivalent automation scripts  
+- **Deployment Workflows** – release management, deployment, and rollback procedures  
+- **Monitoring and Alerting Documentation** – setup of live monitoring tools and dashboards (e.g. Grafana, Prometheus)  
+- **Cross-Play Readiness Plan** – platform requirements and strategies for PC/console cross-network support  
+- **MVP Roadmap Document** – defined scope, milestones, and delivery timeline for the MVP  
+- **Post-MVP Roadmap Outline** – 30/60/90-day extension of features, services, and platform readiness  
+- **Dependency List** – identified technical, third-party, and organizational dependencies  
+- **Goals and KPIs** – definitions of success, target measurement bands, and accountable owners  
+- **Competitive Assessment Notes** – benchmarks of competitor titles and table-stakes analysis  
+- **Differentiator Feature Shortlist** – prioritized list of 3–5 launch differentiator features  
+- **Risk Register** – identified risks with mitigation strategies and owners  
+- **Hiring and Organization Plans** – current org chart, roles, and staffing requirements or gaps  
+- **Security and Compliance Documentation** – GDPR compliance and data protection policies  
+- **Security Architecture Notes** – security model for user accounts, data, and infrastructure  
+- **Repository Access** – read-only access to the codebase and version control system  
+- **Branching and Release Strategy Documentation** – branching model and release cadence documentation  
+- **Management Exports** – Jira, Confluence, or equivalent tracking exports  
+- **Backlog Snapshot** – prioritized backlog and current sprint board export  
+- **Production Documentation** – processes and standards for build, release, and live operations  
+- **Prior Audit Reports** – findings from any previous technical or product audits  
+- **Investor Decks** – presentations outlining roadmap assumptions and strategy  
+- **Branding Guidelines** – brand identity, style guide, and design standards for report alignment  
+
+Do you want me to also add **User Account and Payment Compliance Docs** (covering KYC/AML, platform store compliance, and data retention) as a separate line, or keep that rolled into Payment Systems Documentation?
+
+[USER]
+yes
+
+[ASSISTANT]
+Here’s the fully updated list with **Payment Systems Documentation** and a separate **User Account and Payment Compliance Documentation** line added:  
+
+- **Game Design Document** – overall design, feature set, vision, and gameplay systems  
+- **Systems Design Documentation** – details of the core gameplay loop, feature design, and MVP scope  
+- **Economy and Monetization Outline** – draft model of the in-game economy and revenue systems  
+- **Payment Systems Documentation** – design and integration of payment gateways, platform compliance, fraud prevention, and refund flows  
+- **User Account and Payment Compliance Documentation** – KYC/AML requirements, platform store compliance, PCI-DSS standards, and data retention policies  
+- **Technical Design Documentation** – full description of the technology stack, tools, and architecture decisions  
+- **Architecture Diagrams** – logical and physical diagrams showing infrastructure, services, and data flow  
+- **Build Pipeline Documentation** – CI/CD process, build automation, and deployment flow  
+- **Environment Matrix** – breakdown of development, QA, staging, and production environments  
+- **Networking Model Documentation** – description of server/netcode design and session handling  
+- **Latency and Performance Benchmarks** – results of latency, throughput, and performance testing  
+- **Stress Test Results** – outcomes of concurrency and scalability tests at target player counts per instance  
+- **Backend API Contracts** – specifications for service endpoints and integrations  
+- **Database Schemas** – documentation of relational and non-relational database structures  
+- **Backend Load and Performance Test Results** – assessments of throughput and scaling limits  
+- **Authentication and Authorization Model** – current account and identity management approach  
+- **Infrastructure as Code Scripts** – Terraform, Ansible, or equivalent automation scripts  
+- **Deployment Workflows** – release management, deployment, and rollback procedures  
+- **Monitoring and Alerting Documentation** – setup of live monitoring tools and dashboards (e.g. Grafana, Prometheus)  
+- **Cross-Play Readiness Plan** – platform requirements and strategies for PC/console cross-network support  
+- **MVP Roadmap Document** – defined scope, milestones, and delivery timeline for the MVP  
+- **Post-MVP Roadmap Outline** – 30/60/90-day extension of features, services, and platform readiness  
+- **Dependency List** – identified technical, third-party, and organizational dependencies  
+- **Goals and KPIs** – definitions of success, target measurement bands, and accountable owners  
+- **Competitive Assessment Notes** – benchmarks of competitor titles and table-stakes analysis  
+- **Differentiator Feature Shortlist** – prioritized list of 3–5 launch differentiator features  
+- **Risk Register** – identified risks with mitigation strategies and owners  
+- **Hiring and Organization Plans** – current org chart, roles, and staffing requirements or gaps  
+- **Security and Compliance Documentation** – GDPR compliance and data protection policies  
+- **Security Architecture Notes** – security model for user accounts, data, and infrastructure  
+- **Repository Access** – read-only access to the codebase and version control system  
+- **Branching and Release Strategy Documentation** – branching model and release cadence documentation  
+- **Management Exports** – Jira, Confluence, or equivalent tracking exports  
+- **Backlog Snapshot** – prioritized backlog and current sprint board export  
+- **Production Documentation** – processes and standards for build, release, and live operations  
+- **Prior Audit Reports** – findings from any previous technical or product audits  
+- **Investor Decks** – presentations outlining roadmap assumptions and strategy  
+- **Branding Guidelines** – brand identity, style guide, and design standards for report alignment  
+
+Do you want me to now group this into **four categories (Technical, Product, Compliance, Business)** so it’s clearer for Couch Heroes to action?
+
+[USER]
+jsut list the new ones
+
+[ASSISTANT]
+Here are the new ones added:  
+
+- **Payment Systems Documentation** – design and integration of payment gateways, platform compliance, fraud prevention, and refund flows  
+- **User Account and Payment Compliance Documentation** – KYC/AML requirements, platform store compliance, PCI-DSS standards, and data retention policies  
+
+[USER]
+this is the excel version can you follow format to easily past and sort them appropriatly 
+				
+
+[ASSISTANT]
+Perfect — I see the format in your Excel: two main columns **Artifact** and **Description**, followed by three flag columns (Y, N, Y/N).  
+
+Here are the two new rows you need, formatted to paste directly into your sheet so they align with the rest:  
+
+```
+Payment Systems Documentation	design and integration of payment gateways, platform compliance, fraud prevention, and refund flows			
+User Account and Payment Compliance Documentation	KYC/AML requirements, platform store compliance, PCI-DSS standards, and data retention policies			
+```
+
+This keeps the same **Artifact | Description | Y | N | Y/N** structure as in your file, with the flag columns left blank so you can mark them.  
+
+Do you also want me to **re-order the entire list** into logical groupings (Technical, Product, Compliance, Business) in Excel-ready format so it’s easier to sort and filter?
+
+[USER]
+yes
+
+[ASSISTANT]
+Here’s the full list reorganized into **four logical groupings** (Technical, Product, Compliance, Business), keeping the same Excel-ready format:  
+
+```
+Artifact	Description	Y	N	Y/N
+Game Design Document	overall design, feature set, vision, and gameplay systems			
+Systems Design Documentation	details of the core gameplay loop, feature design, and MVP scope			
+Economy and Monetization Outline	draft model of the in-game economy and revenue systems			
+Payment Systems Documentation	design and integration of payment gateways, platform compliance, fraud prevention, and refund flows			
+User Account and Payment Compliance Documentation	KYC/AML requirements, platform store compliance, PCI-DSS standards, and data retention policies			
+
+Technical Design Documentation	full description of the technology stack, tools, and architecture decisions			
+Architecture Diagrams	logical and physical diagrams showing infrastructure, services, and data flow			
+Build Pipeline Documentation	CI/CD process, build automation, and deployment flow			
+Environment Matrix	breakdown of development, QA, staging, and production environments			
+Networking Model Documentation	description of server/netcode design and session handling			
+Latency and Performance Benchmarks	results of latency, throughput, and performance testing			
+Stress Test Results	outcomes of concurrency and scalability tests at target player counts per instance			
+Backend API Contracts	specifications for service endpoints and integrations			
+Database Schemas	documentation of relational and non-relational database structures			
+Backend Load and Performance Test Results	assessments of throughput and scaling limits			
+Authentication and Authorization Model	current account and identity management approach			
+Infrastructure as Code Scripts	Terraform, Ansible, or equivalent automation scripts			
+Deployment Workflows	release management, deployment, and rollback procedures			
+Monitoring and Alerting Documentation	setup of live monitoring tools and dashboards (e.g. Grafana, Prometheus)			
+Cross-Play Readiness Plan	platform requirements and strategies for PC/console cross-network support			
+Production Documentation	processes and standards for build, release, and live operations			
+Repository Access	read-only access to the codebase and version control system			
+Branching and Release Strategy Documentation	branching model and release cadence documentation			
+
+MVP Roadmap Document	defined scope, milestones, and delivery timeline for the MVP			
+Post-MVP Roadmap Outline	30/60/90-day extension of features, services, and platform readiness			
+Dependency List	identified technical, third-party, and organizational dependencies			
+Goals and KPIs	definitions of success, target measurement bands, and accountable owners			
+Competitive Assessment Notes	benchmarks of competitor titles and table-stakes analysis			
+Differentiator Feature Shortlist	prioritized list of 3–5 launch differentiator features			
+Risk Register	identified risks with mitigation strategies and owners			
+
+Hiring and Organization Plans	current org chart, roles, and staffing requirements or gaps			
+Security and Compliance Documentation	GDPR compliance and data protection policies			
+Security Architecture Notes	security model for user accounts, data, and infrastructure			
+Management Exports	Jira, Confluence, or equivalent tracking exports			
+Backlog Snapshot	prioritized backlog and current sprint board export			
+
+Prior Audit Reports	findings from any previous technical or product audits			
+Investor Decks	presentations outlining roadmap assumptions and strategy			
+Branding Guidelines	brand identity, style guide, and design standards for report alignment			
+```
+
+This way, you can paste it directly into Excel — it will line up with your **Artifact | Description | Y | N | Y/N** structure, and you’ll have the categories grouped for clarity while still sortable.  
+
+Do you want me to also add a **Category column** (Technical, Product, Compliance, Business) so you can filter and pivot cleanly?
+

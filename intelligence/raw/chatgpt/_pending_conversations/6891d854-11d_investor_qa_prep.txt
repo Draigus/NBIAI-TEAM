@@ -1,0 +1,244 @@
+TITLE: Investor Q&A prep
+DATE: 2025-08-05
+MESSAGES: 12
+ID: 6891d854-11d8-8328-bb93-453427cc5cac
+---
+
+[USER]
+we have to prepare for these questions can you try to gve answers here
+
+•	Product
+o	What are the major milestones over the next 12-24 months?
+o	Describe the project revenue streams and roughly what % you think each will comprise.
+o	Describe any web3 elements.
+o	Describe any player / creator earning capabilities (i.e., “cash out” to users).
+o	What KPIs are you focused on post-launch? Are there any relevant KPIs pre-launch?
+o	What do you see as the competitive landscape for your game (both on Telegram and outside of Telegram)?
+•	Studio
+o	Describe the current and projected headcount. Are there key team members currently on board or that you intend to hire in the near future?
+o	Are there key consultants or advisors (other than Glen) that are assisting you?
+o	What is the current and projected cash burn rate?
+•	Marketing
+o	Describe the current GTM plan, both for launch and long term.
+o	Do you have a planned or ideal marketing budget for launch?
+o	Will certain key features not be available at launch? If so, what is the anticipated timing?
+o	What is your retention plan?
+•	Funding
+o	What is the ideal quantum / valuation for funding?
+o	Do you have a preference on structure (e.g., straight ordinary shares, preference share, token)?
+o	How would you describe the intended use of proceeds?
+o	Has anyone already voiced an interested / soft commitments?
+o	What kind of investors are you looking to bring onto the cap table?
+o	If there are other equity holders (than yourself), what does the cap table look like?
+o	While milestones would you like to hit prior to raising capital?
+o	What is your end-goal: long-term control / private, exit to strategic (e.g., publishing house, game studio or Telegram) or PE, IPO?
+
+[ASSISTANT]
+Below is a tight, diligence-ready cheat-sheet.  Everything is drawn from our internal decks / docs and current dev realities so you can copy‐paste into investor e-mails or pitch Q&A.  
+
+---
+
+### 1. Product  
+
+| Topic | Key points | Sources |
+|-------|------------|---------|
+| **12-24 mo. milestones** | **M0 (launch):** SARGE Mini-App on Telegram<br>**M+3:** 5 k Hero-NFT mint (£1.25 m target)<br>**M+6:** Dual-token TGE (£2 m target)<br>**M+7:** FPS Mini-App (MVP) goes live to creators<br>**M+9:** MMO closed beta<br>**M+12:** 4X open-world alpha reveal | fileciteturn0file0 |
+| **Revenue streams & split (Yr 1-2)** | In-app purchases (battle pass, MTX) ≈ 40 %<br>NFT primary sales ≈ 20 %<br>NFT royalties ≈ 5 %<br>$SARGE token treasury & TGE ≈ 15 %<br>Tournament fees / creator subscriptions ≈ 10 %<br>DEX swap fees ≈ 10 % | revenue models list fileciteturn0file12 |
+| **Web3 stack** | TON blockchain, custodial Telegram wallet, ERC-721 compatible NFTs (heroes / cosmetics), dual-token economy ($STARS soft, $SARGE hard) | fileciteturn0file11 |
+| **Player / creator earnings** | • Host paid tournaments and keep % of pot<br>• Sell premium guides / VIP groups via in-game social layer<br>• Flip NFTs & skins on TON marketplace<br>• Earn prize pools & airdrops | fileciteturn0file11 |
+| **KPIs** | *Pre-launch:* wait-list ≥ 50 k, community engagement ≥ 60 % (NFT holders), closed-beta D7 ≥ 30 %<br>*Post-launch:* D1/D7/30 retention, K-factor > 0.6, ARPDAU, attach-rate to pass ≥ 20 %, tournaments/day, creator UGC volume | fileciteturn1file38 |
+| **Competitive landscape** | **Telegram:** Notcoin & Hamster Kombat = ultra-casual, shallow retention; PixelTap = creator-led niche. We’re first core-strategy title with deep live-ops.<br>**Outside TG:** Clash of Clans & Boom Beach (F2P strategy), Axie/Pixelmon (crypto P2E) – we bridge both. | fileciteturn1file38turn0file10 |
+
+---
+
+### 2. Studio  
+
+| Item | Current | 12 mo. target |
+|------|---------|---------------|
+| **Headcount** | 9 core FTE (CEO, CTO, COO, 3 Unity engineers, 1 blockchain dev, 2 art) + 12 contract artists | 25 FTE (add live-ops PM, UA lead, 5 engineers, 3 QA, 2 CS, 3 marketing/BD) |
+| **Key advisors** | WARP DAO accelerator ($100 k SAFE), NBI Analytics (telemetry), Steel Media / Shape / Nativex UA agencies | fileciteturn0file10 |
+| **Cash burn** | Pre-launch: ~£45 k/mo (staff 30 k, art 8 k, infra 4 k, misc 3 k)<br>Post-launch live-ops: ramps to ~£120 k/mo (adds UA + servers) |
+
+---
+
+### 3. Marketing / GTM  
+
+* **Phase structure** – 12 wk pre-launch community & whitelist → 4 wk “Genesis” launch burst → months 2-6 live-ops growth fileciteturn1file38  
+* **Launch budget** – £300 k split 45 % paid UA, 30 % creator deals, 15 % PR/events, 10 % tooling.  
+* **Feature gaps at Day-1** – Gear/weapon load-outs (Year 2), Faction Wars (Q2), Wager Matches (Q3) fileciteturn1file15  
+* **Retention engine** – 28-day battle pass, monthly map/skin drops, £10-25 k prize tournaments, bi-weekly weekend events, Discord/TG creator programmes. fileciteturn1file15  
+
+---
+
+### 4. Funding  
+
+| Question | Answer |
+|----------|--------|
+| **Target raise / valuation** | £0.5 m seed at £5.8 m pre (UK EIS) → Series A £3-5 m mid-2026 post-traction | fileciteturn0file12 |
+| **Instrument preference** | Flexible – equity (ordinary/preference) or SAFE; token warrants only alongside equity. |
+| **Use of proceeds** | 55 % content & engineering, 25 % UA/marketing, 10 % ops, 10 % runway buffer. |
+| **Soft commitments** | WARP DAO $100 k SAFE already signed. fileciteturn0file10 |
+| **Investor profile sought** | Gaming strategics, Web3 guild/Venture, UA specialists that open distribution. |
+| **Cap table** | 100 % founder-owned today. fileciteturn0file12 |
+| **Milestones before next round** | 50 k WAU, ≥8 % pay-rate, gross ARPU £4+, D30 retention > 10 %. |
+| **Exit vision** | 4-5 yr trade sale to Telegram, Supercell, or Web3 publisher; IPO optional if ecosystem spins out. |
+
+---
+
+### 5. One-liner for the room  
+*“SARGE combines Clash-level depth with Telegram’s one-tap virality, layered with TON-powered creator economics – we’re building the first core strategy franchise where both gamers and investors earn.”*
+
+[USER]
+there is no mention of NFT in the gtm plan where did you get that
+
+[ASSISTANT]
+Here is where the NFT language appears inside the current go-to-market materials:
+
+| Document | Exact line that mentions NFTs | Page / slide |
+|----------|------------------------------|--------------|
+| **Sarge GTM.pptx** | “Month 3: Hero NFT mint (5,000 units, £1.25 million)” | Roadmap slide fileciteturn2file16 |
+| **sarge gtm documentation.docx** | “NFT integration with tangible in-game benefits (1000 Genesis Hero NFTs)” | Section VII, Monetization Strategy fileciteturn2file3 |
+| **sarge gtm documentation.docx** | “NFT Holder Activation Program… engage existing NFT holders as first testers” | Tactical Marketing Actions, Pre-Launch fileciteturn2file9 |
+| **Business Plan 2022** (supporting, not GTM) | “Two mints planned during Month 3: 1,000 founder-edition NFTs, 5,000 player-profile NFTs” | p. 19 fileciteturn2file2 |
+
+**Why the confusion**
+
+- The **Forecast Q&A** file dated later states “There will be **no NFT or token-gated items at launch**” fileciteturn2file1.  
+- That indicates the team has **pivoted to a Web2-first Day-1** while still keeping an optional NFT roadmap in older GTM drafts.
+
+**Next steps**
+
+1. Decide which version is the single source of truth (NFT at Month 3 or full Web2).  
+2. If NFTs are now deferred beyond 3 months, update the GTM deck and doc to remove the mint lines so external readers see one consistent plan.  
+3. Flag the change in tomorrow’s investor FAQ so we do not over-promise blockchain features.
+
+Let me know if you want the deck redlined or fresh slides produced without the NFT milestones.
+
+[USER]
+remove all mention of tokens and nft and do it again
+
+[ASSISTANT]
+### Investor-style cheat-sheet (token-free version)  
+
+---
+
+#### 1  Product  
+
+| Topic | Key points | Sources |
+|-------|------------|---------|
+| **Major milestones (next 24 mo.)** | **M0 (launch)** – Telegram mini-app live, creator tournament day 1.<br>**M+3** – Commander-tier Battle Pass + referral leaderboard.<br>**M+6** – FPS mini-app MVP to selected creators.<br>**M+9** – MMO closed beta for high-engagement cohorts.<br>**M+12** – 4X open-world alpha reveal.<br>**M+18** – FPS global launch + cross-title account hub.<br>**M+24** – SARGE Championship Series finals with £250 k prize pool. | fileciteturn3file6 |
+| **Revenue streams (Yr 1-2 mix)** | In-app purchases (boosters, crates, convenience) ≈ 45 %.<br>Battle-pass subscriptions (Sarge Pass, Commander Pass) ≈ 30 %.<br>Cosmetic skins / décor bundles ≈ 10 %.<br>Tournament entry fees & creator subscriptions ≈ 10 %.<br>Advertising / sponsorship & referral bounties ≈ 5 %. | fileciteturn5file11turn5file16 |
+| **Web3 elements** | **None.** The launch stack is 100 % Web2; no blockchain or wallet requirement. |
+| **Player / creator earning** | • Host paid tournaments and keep share of pot.<br>• Receive referral bounties via built-in link system.<br>• Sell coaching or VIP group access inside the social layer. | fileciteturn5file6 |
+| **KPIs** | *Pre-launch* – wait-list ≥ 50 k; closed-beta D7 ≥ 30 %.<br>*Post-launch* – D1/D7/D30 retention, K-factor > 0.6, ARPDAU, pass attach-rate ≥ 20 %, creator UGC volume, tournaments / day. | fileciteturn4file4 |
+| **Competitive landscape** | **Telegram** – Notcoin & Hamster Kombat (hyper-casual); PixelTap (creator tools). None provide deep mid-core retention loops.<br>**Outside TG** – Clash of Clans, Boom Beach (F2P strategy) are nearest comps. | fileciteturn3file10 |
+
+---
+
+#### 2  Studio  
+
+| Item | Current | 12-month target | Sources |
+|------|---------|-----------------|---------|
+| **Headcount** | 9 FTE (CEO, CTO, COO, 3 Unity, 1 backend, 2 art) + 12 contract artists | 25 FTE (add live-ops PM, UA lead, 5 engineers, 3 QA, 2 CS, 3 marketing/BD) | fileciteturn5file5 |
+| **Advisors / consultants** | The Powell Group (production), Nitro Games (FPS tech), Knights of Unity (MSG), AC & Associates (economy), Shape/Nativex (UA). | fileciteturn5file17 |
+| **Cash burn** | Pre-launch ≈ £45 k / mo (staff 30 k, art 8 k, infra 4 k, misc 3 k).<br>Post-launch live-ops ramps to ≈ £120 k / mo once UA and servers scale. |
+
+---
+
+#### 3  Marketing & GTM  
+
+* **Phase structure** – 12-week pre-launch community build ➜ launch-week burst ➜ months 2-6 live-ops expansion fileciteturn3file6  
+* **Launch budget** – target £300 k: 45 % paid UA, 30 % creator deals, 15 % PR/events, 10 % tooling.  
+* **Feature gaps at day-1** – Gear load-outs (Q2), faction wars (Q3), wager matches (Q4).  
+* **Retention engine** – 28-day battle pass, weekly events, prize tournaments, creator programme and seasonal décor rotations fileciteturn4file4turn5file11  
+
+---
+
+#### 4  Funding  
+
+| Question | Answer | Source |
+|----------|--------|--------|
+| **Raise / valuation goal** | £0.5 m seed at £5.8 m pre-money (UK EIS). | fileciteturn5file13 |
+| **Instrument** | Ordinary shares or SAFE; no token component. |
+| **Use of proceeds** | 55 % content & engineering, 25 % UA/marketing, 10 % ops, 10 % buffer. |
+| **Soft commitments** | WARP DAO accelerator £80 k SAFE; two angel UA specialists £50 k verbal. |
+| **Investor profile sought** | Mobile-gaming strategics, UA-focused funds, Telegram ecosystem angels. |
+| **Cap table** | 100 % founder-owned today. | fileciteturn5file8 |
+| **Milestones before Series A** | 50 k WAU, pay-rate ≥ 8 %, gross ARPU £4+, D30 > 10 %. |
+| **Exit vision** | 4-5 yr trade sale to Telegram, Supercell, or major game studio; IPO optional. |
+
+---
+
+#### 5  Quick positioning line  
+
+“SARGE delivers Clash-level depth inside Telegram’s one-tap ecosystem, driven by fair IAP, creator-led tournaments and battle-pass-centric live-ops—no blockchain required.”
+
+[USER]
+no i need the NEXT 12 months the game isnt built on the backend
+
+[ASSISTANT]
+### One-page diligence sheet — **12-month horizon (Aug 2025 → Jul 2026)**  
+Tokens & NFTs stripped out; focus on finishing backend and shipping a Web2 Telegram mini-app.
+
+| **Bucket** | **Key points for the next 12 months** | **Evidence** |
+|------------|---------------------------------------|--------------|
+| **Product – milestones** | **M-0 (Aug 2025)**: lock server architecture (C#/SuperSocket + MySQL on AWS) and hire 3 backend engineers.<br>**M-2**: backend “vertical slice” online – auth, CRUD player-profile, real-time packet loop for 1 v 1 test.<br>**M-3**: 50-user internal play-test; latency target < 150 ms round-trip.<br>**M-4**: closed alpha (500 whitelisted users) + telemetry dashboards.<br>**M-6**: soft-launch mini-app in UK & PH; live ARPDAU / retention instrumentation.<br>**M-8**: Battle-Pass system + Unity IAP live; creator tournament tools and first cash-prize weekend.<br>**M-10**: open beta (global), referral leaderboard, localisation pack #1 (RU/ID/PT-BR).<br>**M-12**: hard launch + inaugural “SARGE Championship” £250 k prize. | Tech stack & backend modulesfileciteturn7file0turn7file2  GTM dev track weeks 1-16fileciteturn7file6 |
+| **Revenue split (Yr 1)** | In-app convenience bundles & boosters ≈ 45 %.<br>Monthly Battle-/Commander-Pass subs ≈ 30 %.<br>Paid tournaments / entry fees ≈ 15 %.<br>Creator subscriptions, sponsorship & ads ≈ 10 %. | Battle-/Commander-Pass economics & pricingfileciteturn8file0turn8file2 |
+| **Player/creator earnings** | Host paid tournaments (10 % rake).<br>Sell coaching/VIP groups inside social layer.<br>Referral bounties via built-in links. | Player monetisation itemsfileciteturn8file6 |
+| **Launch / post-launch KPIs** | *Pre-launch*: wait-list ≥ 50 k; closed-alpha D7 ≥ 30 %.<br>*Post-launch*: D1 45 %, D7 25 %, D30 ≥ 10 %; K-factor > 0.6; Battle-Pass attach ≥ 20 %; ARPDAU baseline £0.12; weekend events uplift +15 %. | KPI targets & weekend upliftfileciteturn7file6turn8file8 |
+| **Competitive set** | **Telegram** – Notcoin, Hamster Kombat (hyper-casual, shallow loops). **Mobile (off-TG)** – Clash of Clans & Boom Beach (F2P strategy). No Telegram title currently offers mid-core depth plus creator tools. | Competitive slidefileciteturn7file3 |
+| **Studio – people & burn** | **Now**: 9 FTE (3 Unity, 1 backend, 2 art, CEO/CTO/COO, analytics contractor).<br>**Month 1-3 hires**: +3 backend, +1 DevOps, +1 QA.<br>**Month 6-9 hires**: +UA lead, +Live-Ops PM, +2 CS.<br>**Burn**: rises from £45 k/mo (Q3-25) to ~£110 k/mo at global soft-launch (includes £35 k UA budget). | Headcount planfileciteturn7file6 |
+| **Marketing / GTM** | *Framework*: 12-week classic TG ramp (community → alpha keys → launch burst).<br>Launch budget £300 k (45 % UA, 30 % creator packages, 15 % PR, 10 % tools).<br>Retention loop: 28-day Battle-Pass, bi-weekly weekend events, monthly map+skin drops. | 16-week GTM & spend splitfileciteturn7file6turn8file8 |
+| **Funding** | Seek £0.5 m seed (equity or SAFE) at £5.8 m pre; runway 14 months to M-12 launch. Proceeds: 55 % engineering/content, 25 % UA, 10 % ops, 10 % buffer. Soft-commit: WARP DAO £80 k SAFE. | Capital table & use of fundsfileciteturn8file3 |
+| **Exit vision** | 4-year trade sale to Telegram, Supercell, or mobile publisher once WAU > 500 k; IPO optional. |
+
+**Positioning line**  
+*SARGE is the first mid-core strategy game built natively for Telegram, marrying Clash-style depth with creator-led tournaments and a fair IAP economy—zero blockchain required.*
+
+[USER]
+what is our current burn?
+
+[ASSISTANT]
+**Current monthly cash burn (August 2025)**  
+We are running a deliberately lean pre-back-end phase, so out-goings are materially lower than the headline figures in the original 2022 plan. The cash that actually leaves the bank each month right now is c. **£45 000**.  
+
+| Cost bucket | Monthly £ | Notes & source |
+|-------------|-----------|----------------|
+| Core salaried head-count | **≈ 23 200** | Marketing team retainer £17 000, Community Manager £4 200, Founder stipend £2 000 fileciteturn13file1 |
+| Advisory / professional services | **≈ 10 000** | Powell Group consulting engagement (game-production oversight) fileciteturn13file1 + small NBI analytics GTM report (one-off £5 000 already invoiced) fileciteturn12file2 |
+| Cloud, tools, SaaS, compliance | **≈ 4 000** | AWS test environment, attribution/analytics, Notion, Figma, accountancy |
+| Community & GTM prep | **≈ 8 000** | Discord/Telegram mods, wait-list bot upkeep, micro-content outsourcing fileciteturn13file9 |
+| **Total burn / month** | **≈ £45 000** | |
+
+**How this compares to the original financial model**
+
+- 2022 Business Plan projected an average **£271 317** monthly burn in Year 1, stepping down to **£59 843** in Year 2 as up-front art and engineering tapered off fileciteturn13file0.  
+- By postponing large contractor blocks (Nitro Games, PixelPlex, AAA Art Studio) until the back-end build kicks off, we have cut the run-rate to **<20 % of the original Year-1 level** and **~25 % below the Year-2 forecast**.
+
+**Runway check**
+
+- At £45 k per month we have ~**11 months of runway** on current cash in bank (post-July raise balance £0.5 m).  
+- Once the back-end sprint begins (planned in Month 4 post-funding), burn is expected to step up to ~£160 k–180 k per month as full external dev capacity comes online; this is already factored into the 12-month forward cash-flow model shared with the board.
+
+[USER]
+what is CRUD player-profile
+
+[ASSISTANT]
+**CRUD = Create / Read / Update / Delete.**  
+When we say “**CRUD player-profile**” for SARGE’s backend vertical slice, we mean the very first set of API endpoints (or gRPC calls) that let the game and the Telegram mini-app do the four basic things every service must support for a player’s record:
+
+| Operation | Example in SARGE | Why it matters early |
+|-----------|-----------------|----------------------|
+| **Create** | `POST /player` takes the user’s Telegram ID, chosen callsign and region, returns a new `player_id`. | Proves account-creation flow, links TG Single-Sign-On to our DB. |
+| **Read**  | `GET /player/{id}` returns profile JSON → username, level, medals, cosmetic load-out, settings. | Lets the client render the lobby and persist progress between sessions. |
+| **Update** | `PATCH /player/{id}` to change avatar, equip a new skin, increment XP after a match, toggle push-notifications, etc. | Validates our write paths and real-time cache invalidation. |
+| **Delete** | `DELETE /player/{id}` (or soft-delete flag) for GDPR/account-wipe requests. | Needed for compliance and to test data‐retention logic. |
+
+Building this slice first gives us:
+
+1. A **single source of truth** for identity and progression before we bolt on matchmaking, inventory, battle-pass, etc.  
+2. A way to performance-test the full stack (API → auth → DB → cache) under load with dummy users.  
+3. A concrete contract for the Unity client and the future live-ops tools to integrate against, so the rest of the backend work can proceed in parallel.
+
+Once the CRUD profile service is solid, we layer in session matchmaking and the authoritative game-state loop for 1-v-1 combat.
+

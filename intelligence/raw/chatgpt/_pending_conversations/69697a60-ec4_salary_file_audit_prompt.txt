@@ -1,0 +1,426 @@
+TITLE: Salary File Audit Prompt
+DATE: 2026-01-15
+MESSAGES: 4
+ID: 69697a60-ec48-832a-9a19-4a9cc808f9d1
+---
+
+[USER]
+Using the riceco method create a detailed prompt to audit a video game salary global file, assess the structure of the file and audit the salaries by dimensions to make sure that they are accurate. dont runt he prompt jsut create it so I can run it in a new chat
+
+[ASSISTANT]
+Before I format this to match your style: is this Heather or Glen?
+
+Below is a copy paste prompt you can drop into a new chat. It is structured with the RICECO framework (Role, Instruction, Context, Examples, Constraints, Output). citeturn0search0turn0search1
+
+```text
+RICECO SALARY FILE AUDIT PROMPT (Video Games, Global)
+
+R: ROLE
+You are a senior compensation analyst and labour market researcher specialising in the global video games industry. You are also a data auditor who can inspect spreadsheets for structural integrity, consistency, and statistical anomalies. You prioritise accuracy, transparency, and reproducible reasoning. You never invent salary numbers or sources.
+
+I: INSTRUCTION
+Audit the uploaded global video game salary spreadsheet end to end.
+
+Your job has two tracks that must both be completed:
+1) File structure audit: assess whether the file is well structured, consistently encoded, and analysis ready.
+2) Salary accuracy audit: validate the salary values by key dimensions (role, grade, country or region, hub status, currency, year) and flag values that are likely wrong, stale, mis-scaled (monthly vs annual), mis-currency, or inconsistent with market benchmarks.
+
+You must:
+- Identify issues, explain why they are issues, and propose fixes.
+- Verify salary ranges using up to date external sources, with citations for every benchmark claim.
+- Clearly separate: confirmed errors, likely errors, and uncertain items.
+- Ask only the minimum clarifying questions needed to remove ambiguity, after you have completed an initial scan and produced a first pass issue list.
+
+C: CONTEXT
+This spreadsheet is intended to represent annual base salary (not total comp) in local currency, for video game studio roles across multiple countries or regions, split by grade (for example junior, mid, senior or L1, L2, L3) and often expressed as min, mid, max.
+
+Common failure modes to detect:
+- Monthly values accidentally placed in annual columns, or vice versa.
+- Currency mismatches (USD values marked as GBP, etc).
+- Mixed year basis (2023 values in a 2025 file).
+- Duplicated roles under different names (for example Gameplay Programmer vs Game Programmer).
+- Hub vs non hub pay reversed or too small a differential.
+- Grade progression broken (junior higher than mid, etc).
+- Min, mid, max ordering broken, or compression where max is too close to mid.
+- Region definitions unclear (for example UK values that are actually London vs UK average vs Midlands).
+- Outliers that are implausible vs market data.
+
+Assume the file may contain columns like:
+Discipline, Role, Grade, Country or Region, Hub Status, Currency, Min, Mid, Max, Notes, Source, Year, Exchange Rate fields
+If the columns differ, adapt and create a mapping.
+
+E: EXAMPLES (format examples for your outputs)
+Example issue log row:
+- Issue_ID: UK-UNIT-002
+- Severity: High
+- Dimension: Country=UK, Role=Tools Programmer, Grade=Junior
+- Symptom: Min/Mid/Max appear to be monthly not annual (values are 2,400 to 3,100 GBP)
+- Evidence: Compared to UK games dev benchmarks for junior engineers, annual base is far higher; the ratio to peer rows suggests x12 scaling
+- Proposed fix: Confirm unit; if monthly, multiply by 12 and relabel as annual; otherwise mark currency or grade mismatch
+- Confidence: Likely (0.75)
+
+Example benchmark comparison snippet:
+Role: Senior Game Designer, Location: London
+File mid: £X
+Benchmarks: Source A range £a to £b, Source B median £c (citations)
+Assessment: Within range / high / low
+Notes: differences in scope (AAA vs mobile) if relevant
+
+C: CONSTRAINTS
+Data handling constraints:
+- Do not change the user file. Only propose changes.
+- If the file lacks unique row IDs, create a stable Row_ID for reporting (for example hash of key fields or a sequential ID after sorting).
+- Treat all salaries as annual base unless there is evidence otherwise. If evidence suggests monthly, flag and propose conversion, but do not silently convert in the reported “current value”.
+- Do not assume exchange rates. If you need conversions, pull current exchange rates (and date stamp them) and cite the source.
+
+Research and sourcing constraints:
+- Use multiple reputable sources per major region where possible (industry salary surveys, reputable recruiters, major compensation datasets, government labour stats where applicable).
+- Prefer 2025 or 2026 published data when available; otherwise use the newest available and clearly label the year.
+- Every external benchmark claim must include a citation.
+- If sources disagree, show the spread and explain which you weight more and why.
+
+Method constraints:
+- Run an integrity pass before deep research.
+- Use clear severity levels: Critical, High, Medium, Low.
+- Never output fabricated citations. If you cannot find credible sources for a role or region, say so and mark as “insufficient evidence”.
+
+Output formatting constraints:
+- Use concise tables for issue logs.
+- Provide a short executive summary first.
+- Avoid long prose blocks. Prefer bullet points and structured sections.
+
+O: OUTPUT (deliverables you must produce)
+Produce the following sections in order:
+
+1) Intake and assumptions
+- Confirm the file name, sheet names, row count, column list
+- State your assumed meaning of each key column (data dictionary draft)
+
+2) Structure audit
+- Schema and normalisation assessment (what is missing, what is duplicated, what should be split)
+- Completeness checks (missing values by column and by dimension)
+- Consistency checks (allowed values for grade, hub status, currency codes, country names)
+- Referential checks (duplicate rows, near duplicates, inconsistent role naming)
+- Numeric hygiene (currency symbols, thousand separators, data types)
+
+3) Salary integrity checks (no web research yet)
+- Ordering: Min <= Mid <= Max
+- Grade progression: Junior < Mid < Senior for the same role and location (flag exceptions)
+- Hub premium sanity: Hub should generally be >= Non hub within same country, role, grade (flag reversals)
+- Range width sanity: Max-Min as a percentage of Mid (flag extreme compression or extreme spread)
+- Outlier detection: within each (Country, Role, Grade, Hub) group and within each Country overall
+- Unit detection: identify likely monthly values using magnitude heuristics and cross row ratios (for example x12 patterns)
+- Produce an “Initial Issues Table” with Issue_ID, Severity, Dimension tags, Row_ID, Field, Current value, What failed, Proposed next step
+
+4) Salary accuracy audit with research (web browsing required)
+For each country or region and for the top 20 most common roles in the file (or all roles if fewer than 20):
+- Pull 2 to 5 reputable benchmarks per region where possible
+- Compare file min/mid/max to benchmark ranges
+- Classify each comparison: aligned, slightly high, likely high, slightly low, likely low, cannot verify
+- Cite sources inline
+
+Also, for any rows flagged Critical or High in step 3:
+- Research that specific role and location to confirm whether it is truly wrong or simply niche
+- Update confidence scores and proposed fixes
+
+5) Fix plan
+- A ranked list of recommended corrections, grouped by root cause:
+  a) unit errors (monthly vs annual)
+  b) currency encoding errors
+  c) role naming and deduping needed
+  d) grade framework inconsistencies
+  e) regional mapping problems (for example UK London vs Midlands vs UK average)
+  f) outdated benchmarks
+- Provide a proposed “standardised schema” for the file (ideal columns, allowed values, naming rules)
+
+6) Questions for the user (only after producing the above)
+Ask the minimum set of clarifying questions that would unblock finalising fixes, for example:
+- Are UK figures intended to represent London hub, Midlands non hub, or UK national average?
+- Are any salaries intended to be monthly or contractor day rates?
+- What year should the benchmarks target (2025 only, or 2025 to 2026)?
+
+START NOW:
+- Tell me what you need from me first (usually: upload the spreadsheet).
+- Once the spreadsheet is available, run step 1 through 3 before doing deep web research.
+```
+
+If you want, I can also produce a shorter “ICC only” version (Instruction, Context, Constraints) that is easier to run repeatedly, but the above is the full audit template.
+
+[USER]
+R: ROLE
+You are a senior compensation analyst and labour market researcher specialising in the global video games industry. You are also a data auditor who can inspect spreadsheets for structural integrity, consistency, and statistical anomalies. You prioritise accuracy, transparency, and reproducible reasoning. You never invent salary numbers or sources.
+
+I: INSTRUCTION
+Audit the uploaded global video game salary spreadsheet end to end.
+
+Your job has two tracks that must both be completed:
+1) File structure audit: assess whether the file is well structured, consistently encoded, and analysis ready.
+2) Salary accuracy audit: validate the salary values by key dimensions (role, grade, country or region, hub status, currency, year) and flag values that are likely wrong, stale, mis-scaled (monthly vs annual), mis-currency, or inconsistent with market benchmarks.
+
+You must:
+- Identify issues, explain why they are issues, and propose fixes.
+- Verify salary ranges using up to date external sources, with citations for every benchmark claim.
+- Clearly separate: confirmed errors, likely errors, and uncertain items.
+- Ask only the minimum clarifying questions needed to remove ambiguity, after you have completed an initial scan and produced a first pass issue list.
+
+C: CONTEXT
+This spreadsheet is intended to represent annual base salary (not total comp) in local currency, for video game studio roles across multiple countries or regions, split by grade (for example junior, mid, senior or L1, L2, L3) and often expressed as min, mid, max.
+
+Common failure modes to detect:
+- Monthly values accidentally placed in annual columns, or vice versa.
+- Currency mismatches (USD values marked as GBP, etc).
+- Mixed year basis (2023 values in a 2025 file).
+- Duplicated roles under different names (for example Gameplay Programmer vs Game Programmer).
+- Hub vs non hub pay reversed or too small a differential.
+- Grade progression broken (junior higher than mid, etc).
+- Min, mid, max ordering broken, or compression where max is too close to mid.
+- Region definitions unclear (for example UK values that are actually London vs UK average vs Midlands).
+- Outliers that are implausible vs market data.
+
+Assume the file may contain columns like:
+Discipline, Role, Grade, Country or Region, Hub Status, Currency, Min, Mid, Max, Notes, Source, Year, Exchange Rate fields
+If the columns differ, adapt and create a mapping.
+
+E: EXAMPLES (format examples for your outputs)
+Example issue log row:
+- Issue_ID: UK-UNIT-002
+- Severity: High
+- Dimension: Country=UK, Role=Tools Programmer, Grade=Junior
+- Symptom: Min/Mid/Max appear to be monthly not annual (values are 2,400 to 3,100 GBP)
+- Evidence: Compared to UK games dev benchmarks for junior engineers, annual base is far higher; the ratio to peer rows suggests x12 scaling
+- Proposed fix: Confirm unit; if monthly, multiply by 12 and relabel as annual; otherwise mark currency or grade mismatch
+- Confidence: Likely (0.75)
+
+Example benchmark comparison snippet:
+Role: Senior Game Designer, Location: London
+File mid: £X
+Benchmarks: Source A range £a to £b, Source B median £c (citations)
+Assessment: Within range / high / low
+Notes: differences in scope (AAA vs mobile) if relevant
+
+C: CONSTRAINTS
+Data handling constraints:
+- Do not change the user file. Only propose changes.
+- If the file lacks unique row IDs, create a stable Row_ID for reporting (for example hash of key fields or a sequential ID after sorting).
+- Treat all salaries as annual base unless there is evidence otherwise. If evidence suggests monthly, flag and propose conversion, but do not silently convert in the reported “current value”.
+- Do not assume exchange rates. If you need conversions, pull current exchange rates (and date stamp them) and cite the source.
+
+Research and sourcing constraints:
+- Use multiple reputable sources per major region where possible (industry salary surveys, reputable recruiters, major compensation datasets, government labour stats where applicable).
+- Prefer 2025 or 2026 published data when available; otherwise use the newest available and clearly label the year.
+- Every external benchmark claim must include a citation.
+- If sources disagree, show the spread and explain which you weight more and why.
+
+Method constraints:
+- Run an integrity pass before deep research.
+- Use clear severity levels: Critical, High, Medium, Low.
+- Never output fabricated citations. If you cannot find credible sources for a role or region, say so and mark as “insufficient evidence”.
+
+Output formatting constraints:
+- Use concise tables for issue logs.
+- Provide a short executive summary first.
+- Avoid long prose blocks. Prefer bullet points and structured sections.
+
+O: OUTPUT (deliverables you must produce)
+Produce the following sections in order:
+
+1) Intake and assumptions
+- Confirm the file name, sheet names, row count, column list
+- State your assumed meaning of each key column (data dictionary draft)
+
+2) Structure audit
+- Schema and normalisation assessment (what is missing, what is duplicated, what should be split)
+- Completeness checks (missing values by column and by dimension)
+- Consistency checks (allowed values for grade, hub status, currency codes, country names)
+- Referential checks (duplicate rows, near duplicates, inconsistent role naming)
+- Numeric hygiene (currency symbols, thousand separators, data types)
+
+3) Salary integrity checks (no web research yet)
+- Ordering: Min <= Mid <= Max
+- Grade progression: Junior < Mid < Senior for the same role and location (flag exceptions)
+- Hub premium sanity: Hub should generally be >= Non hub within same country, role, grade (flag reversals)
+- Range width sanity: Max-Min as a percentage of Mid (flag extreme compression or extreme spread)
+- Outlier detection: within each (Country, Role, Grade, Hub) group and within each Country overall
+- Unit detection: identify likely monthly values using magnitude heuristics and cross row ratios (for example x12 patterns)
+- Produce an “Initial Issues Table” with Issue_ID, Severity, Dimension tags, Row_ID, Field, Current value, What failed, Proposed next step
+
+4) Salary accuracy audit with research (web browsing required)
+For each country or region and for the top 20 most common roles in the file (or all roles if fewer than 20):
+- Pull 2 to 5 reputable benchmarks per region where possible
+- Compare file min/mid/max to benchmark ranges
+- Classify each comparison: aligned, slightly high, likely high, slightly low, likely low, cannot verify
+- Cite sources inline
+
+Also, for any rows flagged Critical or High in step 3:
+- Research that specific role and location to confirm whether it is truly wrong or simply niche
+- Update confidence scores and proposed fixes
+
+5) Fix plan
+- A ranked list of recommended corrections, grouped by root cause:
+  a) unit errors (monthly vs annual)
+  b) currency encoding errors
+  c) role naming and deduping needed
+  d) grade framework inconsistencies
+  e) regional mapping problems (for example UK London vs Midlands vs UK average)
+  f) outdated benchmarks
+- Provide a proposed “standardised schema” for the file (ideal columns, allowed values, naming rules)
+
+6) Questions for the user (only after producing the above)
+Ask the minimum set of clarifying questions that would unblock finalising fixes, for example:
+- Are UK figures intended to represent London hub, Midlands non hub, or UK national average?
+- Are any salaries intended to be monthly or contractor day rates?
+- What year should the benchmarks target (2025 only, or 2025 to 2026)?
+
+START NOW:
+- Tell me what you need from me first (usually: upload the spreadsheet).
+- Once the spreadsheet is available, run step 1 through 3 before doing deep web research.
+
+[ASSISTANT]
+Is this Heather or Glen?
+
+Also, do you want me to (a) polish this prompt so you can run it in a new chat, or (b) actually run the audit now on the uploaded file in this chat?
+
+In the meantime, here is a tightened, more operational version of your prompt (same intent, fewer failure points, more explicit outputs). Copy paste as-is into a new chat.
+
+```text
+RICECO: GLOBAL VIDEO GAME SALARY FILE AUDIT PROMPT
+
+R: ROLE
+You are a senior compensation analyst and labour market researcher specialising in the global video games industry. You are also a data auditor who inspects spreadsheets for structural integrity, consistency, and statistical anomalies. You prioritise accuracy, transparency, and reproducible reasoning. You never invent salary numbers, exchange rates, or sources.
+
+I: INSTRUCTION
+Audit the uploaded global video game salary spreadsheet end to end.
+
+You have two tracks that must both be completed:
+1) File structure audit: assess whether the file is well structured, consistently encoded, and analysis ready.
+2) Salary accuracy audit: validate salary values by key dimensions (role, grade, country or region, hub status, currency, year) and flag values likely wrong, stale, mis-scaled (monthly vs annual), mis-currency, or inconsistent with market benchmarks.
+
+You must:
+- Identify issues, explain why they are issues, and propose specific fixes.
+- Validate with up to date external sources, with citations for every benchmark claim.
+- Clearly separate: confirmed errors, likely errors, and uncertain items.
+- Ask only the minimum clarifying questions, and only after you produce an initial issues table from the file itself.
+
+C: CONTEXT
+This spreadsheet is intended to represent annual base salary (not total comp) in local currency, across multiple countries or regions, split by grade (Junior, Mid, Senior or L1, L2, L3) and expressed as Min, Mid, Max.
+
+Common failure modes to detect:
+- Monthly values in annual columns, or annual values in monthly columns
+- Currency mismatches (USD values marked as GBP, etc)
+- Mixed year basis (older data in a 2025 to 2026 file)
+- Duplicated roles under different names (Gameplay Programmer vs Game Programmer)
+- Hub vs non-hub pay reversed or too small a differential
+- Grade progression broken (Junior higher than Mid, etc)
+- Min, Mid, Max ordering broken, or compression where Max too close to Mid
+- Region definitions unclear (UK values that are London vs UK average vs Midlands)
+- Outliers implausible vs market data
+
+Assume the file may contain columns like:
+Discipline, Role, Grade, Country or Region, Hub Status, Currency, Min, Mid, Max, Notes, Source, Year, Exchange Rate fields.
+If columns differ, adapt and create a mapping.
+
+E: EXAMPLES (format requirements)
+Issue log row example:
+- Issue_ID: UK-UNIT-002
+- Severity: High
+- Dimension: Country=UK, Role=Tools Programmer, Grade=Junior, Hub=Hub
+- Row_ID: <stable Row_ID you generate>
+- Symptom: Min/Mid/Max appear monthly not annual (2,400 to 3,100 GBP)
+- Evidence: magnitude and x12 pattern vs peers; conflicts with external benchmarks
+- Proposed fix: confirm unit; if monthly multiply by 12 and relabel as annual, otherwise recheck currency or grade
+- Confidence: 0.75
+- Next action: what you need from user, if anything
+
+Benchmark comparison snippet example:
+Role: Senior Game Designer, Location: London
+File mid: £X
+Benchmarks: Source A range £a to £b; Source B median £c (citations)
+Assessment: aligned, slightly high, likely high, slightly low, likely low, cannot verify
+Notes: scope differences (AAA vs mobile) if relevant
+
+C: CONSTRAINTS
+Data handling constraints:
+- Do not change the file. Only propose changes.
+- If the file lacks unique row IDs, create stable Row_ID for reporting (hash of key fields or sequential ID after stable sorting).
+- Treat all salaries as annual base unless there is evidence otherwise.
+- If evidence suggests monthly, flag it and propose conversion, but do not silently convert the reported current value.
+- Do not assume exchange rates. If you convert, you must cite an exchange-rate source and include the date of the rate.
+
+Research constraints:
+- Use multiple reputable sources per major region where possible (industry surveys, reputable recruiters, major compensation datasets, government labour stats where applicable).
+- Prefer 2025 or 2026 published data where available, otherwise newest available and label year.
+- Every external benchmark claim must include a citation.
+- If sources disagree, show the spread and explain weighting.
+- If you cannot find credible sources for a role or region, say so and label “insufficient evidence”.
+
+Method constraints:
+- Run an integrity pass before deep research.
+- Use severity levels: Critical, High, Medium, Low.
+- Do not fabricate citations or sources.
+
+Output formatting constraints:
+- Provide a short executive summary first.
+- Prefer bullet points and compact tables.
+- Keep prose tight and actionable.
+
+O: OUTPUT (deliverables in this exact order)
+
+1) Intake and assumptions
+- Confirm file name, sheet names, selected primary sheet, row count, column list
+- Draft a data dictionary mapping: column name -> meaning -> expected type -> allowed values
+- State key assumptions (annual base, currency meaning, hub definition if encoded)
+
+2) Structure audit
+- Schema and normalisation assessment (missing columns, duplicated meaning, columns that should be split)
+- Completeness checks: missingness by column; missingness by key dimensions
+- Consistency checks: allowed values for grade, hub status, currency codes, country names
+- Referential checks: exact duplicates, near duplicates, inconsistent role naming
+- Numeric hygiene: parsing currency symbols, thousand separators, data types, negative values
+
+3) Salary integrity checks (no web research yet)
+Run and report these checks:
+- Ordering: Min <= Mid <= Max (per row)
+- Grade progression: Junior < Mid < Senior within same role and location (flag exceptions and show the chain)
+- Hub premium sanity: Hub >= Non-hub within same country, role, grade (flag reversals and tiny differentials)
+- Range width sanity: (Max - Min) / Mid; flag extremes (too compressed, too wide) with thresholds you state
+- Outlier detection: z-score or percentile outliers within each (Country, Role, Grade, Hub) group and within each Country overall
+- Unit detection: flag likely monthly using magnitude heuristics and x12 clustering versus peers
+- Produce the “Initial Issues Table” with:
+  Issue_ID, Severity, Dimension tags, Row_ID, Field, Current value, What failed, Evidence, Proposed fix, Confidence, Next step
+
+4) Salary accuracy audit with research (web browsing required)
+Scope:
+- For each country or region present, audit the top 20 most common roles in the file (or all roles if fewer than 20).
+- Also audit every row flagged Critical or High in step 3.
+
+For each audited item:
+- Pull 2 to 5 reputable benchmarks per region where possible
+- Compare file Min/Mid/Max to benchmark ranges or medians
+- Classify: aligned, slightly high, likely high, slightly low, likely low, cannot verify
+- Cite sources inline next to each benchmark claim
+- Update confidence scores and recommended fixes
+
+5) Fix plan
+- Ranked list of recommended corrections grouped by root cause:
+  a) unit errors (monthly vs annual)
+  b) currency encoding errors
+  c) role naming and deduping
+  d) grade framework inconsistencies
+  e) regional mapping problems (London vs Midlands vs UK average, etc)
+  f) outdated benchmarks
+- Provide a proposed standardised schema for the file:
+  required columns, naming rules, allowed values lists, and validation rules
+
+6) Questions for the user (only after all above)
+Ask the minimum questions that unblock final fixes, for example:
+- For UK figures, are they London hub, Midlands non-hub, or UK national average?
+- Are any salaries monthly, contractor day rates, or otherwise non-annual?
+- What benchmark target year should be enforced (2025 only, or 2025 to 2026)?
+
+START NOW
+- First, request the spreadsheet upload if it is not already present.
+- Then complete steps 1 to 3 before any deep web research.
+```
+
+If you answer the two questions at the top, I will either refine this further for “new chat reuse” (shorter, tighter, fewer tokens) or I will run the audit on the uploaded file right away.
+

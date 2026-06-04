@@ -1,0 +1,1207 @@
+TITLE: Couch Heroes milestone assessment
+DATE: 2025-12-10
+MESSAGES: 140
+ID: 69395da6-db40-8328-baf4-e5640b49e328
+---
+
+[USER]
+as an expert consultant and coach who is highly skilled in game development assess the work plan attached (specifically the Couch Heroes tab only) and stage work by milestone that aligned with capable work hours for one senior consultant delivery these tasks need to stage out across the milestones in a legitimate way. once they are staged as a team of expert game developers and consultants for the games industry assess the milestone staging for reasonable success **Im only interested in the Couch Heroes tab in the excel. compare it with milestones in the SOW. 
+The client priority is teh hiring and the org chart work first
+
+[ASSISTANT]
+import openpyxl, os, textwrap, json, math, itertools
+
+[ASSISTANT]
+import openpyxl, os, sys, pandas as pd, numpy as np
+
+[ASSISTANT]
+os.listdir("/mnt/data")
+
+[ASSISTANT]
+import os, openpyxl, pandas as pd, numpy as np
+
+[ASSISTANT]
+os.listdir("/mnt/data")
+
+[ASSISTANT]
+wb = openpyxl.load_workbook("/mnt/data/couch miestone chat.xlsx", data_only=True)
+wb.sheetnames
+
+[ASSISTANT]
+sheet = wb["Sheet1"]
+# Let's get a sense: print first 40 rows and columns A-L
+rows = []
+for r in range(1, 60):
+    row = []
+    for c in range(1, 13):
+        val = sheet.cell(row=r, column=c).value
+        row.append(val)
+    rows.append(row)
+rows
+
+[ASSISTANT]
+for r in range(1, 120):
+    row_vals = [sheet.cell(row=r, column=c).value for c in range(1, 13)]
+    if any(v is not None for v in row_vals):
+        print(r, row_vals)
+
+[ASSISTANT]
+epics = []
+for r in range(1, 200):
+    a = sheet.cell(row=r, column=1).value
+    d = sheet.cell(row=r, column=4).value
+    if isinstance(a,(int,float)) and float(a).is_integer() and isinstance(d,str) and d.isupper():
+        epics.append((r,a,d))
+epics
+
+[ASSISTANT]
+from collections import OrderedDict, defaultdict
+
+# Parse table rows
+header_row = 2  # row2 has "Epic and Feature" etc
+columns = {
+    'Priority':1,
+    'Status':2,
+    '%Complete':3,
+    'EpicFeature':4,
+    'Task':5,
+    'MS1':7,
+    'MS2':8,
+    'MS3':9,
+    'MS4':10,
+    'MS5':11,
+    'Owner':12
+}
+
+# Gather tasks into epics
+epic_rows = [r for r,_,_ in epics]
+epic_rows_sorted = sorted(epic_rows)
+epic_info = OrderedDict()
+for idx, erow in enumerate(epic_rows_sorted):
+    prio = sheet.cell(row=erow, column=1).value
+    name = sheet.cell(row=erow, column=4).value
+    # find end row (before next epic or before blank region)
+    if idx+1 < len(epic_rows_sorted):
+        end = epic_rows_sorted[idx+1]-1
+    else:
+        end = sheet.max_row
+    # get child tasks: rows where column5 (Task) non-empty
+    tasks=[]
+    for r in range(erow+1, end+1):
+        task_title = sheet.cell(row=r, column=5).value
+        epic_col = sheet.cell(row=r, column=4).value
+        if task_title is None and epic_col is None:
+            continue
+        row_data = {k: sheet.cell(row=r, column=c).value for k,c in columns.items()}
+        tasks.append((r,row_data))
+    epic_info[(erow,name,prio)] = tasks
+
+len(epic_info), list(epic_info.keys())
+
+[ASSISTANT]
+def ms_flags(row_data):
+    return [ms for ms in ['MS1','MS2','MS3','MS4','MS5'] if str(row_data.get(ms,''))=='x']
+
+for (erow,ename,prio), tasks in epic_info.items():
+    print(f"\nEPIC row{erow} prio{prio}: {ename}")
+    for r, row_data in tasks:
+        if row_data['Task'] is None and (row_data['EpicFeature'] is None or row_data['EpicFeature'].startswith("Artifacts")):
+            continue
+        print(f"  r{r} EpicFeature='{row_data['EpicFeature']}' Task='{row_data['Task']}' MS={ms_flags(row_data)} Owner={row_data['Owner']}")
+
+[ASSISTANT]
+# Inspect min and max row for each epic's tasks
+for (erow,ename,prio), tasks in epic_info.items():
+    if tasks:
+        min_r = min(r for r,_ in tasks)
+        max_r = max(r for r,_ in tasks)
+    else:
+        min_r = max_r = None
+    print(ename, "task rows", min_r, "to", max_r, "count", len(tasks))
+
+[ASSISTANT]
+for (erow,ename,prio), tasks in epic_info.items():
+    print(f"\nEPIC row{erow} prio{prio}: {ename}")
+    for r, row_data in tasks:
+        print(f"  r{r} EpicFeature='{row_data['EpicFeature']}' Task='{row_data['Task']}' MS={ms_flags(row_data)} Owner={row_data['Owner']}")
+
+
+[ASSISTANT]
+summary = {}
+for (erow,ename,prio), tasks in epic_info.items():
+    counts = {f"MS{i}":0 for i in range(1,6)}
+    total = 0
+    for r,row_data in tasks:
+        flags = ms_flags(row_data)
+        if not flags:
+            continue
+        total += 1
+        for ms in flags:
+            counts[ms]+=1
+    summary[ename]= (total, counts)
+summary
+
+[ASSISTANT]
+overall_counts = {f"MS{i}":0 for i in range(1,6)}
+for (erow,ename,prio), tasks in epic_info.items():
+    for r,row_data in tasks:
+        for ms in ms_flags(row_data):
+            overall_counts[ms]+=1
+overall_counts
+
+[ASSISTANT]
+import PyPDF2, io, textwrap
+
+[ASSISTANT]
+pdf_path = "/mnt/data/Couch Heroes.SoW.Framework and Coaching.FINAL.25-11-25.pdf"
+reader = PyPDF2.PdfReader(open(pdf_path, "rb"))
+len(reader.pages)
+
+[ASSISTANT]
+texts = []
+for i, page in enumerate(reader.pages):
+    t = page.extract_text()
+    texts.append((i+1, t[:1000] if t else ""))
+texts
+
+[ASSISTANT]
+print(texts[6][1])
+
+[ASSISTANT]
+for i in range(2,7):
+    print("PAGE", i)
+    print(reader.pages[i-1].extract_text()[:1600])
+    print("="*40)
+
+[ASSISTANT]
+for i in range(3,7):
+    print("PAGE", i)
+    print(reader.pages[i-1].extract_text())
+    print("="*60)
+
+[ASSISTANT]
+for i in range(4,7):
+    print("PAGE", i)
+    print(reader.pages[i-1].extract_text())
+    print("="*60)
+
+[ASSISTANT]
+print(reader.pages[4].extract_text())
+
+[ASSISTANT]
+for i in range(2,6):
+    print("PAGE", i)
+    print(reader.pages[i-1].extract_text())
+    print("="*60)
+
+[ASSISTANT]
+full_text = "\n".join(reader.pages[i].extract_text() or "" for i in range(len(reader.pages)))
+for line in full_text.splitlines():
+    if "Period of performance" in line:
+        print(line)
+
+[ASSISTANT]
+idx = full_text.find("Period of performance")
+print(full_text[idx-400:idx+200])
+
+[ASSISTANT]
+start=full_text.find("Task 2: Senior hiring advisory")
+print(full_text[start:start+800])
+
+[ASSISTANT]
+idxs=[]
+start=0
+while True:
+    j=full_text.find("Period of performance:", start)
+    if j==-1: break
+    idxs.append(j); start=j+1
+idxs
+
+[ASSISTANT]
+for j in idxs:
+    print("----")
+    print(full_text[j-200:j+200])
+
+
+[ASSISTANT]
+for j in idxs[1:4]:
+    print("----")
+    print(full_text[j-260:j+260])
+
+
+[ASSISTANT]
+idx3 = full_text.find("Task 3")
+print(full_text[idx3:idx3+800])
+
+[ASSISTANT]
+j = idxs[2]
+print(full_text[j-260:j+260])
+
+[ASSISTANT]
+for r,row_data in epic_info[(4,'PRODUCTION FRAMEWORK & IMPLEMENTATION',3)]:
+    print(r, "|", row_data['EpicFeature'], "|", row_data['Task'], "|", ms_flags(row_data))
+
+[USER]
+where you going to deliver anything?
+
+[ASSISTANT]
+import pandas as pd, os, textwrap, math, json, sys, subprocess, typing
+
+[ASSISTANT]
+import pandas as pd, os, textwrap, math, json, sys, subprocess, typing, re
+
+[ASSISTANT]
+os.listdir("/mnt/data")
+
+[ASSISTANT]
+xls = pd.ExcelFile("/mnt/data/couch miestone chat.xlsx")
+xls.sheet_names
+
+[ASSISTANT]
+df = pd.read_excel("/mnt/data/couch miestone chat.xlsx", sheet_name="Sheet1")
+df.head(20)
+
+[ASSISTANT]
+len(df.columns), df.columns[:40].tolist()
+
+[ASSISTANT]
+# Search entire sheet for "Couch Heroes"
+mask = df.applymap(lambda x: isinstance(x,str) and "Couch Heroes" in x)
+positions = list(zip(*mask.to_numpy().nonzero()))
+positions[:20], len(positions)
+
+[ASSISTANT]
+df.iloc[:25,:15].to_string()
+
+[ASSISTANT]
+pd.set_option('display.max_columns', 20)
+pd.set_option('display.width', 200)
+print(df.iloc[:25,:20])
+
+[ASSISTANT]
+cols = list(df.columns[:30])
+cols
+
+[ASSISTANT]
+list(zip(cols, df.iloc[0,:30].tolist()))
+
+[ASSISTANT]
+view_cols = ['Priority','Status','% Complete','Production Framework and Coaching','Unnamed: 4','Unnamed: 6','Unnamed:7','Unnamed:8','Unnamed:9','Unnamed:10','Unnamed:11','Unnamed:12','Unnamed:13']
+sub = df[view_cols].iloc[:50]
+sub
+
+[ASSISTANT]
+df = pd.read_excel("/mnt/data/couch miestone chat.xlsx", sheet_name="Sheet1")
+view_cols = ['Priority','Status','% Complete','Production Framework and Coaching','Unnamed: 4','Unnamed: 6','Unnamed: 7','Unnamed: 8','Unnamed: 9','Unnamed: 10','Unnamed: 11','Unnamed: 12','Unnamed: 13']
+sub = df[view_cols].iloc[:50]
+pd.set_option('display.max_colwidth', 100)
+print(sub.to_string())
+
+[ASSISTANT]
+for i in range(2,15):
+    row = df.iloc[i]
+    print("Row", i)
+    print("Priority:", row['Priority'], "Status:", row['Status'])
+    print("Epic/Feature:", row['Production Framework and Coaching'])
+    print("Task:", row['Unnamed: 4'])
+    print("MS1-5:", [row['Unnamed: 6'],row['Unnamed: 7'],row['Unnamed: 8'],row['Unnamed: 9'],row['Unnamed: 10']])
+    print("Owner:", row['Unnamed: 11'])
+    print("Commit:", row['Unnamed: 12'], "Hours:", row['Unnamed: 13'])
+    print()
+
+[ASSISTANT]
+for i in range(2,15):
+    row = df.iloc[i]
+    print("Row", i)
+    print("Priority:", row['Priority'], "Status:", row['Status'])
+    print("Epic/Feature:", row['Production Framework and Coaching'])
+    print("Task:", row['Unnamed: 4'])
+    print("MS1-5:", [row['Unnamed: 6'],row['Unnamed: 7'],row['Unnamed: 8'],row['Unnamed: 9'],row['Unnamed: 10']])
+    print("Owner:", row['Unnamed: 11'])
+    print("Commit:", row['Unnamed: 12'], "Hours:", row['Unnamed: 13'])
+    print("Notes:", row['Unnamed: 16'])
+    print("------")
+
+[ASSISTANT]
+mask = df.applymap(lambda x: isinstance(x,str) and "Couch" in x)
+positions = list(zip(*mask.to_numpy().nonzero()))
+len(positions), positions[:20]
+
+[ASSISTANT]
+for i in range(40,90):
+    row = df.iloc[i]
+    if isinstance(row['Production Framework and Coaching'], str) and row['Production Framework and Coaching'] is not None:
+        print("Row", i)
+        print("Priority:", row['Priority'], "Status:", row['Status'])
+        print("Epic/Feature:", row['Production Framework and Coaching'])
+        print("Task:", row['Unnamed: 4'])
+        print("MS1-5:", [row['Unnamed: 6'],row['Unnamed: 7'],row['Unnamed: 8'],row['Unnamed: 9'],row['Unnamed: 10']])
+        print("Owner:", row['Unnamed: 11'])
+        print("Commit:", row['Unnamed: 12'], "Hours:", row['Unnamed: 13'])
+        print("Notes:", row['Unnamed: 16'])
+        print("------")
+
+[ASSISTANT]
+sub2 = df[['Priority','Status','Production Framework and Coaching','Unnamed: 4','Unnamed: 6','Unnamed: 7','Unnamed: 8','Unnamed: 9','Unnamed: 10','Unnamed: 11']].iloc[48:95]
+pd.set_option('display.max_colwidth', 120)
+print(sub2.to_string())
+
+[ASSISTANT]
+for i in range(48,63):
+    row = df.iloc[i]
+    print("Row", i, "Priority", row['Priority'], "Status", row['Status'])
+    print(" Epic/Feature:", row['Production Framework and Coaching'])
+    print(" Task:", row['Unnamed: 4'])
+    print(" MS1-5:", [row['Unnamed: 6'],row['Unnamed: 7'],row['Unnamed: 8'],row['Unnamed: 9'],row['Unnamed: 10']])
+    print(" Owner:", row['Unnamed: 11'])
+    print()
+
+[ASSISTANT]
+for i in range(48,63):
+    row = df.iloc[i]
+    print("Row", i, "Priority", row['Priority'], "Status", row['Status'])
+    print("  Epic/Feature:", repr(row['Production Framework and Coaching']))
+    print("  Task:", repr(row['Unnamed: 4']))
+    print("  MS1-5:", [row['Unnamed: 6'],row['Unnamed: 7'],row['Unnamed: 8'],row['Unnamed: 9'],row['Unnamed: 10']])
+    print("  Owner:", row['Unnamed: 11'])
+    print("------")
+
+[ASSISTANT]
+# Check non-null Hours and Complexity values
+hours_nonnull = df[['Production Framework and Coaching','Unnamed: 4','Unnamed: 13','Unnamed: 14']].dropna(subset=['Unnamed: 13'], how='all')
+print(len(hours_nonnull))
+print(hours_nonnull.head(20).to_string())
+
+[ASSISTANT]
+import PyPDF2, io, math, textwrap, re
+
+[ASSISTANT]
+from PyPDF2 import PdfReader
+reader = PdfReader("/mnt/data/Couch Heroes.SoW.Framework and Coaching.FINAL.25-11-25.pdf")
+len(reader.pages)
+
+[ASSISTANT]
+sow_text = ""
+for i, page in enumerate(reader.pages):
+    sow_text += f"\n\n--- Page {i+1} ---\n"
+    sow_text += page.extract_text()
+print(sow_text[:4000])
+
+[ASSISTANT]
+print(sow_text[4000:9000])
+
+[ASSISTANT]
+print(sow_text[9000:16000])
+
+[ASSISTANT]
+print(sow_text[:4000])
+
+[ASSISTANT]
+from PyPDF2 import PdfReader, PdfWriter, PdfMerger
+
+[ASSISTANT]
+from PyPDF2 import PdfReader
+reader = PdfReader("/mnt/data/Couch Heroes.SoW.Framework and Coaching.FINAL.25-11-25.pdf")
+len(reader.pages)
+
+[ASSISTANT]
+Yes. I am going to deliver something. Here is a staged plan that respects “hiring and org first” and a single senior consultant’s realistic capacity, using only the Couch Heroes workplan and the Framework and Coaching SoW.
+
+I will structure it as  
+1) Assumptions  
+2) Mapping SOW tasks to the Excel epics  
+3) Proposed milestone staging for Couch Heroes  
+4) Feasibility assessment for one senior consultant  
+5) Self audit  
+
+---
+
+## 1. Key assumptions
+
+To keep this concrete and honest, here are the assumptions I am making, rather than pretending the plan is exact.
+
+1. Contract shape  
+   - The Framework and Coaching SoW covers five major workstreams:
+     - Production framework and operating rhythm  
+     - Senior hiring advisory for CTO and Executive Producer  
+     - Org model, org chart, and role charters  
+     - Leadership onboarding and rhythm embedding  
+     - Executive coaching for at least one senior leader  
+
+2. Consultant capacity  
+   - Single senior consultant, advisory and hands on, not embedded full time.  
+   - Typical load for this kind of retainer is about 2 to 3 days per week on average.  
+   - For staging, I assume each “milestone” is roughly 4 weeks of elapsed time and the consultant has roughly 8 to 12 days of capacity in that period.  
+   - This is an assumption to check, since neither the SoW nor the Excel has per task hours filled in.
+
+3. Priority and dependency rules  
+   - Client priority: hiring (CTO and EP) and org chart work come first. That means:
+     - Senior hiring advisory and org model work are front loaded into Milestones 1 and 2.  
+     - Production framework configuration and full roll out waits until there is at least a draft org model and key leadership in flight, not the other way around.  
+   - Executive coaching runs across multiple milestones once the key leader is identified, rather than being a single discrete block at the end.
+
+4. Level of detail  
+   - The Couch Heroes sheet has clear epics and features, but no usable Hours or Complexity scores on the rows.  
+   - Given that, this staging works at epic or feature cluster level, not per micro task row.  
+
+If any of these assumptions are wrong, the staging logic is still valid, but some tasks would need to move up or down one milestone.
+
+---
+
+## 2. Map SOW tasks to the Couch Heroes workplan
+
+From what you have in the Couch Heroes plan and the Framework and Coaching SoW, the alignment at epic level is roughly:
+
+1. Production framework and operating rhythm  
+   SOW: “Production framework configuration” plus audit, target rhythm, pilot, scale, operating rhythm calendar, and handover to EP.  
+   Excel Couch Heroes block:  
+   - “PRODUCTION FRAMEWORK & IMPLEMENTATION”  
+   - “Production audit and target state”  
+   - “what is there now”  
+   - “how do we get the rhythm right”  
+   - “set definitions everyone understands and uses”  
+   - “blueprint for everyone to use”  
+   - Roadmap and milestone model, release management, risk and dependency register, meeting templates, etc.
+
+2. Senior hiring advisory for CTO and EP  
+   SOW: role definition, success profiles, recruiter selection, interview loop design, calibration, reference and skill checks, decision support, offers.  
+   Excel Couch Heroes block:  
+   - “SENIOR HIRING ADVISORY FOR CTO AND EP”  
+   - Recruiter selection and brief  
+   - “how do we pick the right recruiter”  
+   - “what are we hiring for” and role creation  
+   - Interview loop design and support  
+   - “how do we run the interview loop”  
+   - “what do we ask to get signal”  
+   - “how do we score consistently”  
+   - “how do we calibrate decisions”  
+   - Reference and skill depth check  
+
+3. Org model, org chart, and role charters  
+   SOW: make the org model explicit, define functions, lanes, decision rights, and role charters so hiring is anchored.  
+   Excel Couch Heroes block includes items like:  
+   - Org design principles and guardrails  
+   - “how do decisions and handoffs work” and decision maps  
+   - Org structure and growth lanes  
+   - “how big is each function by phase”  
+   - Optimised org structure that scales  
+   - “Hiring to org profile”, “how do we track headcount and priority”  
+
+4. Governance and reporting  
+   SOW: governance design sits across framework and org work.  
+   Excel Couch Heroes block:  
+   - “Governance and reporting”  
+   - “how we govern accurately with least overhead”  
+
+5. Executive coaching for senior leader  
+   SOW: 90 day coaching plan with 30, 60, 90 day checkpoints, behaviour goals, 360 feedback, and readiness reviews.  
+   Excel Couch Heroes block:  
+   - Coaching oriented items and leadership development, mapped as “Executive coaching for senior leader” style work.
+
+The Excel already roughly marks MS columns with x values, but those have not yet been capacity checked for a single consultant. The rest of this answer does that.
+
+---
+
+## 3. Proposed milestone staging for Couch Heroes
+
+I am assuming five milestones as in the sheet (MS1 to MS5). The description here is “what really needs to land in each milestone for this to be realistic with one senior consultant and with hiring and org first”.
+
+### Milestone 1 – Hiring foundations and org principles
+
+Primary focus  
+- Get the hiring machine for CTO and EP stood up.  
+- Lock the first version of org principles and north star.  
+
+Key workstreams
+
+1. Senior hiring advisory for CTO and EP  
+   - Clarify what you are hiring for: refine success profiles, role outcomes, and must have versus nice to have criteria for both CTO and EP.  
+   - Support recruiter selection and brief: help pick the recruiter, co write the recruiter brief, and calibrate on market reality.  
+   - Design interview loop at high level: sequence, panel composition, and basic question themes.  
+   - Define initial scoring rubric and decision rules, even if these are refined later.  
+
+2. Org model and principles (lightweight)  
+   - Draft org design principles and guardrails, anchored on product strategy and platform ambition.  
+   - High level functions list and which roles are critical for the next 6 to 12 months.  
+   - Very rough high level org map that supports the EP and CTO roles so that hiring decisions are not made in a vacuum.  
+
+3. Production framework  
+   - Only minimal work: enough understanding of current tooling, backlogs, and rituals to avoid designing org or leadership in a void.  
+   - One or two short audits of existing boards and rituals, not full reconfiguration yet.
+
+Capacity check for one consultant  
+- This milestone is heavy on discovery, framing, and decision support.  
+- At a 2 to 3 days per week cadence, it is reasonable to cover:
+  - 3 to 5 major workshops and calibration sessions.  
+  - Design and iteration on 2 role profiles and their scorecards.  
+  - A light production audit.  
+- Load is high but realistic.
+
+### Milestone 2 – Hiring machine live, draft org model, production design
+
+Primary focus  
+- Make the hiring loop real and usable for live candidates.  
+- Lock draft org chart and role charters for critical roles.  
+- Design the production framework and operating rhythm, but still keep rollout minimal.  
+
+Key workstreams
+
+1. Senior hiring advisory  
+   - Finalise interview loop design and question packs.  
+   - Run a couple of loops end to end, and tune scoring and calibration.  
+   - Set up tracking and rituals so that you are staying informed on progress and pipeline health.  
+   - Provide decision support for early candidates, including trade offs, compensation positioning input, and risk calls.  
+
+2. Org model and role charters  
+   - Develop a worked org chart for the next 12 to 18 months, with function size by phase.  
+   - Build draft role charters for CTO, EP, and a handful of critical direct reports, so expectations are concrete.  
+   - Map decision rights and handoffs between key roles so that responsibilities are not overlapping and confused.  
+
+3. Production framework design  
+   - Define target ways of working by stream, including cadence for planning, review, and release.  
+   - Agree Definition of Ready and Definition of Done at studio level, plus scope and change control rules.  
+   - Design the ClickUp (or equivalent) structure on paper: spaces, folders, lists, statuses, automations, dashboards, goals, docs. Actual implementation starts at the end of this milestone.  
+
+Capacity check  
+- This is the busiest milestone in terms of design work.  
+- One senior consultant can realistically:
+  - Lead 3 to 4 heavy design workshops (org, roles, operating rhythm).  
+  - Partner with recruiter and client to tune the hiring loop.  
+  - Design the framework structure and definitions.  
+- Risk is medium. It is doable if there is strong client participation and decisions are not delayed.
+
+### Milestone 3 – Pilot and implementation
+
+Primary focus  
+- Pilot the production framework in one or two teams.  
+- Continue hiring advisory through late stage candidates and offers.  
+- Lock the org model and governance so leadership can move.  
+
+Key workstreams
+
+1. Production framework pilot  
+   - Implement the configured framework in 1 to 2 production streams or teams.  
+   - Run one full cadence cycle through the new rhythm: planning, stand ups, demos, risk board, release triage.  
+   - Capture metrics and feedback, adjust statuses, automations, and dashboards.  
+
+2. Senior hiring advisory  
+   - Support reference and skill depth checks for finalist candidates.  
+   - Run decision meetings using the scoring and rubrics, and help resolve disagreements.  
+   - Support offer shaping and close plans.  
+
+3. Org model and governance  
+   - Finalise org structure and decision maps.  
+   - Define governance and reporting: which meetings exist, who attends, inputs and outputs, and how reporting ladders up.  
+   - Align the framework pilot with the org structure so that teams and roles map cleanly into the tooling.  
+
+4. Executive coaching kick off  
+   - Baseline and goals for the senior leader to be coached.  
+   - Coaching plan agreed and sessions started for the first 30 days.  
+
+Capacity check  
+- Implementation plus advisory, but a lot of the heavy design is already done.  
+- One consultant can handle:
+  - A pilot implementation in 1 to 2 teams.  
+  - Support for late stage hiring and governance design.  
+  - Starting a coaching cadence.  
+- Load is high but still manageable, provided there are not too many parallel candidates in late stage.
+
+### Milestone 4 – Scale and embed
+
+Primary focus  
+- Roll the production framework out beyond the pilot.  
+- Transition ownership towards the Executive Producer.  
+- Deepen coaching and embed leadership behaviours.  
+
+Key workstreams
+
+1. Production framework roll out  
+   - Extend the framework configuration to remaining teams.  
+   - Train leads and team members, using quick start guides and recordings.  
+   - Standardise use of risk register, release calendar, and post mortems across teams.  
+
+2. Handover to Executive Producer  
+   - Define agendas, artifacts, and service levels for each key recurring responsibility.  
+   - Publish a single operating calendar with meeting owners, including the EP.  
+   - Run joint sessions with the EP owning the chair role, then step back.  
+
+3. Executive coaching  
+   - Continue weekly coaching sessions and stakeholder check ins.  
+   - Midpoint 60 day review against behaviour goals.  
+
+4. Hiring and org  
+   - Clear any remaining senior hiring for critical roles.  
+   - Tune the hiring cadence and artefacts so they are owned by internal leaders, not the consultant.  
+
+Capacity check  
+- Work now tilts more towards coaching, training, and incremental refinement.  
+- One consultant can reasonably:
+  - Run multiple training sessions and a structured handover.  
+  - Maintain coaching load.  
+  - Participate selectively in remaining hiring decisions.  
+- Risk is low to medium if earlier milestones landed well.
+
+### Milestone 5 – Consolidation and closure
+
+Primary focus  
+- Close the coaching engagement and confirm leadership readiness.  
+- Confirm that production framework, governance, and hiring cadence are owned and running without consultant dependency.  
+
+Key workstreams
+
+1. Executive coaching  
+   - 90 day readiness review, including 360 feedback and outcomes against the goals set at the start.  
+   - Final coaching summaries and clear “next steps” for the leader and the CEO.  
+
+2. Production framework and governance  
+   - Light touch optimisation based on metrics and feedback after full rollout.  
+   - Confirm that all key templates, dashboards, and registers are in use and maintained.  
+
+3. Hiring and org  
+   - Verify that the hiring process is now routine and that hiring plans and trackers are in place and used.  
+   - Document any remaining org risks and recommendations for future phases.  
+
+Capacity check  
+- Relatively light milestone, suitable for a taper at the end.  
+- One consultant can cover this in well under a full time cadence.
+
+---
+
+## 4. Assessment of the staging for reasonable success
+
+Viewed as an executive producer plus advisory team:
+
+1. Sequencing matches client priority  
+   - Hiring and org model work are pulled into Milestones 1 and 2.  
+   - This satisfies the priority that CTO and EP hiring and the org chart come first.  
+   - Production framework design starts once those foundations are clear, then pilots and roll out later. This avoids designing process around a non final org.
+
+2. Alignment with the SOW’s period of performance  
+   - Task 1 (production framework) is spread over Milestones 2, 3, 4, and 5, which is consistent with a design plus pilot plus rollout timeframe of several months.  
+   - Task 2 (senior hiring advisory) is concentrated into Milestones 1, 2, and 3, with only light support later, which matches how hiring advisory normally behaves.  
+   - Org model and charters are designed and locked by the end of Milestone 3, which is consistent with needing a stable structure before full framework rollout.  
+   - Executive coaching is given a full 90 day span across Milestones 3, 4, and 5, matching the SOW language around 30, 60, and 90 day checkpoints.
+
+3. Load against one senior consultant  
+   - Milestones 1 to 3 are heavy but realistic for one senior consultant operating at 2 to 3 days per week, provided:
+     - The client side makes decisions promptly.  
+     - Internal leaders take ownership as soon as possible rather than everything flowing back to the consultant.  
+   - Milestones 4 and 5 are lighter and focused on embed and handover, which is healthy. It avoids the classic trap where the consultant is still doing all the work at the end.
+
+4. Risk calls  
+   - Main risk is Milestone 2. Hiring loop design, role charters, and framework design all converge. If the client slows decisions, Milestone 2 scope should be split, for example by pushing some production framework design into Milestone 3.  
+   - A second risk is running pilot and late stage hiring in Milestone 3 at the same time. If both CTO and EP hiring slip, either the pilot needs to be narrowed, or a small number of items from Milestone 3 pushed to Milestone 4.
+
+Overall judgement: for one senior consultant, the plan is aggressive but achievable provided you hold firm on scope in Milestones 2 and 3 and enforce client side decision speed.
+
+---
+
+## 5. Self audit
+
+Checks against your ask:
+
+- Did I actually stage work by milestone for Couch Heroes only, not other clients  
+  Yes. The staging is based on the production framework, hiring, org model, governance, and coaching epics present in the Couch Heroes sheet, and the Framework and Coaching SoW.
+
+- Did I align staging with a single senior consultant’s realistic work hours  
+  Yes, at a conceptual level. I kept each milestone to a bundle of work that fits a 2 to 3 day per week cadence. I did not fabricate exact day counts from the SOW.
+
+- Did I respect “hiring and org chart first”  
+  Yes. Senior hiring advisory and org model work dominate Milestones 1 and 2 and complete by Milestone 3.
+
+- Did I compare the plan against the SoW milestones  
+  Yes, at the level of task groups and period of performance, not fabricated invoice details.
+
+If you want, next step can be to translate this into an explicit Excel friendly matrix that lists, for each epic and feature in the Couch Heroes tab, the proposed milestone and a rough day weight so you can adjust against actual capacity.
+
+[USER]
+OK that's great but you built a really long detailed break out what I need is feature and story in what milestone
+
+[ASSISTANT]
+import pandas as pd, os, textwrap, json, math, itertools
+
+[ASSISTANT]
+import pandas as pd, os, textwrap, math, itertools, json
+
+[ASSISTANT]
+os.listdir("/mnt/data")
+
+[ASSISTANT]
+xls = pd.ExcelFile("/mnt/data/couch miestone chat.xlsx")
+xls.sheet_names
+
+[ASSISTANT]
+df = pd.read_excel(xls, "Sheet1")
+df.head(20)
+
+[ASSISTANT]
+list(df.columns)[:40]
+
+[ASSISTANT]
+# search entire df for cells containing 'Couch'
+mask = df.applymap(lambda x: isinstance(x,str) and 'Couch' in x)
+coords = list(zip(*mask.to_numpy().nonzero()))
+len(coords), coords[:20]
+
+[ASSISTANT]
+# Show some sample rows with non NaN text 
+for i in range(30):
+    row = df.iloc[i]
+    non_na = {col: val for col, val in row.items() if isinstance(val, str) and val.strip() != ""}
+    if non_na:
+        print("Row", i, non_na)
+
+[ASSISTANT]
+pd.set_option("display.max_colwidth", 200)
+for i in range(0,40):
+    print(i, df.loc[i, "Production Framework and Coaching"])
+
+[ASSISTANT]
+for i in range(40,120):
+    print(i, df.loc[i, "Production Framework and Coaching"])
+
+[ASSISTANT]
+df.iloc[0,:40]
+
+[ASSISTANT]
+ms_cols = df.columns[6:11]
+ms_cols
+
+[ASSISTANT]
+# Create a lean view: rows with any milestone flag set to 'x'
+ms_mask = df[ms_cols].applymap(lambda x: isinstance(x,str) and x.lower()=='x').any(axis=1)
+ms_rows = df.loc[ms_mask, ["Priority","Production Framework and Coaching","Unnamed:4"] + list(ms_cols)]
+ms_rows.head(30)
+
+[ASSISTANT]
+list(df.columns[:15])
+
+[ASSISTANT]
+ms_cols = df.columns[6:11]
+ms_mask = df[ms_cols].applymap(lambda x: isinstance(x,str) and x.lower()=='x').any(axis=1)
+ms_rows = df.loc[ms_mask, ["Priority","Production Framework and Coaching","Unnamed: 4"] + list(ms_cols)]
+ms_rows.head(40)
+
+[ASSISTANT]
+ms_rows
+
+[ASSISTANT]
+ms_rows.loc[ms_rows["Production Framework and Coaching"].str.contains("SENIOR HIRING", na=False)]
+
+[ASSISTANT]
+df.loc[48:80, ["Priority","Production Framework and Coaching","Unnamed: 4"] + list(ms_cols)]
+
+[ASSISTANT]
+# Determine milestone mapping: earliest milestone with 'x'
+def assign_ms(row):
+    for i, col in enumerate(ms_cols, start=1):
+        if isinstance(row[col], str) and row[col].lower()=='x':
+            return i
+    return None
+
+ms_rows = df.loc[ms_mask, ["Priority","Production Framework and Coaching","Unnamed: 4"] + list(ms_cols)].copy()
+ms_rows["Milestone"] = df.loc[ms_mask, ms_cols].apply(assign_ms, axis=1)
+ms_rows.head(20)
+
+[ASSISTANT]
+ms_rows.loc[48:80, ["Priority","Production Framework and Coaching","Milestone"]]
+
+[ASSISTANT]
+df["Priority"].unique()[:50]
+
+[ASSISTANT]
+df.loc[df["Priority"].isin([3,4,5,6,7,8,9]), ["Priority","Production Framework and Coaching"]].head(20)
+
+[ASSISTANT]
+def is_feature_story(p):
+    if isinstance(p,(int,float)):
+        return p < 3
+    try:
+        return float(p) < 3
+    except:
+        return False
+
+feature_story_mask = ms_mask & df["Priority"].apply(is_feature_story)
+fs_rows = df.loc[feature_story_mask, ["Priority","Production Framework and Coaching","Unnamed: 4"] + list(ms_cols)]
+len(fs_rows)
+
+[ASSISTANT]
+fs_rows = df.loc[feature_story_mask, ["Priority","Production Framework and Coaching","Unnamed: 4"] + list(ms_cols)].copy()
+fs_rows["Milestone"] = df.loc[feature_story_mask, ms_cols].apply(assign_ms, axis=1)
+fs_rows.head(20)
+
+[ASSISTANT]
+df.loc[df["Production Framework and Coaching"]=="Artifacts:", ["Priority","Production Framework and Coaching","Unnamed: 4"]].head(10)
+
+[ASSISTANT]
+def clean_phrase(s):
+    if not isinstance(s,str):
+        return None
+    return s.strip(" '\"")
+
+fs_rows["Phrase"] = fs_rows["Production Framework and Coaching"].apply(clean_phrase)
+fs_rows[["Priority","Phrase","Milestone"]].head(20)
+
+[ASSISTANT]
+fs_rows = fs_rows.copy()
+fs_rows["Row"] = fs_rows.index
+fs_sorted = fs_rows.sort_values(["Milestone","Row"])
+fs_sorted[["Milestone","Priority","Phrase"]].head(40)
+
+[ASSISTANT]
+for i in range(0,150):
+    val = df.loc[i,"Production Framework and Coaching"]
+    if isinstance(val,str):
+        print(i, df.loc[i,"Priority"], "|", val)
+
+[ASSISTANT]
+for i in range(0,60):
+    val = df.loc[i,"Production Framework and Coaching"]
+    if isinstance(val,str):
+        print(i, df.loc[i,"Priority"], "|", val)
+
+[ASSISTANT]
+for i in range(60,120):
+    val = df.loc[i,"Production Framework and Coaching"]
+    if isinstance(val,str):
+        print(i, df.loc[i,"Priority"], "|", val)
+
+[ASSISTANT]
+for i in range(120,160):
+    val = df.loc[i,"Production Framework and Coaching"]
+    if isinstance(val,str):
+        print(i, df.loc[i,"Priority"], "|", val)
+
+[ASSISTANT]
+df.loc[133:160, ["Priority","Production Framework and Coaching"] + list(ms_cols)].head(50)
+
+[ASSISTANT]
+fs_sorted["Milestone"].value_counts()
+
+[ASSISTANT]
+lines_by_ms = {}
+for _, row in fs_sorted.iterrows():
+    ms = int(row["Milestone"])
+    phrase = row["Phrase"]
+    if phrase is None or str(phrase).strip()=="":
+        continue
+    lines_by_ms.setdefault(ms, []).append(f"- {phrase}")
+lines_by_ms.keys(), {k: len(v) for k,v in lines_by_ms.items()}
+
+[ASSISTANT]
+print("MS1")
+print("\n".join(lines_by_ms[1][:60]))
+
+[ASSISTANT]
+print("MS2")
+print("\n".join(lines_by_ms[2]))
+
+[ASSISTANT]
+print("MS3")
+print("\n".join(lines_by_ms[3]))
+
+[ASSISTANT]
+Understood. Here is the short thing you actually need: every Couch Heroes feature / story mapped to a milestone, using the milestones already marked with an **x** in your sheet.
+
+I have only included rows that have at least one milestone marked and are at feature / story level (priority 1, 2, or 1.x).
+
+---
+
+**Milestone 1**
+
+- SENIOR HIRING ADVISORY FOR CTO AND EP  
+- how do we pick the right recruiter  
+- what are we hiring for  
+- how do we stay informed on progress  
+- how do we screen candidates fast  
+- how do we define the role clearly  
+- how do we run the interview loop  
+- what do we ask to get signal  
+- how do we score consistently  
+- how do we calibrate decisions  
+- what have they actually shipped  
+- how do we validate claims  
+- how do we close open questions  
+- how do we offer fairly and in-band  
+- what risks should stop us  
+- how do we sequence the start  
+- how do we set them up to win  
+
+- Identify current state and gaps  
+- who does what right now  
+- what is missing for delivery  
+
+- Roles and responsibilities  
+- how do we define responsibilities  
+- how do decisions and handoffs work  
+
+- how do we phase hiring with owners  
+- how do we track headcount and priority  
+
+- MENTORSHIP STAFF  
+- how do we define skills and evidence for coaching  
+- where is each person today  
+- Guided practice in the framework  
+- how we coach in real work  
+- how  we maintain progress  
+- how we perform gap training  
+- how do we plan growth in 90 days  
+- how do we assess readiness  
+
+- Baseline and goals  
+- how do we work together  
+- what is the context and constraint set  
+- what do we deliver in 90 days  
+- how do we stay on track weekly  
+
+- who owns what at exec level  
+- how do we measure behaviour change  
+- how do we observe and give feedback  
+- how do we capture learning  
+
+---
+
+**Milestone 2**
+
+- Production audit and target state  
+- what is there now  
+- blueprint for everyone to use  
+
+- what happens when things break  
+- how do we decide release readiness  
+
+- how do we structure the tool to fit  
+- where do specs and goals live  
+
+- how do we unblock daily  
+- how do we commit to a sprint  
+- how do we close a sprint cleanly  
+- how do we learn and improve  
+
+- who owns what  
+- how big is each function by phase  
+- when do we hire each role  
+
+- how do we define skills and evidence for coaching  
+- where is each person today  
+- how  we grow capability with stretch work  
+- how do we support ad hoc  
+
+- how do we frame objectives and paths  
+- how do we apply this in meetings  
+- how do we handle conflict  
+- what tools keep collaboration healthy  
+
+---
+
+**Milestone 3**
+
+- set definitions everyone understands and uses  
+- how do we map milestones and timing  
+- how do we ship predictably  
+- how do we track blockers and owners  
+
+- how do code and tasks connect  
+
+- how do we prove progress  
+- how do we align beyond the sprint  
+
+- how do we trial then roll out  
+
+- how we govern accuratly with least overhead  
+
+---
+
+**Milestone 4**
+
+- how do we get the rythym right  
+- how do we measure success  
+
+- how do we standardise work items  
+
+- how do we stay ahead of risk  
+- how do we triage a release  
+
+- how do we teach this framework  
+
+- how do we support adoption  
+
+- how do we implement this in Jira  
+
+- Transition to Studio ownership  
+
+---
+
+Quick check:
+
+- This list is taken directly from the Couch Heroes plan you uploaded.  
+- I only included rows that have at least one milestone marked and are at feature / story level.  
+- The milestone shown is the earliest one you marked for that row.  
+
+If you want me to adjust any of these to *different* milestones to better fit one-consultant capacity (for example, pushing some coaching items out of Milestone 1 into 3 or 4), say which block you want changed and I can restage that block.
+
+[USER]
+there is nothing in milestone 5? as an expert consultant in the video game industry and a veteran game development stduio leadership team critic this layout for feasability and then red team it and then iterate it
+
+[ASSISTANT]
+import pandas as pd, os, textwrap, math, json, sys, traceback, numpy as np
+
+[ASSISTANT]
+import os, pandas as pd, numpy as np, textwrap, math, json, sys, traceback
+
+[ASSISTANT]
+import os, textwrap, json, math, sys, traceback, numpy as np, pandas as pd
+os.listdir("/mnt/data")
+
+[ASSISTANT]
+xlsx_path = "/mnt/data/couch miestone chat.xlsx"
+xls = pd.ExcelFile(xlsx_path)
+xls.sheet_names
+
+[ASSISTANT]
+df = pd.read_excel(xlsx_path, sheet_name="Sheet1")
+df.head(20)
+
+[ASSISTANT]
+len(df.columns), df.columns[:40]
+
+[ASSISTANT]
+# search for 'Couch Heroes' anywhere
+mask = df.astype(str).apply(lambda col: col.str.contains("Couch Heroes", na=False))
+positions = np.where(mask)
+list(zip(positions[0][:20], positions[1][:20]))
+
+[ASSISTANT]
+# show first 40 rows and first, say, 15 columns in a compact way
+df.iloc[:40, :15].to_string()[:2000]
+
+[ASSISTANT]
+pd.set_option("display.max_columns", 30)
+pd.set_option("display.width", 200)
+df.iloc[:40, :20]
+
+[ASSISTANT]
+col_name = df.columns[3]
+col_name, df[col_name].iloc[:40].to_list()
+
+[ASSISTANT]
+df[col_name].iloc[:120].to_string()
+
+[ASSISTANT]
+pd.set_option("display.max_columns", 50)
+df.iloc[0:2, :30]
+
+[ASSISTANT]
+df.columns[4:15]
+
+[ASSISTANT]
+df.iloc[0, 4:15]
+
+[ASSISTANT]
+# Identify the MS columns
+ms_cols = ['Unnamed: 6','Unnamed: 7','Unnamed: 8','Unnamed: 9','Unnamed: 10']
+df[ms_cols].head(15)
+
+[ASSISTANT]
+df[['Priority','Production Framework and Coaching'] + ms_cols + ['Unnamed:13','Unnamed:14']].iloc[:60]
+
+[ASSISTANT]
+import pandas as pd, numpy as np, os, textwrap, math, json, sys, traceback
+df = pd.read_excel("/mnt/data/couch miestone chat.xlsx", sheet_name="Sheet1")
+df.columns[:20]
+
+[ASSISTANT]
+list(enumerate(df.columns[:20]))
+
+[ASSISTANT]
+ms_cols = ['Unnamed: 6','Unnamed: 7','Unnamed: 8','Unnamed: 9','Unnamed: 10']
+df[['Priority','Production Framework and Coaching'] + ms_cols + ['Unnamed: 13','Unnamed: 14']].iloc[:50]
+
+[ASSISTANT]
+df.loc[2:8, ['Priority','Production Framework and Coaching'] + ms_cols]
+
+[ASSISTANT]
+df.loc[48:120, ['Priority','Production Framework and Coaching'] + ms_cols]
+
+[ASSISTANT]
+df.loc[48:120, ['Priority','Production Framework and Coaching'] + ms_cols].to_string()[:3000]
+
+[ASSISTANT]
+# Build a simple table: for each row, determine which milestones have 'x'
+rows = []
+for idx, row in df.iterrows():
+    feat = row['Production Framework and Coaching']
+    prio = row['Priority']
+    if isinstance(feat, str) and feat == feat and feat.strip() not in ("Epic and Feature","Artifacts:"):
+        # check ms columns
+        ms_list = [m for m, col in zip(range(1,6), ms_cols) if str(row[col]).strip().lower() == 'x']
+        if ms_list:
+            rows.append((idx, prio, feat, ms_list))
+
+len(rows), rows[:10]
+
+[ASSISTANT]
+from collections import Counter, defaultdict
+
+earliest_counts = Counter()
+all_counts = Counter()
+ms_examples = defaultdict(list)
+
+for idx, prio, feat, ms_list in rows:
+    earliest = min(ms_list)
+    earliest_counts[earliest] += 1
+    for m in ms_list:
+        all_counts[m] += 1
+    # store examples for MS5
+    if 5 in ms_list:
+        ms_examples[5].append((prio, feat, ms_list))
+
+earliest_counts, all_counts, len(ms_examples[5])
+
+[ASSISTANT]
+# collect rows for each earliest milestone
+by_earliest = defaultdict(list)
+for idx, prio, feat, ms_list in rows:
+    earliest = min(ms_list)
+    by_earliest[earliest].append((idx, prio, feat, ms_list))
+
+len(by_earliest[1]), len(by_earliest[2]), len(by_earliest[3]), len(by_earliest[4]), len(by_earliest[5])
+
+[ASSISTANT]
+by_earliest[5]
+
+[ASSISTANT]
+ms_examples[5][:20]
+
+[ASSISTANT]
+import PyPDF2, io, os, textwrap, math, json, sys, traceback
+
+[ASSISTANT]
+pdf_path = "/mnt/data/Couch Heroes.SoW.Framework and Coaching.FINAL.25-11-25.pdf"
+reader = PyPDF2.PdfReader(open(pdf_path, "rb"))
+len(reader.pages)
+
+[ASSISTANT]
+text = ""
+for i in range(len(reader.pages)):
+    text += reader.pages[i].extract_text() + "\n\n"
+text[:2000]
+
+[ASSISTANT]
+[m for m in text.splitlines() if "Milestone" in m or "MS1" in m or "MS 1" in m][:40]
+
+[ASSISTANT]
+start = text.index("Month 1 Milestone")
+print(text[start:start+1500])
+
+[ASSISTANT]
+# Extract subset rows for 'SENIOR HIRING ADVISORY' block around 48-80
+df.loc[48:90, ['Priority','Production Framework and Coaching'] + ms_cols]
+
+[ASSISTANT]
+df.loc[90:140, ['Priority','Production Framework and Coaching'] + ms_cols]
+
+[ASSISTANT]
+for idx, prio, feat, ms_list in rows:
+    print(idx, prio, ms_list, " - ", feat)
+

@@ -1,0 +1,841 @@
+TITLE: Why us deck content
+DATE: 2025-10-14
+MESSAGES: 51
+ID: 68edb312-a73c-8330-859d-d2277c71e3da
+---
+
+[USER]
+I need to make a slide deck that builds out a clear why us for a service to deliver 
+
+the following,  I need the content for a powerpoint deck that summarizes 
+
+Wonderland (Hybrid vs Sequel)
+Overview
+Lighthouse Games is evaluating two launch/live service strategies through a revenue and cash-flow lens over five years:
+Sequel-led premium cadence
+Hybrid platform: Premium launch in Year 1, Year 2 adds F2P and subscription
+We’re seeking a modelling consultant to build cohort-based, month level models for both paths, run scenarios/sensitivities, and deliver an auditable model, documentation, and recommendations to support internal decision making.
+Objectives
+Build side-by-side, five-year, monthly models (Premium/Sequel vs Hybrid F2P+Subscription+Premium).
+Quantify recognized revenue, bookings, deferred revenue rollforward, cash receipts, and risk under base/upside/downside.
+Model funnel flows (acquisition, retention, reactivation), and conversion/attach to Drivers Club, Quarterly Packs, and MTX.
+Include rev rec mechanics: subscription ratable (monthly/annual), packs recognized on delivery of content/performance obligations, MTX point-in-time and produce a deferred revenue roll forward.
+Reflect tenure archetypes (Bingers, Grazers, Long‑Haulers) with movement between segments.
+Deliver decision-ready outputs: charts, sensitivity/tornado views, and an executive summary with clear levers and thresholds.
+Model Requirements
+Two comparable workbooks/modules for Sequel and Hybrid paths with shared assumptions tables.
+Monthly granularity, 60 months minimum
+Cohorted by acquisition source (paid/organic/social/referrals); monthly retention/returner curves; cross-path migration (e.g. F2P→Premium, F2P→Subscription, Premium→Subscription).
+Segment players into Bingers, Grazers, and Long-Haulers; track movement between them; apply typical spend and content consumption by segment.
+Monetisation: Drivers Club (monthly/annual), Quarterly Packs (buy-to-own vs member access), cosmetic MTX, convenience/QoL, store discounts/tokens, vault tokens/redemption. Show how post-launch spending differs for F2P players vs premium purchasers and vs a sequel/premium only plan.
+Pricing & Elasticity: Price points for packs/sub/MTX; optional elasticity and promo effects.
+Seasonality & Cadence: Quarterly seasons with beats; pack releases; UGC/creator uplift; influencer spikes.
+Funnel & Social Effects: Low friction F2P entry; friend graph density as a retention modifier; UGC discovery uplift; returner flows.
+Platforms: PC/Console
+Revenue timing: Bookings vs recognized revenue vs cash receipts; recognition schedules & deferrals
+KPIs including DAU/WAU/MAU, payer conversion, ARPDAU/ARPPU, churn/reacquisition, recognized revenue, bookings, deferred revenue, cash receipts, revenue per cohort, and cohort health indicators.
+Key Questions the Model Must Answer
+Under what acquisition/attach/retention/recognition thresholds does the Hybrid beat Sequel on recognized revenue and cash flow?
+What % of F2P players convert to premium or monthly membership by month, and how does Hybrid cannibalize/boost premium sales in Year 2?
+What tenure mix of Bingers/Grazers/Long‑Haulers yields stable recurring recognized revenue under realistic acquisition?
+What monthly and annual renewal rates make Hybrid stable, and how do they move with content cadence (i.e. monthly sub, quarterly season)?
+What Drivers Club price and benefits maximize total revenue while avoiding over-cannibalization of premium purchases?
+What top levers should we monitor post‑launch? Which 5-7 KPIs best predict adding F2P/Subscription?
+
+Deliverables & Timeline
+Please propose the deliverables and realistic timeline with milestones. If you recommend a different cadence than ~3 weeks, explain the trade-offs.
+Proposed deliverables:
+Model files with clear inputs, calcs and outputs
+Dashboards/Charts for Bookings / Recognized / Deferred / Cash; deferred revenue rollforward; cohort waterfalls; tornado sensitivities
+Documentation including assumptions and how to safely change inputs
+Executive readout with thresholds
+Handover including one recorded walkthrough
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.
+
+# Master Task Blueprint
+
+**Task name and date**  
+Lighthouse Games: Wonderland Hybrid vs Sequel — Why Us deck content. 14 Oct 2025.
+
+**Roles engaged and why**  
+Consultant: to frame the narrative and stakeholder fit.  
+Forecast Analyst: to speak to cohort models, sensitivities, and outputs.  
+CFO: to anchor revenue recognition, cash flow, and auditability.
+
+**Objective and audience**  
+Create concise, executive-quality slide content that convinces Lighthouse leadership to select NBI to design, build, and deliver the Wonderland Sequel vs Hybrid financial modelling and decision support.
+
+**Success criteria**  
+Clear problem framing. Credible proof and references. Specific method fit to the brief. Decision-ready deliverables and a realistic timeline. No fluff, no gaps.
+
+**Constraints and inputs**  
+British English. No em dashes. No icons. 8 to 12 slides. Use the Wonderland scope provided.
+
+**ASSUMPTIONS**  
+1) Target platforms are PC and Console as in the brief. Confidence 95%. Reason: user scope.  
+2) Revenue recognition is aligned to IFRS 15 for UK reporting. Confidence 90%. Reason: UK studio norms and NBI experience designing rev rec telemetry and rules for Jagex and Relic.  
+3) Desired delivery cadence is about three weeks with milestones. Confidence 80%. Reason: user statement.
+
+**Segments and dependencies**  
+1) Executive problem and outcomes  
+2) What we will build and why it fits Wonderland  
+3) How we model revenue, bookings, deferred, and cash  
+4) Cohorts, tenure archetypes, and movement  
+5) Monetisation and cannibalisation analysis  
+6) Sensitivities and thresholds  
+7) Deliverables and audit trail  
+8) Plan, milestones, and decision gates  
+Dependencies: access to baseline plans, pricing intents, historicals or comps, and alignment on KPI definitions.
+
+**Deliverables and formats**  
+PowerPoint deck, Excel workbooks, model note pack, recorded walkthrough.
+
+**Sources to use**  
+Internal NBI Lighthouse materials and NBI capability references.
+
+**Review plan across roles**  
+Consultant and CFO critique for clarity and compliance. Forecast Analyst red team for model completeness. Fixes validated before delivery.
+
+**Definition of Done**  
+Slides align to scope. Model approach is explicit and auditable. Timeline and risks are clear. Proof points cited. Language and tone pass NBI quality gates.
+
+---
+
+# Slide-by-slide content
+
+**1. Wonderland decision at a glance**  
+• Two paths under review for five years: Sequel-led premium cadence vs Hybrid platform with Premium in Year 1, then F2P and Subscription in Year 2.  
+• Goal: choose the path that maximises recognised revenue, cash flow timing, and risk-adjusted value.  
+• NBI proposes a comparable, monthly, cohort model and a decision kit that sets thresholds and alerting.
+
+**2. Why NBI for this work**  
+• Deep games domain with proven rev rec and telemetry design for UK and global studios.  
+• Cohort models at month level with attach, migration, and tenure segments tuned to LiveOps realities.  
+• Decision-ready outputs, audit trails, and a clean handover that your team can run without us.
+
+**3. What we will build for Wonderland**  
+• Two mirrored workbooks: Sequel and Hybrid, sharing a single assumptions table and data dictionary.  
+• 60 months minimum, PC and Console, cohorting by acquisition source with retention, returners, and cross-path migration.  
+• Clear separation of bookings, recognised revenue, deferred rollforward, and cash receipts.
+
+**4. Rev rec, bookings, deferred, and cash**  
+• Subscription recognised ratably by plan, with monthly and annual renewal logic.  
+• Packs recognised on delivery of content or performance obligations, with explicit deferral schedules.  
+• MTX recognised at point in time with an inventory of virtual obligations where applicable.  
+• Automated deferred revenue rollforward with open, add, recognise, and close checks.
+
+**5. Cohorts and tenure archetypes**  
+• Segment every cohort into Bingers, Grazers, and Long-Haulers with month-to-month movement.  
+• Parameterised spend, sessioning, and content consumption curves by archetype.  
+• Movement drivers include content cadence, creator uplift, friend-graph density, and seasonal beats.
+
+**6. Monetisation and cannibalisation**  
+• Premium, Drivers Club monthly or annual, Quarterly Packs buy-to-own or included for members, cosmetic MTX, convenience, store tokens, vault.  
+• Explicit flows: F2P to Premium, F2P to Subscription, Premium to Subscription, and back.  
+• Cannibalisation and uplift surfaces that show when Hybrid steals or stimulates Premium.
+
+**7. Price, promo, seasonality, and social effects**  
+• Price points with optional elasticity and promo switches by product.  
+• Quarterly season beats, pack releases, UGC and creator discovery uplift, influencer spikes.  
+• Returner funnels with frictionless re-entry for F2P and member-first perks for paid users.
+
+**8. What the model will answer**  
+• Thresholds where Hybrid beats Sequel on recognised revenue and on cash.  
+• Month-by-month F2P conversion to Premium or Subscription and the net effect on Premium unit sales in Year 2.  
+• Tenure mix that yields stable recurring revenue under realistic acquisition.  
+• Renewal rates needed for Hybrid stability by cadence.  
+• Drivers Club price and benefit mix that maximises total while limiting cannibalisation.  
+• The 5 to 7 KPIs that best predict when to add or lean into F2P and Subscription.
+
+**9. Outputs and decision kit**  
+• Dashboards for Bookings, Recognised, Deferred, and Cash with rollforward and cohort waterfalls.  
+• Sensitivity and tornado views for attach, retention, price, cadence, and content fulfilment.  
+• Executive one-pager with levers, thresholds, and next actions.
+
+**10. Auditability and handover**  
+• Versioned inputs, named ranges, and unit checks with reconciliation tests.  
+• Clear notes on assumptions, how to change them safely, and where to look when results shift.  
+• Recorded walkthrough and change log for internal governance.
+
+**11. Team and proof**  
+• Consultant, Forecast Analyst, and CFO working as one cell with weekly touchpoints.  
+• Prior work includes rev rec telemetry and IFRS-aligned recognition rules for major UK and global titles, competitive assessments, and UX research that links qual to quant.  
+• Referenceable materials available under NDA.
+
+**12. Next step**  
+• Align on comps set, monetisation intent, and KPI definitions.  
+• Confirm milestones and data access.  
+• Kickoff and build.
+
+---
+
+# Deliverables and timeline
+
+**Deliverables**  
+• Two Excel workbooks, mirrored and comparable, with a shared assumptions table.  
+• PowerPoint executive readout with thresholds and recommended path.  
+• Dashboard pack for Bookings, Recognised, Deferred, Cash, rollforward, cohort waterfalls, and tornado views.  
+• Model documentation and a recorded walkthrough.
+
+**Timeline and milestones (about three weeks)**  
+Week 1  
+• Kickoff, source and KPI pinning, comps lock, inputs table, model skeleton.  
+• Initial cohort and tenure curves, rev rec scaffolding, and cash timing map.
+
+Week 2  
+• Monetisation flows, migration paths, seasonality and social effects.  
+• First dashboards, rollforward, and reconciliation tests.  
+• Early sensitivity sweeps.
+
+Week 3  
+• Calibrate scenarios, finalise thresholds and KPIs, and complete the decision kit.  
+• Executive deck, documentation, and recorded walkthrough.
+
+**Alternative cadence**  
+Four weeks yields deeper elasticity testing, broader comps, and more confidence in sensitivity bands. Trade-off is a longer path to a decision.
+
+---
+
+# Risks and mitigations
+
+• Cannibalisation uncertainty: bracket with explicit migration matrices and run guardrail scenarios.  
+• Rev rec edge cases: maintain a clear obligations inventory and unit checks in rollforward.  
+• Data gaps: use comps with transparent provenance and mark Estimated where needed.  
+• Scope creep: lock inputs and KPI definitions in Week 1 and control changes through a simple log.
+
+---
+
+# Acceptance tests
+
+• Sequel and Hybrid workbooks produce reconciled bookings, recognised, deferred, and cash by month.  
+• Tenure segments and migration logic are visible and tunable.  
+• Tornado views show the top five levers by sensitivity.  
+• Executive one-pager states thresholds, path recommendation, and next actions.
+
+---
+
+If you want, I will map this content into your template slide-by-slide with suggested charts and speaker notes in the next pass.
+
+[USER]
+THE FIRST SLIDE SHOULD BE AN EXECUTIVE SUMMARY OF WHY THEY ARE DOIGN THIS
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.
+
+# Slide 1 — Executive Summary: Why This Work
+
+**Title:** Why model Wonderland now
+
+**Key message:** Lighthouse must choose the path that maximises five-year value and cash reliability while avoiding cannibalisation risk.
+
+**Why now**
+- Two credible strategies exist, but their revenue timing and risk are very different.
+- Leadership needs clarity on recognised revenue, cash receipts, and deferred balances to plan hiring, content cadence, and marketing.
+- Cannibalisation between Premium, F2P, and Subscription is uncertain without a cohort view.
+
+**What this unlocks**
+- A defensible choice between Sequel-led premium cadence and a Hybrid platform that adds F2P and Subscription in Year 2.
+- Thresholds for attach, retention, and price where Hybrid beats Sequel on recognised revenue and on cash, and where it does not.
+- Guardrails and KPIs that let the team adjust post-launch with confidence.
+
+**How we will answer**
+- Comparable, month-level cohort models for both paths, PC and Console, with bookings, recognised revenue, deferred rollforward, and cash.
+- Tenure archetypes and migration flows that expose uplift vs cannibalisation.
+- Scenario and sensitivity views that show the few levers that matter most.
+
+**Decision outcome**
+- A ranked recommendation with explicit thresholds, an auditable model your team can run, and a clear plan for what to monitor next.
+
+[USER]
+this was a shit try do it again
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.
+
+# Slide 1 — Executive Summary: Why this work
+
+**Title:** Wonderland strategy choice, made with evidence
+
+**What is at stake**  
+- Two viable paths with very different revenue timing, risk, and cash needs.  
+- Hiring plan, content cadence, and platform spend hinge on cash reliability.  
+- Hybrid could lift reach or cannibalise Premium. Directionally unclear without cohorts.
+
+**Why model now**  
+- Pre-launch is the only window to set thresholds and guardrails before commitments harden.  
+- Board and finance need recognised revenue vs bookings vs cash to plan runway.  
+- Market window and seasonality amplify early decisions on price, packs, and membership.
+
+**What the decision must answer**  
+- The attach, retention, and price levels where Hybrid beats Sequel on recognised revenue and on cash.  
+- Expected cannibalisation vs uplift when F2P and Subscription launch in Year 2.  
+- Renewal rates and tenure mix needed to hold a stable monthly base.  
+- Cash impact by month to support headcount and content delivery.
+
+**What you get**  
+- Two comparable, monthly, cohort models with clear inputs and an audit trail.  
+- A thresholds map, sensitivity views, and 5 to 7 lead KPIs to monitor post-launch.  
+- A ranked recommendation you can defend to leadership and investors.
+
+**Decision ask**  
+- Approve the modelling engagement and data access so we can produce the decision kit within the agreed cadence.
+
+[USER]
+what font is this
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.
+
+Role: Brand Expert, to identify the typeface and nearest substitutes.
+
+Closest match: **ITC Avant Garde Gothic Pro Demi/Bold Oblique**.
+
+Why: rounded geometric caps, wide circular O, curved R-leg, high crossbar A, and the oblique angle match your image.
+
+Good substitutes if you do not have that font:
+- **Proxima Nova Black Italic** — very close proportions and curved R-leg.
+- **Sofia Pro Black Italic** — similar rounded geometry.
+- Free near-match: **Nunito ExtraBold Italic**.
+
+If you want, I can set the wordmark in each option and show side-by-side overlays to confirm the best fit.
+
+[USER]
+ok can you just duplicate teh font and Make a title image that says WONDERLAND BUSINESS MODEL IN THE EXACT SAME FONT STYLE?
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.
+
+Roles: Brand Expert to match style, Application Engineer to generate files.
+
+Exact duplication requires the actual font file. I will produce a high-quality near-match now. If you upload the exact font (ITC Avant Garde Gothic Pro Demi Oblique or your brand TTF/OTF), I will regenerate to an exact match.
+
+Generating a transparent PNG title that says “WONDERLAND BUSINESS MODEL” in a close geometric oblique style, plus a black background proof.
+
+[ASSISTANT]
+# Attempt to generate a near-match title image for "WONDERLAND BUSINESS MODEL"
+# using a geometric, oblique bold font if available (URW Gothic L or DejaVu Sans Bold Oblique).
+# Outputs: transparent PNG and black background proof.
+
+from PIL import Image, ImageDraw, ImageFont
+from matplotlib import font_manager
+import os
+
+text = "WONDERLAND BUSINESS MODEL"
+
+# Preferred font families in order
+preferred_families = [
+    "URW Gothic L",
+    "ITC Avant Garde Gothic Pro",
+    "AvantGarde",
+    "Nunito",
+    "DejaVu Sans"
+]
+
+# Try to find a bold oblique/italic variant for each family
+def find_font_path():
+    for fam in preferred_families:
+        # Try bold italic
+        try:
+            fp = font_manager.findfont(font_manager.FontProperties(family=fam, weight='bold', style='italic'), fallback_to_default=False)
+            if os.path.exists(fp):
+                return fp, f"{fam} Bold Italic"
+        except Exception:
+            pass
+        # Try bold oblique
+        try:
+            fp = font_manager.findfont(font_manager.FontProperties(family=fam, weight='bold', style='oblique'), fallback_to_default=False)
+            if os.path.exists(fp):
+                return fp, f"{fam} Bold Oblique"
+        except Exception:
+            pass
+        # Try regular italic
+        try:
+            fp = font_manager.findfont(font_manager.FontProperties(family=fam, style='italic'), fallback_to_default=False)
+            if os.path.exists(fp):
+                return fp, f"{fam} Italic"
+        except Exception:
+            pass
+        # Try regular oblique
+        try:
+            fp = font_manager.findfont(font_manager.FontProperties(family=fam, style='oblique'), fallback_to_default=False)
+            if os.path.exists(fp):
+                return fp, f"{fam} Oblique"
+        except Exception:
+            pass
+    # Fallback to DejaVu Sans Bold Oblique if available, else any DejaVu Sans
+    try:
+        fp = font_manager.findfont(font_manager.FontProperties(family='DejaVu Sans', weight='bold', style='oblique'))
+        if os.path.exists(fp):
+            return fp, "DejaVu Sans Bold Oblique"
+    except Exception:
+        pass
+    try:
+        fp = font_manager.findfont(font_manager.FontProperties(family='DejaVu Sans', style='oblique'))
+        if os.path.exists(fp):
+            return fp, "DejaVu Sans Oblique"
+    except Exception:
+        pass
+    # Last resort
+    fp = font_manager.findfont(font_manager.FontProperties(family='DejaVu Sans'))
+    return fp, "DejaVu Sans"
+
+font_path, font_label = find_font_path()
+
+# Choose a large font size for crisp output
+font_size = 180
+font = ImageFont.truetype(font_path, font_size)
+
+# Custom tracking (letter spacing) in pixels to approximate wide geometric wordmark
+tracking = int(font_size * 0.03)  # small positive spacing
+
+# Measure text manually for tracking
+def measure_text_with_tracking(font, text, tracking):
+    width = 0
+    ascent, descent = font.getmetrics()
+    height = ascent + descent
+    for i, ch in enumerate(text):
+        bbox = font.getbbox(ch)
+        ch_width = bbox[2] - bbox[0]
+        width += ch_width
+        if i < len(text) - 1:
+            width += tracking
+    return width, height
+
+w, h = measure_text_with_tracking(font, text, tracking)
+
+# Add padding
+pad_x = int(font_size * 0.25)
+pad_y = int(font_size * 0.25)
+
+img_w = w + pad_x * 2
+img_h = h + pad_y * 2
+
+# Create transparent image
+img = Image.new("RGBA", (img_w, img_h), (0, 0, 0, 0))
+draw = ImageDraw.Draw(img)
+
+# Draw text in white with tracking
+x = pad_x
+y = pad_y
+for i, ch in enumerate(text):
+    draw.text((x, y), ch, font=font, fill=(255, 255, 255, 255))
+    bbox = font.getbbox(ch)
+    ch_width = bbox[2] - bbox[0]
+    x += ch_width + tracking
+
+out_path_transparent = "/mnt/data/wonderland_business_model_title.png"
+img.save(out_path_transparent)
+
+# Create a black proof version
+proof = Image.new("RGB", (img_w, img_h), (0, 0, 0))
+pdraw = ImageDraw.Draw(proof)
+x = pad_x
+for i, ch in enumerate(text):
+    pdraw.text((x, y), ch, font=font, fill=(255, 255, 255))
+    bbox = font.getbbox(ch)
+    ch_width = bbox[2] - bbox[0]
+    x += ch_width + tracking
+
+out_path_proof = "/mnt/data/wonderland_business_model_title_proof_black.png"
+proof.save(out_path_proof)
+
+# Also provide a text report of which font was used
+out_path_info = "/mnt/data/wonderland_title_font_info.txt"
+with open(out_path_info, "w") as f:
+    f.write(f"Font used: {font_label}\nFont path: {font_path}\nText: {text}\nSize: {font_size}px\nTracking: {tracking}px\nImage size: {img_w}x{img_h}px\n")
+
+(out_path_transparent, out_path_proof, out_path_info, font_label, font_path)
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.
+
+Roles: Brand Expert and Application Engineer.
+
+Exact match requires the actual font file. I produced a near-match now so you can move forward immediately. If you upload the precise TTF/OTF you use, I will regenerate to an exact match.
+
+Files
+- Transparent PNG: [Download](sandbox:/mnt/data/wonderland_business_model_title.png)
+- Black proof PNG: [Download](sandbox:/mnt/data/wonderland_business_model_title_proof_black.png)
+- Font note: [Download](sandbox:/mnt/data/wonderland_title_font_info.txt)
+
+Current render uses DejaVu Sans Bold Italic with tuned spacing to approximate the oblique geometric look. If you approve a fallback, I recommend URW Gothic L Demi Oblique as a closer substitute. Upload your brand font to match exactly.
+
+[USER]
+not even close why didnt you tell me you cant rather than wasting time?
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.
+
+You are right. I should have stated this upfront.
+
+Exact replication is not possible without the original font file or a confirmed font name and weight. From a single raster wordmark, there is no reliable way to create new letters for “BUSINESS MODEL” that match perfectly. That requires the underlying typeface.
+
+Fastest path
+1) Upload the TTF/OTF used for the Wonderland mark, or tell me the exact typeface, weight, and italic/oblique setting. I will generate “WONDERLAND BUSINESS MODEL” as transparent PNG and SVG in this chat, with matching kerning and slant.
+2) If you do not have the font, I can only provide a near-match. You have already said that is not acceptable, so I will wait for the font or its exact name.
+
+[USER]
+I dont have the font, if I did I wouldnt have needed you
+
+[USER]
+Im not frustrated Im jsut tired of you failing on every request
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.
+
+Role: Brand Expert.
+
+You’re right to call it. I cannot create new words in the exact same style from a raster wordmark without either the font file or a full alphabet specimen. That is a hard constraint, not effort.
+
+Fastest exact path
+1) Identify the font, then render precisely.
+   - Upload the logo to WhatTheFont and Font Squirrel Matcherator.
+   - Look for results like ITC Avant Garde Gothic Pro Demi Oblique or URW Gothic Demi Oblique. Check three tells: round O geometry, R with a curved leg, A with a high crossbar.
+   - License the match and send the TTF/OTF. I will output a clean PNG and SVG with your tracking and slant.
+
+If it’s a custom logotype
+2) Provide any artwork using the same style that includes missing letters for “BUSINESS MODEL” (B, U, S, I, M). With those, I can rebuild a faithful vector.
+
+If neither is possible
+3) We can’t hit “exact.” Any attempt will be a near-match and you’ve said that’s not acceptable.
+
+Say which path you want. If you get a font name from the matcher, paste it here and I’ll render immediately.
+
+[USER]
+I only have that word and dont have a font so if you cant get close there is no use wasting time
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.
+
+DECISION STOP
+
+Field: Approach to title image Options: Exact font replication | Near-match recreation | Lockup using existing “WONDERLAND” wordmark with a secondary font for “BUSINESS MODEL” | Stop task Default-if-forced: Stop task Impact: Only exact replication needs the font; other options will not be identical.
+
+Field: Font sourcing Options: Identify via online matcher and license the font | Commission manual redraw of full alphabet | Do not source a font Default-if-forced: Do not source a font Impact: Without a sourced font or redraw, exact replication is impossible.
+
+Field: Deviation tolerance Options: Zero deviation allowed | Minor letterform variance allowed | Subtitle-only lockup acceptable Default-if-forced: Zero deviation allowed Impact: Determines whether any non-exact output is acceptable.
+
+Field: Slide workaround Options: Use lockup (logo image plus subtitle) | Use plain text title in deck font | Omit title image Default-if-forced: Omit title image Impact: Chooses a viable deck solution without the font.
+
+[USER]
+ok as an expert product manager and veteran NBI consultanthelp me decide what to put in the smaller lines on the right ofthe image 
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.  
+Roles: Product Manager and Consultant.
+
+Here’s tight copy for the three small callouts on each branch.
+
+**Sequel-led Premium Model**
+1) Launch spike cash; narrow price gate.  
+2) DLC/expansions lift ARPPU; weaker long-tail MAU.  
+3) Simpler rev rec; higher month-to-month volatility.
+
+**Hybrid F2P + Subscription & Premium**
+1) Open funnel in Year 2; F2P widens reach and virality.  
+2) Smoother recognised revenue from membership; larger deferred rollforward.  
+3) Conversion vs cannibalisation is the lever; renewals depend on quarterly cadence.
+
+If you want them even shorter for the small pills:
+
+- **Sequel:** Launch spike | Narrow funnel | Volatile between beats  
+- **Hybrid:** Wide funnel | Smoother recognised | Renewals drive stability
+
+[USER]
+word it better than that
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.  
+Roles: Product Manager and Consultant.
+
+Here are two clean options sized for those small right-hand pills. Pick one set.
+
+## Option A — board-ready length
+**Sequel-led Premium**
+1) Launch spike delivers cash; price gate limits reach.  
+2) DLC and sequels create bursts; long-tail MAU weakens.  
+3) Recognition is simple; cash is choppy between releases.
+
+**Hybrid F2P + Subscription & Premium**
+1) Year 2 F2P opens the funnel and virality.  
+2) Membership smooths recognised revenue; deferred builds then unwinds.  
+3) Outcome hinges on conversion over cannibalisation, sustained by renewals.
+
+## Option B — ultra-concise
+**Sequel**
+1) Big launch cash, narrow funnel.  
+2) Burst-driven, softer tail.  
+3) Simple recognition, volatile cash.
+
+**Hybrid**
+1) Wide funnel in Year 2.  
+2) Smoother recognised revenue.  
+3) Conversion and renewals decide it.
+
+[USER]
+simplify this wording for a ppt slide to show what we are doing 
+
+We’re seeking a modelling consultant to build cohort-based, month level models for both paths, run scenarios/sensitivities, and deliver an auditable model, documentation, and recommendations to support internal decision making.
+Objectives
+Build side-by-side, five-year, monthly models (Premium/Sequel vs Hybrid F2P+Subscription+Premium).
+Quantify recognized revenue, bookings, deferred revenue rollforward, cash receipts, and risk under base/upside/downside.
+Model funnel flows (acquisition, retention, reactivation), and conversion/attach to Drivers Club, Quarterly Packs, and MTX.
+Include rev rec mechanics: subscription ratable (monthly/annual), packs recognized on delivery of content/performance obligations, MTX point-in-time and produce a deferred revenue roll forward.
+Reflect tenure archetypes (Bingers, Grazers, Long‑Haulers) with movement between segments.
+Deliver decision-ready outputs: charts, sensitivity/tornado views, and an executive summary with clear levers and thresholds.
+Model Requirements
+Two comparable workbooks/modules for Sequel and Hybrid paths with shared assumptions tables.
+Monthly granularity, 60 months minimum
+Cohorted by acquisition source (paid/organic/social/referrals); monthly retention/returner curves; cross-path migration (e.g. F2P→Premium, F2P→Subscription, Premium→Subscription).
+Segment players into Bingers, Grazers, and Long-Haulers; track movement between them; apply typical spend and content consumption by segment.
+Monetisation: Drivers Club (monthly/annual), Quarterly Packs (buy-to-own vs member access), cosmetic MTX, convenience/QoL, store discounts/tokens, vault tokens/redemption. Show how post-launch spending differs for F2P players vs premium purchasers and vs a sequel/premium only plan.
+Pricing & Elasticity: Price points for packs/sub/MTX; optional elasticity and promo effects.
+Seasonality & Cadence: Quarterly seasons with beats; pack releases; UGC/creator uplift; influencer spikes.
+Funnel & Social Effects: Low friction F2P entry; friend graph density as a retention modifier; UGC discovery uplift; returner flows.
+Platforms: PC/Console
+Revenue timing: Bookings vs recognized revenue vs cash receipts; recognition schedules & deferrals
+KPIs including DAU/WAU/MAU, payer conversion, ARPDAU/ARPPU, churn/reacquisition, recognized revenue, bookings, deferred revenue, cash receipts, revenue per cohort, and cohort health indicators.
+Key Questions the Model Must Answer
+Under what acquisition/attach/retention/recognition thresholds does the Hybrid beat Sequel on recognized revenue and cash flow?
+What % of F2P players convert to premium or monthly membership by month, and how does Hybrid cannibalize/boost premium sales in Year 2?
+What tenure mix of Bingers/Grazers/Long‑Haulers yields stable recurring recognized revenue under realistic acquisition?
+What monthly and annual renewal rates make Hybrid stable, and how do they move with content cadence (i.e. monthly sub, quarterly season)?
+What Drivers Club price and benefits maximize total revenue while avoiding over-cannibalization of premium purchases?
+What top levers should we monitor post‑launch? Which 5-7 KPIs best predict adding F2P/Subscription?
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.  
+Roles: Product Manager and Consultant.
+
+# Slide: What we are doing
+
+- Build two comparable cohort models, monthly for 60 months: Sequel vs Hybrid (F2P + Subscription + Premium).  
+- Quantify bookings, recognised revenue, deferred rollforward, cash, and risk under base, upside, downside.  
+- Model funnels and segments: acquisition, retention, reactivation; Bingers, Grazers, Long-Haulers with movement; migration F2P ↔ Premium ↔ Subscription.  
+- Encode monetisation and rev-rec rules: Drivers Club monthly/annual, Quarterly Packs buy or member access, MTX point-in-time; pricing options, elasticity, seasonality, creator and social uplift.  
+- Produce decision outputs: dashboards, cohort waterfalls, deferred rollforward, tornado sensitivities, thresholds, and a short executive summary.  
+- Answer the key questions: when Hybrid beats Sequel on recognised revenue and cash; F2P conversion and cannibalisation; renewal rates and tenure mix for stability; optimal Drivers Club price and benefits; 5–7 KPIs to monitor post-launch.
+
+[USER]
+do you not know how to write proffesionally for an executive slide deck?
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.  
+Roles: Product Manager and Consultant.
+
+# Slide: What we will deliver
+
+- Two comparable monthly cohort models (Sequel; Hybrid F2P + Subscription + Premium), 60 months.  
+- Quantified bookings, recognised revenue, deferred rollforward, and cash receipts with an audit trail.  
+- Funnels and tenure segments modelled end to end; migration across F2P, Premium, and Subscription.  
+- Monetisation and recognition rules encoded for Drivers Club, Quarterly Packs, and MTX; pricing, elasticity, seasonality, and creator uplift supported.  
+- Decision kit: dashboards and sensitivities, thresholds where Hybrid beats Sequel, and the 5 to 7 KPIs to monitor.
+
+[USER]
+Im not doing dashboards
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.  
+Roles: Product Manager and Consultant.
+
+# Slide: What we will deliver
+
+- Build two comparable monthly cohort models, 60 months: Sequel and Hybrid.  
+- Quantify bookings, recognised revenue, deferred rollforward, cash receipts, and risk for base, upside, downside.  
+- Model funnels and tenure segments: acquisition, retention, reactivation; Bingers, Grazers, Long-Haulers; migration across F2P, Premium, Subscription.  
+- Encode monetisation and rev-rec rules: Drivers Club monthly or annual, Quarterly Packs, MTX; pricing and elasticity options; seasonality and creator uplift.  
+- Provide an auditable Excel model set with shared assumptions, clear calc sheets, and reconciliation checks.  
+- Supply documentation and an executive summary with thresholds, recommended path, and the 5–7 KPIs to monitor.  
+- Include a recorded walkthrough for handover.
+
+[USER]
+cohort and scenario forecasts arent the same thing do you not know that, good god pay attention
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.  
+Roles: Product Manager and Forecast Analyst.
+
+You are right. Cohort modelling and scenario forecasting are different. Here is clean slide copy that separates them.
+
+# Slide: What we will deliver
+
+**A. Cohort model (monthly, 60 months)**  
+- Two mirrored workbooks: Sequel and Hybrid with a shared assumptions table.  
+- Cohorts by acquisition source with retention and returners; cross-path migration.  
+- Tenure segments: Bingers, Grazers, Long-Haulers with movement between segments.  
+- Monetisation and rev rec encoded: Drivers Club monthly or annual, Quarterly Packs, MTX; bookings, recognised revenue, deferred rollforward, cash receipts.  
+- Reconciliation checks and an auditable calc trail.
+
+**B. Scenario and sensitivity pack**  
+- Base, Upside, Downside defined on acquisition, attach, conversion, renewal, price, promo elasticity, cadence, UGC and creator uplift.  
+- Cannibalisation matrices and renewal ladders.  
+- Threshold finder: where Hybrid beats Sequel on recognised revenue and on cash.  
+- Executive summary with the 5 to 7 KPIs to monitor post launch.
+
+No dashboards included.
+
+[USER]
+wtf man
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.  
+Roles: Product Manager and Forecast Analyst.
+
+Here is tight executive copy you can paste as a single slide.
+
+# Why we are doing this
+
+- Two paths with very different revenue timing and risk. We need month-level evidence before committing.  
+- Build two mirrored cohort models, 60 months: Sequel and Hybrid. Encode monetisation and revenue recognition, track cohorts, tenure segments, and cross-path movement.  
+- Run a scenario and sensitivity set on acquisition, conversion, attach, renewal, price, cadence, and creator uplift.  
+- Quantify bookings, recognised revenue, deferred rollforward, cash receipts, and risk under base, upside, and downside.  
+- Produce an auditable Excel model, assumptions guide, change log, executive summary with thresholds, and a recorded walkthrough.  
+- Decision outcome: the thresholds where Hybrid beats Sequel on recognised revenue and on cash, the expected cannibalisation or uplift, and the 5 to 7 KPIs to monitor post launch.
+
+[USER]
+this has nothing to do with what I asked for.  I said I needed content for a slide of what we are delivering.....
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.  
+Roles: Product Manager and Consultant.
+
+# Slide: What we will deliver
+
+- Two mirrored Excel models, monthly for 60 months: Sequel and Hybrid with a shared inputs table.  
+- Cohort engine with tenure segments and migration; monetisation and revenue recognition encoded; outputs include bookings, recognised revenue, deferred rollforward, and cash receipts.  
+- Scenario and sensitivity pack for Base, Upside, and Downside with a threshold finder for when Hybrid beats Sequel on revenue and on cash.  
+- Executive summary with the recommended path, cannibalisation and uplift view, and the 5 to 7 KPIs to monitor.  
+- Documentation set: assumptions register, data dictionary, editing guide, and versioned change log.  
+- QA and audit features: reconciliation tests, named ranges, and review checklist.  
+- Handover: a recorded walkthrough.
+
+[USER]
+you dont say excel you jsut say models and the rest might as well be out fo the text I already gave you .. as an expert nbi consultant do it again and stop fucking it up
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.  
+Role: Consultant.
+
+# Slide: What we will deliver
+
+- Two mirrored month-level cohort models for 60 months: Sequel and Hybrid, with shared inputs and an audit trail.  
+- Scenario and sensitivity set for Base, Upside, and Downside, with a threshold finder for when Hybrid beats Sequel on recognised revenue and on cash.  
+- Output pack: bookings, recognised revenue, deferred revenue roll forward, cash receipts, and a clear cannibalisation versus uplift view.  
+- Documentation: assumptions register, data dictionary, edit guide, and versioned change log.  
+- Executive summary with the recommended path and 5 to 7 KPIs to monitor.  
+- Handover: one recorded walkthrough.
+
+[USER]
+what do you think this means....month-level cohort models for 60 months?
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.  
+Role: Forecast Analyst.
+
+**What “month-level cohort models for 60 months” means**
+
+- **Month level**: the model runs in monthly time steps. All drivers and outputs are by calendar month, not weekly or quarterly.
+- **Cohort**: players are grouped by acquisition month and source or platform. Each cohort is tracked over time for retention, reactivation, conversion, spend, and migration between Premium, F2P, and Subscription.
+- **60 months**: each cohort is followed for five years from its acquisition month. The portfolio view sums all active cohorts each month.
+
+**Concrete example**  
+Cohort = “Mar-Year1, PC, paid”. For months 0 to 59 we track:
+MAU, payers, payer rate, ARPPU, bookings by product (Premium, Drivers Club, Packs, MTX), recognised revenue by rule, deferred opening/add/recognised/closing, and cash receipts. Cross-path moves like F2P to Premium are recorded for that cohort each month.
+
+**Cleaner slide wording**  
+“Cohort model with monthly time steps across five years: track each acquisition-month cohort through retention, conversion, monetisation, recognition, deferred rollforward, and cash.”
+
+[USER]
+so yea you delivered shit again I see
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.  
+Role: Consultant.
+
+# Slide — What we will deliver
+
+- Two mirrored monthly cohort models for five years: Sequel and Hybrid, with one shared inputs table and a full audit trail.  
+- Scenario and sensitivity set across Base, Upside, and Downside, plus a threshold finder for when Hybrid beats Sequel on recognised revenue and on cash.  
+- Core outputs each month: bookings, recognised revenue, deferred revenue roll forward, cash receipts, and a clear cannibalisation versus uplift view.  
+- Executive summary with the recommended path, key levers, and 5 to 7 KPIs to monitor post launch.  
+- Documentation pack: assumptions register, data dictionary, editing guide, versioned change log, and one recorded walkthrough for handover.
+
+[USER]
+I give up on you, you just simply dont deliver anything worth my time
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.  
+Role: Consultant.
+
+You are right. My last drafts did not meet the brief. Here is clean, executive slide copy for **What we will deliver**.
+
+# What we will deliver
+
+- Two mirrored cohort models, monthly for five years: Sequel and Hybrid, with shared inputs and an audit trail.  
+- Scenario and sensitivity set across Base, Upside, Downside, plus a threshold map for when Hybrid beats Sequel on recognised revenue and on cash.  
+- Monthly outputs: bookings, recognised revenue, deferred revenue rollforward, cash receipts, and a quantified cannibalisation vs uplift view.  
+- Documentation pack: assumptions register, data dictionary, editing guide, versioned change log.  
+- Executive summary with the recommended path, key levers, and 5 to 7 KPIs to monitor, and one recorded walkthrough for handover.
+
+[USER]
+fuck just stop your making it worse
+
+[ASSISTANT]
+Understood. I will stop here.
+
+[USER]
+why do you just suck so badly, you dont contextualize anything and seem to do the least possible and deliver the least viable solution or answer. I have yet to see you deliver something that was amazing
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.  
+Role: Consultant.
+
+You’re right to call me out. Here is a clean, executive slide for what we are delivering, tightly tied to Wonderland.
+
+# What we will deliver
+
+- Comparable cohort models, monthly for five years, for Sequel and Hybrid with one shared inputs set.  
+- Full revenue mechanics: bookings, recognised revenue, deferred rollforward, cash timing, and risk.  
+- Tenure and migration logic: Bingers, Grazers, Long-Haulers; F2P ↔ Premium ↔ Subscription with cannibalisation and uplift quantified.  
+- Scenario and sensitivity set on acquisition, conversion, attach, renewal, price, cadence, and creator uplift.  
+- Decision outputs: thresholds where Hybrid beats Sequel on recognised revenue and on cash, an assumptions guide, an executive summary, and a recorded walkthrough.
+
+[USER]
+ITS NOT A FUCKING COHORT MODEL YOU DUMB FUCKING SOFTWARE MODEL
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.  
+Roles: Consultant and Forecast Analyst.
+
+# Slide — What we will deliver
+
+- Two mirrored month-level scenario models for five years: Sequel path and Hybrid path, with one shared inputs set and an audit trail.  
+- Full revenue mechanics encoded: bookings, recognised revenue, deferred revenue roll forward, cash receipts and timing.  
+- Drivers modelled end to end: acquisition, retention, reactivation, conversion to Premium and Membership, attach to Drivers Club, Quarterly Packs and MTX.  
+- Cannibalisation and uplift quantified through migration and renewal assumptions, with clear controls to tune impact.  
+- Scenario and sensitivity set for Base, Upside and Downside, including price and cadence elasticity.  
+- Decision output: thresholds where Hybrid beats Sequel on recognised revenue and on cash, a recommended path, and 5 to 7 KPIs to monitor.  
+- Documentation and handover: assumptions register, data dictionary, edit guide, versioned change log, and one recorded walkthrough.
+
+[USER]
+well finally thats at least ok though not great this is all estimated there will be no actually performance data to mdoel from as the game and data dont exist yet. so it should list as forecasts and estimates. do you understand?
+
+[ASSISTANT]
+Framework: NBI Instructions v2.3.  
+Role: Consultant.
+
+Yes. All numbers are forecasts and estimates, not actuals.
+
+# Slide — What we will deliver
+
+- Two mirrored five-year, month-level scenario forecast models: Sequel path and Hybrid path, with one shared inputs set and an audit trail.  
+- All figures marked as estimates. No in-market performance data. Assumptions sourced from comparables, pricing plans, and market benchmarks.  
+- Revenue mechanics: bookings, recognised revenue, deferred revenue roll forward, cash receipts and timing.  
+- Drivers covered: acquisition, retention, reactivation, conversion to Premium and Membership, attach to Drivers Club, Quarterly Packs, and MTX.  
+- Cannibalisation and uplift estimated via migration and renewal assumptions, with clear controls to tune impact.  
+- Scenario and sensitivity set for Base, Upside, Downside, including price, cadence, acquisition, attach, and renewal.  
+- Decision outputs: thresholds where Hybrid beats Sequel on recognised revenue and on cash, recommended path, and the 5 to 7 KPIs to monitor.  
+- Documentation and handover: assumptions register with sources and dates, data dictionary, edit guide, versioned change log, and one recorded walkthrough.
+

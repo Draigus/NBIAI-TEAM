@@ -1,0 +1,171 @@
+TITLE: Playsage system overview
+DATE: 2025-11-09
+MESSAGES: 6
+ID: 6910c655-99ec-832e-91e7-5609a19eba87
+---
+
+[USER]
+Okay, I want to create a document for Playsage that formalizes a real clear understanding of what the product is, what all the components are. Playsage at its core is not a tool, it's not an AI, it's not a website, though it uses all of those things. What Playsage is, is a system, and that system is created to address the games industry as a whole, from the point of creating games and understanding them. The Playsage offers a number of features inside of its system, a number of ecosystems, if you will, that address product, process, and people. In the people front, that could be skill sets, staff distributions based on what type of game you're making and when and how to effectively distribute staff in a way that's healthy and effective for the type of game you're building and the environment you're building. It could be another great thing it can be able to do is research and keep up-to-date information on salary ranges in your area. It can give you pro-con so you can properly hire people to the right salaries and remain competitive without spending too much money. It can help you with understanding job descriptions by roles, help you formulate and build them. There should be a repository for all the job descriptions for individual roles that you can then customize to fit your particular studio's needs. It can build out coaching plans and skill set manifests and organizational structures for the studios. You know that not only you're distributed right in the studio, but their hierarchy of the studio is effective. It can build out decisioning rights and RACI so everybody knows who's making what decision. It can help you formalize and fine-tune and wordsmith the vision for your game by filling out a detailed set of questionnaires about the game and then formalizing that into a vision document that can turn be turned into an outline that then can become a website or a PowerPoint deck or talking points. So in the people side of things, it's all about working with all of the manifest pieces of people inside of video games and each of the features or tools if you want to call them that inside of the people area are addressable to where you are in the life cycle of your studio build out. From a process perspective, it can help you understand how decisions are made. It can help you and structure that, create frameworks. It can help you solidify your production flow. You know, what is a good stand up? What is a good brainstorming meeting? What tools to use? What's the process of running the meeting as a template? What is a good template or framework for the type of production you're doing? There are knowledge-based articles that actually talk about should everyone in the studio run in a software production agile or agile fall style methodology or is your marketing team and customer service a different kind of business and therefore should work on something else? There are articles that explain that in detail in the production system and it'll have templates for what's a good retrospective? What's a good sprint planning? What is a good tutorial framework for how to size a task, a feature, an epic? What are the, again, what are the decisioning gates? What is the gate system for your whole studio even? All of those pieces would be included in the process side. Pretty much anything you can think about that you do from a process or process framework perspective should have a templatized view in our big database and you can then ask the Sage how to pull that forward and utilize that. Much of it will be driven in Q&A style conversational questions that a founder can go through or a leader in the studio and answer the questions and have our LLM systems, the Sage, actually apply those answers into the right format within the chosen framework and then come back and tell you where the gaps are and those gaps are either something that the business owner or client would fill in or where the template and framework would be customized specifically to that studio's needs that diverge from the baseline. The last is product. So that helps with PlaceAge is a dearth of capabilities inside a product. Everything from what are the steps of forming a core loop, how valuable are certain systems and features and mechanics to the specific genre of game you're playing because the pre-established weights and systems are built up to inform that. It can give you best of breed design examples that we would have stored in the database. It would give you a competitive analysis to understand your product's placement in market, your total addressable market. It helps you establish who your competitors are from the active database so that you know who you're competing, who's the best in the breed within the genre and the market you're trying to build based on your business model. It also will tell you the worst and so not only what to emulate within your game while remaining innovative and unique but also what to avoid that has shown disastrous for games in the past. It will help you, there's a whole set of tools in here that help you understand sentiment which you know market watch what products are launching around you and when and why. Back in the process bucket there is a whole gating system that will tie and if you do all the tools when you think about your product it will help you understand what features need to be prioritized or at least propose a feature set prioritization according to the gates and keep the studio working on what's the most important critical path. It will help you really in almost any area of the product that you need when you're talking about a game. It's live economy. It'll help you understand what are the common tropes and methodologies for building a live economy specific to your genre again pulling from our large database. So PlayStage as a whole is a system with a suite of different usabilities that run the full gambit in the life cycle of a video game. Whether that be from filling out a data room to knowing what's in it to best of breed pitch decks to how to evaluate your company how to build a P&L what your budgets are how to establish your headcount planning method. It will do all of that plus all the things I've talked about if you fill out the information appropriately when you enter the tools so that PlayStage understands what kind of game and where and why you're making and it will accelerate and vastly improve decision making by lowering the weight of decisions that already have a clear best answer to them. So as a expert product manager and a person who is exceptional at selling systems and explaining it can you please write this up in a summary and a document that lays out what PlayStage is and all of its feature breakdowns. Please feel free to use all the files in all the chats prior to this to build out the document.
+
+[ASSISTANT]
+# Role
+Product Manager. Chosen to define and sell a complex, multi-pillar system clearly to executives and builders.
+
+I created a working document in the canvas: **“Playsage_System_Overview_and_Feature_Catalogue_v0.9_2025-11-09.”** It consolidates People, Process, and Product, specifies modules, acceptance tests, data and architecture, roles and SSO, risks, and an Evidence table. If you want this exported to Word or PowerPoint, say which and I will generate it immediately.
+
+Evidence pinned from prior uploads and chats:
+- Demo flow, acceptance checks, and module purposes including Market Overview, Competitive Compare, Sentiment, Foresight, Release Radar, Alerts, and The Sage are aligned to the investor demo plan and scoping notes. fileciteturn1file2 fileciteturn1file4
+- The Sage v1 action space excludes store-page fixes and bug triage, and focuses on cadence, events, pricing tests, bundles, CRM suggestions, and content volume testing templates. fileciteturn1file0 fileciteturn1file5
+- Seeded genres and catalog for the demo are locked: Shooter, Adventure, RPG, Battle Royale, Strategy, with approved title lists. fileciteturn1file3 fileciteturn1file8
+- Platforms, roles, SSO, audit, privacy defaults, and performance/observability notes are captured. fileciteturn1file6
+- Cross-role critique items and the final compliance checklist are integrated. fileciteturn1file10 fileciteturn1file12
+- The PRD/Product Plan template conventions guided structure and Definition of Done. fileciteturn0file4
+
+If anything is missing or you want deeper acceptance tests for a specific People or Process feature, name the section and I will extend it now.
+
+[USER]
+The people, process, and product were intended as a way to formalize the thinking and vision of the platform. So it's people, process, and product of the games industry, but the outcome of that is that they're coherent and integrated, and they're easy access, and they contain best-of-breed methodologies, mathematics, gate systems, flows, project management, etc., with a set of tools like forecasting and MarketWatch and so on and so forth. I don't want it so on-the-nose to call sections people, process, and product. I want something a little more eloquent, and your writing style is really unengaging.
+
+[ASSISTANT]
+# Role
+Product Executive. Chosen to define the system, sell the vision, and anchor outcomes for buyers and operators.
+
+Understood. I’ve reframed the document so it doesn’t slap “People, Process, Product” as headings. The new structure is **Build the Studio**, **Run the Studio**, **Win the Market**, with a stronger narrative: promise, why it exists, how it works, and a “weave” section that shows how everything connects.
+
+I also tightened the voice: shorter sentences, concrete outcomes, and action-led phrasing. No em dashes, no filler. You’ll see the revision in the canvas now.
+
+If you want an even bolder tone, say “more punch” and I’ll push it further toward sales copy. If you’d rather it read like a PRD for engineers, say “more spec” and I’ll tilt back toward acceptance tests and data schemas.
+
+[USER]
+how would you market this to a studio who int eh studio is the buyer, does this dullute the producet identity
+
+[ASSISTANT]
+# Role
+Product Executive. Focus: positioning, buyers, and go-to-market for a system product sold to game studios.
+
+## Assumptions
+A1 Studios span 20 to 300 staff across mobile, PC, and console. Confidence 85 percent. Source: prior Playsage discussions and investor demo scope.  
+A2 Security, SSO, and export parity are table stakes in procurement. Confidence 90 percent. Source: standard enterprise studio requirements.  
+A3 First value must land inside 30 days with one high-pain use case. Confidence 80 percent. Source: common sales cycles for B2B tools in games.
+
+## Plan
+1) Identify the buyer group and their jobs, pains, and triggers.  
+2) Define the message spine so the system identity stays intact.  
+3) Map entry-point use cases, demo flow, and land-and-expand.  
+4) Answer directly whether Build–Run–Win dilutes the brand.  
+5) Provide ready copy for outreach and first call.
+
+---
+
+## Who buys in a studio
+**Economic buyer**  
+- Studio Head or GM at midsize and above. At smaller teams, Founder/CEO. Controls budget and signs.  
+**Primary champion**  
+- Executive Producer or Head of Product. Sometimes Head of Live Ops. Owns outcomes and will drive adoption.  
+**Technical buyer / gatekeeper**  
+- Head of Analytics or Data Lead. Sometimes IT/Sec. Validates data sources, SSO, privacy, and export parity.  
+**Functional co-buyers**  
+- Head of Talent for staffing curves and salary bands.  
+- Finance lead for budget, P and L, and headcount planning.  
+**Everyday users**  
+- Producers, PMs, Analysts, Design and Economy leads, Community.  
+**Influencers**  
+- Publishing partner producer, external investor, or platform partner if a launch is near.
+
+**Buying triggers**  
+- Greenlit project scaling up.  
+- Pre-launch window risk and release crowding.  
+- Live game softness after a content cycle.  
+- Headcount plan scrutiny during a fundraise or publisher milestone.  
+- Salary compression or churn risk in key roles.
+
+---
+
+## How to market Playsage to a studio
+### Category and promise
+- **Category:** Studio Decision System.  
+- **Promise:** Faster, better calls across staffing, production, and product, with evidence you can show to your board, team, and investors.
+
+### Message spine
+1) **Outcome first:** Less drift, fewer missed windows, sharper spend.  
+2) **System, not tool:** A shared data layer, operating patterns, and The Sage advisor.  
+3) **One weave:** Plans, gates, forecasts, and alerts all reference the same facts.  
+4) **Export parity:** What you see is what you ship to slides, docs, and CSV.  
+5) **Proof visible:** Backtests, drivers, and sources on every critical chart.
+
+### Entry-point offers by buyer
+- **Executive Producer / Head of Product:** Release Radar and Collision Alerts audit for the next 90 days, plus an action plan.  
+- **Head of Talent:** Headcount Planner and Salary Band Check for the next two quarters, tied to game phase and genre.  
+- **Live Ops:** What Changed and Foresight review on your last two updates, with recommended tests and expected lift ranges.  
+- **Finance:** One-page budget and P and L alignment from your staffing plan, with export to XLSX.
+
+### Demo storyline that converts
+1) Open on a real launch window: Release Radar shows a crowded month and an advisory window.  
+2) Jump to Competitive Compare: show What Changed for the top two competitors after their last updates.  
+3) Flip to Foresight: simulate cadence and pricing toggles, save two scenarios, show backtest error.  
+4) Tie to Run: gate dashboard shows what is truly ready and what must slip.  
+5) Close with Build: staffing curve and offer checker show the cost and timing to hit the safer window.  
+6) Export: one click to a board-ready PDF and an XLSX headcount rollup.
+
+### Land-and-expand motion
+- **Land** with one paid pilot tied to a date certain: upcoming launch decision, headcount plan sign-off, or Live Ops recovery.  
+- **Expand** in 30 to 60 days: unlock the full system after the pilot’s win, roll to additional teams, then add investor outputs and economy helpers.
+
+### Pricing posture
+- Single product with tiers. No module-brand sprawl. Entry tier includes Release Radar, Compare, MarketWatch, basic Alerts, and one staffing plan. Higher tiers add Foresight, economy helpers, and investor outputs.
+
+---
+
+## Does the Build–Run–Win framing dilute product identity
+No. It strengthens it if you present it as a **journey through one system**, not three products. Keep these guardrails:
+- **Name first, pillars second:** Lead with Playsage as the Studio Decision System. Use Build the Studio, Run the Studio, Win the Market as wayfinding, not brands.  
+- **One advisor:** The Sage appears across all screens so guidance feels continuous.  
+- **One visual language:** Common cards, tiles, and provenance tags across all areas.  
+- **One contract:** One SKU with tiers. Avoid separate SKUs named after pillars.  
+- **One story in sales:** Always connect an outcome in one area to an action in the next. Salary bands inform staffing. Staffing anchors gates. Gates set priorities that feed forecasts. Forecasts trigger alerts and decisions.
+
+---
+
+## Positioning quick sheet
+**ICP tiers**  
+- Tier 1: 50 to 250 staff, one to three live or near-live titles, mixed platform.  
+- Tier 2: 15 to 50 staff, one near-term launch, publisher oversight.  
+- Tier 3: Large publisher group buying for multiple studios.
+
+**Core pains**  
+- Missed or risky launch windows.  
+- Feature sprawl and gate uncertainty.  
+- Over or under staffing and salary drift.  
+- No single source of truth for data and decisions.
+
+**Signature proof moments**  
+- Collision alert that changes a date.  
+- Forecast with driver cards that a PM believes.  
+- Gate view that kills a pet feature cleanly.  
+- Offer checker that saves budget without losing a candidate.
+
+---
+
+## Ready copy
+**30-second pitch**  
+Playsage is a Studio Decision System. It connects your plans, gates, and forecasts so every decision is faster and backed by evidence. You see the market, simulate outcomes, get the next best move from The Sage, and export board-ready artifacts. One system. Fewer misses. Better spend.
+
+**Cold email opener**  
+Subject: Your next launch window has company  
+Body: You have a crowded window in the next 90 days. Playsage shows the collision risk, simulates options, and ties the change to gates, staffing, and budget with export parity. If we can’t change one real decision in the first session, we are not a fit.
+
+**First meeting agenda**  
+1) Your next key date and the risk you feel.  
+2) Three screen demo: Radar, What Changed, Foresight.  
+3) Tie to gates and staffing.  
+4) Agree on a pilot decision and success criteria.
+
+---
+
+## Self-audit
+- Answered who buys and how to market by buyer and trigger.  
+- Preserved system identity with clear guardrails against dilution.  
+- Provided outcomes, demo flow, and ready copy.  
+- Kept language direct and more energetic without fluff.  
+- No em dashes.
+

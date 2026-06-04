@@ -36,3 +36,13 @@ Glen requested a full bug triage from the WorkSage bug tracker. 15 items found: 
 - 1 parked bug: "Hide Done Hides All Tasks" (unreproducible)
 - Gantt drag fixed but needs Glen's visual confirmation
 - 8 bug tracker items set to please_review with fix comments
+
+---
+
+## 2026-06-04 - Couch Heroes Zone Population Architecture Reviews
+
+Glen has iterated several versions of the Couch Heroes zone population architecture document and requested hostile technical review from network engineer, CTO, and senior engineering perspectives.
+
+Latest pass: Glen provided `C:\Users\gpbea\.codex\attachments\90ee778c-06fa-4757-a031-ea20b68eb942\pasted-text.txt`, version 3.0. v3.0 is substantially stronger and now reads like a full technical specification. Remaining issues are mostly over-specific competitor implementation claims, prototype assumptions worded as capacities, corruption/housing implementation detail that needs caveats, and a cost-table high-end arithmetic mismatch.
+
+Final document pass: Glen provided `C:\Users\gpbea\.codex\attachments\6289f8ac-276e-4a1f-91b4-c14415605ace\pasted-text.txt`. Architecture is aligned and defensible, but final clean-up is still needed before sending: soften Palia causality, correct WoW sharding/layering history, clarify hub players are not overworld zone-server load, make corruption/housing capacity statements prototype assumptions, fix cost high-end to about `$55.9K`, and distinguish inherent DDoS severity from residual risk after Spectrum.

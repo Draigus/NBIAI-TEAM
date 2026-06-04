@@ -1,0 +1,28 @@
+TITLE: ChatGPT Plus Connectors
+DATE: 2026-01-20
+MESSAGES: 2
+ID: 696ed8d5-9530-832a-a7ab-cc46aa3d0c35
+---
+
+[USER]
+does ChatGPT Plus have connectors
+
+[ASSISTANT]
+Yes. ChatGPT Plus supports “connectors,” which OpenAI now calls **apps** (connected apps) that can link ChatGPT to third-party services like file storage, email, calendars, and other tools. citeturn0search0turn0search10
+
+Before I go further: Heather or Glen?
+
+### What “connectors” means in practice on Plus
+- In Plus, you can **connect apps individually** in your own ChatGPT settings (no admin required). citeturn0search8  
+- Some apps or app features are **plan-gated** (Plus or higher) and some are **region-limited** depending on the partner service. citeturn0search0
+
+### UK-specific note (you are in Great Britain)
+Some apps have **geo restrictions** for Plus users in GB. For example, the ChatGPT app in Slack is noted as not working for Plus/Pro users in GB (Business and Enterprise are not affected). citeturn0search3
+
+### Example: Outlook
+There is an **Outlook Email and Calendar app** for ChatGPT. It can connect to your Outlook mailbox after you sign in and grant permission. citeturn0search1  
+If you are using a work or school Microsoft account, your organisation may require admin consent in Microsoft Entra ID for Outlook integration. citeturn0search7
+
+### Where to find it in ChatGPT
+Look in **Settings → Apps & Connectors** (wording can vary slightly by rollout), then add the app you want and complete the provider sign-in. citeturn0search16turn0search0
+

@@ -1,0 +1,65 @@
+TITLE: Master Prompt Integration for NBI
+DATE: 2025-06-22
+MESSAGES: 5
+ID: 68580f7f-1d88-800b-b039-7d4e76dd5f81
+---
+
+[USER]
+can you add https://chatgpt.com/g/g-6852f3b3141c8191977c69d7f5fd0a50-master-prompt-coach to the project
+
+[ASSISTANT]
+Here’s a quick rundown of what that custom GPT is and three practical ways we can fold it into the NBI Consulting project right away. Let me know which of these (or all) you’d like me to action, and I can spin up a canvas doc or slide additions for you in one go.  
+
+---
+
+### 1  |  What “Master Prompt Coach” actually is  
+* **Creator:** Tiago Forte (Building a Second Brain)  
+* **Purpose:** walks a user step-by-step through crafting a single “Master Prompt” that contains all of the context, tone, and constraints needed for high-quality, repeatable outputs. It’s essentially a living prompt-engineering template for your business citeturn1view0.  
+* **Method roots:** Forte’s broader **Master Prompt Method** → a 20-plus-page living document that becomes an AI operating system for a company; the idea is to give the model *everything* it needs once, then reuse that foundation everywhere citeturn2search3turn2search9.  
+
+---
+
+### 2  |  Why it’s useful for NBI right now  
+| NBI use-case | Current pain-point | How the GPT helps |
+|--------------|-------------------|-------------------|
+| **Proposal & deck drafting** | Re-typing background, tone, and value props for each new prospect | Store NBI positioning, voice & service pillars in a Master Prompt → generate first-draft proposals that are already on-brand. |
+| **Thought-leadership articles** | Multiple authors → tonal drift across LinkedIn articles and PDFs | Embed “NBI editorial voice” plus preferred structure in the prompt; each writer can start from identical scaffolding. |
+| **Project kick-off discovery** | Collecting client context in varied formats | Use the GPT interactively with clients to fill a structured questionnaire that drops straight into our internal notion/telemetry templates. |
+
+---
+
+### 3  |  Three concrete next steps we could take  
+
+| Option | What I’d deliver | Effort |
+|--------|-----------------|--------|
+| **A. Create an “NBI Master Prompt” starter doc** | New canvas doc holding: ① our boiler-plate identity, ② service vertical definitions, ③ desired tone/formatting rules, ④ placeholders for client specifics. | ~15 mins to draft; you iterate. |
+| **B. Embed usage instructions in the internal Playbook** | Add a short “Using Master Prompt Coach” page to the existing Service & Approach PDF so any consultant can launch it consistently. | ~10 mins. |
+| **C. Add a slide to each outbound pitch deck template** | One hidden appendix slide with a QR / short link and 3-step quick-start for teammates. | ~5 mins per deck (we can automate). |
+
+---
+
+### 4  |  Licensing / access note  
+Because custom GPTs live behind a ChatGPT Plus / Teams seat, every consultant who will use it needs that tier. We can:  
+
+1. Add the share-link to our “NBI Tools” Notion page.  
+2. Tag it as a required install in the onboarding checklist so new hires log in and “Save” it to their sidebar on day 1.  
+
+---
+
+**Next move:** tell me which option(s) above you want me to spin up and where to place them. (If you’d prefer something else—e.g., merging into the Lighthouse deck or turning the Master Prompt into a Notion template—just say so!)
+
+[USER]
+I want to add it as a toll to the project
+
+[ASSISTANT]
+{"name": "NBI Master Prompt Coach Integration", "type": "document", "content": "# NBI Consulting — Master Prompt Coach Integration Guide\n\n## 1. What is Master Prompt Coach?\nA custom GPT created by Tiago Forte that walks a user through crafting a single “Master Prompt.” The prompt holds all the static context, tone, and constraints NBI needs for repeatable, on-brand outputs.\n\n## 2. How to access it\n1. Open the share link: https://chatgpt.com/g/g-6852f3b3141c8191977c69d7f5fd0a50-master-prompt-coach\n2. Click **Save** so it lives in your ChatGPT sidebar.\n3. Requires ChatGPT Plus or Teams licence.\n\n## 3. When to use\n| Scenario | Why it helps |\n|---|---|\n| Proposal & deck drafting | Pulls NBI background and service pillars into first-draft proposals instantly. |\n| Thought-leadership articles | Gives every author the exact same NBI editorial voice and structure. |\n| Discovery workshops | Acts as an interactive questionnaire to capture client context in a consistent format. |\n\n## 4. NBI Master Prompt template (copy-start)\n> **How to use:** Duplicate this block in ChatGPT, fill the client-specific fields, then run it through Master Prompt Coach.\n\n### 4.1 Company identity (static)\n- **Company:** NBI Consulting\n- **Mission:** Empower game studios through behavioural science to drive engagement, revenue, and retention.\n- **Tone & voice:** Senior-level, evidence-based, pragmatic, approachable, UK-English.\n\n### 4.2 Service verticals (static)\n1. Operational Efficiency  \n2. Game Design & Mechanics Consulting  \n3. Market Research & Analysis  \n4. LiveOps & GaaS  \n5. Monetisation Strategy  \n6. Data Strategy & Implementation  \n7. AI Strategic Implementation  \n8. Corporate Strategy & Org Consulting  \n9. UX & Player Research\n\n### 4.3 Delivery preferences (static)\n- **Output format:** Markdown unless otherwise noted.  \n- **Citation style:** Inline hyperlinks.  \n- **Length:** Executive-summary first, then detail.\n\n### 4.4 Client-specific inputs (fill per engagement)\n- **Client name:** < >  \n- **Project goals / success criteria:** < >  \n- **Key constraints (budget, timeline, tone tweaks):** < >  \n- **Preferred deliverables:** < >\n\n### 4.5 Prompt skeleton\n```\nUse the following context to generate <desired output>.\n\n[NBI Identity]\n[Service Verticals]\n[Client-specific inputs]\n\nConstraints:\n- Use UK English.\n- Structure headings H2+.\n- Provide bulleted recommendations before narrative detail.\n```\n\n## 5. Usage workflow\n1. Copy template §4 into ChatGPT.\n2. Fill §4.4.\n3. Paste into Master Prompt Coach and follow its refinement steps.\n4. Review output against house style; iterate if needed.\n\n## 6. Governance & maintenance\n- **Document owner:** Glen Pryer.  \n- **Review cadence:** Quarterly or when service pillars change.  \n- **Change log:** Track edits in Notion › AI Tools page.\n\n## 7. Roll-out checklist\n- [ ] Add share link to Notion › Tools library.  \n- [ ] Append “Save Master Prompt Coach” to new-hire onboarding checklist.  \n- [ ] Post Loom walkthrough in #ai-tools Slack channel.\n\n---\n**Questions?** Ping @Glen Pryer or @Tom Rieger.\n"}
+
+[ASSISTANT]
+Done! I’ve added a brand-new canvas doc—**“NBI Master Prompt Coach Integration”**—that:
+
+* Explains what the Master Prompt Coach GPT is and how to access it.  
+* Includes a ready-to-copy NBI Master Prompt template (identity, service pillars, delivery prefs, client inputs).  
+* Lays out a simple 4-step usage workflow plus governance and rollout checklist.
+
+You’ll see it in the panel on the right. Feel free to tweak anything or let me know if you’d like extra hands-on examples dropped in.
+

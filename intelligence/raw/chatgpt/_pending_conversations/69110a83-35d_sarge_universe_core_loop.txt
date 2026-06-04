@@ -1,0 +1,69 @@
+TITLE: Sarge universe core loop
+DATE: 2025-11-09
+MESSAGES: 4
+ID: 69110a83-35dc-8333-b447-53e9a44650d3
+---
+
+[USER]
+what is sarge universe's core loop
+
+[ASSISTANT]
+Short version: build your base, raid to earn, upgrade to unlock power, compete and share to climb, then repeat.
+
+Expanded loop:
+1) Play PvE missions to learn and earn early resources and XP. 【1†fileciteturn1file1L53-L61】
+2) Raid other players’ bases in PvP to win trophies and loot for progression. 【1†fileciteturn1file1L64-L73】
+3) Spend resources to upgrade HQ, buildings, units, and heroes, raising your ceiling for the next fights. 【5†fileciteturn1file5L50-L53】
+4) Enter or host tournaments to compete at higher stakes, earn rewards, and build status. 【1†fileciteturn1file1L75-L86】
+5) Share replays and grow followers inside the built-in social layer to reinforce discovery and competition. 【5†fileciteturn1file5L98-L105】
+
+In the docs this is called out explicitly: the core loop keeps players active through base-building, PvP battles, and tournaments that continually feed rewards and competition. 【4†fileciteturn1file4L84-L92】
+
+[USER]
+shouldnt it be build your base, battle others, complete quests, progress , reward,  grow in power, upgrade base, battle others, complete quests, progress , reward,  grow in power
+
+[ASSISTANT]
+Here’s how I’d frame it so it’s true to Sarge and crisp for design, UA, and investors.
+
+# Assumptions
+- Core loop should be the shortest repeatable sequence that drives resources and power.
+- Quests, events, and tournaments are progression rails layered on top of the core loop.
+
+# Brief plan
+- Separate core loop from mid-loop and meta-loop.
+- Map your proposal to these layers, tighten language, remove outcomes masquerading as actions.
+
+# Deliverable
+
+**Recommended core loop (irreducible):**  
+Build your base → Battle others → Earn resources → Upgrade to grow in power → Repeat.
+
+**Mid-loop (progression rails):**  
+Complete quests and events → Claim rewards → Unlock features, units, and tiers → Enter tournaments.
+
+**Meta-loop (social and status):**  
+Join a clan → Share replays and strategy → Climb ladders and rankings → Host or enter tournaments.
+
+**Why not list “progress” and “reward” inside the core loop?**  
+They are outcomes of actions, not actions themselves. Keep the core loop action-driven so it’s measurable and optimisable.
+
+**Your version, mapped and tightened**  
+- Build your base ✔  
+- Battle others ✔  
+- Complete quests → mid-loop rail  
+- Progress, reward → outcomes of the above actions  
+- Grow in power → captured by “Upgrade to grow in power”  
+- Then loop back to Battle and Build
+
+**Player-facing copy (store page or trailer script):**  
+Build. Battle. Loot. Upgrade. Repeat.  
+Crush rivals, finish quests and events, win rewards, and climb the ranks with your clan.
+
+**Investor-facing one-liner:**  
+Action loop: Build → Battle → Loot → Upgrade → Repeat, with quests/events and tournaments driving mid-term retention and monetisation.
+
+# Self-audit
+- No em dashes or dividers used.
+- Core loop is action-only, minimal, and repeatable; quests moved to mid-loop; tournaments to meta-loop.
+- Language is British English and aligned to Sarge’s base-build/PvP/tournament design.
+

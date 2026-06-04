@@ -1,0 +1,87 @@
+TITLE: Books for game analytics
+DATE: 2025-11-10
+MESSAGES: 2
+ID: 69121dde-ce14-8328-a6f0-f9d2d2288270
+---
+
+[USER]
+what are teh best books to teach analytics in the games industry
+
+[ASSISTANT]
+The short list I recommend for learning games analytics properly is:
+
+- **Game Analytics: Maximizing the Value of Player Data** – the big foundational reference  
+- **Game Data Science** – modern, end-to-end treatment of data science for games  
+- **Game Analytics: Retention and Monetization in Free-to-Play Mobile Games** – very practical F2P focus  
+- **Data Analytics Applications in Gaming and Entertainment** – anthology of applied case studies  
+- Plus a cluster of **Games User Research** books that cover telemetry, playtesting, and UX
+
+products{"selections":[["turn0product0","Game Analytics: Maximizing the Value of Player Data"],["turn0product2","Game Data Science"],["turn0product3","Game Analytics: Retention and Monetization in Free-to-Play Mobile Games"],["turn0product10","Data Analytics Applications in Gaming and Entertainment"],["turn0product1","Games User Research"],["turn0product13","Games User Research Methods"],["turn0product5","Games User Research: A Case Study Approach"],["turn0product9","How to Be a Games User Researcher"]],"tags":["Comprehensive reference","Modern game data science","Mobile F2P focus","Industry & academic mix","UX & analytics overview","Practical methods toolkit","Applied case studies","Careers & practice"]}
+
+Below is how I would use them if you want to actually get good at games analytics, not just collect books.
+
+---
+
+### 1. Core analytics texts for games
+
+**1. Game Analytics: Maximizing the Value of Player Data** – El-Nasr, Drachen, Canossa  
+The original “big book” of game analytics. It is a multi-author handbook that covers telemetry pipelines, KPI design, behaviour analysis, monetization, A/B testing and production integration. It is older now, but still the best single deep reference if you want to understand the space properly. citeturn1search0turn1search12  
+
+**2. Game Data Science** – El-Nasr et al.  
+Think of this as the modern follow-up: it walks through techniques and methods for extracting insight from game data, with examples that mix lab experiments and real game datasets. It is positioned explicitly as a training resource for industry professionals and students who want to learn game data science as a discipline. citeturn1search9turn1search17turn1search21  
+
+**3. Game Analytics: Retention and Monetization in Free-to-Play Mobile Games** – Russell Ovans  
+Focused on F2P mobile. It covers how to make a mobile game business actually run profitably, with a lot of attention on retention, monetization models, lifecycle metrics, and optimisation. Recent and very practical, so it complements the more academic “Game Analytics” volume nicely. citeturn1search6turn1search14turn1search18  
+
+**4. Data Analytics Applications in Gaming and Entertainment** – ed. Günter Wallner  
+Anthology of real applications: player profiling, churn prediction, customer lifetime value, matchmaking, community and social graph analysis, and visual communication of results. It is effectively a sampler of how people actually use analytics in production. citeturn2search3turn2search8  
+
+If you want a structured learning path, you could do:
+
+1) Skim **Game Analytics** for concepts and terminology.  
+2) Work through **Game Data Science** chapters with exercises.  
+3) Use **F2P Game Analytics** and **Data Analytics Applications** for concrete patterns you can copy into live projects.
+
+---
+
+### 2. Games user research and UX, tightly tied to analytics
+
+A lot of real games analytics work sits next to, or inside, games user research teams. These books are not “SQL textbooks,” but they teach you how to use data and studies to de-risk development and improve experience.
+
+**5. Games User Research** – Drachen et al.  
+The main reference on the field of games user research. It covers methods, lab setup, integrating telemetry with playtests, post-launch analysis, and how GUR fits into studio processes. citeturn1search7turn1search11turn1search19  
+
+**6. Games User Research Methods: A Player-Centered Toolkit for Game Development and Monetization**  
+More of a methods cookbook. Useful if you want practical templates for studies, metrics to track, and processes for turning findings into decisions. citeturn0product13  
+
+**7. Games User Research: A Case Study Approach**  
+Case-study heavy, so you see how methods and analytics were applied in specific projects. Good for building intuition about what actually works under production constraints. citeturn0product5  
+
+**8. How to Be a Games User Researcher** – Steve Bromley  
+Career-oriented and pragmatic. It is mostly about playtesting and UX, but it also covers how research and analytics plug into development, and how to work with teams in practice. citeturn1search15turn1search22  
+
+If you are trying to build a full analytics capability, reading at least one of these GUR books is important, because they cover stakeholder management, study design, and communication, which are where a lot of analytics work lives or dies.
+
+---
+
+### 3. How I would actually use these to “learn analytics for games”
+
+If your goal is “I want to be functional in games analytics,” a realistic path using only books would be:
+
+1. **Foundations**  
+   - Read the overview chapters of **Game Analytics** plus one or two application chapters relevant to your interests.  
+   - In parallel, read the first couple of chapters of **Game Data Science** and do the exercises.
+
+2. **Business and F2P specifics**  
+   - Work through **Game Analytics: Retention and Monetization in Free-to-Play Mobile Games**, specifically the sections on funnels, retention cohorts, and ARPU / LTV estimation for mobile.
+
+3. **Applied case studies**  
+   - Dip into **Data Analytics Applications in Gaming and Entertainment** for topics like churn prediction, CLV, matchmaking, and community analysis. Pick one chapter and try to replicate the logic in your own toolchain.
+
+4. **UX / user research integration**  
+   - Read **Games User Research** or **Games User Research Methods** to understand how to combine telemetry with structured playtests and qualitative work, and how to communicate findings into design and product decisions.
+
+If you tell me whether you are more on the product, design, or data-science side, I can turn this into a concrete “semester-style” reading and practice plan.
+
+Also, when you reply, let me know whether I am talking to Heather or Glen so I can tune follow-ups to the right working style.
+

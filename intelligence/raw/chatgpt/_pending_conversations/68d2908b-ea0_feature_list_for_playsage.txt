@@ -1,0 +1,709 @@
+TITLE: Feature list for Playsage
+DATE: 2025-09-23
+MESSAGES: 4
+ID: 68d2908b-ea00-832b-bc9f-d368524039ba
+---
+
+[USER]
+as a team of expert Product manager, Technical project manager, senior applications engineer write a robust and fully detailed feature list for playsage make sure each tool int eh suite is a header, description, Value.  Make sure that the features of each tool in playsage is detailed out for what it is and why we need to build it and the technical needs for that feauture that summarizes into the tools requirement.  Take you time and ask questions as you need too
+
+[ASSISTANT]
+Role: Product Manager, Technical Project Manager, Senior Applications Engineer.  
+Why these roles: to scope value, sequence delivery, and pin the technical requirements and SLOs per tool so the feature list is complete, feasible, and testable.
+
+Questions first, so the final feature list matches your intent exactly.
+
+# Suite scope and cross-cutting
+1) Confirm the tools in scope for v1: Market Overview, Competitive Landscape, Sentiment, Foresight, Market Watch and Release Calendar, Alerts, The Sage, Executive Dashboard, IAP Pricing Intelligence, API and Exports, Reports, Data Platform and Provenance. Add or remove any. fileciteturn1file5L16-L19 fileciteturn1file9L21-L44 fileciteturn1file10L25-L33  
+2) Currency default still USD for v1 and demo, with region displays as needed. Confirm. fileciteturn1file12L31-L37  
+3) Definition Parity Mode should load ON by default. Confirm. fileciteturn1file12L43-L53  
+4) Approved genres remain Shooter, Adventure, RPG, Battle Royale, Strategy. Keep as is. fileciteturn1file8L1-L11  
+5) Use the previously approved seeded title list for the demo, or replace any entries now. fileciteturn1file8L151-L159  
+6) Roles, SSO, and governance: keep Admin, Editor, Viewer with Google and Microsoft SSO; object and field level rules; full admin audit logging. Confirm. fileciteturn1file1L29-L41
+
+# Market Overview
+7) Required KPIs and filters at launch. Do you want platform, region, genre, window, plus a collision risk summary and evidence list on the same screen? fileciteturn1file9L1-L10  
+8) Save, share, export behaviour: CSV, PDF, PNG, XLSX, and presenter mode with on-hover definitions. Confirm this set. fileciteturn1file10L13-L23
+
+# Competitive Landscape
+9) Include “What changed” cards tied to releases and notes, and show definition parity hovers. Confirm. fileciteturn1file2L11-L15 fileciteturn1file10L19-L23  
+10) Do you want a side-by-side category posture view aligned to common vendor taxonomies in v1 or later? fileciteturn1file5L73-L81
+
+# Sentiment
+11) Scope for v1: store reviews, social topics clustering with stability acceptance over 30-day windows, cadence correlation, and sentiment coupling controls. Confirm. fileciteturn1file10L1-L11 fileciteturn1file6L15-L19  
+12) Survey input: keep v1 as import-only, with integrated panel as v1.1. Confirm. fileciteturn1file12L15-L25
+
+# Foresight (Forecast Simulator)
+13) Horizons: default 90 days with options for 30, 180, 360, 3 years, 5 years. Keep this. fileciteturn1file8L171-L179  
+14) KPIs: live game stack (DAU, MAU, CCU, ARPU, ARPPU, LTV, cohort retention D1, D3, D7, D14, D30, D90, D180, installs, sessions, playtime, conversion, MTX classes), box game stack (sell-in, sell-through, MAU, DLC, gross, EBITDA, net), and marketing/CRM metrics (ROAS, views, CTR, first play per million views). Confirm these as must-haves. fileciteturn1file0L3-L3  
+15) Scenario types and engine: baseline models plus deterministic overlays per lever, with diminishing returns combiner, banded forecasts, delta tables, explain view, save and share. Confirm the seven scenario types and the UI flow Baseline → Scenario Builder → Compare → Explain → Export. fileciteturn1file6L41-L69  
+16) Backtests and guardrails: show confidence ribbon and top 3 contributors with provenance; MAPE and MAE in ribbon; accuracy thresholds per horizon. Confirm. fileciteturn1file3L27-L36
+
+# Market Watch and Release Calendar
+17) Show collision calendar with risk scoring, “time to next safe window,” evidence links, and export to PNG or CSV. Confirm the daily refresh SLO on demo data. fileciteturn1file9L1-L15
+
+# IAP Pricing Intelligence
+18) Include ladder coverage, affordability index by US, UK, EU, SKU change history, and fee tier editor to show blended effective rate by receipts and subs mix. Confirm. fileciteturn1file9L21-L44
+
+# Alerts
+19) Resolve channel scope: one place says in-app, email, Slack, Teams, webhook in v1, while another stages Slack and Teams to v1.1. Which do you want for v1? fileciteturn1file5L1-L7 fileciteturn1file9L67-L73  
+20) Keep the noise policy simple conditions by default, compound optional. Confirm. fileciteturn1file5L7-L11
+
+# The Sage (Advisor)
+21) Scope: rule plus model engine that proposes next best actions, shows expected lift range with evidence links, logs outcomes, and can sanity-check through Foresight before surfacing. Confirm. fileciteturn1file10L47-L56  
+22) Success bar: at least two actionable recommendations per tracked title with evidence links under 2 seconds. Accept. fileciteturn1file9L97-L101
+
+# Executive Dashboard
+23) Use the role presets and tile set: 90-day forecast, sentiment delta, update cadence heatmap, IAP index summary, The Sage recs, Alerts feed. Tiles refresh under 2 seconds on seeded data. Confirm. fileciteturn1file4L67-L71 fileciteturn1file9L115-L129
+
+# API and Exports
+24) v1 read endpoints for catalog, KPIs, releases, sentiment, forecasts; webhooks for alerts and Sage output; CSV, JSON, PDF, PNG, PPT export; S3 signed URLs in v1.1; connectors for Looker, Tableau, spreadsheets. Confirm. fileciteturn1file9L133-L151 fileciteturn1file10L59-L69
+
+# Data Platform and Provenance
+25) Keep scheduled harvesters, schema validation, rank-to-revenue proxy, topic modelling and forecasting features, and provenance hovers with estimated flags. Confirm. fileciteturn1file10L71-L81
+
+# Security, performance, and operations
+26) Security and governance: role-based access per workspace, IP allow lists, export watermarking, full audit logs. Confirm. fileciteturn1file10L103-L111  
+27) Performance SLOs: tiles ≤ 2 s on seeded data, filters ≤ 3 s, exports ≤ 120 s, alerts ≤ 5 min. Confirm these targets. fileciteturn1file4L67-L71 fileciteturn1file1L229-L245  
+28) Product analytics stack: PostHog self-hosted for usage analytics, Postgres for admin audit logs. Confirm. fileciteturn1file12L95-L103
+
+Reply with your decisions inline, and I will generate the full feature list per tool with Description, Value, detailed features, why it matters, and technical needs rolled up into clear requirements.
+
+[USER]
+Make a detailed feature plan for all of playsage
+
+[ASSISTANT]
+Role: Product Manager, Technical Project Manager, Senior Applications Engineer  
+Why these roles: to define value, sequence delivery, and translate product intent into implementable, testable requirements with clear SLOs.
+
+# Playsage Feature Plan v1.0 — 02 Oct 2025
+
+## Master Task Blueprint
+**Objective and audience**  
+Deliver a detailed, engineering-ready feature plan for the full Playsage suite. Audience: Glen and the Playsage founding team, engineering, data, and design.
+
+**Success criteria**  
+1) Every tool has Description, Value, detailed Features, Why build, Technical needs, and a crisp Requirement statement.  
+2) Cross-cutting platform needs, SLOs, security, and governance are explicit.  
+3) No placeholders. All unknowns are tagged as Estimated and parked for decision.  
+4) Clear acceptance tests and risks per tool.
+
+**Constraints and inputs**  
+Time to value, investor-ready demo paths, small initial team, staged build. British English, no em dashes, single artifact.
+
+**Segments and dependencies**  
+A. Platform and governance. B. Data ingestion and models. C. Core tools. D. Advisor and automation. E. API, exports, and ops.  
+
+**Deliverables**  
+This feature plan. Versioned, with change log and Definition of Done.
+
+---
+
+## Cross-cutting platform requirements
+**Description**  
+Foundational capabilities shared by the suite: identity, workspaces, catalogue, evidence and definitions, SLOs, observability.
+
+**Value**  
+Speeds delivery. Reduces duplication. Enables trust and governance.
+
+**Core features and requirements**  
+1) Identity and access  
+- What: SSO with Google and Microsoft; roles Admin, Editor, Viewer; workspace membership; API keys per workspace.  
+- Why: secure sharing and least-privilege by default.  
+- Technical: OAuth 2.0, OIDC; JWT with rotation; workspace-scoped RBAC; audit log of auth events.  
+- Requirement: Users can sign in with SSO, belong to 1+ workspaces, and receive role-based rights at object and field level.  
+- Acceptance: Create user via SSO, invite to workspace, verify role changes reflected within 60 seconds in UI and API.
+
+2) Workspace objects  
+- What: Titles, Companies, Platforms, Stores, Regions, Genres, Calendars.  
+- Why: consistent joins across modules.  
+- Technical: Normalised Postgres tables; global IDs; soft deletes; versioned dictionaries; referential integrity.  
+- Requirement: All tools read from the same objects; dictionary updates are versioned and backward compatible.
+
+3) Evidence and definitions  
+- What: hover cards showing metric definitions, last refresh, and provenance; parity mode that normalises external vendor definitions.  
+- Why: reduce metric disputes and speed decisions.  
+- Technical: Definition registry; provenance table keyed to tile and metric; UI hovers; Estimated flag when stale.  
+- Requirement: Every chart and metric exposes definition and provenance, with a visible Updated timestamp.
+
+4) Performance SLOs  
+- What: Tiles ≤ 2 s on seeded data; filter changes ≤ 3 s; exports ≤ 120 s; alert latency ≤ 5 min from rule trigger.  
+- Why: investor-safe demos and operator-grade UX.  
+- Technical: server-side caching with per-workspace cache keys; async export workers; event queue for alerts; SLO dashboards.  
+- Requirement: SLOs met in test and logged in Grafana. Failing SLOs raise an Ops ticket automatically.
+
+5) Observability and audit  
+- What: application logs, metric time series, traces, and full admin audit log; data lineage view from tile to source.  
+- Why: debug speed, trust, compliance.  
+- Technical: OpenTelemetry; Prometheus; Grafana; immutable audit table; lineage stored in a graph table.  
+- Requirement: For any metric, show lineage and last refresh. For any role change or export, show who, what, when.
+
+---
+
+# Suite tools
+
+## 1) Market Overview
+**Description**  
+Top-down market KPIs with filters for platform, region, genre, period, and cohort comparisons.
+
+**Value**  
+Fast situational awareness, portfolio planning, and board-ready views.
+
+**Features**  
+1) KPI tiles and trends  
+- What: revenue, installs, MAU, ARPU, LTV bands, update cadence index.  
+- Why: anchors decisions on current state.  
+- Technical: pre-aggregated tables by day, week, month; materialised views; percentile functions.  
+- Requirement: KPI tiles load in ≤ 2 s with applied filters.
+
+2) Segment filters and saved views  
+- What: platform, region, genre, title cohorts; save and share views.  
+- Why: repeatable analysis.  
+- Technical: filter grammar serialised as JSON; shareable links with signed tokens.  
+- Requirement: Any view can be saved, shared, and reloaded identically.
+
+3) Evidence drawer  
+- What: list of supporting data and definitions for the current view.  
+- Why: transparency.  
+- Technical: joins to provenance registry; UI drawer component.  
+- Requirement: Each tile links to its evidence with last-refresh.
+
+**Why build**  
+This is the entry to Playsage. It validates the stack, definitions, and performance.
+
+**Technical needs**  
+Star schema in Postgres or ClickHouse, cache tier, charting in React, access via GraphQL or REST.
+
+**Acceptance tests**  
+P95 tile render ≤ 2 s on seeded dataset; saved view reproduces exact results; evidence drawer shows at least one source per tile.
+
+---
+
+## 2) Competitive Landscape
+**Description**  
+Title- and company-level comparisons, with posture scores and change logs.
+
+**Value**  
+Spot threats and opportunities, justify roadmap shifts, and support GTM timing.
+
+**Features**  
+1) Side-by-side comparisons  
+- What: select up to 5 titles, compare KPIs, reviews, cadence, IAP ladders.  
+- Why: direct competitive reads.  
+- Technical: wide compare endpoint; columnar fetch; virtualised tables in UI.  
+- Requirement: Compare up to 5 titles without exceeding 3 s.
+
+2) What changed cards  
+- What: release notes, price changes, store highlights, social spikes.  
+- Why: explain deltas.  
+- Technical: event table keyed to title; diff jobs; store scrapers; social ingestion.  
+- Requirement: Events appear within 24 hours of detection and attach to the compare view.
+
+3) Category posture map  
+- What: quadrant of quality vs growth momentum, filterable.  
+- Why: prioritisation tool.  
+- Technical: derived scores with tunable weights; scatter plot with clustering.  
+- Requirement: Posture updates nightly and stores weights per workspace.
+
+**Why build**  
+Prevents blind spots. Supports investor and exec briefings.
+
+**Technical needs**  
+Scrapers or vendor feeds, natural language change extraction, posture scoring job.
+
+**Acceptance tests**  
+Selecting 5 titles renders within SLO; change card shows source link; posture weights edit persists and re-scores overnight.
+
+---
+
+## 3) Sentiment
+**Description**  
+Unified player voice from store reviews and social clusters with trend and topic stability checks.
+
+**Value**  
+Prioritises fixes and content. Reduces noise by focusing on stable, high-impact themes.
+
+**Features**  
+1) Reviews ingestion and scoring  
+- What: star ratings, text, topic tags, sentiment score; filter by version.  
+- Why: impact on retention and conversion.  
+- Technical: ETL to raw text; language detection; transformer for sentiment and topic; moderation filter.  
+- Requirement: Daily refresh; top 10 topics with sentiment deltas and example quotes.
+
+2) Social topic clustering  
+- What: cluster hashtags, posts, and comments; show stability over 30 days.  
+- Why: avoid chasing spikes.  
+- Technical: streaming ingestion; mini-batch embedding; HDBSCAN clustering; stability metric.  
+- Requirement: Topics below stability threshold are hidden by default.
+
+3) Cadence correlation  
+- What: correlate update cadence and sentiment shifts.  
+- Why: prove value of updates.  
+- Technical: join releases to sentiment time series; lag correlation.  
+- Requirement: For any window, show correlation coefficient and p-value.
+
+**Why build**  
+Turns diffuse feedback into actionable driver cards.
+
+**Technical needs**  
+NLP pipeline, embeddings store, multilingual support, modest GPU budget for batch.
+
+**Acceptance tests**  
+Topic list is reproducible week to week within stability bands; quotes link to source; cadence correlation reports within 10 seconds.
+
+---
+
+## 4) Foresight (Forecast Simulator)
+**Description**  
+Interactive forecasting across horizons with baseline models, scenario levers, and accuracy guardrails.
+
+**Value**  
+De-risks bets, sets targets, aligns teams on what moves the needle.
+
+**Features**  
+1) Baseline models per title  
+- What: trained on history with seasonality and platform effects; confidence ribbon.  
+- Why: anchor for scenarios.  
+- Technical: time series models with cross-features; backtests; MAPE and MAE.  
+- Requirement: Baseline renders in ≤ 2 s from cached inference; backtest metrics visible per horizon.
+
+2) Scenario builder  
+- What: levers for UA spend, pricing, cadence, content drops, platform addition, promo, discounting.  
+- Why: explore counterfactuals.  
+- Technical: deterministic overlays with diminishing returns combiner; constraints; label propagation.  
+- Requirement: Apply multiple levers and compare up to 3 scenarios side by side.
+
+3) Explain view  
+- What: top drivers of change vs baseline; contribution bars; assumptions list.  
+- Why: decision clarity.  
+- Technical: Shapley-like attributions for overlays; assumption registry.  
+- Requirement: Show top 3 contributors and assumptions with editable notes.
+
+4) Save, share, export  
+- What: persist scenarios, share links, export to CSV, PDF, PNG, PPT.  
+- Why: handoff to finance and execs.  
+- Technical: scenario store; export workers.  
+- Requirement: Exports complete within 120 s.
+
+**Why build**  
+Forecasting is the centrepiece of value and a proving ground for The Sage integration.
+
+**Technical needs**  
+Model registry, feature pipelines, job scheduler, GPU-optional batch training, CPU inference cache.
+
+**Acceptance tests**  
+Backtest error thresholds defined per horizon; scenario diffs reproducible; export fidelity to on-screen view.
+
+---
+
+## 5) Market Watch and Release Calendar
+**Description**  
+Calendar of releases, events, promos, and content drops with collision risk scoring.
+
+**Value**  
+Avoids crowded windows, times beats for maximum impact.
+
+**Features**  
+1) Calendar and collisions  
+- What: filter by platform, region, genre; collision risk badge and time-to-safe window.  
+- Why: GTM planning.  
+- Technical: event feed; risk score function; holiday map; UI calendar with week and month views.  
+- Requirement: Calendar loads ≤ 2 s; risk scores refresh nightly.
+
+2) Evidence links  
+- What: source links and notes per event.  
+- Why: trust.  
+- Technical: provenance join; notes editor with versioning.  
+- Requirement: Each event shows at least one source or is flagged Estimated.
+
+3) Export and share  
+- What: PNG, CSV, and shareable calendar link.  
+- Why: team alignment.  
+- Technical: export workers; signed share links.  
+- Requirement: Export under 60 s for month view.
+
+**Why build**  
+Directly supports marketing and live ops with clear timing decisions.
+
+**Technical needs**  
+Event ingestion, dedupe logic, risk heuristics, holidays and platform events tables.
+
+**Acceptance tests**  
+Collision score agrees with test fixtures; holiday overlays toggle; evidence is never blank without Estimated flag.
+
+---
+
+## 6) IAP Pricing Intelligence
+**Description**  
+Regional ladders, price tests, and affordability indices with history.
+
+**Value**  
+Optimises revenue and conversion while respecting regional purchasing power.
+
+**Features**  
+1) Ladder coverage and gaps  
+- What: visual ladder; gap detector; SKU history.  
+- Why: identify missing price points.  
+- Technical: SKU table with version history; ladder visualisation.  
+- Requirement: Detect gaps and suggest next best price points.
+
+2) Affordability index  
+- What: index by market using PPP or price baskets.  
+- Why: adapt pricing.  
+- Technical: external PPP data; normalisation formula; index per region.  
+- Requirement: Index refresh monthly; index used in price tests.
+
+3) Fee tier editor  
+- What: simulate blended take rates by receipts vs subs mix.  
+- Why: net revenue clarity.  
+- Technical: fee schedule config; mix inputs; net calc.  
+- Requirement: Net impact updates instantly on input changes.
+
+**Why build**  
+Immediate revenue leverage and pricing hygiene.
+
+**Technical needs**  
+Data on SKUs and receipts, PPP source, fee schedule model.
+
+**Acceptance tests**  
+Index correctness vs known fixtures; gap detection highlights expected SKUs; history graph shows all changes.
+
+---
+
+## 7) Alerts
+**Description**  
+Rule-based and model-based notifications tied to titles, metrics, and events.
+
+**Value**  
+Catches issues and opportunities without constant dashboard watching.
+
+**Features**  
+1) Rule builder  
+- What: threshold, trend, compound conditions; scope by title and metric.  
+- Why: flexible, low noise.  
+- Technical: rules DSL; evaluator service; cooldowns and dedupe.  
+- Requirement: Rules evaluate per schedule; duplicate suppression within a 30 min window.
+
+2) Delivery channels  
+- What: in-app, email, Slack, Teams, webhook.  
+- Why: meet teams where they work.  
+- Technical: channel adapters; retry with exponential backoff; signed webhooks.  
+- Requirement: 99 percent of alerts delivered within 5 min of trigger.
+
+3) Noise policy  
+- What: quiet hours and escalation paths.  
+- Why: manage fatigue.  
+- Technical: policy per workspace; time zone aware.  
+- Requirement: Quiet hour rules never notify except escalations.
+
+**Why build**  
+Turns Playsage into an active system, not just a passive dashboard.
+
+**Technical needs**  
+Event queue, scheduler, idempotent dispatchers, status tracking.
+
+**Acceptance tests**  
+Rule runs on sample data and sends one notification, then suppresses duplicates; webhook signature verifies.
+
+---
+
+## 8) The Sage (Advisor)
+**Description**  
+Action engine that recommends next best actions, shows expected lift, links evidence, and logs outcomes.
+
+**Value**  
+Closes the loop from insight to action and impact.
+
+**Features**  
+1) Recommendation generation  
+- What: rules plus model signals propose actions such as cadence bumps, price changes, platform launches, promo timing.  
+- Why: accelerate decision cycles.  
+- Technical: rules engine, retrieval over evidence, light inference model for ranking; guardrails for unsafe suggestions.  
+- Requirement: At least two actionable recommendations per tracked title weekly, each with evidence links.
+
+2) Expected lift range  
+- What: Low, Base, High impact bands and key assumptions.  
+- Why: set expectations.  
+- Technical: link to Foresight overlays; confidence ranges; assumptions registry.  
+- Requirement: Clicking a rec opens a prefilled scenario in Foresight.
+
+3) Outcome logging  
+- What: record accepted, modified, or rejected actions and actuals.  
+- Why: learn and improve.  
+- Technical: outcome table; uplift attribution job; feedback to ranker.  
+- Requirement: Every recommendation’s outcome is loggable and visible in history.
+
+**Why build**  
+Differentiates Playsage as a decision system, not just analytics.
+
+**Technical needs**  
+Feature store, retrieval, lightweight ranking, integration with Foresight, feedback loop.
+
+**Acceptance tests**  
+Recommendations render under 2 s on seeded data; evidence links resolve; outcome logging updates a learning counter.
+
+---
+
+## 9) Executive Dashboard
+**Description**  
+Board-ready roll-up of forecasts, sentiment shifts, cadence health, pricing summary, Sage actions, and alerts.
+
+**Value**  
+One screen for CEO, CFO, and investors.
+
+**Features**  
+1) Role presets  
+- What: CEO, CFO, Product presets with tile selections.  
+- Why: tailored signal.  
+- Technical: preset configs by role; switcher.  
+- Requirement: Switching presets updates tiles instantly.
+
+2) 90-day outlook  
+- What: revenue and MAU with confidence ribbon and top drivers.  
+- Why: near-term visibility.  
+- Technical: cached Foresight summary; driver cache.  
+- Requirement: Renders ≤ 2 s.
+
+3) Action feed  
+- What: Sage recommendations and recent alerts with outcomes.  
+- Why: accountability.  
+- Technical: merged feed endpoint.  
+- Requirement: Filter by title and status.
+
+**Why build**  
+Execs sponsor based on clarity and speed.
+
+**Technical needs**  
+Aggregated endpoints, tile layout library, print-safe PDF export.
+
+**Acceptance tests**  
+Preset switch within 1 s; print to PDF matches layout; action feed filters correctly.
+
+---
+
+## 10) Reports
+**Description**  
+Auto-generated snapshots of any view or dashboard with narrative and evidence list.
+
+**Value**  
+Saves hours preparing updates and investor packs.
+
+**Features**  
+1) Snapshot and narration  
+- What: freeze KPI state; generate summary text; include definitions.  
+- Why: repeatable reporting.  
+- Technical: snapshot service; templated narrative; definition inserts.  
+- Requirement: Report renders with a stable link and downloadable PDF in ≤ 120 s.
+
+2) Scheduling  
+- What: weekly or monthly email distribution.  
+- Why: automation.  
+- Technical: scheduler; email service; access checks.  
+- Requirement: Scheduled reports send at the right time zone and respect recipient access.
+
+**Why build**  
+Makes Playsage habitual for teams and stakeholders.
+
+**Technical needs**  
+Snapshot store, templating, email infrastructure.
+
+**Acceptance tests**  
+Narrative includes top deltas and evidence links; PDF fidelity to on-screen snapshot.
+
+---
+
+## 11) API and Exports
+**Description**  
+Programmatic access to catalogue, metrics, releases, sentiment, forecasts, alerts, and Sage output. One-click CSV, JSON, PDF, PNG, PPT.
+
+**Value**  
+Integrates Playsage into existing workflows and BI.
+
+**Features**  
+1) Read endpoints and webhooks  
+- What: REST and optional GraphQL for core objects; webhooks for alerts and recommendations.  
+- Why: automation and extensibility.  
+- Technical: OpenAPI spec; rate limiting; signed webhooks; cursor pagination.  
+- Requirement: 99.9 percent read uptime; p95 under 250 ms on cache.
+
+2) Exports  
+- What: CSV, JSON, PDF, PNG, PPT per view.  
+- Why: shareability.  
+- Technical: headless renderers; queue; retry.  
+- Requirement: Export parity within 2 percent tolerance of tile numbers.
+
+3) Connectors  
+- What: Looker, Tableau, Google Sheets, Excel.  
+- Why: meet users where they analyse.  
+- Technical: service accounts; connector templates.  
+- Requirement: Connector setup in under 5 minutes with documented steps.
+
+**Why build**  
+Removes adoption friction and speeds enterprise acceptance.
+
+**Technical needs**  
+API gateway, caching, worker pool, connector kits.
+
+**Acceptance tests**  
+OpenAPI passes validation; webhook signature verified; exports match current filters.
+
+---
+
+## 12) Data Platform and Provenance
+**Description**  
+Ingestion, validation, transformation, modelling, feature stores, and full provenance.
+
+**Value**  
+Data trust and repeatable analytics across the suite.
+
+**Features**  
+1) Ingestion and contracts  
+- What: scheduled harvesters from stores, social, and internal uploads; schema contracts with validation.  
+- Why: reliability.  
+- Technical: Dagster or Airflow; pydantic schemas; quarantine on failure; alerting.  
+- Requirement: All ingestions are contract-checked and logged with row counts.
+
+2) Transform and model  
+- What: standardised marts for KPIs, events, sentiment, forecasts; rank-to-revenue proxy when required with Estimated flag.  
+- Why: consistency.  
+- Technical: dbt models; unit tests; documentation site.  
+- Requirement: Data tests pass before publish; Estimated flags appear in UI.
+
+3) Feature store  
+- What: features for Foresight and The Sage.  
+- Why: reuse and lineage.  
+- Technical: Feast-like registry; offline and online stores.  
+- Requirement: Feature definitions are versioned and used by both training and inference.
+
+**Why build**  
+Underpins accuracy, performance, and trust.
+
+**Technical needs**  
+Warehouse choice: Postgres plus DuckDB for extracts, or ClickHouse for scale. Object storage for snapshots. Lineage tracking.
+
+**Acceptance tests**  
+Failed ingestions do not publish; lineage view resolves for any metric; data tests are visible and green.
+
+---
+
+## 13) Admin and Governance
+**Description**  
+Security, roles, export controls, watermarking, and audit trails.
+
+**Value**  
+Enterprise readiness and compliance.
+
+**Features**  
+1) Role-based policies  
+- What: object and field-level controls; IP allow lists; data export rights; watermarking.  
+- Why: prevent leakage.  
+- Technical: policy engine; signed exports with watermark overlays.  
+- Requirement: Viewers cannot export without explicit grant; watermarks include user and timestamp.
+
+2) Audit and retention  
+- What: user actions, admin changes, and data refresh logs; retention policy.  
+- Why: accountability.  
+- Technical: append-only audit table; exportable CSV; purge jobs.  
+- Requirement: All admin actions are searchable by user and time.
+
+**Why build**  
+Necessary for larger partners and investors.
+
+**Technical needs**  
+Central policy service, logging, retention schedulers.
+
+**Acceptance tests**  
+Attempted blocked export raises a clear error; audit shows who changed roles and when.
+
+---
+
+## 14) Onboarding and Demo Mode
+**Description**  
+Guided setup, seeded data, sample views, and a demo switch.
+
+**Value**  
+Shortens time to value for investors and new teams.
+
+**Features**  
+1) Guided setup  
+- What: connect data or upload CSV; choose titles; pick presets.  
+- Why: reduce friction.  
+- Technical: stepper UI; validation; sample CSVs.  
+- Requirement: First value within 10 minutes.
+
+2) Demo data  
+- What: investor-safe, regularly refreshed sample workspace.  
+- Why: reliable demos.  
+- Technical: snapshot pipeline; anonymised data.  
+- Requirement: Demo switch available from login and always meets SLOs.
+
+**Why build**  
+Essential for sales and investor conversations.
+
+**Technical needs**  
+Seed dataset, toggles, sanitisation jobs.
+
+**Acceptance tests**  
+End-to-end onboarding succeeds with only sample files; demo mode cannot access private workspaces.
+
+---
+
+# Engineering foundations
+
+**Frontend**  
+React with Next.js, TypeScript, Tailwind. State: React Query and Zustand. Charting: Recharts or ECharts. Accessibility WCAG AA.
+
+**Backend**  
+FastAPI or Node with NestJS. REST plus optional GraphQL. Background jobs with Celery or BullMQ. Cache: Redis. Search: Postgres trigram or OpenSearch if required.
+
+**Data**  
+Postgres as system of record. Columnar acceleration with DuckDB or ClickHouse. Dagster for orchestration. dbt for transforms. Object storage for snapshots and exports.
+
+**ML**  
+Time series models for Foresight, embeddings for Sentiment, light ranking for The Sage. Model registry, feature store, scheduled retrains.
+
+**Security**  
+OIDC SSO, RBAC, secrets in a vault, signed URLs, encryption at rest and in transit, IP allow lists, export watermarking.
+
+**Ops**  
+Kubernetes deployment, Helm charts, autoscaling, Prometheus and Grafana, OpenTelemetry traces, on-call runbook.
+
+---
+
+# Roadmap phasing
+
+**Phase 0: Platform spine**  
+Identity and access, workspace objects, evidence and definitions, SLO and observability, demo mode.
+
+**Phase 1: Core analytics**  
+Market Overview, Competitive Landscape, Release Calendar, Sentiment v1, Reports v1, API read and exports.
+
+**Phase 2: Forecasting and automation**  
+Foresight, Alerts, Executive Dashboard, IAP Pricing, Connectors.
+
+**Phase 3: Advisor**  
+The Sage with recommendations, lift bands, and outcome logging. Feedback loop to improve ranking.
+
+---
+
+# Risks and mitigations
+1) Data availability gaps  
+- Mitigation: Estimated flags, provenance, vendor fallback.
+
+2) SLO regressions under load  
+- Mitigation: cache strategy, pre-aggregations, perf budgets per view.
+
+3) Recommendation trust  
+- Mitigation: evidence links, Explain view, outcome logging, manual overrides.
+
+---
+
+# Definition of Done checklist
+- Tool sections complete with Description, Value, Features, Why, Technical needs, Requirements, Acceptance tests.  
+- Cross-cutting SLOs and governance stated.  
+- Roadmap and risks included.  
+- British English, no em dashes, single artifact.
+
+**Version and change log**  
+Playsage_FeaturePlan_v1.0_20251002. Initial complete pass across suite with SLOs, acceptance tests, and phased roadmap.
+

@@ -1,0 +1,119 @@
+TITLE: VC market weakness 2025
+DATE: 2025-09-04
+MESSAGES: 4
+ID: 68b95864-df7c-8328-a3e8-67cd89ba72c0
+---
+
+[USER]
+in the games industry is the VC investor market very weak right now go researcha nd find out
+
+[ASSISTANT]
+Use Work mode.
+
+Assumptions  
+- You want a current, global read on venture funding for games as of mid-2025.
+
+Plan  
+- Triangulate the freshest trackers and reports, highlight the signal that repeats across sources, and call out methodology differences so conclusions are defensible.
+
+Deliverable  
+Short answer: Yes. The pure VC market for games is weak in 2025, with Q2 hitting multi-year lows. M&A and public markets have rebounded, but venture checks are fewer and smaller, especially at growth stage.
+
+Evidence  
+- Konvoy Q2 2025: VC funding fell to 193 million dollars, down 47 percent quarter-over-quarter and 62 percent year-over-year. Deal count was 60, down sharply year-over-year. citeturn1view0  
+- Konvoy Q1 2025 baseline: 373 million dollars across 77 deals, already 41 percent lower year-over-year despite a quarter-over-quarter uptick from Q4 2024. citeturn3view0  
+- Aream & Co. (via PocketGamer): private investment into games in Q2 2025 was only about 400 million dollars across 83 deals, described as sluggish, while overall industry deal value was lifted by a few big M&A and public market transactions. citeturn6view0  
+- Crunchbase mid-year view: by June 27, roughly 627 million dollars in global venture funding had gone to gaming-related categories in 2025, putting the year on track for the weakest total in years. citeturn9search13  
+- Context: Dealmaking outside classic VC looks healthier. Drake Star reports 110 private placements totaling about 3 billion dollars in Q2 and strong public gaming stock performance in H1 2025, which supports exits and M&A but does not contradict the VC slowdown. Later-stage financings remain challenging. citeturn5view0
+
+Why the numbers do not match exactly  
+- Trackers bucket deals differently. Konvoy reports “VC” only. Aream & Co. lists “private investment” across stages and structures. Drake Star’s “private placements” often include minority PE, strategic, and debt. Despite different scopes, all three show weak venture activity relative to 2021–2022 peaks and 2023–2024 levels. citeturn1view0turn6view0turn5view0
+
+Signals inside the weakness  
+- Growth stage is the tightest. Konvoy flags a steep contraction at later stages in Q2. citeturn1view0  
+- Early stage is still happening, but with smaller rounds and stricter filters. Aream & Co. shows low volumes at pre-seed through Series A in H1. citeturn8search3  
+- Region-specific regulatory shocks matter. India’s new restrictions on real-money gaming have chilled a previously hot sub-sector. citeturn7news11  
+- Exits and strategics are the bright spots. The CVC minority deal in Dream Games and several corporate investments signal that M&A and PE appetite is back even if classic VC is cautious. citeturn5view0turn9news31
+
+What this means if you are raising  
+- Anchor to early stage or strategic fit. Expect tighter check sizes and longer diligence for A and beyond, and be ready for strategic money to lead or co-lead. citeturn5view0  
+- Show durable revenue quality plus cost control. Investors are rewarding hit probability, live-ops maturity, and efficient UA rather than top-line only. This theme appears across 2025 commentary and the preference for businesses with clearer paths to profitability. citeturn5view0  
+- Consider adjacency. Creator-tooling and AI-enabled game tech are drawing relatively more attention than content-only pitches. citeturn9news30
+
+Self-audit  
+- All figures are directly sourced from current 2025 trackers. Where methodologies differ I reported the number with the source and explained scope so the conclusion rests on converging direction, not a single dataset. The bottom line remains consistent across sources: pure venture funding for games is weak in 2025, especially in Q2, while M&A and public market windows have improved. citeturn1view0turn3view0turn6view0turn9search13turn5view0
+
+Recent headlines shaping games funding  
+navlistGames funding and exits, mid-2025turn9news31,turn7news11,turn7news10
+
+[USER]
+write this into an email to send to my team on the status of the vc market, include a trend of investment over the last 8 years
+
+[ASSISTANT]
+Use Work mode.
+
+Assumptions
+- You want a concise email you can forward to your team.
+- “VC market” means funding into private gaming companies. Trackers define this differently. I use:
+  1) Drake Star “private placements” as a consistent multi-year proxy that includes VC and strategic growth equity.
+  2) VC-only spot checks from PitchBook, Crunchbase, and Konvoy to show how pure VC has behaved.
+- Timeline: 2018 to 2025 year-to-date.
+
+Brief plan
+1) Compile the latest numbers from primary trackers.  
+2) Write an email with: executive take, 8-year trend table, implications, and sources.  
+3) Call out definitional differences and outliers.
+
+Deliverable
+Subject: State of games VC funding + 8-year trend
+
+Team,
+
+Quick update on the funding environment for games.
+
+Executive take
+- The pure VC market is still weak in 2025. Q2 2025 recorded about 60 VC deals and roughly 193 million dollars, down 47 percent quarter over quarter and 62 percent year over year. citeturn20search0turn20search1turn20search11  
+- Total “private placements” across gaming, which include VC plus corporate minority and growth checks, looked better in early 2025 but were skewed by a few mega rounds. Q1 had a 3.5 billion dollar spike largely from a single deal, and Q2 totaled about 3.0 billion dollars with another very large transaction. Directionally, deal counts remain subdued. citeturn10search7turn12search8  
+- 2024 showed a modest recovery vs. 2023 on private placements, but we are still far below the 2021 peak. VC-only dollars to gaming startups in 2024 were roughly 2.4 billion dollars, down about 12 percent year over year. citeturn0open1turn0view0
+
+Eight-year investment trend (directional, see notes)
+Year | Approx. capital into private gaming companies
+2018 | 5.7 billion dollars, games investment across VC and strategic  
+2019 | 3.7 billion dollars, VC into gaming  
+2020 | 3.9 billion dollars, private placements  
+2021 | 13.0 billion dollars, private placements  
+2022 | 11.1 billion dollars, private funding of private companies  
+2023 | 3.5+ billion dollars, private financings  
+2024 | 4.8 billion dollars, private placements  
+2025 YTD | ~6.5 billion dollars H1 private placements, heavily concentrated in two mega rounds
+
+Sources per line above: 2018 Digi-Capital, 2019 PitchBook, 2020–2024 Drake Star, 2025 Drake Star Q1 and Q2. citeturn18search1turn17view0turn11view2turn2view1turn8search19turn10search14turn0view0turn10search7turn12search8
+
+Context on “weak right now”
+- VC-only lens: 2024 VC to gaming startups was about 2.4 billion dollars. In Q2 2025 VC fell to about 193 million dollars over 60 deals, the lowest quarter in five years by Konvoy’s count. This aligns with what teams are seeing in longer diligence cycles, smaller round sizes, and investor concentration. citeturn0open1turn20search0
+- Private-placement lens: 2025 headline dollars look healthier because of a few very large checks, not broad-based risk appetite returning. Deal counts remain below 2021–2022. citeturn10search7turn12search8
+
+What this means for us
+- Expect continued selectivity. Early stage is active, but milestones matter. Focus pitch on retention, clear unit economics, and near-term catalysts.  
+- Valuations and terms are still investor-friendly. Build flexibility into ranges and instruments.  
+- Strategic investors are comparatively more active than generalist VC at growth stages. Map the right strategics early.  
+- Keep optionality on the table. PE-backed consolidation and M&A interest are rising into 2025–2026, which can create partnership, publishing, or exit paths. citeturn8search20
+
+Notes on the table
+- Trackers differ. Drake Star “private placements” include VC plus corporate minority and growth equity. PitchBook, Crunchbase, and Konvoy figures labeled VC-only are smaller by design. Use the table for direction, not as an exact apples-to-apples series. Outliers in H1 2025 materially inflate totals. citeturn0view0turn10search7turn12search8turn0open1
+
+Sources
+- Drake Star Global Gaming Reports 2020, 2021, 2022, 2023, 2024, Q1 2025, Q2 2025. citeturn11view2turn2view1turn8search19turn10search14turn0view0turn10search7turn12search8  
+- Konvoy Gaming Industry Report Q2 2025 and coverage. citeturn20search0turn20search1  
+- Crunchbase 2024 gaming startup funding recap. citeturn0open1  
+- PitchBook via Foley & Lardner on 2019 VC total. citeturn17view0  
+- Digi-Capital 2018 investment. citeturn18search1
+
+Happy to brief live and tailor this to our current raise.
+
+Self-audit
+- Numbers cross-checked across at least two primary sources where possible.  
+- Clear labels on “private placements” vs “VC-only.”  
+- Outliers and definitional caveats noted.  
+- No em dashes used.
+

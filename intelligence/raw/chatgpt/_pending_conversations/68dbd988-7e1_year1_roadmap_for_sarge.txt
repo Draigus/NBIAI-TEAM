@@ -1,0 +1,257 @@
+TITLE: Year-1 roadmap for SARGE
+DATE: 2025-09-30
+MESSAGES: 6
+ID: 68dbd988-7e10-8332-80c2-79d3aacfd8da
+---
+
+[USER]
+as a team of expert ceo, cpo, cmo and product manager write out a roadmap for sarge for year one
+
+[ASSISTANT]
+Here’s a focused Year-1 roadmap for SARGE, written from four seats at the table: CEO, CPO, CMO, and Product Manager. It assumes Telegram-first launch with Unity 6, AWS LAMP backend, MySQL 8.0.32, Firebase analytics, UnityIAP and PayPal payments, plus deep Mini-App integration. fileciteturn5file1L21-L25 fileciteturn5file1L126-L135 fileciteturn5file1L141-L151 fileciteturn5file0L44-L47
+
+# Year-1 timeline
+
+Q0 pre-launch, T-90 to T-0  
+• Lock GTM and gating checklist. Complete economy balancing, tutorial, KPI dashboards, legal, and comms assets on the listed T-minus schedule. fileciteturn5file14L1-L11 fileciteturn5file14L17-L25  
+• Stand up waitlist, community, influencer briefing, and press kit. fileciteturn5file14L7-L15  
+• Instrument telemetry for Telegram Mini Apps user journeys and funnels; include Firebase plus a Telegram-specific stack. fileciteturn5file1L135-L139 fileciteturn5file15L1-L1
+
+Q1 months 1-3 launch and stabilise  
+• Launch core loop on Telegram Mini-App with PvP, PvE missions, base building, leagues, daily rewards, shop, tournaments, chat, and faction wars; enforce HQ-level gating in tournaments. fileciteturn5file4L144-L159 fileciteturn5file4L165-L176 fileciteturn5file4L186-L195 fileciteturn5file4L121-L129  
+• Payments live via UnityIAP and PayPal; price grid online; server scaled for “thousands of connections.” fileciteturn5file1L126-L133 fileciteturn5file13L80-L92 fileciteturn5file3L85-L89  
+• KPI gates: FTUE completion, D1/D7, tutorial drop-offs, store attach, and error budgets for network and sync. fileciteturn5file4L283-L291
+
+Q2 months 4-6 grow and deepen  
+• Expand live-ops cadence: weekly events, daily rewards with 7/14/21/28 specials, three shop resets per week, tournament calendar and seasonal league reset. fileciteturn5file4L165-L176 fileciteturn5file4L74-L79  
+• Scale community and creator tooling around downloadable replays and social sharing to lift organic reach. fileciteturn5file10L24-L27  
+• Add one new map or mode and 5–10 new SKUs monthly; balance meta with research and unit upgrade data. fileciteturn5file4L342-L350 fileciteturn5file4L236-L243
+
+Q3 months 7-9 monetisation optimisation  
+• Introduce tournament revenue features and discovery tools that reward hosts and brands; tighten anti-abuse. fileciteturn5file10L16-L19 fileciteturn5file10L21-L27  
+• Expand IAP catalogue using the established credit price ladder; test bundle depth vs. ARPDAU. fileciteturn5file13L80-L92  
+• Run multi-region content tests to improve retention cohorts and season pass conversion.
+
+Q4 months 10-12 scale and UGC  
+• Ship Player-Created Challenge tools within the tournament system and social layer; promote creator economy loops. fileciteturn5file4L91-L101 fileciteturn5file10L21-L27  
+• Hardening for year-2: infra cost review on AWS LAMP, data pipeline QA, support workflows, and knowledge base. fileciteturn5file1L158-L159 fileciteturn5file8L96-L104
+
+# CEO plan: objectives, governance, and capital
+• North-star: sustainable Telegram-first P&L with strong retention, tournament-driven revenue, and player social monetisation. fileciteturn5file12L14-L19 fileciteturn5file12L56-L61  
+• Quarterly Boards: approve go/no-go on live features against KPI gates; enforce the pre-launch T-minus checklist in Q0 and the “Immediate actions” GTM items. fileciteturn5file14L81-L91  
+• Partners: Telegram Mini-App ecosystem, UA agencies, event series; leverage committed accelerator support. fileciteturn5file11L1-L1  
+• Risk controls: token and data compliance review, privacy, terms, and security sign-offs before any web3 features. fileciteturn5file14L23-L29
+
+# CPO plan: product and content beats
+• Day-1 feature set covers base building, missions, PvP, leagues, factions, tournaments, chat, shop, daily rewards, and research. fileciteturn5file4L144-L159 fileciteturn5
+
+[USER]
+no i want a sarge universe game 1sy year roadmap first
+
+[ASSISTANT]
+Understood. Before I draft the Year-1 roadmap, here is a Clarification Bundle with only outcome-changing questions. Once you confirm these, I will produce the roadmap immediately.
+
+# Outcome-changing questions
+
+1) Scope and platforms  
+• Confirm primary platform order for Year 1: Telegram Mini-App first, then web, then native iOS and Android, or Telegram-only for the full year.  
+• Any external storefronts or bots we must support from day one.
+
+2) Launch plan and dates  
+• Target Month 0 for soft launch and target Month for global launch.  
+• Regions for soft launch and any content or feature gating by region.
+
+3) North-star objectives and KPI gates  
+• Choose two primary north-stars for Year 1 from: retention-led P&L, tournament-driven revenue, or creator-led growth.  
+• Success thresholds for D1, D7, D30, ARPDAU, payer conversion, and error budget that decide go or no-go each quarter.
+
+4) Monetisation model  
+• Confirm allowed models: IAP only, IAP plus season pass, or IAP plus rewarded ads.  
+• Battle pass yes or no in Year 1. If yes, length of season and expected price band.
+
+5) Content cadence  
+• Monthly drop target: number of new units, upgrades, maps, events, and shop SKUs you want as a baseline.  
+• Tournament cadence preference: weekly brackets, fortnightly majors, quarterly championships.
+
+6) Competitive and social features  
+• Must-have list for Year 1: leagues, alliances, async PvP ladders, spectate, replays, creator codes, or UGC challenges.  
+• Any prohibition on real-money tournament prizes or third-party host tools.
+
+7) Economy constraints  
+• Hard rules on pay progression versus play progression, and whether duplicate protection or pity systems are allowed.  
+• Price ladder guardrails for starter, core, and premium SKUs.
+
+8) Analytics and data stack  
+• Stack of record to use in Year 1 and the metrics you want visible in the live dashboard at launch.  
+• Cohort cut standards to prioritise for weekly reviews.
+
+9) Team and budget envelope  
+• Effective team size by function for Year 1 and monthly content budget ceiling.  
+• Cloud budget ceiling and target concurrent user scale to plan for.
+
+10) Compliance and policy  
+• Required territories and their legal constraints we must pass in Year 1.  
+• Any crypto, token, or KYC elements to include or explicitly exclude.
+
+11) Community and marketing  
+• Owned channels to prioritise in Year 1 and tone rules.  
+• Influencer budget and whether we will run creator revenue shares or codes.
+
+12) Localisation and accessibility  
+• Languages for Year 1 and your localisation budget strategy.  
+• Accessibility requirements that must ship with the tutorial.
+
+13) External dependencies  
+• Partnerships already committed that affect the roadmap, such as payment providers, UA partners, or esports organisers.  
+• Any licensed IP or music pipeline that sets hard dates.
+
+14) Risk appetite  
+• List the three biggest risks you want the roadmap to attack first.  
+• Preferred mitigation style: reduce scope, move dates, or add resources.
+
+[USER]
+no I actually want a content and steps in a roadmap for first year of content
+
+[ASSISTANT]
+Got it. Here is a concrete Year-1 content roadmap for SARGE Universe that focuses on what ships each month and the exact steps to ship it. I anchor scope to the current design: five launch modes, tournaments at HQ 5, monthly map themes, monthly cosmetic themes, and a three-beat modes plan across the year. Citations point to your own docs.
+
+# Year-1 content pillars
+
+- **Launch modes in scope**: Campaign PvE, Online PvP, Tournaments at HQ 5, timed Challenges, and Training mode. fileciteturn6file7L53-L66 fileciteturn6file7L75-L86 fileciteturn6file7L88-L101  
+- **Monthly content cadence**: one new home-map theme every month, plus a full cosmetic theme across all five heroes. fileciteturn6file11L74-L82 fileciteturn6file11L121-L129  
+- **New modes plan**: Faction Wars in Q2, Player-Wager matches in Q3, Player-Created Challenges in Q4. fileciteturn6file11L101-L110  
+- **Progression**: launch at HQ 10, add HQ 11 by Month 12, with quarterly increases to profile XP cap. fileciteturn6file7L41-L45 fileciteturn6file11L91-L99  
+- **Player-first and tournaments economy**: creator and host revenue, entry fees, sponsorship tie-ins. fileciteturn6file2L4-L9 fileciteturn6file2L31-L39
+
+# Month-by-month content roadmap
+
+**Month 0. Launch**  
+**Ships**  
+- Maps: Home Base map and Tournament Stadium. fileciteturn6file7L10-L20  
+- Modes: Campaign PvE, Online PvP, Challenges, Training. Tournaments unlock at HQ 5. fileciteturn6file7L53-L66 fileciteturn6file7L75-L86 fileciteturn6file7L88-L101  
+- Cosmetics: two skins per hero available once the hero is unlocked. fileciteturn6file11L11-L19  
+**Steps to ship**  
+1) Balance pass on PvE first 30 missions, PvP loot tables, and early HQ pacing.  
+2) Telemetry: funnels for FTUE, mode entry, map heatmaps, shop attach. Configure Firebase and Mini-App events. fileciteturn6file0L129-L137 fileciteturn6file0L147-L151  
+3) Anti-bot controls at Rewards, Tournaments, and Referral entry points. fileciteturn6file6L83-L96  
+4) English localisation complete. RU/UA strings staged. fileciteturn6file6L11-L20
+
+**Month 1. Warlord Theme**  
+**Ships**  
+- Map: Warlord premium map as a paid bundle. fileciteturn6file7L22-L29  
+- Cosmetics: spotlight Warlord skins across all five heroes with a themed event. Note: skins are purchasable once heroes unlock. fileciteturn6file11L11-L21  
+- Live Ops: two weekend tournaments, four weekly Challenges rotations. fileciteturn6file7L96-L101  
+**Steps**  
+- Bundle build and pricing, themed shop art, creator showcase tournament, telemetry for bundle AB tests.
+
+**Month 2. Siegeworks Theme**  
+**Ships**  
+- Map: new home-map theme. fileciteturn6file11L74-L82  
+- Cosmetics: five hero skins matching the theme. fileciteturn6file11L121-L129  
+- Live Ops: Challenge mutators such as Air-only, No-Artillery, and Time Attack. fileciteturn6file7L88-L96  
+**Steps**  
+- Unit meta review, weekly balance hotfix plan, add RU/UA localisation for all new content. fileciteturn6file6L15-L20
+
+**Month 3. Frontier Cities Theme**  
+**Ships**  
+- Map: monthly theme map. Cosmetics: five skins. Tournaments: Month-3 Major. fileciteturn6file11L74-L82 fileciteturn6file11L121-L129  
+**Steps**  
+- Pre-season patch, Major rule-set, talent and creator co-cast incentives. Player economy messaging re host cuts. fileciteturn6file2L4-L9
+
+**Month 4. Faction Wars rollout, Part 1**  
+**Ships**  
+- Mode: Faction Wars beta, region-limited. fileciteturn6file11L104-L110  
+- Map and cosmetics: monthly theme pack.  
+**Steps**  
+- Alliance backend checks, UI for faction ladders, anti-exploit review, BR-PT localisation wave and region events. fileciteturn6file6L21-L27 fileciteturn6file6L35-L39
+
+**Month 5. Faction Wars rollout, Part 2**  
+**Ships**  
+- Mode: Faction Wars global.  
+- Map and cosmetics: monthly theme pack.  
+**Steps**  
+- Season rewards tables, cross-mode missions that push Faction play, LATAM ES localisation wave. fileciteturn6file6L23-L27
+
+**Month 6. Mid-Year Season Reset**  
+**Ships**  
+- Map and cosmetics: monthly theme pack.  
+- Tournaments: Mid-Year Championship with admin-hosted finals. fileciteturn6file7L75-L83  
+**Steps**  
+- Meta shake-up patch, leaderboard integrity audit, creator co-marketing. fileciteturn6file4L61-L71
+
+**Month 7. Player-Wager Matches, Part 1**  
+**Ships**  
+- Mode: Player-Wager Matches beta with Credits entry options. fileciteturn6file11L106-L110  
+- Map and cosmetics: monthly theme pack.  
+**Steps**  
+- Risk and compliance review, host tools, prize capping, VN and TH localisation wave plus region events. fileciteturn6file6L27-L30 fileciteturn6file6L35-L39
+
+**Month 8. Player-Wager Matches, Part 2**  
+**Ships**  
+- Mode: global release with skill brackets.  
+- Map and cosmetics: monthly theme pack.  
+**Steps**  
+- Fraud monitoring, dispute tooling, tournament calendar integration. fileciteturn6file6L97-L105
+
+**Month 9. Creator Season**  
+**Ships**  
+- Map and cosmetics: monthly theme pack.  
+- Creator economy: partner ladder, referral boosts, creator-hosted Majors. fileciteturn6file4L61-L70  
+**Steps**  
+- Codes and revenue share, replay-to-social tooling in dashboard, themed store rotations.
+
+**Month 10. Player-Created Challenges, Part 1**  
+**Ships**  
+- Mode: Player-Created Challenges beta inside the Challenges framework. fileciteturn6file11L108-L111  
+- Map and cosmetics: monthly theme pack.  
+**Steps**  
+- UGC curation queue, template rule-sets, moderation workflow, TR localisation wave. fileciteturn6file6L25-L27
+
+**Month 11. Player-Created Challenges, Part 2**  
+**Ships**  
+- Mode: global release with spotlight feed and rewards.  
+- Map and cosmetics: monthly theme pack.  
+**Steps**  
+- Anti-cheat signature checks on top scores, community feature surfacing. fileciteturn6file6L83-L96
+
+**Month 12. Year-End Season, HQ 11**  
+**Ships**  
+- Progression: release HQ 11 with late-game buildings and upgrades. fileciteturn6file11L91-L96  
+- Map and cosmetics: monthly theme pack.  
+- Finals: Year-End Championship and Creator Awards.  
+**Steps**  
+- Late-game economy guardrails, QA soak, AWS capacity review, language coverage check. fileciteturn6file0L158-L159 fileciteturn6file6L31-L39
+
+# Monthly ship checklist
+
+Use this unchanged each month to keep delivery tight.
+
+1) **Design and balance**  
+- Update tech trees, loot tables, and Challenge mutators. Validate against player-first and no pay-to-win rules. fileciteturn6file2L31-L39
+
+2) **Content production**  
+- One home-map theme. Five hero skins in the theme. Marketing pack and in-client placements. fileciteturn6file11L74-L82 fileciteturn6file11L121-L129
+
+3) **Store and bundles**  
+- Price tests for the month’s bundles. Do not sell hero power. Cosmetics and access content only. fileciteturn6file13L25-L31
+
+4) **Live-ops calendar**  
+- Weekly Challenges, two weekend tournaments, one Major per quarter. Tournaments unlock at HQ 5. fileciteturn6file7L75-L86 fileciteturn6file7L96-L101
+
+5) **UGC and creator activations**  
+- Feature replays, creator tournaments, referral boosts. Track creator revenue and host cuts. fileciteturn6file2L36-L43
+
+6) **Telemetry and anti-bot**  
+- Release dashboards, anomaly alerts, and playtime economy checks. Gate sensitive rewards with friction. fileciteturn6file4L1-L8 fileciteturn6file6L83-L101
+
+7) **Localisation wave plan**  
+- Stage next language set and community managers for top markets. Pair with region-specific events. fileciteturn6file6L31-L39 fileciteturn6file6L35-L39
+
+# Notes on two internal inconsistencies I accounted for
+
+- Your Q&A says Warlord map ships in Month 1 as a premium bundle, and it also says each hero has a Default and Warlord skin purchasable once unlocked at launch. I have kept Warlord skins available from launch, then framed Month 1 as the Warlord-themed push tied to the premium map. fileciteturn6file7L22-L29 fileciteturn6file11L11-L21
+
+- One section states one new home-map every month, while another mentions a smaller set. I set the roadmap to the higher cadence of one map per month, which is the clearer statement of intent. fileciteturn6file11L74-L82
+
+If you want, I can drop this into a printable one-pager and a twelve-slide live-ops calendar next.
+

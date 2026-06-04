@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WorkSage ATS — Design Mockup v2</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-app: #0c0e14;
+  --bg-surface: #13161f;
+  --bg-card: #181c28;
+  --bg-card-hover: #1e2333;
+  --bg-elevated: #232840;
+  --bg-input: #161a26;
+  --bg-sidebar: #101318;
+  --border: #252a3a;
+  --border-subtle: #1e2230;
+  --border-focus: #5b7bf7;
+  --text-primary: #eaecf2;
+  --text-secondary: #9ea3ba;
+  --text-muted: #636a88;
+  --text-faint: #3e4460;
+  --accent: #5b7bf7;
+  --accent-hover: #7090ff;
+  --accent-soft: rgba(91,123,247,0.10);
+  --accent-glow: rgba(91,123,247,0.05);
+  --green: #2dd4a0;
+  --green-soft: rgba(45,212,160,0.10);
+  --amber: #f5a623;
+  --amber-soft: rgba(245,166,35,0.10);
+  --red: #ef6b6b;
+  --red-soft: rgba(239,107,107,0.10);
+  --blue: #5eadf7;
+  --blue-soft: rgba(94,173,247,0.10);
+  --purple: #a78bfa;
+  --purple-soft: rgba(167,139,250,0.10);
+  --teal: #38bdf8;
+  --teal-soft: rgba(56,189,248,0.10);
+  --radius: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --shadow: 0 2px 8px rgba(0,0,0,0.3);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.45);
+  --font: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  --mono: 'IBM Plex Mono', monospace;
+}
+
+html { font-size: 15px; }
+body {
+  font-family: var(--font);
+  background: var(--bg-app);
+  color: var(--text-primary);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ═══════ SIDEBAR ═══════ */
+.sidebar {
+  width: 220px;
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  padding: 20px 0;
+}
+.sidebar__brand {
+  padding: 0 20px 24px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sidebar__brand svg { width: 22px; height: 22px; }
+.sidebar__section-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-faint);
+  padding: 16px 20px 8px;
+}
+.sidebar__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.12s;
+  border-left: 2px solid transparent;
+}
+.sidebar__item:hover { color: var(--text-secondary); background: var(--accent-glow); }
+.sidebar__item--active {
+  color: var(--text-primary);
+  background: var(--accent-soft);
+  border-left-color: var(--accent);
+}
+.sidebar__item svg { width: 18px; height: 18px; opacity: 0.6; }
+.sidebar__item--active svg { opacity: 1; }
+.sidebar__spacer { flex: 1; }
+.sidebar__user {
+  padding: 14px 20px;
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sidebar__avatar {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--purple));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem; font-weight: 700; color: #fff;
+}
+.sidebar__user-info { line-height: 1.3; }
+.sidebar__user-name { font-size: 0.82rem; font-weight: 600; }
+.sidebar__user-role { font-size: 0.68rem; color: var(--text-muted); }
+
+/* ═══════ MAIN CONTENT ═══════ */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+.topbar {
+  height: 60px;
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+  background: var(--bg-surface);
+}
+.topbar__title { font-size: 1.2rem; font-weight: 700; letter-spacing: -0.3px; }
+.topbar__count {
+  font-size: 0.75rem; font-weight: 600; color: var(--text-muted);
+  background: var(--bg-elevated); padding: 3px 10px; border-radius: 20px;
+}
+.topbar__spacer { flex: 1; }
+.topbar__search {
+  width: 260px; padding: 8px 14px 8px 36px;
+  background: var(--bg-input); border: 1px solid var(--border);
+  border-radius: var(--radius); color: var(--text-primary);
+  font-size: 0.82rem; font-family: inherit; outline: none;
+  transition: border-color 0.15s;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='%23636a88' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: 12px center;
+}
+.topbar__search:focus { border-color: var(--border-focus); }
+
+/* Sub-navigation */
+.subnav {
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+  background: var(--bg-surface);
+}
+.subnav__tab {
+  padding: 13px 18px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  border: none; background: none; cursor: pointer;
+  font-family: inherit;
+  border-bottom: 2px solid transparent;
+  transition: all 0.12s;
+  position: relative;
+}
+.subnav__tab:hover { color: var(--text-secondary); }
+.subnav__tab--active { color: var(--accent); border-bottom-color: var(--accent); }
+.subnav__tab-badge {
+  font-size: 0.6rem; font-weight: 700;
+  background: var(--red); color: #fff;
+  padding: 1px 5px; border-radius: 8px;
+  position: absolute; top: 8px; right: 4px;
+}
+.subnav__spacer { flex: 1; }
+.subnav__actions { display: flex; gap: 8px; padding: 8px 0; }
+
+/* Buttons */
+.btn {
+  padding: 8px 16px; border-radius: var(--radius);
+  font-size: 0.82rem; font-weight: 600;
+  cursor: pointer; font-family: inherit;
+  border: 1px solid var(--border);
+  background: var(--bg-card); color: var(--text-secondary);
+  transition: all 0.12s;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.btn:hover { background: var(--bg-elevated); color: var(--text-primary); }
+.btn--primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn--primary:hover { background: var(--accent-hover); }
+
+/* Filter bar */
+.filters {
+  padding: 14px 32px;
+  display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+  flex-shrink: 0;
+}
+.filter-sel {
+  padding: 7px 12px; background: var(--bg-card);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  color: var(--text-primary); font-size: 0.8rem;
+  font-family: inherit; cursor: pointer; outline: none;
+}
+.filter-sel:focus { border-color: var(--border-focus); }
+.filter-pill {
+  padding: 5px 12px; background: var(--bg-card);
+  border: 1px solid var(--border); border-radius: 20px;
+  font-size: 0.72rem; font-weight: 500; color: var(--text-muted);
+  cursor: pointer; transition: all 0.12s;
+}
+.filter-pill--on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+.filter-summary { font-size: 0.75rem; color: var(--text-muted); margin-left: auto; }
+
+/* Scrollable content */
+.content { flex: 1; overflow-y: auto; padding: 20px 32px 32px; }
+.content::-webkit-scrollbar { width: 5px; }
+.content::-webkit-scrollbar-track { background: transparent; }
+.content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 5px; }
+
+/* ═══════ KANBAN ═══════ */
+.kanban { display: flex; gap: 14px; align-items: flex-start; min-height: calc(100vh - 280px); }
+.lane {
+  flex: 1 1 0; min-width: 230px; max-width: 320px;
+  background: var(--bg-surface); border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg); display: flex; flex-direction: column;
+  max-height: calc(100vh - 280px);
+}
+.lane__head {
+  padding: 14px 16px; display: flex; align-items: center;
+  justify-content: space-between; flex-shrink: 0;
+}
+.lane__label {
+  font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1.4px;
+}
+.lane__label--sourcing { color: var(--text-secondary); }
+.lane__label--interviews { color: var(--amber); }
+.lane__label--offer { color: var(--blue); }
+.lane__label--onboarding { color: var(--green); }
+.lane__label--onboarded { color: var(--purple); }
+.lane__badge {
+  font-size: 0.68rem; font-weight: 600; color: var(--text-muted);
+  background: var(--bg-card); padding: 2px 9px; border-radius: 20px;
+}
+.lane__cards {
+  padding: 4px 10px 12px; display: flex; flex-direction: column;
+  gap: 8px; overflow-y: auto; flex: 1;
+}
+.lane__cards::-webkit-scrollbar { width: 3px; }
+.lane__cards::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* Candidate card */
+.ccard {
+  background: var(--bg-card); border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--border);
+  border-radius: var(--radius); padding: 13px 15px;
+  cursor: pointer; transition: all 0.15s; position: relative;
+}
+.ccard:hover { background: var(--bg-card-hover); border-color: var(--border); box-shadow: var(--shadow); transform: translateY(-1px); }
+.ccard--red { border-left-color: var(--red); }
+.ccard--amber { border-left-color: var(--amber); }
+.ccard--green { border-left-color: var(--green); }
+.ccard--grey { border-left-color: var(--text-faint); opacity: 0.5; }
+.ccard__row1 { display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; margin-bottom: 4px; }
+.ccard__name { font-size: 0.9rem; font-weight: 600; line-height: 1.25; }
+.ccard__days {
+  font-size: 0.62rem; font-weight: 600; color: var(--text-muted);
+  background: var(--bg-elevated); padding: 2px 7px; border-radius: 10px;
+  white-space: nowrap; flex-shrink: 0;
+}
+.ccard__days--hot { color: var(--red); background: var(--red-soft); }
+.ccard__role { font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 8px; line-height: 1.25; }
+.ccard__bottom { display: flex; align-items: center; justify-content: space-between; gap: 4px; }
+.ccard__client { font-size: 0.68rem; color: var(--text-muted); }
+.ccard__pills { display: flex; gap: 4px; align-items: center; }
+.ccard__pill {
+  font-size: 0.58rem; font-weight: 700; padding: 2px 6px;
+  border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.ccard__pill--src { background: var(--accent-soft); color: var(--accent); }
+.ccard__pill--cv { background: var(--green-soft); color: var(--green); }
+.ccard__pill--chat { font-size: 0.68rem; color: var(--text-muted); font-weight: 500; }
+.ccard__faces { display: flex; margin-top: 8px; }
+.ccard__face {
+  width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--bg-card);
+  font-size: 0.52rem; font-weight: 700; color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  margin-left: -5px;
+}
+.ccard__face:first-child { margin-left: 0; }
+
+/* ═══════ POSITIONS GRID ═══════ */
+.pgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 14px; }
+.pcard {
+  background: var(--bg-card); border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg); padding: 20px; cursor: pointer;
+  transition: all 0.15s; position: relative;
+}
+.pcard:hover { background: var(--bg-card-hover); border-color: var(--border); box-shadow: var(--shadow); transform: translateY(-1px); }
+.pcard__header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
+.pcard__title-area { display: flex; align-items: center; gap: 8px; }
+.pcard__dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.pcard__dot--open { background: var(--green); box-shadow: 0 0 6px var(--green-soft); }
+.pcard__dot--filled { background: var(--text-muted); }
+.pcard__title { font-size: 0.95rem; font-weight: 700; line-height: 1.3; }
+.pcard__prio {
+  font-size: 0.6rem; font-weight: 700; padding: 2px 8px;
+  border-radius: 8px; text-transform: uppercase; flex-shrink: 0;
+}
+.pcard__prio--p0 { background: var(--red-soft); color: var(--red); }
+.pcard__prio--p1 { background: var(--amber-soft); color: var(--amber); }
+.pcard__prio--p2 { background: var(--blue-soft); color: var(--blue); }
+.pcard__chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+.pcard__chip {
+  font-size: 0.7rem; padding: 3px 10px; border-radius: 20px;
+  background: var(--bg-elevated); color: var(--text-secondary); font-weight: 500;
+}
+.pcard__info { display: flex; gap: 16px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+.pcard__salary { font-size: 0.9rem; font-weight: 700; color: var(--green); font-family: var(--mono); }
+.pcard__days { font-size: 0.78rem; }
+.pcard__days--red { color: var(--red); font-weight: 600; }
+.pcard__days--amber { color: var(--amber); }
+.pcard__days--green { color: var(--green); }
+.pcard__jd { font-size: 0.72rem; color: var(--text-muted); }
+.pcard__pipeline { display: flex; align-items: center; gap: 10px; }
+.pcard__bar {
+  display: flex; height: 7px; border-radius: 4px; overflow: hidden;
+  flex: 1; max-width: 180px; background: var(--bg-elevated);
+}
+.pcard__bar span { display: block; height: 100%; }
+.pcard__cands { font-size: 0.78rem; color: var(--text-muted); white-space: nowrap; }
+
+/* ═══════ METRICS ═══════ */
+.stats-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 14px; margin-bottom: 24px; }
+.stat {
+  background: var(--bg-card); border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg); padding: 22px 20px;
+}
+.stat__val { font-size: 2.4rem; font-weight: 800; line-height: 1; font-family: var(--mono); letter-spacing: -2px; }
+.stat__val--accent { color: var(--accent); }
+.stat__val--green { color: var(--green); }
+.stat__lbl {
+  font-size: 0.68rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 1.2px; color: var(--text-muted); margin-top: 8px;
+}
+.chart-box {
+  background: var(--bg-card); border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg); padding: 24px; margin-bottom: 18px;
+}
+.chart-box__title { font-size: 0.95rem; font-weight: 700; margin-bottom: 20px; }
+.frow { display: flex; align-items: center; gap: 14px; margin-bottom: 8px; }
+.frow__lbl { width: 110px; font-size: 0.78rem; color: var(--text-secondary); text-align: right; flex-shrink: 0; font-weight: 500; }
+.frow__track { flex: 1; height: 32px; background: var(--bg-elevated); border-radius: 6px; overflow: hidden; }
+.frow__fill {
+  height: 100%; border-radius: 6px; display: flex; align-items: center;
+  padding-left: 12px; font-size: 0.78rem; font-weight: 600; color: #fff;
+  min-width: fit-content;
+}
+.fconv { display: flex; align-items: center; gap: 14px; margin-bottom: 4px; margin-top: -4px; }
+.fconv__pct { font-size: 0.68rem; font-weight: 700; margin-left: 124px; }
+.fconv__pct--good { color: var(--green); }
+.fconv__pct--warn { color: var(--amber); }
+.fconv__pct--bad { color: var(--red); }
+.trow { display: flex; align-items: center; gap: 14px; margin-bottom: 8px; }
+.trow__lbl { width: 110px; font-size: 0.78rem; color: var(--text-secondary); text-align: right; flex-shrink: 0; font-weight: 500; }
+.trow__track { flex: 1; height: 24px; background: var(--bg-elevated); border-radius: 4px; overflow: hidden; }
+.trow__fill { height: 100%; border-radius: 4px; display: flex; align-items: center; padding-left: 10px; font-size: 0.72rem; font-weight: 600; color: #fff; min-width: fit-content; }
+.trow__n { font-size: 0.72rem; color: var(--text-muted); width: 70px; }
+
+/* ═══════ CALENDAR ═══════ */
+.cal-week { display: grid; grid-template-columns: 80px repeat(5, 1fr); gap: 1px; background: var(--border-subtle); border-radius: var(--radius-lg); overflow: hidden; }
+.cal-week__header { background: var(--bg-surface); padding: 12px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); text-align: center; }
+.cal-week__header--today { color: var(--accent); }
+.cal-week__time { background: var(--bg-surface); padding: 8px 10px; font-size: 0.68rem; color: var(--text-faint); text-align: right; font-family: var(--mono); height: 60px; display: flex; align-items: flex-start; justify-content: flex-end; }
+.cal-week__cell { background: var(--bg-card); height: 60px; padding: 4px; position: relative; }
+.cal-week__cell:hover { background: var(--bg-card-hover); }
+.cal-event {
+  position: absolute; left: 3px; right: 3px;
+  background: var(--accent-soft); border-left: 3px solid var(--accent);
+  border-radius: 4px; padding: 4px 8px; font-size: 0.68rem; font-weight: 600;
+  color: var(--accent); cursor: pointer; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap;
+}
+.cal-event--green { background: var(--green-soft); border-left-color: var(--green); color: var(--green); }
+.cal-event--amber { background: var(--amber-soft); border-left-color: var(--amber); color: var(--amber); }
+
+/* ═══════ DATABASE TABLE ═══════ */
+.db-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+.db-table th {
+  font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1px; color: var(--text-muted); padding: 12px 14px;
+  text-align: left; border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; background: var(--bg-surface); z-index: 1;
+}
+.db-table td {
+  padding: 12px 14px; border-bottom: 1px solid var(--border-subtle);
+  font-size: 0.85rem; vertical-align: middle;
+}
+.db-table tr:hover td { background: var(--bg-card-hover); }
+.db-table__name { font-weight: 600; }
+.db-table__role { color: var(--text-secondary); font-size: 0.8rem; }
+.db-table__stage {
+  font-size: 0.65rem; font-weight: 700; padding: 3px 9px;
+  border-radius: 10px; text-transform: uppercase; display: inline-block;
+}
+.db-table__stage--sourcing { background: var(--bg-elevated); color: var(--text-secondary); }
+.db-table__stage--interviews { background: var(--amber-soft); color: var(--amber); }
+.db-table__stage--offer { background: var(--blue-soft); color: var(--blue); }
+.db-table__stage--onboarding { background: var(--green-soft); color: var(--green); }
+.db-table__stage--onboarded { background: var(--purple-soft); color: var(--purple); }
+
+/* ═══════ DETAIL PANEL ═══════ */
+.overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(6px); z-index: 200;
+  opacity: 0; pointer-events: none; transition: opacity 0.2s;
+}
+.overlay.open { opacity: 1; pointer-events: auto; }
+.panel {
+  position: fixed; top: 0; right: -640px; width: 620px; max-width: 92vw;
+  height: 100vh; background: var(--bg-surface);
+  border-left: 1px solid var(--border); z-index: 201;
+  display: flex; flex-direction: column;
+  box-shadow: -10px 0 50px rgba(0,0,0,0.5);
+  transition: right 0.28s cubic-bezier(0.4, 0, 0.15, 1);
+}
+.panel.open { right: 0; }
+.panel__head { padding: 22px 26px 16px; border-bottom: 1px solid var(--border-subtle); flex-shrink: 0; }
+.panel__head-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 10px; }
+.panel__close {
+  width: 30px; height: 30px; border-radius: var(--radius);
+  background: var(--bg-card); border: 1px solid var(--border);
+  color: var(--text-muted); font-size: 1rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.12s; flex-shrink: 0;
+}
+.panel__close:hover { background: var(--bg-elevated); color: var(--text-primary); }
+.panel__name { font-size: 1.15rem; font-weight: 800; letter-spacing: -0.3px; }
+.panel__role { font-size: 0.85rem; color: var(--text-secondary); margin-top: 2px; }
+.panel__meta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.panel__tag {
+  font-size: 0.68rem; font-weight: 700; padding: 3px 10px;
+  border-radius: 10px; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.panel__tag--interviews { background: var(--amber-soft); color: var(--amber); }
+.panel__tag--sourcing { background: var(--bg-elevated); color: var(--text-secondary); }
+.panel__tag--offer { background: var(--blue-soft); color: var(--blue); }
+.panel__tag--onboarding { background: var(--green-soft); color: var(--green); }
+
+.panel__stage {
+  padding: 12px 26px; border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0; display: flex; align-items: center; gap: 8px;
+}
+.panel__stage-btn {
+  width: 34px; height: 34px; border-radius: var(--radius);
+  border: 1px solid var(--border); background: var(--bg-card);
+  color: var(--text-secondary); font-size: 0.95rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.panel__stage-btn:hover { background: var(--bg-elevated); }
+.panel__stage-btn--go { background: var(--green-soft); border-color: var(--green); color: var(--green); }
+.panel__stage-sel {
+  flex: 1; padding: 8px 14px; background: var(--bg-input);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  color: var(--text-primary); font-size: 0.88rem; font-weight: 600;
+  text-align: center; font-family: inherit; outline: none;
+}
+.panel__chips { display: flex; gap: 4px; margin-left: 8px; }
+.panel__chip {
+  font-size: 0.7rem; padding: 4px 10px; background: var(--bg-card);
+  border: 1px solid var(--border); border-radius: 20px;
+  color: var(--text-secondary); display: flex; align-items: center; gap: 4px;
+}
+.panel__chip button { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.75rem; }
+
+.panel__tabs { display: flex; border-bottom: 1px solid var(--border-subtle); flex-shrink: 0; padding: 0 26px; }
+.panel__tab {
+  padding: 12px 18px; font-size: 0.82rem; font-weight: 600;
+  color: var(--text-muted); background: none; border: none;
+  border-bottom: 2px solid transparent; cursor: pointer;
+  font-family: inherit; transition: all 0.12s;
+}
+.panel__tab:hover { color: var(--text-secondary); }
+.panel__tab--on { color: var(--accent); border-bottom-color: var(--accent); }
+
+.panel__body { flex: 1; overflow-y: auto; padding: 22px 26px; }
+.panel__body::-webkit-scrollbar { width: 4px; }
+.panel__body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+.psec { margin-bottom: 22px; }
+.psec__title {
+  font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1.3px; color: var(--text-faint); margin-bottom: 12px;
+}
+.pfield { margin-bottom: 13px; }
+.pfield__lbl {
+  font-size: 0.68rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 5px;
+}
+.pfield__input {
+  width: 100%; padding: 9px 14px; background: var(--bg-input);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  color: var(--text-primary); font-size: 0.88rem; font-family: inherit; outline: none;
+}
+.pfield__input:focus { border-color: var(--border-focus); }
+
+.ptab { display: none; }
+.ptab--on { display: block; }
+
+/* ═══════ MISC ═══════ */
+.hidden { display: none !important; }
+.view { display: none; }
+.view--on { display: block; }
+</style>
+</head>
+<body>
+
+<!-- ═══════ SIDEBAR ═══════ -->
+<aside class="sidebar">
+  <div class="sidebar__brand">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+    WorkSage
+  </div>
+  <div class="sidebar__section-label">Workspace</div>
+  <div class="sidebar__item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/><path d="M3 9h6"/></svg>
+    Dashboard
+  </div>
+  <div class="sidebar__item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M3 12h18"/><path d="M3 18h18"/></svg>
+    Projects
+  </div>
+  <div class="sidebar__item sidebar__item--active">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    Hiring
+  </div>
+  <div class="sidebar__item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+    People
+  </div>
+  <div class="sidebar__item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>
+    Calendar
+  </div>
+  <div class="sidebar__section-label">Insights</div>
+  <div class="sidebar__item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+    Reports
+  </div>
+  <div class="sidebar__spacer"></div>
+  <div class="sidebar__user">
+    <div class="sidebar__avatar">GP</div>
+    <div class="sidebar__user-info">
+      <div class="sidebar__user-name">Glen Pryer</div>
+      <div class="sidebar__user-role">Admin</div>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══════ MAIN ═══════ -->
+<div class="main">
+  <div class="topbar">
+    <span class="topbar__title">Hiring</span>
+    <span class="topbar__count">42 candidates · 30 positions</span>
+    <div class="topbar__spacer"></div>
+    <input type="text" class="topbar__search" placeholder="Search candidates, positions…">
+  </div>
+
+  <div class="subnav">
+    <button class="subnav__tab subnav__tab--active" onclick="showView('pipeline')">Pipeline</button>
+    <button class="subnav__tab" onclick="showView('positions')">Positions</button>
+    <button class="subnav__tab" onclick="showView('database')">Database</button>
+    <button class="subnav__tab" onclick="showView('calendar')">
+      Calendar
+      <span class="subnav__tab-badge">3</span>
+    </button>
+    <button class="subnav__tab" onclick="showView('metrics')">Metrics</button>
+    <div class="subnav__spacer"></div>
+    <div class="subnav__actions">
+      <button class="btn btn--primary" onclick="openPanel()">+ Add Candidate</button>
+    </div>
+  </div>
+
+  <div class="filters" id="filtersBar">
+    <select class="filter-sel"><option>All Clients</option><option selected>Couch Heroes</option><option>NBI Internal</option></select>
+    <select class="filter-sel"><option>All Stages</option><option>Sourcing</option><option>Interviews</option><option>Offer</option><option>Onboarding</option></select>
+    <div class="filter-pill filter-pill--on">Active Only</div>
+    <div class="filter-pill">Show Archived</div>
+    <span class="filter-summary">18 of 42 shown</span>
+  </div>
+
+  <div class="content">
+    <!-- ═══ PIPELINE VIEW ═══ -->
+    <div id="vPipeline" class="view view--on">
+      <div class="kanban">
+        <div class="lane">
+          <div class="lane__head"><span class="lane__label lane__label--sourcing">Sourcing</span><span class="lane__badge">6</span></div>
+          <div class="lane__cards">
+            <div class="ccard ccard--red" onclick="openPanel()"><div class="ccard__row1"><span class="ccard__name">Marcus Webb</span><span class="ccard__days ccard__days--hot">12d</span></div><div class="ccard__role">Lead Full Stack Developer</div><div class="ccard__bottom"><span class="ccard__client">Couch Heroes</span><div class="ccard__pills"><span class="ccard__pill ccard__pill--src">LinkedIn</span></div></div></div>
+            <div class="ccard ccard--red" onclick="openPanel()"><div class="ccard__row1"><span class="ccard__name">Anya Petrov</span><span class="ccard__days ccard__days--hot">9d</span></div><div class="ccard__role">Snr Environment Artist</div><div class="ccard__bottom"><span class="ccard__client">Couch Heroes</span><div class="ccard__pills"><span class="ccard__pill ccard__pill--cv">CV</span></div></div></div>
+            <div class="ccard" onclick="openPanel()"><div class="ccard__row1"><span class="ccard__name">Kenji Tanaka</span><span class="ccard__days">3d</span></div><div class="ccard__role">Tools Engineer</div><div class="ccard__bottom"><span class="ccard__client">Couch Heroes</span><div class="ccard__pills"><span class="ccard__pill ccard__pill--src">Referral</span><span class="ccard__pill ccard__pill--cv">CV</span></div></div></div>
+            <div class="ccard ccard--red" onclick="openPanel()"><div class="ccard__row1"><span class="ccard__name">Sofia Martinez</span><span class="ccard__days">1d</span></div><div class="ccard__role">Art Producer</div><div class="ccard__bottom"><span class="ccard__client">Couch Heroes</span><div class="ccard__pills"><span class="ccard__pill ccard__pill--src">Inbound</span></div></div></div>
+            <div class="ccard" onclick="openPanel()"><div class="ccard__row1"><span class="ccard__name">David Chen</span><span class="ccard__days">new</span></div><div class="ccard__role">Tech Producer</div><div class="ccard__bottom"><span class="ccard__client">Couch Heroes</span><div class="ccard__pills"><span class="ccard__pill ccard__pill--src">Agency</span></div></div></div>
+            <div class="ccard" onclick="openPanel()"><div class="ccard__row1"><span class="ccard__name">Lena Okafor</span><span class="ccard__days">new</span></div><div class="ccard__role">Mid QA Tester</div><div class="ccard__bottom"><span class="ccard__client">Couch Heroes</span><div class="ccard__pills"><span class="ccard__pill ccard__pill--src">Job Board</span></div></div></div>
+          </div>
+        </div>
+        <div class="lane">
+          <div class="lane__head"><span class="lane__label lane__label--interviews">Interviews</span><span class="lane__badge">5</span></div>
+          <div class="lane__cards">
+            <div class="ccard ccard--amber" onclick="openPanel()"><div class="ccard__row1"><span class="ccard__name">James Okonkwo</span><span class="ccard__days">4d</span></div><div class="ccard__role">Game Design Lead</div><div class="ccard__bottom"><span class="ccard__client">Couch Heroes</span><div class="ccard__pills"><span class="ccard__pill ccard__pill--cv">CV</span><span class="ccard__pill--chat">💬 3</span></div></div><div class="ccard__faces"><div class="ccard__face" style="background:linear-gradient(135deg,#f5a623,#d4880f)">VK</div><div class="ccard__face" style="background:linear-gradient(135deg,#5b7bf7,#4060d4)">GP</div></div></div>
+            <div class="ccard ccard--green" onclick="openPanel()"><div class="ccard__row1"><span class="ccard__name">Priya Sharma</span><span class="ccard__days">2d</span></div><div class="ccard__role">Snr Technical Artist</div><div class="ccard__bottom"><span class="ccard__client">Couch Heroes</span><div class="ccard__pills"><span class="ccard__pill ccard__pill--cv">CV</span><span class="ccard__pill--chat">💬 1</span></div></div><div class="ccard__faces"><div class="ccard__face" style="background:linear-gradient(135deg,#2dd4a0,#1a9c74)">AK</div></div></div>
+            <div class="ccard ccard--amber" onclick="openPanel()"><div class="ccard__row1"><span class="ccard__name">Thomas Mueller</span><span class="ccard__days ccard__days--hot">8d</span></div><div class="ccard__role">Lead Gameplay Developer</div><div class="ccard__bottom"><span class="ccard__client">Couch Heroes</span><div class="ccard__pills"><span class="ccard__pill ccard__pill--cv">CV</span></div></div></div>
+            <div class="ccard ccard--green" onclick="openPanel()"><div class="ccard__row1"><span class="ccard__name">Rachel Kim</span><span class="ccard__days">1d</span></div><div class="ccard__role">Sr VFX Artist</div><div class="ccard__bottom"><span class="ccard__client">Couch Heroes</span><div class="ccard__pills"><span class="ccard__pill ccard__pill--src">Referral</span><span class="ccard__pill ccard__pill--cv">CV</span></div></div></div>
+            <div class="ccard ccard--red" onclick="openPanel()"><div class="ccard__row1"><span class="ccard__name">Alex Novak</span><span class="ccard__days ccard__days--hot">15d</span></div><div class="ccard__role">Level Design Lead</div><div class="ccard__bottom"><span class="ccard__client">Couch Heroes</span><div class="ccard__pills"><span class="ccard__pill--chat">💬 5</span></div></div></div>
+          </div>
+        </div>
+        <div class="lane">
+          <div class="lane__head"><span class="lane__label lane__label--offer">Offer</span><span class="lane__badge">3</span></div>
+          <div class="lane__cards">
+            <div class="ccard ccard--green" onclick="openPanel()"><div class="ccard__row1"><span class="ccard__name">Elena Rossi</span><span class="ccard__days">2d</span></div><div class="ccard__role">Head of Finance</div><div class="ccard__bottom"><span class="ccard__client">Couch Heroes</span><div class="ccard__pills"><span class="ccard__pill ccard__pill--cv">CV</span><span class="ccard__pill--chat">💬 7</span></div></div></div>
+            <div class="ccard ccard--amber" onclick="openPanel()"><div class="ccard__row1"><span class="ccard__name">Yuki Ito</span><span class="ccard__days">5d</span></div><div class="ccard__role">Executive Producer</div><div class="ccard__bottom"><span class="ccard__client">Couch Heroes</span><div class="ccard__pills"><span class="ccard__pill--chat">💬 4</span></div></div></div>
+            <div class="ccard ccard--red" onclick="openPanel()"><div class="ccard__row1"><span class="ccard__name">Ben Adekunle</span><span class="ccard__days ccard__days--hot">11d</span></div><div class="ccard__role">IT Lead</div><div class="ccard__bottom"><span class="ccard__client">Couch Heroes</span><div class="ccard__pills"><span class="ccard__pill ccard__pill--cv">CV</span></div></div></div>
+          </div>
+        </div>
+        <div class="lane">
+          <div class="lane__head"><span class="lane__label lane__label--onboarding">Onboarding</span><span class="lane__badge">2</span></div>
+          <div class="lane__cards">
+            <div class="ccard ccard--green" onclick="openPanel()"><div class="ccard__row1"><span class="ccard__name">Clara Johansson</span><span class="ccard__days">3d</span></div><div class="ccard__role">HR Operations</div><div class="ccard__bottom"><span class="ccard__client">Couch Heroes</span><div class="ccard__pills"><span class="ccard__pill--chat">💬 2</span></div></div></div>
+            <div class="ccard ccard--green" onclick="openPanel()"><div class="ccard__row1"><span class="ccard__name">Omar Haddad</span><span class="ccard__days">6d</span></div><div class="ccard__role">Snr Network Engineer</div><div class="ccard__bottom"><span class="ccard__client">Couch Heroes</span><div class="ccard__pills"><span class="ccard__pill--chat">💬 1</span></div></div></div>
+          </div>
+        </div>
+        <div class="lane">
+          <div class="lane__head"><span class="lane__label lane__label--onboarded">Onboarded</span><span class="lane__badge">2</span></div>
+          <div class="lane__cards">
+            <div class="ccard ccard--grey" onclick="openPanel()"><div class="ccard__row1"><span class="ccard__name" style="text-decoration:line-through">Mia Torres</span><span class="ccard__days" style="background:var(--green-soft);color:var(--green)">✓</span></div><div class="ccard__role">Lead Animator</div><div class="ccard__bottom"><span class="ccard__client">Couch Heroes</span></div></div>
+            <div class="ccard ccard--grey" onclick="openPanel()"><div class="ccard__row1"><span class="ccard__name" style="text-decoration:line-through">Ravi Patel</span><span class="ccard__days" style="background:var(--green-soft);color:var(--green)">✓</span></div><div class="ccard__role">Technical Animator</div><div class="ccard__bottom"><span class="ccard__client">Couch Heroes</span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ POSITIONS VIEW ═══ -->
+    <div id="vPositions" class="view">
+      <div class="pgrid">
+        <div class="pcard"><div class="pcard__header"><div><div class="pcard__title-area"><span class="pcard__dot pcard__dot--open"></span><span class="pcard__title">CTO</span></div></div><span class="pcard__prio pcard__prio--p0">P0</span></div><div class="pcard__chips"><span class="pcard__chip">Executive</span><span class="pcard__chip">Permanent</span><span class="pcard__chip">Remote</span></div><div class="pcard__info"><span class="pcard__salary">£230,000</span><span class="pcard__days pcard__days--red">45d open</span><span class="pcard__jd">📄 JD</span></div><div class="pcard__pipeline"><div class="pcard__bar"><span style="width:50%;background:var(--text-muted)"></span><span style="width:30%;background:var(--amber)"></span><span style="width:20%;background:var(--blue)"></span></div><span class="pcard__cands">5 candidates</span></div></div>
+        <div class="pcard"><div class="pcard__header"><div><div class="pcard__title-area"><span class="pcard__dot pcard__dot--open"></span><span class="pcard__title">Lead Full Stack Developer</span></div></div><span class="pcard__prio pcard__prio--p1">P1</span></div><div class="pcard__chips"><span class="pcard__chip">Lead</span><span class="pcard__chip">Permanent</span></div><div class="pcard__info"><span class="pcard__salary">£92,000</span><span class="pcard__days pcard__days--amber">21d open</span></div><div class="pcard__pipeline"><div class="pcard__bar"><span style="width:60%;background:var(--text-muted)"></span><span style="width:40%;background:var(--amber)"></span></div><span class="pcard__cands">3 candidates</span></div></div>
+        <div class="pcard"><div class="pcard__header"><div><div class="pcard__title-area"><span class="pcard__dot pcard__dot--open"></span><span class="pcard__title">Game Design Lead</span></div></div><span class="pcard__prio pcard__prio--p1">P1</span></div><div class="pcard__chips"><span class="pcard__chip">Lead</span><span class="pcard__chip">Remote</span></div><div class="pcard__info"><span class="pcard__salary">£70,150</span><span class="pcard__days pcard__days--green">8d open</span><span class="pcard__jd">📄 JD</span></div><div class="pcard__pipeline"><div class="pcard__bar"><span style="width:33%;background:var(--text-muted)"></span><span style="width:67%;background:var(--amber)"></span></div><span class="pcard__cands">2 candidates</span></div></div>
+        <div class="pcard"><div class="pcard__header"><div><div class="pcard__title-area"><span class="pcard__dot pcard__dot--filled"></span><span class="pcard__title">Lead Animator</span></div></div><span class="pcard__prio pcard__prio--p2">P2</span></div><div class="pcard__chips"><span class="pcard__chip">Lead</span><span class="pcard__chip" style="color:var(--green)">Filled</span></div><div class="pcard__info"><span class="pcard__salary">£114,960</span><span style="color:var(--green);font-size:0.78rem">Hired</span></div><div class="pcard__pipeline"><div class="pcard__bar"><span style="width:100%;background:var(--purple)"></span></div><span class="pcard__cands">1 hired</span></div></div>
+        <div class="pcard"><div class="pcard__header"><div><div class="pcard__title-area"><span class="pcard__dot pcard__dot--open"></span><span class="pcard__title">Head of Finance</span></div></div><span class="pcard__prio pcard__prio--p1">P1</span></div><div class="pcard__chips"><span class="pcard__chip">Senior</span><span class="pcard__chip">Permanent</span></div><div class="pcard__info"><span class="pcard__salary">£97,750</span><span class="pcard__days pcard__days--amber">18d open</span><span class="pcard__jd">📄 JD</span></div><div class="pcard__pipeline"><div class="pcard__bar"><span style="width:50%;background:var(--amber)"></span><span style="width:50%;background:var(--blue)"></span></div><span class="pcard__cands">2 candidates</span></div></div>
+        <div class="pcard"><div class="pcard__header"><div><div class="pcard__title-area"><span class="pcard__dot pcard__dot--open"></span><span class="pcard__title">Executive Producer</span></div></div><span class="pcard__prio pcard__prio--p0">P0</span></div><div class="pcard__chips"><span class="pcard__chip">Executive</span><span class="pcard__chip">Permanent</span></div><div class="pcard__info"><span class="pcard__salary">£172,500</span><span class="pcard__days pcard__days--red">32d open</span></div><div class="pcard__pipeline"><div class="pcard__bar"><span style="width:50%;background:var(--amber)"></span><span style="width:50%;background:var(--blue)"></span></div><span class="pcard__cands">2 candidates</span></div></div>
+      </div>
+    </div>
+
+    <!-- ═══ DATABASE VIEW ═══ -->
+    <div id="vDatabase" class="view">
+      <table class="db-table">
+        <thead><tr><th>Candidate</th><th>Role</th><th>Client</th><th>Stage</th><th>Source</th><th>Days</th><th>Last Activity</th></tr></thead>
+        <tbody>
+          <tr onclick="openPanel()"><td class="db-table__name">Marcus Webb</td><td class="db-table__role">Lead Full Stack Developer</td><td>Couch Heroes</td><td><span class="db-table__stage db-table__stage--sourcing">Sourcing</span></td><td>LinkedIn</td><td style="color:var(--red);font-weight:600">12d</td><td style="color:var(--text-muted)">8 May</td></tr>
+          <tr onclick="openPanel()"><td class="db-table__name">James Okonkwo</td><td class="db-table__role">Game Design Lead</td><td>Couch Heroes</td><td><span class="db-table__stage db-table__stage--interviews">Interviews</span></td><td>LinkedIn</td><td>4d</td><td style="color:var(--text-muted)">16 May</td></tr>
+          <tr onclick="openPanel()"><td class="db-table__name">Elena Rossi</td><td class="db-table__role">Head of Finance</td><td>Couch Heroes</td><td><span class="db-table__stage db-table__stage--offer">Offer</span></td><td>Agency</td><td>2d</td><td style="color:var(--text-muted)">18 May</td></tr>
+          <tr onclick="openPanel()"><td class="db-table__name">Priya Sharma</td><td class="db-table__role">Snr Technical Artist</td><td>Couch Heroes</td><td><span class="db-table__stage db-table__stage--interviews">Interviews</span></td><td>Referral</td><td>2d</td><td style="color:var(--text-muted)">18 May</td></tr>
+          <tr onclick="openPanel()"><td class="db-table__name">Clara Johansson</td><td class="db-table__role">HR Operations</td><td>Couch Heroes</td><td><span class="db-table__stage db-table__stage--onboarding">Onboarding</span></td><td>Inbound</td><td>3d</td><td style="color:var(--text-muted)">17 May</td></tr>
+          <tr onclick="openPanel()"><td class="db-table__name">Thomas Mueller</td><td class="db-table__role">Lead Gameplay Developer</td><td>Couch Heroes</td><td><span class="db-table__stage db-table__stage--interviews">Interviews</span></td><td>LinkedIn</td><td style="color:var(--red);font-weight:600">8d</td><td style="color:var(--text-muted)">12 May</td></tr>
+          <tr onclick="openPanel()"><td class="db-table__name">Mia Torres</td><td class="db-table__role">Lead Animator</td><td>Couch Heroes</td><td><span class="db-table__stage db-table__stage--onboarded">Onboarded</span></td><td>Agency</td><td style="color:var(--green)">✓</td><td style="color:var(--text-muted)">1 May</td></tr>
+          <tr onclick="openPanel()"><td class="db-table__name">Kenji Tanaka</td><td class="db-table__role">Tools Engineer</td><td>Couch Heroes</td><td><span class="db-table__stage db-table__stage--sourcing">Sourcing</span></td><td>Referral</td><td>3d</td><td style="color:var(--text-muted)">17 May</td></tr>
+          <tr onclick="openPanel()"><td class="db-table__name">Alex Novak</td><td class="db-table__role">Level Design Lead</td><td>Couch Heroes</td><td><span class="db-table__stage db-table__stage--interviews">Interviews</span></td><td>LinkedIn</td><td style="color:var(--red);font-weight:600">15d</td><td style="color:var(--text-muted)">5 May</td></tr>
+          <tr onclick="openPanel()"><td class="db-table__name">Ben Adekunle</td><td class="db-table__role">IT Lead</td><td>Couch Heroes</td><td><span class="db-table__stage db-table__stage--offer">Offer</span></td><td>Inbound</td><td style="color:var(--red);font-weight:600">11d</td><td style="color:var(--text-muted)">9 May</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ═══ CALENDAR VIEW ═══ -->
+    <div id="vCalendar" class="view">
+      <div class="cal-week">
+        <div class="cal-week__header"></div>
+        <div class="cal-week__header">Mon 19</div>
+        <div class="cal-week__header">Tue 20</div>
+        <div class="cal-week__header cal-week__header--today">Wed 21</div>
+        <div class="cal-week__header">Thu 22</div>
+        <div class="cal-week__header">Fri 23</div>
+
+        <div class="cal-week__time">09:00</div>
+        <div class="cal-week__cell"></div>
+        <div class="cal-week__cell"><div class="cal-event" style="top:4px;height:50px">James O. — Tech Screen</div></div>
+        <div class="cal-week__cell"></div>
+        <div class="cal-week__cell"></div>
+        <div class="cal-week__cell"><div class="cal-event cal-event--green" style="top:4px;height:50px">Priya S. — Portfolio</div></div>
+
+        <div class="cal-week__time">10:00</div>
+        <div class="cal-week__cell"></div>
+        <div class="cal-week__cell"></div>
+        <div class="cal-week__cell"><div class="cal-event cal-event--amber" style="top:4px;height:50px">Thomas M. — Final Round</div></div>
+        <div class="cal-week__cell"></div>
+        <div class="cal-week__cell"></div>
+
+        <div class="cal-week__time">11:00</div>
+        <div class="cal-week__cell"><div class="cal-event" style="top:4px;height:50px">Rachel K. — Design Test</div></div>
+        <div class="cal-week__cell"></div>
+        <div class="cal-week__cell"></div>
+        <div class="cal-week__cell"><div class="cal-event cal-event--green" style="top:4px;height:50px">Elena R. — Offer Call</div></div>
+        <div class="cal-week__cell"></div>
+
+        <div class="cal-week__time">12:00</div>
+        <div class="cal-week__cell"></div><div class="cal-week__cell"></div><div class="cal-week__cell"></div><div class="cal-week__cell"></div><div class="cal-week__cell"></div>
+
+        <div class="cal-week__time">13:00</div>
+        <div class="cal-week__cell"></div><div class="cal-week__cell"></div><div class="cal-week__cell"></div><div class="cal-week__cell"></div><div class="cal-week__cell"></div>
+
+        <div class="cal-week__time">14:00</div>
+        <div class="cal-week__cell"></div>
+        <div class="cal-week__cell"></div>
+        <div class="cal-week__cell"><div class="cal-event" style="top:4px;height:50px">Alex N. — Debrief</div></div>
+        <div class="cal-week__cell"></div>
+        <div class="cal-week__cell"><div class="cal-event cal-event--amber" style="top:4px;height:50px">Yuki I. — Offer Review</div></div>
+
+        <div class="cal-week__time">15:00</div>
+        <div class="cal-week__cell"></div><div class="cal-week__cell"></div><div class="cal-week__cell"></div><div class="cal-week__cell"></div><div class="cal-week__cell"></div>
+
+        <div class="cal-week__time">16:00</div>
+        <div class="cal-week__cell"><div class="cal-event cal-event--green" style="top:4px;height:50px">Clara J. — Onboard Check</div></div>
+        <div class="cal-week__cell"></div><div class="cal-week__cell"></div><div class="cal-week__cell"></div><div class="cal-week__cell"></div>
+      </div>
+    </div>
+
+    <!-- ═══ METRICS VIEW ═══ -->
+    <div id="vMetrics" class="view">
+      <div class="stats-row">
+        <div class="stat"><div class="stat__val stat__val--accent">18</div><div class="stat__lbl">Active Candidates</div></div>
+        <div class="stat"><div class="stat__val stat__val--green">2</div><div class="stat__lbl">Hires This Quarter</div></div>
+        <div class="stat"><div class="stat__val">34</div><div class="stat__lbl">Avg Days to Hire</div></div>
+        <div class="stat"><div class="stat__val">28</div><div class="stat__lbl">Median Days</div></div>
+        <div class="stat"><div class="stat__val">30</div><div class="stat__lbl">Open Positions</div></div>
+      </div>
+      <div class="chart-box">
+        <div class="chart-box__title">Pipeline Funnel — Couch Heroes</div>
+        <div class="frow"><span class="frow__lbl">Sourcing</span><div class="frow__track"><div class="frow__fill" style="width:100%;background:var(--text-muted)">6</div></div></div>
+        <div class="fconv"><span class="fconv__pct fconv__pct--good">↓ 83%</span></div>
+        <div class="frow"><span class="frow__lbl">Interviews</span><div class="frow__track"><div class="frow__fill" style="width:83%;background:var(--amber)">5</div></div></div>
+        <div class="fconv"><span class="fconv__pct fconv__pct--warn">↓ 60%</span></div>
+        <div class="frow"><span class="frow__lbl">Offer</span><div class="frow__track"><div class="frow__fill" style="width:50%;background:var(--blue)">3</div></div></div>
+        <div class="fconv"><span class="fconv__pct fconv__pct--good">↓ 67%</span></div>
+        <div class="frow"><span class="frow__lbl">Onboarding</span><div class="frow__track"><div class="frow__fill" style="width:33%;background:var(--green)">2</div></div></div>
+        <div class="fconv"><span class="fconv__pct fconv__pct--good">↓ 100%</span></div>
+        <div class="frow"><span class="frow__lbl">Onboarded</span><div class="frow__track"><div class="frow__fill" style="width:33%;background:var(--purple)">2</div></div></div>
+      </div>
+      <div class="chart-box">
+        <div class="chart-box__title">Average Time in Stage (days)</div>
+        <div class="trow"><span class="trow__lbl">Sourcing</span><div class="trow__track"><div class="trow__fill" style="width:33%;background:var(--green)">5d</div></div><span class="trow__n">6 cand.</span></div>
+        <div class="trow"><span class="trow__lbl">Interviews</span><div class="trow__track"><div class="trow__fill" style="width:80%;background:var(--amber)">12d</div></div><span class="trow__n">5 cand.</span></div>
+        <div class="trow"><span class="trow__lbl">Offer</span><div class="trow__track"><div class="trow__fill" style="width:47%;background:var(--green)">7d</div></div><span class="trow__n">3 cand.</span></div>
+        <div class="trow"><span class="trow__lbl">Onboarding</span><div class="trow__track"><div class="trow__fill" style="width:100%;background:var(--red)">15d</div></div><span class="trow__n">2 cand.</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ DETAIL PANEL ═══════ -->
+<div class="overlay" id="ov" onclick="closePanel()"></div>
+<div class="panel" id="pnl">
+  <div class="panel__head">
+    <div class="panel__head-row">
+      <div><div class="panel__name">James Okonkwo</div><div class="panel__role">Game Design Lead</div></div>
+      <button class="panel__close" onclick="closePanel()">✕</button>
+    </div>
+    <div class="panel__meta">
+      <span class="panel__tag panel__tag--interviews">Interviews</span>
+      <span style="font-size:0.75rem;color:var(--text-muted)">Couch Heroes</span>
+      <span style="font-size:0.68rem;color:var(--text-faint)">·</span>
+      <span style="font-size:0.72rem;color:var(--text-muted)">4 days in stage</span>
+    </div>
+  </div>
+  <div class="panel__stage">
+    <button class="panel__stage-btn">←</button>
+    <select class="panel__stage-sel"><option>Sourcing</option><option selected>Interviews</option><option>Offer</option><option>Onboarding</option><option>Onboarded</option></select>
+    <button class="panel__stage-btn panel__stage-btn--go">→</button>
+    <div class="panel__chips"><span class="panel__chip">VK <button>×</button></span><span class="panel__chip">GP <button>×</button></span></div>
+  </div>
+  <div class="panel__tabs">
+    <button class="panel__tab panel__tab--on" onclick="pTab('profile')">Profile</button>
+    <button class="panel__tab" onclick="pTab('interviews')">Interviews (1)</button>
+    <button class="panel__tab" onclick="pTab('activity')">Activity</button>
+    <button class="panel__tab" onclick="pTab('settings')">Settings</button>
+  </div>
+  <div class="panel__body">
+    <div class="ptab ptab--on" id="ptProfile">
+      <div class="psec"><div class="psec__title">Contact</div>
+        <div class="pfield"><div class="pfield__lbl">Name</div><input class="pfield__input" value="James Okonkwo"></div>
+        <div class="pfield"><div class="pfield__lbl">Email</div><input class="pfield__input" value="j.okonkwo@email.com"></div>
+        <div class="pfield"><div class="pfield__lbl">LinkedIn</div><input class="pfield__input" value="linkedin.com/in/jamesokonkwo"></div>
+      </div>
+      <div class="psec"><div class="psec__title">Application</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="pfield"><div class="pfield__lbl">Source</div><select class="pfield__input" style="font-family:inherit"><option>Referral</option><option selected>LinkedIn</option><option>Inbound</option><option>Agency</option></select></div>
+          <div class="pfield"><div class="pfield__lbl">Due Date</div><input class="pfield__input" type="date" value="2026-06-01"></div>
+        </div>
+        <div class="pfield"><div class="pfield__lbl">Position</div><select class="pfield__input" style="font-family:inherit"><option selected>Game Design Lead</option><option>Lead Gameplay Developer</option></select></div>
+        <div class="pfield"><div class="pfield__lbl">CV</div><div style="display:flex;gap:8px;align-items:center"><span style="font-size:0.82rem;color:var(--text-secondary)">james_okonkwo_cv.pdf</span><button class="btn" style="padding:4px 12px;font-size:0.75rem">Preview</button><button class="btn" style="padding:4px 12px;font-size:0.75rem">Download</button></div></div>
+      </div>
+      <div class="psec"><div class="psec__title">Tags</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap"><span style="background:var(--accent-soft);color:var(--accent);border-radius:20px;padding:4px 12px;font-size:0.72rem;font-weight:500;display:flex;align-items:center;gap:4px">strong portfolio <button style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:0.78rem">×</button></span><span style="background:var(--accent-soft);color:var(--accent);border-radius:20px;padding:4px 12px;font-size:0.72rem;font-weight:500;display:flex;align-items:center;gap:4px">UE5 <button style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:0.78rem">×</button></span><input style="background:none;border:1px dashed var(--border);border-radius:20px;padding:4px 12px;font-size:0.72rem;color:var(--text-muted);width:100px;outline:none;font-family:inherit" placeholder="+ Add tag"></div>
+      </div>
+    </div>
+    <div class="ptab" id="ptInterviews">
+      <div class="psec"><div class="psec__title">Interview Rounds</div>
+        <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);padding:18px;margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div><div style="font-weight:700;font-size:0.88rem">Round 1 — Technical Screen</div><div style="font-size:0.72rem;color:var(--text-muted);margin-top:3px">23 May 2026 · 60 min · Remote</div></div><span style="background:var(--green-soft);color:var(--green);padding:3px 10px;border-radius:10px;font-size:0.65rem;font-weight:700;text-transform:uppercase">Completed</span></div>
+          <div style="display:flex;gap:12px;align-items:center"><div style="display:flex;align-items:center;gap:6px"><div style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#f5a623,#d4880f);display:flex;align-items:center;justify-content:center;font-size:0.52rem;font-weight:700;color:#fff">VK</div><span style="font-size:0.78rem;color:var(--text-secondary)">Vardis K.</span></div><span style="font-size:0.82rem;color:var(--green);font-weight:700">4.2 / 5</span><span style="font-size:0.65rem;background:var(--green-soft);color:var(--green);padding:2px 8px;border-radius:8px;text-transform:uppercase;font-weight:700">Strong Yes</span></div>
+        </div>
+        <button class="btn" style="width:100%;justify-content:center;border-style:dashed;color:var(--text-muted)">+ Schedule Next Round</button>
+      </div>
+    </div>
+    <div class="ptab" id="ptActivity">
+      <div class="psec"><div class="psec__title">Timeline</div>
+        <div style="border-left:2px solid var(--border);padding-left:16px;margin-left:6px;display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;justify-content:space-between;font-size:0.82rem"><div><span class="panel__tag panel__tag--interviews" style="font-size:0.6rem;padding:2px 7px">Sourcing → Interviews</span> <span style="color:var(--text-muted)">by Glen Pryer</span></div><span style="color:var(--text-muted);font-size:0.72rem">2 days ago</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:0.82rem"><div><span style="color:var(--text-secondary)">CV uploaded</span> <span style="color:var(--text-muted)">by Glen Pryer</span></div><span style="color:var(--text-muted);font-size:0.72rem">5 days ago</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:0.82rem"><div><span class="panel__tag panel__tag--sourcing" style="font-size:0.6rem;padding:2px 7px">New → Sourcing</span> <span style="color:var(--text-muted)">by Glen Pryer</span></div><span style="color:var(--text-muted);font-size:0.72rem">6 days ago</span></div>
+        </div>
+      </div>
+      <div class="psec"><div class="psec__title">Comments (3)</div>
+        <div style="margin-bottom:10px;padding:14px;background:var(--bg-card);border-radius:var(--radius);border:1px solid var(--border-subtle)"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-weight:700;font-size:0.82rem">Glen Pryer</span><span style="font-size:0.68rem;color:var(--text-muted)">2 days ago</span></div><div style="font-size:0.82rem;color:var(--text-secondary);line-height:1.5">Strong portfolio. Previous experience at Supercell is very relevant. Schedule technical interview with Vardis.</div></div>
+        <div style="margin-bottom:10px;padding:14px;background:var(--bg-card);border-radius:var(--radius);border:1px solid var(--border-subtle)"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-weight:700;font-size:0.82rem">Vardis K. <span style="font-size:0.58rem;background:var(--amber-soft);color:var(--amber);padding:1px 5px;border-radius:4px;font-weight:700">INTERNAL</span></span><span style="font-size:0.68rem;color:var(--text-muted)">1 day ago</span></div><div style="font-size:0.82rem;color:var(--text-secondary);line-height:1.5">Interviewed yesterday. Very impressed with systems thinking. Wants to implement emergent narrative which aligns with our vision.</div></div>
+        <div style="display:flex;gap:8px;margin-top:12px"><input class="pfield__input" style="flex:1;font-size:0.82rem" placeholder="Add a comment…"><button class="btn btn--primary" style="padding:8px 16px">Post</button></div>
+      </div>
+    </div>
+    <div class="ptab" id="ptSettings">
+      <div class="psec"><div class="psec__title">Data Consent</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><input type="checkbox" checked style="accent-color:var(--accent)"><span style="font-size:0.85rem">Consent given</span><span style="font-size:0.72rem;color:var(--text-muted)">15 May 2026</span></div>
+        <div class="pfield"><div class="pfield__lbl">Retention Expires</div><input class="pfield__input" type="date" value="2027-05-15"></div>
+      </div>
+      <div class="psec"><div class="psec__title">Notes</div><textarea class="pfield__input" rows="4" style="resize:vertical;font-family:inherit">Previously worked at Supercell (2019-2023) and CD Projekt Red (2023-2025). Strong systems design background.</textarea></div>
+      <div style="display:flex;gap:8px;padding-top:16px;border-top:1px solid var(--border)">
+        <button class="btn" style="color:var(--red);border-color:var(--red)">Archive Candidate</button>
+        <button class="btn" style="background:var(--red-soft);color:var(--red);border-color:var(--red)">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showView(v) {
+  ['Pipeline','Positions','Database','Calendar','Metrics'].forEach(n => {
+    document.getElementById('v'+n).classList.toggle('view--on', n.toLowerCase() === v);
+  });
+  document.querySelectorAll('.subnav__tab').forEach(t => t.classList.remove('subnav__tab--active'));
+  event.target.classList.add('subnav__tab--active');
+  const fb = document.getElementById('filtersBar');
+  fb.style.display = (v === 'metrics' || v === 'calendar') ? 'none' : '';
+}
+function openPanel() {
+  document.getElementById('ov').classList.add('open');
+  document.getElementById('pnl').classList.add('open');
+}
+function closePanel() {
+  document.getElementById('ov').classList.remove('open');
+  document.getElementById('pnl').classList.remove('open');
+}
+function pTab(t) {
+  document.querySelectorAll('.panel__tab').forEach(b => b.classList.remove('panel__tab--on'));
+  document.querySelectorAll('.ptab').forEach(p => p.classList.remove('ptab--on'));
+  event.target.classList.add('panel__tab--on');
+  document.getElementById('pt'+t.charAt(0).toUpperCase()+t.slice(1)).classList.add('ptab--on');
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanel(); });
+</script>
+</body>
+</html>
