@@ -410,13 +410,35 @@ module.exports = function (ctx) {
       const config = configRows[0];
 
       const questions = [];
-      if (!isPhoneScreen && question_ids) {
-        for (let idx = 0; idx < question_ids.length; idx++) {
-          const { rows } = await conn.query(
-            `INSERT INTO interview_config_questions (config_id, question_id, sort_order) VALUES ($1, $2, $3) RETURNING *`,
-            [config.id, question_ids[idx], idx]
+      let fromTemplate = false;
+
+      if (!isPhoneScreen) {
+        let effectiveQuestionIds = question_ids || null;
+
+        if (!effectiveQuestionIds && nextRoundNumber === 1 && resolvedPositionId) {
+          const { rows: templateRows } = await conn.query(
+            'SELECT question_id FROM position_question_templates WHERE position_id = $1 ORDER BY sort_order ASC',
+            [resolvedPositionId]
           );
-          questions.push(rows[0]);
+          if (templateRows.length > 0) {
+            effectiveQuestionIds = templateRows.map(r => r.question_id);
+            fromTemplate = true;
+          }
+        }
+
+        if (effectiveQuestionIds) {
+          for (let idx = 0; idx < effectiveQuestionIds.length; idx++) {
+            const { rows } = await conn.query(
+              `INSERT INTO interview_config_questions (config_id, question_id, sort_order) VALUES ($1, $2, $3) RETURNING *`,
+              [config.id, effectiveQuestionIds[idx], idx]
+            );
+            questions.push(rows[0]);
+          }
+        }
+
+        if (fromTemplate) {
+          await conn.query('UPDATE interview_configs SET from_template = true WHERE id = $1', [config.id]);
+          config.from_template = true;
         }
       }
 

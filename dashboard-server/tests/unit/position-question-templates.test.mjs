@@ -15,6 +15,7 @@ const { mintSession } = require('../helpers/auth.js');
 const {
   createTestUser,
   createTestClient,
+  createTestCandidate,
   createTestInterviewQuestion,
   createTestPositionTemplate,
 } = require('../helpers/fixtures.js');
@@ -177,5 +178,75 @@ describe('DELETE /api/positions/:id/question-template/questions/:questionId', ()
       .set('Authorization', `Bearer ${token}`);
 
     expect(res.status).toBe(404);
+  });
+});
+
+describe('POST /api/interview-configs — template auto-load', () => {
+  it('auto-loads template questions on first round when question_ids not provided', async () => {
+    const { token, admin, position, question, client } = await createPositionWithQuestion();
+    await createTestPositionTemplate({ position_id: position.id, question_id: question.id, sort_order: 0, added_by: admin.id });
+    const candidate = await createTestCandidate({ client_id: client.id, position_id: position.id });
+
+    const res = await request(app)
+      .post('/api/interview-configs')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ candidate_id: candidate.id, round_type: 'Technical', interviewer_ids: [admin.id] });
+
+    expect(res.status).toBe(201);
+    expect(res.body.config.from_template).toBe(true);
+    expect(res.body.questions).toHaveLength(1);
+    expect(res.body.questions[0].question_id).toBe(question.id);
+  });
+
+  it('does not auto-load on second round', async () => {
+    const { token, admin, position, question, client } = await createPositionWithQuestion();
+    await createTestPositionTemplate({ position_id: position.id, question_id: question.id, sort_order: 0, added_by: admin.id });
+    const candidate = await createTestCandidate({ client_id: client.id, position_id: position.id });
+
+    await request(app)
+      .post('/api/interview-configs')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ candidate_id: candidate.id, round_type: 'Technical', interviewer_ids: [admin.id] });
+
+    const res = await request(app)
+      .post('/api/interview-configs')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ candidate_id: candidate.id, round_type: 'Cultural', interviewer_ids: [admin.id] });
+
+    expect(res.status).toBe(201);
+    expect(res.body.config.from_template).toBe(false);
+    expect(res.body.questions).toHaveLength(0);
+  });
+
+  it('uses explicit question_ids over template when provided', async () => {
+    const { token, admin, position, question, client } = await createPositionWithQuestion();
+    await createTestPositionTemplate({ position_id: position.id, question_id: question.id, sort_order: 0, added_by: admin.id });
+    const candidate = await createTestCandidate({ client_id: client.id, position_id: position.id });
+    const q2 = await createTestInterviewQuestion({ client_id: client.id, category: 'culture', question_text: 'Override Q' });
+
+    const res = await request(app)
+      .post('/api/interview-configs')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ candidate_id: candidate.id, round_type: 'Technical', question_ids: [q2.id], interviewer_ids: [admin.id] });
+
+    expect(res.status).toBe(201);
+    expect(res.body.config.from_template).toBe(false);
+    expect(res.body.questions).toHaveLength(1);
+    expect(res.body.questions[0].question_id).toBe(q2.id);
+  });
+
+  it('skips template for Phone Screen rounds', async () => {
+    const { token, admin, position, question, client } = await createPositionWithQuestion();
+    await createTestPositionTemplate({ position_id: position.id, question_id: question.id, sort_order: 0, added_by: admin.id });
+    const candidate = await createTestCandidate({ client_id: client.id, position_id: position.id });
+
+    const res = await request(app)
+      .post('/api/interview-configs')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ candidate_id: candidate.id, round_type: 'Phone Screen', interviewer_name: 'Jane' });
+
+    expect(res.status).toBe(201);
+    expect(res.body.config.from_template).toBe(false);
+    expect(res.body.questions).toHaveLength(0);
   });
 });
