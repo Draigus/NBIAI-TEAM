@@ -554,8 +554,9 @@ module.exports = function (ctx) {
         clientDeliveries[cn].push(r);
       });
 
-      // Knowledge flags from latest snapshot
+      // Knowledge flags + dreaming from latest snapshot
       let knowledgeFlags = { stale_brain_modules: [], stale_memory_files: [], dormant_roles_count: 0 };
+      let dreamingData = null;
       const { rows: snapRows } = await pool.query('SELECT data FROM cc_snapshots ORDER BY snapshot_date DESC LIMIT 1');
       if (snapRows.length > 0) {
         const snapData = snapRows[0].data;
@@ -568,6 +569,7 @@ module.exports = function (ctx) {
         if (snapData.brain) {
           knowledgeFlags.dormant_roles_count = snapData.brain.roles.filter(r => !r.has_knowledge || (r.knowledge_freshness !== null && r.knowledge_freshness > 90)).length;
         }
+        if (snapData.dreaming) dreamingData = snapData.dreaming;
       }
 
       // Assemble critical items
@@ -654,7 +656,7 @@ module.exports = function (ctx) {
           },
           client_deliveries: clientDeliveries,
           knowledge_flags: knowledgeFlags,
-          dreaming: snapRows.length > 0 && snapRows[0].data.dreaming ? snapRows[0].data.dreaming : null,
+          dreaming: dreamingData,
         },
         error: null,
       });
