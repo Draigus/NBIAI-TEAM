@@ -1,6 +1,6 @@
 module.exports = function(ctx) {
   const router = require('express').Router();
-  const { pool, requireAdmin, isValidUuid } = ctx;
+  const { pool, requireNBI, isValidUuid } = ctx;
 
   router.get('/api/users/:userId/time-off', async (req, res) => {
     if (!isValidUuid(req.params.userId)) return res.status(400).json({ error: 'Invalid user ID' });
@@ -24,7 +24,7 @@ module.exports = function(ctx) {
     res.json(rows);
   });
 
-  router.post('/api/users/:userId/time-off', requireAdmin, async (req, res) => {
+  router.post('/api/users/:userId/time-off', requireNBI, async (req, res) => {
     if (!isValidUuid(req.params.userId)) return res.status(400).json({ error: 'Invalid user ID' });
     const { start_date, end_date, label } = req.body;
     if (!start_date || !end_date) return res.status(400).json({ error: 'start_date and end_date are required' });
@@ -36,7 +36,7 @@ module.exports = function(ctx) {
     res.status(201).json(rows[0]);
   });
 
-  router.delete('/api/time-off/:id', requireAdmin, async (req, res) => {
+  router.delete('/api/time-off/:id', requireNBI, async (req, res) => {
     if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid time-off ID' });
     const { rowCount } = await pool.query('DELETE FROM time_off WHERE id = $1', [req.params.id]);
     if (rowCount === 0) return res.status(404).json({ error: 'Not found' });

@@ -370,6 +370,9 @@ module.exports = function (ctx) {
     if (!stage_id) return res.status(400).json({ error: 'Stage required' });
     const lenErr = validateLength(title, 'title') || validateLength(notes, 'notes');
     if (lenErr) return res.status(400).json({ error: lenErr });
+    if (win_probability != null && (win_probability < 0 || win_probability > 100)) {
+      return res.status(400).json({ error: 'Win probability must be between 0 and 100' });
+    }
 
     const conn = await pool.connect();
     try {
@@ -448,6 +451,9 @@ module.exports = function (ctx) {
     const sanitisedBody = { ...req.body };
     for (const f of patchFields) {
       if (sanitisedBody[f] === '') sanitisedBody[f] = null;
+    }
+    if (sanitisedBody.win_probability != null && (sanitisedBody.win_probability < 0 || sanitisedBody.win_probability > 100)) {
+      return res.status(400).json({ error: 'Win probability must be between 0 and 100' });
     }
     const { updates, vals, nextIdx } = buildPatchQuery(sanitisedBody, patchFields);
     if (req.body.title !== undefined && !req.body.title.trim()) {

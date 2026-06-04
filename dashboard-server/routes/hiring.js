@@ -46,9 +46,10 @@ module.exports = function (ctx) {
     'offer',
     'onboarding',
     'onboarded',
+    'process_closed',
   ];
 
-  const STAGE_LABELS = { sourcing: 'Sourcing', interviews: 'Interviews', offer: 'Offer', onboarding: 'Onboarding', onboarded: 'Onboarded' };
+  const STAGE_LABELS = { sourcing: 'Sourcing', interviews: 'Interviews', offer: 'Offer', onboarding: 'Onboarding', onboarded: 'Onboarded', process_closed: 'Process Closed' };
   const VALID_REJECTION_CATEGORIES = ['unqualified', 'culture-mismatch', 'compensation', 'candidate-withdrew', 'position-filled', 'no-response', 'failed-interview', 'other'];
 
   // Default stage objects derived from the global HIRING_STAGES array.

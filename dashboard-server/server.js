@@ -80,6 +80,7 @@ const ALLOWED_UPLOAD_TYPES = new Set([
   'application/vnd.ms-excel', // xls
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // docx
   'text/csv', 'text/plain',
+  'text/html',
 ]);
 const upload = multer({
   storage: multer.diskStorage({
@@ -381,7 +382,7 @@ app.use(require('./routes/users')({ pool, log, requireAdmin, requireNBI, require
 app.use(require('./routes/settings')({ pool, requireAdmin }));
 app.use(require('./routes/finance')({ pool, requireNBI, requireAdmin, auditLog, syncConflicts, log }));
 app.use(require('./routes/time-entries')({ pool, isValidUuid, requireTaskAccess }));
-app.use(require('./routes/time-off')({ pool, requireAdmin, isValidUuid }));
+app.use(require('./routes/time-off')({ pool, requireAdmin, requireNBI, isValidUuid }));
 app.use(require('./routes/queue')({ pool, requireAdmin, log, isValidUuid, validateLength }));
 app.use(require('./routes/contacts')({ pool, requireAuth, requireAdmin, isValidUuid, buildPatchQuery }));
 app.use(require('./routes/client-notes')({ pool, requireAdmin, getClientScopes, buildPatchQuery }));

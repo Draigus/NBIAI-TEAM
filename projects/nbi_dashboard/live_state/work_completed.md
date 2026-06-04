@@ -4,6 +4,33 @@ Append-only. Every feature/fix completed gets logged here immediately.
 
 ---
 
+## 2026-06-04 — Bug Triage Sweep (19 bugs)
+
+Worked through all 19 open/in_progress WorkSage bugs. All set to please_review with detailed comments.
+
+**Code bugs fixed (13):**
+- critPriorities JS error — global filterByPriority() function
+- Likelihood cap 0-100 — server validation + DB CHECK constraint (migration 066)
+- Pipeline value over 100M — caused by uncapped likelihood
+- Scroll jumping (3 bugs) — _softReRender() now checks all panel types
+- Date calculation (2 bugs) — computeDateRange() separates dueDate vs endDate properly
+- HTML upload blocked — added text/html to ALLOWED_UPLOAD_TYPES
+- My Work tree expansion — fixed ordering of collapse/expand/render
+- Lead kanban card sizing — CSS word-wrap and overflow constraints
+- 0% progression markers — hidden when no progress
+- Task not started warnings — added to in-app alert system
+- Time off saving — changed from requireAdmin to requireNBI
+
+**Features added (3):**
+- "Process Closed" hiring stage (backend + frontend + colour)
+- Start date shown on hiring kanban cards (offer/onboarding/onboarded)
+- Work types: Barrier Analysis, AI Readiness, WorkSage
+
+**UX investigated (1):**
+- Revenue tracking — comment explaining where finance entries are managed
+
+---
+
 ## 2026-06-03 — Interview UX Redesign Phase A (DB + API)
 
 Complete database and API foundation for unified round-based interview system:
