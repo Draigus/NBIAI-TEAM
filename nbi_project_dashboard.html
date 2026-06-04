@@ -704,6 +704,7 @@ button.sidebar__title::after { content: "▾"; font-size: 0.75rem; transition: t
 .task-tree { margin-top: var(--space-lg); }
 .task-row { display: flex; align-items: center; gap: var(--space-sm); padding: 8px var(--space-lg); border-bottom: 1px solid var(--border-subtle); cursor: pointer; transition: background 0.1s; }
 .task-row:hover { background: var(--bg-hover); }
+.task-row--highlight { background: var(--accent-bg); transition: background 2s ease-out; }
 .task-row__toggle { width: 22px; color: var(--accent-text); font-size: 0.85rem; cursor: pointer; flex-shrink: 0; user-select: none; }
 .task-row__checkbox { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
 .task-row__status-icon { width: 20px; height: 20px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.75rem; line-height: 1; cursor: pointer; border: 2px solid var(--border-strong); color: transparent; transition: all 0.15s; }
@@ -1676,7 +1677,8 @@ span.fin-editable { display: inline-block; position: relative; }
 /* Kanban cards */
 .leads-kanban__card { background: var(--bg-card); border: 1px solid var(--border-default);
   border-radius: var(--radius-sm); padding: 6px 8px; cursor: pointer;
-  transition: all 0.15s; font-size: 0.75rem; }
+  transition: all 0.15s; font-size: 0.75rem; width: 100%; box-sizing: border-box;
+  overflow: hidden; word-wrap: break-word; }
 .leads-kanban__card:hover { border-color: var(--accent-border); transform: translateY(-1px);
   box-shadow: var(--shadow-sm); }
 .leads-kanban__card.dragging { opacity: 0.3; }
@@ -1696,7 +1698,7 @@ span.fin-editable { display: inline-block; position: relative; }
 .leads-card__client { font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
   color: var(--accent); margin-bottom: 4px; letter-spacing: 0.3px; }
 .leads-card__title { font-size: 0.82rem; font-weight: 500; margin-bottom: 6px;
-  color: var(--text-primary); }
+  color: var(--text-primary); white-space: normal; word-break: break-word; min-width: 0; }
 .leads-card__meta { display: flex; align-items: center; gap: 6px; font-size: 0.75rem;
   color: var(--text-secondary); margin-bottom: 4px; }
 .leads-card__prio { font-size: 0.75rem; font-weight: 700; padding: 1px 5px;
@@ -2146,6 +2148,7 @@ span.fin-editable { display: inline-block; position: relative; }
 .hiring-stage-badge--offer      { background: color-mix(in srgb, #2563eb 15%, var(--bg-card)); color: #2563eb; }
 .hiring-stage-badge--onboarding { background: color-mix(in srgb, #10b981 15%, var(--bg-card)); color: #10b981; }
 .hiring-stage-badge--onboarded  { background: var(--success-bg, color-mix(in srgb, var(--success) 15%, var(--bg-card))); color: var(--success); }
+.hiring-stage-badge--process_closed { background: var(--bg-surface); color: var(--text-muted); }
 .hiring-stage-badge--sourced    { background: var(--bg-surface); color: var(--text-muted); }
 .hiring-stage-badge--screening  { background: color-mix(in srgb, #3b82f6 15%, var(--bg-card)); color: #3b82f6; }
 .hiring-stage-badge--interview  { background: color-mix(in srgb, #f59e0b 15%, var(--bg-card)); color: #f59e0b; }
@@ -4936,22 +4939,32 @@ function aggHours(taskId) {
 
 function computeDateRange(taskId) {
   const children = getDescendants(taskId);
-  if (children.length === 0) return { start: '', end: '' };
+  if (children.length === 0) return { start: '', dueDate: '', endDate: '' };
+  const fmt = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   let earliest = null;
-  let latest = null;
+  let latestDue = null;
+  let latestEnd = null;
+  let allHaveEnd = true;
   children.forEach(c => {
     if (c.startDate) {
       const d = safeParseDate(c.startDate);
       if (d && (!earliest || d < earliest)) earliest = d;
     }
-    if (c.endDate || c.dueDate) {
-      const d = safeParseDate(c.endDate || c.dueDate);
-      if (d && (!latest || d > latest)) latest = d;
+    if (c.dueDate) {
+      const d = safeParseDate(c.dueDate);
+      if (d && (!latestDue || d > latestDue)) latestDue = d;
+    }
+    if (c.endDate) {
+      const d = safeParseDate(c.endDate);
+      if (d && (!latestEnd || d > latestEnd)) latestEnd = d;
+    } else {
+      allHaveEnd = false;
     }
   });
   return {
-    start: earliest ? `${earliest.getFullYear()}-${String(earliest.getMonth()+1).padStart(2,'0')}-${String(earliest.getDate()).padStart(2,'0')}` : '',
-    end: latest ? `${latest.getFullYear()}-${String(latest.getMonth()+1).padStart(2,'0')}-${String(latest.getDate()).padStart(2,'0')}` : ''
+    start: earliest ? fmt(earliest) : '',
+    dueDate: latestDue ? fmt(latestDue) : '',
+    endDate: allHaveEnd && latestEnd ? fmt(latestEnd) : ''
   };
 }
 
@@ -5377,7 +5390,7 @@ function renderSidebar() {
   html += sidebarSectionOpen('quickfilters', 'Quick Filters');
   const critPriorities = ['Urgent', 'High'];
   const critCount = practiceTasks.filter(t => critPriorities.includes(t.priority)).length;
-  html += sidebarItem('&#9888;', 'Urgent / High', critCount, () => { currentFilter = { ...currentFilter, status: [], health: [], priority: critPriorities, client: null, project: null }; switchView('tasks'); renderAll(); }, false);
+  html += sidebarItem('&#9888;', 'Urgent / High', critCount, () => { filterByPriority(['Urgent', 'High']); }, false);
   html += sidebarSectionClose();
 
   document.getElementById('sidebarNav').innerHTML = html;
@@ -5951,6 +5964,8 @@ function filterByPractice(p) {
 }
 /** Filter by health state and switch to tasks view */
 function filterByHealth(h) { currentFilter = { client: currentFilter.client, project: null, status: [], health: [h], assignee: [], search: '', practice: currentFilter.practice || null }; switchView('tasks'); }
+/** Filter by priority values and switch to tasks view */
+function filterByPriority(priorities) { currentFilter = { ...currentFilter, status: [], health: [], priority: priorities, client: null, project: null }; switchView('tasks'); renderAll(); }
 /** Filter to a specific project, switch to tree view, and scroll to the project row */
 function filterByProject(projectId) {
   currentFilter = { client: currentFilter.client, project: projectId, status: [], health: [], search: '', sort: 'default', assignee: [], incomplete: false, practice: currentFilter.practice || null };
@@ -6994,6 +7009,11 @@ function _softReRender() {
   if (detailPanel && detailPanel.classList.contains('open')) return;
   const inlineDetail = document.getElementById('inlineDetailPanel');
   if (inlineDetail && !inlineDetail.classList.contains('tasks-layout__detail--hidden')) return;
+  const panelIds = ['bugDetailPanel', 'leadDetailPanel', 'candidateDetailPanel', 'positionDetailPanel'];
+  for (const pid of panelIds) {
+    const p = document.getElementById(pid);
+    if (p && p.classList.contains('open')) return;
+  }
   const scrollEl = document.querySelector('.main__content');
   if (!scrollEl) { renderContent(); return; }
   const savedScroll = scrollEl.scrollTop;
@@ -9176,7 +9196,7 @@ function renderGanttView(filtered) {
         if (width > 40) html += `<span style="overflow:hidden;text-overflow:ellipsis;pointer-events:none;flex:1;position:relative;z-index:1">${esc(t.title)}</span>`;
         // Percent label at the right edge — readable without depending on
         // bar width.
-        if (width > 60 && t.status !== 'Done') html += `<span class="gantt__bar-pct">${pctVal}%</span>`;
+        if (width > 60 && t.status !== 'Done' && pctVal > 0) html += `<span class="gantt__bar-pct">${pctVal}%</span>`;
         html += `<div class="gantt__bar-handle gantt__bar-handle--right" onmousedown="event.stopPropagation();ganttBarDragStart(event,'${t.id}','resize-end')"></div>`;
         html += `</div>`;
         } // close dur > 0
@@ -9953,7 +9973,8 @@ function renderInlineTaskDetail(id) {
   if (_datesAuto) {
     const _range = computeDateRange(id);
     html += `<div class="detail-field"><label class="detail-field__label">Start Date</label><input type="date" value="${_range.start}" disabled title="Auto-calculated from child items"></div>`;
-    html += `<div class="detail-field"><label class="detail-field__label">End Date</label><input type="date" value="${_range.end}" disabled title="Auto-calculated from child items"></div>`;
+    html += `<div class="detail-field"><label class="detail-field__label">Due Date</label><input type="date" value="${_range.dueDate}" disabled title="Auto-calculated from child items"></div>`;
+    html += `<div class="detail-field"><label class="detail-field__label">End Date</label><input type="date" value="${_range.endDate}" disabled title="Set when all children are complete"></div>`;
   } else {
     html += `<div class="detail-field"><label class="detail-field__label" for="inline-detail-startDate">Start Date</label><input id="inline-detail-startDate" type="date" value="${task.startDate||''}" onchange="updateTask('${id}','startDate',this.value)"></div>`;
     html += `<div class="detail-field"><label class="detail-field__label" for="inline-detail-endDate">End Date</label><input id="inline-detail-endDate" type="date" value="${task.endDate||''}" onchange="updateTask('${id}','endDate',this.value)"></div>`;
@@ -10611,19 +10632,8 @@ async function _patchBoardPosition(taskId, position) {
  *  the target task into view (bug 1d3d811e). Without this, clicking a My Work
  *  item would land on Projects with everything collapsed. */
 function navigateToTaskInTree(taskId) {
-  // Expand every ancestor so the target row is actually rendered
   const target = tasks.find(t => t.id === taskId);
-  let cursor = target;
-  while (cursor && cursor.parentId) {
-    collapsedTaskIds.delete(cursor.parentId);
-    cursor = tasks.find(t => t.id === cursor.parentId);
-  }
-  // Also expand the client group header (it's keyed by clientGroupKey)
-  if (cursor) {
-    try { collapsedTaskIds.delete(clientGroupKey(cursor)); } catch (e) {}
-  }
-  // Clear filters that might hide the target task — set client to the task's
-  // client so the tree shows the right scope, clear restrictive filters
+  // Clear filters that might hide the target task
   if (target) {
     const taskClient = getTaskClient(target);
     if (taskClient) currentFilter.client = taskClient;
@@ -10632,17 +10642,31 @@ function navigateToTaskInTree(taskId) {
     currentFilter.status = [];
     currentFilter.health = [];
   }
-  // Force "By Project" (tree) sub-view so the hierarchical rows exist in the
-  // DOM — board/gantt/calendar views don't render .task-row elements.
+  // Force tree sub-view and trigger initial collapse
   taskSubView = 'tree';
   localStorage.setItem('nbi_task_subview', 'tree');
   switchView('tasks');
+  // AFTER switchView triggers _tasksInitialCollapse (which collapses everything),
+  // expand the target's ancestors so the item is visible
+  let cursor = target;
+  while (cursor && cursor.parentId) {
+    collapsedTaskIds.delete(cursor.parentId);
+    cursor = tasks.find(t => t.id === cursor.parentId);
+  }
+  if (cursor) {
+    try { collapsedTaskIds.delete(clientGroupKey(cursor)); } catch (e) {}
+  }
+  // Re-render with ancestors expanded, then scroll to target
+  renderContent();
   openDetail(taskId);
-  // Two frames: first lets renderContent rebuild the DOM, second scrolls.
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       const row = document.querySelector(`.task-row[data-task-id="${taskId}"]`);
-      if (row) row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if (row) {
+        row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        row.classList.add('task-row--highlight');
+        setTimeout(() => row.classList.remove('task-row--highlight'), 2500);
+      }
     });
   });
 }
@@ -10745,7 +10769,8 @@ function openDetailOverlay(id) {
   if (_datesAuto2) {
     const _range2 = computeDateRange(id);
     html += `<div class="detail-field"><label class="detail-field__label">Start Date</label><input type="date" value="${_range2.start}" disabled title="Auto-calculated from child items"></div>`;
-    html += `<div class="detail-field"><label class="detail-field__label">End Date</label><input type="date" value="${_range2.end}" disabled title="Auto-calculated from child items"></div>`;
+    html += `<div class="detail-field"><label class="detail-field__label">Due Date</label><input type="date" value="${_range2.dueDate}" disabled title="Auto-calculated from child items"></div>`;
+    html += `<div class="detail-field"><label class="detail-field__label">End Date</label><input type="date" value="${_range2.endDate}" disabled title="Set when all children are complete"></div>`;
   } else {
     html += `<div class="detail-field"><label class="detail-field__label" for="detail-startDate">Start Date</label><input id="detail-startDate" type="date" value="${task.startDate||''}" onchange="updateTask('${id}','startDate',this.value)"></div>`;
     html += `<div class="detail-field"><label class="detail-field__label" for="detail-endDate">End Date</label><input id="detail-endDate" type="date" value="${task.endDate||''}" onchange="updateTask('${id}','endDate',this.value)"></div>`;
@@ -11300,16 +11325,20 @@ async function updateTask(id, field, value) {
     }
   }
 
-  const _endDateChanged = field === 'status' && (value === 'Done' || oldValue === 'Done');
-  if (field === 'startDate' || field === 'endDate' || _endDateChanged) {
+  const _dateChanged = field === 'startDate' || field === 'dueDate' || field === 'endDate'
+    || (field === 'status' && (value === 'Done' || oldValue === 'Done'));
+  if (_dateChanged) {
     let parent = task.parentId ? tasks.find(t => t.id === task.parentId) : null;
     while (parent) {
       const pt = getItemType(parent);
       if (pt === 'feature' || pt === 'story') {
         const range = computeDateRange(parent.id);
-        if (parent.startDate !== range.start || parent.endDate !== range.end) {
-          parent.startDate = range.start;
-          parent.endDate = range.end;
+        let changed = false;
+        if (parent.startDate !== range.start) { parent.startDate = range.start; changed = true; }
+        if (parent.dueDate !== range.dueDate) { parent.dueDate = range.dueDate; changed = true; }
+        if (range.endDate && parent.endDate !== range.endDate) { parent.endDate = range.endDate; changed = true; }
+        if (!range.endDate && parent.endDate) { parent.endDate = ''; changed = true; }
+        if (changed) {
           parent.updatedAt = new Date().toISOString();
           markDirty(parent.id);
         }
@@ -19711,13 +19740,15 @@ const HIRING_STAGES = [
   'offer',
   'onboarding',
   'onboarded',
+  'process_closed',
 ];
 const HIRING_STAGE_LABELS = {
-  sourcing:    'Sourcing',
-  interviews:  'Interviews',
-  offer:       'Offer',
-  onboarding:  'Onboarding',
-  onboarded:   'Onboarded',
+  sourcing:        'Sourcing',
+  interviews:      'Interviews',
+  offer:           'Offer',
+  onboarding:      'Onboarding',
+  onboarded:       'Onboarded',
+  process_closed:  'Process Closed',
 };
 
 const _hiringStagesCache = {};
@@ -19888,7 +19919,7 @@ async function loadHiringMetrics() {
  * @param {HTMLElement} container - The DOM element to render into
  */
 const CANDIDATE_SOURCES = ['referral', 'linkedin', 'inbound', 'agency', 'job-board', 'internal', 'other'];
-const ATS_STAGE_COLORS = { sourcing: '#6b7280', sourced: '#6b7280', screening: '#3b82f6', interviews: '#f59e0b', interview: '#f59e0b', offer: '#a855f7', onboarding: '#10b981', onboarded: '#22c55e', hired: '#22c55e', rejected: '#ef4444' };
+const ATS_STAGE_COLORS = { sourcing: '#6b7280', sourced: '#6b7280', screening: '#3b82f6', interviews: '#f59e0b', interview: '#f59e0b', offer: '#a855f7', onboarding: '#10b981', onboarded: '#22c55e', hired: '#22c55e', rejected: '#ef4444', process_closed: '#9ca3af' };
 
 function candidateAvatarHtml(name, size) {
   size = size || 38;
@@ -19946,6 +19977,7 @@ function renderHiringCard(c, draggable) {
       (sourceLabel ? '<span class="ats-source-badge">' + esc(sourceLabel) + '</span>' : '<span></span>') +
       '<span style="font-size:12px;background:' + stageColor + '20;color:' + stageColor + ';padding:2px 7px;border-radius:4px">' + stageLabel + '</span>' +
     '</div>' +
+    ((c.start_date && (c.stage === 'onboarding' || c.stage === 'onboarded' || c.stage === 'offer')) ? '<div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px">Starts: ' + new Date(c.start_date + 'T00:00:00').toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'}) + '</div>' : '') +
     '<div class="ats-card-meta">' +
       '<div class="ats-assignee-faces">' + (facesHtml || '<span style="font-size:12px;color:var(--text-faint)">No assignee</span>') + '</div>' +
       '<div class="ats-card-indicators">' +
@@ -23604,7 +23636,15 @@ async function _ccFetchAll() {
   _ccLoading = false;
   if (currentView === 'commandcentre') {
     const el = document.getElementById('mainContent');
-    if (el) renderCommandCentre(el);
+    if (el) {
+      var ccBody = el.querySelector('.cc-body');
+      var savedScroll = ccBody ? ccBody.scrollTop : 0;
+      var savedPageScroll = window.scrollY;
+      renderCommandCentre(el);
+      var newBody = el.querySelector('.cc-body');
+      if (newBody && savedScroll) newBody.scrollTop = savedScroll;
+      if (savedPageScroll) window.scrollTo(0, savedPageScroll);
+    }
   }
 }
 
@@ -24088,6 +24128,7 @@ function _ccRenderWorkTab(b, w, s, fc) {
 
   // === ROW 4: Dreaming Engine — Overnight Insights + Trends + Stale Report ===
   var dr = b.dreaming;
+  console.log('[CC] dreaming data:', dr ? (dr.insights || []).length + ' insights' : 'NULL');
   if (dr) {
     var drInsights = dr.insights || [];
     var drTrends = dr.trends || {};
@@ -29583,6 +29624,18 @@ function computeWarnings() {
       if (deps.length) parts.push('Prereqs: ' + deps.map(d => d.title).join(', '));
       const label = parts.length > 0 ? 'Blocked — ' + parts.join(' · ') : 'Blocked';
       warning = { severity: 'high', type: 'blocked', label };
+    }
+
+    // Not started tasks with past start date
+    if (!warning && t.status === 'Not started' && t.startDate) {
+      const sd = safeParseDate(t.startDate);
+      if (sd) {
+        sd.setHours(0, 0, 0, 0);
+        const daysLate = Math.floor((now - sd) / (1000 * 60 * 60 * 24));
+        if (daysLate > 0) {
+          warning = { severity: daysLate > 7 ? 'high' : 'medium', type: 'not_started', label: 'Not started — ' + daysLate + ' day' + (daysLate === 1 ? '' : 's') + ' past start date' };
+        }
+      }
     }
 
     // Incomplete tasks: missing required fields on active leaf tasks assigned to this user

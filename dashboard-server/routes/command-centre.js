@@ -660,6 +660,7 @@ module.exports = function (ctx) {
         },
         error: null,
       });
+      if (!dreamingData) log('warn', 'CC', 'Briefing sent WITHOUT dreaming data', { snapRowCount: snapRows.length });
     } catch (e) {
       log('error', 'CC', 'Briefing failed', { error: e.message });
       res.status(500).json({ data: null, error: e.message });
