@@ -868,6 +868,20 @@ if (cron) {
   }, CRON_TZ);
 }
 
+// Nightly Dreaming Engine — deterministic analysis cron (Phase 2)
+if (cron) {
+  const { runDreamingEngine } = require('./dreaming');
+  cron.schedule('0 3 * * *', async () => {
+    log('info', 'Cron', 'Running Dreaming Engine...');
+    try {
+      await runDreamingEngine({ pool, log, fs, path });
+    } catch (e) {
+      log('error', 'Cron', 'Dreaming Engine failed', { error: e.message });
+    }
+  }, CRON_TZ);
+  log('info', 'Cron', 'Dreaming Engine scheduled for 03:00 daily');
+}
+
 // Monthly expense report reminder — 25th of every month at 9:00 AM
 if (cron) {
   cron.schedule('0 9 25 * *', async () => {
@@ -1011,5 +1025,6 @@ if (cron) {
     buildDueWarningEmails,
     runAttachmentSweep,
     checkHiringStalls,
+    runDreamingEngine: require('./dreaming').runDreamingEngine,
   };
 };
