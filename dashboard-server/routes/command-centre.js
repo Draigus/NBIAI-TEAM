@@ -451,18 +451,18 @@ module.exports = function (ctx) {
     _lastRefresh = now;
     try {
       const data = await computeSnapshot();
-      const today = new Date().toISOString().slice(0, 10);
       const { rows: existing } = await pool.query(
-        'SELECT data FROM cc_snapshots WHERE snapshot_date = $1', [today]
+        'SELECT snapshot_date, data FROM cc_snapshots ORDER BY snapshot_date DESC LIMIT 1'
       );
       if (existing.length > 0 && existing[0].data && existing[0].data.dreaming) {
         data.dreaming = existing[0].data.dreaming;
       }
+      const snapDate = existing.length > 0 ? existing[0].snapshot_date : new Date().toISOString().slice(0, 10);
       const { rows } = await pool.query(
         `INSERT INTO cc_snapshots (snapshot_date, data) VALUES ($1, $2)
          ON CONFLICT (snapshot_date) DO UPDATE SET data = $2, updated_at = NOW()
          RETURNING *`,
-        [today, JSON.stringify(data)]
+        [snapDate, JSON.stringify(data)]
       );
       log('info', 'CC', 'Snapshot refreshed', { date: today });
       res.json({ data: rows[0], error: null });

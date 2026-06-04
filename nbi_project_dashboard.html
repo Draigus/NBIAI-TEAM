@@ -24115,8 +24115,16 @@ function _ccRenderWorkTab(b, w, s, fc) {
         html += '</div>';
         html += '<div class="cc-row-m" style="font-size:0.8rem;">' + esc(ins.body) + '</div>';
         html += '</div>';
-        if (ins.action) {
-          html += '<div class="cc-row-a" style="min-width:auto;"><button class="cc-btn" style="font-size:0.65rem;white-space:nowrap;">' + esc(ins.action.length > 30 ? ins.action.slice(0, 28) + '...' : ins.action) + '</button></div>';
+        var ev = (ins.evidence || []).join(',');
+        var navTarget = '';
+        if (ev.includes('bug:') || ins.title.toLowerCase().includes('bug')) navTarget = 'bugs';
+        else if (ev.includes('task:') || ins.title.toLowerCase().includes('task') || ins.title.toLowerCase().includes('stalled')) navTarget = 'tasks';
+        else if (ev.includes('assignee:') || ins.title.toLowerCase().includes('utilisation')) navTarget = 'people';
+        else if (ev.includes('memory:') || ev.includes('brain:') || ev.includes('skill:') || ev.includes('role:')) navTarget = 'commandcentre-aios';
+        if (ins.action || navTarget) {
+          var btnClick = navTarget === 'commandcentre-aios' ? '_ccSwitchTab(\'aios\')' : (navTarget ? 'switchView(\'' + navTarget + '\')' : '');
+          var btnLabel = navTarget ? (navTarget === 'bugs' ? 'View bugs' : navTarget === 'tasks' ? 'View tasks' : navTarget === 'people' ? 'View people' : 'View AIOS') : esc(ins.action.length > 30 ? ins.action.slice(0, 28) + '...' : ins.action);
+          html += '<div class="cc-row-a" style="min-width:auto;"><button class="cc-btn" onclick="' + btnClick + '" style="font-size:0.65rem;white-space:nowrap;">' + btnLabel + '</button></div>';
         }
         html += '</div>';
       });
