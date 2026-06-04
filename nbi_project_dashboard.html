@@ -2406,6 +2406,27 @@ span.fin-editable { display: inline-block; position: relative; }
 .position-detail__candidates-table td { padding: 10px 8px; border-bottom: 1px solid var(--border-subtle, var(--border-default)); cursor: pointer; }
 .position-detail__candidates-table tr:hover td { background: var(--bg-hover); }
 
+/* --- Position Question Template stepper --- */
+.pqt-section { margin-top: var(--space-lg); border-top: 1px solid var(--border-default); padding-top: var(--space-md); }
+.pqt-header { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 0; user-select: none; }
+.pqt-header__chevron { transition: transform 0.15s; font-size: 10px; color: var(--text-muted); }
+.pqt-header__chevron.open { transform: rotate(90deg); }
+.pqt-header__title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); font-weight: 600; }
+.pqt-header__badge { font-size: 0.7rem; padding: 1px 6px; border-radius: 8px; background: var(--accent); color: #fff; font-weight: 600; }
+.pqt-stepper { display: flex; gap: 3px; margin-bottom: 12px; }
+.pqt-step { flex: 1; padding: 6px 4px; text-align: center; border-radius: 4px; font-size: 0.68rem; cursor: pointer; transition: background 0.15s, border-color 0.15s; border: 1px solid transparent; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pqt-step--done { background: color-mix(in srgb, var(--success) 15%, var(--bg-card)); color: var(--success); }
+.pqt-step--active { background: color-mix(in srgb, var(--accent) 12%, var(--bg-card)); color: var(--accent); border-color: var(--accent); font-weight: 600; }
+.pqt-step--pending { background: var(--bg-elevated); color: var(--text-muted); }
+.pqt-question { display: flex; align-items: flex-start; gap: 8px; padding: 8px 10px; border-radius: 6px; margin-bottom: 3px; cursor: pointer; transition: background 0.1s; border: 1px solid transparent; }
+.pqt-question:hover { background: var(--bg-elevated); }
+.pqt-question--selected { background: color-mix(in srgb, var(--accent) 8%, var(--bg-card)); border-color: var(--accent); }
+.pqt-question__text { font-size: 0.82rem; line-height: 1.5; color: var(--text-primary); }
+.pqt-question--selected .pqt-question__text { color: var(--text-primary); }
+.pqt-question:not(.pqt-question--selected) .pqt-question__text { color: var(--text-muted); }
+.pqt-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding-top: 8px; border-top: 1px solid var(--border-default); }
+.pqt-total { font-size: 0.78rem; color: var(--accent); font-weight: 600; }
+
 /* --- Candidate detail panel (tabbed) --- */
 .candidate-detail-overlay { position: fixed; inset: 0; background: var(--bg-overlay, rgba(0,0,0,0.85)); z-index: 200; display: none; }
 .candidate-detail-panel { position: fixed; top: var(--header-h); right: 0; width: 600px; min-width: 320px; max-width: 80vw; height: calc(var(--vh-full) - var(--header-h)); background: var(--bg-raised); border-left: 1px solid var(--border-default); z-index: 201; overflow: hidden; display: none; flex-direction: column; box-shadow: -4px 0 20px rgba(0,0,0,0.3); }
@@ -21502,6 +21523,20 @@ async function openPositionDetail(id) {
         </div>
         ${candidateTableHtml}
       </div>
+      ${!isClientUser() ? `<div class="pqt-section">
+        <div class="pqt-header" onclick="(function(){
+          var c=document.getElementById('pqtContainer_${p.id.replace(/-/g,'')}');
+          var ch=this.querySelector('.pqt-header__chevron');
+          if(!c)return;
+          if(c.style.display==='none'){c.style.display='block';ch.classList.add('open');if(!c._loaded){c._loaded=true;renderPositionQuestionTemplate('${p.id}',${JSON.stringify(p.title)},'${p.client_id||''}')}}
+          else{c.style.display='none';ch.classList.remove('open')}
+        }).call(this)">
+          <span class="pqt-header__chevron">&#9654;</span>
+          <span class="pqt-header__title">Interview Questions</span>
+          <span class="pqt-header__badge" id="pqtBadge_${p.id.replace(/-/g,'')}" style="display:none">0</span>
+        </div>
+        <div id="pqtContainer_${p.id.replace(/-/g,'')}" style="display:none"></div>
+      </div>` : ''}
     </div>`;
 
   overlay.style.display = 'block';
@@ -21510,6 +21545,215 @@ async function openPositionDetail(id) {
   window._positionDetailPreviousFocus = document.activeElement;
   window._positionDetailEscHandler = (e) => { if (e.key === 'Escape') closePositionDetail(); };
   document.addEventListener('keydown', window._positionDetailEscHandler);
+
+  // Fetch template count for badge (non-blocking)
+  if (!isClientUser()) {
+    const badgeSafeId = p.id.replace(/-/g, '');
+    authFetch('/api/positions/' + p.id + '/question-template').then(r => r.ok ? r.json() : []).then(tpl => {
+      const badge = document.getElementById('pqtBadge_' + badgeSafeId);
+      if (badge && Array.isArray(tpl) && tpl.length > 0) {
+        badge.textContent = tpl.length;
+        badge.style.display = '';
+      }
+    }).catch(() => {});
+  }
+}
+
+/** Render the interview-question template stepper wizard inside a position detail panel */
+async function renderPositionQuestionTemplate(positionId, positionTitle, clientId) {
+  const safeId = positionId.replace(/-/g, '');
+  const container = document.getElementById('pqtContainer_' + safeId);
+  if (!container) return;
+  container.innerHTML = '<div style="text-align:center;padding:18px;color:var(--text-muted);font-size:0.82rem">Loading questions&hellip;</div>';
+
+  const CATEGORIES = ['culture', 'technical', 'collaboration', 'leadership', 'depth'];
+  const CAT_LABELS = { culture: 'Culture', technical: 'Technical', collaboration: 'Collab', leadership: 'Leadership', depth: 'Depth' };
+
+  let allQuestions = [];
+  let selectedIds = new Set();
+  let currentStep = 0;
+
+  try {
+    const [qResp, tResp] = await Promise.all([
+      authFetch('/api/interview-questions?position_title=' + encodeURIComponent(positionTitle) + (clientId ? '&client_id=' + encodeURIComponent(clientId) : '')),
+      authFetch('/api/positions/' + positionId + '/question-template')
+    ]);
+    if (qResp.ok) allQuestions = await qResp.json();
+    if (tResp.ok) {
+      const tpl = await tResp.json();
+      (Array.isArray(tpl) ? tpl : []).forEach(t => selectedIds.add(t.question_id));
+    }
+  } catch (err) {
+    container.innerHTML = '<div style="color:var(--danger);font-size:0.82rem;padding:12px">Failed to load questions</div>';
+    return;
+  }
+
+  if (!allQuestions.length) {
+    container.innerHTML = '<div style="color:var(--text-muted);font-size:0.82rem;padding:12px;font-style:italic">No questions available for this position title</div>';
+    return;
+  }
+
+  // Group by category
+  const grouped = {};
+  CATEGORIES.forEach(c => { grouped[c] = []; });
+  allQuestions.forEach(q => {
+    const cat = (q.category || '').toLowerCase();
+    if (grouped[cat]) grouped[cat].push(q);
+  });
+
+  function updateBadge() {
+    const badge = document.getElementById('pqtBadge_' + safeId);
+    if (badge) badge.textContent = selectedIds.size;
+  }
+
+  function render() {
+    const catQuestions = grouped[CATEGORIES[currentStep]] || [];
+    const catSelected = catQuestions.filter(q => selectedIds.has(q.id)).length;
+
+    // Stepper pills
+    let stepperHtml = '<div class="pqt-stepper">';
+    CATEGORIES.forEach((cat, i) => {
+      const catCount = grouped[cat].filter(q => selectedIds.has(q.id)).length;
+      let cls = 'pqt-step';
+      if (i === currentStep) cls += ' pqt-step--active';
+      else if (catCount > 0) cls += ' pqt-step--done';
+      else cls += ' pqt-step--pending';
+      stepperHtml += '<div class="' + cls + '" onclick="window._pqtSetStep(' + i + ')">' + CAT_LABELS[cat] + (catCount ? ' (' + catCount + ')' : '') + '</div>';
+    });
+    stepperHtml += '</div>';
+
+    // Actions row
+    let actionsHtml = '<div style="display:flex;gap:8px;margin-bottom:8px">';
+    actionsHtml += '<button class="btn btn--sm" onclick="window._pqtSelectAll()">Select All</button>';
+    actionsHtml += '<button class="btn btn--sm btn--ghost" onclick="window._pqtClearAll()">Clear</button>';
+    actionsHtml += '<span style="margin-left:auto;font-size:0.75rem;color:var(--text-muted);align-self:center">' + catSelected + '/' + catQuestions.length + ' selected</span>';
+    actionsHtml += '</div>';
+
+    // Question list
+    let questionsHtml = '';
+    catQuestions.forEach(q => {
+      const isSel = selectedIds.has(q.id);
+      const cls = 'pqt-question' + (isSel ? ' pqt-question--selected' : '');
+      const check = isSel ? '&#9745;' : '&#9744;';
+      questionsHtml += '<div class="' + cls + '" onclick="window._pqtToggle(\'' + q.id + '\')">';
+      questionsHtml += '<span style="font-size:1rem;line-height:1;flex-shrink:0;color:' + (isSel ? 'var(--accent)' : 'var(--text-muted)') + '">' + check + '</span>';
+      questionsHtml += '<span class="pqt-question__text">' + esc(q.question_text) + '</span>';
+      questionsHtml += '</div>';
+    });
+
+    if (!catQuestions.length) {
+      questionsHtml = '<div style="color:var(--text-muted);font-size:0.82rem;padding:12px;font-style:italic">No questions in this category</div>';
+    }
+
+    // Nav
+    let navHtml = '<div class="pqt-nav">';
+    if (currentStep > 0) {
+      navHtml += '<button class="btn btn--sm btn--ghost" onclick="window._pqtSetStep(' + (currentStep - 1) + ')">&larr; Back</button>';
+    } else {
+      navHtml += '<span></span>';
+    }
+    navHtml += '<span class="pqt-total">' + selectedIds.size + ' total selected</span>';
+    if (currentStep < CATEGORIES.length - 1) {
+      navHtml += '<button class="btn btn--sm" onclick="window._pqtSetStep(' + (currentStep + 1) + ')">Next &rarr;</button>';
+    } else {
+      navHtml += '<span></span>';
+    }
+    navHtml += '</div>';
+
+    container.innerHTML = stepperHtml + actionsHtml + questionsHtml + navHtml;
+  }
+
+  // Window globals for event handlers
+  window._pqtSetStep = function(i) { currentStep = i; render(); };
+
+  window._pqtToggle = async function(questionId) {
+    const wasSelected = selectedIds.has(questionId);
+    // Optimistic update
+    if (wasSelected) selectedIds.delete(questionId);
+    else selectedIds.add(questionId);
+    render();
+    updateBadge();
+
+    try {
+      let resp;
+      if (wasSelected) {
+        resp = await authFetch('/api/positions/' + positionId + '/question-template/questions/' + questionId, { method: 'DELETE' });
+      } else {
+        resp = await authFetch('/api/positions/' + positionId + '/question-template/questions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question_id: questionId })
+        });
+      }
+      if (!resp.ok) throw new Error('API error');
+    } catch (err) {
+      // Revert on failure
+      if (wasSelected) selectedIds.add(questionId);
+      else selectedIds.delete(questionId);
+      render();
+      updateBadge();
+      showToast('Failed to update question template', 'error');
+    }
+  };
+
+  window._pqtSelectAll = async function() {
+    const catQuestions = grouped[CATEGORIES[currentStep]] || [];
+    const toAdd = catQuestions.filter(q => !selectedIds.has(q.id));
+    if (!toAdd.length) return;
+    // Optimistic
+    toAdd.forEach(q => selectedIds.add(q.id));
+    render();
+    updateBadge();
+    // Fire all adds
+    const results = await Promise.allSettled(toAdd.map(q =>
+      authFetch('/api/positions/' + positionId + '/question-template/questions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question_id: q.id })
+      })
+    ));
+    let failed = 0;
+    results.forEach((r, i) => {
+      if (r.status === 'rejected' || (r.value && !r.value.ok)) {
+        selectedIds.delete(toAdd[i].id);
+        failed++;
+      }
+    });
+    if (failed) {
+      render();
+      updateBadge();
+      showToast(failed + ' question(s) failed to save', 'error');
+    }
+  };
+
+  window._pqtClearAll = async function() {
+    const catQuestions = grouped[CATEGORIES[currentStep]] || [];
+    const toRemove = catQuestions.filter(q => selectedIds.has(q.id));
+    if (!toRemove.length) return;
+    // Optimistic
+    toRemove.forEach(q => selectedIds.delete(q.id));
+    render();
+    updateBadge();
+    // Fire all deletes
+    const results = await Promise.allSettled(toRemove.map(q =>
+      authFetch('/api/positions/' + positionId + '/question-template/questions/' + q.id, { method: 'DELETE' })
+    ));
+    let failed = 0;
+    results.forEach((r, i) => {
+      if (r.status === 'rejected' || (r.value && !r.value.ok)) {
+        selectedIds.add(toRemove[i].id);
+        failed++;
+      }
+    });
+    if (failed) {
+      render();
+      updateBadge();
+      showToast(failed + ' question(s) failed to remove', 'error');
+    }
+  };
+
+  render();
+  updateBadge();
 }
 
 function closePositionDetail() {
