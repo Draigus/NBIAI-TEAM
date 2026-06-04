@@ -654,6 +654,7 @@ module.exports = function (ctx) {
           },
           client_deliveries: clientDeliveries,
           knowledge_flags: knowledgeFlags,
+          dreaming: snapRows.length > 0 && snapRows[0].data.dreaming ? snapRows[0].data.dreaming : null,
         },
         error: null,
       });
