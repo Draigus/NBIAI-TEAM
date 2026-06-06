@@ -4,12 +4,17 @@ const require = createRequire(import.meta.url);
 
 function mockPool(...queryResults) {
   let callIndex = 0;
+  const queryFn = vi.fn(async () => {
+    const result = queryResults[callIndex] || { rows: [] };
+    callIndex++;
+    return result;
+  });
   return {
-    query: vi.fn(async () => {
-      const result = queryResults[callIndex] || { rows: [] };
-      callIndex++;
-      return result;
-    }),
+    query: queryFn,
+    connect: vi.fn(async () => ({
+      query: queryFn,
+      release: vi.fn(),
+    })),
   };
 }
 

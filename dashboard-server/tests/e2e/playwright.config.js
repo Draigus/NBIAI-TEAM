@@ -38,7 +38,7 @@ module.exports = defineConfig({
   webServer: {
     command: 'node ' + JSON.stringify(path.join(__dirname, '..', '..', 'server.js')),
     url: BASE_URL + '/api/health',
-    timeout: 30000,
+    timeout: 60000,
     reuseExistingServer: !process.env.CI,
     env: {
       ...process.env,

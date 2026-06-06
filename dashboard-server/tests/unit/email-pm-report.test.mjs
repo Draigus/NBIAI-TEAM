@@ -58,6 +58,61 @@ describe('buildPmReportEmails', () => {
     expect(emails[0].html).toContain('Due Soon');
   });
 
+  it('deduplicates identical changelog entries per task', async () => {
+    const lead = await createTestUser({ username: 'pm_dedup', email: 'pm_dedup@example.invalid' });
+    const client = await createTestClient({ name: 'DedupCo' });
+    const team = await createTestTeam({ name: 'DedupCo Team', client_id: client.id });
+    await createTestTeamMember({ team_id: team.id, user_id: lead.id, role: 'lead' });
+
+    const task = await createTestTask({ title: 'Question Document', client_id: client.id, status: 'Planning' });
+
+    // Simulate the sync poll creating 8 identical audit entries (the exact bug Magnus reported)
+    for (let i = 0; i < 8; i++) {
+      await createTestAuditEntry({
+        entity_type: 'task', entity_id: task.id, action: 'update',
+        changed_by: 'Magnus Pryer',
+        changes: { title: 'Question Document', status: 'Planning', healthState: 'Green' },
+        created_at: new Date('2026-04-15T14:19:00Z').toISOString(),
+      });
+    }
+
+    const emails = await buildPmReportEmails('2026-04-16', '2026-04-15T08:00:00Z', '2026-04-16T08:00:00Z');
+    expect(emails).toHaveLength(1);
+    const html = emails[0].html;
+
+    // Should show "1 change" not "8 changes"
+    expect(html).toContain('Question Document');
+    expect(html).toContain('1 change');
+    expect(html).not.toContain('8 change');
+  });
+
+  it('keeps distinct changes for same task after dedup', async () => {
+    const lead = await createTestUser({ username: 'pm_multi', email: 'pm_multi@example.invalid' });
+    const client = await createTestClient({ name: 'MultiCo' });
+    const team = await createTestTeam({ name: 'MultiCo Team', client_id: client.id });
+    await createTestTeamMember({ team_id: team.id, user_id: lead.id, role: 'lead' });
+
+    const task = await createTestTask({ title: 'Status Task', client_id: client.id, status: 'In progress' });
+
+    // Two genuinely different changes: status changed, then health changed
+    await createTestAuditEntry({
+      entity_type: 'task', entity_id: task.id, action: 'update',
+      changed_by: 'Dev',
+      changes: { status: { from: 'Not started', to: 'In progress' } },
+      created_at: '2026-04-15T10:00:00Z',
+    });
+    await createTestAuditEntry({
+      entity_type: 'task', entity_id: task.id, action: 'update',
+      changed_by: 'Dev',
+      changes: { healthState: { from: 'Green', to: 'Yellow' } },
+      created_at: '2026-04-15T11:00:00Z',
+    });
+
+    const emails = await buildPmReportEmails('2026-04-16', '2026-04-15T08:00:00Z', '2026-04-16T08:00:00Z');
+    expect(emails).toHaveLength(1);
+    expect(emails[0].html).toContain('2 change');
+  });
+
   it('skips team leads with no email', async () => {
     const lead = await createTestUser({ username: 'nomail_pm', email: null });
     const client = await createTestClient({ name: 'Delta' });

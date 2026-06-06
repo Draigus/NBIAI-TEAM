@@ -25,6 +25,12 @@ test.describe('Interview Question Picker', () => {
     await page.locator('#loginBtn').click();
     await page.waitForSelector('#loginScreen', { state: 'hidden', timeout: 10000 });
 
+    // Navigate to hiring view and open candidate detail first (required for the config modal overlay)
+    await page.evaluate(() => { switchView('hiring'); });
+    await page.waitForTimeout(500);
+    await page.evaluate((cid) => { openCandidateDetail(cid); }, candidate.id);
+    await page.waitForSelector('#candidateDetailPanel.open', { timeout: 5000 });
+
     await page.evaluate(({ cid, clid, pid }) => {
       openInterviewConfig(cid, clid, pid);
     }, { cid: candidate.id, clid: client.id, pid: position.id });

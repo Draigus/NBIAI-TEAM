@@ -20,7 +20,7 @@ test.describe('Documentation tab', () => {
   test('admin can create page, type, bold, and see autosave', async ({ page }) => {
     test.setTimeout(60000);
 
-    await page.goto('/nbi_project_dashboard.html');
+    await page.goto('/nbi_project_dashboard.html#tasks');
     await page.waitForSelector('#loginScreen', { state: 'visible', timeout: 10000 });
     await page.locator('#loginUser').fill(user.username);
     await page.locator('#loginPass').fill(user.raw_password);
@@ -74,7 +74,7 @@ test.describe('Documentation tab', () => {
   test('right-click shows context menu, hide/unhide toggles page visibility', async ({ page }) => {
     test.setTimeout(60000);
 
-    await page.goto('/nbi_project_dashboard.html');
+    await page.goto('/nbi_project_dashboard.html#tasks');
     await page.waitForSelector('#loginScreen', { state: 'visible', timeout: 10000 });
     await page.locator('#loginUser').fill(user.username);
     await page.locator('#loginPass').fill(user.raw_password);
@@ -128,7 +128,7 @@ test.describe('Documentation tab', () => {
   test('right-click rename allows inline title editing', async ({ page }) => {
     test.setTimeout(60000);
 
-    await page.goto('/nbi_project_dashboard.html');
+    await page.goto('/nbi_project_dashboard.html#tasks');
     await page.waitForSelector('#loginScreen', { state: 'visible', timeout: 10000 });
     await page.locator('#loginUser').fill(user.username);
     await page.locator('#loginPass').fill(user.raw_password);

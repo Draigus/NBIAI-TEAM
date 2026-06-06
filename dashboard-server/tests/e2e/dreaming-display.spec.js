@@ -146,6 +146,7 @@ test.describe('Dreaming Engine display', () => {
   });
 
   test('dreaming section survives 30-second poll refresh', async ({ page }) => {
+    test.setTimeout(60000);
     const user = await createTestUser({ role: 'admin' });
 
     const dreamingData = {

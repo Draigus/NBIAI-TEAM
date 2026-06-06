@@ -33,28 +33,32 @@ test.describe('Interview Results', () => {
   });
 
   test('shows aggregated results with category averages', async ({ page }) => {
-    await page.goto('/nbi_project_dashboard.html');
+    await page.goto('/nbi_project_dashboard.html#hiring');
     await page.waitForSelector('#loginScreen', { state: 'visible', timeout: 10000 });
     await page.locator('#loginUser').fill(admin.username);
     await page.locator('#loginPass').fill(admin.raw_password);
     await page.locator('#loginBtn').click();
     await page.waitForSelector('#loginScreen', { state: 'hidden', timeout: 10000 });
 
+    await page.evaluate((cid) => { openCandidateDetail(cid); }, candidate.id);
+    await page.waitForSelector('#candidateDetailPanel.open', { timeout: 5000 });
     await page.evaluate((cid) => { openInterviewResults(cid); }, config.id);
     await page.waitForTimeout(500);
 
-    await expect(page.locator('text=Results Candidate')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('h3:has-text("Results Candidate")')).toBeVisible({ timeout: 5000 });
     await expect(page.locator('text=4.5')).toBeVisible();
   });
 
   test('can record a decision', async ({ page }) => {
-    await page.goto('/nbi_project_dashboard.html');
+    await page.goto('/nbi_project_dashboard.html#hiring');
     await page.waitForSelector('#loginScreen', { state: 'visible', timeout: 10000 });
     await page.locator('#loginUser').fill(admin.username);
     await page.locator('#loginPass').fill(admin.raw_password);
     await page.locator('#loginBtn').click();
     await page.waitForSelector('#loginScreen', { state: 'hidden', timeout: 10000 });
 
+    await page.evaluate((cid) => { openCandidateDetail(cid); }, candidate.id);
+    await page.waitForSelector('#candidateDetailPanel.open', { timeout: 5000 });
     await page.evaluate((cid) => { openInterviewResults(cid); }, config.id);
     await page.waitForTimeout(500);
 

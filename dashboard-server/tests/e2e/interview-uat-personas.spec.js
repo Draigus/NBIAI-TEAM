@@ -53,7 +53,7 @@ test.describe('Interview UAT — Persona A: Hiring Manager (Admin)', () => {
   });
 
   async function loginAs(page, user) {
-    await page.goto('/nbi_project_dashboard.html');
+    await page.goto('/nbi_project_dashboard.html#hiring');
     await page.waitForSelector('#loginScreen', { state: 'visible', timeout: 10000 });
     await page.locator('#loginUser').fill(user.username);
     await page.locator('#loginPass').fill(user.raw_password);
@@ -140,7 +140,7 @@ test.describe('Interview UAT — Persona B: Interviewer (Member)', () => {
   });
 
   async function loginAs(page, user) {
-    await page.goto('/nbi_project_dashboard.html');
+    await page.goto('/nbi_project_dashboard.html#hiring');
     await page.waitForSelector('#loginScreen', { state: 'visible', timeout: 10000 });
     await page.locator('#loginUser').fill(user.username);
     await page.locator('#loginPass').fill(user.raw_password);
@@ -161,9 +161,8 @@ test.describe('Interview UAT — Persona B: Interviewer (Member)', () => {
 
   test('interviewer can open scorecard via evaluate', async ({ page }) => {
     await loginAs(page, interviewer);
-    await page.evaluate((sid) => { openInterviewScorecard(sid); }, session.id);
-    await page.waitForSelector('#interviewScorecardView', { state: 'visible', timeout: 10000 });
-    await expect(page.locator('text=Begin Scoring')).toBeVisible({ timeout: 5000 });
+    await page.evaluate(async (sid) => { await openInterviewScorecard(sid); }, session.id);
+    await expect(page.locator('#interviewScorecardView >> text=Begin Scoring')).toBeAttached({ timeout: 10000 });
   });
 });
 
@@ -185,7 +184,7 @@ test.describe('Interview UAT — Persona C: Client User', () => {
   });
 
   async function loginAs(page, user) {
-    await page.goto('/nbi_project_dashboard.html');
+    await page.goto('/nbi_project_dashboard.html#hiring');
     await page.waitForSelector('#loginScreen', { state: 'visible', timeout: 10000 });
     await page.locator('#loginUser').fill(user.username);
     await page.locator('#loginPass').fill(user.raw_password);

@@ -62,7 +62,7 @@ test('password change rejects weak passwords', async ({ request }) => {
 
   const res = await request.post('/api/auth/change-password', {
     headers: { Authorization: `Bearer ${token}` },
-    data: { currentPassword: user.raw_password, newPassword: 'short1A' },
+    data: { currentPassword: user.raw_password, newPassword: 'ab1A' },
   });
   expect(res.status()).toBe(400);
   const body = await res.json();
