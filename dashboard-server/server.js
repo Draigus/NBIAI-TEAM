@@ -443,7 +443,7 @@ app.use(require('./routes/tasks')({ pool, log, isValidUuid, validateLength, audi
 app.use(require('./routes/sync')({ pool, log, auditLog, createNotification, getClientScopes, computeNextRepeatDate, ITEM_TYPES }));
 
 // ==================== ADMIN (modular) ====================
-app.use(require('./routes/admin')({ pool, log, fs, path, requireNBI, requireAdmin, isValidUuid, auditLog, upload, pdfParse, uploadDir }));
+app.use(require('./routes/admin')({ pool, log, fs, path, requireNBI, requireAdmin, isValidUuid, auditLog, upload, pdfParse, uploadDir, createNotification, _msalClient }));
 
 // ==================== DASHBOARD AGGREGATES ====================
 app.use(require('./routes/dashboard')({ pool, log, getClientScopes }));
@@ -488,7 +488,7 @@ const cronExports = require('./cron')({
   cron, pool, log, fs, path, runBackup, validateBackup, createNotification,
   invalidateCache, fxBreaker, withRetry, sendEmailAsync, EMAIL_FROM, APP_URL,
   buildEmailHtml, buildEmailTable, buildEmailSection, addBusinessDays,
-  businessDaysBetween, pickFilesToDelete, uploadDir
+  businessDaysBetween, pickFilesToDelete, uploadDir, _msalClient
 });
 const { computeDashboardSnapshot, buildPmReportEmails, buildDueWarningEmails,
         matchSubjectToTask, processOneInboundEmail, processInboundEmails,

@@ -13,7 +13,7 @@ module.exports = function(ctx) {
   const { cron, pool, log, fs, path, runBackup, validateBackup, createNotification,
           invalidateCache, fxBreaker, withRetry, sendEmailAsync, EMAIL_FROM, APP_URL,
           buildEmailHtml, buildEmailTable, buildEmailSection, addBusinessDays,
-          businessDaysBetween, pickFilesToDelete, uploadDir } = ctx;
+          businessDaysBetween, pickFilesToDelete, uploadDir, _msalClient } = ctx;
   const CRON_TZ = { timezone: 'Europe/London' };
 
 async function computeDashboardSnapshot() {
@@ -1013,6 +1013,21 @@ async function checkHiringStalls() {
 if (cron) {
   cron.schedule('0 8 * * 1-5', checkHiringStalls, CRON_TZ);
   log('info', 'Cron', 'Hiring stall reminders scheduled for weekdays at 08:00');
+}
+
+// Granola meeting sync — 07:00 daily
+if (cron && process.env.GRANOLA_API_KEY) {
+  const { syncGranolaMeetings } = require('../lib/granola-sync');
+  cron.schedule('0 7 * * *', async () => {
+    log('info', 'Cron', 'Running Granola meeting sync...');
+    try {
+      const result = await syncGranolaMeetings({ pool, log, createNotification, _msalClient });
+      log('info', 'Cron', 'Granola sync finished', result);
+    } catch (e) {
+      log('error', 'Cron', 'Granola sync failed', { error: e.message });
+    }
+  }, CRON_TZ);
+  log('info', 'Cron', 'Granola meeting sync scheduled for 07:00 daily');
 }
 
   return {

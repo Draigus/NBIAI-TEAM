@@ -57,8 +57,11 @@ function setupMetrics(app, pool) {
   const authFailures = new promClient.Counter({ name: 'nbi_auth_failures_total', help: 'Auth failure count' });
   const ocrRequests = new promClient.Counter({ name: 'nbi_ocr_requests_total', help: 'OCR request count', labelNames: ['status'] });
   const emailSends = new promClient.Counter({ name: 'nbi_email_sends_total', help: 'Email send count', labelNames: ['status'] });
+  const granolaImported = new promClient.Counter({ name: 'nbi_granola_sync_imported_total', help: 'Granola meetings imported' });
+  const granolaLastSuccess = new promClient.Gauge({ name: 'nbi_granola_sync_last_success', help: 'Timestamp of last successful Granola sync' });
+  const granolaErrors = new promClient.Counter({ name: 'nbi_granola_sync_errors_total', help: 'Granola sync errors' });
 
-  return { syncConflicts, authFailures, ocrRequests, emailSends };
+  return { syncConflicts, authFailures, ocrRequests, emailSends, granolaImported, granolaLastSuccess, granolaErrors };
 }
 
 module.exports = { setupMetrics };

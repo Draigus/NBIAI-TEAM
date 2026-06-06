@@ -6,6 +6,7 @@ const path = require('path');
 module.exports = function (ctx) {
   const router = require('express').Router();
   const { pool, log, requireNBI, _msalClient } = ctx;
+  const { fetchCalendarEvents: fetchCalendarEventsFromLib } = require('../lib/graph-calendar');
 
   const REPO_ROOT = process.env.REPO_ROOT || path.resolve(__dirname, '../..');
   const SKILLS_DIR = path.join(REPO_ROOT, '.claude', 'skills');
@@ -139,7 +140,7 @@ module.exports = function (ctx) {
   }
 
   // ——— SCANNER: Connections ———
-  function scanConnections() {
+  async function scanConnections() {
     const result = { local_mcp: [], cloud_mcp: [], buckets: {} };
     const BUCKET_NAMES = ['revenue', 'clients', 'calendar', 'comms', 'tasks', 'meetings', 'knowledge', 'research'];
     BUCKET_NAMES.forEach(b => { result.buckets[b] = { status: 'missing', sources: [] }; });
@@ -165,6 +166,21 @@ module.exports = function (ctx) {
     result.buckets.clients = { status: 'partial', sources: ['WorkSage DB'] };
     if (result.buckets.knowledge.status !== 'connected') result.buckets.knowledge = { status: 'connected', sources: [] };
     result.buckets.knowledge.sources.push('NBI Brain', 'Memory');
+
+    // Granola API sync status
+    if (process.env.GRANOLA_API_KEY) {
+      try {
+        const { rows } = await pool.query("SELECT value FROM settings WHERE key = 'granola_last_sync'");
+        if (rows.length > 0 && rows[0].value) {
+          const ageH = (Date.now() - new Date(rows[0].value).getTime()) / (1000 * 60 * 60);
+          const status = ageH < 48 ? 'connected' : ageH < 168 ? 'stale' : 'error';
+          result.buckets.meetings = { status, sources: ['Granola (API sync)'], lastSync: rows[0].value };
+        } else {
+          result.buckets.meetings = { status: 'connected', sources: ['Granola (API key set, awaiting first sync)'] };
+        }
+      } catch (_) {}
+    }
+
     return result;
   }
 
@@ -383,44 +399,14 @@ module.exports = function (ctx) {
 
   // ——— CALENDAR HELPER ———
   async function fetchCalendarEvents(startDate, endDate) {
-    if (!_msalClient) return { events: [], error: 'MSAL not configured' };
-    try {
-      const tokenResult = await _msalClient.acquireTokenByClientCredential({
-        scopes: ['https://graph.microsoft.com/.default'],
-      });
-      if (!tokenResult || !tokenResult.accessToken) return { events: [], error: 'Token acquisition failed' };
-
-      const userEmail = process.env.CC_CALENDAR_USER || 'gpryer@nbi-consulting.com';
-      const url = `https://graph.microsoft.com/v1.0/users/${encodeURIComponent(userEmail)}/calendarView?startDateTime=${startDate.toISOString()}&endDateTime=${endDate.toISOString()}&$orderby=start/dateTime&$top=50&$select=subject,start,end,location,attendees,onlineMeeting,webLink`;
-
-      const resp = await fetch(url, {
-        headers: { Authorization: `Bearer ${tokenResult.accessToken}`, 'Content-Type': 'application/json' },
-      });
-      if (!resp.ok) {
-        const body = await resp.text();
-        return { events: [], error: `Graph API ${resp.status}: ${body.slice(0, 200)}` };
-      }
-      const data = await resp.json();
-      return {
-        events: (data.value || []).map(ev => ({
-          title: ev.subject,
-          start: ev.start.dateTime,
-          end: ev.end.dateTime,
-          location: ev.location?.displayName || '',
-          attendees: (ev.attendees || []).map(a => a.emailAddress?.name || a.emailAddress?.address || ''),
-          online_url: ev.onlineMeeting?.joinUrl || ev.webLink || '',
-        })),
-      };
-    } catch (e) {
-      return { events: [], error: e.message };
-    }
+    return fetchCalendarEventsFromLib(_msalClient, startDate, endDate);
   }
 
   // ——— ASSEMBLE SNAPSHOT ———
   async function computeSnapshot() {
     const skills = scanSkills();
     const memory = scanMemory();
-    const connections = scanConnections();
+    const connections = await scanConnections();
     const brain = scanBrain();
     const sessions = scanSessions();
     const bugs = await scanBugs();

@@ -104,7 +104,7 @@ const CLEANSE_LOCAL_STORAGE_MAP = {
 
 module.exports = function(ctx) {
   const router = require('express').Router();
-  const { pool, log, fs, path, requireNBI, requireAdmin, isValidUuid, auditLog, upload, pdfParse, uploadDir } = ctx;
+  const { pool, log, fs, path, requireNBI, requireAdmin, isValidUuid, auditLog, upload, pdfParse, uploadDir, createNotification, _msalClient } = ctx;
 
 router.get('/api/audit-log', requireNBI, requireAdmin, async (req, res) => {
   try {
@@ -912,6 +912,24 @@ router.post('/api/admin/cleanse', requireNBI, requireAdmin, async (req, res) => 
   )];
 
   res.json({ deleted, nullified, localStorageKeys });
+});
+
+// Granola manual sync trigger
+let lastGranolaSyncTrigger = 0;
+router.post('/api/admin/granola-sync', requireNBI, requireAdmin, async (req, res) => {
+  const now = Date.now();
+  if (now - lastGranolaSyncTrigger < 5 * 60 * 1000) {
+    return res.status(429).json({ error: 'Granola sync can only be triggered once every 5 minutes' });
+  }
+  lastGranolaSyncTrigger = now;
+  try {
+    const { syncGranolaMeetings } = require('../lib/granola-sync');
+    const result = await syncGranolaMeetings({ pool, log, createNotification, _msalClient: _msalClient || null });
+    res.json(result);
+  } catch (e) {
+    log('error', 'Admin', 'Manual Granola sync failed', { error: e.message });
+    res.status(500).json({ error: e.message });
+  }
 });
 
   return router;
