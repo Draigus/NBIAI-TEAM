@@ -85,3 +85,7 @@ test-output.txt
 Thumbs.db
 .worktrees/
 .claude/worktrees/
+
+# Generated knowledge graph indexes
+graphify-out/
+dashboard-server/graphify-out/
