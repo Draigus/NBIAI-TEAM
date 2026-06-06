@@ -5,6 +5,7 @@ const { fetchCalendarEvents } = require('./graph-calendar');
 
 const GRANOLA_BASE = 'https://public-api.granola.ai/v1';
 const RATE_DELAY_MS = 250;
+const MAX_NOTES_PER_SYNC = 200;
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
@@ -134,7 +135,7 @@ async function fetchWithRetry(url, headers, opts = {}) {
   throw lastErr;
 }
 
-async function fetchGranolaNotes(apiKey, createdAfter) {
+async function fetchGranolaNotes(apiKey, createdAfter, retryOpts) {
   const headers = { Authorization: `Bearer ${apiKey}` };
   const allNotes = [];
   let cursor = null;
@@ -142,9 +143,13 @@ async function fetchGranolaNotes(apiKey, createdAfter) {
   do {
     let url = `${GRANOLA_BASE}/notes?created_after=${encodeURIComponent(createdAfter)}`;
     if (cursor) url += `&cursor=${encodeURIComponent(cursor)}`;
-    const data = await fetchWithRetry(url, headers);
+    const data = await fetchWithRetry(url, headers, retryOpts);
     if (!data) break;
     allNotes.push(...(data.notes || []));
+    if (allNotes.length >= MAX_NOTES_PER_SYNC) {
+      allNotes.length = MAX_NOTES_PER_SYNC;
+      break;
+    }
     cursor = data.hasMore ? data.cursor : null;
   } while (cursor);
 
@@ -188,7 +193,7 @@ async function syncGranolaMeetings(ctx) {
 
   let noteStubs;
   try {
-    noteStubs = await fetchGranolaNotes(apiKey, hwm);
+    noteStubs = await fetchGranolaNotes(apiKey, hwm, retryOpts);
   } catch (e) {
     log('error', 'GranolaSync', 'Failed to poll notes', { error: e.message });
     try {
@@ -236,6 +241,14 @@ async function syncGranolaMeetings(ctx) {
 
   const { rows: clients } = await pool.query('SELECT id, name FROM clients');
 
+  // Batch lookup: which source_ids already exist? (fixes N+1 query)
+  const sourceIds = notes.map(n => n.id);
+  const { rows: existingRows } = await pool.query(
+    "SELECT data->>'source_id' as source_id, item_id FROM meeting_items WHERE section = 'meetings' AND data->>'source_id' = ANY($1)",
+    [sourceIds]
+  );
+  const existingBySourceId = new Map(existingRows.map(r => [r.source_id, r.item_id]));
+
   let imported = 0;
   const failedInserts = [];
   for (const note of notes) {
@@ -243,15 +256,9 @@ async function syncGranolaMeetings(ctx) {
       const { item_id, data } = transformNote(note, clients, calendarEvents);
       const dataJson = JSON.stringify(data);
 
-      // Check if this source_id already exists (handles title renames)
-      const { rows: existing } = await pool.query(
-        "SELECT item_id FROM meeting_items WHERE section = 'meetings' AND data->>'source_id' = $1",
-        [data.source_id]
-      );
-
-      if (existing.length > 0) {
+      if (existingBySourceId.has(data.source_id)) {
         // Update existing record, preserving user-edited fields (topics, decisions_text, context)
-        await pool.query(
+        const result = await pool.query(
           `UPDATE meeting_items SET
              item_id = $1,
              data = data || jsonb_build_object(
@@ -265,17 +272,23 @@ async function syncGranolaMeetings(ctx) {
            WHERE section = 'meetings' AND data->>'source_id' = $3 AND source = 'granola_api'`,
           [item_id, dataJson, data.source_id]
         );
+        if (result.rowCount > 0) {
+          imported++;
+          log('info', 'GranolaSync', 'Updated', { title: data.title, date: data.date, workstream: data.workstream });
+        }
       } else {
         // New record
-        await pool.query(
+        const result = await pool.query(
           `INSERT INTO meeting_items (item_id, section, data, source)
            VALUES ($1, 'meetings', $2, 'granola_api')
            ON CONFLICT (item_id) DO NOTHING`,
           [item_id, dataJson]
         );
+        if (result.rowCount > 0) {
+          imported++;
+          log('info', 'GranolaSync', 'Imported', { title: data.title, date: data.date, workstream: data.workstream, hasAttendees: data.attendees.length > 0 });
+        }
       }
-      imported++;
-      log('info', 'GranolaSync', 'Imported', { title: data.title, date: data.date, workstream: data.workstream, hasAttendees: data.attendees.length > 0 });
     } catch (e) {
       log('error', 'GranolaSync', 'DB insert failed', { noteId: note.id, error: e.message });
       failedInserts.push(note.id);

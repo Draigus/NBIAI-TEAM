@@ -17,7 +17,9 @@ const BASE_NOTE = {
   title: 'HR- Weekly meeting',
   created_at: '2026-06-04T12:00:00.000Z',
   owner: { name: 'Glen Pryer', email: 'gpryer@nbi-consulting.com' },
-  summary: '### New ATS Tool Introduction\n\n- Introducing custom-built ATS system\n- Replaces current Google Docs workflow\n\n### Current Recruiting Pipeline Status\n\n- Ellis in offer stage for HR Ops role',
+  summary_markdown: '### New ATS Tool Introduction\n\n- Introducing custom-built ATS system\n- Replaces current Google Docs workflow\n\n### Current Recruiting Pipeline Status\n\n- Ellis in offer stage for HR Ops role',
+  web_url: 'https://notes.granola.ai/d/03a27e7d-bf68-4838-a8ba-fde37a8c4f3a',
+  attendees: [{ name: 'Glen Pryer', email: 'gpryer@nbi-consulting.com' }, { name: 'Lorenza Menna', email: 'l.menna@couch-heroes.com' }],
 };
 
 const CAL_EVENTS = [
@@ -86,16 +88,16 @@ describe('matchCalendarEvent', () => {
 // --- transformNote ---
 
 describe('transformNote', () => {
-  it('transforms standard meeting note', () => {
+  it('transforms standard meeting note using summary_markdown and API attendees', () => {
     const result = transformNote(BASE_NOTE, [], []);
     expect(result.data.date).toBe('2026-06-04');
     expect(result.data.title).toBe('HR- Weekly meeting');
-    expect(result.data.summary).toBe(BASE_NOTE.summary);
+    expect(result.data.summary).toBe(BASE_NOTE.summary_markdown);
     expect(result.data.source_id).toBe('03a27e7d-bf68-4838-a8ba-fde37a8c4f3a');
-    expect(result.data.source_path).toBe('granola://meetings/03a27e7d-bf68-4838-a8ba-fde37a8c4f3a');
+    expect(result.data.source_path).toBe('https://notes.granola.ai/d/03a27e7d-bf68-4838-a8ba-fde37a8c4f3a');
     expect(result.data.owner_name).toBe('Glen Pryer');
     expect(result.data.owner_email).toBe('gpryer@nbi-consulting.com');
-    expect(result.data.attendees).toEqual([]);
+    expect(result.data.attendees).toEqual(['Glen Pryer', 'Lorenza Menna']);
     expect(result.data.topics).toEqual([]);
     expect(result.data.decisions_text).toBe('');
     expect(result.data.context).toBe('');
@@ -103,9 +105,15 @@ describe('transformNote', () => {
     expect(result.item_id).toMatch(/^mtg_20260604_/);
   });
 
+  it('falls back to summary_text when summary_markdown missing', () => {
+    const note = { ...BASE_NOTE, summary_markdown: undefined, summary_text: 'Plain text summary' };
+    const result = transformNote(note, [], []);
+    expect(result.data.summary).toBe('Plain text summary');
+  });
+
   it('does not truncate summary', () => {
     const longSummary = '### Topic\n\n' + 'x'.repeat(5000);
-    const note = { ...BASE_NOTE, summary: longSummary };
+    const note = { ...BASE_NOTE, summary_markdown: longSummary };
     const result = transformNote(note, [], []);
     expect(result.data.summary).toBe(longSummary);
     expect(result.data.summary.length).toBe(5011);
@@ -117,8 +125,17 @@ describe('transformNote', () => {
     expect(result.data.title).toBe('HR- Weekly meeting');
   });
 
+  it('falls back to calendar attendees when API attendees empty', () => {
+    const note = { ...BASE_NOTE, attendees: [] };
+    const calEvents = [
+      { title: 'HR Weekly Meeting', start: '2026-06-04T11:45:00', end: '2026-06-04T13:00:00', attendees: ['Glen Pryer', 'Lorenza Menna'] },
+    ];
+    const result = transformNote(note, [], calEvents);
+    expect(result.data.attendees).toEqual(['Glen Pryer', 'Lorenza Menna']);
+  });
+
   it('empty summary becomes empty string', () => {
-    const note = { ...BASE_NOTE, summary: null };
+    const note = { ...BASE_NOTE, summary_markdown: null, summary_text: null };
     const result = transformNote(note, [], []);
     expect(result.data.summary).toBe('');
   });
@@ -130,19 +147,22 @@ describe('transformNote', () => {
     expect(result.data.workstream).toBe('Couch Heroes');
   });
 
-  it('populates attendees from calendar match', () => {
-    const calEvents = [
-      { title: 'HR Weekly Meeting', start: '2026-06-04T11:45:00', end: '2026-06-04T13:00:00', attendees: ['Glen Pryer', 'Lorenza Menna'] },
-    ];
-    const result = transformNote(BASE_NOTE, [], calEvents);
-    expect(result.data.attendees).toEqual(['Glen Pryer', 'Lorenza Menna']);
-  });
-
   it('handles missing owner gracefully', () => {
     const note = { ...BASE_NOTE, owner: undefined };
     const result = transformNote(note, [], []);
     expect(result.data.owner_name).toBe('');
     expect(result.data.owner_email).toBe('');
+  });
+
+  it('uses web_url for source_path when available', () => {
+    const result = transformNote(BASE_NOTE, [], []);
+    expect(result.data.source_path).toBe('https://notes.granola.ai/d/03a27e7d-bf68-4838-a8ba-fde37a8c4f3a');
+  });
+
+  it('falls back to granola:// URI when no web_url', () => {
+    const note = { ...BASE_NOTE, web_url: undefined };
+    const result = transformNote(note, [], []);
+    expect(result.data.source_path).toBe('granola://meetings/03a27e7d-bf68-4838-a8ba-fde37a8c4f3a');
   });
 });
 
@@ -239,8 +259,14 @@ function makeMockPool(queryResults = {}) {
       if (sql.includes('SELECT id, name FROM clients')) {
         return queryResults.clients || { rows: [{ id: '1', name: 'Couch Heroes' }] };
       }
+      if (sql.includes("data->>'source_id' = ANY")) {
+        return queryResults.existingSourceIds || { rows: [] };
+      }
       if (sql.includes('INSERT INTO meeting_items')) {
         return queryResults.insert || { rowCount: 1 };
+      }
+      if (sql.includes('UPDATE meeting_items')) {
+        return queryResults.update || { rowCount: 1 };
       }
       if (sql.includes('UPDATE meeting_metadata')) {
         return { rowCount: 1 };
@@ -261,7 +287,9 @@ function makeGranolaNote(id, title, date) {
     id, title,
     created_at: `${date}T12:00:00.000Z`,
     owner: { name: 'Glen Pryer', email: 'gpryer@nbi-consulting.com' },
-    summary: `### ${title}\n\nSummary content for ${title}`,
+    summary_markdown: `### ${title}\n\nSummary content for ${title}`,
+    web_url: `https://notes.granola.ai/d/${id}`,
+    attendees: [{ name: 'Glen Pryer', email: 'gpryer@nbi-consulting.com' }],
   };
 }
 
@@ -345,30 +373,55 @@ describe('syncGranolaMeetings', () => {
       .mockResolvedValueOnce({ ok: true, status: 200, json: () => Promise.resolve({ notes: [{ id: 'aaa' }], hasMore: false }) })
       .mockResolvedValueOnce({ ok: true, status: 200, json: () => Promise.resolve(note1) });
 
-    // Simulate existing record found by source_id lookup
-    const pool = makeMockPool();
-    pool.query.mockImplementation(async (sql) => {
-      if (sql.includes("data->>'source_id'") && sql.startsWith('SELECT')) {
-        return { rows: [{ item_id: 'mtg_20260603_existing' }] };
-      }
-      if (sql.includes('UPDATE meeting_items')) {
-        // The WHERE clause must include source = 'granola_api' to protect compiled records
-        expect(sql).toContain("source = 'granola_api'");
-        return { rowCount: 0 }; // 0 rows = compiled record, not updated
-      }
-      if (sql.includes('granola_last_sync') && sql.startsWith('SELECT')) return { rows: [] };
-      if (sql.includes("MAX(data->>'date')")) return { rows: [{ max: '2026-05-22' }] };
-      if (sql.includes('SELECT id, name FROM clients')) return { rows: [] };
-      if (sql.includes('UPDATE meeting_metadata')) return { rowCount: 1 };
-      if (sql.includes('INSERT INTO settings')) return { rowCount: 1 };
-      if (sql.includes("role = 'admin'")) return { rows: [{ username: 'glen' }] };
-      return { rows: [], rowCount: 0 };
+    // source_id exists in batch lookup, but it's a compiled record
+    const pool = makeMockPool({
+      existingSourceIds: { rows: [{ source_id: 'aaa', item_id: 'mtg_20260603_existing' }] },
+      update: { rowCount: 0 },  // 0 = compiled record, WHERE source='granola_api' didn't match
     });
-
     const log = vi.fn();
-    await syncGranolaMeetings({ pool, log, createNotification: vi.fn(), _msalClient: null, _retryOpts: { maxRetries: 3, baseDelayMs: 1 } });
+    const result = await syncGranolaMeetings({ pool, log, createNotification: vi.fn(), _msalClient: null, _retryOpts: { maxRetries: 3, baseDelayMs: 1 } });
 
+    expect(result.imported).toBe(0);
     const updateCall = pool.query.mock.calls.find(c => c[0].includes('UPDATE meeting_items'));
     expect(updateCall[0]).toContain("source = 'granola_api'");
+  });
+
+  it('updates existing granola_api record via merge (preserves user-edited fields)', async () => {
+    process.env.GRANOLA_API_KEY = 'grn_test';
+    const note1 = makeGranolaNote('aaa', 'Updated Title', '2026-06-03');
+
+    global.fetch = vi.fn()
+      .mockResolvedValueOnce({ ok: true, status: 200, json: () => Promise.resolve({ notes: [{ id: 'aaa' }], hasMore: false }) })
+      .mockResolvedValueOnce({ ok: true, status: 200, json: () => Promise.resolve(note1) });
+
+    const pool = makeMockPool({
+      existingSourceIds: { rows: [{ source_id: 'aaa', item_id: 'mtg_20260603_old-title' }] },
+      update: { rowCount: 1 },
+    });
+    const log = vi.fn();
+    const result = await syncGranolaMeetings({ pool, log, createNotification: vi.fn(), _msalClient: null, _retryOpts: { maxRetries: 3, baseDelayMs: 1 } });
+
+    expect(result.imported).toBe(1);
+    const updateCall = pool.query.mock.calls.find(c => c[0].includes('UPDATE meeting_items'));
+    expect(updateCall[0]).toContain('data || jsonb_build_object');
+    expect(updateCall[0]).not.toContain("'topics'");
+    expect(updateCall[0]).not.toContain("'decisions_text'");
+    expect(updateCall[0]).not.toContain("'context'");
+  });
+
+  it('counts correctly: no increment when rowCount is 0', async () => {
+    process.env.GRANOLA_API_KEY = 'grn_test';
+    const note1 = makeGranolaNote('aaa', 'Skipped Meeting', '2026-06-03');
+
+    global.fetch = vi.fn()
+      .mockResolvedValueOnce({ ok: true, status: 200, json: () => Promise.resolve({ notes: [{ id: 'aaa' }], hasMore: false }) })
+      .mockResolvedValueOnce({ ok: true, status: 200, json: () => Promise.resolve(note1) });
+
+    // New insert path, but ON CONFLICT DO NOTHING returns rowCount 0
+    const pool = makeMockPool({ insert: { rowCount: 0 } });
+    const log = vi.fn();
+    const result = await syncGranolaMeetings({ pool, log, createNotification: vi.fn(), _msalClient: null, _retryOpts: { maxRetries: 3, baseDelayMs: 1 } });
+
+    expect(result.imported).toBe(0);
   });
 });

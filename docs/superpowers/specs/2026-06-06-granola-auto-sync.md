@@ -143,16 +143,16 @@ Map each Granola API note + calendar match to `meeting_items` JSONB `data` field
 |---|---|---|
 | `date` | `note.created_at` | Truncate to `YYYY-MM-DD` |
 | `title` | `note.title` | `trim()` |
-| `attendees` | Calendar match | Array of name strings from matched calendar event. Empty array if no match. |
-| `topics` | -- | Empty array. Granola REST API doesn't provide structured topics. Can be manually added via CC edit UI. |
-| `summary` | `note.summary` | **Full text, not truncated.** Granola AI summaries are 500-3000 chars of structured markdown with `###` topic headers. This is the core value of the meeting record. |
-| `decisions_text` | -- | Empty string. Granola summaries embed decisions within `###` topic sections, not in a discrete `## Decisions` block. Extraction would require LLM. Out of scope. |
+| `attendees` | `note.attendees` (primary), calendar (fallback) | API provides attendees as `[{name, email}]`. Extracted as name strings. Falls back to calendar cross-reference only when API attendees array is empty. |
+| `topics` | -- | Empty array. Can be manually added via CC edit UI. |
+| `summary` | `note.summary_markdown` (primary), `note.summary_text` (fallback) | **Full text, not truncated.** Granola AI summaries are 500-3000 chars of structured markdown with `###` topic headers. |
+| `decisions_text` | -- | Empty string. Granola summaries embed decisions within `###` topic sections. Extraction would require LLM. Out of scope. |
 | `context` | -- | Empty string. Same reasoning as decisions_text. |
-| `source_id` | `note.id` | Full Granola note UUID. Different format from seed data (`granola_XXXXXXXX`) but `item_id` dedup prevents collision. |
-| `source_path` | `note.id` | `granola://meetings/{id}` |
+| `source_id` | `note.id` | Granola note ID (format `not_*`). Dedup key for batch lookups. |
+| `source_path` | `note.web_url` (primary), `granola://meetings/{id}` (fallback) | Direct link to note in Granola's web UI. |
 | `workstream` | Title + DB | Client name matching (see below) |
-| `owner_name` | `note.owner.name` | New field not in seed data. Identifies the note taker. |
-| `owner_email` | `note.owner.email` | New field. |
+| `owner_name` | `note.owner.name` | Identifies the note taker. |
+| `owner_email` | `note.owner.email` | Owner email. |
 
 **`item_id` generation:** Uses existing `generateItemId('meetings', data)` from `lib/meetings-intelligence.js`. Produces `mtg_YYYYMMDD_slug` -- deterministic from date + title.
 
@@ -194,9 +194,13 @@ ON CONFLICT (item_id) DO UPDATE SET
 WHERE meeting_items.source = 'granola_api'
 ```
 
-**Upsert, not insert-only.** If Glen edits a note's summary in Granola after the initial sync, the next run picks up the change. The `WHERE source = 'granola_api'` guard prevents overwriting records that were `'compiled'` (seed import) and may have been manually enriched with topics, decisions, or other curated data.
+**Check-then-upsert with merge.** Batch lookup of existing `source_id` values before the insert loop (single query, not N+1). For existing records: merge upsert that updates API-provided fields (title, summary, attendees, source_path, owner) while preserving user-edited fields (topics, decisions_text, context). `WHERE source = 'granola_api'` guard prevents overwriting `'compiled'` or `'manual'` records. `imported` counter only increments when `rowCount > 0`.
+
+For new records: `INSERT ... ON CONFLICT (item_id) DO NOTHING`.
 
 `source` value `'granola_api'` is distinct from `'compiled'` and `'manual'`, allowing queries and UI to differentiate provenance.
+
+**Max notes per sync:** 200 (circuit breaker). Prevents runaway pagination if HWM is reset or Granola returns unexpectedly large result sets.
 
 ### Step 7: Post-Sync
 
