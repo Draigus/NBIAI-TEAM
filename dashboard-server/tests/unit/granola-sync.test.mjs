@@ -345,11 +345,30 @@ describe('syncGranolaMeetings', () => {
       .mockResolvedValueOnce({ ok: true, status: 200, json: () => Promise.resolve({ notes: [{ id: 'aaa' }], hasMore: false }) })
       .mockResolvedValueOnce({ ok: true, status: 200, json: () => Promise.resolve(note1) });
 
+    // Simulate existing record found by source_id lookup
     const pool = makeMockPool();
-    const log = vi.fn();
-    await syncGranolaMeetings({ pool, log, createNotification: vi.fn(), _msalClient: null });
+    pool.query.mockImplementation(async (sql) => {
+      if (sql.includes("data->>'source_id'") && sql.startsWith('SELECT')) {
+        return { rows: [{ item_id: 'mtg_20260603_existing' }] };
+      }
+      if (sql.includes('UPDATE meeting_items')) {
+        // The WHERE clause must include source = 'granola_api' to protect compiled records
+        expect(sql).toContain("source = 'granola_api'");
+        return { rowCount: 0 }; // 0 rows = compiled record, not updated
+      }
+      if (sql.includes('granola_last_sync') && sql.startsWith('SELECT')) return { rows: [] };
+      if (sql.includes("MAX(data->>'date')")) return { rows: [{ max: '2026-05-22' }] };
+      if (sql.includes('SELECT id, name FROM clients')) return { rows: [] };
+      if (sql.includes('UPDATE meeting_metadata')) return { rowCount: 1 };
+      if (sql.includes('INSERT INTO settings')) return { rowCount: 1 };
+      if (sql.includes("role = 'admin'")) return { rows: [{ username: 'glen' }] };
+      return { rows: [], rowCount: 0 };
+    });
 
-    const insertCall = pool.query.mock.calls.find(c => c[0].includes('INSERT INTO meeting_items'));
-    expect(insertCall[0]).toContain("WHERE meeting_items.source = 'granola_api'");
+    const log = vi.fn();
+    await syncGranolaMeetings({ pool, log, createNotification: vi.fn(), _msalClient: null, _retryOpts: { maxRetries: 3, baseDelayMs: 1 } });
+
+    const updateCall = pool.query.mock.calls.find(c => c[0].includes('UPDATE meeting_items'));
+    expect(updateCall[0]).toContain("source = 'granola_api'");
   });
 });

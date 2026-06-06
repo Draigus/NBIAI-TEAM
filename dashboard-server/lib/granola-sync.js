@@ -114,11 +114,11 @@ function transformNote(note, clients, calendarEvents) {
 // --- Granola API helpers ---
 
 async function fetchWithRetry(url, headers, opts = {}) {
-  const { maxRetries = 3, baseDelayMs = 5000 } = opts;
+  const { maxRetries = 3, baseDelayMs = 5000, timeoutMs = 30000 } = opts;
   let lastErr;
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     if (attempt > 0) await sleep(baseDelayMs * Math.pow(2, attempt - 1));
-    const resp = await fetch(url, { headers });
+    const resp = await fetch(url, { headers, signal: AbortSignal.timeout(timeoutMs) });
     if (resp.ok) return resp.json();
     if (resp.status === 404) return null;
     if (resp.status === 401 || resp.status === 403) {
@@ -241,16 +241,39 @@ async function syncGranolaMeetings(ctx) {
   for (const note of notes) {
     try {
       const { item_id, data } = transformNote(note, clients, calendarEvents);
-      await pool.query(
-        `INSERT INTO meeting_items (item_id, section, data, source)
-         VALUES ($1, 'meetings', $2, 'granola_api')
-         ON CONFLICT (item_id) DO UPDATE SET
-           data = EXCLUDED.data,
-           source = EXCLUDED.source,
-           updated_at = now()
-         WHERE meeting_items.source = 'granola_api'`,
-        [item_id, JSON.stringify(data)]
+      const dataJson = JSON.stringify(data);
+
+      // Check if this source_id already exists (handles title renames)
+      const { rows: existing } = await pool.query(
+        "SELECT item_id FROM meeting_items WHERE section = 'meetings' AND data->>'source_id' = $1",
+        [data.source_id]
       );
+
+      if (existing.length > 0) {
+        // Update existing record, preserving user-edited fields (topics, decisions_text, context)
+        await pool.query(
+          `UPDATE meeting_items SET
+             item_id = $1,
+             data = data || jsonb_build_object(
+               'title', $2::jsonb->'title', 'date', $2::jsonb->'date',
+               'summary', $2::jsonb->'summary', 'attendees', $2::jsonb->'attendees',
+               'source_path', $2::jsonb->'source_path',
+               'owner_name', $2::jsonb->'owner_name', 'owner_email', $2::jsonb->'owner_email',
+               'workstream', COALESCE($2::jsonb->'workstream', data->'workstream')
+             ),
+             updated_at = now()
+           WHERE section = 'meetings' AND data->>'source_id' = $3 AND source = 'granola_api'`,
+          [item_id, dataJson, data.source_id]
+        );
+      } else {
+        // New record
+        await pool.query(
+          `INSERT INTO meeting_items (item_id, section, data, source)
+           VALUES ($1, 'meetings', $2, 'granola_api')
+           ON CONFLICT (item_id) DO NOTHING`,
+          [item_id, dataJson]
+        );
+      }
       imported++;
       log('info', 'GranolaSync', 'Imported', { title: data.title, date: data.date, workstream: data.workstream, hasAttendees: data.attendees.length > 0 });
     } catch (e) {
