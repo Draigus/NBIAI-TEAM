@@ -435,26 +435,32 @@ module.exports = function (ctx) {
     const now = Date.now();
     if (now - _lastRefresh < 30000) return res.status(429).json({ data: null, error: 'Refresh rate limited. Wait 30 seconds.' });
     _lastRefresh = now;
+    const conn = await pool.connect();
     try {
       const data = await computeSnapshot();
-      const { rows: existing } = await pool.query(
-        'SELECT snapshot_date, data FROM cc_snapshots ORDER BY snapshot_date DESC LIMIT 1'
+      await conn.query('BEGIN');
+      const { rows: existing } = await conn.query(
+        'SELECT snapshot_date, data FROM cc_snapshots ORDER BY snapshot_date DESC LIMIT 1 FOR UPDATE'
       );
       if (existing.length > 0 && existing[0].data && existing[0].data.dreaming) {
         data.dreaming = existing[0].data.dreaming;
       }
-      const snapDate = existing.length > 0 ? existing[0].snapshot_date : new Date().toISOString().slice(0, 10);
-      const { rows } = await pool.query(
+      const snapDate = new Date().toISOString().slice(0, 10);
+      const { rows } = await conn.query(
         `INSERT INTO cc_snapshots (snapshot_date, data) VALUES ($1, $2)
          ON CONFLICT (snapshot_date) DO UPDATE SET data = $2, updated_at = NOW()
          RETURNING *`,
         [snapDate, JSON.stringify(data)]
       );
+      await conn.query('COMMIT');
       log('info', 'CC', 'Snapshot refreshed', { date: snapDate });
       res.json({ data: rows[0], error: null });
     } catch (e) {
+      await conn.query('ROLLBACK').catch(() => {});
       log('error', 'CC', 'Refresh failed', { error: e.message });
       res.status(500).json({ data: null, error: e.message });
+    } finally {
+      conn.release();
     }
   });
 
@@ -646,7 +652,7 @@ module.exports = function (ctx) {
         },
         error: null,
       });
-      if (!dreamingData) log('warn', 'CC', 'Briefing sent WITHOUT dreaming data', { snapRowCount: snapRows.length });
+      if (!dreamingData) log('info', 'CC', 'Briefing sent without dreaming data (normal before first 3am run)', { snapRowCount: snapRows.length });
     } catch (e) {
       log('error', 'CC', 'Briefing failed', { error: e.message });
       res.status(500).json({ data: null, error: e.message });

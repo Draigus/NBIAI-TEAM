@@ -1,6 +1,6 @@
 module.exports = function(ctx) {
   const router = require('express').Router();
-  const { pool, requireNBI, isValidUuid } = ctx;
+  const { pool, requireNBI, isValidUuid, auditLog } = ctx;
 
   router.get('/api/users/:userId/time-off', async (req, res) => {
     if (!isValidUuid(req.params.userId)) return res.status(400).json({ error: 'Invalid user ID' });
@@ -33,6 +33,7 @@ module.exports = function(ctx) {
       'INSERT INTO time_off (user_id, start_date, end_date, label) VALUES ($1, $2, $3, $4) RETURNING *',
       [req.params.userId, start_date, end_date, label || '']
     );
+    if (auditLog) auditLog(req, 'time_off_created', { userId: req.params.userId, start_date, end_date, label: label || '' });
     res.status(201).json(rows[0]);
   });
 
@@ -40,6 +41,7 @@ module.exports = function(ctx) {
     if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid time-off ID' });
     const { rowCount } = await pool.query('DELETE FROM time_off WHERE id = $1', [req.params.id]);
     if (rowCount === 0) return res.status(404).json({ error: 'Not found' });
+    if (auditLog) auditLog(req, 'time_off_deleted', { id: req.params.id });
     res.json({ ok: true });
   });
 

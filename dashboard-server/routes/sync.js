@@ -233,9 +233,21 @@ router.post('/api/sync/changes', async (req, res) => {
           }
         }
         const changedBy = req.user ? req.user.displayName : 'system';
-        await auditLog('task', idMap[t.id] || t.id,
-          taskExists ? 'update' : 'create',
-          changedBy, { title: t.title, status: t.status, healthState: t.healthState || t.health_state }, conn);
+        // Only log audit entry when something actually changed
+        if (!taskExists) {
+          await auditLog('task', idMap[t.id] || t.id, 'create', changedBy,
+            { title: t.title, status: t.status, healthState: t.healthState || t.health_state }, conn);
+        } else {
+          const oldRow = existingFullMap.get(t.id);
+          const newHealth = t.healthState || t.health_state || '';
+          if (oldRow && (oldRow.title !== t.title || oldRow.status !== t.status || (oldRow.health_state || '') !== newHealth)) {
+            const diff = {};
+            if (oldRow.title !== t.title) diff.title = { from: oldRow.title, to: t.title };
+            if (oldRow.status !== t.status) diff.status = { from: oldRow.status, to: t.status };
+            if ((oldRow.health_state || '') !== newHealth) diff.healthState = { from: oldRow.health_state || '', to: newHealth };
+            await auditLog('task', idMap[t.id] || t.id, 'update', changedBy, diff, conn);
+          }
+        }
 
         // Capture state transitions for post-processing (cancel cascade, repeat clones, blocker notifications)
         if (taskExists) {

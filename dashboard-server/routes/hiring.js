@@ -37,9 +37,8 @@ module.exports = function (ctx) {
   // the file lives in /uploads (same as task attachments) and is referenced
   // from candidates.cv_filename.
 
-  // Glen's 8-stage process (bug b7a2f97f, migration 024). Linear process from
-  // Find Candidate to Hired. Rejected is no longer a stage — use archived_at
-  // on the row instead to take a candidate out of pipeline.
+  // 6-stage process (sourcing → onboarded + process_closed). Rejected is
+  // tracked via rejection_category, not a separate stage.
   const HIRING_STAGES = [
     'sourcing',
     'interviews',
@@ -1137,7 +1136,7 @@ module.exports = function (ctx) {
   });
 
   /** GET /api/clients/:id/hiring-count — Real count of active candidates for a client.
-   *  "Active" = candidates in stages other than 'hired' or 'rejected'.
+   *  "Active" = candidates not in terminal stages and not rejected.
    *  Counts candidates whose client_id matches OR whose parent hiring_position belongs
    *  to the client. This covers both direct candidate-to-client links and candidates
    *  attached via a position. */
@@ -1149,7 +1148,8 @@ module.exports = function (ctx) {
         `SELECT COUNT(*)::int AS count FROM candidates c
          LEFT JOIN hiring_positions p ON c.position_id = p.id
          WHERE (c.client_id = $1 OR p.client_id = $1)
-           AND c.stage NOT IN ('hired','rejected')`,
+           AND c.stage NOT IN ('onboarded','process_closed')
+           AND c.rejection_category IS NULL`,
         [req.params.id]
       );
       res.json({ count: rows[0]?.count || 0 });

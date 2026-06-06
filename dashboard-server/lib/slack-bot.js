@@ -215,6 +215,7 @@ function postSlackReply(token, channel, text, threadTs) {
         'Content-Type': 'application/json',
         'Content-Length': Buffer.byteLength(payload),
       },
+      timeout: 5000,
     }, (res) => {
       let data = '';
       res.on('data', chunk => { data += chunk; });
@@ -223,7 +224,8 @@ function postSlackReply(token, channel, text, threadTs) {
         catch { resolve({ ok: false, error: 'parse_error' }); }
       });
     });
-    req.on('error', reject);
+    req.on('error', () => resolve({ ok: false, error: 'network_error' }));
+    req.on('timeout', () => { req.destroy(); resolve({ ok: false, error: 'timeout' }); });
     req.write(payload);
     req.end();
   });

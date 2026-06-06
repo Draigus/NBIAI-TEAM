@@ -195,7 +195,7 @@ module.exports = function (ctx) {
       res.status(201).json(inserted);
     } catch (e) {
       log('error', 'Interview', 'Failed to generate questions', { error: e.message });
-      res.status(500).json({ error: 'Question generation failed: ' + e.message });
+      res.status(500).json({ error: 'Question generation failed' });
     }
   });
 

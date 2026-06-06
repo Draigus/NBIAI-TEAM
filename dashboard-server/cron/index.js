@@ -176,12 +176,25 @@ async function buildPmReportEmails(todayStr, windowStart, windowEnd) {
       ORDER BY la.created_at DESC
     `, [windowStart, windowEnd, clientIds]);
 
+    // Deduplicate changes: group by task, then by (changes JSON + changed_by), keep latest
+    const dedupedByTask = {};
+    for (const c of changes) {
+      if (!dedupedByTask[c.entity_id]) dedupedByTask[c.entity_id] = { title: c.title, seen: new Map() };
+      const changeData = typeof c.changes === 'string' ? JSON.parse(c.changes) : c.changes;
+      const key = JSON.stringify(changeData) + '||' + c.changed_by;
+      const existing = dedupedByTask[c.entity_id].seen.get(key);
+      if (!existing || new Date(c.created_at) > new Date(existing.created_at)) {
+        dedupedByTask[c.entity_id].seen.set(key, { ...c, _parsed: changeData });
+      }
+    }
+    const dedupedChangeCount = Object.values(dedupedByTask).reduce((s, t) => s + t.seen.size, 0);
+
     // If nothing to report, skip
-    if (changes.length === 0 && overdue.length === 0 && dueSoon.length === 0 && blocked.length === 0 && notStarted.length === 0 && leadUpdates.length === 0) continue;
+    if (dedupedChangeCount === 0 && overdue.length === 0 && dueSoon.length === 0 && blocked.length === 0 && notStarted.length === 0 && leadUpdates.length === 0) continue;
 
     // Build summary bar
     const summaryParts = [];
-    if (changes.length > 0) summaryParts.push(`${changes.length} change${changes.length === 1 ? '' : 's'}`);
+    if (dedupedChangeCount > 0) summaryParts.push(`${dedupedChangeCount} change${dedupedChangeCount === 1 ? '' : 's'}`);
     if (dueSoon.length > 0) summaryParts.push(`${dueSoon.length} due this week`);
     if (overdue.length > 0) summaryParts.push(`${overdue.length} overdue`);
     if (blocked.length > 0) summaryParts.push(`${blocked.length} blocked`);
@@ -229,18 +242,15 @@ async function buildPmReportEmails(todayStr, windowStart, windowEnd) {
       sectionsHtml += buildEmailSection('Not Started (past start date)', '#f59e0b', buildEmailTable(cols, rows));
     }
 
-    // Changes
-    if (changes.length > 0) {
-      const byTask = {};
-      for (const c of changes) {
-        if (!byTask[c.entity_id]) byTask[c.entity_id] = { title: c.title, entries: [] };
-        byTask[c.entity_id].entries.push(c);
-      }
+    // Changes \u2014 use pre-deduped data from above
+    if (dedupedChangeCount > 0) {
       let changesHtml = '';
-      for (const [taskId, { title, entries }] of Object.entries(byTask)) {
-        changesHtml += `<div style="margin:8px 0"><strong>${title}</strong> &mdash; ${entries.length} change${entries.length === 1 ? '' : 's'}<ul style="margin:4px 0;padding-left:20px">`;
-        for (const e of entries) {
-          const changeData = typeof e.changes === 'string' ? JSON.parse(e.changes) : e.changes;
+      for (const [taskId, { title, seen }] of Object.entries(dedupedByTask)) {
+        const unique = [...seen.values()];
+        if (unique.length === 0) continue;
+        changesHtml += `<div style="margin:8px 0"><strong>${title}</strong> &mdash; ${unique.length} change${unique.length === 1 ? '' : 's'}<ul style="margin:4px 0;padding-left:20px">`;
+        for (const e of unique) {
+          const changeData = e._parsed;
           const desc = changeData ? Object.entries(changeData).map(([k, v]) =>
             typeof v === 'object' && v.from !== undefined ? `${k}: ${v.from} \u2192 ${v.to}` : `${k}: ${JSON.stringify(v)}`
           ).join(', ') : e.action;

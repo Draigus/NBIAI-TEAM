@@ -31,6 +31,7 @@ module.exports = function(ctx) {
     if (!title || !title.trim()) return res.status(400).json({ error: 'title required' });
     const lenErr = validateLength(title.trim(), 'title') || (description ? validateLength(description, 'description') : null);
     if (lenErr) return res.status(400).json({ error: lenErr });
+    if (client_id && !isValidUuid(client_id)) return res.status(400).json({ error: 'Invalid client_id' });
     const validTypes = ['project', 'feature', 'story', 'task'];
     const resolvedType = item_type && validTypes.includes(item_type.toLowerCase()) ? item_type.toLowerCase() : 'task';
     const { rows } = await pool.query(

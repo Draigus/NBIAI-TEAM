@@ -370,8 +370,9 @@ module.exports = function (ctx) {
     if (!stage_id) return res.status(400).json({ error: 'Stage required' });
     const lenErr = validateLength(title, 'title') || validateLength(notes, 'notes');
     if (lenErr) return res.status(400).json({ error: lenErr });
-    if (win_probability != null && (win_probability < 0 || win_probability > 100)) {
-      return res.status(400).json({ error: 'Win probability must be between 0 and 100' });
+    if (win_probability != null) {
+      const wp = Number(win_probability);
+      if (isNaN(wp) || wp < 0 || wp > 100) return res.status(400).json({ error: 'Win probability must be a number between 0 and 100' });
     }
 
     const conn = await pool.connect();
@@ -387,7 +388,7 @@ module.exports = function (ctx) {
          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,0) RETURNING *`,
         [client_id || null, title, work_type || null, service_line || null, stage_id,
           priority || null, currency || 'GBP',
-          rom_min || null, rom_max || null, rom_text || null, win_probability || null,
+          rom_min != null ? rom_min : null, rom_max != null ? rom_max : null, rom_text || null, win_probability != null ? win_probability : null,
           primary_contact_id || null, deal_owner || null, lead_source || null,
           est_start_date || null, expected_close_date || null, last_contacted || null,
           next_followup_date || null, next_action || null, location || null,
@@ -452,8 +453,9 @@ module.exports = function (ctx) {
     for (const f of patchFields) {
       if (sanitisedBody[f] === '') sanitisedBody[f] = null;
     }
-    if (sanitisedBody.win_probability != null && (sanitisedBody.win_probability < 0 || sanitisedBody.win_probability > 100)) {
-      return res.status(400).json({ error: 'Win probability must be between 0 and 100' });
+    if (sanitisedBody.win_probability != null) {
+      const wp = Number(sanitisedBody.win_probability);
+      if (isNaN(wp) || wp < 0 || wp > 100) return res.status(400).json({ error: 'Win probability must be a number between 0 and 100' });
     }
     const { updates, vals, nextIdx } = buildPatchQuery(sanitisedBody, patchFields);
     if (req.body.title !== undefined && !req.body.title.trim()) {

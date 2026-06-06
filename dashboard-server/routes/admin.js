@@ -197,12 +197,16 @@ router.get('/api/health', async (req, res) => {
     anyFailed = true;
     log('error', 'Health', 'DB connectivity check failed', { error: e.message, stack: e.stack?.split('\n').slice(0,3).join(' | ') });
   }
-  try {
-    const newsResp = await fetch('http://127.0.0.1:8890/health', { signal: AbortSignal.timeout(3000) });
-    checks.news = newsResp.ok ? 'ok' : `http ${newsResp.status}`;
-  } catch (e) {
-    checks.news = 'unreachable';
-    anyFailed = true;
+  if (process.env.NODE_ENV === 'test') {
+    checks.news = 'skipped';
+  } else {
+    try {
+      const newsResp = await fetch('http://127.0.0.1:8890/health', { signal: AbortSignal.timeout(3000) });
+      checks.news = newsResp.ok ? 'ok' : `http ${newsResp.status}`;
+    } catch (e) {
+      checks.news = 'unreachable';
+      anyFailed = true;
+    }
   }
   res.status(anyFailed ? 503 : 200).json({ status: anyFailed ? 'degraded' : 'ok', ...checks });
 });

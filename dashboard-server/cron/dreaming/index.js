@@ -75,27 +75,33 @@ async function runDreamingEngine(ctx) {
     cross_refs: crossRefs,
   };
 
+  const conn = await pool.connect();
   try {
-    const { rows } = await pool.query(
-      'SELECT snapshot_date, data FROM cc_snapshots ORDER BY snapshot_date DESC LIMIT 1'
+    await conn.query('BEGIN');
+    const { rows } = await conn.query(
+      'SELECT snapshot_date, data FROM cc_snapshots ORDER BY snapshot_date DESC LIMIT 1 FOR UPDATE'
     );
     if (rows.length > 0) {
       const data = rows[0].data;
       data.dreaming = dreaming;
-      await pool.query(
+      await conn.query(
         'UPDATE cc_snapshots SET data = $1, updated_at = NOW() WHERE snapshot_date = $2',
         [JSON.stringify(data), rows[0].snapshot_date]
       );
     } else {
       const today = new Date().toISOString().slice(0, 10);
-      await pool.query(
-        'INSERT INTO cc_snapshots (snapshot_date, data) VALUES ($1, $2)',
+      await conn.query(
+        'INSERT INTO cc_snapshots (snapshot_date, data) VALUES ($1, $2) ON CONFLICT (snapshot_date) DO UPDATE SET data = EXCLUDED.data, updated_at = NOW()',
         [today, JSON.stringify({ dreaming })]
       );
     }
+    await conn.query('COMMIT');
     log('info', 'Dreaming', 'Engine complete: ' + allInsights.length + ' insights, ' + failed + ' failures, ' + dreaming.duration_ms + 'ms');
   } catch (e) {
+    await conn.query('ROLLBACK').catch(() => {});
     log('error', 'Dreaming', 'Failed to write snapshot', { error: e.message });
+  } finally {
+    conn.release();
   }
 
   return dreaming;

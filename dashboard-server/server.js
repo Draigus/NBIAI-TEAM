@@ -214,10 +214,12 @@ const authLimiter = rateLimit({
   standardHeaders: true, legacyHeaders: false, validate: false,
   message: { error: 'Too many login attempts. Please try again later.' }
 });
-app.use('/api/', apiLimiter);
-app.use('/api/auth/login', authLimiter);
-app.use('/api/auth/forgot', authLimiter);
-app.use('/api/auth/reset', authLimiter);
+if (process.env.NODE_ENV !== 'test') {
+  app.use('/api/', apiLimiter);
+  app.use('/api/auth/login', authLimiter);
+  app.use('/api/auth/forgot', authLimiter);
+  app.use('/api/auth/reset', authLimiter);
+}
 
 app.use(compression({ threshold: 1024 })); // Only compress responses > 1KB
 app.use('/public', express.static(path.join(__dirname, 'public'), { maxAge: '7d' }));
@@ -382,7 +384,7 @@ app.use(require('./routes/users')({ pool, log, requireAdmin, requireNBI, require
 app.use(require('./routes/settings')({ pool, requireAdmin }));
 app.use(require('./routes/finance')({ pool, requireNBI, requireAdmin, auditLog, syncConflicts, log }));
 app.use(require('./routes/time-entries')({ pool, isValidUuid, requireTaskAccess }));
-app.use(require('./routes/time-off')({ pool, requireAdmin, requireNBI, isValidUuid }));
+app.use(require('./routes/time-off')({ pool, requireAdmin, requireNBI, isValidUuid, auditLog }));
 app.use(require('./routes/queue')({ pool, requireAdmin, log, isValidUuid, validateLength }));
 app.use(require('./routes/contacts')({ pool, requireAuth, requireAdmin, isValidUuid, buildPatchQuery }));
 app.use(require('./routes/client-notes')({ pool, requireAdmin, getClientScopes, buildPatchQuery }));
