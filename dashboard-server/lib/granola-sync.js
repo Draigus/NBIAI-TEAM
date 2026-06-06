@@ -75,11 +75,21 @@ function transformNote(note, clients, calendarEvents) {
   const title = (note.title || '').trim();
   const createdAt = note.created_at || new Date().toISOString();
   const date = createdAt.slice(0, 10);
-  const summary = note.summary || '';
+  const summary = note.summary_markdown || note.summary_text || note.summary || '';
   const owner = note.owner || {};
 
-  const attendees = matchCalendarEvent(createdAt, title, calendarEvents);
+  // Use API-provided attendees if available, fall back to calendar cross-reference
+  let attendees;
+  if (Array.isArray(note.attendees) && note.attendees.length > 0) {
+    attendees = note.attendees.map(a => a.name || a.email || '').filter(Boolean);
+  } else {
+    attendees = matchCalendarEvent(createdAt, title, calendarEvents);
+  }
+
   const workstream = matchWorkstream(title, clients);
+
+  // Extract web_url for direct link to Granola note
+  const webUrl = note.web_url || null;
 
   const data = {
     date,
@@ -90,7 +100,7 @@ function transformNote(note, clients, calendarEvents) {
     decisions_text: '',
     context: '',
     source_id: note.id,
-    source_path: `granola://meetings/${note.id}`,
+    source_path: webUrl || `granola://meetings/${note.id}`,
     workstream,
     owner_name: owner.name || '',
     owner_email: owner.email || '',
@@ -192,7 +202,7 @@ async function syncGranolaMeetings(ctx) {
 
   if (noteStubs.length === 0) {
     log('info', 'GranolaSync', 'No new notes', { hwm });
-    await pool.query("INSERT INTO settings (key, value) VALUES ('granola_last_sync', $1) ON CONFLICT (key) DO UPDATE SET value = $1", [syncStartedAt]);
+    await pool.query("INSERT INTO settings (key, value) VALUES ('granola_last_sync', $1) ON CONFLICT (key) DO UPDATE SET value = $1", [JSON.stringify(syncStartedAt)]);
     return { imported: 0, failed: 0, skipped: 0, durationMs: Date.now() - startTime };
   }
 
@@ -260,7 +270,7 @@ async function syncGranolaMeetings(ctx) {
   }
 
   if (failedInserts.length === 0 && failedNotes.length === 0) {
-    await pool.query("INSERT INTO settings (key, value) VALUES ('granola_last_sync', $1) ON CONFLICT (key) DO UPDATE SET value = $1", [syncStartedAt]);
+    await pool.query("INSERT INTO settings (key, value) VALUES ('granola_last_sync', $1) ON CONFLICT (key) DO UPDATE SET value = $1", [JSON.stringify(syncStartedAt)]);
   }
 
   // Metrics
