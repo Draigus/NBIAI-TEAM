@@ -4,6 +4,50 @@ Append-only. Every feature/fix completed gets logged here immediately.
 
 ---
 
+## 2026-06-06 — Granola Auto-Sync
+
+Server-side cron job that polls Granola REST API daily at 07:00 and upserts meeting records into `meeting_items` table. Cross-references calendar for attendee fallback.
+
+**New files:** `lib/granola-sync.js` (230 lines), `lib/graph-calendar.js` (extracted from CC route), `tests/unit/granola-sync.test.mjs` (35 tests)
+**Modified:** `cron/index.js`, `routes/admin.js`, `routes/command-centre.js`, `server.js`, `lib/metrics.js`
+**Live data:** 27 meetings synced from API (June 2-5), 139 total in Sources tab. Full summaries, attendees, workstream matching, Granola web links.
+**Manual trigger:** `POST /api/admin/granola-sync` (5-min rate limit)
+**Env:** `GRANOLA_API_KEY=grn_*` added to `.env`
+**Bugs found and fixed:** JSONB settings column, wrong API field names (summary_markdown not summary), N+1 source_id lookups, imported counter on rowCount=0, merge upsert to preserve user edits, fetch timeout, pagination cap (200).
+**Verification:** 55 test files green, 5 Playwright e2e green, PM2 restarted with cron active, frontend verified in browser (Sources tab shows all 139 meetings).
+
+---
+
+## 2026-06-05 — Theme Contrast & Colour Audit (Phase 2 Complete)
+
+Completed the hardcoded colour replacement and font size audit across `nbi_project_dashboard.html`.
+
+**CSS blocks converted to theme tokens:**
+- News monthly section (gradient, text, buttons, headings)
+- Tooltips (removed hardcoded colours + obsolete dark-mode overrides, added border/shadow)
+- Verify/admin badges (warning-bg/warning semantic tokens)
+- ATS card borders, calendar toggle, search focus, hover states
+- Warning item severity borders (critical/high/medium/low)
+- Alert flash animation, scorecard score, news error button
+- Bug Report header button
+
+**JS template strings converted (~40 instances):**
+- Interview decision buttons (advance/hold/reject → success/warning/danger tokens)
+- Score indicators, divergent row, pending/submitted badges
+- healthFill functions (2), urgentColour, thisWeek metric
+- ATS inline-select rejected/declined, stage minibar, stats cards
+- Login error/success messages, question picker warning
+- Schedule/Add Round buttons (#7c3aed → --accent)
+
+**Intentionally kept as hex (data palettes):**
+- HEALTH_COLOURS_HEX, STATUS_COLOURS_HEX, ATS_STAGE_COLORS, typeColors, catColours, palette arrays
+- #fff (68 uses) — all white-on-coloured-background pairs
+- Global error banner (reliability fallback)
+
+**Font sizes:** Below-12px already fixed. ATS card role/indicators bumped to 13px. 12px/0.75rem/0.78rem uses reviewed — all appropriate for context.
+
+---
+
 ## 2026-06-04 — Bug Triage Sweep (19 bugs)
 
 Worked through all 19 open/in_progress WorkSage bugs. All set to please_review with detailed comments.
