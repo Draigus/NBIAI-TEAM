@@ -3401,7 +3401,6 @@ span.fin-editable { display: inline-block; position: relative; }
 <div class="candidate-detail-panel" id="candidateDetailPanel" role="dialog" aria-modal="true" aria-label="Candidate detail"></div>
 <div class="position-detail-overlay" id="positionDetailOverlay"></div>
 <div class="position-detail-panel" id="positionDetailPanel" role="dialog" aria-modal="true" aria-label="Position detail"></div>
-<div id="interviewScorecardView" class="interview-scorecard" style="display:none"></div>
 
 <!-- QUEUE DETAIL PANEL -->
 <div class="queue-detail-overlay" id="queueDetailOverlay" data-action="closeQueueDetail"></div>
@@ -3521,6 +3520,9 @@ span.fin-editable { display: inline-block; position: relative; }
   </div>
 </div>
 </div><!-- /appContainer -->
+
+<!-- Interview scorecard — must be outside appContainer since openInterviewScorecard hides appContainer -->
+<div id="interviewScorecardView" class="interview-scorecard" style="display:none"></div>
 
 <!-- ===== WARNINGS & ALERTS SIDEBAR ===== -->
 <!-- Alerts button is now in the sidebar (see renderSidebar) -->
@@ -13803,7 +13805,8 @@ function _docsRenderTreeNodes(nodes, depth, parentHidden) {
     const lock = n.visibility === 'nbi_only' ? '<span class="docs__tree-lock" title="NBI internal only">&#x1f512;</span>' : '';
     const hiddenLabel = n.hidden ? '<span class="docs__tree-hidden-label">&#x1f441; (hidden)</span>' : (parentHidden ? '<span class="docs__tree-hidden-label">(inherited)</span>' : '');
     html += '<li class="docs__tree-li' + (sel ? ' docs__tree-li--selected' : '') + (isHidden ? ' docs__tree-li--hidden' : '') + '" style="padding-left:' + (depth * 12) + 'px" draggable="true" role="treeitem" aria-selected="' + (sel ? 'true' : 'false') + '" data-doc-id="' + escAttrJs(n.id) + '" data-doc-parent="' + escAttrJs(n.parent_id || '') + '" data-doc-idx="' + idx + '" ondragstart="_docsDragStart(event)" ondragover="_docsDragOver(event)" ondragleave="_docsDragLeave(event)" ondrop="_docsDrop(event)">';
-    html += '<button class="docs__tree-row" onclick="_actDocsSelectPage(\'' + escAttrJs(n.id) + '\')">' + lock + '<span>' + esc(n.title) + '</span>' + hiddenLabel + '</button>';
+    const candidateBadge = n.candidate_id ? '<span style="font-size:0.65rem;background:var(--accent-muted);color:var(--accent-text);padding:1px 5px;border-radius:8px;margin-left:4px" title="Linked to candidate">&#128100;</span>' : '';
+    html += '<button class="docs__tree-row" onclick="_actDocsSelectPage(\'' + escAttrJs(n.id) + '\')">' + lock + '<span>' + esc(n.title) + '</span>' + candidateBadge + hiddenLabel + '</button>';
     html += '<button class="docs__tree-add" title="Add child page" onclick="event.stopPropagation();_actDocsAddPage(\'' + escAttrJs(n.id) + '\')">+</button>';
     html += '</li>';
     if (n.children.length) html += _docsRenderTreeNodes(n.children, depth + 1, isHidden);
@@ -14113,6 +14116,7 @@ async function _docsRenderEditorPane() {
     + '<div class="docs__title-row">'
     + '<input class="docs__title" value="' + esc(doc.title) + '" oninput="_actDocsTitleInput(this.value)">'
     + visBadge
+    + (doc.candidate_id ? '<button class="btn btn--sm" style="font-size:0.75rem;padding:2px 8px;background:var(--accent-muted);color:var(--accent-text);border:1px solid var(--accent);border-radius:8px;cursor:pointer" onclick="closeCandidateDetail();openCandidateDetail(\'' + doc.candidate_id + '\')">&#128100; View Candidate</button>' : '')
     + '<button class="docs__vis-toggle" onclick="_actDocsToggleVis()">' + (isNbiOnly ? 'Make visible to client' : 'Mark as NBI only') + '</button>'
     + '<button class="docs__del-btn" onclick="_actDocsDelete()">Delete</button>'
     + '</div>'
@@ -20658,7 +20662,7 @@ function renderDatabaseTab(container) {
       '<td>' + daysInStageHtml(c.stage_changed_at, c.created_at) + '</td>' +
       '<td><div style="display:flex;flex-wrap:wrap;align-items:center;gap:2px">' + (assigneeChips || '<span style="font-size:12px;color:var(--text-muted);font-style:italic">Unassigned</span>') +
         '<select class="ats-inline-select" aria-label="Add assignee for ' + esc(c.name || 'candidate') + '" onchange="event.stopPropagation();dbAddAssignee(\'' + c.id + '\',\'' + esc(c.stage) + '\',this.value);this.selectedIndex=0" style="color:var(--text-muted);width:auto;min-width:30px"><option value="">+</option>' +
-        (_cachedUsers || []).filter(function(u) { return c.client_id ? u.client_id === c.client_id : !u.client_id; }).map(function(u) { return u.display_name; }).sort().map(function(m) { return '<option value="' + esc(m) + '">' + esc(m) + '</option>'; }).join('') + '</select></div></td>' +
+        (_cachedUsers || []).filter(function(u) { return c.client_id ? (u.client_id === c.client_id || !u.client_id) : !u.client_id; }).map(function(u) { return u.display_name; }).sort().map(function(m) { return '<option value="' + esc(m) + '">' + esc(m) + '</option>'; }).join('') + '</select></div></td>' +
     '</tr>';
   });
 
@@ -22150,7 +22154,7 @@ function buildCandidateStageBarHtml(c, isArchived, disabledStyle, candidateStage
   <div style="display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap;${disabledStyle}">
     ${currentStageAssignees.map((name, i) => `<span style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:10px;padding:3px 10px;font-size:0.78rem;display:inline-flex;align-items:center;gap:4px">${esc(name)} <button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.78rem" data-action="hiringRemoveStageAssignee" data-arg0="${c.id}" data-arg1="${esc(c.stage)}" data-arg2="${i}">&times;</button></span>`).join('')}
     ${unassigned ? '<span style="color:var(--danger);font-size:0.78rem">&#9888; No assignee</span>' : ''}
-    <select id="cdStageAssigneeAdd" style="font-size:0.78rem;padding:3px 8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)" onchange="if(this.value){hiringAddStageAssignee('${c.id}','${esc(c.stage)}');this.value=''}"><option value="">+ Assign…</option>${(_cachedUsers || []).filter(u => c.client_id ? u.client_id === c.client_id : !u.client_id).map(u => u.display_name).sort().map(m => `<option value="${esc(m)}">${esc(m)}</option>`).join('')}</select>
+    <select id="cdStageAssigneeAdd" style="font-size:0.78rem;padding:3px 8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)" onchange="if(this.value){hiringAddStageAssignee('${c.id}','${esc(c.stage)}');this.value=''}"><option value="">+ Assign…</option>${(_cachedUsers || []).filter(u => c.client_id ? (u.client_id === c.client_id || !u.client_id) : !u.client_id).map(u => u.display_name).sort().map(m => `<option value="${esc(m)}">${esc(m)}</option>`).join('')}</select>
   </div>`;
 }
 
@@ -22189,6 +22193,7 @@ function buildCandidateProfileHtml(c, isDetailScoped, clientList, positions, dis
       </div>
     </div>
     ${positions.length > 0 ? `<div class="candidate-detail__field"><label>Hiring Position (template)</label><select id="cdPosition" onchange="updateCandidateField('${c.id}','position_id',this.value||null)"><option value="">— None —</option>${positions.filter(p => !c.client_id || p.client_id === c.client_id).map(p => `<option value="${p.id}" ${c.position_id===p.id?'selected':''}>${esc(p.title)}</option>`).join('')}</select></div>` : ''}
+    <div class="candidate-detail__field"><label>Notes</label><textarea id="cdNotes" rows="6" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.82rem;font-family:var(--font-body);resize:vertical" onchange="updateCandidateField('${c.id}','notes',this.value||null)">${esc(c.notes || '')}</textarea></div>
   </div>`;
 }
 
@@ -22613,10 +22618,14 @@ async function openInterviewScorecard(sessionId) {
   }
 
   if (session.status === 'submitted') { renderSubmitted(); return; }
-  if (session.status === 'assigned') { renderSplash(); return; }
-  currentIdx = questions.findIndex(q => !localScores[q.question_id]);
-  if (currentIdx < 0) currentIdx = 0;
-  renderScoring();
+
+  if (session.status === 'assigned') {
+    renderSplash();
+  } else {
+    currentIdx = questions.findIndex(q => !localScores[q.question_id]);
+    if (currentIdx < 0) currentIdx = 0;
+    renderScoring();
+  }
 
   function renderSplash() {
     const estTime = questions.length * 2;
@@ -22704,7 +22713,7 @@ async function openInterviewScorecard(sessionId) {
       '<div class="interview-scorecard__header">' +
         '<div class="interview-scorecard__header-left"><strong>' + esc(session.candidate_name || 'Candidate') + '</strong><span style="color:var(--text-muted)">·</span><span style="color:var(--text-muted)">' + esc(session.candidate_role || '') + '</span>' + (session.client_name ? '<span style="color:var(--text-muted)">·</span><span style="color:var(--text-muted)">' + esc(session.client_name) + '</span>' : '') + '</div>' +
         '<div class="interview-scorecard__header-centre"><span style="font-size:12px;color:var(--text-muted)">' + scored + ' of ' + questions.length + '</span><div class="interview-scorecard__progress-bar"><div class="interview-scorecard__progress-fill" style="width:' + pct + '%"></div></div></div>' +
-        '<div class="interview-scorecard__header-right"><button class="btn btn--sm" onclick="closeInterviewScorecard()">Save &amp; Exit</button></div>' +
+        '<div class="interview-scorecard__header-right"><button class="btn btn--sm" onclick="closeInterviewScorecard()">Close</button></div>' +
       '</div>' +
       '<div class="interview-scorecard__categories">' + catBarsHtml + '</div>' +
       '<div class="interview-scorecard__body"><div class="interview-scorecard__card">' +
@@ -22902,7 +22911,8 @@ function buildCandidateInterviewsHtml(candidateId, rounds, disabledStyle) {
     const sessionsHtml = sessions.length > 0 ? sessions.map(s => {
       const sColor = s.status === 'submitted' ? 'var(--success)' : s.status === 'declined' ? 'var(--danger)' : s.status === 'in_progress' ? 'var(--accent)' : 'var(--text-muted)';
       const blindLabel = isClientUser() ? '' : (s.scored_count ? ` (${s.scored_count} scored)` : '');
-      return `<span style="display:inline-flex;align-items:center;gap:4px;font-size:0.75rem;padding:3px 8px;border-radius:8px;background:color-mix(in srgb, ${sColor} 12%, var(--bg-surface));color:${sColor}">${esc(s.interviewer_name || 'Interviewer')} &middot; ${s.status}${blindLabel}</span>`;
+      const clickable = !isClientUser() && s.id;
+      return `<span onclick="${clickable ? `openInterviewScorecard('${s.id}')` : ''}" title="${clickable ? 'Open scorecard' : ''}" style="display:inline-flex;align-items:center;gap:4px;font-size:0.75rem;padding:3px 8px;border-radius:8px;background:color-mix(in srgb, ${sColor} 12%, var(--bg-surface));color:${sColor}${clickable ? ';cursor:pointer;transition:filter 0.15s' : ''}" ${clickable ? 'onmouseenter="this.style.filter=\'brightness(0.85)\'" onmouseleave="this.style.filter=\'\'"' : ''}>${esc(s.interviewer_name || 'Interviewer')} &middot; ${s.status}${blindLabel}</span>`;
     }).join(' ') : (r.interviewer_name ? `<span style="font-size:0.75rem;color:var(--text-muted)">${esc(r.interviewer_name)}</span>` : '');
 
     const hasResults = allSubmitted && r.aggregate_score && !isClientUser();
@@ -23217,6 +23227,7 @@ async function openCandidateDetail(id) {
       <button class="candidate-detail__tab candidate-detail__tab--active" data-tab="profile" onclick="switchCandidateTab(this,'profile')">Profile</button>
       <button class="candidate-detail__tab" data-tab="interviews" onclick="switchCandidateTab(this,'interviews')">Interviews${roundsData && roundsData.length > 0 ? ' (' + roundsData.length + ')' : ''}</button>
       <button class="candidate-detail__tab" data-tab="activity" onclick="switchCandidateTab(this,'activity')">Activity</button>
+      <button class="candidate-detail__tab" data-tab="docs" onclick="switchCandidateTab(this,'docs');loadCandidateDocs('${c.id}','${c.client_id}')">Docs</button>
       <button class="candidate-detail__tab" data-tab="settings" onclick="switchCandidateTab(this,'settings')">Settings</button>
     </div>
     <div class="candidate-detail__body">
@@ -23247,6 +23258,12 @@ async function openCandidateDetail(id) {
         <div class="candidate-detail__section" id="cdCommentsSection" style="${disabledStyle}">
           <div class="candidate-detail__section-title">Comments <span id="cdCommentCount" style="font-size:0.78rem;color:var(--text-muted)">(${c.comment_count || 0})</span></div>
           <div style="color:var(--text-muted);font-size:0.82rem;padding:8px 0">Loading comments…</div>
+        </div>
+      </div>
+      <div id="cdTabDocs" class="candidate-detail__tab-content">
+        <div class="candidate-detail__section">
+          <div class="candidate-detail__section-title">Documentation</div>
+          <div id="cdDocsContainer" style="color:var(--text-muted);font-size:0.82rem;padding:8px 0">Click the Docs tab to load…</div>
         </div>
       </div>
       <div id="cdTabSettings" class="candidate-detail__tab-content">
@@ -23478,6 +23495,66 @@ async function deleteCandidateComment(candidateId, commentId) {
 }
 
 /** Close the candidate detail slide-in panel and restore focus. */
+async function loadCandidateDocs(candidateId, clientId) {
+  const container = document.getElementById('cdDocsContainer');
+  if (!container) return;
+  container.innerHTML = '<div style="color:var(--text-muted);font-size:0.82rem;padding:8px 0">Loading documentation…</div>';
+  const docs = await apiCall(`/api/documents?client_id=${clientId}&candidate_id=${candidateId}`).catch(() => []);
+  if (!docs || docs.length === 0) {
+    container.innerHTML = '<div style="color:var(--text-muted);font-size:0.82rem;padding:8px 0">No documentation yet.</div>';
+    return;
+  }
+  let html = '';
+  for (const doc of docs) {
+    const bodyHtml = _tiptapToHtml(doc.body_json);
+    const updated = doc.updated_at ? new Date(doc.updated_at).toLocaleDateString() : '';
+    html += `<div style="margin-bottom:16px;background:var(--bg-elevated);border:1px solid var(--border-default);border-radius:var(--radius-md);padding:12px 16px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <strong style="font-size:0.95rem;color:var(--text-primary)">${esc(doc.title)}</strong>
+        <span style="font-size:0.72rem;color:var(--text-muted)">${updated}</span>
+      </div>
+      <div class="candidate-doc-body" style="font-size:0.85rem;line-height:1.6;color:var(--text-secondary)">${bodyHtml}</div>
+    </div>`;
+  }
+  container.innerHTML = html;
+}
+
+function _tiptapToHtml(json) {
+  if (!json || !json.content) return '';
+  return json.content.map(node => _renderNode(node)).join('');
+}
+
+function _renderNode(node) {
+  if (!node) return '';
+  if (node.type === 'text') {
+    let t = esc(node.text || '');
+    if (node.marks) {
+      for (const m of node.marks) {
+        if (m.type === 'bold') t = '<strong>' + t + '</strong>';
+        if (m.type === 'italic') t = '<em>' + t + '</em>';
+        if (m.type === 'link' && m.attrs && m.attrs.href) t = '<a href="' + esc(m.attrs.href) + '" target="_blank" rel="noopener" style="color:var(--accent)">' + t + '</a>';
+      }
+    }
+    return t;
+  }
+  const children = (node.content || []).map(c => _renderNode(c)).join('');
+  switch (node.type) {
+    case 'paragraph': return '<p style="margin:0 0 8px 0">' + (children || '&nbsp;') + '</p>';
+    case 'heading': {
+      const lvl = (node.attrs && node.attrs.level) || 2;
+      const sizes = { 1: '1.2rem', 2: '1.05rem', 3: '0.95rem' };
+      return '<div style="font-size:' + (sizes[lvl] || '0.95rem') + ';font-weight:700;color:var(--text-primary);margin:12px 0 6px 0">' + children + '</div>';
+    }
+    case 'bulletList': return '<ul style="margin:4px 0 8px 0;padding-left:20px">' + children + '</ul>';
+    case 'orderedList': return '<ol style="margin:4px 0 8px 0;padding-left:20px">' + children + '</ol>';
+    case 'listItem': return '<li style="margin-bottom:2px">' + children + '</li>';
+    case 'blockquote': return '<blockquote style="border-left:3px solid var(--accent);padding-left:12px;margin:8px 0;color:var(--text-muted)">' + children + '</blockquote>';
+    case 'horizontalRule': return '<hr style="border:none;border-top:1px solid var(--border-default);margin:12px 0">';
+    case 'hardBreak': return '<br>';
+    default: return children;
+  }
+}
+
 function closeCandidateDetail() {
   if (window._candidateDetailPreviousFocus) { window._candidateDetailPreviousFocus.focus(); window._candidateDetailPreviousFocus = null; }
   if (window._candidateDetailEscHandler) { document.removeEventListener('keydown', window._candidateDetailEscHandler); window._candidateDetailEscHandler = null; }

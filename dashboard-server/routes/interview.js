@@ -721,7 +721,7 @@ module.exports = function (ctx) {
   });
 
   /** GET /api/interview-sessions/:id — Session detail with questions and scores */
-  router.get('/api/interview-sessions/:id', requireNBI, async (req, res) => {
+  router.get('/api/interview-sessions/:id', async (req, res) => {
     if (!req.user) return res.status(401).json({ error: 'Auth required' });
     if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid session ID' });
     try {
@@ -764,7 +764,7 @@ module.exports = function (ctx) {
   // ---------- Group 4: Scoring ----------
 
   /** PUT /api/interview-scores/:session_id/:question_id — Upsert a score */
-  router.put('/api/interview-scores/:session_id/:question_id', requireNBI, async (req, res) => {
+  router.put('/api/interview-scores/:session_id/:question_id', async (req, res) => {
     if (!req.user) return res.status(401).json({ error: 'Auth required' });
     if (!isValidUuid(req.params.session_id)) return res.status(400).json({ error: 'Invalid session_id' });
     if (!isValidUuid(req.params.question_id)) return res.status(400).json({ error: 'Invalid question_id' });
@@ -828,7 +828,7 @@ module.exports = function (ctx) {
   // ---------- Group 5: Session Submit ----------
 
   /** POST /api/interview-sessions/:id/submit — Submit a completed scorecard */
-  router.post('/api/interview-sessions/:id/submit', requireNBI, async (req, res) => {
+  router.post('/api/interview-sessions/:id/submit', async (req, res) => {
     if (!req.user) return res.status(401).json({ error: 'Auth required' });
     if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid session ID' });
     const conn = await pool.connect();
@@ -891,7 +891,7 @@ module.exports = function (ctx) {
             <p>All scorecards are in for <strong>${escHtml(candidate?.name || 'candidate')}</strong>
             (${escHtml(candidate?.role || 'role')}).</p>
             <p>You can now review the aggregated results and record a decision.</p>
-            <p><a href="${APP_URL}/nbi_project_dashboard.html#hiring" style="display:inline-block;padding:10px 20px;background:#16a34a;color:#fff;text-decoration:none;border-radius:6px;font-weight:600">Review Results</a></p>
+            <p><a href="${APP_URL}/nbi_project_dashboard.html#hiring/candidate/${session.candidate_id}" style="display:inline-block;padding:10px 20px;background:#16a34a;color:#fff;text-decoration:none;border-radius:6px;font-weight:600">Review Results</a></p>
           `;
           sendEmailAsync({
             to: hm.email,
