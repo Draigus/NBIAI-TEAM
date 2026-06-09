@@ -22309,7 +22309,7 @@ async function deleteOnboardingItem(candidateId, itemId) {
   loadOnboardingChecklist(candidateId);
 }
 
-async function openInterviewConfig(candidateId, clientId, positionId) {
+async function openInterviewConfig(candidateId, clientId, positionId, existingConfigId) {
   const params = new URLSearchParams();
   if (clientId) params.set('client_id', clientId);
 
@@ -22407,7 +22407,9 @@ async function openInterviewConfig(candidateId, clientId, positionId) {
         for (var d of otherDiscs) { questionsHtml += renderDisciplineSection(d, disciplines[d], false); }
       }
     } else {
-      questionsHtml += '<div style="background:var(--warning-bg);border:1px solid var(--warning-border);border-radius:6px;padding:8px 12px;font-size:12px;color:var(--warning);margin-bottom:12px">This position has no discipline set — showing all questions. Set a discipline on the position to filter.</div>';
+      questionsHtml += '<div style="background:var(--warning-bg);border:1px solid var(--warning-border);border-radius:6px;padding:8px 12px;font-size:12px;color:var(--warning);margin-bottom:12px;position:relative">' +
+        'This position has no discipline set — showing all questions. Set a discipline on the position to filter.' +
+        '<button onclick="this.parentElement.remove()" style="position:absolute;top:4px;right:8px;background:none;border:none;color:var(--warning);cursor:pointer;font-size:14px;padding:2px 4px" title="Dismiss">&times;</button></div>';
       var allExpanded = expandedDisciplines.size === 0;
       for (var d of Object.keys(disciplines).sort()) {
         if (allExpanded) expandedDisciplines.add(d);
@@ -22415,7 +22417,13 @@ async function openInterviewConfig(candidateId, clientId, positionId) {
       }
     }
 
-    var interviewersHtml = (users || []).filter(function(u) { return u.is_active !== false && (u.client_id === clientId || !u.client_id); }).map(function(u) {
+    var interviewerFilter = window._ivInterviewerFilter || '';
+    var interviewersHtml = '<input type="text" placeholder="Filter by name..." value="' + esc(interviewerFilter) + '" oninput="window._ivInterviewerFilter=this.value;window._ivRenderConfig()" style="width:100%;padding:8px;margin-bottom:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.82rem">';
+    interviewersHtml += (users || []).filter(function(u) { return u.is_active !== false && (u.client_id === clientId || !u.client_id); }).filter(function(u) {
+      if (!interviewerFilter) return true;
+      var q = interviewerFilter.toLowerCase();
+      return (u.display_name || u.username || '').toLowerCase().includes(q) || (u.email || '').toLowerCase().includes(q);
+    }).map(function(u) {
       return '<label style="display:flex;align-items:center;gap:8px;padding:8px;cursor:pointer;border-bottom:1px solid var(--border)">' +
         '<input type="checkbox" ' + (selectedInterviewers.has(u.id) ? 'checked' : '') + ' onchange="window._ivToggleInterviewer(\'' + u.id + '\')">' +
         '<span>' + esc(u.display_name || u.username) + '</span>' +
@@ -22437,7 +22445,7 @@ async function openInterviewConfig(candidateId, clientId, positionId) {
           '<div style="font-weight:600;margin-bottom:8px;color:var(--accent)">' + selectedIds.size + ' selected</div>' +
           '<div style="max-height:calc(100vh - 320px);overflow-y:auto">' + (questionsHtml || '<p style="color:var(--text-muted)">No questions in bank. Add custom questions.</p>') + '</div>'
         : '<div style="max-height:calc(100vh - 320px);overflow-y:auto">' + (interviewersHtml || '<p style="color:var(--text-muted)">No team members found.</p>') + '</div>') +
-      '<div style="border-top:1px solid var(--border);padding-top:12px;margin-top:12px;display:flex;justify-content:space-between;align-items:center">' +
+      '<div style="border-top:1px solid var(--border);padding:12px 0 0;display:flex;justify-content:space-between;align-items:center;position:sticky;bottom:0;background:var(--bg-card);z-index:2">' +
         '<span style="color:var(--text-muted);font-size:13px">' + selectedIds.size + ' questions · ' + selectedInterviewers.size + ' interviewers</span>' +
         '<button class="btn btn--primary" ' + (selectedIds.size === 0 || selectedInterviewers.size === 0 ? 'disabled' : '') + ' onclick="window._ivSendInterviews()">Send Interviews</button></div>';
   }
@@ -22478,6 +22486,10 @@ async function openInterviewConfig(candidateId, clientId, positionId) {
   };
 
   window._ivSendInterviews = async function() {
+    // If we were opened from an existing draft round, delete it first to avoid duplicates
+    if (existingConfigId) {
+      try { await authFetch('/api/interview-configs/' + existingConfigId, { method: 'DELETE' }); } catch (e) {}
+    }
     const resp = await authFetch('/api/interview-configs', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -22941,7 +22953,7 @@ function buildCandidateInterviewsHtml(candidateId, rounds, disabledStyle) {
             <option value="rescheduled" ${outcome === 'rescheduled' ? 'selected' : ''}>Rescheduled</option>
             <option value="no_show" ${outcome === 'no_show' ? 'selected' : ''}>No-show</option>
           </select>` : ''}
-          ${r.round_type !== 'Phone Screen' && isNBI && (r.question_count === 0 || sessions.length === 0) ? (function() { var cd = (_candidatesData||[]).find(function(x){return x.id===candidateId}); return `<button class="btn btn--sm" style="font-size:0.75rem;background:var(--accent);color:#fff;border:none" onclick="openInterviewConfig('${candidateId}','${cd?.client_id || ''}','${cd?.position_id || ''}')">Configure Questions &amp; Interviewers</button>`; })() : ''}
+          ${r.round_type !== 'Phone Screen' && isNBI && (r.question_count === 0 || sessions.length === 0) ? (function() { var cd = (_candidatesData||[]).find(function(x){return x.id===candidateId}); return `<button class="btn btn--sm" style="font-size:0.75rem;background:var(--accent);color:#fff;border:none" onclick="openInterviewConfig('${candidateId}','${cd?.client_id || ''}','${cd?.position_id || ''}','${r.id}')">Configure Questions &amp; Interviewers</button>`; })() : ''}
           ${hasResults ? `<button class="btn btn--sm" style="font-size:0.75rem" onclick="openInterviewResults('${r.id}')">View Results &rarr;</button>` : ''}
           ${isNBI && outcome !== 'cancelled' ? `<button class="btn btn--sm" style="font-size:0.75rem;background:transparent;color:var(--text-muted);border:1px solid var(--border-default)" onclick="window._ivCancelRound('${r.id}')">Cancel</button>` : ''}
           ${isAdmin ? `<button class="btn btn--sm" style="font-size:0.75rem;background:transparent;color:var(--danger);border:1px solid var(--danger)" onclick="window._ivDeleteRound('${r.id}','${candidateId}')">Delete</button>` : ''}
