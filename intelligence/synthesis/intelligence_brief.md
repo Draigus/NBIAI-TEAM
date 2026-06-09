@@ -1,39 +1,27 @@
-# Intelligence Brief — 2026-06-01
+# Intelligence Brief — 2026-06-10
 
 ## What's New
 
-**Industry intelligence (3 new findings):**
-- EA $55B Saudi-led buyout — CFIUS decision imminent, PIF will own 93.4%. Largest gaming LBO ever. Expected close June 30. Defines regulatory treatment of all future sovereign gaming M&A.
-- State of Play tomorrow (June 2) — Wolverine Sept 15 confirmed, God of War Faye spinoff strongly rumoured. 60-90 minutes, longest ever.
-- Showcase week starts today — 15+ events June 1-8. SGF June 5 (40 games), Xbox Showcase June 7.
+**Nothing new ingested since the 1 June brief.** No new extracts, no research cycles, no source harvests since then.
 
-**Pitch deck research cycle 2 (5 new findings — PC/console indie):**
-- Outersloth published full contract terms ($19.2M across 24 games, 50/50 pre-recoup then 15/85)
-- Gremlins Inc. 2 live publisher pitch — only documented in-progress negotiation with real EUR 1M budget
-- Hooded Horse + Manor Lords — developer-first terms (65/35, no recoup), 3.2M wishlists
-- Focus Entertainment — <0.5% acceptance from 3,000-4,000 annual pitches, $318K average advance
-- Human Computer $7.7M seed — 19 slides, a16z + Makers Fund
-
-**Granola backlog fully cleared (batch 7 yesterday — 36 extracts):**
-- All 119 meetings processed (112 extracts total). Key additions: Lighthouse/James crisis documented, Simon Woodroffe interview, CH UK entity compliance, NBI cash flow detail, PlayGOALS beta results.
+**One concern:** the scheduled bank recompilation routine ran 9 June at 01:23 and touched `compilation_log.md` and `brain_delta.md`, but both are empty shells — no banks were actually compiled, no delta produced. The routine appears to have initialised its output files and done nothing. Worth checking whether the cloud routine is wired up correctly.
 
 ## Today's Context
 
-275 raw extracts across 8 sources. All sources fully harvested. Showcase week will generate dense industry findings all week.
+Likely work: resuming SPA modularisation (Phase 2 — JS infrastructure extraction) per the 9 June handoff, plus uncommitted ATS work on feature/command-centre.
 
-Most relevant banks:
-- **industry_current** — 55 research findings, needs recompile badly
-- **games_pitch_decks** — 15 research findings (mobile + PC/console), needs recompile
-- **client_couch_heroes** — 70+ Granola extracts unintegrated
+Most relevant banks: none directly — this is deep technical work, intelligence surfacing suppressed per suppression rules.
 
 ## Pipeline Health
 
-- Banks: 7 active, all critically overdue (last compiled May 26 — 6 days, 145+ extracts)
-- Total extracts: 275 across 8 sources
-- Granola: fully cleared (112/119 processed)
-- Gmail/Slack: quiet (CH mailbox only, Slack idle during Athens week)
+- **Banks: 7 active, all last compiled 2026-05-25 (16 days ago)**
+  - Past shelf life: industry_current (7d shelf life), client_patterns (14d)
+  - Approaching: forecast_models, games_pitch_decks (30d)
+- Raw extracts on disk: granola 113, web_research 86, claude_sessions 27, onedrive 26, gmail 11, slack 7, downloads 3 (plus chatgpt archive)
+- The 1 June brief flagged 145+ extracts unintegrated; that backlog is unchanged and now 16 days old
+- pipeline_state.md itself is stale (last updated ~25 May, contradicts the 1 June brief on granola counts)
 
 ## Actions Needed
 
-- **Bank recompilation critical** — 145+ extracts unintegrated, 6 days stale. This is the biggest bottleneck.
+- **Bank recompilation is critically overdue** — run `/recompile-banks`. The scheduled routine is not doing it (see above). This was the top action on 1 June and remains the biggest bottleneck.
 - **5 bank suggestions pending:** consulting_frameworks, studio_staffing_models, salary_benchmarks, investor_database, competitor_watch
