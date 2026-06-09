@@ -1,3 +1,4 @@
+<!-- last_verified: 2026-06-09 -->
 # CLAUDE.md — Universal Rules + Dashboard Server
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
@@ -101,6 +102,7 @@ When the conversation enters a listed topic, load the corresponding `brain/` mod
 | Pending actions, follow-ups | pending_actions.md |
 | Glen's career, background | career_history.md |
 | Glen's personal context | personal.md |
+| Financial health, cash flow, revenue, payroll, risk | financial_resilience.md |
 
 ## Session Continuity — MANDATORY
 
@@ -108,15 +110,11 @@ When the conversation enters a listed topic, load the corresponding `brain/` mod
 
 1. **Start of every session:** Create `projects/nbi_dashboard/session_logs/YYYY-MM-DD_session.md`. First entry = what handoff was loaded, what the starting state is.
 
-2. **After EVERY substantive exchange** (directive from Glen, work completed, decision made): IMMEDIATELY append to the session log. Not later. Not "in a minute." Now. This is the critical rule — if this is followed, compaction can never lose anything important.
+2. **After EVERY substantive exchange** (directive from Glen, work completed, decision made): IMMEDIATELY append to the session log. Not later. Not "in a minute." Now. Each entry should include structured sections where relevant: what was completed, what is pending, what decisions were made. This replaces the separate work_completed.md, pending_tasks.md, and conversation_context.md files.
 
-3. **Update structured state files** in `projects/nbi_dashboard/live_state/`:
-   - `decisions.md` — Glen's decisions, appended on the spot
-   - `work_completed.md` — features/fixes done this session
-   - `pending_tasks.md` — current task queue
-   - `conversation_context.md` — running summary of conversation flow
+3. **Update decisions.md** — This is the ONLY separate live state file that remains. Glen's decisions, appended on the spot. This is the highest-value structured data and the only file that genuinely needs to be separate from the session log (because it is an append-only audit trail across sessions).
 
-4. **After compaction:** Re-read the session log and live state files to recover any context that was compressed. Do not ask Glen to repeat himself — the files have it.
+4. **After compaction:** Re-read the most recent session log (which now contains all state) and decisions.md. Do not ask Glen to repeat himself — the files have it.
 
 5. **Still write full handoffs** at natural breakpoints (end of a sprint, switching focus areas). But handoffs are for session boundaries, not panic exits.
 
@@ -124,7 +122,7 @@ When the conversation enters a listed topic, load the corresponding `brain/` mod
 
 ### File Locations
 - Session logs: `projects/nbi_dashboard/session_logs/`
-- Live state: `projects/nbi_dashboard/live_state/`
+- Decisions: `projects/nbi_dashboard/live_state/decisions.md` (the only separate live state file)
 - Handoffs: `projects/nbi_dashboard/session_handoffs/`
 
 ## Intelligence Pipeline — Session Start
@@ -232,7 +230,7 @@ If a brain/ module or role AGENT.md has a `last_verified` date older than 30 day
 
 The only executable code in this repo lives in `dashboard-server/` (Express + Postgres) plus the SPA `nbi_project_dashboard.html` at the repo root. Everything else is markdown knowledge. Memory shorthand: "NBI Hub" / "WorkSage" = this dashboard.
 
-**Stack:** Node.js + Express 4, PostgreSQL (via `pg`), monolithic `server.js` (~9,600 lines), monolithic `nbi_project_dashboard.html` (~21,300 lines, inline CSS+JS). PM2 for process management, Cloudflare Tunnel for public access at https://worksage.nbi-consulting.com.
+**Stack:** Node.js + Express 4, PostgreSQL (via `pg`), modular `server.js` hub (~516 lines) with 41 route files in `routes/` (~12,185 lines) and 20 lib modules in `lib/` (~2,583 lines). Frontend SPA `nbi_project_dashboard.html` (~28,200 lines, inline CSS+JS). 69 migrations, 55 test files. PM2 for process management, Cloudflare Tunnel for public access at https://worksage.nbi-consulting.com.
 
 **Local URL:** http://localhost:8888/nbi_project_dashboard.html (production), :8887 (staging).
 
@@ -277,7 +275,7 @@ Glen's directive 2026-04-15: every item from the dashboard's Bug Tracker must fo
 6. **Test** — Run `npm test` and `npm run test:all` if frontend was touched. Both must be green.
 7. **Update bug list + add comment** — Set status to `please_review`. Comment MUST: start with "Fixed." or "Done.", explain root cause in plain English, explain what changed behaviourally, end with "Please test by..." and a reproduction step.
 
-After ALL items in a batch: commit as a single feat/fix commit referencing each bug ID, restart PM2 if server files changed, update `live_state/work_completed.md`.
+After ALL items in a batch: commit as a single feat/fix commit referencing each bug ID, restart PM2 if server files changed, update the session log with work completed.
 
 ## graphify
 

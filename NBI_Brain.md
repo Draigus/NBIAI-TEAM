@@ -284,6 +284,7 @@ The core Brain (this file) is always loaded. Extended modules in `brain/` provid
 | Decisions Log | `brain/decisions_log.md` | Need to check whether something has already been decided |
 | Pending Actions | `brain/pending_actions.md` | Reviewing what's outstanding or stalled |
 | AI Operations | `brain/services_ai_operations.md` | Working on AI service offerings, client proposals involving AI ops, or PlaySage Sage module architecture |
+| Financial Resilience | `brain/financial_resilience.md` | Financial health, cash flow, revenue, payroll, risk, disaster recovery, or margin analysis |
 
 ### Loading Protocol
 

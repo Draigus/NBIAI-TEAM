@@ -52,3 +52,11 @@ Canon decisions that should not be revisited unless Glen explicitly reopens them
 | 2026-03-28 | VP Engineering tier condition: Sonnet now, Opus at Phase 2 | VP Engineering operates at Sonnet during Phase 1 (sequential projects, CTO managing directly). Upgrades to Opus when Phase 2 activates: Playsage parallel workstreams live and VP Engineering is primary architectural review gate before CTO. CEO triggers the upgrade |
 | 2026-03-28 | NBIAI App: zero Anthropic API. Claude Desktop is the execution engine | The NBIAI App web application makes no calls to the Anthropic API. All agent execution runs through Claude Desktop sessions on Glen's Max plan. App uses PostgreSQL (local), PM2, Tailscale for remote access. File-based task queue bridges the app and Claude Desktop |
 | 2026-03-28 | Phased activation: 8 roles Phase 1, demand-driven thereafter | Phase 1 (now): CEO, COO, CFO, Producer, Gaming Practice Lead, Game Economy Consultant, CMO, Content Marketer. Roles activate when specific work exists, not on a calendar. No standing activation of dormant roles |
+
+---
+
+## 2026-06-09 — Paperclip Orchestration Archived
+
+Paperclip orchestration retired per NBI_Brain.md Section 8. All decisions from 2026-03-28 governing C-suite delegation, agent hiring authority, model tier routing, sprint RACI, and phased activation are SUPERSEDED. Role knowledge assets retained as depth-skill dispatch; orchestration layer and inter-agent governance archived. 19 skeleton roles (without AGENT.md composites) moved to roles/_archived/. 13 active AGENT.md roles retained as the operational role registry.
+
+Status: ACTIVE (this decision supersedes decisions 1-23)

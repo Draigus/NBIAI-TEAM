@@ -154,3 +154,13 @@ Trigger conditions for including AI operations in a client conversation:
 - **Live service operations:** the client is running or launching a live service and needs always-on market and performance intelligence
 - **Fractional C-level engagement:** NBI is providing strategic leadership and wants to leave lasting capability rather than creating dependency
 - **Post-mortem situation:** the client has been through a failed launch or missed targets and needs systematic processes to prevent recurrence
+
+---
+
+## Productised Offering: Studio Brain Sprint
+
+Fixed-price engagement (GBP 15-25K, 2-3 weeks) that packages NBI's internal AI knowledge architecture as a client deliverable. See projects/studio_brain_sprint/engagement_template.md for full scope, pricing, and methodology.
+
+Key positioning: NBI built and operates this system internally (300+ line Brain, 16 modules, 13 role knowledge assets, intelligence pipeline). The Studio Brain Sprint applies the same methodology to a client studio. This is not theoretical. It is a proven, operating system delivered as a consulting engagement.
+
+Added: 2026-06-09

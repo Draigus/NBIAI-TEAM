@@ -1,3 +1,5 @@
+<!-- DEPRECATED 2026-06-09: This file is no longer separately maintained. State is now captured within session log entries. See the most recent session log for current state. decisions.md remains the only separate live state file. -->
+
 # Conversation Context
 
 Updated 2026-05-07
