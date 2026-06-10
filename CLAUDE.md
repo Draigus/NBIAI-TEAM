@@ -230,7 +230,7 @@ If a brain/ module or role AGENT.md has a `last_verified` date older than 30 day
 
 The only executable code in this repo lives in `dashboard-server/` (Express + Postgres) plus the SPA `nbi_project_dashboard.html` at the repo root. Everything else is markdown knowledge. Memory shorthand: "NBI Hub" / "WorkSage" = this dashboard.
 
-**Stack:** Node.js + Express 4, PostgreSQL (via `pg`), modular `server.js` hub (~516 lines) with 41 route files in `routes/` (~12,185 lines) and 20 lib modules in `lib/` (~2,583 lines). Frontend SPA `nbi_project_dashboard.html` (~28,200 lines, inline CSS+JS). 69 migrations, 55 test files. PM2 for process management, Cloudflare Tunnel for public access at https://worksage.nbi-consulting.com.
+**Stack:** Node.js + Express 4, PostgreSQL (via `pg`), modular `server.js` hub (~516 lines) with 41 route files in `routes/` (~12,185 lines) and 20 lib modules in `lib/` (~2,583 lines). Frontend SPA `nbi_project_dashboard.html` (~360 lines shell) + `dashboard.css` (3,236 lines) + ~30 JS modules in `/public/js/` (~27,000 lines). No IIFEs, no namespace wrapping, no build step — all declarations are global scope via traditional `<script>` tags at end of body with `?v=1` cache-busting. Config loads first, init loads last. 69 migrations, 55 test files. PM2 for process management, Cloudflare Tunnel for public access at https://worksage.nbi-consulting.com.
 
 **Local URL:** http://localhost:8888/nbi_project_dashboard.html (production), :8887 (staging).
 
