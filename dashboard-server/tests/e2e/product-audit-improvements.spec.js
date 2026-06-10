@@ -84,12 +84,19 @@ test('password change accepts strong passwords', async ({ request }) => {
 // ── 4. Detail panel collapsible sections (UI) ───────────────────────
 
 test('accordion CSS and toggle function are present in the SPA source', async ({ request }) => {
-  const res = await request.get('/nbi_project_dashboard.html');
-  expect(res.status()).toBe(200);
-  const html = await res.text();
-  expect(html).toContain('detail-accordion__header');
-  expect(html).toContain('detail-accordion--collapsed');
-  expect(html).toContain('function toggleDetailSection');
+  const css = await request.get('/public/css/dashboard.css');
+  expect(css.status()).toBe(200);
+  const cssText = await css.text();
+  expect(cssText).toContain('detail-accordion__header');
+  expect(cssText).toContain('detail-accordion--collapsed');
+
+  const html = await request.get('/nbi_project_dashboard.html');
+  expect(html.status()).toBe(200);
+  const htmlText = await html.text();
+  const jsUrls = [...htmlText.matchAll(/src="(\/public\/js\/[^"]+)"/g)].map(m => m[1]);
+  const allJs = await Promise.all(jsUrls.map(u => request.get(u).then(r => r.text())));
+  const combined = allJs.join('\n');
+  expect(combined).toContain('function toggleDetailSection');
 });
 
 // ── 5. Client NBI contacts (API) ───────────────────────────────────
