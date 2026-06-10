@@ -22354,6 +22354,20 @@ async function openInterviewConfig(candidateId, clientId, positionId, existingCo
   let activeTab = 'questions';
   const selectedInterviewers = new Set();
   const expandedDisciplines = new Set(positionDiscipline ? [positionDiscipline] : []);
+  let interviewerFilter = '';
+
+  function buildInterviewerListHtml() {
+    var q = interviewerFilter.toLowerCase();
+    return (users || []).filter(function(u) { return u.is_active !== false && (u.client_id === clientId || !u.client_id); }).filter(function(u) {
+      if (!q) return true;
+      return (u.display_name || u.username || '').toLowerCase().includes(q) || (u.email || '').toLowerCase().includes(q);
+    }).map(function(u) {
+      return '<label style="display:flex;align-items:center;gap:8px;padding:8px;cursor:pointer;border-bottom:1px solid var(--border)">' +
+        '<input type="checkbox" ' + (selectedInterviewers.has(u.id) ? 'checked' : '') + ' onchange="window._ivToggleInterviewer(\'' + u.id + '\')">' +
+        '<span>' + esc(u.display_name || u.username) + '</span>' +
+        '<span style="color:var(--text-muted);font-size:12px">' + esc(u.email || '') + '</span></label>';
+    }).join('') || '<p style="color:var(--text-muted);padding:8px">No matches.</p>';
+  }
 
   function renderDisciplineSection(discName, discQuestions, isMatched) {
     var total = 0; var selCount = 0;
@@ -22417,18 +22431,8 @@ async function openInterviewConfig(candidateId, clientId, positionId, existingCo
       }
     }
 
-    var interviewerFilter = window._ivInterviewerFilter || '';
-    var interviewersHtml = '<input type="text" placeholder="Filter by name..." value="' + esc(interviewerFilter) + '" oninput="window._ivInterviewerFilter=this.value;window._ivRenderConfig()" style="width:100%;padding:8px;margin-bottom:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.82rem">';
-    interviewersHtml += (users || []).filter(function(u) { return u.is_active !== false && (u.client_id === clientId || !u.client_id); }).filter(function(u) {
-      if (!interviewerFilter) return true;
-      var q = interviewerFilter.toLowerCase();
-      return (u.display_name || u.username || '').toLowerCase().includes(q) || (u.email || '').toLowerCase().includes(q);
-    }).map(function(u) {
-      return '<label style="display:flex;align-items:center;gap:8px;padding:8px;cursor:pointer;border-bottom:1px solid var(--border)">' +
-        '<input type="checkbox" ' + (selectedInterviewers.has(u.id) ? 'checked' : '') + ' onchange="window._ivToggleInterviewer(\'' + u.id + '\')">' +
-        '<span>' + esc(u.display_name || u.username) + '</span>' +
-        '<span style="color:var(--text-muted);font-size:12px">' + esc(u.email || '') + '</span></label>';
-    }).join('');
+    var interviewersHtml = '<input type="text" placeholder="Filter by name..." value="' + esc(interviewerFilter) + '" oninput="window._ivFilterInterviewers(this.value)" style="width:100%;padding:8px;margin-bottom:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.82rem">';
+    interviewersHtml += '<div id="ivInterviewerList">' + buildInterviewerListHtml() + '</div>';
 
     panel.innerHTML =
       '<div class="candidate-detail__header"><h3>Configure Interview</h3>' +
@@ -22445,7 +22449,7 @@ async function openInterviewConfig(candidateId, clientId, positionId, existingCo
           '<div style="font-weight:600;margin-bottom:8px;color:var(--accent)">' + selectedIds.size + ' selected</div>' +
           '<div style="max-height:calc(100vh - 320px);overflow-y:auto">' + (questionsHtml || '<p style="color:var(--text-muted)">No questions in bank. Add custom questions.</p>') + '</div>'
         : '<div style="max-height:calc(100vh - 320px);overflow-y:auto">' + (interviewersHtml || '<p style="color:var(--text-muted)">No team members found.</p>') + '</div>') +
-      '<div style="border-top:1px solid var(--border);padding:12px 0 0;display:flex;justify-content:space-between;align-items:center;position:sticky;bottom:0;background:var(--bg-card);z-index:2">' +
+      '<div id="ivConfigFooter" style="border-top:1px solid var(--border);padding:12px 0 0;display:flex;justify-content:space-between;align-items:center;position:sticky;bottom:0;background:var(--bg-card);z-index:2">' +
         '<span style="color:var(--text-muted);font-size:13px">' + selectedIds.size + ' questions · ' + selectedInterviewers.size + ' interviewers</span>' +
         '<button class="btn btn--primary" ' + (selectedIds.size === 0 || selectedInterviewers.size === 0 ? 'disabled' : '') + ' onclick="window._ivSendInterviews()">Send Interviews</button></div>';
   }
@@ -22453,7 +22457,23 @@ async function openInterviewConfig(candidateId, clientId, positionId, existingCo
   window._ivRenderConfig = renderConfigPanel;
   window._ivSetTab = function(tab) { activeTab = tab; renderConfigPanel(); };
   window._ivToggleQ = function(id) { selectedIds.has(id) ? selectedIds.delete(id) : selectedIds.add(id); renderConfigPanel(); };
-  window._ivToggleInterviewer = function(id) { selectedInterviewers.has(id) ? selectedInterviewers.delete(id) : selectedInterviewers.add(id); renderConfigPanel(); };
+  window._ivFilterInterviewers = function(val) {
+    interviewerFilter = val || '';
+    var list = document.getElementById('ivInterviewerList');
+    if (list) list.innerHTML = buildInterviewerListHtml();
+  };
+  window._ivToggleInterviewer = function(id) {
+    selectedInterviewers.has(id) ? selectedInterviewers.delete(id) : selectedInterviewers.add(id);
+    // Update only the list and footer — full re-render would destroy the filter input's focus
+    var list = document.getElementById('ivInterviewerList');
+    if (list) list.innerHTML = buildInterviewerListHtml();
+    var footer = document.getElementById('ivConfigFooter');
+    if (footer) {
+      footer.querySelector('span').textContent = selectedIds.size + ' questions · ' + selectedInterviewers.size + ' interviewers';
+      var sendBtn = footer.querySelector('button');
+      if (sendBtn) sendBtn.disabled = (selectedIds.size === 0 || selectedInterviewers.size === 0);
+    }
+  };
   window._ivToggleDisc = function(disc) { expandedDisciplines.has(disc) ? expandedDisciplines.delete(disc) : expandedDisciplines.add(disc); renderConfigPanel(); };
 
   window._ivAddCustom = function() {
@@ -22486,19 +22506,32 @@ async function openInterviewConfig(candidateId, clientId, positionId, existingCo
   };
 
   window._ivSendInterviews = async function() {
-    // If we were opened from an existing draft round, delete it first to avoid duplicates
+    // If opened from an existing draft round, carry its schedule fields over, then delete it to avoid duplicates
+    var draftFields = {};
     if (existingConfigId) {
-      try { await authFetch('/api/interview-configs/' + existingConfigId, { method: 'DELETE' }); } catch (e) {}
+      try {
+        var cfgResp = await authFetch('/api/interview-configs?candidate_id=' + candidateId);
+        var cfgs = cfgResp.ok ? await cfgResp.json() : [];
+        var draft = (cfgs || []).find(function(c) { return c.id === existingConfigId; });
+        if (draft) {
+          if (draft.round_type) draftFields.round_type = draft.round_type;
+          if (draft.round_type_custom) draftFields.round_type_custom = draft.round_type_custom;
+          if (draft.scheduled_at) draftFields.scheduled_at = draft.scheduled_at;
+          if (draft.duration_minutes) draftFields.duration_minutes = draft.duration_minutes;
+          if (draft.location) draftFields.location = draft.location;
+        }
+        await authFetch('/api/interview-configs/' + existingConfigId, { method: 'DELETE' });
+      } catch (e) {}
     }
     const resp = await authFetch('/api/interview-configs', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+      body: JSON.stringify(Object.assign({
         candidate_id: candidateId,
         position_id: positionId || null,
         question_ids: [...selectedIds],
         interviewer_ids: [...selectedInterviewers],
-      }),
+      }, draftFields)),
     });
     const result = await resp.json();
     if (!result || !result.config) return;
