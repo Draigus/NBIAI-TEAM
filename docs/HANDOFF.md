@@ -1,153 +1,126 @@
-# Handoff — Server Modularisation (Complete)
+# Handoff — 2026-06-11 (Session 4: Harness Improvement System)
 
-**Date:** 9 May 2026 (evening, session 2)
-**Session:** Server modularisation — All tasks complete
-**Status:** Tasks 1-17 of 18 complete (Task 18 README update pending). server.js: 10,696 → 549 lines. 29 route files + 13 lib modules + 1 cron module. Ready for merge.
-
----
-
-## Server Modularisation — DONE
-
-### Location
-
-- **Worktree:** `D:/OneDrive/Claude_code/NBIAI_TEAM/.worktrees/modularise-server`
-- **Branch:** `modularise-server` (14 commits)
-- **Latest commit:** `5f236cd` — "refactor: move remaining inline routes to modules, slim server.js to orchestrator"
-- **Restore point:** git tag `pre-modularise` on master
-- **Main working tree:** untouched, on `feature/portfolio-v5-redesign`
-- **Plan:** `docs/superpowers/plans/2026-05-09-server-modularisation.md`
-
-### What's Done (All Tasks — Modularisation Complete)
-
-server.js: 10,696 → 549 lines (94.9% reduction). All 387 tests pass.
-
-**13 lib/ modules** (1,911 lines total): logger, db, helpers, email, auth-middleware, audit, notifications, import-parser, metrics, slack-bot, sow-extractor, redact-nbi-internal, attachment-sweep.
-
-**29 route files** (8,258 lines total): auth, users, tasks (867 lines incl. comments/attachments/link), sync (623), documents (682), clients, milestones, sows, teams, contacts, client-notes, calendar, leads (607), expenses (976), bugs, hiring (438), reports, resource-planning, dashboard, admin (918 — audit-log/health/seed/backup/restore/import/cleanse), settings, finance, time-entries, time-off, queue, notifications, templates, slack, attachments.
-
-**1 cron module** (940 lines): cron/index.js — factory returning all builder/helper functions (buildPmReportEmails, buildDueWarningEmails, matchSubjectToTask, processOneInboundEmail, processInboundEmails, extractLinksFromHtml, runAttachmentSweep, computeDashboardSnapshot) + registering all cron schedules.
-
-**server.js** (549 lines) is now a thin orchestrator: dependency loading, shared dep creation, middleware mounting, route mounting, cron registration, error handler, startup, and re-exports for tests.
-
-### What's Next
-
-1. **Task 18: Update README** — Add directory structure section documenting the new module layout
-2. **Merge to master** — Once Glen approves, squash-merge or regular merge the `modularise-server` branch to master
-3. **PM2 restart** — After merge, restart `nbi-dashboard` on :8888
-
-### Architecture Notes
-
-- **Route module pattern:** Every route file exports a factory `function(ctx)` returning an Express Router. server.js passes shared deps via ctx object.
-- **Test compatibility:** server.js re-exports all test-imported functions (20+ named exports). Tests still `require('../../server.js')`.
-- **CommonJS only** — `require`/`module.exports`, not ESM.
-- **Cleanse routes** moved from after-error-handler to before (bug fix — they now get proper 500 responses on unhandled errors).
+**Branch:** `feature/command-centre`
+**Last commit:** check `git log -1` (auto-push hook active, should be in sync with GitHub)
+**Session log:** `projects/nbi_dashboard/session_logs/2026-06-11_session.md` (Session 4 entry at bottom)
 
 ---
 
-## Portfolio v5 Redesign + Reporting Improvements (feature/portfolio-v5-redesign branch)
+## What happened this session
 
-**Branch:** `feature/portfolio-v5-redesign` (~30 commits, NOT merged to master yet)
-**Status:** Live on production (:8888). Glen UAT in progress with iterative feedback.
+### Context recovery
+This session is a continuation from a conversation that compacted without writing a handoff. The context-guard hook (`.claude/hooks/context-guard.sh`) counts tool calls (threshold 200), not context tokens, so it didn't fire before the system auto-compacted. State was recovered from the auto-summary.
 
-### What Was Built
+### Previous conversation produced (before compaction)
+- **Locked spec:** `docs/specs/2026-06-08-harness-improvement-system-design.md` (~790 lines, 12 sections)
+- **8 rounds of Codex review** via NBIAI Coordination Bridge at `D:\OneDrive\NBIAI_Coordination\`
+  - 6 design rounds + 2 spec rounds
+  - Review prompts in `D:\OneDrive\NBIAI_Coordination\scratch\harness-review-round*.json`
+  - Review events in `D:\OneDrive\NBIAI_Coordination\state\events.jsonl`
+- **Key design decisions from Codex review:**
+  - Two-principal architecture (Recorder/Proposer + Applier) with separate write authorities
+  - BLOCKED_TO_APPLY semantics for governance files (config, redaction, failure codes, engine code)
+  - Enumerated failure codes (25 codes across 8 categories) for anti-regression tracking
+  - Content-hash approval binding (SHA-256 of proposal verified at apply time)
+  - Dirty-tree preflight per principal before staging
+  - Candidate signal gating (unconfirmed transcript-parsed interventions excluded from auto-diagnosis)
+  - Threat model: "AI makes an accidental mistake" not adversarial compromise
+- Glen approved the locked spec with "y"
 
-**Portfolio page completely rewritten** from v4 sidebar+panels to v5 neumorphic design:
-- 7 render functions rewritten, ~370 lines dead v4 code removed
-- Layout: KPIs (5 cards) -> Client Table + Status Overview (2:1 side-by-side) -> Near Completion + Milestones -> Needs Attention + Team Workload
-- Viewport-fit: no outer scroll. Only Needs Attention scrolls internally.
-- Client table: health diamonds, progress bars, key risk column, click-to-filter, "All Clients" back button
-- Command theme: dark glass cards with radial cyan gradient from all 4 corners, neural network background image (`dashboard-server/public/images/command-bg.jpg`), backdrop-filter blur
-- Command glass treatment applied across all views: Workload, People, Leads, Expenses, Reports (not Finances)
-- 8 themes total including new Command theme in picker
-
-**Reporting timeline improvements:**
-- Milestone vertical lines on timeline (cyan future, red overdue) with labels
-- Feature bars: stacked status model (purple=done, green=in progress, red=blocked/overdue, grey=not started)
-- Story bars in drawer use same stacked model, computed from leaf task status
-- Owner column: falls back to most common child assignee if feature has no direct assignee
-- Team field: collects all unique assignees from descendant tasks, semicolon-separated
-
-**Workload improvements:**
-- Overdue tasks show red "Xd OVERDUE" badge when person is expanded
-- Overdue/blocked counts in person header now exclude Done and Cancelled tasks (was counting completed tasks with past due dates)
-
-**Data fixes:**
-- Deleted stale clients: Lighthouse Studios, Sarge Universe (both 0 tasks)
-- Set client_id on Amir Didar, Stavros, Ruan (linked to Lighthouse Games)
-
-**QA bugs fixed:**
-- Invalid `color-mix(200%)` CSS
-- Snapshot date timezone shift (UTC vs local)
-- Milestone "No other clients" message in filtered view
-- Negative margin overshoot on attention/milestone rows
-- Duplicate backlogFillPct variable
-- Detail/milestone slide-out panels opaque in Command theme
-- PM2 crash from modularisation branch server.js bleeding into working directory
-
-**Font sizes:** All inline font-size values below 0.7rem bumped to 0.7rem (~12px minimum)
-
-### Outstanding Items (Next Session)
-
-1. **Text truncation in reporting drawer** — Story names like "Engagement & Retention..." are truncated at 160px with ellipsis. Need to allow text to wrap or expand the name column. Same issue in the feature row FEATURE column (220px fixed width). Glen wants no truncation.
-
-2. **Reporting drawer: month headers above stories** — Glen wants the same month/quarter header that appears on the main timeline to also appear above the story bars in the expanded drawer, so you can see when each story lands relative to the calendar.
-
-3. **Reporting: dates/lead/team fields editable** — Lead and Team are currently display-only (computed from child tasks). Glen may want to set them explicitly on the feature. Currently you'd assign the feature directly via the detail panel.
-
-4. **Reporting: verify 18% completion accuracy** — Glen questioned whether the percentages are correct. The calculation is leaf-task Done count / total leaf tasks. May need to audit specific features against the raw data.
-
-5. **Portfolio layout: Team Workload may still scroll** on viewports shorter than ~900px. The flex distribution gives it auto-height but 8 staff bars need ~280px.
-
-6. **Status Overview chart scaling** — Uses @media min-height queries but the donut/backlog bar are still small on wide screens. May need viewport-width-based scaling.
-
-7. **Merge to master** — Branch has ~30 commits. Once Glen approves the portfolio layout, squash-merge to master.
-
-### Key Decisions This Session
-
-1. Alert banner killed (Glen: "kill this box")
-2. Table + Status Overview side-by-side (Glen's suggestion)
-3. Layout: Near Completion + Milestones middle, Needs Attention + Team Workload bottom (Glen's swap)
-4. Only Needs Attention scrolls; everything else fits viewport
-5. All staff shown in Team Workload (not filtered to NBI-only)
-6. Command theme: glass cards with radial cyan gradient from all corners, neural network bg image
-7. Reporting bars: purple=done, green=in progress, red=blocked/overdue, grey=not started
-8. Minimum font size 12px (0.7rem) across entire app
-9. No truncation wanted on reporting story/feature names
+### This session's work
+1. Updated session log (Session 4 entry) capturing state from compacted conversation
+2. Read full spec, existing hooks (settings.json + settings.local.json), cadence infrastructure (run-cadence.ps1, prompts, register-tasks.ps1), and skill structure
+3. Wrote comprehensive implementation plan: `docs/superpowers/plans/2026-06-11-harness-improvement-system.md`
 
 ---
 
-## Earlier Work This Session (all on master, deployed to production)
+## Implementation plan summary
 
-### Wave 5 Features
-- `3db9947`: Not Started warning in daily PM report emails
-- `da45126`: Standup overdue dates red, blocked badge purple, late starts amber
-- `6e05dec`: SoW on lead cards (migration 042) + time-off tracking (migration 043)
+**Location:** `docs/superpowers/plans/2026-06-11-harness-improvement-system.md`
 
-### Bug Triage
-- Triaged 44 bugs: 4 closed stale, 2 resolved duplicates, 5 fixed, rest confirmed please_review
-- 0 open bugs remain. 55 items at please_review for team UAT.
+**16 tasks**, organised as:
 
-### Colour Scheme (`4169435`)
-- Blocked=red (#ef4444), In Progress=green (#22c55e), Done=purple (#a855f7)
-- Applied across all views: badges, icons, gantt bars, kanban cards, progress bars, charts, KPIs
+| Tasks | Group | What it builds |
+|---|---|---|
+| 1 | Scaffold | Directory structure, .gitignore, .gitkeep, changelog.md, HARNESS_HEALTH.md |
+| 2 | Config | 6 JSON config files: write-matrix, redaction, failure-codes, risk-policy, entropy-checks, section-boundaries |
+| 3-4 | Core utility | `emit-event.js` — ULID generation, session ID management, redaction, atomic JSONL append with file locking. Plus tests. |
+| 5-6 | Write guard | `write-guard.js` — PreToolUse hook blocking writes to `.claude/harness/config/**` and `lib/**`. Plus tests. |
+| 7 | Capture hooks | PostToolUse hooks for `tool_outcome` (Bash/PowerShell/Agent/Edit/Write) and `skill_usage` (Skill). Async, zero latency. |
+| 8-9 | Entropy scan | `entropy-scan.js` — fast scan on git diffs for code residue, test integrity, file residue. Wired to PostToolUse on git commit. Plus tests. |
+| 10 | Intervention skill | `/harness intervention` SKILL.md for explicit correction capture |
+| 11 | Transcript parser | `transcript-parser.js` — scans session logs for candidate intervention signals |
+| 12 | Weekly routine | `harness-improvement.md` cadence prompt — THE BRAIN. Encodes full diagnosis algorithm, coreset selection, dual diagnosis, proposal generation, risk classification, LOW auto-apply flow, anti-regression, and HARNESS_HEALTH.md reporting. |
+| 13 | Bootstrap | `bootstrap.js` — one-time normaliser processing existing session logs (20+) and feedback memories (25+) into harness events |
+| 14 | CLAUDE.md | Add principal separation rules, event capture docs, intervention skill to mandatory table |
+| 15 | Cadence registration | Task Scheduler registration for Monday 09:00, routines.md update |
+| 16 | Integration test | End-to-end: bootstrap, verify events, write guard, capture hooks, transcript parser, all tests |
 
-### Other Fixes
-- `7fe22be`: Collapsible milestones panel
-- `73d9dbe`: Inline UI updates for title/assignee + sync retry with backoff
-- `e7753cf`: Endangered items red on kanban + gantt (overdue, Red health, blocked)
-- `11795be`: Warnings panel crash (timeAgo string vs Date)
-- `410c594`: Backup validation false positives
+**Key design decisions in the plan:**
+- **JSON configs** (not YAML from spec) — zero-dependency parsing in Node.js built-ins. Claude reads JSON equally well.
+- **Zero npm dependencies** — all utilities use only `fs`, `path`, `crypto`, `child_process`
+- **Async capture hooks** — `async: true` flag so event capture adds zero latency to interactive sessions
+- **Weekly routine prompt IS the engine** — no standalone application. The diagnosis algorithm, proposal generation, apply flow, and reporting are all instructions in a cadence prompt that headless Claude follows.
+- **Separate commit scopes** — Recorder commits (proposals, health report, event data) and Applier commits (governed targets, changelog) are always separate
 
-### Key Decisions
-- Bug review ownership: please_review items are for the team, never bulk-resolve on Glen's behalf
-- Colour scheme confirmed by Glen: Blocked+Late=red, In Progress=green, Done=purple
-- Server modularisation approved — server first, frontend later, incremental
+**Natural break points:**
+- After Task 8: capture infrastructure complete, events accumulating (testable independently)
+- After Task 13: full cycle operational
+- After Task 16: integrated and registered
 
 ---
 
-## Environment
+## Pending decisions for Glen
 
-- PM2 `nbi-dashboard` on :8888 (production, master branch)
-- PM2 `nbi-dashboard-staging` on :8887
-- PostgreSQL: 43 migrations applied (latest: 043_user_time_off.sql)
-- Worktree for modularisation: `.worktrees/modularise-server` on branch `modularise-server`
+1. **Execution approach for the plan:** Subagent-driven (recommended — fresh agent per task, review between) or inline execution. Glen was asked this question when the session ended.
+
+2. **Context guard improvement:** The current guard counts tool calls (threshold 200). It should count tokens or use a smarter heuristic. This is a separate task from the harness system but directly related (the harness would capture "compaction without handoff" as an entropy signal).
+
+---
+
+## Dirty state
+
+**Git status at session end:**
+- Modified: `projects/nbi_dashboard/session_logs/2026-06-11_session.md` (Session 4 entry added)
+- New (untracked): `docs/superpowers/plans/2026-06-11-harness-improvement-system.md` (the plan)
+- New (untracked): `docs/HANDOFF.md` (this file)
+- Pre-existing dirty files (do not touch): various Couch Heroes hr_hiring docs, ATS workflow files, dashboard-server changes from earlier sessions
+
+**These should be committed at session start:**
+```bash
+git add docs/superpowers/plans/2026-06-11-harness-improvement-system.md docs/HANDOFF.md projects/nbi_dashboard/session_logs/2026-06-11_session.md
+git commit -m "docs(harness): implementation plan + session 4 log + handoff"
+```
+
+---
+
+## Files to read at next session start
+
+1. `docs/specs/2026-06-08-harness-improvement-system-design.md` — the locked spec (790 lines)
+2. `docs/superpowers/plans/2026-06-11-harness-improvement-system.md` — the implementation plan (16 tasks)
+3. `.claude/settings.json` — current hook infrastructure (will be modified by Tasks 5, 7, 8)
+4. `scripts/cadence/run-cadence.ps1` — cadence runner pattern (used by Task 15)
+5. `projects/nbi_dashboard/session_logs/2026-06-11_session.md` — Session 4 entry at bottom
+
+---
+
+## What to do next
+
+1. Glen chooses execution approach (subagent-driven or inline)
+2. Execute the plan task by task, starting with Task 1 (directory scaffold)
+3. After Task 8, smoke test the capture layer (events should appear in `.claude/harness/data/events/`)
+4. After Task 16, run the bootstrap and verify the full system
+5. Wait for the first Monday cadence run (or manually trigger with `Start-ScheduledTask 'NBI Cadence - harness-improvement'`)
+6. Review HARNESS_HEALTH.md and DIGEST.md after first run
+
+---
+
+## Other sessions today (context for completeness)
+
+- **Session 1:** AIOS audit + cadence fix (bank rebuild, local cadence layer, 17 cloud routines disabled, registries, org chart refresh). Committed `dd02336`.
+- **Session 2:** Lorenza hiring pack — salary research (5 roles, global benchmarks, red-team verification, Skillsearch 2026 PDF extraction). Multiple deliverables in `Clients/Couch Heroes/hr_hiring/`.
+- **Session 3 (interrupted):** COO operations breakout for Aris — brainstorming started, coverage map directive from Glen. NOT COMPLETE. Was interrupted by context switch to harness design conversation.
+- **Session 4 (this one):** Harness improvement system — implementation plan written.
+
+### Session 3 resume notes
+The COO breakout brainstorming was in progress. Glen's directive: map each brainstormed area to its owner (Legal=Dino, HR=Lorenza, Finance=Lili from 1 July, Operations=Aris). Goal is complete coverage map for Aris's COO role. CH client id: `21be0772-73e5-4cca-8795-8b1a66f89ec2`. Existing projects: AI Strategy, CH People Strategy, Game Planning, IT Managementt (typo), Jira Implementation, Legal, Organisational Structure, VDR Development. IT/Org Structure/Game Planning/AI Strategy are empty shells.
