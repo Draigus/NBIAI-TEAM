@@ -47,6 +47,9 @@ function main() {
   for (const entry of (matrix.applier_allowed || [])) {
     if (matchGlob(relPath, entry.path)) process.exit(0);
   }
+  for (const entry of (matrix.development_allowed || [])) {
+    if (matchGlob(relPath, entry.path)) process.exit(0);
+  }
 
   for (const entry of (matrix.blocked || [])) {
     if (matchGlob(relPath, entry.path)) {

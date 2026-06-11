@@ -1,15 +1,40 @@
 {
-  "_comment": "Role-to-path write matrix. Enforced by write-guard.js PreToolUse hook. Spec §2.4.",
+  "_comment": "Role-to-path write matrix. Enforced by write-guard.js PreToolUse hook. Spec \u00c2\u00a72.4.",
   "recorder_allowed": [
-    { "path": ".claude/harness/data/**", "mode": "append_or_create" },
-    { "path": ".claude/harness/proposals/**", "mode": "create_only" },
-    { "path": ".claude/harness/HARNESS_HEALTH.md", "mode": "overwrite" }
+    {
+      "path": ".claude/harness/data/**",
+      "mode": "append_or_create"
+    },
+    {
+      "path": ".claude/harness/proposals/**",
+      "mode": "create_only"
+    },
+    {
+      "path": ".claude/harness/HARNESS_HEALTH.md",
+      "mode": "overwrite"
+    }
   ],
   "applier_allowed": [
-    { "path": ".claude/harness/changelog.md", "mode": "append" }
+    {
+      "path": ".claude/harness/changelog.md",
+      "mode": "append"
+    }
   ],
   "blocked": [
-    { "path": ".claude/harness/config/**", "reason": "BLOCKED_TO_APPLY: governance config" },
-    { "path": ".claude/harness/lib/**", "reason": "BLOCKED_TO_APPLY: harness engine code" }
+    {
+      "path": ".claude/harness/config/**",
+      "reason": "BLOCKED_TO_APPLY: governance config"
+    },
+    {
+      "path": ".claude/harness/lib/**",
+      "reason": "BLOCKED_TO_APPLY: harness engine code"
+    }
+  ],
+  "development_allowed": [
+    {
+      "path": ".claude/harness/tests/**",
+      "mode": "create_or_overwrite",
+      "_comment": "Test files written during development"
+    }
   ]
 }
