@@ -60,7 +60,7 @@ GBP 75,000 - 80,000/month (from forecast bank). Current actual of GBP 55K/month 
 | Name | Status |
 |---|---|
 | Tom Rieger | NBI Partner. No longer at NSI. Not currently drawing a paycheck from NBI, though he would like to. If he starts drawing, expect ~GBP 200K/year additional payroll |
-| Bryan Rasmussen | Stayed at NSI after the separation. Not an NBI cost. Whether he continues as NBI's CFO in any capacity: TO CONFIRM with Glen |
+| Bryan Rasmussen | No longer part of NBI (Glen, 2026-06-11). Stayed at NSI. CFO seat vacant |
 | Jeff Day | Let go (June 2026) |
 | Jessica Williams | Let go (June 2026) |
 
@@ -85,7 +85,7 @@ Note: These are the last known figures from the Brain (last updated 2026-04-20) 
 - NSI, Inc. is owned by **Robert Pop**, not Tom Rieger. The Brain's earlier claim that NSI was "Tom Rieger's firm" was wrong; Tom was a senior employee there and no longer is.
 - **NSI and NBI are completely separated** as of June 2026.
 - **Jeff Day and Jessica Williams have been let go.** No NBI cost.
-- **Bryan Rasmussen stayed at NSI.** No NBI cost. (Whether he remains NBI's CFO in any advisory capacity: to confirm.)
+- **Bryan Rasmussen stayed at NSI and is no longer part of NBI.** CFO seat vacant. No NBI cost.
 - **Tom Rieger is not currently drawing a paycheck from NBI, though he would like to.** This is the only residual payroll consideration: if Tom starts drawing, expect ~GBP 200K/year against a business currently running ~GBP 2.9K/month gross margin. That decision sits with Glen.
 
 Related: Tom's USD 600K debt to Robert Pop and partners is being negated by Tom selling his NSI stock (see Investor Debt section above).

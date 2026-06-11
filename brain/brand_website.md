@@ -172,4 +172,4 @@ Additional testimonials can be sourced if needed.
 | Outcome metrics documentation | MEDIUM | Not yet compiled |
 | Competitive landscape research | MEDIUM | Not confirmed |
 | Tom's HC pipeline development | ONGOING | Human capital practice is industry-agnostic - serves any sector. No contracts generated to date across any industry |
-| NSI wind-down - staff coverage transition | HIGH (FUTURE) | As NSI closes, Tom, Bryan, Jeff, and Jessica move to NBI payroll. Estimated additional annual cost ~£620,000 |
+| NSI wind-down - staff coverage transition | RESOLVED (June 2026) | NSI (owned by Robert Pop) and NBI completely separated. Jeff and Jessica let go; Bryan stayed at NSI (no longer part of NBI); Tom not drawing from NBI. No payroll transition occurred |

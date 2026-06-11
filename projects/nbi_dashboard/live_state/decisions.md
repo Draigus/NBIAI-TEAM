@@ -416,3 +416,4 @@ Migration 025 defensively UPDATEs any stray `organisational_health` rows on clie
 - **Jeff Day and Jessica Williams have been let go.** Bryan Rasmussen stayed at NSI (continued NBI CFO involvement: to confirm).
 - **Tom Rieger is not currently drawing a paycheck from NBI, though he would like to.** Recorded as the only residual payroll consideration (~GBP 200K/year if it changes); replaces the dissolved wind-down cliff as a threshold alert.
 - **Tom's USD 600K debt to Robert Pop and partners: resolved** via Tom selling his NSI stock. Currency is USD (the Granola extract's GBP was wrong). Removed from outstanding liabilities.
+- **Correction: Bryan Rasmussen is no longer part of NBI** (not "to confirm"). CFO seat vacant. Removed from org chart team table; marked departed in Brain, people directory, financial resilience.

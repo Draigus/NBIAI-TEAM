@@ -49,12 +49,11 @@ Archived roles (19, no AGENT.md, Paperclip era): `roles/_archived/` — ceo, coo
 | Magnus (Kali) Pryer | Producer |
 | Amir Didar, Ruan, Stavros | Data team embedded at Lighthouse Studios (3-year contract) |
 | Devin Rieger | Analyst |
-| Jeff Day | Principal Data Scientist (as-needed, NSI-covered) |
-| Jessica Williams | Human Capital Researcher (as-needed, NSI-covered) |
-| Bryan Rasmussen | CFO (NSI-covered) |
 | Patrice | HR Advisor / Administration |
 
 Third-party: Marie (contractor on project delivery, tracked in WorkSage assignees, no user account).
+
+Departures (June 2026, NSI/NBI separation): Jeff Day and Jessica Williams let go; Bryan Rasmussen stayed at NSI and is no longer part of NBI (CFO seat vacant). Tom Rieger remains a Partner but is not currently drawing a paycheck from NBI.
 
 ## Pending additions
 

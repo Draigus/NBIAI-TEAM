@@ -233,12 +233,12 @@ Glen needs to reply with NBI's sweet spots and whether the new publisher/VC angl
 
 | Name | Role | Notes |
 |---|---|---|
-| Bryan Rasmussen | CFO | Stayed at NSI after the NSI/NBI separation (June 2026) - not an NBI cost; whether he continues as NBI CFO in any capacity: to confirm |
+| Bryan Rasmussen | Former CFO | No longer part of NBI (June 2026). Stayed at NSI after the NSI/NBI separation. CFO seat vacant |
 | Patrice | HR Advisor / General Admin | GBP 4,000/month |
 
 **UK payroll total (current 7 UK staff):** GBP 52,117/month / GBP 625,407/year
 
-> NSI (owned by Robert Pop) and NBI are completely separated as of June 2026. The previously modelled wind-down cliff (GBP 620K/year landing on NBI payroll) no longer applies: Jeff Day and Jessica Williams were let go, Bryan Rasmussen stayed at NSI, and Tom Rieger is not currently drawing a paycheck from NBI though he would like to (~GBP 200K/year if that changes - the only residual payroll consideration). Source: Glen, 2026-06-11.
+> NSI (owned by Robert Pop) and NBI are completely separated as of June 2026. The previously modelled wind-down cliff (GBP 620K/year landing on NBI payroll) no longer applies: Jeff Day and Jessica Williams were let go, Bryan Rasmussen stayed at NSI and is no longer part of NBI (CFO seat vacant), and Tom Rieger is not currently drawing a paycheck from NBI though he would like to (~GBP 200K/year if that changes - the only residual payroll consideration). Source: Glen, 2026-06-11.
 
 ---
 

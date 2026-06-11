@@ -21,7 +21,7 @@ last_verified: 2026-05-16
 | Devin Rieger | Analyst | Gaming | Full-time | £5,617 | £67,407 | Also building SalarySage auth and packaging. Likely related to Tom Rieger |
 | Jeff Day | Principal Data Scientist | Human Capital / Data | LET GO (June 2026) | - | - | Departed. Built SalarySage demo and salary data pipeline |
 | Jessica Williams | Human Capital Researcher | Human Capital | LET GO (June 2026) | - | - | Departed. Was involved in SalarySage QA |
-| Bryan Rasmussen | Chief Financial Officer | Whole business | Stayed at NSI (June 2026) | - | - | Stayed at NSI after the NSI/NBI separation; not an NBI cost. Continued NBI CFO involvement: to confirm |
+| Bryan Rasmussen | Former CFO | Whole business | NO LONGER PART OF NBI (June 2026) | - | - | Stayed at NSI after the NSI/NBI separation. CFO seat vacant |
 | Patrice | HR Advisor / General Administration | Whole business | Full-time | £4,000 | £48,000 | General admin across the full business |
 
 **Payroll notes:**
