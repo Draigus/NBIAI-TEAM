@@ -29,6 +29,14 @@
             "timeout": 60,
             "async": true,
             "statusMessage": "Pushing to GitHub..."
+          },
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR:-.}/.claude/harness/lib/entropy-scan.js\"",
+            "shell": "bash",
+            "timeout": 15,
+            "async": true,
+            "statusMessage": "Running entropy scan..."
           }
         ]
       },
