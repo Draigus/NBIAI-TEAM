@@ -1,6 +1,6 @@
 # Pipeline State
 
-Last updated: 2026-06-11 (verified against disk during cadence rebuild)
+Last updated: 2026-06-11 (cadence run — granola ingest, 30 new extracts from Jun 2–11)
 
 ## Last Ingestion Run Per Source
 
@@ -8,7 +8,7 @@ Counts are files on disk in intelligence/raw/ (verified 2026-06-11), with the ne
 
 | Source | Extracts On Disk | Newest Extract | Next Scheduled |
 |--------|------------------|----------------|----------------|
-| granola | 112 | 2026-05-31 | daily 19:00 local (intel-ingest task, REST API) |
+| granola | 142 | 2026-06-11 | daily 19:00 local (intel-ingest task, Granola MCP) |
 | gmail | 10 | 2026-05-26 | blocked: connectors not credentialed (routines.md Gaps) |
 | slack | 6 | 2026-05-25 | blocked: connectors not credentialed (routines.md Gaps) |
 | web_research | 91 | 2026-06-11 | weekdays 12:30 local (intel-research task) |
@@ -23,12 +23,12 @@ All 7 banks fully rebuilt 2026-06-11 (first compilation since 2026-05-25; the cl
 
 | Bank | Last Compiled | Extracts Integrated | Lines | Shelf Life | Status |
 |------|---------------|---------------------|-------|-----------|--------|
-| production_methods | 2026-06-11 | 38 | 335 | 60d | fresh |
-| industry_current | 2026-06-11 | 47 | 238 | 7d | stale (6 new extracts unintegrated, recompile needed) |
-| client_couch_heroes | 2026-06-11 | 49 | 288 | never expires | fresh |
+| production_methods | 2026-06-11 | 38 | 335 | 60d | RECOMPILE NEEDED (15+ new extracts from cadence run) |
+| industry_current | 2026-06-11 | 47 | 238 | 7d | STALE + RECOMPILE NEEDED (Athens games scene, Epic-Disney, Tencent acquisition pattern) |
+| client_couch_heroes | 2026-06-11 | 49 | 288 | never expires | RECOMPILE NEEDED (25+ new extracts from cadence run) |
 | forecast_models | 2026-06-11 | 23 | 342 | 30d | fresh |
-| personal_insights | 2026-06-11 | 20 + 6 retained | 171 | never expires | fresh |
-| client_patterns | 2026-06-11 | 33 | 275 | 14d | fresh |
+| personal_insights | 2026-06-11 | 20 + 6 retained | 171 | never expires | RECOMPILE NEEDED (3 new extracts: NBI pipeline, Tom partnership, Aris AI workflow) |
+| client_patterns | 2026-06-11 | 33 | 275 | 14d | borderline (2 new extracts: Lighthouse/Tencent, GCP migration) |
 | games_pitch_decks | 2026-06-11 | 17 | 234 | 30d | fresh |
 
 ## Pending Review
