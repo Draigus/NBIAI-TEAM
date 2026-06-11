@@ -35,6 +35,10 @@ Register-Cadence -Name 'NBI Cadence - system-audit' -Task 'system-audit' `
 Register-Cadence -Name 'NBI Cadence - brain-freshness' -Task 'brain-freshness' `
     -Trigger (New-ScheduledTaskTrigger -Weekly -DaysOfWeek Wednesday -At 08:30)
 
+# Harness improvement — weekly Monday 09:00 (after system audit at 08:30)
+Register-Cadence -Name 'NBI Cadence - harness-improvement' -Task 'harness-improvement' `
+    -Trigger (New-ScheduledTaskTrigger -Weekly -DaysOfWeek Monday -At 09:00)
+
 # Monthly trigger is not supported by New-ScheduledTaskTrigger in PS 5.1 — use schtasks.
 # --% passes the rest verbatim; \" is the schtasks-documented escape for inner quotes.
 schtasks /delete /tn "NBI Cadence - financial-reconciliation" /f 2>$null | Out-Null
