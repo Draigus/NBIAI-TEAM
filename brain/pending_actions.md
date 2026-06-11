@@ -14,6 +14,7 @@ Tasks that Glen has asked Claude to do, or that emerged during working sessions.
 
 | Action | Status | Context |
 |---|---|---|
+| Pick up AIOS Nate Herk work (2026-06-12) | PENDING | Handoff: session_handoffs/2026-06-11_aios-cadence-handoff.md. Check first cadence cycle logs; Google OAuth creds for connectors; Intuit/QuickBooks app; brain delta leftovers; restricted extracts decision |
 | Jen MacLean reply | PENDING | Two emails from 19 March 2026 still unanswered. Glen needs to reply with NBI's sweet spots and whether the new publisher/VC angles are worth pursuing |
 | Enoma Capital / Mike Palan: follow up | PENDING | New GDC lead. Follow up needed |
 | SalarySage: Move API key off Jeff's personal card | URGENT | Glen flagged 26 March - critical for client-facing use |
