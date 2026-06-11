@@ -211,6 +211,7 @@ Before making code changes, check this list. If the scenario matches, invoke the
 | Implementation complete, ready to integrate | `finishing-a-development-branch` | When tests pass and you need to decide merge/PR/cleanup. |
 | Received code review feedback | `receiving-code-review` | Before implementing any review suggestion. Verify it first. |
 | Risky or multi-file changes | `using-git-worktrees` | See "Risky Edits" section below. |
+| Glen corrects the approach | `harness-intervention` | Any time Glen says "no", "stop", "that's wrong", redirects, or rejects output. |
 
 If you catch yourself thinking "this is simple enough to skip the skill" — that is exactly when you need it most.
 
@@ -286,3 +287,31 @@ Rules:
 - If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
 - Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
 - After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
+
+## Harness Improvement System (RHO)
+
+The self-healing harness at `.claude/harness/` captures failure signals, diagnoses patterns, and proposes improvements. Full spec: `docs/specs/2026-06-08-harness-improvement-system-design.md`.
+
+### Two-Principal Separation
+
+**Recorder/Proposer:** Captures events, runs diagnosis, generates proposals. Can write to `.claude/harness/data/**`, `.claude/harness/proposals/**`, `.claude/harness/HARNESS_HEALTH.md`. Cannot write to governed targets.
+
+**Applier:** Executes approved proposals against governed targets. Can write to: skills, roles, memories (per apply allowlist in risk-policy.json), and `.claude/harness/changelog.md`. Cannot create proposals or modify harness logic.
+
+A PreToolUse hook (`write-guard.js`) enforces write protection on `.claude/harness/config/**` and `.claude/harness/lib/**`. These are BLOCKED_TO_APPLY — Glen must manually apply changes.
+
+### Event Capture
+
+PostToolUse hooks automatically emit events for tool outcomes and skill invocations. These are async and add zero latency. Events accumulate in `.claude/harness/data/events/`.
+
+### Intervention Logging
+
+When Glen corrects the approach, invoke `/harness intervention` to create a confirmed event. The transcript parser also scans session logs for unconfirmed correction indicators, but these are excluded from automatic diagnosis until corroborated by hard signals.
+
+### Weekly Diagnosis
+
+The `harness-improvement` cadence task runs Monday mornings. It reads events, selects a coreset, diagnoses patterns, generates proposals, auto-applies LOW-risk changes, and creates a digest of HIGH/BLOCKED_TO_APPLY proposals for Glen's review.
+
+### Harness-Generated Memories
+
+Memories created by the harness include `source: harness_rho` and `auto_generated: true` in frontmatter. Glen's explicit memories always take priority. Conflicts are surfaced in the weekly digest.
