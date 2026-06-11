@@ -38,6 +38,8 @@ Last Updated: 2026-04-20
 - Glen's daily tasks for Couch Heroes are captured in the scheduled Cowork report
 - Vardis and Aris are also listed as advisory contacts for PlaySage
 
+**Funding (as of 2026-06-11):** $5M round closed May 2026. Series B (~$10M target) timing has completely moved — no date set; the previously reported 19 June decision deadline is dead (Glen, 2026-06-11). Do not surface 19 June as a deadline.
+
 ---
 
 ### Lighthouse Studios
