@@ -1,0 +1,21 @@
+{
+  "_comment": "Redaction patterns applied at event capture time. Spec §3.4.",
+  "patterns": [
+    "(?:API_KEY|SECRET|TOKEN|PASSWORD|CREDENTIAL)\\s*[:=]\\s*['\"]?[^\\s'\"]+",
+    "postgres://[^\\s]+",
+    "DATABASE_URL\\s*=\\s*[^\\s]+",
+    "AZURE_CLIENT_SECRET\\s*=\\s*[^\\s]+",
+    "GRANOLA_API_KEY\\s*=\\s*[^\\s]+",
+    "Bearer\\s+[A-Za-z0-9._~+/=-]+"
+  ],
+  "client_sensitive_fields": {
+    "_comment": "Per-client field patterns. Values matching these in event descriptions are redacted.",
+    "couch_heroes": ["salary_amount", "compensation_details", "bank_details"],
+    "lighthouse": ["revenue_figures", "player_count"]
+  },
+  "retention_days": {
+    "raw_events": 90,
+    "proposals": -1,
+    "changelog": -1
+  }
+}

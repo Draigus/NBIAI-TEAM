@@ -1,0 +1,38 @@
+{
+  "_comment": "Deterministic risk classification. Spec §5.2. Read by weekly routine prompt.",
+  "LOW": {
+    "description": "Auto-apply by Applier",
+    "rules": [
+      { "target": ".claude/skills/**/SKILL.md", "constraint": "additive_only", "description": "Adding checks/sections to existing skills" },
+      { "target": "roles/*/AGENT.md", "constraint": "knowledge_section_only", "description": "Adding knowledge entries to role files" },
+      { "target": "memory/feedback_*.md", "constraint": "frontmatter_schema_required", "description": "Creating new feedback memories with harness_rho tag" },
+      { "target": "memory/MEMORY.md", "constraint": "index_entry_only", "description": "Adding index entries" },
+      { "action": "flag_stale_memory", "description": "Flagging stale memories for review" },
+      { "action": "update_last_verified", "description": "Updating last_verified dates on brain modules" }
+    ]
+  },
+  "HIGH": {
+    "description": "Glen approves, then Applier executes",
+    "rules": [
+      { "target": "CLAUDE.md", "description": "Structural edits including mandatory skill table rows" },
+      { "target": ".claude/hooks/**", "description": "Hook behaviour changes" },
+      { "action": "routine_schedule_change", "description": "Routine schedule changes" },
+      { "action": "role_dispatch_change", "description": "Role dispatch routing table changes" },
+      { "target": ".claude/skills/**", "action": "create_or_delete", "description": "Skill creation or deletion" },
+      { "target": "roles/*/AGENT.md", "constraint": "full_edit", "description": "Full AGENT.md edits beyond knowledge sections" },
+      { "condition": "confidence_below_70", "description": "Any proposal with fewer than 3 supporting evidence events" }
+    ]
+  },
+  "BLOCKED_TO_APPLY": {
+    "description": "Glen applies manually from generated diff",
+    "rules": [
+      { "target": ".claude/harness/config/**", "description": "Risk policy, redaction rules, failure codes" },
+      { "target": ".claude/harness/lib/**", "description": "Decision logic or engine code" },
+      { "action": "remove_hard_rule", "description": "Removing any HARD RULE from CLAUDE.md or feedback memories" },
+      { "action": "disable_mandatory_skill", "description": "Disabling a mandatory skill invocation" },
+      { "action": "remove_approval_gate", "description": "Removing an approval gate" },
+      { "action": "any_redaction_change", "description": "Any redaction rule change including tightening or loosening" },
+      { "action": "self_weakening", "description": "Proposals that reduce verification or loosen permission boundaries" }
+    ]
+  }
+}

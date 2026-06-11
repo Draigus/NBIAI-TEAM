@@ -1,0 +1,28 @@
+{
+  "_comment": "Entropy scan patterns. Fast scan <15s per session. Slow scan weekly. Spec §7.1-7.2.",
+  "fast_scan": {
+    "code_residue": [
+      { "name": "console.log", "regex": "^\\+.*console\\.log\\(", "flags": "gm", "severity_one": 1, "severity_many": 2, "threshold": 3 },
+      { "name": "debugger", "regex": "^\\+.*\\bdebugger\\b", "flags": "gm", "severity_one": 2, "severity_many": 3, "threshold": 1 },
+      { "name": "TODO added", "regex": "^\\+.*\\bTODO\\b", "flags": "gm", "severity_one": 1, "severity_many": 2, "threshold": 3 },
+      { "name": "commented-out code", "regex": "^\\+\\s*//\\s*(const|let|var|function|if|for|while|return)\\b", "flags": "gm", "severity_one": 1, "severity_many": 2, "threshold": 5 }
+    ],
+    "test_integrity": {
+      "weakened_assertions": "^-.*\\b(expect|assert|toBe|toEqual|toMatch|toThrow)\\b",
+      "added_skips": "^\\+.*\\b(\\.skip|\\.todo|xit\\(|xdescribe\\()\\b",
+      "severity": 3
+    },
+    "file_residue": {
+      "temp_patterns": ["^_tmp", "^tmp_", "\\.bak$", "\\.debug\\.", "^debug-", "\\.log$"],
+      "severity": 1
+    },
+    "dependency_hygiene": {
+      "new_require": "^\\+.*\\brequire\\(",
+      "new_import": "^\\+.*\\bimport\\b",
+      "severity": 1
+    }
+  },
+  "slow_scan": {
+    "_comment": "Slow scan checks are defined in the weekly routine prompt, not here. They require heuristic analysis by Claude, not regex matching."
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "_comment": "Enumerated failure codes for anti-regression tracking. Spec §4.5. Extensible via BLOCKED_TO_APPLY proposals only.",
+  "codes": {
+    "verification": [
+      "verification_skipped",
+      "verification_insufficient",
+      "false_positive_verification"
+    ],
+    "skill_routing": [
+      "mandatory_skill_skipped",
+      "wrong_skill_selected",
+      "skill_instruction_gap"
+    ],
+    "context_memory": [
+      "context_not_loaded",
+      "stale_memory_trusted",
+      "context_overload"
+    ],
+    "role": [
+      "role_not_dispatched",
+      "role_knowledge_gap"
+    ],
+    "tool_execution": [
+      "tool_misuse",
+      "tool_failure_no_recovery",
+      "test_mock_misuse"
+    ],
+    "permission_safety": [
+      "unsafe_action_not_caught",
+      "approval_gate_missed"
+    ],
+    "entropy": [
+      "code_residue_left",
+      "test_integrity_weakened",
+      "docs_drift",
+      "architecture_violation"
+    ],
+    "harness_meta": [
+      "redaction_miss",
+      "bad_path_classification",
+      "manual_edit_collision",
+      "log_parse_corruption",
+      "proposal_applied_without_review"
+    ]
+  }
+}

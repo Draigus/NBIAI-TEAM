@@ -1,0 +1,13 @@
+{
+  "_comment": "Markdown heading patterns for knowledge_section_only constraint. Spec §2.3.",
+  "knowledge_section_headings": [
+    "## Domain Knowledge",
+    "## Known Issues",
+    "## Common Patterns",
+    "## Reference Data",
+    "## Industry Context",
+    "## Technical Notes"
+  ],
+  "heading_level_boundary": "##",
+  "_usage": "A diff hunk is 'knowledge_section_only' if ALL changed lines fall between a matching heading and the next heading of equal or higher level (# or ##). Nested headings (###, ####) within the section are included. Fail closed: if section boundaries are ambiguous, classify as HIGH."
+}
