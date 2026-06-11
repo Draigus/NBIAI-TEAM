@@ -9,6 +9,8 @@ Brain files read: NBI_Brain.md, brain/clients_detailed.md, brain/people_director
 - **Investor debt (USD 600K — currency corrected by Glen from the extract's GBP)**: RESOLVED. Tom's stock sale negates it; Glen confirmed it can be removed from outstanding liabilities entirely. Recorded as resolved-with-audit-trail in brain/financial_resilience.md. Do not surface as a risk or missing fact.
 - **CH Series B decision deadline (19 June)**: DEAD. The Series B timing has completely moved; no new date exists. Recorded in brain/clients_detailed.md. Do not list 19 June as a deadline anywhere.
 
+- **NSI facts (multiple items below)**: SUPERSEDED by Glen, 2026-06-11. NSI is owned by Robert Pop (not Tom Rieger); Tom was a senior employee there and no longer is; NSI and NBI are completely separated; Jeff Day and Jessica Williams let go; Bryan Rasmussen stayed at NSI; Tom not currently drawing a paycheck from NBI though he would like to. The wind-down cliff is dissolved. Brain, people directory, and financial_resilience.md all updated 2026-06-11. Ignore any NSI-related delta items below.
+
 All other items below remain open for Glen's review.
 
 ---

@@ -105,7 +105,7 @@ These are non-negotiable. Each was triggered by a specific failure that Glen cau
 |---|---|
 | UK Entity | NBI Analytics Ltd (Glen Pryer's company) |
 | US Entity | National Business Innovations, LLC (Tom Rieger's entity) |
-| Former Sister Entity | NSI, Inc. (military/government research - currently for sale, no longer operationally linked) |
+| Former Sister Entity | NSI, Inc. (military/government research, owned by Robert Pop - completely separated from NBI as of June 2026; Tom Rieger was a senior employee there, no longer is) |
 | Trading Name | NBI Consulting / NBI Gaming |
 | Website | nbi-consulting.com |
 | Work Email | Gpryer@nbi-consulting.com |
@@ -225,20 +225,20 @@ Glen needs to reply with NBI's sweet spots and whether the new publisher/VC angl
 
 | Name | Role | Notes |
 |---|---|---|
-| Tom Rieger | HC Practice Lead, Partner | Dear friend. Brilliant but gaming depth gap - expertise is org performance, not game dev. Tendency to engage on gaming topics before realising the domain-specific depth he's missing. Not a fault of intellect. HC practice has not landed contracts. ~GBP 200K/year, currently NSI-covered |
-| Jeff Day | Principal Data Scientist | On hourly/as-needed to reduce costs. Previously NSI-covered |
-| Jessica Williams | HC Researcher | On hourly/as-needed to reduce costs. Previously NSI-covered |
+| Tom Rieger | HC Practice Lead, Partner | Dear friend. Brilliant but gaming depth gap - expertise is org performance, not game dev. Tendency to engage on gaming topics before realising the domain-specific depth he's missing. Not a fault of intellect. HC practice has not landed contracts. Not currently drawing a paycheck from NBI, though he would like to (~GBP 200K/year if he does). No longer at NSI (June 2026) |
+| Jeff Day | Principal Data Scientist | LET GO (June 2026). Previously hourly/as-needed, NSI-covered |
+| Jessica Williams | HC Researcher | LET GO (June 2026). Previously hourly/as-needed, NSI-covered |
 
 ### Whole Business
 
 | Name | Role | Notes |
 |---|---|---|
-| Bryan Rasmussen | CFO | Partner level. ~GBP 200K/year, currently NSI-covered |
+| Bryan Rasmussen | CFO | Stayed at NSI after the NSI/NBI separation (June 2026) - not an NBI cost; whether he continues as NBI CFO in any capacity: to confirm |
 | Patrice | HR Advisor / General Admin | GBP 4,000/month |
 
 **UK payroll total (current 7 UK staff):** GBP 52,117/month / GBP 625,407/year
 
-> NSI (Tom's military/government research firm) is being wound down. When it closes, Tom, Bryan, Jeff, and Jessica would need to move onto NBI payroll - estimated additional GBP 620K/year, pushing total to ~GBP 1.25M/year. This is a significant planning consideration.
+> NSI (owned by Robert Pop) and NBI are completely separated as of June 2026. The previously modelled wind-down cliff (GBP 620K/year landing on NBI payroll) no longer applies: Jeff Day and Jessica Williams were let go, Bryan Rasmussen stayed at NSI, and Tom Rieger is not currently drawing a paycheck from NBI though he would like to (~GBP 200K/year if that changes - the only residual payroll consideration). Source: Glen, 2026-06-11.
 
 ---
 

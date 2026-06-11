@@ -13,20 +13,20 @@ last_verified: 2026-05-16
 | Name | Role | Practice | Employment | Monthly (GBP) | Annual (GBP) | Key Notes |
 |---|---|---|---|---|---|---|
 | Glen Pryer | Practice Lead, Gaming and Partner | Gaming | Full-time (owns NBI Analytics Ltd) | £18,000 | £216,000 | 22-year gaming industry veteran. Based in Wymondham, Norfolk, England |
-| Tom Rieger | Practice Lead, Human Capital and Partner | Human Capital | Full-time (owns National Business Innovations, LLC) | ~£16,667 | ~£200,000 | 25+ years experience, former Gallup senior leader (17 years). Age 61. Currently NSI-covered |
+| Tom Rieger | Practice Lead, Human Capital and Partner | Human Capital | Full-time (owns National Business Innovations, LLC) | ~£16,667 | ~£200,000 | 25+ years experience, former Gallup senior leader (17 years). Age 61. No longer at NSI; not currently drawing a paycheck from NBI, though he would like to (Glen, 2026-06-11) |
 | Magnus (Kali) Pryer | Producer | Gaming / Internal | Full-time | £4,500 | £54,000 | Glen's daughter. Internal tracking, accounts, cross-practice support |
 | Amir Didar | Senior Analyst | Gaming / Data | Full-time (embedded at Lighthouse) | £10,000 | £120,000 | Embedded full-time at Lighthouse Studios under 3-year contract |
 | Ruan | Data Engineer | Gaming / Data | Full-time (embedded at Lighthouse) | £10,000 | £120,000 | Embedded full-time at Lighthouse Studios under 3-year contract |
 | Stavros | Lead Data Scientist | Gaming / Data | Full-time (embedded at Lighthouse) | £10,000 | £120,000 | Embedded full-time at Lighthouse Studios under 3-year contract |
 | Devin Rieger | Analyst | Gaming | Full-time | £5,617 | £67,407 | Also building SalarySage auth and packaging. Likely related to Tom Rieger |
-| Jeff Day | Principal Data Scientist | Human Capital / Data | Hourly / as-needed | TBD | TBD | Currently NSI-covered. Built SalarySage demo and salary data pipeline |
-| Jessica Williams | Human Capital Researcher | Human Capital | Hourly / as-needed | TBD | TBD | Currently NSI-covered. Also involved in SalarySage QA |
-| Bryan Rasmussen | Chief Financial Officer | Whole business | Full-time | TBD | ~£200,000 | Partner level. Currently NSI-covered. Finance across the full business |
+| Jeff Day | Principal Data Scientist | Human Capital / Data | LET GO (June 2026) | - | - | Departed. Built SalarySage demo and salary data pipeline |
+| Jessica Williams | Human Capital Researcher | Human Capital | LET GO (June 2026) | - | - | Departed. Was involved in SalarySage QA |
+| Bryan Rasmussen | Chief Financial Officer | Whole business | Stayed at NSI (June 2026) | - | - | Stayed at NSI after the NSI/NBI separation; not an NBI cost. Continued NBI CFO involvement: to confirm |
 | Patrice | HR Advisor / General Administration | Whole business | Full-time | £4,000 | £48,000 | General admin across the full business |
 
 **Payroll notes:**
 - UK payroll (7 staff): approximately £625,407/year
-- Tom, Bryan, Jeff, and Jessica are currently covered by NSI (US entity being wound down). When NSI closes, their costs move to NBI payroll, adding approximately £620,000/year (total would reach ~£1,245,407/year)
+- NSI/NBI separation completed June 2026 (NSI is owned by Robert Pop). The former £620,000/year wind-down exposure is gone: Jeff and Jessica let go, Bryan stayed at NSI, Tom not currently drawing from NBI (would like to; ~£200K/year if that changes)
 - Denise Delahanty (formerly Principal Scientist, People and Process) is no longer with the company
 
 ---

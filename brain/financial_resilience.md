@@ -55,14 +55,14 @@ GBP 75,000 - 80,000/month (from forecast bank). Current actual of GBP 55K/month 
 | Patrice | HR Advisor / General Admin | 4,000 |
 | **UK Total (7 staff)** | | **52,117/month = 625,407/year** |
 
-### NSI-Covered Staff (not currently on NBI payroll)
+### Former NSI-Covered Staff (status after NSI/NBI separation, per Glen 2026-06-11)
 
-| Name | Role | Estimated Annual (GBP) |
-|---|---|---|
-| Tom Rieger | HC Practice Lead, Partner | ~200,000 |
-| Bryan Rasmussen | CFO | ~200,000 |
-| Jeff Day | Principal Data Scientist | Hourly/as-needed (reduced) |
-| Jessica Williams | HC Researcher | Hourly/as-needed (reduced) |
+| Name | Status |
+|---|---|
+| Tom Rieger | NBI Partner. No longer at NSI. Not currently drawing a paycheck from NBI, though he would like to. If he starts drawing, expect ~GBP 200K/year additional payroll |
+| Bryan Rasmussen | Stayed at NSI after the separation. Not an NBI cost. Whether he continues as NBI's CFO in any capacity: TO CONFIRM with Glen |
+| Jeff Day | Let go (June 2026) |
+| Jessica Williams | Let go (June 2026) |
 
 ### Monthly Margin Calculation
 
@@ -78,37 +78,17 @@ Note: These are the last known figures from the Brain (last updated 2026-04-20) 
 
 ---
 
-## NSI Wind-Down Cliff
+## NSI Separation (cliff resolved)
 
-NSI, Inc. (Tom Rieger's military/government research firm) is currently for sale and being wound down.
+**The previously modelled "NSI wind-down cliff" (~GBP 620K/year of salaries landing on NBI payroll) NO LONGER EXISTS.** Resolved per Glen, 2026-06-11:
 
-### What Happens When NSI Closes
+- NSI, Inc. is owned by **Robert Pop**, not Tom Rieger. The Brain's earlier claim that NSI was "Tom Rieger's firm" was wrong; Tom was a senior employee there and no longer is.
+- **NSI and NBI are completely separated** as of June 2026.
+- **Jeff Day and Jessica Williams have been let go.** No NBI cost.
+- **Bryan Rasmussen stayed at NSI.** No NBI cost. (Whether he remains NBI's CFO in any advisory capacity: to confirm.)
+- **Tom Rieger is not currently drawing a paycheck from NBI, though he would like to.** This is the only residual payroll consideration: if Tom starts drawing, expect ~GBP 200K/year against a business currently running ~GBP 2.9K/month gross margin. That decision sits with Glen.
 
-- Tom Rieger, Bryan Rasmussen, Jeff Day, and Jessica Williams lose their NSI salary coverage
-- If they remain with NBI, they move onto NBI payroll
-- Jeff and Jessica are already on hourly/as-needed to reduce costs, but Tom and Bryan are full-time partners
-
-### Additional Annual Cost
-
-| Staff | Estimated Annual (GBP) |
-|---|---|
-| Tom Rieger | ~200,000 |
-| Bryan Rasmussen | ~200,000 |
-| Jeff Day | ~120,000 (UNVERIFIED - estimate based on principal data scientist role, currently hourly) |
-| Jessica Williams | ~100,000 (UNVERIFIED - estimate based on HC researcher role, currently hourly) |
-| **Total additional** | **~620,000** |
-
-### Impact on Margin
-
-- Current UK payroll: GBP 625K/year
-- Post-NSI payroll: ~GBP 1.25M/year
-- Current revenue: ~GBP 660K/year
-- **Shortfall if all four transition: ~GBP 590K/year**
-
-This is the single largest financial risk NBI faces. Without new revenue to cover the gap, NBI cannot absorb the full NSI team. Decisions needed:
-1. Which NSI staff are essential to retain?
-2. Can Tom's HC practice generate its own revenue to cover his cost?
-3. Should Jeff and Jessica remain hourly/as-needed permanently?
+Related: Tom's USD 600K debt to Robert Pop and partners is being negated by Tom selling his NSI stock (see Investor Debt section above).
 
 ---
 
@@ -229,7 +209,7 @@ If funded (GBP 5-10M raise), NBI would build the entire backend team and Glen wo
 
 ## Investor Debt — RESOLVED
 
-**Status (Glen, 2026-06-11): resolved — remove from outstanding liabilities and risk assessments.** Tom is selling stock to negate the debt he incurred; Glen has confirmed the debt can be considered dealt with. Do not count it as a cash-flow draw, do not surface it as a risk.
+**Status (Glen, 2026-06-11): resolved — remove from outstanding liabilities and risk assessments.** Tom is selling stock in NSI (entity confirmed by Glen 2026-06-11) to negate the debt he incurred; Glen has confirmed the debt can be considered dealt with. Do not count it as a cash-flow draw, do not surface it as a risk.
 
 Historical record: USD 600K (Glen's stated currency 2026-06-11; the 2026-05-04 Granola meeting extract granola_53aa4eef recorded it as GBP 600K — USD per Glen supersedes) owed to Bob, Brian and partners. A repayment structure of 30-50% of net profit capped at 100K/quarter was proposed in that meeting; superseded by the stock-sale resolution. Retained here for audit trail only.
 
@@ -244,19 +224,21 @@ These thresholds should be checked at session start when loading financial conte
 | Monthly gross margin | Floor: GBP 10,000 | BELOW THRESHOLD (GBP 2,883) | Flag in intelligence brief. Review payroll commitments immediately |
 | Single-client concentration | Cap: 50% of revenue | BREACHED (Couch Heroes at 54.5%) | Flag in intelligence brief. Prioritise pipeline conversion |
 | Invoice aging | Alert: any invoice >30 days overdue | UNKNOWN - no tracking data available | Implement invoice tracking in WorkSage or ask Glen for status |
-| NSI wind-down timeline | Alert: any formal closure notice | UNKNOWN - status is "for sale" | Flag immediately when closure date becomes known |
+| Tom Rieger paycheck decision | Alert: if Tom starts drawing from NBI | NOT DRAWING (would like to, per Glen 2026-06-11) | ~GBP 200K/year impact on an effectively breakeven margin. Flag for explicit Glen decision before any payroll change |
 | Monthly revenue vs operating target | Gap: >GBP 10K below GBP 75K target | BREACHED (GBP 20K gap) | Flag in intelligence brief. Review pipeline urgency |
 
 ---
 
 ## Key Risks Summary (ranked by severity)
 
-1. **NSI wind-down cliff** - if all four NSI staff transition to NBI, payroll nearly doubles with no matching revenue increase. GBP 590K annual shortfall.
-2. **Client concentration** - Couch Heroes at 54.5% of revenue. Single point of failure.
-3. **Margin fragility** - GBP 2,883/month gross margin before overheads. Effectively breakeven or negative.
+1. **Client concentration** - Couch Heroes at 54.5% of revenue. Single point of failure.
+2. **Margin fragility** - GBP 2,883/month gross margin before overheads. Effectively breakeven or negative.
+3. **Tom Rieger paycheck pressure** - Tom would like to draw from NBI (~GBP 200K/year). Unfunded at current margin; needs HC practice revenue or explicit Glen decision.
 4. **Revenue gap to target** - GBP 540K short of Year 2 target. Pipeline exists but conversion is unverified.
 5. **Lighthouse political risk** - disengaged analytics manager could trigger contract review. Three NBI staff embedded.
 6. **DR gaps** - off-site backups, restore procedures, tunnel recreation, and secret recovery are undocumented.
+
+(Removed 2026-06-11: "NSI wind-down cliff", formerly risk #1 - dissolved by the NSI/NBI separation. See NSI Separation section.)
 
 ---
 

@@ -408,3 +408,11 @@ Migration 025 defensively UPDATEs any stray `organisational_health` rows on clie
 - **Morning brief delivery channel: Telegram (Saved Messages)** via the local MTProto MCP, the only delivery channel verified working headless. Email delivery deferred until the connectors library is credentialed (.env currently empty; needs Google OAuth client creds from Glen, or Azure creds copied from dashboard-server for Graph email).
 - **Live financials connection: QuickBooks, pending Glen.** Requires Glen to create an Intuit developer app and provide credentials; documented in routines.md Gaps. Until then financial reconciliation is knowledge-base-consistency only.
 - **All 7 intelligence banks fully rebuilt** (first compilation since 2026-05-25). Restricted extracts skipped per policy. Brain Delta regenerated: 8 discrepancies, 20 new facts, 6 stale Brain facts awaiting Glen's review (notably GBP 600K investor debt absent from financial_resilience.md and CH actuals GBP 30K/month vs GBP 300K/year contracted in Brain).
+
+## 2026-06-11 NSI separation facts (Glen corrections, late session)
+
+- **NSI is owned by Robert Pop, not Tom Rieger.** Tom was a senior employee there; he no longer is. Brain's "Tom's firm" claim corrected everywhere.
+- **NSI and NBI are completely separated** as of June 2026.
+- **Jeff Day and Jessica Williams have been let go.** Bryan Rasmussen stayed at NSI (continued NBI CFO involvement: to confirm).
+- **Tom Rieger is not currently drawing a paycheck from NBI, though he would like to.** Recorded as the only residual payroll consideration (~GBP 200K/year if it changes); replaces the dissolved wind-down cliff as a threshold alert.
+- **Tom's USD 600K debt to Robert Pop and partners: resolved** via Tom selling his NSI stock. Currency is USD (the Granola extract's GBP was wrong). Removed from outstanding liabilities.
