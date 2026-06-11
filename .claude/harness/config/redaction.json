@@ -1,7 +1,7 @@
 {
   "_comment": "Redaction patterns applied at event capture time. Spec §3.4.",
   "patterns": [
-    "(?:API_KEY|SECRET|TOKEN|PASSWORD|CREDENTIAL)\\s*[:=]\\s*['\"]?[^\\s'\"]+",
+    "(?:\\w+_(?:KEY|SECRET|TOKEN|PASSWORD|CREDENTIAL)|API_KEY|SECRET|TOKEN|PASSWORD|CREDENTIAL)\\s*[:=]\\s*['\"]?[^\\s'\"]+",
     "postgres://[^\\s]+",
     "DATABASE_URL\\s*=\\s*[^\\s]+",
     "AZURE_CLIENT_SECRET\\s*=\\s*[^\\s]+",
