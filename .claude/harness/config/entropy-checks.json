@@ -9,7 +9,7 @@
     ],
     "test_integrity": {
       "weakened_assertions": "^-.*\\b(expect|assert|toBe|toEqual|toMatch|toThrow)\\b",
-      "added_skips": "^\\+.*\\b(\\.skip|\\.todo|xit\\(|xdescribe\\()\\b",
+      "added_skips": "^\\+.*\\b(\\.skip|\\.todo|xit\\(|xdescribe\\()",
       "severity": 3
     },
     "file_residue": {
