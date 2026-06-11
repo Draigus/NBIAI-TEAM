@@ -4,3 +4,12 @@ History of bank recompilations. Appended automatically by `/recompile-banks`.
 
 | Date | Bank | Extracts Compiled | Mode | Delta Items |
 |------|------|-------------------|------|-------------|
+| 2026-06-11 | personal_insights | 20 + 6 retained | full rebuild | see brain_delta 2026-06-11 |
+| 2026-06-11 | games_pitch_decks | 17 (1 restricted skipped) | full rebuild | see brain_delta 2026-06-11 |
+| 2026-06-11 | client_patterns | 33 (8 restricted skipped) | full rebuild | see brain_delta 2026-06-11 |
+| 2026-06-11 | industry_current | 47 | full rebuild | see brain_delta 2026-06-11 |
+| 2026-06-11 | production_methods | 38 (1 restricted skipped) | full rebuild | see brain_delta 2026-06-11 |
+| 2026-06-11 | client_couch_heroes | 49 | full rebuild | see brain_delta 2026-06-11 |
+| 2026-06-11 | forecast_models | 23 | full rebuild | see brain_delta 2026-06-11 |
+
+Note 2026-06-11: first compilation since 2026-05-25. The scheduled cloud routine never delivered (root cause in session log 2026-06-11); recompilation now runs locally via Task Scheduler (company/routines.md). Restricted extracts were skipped per policy and are listed in the session log.

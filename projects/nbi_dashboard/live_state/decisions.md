@@ -400,3 +400,11 @@ Migration 025 defensively UPDATEs any stray `organisational_health` rows on clie
 - **Unified search, not split tabs for articles vs stories.** Postgres tsvector with `ts_rank_cd` and recency decay.
 - **Serif headlines (Playfair Display), sans-serif body.** Consistent with Hub, distinguishes News as a reading experience.
 - **No user-facing visibility gates on the News tab.** All authenticated Hub users see it. No per-client scoping because the content is industry-general.
+
+## 2026-06-11 Cadence layer rearchitecture (AIOS audit fixes)
+
+- **Fix all AIOS audit gaps except Hermes.** Glen's directives: "ok, let's fix it" then "Let's fix all the way up to Hermes. I am not ready to install Hermes yet." Scope: broken bank recompilation, routine registry, push-based morning brief, stale org chart/connections registry, live financials connection groundwork.
+- **Cloud routines abandoned in favour of local cadence.** Root cause finding accepted by execution: all 17 claude.ai cloud routines fired on schedule for 27 days but delivered nothing (sandboxes on stale master, no pushes, no sends). All 17 disabled; replaced with 7 Windows Task Scheduler tasks running headless `claude -p` (Sonnet) in the working tree. Canonical registry: company/routines.md. Rule established: never re-enable a cloud routine without a verified delivery path.
+- **Morning brief delivery channel: Telegram (Saved Messages)** via the local MTProto MCP, the only delivery channel verified working headless. Email delivery deferred until the connectors library is credentialed (.env currently empty; needs Google OAuth client creds from Glen, or Azure creds copied from dashboard-server for Graph email).
+- **Live financials connection: QuickBooks, pending Glen.** Requires Glen to create an Intuit developer app and provide credentials; documented in routines.md Gaps. Until then financial reconciliation is knowledge-base-consistency only.
+- **All 7 intelligence banks fully rebuilt** (first compilation since 2026-05-25). Restricted extracts skipped per policy. Brain Delta regenerated: 8 discrepancies, 20 new facts, 6 stale Brain facts awaiting Glen's review (notably GBP 600K investor debt absent from financial_resilience.md and CH actuals GBP 30K/month vs GBP 300K/year contracted in Brain).

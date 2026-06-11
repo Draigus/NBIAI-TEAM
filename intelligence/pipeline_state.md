@@ -1,48 +1,43 @@
 # Pipeline State
 
+Last updated: 2026-06-11 (verified against disk during cadence rebuild)
+
 ## Last Ingestion Run Per Source
 
-| Source | Last Run | Extracts Produced | Extracts Promoted | Next Scheduled |
-|--------|----------|-------------------|-------------------|----------------|
-| granola | never | 0 | 0 | daily 20:03 UK |
-| gmail | never | 0 | 0 | daily 20:07 UK |
-| slack | never | 0 | 0 | daily 20:12 UK |
-| onedrive | 2026-05-25 | 25 | 25 | manual |
-| downloads | 2026-05-25 | 2 | 2 | manual |
-| chatgpt | 2026-05-25 | 34 | 34 | one-time (complete) |
-| claude_sessions | 2026-05-25 | 26 | 26 | manual |
-| web_research | 2026-05-25 | 17 | 17 | per schedule |
+Counts are files on disk in intelligence/raw/ (verified 2026-06-11), with the newest file's date as the effective last-run marker.
+
+| Source | Extracts On Disk | Newest Extract | Next Scheduled |
+|--------|------------------|----------------|----------------|
+| granola | 112 | 2026-05-31 | daily 19:00 local (intel-ingest task, REST API) |
+| gmail | 10 | 2026-05-26 | blocked: connectors not credentialed (routines.md Gaps) |
+| slack | 6 | 2026-05-25 | blocked: connectors not credentialed (routines.md Gaps) |
+| web_research | 85 | 2026-06-02 | weekdays 12:30 local (intel-research task) |
+| onedrive | 25 | 2026-05-25 | manual |
+| downloads | 2 | 2026-05-25 | manual |
+| chatgpt | 34 | 2026-05-25 | one-time (complete) |
+| claude_sessions | 26 | 2026-05-25 | manual |
 
 ## Bank Compilation Status
 
-| Bank | Last Compiled | Sources | Threshold (3) | Action |
-|------|---------------|---------|---------------|--------|
-| production_methods | 2026-05-25 | 35 | — | compiled |
-| games_pitch_decks | 2026-05-25 | 10 | +5 new research | recompile |
-| forecast_models | 2026-05-25 | 18 | — | compiled |
-| industry_current | 2026-05-25 | 11 | +7 new research | recompile |
-| client_patterns | 2026-05-25 | 17 | — | compiled |
-| personal_insights | 2026-05-25 | 20 | — | compiled |
-| client_couch_heroes | 2026-05-25 | 19 | — | compiled |
+All 7 banks fully rebuilt 2026-06-11 (first compilation since 2026-05-25; the cloud routine never delivered — see company/routines.md).
 
-## Bank Health
-
-| Bank | Lines | Last Compiled | Shelf Life | Status |
-|------|-------|---------------|-----------|--------|
-| production_methods | 174 | 2026-05-25 | 60d | fresh |
-| industry_current | 150 | 2026-05-25 | 7d | fresh |
-| client_couch_heroes | 139 | 2026-05-25 | never | fresh |
-| forecast_models | 136 | 2026-05-25 | 30d | fresh |
-| personal_insights | 131 | 2026-05-25 | never | fresh |
-| client_patterns | 127 | 2026-05-25 | 14d | fresh |
-| games_pitch_decks | 113 | 2026-05-25 | 30d | fresh |
+| Bank | Last Compiled | Extracts Integrated | Lines | Shelf Life | Status |
+|------|---------------|---------------------|-------|-----------|--------|
+| production_methods | 2026-06-11 | 38 | 335 | 60d | fresh |
+| industry_current | 2026-06-11 | 47 | 238 | 7d | fresh |
+| client_couch_heroes | 2026-06-11 | 49 | 288 | never expires | fresh |
+| forecast_models | 2026-06-11 | 23 | 342 | 30d | fresh |
+| personal_insights | 2026-06-11 | 20 + 6 retained | 171 | never expires | fresh |
+| client_patterns | 2026-06-11 | 33 | 275 | 14d | fresh |
+| games_pitch_decks | 2026-06-11 | 17 | 234 | 30d | fresh |
 
 ## Pending Review
 
-- Sensitive extracts awaiting approval: 0
-- Bank suggestions pending: 4 (consulting_frameworks, studio_staffing_models, salary_benchmarks, investor_database)
-- Banks needing recompilation: games_pitch_decks (+5 research), industry_current (+7 research)
-- Stale banks: 0
+- Sensitive extracts awaiting approval: restricted extracts were SKIPPED during the 2026-06-11 rebuild (10 unique IDs, mostly CTO search and compensation material; listed in session log 2026-06-11). They remain in raw/ unintegrated.
+- Bank suggestions pending: 5 (consulting_frameworks, studio_staffing_models, salary_benchmarks, investor_database, competitor_watch)
+- Banks needing recompilation: none
+- Stale banks: none
+- Brain delta: regenerated 2026-06-11 (intelligence/synthesis/brain_delta.md) — review pending
 
 ## Local File Tracking
 

@@ -1,144 +1,335 @@
-# Production Methods -- Knowledge Bank
+---
+title: Production Methods
+slug: production_methods
+last_compiled: 2026-06-11
+extract_count: 38
+role_associations: [producer, production_consultant]
+description: How game studios organise and deliver work. Frameworks, methodologies, milestone structures, and real-world outcomes from studios of 20-100 people.
+---
 
-**Last compiled:** 2026-05-25 (full rebuild)
-**Sources:** 45+ extracts (26 Claude sessions, 8 ChatGPT, 8 OneDrive, 2 Granola, 1 Slack)
-**Role associations:** producer, production_consultant
+# Production Methods
 
 ## Executive Summary
 
-This bank covers how game studios organise and deliver work, combining NBI's direct experience building WorkSage with advisory work at Couch Heroes and other clients. The strongest evidence comes from the CH offsite (production framework, gate system, estimation methodology), NBI's own dashboard development (audit-driven improvement, test infrastructure, deployment patterns), and the AAA Agilefall operating guide. New additions include the production council decision process, blind estimation methodology, offsite facilitation framework, and art escalation patterns.
+This bank covers how game studios in the 10-100 person range organise production: milestone frameworks, sprint cadence, live-ops scheduling, pre-production gates, org design, and estimation methodology. The primary source of primary evidence is a deep NBI engagement with a ~55-person remote UK studio building an MMO-lite (April-May 2026), supplemented by published frameworks from Tim Cain, Rami Ismail, Supergiant Games, and Ghost Ship Games, plus NBI's own consulting standards. The bank is strongest on the 40-70 person studio in early production navigating the prototype-to-production transition. Live ops cadence has mobile benchmarks but limited console/PC primary data. The recurring finding across all sources: studios almost universally believe they are further along in production than they are — documentation gaps, not working code, define production maturity.
+
+---
 
 ## Framework Comparison
 
-| Framework | Team Size | Remote-Friendly | Game Adaptations | Evidence |
+| Framework | Team Size Sweet Spot | Remote-Friendly | Game-Specific Adaptations | Known Outcomes |
 |---|---|---|---|---|
-| Agilefall (Agile + stage-gate) | 30-100 | Y | Gates on top, sprints underneath; playable vertical slice exits pre-prod | NBI standard for client studios [source: chatgpt_68fb7b4a] |
-| 6-Stage Pipeline | 40-70 | Y | Ideation > R&D > GDD > Prototype > MVP > Player Ready with tier gates | CH offsite, adopted by 55-person studio [source: granola_5fdd8c18] |
-| Shape Up (6-week cycles) | 10-30 | Y | Untested at game studio scale in NBI's experience | No direct evidence |
-| Classic Functional + EP Hub | <60 | Y | Best for early-stage teams needing speed | Recommended for CH [source: chatgpt_6967809b] |
-| Pod/Strike Team | 40-100 | Partial | Best for parallel workstreams with clear boundaries | Alternative 2 for CH [source: chatgpt_6967809b] |
+| Agilefall (hybrid Agile + stage-gate) | 30-200 | Y | Gates on top (funding/milestone events); sprints underneath; playable vertical slice exits pre-prod | NBI standard for client studio onboarding [source: chatgpt_68fb7b4a] |
+| NBI 6-Stage Pipeline | 30-100 | Y | Ideation > R&D > GDD/Brief > Prototype > MVP > Player Ready; colour-coded in project management tool | Adopted at ~55-person MMO studio after deep offsite; replaces ad-hoc prototype-to-ship pattern [source: granola_5fdd8c18] |
+| Rami Ismail LTPF | 6-30 | Y | Vertical slice as pipeline validation not demo; buffer mandatory; genre-specific feature/content ratio | Most widely referenced indie milestone framework; used as publisher milestone definitions by NBI [source: web_2026-05-27_rami-ismail-ltpf-milestone-framework] |
+| Tim Cain 9-Stage | 10-150+ | Y | "Beautiful Corner" between prototype and VS; Horizontal Slice for open-world connectivity testing | Genre-agnostic; most useful as stakeholder communication tool [source: web_2026-05-27_tim-cain-nine-stage-production] |
+| Supergiant Monthly Milestone | 10-25 | Partial | Code-open / code-locked / polish / ship phases within each month; Early Access as external discipline | Hades: 4M+ copies year 1, 50+ GOTY, no crunch, 17-person team intact 10+ years [source: web_2026-05-27_supergiant-hades-monthly-milestone-cadence] |
+| Ghost Ship "Develop by Doing" | 40-60 | N (in-office-first) | Stand-ups for sharing not task-assignment; community as production input; seasonal live ops cadence | Deep Rock Galactic: 8M+ copies, 6+ crunch-free years [source: web_2026-05-27_ghost-ship-open-development-live-ops] |
+| Classic Functional + EP Hub | Under 60 | Y | Best for early-stage teams needing speed; strong EP owns delivery chain | Recommended pattern for ~50-person studios [source: chatgpt_6967809b] |
+| Pod / Strike Team | 40-100 | Partial | Best for parallel workstreams with clear boundaries; requires discipline leads per pod | Alternative to functional model when work is clearly separable [source: chatgpt_6967809b] |
+| Critical Stage Analysis (CSA) | 15+ (overlay) | Y | Monthly feedback overlay on any existing methodology; 2-4h per cycle | Designed by Wolfgang Hamann (Koolhaus/Radical Entertainment), presented at GDC [source: web_2026-05-27_critical-stage-analysis-hamann] |
+
+---
 
 ## By Team Scale
 
+### 10-25 People
+
+At this scale informal communication handles most coordination. The risk is that informal channels become load-bearing and fail when the team grows past ~20. Supergiant Games (17 people, all original founders retained over 10+ years) operated successfully with a monthly milestone cadence — each month split into code-open, code-locked, polish, and ship phases. Their scope control mechanism was the "ripple effect" test: does this extra work stay within one person's domain, or cascade across departments? If it cascades, it waits. [source: web_2026-05-27_supergiant-hades-monthly-milestone-cadence]
+
+Rami Ismail's LTPF framework is the most appropriate formal structure at this scale. Four phases — Research/Prototyping, Pre-Production (including Vertical Slice), Production (Feature Complete through Content Complete), Wrap-Up — map to publisher milestone expectations and scale up later. The Vertical Slice can consume up to one-quarter of total development time and validates the pipeline, not just the game design. Content Complete should be reached 8-12 weeks before launch (4 weeks absolute minimum). [source: web_2026-05-27_rami-ismail-ltpf-milestone-framework]
+
+Anti-crunch findings at small scale: unlimited PTO underperformed compared to mandatory minimum (20 days per year) at Supergiant — invisible pressure accumulated without enforced floors. No work emails after 5 PM Friday was enforced as a team norm, not individual discipline. [source: web_2026-05-27_supergiant-hades-monthly-milestone-cadence]
+
 ### 25-50 People
 
-Single-producer bottleneck is the dominant risk. At ~50 people with one producer, decision latency and missed handoffs become systemic [source: chatgpt_69034e5d]. Product-platform scope coupling where game and platform compete for same capacity without hard slice boundaries compounds this [source: chatgpt_69034e5d]. The remediation is an EP overseeing four discipline tracks (QA, Audio, Art, Design) each with embedded producer [source: ch_org_structure_2026-04-26].
+This is the transition zone where informal coordination fails and formal process becomes necessary. Ghost Ship Games (~40-54 people) resolved this by preserving low-ceremony coordination: information-sharing stand-ups (not task-assignment), free cross-department discussion, and in-office presence to maintain communication density. Their methodology explicitly resists documentation overhead — "develop by doing, not talking." Their model works because in-office presence compensates for absent process structure. For remote studios of this size, equivalent process investment is required. [source: web_2026-05-27_ghost-ship-open-development-live-ops]
+
+Single-producer configurations become a serious risk at this scale. A sole producer at a ~50-person studio cannot simultaneously coordinate game content, platform work, backend services, build pipelines, playtests, partners, and vendors. The result is decision latency, missed handoffs, and governance ambiguity where approved decisions get re-litigated and stealth branches proliferate. The remediation pattern: an Executive Producer overseeing four discipline tracks (QA, Audio, Art, Design), each with an embedded producer. [source: chatgpt_69034e5d]
+
+The Agilefall hybrid becomes appropriate at 30+ people. Gates provide funding/risk approval checkpoints; sprints enable iterative delivery within gates. The backlog hierarchy — Epics > Features > User Stories > Tasks — with explicit Definitions of Ready (clear problem, acceptance criteria, dependencies, assets, team agreement) and Done (criteria met, code reviewed, assets integrated, tests pass, docs updated, build green) prevents ambiguous handoffs. [source: chatgpt_68fb7b4a]
 
 ### 50-100 People
 
-The CH model: 14 agreed epics, domain-based work hierarchy (Epic > Feature > Story > Task), blind estimation sessions, and a canonical decision process (CD > design > team feedback > GD+EP+GC approval) [source: granola_5fdd8c18, slack_production-council_2026-05-25_process]. Key lesson: content and feature epics must be merged -- separate tracking creates misleading completion percentages [source: granola_5fdd8c18].
+NBI's primary reference engagement is a ~55-person UK studio building an MMO-lite (52 people at engagement start, 18 more in the hiring pipeline). Key findings from this engagement apply broadly to studios in this size band.
+
+**Production maturity is almost always lower than the team believes.** An independent external audit and NBI's internal assessment reached the same conclusion: art was significantly ahead, creating an "illusion of a full game" while core systems, design documentation, and technical architecture lagged. The studio believed itself in mid-production; the audit confirmed pre-production. The primary diagnostic signal: most features in grey/orange stage (R&D or GDD) despite having prototype code. Working code without documentation is not production-ready. [source: granola_50612dd7, granola_5fdd8c18]
+
+Art-ahead-of-systems imbalance is a common anti-pattern. Visual assets create perceived progress that masks systemic gaps. Studios build components out of sequence; prototype mode persists too long; too many parallel initiatives run without proper sequencing. [source: granola_50612dd7]
+
+**Production structure at this scale requires explicit hierarchy.** Epic > Feature > Story > Task must be formally defined and enforced. Content and feature epics should be merged into one epic per domain — separate tracking creates misleading completion percentages. The vertical slice should be tracked as a release filter in the project management tool (e.g., Jira fixed version), not as an epic — this prevents structural confusion in progress reporting. [source: granola_5fdd8c18]
+
+**Epic hierarchy for an MMO-lite (14 agreed domains):** Player Build, World Systems, Combat, User Spaces and Mini Games, Items and Inventory, Player Economy, Quest System, Social and Multiplayer, Platform, Live Game (telemetry/analytics/live ops), Business Development/Partner Build, Publishing, Game Bibles, RMT. [source: granola_5fdd8c18]
+
+**Feature estimates by discipline (MMO-lite, for calibration):**
+- Player progression to MVP: 60 days designer / 20 days engineer / 20 days UI
+- Skill system to MVP: 90 days designer / 30 days engineer / 25 days UI
+- Partner portal (large file handling, 50GB games): 60 days engineering
+- New creature (modelling + animation + VFX): 45 days total
+
+Capacity planning baseline: 20 workdays per month per person. At 15 headcount needed for early production, Excel-based capacity planning with automatic headcount calculations from estimates is the most reliable tool before Jira is configured. [source: granola_ae650223, granola_5fdd8c18]
+
+**Governance: three-party approval prevents scope creep.** The canonical decision process: Creative Director signals intent > Design designs > Team feeds back > Game Director considers feedback > Proposals approved by Game Director + Executive Producer + Creative Director. Three-party approval before any commitment. Bypassed approval chains are the most common source of rework in this studio size. [source: slack_production-council_2026-05-25_process]
+
+---
 
 ## By Working Model
 
 ### Fully Remote
 
-Decision process must be formalised and written. CH's canonical process: "CD say we want X > design designs > team feeds back > feedback considered by game director > proposals approved with GD+EP+GC > decision made" [source: slack_production-council_2026-05-25_process]. Estimation sessions require structured blind approach -- teams estimate independently before seeing leadership figures [source: granola_e5678c68].
+Remote-first production requires more formal async communication than in-office equivalents. Estimation processes that rely on informal alignment break down — at a ~55-person fully remote studio, three separate estimation spreadsheets were maintained independently, requiring manual merge. Structured estimation sessions (all-hands process explanation followed by individual team sessions over a defined window, with cross-team dependency calls before sprint planning) replaced informal convergence. [source: slack_production-council_2026-05-25_process, granola_ae650223]
 
-Chain-of-command bypass is a critical remote-team failure mode: art leads going directly to CEO rather than through production chain undermines authority and creates conflicting directives [source: slack_production-council_2026-05-25_escalation].
+Written decision records are load-bearing when teams cannot overhear decisions. A running decisions log prevents re-litigation of approved work. Without it, stealth branches proliferate — approved designs get quietly reworked because the decision was never written down. [source: chatgpt_69034e5d]
 
-## Sprint/Cycle Length Evidence
+Anonymised feedback channels fill the gap that informal culture fills in co-located studios. Per-department anonymous forms (Google Forms in incognito mode, visible only to department heads) surface negative sentiment before it escalates. In remote settings sentiment accumulates invisibly. [source: granola_080a19f8]
 
-NBI's WorkSage development demonstrates rapid iteration: 22 UX decisions in one session [source: handoff_2026-04-06a], 33 bug tracker items + 7 features in one autonomous session [source: handoff_2026-04-14a]. This velocity is enabled by pre-approved bulk plans rather than incremental proposals [source: handoff_2026-04-04].
+No-meeting days (one day per week) protect deep work. The day creates predictable uninterrupted windows that improve delivery throughput in teams where context-switching cost is high. [source: granola_080a19f8]
 
-Two-horizon planning is the standard: quarterly PI planning (8-12 weeks) plus sprint planning (1-2 weeks). Weekly rhythm: daily standup 15min, backlog refinement 60-90min, sprint planning 2-4h, sprint review 60-120min, retrospective 60min [source: chatgpt_68fb7b4a].
+Chain-of-command bypass is a critical remote failure mode: leads going directly to founders rather than through the production chain undermines authority and creates conflicting directives. The approval chain must be written and enforced. [source: chatgpt_69034e5d]
 
-## Gate System and Feature Tiering
+### Hybrid
 
-Feature completion tiering (from CH offsite):
-- **T0-T2** (ideation to prototype): cheap to cut ("orange zone")
-- **T3** (MVP): functional but rough
-- **Post-T3**: cuts become expensive
-- **T4-T7**: release-ready through production-scale
+Ghost Ship's model — primarily in-office with WFH Fridays and two additional WFH days per month — preserves the cross-department communication density their "develop by doing" methodology depends on. Their view: in-office presence is not a policy preference but a production requirement for the methodology. For studios considering a hybrid transition, the methodology needs structural support (written briefs, decision logs, structured estimation) to compensate for reduced informal communication. [source: web_2026-05-27_ghost-ship-open-development-live-ops]
 
-Gates use this tier system. Key finding: "the single most leveraged hour of the offsite" is gate-passing criteria definition [source: ch_offsite_agenda_2026-04-27].
+### Co-located
 
-Production phases: Pre-production > Early Production > Mid Production > Late Production > Alpha [source: granola_5fdd8c18].
+Ghost Ship Games (40-54 people) is the primary co-located exemplar. Their production model works reliably because physical proximity enables the cross-department communication that replaces formal process. The "develop by doing" philosophy, information-sharing stand-ups, and absence of documentation overhead all depend on this proximity. Not portable to remote teams without structural compensators. [source: web_2026-05-27_ghost-ship-open-development-live-ops]
 
-## Offsite Facilitation Methodology
+---
 
-Glen designed a reusable 3-day offsite framework for studio leadership (8-9 senior attendees):
+## Sprint / Cycle Length Evidence
 
-**Day 1 (Foundation):** Rules commitment (6 rules, verbal commitment from each individual), goal statement, workbook walkthrough, feature sweep at 2-minute-per-row discipline with "L by default" sizing [source: ch_offsite_agenda_2026-04-27].
+**Monthly cadence (Supergiant, 17 people):** Monthly milestones with internal phase gates at a small studio. Public Early Access commitment forced production discipline that internal deadlines alone did not — external accountability to players proved stronger than internal accountability. The monthly cycle aligns creative and technical work without heavy quarterly planning overhead. [source: web_2026-05-27_supergiant-hades-monthly-milestone-cadence]
 
-**Day 2 (Gates/GTM):** Gate-passing criteria, live services planning, GTM lane, community strategy, goals cascade [source: ch_offsite_agenda_2026-04-27].
+**Two-horizon planning (Agilefall / 30+ people):** Quarterly PI planning (8-12 weeks) defines the roadmap horizon; sprint planning (1-2 weeks) handles execution. The two horizons serve different functions — quarterly prevents tactical myopia, weekly preserves responsiveness. NBI's standard recommendation for 30+ person studios. Weekly ceremony overhead: daily standup 15 min, backlog refinement 60-90 min, sprint planning 2-4h, sprint review 60-120 min, retrospective 60 min. [source: chatgpt_68fb7b4a]
 
-**Day 3 (Pipelines/Staff):** 9 pipeline RACI maps, maintenance cadence, staff assessment (C-level only for candour), decisions log walkthrough [source: ch_offsite_agenda_2026-04-27].
+**Sprint readiness indicator:** Estimation completion is a leading indicator for sprint readiness. At 65% estimation completion across a ~55-person studio (art and design complete, engineering still in progress), sprint planning was not viable. Cross-team dependency calls are the required next step before sprint work begins. [source: slack_production-council_2026-05-25_process]
 
-**Facilitation patterns:** Person-specific watch-fors (who defaults to silence, who converges too fast), scripted standard responses for common derails, move-on criteria per session, pre-read pack limited to 15 minutes reading [source: ch_offsite_working_doc_2026-04-27, ch_offsite_pre_read_2026-04-27].
+**Estimation method (blind affinity planning):** Feature estimates should use blind affinity planning with min/mid/max ranges, cross-validated by a second expert, with structured discussion for discrepancies greater than five days. Individual expert estimation without cross-validation produces systematic optimism bias. Tooling (Jira) should be configured only after structure and estimates are confirmed — process precedes tooling. [source: granola_8b912e8e]
 
-**Pre-decisions pattern:** Binding strategic decisions laid down before the offsite to prevent relitigating. Burden of proof shifts onto anyone disagreeing [source: ch_offsite_pre_decisions_2026-04-27].
+**Engineering is always the long pole.** In every NBI estimation engagement, engineering delivers its estimates last and these are the largest relative to original assumptions. Art and design typically complete estimation faster. Build in an explicit engineering estimation window when sequencing estimation sessions. [source: slack_production-council_2026-05-25_process]
 
-## Estimation Methodology
+**Vacation during crunch windows:** Summer vacation during vertical slice delivery windows is a recurring studio tension. The pragmatic approach: do not cancel vacations, but require full team availability visibility well in advance. Blind spots in June-August capacity are a structural planning failure, not an individual conduct issue. [source: slack_production-council_2026-05-25_process]
 
-**Blind estimation:** Teams estimate independently before seeing leadership figures. Art leads only participating (not full art team) [source: granola_e5678c68].
+---
 
-**Environment art sizing:** Framework needed based on density + size categories (small/medium/large). Downtown classified as medium [source: granola_e5678c68].
+## Pre-Production to Production Transitions
 
-**Benchmark estimates (CH MMORPG):**
-- Player progression: 60 days designer / 20 days engineer / 20 days UI to MVP
-- Skill system: 90 days designer / 30 days engineer / 25 days UI
-[source: granola_5fdd8c18]
+The prototype-to-production transition is the most commonly misread milestone in NBI's client work. The diagnostic pattern repeats: studio believes it is in early or mid-production; external audit confirms pre-production.
 
-## Production Data Consolidation
+**Diagnostic signals of false production belief:**
+- Working prototype code exists but GDDs/TDDs are absent or partial (60% GDD coverage, 60% TDD coverage was the status at a studio that believed itself in production) [source: granola_4005eb22]
+- Art is visually impressive but core systems — progression, economy, quest backend — are undocumented
+- Design approval process is routinely bypassed; leads act on verbal direction without written sign-off [source: granola_5fdd8c18, granola_f41b006d]
+- Features were built ad hoc for investor demos and need redesign for scalability before production can proceed [source: granola_f41b006d]
+- Estimation has never been done systematically; first structured estimate reveals scope 2-3x larger than assumed [source: granola_ae650223]
 
-NBI's proven methodology for consolidating multi-source production data: extract from each source preserving original naming (HARD RULE: never rename stories/features from source materials), map estimates across sources, detect duplicates, reconcile conflicts, produce unified plan with zero data loss [source: ch_production_consolidation_spec].
+**Pre-production exit criteria (NBI standard):**
+1. Solid prototype / vertical slice completed and validated
+2. All core teams established
+3. All design docs in preparation (not complete — actively in progress)
+4. All TDDs in development
 
-Miro boards require multiple extraction strategies; no single pass captures everything [source: ch_production_consolidation_spec].
+[source: granola_d977d66a]
 
-## Audit-Driven Improvement
+**The "Beautiful Corner" (Tim Cain):** An underused step between prototype and vertical slice. A small, non-playable area built to final visual quality proves art pipeline feasibility before committing full production resources. It answers "can we actually achieve this quality at scale?" separately from "can we build this game?" — and communicates to stakeholders what the shipped product will look like. Cost: low. De-risking value: high. [source: web_2026-05-27_tim-cain-nine-stage-production]
 
-Numeric audit scoring drives focused improvement: a 19-dimension code audit rated WorkSage 6.6/10, Glen approved a 6-sprint improvement plan, re-audit scored 7.3/10 (+0.7). Sprints grouped by concern: foundation, security, performance, frontend, UX, ops [source: handoff_2026-04-08b].
+**The Horizontal Slice** (Tim Cain): all game areas playable but unfinished, testing structural integrity and total playtime. Valuable for open-world and non-linear games where connectivity is the critical unknown. Different validation than the Vertical Slice's quality validation. [source: web_2026-05-27_tim-cain-nine-stage-production]
 
-The pattern is reusable: structured audit > numeric score > sprint plan > re-score. Glen approves plans, not individual fixes [source: handoff_2026-04-08b].
+**Vertical Slice definition (Rami Ismail):** The Vertical Slice is not a demo. It is a pipeline validation exercise that determines whether production at the intended quality level is viable. It locks core "verbs" (mechanics) and establishes the development timeline. It should consume up to one-quarter of total development time. [source: web_2026-05-27_rami-ismail-ltpf-milestone-framework]
 
-## Quality Methodology
+**Feature tiering and the cost of late cuts:**
+- T0-T2 (Ideation through Prototype): cheap to cut — the "orange zone"
+- T3 (MVP): functional but rough; cuts still manageable
+- Post-T3: cuts become expensive — sunk cost compounds rapidly
+- T4-T7: release-ready through production-scale
 
-**Red team validation:** Five scoring dimensions (data collection 25%, normalisation 20%, claim accuracy 30%, citation verifiability 15%, analytical rigour 10%). Original score 53/100 remediated to 93/100 over three passes [source: goals_red_team_report_2026-04-21].
+Scope must be locked early in the tier system. Post-T3 scope changes require formal change requests with throwaway cost analysis. [source: granola_4e145b7b, granola_0fe5dec4]
 
-**SoW report structure:** 15-section C-level-consumable format with Evidence Table appendix mapping every claim to source, date, confidence, and gap. Multi-role red teaming (Production + Engineering) embedded in the process [source: chatgpt_6907ec33].
+**NBI 6-stage development pipeline (detailed):**
+1. **Ideation** (yellow): concept, no commitment
+2. **R&D** (orange): feasibility, no GDD yet
+3. **GDD/Brief** (grey): design documentation in progress
+4. **Prototype** (light blue): working code, not production-quality
+5. **MVP** (dark blue): functional and documented, rough
+6. **Player Ready** (green): production-quality, shippable
 
-**Build antipatterns (from post-mortem):** (1) No visual verification, (2) Context rot causing wrong column names, (3) Shotgun debugging, (4) Workaround normalisers instead of root cause, (5) Visual quality abandoned vs mockups, (6) Too many small commits [source: handoff_2026-05-12].
+The pipeline must run in sequence. The most common anti-pattern: ideas go directly from Ideation to Prototype, bypassing GDD/Brief. Features built without documentation must be redesigned for scalability before production — doubling effective cost. [source: granola_4bc24036, granola_5fdd8c18, granola_f41b006d]
 
-## Production Architecture (WorkSage)
+**Design lock requirement:** Any core system whose design cascades across multiple disciplines must be locked before further engineering work. The canonical example: combat design must be locked before combat engineering proceeds, because engineering work on unlocked combat designs is throwaway. This applies to any system where design changes cascade. [source: granola_5fdd8c18, granola_f41b006d]
 
-**Stack:** Express.js + PostgreSQL on Glen's PC, PM2 for process management, Cloudflare Tunnel for public access at zero cost. 396+ tests (Vitest + Playwright) [source: handoff_2026-04-09a].
+**Three-tier change management lock system (NBI):**
+1. Open iteration — full creative freedom
+2. Soft lock — minor iterative changes permitted
+3. Hard lock — formal change request required, with game director + production approval, throwaway cost analysis, and full impact assessment
 
-**Key patterns:** Migration framework (numbered SQL files + version table), circuit breaker (3 failures, 60s reset) on external APIs, IndexedDB write-ahead log for crash recovery, escape at render never at storage [source: handoff_2026-04-09a, handoff_2026-04-15a].
+All hard lock requests route through the game director first — no direct department-to-department requests. Retrospectives track costs of late-stage changes to calibrate future estimation. [source: granola_0fe5dec4]
 
-**Test infrastructure:** .mjs files for ESM/CJS interop, separate test database with baseline schema, polling SPAs break networkidle -- use explicit waits [source: handoff_2026-04-15b].
+**QA as gate authority:** QA should be the primary arbiter of ship-readiness at each tier gate, with authority to block gate progression if quality criteria are not met. QA estimation must use a separate format from development estimation — QA works to testable flows, not feature breakdowns. A QA pipeline requirements document should define the inputs QA needs at each tier before testing can begin. [source: granola_b82e3b84]
 
-## AI-Assisted Production
+---
 
-**Agent SDK vs Raw SDK:** Agent SDK adds ~13K tokens overhead per call -- unusable for batch workloads. Raw @anthropic-ai/sdk with streaming is correct for programmatic Claude usage. Actual cost of 30-day news curation: $0.79 [source: handoff_2026-04-17c].
+## Live Ops Cadence
 
-**AIOS dispatch architecture:** Role dispatch via skill-triggered and topic-detected routing tables. 12 composite AGENT.md files. CLAUDE.md kept under 225 lines [source: handoff_2026-05-15].
+### Mobile F2P Benchmarks
 
-**Salary audit methodology:** Two-track approach (file structure + salary accuracy). Common failures: monthly/annual confusion, currency mismatches, hub vs non-hub pay reversal [source: chatgpt_69698081].
+Event frequency and revenue data from 2026 practitioner research [source: web_2026-06-02_liveops_event_cadence_economics]:
+
+| Genre | Events/Month | Revenue Impact |
+|---|---|---|
+| Casual/Puzzle | 15-25 | ARPDAU lift +20-40% during events |
+| Mid-core (RPG, Strategy) | 8-15 | Battle pass contributes 10-20% of total earnings |
+| Competitive/Shooter | 4-8 | Battle pass contributes 30-40% of total earnings |
+| Hybrid-casual | 4-6 | Fastest-growing segment (+75% revenue YoY) |
+
+**Three-layer calendar:** Macro events (4-8 weeks, seasonal themes), Mid-cycle events (1-2 weeks, tournaments, limited-time modes), Micro events (24-72 hours, flash sales, weekend blitzes). All three layers should run simultaneously. The 72-hour Friday-to-Sunday micro event is the gold standard for mobile engagement. [source: web_2026-06-02_liveops_event_cadence_economics]
+
+**Performance targets:** Event participation rate 40-60% of DAU; D7 retention post-event should not decline vs pre-event; ARPDAU lift +20-40%. If participation drops or session length shortens, reduce cadence before adding events. Consistency beats intensity. [source: web_2026-06-02_liveops_event_cadence_economics]
+
+**Burnout prevention:** Minimum 12-24 hours between major competitive events. Predictable rhythms outperform irregular bursts. [source: web_2026-06-02_liveops_event_cadence_economics]
+
+### PC/Console Reference (Ghost Ship, ~50 people)
+
+A ~50-person studio sustained a 4-6 month seasonal cadence for a PC co-op game — new enemy types, equipment, missions, and cosmetics each season — for 6+ years without crunch. This requires a dedicated live ops team running in parallel with any new title development. Community feedback drives product decisions throughout development, not just at launch; this compresses the feedback loop and reduces the risk of building features nobody wants. [source: web_2026-05-27_ghost-ship-open-development-live-ops]
+
+### MMO/Live Service at 50-Person Scale
+
+A dedicated "Live Game" epic covering telemetry, analytics, and live ops infrastructure is required from early production — not added when the game ships. Telemetry and KPI blindness was identified as a top-10 production risk at one studio: without instrumentation, milestone health relies on subjective team belief rather than data. At a studio planning 30-70 players per zone with an MMO-lite architecture, live ops infrastructure (event tooling, seasonal content pipeline, player data systems) needs its own tracked capacity from the start. [source: granola_5fdd8c18, chatgpt_69034e5d]
+
+---
+
+## Continuous Improvement: Critical Stage Analysis
+
+CSA is a feedback overlay compatible with any production methodology. It replaces traditional end-of-project postmortems with monthly feedback loops timed to milestones.
+
+**Process:** Three questions, five items each, rated by importance (1 = most important): What went right? What went wrong? What could be improved? Timeline: responses within 3 days of milestone; compilation and team-lead meeting within 2 days of collection; full team presentation within 1 week. Total cost: 2-4 hours per cycle. All compiled documents archived centrally (unedited) for institutional memory.
+
+**Accountability chain:** Previous milestone issues receive status updates at the subsequent CSA meeting, preventing "we identified this last month and did nothing."
+
+**Scale threshold:** Informal feedback works below ~20 people. Above ~50, systematic feedback mechanisms are necessary because informal communication breaks down. CSA is designed from ~15 people upward and becomes essential above 50. [source: web_2026-05-27_critical-stage-analysis-hamann]
+
+**NBI implementation note:** CSA inserts into any existing process without disrupting it. The 3-question format with forced ranking is simple enough for immediate adoption. Monthly cadence aligns naturally with sprint reviews or milestone deliveries.
+
+---
+
+## Studio Leadership Offsite Methodology
+
+For studios needing a production reset or roadmap alignment, NBI has a tested 3-day offsite methodology (tested with a ~55-person studio, 8-9 senior attendees).
+
+**Day 1 (Foundation):** 6 rules verbally committed by each attendee including the "must disagree" rule. Goal statement agreed. Workbook walkthrough covering all features. Feature sweep at 2 minutes per row with "L by default" sizing — prevents analysis paralysis on large backlogs. [source: ch_offsite_agenda_2026-04-27]
+
+**Day 2 (Gates/GTM):** Gate-passing criteria definition for all production gates — described as "the single most leveraged hour of the offsite." Live services planning. GTM lane. Community strategy. Studio-down goals cascade. [source: ch_offsite_agenda_2026-04-27]
+
+**Day 3 (Pipelines/Staff):** Pipeline RACI maps for each production discipline. Maintenance cadence. Staff assessment — C-level only, separate room for candour. Decisions log walkthrough. [source: ch_offsite_agenda_2026-04-27]
+
+**Standing elements:** Parking lot wall, decisions log wall, risks log wall, daily energy check (1-10 score). North star goal printed on wall as alignment anchor.
+
+**Pre-decisions pattern:** Binding strategic decisions (positioning, platform priority, monetisation model) laid down before the offsite to prevent relitigating. Burden of proof shifts to anyone challenging a pre-decision. [source: ch_offsite_agenda_2026-04-27]
+
+**Facilitation patterns:** Person-specific watch-fors for each attendee (who defaults to silence, who converges too fast, who needs to be directly challenged). Scripted standard responses for common derails. Move-on criteria per session. Pre-read limited to 15 minutes maximum to ensure it is actually read. [source: ch_offsite_agenda_2026-04-27]
+
+**Fallback plan:** If behind by end of Day 2, collapse pipeline session to "frame + assign owners" rather than full documentation. Protect the staff assessment — it cannot be shortened. [source: ch_offsite_agenda_2026-04-27]
+
+---
+
+## Org Design Patterns
+
+Three structural anti-patterns in 50-person game studios, identified from org design review [source: chatgpt_6967809b]:
+
+1. **Producer mis-parented through Finance/Ops** instead of studio delivery leader. Finance is a partner, not the chain of command. Production accountability belongs to the EP, not the CFO.
+2. **CTO span too flat** with no engineering managers shown. CTO becomes a bottleneck and technical decisions queue.
+3. **Tech Art/VFX in a grey zone** between Engineering and Art without explicit reporting lines. Without clarity, both departments assume the other is accountable.
+
+**Three viable structural patterns at 50-100 people:**
+- Alternative 1 (Classic Functional with strong EP hub): best for early-stage teams under 60 needing speed
+- Alternative 2 (Pod/Strike Team): best for parallel workstreams with clear boundaries
+- Alternative 3 (Platform + Game dual-track with shared services): appropriate only when platform is genuinely a strategic product, not just infrastructure
+
+**Platform vs game scope:** When a studio is simultaneously building a game and a platform, the platform must have GM-style product ownership, not be treated as an ops subteam. Platform work starves the playable game arc when both compete for the same engineering and art capacity without firm slice boundaries. [source: chatgpt_69034e5d, chatgpt_6967809b]
+
+---
+
+## Onboarding at Scale
+
+For a 50-100 person studio scaling rapidly through a hiring wave, onboarding infrastructure must be defined before the hires arrive.
+
+**Role-specific machine builds:** Artist kit, producer kit, developer kit. Hardware provisioned for FTEs only; contractors provide own equipment. [source: granola_891cf074]
+
+**Common stack by department:** General — Slack, Google Workspace, Jira, Confluence, VPN. Development — GitHub, Perforce, Azure, Redis. Art — Perforce, Maya/3D Max, Photoshop, Miro. Audio — DAW, Sound Forge, F-mod. Production — AI tools (Claude accounts), meeting notes (Granola paid), speech tools (Whisper Flow). [source: granola_891cf074]
+
+**Probation structure:** Four-month probation with template-based 30/60/90-day check-in reviews across all roles. First-week non-negotiables: 1:1 with direct manager, department training, team introductions on day one. For art roles: Art Bible walkthrough (30-minute call) mandatory. [source: granola_891cf074]
+
+**Infrastructure gaps to check before a hiring wave:**
+- QA test automation engine (commonly absent)
+- Audio asset management system (commonly absent)
+- Role expectations documentation for all incoming positions
+- Company culture session content
+
+[source: granola_891cf074]
+
+---
+
+## Quality and Delivery Standards
+
+**SoW report structure (NBI standard):** 15 sections including Executive Summary (top 8 risks), Deliverables and Acceptance (measurable acceptance tests, evidence requirements), Risk Register (top 20 ranked by impact × likelihood), and an Evidence Table appendix mapping every non-obvious claim to source, date, confidence, and gap. Multi-role red teaming (Production identifies two issues; Engineering identifies two) embedded in the report process, not added afterwards. Acceptance mechanics map directly to contract clauses. [source: chatgpt_6907ec33]
+
+**Audit-driven improvement:** Numeric audit scoring drives focused improvement. A 19-dimension code audit with numeric scoring (6.6/10) followed by a structured sprint plan (6 sprints grouped by concern) followed by a re-audit (7.3/10) is a reusable consulting delivery pattern. Glen approves plans, not individual fixes. [source: handoff_2026-04-08b]
+
+**Production data consolidation:** When consolidating multi-source plans (e.g., Miro board, engineering spreadsheet, art spreadsheet), preserve original naming from source materials — never rename stories or features. Map estimates across sources, detect duplicates, reconcile conflicts, produce a unified plan with zero data loss. Miro boards require multiple extraction passes; no single export captures everything. [source: ch_production_consolidation_spec]
+
+---
 
 ## Open Questions
 
-- How does the 6-stage pipeline perform at 80-100 person scale with multiple simultaneous epics?
-- What is the optimal producer-to-team ratio for remote MMORPG development?
-- How should estimation methodology adapt when outsourced art partners (Room8 Studios) are integrated?
+1. **Sprint length for 50-100 person cross-discipline teams:** Strong evidence for monthly cadence (Supergiant, 17 people) and two-horizon planning (Agilefall standard), but no primary data on what sprint length works best at 50-100 people with complex cross-discipline dependencies. Ghost Ship operates on seasonal rather than sprint cadence.
+
+2. **Remote estimation calibration:** Blind affinity planning produced good results at one studio. Calibration data across multiple engagements is absent. Engineering estimates are consistently the long pole — is the gap consistent enough to apply a standard correction factor?
+
+3. **Post-T3 cut cost quantification:** The tier framework identifies T3 as the inflection point, but no quantified throwaway cost data by system type exists. Retrospective tracking has not yet produced enough cycles to calibrate numerically.
+
+4. **Live ops cadence for PC/console MMO:** The event frequency and ARPDAU lift benchmarks are mobile-centric. Console and PC MMO or live service games likely show different participation and revenue patterns. No equivalent primary dataset exists in this bank.
+
+5. **EP transition onboarding:** Multiple extracts reference an Executive Producer role being added to a studio that had none. The optimal onboarding sequence for this role — entering an existing team with established (informal) authority structures — is undocumented.
+
+6. **CSA reliability above 100 people:** CSA is documented for up to ~400-person studios (Radical Entertainment) but NBI has no primary evidence from that range. Reliability at very large team sizes is unverified.
+
+7. **MMO producer-to-team ratio:** What is the optimal number of producers for remote MMO development at 50-100 people? Single-producer risk is documented; optimal staffing ratio is not.
+
+---
 
 ## Source Index
 
-| ID | Source Type | Date |
+| Source ID | Type | Description |
 |---|---|---|
-| chatgpt_68fb7b4a | ChatGPT | 2025-10-24 |
-| chatgpt_69034e5d | ChatGPT | 2025-10-30 |
-| chatgpt_6907ec33 | ChatGPT | 2025-11-02 |
-| chatgpt_69437062 | ChatGPT | 2025-12-18 |
-| chatgpt_6967809b | ChatGPT | 2026-01-14 |
-| chatgpt_69698081 | ChatGPT | 2026-01-16 |
-| granola_5fdd8c18 | Granola | 2026-04-28 |
-| granola_e5678c68 | Granola | 2026-05-05 |
-| ch_offsite_agenda_2026-04-27 | OneDrive | 2026-04-27 |
-| ch_offsite_working_doc_2026-04-27 | OneDrive | 2026-04-27 |
-| ch_offsite_pre_decisions_2026-04-27 | OneDrive | 2026-04-27 |
-| ch_offsite_pre_read_2026-04-27 | OneDrive | 2026-04-27 |
-| ch_production_consolidation_spec | OneDrive | 2026-05 |
-| slack_production-council_2026-05-25_process | Slack | 2026-05-25 |
-| slack_production-council_2026-05-25_escalation | Slack | 2026-05-25 |
-| goals_red_team_report_2026-04-21 | OneDrive | 2026-04-21 |
-| 26 Claude session extracts | Claude | 2026-04 to 2026-05 |
+| chatgpt_68fb7b4a | ChatGPT | AAA Agilefall Production Operating Guide — NBI standard for producer onboarding |
+| chatgpt_69034e5d | ChatGPT | Production Risk Assessment: ~50-person studio with single producer (anonymised) |
+| chatgpt_6907ec33 | ChatGPT | SoW Finalisation Report Structure — 15-section C-level deliverable standard |
+| chatgpt_6967809b | ChatGPT | Org Design Assessment and Alternatives for game studio (anonymised) |
+| chatgpt_69395da6 | ChatGPT | Milestone staging — single senior consultant capacity planning (anonymised) |
+| web_2026-05-27_critical-stage-analysis-hamann | Web | CSA framework — Hamann/Koolhaus/Radical Entertainment, GDC |
+| web_2026-05-27_ghost-ship-open-development-live-ops | Web | Ghost Ship Games / Deep Rock Galactic production and live-ops model |
+| web_2026-05-27_rami-ismail-ltpf-milestone-framework | Web | Rami Ismail LTPF — indie milestone framework for 6-30 person teams |
+| web_2026-05-27_supergiant-hades-monthly-milestone-cadence | Web | Supergiant Games / Hades — monthly milestone cadence and anti-crunch |
+| web_2026-05-27_tim-cain-nine-stage-production | Web | Tim Cain 9-stage framework including Beautiful Corner |
+| web_2026-06-02_liveops_event_cadence_economics | Web | Live ops event cadence and ARPDAU benchmarks (mobile F2P, 2026) |
+| granola_5fdd8c18 | Granola | Offsite Day 2 — 6-stage pipeline, epic structure, gate system (anonymised) |
+| granola_4e145b7b | Granola | Offsite Day 1 — feature tiering, VS scoping, platform deprioritisation (anonymised) |
+| granola_f41b006d | Granola | Offsite Day 2 Part 2 — feature status, estimates, pipeline colour-coding (anonymised) |
+| granola_ae650223 | Granola | VS planning and estimation — MMO complexity, headcount calculation (anonymised) |
+| granola_4bc24036 | Granola | Estimation debrief — proper pipeline vs idea-to-prototype anti-pattern (anonymised) |
+| granola_4005eb22 | Granola | Studio audit, documentation completion status, staffing decisions (anonymised) |
+| granola_0fe5dec4 | Granola | Character pipeline and three-tier lock system (anonymised) |
+| granola_b82e3b84 | Granola | QA estimation approach and design lock process (anonymised) |
+| granola_d977d66a | Granola | Pre-offsite production assessment — pre-prod vs early prod criteria (anonymised) |
+| granola_080a19f8 | Granola | Product leadership — pipeline conflict, feedback systems, no-meeting day (anonymised) |
+| granola_8b912e8e | Granola | VS planning and studio roadmap — estimation method, Series B requirements (anonymised) |
+| granola_50612dd7 | Granola | External validation of studio transformation — art-ahead-of-systems anti-pattern (anonymised) |
+| granola_891cf074 | Granola | Onboarding flow design — department tooling, probation structure (anonymised) |
+| granola_c3cc29b7 | Granola | Executive meeting — hiring pipeline, technical debt, offsite prep (anonymised) |
+| granola_e5678c68 | Granola | Executive meeting — estimation sessions, senior hire offers (anonymised) |
+| granola_c3205cb8 | Granola | Executive meeting — VS Excel, hiring wave decisions (anonymised) |
+| ch_offsite_agenda_2026-04-27 | OneDrive | 3-day studio leadership offsite methodology (anonymised) |
+| ch_production_consolidation_spec | OneDrive | Production data consolidation methodology — 3 sources to 1 plan (anonymised) |
+| slack_production-council_2026-05-25_process | Slack | Decision process codification and estimation status (anonymised) |
+| handoff_2026-04-08b | Claude session | Audit-driven improvement: numeric score + sprint plan + re-score pattern |
+| granola_c105bb66 | Granola | RESTRICTED — not included |

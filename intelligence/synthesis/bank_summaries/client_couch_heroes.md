@@ -1,23 +1,22 @@
 # Client: Couch Heroes -- Summary
 
-**Last compiled:** 2026-05-25 (full rebuild) | **Sources:** 40+ (12 Granola, 7 Gmail, 6 Slack, 10 OneDrive, 9 ChatGPT, 1 Downloads)
+**Last compiled:** 2026-06-11 (full rebuild) | **Sources:** 49 extracts (16 Granola, 9 Gmail, 6 Slack, 10 OneDrive, 9 ChatGPT, 1 Downloads) | **Size:** 204 lines
 **Role associations:** producer, production_consultant, head_of_people, gaming_practice_lead
 
-## What Changed This Rebuild
+## What This Bank Knows
 
-- **Granola meetings added (12):** CTO candidate interviews (Neil Jones, Maurizio de Pascale, Per-Olof Romell), Nia Kiigan external validation, offsite Days 1-2, executive meetings (May 5, May 12), game direction session, Simon Woodroffe contract negotiation, Q2 business strategy
-- **Gmail threads added (7):** Full May 2026 hiring wave -- Charlie Todd salary gap, Gary Platner freelancer contract, Tanya Pehlivanova declined, Simon Woodroffe offer, VFX Lead pipeline, Graeme Monk onboarding, composite hiring overview
-- **Slack channels added (6):** Lorenza compensation increase, Stephen Bain interview scorecard, contract flexibility decision, art escalation to CEO, production decision process codified, game design direction with Robin
-- **OneDrive documents added (10):** Partner portals creative brief, org structure, game classification (1,203 items), production consolidation spec, GTM backlog (60+ items), offsite agenda/facilitation/pre-decisions/pre-read, UK company setup
+- **Company state:** CH Game Development UK Ltd, ~70 employees (up from ~52 when Glen started), 100% remote UK+Greece, building a cosy byte-punk MMORPG for late 2028. $5M round just closed (May 2026), $10M Series B next. Glen is fractional CPO at GBP 30k/month after his audit showed the studio was in early production, not mid-production as believed.
+- **People dynamics:** per-person profiles for Vardis, Aris, Robin, Dino, Lorenza, Valeria, David Luong, Mustafa, Hannah, Lili (Finance, starts 1 July), Graham (EP). Live interventions: Alan/Alon (Head of Animation) termination decided with backfill-first strategy; David Luong on formal coaching plan; Greek military service departures (Panos, Nicholas, Yorgos).
+- **Game and monetisation:** F2P-install + subscription (ESO-style, ~5% conversion target), cosmetics-only marketplace, partner game portals (12 interested, 3-4 under contract at 20% revenue share) as the key differentiator, cross-play PC+mobile, 5-15 hours/week target engagement.
+- **Production:** vertical slice anchored end of August 2026; design-lock process being installed (Robin's "final" designs treated as drafts by others); Hannah elevated to ship-readiness gate authority; art leads bypassing the production chain to Vardis is the recurring escalation failure.
+- **Hiring wave (May-June 2026):** 6-7 junior removals, 5-6 senior backfills; Skillsearch and Amiqus engaged; CTO search live; Lorenza solo on 7+ pipelines and overloaded.
 
-## Key Intelligence
+## Most Recent Additions (since 2026-05-25)
 
-- ~55 employees, GBP 30k/month to NBI, vertical slice deadline end of August 2026
-- CTO vacancy is highest-pain leadership gap; 4 candidates assessed, none hired yet
-- Studio is in early production (not mid-production); art ahead of systems creating false perception
-- Canonical decision process codified: GD+EP+GC alignment required
-- Art leads bypassed production chain directly to CEO -- escalation pattern needs addressing
-- May 2026 hiring wave: 10+ candidates in pipeline, Lorenza (solo HR) potentially overwhelmed
-- 6 binding pre-decisions set before offsite (F2P cosmetic, self-publish, closed beta, etc.)
-- Partner Portals system is the key differentiator: diegetic cross-game integration
-- Series B (USD 8-10M) dependent on vertical slice delivery
+7 new extracts: restructuring decisions (junior removals, animation head termination strategy), Lili's finance onboarding, the $5M close and Series B framing, art-lead escalation incident, Lorenza compensation change, design-lock gaps, August vertical slice scope tension.
+
+## Gaps
+
+- Restricted extracts excluded (CTO candidate assessments, compensation negotiations, quad review) — detail lives only in the raw files.
+- No financial actuals from inside CH (burn, runway) until Lili establishes cash flow reporting from July.
+- Sarge/other-client cross-patterns intentionally excluded (this is the client-scoped bank).

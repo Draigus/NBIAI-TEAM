@@ -1,6 +1,8 @@
 # Connections Registry
 
-Last verified: 2026-05-15
+Last verified: 2026-06-11
+
+**Headless caveat (verified 2026-06-11):** claude.ai remote MCPs are NOT available in headless `claude -p` runs (and therefore not in the local cadence tasks — see `company/routines.md`). Local MCPs from `.mcp.json` (Telegram, Playwright, PPT, Foundry) ARE available headless.
 
 ---
 
@@ -30,7 +32,7 @@ Self-hosted MCP servers configured in `.mcp.json` or user-level settings.
 | Blender | 3D scenes, objects, textures, Polyhaven/Sketchfab/Hyper3D generation | Local WebSocket | Active |
 | Desktop Commander | File ops, processes, system commands, search | Local | Active |
 | Context7 | Library/framework documentation lookup | API | Active |
-| Telegram | Messages, chats, contacts, media, channels, groups | Bot token (TELEGRAM_BOT_TOKEN) | Active |
+| Telegram | Messages, chats, contacts, media, channels, groups | MTProto user session (Glen's account, Python telegram-mcp) | Active (verified headless 2026-06-11) |
 | PPT | PowerPoint creation, slides, charts, tables, shapes | Local (pptxgenjs) | Active |
 | MS365 | Mail, calendar, OneDrive, contacts, search | MSAL client credentials (AZURE_TENANT_ID/CLIENT_ID/CLIENT_SECRET) | Active |
 | Apify | Web scraping actors, datasets, key-value stores | Token (APIFY_TOKEN) | Active |
@@ -43,6 +45,8 @@ REST API library with CLI interface. Use for scripted/batch operations where MCP
 
 **CLI:** `node C:\Users\gpbea\.claude\connectors\cli.js <service> <action> [--param value]`
 **Help:** `node C:\Users\gpbea\.claude\connectors\cli.js <service> help`
+
+**STATUS (verified 2026-06-11): NOT CREDENTIALED.** `connectors/.env` is empty (0 vars injected) — every env-auth service fails, and the Google services fail too (GOOGLE_CLIENT_ID/SECRET missing; `.tokens.json` alone is insufficient). The 2026-05-13 "credential setup reminder" routine fired but setup never happened. Until the .env is populated, treat every row below as **Inactive**. The cadence layer's email delivery and gmail/slack ingestion are blocked on this (see company/routines.md Gaps). Quickest wins: copy AZURE_TENANT_ID/CLIENT_ID/CLIENT_SECRET from dashboard-server/.env for msgraph (the dashboard already sends Graph email with those creds as nbihub@nbi-consulting.com); Glen to provide Google OAuth client credentials for gmail/gcalendar/gdrive.
 
 | Service | What It Accesses | Auth Method | Manifest |
 |---------|-----------------|-------------|----------|
