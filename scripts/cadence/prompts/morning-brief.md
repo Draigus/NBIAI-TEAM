@@ -15,5 +15,8 @@ STEPS:
 5. If today is Friday: add a "Weekly Client Digest" section summarising the week's client-facing work from this week's session logs, grouped by client.
 6. Write the brief to intelligence/synthesis/intelligence_brief.md. Keep it tight: What's New, Today's Context, Pipeline Health, Actions Needed (plus conditional sections above).
 7. SEND via Telegram: use the telegram MCP tools. Call get_me to confirm the account, then send_message to your own account's Saved Messages chat (send to yourself) with a condensed plain-text version of the brief (max ~3500 characters: What's New, WorkSage status, top 3 Actions Needed, Brain delta flag if any). Subject line first: "NBI Morning Brief — {date}".
-8. Commit: `git add intelligence/synthesis/intelligence_brief.md` then commit with message `intel(brief): daily brief {YYYY-MM-DD} [cadence]`.
-9. Final output: one line confirming brief written, Telegram message sent (or the exact error), commit hash.
+8. SEND via email: run via Bash:
+   `node C:\Users\gpbea\.claude\connectors\cli.js msgraph sendEmail --to Gpryer@nbi-consulting.com --subject "NBI Morning Brief — {date}" --body "<HTML version of the full brief>"`
+   Expect `{ok: true, status: 202}`. If it fails, report the exact error in your final output but do not abort (Telegram is the primary channel).
+9. Commit: `git add intelligence/synthesis/intelligence_brief.md` then commit with message `intel(brief): daily brief {YYYY-MM-DD} [cadence]`.
+10. Final output: one line confirming brief written, Telegram sent, email sent (or exact errors), commit hash.

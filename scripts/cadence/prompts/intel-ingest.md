@@ -9,7 +9,8 @@ GUARDS:
 
 HEADLESS DATA ACCESS (claude.ai MCP connectors are NOT available in this run):
 - Granola: REST API. Read GRANOLA_API_KEY from dashboard-server/.env. Endpoints (verified against dashboard-server/lib/granola-sync.js): `GET https://public-api.granola.ai/v1/notes?created_after={ISO date}` and `GET https://public-api.granola.ai/v1/notes/{noteId}`, header `Authorization: Bearer {key}`. Note fields include title, created_at, summary_markdown, attendees.
-- Gmail and Slack: the NBI connectors CLI at C:\Users\gpbea\.claude\connectors\cli.js currently has NO credentials configured (.env empty). SKIP gmail and slack ingestion and note this in your report. Do not attempt workarounds.
+- Gmail: SKIP — the connectors CLI gmail service needs Google OAuth client credentials that are not yet configured (GOOGLE_CLIENT_ID/SECRET empty in connectors/.env). Note the skip in your report.
+- Slack: SKIP — the connectors CLI slack service is credentialed with the dashboard BOT token (verified 2026-06-11), but the ingest sources are Glen's personal DMs, which a workspace bot cannot read, and Slack's search API rejects bot tokens (not_allowed_token_type). Note the skip in your report. Do not attempt workarounds.
 
 STEPS:
 1. Read intelligence/pipeline_state.md for last ingestion dates per source.

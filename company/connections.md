@@ -46,7 +46,17 @@ REST API library with CLI interface. Use for scripted/batch operations where MCP
 **CLI:** `node C:\Users\gpbea\.claude\connectors\cli.js <service> <action> [--param value]`
 **Help:** `node C:\Users\gpbea\.claude\connectors\cli.js <service> help`
 
-**STATUS (verified 2026-06-11): NOT CREDENTIALED.** `connectors/.env` is empty (0 vars injected) — every env-auth service fails, and the Google services fail too (GOOGLE_CLIENT_ID/SECRET missing; `.tokens.json` alone is insufficient). The 2026-05-13 "credential setup reminder" routine fired but setup never happened. Until the .env is populated, treat every row below as **Inactive**. The cadence layer's email delivery and gmail/slack ingestion are blocked on this (see company/routines.md Gaps). Quickest wins: copy AZURE_TENANT_ID/CLIENT_ID/CLIENT_SECRET from dashboard-server/.env for msgraph (the dashboard already sends Graph email with those creds as nbihub@nbi-consulting.com); Glen to provide Google OAuth client credentials for gmail/gcalendar/gdrive.
+**STATUS (updated 2026-06-11, evening): PARTIALLY CREDENTIALED.** The `.env` was created per the connectors HANDOFF.md (it had never existed — the 2026-05-13 setup reminder was delivered by the broken cloud routine layer and the setup never happened). Current per-service state:
+
+| Service | Credentials | Verified |
+|---|---|---|
+| msgraph (O365 mail/calendar/OneDrive) | Azure creds copied from dashboard-server/.env; sends as Gpryer@nbi-consulting.com | YES — sendEmail delivered to inbox 2026-06-11. graphFetch empty-body bug (202 responses) found and fixed same day |
+| slack | Dashboard BOT token | PARTIAL — searchUsers/sends/channel reads OK; search API and Glen's personal DMs need a USER token (not_allowed_token_type verified) |
+| apify | Token set (from HANDOFF.md) | untested |
+| gmail / gcalendar / gdrive | GOOGLE_CLIENT_ID/SECRET missing — PENDING GLEN (SETUP.md step 7: Google Cloud Desktop OAuth app) | no |
+| miro | Token missing — PENDING GLEN (SETUP.md step 5) | no |
+| telegram (Bot API) | No bot exists; not needed — Telegram MCP (MTProto) covers messaging incl. headless | n/a |
+| pptx | No auth needed | — |
 
 | Service | What It Accesses | Auth Method | Manifest |
 |---------|-----------------|-------------|----------|

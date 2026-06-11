@@ -14,7 +14,7 @@ Why: the previous architecture used claude.ai cloud routines. Root-cause investi
 
 | Task | Schedule (UK local) | What it does | Output lands | Delivery |
 |---|---|---|---|---|
-| morning-brief | Weekdays 07:30 | Regenerates intelligence brief; pipeline pulse; WorkSage health check; Friday client digest; brain delta flag | intelligence/synthesis/intelligence_brief.md (committed) | Telegram message to Glen (Saved Messages) |
+| morning-brief | Weekdays 07:30 | Regenerates intelligence brief; pipeline pulse; WorkSage health check; Friday client digest; brain delta flag | intelligence/synthesis/intelligence_brief.md (committed) | Telegram (Saved Messages) + email to Gpryer@nbi-consulting.com (both verified 2026-06-11) |
 | intel-research | Weekdays 12:30 | One web research cycle, domain of day (Mon pitch decks, Tue forecasts, Wed production, Thu/Fri industry) | intelligence/raw/web_research/ + research_log.md (committed) | none (feeds banks) |
 | intel-ingest | Daily 19:00 | Granola meeting ingestion via REST API. Gmail/Slack ingestion SKIPPED pending connector credentials (see Gaps) | intelligence/raw/granola/ + pipeline_state.md (committed) | none (feeds banks) |
 | recompile-banks | Daily 21:30 | Threshold-gated bank recompilation + Brain Delta per .claude/skills/recompile-banks | intelligence/banks/, brain_delta.md, compilation_log.md (committed) | none (surfaced in morning brief) |
@@ -43,7 +43,7 @@ Do NOT re-enable a cloud routine without first giving it a working delivery path
 
 ## Gaps / pending
 
-1. **Connectors credentials**: `C:\Users\gpbea\.claude\connectors\.env` is EMPTY. Until populated, the cadence layer cannot send email and cannot ingest Gmail/Slack. Needed: GOOGLE_CLIENT_ID/SECRET (Gmail, Calendar, Drive), SLACK_* token, TELEGRAM_BOT_TOKEN (optional; Telegram MCP covers messaging), AZURE_* (can be copied from dashboard-server/.env for Graph email as nbihub@). Once set, upgrade: morning-brief gains overnight-email + calendar sections and email delivery; intel-ingest gains gmail + slack sources.
-2. **Morning brief calendar/email sections**: the retired cloud Morning Briefing was designed to summarise calendar and overnight email; the local task cannot until gap 1 closes.
+1. **Connectors credentials — PARTIALLY CLOSED 2026-06-11** per the connectors HANDOFF.md. Now SET and verified: msgraph/O365 (Azure creds from dashboard-server; sendEmail verified end-to-end, sends as Gpryer@nbi-consulting.com), Slack (dashboard bot token; sends + channel reads OK; search and Glen's DMs NOT possible with a bot token), Apify (token set, untested). Still pending Glen: GOOGLE_CLIENT_ID/SECRET (Google Cloud Desktop OAuth app per connectors SETUP.md step 7 — unlocks Gmail ingestion, calendar in brief, Drive), MIRO_ACCESS_TOKEN (SETUP.md step 5), Slack USER-level token if DM ingestion is wanted. TELEGRAM_BOT_TOKEN not needed (Telegram MCP covers messaging).
+2. **Morning brief calendar/overnight-email sections**: still blocked on the Google OAuth credentials (gap 1). Email DELIVERY of the brief is now live.
 3. **Live financials connection (QuickBooks)**: the one Tier-1 data domain with no live connection — financial_resilience.md is hand-maintained. To close it: Glen creates an Intuit developer app (developer.intuit.com, free on the existing QuickBooks subscription), provides client ID/secret, then a `quickbooks` connector gets added to ~/.claude/connectors and the financial-reconciliation task gains live P&L/invoice data instead of markdown-only cross-checks. Until then the monthly reconciliation reports on knowledge-base consistency only.
 4. **Hermes agent**: approved 2026-05-10, blocked on machine specs. When deployed, becomes the team-facing answer channel and can take over delivery.
