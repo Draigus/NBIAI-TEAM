@@ -13,3 +13,4 @@ History of bank recompilations. Appended automatically by `/recompile-banks`.
 | 2026-06-11 | forecast_models | 23 | full rebuild | see brain_delta 2026-06-11 |
 
 Note 2026-06-11: first compilation since 2026-05-25. The scheduled cloud routine never delivered (root cause in session log 2026-06-11); recompilation now runs locally via Task Scheduler (company/routines.md). Restricted extracts were skipped per policy and are listed in the session log.
+| 2026-06-11 | (cadence 21:30) | — | no action | all 7 banks current; 0 days stale, 0 new post-compilation extracts |
