@@ -227,11 +227,11 @@ If funded (GBP 5-10M raise), NBI would build the entire backend team and Glen wo
 
 ---
 
-## Investor Debt
+## Investor Debt — RESOLVED
 
-**GBP 600K owed to Bob, Brian and partners** (first surfaced in Granola meeting 2026-05-04, source granola_53aa4eef; absent from this module until 2026-06-11 brain delta).
+**Status (Glen, 2026-06-11): resolved — remove from outstanding liabilities and risk assessments.** Tom is selling stock to negate the debt he incurred; Glen has confirmed the debt can be considered dealt with. Do not count it as a cash-flow draw, do not surface it as a risk.
 
-**Status (Glen, 2026-06-11): being resolved.** Tom is selling stock to negate the debt he incurred (Glen's wording: "selling a stock in an SI" — entity assumed to be NSI, to be confirmed). The repayment structure proposed in the May meeting (30-50% of net profit capped at GBP 100K/quarter) is presumed superseded by this resolution. Until the sale completes, treat the debt as extant but resolution-in-progress, not a cash-flow draw.
+Historical record: USD 600K (Glen's stated currency 2026-06-11; the 2026-05-04 Granola meeting extract granola_53aa4eef recorded it as GBP 600K — USD per Glen supersedes) owed to Bob, Brian and partners. A repayment structure of 30-50% of net profit capped at 100K/quarter was proposed in that meeting; superseded by the stock-sale resolution. Retained here for audit trail only.
 
 ---
 

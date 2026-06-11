@@ -6,7 +6,7 @@ Brain files read: NBI_Brain.md, brain/clients_detailed.md, brain/people_director
 
 ## Adjudicated by Glen (2026-06-11) — do not resurface
 
-- **GBP 600K investor debt**: RESOLVED-IN-PROGRESS. Tom is selling stock to negate the debt he incurred. Recorded in brain/financial_resilience.md "Investor Debt" section. No longer a missing fact.
+- **Investor debt (USD 600K — currency corrected by Glen from the extract's GBP)**: RESOLVED. Tom's stock sale negates it; Glen confirmed it can be removed from outstanding liabilities entirely. Recorded as resolved-with-audit-trail in brain/financial_resilience.md. Do not surface as a risk or missing fact.
 - **CH Series B decision deadline (19 June)**: DEAD. The Series B timing has completely moved; no new date exists. Recorded in brain/clients_detailed.md. Do not list 19 June as a deadline anywhere.
 
 All other items below remain open for Glen's review.
