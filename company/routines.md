@@ -21,7 +21,7 @@ Why: the previous architecture used claude.ai cloud routines. Root-cause investi
 | system-audit | Monday 08:30 | Full system audit incl. cadence-health layer (checks THIS registry against run logs) | projects/nbi_dashboard/system_audits/ (committed) | none (surfaced in morning brief) |
 | brain-freshness | Wednesday 08:30 | Proposes Brain updates from week's logs/deltas. Never edits the Brain | intelligence/synthesis/brain_freshness_proposal_*.md (committed) | none (surfaced in morning brief) |
 | financial-reconciliation | 1st of month 09:00 | Cross-source revenue/payroll/margin reconciliation per skill | intelligence/synthesis/financial_reconciliation_*.md (committed) | none (surfaced in morning brief) |
-| harness-improvement | Weekly Mon 09:00 | LOCAL Task Scheduler | Diagnosis + proposal cycle. Reads captured events, selects coreset, diagnoses patterns, auto-applies LOW proposals, generates digest for Glen. |
+| harness-improvement | Weekly Mon 09:00 | RHO diagnosis cycle: reads captured events, selects coreset, diagnoses patterns, auto-applies LOW proposals, generates digest for Glen | .claude/harness/proposals/, HARNESS_HEALTH.md, changelog.md (committed) | none (digest surfaced in morning brief) |
 
 Mechanics:
 - Runner: `scripts/cadence/run-cadence.ps1 -Task <name>`; prompts in `scripts/cadence/prompts/<name>.md`; logs in `scripts/cadence/logs/` (gitignored, last 30 kept per task).

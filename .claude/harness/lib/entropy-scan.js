@@ -92,6 +92,23 @@ function main() {
     });
   }
 
+  // Dependency hygiene
+  const dh = fast.dependency_hygiene || {};
+  if (dh.new_require || dh.new_import) {
+    const reqRe = dh.new_require ? new RegExp(dh.new_require, 'gm') : null;
+    const impRe = dh.new_import ? new RegExp(dh.new_import, 'gm') : null;
+    const reqHits = reqRe ? addedLines.filter(l => reqRe.test(l)) : [];
+    const impHits = impRe ? addedLines.filter(l => impRe.test(l)) : [];
+    if (reqHits.length > 0 || impHits.length > 0) {
+      signals.push({
+        category: 'dependency',
+        severity: dh.severity || 1,
+        detail: 'New dependencies: ' + reqHits.length + ' require(), ' + impHits.length + ' import statements',
+        scan_tier: 'fast'
+      });
+    }
+  }
+
   // Emit signals via emit-event.js
   for (const sig of signals) {
     try {
