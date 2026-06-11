@@ -1126,3 +1126,81 @@ Audit trail of all research activity. Each entry records what was searched, what
 - **Production cost post-mortems with named games:** Search GDC Vault for specific talks where developers disclosed actual budgets. Look for "what we spent" or "budget post-mortem" presentations.
 - **Battle pass conversion rates:** Try to find Sensor Tower or data.ai reports that segment IAP revenue by monetisation type (direct IAP vs. subscription vs. battle pass). May require Apify actor for paywalled sources.
 - **Console/PC live service economics:** Current live ops data is mobile-centric. Search for Destiny 2, Fortnite, Apex Legends seasonal revenue data to extend the model to premium platforms.
+
+---
+
+## 2026-06-11 | industry_current | Web Research Cycle 10 [cadence]
+
+**Agent:** research_agent (cadence run -- unattended)
+**Bank:** industry_current
+**Brief:** industry_current.md (all categories). Coverage window: June 2-11, 2026. Excluded: 52+ topics from cycles 1-9.
+
+### Searches Executed
+
+1. "State of Play June 2 2026 announcements reveals business deals"
+2. "Summer Game Fest June 5 2026 announcements reveals publishing deals"
+3. "Xbox Games Showcase June 7 2026 announcements platform strategy"
+4. "Gaming studio acquisition funding investment June 2026"
+5. "Gaming layoffs studio closure June 2026"
+6. "GTA 6 Trailer 3 pre-orders release date June 2026"
+7. "Ubisoft Winnipeg Belgrade closed layoffs June 2026 details"
+8. "Xbox layoffs studio closure July 2026 Microsoft gaming reset"
+9. "Playstack IMC acquisition completed closed June 2026"
+10. "Discord IPO S-1 filing SEC public offering June 2026"
+11. "Paramount Games studio announcement Summer Game Fest June 2026"
+12. "Xbox Microsoft Game Pass day one Call of Duty change policy June 2026"
+13. "EU digital cancellation button enforcement gaming apps June 2026"
+14. "Gaming platform policy change App Store Steam June 2026"
+15. "Google Play Store commission reduction 20% gaming developers June 2026"
+16. "Xbox exclusives reversal Gears E-Day Clockwork Revolution platform strategy June 2026"
+17. "Xbox Asha Sharma new CEO strategy exclusives June 2026"
+18. "Final Fantasy 7 Revelation multiplatform day one Square Enix exclusivity June 2026"
+19. "Apple developer Foundation Models Claude Gemini game development WWDC June 2026"
+20. "Playstack VantageCo acquisition closed completed shareholder vote June 10 2026"
+21. "China mini games 20% mobile spending market data June 2026"
+22. "Discord S-1 public filing registration SEC June 2026"
+23. "Shift Up Unbound studio acquisition June 2026"
+24. "Rec Room shutdown closure June 2026"
+25. Plus deep fetches on gamedeveloper.com, Variety, PocketGamer.biz for confirmed events
+
+**Note:** gamesindustry.biz blocked by WebSearch crawler. Bloomberg paywalled for full Xbox internal memo. GTA 6 Trailer 3 and Discord IPO had no confirmed in-window events.
+
+### Findings Kept (6 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---|---|---|---|---|
+| Ubisoft Winnipeg/Belgrade closures + 380 roles | 9 | 8 | 8 | Sixth wave of 2026 cuts; specific headcount, engine team impact, Tencent investment context. Counterparty risk for clients with Ubisoft relationships. |
+| Xbox exclusives reversal + layoff signal (1,000+) | 9 | 9 | 9 | Major platform policy reversal. Internal financial data ($20B spent, 3% margin) is rare. Game Pass day-one precedent broken. Talent market impact from July layoffs. |
+| Playstack/VantageCo acquisition close (£125M) | 7 | 7 | 7 | Shareholder vote June 8, close June 10 -- both in-window. Confirms UK indie publisher exit at meaningful multiple off single break-out IP. |
+| Paramount Skydance Games Studio launch (SGF, June 5) | 7 | 9 | 7 | Structural new entrant: Hollywood IP licensor converts to first-party publisher. Platinum Games partnership. Rich IP library (TMNT, Star Trek, Mission: Impossible, Avatar). |
+| Apple WWDC Foundation Models -- Claude/Gemini for iOS devs | 7 | 8 | 8 | Provider-agnostic AI layer at OS level. Free tier for small developers removes cost barrier. Managed Background Assets for games. June 9 WWDC in-window. |
+| Google Play 20% commission live June 30 (EEA/UK/US) | 8 | 6 | 9 | Largest platform economics change in Google Play history. Enters force June 30. Immediate P&L impact for mobile clients who have not updated financial models. |
+
+### Findings Rejected
+
+- **GTA 6 Trailer 3 / pre-orders:** Not confirmed in-window as of June 11. Still expectation/speculation.
+- **Discord IPO:** S-1 public filing was May (pre-window). No pricing or IPO date set within June 2-11.
+- **Rec Room shutdown:** Servers closed June 1, one day before coverage window opens.
+- **Shift Up/Unbound acquisition:** Announced April 2026. Pre-window.
+- **China mini games 20% mobile share:** Ongoing trend data, not a discrete June 2-11 event.
+- **EU cancellation button June 19:** Deadline within window but no confirmed enforcement actions found June 2-11; excluded to avoid duplicating prior pipeline entry.
+- **Final Fantasy VII Revelation multiplatform:** In-window (June 5-6) but actionability at threshold (5); primarily a consumer/IP signal without direct studio advisory application.
+- **Individual game reveals (State of Play, SGF, Xbox):** All consumer content filtered per brief. No individual reveals carried business-significance angles beyond the Xbox exclusives extract.
+- **Xbox Game Pass price cut (April):** Pre-window. Captured as context in Xbox exclusives extract.
+
+### Key Themes Emerging
+
+1. **Platform strategy fragmentation is accelerating.** Xbox reverting to exclusives, Google cutting commissions, Apple opening AI tooling, Paramount entering as a first-party publisher: every major platform actor repositioning simultaneously. Studios that built strategies around the 2024 consensus (multiplatform-first, Game Pass day one, 30% standard fee) need a reassessment.
+2. **Publisher contraction continues at scale.** Ubisoft's sixth wave and the Xbox 1,000+ July signal indicate the "stabilising" jobs market forecast was premature. Mid-year 2026 is another significant displacement period.
+3. **Hollywood IP money is professionalising.** Paramount's structural move to first-party publisher (rather than licence deals) will reshape competitive dynamics for studios seeking IP partnerships.
+4. **AI tooling cost barriers for developers are falling fast.** Apple's Foundation Models free tier and provider-agnostic protocol represent a structural reduction in LLM integration cost for small mobile studios.
+5. **UK indie publisher M&A remains active.** Playstack's close at £125M confirms that proven IP with a breakout hit attracts meaningful US capital in the current market.
+
+### Suggestions for Next Cycle
+
+- Confirm whether Xbox July layoffs materialise with specific studio names and headcount (Bloomberg/Schreier primary source)
+- Track GTA 6 Trailer 3 and pre-order launch -- expected late June; high intelligence value when confirmed
+- Monitor Discord S-1 public roadshow announcement
+- Check EU member state enforcement actions under the June 19 cancellation button directive (Germany in particular)
+- Track Apple Foundation Models adoption signals from small mobile studios (30-60 day lag)
+- Monitor whether Xbox exclusivity reversal triggers Sony or Nintendo strategic responses

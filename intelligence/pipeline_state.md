@@ -11,7 +11,7 @@ Counts are files on disk in intelligence/raw/ (verified 2026-06-11), with the ne
 | granola | 112 | 2026-05-31 | daily 19:00 local (intel-ingest task, REST API) |
 | gmail | 10 | 2026-05-26 | blocked: connectors not credentialed (routines.md Gaps) |
 | slack | 6 | 2026-05-25 | blocked: connectors not credentialed (routines.md Gaps) |
-| web_research | 85 | 2026-06-02 | weekdays 12:30 local (intel-research task) |
+| web_research | 91 | 2026-06-11 | weekdays 12:30 local (intel-research task) |
 | onedrive | 25 | 2026-05-25 | manual |
 | downloads | 2 | 2026-05-25 | manual |
 | chatgpt | 34 | 2026-05-25 | one-time (complete) |
@@ -24,7 +24,7 @@ All 7 banks fully rebuilt 2026-06-11 (first compilation since 2026-05-25; the cl
 | Bank | Last Compiled | Extracts Integrated | Lines | Shelf Life | Status |
 |------|---------------|---------------------|-------|-----------|--------|
 | production_methods | 2026-06-11 | 38 | 335 | 60d | fresh |
-| industry_current | 2026-06-11 | 47 | 238 | 7d | fresh |
+| industry_current | 2026-06-11 | 47 | 238 | 7d | stale (6 new extracts unintegrated, recompile needed) |
 | client_couch_heroes | 2026-06-11 | 49 | 288 | never expires | fresh |
 | forecast_models | 2026-06-11 | 23 | 342 | 30d | fresh |
 | personal_insights | 2026-06-11 | 20 + 6 retained | 171 | never expires | fresh |
